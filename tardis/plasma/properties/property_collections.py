@@ -47,5 +47,6 @@ continuum_interaction_properties = PlasmaPropertyCollection(
      PhotoIonEstimatorsNormFactor, LuminosityInner, StimRecombRateCoeff,
      CorrPhotoIonRateCoeff, SpontRecombCoolingRateCoeff, BaseRecombTransProbs,
      BasePhotoIonTransProbs, BaseRadBoundBoundTransProbs,
-     MarkovChainTransProbs]
+     MarkovChainTransProbs, YgInterpolator, CollExcRateCoeff,
+     CollDeexcRateCoeff, BaseCollisionTransProbs, MarkovChainIndex]
 )

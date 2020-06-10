@@ -2,8 +2,8 @@ import logging
 
 import numpy as np
 import pandas as pd
-from scipy import sparse as sp
 
+from scipy import sparse as sp
 from numba import prange, njit
 from astropy import constants as const
 
@@ -17,7 +17,8 @@ __all__ = ['SpontRecombRateCoeff', 'StimRecombRateCoeff', 'PhotoIonRateCoeff',
            'StimRecombRateCoeffEstimator', 'CorrPhotoIonRateCoeff',
            'BfHeatingRateCoeffEstimator', 'SpontRecombCoolingRateCoeff',
            'BaseRecombTransProbs', 'BasePhotoIonTransProbs',
-           'MarkovChainTransProbs']
+           'MarkovChainTransProbs', 'CollDeexcRateCoeff', 'CollExcRateCoeff',
+           'BaseCollisionTransProbs', 'MarkovChainIndex']
 
 logger = logging.getLogger(__name__)
 
@@ -324,7 +325,7 @@ class BaseRecombTransProbs(ProcessingPlasmaProperty, IndexSetterMixin):
                spontaneous recombination.
     """
     outputs = ('p_recomb', )
-    latex_name = ('\\p^{\\textrm{recomb}}', '')
+    latex_name = ('p^{\\textrm{recomb}}', '')
 
     def calculate(self, alpha_sp, nu_i, energy_i, photo_ion_idx):
         p_recomb_deac = alpha_sp.multiply(nu_i, axis=0) * const.h.cgs.value
@@ -347,7 +348,7 @@ class BasePhotoIonTransProbs(ProcessingPlasmaProperty, IndexSetterMixin):
                   radiative ionization.
     """
     outputs = ('p_photo_ion', )
-    latex_name = ('\\p^{\\textrm{photo_ion}}', )
+    latex_name = ('p^{\\textrm{photo_ion}}', )
 
     def calculate(self, gamma_corr, nu_i, photo_ion_idx):
         p_photo_ion = gamma_corr.multiply(nu_i, axis=0) * const.h.cgs.value
@@ -390,34 +391,50 @@ class PhotoIonEstimatorsNormFactor(ProcessingPlasmaProperty):
         return (time_simulation * volume * const.h.cgs.value)**-1
 
 
+class MarkovChainIndex(ProcessingPlasmaProperty):
+    outputs = ('idx2mkv_idx',)
+
+    def calculate(self, atomic_data, continuum_interaction_species):
+        ma_ref = atomic_data.macro_atom_references
+        mask = ma_ref.index.droplevel('source_level_number').isin(
+            continuum_interaction_species
+        )
+        mask2 = ma_ref.index.isin(get_ground_state_multi_index(
+            continuum_interaction_species)
+        )
+        mask = np.logical_or(mask, mask2)
+        idx = ma_ref[mask].references_idx.values
+        idx2mkv_idx = pd.Series(np.arange(len(idx)), index=idx)
+        idx2mkv_idx.loc['k'] = idx2mkv_idx.max() + 1
+        return idx2mkv_idx
+
+
 class MarkovChainTransProbs(ProcessingPlasmaProperty,
                             SpMatrixSeriesConverterMixin):
     outputs = ('N', 'R', 'B', 'p_deac')
 
-    def calculate(self, p_rad_bb, p_recomb, p_photo_ion):
-        p = pd.concat([p_rad_bb, p_recomb, p_photo_ion])
+    def calculate(self, p_rad_bb, p_recomb, p_photo_ion, p_coll,
+                  idx2mkv_idx):
+        p = pd.concat([p_rad_bb, p_recomb, p_photo_ion, p_coll])
+        p = p.groupby(level=[0, 1, 2]).sum()
         p = self.normalize_trans_probs(p)
         p_internal = p.xs(0, level='transition_type')
         p_deac = self.normalize_trans_probs(p.xs(-1, level='transition_type'))
 
-        unique_idxs = np.unique(p_internal.index.get_level_values(0))
-        idx_2_redidx = pd.Series(np.arange(len(unique_idxs)),
-                                 index=unique_idxs)
-
         N = pd.DataFrame(columns=p_internal.columns)
         B = pd.DataFrame(columns=p_internal.columns)
         R = pd.DataFrame(columns=p_internal.columns,
-                         index=idx_2_redidx.index)
+                         index=idx2mkv_idx.index)
         R.index.name = 'source_level_idx'
         for column in p_internal:
-            Q = self.series2matrix(p_internal[column], idx_2_redidx)
+            Q = self.series2matrix(p_internal[column], idx2mkv_idx)
             inv_N = sp.identity(Q.shape[0]) - Q
             N1 = sp.linalg.inv(inv_N.tocsc())
             R1 = (1 - np.asarray(Q.sum(axis=1))).flatten()
             B1 = N1.multiply(R1)
-            N1 = self.matrix2series(N1, idx_2_redidx,
+            N1 = self.matrix2series(N1, idx2mkv_idx,
                                     names=p_internal.index.names)
-            B1 = self.matrix2series(B1, idx_2_redidx,
+            B1 = self.matrix2series(B1, idx2mkv_idx,
                                     names=p_internal.index.names)
             N[column] = N1
             B[column] = B1
@@ -466,3 +483,95 @@ class BfHeatingRateCoeffEstimator(Input):
                                  coefficient for bound-free heating.
     """
     outputs = ('bf_heating_coeff_estimator',)
+
+
+class CollExcRateCoeff(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    coll_exc_coeff : Pandas DataFrame, dtype float
+        Rate coefficient for collisional excitation.
+    """
+    outputs = ('coll_exc_coeff',)
+    latex_name = ('c_{lu}',)
+
+    def calculate(self, yg_interp, yg_index, t_electrons, delta_E_yg):
+        yg = yg_interp(t_electrons)
+        k_B = const.k_B.cgs.value
+        boltzmann_factor = np.exp(
+            - delta_E_yg.values[np.newaxis].T / (t_electrons * k_B)
+        )
+        q_ij = 8.629e-6 / np.sqrt(t_electrons) * yg * boltzmann_factor
+        return pd.DataFrame(q_ij, index=yg_index)
+
+
+class CollDeexcRateCoeff(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    coll_deexc_coeff : Pandas DataFrame, dtype float
+        Rate coefficient for collisional deexcitation.
+    """
+    outputs = ('coll_deexc_coeff',)
+    latex_name = ('c_{ul}',)
+
+    def calculate(self, thermal_lte_level_boltzmann_factor, coll_exc_coeff):
+        ll_index = coll_exc_coeff.index.droplevel('level_number_upper')
+        lu_index = coll_exc_coeff.index.droplevel('level_number_lower')
+
+        n_lower_prop = thermal_lte_level_boltzmann_factor.loc[ll_index].values
+        n_upper_prop = thermal_lte_level_boltzmann_factor.loc[lu_index].values
+
+        coll_deexc_coeff = coll_exc_coeff * n_lower_prop / n_upper_prop
+        return coll_deexc_coeff
+
+
+class BaseCollisionTransProbs(ProcessingPlasmaProperty, IndexSetterMixin):
+    """
+    Attributes
+    ----------
+    p_coll : Pandas DataFrame, dtype float
+        The unnormalized transition probabilities for
+        collisional excitation.
+    """
+    outputs = ('p_coll', )
+    latex_name = ('p^{\\textrm{coll}}', '')
+
+    def calculate(self, coll_exc_coeff, coll_deexc_coeff, yg_idx,
+                  electron_densities, delta_E_yg, atomic_data,
+                  level_number_density):
+        p_deexc_deac = (coll_deexc_coeff * electron_densities).multiply(
+            delta_E_yg.values, axis=0)
+        p_deexc_deac = self.set_index(p_deexc_deac, yg_idx)
+        p_deexc_deac = p_deexc_deac.groupby(level=[0]).sum()
+        index_dd = pd.MultiIndex.from_product(
+            [p_deexc_deac.index.values, ['k'], [0]],
+            names=list(yg_idx.columns) + ['transition_type']
+        )
+        p_deexc_deac = p_deexc_deac.set_index(index_dd)
+
+        ll_index = coll_deexc_coeff.index.droplevel('level_number_upper')
+        energy_lower = atomic_data.levels.energy.loc[ll_index]
+        p_deexc_internal = (coll_deexc_coeff * electron_densities).multiply(
+            energy_lower.values, axis=0)
+        p_deexc_internal = self.set_index(p_deexc_internal, yg_idx,
+                                          transition_type=0, reverse=True)
+
+        p_exc_internal = (coll_exc_coeff * electron_densities).multiply(
+            energy_lower.values, axis=0)
+        p_exc_internal = self.set_index(p_exc_internal, yg_idx,
+                                        transition_type=0, reverse=False)
+        p_exc_cool = (coll_exc_coeff * electron_densities).multiply(
+            delta_E_yg.values, axis=0)
+        p_exc_cool = p_exc_cool * level_number_density.loc[ll_index].values
+        p_exc_cool = self.set_index(p_exc_cool, yg_idx, reverse=False)
+        p_exc_cool = p_exc_cool.groupby(level='destination_level_idx').sum()
+        exc_cool_index = pd.MultiIndex.from_product(
+            [['k'], p_exc_cool.index.values, [0]],
+            names=list(yg_idx.columns) + ['transition_type']
+        )
+        p_exc_cool = p_exc_cool.set_index(exc_cool_index)
+        p_coll = pd.concat(
+            [p_deexc_deac, p_deexc_internal, p_exc_internal, p_exc_cool]
+        )
+        return p_coll
