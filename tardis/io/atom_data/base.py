@@ -127,7 +127,8 @@ class AtomData(object):
             "collision_data",
             "collision_data_temperatures",
             "synpp_refs",
-            "photoionization_data"
+            "photoionization_data",
+            "yg_data"
     ]
 
     # List of tuples of the related dataframes.
@@ -192,7 +193,7 @@ class AtomData(object):
                  macro_atom_data=None, macro_atom_references=None,
                  zeta_data=None, collision_data=None,
                  collision_data_temperatures=None, synpp_refs=None,
-                 photoionization_data=None):
+                 photoionization_data=None, yg_data=None):
 
         self.prepared = False
 
@@ -239,6 +240,8 @@ class AtomData(object):
         self.synpp_refs = synpp_refs
 
         self.photoionization_data = photoionization_data
+
+        self.yg_data = yg_data
 
         self._check_related()
 
@@ -394,6 +397,9 @@ class AtomData(object):
                 # Sets all the destination levels to -1 to indicate that they
                 # are not used in downbranch calculations
                 self.macro_atom_data.loc[:, 'destination_level_idx'] = -1
+
+            if self.yg_data is not None:
+                self.yg_data = self.yg_data.loc[self.selected_atomic_numbers]
 
         self.nlte_data = NLTEData(self, nlte_species)
 
