@@ -58,6 +58,8 @@ def model_quantities(request):
     return request.param
 
 
+@pytest.mark.skipif(not pytest.config.getvalue("integration-tests"),
+                    reason="integration tests are not included in this run")
 @pytest.mark.integration
 class TestIntegration(object):
     """Slow integration test for various setups present in subdirectories of
@@ -66,7 +68,7 @@ class TestIntegration(object):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, request, reference, data_path, pytestconfig, integration_tests):
+    def setup(self, request, reference, data_path, pytestconfig):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.

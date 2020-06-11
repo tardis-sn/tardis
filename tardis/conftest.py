@@ -155,11 +155,6 @@ def tardis_ref_path():
     else:
         return os.path.expandvars(os.path.expanduser(tardis_ref_path))
 
-@pytest.fixture(scope='session')
-def integration_tests():
-    if not pytest.config.getvalue('integration-tests'):
-        pytest.skip('integration tests are not included in this run')
-
 from tardis.tests.fixtures.atom_data import *
 
 @pytest.yield_fixture(scope="session")
