@@ -203,10 +203,10 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
             runner.line_lists_tau_sobolevs
             )
     storage.line_lists_j_blues = <double*> PyArray_DATA(
-            runner.j_b_lu_estimator)
+            runner.j_blue_estimator)
 
     storage.line_lists_Edotlu = <double*> PyArray_DATA(
-            runner.edot_lu_estimator)
+            runner.Edotlu_estimator)
 
     storage.line_interaction_id = runner.get_line_interaction_id(
         runner.line_interaction_type)
