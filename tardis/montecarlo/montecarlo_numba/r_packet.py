@@ -171,7 +171,7 @@ def update_line_estimators(estimators, r_packet, cur_line_id, distance_trace,
     ( time_explosion * C)
     """
 
-    if montecarlo_configuration.full_relativity:
+    if not montecarlo_configuration.full_relativity:
         doppler_factor = 1.0 - ((distance_trace + r_packet.mu * r_packet.r) /
                                 (time_explosion * C_SPEED_OF_LIGHT))
         energy = r_packet.energy * doppler_factor
