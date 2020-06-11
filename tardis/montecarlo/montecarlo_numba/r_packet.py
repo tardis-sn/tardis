@@ -171,7 +171,7 @@ def update_line_estimators(estimators, r_packet, cur_line_id, distance_trace,
     ( time_explosion * C)
     """
 
-    if not montecarlo_configuration.full_relativity:
+    if montecarlo_configuration.full_relativity:
         doppler_factor = 1.0 - ((distance_trace + r_packet.mu * r_packet.r) /
                                 (time_explosion * C_SPEED_OF_LIGHT))
         energy = r_packet.energy * doppler_factor
@@ -395,5 +395,9 @@ def line_emission(r_packet, emission_line_id, numba_plasma, time_explosion):
     r_packet.next_line_id = emission_line_id + 1
 
 def angle_aberration_CMF_to_LF(r_packet, time_explosion):
+    """
+    Converts angle aberration from comoving frame to
+    laboratory frame.
+    """
     beta = r_packet.r / (time_explosion * C_SPEED_OF_LIGHT)
     return (r_packet.mu + beta) / (1.0 + beta * r_packet.mu)
