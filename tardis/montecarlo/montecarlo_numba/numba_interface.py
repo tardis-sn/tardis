@@ -136,18 +136,18 @@ class VPacketCollection(object):
 estimators_spec = [
     ('j_estimator', float64[:]),
     ('nu_bar_estimator', float64[:]),
-    ('j_b_lu_estimator', float64[:, :]),
-    ('edot_lu_estimator', float64[:, :])
+    ('j_blue_estimator', float64[:, :]),
+    ('Edotlu_estimator', float64[:, :])
 ]
 
 @jitclass(estimators_spec)
 class Estimators(object):
-    def __init__(self, j_estimator, nu_bar_estimator, j_b_lu_estimator,
-                 edot_lu_estimator):
+    def __init__(self, j_estimator, nu_bar_estimator, j_blue_estimator,
+                 Edotlu_estimator):
         self.j_estimator = j_estimator
         self.nu_bar_estimator = nu_bar_estimator
-        self.j_b_lu_estimator = j_b_lu_estimator
-        self.edot_lu_estimator = edot_lu_estimator
+        self.j_blue_estimator = j_blue_estimator
+        self.Edotlu_estimator = Edotlu_estimator
 
 monte_carlo_configuration_spec = [
     ('line_interaction_type', int64),
