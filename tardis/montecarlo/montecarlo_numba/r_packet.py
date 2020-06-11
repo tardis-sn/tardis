@@ -179,9 +179,9 @@ def update_line_estimators(estimators, r_packet, cur_line_id, distance_trace,
         # accurate to 1 / gamma - according to C. Vogl
         energy = r_packet.energy
 
-    estimators.j_b_lu_estimator[cur_line_id, r_packet.current_shell_id] += (
+    estimators.j_blue_estimator[cur_line_id, r_packet.current_shell_id] += (
             energy / r_packet.nu)
-    estimators.edot_lu_estimator[cur_line_id, r_packet.current_shell_id] += (
+    estimators.Edotlu_estimator[cur_line_id, r_packet.current_shell_id] += (
         energy)
 
 @njit(**njit_dict)

@@ -32,7 +32,7 @@ def montecarlo_radial1d(model, plasma, runner, montecarlo_configuration):
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
 
 
-@jit(**njit_dict, nogil=True)
+@njit(**njit_dict, nogil=True)
 def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
                          estimators, spectrum_frequency,
                          montecarlo_configuration):
@@ -69,8 +69,8 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
         loop = single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
                            vpacket_collection,
                            montecarlo_configuration)
-        if loop and 'stop' in loop:
-            raise MonteCarloException
+        # if loop and 'stop' in loop:
+        #     raise MonteCarloException
 
         output_nus[i] = r_packet.nu
 

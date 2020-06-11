@@ -1,4 +1,4 @@
-from numba import jit
+from numba import njit
 import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
@@ -15,7 +15,7 @@ from tardis.montecarlo.montecarlo_numba.vpacket import trace_vpacket_volley
 from tardis.montecarlo.montecarlo_numba.montecarlo_logger import log_decorator
 
 # @log_decorator
-@jit
+@njit
 def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
                        vpacket_collection, montecarlo_configuration,
                        track_rpackets=True):
