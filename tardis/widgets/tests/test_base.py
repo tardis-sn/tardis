@@ -1,7 +1,9 @@
 import pytest
 import numpy as np
+import pandas.testing as pdt
 
-from tardis.widgets.base import BaseShellInfo, SimulationShellInfo, HDFShellInfo
+from tardis.widgets.base import (BaseShellInfo, SimulationShellInfo,
+                                 HDFShellInfo, ShellInfoWidget)
 
 
 @pytest.fixture(scope='class')
@@ -58,8 +60,8 @@ class TestBaseShellInfo:
 
     @pytest.mark.parametrize(('ion_num', 'atomic_num', 'shell_num'),
                              [(2, 12, 1), (3, 20, 20)])
-    def test_ion_count_data(self, base_shell_info, simulation_verysimple,
-                            ion_num, atomic_num, shell_num):
+    def test_level_count_data(self, base_shell_info, simulation_verysimple,
+                              ion_num, atomic_num, shell_num):
         level_count_data = base_shell_info.level_count(
             ion_num, atomic_num, shell_num)
         sim_level_number_density = simulation_verysimple.plasma.level_number_density[
@@ -83,3 +85,62 @@ class TestHDFShellInfo(TestBaseShellInfo):
     @pytest.fixture
     def base_shell_info(self, hdf_shell_info):
         return hdf_shell_info
+
+
+class TestShellInfoWidget:
+    # Indices of each table to select for testing
+    select_shell_num = 4
+    select_atomic_num = 12
+    select_ion_num = 3
+
+    @pytest.fixture(scope='class')
+    def shell_info_widget(self, base_shell_info):
+        shell_info_widget = ShellInfoWidget(base_shell_info)
+        # To attach event listeners to table widgets of shell_info_widget
+        _ = shell_info_widget.display()
+        return shell_info_widget
+
+    def test_selection_on_shells_table(self, base_shell_info, shell_info_widget):
+        shell_info_widget.shells_table.change_selection(
+            [self.select_shell_num])
+
+        expected_element_count = base_shell_info.element_count(
+            self.select_shell_num)
+        pdt.assert_frame_equal(expected_element_count,
+                               shell_info_widget.element_count_table.df)
+
+        expected_ion_count = base_shell_info.ion_count(
+            expected_element_count.index[0], self.select_shell_num)
+        pdt.assert_frame_equal(expected_ion_count,
+                               shell_info_widget.ion_count_table.df)
+
+        expected_level_count = base_shell_info.level_count(
+            expected_ion_count.index[0], expected_element_count.index[0],
+            self.select_shell_num)
+        pdt.assert_frame_equal(expected_level_count,
+                               shell_info_widget.level_count_table.df)
+
+    def test_selection_on_element_count_table(self, base_shell_info,
+                                              shell_info_widget):
+        shell_info_widget.element_count_table.change_selection(
+            [self.select_atomic_num])
+
+        expected_ion_count = base_shell_info.ion_count(
+            self.select_atomic_num, self.select_shell_num)
+        pdt.assert_frame_equal(expected_ion_count,
+                               shell_info_widget.ion_count_table.df)
+
+        expected_level_count = base_shell_info.level_count(
+            expected_ion_count.index[0], self.select_atomic_num,
+            self.select_shell_num)
+        pdt.assert_frame_equal(expected_level_count,
+                               shell_info_widget.level_count_table.df)
+
+    def test_selection_on_ion_count_table(self, base_shell_info, shell_info_widget):
+        shell_info_widget.ion_count_table.change_selection(
+            [self.select_ion_num])
+
+        expected_level_count = base_shell_info.level_count(
+            self.select_ion_num, self.select_atomic_num, self.select_shell_num)
+        pdt.assert_frame_equal(expected_level_count,
+                               shell_info_widget.level_count_table.df)
