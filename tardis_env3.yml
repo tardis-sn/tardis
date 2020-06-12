@@ -37,6 +37,9 @@ dependencies:
   - pygraphviz
   - pyside2
 
+  # widgets
+  - qgrid
+
   # Documentation
   - sphinx
   - nbconvert
