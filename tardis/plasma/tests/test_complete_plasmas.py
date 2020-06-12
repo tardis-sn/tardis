@@ -125,10 +125,10 @@ class TestPlasma(object):
         return config
 
     @pytest.fixture(scope="class")
-    def plasma(self, chianti_he_db_fpath, config, tardis_ref_data):
+    def plasma(self, pytestconfig, chianti_he_db_fpath, config, tardis_ref_data):
         config['atom_data'] = chianti_he_db_fpath
         sim = Simulation.from_config(config)
-        if pytest.config.getvalue("--generate-reference"):
+        if pytestconfig.getvalue("--generate-reference"):
             sim.plasma.to_hdf(tardis_ref_data, path=config.plasma.save_path)
             pytest.skip("Reference data saved at {0}".format(tardis_ref_data))
         return sim.plasma
