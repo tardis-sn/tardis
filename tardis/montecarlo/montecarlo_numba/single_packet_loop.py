@@ -14,7 +14,7 @@ from tardis.montecarlo.montecarlo_numba.vpacket import trace_vpacket_volley
 
 from tardis.montecarlo.montecarlo_numba.montecarlo_logger import log_decorator
 
-# @log_decorator
+@log_decorator
 @njit
 def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
                        vpacket_collection, montecarlo_configuration,
@@ -41,10 +41,12 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
     line_interaction_type = montecarlo_configuration.line_interaction_type
 
     doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu,
-                                        numba_model.time_explosion)
+                                        numba_model.time_explosion,
+                                        montecarlo_configuration.full_relativity)
     r_packet.nu /= doppler_factor
     r_packet.energy /= doppler_factor
-    r_packet.initialize_line_id(numba_plasma, numba_model)
+    r_packet.initialize_line_id(numba_plasma, numba_model,
+                                montecarlo_configuration.full_relativity)
 
     trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
                          numba_plasma, montecarlo_configuration)
@@ -70,16 +72,21 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
             move_r_packet(r_packet, distance, numba_model.time_explosion,
                           estimators, montecarlo_configuration)
             line_scatter(r_packet, numba_model.time_explosion,
-                         line_interaction_type, numba_plasma)
-
-            trace_vpacket_volley(
-                r_packet, vpacket_collection, numba_model, numba_plasma,
-                montecarlo_configuration)
+                         line_interaction_type, numba_plasma,
+                         montecarlo_configuration.full_relativity)
+            try:
+                trace_vpacket_volley(
+                    r_packet, vpacket_collection, numba_model, numba_plasma,
+                    montecarlo_configuration)
+            except MonteCarloException:
+                flag = 'stop'
+                break
 
         elif interaction_type == InteractionType.ESCATTERING:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
                           estimators, montecarlo_configuration)
-            general_scatter(r_packet, numba_model.time_explosion)
+            general_scatter(r_packet, numba_model.time_explosion,
+                            montecarlo_configuration.full_relativity)
 
             trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
                                  numba_plasma, montecarlo_configuration)

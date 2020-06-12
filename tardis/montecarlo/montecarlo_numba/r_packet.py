@@ -96,7 +96,9 @@ def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
     if nu_diff >= 0:
         distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
     else:
-        raise MonteCarloException('nu difference is less than 0.0')
+        print(f'failed; packet number: {r_packet.index}')
+        raise MonteCarloException('nu difference is less than 0.0; for more'
+                                  'information, see print statement beforehand')
 
 
     if montecarlo_configuration.full_relativity:
@@ -119,9 +121,20 @@ def calculate_tau_electron(electron_density, distance):
     return electron_density * SIGMA_THOMSON * distance
 
 @njit(**njit_dict)
-def get_doppler_factor(r, mu, time_explosion):
+def get_doppler_factor(r, mu, time_explosion, full_relativity):
     beta = (r / time_explosion) / C_SPEED_OF_LIGHT
-    return 1.0 - mu * beta
+    if not full_relativity:
+        return 1.0 - mu * beta
+    else:
+        return (1.0 - mu * beta) / np.sqrt(1 - beta * beta)
+
+@njit(**njit_dict)
+def get_inverse_doppler_factor(r, mu, time_explosion, full_relativity):
+    beta = (r / time_explosion) / C_SPEED_OF_LIGHT
+    if not full_relativity:
+        return 1.0 / (1.0 - mu * beta)
+    else:
+        return (1.0 + mu * beta) / np.sqrt(1 - beta * beta)
 
 @njit(**njit_dict)
 def get_random_mu():
@@ -138,10 +151,11 @@ class RPacket(object):
         self.status = PacketStatus.IN_PROCESS
         self.index = index
 
-    def initialize_line_id(self, numba_plasma, numba_model):
+    def initialize_line_id(self, numba_plasma, numba_model, full_relativity):
         inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
         doppler_factor = get_doppler_factor(self.r, self.mu,
-                                            numba_model.time_explosion)
+                                            numba_model.time_explosion,
+                                            full_relativity)
         comov_nu = self.nu * doppler_factor
         next_line_id = (len(numba_plasma.line_list_nu) -
                         np.searchsorted(inverse_line_list_nu, comov_nu))
@@ -223,7 +237,8 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators,
 
     # Calculating doppler factor
     doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu,
-                                        numba_model.time_explosion)
+                                        numba_model.time_explosion,
+                                        montecarlo_configuration.full_relativity)
     comov_nu = r_packet.nu * doppler_factor
 
     cur_line_id = start_line_id # initializing varibale for Numba
@@ -323,8 +338,10 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator,
         distance in cm
     """
 
-
-    doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu, time_explosion)
+    doppler_factor = get_doppler_factor(r_packet.r,
+                                        r_packet.mu,
+                                        time_explosion,
+                                        montecarlo_configuration.full_relativity)
     comov_nu = r_packet.nu * doppler_factor
     comov_energy = r_packet.energy * doppler_factor
 
@@ -376,7 +393,8 @@ def move_packet_across_shell_boundary(packet, delta_shell,
         packet.current_shell_id = next_shell_id
 
 
-def line_emission(r_packet, emission_line_id, numba_plasma, time_explosion):
+def line_emission(r_packet, emission_line_id, numba_plasma, time_explosion,
+                  full_relativity):
     """
 
     Parameters
@@ -390,7 +408,10 @@ def line_emission(r_packet, emission_line_id, numba_plasma, time_explosion):
     -------
 
     """
-    doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu, time_explosion)
+    doppler_factor = get_doppler_factor(r_packet.r,
+                                        r_packet.mu,
+                                        time_explosion,
+                                        full_relativity)
     r_packet.nu = numba_plasma.line_list_nu[emission_line_id] / doppler_factor
     r_packet.next_line_id = emission_line_id + 1
 

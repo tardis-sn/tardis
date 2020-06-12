@@ -5,12 +5,12 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
 
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
-    get_doppler_factor, get_random_mu)
+    get_doppler_factor, get_inverse_doppler_factor, get_random_mu)
 from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
 
 
 @njit(**njit_dict)
-def general_scatter(r_packet, time_explosion):
+def general_scatter(r_packet, time_explosion, full_relativity=False):
     """
     Thomson as well as line scattering
     2) get the doppler factor at that position with the old angle
@@ -24,11 +24,15 @@ def general_scatter(r_packet, time_explosion):
     distance : [type]
         [description]
     """
-    old_doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu, time_explosion)
+    old_doppler_factor = get_doppler_factor(
+        r_packet.r,
+        r_packet.mu,
+        time_explosion,
+        full_relativity)
     comov_energy = r_packet.energy * old_doppler_factor
     comov_nu = r_packet.nu * old_doppler_factor
     r_packet.mu = get_random_mu()
-    inverse_new_doppler_factor = 1. / get_doppler_factor(
+    inverse_new_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion)
     r_packet.energy = comov_energy * inverse_new_doppler_factor
     r_packet.nu = comov_nu * inverse_new_doppler_factor
@@ -60,11 +64,12 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
 """
 
 @njit(**njit_dict)
-def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
+def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma,
+                 full_relativity):
     #increment_j_blue_estimator(packet, storage, distance, line2d_idx);
     #increment_Edotlu_estimator(packet, storage, distance, line2d_idx);
 
-    general_scatter(r_packet, time_explosion)
+    general_scatter(r_packet, time_explosion, full_relativity)
     # update last_interaction
 
     if line_interaction_type == LineInteractionType.SCATTER:
@@ -76,11 +81,12 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
 
 @njit(**njit_dict)
 def line_emission(r_packet, emission_line_id, time_explosion,
-                  numba_plasma):
+                  numba_plasma, full_relativity=False):
     if emission_line_id != r_packet.next_line_id:
         pass
     doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu,
-                                        time_explosion)
+                                        time_explosion,
+                                        full_relativity)
     r_packet.nu = numba_plasma.line_list_nu[
                       emission_line_id] / doppler_factor
     r_packet.next_line_id = emission_line_id + 1

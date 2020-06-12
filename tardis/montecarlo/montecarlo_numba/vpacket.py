@@ -56,7 +56,8 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma, montecarlo_c
 
     # Calculating doppler factor
     doppler_factor = get_doppler_factor(v_packet.r, v_packet.mu,
-                                        numba_model.time_explosion)
+                                        numba_model.time_explosion,
+                                        montecarlo_configuration.full_relativity)
     comov_nu = v_packet.nu * doppler_factor
     cur_line_id = start_line_id
 
@@ -160,7 +161,8 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
     
     mu_bin = (1.0 - mu_min) / no_of_vpackets
     r_packet_doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu, 
-                                                 numba_model.time_explosion)
+                                                 numba_model.time_explosion,
+                                                 montecarlo_configuration.full_relativity)
     for i in range(no_of_vpackets):
         v_packet_mu = mu_min + i * mu_bin + np.random.random() * mu_bin
 
@@ -170,7 +172,8 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
             weight = (1 - mu_min) / (2 * no_of_vpackets)
 
         v_packet_doppler_factor = get_doppler_factor(
-            r_packet.r, v_packet_mu, numba_model.time_explosion)
+            r_packet.r, v_packet_mu, numba_model.time_explosion,
+            montecarlo_configuration.full_relativity)
 
         # transform between r_packet mu and v_packet_mu
         doppler_factor_ratio = (
