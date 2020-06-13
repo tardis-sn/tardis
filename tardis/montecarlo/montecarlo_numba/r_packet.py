@@ -102,12 +102,13 @@ def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
 
 
     if montecarlo_configuration.full_relativity:
+        # distance = - mu * r + (ct - nu_r * nu_r * sqrt(ct * ct - (1 + r * r * (1 - mu * mu) * (1 + pow(nu_r, -2))))) / (1 + nu_r * nu_r);
         nu_r = nu_line / nu
         ct = C_SPEED_OF_LIGHT * time_explosion
         distance = -r_packet.mu * r_packet.r + (
                 ct - nu_r**2 * np.sqrt(
-            ct**2 - (1 + r_packet.r**2 * (1 - r_packet.mu**2) *
-                     (1 + 1 / nu_r**2)))) / (1 + nu_r**3)
+                                ct**2 - (1 + r_packet.r**2 * (1 - r_packet.mu**2) *
+                                         (1 + pow(nu_r, -2))))) / (1 + nu_r**2)
 
     return distance
 
@@ -422,3 +423,14 @@ def angle_aberration_CMF_to_LF(r_packet, time_explosion):
     """
     beta = r_packet.r / (time_explosion * C_SPEED_OF_LIGHT)
     return (r_packet.mu + beta) / (1.0 + beta * r_packet.mu)
+
+def angle_aberration_LF_to_CMF(r_packet, time_explosion, mu):
+    """
+    
+    c code:
+    double beta = rpacket_get_r (packet) * storage->inverse_time_explosion * INVERSE_C;
+    return (mu - beta) / (1.0 - beta * mu);
+    """
+    ct = C_SPEED_OF_LIGHT * time_explosion
+    beta = r_packet.r /(ct)
+    return (mu - beta) / (1.0 - beta * mu)

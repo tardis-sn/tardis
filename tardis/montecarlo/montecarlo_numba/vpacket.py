@@ -7,7 +7,8 @@ import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     calculate_distance_boundary, get_doppler_factor, calculate_distance_line,
-    calculate_tau_electron, PacketStatus, move_packet_across_shell_boundary)
+    calculate_tau_electron, PacketStatus, move_packet_across_shell_boundary,
+    angle_aberration_LF_to_CMF, angle_aberration_CMF_to_LF)
 
 vpacket_spec = [
     ('r', float64),
@@ -155,6 +156,11 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
     if r_packet.r > numba_model.r_inner[0]: # not on inner_boundary
         mu_min = -np.sqrt(1 - (numba_model.r_inner[0] / r_packet.r) ** 2)
         v_packet_on_inner_boundary = False
+        if montecarlo_configuration.full_relativity:
+            # TODO: implement this
+            mu_min = angle_aberration_LF_to_CMF (r_packet,
+                                                 numba_model.time_explosion,
+                                                 mu_min)
     else:
         v_packet_on_inner_boundary = True
         mu_min = 0.0
@@ -176,6 +182,11 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
             montecarlo_configuration.full_relativity)
 
         # transform between r_packet mu and v_packet_mu
+        # C code: next line, angle_aberration_CMF_to_LF( & virt_packet, storage);
+        r_packet.mu = angle_aberration_CMF_to_LF(
+            r_packet,
+            numba_model.time_explosion
+        )
         doppler_factor_ratio = (
             r_packet_doppler_factor / v_packet_doppler_factor)
 
