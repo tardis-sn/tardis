@@ -10,7 +10,7 @@ from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
 
 
 @njit(**njit_dict)
-def general_scatter(r_packet, time_explosion, full_relativity=False):
+def general_scatter(r_packet, time_explosion, full_relativity):
     """
     Thomson as well as line scattering
     2) get the doppler factor at that position with the old angle
@@ -33,7 +33,8 @@ def general_scatter(r_packet, time_explosion, full_relativity=False):
     comov_nu = r_packet.nu * old_doppler_factor
     r_packet.mu = get_random_mu()
     inverse_new_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion)
+        r_packet.r, r_packet.mu, time_explosion,
+        full_relativity)
     r_packet.energy = comov_energy * inverse_new_doppler_factor
     r_packet.nu = comov_nu * inverse_new_doppler_factor
 
