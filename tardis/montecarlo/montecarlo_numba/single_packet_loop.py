@@ -42,14 +42,13 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
 
     doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu,
                                         numba_model.time_explosion,
-                                        montecarlo_configuration.full_relativity)
+                                        )
     r_packet.nu /= doppler_factor
     r_packet.energy /= doppler_factor
-    r_packet.initialize_line_id(numba_plasma, numba_model,
-                                montecarlo_configuration.full_relativity)
+    r_packet.initialize_line_id(numba_plasma, numba_model)
 
     trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
-                         numba_plasma, montecarlo_configuration)
+                         numba_plasma)
 
     if track_rpackets:
         r_packet_track_nu = [r_packet.nu]
@@ -60,36 +59,33 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
 
     while r_packet.status == PacketStatus.IN_PROCESS:
         distance, interaction_type, delta_shell = trace_packet(
-            r_packet, numba_model, numba_plasma, estimators, montecarlo_configuration)
+            r_packet, numba_model, numba_plasma, estimators)
 
         if interaction_type == InteractionType.BOUNDARY:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
-                          estimators, montecarlo_configuration)
+                          estimators)
             move_packet_across_shell_boundary(r_packet, delta_shell,
                                                        len(numba_model.r_inner))
 
         elif interaction_type == InteractionType.LINE:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
-                          estimators, montecarlo_configuration)
+                          estimators)
             line_scatter(r_packet, numba_model.time_explosion,
-                         line_interaction_type, numba_plasma,
-                         montecarlo_configuration.full_relativity)
-            try:
-                trace_vpacket_volley(
-                    r_packet, vpacket_collection, numba_model, numba_plasma,
-                    montecarlo_configuration)
-            except MonteCarloException:
-                flag = 'stop'
-                break
+                         line_interaction_type, numba_plasma)
+            trace_vpacket_volley(
+                r_packet, vpacket_collection, numba_model, numba_plasma,
+                )
+            # except MonteCarloException:
+            #     flag = 'stop'
+            #     break
 
         elif interaction_type == InteractionType.ESCATTERING:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
-                          estimators, montecarlo_configuration)
-            general_scatter(r_packet, numba_model.time_explosion,
-                            montecarlo_configuration.full_relativity)
+                          estimators)
+            general_scatter(r_packet, numba_model.time_explosion)
 
             trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
-                                 numba_plasma, montecarlo_configuration)
+                                 numba_plasma)
         if track_rpackets:
             r_packet_track_nu.append(r_packet.nu)
             r_packet_track_mu.append(r_packet.mu)

@@ -67,10 +67,7 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
             spectrum_frequency, montecarlo_configuration.number_of_vpackets,
             montecarlo_configuration.temporary_v_packet_bins)
         loop = single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
-                           vpacket_collection,
-                           montecarlo_configuration)
-        if loop and 'stop' in loop:
-            raise MonteCarloException
+                           vpacket_collection, montecarlo_configuration)
 
         output_nus[i] = r_packet.nu
 

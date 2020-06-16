@@ -2,6 +2,7 @@ from numba import float64, int64
 from numba import jitclass, njit, gdb
 
 from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
 
 import numpy as np
 
@@ -57,8 +58,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma, montecarlo_c
 
     # Calculating doppler factor
     doppler_factor = get_doppler_factor(v_packet.r, v_packet.mu,
-                                        numba_model.time_explosion,
-                                        montecarlo_configuration.full_relativity)
+                                        numba_model.time_explosion)
     comov_nu = v_packet.nu * doppler_factor
     cur_line_id = start_line_id
 
@@ -71,8 +71,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma, montecarlo_c
             cur_line_id, v_packet.current_shell_id]
 
         distance_trace_line = calculate_distance_line(
-            v_packet, comov_nu, nu_line, numba_model.time_explosion,
-            montecarlo_configuration)
+            v_packet, comov_nu, nu_line, numba_model.time_explosion)
 
         if distance_boundary <= distance_trace_line:
             break
@@ -89,7 +88,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma, montecarlo_c
     return tau_trace_combined, distance_boundary, delta_shell
 
 @njit(**njit_dict)
-def trace_vpacket(v_packet, numba_model, numba_plasma, montecarlo_configuration):
+def trace_vpacket(v_packet, numba_model, numba_plasma):
     """
     Trace single vpacket.
     Parameters
@@ -125,7 +124,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma, montecarlo_configuration)
 
 @njit(**njit_dict)
 def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
-                         numba_plasma, montecarlo_configuration):
+                         numba_plasma):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many) 
     from the current position of the rpacket. 
@@ -157,8 +156,7 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
         mu_min = -np.sqrt(1 - (numba_model.r_inner[0] / r_packet.r) ** 2)
         v_packet_on_inner_boundary = False
         if montecarlo_configuration.full_relativity:
-            # TODO: implement this
-            mu_min = angle_aberration_LF_to_CMF (r_packet,
+            mu_min = angle_aberration_LF_to_CMF(r_packet,
                                                  numba_model.time_explosion,
                                                  mu_min)
     else:
@@ -167,8 +165,7 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
     
     mu_bin = (1.0 - mu_min) / no_of_vpackets
     r_packet_doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu, 
-                                                 numba_model.time_explosion,
-                                                 montecarlo_configuration.full_relativity)
+                                                 numba_model.time_explosion)
     for i in range(no_of_vpackets):
         v_packet_mu = mu_min + i * mu_bin + np.random.random() * mu_bin
 
@@ -177,16 +174,17 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
         else:
             weight = (1 - mu_min) / (2 * no_of_vpackets)
 
+        # C code: next line, angle_aberration_CMF_to_LF( & virt_packet, storage);
+        if montecarlo_configuration.full_relativity:
+            r_packet.mu = angle_aberration_CMF_to_LF(
+                r_packet,
+                numba_model.time_explosion
+            )
         v_packet_doppler_factor = get_doppler_factor(
-            r_packet.r, v_packet_mu, numba_model.time_explosion,
-            montecarlo_configuration.full_relativity)
+            r_packet.r, v_packet_mu, numba_model.time_explosion)
 
         # transform between r_packet mu and v_packet_mu
-        # C code: next line, angle_aberration_CMF_to_LF( & virt_packet, storage);
-        r_packet.mu = angle_aberration_CMF_to_LF(
-            r_packet,
-            numba_model.time_explosion
-        )
+
         doppler_factor_ratio = (
             r_packet_doppler_factor / v_packet_doppler_factor)
 
@@ -197,9 +195,7 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
                            v_packet_energy, r_packet.current_shell_id, 
                            r_packet.next_line_id, i)
 
-        
-        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma,
-                                    montecarlo_configuration)
+        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma)
         
         v_packet.energy *= np.exp(-tau_vpacket)
 
