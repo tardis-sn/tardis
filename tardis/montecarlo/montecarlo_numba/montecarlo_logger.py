@@ -8,8 +8,10 @@ ticker = 1
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+logger.handlers = []
 
 if LOG_FILE:
+    logger.propagate = False
     console_handler = logging.FileHandler(LOG_FILE)
 else:
     console_handler = logging.StreamHandler()
@@ -19,6 +21,7 @@ console_formatter = logging.Formatter(
     '%(name)s - %(levelname)s - %(message)s')
 console_handler.setFormatter(console_formatter)
 logger.addHandler(console_handler)
+logger.handlers
 
 def log_decorator(func):
     """
@@ -37,7 +40,7 @@ def log_decorator(func):
     """
 
     # to ensure that calling `help` on the decorated function still works
-    @wraps(func)
+    # @wraps(func)
     def wrapper(*args, **kwargs):
         """
         Wrapper to the log_decorator.
