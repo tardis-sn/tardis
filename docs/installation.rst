@@ -16,9 +16,9 @@ simple TARDIS calculations.
 
 .. note::
         
-    - TARDIS is only compatbile with Python >3.6
-    - TARDIS only supports Linux and MacOs.
-    - We strongly recommend to install TARDIS within an Anaconda environment and to always use the lastest github development version.
+    - TARDIS is only compatible with Python >=3.6
+    - TARDIS only supports Linux and MacOS.
+    - We strongly recommend installing TARDIS within an Anaconda environment and to always use the latest github development version.
 
 Requirements
 ============
