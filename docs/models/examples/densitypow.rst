@@ -19,13 +19,13 @@ example below).
 
 .. note::
 
-   In this mode, the velocity grid has to be explicitly defined in the yml file (see example below)
+   In this mode, the velocity grid has to be explicitly defined in the YAML file (see example below)
 
 
 TARDIS input file example
 =========================
 
-The following example shows the relevant sections of a TARDIS input yaml file,
+The following example shows the relevant sections of a TARDIS input YAML file,
 specifying a power law density:
 
 .. literalinclude:: tardis_configv1_density_power_law_example.yml

@@ -8,8 +8,8 @@ ASCII Format
 =============
 
 To use a stratified ejecta composition in TARDIS, the elemental abundances may
-be specified on a per-cell basis via an external ascii file (similar to setting
-up a :doc:`custom density <densitycust>` profile). An ascii file that could
+be specified on a per-cell basis via an external ASCII file (similar to setting
+up a :doc:`custom density <densitycust>` profile). An ASCII file that could
 work on a mesh with ten cells should be formatted like this:
 
 .. literalinclude:: abund.dat
@@ -21,10 +21,10 @@ In this file:
 - the remaining 30 entries in each row give the set of elemental abundances for atomic number Z=1 to Z=30 (in order)
 
 The abundances are specified as mass fractions (i.e. the sum of columns 1 to 30
-in each row should be 1.0).  TARDIS does not currently include any elements
-heavier that Z=30.  The mass fractions specified will be adopted directly in
-the TARDIS calculations - so if your model is e.g. based on an explosion
-simulation you may need to calculate the state of any radioactive decay chains
+in each row should be 1.0). TARDIS does not currently include any elements
+heavier that Z=30. The mass fractions specified will be adopted directly in
+the TARDIS calculations --- so if your model is, for example, based on an explosion
+simulation, you may need to calculate the state of any radioactive decay chains
 at the correct epoch.
 
 The example file shown here has three simple layers: 
@@ -38,13 +38,13 @@ The example file shown here has three simple layers:
 .. warning::
 
    The example given here is to show the format only. It is not a
-   realistic model. In any real calculation better resolution
+   realistic model. In any real calculation, better resolution
    (i.e. more grid points) should be used.
 
 .. warning::
 
    The calculation can be no better / more complete than the atomic
-   data set. For further information on the atomic database -
+   data set. For further information on the atomic database ---
    including details of how to develop your own dataset to suit your
    needs, please contact us.
 
@@ -53,7 +53,7 @@ TARDIS ascii input file
 
 If you create a correctly formatted abundance profile file (called "abund.dat"
 in this example), you can use it in TARDIS by putting the following lines in
-the model section of the yaml file:
+the model section of the YAML file:
 
 .. literalinclude:: tardis_configv1_abundance_cust_example.yml
     :language: yaml
@@ -63,7 +63,7 @@ CSV Format
 ==========
 
 In this format, both elemental and isotopic abundances may
-be specified on a per-cell basis via an external csv file. A csv file that could
+be specified on a per-cell basis via an external CSV file. A CSV file that could
 work on a mesh with ten cells should be formatted like this:
 
 .. literalinclude:: tardis_model_abund.csv
@@ -76,7 +76,7 @@ work on a mesh with ten cells should be formatted like this:
 .. danger::
 
     The header line for the isotopic abundance structure can under no
-    circumstances start with a '#'
+    circumstances start with a '#'.
 
 In this file:
 
@@ -94,20 +94,20 @@ The example file shown here has three simple layers:
 
 - a middle region that is composed of O and Mg
 
-- an outer region that is composed of C and O.
+- an outer region that is composed of C and O
 
 .. note::
     
     Suppose you specify Elemental and Isotopic abundances for the same element. For ex-
     :code:`Ni` and :code:`Ni56`. 
-    Here, Ni will refer to the stable Nickel, i.e. (Z=26, A=58).
+    Here, Ni will refer to the stable Nickel (i.e. Z=26, A=58).
 
 
 .. note::
   
     As with the custom density file, the first row will be ignored. It is
     supposed to give the composition below the photosphere. Thus, the first row
-    (after the header) can be filled with dummy values
+    (after the header) can be filled with dummy values.
 
 .. warning::
 
@@ -115,20 +115,20 @@ The example file shown here has three simple layers:
    realistic model. In any real calculation better resolution
    (i.e. more grid points) should be used.
 
-TARDIS csv input file
+TARDIS CSV input file
 =====================
 
 If you create a correctly formatted abundance profile file (called "tardis_model_abund.csv"
 in this example), you can use it in TARDIS by putting the following lines in
-the model section of the yaml file:
+the model section of the YAML file:
 
 .. literalinclude:: tardis_configv1_isotope_abundance_cust_example.yml
     :language: yaml   
 
-Convert ascii abundance file format to csv format
+Convert ASCII abundance file format to CSV format
 =================================================
 
-If you want to convert an ASCII abundance file(say "abund.dat") to CSV format, you can use 
+If you want to convert an ASCII abundance file (say "abund.dat") to CSV format, you can use 
 :code:`convert_abundances_format` function for it. Here is an example to demonstrate this:
 
 .. code:: python

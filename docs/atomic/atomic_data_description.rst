@@ -6,8 +6,8 @@ Atomic Data Format Description
 .. currentmodule:: tardis.io.atomic
 
 
-The atomic data for tardis is stored in `hdf5 files <http://www.h5py.org/>`_. TARDIS ships with a
-relatively simple atomic dataset which only contains silicon lines and levels. TARDIS also has a full atomic dataset which contains
+The atomic data for tardis is stored in `HDF5 files <http://www.h5py.org/>`_. TARDIS ships with a
+relatively simple atomic dataset that only contains silicon lines and levels. TARDIS also has a full atomic dataset which contains
 the complete Kurucz dataset (`<http://kurucz.harvard.edu/LINELISTS/GFALL/>`_). This full dataset also contains recombination
 coefficients from the ground state (:math:`\zeta-\textrm{factor}` used in :ref:`calc_zeta_label`) and data for calculating the
 branching or macro atom line interaction (:ref:`macroatom`).
@@ -17,8 +17,8 @@ branching or macro atom line interaction (:ref:`macroatom`).
 HDF5 Dataset
 ------------
 
-As mentioned previously, all atomic data is stored in `hdf5 files <http://www.h5py.org/>`_  which contain tables
-that include mass, ionization, levels and lines data. The atom data that ships with TARDIS is located in data/atom
+As mentioned previously, all atomic data is stored in `HDF5 files <http://www.h5py.org/>`_  that contain tables
+that include mass, ionization, levels and lines data. The atom data that ships with TARDIS is located in data/atom.
 
 The dataset ``basic_atom_set`` contains the Atomic Number, Symbol of the elements and average mass of the elements.
 
@@ -125,8 +125,12 @@ There are two datasets for using the macro atom and branching line interactions.
 
 
 The ``macro_atom_data`` contains blocks of transition probabilities, several indices and flags. The Transition Type flag
-has three states -1 for downwards emitting, 0 for downwards internal and 1 for upwards internal (for more explanations please
-refer to :ref:`macroatom`)
+has three states:
+
+* -1 for downwards emitting
+* 0 for downwards internal
+* 1 for upwards internal (for more explanations, please
+refer to :ref:`macroatom`).
 
 Macro Atom Data
 ^^^^^^^^^^^^^^^
@@ -151,7 +155,7 @@ Macro Atom Data
 Here's the structure of the probability block. The atomic number, ion number and source level number are the same
 within each block, the destination level number the transition type and transition probability are changing.
 The transition probabilities are only part of the final probability and will be changed during the calculation.
-For details on the macro atom please refer to :ref:`macroatom`.
+For details on the macro atom, please refer to :ref:`macroatom`.
 
 +-------------+------------+-------------------+------------------------+-----------------+--------------------------+--------------------+
 |Atomic Number|Ion Number  |Source Level Number|Destination Level Number| Transition Type |Transition probabilities  |Transition Line ID  |
@@ -216,8 +220,8 @@ Indexing fun
 ------------
 
 The main problem with the atomic data is indexing. Most of these references require multiple numbers, e.g. atomic number,
-ion number and level number. The :py:module:`pandas`-framework provides the ideal functions to accomplish this. In TARDIS we extensively
-use :py:class:`pandas.MultiIndex`, :py:class:`pandas.Series` and :py:class:`pandas.DataFrame`
+ion number and level number. The `pandas <https://pandas.pydata.org/>`_ framework provides the ideal functions to accomplish this. In TARDIS, we extensively
+use :py:class:`pandas.MultiIndex`, :py:class:`pandas.Series` and :py:class:`pandas.DataFrame`.
 
 TO BE BETTER DOCUMENTED ...
 

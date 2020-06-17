@@ -30,7 +30,7 @@ Next, we calculate the rate of change of a level by adding up all outgoing and a
     \frac{dn_j}{dt} = \underbrace{\sum_{i \ne j} r_{ij}}_\textrm{incoming rate} -
                         \underbrace{\sum_{i \ne j} r_{ji}}_\textrm{outgoing rate}
 
-In a statistical equilibrium all incoming rates and outgoing rates add up to 0 (:math:`\frac{dn_j}{dt}=0`). We use this to
+In a statistical equilibrium, all incoming rates and outgoing rates add up to 0 (:math:`\frac{dn_j}{dt}=0`). We use this to
 calculate the level populations using the rate coefficients (:math:`r_ij, r_ji`).
 
 
@@ -63,7 +63,7 @@ calculate the level populations using the rate coefficients (:math:`r_ij, r_ji`)
     \right)
 
 
-with the additional constrained that all the level number populations need to add up to the current ion population $N$ we change this to
+with the additional constraint that all the level number populations need to add up to the current ion population :math:`N`, we change this to
 
 .. math::
 
@@ -98,7 +98,7 @@ with the additional constrained that all the level number populations need to ad
 
 
 
-For a three level atom we have:
+For a three-level atom we have:
 
 .. math::
 
@@ -137,8 +137,7 @@ which can be written in matrix from:
     \end{matrix}
     \right)
 
-To solve for the level populations we need an additional constraint: :math:`n_1 + n_2 + n_3 = N`. By setting :math:`N = 1`:
-we can get the relative rates:
+To solve for the level populations, we need an additional constraint: :math:`n_1 + n_2 + n_3 = N`. By setting :math:`N = 1`, we can get the relative rates:
 
 .. math::
 
@@ -164,7 +163,7 @@ we can get the relative rates:
     \right)
 
 
-Now we go back and look at the rate coefficients used for a level population - as an example :math:`\frac{dn_2}{dt}`:
+Now we go back and look at the rate coefficients used for a level population --- as an example :math:`\frac{dn_2}{dt}`:
 
 .. math::
 
@@ -173,13 +172,16 @@ Now we go back and look at the rate coefficients used for a level population - a
                         - n_2 B_{23} \bar{J}_{23} - n_2 C_{23} n_e + n_3 A_{32} + n_3 B_{32} \bar{J}_{32} + n_3 C_{32} n_e,\\
                          + n_3 A_{32}  + n_3 C_{32} n_e,
 
-Next we will group the stimulated emission and stimulated absorption terms as we can assume :math:`\bar{J_{12}} = \bar{J_{21}}`:
+Next, we will group the stimulated emission and stimulated absorption terms, as we can assume :math:`\bar{J_{12}} = \bar{J_{21}}`:
 
 .. math::
 
-    \frac{dn_2}{dt} &= n_1 (B_{12} \bar{J}_{12} \underbrace{(1 - \frac{n_2}{n_1}\frac{B_{21}}{B_{12}})}_\textrm{stimulated emission term} + C_{12} n_e)
-                    - n_2 (A_{21} + C_{23} n_e + n_2 B_{23} \bar{J}_{23} \underbrace{(1 - \frac{n_3}{n_2}\frac{B_{32}}{B_{23}})}_\textrm{stimulated emission term})
-                    + n_3 (A_{32} + C_{32} n_e)
+    \frac{dn_2}{dt} &= n_1 \bigg{(}B_{12} \bar{J}_{12}
+                        \underbrace{\bigg{(}1 - \frac{n_2}{n_1}\frac{B_{21}}{B_{12}}\bigg{)}}_\text{stimulated emission term}
+                        + C_{12} n_e\bigg{)}\\
+                        - n_2 \bigg{(}A_{21} + C_{23} n_e + n_2 B_{23} \bar{J}_{23}
+                        \underbrace{\bigg{(}1 - \frac{n_3}{n_2}\frac{B_{32}}{B_{23}}\bigg{)}}_\text{stimulated emission term}\bigg{)}
+                        + n_3 (A_{32} + C_{32} n_e)
 
 
 
