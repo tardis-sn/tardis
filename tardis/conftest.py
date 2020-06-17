@@ -153,8 +153,8 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture(scope="session")
-def generate_reference(pytestconfig):
-    option = pytestconfig.getvalue("generate_reference")
+def generate_reference(request):
+    option = request.config.getoption("--generate-reference")
     if option is None:
         return False
     else:
@@ -162,8 +162,8 @@ def generate_reference(pytestconfig):
 
 
 @pytest.fixture(scope="session")
-def tardis_ref_path(pytestconfig):
-    tardis_ref_path = pytestconfig.getvalue("tardis_refdata")
+def tardis_ref_path(request):
+    tardis_ref_path = request.config.getoption("--tardis-refdata")
     if tardis_ref_path is None:
         pytest.skip("--tardis-refdata was not specified")
     else:
