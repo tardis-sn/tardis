@@ -6,15 +6,15 @@ An integral part of Monte Carlo radiative transfer calculations consists of
 reconstructing macroscopic radiation field properties from the ensemble of
 packet interaction histories. TARDIS uses volume-based Monte Carlo estimators
 for this purpose. This concept was originally developed by :cite:`Lucy1999` and
-successively refined for example by :cite:`Lucy1999a`, :cite:`Lucy2002` and
+successively refined, for example, by :cite:`Lucy1999a`, :cite:`Lucy2002` and
 :cite:`Lucy2003`.
 
 Basic Principle
 ===============
 
 The basic principle underlying volume-based estimators is best illustrated
-at the example of reconstructing the mean radiation field energy density within
-a certain control volume (in most cases this will be a grid cell). A simple
+by the example of reconstructing the mean radiation field energy density within
+a certain control volume (in most cases, this will be a grid cell). A simple
 approach would involve explicitly counting the number of Monte Carlo packets
 which reside in the control volume at a certain time. Although being intuitive,
 this approach suffers heavily from Monte Carlo shot noise, in particular in
@@ -60,7 +60,7 @@ estimator derived above:
 
     J = \frac{1}{4\pi \Delta V \Delta t}\sum_i \varepsilon_i l_i D_{\mu}
 
-An intensity weighted estimate for the mean frequency is obtained from
+An intensity-weighted estimate for the mean frequency is obtained from
 
 .. math::
 
@@ -68,22 +68,22 @@ An intensity weighted estimate for the mean frequency is obtained from
 
 .. note::
 
-    Compared to the estimtors derived in the previous section, the ones
+    Compared to the estimators derived in the previous section, the ones
     presented here involve a relativistic factor, :math:`D_{\mu} = (1 - \beta
     \mu)`, which ensures the correct frame transformation behaviour of the
     estimators (to first order in :math:`v/c`).
 
 
 Using the estimators just derived the radiation temperature (which should be
-interpreted as a colour temperature) of the radiation field
+interpreted as a colour temperature) of the radiation field,
 
 .. math::
     
     T_{\mathrm{R}} = \frac{h}{k_{\mathrm{B}}} \frac{\pi^4}{360 \zeta(5)} \frac{\bar \nu}{J}
 
 may be derived. The normalization constants, involving Riemann's zeta function,
-are a consequence from the definition of this colour temperature: this should
-be the temperature of a black body radiation field whose mean frequency is
+are a consequence from the definition of this colour temperature: This should
+be the temperature of a black-body radiation field whose mean frequency is
 equal to the one reconstructed from the Monte Carlo simulation. With the
 temperature determined, the dilution factor, describing the deviation of the
 radiation field from a thermal field with the same colour temperature may be calculated
@@ -97,7 +97,7 @@ These two quantities, :math:`T_{\mathrm{R}}` and :math:`W` are vital for the
 calculation of the plasma state of the ejecta (see :doc:`Plasma State
 Calulation <../physics/plasma/index>`).
 
-Finally, TARDIS also reconstruct the mean intensity of the radiation field in
+Finally, TARDIS also reconstructs the mean intensity of the radiation field in
 the blue wing of each line transition :math:`l \rightarrow u`, which is used in
 the Macro Atom treatment and in the ionisation calculation.
 
@@ -106,7 +106,7 @@ the Macro Atom treatment and in the ionisation calculation.
     J_{lu}^b = \frac{1}{4\pi \Delta V \Delta t} \frac{t_{\mathrm{exp}}}{c} \sum_i \frac{\varepsilon_i}{\nu_{lu}} D_{\mu}.
     
 The summation here only involves packets which passed through the Sobolev point
-(see :doc:`Propagation <propagation>`) of the transition.  For a derivation of this
+(see :doc:`Propagation <propagation>`) of the transition. For a derivation of this
 estimator, in particular, for a motivation of the expansion factor involving
 the time since explosion :math:`t_{\mathrm{exp}}`, we refer to
 :cite:`Lucy2003`, section 6.2.
