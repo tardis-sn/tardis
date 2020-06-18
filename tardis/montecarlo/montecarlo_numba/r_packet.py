@@ -96,9 +96,8 @@ def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion):
     if nu_diff >= 0:
         distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
     else:
-        # print(f'failed; packet number: {r_packet.index}')
         raise MonteCarloException('nu difference is less than 0.0; for more'
-                                  'information, see print statement beforehand')
+                                  ' information, see print statement beforehand')
 
     if montecarlo_configuration.full_relativity:
         return calculate_distance_line_full_relativity(nu_line, nu,
@@ -129,7 +128,7 @@ def calculate_tau_electron(electron_density, distance):
 
 @njit(**njit_dict)
 def get_doppler_factor(r, mu, time_explosion):
-    beta = (r / time_explosion) / C_SPEED_OF_LIGHT
+    beta = r / (time_explosion * C_SPEED_OF_LIGHT)
     if not montecarlo_configuration.full_relativity:
         return get_doppler_factor_partial_relativity(mu, beta)
     else:
@@ -373,6 +372,7 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
     comov_energy = r_packet.energy * doppler_factor
 
     if montecarlo_configuration.full_relativity:
+        distance = distance * doppler_factor
         set_estimators_full_relativity(r_packet,
                                        distance,
                                        numba_estimator,
@@ -467,13 +467,14 @@ def move_packet_across_shell_boundary(packet, delta_shell,
         packet.current_shell_id = next_shell_id
 
 @njit(**njit_dict)
-def angle_aberration_CMF_to_LF(r_packet, time_explosion):
+def angle_aberration_CMF_to_LF(r_packet, time_explosion, mu):
     """
     Converts angle aberration from comoving frame to
     laboratory frame.
     """
-    beta = r_packet.r / (time_explosion * C_SPEED_OF_LIGHT)
-    return (r_packet.mu + beta) / (1.0 + beta * r_packet.mu)
+    ct = C_SPEED_OF_LIGHT * time_explosion
+    beta = r_packet.r / (ct)
+    return (r_packet.mu + beta) / (1.0 + beta * mu)
 
 @njit(**njit_dict)
 def angle_aberration_LF_to_CMF(r_packet, time_explosion, mu):
