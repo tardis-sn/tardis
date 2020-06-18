@@ -184,8 +184,8 @@ class HDFShellInfo(BaseShellInfo):
         ----------
         hdf_fpath : str
             A valid path to a simulation HDF file (HDF file must be created
-            from a TARDIS Simulation object using `to_hdf` method with default
-            arguments)
+            from a TARDIS Simulation object using :code:`to_hdf` method with
+            default arguments)
         """
         with pd.HDFStore(hdf_fpath, 'r') as sim_data:
             super().__init__(
@@ -281,10 +281,11 @@ class ShellInfoWidget():
         changeable_col : dict, optional
             A dictionary to specify the information about column which will
             change its name when data in generated table widget updates. It
-            must have two keys - `index` to specify index of changeable column
-            in dataframe `data` as an integer, and `other_names` to specify
-            all possible names changeable column will get as a list of strings.
-            Default value `None` indicates that there is no changable column.
+            must have two keys - :code:`index` to specify index of changeable
+            column in dataframe :code:`data` as an integer, and :code:`other_names`
+            to specify all possible names changeable column will get as a list
+            of strings. Default value :code:`None` indicates that there is no
+            changable column.
 
         Returns
         -------
@@ -347,12 +348,12 @@ class ShellInfoWidget():
         qgrid_widget : qgrid.QgridWidget
             QgridWidget instance that fired the event (see Notes section)
 
-        Note
-        ----
+        Notes
+        -----
         You will never need to pass any of these arguments explicitly. This is
-        the expected signature of the function passed to `handler` argument of
-        `on` method of a table widget (qgrid.QgridWidget object) as explained in
-        `qrid documentation<https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
+        the expected signature of the function passed to :code:`handler` argument
+        of :code:`on` method of a table widget (qgrid.QgridWidget object) as
+        explained in `qrid documentation <https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
         """
         # Get shell number from row selected in shells_table
         shell_num = event['new'][0]+1
@@ -381,12 +382,12 @@ class ShellInfoWidget():
         qgrid_widget : qgrid.QgridWidget
             QgridWidget instance that fired the event (see Notes section)
 
-        Note
-        ----
+        Notes
+        -----
         You will never need to pass any of these arguments explicitly. This is
-        the expected signature of the function passed to `handler` argument of
-        `on` method of a table widget (qgrid.QgridWidget object) as explained in
-        `qrid documentation<https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
+        the expected signature of the function passed to :code:`handler` argument
+        of :code:`on` method of a table widget (qgrid.QgridWidget object) as
+        explained in `qrid documentation <https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
         """
         # Don't execute function if no row was selected, implicitly i.e. by api
         if event['new'] == [] and event['source'] == 'api':
@@ -416,12 +417,12 @@ class ShellInfoWidget():
         qgrid_widget : qgrid.QgridWidget
             QgridWidget instance that fired the event (see Notes section)
 
-        Note
-        ----
+        Notes
+        -----
         You will never need to pass any of these arguments explicitly. This is
-        the expected signature of the function passed to `handler` argument of
-        `on` method of a table widget (qgrid.QgridWidget object) as explained in
-        `qrid documentation<https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
+        the expected signature of the function passed to :code:`handler` argument
+        of :code:`on` method of a table widget (qgrid.QgridWidget object) as
+        explained in `qrid documentation <https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
         """
         # Don't execute function if no row was selected implicitly (by api)
         if event['new'] == [] and event['source'] == 'api':
@@ -442,7 +443,7 @@ class ShellInfoWidget():
                 element_count_table_width='24%',
                 ion_count_table_width='24%',
                 level_count_table_width='18%',
-                **tables_container_layout_kwargs
+                **layout_kwargs
                 ):
         """Display the shell info widget by putting all component widgets nicely
         together and allowing interaction between the table widgets
@@ -450,19 +451,20 @@ class ShellInfoWidget():
         Parameters
         ----------
         shells_table_width : str, optional
-            CSS `width` property value for shells table, by default '30%'
+            CSS :code:`width` property value for shells table, by default '30%'
         element_count_table_width : str, optional
-            CSS `width` property value for element count table, by default '24%'
+            CSS :code:`width` property value for element count table, by default '24%'
         ion_count_table_width : str, optional
-            CSS `width` property value for ion count table, by default '24%'
+            CSS :code:`width` property value for ion count table, by default '24%'
         level_count_table_width : str, optional
-            CSS `width` property value for level count table, by default '18%'
+            CSS :code:`width` property value for level count table, by default '18%'
 
         Other Parameters
         ----------------
-        Any valid CSS properties to be passed to the `layout` attribute of
-        table widgets container (HTML `div`) as explained in `ipywidgets
-        documentation<https://ipywidgets.readthedocs.io/en/stable/examples/Widget%20Styling.html#The-layout-attribute>`_
+        **layout_kwargs
+            Any valid CSS properties to be passed to the :code:`layout` attribute
+            of table widgets container (HTML :code:`div`) as explained in
+            `ipywidgets documentation <https://ipywidgets.readthedocs.io/en/stable/examples/Widget%20Styling.html#The-layout-attribute>`_
 
         Returns
         -------
@@ -473,7 +475,7 @@ class ShellInfoWidget():
         tables_container_layout = dict(display='flex',
                                        align_items='flex-start',
                                        justify_content='space-between')
-        tables_container_layout.update(tables_container_layout_kwargs)
+        tables_container_layout.update(layout_kwargs)
 
         # Setting tables' widths
         self.shells_table.layout.width = shells_table_width
@@ -535,8 +537,8 @@ def shell_info_from_hdf(hdf_fpath):
     ----------
     hdf_fpath : str
         A valid path to a simulation HDF file (HDF file must be created
-        from a TARDIS Simulation object using `to_hdf` method with default
-        arguments)
+        from a TARDIS Simulation object using :code:`to_hdf` method with
+        default arguments)
 
     Returns
     -------
