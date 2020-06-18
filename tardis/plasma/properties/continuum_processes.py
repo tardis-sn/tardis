@@ -8,7 +8,8 @@ from astropy import constants as const
 
 from tardis.plasma.exceptions import PlasmaException
 from tardis.plasma.properties.base import (ProcessingPlasmaProperty,
-                                           Input)
+                                           Input,
+                                           TransitionProbabilitiesProperty)
 from tardis.plasma.properties.j_blues import JBluesDiluteBlackBody
 
 __all__ = ['SpontRecombRateCoeff', 'StimRecombRateCoeff', 'PhotoIonRateCoeff',
@@ -16,7 +17,8 @@ __all__ = ['SpontRecombRateCoeff', 'StimRecombRateCoeff', 'PhotoIonRateCoeff',
            'StimRecombRateCoeffEstimator', 'CorrPhotoIonRateCoeff',
            'BfHeatingRateCoeffEstimator', 'SpontRecombCoolingRateCoeff',
            'BaseRecombTransProbs', 'BasePhotoIonTransProbs',
-           'CollDeexcRateCoeff', 'CollExcRateCoeff', 'BaseCollisionTransProbs']
+           'CollDeexcRateCoeff', 'CollExcRateCoeff', 'BaseCollisionTransProbs',
+           'AdiabaticCoolingRate']
 
 logger = logging.getLogger(__name__)
 
@@ -252,7 +254,7 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
         return alpha_stim
 
 
-class BaseRecombTransProbs(ProcessingPlasmaProperty, IndexSetterMixin):
+class BaseRecombTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
     """
     Attributes
     ----------
@@ -261,6 +263,7 @@ class BaseRecombTransProbs(ProcessingPlasmaProperty, IndexSetterMixin):
                spontaneous recombination.
     """
     outputs = ('p_recomb', )
+    transition_probabilities_outputs = ('p_recomb', )
     latex_name = ('p^{\\textrm{recomb}}', '')
 
     def calculate(self, alpha_sp, nu_i, energy_i, photo_ion_idx):
@@ -275,7 +278,8 @@ class BaseRecombTransProbs(ProcessingPlasmaProperty, IndexSetterMixin):
         return p_recomb
 
 
-class BasePhotoIonTransProbs(ProcessingPlasmaProperty, IndexSetterMixin):
+class BasePhotoIonTransProbs(TransitionProbabilitiesProperty,
+                             IndexSetterMixin):
     """
     Attributes
     ----------
@@ -284,6 +288,7 @@ class BasePhotoIonTransProbs(ProcessingPlasmaProperty, IndexSetterMixin):
                   radiative ionization.
     """
     outputs = ('p_photo_ion', )
+    transition_probabilities_outputs = ('p_photo_ion', )
     latex_name = ('p^{\\textrm{photo_ion}}', )
 
     def calculate(self, gamma_corr, nu_i, photo_ion_idx):
@@ -401,7 +406,8 @@ class CollDeexcRateCoeff(ProcessingPlasmaProperty):
         return coll_deexc_coeff
 
 
-class BaseCollisionTransProbs(ProcessingPlasmaProperty, IndexSetterMixin):
+class BaseCollisionTransProbs(TransitionProbabilitiesProperty,
+                              IndexSetterMixin):
     """
     Attributes
     ----------
@@ -410,6 +416,7 @@ class BaseCollisionTransProbs(ProcessingPlasmaProperty, IndexSetterMixin):
         collisional excitation.
     """
     outputs = ('p_coll', )
+    transition_probabilities_outputs = ('p_coll', )
     latex_name = ('p^{\\textrm{coll}}', '')
 
     def calculate(self, coll_exc_coeff, coll_deexc_coeff, yg_idx,
@@ -450,3 +457,28 @@ class BaseCollisionTransProbs(ProcessingPlasmaProperty, IndexSetterMixin):
             [p_deexc_deac, p_deexc_internal, p_exc_internal, p_exc_cool]
         )
         return p_coll
+
+
+class AdiabaticCoolingRate(TransitionProbabilitiesProperty):
+    """
+    Attributes
+    ----------
+    C_adiabatic : Pandas DataFrame, dtype float
+        The adiabatic cooling rate of the electron gas.
+    """
+    outputs = ('C_adiabatic', )
+    transition_probabilities_outputs = ('C_adiabatic', )
+    latex_name = ('p^{\\textrm{coll}}', '')
+
+    def calculate(self, electron_densities, t_electrons, time_explosion):
+        C_adiabatic = (3. * electron_densities * const.k_B.cgs.value *
+                       t_electrons) / time_explosion
+
+        index_names = ['source_level_idx', 'destination_level_idx',
+                       'transition_type']
+        index = pd.MultiIndex.from_tuples(
+            [('k', 'adiabatic', 0)], names=index_names
+        )
+        C_adiabatic = pd.DataFrame(C_adiabatic.values[np.newaxis],
+                                   index=index)
+        return C_adiabatic

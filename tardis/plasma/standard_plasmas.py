@@ -8,6 +8,7 @@ from tardis.io.atom_data import AtomData
 from tardis.io.config_reader import ConfigurationError
 from tardis.util.base import species_string_to_tuple
 from tardis.plasma import BasePlasma
+from tardis.plasma.properties.base import TransitionProbabilitiesProperty
 from tardis.plasma.properties.property_collections import (basic_inputs,
     basic_properties, lte_excitation_properties, lte_ionization_properties,
     macro_atom_properties, dilute_lte_excitation_properties,
@@ -15,7 +16,7 @@ from tardis.plasma.properties.property_collections import (basic_inputs,
     nlte_properties, helium_nlte_properties, helium_numerical_nlte_properties,
     helium_lte_properties, detailed_j_blues_properties,
     detailed_j_blues_inputs, continuum_interaction_properties,
-    continuum_interaction_inputs)
+    continuum_interaction_inputs, adiabatic_cooling_properties)
 from tardis.plasma.exceptions import PlasmaConfigError
 
 from tardis.plasma.properties import (
@@ -26,7 +27,9 @@ from tardis.plasma.properties import (
         RadiationFieldCorrection,
         StimulatedEmissionFactor,
         HeliumNumericalNLTE,
-        IonNumberDensity)
+        IonNumberDensity,
+        MarkovChainTransProbsCollector,
+        MarkovChainIndex)
 
 logger = logging.getLogger(__name__)
 
@@ -115,8 +118,30 @@ def assemble_plasma(config, model, atom_data=None):
                 'macroatom (instead of {}).'.format(line_interaction_type)
             )
 
+        additional_idxs = []
         plasma_modules += continuum_interaction_properties
         plasma_modules += continuum_interaction_inputs
+
+        if config.plasma.continuum_interaction.enable_adiabatic_cooling:
+            plasma_modules += adiabatic_cooling_properties
+            additional_idxs += ['adiabatic']
+
+
+        transition_probabilities_outputs = [
+            plasma_property.transition_probabilities_outputs for
+            plasma_property in plasma_modules if
+            issubclass(plasma_property, TransitionProbabilitiesProperty)
+        ]
+        transition_probabilities_outputs = [
+            item for sublist in transition_probabilities_outputs
+            for item in sublist
+        ]
+
+        property_kwargs[MarkovChainTransProbsCollector] = {
+            'inputs': transition_probabilities_outputs}
+        property_kwargs[MarkovChainIndex] = {'additional_idxs':
+                                             additional_idxs}
+
         kwargs.update(gamma_estimator=None,
                       bf_heating_coeff_estimator=None,
                       alpha_stim_estimator=None,

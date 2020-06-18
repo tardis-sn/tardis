@@ -11,7 +11,6 @@ __all__ = ['BasePlasmaProperty', 'BaseAtomicDataProperty',
 
 logger = logging.getLogger(__name__)
 
-import os
 
 class BasePlasmaProperty(object, metaclass=ABCMeta):
     """
@@ -62,8 +61,6 @@ class BasePlasmaProperty(object, metaclass=ABCMeta):
                     'latex_description',
                     ''))
         return latex_label.replace('\\', r'\\')
-
-
 
 
 class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
@@ -127,6 +124,18 @@ class HiddenPlasmaProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
 
     def __init__(self, plasma_parent):
         super(HiddenPlasmaProperty, self).__init__(plasma_parent)
+
+
+class TransitionProbabilitiesProperty(ProcessingPlasmaProperty,
+                                      metaclass=ABCMeta):
+    """
+    Used for plasma properties that have unnormalized transition
+    probabilities as one of their outputs. This makes it possible to easily
+    track all transition probabilities and to later combine them.
+    """
+    @abstractproperty
+    def transition_probabilities_outputs(self):
+        pass
 
 
 class BaseAtomicDataProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):

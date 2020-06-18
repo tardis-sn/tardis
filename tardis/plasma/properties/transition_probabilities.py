@@ -9,9 +9,18 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.properties.continuum_processes import \
     get_ground_state_multi_index
 
-__all__ = ['MarkovChainTransProbs', 'MarkovChainIndex']
+__all__ = ['MarkovChainTransProbs', 'MarkovChainIndex',
+           'MarkovChainTransProbsCollector']
 
 logger = logging.getLogger(__name__)
+
+
+def normalize_trans_probs(p):
+    p_summed = p.groupby(level=0).sum()
+    index = p.index.get_level_values('source_level_idx')
+    p_norm = p / p_summed.loc[index].values
+    p_norm = p_norm.fillna(0.0)
+    return p_norm
 
 
 class SpMatrixSeriesConverterMixin(object):
@@ -79,6 +88,10 @@ class SpMatrixSeriesConverterMixin(object):
 class MarkovChainIndex(ProcessingPlasmaProperty):
     outputs = ('idx2mkv_idx',)
 
+    def __init__(self, plasma_parent, additional_idxs=None):
+        super().__init__(plasma_parent)
+        self.additional_idxs = additional_idxs
+
     def calculate(self, atomic_data, continuum_interaction_species):
         ma_ref = atomic_data.macro_atom_references
         mask = ma_ref.index.droplevel('source_level_number').isin(
@@ -91,20 +104,39 @@ class MarkovChainIndex(ProcessingPlasmaProperty):
         idx = ma_ref[mask].references_idx.values
         idx2mkv_idx = pd.Series(np.arange(len(idx)), index=idx)
         idx2mkv_idx.loc['k'] = idx2mkv_idx.max() + 1
+
+        if self.additional_idxs:
+            max_idx = idx2mkv_idx.max() + 1
+            additional_idxs = pd.Series(
+                np.arange(max_idx, max_idx + len(self.additional_idxs)),
+                index=self.additional_idxs
+            )
+            idx2mkv_idx = idx2mkv_idx.append(additional_idxs)
         return idx2mkv_idx
+
+
+class MarkovChainTransProbsCollector(ProcessingPlasmaProperty):
+    outputs = ('p_combined',)
+
+    def __init__(self, plasma_parent, inputs):
+        super().__init__(plasma_parent)
+        self.inputs = inputs
+
+    def calculate(self, *args):
+        p = pd.concat(args)
+        p = p.groupby(level=[0, 1, 2]).sum()
+        p = normalize_trans_probs(p)
+        return p
 
 
 class MarkovChainTransProbs(ProcessingPlasmaProperty,
                             SpMatrixSeriesConverterMixin):
     outputs = ('N', 'R', 'B', 'p_deac')
 
-    def calculate(self, p_rad_bb, p_recomb, p_photo_ion, p_coll,
-                  idx2mkv_idx):
-        p = pd.concat([p_rad_bb, p_recomb, p_photo_ion, p_coll])
-        p = p.groupby(level=[0, 1, 2]).sum()
-        p = self.normalize_trans_probs(p)
+    def calculate(self, p_combined, idx2mkv_idx):
+        p = p_combined
         p_internal = p.xs(0, level='transition_type')
-        p_deac = self.normalize_trans_probs(p.xs(-1, level='transition_type'))
+        p_deac = normalize_trans_probs(p.xs(-1, level='transition_type'))
 
         N = pd.DataFrame(columns=p_internal.columns)
         B = pd.DataFrame(columns=p_internal.columns)
@@ -127,11 +159,3 @@ class MarkovChainTransProbs(ProcessingPlasmaProperty,
         N = N.sort_index()
         B = B.sort_index()
         return N, R, B, p_deac
-
-    @staticmethod
-    def normalize_trans_probs(p):
-        p_summed = p.groupby(level=0).sum()
-        index = p.index.get_level_values('source_level_idx')
-        p_norm = p / p_summed.loc[index].values
-        p_norm = p_norm.fillna(0.0)
-        return p_norm

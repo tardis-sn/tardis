@@ -7,7 +7,8 @@ from astropy import units as u
 from tardis import constants as const
 from numba import jit, prange
 
-from tardis.plasma.properties.base import ProcessingPlasmaProperty
+from tardis.plasma.properties.base import (ProcessingPlasmaProperty,
+                                           TransitionProbabilitiesProperty)
 from tardis.plasma.properties.util import macro_atom
 
 logger = logging.getLogger(__name__)
@@ -267,7 +268,8 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
                 return atomic_data.macro_atom_data_all
 
 
-class BaseRadBoundBoundTransProbs(TransitionProbabilities):
+class BaseRadBoundBoundTransProbs(TransitionProbabilities,
+                                  TransitionProbabilitiesProperty):
     """
     Attributes
     ----------
@@ -276,6 +278,7 @@ class BaseRadBoundBoundTransProbs(TransitionProbabilities):
                transitions
     """
     outputs = ('p_rad_bb',)
+    transition_probabilities_outputs = ('p_rad_bb',)
 
     def __init__(self, plasma_parent):
         super(BaseRadBoundBoundTransProbs, self).__init__(plasma_parent)
