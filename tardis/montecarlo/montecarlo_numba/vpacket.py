@@ -38,7 +38,7 @@ class VPacket(object):
 
 
 @njit(**njit_dict)
-def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma, montecarlo_configuration):
+def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
     
     r_inner = numba_model.r_inner[v_packet.current_shell_id]
     r_outer = numba_model.r_outer[v_packet.current_shell_id]
@@ -105,7 +105,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
     tau_trace_combined = 0.0
     while True:
         tau_trace_combined_shell, distance_boundary, delta_shell = trace_vpacket_within_shell(
-            v_packet, numba_model, numba_plasma, montecarlo_configuration
+            v_packet, numba_model, numba_plasma
         )
         tau_trace_combined += tau_trace_combined_shell
         if tau_trace_combined > 10:
@@ -176,9 +176,10 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
 
         # C code: next line, angle_aberration_CMF_to_LF( & virt_packet, storage);
         if montecarlo_configuration.full_relativity:
-            r_packet.mu = angle_aberration_CMF_to_LF(
+            v_packet_mu = angle_aberration_CMF_to_LF(
                 r_packet,
-                numba_model.time_explosion
+                numba_model.time_explosion,
+                v_packet_mu
             )
         v_packet_doppler_factor = get_doppler_factor(
             r_packet.r, v_packet_mu, numba_model.time_explosion)
