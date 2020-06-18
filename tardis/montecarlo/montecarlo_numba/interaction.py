@@ -39,7 +39,8 @@ def general_scatter(r_packet, time_explosion):
     if montecarlo_configuration.full_relativity:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet,
-            time_explosion
+            time_explosion,
+            r_packet.mu
         )
 
 
@@ -98,7 +99,8 @@ def line_emission(r_packet, emission_line_id, time_explosion,
     if montecarlo_configuration.full_relativity:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet,
-            time_explosion
+            time_explosion,
+            r_packet.mu
             )
 
 
