@@ -5,6 +5,9 @@ import numpy as np
 
 from tardis import constants as const
 
+from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
+
+
 
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
 
@@ -149,43 +152,23 @@ class Estimators(object):
         self.j_blue_estimator = j_blue_estimator
         self.Edotlu_estimator = Edotlu_estimator
 
-monte_carlo_configuration_spec = [
-    ('line_interaction_type', int64),
-    ('number_of_vpackets', int64),
-    ('temporary_v_packet_bins', int64),
-    ('full_relativity', boolean),
-    ('single_packet_seed', int64)
-]
-
-@jitclass(monte_carlo_configuration_spec)
-class MonteCarloConfiguration(object):
-    def __init__(self, number_of_vpackets, line_interaction_type,
-                 temporary_v_packet_bins, full_relativity,
-                 single_packet_seed):
-        self.line_interaction_type = line_interaction_type
-        self.number_of_vpackets = number_of_vpackets
-        self.temporary_v_packet_bins = temporary_v_packet_bins
-        self.full_relativity = full_relativity
-        self.single_packet_seed = single_packet_seed
-
 
 def configuration_initialize(runner, number_of_vpackets,
-                             temporary_v_packet_bins=20000,
-                             full_relativity=True,
-                             single_packet_seed=None):
+                             temporary_v_packet_bins=20000):
     if runner.line_interaction_type == 'macroatom':
-        line_interaction_type = LineInteractionType.MACROATOM
+        montecarlo_configuration.line_interaction_type = LineInteractionType.MACROATOM
     elif runner.line_interaction_type == 'downbranch':
-        line_interaction_type = LineInteractionType.DOWNBRANCH
+        montecarlo_configuration.line_interaction_type = LineInteractionType.DOWNBRANCH
     elif runner.line_interaction_type == 'scatter':
-        line_interaction_type = LineInteractionType.SCATTER
+        montecarlo_configuration.line_interaction_type = LineInteractionType.SCATTER
     else:
         raise ValueError(f'Line interaction type must be one of "macroatom",'
                          f'"downbranch", or "scatter" but is '
                          f'{runner.line_interaction_type}')
-    return MonteCarloConfiguration(number_of_vpackets, line_interaction_type,
-                                   temporary_v_packet_bins, full_relativity,
-                                   single_packet_seed)
+    montecarlo_configuration.number_of_vpackets = number_of_vpackets
+    montecarlo_configuration.temporary_v_packet_bins = temporary_v_packet_bins
+    montecarlo_configuration.full_relativity = runner.enable_full_relativity
+    montecarlo_configuration.single_packet_seed = runner.single_packet_seed
 
 
 #class TrackRPacket(object):
