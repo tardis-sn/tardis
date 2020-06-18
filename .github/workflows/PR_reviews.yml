@@ -1,0 +1,17 @@
+name: comment-on-pr example
+on: pull_request
+jobs:
+  review:
+    name: PR review
+    runs-on: ubuntu-latest
+    steps:
+      - name: comment PR
+        uses: unsplash/comment-on-pr@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          msg: "Reviewers, please ensure that you check the below items. \n
+                [ ] Condition 1 \n
+                [ ] Condition 2 \n
+                [ ] Condition 3 \n"
+          check_for_duplicate_msg: true  # this is only commented once
