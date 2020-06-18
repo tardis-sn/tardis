@@ -8,12 +8,14 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     PacketCollection, VPacketCollection, NumbaModel, numba_plasma_initialize,
     Estimators, MonteCarloConfiguration, configuration_initialize)
 
+from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
+
 from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
     single_packet_loop)
 from tardis.montecarlo.montecarlo_numba import njit_dict
 
 
-def montecarlo_radial1d(model, plasma, runner, montecarlo_configuration):
+def montecarlo_radial1d(model, plasma, runner):
     packet_collection = PacketCollection(
         runner.input_nu, runner.input_mu, runner.input_energy,
         runner._output_nu, runner._output_energy
@@ -27,15 +29,14 @@ def montecarlo_radial1d(model, plasma, runner, montecarlo_configuration):
 
     v_packets_energy_hist = montecarlo_main_loop(
         packet_collection, numba_model, numba_plasma, estimators,
-        runner.spectrum_frequency.value, montecarlo_configuration)
+        runner.spectrum_frequency.value)
     
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
 
 
 @njit(**njit_dict, nogil=True)
 def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
-                         estimators, spectrum_frequency,
-                         montecarlo_configuration):
+                         estimators, spectrum_frequency):
     """
     This is the main loop of the MonteCarlo routine that generates packets 
     and sends them through the ejecta. 
@@ -67,7 +68,9 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
             spectrum_frequency, montecarlo_configuration.number_of_vpackets,
             montecarlo_configuration.temporary_v_packet_bins)
         loop = single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
-                           vpacket_collection, montecarlo_configuration)
+                           vpacket_collection)
+        # if loop and 'stop' in loop:
+        #     raise MonteCarloException
 
         output_nus[i] = r_packet.nu
 

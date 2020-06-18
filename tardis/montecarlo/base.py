@@ -15,6 +15,8 @@ from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo import montecarlo, packet_source as source
 from tardis.montecarlo.formal_integral import FormalIntegrator
+from tardis.montecarlo import montecarlo_configuration as mc_config_module
+
 
 from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
 from tardis.montecarlo.montecarlo_numba import montecarlo_logger as mc_logger
@@ -79,15 +81,16 @@ class MontecarloRunner(HDFWriterMixin):
         self.inner_boundary_albedo = inner_boundary_albedo
         self.enable_full_relativity = enable_full_relativity
         self.line_interaction_type = line_interaction_type
+        self.single_packet_seed = single_packet_seed
         self.integrator_settings = integrator_settings
         self.v_packet_settings = v_packet_settings
         self.spectrum_method = spectrum_method
         self._integrator = None
         self._spectrum_integrated = None
 
-        mc_logger.DEBUG_MODE = debug_packets  # should rename this
+        # set up logger based on config
+        mc_logger.DEBUG_MODE = debug_packets
         mc_logger.BUFFER = logger_buffer
-        self.single_packet_seed = single_packet_seed
 
         if self.spectrum_method == 'integrated':
             self.optional_hdf_properties.append('spectrum_integrated')
@@ -235,11 +238,9 @@ class MontecarloRunner(HDFWriterMixin):
         self._initialize_packets(model.t_inner.value,
                                  no_of_packets)
 
-        montecarlo_configuration = configuration_initialize(
-            self, no_of_virtual_packets,
-            full_relativity=self.enable_full_relativity,
-            single_packet_seed=self.single_packet_seed)
-        montecarlo_radial1d(model, plasma, self, montecarlo_configuration)
+        montecarlo_configuration = configuration_initialize(self,
+                                                            no_of_virtual_packets)
+        montecarlo_radial1d(model, plasma, self)
         #montecarlo.montecarlo_radial1d(
         #    model, plasma, self,
         #    virtual_packet_flag=no_of_virtual_packets,
