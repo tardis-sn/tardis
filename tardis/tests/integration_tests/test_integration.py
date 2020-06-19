@@ -71,6 +71,7 @@ def model_quantities(request):
 @pytest.mark.integration
 class TestIntegration(object):
     """Slow integration test for various setups present in subdirectories of
+    ``tardis/tests/integration_tests``.	
     """
 
     @classmethod
