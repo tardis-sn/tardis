@@ -16,6 +16,22 @@ logger = logging.getLogger(__name__)
 
 
 def normalize_trans_probs(p):
+    """
+    Normalizes a set of transition probabilities.
+
+    Parameters
+    ----------
+    p : Pandas DataFrame, dtype float
+        Unnormalized transition probabilities. Indexed by
+        source_level_idx, destination_level_idx.
+
+    Returns
+    -------
+    p_norm : Pandas DataFrame, dtype float
+        Normalized transition probabilities: the sum of
+        all probabilites with the same source_level_idx sum to one.
+        Indexed by source_level_idx, destination_level_idx.
+    """
     p_summed = p.groupby(level=0).sum()
     index = p.index.get_level_values('source_level_idx')
     p_norm = p / p_summed.loc[index].values
