@@ -6,7 +6,7 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
     RPacket, PacketStatus, MonteCarloException)
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     PacketCollection, VPacketCollection, NumbaModel, numba_plasma_initialize,
-    Estimators, MonteCarloConfiguration, configuration_initialize)
+    Estimators, configuration_initialize)
 
 from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
 
