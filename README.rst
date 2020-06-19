@@ -8,8 +8,8 @@ TARDIS
 .. image:: https://codecov.io/gh/tardis-sn/tardis/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/tardis-sn/tardis
 
-.. image:: https://zenodo.org/badge/5756/tardis-sn/tardis.svg   
-  :target: http://dx.doi.org/10.5281/zenodo.17630
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3893940.svg
+   :target: https://doi.org/10.5281/zenodo.3893940
 
 .. image:: https://badges.gitter.im/Join%20Chat.svg
   :target: https://gitter.im/tardis-sn/tardis
@@ -97,45 +97,68 @@ The following bibtex entries are needed for the references.
     }
 
 
-    @software{kerzendorf_wolfgang_2019_2590539,
+    @software{kerzendorf_wolfgang_2020_3893940,
       author       = {Kerzendorf, Wolfgang and
-                      Nöbauer, Ulrich and
                       Sim, Stuart and
-                      Lietzau, Stefan and
-                      Jančauskas, Vytautas and
                       Vogl, Christian and
+                      Williamson, Marc and
+                      Pássaro, Ezequiel and
+                      Flörs, Andreas and
+                      Camacho, Yssa and
+                      Jančauskas, Vytautas and
+                      Harpole, Alice and
+                      Nöbauer, Ulrich and
+                      Lietzau, Stefan and
                       Mishin, Mikhail and
                       Tsamis, Fotis and
                       Boyle, Aoife and
+                      Shingles, Luke and
                       Gupta, Vaibhav and
                       Desai, Karan and
                       Klauser, Michael and
                       Beaujean, Frederik and
                       Suban-Loewen, Adam and
                       Heringer, Epson and
-                      Shingles, Luke and
-                      Barna, Barnabas and
+                      Barna, Barnabás and
                       Gautam, Gaurav and
-                      Patel, Maryam and
                       Barbosa, Talytha and
+                      Patel, Maryam and
                       Varanasi, Kaushik and
+                      Eweis, Youssef and
                       Reinecke, Martin and
                       Bylund, Tomas and
                       Bentil, Laud and
+                      Eguren, Jordi and
+                      Livneh, Ran and
+                      Singhal, Jaladh and
+                      O'Brien, Jack and
                       Rajagopalan, Srinath and
                       Jain, Rinkle and
+                      Reichenbach, John and
+                      Mishra, Sashank and
                       Singh, Sourav and
-                      Talegaonkar, Chinmay and
                       Sofiatti, Caroline and
+                      Selsing, Jonatan and
+                      Kowalski, Nathan and
+                      Savel, Arjun and
+                      Talegaonkar, Chinmay and
                       Patel, Pratik and
-                      Yap, Kevin and
+                      Patra, Nilesh and
+                      Nayak, Ashwin and
+                      Kumar, Atul and
+                      Sarafina, Nance and
+                      Gillanders, James and
+                      Sharma, Sampark and
                       Wahi, Ujjwal and
+                      Dasgupta, Debajyoti and
+                      Magee, Mark and
+                      Yap, Kevin and
                       Gupta, Suyash},
-      title        = {tardis-sn/tardis: TARDIS v3.0 alpha2},
-      month        = mar,
-      year         = 2019,
-      doi          = {10.5281/zenodo.2590539},
-      url          = {https://doi.org/10.5281/zenodo.2590539}
+      title        = {tardis-sn/tardis: TARDIS v3.0.dev3459},
+      month        = jun,
+      year         = 2020,
+      publisher    = {Zenodo},
+      version      = {v3.0.dev3459},
+      doi          = {10.5281/zenodo.3893940},
+      url          = {https://doi.org/10.5281/zenodo.3893940}
     }
-
-
