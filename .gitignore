@@ -3,6 +3,9 @@
 *.a
 *.o
 *.so
+tardis/model/toy06_ab.csv 
+tardis/model/snia_toy06.dat
+
 __pycache__
 
 
