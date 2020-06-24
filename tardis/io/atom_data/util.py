@@ -2,9 +2,13 @@ import os
 import logging
 
 from tardis.io.config_internal import get_data_dir
-from tardis.io.atom_data.atom_web_download import get_atomic_repo_config, download_atom_data
+from tardis.io.atom_data.atom_web_download import (
+    get_atomic_repo_config,
+    download_atom_data,
+)
 
 logger = logging.getLogger(__name__)
+
 
 def resolve_atom_data_fname(fname):
     """
@@ -26,17 +30,23 @@ def resolve_atom_data_fname(fname):
 
     fpath = os.path.join(os.path.join(get_data_dir(), fname))
     if os.path.exists(fpath):
-        logger.info('Atom Data {0} not found in local path. Exists in TARDIS Data repo {1}'.format(fname, fpath))
+        logger.info(
+            "Atom Data {0} not found in local path. Exists in TARDIS Data repo {1}".format(
+                fname, fpath
+            )
+        )
         return fpath
 
-    atom_data_name = fname.replace('.h5', '')
+    atom_data_name = fname.replace(".h5", "")
     atom_repo_config = get_atomic_repo_config()
     if atom_data_name in atom_repo_config:
-        raise IOError('Atom Data {0} not found in path or in TARDIS data repo - it is available as download:\n'
-                      'from tardis.io.atom_data import download_atom_data\n'
-                      'download_atom_data(\'{1}\')'.format(fname, atom_data_name))
+        raise IOError(
+            "Atom Data {0} not found in path or in TARDIS data repo - it is available as download:\n"
+            "from tardis.io.atom_data import download_atom_data\n"
+            "download_atom_data('{1}')".format(fname, atom_data_name)
+        )
 
-    raise IOError('Atom Data {0} is not found in current path or in TARDIS data repo. {1} is also not a standard known'
-                  'TARDIS atom dataset.'.format(fname, atom_data_name))
-
-
+    raise IOError(
+        "Atom Data {0} is not found in current path or in TARDIS data repo. {1} is also not a standard known"
+        "TARDIS atom dataset.".format(fname, atom_data_name)
+    )
