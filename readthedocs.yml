@@ -1,8 +1,0 @@
-formats:
-  - none
-
-conda:
-  file: tardis_env27.yml
-
-python:
-   version: 2
