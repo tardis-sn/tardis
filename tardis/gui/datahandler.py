@@ -6,30 +6,33 @@ import matplotlib
 import matplotlib.pylab as plt
 
 
-if os.environ.get('QT_API', None)=='pyqt':
+if os.environ.get("QT_API", None) == "pyqt":
     from PyQt5 import QtGui, QtCore, QtWidgets
-elif os.environ.get('QT_API', None)=='pyside':
+elif os.environ.get("QT_API", None) == "pyside":
     from PySide2 import QtGui, QtCore, QtWidgets
 else:
-    raise ImportError('QT_API was not set! Please exit the IPython console\n'
-        ' and at the bash prompt use : \n\n export QT_API=pyside \n or\n'
-        ' export QT_API=pyqt \n\n For more information refer to user guide.')
+    raise ImportError(
+        "QT_API was not set! Please exit the IPython console\n"
+        " and at the bash prompt use : \n\n export QT_API=pyside \n or\n"
+        " export QT_API=pyqt \n\n For more information refer to user guide."
+    )
 import yaml
 
 from tardis import run_tardis
 from tardis.gui.widgets import MatplotlibWidget, ModelViewer, ShellInfo
 from tardis.gui.widgets import LineInfo, LineInteractionTables
 
-if (parse_version(matplotlib.__version__) >= parse_version('1.4')):
-    matplotlib.style.use('fivethirtyeight')
+if parse_version(matplotlib.__version__) >= parse_version("1.4"):
+    matplotlib.style.use("fivethirtyeight")
 else:
     print("Please upgrade matplotlib to a version >=1.4 for best results!")
-matplotlib.rcParams['font.family'] = 'serif'
-matplotlib.rcParams['font.size'] = 10.0
-matplotlib.rcParams['lines.linewidth'] = 1.0 
-matplotlib.rcParams['axes.formatter.use_mathtext'] = True
-matplotlib.rcParams['axes.edgecolor'] = matplotlib.rcParams['grid.color']
-matplotlib.rcParams['axes.linewidth'] = matplotlib.rcParams['grid.linewidth']
+matplotlib.rcParams["font.family"] = "serif"
+matplotlib.rcParams["font.size"] = 10.0
+matplotlib.rcParams["lines.linewidth"] = 1.0
+matplotlib.rcParams["axes.formatter.use_mathtext"] = True
+matplotlib.rcParams["axes.edgecolor"] = matplotlib.rcParams["grid.color"]
+matplotlib.rcParams["axes.linewidth"] = matplotlib.rcParams["grid.linewidth"]
+
 
 class Node(object):
     """Object that serves as the nodes in the TreeModel.
@@ -93,8 +96,8 @@ class Node(object):
         self.parent = parent
         self.children = []
         self.data = data
-        self.siblings = {}  #For 'type' fields. Will store the nodes to 
-                            #enable disable on selection
+        self.siblings = {}  # For 'type' fields. Will store the nodes to
+        # enable disable on selection
 
     def append_child(self, child):
         """Add a child to this node."""
@@ -159,6 +162,7 @@ class Node(object):
 
         return True
 
+
 class TreeModel(QtCore.QAbstractItemModel):
     """The class that defines the tree for ConfigEditor.
 
@@ -174,6 +178,7 @@ class TreeModel(QtCore.QAbstractItemModel):
             nodes that have values that can be set from a list.
 
     """
+
     def __init__(self, dictionary, parent=None):
         """Create a tree of tardis configuration dictionary.
 
@@ -192,7 +197,7 @@ class TreeModel(QtCore.QAbstractItemModel):
         self.typenodes = []
         self.dict_to_tree(dictionary, self.root)
 
-    #mandatory functions for subclasses
+    # mandatory functions for subclasses
     def columnCount(self, index):
         """Return the number of columns in the node pointed to by
         the given model index.
@@ -222,15 +227,19 @@ class TreeModel(QtCore.QAbstractItemModel):
             return QtCore.Qt.NoItemFlags
 
         node = index.internalPointer()
-        if ((node.get_parent() in self.disabledNodes) or 
-            (node in self.disabledNodes)):
+        if (node.get_parent() in self.disabledNodes) or (
+            node in self.disabledNodes
+        ):
             return QtCore.Qt.NoItemFlags
 
-        if node.num_children()==0:
-            return (QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled | 
-                QtCore.Qt.ItemIsSelectable)
+        if node.num_children() == 0:
+            return (
+                QtCore.Qt.ItemIsEditable
+                | QtCore.Qt.ItemIsEnabled
+                | QtCore.Qt.ItemIsSelectable
+            )
 
-        return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable        
+        return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
 
     def getItem(self, index):
         """Returns the node to which the model index is pointing. If the
@@ -249,8 +258,10 @@ class TreeModel(QtCore.QAbstractItemModel):
         be needed for QTreeView.
 
         """
-        if (orientation == QtCore.Qt.Horizontal and 
-          role == QtCore.Qt.DisplayRole):
+        if (
+            orientation == QtCore.Qt.Horizontal
+            and role == QtCore.Qt.DisplayRole
+        ):
             return self.root.get_data(section)
 
         return None
@@ -283,8 +294,9 @@ class TreeModel(QtCore.QAbstractItemModel):
         """Insert rows in the tree model."""
         parentItem = self.getItem(parent)
         self.beginInsertRows(parent, position, position + rows - 1)
-        success = parentItem.insertChildren(position, rows,
-                    self.rootItem.columnCount())
+        success = parentItem.insertChildren(
+            position, rows, self.rootItem.columnCount()
+        )
         self.endInsertRows()
 
         return success
@@ -327,8 +339,9 @@ class TreeModel(QtCore.QAbstractItemModel):
             self.dataChanged.emit(index, index)
         return result
 
-    def setHeaderData(self, section, orientation, value, 
-        role=QtCore.Qt.EditRole):
+    def setHeaderData(
+        self, section, orientation, value, role=QtCore.Qt.EditRole
+    ):
         """Change header data. Unused in columnview."""
         if role != QtCore.Qt.EditRole or orientation != QtCore.Qt.Horizontal:
             return False
@@ -338,8 +351,8 @@ class TreeModel(QtCore.QAbstractItemModel):
             self.headerDataChanged.emit(orientation, section, section)
 
         return result
-    
-    #Custom functions
+
+    # Custom functions
     def dict_to_tree(self, dictionary, root):
         """Create the tree and append siblings to nodes that need them.
 
@@ -351,11 +364,11 @@ class TreeModel(QtCore.QAbstractItemModel):
                 The root node of the tree.
 
         """
-        #Construct tree with all nodes
+        # Construct tree with all nodes
         self.tree_from_node(dictionary, root)
 
-        #Append siblings to type nodes
-        for node in self.typenodes: #For every type node
+        # Append siblings to type nodes
+        for node in self.typenodes:  # For every type node
             parent = node.get_parent()
             sibsdict = {}
             for i in range(parent.num_children()):
@@ -363,8 +376,8 @@ class TreeModel(QtCore.QAbstractItemModel):
 
             typesleaf = node.get_child(0)
             for i in range(typesleaf.num_columns()):
-                sibstrings = typesleaf.get_data(i).split('|_:_|')
-            
+                sibstrings = typesleaf.get_data(i).split("|_:_|")
+
                 typesleaf.set_data(i, sibstrings[0])
                 sibslist = []
                 for j in range(1, len(sibstrings)):
@@ -372,14 +385,13 @@ class TreeModel(QtCore.QAbstractItemModel):
                         sibslist.append(sibsdict[sibstrings[j]])
 
                 typesleaf.siblings[sibstrings[0]] = sibslist
-            
-            #Then append siblings of current selection for all type nodes to
-            #disabled nodes
-            for i in range(1,typesleaf.num_columns()):
+
+            # Then append siblings of current selection for all type nodes to
+            # disabled nodes
+            for i in range(1, typesleaf.num_columns()):
                 key = typesleaf.get_data(i)
                 for nd in typesleaf.siblings[key]:
                     self.disabledNodes.append(nd)
-
 
     def tree_from_node(self, dictionary, root):
         """Convert dictionary to tree. Called by dict_to_tree."""
@@ -390,15 +402,15 @@ class TreeModel(QtCore.QAbstractItemModel):
                 self.tree_from_node(dictionary[key], child)
             elif isinstance(dictionary[key], list):
                 if isinstance(dictionary[key][1], list):
-                    leaf = Node(dictionary[key][1])    
+                    leaf = Node(dictionary[key][1])
                 else:
                     leaf = Node([dictionary[key][1]])
 
                 child.append_child(leaf)
-                if key == 'type':
+                if key == "type":
                     self.typenodes.append(child)
 
-    def dict_from_node(self, node): 
+    def dict_from_node(self, node):
         """Take a node and convert the whole subtree rooted at it into a 
         dictionary.
 
@@ -412,7 +424,7 @@ class TreeModel(QtCore.QAbstractItemModel):
                 else:
                     dictionary[nd.get_data(0)] = self.dict_from_node(nd)
             return dictionary
-        elif len(children)==1:
+        elif len(children) == 1:
             return children[0].get_data(0)
 
 
@@ -421,21 +433,24 @@ class TreeDelegate(QtWidgets.QStyledItemDelegate):
     TreeModel.
 
     """
+
     def __init__(self, parent=None):
         """Call the constructor of the superclass."""
         QtWidgets.QStyledItemDelegate.__init__(self, parent)
-    
-    #Mandatory methods for subclassing
+
+    # Mandatory methods for subclassing
     def createEditor(self, parent, option, index):
         """Create a lineEdit or combobox depending on the type of node."""
         node = index.internalPointer()
-        if node.num_columns()>1:
+        if node.num_columns() > 1:
             combobox = QtGui.QComboBox(parent)
-            combobox.addItems([node.get_data(i) for i in range(node.num_columns())])
+            combobox.addItems(
+                [node.get_data(i) for i in range(node.num_columns())]
+            )
             combobox.setEditable(False)
             return combobox
         else:
-            editor =  QtWidgets.QLineEdit(parent)
+            editor = QtWidgets.QLineEdit(parent)
             editor.setText(str(node.get_data(0)))
             editor.returnPressed.connect(self.close_and_commit)
             return editor
@@ -448,13 +463,13 @@ class TreeDelegate(QtWidgets.QStyledItemDelegate):
         """
         node = index.internalPointer()
 
-        if node.num_columns() > 1 and node.get_parent().get_data(0) != 'type':
+        if node.num_columns() > 1 and node.get_parent().get_data(0) != "type":
             selectedIndex = editor.currentIndex()
             firstItem = node.get_data(0)
             node.setData(0, str(editor.currentText()))
             node.setData(selectedIndex, str(firstItem))
 
-        elif node.num_columns() > 1 and node.get_parent().get_data(0) == 'type':
+        elif node.num_columns() > 1 and node.get_parent().get_data(0) == "type":
             selectedIndex = editor.currentIndex()
             firstItem = node.get_data(0)
             node.setData(0, str(editor.currentText()))
@@ -468,26 +483,37 @@ class TreeDelegate(QtWidgets.QStyledItemDelegate):
 
             for nd in itemsToEnable:
                 if nd in model.disabledNodes:
-                    model.disabledNodes.remove(nd) 
+                    model.disabledNodes.remove(nd)
 
-        elif isinstance(editor, QtWidgets.QLineEdit): 
+        elif isinstance(editor, QtWidgets.QLineEdit):
             node.setData(0, str(editor.text()))
         else:
-            QtWidgets.QStyledItemDelegate.setModelData(self, editor, model, index)
-    
-    #Custom methods
+            QtWidgets.QStyledItemDelegate.setModelData(
+                self, editor, model, index
+            )
+
+    # Custom methods
     def close_and_commit(self):
         """Saver for the line edits."""
         editor = self.sender()
         if isinstance(editor, QtWidgets.QLineEdit):
             self.commitData.emit(editor)
-            self.closeEditor.emit(editor, QtWidgets.QAbstractItemDelegate.NoHint)
+            self.closeEditor.emit(
+                editor, QtWidgets.QAbstractItemDelegate.NoHint
+            )
+
 
 class SimpleTableModel(QtCore.QAbstractTableModel):
     """Create a table data structure for the table widgets."""
-    
-    def __init__(self, headerdata=None, iterate_header=(0, 0), 
-            index_info=None, parent=None, *args):
+
+    def __init__(
+        self,
+        headerdata=None,
+        iterate_header=(0, 0),
+        index_info=None,
+        parent=None,
+        *args,
+    ):
         """Call constructor of the QAbstractTableModel and set parameters
         given by user.
         """
@@ -496,8 +522,8 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
         self.arraydata = []
         self.iterate_header = iterate_header
         self.index_info = index_info
-    
-    #Implementing methods mandatory for subclassing QAbstractTableModel
+
+    # Implementing methods mandatory for subclassing QAbstractTableModel
     def rowCount(self, parent=QtCore.QModelIndex()):
         """Return number of rows."""
         return len(self.arraydata[0])
@@ -518,7 +544,10 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
                     return self.headerdata[0][0] + str(section + 1)
             else:
                 return self.headerdata[0][section]
-        elif orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
+        elif (
+            orientation == QtCore.Qt.Horizontal
+            and role == QtCore.Qt.DisplayRole
+        ):
             if self.iterate_header[1] == 1:
                 return self.headerdata[1][0] + str(section + 1)
             elif self.iterate_header[1] == 2:
@@ -534,7 +563,7 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
             return None
         elif role != QtCore.Qt.DisplayRole:
             return None
-        return (self.arraydata[index.column()][index.row()])
+        return self.arraydata[index.column()][index.row()]
 
     def setData(self, index, value, role=QtCore.Qt.EditRole):
         """Change the data in the model for specified index and role
@@ -544,19 +573,21 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
         elif role != QtCore.Qt.EditRole:
             return False
         self.arraydata[index.column()][index.row()] = value
-        
-        self.dataChanged=QtCore.Signal(QtGui.QModelIndex(),QtGui.QModelIndex())
+
+        self.dataChanged = QtCore.Signal(
+            QtGui.QModelIndex(), QtGui.QModelIndex()
+        )
         self.dataChanged.emit(index, index)
         return True
 
-    #Methods used to inderact with the SimpleTableModel
+    # Methods used to inderact with the SimpleTableModel
     def update_table(self):
         """Update table to set all the new data."""
         for r in range(self.rowCount()):
             for c in range(self.columnCount()):
                 index = self.createIndex(r, c)
                 self.setData(index, self.arraydata[c][r])
-    
+
     def add_data(self, datain):
         """Add data to the model."""
         self.arraydata.append(datain)

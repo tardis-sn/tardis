@@ -36,7 +36,10 @@ def hdf_shell_info(hdf_file_path, simulation_verysimple):
 class TestBaseShellInfo:
     def test_shells_data(self, base_shell_info, simulation_verysimple):
         shells_data = base_shell_info.shells_data()
-        assert shells_data.shape == (len(simulation_verysimple.model.t_radiative), 2)
+        assert shells_data.shape == (
+            len(simulation_verysimple.model.t_radiative),
+            2,
+        )
         assert np.allclose(
             shells_data.iloc[:, 0].map(np.float),
             simulation_verysimple.model.t_radiative.value,
@@ -66,7 +69,9 @@ class TestBaseShellInfo:
         ion_count_data = base_shell_info.ion_count(atomic_num, shell_num)
         sim_ion_number_density = simulation_verysimple.plasma.ion_number_density[
             shell_num - 1
-        ].loc[atomic_num]
+        ].loc[
+            atomic_num
+        ]
         sim_element_number_density = simulation_verysimple.plasma.number_density.loc[
             atomic_num, shell_num - 1
         ]
@@ -80,15 +85,26 @@ class TestBaseShellInfo:
         ("ion_num", "atomic_num", "shell_num"), [(2, 12, 1), (3, 20, 20)]
     )
     def test_level_count_data(
-        self, base_shell_info, simulation_verysimple, ion_num, atomic_num, shell_num
+        self,
+        base_shell_info,
+        simulation_verysimple,
+        ion_num,
+        atomic_num,
+        shell_num,
     ):
-        level_count_data = base_shell_info.level_count(ion_num, atomic_num, shell_num)
+        level_count_data = base_shell_info.level_count(
+            ion_num, atomic_num, shell_num
+        )
         sim_level_number_density = simulation_verysimple.plasma.level_number_density[
             shell_num - 1
-        ].loc[atomic_num, ion_num]
+        ].loc[
+            atomic_num, ion_num
+        ]
         sim_ion_number_density = simulation_verysimple.plasma.ion_number_density[
             shell_num - 1
-        ].loc[atomic_num, ion_num]
+        ].loc[
+            atomic_num, ion_num
+        ]
         assert level_count_data.shape == (len(sim_level_number_density), 1)
         assert np.allclose(
             level_count_data.iloc[:, 0].map(np.float),
@@ -123,10 +139,14 @@ class TestShellInfoWidget:
         _ = shell_info_widget.display()
         return shell_info_widget
 
-    def test_selection_on_shells_table(self, base_shell_info, shell_info_widget):
+    def test_selection_on_shells_table(
+        self, base_shell_info, shell_info_widget
+    ):
         shell_info_widget.shells_table.change_selection([self.select_shell_num])
 
-        expected_element_count = base_shell_info.element_count(self.select_shell_num)
+        expected_element_count = base_shell_info.element_count(
+            self.select_shell_num
+        )
         pdt.assert_frame_equal(
             expected_element_count, shell_info_widget.element_count_table.df
         )
@@ -134,7 +154,9 @@ class TestShellInfoWidget:
         expected_ion_count = base_shell_info.ion_count(
             expected_element_count.index[0], self.select_shell_num
         )
-        pdt.assert_frame_equal(expected_ion_count, shell_info_widget.ion_count_table.df)
+        pdt.assert_frame_equal(
+            expected_ion_count, shell_info_widget.ion_count_table.df
+        )
 
         expected_level_count = base_shell_info.level_count(
             expected_ion_count.index[0],
@@ -145,23 +167,35 @@ class TestShellInfoWidget:
             expected_level_count, shell_info_widget.level_count_table.df
         )
 
-    def test_selection_on_element_count_table(self, base_shell_info, shell_info_widget):
-        shell_info_widget.element_count_table.change_selection([self.select_atomic_num])
+    def test_selection_on_element_count_table(
+        self, base_shell_info, shell_info_widget
+    ):
+        shell_info_widget.element_count_table.change_selection(
+            [self.select_atomic_num]
+        )
 
         expected_ion_count = base_shell_info.ion_count(
             self.select_atomic_num, self.select_shell_num
         )
-        pdt.assert_frame_equal(expected_ion_count, shell_info_widget.ion_count_table.df)
+        pdt.assert_frame_equal(
+            expected_ion_count, shell_info_widget.ion_count_table.df
+        )
 
         expected_level_count = base_shell_info.level_count(
-            expected_ion_count.index[0], self.select_atomic_num, self.select_shell_num
+            expected_ion_count.index[0],
+            self.select_atomic_num,
+            self.select_shell_num,
         )
         pdt.assert_frame_equal(
             expected_level_count, shell_info_widget.level_count_table.df
         )
 
-    def test_selection_on_ion_count_table(self, base_shell_info, shell_info_widget):
-        shell_info_widget.ion_count_table.change_selection([self.select_ion_num])
+    def test_selection_on_ion_count_table(
+        self, base_shell_info, shell_info_widget
+    ):
+        shell_info_widget.ion_count_table.change_selection(
+            [self.select_ion_num]
+        )
 
         expected_level_count = base_shell_info.level_count(
             self.select_ion_num, self.select_atomic_num, self.select_shell_num
