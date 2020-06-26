@@ -47,6 +47,6 @@ def resolve_atom_data_fname(fname):
         )
 
     raise IOError(
-        f"Atom Data {fname} is not found in current path or in TARDIS data repo. {atom_data_name} is also 
-        "not a standard known TARDIS atom dataset."
+        f"Atom Data {fname} is not found in current path or in TARDIS data repo. {atom_data_name} "
+        "is also not a standard known TARDIS atom dataset."
     )
