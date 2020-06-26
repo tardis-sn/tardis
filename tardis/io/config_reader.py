@@ -82,7 +82,7 @@ class ConfigurationNameSpace(dict):
         try:
             yaml_dict = yaml_load_file(fname)
         except IOError as e:
-            logger.critical("No config file named: %s", fname)
+            logger.critical(f"No config file named: {fname}")
             raise e
 
         return cls.from_config_dict(yaml_dict)
