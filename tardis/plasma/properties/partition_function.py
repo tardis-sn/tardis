@@ -151,9 +151,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             return LevelBoltzmannFactorNLTECoronal
         elif nlte_conf.coronal_approximation and nlte_conf.classical_nebular:
             raise PlasmaConfigError(
-                "Both coronal approximation and "
-                "classical nebular specified in the "
-                "config."
+                "Both coronal approximation and classical nebular specified in the config."
             )
         else:
             return LevelBoltzmannFactorNLTEGeneral
