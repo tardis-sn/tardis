@@ -17,6 +17,10 @@ TARDIS
 .. image:: https://badges.gitter.im/Join%20Chat.svg
   :target: https://gitter.im/tardis-sn/tardis
 
+Almost (except model and montecarlo)
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
 
 TARDIS is a tool that creates synthetic observations (spectra) for exploding
 stars (supernovae).
