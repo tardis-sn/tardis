@@ -1,6 +1,9 @@
 from tardis.base import run_tardis
 from tardis.io.atom_data.util import download_atom_data
-from tardis.util.base import atomic_number2element_symbol, species_tuple_to_string
+from tardis.util.base import (
+    atomic_number2element_symbol,
+    species_tuple_to_string,
+)
 from tardis.simulation import Simulation
 
 import pandas as pd
@@ -59,8 +62,12 @@ class BaseShellInfo:
             Dataframe containing Rad. Temp. and W against each shell of
             simulation model
         """
-        shells_temp_w = pd.DataFrame({"Rad. Temp.": self.t_radiative, "W": self.w})
-        shells_temp_w.index = range(1, len(self.t_radiative) + 1)  # Overwrite index
+        shells_temp_w = pd.DataFrame(
+            {"Rad. Temp.": self.t_radiative, "W": self.w}
+        )
+        shells_temp_w.index = range(
+            1, len(self.t_radiative) + 1
+        )  # Overwrite index
         shells_temp_w.index.name = "Shell No."
         # Format to string to make qgrid show values in scientific notations
         return shells_temp_w.applymap(lambda x: "{:.6e}".format(x))
@@ -86,11 +93,13 @@ class BaseShellInfo:
         element_count_data.fillna(0, inplace=True)
         return pd.DataFrame(
             {
-                "Element": element_count_data.index.map(atomic_number2element_symbol),
-                # Format to string to show in scientific notation
-                "Frac. Ab. (Shell {})".format(shell_num): element_count_data.map(
-                    "{:.6e}".format
+                "Element": element_count_data.index.map(
+                    atomic_number2element_symbol
                 ),
+                # Format to string to show in scientific notation
+                "Frac. Ab. (Shell {})".format(
+                    shell_num
+                ): element_count_data.map("{:.6e}".format),
             }
         )
 
@@ -152,7 +161,9 @@ class BaseShellInfo:
         level_num_density = self.level_number_density[shell_num - 1].loc[
             atomic_num, ion
         ]
-        ion_num_density = self.ion_number_density[shell_num - 1].loc[atomic_num, ion]
+        ion_num_density = self.ion_number_density[shell_num - 1].loc[
+            atomic_num, ion
+        ]
         level_count_data = level_num_density / ion_num_density  # Normalization
         level_count_data.index.name = "Level"
         level_count_data.name = "Frac. Ab. (Ion={})".format(ion)
@@ -252,7 +263,8 @@ class ShellInfoWidget:
         # Creating the ion count table widget
         self.ion_count_table = self.create_table_widget(
             self.data.ion_count(
-                self.element_count_table.df.index[0], self.shells_table.df.index[0]
+                self.element_count_table.df.index[0],
+                self.shells_table.df.index[0],
             ),
             [20, 30, 50],
             changeable_col={
@@ -280,7 +292,9 @@ class ShellInfoWidget:
                 # element count table
                 "other_names": [
                     "Frac. Ab. (Ion={})".format(ion)
-                    for ion in range(0, self.element_count_table.df.index.max() + 1)
+                    for ion in range(
+                        0, self.element_count_table.df.index.max() + 1
+                    )
                 ],
             },
         )
@@ -467,7 +481,9 @@ class ShellInfoWidget:
         ion = self.ion_count_table.df.index[event["new"][0]]
 
         # Update data in level_count_table
-        self.level_count_table.df = self.data.level_count(ion, atomic_num, shell_num)
+        self.level_count_table.df = self.data.level_count(
+            ion, atomic_num, shell_num
+        )
 
     def display(
         self,
@@ -475,7 +491,7 @@ class ShellInfoWidget:
         element_count_table_width="24%",
         ion_count_table_width="24%",
         level_count_table_width="18%",
-        **layout_kwargs
+        **layout_kwargs,
     ):
         """Display the shell info widget by putting all component widgets nicely
         together and allowing interaction between the table widgets
@@ -505,7 +521,9 @@ class ShellInfoWidget:
         """
         # CSS properties of the layout of shell info tables container
         tables_container_layout = dict(
-            display="flex", align_items="flex-start", justify_content="space-between"
+            display="flex",
+            align_items="flex-start",
+            justify_content="space-between",
         )
         tables_container_layout.update(layout_kwargs)
 
@@ -516,9 +534,15 @@ class ShellInfoWidget:
         self.level_count_table.layout.width = level_count_table_width
 
         # Attach event listeners to table widgets
-        self.shells_table.on("selection_changed", self.update_element_count_table)
-        self.element_count_table.on("selection_changed", self.update_ion_count_table)
-        self.ion_count_table.on("selection_changed", self.update_level_count_table)
+        self.shells_table.on(
+            "selection_changed", self.update_element_count_table
+        )
+        self.element_count_table.on(
+            "selection_changed", self.update_ion_count_table
+        )
+        self.ion_count_table.on(
+            "selection_changed", self.update_level_count_table
+        )
 
         # Putting all table widgets in a container styled with tables_container_layout
         shell_info_tables_container = ipw.Box(
