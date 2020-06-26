@@ -388,7 +388,7 @@ def download_from_url(url, dst):
         desc=url.split("/")[-1],
     )
     req = requests.get(url, headers=header, stream=True)
-    with (open(dst, "ab")) as f:
+    with open(dst, "ab") as f:
         for chunk in req.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
