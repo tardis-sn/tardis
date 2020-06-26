@@ -50,10 +50,7 @@ class GElectron(ProcessingPlasmaProperty):
 
     outputs = ("g_electron",)
     latex_name = ("g_{\\textrm{electron}}",)
-    latex_formula = (
-        "\\Big(\\dfrac{2\\pi m_{e}/\
-                     \\beta_{\\textrm{rad}}}{h^2}\\Big)^{3/2}",
-    )
+    latex_formula = (r"\Big(\dfrac{2\pi m_{e}/\beta_{\textrm{rad}}}{h^2}\Big)^{3/2}",)
 
     def calculate(self, beta_rad):
         return (
