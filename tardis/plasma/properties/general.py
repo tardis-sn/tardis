@@ -69,8 +69,7 @@ class ThermalGElectron(GElectron):
     outputs = ("thermal_g_electron",)
     latex_name = ("g_{\\textrm{electron_thermal}}",)
     latex_formula = (
-        "\\Big(\\dfrac{2\\pi m_{e}/\
-                     \\beta_{\\textrm{electron}}}{h^2}\\Big)^{3/2}",
+        r"\Big(\dfrac{2\pi m_{e}/\beta_{\textrm{electron}}}{h^2}\Big)^{3/2}",
     )
 
     def calculate(self, beta_electron):
