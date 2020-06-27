@@ -10,11 +10,9 @@ dependencies:
   - scipy=1.1
   - pandas=0.24
   - astropy=3
-
   - numba=0.43
   - numexpr
   - Cython=0.29
-
   - compilers
 
   # Plasma
@@ -57,16 +55,14 @@ dependencies:
   - git-lfs
   - pytest=5
   - pytest-html
-  - requests
-  - coverage
-  - docopt
   - pytest-cov
-  - codecov
+  - coverage
+  - requests
+  - docopt
 
   - pip:
       # Documentation
       - sphinxcontrib-tikz
-
       - dokuwiki
       - dot2tex
       - sphinx-jsonschema
