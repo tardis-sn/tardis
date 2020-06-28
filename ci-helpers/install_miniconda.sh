@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 export PYTHONIOENCODING=UTF8
+conda install mamba -c conda-forge
 if test -e $HOME/miniconda/bin; then
     echo "miniconda already installed.";
     export PATH=$HOME/miniconda/bin:$PATH
