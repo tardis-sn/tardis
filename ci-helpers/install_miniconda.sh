@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 export PYTHONIOENCODING=UTF8
-conda install mamba -c conda-forge
 if test -e $HOME/miniconda/bin; then
     echo "miniconda already installed.";
     export PATH=$HOME/miniconda/bin:$PATH
     hash -r
     #conda update --yes conda
+
+    # install mamba
+    conda install mamba -c conda-forge
 
 else
     wget $MINICONDA_URL -O miniconda.sh
@@ -16,6 +18,10 @@ else
     export PATH=$HOME/miniconda/bin:$PATH
     hash -r
     conda update --yes conda
+
+    # install mamba
+    conda install mamba -c conda-forge
+
 fi
 
 source $HOME/miniconda/etc/profile.d/conda.sh
