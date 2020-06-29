@@ -24,4 +24,15 @@ else
 
 fi
 
+if test -e $HOME/miniconda/bin/mamba; then
+    echo "Mamba installed Succesfuly"
+
+else
+    echo "Mamba not installed"
+    echo $PATH
+    ls $HOME/miniconda
+    echo "Miniconda bin:"
+    ls $HOME/miniconda/bin
+fi
+
 source $HOME/miniconda/etc/profile.d/conda.sh
