@@ -10,8 +10,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          msg: "Reviewers, please ensure that you check the below items. \n
-                [ ] Condition 1 \n
-                [ ] Condition 2 \n
-                [ ] Condition 3 \n"
+          msg: "Before a PR is accepted, it must meet the following criteria: \n
+                [ ] Is the necessary information provided? \n
+                  [ ] Does the PR have a complete description? Does it explain what the PR is attempting to do/fix, does it explain how it does this? \n
+                  [ ] Is there an explanation of why this PR is needed? \n
+                  [ ] Please use the following PR template: https://github.com/tardis-sn/tardis/blob/master/.github/PULL_REQUEST_TEMPLATE.md \n
+                [ ] Is this a duplicate PR? \n
+                  [ ] If a new PR is clearly a duplicate, ask how this PR is different from the original PR? \n
+                  [ ] If this PR is about to be merged, close the original PR with a link to this new PR that solved the issue. \n
+                [ ] Does it pass existing tests and are new tests provided if required? \n
+                  [ ] The test coverage should not decrease, and for new features should be at or very close to 100%. \n
+                [ ] Is the code properly documented? \n
+                  [ ] If this modifies existing code, then the docs should be updated. If this adds a new feature, additional documentation should be created. \n
+                  [ ] Sphinx and docstrings in the code (in numpydoc format) \n
+                [ ] Does this conform to PEP 8 and the TARDIS style guidelines? \n
+                [ ] Does the PR fix the problem it describes? \n
+                  [ ] Make sure it doesn’t e.g. just fix the problem for a specific case \n
+                  [ ] Is this the best way of fixing the problem? \n
+                [ ] Is the code tidy? \n
+                  [ ] No unnecessary print lines or code comments \n"
           check_for_duplicate_msg: true  # this is only commented once
