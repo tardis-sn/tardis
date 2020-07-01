@@ -20,5 +20,9 @@ exclude = '''
     | model         # Temporary - to remove later
     | montecarlo    # Temporary
   )/
+  | ah_bootstrap.py
+  | ez_setup.py
+  | setup.py
+  | docs/conf.py
 )
 '''
