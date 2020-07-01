@@ -7,7 +7,7 @@ if test -e $HOME/miniconda/bin/mamba; then
 
 else
     echo "Mamba not installed"
-    conda install mamba -c conda-forge -y
+    conda install mamba=0.4.0 -c conda-forge -y
     echo "Installed Mamba to correct location"
 fi
 
