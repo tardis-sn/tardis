@@ -1,17 +1,17 @@
 Helium NLTE
 ============
 
-The `helium_treatment` setting in the Tardis config. file will accept one of three options:
+The `helium_treatment` setting in the TARDIS config. file will accept one of three options:
  * `none`: The default setting. Populate helium in the same way as the other elements.
  * `recomb-nlte`: Treats helium in NLTE using the analytical approximation outlined in an upcoming paper. 
- * `numerical-nlte`: To be implemented. Will allow the use of a separate module (not distributed with Tardis) to perform helium NLTE calculations numerically.
+ * `numerical-nlte`: To be implemented. Will allow the use of a separate module (not distributed with TARDIS) to perform helium NLTE calculations numerically.
 
 Recombination He NLTE
 ----------------------
 
 Paper version:
 
-This section will summarise the equations used in the calculation of the helium state for the `recomb-NLTE` approximation in Tardis. A full physical justification for these equations will be provided in an upcoming paper. All of the level populations are given as a function of the He II ground state population (:math:`n_{2,1,0}`), and the values are then normalised using the helium number density to give the correct level number densities.
+This section will summarise the equations used in the calculation of the helium state for the `recomb-NLTE` approximation in TARDIS. A full physical justification for these equations will be provided in an upcoming paper. All of the level populations are given as a function of the He II ground state population (:math:`n_{2,1,0}`), and the values are then normalised using the helium number density to give the correct level number densities.
 
 Symbols/Indexing:
  * :math:`N_{i,j}`: Ion Number Density
@@ -40,7 +40,7 @@ Symbols/Indexing:
 
 Code Version:
 
-In the Tardis plasma, some of these equations are re-written slightly to make use of existing property methods (e.g. `PhiSahaLTE`, `PhiSahaNebular`) often using the relation:
+In the TARDIS plasma, some of these equations are re-written slightly to make use of existing property methods (e.g. `PhiSahaLTE`, `PhiSahaNebular`) often using the relation:
 
 .. math::
     \frac{N_{i,j}}{Z_{i,j}} = \frac{n_{i,j,k}}{g_{i,j,k}}
@@ -48,4 +48,4 @@ In the Tardis plasma, some of these equations are re-written slightly to make us
 Numerical He NLTE
 ------------------
 
-Another `helium_treatment` option offered by Tardis is `numerical-nlte`. The use of this plasma property requires an additional code that is the property of Stephan Hachinger (see arXiv:1201.1506) and is not distributed with Tardis. Tardis also requires a specific atomic datafile to use this module. This plasma option is included so that people who have access to and permission to use the necessary module may use it. Otherwise, the `recomb-NLTE` option provides a very accurate alternative approximation.
+Another `helium_treatment` option offered by TARDIS is `numerical-nlte`. The use of this plasma property requires an additional code that is the property of Stephan Hachinger (see arXiv:1201.1506) and is not distributed with TARDIS. TARDIS also requires a specific atomic datafile to use this module. This plasma option is included so that people who have access to and permission to use the necessary module may use it. Otherwise, the `recomb-NLTE` option provides a very accurate alternative approximation.

@@ -169,7 +169,8 @@ _formal_integral(
   double R_max = storage->r_outer_i[size_shell - 1];
   double pp[N];
   double *exp_tau = calloc(size_tau, sizeof(double));
-#pragma omp parallel firstprivate(L, exp_tau)
+//#pragma omp parallel firstprivate(L, exp_tau)
+#pragma omp parallel 
     {
 
 #pragma omp master
@@ -336,8 +337,8 @@ _formal_integral(
           }
         }
       // Free everything allocated on heap
-      free(exp_tau);
       printf("\n");
     }
+      free(exp_tau);
   return L;
 }

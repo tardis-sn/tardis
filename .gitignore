@@ -17,11 +17,16 @@ __pycache__
 */cython_version.py
 htmlcov
 .coverage
+.ipynb_checkpoints/
 
 
 # IDE Specific files
 ### Pycharm IDE - Jetbrains
 .idea/*
+
+# VSCode
+.vscode/
+*.code-workspace
 
 ### PyDev IDE - Eclipse
 .metadata
@@ -40,11 +45,13 @@ local.properties
 
 # Sphinx
 _build
+docs/api
 
 
 # Packages/installer info
 *.egg
 *.egg-info
+.eggs/
 dist
 build
 eggs
@@ -64,3 +71,6 @@ distribute-*.tar.gz
 
 # Mac OSX
 .DS_Store
+
+# Jupyter checkpoints
+.ipynb_checkpoints

@@ -26,5 +26,5 @@ Doing the actual release
 ========================
 
 This is best done in a clean environment (so a fresh checkout from the master).
-We again use the astropy instructions:
+We again use the Astropy instructions:
 `<http://astropy.readthedocs.org/en/latest/development/releasing.html>`_

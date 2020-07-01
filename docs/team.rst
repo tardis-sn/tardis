@@ -4,7 +4,7 @@
 Team
 ****
 
-TARDIS is developed by a multidisciplinary team. We adhere to the AstroPy
+TARDIS is developed by a multidisciplinary team. We adhere to the Astropy
 `code of conduct <https://www.astropy.org/code_of_conduct.html>`_.
 
 Principle Investigator
