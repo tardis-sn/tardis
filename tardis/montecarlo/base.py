@@ -13,10 +13,13 @@ from tardis.montecarlo.spectrum import TARDISSpectrum
 
 from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
-from tardis.montecarlo import montecarlo, packet_source as source
+from tardis.montecarlo import packet_source as source
 from tardis.montecarlo.formal_integral import FormalIntegrator
+from tardis.montecarlo import montecarlo_configuration as mc_config_module
+
 
 from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
+from tardis.montecarlo.montecarlo_numba import montecarlo_logger as mc_logger
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     configuration_initialize)
 
@@ -62,7 +65,8 @@ class MontecarloRunner(HDFWriterMixin):
                  enable_full_relativity, inner_boundary_albedo,
                  line_interaction_type, integrator_settings,
                  v_packet_settings, spectrum_method,
-                 packet_source=None):
+                 packet_source=None, debug_packets=False,
+                 logger_buffer=1, single_packet_seed=None):
 
         self.seed = seed
         if packet_source is None:
@@ -77,11 +81,17 @@ class MontecarloRunner(HDFWriterMixin):
         self.inner_boundary_albedo = inner_boundary_albedo
         self.enable_full_relativity = enable_full_relativity
         self.line_interaction_type = line_interaction_type
+        self.single_packet_seed = single_packet_seed
         self.integrator_settings = integrator_settings
         self.v_packet_settings = v_packet_settings
         self.spectrum_method = spectrum_method
         self._integrator = None
         self._spectrum_integrated = None
+
+        # set up logger based on config
+        mc_logger.DEBUG_MODE = debug_packets
+        mc_logger.BUFFER = logger_buffer
+
         if self.spectrum_method == 'integrated':
             self.optional_hdf_properties.append('spectrum_integrated')
 
@@ -100,8 +110,9 @@ class MontecarloRunner(HDFWriterMixin):
         # Estimators
         self.j_estimator = np.zeros(tau_sobolev_shape[1], dtype=np.float64)
         self.nu_bar_estimator = np.zeros(tau_sobolev_shape[1], dtype=np.float64)
-        self.j_b_lu_estimator = np.zeros(tau_sobolev_shape)
-        self.edot_lu_estimator = np.zeros(tau_sobolev_shape)
+        self.j_blue_estimator = np.zeros(tau_sobolev_shape)
+        self.Edotlu_estimator = np.zeros(tau_sobolev_shape)
+        # TODO: this is the wrong attribute naming style.
 
     def _initialize_geometry_arrays(self, model):
         """
@@ -227,10 +238,9 @@ class MontecarloRunner(HDFWriterMixin):
         self._initialize_packets(model.t_inner.value,
                                  no_of_packets)
 
-        montecarlo_configuration = configuration_initialize(
-            self, no_of_virtual_packets)
-
-        montecarlo_radial1d(model, plasma, self, montecarlo_configuration)
+        montecarlo_configuration = configuration_initialize(self,
+                                                            no_of_virtual_packets)
+        montecarlo_radial1d(model, plasma, self)
         #montecarlo.montecarlo_radial1d(
         #    model, plasma, self,
         #    virtual_packet_flag=no_of_virtual_packets,
@@ -450,4 +460,7 @@ class MontecarloRunner(HDFWriterMixin):
                    integrator_settings=config.spectrum.integrated,
                    v_packet_settings=config.spectrum.virtual,
                    spectrum_method=config.spectrum.method,
-                   packet_source=packet_source)
+                   packet_source=packet_source,
+                   debug_packets=config.montecarlo.debug_packets,
+                   logger_buffer=config.montecarlo.logger_buffer,
+                   single_packet_seed=config.montecarlo.single_packet_seed)

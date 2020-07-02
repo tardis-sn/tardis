@@ -2,12 +2,14 @@ from numba import float64, int64
 from numba import jitclass, njit, gdb
 
 from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
 
 import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     calculate_distance_boundary, get_doppler_factor, calculate_distance_line,
-    calculate_tau_electron, PacketStatus, move_packet_across_shell_boundary)
+    calculate_tau_electron, PacketStatus, move_packet_across_shell_boundary,
+    angle_aberration_LF_to_CMF, angle_aberration_CMF_to_LF)
 
 vpacket_spec = [
     ('r', float64),
@@ -16,12 +18,14 @@ vpacket_spec = [
     ('energy', float64),
     ('next_line_id', int64),
     ('current_shell_id', int64),
-    ('status', int64)
+    ('status', int64),
+    ('index', int64)
 ]
 
 @jitclass(vpacket_spec)
 class VPacket(object):
-    def __init__(self, r, mu, nu, energy, current_shell_id, next_line_id):
+    def __init__(self, r, mu, nu, energy, current_shell_id, next_line_id,
+                 index=0):
         self.r = r
         self.mu = mu
         self.nu = nu
@@ -29,6 +33,7 @@ class VPacket(object):
         self.current_shell_id = current_shell_id
         self.next_line_id = next_line_id
         self.status = PacketStatus.IN_PROCESS
+        self.index = index
 
 
 
@@ -66,7 +71,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
             cur_line_id, v_packet.current_shell_id]
 
         distance_trace_line = calculate_distance_line(
-            v_packet.nu, comov_nu, nu_line, numba_model.time_explosion)
+            v_packet, comov_nu, nu_line, numba_model.time_explosion)
 
         if distance_boundary <= distance_trace_line:
             break
@@ -118,7 +123,8 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
     return tau_trace_combined
 
 @njit(**njit_dict)
-def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma):
+def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
+                         numba_plasma):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many) 
     from the current position of the rpacket. 
@@ -140,7 +146,6 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma
         
         return
 
-
     
     no_of_vpackets = vpacket_collection.number_of_vpackets
     if no_of_vpackets == 0:
@@ -150,6 +155,10 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma
     if r_packet.r > numba_model.r_inner[0]: # not on inner_boundary
         mu_min = -np.sqrt(1 - (numba_model.r_inner[0] / r_packet.r) ** 2)
         v_packet_on_inner_boundary = False
+        if montecarlo_configuration.full_relativity:
+            mu_min = angle_aberration_LF_to_CMF(r_packet,
+                                                 numba_model.time_explosion,
+                                                 mu_min)
     else:
         v_packet_on_inner_boundary = True
         mu_min = 0.0
@@ -165,10 +174,18 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma
         else:
             weight = (1 - mu_min) / (2 * no_of_vpackets)
 
+        # C code: next line, angle_aberration_CMF_to_LF( & virt_packet, storage);
+        if montecarlo_configuration.full_relativity:
+            v_packet_mu = angle_aberration_CMF_to_LF(
+                r_packet,
+                numba_model.time_explosion,
+                v_packet_mu
+            )
         v_packet_doppler_factor = get_doppler_factor(
             r_packet.r, v_packet_mu, numba_model.time_explosion)
 
         # transform between r_packet mu and v_packet_mu
+
         doppler_factor_ratio = (
             r_packet_doppler_factor / v_packet_doppler_factor)
 
@@ -177,8 +194,8 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma
 
         v_packet = VPacket(r_packet.r, v_packet_mu, v_packet_nu, 
                            v_packet_energy, r_packet.current_shell_id, 
-                           r_packet.next_line_id)
-        
+                           r_packet.next_line_id, i)
+
         tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma)
         
         v_packet.energy *= np.exp(-tau_vpacket)

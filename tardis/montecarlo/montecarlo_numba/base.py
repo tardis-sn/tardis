@@ -1,16 +1,21 @@
-from numba import prange, njit
+from numba import prange, njit, jit
+import logging
 import numpy as np
-from tardis.montecarlo.montecarlo_numba.r_packet import RPacket, PacketStatus
+
+from tardis.montecarlo.montecarlo_numba.r_packet import (
+    RPacket, PacketStatus, MonteCarloException)
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     PacketCollection, VPacketCollection, NumbaModel, numba_plasma_initialize,
-    Estimators, MonteCarloConfiguration, configuration_initialize)
+    Estimators, configuration_initialize)
+
+from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
 
 from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
     single_packet_loop)
 from tardis.montecarlo.montecarlo_numba import njit_dict
 
 
-def montecarlo_radial1d(model, plasma, runner, montecarlo_configuration):
+def montecarlo_radial1d(model, plasma, runner):
     packet_collection = PacketCollection(
         runner.input_nu, runner.input_mu, runner.input_energy,
         runner._output_nu, runner._output_energy
@@ -20,19 +25,18 @@ def montecarlo_radial1d(model, plasma, runner, montecarlo_configuration):
                              model.time_explosion.to('s').value)
     numba_plasma = numba_plasma_initialize(plasma)
     estimators = Estimators(runner.j_estimator, runner.nu_bar_estimator,
-                            runner.j_b_lu_estimator, runner.edot_lu_estimator)
+                            runner.j_blue_estimator, runner.Edotlu_estimator)
 
     v_packets_energy_hist = montecarlo_main_loop(
         packet_collection, numba_model, numba_plasma, estimators,
-        runner.spectrum_frequency.value, montecarlo_configuration)
+        runner.spectrum_frequency.value)
     
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
 
 
 @njit(**njit_dict, nogil=True)
 def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
-                         estimators, spectrum_frequency,
-                         montecarlo_configuration):
+                         estimators, spectrum_frequency):
     """
     This is the main loop of the MonteCarlo routine that generates packets 
     and sends them through the ejecta. 
@@ -50,18 +54,23 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
     delta_nu = spectrum_frequency[1] - spectrum_frequency[0]
 
     for i in prange(len(output_nus)):
-        np.random.seed(r_packet.seed)
+        if montecarlo_configuration.single_packet_seed != -1:
+            i = montecarlo_configuration.single_packet_seed
         r_packet = RPacket(numba_model.r_inner[0],
                            packet_collection.packets_input_mu[i],
                            packet_collection.packets_input_nu[i],
                            packet_collection.packets_input_energy[i],
                            i)
-        
+
+        # We want to set the seed correctly per user; otherwise, random.
+        np.random.seed(i)
         vpacket_collection = VPacketCollection(
             spectrum_frequency, montecarlo_configuration.number_of_vpackets,
             montecarlo_configuration.temporary_v_packet_bins)
-        single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
-                           vpacket_collection, montecarlo_configuration)
+        loop = single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
+                           vpacket_collection)
+        # if loop and 'stop' in loop:
+        #     raise MonteCarloException
 
         output_nus[i] = r_packet.nu
 
@@ -75,6 +84,9 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
 
         v_packets_idx = np.floor((vpackets_nu - spectrum_frequency[0]) /
                                  delta_nu).astype(np.int64)
+        # if we're only in a single-packet mode
+        if montecarlo_configuration.single_packet_seed != -1:
+            break
         for j, idx in enumerate(v_packets_idx):
             if ((vpackets_nu[j] < spectrum_frequency[0]) or
                     (vpackets_nu[j] > spectrum_frequency[-1])):
@@ -85,4 +97,3 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
     packet_collection.packets_output_nu[:] = output_nus[:]
     
     return v_packets_energy_hist
-

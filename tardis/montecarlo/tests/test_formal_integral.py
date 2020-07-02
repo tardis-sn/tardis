@@ -2,23 +2,16 @@ import pytest
 import numpy as np
 from tardis import constants as c
 
-import ctypes
-from ctypes import (
-        c_double,
-        c_int
-        )
-
 from numpy.ctypeslib import (
         as_array,
         as_ctypes,
-        ndpointer
         )
 
 
 import numpy.testing as ntest
 
 from tardis.util.base import intensity_black_body
-from tardis.montecarlo.struct import StorageModel
+import tardis.montecarlo.formal_integral as formal_integral
 
 
 @pytest.mark.parametrize(
@@ -29,11 +22,10 @@ from tardis.montecarlo.struct import StorageModel
             (1, 1),
             ]
         )
-def test_intensity_black_body(clib, nu, T):
-    func = clib.intensity_black_body
-    func.restype = c_double
-    func.argtypes = [c_double, c_double]
+def test_intensity_black_body(nu, T):
+    func = formal_integral.intensity_black_body
     actual = func(nu, T)
+    print(actual, type(actual))
     expected = intensity_black_body(nu, T)
     ntest.assert_almost_equal(
             actual,
@@ -45,16 +37,10 @@ def test_intensity_black_body(clib, nu, T):
         'N',
         (1e2, 1e3, 1e4, 1e5)
         )
-def test_trapezoid_integration(clib, N):
-    func = clib.trapezoid_integration
-    func.restype = c_double
+def test_trapezoid_integration(N):
+    func = formal_integral.trapezoid_integration
     h = 1.
     N = int(N)
-    func.argtypes = [
-            ndpointer(c_double),
-            c_double,
-            c_int
-            ]
     data = np.random.random(N)
 
     actual = func(data, h, int(N))
@@ -70,7 +56,7 @@ def test_trapezoid_integration(clib, N):
         True,
         reason='static inline functions are not inside the library'
         )
-def test_calculate_z(clib):
+def test_calculate_z():
     pass
 
 
@@ -97,7 +83,7 @@ TESTDATA = [
 def formal_integral_model(request, model):
     r = request.param['r']
     model.no_of_shells_i = r.shape[0] - 1
-    model.inverse_time_explosion = c.c.cgs.value
+    model.time_explosion = 1/c.c.cgs.value
     model.r_outer_i.contents = as_ctypes(r[1:])
     model.r_inner_i.contents = as_ctypes(r[:-1])
     return model
@@ -107,20 +93,16 @@ def formal_integral_model(request, model):
         'p',
         [0, 0.5, 1]
         )
-def test_populate_z_photosphere(clib, formal_integral_model, p):
+def test_populate_z_photosphere(formal_integral_model, p):
     '''
     Test the case where p < r[0]
     That means we 'hit' all shells from inside to outside.
     '''
-    func = clib.populate_z
-    func.restype = ctypes.c_int64
-    func.argtypes = [
-            ctypes.POINTER(StorageModel),   # storage
-            c_double,                       # p
-            ndpointer(dtype=np.float64),    # oz
-            ndpointer(dtype=np.int64)       # oshell_id
-            ]
-
+    integrator = formal_integral.FormalIntegrator(
+        formal_integral_model,
+        None,
+        None)
+    func = integrator.populate_z
     size = formal_integral_model.no_of_shells_i
     r_inner = as_array(formal_integral_model.r_inner_i, (size,))
     r_outer = as_array(formal_integral_model.r_outer_i, (size,))
@@ -130,7 +112,6 @@ def test_populate_z_photosphere(clib, formal_integral_model, p):
     oshell_id = np.zeros_like(oz, dtype=np.int64)
 
     N = func(
-            formal_integral_model,
             p,
             oz,
             oshell_id
@@ -153,18 +134,15 @@ def test_populate_z_photosphere(clib, formal_integral_model, p):
         'p',
         [1e-5, 0.5, 0.99, 1]
         )
-def test_populate_z_shells(clib, formal_integral_model, p):
+def test_populate_z_shells(formal_integral_model, p):
     '''
     Test the case where p > r[0]
     '''
-    func = clib.populate_z
-    func.restype = ctypes.c_int64
-    func.argtypes = [
-            ctypes.POINTER(StorageModel),   # storage
-            c_double,                       # p
-            ndpointer(dtype=np.float64),    # oz
-            ndpointer(dtype=np.int64)       # oshell_id
-            ]
+    integrator = formal_integral.FormalIntegrator(
+        formal_integral_model,
+        None,
+        None)
+    func = integrator.populate_z
 
     size = formal_integral_model.no_of_shells_i
     r_inner = as_array(formal_integral_model.r_inner_i, (size,))
@@ -194,7 +172,6 @@ def test_populate_z_shells(clib, formal_integral_model, p):
             p)
 
     N = func(
-            formal_integral_model,
             p,
             oz,
             oshell_id
@@ -221,14 +198,10 @@ def test_populate_z_shells(clib, formal_integral_model, p):
             1000,
             10000,
             ])
-def test_calculate_p_values(clib, N):
+def test_calculate_p_values(N):
     r = 1.
-    func = clib.calculate_p_values
-    func.argtypes = [
-            c_double,
-            c_int,
-            ndpointer(dtype=np.float64)
-            ]
+    func = formal_integral.calculate_p_values
+
     expected = r/(N - 1) * np.arange(0, N, dtype=np.float64)
     actual = np.zeros_like(expected, dtype=np.float64)
 

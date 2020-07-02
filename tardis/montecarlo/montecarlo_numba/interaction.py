@@ -3,9 +3,10 @@ from tardis.montecarlo.montecarlo_numba import njit_dict
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     LineInteractionType)
 
-
+from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
 from tardis.montecarlo.montecarlo_numba.r_packet import (
-    get_doppler_factor, get_random_mu)
+    get_doppler_factor, get_inverse_doppler_factor, get_random_mu,
+    angle_aberration_CMF_to_LF)
 from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
 
 
@@ -24,14 +25,24 @@ def general_scatter(r_packet, time_explosion):
     distance : [type]
         [description]
     """
-    old_doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu, time_explosion)
+    old_doppler_factor = get_doppler_factor(
+        r_packet.r,
+        r_packet.mu,
+        time_explosion)
     comov_energy = r_packet.energy * old_doppler_factor
     comov_nu = r_packet.nu * old_doppler_factor
     r_packet.mu = get_random_mu()
-    inverse_new_doppler_factor = 1. / get_doppler_factor(
+    inverse_new_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion)
     r_packet.energy = comov_energy * inverse_new_doppler_factor
     r_packet.nu = comov_nu * inverse_new_doppler_factor
+    if montecarlo_configuration.full_relativity:
+        r_packet.mu = angle_aberration_CMF_to_LF(
+            r_packet,
+            time_explosion,
+            r_packet.mu
+        )
+
 
 """
 void
@@ -68,7 +79,8 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
     # update last_interaction
 
     if line_interaction_type == LineInteractionType.SCATTER:
-        line_emission(r_packet, r_packet.next_line_id, time_explosion, numba_plasma)
+        line_emission(r_packet, r_packet.next_line_id,
+                      time_explosion, numba_plasma)
     else: # includes both macro atom and downbranch - encoded in the transition probabilities
         emission_line_id = macro_atom(r_packet, numba_plasma)
         line_emission(r_packet, emission_line_id, time_explosion,
@@ -84,6 +96,13 @@ def line_emission(r_packet, emission_line_id, time_explosion,
     r_packet.nu = numba_plasma.line_list_nu[
                       emission_line_id] / doppler_factor
     r_packet.next_line_id = emission_line_id + 1
+    if montecarlo_configuration.full_relativity:
+        r_packet.mu = angle_aberration_CMF_to_LF(
+            r_packet,
+            time_explosion,
+            r_packet.mu
+            )
+
 
 
 

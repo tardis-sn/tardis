@@ -257,7 +257,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # case it needs some extra kwargs.
         if 'j_blue_estimator' in self.plasma.outputs_dict:
             update_properties.update(t_inner=next_t_inner,
-                                     j_blue_estimator=self.runner.j_b_lu_estimator)
+                                     j_blue_estimator=self.runner.j_blue_estimator)
 
         self.plasma.update(**update_properties)
 
@@ -299,7 +299,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                                 self.model.t_rad,
                                 self.plasma.electron_densities,
                                 self.model.t_inner)
-        self.iterate(self.last_no_of_packets, self.no_of_virtual_packets, True)
+        self.iterate(self.last_no_of_packets, self.no_of_virtual_packets, last_run=True)
 
         self.reshape_plasma_state_store(self.iterations_executed)
 

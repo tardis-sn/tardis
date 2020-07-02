@@ -3,7 +3,7 @@ from tardis import __path__ as TARDIS_PATH
 from setuptools import Extension
 import os
 from astropy_helpers.distutils_helpers import get_distutils_option
-from Cython.Build import cythonize
+# from Cython.Build import cythonize
 
 import yaml
 
@@ -30,27 +30,27 @@ else:
 
 yaml.dump(vpacket_config, open(vpacket_config_file_path, "w"), default_flow_style=False)
 
-def get_extensions():
-    sources = ['tardis/montecarlo/montecarlo.pyx']
-    sources += [os.path.relpath(fname) for fname in glob(
-        os.path.join(os.path.dirname(__file__), 'src', '*.c'))]
-    sources += [os.path.relpath(fname) for fname in glob(
-        os.path.join(os.path.dirname(__file__), 'src/randomkit', '*.c'))]
-    deps = [os.path.relpath(fname) for fname in glob(
-        os.path.join(os.path.dirname(__file__), 'src', '*.h'))]
-    deps += [os.path.relpath(fname) for fname in glob(
-        os.path.join(os.path.dirname(__file__), 'src/randomkit', '*.h'))]
+# def get_extensions():
+#     sources = ['tardis/montecarlo/montecarlo.pyx']
+#     sources += [os.path.relpath(fname) for fname in glob(
+#         os.path.join(os.path.dirname(__file__), 'src', '*.c'))]
+#     sources += [os.path.relpath(fname) for fname in glob(
+#         os.path.join(os.path.dirname(__file__), 'src/randomkit', '*.c'))]
+#     deps = [os.path.relpath(fname) for fname in glob(
+#         os.path.join(os.path.dirname(__file__), 'src', '*.h'))]
+#     deps += [os.path.relpath(fname) for fname in glob(
+#         os.path.join(os.path.dirname(__file__), 'src/randomkit', '*.h'))]
 
-    return cythonize(
-            Extension('tardis.montecarlo.montecarlo', sources,
-                include_dirs=['tardis/montecarlo/src',
-                    'tardis/montecarlo/src/randomkit',
-                    'numpy'],
-                depends=deps,
-                extra_compile_args=compile_args,
-                extra_link_args=link_args,
-                define_macros=define_macros)
-            )
+    # return cythonize(
+    #         Extension('tardis.montecarlo.montecarlo', sources,
+    #             include_dirs=['tardis/montecarlo/src',
+    #                 'tardis/montecarlo/src/randomkit',
+    #                 'numpy'],
+    #             depends=deps,
+    #             extra_compile_args=compile_args,
+    #             extra_link_args=link_args,
+    #             define_macros=define_macros)
+    #         )
 
 
 def get_package_data():
