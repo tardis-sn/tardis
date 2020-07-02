@@ -50,7 +50,7 @@ import numpy as np
 import pandas as pd
 import tardis.montecarlo.formal_integral as formal_integral
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
-
+import tardis.montecarlo.montecarlo_configuration as mc
 
 
 from ctypes import (
@@ -317,9 +317,10 @@ def test_binary_search(x, x_insert, imin, imax, expected_params):
 @pytest.mark.parametrize(
     ['mu', 'r', 'inv_t_exp', 'expected'],
     [(0.3, 7.5e14, 1 / 5.2e7, 0.9998556693818854),
-     (-.3, 8.1e14, 1 / 2.6e7, 1.0003117541351274)]
+     (-.3, 0, 1 / 2.6e7, 1.0),
+     (0, 1, 1 / 2.6e7, 1.0)]
 )
-def test_rpacket_doppler_factor(mu, r, inv_t_exp, expected, packet, model):
+def test_get_doppler_factor(mu, r, inv_t_exp, expected, packet, model):
     # Set the params from test cases here
     # TODO: add relativity tests
     time_explosion = 1/inv_t_exp
@@ -329,6 +330,108 @@ def test_rpacket_doppler_factor(mu, r, inv_t_exp, expected, packet, model):
 
     obtained = r_packet.get_doppler_factor(r, mu, time_explosion)
 
+
+    # Perform required assertions
+    assert_almost_equal(obtained, expected)
+
+
+@pytest.mark.parametrize(
+    ['mu', 'r', 'inv_t_exp'],
+    [(-0.3, 5, 1e10)]
+)
+def test_unphysical_doppler_factor(mu, r, inv_t_exp, expected, packet, model):
+    # Set the params from test cases here
+    # TODO: add relativity tests
+    time_explosion = 1 / inv_t_exp
+
+    # Perform any other setups just before this, they can be additional calls
+    # to other methods or introduction of some temporary variables
+    with pytest.raises(r_packet.SuperluminalError):
+        obtained = r_packet.get_doppler_factor(r, mu, time_explosion)
+
+
+@pytest.mark.parametrize(
+    ['mu', 'r', 'inv_t_exp', 'expected'],
+    [(0.3, 7.5e14, 1 / 5.2e7, 1/0.9998556693818854),
+     (-.3, 0, 1 / 2.6e7, 1.0),
+     (0, 1, 1 / 2.6e7, 1.0)]
+)
+def test_get_inverse_doppler_factor(mu, r, inv_t_exp, expected, packet, model):
+    # Set the params from test cases here
+    # TODO: add relativity tests
+    time_explosion = 1/inv_t_exp
+
+    # Perform any other setups just before this, they can be additional calls
+    # to other methods or introduction of some temporary variables
+
+    obtained = r_packet.get_inverse_doppler_factor(r, mu, time_explosion)
+
+    # Perform required assertions
+    assert_almost_equal(obtained, expected)
+
+@pytest.mark.parametrize(
+    ['mu', 'r', 'inv_t_exp'],
+    [(-0.3, 5, 1e10)]
+)
+def test_unphysical_inverse_doppler_factor(mu, r, inv_t_exp, packet, model):
+    # Set the params from test cases here
+    # TODO: add relativity tests
+    time_explosion = 1/inv_t_exp
+
+    # Perform any other setups just before this, they can be additional calls
+    # to other methods or introduction of some temporary variables
+    with pytest.raises(r_packet.SuperluminalError):
+        obtained = r_packet.get_inverse_doppler_factor(r, mu, time_explosion)
+
+
+@pytest.mark.parametrize(
+    ['mu', 'r', 'inv_t_exp', 'expected'],
+    [(-0.3, 10000000, 0.001, 1.0000001000692842),
+     (-.3, 0, 1 / 2.6e7, 1.0),
+     (0, 1, 1 / 2.6e7, 1.0)]
+)
+def test_get_doppler_factor_full_relativity(mu,
+                                                    r,
+                                                    inv_t_exp,
+                                                    expected,
+                                                    packet,
+                                                    model):
+    # Set the params from test cases here
+    # TODO: add relativity tests
+    mc.full_relativity = True
+    time_explosion = 1/inv_t_exp
+
+    # Perform any other setups just before this, they can be additional calls
+    # to other methods or introduction of some temporary variables
+
+    obtained = r_packet.get_doppler_factor(r, mu, time_explosion)
+    mc.full_relativity = False
+    # Perform required assertions
+    assert_almost_equal(obtained, expected)
+
+
+@pytest.mark.parametrize(
+    ['mu', 'r', 'inv_t_exp', 'expected'],
+    [(-0.3, 10000000, 0.001, 0.999999899930827),
+     (-.3, 0, 1 / 2.6e7, 1.0),
+     (0, 1, 1 / 2.6e7, 1.0)]
+)
+def test_get_inverse_doppler_factor_full_relativity(mu,
+                                                    r,
+                                                    inv_t_exp,
+                                                    expected,
+                                                    packet,
+                                                    model):
+    # Set the params from test cases here
+    # TODO: add relativity tests
+    mc.full_relativity = True
+    time_explosion = 1/inv_t_exp
+
+    # Perform any other setups just before this, they can be additional calls
+    # to other methods or introduction of some temporary variables
+
+    obtained = r_packet.get_inverse_doppler_factor(r, mu, time_explosion)
+    mc.full_relativity = False
     # Perform required assertions
     assert_almost_equal(obtained, expected)
 

@@ -12,6 +12,9 @@ from tardis import constants as const
 class MonteCarloException(ValueError):
     pass
 
+class SuperluminalError(ValueError):
+    pass
+
 CLOSE_LINE_THRESHOLD = 1e-7
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
 MISS_DISTANCE = 1e99
@@ -129,6 +132,8 @@ def calculate_tau_electron(electron_density, distance):
 @njit(**njit_dict)
 def get_doppler_factor(r, mu, time_explosion):
     beta = r / (time_explosion * C_SPEED_OF_LIGHT)
+    if beta > 1.:  # TODO: check speed penalty
+        raise SuperluminalError
     if not montecarlo_configuration.full_relativity:
         return get_doppler_factor_partial_relativity(mu, beta)
     else:
@@ -140,12 +145,15 @@ def get_doppler_factor_partial_relativity(mu, beta):
 
 @njit(**njit_dict)
 def get_doppler_factor_full_relativity(mu, beta):
+    # todo: check numpy vs other sqrt
     return (1.0 - mu * beta) / np.sqrt(1 - beta * beta)
 
 
 @njit(**njit_dict)
 def get_inverse_doppler_factor(r, mu, time_explosion):
     beta = (r / time_explosion) / C_SPEED_OF_LIGHT
+    if beta > 1.:
+        raise SuperluminalError
     if not montecarlo_configuration.full_relativity:
         return get_inverse_doppler_factor_partial_relativity(mu, beta)
     else:
@@ -157,6 +165,7 @@ def get_inverse_doppler_factor_partial_relativity(mu, beta):
 
 @njit(**njit_dict)
 def get_inverse_doppler_factor_full_relativity(mu, beta):
+    # TODO: check numpy vs. other sqrt
     return (1.0 + mu * beta) / np.sqrt(1 - beta * beta)
 
 @njit(**njit_dict)
