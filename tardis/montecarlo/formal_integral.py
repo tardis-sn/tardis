@@ -313,7 +313,8 @@ class FormalIntegrator(object):
                 # find first contributing lines
                 nu_start = nu * z[0]
                 nu_end = nu * z[1]
-                self.line_search(nu_start, size_line, idx_nu_start)
+                idx_nu_start = line_search(self.runner.line_list_nu,
+                                           nu_start, size_line, idx_nu_start)
                 offset = shell_id[0] * size_line
 
                 # start tracking accumulated e-scattering optical depth
@@ -456,63 +457,89 @@ class FormalIntegrator(object):
         else:
             return 0
 
-    @njit(**njit_dict)
-    def line_search(self, nu, nu_insert, number_of_lines, result):
-        """
-        Insert a value in to an array of line frequencies
+class BoundsError(ValueError):
+    pass
 
-        Inputs:
-            :nu: (array) line frequencies
-            :nu_insert: (int) value of nu key
-            :number_of_lines: (int) number of lines in the line list
+@njit(**njit_dict)
+def line_search(nu, nu_insert, number_of_lines, result):
+    """
+    Insert a value in to an array of line frequencies
 
-        Outputs:
-            index of the next line ot the red.
-                    If the key value is redder
-                     than the reddest line returns number_of_lines.
-        """
-        # TODO: fix the TARDIS_ERROR_OK
-        # tardis_error_t ret_val = TARDIS_ERROR_OK # check
-        imin = 0
-        imax = number_of_lines - 1
-        if nu_insert > nu[imin]:
-            result = imin
-        elif nu_insert < nu[imax]:
-            result = imax + 1
-        else:
-            ret_val = self.reverse_binary_search(nu, nu_insert, imin, imax, result)
-            result = result + 1
-        return ret_val
+    Inputs:
+        :nu: (array) line frequencies
+        :nu_insert: (int) value of nu key
+        :number_of_lines: (int) number of lines in the line list
 
-    @njit(**njit_dict)
-    def reverse_binary_search(self, x, x_insert, imin, imax, result):
-        """Look for a place to insert a value in an inversely sorted float array.
+    Outputs:
+        index of the next line ot the red.
+                If the key value is redder
+                 than the reddest line returns number_of_lines.
+    """
+    # TODO: fix the TARDIS_ERROR_OK
+    # tardis_error_t ret_val = TARDIS_ERROR_OK # check
+    imin = 0
+    imax = number_of_lines - 1
+    if nu_insert > nu[imin]:
+        result = imin
+    elif nu_insert < nu[imax]:
+        result = imax + 1
+    else:
+        result = reverse_binary_search(nu, nu_insert, imin, imax, result)
+        result = result + 1
+    return result
 
-        Inputs:
-            :x: (array) an inversely (largest to lowest) sorted float array
-            :x_insert: (value) a value to insert
-            :imin: (int) lower bound
-            :imax: (int) upper bound
+@njit(**njit_dict)
+def reverse_binary_search(x, x_insert, imin, imax, result):
+    """Look for a place to insert a value in an inversely sorted float array.
 
-        Outputs:
-            index of the next boundary to the left
-        """
-        # ret_val = TARDIS_ERROR_OK # check
-        if x_insert > x[imin] or x_insert < x[imax]:
-            ret_val = TARDIS_ERROR_BOUNDS_ERROR # check
-        else:
-            imid = (imin + imax) >> 1
-            while imax - imin > 2:
-                if (x[imid] < x_insert):
-                    imax = imid + 1
-                else:
-                    imin = imid
-                imid = (imin + imax) >> 1
-            if (imax - imin == 2 and x_insert < x[imin + 1]):
-                result = imin + 1
+    Inputs:
+        :x: (array) an inversely (largest to lowest) sorted float array
+        :x_insert: (value) a value to insert
+        :imin: (int) lower bound
+        :imax: (int) upper bound
+
+    Outputs:
+        index of the next boundary to the left
+    """
+    # ret_val = TARDIS_ERROR_OK # check
+    if x_insert > x[imin] or x_insert < x[imax]:
+        raise BoundsError # check
+    else:
+        imid = (imin + imax) >> 1
+        while imax - imin > 2:
+            if (x[imid] < x_insert):
+                imax = imid + 1
             else:
-                result = imin
-        return ret_val
+                imin = imid
+            imid = (imin + imax) >> 1
+        if (imax - imin == 2 and x_insert < x[imin + 1]):
+            result = imin + 1
+        else:
+            result = imin
+    return result
+
+@njit(**njit_dict)
+def binary_search(x, x_insert, imin, imax, result):
+    # TODO: actually return result
+    if x_insert < x[imin] or x_insert > x[imax]:
+        raise BoundsError
+    else:
+        while imax >= imin:
+            imid = (imin + imax) / 2
+            if x[imid] == x_insert:
+                result = imid
+                break
+            elif x[imid] < x_insert:
+                imin = imid + 1
+            else:
+                imax = imid - 1
+        if imax - imid == 2 and x_insert < x[imin + 1]:
+            result = imin
+        else:
+            result = imin # check
+    return result
+
+
 
 @njit(**njit_dict)
 def trapezoid_integration(array, h, N):
