@@ -502,7 +502,7 @@ def read_csv_isotope_abundances(
     )
 
     for element_symbol_string in df.index[skip_columns:]:
-        if element_symbol_string.title() in nucname.name_zz:
+        if element_symbol_string in nucname.name_zz:
             z = nucname.name_zz[element_symbol_string]
             abundance.loc[z, :] = df.loc[element_symbol_string].tolist()
         else:
@@ -533,7 +533,7 @@ def parse_csv_abundances(csvy_data):
     """
 
     abundance_col_names = [
-        name.title()
+        name
         for name in csvy_data.columns
         if nucname.iselement(name) or nucname.isnuclide(name)
     ]
