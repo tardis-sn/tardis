@@ -30,37 +30,41 @@ jobs:
 
     steps:
       - bash: |
-          echo "##vso[task.setvariable variable=shellopts]errexit"
+              echo "##vso[task.setvariable variable=shellopts]errexit"
         displayName: "Force exit on error (bash) "
 
       - bash: |
-          echo "##vso[task.prependpath]$CONDA/bin"
+              echo "##vso[task.prependpath]$CONDA/bin"
         displayName: Add conda to PATH
 
       - bash: |
-          sudo chown -R $USER $CONDA
-          # conda update -y conda
+              sudo chown -R $USER $CONDA
+              # conda update -y conda
         displayName: updating conda and activating
 
       - bash: |
-          sh ci-helpers/install_tardis_env.sh
+              conda install mamba=0.4.0 -c conda-forge -y
+        displayName: "Install mamba"
+
+      - bash: |
+              mamba env create -f tardis_env3.yml
         displayName: "Install TARDIS env"
 
       - bash: |
-          sh ci-helpers/fetch_reference_data.sh
+              sh ci-helpers/fetch_reference_data.sh
         displayName: "Fetch Reference Data"
 
       - bash: |
-          source activate tardis
-          python setup.py build_ext --inplace
+              source activate tardis
+              python setup.py build_ext --inplace
         displayName: "TARDIS build"
 
       - bash: |
-          source activate tardis
-          pip install pytest-azurepipelines
-          pytest tardis --tardis-refdata=$(ref.data.home) --cov=tardis --cov-report=xml --cov-report=html
-
+              source activate tardis
+              pip install pytest-azurepipelines
+              pytest tardis --tardis-refdata=$(ref.data.home) --cov=tardis --cov-report=xml --cov-report=html
         displayName: "TARDIS test"
+
       - script: |
-          bash <(curl -s https://codecov.io/bash)
+                bash <(curl -s https://codecov.io/bash)
         displayName: "Upload to codecov.io"
