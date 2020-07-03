@@ -51,7 +51,22 @@ jobs:
         displayName: "Install TARDIS env"
 
       - bash: |
-              sh ci-helpers/fetch_reference_data.sh
+              # sh ci-helpers/fetch_reference_data.sh
+              echo git clone $(ref.data.github.url) $(ref.data.home)
+              git clone $(ref.data.github.url) $(ref.data.home)
+              cd $(ref.data.home)
+              # Use the following to get the ref-data from the master;
+              git fetch origin
+              git checkout origin/master
+              # Use the following to get the ref-data from a specific pull request
+              #git fetch origin pull/20/head:update-ref
+              #git checkout update-ref
+              git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin
+              git lfs pull --include="atom_data/chianti_He.h5" origin
+              git lfs pull --include="plasma_reference/" origin
+              git lfs pull --include="unit_test_data.h5" origin
+              echo MD5 `md5sum unit_test_data.h5`; fi
+              cd $(tardis.build.dir)
         displayName: "Fetch Reference Data"
 
       - bash: |
