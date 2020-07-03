@@ -160,6 +160,10 @@ def read_uniform_abundances(abundances_section, no_of_shells):
     -------
     abundance: ~pandas.DataFrame
     isotope_abundance: ~pandas.DataFrame
+
+    WARNING : current implementation is case insensitive, 
+    this will bring problems when we include molecules in 
+    the model. e.g. CO will be read as Co.
     """
     abundance = pd.DataFrame(
         columns=np.arange(no_of_shells),
