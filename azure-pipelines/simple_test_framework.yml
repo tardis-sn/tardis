@@ -49,10 +49,6 @@ jobs:
         displayName: "Install TARDIS env"
 
       - bash: |
-              touch -j
-        displayName: "This step should fail"
-
-      - bash: |
               echo git clone $(ref.data.github.url) $(ref.data.home)
               git clone $(ref.data.github.url) $(ref.data.home)
               cd $(ref.data.home)
