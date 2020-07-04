@@ -29,8 +29,7 @@ jobs:
       maxParallel: 4
 
     steps:
-      - bash: |
-              echo "##vso[task.setvariable variable=shellopts]errexit"
+      - bash:  echo "##vso[task.setvariable variable=shellopts]errexit"
         displayName: "Force exit on error (bash) "
 
       - bash: |
@@ -39,8 +38,7 @@ jobs:
 
       - bash: |
               sudo chown -R $USER $CONDA
-              # conda update -y conda
-        displayName: updating conda and activating
+        displayName: Adding user to CONDA
 
       - bash: |
               conda install mamba=0.4.0 -c conda-forge -y
@@ -51,23 +49,21 @@ jobs:
         displayName: "Install TARDIS env"
 
       - bash: |
-              # sh ci-helpers/fetch_reference_data.sh
+              touch -j
+        displayName: "This step should fail"
+
+      - bash: |
               echo git clone $(ref.data.github.url) $(ref.data.home)
               git clone $(ref.data.github.url) $(ref.data.home)
               cd $(ref.data.home)
-              # Use the following to get the ref-data from the master;
               git fetch origin
               git checkout origin/master
-              # Use the following to get the ref-data from a specific pull request
-              #git fetch origin pull/20/head:update-ref
-              #git checkout update-ref
               git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin
               git lfs pull --include="atom_data/chianti_He.h5" origin
               git lfs pull --include="plasma_reference/" origin
               git lfs pull --include="unit_test_data.h5" origin
               git lfs pull --include="packet_unittest.h5" origin
-              echo MD5 `md5sum unit_test_data.h5`
-              cd $(tardis.build.dir)
+              echo MD5: `md5sum unit_test_data.h5`
         displayName: "Fetch Reference Data"
 
       - bash: |
@@ -81,6 +77,6 @@ jobs:
               pytest tardis --tardis-refdata=$(ref.data.home) --cov=tardis --cov-report=xml --cov-report=html
         displayName: "TARDIS test"
 
-      - script: |
-                bash <(curl -s https://codecov.io/bash)
+      - bash: |
+              bash <(curl -s https://codecov.io/bash)
         displayName: "Upload to codecov.io"
