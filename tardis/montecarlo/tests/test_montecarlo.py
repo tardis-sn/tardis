@@ -51,6 +51,9 @@ import pandas as pd
 import tardis.montecarlo.formal_integral as formal_integral
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
 import tardis.montecarlo.montecarlo_configuration as mc
+from tardis import constants as const
+C_SPEED_OF_LIGHT = const.c.to('cm/s').value
+
 
 
 from ctypes import (
@@ -434,6 +437,41 @@ def test_get_inverse_doppler_factor_full_relativity(mu,
     mc.full_relativity = False
     # Perform required assertions
     assert_almost_equal(obtained, expected)
+
+def test_get_random_mu_different_output():
+    """
+    Ensure that different calls results
+    """
+    output1 = r_packet.get_random_mu()
+    output2 = r_packet.get_random_mu()
+    assert output1 != output2
+
+def test_get_random_mu_different_output():
+    """
+    Ensure that different calls results
+    """
+    output1 = r_packet.get_random_mu()
+    output2 = r_packet.get_random_mu()
+    assert output1 != output2
+
+
+@pytest.mark.parametrize(
+    ['mu', 'r', 'time_explosion'],
+    [(1, C_SPEED_OF_LIGHT, 1),
+     (1, 1, C_SPEED_OF_LIGHT)]
+)
+def test_angle_ab_LF_to_CMF_diverge(mu, r, time_explosion, packet):
+    """
+    This equation should diverage as costheta --> 1 and beta --> 1
+    """
+    C_SPEED_OF_LIGHT
+    packet.r = r
+    packet.mu = mu
+    with pytest.raises(ZeroDivisionError):
+        obtained = r_packet.angle_aberration_LF_to_CMF(
+                                                        packet,
+                                                        time_explosion,
+                                                        mu)
 
 
 @pytest.mark.parametrize(
