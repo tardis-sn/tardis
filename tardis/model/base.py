@@ -108,14 +108,12 @@ class Radial1DModel(HDFWriterMixin):
             self._t_radiative = constants.b_wien / (lambda_wien_inner * (
                 1 + (self.v_middle - self.v_boundary_inner) / constants.c))
         else:
-            #self._t_radiative = t_radiative[self.v_boundary_inner_index + 1:self.v_boundary_outer_index]
             self._t_radiative = t_radiative
 
         if dilution_factor is None:
             self._dilution_factor = 0.5 * (1 - np.sqrt(
                 1 - (self.r_inner[0] ** 2 / self.r_middle ** 2).to(1).value))
         else:
-            #self.dilution_factor = dilution_factor[self.v_boundary_inner_index + 1:self.v_boundary_outer_index]
             self._dilution_factor = dilution_factor
 
     @property
@@ -139,16 +137,6 @@ class Radial1DModel(HDFWriterMixin):
     def dilution_factor(self):
         if len(self._dilution_factor) == self.no_of_shells:
             return self._dilution_factor
-
-#        if self.v_boundary_inner in self.raw_velocity:
-#            v_inner_ind = np.argwhere(self.raw_velocity == self.v_boundary_inner)[0][0]
-#        else:
-#            v_inner_ind = np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
-#        if self.v_boundary_outer in self.raw_velocity:
-#            v_outer_ind = np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
-#        else:
-#            v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
-
         return self._dilution_factor[self.v_boundary_inner_index + 1:self.v_boundary_outer_index + 1]
 
     @dilution_factor.setter
@@ -156,15 +144,6 @@ class Radial1DModel(HDFWriterMixin):
         if len(value) == len(self._dilution_factor):
             self._dilution_factor = value
         elif len(value) == self.no_of_shells:
-#            if self.v_boundary_inner in self.raw_velocity:
-#                v_inner_ind = np.argwhere(self.raw_velocity == self.v_boundary_inner)[0][0]
-#            else:
-#                v_inner_ind = np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
-#            if self.v_boundary_outer in self.raw_velocity:
-#                v_outer_ind = np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
-#            else:
-#                v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
-#            assert v_outer_ind - v_inner_ind == self.no_of_shells, "trad shape different from number of shells"
             self._dilution_factor[self.v_boundary_inner_index+1:self.v_boundary_outer_index+1] = value
         else:
             raise ValueError("Trying to set dilution_factor for unmatching number"
@@ -174,16 +153,6 @@ class Radial1DModel(HDFWriterMixin):
     def t_radiative(self):
         if len(self._t_radiative) == self.no_of_shells:
             return self._t_radiative
-
-#        if self.v_boundary_inner in self.raw_velocity:
-#            v_inner_ind = np.argwhere(self.raw_velocity == self.v_boundary_inner)[0][0]
-#        else:
-#            v_inner_ind = np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
-#        if self.v_boundary_outer in self.raw_velocity:
-#            v_outer_ind = np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
-#        else:
-#            v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
-
         return self._t_radiative[self.v_boundary_inner_index + 1:self.v_boundary_outer_index + 1]
 
     @t_radiative.setter
@@ -191,15 +160,6 @@ class Radial1DModel(HDFWriterMixin):
         if len(value) == len(self._t_radiative):
             self._t_radiative = value
         elif len(value) == self.no_of_shells:
-#            if self.v_boundary_inner in self.raw_velocity:
-#                v_inner_ind = np.argwhere(self.raw_velocity == self.v_boundary_inner)[0][0]
-#            else:
-#                v_inner_ind = np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
-#            if self.v_boundary_outer in self.raw_velocity:
-#                v_outer_ind = np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
-#            else:
-#                v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
-#            assert v_outer_ind - v_inner_ind == self.no_of_shells, "trad shape different from number of shells"
             self._t_radiative[self.v_boundary_inner_index+1:self.v_boundary_outer_index+1] = value
         else:
             raise ValueError("Trying to set t_radiative for unmatching number"
@@ -294,7 +254,6 @@ class Radial1DModel(HDFWriterMixin):
                 if value < self.raw_velocity[0]:
                     raise ValueError('v_boundary_inner is lower than the lowest shell in the model.')
         self._v_boundary_inner = value
-        # Invalidate the cached cut-down velocity array
         self._velocity = None
 
     @property
@@ -319,7 +278,6 @@ class Radial1DModel(HDFWriterMixin):
                 if value > self.raw_velocity[-1]:
                     raise ValueError('v_boundary_outer is larger than the largest shell in the model.')
         self._v_boundary_outer = value
-        # Invalidate the cached cut-down velocity array
         self._velocity = None
 
 
@@ -341,26 +299,6 @@ class Radial1DModel(HDFWriterMixin):
             v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
         return v_outer_ind
 
-
-#    @property
-#    def v_boundary_inner_index(self):
-#        if self.v_boundary_inner <= self.raw_velocity[0]:
-#            return 0
-#        else:
-#            idx = max(0,
-#                      self.raw_velocity.searchsorted(self.v_boundary_inner) - 1)
-#            # check for zero volume of designated first cell
-#            if np.isclose(self.v_boundary_inner, self.raw_velocity[idx + 1],
-#                          atol=1e-8 * u.km / u.s) and (self.v_boundary_inner <=
-#                                                           self.raw_velocity[idx + 1]):
-#                idx += 1
-#            return idx
-#
-#    @property
-#    def v_boundary_outer_index(self):
-#        if self.v_boundary_outer >= self.raw_velocity[-1]:
-#            return None
-#        return self.raw_velocity.searchsorted(self.v_boundary_outer) + 1
 
     @classmethod
     def from_config(cls, config):
@@ -399,8 +337,6 @@ class Radial1DModel(HDFWriterMixin):
             homologous_density = HomologousDensity(density_0, time_0)
         else:
             raise NotImplementedError
-        # Note: This is the number of shells *without* taking in mind the
-        #       v boundaries.
         no_of_shells = len(velocity) - 1
 
         if temperature:
@@ -507,16 +443,6 @@ class Radial1DModel(HDFWriterMixin):
         electron_densities = None
         temperature = None
 
-        #if hasattr(csvy_model_config, 'v_inner_boundary'):
-        #    v_boundary_inner = csvy_model_config.v_inner_boundary
-        #else:
-        #    v_boundary_inner = None
-
-        #if hasattr(csvy_model_config, 'v_outer_boundary'):
-        #    v_boundary_outer = csvy_model_config.v_outer_boundary
-        #else:
-        #    v_boundary_outer = None
-
         if hasattr(config, 'model'):
             if hasattr(config.model, 'v_inner_boundary'):
                 v_boundary_inner = config.model.v_inner_boundary
@@ -554,8 +480,6 @@ class Radial1DModel(HDFWriterMixin):
 
         no_of_shells = len(velocity) - 1
 
-        # TODO -- implement t_radiative
-        #t_radiative = None
         if temperature:
             t_radiative = temperature
         elif hasattr(csvy_model_data, 'columns'):
@@ -605,9 +529,7 @@ class Radial1DModel(HDFWriterMixin):
             abundance /= norm_factor
             isotope_abundance /= norm_factor
 
-        #isotope_abundance = IsotopeAbundances(isotope_abundance)
         isotope_abundance = IsotopeAbundances(isotope_abundance, time_0=csvy_model_config.model_isotope_time_0)
-        #isotope_abundance.time_0 = csvy_model_config.model_isotope_time_0
 
         return cls(velocity=velocity,
                    homologous_density=homologous_density,
