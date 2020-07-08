@@ -41,8 +41,6 @@ jobs:
         displayName: Adding user to CONDA
 
       - bash: |
-              touch -j
-              echo "Hello world"
               conda install mamba=0.4.0 -c conda-forge -y
         displayName: "Install mamba"
 
