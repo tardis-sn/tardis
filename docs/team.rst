@@ -19,22 +19,28 @@ The roles and their description can be found here:
 
    * - Roles
      - Person/People
-   * - TARDIS CORE
+   * - **TARDIS CORE**
      - Wolfgang Kerzendorf , Yssavo Camacho-Neves, Alice Harpole, Marc Williamson, Andreas Flörs, Christian Vogl, Stuart Sim, Luke Shingles, Vytautas Jancauskas
-   * - TARDIS GSoC Coordinators (2020)
+   * - **TARDIS GSoC Coordinators (2020)**
      - Wolfgang Kerzendorf , Yssavo Camacho-Neves, Alice Harpole, Marc Williamson
-   * - TARDIS GSoC Mentors (2020)
+   * - **TARDIS GSoC Mentors (2020)**
      - Alice Harpole,  Andreas Flörs, Christian Vogl, Fionntan Callan, James Gillanders, Luciano G Silvestri, Stuart Sim, Wolfgang Kerzendorf, Yssavo Camacho-Neves, Andrew Fullard, Arjun Savel, Brian Cherinka, Jack O'Brien, Lindsey Kwok, Luke Shingles, Marc Williamson, Mark Magee, Michael Moltenbrey, Vytautas Jancauskas
-   * - Ombudsperson
+   * - **Ombudsperson**
      - Wolfgang Kerzendorf
-   * - Software Architect 
+   * - **Software Architect** 
      - Alice Harpole   
-   * - Issues / Pull Request 
+   * - **Issues / Pull Request** 
      - Andreas Flörs
-   * - Continuous Integration/ Deployment / Testing
+   * - **Continuous Integration / Deployment / Testing**
      - Christian Vogl
-
+   * - **Funding / Financial**
+     - Marc Williamson
+   * - **Science / Science Meeting / Publications**
+     - Yssavo Camacho-Neves
+   * - **Diversity, Equity, and Inclusion**
+     - Wolfgang Kerzendorf
      
+
 **TARDIS CORE**
 
 - Team that supervises the activities and sets the goals for the TARDIS Collaboration
@@ -65,11 +71,29 @@ The roles and their description can be found here:
 - Monitor reviewing is taking place
 - Close abandoned PRs / Issues
 
-**Continuous Integration/ Deployment / Testing** 
+**Continuous Integration / Deployment / Testing** 
 
 - Inform team of break in any of the CI/CD pipelines
 - Delegate code maintenance and bug removal
 - Identify new technologies for CI/CD
+
+**Funding / Financial**
+
+- Manage budget for TARDIS
+- Ensure financial transparency 
+- Coordinating with funding organizations
+- Securing funding for parts of the project via discussions and proposals to funding agencies
+
+**Science / Science Meeting / Publications**
+
+- Coordinating work for weekly science meeting
+- Finding publications and collecting TARDIS models
+- Citation guide
+
+**Diversity, Equity, and Inclusion**
+
+- Identify opportunities to use TARDIS to engage members of underrepresented minorities (URM) to coding/STEM
+- Identify papers about engaging URM in coding/science
 
 
 Past Team Members
