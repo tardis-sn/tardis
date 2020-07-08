@@ -92,5 +92,6 @@ Current and Former GSoC and SOCIS Students
  * Stefan Lietzau (GSoC 2017)
  * Mikhail Mishin (GSoC 2016)
  * Fotis Tsamis (GSoC 2016)
- * Ezequiel Passaro (GSoC 2019)
- * Jaladh Singhal (GSoC 2019)
+ * Ezequiel Passaro (GSoC 2019, GSoC 2020)
+ * Jaladh Singhal (GSoC 2019, GSoC 2020)
+ * Jordi Eguren Brown (GSoC 2020)
