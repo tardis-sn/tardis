@@ -14,7 +14,7 @@ jobs:
                 - [ ] Is the necessary information provided? \n
                   \t - [ ] Does the PR have a complete description? Does it explain what the PR is attempting to do/fix, does it explain how it does this? \n
                   \t - [ ] Is there an explanation of why this PR is needed? \n
-                  \t - [ ] Please use the following PR template: https://github.com/tardis-sn/tardis/blob/master/.github/PULL_REQUEST_TEMPLATE.md \n
+                  \t - [ ] Please use the [TARDIS PR template](https://github.com/tardis-sn/tardis/blob/master/.github/PULL_REQUEST_TEMPLATE.md) \n
                 - [ ] Is this a duplicate PR? \n
                   \t - [ ] If a new PR is clearly a duplicate, ask how this PR is different from the original PR? \n
                   \t - [ ] If this PR is about to be merged, close the original PR with a link to this new PR that solved the issue. \n
