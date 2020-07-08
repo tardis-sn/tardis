@@ -29,9 +29,6 @@ jobs:
       maxParallel: 4
 
     steps:
-      - bash:  echo "##vso[task.setvariable variable=shellopts]errexit"
-        displayName: "Force exit on error (bash) "
-
       - bash: |
               echo "##vso[task.prependpath]$CONDA/bin"
         displayName: Add conda to PATH
