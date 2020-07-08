@@ -19,7 +19,7 @@ class CSVYReader():
             f.write('---\n')
             for key in self.yml.keys():
                 if not key == 'datatype':
-                    f.write(': '.join([key, str(self.yml[key]), '\n']))
+                    f.write(key + ': ' + str(self.yml[key]) + '\n')
                 elif key == 'datatype':
                     f.write('datatype:\n')
                     f.write('  fields:\n')
