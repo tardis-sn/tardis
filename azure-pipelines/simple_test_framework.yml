@@ -29,6 +29,9 @@ jobs:
       maxParallel: 4
 
     steps:
+      - bash:  echo "##vso[task.setvariable variable=shellopts]errexit"
+        displayName: "Force exit on error (bash) "
+
       - bash: |
               echo "##vso[task.prependpath]$CONDA/bin"
         displayName: Add conda to PATH
@@ -38,6 +41,8 @@ jobs:
         displayName: Adding user to CONDA
 
       - bash: |
+              touch -j
+              echo "Hello world"
               conda install mamba=0.4.0 -c conda-forge -y
         displayName: "Install mamba"
 
