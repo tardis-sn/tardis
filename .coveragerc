@@ -44,6 +44,6 @@ omit =
    # Omit all version and __init__.py files 
    *version*
    *__init__*
-   *_astropy_init.py
+   *_astropy_init*
    
 
