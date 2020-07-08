@@ -30,13 +30,16 @@ Please contact the TARDIS team via the `GitHub page
 <https://github.com/tardis-sn/tardis>`_ if you have questions or need
 assistance.
 
-***************** 
+-----------------
 Mission Statement
-***************** 
+-----------------
 
-.. class:: center
-
-*The mission of the TARDIS community is to develop open-source software instruments to analyze and simulate astronomical transients (supernovae, kilonovae, etc.) for research and education purposes. We aim to build up a diverse group of researchers and developers using an open-community model that emphasizes interdisciplinary research and science reproducibility.*
+    *The mission of the TARDIS community is to develop open-source software 
+    instruments to analyze and simulate astronomical transients 
+    (supernovae, kilonovae, etc.) for research and education purposes. 
+    We aim to build up a diverse group of researchers and developers 
+    using an open-community model that emphasizes interdisciplinary 
+    research and science reproducibility.*
 
 
 
@@ -86,7 +89,7 @@ Mission Statement
 
 .. toctree::
     :maxdepth: 2
-    :caption: Developers Guide
+    :caption: Contributing to TARDIS
     :hidden:
 
     development/index
