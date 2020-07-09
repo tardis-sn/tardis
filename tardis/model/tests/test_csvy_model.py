@@ -55,3 +55,12 @@ def test_csvy_abundance():
     ref_abund.index = np.array([1, 2])
 
     assert csvy_abund.equals(ref_abund)
+
+def test_abundances_dataframes_shapes():
+    csvypath = os.path.join(DATA_PATH, 'config_v_filter.yml')
+    config = Configuration.from_yaml(csvypath)
+    csvy_model = Radial1DModel.from_csvy(config)
+    csvy_abund_col = csvy_model.raw_abundance.columns
+    csvy_isotope_abund_col = csvy_model.raw_isotope_abundance.columns
+    
+    assert len(csvy_abund_col) == len(csvy_isotope_abund_col)
