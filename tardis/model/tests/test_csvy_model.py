@@ -10,48 +10,46 @@ import pytest
 
 DATA_PATH = os.path.join(tardis.__path__[0],'model','tests','data')
 
-@pytest.fixture(scope="module", params=[('config_csvy_full.yml','config_csvy_full_old.yml'),
-                                        ('config_csvy_nocsv_exponential.yml','config_csvy_nocsv_exponential_old.yml'),
+@pytest.fixture(scope="function", params=[('config_csvy_full.yml','config_csvy_full_old.yml'),
                                         ('config_csvy_full_rad.yml','config_csvy_full_rad_old.yml')])
-def filename(request):
+def filename_tuples(request):
     fn_tup = request.param
     fn = os.path.join(DATA_PATH, fn_tup[0])
     fnold = os.path.join(DATA_PATH, fn_tup[1])
     return fn, fnold
 
+@pytest.fixture(scope="function", params=['config_csvy_nocsv_branch85.yml', 'config_csvy_nocsv_uniform.yml', 'config_csvy_nocsv_exponential.yml', 'config_csvy_nocsv_powerlaw.yml'])
+def old_files(request):
+    nocsv_file = request.param
+    return (DATA_PATH + nocsv_file)
+
 @pytest.mark.xfail
 def test_unsupported_field(filename):
-    fn, fnold = filename
-    if 'nocsv' in fn:
-        tardis_config = Configuration.from_yaml(fn)
-        Radial1DModel.from_csvy(tardis_config)
-    else:
-        pytest.skip()
+    old_file = old_files
+    tardis_config = Configuration.from_yaml(old_file)
+    Radial1DModel.from_csvy(tardis_config)
 
-def test_compare_models(filename):
-    fn, fnold = filename
-    if 'nocsv' not in fn:
-        tardis_config = Configuration.from_yaml(fn)
-        tardis_config_old = Configuration.from_yaml(fnold)
-        csvy_model = Radial1DModel.from_csvy(tardis_config)
-        config_model = Radial1DModel.from_config(tardis_config_old)
-        csvy_model_props = csvy_model.get_properties().keys()
-        config_model_props = config_model.get_properties().keys()
-        npt.assert_array_equal(csvy_model_props, config_model_props)
-        for prop in config_model_props:
-            csvy_model_val = csvy_model.get_properties()[prop]
-            config_model_val = config_model.get_properties()[prop]
-            if prop == 'homologous_density':
-                npt.assert_array_almost_equal(csvy_model_val.density_0.value, config_model_val.density_0.value)
-                npt.assert_array_almost_equal(csvy_model_val.time_0.value, config_model_val.time_0.value)
-            else:
-                if hasattr(config_model_val, 'value'):
-                    config_model_val = config_model_val.value
-                    csvy_model_val = csvy_model_val.value
-                npt.assert_array_almost_equal(csvy_model_val, config_model_val)
+def test_compare_models(filename_tuples):
+    fn, fnold = filename_tuples
+    tardis_config = Configuration.from_yaml(fn)
+    tardis_config_old = Configuration.from_yaml(fnold)
+    csvy_model = Radial1DModel.from_csvy(tardis_config)
+    config_model = Radial1DModel.from_config(tardis_config_old)
+    csvy_model_props = csvy_model.get_properties().keys()
+    config_model_props = config_model.get_properties().keys()
+    npt.assert_array_equal(csvy_model_props, config_model_props)
+    for prop in config_model_props:
+        csvy_model_val = csvy_model.get_properties()[prop]
+        config_model_val = config_model.get_properties()[prop]
+        if prop == 'homologous_density':
+            npt.assert_array_almost_equal(csvy_model_val.density_0.value, config_model_val.density_0.value)
+            npt.assert_array_almost_equal(csvy_model_val.time_0.value, config_model_val.time_0.value)
+        else:
+            if hasattr(config_model_val, 'value'):
+                config_model_val = config_model_val.value
+                csvy_model_val = csvy_model_val.value
+            npt.assert_array_almost_equal(csvy_model_val, config_model_val)
 
-    else:
-        pytest.skip()
 
 
 def test_csvy_abundance():
