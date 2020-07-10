@@ -3,11 +3,12 @@ tardis_config_version: v1.0
 
 supernova:
   luminosity_requested: 8.770 log_lsun
-  time_explosion: 1 day
+  time_explosion: 16 day
   distance: 8.32 Mpc
 
 # standard atomic data base; get it from the tardis-refdata repository
-atom_data: kurucz_cd23_chianti_H_He.h5
+#atom_data: kurucz_cd23_chianti_H_He.h5
+atom_data: /Users/marcwilliamson/Research/TARDIS/tardis-refdata/atom_data/kurucz_cd23_chianti_H_He.h5
 
 csvy_model: csvy_vfilter.csvy
 
