@@ -54,5 +54,4 @@ def test_csvy_abundance():
     ref_abund.index.name = ['atomic_number']
     ref_abund.index = np.array([1, 2, 26, 27, 28])
 
-#    assert csvy_abund.equals(ref_abund)
     pd.testing.assert_frame_equal(csvy_abund,ref_abund,check_names = False, check_less_precise = True)
