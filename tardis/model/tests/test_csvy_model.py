@@ -47,11 +47,28 @@ def test_compare_models(filename):
 def test_csvy_abundance():
     csvypath = os.path.join(DATA_PATH, 'config_v_filter.yml')
     config = Configuration.from_yaml(csvypath)
-    csvy_model = Radial1DModel.from_csvy(config)
-    csvy_abund = csvy_model.abundance
+    csvy = Radial1DModel.from_csvy(config)
+    
 
-    ref_abund = pd.DataFrame(np.array([[0.00000001,0.4],[0.990000001,0.58000],[0.00073564,0.00147129],[0.0076531,00.015306],[0.0016112,0.003222]]))
-    ref_abund.index.name = ['atomic_number']
-    ref_abund.index = np.array([1, 2, 26, 27, 28])
+    #test abundance
+    abundance_index = pd.Index([1,2],name = 'atomic_number')
+    input_abundance = pd.DataFrame([[0.0,0.4],[0.99,0.58]],index = abundance_index)
+    pd.testing.assert_frame_equal(csvy.raw_abundance,input_abundance,check_names = True)
+    
+    #test isotopes
+    arrays = [[28],[56]]
+    isotope_index = pd.MultiIndex.from_arrays(
+            arrays, names=["atomic_number", "mass_number"]
+        )
+    input_isotopes = pd.DataFrame(columns=np.arange(2),index = isotope_index)
+    input_isotopes[0] = 0.01
+    input_isotopes[1] = 0.02
+    pd.testing.assert_frame_equal(csvy.raw_isotope_abundance,input_isotopes,check_names = True)
+    
 
-    pd.testing.assert_frame_equal(csvy_abund,ref_abund,check_names = False, check_less_precise = True)
+
+    #test decay
+    decay_index = pd.Index([1, 2, 26, 27, 28],name = 'atomic_number')
+    ref_abund = pd.DataFrame([[0.00,0.4],[0.99,0.58],[0.00073564,0.00147129],[0.0076531,00.015306],[0.0016112,0.003222]], index = decay_index)
+
+    pd.testing.assert_frame_equal(csvy.abundance,ref_abund,check_names = True, check_less_precise = True)
