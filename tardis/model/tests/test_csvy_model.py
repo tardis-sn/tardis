@@ -43,12 +43,14 @@ def test_compare_models(filename):
                 csvy_model_val = csvy_model_val.value
             npt.assert_array_almost_equal(csvy_model_val, config_model_val)
 
-
-def test_csvy_abundance():
+@pytest.fixture(scope='module')
+def csvy():
     csvypath = os.path.join(DATA_PATH, 'config_v_filter.yml')
     config = Configuration.from_yaml(csvypath)
     csvy = Radial1DModel.from_csvy(config)
-    
+    return csvy
+
+def test_csvy_input_abundance_storage(csvy):
 
     #test abundance
     abundance_index = pd.Index([1,2],name = 'atomic_number')
@@ -66,8 +68,8 @@ def test_csvy_abundance():
     pd.testing.assert_frame_equal(csvy.raw_isotope_abundance,input_isotopes,check_names = True)
     
 
-
-    #test decay
+#test decay
+def test_decay_dataframe(csvy):
     decay_index = pd.Index([1, 2, 26, 27, 28],name = 'atomic_number')
     ref_abund = pd.DataFrame([[0.00,0.4],[0.99,0.58],[0.00073564,0.00147129],[0.0076531,00.015306],[0.0016112,0.003222]], index = decay_index)
 
