@@ -65,7 +65,7 @@ numpydoc_show_class_members = False
 extensions += ['matplotlib.sphinxext.plot_directive',
                'sphinxcontrib.bibtex']
 
-nbsphinx_execute = 'auto'
+nbsphinx_execute = 'never'
 
 nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
@@ -84,7 +84,7 @@ https://github.com/tardis-sn/tardis/tree/master/docs/{{ env.doc2path(env.docname
 templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build', '_templates',  '**.ipynb_checkpoints']
+exclude_patterns = ['_build', '_templates',  '**.ipynb_checkpoints', '*.ipynb']
 #exclude_patterns.append('_templates')
 
 # This is added to the end of RST files - a good place to put substitutions to
