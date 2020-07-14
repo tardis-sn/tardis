@@ -94,6 +94,7 @@ Mission Statement
 
     development/index
     CHANGELOG.md
+    roadmap
 
 .. toctree::
     :maxdepth: 2
