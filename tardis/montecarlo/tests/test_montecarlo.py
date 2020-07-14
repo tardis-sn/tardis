@@ -52,6 +52,8 @@ import tardis.montecarlo.formal_integral as formal_integral
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
 import tardis.montecarlo.montecarlo_configuration as mc
 from tardis import constants as const
+from tardis.montecarlo.montecarlo_numba import numba_interface
+from tardis.montecarlo.montecarlo_numba import macro_atom
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
 
 
@@ -263,7 +265,7 @@ relatively old and stable code.
       {'result': 0, 'ret_val': TARDIS_ERROR_BOUNDS_ERROR})]
 )
 def test_reverse_binary_search(x, x_insert, imin, imax, expected_params):
-    x = (c_double * (imax - imin + 1))(*x)
+    # x = (c_double * (imax - imin + 1))(*x)
     obtained_result = 0
 
     obtained_tardis_error = formal_integral.reverse_binary_search(
@@ -285,7 +287,7 @@ def test_reverse_binary_search(x, x_insert, imin, imax, expected_params):
       {'result': 0, 'ret_val': TARDIS_ERROR_OK})]
 )
 def test_line_search(nu, nu_insert, number_of_lines, expected_params):
-    nu = (c_double * number_of_lines)(*nu)
+    # nu = (c_double * number_of_lines)(*nu)
     nu_insert = c_double(nu_insert)
     obtained_result = 0
 
@@ -342,7 +344,7 @@ def test_get_doppler_factor(mu, r, inv_t_exp, expected, packet, model):
     ['mu', 'r', 'inv_t_exp'],
     [(-0.3, 5, 1e10)]
 )
-def test_unphysical_doppler_factor(mu, r, inv_t_exp, expected, packet, model):
+def test_unphysical_doppler_factor(mu, r, inv_t_exp, packet, model):
     # Set the params from test cases here
     # TODO: add relativity tests
     time_explosion = 1 / inv_t_exp
@@ -457,14 +459,13 @@ def test_get_random_mu_different_output():
 
 @pytest.mark.parametrize(
     ['mu', 'r', 'time_explosion'],
-    [(1, C_SPEED_OF_LIGHT, 1),
-     (1, 1, C_SPEED_OF_LIGHT)]
+    [(1, C_SPEED_OF_LIGHT, 1)]
 )
 def test_angle_ab_LF_to_CMF_diverge(mu, r, time_explosion, packet):
     """
     This equation should diverage as costheta --> 1 and beta --> 1
     """
-    C_SPEED_OF_LIGHT
+    packet = r_packet.RPacket(packet.r, packet.mu, packet.nu, packet.energy)
     packet.r = r
     packet.mu = mu
     with pytest.raises(ZeroDivisionError):
@@ -472,6 +473,111 @@ def test_angle_ab_LF_to_CMF_diverge(mu, r, time_explosion, packet):
                                                         packet,
                                                         time_explosion,
                                                         mu)
+@pytest.mark.parametrize(
+    ['mu', 'r', 'time_explosion'],
+    [(0.3, 1e7, 1e10),
+     (-0.3, 1e7, 1e11)]
+)
+def test_both_angle_aberrations(mu, r, time_explosion, packet):
+    """
+    The angle aberration functions should be the functional inverse of one
+    another.
+    """
+    packet = r_packet.RPacket(r, packet.mu, packet.nu, packet.energy)
+    packet.r = r
+    obtained_mu = r_packet.angle_aberration_LF_to_CMF(
+        packet,
+        time_explosion,
+        mu)
+    inverse_obtained_mu = r_packet.angle_aberration_CMF_to_LF(
+        packet,
+        time_explosion,
+        obtained_mu)
+    assert_almost_equal(inverse_obtained_mu, mu)
+
+
+@pytest.mark.parametrize(
+    ['mu', 'r', 'time_explosion'],
+    [(0.3, 7.5e14, 5.2e5),
+     (-0.3, 7.5e14, 5.2e5)]
+)
+def test_both_angle_aberrations_inverse(mu, r, time_explosion, packet):
+    """
+    The angle aberration functions should be the functional inverse of one
+    another.
+    """
+    packet = r_packet.RPacket(r, packet.mu, packet.nu, packet.energy)
+    packet.r = r
+    obtained_mu = r_packet.angle_aberration_CMF_to_LF(
+        packet,
+        time_explosion,
+        mu)
+    inverse_obtained_mu = r_packet.angle_aberration_LF_to_CMF(
+        packet,
+        time_explosion,
+        obtained_mu)
+    assert_almost_equal(inverse_obtained_mu, mu)
+
+
+@pytest.mark.parametrize(
+    ['current_shell_id', 'delta_shell', 'no_of_shells'],
+    [(132, 11, 132),
+     (132, 1, 133),
+     (132, 2, 133)]
+)
+def test_move_packet_across_shell_boundary_emitted(packet, current_shell_id,
+                                                   delta_shell,
+                                                   no_of_shells):
+    packet = r_packet.RPacket(packet.r, packet.mu, packet.nu, packet.energy)
+    packet.current_shell_id = current_shell_id
+    r_packet.move_packet_across_shell_boundary(packet, delta_shell,
+                                      no_of_shells)
+    assert packet.status == r_packet.PacketStatus.EMITTED
+
+@pytest.mark.parametrize(
+    ['current_shell_id', 'delta_shell', 'no_of_shells'],
+    [(132, -133, 132),
+     (132, -133, 133),
+     (132, -1e9, 133)]
+)
+def test_move_packet_across_shell_boundary_reabsorbed(packet, current_shell_id,
+                                                   delta_shell,
+                                                   no_of_shells):
+    packet = r_packet.RPacket(packet.r, packet.mu, packet.nu, packet.energy)
+    packet.current_shell_id = current_shell_id
+    r_packet.move_packet_across_shell_boundary(packet, delta_shell,
+                                      no_of_shells)
+    assert packet.status == r_packet.PacketStatus.REABSORBED
+
+
+@pytest.mark.parametrize(
+    ['current_shell_id', 'delta_shell', 'no_of_shells'],
+    [(132, -1, 199),
+     (132, 0, 132),
+     (132, 20, 154)]
+)
+def test_move_packet_across_shell_boundary_increment(packet, current_shell_id,
+                                                   delta_shell,
+                                                   no_of_shells):
+    packet = r_packet.RPacket(packet.r, packet.mu, packet.nu, packet.energy)
+    packet.current_shell_id = current_shell_id
+    r_packet.move_packet_across_shell_boundary(packet, delta_shell,
+                                      no_of_shells)
+    assert packet.current_shell_id == current_shell_id + delta_shell
+
+
+@pytest.mark.parametrize(
+    ['distance_trace', 'time_explosion', 'mu', 'r'],
+    [(0, 1, 0, 0),
+     (0, 1, 1, 0),
+     (0, 1, 0, 1)]
+)
+def test_packet_energy_limit_one(packet, distance_trace, time_explosion, mu, r):
+    initial_energy = packet.energy
+    packet = r_packet.RPacket(r, mu, packet.nu, packet.energy)
+    new_energy = r_packet.calc_packet_energy(packet, distance_trace, time_explosion)
+    assert new_energy == initial_energy
+
 
 
 @pytest.mark.parametrize(
@@ -595,74 +701,56 @@ def test_move_packet(packet_params, expected_params,
                     expected_nubar, rtol=5e-7)
 
 
-@pytest.mark.continuumtest
-@pytest.mark.parametrize(
-    ['packet_params', 'j_blue_idx', 'expected'],
-    [({'nu': 0.30, 'energy': 0.30}, 0, 1.0),
-     ({'nu': 0.20, 'energy': 1.e5}, 0, 5e5),
-     ({'nu': 2e15, 'energy': 0.50}, 1, 2.5e-16),
-     ({'nu': 0.40, 'energy': 1e-7}, 1, 2.5e-7)],
-)
-def test_increment_j_blue_estimator_full_relativity(clib, packet_params,
-                                                    j_blue_idx, expected,
-                                                    packet, model):
-    packet.nu = packet_params['nu']
-    packet.energy = packet_params['energy']
-    model.full_relativity = True
+# @pytest.mark.continuumtest
+# @pytest.mark.parametrize(
+#     ['packet_params', 'j_blue_idx', 'expected'],
+#     [({'nu': 0.30, 'energy': 0.30}, 0, 1.0),
+#      ({'nu': 0.20, 'energy': 1.e5}, 0, 5e5),
+#      ({'nu': 2e15, 'energy': 0.50}, 1, 2.5e-16),
+#      ({'nu': 0.40, 'energy': 1e-7}, 1, 2.5e-7)],
+# )
+# def test_increment_j_blue_estimator_full_relativity(packet_params,
+#                                                     j_blue_idx, expected,
+#                                                     packet, model):
+#     packet.nu = packet_params['nu']
+#     packet.energy = packet_params['energy']
+#     model.full_relativity = True
+#
+#     r_packet.increment_j_blue_estimator(byref(packet), byref(model),
+#                                     c_double(packet.d_line),
+#                                     c_int64(j_blue_idx))
+#
+#     assert_almost_equal(model.line_lists_j_blues[j_blue_idx], expected)
+#
+#
+# @pytest.mark.parametrize(
+#     ['packet_params', 'cur_line_id', 'expected'],
+#     [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 0, 8.998643292289723),
+#      ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 0, 4.499971133976377),
+#      ({'nu': 0.5, 'mu': 0.5, 'r': 7.9e14}, 1, 0.719988453650551),
+#      ({'nu': 0.6, 'mu': -.5, 'r': 8.1e14}, 1, 0.499990378058792)]
+# )
+# def test_increment_j_blue_estimator(packet_params, cur_line_id, expected, packet):
+#
+#     numba_interface
+#     packet = r_packet.RPacket(packet_params['r'],
+#                               packet_params['mu'],
+#                               packet_params['nu'],
+#                               packet.energy)
+#
+#     r_packet.compute_distance2line(byref(packet), byref(model))
+#     r_packet.move_r_packet(packet,
+#                            distance,
+#                            model.time_explosion,
+#                            numba_estimator)
+#     r_packet.move_packet(byref(packet), byref(model), c_double(1.e13))
+#     r_packet.update_line_estimators(estimators, r_packet,
+#                                     cur_line_id,
+#                                     model.distance_trace,
+#                                     model.time_explosion)
+#
+#     assert_almost_equal(model.line_lists_j_blues[j_blue_idx], expected)
 
-    clib.increment_j_blue_estimator(byref(packet), byref(model),
-                                    c_double(packet.d_line),
-                                    c_int64(j_blue_idx))
-
-    assert_almost_equal(model.line_lists_j_blues[j_blue_idx], expected)
-
-
-@pytest.mark.parametrize(
-    ['packet_params', 'j_blue_idx', 'expected'],
-    [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 0, 8.998643292289723),
-     ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 0, 4.499971133976377),
-     ({'nu': 0.5, 'mu': 0.5, 'r': 7.9e14}, 1, 0.719988453650551),
-     ({'nu': 0.6, 'mu': -.5, 'r': 8.1e14}, 1, 0.499990378058792)]
-)
-def test_increment_j_blue_estimator(clib, packet_params, j_blue_idx, expected, packet, model):
-    packet.nu = packet_params['nu']
-    packet.mu = packet_params['mu']
-    packet.r = packet_params['r']
-
-    clib.compute_distance2line(byref(packet), byref(model))
-    clib.move_packet(byref(packet), byref(model), c_double(1.e13))
-    clib.increment_j_blue_estimator(byref(packet), byref(model),
-                                 c_double(packet.d_line), c_int64(j_blue_idx))
-
-    assert_almost_equal(model.line_lists_j_blues[j_blue_idx], expected)
-
-
-@pytest.mark.parametrize(
-    ['packet_params', 'expected_params'],
-    [({'virtual_packet': 0, 'current_shell_id': 0, 'next_shell_id': 1},
-      {'status': TARDIS_PACKET_STATUS_IN_PROCESS, 'current_shell_id': 1}),
-
-     ({'virtual_packet': 1, 'current_shell_id': 1, 'next_shell_id': 1},
-      {'status': TARDIS_PACKET_STATUS_EMITTED, 'current_shell_id': 1,
-       'tau_event': 29000000000000.008}),
-
-     ({'virtual_packet': 1, 'current_shell_id': 0, 'next_shell_id': -1},
-      {'status': TARDIS_PACKET_STATUS_REABSORBED, 'current_shell_id': 0,
-       'tau_event': 29000000000000.008})]
-)
-def test_move_packet_across_shell_boundary(clib, packet_params, expected_params,
-                                           packet, model, mt_state):
-    packet.virtual_packet = packet_params['virtual_packet']
-    packet.current_shell_id = packet_params['current_shell_id']
-    packet.next_shell_id = packet_params['next_shell_id']
-
-    clib.move_packet_across_shell_boundary(byref(packet), byref(model),
-                                                          c_double(1.e13), byref(mt_state))
-
-    if packet_params['virtual_packet'] == 1:
-        assert_almost_equal(packet.tau_event, expected_params['tau_event'])
-    assert packet.status == expected_params['status']
-    assert packet.current_shell_id == expected_params['current_shell_id']
 
 
 @pytest.mark.parametrize(
@@ -712,34 +800,6 @@ def test_montecarlo_line_scatter(clib, packet_params, expected_params, packet, m
     assert_almost_equal(packet.next_line_id, expected_params['next_line_id'])
 
 
-@pytest.mark.parametrize(
-    ['distances', 'expected'],
-    [({'boundary': 1.3e13, 'continuum': 1e14, 'line': 1e15},
-      {'handler': 'move_packet_across_shell_boundary', 'distance': 1.3e13}),
-
-     ({'boundary': 1.3e13, 'continuum': 1e14, 'line': 2.5e12},
-      {'handler': 'montecarlo_line_scatter', 'distance': 2.5e12}),
-
-     ({'boundary': 1.3e13, 'continuum': 1e11, 'line': 2.5e12},
-      {'handler': 'montecarlo_thomson_scatter', 'distance': 1e11})]
-)
-def test_get_event_handler(clib, packet, model, mt_state, distances, expected):
-    d_cont_setter(distances['continuum'], model, packet)
-    d_line_setter(distances['line'], model, packet)
-    d_boundary_setter(distances['boundary'], model, packet)
-    obtained_distance = c_double()
-
-    clib.get_event_handler.restype = c_void_p
-    obtained_handler = clib.get_event_handler(byref(packet), byref(model),
-                                                             byref(obtained_distance),
-                                                             byref(mt_state))
-
-    expected_handler = getattr(clib, expected['handler'])
-    expected_handler = cast(expected_handler, c_void_p).value
-
-    assert_equal(obtained_handler, expected_handler)
-    assert_allclose(obtained_distance.value, expected['distance'], rtol=1e-10)
-
 
 @pytest.mark.parametrize(
     ['z_random', 'packet_params', 'expected'],
@@ -758,12 +818,12 @@ def test_get_event_handler(clib, packet, model, mt_state, distances, expected):
      (0.22443743797312765,
       {'activation_level': 2, 'shell_id': 1}, 0)]  # Direct deactivation
 )
-def test_macro_atom(clib, model_3lvlatom, packet, z_random, packet_params, get_rkstate, expected):
+def test_macro_atom(packet, z_random, packet_params, get_rkstate, expected):
     packet.macro_atom_activation_level = packet_params['activation_level']
     packet.current_shell_id = packet_params['shell_id']
     rkstate = get_rkstate(z_random)
 
-    clib.macro_atom(byref(packet), byref(model_3lvlatom), byref(rkstate))
+    macro_atom.macro_atom(byref(packet), byref(model_3lvlatom), byref(rkstate))
     obtained_line_id = model_3lvlatom.last_line_interaction_out_id[packet.id]
 
     assert_equal(obtained_line_id, expected)
@@ -773,7 +833,7 @@ def test_macro_atom(clib, model_3lvlatom, packet, z_random, packet_params, get_r
 """
 Simple Tests:
 ----------------
-These test check very simple pices of code still work.
+These test check very simple pieces of code still work.
 """
 
 @pytest.mark.parametrize(
@@ -791,31 +851,6 @@ def test_increment_Edotlu_estimator(clib, packet_params, line_idx, expected, pac
     assert_almost_equal(model.line_lists_Edotlu[line_idx], expected)
 
 
-"""
-Difficult Tests:
-----------------
-The tests written further are more complex than previous tests. They require
-proper design procedure. They are not taken up yet and intended to be
-completed together in future.
-"""
-
-
-
-@pytest.mark.skipif(True, reason="Yet to be written.")
-def test_montecarlo_one_packet(packet, model, mt_state):
-    pass
-
-
-@pytest.mark.skipif(True, reason="Yet to be written.")
-def test_montecarlo_one_packet_loop(packet, model, mt_state):
-    pass
-
-
-@pytest.mark.skipif(True, reason="Yet to be written.")
-def test_montecarlo_main_loop(packet, model, mt_state):
-    pass
-
-
 
 """
 Continuum Tests:
@@ -823,295 +858,6 @@ Continuum Tests:
 The tests written further (till next block comment is encountered) are for the
 methods related to continuum interactions.
 """
-
-
-
-@pytest.mark.continuumtest
-@pytest.mark.parametrize(
-    't_electron', [2500., 15000.]
-)
-def test_sample_nu_free_free(clib, t_electron, packet, model, mt_state_seeded, expected_ff_emissivity):
-    model.t_electrons[packet.current_shell_id] = t_electron
-    clib.sample_nu_free_free.restype = c_double
-
-    nu_bins, expected_emissivity = expected_ff_emissivity(t_electron)
-
-    nus = []
-    for _ in range(int(1e5)):
-        nu = clib.sample_nu_free_free(byref(packet), byref(model), byref(mt_state_seeded))
-        nus.append(nu)
-
-    obtained_emissivity, _ = np.histogram(nus, density=True, bins=nu_bins)
-
-    assert_allclose(obtained_emissivity, expected_emissivity, rtol=1e-10)
-
-
-@pytest.mark.continuumtest
-@pytest.mark.parametrize(
-    ['packet_params', 't_electrons', 'chi_ff_factor', 'expected'],
-    [({'nu': 4.5e14, 'mu': 0.0, 'current_shell_id': 1}, 15000, 2.0, 1.6746639430359494e-44),
-     ({'nu': 3.0e15, 'mu': 0.0, 'current_shell_id': 0}, 5000, 3.0, 1.1111111111107644e-46),
-     ({'nu': 3.0e15, 'mu': 0.4, 'current_shell_id': 0}, 10000, 4.0, 1.5638286016098277e-46)]
-)
-def test_calculate_chi_ff(clib, packet, model, packet_params, t_electrons, chi_ff_factor, expected):
-    packet.mu = packet_params['mu']
-    packet.nu = packet_params['nu']
-    packet.current_shell_id = packet_params['current_shell_id']
-    packet.r = 1.04e17
-
-    model.t_electrons[packet_params['current_shell_id']] = t_electrons
-    model.chi_ff_factor[packet_params['current_shell_id']] = chi_ff_factor
-
-    clib.calculate_chi_ff(byref(packet), byref(model))
-    obtained = packet.chi_ff
-
-    assert_equal(obtained, expected)
-
-
-@pytest.mark.continuumtest
-@pytest.mark.parametrize(
-    ['continuum_status', 'z_random', 'packet_params', 'expected'],
-    [(CONTINUUM_OFF, 0.94183547596539363,
-      {'chi_c': 1.0, 'chi_th': 0.4, 'chi_bf': 0.5},
-      'montecarlo_thomson_scatter'),
-
-     (CONTINUUM_ON, 0.22443743797312765,
-      {'chi_c': 1.0, 'chi_th': 0.4, 'chi_bf': 0.5},
-      'montecarlo_thomson_scatter'),
-
-     (CONTINUUM_ON, 0.54510721066252377,
-      {'chi_c': 1.0, 'chi_th': 0.4, 'chi_bf': 0.5},
-      'montecarlo_bound_free_scatter'),
-
-     (CONTINUUM_ON, 0.94183547596539363,
-      {'chi_c': 1.0, 'chi_th': 0.4, 'chi_bf': 0.5},
-      'montecarlo_free_free_scatter'),
-
-     (CONTINUUM_ON, 0.22443743797312765,
-      {'chi_c': 1e2, 'chi_th': 1e1, 'chi_bf': 2e1},
-      'montecarlo_bound_free_scatter')]
-)
-def test_montecarlo_continuum_event_handler(clib, continuum_status, expected, z_random,
-                                            packet_params, packet, model, get_rkstate):
-    packet.chi_cont = packet_params['chi_c']
-    packet.chi_th = packet_params['chi_th']
-    packet.chi_bf = packet_params['chi_bf']
-    model.cont_status = continuum_status
-
-    rkstate = get_rkstate(z_random)
-
-    clib.montecarlo_continuum_event_handler.restype = c_void_p
-    obtained = clib.montecarlo_continuum_event_handler(byref(packet),
-                                                                      byref(model), byref(rkstate))
-    expected = getattr(clib, expected)
-    expected = cast(expected, c_void_p).value
-
-    assert_equal(obtained, expected)
-
-
-@pytest.mark.continuumtest
-@pytest.mark.parametrize(
-    ['nu', 'continuum_id', 'expected', 'bf_treatment'],
-    [(4.40e14, 1, 0.00, BoundFreeTreatment.LIN_INTERPOLATION),
-     (3.25e14, 1, 0.75, BoundFreeTreatment.LIN_INTERPOLATION),
-     (4.03e14, 0, 0.97, BoundFreeTreatment.LIN_INTERPOLATION),
-     (4.10e14 + 1e-1, 0, 0.90, BoundFreeTreatment.LIN_INTERPOLATION),
-     pytest.param(4.1e14, 0, 0.90, BoundFreeTreatment.LIN_INTERPOLATION,
-                  marks=pytest.mark.xfail),
-     (6.50e14, 0, 0.23304506144742834, BoundFreeTreatment.HYDROGENIC),
-     (3.40e14, 2, 1.1170364339507428, BoundFreeTreatment.HYDROGENIC)]
-)
-def test_bf_cross_section(clib, nu, continuum_id, model_w_edges, expected, bf_treatment):
-    model_w_edges.bf_treatment = bf_treatment.value
-
-    clib.bf_cross_section.restype = c_double
-    obtained = clib.bf_cross_section(byref(model_w_edges), continuum_id, c_double(nu))
-
-    assert_almost_equal(obtained, expected)
-
-
-@pytest.mark.continuumtest
-@pytest.mark.parametrize(
-    ['packet_params', 'expected'],
-    [({'nu': 4.13e14, 'mu': 0.0, 'current_shell_id': 1},
-      [3.2882087455641473, 0.0, 0.0]),
-
-     ({'nu': 3.27e14, 'mu': 0.0, 'current_shell_id': 0},
-      [0.0, 1.3992114634681028, 5.702548202131454]),
-
-     ({'nu': 3.27e14, 'mu': -0.4, 'current_shell_id': 0},
-      [0.0, 1.2670858, 5.4446587])]
-)
-def test_calculate_chi_bf(clib, packet_params, expected, packet, model_w_edges):
-    model_w_edges.l_pop = (c_double * 6)(*range(1, 7))
-    model_w_edges.l_pop_r = (c_double * 6)(*np.linspace(0.1, 0.6, 6))
-    model_w_edges.t_electrons[packet_params['current_shell_id']] = 1e4
-
-    packet.mu = packet_params['mu']
-    packet.nu = packet_params['nu']
-    packet.r = 1.04e17
-    packet.current_shell_id = packet_params['current_shell_id']
-    packet.chi_bf_tmp_partial = (c_double * model_w_edges.no_of_edges)()
-
-    clib.calculate_chi_bf(byref(packet), byref(model_w_edges))
-
-    obtained_chi_bf_tmp = np.ctypeslib.as_array(packet.chi_bf_tmp_partial, shape=(model_w_edges.no_of_edges,))
-    expected_chi_bf_tmp = np.array(expected)
-    expected_chi_bf = expected_chi_bf_tmp[expected_chi_bf_tmp > 0][-1]
-
-    assert_almost_equal(obtained_chi_bf_tmp, expected_chi_bf_tmp)
-    assert_almost_equal(packet.chi_bf, expected_chi_bf)
-
-
-@pytest.mark.continuumtest
-@pytest.mark.parametrize(
-    ['comov_energy', 'distance', 'chi_ff', 'no_of_updates', 'expected'],
-    [(1.3, 1.3e14, 3e-12, 1, 507.),
-     (0.9, 0.7e15, 2e-12, 10, 1.260e4),
-     (0.8, 0.8e13, 1.5e-12, 35, 336.)]
-)
-def test_increment_continuum_estimators_ff_heating_estimator(clib, packet, model_w_edges, comov_energy, distance,
-                                                             chi_ff, no_of_updates, expected):
-    packet.chi_ff = chi_ff
-
-    for _ in range(no_of_updates):
-        clib.increment_continuum_estimators(byref(packet), byref(model_w_edges), c_double(distance),
-                                                           c_double(0), c_double(comov_energy))
-    obtained = model_w_edges.ff_heating_estimator[packet.current_shell_id]
-
-    assert_almost_equal(obtained, expected)
-
-
-@pytest.mark.continuumtest
-@pytest.mark.parametrize(
-    ['comov_nus', 'expected'],
-    [([4.05e14, 4.17e14, 3.3e14, 3.2e14, 2.9e14], [2, 2, 3]),
-     ([4.15e15, 3.25e14, 3.3e14, 2.85e14, 2.9e14], [0, 2, 4])]
-)
-def test_increment_continuum_estimators_photo_ion_estimator_statistics(clib, packet, model_w_edges, comov_nus, expected):
-    for comov_nu in comov_nus:
-        clib.increment_continuum_estimators(byref(packet), byref(model_w_edges), c_double(1e13),
-                                                           c_double(comov_nu), c_double(1.0))
-
-    no_of_edges = model_w_edges.no_of_edges
-    no_of_shells = model_w_edges.no_of_shells
-
-    obtained = np.ctypeslib.as_array(model_w_edges.photo_ion_estimator_statistics,
-                                     shape=(no_of_edges * no_of_shells,))
-    obtained = np.reshape(obtained, newshape=(no_of_shells, no_of_edges), order='F')
-    obtained = obtained[packet.current_shell_id]
-    expected = np.array(expected)
-
-    assert_array_equal(obtained, expected)
-
-
-@pytest.mark.continuumtest
-@pytest.mark.parametrize(
-    ['comov_energy', 'distance', 'comov_nus', 'expected'],
-    [(1.3, 1.3e14, [4.05e14, 2.65e14],
-      {"photo_ion": [0.39641975308641975, 0., 0.],
-       "stim_recomb": [0.056757061269242064, 0., 0.],
-       "bf_heating": [1.9820987654321076e12, 0., 0.],
-       "stim_recomb_cooling": [283784812699.75476, 0., 0.]}),
-
-     (0.9, 0.7e15, [3.25e14, 2.85e14],
-      {"photo_ion": [0., 1.4538461538461538, 7.315141700404858],
-       "stim_recomb": [0., 0.3055802, 1.7292954],
-       "bf_heating": [0., 36346153846153.82, 156760323886639.69],
-       "stim_recomb_cooling": [0., 7639505724285.9746, 33907776077426.875]})]
-)
-def test_increment_continuum_estimators_bf_estimators(clib, packet, model_w_edges, comov_energy,
-                                                      distance, comov_nus, expected):
-    for comov_nu in comov_nus:
-        clib.increment_continuum_estimators(byref(packet), byref(model_w_edges), c_double(distance),
-                                                           c_double(comov_nu), c_double(comov_energy))
-
-    no_of_edges = model_w_edges.no_of_edges
-    no_of_shells = model_w_edges.no_of_shells
-
-    for estim_name, expected_value in expected.items():
-        obtained = np.ctypeslib.as_array(getattr(model_w_edges, estim_name + "_estimator"),
-                                         shape=(no_of_edges * no_of_shells,))
-        obtained = np.reshape(obtained, newshape=(no_of_shells, no_of_edges), order='F')
-        obtained = obtained[packet.current_shell_id]
-
-        assert_almost_equal(obtained, np.array(expected_value))
-
-
-@pytest.mark.continuumtest
-@pytest.mark.parametrize(
-    ['packet_params', 'expected_params'],
-    [({'nu_comov': 1.1e16, 'mu': 0.0, 'r': 1.4e14},
-      {'next_line_id': 5, 'last_line': True, 'nu': 1.1e16, 'type_id': 3}),
-
-     ({'nu_comov': 1.3e16, 'mu': 0.3, 'r': 7.5e14},
-      {'next_line_id': 0, 'last_line': False, 'nu': 1.30018766e+16, 'type_id': 3}),
-
-     ({'nu_comov': 1.24e16, 'mu': -0.3, 'r': 7.5e14},
-      {'next_line_id': 2, 'last_line': False, 'nu': 1.23982106e+16, 'type_id': 4})]
-)
-def test_continuum_emission(clib, packet, model, mock_sample_nu, packet_params, expected_params, mt_state):
-    packet.nu = packet_params['nu_comov']  # Is returned by mock function mock_sample_nu
-    packet.mu = packet_params['mu']
-    packet.r = packet_params['r']
-    expected_interaction_out_type = expected_params['type_id']
-
-    clib.continuum_emission(byref(packet), byref(model), byref(mt_state),
-                                           mock_sample_nu, expected_interaction_out_type)
-
-    obtained_next_line_id = packet.next_line_id
-    obtained_last_interaction_out_type = model.last_interaction_out_type[0]
-
-    assert_equal(obtained_next_line_id, expected_params['next_line_id'])
-    assert_equal(packet.last_line, expected_params['last_line'])
-    assert_equal(expected_interaction_out_type, obtained_last_interaction_out_type)
-    assert_allclose(packet.nu, expected_params['nu'], rtol=1e-7)
-
-
-@pytest.mark.continuumtest
-@pytest.mark.parametrize(
-    ['packet_params', 'expected'],
-    [({'next_line_id': 3, 'last_line': 0}, 1),
-     ({'next_line_id': 5, 'last_line': 1}, 0),
-     ({'next_line_id': 2, 'last_line': 0}, 0),
-     ({'next_line_id': 1, 'last_line': 0}, 1)]
-)
-def test_test_for_close_line(clib, packet, model, packet_params, expected):
-    packet.nu_line = model.line_list_nu[packet_params['next_line_id'] - 1]
-    packet.next_line_id = packet_params['next_line_id']
-
-    clib.test_for_close_line(byref(packet), byref(model))
-
-    assert_equal(expected, packet.close_line)
-
-
-@pytest.mark.continuumtest
-@pytest.mark.parametrize(
-    ['packet_params', 'z_random', 'expected'],
-    [({'current_continuum_id': 1, 'chi_bf_tmp_partial': [0.0, 0.23e13, 1.0e13]},
-      0.22443743797312765, 1),
-
-     ({'current_continuum_id': 1, 'chi_bf_tmp_partial': [0.0, 0.23e10, 1.0e10]},
-      0.78961460371187597, 2),
-
-     ({'current_continuum_id': 0, 'chi_bf_tmp_partial': [0.2e5, 0.5e5, 0.6e5, 1.0e5, 1.0e5]},
-      0.78961460371187597, 3)]
-)
-def test_montecarlo_bound_free_scatter_continuum_selection(clib, packet, model_3lvlatom, packet_params,
-                                                           get_rkstate, z_random, expected):
-    rkstate = get_rkstate(z_random)
-    packet.current_continuum_id = packet_params['current_continuum_id']
-
-    chi_bf_tmp = packet_params['chi_bf_tmp_partial']
-    packet.chi_bf_tmp_partial = (c_double * len(chi_bf_tmp))(*chi_bf_tmp)
-    packet.chi_bf = chi_bf_tmp[-1]
-    model_3lvlatom.no_of_edges = len(chi_bf_tmp)
-
-    clib.montecarlo_bound_free_scatter(byref(packet), byref(model_3lvlatom),
-                                                      c_double(1.e13), byref(rkstate))
-
-    assert_equal(packet.current_continuum_id, expected)
-    assert_equal(model_3lvlatom.last_line_interaction_in_id[packet.id], expected)
 
 
 @pytest.mark.continuumtest
@@ -1123,19 +869,19 @@ def test_montecarlo_bound_free_scatter_continuum_selection(clib, packet, model_3
      (0.0, 7.5e14, 1 / 2.2e5, 1),
      (-0.7, 7.5e14, 1 / 5.2e5, 0)]
 )
-def test_frame_transformations(clib, packet, model, mu, r,
+def test_frame_transformations(packet, model, mu, r,
                                inv_t_exp, full_relativity):
     packet.r = r
     packet.mu = mu
+    mc.full_relativity = bool(full_relativity)
     model.inverse_time_explosion = inv_t_exp
     model.full_relativity = full_relativity
-    clib.rpacket_doppler_factor.restype = c_double
-    clib.rpacket_inverse_doppler_factor.restype = c_double
 
-    inverse_doppler_factor = clib.rpacket_inverse_doppler_factor(byref(packet), byref(model))
-    clib.angle_aberration_CMF_to_LF(byref(packet), byref(model))
+    inverse_doppler_factor = r_packet.get_inverse_doppler_factor(r, mu, 1/inv_t_exp)
+    r_packet.angle_aberration_CMF_to_LF(byref(packet), byref(model))
 
-    doppler_factor = clib.rpacket_doppler_factor(byref(packet), byref(model))
+    doppler_factor = r_packet.get_doppler_factor(r, mu, 1/inv_t_exp)
+    mc.full_relativity = False
 
     assert_almost_equal(doppler_factor * inverse_doppler_factor, 1.0)
 
@@ -1149,17 +895,14 @@ def test_frame_transformations(clib, packet, model, mu, r,
      (0.0, 7.5e14, 1 / 2.2e5),
      (-0.7, 7.5e14, 1 / 5.2e5)]
 )
-def test_angle_transformation_invariance(clib, packet, model,
+def test_angle_transformation_invariance(packet, model,
                                          mu, r, inv_t_exp):
-    packet.r = r
-    packet.mu = mu
-    model.inverse_time_explosion = inv_t_exp
+    packet = r_packet.RPacket(r, mu, packet.nu, packet.energy)
     model.full_relativity = 1
-    clib.angle_aberration_LF_to_CMF.restype = c_double
 
-    clib.angle_aberration_CMF_to_LF(byref(packet), byref(model))
-    mu_obtained = clib.angle_aberration_LF_to_CMF(
-        byref(packet), byref(model), c_double(packet.mu))
+    mu1 = r_packet.angle_aberration_CMF_to_LF(packet, 1/inv_t_exp, mu)
+    mu_obtained = r_packet.angle_aberration_LF_to_CMF(
+        packet, 1/inv_t_exp, mu1)
 
     assert_almost_equal(mu_obtained, mu)
 
@@ -1178,7 +921,7 @@ def test_angle_transformation_invariance(clib, packet, model,
      (-0.7, 7.5e14, 5.2e5, 1.0e15, 9.8e14),
      (-1.0, 6.3e14, 2.2e5, 6.0e12, 6.55e12)]
 )
-def test_compute_distance2line_relativistic(clib, mu, r, t_exp, nu, nu_line,
+def test_compute_distance2line_relativistic(mu, r, t_exp, nu, nu_line,
                                             full_relativity, packet, model):
     packet.r = r
     packet.mu = mu
@@ -1186,20 +929,17 @@ def test_compute_distance2line_relativistic(clib, mu, r, t_exp, nu, nu_line,
     packet.nu_line = nu_line
     model.inverse_time_explosion = 1 / t_exp
     model.time_explosion = t_exp
-    model.full_relativity = full_relativity
+    mc.full_relativity = bool(full_relativity)
 
-    clib.rpacket_doppler_factor.restype = c_double
-
-    clib.compute_distance2line(byref(packet), byref(model))
-    clib.move_packet(byref(packet), byref(model), c_double(packet.d_line))
-
-    doppler_factor = clib.rpacket_doppler_factor(byref(packet), byref(model))
+    doppler_factor = r_packet.get_doppler_factor(r, mu, t_exp)
     comov_nu = packet.nu * doppler_factor
+    distance = r_packet.calculate_distance_line(
+                                                packet,
+                                                comov_nu, nu_line, t_exp)
+    r_packet.move_r_packet(packet, distance, t_exp, model)
+
+    doppler_factor = r_packet.get_doppler_factor(r, mu, t_exp)
+    comov_nu = packet.nu * doppler_factor
+    mc.full_relativity = False
 
     assert_allclose(comov_nu, nu_line, rtol=1e-14)
-
-
-@pytest.mark.continuumtest
-@pytest.mark.skipif(True, reason="Yet to be written.")
-def test_montecarlo_free_free_scatter(packet, model, mt_state):
-    pass
