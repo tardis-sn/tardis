@@ -1,1 +1,1 @@
-/home/jals/wrkspc/TARDIS/tardis/CONTRIBUTING.md
+../CONTRIBUTING.md
