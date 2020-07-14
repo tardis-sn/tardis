@@ -1,6 +1,5 @@
-********************************
-TARDIS Community Code of Conduct
-********************************
+# TARDIS Community Code of Conduct #
+
 
 The TARDIS community is made up of members from around the globe with a diverse set of skills, personalities, and experiences. It is through these differences that our community experiences success and continued growth. We expect everyone in our community to follow these guidelines when interacting with others both inside and outside of our community. Our goal is to keep ours a positive, inclusive, successful, and growing community.
 
