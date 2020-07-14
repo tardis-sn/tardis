@@ -164,11 +164,9 @@ class MontecarloRunner(HDFWriterMixin):
 
     @property
     def spectrum_integrated(self):
-        self._spectrum_integrated = self.integrator.calculate_spectrum(
-            self.spectrum_frequency[:-1], **self.integrator_settings)
-        # if self._spectrum_integrated is None:
-        #     self._spectrum_integrated = self.integrator.calculate_spectrum(
-        #         self.spectrum_frequency[:-1], **self.integrator_settings)
+        if self._spectrum_integrated is None:
+            self._spectrum_integrated = self.integrator.calculate_spectrum(
+                self.spectrum_frequency[:-1], **self.integrator_settings)
         return self._spectrum_integrated
 
     @property
