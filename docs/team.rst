@@ -4,8 +4,8 @@
 Team
 ****
 
-TARDIS is developed by a multidisciplinary team. We adhere to the Astropy
-`code of conduct <https://www.astropy.org/code_of_conduct.html>`_.
+TARDIS is developed by a multidisciplinary team. We adhere to our
+`code of conduct <code_of_conduct>`_.
 
 The development of TARDIS and associated software tools are made possible through several coordination roles fulfilled by community members. This encompasses a broad scope of responsibilities ranging from direct package development to communication, distribution, and managerial activities.
 
