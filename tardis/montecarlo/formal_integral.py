@@ -9,6 +9,8 @@ from numba import jitclass, njit
 
 
 from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.montecarlo.montecarlo_numba.numba_interface \
+    import numba_plasma_initialize
 
 # from tardis.montecarlo.montecarlo import formal_integral
 from tardis.montecarlo.spectrum import TARDISSpectrum
@@ -33,7 +35,7 @@ class FormalIntegrator(object):
 
     def __init__(self, model, plasma, runner, points=1000):
         self.model = model
-        self.plasma = plasma
+        self.plasma = numba_plasma_initialize(plasma)
         self.runner = runner
         self.points = points
 
@@ -81,8 +83,7 @@ class FormalIntegrator(object):
         frequency = frequency.to('Hz', u.spectral())
 
         luminosity = u.Quantity(
-                formal_integral(
-                    self,
+                self.formal_integral(
                     frequency,
                     N),
                 'erg'
@@ -122,7 +123,7 @@ class FormalIntegrator(object):
         plasma = self.plasma
         runner = self.runner
         atomic_data = self.plasma.atomic_data
-        macro_ref = atomic_data.macro_atom_references
+        macro_ref = plasma.macro_block_references
         macro_data = atomic_data.macro_atom_data
 
         no_lvls = len(atomic_data.levels)
@@ -242,10 +243,6 @@ class FormalIntegrator(object):
 
         res = self.make_source_function()
 
-
-
-
-
         att_S_ul = res[0].flatten(order='F')
         Jred_lu = res[1].flatten(order='F')
         Jblue_lu = res[2].flatten(order='F')
@@ -267,22 +264,20 @@ class FormalIntegrator(object):
         # Initialize the output which is shared among threads
         L = np.zeros(inu_size)
         # global read-only values
-        size_line = self.model.no_of_lines # check
-        size_shell = self.model.no_of_shells_i # check
+        size_line = len(self.plasma.line_list_nu)
+        size_shell = self.model.no_of_shells # check
         size_tau = size_line * size_shell
         finished_nus = 0
 
-        R_ph = self.runner.r_inner_i[0]
-        R_max = self.runner.r_outer_i[size_shell - 1]
+        R_ph = self.runner.r_inner[0]
+        R_max = self.runner.r_outer[size_shell - 1]
         pp = np.zeros(N) # check
         exp_tau = np.zeros(size_tau)
         # TODO: multiprocessing
         offset = 0
-        i = 0
         size_z = 0
         idx_nu_start = 0
         direction = 0
-        first = 0
         I_nu = np.zeros(N)
         shell_id = np.zeros(2 * self.runner.no_of_shells_i)  # check
         # instantiate more variables here, maybe?
