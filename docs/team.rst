@@ -10,40 +10,40 @@ TARDIS is developed by a multidisciplinary team. We adhere to the Astropy
 The development of TARDIS and associated software tools are made possible through several coordination roles fulfilled by community members. This encompasses a broad scope of responsibilities ranging from direct package development to communication, distribution, and managerial activities.
 
 The roles and their description can be found here: 
-
-
-
-.. list-table:: 
-   :widths: 100 100 
-   :header-rows: 1
-
-   * - Roles
-     - Person/People
-   * - **TARDIS CORE**
-     - Wolfgang Kerzendorf , Yssavo Camacho-Neves, Alice Harpole, Marc Williamson, Andreas Flörs, Christian Vogl, Stuart Sim, Luke Shingles, Vytautas Jancauskas
-   * - **TARDIS GSoC Coordinators (2020)**
-     - Wolfgang Kerzendorf , Yssavo Camacho-Neves, Alice Harpole, Marc Williamson
-   * - **TARDIS GSoC Mentors (2020)**
-     - Alice Harpole,  Andreas Flörs, Christian Vogl, Fionntan Callan, James Gillanders, Luciano G Silvestri, Stuart Sim, Wolfgang Kerzendorf, Yssavo Camacho-Neves, Andrew Fullard, Arjun Savel, Brian Cherinka, Jack O'Brien, Lindsey Kwok, Luke Shingles, Marc Williamson, Mark Magee, Michael Moltenbrey, Vytautas Jancauskas
-   * - **Ombudsperson**
-     - Wolfgang Kerzendorf
-   * - **Software Architect** 
-     - Alice Harpole   
-   * - **Issues / Pull Request** 
-     - Andreas Flörs
-   * - **Continuous Integration / Deployment / Testing**
-     - Christian Vogl
-   * - **Funding / Financial**
-     - Marc Williamson
-   * - **Science / Science Meeting / Publications**
-     - Yssavo Camacho-Neves
-   * - **Diversity, Equity, and Inclusion**
-     - Wolfgang Kerzendorf
+* **Principal Investigator**
+  - Wolfgang Kerzendorf
+* **TARDIS CORE** [alphabetical]
+  - Yssavo Camacho-Neves, Andreas Flörs, Alice Harpole, Vytautas Jancauskas, Wolfgang Kerzendorf (founder), Luke Shingles, Stuart Sim (founder), Christian Vogl, Marc Williamson
+* **TARDIS GSoC Coordinators (2020)**
+  Yssavo Camacho-Neves, Alice Harpole, Wolfgang Kerzendorf, Marc Williamson
+* **TARDIS GSoC Mentors (2020)**
+  - Alice Harpole, Andreas Flörs, Christian Vogl, Fionntan Callan, James Gillanders, Luciano G Silvestri, Stuart Sim, Wolfgang Kerzendorf, Yssavo Camacho-Neves, Andrew Fullard, Arjun Savel, Brian Cherinka, Jack O'Brien, Lindsey Kwok, Luke Shingles, Marc Williamson, Mark Magee, Michael Moltenbrey, Vytautas Jancauskas
+* **Ombudsperson**
+  - Michael Zingale
+* **Software Architect** 
+  - Alice Harpole   
+* **Issues / Pull Request** 
+  - Andreas Flörs
+* **Continuous Integration / Deployment / Testing**
+  - Christian Vogl
+* **Funding / Financial**
+  - Marc Williamson
+* **Science / Science Meeting / Publications**
+  - Yssavo Camacho-Neves
+* **Diversity, Equity, and Inclusion**
+  - Wolfgang Kerzendorf
      
 
-**TARDIS CORE**
+** Principal Investigator **
 
-- Team that supervises the activities and sets the goals for the TARDIS Collaboration
+- Guides the scientific and the educational activities of TARDIS
+- Advised by TARDIS Core
+
+**TARDIS Core**
+
+- Team that oversees the activities and sets the goals for the TARDIS Collaboration
+- Identifies science opportunities that match TARDIS capabilities or coordinates the addition of capabilities
+- Identifies education opportunities such as workshops, lecture development, and outreach opportunities
 
 **TARDIS GSoC Coordinators (2020)**
 
@@ -58,6 +58,7 @@ The roles and their description can be found here:
 - Designated person appointed to address the concerns of community members and to uphold the code of conduct
 - Solicit and provide anonymized feedback to the TARDIS CORE team 
 - Assist the TARDIS CORE team with violations of the code of conduct or other ethical concerns
+- Specifically selected as not being part of the core TARDIS collaboration
 
 **Software Architect**
 
@@ -95,9 +96,14 @@ The roles and their description can be found here:
 - Identify opportunities to use TARDIS to engage members of underrepresented minorities (URM) to coding/STEM
 - Identify papers about engaging URM in coding/science
 
+TARDIS Alumni
+=============
 
-Past Team Members
-------------
+The present version of TARDIS would not have been possible if not for the work of these individuals. 
+
+
+Past TARDIS Core Members
+---------------------------
 
  * Aoife Boyle
  * Michael Klauser
@@ -112,10 +118,10 @@ Current and Former GSoC and SOCIS Students
  * Tomas Bylund (SOCIS 2016)
  * Karan Desai (GSoC 2016)
  * Vaibhav Gupta (GSoC 2017)
- * Vytautas Jancauskas (GSoC 2015)
+ * Vytautas Jancauskas (GSoC 2015, 2014)
  * Stefan Lietzau (GSoC 2017)
  * Mikhail Mishin (GSoC 2016)
  * Fotis Tsamis (GSoC 2016)
- * Ezequiel Passaro (GSoC 2019, GSoC 2020)
- * Jaladh Singhal (GSoC 2019, GSoC 2020)
+ * Ezequiel Passaro (GSoC 2019, 2020)
+ * Jaladh Singhal (GSoC 2019, 2020)
  * Jordi Eguren Brown (GSoC 2020)
