@@ -597,6 +597,11 @@ class Radial1DModel(HDFWriterMixin):
         abundance = abundance.loc[:, 1:]
         abundance.columns = np.arange(abundance.shape[1])
 
+        isotope_abundance = isotope_abundance.replace(np.nan, 0.0)
+        isotope_abundance = isotope_abundance[isotope_abundance.sum(axis=1) > 0]
+        isotope_abundance = isotope_abundance.loc[:, 1:]
+        isotope_abundance.columns = np.arange(isotope_abundance.shape[1])
+        
         norm_factor = abundance.sum(axis=0) + isotope_abundance.sum(axis=0)
 
         if np.any(np.abs(norm_factor - 1) > 1e-12):
