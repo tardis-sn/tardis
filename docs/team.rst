@@ -10,6 +10,7 @@ TARDIS is developed by a multidisciplinary team. We adhere to our
 The development of TARDIS and associated software tools are made possible through several coordination roles fulfilled by community members. This encompasses a broad scope of responsibilities ranging from direct package development to communication, distribution, and managerial activities.
 
 The roles and their description can be found here: 
+
 * **Principal Investigator**
   - Wolfgang Kerzendorf
 * **TARDIS CORE** [alphabetical]
@@ -19,7 +20,7 @@ The roles and their description can be found here:
 * **TARDIS GSoC Mentors (2020)**
   - Alice Harpole, Andreas Flörs, Christian Vogl, Fionntan Callan, James Gillanders, Luciano G Silvestri, Stuart Sim, Wolfgang Kerzendorf, Yssavo Camacho-Neves, Andrew Fullard, Arjun Savel, Brian Cherinka, Jack O'Brien, Lindsey Kwok, Luke Shingles, Marc Williamson, Mark Magee, Michael Moltenbrey, Vytautas Jancauskas
 * **Ombudsperson**
-  - Michael Zingale
+  - Michael Zingale (contact info on https://zingale.github.io/)
 * **Software Architect** 
   - Alice Harpole   
 * **Issues / Pull Request** 
@@ -34,7 +35,7 @@ The roles and their description can be found here:
   - Wolfgang Kerzendorf
      
 
-** Principal Investigator **
+**Principal Investigator**
 
 - Guides the scientific and the educational activities of TARDIS
 - Advised by TARDIS Core
@@ -58,7 +59,7 @@ The roles and their description can be found here:
 - Designated person appointed to address the concerns of community members and to uphold the code of conduct
 - Solicit and provide anonymized feedback to the TARDIS CORE team 
 - Assist the TARDIS CORE team with violations of the code of conduct or other ethical concerns
-- Specifically selected as not being part of the core TARDIS collaboration
+- **Specifically selected as not being part of the TARDIS collaboration**
 
 **Software Architect**
 
@@ -94,7 +95,7 @@ The roles and their description can be found here:
 **Diversity, Equity, and Inclusion**
 
 - Identify opportunities to use TARDIS to engage members of underrepresented minorities (URM) to coding/STEM
-- Identify papers about engaging URM in coding/science
+- Identify papers about engaging URM in coding / science
 
 TARDIS Alumni
 =============
