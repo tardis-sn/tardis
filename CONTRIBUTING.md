@@ -56,7 +56,7 @@ When you make a pull request, please provide all the necessary information reque
 
 ### Spreading the word of mouth
 
-If you find TARDIS helpful, you can share it with your peers, colleagues, and anyone who can benefit from TARDIS. If you've used TARDIS in your research, please make sure to cite us. By telling other people about how we helped you, you'll help us in turn, in extending our impact. And we would absolutely love it if you give us a shout-out on [twitter](https://twitter.com/tardis_sn/)!
+If you find TARDIS helpful, you can share it with your peers, colleagues, and anyone who can benefit from TARDIS. If you've used TARDIS in your research, please make sure to cite us (https://tardis-sn.github.io/tardis/credits.html). By telling other people about how we helped you, you'll help us in turn, in extending our impact. And we would absolutely love it if you give us a shout-out on [twitter](https://twitter.com/tardis_sn/)!
 
 ## What if I need help?
 
