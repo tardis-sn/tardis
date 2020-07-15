@@ -85,6 +85,7 @@ Mission Statement
 
     team
     credits
+    Code of Conduct <CODE_OF_CONDUCT.md>
 
 
 .. toctree::
