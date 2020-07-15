@@ -52,7 +52,6 @@ When you make a pull request, please provide all the necessary information reque
 - **Documenting the code:** You must write docstrings in functions/classes, put a relevant example in TARDIS docs and make sure docs get built correctly. To build the documentation locally, you can follow [this guide](#).
 - **Testing the code:** There should be unit-tests for most of the functions/methods and they must pass our testing framework. To run test locally, you can follow [this guide](https://tardis-sn.github.io/tardis/development/running_tests.html).
 
-<!-- ## Work on a long-term project from roadmap/TEP? -->
 
 ### Spreading the word of mouth
 
