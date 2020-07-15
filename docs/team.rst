@@ -5,7 +5,7 @@ Team
 ****
 
 TARDIS is developed by a multidisciplinary team. We adhere to our
-`code of conduct <code_of_conduct>`_.
+`code of conduct <https://tardis-sn.github.io/tardis/CODE_OF_CONDUCT.html>`_.
 
 The development of TARDIS and associated software tools are made possible through several coordination roles fulfilled by community members. This encompasses a broad scope of responsibilities ranging from direct package development to communication, distribution, and managerial activities.
 
