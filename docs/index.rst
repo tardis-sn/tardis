@@ -93,6 +93,7 @@ Mission Statement
     :caption: Contributing to TARDIS
     :hidden:
 
+    CONTRIBUTING.md
     development/index
     CHANGELOG.md
     roadmap
