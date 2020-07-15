@@ -1,104 +1,66 @@
-Commit Message Guidelines
-=========================
+# Contributing to TARDIS
 
-When to commit? Ask yourself the following questions:
+So you are wondering how can you contribute to TARDIS? Congrats, you've landed on the right page!
 
-* Do the changes you have implemented represent a single cohesive feature? Break a large task down in to several subtasks.
-* Is the system in a build-able state after the commit? Don't do commits that you know will leave the system in a broken state.
-* Can your commit be safely rolled-back? Will the system be left in a broken state if you roll-back one commit? If so then maybe several commits should be merged.
+## Imposter Syndrome Disclaimer
 
-Preferably a commit should affect one file and do one thing only. For example resist the temptation to fix indentation in an unrelated file or in an unrelated class/method.
+_We want your help. No really, we do._
 
-When committing changes do not use -m option. This is only suitable for really short commit messages. Instead omit the message flag and you will be taken to your default text editor where you can enter the message. If you have already pushed the changes to a remote repository or if you have committed a change locally with a message that does not conform to the guidelines given below please use the following instructions to change commit messages:
+There might be a little voice inside that tells you you're not ready; that you need to do one more tutorial, or learn another framework, or write a few more blog posts before you can help me with this project.
 
-https://help.github.com/articles/changing-a-commit-message/
+We assure you, that's not the case.
 
-The following are the requirements for the commit messages:
+TARDIS has some clear "Contribution Guidelines" that you can read below in the following sections.
 
-* The commit message consists of the following sections:
+The contribution guidelines outline the process that you'll need to follow to get a patch merged. By making expectations and process explicit, we hope it will make it easier for you to contribute.
 
-  * One-line description
-  * Empty line
-  * Body of the commit message
+And you don't just have to write code. You can help out by writing documentation, tests, or even by giving feedback about this work. (And yes, that includes giving feedback about the contribution guidelines.)
 
-* One-line description consists of the following:
+(Thanks to [Adrienne Lowe](https://github.com/adriennefriend/imposter-syndrome-disclaimer) who came up with this disclaimer and yeah, made it OPEN for anyone to use!)
 
-  * The commit message has a one-line description. Keep it short, preferablypreferrably under 80 characters. If you're squashing a bug, the bug number you're squashing should be included in this one-line description, like so at the end: (bug #12345). Omit final period (full stop).
-  * Sometimes the one-line description is sufficient, for small changes. In that case, we use the following prefixes to give a description of what the small change is:
+## How can I contribute?
 
-    * maint: for reorganisation of the sources that do not change the source. Regular merge commits are a prominent example.
-    * doc: for changes to the documentation.
+There are multiple ways in which you can help us:
 
-  * If your change only touches one file, then the filename of that file should be the prefix of the one-line description. The function or class that is being modified should be included in the parenthetical remark, as in the full body of the commit message.
+- Found a bug in TARDIS? Report it to us!
+- Caught a typo in documentation or want to make it better to understand? Edit it!
+- Know how to fix an issue or add a new feature? Make a patch!
+- Loved using TARDIS? Share it with others!
+- Anything we missed to mention? Then, what are you waiting for!
 
-* If there is more than one file touched in different ways and the one-line description isn't enough to describe all changes, the commit message needs a full-body description. The full-body description would consist of a description of the changes and a list of changes to individual files. The description of changes should answer the following three questions:
+### Reporting a Bug
 
-  * Why is this change necessary?
-  * How does it address the issue?
-  * What side effects does this change have?
+TARDIS is in active development. There's no surprise that you may encounter something that doesn't work for your use case. Or maybe you have some suggestions about how can we improve some functionality. Feel free to share any of it with us by [opening an issue](https://docs.github.com/en/github/managing-your-work-on-github/creating-an-issue) [here](https://github.com/tardis-sn/tardis/issues/).
 
-If the changes are simple and/or the answers to the above questions are obvious from the context then you can ommit it.
+Please make sure that you provide all the necessary information requested by prompts in the issue body - it will not only make our work easier but will also help you to communicate your problem better.
 
-  Individual files you touched get their changes separately enumerated. If there a particular C or C++ function you changed, the general format is:
+### Editing the Documentation
 
-  * file.py (class1.function1): Make change foo.
-     (class2.function2): Make change bar.
-  * Note the newline for describing the change to a different function. General GNU style guidelines can be followed here, so that similar changes to different files can be grouped.
-  * For style points, please also write "New function" instead of "Added function" or "Return retval" instead of "Changed to return retval".
-  * And please, never "Fixed bug" or similar. That doesn't add any specific information about what was changed.
+There is always a scope of improvement in documentation to add some missing information or to make it easier for reading. And here lies an opportunity for you, since you can edit the documentation page you want which is stored as a text file in [`docs`](https://github.com/tardis-sn/tardis/tree/master/docs) directory of TARDIS.
 
-* The changelog info in the commit message should say what changed, not why. If you need to explain why, that info should probably go in comments in the code.
+After editing the file locally, build the docs as described in [these instructions](#) and then you can submit your changes to us by making a patch as described in the next section.
 
-Commit Message Examples
------------------------
+### Making a Patch
 
-Standard commit messages:
+If you have peeked in our codebase and realized how you can fix a problem or if you know how to add a new feature, well done! If not, don't worry - just pick an [easy](https://github.com/tardis-sn/tardis/labels/easy) or [good-first](https://github.com/tardis-sn/tardis/labels/good%20first%20issue) issue and get started to fix it.
 
-Example 1:
+To contribute your code to TARDIS, you'll need to make a [pull request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests) from your fork of TARDIS repository. This development workflow using Git may look daunting at first, but it is not if you follow [this guide](https://tardis-sn.github.io/tardis/development/git_workflow.html#preparation-and-working-with-git) that we have prepared for you.
 
-::
+When you make a pull request, please provide all the necessary information requested by prompts in the pull request body. Also, make sure that the code you're submitting always accounts for the following three:
 
-   ensure PEP8 is followed in our code (issue #427)
-
-   * datahandler.py, docs/conf.py, interface.py, widgets.py: changes to make sure that PEP8 is followed
-
-Example 2:
-
-::
-
-   allow user to specify the number of threads in the configuration file
-
-   * data/tardis_config_definition.yml: added nthreads attribute under montecarlo
-   * model.py (Radial1DModel.simulate): pass the required number of threads to the C part of montecarlo routines
-
-Example 3:
-
-::
-
-   added --with-vpacket-logging build option (bug #428)
-
-   * setup.py: added --with-vpacket-logging flag for install, build and develop commands
-   * montecarlo/setup_package.py: define macro WITH_VPACKET_LOGGING if --with-vpacket-logging flag is used
+- **Maintaining code quality:** Your code must follow the PEP8 style guide, should cover edge cases, etc. Check our [code quality guidelines](#) for more details.
+- **Documenting the code:** You must write docstrings in functions/classes, put a relevant example in TARDIS docs and make sure docs get built correctly. To build the documentation locally, you can follow [this guide](#).
+- **Testing the code:** There should be unit-tests for most of the functions/methods and they must pass our testing framework. To run test locally, you can follow [this guide](https://tardis-sn.github.io/tardis/development/running_tests.html).
 
 
-For short and very simple commit messages under 80 characters:
+### Spreading the word of mouth
 
-Example 1:
+If you find TARDIS helpful, you can share it with your peers, colleagues, and anyone who can benefit from TARDIS. If you've used TARDIS in your research, please make sure to cite us (https://tardis-sn.github.io/tardis/credits.html). By telling other people about how we helped you, you'll help us in turn, in extending our impact. And we would absolutely love it if you give us a shout-out on [twitter](https://twitter.com/tardis_sn/)!
 
-::
+## What if I need help?
 
-   tests/test_atomic.py: added a test for atomic.read_levels_data
+Contact us at [Gitter](https://gitter.im/tardis-sn/tardis) without any hesitation. We already appreciate that you're trying to help us, so feel free to ask any doubt you have or whatever is keeping you stuck.
 
-Example 2:
+---
 
-::
-
-   montecarlo/src/cmontecarlo.c: fix indentation
-
-Maintenance or docs commits, no actual code changed:
-
-Example 1:
-
-::
-
-   maint: updated .travis.yml file to do a rehash before executing conda
+Thank you for contributing (because we believe in YOU)!
