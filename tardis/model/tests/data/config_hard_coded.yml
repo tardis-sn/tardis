@@ -4,10 +4,14 @@ tardis_config_version: v1.0
 supernova:
   luminosity_requested: 8.770 log_lsun
 <<<<<<< HEAD
+<<<<<<< HEAD
   time_explosion: 8 day
 =======
   time_explosion: 16 day
 >>>>>>> add files for new test
+=======
+  time_explosion: 8 day
+>>>>>>> change day of explosOCion
   distance: 8.32 Mpc
 
 # standard atomic data base; get it from the tardis-refdata repository
@@ -32,10 +36,14 @@ model:
     O: 0.25
     Ni56: 0.04
 <<<<<<< HEAD
+<<<<<<< HEAD
     Ni: 0.01
 =======
     Ni58: 0.01
 >>>>>>> add files for new test
+=======
+    Ni: 0.01
+>>>>>>> change day of explosOCion
 
 plasma:
   disable_electron_scattering: no
