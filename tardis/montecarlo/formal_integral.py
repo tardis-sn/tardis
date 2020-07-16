@@ -35,7 +35,9 @@ class FormalIntegrator(object):
 
     def __init__(self, model, plasma, runner, points=1000):
         self.model = model
-        self.plasma = numba_plasma_initialize(plasma)
+        if plasma:
+            self.plasma = numba_plasma_initialize(plasma)
+            self.atomic_data = plasma.atomic_data
         self.runner = runner
         self.points = points
 
@@ -120,25 +122,24 @@ class FormalIntegrator(object):
         """
 
         model = self.model
-        plasma = self.plasma
         runner = self.runner
-        atomic_data = self.plasma.atomic_data
-        macro_ref = plasma.macro_block_references
-        macro_data = atomic_data.macro_atom_data
 
-        no_lvls = len(atomic_data.levels)
+        macro_ref = self.plasma.macro_block_references
+        macro_data = self.atomic_data.macro_atom_data
+
+        no_lvls = len(self.tomic_data.levels)
         no_shells = len(model.w)
 
         if runner.line_interaction_type == 'macroatom':
             internal_jump_mask = (macro_data.transition_type >= 0).values
             ma_int_data = macro_data[internal_jump_mask]
-            internal = plasma.transition_probabilities[internal_jump_mask]
+            internal = self.plasma.transition_probabilities[internal_jump_mask]
 
             source_level_idx = ma_int_data.source_level_idx.values
             destination_level_idx = ma_int_data.destination_level_idx.values 
 
         Edotlu_norm_factor = (1 / (runner.time_of_simulation * model.volume))
-        exptau = 1 - np.exp(- plasma.tau_sobolevs)
+        exptau = 1 - np.exp(-self.plasma.tau_sobolev)
         Edotlu = Edotlu_norm_factor * exptau * runner.Edotlu_estimator
 
         # The following may be achieved by calling the appropriate plasma
@@ -150,7 +151,7 @@ class FormalIntegrator(object):
         # the transition l->u
         Jbluelu = runner.j_blue_estimator * Jbluelu_norm_factor
 
-        upper_level_index = atomic_data.lines.index.droplevel('level_number_lower')
+        upper_level_index = self.atomic_data.lines.index.droplevel('level_number_lower')
         e_dot_lu          = pd.DataFrame(Edotlu, index=upper_level_index)
         e_dot_u           = e_dot_lu.groupby(level=[0, 1, 2]).sum()
         e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
@@ -170,12 +171,12 @@ class FormalIntegrator(object):
                 C_frame[shell] = sp.linalg.spsolve(inv_N.T, e_dot_u_vec)
 
         e_dot_u.index.names = ['atomic_number', 'ion_number', 'source_level_number'] # To make the q_ul e_dot_u product work, could be cleaner
-        transitions       = atomic_data.macro_atom_data[atomic_data.macro_atom_data.transition_type == -1].copy()
+        transitions       = self.atomic_data.macro_atom_data[self.atomic_data.macro_atom_data.transition_type == -1].copy()
         transitions_index = transitions.set_index(['atomic_number', 'ion_number', 'source_level_number']).index.copy()
-        tmp  = plasma.transition_probabilities[(atomic_data.macro_atom_data.transition_type == -1).values]
+        tmp  = self.plasma.transition_probabilities[(self.atomic_data.macro_atom_data.transition_type == -1).values]
         q_ul = tmp.set_index(transitions_index)
         t    = model.time_explosion.value
-        lines = atomic_data.lines.set_index('line_id')
+        lines = self.atomic_data.lines.set_index('line_id')
         wave = lines.wavelength_cm.loc[transitions.transition_line_id].values.reshape(-1,1)
         if runner.line_interaction_type == 'macroatom':
             e_dot_u = C_frame.loc[e_dot_u.index]
@@ -186,15 +187,15 @@ class FormalIntegrator(object):
 
         # Jredlu should already by in the correct order, i.e. by wavelength of
         # the transition l->u (similar to Jbluelu)
-        Jredlu = Jbluelu * np.exp(-plasma.tau_sobolevs.values) + att_S_ul
+        Jredlu = Jbluelu * np.exp(-self.plasma.tau_sobolev.values) + att_S_ul
         if self.interpolate_shells > 0:
             att_S_ul, Jredlu, Jbluelu, e_dot_u = self.interpolate_integrator_quantities(
                     att_S_ul, Jredlu, Jbluelu, e_dot_u)
         else:
             runner.r_inner_i = runner.r_inner_cgs
             runner.r_outer_i = runner.r_outer_cgs
-            runner.tau_sobolevs_integ = plasma.tau_sobolevs.values
-            runner.electron_densities_integ = plasma.electron_densities.values
+            runner.tau_sobolevs_integ = self.plasma.tau_sobolevs.values
+            runner.electron_densities_integ = self.plasma.electron_densities.values
 
         return att_S_ul, Jredlu, Jbluelu, e_dot_u
 
