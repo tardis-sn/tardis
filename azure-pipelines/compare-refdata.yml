@@ -13,6 +13,9 @@ jobs:
       vmImage: "ubuntu-latest"
 
     steps:
+      - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
+        displayName: "Force exit on error (bash)"
+
       - bash: |
           echo "##vso[task.prependpath]$CONDA/bin"
           sudo chown -R $USER $CONDA
@@ -58,6 +61,5 @@ jobs:
           targetPath: "$REF_DATA_DIR/notebooks/ref_data_compare.html"
           artifact: "html_report"
           publishLocation: "pipeline"
-
 # Keep this line, is useful for testing without changing the notebook.
 # sed -i "s/ref2_hash='upstream\/pr\/24'/ref1_hash='c998f44', ref2_hash='master'/g" ref_data_compare.ipynb
