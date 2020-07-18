@@ -47,7 +47,7 @@ jobs:
 
       - bash: |
           source activate tardis
-          pytest tardis --tardis-refdata="$REF_DATA_DIR" --generate-reference
+          python setup.py test --args="--tardis-refdata=$(ref.data.home) --generate-reference"
         displayName: "Generate new reference data"
 
       - bash: |
