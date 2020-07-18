@@ -34,8 +34,10 @@ jobs:
 
       - bash: |
           source activate tardis
-          git clone https://github.com/tardis-sn/tardis-refdata.git $(ref.data.home)
-        displayName: "Fetch ALL reference data"
+          GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/tardis-sn/tardis-refdata.git $(ref.data.home)
+          cd $(ref.data.home)
+          git lfs pull --include="unit_test_data.h5" origin
+        displayName: "Fetch reference data"
 
       - bash: |
           source activate tardis
