@@ -66,7 +66,7 @@ jobs:
 
       - task: PublishPipelineArtifact@1
         inputs:
-          targetPath: "$REF_DATA_DIR/notebooks/ref_data_compare.html"
+          targetPath: $REF_DATA_DIR/notebooks/ref_data_compare.html
           artifact: "html_report"
           publishLocation: "pipeline"
         displayName: "Publishing artifact"
