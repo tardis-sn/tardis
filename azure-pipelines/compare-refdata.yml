@@ -7,8 +7,9 @@ pr: [ master ]
 
 variables:
   PACKAGE_MANAGER: "mamba"
+  BUILD_DIR: $(Agent.BuildDirectory)
   REF_DATA_URL: "https://github.com/tardis-sn/tardis-refdata.git"
-  REF_DATA_DIR: "$(Agent.BuildDirectory)/tardis-refdata"
+  REF_DATA_DIR: "$BUILD_DIR/tardis-refdata"
   SYSTEM_DEBUG: "false"
 
 jobs:
@@ -47,7 +48,6 @@ jobs:
 
       - bash: |
           source activate tardis
-          ls -R $REF_DATA_DIR
           pytest tardis --tardis-refdata=$REF_DATA_DIR --generate-reference
         displayName: "Generate new reference data"
 
@@ -58,9 +58,11 @@ jobs:
           git fetch upstream
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
           cd $REF_DATA_DIR/notebooks
-        displayName: "Set upstream repository"
+        displayName: "Set refdata upstream repository"
 
-      - bash: jupyter nbconvert ref_data_compare.ipynb --to html --execute --allow-errors --ExecutePreprocessor.timeout=6000
+      - bash: |
+          source activate tardis
+          jupyter nbconvert ref_data_compare.ipynb --to html --execute --allow-errors --ExecutePreprocessor.timeout=6000
         displayName: "Generating HTML report"
 
       - task: PublishPipelineArtifact@1
