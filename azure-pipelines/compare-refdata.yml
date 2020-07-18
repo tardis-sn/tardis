@@ -33,9 +33,10 @@ jobs:
         displayName: "Install Bokeh in TARDIS environment"
 
       - bash: |
-          source activate tardis
-          GIT_LFS_SKIP_SMUDGE=1 git clone $REF_DATA_URL $REF_DATA_DIR
+          git clone $REF_DATA_URL $REF_DATA_DIR
           cd $REF_DATA_DIR
+          git fetch origin
+          git checkout origin/master
           git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin
           git lfs pull --include="atom_data/chianti_He.h5" origin
           git lfs pull --include="plasma_reference/" origin
