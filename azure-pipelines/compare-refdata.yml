@@ -63,8 +63,7 @@ jobs:
           cd $REF_DATA_DIR/notebooks
         displayName: "Set upstream repository"
 
-      - bash: |
-          jupyter nbconvert ref_data_compare.ipynb --to html --execute --allow-errors --ExecutePreprocessor.timeout=6000
+      - bash: jupyter nbconvert ref_data_compare.ipynb --to html --execute --allow-errors --ExecutePreprocessor.timeout=6000
         displayName: "Generating HTML report"
 
       - task: PublishPipelineArtifact@1
