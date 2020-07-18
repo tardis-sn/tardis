@@ -7,9 +7,9 @@ pr: [ master ]
 
 variables:
   PACKAGE_MANAGER: "mamba"
-  SYSTEM_DEBUG: "false"
   REF_DATA_URL: "https://github.com/tardis-sn/tardis-refdata.git"
   REF_DATA_DIR: "$HOME/tardis-refdata"
+  SYSTEM_DEBUG: "false"
 
 jobs:
   - job: report
@@ -26,7 +26,7 @@ jobs:
         displayName: "Add conda to path"
 
       - bash: conda install mamba -c conda-forge -y
-        displayName: "Install mamba"
+        displayName: "Install Mamba package manager"
         condition: eq(variables['PACKAGE_MANAGER'], 'mamba')
 
       - bash: $PACKAGE_MANAGER env create -f tardis_env3.yml
@@ -47,7 +47,7 @@ jobs:
 
       - bash: |
           source activate tardis
-          python setup.py test --args="--tardis-refdata=$(ref.data.home) --generate-reference"
+          python setup.py test --args="--tardis-refdata=$REF_DATA_DIR --generate-reference"
         displayName: "Generate new reference data"
 
       - bash: |
