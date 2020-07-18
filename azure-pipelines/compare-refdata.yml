@@ -36,7 +36,12 @@ jobs:
           source activate tardis
           GIT_LFS_SKIP_SMUDGE=1 git clone $REF_DATA_URL $REF_DATA_DIR
           cd $REF_DATA_DIR
+          git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin
+          git lfs pull --include="atom_data/chianti_He.h5" origin
+          git lfs pull --include="plasma_reference/" origin
           git lfs pull --include="unit_test_data.h5" origin
+          git lfs pull --include="packet_unittest.h5" origin
+          echo MD5: `md5sum unit_test_data.h5`
         displayName: "Fetch reference data"
 
       - bash: |
@@ -46,7 +51,7 @@ jobs:
 
       - bash: |
           source activate tardis
-          python setup.py test --args="--tardis-refdata=$REF_DATA_DIR --generate-reference"
+          pytest --tardis-refdata=$REF_DATA_DIR --generate-reference
         displayName: "Generate new reference data"
 
       - bash: |
@@ -56,6 +61,9 @@ jobs:
           git fetch upstream
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
           cd $REF_DATA_DIR/notebooks
+        displayName: "Generating HTML report"
+
+      - bash: |
           jupyter nbconvert ref_data_compare.ipynb --to html --execute --allow-errors --ExecutePreprocessor.timeout=6000
         displayName: "Generating HTML report"
 
@@ -64,3 +72,4 @@ jobs:
           targetPath: "$REF_DATA_DIR/notebooks/ref_data_compare.html"
           artifact: "html_report"
           publishLocation: "pipeline"
+        displayName: "Publishing artifact"
