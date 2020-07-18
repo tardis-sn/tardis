@@ -56,11 +56,11 @@ jobs:
           git remote add upstream $REF_DATA_URL
           git fetch upstream
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
-          cd $REF_DATA_DIR/notebooks
-        displayName: "Set refdata upstream repository"
+        displayName: "Set upstream repository"
 
       - bash: |
           source activate tardis
+          cd $REF_DATA_DIR/notebooks
           jupyter nbconvert ref_data_compare.ipynb --to html --execute --allow-errors --ExecutePreprocessor.timeout=6000
         displayName: "Generating HTML report"
 
