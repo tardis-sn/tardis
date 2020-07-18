@@ -32,18 +32,7 @@ jobs:
           conda install bokeh -c conda-forge --no-update-deps --yes
         displayName: "Install Bokeh in TARDIS environment"
 
-      - bash: |
-          GIT_LFS_SKIP_SMUDGE=1 git clone $REF_DATA_URL $REF_DATA_DIR
-          cd $REF_DATA_DIR
-          git fetch origin
-          git checkout origin/master
-          git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin
-          git lfs pull --include="atom_data/chianti_He.h5" origin
-          git lfs pull --include="plasma_reference/" origin
-          git lfs pull --include="unit_test_data.h5" origin
-          git lfs pull --include="packet_unittest.h5" origin
-          echo MD5: `md5sum atom_data/kurucz_cd23_chianti_H_He.h5`
-          echo MD5: `md5sum unit_test_data.h5`
+      - bash: sh ci-helpers/fetch_reference_data.sh
         displayName: "Fetch reference data"
 
       - bash: |
