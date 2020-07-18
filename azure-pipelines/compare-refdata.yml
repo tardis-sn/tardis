@@ -8,7 +8,7 @@ pr: [ master ]
 variables:
   PACKAGE_MANAGER: "mamba"
   REF_DATA_URL: "https://github.com/tardis-sn/tardis-refdata.git"
-  REF_DATA_DIR: "$HOME/tardis-refdata"
+  REF_DATA_DIR: "$(Agent.BuildDirectory)/tardis-refdata"
   SYSTEM_DEBUG: "false"
 
 jobs:
