@@ -3,7 +3,7 @@
 
 # This pipeline runs manually
 trigger: none
-pr: master
+pr: [ master ]
 
 variables:
   SYSTEM_DEBUG: "false"
