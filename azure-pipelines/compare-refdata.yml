@@ -61,7 +61,7 @@ jobs:
           git fetch upstream
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
           cd $REF_DATA_DIR/notebooks
-        displayName: "Generating HTML report"
+        displayName: "Set upstream repository"
 
       - bash: |
           jupyter nbconvert ref_data_compare.ipynb --to html --execute --allow-errors --ExecutePreprocessor.timeout=6000
