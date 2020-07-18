@@ -6,10 +6,11 @@ trigger: none
 pr: [ master ]
 
 variables:
-  PACKAGE_MANAGER: "mamba"
-  REF_DATA_URL: "https://github.com/tardis-sn/tardis-refdata.git"
-  REF_DATA_DIR: "$(Agent.BuildDirectory)/tardis-refdata"
-  SYSTEM_DEBUG: "false"
+  package.manager: "mamba"
+  build.dir: "$(Agent.BuildDirectory)"
+  ref.data.url: "https://github.com/tardis-sn/tardis-refdata.git"
+  ref.data.dir: "$(build.dir)/tardis-refdata"
+  system.debug: "false"
 
 jobs:
   - job: report
@@ -66,7 +67,7 @@ jobs:
 
       - task: PublishPipelineArtifact@1
         inputs:
-          targetPath: $REF_DATA_DIR/notebooks/ref_data_compare.html
+          targetPath: "$(ref.data.dir)/notebooks/ref_data_compare.html"
           artifact: "html_report"
           publishLocation: "pipeline"
         displayName: "Publishing artifact"
