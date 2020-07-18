@@ -6,6 +6,7 @@ trigger: none
 pr: [ master ]
 
 variables:
+  PACKAGE_MANAGER: "mamba"
   SYSTEM_DEBUG: "false"
   REF_DATA_URL: "https://github.com/tardis-sn/tardis-refdata.git"
   REF_DATA_DIR: "$HOME/tardis-refdata"
@@ -24,12 +25,16 @@ jobs:
           sudo chown -R $USER $CONDA
         displayName: "Add conda to path"
 
-      - bash: conda env create -f tardis_env3.yml
+      - bash: conda install mamba -c conda-forge -y
+        displayName: "Install mamba"
+        condition: eq(variables['PACKAGE_MANAGER'], 'mamba')
+
+      - bash: $PACKAGE_MANAGER env create -f tardis_env3.yml
         displayName: "Install TARDIS environment"
 
       - bash: |
           source activate tardis
-          conda install bokeh -c conda-forge --no-update-deps --yes
+          $PACKAGE_MANAGER install bokeh -c conda-forge --no-update-deps -y
         displayName: "Install Bokeh in TARDIS environment"
 
       - bash: sh ci-helpers/fetch_reference_data.sh
