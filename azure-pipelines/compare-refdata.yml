@@ -28,7 +28,7 @@ jobs:
 
       - bash: conda install mamba -c conda-forge -y
         displayName: "Install Mamba package manager"
-        condition: eq($(package.manager), 'mamba')
+        condition: eq( $(package.manager), 'mamba' )
 
       - bash: $PACKAGE_MANAGER env create -f tardis_env3.yml
         displayName: "Install TARDIS environment"
