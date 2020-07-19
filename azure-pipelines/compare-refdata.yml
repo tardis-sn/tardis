@@ -40,10 +40,12 @@ jobs:
         displayName: "Fetch reference data"
 
       - bash: |
+          source activate tardis
           cd $REF_DATA_DIR
           git remote rename origin upstream
           git fetch upstream
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
+          git checkout upstream/master
         displayName: "Rename remote"
 
       - bash: |
