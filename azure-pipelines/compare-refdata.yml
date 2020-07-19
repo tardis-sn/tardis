@@ -40,6 +40,13 @@ jobs:
         displayName: "Fetch reference data"
 
       - bash: |
+          cd $REF_DATA_DIR
+          git remote rename origin upstream
+          git fetch upstream
+          git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
+        displayName: "Rename remote"
+
+      - bash: |
           source activate tardis
           python setup.py build_ext --inplace
         displayName: "Build & install TARDIS"
@@ -48,14 +55,6 @@ jobs:
           source activate tardis
           pytest tardis --tardis-refdata=$REF_DATA_DIR --generate-reference
         displayName: "Generate new reference data"
-
-      - bash: |
-          source activate tardis
-          cd $REF_DATA_DIR
-          git remote add upstream $REF_DATA_URL
-          git fetch upstream
-          git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
-        displayName: "Set upstream repository"
 
       - bash: |
           source activate tardis
