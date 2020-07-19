@@ -62,8 +62,15 @@ jobs:
       - bash: |
           source activate tardis
           cd $REF_DATA_DIR/notebooks
-          jupyter nbconvert ref_data_compare.ipynb --to html --execute --allow-errors --ExecutePreprocessor.timeout=6000
+          jupyter nbconvert ref_data_compare.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
         displayName: "Generating HTML report"
+
+      - bash: |
+          source activate tardis
+          cd $REF_DATA_DIR/notebooks
+          jupyter nbconvert ref_data_compare.ipynb --to html --execute --allow-errors --ExecutePreprocessor.timeout=6000
+        displayName: "Generating HTML report (failed)"
+        condition: failed()
 
       - task: PublishPipelineArtifact@1
         inputs:
