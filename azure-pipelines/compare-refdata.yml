@@ -33,7 +33,7 @@ jobs:
 
       - bash: |
           source activate tardis
-          $PACKAGE_MANAGER install bokeh -c conda-forge --no-update-deps -y
+          $PACKAGE_MANAGER install bokeh=1.4 -c conda-forge --no-update-deps -y
         displayName: "Install Bokeh in TARDIS environment"
 
       - bash: sh ci-helpers/fetch_reference_data.sh
