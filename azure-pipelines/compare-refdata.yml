@@ -54,6 +54,7 @@ jobs:
           cd $REF_DATA_DIR
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
           git checkout upstream/pr/28
+          git lfs pull --include="unit_test_data.h5" upstream
         displayName: "Checkout"
 
       - bash: |
