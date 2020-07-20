@@ -51,6 +51,13 @@ jobs:
 
       - bash: |
           source activate tardis
+          cd $REF_DATA_DIR
+          git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
+          git checkout upstream/pr/28
+        displayName: "Checkout"
+
+      - bash: |
+          source activate tardis
           cd $REF_DATA_DIR/notebooks
           jupyter nbconvert ref_data_compare.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
         displayName: "Generating HTML report"
