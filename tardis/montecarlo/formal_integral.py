@@ -6,6 +6,7 @@ from scipy.interpolate import interp1d
 from astropy import units as u
 from tardis import constants as const
 from numba import jitclass, njit
+import pdb
 
 
 from tardis.montecarlo.montecarlo_numba import njit_dict
@@ -19,6 +20,7 @@ C_INV = 3.33564e-11
 M_PI = np.arccos(-1)
 KB_CGS = 1.3806488e-16
 H_CGS = 6.62606957e-27
+SIGMA_THOMSON = 6.652486e-25
 
 class IntegrationError(Exception):
     pass
@@ -38,6 +40,7 @@ class FormalIntegrator(object):
         if plasma:
             self.plasma = numba_plasma_initialize(plasma)
             self.atomic_data = plasma.atomic_data
+            self.original_plasma = plasma
         self.runner = runner
         self.points = points
 
@@ -124,16 +127,16 @@ class FormalIntegrator(object):
         model = self.model
         runner = self.runner
 
-        macro_ref = self.plasma.macro_block_references
+        macro_ref = self.atomic_data.macro_atom_references
         macro_data = self.atomic_data.macro_atom_data
 
-        no_lvls = len(self.tomic_data.levels)
+        no_lvls = len(self.atomic_data.levels)
         no_shells = len(model.w)
 
         if runner.line_interaction_type == 'macroatom':
             internal_jump_mask = (macro_data.transition_type >= 0).values
             ma_int_data = macro_data[internal_jump_mask]
-            internal = self.plasma.transition_probabilities[internal_jump_mask]
+            internal = self.original_plasma.transition_probabilities[internal_jump_mask]
 
             source_level_idx = ma_int_data.source_level_idx.values
             destination_level_idx = ma_int_data.destination_level_idx.values 
@@ -170,10 +173,11 @@ class FormalIntegrator(object):
                 e_dot_u_vec[e_dot_u_src_idx] = e_dot_u[shell].values
                 C_frame[shell] = sp.linalg.spsolve(inv_N.T, e_dot_u_vec)
 
+
         e_dot_u.index.names = ['atomic_number', 'ion_number', 'source_level_number'] # To make the q_ul e_dot_u product work, could be cleaner
-        transitions       = self.atomic_data.macro_atom_data[self.atomic_data.macro_atom_data.transition_type == -1].copy()
+        transitions       = self.original_plasma.atomic_data.macro_atom_data[self.original_plasma.atomic_data.macro_atom_data.transition_type == -1].copy()
         transitions_index = transitions.set_index(['atomic_number', 'ion_number', 'source_level_number']).index.copy()
-        tmp  = self.plasma.transition_probabilities[(self.atomic_data.macro_atom_data.transition_type == -1).values]
+        tmp  = self.original_plasma.transition_probabilities[(self.atomic_data.macro_atom_data.transition_type == -1).values]
         q_ul = tmp.set_index(transitions_index)
         t    = model.time_explosion.value
         lines = self.atomic_data.lines.set_index('line_id')
@@ -187,15 +191,15 @@ class FormalIntegrator(object):
 
         # Jredlu should already by in the correct order, i.e. by wavelength of
         # the transition l->u (similar to Jbluelu)
-        Jredlu = Jbluelu * np.exp(-self.plasma.tau_sobolev.values) + att_S_ul
+        Jredlu = Jbluelu * np.exp(-self.plasma.tau_sobolev) + att_S_ul
         if self.interpolate_shells > 0:
             att_S_ul, Jredlu, Jbluelu, e_dot_u = self.interpolate_integrator_quantities(
                     att_S_ul, Jredlu, Jbluelu, e_dot_u)
         else:
             runner.r_inner_i = runner.r_inner_cgs
             runner.r_outer_i = runner.r_outer_cgs
-            runner.tau_sobolevs_integ = self.plasma.tau_sobolevs.values
-            runner.electron_densities_integ = self.plasma.electron_densities.values
+            runner.tau_sobolevs_integ = self.plasma.tau_sobolev
+            runner.electron_densities_integ = self.plasma.electron_density
 
         return att_S_ul, Jredlu, Jbluelu, e_dot_u
 
@@ -215,12 +219,12 @@ class FormalIntegrator(object):
         r_middle_integ = (r_integ[:-1] + r_integ[1:]) / 2.
 
         runner.electron_densities_integ = interp1d(
-                r_middle, plasma.electron_densities,
+                r_middle, plasma.electron_density,
                 fill_value='extrapolate', kind='nearest')(r_middle_integ)
         # Assume tau_sobolevs to be constant within a shell
         # (as in the MC simulation)
         runner.tau_sobolevs_integ = interp1d(
-                r_middle, plasma.tau_sobolevs,
+                r_middle, plasma.tau_sobolev,
                 fill_value='extrapolate', kind='nearest')(r_middle_integ)
         att_S_ul = interp1d(
                 r_middle, att_S_ul, fill_value='extrapolate')(r_middle_integ)
@@ -270,23 +274,23 @@ class FormalIntegrator(object):
         size_tau = size_line * size_shell
         finished_nus = 0
 
-        R_ph = self.runner.r_inner[0]
-        R_max = self.runner.r_outer[size_shell - 1]
+        R_ph = self.runner.r_inner_i[0]
+        R_max = self.runner.r_outer_i[size_shell - 1]
         pp = np.zeros(N) # check
         exp_tau = np.zeros(size_tau)
         # TODO: multiprocessing
         offset = 0
         size_z = 0
+        z = np.zeros(2 * self.model.no_of_shells)
         idx_nu_start = 0
         direction = 0
         I_nu = np.zeros(N)
-        shell_id = np.zeros(2 * self.runner.no_of_shells_i)  # check
+        shell_id = np.zeros(2 * self.model.no_of_shells)
         # instantiate more variables here, maybe?
 
         # prepare exp_tau
-        for i in range(size_tau):
-            exp_tau[i] = np.exp(-self.model.line_lists_tau_sobolevs_i[i]) # check
-        pp = self.calculate_p_values(R_max, N, pp)
+        exp_tau = np.exp(-self.plasma.tau_sobolev) # check
+        pp = calculate_p_values(R_max, N, pp)
 
         # done with instantiation
         # now loop over wavelength in spectrum
@@ -309,7 +313,7 @@ class FormalIntegrator(object):
                 # find first contributing lines
                 nu_start = nu * z[0]
                 nu_end = nu * z[1]
-                idx_nu_start = line_search(self.runner.line_list_nu,
+                idx_nu_start = line_search(self.plasma.line_list_nu,
                                            nu_start, size_line, idx_nu_start)
                 offset = shell_id[0] * size_line
 
@@ -317,31 +321,31 @@ class FormalIntegrator(object):
                 zstart = self.model.time_explosion / C_INV * (1. - z[0])
 
                 # Initialize "pointers"
-                pline = self.runner.line_list_nu + idx_nu_start;
-                pexp_tau = exp_tau + offset + idx_nu_start;
-                patt_S_ul = att_S_ul + offset + idx_nu_start;
-                pJred_lu = Jred_lu + offset + idx_nu_start;
-                pJblue_lu = Jblue_lu + offset + idx_nu_start;
+                pline = self.plasma.line_list_nu + idx_nu_start
+                pexp_tau = exp_tau + offset + idx_nu_start
+                patt_S_ul = att_S_ul + offset + idx_nu_start
+                pJred_lu = Jred_lu + offset + idx_nu_start
+                pJblue_lu = Jblue_lu + offset + idx_nu_start
 
                 # flag for first contribution to integration on current p-ray
                 first = 1
 
                 # loop over all interactions
                 for i in range(size_z - 1):
-                    escat_op = self.model.electron_densities_i[shell_id[i]] * sigma_thomson # change sigma_thomson
+                    escat_op = self.plasma.electron_density[int(shell_id[i])] * SIGMA_THOMSON
                     nu_end = nu * z[i + 1]
-                    while pline < self.model.ine_list_nu + size_line: # check ;pline
+                    while np.all(pline < self.plasma.line_list_nu + size_line): # check all condition
                         # increment all pointers simulatenously
                         pline += 1
                         pexp_tau += 1
                         patt_S_ul += 1
                         pJblue_lu += 1
 
-                        if (pline[0] < nu_end):
+                        if (pline[0] < nu_end.value):
                             break
 
                         # calculate e-scattering optical depth to next resonance point
-                        zend = self.model.time_explosion / C_INV * (1. - pline / nu) # check
+                        zend = self.model.time_explosion / C_INV * (1. - pline[0] / nu.value) # check
 
                         if first == 1:
                             # first contribution to integration
@@ -349,26 +353,27 @@ class FormalIntegrator(object):
                             #   by boundary conditions) is not in Lucy 1999;
                             #   should be re-examined carefully
                             escat_contrib += (zend - zstart) * escat_op * (
-                                pJblue_lu - I_nu[p_idx]);
+                                pJblue_lu[0] - I_nu[p_idx]);
                             first = 0;
                         else:
                             # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
-                            Jkkp = 0.5 * (pJred_lu + pJblue_lu);
+                            Jkkp = 0.5 * (pJred_lu[0] + pJblue_lu[0]);
                             escat_contrib += (zend - zstart) * escat_op * (
                                         Jkkp - I_nu[p_idx])
                             # this introduces the necessary ffset of one element between
                             # pJblue_lu and pJred_lu
                             pJred_lu += 1
-                        I_nu[p_idx] = I_nu[p_idx] + escat_contrib;
+                        # pdb.set_trace()
+                        I_nu[p_idx] = I_nu[p_idx] + escat_contrib.value
                         # // Lucy 1999, Eq 26
-                        I_nu[p_idx] = I_nu[p_idx] * (pexp_tau) + patt_S_ul # check about taking about asterisks beforehand elsewhere
+                        I_nu[p_idx] = I_nu[p_idx] * (pexp_tau[0][0]) + patt_S_ul[0] # check about taking about asterisks beforehand elsewhere
 
                         # // reset e-scattering opacity
                         escat_contrib = 0
                         zstart = zend
                     # calculate e-scattering optical depth to grid cell boundary
 
-                    Jkkp = 0.5 * (pJred_lu + pJblue_lu)
+                    Jkkp = 0.5 * (pJred_lu[0] + pJblue_lu[0])
                     zend = self.model.time_explosion / C_INV * (1. - nu_end / nu) # check
                     escat_contrib += (zend - zstart) * escat_op * (
                                 Jkkp - I_nu[p_idx])
@@ -402,14 +407,14 @@ class FormalIntegrator(object):
                 :oshell_id: (int64) will be set with the corresponding shell_ids
             """
         # abbreviations
-        r = self.model.r_outer_i
-        N = self.model.no_of_shells_i # check
+        r = self.runner.r_outer_i
+        N = self.model.no_of_shells # check
         print(N)
         inv_t = 1/self.model.time_explosion
         z = 0
         offset = N
 
-        if p <= self.model.r_inner_i[0]:
+        if p <= self.runner.r_inner_i[0]:
             # intersect the photosphere
             for i in range(N):
                 oz[i] = 1 - self.calculate_z(r[i], p, inv_t)
@@ -449,7 +454,7 @@ class FormalIntegrator(object):
             :inv_t: (double) inverse time_explosio is needed to norm to unit-length
         """
         if r > p:
-            return np.sqrt(r * r - p * p) * C_INV * inv_t
+            return np.sqrt(r * r - p * p) * C_INV * inv_t.value
         else:
             return 0
 
