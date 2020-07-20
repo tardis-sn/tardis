@@ -1,5 +1,7 @@
 import os
 import pytest
+from tardis.io import config_reader
+
 
 from ctypes import (
         CDLL,
@@ -15,6 +17,7 @@ from tardis.montecarlo.struct import (
     CONTINUUM_OFF,
     BoundFreeTreatment
 )
+from tardis.montecarlo.base import MontecarloRunner
 
 
 @pytest.fixture(scope="function")
@@ -138,3 +141,10 @@ def mt_state_seeded(clib, mt_state):
     seed = 23111963
     clib.rk_seed(seed, byref(mt_state))
     return mt_state
+
+@pytest.fixture(scope="function")
+def runner():
+    config_fname = 'tardis/io/tests/data/tardis_configv1_verysimply.yml'
+    config = config_reader.Configuration.from_yaml(config_fname)
+    runner = MontecarloRunner.from_config(config)
+    return runner
