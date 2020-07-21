@@ -1,4 +1,4 @@
-# Config file to test dataframes of abundance and isotope abundance
+# Config file to test contruction of dataframes of abundance and isotope abundance
 tardis_config_version: v1.0
 
 supernova:

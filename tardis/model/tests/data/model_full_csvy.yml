@@ -1,4 +1,4 @@
-# Example CSVY YAML configuration for TARDIS using full csvy data
+# YAML model config file using full csvy data
 tardis_config_version: v1.0
 
 supernova:

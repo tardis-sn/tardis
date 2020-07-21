@@ -1,4 +1,4 @@
-# CSVY configuation file with t_rad column
+# YAML model config file with a t_rad column
 tardis_config_version: v1.0
 supernova:
   luminosity_requested: 8.770 log_lsun
