@@ -52,7 +52,7 @@ import tardis.montecarlo.formal_integral as formal_integral
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
 import tardis.montecarlo.montecarlo_configuration as mc
 from tardis import constants as const
-from tardis.montecarlo.montecarlo_numba import numba_interface
+from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
 from tardis.montecarlo.montecarlo_numba import macro_atom
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
 
@@ -288,7 +288,6 @@ def test_reverse_binary_search(x, x_insert, imin, imax, expected_params):
 )
 def test_line_search(nu, nu_insert, number_of_lines, expected_params):
     # nu = (c_double * number_of_lines)(*nu)
-    nu_insert = c_double(nu_insert)
     obtained_result = 0
 
     obtained_tardis_error = formal_integral.line_search(
@@ -660,7 +659,7 @@ def test_compute_distance2line(packet_params, expected_params, packet, model):
 #     assert_almost_equal(packet.d_cont, expected_params['d_cont'])
 
 
-# @pytest.mark.parametrize('full_relativity', [1, 0])
+@pytest.mark.parametrize('full_relativity', [1, 0])
 @pytest.mark.parametrize(
     ['packet_params', 'expected_params'],
     [({'nu': 0.4, 'mu': 0.3, 'energy': 0.9, 'r': 7.5e14},
@@ -672,32 +671,41 @@ def test_compute_distance2line(packet_params, expected_params, packet, model):
        'j': 5001298975563.031, 'nubar': 3001558973156.1387})]
 )
 def test_move_packet(packet_params, expected_params,
-                     packet, model):
-    # TODO: test relativity
+                     packet, model, full_relativity):
+    distance = 1e13
     packet.nu = packet_params['nu']
     packet.mu = packet_params['mu']
     packet.energy = packet_params['energy']
     packet.r = packet_params['r']
     # model.full_relativity = full_relativity
+    mc.full_relativity = full_relativity
 
     doppler_factor = r_packet.get_doppler_factor(packet.r,
                                                  packet.mu,
                                                  model.time_explosion)
+    numba_estimator = Estimators(
+        packet_params['j'],
+        packet_params['nu_bar'],
+        0,
+        0)
     r_packet.move_r_packet(
-        packet, distance, time_explosion, numba_estimator)
+        packet, distance, model.time_explosion, numba_estimator)
 
     assert_almost_equal(packet.mu, expected_params['mu'])
     assert_almost_equal(packet.r, expected_params['r'])
 
+
     expected_j = expected_params['j']
     expected_nubar = expected_params['nubar']
-    # if full_relativity:
-    #     expected_j *= doppler_factor
-    #     expected_nubar *= doppler_factor
+    if full_relativity:
+        expected_j *= doppler_factor
+        expected_nubar *= doppler_factor
 
-    assert_allclose(model.js[packet.current_shell_id],
+    mc.full_relativity = False
+
+    assert_allclose(numba_estimator.j_estimator[packet.current_shell_id],
                     expected_j, rtol=5e-7)
-    assert_allclose(model.nubars[packet.current_shell_id],
+    assert_allclose(numba_estimator.nu_bar_estimator[packet.current_shell_id],
                     expected_nubar, rtol=5e-7)
 
 
@@ -820,10 +828,12 @@ def test_montecarlo_line_scatter(clib, packet_params, expected_params, packet, m
 )
 def test_macro_atom(packet, z_random, packet_params, get_rkstate, expected):
     packet.macro_atom_activation_level = packet_params['activation_level']
+    packet = r_packet.RPacket(r=packet.r, mu=packet.mu, nu=packet.nu,
+                              energy=packet.energy)
     packet.current_shell_id = packet_params['shell_id']
     rkstate = get_rkstate(z_random)
 
-    macro_atom.macro_atom(byref(packet), byref(model_3lvlatom), byref(rkstate))
+    macro_atom.macro_atom(packet, numba_plasma)
     obtained_line_id = model_3lvlatom.last_line_interaction_out_id[packet.id]
 
     assert_equal(obtained_line_id, expected)
@@ -869,16 +879,14 @@ methods related to continuum interactions.
      (0.0, 7.5e14, 1 / 2.2e5, 1),
      (-0.7, 7.5e14, 1 / 5.2e5, 0)]
 )
-def test_frame_transformations(packet, model, mu, r,
+def test_frame_transformations(packet, mu, r,
                                inv_t_exp, full_relativity):
-    packet.r = r
-    packet.mu = mu
+    packet = r_packet.RPacket(r=r, mu=mu, energy=packet.energy, nu=packet.nu)
     mc.full_relativity = bool(full_relativity)
-    model.inverse_time_explosion = inv_t_exp
-    model.full_relativity = full_relativity
+    mc.full_relativity = full_relativity
 
     inverse_doppler_factor = r_packet.get_inverse_doppler_factor(r, mu, 1/inv_t_exp)
-    r_packet.angle_aberration_CMF_to_LF(byref(packet), byref(model))
+    r_packet.angle_aberration_CMF_to_LF(packet, 1/inv_t_exp, packet.mu)
 
     doppler_factor = r_packet.get_doppler_factor(r, mu, 1/inv_t_exp)
     mc.full_relativity = False
@@ -922,13 +930,14 @@ def test_angle_transformation_invariance(packet, model,
      (-1.0, 6.3e14, 2.2e5, 6.0e12, 6.55e12)]
 )
 def test_compute_distance2line_relativistic(mu, r, t_exp, nu, nu_line,
-                                            full_relativity, packet, model):
-    packet.r = r
-    packet.mu = mu
-    packet.nu = nu
-    packet.nu_line = nu_line
-    model.inverse_time_explosion = 1 / t_exp
-    model.time_explosion = t_exp
+                                            full_relativity, packet, runner):
+    packet = r_packet.RPacket(r=r, nu=nu, mu=mu, energy=packet.energy)
+    # packet.nu_line = nu_line
+    numba_estimator = Estimators(
+                                 runner.j_estimator,
+                                 runner.nu_bar_estimator,
+                                 runner.j_blue_estimator,
+                                 runner.Edotlu_estimator)
     mc.full_relativity = bool(full_relativity)
 
     doppler_factor = r_packet.get_doppler_factor(r, mu, t_exp)
@@ -936,7 +945,7 @@ def test_compute_distance2line_relativistic(mu, r, t_exp, nu, nu_line,
     distance = r_packet.calculate_distance_line(
                                                 packet,
                                                 comov_nu, nu_line, t_exp)
-    r_packet.move_r_packet(packet, distance, t_exp, model)
+    r_packet.move_r_packet(packet, distance, t_exp, numba_estimator)
 
     doppler_factor = r_packet.get_doppler_factor(r, mu, t_exp)
     comov_nu = packet.nu * doppler_factor
