@@ -124,7 +124,7 @@ def test_read_csvy_abundances(csvy_model_to_test_abundances):
 
 def test_csvy_model_decay(csvy_model_to_test_abundances):
     """Compare model abundance decay against decay calculations done by hand.
-    For the hand decay I used the following procedure:
+    For the by-hand decay calculations I used the following procedure:
     Ni_halflife = 6.075 * u.d
     Co_halflife = 77.233 * u.d
 
