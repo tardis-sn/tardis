@@ -41,7 +41,7 @@ def test_compare_models(model_config_files):
 
 
     assert csvy_model.raw_abundance.shape == config_model.raw_abundance.shape
-    assert csvy_model.raw_isotope_abundance.shape == config_model.raw_abundance.shape
+    assert csvy_model.raw_isotope_abundance.shape == config_model.raw_isotope_abundance.shape
     assert csvy_model.abundance.shape == config_model.abundance.shape
     npt.assert_array_almost_equal(csvy_model.raw_abundance.to_numpy(),config_model.raw_abundance.to_numpy())
     npt.assert_array_almost_equal(csvy_model.raw_isotope_abundance.to_numpy(),config_model.raw_isotope_abundance.to_numpy())
@@ -120,4 +120,4 @@ def test_csvy_model_decay(csvy_model_abundances):
     model_decayed_abundance_shape = csvy_model_abundances.abundance.shape
     hand_decayed_abundance_shape = hand_decayed_abundance.shape
     assert model_decayed_abundance_shape == hand_decayed_abundance_shape
-    npt.assert_array_almost_equal(decayed_abundance.to_numpy(),csvy_model_abundances.abundance.to_numpy())
+    npt.assert_array_almost_equal(hand_decayed_abundance.to_numpy(),csvy_model_abundances.abundance.to_numpy())
