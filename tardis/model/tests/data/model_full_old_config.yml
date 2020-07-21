@@ -14,7 +14,7 @@ model:
   structure:
     #v_inner_boundary: 9500 km/s
     type: file
-    filename: custom_density.dat
+    filename: custom_density_tardis.dat
     filetype: simple_ascii
       # showing different configuration options separated by comments
       # simple uniform
@@ -33,7 +33,7 @@ model:
 
   abundances:
     type: file
-    filename: custom_abundance.dat
+    filename: custom_abundance_tardis.dat
     filetype: custom_composition
 
 plasma:
