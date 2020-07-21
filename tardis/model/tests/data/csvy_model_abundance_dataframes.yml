@@ -9,7 +9,7 @@ supernova:
 # standard atomic data base; get it from the tardis-refdata repository
 atom_data: kurucz_cd23_chianti_H_He.h5
 
-csvy_model: csvy_model_abundance_dataframe.csvy
+csvy_model: csvy_model_abundance_dataframes.csvy
 
 
 plasma:
