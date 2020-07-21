@@ -1,4 +1,4 @@
-# Example YAML configuration for TARDIS
+# Example YAML with uniform density and uniform abundance 
 tardis_config_version: v1.0
 
 supernova:
@@ -9,7 +9,7 @@ supernova:
 # standard atomic data base; get it from the tardis-refdata repository
 atom_data: kurucz_cd23_chianti_H_He.h5
 
-csvy_model: csvy_full.csvy
+csvy_model: uniform_csvy.csvy
 
 
 plasma:

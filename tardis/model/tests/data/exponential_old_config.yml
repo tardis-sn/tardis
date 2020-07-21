@@ -1,4 +1,4 @@
-# Example YAML configuration for TARDIS
+# Model config with exponential density and uniform abundance
 tardis_config_version: v1.0
 
 supernova:
@@ -18,7 +18,9 @@ model:
       stop: 12000 km/s
       num: 5
     density:
-      type: branch85_w7
+      type: exponential
+      rho_0: 1e-9 g/cm^3
+      v_0: 10000 km/s
 
   abundances:
     type: uniform
