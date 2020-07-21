@@ -87,7 +87,7 @@ def csvy_model_to_test_abundances():
 
 def test_read_csvy_abundances(csvy_model_to_test_abundances):
     """Test if model reads abundances and isotope abundances 
-       and constructs dataframes appropiatly before applying decay"""
+       and constructs dataframes appropriately before applying decay"""
     #rows in input_abundance are abundances for a fixed element,columns 
     #represent different shells
     abundance_index = pd.Index([1, 2], name="atomic_number")
