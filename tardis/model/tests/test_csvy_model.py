@@ -13,8 +13,8 @@ DATA_PATH = os.path.join(tardis.__path__[0],'model','tests','data')
 @pytest.fixture(scope="module", params=['model_full', 'branch85', 'uniform', 'powerlaw', 'exponential', 'radiative'])
 def model_config_files(request):
     filename = request.param
-    csvy_config_file = os.path.join(DATA_PATH, filename,'_csvy.yml')
-    old_config_file = os.path.join(DATA_PATH, filename,'_old_config.yml')
+    csvy_config_file = os.path.join(DATA_PATH, filename + '_csvy.yml')
+    old_config_file = os.path.join(DATA_PATH, filename + '_old_config.yml')
     return csvy_config_file, old_config_file
 
 def test_compare_models(model_config_files):
