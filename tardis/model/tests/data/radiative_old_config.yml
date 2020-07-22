@@ -1,4 +1,4 @@
-# YAML configuration for TARDIS with custom abundancec and density from files
+# YAML configuration for TARDIS with custom abundances and density from files
 tardis_config_version: v1.0
 
 supernova:
