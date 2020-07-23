@@ -125,7 +125,7 @@ def test_read_csvy_abundances(csvy_model_to_test_abundances):
 def test_csvy_model_decay(csvy_model_to_test_abundances):
     """Compare model abundance decay against and decay calculations 
     done by hand.
-    For the calculations decay calulculations the following procedure is used:
+    For the calculations decay calculations the following procedure is used:
     Ni_halflife = 6.075 * u.d
     Co_halflife = 77.233 * u.d
 
@@ -145,15 +145,15 @@ def test_csvy_model_decay(csvy_model_to_test_abundances):
 
      if the original Ni56 abundance for a given shell is 0.05, after 4 days:
 
-     cobalt_abundace_after_4_days = N2(0.05, lambda_Ni, lambda_Co)
-     nickel_abundace_after_4_days = N1(0.05, lambda_Ni)
-     iron_abundance_after_4_days = 0.05 - cobalt_abundace_after_4_days 
-                                    - nickel_abundace_after_4_days
+     cobalt_abundance_after_4_days = N2(0.05, lambda_Ni, lambda_Co)
+     nickel_abundance_after_4_days = N1(0.05, lambda_Ni)
+     iron_abundance_after_4_days = 0.05 - cobalt_abundance_after_4_days 
+                                    - nickel_abundance_after_4_days
      In the hand_decayed_dataframe every row represents a specific element
      and every column represent a shell"""
 
     decay_index = pd.Index([1, 2, 26, 27, 28], name="atomic_number")
-    hand_decayed_abundance = pd.DataFrame(
+    reference_decayed_abundance = pd.DataFrame(
         [
             [0.0, 0.33, 0.3, 0.5, 0.4, 0.2],
             [0.98, 0.64, 0.6, 0.4, 0.55, 0.79],
@@ -186,9 +186,9 @@ def test_csvy_model_decay(csvy_model_to_test_abundances):
     )
 
     model_decayed_abundance_shape = csvy_model_to_test_abundances.abundance.shape
-    hand_decayed_abundance_shape = hand_decayed_abundance.shape
-    assert model_decayed_abundance_shape == hand_decayed_abundance_shape
+    reference_decayed_abundance_shape = reference_decayed_abundance.shape
+    assert model_decayed_abundance_shape == reference_decayed_abundance_shape
     npt.assert_array_almost_equal(
-        hand_decayed_abundance.to_numpy(), 
+        reference_decayed_abundance.to_numpy(), 
         csvy_model_to_test_abundances.abundance.to_numpy()
     )
