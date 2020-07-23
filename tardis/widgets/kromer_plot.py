@@ -16,7 +16,9 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.lines as lines
 import matplotlib.cm as cm
-from tardis_minimal_model import minimal_model
+
+import plotly.graph_objects as go
+
 
 plt.rcdefaults()
 
@@ -30,7 +32,7 @@ inv_elements = pd.Series(
 PacketsData = namedtuple("PacketsData", ["virtual", "real"])
 
 
-class BaseKromerPlotter:
+class KromerPlotter:
     """A plotter, generating spectral diagnostics plots as proposed by M.
     Kromer.
 
@@ -173,6 +175,59 @@ class BaseKromerPlotter:
                 energies[line_mask]
                 for energies, line_mask in zip(packet_energies, line_masks)
             ]
+        )
+
+    @classmethod
+    def from_simulation(cls, sim):
+        return cls(
+            last_interaction_type=PacketsData(
+                virtual=sim.runner.virt_packet_last_interaction_type,
+                real=sim.runner.last_interaction_type[
+                    sim.runner.emitted_packet_mask
+                ],
+            ),
+            last_line_interaction_in_id=PacketsData(
+                virtual=sim.runner.virt_packet_last_line_interaction_in_id,
+                real=sim.runner.last_line_interaction_in_id[
+                    sim.runner.emitted_packet_mask
+                ],
+            ),
+            last_line_interaction_out_id=PacketsData(
+                virtual=sim.runner.virt_packet_last_line_interaction_out_id,
+                real=sim.runner.last_line_interaction_out_id[
+                    sim.runner.emitted_packet_mask
+                ],
+            ),
+            last_interaction_in_nu=PacketsData(
+                virtual=sim.runner.virt_packet_last_interaction_in_nu
+                * units.Hz,
+                real=sim.runner.last_interaction_in_nu[
+                    sim.runner.emitted_packet_mask
+                ]
+                * units.Hz,
+            ),
+            lines_data=sim.plasma.atomic_data.lines.reset_index().set_index(
+                "line_id"
+            ),
+            packet_nus=PacketsData(
+                virtual=sim.runner.virt_packet_nus * units.Hz,
+                real=sim.runner.output_nu[sim.runner.emitted_packet_mask],
+            ),
+            packet_energies=PacketsData(
+                virtual=sim.runner.virt_packet_energies * units.erg,
+                real=sim.runner.output_energy[sim.runner.emitted_packet_mask],
+            ),
+            R_phot=(sim.model.v_inner[0] * sim.model.time_explosion).to("cm"),
+            spectrum_wave=PacketsData(
+                virtual=sim.runner.spectrum_virtual.wavelength,
+                real=sim.runner.spectrum.wavelength,
+            ),
+            spectrum_luminosity=PacketsData(
+                virtual=sim.runner.spectrum_virtual.luminosity_density_lambda,
+                real=sim.runner.spectrum.luminosity_density_lambda,
+            ),
+            t_inner=sim.model.t_inner,
+            time_of_simulation=sim.runner.time_of_simulation,
         )
 
     @property
@@ -504,62 +559,3 @@ class BaseKromerPlotter:
         self.ax.set_xlabel(r"$\lambda$ [$\mathrm{\AA}$]")
         ylabel = r"$L_{\mathrm{\lambda}}$ [$\mathrm{erg\,s^{-1}\,\AA^{-1}}$]"
         self.ax.set_ylabel(ylabel)
-
-
-class SimulationKromerPlotter(BaseKromerPlotter):
-    def __init__(self, sim):
-
-        super().__init__(
-            last_interaction_type=PacketsData(
-                virtual=sim.runner.virt_packet_last_interaction_type,
-                real=sim.runner.last_interaction_type[
-                    sim.runner.emitted_packet_mask
-                ],
-            ),
-            last_line_interaction_in_id=PacketsData(
-                virtual=sim.runner.virt_packet_last_line_interaction_in_id,
-                real=sim.runner.last_line_interaction_in_id[
-                    sim.runner.emitted_packet_mask
-                ],
-            ),
-            last_line_interaction_out_id=PacketsData(
-                virtual=sim.runner.virt_packet_last_line_interaction_out_id,
-                real=sim.runner.last_line_interaction_out_id[
-                    sim.runner.emitted_packet_mask
-                ],
-            ),
-            last_interaction_in_nu=PacketsData(
-                virtual=sim.runner.virt_packet_last_interaction_in_nu
-                * units.Hz,
-                real=sim.runner.last_interaction_in_nu[
-                    sim.runner.emitted_packet_mask
-                ]
-                * units.Hz,
-            ),
-            lines_data=sim.plasma.atomic_data.lines.reset_index().set_index(
-                "line_id"
-            ),
-            packet_nus=PacketsData(
-                virtual=sim.runner.virt_packet_nus * units.Hz,
-                real=sim.runner.output_nu[sim.runner.emitted_packet_mask],
-            ),
-            packet_energies=PacketsData(
-                virtual=sim.runner.virt_packet_energies * units.erg,
-                real=sim.runner.output_energy[sim.runner.emitted_packet_mask],
-            ),
-            R_phot=(sim.model.v_inner[0] * sim.model.time_explosion).to("cm"),
-            spectrum_wave=PacketsData(
-                virtual=sim.runner.spectrum_virtual.wavelength,
-                real=sim.runner.spectrum.wavelength,
-            ),
-            spectrum_luminosity=PacketsData(
-                virtual=sim.runner.spectrum_virtual.luminosity_density_lambda,
-                real=sim.runner.spectrum.luminosity_density_lambda,
-            ),
-            t_inner=sim.model.t_inner,
-            time_of_simulation=sim.runner.time_of_simulation,
-        )
-
-
-class HDFKromerPlotter(BaseKromerPlotter):
-    pass
