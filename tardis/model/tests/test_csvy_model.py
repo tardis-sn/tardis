@@ -22,7 +22,7 @@ DATA_PATH = os.path.join(tardis.__path__[0], "model", "tests", "data")
         "radiative",
     ],
 )
-def model_config_files(request):
+def model_config_fnames(request):
     """Function to retrieve filenames of target data for tests"""
     filename = request.param
     csvy_config_file = os.path.join(DATA_PATH, filename + "_csvy.yml")
@@ -30,11 +30,11 @@ def model_config_files(request):
     return csvy_config_file, old_config_file
 
 
-def test_compare_models(model_config_files):
+def test_compare_models(model_config_fnames):
     """Compare identical models produced by .from_config and 
        .from_csvy to check that velocities, densities and abundances 
        (pre and post decay) are the same"""
-    csvy_config_file, old_config_file = model_config_files
+    csvy_config_file, old_config_file = model_config_fnames
     tardis_config = Configuration.from_yaml(csvy_config_file)
     tardis_config_old = Configuration.from_yaml(old_config_file)
     csvy_model = Radial1DModel.from_csvy(tardis_config)
