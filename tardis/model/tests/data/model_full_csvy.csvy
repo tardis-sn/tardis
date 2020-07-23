@@ -2,7 +2,7 @@
 name: model_full_csvy
 model_density_time_0: 1 day
 model_isotope_time_0: 0 day
-description: csvy file with all quantities stored as CSV
+description: csvy file with all quantities stored as CSV 
 tardis_model_config_version: v1.0
 datatype:
   fields:
