@@ -2,7 +2,7 @@
 name: exponential_csvy
 model_density_time_0: 1 day
 model_isotope_time_0: 0 day
-description: csvy file with uniform abundance and exponential density (no values declared in the CSV section) 
+description: csvy file with uniform abundances and exponential density profile (no values declared in the CSV section) 
 tardis_model_config_version: v1.0
 
 velocity:

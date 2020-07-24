@@ -1,4 +1,4 @@
-#Config model file with branch85 density and uniform abundance
+#Config model file with branch85 density profile and uniform abundances
 tardis_config_version: v1.0
 
 supernova:

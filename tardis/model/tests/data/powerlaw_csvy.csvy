@@ -2,7 +2,7 @@
 name: powerlaw_csvy
 model_density_time_0: 1 day
 model_isotope_time_0: 0 day
-description: csvy file with a powerlaw density and uniform abundance (no values declared in the CSV section) 
+description: csvy file with a power-law density profile and uniform abundances (no values declared in the CSV section) 
 tardis_model_config_version: v1.0
 
 velocity:

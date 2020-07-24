@@ -1,4 +1,4 @@
-# Model config with exponential density and uniform abundance
+# Model config with exponential density profile and uniform abundances
 tardis_config_version: v1.0
 
 supernova:
