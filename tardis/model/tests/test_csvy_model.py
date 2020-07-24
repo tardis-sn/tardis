@@ -87,8 +87,8 @@ def csvy_model_to_test_abundances():
 
 def test_read_csvy_abundances(csvy_model_to_test_abundances):
     """Test if model reads abundances and isotope abundances 
-       and constructs dataframes appropriately before applying decay"""
-    #rows in input_abundance are abundances for a fixed element,columns 
+       and constructs dataframes correctly before applying decay"""
+    #rows in input_abundance are abundances for a fixed element; columns 
     #represent different shells
     abundance_index = pd.Index([1, 2], name="atomic_number")
     input_abundance = pd.DataFrame(
@@ -123,7 +123,7 @@ def test_read_csvy_abundances(csvy_model_to_test_abundances):
 
 
 def test_csvy_model_decay(csvy_model_to_test_abundances):
-    """Compare model abundance decay against and decay calculations 
+    """Compare model abundance decay against decay calculations 
     done by hand.
     For the decay calculations the following procedure is used:
     Ni_halflife = 6.075 * u.d
@@ -150,7 +150,7 @@ def test_csvy_model_decay(csvy_model_to_test_abundances):
      iron_abundance_after_4_days = 0.05 - cobalt_abundance_after_4_days 
                                     - nickel_abundance_after_4_days
      In the hand_decayed_dataframe every row represents a specific element
-     and every column represent a shell"""
+     and every column represents a shell"""
 
     decay_index = pd.Index([1, 2, 26, 27, 28], name="atomic_number")
     reference_decayed_abundance = pd.DataFrame(

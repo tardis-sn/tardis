@@ -2,7 +2,7 @@
 name: cvy_model_abundance_dataframes
 model_density_time_0: 1 day
 model_isotope_time_0: 0 day
-description: CSVY file to test abundances and decay (all values declared in the CSV section) 
+description: csvy file to test abundances and decay (all values declared in the CSV section) 
 tardis_model_config_version: v1.0
 datatype:
   fields:
