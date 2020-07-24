@@ -168,6 +168,7 @@ def configuration_initialize(runner, number_of_vpackets,
     montecarlo_configuration.number_of_vpackets = number_of_vpackets
     montecarlo_configuration.temporary_v_packet_bins = temporary_v_packet_bins
     montecarlo_configuration.full_relativity = runner.enable_full_relativity
+    montecarlo_configuration.montecarlo_seed = runner.seed
     montecarlo_configuration.single_packet_seed = runner.single_packet_seed
 
 
