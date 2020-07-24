@@ -56,14 +56,22 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
     for i in prange(len(output_nus)):
         if montecarlo_configuration.single_packet_seed != -1:
             i = montecarlo_configuration.single_packet_seed
-        r_packet = RPacket(numba_model.r_inner[0],
-                           packet_collection.packets_input_mu[i],
-                           packet_collection.packets_input_nu[i],
-                           packet_collection.packets_input_energy[i],
-                           i)
+            r_packet = RPacket(numba_model.r_inner[0],
+                               packet_collection.packets_input_mu[i],
+                               packet_collection.packets_input_nu[i],
+                               packet_collection.packets_input_energy[i],
+                               i)
+            np.random.seed(i)
+        else:
+            r_packet = RPacket(numba_model.r_inner[0],
+                               packet_collection.packets_input_mu[i],
+                               packet_collection.packets_input_nu[i],
+                               packet_collection.packets_input_energy[i],
+                               i)
+            # We want to set the seed correctly per user; otherwise, random.
+            np.random.seed(i + montecarlo_configuration.montecarlo_seed)
 
-        # We want to set the seed correctly per user; otherwise, random.
-        np.random.seed(i)
+
         vpacket_collection = VPacketCollection(
             spectrum_frequency, montecarlo_configuration.number_of_vpackets,
             montecarlo_configuration.temporary_v_packet_bins)
