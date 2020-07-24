@@ -27,16 +27,18 @@ def montecarlo_radial1d(model, plasma, runner):
     estimators = Estimators(runner.j_estimator, runner.nu_bar_estimator,
                             runner.j_blue_estimator, runner.Edotlu_estimator)
 
+    number_of_vpackets = montecarlo_configuration.number_of_vpackets
+
     v_packets_energy_hist = montecarlo_main_loop(
         packet_collection, numba_model, numba_plasma, estimators,
-        runner.spectrum_frequency.value)
-    
+        runner.spectrum_frequency.value, number_of_vpackets)
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
 
 
 @njit(**njit_dict, nogil=True)
 def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
-                         estimators, spectrum_frequency):
+                         estimators, spectrum_frequency,
+                         number_of_vpackets):
     """
     This is the main loop of the MonteCarlo routine that generates packets 
     and sends them through the ejecta. 
@@ -46,7 +48,6 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
     storage_model : [type]
         [description]
     """
-
     output_nus = np.empty_like(packet_collection.packets_output_nu)
     output_energies = np.empty_like(packet_collection.packets_output_nu)
 
@@ -65,7 +66,7 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
         # We want to set the seed correctly per user; otherwise, random.
         np.random.seed(i)
         vpacket_collection = VPacketCollection(
-            spectrum_frequency, montecarlo_configuration.number_of_vpackets,
+            spectrum_frequency, number_of_vpackets,
             montecarlo_configuration.temporary_v_packet_bins)
         loop = single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
                            vpacket_collection)
@@ -85,8 +86,8 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
         v_packets_idx = np.floor((vpackets_nu - spectrum_frequency[0]) /
                                  delta_nu).astype(np.int64)
         # if we're only in a single-packet mode
-        if montecarlo_configuration.single_packet_seed != -1:
-            break
+        # if montecarlo_configuration.single_packet_seed == -1:
+        #     break
         for j, idx in enumerate(v_packets_idx):
             if ((vpackets_nu[j] < spectrum_frequency[0]) or
                     (vpackets_nu[j] > spectrum_frequency[-1])):
