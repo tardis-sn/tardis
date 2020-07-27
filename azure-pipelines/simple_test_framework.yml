@@ -49,16 +49,16 @@ jobs:
         displayName: "Fetch reference data"
 
       - bash: |
-              source activate tardis
-              python setup.py build_ext --inplace
+          source activate tardis
+          python setup.py build_ext --inplace
         displayName: "TARDIS build"
 
       - bash: |
-              source activate tardis
-              pip install pytest-azurepipelines
-              pytest tardis --tardis-refdata=$(ref.data.home) --cov=tardis --cov-report=xml --cov-report=html
+          source activate tardis
+          pip install pytest-azurepipelines
+          pytest tardis --tardis-refdata=$(ref.data.home) --cov=tardis --cov-report=xml --cov-report=html
         displayName: "TARDIS test"
 
       - bash: |
-              bash <(curl -s https://codecov.io/bash)
+          bash <(curl -s https://codecov.io/bash)
         displayName: "Upload to codecov.io"
