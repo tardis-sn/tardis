@@ -35,10 +35,10 @@ jobs:
         displayName: "Add conda to PATH"
 
       - bash: sudo chown -R $USER $CONDA
-        condition: eq( variables['Agent.OS'], 'Darwin' )
         displayName: "Take ownership of conda installation (macOS)"
+        condition: eq( variables['Agent.OS'], 'Darwin' )
 
-      - bash: conda install mamba=0.4.0 -c conda-forge -y
+      - bash: conda install mamba -c conda-forge -y
         displayName: "Install mamba"
         condition: eq(variables['package.manager'], 'mamba')
 
