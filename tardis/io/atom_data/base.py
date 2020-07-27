@@ -166,12 +166,12 @@ class AtomData(object):
             atom_data = cls(**dataframes)
 
             try:
-                atom_data.uuid1 = store.root._v_attrs["uuid1"].decode("ascii")
+                atom_data.uuid1 = store.root._v_attrs["uuid1"]
             except KeyError:
                 atom_data.uuid1 = None
 
             try:
-                atom_data.md5 = store.root._v_attrs["md5"].decode("ascii")
+                atom_data.md5 = store.root._v_attrs["md5"]
             except KeyError:
                 atom_data.md5 = None
 
@@ -179,8 +179,6 @@ class AtomData(object):
                 atom_data.version = store.root._v_attrs["database_version"]
             except KeyError:
                 atom_data.version = None
-
-            # ToDo: strore data sources as attributes in carsus
 
             logger.info(
                 "Read Atom Data with UUID={0} and MD5={1}.".format(
