@@ -7,7 +7,8 @@ trigger:
   - master
 
 variables:
-  system.debug: "true"
+  package.manager: "mamba"
+  system.debug: "false"
   ref.data.home: "$(Agent.BuildDirectory)/tardis-refdata"
   ref.data.github.url: "https://github.com/tardis-sn/tardis-refdata.git"
   tardis.build.dir: $(Build.Repository.LocalPath)
@@ -39,8 +40,9 @@ jobs:
 
       - bash: conda install mamba=0.4.0 -c conda-forge -y
         displayName: "Install mamba"
+        condition: eq(variables['package.manager'], 'mamba')
 
-      - bash: mamba env create -f tardis_env3.yml
+      - bash: $PACKAGE_MANAGER env create -f tardis_env3.yml
         displayName: "Install TARDIS environment"
 
       - bash: sh ci-helpers/fetch_reference_data.sh
