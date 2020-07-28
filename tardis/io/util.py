@@ -283,6 +283,10 @@ class HDFWriterMixin(object):
 
     @property
     def full_hdf_properties(self):
+        # If tardis was compiled --with-vpacket-logging, add vpacket properties
+        if hasattr(self, "virt_logging") and self.virt_logging == 1:
+            self.hdf_properties.extend(self.vpacket_hdf_properties)
+
         return self.optional_hdf_properties + self.hdf_properties
 
     @staticmethod
