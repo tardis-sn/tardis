@@ -10,6 +10,7 @@ import pandas as pd
 from collections import namedtuple
 
 import astropy.modeling.blackbody as abb
+from tardis.montecarlo.spectrum import TARDISSpectrum
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -229,6 +230,119 @@ class KromerPlotter:
             t_inner=sim.model.t_inner,
             time_of_simulation=sim.runner.time_of_simulation,
         )
+
+    @classmethod
+    def from_hdf(cls, hdf_fpath):
+        with pd.HDFStore(hdf_fpath, "r") as sim_hdf:
+            emitted_packet_mask = (
+                sim_hdf["/simulation/runner/output_energy"] > 0
+            )
+            spectrum = TARDISSpectrum(
+                units.Quantity(
+                    sim_hdf["/simulation/runner/spectrum/_frequency"], "Hz"
+                ),
+                units.Quantity(
+                    sim_hdf["/simulation/runner/spectrum/luminosity"], "erg/s"
+                ),
+            )
+            spectrum_virtual = TARDISSpectrum(
+                units.Quantity(
+                    sim_hdf["/simulation/runner/spectrum_virtual/_frequency"],
+                    "Hz",
+                ),
+                units.Quantity(
+                    sim_hdf["/simulation/runner/spectrum_virtual/luminosity"],
+                    "erg/s",
+                ),
+            )
+
+            return cls(
+                last_interaction_type=PacketsData(
+                    virtual=sim_hdf[
+                        "/simulation/runner/virt_packet_last_interaction_type"
+                    ],
+                    real=sim_hdf["/simulation/runner/last_interaction_type"][
+                        emitted_packet_mask
+                    ],
+                ),
+                last_line_interaction_in_id=PacketsData(
+                    virtual=sim_hdf[
+                        "/simulation/runner/virt_packet_last_line_interaction_in_id"
+                    ],
+                    real=sim_hdf[
+                        "/simulation/runner/last_line_interaction_in_id"
+                    ][emitted_packet_mask],
+                ),
+                last_line_interaction_out_id=PacketsData(
+                    virtual=sim_hdf[
+                        "/simulation/runner/virt_packet_last_line_interaction_out_id"
+                    ],
+                    real=sim_hdf[
+                        "/simulation/runner/last_line_interaction_out_id"
+                    ][emitted_packet_mask],
+                ),
+                last_interaction_in_nu=PacketsData(
+                    virtual=units.Quantity(
+                        sim_hdf[
+                            "/simulation/runner/virt_packet_last_interaction_in_nu"
+                        ],
+                        "Hz",
+                    ),
+                    real=units.Quantity(
+                        sim_hdf["/simulation/runner/last_interaction_in_nu"][
+                            emitted_packet_mask
+                        ],
+                        "Hz",
+                    ),
+                ),
+                lines_data=sim_hdf["/simulation/plasma/lines"]
+                .reset_index()
+                .set_index("line_id"),
+                packet_nus=PacketsData(
+                    virtual=units.Quantity(
+                        sim_hdf["/simulation/runner/virt_packet_nus"], "Hz"
+                    ),
+                    real=units.Quantity(
+                        sim_hdf["/simulation/runner/output_nu"][
+                            emitted_packet_mask
+                        ],
+                        "Hz",
+                    ),
+                ),
+                packet_energies=PacketsData(
+                    virtual=units.Quantity(
+                        sim_hdf["/simulation/runner/virt_packet_energies"],
+                        "erg",
+                    ),
+                    real=units.Quantity(
+                        sim_hdf["/simulation/runner/output_energy"][
+                            emitted_packet_mask
+                        ],
+                        "erg",
+                    ),
+                ),
+                R_phot=(
+                    units.Quantity(
+                        sim_hdf["/simulation/model/v_inner"][0], "cm/s"
+                    )
+                    * units.Quantity(
+                        sim_hdf["/simulation/model/scalars"].time_explosion, "s"
+                    )
+                ),
+                spectrum_wave=PacketsData(
+                    virtual=spectrum_virtual.wavelength,
+                    real=spectrum.wavelength,
+                ),
+                spectrum_luminosity=PacketsData(
+                    virtual=spectrum_virtual.luminosity_density_lambda,
+                    real=spectrum.luminosity_density_lambda,
+                ),
+                t_inner=sim_hdf["/simulation/model/scalars"].t_inner * units.K,
+                time_of_simulation=sim_hdf[
+                    "/simulation/runner/scalars"
+                ].time_of_simulation
+                * units.s,
+            )
 
     @property
     def zmax(self):
