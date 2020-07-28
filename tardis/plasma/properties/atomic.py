@@ -290,6 +290,11 @@ class YgData(ProcessingPlasmaProperty):
     def calculate(self, atomic_data, continuum_interaction_species):
         yg_data = atomic_data.yg_data
 
+        mask_selected_species = yg_data.index.droplevel(
+           ['level_number_lower', 'level_number_upper']).isin(
+               continuum_interaction_species)
+        yg_data = yg_data[mask_selected_species]
+
         t_yg = yg_data.columns.values.astype(float)
         yg_data.columns = t_yg
         approximate_yg_data = self.calculate_yg_van_regemorter(
