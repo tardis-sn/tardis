@@ -18,7 +18,7 @@ __all__ = ['SpontRecombRateCoeff', 'StimRecombRateCoeff', 'PhotoIonRateCoeff',
            'BfHeatingRateCoeffEstimator', 'SpontRecombCoolingRateCoeff',
            'BaseRecombTransProbs', 'BasePhotoIonTransProbs',
            'CollDeexcRateCoeff', 'CollExcRateCoeff', 'BaseCollisionTransProbs',
-           'AdiabaticCoolingRate']
+           'AdiabaticCoolingRate', 'FreeFreeCoolingRate']
 
 logger = logging.getLogger(__name__)
 
@@ -94,6 +94,40 @@ def get_ground_state_multi_index(multi_index_full):
     ion_number = multi_index_full.get_level_values(1) + 1
     level_number = np.zeros_like(ion_number)
     return pd.MultiIndex.from_arrays([atomic_number, ion_number, level_number])
+
+
+def cooling_rate_series2dataframe(cooling_rate_series,
+                                  destination_level_idx):
+    """
+    Transforms a Series with cooling rates into an indexed
+    DataFrame that can be used in MarkovChainTransProbs.
+
+    Parameters
+    ----------
+    cooling_rate_series : Pandas Series, dtype float
+        Cooling rates for a process with a single destination idx.
+        Examples are adiabatic cooling or free-free cooling.
+    destination_level_idx: String
+        Destination idx of the cooling process; for example
+        `adiabatic` for adiabatic cooling.
+
+    Returns
+    -------
+    cooling_rate_frame : Pandas DataFrame, dtype float
+        Indexed by source_level_idx, destination_level_idx, transition_type
+        for the use in MarkovChainTransProbs.
+
+    """
+    index_names = ['source_level_idx', 'destination_level_idx',
+                   'transition_type']
+    index = pd.MultiIndex.from_tuples(
+        [('k', destination_level_idx, 0)], names=index_names
+    )
+    cooling_rate_frame = pd.DataFrame(
+        cooling_rate_series.values[np.newaxis],
+        index=index
+    )
+    return cooling_rate_frame
 
 
 class IndexSetterMixin(object):
@@ -474,11 +508,37 @@ class AdiabaticCoolingRate(TransitionProbabilitiesProperty):
         C_adiabatic = (3. * electron_densities * const.k_B.cgs.value *
                        t_electrons) / time_explosion
 
-        index_names = ['source_level_idx', 'destination_level_idx',
-                       'transition_type']
-        index = pd.MultiIndex.from_tuples(
-            [('k', 'adiabatic', 0)], names=index_names
+        C_adiabatic = cooling_rate_series2dataframe(
+            C_adiabatic, destination_level_idx='adiabatic'
         )
-        C_adiabatic = pd.DataFrame(C_adiabatic.values[np.newaxis],
-                                   index=index)
         return C_adiabatic
+
+
+class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
+    """
+    Attributes
+    ----------
+    C_ff : Pandas DataFrame, dtype float
+        The free-free cooling rate of the electron gas.
+    """
+    outputs = ('C_ff', )
+    transition_probabilities_outputs = ('C_ff', )
+    latex_name = ('C^{\\textrm{ff}}', )
+
+    def calculate(self, ion_number_density, electron_densities,
+                  t_electrons):
+        ff_cooling_factor = self._calculate_ff_cooling_factor(
+            ion_number_density, electron_densities
+        )
+        C_ff = 1.426e-27 * np.sqrt(t_electrons) * ff_cooling_factor
+        C_ff = cooling_rate_series2dataframe(
+            C_ff, destination_level_idx='ff'
+        )
+        return C_ff
+
+    @staticmethod
+    def _calculate_ff_cooling_factor(ion_number_density, electron_densities):
+        ion_charge = ion_number_density.index.get_level_values(1).values
+        factor = electron_densities * ion_number_density.multiply(
+            ion_charge ** 2, axis=0).sum()
+        return factor

@@ -125,6 +125,7 @@ class MarkovChainIndex(ProcessingPlasmaProperty):
         idx = ma_ref[mask].references_idx.values
         idx2mkv_idx = pd.Series(np.arange(len(idx)), index=idx)
         idx2mkv_idx.loc['k'] = idx2mkv_idx.max() + 1
+        idx2mkv_idx.loc['ff'] = idx2mkv_idx.max() + 1
 
         if self.additional_idxs:
             max_idx = idx2mkv_idx.max() + 1
