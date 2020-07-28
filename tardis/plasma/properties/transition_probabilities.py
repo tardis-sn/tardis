@@ -47,7 +47,7 @@ class SpMatrixSeriesConverterMixin(object):
 
         Parameters
         ----------
-        series : Pandas Series
+        series : Pandas Series, dtype float
             Rates or transition probabilities. Indexed by
             source_level_idx, destination_level_idx.
         idx2reduced_idx: Pandas Series
@@ -102,6 +102,11 @@ class SpMatrixSeriesConverterMixin(object):
 
 
 class MarkovChainIndex(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    idx2mkv_idx : Pandas Series, dtype int
+    """
     outputs = ('idx2mkv_idx',)
 
     def __init__(self, plasma_parent, additional_idxs=None):
@@ -132,6 +137,13 @@ class MarkovChainIndex(ProcessingPlasmaProperty):
 
 
 class MarkovChainTransProbsCollector(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    p_combined : Pandas DataFrame, dtype float
+        Combined and normalized transition probabilities.
+        Indexed by source_level_idx, destination_level_idx.
+    """
     outputs = ('p_combined',)
 
     def __init__(self, plasma_parent, inputs):

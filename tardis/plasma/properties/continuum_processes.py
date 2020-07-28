@@ -417,7 +417,7 @@ class BaseCollisionTransProbs(TransitionProbabilitiesProperty,
     """
     outputs = ('p_coll', )
     transition_probabilities_outputs = ('p_coll', )
-    latex_name = ('p^{\\textrm{coll}}', '')
+    latex_name = ('p^{\\textrm{coll}}', )
 
     def calculate(self, coll_exc_coeff, coll_deexc_coeff, yg_idx,
                   electron_densities, delta_E_yg, atomic_data,
@@ -468,7 +468,7 @@ class AdiabaticCoolingRate(TransitionProbabilitiesProperty):
     """
     outputs = ('C_adiabatic', )
     transition_probabilities_outputs = ('C_adiabatic', )
-    latex_name = ('p^{\\textrm{coll}}', '')
+    latex_name = ('C_{\\textrm{adiabatic}}', )
 
     def calculate(self, electron_densities, t_electrons, time_explosion):
         C_adiabatic = (3. * electron_densities * const.k_B.cgs.value *
