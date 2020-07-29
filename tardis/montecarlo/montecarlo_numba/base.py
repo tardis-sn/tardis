@@ -26,17 +26,17 @@ def montecarlo_radial1d(model, plasma, runner):
     numba_plasma = numba_plasma_initialize(plasma)
     estimators = Estimators(runner.j_estimator, runner.nu_bar_estimator,
                             runner.j_blue_estimator, runner.Edotlu_estimator)
-
+    packet_seeds = montecarlo_configuration.packet_seeds
     v_packets_energy_hist = montecarlo_main_loop(
         packet_collection, numba_model, numba_plasma, estimators,
-        runner.spectrum_frequency.value)
+        runner.spectrum_frequency.value, packet_seeds)
     
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
 
 
 @njit(**njit_dict, nogil=True)
 def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
-                         estimators, spectrum_frequency):
+                         estimators, spectrum_frequency, packet_seeds):
     """
     This is the main loop of the MonteCarlo routine that generates packets 
     and sends them through the ejecta. 
@@ -68,8 +68,8 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
                                packet_collection.packets_input_nu[i],
                                packet_collection.packets_input_energy[i],
                                i)
-            # We want to set the seed correctly per user; otherwise, random.
-            np.random.seed(i + montecarlo_configuration.montecarlo_seed)
+            seed = packet_seeds[i]
+            np.random.seed(seed)
 
 
         vpacket_collection = VPacketCollection(
