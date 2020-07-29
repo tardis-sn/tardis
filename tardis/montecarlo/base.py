@@ -224,6 +224,7 @@ class MontecarloRunner(HDFWriterMixin):
         -------
         None
         """
+        np.random.seed(self.seed)
         mc_config_module.packet_seeds = np.random.randint(0,
                                                           1e9,
                                                           size=no_of_packets)
