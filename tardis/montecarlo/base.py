@@ -85,6 +85,7 @@ class MontecarloRunner(HDFWriterMixin):
         self.integrator_settings = integrator_settings
         self.v_packet_settings = v_packet_settings
         self.spectrum_method = spectrum_method
+        self.seed = seed
         self._integrator = None
         self._spectrum_integrated = None
 
@@ -223,6 +224,9 @@ class MontecarloRunner(HDFWriterMixin):
         -------
         None
         """
+        mc_config_module.packet_seeds = np.random.randint(0,
+                                                          1e9,
+                                                          size=no_of_packets)
         self._integrator = FormalIntegrator(
                 model,
                 plasma,
