@@ -52,7 +52,7 @@ class BasePacketSource(abc.ABC):
 
 
     @staticmethod
-    def create_blackbody_packet_nus(T, seed, l_samples=1000):
+    def create_blackbody_packet_nus(T, xis, l_samples=1000):
         """
 
         Create packet :math:`\\nu` distributed using the algorithm described in 
@@ -91,12 +91,10 @@ class BasePacketSource(abc.ABC):
             : numpy.ndarray
             array of frequencies
         """
-        np.random.seed(seed)
         l_samples = l_samples
         l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64)**-4)
         l_coef = np.pi**4 / 90.0
 
-        xis = np.random.random((5, 1))
         l = l_array.searchsorted(xis[0]*l_coef) + 1.
         xis_prod = np.prod(xis[1:], 0)
         x = ne.evaluate('-log(xis_prod)/l')
@@ -111,11 +109,27 @@ class BlackBodySimpleSource(BasePacketSource):
     """
 
     def create_packets(self, T, no_of_packets):
-        seeds = mc_config_module.packet_seeds
-        nus = np.array([self.create_blackbody_packet_nus(T, seed)[0]
-               for seed in seeds])
-        mus = np.array([self.create_zero_limb_darkening_packet_mus(seed)
-               for seed in seeds])
+        self.T = T
+        print('Creating packets!')
+        self.seeds = mc_config_module.packet_seeds
+        nus = self.create_nus()
+        mus = self.create_mus()
         energies = self.create_uniform_packet_energies(no_of_packets)
-
+        print('Done creating packets!')
         return nus, mus, energies
+
+    def create_nus(self):
+        first = True
+        for seed in self.seeds:
+            np.random.seed(seed)
+            if first:
+                xis = np.random.random((5, 1))
+                first = False
+            else:
+                xis = np.concatenate((xis, np.random.random((5, 1))), axis=1)
+        nus = self.create_blackbody_packet_nus(self.T, xis)
+        return nus
+
+    def create_mus(self):
+        return np.array([self.create_zero_limb_darkening_packet_mus(seed)
+               for seed in self.seeds])
