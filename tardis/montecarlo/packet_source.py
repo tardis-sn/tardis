@@ -112,10 +112,10 @@ class BlackBodySimpleSource(BasePacketSource):
 
     def create_packets(self, T, no_of_packets):
         seeds = mc_config_module.packet_seeds
-        nus = [self.create_blackbody_packet_nus(T, seed)
-               for seed in seeds]
-        mus = [self.create_zero_limb_darkening_packet_mus(seed)
-               for seed in seeds]
+        nus = np.array([self.create_blackbody_packet_nus(T, seed)[0]
+               for seed in seeds])
+        mus = np.array([self.create_zero_limb_darkening_packet_mus(seed)
+               for seed in seeds])
         energies = self.create_uniform_packet_energies(no_of_packets)
 
         return nus, mus, energies
