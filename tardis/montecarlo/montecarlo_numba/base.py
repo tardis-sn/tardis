@@ -55,8 +55,8 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
 
     for i in prange(len(output_nus)):
         if montecarlo_configuration.single_packet_seed != -1:
-            i = montecarlo_configuration.single_packet_seed
-            np.random.seed(i)
+            seed = packet_seeds[montecarlo_configuration.single_packet_seed]
+            np.random.seed(seed)
         else:
             seed = packet_seeds[i]
             np.random.seed(seed)
