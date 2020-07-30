@@ -13,7 +13,7 @@ dependencies:
   - numba=0.43
   - numexpr
   - Cython=0.29
-  - compilers
+  - compilers=1.0.3
 
   # Plasma
   - networkx
@@ -61,7 +61,7 @@ dependencies:
   - docopt
 
   # Code quality
-  - black
+  # - black
 
   - pip:
       # Documentation
