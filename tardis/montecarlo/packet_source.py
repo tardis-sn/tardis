@@ -110,12 +110,10 @@ class BlackBodySimpleSource(BasePacketSource):
 
     def create_packets(self, T, no_of_packets):
         self.T = T
-        print('Creating packets!')
         self.seeds = mc_config_module.packet_seeds
         nus = self.create_nus()
         mus = self.create_mus()
         energies = self.create_uniform_packet_energies(no_of_packets)
-        print('Done creating packets!')
         return nus, mus, energies
 
     def create_nus(self):
