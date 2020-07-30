@@ -84,6 +84,7 @@ Mission Statement
     :hidden:
 
     team
+    governance
     credits
     Code of Conduct <CODE_OF_CONDUCT.md>
 
