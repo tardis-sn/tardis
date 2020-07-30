@@ -129,6 +129,10 @@ class MontecarloRunner(HDFWriterMixin):
         self.v_inner_cgs = model.v_inner.to('cm/s').value
 
     def _initialize_packets(self, T, no_of_packets):
+        np.random.seed(self.seed)
+        mc_config_module.packet_seeds = np.random.randint(0,
+                                                          1e9,
+                                                          size=no_of_packets)
         nus, mus, energies = self.packet_source.create_packets(
                 T,
                 no_of_packets
@@ -224,10 +228,6 @@ class MontecarloRunner(HDFWriterMixin):
         -------
         None
         """
-        np.random.seed(self.seed)
-        mc_config_module.packet_seeds = np.random.randint(0,
-                                                          1e9,
-                                                          size=no_of_packets)
         self._integrator = FormalIntegrator(
                 model,
                 plasma,
