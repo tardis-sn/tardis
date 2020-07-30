@@ -3,6 +3,8 @@ import abc
 import numpy as np
 import numexpr as ne
 from tardis import constants as const
+from tardis.montecarlo import montecarlo_configuration as mc_config_module
+
 
 
 class BasePacketSource(abc.ABC):
@@ -16,18 +18,18 @@ class BasePacketSource(abc.ABC):
         pass
 
     @staticmethod
-    def create_zero_limb_darkening_packet_mus(no_of_packets):
+    def create_zero_limb_darkening_packet_mus(seed):
         """
-        Create zero-limb-darkening packet :math:`\mu` distributed
+        Create a zero-limb-darkening packet :math:`\mu` distributed
         according to :math:`\\mu=\\sqrt{z}, z \isin [0, 1]`
         
         Parameters
         ----------
-        no_of_packets : int
-            number of packets to be created
+        seed : int
+            value to seed random number generator.
         """
-
-        return np.sqrt(np.random.random(no_of_packets))
+        np.random.seed(seed)
+        return np.sqrt(np.random.random())
 
     @staticmethod
     def create_uniform_packet_energies(no_of_packets):
@@ -50,7 +52,7 @@ class BasePacketSource(abc.ABC):
 
 
     @staticmethod
-    def create_blackbody_packet_nus(T, no_of_packets, l_samples=1000):
+    def create_blackbody_packet_nus(T, seed, l_samples=1000):
         """
 
         Create packet :math:`\\nu` distributed using the algorithm described in 
@@ -79,7 +81,7 @@ class BasePacketSource(abc.ABC):
         ----------
         T : float
             temperature
-        no_of_packets: int
+        seed: int
         l_samples: int
             number of l_samples needed in the algorithm
 
@@ -89,11 +91,12 @@ class BasePacketSource(abc.ABC):
             : numpy.ndarray
             array of frequencies
         """
+        np.random.seed(seed)
         l_samples = l_samples
         l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64)**-4)
         l_coef = np.pi**4 / 90.0
 
-        xis = np.random.random((5, no_of_packets))
+        xis = np.random.random((5, 1))
         l = l_array.searchsorted(xis[0]*l_coef) + 1.
         xis_prod = np.prod(xis[1:], 0)
         x = ne.evaluate('-log(xis_prod)/l')
@@ -108,8 +111,11 @@ class BlackBodySimpleSource(BasePacketSource):
     """
 
     def create_packets(self, T, no_of_packets):
-        nus = self.create_blackbody_packet_nus(T, no_of_packets)
-        mus = self.create_zero_limb_darkening_packet_mus(no_of_packets)
+        seeds = mc_config_module.packet_seeds
+        nus = [self.create_blackbody_packet_nus(T, seed)
+               for seed in seeds]
+        mus = [self.create_zero_limb_darkening_packet_mus(seed)
+               for seed in seeds]
         energies = self.create_uniform_packet_energies(no_of_packets)
 
         return nus, mus, energies
