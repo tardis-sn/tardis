@@ -4,6 +4,7 @@ import numpy as np
 import numexpr as ne
 from tardis import constants as const
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
+from numba import njit, float64
 
 
 
@@ -18,6 +19,7 @@ class BasePacketSource(abc.ABC):
         pass
 
     @staticmethod
+    @njit
     def create_zero_limb_darkening_packet_mus(seed):
         """
         Create a zero-limb-darkening packet :math:`\mu` distributed
@@ -95,7 +97,7 @@ class BasePacketSource(abc.ABC):
         l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64)**-4)
         l_coef = np.pi**4 / 90.0
 
-        l = l_array.searchsorted(xis[0]*l_coef) + 1.
+        l = np.searchsorted(l_array, xis[0]*l_coef) + 1.
         xis_prod = np.prod(xis[1:], 0)
         x = ne.evaluate('-log(xis_prod)/l')
 
@@ -117,17 +119,17 @@ class BlackBodySimpleSource(BasePacketSource):
         return nus, mus, energies
 
     def create_nus(self):
-        first = True
-        for seed in self.seeds:
-            np.random.seed(seed)
-            if first:
-                xis = np.random.random((5, 1))
-                first = False
-            else:
-                xis = np.concatenate((xis, np.random.random((5, 1))), axis=1)
-        nus = self.create_blackbody_packet_nus(self.T, xis)
-        return nus
+        xis = np.zeros((5, len(self.seeds)))
+        for i, seed in enumerate(self.seeds):
+            xis[:, i] = self.create_array(seed)
+        return self.create_blackbody_packet_nus(self.T, xis)
+
+    @staticmethod
+    @njit
+    def create_array(seed):
+        np.random.seed(seed)
+        return np.random.random(5)
 
     def create_mus(self):
         return np.array([self.create_zero_limb_darkening_packet_mus(seed)
-               for seed in self.seeds])
+                         for seed in self.seeds])
