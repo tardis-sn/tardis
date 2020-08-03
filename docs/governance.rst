@@ -6,7 +6,7 @@ Governance
 
 The development of TARDIS and associated software tools are helped through several coordination roles fulfilled by community members (see :ref:`team`). There are several governance rules to ensure scientific excellence, continuity, and transparency. The TARDIS community has matured substantially in recent years and we will revisit these rules as the community evolves. 
 
-Rules for Tardis-core
+Rules for TARDIS-core
 ---------------------
 
 New members of TARDIS-core are nominated by current members. All members of TARDIS-core can vote on nominated candidates, who require a 2/3 majority in their favour in order to be approved.
