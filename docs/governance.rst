@@ -20,10 +20,10 @@ Every member of TARDIS-core is allowed to vote and the election will follow an a
 
 For 6 months the previous position holder will act in an advisory role to the new position holder.
 
-**Term rules for the PI:** The selection of the PI will follow a similar process with the difference that their terms are 5 years (renewable once for another 5 years). A re-election for the role of PI is advertised in TARDIS core and will be selected from members of this group (unless the group decides on an outsider with 2/3 majority).
+**Term rules for the PI:** The selection of the PI will follow a similar process with the difference that their terms are 5 years (renewable once for another 5 years). A re-election for the role of PI is advertised in TARDIS-core and will be selected from members of this group (unless the group decides on an outsider with 2/3 majority).
 
 
 Financial Decisions
 -------------------
 
-Financial decisions can only be made by the PI but they have to inform TARDIS-core with a reasonable lead-time to allow them to raise any objections. The TARDIS-core can veto decisions with a 2/3 majority. 
+Financial decisions can only be made by the PI but they have to inform TARDIS-core with a reasonable lead time to allow them to raise any objections. The TARDIS-core can veto decisions with a 2/3 majority. 
