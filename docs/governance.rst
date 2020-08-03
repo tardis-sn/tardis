@@ -4,7 +4,7 @@
 Governance
 **********
 
-The development of TARDIS and associated software tools are helped through several coordination roles fulfilled by community members. There are several governance rules to ensure scientific excellence, continuity, and transparency. The TARDIS community has matured substantially in recent years and we will revisit these rules as the community evolves. 
+The development of TARDIS and associated software tools are helped through several coordination roles fulfilled by community members (see :ref:`team`). There are several governance rules to ensure scientific excellence, continuity, and transparency. The TARDIS community has matured substantially in recent years and we will revisit these rules as the community evolves. 
 
 Rules for terms
 ---------------
