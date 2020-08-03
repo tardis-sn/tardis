@@ -23,6 +23,17 @@ For 6 months the previous position holder will act in an advisory role to the ne
 **Term rules for the PI:** The selection of the PI will follow a similar process with the difference that their terms are 5 years (renewable once for another 5 years). A re-election for the role of PI is advertised in TARDIS-core and will be selected from members of this group (unless the group decides on an outsider with 2/3 majority).
 
 
+Science Decisions
+-----------------
+
+Decisions that concern implementation details for TARDIS and related projects that pertain to science questions should be discussed within the TARDIS core team. 
+
+
+Software Decisions
+------------------
+
+Decisions about software architecture and design should take into account consistency over the TARDIS code-base and best-practices. The final decision (after discussion with the rest of the team) rests with the software architect (veto-able by a 2/3 majority).
+
 Financial Decisions
 -------------------
 
