@@ -137,8 +137,6 @@ class BlackBodySimpleSource(BasePacketSource):
                                                                         self.T,
                                                                         self.create_blackbody_packet_nus,
                                                                         no_of_packets)
-
-
         return nus, mus, energies
 
     @staticmethod
