@@ -21,7 +21,7 @@ dependencies:
   # I/O
   - pyyaml
   - jsonschema
-  - pyne
+  - pyne=0.7
   - pytables
   - h5py
   - requests
