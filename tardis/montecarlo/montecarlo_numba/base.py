@@ -54,13 +54,18 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
     delta_nu = spectrum_frequency[1] - spectrum_frequency[0]
 
     for i in prange(len(output_nus)):
+        if montecarlo_configuration.single_packet_seed != -1:
+            seed = packet_seeds[montecarlo_configuration.single_packet_seed]
+            np.random.seed(seed)
+        else:
+            seed = packet_seeds[i]
+            np.random.seed(seed)
         r_packet = RPacket(numba_model.r_inner[0],
                            packet_collection.packets_input_mu[i],
                            packet_collection.packets_input_nu[i],
                            packet_collection.packets_input_energy[i],
-                           i,
-                           packet_seeds)
-        np.random.seed(r_packet.seed)
+                           seed,
+                           i)
         vpacket_collection = VPacketCollection(
             spectrum_frequency, montecarlo_configuration.number_of_vpackets,
             montecarlo_configuration.temporary_v_packet_bins)
