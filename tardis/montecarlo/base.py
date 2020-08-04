@@ -28,6 +28,11 @@ import numpy as np
 logger = logging.getLogger(__name__)
 TARDIS_PATH = TARDIS_PATH[0]
 
+MAX_SEED_VAL = 1e11
+
+# MAX_SEED_VAL must be multiple orders of magnitude larger than no_of_packets;
+# otherwise, each packet would not have its own seed
+
 class MontecarloRunner(HDFWriterMixin):
     """
     This class is designed as an interface between the Python part and the
@@ -130,8 +135,10 @@ class MontecarloRunner(HDFWriterMixin):
 
     def _initialize_packets(self, T, no_of_packets):
         np.random.seed(self.seed)
+        if no_of_packets > MAX_SEED_VAL:
+            raise ValueError('Too many packets to seed.')
         mc_config_module.packet_seeds = np.random.randint(0,
-                                                          1e9,
+                                                          MAX_SEED_VAL,
                                                           size=no_of_packets)
         nus, mus, energies = self.packet_source.create_packets(
                 T,
