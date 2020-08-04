@@ -141,22 +141,32 @@ class BlackBodySimpleSource(BasePacketSource):
 
     @staticmethod
     @njit
-    def random_packet_properties(seed, T, blackbody_func, no_of_packets):
+    def random_packet_properties(seed, T, blackbody_sampler, no_of_packets):
         """
         Created random packet properties (energy, frequency, mu) given a seed.
-        The blackbody_func is passed directly (with this method being a
+        The blackbody_sampler is passed directly (with this method being a
         staticmethod) to circumvent having to @jitclass BasePacketSource or
         BlackBodySimpleSource.
 
-        In
+        Inputs:
+            :seed: (int) value to seed the random number generator. Should be
+                    distinct for each packet.
+            :T: (float) temperature at which the blackbody should be modeled.
+            :blackbody_sampler: (function) function to sample the blackbody.
+            :no_of_packets: (int) total number of r_packets being simulated.
+
+        Outputs:
+            :nu: frequency of r_packet with this seed.
+            :mu: mu of r_packet with this seed.
+            :energy: energy of r_packet with this seed.
         """
 
         np.random.seed(seed)
 
         xis = np.random.random(5)
-        nu = blackbody_func(T, xis)
+        nu = blackbody_sampler(T, xis)
 
-        mu = np.sqrt(np.random.random())
+        mu = np.sqrt(np.random.random())  # zero limb darkening
 
         energy = 1/no_of_packets  # uniform packet energies
         return nu, mu, energy
