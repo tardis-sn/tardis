@@ -15,7 +15,7 @@ class BasePacketSource(abc.ABC):
         np.random.seed(seed)
         
     @abc.abstractmethod
-    def create_packets(self, seed=None, **kwargs):
+    def create_packets(self, **kwargs):
         pass
 
     @staticmethod
