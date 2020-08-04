@@ -40,7 +40,7 @@ jobs:
       - bash: conda install mamba=0.4.0 -c conda-forge -y
         displayName: "Install mamba"
 
-      - bash: mamba env create -f tardis_env3.yml
+      - bash: mamba env create -f -vvv tardis_env3.yml
         displayName: "Install TARDIS environment"
 
       - bash: |
