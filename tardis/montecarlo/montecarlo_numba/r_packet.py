@@ -165,7 +165,7 @@ def get_random_mu():
 
 @jitclass(rpacket_spec)
 class RPacket(object):
-    def __init__(self, r, mu, nu, energy, index=0):
+    def __init__(self, r, mu, nu, energy, index=0, packet_seeds=None):
         self.r = r
         self.mu = mu
         self.nu = nu
@@ -173,6 +173,10 @@ class RPacket(object):
         self.current_shell_id = 0
         self.status = PacketStatus.IN_PROCESS
         self.index = index
+        if montecarlo_configuration.single_packet_seed != -1:
+            self.seed = packet_seeds[montecarlo_configuration.single_packet_seed]
+        else:
+            self.seed = packet_seeds[index]
 
     def initialize_line_id(self, numba_plasma, numba_model):
         inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
