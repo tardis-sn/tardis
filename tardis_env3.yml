@@ -4,12 +4,12 @@ channels:
   - conda-forge
 
 dependencies:
-  - python
+  - python=3
   - pip
   - numpy
   - scipy
-  - pandas
-  - astropy
+  - pandas=0.24
+  - astropy=3
   - numba
   - numexpr
   - Cython
