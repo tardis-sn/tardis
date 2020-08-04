@@ -10,7 +10,7 @@ dependencies:
   - scipy=1.1
   - pandas=0.24
   - astropy=3
-  - numba
+  - numba=0.50
   - numexpr
   - Cython=0.29
   - compilers
