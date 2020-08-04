@@ -121,12 +121,12 @@ class BlackBodySimpleSource(BasePacketSource):
     def create_nus(self):
         xis = np.zeros((5, len(self.seeds)))
         for i, seed in enumerate(self.seeds):
-            xis[:, i] = self.create_array(seed)
+            xis[:, i] = self.random_seeded_array(seed)
         return self.create_blackbody_packet_nus(self.T, xis)
 
     @staticmethod
     @njit
-    def create_array(seed):
+    def random_seeded_array(seed):
         np.random.seed(seed)
         return np.random.random(5)
 
