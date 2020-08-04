@@ -6,13 +6,13 @@ channels:
 dependencies:
   - python=3
   - pip
-  - numpy
+  - numpy=1.15
   - scipy
   - pandas=0.24
   - astropy=3
   - numba
   - numexpr
-  - Cython
+  - Cython=0.29
   - compilers
 
   # Plasma
