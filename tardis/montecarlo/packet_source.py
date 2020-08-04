@@ -127,6 +127,26 @@ class BlackBodySimpleSource(BasePacketSource):
     @staticmethod
     @njit
     def random_seeded_array(seed):
+        """
+        For a given seed, this outputs a random 5-element array to be used
+        in sampling the blackbody function in `create_blackbody_packet_nus`.
+        5 random numbers are needed (per Noebauer & Sim 2019 and references
+        contained therein): The first value, r0, fulfils
+
+        L = min(l, \sum_0^l j^{-4} >= r0 pi^4/90)
+
+        for l samples. The 4 random numbers that remain are used to provide
+        the sampled frequency
+
+        f = -L^{-1} ln(r1 * r2 * r3 * r4)
+
+        Inputs:
+            :seed: (int) value to seed the underlying random number generator.
+
+        Outputs:
+            :arr: (1D array) 5-element array.
+
+        """
         np.random.seed(seed)
         return np.random.random(5)
 
