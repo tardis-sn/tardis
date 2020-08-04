@@ -4,7 +4,7 @@ import numpy as np
 import numexpr as ne
 from tardis import constants as const
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
-from numba import njit, float64
+from numba import njit
 
 
 
