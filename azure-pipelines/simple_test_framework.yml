@@ -44,7 +44,7 @@ jobs:
         displayName: "Install TARDIS environment"
 
       - bash: |
-              GIT_LFS_SKIP_SMUDGE=1 git clone $(ref.data.github.url) $(ref.data.home)
+              git clone $(ref.data.github.url) $(ref.data.home)
               cd $(ref.data.home)
               git fetch origin
               git checkout origin/master
