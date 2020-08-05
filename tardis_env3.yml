@@ -6,11 +6,11 @@ channels:
 dependencies:
   - python=3
   - pip
-  - numpy=1.15
-  - scipy=1.1
+  - numpy=1.16
+  - scipy=1.5
   - pandas=0.24
   - astropy=3
-  - numba=0.43
+  - numba=0.50
   - numexpr
   - Cython=0.29
   - compilers
@@ -21,7 +21,7 @@ dependencies:
   # I/O
   - pyyaml
   - jsonschema
-  - pyne=0.5
+  - pyne=0.7
   - pytables
   - h5py
   - requests
