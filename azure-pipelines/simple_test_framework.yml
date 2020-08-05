@@ -44,6 +44,7 @@ jobs:
         displayName: "Install TARDIS environment"
 
       - bash: |
+              echo git clone $(ref.data.github.url) $(ref.data.home)
               git clone $(ref.data.github.url) $(ref.data.home)
               cd $(ref.data.home)
               git fetch origin
