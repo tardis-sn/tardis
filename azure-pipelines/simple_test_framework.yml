@@ -30,26 +30,6 @@ jobs:
       - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
         displayName: "Force exit on error (bash) "
 
-      - bash: |
-          GIT_LFS_SKIP_SMUDGE=1 git clone $(ref.data.github.url) $(ref.data.home)
-          cd $(ref.data.home)
-          git fetch origin
-          git checkout origin/master
-          git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin
-          git lfs pull --include="atom_data/chianti_He.h5" origin
-          git lfs pull --include="unit_test_data.h5" origin
-          git lfs pull --include="packet_unittest.h5" origin
-          echo MD5: `md5sum unit_test_data.h5`
-        displayName: "Fetch reference data"
-        condition: false
-
-      - bash: |
-          pip install gdown
-          gdown https://drive.google.com/uc\?id\=1LwfZ6MXuV2j9a23uu9HTcoDDFI9gIuf1 -O tardis-refdata.tar.gz
-          tar zxf tardis-refdata.tar.gz
-          mv tardis-refdata $(ref.data.home)
-        displayName: "Fetch reference data (GDrive backup)"
-
       - bash: echo "##vso[task.prependpath]$CONDA/bin"
         displayName: "Add conda to PATH"
 
@@ -67,6 +47,27 @@ jobs:
           source activate tardis
           python setup.py build_ext --inplace
         displayName: "TARDIS build"
+
+      - bash: |
+          GIT_LFS_SKIP_SMUDGE=1 git clone $(ref.data.github.url) $(ref.data.home)
+          cd $(ref.data.home)
+          git fetch origin
+          git checkout origin/master
+          git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin
+          git lfs pull --include="atom_data/chianti_He.h5" origin
+          git lfs pull --include="unit_test_data.h5" origin
+          git lfs pull --include="packet_unittest.h5" origin
+          echo MD5: `md5sum unit_test_data.h5`
+        displayName: "Fetch reference data"
+        condition: false
+
+      - bash: |
+          source activate tardis
+          pip install gdown
+          gdown https://drive.google.com/uc\?id\=1LwfZ6MXuV2j9a23uu9HTcoDDFI9gIuf1 -O tardis-refdata.tar.gz
+          tar zxf tardis-refdata.tar.gz
+          mv tardis-refdata $(ref.data.home)
+        displayName: "Fetch reference data (GDrive backup)"
 
       - bash: |
           source activate tardis
