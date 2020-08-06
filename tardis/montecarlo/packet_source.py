@@ -3,28 +3,29 @@ import abc
 import numpy as np
 import numexpr as ne
 from tardis import constants as const
-from tardis.montecarlo import montecarlo_configuration as mc_config_module
-from numba import njit
+from numba import jitclass, njit, int64, float64
 
 BOLTZMANN_CONSTANT = const.k_B.cgs.value
 
 PLANCK_CONSTANT = const.h.cgs.value
 
+packet_source_spec = [
+    ('seed', int64),
+]
 
-
-class BasePacketSource(abc.ABC):
+# @jitclass(packet_source_spec)
+class BasePacketSource(object):
 
     def __init__(self, seed):
         self.seed = seed
         np.random.seed(seed)
+        self
         
-    @abc.abstractmethod
-    def create_packets(self, **kwargs):
-        pass
+    # @abc.abstractmethod
+    # def create_packets(self, **kwargs):
+    #     pass
 
-    @staticmethod
-    @njit
-    def create_zero_limb_darkening_packet_mus(seed):
+    def create_zero_limb_darkening_packet_mus(self, seed):
         """
         Create a zero-limb-darkening packet :math:`\mu` distributed
         according to :math:`\\mu=\\sqrt{z}, z \isin [0, 1]`
@@ -37,8 +38,7 @@ class BasePacketSource(abc.ABC):
         np.random.seed(seed)
         return np.sqrt(np.random.random())
 
-    @staticmethod
-    def create_uniform_packet_energies(no_of_packets):
+    def create_uniform_packet_energies(self, no_of_packets):
         """
         Uniformly distribute energy in arbitrary units where the ensemble of 
         packets has energy of 1. 
@@ -56,10 +56,7 @@ class BasePacketSource(abc.ABC):
         """
         return np.ones(no_of_packets) / no_of_packets
 
-
-    @staticmethod
-    @njit
-    def create_blackbody_packet_nus(T, xis, l_samples=1000):
+    def create_blackbody_packet_nus(self, T, xis, l_samples=1000.):
         """
 
         Create packet :math:`\\nu` distributed using the algorithm described in 
@@ -99,7 +96,7 @@ class BasePacketSource(abc.ABC):
             array of frequencies
         """
         l_samples = l_samples
-        l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64)**-4)
+        l_array = np.cumsum(np.arange(1., l_samples, dtype=float64)**-4)
         l_coef = np.pi**4 / 90.0
 
         l = np.searchsorted(l_array, xis[0]*l_coef) + 1.
@@ -108,14 +105,14 @@ class BasePacketSource(abc.ABC):
 
         return x * (BOLTZMANN_CONSTANT * T) / PLANCK_CONSTANT
 
-
+@jitclass(packet_source_spec)
 class BlackBodySimpleSource(BasePacketSource):
     """
     Simple packet source that generates Blackbody packets for the Montecarlo 
     part.
     """
 
-    def create_packets(self, T, no_of_packets):
+    def create_packets(self, T, no_of_packets, seeds):
         """
         Creates a number of r_packet properties as sampled from a blackbody.
 
@@ -126,22 +123,17 @@ class BlackBodySimpleSource(BasePacketSource):
         Outputs:
             :nus: (1D array) array of frequencies associated with packets.
         """
-        self.T = T
-        self.no_of_packets = no_of_packets
-        self.seeds = mc_config_module.packet_seeds
         # loop through: set seed, create a mu, create a nu
         nus, mus, energies = np.empty(no_of_packets), np.empty(no_of_packets), \
                                 np.empty(no_of_packets)
-        for i, seed in enumerate(self.seeds):
+        for i, seed in enumerate(seeds):
             nus[i], mus[i], energies[i] = self.random_packet_properties(seed,
-                                                                        self.T,
+                                                                        T,
                                                                         self.create_blackbody_packet_nus,
                                                                         no_of_packets)
         return nus, mus, energies
 
-    @staticmethod
-    @njit
-    def random_packet_properties(seed, T, blackbody_sampler, no_of_packets):
+    def random_packet_properties(self, seed, T, blackbody_sampler, no_of_packets):
         """
         Created random packet properties (energy, frequency, mu) given a seed.
         The blackbody_sampler is passed directly (with this method being a

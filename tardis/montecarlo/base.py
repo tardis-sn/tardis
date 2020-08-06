@@ -137,13 +137,14 @@ class MontecarloRunner(HDFWriterMixin):
         np.random.seed(self.seed)
         if no_of_packets > MAX_SEED_VAL:
             raise ValueError('Too many packets to seed.')
-        mc_config_module.packet_seeds = np.random.randint(0,
-                                                          MAX_SEED_VAL,
-                                                          size=no_of_packets)
+        seeds = np.random.randint(0,
+                                  MAX_SEED_VAL,
+                                  size=no_of_packets)
         nus, mus, energies = self.packet_source.create_packets(
                 T,
-                no_of_packets
-                )
+                no_of_packets,
+                seeds)
+        mc_config_module.packet_seeds = seeds
         self.input_nu = nus
         self.input_mu = mus
         self.input_energy = energies
