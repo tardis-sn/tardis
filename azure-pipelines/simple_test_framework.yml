@@ -30,19 +30,6 @@ jobs:
       - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
         displayName: "Force exit on error (bash) "
 
-      - bash: echo "##vso[task.prependpath]$CONDA/bin"
-        displayName: "Add conda to PATH"
-
-      - bash: sudo chown -R $USER $CONDA
-        condition: eq( variables['Agent.OS'], 'Darwin' )
-        displayName: "Take ownership of conda installation (macOS)"
-
-      - bash: conda install mamba=0.4.0 -c conda-forge -y
-        displayName: "Install mamba"
-
-      - bash: mamba env create -f tardis_env3.yml
-        displayName: "Install TARDIS environment"
-
       - bash: |
           GIT_LFS_SKIP_SMUDGE=1 git clone $(ref.data.github.url) $(ref.data.home)
           cd $(ref.data.home)
@@ -62,6 +49,19 @@ jobs:
           cd $(AgentBuildDirectory)
           tar zxf tardis-refdata-backup.tar.gz
         displayName: "Fetch reference data (GDrive backup)"
+
+      - bash: echo "##vso[task.prependpath]$CONDA/bin"
+        displayName: "Add conda to PATH"
+
+      - bash: sudo chown -R $USER $CONDA
+        condition: eq( variables['Agent.OS'], 'Darwin' )
+        displayName: "Take ownership of conda installation (macOS)"
+
+      - bash: conda install mamba=0.4.0 -c conda-forge -y
+        displayName: "Install mamba"
+
+      - bash: mamba env create -f tardis_env3.yml
+        displayName: "Install TARDIS environment"
 
       - bash: |
           source activate tardis
