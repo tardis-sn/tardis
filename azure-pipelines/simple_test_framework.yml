@@ -54,6 +54,14 @@ jobs:
           git lfs pull --include="packet_unittest.h5" origin
           echo MD5: `md5sum unit_test_data.h5`
         displayName: "Fetch reference data"
+        condition: false
+
+      - bash: |
+          pip install gdown
+          gdown https://drive.google.com/uc\?id\=1LwfZ6MXuV2j9a23uu9HTcoDDFI9gIuf1 -O $(AgentBuildDirectory)/tardis-refdata.tar.gz
+          cd $(AgentBuildDirectory)
+          tar zxf tardis-refdata-backup.tar.gz
+        displayName: "Fetch reference data (GDrive backup)"
 
       - bash: |
           source activate tardis
