@@ -44,29 +44,28 @@ jobs:
         displayName: "Install TARDIS environment"
 
       - bash: |
-              GIT_LFS_SKIP_SMUDGE=1 git clone $(ref.data.github.url) $(ref.data.home)
-              cd $(ref.data.home)
-              git fetch origin
-              git checkout origin/master
-              git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin
-              git lfs pull --include="atom_data/chianti_He.h5" origin
-              git lfs pull --include="plasma_reference/" origin
-              git lfs pull --include="unit_test_data.h5" origin
-              git lfs pull --include="packet_unittest.h5" origin
-              echo MD5: `md5sum unit_test_data.h5`
+          GIT_LFS_SKIP_SMUDGE=1 git clone $(ref.data.github.url) $(ref.data.home)
+          cd $(ref.data.home)
+          git fetch origin
+          git checkout origin/master
+          git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin
+          git lfs pull --include="atom_data/chianti_He.h5" origin
+          git lfs pull --include="unit_test_data.h5" origin
+          git lfs pull --include="packet_unittest.h5" origin
+          echo MD5: `md5sum unit_test_data.h5`
         displayName: "Fetch reference data"
 
       - bash: |
-              source activate tardis
-              python setup.py build_ext --inplace
+          source activate tardis
+          python setup.py build_ext --inplace
         displayName: "TARDIS build"
 
       - bash: |
-              source activate tardis
-              pip install pytest-azurepipelines
-              pytest tardis --tardis-refdata=$(ref.data.home) --cov=tardis --cov-report=xml --cov-report=html
+          source activate tardis
+          pip install pytest-azurepipelines
+          pytest tardis --tardis-refdata=$(ref.data.home) --cov=tardis --cov-report=xml --cov-report=html
         displayName: "TARDIS test"
 
       - bash: |
-              bash <(curl -s https://codecov.io/bash)
+          bash <(curl -s https://codecov.io/bash)
         displayName: "Upload to codecov.io"
