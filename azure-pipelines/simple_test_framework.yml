@@ -44,11 +44,6 @@ jobs:
         displayName: "Install TARDIS environment"
 
       - bash: |
-          source activate tardis
-          python setup.py build_ext --inplace
-        displayName: "TARDIS build"
-
-      - bash: |
           GIT_LFS_SKIP_SMUDGE=1 git clone $(ref.data.github.url) $(ref.data.home)
           cd $(ref.data.home)
           git fetch origin
@@ -68,6 +63,11 @@ jobs:
           tar zxf tardis-refdata.tar.gz
           mv tardis-refdata $(ref.data.home)
         displayName: "Fetch reference data (GDrive backup)"
+
+      - bash: |
+          source activate tardis
+          python setup.py build_ext --inplace
+        displayName: "TARDIS build"
 
       - bash: |
           source activate tardis
