@@ -45,9 +45,9 @@ jobs:
 
       - bash: |
           pip install gdown
-          gdown https://drive.google.com/uc\?id\=1LwfZ6MXuV2j9a23uu9HTcoDDFI9gIuf1 -O $(AgentBuildDirectory)/tardis-refdata.tar.gz
-          cd $(AgentBuildDirectory)
+          gdown https://drive.google.com/uc\?id\=1LwfZ6MXuV2j9a23uu9HTcoDDFI9gIuf1 -O tardis-refdata.tar.gz
           tar zxf tardis-refdata.tar.gz
+          mv tardis-refdata $(ref.data.home)
         displayName: "Fetch reference data (GDrive backup)"
 
       - bash: echo "##vso[task.prependpath]$CONDA/bin"
