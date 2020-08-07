@@ -137,7 +137,33 @@ def test_read_csvy_abundances(
 @pytest.fixture(scope="function")
 def reference_decayed_abundance():
     """Returns reference abundances dataframe for `test_csvy_model_decay`
-    Constructed from `csvy_model_to_test_abundances.yml` """
+    Constructed from `csvy_model_to_test_abundances.yml`
+    For the decay calculations the following procedure is used:
+    Ni_halflife = 6.075 * u.d
+    Co_halflife = 77.233 * u.d
+
+    lambda_Ni = np.log(2) / Ni_halflife
+    lambda_Co = np.log(2) / Co_halflife
+
+    t = 4 * u.d means 4 days have passed since the explosion
+
+    def N1(N0, lambda1, t=4.0 * u.d):
+        return N0 * np.exp(-lambda1 * t)
+
+    
+    def N2(N1_0, lambda_1, lambda_2, t=4.0 * u.d):
+        return (lambda_1 * N1_0 
+                * (np.exp(-lambda_1 * t) / (lambda_2 - lambda_1)
+                + np.exp(-lambda_2 * t) / (lambda_1 - lambda_2)))
+
+     if the original Ni56 abundance for a given shell is 0.05, after 4 days:
+
+     cobalt_abundance_after_4_days = N2(0.05, lambda_Ni, lambda_Co)
+     nickel_abundance_after_4_days = N1(0.05, lambda_Ni)
+     iron_abundance_after_4_days = 0.05 - cobalt_abundance_after_4_days 
+                                    - nickel_abundance_after_4_days
+     In the reference_decayed_dataframe every row represents a specific element
+     and every column represents a shell"""
     decay_index = pd.Index([1, 2, 26, 27, 28], name="atomic_number")
     reference_decayed_abundance = pd.DataFrame(
         [
@@ -176,33 +202,7 @@ def reference_decayed_abundance():
 def test_csvy_model_decay(csvy_model_test_abundances,
                          reference_decayed_abundance):
     """Compare model abundance decay against decay calculations 
-    done by hand.
-    For the decay calculations the following procedure is used:
-    Ni_halflife = 6.075 * u.d
-    Co_halflife = 77.233 * u.d
-
-    lambda_Ni = np.log(2) / Ni_halflife
-    lambda_Co = np.log(2) / Co_halflife
-
-    t = 4 * u.d means 4 days have passed since the explosion
-
-    def N1(N0, lambda1, t=4.0 * u.d):
-        return N0 * np.exp(-lambda1 * t)
-
-    
-    def N2(N1_0, lambda_1, lambda_2, t=4.0 * u.d):
-        return (lambda_1 * N1_0 
-                * (np.exp(-lambda_1 * t) / (lambda_2 - lambda_1)
-                + np.exp(-lambda_2 * t) / (lambda_1 - lambda_2)))
-
-     if the original Ni56 abundance for a given shell is 0.05, after 4 days:
-
-     cobalt_abundance_after_4_days = N2(0.05, lambda_Ni, lambda_Co)
-     nickel_abundance_after_4_days = N1(0.05, lambda_Ni)
-     iron_abundance_after_4_days = 0.05 - cobalt_abundance_after_4_days 
-                                    - nickel_abundance_after_4_days
-     In the hand_decayed_dataframe every row represents a specific element
-     and every column represents a shell"""
+    done by hand."""
     model_decayed_abundance_shape = csvy_model_test_abundances.abundance.shape
     reference_decayed_abundance_shape = reference_decayed_abundance.shape
     assert model_decayed_abundance_shape == reference_decayed_abundance_shape
