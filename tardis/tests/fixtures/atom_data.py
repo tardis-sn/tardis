@@ -5,7 +5,7 @@ import pytest
 
 from tardis.io.atom_data.base import AtomData
 
-DEFAULT_ATOM_DATA_UUID = "864f1753714343c41f99cb065710cace"
+DEFAULT_ATOM_DATA_UUID = b"864f1753714343c41f99cb065710cace"
 
 
 @pytest.fixture(scope="session")
