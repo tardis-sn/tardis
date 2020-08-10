@@ -19,8 +19,7 @@ class BasePacketSource(object):
     def __init__(self, seed):
         self.seed = seed
         np.random.seed(seed)
-        self
-        
+
     # @abc.abstractmethod
     # def create_packets(self, **kwargs):
     #     pass
@@ -38,7 +37,9 @@ class BasePacketSource(object):
         np.random.seed(seed)
         return np.sqrt(np.random.random())
 
-    def create_uniform_packet_energies(self, no_of_packets):
+    @staticmethod
+    @njit
+    def create_uniform_packet_energies(no_of_packets):
         """
         Uniformly distribute energy in arbitrary units where the ensemble of 
         packets has energy of 1. 
