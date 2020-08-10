@@ -138,8 +138,10 @@ class MontecarloRunner(HDFWriterMixin):
     def _initialize_packets(self, T, no_of_packets, iteration):
         # the iteration is added each time to preserve randomness
         # across different simulations with the same temperature,
-        # for example.
-        np.random.seed(self.seed + iteration)
+        # for example. We seed the random module instead of the numpy module
+        # because we call random.sample, which references a different internal
+        # state than in the numpy.random module.
+        random.seed(self.seed + iteration)
         if no_of_packets > MAX_SEED_VAL:
             raise ValueError(f"""Numpy's random generator cannot create
                              individual seeds beyond {MAX_SEED_VAL}.""")
