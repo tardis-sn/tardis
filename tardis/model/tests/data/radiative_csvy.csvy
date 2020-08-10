@@ -1,8 +1,8 @@
 ---
-name: csvy_full
+name: radiative_csvy
 model_density_time_0: 1 day
-model_isotope_time_0: 5 day
-description: Example csvy config file for TARDIS.
+model_isotope_time_0: 0 day
+description: csvy file containing all quantities stored as CSV (and a radiative temperature column)
 tardis_model_config_version: v1.0
 datatype:
   fields:

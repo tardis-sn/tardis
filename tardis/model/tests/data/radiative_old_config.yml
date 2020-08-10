@@ -1,4 +1,4 @@
-# Example YAML configuration for TARDIS
+# YAML configuration for TARDIS with custom abundances and density from files
 tardis_config_version: v1.0
 
 supernova:
@@ -14,7 +14,7 @@ model:
   structure:
     #v_inner_boundary: 9500 km/s
     type: file
-    filename: density.dat
+    filename: custom_density_tardis.dat
     filetype: simple_ascii
       # showing different configuration options separated by comments
       # simple uniform
@@ -33,12 +33,12 @@ model:
 
   abundances:
     type: file
-    filename: abund.dat
+    filename: custom_abundance_tardis.dat
     filetype: custom_composition
 
 plasma:
   #initial_t_inner: 10000 K
-  #initial_t_rad: 10000 K
+  initial_t_rad: 7000 K
   disable_electron_scattering: no
   ionization: lte
   excitation: lte
