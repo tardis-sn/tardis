@@ -133,8 +133,11 @@ class MontecarloRunner(HDFWriterMixin):
         self.r_outer_cgs = model.r_outer.to('cm').value
         self.v_inner_cgs = model.v_inner.to('cm/s').value
 
-    def _initialize_packets(self, T, no_of_packets):
-        np.random.seed(self.seed)
+    def _initialize_packets(self, T, no_of_packets, iteration):
+        # the iteration is added each time to preserve randomness
+        # across different simulations with the same temperature,
+        # for example.
+        np.random.seed(self.seed + iteration)
         if no_of_packets > MAX_SEED_VAL:
             raise ValueError('Too many packets to seed.')
         seeds = np.random.randint(0,
@@ -219,7 +222,7 @@ class MontecarloRunner(HDFWriterMixin):
 
     def run(self, model, plasma, no_of_packets,
             no_of_virtual_packets=0, nthreads=1,
-            last_run=False):
+            last_run=False, iteration=0):
         """
         Run the montecarlo calculation
 
@@ -249,7 +252,7 @@ class MontecarloRunner(HDFWriterMixin):
         self._initialize_geometry_arrays(model)
 
         self._initialize_packets(model.t_inner.value,
-                                 no_of_packets)
+                                 no_of_packets, iteration)
 
         montecarlo_configuration = configuration_initialize(self,
                                                             no_of_virtual_packets)
