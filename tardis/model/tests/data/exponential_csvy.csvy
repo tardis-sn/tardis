@@ -1,8 +1,8 @@
 ---
-name: csvy_nocsv
+name: exponential_csvy
 model_density_time_0: 1 day
 model_isotope_time_0: 0 day
-description: Example csvy config file for TARDIS.
+description: csvy file with uniform abundances and exponential density profile (no values declared in the CSV section) 
 tardis_model_config_version: v1.0
 
 velocity:
@@ -10,8 +10,9 @@ velocity:
   stop: 12000 km/s
   num: 5
 density:
-  type: uniform
-  value: 1e-9 g/cm^3
+  type: exponential
+  rho_0: 1e-9 g/cm^3
+  v_0: 10000 km/s
 abundance:
   type: uniform
   H: 0.5
