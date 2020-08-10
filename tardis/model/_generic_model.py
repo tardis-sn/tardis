@@ -126,8 +126,6 @@ class Velocity(BaseProperty):
     name = 'velocity'
 
     def __init__(self, velocity_inner, velocity_outer, 
-                 v_boundary_inner = 0  * u.km / u.s,
-                 v_boundary_outer = 0  * u.km / u.s,
                  time_0=0 * u.d):
         self._inner = self.cgs_units(velocity_inner)
         self._outer = self.cgs_units(velocity_outer)
@@ -171,6 +169,14 @@ class Velocity(BaseProperty):
     @property
     def outer_radius(self):
         return ((self.time - self.time_0) * self.outer)
+
+    @property
+    def inner_radius(self):
+        return ((self.time - self.time_0) * self.inner)
+
+    @property
+    def middle_radius(self):
+        return ((self.time - self.time_0) * self.middle)
 
     @property
     def volume(self):
