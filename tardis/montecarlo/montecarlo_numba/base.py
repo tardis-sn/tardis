@@ -38,7 +38,6 @@ def montecarlo_radial1d(model, plasma, runner):
 
 @njit(**njit_dict, nogil=True)
 def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
-                         estimators, spectrum_frequency, packet_seeds):
                          estimators, spectrum_frequency,
                          number_of_vpackets, packet_seeds):
     """
