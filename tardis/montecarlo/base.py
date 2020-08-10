@@ -141,7 +141,8 @@ class MontecarloRunner(HDFWriterMixin):
         # for example.
         np.random.seed(self.seed + iteration)
         if no_of_packets > MAX_SEED_VAL:
-            raise ValueError('Too many packets to seed.')
+            raise ValueError(f"""Numpy's random generator cannot create
+                             individual seeds beyond {MAX_SEED_VAL}.""")
         seeds = np.array(random.sample(range(MAX_SEED_VAL),
                               no_of_packets))
         nus, mus, energies = self.packet_source.create_packets(
