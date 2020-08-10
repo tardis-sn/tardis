@@ -37,9 +37,8 @@ class BasePacketSource(object):
         np.random.seed(seed)
         return np.sqrt(np.random.random())
 
-    @staticmethod
-    @njit
-    def create_uniform_packet_energies(no_of_packets):
+
+    def create_uniform_packet_energies(self, no_of_packets):
         """
         Uniformly distribute energy in arbitrary units where the ensemble of 
         packets has energy of 1. 
