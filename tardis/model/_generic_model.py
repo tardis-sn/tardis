@@ -1,8 +1,9 @@
-from astropy import units,constants as u,constants
+from astropy import units as u
 
 class GenericModel():
-    """A generic model that binds all the properties together and 
-    allow easy acces for the user"""
+    """A generic model that binds all the properties together, 
+    check the consistency of time and lengths, and allow easy 
+    access for the user"""
 
     def __init__(self, *properties, time= None):
         properties = [prop for prop in tproperties if prop is not None]
