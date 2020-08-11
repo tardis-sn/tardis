@@ -150,8 +150,7 @@ class MontecarloRunner(HDFWriterMixin):
                               no_of_packets))
         nus, mus, energies = self.packet_source.create_packets(
                 T,
-                no_of_packets,
-                seeds)
+                no_of_packets)
         mc_config_module.packet_seeds = seeds
         self.input_nu = nus
         self.input_mu = mus
