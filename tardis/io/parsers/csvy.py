@@ -38,7 +38,7 @@ def load_csvy(fname):
         yaml_dict = yaml.load("".join(yaml_lines[1:-1]), YAMLLoader)
         try:
             data = pd.read_csv(fname, skiprows=yaml_end_ind + 1)
-        except pd.io.common.EmptyDataError as e:
+        except pd.errors.EmptyDataError as e:
             data = None
 
     return yaml_dict, data

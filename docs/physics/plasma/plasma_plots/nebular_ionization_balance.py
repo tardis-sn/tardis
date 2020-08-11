@@ -38,7 +38,7 @@ nebular_plasma = plasma.NebularPlasma.from_abundance(
 # Initializing a dataframe to store the ion populations  and level populations for the different temperatures
 ion_number_densities = pd.DataFrame(index=nebular_plasma.ion_populations.index)
 level_populations = pd.DataFrame(
-    index=nebular_plasma.level_populations.ix[14, 1].index
+    index=nebular_plasma.level_populations.loc[14, 1].index
 )
 t_rads = np.linspace(2000, 20000, 100)
 
@@ -53,18 +53,18 @@ for t_rad in t_rads:
 
     # normalizing the level_populations for Si II
     current_level_population = (
-        nebular_plasma.level_populations.ix[14, 1]
-        / nebular_plasma.ion_populations.ix[14, 1]
+        nebular_plasma.level_populations.loc[14, 1]
+        / nebular_plasma.ion_populations.loc[14, 1]
     )
     # normalizing with statistical weight
-    current_level_population /= atom_data.levels.ix[14, 1].g
+    current_level_population /= atom_data.levels.loc[14, 1].g
 
     level_populations[t_rad] = current_level_population
 
 ion_colors = ["b", "g", "r", "k"]
 
 for ion_number in [0, 1, 2, 3]:
-    current_ion_density = ion_number_densities.ix[14, ion_number]
+    current_ion_density = ion_number_densities.loc[14, ion_number]
     ax1.plot(
         current_ion_density.index,
         current_ion_density.values,
@@ -98,11 +98,11 @@ for t_rad in t_rads:
 
     # normalizing the level_populations for Si II
     current_level_population = (
-        nebular_plasma.level_populations.ix[14, 1]
-        / nebular_plasma.ion_populations.ix[14, 1]
+        nebular_plasma.level_populations.loc[14, 1]
+        / nebular_plasma.ion_populations.loc[14, 1]
     )
     # normalizing with statistical weight
-    current_level_population /= atom_data.levels.ix[14, 1].g
+    current_level_population /= atom_data.levels.loc[14, 1].g
 
     level_populations[t_rad] = current_level_population
 
@@ -110,7 +110,7 @@ for t_rad in t_rads:
 
 for ion_number in [0, 1, 2, 3]:
     print("w=0.5")
-    current_ion_density = ion_number_densities.ix[14, ion_number]
+    current_ion_density = ion_number_densities.loc[14, ion_number]
     ax1.plot(
         current_ion_density.index,
         current_ion_density.values,
