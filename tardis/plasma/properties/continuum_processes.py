@@ -335,9 +335,9 @@ class CorrPhotoIonRateCoeff(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    gamma : Pandas DataFrame, dtype float
-            The rate coefficient for radiative ionization corrected for
-            stimulated recombination.
+    gamma_corr : Pandas DataFrame, dtype float
+        The rate coefficient for radiative ionization corrected for
+        stimulated recombination.
     """
     outputs = ('gamma_corr',)
     latex_name = ('\\gamma_\\mathrm{corr}',)
