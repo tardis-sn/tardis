@@ -146,7 +146,8 @@ class MontecarloRunner(HDFWriterMixin):
             raise ValueError(f"""Cannot create this many packets;
                              Numpy's random generator can only generate
                              {MAX_SEED_VAL} individual seeds.""")
-        seeds = np.random.default_rng(seed=seed).choice(MAX_SEED_VAL,
+        rng = np.random.default_rng(seed=seed)
+        seeds = rng.choice(MAX_SEED_VAL,
                                                         no_of_packets,
                                                         replace=False
                                                         )
