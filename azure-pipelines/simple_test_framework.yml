@@ -81,8 +81,7 @@ jobs:
         displayName: "Upload to codecov.io"
 
       - bash: conda list -n tardis --export > $(Agent.OS).txt
-        displayName: "List TARDIS packages (debug)"
-        condition: $(system.debug)
+        displayName: "List packages (debug)"
 
       - task: PublishPipelineArtifact@1
         inputs:
@@ -90,4 +89,3 @@ jobs:
           artifact: "$(Agent.OS) pkgs"
           publishLocation: "pipeline"
         displayName: "Publish package list (debug)"
-        condition: $(system.debug)
