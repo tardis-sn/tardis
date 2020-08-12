@@ -73,6 +73,7 @@ jobs:
           mv tardis-refdata $(ref.data.home)
         displayName: "Fetch reference data (GDrive backup)"
         condition: true
+
       - bash: |
           source activate tardis
           python setup.py build_ext --inplace
