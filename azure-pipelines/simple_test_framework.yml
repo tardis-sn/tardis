@@ -7,7 +7,7 @@ trigger:
   - master
 
 variables:
-  system.debug: "true"
+  system.debug: "false"
   ref.data.home: "$(Agent.BuildDirectory)/tardis-refdata"
   ref.data.github.url: "https://github.com/tardis-sn/tardis-refdata.git"
   tardis.build.dir: $(Build.Repository.LocalPath)
@@ -42,6 +42,10 @@ jobs:
 
       - bash: mamba env create -f tardis_env3.yml
         displayName: "Install TARDIS environment"
+
+      - bash: |
+          conda list -n tardis --export
+        displayName: "List packages (debug)"
 
       - bash: |
           GIT_LFS_SKIP_SMUDGE=1 git clone $(ref.data.github.url) $(ref.data.home)
