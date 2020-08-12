@@ -141,16 +141,19 @@ class MontecarloRunner(HDFWriterMixin):
         # for example. We seed the random module instead of the numpy module
         # because we call random.sample, which references a different internal
         # state than in the numpy.random module.
-        random.seed(self.seed + iteration)
+        seed = self.seed + iteration
         if no_of_packets > MAX_SEED_VAL:
             raise ValueError(f"""Cannot create this many packets;
                              Numpy's random generator can only generate
                              {MAX_SEED_VAL} individual seeds.""")
-        seeds = np.array(random.sample(range(MAX_SEED_VAL),
-                              no_of_packets))
+        seeds = np.random.default_rng(seed=seed).choice(MAX_SEED_VAL,
+                                                        no_of_packets,
+                                                        replace=False
+                                                        )
         nus, mus, energies = self.packet_source.create_packets(
                 T,
-                no_of_packets)
+                no_of_packets,
+                rng)
         mc_config_module.packet_seeds = seeds
         self.input_nu = nus
         self.input_mu = mus
