@@ -43,9 +43,14 @@ jobs:
       - bash: mamba env create -f tardis_env3.yml
         displayName: "Install TARDIS environment"
 
-      - bash: |
-          conda list -n tardis --export
+      - bash: conda list -n tardis --export > conda.list.$(Agent.OS)
         displayName: "List packages (debug)"
+
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: "conda.list.$(Agent.OS)"
+          artifact: "conda_env_$(Agent.OS)"
+          publishLocation: "pipeline"
 
       - bash: |
           GIT_LFS_SKIP_SMUDGE=1 git clone $(ref.data.github.url) $(ref.data.home)
