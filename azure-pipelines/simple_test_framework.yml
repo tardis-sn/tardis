@@ -37,7 +37,7 @@ jobs:
         condition: eq( variables['Agent.OS'], 'Darwin' )
         displayName: "Take ownership of conda installation (macOS)"
 
-      - bash: conda install mamba=0.4.0 -c conda-forge -y
+      - bash: conda install mamba -c conda-forge -y
         displayName: "Install mamba"
 
       - bash: mamba env create -f tardis_env3.yml
