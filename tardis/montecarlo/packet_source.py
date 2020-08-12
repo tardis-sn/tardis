@@ -16,7 +16,7 @@ class BasePacketSource(abc.ABC):
         pass
 
     @staticmethod
-    def create_zero_limb_darkening_packet_mus(no_of_packets):
+    def create_zero_limb_darkening_packet_mus(no_of_packets, rng):
         """
         Create zero-limb-darkening packet :math:`\mu` distributed
         according to :math:`\\mu=\\sqrt{z}, z \isin [0, 1]`
@@ -27,10 +27,10 @@ class BasePacketSource(abc.ABC):
             number of packets to be created
         """
 
-        return np.sqrt(np.random.random(no_of_packets))
+        return np.sqrt(rng.random(no_of_packets))
 
     @staticmethod
-    def create_uniform_packet_energies(no_of_packets):
+    def create_uniform_packet_energies(no_of_packets, rng):
         """
         Uniformly distribute energy in arbitrary units where the ensemble of
         packets has energy of 1.
@@ -48,7 +48,7 @@ class BasePacketSource(abc.ABC):
         return np.ones(no_of_packets) / no_of_packets
 
     @staticmethod
-    def create_blackbody_packet_nus(T, no_of_packets, l_samples=1000):
+    def create_blackbody_packet_nus(T, no_of_packets, rng, l_samples=1000):
         """
         Create packet :math:`\\nu` distributed using the algorithm described in
         Bjorkman & Wood 2001 (page 4) which references
@@ -83,7 +83,7 @@ class BasePacketSource(abc.ABC):
         l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64) ** -4)
         l_coef = np.pi ** 4 / 90.0
 
-        xis = np.random.random((5, no_of_packets))
+        xis = rng.random((5, no_of_packets))
         l = l_array.searchsorted(xis[0] * l_coef) + 1.
         xis_prod = np.prod(xis[1:], 0)
         x = ne.evaluate('-log(xis_prod)/l')
@@ -97,9 +97,9 @@ class BlackBodySimpleSource(BasePacketSource):
     part.
     """
 
-    def create_packets(self, T, no_of_packets):
-        nus = self.create_blackbody_packet_nus(T, no_of_packets)
-        mus = self.create_zero_limb_darkening_packet_mus(no_of_packets)
-        energies = self.create_uniform_packet_energies(no_of_packets)
+    def create_packets(self, T, no_of_packets, rng):
+        nus = self.create_blackbody_packet_nus(T, no_of_packets, rng)
+        mus = self.create_zero_limb_darkening_packet_mus(no_of_packets, rng)
+        energies = self.create_uniform_packet_energies(no_of_packets, rng)
 
         return nus, mus, energies
