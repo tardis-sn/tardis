@@ -43,16 +43,6 @@ jobs:
       - bash: mamba env create -f tardis_env3.yml
         displayName: "Install TARDIS environment"
 
-      - bash: conda list -n tardis --export > $(Agent.OS).txt
-        displayName: "List packages (debug)"
-
-      - task: PublishPipelineArtifact@1
-        inputs:
-          targetPath: "$(Agent.OS).txt"
-          artifact: "$(Agent.OS) package list"
-          publishLocation: "pipeline"
-        displayName: "Publish $(Agent.OS) package list"
-
       - bash: |
           GIT_LFS_SKIP_SMUDGE=1 git clone $(ref.data.github.url) $(ref.data.home)
           cd $(ref.data.home)
@@ -89,3 +79,15 @@ jobs:
       - bash: |
           bash <(curl -s https://codecov.io/bash)
         displayName: "Upload to codecov.io"
+
+      - bash: conda list -n tardis --export > $(Agent.OS).txt
+        displayName: "List TARDIS packages (debug)"
+        condition: $(system.debug)
+
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: "$(Agent.OS).txt"
+          artifact: "$(Agent.OS) pkgs"
+          publishLocation: "pipeline"
+        displayName: "Publish package list (debug)"
+        condition: $(system.debug)
