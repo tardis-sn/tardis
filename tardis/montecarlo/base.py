@@ -144,9 +144,9 @@ class MontecarloRunner(HDFWriterMixin):
         seed = self.seed + iteration
         rng = np.random.default_rng(seed=seed)
         seeds = rng.choice(MAX_SEED_VAL,
-                                                        no_of_packets,
-                                                        replace=False
-                                                        )
+                           no_of_packets,
+                           replace=True
+                           )
         nus, mus, energies = self.packet_source.create_packets(
                 T,
                 no_of_packets,
