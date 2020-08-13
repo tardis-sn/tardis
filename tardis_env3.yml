@@ -14,7 +14,7 @@ dependencies:
   - numexpr
   - Cython=0.29
   - compilers
-  #- blas=*=openblas
+  - blas=*=mkl
 
   # Plasma
   - networkx
