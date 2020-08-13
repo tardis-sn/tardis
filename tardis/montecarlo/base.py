@@ -142,10 +142,6 @@ class MontecarloRunner(HDFWriterMixin):
         # because we call random.sample, which references a different internal
         # state than in the numpy.random module.
         seed = self.seed + iteration
-        if no_of_packets > MAX_SEED_VAL:
-            raise ValueError(f"""Cannot create this many packets;
-                             Numpy's random generator can only generate
-                             {MAX_SEED_VAL} individual seeds.""")
         rng = np.random.default_rng(seed=seed)
         seeds = rng.choice(MAX_SEED_VAL,
                                                         no_of_packets,
