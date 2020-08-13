@@ -77,6 +77,7 @@ jobs:
 
       - bash: conda list -n tardis --export > $(Agent.OS).txt
         displayName: "List packages (debug)"
+        condition: succeededOrFailed()
 
       - task: PublishPipelineArtifact@1
         inputs:
@@ -84,3 +85,4 @@ jobs:
           artifact: "$(Agent.OS) pkgs"
           publishLocation: "pipeline"
         displayName: "Publish package list (debug)"
+        condition: succeededOrFailed()
