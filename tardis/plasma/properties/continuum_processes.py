@@ -415,7 +415,7 @@ class CollExcRateCoeff(ProcessingPlasmaProperty):
         boltzmann_factor = np.exp(
             - delta_E_yg.values[np.newaxis].T / (t_electrons * k_B)
         )
-        q_ij = 8.629e-6 / np.sqrt(t_electrons) * yg * boltzmann_factor
+        q_ij = 8.629e-6 / np.sqrt(t_electrons) * yg * boltzmann_factor # see formula A2 in Przybilla, Butler 2004 - Apj 609, 1181
         return pd.DataFrame(q_ij, index=yg_index)
 
 
