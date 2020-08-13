@@ -1,4 +1,5 @@
 from astropy import units as u
+import numpy as np
 
 # import pandas as pd
 import qgrid
@@ -7,6 +8,7 @@ import ipywidgets as ipw
 
 from tardis.analysis import LastLineInteraction
 from tardis.util.base import species_tuple_to_string, species_string_to_tuple
+from tardis.widgets.util import create_table_widget
 
 
 class LineInfoWidget:
@@ -32,12 +34,15 @@ class LineInfoWidget:
         self.line_interaction_analysis = line_interaction_analysis
 
         # Widgets
+        table_options = {"maxVisibleRows": 9}
         self.line_counts_col_widths = [75, 25]
-        self.species_abundances_table = self.create_table_widget(
-            self.get_species_abundances(None), [35, 65]
+        self.species_abundances_table = create_table_widget(
+            self.get_species_abundances(None), [35, 65], table_options
         )
-        self.line_counts_table = self.create_table_widget(
-            self.get_last_line_counts(None), self.line_counts_col_widths
+        self.line_counts_table = create_table_widget(
+            self.get_last_line_counts(None),
+            self.line_counts_col_widths,
+            table_options,
         )
         self.figure_widget = self.plot_spectrum(
             spectrum_wavelength,
@@ -117,14 +122,17 @@ class LineInfoWidget:
         ).to_frame()
 
     def get_last_line_counts(
-        selected_species, filter_mode=filter_modes[0], group_mode=group_modes[0]
+        self,
+        selected_species,
+        filter_mode=filter_modes[0],
+        group_mode=group_modes[0],
     ):
         if selected_species:
             selected_species_tuple = species_string_to_tuple(selected_species)
 
             # Get selected species' rows from last_line_in dataframe
             current_last_lines_in = (
-                line_interaction_analysis[filter_mode]
+                self.line_interaction_analysis[filter_mode]
                 .last_line_in.xs(
                     key=(selected_species_tuple[0], selected_species_tuple[1]),
                     level=["atomic_number", "ion_number"],
@@ -135,7 +143,7 @@ class LineInfoWidget:
 
             # Get selected species' rows from last_line_out dataframe
             current_last_lines_out = (
-                line_interaction_analysis[filter_mode]
+                self.line_interaction_analysis[filter_mode]
                 .last_line_out.xs(
                     key=(selected_species_tuple[0], selected_species_tuple[1]),
                     level=["atomic_number", "ion_number"],
@@ -161,8 +169,8 @@ class LineInfoWidget:
                     line_id,
                     count,
                 ) in grouped_line_interactions.size().iteritems():
-                    current_line_in = lines_data.loc[line_id[0]]
-                    current_line_out = lines_data.loc[line_id[1]]
+                    current_line_in = self.lines_data.loc[line_id[0]]
+                    current_line_out = self.lines_data.loc[line_id[1]]
                     last_line_interaction_string.append(
                         f"exc. {int(current_line_in.level_number_lower):02d}-"
                         f"{int(current_line_in.level_number_upper):02d} "
@@ -183,7 +191,7 @@ class LineInfoWidget:
                     line_id,
                     count,
                 ) in grouped_line_interactions.size().iteritems():
-                    current_line_in = lines_data.loc[line_id]
+                    current_line_in = self.lines_data.loc[line_id]
                     last_line_interaction_string.append(
                         f"exc. {int(current_line_in.level_number_lower):02d}-"
                         f"{int(current_line_in.level_number_upper):02d} "
@@ -201,7 +209,7 @@ class LineInfoWidget:
                     line_id,
                     count,
                 ) in grouped_line_interactions.size().iteritems():
-                    current_line_out = lines_data.loc[line_id]
+                    current_line_out = self.lines_data.loc[line_id]
                     last_line_interaction_string.append(
                         f"de-exc. {int(current_line_out.level_number_upper):02d}-"
                         f"{int(current_line_out.level_number_lower):02d} "
@@ -212,7 +220,7 @@ class LineInfoWidget:
             else:
                 raise ValueError(
                     "Invalid value passed to group_mode argument. "
-                    f"Allowed values are {group_modes}"
+                    f"Allowed values are {self.group_modes}"
                 )
 
         else:
@@ -225,33 +233,6 @@ class LineInfoWidget:
             last_line_interaction_string, name="Last Line Interaction"
         )
         return line_counts.sort_values(ascending=False).to_frame()
-
-    @staticmethod
-    def create_table_widget(data, col_widths):
-        grid_options = {
-            "sortable": False,
-            "filterable": False,
-            "editable": False,
-            "minVisibleRows": 2,
-            "maxVisibleRows": 9,
-        }
-        column_options = {
-            "minWidth": None,
-        }
-
-        # Preparing dictionary that defines column widths
-        cols_with_index = [data.index.name] + data.columns.to_list()
-        column_widths_definitions = {
-            col_name: {"width": col_width}
-            for col_name, col_width in zip(cols_with_index, col_widths)
-        }
-
-        return qgrid.show_grid(
-            data,
-            grid_options=grid_options,
-            column_options=column_options,
-            column_definitions=column_widths_definitions,
-        )
 
     @staticmethod
     def axis_label_in_latex(label_text, unit):
@@ -291,7 +272,7 @@ class LineInfoWidget:
                 # Hide a one point scatter trace, to bring boxselect in modebar
                 go.Scatter(
                     x=wavelength[0],
-                    y=luminosity[0],
+                    y=luminosity_density_lambda[0],
                     mode="markers",
                     marker=dict(opacity=0),
                     showlegend=False,
@@ -309,7 +290,8 @@ class LineInfoWidget:
                 ),
                 yaxis=dict(
                     title=self.axis_label_in_latex(
-                        "Luminosity", luminosity.to("erg/(s AA)").unit
+                        "Luminosity",
+                        luminosity_density_lambda.to("erg/(s AA)").unit,
                     ),
                     exponentformat="e",
                     fixedrange=False,
