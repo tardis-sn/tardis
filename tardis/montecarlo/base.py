@@ -24,7 +24,6 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     configuration_initialize)
 
 import numpy as np
-import random
 
 logger = logging.getLogger(__name__)
 TARDIS_PATH = TARDIS_PATH[0]
@@ -142,15 +141,11 @@ class MontecarloRunner(HDFWriterMixin):
         # because we call random.sample, which references a different internal
         # state than in the numpy.random module.
         seed = self.seed + iteration
-        if no_of_packets > MAX_SEED_VAL:
-            raise ValueError(f"""Cannot create this many packets;
-                             Numpy's random generator can only generate
-                             {MAX_SEED_VAL} individual seeds.""")
         rng = np.random.default_rng(seed=seed)
         seeds = rng.choice(MAX_SEED_VAL,
-                                                        no_of_packets,
-                                                        replace=False
-                                                        )
+                           no_of_packets,
+                           replace=True
+                           )
         nus, mus, energies = self.packet_source.create_packets(
                 T,
                 no_of_packets,
