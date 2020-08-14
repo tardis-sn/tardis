@@ -1,4 +1,8 @@
+import logging
 import qgrid
+import ipywidgets as ipw
+
+logger = logging.getLogger(__name__)
 
 
 def create_table_widget(
@@ -94,3 +98,81 @@ def create_table_widget(
         column_options=column_options,
         column_definitions=column_widths_definitions,
     )
+
+
+class TableSummaryLabel:
+    """Label like widget to show summary of a qgrid table widget. Also handles
+    aligning the label with the table columns exactly like a summary row.
+    """
+
+    def __init__(self, target_table, table_col_widths, label_key, label_value):
+        if len(table_col_widths) != 2:
+            raise NotImplementedError(
+                "Currently TableSummaryLabel can only be created for a table "
+                "widget with exactly two columns (including index column)"
+            )
+
+        self.target_table = target_table
+        self.table_col_widths = table_col_widths
+        self.widget = self._create(label_key, label_value)
+
+    def update_and_resize(self, value):
+        """Update the label value and resize the width of label components to
+        align them with the columns of target table. This should be called
+        whenever there is any update in target table.
+
+        Parameters
+        ----------
+        value : int
+            Value to be shown in label
+
+        Note
+        ----
+        The width resizing operation is highly dependent on qgrid tables' 
+        layout. So it may not remain accurate if there happens any CSS change 
+        in upcoming versions of qgrid.
+        """
+        self.widget.children[1].value = str(value)
+
+        try:
+            table_width = int(self.target_table.layout.width.rstrip("px"))
+        except AttributeError:
+            logger.warning(
+                "target_table doesn't have any fixed width defined, label "
+                "cannot be resized!",
+                exc_info=1,
+            )
+            return
+
+        if (
+            len(self.target_table.df)
+            > self.target_table.grid_options["maxVisibleRows"]
+        ):
+            table_width -= 12  # 12px is space consumed by scroll bar of qgrid
+
+        self.widget.children[
+            0
+        ].layout.width = f"{(table_width) * self.table_col_widths[0]/100}px"
+        self.widget.children[
+            1
+        ].layout.width = f"{(table_width) * self.table_col_widths[1]/100}px"
+
+    def _create(self, key, value):
+        # WARNING: Use dictionary instead of ipw.Layout for specifying layout
+        # of ipywidgets, otherwise there will be unintended behavior
+        component_layout_options = dict(
+            flex="0 0 auto",  # to prevent shrinking of flex-items
+            padding="0px 2px",  # match with header
+            margin="0px",  # remove default 1px margin
+        )
+
+        return ipw.Box(
+            [
+                ipw.HTML(
+                    f"<div style='text-align:right;'> <b>{key}:<b> </div>",
+                    layout=component_layout_options,
+                ),
+                ipw.HTML(str(value), layout=component_layout_options,),
+            ],
+            layout=dict(display="flex", justify_content="flex-start",),
+        )

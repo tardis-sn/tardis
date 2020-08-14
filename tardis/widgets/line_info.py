@@ -1,14 +1,13 @@
 from astropy import units as u
 import numpy as np
-
-# import pandas as pd
+import pandas as pd
 import qgrid
 import plotly.graph_objects as go
 import ipywidgets as ipw
 
 from tardis.analysis import LastLineInteraction
 from tardis.util.base import species_tuple_to_string, species_string_to_tuple
-from tardis.widgets.util import create_table_widget
+from tardis.widgets.util import create_table_widget, TableSummaryLabel
 
 
 class LineInfoWidget:
@@ -33,26 +32,38 @@ class LineInfoWidget:
         self.lines_data = lines_data
         self.line_interaction_analysis = line_interaction_analysis
 
-        # Widgets
-        table_options = {"maxVisibleRows": 9}
-        self.line_counts_col_widths = [75, 25]
+        # Widgets ---------------------------------------------
+        max_rows_option = {"maxVisibleRows": 9}
         self.species_abundances_table = create_table_widget(
-            self.get_species_abundances(None), [35, 65], table_options
+            data=self.get_species_abundances(None),
+            col_widths=[35, 65],
+            table_options=max_rows_option,
         )
+
+        line_counts_col_widths = [75, 25]
         self.line_counts_table = create_table_widget(
-            self.get_last_line_counts(None),
-            self.line_counts_col_widths,
-            table_options,
+            data=self.get_last_line_counts(None),
+            col_widths=line_counts_col_widths,
+            table_options=max_rows_option,
         )
+        self.total_packets_label = TableSummaryLabel(
+            target_table=self.line_counts_table,
+            table_col_widths=line_counts_col_widths,
+            label_key="Total Packets",
+            label_value=0,
+        )
+
         self.figure_widget = self.plot_spectrum(
             spectrum_wavelength,
             spectrum_luminosity_density_lambda,
             virt_spectrum_wavelength,
             virt_spectrum_luminosity_density_lambda,
         )
+
         self.filter_mode_buttons = ipw.ToggleButtons(
             options=self.filter_modes_description, index=0
         )
+
         self.group_mode_dropdown = ipw.Dropdown(
             options=self.group_modes_descripton,
             index=0,
