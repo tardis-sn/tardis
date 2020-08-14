@@ -1,5 +1,8 @@
 from astropy import units as u
 import numpy as np
+import pandas as pd
+from tardis.io.decay import IsotopeAbundances
+from pyne import nucname
 
 
 class GenericModel:
@@ -72,17 +75,20 @@ class BaseProperty:
                             for now because they are their own dataframes
     """
 
-    def __init__(self, time_0):
+    def __init__(self, time_0, time=None):
         try:
-            time_0.to("s")
+            self.time_0 = time_0.to("s")
         except u.UnitConversionError:
             raise ValueError(
-                '"time" needs to be a quantity with units time (days, seconds,'
+                '"time" needs to be a quantity with time units(days, seconds,'
                 " ...)"
             )
-
-        self.time_0 = time_0
-        self.time = time_0
+        try:
+            self.time = time.to("s")
+        except AttributeError:
+            # to logger
+            print("no `time` provided, `time_0` will be used")
+            self.time_0 = time_0.to("s")
 
     def to_dataframe(self, dataframe):
 
@@ -141,16 +147,13 @@ class Velocity(BaseProperty):
 
     name = "velocity"
 
-    def __init__(self, velocity_inner, velocity_outer, time_0=0 * u.d):
+    def __init__(
+        self, velocity_inner, velocity_outer, time_0=0 * u.d, time=None
+    ):
         self._inner = self.cgs_units(velocity_inner)
         self._outer = self.cgs_units(velocity_outer)
-        if v_boundary_inner.to_value() and v_boundary_outer.to_value() == 0:
-            self.boundary_inner = velocity_inner[0]
-            self.boundary_outer = v_boundary_outer[-1]
-        else:
-            self.boundary_inner = v_boundary_inner
-            self.boundary_outer = v_boundary_outer
-        BaseProperty.__init__(self, time_0)
+
+        BaseProperty.__init__(self, time_0, time)
         self.dataframe_column_names = {
             "inner": "velocity_inner",
             "middle": "velocity_middle",
@@ -251,8 +254,10 @@ class Density(BaseProperty):
 
     name = "density"
 
-    def __init__(self, density, electron_density=None, time_0=None):
-        BaseProperty.__init__(self, time_0)
+    def __init__(
+        self, density, electron_density=None, time_0=1 * u.s, time=None
+    ):
+        BaseProperty.__init__(self, time_0, time)
         self.mass_0 = self.cgs_units(density)
         if electron_density is not None:
             self.electron = self.cgs_electron(electron_density)
@@ -320,8 +325,8 @@ class Abundances(BaseProperty):
 
     name = "abundance"
 
-    def __init__(self, elemental, isotope, time_0=0 * u.s):
-        BaseProperty.__init__(self, time_0)
+    def __init__(self, elemental, isotope, time_0=0 * u.s, time=None):
+        BaseProperty.__init__(self, time_0, time)
         self.elemental_0 = elemental.sort_values(by="atomic_number", axis=0)
         self.isotope_0 = IsotopeAbundances(isotope)
         self.dataframe_column_names = {}
@@ -387,9 +392,13 @@ class RadiationField(BaseProperty):
     name = "radiation_field"
 
     def __init__(
-        self, radiative_temperature=None, dilution_factor=None, time_0=0 * u.d
+        self,
+        radiative_temperature=None,
+        dilution_factor=None,
+        time_0=0 * u.d,
+        time=None,
     ):
-        BaseProperty.__init__(self, time_0)
+        BaseProperty.__init__(self, time_0, time)
         if radiative_temperature is not None:
             self.radiative_temperature = self.cgs_units(radiative_temperature)
         if dilution_factor is not None:
@@ -412,7 +421,7 @@ class RadiationField(BaseProperty):
         self.__number_of_cells = number_of_cells
 
     def set_number_of_cells(self, radiative_temperature, dilution_factor):
-        if radiative_temperature and dilution_factor is not None:
+        if radiative_temperature is not None and dilution_factor is not None:
             if len(radiative_temperature) == len(dilution_factor):
                 number_of_cells = len(radiative_temperature)
             else:

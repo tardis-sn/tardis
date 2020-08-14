@@ -3,6 +3,7 @@ import numpy as np
 import numpy.testing as nptest
 import pytest
 from tardis.model._generic_model import *
+from tardis.io.model_reader import read_abundances_file
 
 
 @pytest.fixture(scope="module")
@@ -184,6 +185,7 @@ def reference_abundance():
 
 def test_property_abundances(reference_abundance):
     reference_data = reference_abundance
+    abundance_filename = "data/custom_abundance_tardis_gm.dat"
     index, abundance, isotope_abundance = read_abundances_file(
         abundance_filename, "custom_composition"
     )
