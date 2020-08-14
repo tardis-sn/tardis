@@ -7,7 +7,7 @@ from tardis.util.base import (
 from tardis.simulation import Simulation
 from tardis.widgets.util import create_table_widget
 
-# import pandas as pd
+import pandas as pd
 import numpy as np
 import ipywidgets as ipw
 
@@ -483,11 +483,6 @@ class ShellInfoWidget:
         # Put text horizontally before shell info container
         shell_info_widget = ipw.VBox([text, shell_info_tables_container])
         return shell_info_widget
-
-
-# TODO: Class for model parameters and other stuff
-
-# TODO class for main tab widget
 
 
 def shell_info_from_simulation(sim_model):
