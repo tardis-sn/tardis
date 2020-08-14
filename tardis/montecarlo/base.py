@@ -24,7 +24,6 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     configuration_initialize)
 
 import numpy as np
-import random
 
 logger = logging.getLogger(__name__)
 TARDIS_PATH = TARDIS_PATH[0]
