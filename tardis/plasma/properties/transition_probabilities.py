@@ -161,6 +161,30 @@ class MarkovChainTransProbsCollector(ProcessingPlasmaProperty):
 class MarkovChainTransProbs(ProcessingPlasmaProperty,
                             SpMatrixSeriesConverterMixin):
     outputs = ('N', 'R', 'B', 'p_deac')
+    """
+    Attributes
+    ----------
+    N : Pandas DataFrame, dtype float
+        Fundamental matrix of the Markov-chain macro atom.
+        Indexed by source_level_idx, destination_level_idx.
+        Expected number of visits to destination_level_idx starting
+        from souce_level_idx (before being absorbed).
+    R : Pandas DataFrame, dtype float
+        Deactivation probabilities of the Markov-chain macro atom.
+        Indexed by source_level_idx.
+        Probability of deactivation/absorption in source_level_idx.
+    B : Pandas DataFrame, dtype float
+        Absorbing probabilities of the Markov-chain macro atom.
+        Indexed by source_level_idx, destination_level_idx.
+        Probability of being absorbed in destination_level_idx when
+        starting from source_level_idx.
+    p_deac : Pandas DataFrame, dtype float
+        Redistribution probabilities after deactivation of the Markov-chain
+        macro atom. Indexed by source_level_idx, destination_level_idx.
+        Probability of an r-packet being emitted in the transition
+        (source_level_idx --> destination_level_idx) after deactivation
+        in source_level_idx.
+    """
 
     def calculate(self, p_combined, idx2mkv_idx):
         p = p_combined
