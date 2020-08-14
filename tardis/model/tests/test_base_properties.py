@@ -238,3 +238,123 @@ def test_property_radiation_field(reference_radiation_field):
     nptest.assert_allclose(
         radiation_field.dilution_factor, reference_data["dilution_factor"]
     )
+
+
+def test_generic_model(
+    reference_velocity,
+    reference_density,
+    reference_abundance,
+    reference_radiation_field,
+):
+    reference_velocity = reference_velocity
+    reference_density = reference_density
+    reference_abundance = reference_abundance
+    reference_radiation_field = reference_radiation_field
+    velocity_generator = [i for i in range(9000, 13500, 500)]
+    vel_inner, vel_outer = (
+        velocity_generator[:-1] * u.km / u.s,
+        velocity_generator[1:] * u.km / u.s,
+    )
+    density = (
+        [
+            6.2419e-10,
+            6.1502e-10,
+            6.0492e-10,
+            5.9475e-10,
+            5.8468e-10,
+            5.7473e-10,
+            5.6493e-10,
+            5.5529e-10,
+        ]
+        * u.g
+        / u.cm ** 3
+    )
+    abundance_filename = "data/custom_abundance_tardis_gm.dat"
+    index, abundance, isotope_abundance = read_abundances_file(
+        abundance_filename, "custom_composition"
+    )
+    radiative_temperature = [
+        7000,
+        7000,
+        7000,
+        7000,
+        7000,
+        7000,
+        7000,
+        7000,
+    ] * u.K
+    dilution_factor = [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
+
+    velocity_class = Velocity(vel_inner, vel_outer, time=2 * u.d)
+    density_class = Density(density, time=1 * u.d)
+    abundance_class = Abundances(abundance, isotope_abundance, time=1.7 * u.d)
+    radiation_field = RadiationField(
+        radiative_temperature, dilution_factor, time=1 * u.d
+    )
+
+    generic_model = GenericModel(
+        velocity_class, density_class, abundance_class, radiation_field
+    )
+
+    for prop in generic_model:
+        assert getattr(generic_model, prop).time == 2 * u.d
+        assert getattr(generic_model, prop).number_of_cells == 8
+
+    nptest.assert_allclose(
+        generic_model.velocity.inner_radius.value,
+        reference_velocity["inner_radius"].value,
+    )
+    nptest.assert_allclose(
+        generic_model.velocity.middle_radius.value,
+        reference_velocity["middle_radius"].value,
+    )
+    nptest.assert_allclose(
+        generic_model.velocity.outer_radius.value,
+        reference_velocity["outer_radius"].value,
+    )
+    nptest.assert_allclose(
+        generic_model.velocity.inner.value,
+        reference_velocity["velocity_inner"].value,
+    )
+    nptest.assert_allclose(
+        generic_model.velocity.middle.value,
+        reference_velocity["velocity_middle"].value,
+    )
+    nptest.assert_allclose(
+        generic_model.velocity.outer.value,
+        reference_velocity["velocity_outer"].value,
+    )
+    nptest.assert_allclose(
+        generic_model.velocity.volume.value,
+        reference_velocity["volume"].value,
+        rtol=1.0e-15,
+    )
+    nptest.assert_allclose(
+        generic_model.density.mass.value,
+        reference_density["density_after_time"].value,
+    )
+    nptest.assert_allclose(
+        generic_model.density.mass_0.value,
+        reference_density["initial_mass_density"].value,
+    )
+    nptest.assert_allclose(
+        generic_model.abundance.elemental_0.to_numpy(),
+        reference_abundance["abundance"],
+    )
+    nptest.assert_allclose(
+        generic_model.abundance.isotope_0.to_numpy(),
+        reference_abundance["isotope_abundance"],
+    )
+    nptest.assert_allclose(
+        generic_model.abundance.elemental.T.to_numpy(),
+        reference_abundance["decayed_abundance"],
+        rtol=1e-3,
+    )
+    nptest.assert_allclose(
+        generic_model.radiation_field.radiative_temperature,
+        reference_radiation_field["radiative_temperature"],
+    )
+    nptest.assert_allclose(
+        generic_model.radiation_field.dilution_factor,
+        reference_radiation_field["dilution_factor"],
+    )

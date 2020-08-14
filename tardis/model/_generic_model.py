@@ -11,36 +11,33 @@ class GenericModel:
     access for the user"""
 
     def __init__(self, *properties, time=None):
-        properties = [prop for prop in tproperties if prop is not None]
+        properties = [prop for prop in properties if prop is not None]
         try:
             max_property_time = time.cgs
-        except (ValueError):
+        except AttributeError:
             print(
-                "No time for the model was provided, time of properties will be"
-                " used"
+                "No time for the model was provided, " +
+                "time of properties will be used"
             )
             max_property_time = 0 * u.s
-        self.names = []
-        for tproperty in properties:
-            setattr(self, tproperty.name, tproperty)
-            self.names.append(tproperty.name)
-            max_property_time = u.Quantity(
-                max(max_property_time, tproperty.time)
-            )
-
-        try:
-            time.to("s")
+            time = 0 * u.s
         except u.UnitsError:
             raise ValueError(
                 f'"time" needs to be a quantity with units time (days, seconds,'
                 f" ...) "
                 + "by looking at other quantities, the earliest time you could"
                 " set is"
-                + "{max_property_time}"
-            )
+                + "{max_property_time}")
 
+        self.names = []
+        for tproperty in properties:
+            setattr(self, tproperty.name, tproperty)
+            self.names.append(tproperty.name)
+            if tproperty.time is not None:
+                max_property_time = max(max_property_time, tproperty.time)
+            
         self.number_of_cells = self.velocity.number_of_cells
-        self.time = max(time, max_property_time).to("s")
+        self.time = max(time, max_property_time)
 
         for tproperty in properties:
             tproperty.time = self.time
@@ -411,7 +408,7 @@ class RadiationField(BaseProperty):
             "dilution_factor": "dilution_factor",
         }
 
-    # FIX NUMBER OF CELLS
+    # FIX  OF CELLS
     @property
     def number_of_cells(self):
         return self.__number_of_cells
@@ -435,7 +432,8 @@ class RadiationField(BaseProperty):
             number_of_cells = len(dilution_factor)
         else:
             number_of_cells = None
-
+        return number_of_cells
     @u.quantity_input
     def cgs_units(self, temperature: u.K):
         return temperature.cgs
+
