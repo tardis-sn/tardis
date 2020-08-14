@@ -2,7 +2,8 @@ from astropy import units as u
 import numpy as np
 import pandas as pd
 import qgrid
-import plotly.graph_objects as go
+from plotly import graph_objects as go
+from plotly.callbacks import BoxSelector
 import ipywidgets as ipw
 
 from tardis.analysis import LastLineInteraction
@@ -11,14 +12,15 @@ from tardis.widgets.util import create_table_widget, TableSummaryLabel
 
 
 class LineInfoWidget:
-    filter_modes = ["packet_out_nu", "packet_in_nu"]
-    filter_modes_description = ["Emitted Wavelength", "Absorbed Wavelength"]
-    group_modes = ["both", "exc", "de-exc"]
-    group_modes_descripton = [
+    FILTER_MODES = ("packet_out_nu", "packet_in_nu")
+    FILTER_MODES_DESC = ("Emitted Wavelength", "Absorbed Wavelength")
+    GROUP_MODES = ("both", "exc", "de-exc")
+    GROUP_MODES_DESC = (
         "Both excitation line (absorption) and de-excitation line (emission)",
         "Only excitation line (absorption)",
         "Only de-excitation line (emission)",
-    ]
+    )
+    COLORS = {"selection_area": "lightpink", "selection_border": "salmon"}
 
     def __init__(
         self,
@@ -61,15 +63,11 @@ class LineInfoWidget:
         )
 
         self.filter_mode_buttons = ipw.ToggleButtons(
-            options=self.filter_modes_description, index=0
+            options=self.FILTER_MODES_DESC, index=0
         )
 
         self.group_mode_dropdown = ipw.Dropdown(
-            options=self.group_modes_descripton,
-            index=0,
-            layout=dict(
-                width="auto"
-            ),  # So that it can take all width available
+            options=self.GROUP_MODES_DESC, index=0
         )
 
     @classmethod
@@ -78,7 +76,7 @@ class LineInfoWidget:
             lines_data=sim.plasma.lines.reset_index().set_index("line_id"),
             line_interaction_analysis={
                 filter_mode: LastLineInteraction.from_model(sim, filter_mode)
-                for filter_mode in cls.filter_modes
+                for filter_mode in cls.FILTER_MODES
             },
             spectrum_wavelength=sim.runner.spectrum.wavelength,
             spectrum_luminosity_density_lambda=sim.runner.spectrum.luminosity_density_lambda,
@@ -87,7 +85,7 @@ class LineInfoWidget:
         )
 
     def get_species_abundances(
-        self, wavelength_range, filter_mode=filter_modes[0]
+        self, wavelength_range, filter_mode=FILTER_MODES[0]
     ):
         if wavelength_range:
             self.line_interaction_analysis[filter_mode].wavelength_start = (
@@ -120,7 +118,7 @@ class LineInfoWidget:
                 selected_species_symbols = [""]
                 selected_species_abundances = pd.Series([""])
 
-        else:
+        else:  # wavelength_range is None or ""
             selected_species_symbols = [""]
             selected_species_abundances = pd.Series([""])
 
@@ -135,8 +133,8 @@ class LineInfoWidget:
     def get_last_line_counts(
         self,
         selected_species,
-        filter_mode=filter_modes[0],
-        group_mode=group_modes[0],
+        filter_mode=FILTER_MODES[0],
+        group_mode=GROUP_MODES[0],
     ):
         if selected_species:
             selected_species_tuple = species_string_to_tuple(selected_species)
@@ -231,7 +229,7 @@ class LineInfoWidget:
             else:
                 raise ValueError(
                     "Invalid value passed to group_mode argument. "
-                    f"Allowed values are {self.group_modes}"
+                    f"Allowed values are {self.GROUP_MODES}"
                 )
 
         else:
@@ -268,7 +266,7 @@ class LineInfoWidget:
     ):
         initial_zoomed_range = self.get_middle_half_edges(wavelength.value)
 
-        figure_widget = go.FigureWidget(
+        return go.FigureWidget(
             [
                 go.Scatter(
                     x=wavelength,
@@ -314,4 +312,168 @@ class LineInfoWidget:
             ),
         )
 
-        return figure_widget
+    def update_species_abundances(self, wavelength_range, filter_mode):
+        # Update data in species abundance table
+        self.species_abundances_table.df = self.get_species_abundances(
+            wavelength_range, filter_mode
+        )
+
+        # Get index of 0th row in species abundance table
+        species0 = self.species_abundances_table.df.index[0]
+
+        # Also update line counts table by triggering its event listener
+        # Listener won't trigger if last row selected in species abundance table was also 0th
+        if self.species_abundances_table.get_selected_rows() == [0]:
+            self.species_abundances_table.change_selection([])  # Unselect rows
+        # Select 0th row in count table which will trigger update_last_line_counts
+        self.species_abundances_table.change_selection([species0])
+
+    def add_selection_box(self, selector):
+        self.figure_widget.layout.shapes = [
+            dict(
+                type="rect",
+                xref="x",
+                yref="y",
+                x0=selector.xrange[0],
+                y0=selector.yrange[0],
+                x1=selector.xrange[1],
+                y1=selector.yrange[1],
+                line=dict(color=self.COLORS["selection_border"], width=1,),
+                fillcolor=self.COLORS["selection_area"],
+                opacity=0.5,
+            )
+        ]
+
+    def update_last_line_counts(self, species, filter_mode, group_mode):
+        # Update data in line counts table
+        self.line_counts_table.df = self.get_last_line_counts(
+            species, filter_mode, group_mode
+        )
+
+        # Update its corresponding total packets label
+        if species:
+            self.total_packets_label.update_and_resize(
+                self.line_counts_table.df.iloc[:, 0].sum()
+            )
+        else:  # Line counts table will be empty
+            self.total_packets_label.update_and_resize(0)
+
+    def spectrum_selection_handler(self, trace, points, selector):
+        if isinstance(selector, BoxSelector):
+            self.add_selection_box(selector)
+            self.update_species_abundances(
+                selector.xrange,
+                self.FILTER_MODES[self.filter_mode_buttons.index],
+            )
+
+    def filter_mode_toggle_handler(self, change):
+        try:
+            wavelength_range = [
+                self.figure_widget.layout.shapes[0][x] for x in ("x0", "x1")
+            ]
+        except IndexError:  # No selection is made on figure widget
+            return
+
+        self.update_species_abundances(
+            wavelength_range, self.FILTER_MODES[self.filter_mode_buttons.index],
+        )
+
+    def species_abund_selection_handler(self, event, qgrid_widget):
+        # Don't execute function if no row was selected implicitly (by api)
+        if event["new"] == [] and event["source"] == "api":
+            return
+
+        # Get species from selected row in species abundance table
+        species_selected = self.species_abundances_table.df.index[
+            event["new"][0]
+        ]
+
+        self.update_last_line_counts(
+            species_selected,
+            self.FILTER_MODES[self.filter_mode_buttons.index],
+            self.GROUP_MODES[self.group_mode_dropdown.index],
+        )
+
+    def group_mode_dropdown_handler(self, change):
+        try:
+            selected_row_idx = self.species_abundances_table.get_selected_rows()[
+                0
+            ]
+            species_selected = self.species_abundances_table.df.index[
+                selected_row_idx
+            ]
+        except IndexError:  # No row is selected in species abundances table
+            return
+
+        self.update_last_line_counts(
+            species_selected,
+            self.FILTER_MODES[self.filter_mode_buttons.index],
+            self.GROUP_MODES[self.group_mode_dropdown.index],
+        )
+
+    @staticmethod
+    def ui_control_description(text):
+        return ipw.HTML(f"<span style='font-size: 1.15em;'>{text}:</span>")
+
+    def display(self):
+        # Set widths of widgets
+        self.species_abundances_table.layout.width = "350px"
+        self.line_counts_table.layout.width = "450px"
+        self.total_packets_label.update_and_resize(0)
+        self.group_mode_dropdown.layout.width = "auto"
+
+        # Attach event listeners to widgets
+        spectrum_trace = self.figure_widget.data[0]
+        spectrum_trace.on_selection(self.spectrum_selection_handler)
+        self.filter_mode_buttons.observe(
+            self.filter_mode_toggle_handler, names="index"
+        )
+        self.species_abundances_table.on(
+            "selection_changed", self.species_abund_selection_handler
+        )
+        self.group_mode_dropdown.observe(
+            self.group_mode_dropdown_handler, names="index"
+        )
+
+        selection_box_symbol = (
+            "<span style='display: inline-block; "
+            f"background-color: {self.COLORS['selection_area']}; "
+            f"border: 1px solid {self.COLORS['selection_border']}; "
+            "width: 0.8em; height: 1.2em; vertical-align: middle;'></span>"
+        )
+
+        table_container_left = ipw.VBox(
+            [
+                self.ui_control_description(
+                    "Filter selected wavelength range "
+                    f"( {selection_box_symbol} ) by"
+                ),
+                self.filter_mode_buttons,
+                self.species_abundances_table,
+            ],
+            layout=dict(margin="0px 15px"),
+        )
+
+        table_container_right = ipw.VBox(
+            [
+                self.ui_control_description("Group packet counts by"),
+                self.group_mode_dropdown,
+                self.line_counts_table,
+                self.total_packets_label.widget,
+            ],
+            layout=dict(margin="0px 15px"),
+        )
+
+        return ipw.VBox(
+            [
+                self.figure_widget,
+                ipw.Box(
+                    [table_container_left, table_container_right,],
+                    layout=dict(
+                        display="flex",
+                        align_items="flex-start",
+                        justify_content="center",
+                    ),
+                ),
+            ]
+        )
