@@ -1,3 +1,5 @@
+"""Class to create and display Line Info Widget."""
+
 from astropy import units as u
 import numpy as np
 import pandas as pd
@@ -12,6 +14,18 @@ from tardis.widgets.util import create_table_widget, TableSummaryLabel
 
 
 class LineInfoWidget:
+    """
+    Widget to explore line interactions in the spectrum of a simulation model.
+
+    It allows selection of a wavelength range in the spectrum to display a 
+    table of species abundances (fraction of packets interacting). Using 
+    toggle buttons, user can specify whether to filter the selected range by
+    emitted or absorbed wavelengths of packets. Clicking on a row in species
+    abundances table further reveals packet counts for each last line 
+    interaction which can be grouped by excitation lines, de-excitation lines
+    or both, using a dropdown.
+    """
+
     FILTER_MODES = ("packet_out_nu", "packet_in_nu")
     FILTER_MODES_DESC = ("Emitted Wavelength", "Absorbed Wavelength")
     GROUP_MODES = ("both", "exc", "de-exc")
@@ -31,10 +45,31 @@ class LineInfoWidget:
         virt_spectrum_wavelength,
         virt_spectrum_luminosity_density_lambda,
     ):
+        """
+        Initialize the LineInfoWidget with line interaction and spectrum data.
+
+        Parameters
+        ----------
+        lines_data : pd.DataFrame
+            Data about the atomic lines present in simulation model's plasma
+        line_interaction_analysis : dict of tardis.analysis.LastLineInteraction
+            Dictionary in which keys are the FILTER_MODES and values are the
+            LastLineInteraction objects initialized with corresponding modes
+        spectrum_wavelength : astropy.Quantity
+            Wavelength values of a real spectrum, having unit of Angstrom
+        spectrum_luminosity_density_lambda : astropy.Quantity
+            Luminosity density lambda values of a real spectrum, having unit
+            of (Hz erg)/Angstrom
+        virt_spectrum_wavelength : astropy.Quantity
+            Wavelength values of a virtual spectrum, having unit of Angstrom
+        virt_spectrum_luminosity_density_lambda : astropy.Quantity
+            Luminosity density lambda values of a virtual spectrum, having unit
+            of (Hz erg)/Angstrom
+        """
         self.lines_data = lines_data
         self.line_interaction_analysis = line_interaction_analysis
 
-        # Widgets ---------------------------------------------
+        # Widgets ------------------------------------------------
         max_rows_option = {"maxVisibleRows": 9}
         self.species_abundances_table = create_table_widget(
             data=self.get_species_abundances(None),
@@ -72,6 +107,18 @@ class LineInfoWidget:
 
     @classmethod
     def from_simulation(cls, sim):
+        """
+        Create an instance of LineInfoWidget from a TARDIS simulation object.
+
+        Parameters
+        ----------
+        sim : tardis.simulation.Simulation
+            TARDIS Simulation object produced by running a simulation
+
+        Returns
+        -------
+        LineInfoWidget object
+        """
         return cls(
             lines_data=sim.plasma.lines.reset_index().set_index("line_id"),
             line_interaction_analysis={
@@ -87,6 +134,40 @@ class LineInfoWidget:
     def get_species_abundances(
         self, wavelength_range, filter_mode=FILTER_MODES[0]
     ):
+        """
+        Get fractional abundances of species present in a wavelength range.
+
+        Fractional abundances means fraction of packets interacting with each
+        species present in the specified wavelength range, which are filtered
+        by specified filter mode.
+
+        Parameters
+        ----------
+        wavelength_range : list-like or None
+            A list of two float values to specify the wavelength range - first 
+            for the range start and second for the range end. None specifies
+            that no wavelength range is selected and will return empty dataframe
+        filter_mode : str, optional
+            Filter mode of the LastLineInteraction object to use for filtering
+            the selected wavelength range (more details in Notes section).
+            Allowed values are given by the class variable :code:`FILTER_MODES`
+            (default value is :code:`FILTER_MODES[0]`)
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe containing species symbols and corresponding fractions
+            of packets interacting with them
+
+        Notes
+        -----
+        This method depends on tardis.analysis.LastLineInteraction object for 
+        doing computations. So there is a member variable in this class -
+        :code:`line_interaction_analysis` which is a dictionary of such objects
+        (each of them differ in how they filter the selected wavelength range).
+        Thus we have to specify which object to use by specifying the
+        filter_mode parameter.
+        """
         if wavelength_range:
             self.line_interaction_analysis[filter_mode].wavelength_start = (
                 wavelength_range[0] * u.AA
@@ -114,11 +195,13 @@ class LineInfoWidget:
                     ].last_line_in.shape[0]
                 )
 
-            else:
+            else:  # No species could be selected in specified wavelength_range
+                # qgrid cannot show empty dataframe properly,
+                # so create one row with empty strings
                 selected_species_symbols = [""]
                 selected_species_abundances = pd.Series([""])
 
-        else:  # wavelength_range is None or ""
+        else:  # wavelength_range is None
             selected_species_symbols = [""]
             selected_species_abundances = pd.Series([""])
 
@@ -136,6 +219,45 @@ class LineInfoWidget:
         filter_mode=FILTER_MODES[0],
         group_mode=GROUP_MODES[0],
     ):
+        """
+        Get packet counts of each last line interaction of a species.
+
+        Parameters
+        ----------
+        selected_species : str
+            Valid symbol of a species (e.g Si II) selected from the species
+            data returned by :code:`get_species_abundances` (see Notes section)
+        filter_mode : str, optional
+            Filter mode of the LastLineInteraction object to use for fetching
+            the data of last lines interacted (more details in Notes section).
+            Allowed values are given by the class variable :code:`FILTER_MODES`
+            (default value is :code:`FILTER_MODES[0]`)
+        group_mode : str, optional
+            Group mode to use for grouping last line interactions by excitation
+            lines, de-excitation lines or both. Allowed values are given by the
+            class variable :code:`GROUP_MODES` (default value is
+            :code:`GROUP_MODES[0]` i.e. both)
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing last line interactions and corresponding
+            packet counts.
+
+        Notes
+        -----
+        This method depends on tardis.analysis.LastLineInteraction object for 
+        doing computations. So there is a member variable in this class -
+        :code:`line_interaction_analysis` which is a dictionary of such objects
+        (each of them differ in how they filter the selected wavelength range).
+        Thus we have to specify which object to use by specifying the
+        filter_mode parameter. 
+
+        This method should always be called after calling 
+        :code:`get_species_abundances` method which sets a wavelength
+        range on LastLineInteraction object. So selected_species should
+        be one present within that range, otherwise it may result in error.
+        """
         if selected_species:
             selected_species_tuple = species_string_to_tuple(selected_species)
 
@@ -232,7 +354,9 @@ class LineInfoWidget:
                     f"Allowed values are {self.GROUP_MODES}"
                 )
 
-        else:
+        else:  # species_selected is None
+            # qgrid cannot show empty dataframe properly,
+            # so create one row with empty strings
             last_line_count = [""]
             last_line_interaction_string = [""]
 
@@ -245,12 +369,38 @@ class LineInfoWidget:
 
     @staticmethod
     def axis_label_in_latex(label_text, unit):
+        """
+        Get axis label for plotly plots that can show units in latex.
+
+        Parameters
+        ----------
+        label_text : str
+            Text to show on label
+        unit : astropy.units
+            Unit of the label
+
+        Returns
+        -------
+        str
+            Latex string for label renderable by plotly
+        """
         # TODO: If erg and s-1 present stick them together as erg and s
         unit_in_latex = unit.to_string("latex_inline").strip("$")
         return f"$\\text{{{label_text}}}\\,[{unit_in_latex}]$"
 
     @staticmethod
     def get_middle_half_edges(arr):
+        """
+        Get edges of the middle half range of an array.
+
+        Parameters
+        ----------
+        arr : np.array
+
+        Returns
+        -------
+        list
+        """
         arr = np.sort(arr)
         return [
             (arr[-1] - arr[0]) / 4 + arr[1],
@@ -264,6 +414,26 @@ class LineInfoWidget:
         virt_wavelength,
         virt_luminosity_density_lambda,
     ):
+        """
+        Produce a plotly figure widget by plotting the spectrum of model.
+
+        Parameters
+        ----------
+        wavelength : astropy.Quantity
+            Wavelength values of a real spectrum, having unit of Angstrom
+        luminosity_density_lambda : astropy.Quantity
+            Luminosity density lambda values of a real spectrum, having unit
+            of (Hz erg)/Angstrom
+        virt_wavelength : astropy.Quantity
+            Wavelength values of a virtual spectrum, having unit of Angstrom
+        virt_luminosity_density_lambda : astropy.Quantity
+            Luminosity density lambda values of a virtual spectrum, having unit
+            of (Hz erg)/Angstrom
+
+        Returns
+        -------
+        plotly.graph_objects.FigureWidget
+        """
         initial_zoomed_range = self.get_middle_half_edges(wavelength.value)
 
         return go.FigureWidget(
@@ -312,7 +482,15 @@ class LineInfoWidget:
             ),
         )
 
-    def update_species_abundances(self, wavelength_range, filter_mode):
+    def _update_species_abundances(self, wavelength_range, filter_mode):
+        """
+        Updates data in species_abundances_table.
+
+        The parameters are exact same as that of :code:`get_species_abundances`.
+        Besides, it also does selection of 1st row in this table to trigger 
+        update in last_line_counts_table.
+
+        """
         # Update data in species abundance table
         self.species_abundances_table.df = self.get_species_abundances(
             wavelength_range, filter_mode
@@ -328,7 +506,16 @@ class LineInfoWidget:
         # Select 0th row in count table which will trigger update_last_line_counts
         self.species_abundances_table.change_selection([species0])
 
-    def add_selection_box(self, selector):
+    def _add_selection_box(self, selector):
+        """
+        Draws a shape on plotly figure widget to represent the selection.
+
+        Parameters
+        ----------
+        selector : plotly.callbacks.BoxSelector
+            The object containing data about current selection made on plot
+            (x-axis and y-axis range of selection box)
+        """
         self.figure_widget.layout.shapes = [
             dict(
                 type="rect",
@@ -344,7 +531,12 @@ class LineInfoWidget:
             )
         ]
 
-    def update_last_line_counts(self, species, filter_mode, group_mode):
+    def _update_last_line_counts(self, species, filter_mode, group_mode):
+        """
+        Updates data in last_line_counts_table and associated total_packets_label.
+
+        The parameters are exact same as that of :code:`get_last_line_counts`.
+        """
         # Update data in line counts table
         self.line_counts_table.df = self.get_last_line_counts(
             species, filter_mode, group_mode
@@ -358,15 +550,15 @@ class LineInfoWidget:
         else:  # Line counts table will be empty
             self.total_packets_label.update_and_resize(0)
 
-    def spectrum_selection_handler(self, trace, points, selector):
+    def _spectrum_selection_handler(self, trace, points, selector):
         if isinstance(selector, BoxSelector):
-            self.add_selection_box(selector)
-            self.update_species_abundances(
+            self._add_selection_box(selector)
+            self._update_species_abundances(
                 selector.xrange,
                 self.FILTER_MODES[self.filter_mode_buttons.index],
             )
 
-    def filter_mode_toggle_handler(self, change):
+    def _filter_mode_toggle_handler(self, change):
         try:
             wavelength_range = [
                 self.figure_widget.layout.shapes[0][x] for x in ("x0", "x1")
@@ -374,11 +566,14 @@ class LineInfoWidget:
         except IndexError:  # No selection is made on figure widget
             return
 
-        self.update_species_abundances(
+        self._update_species_abundances(
             wavelength_range, self.FILTER_MODES[self.filter_mode_buttons.index],
         )
 
-    def species_abund_selection_handler(self, event, qgrid_widget):
+    def _species_abund_selection_handler(self, event, qgrid_widget):
+        """
+        Event handler for selection in species_abundances_table
+        """
         # Don't execute function if no row was selected implicitly (by api)
         if event["new"] == [] and event["source"] == "api":
             return
@@ -387,14 +582,16 @@ class LineInfoWidget:
         species_selected = self.species_abundances_table.df.index[
             event["new"][0]
         ]
+        if species_selected == "":  # when species_abundances_table is empty
+            species_selected = None
 
-        self.update_last_line_counts(
+        self._update_last_line_counts(
             species_selected,
             self.FILTER_MODES[self.filter_mode_buttons.index],
             self.GROUP_MODES[self.group_mode_dropdown.index],
         )
 
-    def group_mode_dropdown_handler(self, change):
+    def _group_mode_dropdown_handler(self, change):
         try:
             selected_row_idx = self.species_abundances_table.get_selected_rows()[
                 0
@@ -405,7 +602,7 @@ class LineInfoWidget:
         except IndexError:  # No row is selected in species abundances table
             return
 
-        self.update_last_line_counts(
+        self._update_last_line_counts(
             species_selected,
             self.FILTER_MODES[self.filter_mode_buttons.index],
             self.GROUP_MODES[self.group_mode_dropdown.index],
@@ -413,9 +610,23 @@ class LineInfoWidget:
 
     @staticmethod
     def ui_control_description(text):
+        """
+        Get description label of a UI control with increased font size.
+        """
         return ipw.HTML(f"<span style='font-size: 1.15em;'>{text}:</span>")
 
     def display(self):
+        """
+        Display the fully-functional line info widget.
+
+        It puts together all component widgets nicely together and enables
+        interaction between all the components.
+
+        Returns
+        -------
+        ipywidgets.Box
+            Line info widget containing all component widgets
+        """
         # Set widths of widgets
         self.species_abundances_table.layout.width = "350px"
         self.line_counts_table.layout.width = "450px"
@@ -424,15 +635,15 @@ class LineInfoWidget:
 
         # Attach event listeners to widgets
         spectrum_trace = self.figure_widget.data[0]
-        spectrum_trace.on_selection(self.spectrum_selection_handler)
+        spectrum_trace.on_selection(self._spectrum_selection_handler)
         self.filter_mode_buttons.observe(
-            self.filter_mode_toggle_handler, names="index"
+            self._filter_mode_toggle_handler, names="index"
         )
         self.species_abundances_table.on(
-            "selection_changed", self.species_abund_selection_handler
+            "selection_changed", self._species_abund_selection_handler
         )
         self.group_mode_dropdown.observe(
-            self.group_mode_dropdown_handler, names="index"
+            self._group_mode_dropdown_handler, names="index"
         )
 
         selection_box_symbol = (

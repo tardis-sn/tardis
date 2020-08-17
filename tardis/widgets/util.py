@@ -1,3 +1,5 @@
+"""Utility classes and functions for widgets."""
+
 import logging
 import qgrid
 import ipywidgets as ipw
@@ -8,8 +10,8 @@ logger = logging.getLogger(__name__)
 def create_table_widget(
     data, col_widths, table_options=None, changeable_col=None
 ):
-    """Create table widget object which supports interaction and updating
-    the data
+    """
+    Create table widget object which supports interaction and updating the data.
 
     Parameters
     ----------
@@ -101,11 +103,35 @@ def create_table_widget(
 
 
 class TableSummaryLabel:
-    """Label like widget to show summary of a qgrid table widget. Also handles
-    aligning the label with the table columns exactly like a summary row.
+    """
+    Label like widget to show summary of a qgrid table widget.
+    
+    Also handles aligning the label with the table columns exactly like a 
+    summary row.
     """
 
     def __init__(self, target_table, table_col_widths, label_key, label_value):
+        """
+        Initialize a TableSummaryLabel for a table widget.
+
+        Parameters
+        ----------
+        target_table : qgrid.QgridWidget
+            Table widget whose summary label it is
+        table_col_widths : list
+            A list containing width of each column of table in order (including
+        the index as 1st column). The width values must be proportions of
+        100 i.e. they must sum to 100
+        label_key : str
+            Brief description of what label summarizes about table
+        label_value : int
+            Initial summary value of the table to be shown in label
+
+        Notes
+        -----
+        TableSummaryLabel can only be created for a table with two columns
+        (including index as 1st column) as of now
+        """
         if len(table_col_widths) != 2:
             raise NotImplementedError(
                 "Currently TableSummaryLabel can only be created for a table "
@@ -117,9 +143,13 @@ class TableSummaryLabel:
         self.widget = self._create(label_key, label_value)
 
     def update_and_resize(self, value):
-        """Update the label value and resize the width of label components to
-        align them with the columns of target table. This should be called
-        whenever there is any update in target table.
+        """
+        Update the label value and resize it as per the size of target table.
+        
+        Resizing is done in such a way so as to match the width of components
+        of label with columns of target table, making it look like another row. 
+        This method should be called whenever there is any update in data or 
+        layout of target table.
 
         Parameters
         ----------
@@ -129,7 +159,7 @@ class TableSummaryLabel:
         Note
         ----
         The width resizing operation is highly dependent on qgrid tables' 
-        layout. So it may not remain accurate if there happens any CSS change 
+        layout. So it may not remain precise if there happens any CSS change 
         in upcoming versions of qgrid.
         """
         self.widget.children[1].value = str(value)
@@ -144,12 +174,11 @@ class TableSummaryLabel:
             )
             return
 
-        if (
-            len(self.target_table.df)
-            > self.target_table.grid_options["maxVisibleRows"]
-        ):
+        max_rows_allowed = self.target_table.grid_options["maxVisibleRows"]
+        if len(self.target_table.df) > max_rows_allowed:
             table_width -= 12  # 12px is space consumed by scroll bar of qgrid
 
+        # Distribute the table width in proportions of column width to label components
         self.widget.children[
             0
         ].layout.width = f"{(table_width) * self.table_col_widths[0]/100}px"
@@ -158,6 +187,21 @@ class TableSummaryLabel:
         ].layout.width = f"{(table_width) * self.table_col_widths[1]/100}px"
 
     def _create(self, key, value):
+        """
+        Create widget for TableSummaryLabel.
+
+        Parameters
+        ----------
+        key : str
+            Brief description of what label summarizes about target table
+        value : int
+            Initial summary value of the target table to be shown in label
+
+        Returns
+        -------
+        ipywidgets.Box
+            Widget containing all componets of label
+        """
         # WARNING: Use dictionary instead of ipw.Layout for specifying layout
         # of ipywidgets, otherwise there will be unintended behavior
         component_layout_options = dict(
