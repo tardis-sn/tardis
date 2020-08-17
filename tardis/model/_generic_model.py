@@ -1,14 +1,18 @@
 from astropy import units as u
 import numpy as np
-import pandas as pd
 from tardis.io.decay import IsotopeAbundances
 from pyne import nucname
 
 
 class GenericModel:
-    """A generic model that binds all the properties together,
-    check the consistency of time and lengths, and allow easy
-    access for the user"""
+    """A generic ejecta model that uses all properties.
+
+    The model is intended to be used with BaseProperty children classes.
+    Using the time of each property it will sync all properties and
+    check the number of cells in each one.
+    Allows easy access and modification of quantities
+    contained in the properties.
+    """
 
     def __init__(self, *properties, time=None):
         properties = [prop for prop in properties if prop is not None]
@@ -16,18 +20,16 @@ class GenericModel:
             max_property_time = time.cgs
         except AttributeError:
             print(
-                "No time for the model was provided, " +
-                "time of properties will be used"
+                "No time for the model was provided, "
+                + "time of properties will be used"
             )
             max_property_time = 0 * u.s
             time = 0 * u.s
         except u.UnitsError:
             raise ValueError(
-                f'"time" needs to be a quantity with units time (days, seconds,'
-                f" ...) "
-                + "by looking at other quantities, the earliest time you could"
-                " set is"
-                + "{max_property_time}")
+                '"time" needs to be a quantity with units time (days, seconds,'
+                " ...) "
+            )
 
         self.names = []
         for tproperty in properties:
@@ -35,7 +37,7 @@ class GenericModel:
             self.names.append(tproperty.name)
             if tproperty.time is not None:
                 max_property_time = max(max_property_time, tproperty.time)
-            
+
         self.number_of_cells = self.velocity.number_of_cells
         self.time = max(time, max_property_time)
 
@@ -49,30 +51,30 @@ class GenericModel:
         return iter(self.names)
 
     def to_dataframe(self):
-        dataframe = pd.DataFrame(dtype=np.float64)
-        for name in self:
-            dataframe = getattr(self, name).to_dataframe(dataframe)
-        dataframe.index.name = "cell"
-        return dataframe
+        """Not implemented"""
 
 
 class BaseProperty:
     """Generic Class from which all properties inherit.
-    Parameters
+
+    Attributes
     ----------
     time_0 : astropy.units.Quantity time of the initialization
-    name : str name of the property
-    quantity : astropy.units.Quantity quantity to be checked
-    units : str units of quantity
+    time : astropy.units.Quantity current time
 
-    Methods
-    -------
-    to_dataframe(dataframe) return a dataframe with all attributes in
-                            dataframe_column_names. Abundances is ignored
-                            for now because they are their own dataframes
     """
 
     def __init__(self, time_0, time=None):
+        """Initialize `BaseProperty`.
+
+        It is intended to handle the initialization of time and initial time.
+        If no time is provided, it will fallback to time_0.
+
+        Parameters:
+        time_0: astropy.units.Quantity initial time of property
+        time: astropy.units.Quantity current time of property. Default None.
+        """
+
         try:
             self.time_0 = time_0.to("s")
         except u.UnitConversionError:
@@ -83,25 +85,16 @@ class BaseProperty:
         try:
             self.time = time.to("s")
         except AttributeError:
-            # to logger
             print("no `time` provided, `time_0` will be used")
             self.time_0 = time_0.to("s")
-
-    def to_dataframe(self, dataframe):
-
-        names = self.dataframe_column_names
-        for prop in names:
-            try:
-                dataframe[names[prop]] = pd.Series(getattr(self, prop).value)
-            except:
-                print(f"\n Warning: {prop} might be empty\n")
-        return dataframe
 
     @u.quantity_input
     def cgs_units(self):
         print("This method is not implemented")
 
     def check_number_of_cells(self, number_of_cells):
+        """Check Property's number of cells."""
+
         if self.number_of_cells != number_of_cells:
             raise ValueError(
                 f"{self.name} number of cells is inconsistent with that of the"
@@ -111,35 +104,40 @@ class BaseProperty:
 
 
 class Velocity(BaseProperty):
-    """A class that holds the velocity arrays and derived quantities
-    Parameters
-    ----------
-    velocity_inner : astropy.units.Quantity
-    velocity_outer : astropy.units.Quantity
-    time_0 : astropy.unit.Quantity
+    """A class that holds the velocity arrays and derived quantities.
+
+    The Velocity Class is the most important to define an ejecta model.
+    It provides the grid upon which all other Properties are referenced to.
+    Inner and outer velocity arrays must have the same length and have the
+    same internal values (velocity_inner[1:] == velocity_outer[:-1])
 
     Attributes
     ----------
-    name            class name for handling purposes.
+    name        class name for handling purposes.
 
-    number_of_cells return number of cells in the ejecta model.
+    number      int.
+    _of_cells   Return number of cells in the ejecta model.
 
-    inner           return the inner velocity array in cgs.
+    inner       astropy.units.Quantity.
+                Return the inner velocity array in cgs.
 
-    outer           return the outer velocity array in cgs.
+    outer       astropy.units.Quantity.
+                Return the outer velocity array in cgs.
 
-    middle          return an array with the average of the inner and outer arrays.
+    middle      astropy.units.Quantity.
+                Return an array with the average of the inner and outer arrays.
 
-    time_0          time assigned at initilization. Defaults to 0.
+    time_0      astropy.units.Quantity.
+                Time assigned at initilization. Default 0.
 
-    time            time used for calculations. Can be updated manually or initializing GenericModel.
+    time        astropy.units.Quantity. Time used for calculations.
+                Can be updated manually or initializing GenericModel.
 
-    radius          return array with outer radii in cgs. Uses time and velocity_outer.
+    radius      return array with outer radii in cgs.
+                Uses time and velocity_outer.
 
-    volume          return array with volume of every cells in cgs.
+    volume      return array with volume of every cells in cgs.
 
-    dataframe       dictionary of properties that will be used in `to_dataframe()`.
-    _dictionary
     """
 
     name = "velocity"
@@ -147,17 +145,23 @@ class Velocity(BaseProperty):
     def __init__(
         self, velocity_inner, velocity_outer, time_0=0 * u.d, time=None
     ):
+        """Initialize Velocity class. Extend BaseProperty.
+
+        Using inner velocity and outer velocity array check their lengths,
+        and units. Expands `BaseProperty`.
+
+        Arguments:
+        ---------
+        velocity_inner: astropy.units.Quantity. Cells' inner velocity array.
+        velocity_outer: astropy.units.Quantity. Cells' outer velocity array.
+        time_0: astropy.units.Quantity. Initial time of class. Default 0 day.
+        time: astropy.units.Quantity. Current time of class. Default None.
+        """
+
         self._inner = self.cgs_units(velocity_inner)
         self._outer = self.cgs_units(velocity_outer)
 
         BaseProperty.__init__(self, time_0, time)
-        self.dataframe_column_names = {
-            "inner": "velocity_inner",
-            "middle": "velocity_middle",
-            "outer": "velocity_outer",
-            "radius": "radius",
-            "volume": "volume",
-        }
         self.number_of_cells = len(self._inner)
 
     @property
@@ -166,6 +170,7 @@ class Velocity(BaseProperty):
 
     @number_of_cells.setter
     def number_of_cells(self, number_of_cells):
+        """Check if arrays length match and return number of cells."""
         if len(self._inner) != len(self._outer):
             raise ValueError(
                 "cannot set number of cells, quantities lengths don't match"
@@ -209,44 +214,38 @@ class Velocity(BaseProperty):
 
     @u.quantity_input
     def cgs_units(self, velocity: u.km / u.s):
+        """Check input velocities units and retun CGS arrays"""
         return velocity.cgs
 
 
 class Density(BaseProperty):
-    """A class that holds an initial density and time
-    Parameters
-    ----------
-
-    density : astropy.units.Quantity Density at time_0
-
-    time_0 : astropy.units.Quantity Time for initial density. Defaults to 1s to avoid `inf`
-
-    electron :   astropy.units.Quantity electron densities
-
-    dataframe    dictionary of properties that will be used in `to_dataframe()`.
-    _dictionary
+    """A class that holds an initial mass and electron density and holds
+     density related quantities.
 
     Attributes
     ----------
-    name     class name for handling purposes
+    name:     str.
+              Class name for handling purposes
 
-    mass return density at `time`
+    mass:     astropy.units.Quantity.
+              Return density at current time
 
-    initial return density at `time_0`
+    initial:  astropy.units.Quantity.
+              Return density at initial time
 
-    electron  return electron density at `time`
+    electron: astropy.units.Quantity.
+              Return electron density at `time`
+
+    time_0:   astropy.units.Quantity.
+              Time assigned at initilization. Default 0.
+
+    time:     astropy.units.Quantity. Time used for calculations.
+              Can be updated manually or initializing GenericModel.
 
     Methods
     -------
     from_exponential() initializes Density class with exponential profile.
-
-        Parameters
-        ----------
-        rho_0 : float64. Multiplicative constant for exponential profile
-        velocity_object : Velocity object. Object from which velocities will be extracted
-        exponent : exponent for the exponential profile
-        electron_density : astropy.units.Quantity electron_density
-        time_0 : astropy.units.Quantity time at initialization
+    Return Density object.
     """
 
     name = "density"
@@ -254,12 +253,26 @@ class Density(BaseProperty):
     def __init__(
         self, density, electron_density=None, time_0=1 * u.s, time=None
     ):
+        """Initialize Density class. Extend BaseProperty.
+
+        Density array(and electron density if provided) are checked for units,
+        and number of cells is defined by their lengths.
+
+        Arguments:
+        ---------
+        density:  astropy.units.Quantity.Initial mass density array.
+        electron
+        _density: astropy.units.Quantity. Initial electron density array.
+        time_0:   astropy.units.Quantity.
+                  Initial time of Density. Default 1 second.
+        time:     astropy.units.Quantity. Current time of Density.
+                  Default None.
+        """
         BaseProperty.__init__(self, time_0, time)
         self.mass_0 = self.cgs_units(density)
         if electron_density is not None:
             self.electron = self.cgs_electron(electron_density)
         self.number_of_cells = len(density)
-        self.dataframe_column_names = {"mass": "density"}
 
     @property
     def number_of_cells(self):
@@ -270,63 +283,112 @@ class Density(BaseProperty):
         if hasattr(self, "electron"):
             if len(self.mass_0) != len(self.electron):
                 raise ValueError(
-                    "Cannot set number of cells, quantities lengths don't match"
+                    "Cannot set number of cells, quantities lengths don't"
+                    " match."
                 )
         self.__number_of_cells = number_of_cells
 
     @property
     def mass(self):
+        """Return mass density of cells."""
         return (self.mass_0 * (self.time / self.time_0) ** -3).cgs
 
     @classmethod
     def from_exponential(
-        cls, rho_0, velocity_object, exponent, electron_density, time_0
+        cls,
+        rho_0,
+        velocity_middle,
+        velocity_inner,
+        exponent,
+        electron_density,
+        time_0,
+        time,
     ):
-        density = rho_0 * np.exp(
-            -(velocity_object.middle / velocity_object.inner[0])
-        )
-        return cls(density, electron_density, time_0)
+        """Instantiate a Density Class with and exponential profile.
+
+        Using the velocity array it generates an exponential density profile.
+
+        Argument
+        ----------
+        rho_0:           float64.
+                         Multiplicative constant for exponential profile.
+
+        velocity_middle: astropy.unit.Quantity.
+                         Middle velocity will be used to calculate the profile.
+
+        velocity_inner:  astropy.unit.Quantity.
+                         Only the first value is used to calculate the profile.
+
+        exponent :       int.
+                         exponent for the exponential profile.
+
+        electron_density: astropy.units.Quantity electron_density.
+
+        time_0 :         astropy.units.Quantity time at initialization.
+
+        time:            astropy.units.Quantity. Current time of Density.
+                         Default None.
+
+        """
+
+        density = rho_0 * np.exp(-(velocity_middle / velocity_inner[0]))
+        return cls(density, electron_density, time_0=1 * u.s, time=None)
 
     @u.quantity_input
     def cgs_units(self, density: u.g / u.cm ** 3):
+        """Check input mass density units and return CGS arrays"""
+
         return density.cgs
 
     @u.quantity_input
     def cgs_electron(self, electron_density: 1.0 / u.cm ** 3):
+        """Check input electron density units and return CGS arrays"""
+
         return electron_density.cgs
 
 
 class Abundances(BaseProperty):
     """A class for abundances and isotope abundances.
-    It takes dataframes for elemental abundance and isotopic.
+
+    It takes dataframes for elemental abundance and isotopic and
+    instantiate a IsotopeAbundance object.
     See tardis.io.decay.IsotopicAbundances for more info.
 
-    Parameters
-    ----------
-    elemental : pandas.DataFrame contains elemental abundances at `time_0`
-
-    isotope : pandas.DataFrame contains isotope abundances at `time_0`
-
-    time_0 : astropy.units.Quantity
 
     Attributes:
     ----------
-    elemental_0 : return DataFrame with elemental abundance at `time_0`
+    name:         str. Class name for handling purposes.
 
-    isotope_0  return IsotopeAbundance object at `time_0`
+    elemental_0 : return DataFrame with elemental abundance at `time_0`.
 
-    elemental return DataFrame with elemental abundances at `time`
+    isotope_0:    return IsotopeAbundance object at `time_0`.
 
-    isotope return IsotopeAbundance object decayed at `time`
+    elemental:    return DataFrame with elemental abundances at `time`
+
+    isotope:      return IsotopeAbundance object decayed at `time`.
+
+    time_0:       astropy.units.Quantity.
+                  Time assigned at initilization. Default 0.
+
+    time:         astropy.units.Quantity. Time used for calculations.
+                  Can be updated manually or initializing GenericModel.
     """
 
     name = "abundance"
 
     def __init__(self, elemental, isotope, time_0=0 * u.s, time=None):
+        """Instantiate Abundaces Class using IsotopeAbundance class.
+
+        Arguments
+        ----------
+        elemental: pandas.DataFrame contains elemental abundances at `time_0`
+        isotope: pandas.DataFrame contains isotope abundances at `time_0`
+        time_0: astropy.units.Quantity.
+        time: astropy.units.Quantity.
+        """
         BaseProperty.__init__(self, time_0, time)
         self.elemental_0 = elemental.sort_values(by="atomic_number", axis=0)
         self.isotope_0 = IsotopeAbundances(isotope)
-        self.dataframe_column_names = {}
         self.number_of_cells = len(self.elemental.index)
 
     @property
@@ -339,6 +401,7 @@ class Abundances(BaseProperty):
 
     @property
     def isotope(self):
+        """Return dataframe of isotope abundances decayed by time - time_0"""
         isotope_buffer = self._isotope
         atomic_index = isotope_buffer.index.get_level_values("atomic_number")
         mass_index = isotope_buffer.index.get_level_values("mass_number")
@@ -349,6 +412,7 @@ class Abundances(BaseProperty):
 
     @property
     def elemental(self):
+        """Return dataframe of abundances decayed by time - time_0"""
         elemental_buffer = self._elemental
         elemental_buffer.index = self.get_elemental_index(
             elemental_buffer.index
@@ -358,12 +422,18 @@ class Abundances(BaseProperty):
         return elemental_buffer.T
 
     def get_elemental_index(self, number_index):
+        """Return list of element names from their atomic number"""
         names_index = []
         for number in number_index:
             names_index.append(nucname.name(number))
         return names_index
 
     def get_isotope_index(self, atomic_number_index, mass_number_index):
+        """Return list of element names from their atomic number
+        and mass number with format.
+        e.g. Ni56 for isotope 56 of Nickel
+        """
+
         names_index = []
         for atomic_number, mass_number in zip(
             atomic_number_index, mass_number_index
@@ -379,11 +449,15 @@ class RadiationField(BaseProperty):
 
     Parameters
     ----------
-    radiative_tempertature : astropy.units.Quantity
+    radiative_tempertature: astropy.units.Quantity. Radiative temperature of cells.
 
-    dilution_factor : numpy.ndarray
+    dilution_factor: numpy.ndarray. Dilution factoy of cells
 
-    time_0 : astropy.units.Quantity
+    time_0:          astropy.units.Quantity.
+                     Time assigned at initilization. Default 0.
+
+    time:            astropy.units.Quantity. Time used for calculations.
+                     Can be updated manually or initializing GenericModel.
     """
 
     name = "radiation_field"
@@ -395,6 +469,16 @@ class RadiationField(BaseProperty):
         time_0=0 * u.d,
         time=None,
     ):
+        """Instantiate RadiationField Class using IsotopeAbundance class.
+           Expand BaseProperty
+
+        Arguments
+        ----------
+        radiative_temperature:  astropy.units.Quantity. Radiative temperature of cells.
+        isotope: numpy.ndarray. Dilution factoy of cells
+        time_0: astropy.units.Quantity.
+        time: astropy.units.Quantity.
+        """
         BaseProperty.__init__(self, time_0, time)
         if radiative_temperature is not None:
             self.radiative_temperature = self.cgs_units(radiative_temperature)
@@ -403,12 +487,7 @@ class RadiationField(BaseProperty):
         self.number_of_cells = self.set_number_of_cells(
             radiative_temperature, dilution_factor
         )
-        self.dataframe_column_names = {
-            "radiative_temperature": "radiative_temperature",
-            "dilution_factor": "dilution_factor",
-        }
 
-    # FIX  OF CELLS
     @property
     def number_of_cells(self):
         return self.__number_of_cells
@@ -418,6 +497,9 @@ class RadiationField(BaseProperty):
         self.__number_of_cells = number_of_cells
 
     def set_number_of_cells(self, radiative_temperature, dilution_factor):
+        """Set number of cells checking if both radiative_temperature and
+        dilution_factor exists and compare length of cells if both exist"""
+
         if radiative_temperature is not None and dilution_factor is not None:
             if len(radiative_temperature) == len(dilution_factor):
                 number_of_cells = len(radiative_temperature)
@@ -433,7 +515,8 @@ class RadiationField(BaseProperty):
         else:
             number_of_cells = None
         return number_of_cells
+
     @u.quantity_input
     def cgs_units(self, temperature: u.K):
+        """Check input radiative_temperatures units and return CGS array"""
         return temperature.cgs
-
