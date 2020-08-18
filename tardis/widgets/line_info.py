@@ -384,8 +384,22 @@ class LineInfoWidget:
         str
             Latex string for label renderable by plotly
         """
-        # TODO: If erg and s-1 present stick them together as erg and s
         unit_in_latex = unit.to_string("latex_inline").strip("$")
+
+        # If present, place s^{-1} just after erg
+        if "erg" in unit_in_latex and "s^{-1}" in unit_in_latex:
+            constituent_units = (
+                re.compile("\\\mathrm\{(.*)\}")
+                .findall(unit_in_latex)[0]
+                .split("\\,")
+            )
+            constituent_units.remove("s^{-1}")
+            constituent_units.insert(
+                constituent_units.index("erg") + 1, "s^{-1}"
+            )
+            constituent_units_string = "\\,".join(constituent_units)
+            unit_in_latex = f"\\mathrm{{{constituent_units_string}}}"
+
         return f"$\\text{{{label_text}}}\\,[{unit_in_latex}]$"
 
     @staticmethod
