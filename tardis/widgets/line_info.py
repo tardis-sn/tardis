@@ -484,12 +484,11 @@ class LineInfoWidget:
 
     def _update_species_abundances(self, wavelength_range, filter_mode):
         """
-        Updates data in species_abundances_table.
+        Update data in species_abundances_table.
 
         The parameters are exact same as that of :code:`get_species_abundances`.
         Besides, it also does selection of 1st row in this table to trigger 
         update in last_line_counts_table.
-
         """
         # Update data in species abundance table
         self.species_abundances_table.df = self.get_species_abundances(
@@ -508,7 +507,7 @@ class LineInfoWidget:
 
     def _add_selection_box(self, selector):
         """
-        Draws a shape on plotly figure widget to represent the selection.
+        Draw a shape on plotly figure widget to represent the selection.
 
         Parameters
         ----------
@@ -533,7 +532,7 @@ class LineInfoWidget:
 
     def _update_last_line_counts(self, species, filter_mode, group_mode):
         """
-        Updates data in last_line_counts_table and associated total_packets_label.
+        Update data in last_line_counts_table and associated total_packets_label.
 
         The parameters are exact same as that of :code:`get_last_line_counts`.
         """
@@ -551,6 +550,13 @@ class LineInfoWidget:
             self.total_packets_label.update_and_resize(0)
 
     def _spectrum_selection_handler(self, trace, points, selector):
+        """
+        Event handler for selection of spectrum in plotly figure widget.
+        
+        This method has the expected signature of the callback function passed
+        to :code:`on_selection` method of a plotly trace as explained in
+        `their docs <https://plotly.com/python-api-reference/generated/plotly.html#plotly.basedatatypes.BaseTraceType.on_selection>`_.
+        """
         if isinstance(selector, BoxSelector):
             self._add_selection_box(selector)
             self._update_species_abundances(
@@ -559,6 +565,13 @@ class LineInfoWidget:
             )
 
     def _filter_mode_toggle_handler(self, change):
+        """
+        Event handler for toggle in filter_mode_buttons.
+        
+        This method has the expected signature of the callback function
+        passed to :code:`observe` method of ipywidgets as explained in
+        `their docs <https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#Signatures>`_.
+        """
         try:
             wavelength_range = [
                 self.figure_widget.layout.shapes[0][x] for x in ("x0", "x1")
@@ -572,7 +585,11 @@ class LineInfoWidget:
 
     def _species_abund_selection_handler(self, event, qgrid_widget):
         """
-        Event handler for selection in species_abundances_table
+        Event handler for selection in species_abundances_table.
+        
+        This method has the expected signature of the function passed to
+        :code:`handler` argument of :code:`on_selection` method of qgrid.QgridWidget
+        as explained in `their docs <https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
         """
         # Don't execute function if no row was selected implicitly (by api)
         if event["new"] == [] and event["source"] == "api":
@@ -592,6 +609,13 @@ class LineInfoWidget:
         )
 
     def _group_mode_dropdown_handler(self, change):
+        """
+        Event handler for selection in group_mode_dropdown.
+        
+        This method has the expected signature of the callback function
+        passed to :code:`observe` method of ipywidgets as explained in
+        `their docs <https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#Signatures>`_.
+        """
         try:
             selected_row_idx = self.species_abundances_table.get_selected_rows()[
                 0
@@ -610,9 +634,7 @@ class LineInfoWidget:
 
     @staticmethod
     def ui_control_description(text):
-        """
-        Get description label of a UI control with increased font size.
-        """
+        """Get description label of a UI control with increased font size."""
         return ipw.HTML(f"<span style='font-size: 1.15em;'>{text}:</span>")
 
     def display(self):
