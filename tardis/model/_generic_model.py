@@ -86,7 +86,7 @@ class BaseProperty:
             self.time = time.to("s")
         except AttributeError:
             print("no `time` provided, `time_0` will be used")
-            self.time_0 = time_0.to("s")
+            self.time = time_0.to("s")
 
     @u.quantity_input
     def cgs_units(self):
@@ -449,7 +449,8 @@ class RadiationField(BaseProperty):
 
     Parameters
     ----------
-    radiative_tempertature: astropy.units.Quantity. Radiative temperature of cells.
+    radiative_tempertature: astropy.units.Quantity.
+                            Radiative temperature of cells.
 
     dilution_factor: numpy.ndarray. Dilution factoy of cells
 
@@ -474,7 +475,8 @@ class RadiationField(BaseProperty):
 
         Arguments
         ----------
-        radiative_temperature:  astropy.units.Quantity. Radiative temperature of cells.
+        radiative_temperature:  astropy.units.Quantity.
+                                Radiative temperature of cells.
         isotope: numpy.ndarray. Dilution factoy of cells
         time_0: astropy.units.Quantity.
         time: astropy.units.Quantity.
