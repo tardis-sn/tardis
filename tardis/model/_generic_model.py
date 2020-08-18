@@ -83,11 +83,12 @@ class BaseProperty:
                 " ...)"
             )
         try:
-            self.time = time.to("s")
+            time = time.to("s")
         except AttributeError:
             print("no `time` provided, `time_0` will be used")
-            self.time = time_0.to("s")
-
+            time = time_0.to("s")
+        finally:
+            self.time = time
     @u.quantity_input
     def cgs_units(self):
         print("This method is not implemented")
@@ -179,27 +180,27 @@ class Velocity(BaseProperty):
 
     @property
     def inner(self):
-        return self._inner
+        return self._inner.cgs
 
     @property
     def outer(self):
-        return self._outer
+        return self._outer.cgs
 
     @property
     def middle(self):
-        return 0.5 * (self.inner + self.outer)
+        return 0.5 * (self.inner + self.outer).cgs
 
     @property
     def outer_radius(self):
-        return (self.time - self.time_0) * self.outer
+        return ((self.time - self.time_0) * self.outer).cgs
 
     @property
     def inner_radius(self):
-        return (self.time - self.time_0) * self.inner
+        return ((self.time - self.time_0) * self.inner).cgs
 
     @property
     def middle_radius(self):
-        return (self.time - self.time_0) * self.middle
+        return ((self.time - self.time_0) * self.middle).cgs
 
     @property
     def volume(self):
@@ -273,6 +274,7 @@ class Density(BaseProperty):
         if electron_density is not None:
             self.electron = self.cgs_electron(electron_density)
         self.number_of_cells = len(density)
+
 
     @property
     def number_of_cells(self):
