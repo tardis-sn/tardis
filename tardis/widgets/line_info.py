@@ -1,5 +1,5 @@
 """Class to create and display Line Info Widget."""
-
+import re
 from astropy import units as u
 import numpy as np
 import pandas as pd
