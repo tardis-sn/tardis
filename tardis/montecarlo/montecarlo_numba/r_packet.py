@@ -15,8 +15,6 @@ class MonteCarloException(ValueError):
 CLOSE_LINE_THRESHOLD = 1e-7
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
 MISS_DISTANCE = 1e99
-SIGMA_THOMSON = const.sigma_T.to('cm^2').value
-INVERSE_SIGMA_THOMSON = 1 / SIGMA_THOMSON
 
 
 class PacketStatus(IntEnum):
@@ -121,11 +119,11 @@ def calculate_distance_line_full_relativity(nu_line, nu, time_explosion,
 
 @njit(**njit_dict)
 def calculate_distance_electron(electron_density, tau_event):
-    return tau_event / (electron_density * SIGMA_THOMSON)
+    return tau_event / (electron_density * montecarlo_configuration.SIGMA_THOMSON)
 
 @njit(**njit_dict)
 def calculate_tau_electron(electron_density, distance):    
-    return electron_density * SIGMA_THOMSON * distance
+    return electron_density * montecarlo_configuration.SIGMA_THOMSON * distance
 
 @njit(**njit_dict)
 def get_doppler_factor(r, mu, time_explosion):
