@@ -321,7 +321,8 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
             estimators, r_packet, cur_line_id, distance_trace,
             numba_model.time_explosion)
 
-        if tau_trace_combined > tau_event:
+        if tau_trace_combined > tau_event \
+                and not montecarlo_configuration.disable_line_scattering:
             interaction_type = InteractionType.LINE  # Line
             r_packet.next_line_id = cur_line_id
             distance = distance_trace
