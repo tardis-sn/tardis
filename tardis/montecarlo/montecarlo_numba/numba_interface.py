@@ -76,6 +76,8 @@ def numba_plasma_initialize(plasma):
     line_list_nu = plasma.atomic_data.lines.nu.values
     tau_sobolev = np.ascontiguousarray(plasma.tau_sobolevs.values.copy(),
                                        dtype=np.float64)
+    if montecarlo_configuration.disable_line_scattering:
+        tau_sobolev *= 0
 
     transition_probabilities = np.ascontiguousarray(
         plasma.transition_probabilities.values.copy(), dtype=np.float64)
