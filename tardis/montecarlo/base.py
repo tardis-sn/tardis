@@ -459,14 +459,16 @@ class MontecarloRunner(HDFWriterMixin):
         if config.plasma.disable_electron_scattering:
             logger.warn('Disabling electron scattering - this is not physical')
             sigma_thomson = 1e-200 * (u.cm ** 2)
+            mc_config_module.SIGMA_THOMSON = sigma_thomson.value
         else:
             logger.debug("Electron scattering switched on")
-            sigma_thomson = const.sigma_T.cgs
+            sigma_thomson = const.sigma_T.to('cm^2').value
 
         spectrum_frequency = quantity_linspace(
             config.spectrum.stop.to('Hz', u.spectral()),
             config.spectrum.start.to('Hz', u.spectral()),
             num=config.spectrum.num + 1)
+        mc_config_module.disable_line_scattering = config.plasma.disable_line_scattering
 
         return cls(seed=config.montecarlo.seed,
                    spectrum_frequency=spectrum_frequency,
