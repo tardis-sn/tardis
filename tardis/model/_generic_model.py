@@ -36,10 +36,10 @@ class GenericModel:
             setattr(self, tproperty.name, tproperty)
             self.names.append(tproperty.name)
             if tproperty.time is not None:
-                max_property_time = max(max_property_time, tproperty.time)
+                max_property_time = max(max_property_time, tproperty.time).cgs
 
         self.number_of_cells = self.velocity.number_of_cells
-        self.time = max(time, max_property_time)
+        self.time = max(time, max_property_time).cgs
 
         for tproperty in properties:
             tproperty.time = self.time
@@ -89,6 +89,7 @@ class BaseProperty:
             time = time_0.to("s")
         finally:
             self.time = time
+
     @u.quantity_input
     def cgs_units(self):
         print("This method is not implemented")
