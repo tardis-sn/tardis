@@ -30,10 +30,11 @@ def montecarlo_radial1d(model, plasma, runner):
 
     number_of_vpackets = montecarlo_configuration.number_of_vpackets
 
-    v_packets_energy_hist = montecarlo_main_loop(
+    v_packets_energy_hist, last_interaction_type = montecarlo_main_loop(
         packet_collection, numba_model, numba_plasma, estimators,
         runner.spectrum_frequency.value, number_of_vpackets, packet_seeds)
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
+    runner.last_interaction_type = last_interaction_type
 
 
 @njit(**njit_dict, nogil=True)
@@ -50,6 +51,7 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
         [description]
     """
     output_nus = np.empty_like(packet_collection.packets_output_nu)
+    last_interaction_types = np.ones_like(packet_collection.packets_output_nu) * -1
     output_energies = np.empty_like(packet_collection.packets_output_nu)
 
     v_packets_energy_hist = np.zeros_like(spectrum_frequency)
@@ -80,8 +82,10 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
 
         if r_packet.status == PacketStatus.REABSORBED:
             output_energies[i] = -r_packet.energy
+            last_interaction_types[i] = 0
         elif r_packet.status == PacketStatus.EMITTED:
             output_energies[i] = r_packet.energy
+            last_interaction_types[i] = 1
         
         vpackets_nu = vpacket_collection.nus[:vpacket_collection.idx]
         vpackets_energy = vpacket_collection.energies[:vpacket_collection.idx]
@@ -100,4 +104,4 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
     
-    return v_packets_energy_hist
+    return v_packets_energy_hist, last_interaction_types
