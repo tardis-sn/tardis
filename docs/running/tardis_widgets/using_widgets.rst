@@ -47,7 +47,7 @@ features in the simulated spectrum.
 By selecting a wavelength range on the spectrum plot, you can see the species
 that produced the features within that range. This is determined by counting
 the number of escaping packets that experienced their last interaction with
-each ion. Packets can be filtered by the wavelength at which they were
+each species. Packets can be filtered by the wavelength at which they were
 absorbed or emitted, using the toggle buttons.
 
 You can then click on a species to see the packets count for each last line
@@ -89,17 +89,17 @@ Using other options in Modebar
 ------------------------------
 If you take your mouse to the top right corner of figure, you will see a Modebar
 with multiple options. The default option when line info widget first displays
-is ***Box Select*** - the dotted square icon. You can click on other options
-like ***Zoom** (magnifying glass icon), to do a rectangle zoom which maybe
+is **Box Select** - the dotted square icon. You can click on other options
+like **Zoom** (magnifying glass icon), to do a rectangle zoom which maybe
 helpful to focus on a feature in the spectrum. You can always revert back to
-the initial state of the figure by clicking on ***Reset Axes*** option.
+the initial state of the figure by clicking on **Reset Axes** option.
 
 .. image:: ../images/line_info_spectrum_modebar.gif
     :alt: Demo of using modebar options
 
 There are also several other options in the modebar which we have not explained
 (because they are not very relevant) but you're free to explore them as long as
-you remember to click back on the *Box Select* option for making selections on
+you remember to click back on the **Box Select** option for making selections on
 spectrum.
 
 .. Toggle legend
