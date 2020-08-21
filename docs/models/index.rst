@@ -45,7 +45,8 @@ see the following links:
 
 .. toctree::
     :maxdepth: 1
-
+    
+    ejecta/ejecta
     examples/modelconfig
     examples/densityexp
     examples/densitypow
