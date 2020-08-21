@@ -460,7 +460,7 @@ class Abundances(BaseProperty):
             dataframe.join(self.elemental)
             return dataframe
         else:
-            raise NotImplemented("This method is intended to work with a model, +
+            raise NotImplemented("This method is intended to work with a model," +
                                 "try self.elemental or self.isotope for dataframes")
 class RadiationField(BaseProperty):
     """A class for radiative temperature and dilution factor
