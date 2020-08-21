@@ -36,8 +36,10 @@ dependencies:
   - pygraphviz
   - pyside2
 
-  # widgets
+  # Widgets & Visualization
+  - ipywidgets
   - qgrid
+  - plotly
 
   # Documentation
   - sphinx
