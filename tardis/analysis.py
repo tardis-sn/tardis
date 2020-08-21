@@ -41,11 +41,11 @@ class LastLineInteraction(object):
             mask
         ]
         self.last_line_interaction_out_angstrom = u.Quantity(
-            output_nu, "Hz"
-        ).to(u.Angstrom, equivalencies=u.spectral())[mask]
+            output_nu[mask], "Hz"
+        ).to(u.Angstrom, equivalencies=u.spectral())
         self.last_line_interaction_in_angstrom = u.Quantity(
-            last_interaction_in_nu, "Hz"
-        ).to(u.Angstrom, equivalencies=u.spectral())[mask]
+            last_interaction_in_nu[mask], "Hz"
+        ).to(u.Angstrom, equivalencies=u.spectral())
         self.lines = lines
 
         self._wavelength_start = 0 * u.angstrom
