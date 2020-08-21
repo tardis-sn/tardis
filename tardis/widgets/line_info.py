@@ -1,5 +1,6 @@
 """Class to create and display Line Info Widget."""
 import re
+
 from astropy import units as u
 import numpy as np
 import pandas as pd
@@ -15,15 +16,15 @@ from tardis.widgets.util import create_table_widget, TableSummaryLabel
 
 class LineInfoWidget:
     """
-    Widget to explore line interactions in the spectrum of a simulation model.
+    Widget to explore atomic lines that produced features in the simulated spectrum.
 
     It allows selection of a wavelength range in the spectrum to display a 
-    table of species abundances (fraction of packets interacting). Using 
-    toggle buttons, user can specify whether to filter the selected range by
-    emitted or absorbed wavelengths of packets. Clicking on a row in species
-    abundances table further reveals packet counts for each last line 
-    interaction which can be grouped by excitation lines, de-excitation lines
-    or both, using a dropdown.
+    table giving the fraction of packets that experienced their last
+    interaction with each species. Using toggle buttons, user can specify
+    whether to filter the selected range by emitted or absorbed wavelengths
+    of packets. Clicking on a row in the fractional species interactions table
+    shows packet counts for each last line interaction of the selected species,
+    which can be grouped in several ways using dropdown menu.
     """
 
     FILTER_MODES = ("packet_out_nu", "packet_in_nu")
@@ -71,20 +72,20 @@ class LineInfoWidget:
 
         # Widgets ------------------------------------------------
         max_rows_option = {"maxVisibleRows": 9}
-        self.species_abundances_table = create_table_widget(
-            data=self.get_species_abundances(None),
+        self.species_interactions_table = create_table_widget(
+            data=self.get_species_interactions(None),
             col_widths=[35, 65],
             table_options=max_rows_option,
         )
 
         line_counts_col_widths = [75, 25]
-        self.line_counts_table = create_table_widget(
+        self.last_line_counts_table = create_table_widget(
             data=self.get_last_line_counts(None),
             col_widths=line_counts_col_widths,
             table_options=max_rows_option,
         )
         self.total_packets_label = TableSummaryLabel(
-            target_table=self.line_counts_table,
+            target_table=self.last_line_counts_table,
             table_col_widths=line_counts_col_widths,
             label_key="Total Packets",
             label_value=0,
@@ -131,15 +132,16 @@ class LineInfoWidget:
             virt_spectrum_luminosity_density_lambda=sim.runner.spectrum_virtual.luminosity_density_lambda,
         )
 
-    def get_species_abundances(
+    def get_species_interactions(
         self, wavelength_range, filter_mode=FILTER_MODES[0]
     ):
         """
-        Get fractional abundances of species present in a wavelength range.
+        Get fractional species interactions in specified wavelength range.
 
-        Fractional abundances means fraction of packets interacting with each
-        species present in the specified wavelength range, which are filtered
-        by specified filter mode.
+        Fractional species interactions means fraction of packets present in
+        the specified wavelength range which experienced their last interaction
+        with a species. The packets to consider are filtered by the specified
+        filter mode.
 
         Parameters
         ----------
@@ -187,8 +189,8 @@ class LineInfoWidget:
                     for item in selected_species_group.groups.keys()
                 ]
 
-                # Normalize each group's count to find fractional abundances
-                selected_species_abundances = (
+                # Normalize each group's count to find fractions of interactions
+                fractional_species_interactions = (
                     selected_species_group.size()
                     / self.line_interaction_analysis[
                         filter_mode
@@ -199,17 +201,17 @@ class LineInfoWidget:
                 # qgrid cannot show empty dataframe properly,
                 # so create one row with empty strings
                 selected_species_symbols = [""]
-                selected_species_abundances = pd.Series([""])
+                fractional_species_interactions = pd.Series([""])
 
         else:  # wavelength_range is None
             selected_species_symbols = [""]
-            selected_species_abundances = pd.Series([""])
+            fractional_species_interactions = pd.Series([""])
 
-        selected_species_abundances.index = pd.Index(
+        fractional_species_interactions.index = pd.Index(
             selected_species_symbols, name="Species"
         )
-        selected_species_abundances.name = "Fraction of packets interacting"
-        return selected_species_abundances.sort_values(
+        fractional_species_interactions.name = "Fraction of packets interacting"
+        return fractional_species_interactions.sort_values(
             ascending=False
         ).to_frame()
 
@@ -226,7 +228,7 @@ class LineInfoWidget:
         ----------
         selected_species : str
             Valid symbol of a species (e.g Si II) selected from the species
-            data returned by :code:`get_species_abundances` (see Notes section)
+            data returned by :code:`get_species_interactions` (see Notes section)
         filter_mode : str, optional
             Filter mode of the LastLineInteraction object to use for fetching
             the data of last lines interacted (more details in Notes section).
@@ -254,7 +256,7 @@ class LineInfoWidget:
         filter_mode parameter. 
 
         This method should always be called after calling 
-        :code:`get_species_abundances` method which sets a wavelength
+        :code:`get_species_interactions` method which sets a wavelength
         range on LastLineInteraction object. So selected_species should
         be one present within that range, otherwise it may result in error.
         """
@@ -284,7 +286,7 @@ class LineInfoWidget:
             )
 
             last_line_interaction_string = []
-            last_line_count = []
+            interacting_packets_count = []
 
             if group_mode == "both":
                 # Group by both exc. line ids and de-exc. line ids
@@ -310,7 +312,7 @@ class LineInfoWidget:
                         f"{int(current_line_out.level_number_lower):02d} "
                         f"({current_line_out.wavelength:.2f} A)"
                     )
-                    last_line_count.append(count)
+                    interacting_packets_count.append(count)
 
             elif group_mode == "exc":
                 grouped_line_interactions = current_last_lines_in.groupby(
@@ -328,7 +330,7 @@ class LineInfoWidget:
                         f"{int(current_line_in.level_number_upper):02d} "
                         f"({current_line_in.wavelength:.2f} A)"
                     )
-                    last_line_count.append(count)
+                    interacting_packets_count.append(count)
 
             elif group_mode == "de-exc":
                 grouped_line_interactions = current_last_lines_out.groupby(
@@ -346,7 +348,7 @@ class LineInfoWidget:
                         f"{int(current_line_out.level_number_lower):02d} "
                         f"({current_line_out.wavelength:.2f} A)"
                     )
-                    last_line_count.append(count)
+                    interacting_packets_count.append(count)
 
             else:
                 raise ValueError(
@@ -357,15 +359,15 @@ class LineInfoWidget:
         else:  # species_selected is None
             # qgrid cannot show empty dataframe properly,
             # so create one row with empty strings
-            last_line_count = [""]
+            interacting_packets_count = [""]
             last_line_interaction_string = [""]
 
-        line_counts = pd.Series(last_line_count)
-        line_counts.name = "No. of packets"
-        line_counts.index = pd.Index(
+        last_line_counts = pd.Series(interacting_packets_count)
+        last_line_counts.name = "No. of packets"
+        last_line_counts.index = pd.Index(
             last_line_interaction_string, name="Last Line Interaction"
         )
-        return line_counts.sort_values(ascending=False).to_frame()
+        return last_line_counts.sort_values(ascending=False).to_frame()
 
     @staticmethod
     def axis_label_in_latex(label_text, unit):
@@ -496,28 +498,29 @@ class LineInfoWidget:
             ),
         )
 
-    def _update_species_abundances(self, wavelength_range, filter_mode):
+    def _update_species_interactions(self, wavelength_range, filter_mode):
         """
-        Update data in species_abundances_table.
+        Update data in species_interactions_table.
 
-        The parameters are exact same as that of :code:`get_species_abundances`.
+        The parameters are exact same as that of :code:`get_species_interactions`.
         Besides, it also does selection of 1st row in this table to trigger 
         update in last_line_counts_table.
         """
-        # Update data in species abundance table
-        self.species_abundances_table.df = self.get_species_abundances(
+        # Update data in species_interactions_table
+        self.species_interactions_table.df = self.get_species_interactions(
             wavelength_range, filter_mode
         )
 
-        # Get index of 0th row in species abundance table
-        species0 = self.species_abundances_table.df.index[0]
+        # Get index of 0th row in species_interactions_table
+        species0 = self.species_interactions_table.df.index[0]
 
-        # Also update line counts table by triggering its event listener
-        # Listener won't trigger if last row selected in species abundance table was also 0th
-        if self.species_abundances_table.get_selected_rows() == [0]:
-            self.species_abundances_table.change_selection([])  # Unselect rows
-        # Select 0th row in count table which will trigger update_last_line_counts
-        self.species_abundances_table.change_selection([species0])
+        # Also update last_line_counts_table by triggering its event listener
+        if self.species_interactions_table.get_selected_rows() == [0]:
+            # Listener won't trigger if last row selected in
+            # species_interactions_table was also 0th, so unselect the rows
+            self.species_interactions_table.change_selection([])
+        # Select 0th row in this table to trigger _update_last_line_counts
+        self.species_interactions_table.change_selection([species0])
 
     def _add_selection_box(self, selector):
         """
@@ -551,14 +554,14 @@ class LineInfoWidget:
         The parameters are exact same as that of :code:`get_last_line_counts`.
         """
         # Update data in line counts table
-        self.line_counts_table.df = self.get_last_line_counts(
+        self.last_line_counts_table.df = self.get_last_line_counts(
             species, filter_mode, group_mode
         )
 
-        # Update its corresponding total packets label
+        # Update its corresponding total_packets_label
         if species:
             self.total_packets_label.update_and_resize(
-                self.line_counts_table.df.iloc[:, 0].sum()
+                self.last_line_counts_table.df.iloc[:, 0].sum()
             )
         else:  # Line counts table will be empty
             self.total_packets_label.update_and_resize(0)
@@ -573,7 +576,7 @@ class LineInfoWidget:
         """
         if isinstance(selector, BoxSelector):
             self._add_selection_box(selector)
-            self._update_species_abundances(
+            self._update_species_interactions(
                 selector.xrange,
                 self.FILTER_MODES[self.filter_mode_buttons.index],
             )
@@ -593,13 +596,13 @@ class LineInfoWidget:
         except IndexError:  # No selection is made on figure widget
             return
 
-        self._update_species_abundances(
+        self._update_species_interactions(
             wavelength_range, self.FILTER_MODES[self.filter_mode_buttons.index],
         )
 
-    def _species_abund_selection_handler(self, event, qgrid_widget):
+    def _species_intrctn_selection_handler(self, event, qgrid_widget):
         """
-        Event handler for selection in species_abundances_table.
+        Event handler for selection in species_interactions_table.
         
         This method has the expected signature of the function passed to
         :code:`handler` argument of :code:`on_selection` method of qgrid.QgridWidget
@@ -609,11 +612,11 @@ class LineInfoWidget:
         if event["new"] == [] and event["source"] == "api":
             return
 
-        # Get species from selected row in species abundance table
-        species_selected = self.species_abundances_table.df.index[
+        # Get species from the selected row in species_interactions_table
+        species_selected = self.species_interactions_table.df.index[
             event["new"][0]
         ]
-        if species_selected == "":  # when species_abundances_table is empty
+        if species_selected == "":  # when species_interactions_table is empty
             species_selected = None
 
         self._update_last_line_counts(
@@ -631,13 +634,13 @@ class LineInfoWidget:
         `their docs <https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#Signatures>`_.
         """
         try:
-            selected_row_idx = self.species_abundances_table.get_selected_rows()[
+            selected_row_idx = self.species_interactions_table.get_selected_rows()[
                 0
             ]
-            species_selected = self.species_abundances_table.df.index[
+            species_selected = self.species_interactions_table.df.index[
                 selected_row_idx
             ]
-        except IndexError:  # No row is selected in species abundances table
+        except IndexError:  # No row is selected in species_interactions_table
             return
 
         self._update_last_line_counts(
@@ -664,8 +667,8 @@ class LineInfoWidget:
             Line info widget containing all component widgets
         """
         # Set widths of widgets
-        self.species_abundances_table.layout.width = "350px"
-        self.line_counts_table.layout.width = "450px"
+        self.species_interactions_table.layout.width = "350px"
+        self.last_line_counts_table.layout.width = "450px"
         self.total_packets_label.update_and_resize(0)
         self.group_mode_dropdown.layout.width = "auto"
 
@@ -675,8 +678,8 @@ class LineInfoWidget:
         self.filter_mode_buttons.observe(
             self._filter_mode_toggle_handler, names="index"
         )
-        self.species_abundances_table.on(
-            "selection_changed", self._species_abund_selection_handler
+        self.species_interactions_table.on(
+            "selection_changed", self._species_intrctn_selection_handler
         )
         self.group_mode_dropdown.observe(
             self._group_mode_dropdown_handler, names="index"
@@ -696,7 +699,7 @@ class LineInfoWidget:
                     f"( {selection_box_symbol} ) by"
                 ),
                 self.filter_mode_buttons,
-                self.species_abundances_table,
+                self.species_interactions_table,
             ],
             layout=dict(margin="0px 15px"),
         )
@@ -705,7 +708,7 @@ class LineInfoWidget:
             [
                 self.ui_control_description("Group packet counts by"),
                 self.group_mode_dropdown,
-                self.line_counts_table,
+                self.last_line_counts_table,
                 self.total_packets_label.widget,
             ],
             layout=dict(margin="0px 15px"),
