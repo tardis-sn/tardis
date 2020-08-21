@@ -74,7 +74,10 @@ class GenericModel:
         return iter(self.names)
 
     def to_dataframe(self):
-        """Not implemented"""
+        dataframe = pd.DataFrame([])
+        for prop in self:
+            dataframe = self.to_dataframe(dataframe)
+        return dataframe
 
 
 class BaseProperty:
@@ -124,7 +127,14 @@ class BaseProperty:
                 f" {number_of_cells} but is {self.number_of_cells}"
             )
 
-
+    def to_dataframe(self,dataframe, column_names, attrs):
+        if dataframe is None:
+            dataframe = pd.DataFrame([])
+            dataframe.columns.name = 'cell'
+        for column,attr in zip(column_names,attrs):
+            dataframe[column] = getattr(self,attr)
+        return dataframe
+        
 class Velocity(BaseProperty):
     """A class that holds the velocity arrays and derived quantities.
 
@@ -228,6 +238,12 @@ class Velocity(BaseProperty):
     def cgs_units(self, velocity: u.km / u.s):
         """Check input velocities units and return CGS arrays"""
         return velocity.cgs
+
+
+    def to_dataframe(self, dataframe = None):
+        column_names = ['velocity_inner', 'velocity_outer','inner_radius','outer_radius','volume']
+        attrs = ['inner', 'outer','inner_radius','outer_radius','volume']
+        return super().to_dataframe(dataframe,column_names,attrs)
 
 
 class Density(BaseProperty):
@@ -337,7 +353,11 @@ class Density(BaseProperty):
         """Check input electron density units and return CGS arrays"""
 
         return electron_density.cgs
-
+    
+    def to_dataframe(self, dataframe = None):
+        column_names = ['density']
+        attrs = ['mass']
+        return super().to_dataframe(dataframe,column_names,attrs)
 
 class Abundances(BaseProperty):
     """A class for abundances and isotope abundances.
@@ -435,7 +455,13 @@ class Abundances(BaseProperty):
             )
         return names_index
 
-
+    def to_dataframe(self,dataframe = None):
+        if dataframe is not None:
+            dataframe.join(self.elemental)
+            return dataframe
+        else:
+            raise NotImplemented("This method is intended to work with a model, +
+                                "try self.elemental or self.isotope for dataframes")
 class RadiationField(BaseProperty):
     """A class for radiative temperature and dilution factor
     Parameters
@@ -516,3 +542,7 @@ class RadiationField(BaseProperty):
     def cgs_units(self, temperature: u.K):
         """Check input radiative_temperatures units and return CGS array"""
         return temperature.cgs
+    
+    def to_dataframe(self, dataframe = None):
+        attrs = ['radiation_field','dilution_factor']
+        return super().to_dataframe(dataframe,attrs,attrs)
