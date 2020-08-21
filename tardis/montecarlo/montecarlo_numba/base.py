@@ -32,7 +32,8 @@ def montecarlo_radial1d(model, plasma, runner):
 
     v_packets_energy_hist, last_interaction_type = montecarlo_main_loop(
         packet_collection, numba_model, numba_plasma, estimators,
-        runner.spectrum_frequency.value, number_of_vpackets, packet_seeds)
+        runner.spectrum_frequency.value, number_of_vpackets, packet_seeds,
+        runner.sigma_thomson)
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
     runner.last_interaction_type = last_interaction_type
 
@@ -40,7 +41,8 @@ def montecarlo_radial1d(model, plasma, runner):
 @njit(**njit_dict, nogil=True)
 def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
                          estimators, spectrum_frequency,
-                         number_of_vpackets, packet_seeds):
+                         number_of_vpackets, packet_seeds,
+                         sigma_thomson):
     """
     This is the main loop of the MonteCarlo routine that generates packets 
     and sends them through the ejecta. 
@@ -74,7 +76,7 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
             spectrum_frequency, number_of_vpackets,
             montecarlo_configuration.temporary_v_packet_bins)
         loop = single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
-                           vpacket_collection)
+                           vpacket_collection, sigma_thomson)
         # if loop and 'stop' in loop:
         #     raise MonteCarloException
 
@@ -101,6 +103,7 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
                 continue
             v_packets_energy_hist[idx] += vpackets_energy[j]
 
+    # np.savetxt('scatter_output_energy.txt', output_energies)
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
     

@@ -10,6 +10,8 @@ from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
 from tardis.io.config_reader import ConfigurationError
+from tardis.montecarlo import montecarlo_configuration as mc_config_module
+
 # Adding logging support
 logger = logging.getLogger(__name__)
 

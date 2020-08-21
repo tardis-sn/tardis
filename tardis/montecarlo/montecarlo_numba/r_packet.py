@@ -9,6 +9,8 @@ from tardis.montecarlo import montecarlo_configuration as montecarlo_configurati
 from tardis.montecarlo.montecarlo_numba.montecarlo_logger import log_decorator
 from tardis import constants as const
 
+SIGMA_THOMSON = const.sigma_T.to('cm^2').value
+
 class MonteCarloException(ValueError):
     pass
 
@@ -118,12 +120,14 @@ def calculate_distance_line_full_relativity(nu_line, nu, time_explosion,
     return distance
 
 @njit(**njit_dict)
-def calculate_distance_electron(electron_density, tau_event):
-    return tau_event / (electron_density * montecarlo_configuration.SIGMA_THOMSON)
+def calculate_distance_electron(electron_density, tau_event, sigma_thomson):
+    # add full_relativity here
+    return tau_event / (electron_density * sigma_thomson)
 
 @njit(**njit_dict)
-def calculate_tau_electron(electron_density, distance):    
-    return electron_density * montecarlo_configuration.SIGMA_THOMSON * distance
+def calculate_tau_electron(electron_density, distance, sigma_thomson):
+    return electron_density * sigma_thomson * distance
+
 
 @njit(**njit_dict)
 def get_doppler_factor(r, mu, time_explosion):
@@ -231,7 +235,7 @@ def calc_packet_energy(r_packet, distance_trace, time_explosion):
     return energy
 
 @njit(**njit_dict)
-def trace_packet(r_packet, numba_model, numba_plasma, estimators):
+def trace_packet(r_packet, numba_model, numba_plasma, estimators, sigma_thomson):
     """
 
     Parameters
@@ -263,7 +267,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     cur_electron_density = numba_plasma.electron_density[
         r_packet.current_shell_id]
     distance_electron = calculate_distance_electron(
-        cur_electron_density, tau_event)
+        cur_electron_density, tau_event, sigma_thomson)
 
     # Calculating doppler factor
     doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu,
@@ -292,7 +296,8 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
 
         # calculating the tau electron of how far the trace has progressed
         tau_trace_electron = calculate_tau_electron(cur_electron_density,
-                                                    distance_trace)
+                                                    distance_trace,
+                                                    sigma_thomson)
 
         # calculating the trace
         tau_trace_combined = tau_trace_line_combined + tau_trace_electron
@@ -307,6 +312,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
         if ((distance_electron < distance_trace) and
                 (distance_electron < distance_boundary)):
             interaction_type = InteractionType.ESCATTERING
+            # print('scattering')
             distance = distance_electron
             r_packet.next_line_id = cur_line_id
             break
@@ -329,7 +335,8 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
         # Recalculating distance_electron using tau_event -
         # tau_trace_line_combined
         distance_electron = calculate_distance_electron(
-            cur_electron_density, tau_event - tau_trace_line_combined)
+            cur_electron_density, tau_event - tau_trace_line_combined,
+        sigma_thomson)
 
     else:  # Executed when no break occurs in the for loop
         # We are beyond the line list now and the only next thing is to see
@@ -340,6 +347,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
         if distance_electron < distance_boundary:
             distance = distance_electron
             interaction_type = InteractionType.ESCATTERING
+            # print('scattering')
         else:
             distance = distance_boundary
             interaction_type = InteractionType.BOUNDARY

@@ -7,5 +7,5 @@ number_of_vpackets = 0
 montecarlo_seed = 0
 line_interaction_type = None
 packet_seeds = []
-SIGMA_THOMSON = const.sigma_T.to('cm^2').value
+disable_electron_scattering = False
 disable_line_scattering = False

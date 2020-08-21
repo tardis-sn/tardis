@@ -38,7 +38,8 @@ class VPacket(object):
 
 
 @njit(**njit_dict)
-def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
+def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma,
+                               sigma_thomson):
     
     r_inner = numba_model.r_inner[v_packet.current_shell_id]
     r_outer = numba_model.r_outer[v_packet.current_shell_id]
@@ -53,7 +54,8 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
     cur_electron_density = numba_plasma.electron_density[
         v_packet.current_shell_id]
     tau_electron = calculate_tau_electron(cur_electron_density, 
-                                            distance_boundary)
+                                            distance_boundary,
+                                            sigma_thomson)
     tau_trace_combined = tau_electron
 
     # Calculating doppler factor
@@ -88,7 +90,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
     return tau_trace_combined, distance_boundary, delta_shell
 
 @njit(**njit_dict)
-def trace_vpacket(v_packet, numba_model, numba_plasma):
+def trace_vpacket(v_packet, numba_model, numba_plasma, sigma_thomson):
     """
     Trace single vpacket.
     Parameters
@@ -105,7 +107,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
     tau_trace_combined = 0.0
     while True:
         tau_trace_combined_shell, distance_boundary, delta_shell = trace_vpacket_within_shell(
-            v_packet, numba_model, numba_plasma
+            v_packet, numba_model, numba_plasma, sigma_thomson
         )
         tau_trace_combined += tau_trace_combined_shell
         if tau_trace_combined > 10:
@@ -124,7 +126,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
 
 @njit(**njit_dict)
 def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
-                         numba_plasma):
+                         numba_plasma, sigma_thomson):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many) 
     from the current position of the rpacket. 
@@ -196,7 +198,8 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
                            v_packet_energy, r_packet.current_shell_id, 
                            r_packet.next_line_id, i)
 
-        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma)
+        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma,
+                                    sigma_thomson)
         
         v_packet.energy *= np.exp(-tau_vpacket)
 

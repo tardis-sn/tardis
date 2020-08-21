@@ -67,7 +67,7 @@ class MontecarloRunner(HDFWriterMixin):
                                 (const.h / const.k_B)).cgs.value
 
     def __init__(self, seed, spectrum_frequency, virtual_spectrum_range,
-                 sigma_thomson, enable_reflective_inner_boundary,
+                 sigma_thomson, disable_electron_scattering, enable_reflective_inner_boundary,
                  enable_full_relativity, inner_boundary_albedo,
                  line_interaction_type, integrator_settings,
                  v_packet_settings, spectrum_method,
@@ -80,6 +80,7 @@ class MontecarloRunner(HDFWriterMixin):
         else:
             self.packet_source = packet_source
         # inject different packets
+        self.disable_electron_scattering = disable_electron_scattering
         self.spectrum_frequency = spectrum_frequency
         self.virtual_spectrum_range = virtual_spectrum_range
         self.sigma_thomson = sigma_thomson
@@ -458,11 +459,12 @@ class MontecarloRunner(HDFWriterMixin):
         """
         if config.plasma.disable_electron_scattering:
             logger.warn('Disabling electron scattering - this is not physical')
-            sigma_thomson = 1e-200 * (u.cm ** 2)
-            mc_config_module.SIGMA_THOMSON = sigma_thomson.value
+            sigma_thomson = 1e-200
+            # mc_config_module.disable_electron_scattering = True
         else:
             logger.debug("Electron scattering switched on")
             sigma_thomson = const.sigma_T.to('cm^2').value
+            # mc_config_module.disable_electron_scattering = False
 
         spectrum_frequency = quantity_linspace(
             config.spectrum.stop.to('Hz', u.spectral()),
@@ -481,6 +483,7 @@ class MontecarloRunner(HDFWriterMixin):
                    integrator_settings=config.spectrum.integrated,
                    v_packet_settings=config.spectrum.virtual,
                    spectrum_method=config.spectrum.method,
+                   disable_electron_scattering=config.plasma.disable_electron_scattering,
                    packet_source=packet_source,
                    debug_packets=config.montecarlo.debug_packets,
                    logger_buffer=config.montecarlo.logger_buffer,
