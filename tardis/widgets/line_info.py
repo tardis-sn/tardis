@@ -720,6 +720,7 @@ class LineInfoWidget:
                         display="flex",
                         align_items="flex-start",
                         justify_content="center",
+                        height="420px",
                     ),
                 ),
             ]
