@@ -1,5 +1,6 @@
 from astropy import units as u
 import numpy as np
+import pandas as pd
 from tardis.io.decay import IsotopeAbundances
 from pyne import nucname
 
@@ -76,7 +77,8 @@ class GenericModel:
     def to_dataframe(self):
         dataframe = pd.DataFrame([])
         for prop in self:
-            dataframe = self.to_dataframe(dataframe)
+            prop = getattr(self,prop)
+            dataframe = prop.to_dataframe(dataframe)
         return dataframe
 
 
@@ -457,8 +459,7 @@ class Abundances(BaseProperty):
 
     def to_dataframe(self,dataframe = None):
         if dataframe is not None:
-            dataframe.join(self.elemental)
-            return dataframe
+            return dataframe.join(self.elemental)
         else:
             raise NotImplemented("This method is intended to work with a model," +
                                 "try self.elemental or self.isotope for dataframes")
@@ -544,5 +545,5 @@ class RadiationField(BaseProperty):
         return temperature.cgs
     
     def to_dataframe(self, dataframe = None):
-        attrs = ['radiation_field','dilution_factor']
+        attrs = ['radiative_temperature','dilution_factor']
         return super().to_dataframe(dataframe,attrs,attrs)
