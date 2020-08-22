@@ -258,32 +258,51 @@ class LineInfoWidget:
         This method should always be called after calling 
         :code:`get_species_interactions` method which sets a wavelength
         range on LastLineInteraction object. So selected_species should
-        be one present within that range, otherwise it may result in error.
+        be one present within that range, otherwise it will result an error.
         """
         if selected_species:
             selected_species_tuple = species_string_to_tuple(selected_species)
 
-            # Get selected species' rows from last_line_in dataframe
-            current_last_lines_in = (
-                self.line_interaction_analysis[filter_mode]
-                .last_line_in.xs(
-                    key=(selected_species_tuple[0], selected_species_tuple[1]),
-                    level=["atomic_number", "ion_number"],
-                    drop_level=False,
+            try:
+                # Get selected species' rows from last_line_in dataframe
+                current_last_lines_in = (
+                    self.line_interaction_analysis[filter_mode]
+                    .last_line_in.xs(
+                        key=selected_species_tuple,
+                        level=["atomic_number", "ion_number"],
+                        drop_level=False,
+                    )
+                    .reset_index()
                 )
-                .reset_index()
-            )
 
-            # Get selected species' rows from last_line_out dataframe
-            current_last_lines_out = (
-                self.line_interaction_analysis[filter_mode]
-                .last_line_out.xs(
-                    key=(selected_species_tuple[0], selected_species_tuple[1]),
-                    level=["atomic_number", "ion_number"],
-                    drop_level=False,
+                # Get selected species' rows from last_line_out dataframe
+                current_last_lines_out = (
+                    self.line_interaction_analysis[filter_mode]
+                    .last_line_out.xs(
+                        key=selected_species_tuple,
+                        level=["atomic_number", "ion_number"],
+                        drop_level=False,
+                    )
+                    .reset_index()
                 )
-                .reset_index()
-            )
+
+                assert (
+                    current_last_lines_in.empty & current_last_lines_out.empty
+                    == False
+                )
+
+            except (KeyError, AssertionError):  # selected_species is invalid
+                allowed_species = [
+                    species_tuple_to_string(species)
+                    for species in self.line_interaction_analysis[filter_mode]
+                    .last_line_in.groupby(["atomic_number", "ion_number"])
+                    .groups.keys()
+                ]
+                raise ValueError(
+                    "Invalid value of selected_species, it must be one present "
+                    "within the currently selected wavelength range in your "
+                    f"LineInfoWidget instance, which are {allowed_species}"
+                )
 
             last_line_interaction_string = []
             interacting_packets_count = []
