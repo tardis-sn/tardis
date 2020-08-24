@@ -6,7 +6,7 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
     move_packet_across_shell_boundary, move_r_packet,
     MonteCarloException)
 from tardis.montecarlo.montecarlo_numba.interaction import (
-    general_scatter, line_scatter)
+    thomson_scatter, line_scatter)
 from tardis.montecarlo.montecarlo_numba.numba_interface import \
     LineInteractionType
 from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
@@ -92,9 +92,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
         elif interaction_type == InteractionType.ESCATTERING:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
                           estimators)
-            do_electron_scatter = True
-            general_scatter(r_packet, numba_model.time_explosion,
-                            do_electron_scatter)
+            thomson_scatter(r_packet, numba_model.time_explosion)
 
             trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
                                  numba_plasma, sigma_thomson)
