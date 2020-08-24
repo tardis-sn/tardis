@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 def normalize_trans_probs(p):
     """
-    Normalizes a set of transition probabilities.
+    Normalize a set of transition probabilities.
 
     Parameters
     ----------
@@ -27,7 +27,7 @@ def normalize_trans_probs(p):
 
     Returns
     -------
-    p_norm : Pandas DataFrame, dtype float
+    Pandas DataFrame, dtype float
         Normalized transition probabilities: the sum of
         all probabilites with the same source_level_idx sum to one.
         Indexed by source_level_idx, destination_level_idx.
@@ -43,7 +43,7 @@ class SpMatrixSeriesConverterMixin(object):
     @staticmethod
     def series2matrix(series, idx2reduced_idx):
         """
-        Converts a Pandas Series to a sparse matrix and re-indexes it.
+        Convert a Pandas Series to a sparse matrix and re-index it.
 
         Parameters
         ----------
@@ -57,7 +57,7 @@ class SpMatrixSeriesConverterMixin(object):
 
         Returns
         -------
-        matrix : scipy.sparse.coo.coo_matrix
+        scipy.sparse.coo.coo_matrix
             Sparse matrix of rates or transition probabilites.
         """
         q_indices = (series.index.get_level_values(0),
@@ -71,20 +71,21 @@ class SpMatrixSeriesConverterMixin(object):
     @staticmethod
     def matrix2series(matrix, idx2reduced_idx, names=None):
         """
-        Converts a sparse matrix to a Pandas Series and indexes it.
+        Convert a sparse matrix to a Pandas Series and index it.
 
         Parameters
         ----------
         matrix : scipy.sparse.coo.coo_matrix
             Sparse matrix of rates or transition probabilites.
-        idx2reduced_idx: Pandas Series
+        idx2reduced_idx : Pandas Series
             Values of (compact) matrix index. Indexed by references_idx.
             Maps the references_idx of a level to the index
             used in the sparse matrix.
-
+        names : array-like, optional
+            Names of levels in MultiIndex of returned Series.
         Returns
         -------
-        series : Pandas Series
+        Pandas Series
             Rates or transition probabilities. Indexed by
             source_level_idx, destination_level_idx.
         """

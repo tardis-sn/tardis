@@ -28,19 +28,24 @@ njit_dict = {'fastmath': False, 'parallel': False}
 @njit(**njit_dict)
 def integrate_array_by_blocks(f, x, block_references):
     """
-    Integrates a function f defined at locations x over blocks
-    given in block_references.
+    Integrate a function over blocks.
+
+    This function integrates a function `f` defined at locations `x`
+    over blocks given in `block_references`.
 
     Parameters
     ----------
     f : Two-dimensional Numpy Array, dtype float
+        Input array to integrate.
     x : One-dimensional Numpy Array, dtype float
+        The sample points corresponding to the `f` values.
     block_references : One-dimensional Numpy Array, dtype int
+        The start indices of the blocks to be integrated.
 
     Returns
     -------
-    integrated : Two-dimensional Numpy Array, dtype float
-
+    Two-dimensional Numpy Array, dtype float
+        Array with integrated values.
     """
     integrated = np.zeros((len(block_references) - 1, f.shape[1]))
     for i in prange(f.shape[1]):  # columns
@@ -53,20 +58,20 @@ def integrate_array_by_blocks(f, x, block_references):
 
 def get_ion_multi_index(multi_index_full, next_higher=True):
     """
-    Calculates the corresponding ion MultiIndex for a level MultiIndex.
+    Calculate the corresponding ion MultiIndex for a level MultiIndex.
 
     Parameters
     ----------
     multi_index_full : Pandas MultiIndex (atomic_number, ion_number,
                                           level_number)
-    next_higher : bool
-        If true use ion number of next higher ion, else use ion_number from
+    next_higher : bool, default True
+        If True use ion number of next higher ion, else use ion_number from
         multi_index_full.
 
     Returns
     -------
-    multi_index : Pandas MultiIndex (atomic_number, ion_number)
-
+    Pandas MultiIndex (atomic_number, ion_number)
+       Ion MultiIndex for the given level MultiIndex.
     """
     atomic_number = multi_index_full.get_level_values(0)
     ion_number = multi_index_full.get_level_values(1)
@@ -77,8 +82,7 @@ def get_ion_multi_index(multi_index_full, next_higher=True):
 
 def get_ground_state_multi_index(multi_index_full):
     """
-    Calculates the level MultiIndex for the ground state of the next higher
-    ion.
+    Calculate the ground-state MultiIndex for the next higher ion.
 
     Parameters
     ----------
@@ -87,8 +91,8 @@ def get_ground_state_multi_index(multi_index_full):
 
     Returns
     -------
-    multi_index : Pandas MultiIndex (atomic_number, ion_number)
-
+    Pandas MultiIndex (atomic_number, ion_number)
+        Ground-state MultiIndex for the next higher ion.
     """
     atomic_number = multi_index_full.get_level_values(0)
     ion_number = multi_index_full.get_level_values(1) + 1
@@ -99,8 +103,10 @@ def get_ground_state_multi_index(multi_index_full):
 def cooling_rate_series2dataframe(cooling_rate_series,
                                   destination_level_idx):
     """
-    Transforms a Series with cooling rates into an indexed
-    DataFrame that can be used in MarkovChainTransProbs.
+    Transform cooling-rate Series to DataFrame.
+
+    This function transforms a Series with cooling rates into
+    an indexed DataFrame that can be used in MarkovChainTransProbs.
 
     Parameters
     ----------
@@ -109,14 +115,13 @@ def cooling_rate_series2dataframe(cooling_rate_series,
         Examples are adiabatic cooling or free-free cooling.
     destination_level_idx: String
         Destination idx of the cooling process; for example
-        `adiabatic` for adiabatic cooling.
+        'adiabatic' for adiabatic cooling.
 
     Returns
     -------
     cooling_rate_frame : Pandas DataFrame, dtype float
         Indexed by source_level_idx, destination_level_idx, transition_type
         for the use in MarkovChainTransProbs.
-
     """
     index_names = ['source_level_idx', 'destination_level_idx',
                    'transition_type']
