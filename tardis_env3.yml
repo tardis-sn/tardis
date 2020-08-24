@@ -6,7 +6,7 @@ channels:
 dependencies:
   - python=3
   - pip
-  - numpy=1.19.0
+  - numpy=1.19
   - scipy=1.5
   - pandas=1.0
   - astropy=3
@@ -14,6 +14,7 @@ dependencies:
   - numexpr
   - Cython=0.29
   - compilers
+  - blas=*=openblas
 
   # Plasma
   - networkx
