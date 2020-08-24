@@ -92,7 +92,9 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
         elif interaction_type == InteractionType.ESCATTERING:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
                           estimators)
-            general_scatter(r_packet, numba_model.time_explosion)
+            do_electron_scatter = True
+            general_scatter(r_packet, numba_model.time_explosion,
+                            do_electron_scatter)
 
             trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
                                  numba_plasma, sigma_thomson)

@@ -331,7 +331,6 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators, sigma_thomson)
             r_packet.next_line_id = cur_line_id
             distance = distance_trace
             break
-
         # Recalculating distance_electron using tau_event -
         # tau_trace_line_combined
         distance_electron = calculate_distance_electron(

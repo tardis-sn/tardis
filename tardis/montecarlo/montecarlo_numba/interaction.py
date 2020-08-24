@@ -11,7 +11,7 @@ from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
 
 
 @njit(**njit_dict)
-def general_scatter(r_packet, time_explosion):
+def general_scatter(r_packet, time_explosion, do_electron_scatter):
     """
     Thomson as well as line scattering
     2) get the doppler factor at that position with the old angle
@@ -35,7 +35,8 @@ def general_scatter(r_packet, time_explosion):
     inverse_new_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion)
     r_packet.energy = comov_energy * inverse_new_doppler_factor
-    r_packet.nu = comov_nu * inverse_new_doppler_factor
+    if do_electron_scatter:
+        r_packet.nu = comov_nu * inverse_new_doppler_factor
     if montecarlo_configuration.full_relativity:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet,
@@ -75,7 +76,8 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
     #increment_j_blue_estimator(packet, storage, distance, line2d_idx);
     #increment_Edotlu_estimator(packet, storage, distance, line2d_idx);
 
-    general_scatter(r_packet, time_explosion)
+    do_electron_scatter = False
+    general_scatter(r_packet, time_explosion, do_electron_scatter)
     # update last_interaction
 
     if line_interaction_type == LineInteractionType.SCATTER:
