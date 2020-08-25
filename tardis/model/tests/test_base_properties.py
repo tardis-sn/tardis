@@ -185,9 +185,11 @@ def reference_abundance():
 
 def test_property_abundances(reference_abundance):
     reference_data = reference_abundance
-    abundance_filename = "data/custom_abundance_tardis_gm.dat"
+    data_path = os.path.join(tardis.__path__[0], "model", "tests", "data")
+    abundance_filename = "custom_abundance_tardis_gm.dat"
+    file_path = os.path.join(data_path, abundance_filename)
     index, abundance, isotope_abundance = read_abundances_file(
-        abundance_filename, "custom_composition"
+        file_path, "custom_composition"
     )
     abundance_class = Abundances(abundance, isotope_abundance, time=2 * u.d)
     nptest.assert_allclose(
