@@ -298,3 +298,48 @@ class TestLineInfoWidgetEvents:
                 line_info_widget.total_packets_label.widget.children[1].value
             )
 
+    @pytest.mark.parametrize("selected_group_mode_idx", [0, 1, 2])
+    def test_group_mode_change(
+        self, liw_with_selection, selected_group_mode_idx
+    ):
+        """
+        Test if selecting an option from group_mode_dropdown updates
+        correct data in last_line_counts_table and total packets label.
+        """
+        line_info_widget, _ = liw_with_selection
+
+        # Select the option in group_mode_dropdown
+        line_info_widget.group_mode_dropdown.index = selected_group_mode_idx
+
+        # For testing changes in last_line_counts_table data,
+        # we're only considering the 1st row (0th index species)
+        # in species_interactions_table
+        if line_info_widget.last_line_counts_table.df.all(axis=None) == False:
+            species0 = None
+        else:
+            species0 = line_info_widget.species_interactions_table.df.index[0]
+            # Select 1st row in species_interaction_table, if not selected
+            line_info_widget.species_interactions_table.change_selection(
+                [species0]
+            )
+
+        expected_last_line_counts = line_info_widget.get_last_line_counts(
+            selected_species=species0,
+            filter_mode=line_info_widget.FILTER_MODES[
+                line_info_widget.filter_mode_buttons.index
+            ],
+            group_mode=line_info_widget.GROUP_MODES[selected_group_mode_idx],
+        )
+
+        pd.testing.assert_frame_equal(
+            expected_last_line_counts,
+            line_info_widget.last_line_counts_table.df,
+        )
+
+        if species0 is None:
+            expected_total_packets = 0
+        else:
+            expected_total_packets = expected_last_line_counts.iloc[:, 0].sum()
+        assert expected_total_packets == int(
+            line_info_widget.total_packets_label.widget.children[1].value
+        )
