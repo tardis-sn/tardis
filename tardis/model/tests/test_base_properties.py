@@ -1,3 +1,5 @@
+import os
+import tardis
 from astropy import units as u
 import numpy as np
 import numpy.testing as nptest
