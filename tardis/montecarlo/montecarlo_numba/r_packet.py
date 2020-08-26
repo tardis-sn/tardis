@@ -131,7 +131,9 @@ def calculate_tau_electron(electron_density, distance, sigma_thomson):
 
 @njit(**njit_dict)
 def get_doppler_factor(r, mu, time_explosion):
-    beta = r / (time_explosion * C_SPEED_OF_LIGHT)
+    inv_c = 1/C_SPEED_OF_LIGHT
+    inv_t = 1/time_explosion
+    beta = r * inv_t * inv_c
     if not montecarlo_configuration.full_relativity:
         return get_doppler_factor_partial_relativity(mu, beta)
     else:
@@ -148,7 +150,9 @@ def get_doppler_factor_full_relativity(mu, beta):
 
 @njit(**njit_dict)
 def get_inverse_doppler_factor(r, mu, time_explosion):
-    beta = (r / time_explosion) / C_SPEED_OF_LIGHT
+    inv_c = 1 / C_SPEED_OF_LIGHT
+    inv_t = 1 / time_explosion
+    beta = r * inv_t * inv_c
     if not montecarlo_configuration.full_relativity:
         return get_inverse_doppler_factor_partial_relativity(mu, beta)
     else:
