@@ -5,7 +5,7 @@ Model
 .. toctree::
     :maxdepth: 1
     
-    ejecta/GenericModel
+    genericmodel/GenericModel
 
 TARDIS requires a model of the homologously expanding ejecta in order to run a simulation.
 A model will include information like the velocity shell structure, abundances, density, etc.
