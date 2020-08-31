@@ -99,7 +99,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
 
     if mc_logger.DEBUG_MODE:
         return (r_packet_track_nu, r_packet_track_mu, r_packet_track_r,
-                r_packet_track_interaction, r_packet_track_distance, flag)
+                r_packet_track_interaction, r_packet_track_distance)
 
     # check where else initialize line ID happens!
 
