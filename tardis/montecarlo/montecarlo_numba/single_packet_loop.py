@@ -42,7 +42,6 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
     This function does not return anything but changes the r_packet object
     and if virtual packets are requested - also updates the vpacket_collection
     """
-    flag = None
 
     line_interaction_type = montecarlo_configuration.line_interaction_type
 
@@ -63,12 +62,9 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
         r_packet_track_distance = [0.]
 
     while r_packet.status == PacketStatus.IN_PROCESS:
-        # try:
         distance, interaction_type, delta_shell = trace_packet(
             r_packet, numba_model, numba_plasma, estimators, sigma_thomson)
-        # except MonteCarloException:
-        #     flag = 'stop'
-        #     break
+
 
         if interaction_type == InteractionType.BOUNDARY:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
@@ -81,13 +77,10 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
                           estimators)
             line_scatter(r_packet, numba_model.time_explosion,
                          line_interaction_type, numba_plasma)
-            # try:
             trace_vpacket_volley(
                 r_packet, vpacket_collection, numba_model, numba_plasma,
                 sigma_thomson)
-            # except MonteCarloException:
-            #     flag = 'stop'
-            #     break
+
 
         elif interaction_type == InteractionType.ESCATTERING:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
