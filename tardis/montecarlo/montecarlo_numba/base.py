@@ -23,7 +23,7 @@ def montecarlo_radial1d(model, plasma, runner):
 
     numba_model = NumbaModel(runner.r_inner_cgs, runner.r_outer_cgs,
                              model.time_explosion.to('s').value)
-    numba_plasma = numba_plasma_initialize(plasma)
+    numba_plasma = numba_plasma_initialize(plasma, runner.line_interaction_type)
     estimators = Estimators(runner.j_estimator, runner.nu_bar_estimator,
                             runner.j_blue_estimator, runner.Edotlu_estimator)
     packet_seeds = montecarlo_configuration.packet_seeds
