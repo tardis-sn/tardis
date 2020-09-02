@@ -10,6 +10,8 @@ from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
 from tardis.io.config_reader import ConfigurationError
+from tardis.montecarlo import montecarlo_configuration as mc_config_module
+
 # Adding logging support
 logger = logging.getLogger(__name__)
 
@@ -268,7 +270,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     self.iterations_executed + 1, self.iterations))
         self.runner.run(self.model, self.plasma, no_of_packets,
                         no_of_virtual_packets=no_of_virtual_packets,
-                        nthreads=self.nthreads, last_run=last_run)
+                        nthreads=self.nthreads, last_run=last_run,
+                        iteration=self.iterations_executed)
         output_energy = self.runner.output_energy
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")

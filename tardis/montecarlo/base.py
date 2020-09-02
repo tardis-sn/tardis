@@ -28,6 +28,12 @@ import numpy as np
 logger = logging.getLogger(__name__)
 TARDIS_PATH = TARDIS_PATH[0]
 
+MAX_SEED_VAL = 2**32 - 1
+
+# MAX_SEED_VAL must be multiple orders of magnitude larger than no_of_packets;
+# otherwise, each packet would not have its own seed. Here, we set the max
+# seed val to the maximum allowed by numpy.
+
 class MontecarloRunner(HDFWriterMixin):
     """
     This class is designed as an interface between the Python part and the
@@ -61,7 +67,7 @@ class MontecarloRunner(HDFWriterMixin):
                                 (const.h / const.k_B)).cgs.value
 
     def __init__(self, seed, spectrum_frequency, virtual_spectrum_range,
-                 sigma_thomson, enable_reflective_inner_boundary,
+                 sigma_thomson, disable_electron_scattering, enable_reflective_inner_boundary,
                  enable_full_relativity, inner_boundary_albedo,
                  line_interaction_type, integrator_settings,
                  v_packet_settings, spectrum_method,
@@ -74,6 +80,7 @@ class MontecarloRunner(HDFWriterMixin):
         else:
             self.packet_source = packet_source
         # inject different packets
+        self.disable_electron_scattering = disable_electron_scattering
         self.spectrum_frequency = spectrum_frequency
         self.virtual_spectrum_range = virtual_spectrum_range
         self.sigma_thomson = sigma_thomson
@@ -85,6 +92,7 @@ class MontecarloRunner(HDFWriterMixin):
         self.integrator_settings = integrator_settings
         self.v_packet_settings = v_packet_settings
         self.spectrum_method = spectrum_method
+        self.seed = seed
         self._integrator = None
         self._spectrum_integrated = None
 
@@ -127,11 +135,23 @@ class MontecarloRunner(HDFWriterMixin):
         self.r_outer_cgs = model.r_outer.to('cm').value
         self.v_inner_cgs = model.v_inner.to('cm/s').value
 
-    def _initialize_packets(self, T, no_of_packets):
+    def _initialize_packets(self, T, no_of_packets, iteration):
+        # the iteration is added each time to preserve randomness
+        # across different simulations with the same temperature,
+        # for example. We seed the random module instead of the numpy module
+        # because we call random.sample, which references a different internal
+        # state than in the numpy.random module.
+        seed = self.seed + iteration
+        rng = np.random.default_rng(seed=seed)
+        seeds = rng.choice(MAX_SEED_VAL,
+                           no_of_packets,
+                           replace=True
+                           )
         nus, mus, energies = self.packet_source.create_packets(
                 T,
-                no_of_packets
-                )
+                no_of_packets,
+                rng)
+        mc_config_module.packet_seeds = seeds
         self.input_nu = nus
         self.input_mu = mus
         self.input_energy = energies
@@ -206,7 +226,7 @@ class MontecarloRunner(HDFWriterMixin):
 
     def run(self, model, plasma, no_of_packets,
             no_of_virtual_packets=0, nthreads=1,
-            last_run=False):
+            last_run=False, iteration=0):
         """
         Run the montecarlo calculation
 
@@ -236,7 +256,7 @@ class MontecarloRunner(HDFWriterMixin):
         self._initialize_geometry_arrays(model)
 
         self._initialize_packets(model.t_inner.value,
-                                 no_of_packets)
+                                 no_of_packets, iteration)
 
         montecarlo_configuration = configuration_initialize(self,
                                                             no_of_virtual_packets)
@@ -439,15 +459,18 @@ class MontecarloRunner(HDFWriterMixin):
         """
         if config.plasma.disable_electron_scattering:
             logger.warn('Disabling electron scattering - this is not physical')
-            sigma_thomson = 1e-200 * (u.cm ** 2)
+            sigma_thomson = 1e-200
+            # mc_config_module.disable_electron_scattering = True
         else:
             logger.debug("Electron scattering switched on")
-            sigma_thomson = const.sigma_T.cgs
+            sigma_thomson = const.sigma_T.to('cm^2').value
+            # mc_config_module.disable_electron_scattering = False
 
         spectrum_frequency = quantity_linspace(
             config.spectrum.stop.to('Hz', u.spectral()),
             config.spectrum.start.to('Hz', u.spectral()),
             num=config.spectrum.num + 1)
+        mc_config_module.disable_line_scattering = config.plasma.disable_line_scattering
 
         return cls(seed=config.montecarlo.seed,
                    spectrum_frequency=spectrum_frequency,
@@ -460,6 +483,7 @@ class MontecarloRunner(HDFWriterMixin):
                    integrator_settings=config.spectrum.integrated,
                    v_packet_settings=config.spectrum.virtual,
                    spectrum_method=config.spectrum.method,
+                   disable_electron_scattering=config.plasma.disable_electron_scattering,
                    packet_source=packet_source,
                    debug_packets=config.montecarlo.debug_packets,
                    logger_buffer=config.montecarlo.logger_buffer,

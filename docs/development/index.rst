@@ -11,7 +11,6 @@ to the Astropy team for designing it.
 .. toctree::
     :maxdepth: 2
 
-    running_tests
     issues
     debug_numba
 

@@ -59,6 +59,14 @@ assistance.
     physics/plasma/index
     physics/montecarlo/index
 
+.. toctree::
+    :maxdepth: 2
+    :caption: Testing TARDIS
+    :hidden:
+
+    testing/automated_tests
+    testing/numba
+
 
 .. toctree::
     :maxdepth: 2

@@ -71,26 +71,37 @@ class NumbaPlasma(object):
         self.transition_line_id = transition_line_id
 
 
-def numba_plasma_initialize(plasma):
+def numba_plasma_initialize(plasma, line_interaction_type):
     electron_densities = plasma.electron_densities.values
     line_list_nu = plasma.atomic_data.lines.nu.values
     tau_sobolev = np.ascontiguousarray(plasma.tau_sobolevs.values.copy(),
                                        dtype=np.float64)
+    if montecarlo_configuration.disable_line_scattering:
+        tau_sobolev *= 0
 
-    transition_probabilities = np.ascontiguousarray(
-        plasma.transition_probabilities.values.copy(), dtype=np.float64)
-    line2macro_level_upper = plasma.atomic_data.lines_upper2macro_reference_idx
-    macro_block_references = plasma.atomic_data.macro_atom_references[
-        'block_references'].values
+    if line_interaction_type == 'scatter':
+        # to adhere to data types, we must have an array of minimum size 1
+        array_size = 1
+        transition_probabilities = np.empty((array_size, array_size), dtype=np.float64)  # to adhere to data types
+        line2macro_level_upper = np.empty(array_size, dtype=np.int64)
+        macro_block_references = np.empty(array_size, dtype=np.int64)
+        transition_type = np.empty(array_size, dtype=np.int64)
+        destination_level_id = np.empty(array_size, dtype=np.int64)
+        transition_line_id = np.empty(array_size, dtype=np.int64)
+    else:
+        transition_probabilities = np.ascontiguousarray(
+            plasma.transition_probabilities.values.copy(), dtype=np.float64)
+        line2macro_level_upper = plasma.atomic_data.lines_upper2macro_reference_idx
+        macro_block_references = plasma.atomic_data.macro_atom_references[
+            'block_references'].values
+        transition_type = plasma.atomic_data.macro_atom_data[
+            'transition_type'].values
 
-    transition_type = plasma.atomic_data.macro_atom_data[
-        'transition_type'].values
-
-    # Destination level is not needed and/or generated for downbranch
-    destination_level_id = plasma.atomic_data.macro_atom_data[
-        'destination_level_idx'].values
-    transition_line_id = plasma.atomic_data.macro_atom_data[
-        'lines_idx'].values
+        # Destination level is not needed and/or generated for downbranch
+        destination_level_id = plasma.atomic_data.macro_atom_data[
+            'destination_level_idx'].values
+        transition_line_id = plasma.atomic_data.macro_atom_data[
+            'lines_idx'].values
 
     return NumbaPlasma(electron_densities, line_list_nu, tau_sobolev,
                        transition_probabilities, line2macro_level_upper,
@@ -168,6 +179,7 @@ def configuration_initialize(runner, number_of_vpackets,
     montecarlo_configuration.number_of_vpackets = number_of_vpackets
     montecarlo_configuration.temporary_v_packet_bins = temporary_v_packet_bins
     montecarlo_configuration.full_relativity = runner.enable_full_relativity
+    montecarlo_configuration.montecarlo_seed = runner.seed
     montecarlo_configuration.single_packet_seed = runner.single_packet_seed
 
 

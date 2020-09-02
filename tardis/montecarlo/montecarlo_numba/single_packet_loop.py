@@ -6,7 +6,7 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
     move_packet_across_shell_boundary, move_r_packet,
     MonteCarloException)
 from tardis.montecarlo.montecarlo_numba.interaction import (
-    general_scatter, line_scatter)
+    thomson_scatter, line_scatter)
 from tardis.montecarlo.montecarlo_numba.numba_interface import \
     LineInteractionType
 from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
@@ -24,7 +24,7 @@ from tardis.montecarlo.montecarlo_numba import (
 # @log_decorator
 @njit
 def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
-                       vpacket_collection):
+                       vpacket_collection, sigma_thomson):
     """
 
     Parameters
@@ -42,7 +42,6 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
     This function does not return anything but changes the r_packet object
     and if virtual packets are requested - also updates the vpacket_collection
     """
-    flag = None
 
     line_interaction_type = montecarlo_configuration.line_interaction_type
 
@@ -53,7 +52,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
     r_packet.initialize_line_id(numba_plasma, numba_model)
 
     trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
-                         numba_plasma)
+                         numba_plasma, sigma_thomson)
 
     if mc_logger.DEBUG_MODE:
         r_packet_track_nu = [r_packet.nu]
@@ -63,12 +62,9 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
         r_packet_track_distance = [0.]
 
     while r_packet.status == PacketStatus.IN_PROCESS:
-        # try:
         distance, interaction_type, delta_shell = trace_packet(
-            r_packet, numba_model, numba_plasma, estimators)
-        # except MonteCarloException:
-        #     flag = 'stop'
-        #     break
+            r_packet, numba_model, numba_plasma, estimators, sigma_thomson)
+
 
         if interaction_type == InteractionType.BOUNDARY:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
@@ -81,21 +77,18 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
                           estimators)
             line_scatter(r_packet, numba_model.time_explosion,
                          line_interaction_type, numba_plasma)
-            # try:
             trace_vpacket_volley(
                 r_packet, vpacket_collection, numba_model, numba_plasma,
-                )
-            # except MonteCarloException:
-            #     flag = 'stop'
-            #     break
+                sigma_thomson)
+
 
         elif interaction_type == InteractionType.ESCATTERING:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
                           estimators)
-            general_scatter(r_packet, numba_model.time_explosion)
+            thomson_scatter(r_packet, numba_model.time_explosion)
 
             trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
-                                 numba_plasma)
+                                 numba_plasma, sigma_thomson)
         if mc_logger.DEBUG_MODE:
             r_packet_track_nu.append(r_packet.nu)
             r_packet_track_mu.append(r_packet.mu)
@@ -106,7 +99,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
 
     if mc_logger.DEBUG_MODE:
         return (r_packet_track_nu, r_packet_track_mu, r_packet_track_r,
-                r_packet_track_interaction, r_packet_track_distance, flag)
+                r_packet_track_interaction, r_packet_track_distance)
 
     # check where else initialize line ID happens!
 
