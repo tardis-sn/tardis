@@ -36,6 +36,16 @@ jobs:
           source activate tardis
           git clone https://github.com/tardis-sn/tardis-refdata.git $(ref.data.home)
         displayName: "Fetch ALL reference data"
+        condition: false
+
+      - bash: |
+          source activate tardis
+          pip install gdown
+          gdown https://drive.google.com/uc\?id\=1LwfZ6MXuV2j9a23uu9HTcoDDFI9gIuf1 -O tardis-refdata.tar.gz
+          tar zxf tardis-refdata.tar.gz
+          mv tardis-refdata $(ref.data.home)
+        displayName: "Fetch reference data (GDrive backup)"
+        condition: true
 
       - bash: |
           source activate tardis
