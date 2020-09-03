@@ -50,3 +50,11 @@ properties:
         default: False
         description: If True bias v-packet emission based on the electron
             scattering optical depth
+      spawn_wavelength_start:
+        type: quantity
+        default: 0 angstrom
+        description: Sets the starting wavelength for virtual packet spawning.
+      spawn_wavelength_end:
+        type: quantity
+        default: inf angstrom
+        description: Sets the end wavelength for virtual packet spawning.
