@@ -66,7 +66,7 @@ class MontecarloRunner(HDFWriterMixin):
     t_rad_estimator_constant = ((np.pi**4 / (15 * 24 * zeta(5, 1))) *
                                 (const.h / const.k_B)).cgs.value
 
-    def __init__(self, seed, spectrum_frequency, virtual_spectrum_range,
+    def __init__(self, seed, spectrum_frequency, virtual_spectrum_spawn_range,
                  sigma_thomson, disable_electron_scattering, enable_reflective_inner_boundary,
                  enable_full_relativity, inner_boundary_albedo,
                  line_interaction_type, integrator_settings,
@@ -82,7 +82,7 @@ class MontecarloRunner(HDFWriterMixin):
         # inject different packets
         self.disable_electron_scattering = disable_electron_scattering
         self.spectrum_frequency = spectrum_frequency
-        self.virtual_spectrum_range = virtual_spectrum_range
+        self.virtual_spectrum_spawn_range = virtual_spectrum_spawn_range
         self.sigma_thomson = sigma_thomson
         self.enable_reflective_inner_boundary = enable_reflective_inner_boundary
         self.inner_boundary_albedo = inner_boundary_albedo
@@ -474,7 +474,7 @@ class MontecarloRunner(HDFWriterMixin):
 
         return cls(seed=config.montecarlo.seed,
                    spectrum_frequency=spectrum_frequency,
-                   virtual_spectrum_range=config.montecarlo.virtual_spectrum_range,
+                   virtual_spectrum_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
                    sigma_thomson=sigma_thomson,
                    enable_reflective_inner_boundary=config.montecarlo.enable_reflective_inner_boundary,
                    inner_boundary_albedo=config.montecarlo.inner_boundary_albedo,
