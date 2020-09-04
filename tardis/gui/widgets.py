@@ -2,20 +2,24 @@ import os
 
 import tardis.util.base
 
-if os.environ.get('QT_API', None)=='pyqt':
+if os.environ.get("QT_API", None) == "pyqt":
     from PyQt5 import QtGui, QtCore, QtWidgets
-elif os.environ.get('QT_API', None)=='pyside':
-    from PySide2 import QtGui, QtCore,QtWidgets
+elif os.environ.get("QT_API", None) == "pyside":
+    from PySide2 import QtGui, QtCore, QtWidgets
 else:
-    raise ImportError('QT_API was not set! Please exit the IPython console\n'
-        ' and at the bash prompt use : \n\n export QT_API=pyside \n or\n'
-        ' export QT_API=pyqt \n\n For more information refer to user guide.')
+    raise ImportError(
+        "QT_API was not set! Please exit the IPython console\n"
+        " and at the bash prompt use : \n\n export QT_API=pyside \n or\n"
+        " export QT_API=pyqt \n\n For more information refer to user guide."
+    )
 
 import matplotlib
 from matplotlib.figure import *
 import matplotlib.gridspec as gridspec
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.backends.backend_qt4 import (
+    NavigationToolbar2QT as NavigationToolbar,
+)
 from matplotlib import colors
 from matplotlib.patches import Circle
 import matplotlib.pylab as plt
@@ -23,6 +27,7 @@ from astropy import units as u
 
 import tardis
 from tardis import analysis, util
+
 
 class MatplotlibWidget(FigureCanvas):
     """Canvas to draw graphs on."""
@@ -35,67 +40,80 @@ class MatplotlibWidget(FigureCanvas):
 
         self.tablecreator = tablecreator
         self.parent = parent
-        self.figure = Figure()#(frameon=False,facecolor=(1,1,1))
+        self.figure = Figure()  # (frameon=False,facecolor=(1,1,1))
         self.cid = {}
-        if fig != 'model':
+        if fig != "model":
             self.ax = self.figure.add_subplot(111)
         else:
             self.gs = gridspec.GridSpec(2, 1, height_ratios=[1, 3])
             self.ax1 = self.figure.add_subplot(self.gs[0])
-            self.ax2 = self.figure.add_subplot(self.gs[1])#, aspect='equal')
+            self.ax2 = self.figure.add_subplot(self.gs[1])  # , aspect='equal')
         self.cb = None
         self.span = None
 
         super(MatplotlibWidget, self).__init__(self.figure)
-        super(MatplotlibWidget, self).setSizePolicy(QtWidgets.QSizePolicy.Expanding,
-            QtWidgets.QSizePolicy.Expanding)
+        super(MatplotlibWidget, self).setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+        )
         super(MatplotlibWidget, self).updateGeometry()
-        if fig != 'model':
+        if fig != "model":
             self.toolbar = NavigationToolbar(self, parent)
-            self.cid[0] = self.figure.canvas.mpl_connect('pick_event',
-            self.on_span_pick)
+            self.cid[0] = self.figure.canvas.mpl_connect(
+                "pick_event", self.on_span_pick
+            )
         else:
-            self.cid[0] = self.figure.canvas.mpl_connect('pick_event',
-                self.on_shell_pick)
+            self.cid[0] = self.figure.canvas.mpl_connect(
+                "pick_event", self.on_shell_pick
+            )
 
     def show_line_info(self):
         """Show line info for span selected region."""
-        self.parent.line_info.append(LineInfo(self.parent, self.span.xy[0][0],
-            self.span.xy[2][0], self.tablecreator))
+        self.parent.line_info.append(
+            LineInfo(
+                self.parent,
+                self.span.xy[0][0],
+                self.span.xy[2][0],
+                self.tablecreator,
+            )
+        )
 
     def show_span(self, garbage=0, left=5000, right=10000):
         """Hide/Show/Change the buttons that show line info
         in spectrum plot widget.
 
         """
-        if self.parent.spectrum_span_button.text() == 'Show Wavelength Range':
+        if self.parent.spectrum_span_button.text() == "Show Wavelength Range":
             if not self.span:
-                self.span = self.ax.axvspan(left, right, color='r', alpha=0.3,
-                    picker=self.span_picker)
+                self.span = self.ax.axvspan(
+                    left, right, color="r", alpha=0.3, picker=self.span_picker
+                )
             else:
                 self.span.set_visible(True)
             self.parent.spectrum_line_info_button.show()
-            self.parent.spectrum_span_button.setText('Hide Wavelength Range')
+            self.parent.spectrum_span_button.setText("Hide Wavelength Range")
         else:
             self.span.set_visible(False)
             self.parent.spectrum_line_info_button.hide()
-            self.parent.spectrum_span_button.setText('Show Wavelength Range')
+            self.parent.spectrum_span_button.setText("Show Wavelength Range")
         self.draw()
 
     def on_span_pick(self, event):
         """Callback to 'pick'(grab with mouse) the span selector tool."""
         self.figure.canvas.mpl_disconnect(self.cid[0])
-        self.span.set_edgecolor('m')
+        self.span.set_edgecolor("m")
         self.span.set_linewidth(5)
         self.draw()
-        if event.edge == 'left':
-            self.cid[1] = self.figure.canvas.mpl_connect('motion_notify_event',
-                self.on_span_left_motion)
-        elif event.edge == 'right':
-            self.cid[1] = self.figure.canvas.mpl_connect('motion_notify_event',
-                self.on_span_right_motion)
-        self.cid[2] = self.figure.canvas.mpl_connect('button_press_event',
-            self.on_span_resized)
+        if event.edge == "left":
+            self.cid[1] = self.figure.canvas.mpl_connect(
+                "motion_notify_event", self.on_span_left_motion
+            )
+        elif event.edge == "right":
+            self.cid[1] = self.figure.canvas.mpl_connect(
+                "motion_notify_event", self.on_span_right_motion
+            )
+        self.cid[2] = self.figure.canvas.mpl_connect(
+            "button_press_event", self.on_span_resized
+        )
 
     def on_span_left_motion(self, mouseevent):
         """Update data of span selector tool on left movement of mouse and
@@ -122,9 +140,10 @@ class MatplotlibWidget(FigureCanvas):
         """Redraw the red rectangle to currently selected span."""
         self.figure.canvas.mpl_disconnect(self.cid[1])
         self.figure.canvas.mpl_disconnect(self.cid[2])
-        self.cid[0] = self.figure.canvas.mpl_connect('pick_event',
-            self.on_span_pick)
-        self.span.set_edgecolor('r')
+        self.cid[0] = self.figure.canvas.mpl_connect(
+            "pick_event", self.on_span_pick
+        )
+        self.span.set_edgecolor("r")
         self.span.set_linewidth(1)
         self.draw()
 
@@ -137,9 +156,9 @@ class MatplotlibWidget(FigureCanvas):
         self.parent.tableview.selectRow(index)
         for i in range(len(self.parent.shells)):
             if i != index and i != index + 1:
-                self.parent.shells[i].set_edgecolor('k')
+                self.parent.shells[i].set_edgecolor("k")
             else:
-                self.parent.shells[i].set_edgecolor('w')
+                self.parent.shells[i].set_edgecolor("w")
         self.draw()
 
     def shell_picker(self, shell, mouseevent):
@@ -158,32 +177,38 @@ class MatplotlibWidget(FigureCanvas):
         """
         left = float(span.xy[0][0])
         right = float(span.xy[2][0])
-        tolerance = span.axes.transData.inverted().transform((tolerance, 0)
-            )[0] - span.axes.transData.inverted().transform((0, 0))[0]
-        event_attributes = {'edge': None}
+        tolerance = (
+            span.axes.transData.inverted().transform((tolerance, 0))[0]
+            - span.axes.transData.inverted().transform((0, 0))[0]
+        )
+        event_attributes = {"edge": None}
         if mouseevent.xdata is None:
             return False, event_attributes
         if left - tolerance <= mouseevent.xdata <= left + tolerance:
-            event_attributes['edge'] = 'left'
+            event_attributes["edge"] = "left"
             return True, event_attributes
         elif right - tolerance <= mouseevent.xdata <= right + tolerance:
-            event_attributes['edge'] = 'right'
+            event_attributes["edge"] = "right"
             return True, event_attributes
         return False, event_attributes
+
 
 class Shell(matplotlib.patches.Wedge):
     """A data holder to store measurements of shells that will be drawn in
     the plot.
 
     """
+
     def __init__(self, index, center, r_inner, r_outer, **kwargs):
-        super(Shell, self).__init__(center, r_outer, 0, 90,
-            width=r_outer - r_inner, **kwargs)
+        super(Shell, self).__init__(
+            center, r_outer, 0, 90, width=r_outer - r_inner, **kwargs
+        )
         self.index = index
         self.center = center
         self.r_outer = r_outer
         self.r_inner = r_inner
         self.width = r_outer - r_inner
+
 
 class ConfigEditor(QtWidgets.QWidget):
     """The configuration editor widget.
@@ -206,120 +231,151 @@ class ConfigEditor(QtWidgets.QWidget):
         """
         super(ConfigEditor, self).__init__(parent)
 
-        #Configurations from the input and template
+        # Configurations from the input and template
         configDict = yaml.load(open(yamlconfigfile), Loader=yaml.CLoader)
-        templatedictionary ={'tardis_config_version':[True, 'v1.0'],
-            'supernova':{ 'luminosity_requested':[True, '1 solLum'],
-                          'time_explosion':[True, None],
-                          'distance':[False, None],
-                          'luminosity_wavelength_start':[False, '0 angstrom'],
-                          'luminosity_wavelength_end':[False, 'inf angstrom'],
-                        },
-            'atom_data':[True,'File Browser'],
-            'plasma':{ 'initial_t_inner':[False, '-1K'],
-                       'initial_t_rad':[False,'10000K'],
-                       'disable_electron_scattering':[False, False],
-                       'ionization':[True, None],
-                       'excitation':[True, None],
-                       'radiative_rates_type':[True, None],
-                       'line_interaction_type':[True, None],
-                       'w_epsilon':[False, 1e-10],
-                       'delta_treatment':[False, None],
-                       'nlte':{ 'species':[False, []],
-                                'coronal_approximation':[False, False],
-                                'classical_nebular':[False, False]
-                              }
-                      },
-            'model':{ 'structure':{'type':[True, ['file|_:_|filename|_:_|'
-            'filetype|_:_|v_inner_boundary|_:_|v_outer_boundary',
-            'specific|_:_|velocity|_:_|density']],
-                      'filename':[True, None],
-                      'filetype':[True, None],
-                      'v_inner_boundary':[False, '0 km/s'],
-                      'v_outer_boundary':[False, 'inf km/s'],
-                      'velocity':[True, None],
-                      'density':{ 'type':[True, ['branch85_w7|_:_|w7_time_0'
-                                    '|_:_|w7_time_0|_:_|w7_time_0',
-                                    'exponential|_:_|time_0|_:_|rho_0|_:_|'
-                                    'v_0','power_law|_:_|time_0|_:_|rho_0'
-                                    '|_:_|v_0|_:_|exponent','uniform|_:_|value']],
-                                  'w7_time_0':[False, '0.000231481 day'],
-                                  'w7_rho_0':[False, '3e29 g/cm^3'],
-                                  'w7_v_0': [False, '1 km/s'],
-                                  'time_0':[True, None],
-                                  'rho_0':[True, None],
-                                  'v_0': [True, None],
-                                  'exponent': [True, None],
-                                  'value':[True, None]
-                                }
-                                  },
-                      'abundances':{ 'type':[True, ['file|_:_|filetype|_:_|'
-                                     'filename', 'uniform']],
-                                     'filename':[True, None],
-                                     'filetype':[False, None]
-                                    }
+        templatedictionary = {
+            "tardis_config_version": [True, "v1.0"],
+            "supernova": {
+                "luminosity_requested": [True, "1 solLum"],
+                "time_explosion": [True, None],
+                "distance": [False, None],
+                "luminosity_wavelength_start": [False, "0 angstrom"],
+                "luminosity_wavelength_end": [False, "inf angstrom"],
+            },
+            "atom_data": [True, "File Browser"],
+            "plasma": {
+                "initial_t_inner": [False, "-1K"],
+                "initial_t_rad": [False, "10000K"],
+                "disable_electron_scattering": [False, False],
+                "ionization": [True, None],
+                "excitation": [True, None],
+                "radiative_rates_type": [True, None],
+                "line_interaction_type": [True, None],
+                "w_epsilon": [False, 1e-10],
+                "delta_treatment": [False, None],
+                "nlte": {
+                    "species": [False, []],
+                    "coronal_approximation": [False, False],
+                    "classical_nebular": [False, False],
+                },
+            },
+            "model": {
+                "structure": {
+                    "type": [
+                        True,
+                        [
+                            "file|_:_|filename|_:_|"
+                            "filetype|_:_|v_inner_boundary|_:_|v_outer_boundary",
+                            "specific|_:_|velocity|_:_|density",
+                        ],
+                    ],
+                    "filename": [True, None],
+                    "filetype": [True, None],
+                    "v_inner_boundary": [False, "0 km/s"],
+                    "v_outer_boundary": [False, "inf km/s"],
+                    "velocity": [True, None],
+                    "density": {
+                        "type": [
+                            True,
+                            [
+                                "branch85_w7|_:_|w7_time_0"
+                                "|_:_|w7_time_0|_:_|w7_time_0",
+                                "exponential|_:_|time_0|_:_|rho_0|_:_|" "v_0",
+                                "power_law|_:_|time_0|_:_|rho_0"
+                                "|_:_|v_0|_:_|exponent",
+                                "uniform|_:_|value",
+                            ],
+                        ],
+                        "w7_time_0": [False, "0.000231481 day"],
+                        "w7_rho_0": [False, "3e29 g/cm^3"],
+                        "w7_v_0": [False, "1 km/s"],
+                        "time_0": [True, None],
+                        "rho_0": [True, None],
+                        "v_0": [True, None],
+                        "exponent": [True, None],
+                        "value": [True, None],
                     },
-            'montecarlo':{'seed':[False, 23111963],
-                          'no_of_packets':[True, None],
-                          'iterations':[True, None],
-                          'black_body_sampling':{
-                                                    'start': '1 angstrom',
-                                                    'stop': '1000000 angstrom',
-                                                    'num': '1.e+6',
-                                                },
-                          'last_no_of_packets':[False, -1],
-                          'no_of_virtual_packets':[False, 0],
-                          'enable_reflective_inner_boundary':[False, False],
-                          'inner_boundary_albedo':[False, 0.0],
-                          'convergence_strategy':{ 'type':[True,
-                          ['damped|_:_|damping_constant|_:_|t_inner|_:_|'
-                          't_rad|_:_|w|_:_|lock_t_inner_cycles|_:_|'
-                          't_inner_update_exponent','specific|_:_|threshold'
-                          '|_:_|fraction|_:_|hold_iterations|_:_|t_inner'
-                          '|_:_|t_rad|_:_|w|_:_|lock_t_inner_cycles|_:_|'
-                          'damping_constant|_:_|t_inner_update_exponent']],
-                                   't_inner_update_exponent':[False, -0.5],
-                                   'lock_t_inner_cycles':[False, 1],
-                                   'hold_iterations':[True, 3],
-                                   'fraction':[True, 0.8],
-                                   'damping_constant':[False, 0.5],
-                                   'threshold':[True, None],
-                                   't_inner':{ 'damping_constant':[False, 0.5],
-                                               'threshold': [False, None]
-                                             },
-                                   't_rad':{'damping_constant':[False, 0.5],
-                                            'threshold':[True, None]
-                                            },
-                                    'w':{'damping_constant': [False, 0.5],
-                                         'threshold': [True, None]
-                                         }
-                                                }
-                          },
-            'spectrum':[True, None]
-            }
+                },
+                "abundances": {
+                    "type": [
+                        True,
+                        ["file|_:_|filetype|_:_|" "filename", "uniform"],
+                    ],
+                    "filename": [True, None],
+                    "filetype": [False, None],
+                },
+            },
+            "montecarlo": {
+                "seed": [False, 23111963],
+                "no_of_packets": [True, None],
+                "iterations": [True, None],
+                "black_body_sampling": {
+                    "start": "1 angstrom",
+                    "stop": "1000000 angstrom",
+                    "num": "1.e+6",
+                },
+                "last_no_of_packets": [False, -1],
+                "no_of_virtual_packets": [False, 0],
+                "enable_reflective_inner_boundary": [False, False],
+                "inner_boundary_albedo": [False, 0.0],
+                "convergence_strategy": {
+                    "type": [
+                        True,
+                        [
+                            "damped|_:_|damping_constant|_:_|t_inner|_:_|"
+                            "t_rad|_:_|w|_:_|lock_t_inner_cycles|_:_|"
+                            "t_inner_update_exponent",
+                            "specific|_:_|threshold"
+                            "|_:_|fraction|_:_|hold_iterations|_:_|t_inner"
+                            "|_:_|t_rad|_:_|w|_:_|lock_t_inner_cycles|_:_|"
+                            "damping_constant|_:_|t_inner_update_exponent",
+                        ],
+                    ],
+                    "t_inner_update_exponent": [False, -0.5],
+                    "lock_t_inner_cycles": [False, 1],
+                    "hold_iterations": [True, 3],
+                    "fraction": [True, 0.8],
+                    "damping_constant": [False, 0.5],
+                    "threshold": [True, None],
+                    "t_inner": {
+                        "damping_constant": [False, 0.5],
+                        "threshold": [False, None],
+                    },
+                    "t_rad": {
+                        "damping_constant": [False, 0.5],
+                        "threshold": [True, None],
+                    },
+                    "w": {
+                        "damping_constant": [False, 0.5],
+                        "threshold": [True, None],
+                    },
+                },
+            },
+            "spectrum": [True, None],
+        }
         self.match_dicts(configDict, templatedictionary)
 
         self.layout = QtWidgets.QVBoxLayout()
 
-        #Make tree
+        # Make tree
         self.trmodel = TreeModel(templatedictionary)
         self.colView = QtWidgets.QColumnView()
         self.colView.setModel(self.trmodel)
-        #Five columns of width 256 each can be visible at once
-        self.colView.setFixedWidth(256*5)
+        # Five columns of width 256 each can be visible at once
+        self.colView.setFixedWidth(256 * 5)
         self.colView.setItemDelegate(TreeDelegate(self))
         self.layout.addWidget(self.colView)
 
-        #Recalculate button
-        button = QtWidgets.QPushButton('Recalculate')
+        # Recalculate button
+        button = QtWidgets.QPushButton("Recalculate")
         button.setFixedWidth(90)
         self.layout.addWidget(button)
         button.clicked.connect(self.recalculate)
 
-        #Finally put them all in
+        # Finally put them all in
         self.setLayout(self.layout)
 
-    def match_dicts(self, dict1, dict2): #dict1<=dict2
+    def match_dicts(self, dict1, dict2):  # dict1<=dict2
         """Compare and combine two dictionaries.
 
         If there are new keys in `dict1` then they are appended to `dict2`.
@@ -357,13 +413,14 @@ class ConfigEditor(QtWidgets.QWidget):
                 elif isinstance(dict2[key], list):
                     if isinstance(dict2[key][1], list):
 
-                        #options = dict2[key][1] #This is passed by reference.
-                        #So copy the list manually.
-                        options = [dict2[key][1][i] for i in range(
-                            len(dict2[key][1]))]
+                        # options = dict2[key][1] #This is passed by reference.
+                        # So copy the list manually.
+                        options = [
+                            dict2[key][1][i] for i in range(len(dict2[key][1]))
+                        ]
 
                         for i in range(len(options)):
-                            options[i] = options[i].split('|_:_|')[0]
+                            options[i] = options[i].split("|_:_|")[0]
 
                         optionselected = dict1[key]
 
@@ -374,13 +431,14 @@ class ConfigEditor(QtWidgets.QWidget):
                             dict2[key][1][0] = dict2[key][1][indexofselected]
                             dict2[key][1][indexofselected] = temp
 
-
                         else:
-                            print('The selected and available options')
+                            print("The selected and available options")
                             print(optionselected)
                             print(options)
-                            raise IOError("An invalid option was"
-                                          " provided in the input file")
+                            raise IOError(
+                                "An invalid option was"
+                                " provided in the input file"
+                            )
 
                 else:
                     dict2[key] = dict1[key]
@@ -394,6 +452,7 @@ class ConfigEditor(QtWidgets.QWidget):
         """
         pass
 
+
 class ModelViewer(QtWidgets.QWidget):
     """The widget that holds all the plots and tables that visualize
     the data in the tardis model. This is also appended to the stacked
@@ -405,49 +464,55 @@ class ModelViewer(QtWidgets.QWidget):
         """Create all widgets that are children of ModelViewer."""
         QtWidgets.QWidget.__init__(self, parent)
 
-        #Data structures
+        # Data structures
         self.model = None
         self.shell_info = {}
         self.line_info = []
 
-        #functions
+        # functions
         self.createTable = tablecreator
 
-        #Shells widget
+        # Shells widget
         self.shellWidget = self.make_shell_widget()
 
-        #Spectrum widget
+        # Spectrum widget
         self.spectrumWidget = self.make_spectrum_widget()
 
-        #Plot tab widget
+        # Plot tab widget
         self.plotTabWidget = QtWidgets.QTabWidget()
-        self.plotTabWidget.addTab(self.shellWidget,"&Shells")
+        self.plotTabWidget.addTab(self.shellWidget, "&Shells")
         self.plotTabWidget.addTab(self.spectrumWidget, "S&pectrum")
 
-        #Table widget
-        self.tablemodel = self.createTable([['Shell: '], ["Rad. temp", "Ws", "V"]],
-                            (1, 0))
+        # Table widget
+        self.tablemodel = self.createTable(
+            [["Shell: "], ["Rad. temp", "Ws", "V"]], (1, 0)
+        )
         self.tableview = QtWidgets.QTableView()
         self.tableview.setMinimumWidth(200)
 
-        self.sectionClicked=QtCore.Signal(int)
-        self.tableview.verticalHeader().sectionClicked.connect(self.graph.highlight_shell)
+        self.sectionClicked = QtCore.Signal(int)
+        self.tableview.verticalHeader().sectionClicked.connect(
+            self.graph.highlight_shell
+        )
 
-        self.sectionDoubleClicked=QtCore.Signal(int)
-        self.tableview.verticalHeader().sectionDoubleClicked.connect(self.on_header_double_clicked)
+        self.sectionDoubleClicked = QtCore.Signal(int)
+        self.tableview.verticalHeader().sectionDoubleClicked.connect(
+            self.on_header_double_clicked
+        )
 
-        #Label for text output
+        # Label for text output
         self.outputLabel = QtWidgets.QLabel()
-        self.outputLabel.setFrameStyle(QtWidgets.QFrame.StyledPanel |
-            QtWidgets.QFrame.Sunken)
+        self.outputLabel.setFrameStyle(
+            QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Sunken
+        )
         self.outputLabel.setStyleSheet("QLabel{background-color:white;}")
 
-        #Group boxes
+        # Group boxes
         graphsBox = QtWidgets.QGroupBox("Visualized results")
         textsBox = QtWidgets.QGroupBox("Model parameters")
         tableBox = QtWidgets.QGroupBox("Tabulated results")
 
-        #For textbox
+        # For textbox
         textlayout = QtWidgets.QHBoxLayout()
         textlayout.addWidget(self.outputLabel)
 
@@ -474,19 +539,20 @@ class ModelViewer(QtWidgets.QWidget):
         quick user access.
 
         """
-        labeltext = 'Iterations requested: {} <br/> Iterations executed:  {}<br/>\
+        labeltext = "Iterations requested: {} <br/> Iterations executed:  {}<br/>\
                      Model converged     : {} <br/> Simulation Time    :  {} s <br/>\
                      Inner Temperature   : {} K <br/> Number of packets  :  {}<br/>\
-                     Inner Luminosity    : {}'\
-                     .format(self.model.iterations,
-                        self.model.iterations_executed,
-                        '<font color="green"><b>True</b></font>' if
-                        self.model.converged else
-                        '<font color="red"><b>False</b></font>',
-                        self.model.runner.time_of_simulation.value,
-                        self.model.model.t_inner.value,
-                        self.model.last_no_of_packets,
-                        self.model.runner.calculate_luminosity_inner(self.model.model))
+                     Inner Luminosity    : {}".format(
+            self.model.iterations,
+            self.model.iterations_executed,
+            '<font color="green"><b>True</b></font>'
+            if self.model.converged
+            else '<font color="red"><b>False</b></font>',
+            self.model.runner.time_of_simulation.value,
+            self.model.model.t_inner.value,
+            self.model.last_no_of_packets,
+            self.model.runner.calculate_luminosity_inner(self.model.model),
+        )
         self.outputLabel.setText(labeltext)
 
     def make_shell_widget(self):
@@ -494,19 +560,21 @@ class ModelViewer(QtWidgets.QWidget):
         container widget. Return the container widget.
 
         """
-        #Widgets for plot of shells
-        self.graph = MatplotlibWidget(self.createTable, self, 'model')
-        self.graph_label = QtWidgets.QLabel('Select Property:')
+        # Widgets for plot of shells
+        self.graph = MatplotlibWidget(self.createTable, self, "model")
+        self.graph_label = QtWidgets.QLabel("Select Property:")
         self.graph_button = QtWidgets.QToolButton()
-        self.graph_button.setText('Rad. temp')
+        self.graph_button.setText("Rad. temp")
         self.graph_button.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup)
         self.graph_button.setMenu(QtWidgets.QMenu(self.graph_button))
-        self.graph_button.menu().addAction('Rad. temp').triggered.connect(
-            self.change_graph_to_t_rads)
-        self.graph_button.menu().addAction('Ws').triggered.connect(
-            self.change_graph_to_ws)
+        self.graph_button.menu().addAction("Rad. temp").triggered.connect(
+            self.change_graph_to_t_rads
+        )
+        self.graph_button.menu().addAction("Ws").triggered.connect(
+            self.change_graph_to_ws
+        )
 
-        #Layouts: bottom up
+        # Layouts: bottom up
         self.graph_subsublayout = QtWidgets.QHBoxLayout()
         self.graph_subsublayout.addWidget(self.graph_label)
         self.graph_subsublayout.addWidget(self.graph_button)
@@ -525,20 +593,26 @@ class ModelViewer(QtWidgets.QWidget):
 
         """
         self.spectrum = MatplotlibWidget(self.createTable, self)
-        self.spectrum_label = QtWidgets.QLabel('Select Spectrum:')
+        self.spectrum_label = QtWidgets.QLabel("Select Spectrum:")
         self.spectrum_button = QtWidgets.QToolButton()
-        self.spectrum_button.setText('spec_flux_angstrom')
+        self.spectrum_button.setText("spec_flux_angstrom")
         self.spectrum_button.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup)
         self.spectrum_button.setMenu(QtWidgets.QMenu(self.spectrum_button))
-        self.spectrum_button.menu().addAction('spec_flux_angstrom'
-            ).triggered.connect(self.change_spectrum_to_spec_flux_angstrom)
-        self.spectrum_button.menu().addAction('spec_virtual_flux_angstrom'
-            ).triggered.connect(self.change_spectrum_to_spec_virtual_flux_angstrom)
-        self.spectrum_span_button = QtWidgets.QPushButton('Show Wavelength Range')
+        self.spectrum_button.menu().addAction(
+            "spec_flux_angstrom"
+        ).triggered.connect(self.change_spectrum_to_spec_flux_angstrom)
+        self.spectrum_button.menu().addAction(
+            "spec_virtual_flux_angstrom"
+        ).triggered.connect(self.change_spectrum_to_spec_virtual_flux_angstrom)
+        self.spectrum_span_button = QtWidgets.QPushButton(
+            "Show Wavelength Range"
+        )
         self.spectrum_span_button.clicked.connect(self.spectrum.show_span)
-        self.spectrum_line_info_button = QtWidgets.QPushButton('Show Line Info')
+        self.spectrum_line_info_button = QtWidgets.QPushButton("Show Line Info")
         self.spectrum_line_info_button.hide()
-        self.spectrum_line_info_button.clicked.connect(self.spectrum.show_line_info)
+        self.spectrum_line_info_button.clicked.connect(
+            self.spectrum.show_line_info
+        )
 
         self.spectrum_subsublayout = QtWidgets.QHBoxLayout()
         self.spectrum_subsublayout.addWidget(self.spectrum_span_button)
@@ -563,10 +637,10 @@ class ModelViewer(QtWidgets.QWidget):
         for index in self.shell_info.keys():
             self.shell_info[index].update_tables()
         self.plot_model()
-        if self.graph_button.text == 'Ws':
+        if self.graph_button.text == "Ws":
             self.change_graph_to_ws()
         self.plot_spectrum()
-        if self.spectrum_button.text == 'spec_virtual_flux_angstrom':
+        if self.spectrum_button.text == "spec_virtual_flux_angstrom":
             self.change_spectrum_to_spec_virtual_flux_angstrom()
         self.show()
 
@@ -582,24 +656,28 @@ class ModelViewer(QtWidgets.QWidget):
         """Change the spectrum data to the virtual spectrum."""
         if self.model.runner.spectrum_virtual.luminosity_density_lambda is None:
             luminosity_density_lambda = np.zeros_like(
-                self.model.runner.spectrum_virtual.wavelength)
+                self.model.runner.spectrum_virtual.wavelength
+            )
         else:
-            luminosity_density_lambda = \
-            self.model.runner.spectrum_virtual.luminosity_density_lambda.value
+            luminosity_density_lambda = (
+                self.model.runner.spectrum_virtual.luminosity_density_lambda.value
+            )
 
-        self.change_spectrum(luminosity_density_lambda, 'spec_flux_angstrom')
+        self.change_spectrum(luminosity_density_lambda, "spec_flux_angstrom")
 
     def change_spectrum_to_spec_flux_angstrom(self):
         """Change spectrum data back from virtual spectrum. (See the
             method above)."""
         if self.model.runner.spectrum.luminosity_density_lambda is None:
             luminosity_density_lambda = np.zeros_like(
-                self.model.runner.spectrum.wavelength)
+                self.model.runner.spectrum.wavelength
+            )
         else:
-            luminosity_density_lambda = \
-            self.model.runner.spectrum.luminosity_density_lambda.value
+            luminosity_density_lambda = (
+                self.model.runner.spectrum.luminosity_density_lambda.value
+            )
 
-        self.change_spectrum(luminosity_density_lambda, 'spec_flux_angstrom')
+        self.change_spectrum(luminosity_density_lambda, "spec_flux_angstrom")
 
     def change_spectrum(self, data, name):
         """Replot the spectrum plot using the data provided. Called
@@ -615,27 +693,29 @@ class ModelViewer(QtWidgets.QWidget):
     def plot_spectrum(self):
         """Plot the spectrum and add labels to the graph."""
         self.spectrum.ax.clear()
-        self.spectrum.ax.set_title('Spectrum')
-        self.spectrum.ax.set_xlabel('Wavelength (A)')
-        self.spectrum.ax.set_ylabel('Intensity')
+        self.spectrum.ax.set_title("Spectrum")
+        self.spectrum.ax.set_xlabel("Wavelength (A)")
+        self.spectrum.ax.set_ylabel("Intensity")
         wavelength = self.model.runner.spectrum.wavelength.value
         if self.model.runner.spectrum.luminosity_density_lambda is None:
             luminosity_density_lambda = np.zeros_like(wavelength)
         else:
-            luminosity_density_lambda =\
-             self.model.runner.spectrum.luminosity_density_lambda.value
+            luminosity_density_lambda = (
+                self.model.runner.spectrum.luminosity_density_lambda.value
+            )
 
-        self.spectrum.dataplot = self.spectrum.ax.plot(wavelength,
-            luminosity_density_lambda, label='b')
+        self.spectrum.dataplot = self.spectrum.ax.plot(
+            wavelength, luminosity_density_lambda, label="b"
+        )
         self.spectrum.draw()
 
     def change_graph_to_ws(self):
         """Change the shell plot to show dilution factor."""
-        self.change_graph(self.model.model.w, 'Ws', '')
+        self.change_graph(self.model.model.w, "Ws", "")
 
     def change_graph_to_t_rads(self):
         """Change the graph back to radiation Temperature."""
-        self.change_graph(self.model.model.t_rad.value, 't_rad', '(K)')
+        self.change_graph(self.model.model.t_rad.value, "t_rad", "(K)")
 
     def change_graph(self, data, name, unit):
         """Called to change the shell plot by the two methods above."""
@@ -643,15 +723,15 @@ class ModelViewer(QtWidgets.QWidget):
         self.graph.dataplot[0].set_ydata(data)
         self.graph.ax1.relim()
         self.graph.ax1.autoscale()
-        self.graph.ax1.set_title(name + ' vs Shell')
-        self.graph.ax1.set_ylabel(name + ' ' + unit)
+        self.graph.ax1.set_title(name + " vs Shell")
+        self.graph.ax1.set_ylabel(name + " " + unit)
         normalizer = colors.Normalize(vmin=data.min(), vmax=data.max())
         color_map = plt.cm.ScalarMappable(norm=normalizer, cmap=plt.cm.jet)
         color_map.set_array(data)
         self.graph.cb.set_clim(vmin=data.min(), vmax=data.max())
         self.graph.cb.update_normal(color_map)
-        if unit == '(K)':
-            unit = 'T (K)'
+        if unit == "(K)":
+            unit = "T (K)"
         self.graph.cb.set_label(unit)
         for i, item in enumerate(data):
             self.shells[i].set_facecolor(color_map.to_rgba(item))
@@ -663,58 +743,83 @@ class ModelViewer(QtWidgets.QWidget):
 
         """
         self.graph.ax1.clear()
-        self.graph.ax1.set_title('Rad. Temp vs Shell')
-        self.graph.ax1.set_xlabel('Shell Number')
-        self.graph.ax1.set_ylabel('Rad. Temp (K)')
+        self.graph.ax1.set_title("Rad. Temp vs Shell")
+        self.graph.ax1.set_xlabel("Shell Number")
+        self.graph.ax1.set_ylabel("Rad. Temp (K)")
         self.graph.ax1.yaxis.get_major_formatter().set_powerlimits((0, 1))
         self.graph.dataplot = self.graph.ax1.plot(
-            range(len(self.model.model.t_rad.value)), self.model.model.t_rad.value)
+            range(len(self.model.model.t_rad.value)),
+            self.model.model.t_rad.value,
+        )
         self.graph.ax2.clear()
-        self.graph.ax2.set_title('Shell View')
+        self.graph.ax2.set_title("Shell View")
         self.graph.ax2.set_xticklabels([])
         self.graph.ax2.set_yticklabels([])
         self.graph.ax2.grid = True
 
         self.shells = []
-        t_rad_normalizer = colors.Normalize(vmin=self.model.model.t_rad.value.min(),
-            vmax=self.model.model.t_rad.value.max())
-        t_rad_color_map = plt.cm.ScalarMappable(norm=t_rad_normalizer,
-            cmap=plt.cm.jet)
+        t_rad_normalizer = colors.Normalize(
+            vmin=self.model.model.t_rad.value.min(),
+            vmax=self.model.model.t_rad.value.max(),
+        )
+        t_rad_color_map = plt.cm.ScalarMappable(
+            norm=t_rad_normalizer, cmap=plt.cm.jet
+        )
         t_rad_color_map.set_array(self.model.model.t_rad.value)
         if self.graph.cb:
-            self.graph.cb.set_clim(vmin=self.model.model.t_rad.value.min(),
-                vmax=self.model.model.t_rad.value.max())
+            self.graph.cb.set_clim(
+                vmin=self.model.model.t_rad.value.min(),
+                vmax=self.model.model.t_rad.value.max(),
+            )
             self.graph.cb.update_normal(t_rad_color_map)
         else:
             self.graph.cb = self.graph.figure.colorbar(t_rad_color_map)
-            self.graph.cb.set_label('T (K)')
-        self.graph.normalizing_factor = 0.2 * (
-            self.model.model.r_outer.value[-1] -
-            self.model.model.r_inner.value[0]) / (
-            self.model.model.r_inner.value[0])
+            self.graph.cb.set_label("T (K)")
+        self.graph.normalizing_factor = (
+            0.2
+            * (
+                self.model.model.r_outer.value[-1]
+                - self.model.model.r_inner.value[0]
+            )
+            / (self.model.model.r_inner.value[0])
+        )
 
-        #self.graph.normalizing_factor = 8e-16
+        # self.graph.normalizing_factor = 8e-16
         for i, t_rad in enumerate(self.model.model.t_rad.value):
-            r_inner = (self.model.model.r_inner.value[i] *
-                self.graph.normalizing_factor)
-            r_outer = (self.model.model.r_outer.value[i] *
-                self.graph.normalizing_factor)
-            self.shells.append(Shell(i, (0,0), r_inner, r_outer,
-                facecolor=t_rad_color_map.to_rgba(t_rad),
-                picker=self.graph.shell_picker))
+            r_inner = (
+                self.model.model.r_inner.value[i]
+                * self.graph.normalizing_factor
+            )
+            r_outer = (
+                self.model.model.r_outer.value[i]
+                * self.graph.normalizing_factor
+            )
+            self.shells.append(
+                Shell(
+                    i,
+                    (0, 0),
+                    r_inner,
+                    r_outer,
+                    facecolor=t_rad_color_map.to_rgba(t_rad),
+                    picker=self.graph.shell_picker,
+                )
+            )
             self.graph.ax2.add_patch(self.shells[i])
-        self.graph.ax2.set_xlim(0,
-            self.model.model.r_outer.value[-1] *
-            self.graph.normalizing_factor)
-        self.graph.ax2.set_ylim(0,
-            self.model.model.r_outer.value[-1] *
-            self.graph.normalizing_factor)
+        self.graph.ax2.set_xlim(
+            0,
+            self.model.model.r_outer.value[-1] * self.graph.normalizing_factor,
+        )
+        self.graph.ax2.set_ylim(
+            0,
+            self.model.model.r_outer.value[-1] * self.graph.normalizing_factor,
+        )
         self.graph.figure.tight_layout()
         self.graph.draw()
 
     def on_header_double_clicked(self, index):
         """Callback to get counts for different Z from table."""
         self.shell_info[index] = ShellInfo(index, self.createTable, self)
+
 
 class ShellInfo(QtWidgets.QDialog):
     """Dialog to display Shell abundances."""
@@ -727,19 +832,21 @@ class ShellInfo(QtWidgets.QDialog):
         self.parent = parent
         self.shell_index = index
         self.setGeometry(400, 150, 200, 400)
-        self.setWindowTitle('Shell %d Abundances' % (self.shell_index + 1))
+        self.setWindowTitle("Shell %d Abundances" % (self.shell_index + 1))
         self.atomstable = QtWidgets.QTableView()
         self.ionstable = QtWidgets.QTableView()
         self.levelstable = QtWidgets.QTableView()
-        self.sectionClicked=QtCore.Signal(int)
-        self.atomstable.verticalHeader().sectionClicked.connect(self.on_atom_header_double_clicked)
+        self.sectionClicked = QtCore.Signal(int)
+        self.atomstable.verticalHeader().sectionClicked.connect(
+            self.on_atom_header_double_clicked
+        )
 
-
-        self.table1_data = self.parent.model.plasma.abundance[
-            self.shell_index]
-        self.atomsdata = self.createTable([['Z = '], ['Count (Shell %d)' % (
-            self.shell_index + 1)]], iterate_header=(2, 0),
-            index_info=self.table1_data.index.values.tolist())
+        self.table1_data = self.parent.model.plasma.abundance[self.shell_index]
+        self.atomsdata = self.createTable(
+            [["Z = "], ["Count (Shell %d)" % (self.shell_index + 1)]],
+            iterate_header=(2, 0),
+            index_info=self.table1_data.index.values.tolist(),
+        )
         self.ionsdata = None
         self.levelsdata = None
         self.atomsdata.add_data(self.table1_data.values.tolist())
@@ -759,22 +866,30 @@ class ShellInfo(QtWidgets.QDialog):
         ion populations."""
         self.current_atom_index = self.table1_data.index.values.tolist()[index]
         self.table2_data = self.parent.model.plasma.ion_number_density[
-            self.shell_index].ix[self.current_atom_index]
-        self.ionsdata = self.createTable([['Ion: '],
-            ['Count (Z = %d)' % self.current_atom_index]],
+            self.shell_index
+        ].ix[self.current_atom_index]
+        self.ionsdata = self.createTable(
+            [["Ion: "], ["Count (Z = %d)" % self.current_atom_index]],
             iterate_header=(2, 0),
-            index_info=self.table2_data.index.values.tolist())
+            index_info=self.table2_data.index.values.tolist(),
+        )
         normalized_data = []
         for item in self.table2_data.values:
-            normalized_data.append(float(item /
-               self.parent.model.plasma.number_density[self.shell_index]
-               .ix[self.current_atom_index]))
-
+            normalized_data.append(
+                float(
+                    item
+                    / self.parent.model.plasma.number_density[
+                        self.shell_index
+                    ].ix[self.current_atom_index]
+                )
+            )
 
         self.ionsdata.add_data(normalized_data)
         self.ionstable.setModel(self.ionsdata)
-        self.sectionClicked=QtCore.Signal(int)
-        self.ionstable.verticalHeader().sectionClicked.connect(self.on_ion_header_double_clicked)
+        self.sectionClicked = QtCore.Signal(int)
+        self.ionstable.verticalHeader().sectionClicked.connect(
+            self.on_ion_header_double_clicked
+        )
         self.levelstable.hide()
         self.ionstable.setColumnWidth(0, 120)
         self.ionstable.show()
@@ -785,15 +900,18 @@ class ShellInfo(QtWidgets.QDialog):
         """Called on double click of ion headers to show level populations."""
         self.current_ion_index = self.table2_data.index.values.tolist()[index]
         self.table3_data = self.parent.model.plasma.level_number_density[
-            self.shell_index].ix[self.current_atom_index, self.current_ion_index]
-        self.levelsdata = self.createTable([['Level: '],
-            ['Count (Ion %d)' % self.current_ion_index]],
+            self.shell_index
+        ].ix[self.current_atom_index, self.current_ion_index]
+        self.levelsdata = self.createTable(
+            [["Level: "], ["Count (Ion %d)" % self.current_ion_index]],
             iterate_header=(2, 0),
-            index_info=self.table3_data.index.values.tolist())
+            index_info=self.table3_data.index.values.tolist(),
+        )
         normalized_data = []
         for item in self.table3_data.values.tolist():
-            normalized_data.append(float(item /
-            self.table2_data.ix[self.current_ion_index]))
+            normalized_data.append(
+                float(item / self.table2_data.ix[self.current_ion_index])
+            )
         self.levelsdata.add_data(normalized_data)
         self.levelstable.setModel(self.levelsdata)
         self.levelstable.setColumnWidth(0, 120)
@@ -804,8 +922,9 @@ class ShellInfo(QtWidgets.QDialog):
     def update_tables(self):
         """Update table data for shell info viewer."""
         self.table1_data = self.parent.model.plasma.number_density[
-            self.shell_index]
-        self.atomsdata.index_info=self.table1_data.index.values.tolist()
+            self.shell_index
+        ]
+        self.atomsdata.index_info = self.table1_data.index.values.tolist()
         self.atomsdata.arraydata = []
         self.atomsdata.add_data(self.table1_data.values.tolist())
         self.atomsdata.update_table()
@@ -814,8 +933,10 @@ class ShellInfo(QtWidgets.QDialog):
         self.setGeometry(400, 150, 200, 400)
         self.show()
 
+
 class LineInfo(QtWidgets.QDialog):
     """Dialog to show the line info used by spectrum widget."""
+
     def __init__(self, parent, wavelength_start, wavelength_end, tablecreator):
         """Create the dialog and set data in it from the model.
         Show widget."""
@@ -823,28 +944,47 @@ class LineInfo(QtWidgets.QDialog):
         self.createTable = tablecreator
         self.parent = parent
         self.setGeometry(180 + len(self.parent.line_info) * 20, 150, 250, 400)
-        self.setWindowTitle('Line Interaction: %.2f - %.2f (A) ' % (
-            wavelength_start, wavelength_end,))
+        self.setWindowTitle(
+            "Line Interaction: %.2f - %.2f (A) "
+            % (wavelength_start, wavelength_end,)
+        )
         self.layout = QtWidgets.QVBoxLayout()
         packet_nu_line_interaction = analysis.LastLineInteraction.from_model(
-            self.parent.model)
-        packet_nu_line_interaction.packet_filter_mode = 'packet_nu'
-        packet_nu_line_interaction.wavelength_start = wavelength_start * u.angstrom
+            self.parent.model
+        )
+        packet_nu_line_interaction.packet_filter_mode = "packet_nu"
+        packet_nu_line_interaction.wavelength_start = (
+            wavelength_start * u.angstrom
+        )
         packet_nu_line_interaction.wavelength_end = wavelength_end * u.angstrom
 
         line_in_nu_line_interaction = analysis.LastLineInteraction.from_model(
-            self.parent.model)
-        line_in_nu_line_interaction.packet_filter_mode = 'line_in_nu'
-        line_in_nu_line_interaction.wavelength_start = wavelength_start * u.angstrom
+            self.parent.model
+        )
+        line_in_nu_line_interaction.packet_filter_mode = "line_in_nu"
+        line_in_nu_line_interaction.wavelength_start = (
+            wavelength_start * u.angstrom
+        )
         line_in_nu_line_interaction.wavelength_end = wavelength_end * u.angstrom
 
-
-        self.layout.addWidget(LineInteractionTables(packet_nu_line_interaction,
-            self.parent.model.plasma.atomic_data.atom_data, self.parent.model.plasma.lines, 'filtered by frequency of packet',
-            self.createTable))
-        self.layout.addWidget(LineInteractionTables(line_in_nu_line_interaction,
-            self.parent.model.plasma.atomic_data.atom_data, self.parent.model.plasma.lines,
-            'filtered by frequency of line interaction', self.createTable))
+        self.layout.addWidget(
+            LineInteractionTables(
+                packet_nu_line_interaction,
+                self.parent.model.plasma.atomic_data.atom_data,
+                self.parent.model.plasma.lines,
+                "filtered by frequency of packet",
+                self.createTable,
+            )
+        )
+        self.layout.addWidget(
+            LineInteractionTables(
+                line_in_nu_line_interaction,
+                self.parent.model.plasma.atomic_data.atom_data,
+                self.parent.model.plasma.lines,
+                "filtered by frequency of line interaction",
+                self.createTable,
+            )
+        )
 
         self.setLayout(self.layout)
         self.show()
@@ -856,35 +996,51 @@ class LineInfo(QtWidgets.QDialog):
         """
         self.wavelength_start = wavelength_start * u.angstrom
         self.wavelength_end = wavelength_end * u.angstrom
-        last_line_in_ids, last_line_out_ids = analysis.get_last_line_interaction(
-            self.wavelength_start, self.wavelength_end, self.parent.model)
+        (
+            last_line_in_ids,
+            last_line_out_ids,
+        ) = analysis.get_last_line_interaction(
+            self.wavelength_start, self.wavelength_end, self.parent.model
+        )
         self.last_line_in, self.last_line_out = (
             self.parent.model.atom_data.lines.ix[last_line_in_ids],
-            self.parent.model.atom_data.lines.ix[last_line_out_ids])
-        self.grouped_lines_in, self.grouped_lines_out = (self.last_line_in.groupby(
-            ['atomic_number', 'ion_number']),
-        self.last_line_out.groupby(['atomic_number', 'ion_number']))
-        self.ions_in, self.ions_out = (self.grouped_lines_in.groups.keys(),
-        self.grouped_lines_out.groups.keys())
+            self.parent.model.atom_data.lines.ix[last_line_out_ids],
+        )
+        self.grouped_lines_in, self.grouped_lines_out = (
+            self.last_line_in.groupby(["atomic_number", "ion_number"]),
+            self.last_line_out.groupby(["atomic_number", "ion_number"]),
+        )
+        self.ions_in, self.ions_out = (
+            self.grouped_lines_in.groups.keys(),
+            self.grouped_lines_out.groups.keys(),
+        )
         self.ions_in.sort()
         self.ions_out.sort()
         self.header_list = []
-        self.ion_table = (self.grouped_lines_in.wavelength.count().astype(float) /
-            self.grouped_lines_in.wavelength.count().sum()).values.tolist()
+        self.ion_table = (
+            self.grouped_lines_in.wavelength.count().astype(float)
+            / self.grouped_lines_in.wavelength.count().sum()
+        ).values.tolist()
         for z, ion in self.ions_in:
-            self.header_list.append('Z = %d: Ion %d' % (z, ion))
+            self.header_list.append("Z = %d: Ion %d" % (z, ion))
 
     def get_transition_table(self, lines, atom, ion):
         """Called by the two methods below to get transition table for
         given lines, atom and ions.
 
         """
-        grouped = lines.groupby(['atomic_number', 'ion_number'])
-        transitions_with_duplicates = lines.ix[grouped.groups[(atom, ion)]
-            ].groupby(['level_number_lower', 'level_number_upper']).groups
-        transitions = lines.ix[grouped.groups[(atom, ion)]
-            ].drop_duplicates().groupby(['level_number_lower',
-            'level_number_upper']).groups
+        grouped = lines.groupby(["atomic_number", "ion_number"])
+        transitions_with_duplicates = (
+            lines.ix[grouped.groups[(atom, ion)]]
+            .groupby(["level_number_lower", "level_number_upper"])
+            .groups
+        )
+        transitions = (
+            lines.ix[grouped.groups[(atom, ion)]]
+            .drop_duplicates()
+            .groupby(["level_number_lower", "level_number_upper"])
+            .groups
+        )
         transitions_count = []
         transitions_parsed = []
         for item in transitions.values():
@@ -898,8 +1054,16 @@ class LineInfo(QtWidgets.QDialog):
         for index in range(len(transitions_count)):
             transitions_count[index] /= float(s)
         for key, value in transitions.items():
-            transitions_parsed.append("%d-%d (%.2f A)" % (key[0], key[1],
-                self.parent.model.atom_data.lines.ix[value[0]]['wavelength']))
+            transitions_parsed.append(
+                "%d-%d (%.2f A)"
+                % (
+                    key[0],
+                    key[1],
+                    self.parent.model.atom_data.lines.ix[value[0]][
+                        "wavelength"
+                    ],
+                )
+            )
         return transitions_parsed, transitions_count
 
     def on_atom_clicked(self, index):
@@ -907,16 +1071,24 @@ class LineInfo(QtWidgets.QDialog):
         dialog created by the spectrum widget.
 
         """
-        self.transitionsin_parsed, self.transitionsin_count = (
-            self.get_transition_table(self.last_line_in,
-            self.ions_in[index][0], self.ions_in[index][1]))
-        self.transitionsout_parsed, self.transitionsout_count = (
-            self.get_transition_table(self.last_line_out,
-            self.ions_out[index][0], self.ions_out[index][1]))
-        self.transitionsindata = self.createTable([self.transitionsin_parsed,
-            ['Lines In']])
-        self.transitionsoutdata = self.createTable([self.transitionsout_parsed,
-            ['Lines Out']])
+        (
+            self.transitionsin_parsed,
+            self.transitionsin_count,
+        ) = self.get_transition_table(
+            self.last_line_in, self.ions_in[index][0], self.ions_in[index][1]
+        )
+        (
+            self.transitionsout_parsed,
+            self.transitionsout_count,
+        ) = self.get_transition_table(
+            self.last_line_out, self.ions_out[index][0], self.ions_out[index][1]
+        )
+        self.transitionsindata = self.createTable(
+            [self.transitionsin_parsed, ["Lines In"]]
+        )
+        self.transitionsoutdata = self.createTable(
+            [self.transitionsout_parsed, ["Lines Out"]]
+        )
         self.transitionsindata.add_data(self.transitionsin_count)
         self.transitionsoutdata.add_data(self.transitionsout_count)
         self.transitionsintable.setModel(self.transitionsindata)
@@ -931,16 +1103,24 @@ class LineInfo(QtWidgets.QDialog):
         dialog created by the spectrum widget.
 
         """
-        self.transitionsin_parsed, self.transitionsin_count = (
-            self.get_transition_table(self.last_line_in, self.ions_in[index][0],
-            self.ions_in[index][1]))
-        self.transitionsout_parsed, self.transitionsout_count = (
-            self.get_transition_table(self.last_line_out,
-            self.ions_out[index][0], self.ions_out[index][1]))
-        self.transitionsindata = self.createTable([self.transitionsin_parsed,
-            ['Lines In']])
-        self.transitionsoutdata = self.createTable([self.transitionsout_parsed,
-            ['Lines Out']])
+        (
+            self.transitionsin_parsed,
+            self.transitionsin_count,
+        ) = self.get_transition_table(
+            self.last_line_in, self.ions_in[index][0], self.ions_in[index][1]
+        )
+        (
+            self.transitionsout_parsed,
+            self.transitionsout_count,
+        ) = self.get_transition_table(
+            self.last_line_out, self.ions_out[index][0], self.ions_out[index][1]
+        )
+        self.transitionsindata = self.createTable(
+            [self.transitionsin_parsed, ["Lines In"]]
+        )
+        self.transitionsoutdata = self.createTable(
+            [self.transitionsout_parsed, ["Lines Out"]]
+        )
         self.transitionsindata.add_data(self.transitionsin_count)
         self.transitionsoutdata.add_data(self.transitionsout_count)
         self.transitionsintable2.setModel(self.transitionsindata)
@@ -950,14 +1130,21 @@ class LineInfo(QtWidgets.QDialog):
         self.setGeometry(180 + len(self.parent.line_info) * 20, 150, 750, 400)
         self.show()
 
+
 class LineInteractionTables(QtWidgets.QWidget):
     """Widget to hold the line interaction tables used by
     LineInfo which in turn is used by spectrum widget.
 
     """
 
-    def __init__(self, line_interaction_analysis, atom_data, lines_data, description,
-        tablecreator):
+    def __init__(
+        self,
+        line_interaction_analysis,
+        atom_data,
+        lines_data,
+        description,
+        tablecreator,
+    ):
         """Create the widget and set data."""
         super(LineInteractionTables, self).__init__()
         self.createTable = tablecreator
@@ -967,17 +1154,26 @@ class LineInteractionTables(QtWidgets.QWidget):
         self.layout = QtWidgets.QHBoxLayout()
         self.line_interaction_analysis = line_interaction_analysis
         self.atom_data = atom_data
-        self.lines_data = lines_data.reset_index().set_index('line_id')
-        line_interaction_species_group = \
-        line_interaction_analysis.last_line_in.groupby(['atomic_number',
-            'ion_number'])
+        self.lines_data = lines_data.reset_index().set_index("line_id")
+        line_interaction_species_group = line_interaction_analysis.last_line_in.groupby(
+            ["atomic_number", "ion_number"]
+        )
         self.species_selected = sorted(
-            line_interaction_species_group.groups.keys())
-        species_symbols = [tardis.util.base.species_tuple_to_string(item) for item in self.species_selected]
-        species_table_model = self.createTable([species_symbols, ['Species']])
+            line_interaction_species_group.groups.keys()
+        )
+        species_symbols = [
+            tardis.util.base.species_tuple_to_string(item)
+            for item in self.species_selected
+        ]
+        species_table_model = self.createTable([species_symbols, ["Species"]])
         species_abundances = (
-            line_interaction_species_group.wavelength.count().astype(float) /
-            line_interaction_analysis.last_line_in.wavelength.count()).astype(float).tolist()
+            (
+                line_interaction_species_group.wavelength.count().astype(float)
+                / line_interaction_analysis.last_line_in.wavelength.count()
+            )
+            .astype(float)
+            .tolist()
+        )
         species_abundances = list(map(float, species_abundances))
         species_table_model.add_data(species_abundances)
         self.species_table.setModel(species_table_model)
@@ -985,8 +1181,10 @@ class LineInteractionTables(QtWidgets.QWidget):
         line_interaction_species_group.wavelength.count()
         self.layout.addWidget(self.text_description)
         self.layout.addWidget(self.species_table)
-        self.sectionClicked=QtCore.Signal(int)
-        self.species_table.verticalHeader().sectionClicked.connect(self.on_species_clicked)
+        self.sectionClicked = QtCore.Signal(int)
+        self.species_table.verticalHeader().sectionClicked.connect(
+            self.on_species_clicked
+        )
         self.layout.addWidget(self.transitions_table)
 
         self.setLayout(self.layout)
@@ -999,40 +1197,53 @@ class LineInteractionTables(QtWidgets.QWidget):
         last_line_out = self.line_interaction_analysis.last_line_out
 
         current_last_line_in = last_line_in.xs(
-                key=(current_species[0], current_species[1]),
-                level=['atomic_number', 'ion_number'],
-                drop_level=False).reset_index()
+            key=(current_species[0], current_species[1]),
+            level=["atomic_number", "ion_number"],
+            drop_level=False,
+        ).reset_index()
         current_last_line_out = last_line_out.xs(
-                key=(current_species[0], current_species[1]),
-                level=['atomic_number', 'ion_number'],
-                drop_level=False).reset_index()
+            key=(current_species[0], current_species[1]),
+            level=["atomic_number", "ion_number"],
+            drop_level=False,
+        ).reset_index()
 
-        current_last_line_in['line_id_out'] = current_last_line_out.line_id
-
+        current_last_line_in["line_id_out"] = current_last_line_out.line_id
 
         last_line_in_string = []
         last_line_count = []
         grouped_line_interactions = current_last_line_in.groupby(
-                ['line_id', 'line_id_out'])
-        exc_deexc_string = 'exc. %d-%d (%.2f A) de-exc. %d-%d (%.2f A)'
+            ["line_id", "line_id_out"]
+        )
+        exc_deexc_string = "exc. %d-%d (%.2f A) de-exc. %d-%d (%.2f A)"
 
-        for line_id, row in grouped_line_interactions.wavelength.count().iteritems():
+        for (
+            line_id,
+            row,
+        ) in grouped_line_interactions.wavelength.count().iteritems():
             current_line_in = self.lines_data.loc[line_id[0]]
             current_line_out = self.lines_data.loc[line_id[1]]
-            last_line_in_string.append(exc_deexc_string % (
-                current_line_in['level_number_lower'],
-                current_line_in['level_number_upper'],
-                current_line_in['wavelength'],
-                current_line_out['level_number_upper'],
-                current_line_out['level_number_lower'],
-                current_line_out['wavelength']))
+            last_line_in_string.append(
+                exc_deexc_string
+                % (
+                    current_line_in["level_number_lower"],
+                    current_line_in["level_number_upper"],
+                    current_line_in["wavelength"],
+                    current_line_out["level_number_upper"],
+                    current_line_out["level_number_lower"],
+                    current_line_out["wavelength"],
+                )
+            )
             last_line_count.append(int(row))
 
-
-        last_line_in_model = self.createTable([last_line_in_string, [
-            'Num. pkts %d' % current_last_line_in.wavelength.count()]])
+        last_line_in_model = self.createTable(
+            [
+                last_line_in_string,
+                ["Num. pkts %d" % current_last_line_in.wavelength.count()],
+            ]
+        )
         last_line_in_model.add_data(last_line_count)
         self.transitions_table.setModel(last_line_in_model)
+
 
 class Tardis(QtWidgets.QMainWindow):
     """Create the top level window for the GUI and wait for call to
@@ -1065,8 +1276,8 @@ class Tardis(QtWidgets.QMainWindow):
 
         """
 
-        #assumes that qt has already been initialized by starting IPython
-        #with the flag "--pylab=qt"
+        # assumes that qt has already been initialized by starting IPython
+        # with the flag "--pylab=qt"
         # app = QtCore.QCoreApplication.instance()
         # if app is None:
         #     app = QtGui.QApplication([])
@@ -1078,48 +1289,52 @@ class Tardis(QtWidgets.QMainWindow):
 
         QtWidgets.QMainWindow.__init__(self, parent)
 
-        #path to icons folder
-        self.path = os.path.join(tardis.__path__[0],'gui','images')
+        # path to icons folder
+        self.path = os.path.join(tardis.__path__[0], "gui", "images")
 
-        #Check if configuration file was provided
-        self.mode = 'passive'
+        # Check if configuration file was provided
+        self.mode = "passive"
         if config is not None:
-            self.mode = 'active'
+            self.mode = "active"
 
-        #Statusbar
+        # Statusbar
         statusbr = self.statusBar()
         lblstr = '<font color="red"><b>Calculation did not converge</b></font>'
         self.successLabel = QtWidgets.QLabel(lblstr)
-        self.successLabel.setFrameStyle(QtWidgets.QFrame.StyledPanel |
-            QtWidgets.QFrame.Sunken)
+        self.successLabel.setFrameStyle(
+            QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Sunken
+        )
         statusbr.addPermanentWidget(self.successLabel)
-        self.modeLabel = QtWidgets.QLabel('Passive mode')
+        self.modeLabel = QtWidgets.QLabel("Passive mode")
         statusbr.addPermanentWidget(self.modeLabel)
         statusbr.showMessage(self.mode, 5000)
         statusbr.showMessage("Ready", 5000)
 
-        #Actions
+        # Actions
         quitAction = QtWidgets.QAction("&Quit", self)
-        quitAction.setIcon(QtGui.QIcon(os.path.join(self.path,
-            'closeicon.png')))
+        quitAction.setIcon(
+            QtGui.QIcon(os.path.join(self.path, "closeicon.png"))
+        )
         quitAction.triggered.connect(self.close)
 
         self.viewMdv = QtWidgets.QAction("View &Model", self)
-        self.viewMdv.setIcon(QtGui.QIcon(os.path.join(self.path,
-            'mdvswitch.png')))
+        self.viewMdv.setIcon(
+            QtGui.QIcon(os.path.join(self.path, "mdvswitch.png"))
+        )
         self.viewMdv.setCheckable(True)
         self.viewMdv.setChecked(True)
         self.viewMdv.setEnabled(False)
         self.viewMdv.triggered.connect(self.switch_to_mdv)
 
         self.viewForm = QtWidgets.QAction("&Edit Model", self)
-        self.viewForm.setIcon(QtGui.QIcon(os.path.join(self.path,
-            'formswitch.png')))
+        self.viewForm.setIcon(
+            QtGui.QIcon(os.path.join(self.path, "formswitch.png"))
+        )
         self.viewForm.setCheckable(True)
         self.viewForm.setEnabled(False)
         self.viewForm.triggered.connect(self.switch_to_form)
 
-        #Menubar
+        # Menubar
         self.fileMenu = self.menuBar().addMenu("&File")
         self.fileMenu.addAction(quitAction)
         self.viewMenu = self.menuBar().addMenu("&View")
@@ -1127,7 +1342,7 @@ class Tardis(QtWidgets.QMainWindow):
         self.viewMenu.addAction(self.viewForm)
         self.helpMenu = self.menuBar().addMenu("&Help")
 
-        #Toolbar
+        # Toolbar
         fileToolbar = self.addToolBar("File")
         fileToolbar.setObjectName("FileToolBar")
         fileToolbar.addAction(quitAction)
@@ -1137,14 +1352,14 @@ class Tardis(QtWidgets.QMainWindow):
         viewToolbar.addAction(self.viewMdv)
         viewToolbar.addAction(self.viewForm)
 
-        #Central Widget
+        # Central Widget
         self.stackedWidget = QtWidgets.QStackedWidget()
         self.mdv = ModelViewer(tablemodel)
         self.stackedWidget.addWidget(self.mdv)
 
-        #In case of active mode
-        if self.mode == 'active':
-            #Disabled currently
+        # In case of active mode
+        if self.mode == "active":
+            # Disabled currently
             # self.formWidget = ConfigEditor(config)
             # #scrollarea
             # scrollarea = QtGui.QScrollArea()
@@ -1154,8 +1369,10 @@ class Tardis(QtWidgets.QMainWindow):
             # self.viewMdv.setEnabled(True)
             # model = run_tardis(config, atom_data)
             # self.show_model(model)
-            raise TemporarilyUnavaliable("The active mode is under"
-                "development. Please use the passive mode for now.")
+            raise TemporarilyUnavaliable(
+                "The active mode is under"
+                "development. Please use the passive mode for now."
+            )
 
         self.setCentralWidget(self.stackedWidget)
 
@@ -1172,15 +1389,14 @@ class Tardis(QtWidgets.QMainWindow):
             self.mdv.change_model(model)
         if model.converged:
             self.successLabel.setText('<font color="green">converged</font>')
-        if self.mode == 'active':
-            self.modeLabel.setText('Active Mode')
+        if self.mode == "active":
+            self.modeLabel.setText("Active Mode")
 
         self.mdv.fill_output_label()
         self.mdv.tableview.setModel(self.mdv.tablemodel)
         self.mdv.plot_model()
         self.mdv.plot_spectrum()
         self.showMaximized()
-
 
     def switch_to_mdv(self):
         """Switch the cental stacked widget to show the modelviewer."""
@@ -1191,6 +1407,7 @@ class Tardis(QtWidgets.QMainWindow):
         """Switch the cental stacked widget to show the ConfigEditor."""
         self.stackedWidget.setCurrentIndex(1)
         self.viewMdv.setChecked(False)
+
 
 class TemporarilyUnavaliable(Exception):
     """Exception raised when creation of active mode of tardis is attempted."""

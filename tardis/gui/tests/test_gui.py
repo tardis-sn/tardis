@@ -4,32 +4,30 @@ from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
 import astropy.units as u
 from tardis.gui import interface
-from tardis.gui.widgets import Tardis 
+from tardis.gui.widgets import Tardis
 from tardis.gui.datahandler import SimpleTableModel
 from PyQt5 import QtWidgets
 
 
-
-
-
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def refdata(tardis_ref_data):
     def get_ref_data(key):
-        return tardis_ref_data[os.path.join(
-                'test_simulation', key)]
+        return tardis_ref_data[os.path.join("test_simulation", key)]
+
     return get_ref_data
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def config():
     return Configuration.from_yaml(
-            'tardis/io/tests/data/tardis_configv1_verysimple.yml')
+        "tardis/io/tests/data/tardis_configv1_verysimple.yml"
+    )
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def simulation_one_loop(
-        atomic_data_fname, config,
-        tardis_ref_data, generate_reference):
+    atomic_data_fname, config, tardis_ref_data, generate_reference
+):
     config.atom_data = atomic_data_fname
     config.montecarlo.iterations = 2
     config.montecarlo.no_of_packets = int(4e4)
@@ -39,6 +37,7 @@ def simulation_one_loop(
     simulation.run()
 
     return simulation
+
 
 def test_gui(simulation_one_loop):
     simulation = simulation_one_loop

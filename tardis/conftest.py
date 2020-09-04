@@ -6,7 +6,8 @@
 # test infrastructure.
 
 from astropy.version import version as astropy_version
-if astropy_version < '3.0':
+
+if astropy_version < "3.0":
     # With older versions of Astropy, we actually need to import the pytest
     # plugins themselves in order to make them discoverable by pytest.
     from astropy.tests.pytest_plugins import *
@@ -15,7 +16,10 @@ else:
     # automatically made available when Astropy is installed. This means it's
     # not necessary to import them here, but we still need to import global
     # variables that are used for configuration.
-    from astropy.tests.plugins.display import PYTEST_HEADER_MODULES, TESTED_VERSIONS
+    from astropy.tests.plugins.display import (
+        PYTEST_HEADER_MODULES,
+        TESTED_VERSIONS,
+    )
 
 from astropy.tests.helper import enable_deprecations_as_exceptions
 
@@ -82,15 +86,15 @@ import pandas as pd
 # the tests. Making it pass for KeyError is essential in some cases when
 # the package uses other astropy affiliated packages.
 try:
-    PYTEST_HEADER_MODULES['Numpy'] = 'numpy'
-    PYTEST_HEADER_MODULES['Scipy'] = 'scipy'
-    PYTEST_HEADER_MODULES['Pandas'] = 'pandas'
-    PYTEST_HEADER_MODULES['Astropy'] = 'astropy'
-    PYTEST_HEADER_MODULES['Yaml'] = 'yaml'
-    PYTEST_HEADER_MODULES['Cython'] = 'cython'
-    PYTEST_HEADER_MODULES['h5py'] = 'h5py'
-    PYTEST_HEADER_MODULES['Matplotlib'] = 'matplotlib'
-    PYTEST_HEADER_MODULES['Ipython'] = 'IPython'
+    PYTEST_HEADER_MODULES["Numpy"] = "numpy"
+    PYTEST_HEADER_MODULES["Scipy"] = "scipy"
+    PYTEST_HEADER_MODULES["Pandas"] = "pandas"
+    PYTEST_HEADER_MODULES["Astropy"] = "astropy"
+    PYTEST_HEADER_MODULES["Yaml"] = "yaml"
+    PYTEST_HEADER_MODULES["Cython"] = "cython"
+    PYTEST_HEADER_MODULES["h5py"] = "h5py"
+    PYTEST_HEADER_MODULES["Matplotlib"] = "matplotlib"
+    PYTEST_HEADER_MODULES["Ipython"] = "IPython"
 #     del PYTEST_HEADER_MODULES['h5py']
 except (NameError, KeyError):  # NameError is needed to support Astropy < 1.0
     pass
@@ -105,14 +109,13 @@ import os
 try:
     from .version import version
 except ImportError:
-    version = 'dev'
+    version = "dev"
 
 try:
     packagename = os.path.basename(os.path.dirname(__file__))
     TESTED_VERSIONS[packagename] = version
-except NameError:   # Needed to support Astropy <= 1.0.0
+except NameError:  # Needed to support Astropy <= 1.0.0
     pass
-
 
 
 # -------------------------------------------------------------------------
@@ -121,24 +124,35 @@ except NameError:   # Needed to support Astropy <= 1.0.0
 
 
 def pytest_addoption(parser):
-    parser.addoption("--tardis-refdata", default=None,
-                     help="Path to Tardis Reference Folder")
-    parser.addoption("--integration-tests",
-                     dest="integration-tests", default=None,
-                     help="path to configuration file for integration tests")
-    parser.addoption("--generate-reference",
-                     action="store_true", default=False,
-                     help="generate reference data instead of testing")
-    parser.addoption("--less-packets",
-                     action="store_true", default=False,
-                     help="Run integration tests with less packets.")
+    parser.addoption(
+        "--tardis-refdata", default=None, help="Path to Tardis Reference Folder"
+    )
+    parser.addoption(
+        "--integration-tests",
+        dest="integration-tests",
+        default=None,
+        help="path to configuration file for integration tests",
+    )
+    parser.addoption(
+        "--generate-reference",
+        action="store_true",
+        default=False,
+        help="generate reference data instead of testing",
+    )
+    parser.addoption(
+        "--less-packets",
+        action="store_true",
+        default=False,
+        help="Run integration tests with less packets.",
+    )
+
 
 # -------------------------------------------------------------------------
 # project specific fixtures
 # -------------------------------------------------------------------------
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def generate_reference():
     option = pytest.config.getvalue("generate_reference")
     if option is None:
@@ -151,32 +165,32 @@ def generate_reference():
 def tardis_ref_path():
     tardis_ref_path = pytest.config.getvalue("tardis_refdata")
     if tardis_ref_path is None:
-        pytest.skip('--tardis-refdata was not specified')
+        pytest.skip("--tardis-refdata was not specified")
     else:
         return os.path.expandvars(os.path.expanduser(tardis_ref_path))
 
+
 from tardis.tests.fixtures.atom_data import *
+
 
 @pytest.yield_fixture(scope="session")
 def tardis_ref_data(tardis_ref_path, generate_reference):
     if generate_reference:
-        mode = 'w'
+        mode = "w"
     else:
-        mode = 'r'
+        mode = "r"
     with pd.HDFStore(
-            os.path.join(
-                tardis_ref_path,
-                'unit_test_data.h5'),
-            mode=mode
-            ) as store:
+        os.path.join(tardis_ref_path, "unit_test_data.h5"), mode=mode
+    ) as store:
         yield store
-
 
 
 @pytest.fixture
 def tardis_config_verysimple():
     return yaml_load_config_file(
-        'tardis/io/tests/data/tardis_configv1_verysimple.yml')
+        "tardis/io/tests/data/tardis_configv1_verysimple.yml"
+    )
+
 
 ###
 # HDF Fixtures
@@ -185,14 +199,14 @@ def tardis_config_verysimple():
 
 @pytest.fixture(scope="session")
 def hdf_file_path(tmpdir_factory):
-    path = tmpdir_factory.mktemp('hdf_buffer').join('test.hdf')
+    path = tmpdir_factory.mktemp("hdf_buffer").join("test.hdf")
     return str(path)
 
 
 @pytest.fixture(scope="session")
 def config_verysimple():
-    filename = 'tardis_configv1_verysimple.yml'
-    path = os.path.abspath(os.path.join('tardis/io/tests/data/', filename))
+    filename = "tardis_configv1_verysimple.yml"
+    path = os.path.abspath(os.path.join("tardis/io/tests/data/", filename))
     config = Configuration.from_yaml(path)
     return config
 

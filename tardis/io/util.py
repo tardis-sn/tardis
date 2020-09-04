@@ -1,4 +1,4 @@
-#Utility functions for the IO part of TARDIS
+# Utility functions for the IO part of TARDIS
 
 import os
 import re
@@ -21,7 +21,6 @@ from tardis import __path__ as TARDIS_PATH
 logger = logging.getLogger(__name__)
 
 
-
 def get_internal_data_path(fname):
     """
     Get internal data path of TARDIS
@@ -32,7 +31,8 @@ def get_internal_data_path(fname):
             internal data path of TARDIS
 
     """
-    return os.path.join(TARDIS_PATH[0], 'data', fname)
+    return os.path.join(TARDIS_PATH[0], "data", fname)
+
 
 def quantity_from_str(text):
     """
@@ -47,9 +47,9 @@ def quantity_from_str(text):
     """
     value_str, unit_str = text.split(None, 1)
     value = float(value_str)
-    if unit_str.strip() == 'log_lsun':
+    if unit_str.strip() == "log_lsun":
         value = 10 ** (value + np.log10(constants.L_sun.cgs.value))
-        unit_str = 'erg/s'
+        unit_str = "erg/s"
 
     unit = u.Unit(unit_str)
     if unit == u.L_sun:
@@ -65,6 +65,7 @@ class MockRegexPattern(object):
 
     Note: This is usually a lot slower than regex matching.
     """
+
     def __init__(self, target_type):
         self.type = target_type
 
@@ -115,13 +116,18 @@ class YAMLLoader(yaml.Loader):
     def mapping_constructor(self, node):
         return OrderedDict(self.construct_pairs(node))
 
-YAMLLoader.add_constructor(u'!quantity', YAMLLoader.construct_quantity)
-YAMLLoader.add_implicit_resolver(u'!quantity',
-                                 MockRegexPattern(quantity_from_str), None)
-YAMLLoader.add_implicit_resolver(u'tag:yaml.org,2002:float',
-                                 MockRegexPattern(float), None)
-YAMLLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-                           YAMLLoader.mapping_constructor)
+
+YAMLLoader.add_constructor("!quantity", YAMLLoader.construct_quantity)
+YAMLLoader.add_implicit_resolver(
+    "!quantity", MockRegexPattern(quantity_from_str), None
+)
+YAMLLoader.add_implicit_resolver(
+    "tag:yaml.org,2002:float", MockRegexPattern(float), None
+)
+YAMLLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+    YAMLLoader.mapping_constructor,
+)
 
 
 def yaml_load_file(filename, loader=yaml.Loader):
@@ -154,7 +160,11 @@ def traverse_configs(base, other, func, *args):
     if isinstance(base, collections.Mapping):
         for k in base:
             traverse_configs(base[k], other[k], func, *args)
-    elif isinstance(base, collections.Iterable) and not isinstance(base, basestring) and not hasattr(base, 'shape'):
+    elif (
+        isinstance(base, collections.Iterable)
+        and not isinstance(base, basestring)
+        and not hasattr(base, "shape")
+    ):
         for val1, val2 in zip(base, other):
             traverse_configs(val1, val2, func, *args)
     else:
@@ -164,7 +174,7 @@ def traverse_configs(base, other, func, *args):
 def assert_equality(item1, item2):
     assert type(item1) is type(item2)
     try:
-        if hasattr(item1, 'unit'):
+        if hasattr(item1, "unit"):
             assert item1.unit == item2.unit
         assert np.allclose(item1, item2, atol=0.0)
     except (ValueError, TypeError):
@@ -188,7 +198,7 @@ class HDFWriterMixin(object):
         return instance
 
     @staticmethod
-    def to_hdf_util(path_or_buf, path, elements, complevel=9, complib='blosc'):
+    def to_hdf_util(path_or_buf, path, elements, complevel=9, complib="blosc"):
         """
         A function to uniformly store TARDIS data
         to an HDF file.
@@ -216,13 +226,9 @@ class HDFWriterMixin(object):
         we_opened = False
 
         try:
-            buf = pd.HDFStore(
-                    path_or_buf,
-                    complevel=complevel,
-                    complib=complib
-                    )
+            buf = pd.HDFStore(path_or_buf, complevel=complevel, complib=complib)
         except TypeError as e:  # Already a HDFStore
-            if e.message == 'Expected bytes, got HDFStore':
+            if e.message == "Expected bytes, got HDFStore":
                 buf = path_or_buf
             else:
                 raise e
@@ -236,23 +242,20 @@ class HDFWriterMixin(object):
         scalars = {}
         for key, value in elements.items():
             if value is None:
-                value = 'none'
-            if hasattr(value, 'cgs'):
+                value = "none"
+            if hasattr(value, "cgs"):
                 value = value.cgs.value
             if np.isscalar(value):
                 scalars[key] = value
-            elif hasattr(value, 'shape'):
+            elif hasattr(value, "shape"):
                 if value.ndim == 1:
                     # This try,except block is only for model.plasma.levels
                     try:
-                        pd.Series(value).to_hdf(buf,
-                                                os.path.join(path, key))
+                        pd.Series(value).to_hdf(buf, os.path.join(path, key))
                     except NotImplementedError:
-                        pd.DataFrame(value).to_hdf(buf,
-                                                   os.path.join(path, key))
+                        pd.DataFrame(value).to_hdf(buf, os.path.join(path, key))
                 else:
-                    pd.DataFrame(value).to_hdf(
-                        buf, os.path.join(path, key))
+                    pd.DataFrame(value).to_hdf(buf, os.path.join(path, key))
             else:
                 try:
                     value.to_hdf(buf, path, name=key)
@@ -264,12 +267,12 @@ class HDFWriterMixin(object):
             scalars_series = pd.Series(scalars)
 
             # Unfortunately, with to_hdf we cannot append, so merge beforehand
-            scalars_path = os.path.join(path, 'scalars')
+            scalars_path = os.path.join(path, "scalars")
             try:
                 scalars_series = buf[scalars_path].append(scalars_series)
             except KeyError:  # no scalars in HDFStore
                 pass
-            scalars_series.to_hdf(buf, os.path.join(path, 'scalars'))
+            scalars_series.to_hdf(buf, os.path.join(path, "scalars"))
 
         if we_opened:
             buf.close()
@@ -284,10 +287,10 @@ class HDFWriterMixin(object):
 
     @staticmethod
     def convert_to_snake_case(s):
-        s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', s)
-        return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+        s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", s)
+        return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
-    def to_hdf(self, file_path, path='', name=None):
+    def to_hdf(self, file_path, path="", name=None):
         """
         Parameters
         ----------
@@ -314,27 +317,29 @@ class HDFWriterMixin(object):
 
 
 class PlasmaWriterMixin(HDFWriterMixin):
-
     def get_properties(self):
         data = {}
         if self.collection:
-            properties = [name for name in self.plasma_properties
-                          if isinstance(name, tuple(self.collection))]
+            properties = [
+                name
+                for name in self.plasma_properties
+                if isinstance(name, tuple(self.collection))
+            ]
         else:
             properties = self.plasma_properties
         for prop in properties:
             for output in prop.outputs:
                 data[output] = getattr(prop, output)
-        data['atom_data_uuid'] = self.atomic_data.uuid1
-        if 'atomic_data' in data:
-            data.pop('atomic_data')
-        if 'nlte_data' in data:
+        data["atom_data_uuid"] = self.atomic_data.uuid1
+        if "atomic_data" in data:
+            data.pop("atomic_data")
+        if "nlte_data" in data:
             logger.warning("nlte_data can't be saved")
-            data.pop('nlte_data')
+            data.pop("nlte_data")
         return data
 
-    def to_hdf(self, file_path, path='', name=None, collection=None):
-        '''
+    def to_hdf(self, file_path, path="", name=None, collection=None):
+        """
         Parameters
         ----------
         file_path: str
@@ -355,7 +360,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
         Returns
         -------
 
-        '''
+        """
         self.collection = collection
         super(PlasmaWriterMixin, self).to_hdf(file_path, path, name)
 
@@ -376,10 +381,14 @@ def download_from_url(url, dst):
         return file_size
     header = {"Range": "bytes=%s-%s" % (first_byte, file_size)}
     pbar = tqdm(
-        total=file_size, initial=first_byte,
-        unit='B', unit_scale=True, desc=url.split('/')[-1])
+        total=file_size,
+        initial=first_byte,
+        unit="B",
+        unit_scale=True,
+        desc=url.split("/")[-1],
+    )
     req = requests.get(url, headers=header, stream=True)
-    with(open(dst, 'ab')) as f:
+    with (open(dst, "ab")) as f:
         for chunk in req.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)

@@ -7,16 +7,16 @@ import sys
 import yaml
 
 
-SEED = eval(sys.argv[1].split('=')[1])[0]
+SEED = eval(sys.argv[1].split("=")[1])[0]
 
-yaml_file, params = 'tardis_example_single.yml', None
+yaml_file, params = "tardis_example_single.yml", None
 
 with open(yaml_file) as f:
     params = yaml.safe_load(f)
 
-params['montecarlo']['single_packet_seed'] = SEED
+params["montecarlo"]["single_packet_seed"] = SEED
 
-with open(yaml_file, 'w') as f:
+with open(yaml_file, "w") as f:
     yaml.safe_dump(params, f)
 
 mdl = run_tardis(yaml_file)
