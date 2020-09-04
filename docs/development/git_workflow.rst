@@ -3,33 +3,33 @@
 General Workflow to add a new feature
 =====================================
 
-In TARDIS we aim to stick to a test driven development. This uses the testing
-framework extensively starting with a test that shows this feature lacking via
+In TARDIS, we aim to stick to a test driven development. This uses the testing
+framework extensively, starting with a test that shows this feature lacking via
 the implementation of the feature until the merging of the code to the main
 repository.
 
-In most cases we try to break down big features into small, quantifiable goals
+In most cases, we try to break down big features into small, quantifiable goals
 which are then acted upon.
 
 * Document feature to be added in an issue and maybe ask the mailing
-  list if this feature exists
+  list if this feature exists.
 * Write a test that demonstrates what feature will be added.
 * Run the test to verify that it fails in the way you think it should.
 * If it fails in an unexpected way, your test may be wrong. This is a
-  great time to ask the group for guidance
+  great time to ask the group for guidance.
 * If it passes, you are done! You just added test coverage to an
   already existing feature, and that is great! (unlikely)
 * Add the feature (also known as "a simple matter of programming").
 * Run the test to verify that it passes.
 * Write documentation about your feature.
-* close issue/partial PR and add to changelog.
+* Close issue/partial PR and add to changelog.
 
 
 Preparation and Working with Git
 ================================
 
-In this document, we refer to the Tardis ``master`` branch as the *trunk*. The first step is to setup up a python environment. We recommend to use
-Anaconda for this purpose and refer to our :doc:`Installation guide <../installation>` which covers this topic.
+In this document, we refer to the TARDIS ``master`` branch as the *trunk*. The first step is to setup up a python environment. We recommend using
+Anaconda for this purpose; refer to our :doc:`Installation guide <../installation>` which covers this topic.
 
 .. _forking:
 
@@ -54,7 +54,7 @@ the `Generating SSH keys
 Create your own fork of a repository
 ------------------------------------
 
-The following example shows how to fork the core ``astropy`` repository, but
+The following example shows how to fork the core ``Astropy`` repository, but
 the same applies to other packages:
 
 #. Log into your GitHub_ account.
@@ -103,13 +103,13 @@ In detail
     * master
     remotes/origin/master
 
-   This tells you that you are currently on the ``master`` branch, and
+   This tells you that you are currently on the ``master`` branch and
    that you also have a ``remote`` connection to ``origin/master``.
    What remote repository is ``remote/origin``? Try ``git remote -v`` to
    see the URLs for the remote connections.  They will point to your GitHub
    fork.
 
-   Now connect to the TARDIS repository, so you can merge in changes from the
+   Now connect to the TARDIS repository so you can merge in changes from the
    trunk::
 
     cd
@@ -119,7 +119,7 @@ In detail
    TARDIS_ repository.
 
    Note that we've used ``git://`` for the URL rather than ``git@``. The
-   ``git://`` URL is read only. This means that we can't accidentally (or
+   ``git://`` URL is read-only. This means that we can't accidentally (or
    deliberately) write to the upstream repo, and we are only going to use it
    to merge into our own code.
 
@@ -138,7 +138,7 @@ Installing TARDIS in develop mode
 ---------------------------------
 
 TARDIS is designed so that it can generally be used directly out of the source
-tree by using ``import `` when running Python in the source of an
+tree by using ``import`` when running Python in the source of an
 TARDIS repository clone.
 
 #. Install TARDIS_ in develop mode::
@@ -182,7 +182,7 @@ given in the following sections.
   you have not accidentally caused regressions, and add new tests to ensure
   your contribution behaves correctly (see :ref:`testing-guidelines`).
 
-* Issue a pull request on github!
+* Issue a pull request on GitHub!
 
 * As the code is converging to a final state, ensure your
   documentation follows the guidelines (see :ref:`documentation-guidelines`).
@@ -192,9 +192,9 @@ given in the following sections.
   least suggest a brief (one or two sentence) description of your change so
   that another developer can add it to the changelog.
 
-This way of working helps to keep work well organized, with readable history.
+This way of working helps to keep work well-organized, with readable history.
 This in turn makes it easier for project maintainers (that might be you) to
-see what you've done, and why you did it.
+see what you've done and why you did it.
 
 See `linux git workflow`_ and `ipython git workflow`_ for some explanation.
 
@@ -209,7 +209,7 @@ confusion about which branch you are on.
 Updating the mirror of trunk
 ----------------------------
 
-From time to time you should fetch the upstream (trunk) changes from GitHub::
+From time to time, you should fetch the upstream (trunk) changes from GitHub::
 
    git fetch upstream
 
@@ -231,7 +231,7 @@ Making a new branch for each set of related changes will make it easier for
 someone reviewing your branch to see what you are doing.
 
 Choose an informative name for the branch to remind yourself and the rest of
-us what the changes in the branch are for. For example ``add-ability-to-fly``,
+us what the changes in the branch are for. For example, ``add-ability-to-fly``,
 or ``buxfix-for-issue-42``.
 
 ::
@@ -245,18 +245,18 @@ or ``buxfix-for-issue-42``.
 
 Generally, you will want to keep your feature branches on your public GitHub_
 fork. To do this, you `git push`_ this new branch up to your
-github repo. Generally (if you followed the instructions in these pages, and
+GitHub repo. Generally (if you followed the instructions in these pages, and
 by default), git will have a link to your GitHub repo, called ``origin``. You
 push up to your own repo on GitHub with::
 
    git push origin my-new-feature
 
-In git >= 1.7 you can ensure that the link is correctly set by using the
+In git >= 1.7, you can ensure that the link is correctly set by using the
 ``--set-upstream`` option::
 
    git push --set-upstream origin my-new-feature
 
-From now on git will know that ``my-new-feature`` is related to the
+From now on, git will know that ``my-new-feature`` is related to the
 ``my-new-feature`` branch in the GitHub repo.
 
 .. _edit-flow:
@@ -283,7 +283,7 @@ In more detail
 
      python setup.py test
 
-   If you have sphinx installed, you can also check that the documentation
+   If you have `Sphinx <https://www.sphinx-doc.org/en/master/>`_ installed, you can also check that the documentation
    builds and looks correct::
 
      python setup.py build_sphinx
@@ -359,14 +359,14 @@ When you are ready to ask for someone to review your code and consider a merge:
 
 .. _using-virtualenv:
 
-Making sure your Pull request stays up-to-date
+Making sure your Pull Request stays up-to-date
 ----------------------------------------------
 
 More often then not it will take a few days until a Pull Request is
-merged as the community gives feedback and/or you add new fixes. During this
-time often other pull requests are merged and the master branch evolves further.
-To make sure that your changes are still working on the new master you want to
-*rebase* your branch ontop of the evolved master
+merged as the community gives feedback and/or you add new fixes. Often during this
+time, other pull requests are merged and the master branch evolves further.
+To make sure that your changes are still working on the new master, you want to
+*rebase* your branch on top of the evolved master.
 
 
 Rebasing on trunk
@@ -374,8 +374,8 @@ Rebasing on trunk
 
 Let's say you thought of some work you'd like to do. You
 :ref:`update-mirror-trunk` and :ref:`make-feature-branch` called
-``cool-feature``. At this stage trunk is at some commit, let's call it E. Now
-you make some new commits on your ``cool-feature`` branch, let's call them A,
+``cool-feature``. At this stage trunk is at some commit, let's call it E. Now,
+you make some new commits on your ``cool-feature`` branch --- let's call them A,
 B, C. Maybe your changes take a while, or you come back to them after a while.
 In the meantime, trunk has progressed from commit E to commit (say) G::
 
@@ -430,7 +430,7 @@ If it doesn't look good you may need to have a look at
 If you have made changes to files that have also changed in trunk, this may
 generate merge conflicts that you need to resolve - see the `git rebase`_ man
 page for some instructions at the end of the "Description" section. There is
-some related help on merging in the git user manual - see `resolving a
+some related help on merging in the git user manual --- see `resolving a
 merge`_.
 
 If your feature branch is already on GitHub and you rebase, you will have to
@@ -442,7 +442,7 @@ remote called ``origin``, you use this command to force-push::
 
 Note that this will overwrite the branch on GitHub, i.e. this is one of the few
 ways you can actually lose commits with git. Also note that it is never allowed
-to force push to the main astropy repo (typically called ``upstream``), because
+to force push to the main Astropy repo (typically called ``upstream``), because
 this would re-write commit history and thus cause problems for all others.
 
 .. _recovering-from-mess-up:
@@ -481,11 +481,10 @@ If you forgot to make a backup branch::
 Reviewing and helping others with Pull Requests
 -----------------------------------------------
 
-Github offers an extensive array of tools to comment on Pull Requests (line
-based, normal forum-like discussion, etc.). This system is described here in
+Github offers an extensive array of tools to comment on Pull Requests (line-based, normal forum-like discussion, etc.). This system is described here in
 detail `<http://help.github.com/articles/using-pull-requests>`_.
 
-However sometimes, it is easier to just add a few changes yourself to quickly
+However, it is sometimes easier to just add a few changes yourself to quickly
 show what you would suggest to be changed. So it is possible to make a
 Pull Request on a Pull Request.
 

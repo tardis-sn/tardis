@@ -25,6 +25,7 @@ A quick start guide to run TARDIS can be found
     gui
     interaction/index
     custom_source
+    jupyter-widgets
 
 
 .. toctree::

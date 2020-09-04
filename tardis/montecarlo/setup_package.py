@@ -1,15 +1,11 @@
 #setting the right include
-from tardis import __path__ as TARDIS_PATH
 from setuptools import Extension
 import os
 from astropy_helpers.distutils_helpers import get_distutils_option
 # from Cython.Build import cythonize
 
-import yaml
-
 from glob import glob
 
-TARDIS_PATH = TARDIS_PATH[0]
 
 if get_distutils_option('with_openmp', ['build', 'install', 'develop']) is not None:
     compile_args = ['-fopenmp', '-W', '-Wall', '-Wmissing-prototypes', '-std=c99']
@@ -21,14 +17,8 @@ else:
     define_macros = []
 
 
-vpacket_config_file_path = os.path.join(TARDIS_PATH, 'data', 'vpacket_config.yml')
 if get_distutils_option('with_vpacket_logging', ['build', 'install', 'develop']) is not None:
     define_macros.append(('WITH_VPACKET_LOGGING', None))
-    vpacket_config = {'vpacket_logging': True}
-else:
-    vpacket_config = {'vpacket_logging': False}
-
-yaml.dump(vpacket_config, open(vpacket_config_file_path, "w"), default_flow_style=False)
 
 # def get_extensions():
 #     sources = ['tardis/montecarlo/montecarlo.pyx']

@@ -7,9 +7,7 @@ from tardis.io.config_reader import Configuration
 from tardis.io.atom_data.base import AtomData
 from tardis.simulation import Simulation
 
-
 DATA_PATH = os.path.join(tardis.__path__[0], "plasma", "tests", "data")
-
 
 @pytest.fixture
 def config_init_trad_fname():

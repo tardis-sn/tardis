@@ -65,24 +65,24 @@ def model_quantities(request):
 
 
 @pytest.mark.skipif(
-    not pytest.config.getvalue("integration-tests"),
+    'not config.getvalue("integration-tests")',
     reason="integration tests are not included in this run",
 )
 @pytest.mark.integration
 class TestIntegration(object):
     """Slow integration test for various setups present in subdirectories of
-    ``tardis/tests/integration_tests``.
+    ``tardis/tests/integration_tests``.	
     """
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, request, reference, data_path, pytestconfig):
+    def setup(self, request, reference, data_path):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
         """
         # Get capture manager
-        capmanager = pytestconfig.pluginmanager.getplugin("capturemanager")
+        capmanager = request.config.pluginmanager.getplugin("capturemanager")
 
         # The last component in dirpath can be extracted as name of setup.
         self.name = data_path["setup_name"]

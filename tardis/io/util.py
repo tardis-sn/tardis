@@ -11,7 +11,7 @@ from collections import OrderedDict
 
 import requests
 import yaml
-from tqdm.autonotebook import tqdm
+from tqdm.auto import tqdm
 
 from tardis import constants
 from astropy import units as u
@@ -283,6 +283,10 @@ class HDFWriterMixin(object):
 
     @property
     def full_hdf_properties(self):
+        # If tardis was compiled --with-vpacket-logging, add vpacket properties
+        if hasattr(self, "virt_logging") and self.virt_logging == 1:
+            self.hdf_properties.extend(self.vpacket_hdf_properties)
+
         return self.optional_hdf_properties + self.hdf_properties
 
     @staticmethod
@@ -388,7 +392,7 @@ def download_from_url(url, dst):
         desc=url.split("/")[-1],
     )
     req = requests.get(url, headers=header, stream=True)
-    with (open(dst, "ab")) as f:
+    with open(dst, "ab") as f:
         for chunk in req.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)

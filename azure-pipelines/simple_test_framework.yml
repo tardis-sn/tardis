@@ -3,76 +3,78 @@
 # Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
-
 trigger:
-- master
+  - master
 
 variables:
-  system.debug: 'true'
-  ref.data.home: '$(Agent.BuildDirectory)/tardis-refdata'
-
-  ref.data.github.url: 'https://github.com/tardis-sn/tardis-refdata.git'
+  system.debug: "true"
+  ref.data.home: "$(Agent.BuildDirectory)/tardis-refdata"
+  ref.data.github.url: "https://github.com/tardis-sn/tardis-refdata.git"
   tardis.build.dir: $(Build.Repository.LocalPath)
-
-
+  codecov.token: "a876d307-9ed5-4f5d-a6c4-e58291ac4111"
 
 jobs:
+  - job: "Test"
+    pool:
+      vmImage: $[variables.vm_Image]
 
-- job: 'Test'
-  pool:
-    vmImage: $[variables.vm_Image]
+    strategy:
+      matrix:
+        linux:
+          vm_Image: "Ubuntu-16.04"
+        mac:
+          vm_Image: "macOS-10.14"
+      maxParallel: 2
 
-  strategy:
-    matrix:
-      linux:
-        vm_Image: 'Ubuntu-16.04'
-        conda: '/usr/share/miniconda'
-      mac:
-        vm_Image: 'macOS-10.13'
-        miniconda.url: 'http://repo.continuum.io/miniconda/Miniconda2-latest-mac-x86_64.sh'
-    maxParallel: 4
+    steps:
+      - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
+        displayName: "Force exit on error (bash) "
 
-  steps:
-  - bash: |
-          echo "##vso[task.prependpath]$CONDA/bin"
-    displayName: Add conda to PATH
+      - bash: echo "##vso[task.prependpath]$CONDA/bin"
+        displayName: "Add conda to PATH"
 
-  - bash: |
-      sudo chown -R $USER $CONDA
-      # conda update -y conda
-    displayName: updating conda and activating
+      - bash: sudo chown -R $USER $CONDA
+        condition: eq( variables['Agent.OS'], 'Darwin' )
+        displayName: "Take ownership of conda installation (macOS)"
 
-  - bash: |
-        sh ci-helpers/install_tardis_env.sh
-    displayName: 'Install TARDIS env'
+      - bash: conda install mamba=0.4.0 -c conda-forge -y
+        displayName: "Install mamba"
 
-  - bash: |
-        sh ci-helpers/fetch_reference_data.sh
-    displayName: 'Fetch Reference Data'
+      - bash: mamba env create -f tardis_env3.yml
+        displayName: "Install TARDIS environment"
 
-  - bash: |
-        source activate tardis
-        python setup.py build_ext --inplace
-    displayName: 'TARDIS build'
+      - bash: |
+          GIT_LFS_SKIP_SMUDGE=1 git clone $(ref.data.github.url) $(ref.data.home)
+          cd $(ref.data.home)
+          git fetch origin
+          git checkout origin/master
+          git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin
+          git lfs pull --include="atom_data/chianti_He.h5" origin
+          git lfs pull --include="unit_test_data.h5" origin
+          git lfs pull --include="packet_unittest.h5" origin
+          echo MD5: `md5sum unit_test_data.h5`
+        displayName: "Fetch reference data"
+        condition: false
 
-  - bash: |
-        source activate tardis
-        conda install -y pytest-cov
-        pip install git+https://github.com/tonybaloney/pytest-azurepipelines.git
-        export QT_API=pyqt
-        pytest tardis --tardis-refdata=$(ref.data.home) --cov=tardis --cov-report=xml --cov-report=html
-        export QT_API=pyqt
-    displayName: 'TARDIS test'
+      - bash: |
+          source activate tardis
+          pip install gdown
+          gdown https://drive.google.com/uc\?id\=1LwfZ6MXuV2j9a23uu9HTcoDDFI9gIuf1 -O tardis-refdata.tar.gz
+          tar zxf tardis-refdata.tar.gz
+          mv tardis-refdata $(ref.data.home)
+        displayName: "Fetch reference data (GDrive backup)"
+        condition: true
+      - bash: |
+          source activate tardis
+          python setup.py build_ext --inplace
+        displayName: "TARDIS build"
 
+      - bash: |
+          source activate tardis
+          pip install pytest-azurepipelines
+          pytest tardis --tardis-refdata=$(ref.data.home) --cov=tardis --cov-report=xml --cov-report=html
+        displayName: "TARDIS test"
 
-#  - task: PublishTestResults@2
-#    condition: succeededOrFailed()
-#    inputs:
-#      testResultsFiles: '**/test-*.xml'
-#      testRunTitle: 'Test results for TARDIS on $(vm_Image)'
-
-#  - task: PublishCodeCoverageResults@1
-#    inputs:
-#      codeCoverageTool: Cobertura
-#      summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
-#      reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
+      - bash: |
+          bash <(curl -s https://codecov.io/bash)
+        displayName: "Upload to codecov.io"

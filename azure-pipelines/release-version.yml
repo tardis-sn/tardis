@@ -15,92 +15,14 @@ schedules:
 
 variables:
   system.debug: "true"
-  tardis.zenodo.home: "$(Agent.BuildDirectory)/tardis_zenodo"
   tardis.build.dir: $(Build.Repository.LocalPath)
 
 pool:
   vmImage: "ubuntu-latest"
 
 jobs:
-  - job: zenodo_json
-    displayName: Create Zenodo JSON file
-    steps:
-      - task: DownloadSecureFile@1
-        name: zenodoSecretKey
-        displayName: "Download Zenodo secret key"
-        inputs:
-          secureFile: "key_secret.json"
-
-      - task: DownloadSecureFile@1
-        name: authorOrder
-        displayName: "Download author order file"
-        inputs:
-          secureFile: "author_order.txt"
-
-      - task: DownloadSecureFile@1
-        name: nonCommitContributors
-        displayName: "Download non commit contributors file"
-        inputs:
-          secureFile: "non_commit_contributors.txt"
-
-      - bash: |
-          echo "##vso[task.prependpath]$CONDA/bin"
-          sudo chown -R $USER $CONDA
-        displayName: "Add CONDA to path"
-
-      - bash: |
-          conda create -n zenodo python=3.6 --yes
-          source activate zenodo
-          conda install jupyter nbconvert numpy pandas orcid -c conda-forge --yes
-        displayName: "Create Zenodo env"
-
-      # Actually this is a workaround. We need to grab this from `tardis_zenodo` private repo.
-      - bash: |
-          cd ..; mkdir tardis_zenodo
-          cd $(tardis.zenodo.home)
-          wget https://gist.githubusercontent.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8/raw/d71ca46ca1816f6f46c768314c2da59ed017861e/gather_data.ipynb
-        displayName: "Downloading notebook (workaround)"
-
-      - bash: |
-          cp $(zenodoSecretKey.secureFilePath) $(tardis.zenodo.home)
-          cp $(authorOrder.secureFilePath) $(tardis.zenodo.home)
-          cp $(nonCommitContributors.secureFilePath) $(tardis.zenodo.home)
-        displayName: "Recovering secrets"
-
-      - bash: |
-          source activate zenodo
-          cd $(tardis.zenodo.home)
-          jupyter nbconvert gather_data.ipynb --to html --allow-errors --execute --ExecutePreprocessor.timeout=6000
-        displayName: "Running notebook (allow errors)"
-
-      - bash: |
-          source activate zenodo
-          cd $(tardis.zenodo.home)
-          jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
-        displayName: "Running notebook (not allow errors)"
-
-      # This step should fail if there are changes in .zenodo.json
-      - bash: |
-          diff $(tardis.zenodo.home)/.zenodo.json .zenodo.json
-        displayName: "Look for changes in JSON"
-
-      - task: PublishPipelineArtifact@1
-        inputs:
-          targetPath: "$(tardis.zenodo.home)/.zenodo.json"
-          artifact: "zenodo_json"
-          publishLocation: "pipeline"
-        condition: succeededOrFailed()
-
-      - task: PublishPipelineArtifact@1
-        inputs:
-          targetPath: "$(tardis.zenodo.home)/gather_data.html"
-          artifact: "report"
-          publishLocation: "pipeline"
-        condition: succeededOrFailed()
-
   - job: gh_release
     displayName: Upload GitHub release
-    dependsOn: zenodo_json
     steps:
       - bash: |
           echo "##vso[task.prependpath]$CONDA/bin"

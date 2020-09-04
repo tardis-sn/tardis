@@ -4,7 +4,7 @@ Procedure to update the reference data
 
 We assume that you have added the necessary changes to TARDIS and have an open pull request.
 
-#. Fork the ``tardis-refdata`` repository like described in :ref:`development-workflow`.
+#. Fork the ``tardis-refdata`` repository as described in :ref:`development-workflow`.
 
 #. Clone ``tardis-refdata`` to your computer. Then make a new branch named the same as your new TARDIS feature branch. Make sure to have correctly set up the ``upstream`` remote as explained in :ref:`reviewing-and-helping-with-pr`. 
 
@@ -71,14 +71,14 @@ We assume that you have added the necessary changes to TARDIS and have an open p
 #. Ensure TARDIS pull request passes Travis-CI again and ping someone to merge your PR to the TARDIS master branch.
 
 
-Congratulations! You have updated TARDIS to be better. Have a beer and steak (or Tofu if you are vegetarian/vegan)
+Congratulations! You have updated TARDIS to be better. Have a beer and steak (or Tofu if you are vegetarian/vegan).
 
 
 Troubleshooting
 ###############
 
 * Unable to generate reference data
-    * If generating fails due to an inability to open ``chianti_He.h5``, make sure that you have activated your `tardis` conda environment, and ``git-lfs`` is installed. Fetch and pull the files from GitHub as explained in step 4.
+    * If generating fails due to an inability to open ``chianti_He.h5``, make sure that you have activated your `tardis` conda environment and that ``git-lfs`` is installed. Fetch and pull the files from GitHub as explained in step 4.
 
 * Error when running ``comparer = ReferenceComparer(ref2_hash='upstream/pr/XX')`` on the comparer notebook: ``No such file or directory: '.../unit_test_data.h5'``
     * If notebook file is unable to find the file ``unit_test_data.h5``, make sure you have correctly set your upstream as explained in :ref:`reviewing-and-helping-with-pr`.

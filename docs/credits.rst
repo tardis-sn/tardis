@@ -12,7 +12,7 @@ Publication Policies
 
 If you use this code for any publications or presentations please acknowledge
 it.  Please cite `Kerzendorf & Sim 2014
-<http://adsabs.harvard.edu/abs/2014MNRAS.440..387K>`_  in the text
+<http://adsabs.harvard.edu/abs/2014MNRAS.440..387K>`_  in the text.
 
 Please add this paragraph to the Acknowledgement:
 
@@ -29,7 +29,7 @@ Please add this paragraph to the Acknowledgement:
 
 
 If you use any of the full relativity treatments or use TARDIS for
-modelling Type II supernovae you also add this citation to acknowledgement
+modelling Type II supernovae, you also add this citation to acknowledgement
 `Spectral modeling of type II supernovae. I. Dilution factors
 <https://ui.adsabs.harvard.edu/abs/2019A%26A...621A..29V>`_:
 
@@ -37,7 +37,7 @@ modelling Type II supernovae you also add this citation to acknowledgement
 
     \citep{2019A&A...621A..29V}
 
-The following bibtex entries are needed for the references.
+The following BibTeX entries are needed for the references.
 
 .. code-block:: none
 
@@ -78,7 +78,7 @@ The following bibtex entries are needed for the references.
     }
 
 
-    @misc{kerzendorf_wolfgang_2019_2590539,
+    @software{kerzendorf_wolfgang_2019_2590539,
       author       = {Kerzendorf, Wolfgang and
                       Nöbauer, Ulrich and
                       Sim, Stuart and

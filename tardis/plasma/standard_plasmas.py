@@ -147,8 +147,7 @@ def assemble_plasma(config, model, atom_data=None):
         property_kwargs[JBluesDetailed] = {"w_epsilon": config.plasma.w_epsilon}
     else:
         raise ValueError(
-            "radiative_rates_type type unknown - %s",
-            config.plasma.radiative_rates_type,
+            f"radiative_rates_type type unknown - {config.plasma.radiative_rates_type}"
         )
 
     if config.plasma.excitation == "lte":

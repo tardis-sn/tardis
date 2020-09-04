@@ -65,6 +65,12 @@ numpydoc_show_class_members = False
 extensions += ['matplotlib.sphinxext.plot_directive',
                'sphinxcontrib.bibtex']
 
+nbsphinx_execute = 'auto'
+
+nbsphinx_execute_arguments = [
+    "--InlineBackend.figure_formats={'svg', 'pdf'}",
+    "--InlineBackend.rc={'figure.dpi': 96}",
+]
 
 nbsphinx_prolog = """
 This notebook is available at 
@@ -130,7 +136,7 @@ apidoc_separate_modules = True
 # name of a builtin theme or the name of a custom theme in html_theme_path.
 #html_theme = None
 html_theme = 'sphinx_rtd_theme'
-html_theme_path = sphinx_rtd_theme.get_html_theme_path()
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}

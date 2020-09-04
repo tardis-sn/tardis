@@ -13,8 +13,8 @@ else:
 import sys
 
 try:
-    from IPython.lib.guisupport import get_app_qt4, start_event_loop_qt4
-    from IPython.lib.guisupport import is_event_loop_running_qt4
+    from IPython.lib.guisupport import get_app_qt5, start_event_loop_qt5
+    from IPython.lib.guisupport import is_event_loop_running_qt5
 
     importFailed = False
 except ImportError:
@@ -42,7 +42,7 @@ def show(model):
     if importFailed:
         app = QtWidgets.QApplication([])
     else:
-        app = get_app_qt4()
+        app = get_app_qt5()
 
     tablemodel = SimpleTableModel
     win = Tardis(tablemodel)
@@ -51,13 +51,13 @@ def show(model):
     if importFailed:
         app.exec_()
     else:
-        start_event_loop_qt4(app)
+        start_event_loop_qt5(app)
 
         # If the IPython console is being used, this will evaluate to true.
         # In that case the window created will be garbage collected unless a
         # reference to it is maintained after this function exits. So the win is
         # returned.
-        if is_event_loop_running_qt4(app):
+        if is_event_loop_running_qt5(app):
             return win
 
 

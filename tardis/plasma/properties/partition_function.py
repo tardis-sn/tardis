@@ -151,9 +151,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             return LevelBoltzmannFactorNLTECoronal
         elif nlte_conf.coronal_approximation and nlte_conf.classical_nebular:
             raise PlasmaConfigError(
-                "Both coronal approximation and "
-                "classical nebular specified in the "
-                "config."
+                "Both coronal approximation and classical nebular specified in the config."
             )
         else:
             return LevelBoltzmannFactorNLTEGeneral
@@ -183,7 +181,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         options.
         """
         for species in nlte_data.nlte_species:
-            logger.info("Calculating rates for species %s", species)
+            logger.info(f"Calculating rates for species {species}")
             number_of_levels = atomic_data.levels.energy.loc[species].count()
             lnl = nlte_data.lines_level_number_lower[species]
             lnu = nlte_data.lines_level_number_upper[species]
@@ -250,7 +248,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                         )
                     else:
                         raise e
-                general_level_boltzmann_factor[i].ix[species] = (
+                general_level_boltzmann_factor[i].loc[species] = (
                     level_boltzmann_factor
                     * g.loc[species][0]
                     / level_boltzmann_factor[0]

@@ -3,14 +3,14 @@ Continuous Integration
 **********************
 
 We use a so-called `Continuous Integration`_ workflow with TARDIS. 
-This means that each time a change is proposed (via pull-request) 
-or a proposed change is merged into the main master branch a service will download the version 
+This means that each time a change is proposed (via pull request) 
+or a proposed change is merged into the main master branch, a service will download the version 
 and execute all the unit tests and integration tests offered with TARDIS. This helps 
 us detect bugs immediately. 
 
 The following pages explain how we setup automated debugging on TARDIS through a remote 
 cloud service, called Azure, hosted by Visual Studio Team Services. This is done by 
-testing, building, and securely deploying this documentation to gh-pages. As 
+testing, building, and securely deploying this documentation to `gh-pages`. As 
 a developer, one should be familiar with how to smoothly run tests and record the 
 documentation. 
 
@@ -22,28 +22,28 @@ Testing
 -------
 
 To test TARDIS, we activate the designated environment, fetch the most recent reference data, install
-TARDIS, and use the python app tester, pytest::
+TARDIS, and use the Python app tester, `pytest`::
 
     $ sh ci-helpers/fetch_reference_data.sh
     $ source activate tardis
     $ python setup.py build_ext --inplace
     $ pytest tardis --tardis-refdata=$(ref.data.home) --test-run-title="TARDIS test" --cov=tardis --cov-report=xml --cov-report=html
 
-The build_ext command is for accomdating C/C++ extentions. The --inplace command is to ensure that the build is in the source directory.
+The build_ext command is for accommodating C/C++ extensions. The ``--inplace`` command is to ensure that the build is in the source directory.
 
-See https://docs.pytest.org/en/latest/ for more information on pytest.
+See https://docs.pytest.org/en/latest/ for more information on `pytest`.
 
 Documentation
 -------------
 
 The documentation is built using Sphinx from the master branch. We use Restructured Text (reST) to encode the 
 required files, which are then converted into html links, that are then pushed to the root of the 
-gh-pages branch. 
+`gh-pages` branch. 
 
 See https://pythonhosted.org/an_example_pypi_project/sphinx.html and https://help.github.com/en/categories/github-pages-basics
 for more information.
 
-Setting up a secure pathway to github
+Setting up a secure pathway to GitHub
 =====================================
 
 .. _install-ssh-key:
@@ -75,12 +75,12 @@ For explicit details, see `git deploy key`_.
 Adding your key locally and copying the known host name
 -------------------------------------------------------
 
-**Instead of the method recommended by azure, you can add all the github hosts by copying this output, starting from: github.com ssh-rs...**
+**Instead of the method recommended by azure, you can add all the GitHub hosts by copying this output, starting from: github.com ssh-rs...**
 [Default option suggested by wk]::
 
     ssh-keyscan -t rsa github.com
 
-If you wish to deploy the documentation locally to gh-pages, you must add the generated key on your computer and clone your repository::
+If you wish to deploy the documentation locally to `gh-pages`, you must add the generated key on your computer and clone your repository::
 
     $ eval "$(ssh-agent -s)"
     $ ssh-add ~/.ssh/id_rsa (Or whatever you called your key)
@@ -88,7 +88,7 @@ If you wish to deploy the documentation locally to gh-pages, you must add the ge
     $ git clone git@github.com:myOrganizationName/myRepositoryName.git
     
 
-Accept the warning to add github and copy the saved known host, as we will need it for installing the key on Azure.
+Accept the warning to add GitHub and copy the saved known host, as we will need it for installing the key on Azure.
 It should look something like (should look something like [1]As3...=ssh-rsa ..) and will be the last line added to::
 
      ~/.ssh/known_hosts 
@@ -123,7 +123,7 @@ After which, one must use the InstallSSHKey@0 `Azure task`_ to add the ssh key.
 Setting up the YAML file to deploy
 ----------------------------------
 
-YAML is short for "YAML Ain't Markup Language", as it is intented to be a simple way to write script
+YAML is short for "YAML Ain't Markup Language", as it is intended to be a simple way to write script
 that is standard for all programing languages. It is the file that communicates directly with the
 pipeline. 
 
@@ -166,7 +166,7 @@ To download and add the ssh-key, prepare the scripts as::
         inputs: 
           secureFile: 'id_azure_rsa'
 
-Secure files stored in the Azure server are encryped and again decrypted by the Azure task that uses the file.
+Secure files stored in the Azure server are encrypted and again decrypted by the Azure task that uses the file.
 
 Download a secure file to a temporary location in the virtual machine::
 
@@ -203,20 +203,20 @@ After defining the variable, one could optionally encrypt it using this lock sym
 Variables are referenced as $(variable_name), as seen in the InstallSSHKey@0 task in the hostName and sshPublicKey inputs.
 
 Azure provides a list of agent hosts that can run the pipeline on a virtual machine. In our pipelines, we
-use the vm_Images: Ubuntu 16.04 and macOs-10.13.
+use the vm_Images: Ubuntu 16.04 and macOs-10.14.
 
 In a job, you can list a single vm as::
 
       pool:
         vmImage: "Ubuntu 16.04"
 
-If you are using a self hosted agent (see `Installing and running a self hosted agent` for more details)::
+If you are using a self-hosted agent (see `Installing and running a self-hosted agent` for more details)::
 
       pool:
         name: "agent_pool_name"
 
-Or if you prefer to use multiple virtual machines and specity the maximum that can run at the same time, in 
-addition to specifying variables as key value pairs such as conda and miniconda.url below ::
+Or if you prefer to use multiple virtual machines and specify the maximum that can run at the same time, in 
+addition to specifying variables as key-value pairs such as conda and miniconda.url below. ::
 
       strategy:
         matrix: 
@@ -224,28 +224,28 @@ addition to specifying variables as key value pairs such as conda and miniconda.
             vmImage: "Ubuntu 16.04"
             conda: '/usr/share/miniconda'
           mac:
-            vm_Image: 'macOS-10.13'
+            vm_Image: 'macOS-10.14'
             miniconda.url: 'http://repo.continuum.io/miniconda/Miniconda2-latest-mac-x86_64.sh'
         maxParallel: 2
       pool:
         vmImage: $(imageName)
 
-This trick is also convenient for specying different variable builds for the same vmImage. As one can keep the vm_Image 
-constant, and change the key value pair for each job in the matrix.
+This trick is also convenient for specifying different variable builds for the same vmImage. As one can keep the vm_Image 
+constant and change the key value pair for each job in the matrix.
         
-Installing and running a self hosted agent
+Installing and running a self-hosted agent
 ------------------------------------------
 
-Microsoft supplies multiple hosted agents for running virtual machines, but it is useful to create a self hosted
-agent for incremental builds and the dependancy on local environments.
+Microsoft supplies multiple hosted agents for running virtual machines, but it is useful to create a self-hosted
+agent for incremental builds and the dependency on local environments.
 
-To add a new agent or agent pool, you must have administrator priveledges. See `agent pool security roles`_ to add a new administrator to an agent pool or for all the agent pools.
+To add a new agent or agent pool, you must have administrator privileges. See `agent pool security roles`_ to add a new administrator to an agent pool or for all the agent pools.
 
 You can view your current lists of agents for each agent pool from: https://dev.azure.com/{your_organization}/_settings/agentpools.
 
-First decide if you will add your agent to an already exiting agent pool, or if you wish to add a new pool, by clicking on Add pool.
-If you choose to add a new pool, make sure to click on securtiy and add permissions to your team/self (you cannot directly add your own account), as well as granting access permission to all pipelines, or a specific pipeline.
-The first pool "Default" is owned by azure pipelines, and you cannot add pools to it without having even further permissions.
+First decide if you will add your agent to an already-existing agent pool, or if you wish to add a new pool, by clicking on Add pool.
+If you choose to add a new pool, make sure to click on security and add permissions to your team/self (you cannot directly add your own account), as well as granting access permission to all pipelines, or a specific pipeline.
+The first pool "Default" is owned by Azure Pipelines, and you cannot add pools to it without having even further permissions.
 
 To give someone all security privileges:
   - Go to http://dev.azure.com/{your_organization}/_settings/permissions
@@ -289,9 +289,9 @@ To uninstall ::
     ~/myagent$ sudo ./svc uninstall
 
 For adding environmental variables or editing the `service file`_, 
-see `self agent services`_ 
+see `self agent services`_. 
 
-For more details, see `Azure self hosted agents`_ 
+For more details, see `Azure self hosted agents`_.
 
 Carsus
 ------

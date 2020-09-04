@@ -6,7 +6,7 @@ from numpy.testing import assert_almost_equal
 from tardis.plasma.properties import property_collections
 
 ###
-# Save and Load
+# saving and loading of plasma properties in the HDF file
 ###
 
 
