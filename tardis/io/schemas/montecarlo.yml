@@ -33,21 +33,17 @@ properties:
     multipleOf: 1.0
     default: 0
     description: Setting the number of virtual packets for the last iteration.
-  virtual_spectrum_range:
+  virtual_spectrum_spawn_range:
     type: object
     default: {}
     properties:
       start:
         type: quantity
-        default: 50 angstrom
+        default: 0 angstrom
       stop:
         type: quantity
-        default: 250000 angstrom
-      num:
-        type: number
-        multipleOf: 1.0
-        default: 1000000
-    description: Limits of virtual packet spectrum (giving maximum and minimum packet
+        default: inf angstrom
+    description: Limits of virtual packet spawn spectrum (giving maximum and minimum packet
       frequency)
   enable_reflective_inner_boundary:
     type: boolean
