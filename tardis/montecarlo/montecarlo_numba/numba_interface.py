@@ -129,6 +129,8 @@ class PacketCollection(object):
 
 vpacket_collection_spec = [
     ('spectrum_frequency', float64[:]),
+    ('v_packet_spawn_start_frequency', float64),
+    ('v_packet_spawn_end_frequency', float64),
     ('nus', float64[:]),
     ('energies', float64[:]),
     ('idx', int64),
@@ -138,9 +140,14 @@ vpacket_collection_spec = [
 
 @jitclass(vpacket_collection_spec)
 class VPacketCollection(object):
-    def __init__(self, spectrum_frequency, number_of_vpackets,
+    def __init__(self, spectrum_frequency,
+                 v_packet_spawn_start_frequency,
+                 v_packet_spawn_end_frequency,
+                 number_of_vpackets,
                  temporary_v_packet_bins):
         self.spectrum_frequency = spectrum_frequency
+        self.v_packet_spawn_start_frequency = v_packet_spawn_start_frequency
+        self.v_packet_spawn_end_frequency = v_packet_spawn_end_frequency
         self.nus = np.empty(temporary_v_packet_bins, dtype=np.float64)
         self.energies = np.empty(temporary_v_packet_bins, dtype=np.float64)
         self.number_of_vpackets = number_of_vpackets
