@@ -73,7 +73,10 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
                            seed,
                            i)
         vpacket_collection = VPacketCollection(
-            spectrum_frequency, number_of_vpackets,
+            spectrum_frequency, 
+            montecarlo_configuration.v_packet_spawn_start_frequency,
+            montecarlo_configuration.v_packet_spawn_end_frequency,
+            number_of_vpackets,
             montecarlo_configuration.temporary_v_packet_bins)
         loop = single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
                            vpacket_collection, sigma_thomson)

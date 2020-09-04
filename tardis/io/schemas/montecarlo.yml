@@ -40,7 +40,7 @@ properties:
       start:
         type: quantity
         default: 0 angstrom
-      stop:
+      end:
         type: quantity
         default: inf angstrom
     description: Limits of virtual packet spawn spectrum (giving maximum and minimum packet

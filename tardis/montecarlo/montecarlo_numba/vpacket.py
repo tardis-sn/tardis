@@ -143,8 +143,8 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
         [description]
     """
     
-    if ((r_packet.nu < vpacket_collection.spectrum_frequency[0]) or 
-        (r_packet.nu > vpacket_collection.spectrum_frequency[-1])):
+    if ((r_packet.nu < vpacket_collection.v_packet_spawn_start_frequency) or
+        (r_packet.nu > vpacket_collection.v_packet_spawn_end_frequency)):
         
         return
 

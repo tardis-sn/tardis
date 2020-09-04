@@ -3,6 +3,7 @@ from enum import IntEnum
 from numba import float64, int64, jitclass, boolean
 import numpy as np
 
+from astropy import units as u
 from tardis import constants as const
 
 from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
@@ -188,6 +189,12 @@ def configuration_initialize(runner, number_of_vpackets,
     montecarlo_configuration.full_relativity = runner.enable_full_relativity
     montecarlo_configuration.montecarlo_seed = runner.seed
     montecarlo_configuration.single_packet_seed = runner.single_packet_seed
+    montecarlo_configuration.v_packet_spawn_start_frequency = runner.virtual_spectrum_spawn_range.end.to(
+        u.Hz, equivalencies=u.spectral()
+    ).value
+    montecarlo_configuration.v_packet_spawn_end_frequency = runner.virtual_spectrum_spawn_range.start.to(
+        u.Hz, equivalencies=u.spectral()
+    ).value
 
 
 #class TrackRPacket(object):
