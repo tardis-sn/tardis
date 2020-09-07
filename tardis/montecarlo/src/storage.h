@@ -20,6 +20,7 @@ typedef struct StorageModel
   double *output_nus;
   double *output_energies;
   double *last_interaction_in_nu;
+  double *last_interaction_in_r;
   int64_t *last_line_interaction_in_id;
   int64_t *last_line_interaction_out_id;
   int64_t *last_line_interaction_shell_id;
@@ -79,6 +80,7 @@ typedef struct StorageModel
   double *virt_packet_nus;
   double *virt_packet_energies;
   double *virt_packet_last_interaction_in_nu;
+  double *virt_packet_last_interaction_in_r;
   int64_t *virt_packet_last_interaction_type;
   int64_t *virt_packet_last_line_interaction_in_id;
   int64_t *virt_packet_last_line_interaction_out_id;

@@ -114,6 +114,7 @@ class StorageModel(Structure):
         ('virt_packet_nus', POINTER(c_double)),
         ('virt_packet_energies', POINTER(c_double)),
         ('virt_packet_last_interaction_in_nu', POINTER(c_double)),
+        ('virt_packet_last_interaction_in_r', POINTER(c_double)),
         ('virt_packet_last_interaction_type', POINTER(c_int64)),
         ('virt_packet_last_line_interaction_in_id', POINTER(c_int64)),
         ('virt_packet_last_line_interaction_out_id', POINTER(c_int64)),
