@@ -719,6 +719,7 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                       storage->virt_packet_nus = safe_realloc(storage->virt_packet_nus, sizeof(double) * storage->virt_array_size);
                       storage->virt_packet_energies = safe_realloc(storage->virt_packet_energies, sizeof(double) * storage->virt_array_size);
                       storage->virt_packet_last_interaction_in_nu = safe_realloc(storage->virt_packet_last_interaction_in_nu, sizeof(double) * storage->virt_array_size);
+		      storage->virt_packet_last_interaction_in_r = safe_realloc(storage->virt_packet_last_interaction_in_r, sizeof(double) * storage->virt_array_size);
                       storage->virt_packet_last_interaction_type = safe_realloc(storage->virt_packet_last_interaction_type, sizeof(int64_t) * storage->virt_array_size);
                       storage->virt_packet_last_line_interaction_in_id = safe_realloc(storage->virt_packet_last_line_interaction_in_id, sizeof(int64_t) * storage->virt_array_size);
                       storage->virt_packet_last_line_interaction_out_id = safe_realloc(storage->virt_packet_last_line_interaction_out_id, sizeof(int64_t) * storage->virt_array_size);
@@ -726,6 +727,7 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                   storage->virt_packet_nus[storage->virt_packet_count] = rpacket_get_nu(&virt_packet);
                   storage->virt_packet_energies[storage->virt_packet_count] = rpacket_get_energy(&virt_packet) * weight;
                   storage->virt_packet_last_interaction_in_nu[storage->virt_packet_count] = storage->last_interaction_in_nu[rpacket_get_id (packet)];
+		  storage->virt_packet_last_interaction_in_r[storage->virt_packet_count] = storage->last_interaction_in_r[rpacket_get_id (packet)];
                   storage->virt_packet_last_interaction_type[storage->virt_packet_count] = storage->last_interaction_type[rpacket_get_id (packet)];
                   storage->virt_packet_last_line_interaction_in_id[storage->virt_packet_count] = storage->last_line_interaction_in_id[rpacket_get_id (packet)];
                   storage->virt_packet_last_line_interaction_out_id[storage->virt_packet_count] = storage->last_line_interaction_out_id[rpacket_get_id (packet)];
@@ -954,6 +956,8 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
       storage->last_interaction_in_nu[rpacket_get_id (packet)] =
         rpacket_get_nu (packet);
+      storage->last_interaction_in_r[rpacket_get_id (packet)] = 
+	rpacket_get_r (packet);
       storage->last_line_interaction_in_id[rpacket_get_id (packet)] =
         next_line_id;
       storage->last_line_interaction_shell_id[rpacket_get_id (packet)] =
@@ -1195,6 +1199,7 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
   storage->virt_packet_nus = (double *)safe_malloc(sizeof(double) * storage->no_of_packets);
   storage->virt_packet_energies = (double *)safe_malloc(sizeof(double) * storage->no_of_packets);
   storage->virt_packet_last_interaction_in_nu = (double *)safe_malloc(sizeof(double) * storage->no_of_packets);
+  storage->virt_packet_last_interaction_in_r = (double *)safe_malloc(sizeof(double) * storage->no_of_packets);
   storage->virt_packet_last_interaction_type = (int64_t *)safe_malloc(sizeof(int64_t) * storage->no_of_packets);
   storage->virt_packet_last_line_interaction_in_id = (int64_t *)safe_malloc(sizeof(int64_t) * storage->no_of_packets);
   storage->virt_packet_last_line_interaction_out_id = (int64_t *)safe_malloc(sizeof(int64_t) * storage->no_of_packets);

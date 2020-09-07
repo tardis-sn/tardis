@@ -26,6 +26,7 @@ class MontecarloRunner(HDFWriterMixin):
     hdf_properties = ['output_nu', 'output_energy', 'nu_bar_estimator',
                       'j_estimator', 'montecarlo_virtual_luminosity',
                       'last_interaction_in_nu',
+                      'last_interaction_in_r',
                       'last_interaction_type',
                       'last_line_interaction_in_id',
                       'last_line_interaction_out_id',
@@ -34,6 +35,7 @@ class MontecarloRunner(HDFWriterMixin):
                       'spectrum_virtual', 'spectrum_reabsorbed']
 
     vpacket_hdf_properties = ["virt_packet_last_interaction_in_nu",
+                              "virt_packet_last_interaction_in_r",
                               "virt_packet_last_interaction_type",
                               "virt_packet_last_line_interaction_in_id",
                               "virt_packet_last_line_interaction_out_id",
@@ -126,6 +128,7 @@ class MontecarloRunner(HDFWriterMixin):
         self.last_interaction_type = -1 * np.ones(
                 no_of_packets, dtype=np.int64)
         self.last_interaction_in_nu = np.zeros(no_of_packets, dtype=np.float64)
+        self.last_interaction_in_r = np.zeros(no_of_packets, dtype=np.float64)
 
         self._montecarlo_virtual_luminosity = u.Quantity(
                 np.zeros_like(self.spectrum_frequency.value),

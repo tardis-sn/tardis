@@ -47,6 +47,7 @@ cdef extern from "src/cmontecarlo.h":
         double *output_nus
         double *output_energies
         double *last_interaction_in_nu
+        double *last_interaction_in_r
         int_type_t *last_line_interaction_in_id
         int_type_t *last_line_interaction_out_id
         int_type_t *last_line_interaction_shell_id
@@ -104,6 +105,7 @@ cdef extern from "src/cmontecarlo.h":
         double *virt_packet_nus
         double *virt_packet_energies
         double *virt_packet_last_interaction_in_nu
+        double *virt_packet_last_interaction_in_r
         int_type_t *virt_packet_last_interaction_type
         int_type_t *virt_packet_last_line_interaction_in_id
         int_type_t *virt_packet_last_line_interaction_out_id
@@ -239,6 +241,8 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
         runner.last_interaction_type)
     storage.last_interaction_in_nu = <double*> PyArray_DATA(
         runner.last_interaction_in_nu)
+    storage.last_interaction_in_r = <double*> PyArray_DATA(
+        runner.last_interaction_in_r)
 
     storage.js = <double*> PyArray_DATA(runner.j_estimator)
     storage.nubars = <double*> PyArray_DATA(runner.nu_bar_estimator)
@@ -318,6 +322,7 @@ def montecarlo_radial1d(model, plasma, runner, int_type_t virtual_packet_flag=0,
         runner.virt_packet_nus = c_array_to_numpy(storage.virt_packet_nus, np.NPY_DOUBLE, storage.virt_packet_count)
         runner.virt_packet_energies = c_array_to_numpy(storage.virt_packet_energies, np.NPY_DOUBLE, storage.virt_packet_count)
         runner.virt_packet_last_interaction_in_nu = c_array_to_numpy(storage.virt_packet_last_interaction_in_nu, np.NPY_DOUBLE, storage.virt_packet_count)
+        runner.virt_packet_last_interaction_in_r = c_array_to_numpy(storage.virt_packet_last_interaction_in_r, np.NPY_DOUBLE, storage.virt_packet_count)
         runner.virt_packet_last_interaction_type = c_array_to_numpy(storage.virt_packet_last_interaction_type, np.NPY_INT64, storage.virt_packet_count)
         runner.virt_packet_last_line_interaction_in_id = c_array_to_numpy(storage.virt_packet_last_line_interaction_in_id, np.NPY_INT64,
                                                                           storage.virt_packet_count)
@@ -327,6 +332,7 @@ def montecarlo_radial1d(model, plasma, runner, int_type_t virtual_packet_flag=0,
         runner.virt_packet_nus = np.zeros(0)
         runner.virt_packet_energies = np.zeros(0)
         runner.virt_packet_last_interaction_in_nu = np.zeros(0)
+        runner.virt_packet_last_interaction_in_r = np.zeros(0)
         runner.virt_packet_last_interaction_type = np.zeros(0)
         runner.virt_packet_last_line_interaction_in_id = np.zeros(0)
         runner.virt_packet_last_line_interaction_out_id = np.zeros(0)
