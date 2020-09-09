@@ -19,13 +19,14 @@ vpacket_spec = [
     ('next_line_id', int64),
     ('current_shell_id', int64),
     ('status', int64),
-    ('index', int64)
+    ('index', int64),
+    ('close_line', int64)
 ]
 
 @jitclass(vpacket_spec)
 class VPacket(object):
     def __init__(self, r, mu, nu, energy, current_shell_id, next_line_id,
-                 index=0):
+                 index=0, close_line=0):
         self.r = r
         self.mu = mu
         self.nu = nu
@@ -34,7 +35,7 @@ class VPacket(object):
         self.next_line_id = next_line_id
         self.status = PacketStatus.IN_PROCESS
         self.index = index
-
+        self.close_line = close_line
 
 
 @njit(**njit_dict)
@@ -69,11 +70,15 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma,
             break
 
         nu_line = numba_plasma.line_list_nu[cur_line_id]
+        # TODO: Check if this is what the C code does
+        nu_line_last_interaction = numba_plasma.line_list_nu[cur_line_id - 1]
         tau_trace_line = numba_plasma.tau_sobolev[
             cur_line_id, v_packet.current_shell_id]
 
         distance_trace_line = calculate_distance_line(
-            v_packet, comov_nu, nu_line, numba_model.time_explosion)
+            v_packet, comov_nu, nu_line_last_interaction,
+            nu_line, numba_model.time_explosion
+        )
 
         if distance_boundary <= distance_trace_line:
             break
@@ -196,7 +201,7 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
 
         v_packet = VPacket(r_packet.r, v_packet_mu, v_packet_nu, 
                            v_packet_energy, r_packet.current_shell_id, 
-                           r_packet.next_line_id, i)
+                           r_packet.next_line_id, i, 0)
 
         tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma,
                                     sigma_thomson)
