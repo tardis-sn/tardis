@@ -719,7 +719,7 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                       storage->virt_packet_nus = safe_realloc(storage->virt_packet_nus, sizeof(double) * storage->virt_array_size);
                       storage->virt_packet_energies = safe_realloc(storage->virt_packet_energies, sizeof(double) * storage->virt_array_size);
                       storage->virt_packet_last_interaction_in_nu = safe_realloc(storage->virt_packet_last_interaction_in_nu, sizeof(double) * storage->virt_array_size);
-		      storage->virt_packet_last_interaction_in_r = safe_realloc(storage->virt_packet_last_interaction_in_r, sizeof(double) * storage->virt_array_size);
+		              storage->virt_packet_last_interaction_in_r = safe_realloc(storage->virt_packet_last_interaction_in_r, sizeof(double) * storage->virt_array_size);
                       storage->virt_packet_last_interaction_type = safe_realloc(storage->virt_packet_last_interaction_type, sizeof(int64_t) * storage->virt_array_size);
                       storage->virt_packet_last_line_interaction_in_id = safe_realloc(storage->virt_packet_last_line_interaction_in_id, sizeof(int64_t) * storage->virt_array_size);
                       storage->virt_packet_last_line_interaction_out_id = safe_realloc(storage->virt_packet_last_line_interaction_out_id, sizeof(int64_t) * storage->virt_array_size);
@@ -727,7 +727,7 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                   storage->virt_packet_nus[storage->virt_packet_count] = rpacket_get_nu(&virt_packet);
                   storage->virt_packet_energies[storage->virt_packet_count] = rpacket_get_energy(&virt_packet) * weight;
                   storage->virt_packet_last_interaction_in_nu[storage->virt_packet_count] = storage->last_interaction_in_nu[rpacket_get_id (packet)];
-		  storage->virt_packet_last_interaction_in_r[storage->virt_packet_count] = storage->last_interaction_in_r[rpacket_get_id (packet)];
+		          storage->virt_packet_last_interaction_in_r[storage->virt_packet_count] = storage->last_interaction_in_r[rpacket_get_id (packet)];
                   storage->virt_packet_last_interaction_type[storage->virt_packet_count] = storage->last_interaction_type[rpacket_get_id (packet)];
                   storage->virt_packet_last_line_interaction_in_id[storage->virt_packet_count] = storage->last_line_interaction_in_id[rpacket_get_id (packet)];
                   storage->virt_packet_last_line_interaction_out_id[storage->virt_packet_count] = storage->last_line_interaction_out_id[rpacket_get_id (packet)];
