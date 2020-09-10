@@ -55,6 +55,7 @@ class StorageModel(Structure):
         ('output_nus', POINTER(c_double)),
         ('output_energies', POINTER(c_double)),
         ('last_interaction_in_nu', POINTER(c_double)),
+        ('last_interaction_in_r', POINTER(c_double)),
         ('last_line_interaction_in_id', POINTER(c_int64)),
         ('last_line_interaction_out_id', POINTER(c_int64)),
         ('last_line_interaction_shell_id', POINTER(c_int64)),
