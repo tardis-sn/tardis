@@ -6,7 +6,7 @@ from astropy import units as u
 
 import tardis
 from tardis.io import config_validator
-from tardis.io.util import YAMLLoader, yaml_load_file
+from tardis.io.util import YAMLLoader, yaml_load_file, HDFWriterMixin
 from tardis.io.parsers.csvy import load_yaml_from_csvy
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -117,7 +117,7 @@ class ConfigurationNameSpace(dict):
             for key in value:
                 self.__setitem__(key, value[key])
         else:
-            raise (TypeError, "expected dict")
+            raise TypeError("expected dict")
 
         if hasattr(self, "csvy_model") and hasattr(self, "model"):
             raise ValueError(
@@ -232,11 +232,19 @@ class ConfigurationNameSpace(dict):
     def deepcopy(self):
         return ConfigurationNameSpace(copy.deepcopy(dict(self)))
 
+class ConfigWriterMixin(HDFWriterMixin):
+    """
+    Overrides HDFWriterMixin to obtain HDF properties from configuration keys
+    """
+    def get_properties(self):
+        data = {name: getattr(self, name) for name in self.keys()}
+        return data
 
-class Configuration(ConfigurationNameSpace):
+class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
     """
     Tardis configuration class
     """
+    hdf_name = "configuration"
 
     @classmethod
     def from_yaml(cls, fname, *args, **kwargs):

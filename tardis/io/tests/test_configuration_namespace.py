@@ -85,9 +85,4 @@ def test_config_namespace_copy():
 
 def test_config_namespace_quantity_set():
     data_path("paper1_tardis_configv1.yml")
-
-def test_config_hdf(hdf_file_path):
-    config_ns = ConfigurationNameSpace(simple_config_dict)
-    expected = config_ns.to_hdf(hdf_file_path)
-    actual = pd.read_hdf(hdf_file_path)
-    assert actual == expected
+    
