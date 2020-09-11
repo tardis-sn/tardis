@@ -59,10 +59,18 @@ def test_from_config_dict(tardis_config_verysimple):
             tardis_config_verysimple, validate=True, config_dirname="test"
         )
 
-def test_config_hdf(hdf_file_path, tardis_config_verysimple):
+
+@pytest.fixture(autouse=True)
+def to_hdf_buffer(hdf_file_path, tardis_config_verysimple):
     config = Configuration.from_config_dict(
             tardis_config_verysimple, validate=True, config_dirname="test"
         )
-    expected = config.to_hdf(hdf_file_path)
-    actual = pd.read_hdf(hdf_file_path)
+    config.to_hdf(hdf_file_path)
+
+
+def test_config_hdf(hdf_file_path, tardis_config_verysimple):
+    expected = Configuration.from_config_dict(
+            tardis_config_verysimple, validate=True, config_dirname="test"
+        )
+    actual = pd.read_hdf(hdf_file_path, key="configuration")
     assert actual == expected

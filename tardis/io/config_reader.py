@@ -237,7 +237,14 @@ class ConfigWriterMixin(HDFWriterMixin):
     Overrides HDFWriterMixin to obtain HDF properties from configuration keys
     """
     def get_properties(self):
-        data = {name: getattr(self, name) for name in self.keys()}
+        data = {}
+        for name, item in self.items():
+            if type(item) == ConfigurationNameSpace:
+                data[name] = {nm: getattr(item, nm) for nm in item.keys()}
+            else:
+                data[name] = getattr(self, name)
+
+        #data = {name: getattr(self, name) for name in self.keys()}
         return data
 
 class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
