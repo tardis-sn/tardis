@@ -18,13 +18,13 @@ class LineInfoWidget:
     """
     Widget to explore atomic lines that produced features in the simulated spectrum.
 
-    It allows selection of a wavelength range in the spectrum to display a 
+    It allows selection of a wavelength range in the spectrum to display a
     table giving the fraction of packets that experienced their last
-    interaction with each species. Using toggle buttons, user can specify
+    interaction with each species. Using toggle buttons, users can specify
     whether to filter the selected range by emitted or absorbed wavelengths
     of packets. Clicking on a row in the fractional species interactions table
     shows packet counts for each last line interaction of the selected species,
-    which can be grouped in several ways using dropdown menu.
+    which can be grouped in several ways using the dropdown menu.
     """
 
     FILTER_MODES = ("packet_out_nu", "packet_in_nu")
@@ -60,12 +60,12 @@ class LineInfoWidget:
             Wavelength values of a real spectrum, having unit of Angstrom
         spectrum_luminosity_density_lambda : astropy.Quantity
             Luminosity density lambda values of a real spectrum, having unit
-            of (Hz erg)/Angstrom
+            of (erg/s)/Angstrom
         virt_spectrum_wavelength : astropy.Quantity
             Wavelength values of a virtual spectrum, having unit of Angstrom
         virt_spectrum_luminosity_density_lambda : astropy.Quantity
             Luminosity density lambda values of a virtual spectrum, having unit
-            of (Hz erg)/Angstrom
+            of (erg/s)/Angstrom
         """
         self.lines_data = lines_data
         self.line_interaction_analysis = line_interaction_analysis
@@ -127,9 +127,13 @@ class LineInfoWidget:
                 for filter_mode in cls.FILTER_MODES
             },
             spectrum_wavelength=sim.runner.spectrum.wavelength,
-            spectrum_luminosity_density_lambda=sim.runner.spectrum.luminosity_density_lambda,
+            spectrum_luminosity_density_lambda=sim.runner.spectrum.luminosity_density_lambda.to(
+                "erg/(s AA)"
+            ),
             virt_spectrum_wavelength=sim.runner.spectrum_virtual.wavelength,
-            virt_spectrum_luminosity_density_lambda=sim.runner.spectrum_virtual.luminosity_density_lambda,
+            virt_spectrum_luminosity_density_lambda=sim.runner.spectrum_virtual.luminosity_density_lambda.to(
+                "erg/(s AA)"
+            ),
         )
 
     def get_species_interactions(
@@ -146,7 +150,7 @@ class LineInfoWidget:
         Parameters
         ----------
         wavelength_range : list-like or None
-            A list of two float values to specify the wavelength range - first 
+            A list of two float values to specify the wavelength range - first
             for the range start and second for the range end. None specifies
             that no wavelength range is selected and will return empty dataframe
         filter_mode : str, optional
@@ -163,7 +167,7 @@ class LineInfoWidget:
 
         Notes
         -----
-        This method depends on tardis.analysis.LastLineInteraction object for 
+        This method depends on tardis.analysis.LastLineInteraction object for
         doing computations. So there is a member variable in this class -
         :code:`line_interaction_analysis` which is a dictionary of such objects
         (each of them differ in how they filter the selected wavelength range).
@@ -248,14 +252,14 @@ class LineInfoWidget:
 
         Notes
         -----
-        This method depends on tardis.analysis.LastLineInteraction object for 
+        This method depends on tardis.analysis.LastLineInteraction object for
         doing computations. So there is a member variable in this class -
         :code:`line_interaction_analysis` which is a dictionary of such objects
         (each of them differ in how they filter the selected wavelength range).
         Thus we have to specify which object to use by specifying the
-        filter_mode parameter. 
+        filter_mode parameter.
 
-        This method should always be called after calling 
+        This method should always be called after calling
         :code:`get_species_interactions` method which sets a wavelength
         range on LastLineInteraction object. So selected_species should
         be one present within that range, otherwise it will result an error.
@@ -458,12 +462,12 @@ class LineInfoWidget:
             Wavelength values of a real spectrum, having unit of Angstrom
         luminosity_density_lambda : astropy.Quantity
             Luminosity density lambda values of a real spectrum, having unit
-            of (Hz erg)/Angstrom
+            of (erg/s)/Angstrom
         virt_wavelength : astropy.Quantity
             Wavelength values of a virtual spectrum, having unit of Angstrom
         virt_luminosity_density_lambda : astropy.Quantity
             Luminosity density lambda values of a virtual spectrum, having unit
-            of (Hz erg)/Angstrom
+            of (erg/s)/Angstrom
 
         Returns
         -------
@@ -505,7 +509,7 @@ class LineInfoWidget:
                 yaxis=dict(
                     title=self.axis_label_in_latex(
                         "Luminosity",
-                        luminosity_density_lambda.to("erg/(s AA)").unit,
+                        luminosity_density_lambda.unit,
                     ),
                     exponentformat="e",
                     fixedrange=False,
@@ -522,7 +526,7 @@ class LineInfoWidget:
         Update data in species_interactions_table.
 
         The parameters are exact same as that of :code:`get_species_interactions`.
-        Besides, it also does selection of 1st row in this table to trigger 
+        Besides, it also does selection of 1st row in this table to trigger
         update in last_line_counts_table.
         """
         # Update data in species_interactions_table
@@ -560,7 +564,10 @@ class LineInfoWidget:
                 y0=selector.yrange[0],
                 x1=selector.xrange[1],
                 y1=selector.yrange[1],
-                line=dict(color=self.COLORS["selection_border"], width=1,),
+                line=dict(
+                    color=self.COLORS["selection_border"],
+                    width=1,
+                ),
                 fillcolor=self.COLORS["selection_area"],
                 opacity=0.5,
             )
@@ -588,7 +595,7 @@ class LineInfoWidget:
     def _spectrum_selection_handler(self, trace, points, selector):
         """
         Event handler for selection of spectrum in plotly figure widget.
-        
+
         This method has the expected signature of the callback function passed
         to :code:`on_selection` method of a plotly trace as explained in
         `their docs <https://plotly.com/python-api-reference/generated/plotly.html#plotly.basedatatypes.BaseTraceType.on_selection>`_.
@@ -603,7 +610,7 @@ class LineInfoWidget:
     def _filter_mode_toggle_handler(self, change):
         """
         Event handler for toggle in filter_mode_buttons.
-        
+
         This method has the expected signature of the callback function
         passed to :code:`observe` method of ipywidgets as explained in
         `their docs <https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#Signatures>`_.
@@ -616,13 +623,14 @@ class LineInfoWidget:
             return
 
         self._update_species_interactions(
-            wavelength_range, self.FILTER_MODES[self.filter_mode_buttons.index],
+            wavelength_range,
+            self.FILTER_MODES[self.filter_mode_buttons.index],
         )
 
     def _species_intrctn_selection_handler(self, event, qgrid_widget):
         """
         Event handler for selection in species_interactions_table.
-        
+
         This method has the expected signature of the function passed to
         :code:`handler` argument of :code:`on_selection` method of qgrid.QgridWidget
         as explained in `their docs <https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
@@ -647,15 +655,15 @@ class LineInfoWidget:
     def _group_mode_dropdown_handler(self, change):
         """
         Event handler for selection in group_mode_dropdown.
-        
+
         This method has the expected signature of the callback function
         passed to :code:`observe` method of ipywidgets as explained in
         `their docs <https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#Signatures>`_.
         """
         try:
-            selected_row_idx = self.species_interactions_table.get_selected_rows()[
-                0
-            ]
+            selected_row_idx = (
+                self.species_interactions_table.get_selected_rows()[0]
+            )
             species_selected = self.species_interactions_table.df.index[
                 selected_row_idx
             ]
@@ -737,7 +745,10 @@ class LineInfoWidget:
             [
                 self.figure_widget,
                 ipw.Box(
-                    [table_container_left, table_container_right,],
+                    [
+                        table_container_left,
+                        table_container_right,
+                    ],
                     layout=dict(
                         display="flex",
                         align_items="flex-start",
