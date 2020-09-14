@@ -51,13 +51,13 @@ each species. Packets can be filtered by the wavelength at which they were
 absorbed or emitted, using the toggle buttons.
 
 You can then click on a species to see the packets count for each last line
-interaction it experienced. Using dropdown menu, these counts can be grouped
-by excitation lines, de-excitaton lines or both.
+interaction it experienced. Using the dropdown menu, these counts can be grouped
+by excitation lines, de-excitation lines, or both.
 
 Interacting with Spectrum
 =========================
 
-The spectrum in line info widget is an interactive figure made using
+The spectrum in the Line Info Widget is an interactive figure made using
 `plotly <https://plotly.com/python/>`_, there are several things you can
 do with it:
 
@@ -76,7 +76,7 @@ narrower), simply redraw a new selection box over the older one.
 
 Using Rangesilder
 -----------------
-The rangeslider is a long bar below the figure that allows you to zoom on a
+The rangeslider is a long bar below the figure that allows you to zoom in on a
 particular wavelength range in the long spectrum.
 
 .. image:: ../images/line_info_spectrum_rangeslider.gif
@@ -87,12 +87,12 @@ can **resize** it by dragging the handles (vertical bars) at its edges.
 
 Using other options in Modebar
 ------------------------------
-If you take your mouse to the top right corner of figure, you will see a Modebar
-with multiple options. The default option when line info widget first displays
-is **Box Select** - the dotted square icon. You can click on other options
-like **Zoom** (magnifying glass icon), to do a rectangle zoom which maybe
-helpful to focus on a feature in the spectrum. You can always revert back to
-the initial state of the figure by clicking on **Reset Axes** option.
+If you take your mouse to the top right corner of the figure, you will see a
+Modebar with multiple options. The default option when Line Info Widget first
+displays is **Box Select** - the dotted square icon. You can click on other
+options like **Zoom** (magnifying glass icon), to do a rectangular zoom which
+may be helpful to focus on a feature in the spectrum. You can always revert
+back to the initial state of the figure by clicking on **Reset Axes** option.
 
 .. image:: ../images/line_info_spectrum_modebar.gif
     :alt: Demo of using modebar options
