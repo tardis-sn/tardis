@@ -446,6 +446,25 @@ class LineInfoWidget:
             (arr[-1] - arr[0]) * 3 / 4 + arr[1],
         ]
 
+    @staticmethod
+    def get_mid_point_idx(arr):
+        """
+        Get index of the middle point of a sorted array (ascending or descending).
+
+        The values in array may not be evenly distributed so it picks the middle
+        point not by index but by their values.
+
+        Parameters
+        ----------
+        arr : np.array
+
+        Returns
+        -------
+        int
+        """
+        mid_value = (arr[0] + arr[-1]) / 2
+        return np.abs(arr - mid_value).argmin()
+
     def plot_spectrum(
         self,
         wavelength,
@@ -473,7 +492,12 @@ class LineInfoWidget:
         -------
         plotly.graph_objects.FigureWidget
         """
+        # Initially zoomed range in rangeslider should be middle half of spectrum
         initial_zoomed_range = self.get_middle_half_edges(wavelength.value)
+
+        # The scatter point should be a middle point in spectrum otherwise
+        # the extra padding around it will be oddly visible when near the edge
+        scatter_point_idx = self.get_mid_point_idx(wavelength.value)
 
         return go.FigureWidget(
             [
@@ -489,8 +513,8 @@ class LineInfoWidget:
                 ),
                 # Hide a one point scatter trace, to bring boxselect in modebar
                 go.Scatter(
-                    x=wavelength[0],
-                    y=luminosity_density_lambda[0],
+                    x=wavelength[scatter_point_idx],
+                    y=luminosity_density_lambda[scatter_point_idx],
                     mode="markers",
                     marker=dict(opacity=0),
                     showlegend=False,
