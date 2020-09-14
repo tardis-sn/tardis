@@ -69,11 +69,15 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma,
             break
 
         nu_line = numba_plasma.line_list_nu[cur_line_id]
+        # TODO: Check if this is what the C code does
+        nu_line_last_interaction = numba_plasma.line_list_nu[cur_line_id - 1]
         tau_trace_line = numba_plasma.tau_sobolev[
             cur_line_id, v_packet.current_shell_id]
 
         distance_trace_line = calculate_distance_line(
-            v_packet, comov_nu, nu_line, numba_model.time_explosion)
+            v_packet, comov_nu, nu_line_last_interaction,
+            nu_line, numba_model.time_explosion
+        )
 
         if distance_boundary <= distance_trace_line:
             break

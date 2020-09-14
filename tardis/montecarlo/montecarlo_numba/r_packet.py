@@ -68,7 +68,9 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
 
 # @log_decorator
 @njit(**njit_dict)
-def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion):
+def calculate_distance_line(
+        r_packet, comov_nu,
+        nu_last_interaction, nu_line, time_explosion):
     """
 
     Parameters
@@ -88,17 +90,20 @@ def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion):
 
     if nu_line == 0.0:
         return MISS_DISTANCE
+
     nu_diff = comov_nu - nu_line
+    nu_diff_last = nu_last_interaction - nu_line
 
     # for numerical reasons, if line is too close, we set the distance to 0.
-    if np.abs(nu_diff / comov_nu) < CLOSE_LINE_THRESHOLD:
+    if np.abs(nu_diff_last / nu_last_interaction) < CLOSE_LINE_THRESHOLD:
         nu_diff = 0.0
 
     if nu_diff >= 0:
         distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
     else:
-        raise MonteCarloException('nu difference is less than 0.0; for more'
-                                  ' information, see print statement beforehand')
+        print('WARNING: nu difference is less than 0.0')
+        #raise MonteCarloException('nu difference is less than 0.0; for more'
+        #                          ' information, see print statement beforehand')
 
     if montecarlo_configuration.full_relativity:
         return calculate_distance_line_full_relativity(nu_line, nu,
@@ -285,6 +290,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators, sigma_thomson)
 
         # Going through the lines
         nu_line = numba_plasma.line_list_nu[cur_line_id]
+        nu_line_last_interaction = numba_plasma.line_list_nu[cur_line_id - 1]
 
         # Getting the tau for the next line
         tau_trace_line = numba_plasma.tau_sobolev[
@@ -296,7 +302,9 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators, sigma_thomson)
         # Calculating the distance until the current photons co-moving nu
         # redshifts to the line frequency
         distance_trace = calculate_distance_line(
-            r_packet, comov_nu, nu_line, numba_model.time_explosion)
+            r_packet, comov_nu, nu_line_last_interaction,
+            nu_line, numba_model.time_explosion
+        )
 
         # calculating the tau electron of how far the trace has progressed
         tau_trace_electron = calculate_tau_electron(cur_electron_density,
@@ -355,7 +363,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators, sigma_thomson)
             distance = distance_boundary
             interaction_type = InteractionType.BOUNDARY
 
-    r_packet.next_line_id = cur_line_id
+    #r_packet.next_line_id = cur_line_id
 
     return distance, interaction_type, delta_shell
 
