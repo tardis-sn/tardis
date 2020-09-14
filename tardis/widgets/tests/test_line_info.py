@@ -27,6 +27,12 @@ class TestLineInfoWidgetData:
     def test_get_species_interactions(
         self, line_info_widget, wavelength_range, filter_mode
     ):
+        """
+        Test for get_species_interactions() method.
+
+        Checks shape of dataframe and whether all values sum up to 1 in cases
+        where dataframe resulting dataframe should not be empty.
+        """
         species_interactions_df = line_info_widget.get_species_interactions(
             wavelength_range, filter_mode
         )
@@ -174,11 +180,13 @@ class TestLineInfoWidgetEvents:
 
         line_info_widget, selected_wavelength_range = liw_with_selection
 
-        expected_species_interactions = line_info_widget.get_species_interactions(
-            wavelength_range=selected_wavelength_range,
-            filter_mode=line_info_widget.FILTER_MODES[
-                line_info_widget.filter_mode_buttons.index
-            ],
+        expected_species_interactions = (
+            line_info_widget.get_species_interactions(
+                wavelength_range=selected_wavelength_range,
+                filter_mode=line_info_widget.FILTER_MODES[
+                    line_info_widget.filter_mode_buttons.index
+                ],
+            )
         )
 
         pd.testing.assert_frame_equal(
@@ -211,7 +219,9 @@ class TestLineInfoWidgetEvents:
 
     @pytest.mark.parametrize("selected_filter_mode_idx", [0, 1])
     def test_filter_mode_toggle(
-        self, liw_with_selection, selected_filter_mode_idx,
+        self,
+        liw_with_selection,
+        selected_filter_mode_idx,
     ):
         """
         Test if toggling filter_mode_buttons updates correct data in both
@@ -222,9 +232,13 @@ class TestLineInfoWidgetEvents:
         # Toggle the filter_mode_buttons
         line_info_widget.filter_mode_buttons.index = selected_filter_mode_idx
 
-        expected_species_interactions = line_info_widget.get_species_interactions(
-            wavelength_range=selected_wavelength_range,
-            filter_mode=line_info_widget.FILTER_MODES[selected_filter_mode_idx],
+        expected_species_interactions = (
+            line_info_widget.get_species_interactions(
+                wavelength_range=selected_wavelength_range,
+                filter_mode=line_info_widget.FILTER_MODES[
+                    selected_filter_mode_idx
+                ],
+            )
         )
 
         pd.testing.assert_frame_equal(
