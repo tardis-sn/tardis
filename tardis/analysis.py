@@ -28,7 +28,7 @@ class LastLineInteraction(object):
         last_line_interaction_out_id,
         last_line_interaction_shell_id,
         output_nu,
-        last_interaction_in_nu,
+        input_nu,
         lines,
         packet_filter_mode="packet_out_nu",
     ):
@@ -44,7 +44,7 @@ class LastLineInteraction(object):
             output_nu[mask], "Hz"
         ).to(u.Angstrom, equivalencies=u.spectral())
         self.last_line_interaction_in_angstrom = u.Quantity(
-            last_interaction_in_nu[mask], "Hz"
+            input_nu[mask], "Hz"
         ).to(u.Angstrom, equivalencies=u.spectral())
         self.lines = lines
 
