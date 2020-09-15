@@ -2,7 +2,6 @@ import os
 import logging
 import copy
 import pprint
-import yaml
 from astropy import units as u
 
 import tardis
