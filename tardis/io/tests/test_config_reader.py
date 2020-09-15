@@ -2,6 +2,7 @@
 import os
 import pytest
 import pandas as pd
+import yaml
 from numpy.testing import assert_almost_equal
 from jsonschema.exceptions import ValidationError
 
@@ -65,5 +66,7 @@ def test_config_hdf(hdf_file_path, tardis_config_verysimple):
             tardis_config_verysimple, validate=True, config_dirname="test"
         )
     expected.to_hdf(hdf_file_path)
-    actual = pd.read_hdf(hdf_file_path, key="configuration/abundances")
+    config_hdf_entry = pd.read_hdf(hdf_file_path, key="configuration")
+    actual = config_hdf_entry.iat[0, 0]
+    expected = expected.get_properties()
     assert actual == expected

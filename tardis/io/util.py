@@ -399,3 +399,75 @@ def download_from_url(url, dst):
                 pbar.update(1024)
     pbar.close()
     return file_size
+
+
+class ConfigWriterMixin(HDFWriterMixin):
+    """
+    Overrides HDFWriterMixin to obtain HDF properties from configuration keys
+    """
+    @staticmethod
+    def to_hdf_util(path_or_buf, path, elements, complevel=9, complib="blosc"):
+        """
+                A function to uniformly store TARDIS data
+                to an HDF file.
+
+                Scalars will be stored in a Series under path/scalars
+                1D arrays will be stored under path/property_name as distinct Series
+                2D arrays will be stored under path/property_name as distinct DataFrames
+
+                Units will be stored as their CGS value
+
+                Parameters
+                ----------
+                path_or_buf:
+                    Path or buffer to the HDF store
+                path: str
+                    Path inside the HDF store to store the `elements`
+                elements: dict
+                    A dict of property names and their values to be
+                    stored.
+
+                Returns
+                -------
+
+                """
+        we_opened = False
+
+        try:
+            buf = pd.HDFStore(path_or_buf, complevel=complevel, complib=complib)
+        except TypeError as e:  # Already a HDFStore
+            if e.message == "Expected bytes, got HDFStore":
+                buf = path_or_buf
+            else:
+                raise e
+        else:  # path_or_buf was a string and we opened the HDFStore
+            we_opened = True
+
+        if not buf.is_open:
+            buf.open()
+            we_opened = True
+
+        if hasattr(elements, "upper"):
+            data = pd.DataFrame([elements])
+            data.to_hdf(buf, path)
+        else:
+            raise AttributeError("Configuration should be written to HDF as a string")
+
+        if we_opened:
+            buf.close()
+
+    def get_properties(self):
+        config = self.recursive_quantity_to_string(self)
+        data = yaml.dump(config)
+        return data
+
+    def recursive_quantity_to_string(self, configuration):
+        configuration_no_quantities = {}
+
+        for key, item in configuration.items():
+            if hasattr(item, "items"):
+                configuration_no_quantities[key] = self.recursive_quantity_to_string(item)
+            else:
+                configuration_no_quantities[key] = str(item)
+
+        return configuration_no_quantities

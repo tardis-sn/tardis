@@ -2,11 +2,12 @@ import os
 import logging
 import copy
 import pprint
+import yaml
 from astropy import units as u
 
 import tardis
 from tardis.io import config_validator
-from tardis.io.util import YAMLLoader, yaml_load_file, HDFWriterMixin
+from tardis.io.util import YAMLLoader, yaml_load_file, ConfigWriterMixin
 from tardis.io.parsers.csvy import load_yaml_from_csvy
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -231,49 +232,6 @@ class ConfigurationNameSpace(dict):
 
     def deepcopy(self):
         return ConfigurationNameSpace(copy.deepcopy(dict(self)))
-
-
-class ConfigWriterMixin(HDFWriterMixin):
-    """
-    Overrides HDFWriterMixin to obtain HDF properties from configuration keys
-    """
-    def get_properties(self):
-        data = {}
-        for name, item in self.items():
-            if type(item) == ConfigurationNameSpace:
-                data[name] = len(item.keys())
-                data.update(item)
-                #data[name] = {nm: getattr(item, nm) for nm in item.keys()}
-            else:
-                data[name] = getattr(self, name)
-
-        #data = {name: getattr(self, name) for name in self.keys()}
-        return data
-
-    def to_hdf(self, file_path, path="", name=None):
-        """
-        Parameters
-        ----------
-        file_path: str
-            Path or buffer to the HDF store
-        path: str
-            Path inside the HDF store to store the `elements`
-        name: str
-            Group inside the HDF store to which the `elements` need to be saved
-
-        Returns
-        -------
-
-        """
-        if name is None:
-            try:
-                name = self.hdf_name
-            except AttributeError:
-                name = self.convert_to_snake_case(self.__class__.__name__)
-
-        data = self.get_properties()
-        buff_path = os.path.join(path, name)
-        self.to_hdf_util(file_path, buff_path, data)
 
 
 class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
