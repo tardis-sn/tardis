@@ -27,7 +27,7 @@ jobs:
       - checkout: self
 
       - checkout: git://TARDIS/tardis-refdata
-        lfs: true
+        lfs: false
 
       - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
         displayName: "Force exit on error (bash) "
@@ -54,6 +54,15 @@ jobs:
           source activate tardis
           python setup.py build_ext --inplace
         displayName: "TARDIS build"
+
+      - bash: |
+          cd $WORKSPACE_DIR/tardis-refdata
+          git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin
+          git lfs pull --include="atom_data/chianti_He.h5" origin
+          git lfs pull --include="unit_test_data.h5" origin
+          git lfs pull --include="packet_unittest.h5" origin
+          echo MD5: `md5sum unit_test_data.h5`
+        displayName: "Fetch reference data"
 
       - bash: |
           cd $WORKSPACE_DIR/tardis
