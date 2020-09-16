@@ -65,7 +65,6 @@ def test_config_hdf(hdf_file_path, tardis_config_verysimple):
             tardis_config_verysimple, validate=True, config_dirname="test"
         )
     expected.to_hdf(hdf_file_path)
-    config_hdf_entry = pd.read_hdf(hdf_file_path, key="configuration")
-    actual = config_hdf_entry.iat[0, 0]
-    expected = expected.get_properties()
-    assert actual == expected
+    actual = pd.read_hdf(hdf_file_path, key="/config/config")
+    expected = expected.get_properties()['config']
+    assert actual[0] == expected[0]
