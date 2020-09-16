@@ -109,6 +109,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         "iterations_t_rad",
         "iterations_electron_densities",
         "iterations_t_inner",
+        "config"
     ]
     hdf_name = "simulation"
 
@@ -126,6 +127,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         luminosity_requested,
         convergence_strategy,
         nthreads,
+        config
     ):
 
         super(Simulation, self).__init__(iterations, model.no_of_shells)
@@ -143,6 +145,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.luminosity_nu_end = luminosity_nu_end
         self.luminosity_requested = luminosity_requested
         self.nthreads = nthreads
+        self.config = config
         if convergence_strategy.type in ("damped"):
             self.convergence_strategy = convergence_strategy
             self.converged = False
@@ -573,4 +576,5 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             luminosity_requested=config.supernova.luminosity_requested.cgs,
             convergence_strategy=config.montecarlo.convergence_strategy,
             nthreads=config.montecarlo.nthreads,
+            config=config
         )
