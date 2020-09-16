@@ -24,6 +24,8 @@ jobs:
       maxParallel: 2
 
     steps:
+      - checkout: self
+
       - checkout: git://TARDIS/tardis-refdata
 
       - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
