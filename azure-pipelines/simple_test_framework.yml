@@ -27,7 +27,11 @@ jobs:
       - checkout: self
 
       - checkout: git://TARDIS/tardis-refdata
-        lfs: true
+        lfs: "false"
+
+      - bash: |
+          cd $WORKSPACE_DIR/tardis-refdata
+          git remote -v
 
       - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
         displayName: "Force exit on error (bash) "
