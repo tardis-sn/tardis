@@ -6,14 +6,12 @@ trigger:
 
 variables:
   package.manager: "mamba"
-  ref.data.dir: "$(Agent.BuildDirectory)/tardis-refdata"
-  ref.data.url: "https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata"
+  sources.dir: "$(Pipeline.Workspace)/s"
   codecov.token: "a876d307-9ed5-4f5d-a6c4-e58291ac4111"
   system.debug: "false"
 
 jobs:
   - job: "Test"
-
     pool:
       vmImage: $[variables.vm_Image]
 
@@ -28,21 +26,14 @@ jobs:
       maxParallel: 2
 
     steps:
-      - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
-        displayName: "Force exit on error (bash) "
-        condition: eq(variables['Agent.OS'], 'Linux')
+      - checkout: self
 
-      - bash: |
-          GIT_LFS_SKIP_SMUDGE=1 git clone $REF_DATA_URL $REF_DATA_DIR
-          cd $REF_DATA_DIR
-          git fetch origin
-          git checkout origin/master
-          git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin
-          git lfs pull --include="atom_data/chianti_He.h5" origin
-          git lfs pull --include="unit_test_data.h5" origin
-          git lfs pull --include="packet_unittest.h5" origin
-          echo MD5: `md5sum unit_test_data.h5`
-        displayName: "Fetch reference data"
+      - checkout: git://TARDIS/tardis-refdata
+        lfs: true
+
+      - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
+        displayName: "Force exit on error (bash)"
+        condition: eq(variables['Agent.OS'], 'Linux')
 
       - bash: echo "##vso[task.prependpath]$CONDA/bin"
         displayName: "Add conda to PATH"
@@ -55,18 +46,22 @@ jobs:
         displayName: "Install Mamba package manager"
         condition: eq(variables['package.manager'], 'mamba')
 
-      - bash: $PACKAGE_MANAGER env create -f tardis_env3.yml
+      - bash: |
+          cd $SOURCES_DIR/tardis
+          $PACKAGE_MANAGER env create -f tardis_env3.yml
         displayName: "Install TARDIS environment"
 
       - bash: |
+          cd $SOURCES_DIR/tardis
           source activate tardis
           python setup.py build_ext --inplace
         displayName: "TARDIS build"
 
       - bash: |
+          cd $SOURCES_DIR/tardis
           source activate tardis
           pip install pytest-azurepipelines
-          pytest tardis --tardis-refdata=$REF_DATA_DIR --cov=tardis --cov-report=xml --cov-report=html
+          pytest tardis --tardis-refdata=$SOURCES_DIR/tardis-refdata --cov=tardis --cov-report=xml --cov-report=html
         displayName: "TARDIS test"
 
       - bash: bash <(curl -s https://codecov.io/bash)
