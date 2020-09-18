@@ -1084,7 +1084,7 @@ get_event_handler (rpacket_t * packet, storage_model_t * storage,
   double d_boundary = rpacket_get_d_boundary (packet);
   double d_continuum = rpacket_get_d_continuum (packet);
   double d_line = rpacket_get_d_line (packet);
-  fprintf(stdout, "d_boundary = %.*e; d_continuum = %.*e; d_line = %.*e\n;", d_boundary, d_continuum, d_line);
+  fprintf(stdout, "d_boundary = %.12e; d_continuum = %.12e; d_line = %.12e\n;", d_boundary, d_continuum, d_line);
   montecarlo_event_handler_t handler;
   if (d_line <= d_boundary && d_line <= d_continuum)
     {
@@ -1140,7 +1140,7 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
   rpacket_set_nu_line (packet, 0.0);
   rpacket_set_virtual_packet (packet, virtual_packet);
   rpacket_set_status (packet, TARDIS_PACKET_STATUS_IN_PROCESS);
-  fprintf(stdout, "r_packet.nu = %.*e; r_packet.mu = %.*e;\n", rpacket_get_nu(packet), rpacket_get_mu(packet));
+  fprintf(stdout, "r_packet.nu = %.12e; r_packet.mu = %.12e;\n", rpacket_get_nu(packet), rpacket_get_mu(packet));
   // Initializing tau_event if it's a real packet.
 
   if (virtual_packet == 0)
