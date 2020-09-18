@@ -122,7 +122,7 @@ static inline double rpacket_get_nu_line (const rpacket_t * packet)
 
 static inline void rpacket_set_nu_line (rpacket_t * packet, double nu_line)
 {
-  fprintf(stdout, "Setting new line to %d", nu_line);
+  fprintf(stdout, "Setting new line to %d \n", nu_line);
   packet->nu_line = nu_line;
 }
 
