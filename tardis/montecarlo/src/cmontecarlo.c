@@ -650,6 +650,8 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
   if (virtual_mode == 0)
     {
       reabsorbed = montecarlo_one_packet_loop (storage, packet, 0, mt_state);
+      fprintf(stdout, "end of packet: r_packet.nu = %.12e; r_packet.mu = %.12e; reabsorbed = %d\n", rpacket_get_nu(packet), rpacket_get_mu(packet), reabsorbed);
+
     }
   else
     {
