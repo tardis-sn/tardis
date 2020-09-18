@@ -1226,7 +1226,7 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
       }
 #else
       rk_state mt_state;
-      rk_seed (seed, &mt_state);
+      rk_seed (1963, &mt_state);
       fprintf(stderr, "Running without OpenMP\n");
 #endif
       int64_t chi_bf_tmp_size = (storage->cont_status) ? storage->no_of_edges : 0;
