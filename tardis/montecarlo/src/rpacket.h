@@ -87,6 +87,7 @@ static inline void rpacket_set_mu (rpacket_t * packet, double mu)
 
 static inline double rpacket_get_energy (const rpacket_t * packet)
 {
+
   return packet->energy;
 }
 
