@@ -1139,7 +1139,7 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
   rpacket_set_nu_line (packet, 0.0);
   rpacket_set_virtual_packet (packet, virtual_packet);
   rpacket_set_status (packet, TARDIS_PACKET_STATUS_IN_PROCESS);
-
+  fprintf(stdout, "rpacket_nu = %d rpacket_mu = %d", rpacket_get_nu(packet), rpacket_get_mu(packet));
   // Initializing tau_event if it's a real packet.
 
   if (virtual_packet == 0)
@@ -1152,6 +1152,7 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
       // Check if we are at the end of line list.
       if (!rpacket_get_last_line (packet))
         {
+          fprintf(stdout, "Not at last line");
           rpacket_set_nu_line (packet,
                                storage->
                                line_list_nu[rpacket_get_next_line_id
