@@ -4,9 +4,11 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include "randomkit/randomkit.h"
 #include "status.h"
 #include "storage.h"
+
 
 #define MISS_DISTANCE 1e99
 #define C 29979245800.0
@@ -250,6 +252,7 @@ static inline void rpacket_set_id (rpacket_t * packet, int id)
 static inline void rpacket_reset_tau_event (rpacket_t * packet, rk_state *mt_state)
 {
   rpacket_set_tau_event (packet, -log (rk_double (mt_state)));
+  fprintf(stdout, "Reset Tau Event to ", rpacket_get_tau_event (packet));
 }
 
 tardis_error_t rpacket_init (rpacket_t * packet, storage_model_t * storage,
