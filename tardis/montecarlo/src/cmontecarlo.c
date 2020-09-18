@@ -945,8 +945,8 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       test_for_close_line (packet, storage);
     }
   else if (rpacket_get_tau_event (packet) < tau_combined)
-    fprintf(stdout, "line absorption occurs");
     { // Line absorption occurs
+      fprintf(stdout, "line absorption occurs");
       move_packet (packet, storage, distance);
       double old_doppler_factor = rpacket_doppler_factor (packet, storage);
       rpacket_set_mu (packet, 2.0 * rk_double (mt_state) - 1.0);
