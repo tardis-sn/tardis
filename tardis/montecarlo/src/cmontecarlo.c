@@ -932,7 +932,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
   double tau_continuum = rpacket_get_chi_continuum(packet) * distance;
   double tau_combined = tau_line + tau_continuum;
   //rpacket_set_next_line_id (packet, rpacket_get_next_line_id (packet) + 1);
-
+  fprintf(stdout, "checking all taus: tau_continuum = %.12e; tau_line = %.12e; tau_combined = %.12e;\n", tau_continuum, tau_line, tau_combined);
   if (next_line_id + 1 == storage->no_of_lines)
     {
       rpacket_set_last_line (packet, true);
@@ -945,6 +945,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       test_for_close_line (packet, storage);
     }
   else if (rpacket_get_tau_event (packet) < tau_combined)
+    fprintf(stdout, "line absorption occurs");
     { // Line absorption occurs
       move_packet (packet, storage, distance);
       double old_doppler_factor = rpacket_doppler_factor (packet, storage);
@@ -1136,6 +1137,7 @@ int64_t
 montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
                             int64_t virtual_packet, rk_state *mt_state)
 {
+  fprintf(stdout, "---- packet begin ----\n\n");
   rpacket_set_tau_event (packet, 0.0);
   rpacket_set_nu_line (packet, 0.0);
   rpacket_set_virtual_packet (packet, virtual_packet);
