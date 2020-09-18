@@ -122,7 +122,7 @@ static inline double rpacket_get_nu_line (const rpacket_t * packet)
 
 static inline void rpacket_set_nu_line (rpacket_t * packet, double nu_line)
 {
-  fprintf(stdout, "Setting new line to %d \n", nu_line);
+  fprintf(stdout, "Setting new line to %f \n", nu_line);
   packet->nu_line = nu_line;
 }
 
@@ -253,7 +253,7 @@ static inline void rpacket_set_id (rpacket_t * packet, int id)
 static inline void rpacket_reset_tau_event (rpacket_t * packet, rk_state *mt_state)
 {
   rpacket_set_tau_event (packet, -log (rk_double (mt_state)));
-  fprintf(stdout, "Reset Tau Event to ", rpacket_get_tau_event (packet));
+  fprintf(stdout, "Reset Tau Event to %f\n", rpacket_get_tau_event (packet));
 }
 
 tardis_error_t rpacket_init (rpacket_t * packet, storage_model_t * storage,

@@ -1139,7 +1139,7 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
   rpacket_set_nu_line (packet, 0.0);
   rpacket_set_virtual_packet (packet, virtual_packet);
   rpacket_set_status (packet, TARDIS_PACKET_STATUS_IN_PROCESS);
-  fprintf(stdout, "rpacket_nu = %d rpacket_mu = %d \n", rpacket_get_nu(packet), rpacket_get_mu(packet));
+  fprintf(stdout, "rpacket_nu = %f rpacket_mu = %f \n", rpacket_get_nu(packet), rpacket_get_mu(packet));
   // Initializing tau_event if it's a real packet.
 
   if (virtual_packet == 0)
