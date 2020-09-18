@@ -1084,7 +1084,7 @@ get_event_handler (rpacket_t * packet, storage_model_t * storage,
   double d_boundary = rpacket_get_d_boundary (packet);
   double d_continuum = rpacket_get_d_continuum (packet);
   double d_line = rpacket_get_d_line (packet);
-  fprintf(stdout, "d_boundary = %d; d_continuum = %d; d_line = %d\n;", d_boundary, d_continuum, d_line);
+  fprintf(stdout, "d_boundary = %f; d_continuum = %f; d_line = %f\n;", d_boundary, d_continuum, d_line);
   montecarlo_event_handler_t handler;
   if (d_line <= d_boundary && d_line <= d_continuum)
     {
