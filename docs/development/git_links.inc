@@ -11,7 +11,6 @@
 .. git stuff
 .. _git: http://git-scm.com/
 .. _github: http://github.com
-.. _GitHub Help: http://help.github.com
 .. _msysgit: http://code.google.com/p/msysgit/downloads/list
 .. _git-osx-installer: http://code.google.com/p/git-osx-installer/downloads/list
 .. _subversion: http://subversion.tigris.org/
@@ -48,8 +47,6 @@
 .. _linux git workflow: http://www.mail-archive.com/dri-devel@lists.sourceforge.net/msg39091.html
 .. _git parable: http://tom.preston-werner.com/2009/05/19/the-git-parable.html
 .. _git foundation: http://matthew-brett.github.com/pydagogue/foundation.html
-.. _git key install: http://help.github.com/en/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
-.. _git deploy key: https://developer.github.com/v3/guides/managing-deploy-keys/#deploy-keys
 .. _deleting master on github: http://matthew-brett.github.com/pydagogue/gh_delete_master.html
 .. _rebase without tears: http://matthew-brett.github.com/pydagogue/rebase_without_tears.html
 .. _resolving a merge: http://schacon.github.com/git/user-manual.html#resolving-a-merge
