@@ -11,13 +11,15 @@ import pandas as pd
 
 class LastLineInteraction(object):
     @classmethod
-    def from_model(cls, model):
+    def from_model(cls, model, packet_filter_mode="packet_out_nu"):
         return cls(
             model.runner.last_line_interaction_in_id,
             model.runner.last_line_interaction_out_id,
             model.runner.last_line_interaction_shell_id,
             model.runner.output_nu,
+            model.runner.last_interaction_in_nu,
             model.plasma.atomic_data.lines,
+            packet_filter_mode,
         )
 
     def __init__(
@@ -26,8 +28,9 @@ class LastLineInteraction(object):
         last_line_interaction_out_id,
         last_line_interaction_shell_id,
         output_nu,
+        input_nu,
         lines,
-        packet_filter_mode="packet_nu",
+        packet_filter_mode="packet_out_nu",
     ):
         # mask out packets which did not perform a line interaction
         # TODO mask out packets which do not escape to observer?
@@ -37,9 +40,12 @@ class LastLineInteraction(object):
         self.last_line_interaction_shell_id = last_line_interaction_shell_id[
             mask
         ]
-        self.last_line_interaction_angstrom = output_nu.to(
-            u.Angstrom, equivalencies=u.spectral()
-        )[mask]
+        self.last_line_interaction_out_angstrom = u.Quantity(
+            output_nu[mask], "Hz"
+        ).to(u.Angstrom, equivalencies=u.spectral())
+        self.last_line_interaction_in_angstrom = u.Quantity(
+            input_nu[mask], "Hz"
+        ).to(u.Angstrom, equivalencies=u.spectral())
         self.lines = lines
 
         self._wavelength_start = 0 * u.angstrom
@@ -90,10 +96,16 @@ class LastLineInteraction(object):
         self.update_last_interaction_filter()
 
     def update_last_interaction_filter(self):
-        if self.packet_filter_mode == "packet_nu":
+        if self.packet_filter_mode == "packet_out_nu":
             packet_filter = (
-                self.last_line_interaction_angstrom > self.wavelength_start
-            ) & (self.last_line_interaction_angstrom < self.wavelength_end)
+                self.last_line_interaction_out_angstrom > self.wavelength_start
+            ) & (self.last_line_interaction_out_angstrom < self.wavelength_end)
+
+        elif self.packet_filter_mode == "packet_in_nu":
+            packet_filter = (
+                self.last_line_interaction_in_angstrom > self.wavelength_start
+            ) & (self.last_line_interaction_in_angstrom < self.wavelength_end)
+
         elif self.packet_filter_mode == "line_in_nu":
             line_in_nu = self.lines.wavelength.iloc[
                 self.last_line_interaction_in_id
@@ -101,6 +113,12 @@ class LastLineInteraction(object):
             packet_filter = (
                 line_in_nu > self.wavelength_start.to(u.angstrom).value
             ) & (line_in_nu < self.wavelength_end.to(u.angstrom).value)
+
+        else:
+            raise ValueError(
+                "Invalid value of packet_filter_mode. The only values "
+                "allowed are: packet_out_nu, packet_in_nu, line_in_nu"
+            )
 
         self.last_line_in = self.lines.iloc[
             self.last_line_interaction_in_id[packet_filter]
