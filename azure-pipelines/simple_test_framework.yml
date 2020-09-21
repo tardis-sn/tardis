@@ -5,8 +5,6 @@ trigger:
   - master
 
 variables:
-  package.manager: "mamba"
-  sources.dir: "$(Pipeline.Workspace)/s"
   codecov.token: "a876d307-9ed5-4f5d-a6c4-e58291ac4111"
   system.debug: "false"
 
@@ -26,39 +24,12 @@ jobs:
       maxParallel: 2
 
     steps:
-      - checkout: self
-
-      - checkout: git://TARDIS/tardis-refdata
-        lfs: true
-
-      - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
-        displayName: "Force exit on error (bash)"
-        condition: eq(variables['Agent.OS'], 'Linux')
-
-      - bash: echo "##vso[task.prependpath]$CONDA/bin"
-        displayName: "Add conda to PATH"
-
-      - bash: sudo chown -R $USER $CONDA
-        displayName: "Take ownership of conda installation (macOS)"
-        condition: eq(variables['Agent.OS'], 'Darwin')
-
-      - bash: conda install mamba -c conda-forge -y
-        displayName: "Install Mamba package manager"
-        condition: eq(variables['package.manager'], 'mamba')
+      - template: templates/default.yml
+        fetchRefdata: true
+        useMamba: true
 
       - bash: |
-          cd $SOURCES_DIR/tardis
-          $PACKAGE_MANAGER env create -f tardis_env3.yml
-        displayName: "Install TARDIS environment"
-
-      - bash: |
-          cd $SOURCES_DIR/tardis
-          source activate tardis
-          python setup.py build_ext --inplace
-        displayName: "TARDIS build"
-
-      - bash: |
-          cd $SOURCES_DIR/tardis
+          cd $REPO_DIR/tardis
           source activate tardis
           pip install pytest-azurepipelines
           pytest tardis --tardis-refdata=$SOURCES_DIR/tardis-refdata --cov=tardis --cov-report=xml --cov-report=html

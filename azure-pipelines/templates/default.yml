@@ -1,0 +1,62 @@
+parameters:
+  - name: fetchRefdata
+    type: bool
+    default: false
+
+  - name: useMamba
+    type: bool
+    default: false
+
+  - name: skipInstall
+    type: bool
+    default: false
+
+variables:
+  ${{ if eq(parameters.fetchRefdata, true) }}:
+    - repo.dir: "$(Agent.BuildDirectory)/s"
+
+  ${{ if ne(parameters.fetchRefdata, true) }}:
+    - repo.dir: "$(Agent.BuildDirectory)"
+
+  ${{ if eq(parameters.useMamba, true) }}:
+    - package.manager: "mamba"
+
+  ${{ if ne(parameters.useMamba, true) }}:
+    - package.manager: "conda"
+
+steps:
+  - checkout: self
+    displayName: "Fetch TARDIS repository"
+
+  - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
+    displayName: "Force exit on error (bash)"
+    condition: eq(variables['Agent.OS'], 'Linux')
+
+  - checkout: git://TARDIS/tardis-refdata
+    lfs: true
+    displayName: "Fetch TARDIS reference data"
+    condition: eq(parameters.fetchRefdata, true)
+
+  - bash: echo "##vso[task.prependpath]$CONDA/bin"
+    displayName: "Add conda to PATH"
+
+  - bash: sudo chown -R $USER $CONDA
+    displayName: "Take ownership of conda installation (macOS)"
+    condition: eq(variables['Agent.OS'], 'Darwin')
+
+  - bash: conda install mamba -c conda-forge -y
+    displayName: "Install Mamba package manager"
+    condition: eq(parameters.useMamba, true)
+
+  - bash: |
+      cd $REPO_DIR/tardis
+      $PACKAGE_MANAGER env create -f tardis_env3.yml
+    displayName: "Install TARDIS environment"
+    condition: eq(parameters.skipInstall, false)
+
+  - bash: |
+      cd $REPO_DIR/tardis
+      source activate tardis
+      python setup.py build_ext --inplace
+    displayName: "TARDIS build & install"
+    condition: eq(parameters.skipInstall, false)
