@@ -18,7 +18,6 @@ steps:
   - ${{ eq(parameters.fetchRefdata, true) }}
     - checkout: git://TARDIS/tardis-refdata
       lfs: true
-      displayName: "Fetch TARDIS reference data"
 
   - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
     displayName: "Force exit on error (bash)"
