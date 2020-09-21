@@ -1,14 +1,14 @@
 parameters:
   - name: fetchRefdata
-    type: bool
+    type: boolean
     default: false
 
   - name: useMamba
-    type: bool
+    type: boolean
     default: false
 
   - name: skipInstall
-    type: bool
+    type: boolean
     default: false
 
 variables:
