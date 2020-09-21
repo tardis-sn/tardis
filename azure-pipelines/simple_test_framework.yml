@@ -25,8 +25,9 @@ jobs:
 
     steps:
       - template: templates/default.yml
-        fetchRefdata: true
-        useMamba: true
+        parameters:
+          fetchRefdata: true
+          useMamba: true
 
       - bash: |
           cd $REPO_DIR/tardis
