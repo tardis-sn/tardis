@@ -11,22 +11,13 @@ parameters:
     type: boolean
     default: false
 
-variables:
-  ${{ if eq(parameters.fetchRefdata, true) }}:
-    - repo.dir: "$(Agent.BuildDirectory)/s"
-
-  ${{ if ne(parameters.fetchRefdata, true) }}:
-    - repo.dir: "$(Agent.BuildDirectory)"
-
-  ${{ if eq(parameters.useMamba, true) }}:
-    - package.manager: "mamba"
-
-  ${{ if ne(parameters.useMamba, true) }}:
-    - package.manager: "conda"
-
 steps:
   - checkout: self
     displayName: "Fetch TARDIS repository"
+
+  - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
+    displayName: "Force exit on error (bash)"
+    condition: eq(variables['Agent.OS'], 'Linux')
 
   - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
     displayName: "Force exit on error (bash)"
