@@ -26,15 +26,14 @@ jobs:
     steps:
       - template: templates/default.yml
         parameters:
-          workingDir: '$(Agent.BuildDirectory)'
           fetchRefdata: true
           useMamba: true
 
       - bash: |
-          cd $(working.dir)/tardis
+          cd $(Build.SourcesDirectory)/tardis
           source activate tardis
           pip install pytest-azurepipelines
-          pytest tardis --tardis-refdata=$(workingDir)/tardis-refdata --cov=tardis --cov-report=xml --cov-report=html
+          pytest tardis --tardis-refdata=$(Build.SourcesDirectory)/tardis-refdata --cov=tardis --cov-report=xml --cov-report=html
         displayName: 'TARDIS test'
 
       - bash: bash <(curl -s https://codecov.io/bash)
