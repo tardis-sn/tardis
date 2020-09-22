@@ -17,7 +17,7 @@ parameters:
 
 steps:
   - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
-    displayName: 'Exit BASH if a command exits with non-zero status'
+    displayName: 'Force BASH exit if a command exits with non-zero status'
     condition: eq(variables['Agent.OS'], 'Linux')
 
   - checkout: self
@@ -40,18 +40,18 @@ steps:
     condition: eq(variables['Agent.OS'], 'Darwin')
 
   - ${{ if eq(parameters.packageManager, 'mamba') }}:
-    - bash: $(packageManager) install mamba -c conda-forge -y
+    - bash: $(parameters.packageManager) install mamba -c conda-forge -y
       displayName: 'Install Mamba package manager'
 
   - ${{ if eq(parameters.skipInstall, false) }}:
     - bash: |
-        cd $(workingDir)/tardis
-        $(packageManager) env create -f tardis_env3.yml
+        cd $(parameters.workingDir)/tardis
+        $(parameters.packageManager) env create -f tardis_env3.yml
       displayName: 'Install TARDIS environment'
 
   - ${{ if eq(parameters.skipInstall, false) }}:
     - bash: |
-        cd $(workingDir)/tardis
+        cd $(parameters.workingDir)/tardis
         source activate tardis
         python setup.py build_ext --inplace
       displayName: "TARDIS build & install"
