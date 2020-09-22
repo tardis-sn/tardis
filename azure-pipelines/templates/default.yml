@@ -52,4 +52,4 @@ steps:
         cd $(Build.SourcesDirectory)/tardis
         source activate tardis
         python setup.py build_ext --inplace
-      displayName: "TARDIS build & install"
+      displayName: 'TARDIS build & install'
