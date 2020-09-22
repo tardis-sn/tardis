@@ -39,8 +39,9 @@ steps:
     displayName: 'Take ownership of conda installation (macOS)'
     condition: eq(variables['Agent.OS'], 'Darwin')
 
-  - bash: $(packageManager) install mamba -c conda-forge -y
-    displayName: 'Install Mamba package manager'
+  - ${{ if eq(parameters.packageManager, 'mamba') }}:
+    - bash: $(packageManager) install mamba -c conda-forge -y
+      displayName: 'Install Mamba package manager'
 
   - ${{ if eq(parameters.skipInstall, false) }}:
     - bash: |
