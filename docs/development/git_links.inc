@@ -11,6 +11,7 @@
 .. git stuff
 .. _git: http://git-scm.com/
 .. _github: http://github.com
+.. _GitHub Help: http://help.github.com	
 .. _msysgit: http://code.google.com/p/msysgit/downloads/list
 .. _git-osx-installer: http://code.google.com/p/git-osx-installer/downloads/list
 .. _subversion: http://subversion.tigris.org/
@@ -54,6 +55,7 @@
 .. other stuff
 .. _python: http://www.python.org
 .. _carsus: https://tardis-sn.github.io/carsus/
+.. _testing pipeline: https://github.com/tardis-sn/tardis/blob/master/azure-pipelines/simple_test_framework.yml
 
 .. |emdash| unicode:: U+02014
 

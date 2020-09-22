@@ -17,6 +17,24 @@ pipelines. The following section explains briefly the different
 components of a pipeline.
 
 
+Repos
+-----
+
+Azure Repos is just another service to store Git repositories.
+Currently, we use Azure Repos to mirror the ``tardis-refdata``
+repository, since Azure does not impose limits on LFS bandwith
+nor storage.
+
+**To clone this repository:**
+::
+  git clone https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata
+
+**To download a LFS file trough HTTPS:**
+::
+  https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&resolveLfs=true
+
+
+
 YAML files
 ----------
 
@@ -73,57 +91,171 @@ There are more useful triggers such as the *cron* trigger, see the
           any trigger specified in the YAML file and could lead to
           confusing sitations.
 
+
 Variables
 ---------
+
+Variable syntax
+***************
+
+Azure Pipelines supports three different ways to reference variables:
+*macro*, *template expression*, and *runtime expression*. Each syntax
+can be used for a different purpose and has some limitations.
+
+.. image:: images/variables.png
+      :align: center
+
+**What syntax should I use?** Use *macro syntax* if you are providing
+input for a task. Choose a *runtime expression* if you are working with
+conditions and expressions. If you are defining a variable in a template,
+use a *template expression*.
+
+
+Define variables
+****************
+
+Usually, we define variables at the top of the YAML file.
+::
+  variables:
+    my.var: 'foo'
+
+  steps:
+    - bash: |
+        echo $(my.var)
+
+When a variable is defined at the top of a YAML, it will be available
+to all jobs and stages in the pipeline as a *global variable*.
+Variables at the *stage* level override variables at the *root* level,
+while variables at the *job* level override variables at the *root* 
+and *stage* level.
+
+Also, variables are available to scripts through environment variables.
+The name is upper-cased and ``.``  is replaced with ``_``. For example::
+  variables:
+    my.var: 'foo'
+
+  steps:
+    - bash: |
+        echo $MY_VAR
+
+To set a variable from a script task, use the ``task.setvariable`` logging
+command.
+::
+  steps:
+
+    - bash: |
+        echo "##vso[task.setvariable variable=my.var]foo"
+
+    - bash: |
+        echo $(my.var)
+
+See the `Azure documentation section on variables`_ for more information.
+
+
+Predefined variables
+--------------------
+
+The most important (and confusing) predefined variables are the ones related
+to paths in Azure:
+
+* All folders for a given pipeline are created under ``Agent.BuildDirectory`` 
+  variable, alias ``Pipeline.Workspace``.
+
+* Cloned repositories are under the ``Build.Repository.LocalPath`` variable
+  alias ``Build.SourcesDirectory``.
+
+Our advice is to stick with ``Build.SourcesDirectory`` as much as possible
+to avoid problems when `checking out multiple repositories`_.
+
 
 Jobs
 ----
 
-A job is referred to as the most basic building block that the pipeline runs, using a single agent, 
-which is composed of steps of script.
+You can organize your pipeline into jobs. Every pipeline has at least one job.
+A job is a series of steps that run sequentially as a unit. In other words,
+a job is the smallest unit of work that can be scheduled to run.
+::
+  jobs:
+  - job: myJob
 
-A task is a predefined script with a definitive purpose, such as downloading the secure file or installing a ssh-key.
+    pool:
+      vmImage: 'ubuntu-latest'
 
-To download and add the ssh-key, prepare the scripts as::
+    steps:
+    - bash: echo "Hello world"
 
-      - task: DownloadSecureFile@1
-        inputs: 
-          secureFile: 'id_azure_rsa'
+Jobs can run in parallel (for example: run the same job on multiple OSes) or
+depend on a previous job.
 
-Secure files stored in the Azure server are encrypted and again decrypted by the Azure task that uses the file.
-
-Download a secure file to a temporary location in the virtual machine::
-
-      - task: InstallSSHKey@0
-        inputs:
-          knownHostsEntry: $(gh_host)
-          sshPublicKey: $(public_key)
-          #sshPassphrase: # Optional - leave empty if it was left empty while generating the key.
-          sshKeySecureFile: 'id_azure_rsa'
-
-
-In a job, you can list a single vm as::
-
-      pool:
-        vmImage: "Ubuntu 16.04"
-
-Or if you prefer to use multiple virtual machines and specify the maximum that can run at the same time, in 
-addition to specifying variables as key-value pairs such as conda and miniconda.url below. ::
-
-      strategy:
-        matrix: 
-          linux:
-            vmImage: "Ubuntu 16.04"
-            conda: '/usr/share/miniconda'
-          mac:
-            vm_Image: 'macOS-10.14'
-            miniconda.url: 'http://repo.continuum.io/miniconda/Miniconda2-latest-mac-x86_64.sh'
-        maxParallel: 2
-      pool:
-        vmImage: $(imageName)
-
-This trick is also convenient for specifying different variable builds for the same vmImage. As one can keep the vm_Image 
-constant and change the key value pair for each job in the matrix.
+See the `Azure documentation section on jobs`_ for more information.
 
 .. include:: git_links.inc
 .. include:: azure_links.inc
+
+
+Templates
+---------
+
+Templates let you define reusable content, logic, and parameters. It functions
+like an include directive in many programming languages. Content from one file
+is inserted into another file. 
+
+See the `Azure documentation section on templates`_ for more information.
+
+
+Default template
+================
+
+The common set of steps used across most TARDIS pipelines now lives in the
+"default" template: 
+
+- Use ``set -e`` on Bash steps.
+- Fetch TARDIS main repository.
+- Fetch TARDIS reference data repository (optional).
+- Configure Anaconda for Linux and macOS agents.
+- Install Mamba package manager (optional).
+- Install TARDIS environment (optional).
+- Build and install TARDIS (optional).
+
+It was written to make pipelines easier to create and mantain. For example,
+to start a new pipeline use::
+
+  steps:
+    - template: templates/default.yml
+      parameters:
+        fetchRefdata: true
+
+Available parameters are:
+
+- ``fetchRefdata``: fetch the ``tardis-refdata`` repository from Azure Repos
+  (default is *false*).
+- ``useMamba``: use the ``mamba`` package manager instead of ``conda``
+  (default is *false*). 
+- ``skipInstall``: does not create the TARDIS environment
+  (default is *false*).
+
+
+Testing pipeline
+================
+
+The `testing pipeline`_ (CI) consists basically in the same job running twice
+in parallel (one for each OS) with the steps from the default template, plus
+extra steps to run the tests and upload the coverage results.
+
+
+Documentation pipeline
+======================
+
+*Coming soon...*
+
+
+Release pipeline
+================
+
+*Coming soon...*
+
+
+Reference data pipeline
+=======================
+
+*Coming soon...*
