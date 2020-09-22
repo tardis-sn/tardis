@@ -5,8 +5,9 @@ trigger:
   - master
 
 variables:
+  working.dir: '$(Agent.BuildDirectory)/s'
   codecov.token: 'a876d307-9ed5-4f5d-a6c4-e58291ac4111'
-  system.debug: 'false'
+  system.debug: false
 
 jobs:
   - job: 'Test'
@@ -26,7 +27,7 @@ jobs:
     steps:
       - template: templates/default.yml
         parameters:
-          workingDir: $(Agent.BuildDirectory)
+          workingDir: '$(working.dir)'
           packageManager: 'mamba'
           fetchRefdata: true
 
@@ -34,7 +35,7 @@ jobs:
           cd $(workingDir)/tardis
           source activate tardis
           pip install pytest-azurepipelines
-          pytest tardis --tardis-refdata=${{ parameters.workingDir }}/tardis-refdata --cov=tardis --cov-report=xml --cov-report=html
+          pytest tardis --tardis-refdata=$(working.dir)/tardis-refdata --cov=tardis --cov-report=xml --cov-report=html
         displayName: 'TARDIS test'
 
       - bash: bash <(curl -s https://codecov.io/bash)
