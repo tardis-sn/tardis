@@ -27,8 +27,8 @@ jobs:
       - template: templates/default.yml
         parameters:
           workingDir: '$(Agent.BuildDirectory)'
-          packageManager: 'mamba'
           fetchRefdata: true
+          useMamba: true
 
       - bash: |
           cd $(working.dir)/tardis
