@@ -17,12 +17,12 @@ steps:
     condition: eq(variables['Agent.OS'], 'Linux')
 
   - checkout: self
-    displayName: 'Fetch TARDIS repository (GitHub)'
+    displayName: 'Fetch TARDIS repository'
 
   - ${{ if eq(parameters.fetchRefdata, true) }}:
     - checkout: git://TARDIS/tardis-refdata
       lfs: true
-      displayName: 'Fetch reference data repository (Azure)'
+      displayName: 'Fetch reference data repository'
 
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: 'Add conda to PATH'
@@ -39,13 +39,13 @@ steps:
     - bash: |
         cd $(Build.SourcesDirectory)/tardis
         conda env create -f tardis_env3.yml
-      displayName: 'TARDIS environment install (mamba)'
+      displayName: 'TARDIS environment install'
 
   - ${{ if and( eq(parameters.skipInstall, false), eq(parameters.useMamba, true)) }}:
     - bash: |
         cd $(Build.SourcesDirectory)/tardis
         mamba env create -f tardis_env3.yml
-      displayName: 'TARDIS environment install (conda)'
+      displayName: 'TARDIS environment install'
 
   - ${{ if eq(parameters.skipInstall, false) }}:
     - bash: |
