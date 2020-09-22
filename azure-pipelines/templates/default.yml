@@ -1,6 +1,7 @@
 parameters:
   - name: workingDir
     type: string
+    default: ''
 
   - name: packageManager
     type: string
@@ -29,7 +30,7 @@ steps:
 
   - ${{ if eq(parameters.fetchRefdata, true) }}:
     - bash: echo "##vso[task.setvariable variable=workingDir]${{ parameters.workingDir }}/s"
-      displayName: 'Override working directory variable (multi-checkout)'
+      displayName: 'Set working directory variable'
 
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: 'Add conda to PATH'
