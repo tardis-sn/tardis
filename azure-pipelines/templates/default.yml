@@ -1,7 +1,6 @@
 parameters:
   - name: workingDir
     type: string
-    default: "$(AgentBuildDirectory)"
 
   - name: packageManager
     type: string

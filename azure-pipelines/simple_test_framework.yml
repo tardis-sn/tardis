@@ -5,36 +5,37 @@ trigger:
   - master
 
 variables:
-  codecov.token: "a876d307-9ed5-4f5d-a6c4-e58291ac4111"
-  system.debug: "false"
+  codecov.token: 'a876d307-9ed5-4f5d-a6c4-e58291ac4111'
+  system.debug: 'false'
 
 jobs:
-  - job: "Test"
+  - job: 'Test'
     pool:
       vmImage: $[variables.vm_Image]
 
     strategy:
       matrix:
         linux:
-          vm_Image: "ubuntu-latest"
+          vm_Image: 'ubuntu-latest'
 
         mac:
-          vm_Image: "macOS-latest"
+          vm_Image: 'macOS-latest'
 
       maxParallel: 2
 
     steps:
       - template: templates/default.yml
         parameters:
+          workingDir: $(Agent.BuildDirectory)
           packageManager: 'mamba'
           fetchRefdata: true
 
       - bash: |
-          cd $(parameters.workingDir)/tardis
+          cd ${{ parameters.workingDir }}/tardis
           source activate tardis
           pip install pytest-azurepipelines
-          pytest tardis --tardis-refdata=$(parameters.workingDir)/tardis-refdata --cov=tardis --cov-report=xml --cov-report=html
-        displayName: "TARDIS test"
+          pytest tardis --tardis-refdata=${{ parameters.workingDir }}/tardis-refdata --cov=tardis --cov-report=xml --cov-report=html
+        displayName: 'TARDIS test'
 
       - bash: bash <(curl -s https://codecov.io/bash)
-        displayName: "Upload to codecov.io"
+        displayName: 'Upload to codecov.io'
