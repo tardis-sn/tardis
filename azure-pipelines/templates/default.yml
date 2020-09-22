@@ -1,13 +1,13 @@
 parameters:
-  - name: fetchRefdata
+  - name: "fetchRefdata"
     type: boolean
     default: false
 
-  - name: useMamba
+  - name: "useMamba"
     type: boolean
     default: false
 
-  - name: skipInstall
+  - name: "skipInstall"
     type: boolean
     default: false
 
@@ -15,7 +15,7 @@ steps:
   - checkout: self
     displayName: "Fetch TARDIS repository"
 
-  - ${{ eq(parameters['fetchRefdata'], true) }}:
+  - ${{ eq(parameters.fetchRefdata, true) }}:
     - checkout: git://TARDIS/tardis-refdata
       lfs: true
       displayName: "Fetch TARDIS reference data"
@@ -31,17 +31,17 @@ steps:
     displayName: "Take ownership of conda installation (macOS)"
     condition: eq(variables['Agent.OS'], 'Darwin')
 
-  - ${{ eq(parameters['useMamba'], true) }}:
+  - ${{ eq(parameters.useMamba, true) }}:
     - bash: conda install mamba -c conda-forge -y
       displayName: "Install Mamba package manager"
 
-  - ${{ eq(parameters['skipInstall'], false) }}:
+  - ${{ eq(parameters.skipInstall, false) }}:
     - bash: |
         cd $REPO_DIR/tardis
         $PACKAGE_MANAGER env create -f tardis_env3.yml
       displayName: "Install TARDIS environment"
 
-  - ${{ eq(parameters['skipInstall'], false) }}:
+  - ${{ eq(parameters.skipInstall, false) }}:
     - bash: |
         cd $REPO_DIR/tardis
         source activate tardis
