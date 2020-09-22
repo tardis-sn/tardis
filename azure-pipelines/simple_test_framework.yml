@@ -32,7 +32,7 @@ jobs:
           fetchRefdata: true
 
       - bash: |
-          cd $(workingDir)/tardis
+          cd $(working.dir)/tardis
           source activate tardis
           pip install pytest-azurepipelines
           pytest tardis --tardis-refdata=$(working.dir)/tardis-refdata --cov=tardis --cov-report=xml --cov-report=html
