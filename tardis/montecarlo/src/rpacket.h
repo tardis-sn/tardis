@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdint.h>
 #include "randomkit/randomkit.h"
 #include "status.h"
@@ -249,6 +250,7 @@ static inline void rpacket_set_id (rpacket_t * packet, int id)
 
 static inline void rpacket_reset_tau_event (rpacket_t * packet, rk_state *mt_state)
 {
+  printf("Calling Reset Tau Event (rk_double call)\n");
   rpacket_set_tau_event (packet, -log (rk_double (mt_state)));
 }
 

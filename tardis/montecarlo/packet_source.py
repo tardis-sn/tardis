@@ -3,12 +3,12 @@ import abc
 import numpy as np
 import numexpr as ne
 from tardis import constants as const
-
+from astropy import units as u
 
 class BasePacketSource(abc.ABC):
 
     def __init__(self, seed):
-        self.seed = seed
+        self.seed = 1963
         np.random.seed(seed)
         
     @abc.abstractmethod
@@ -27,7 +27,11 @@ class BasePacketSource(abc.ABC):
             number of packets to be created
         """
 
-        return np.sqrt(np.random.random(no_of_packets))
+        mus =  np.sqrt(np.random.random(no_of_packets))
+        with open("log_initial_mu.log", "w") as f:
+            f.write(','.join(map('{:.5f}'.format, mus)))
+        return mus
+        return np.ones((no_of_packets,), dtype=np.float64)
 
     @staticmethod
     def create_uniform_packet_energies(no_of_packets):
@@ -98,6 +102,7 @@ class BasePacketSource(abc.ABC):
         xis_prod = np.prod(xis[1:], 0)
         x = ne.evaluate('-log(xis_prod)/l')
 
+        #return np.array([5.01996748e+14]).astype(np.float64)*1.1# / u.s
         return x * (const.k_B.cgs.value * T) / const.h.cgs.value
 
 
@@ -108,6 +113,7 @@ class BlackBodySimpleSource(BasePacketSource):
     """
 
     def create_packets(self, T, no_of_packets):
+        #np.random.seed(1963)
         nus = self.create_blackbody_packet_nus(T, no_of_packets)
         mus = self.create_zero_limb_darkening_packet_mus(no_of_packets)
         energies = self.create_uniform_packet_energies(no_of_packets)

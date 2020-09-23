@@ -47,6 +47,8 @@ static char const rcsid[] =
 #include <math.h>
 #include <string.h>
 
+#define LOGFILE "random_log.log"
+
 #ifdef _WIN32
 /* Windows */
 #include <sys/timeb.h>
@@ -232,7 +234,12 @@ double rk_double(rk_state *state)
 {
   /* shifts : 67108864 = 0x4000000, 9007199254740992 = 0x20000000000000 */
   long a = rk_random(state) >> 5, b = rk_random(state) >> 6;
-  return (a * 67108864.0 + b) / 9007199254740992.0;
+  double result = (a * 67108864.0 + b) / 9007199254740992.0;
+
+  FILE* log = fopen(LOGFILE, "a");
+  fprintf(log, "%.16f\n", result);
+  fclose(log);
+  return result;
 }
 
 void rk_copy(rk_state *copy, rk_state *orig)

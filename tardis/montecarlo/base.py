@@ -1,6 +1,9 @@
+from tardis import __path__ as TARDIS_PATH
 import os
 import logging
 import warnings
+
+import yaml
 
 from astropy import units as u
 from tardis import constants as const
@@ -16,7 +19,7 @@ from tardis.montecarlo.formal_integral import FormalIntegrator
 import numpy as np
 
 logger = logging.getLogger(__name__)
-
+TARDIS_PATH = TARDIS_PATH[0]
 
 class MontecarloRunner(HDFWriterMixin):
     """
@@ -33,12 +36,16 @@ class MontecarloRunner(HDFWriterMixin):
                       'packet_luminosity', 'spectrum',
                       'spectrum_virtual', 'spectrum_reabsorbed']
 
-    vpacket_hdf_properties = ["virt_packet_last_interaction_in_nu",
-                              "virt_packet_last_interaction_type",
-                              "virt_packet_last_line_interaction_in_id",
-                              "virt_packet_last_line_interaction_out_id",
-                              "virt_packet_nus", "virt_packet_energies"]
-
+    '''
+    vpacket_config_file_path = os.path.join(TARDIS_PATH, 'data', 'vpacket_config.yml')
+    with open(vpacket_config_file_path) as fh:
+        vpacket_logging_config = yaml.load(fh, Loader=yaml.CLoader)
+        
+    if vpacket_logging_config['vpacket_logging']:
+        hdf_properties.extend(['virt_packet_last_interaction_in_nu', 'virt_packet_last_line_interaction_in_id',
+                                'virt_packet_last_line_interaction_out_id', 'virt_packet_nus',
+                                'virt_packet_energies'])
+    '''
     hdf_name = 'runner'
     w_estimator_constant = ((const.c ** 2 / (2 * const.h)) *
                             (15 / np.pi ** 4) * (const.h / const.k_B) ** 4 /
@@ -53,7 +60,7 @@ class MontecarloRunner(HDFWriterMixin):
                  line_interaction_type, integrator_settings,
                  v_packet_settings, spectrum_method,
                  packet_source=None):
-
+        seed = 1963
         self.seed = seed
         if packet_source is None:
             self.packet_source = source.BlackBodySimpleSource(seed)
@@ -158,9 +165,11 @@ class MontecarloRunner(HDFWriterMixin):
 
     @property
     def spectrum_integrated(self):
-        if self._spectrum_integrated is None:
-            self._spectrum_integrated = self.integrator.calculate_spectrum(
-                self.spectrum_frequency[:-1], **self.integrator_settings)
+        self._spectrum_integrated = self.integrator.calculate_spectrum(
+            self.spectrum_frequency[:-1], **self.integrator_settings)
+        # if self._spectrum_integrated is None:
+        #     self._spectrum_integrated = self.integrator.calculate_spectrum(
+        #         self.spectrum_frequency[:-1], **self.integrator_settings)
         return self._spectrum_integrated
 
     @property
