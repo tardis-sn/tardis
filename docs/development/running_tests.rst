@@ -39,7 +39,7 @@ You can generate Plasma Reference by the following command:
 
 .. code-block:: shell
 
-    > pytest -rs tardis/plasma/tests/test_complete_plasmas.py 
+    > pytest -rs tardis/plasma/tests/test_complete_plasmas.py
     --tardis-refdata="/path/to/tardis-refdata/" --generate-reference
 
 Running the Integration Tests
@@ -65,7 +65,7 @@ TARDIS prints out the progress:
 
 .. code-block:: shell
 
-    > python setup.py test --args="--integration=integration.yml -m integration
+    > python setup.py test --args="--integration-tests=integration.yml -m integration
     --generate-reference --less-packets"
 
 To run the test after having run the ``--generate-references``, all that is
@@ -73,7 +73,7 @@ needed is:
 
 .. code-block:: shell
 
-    > python setup.py test --args="--integration=integration.yml -m integration
+    > python setup.py test --args="--integration-tests=integration.yml -m integration
     --less-packets" --remote-data
 
 
@@ -93,6 +93,3 @@ otherwise, it won't show nice html page reports.
 
 Finally, one has to call the `python setup.py test` with the ``--remote-data``
 option to allow posting to an external DokuWiki server.
-
-
-
