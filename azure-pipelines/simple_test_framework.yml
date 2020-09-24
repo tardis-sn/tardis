@@ -9,7 +9,9 @@ variables:
   system.debug: false
 
 jobs:
-  - job: 'Test'
+  - job: test
+    displayName: 'TARDIS test'
+
     pool:
       vmImage: $[variables.vm_Image]
 
