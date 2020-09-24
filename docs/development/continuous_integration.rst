@@ -199,14 +199,17 @@ Templates
 ---------
 
 Templates let you define reusable content, logic, and parameters. It functions
-like an include directive in many programming languages. Content from one file
-is inserted into another file. 
+like an include directive in many programming languages (content from one file
+is inserted into another file).
 
 See the `Azure documentation section on templates`_ for more information.
 
 
 TARDIS Pipelines
 ================
+
+Already implemented on Azure or GitHub Actions.
+
 
 Default template
 ----------------
@@ -242,7 +245,7 @@ to start a new pipeline use::
 
 **List of predefined custom variables:**
 
-- ``sources.dir`` is equivalent to ``Build.SourcesDirectory``.
+- ``sources.dir`` is equivalent to ``$(Build.SourcesDirectory)``.
 - ``tardis.dir`` is equivalent to ``$(Build.SourcesDirectory)/tardis``.
 - ``refdata.dir`` is equivalent to ``$(Build.SourcesDirectory)/tardis-refdata``.
 
@@ -291,7 +294,7 @@ Reference data pipeline
 
 Generates new reference data according to changes present in the pull
 request. Then, compares against reference data from the head of the
-**master** branch in ``tardis-refdata`` repository by running a
+*master* branch in ``tardis-refdata`` repository by running a
 notebook. Finally, uploads the rendered notebook to the pipeline
 results.
 
