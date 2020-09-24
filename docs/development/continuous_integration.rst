@@ -162,7 +162,8 @@ to paths in Azure:
   variable, alias ``Pipeline.Workspace``.
 
 * Cloned repositories are under the ``Build.Repository.LocalPath`` variable
-  alias ``Build.SourcesDirectory``.
+  alias ``Build.SourcesDirectory``. In TARDIS we implemented another alias 
+  for this variable, named ``sources.dir``.
 
 Our advice is to stick with ``Build.SourcesDirectory`` as much as possible
 to avoid problems when `checking out multiple repositories`_.
@@ -207,9 +208,10 @@ Default template
 ================
 
 The common set of steps used across most TARDIS pipelines now lives in the
-"default" template: 
+"default" template.
 
 - Use ``set -e`` on Bash steps.
+- Set custom variables.
 - Fetch TARDIS main repository.
 - Fetch TARDIS reference data repository (optional).
 - Configure Anaconda for Linux and macOS agents.
@@ -225,7 +227,7 @@ to start a new pipeline use::
       parameters:
         fetchRefdata: true
 
-Available parameters are:
+**List of template parameters:**
 
 - ``fetchRefdata``: fetch the ``tardis-refdata`` repository from Azure Repos
   (default is *false*).
@@ -233,6 +235,12 @@ Available parameters are:
   (default is *false*). 
 - ``skipInstall``: does not create the TARDIS environment
   (default is *false*).
+
+**List of predefined custom variables:**
+
+- ``sources.dir`` is equivalent to ``Build.SourcesDirectory``.
+- ``tardis.dir`` is equivalent to ``$(Build.SourcesDirectory)/tardis``.
+- ``refdata.dir`` is equivalent to ``$(Build.SourcesDirectory)/tardis-refdata``.
 
 
 Testing pipeline
