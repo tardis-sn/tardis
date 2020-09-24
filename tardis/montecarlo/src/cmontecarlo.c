@@ -12,16 +12,18 @@
 #include "rpacket.h"
 #include "cmontecarlo.h"
 
-#define DEBUG
-static char indent[256] = "";
-static int indent_level = 0;
+//#define DEBUG
 #ifdef DEBUG
 
-#define printf_log(F, X) {FILE* flog = fopen("packet_logger.info", "a");\
+static char indent[256] = "";
+static int indent_level = 0;
+static int logging = 0;
+static int log_index = 743;
+#define printf_log(F, X) if (logging) {FILE* flog = fopen("packet_logger.info", "a");\
 	                fprintf(flog, "%s", indent);\
 	                fprintf(flog, F, X);\
 	                fclose(flog);}  
-#define print_log(F) {FILE* flog = fopen("packet_logger.info", "a");\
+#define print_log(F) if (logging) {FILE* flog = fopen("packet_logger.info", "a");\
 					if (strncmp(F, "Entering", 8) == 0) {\
 	                     fprintf(flog, "%s%s", indent, F);\
                          fprintf(flog, "%sv---------------v\n", indent);\
@@ -38,7 +40,8 @@ static int indent_level = 0;
 	                	 fprintf(flog, "%s%s", indent, F);\
 					}\
 	                fclose(flog);}  
-#define log_packet(packet) {FILE* flog = fopen("packet_logger.info", "a");\
+#define log_packet(packet) {logging = ((packet.id == log_index) ? 0 : 0);\
+                if (logging) {FILE* flog = fopen("packet_logger.info", "a");\
 	            fprintf(flog, "%s", indent);\
 				fprintf(flog,"Logging Packet:\n"); \
 	            fprintf(flog, "%s", indent);\
@@ -59,7 +62,9 @@ static int indent_level = 0;
 				fprintf(flog,"->d_continuum:%f\n", packet.d_cont); \
 	            fprintf(flog, "%s", indent);\
 				fprintf(flog,"->tau_event:%f\n", packet.tau_event); \
-				fclose(flog);}
+	            fprintf(flog, "%s", indent);\
+				fprintf(flog,"->close_line:%d\n", (int)rpacket_get_close_line(&(packet))); \
+				fclose(flog);}}
 
 
 void linelog(char* fmt, int line) {
@@ -1136,11 +1141,11 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
         rpacket_get_current_shell_id (packet);
       storage->last_interaction_type[rpacket_get_id (packet)] = 2;
       if (storage->line_interaction_id == 0)
-        {
+      {
           line_emission (packet, storage, next_line_id, mt_state);
-        }
+      }
       else if (storage->line_interaction_id >= 1)
-        {
+      {
           rpacket_set_macro_atom_activation_level (packet,
                                                    storage->line2macro_level_upper[next_line_id]);
           macro_atom (packet, storage, mt_state);
@@ -1201,12 +1206,18 @@ line_emission (rpacket_t * packet, storage_model_t * storage, int64_t emission_l
 void test_for_close_line (rpacket_t * packet, const storage_model_t * storage)
 {
   print_log("Entering test_for_close_line\n");
+  print_log("tested by (line_list_nu - rpacket_nu_line < rpacket_nu_line*1e-7)\n");
+  printf_log("->next_line_id:%d\n", rpacket_get_next_line_id(packet));
+  printf_log("->line_list_nu:%.16f\n", storage->line_list_nu[rpacket_get_next_line_id (packet)]);
+  printf_log("->rpacket_nu_line:%.16f\n", rpacket_get_nu_line (packet));
+
   if (!rpacket_get_last_line (packet) &&
       fabs (storage->line_list_nu[rpacket_get_next_line_id (packet)] -
             rpacket_get_nu_line (packet)) < (rpacket_get_nu_line (packet)*
-                                             1e-7))
+                                         1e-7))
     {
-	  print_log("test_close_line is true!\n");
+
+	  print_log("test_for_close_line is true!\n");
       rpacket_set_close_line (packet, true);
     }
   print_log("Exiting test_for_close_line\n");
@@ -1422,14 +1433,14 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
   int64_t finished_packets = 0;
   storage->virt_packet_count = 0;
 
-
+/*
   FILE* fout = fopen("tau_sobelev.dat", "w");
   int i;
   for (i=0; i<(20*12407); ++i) {
        fprintf(fout, "%.16f\n", storage->line_lists_tau_sobolevs[i]);
   }
   fclose(fout);
- 
+ */
 #ifdef WITH_VPACKET_LOGGING
   storage->virt_packet_nus = (double *)safe_malloc(sizeof(double) * storage->no_of_packets);
   storage->virt_packet_energies = (double *)safe_malloc(sizeof(double) * storage->no_of_packets);
@@ -1507,6 +1518,7 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
 #endif
   print_progress(storage->no_of_packets, storage->no_of_packets);
   fprintf(stderr,"\n");
+  print_log("Exiting monte_carlo_main_loop\n");
 }
 
 void
@@ -1532,5 +1544,4 @@ create_vpacket (storage_model_t * storage, rpacket_t * packet,
     {
       montecarlo_one_packet (storage, packet, 1, mt_state);
     }
-  print_log("Exiting monte_carlo_main_loop\n");
 }

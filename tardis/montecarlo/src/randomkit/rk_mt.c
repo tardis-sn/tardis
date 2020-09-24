@@ -236,9 +236,9 @@ double rk_double(rk_state *state)
   long a = rk_random(state) >> 5, b = rk_random(state) >> 6;
   double result = (a * 67108864.0 + b) / 9007199254740992.0;
 
-  FILE* log = fopen(LOGFILE, "a");
-  fprintf(log, "%.16f\n", result);
-  fclose(log);
+  //FILE* log = fopen(LOGFILE, "a");
+  //fprintf(log, "%.16f\n", result);
+  //fclose(log);
   return result;
 }
 
