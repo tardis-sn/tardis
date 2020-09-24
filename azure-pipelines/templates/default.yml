@@ -19,6 +19,12 @@ steps:
     displayName: 'Force BASH exit if a command exits with non-zero status'
     condition: eq(variables['Agent.OS'], 'Linux')
 
+  - bash: |
+      echo "##vso[task.setvariable variable=sources.dir]$(Build.SourcesDirectory)"
+      echo "##vso[task.setvariable variable=tardis.dir]$(Build.SourcesDirectory)/tardis"
+      echo "##vso[task.setvariable variable=refdata.dir]$(Build.SourcesDirectory)/tardis-refdata"
+    displayName: 'Set custom variables'
+
   - checkout: self
     displayName: 'Fetch TARDIS repository (GitHub)'
 
@@ -40,19 +46,19 @@ steps:
 
   - ${{ if and( eq(parameters.skipInstall, false), eq(parameters.useMamba, false)) }}:
     - bash: |
-        cd $(Build.SourcesDirectory)/tardis
+        cd $(tardis.dir)
         conda env create -f tardis_env3.yml
       displayName: 'TARDIS environment install (conda)'
 
   - ${{ if and( eq(parameters.skipInstall, false), eq(parameters.useMamba, true)) }}:
     - bash: |
-        cd $(Build.SourcesDirectory)/tardis
+        cd $(tardis.dir)
         mamba env create -f tardis_env3.yml
       displayName: 'TARDIS environment install (mamba)'
 
   - ${{ if eq(parameters.skipInstall, false) }}:
     - bash: |
-        cd $(Build.SourcesDirectory)/tardis
+        cd $(tardis.dir)
         source activate tardis
         python setup.py build_ext --inplace
       displayName: 'TARDIS build & install'
