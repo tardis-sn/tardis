@@ -21,9 +21,10 @@ Repos
 -----
 
 Azure Repos is just another service to store Git repositories.
-Currently, we use Azure Repos to mirror the ``tardis-refdata``
-repository, since Azure does not impose limits on LFS bandwith
-nor storage.
+Currently, we use Azure Repos to mirror ``tardis-refdata``
+repository since Azure does not impose limits on LFS bandwith
+nor storage. We should sync this mirror every time reference
+data is updated on GitHub.
 
 **To clone this repository:**
 ::
@@ -204,8 +205,11 @@ is inserted into another file.
 See the `Azure documentation section on templates`_ for more information.
 
 
-Default template
+TARDIS Pipelines
 ================
+
+Default template
+----------------
 
 The common set of steps used across most TARDIS pipelines now lives in the
 "default" template.
@@ -244,7 +248,7 @@ to start a new pipeline use::
 
 
 Testing pipeline
-================
+----------------
 
 The `testing pipeline`_ (CI) consists basically in the same job running twice
 in parallel (one for each OS) with the steps from the default template, plus
@@ -252,18 +256,19 @@ extra steps to run the tests and upload the coverage results.
 
 
 Documentation pipeline
-======================
+----------------------
 
-Builds and deploy the TARDIS documentation website. Currently, we are trying
+Builds and deploys the TARDIS documentation website. Currently, we are trying
 to move this pipeline to GitHub Actions.
 
 
 Zenodo JSON pipeline
-====================
+--------------------
 
 This pipeline runs a notebook located in ``tardis-zenodo`` repository and
 pushes a new version of ``.zenodo.json`` to the root of ``tardis``
-repository if new commiters are found (or author order changes).
+repository if new commiters are found (or author order changes). The
+rendered notebook is uploaded to the pipeline results as an artifact.
 
 .. warning :: Fails if some author name is incomplete (due to an incomplete
           GitHub profile) or duplicated (commited with more than one 
@@ -274,7 +279,7 @@ In the near future we want to auto-update the citation guidelines in the
 
 
 Release pipeline
-================
+----------------
 
 Publishes a new release of TARDIS every sunday at 22:30 UTC. 
 
@@ -282,6 +287,13 @@ Publishes a new release of TARDIS every sunday at 22:30 UTC.
 
 
 Reference data pipeline
-=======================
+-----------------------
 
-*Coming soon...*
+Generates new reference data according to changes present in the pull
+request. Then, compares against reference data from the head of the
+**master** branch in ``tardis-refdata`` repository by running a
+notebook. Finally, uploads the rendered notebook to the pipeline
+results.
+
+.. note:: This pipeline runs manually (from the Azure web UI) or by
+        enabling the PR trigger via pull request.
