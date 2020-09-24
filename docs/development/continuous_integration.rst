@@ -254,13 +254,31 @@ extra steps to run the tests and upload the coverage results.
 Documentation pipeline
 ======================
 
-*Coming soon...*
+Builds and deploy the TARDIS documentation website. Currently, we are trying
+to move this pipeline to GitHub Actions.
+
+
+Zenodo JSON pipeline
+====================
+
+This pipeline runs a notebook located in ``tardis-zenodo`` repository and
+pushes a new version of ``.zenodo.json`` to the root of ``tardis``
+repository if new commiters are found (or author order changes).
+
+.. warning :: Fails if some author name is incomplete (due to an incomplete
+          GitHub profile) or duplicated (commited with more than one 
+          email adress). In both cases update ``.mailmap`` to fix it.
+
+In the near future we want to auto-update the citation guidelines in the
+``README.rst`` and the documentation.
 
 
 Release pipeline
 ================
 
-*Coming soon...*
+Publishes a new release of TARDIS every sunday at 22:30 UTC. 
+
+.. warning :: Fails if no new commits were merged since the last release.
 
 
 Reference data pipeline
