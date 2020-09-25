@@ -12,7 +12,7 @@
 #include "rpacket.h"
 #include "cmontecarlo.h"
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 
 static char indent[256] = "";
@@ -40,7 +40,7 @@ static int log_index = 743;
 	                	 fprintf(flog, "%s%s", indent, F);\
 					}\
 	                fclose(flog);}  
-#define log_packet(packet) {logging = ((packet.id == log_index) ? 0 : 0);\
+#define log_packet(packet) {logging = ((packet.id == log_index) ? 1 : 1);\
                 if (logging) {FILE* flog = fopen("packet_logger.info", "a");\
 	            fprintf(flog, "%s", indent);\
 				fprintf(flog,"Logging Packet:\n"); \
@@ -542,7 +542,6 @@ compute_distance2continuum (rpacket_t * packet, storage_model_t * storage)
 
   if (rpacket_get_virtual_packet(packet) > 0)
     {
-	print_log("SOMETHING IS VERY WRONG!\n");
       //Set all continuum distances to MISS_DISTANCE in case of an virtual_packet
       d_continuum = MISS_DISTANCE;
       packet->compute_chi_bf = false;
