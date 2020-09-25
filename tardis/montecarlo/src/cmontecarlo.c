@@ -64,6 +64,8 @@ static int log_index = 743;
 				fprintf(flog,"->tau_event:%f\n", packet.tau_event); \
 	            fprintf(flog, "%s", indent);\
 				fprintf(flog,"->close_line:%d\n", (int)rpacket_get_close_line(&(packet))); \
+	            fprintf(flog, "%s", indent);\
+				fprintf(flog,"->virtual:%d\n", (int)rpacket_get_virtual_packet(&(packet))); \
 				fclose(flog);}}
 
 
@@ -1525,6 +1527,7 @@ void
 create_vpacket (storage_model_t * storage, rpacket_t * packet,
                 rk_state *mt_state)
 {
+  print_log("Entering create_vpacket\n");
   if (storage->enable_biasing)
     {
       int64_t shell_id = rpacket_get_current_shell_id(packet);
@@ -1544,4 +1547,5 @@ create_vpacket (storage_model_t * storage, rpacket_t * packet,
     {
       montecarlo_one_packet (storage, packet, 1, mt_state);
     }
+  print_log("Exiting create_vpacket\n");
 }
