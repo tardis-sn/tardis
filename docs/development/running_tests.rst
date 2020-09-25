@@ -65,8 +65,8 @@ TARDIS prints out the progress:
 
 .. code-block:: shell
 
-    > python setup.py test --args="--integration-tests=integration.yml -m integration
-    --generate-reference --less-packets"
+    > pytest --integration-tests=integration.yml -m integration
+    --less-packets --generate-reference
 
 To run the test after having run the ``--generate-references``, all that is
 needed is:
