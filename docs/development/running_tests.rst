@@ -73,8 +73,7 @@ needed is:
 
 .. code-block:: shell
 
-    > python setup.py test --args="--integration-tests=integration.yml -m integration
-    --less-packets" --remote-data
+    > pytest --integration-tests=integration.yml -m integration --remote-data
 
 
 Setting up the DokuWiki report
