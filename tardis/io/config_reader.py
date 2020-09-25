@@ -249,7 +249,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
     """
     Tardis configuration class
     """
-    hdf_name = "config"
+    hdf_name = "simulation"
 
     @classmethod
     def from_yaml(cls, fname, *args, **kwargs):
