@@ -2,11 +2,13 @@ import os
 import logging
 import copy
 import pprint
+import yaml
+import pandas as pd
 from astropy import units as u
 
 import tardis
 from tardis.io import config_validator
-from tardis.io.util import YAMLLoader, yaml_load_file
+from tardis.io.util import YAMLLoader, yaml_load_file, HDFWriterMixin
 from tardis.io.parsers.csvy import load_yaml_from_csvy
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -117,7 +119,7 @@ class ConfigurationNameSpace(dict):
             for key in value:
                 self.__setitem__(key, value[key])
         else:
-            raise (TypeError, "expected dict")
+            raise TypeError("expected dict")
 
         if hasattr(self, "csvy_model") and hasattr(self, "model"):
             raise ValueError(
@@ -233,10 +235,21 @@ class ConfigurationNameSpace(dict):
         return ConfigurationNameSpace(copy.deepcopy(dict(self)))
 
 
-class Configuration(ConfigurationNameSpace):
+class ConfigWriterMixin(HDFWriterMixin):
+    """
+    Overrides HDFWriterMixin to obtain HDF properties from configuration keys
+    """
+    def get_properties(self):
+        data = yaml.dump(self)
+        data = pd.DataFrame(index=[0], data={'config': data})
+        return data
+
+
+class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
     """
     Tardis configuration class
     """
+    hdf_name = "simulation"
 
     @classmethod
     def from_yaml(cls, fname, *args, **kwargs):
@@ -319,3 +332,52 @@ class Configuration(ConfigurationNameSpace):
 
     def __init__(self, config_dict):
         super(Configuration, self).__init__(config_dict)
+
+
+def quantity_representer(dumper, data):
+    """
+    Represents Astropy Quantity as str
+
+    Parameters
+    ----------
+
+    dumper :
+        YAML dumper object
+
+    data :
+        ConfigurationNameSpace object
+
+    Returns
+    -------
+
+    yaml dumper representation of Quantity as string
+
+    """
+    return dumper.represent_data(str(data))
+
+
+def cns_representer(dumper, data):
+    """
+    Represents Configuration as dict
+
+   Parameters
+    ----------
+
+    dumper :
+        YAML dumper object
+
+    data :
+        ConfigurationNameSpace object
+
+    Returns
+    -------
+
+    yaml dumper representation of Configuration as dict
+
+    """
+    return dumper.represent_dict(dict(data))
+
+
+yaml.add_representer(u.Quantity, quantity_representer)
+yaml.add_representer(ConfigurationNameSpace, cns_representer)
+yaml.add_representer(Configuration, cns_representer)
