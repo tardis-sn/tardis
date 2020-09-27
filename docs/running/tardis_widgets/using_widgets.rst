@@ -19,8 +19,8 @@ of the model Supernova ejecta.
     :alt: Demo of Shell Info Widget
 
 It consists of four interlinked tables - clicking on any row in a table,
-populates data in the table(s) right of it. Each table has the following
-information:
+populates data in the table(s) to the right of it. Each table has the
+following information:
 
 1. **Shells Data** - Radiative temperature and Dilution Factor (W) of each shell
 (computational partitions) of the model Supernova ejecta. Shell numbers are
