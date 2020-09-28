@@ -39,13 +39,22 @@ jobs:
       - bash: |
           cd $(refdata.dir)/notebooks
           source activate tardis
-          jupyter nbconvert ref_data_compare.ipynb --to html --execute --allow-errors --ExecutePreprocessor.timeout=6000
-        displayName: 'Generating report'
+          jupyter nbconvert ref_data_compare.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
+        displayName: 'Render notebook'
+
+      - bash: |
+          cd $(refdata.dir)/notebooks
+          source activate tardis
+          jupyter nbconvert ref_data_compare.ipynb --to html --allow-errors --execute --ExecutePreprocessor.timeout=6000
+        displayName: 'Render notebook (allow errors)'
+        condition: failed()
 
       - task: PublishPipelineArtifact@1
         inputs:
           targetPath: '$(refdata.dir)/notebooks/ref_data_compare.html'
           artifactName: 'report'
+        displayName: 'Upload artifact'
+        condition: succeededOrFailed()
 
       - bash: |
           ls -lR /tmp
