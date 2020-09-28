@@ -19,6 +19,13 @@ jobs:
           useMamba: true
 
       - bash: |
+          cd $(refdata.dir)
+          git remote add upstream git@ssh.dev.azure.com:v3/tardis-sn/TARDIS/tardis-refdata
+          git fetch upstream
+          git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
+        displayName: 'Set upstream remote'
+
+      - bash: |
           source activate tardis
           mamba install bokeh -c conda-forge --no-update-deps --yes
         displayName: 'Install Bokeh package'
@@ -27,14 +34,7 @@ jobs:
           cd $(tardis.dir)
           source activate tardis
           pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
-        displayName: 'Generate reference data'
-
-      - bash: |
-          cd $(refdata.dir)
-          git remote add upstream https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata
-          git fetch upstream
-          git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
-        displayName: 'Set upstream remote'
+        displayName: 'Generate new reference data'
 
       - bash: |
           cd $(refdata.dir)/notebooks
@@ -55,12 +55,3 @@ jobs:
           artifactName: 'report'
         displayName: 'Upload artifact'
         condition: succeededOrFailed()
-
-      - bash: |
-          ls -lR /tmp
-          echo
-        displayName: 'Check files in /tmp'
-        condition: succeededOrFailed()
-
-# Keep this line, is useful for testing without changing the notebook.
-# sed -i "s/ref2_hash='upstream\/pr\/24'/ref1_hash='c998f44', ref2_hash='master'/g" ref_data_compare.ipynb
