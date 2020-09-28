@@ -5,7 +5,7 @@ trigger: none
 pr: [ master ]
 
 variables:
-  system.debug: 'true'
+  system.debug: false
 
 jobs:
   - job: report
