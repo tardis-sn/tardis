@@ -27,7 +27,7 @@ jobs:
           cd $(tardis.dir)
           source activate tardis
           pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
-        displayName: 'Generate new reference data'
+        displayName: 'Generate reference data'
 
       - bash: |
           cd $(refdata.dir)
@@ -38,7 +38,6 @@ jobs:
           cd notebooks
           jupyter nbconvert ref_data_compare.ipynb --to html --execute --allow-errors --ExecutePreprocessor.timeout=6000
         displayName: 'Generating report'
-        condition: false
 
       - task: PublishPipelineArtifact@1
         inputs:
