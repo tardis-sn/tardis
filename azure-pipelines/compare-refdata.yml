@@ -16,16 +16,17 @@ jobs:
       - template: templates/default.yml
         parameters:
           fetchRefdata: true
+          useMamba: true
 
       - bash: |
           source activate tardis
-          conda install bokeh -c conda-forge --no-update-deps --yes
+          mamba install bokeh -c conda-forge --no-update-deps --yes
         displayName: 'Install Bokeh package'
 
       - bash: |
           cd $(tardis.dir)
           source activate tardis
-          python setup.py test --args='--tardis-refdata=$(refdata.dir) --generate-reference'
+          pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
         displayName: 'Generate new reference data'
 
       - bash: |
