@@ -46,7 +46,6 @@ jobs:
         inputs:
           targetPath: '$(refdata.dir)/notebooks/ref_data_compare.html'
           artifactName: 'report'
-        condition: succeeded()
 
       - bash: |
           ls -lR /tmp
