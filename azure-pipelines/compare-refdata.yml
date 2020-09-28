@@ -16,7 +16,6 @@ jobs:
       - template: templates/default.yml
         parameters:
           fetchRefdata: true
-          useMamba: true
 
       - bash: |
           source activate tardis
