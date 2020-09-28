@@ -20,8 +20,8 @@ jobs:
 
       - bash: |
           source activate tardis
-          conda install bokeh=1 -c conda-forge --no-update-deps --yes
-        displayName: 'Install Bokeh'
+          conda install bokeh -c conda-forge --no-update-deps --yes
+        displayName: 'Install Bokeh package'
 
       - bash: |
           cd $(tardis.dir)
@@ -44,7 +44,7 @@ jobs:
         inputs:
           targetPath: '$(refdata.dir)/notebooks/ref_data_compare.html'
           artifactName: 'report'
-        condition: false
+        condition: succeeded()
 
       - bash: |
           ls -lR /tmp
