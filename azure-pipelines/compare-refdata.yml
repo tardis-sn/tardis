@@ -31,11 +31,14 @@ jobs:
 
       - bash: |
           cd $(refdata.dir)
-          source activate tardis
-          git remote add upstream https://github.com/tardis-sn/tardis-refdata.git
+          git remote add upstream https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata
           git fetch upstream
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
-          cd notebooks
+        displayName: 'Set upstream remote'
+
+      - bash: |
+          cd $(refdata.dir)/notebooks
+          source activate tardis
           jupyter nbconvert ref_data_compare.ipynb --to html --execute --allow-errors --ExecutePreprocessor.timeout=6000
         displayName: 'Generating report'
 
