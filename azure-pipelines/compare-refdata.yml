@@ -17,6 +17,7 @@ jobs:
         parameters:
           fetchRefdata: true
           useMamba: true
+          extraPackages: 'bokeh'
 
       - bash: |
           cd $(refdata.dir)
@@ -24,11 +25,6 @@ jobs:
           git fetch upstream
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
         displayName: 'Set upstream remote'
-
-      - bash: |
-          source activate tardis
-          mamba install bokeh -c conda-forge --no-update-deps --yes
-        displayName: 'Install Bokeh'
 
       - bash: |
           cd $(tardis.dir)
