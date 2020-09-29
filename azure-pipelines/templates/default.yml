@@ -14,6 +14,10 @@ parameters:
     type: boolean
     default: false
 
+  - name: extraPackages
+    type: string
+    default: ''
+
 steps:
   - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
     displayName: 'Force BASH exit if a command exits with non-zero status'
@@ -24,6 +28,16 @@ steps:
       echo "##vso[task.setvariable variable=tardis.dir]$(Build.SourcesDirectory)/tardis"
       echo "##vso[task.setvariable variable=refdata.dir]$(Build.SourcesDirectory)/tardis-refdata"
     displayName: 'Set custom variables'
+
+  - ${{ if eq(parameters.useMamba, false) }}:
+    - bash: |
+        echo "##vso[task.setvariable variable=package.manager]conda"
+      displayName: 'Set package manager'
+
+  - ${{ if eq(parameters.useMamba, true) }}:
+    - bash: |
+        echo "##vso[task.setvariable variable=package.manager]mamba"
+      displayName: 'Set package manager'
 
   - checkout: self
     displayName: 'Fetch TARDIS repository (GitHub)'
@@ -44,17 +58,17 @@ steps:
     - bash: conda install mamba -c conda-forge -y
       displayName: 'Install Mamba package manager'
 
-  - ${{ if and( eq(parameters.skipInstall, false), eq(parameters.useMamba, false)) }}:
+  - ${{ if eq(parameters.skipInstall, false) }}:
     - bash: |
         cd $(tardis.dir)
-        conda env create -f tardis_env3.yml
-      displayName: 'TARDIS environment install (conda)'
+        $(package.manager) env create -f tardis_env3.yml
+      displayName: 'TARDIS environment install'
 
-  - ${{ if and( eq(parameters.skipInstall, false), eq(parameters.useMamba, true)) }}:
+  - ${{ if and( eq(parameters.skipInstall, false), ne(parameters.extraPackages, '')) }}:
     - bash: |
         cd $(tardis.dir)
-        mamba env create -f tardis_env3.yml
-      displayName: 'TARDIS environment install (mamba)'
+        $(package.manager) install ${{ parameters.extraPackages }} -c conda-forge --no-update-deps --yes
+      displayName: 'Install extra packages'
 
   - ${{ if eq(parameters.skipInstall, false) }}:
     - bash: |
