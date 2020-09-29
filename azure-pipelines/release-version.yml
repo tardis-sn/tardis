@@ -2,7 +2,6 @@
 # http://tardis-sn.github.io/tardis/development/continuous_integration.html
 
 trigger: none
-
 pr: none
 
 schedules:
