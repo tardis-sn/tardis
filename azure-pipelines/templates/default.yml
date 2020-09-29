@@ -14,20 +14,16 @@ parameters:
     type: boolean
     default: false
 
-  - name: extraPackages
-    type: string
-    default: ''
-
 steps:
   - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
-    displayName: 'Force BASH exit if a command exits with non-zero status'
+    displayName: 'Set BASH exit on error'
     condition: eq(variables['Agent.OS'], 'Linux')
 
   - bash: |
       echo "##vso[task.setvariable variable=sources.dir]$(Build.SourcesDirectory)"
       echo "##vso[task.setvariable variable=tardis.dir]$(Build.SourcesDirectory)/tardis"
       echo "##vso[task.setvariable variable=refdata.dir]$(Build.SourcesDirectory)/tardis-refdata"
-    displayName: 'Set custom variables'
+    displayName: 'Set source directories'
 
   - ${{ if eq(parameters.useMamba, false) }}:
     - bash: |
@@ -40,18 +36,18 @@ steps:
       displayName: 'Set package manager'
 
   - checkout: self
-    displayName: 'Fetch TARDIS repository (GitHub)'
+    displayName: 'Fetch TARDIS repository from GitHub'
 
   - ${{ if eq(parameters.fetchRefdata, true) }}:
     - checkout: git://TARDIS/tardis-refdata
       lfs: true
-      displayName: 'Fetch reference data repository (Azure Repos)'
+      displayName: 'Fetch reference data repository from Azure Repos'
 
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: 'Add conda to PATH'
 
   - bash: sudo chown -R $USER $CONDA
-    displayName: 'Take ownership of conda installation (macOS)'
+    displayName: 'Take ownership of conda installation'
     condition: eq(variables['Agent.OS'], 'Darwin')
 
   - ${{ if eq(parameters.useMamba, true) }}:
@@ -63,12 +59,6 @@ steps:
         cd $(tardis.dir)
         $(package.manager) env create -f tardis_env3.yml
       displayName: 'TARDIS environment install'
-
-  - ${{ if and( eq(parameters.skipInstall, false), ne(parameters.extraPackages, '')) }}:
-    - bash: |
-        cd $(tardis.dir)
-        $(package.manager) install ${{ parameters.extraPackages }} -c conda-forge --no-update-deps --yes
-      displayName: 'Install extra packages'
 
   - ${{ if eq(parameters.skipInstall, false) }}:
     - bash: |

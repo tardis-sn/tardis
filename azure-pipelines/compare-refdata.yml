@@ -17,7 +17,11 @@ jobs:
         parameters:
           fetchRefdata: true
           useMamba: true
-          extraPackages: 'bokeh'
+      
+      - bash: |
+          source activate tardis
+          $(package.manager) install bokeh --channel conda-forge --no-update-deps --yes
+        displayName: 'Install Bokeh'
 
       - bash: |
           cd $(refdata.dir)
