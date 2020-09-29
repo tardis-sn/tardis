@@ -20,7 +20,7 @@ jobs:
 
       - bash: |
           cd $(refdata.dir)
-          git remote add upstream git@ssh.dev.azure.com:v3/tardis-sn/TARDIS/tardis-refdata
+          git remote add upstream https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata
           git fetch upstream
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
         displayName: 'Set upstream remote'
@@ -28,13 +28,13 @@ jobs:
       - bash: |
           source activate tardis
           mamba install bokeh -c conda-forge --no-update-deps --yes
-        displayName: 'Install Bokeh package'
+        displayName: 'Install Bokeh'
 
       - bash: |
           cd $(tardis.dir)
           source activate tardis
           pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
-        displayName: 'Generate new reference data'
+        displayName: 'Generate reference data'
 
       - bash: |
           cd $(refdata.dir)/notebooks
