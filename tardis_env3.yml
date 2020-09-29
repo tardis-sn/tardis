@@ -43,7 +43,7 @@ dependencies:
 
   # Documentation
   - sphinx
-  - nbconvert=5.6
+  - nbconvert
   - numpydoc
   - docutils
   - nbformat
