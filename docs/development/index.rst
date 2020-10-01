@@ -30,6 +30,7 @@ to the Astropy team for designing it.
     release_workflow
     update_refdata
     continuous_integration
+    matterbridge
     developer_faq
 
 
