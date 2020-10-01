@@ -221,9 +221,6 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
                                     sigma_thomson)
         
         v_packet.energy *= np.exp(-tau_vpacket)
-        
-        print(r_packet.index)
-        print(i)
 
         vpacket_collection.nus[vpacket_collection.idx] = v_packet.nu
         vpacket_collection.energies[vpacket_collection.idx] = v_packet.energy
