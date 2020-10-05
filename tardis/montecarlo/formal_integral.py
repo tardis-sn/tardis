@@ -10,7 +10,7 @@ from numba import jitclass, njit
 
 from tardis.montecarlo.montecarlo_numba import njit_dict
 
-# from tardis.montecarlo.montecarlo import formal_integral
+from tardis.montecarlo.montecarlo import formal_integral
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
 C_INV = 3.33564e-11
