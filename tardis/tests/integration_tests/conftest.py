@@ -48,12 +48,7 @@ def pytest_terminal_summary(terminalreporter):
         # TODO: Add a check whether generation was successful or not.
         terminalreporter.write_sep(
             "-",
-            f"Generated reference data: {os.path.join(
-                terminalreporter.config.integration_tests_config[
-                    "reference"
-                ],
-                tardis_githash[:7],
-            )}",
+            f"Generated reference data: {os.path.join(terminalreporter.config.integration_tests_config["reference"],tardis_githash[:7],)}",
         )
 
 
