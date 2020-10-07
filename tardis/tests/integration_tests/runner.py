@@ -83,6 +83,6 @@ def run_tests():
         else:
             checked = datetime.datetime.now()
             logger.info(
-                f"Up-to-date. Checked on {checked.strftime("%d-%b-%Y")} {checked.strftime("%H:%M:%S")}"
+                f"Up-to-date. Checked on {checked.strftime('%d-%b-%Y')} {checked.strftime('%H:%M:%S')}"
             )
             time.sleep(600)

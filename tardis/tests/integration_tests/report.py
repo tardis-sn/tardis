@@ -176,7 +176,7 @@ class DokuReport(HTMLReport):
         # Append commit message
         row += f"[[https://www.github.com/tardis-sn/tardis/commit/{tardis_githash}|{gh_commit_message}]] |  "
         # Append start time
-        row += f"{suite_start_datetime.strftime("%d %b %H:%M:%S")}  |  "
+        row += f"{suite_start_datetime.strftime('%d %b %H:%M:%S')}  |  "
         # Append time elapsed
         row += f"{self.suite_time_delta:.2f} sec  |  "
         # Append status
