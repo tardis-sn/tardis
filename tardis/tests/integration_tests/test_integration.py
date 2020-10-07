@@ -71,7 +71,7 @@ def model_quantities(request):
 @pytest.mark.integration
 class TestIntegration(object):
     """Slow integration test for various setups present in subdirectories of
-    ``tardis/tests/integration_tests``.	
+    ``tardis/tests/integration_tests``.
     """
 
     @classmethod
@@ -140,18 +140,16 @@ class TestIntegration(object):
         self.result.run()
         if request.config.getoption("--generate-reference"):
             ref_data_path = os.path.join(
-                data_path["reference_path"], "{0}.h5".format(self.name)
+                data_path["reference_path"], f"{self.name}.h5"
             )
             if os.path.exists(ref_data_path):
                 pytest.skip(
-                    "Reference data {0} does exist and tests will not "
-                    "proceed generating new data".format(ref_data_path)
+                    f"Reference data {ref_data_path} does exist and tests will not "
+                    "proceed generating new data"
                 )
             self.result.to_hdf(file_path=ref_data_path)
             pytest.skip(
-                "Reference data saved at {0}".format(
-                    data_path["reference_path"]
-                )
+                f"Reference data saved at {data_path["reference_path"]}"
             )
         capmanager.resume_global_capture()
 
@@ -162,7 +160,7 @@ class TestIntegration(object):
         reference_quantity_name, tardis_quantity_name = model_quantities
         if reference_quantity_name not in self.reference:
             pytest.skip(
-                "{0} not calculated in this run".format(reference_quantity_name)
+                f"{reference_quantity_name} not calculated in this run"
             )
         reference_quantity = self.reference[reference_quantity_name]
         tardis_quantity = eval("self.result." + tardis_quantity_name)
@@ -209,7 +207,7 @@ class TestIntegration(object):
         return figure
 
     def test_spectrum(self, plot_object):
-        plot_object.add(self.plot_spectrum(), "{0}_spectrum".format(self.name))
+        plot_object.add(self.plot_spectrum(), f"{self.name}_spectrum")
 
         assert_allclose(
             self.reference["/simulation/runner/spectrum/luminosity_density_nu"],

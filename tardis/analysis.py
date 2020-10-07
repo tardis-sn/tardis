@@ -300,8 +300,8 @@ class TARDISHistory(object):
             iterations = self.iterations[iterations]
 
         for iter in iterations:
-            current_iter = "iter{:03d}".format(iter)
-            ws_dict[current_iter] = hdf_store["model{:03d}/ws".format(iter)]
+            current_iter = f"iter{iter:03d}"
+            ws_dict[current_iter] = hdf_store[f"model{iter:03d}/ws"]
 
         hdf_store.close()
 
@@ -322,7 +322,7 @@ class TARDISHistory(object):
         for iter in iterations:
             current_iter = "iter%03d" % iter
             level_populations_dict[current_iter] = hdf_store[
-                "model{:03d}/level_populations".format(iter)
+                f"model{iter:03d}/level_populations"
             ]
 
         hdf_store.close()
@@ -344,9 +344,9 @@ class TARDISHistory(object):
             iterations = self.iterations[iterations]
 
         for iter in iterations:
-            current_iter = "iter{:03d}".format(iter)
+            current_iter = f"iter{iter:03d}"
             jblues_dict[current_iter] = hdf_store[
-                "model{:03d}/j_blues".format(iter)
+                f"model{iter:03d}/j_blues"
             ]
 
         hdf_store.close()
@@ -369,9 +369,9 @@ class TARDISHistory(object):
             iterations = self.iterations[iterations]
 
         for iter in iterations:
-            current_iter = "iter{:03d}".format(iter)
+            current_iter = f"iter{iter:03d}"
             ion_populations_dict[current_iter] = hdf_store[
-                "model{:03d}/ion_populations".format(iter)
+                f"model{iter:03d}/ion_populations"
             ]
 
         hdf_store.close()
