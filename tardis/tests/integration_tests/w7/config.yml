@@ -1,4 +1,4 @@
-atom_data: kurucz_cd23_chianti_H_He.h5
+atom_data: atom_data/kurucz_cd23_chianti_H_He.h5
 model:
   abundances:
     filename: abundances.dat
@@ -11,10 +11,10 @@ model:
     v_inner_boundary: 12000.000 km/s
     v_outer_boundary: 35000.000 km/s
 montecarlo:
-  black_body_sampling:
-    num: 1000000
-    start: 1 angstrom
-    stop: 1000000 angstrom
+  # black_body_sampling:
+  #   num: 1000000
+  #   start: 1 angstrom
+  #   stop: 1000000 angstrom
   iterations: 20
   last_no_of_packets: 2.0e+5
   no_of_packets: 4.0e+4

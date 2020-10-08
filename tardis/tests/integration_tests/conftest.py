@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 
 from tardis import __githash__ as tardis_githash
-from tardis.tests.integration_tests.report import DokuReport
+#from tardis.tests.integration_tests.report import DokuReport
 from tardis.tests.integration_tests.plot_helpers import (
     LocalPlotSaver,
     RemotePlotSaver,
@@ -27,10 +27,11 @@ def pytest_configure(config):
             config._environment = []
             # prevent opening dokupath on slave nodes (xdist)
             if not hasattr(config, "slaveinput"):
-                config.dokureport = DokuReport(
-                    config.integration_tests_config["report"]
-                )
-                config.pluginmanager.register(config.dokureport)
+                # config.dokureport = DokuReport(
+                #     config.integration_tests_config["report"]
+                # )
+                #config.pluginmanager.register(config.dokureport)
+                pass
 
 
 def pytest_unconfigure(config):
@@ -38,8 +39,8 @@ def pytest_unconfigure(config):
     if config.getvalue("integration-tests") and not config.getoption(
         "--generate-reference"
     ):
-        config.pluginmanager.unregister(config.dokureport)
-
+        #config.pluginmanager.unregister(config.dokureport)
+        pass
 
 def pytest_terminal_summary(terminalreporter):
     if terminalreporter.config.getoption(
@@ -79,10 +80,11 @@ def plot_object(request):
     if report_save_mode == "remote":
         return RemotePlotSaver(request, request.config.dokureport.dokuwiki_url)
     else:
-        return LocalPlotSaver(
-            request,
-            os.path.join(request.config.dokureport.report_dirpath, "assets"),
-        )
+        # return LocalPlotSaver(
+        #     request,
+        #     os.path.join(request.config.dokureport.report_dirpath, "assets"),
+        # )
+        pass
 
 
 @pytest.fixture(
