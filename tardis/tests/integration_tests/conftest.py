@@ -68,8 +68,9 @@ def pytest_runtest_makereport(item, call):
     if report.when == "call":
         if "plot_object" in item.fixturenames:
             plot_obj = item.funcargs["plot_object"]
-            plot_obj.upload(report)
-            report.extra = plot_obj.get_extras()
+            # plot_obj.upload(report)
+            # report.extra = plot_obj.get_extras()
+    return
 
 
 @pytest.fixture(scope="function")
@@ -151,6 +152,8 @@ def reference(request, data_path):
     if request.config.getoption("--generate-reference"):
         return
     else:
+        if ('__pycache__' in data_path["reference_path"]):
+            return
         try:
             reference = pd.HDFStore(data_path["reference_path"], "r")
         except IOError:

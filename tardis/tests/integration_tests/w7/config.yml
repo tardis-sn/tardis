@@ -9,7 +9,7 @@ model:
     filetype: simple_ascii
     type: file
     v_inner_boundary: 12000.000 km/s
-    v_outer_boundary: 35000.000 km/s
+    v_outer_boundary: 20000.000 km/s
 montecarlo:
   # black_body_sampling:
   #   num: 1000000
