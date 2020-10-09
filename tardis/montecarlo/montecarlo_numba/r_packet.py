@@ -89,7 +89,7 @@ def calculate_distance_line(
 
     nu = r_packet.nu
 
-    if last_line == 0.0:
+    if last_line:
         return MISS_DISTANCE
 
     nu_diff = comov_nu - nu_line
