@@ -90,7 +90,7 @@ class TestIntegration(object):
     @classmethod
     @skip_targets(['__pycache__'])
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, request, reference, data_path):
+    def result(self, request, reference, data_path):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
@@ -147,7 +147,7 @@ class TestIntegration(object):
             ]
 
         # We now do a run with prepared config and get the simulation object.
-        self.result = Simulation.from_config(
+        result = Simulation.from_config(
             tardis_config, atom_data=self.atom_data
         )
         # capmanager.suspend_global_capture(True)
@@ -156,7 +156,7 @@ class TestIntegration(object):
         # output model to HDF file, save it at specified path. Skip all tests.
         # Else simply perform the run and move further for performing
         # assertions.
-        self.result.run()
+        result.run()
         if request.config.getoption("--generate-reference"):
             ref_data_path = os.path.join(
                 data_path["reference_path"], "{0}.h5".format(self.name)
@@ -172,27 +172,22 @@ class TestIntegration(object):
                     data_path["reference_path"]
                 )
             )
-        # capmanager.resume_global_capture()
+            # capmanager.resume_global_capture()
 
-        # Get the reference data through the fixture.
-        if (reference is not None):
+            # Get the reference data through the fixture.
             self.reference = reference
         else:
+            return result
+
+    def test_model_quantities(self, reference, model_quantities, result):
+        reference_quantity_name, tardis_quantity_name = model_quantities
+        if reference_quantity_name not in reference:
             pytest.skip(
-                "Reference data {0} does exist and tests will not "
-                "proceed generating new data".format(reference)
+                "{0} not calculated in this run".format(reference_quantity_name)
             )
-    def test_model_quantities(self, model_quantities):
-        if ('reference' in dir(self)):
-            reference_quantity_name, tardis_quantity_name = model_quantities
-            # raise ValueError('reference_quantity_name not in self.reference', model_quantities, dir(self))
-            if reference_quantity_name not in self.reference:
-                pytest.skip(
-                    "{0} not calculated in this run".format(reference_quantity_name)
-                )
-            reference_quantity = self.reference[reference_quantity_name]
-            tardis_quantity = eval("self.result." + tardis_quantity_name)
-            assert_allclose(tardis_quantity, reference_quantity)
+        reference_quantity = reference[reference_quantity_name]
+        tardis_quantity = eval("result." + tardis_quantity_name)
+        assert_allclose(tardis_quantity, reference_quantity)
 
     def plot_t_rad(self):
         plt.suptitle("Shell temperature for packets", fontweight="bold")
@@ -234,65 +229,72 @@ class TestIntegration(object):
         ax.legend(lines, labels, loc="lower left")
         return figure
 
-    def test_spectrum(self, plot_object):
+    def test_spectrum(self, plot_object, reference, result, data_path):
         if(plot_object is None):
             pytest.xfail(
                 "Plot Object {0} not exists".format(plot_object)
             )
         else:
-            plot_object.add(self.plot_spectrum(), "{0}_spectrum".format(self.name))
+            plotted_spectrum = self.plot_spectrum(reference, result)
+            if (plotted_spectrum is None):
+                pytest.xfail(
+                    "Plot Object {0} not exists".format(plot_object)
+                )
+            else:
+                name = data_path["setup_name"]
+                plot_object.add(plotted_spectrum, "{0}_spectrum".format(name))
 
-            assert_allclose(
-                self.reference["/simulation/runner/spectrum/luminosity_density_nu"],
-                self.result.runner.spectrum.luminosity_density_nu.cgs.value,
-            )
+                assert_allclose(
+                    reference["/simulation/runner/spectrum/luminosity_density_nu"],
+                    result.runner.spectrum.luminosity_density_nu.cgs.value,
+                )
 
-            assert_allclose(
-                self.reference["/simulation/runner/spectrum/wavelength"],
-                self.result.runner.spectrum.wavelength.cgs.value,
-            )
+                assert_allclose(
+                    reference["/simulation/runner/spectrum/wavelength"],
+                    result.runner.spectrum.wavelength.cgs.value,
+                )
 
-            assert_allclose(
-                self.reference[
-                    "/simulation/runner/spectrum/luminosity_density_lambda"
-                ],
-                self.result.runner.spectrum.luminosity_density_lambda.cgs.value,
-            )
+                assert_allclose(
+                    reference[
+                        "/simulation/runner/spectrum/luminosity_density_lambda"
+                    ],
+                    result.runner.spectrum.luminosity_density_lambda.cgs.value,
+                )
 
-    def plot_spectrum(self):
+    def plot_spectrum(self, reference, result):
 
         # `ldl_` prefixed variables associated with `luminosity_density_lambda`.
         # Axes of subplot are extracted, if we wish to make multiple plots
         # for different spectrum quantities all in one figure.
         gs = plt.GridSpec(2, 1, height_ratios=[3, 1])
-
+        if ('result' not in dir(self)):
+            return None
         spectrum_ax = plt.subplot(gs[0])
-
         spectrum_ax.set_ylabel("Flux [cgs]")
         deviation = 1 - (
-            self.result.runner.spectrum.luminosity_density_lambda.cgs.value
-            / self.reference[
+            result.runner.spectrum.luminosity_density_lambda.cgs.value
+            / reference[
                 "/simulation/runner/spectrum/luminosity_density_lambda"
             ]
         )
 
         spectrum_ax.plot(
-            self.reference["/simulation/runner/spectrum/wavelength"],
-            self.reference[
+            reference["/simulation/runner/spectrum/wavelength"],
+            reference[
                 "/simulation/runner/spectrum/luminosity_density_lambda"
             ],
             color="black",
         )
 
         spectrum_ax.plot(
-            self.reference["/simulation/runner/spectrum/wavelength"],
-            self.result.runner.spectrum.luminosity_density_lambda.cgs.value,
+            reference["/simulation/runner/spectrum/wavelength"],
+            result.runner.spectrum.luminosity_density_lambda.cgs.value,
             color="red",
         )
         spectrum_ax.set_xticks([])
         deviation_ax = plt.subplot(gs[1])
         deviation_ax.plot(
-            self.reference["/simulation/runner/spectrum/wavelength"],
+            reference["/simulation/runner/spectrum/wavelength"],
             deviation,
             color="black",
         )

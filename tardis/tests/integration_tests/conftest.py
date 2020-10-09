@@ -68,9 +68,8 @@ def pytest_runtest_makereport(item, call):
     if report.when == "call":
         if "plot_object" in item.fixturenames:
             plot_obj = item.funcargs["plot_object"]
-            # plot_obj.upload(report)
-            # report.extra = plot_obj.get_extras()
-    return
+            plot_obj.upload(report)
+            report.extra = plot_obj.get_extras()
 
 
 @pytest.fixture(scope="function")
@@ -81,12 +80,11 @@ def plot_object(request):
     if report_save_mode == "remote":
         return RemotePlotSaver(request, request.config.dokureport.dokuwiki_url)
     else:
-        # return LocalPlotSaver(
-        #     request,
-        #     os.path.join(request.config.dokureport.report_dirpath, "assets"),
-        # )
-        pass
-
+        report_path = '~/Desktop/tardis/tardis/tests/integration_tests/'
+        return LocalPlotSaver(
+            request,
+            os.path.join(report_path),
+        )
 
 @pytest.fixture(
     scope="class",
@@ -152,7 +150,7 @@ def reference(request, data_path):
     if request.config.getoption("--generate-reference"):
         return
     else:
-        if ('__pycache__' in data_path["reference_path"]):
+        if ('__pycache__' in data_path["reference_path"] or 'assets' in data_path["reference_path"]):
             return
         try:
             reference = pd.HDFStore(data_path["reference_path"], "r")

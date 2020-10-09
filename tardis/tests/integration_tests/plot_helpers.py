@@ -147,7 +147,7 @@ class LocalPlotSaver(BasePlotSaver):
         for plot, name in self._plots:
             self.save(
                 plot,
-                os.path.join(self.assets_dirpath, "{0}.png".format(name)),
+                os.path.join("{0}.png".format(name)),
                 report,
             )
 
