@@ -71,7 +71,7 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
 @njit(**njit_dict)
 def calculate_distance_line(
         r_packet, comov_nu,
-        nu_last_interaction, nu_line, time_explosion):
+        last_line, nu_line, time_explosion):
     """
 
     Parameters
@@ -89,11 +89,10 @@ def calculate_distance_line(
 
     nu = r_packet.nu
 
-    if nu_line == 0.0:
+    if last_line:
         return MISS_DISTANCE
 
     nu_diff = comov_nu - nu_line
-    nu_diff_last = nu_last_interaction - nu_line
 
     # for numerical reasons, if line is too close, we set the distance to 0.
     if r_packet.close_line > 0:
@@ -304,8 +303,11 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators, sigma_thomson)
 
         # Calculating the distance until the current photons co-moving nu
         # redshifts to the line frequency
+        last_line = 0
+        if cur_line_id == len(numba_plasma.line_list_nu) - 1:
+            last_line = 1
         distance_trace = calculate_distance_line(
-            r_packet, comov_nu, nu_line_last_interaction,
+            r_packet, comov_nu, last_line,
             nu_line, numba_model.time_explosion
         )
 
