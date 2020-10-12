@@ -9,8 +9,6 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
     angle_aberration_CMF_to_LF, test_for_close_line)
 from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
 
-CLOSE_LINE_THRESHOLD = 1e-7
-
 @njit(**njit_dict)
 def thomson_scatter(r_packet, time_explosion):
     """
@@ -45,32 +43,6 @@ def thomson_scatter(r_packet, time_explosion):
             r_packet.mu
         )
 
-
-"""
-void
-montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
-                            double distance, rk_state *mt_state)
-{
-  move_packet (packet, storage, distance);
-  double doppler_factor = rpacket_doppler_factor (packet, storage);
-  double comov_nu = rpacket_get_nu (packet) * doppler_factor;
-  double comov_energy = rpacket_get_energy (packet) * doppler_factor;
-  rpacket_set_mu (packet, 2.0 * rk_double (mt_state) - 1.0);
-  double inverse_doppler_factor = rpacket_inverse_doppler_factor (packet, storage);
-  rpacket_set_nu (packet, comov_nu * inverse_doppler_factor);
-  rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
-  rpacket_reset_tau_event (packet, mt_state);
-  storage->last_interaction_type[rpacket_get_id (packet)] = 1;
-
-  angle_aberration_CMF_to_LF (packet, storage);
-
-  if (rpacket_get_virtual_packet_flag (packet) > 0)
-    {
-      create_vpacket (storage, packet, mt_state);
-    }
-}
-
-"""
 
 @njit(**njit_dict)
 def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
