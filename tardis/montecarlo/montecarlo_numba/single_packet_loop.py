@@ -24,7 +24,7 @@ from tardis.montecarlo.montecarlo_numba import (
 # @log_decorator
 @njit
 def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
-                       vpacket_collection, sigma_thomson):
+                       vpacket_collection):
     """
 
     Parameters
@@ -52,7 +52,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
     r_packet.initialize_line_id(numba_plasma, numba_model)
 
     trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
-                         numba_plasma, sigma_thomson)
+                         numba_plasma)
 
     if mc_logger.DEBUG_MODE:
         r_packet_track_nu = [r_packet.nu]
@@ -63,7 +63,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
 
     while r_packet.status == PacketStatus.IN_PROCESS:
         distance, interaction_type, delta_shell = trace_packet(
-            r_packet, numba_model, numba_plasma, estimators, sigma_thomson)
+            r_packet, numba_model, numba_plasma, estimators)
 
 
         if interaction_type == InteractionType.BOUNDARY:
@@ -78,8 +78,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
             line_scatter(r_packet, numba_model.time_explosion,
                          line_interaction_type, numba_plasma)
             trace_vpacket_volley(
-                r_packet, vpacket_collection, numba_model, numba_plasma,
-                sigma_thomson)
+                r_packet, vpacket_collection, numba_model, numba_plasma)
 
 
         elif interaction_type == InteractionType.ESCATTERING:
@@ -88,7 +87,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
             thomson_scatter(r_packet, numba_model.time_explosion)
 
             trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
-                                 numba_plasma, sigma_thomson)
+                                 numba_plasma)
         if mc_logger.DEBUG_MODE:
             r_packet_track_nu.append(r_packet.nu)
             r_packet_track_mu.append(r_packet.mu)

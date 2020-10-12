@@ -1,22 +1,18 @@
 import numpy as np
 from enum import IntEnum
-from numba import int64, float64
-from numba import jitclass, njit
+from numba import int64, float64, boolean
+from numba import njit
+from numba.experimental import jitclass
 
 import math
-from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.montecarlo.montecarlo_numba import njit_dict, numba_config
 from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
-from tardis.montecarlo.montecarlo_numba.montecarlo_logger import log_decorator
-from tardis import constants as const
+from tardis.montecarlo.montecarlo_numba.numba_config import \
+    CLOSE_LINE_THRESHOLD, C_SPEED_OF_LIGHT, MISS_DISTANCE, SIGMA_THOMSON
 
-SIGMA_THOMSON = const.sigma_T.to('cm^2').value
 
 class MonteCarloException(ValueError):
     pass
-
-CLOSE_LINE_THRESHOLD = 1e-7
-C_SPEED_OF_LIGHT = const.c.to('cm/s').value
-MISS_DISTANCE = 1e99
 
 
 class PacketStatus(IntEnum):
@@ -30,7 +26,6 @@ class InteractionType(IntEnum):
     LINE = 2
     ESCATTERING = 3
 
-
 rpacket_spec = [
     ('r', float64),
     ('mu', float64),
@@ -41,8 +36,29 @@ rpacket_spec = [
     ('status', int64),
     ('seed', int64),
     ('index', int64),
-    ('close_line', int64)
+    ('is_close_line', boolean)
 ]
+@jitclass(rpacket_spec)
+class RPacket(object):
+    def __init__(self, r, mu, nu, energy, seed, index=0, is_close_line=False):
+        self.r = r
+        self.mu = mu
+        self.nu = nu
+        self.energy = energy
+        self.current_shell_id = 0
+        self.status = PacketStatus.IN_PROCESS
+        self.seed = seed
+        self.index = index
+        self.is_close_line = is_close_line
+
+    def initialize_line_id(self, numba_plasma, numba_model):
+        inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
+        doppler_factor = get_doppler_factor(self.r, self.mu,
+                                            numba_model.time_explosion)
+        comov_nu = self.nu * doppler_factor
+        next_line_id = (len(numba_plasma.line_list_nu) -
+                        np.searchsorted(inverse_line_list_nu, comov_nu))
+        self.next_line_id = next_line_id
 
 @njit(**njit_dict)
 def calculate_distance_boundary(r, mu, r_inner, r_outer):
@@ -68,10 +84,11 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
 
 
 # @log_decorator
+#'float64(RPacket, float64, int64, float64, float64)'
 @njit(**njit_dict)
 def calculate_distance_line(
         r_packet, comov_nu,
-        last_line, nu_line, time_explosion):
+        is_last_line, nu_line, time_explosion):
     """
 
     Parameters
@@ -89,15 +106,15 @@ def calculate_distance_line(
 
     nu = r_packet.nu
 
-    if last_line:
+    if is_last_line:
         return MISS_DISTANCE
 
     nu_diff = comov_nu - nu_line
 
     # for numerical reasons, if line is too close, we set the distance to 0.
-    if r_packet.close_line > 0:
+    if r_packet.is_close_line:
         nu_diff = 0.0
-        r_packet.close_line = 0
+        r_packet.is_close_line = False
 
     if nu_diff >= 0:
         distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
@@ -106,7 +123,7 @@ def calculate_distance_line(
         #raise MonteCarloException('nu difference is less than 0.0; for more'
         #                          ' information, see print statement beforehand')
 
-    if montecarlo_configuration.full_relativity:
+    if numba_config.ENABLE_FULL_RELATIVITY:
         return calculate_distance_line_full_relativity(nu_line, nu,
                                                         time_explosion,
                                                         r_packet)
@@ -126,21 +143,21 @@ def calculate_distance_line_full_relativity(nu_line, nu, time_explosion,
     return distance
 
 @njit(**njit_dict)
-def calculate_distance_electron(electron_density, tau_event, sigma_thomson):
+def calculate_distance_electron(electron_density, tau_event):
     # add full_relativity here
-    return tau_event / (electron_density * sigma_thomson)
+    return tau_event / (electron_density * SIGMA_THOMSON)
 
 @njit(**njit_dict)
-def calculate_tau_electron(electron_density, distance, sigma_thomson):
-    return electron_density * sigma_thomson * distance
+def calculate_tau_electron(electron_density, distance):
+    return electron_density * SIGMA_THOMSON * distance
 
 
 @njit(**njit_dict)
 def get_doppler_factor(r, mu, time_explosion):
-    inv_c = 1/C_SPEED_OF_LIGHT
+    inv_c = 1 / C_SPEED_OF_LIGHT
     inv_t = 1/time_explosion
     beta = r * inv_t * inv_c
-    if not montecarlo_configuration.full_relativity:
+    if not numba_config.ENABLE_FULL_RELATIVITY:
         return get_doppler_factor_partial_relativity(mu, beta)
     else:
         return get_doppler_factor_full_relativity(mu, beta)
@@ -159,7 +176,7 @@ def get_inverse_doppler_factor(r, mu, time_explosion):
     inv_c = 1 / C_SPEED_OF_LIGHT
     inv_t = 1 / time_explosion
     beta = r * inv_t * inv_c
-    if not montecarlo_configuration.full_relativity:
+    if not numba_config.ENABLE_FULL_RELATIVITY:
         return get_inverse_doppler_factor_partial_relativity(mu, beta)
     else:
         return get_inverse_doppler_factor_full_relativity(mu, beta)
@@ -176,27 +193,6 @@ def get_inverse_doppler_factor_full_relativity(mu, beta):
 def get_random_mu():
     return 2.0 * np.random.random() - 1.0
 
-@jitclass(rpacket_spec)
-class RPacket(object):
-    def __init__(self, r, mu, nu, energy, seed, index=0, close_line=0):
-        self.r = r
-        self.mu = mu
-        self.nu = nu
-        self.energy = energy
-        self.current_shell_id = 0
-        self.status = PacketStatus.IN_PROCESS
-        self.seed = seed
-        self.index = index
-        self.close_line = close_line
-
-    def initialize_line_id(self, numba_plasma, numba_model):
-        inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
-        doppler_factor = get_doppler_factor(self.r, self.mu,
-                                            numba_model.time_explosion)
-        comov_nu = self.nu * doppler_factor
-        next_line_id = (len(numba_plasma.line_list_nu) -
-                        np.searchsorted(inverse_line_list_nu, comov_nu))
-        self.next_line_id = next_line_id
 
 @njit(**njit_dict)
 def update_line_estimators(estimators, r_packet, cur_line_id, distance_trace,
@@ -222,7 +218,7 @@ def update_line_estimators(estimators, r_packet, cur_line_id, distance_trace,
     ( time_explosion * C)
     """
 
-    if not montecarlo_configuration.full_relativity:
+    if not numba_config.ENABLE_FULL_RELATIVITY:
         energy = calc_packet_energy(r_packet, distance_trace,
                                                     time_explosion)
     else:
@@ -246,7 +242,7 @@ def calc_packet_energy(r_packet, distance_trace, time_explosion):
     return energy
 
 @njit(**njit_dict)
-def trace_packet(r_packet, numba_model, numba_plasma, estimators, sigma_thomson):
+def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     """
 
     Parameters
@@ -270,7 +266,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators, sigma_thomson)
     start_line_id = r_packet.next_line_id
 
     # defining taus
-    tau_event = np.random.exponential()
+    tau_event = -np.log(1 - np.random.random())
     tau_trace_line_combined = 0.0
 
     # e scattering initialization
@@ -278,7 +274,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators, sigma_thomson)
     cur_electron_density = numba_plasma.electron_density[
         r_packet.current_shell_id]
     distance_electron = calculate_distance_electron(
-        cur_electron_density, tau_event, sigma_thomson)
+        cur_electron_density, tau_event)
 
     # Calculating doppler factor
     doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu,
@@ -303,18 +299,20 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators, sigma_thomson)
 
         # Calculating the distance until the current photons co-moving nu
         # redshifts to the line frequency
-        last_line = 0
+
         if cur_line_id == len(numba_plasma.line_list_nu) - 1:
-            last_line = 1
+            is_last_line = True
+        else:
+            is_last_line = False
+
         distance_trace = calculate_distance_line(
-            r_packet, comov_nu, last_line,
+            r_packet, comov_nu, is_last_line,
             nu_line, numba_model.time_explosion
         )
 
         # calculating the tau electron of how far the trace has progressed
         tau_trace_electron = calculate_tau_electron(cur_electron_density,
-                                                    distance_trace,
-                                                    sigma_thomson)
+                                                    distance_trace)
 
         # calculating the trace
         tau_trace_combined = tau_trace_line_combined + tau_trace_electron
@@ -355,8 +353,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators, sigma_thomson)
         # Recalculating distance_electron using tau_event -
         # tau_trace_line_combined
         distance_electron = calculate_distance_electron(
-            cur_electron_density, tau_event - tau_trace_line_combined,
-        sigma_thomson)
+            cur_electron_density, tau_event - tau_trace_line_combined)
 
     else:  # Executed when no break occurs in the for loop
         # We are beyond the line list now and the only next thing is to see
@@ -408,7 +405,14 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
         comov_nu = r_packet.nu * doppler_factor
         comov_energy = r_packet.energy * doppler_factor
 
-        if montecarlo_configuration.full_relativity:
+        if not numba_config.ENABLE_FULL_RELATIVITY:
+            set_estimators(r_packet,
+                           distance,
+                           numba_estimator,
+                           comov_nu,
+                           comov_energy)
+
+        else:
             distance = distance * doppler_factor
             set_estimators_full_relativity(r_packet,
                                            distance,
@@ -416,13 +420,6 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
                                            comov_nu,
                                            comov_energy,
                                            doppler_factor)
-        else:
-            set_estimators(r_packet,
-                           distance,
-                           numba_estimator,
-                           comov_nu,
-                           comov_energy)
-
 @njit(**njit_dict)
 def set_estimators(r_packet, distance, numba_estimator, comov_nu, comov_energy):
     numba_estimator.j_estimator[r_packet.current_shell_id] += (
@@ -523,4 +520,4 @@ def angle_aberration_LF_to_CMF(r_packet, time_explosion, mu):
 def test_for_close_line(r_packet, line_id, nu_line, numba_plasma):
     if (abs(numba_plasma.line_list_nu[line_id] - nu_line)
             < (nu_line * CLOSE_LINE_THRESHOLD)):
-        r_packet.close_line = 1
+        r_packet.is_close_line = True

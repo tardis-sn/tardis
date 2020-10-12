@@ -1,6 +1,7 @@
 from enum import IntEnum
 
-from numba import float64, int64, jitclass, boolean
+from numba import float64, int64, boolean
+from numba.experimental import jitclass
 import numpy as np
 
 from astropy import units as u

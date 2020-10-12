@@ -19,6 +19,7 @@ from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
 from tardis.montecarlo.montecarlo_numba import montecarlo_logger as mc_logger
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     configuration_initialize)
+from tardis.montecarlo.montecarlo_numba import numba_config
 
 import numpy as np
 
@@ -61,7 +62,7 @@ class MontecarloRunner(HDFWriterMixin):
                                 (const.h / const.k_B)).cgs.value
 
     def __init__(self, seed, spectrum_frequency, virtual_spectrum_spawn_range,
-                 sigma_thomson, disable_electron_scattering, enable_reflective_inner_boundary,
+                 disable_electron_scattering, enable_reflective_inner_boundary,
                  enable_full_relativity, inner_boundary_albedo,
                  line_interaction_type, integrator_settings,
                  v_packet_settings, spectrum_method,
@@ -77,10 +78,10 @@ class MontecarloRunner(HDFWriterMixin):
         self.disable_electron_scattering = disable_electron_scattering
         self.spectrum_frequency = spectrum_frequency
         self.virtual_spectrum_spawn_range = virtual_spectrum_spawn_range
-        self.sigma_thomson = sigma_thomson
         self.enable_reflective_inner_boundary = enable_reflective_inner_boundary
         self.inner_boundary_albedo = inner_boundary_albedo
         self.enable_full_relativity = enable_full_relativity
+        numba_config.ENABLE_FULL_RELATIVITY = enable_full_relativity
         self.line_interaction_type = line_interaction_type
         self.single_packet_seed = single_packet_seed
         self.integrator_settings = integrator_settings
@@ -450,12 +451,14 @@ class MontecarloRunner(HDFWriterMixin):
 
         """
         if config.plasma.disable_electron_scattering:
-            logger.warn('Disabling electron scattering - this is not physical')
-            sigma_thomson = 1e-200
+            logger.warn('Disabling electron scattering - this is not physical.'
+                        'Likely bug in formal integral - '
+                        'will not give same results.')
+            numba_config.SIGMA_THOMSON = 1e-200
             # mc_config_module.disable_electron_scattering = True
         else:
             logger.debug("Electron scattering switched on")
-            sigma_thomson = const.sigma_T.to('cm^2').value
+            numba_config.SIGMA_THOMSON = const.sigma_T.to('cm^2').value
             # mc_config_module.disable_electron_scattering = False
 
         spectrum_frequency = quantity_linspace(
@@ -467,7 +470,6 @@ class MontecarloRunner(HDFWriterMixin):
         return cls(seed=config.montecarlo.seed,
                    spectrum_frequency=spectrum_frequency,
                    virtual_spectrum_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
-                   sigma_thomson=sigma_thomson,
                    enable_reflective_inner_boundary=config.montecarlo.enable_reflective_inner_boundary,
                    inner_boundary_albedo=config.montecarlo.inner_boundary_albedo,
                    enable_full_relativity=config.montecarlo.enable_full_relativity,

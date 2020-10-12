@@ -1,4 +1,4 @@
-from numba import float64, int64
+from numba import float64, int64, boolean
 from numba import jitclass, njit, gdb
 
 from tardis.montecarlo.montecarlo_numba import njit_dict
@@ -20,13 +20,12 @@ vpacket_spec = [
     ('current_shell_id', int64),
     ('status', int64),
     ('index', int64),
-    ('close_line', int64)
+    ('is_close_line', boolean)
 ]
-
 @jitclass(vpacket_spec)
 class VPacket(object):
     def __init__(self, r, mu, nu, energy, current_shell_id, next_line_id,
-                 index=0, close_line=0):
+                 index=0, is_close_line=0):
         self.r = r
         self.mu = mu
         self.nu = nu
@@ -35,12 +34,11 @@ class VPacket(object):
         self.next_line_id = next_line_id
         self.status = PacketStatus.IN_PROCESS
         self.index = index
-        self.close_line = close_line
+        self.is_close_line = is_close_line
 
 
 @njit(**njit_dict)
-def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma,
-                               sigma_thomson):
+def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
     
     r_inner = numba_model.r_inner[v_packet.current_shell_id]
     r_outer = numba_model.r_outer[v_packet.current_shell_id]
@@ -55,8 +53,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma,
     cur_electron_density = numba_plasma.electron_density[
         v_packet.current_shell_id]
     tau_electron = calculate_tau_electron(cur_electron_density, 
-                                            distance_boundary,
-                                            sigma_thomson)
+                                            distance_boundary)
     tau_trace_combined = tau_electron
 
     # Calculating doppler factor
@@ -71,12 +68,17 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma,
         
         nu_line = numba_plasma.line_list_nu[cur_line_id]
         # TODO: Check if this is what the C code does
-        nu_line_last_interaction = numba_plasma.line_list_nu[cur_line_id - 1]
+
         tau_trace_line = numba_plasma.tau_sobolev[
             cur_line_id, v_packet.current_shell_id]
 
+        if cur_line_id == len(numba_plasma.line_list_nu) - 1:
+            is_last_line = True
+        else:
+            is_last_line = False
+
         distance_trace_line = calculate_distance_line(
-            v_packet, comov_nu, nu_line_last_interaction,
+            v_packet, comov_nu, is_last_line,
             nu_line, numba_model.time_explosion
         )
 
@@ -96,7 +98,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma,
     return tau_trace_combined, distance_boundary, delta_shell
 
 @njit(**njit_dict)
-def trace_vpacket(v_packet, numba_model, numba_plasma, sigma_thomson):
+def trace_vpacket(v_packet, numba_model, numba_plasma):
     """
     Trace single vpacket.
     Parameters
@@ -113,8 +115,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma, sigma_thomson):
     tau_trace_combined = 0.0
     while True:
         tau_trace_combined_shell, distance_boundary, delta_shell = trace_vpacket_within_shell(
-            v_packet, numba_model, numba_plasma, sigma_thomson
-        )
+            v_packet, numba_model, numba_plasma)
         tau_trace_combined += tau_trace_combined_shell
 
         move_packet_across_shell_boundary(v_packet, delta_shell, 
@@ -142,7 +143,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma, sigma_thomson):
 
 @njit(**njit_dict)
 def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
-                         numba_plasma, sigma_thomson):
+                         numba_plasma):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many) 
     from the current position of the rpacket. 
@@ -212,13 +213,12 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
 
         v_packet = VPacket(r_packet.r, v_packet_mu, v_packet_nu, 
                            v_packet_energy, r_packet.current_shell_id, 
-                           r_packet.next_line_id, i, r_packet.close_line)
+                           r_packet.next_line_id, i, r_packet.is_close_line)
         
         if r_packet.next_line_id != (len(numba_plasma.line_list_nu) - 1):
             test_for_close_line(v_packet, r_packet.next_line_id + 1, numba_plasma.line_list_nu[r_packet.next_line_id], numba_plasma)
 
-        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma,
-                                    sigma_thomson)
+        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma)
         
         v_packet.energy *= math.exp(-tau_vpacket)
 
