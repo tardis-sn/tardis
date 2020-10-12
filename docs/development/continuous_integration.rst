@@ -290,11 +290,14 @@ Publishes a new release of TARDIS every sunday at 00:00 UTC.
 Reference data pipeline
 -----------------------
 
-Generates new reference data according to changes present in the pull
-request. Then, compares against reference data from the head of the
-*master* branch in ``tardis-refdata`` repository by running a
-notebook. Finally, uploads the rendered notebook to the pipeline
-results.
+Generates new reference data according to the changes present in the
+current pull request. Then, compares against reference data present in the
+head of ``tardis-refdata`` repository by running a notebook. Finally, uploads
+the rendered notebook to the pipeline results.
 
-.. note:: This pipeline runs manually (from the Azure web UI) or by
-        enabling the PR trigger via pull request.
+To trigger this pipeline is necessary to leave a comment in the GitHub pull
+request.
+::
+  /AzurePipelines run TARDIS refdata
+
+For brevity, you can comment using ``/azp`` instead of ``/AzurePipelines``.
