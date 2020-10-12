@@ -3,7 +3,7 @@ from enum import IntEnum
 from numba import int64, float64
 from numba import jitclass, njit
 
-
+import math
 from tardis.montecarlo.montecarlo_numba import njit_dict
 from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
 from tardis.montecarlo.montecarlo_numba.montecarlo_logger import log_decorator
@@ -49,7 +49,7 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
     delta_shell = 0
     if (mu > 0.0):
         # direction outward
-        distance = np.sqrt(r_outer**2 + ((mu**2 - 1.0) * r**2)) - (r * mu)
+        distance = math.sqrt(r_outer**2 + ((mu**2 - 1.0) * r**2)) - (r * mu)
         delta_shell = 1
     else:
         # going inward
@@ -57,11 +57,11 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
 
         if (check >= 0.0):
             # hit inner boundary 
-            distance = -r * mu - np.sqrt(check)
+            distance = -r * mu - math.sqrt(check)
             delta_shell = -1
         else:
             # miss inner boundary 
-            distance = np.sqrt(r_outer**2 + ((mu**2 - 1.0) * r**2)) - (r * mu)
+            distance = math.sqrt(r_outer**2 + ((mu**2 - 1.0) * r**2)) - (r * mu)
             delta_shell = 1
     
     return distance, delta_shell
@@ -120,7 +120,7 @@ def calculate_distance_line_full_relativity(nu_line, nu, time_explosion,
     nu_r = nu_line / nu
     ct = C_SPEED_OF_LIGHT * time_explosion
     distance = -r_packet.mu * r_packet.r + (
-            ct - nu_r ** 2 * np.sqrt(
+            ct - nu_r ** 2 * math.sqrt(
         ct ** 2 - (1 + r_packet.r ** 2 * (1 - r_packet.mu ** 2) *
                    (1 + pow(nu_r, -2))))) / (1 + nu_r ** 2)
     return distance
@@ -151,7 +151,7 @@ def get_doppler_factor_partial_relativity(mu, beta):
 
 @njit(**njit_dict)
 def get_doppler_factor_full_relativity(mu, beta):
-    return (1.0 - mu * beta) / np.sqrt(1 - beta * beta)
+    return (1.0 - mu * beta) / math.sqrt(1 - beta * beta)
 
 
 @njit(**njit_dict)
@@ -170,7 +170,7 @@ def get_inverse_doppler_factor_partial_relativity(mu, beta):
 
 @njit(**njit_dict)
 def get_inverse_doppler_factor_full_relativity(mu, beta):
-    return (1.0 + mu * beta) / np.sqrt(1 - beta * beta)
+    return (1.0 + mu * beta) / math.sqrt(1 - beta * beta)
 
 @njit(**njit_dict)
 def get_random_mu():
@@ -215,7 +215,7 @@ def update_line_estimators(estimators, r_packet, cur_line_id, distance_trace,
     """
 
     """ Actual calculation - simplified below
-    r_interaction = np.sqrt(r_packet.r**2 + distance_trace**2 +
+    r_interaction = math.sqrt(r_packet.r**2 + distance_trace**2 +
                             2 * r_packet.r * distance_trace * r_packet.mu)
     mu_interaction = (r_packet.mu * r_packet.r + distance_trace) / r_interaction
     doppler_factor = 1.0 - mu_interaction * r_interaction /
@@ -400,7 +400,7 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
 
     r = r_packet.r
     if (distance > 0.0):
-        new_r = np.sqrt(r**2 + distance**2 +
+        new_r = math.sqrt(r**2 + distance**2 +
                          2.0 * r * distance * r_packet.mu)
         r_packet.mu = (r_packet.mu * r + distance) / new_r
         r_packet.r = new_r
@@ -521,6 +521,6 @@ def angle_aberration_LF_to_CMF(r_packet, time_explosion, mu):
 
 @njit(**njit_dict)
 def test_for_close_line(r_packet, line_id, nu_line, numba_plasma):
-    if (np.abs(numba_plasma.line_list_nu[line_id] - nu_line)
+    if (abs(numba_plasma.line_list_nu[line_id] - nu_line)
             < (nu_line * CLOSE_LINE_THRESHOLD)):
         r_packet.close_line = 1

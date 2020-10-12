@@ -3,7 +3,7 @@ from numba import jitclass, njit, gdb
 
 from tardis.montecarlo.montecarlo_numba import njit_dict
 from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
-
+import math
 import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
@@ -127,11 +127,11 @@ def trace_vpacket(v_packet, numba_model, numba_plasma, sigma_thomson):
                 v_packet.status = PacketStatus.EMITTED
             else:
                 v_packet.energy = v_packet.energy / montecarlo_configuration.survival_probability * \
-                                   np.exp(-tau_trace_combined)
+                                   math.exp(-tau_trace_combined)
                 tau_trace_combined = 0.0
              
         # Moving the v_packet
-        new_r = np.sqrt(v_packet.r**2 + distance_boundary**2 +
+        new_r = math.sqrt(v_packet.r**2 + distance_boundary**2 +
                          2.0 * v_packet.r * distance_boundary * v_packet.mu)
         v_packet.mu = (v_packet.mu * v_packet.r + distance_boundary) / new_r
         v_packet.r = new_r
@@ -171,7 +171,7 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
 
     ### TODO theoretical check for r_packet nu within vpackets bins - is done somewhere else I think
     if r_packet.r > numba_model.r_inner[0]: # not on inner_boundary
-        mu_min = -np.sqrt(1 - (numba_model.r_inner[0] / r_packet.r) ** 2)
+        mu_min = -math.sqrt(1 - (numba_model.r_inner[0] / r_packet.r) ** 2)
         v_packet_on_inner_boundary = False
         if montecarlo_configuration.full_relativity:
             mu_min = angle_aberration_LF_to_CMF(r_packet,
@@ -220,7 +220,7 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
         tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma,
                                     sigma_thomson)
         
-        v_packet.energy *= np.exp(-tau_vpacket)
+        v_packet.energy *= math.exp(-tau_vpacket)
 
         vpacket_collection.nus[vpacket_collection.idx] = v_packet.nu
         vpacket_collection.energies[vpacket_collection.idx] = v_packet.energy
