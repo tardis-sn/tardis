@@ -284,9 +284,7 @@ In the near future we want to auto-update the citation guidelines in the
 Release pipeline
 ----------------
 
-Publishes a new release of TARDIS every sunday at 22:30 UTC. 
-
-.. warning :: Fails if no new commits were merged since the last release.
+Publishes a new release of TARDIS every sunday at 00:00 UTC. 
 
 
 Reference data pipeline
