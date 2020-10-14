@@ -272,6 +272,8 @@ class AtomData(object):
             check_list = [name for name in group if getattr(self, name) is None]
 
             if len(check_list) != 0 and len(check_list) != len(group):
+                group_str = ', '.join(group)
+                check_list_str = ', '.join(check_list)
                 raise AtomDataMissingError(
                     group_str = ', '.join(group)
                     check_list_str = ', '.join(check_list)
