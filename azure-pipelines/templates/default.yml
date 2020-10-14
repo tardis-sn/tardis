@@ -53,7 +53,6 @@ steps:
         knownHostsEntry: $(known_host)
         sshPublicKey: $(public_key)
         sshKeySecureFile: 'id_azure_rsa'
-      displayName: 'Install SSH key'
 
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: 'Add conda to PATH'
