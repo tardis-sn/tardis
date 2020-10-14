@@ -38,6 +38,14 @@ def model():
         time_explosion = 5.2e7
     )
 
+@pytest.fixture(scope="function")
+def estimators():
+    return numba_interface.Estimators(
+        j_estimator = np.array([0.0, 0.0], dtype=np.float64),
+        nu_bar_estimator = np.array([0.0, 0.0], dtype=np.float64),
+        j_blue_estimator = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype=np.float64),
+        Edotlu_estimator = np.array([[0.0, 0.0, 1.0], [0.0, 0.0, 1.0]], dtype=np.float64)
+    )
 
 @pytest.mark.parametrize(
     ['packet_params', 'expected_params'],
@@ -155,8 +163,24 @@ def test_get_random_mu():
     output2 = r_packet.get_random_mu()
     assert output1 != output2
 
-def test_update_line_estimators():
-    pass
+
+@pytest.mark.parametrize(
+    ['cur_line_id', 'distance_trace', 'time_explosion', 
+        'expected_j_blue', 'expected_Edotlu'],
+    [(0, 1e12, 5.2e7, 
+    [[2.249673812803061, 0.0, 0.0], [0.0, 0.0, 0.0]], [[2.249673812803061*0.4, 0.0, 1.0], [0.0, 0.0, 1.0]]),
+     (0, 0, 5.2e7, 
+     [[2.249675256109242, 0.0,  0.0], [0.0, 0.0, 0.0]], [[2.249675256109242*0.4, 0.0, 1.0], [0.0, 0.0, 1.0],]),
+     (1, 1e5, 1e10, 
+     [[0.0, 0.0, 0.0], [2.249998311331767, 0.0, 0.0]], [[0.0, 0.0, 1.0], [2.249998311331767*0.4, 0.0, 1.0]])]
+)
+def test_update_line_estimators(estimators, packet, cur_line_id, distance_trace,
+                                time_explosion, expected_j_blue, expected_Edotlu):
+    r_packet.update_line_estimators(estimators, packet, cur_line_id, distance_trace,
+                                    time_explosion)
+
+    assert_allclose(estimators.j_blue_estimator, expected_j_blue)
+    assert_allclose(estimators.Edotlu_estimator, expected_Edotlu)
 
 def test_trace_packet():
     pass
