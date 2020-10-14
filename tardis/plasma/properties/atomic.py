@@ -206,7 +206,7 @@ class IonizationData(BaseAtomicDataProperty):
                 "ionization data for the ion ({}, {})".format(
                     str(counts.index[counts.index != counts]),
                     str(counts[counts.index != counts]),
-                )counts])})"
+                )
             )
 
     def _set_index(self, ionization_data):
