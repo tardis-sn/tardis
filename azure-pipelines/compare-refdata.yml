@@ -24,7 +24,7 @@ jobs:
         parameters:
           fetchRefdata: true
           useMamba: true
-          installSSHKey: true
+          installSSHKey: false
 
       - bash: |
           source activate tardis
