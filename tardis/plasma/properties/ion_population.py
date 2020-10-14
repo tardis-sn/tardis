@@ -174,7 +174,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
             warnings.warn(
                 "t_rads outside of zeta factor interpolation"
                 f" zeta_min={zeta_data.columns.values.min():.2f} zeta_max={zeta_data.columns.values.max():.2f} "
-                "- replacing with 1s"
+                "- replacing with 1s, t_rad={t_rad}"
             )
             zeta[np.isnan(zeta)] = 1.0
 
