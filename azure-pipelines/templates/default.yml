@@ -43,7 +43,7 @@ steps:
     displayName: 'Fetch TARDIS repository from GitHub'
 
   - ${{ if eq(parameters.fetchRefdata, true) }}:
-    - checkout: git://TARDIS/tardis-refdata
+    - checkout: git://TARDIS/tardis-refdata.git
       lfs: true
       displayName: 'Fetch reference data repository from Azure Repos'
 
