@@ -42,9 +42,9 @@ class Levels(BaseAtomicDataProperty):
 
     outputs = ("levels", "excitation_energy", "metastability", "g")
     latex_name = (
-        "\\textrm{levels}",
-        "\\epsilon_{\\textrm{k}}",
-        "\\textrm{metastability}",
+        r"\textrm{levels}",
+        r"\epsilon_{\textrm{k}}",
+        r"\textrm{metastability}",
         "g",
     )
 
@@ -115,7 +115,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
         "photo_ion_block_references",
         "photo_ion_index",
     )
-    latex_name = ("\\xi_{\\textrm{i}}(\\nu)", "", "")
+    latex_name = (r"\xi_{\textrm{i}}(\nu)", "", "")
 
     def calculate(self, atomic_data, continuum_interaction_species):
         photoionization_data = atomic_data.photoionization_data.set_index(

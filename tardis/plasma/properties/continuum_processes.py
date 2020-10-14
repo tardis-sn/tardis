@@ -75,7 +75,7 @@ class SpontRecombRateCoeff(ProcessingPlasmaProperty):
     """
 
     outputs = ("alpha_sp",)
-    latex_name = ("\\alpha^{\\textrm{sp}}",)
+    latex_name = (r"\alpha^{\textrm{sp}}",)
 
     def calculate(
         self,
