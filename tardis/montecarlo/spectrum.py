@@ -74,7 +74,7 @@ class TARDISSpectrum(HDFWriterMixin):
         except AttributeError:
                 raise AttributeError(
                         'distance is required as attribute of'
-                        f'{self.__class__.__name__} to calculate "{"flux_lambda"}"'
+                        f'{self.__class__.__name__} to calculate "flux_lambda"'
                         )
 
     @staticmethod
