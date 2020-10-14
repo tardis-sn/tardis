@@ -275,8 +275,6 @@ class AtomData(object):
                 group_str = ', '.join(group)
                 check_list_str = ', '.join(check_list)
                 raise AtomDataMissingError(
-                    group_str = ', '.join(group)
-                    check_list_str = ', '.join(check_list)
                     f"The following dataframes from the related group [{group_str}] "
                     f"were not given: {check_list_str}"
                 )
