@@ -14,6 +14,10 @@ parameters:
     type: boolean
     default: false
 
+  - name: installSSHKey
+    type: boolean
+    default: false
+
 steps:
   - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
     displayName: 'Set BASH exit on error'
@@ -42,6 +46,14 @@ steps:
     - checkout: git://TARDIS/tardis-refdata
       lfs: true
       displayName: 'Fetch reference data repository from Azure Repos'
+
+  - ${{ if eq(parameters.installSSHKey, true) }}:
+    - task: InstallSSHKey@0
+      inputs:
+        knownHostsEntry: $(known_host)
+        sshPublicKey: $(public_key)
+        sshKeySecureFile: 'id_azure_rsa'
+      displayName: 'Install SSH key'
 
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: 'Add conda to PATH'

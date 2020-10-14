@@ -24,7 +24,8 @@ jobs:
         parameters:
           fetchRefdata: true
           useMamba: true
-      
+          installSSHKey: true
+
       - bash: |
           source activate tardis
           $(package.manager) install bokeh --channel conda-forge --no-update-deps --yes
@@ -56,9 +57,9 @@ jobs:
         displayName: 'Render notebook (allow errors)'
         condition: failed()
 
-      - task: PublishPipelineArtifact@1
+      - task: GitHubComment@0
         inputs:
-          targetPath: '$(refdata.dir)/notebooks/ref_data_compare.html'
-          artifactName: 'report'
-        displayName: 'Upload artifact'
-        condition: succeededOrFailed()
+          gitHubConnection: 'epassaro'
+          repositoryName: '$(Build.Repository.Name)'
+          comment: 'Succesfully created report'
+
