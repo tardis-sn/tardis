@@ -8,6 +8,7 @@ import tardis.montecarlo.montecarlo_configuration as mc
 import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
 from tardis import constants as const
 from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
+import tardis.montecarlo.montecarlo_numba.numba_config as numba_config
 from tardis.montecarlo.montecarlo_numba import macro_atom
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
 
@@ -189,8 +190,49 @@ def test_update_line_estimators(estimators, packet, cur_line_id, distance_trace,
 def test_trace_packet():
     pass
 
-def test_move_r_packet():
-    pass
+@pytest.mark.parametrize('ENABLE_FULL_RELATIVITY', [True, False]) 
+@pytest.mark.parametrize( 
+    ['packet_params', 'expected_params'], 
+    [({'nu': 0.4, 'mu': 0.3, 'energy': 0.9, 'r': 7.5e14},
+      {'mu': 0.3120599529139568, 'r': 753060422542573.9, 
+       'j': 8998701024436.969, 'nubar': 3598960894542.354}), 
+
+     ({'nu': 0.6, 'mu': -.5, 'energy': 0.5, 'r': 8.1e14}, 
+      {'mu': -.4906548373534084, 'r': 805046582503149.2, 
+       'j': 5001298975563.031, 'nubar': 3001558973156.1387})] 
+)
+def test_move_r_packet(packet_params, expected_params, packet, model, estimators, ENABLE_FULL_RELATIVITY):
+    distance = 1.e13
+    packet.nu = packet_params['nu']
+    packet.mu = packet_params['mu']
+    packet.energy = packet_params['energy']
+    packet.r = packet_params['r']
+
+    numba_config.ENABLE_FULL_RELATIVITY = ENABLE_FULL_RELATIVITY
+    r_packet.move_r_packet.recompile() # This must be done as move_r_packet was jitted with ENABLE_FULL_RELATIVITY
+    doppler_factor = r_packet.get_doppler_factor(
+        packet.r, 
+        packet.mu, 
+        model.time_explosion)
+
+    r_packet.move_r_packet(
+        packet, distance, model.time_explosion, estimators)
+    
+    assert_almost_equal(packet.mu, expected_params['mu'])
+    assert_almost_equal(packet.r, expected_params['r'])
+
+    expected_j = expected_params['j']
+    expected_nubar = expected_params['nubar']
+
+    if ENABLE_FULL_RELATIVITY:
+        expected_j *= doppler_factor
+        expected_nubar *= doppler_factor
+
+    numba_config.ENABLE_FULL_RELATIVITY = False
+    assert_allclose(estimators.j_estimator[packet.current_shell_id], 
+        expected_j, rtol=5e-7)
+    assert_allclose(estimators.nu_bar_estimator[packet.current_shell_id],
+        expected_nubar, rtol=5e-7)
 
 def test_set_estimators():
     pass
