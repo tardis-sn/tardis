@@ -40,112 +40,6 @@ def model():
 
 
 @pytest.mark.parametrize(
-    ['mu', 'r', 'inv_t_exp', 'expected'],
-    [(0.3, 7.5e14, 1 / 5.2e7, 0.9998556693818854),
-     (-.3, 0, 1 / 2.6e7, 1.0),
-     (0, 1, 1 / 2.6e7, 1.0)]
-)
-def test_get_doppler_factor(mu, r, inv_t_exp, expected):
-    # Set the params from test cases here
-    # TODO: add relativity tests
-    time_explosion = 1/inv_t_exp
-
-    # Perform any other setups just before this, they can be additional calls
-    # to other methods or introduction of some temporary variables
-
-    obtained = r_packet.get_doppler_factor(r, mu, time_explosion)
-
-
-    # Perform required assertions
-    assert_almost_equal(obtained, expected)
-
-
-@pytest.mark.parametrize(
-    ['mu', 'r', 'inv_t_exp', 'expected'],
-    [(0.3, 7.5e14, 1 / 5.2e7, 1/0.9998556693818854),
-     (-.3, 0, 1 / 2.6e7, 1.0),
-     (0, 1, 1 / 2.6e7, 1.0)]
-)
-def test_get_inverse_doppler_factor(mu, r, inv_t_exp, expected):
-    # Set the params from test cases here
-    # TODO: add relativity tests
-    time_explosion = 1/inv_t_exp
-
-    # Perform any other setups just before this, they can be additional calls
-    # to other methods or introduction of some temporary variables
-
-    obtained = r_packet.get_inverse_doppler_factor(r, mu, time_explosion)
-
-    # Perform required assertions
-    assert_almost_equal(obtained, expected)
-
-
-def test_get_random_mu():
-    """
-    Ensure that different calls results
-    """
-    output1 = r_packet.get_random_mu()
-    output2 = r_packet.get_random_mu()
-    assert output1 != output2
-
-@pytest.mark.parametrize(
-    ['current_shell_id', 'delta_shell', 'no_of_shells'],
-    [(132, 11, 132),
-     (132, 1, 133),
-     (132, 2, 133)]
-)
-def test_move_packet_across_shell_boundary_emitted(packet, current_shell_id,
-                                                   delta_shell,
-                                                   no_of_shells):
-    packet.current_shell_id = current_shell_id
-    r_packet.move_packet_across_shell_boundary(packet, delta_shell,
-                                      no_of_shells)
-    assert packet.status == r_packet.PacketStatus.EMITTED
-
-@pytest.mark.parametrize(
-    ['current_shell_id', 'delta_shell', 'no_of_shells'],
-    [(132, -133, 132),
-     (132, -133, 133),
-     (132, -1e9, 133)]
-)
-def test_move_packet_across_shell_boundary_reabsorbed(packet, current_shell_id,
-                                                   delta_shell,
-                                                   no_of_shells):
-    packet.current_shell_id = current_shell_id
-    r_packet.move_packet_across_shell_boundary(packet, delta_shell,
-                                      no_of_shells)
-    assert packet.status == r_packet.PacketStatus.REABSORBED
-
-
-@pytest.mark.parametrize(
-    ['current_shell_id', 'delta_shell', 'no_of_shells'],
-    [(132, -1, 199),
-     (132, 0, 132),
-     (132, 20, 154)]
-)
-def test_move_packet_across_shell_boundary_increment(packet, current_shell_id,
-                                                   delta_shell,
-                                                   no_of_shells):
-    packet.current_shell_id = current_shell_id
-    r_packet.move_packet_across_shell_boundary(packet, delta_shell,
-                                      no_of_shells)
-    assert packet.current_shell_id == current_shell_id + delta_shell
-
-#SAYS WE NEED TO FIX/REMOVE PACKET CALC ENERGY BY MOVING DOPPLER FACTOR TO FUNCTION
-"""
-@pytest.mark.parametrize(
-    ['distance_trace', 'time_explosion'],
-    [(0, 1),
-     (1, 1),
-     (1, 1e9)]
-)
-def test_packet_energy_limit_one(packet, distance_trace, time_explosion):
-    initial_energy = packet.energy
-    new_energy = r_packet.calc_packet_energy(packet, distance_trace, time_explosion)
-    assert_almost_equal(new_energy, initial_energy)
-"""
-
-@pytest.mark.parametrize(
     ['packet_params', 'expected_params'],
     [({'mu': 0.3, 'r': 7.5e14},
       {'d_boundary': 259376919351035.88}),
@@ -206,3 +100,134 @@ def test_calculate_distance_line(packet_params, expected_params, packet, model):
 
     assert_almost_equal(d_line, expected_params['d_line'])
     assert obtained_tardis_error == expected_params['tardis_error']
+
+def test_calculate_distance_electron():
+    pass
+
+def test_calculate_tau_electron():
+    pass
+
+@pytest.mark.parametrize(
+    ['mu', 'r', 'inv_t_exp', 'expected'],
+    [(0.3, 7.5e14, 1 / 5.2e7, 0.9998556693818854),
+     (-.3, 0, 1 / 2.6e7, 1.0),
+     (0, 1, 1 / 2.6e7, 1.0)]
+)
+def test_get_doppler_factor(mu, r, inv_t_exp, expected):
+    # Set the params from test cases here
+    # TODO: add relativity tests
+    time_explosion = 1/inv_t_exp
+
+    # Perform any other setups just before this, they can be additional calls
+    # to other methods or introduction of some temporary variables
+
+    obtained = r_packet.get_doppler_factor(r, mu, time_explosion)
+
+
+    # Perform required assertions
+    assert_almost_equal(obtained, expected)
+
+@pytest.mark.parametrize(
+    ['mu', 'r', 'inv_t_exp', 'expected'],
+    [(0.3, 7.5e14, 1 / 5.2e7, 1/0.9998556693818854),
+     (-.3, 0, 1 / 2.6e7, 1.0),
+     (0, 1, 1 / 2.6e7, 1.0)]
+)
+def test_get_inverse_doppler_factor(mu, r, inv_t_exp, expected):
+    # Set the params from test cases here
+    # TODO: add relativity tests
+    time_explosion = 1/inv_t_exp
+
+    # Perform any other setups just before this, they can be additional calls
+    # to other methods or introduction of some temporary variables
+
+    obtained = r_packet.get_inverse_doppler_factor(r, mu, time_explosion)
+
+    # Perform required assertions
+    assert_almost_equal(obtained, expected)
+
+
+def test_get_random_mu():
+    """
+    Ensure that different calls results
+    """
+    output1 = r_packet.get_random_mu()
+    output2 = r_packet.get_random_mu()
+    assert output1 != output2
+
+def test_update_line_estimators():
+    pass
+
+def test_trace_packet():
+    pass
+
+def test_move_r_packet():
+    pass
+
+def test_set_estimators():
+    pass
+
+def test_set_estimators_full_relativity():
+    pass
+
+def test_line_emission():
+    pass
+
+@pytest.mark.parametrize(
+    ['current_shell_id', 'delta_shell', 'no_of_shells'],
+    [(132, 11, 132),
+     (132, 1, 133),
+     (132, 2, 133)]
+)
+def test_move_packet_across_shell_boundary_emitted(packet, current_shell_id,
+                                                   delta_shell,
+                                                   no_of_shells):
+    packet.current_shell_id = current_shell_id
+    r_packet.move_packet_across_shell_boundary(packet, delta_shell,
+                                      no_of_shells)
+    assert packet.status == r_packet.PacketStatus.EMITTED
+
+@pytest.mark.parametrize(
+    ['current_shell_id', 'delta_shell', 'no_of_shells'],
+    [(132, -133, 132),
+     (132, -133, 133),
+     (132, -1e9, 133)]
+)
+def test_move_packet_across_shell_boundary_reabsorbed(packet, current_shell_id,
+                                                   delta_shell,
+                                                   no_of_shells):
+    packet.current_shell_id = current_shell_id
+    r_packet.move_packet_across_shell_boundary(packet, delta_shell,
+                                      no_of_shells)
+    assert packet.status == r_packet.PacketStatus.REABSORBED
+
+
+@pytest.mark.parametrize(
+    ['current_shell_id', 'delta_shell', 'no_of_shells'],
+    [(132, -1, 199),
+     (132, 0, 132),
+     (132, 20, 154)]
+)
+def test_move_packet_across_shell_boundary_increment(packet, current_shell_id,
+                                                   delta_shell,
+                                                   no_of_shells):
+    packet.current_shell_id = current_shell_id
+    r_packet.move_packet_across_shell_boundary(packet, delta_shell,
+                                      no_of_shells)
+    assert packet.current_shell_id == current_shell_id + delta_shell
+
+#SAYS WE NEED TO FIX/REMOVE PACKET CALC ENERGY BY MOVING DOPPLER FACTOR TO FUNCTION
+"""
+@pytest.mark.parametrize(
+    ['distance_trace', 'time_explosion'],
+    [(0, 1),
+     (1, 1),
+     (1, 1e9)]
+)
+def test_packet_energy_limit_one(packet, distance_trace, time_explosion):
+    initial_energy = packet.energy
+    new_energy = r_packet.calc_packet_energy(packet, distance_trace, time_explosion)
+    assert_almost_equal(new_energy, initial_energy)
+"""
+def test_test_for_close_line():
+    pass
