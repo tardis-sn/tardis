@@ -273,8 +273,10 @@ class AtomData(object):
 
             if len(check_list) != 0 and len(check_list) != len(group):
                 raise AtomDataMissingError(
-                    f"The following dataframes from the related group [{', '.join(group)}] "
-                    f"were not given: {', '.join(check_list)}"
+                    group_str = ', '.join(group)
+                    check_list_str = ', '.join(check_list)
+                    f"The following dataframes from the related group [{group_str}] "
+                    f"were not given: {check_list_str}"
                 )
 
     def prepare_atom_data(
