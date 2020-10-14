@@ -157,7 +157,10 @@ def convert_blondin_toymodel(
             conversion_t_electron_rad * blondin_csv.t_electron
         )
 
-    csvy_file = f"---\n{yaml.dump(blondin_dict, default_flow_style=False)}\n---\n{blondin_csv.to_csv(index=False)}"
+    csvy_file = "---\n{0}\n---\n{1}".format(
+        yaml.dump(blondin_dict, default_flow_style=False),
+        blondin_csv.to_csv(index=False),
+    )
 
     with open(out_fname, "w") as fh:
         fh.write(csvy_file)
