@@ -154,10 +154,17 @@ def calculate_tau_electron(electron_density, distance):
 
 @njit(**njit_dict)
 def get_doppler_factor(r, mu, time_explosion):
+<<<<<<< HEAD
     inv_c = 1 / C_SPEED_OF_LIGHT
     inv_t = 1/time_explosion
     beta = r * inv_t * inv_c
     if not numba_config.ENABLE_FULL_RELATIVITY:
+=======
+    beta = r / (time_explosion * C_SPEED_OF_LIGHT)
+    if beta > 1.:  # TODO: check speed penalty
+        raise SuperluminalError
+    if not montecarlo_configuration.full_relativity:
+>>>>>>> upstream/pr/1217
         return get_doppler_factor_partial_relativity(mu, beta)
     else:
         return get_doppler_factor_full_relativity(mu, beta)
@@ -168,15 +175,27 @@ def get_doppler_factor_partial_relativity(mu, beta):
 
 @njit(**njit_dict)
 def get_doppler_factor_full_relativity(mu, beta):
+<<<<<<< HEAD
     return (1.0 - mu * beta) / math.sqrt(1 - beta * beta)
+=======
+    # todo: check numpy vs other sqrt
+    return (1.0 - mu * beta) / np.sqrt(1 - beta * beta)
+>>>>>>> upstream/pr/1217
 
 
 @njit(**njit_dict)
 def get_inverse_doppler_factor(r, mu, time_explosion):
+<<<<<<< HEAD
     inv_c = 1 / C_SPEED_OF_LIGHT
     inv_t = 1 / time_explosion
     beta = r * inv_t * inv_c
     if not numba_config.ENABLE_FULL_RELATIVITY:
+=======
+    beta = (r / time_explosion) / C_SPEED_OF_LIGHT
+    if beta > 1.:
+        raise SuperluminalError
+    if not montecarlo_configuration.full_relativity:
+>>>>>>> upstream/pr/1217
         return get_inverse_doppler_factor_partial_relativity(mu, beta)
     else:
         return get_inverse_doppler_factor_full_relativity(mu, beta)
@@ -187,7 +206,12 @@ def get_inverse_doppler_factor_partial_relativity(mu, beta):
 
 @njit(**njit_dict)
 def get_inverse_doppler_factor_full_relativity(mu, beta):
+<<<<<<< HEAD
     return (1.0 + mu * beta) / math.sqrt(1 - beta * beta)
+=======
+    # TODO: check numpy vs. other sqrt
+    return (1.0 + mu * beta) / np.sqrt(1 - beta * beta)
+>>>>>>> upstream/pr/1217
 
 @njit(**njit_dict)
 def get_random_mu():
