@@ -120,8 +120,8 @@ def calculate_distance_line(
         distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
     else:
         print('WARNING: nu difference is less than 0.0')
-        #raise MonteCarloException('nu difference is less than 0.0; for more'
-        #                          ' information, see print statement beforehand')
+        raise MonteCarloException('nu difference is less than 0.0; for more'
+                                  ' information, see print statement beforehand')
 
     if numba_config.ENABLE_FULL_RELATIVITY:
         return calculate_distance_line_full_relativity(nu_line, nu,
