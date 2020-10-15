@@ -120,8 +120,8 @@ def calculate_distance_line(
         distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
     else:
         print('WARNING: nu difference is less than 0.0')
-        #raise MonteCarloException('nu difference is less than 0.0; for more'
-        #                          ' information, see print statement beforehand')
+        raise MonteCarloException('nu difference is less than 0.0; for more'
+                                  ' information, see print statement beforehand')
 
     if numba_config.ENABLE_FULL_RELATIVITY:
         return calculate_distance_line_full_relativity(nu_line, nu,
@@ -171,6 +171,7 @@ def get_doppler_factor_full_relativity(mu, beta):
     return (1.0 - mu * beta) / math.sqrt(1 - beta * beta)
 
 
+
 @njit(**njit_dict)
 def get_inverse_doppler_factor(r, mu, time_explosion):
     inv_c = 1 / C_SPEED_OF_LIGHT
@@ -188,6 +189,7 @@ def get_inverse_doppler_factor_partial_relativity(mu, beta):
 @njit(**njit_dict)
 def get_inverse_doppler_factor_full_relativity(mu, beta):
     return (1.0 + mu * beta) / math.sqrt(1 - beta * beta)
+
 
 @njit(**njit_dict)
 def get_random_mu():

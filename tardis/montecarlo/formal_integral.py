@@ -6,9 +6,12 @@ from scipy.interpolate import interp1d
 from astropy import units as u
 from tardis import constants as const
 from numba import jitclass, njit
+import pdb
 
 
 from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.montecarlo.montecarlo_numba.numba_interface \
+    import numba_plasma_initialize
 
 from tardis.montecarlo.montecarlo import formal_integral
 from tardis.montecarlo.spectrum import TARDISSpectrum
@@ -17,6 +20,7 @@ C_INV = 3.33564e-11
 M_PI = np.arccos(-1)
 KB_CGS = 1.3806488e-16
 H_CGS = 6.62606957e-27
+SIGMA_THOMSON = 6.652486e-25
 
 class IntegrationError(Exception):
     pass
@@ -33,7 +37,10 @@ class FormalIntegrator(object):
 
     def __init__(self, model, plasma, runner, points=1000):
         self.model = model
-        self.plasma = plasma
+        if plasma:
+            self.plasma = numba_plasma_initialize(plasma)
+            self.atomic_data = plasma.atomic_data
+            self.original_plasma = plasma
         self.runner = runner
         self.points = points
 
@@ -81,8 +88,7 @@ class FormalIntegrator(object):
         frequency = frequency.to('Hz', u.spectral())
 
         luminosity = u.Quantity(
-                formal_integral(
-                    self,
+                self.formal_integral(
                     frequency,
                     N),
                 'erg'
@@ -119,25 +125,24 @@ class FormalIntegrator(object):
         """
 
         model = self.model
-        plasma = self.plasma
         runner = self.runner
-        atomic_data = self.plasma.atomic_data
-        macro_ref = atomic_data.macro_atom_references
-        macro_data = atomic_data.macro_atom_data
 
-        no_lvls = len(atomic_data.levels)
+        macro_ref = self.atomic_data.macro_atom_references
+        macro_data = self.atomic_data.macro_atom_data
+
+        no_lvls = len(self.atomic_data.levels)
         no_shells = len(model.w)
 
         if runner.line_interaction_type == 'macroatom':
             internal_jump_mask = (macro_data.transition_type >= 0).values
             ma_int_data = macro_data[internal_jump_mask]
-            internal = plasma.transition_probabilities[internal_jump_mask]
+            internal = self.original_plasma.transition_probabilities[internal_jump_mask]
 
             source_level_idx = ma_int_data.source_level_idx.values
             destination_level_idx = ma_int_data.destination_level_idx.values 
 
         Edotlu_norm_factor = (1 / (runner.time_of_simulation * model.volume))
-        exptau = 1 - np.exp(- plasma.tau_sobolevs)
+        exptau = 1 - np.exp(-self.plasma.tau_sobolev)
         Edotlu = Edotlu_norm_factor * exptau * runner.Edotlu_estimator
 
         # The following may be achieved by calling the appropriate plasma
@@ -149,7 +154,7 @@ class FormalIntegrator(object):
         # the transition l->u
         Jbluelu = runner.j_blue_estimator * Jbluelu_norm_factor
 
-        upper_level_index = atomic_data.lines.index.droplevel('level_number_lower')
+        upper_level_index = self.atomic_data.lines.index.droplevel('level_number_lower')
         e_dot_lu          = pd.DataFrame(Edotlu, index=upper_level_index)
         e_dot_u           = e_dot_lu.groupby(level=[0, 1, 2]).sum()
         e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
@@ -168,13 +173,14 @@ class FormalIntegrator(object):
                 e_dot_u_vec[e_dot_u_src_idx] = e_dot_u[shell].values
                 C_frame[shell] = sp.linalg.spsolve(inv_N.T, e_dot_u_vec)
 
+
         e_dot_u.index.names = ['atomic_number', 'ion_number', 'source_level_number'] # To make the q_ul e_dot_u product work, could be cleaner
-        transitions       = atomic_data.macro_atom_data[atomic_data.macro_atom_data.transition_type == -1].copy()
+        transitions       = self.original_plasma.atomic_data.macro_atom_data[self.original_plasma.atomic_data.macro_atom_data.transition_type == -1].copy()
         transitions_index = transitions.set_index(['atomic_number', 'ion_number', 'source_level_number']).index.copy()
-        tmp  = plasma.transition_probabilities[(atomic_data.macro_atom_data.transition_type == -1).values]
+        tmp  = self.original_plasma.transition_probabilities[(self.atomic_data.macro_atom_data.transition_type == -1).values]
         q_ul = tmp.set_index(transitions_index)
         t    = model.time_explosion.value
-        lines = atomic_data.lines.set_index('line_id')
+        lines = self.atomic_data.lines.set_index('line_id')
         wave = lines.wavelength_cm.loc[transitions.transition_line_id].values.reshape(-1,1)
         if runner.line_interaction_type == 'macroatom':
             e_dot_u = C_frame.loc[e_dot_u.index]
@@ -185,15 +191,15 @@ class FormalIntegrator(object):
 
         # Jredlu should already by in the correct order, i.e. by wavelength of
         # the transition l->u (similar to Jbluelu)
-        Jredlu = Jbluelu * np.exp(-plasma.tau_sobolevs.values) + att_S_ul
+        Jredlu = Jbluelu * np.exp(-self.plasma.tau_sobolev) + att_S_ul
         if self.interpolate_shells > 0:
             att_S_ul, Jredlu, Jbluelu, e_dot_u = self.interpolate_integrator_quantities(
                     att_S_ul, Jredlu, Jbluelu, e_dot_u)
         else:
             runner.r_inner_i = runner.r_inner_cgs
             runner.r_outer_i = runner.r_outer_cgs
-            runner.tau_sobolevs_integ = plasma.tau_sobolevs.values
-            runner.electron_densities_integ = plasma.electron_densities.values
+            runner.tau_sobolevs_integ = self.plasma.tau_sobolev
+            runner.electron_densities_integ = self.plasma.electron_density
 
         return att_S_ul, Jredlu, Jbluelu, e_dot_u
 
@@ -213,12 +219,12 @@ class FormalIntegrator(object):
         r_middle_integ = (r_integ[:-1] + r_integ[1:]) / 2.
 
         runner.electron_densities_integ = interp1d(
-                r_middle, plasma.electron_densities,
+                r_middle, plasma.electron_density,
                 fill_value='extrapolate', kind='nearest')(r_middle_integ)
         # Assume tau_sobolevs to be constant within a shell
         # (as in the MC simulation)
         runner.tau_sobolevs_integ = interp1d(
-                r_middle, plasma.tau_sobolevs,
+                r_middle, plasma.tau_sobolev,
                 fill_value='extrapolate', kind='nearest')(r_middle_integ)
         att_S_ul = interp1d(
                 r_middle, att_S_ul, fill_value='extrapolate')(r_middle_integ)
@@ -242,10 +248,6 @@ class FormalIntegrator(object):
 
         res = self.make_source_function()
 
-
-
-
-
         att_S_ul = res[0].flatten(order='F')
         Jred_lu = res[1].flatten(order='F')
         Jblue_lu = res[2].flatten(order='F')
@@ -267,8 +269,8 @@ class FormalIntegrator(object):
         # Initialize the output which is shared among threads
         L = np.zeros(inu_size)
         # global read-only values
-        size_line = self.model.no_of_lines # check
-        size_shell = self.model.no_of_shells_i # check
+        size_line = len(self.plasma.line_list_nu)
+        size_shell = self.model.no_of_shells # check
         size_tau = size_line * size_shell
         finished_nus = 0
 
@@ -278,19 +280,17 @@ class FormalIntegrator(object):
         exp_tau = np.zeros(size_tau)
         # TODO: multiprocessing
         offset = 0
-        i = 0
         size_z = 0
+        z = np.zeros(2 * self.model.no_of_shells)
         idx_nu_start = 0
         direction = 0
-        first = 0
         I_nu = np.zeros(N)
-        shell_id = np.zeros(2 * self.runner.no_of_shells_i)  # check
+        shell_id = np.zeros(2 * self.model.no_of_shells)
         # instantiate more variables here, maybe?
 
         # prepare exp_tau
-        for i in range(size_tau):
-            exp_tau[i] = np.exp(-self.model.line_lists_tau_sobolevs_i[i]) # check
-        pp = self.calculate_p_values(R_max, N, pp)
+        exp_tau = np.exp(-self.plasma.tau_sobolev) # check
+        pp = calculate_p_values(R_max, N, pp)
 
         # done with instantiation
         # now loop over wavelength in spectrum
@@ -313,38 +313,39 @@ class FormalIntegrator(object):
                 # find first contributing lines
                 nu_start = nu * z[0]
                 nu_end = nu * z[1]
-                self.line_search(nu_start, size_line, idx_nu_start)
+                idx_nu_start = line_search(self.plasma.line_list_nu,
+                                           nu_start, size_line, idx_nu_start)
                 offset = shell_id[0] * size_line
 
                 # start tracking accumulated e-scattering optical depth
                 zstart = self.model.time_explosion / C_INV * (1. - z[0])
 
                 # Initialize "pointers"
-                pline = self.runner.line_list_nu + idx_nu_start;
-                pexp_tau = exp_tau + offset + idx_nu_start;
-                patt_S_ul = att_S_ul + offset + idx_nu_start;
-                pJred_lu = Jred_lu + offset + idx_nu_start;
-                pJblue_lu = Jblue_lu + offset + idx_nu_start;
+                pline = self.plasma.line_list_nu + idx_nu_start
+                pexp_tau = exp_tau + offset + idx_nu_start
+                patt_S_ul = att_S_ul + offset + idx_nu_start
+                pJred_lu = Jred_lu + offset + idx_nu_start
+                pJblue_lu = Jblue_lu + offset + idx_nu_start
 
                 # flag for first contribution to integration on current p-ray
                 first = 1
 
                 # loop over all interactions
                 for i in range(size_z - 1):
-                    escat_op = self.model.electron_densities_i[shell_id[i]] * sigma_thomson # change sigma_thomson
+                    escat_op = self.plasma.electron_density[int(shell_id[i])] * SIGMA_THOMSON
                     nu_end = nu * z[i + 1]
-                    while pline < self.model.ine_list_nu + size_line: # check ;pline
+                    while np.all(pline < self.plasma.line_list_nu + size_line): # check all condition
                         # increment all pointers simulatenously
                         pline += 1
                         pexp_tau += 1
                         patt_S_ul += 1
                         pJblue_lu += 1
 
-                        if (pline[0] < nu_end):
+                        if (pline[0] < nu_end.value):
                             break
 
                         # calculate e-scattering optical depth to next resonance point
-                        zend = self.model.time_explosion / C_INV * (1. - pline / nu) # check
+                        zend = self.model.time_explosion / C_INV * (1. - pline[0] / nu.value) # check
 
                         if first == 1:
                             # first contribution to integration
@@ -352,26 +353,27 @@ class FormalIntegrator(object):
                             #   by boundary conditions) is not in Lucy 1999;
                             #   should be re-examined carefully
                             escat_contrib += (zend - zstart) * escat_op * (
-                                pJblue_lu - I_nu[p_idx]);
+                                pJblue_lu[0] - I_nu[p_idx]);
                             first = 0;
                         else:
                             # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
-                            Jkkp = 0.5 * (pJred_lu + pJblue_lu);
+                            Jkkp = 0.5 * (pJred_lu[0] + pJblue_lu[0]);
                             escat_contrib += (zend - zstart) * escat_op * (
                                         Jkkp - I_nu[p_idx])
                             # this introduces the necessary ffset of one element between
                             # pJblue_lu and pJred_lu
                             pJred_lu += 1
-                        I_nu[p_idx] = I_nu[p_idx] + escat_contrib;
+                        # pdb.set_trace()
+                        I_nu[p_idx] = I_nu[p_idx] + escat_contrib.value
                         # // Lucy 1999, Eq 26
-                        I_nu[p_idx] = I_nu[p_idx] * (pexp_tau) + patt_S_ul # check about taking about asterisks beforehand elsewhere
+                        I_nu[p_idx] = I_nu[p_idx] * (pexp_tau[0][0]) + patt_S_ul[0] # check about taking about asterisks beforehand elsewhere
 
                         # // reset e-scattering opacity
                         escat_contrib = 0
                         zstart = zend
                     # calculate e-scattering optical depth to grid cell boundary
 
-                    Jkkp = 0.5 * (pJred_lu + pJblue_lu)
+                    Jkkp = 0.5 * (pJred_lu[0] + pJblue_lu[0])
                     zend = self.model.time_explosion / C_INV * (1. - nu_end / nu) # check
                     escat_contrib += (zend - zstart) * escat_op * (
                                 Jkkp - I_nu[p_idx])
@@ -405,14 +407,14 @@ class FormalIntegrator(object):
                 :oshell_id: (int64) will be set with the corresponding shell_ids
             """
         # abbreviations
-        r = self.model.r_outer_i
-        N = self.model.no_of_shells_i # check
+        r = self.runner.r_outer_i
+        N = self.model.no_of_shells # check
         print(N)
         inv_t = 1/self.model.time_explosion
         z = 0
         offset = N
 
-        if p <= self.model.r_inner_i[0]:
+        if p <= self.runner.r_inner_i[0]:
             # intersect the photosphere
             for i in range(N):
                 oz[i] = 1 - self.calculate_z(r[i], p, inv_t)
@@ -452,67 +454,93 @@ class FormalIntegrator(object):
             :inv_t: (double) inverse time_explosio is needed to norm to unit-length
         """
         if r > p:
-            return np.sqrt(r * r - p * p) * C_INV * inv_t
+            return np.sqrt(r * r - p * p) * C_INV * inv_t.value
         else:
             return 0
 
-    @njit(**njit_dict)
-    def line_search(self, nu, nu_insert, number_of_lines, result):
-        """
-        Insert a value in to an array of line frequencies
+class BoundsError(ValueError):
+    pass
 
-        Inputs:
-            :nu: (array) line frequencies
-            :nu_insert: (int) value of nu key
-            :number_of_lines: (int) number of lines in the line list
+@njit(**njit_dict)
+def line_search(nu, nu_insert, number_of_lines, result):
+    """
+    Insert a value in to an array of line frequencies
 
-        Outputs:
-            index of the next line ot the red.
-                    If the key value is redder
-                     than the reddest line returns number_of_lines.
-        """
-        # TODO: fix the TARDIS_ERROR_OK
-        # tardis_error_t ret_val = TARDIS_ERROR_OK # check
-        imin = 0
-        imax = number_of_lines - 1
-        if nu_insert > nu[imin]:
-            result = imin
-        elif nu_insert < nu[imax]:
-            result = imax + 1
-        else:
-            ret_val = self.reverse_binary_search(nu, nu_insert, imin, imax, result)
-            result = result + 1
-        return ret_val
+    Inputs:
+        :nu: (array) line frequencies
+        :nu_insert: (int) value of nu key
+        :number_of_lines: (int) number of lines in the line list
 
-    @njit(**njit_dict)
-    def reverse_binary_search(self, x, x_insert, imin, imax, result):
-        """Look for a place to insert a value in an inversely sorted float array.
+    Outputs:
+        index of the next line ot the red.
+                If the key value is redder
+                 than the reddest line returns number_of_lines.
+    """
+    # TODO: fix the TARDIS_ERROR_OK
+    # tardis_error_t ret_val = TARDIS_ERROR_OK # check
+    imin = 0
+    imax = number_of_lines - 1
+    if nu_insert > nu[imin]:
+        result = imin
+    elif nu_insert < nu[imax]:
+        result = imax + 1
+    else:
+        result = reverse_binary_search(nu, nu_insert, imin, imax, result)
+        result = result + 1
+    return result
 
-        Inputs:
-            :x: (array) an inversely (largest to lowest) sorted float array
-            :x_insert: (value) a value to insert
-            :imin: (int) lower bound
-            :imax: (int) upper bound
+@njit(**njit_dict)
+def reverse_binary_search(x, x_insert, imin, imax, result):
+    """Look for a place to insert a value in an inversely sorted float array.
 
-        Outputs:
-            index of the next boundary to the left
-        """
-        # ret_val = TARDIS_ERROR_OK # check
-        if x_insert > x[imin] or x_insert < x[imax]:
-            ret_val = TARDIS_ERROR_BOUNDS_ERROR # check
-        else:
-            imid = (imin + imax) >> 1
-            while imax - imin > 2:
-                if (x[imid] < x_insert):
-                    imax = imid + 1
-                else:
-                    imin = imid
-                imid = (imin + imax) >> 1
-            if (imax - imin == 2 and x_insert < x[imin + 1]):
-                result = imin + 1
+    Inputs:
+        :x: (array) an inversely (largest to lowest) sorted float array
+        :x_insert: (value) a value to insert
+        :imin: (int) lower bound
+        :imax: (int) upper bound
+
+    Outputs:
+        index of the next boundary to the left
+    """
+    # ret_val = TARDIS_ERROR_OK # check
+    if x_insert > x[imin] or x_insert < x[imax]:
+        raise BoundsError # check
+    else:
+        imid = (imin + imax) >> 1
+        while imax - imin > 2:
+            if (x[imid] < x_insert):
+                imax = imid + 1
             else:
-                result = imin
-        return ret_val
+                imin = imid
+            imid = (imin + imax) >> 1
+        if (imax - imin == 2 and x_insert < x[imin + 1]):
+            result = imin + 1
+        else:
+            result = imin
+    return result
+
+@njit(**njit_dict)
+def binary_search(x, x_insert, imin, imax, result):
+    # TODO: actually return result
+    if x_insert < x[imin] or x_insert > x[imax]:
+        raise BoundsError
+    else:
+        while imax >= imin:
+            imid = (imin + imax) / 2
+            if x[imid] == x_insert:
+                result = imid
+                break
+            elif x[imid] < x_insert:
+                imin = imid + 1
+            else:
+                imax = imid - 1
+        if imax - imid == 2 and x_insert < x[imin + 1]:
+            result = imin
+        else:
+            result = imin # check
+    return result
+
+
 
 @njit(**njit_dict)
 def trapezoid_integration(array, h, N):
