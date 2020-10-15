@@ -40,7 +40,7 @@ steps:
       displayName: 'Set package manager'
 
   - ${{ if eq(parameters.fetchRefdata, true) }}:
-    - bash1: |
+    - bash: |
         git clone https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata $(refdata.dir)
       displayName: 'Fetch reference data repository from Azure Repos'
 
