@@ -39,12 +39,9 @@ steps:
         echo "##vso[task.setvariable variable=package.manager]mamba"
       displayName: 'Set package manager'
 
-  - checkout: self
-    displayName: 'Fetch TARDIS repository from GitHub'
-
   - ${{ if eq(parameters.fetchRefdata, true) }}:
-    - checkout: git://TARDIS/tardis-refdata
-      lfs: true
+    - bash1: |
+        git clone https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata $(refdata.dir)
       displayName: 'Fetch reference data repository from Azure Repos'
 
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
