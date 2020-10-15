@@ -1,5 +1,6 @@
 from numba import float64, int64, boolean
-from numba import jitclass, njit, gdb
+from numba import njit, gdb
+from numba.experimental import jitclass
 
 from tardis.montecarlo.montecarlo_numba import njit_dict
 from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration

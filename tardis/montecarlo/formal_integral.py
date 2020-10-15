@@ -5,7 +5,7 @@ import scipy.sparse as sp
 from scipy.interpolate import interp1d
 from astropy import units as u
 from tardis import constants as const
-from numba import jitclass, njit
+from numba import njit
 import pdb
 
 
