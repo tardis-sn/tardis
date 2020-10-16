@@ -38,7 +38,7 @@ class FormalIntegrator(object):
     def __init__(self, model, plasma, runner, points=1000):
         self.model = model
         if plasma:
-            self.plasma = numba_plasma_initialize(plasma)
+            self.plasma = numba_plasma_initialize(plasma, runner.line_interaction_type)
             self.atomic_data = plasma.atomic_data
             self.original_plasma = plasma
         self.runner = runner
