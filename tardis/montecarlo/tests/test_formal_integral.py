@@ -14,6 +14,9 @@ from tardis.util.base import intensity_black_body
 import tardis.montecarlo.formal_integral as formal_integral
 
 
+pytestmark = pytest.mark.skip(reason='Port from C to numba')
+
+
 @pytest.mark.parametrize(
         ['nu', 'T'],
         [
@@ -88,7 +91,7 @@ def formal_integral_model(request, model):
     model.r_inner_i.contents = as_ctypes(r[:-1])
     return model
 
-
+@pytest.mark.xfail(reason='not implemented')
 @pytest.mark.parametrize(
         'p',
         [0, 0.5, 1]

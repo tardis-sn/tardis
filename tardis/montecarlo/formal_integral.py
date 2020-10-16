@@ -386,7 +386,7 @@ class FormalIntegrator(object):
                         patt_S_ul += direction * size_line
                         pJred_lu += direction * size_line
                         pJblue_lu += direction * size_line
-                I_nu[p_idx] *= p;
+                I_nu[p_idx] *= p
             L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max / N,
                                                                 N)
             # something pragma op atomic

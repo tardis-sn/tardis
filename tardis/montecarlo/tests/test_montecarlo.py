@@ -56,6 +56,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
 from tardis.montecarlo.montecarlo_numba import macro_atom
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
 
+pytestmark = pytest.mark.skip(reason='Port from C to numba')
 
 
 from ctypes import (

@@ -60,16 +60,21 @@ def plasma():
         transition_line_id=np.zeros(2, dtype=np.int64)
     )
 
+
+@pytest.mark.xfail(reason='To be implemented')
 def test_trace_vpacket_within_shell(v_packet, model, plasma):
-    tau_trace_combined, distance_boundary, delta_shell = vpacket.trace_vpacket_within_shell(
-                                                                                    v_packet, 
-                                                                                    model,
-                                                                                    plasma)
+    #tau_trace_combined, distance_boundary, delta_shell = vpacket.trace_vpacket_within_shell(
+    #                                                                                v_packet,
+    #                                                                                model,
+    #                                                                                plasma)
     assert False
 
+
+@pytest.mark.xfail(reason='To be implemented')
 def test_trace_vpacket():
     assert False
 
+@pytest.mark.xfail(reason='To be implemented')
 def test_trace_vpacket_volley():
     assert False
 

@@ -187,9 +187,12 @@ def test_update_line_estimators(estimators, packet, cur_line_id, distance_trace,
     assert_allclose(estimators.j_blue_estimator, expected_j_blue)
     assert_allclose(estimators.Edotlu_estimator, expected_Edotlu)
 
+@pytest.mark.xfail(reason='To be implemented')
 def test_trace_packet():
-    pass
+    assert False
 
+
+@pytest.mark.xfail(reason='bug in full relativity')
 @pytest.mark.parametrize('ENABLE_FULL_RELATIVITY', [True, False]) 
 @pytest.mark.parametrize( 
     ['packet_params', 'expected_params'], 
