@@ -28,9 +28,9 @@ def test_verysimple_single_packet_loop(verysimple_numba_model,
     single_packet_loop(
         r_packet, numba_model, numba_plasma, numba_estimators, vpacket_collection)
 
-    npt.assert_is_close(r_packet.nu, 1405610115898994.5)
-    npt.assert_is_close(r_packet.mu, 0.9611146425440562)
-    npt.assert_is_close(r_packet.energy, 0.10327717505563379)
+    npt.assert_almost_equal(r_packet.nu, 1405610115898994.5)
+    npt.assert_almost_equal(r_packet.mu, 0.9611146425440562)
+    npt.assert_almost_equal(r_packet.energy, 0.10327717505563379)
 
 @pytest.mark.xfail(reason='To be implemented')
 def test_set_packet_props_partial_relativity():
