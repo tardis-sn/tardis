@@ -25,6 +25,7 @@ Currently some information are available for
 .. toctree::
     new_plasma
     montecarlo/index
+    gamma_ray_deposition
 
 
 Old Physics Section of the TARDIS Docu (Outdated)
