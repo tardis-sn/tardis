@@ -79,7 +79,7 @@ def verysimple_packet_collection(nb_simulation_verysimple):
                                          runner._output_nu,
                                          runner._output_energy)
 
-@pytest.fixture(scope="package")
+@pytest.fixture(scope="function")
 def packet():
     return RPacket(
         r = 7.5e14,
