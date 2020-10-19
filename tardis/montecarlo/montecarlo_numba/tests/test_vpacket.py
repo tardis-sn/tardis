@@ -37,7 +37,6 @@ def v_packet_initialize_line_id(v_packet, numba_plasma, numba_model):
                         np.searchsorted(inverse_line_list_nu, comov_nu))
         v_packet.next_line_id = next_line_id
 
-#@pytest.mark.xfail(reason='To be implemented')
 def test_trace_vpacket_within_shell(v_packet, verysimple_numba_model, verysimple_numba_plasma):
     #Give the vpacket a reasonable line ID
     v_packet_initialize_line_id(v_packet, verysimple_numba_plasma, verysimple_numba_model)
@@ -52,11 +51,35 @@ def test_trace_vpacket_within_shell(v_packet, verysimple_numba_model, verysimple
     assert delta_shell == 1
 
 
-@pytest.mark.xfail(reason='To be implemented')
-def test_trace_vpacket():
-    assert False
+def test_trace_vpacket(v_packet, verysimple_numba_model, verysimple_numba_plasma):
+    #Set seed because of RNG in trace_vpacket
+    np.random.seed(1)
 
-@pytest.mark.xfail(reason='To be implemented')
-def test_trace_vpacket_volley():
-    assert False
+    #Give the vpacket a reasonable line ID
+    v_packet_initialize_line_id(v_packet, verysimple_numba_plasma, verysimple_numba_model)  
 
+    tau_trace_combined = vpacket.trace_vpacket(v_packet, verysimple_numba_model, verysimple_numba_plasma)
+
+    npt.assert_almost_equal(tau_trace_combined, 8164850.891288479)
+    npt.assert_almost_equal(v_packet.r, 1286064000000000.0)
+    npt.assert_almost_equal(v_packet.nu, 4.0e15)
+    npt.assert_almost_equal(v_packet.energy, 0.0)
+    npt.assert_almost_equal(v_packet.mu, 0.8309726858508629)
+    assert v_packet.next_line_id == 2773
+    assert v_packet.is_close_line == False
+    assert v_packet.current_shell_id == 1
+
+#Needs an actual test instead of just running the function
+def test_trace_vpacket_volley(
+                            packet, 
+                            verysimple_packet_collection, 
+                            verysimple_3vpacket_collection, 
+                            verysimple_numba_model, 
+                            verysimple_numba_plasma
+                            ):
+    #Set seed because of RNG in trace_vpacket
+    np.random.seed(1)
+
+    packet.initialize_line_id(verysimple_numba_plasma, verysimple_numba_model)
+
+    vpacket.trace_vpacket_volley(packet, verysimple_3vpacket_collection, verysimple_numba_model, verysimple_numba_plasma)

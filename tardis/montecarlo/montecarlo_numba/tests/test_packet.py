@@ -20,18 +20,6 @@ from numpy.testing import (
         )
 
 @pytest.fixture(scope="function")
-def packet():
-    return r_packet.RPacket(
-        r = 7.5e14,
-        nu = 0.4,
-        mu = 0.3,
-        energy = 0.9,
-        seed = 1963,
-        index = 0,
-        is_close_line = 0
-    )
-
-@pytest.fixture(scope="function")
 def model():
     return numba_interface.NumbaModel(
         r_inner = np.array([6.912e14, 8.64e14], dtype=np.float64),

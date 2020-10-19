@@ -62,9 +62,31 @@ def verysimple_vpacket_collection(nb_simulation_verysimple):
 
 
 @pytest.fixture(scope='package')
+def verysimple_3vpacket_collection(nb_simulation_verysimple):
+    spectrum_frequency = nb_simulation_verysimple.runner.spectrum_frequency.value
+    return VPacketCollection(spectrum_frequency=spectrum_frequency,
+                             number_of_vpackets=3,
+                             v_packet_spawn_start_frequency=0,
+                             v_packet_spawn_end_frequency=np.inf,
+                             temporary_v_packet_bins=20000)
+
+
+@pytest.fixture(scope='package')
 def verysimple_packet_collection(nb_simulation_verysimple):
     runner = nb_simulation_verysimple.runner
     return PacketCollection(runner.input_nu, runner.input_mu,
                                          runner.input_energy,
                                          runner._output_nu,
                                          runner._output_energy)
+
+@pytest.fixture(scope="package")
+def packet():
+    return RPacket(
+        r = 7.5e14,
+        nu = 0.4,
+        mu = 0.3,
+        energy = 0.9,
+        seed = 1963,
+        index = 0,
+        is_close_line = 0
+    )
