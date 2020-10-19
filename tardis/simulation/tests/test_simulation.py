@@ -11,14 +11,6 @@ import astropy.units as u
 
 
 @pytest.fixture(scope="module")
-def refdata(tardis_ref_data):
-    def get_ref_data(key):
-        return tardis_ref_data[os.path.join("test_simulation", key)]
-
-    return get_ref_data
-
-
-@pytest.fixture(scope="module")
 def config():
     return Configuration.from_yaml(
         "tardis/io/tests/data/tardis_configv1_verysimple.yml"
@@ -27,7 +19,7 @@ def config():
 
 @pytest.fixture(scope="module")
 def simulation_one_loop(
-    atomic_data_fname, config, tardis_ref_data, generate_reference
+    atomic_data_fname, config
 ):
     config.atom_data = atomic_data_fname
     config.montecarlo.iterations = 2
@@ -36,29 +28,9 @@ def simulation_one_loop(
 
     simulation = Simulation.from_config(config)
     simulation.run()
+    return simulation
 
-    if not generate_reference:
-        return simulation
-    else:
-        simulation.hdf_properties = [
-            "iterations_w",
-            "iterations_t_rad",
-            "iterations_electron_densities",
-            "iterations_t_inner",
-        ]
-        simulation.model.hdf_properties = ["t_radiative", "dilution_factor"]
-        simulation.runner.hdf_properties = [
-            "j_estimator",
-            "nu_bar_estimator",
-            "output_nu",
-            "output_energy",
-        ]
-        simulation.to_hdf(tardis_ref_data, "", "test_simulation")
-        simulation.model.to_hdf(tardis_ref_data, "", "test_simulation")
-        simulation.runner.to_hdf(tardis_ref_data, "", "test_simulation")
-        pytest.skip("Reference data was generated during this run.")
-
-
+@pytest.mark.array_compare(file_format='pdhdf')
 @pytest.mark.parametrize(
     "name",
     [
@@ -70,17 +42,17 @@ def simulation_one_loop(
         "output_energy",
     ],
 )
-def test_plasma_estimates(simulation_one_loop, refdata, name):
+def test_plasma_estimates(simulation_one_loop, name):
     try:
         actual = getattr(simulation_one_loop.runner, name)
     except AttributeError:
         actual = getattr(simulation_one_loop.model, name)
 
+
     actual = pd.Series(actual)
+    return actual
 
-    pdt.assert_almost_equal(actual, refdata(name))
-
-
+@pytest.mark.array_compare(file_format='pdhdf')
 @pytest.mark.parametrize(
     "name",
     [
@@ -90,7 +62,7 @@ def test_plasma_estimates(simulation_one_loop, refdata, name):
         "iterations_t_inner",
     ],
 )
-def test_plasma_state_iterations(simulation_one_loop, refdata, name):
+def test_plasma_state_iterations(simulation_one_loop, name):
     actual = getattr(simulation_one_loop, name)
 
     try:
@@ -98,7 +70,8 @@ def test_plasma_state_iterations(simulation_one_loop, refdata, name):
     except Exception:
         actual = pd.DataFrame(actual)
 
-    pdt.assert_almost_equal(actual, refdata(name))
+    return actual
+
 
 
 @pytest.fixture(scope="module")

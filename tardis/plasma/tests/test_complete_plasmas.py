@@ -157,33 +157,28 @@ class TestPlasma(object):
         return config
 
     @pytest.fixture(scope="class")
-    def plasma(self, request, chianti_he_db_fpath, config, tardis_ref_data):
+    def plasma(self, request, chianti_he_db_fpath, config):
         config["atom_data"] = chianti_he_db_fpath
         sim = Simulation.from_config(config)
-        if request.config.getoption("--generate-reference"):
-            sim.plasma.to_hdf(tardis_ref_data, path=config.plasma.save_path)
-            pytest.skip("Reference data saved at {0}".format(tardis_ref_data))
         return sim.plasma
 
+    @pytest.mark.array_compare(file_format='pdhdf')
     @pytest.mark.parametrize("attr", combined_properties)
-    def test_plasma_properties(self, plasma, tardis_ref_data, config, attr):
+    def test_plasma_properties(self, plasma, config, attr):
         if hasattr(plasma, attr):
             actual = getattr(plasma, attr)
             if actual.ndim == 1:
                 actual = pd.Series(actual)
             else:
                 actual = pd.DataFrame(actual)
-            key = os.path.join(config.plasma.save_path, "plasma", attr)
-            expected = tardis_ref_data[key]
-            pdt.assert_almost_equal(actual, expected)
+            return actual
         else:
-            warnings.warn('Property "{}" not found'.format(attr))
+            pytest.skip(f'Property "{attr}" not found - skipping')
 
-    def test_levels(self, plasma, tardis_ref_data, config):
-        actual = pd.DataFrame(plasma.levels)
-        key = os.path.join(config.plasma.save_path, "plasma", "levels")
-        expected = tardis_ref_data[key]
-        pdt.assert_almost_equal(actual, expected)
+    @pytest.mark.array_compare(file_format='pdhdf')
+    def test_levels(self, plasma):
+        return pd.DataFrame(plasma.levels)
+
 
     @pytest.mark.parametrize("attr", scalars_properties)
     def test_scalars_properties(self, plasma, tardis_ref_data, config, attr):
@@ -194,15 +189,13 @@ class TestPlasma(object):
         expected = tardis_ref_data[key][attr]
         pdt.assert_almost_equal(actual, expected)
 
-    def test_helium_treatment(self, plasma, tardis_ref_data, config):
-        actual = plasma.helium_treatment
-        key = os.path.join(config.plasma.save_path, "plasma", "scalars")
-        expected = tardis_ref_data[key]["helium_treatment"]
-        assert actual == expected
+    @pytest.mark.array_compare(file_format='pdhdf')
+    def test_helium_treatment(self, plasma, config):
+        return pd.Series(plasma.helium_treatment)
 
-    def test_zeta_data(self, plasma, tardis_ref_data, config):
+    @pytest.mark.array_compare(file_format='pdhdf')
+    def test_zeta_data(self, plasma, config):
         if hasattr(plasma, "zeta_data"):
-            actual = plasma.zeta_data
-            key = os.path.join(config.plasma.save_path, "plasma", "zeta_data")
-            expected = tardis_ref_data[key]
-            assert_almost_equal(actual, expected.values)
+            return plasma.zeta_data
+        else:
+            pytest.skip('no zeta data available')

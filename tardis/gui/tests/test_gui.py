@@ -26,9 +26,7 @@ def config():
 
 
 @pytest.fixture(scope="module")
-def simulation_one_loop(
-    atomic_data_fname, config, tardis_ref_data, generate_reference
-):
+def simulation_one_loop(atomic_data_fname, config):
     config.atom_data = atomic_data_fname
     config.montecarlo.iterations = 2
     config.montecarlo.no_of_packets = int(4e4)
