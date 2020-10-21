@@ -1,42 +1,32 @@
-# module for fast macro_atom calculations
-
-# cython: profile=False
-# cython: boundscheck=False
-# cython: cdivision=True
-# cython: wraparound=False
-# cython: language_level=3
-
+from numba import njit
+from tardis.montecarlo.montecarlo_numba import njit_dict
 import numpy as np
+from tardis import constants as const
 
-cimport numpy as np
+h_cgs = const.h.cgs.value
+c = const.c.to('cm/s').value
+kb = const.k_B.cgs.value
+inv_c2 = 1 / (c**2)
 
-ctypedef np.int64_t int_type_t
-
-from astropy import constants
-
-
-cdef extern from "math.h":
-    double exp(double)
-
-
-cdef double h_cgs = constants.h.cgs.value
-cdef double c = constants.c.cgs.value
-cdef double kb = constants.k_B.cgs.value
-cdef double inv_c2 = 1 / (c ** 2)
-
-
+@njit(**njit_dict)
 def calculate_transition_probabilities(
-        double [:] transition_probability_coef,
-        double [:, ::1] beta_sobolev, double [:, ::1] j_blues,
-        double [:, ::1] stimulated_emission_factor,
-        int_type_t [:] transition_type,
-        int_type_t [:] lines_idx,
-        int_type_t [:] block_references,
-        double [:, ::1] transition_probabilities):
+        transition_probability_coef,
+        beta_sobolev, j_blues,
+        stimulated_emission_factor,
+        transition_type,
+        lines_idx,
+        block_references,
+        transition_probabilities):
+    """
+    Calculates transition probabilities for macro_atom interactions
 
-    cdef int i, j, k, line_idx
-    cdef np.ndarray[double, ndim=1] norm_factor = np.zeros(transition_probabilities.shape[1])
+    transition_probability_coef must be a 1D array
+    transition_type, lines_idx, and block_references must be int-type arrays
+    beta_sobolev, j_blues,stimulated_emission_factor, and transition_probabilities must be 2D array
+    """
 
+    norm_factor = np.zeros(transition_probabilities.shape[1])
+    
     for i in range(transition_probabilities.shape[0]):
         line_idx = lines_idx[i]
         for j in range(transition_probabilities.shape[1]):
