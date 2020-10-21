@@ -65,11 +65,11 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
     delta_shell = 0
     if (mu > 0.0):
         # direction outward
-        distance = math.sqrt(r_outer**2 + ((mu**2 - 1.0) * r**2)) - (r * mu)
+        distance = math.sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu)
         delta_shell = 1
     else:
         # going inward
-        check = r_inner**2 + (r**2 * (mu**2 - 1.0))
+        check = r_inner * r_inner + (r * r * (mu * mu - 1.0))
 
         if (check >= 0.0):
             # hit inner boundary 
@@ -77,7 +77,7 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
             delta_shell = -1
         else:
             # miss inner boundary 
-            distance = math.sqrt(r_outer**2 + ((mu**2 - 1.0) * r**2)) - (r * mu)
+            distance = math.sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu)
             delta_shell = 1
     
     return distance, delta_shell
@@ -137,9 +137,9 @@ def calculate_distance_line_full_relativity(nu_line, nu, time_explosion,
     nu_r = nu_line / nu
     ct = C_SPEED_OF_LIGHT * time_explosion
     distance = -r_packet.mu * r_packet.r + (
-            ct - nu_r ** 2 * math.sqrt(
-        ct ** 2 - (1 + r_packet.r ** 2 * (1 - r_packet.mu ** 2) *
-                   (1 + pow(nu_r, -2))))) / (1 + nu_r ** 2)
+            ct - nu_r * nu_r * math.sqrt(
+        ct * ct - (1 + r_packet.r * r_packet.r * (1 - r_packet.mu * r_packet.mu) *
+                   (1 + 1.0 / (nu_r * nu_r)))) / (1 + nu_r * nu_r)
     return distance
 
 @njit(**njit_dict)
@@ -399,7 +399,7 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
 
     r = r_packet.r
     if (distance > 0.0):
-        new_r = math.sqrt(r**2 + distance**2 +
+        new_r = np.sqrt(r * r + distance * distance +
                          2.0 * r * distance * r_packet.mu)
         r_packet.mu = (r_packet.mu * r + distance) / new_r
         r_packet.r = new_r

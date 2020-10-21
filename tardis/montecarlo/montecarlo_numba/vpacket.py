@@ -133,7 +133,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
                 tau_trace_combined = 0.0
              
         # Moving the v_packet
-        new_r = math.sqrt(v_packet.r**2 + distance_boundary**2 +
+        new_r = math.sqrt(v_packet.r * v_packet.r + distance_boundary * distance_boundary +
                          2.0 * v_packet.r * distance_boundary * v_packet.mu)
         v_packet.mu = (v_packet.mu * v_packet.r + distance_boundary) / new_r
         v_packet.r = new_r
@@ -173,7 +173,8 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
 
     ### TODO theoretical check for r_packet nu within vpackets bins - is done somewhere else I think
     if r_packet.r > numba_model.r_inner[0]: # not on inner_boundary
-        mu_min = -math.sqrt(1 - (numba_model.r_inner[0] / r_packet.r) ** 2)
+        r_inner_over_r = (numba_model.r_inner[0] / r_packet.r) 
+        mu_min = -math.sqrt(1 - r_inner_over_r * r_inner_over_r)
         v_packet_on_inner_boundary = False
         if montecarlo_configuration.full_relativity:
             mu_min = angle_aberration_LF_to_CMF(r_packet,
