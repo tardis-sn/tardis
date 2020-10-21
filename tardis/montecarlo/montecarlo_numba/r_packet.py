@@ -290,6 +290,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
 
     cur_line_id = start_line_id # initializing varibale for Numba
     # - do not remove
+    last_line_id = len(numba_plasma.line_list_nu) - 1
 
     for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
 
@@ -306,11 +307,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
 
         # Calculating the distance until the current photons co-moving nu
         # redshifts to the line frequency
-
-        if cur_line_id == len(numba_plasma.line_list_nu) - 1:
-            is_last_line = True
-        else:
-            is_last_line = False
+        is_last_line = cur_line_id == last_line_id
 
         distance_trace = calculate_distance_line(
             r_packet, comov_nu, is_last_line,
@@ -354,7 +351,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
             distance = distance_trace
             break
 
-        if cur_line_id != (len(numba_plasma.line_list_nu) - 1):
+        if not is_last_line:
             test_for_close_line(r_packet, cur_line_id + 1, nu_line, numba_plasma)
 
         # Recalculating distance_electron using tau_event -
@@ -525,6 +522,5 @@ def angle_aberration_LF_to_CMF(r_packet, time_explosion, mu):
 
 @njit(**njit_dict)
 def test_for_close_line(r_packet, line_id, nu_line, numba_plasma):
-    if (abs(numba_plasma.line_list_nu[line_id] - nu_line)
-            < (nu_line * CLOSE_LINE_THRESHOLD)):
-        r_packet.is_close_line = True
+    r_packet.is_close_line = (abs(numba_plasma.line_list_nu[line_id] - nu_line)
+            < (nu_line * CLOSE_LINE_THRESHOLD))
