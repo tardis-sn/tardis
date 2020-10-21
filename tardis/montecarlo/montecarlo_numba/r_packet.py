@@ -137,9 +137,14 @@ def calculate_distance_line_full_relativity(nu_line, nu, time_explosion,
     nu_r = nu_line / nu
     ct = C_SPEED_OF_LIGHT * time_explosion
     distance = -r_packet.mu * r_packet.r + (
-            ct - nu_r * nu_r * math.sqrt(
-        ct * ct - (1 + r_packet.r * r_packet.r * (1 - r_packet.mu * r_packet.mu) *
-                   (1 + 1.0 / (nu_r * nu_r)))) / (1 + nu_r * nu_r)
+                    ct - nu_r * nu_r * math.sqrt(
+                    ct * ct - (
+                            1 + r_packet.r * r_packet.r * (
+                                1 - r_packet.mu * r_packet.mu
+                                ) * (1 + 1.0 / (nu_r * nu_r))
+                            )
+                        )
+                    ) / (1 + nu_r * nu_r)
     return distance
 
 @njit(**njit_dict)
