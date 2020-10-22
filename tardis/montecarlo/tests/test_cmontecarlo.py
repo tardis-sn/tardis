@@ -48,7 +48,8 @@ import os
 import pytest
 import numpy as np
 import pandas as pd
-
+from tardis.montecarlo import packet_source as source
+import numpy.testing as npt
 
 from ctypes import (
         CDLL,
@@ -103,6 +104,24 @@ def continuum_compare_data(continuum_compare_data_fname, request):
     request.addfinalizer(fin)
 
     return compare_data
+
+@pytest.fixture(scope='module')
+def montecarlo_one_packet_data_fname(tardis_ref_path):
+    fname = 'montecarlo_one_packet_compare_data.h5'
+    return os.path.abspath(os.path.join(tardis_ref_path, fname))
+
+
+@pytest.fixture(scope='module')
+def montecarlo_one_packet_compare_data(montecarlo_one_packet_data_fname,
+                                 request):
+
+    compare_data = pd.HDFStore(montecarlo_one_packet_data_fname, mode='r')
+    def fin():
+        compare_data.close()
+    request.addfinalizer(fin)
+
+    return compare_data
+
 
 
 @pytest.fixture(scope="function")
@@ -654,9 +673,9 @@ completed together in future.
 
 
 
-@pytest.mark.skipif(True, reason="Yet to be written.")
-def test_montecarlo_one_packet(packet, model, mt_state):
-    pass
+#@pytest.mark.skipif(True, reason="Yet to be written.")
+#def test_montecarlo_one_packet(packet, model, mt_state):
+#    pass
 
 
 @pytest.mark.skipif(True, reason="Yet to be written.")
@@ -1056,3 +1075,65 @@ def test_compute_distance2line_relativistic(clib, mu, r, t_exp, nu, nu_line,
 @pytest.mark.skipif(True, reason="Yet to be written.")
 def test_montecarlo_free_free_scatter(packet, model, mt_state):
     pass
+
+
+def test_montecarlo_one_packet(montecarlo_one_packet_compare_data, 
+                                clib, model, packet, mt_state):
+
+        bb = source.BlackBodySimpleSource(1963)
+        compare_data = montecarlo_one_packet_compare_data['one_packet_loop']
+        N_PACKETS = int(1e5)
+        nus = bb.create_blackbody_packet_nus(10000, N_PACKETS)
+        mus = bb.create_zero_limb_darkening_packet_mus(N_PACKETS)
+        unif_energies = bb.create_uniform_packet_energies(N_PACKETS)
+
+        packet_data = np.empty((N_PACKETS, 6), dtype=np.float64)
+        packet_data[:, 0] = compare_data['input_nu']
+        packet_data[:, 1] = compare_data['input_mu']
+        packet_data[:, 2] = compare_data['input_energy']
+
+        model.virt_packet_count = 0
+        model.virt_array_size = 0
+        model.no_of_packets = N_PACKETS
+
+        model.packet_nus = (c_double*N_PACKETS)(*packet_data[:, 0])
+        model.packet_mus = (c_double*N_PACKETS)(*packet_data[:, 1])
+        model.packet_energies = (c_double*N_PACKETS)(*packet_data[:, 2])
+        model.output_nus = (c_double*N_PACKETS)(*packet_data[:, 3])
+        model.output_energies = (c_double*N_PACKETS)(*packet_data[:, 5])
+
+        chi_bf_tmp_partial = (c_double*2)(*([0.0]*2))       
+ 
+        clib.montecarlo_one_packet_loop.restype = c_int64
+        clib.rpacket_init.retype = c_uint
+
+        for i in range(N_PACKETS):
+
+            virtual_packet_flag = c_int64(0)
+         
+            packet.nu = packet_data[i, 0]
+            packet.mu = packet_data[i, 1]
+            packet.energy = packet_data[i, 2]
+            packet.status = TARDIS_PACKET_STATUS_IN_PROCESS
+            packet.id = i
+
+            tardis_error = clib.rpacket_init(
+                byref(packet), 
+                byref(model), 
+                i, 
+                0, 
+                byref(chi_bf_tmp_partial)
+            )
+            reabsorbed = clib.montecarlo_one_packet_loop(
+                byref(model), 
+                byref(packet), 
+                virtual_packet_flag, 
+                byref(mt_state)
+            )
+
+            packet_data[i, 3] = packet.nu
+            packet_data[i, 4] = packet.mu
+            packet_data[i, 5] = packet.energy
+
+        npt.assert_allclose(packet_data, compare_data)
+
