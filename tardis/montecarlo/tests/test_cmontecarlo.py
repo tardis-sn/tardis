@@ -105,6 +105,24 @@ def continuum_compare_data(continuum_compare_data_fname, request):
 
     return compare_data
 
+@pytest.fixture(scope='module')
+def montecarlo_one_packet_data_fname(tardis_ref_path):
+    fname = 'montecarlo_one_packet_compare_data.h4'
+    return os.path.abspath(os.path.join(tardis_ref_path, fname))
+
+
+@pytest.fixture(scope='module')
+def montecarlo_one_packet_compare_data(montecarlo_one_packet_data_fname,
+                                 request):
+
+    compare_data = pd.HDFStore(montecarlo_one_packet_data_fname, mode='r')
+    def fin():
+        compare_data.close()
+    request.addfinalizer(fin)
+
+    return compare_data
+
+
 
 @pytest.fixture(scope="function")
 def expected_ff_emissivity(continuum_compare_data):
@@ -236,23 +254,6 @@ def d_boundary_setter(d_boundary, model, packet):
 
     r = np.sqrt(r_outer**2 - d_boundary**2)
     packet.r = r
-
-
-@pytest.fixture
-def r_packet_one_packet_loop_data_fname():
-    fname = 'r_packet_one_packet_loop_data.hdf'
-    return os.path.join(path[0], 'montecarlo', 'tests', 'data', fname)
-
-@pytest.fixture
-def r_packet_one_packet_loop_compare_data(r_packet_one_packet_loop_data_fname,
-                                 request):
-
-    compare_data = pd.HDFStore(r_packet_one_packet_loop_data_fname, mode='a')
-    def fin():
-        compare_data.close()
-    request.addfinalizer(fin)
-
-    return compare_data
 
 
 
@@ -1076,19 +1077,20 @@ def test_montecarlo_free_free_scatter(packet, model, mt_state):
     pass
 
 
-def test_montecarlo_one_packet(r_packet_one_packet_loop_compare_data, 
+def test_montecarlo_one_packet(montecarlo_one_packet_compare_data, 
                                 clib, model, packet, mt_state):
 
         bb = source.BlackBodySimpleSource(1963)
+        compare_data = montecarlo_one_packet_compare_data['one_packet_loop']
         N_PACKETS = int(1e5)
         nus = bb.create_blackbody_packet_nus(10000, N_PACKETS)
         mus = bb.create_zero_limb_darkening_packet_mus(N_PACKETS)
         unif_energies = bb.create_uniform_packet_energies(N_PACKETS)
 
         packet_data = np.empty((N_PACKETS, 6), dtype=np.float64)
-        packet_data[:, 0] = nus
-        packet_data[:, 1] = mus
-        packet_data[:, 2] = unif_energies
+        packet_data[:, 0] = compare_data['input_nu']
+        packet_data[:, 1] = compare_data['input_mu']
+        packet_data[:, 2] = compare_data['input_energy']
 
         model.virt_packet_count = 0
         model.virt_array_size = 0
@@ -1133,7 +1135,5 @@ def test_montecarlo_one_packet(r_packet_one_packet_loop_compare_data,
             packet_data[i, 4] = packet.mu
             packet_data[i, 5] = packet.energy
 
-        npt.assert_allclose(packet_data, 
-                r_packet_one_packet_loop_compare_data['one_packet_loop']
-        )
+        npt.assert_allclose(packet_data, compare_data)
 
