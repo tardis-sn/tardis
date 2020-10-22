@@ -107,7 +107,7 @@ def continuum_compare_data(continuum_compare_data_fname, request):
 
 @pytest.fixture(scope='module')
 def montecarlo_one_packet_data_fname(tardis_ref_path):
-    fname = 'montecarlo_one_packet_compare_data.h4'
+    fname = 'montecarlo_one_packet_compare_data.h5'
     return os.path.abspath(os.path.join(tardis_ref_path, fname))
 
 
