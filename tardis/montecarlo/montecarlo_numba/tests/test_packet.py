@@ -73,21 +73,21 @@ def test_calculate_distance_boundary(packet_params, expected_params, model):
      ({'nu_line': 0.6, 'next_line_id': 0, 'is_last_line': False},
       {'tardis_error': r_packet.MonteCarloException, 'd_line': 0.0})]
 )
-def test_calculate_distance_line(packet_params, expected_params, packet, model):
+def test_calculate_distance_line(packet_params, expected_params, static_packet, model):
     nu_line = packet_params['nu_line']
     is_last_line = packet_params['is_last_line']
 
     time_explosion = model.time_explosion
 
-    doppler_factor = r_packet.get_doppler_factor(packet.r,
-                                        packet.mu,
+    doppler_factor = r_packet.get_doppler_factor(static_packet.r,
+                                        static_packet.mu,
                                         time_explosion)
-    comov_nu = packet.nu * doppler_factor
+    comov_nu = static_packet.nu * doppler_factor
 
     d_line = 0
     obtained_tardis_error = None
     try:
-        d_line = r_packet.calculate_distance_line(packet,
+        d_line = r_packet.calculate_distance_line(static_packet,
                                                     comov_nu,
                                                     is_last_line,
                                                     nu_line,
@@ -167,9 +167,9 @@ def test_get_random_mu():
      [[0.0, 0.0, 0.0], [2.249998311331767, 0.0, 0.0]], 
      [[0.0, 0.0, 1.0], [2.249998311331767*0.4, 0.0, 1.0]])]
 )
-def test_update_line_estimators(estimators, packet, cur_line_id, distance_trace,
+def test_update_line_estimators(estimators, static_packet, cur_line_id, distance_trace,
                                 time_explosion, expected_j_blue, expected_Edotlu):
-    r_packet.update_line_estimators(estimators, packet, cur_line_id, distance_trace,
+    r_packet.update_line_estimators(estimators, static_packet, cur_line_id, distance_trace,
                                     time_explosion)
 
     assert_allclose(estimators.j_blue_estimator, expected_j_blue)

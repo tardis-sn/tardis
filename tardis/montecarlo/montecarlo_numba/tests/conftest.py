@@ -80,7 +80,19 @@ def verysimple_packet_collection(nb_simulation_verysimple):
                                          runner._output_energy)
 
 @pytest.fixture(scope="function")
-def packet():
+def packet(verysimple_packet_collection):
+    return RPacket(
+        r = 7.5e14,
+        nu = verysimple_packet_collection.packets_input_nu[0],
+        mu = verysimple_packet_collection.packets_input_mu[0],
+        energy = verysimple_packet_collection.packets_input_energy[0],
+        seed = 1963,
+        index = 0,
+        is_close_line = 0
+    )
+
+@pytest.fixture(scope="function")
+def static_packet():
     return RPacket(
         r = 7.5e14,
         nu = 0.4,
