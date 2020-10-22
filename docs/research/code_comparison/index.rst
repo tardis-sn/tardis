@@ -9,8 +9,7 @@ The first meeting is summarized
 The description of file formats used can be found here
 `<https://docs.google.com/document/d/1YQky4yq45z-KGbKG1MhLRivSP6RmEjte7nN-UZ0H-3M/edit?usp=sharing>`_.
 
-For our code comparison, we will calculate spectra at 5, 10, 15, 20 days post
-explosion.
+For our code comparison, we will calculate spectra at 5, 10, 15, 20 days post-explosion.
 
 .. toctree::
 

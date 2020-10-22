@@ -46,7 +46,6 @@ except ImportError:
 
 
 class DokuReport(HTMLReport):
-
     def __init__(self, report_config):
         """
         Initialization of a DokuReport object and registration as a plugin
@@ -54,10 +53,11 @@ class DokuReport(HTMLReport):
         password of dokuwiki is passed through `dokuwiki_details`.
         """
         # This will be either "remote" or "local".
-        self.save_mode = report_config['save_mode']
+        self.save_mode = report_config["save_mode"]
 
         if self.save_mode == "remote":
             import dokuwiki
+
             # Base class accepts a file path to save the report, but we pass an
             # empty string as it is redundant for this use case.
             super(DokuReport, self).__init__(
@@ -65,33 +65,37 @@ class DokuReport(HTMLReport):
             )
 
             # Upload the report on a dokuwiki instance.
-            dokuwiki_details = report_config['dokuwiki']
+            dokuwiki_details = report_config["dokuwiki"]
             try:
                 self.doku_conn = dokuwiki.DokuWiki(
-                    url=dokuwiki_details['url'],
-                    user=dokuwiki_details['username'],
-                    password=dokuwiki_details['password'])
+                    url=dokuwiki_details["url"],
+                    user=dokuwiki_details["username"],
+                    password=dokuwiki_details["password"],
+                )
             except (TypeError, gaierror, dokuwiki.DokuWikiError) as e:
                 raise e
                 self.doku_conn = None
                 self.dokuwiki_url = ""
             else:
-                self.dokuwiki_url = dokuwiki_details['url']
+                self.dokuwiki_url = dokuwiki_details["url"]
         else:
             # Save the html report file locally.
             self.report_dirpath = os.path.join(
-                os.path.expandvars(os.path.expanduser(report_config['reportpath'])),
-                tardis_githash[:7]
+                os.path.expandvars(
+                    os.path.expanduser(report_config["reportpath"])
+                ),
+                tardis_githash[:7],
             )
 
             if os.path.exists(self.report_dirpath):
                 shutil.rmtree(self.report_dirpath)
             os.makedirs(self.report_dirpath)
-            os.makedirs(os.path.join(self.report_dirpath, 'assets'))
+            os.makedirs(os.path.join(self.report_dirpath, "assets"))
 
             super(DokuReport, self).__init__(
                 logfile=os.path.join(self.report_dirpath, "report.html"),
-                self_contained=False, has_rerun=False
+                self_contained=False,
+                has_rerun=False,
             )
 
         self.suite_start_time = time.time()
@@ -114,10 +118,10 @@ class DokuReport(HTMLReport):
 
         # Quick hack for preventing log to be placed in narrow left out space
         report_content = report_content.replace(
-            u'class="log"', u'class="log" style="clear: both"'
+            'class="log"', 'class="log" style="clear: both"'
         )
         # It was displayed raw on wiki pages, but not needed.
-        report_content = report_content.replace(u'<!DOCTYPE html>', u'')
+        report_content = report_content.replace("<!DOCTYPE html>", "")
         return report_content
 
     def _save_report(self, report_content):
@@ -128,16 +132,19 @@ class DokuReport(HTMLReport):
         if self.save_mode == "remote":
             # Upload the report content to wiki
             try:
-                self.doku_conn.pages.set("reports:{0}".format(
-                    tardis_githash[:7]), report_content)
+                self.doku_conn.pages.set(
+                    "reports:{0}".format(tardis_githash[:7]), report_content
+                )
             except (gaierror, TypeError):
                 pass
         else:
             # Save the file locally at "self.logfile" path
-            with open(self.logfile, 'w') as f:
+            with open(self.logfile, "w") as f:
                 f.write(report_content)
 
-            with open(os.path.join(self.report_dirpath, 'assets', 'style.css'), 'w') as f:
+            with open(
+                os.path.join(self.report_dirpath, "assets", "style.css"), "w"
+            ) as f:
                 f.write(self.style_css)
 
     def _wiki_overview_entry(self):
@@ -150,7 +157,9 @@ class DokuReport(HTMLReport):
         else:
             status = "Errored"
 
-        suite_start_datetime = datetime.datetime.utcfromtimestamp(self.suite_start_time)
+        suite_start_datetime = datetime.datetime.utcfromtimestamp(
+            self.suite_start_time
+        )
 
         # Fetch commit message from github.
         gh_request = requests.get(
@@ -160,7 +169,7 @@ class DokuReport(HTMLReport):
         )
         gh_commit_data = json.loads(gh_request.content)
         # Pick only first line of commit message
-        gh_commit_message = gh_commit_data['message'].split('\n')[0]
+        gh_commit_message = gh_commit_data["message"].split("\n")[0]
 
         # Truncate long commit messages
         if len(gh_commit_message) > 60:
@@ -173,13 +182,15 @@ class DokuReport(HTMLReport):
             tardis_githash, gh_commit_message
         )
         # Append start time
-        row += "{0}  |  ".format(suite_start_datetime.strftime('%d %b %H:%M:%S'))
+        row += "{0}  |  ".format(
+            suite_start_datetime.strftime("%d %b %H:%M:%S")
+        )
         # Append time elapsed
         row += "{0:.2f} sec  |  ".format(self.suite_time_delta)
         # Append status
         row += "{0}  |\n".format(status)
         try:
-            self.doku_conn.pages.append('/', row)
+            self.doku_conn.pages.append("/", row)
         except (gaierror, TypeError):
             pass
 
@@ -204,7 +215,8 @@ class DokuReport(HTMLReport):
         if self.save_mode == "remote":
             try:
                 uploaded_report = self.doku_conn.pages.get(
-                    "reports:{0}".format(tardis_githash[:7]))
+                    "reports:{0}".format(tardis_githash[:7])
+                )
             except (gaierror, TypeError):
                 uploaded_report = ""
 
@@ -213,12 +225,17 @@ class DokuReport(HTMLReport):
                     "-", "Successfully uploaded report to Dokuwiki"
                 )
                 terminalreporter.write_sep(
-                    "-", "URL: {0}doku.php?id=reports:{1}".format(
-                        self.dokuwiki_url, tardis_githash[:7])
+                    "-",
+                    "URL: {0}doku.php?id=reports:{1}".format(
+                        self.dokuwiki_url, tardis_githash[:7]
+                    ),
                 )
             else:
                 terminalreporter.write_sep(
-                    "-", "Connection not established, upload failed.")
+                    "-", "Connection not established, upload failed."
+                )
         else:
             if os.path.exists(self.logfile):
-                super(DokuReport, self).pytest_terminal_summary(terminalreporter)
+                super(DokuReport, self).pytest_terminal_summary(
+                    terminalreporter
+                )

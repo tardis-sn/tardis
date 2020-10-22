@@ -9,7 +9,7 @@ two methods are implemented to calculate the spectrum during the main Monte
 Carlo calculation. One follows the obvious approach of recording the properties
 of all escaping Monte Carlo packets and binning their contributions in
 frequency (or wavelength) space. This "real packet" spectrum will naturally
-suffer from Monte Carlo noise and if one tries to improve its signal-to-noise
+suffer from Monte Carlo noise, and if one tries to improve its signal-to-noise
 ratio, one immediately encounters a fundamental characteristic of Monte Carlo
 approaches. Since Monte Carlo processes are typically governed by Poisson
 statistics, the level of stochastic fluctuations decreases only as :math:`\propto
@@ -59,7 +59,7 @@ optical depth. In particular, it contributes with the
 to the emergent luminosity in the frequency interval :math:`[\nu, \nu + \Delta
 \nu]`. Here, :math:`\Delta t` denotes the physical duration of the simulation
 step (the same duration which is used during the initialization process at the
-photosphere, see :doc:`Propagation <propagation>`) and :math:`\varepsilon` is
+photosphere, see :doc:`Propagation <propagation>`), and :math:`\varepsilon` is
 the energy of the virtual packet when it was generated.
 
 .. note::
@@ -71,7 +71,7 @@ the energy of the virtual packet when it was generated.
 
 The initialization process for virtual packets is slightly different from real
 ones. For example, whenever a real packet is emitted by the photosphere,
-:math:`N_v` virtual packets are spawned as well. The propagation direction of
+:math:`N_v` virtual packets are spawned, as well. The propagation direction of
 these virtual packets is assigned uniformly. However, since :math:`N_v` is
 typically small, an unequal sampling of the solid angle is avoided by selecting
 :math:`N_v` equal :math:`\mu` bins and sampling the direction uniformly within
@@ -116,10 +116,10 @@ problem :
     I(R, \mu, \nu) = I(R_{\mathrm{phot}}, \mu, \nu) \exp(-\tau(s_0)) +
     \int_0^{s_0} \eta(R - \mu s, \mu, \nu) \exp(-\tau(s)) \mathrm{d}s
 
-This formulation of the formal solution is valid for the SN ejecta problem and
+This formulation of the formal solution is valid for the supernova ejecta problem and
 involves the location of the photosphere, the radius of the ejecta surface
 :math:`R` and the packet trajectory :math:`s`. Here, the optical depth
-:math:`\tau(s)` measures the optical depth from :math:`s` to the ejecta surface
+:math:`\tau(s)` measures the optical depth from :math:`s` to the ejecta surface.
 For more details see :doc:`Radiative Transfer Primer
 <../physics/radiativetransfer>`.
 

@@ -13,34 +13,34 @@ Number Generators are available. These produce (pseudo-) random numbers
 :math:`z` uniformly distributed on the interval :math:`[0,1]`. The challenge
 now lies in using these numbers to sample any physical process involved in the
 Radiative transfer calculation. From a probability theory point of view, this
-just implies finding mapping between the probability distribution governing the
-physical process and the one underlying the Random number generator. This
+just implies finding a mapping between the probability distribution governing the
+physical process and the one underlying the Random Number Generator. This
 process is typically referred to as random sampling.
 
 Inverse transformation method
 =============================
 
 .. note::
-    This is a very superficial and sloppy description Random sampling. More
+    This is a very superficial and sloppy description of Random sampling. More
     detailed and rigorous accounts are found in the standard literature, for
-    example in :cite:`Kalos2008`
+    example in :cite:`Kalos2008`.
 
-The simplest and most used technique in Monte Carlo radiative transfer
+The simplest and most-used technique in Monte Carlo radiative transfer
 applications is referred to as the inverse transformation method and involves
 the cumulative distribution function. In general, a random process captured by
 the random variable :math:`X` is governed by a probability density
 :math:`\rho_X(x)` (the continuous counterpart to discrete probabilities), with
 :math:`\rho_X(x) \mathrm{d}x` describing the probability of the variable taking
 values in the interval :math:`[x, x+\mathrm{d}x]`. The cumulative distribution
-function in turn describes, as the name suggests the probability of the
-variable taking the any value between :math:`-\infty` and :math:`x`:
+function in turn describes, as the name suggests, the probability of the
+variable taking any value between :math:`-\infty` and :math:`x`:
 
 .. math::
 
     f_X(x) = \int_{-\infty}^x \mathrm{d}x \rho_X(x)
 
 Since the probability density is by definition always positive, the cumulative
-distribution function is monotonously increasing. This constitutes the basis
+distribution function is monotonically increasing. This constitutes the basis
 for the inverse transformation function. Consider two random variables,
 :math:`X` and :math:`Y`. A mapping between those may be established by equating
 their cumulative distribution functions. Numbers :math:`y` distributed
@@ -56,7 +56,7 @@ function is trivial, namely :math:`f_Z(z) = z`. However, the inverse
 distribution sampling method relies on finding the analytic inverse function of
 the cumulative distribution function governing the physical processes to be
 sampled. If this is not possible, other sampling methods, such as von-Neumann
-rejection sampling techniques have to be used.
+rejection sampling techniques, have to be used.
 
 Examples
 ========

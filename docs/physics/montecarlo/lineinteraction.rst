@@ -8,7 +8,7 @@ treatment, a number of steps are always carried out when a Monte Carlo packet
 performs a line interaction. Since TARDIS adopts the indivisible energy packet
 formalism (see :doc:`Discretization <discretization>`), the packet will have the
 same energy in the co-moving frame after (f for final) the line interaction as
-before (i for initial). Thus, after accounting for the frame transformations
+before (i for initial). Thus, after accounting for the frame transformations,
 
 .. math::
 
@@ -30,8 +30,8 @@ as an isotropic process. Thus,
 
 .. note::
 
-    Strictly speaking the re-mission process occurs in the local co-moving
-    frame. Thus, the so called angle abberration effect should be taken into
+    Strictly speaking, the re-mission process occurs in the local co-moving
+    frame. Thus, the so called angle aberration effect should be taken into
     account when transforming into the lab frame. However, TARDIS, currently
     neglects this effect.
 
@@ -58,7 +58,7 @@ The so-called downbranching scheme, introduced by :cite:`Lucy1999a`, is an
 elegant approach to approximately account for fluorescence effects. In this
 scheme, the packet is not re-emitted in the same transitions as it was absorbed
 in. Instead, it now can emerge from any line transition linking the activated
-upper energy level to a lower one. For any specific line interaction event the
+upper energy level to a lower one. For any specific line interaction event, the
 re-emission channel is probabilistically selected according to the branching
 ratios of the different allowed de-excitation transitions. For more details
 about the downbranching scheme, we refer to :cite:`Lucy1999a` and
@@ -74,7 +74,7 @@ fluorescence processes and multi-line effects. Once a Monte Carlo packet is
 absorbed in a certain line transition (macro atom activation), an arbitrary
 number of internal jumps up and downwards may be performed. One may think of
 them as changing the energy level which is excited. At any point during this
-process, there is the change that the internal jump procedure terminates and
+process, there is the chance that the internal jump procedure terminates and
 that the packet is re-emitted in a transition linking the currently excited
 upper energy level to a lower one (macro atom deactivation). Again, all
 involved processes are governed by probabilities reflecting the different line
@@ -88,7 +88,7 @@ Comparison
 ==========
 
 The different levels of sophistication are illustrated in the following plot,
-taken from :cite:`Kerzendorf2014` and showing the incident and versus the
+taken from :cite:`Kerzendorf2014` and showing the incident wavelength versus the
 emergent wavelength of Monte Carlo packets in line interactions. The left panel
 shows the situation in the resonant scatter mode, the middle one for the
 downbranching scheme and the right one the macro atom results.

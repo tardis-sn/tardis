@@ -46,11 +46,21 @@ class BasePlotSaver(object):
         axes = plot.axes[0]
 
         if report.passed:
-            axes.text(0.8, 0.8, 'passed', transform=axes.transAxes,
-                        bbox={'facecolor': 'green', 'alpha': 0.5, 'pad': 10})
+            axes.text(
+                0.8,
+                0.8,
+                "passed",
+                transform=axes.transAxes,
+                bbox={"facecolor": "green", "alpha": 0.5, "pad": 10},
+            )
         else:
-            axes.text(0.8, 0.8, 'failed', transform=axes.transAxes,
-                        bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
+            axes.text(
+                0.8,
+                0.8,
+                "failed",
+                transform=axes.transAxes,
+                bbox={"facecolor": "red", "alpha": 0.5, "pad": 10},
+            )
 
         plot.savefig(filepath)
 
@@ -76,7 +86,9 @@ thumbnail_html_remote = """
 
 class RemotePlotSaver(BasePlotSaver):
     def __init__(self, request, dokuwiki_url):
-        super(RemotePlotSaver, self).__init__(request, dokuwiki_url=dokuwiki_url)
+        super(RemotePlotSaver, self).__init__(
+            request, dokuwiki_url=dokuwiki_url
+        )
 
     def upload(self, report):
         """Upload content of ``self._plots`` to ``self.dokuwiki_url``.
@@ -93,14 +105,16 @@ class RemotePlotSaver(BasePlotSaver):
 
             self.request.config.dokureport.doku_conn.medias.add(
                 "reports:{0}:{1}.png".format(tardis_githash[:7], name),
-                plot_file.name
+                plot_file.name,
             )
 
-            self.plot_html.append(extras.html(
-                thumbnail_html_remote.format(
-                    dokuwiki_url=self.dokuwiki_url,
-                    githash=tardis_githash[:7],
-                    name=name)
+            self.plot_html.append(
+                extras.html(
+                    thumbnail_html_remote.format(
+                        dokuwiki_url=self.dokuwiki_url,
+                        githash=tardis_githash[:7],
+                        name=name,
+                    )
                 )
             )
             plot_file.close()
@@ -117,7 +131,9 @@ thumbnail_html_local = """
 
 class LocalPlotSaver(BasePlotSaver):
     def __init__(self, request, assets_dirpath):
-        super(LocalPlotSaver, self).__init__(request, assets_dirpath=assets_dirpath)
+        super(LocalPlotSaver, self).__init__(
+            request, assets_dirpath=assets_dirpath
+        )
 
     def upload(self, report):
         """Save content of ``self._plots`` to ``self.assets_dirpath``.
@@ -129,10 +145,12 @@ class LocalPlotSaver(BasePlotSaver):
         """
 
         for plot, name in self._plots:
-            self.save(plot, os.path.join(
-                self.assets_dirpath, "{0}.png".format(name)), report
+            self.save(
+                plot,
+                os.path.join(self.assets_dirpath, "{0}.png".format(name)),
+                report,
             )
 
-            self.plot_html.append(extras.html(
-                thumbnail_html_local.format(name=name))
+            self.plot_html.append(
+                extras.html(thumbnail_html_local.format(name=name))
             )

@@ -5,13 +5,21 @@ import numpy as np
 import pandas as pd
 
 
-__all__ = ['BasePlasmaProperty', 'BaseAtomicDataProperty',
-           'HiddenPlasmaProperty', 'Input', 'ArrayInput', 'DataFrameInput',
-           'ProcessingPlasmaProperty', 'PreviousIterationProperty']
+__all__ = [
+    "BasePlasmaProperty",
+    "BaseAtomicDataProperty",
+    "HiddenPlasmaProperty",
+    "Input",
+    "ArrayInput",
+    "DataFrameInput",
+    "ProcessingPlasmaProperty",
+    "PreviousIterationProperty",
+]
 
 logger = logging.getLogger(__name__)
 
 import os
+
 
 class BasePlasmaProperty(object, metaclass=ABCMeta):
     """
@@ -45,25 +53,19 @@ class BasePlasmaProperty(object, metaclass=ABCMeta):
 \textbf{{Formula}} {formula}
 {description}
 """
-        outputs = self.outputs.replace('_', r'\_')
-        latex_name = getattr(self, 'latex_name', '')
-        if latex_name != '':
-            complete_name = '{0} [{1}]'.format(latex_name, self.latex_name)
+        outputs = self.outputs.replace("_", r"\_")
+        latex_name = getattr(self, "latex_name", "")
+        if latex_name != "":
+            complete_name = "{0} [{1}]".format(latex_name, self.latex_name)
         else:
             complete_name = latex_name
 
         latex_label = latex_template.format(
-                name=complete_name,
-                formula=getattr(
-                    self,
-                    'latex_formula', '--'),
-                description=getattr(
-                    self,
-                    'latex_description',
-                    ''))
-        return latex_label.replace('\\', r'\\')
-
-
+            name=complete_name,
+            formula=getattr(self, "latex_formula", "--"),
+            description=getattr(self, "latex_description", ""),
+        )
+        return latex_label.replace("\\", r"\\")
 
 
 class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
@@ -85,10 +87,11 @@ class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
         `calculate`-function and makes the plasma routines easily programmable.
         """
         calculate_call_signature = self.calculate.__code__.co_varnames[
-                                   :self.calculate.__code__.co_argcount]
+            : self.calculate.__code__.co_argcount
+        ]
         self.inputs = [
-                item for item in calculate_call_signature
-                if item != 'self']
+            item for item in calculate_call_signature if item != "self"
+        ]
 
     def _get_input_values(self):
         return (self.plasma_parent.get_value(item) for item in self.inputs)
@@ -101,8 +104,9 @@ class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
         :return:
         """
         if len(self.outputs) == 1:
-            setattr(self, self.outputs[0], self.calculate(
-                *self._get_input_values()))
+            setattr(
+                self, self.outputs[0], self.calculate(*self._get_input_values())
+            )
         else:
             new_values = self.calculate(*self._get_input_values())
             for i, output in enumerate(self.outputs):
@@ -110,8 +114,10 @@ class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
 
     @abstractmethod
     def calculate(self, *args, **kwargs):
-        raise NotImplementedError('This method needs to be implemented by '
-                                  'processing plasma modules')
+        raise NotImplementedError(
+            "This method needs to be implemented by "
+            "processing plasma modules"
+        )
 
 
 class HiddenPlasmaProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
@@ -131,7 +137,7 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
     the simulation.
     """
 
-    inputs = ['atomic_data', 'selected_atoms']
+    inputs = ["atomic_data", "selected_atoms"]
 
     def __init__(self, plasma_parent):
 
@@ -140,11 +146,11 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
 
     @abstractmethod
     def _set_index(self, raw_atomic_property):
-        raise NotImplementedError('Needs to be implemented in subclasses')
+        raise NotImplementedError("Needs to be implemented in subclasses")
 
     @abstractmethod
     def _filter_atomic_property(self, raw_atomic_property):
-        raise NotImplementedError('Needs to be implemented in subclasses')
+        raise NotImplementedError("Needs to be implemented in subclasses")
 
     def calculate(self, atomic_data, selected_atoms):
 
@@ -153,9 +159,10 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
         else:
             raw_atomic_property = getattr(atomic_data, self.outputs[0])
             return self._set_index(
-                    self._filter_atomic_property(
-                        raw_atomic_property, selected_atoms)
-                    )
+                self._filter_atomic_property(
+                    raw_atomic_property, selected_atoms
+                )
+            )
 
 
 class Input(BasePlasmaProperty):
@@ -163,6 +170,7 @@ class Input(BasePlasmaProperty):
     The plasma property class for properties that are input directly from model
     and not calculated within the plasma module, e.g. t_rad.
     """
+
     def _set_output_value(self, output, value):
         setattr(self, output, value)
 
@@ -188,6 +196,7 @@ class PreviousIterationProperty(BasePlasmaProperty):
     calculations. Given a sufficient number of iterations, the values should converge successfully on the correct
     solution.
     """
+
     def _set_initial_value(self, value):
         self.set_value(value)
 

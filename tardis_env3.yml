@@ -6,16 +6,15 @@ channels:
 dependencies:
   - python=3
   - pip
-  - numpy=1.15
-  - scipy=1.1
-  - pandas=0.24
-  - astropy=3.2.1
-
-  - numba=0.43
+  - numpy=1.19
+  - scipy=1.5
+  - pandas=1.0
+  - astropy=3
+  - numba=0.50
   - numexpr
   - Cython=0.29
-
   - compilers
+  - blas=*=openblas
 
   # Plasma
   - networkx
@@ -23,7 +22,7 @@ dependencies:
   # I/O
   - pyyaml
   - jsonschema
-  - pyne
+  - pyne=0.7.0
   - pytables
   - h5py
   - requests
@@ -36,6 +35,11 @@ dependencies:
   - graphviz
   - pygraphviz
   - pyside2
+
+  # Widgets & Visualization
+  - ipywidgets
+  - qgrid
+  - plotly
 
   # Documentation
   - sphinx
@@ -50,20 +54,21 @@ dependencies:
   - sphinx_rtd_theme
   - recommonmark
 
-  #Test/Coverage requirements
+  # Test/Coverage requirements
   - git-lfs
-  - pytest=4
+  - pytest=5
   - pytest-html
-  - requests
-  - coverage
-  - docopt
   - pytest-cov
-  - codecov
+  - coverage
+  - requests
+  - docopt
+
+  # Code quality
+  - black
 
   - pip:
       # Documentation
       - sphinxcontrib-tikz
-
       - dokuwiki
       - dot2tex
       - sphinx-jsonschema

@@ -8,7 +8,7 @@ Direct integration of the radiation field
 synthetic supernova spectra. Instead of using the frequency and energy of
 virtual Monte Carlo (MC) packets to create a spectrum through binning, one can
 formally integrate the line source functions which can be calculated from
-volume based estimators collected during the MC simulation. Spectra generated
+volume-based estimators collected during the MC simulation. Spectra generated
 using this method are virtually noise-free. However, statistical fluctuations
 inherent to Monte Carlo calculations still affect the determination of the
 source functions and thus indirectly introduce an uncertainty in the spectral
@@ -53,10 +53,10 @@ Finally, the line source function for each transition can be derived with
    \dot E_u
 
 Here, :math:`\lambda_{ul}` is the wavelength of the line  :math:`u \rightarrow
-l`, and :math:`q_{ul}` is the corresponding branching ratio, i.e.\ the fraction
+l`, and :math:`q_{ul}` is the corresponding branching ratio, i.e. the fraction
 of de-excitations of level :math:`u` proceeding via the transition
 :math:`u\rightarrow l`. For convenience, the attenuating factor is kept on the
-left hand side because it is the product of the two that will appear in later
+left-hand side because it is the product of the two that will appear in later
 formulae.
 
 Finally, if the contribution by electron-scattering has to be taken into
@@ -129,10 +129,10 @@ Implementation Details
 We seek to integrate all emissions at a certain wavelength :math:`\nu` along a
 ray with impact parameter :math:`p`. Because the supernova ejecta is expanding
 homologously, the co-moving frame frequency is continuously shifted to longer
-wavelength due to the relativistic Doppler effect as the packet/photon
+wavelengths due to the relativistic Doppler effect as the packet/photon
 propagates.
 
-To find out, which lines can shift into the target frequency, we need to
+To find out which lines can shift into the target frequency, we need to
 calculate the maximum Doppler shift along a given ray. At any point, the
 Doppler effect in our coordinates is
 
@@ -159,7 +159,7 @@ and in turn :math:`z_c` can be given as
 
    z_c = \sqrt{r_c^2 + p_c^2}
 
-where the subscripts indicate the value at point C. By symmetry the
+where the subscripts indicate the value at point C. By symmetry, the
 intersection point for negative :math:`z` is simply :math:`-z_c`.
 
 Using the expression for :math:`\mu`, :math:`\beta` above leads to the
@@ -169,7 +169,7 @@ dependence on :math:`r` cancelling, and solving for :math:`\nu_0` gives
 
    \nu_0 = \frac{\nu}{1 + \frac{z}{ct}}
 
-For any given shell and impact parameter we can thus find the maximum and
+For any given shell and impact parameter, we can thus find the maximum and
 minimum co-moving frequency that will give the specified lab frame frequency.
 This allows us to find the section of the line list with the transitions whose
 resonances have to be considered in the calculation of the limiting specific
@@ -185,7 +185,7 @@ The current implementation of the formal integral has some limitations:
   otherwise the :math:`J^b` and :math:`J^r` do not provide an accurate
   representation of the diffuse radiation field at the current location on the
   ray. Also, :math:`d\tau` can become large which can create unphysical,
-  negative intensities
+  negative intensities.
 
 It is always advised to check the results of the formal integration against the
 spectrum constructed from the emerging Monte Carlo packets.
