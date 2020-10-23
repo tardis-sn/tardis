@@ -86,19 +86,16 @@ def test_trace_vpacket_volley(
 
 @pytest.fixture(scope="function")
 def broken_packet():
-    return r_packet.RPacket(
+    return vpacket.VPacket(
         r = 1286064000000000.0,
         nu = 1660428912896553.2,
         mu = 0.4916053094346575,
         energy = 2.474533071386993e-07,
-        index = 21643,
-        is_close_line = False,
-        seed = 32126279
+        index = 3,
+        is_close_line = True,
+        current_shell_id = 0,
+        next_line_id = 5495
     )
 
-
 def test_trace_bad_vpacket(broken_packet, verysimple_numba_model, verysimple_numba_plasma):
-    #Give the vpacket a reasonable line ID
-    v_packet_initialize_line_id(broken_packet, verysimple_numba_plasma, verysimple_numba_model)  
-    broken_packet.next_line_id = 5495
     tau_trace_combined = vpacket.trace_vpacket(broken_packet, verysimple_numba_model, verysimple_numba_plasma)
