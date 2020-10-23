@@ -3,6 +3,7 @@ import tardis.montecarlo.montecarlo_numba.macro_atom as macro_atom
 import numpy as np
 from numba import njit
 
+@pytest.mark.xfail(reason='Needs RNG freeze')
 @pytest.mark.parametrize(
     'expected',
     [5259]
