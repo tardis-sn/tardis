@@ -218,7 +218,7 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
                            r_packet.next_line_id, i, r_packet.is_close_line)
         
         if r_packet.next_line_id <= (len(numba_plasma.line_list_nu) - 1):
-            test_for_close_line(v_packet, r_packet.next_line_id + 1, numba_plasma.line_list_nu[r_packet.next_line_id], numba_plasma)
+            test_for_close_line(v_packet, r_packet.next_line_id, numba_plasma.line_list_nu[r_packet.next_line_id - 1], numba_plasma)
 
         tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma)
         

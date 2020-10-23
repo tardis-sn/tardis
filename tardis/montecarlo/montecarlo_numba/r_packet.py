@@ -56,8 +56,10 @@ class RPacket(object):
         doppler_factor = get_doppler_factor(self.r, self.mu,
                                             numba_model.time_explosion)
         comov_nu = self.nu * doppler_factor
-        next_line_id = (len(numba_plasma.line_list_nu) -
+        next_line_id = (len(numba_plasma.line_list_nu) - 
                         np.searchsorted(inverse_line_list_nu, comov_nu))
+        if next_line_id == len(numba_plasma.line_list_nu):
+            next_line_id -= 1
         self.next_line_id = next_line_id
 
 @njit(**njit_dict)
