@@ -83,13 +83,13 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
             nu_line, numba_model.time_explosion
         )
 
+        if cur_line_id != (len(numba_plasma.line_list_nu) - 1):
+            test_for_close_line(v_packet, cur_line_id, numba_plasma.line_list_nu[cur_line_id - 1], numba_plasma)
+
         if distance_boundary <= distance_trace_line:
             break
         
         tau_trace_combined += tau_trace_line
-     
-        if cur_line_id != (len(numba_plasma.line_list_nu) - 1):
-            test_for_close_line(v_packet, cur_line_id + 1, numba_plasma.line_list_nu[cur_line_id], numba_plasma)
 
     else:
         if cur_line_id == (len(numba_plasma.line_list_nu) - 1):

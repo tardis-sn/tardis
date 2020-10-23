@@ -69,7 +69,7 @@ def test_trace_vpacket(v_packet, verysimple_numba_model, verysimple_numba_plasma
     assert v_packet.is_close_line == False
     assert v_packet.current_shell_id == 1
 
-#Needs an actual test instead of just running the function
+@pytest.mark.xfail(reason='To be implemented')
 def test_trace_vpacket_volley(
                             packet, 
                             verysimple_packet_collection, 
@@ -98,4 +98,4 @@ def broken_packet():
     )
 
 def test_trace_bad_vpacket(broken_packet, verysimple_numba_model, verysimple_numba_plasma):
-    tau_trace_combined = vpacket.trace_vpacket(broken_packet, verysimple_numba_model, verysimple_numba_plasma)
+    vpacket.trace_vpacket(broken_packet, verysimple_numba_model, verysimple_numba_plasma)
