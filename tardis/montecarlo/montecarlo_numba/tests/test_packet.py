@@ -200,7 +200,9 @@ def test_update_line_estimators(estimators, static_packet, cur_line_id, distance
 
 #@pytest.mark.xfail(reason='To be implemented')
 def test_trace_packet(packet, verysimple_numba_model, verysimple_numba_plasma, 
-                        verysimple_estimators):
+                        verysimple_estimators, set_seed_fixture):
+
+    set_seed_fixture(1963)
     packet.initialize_line_id(verysimple_numba_plasma, verysimple_numba_model)
     distance, interaction_type, delta_shell = r_packet.trace_packet(packet, verysimple_numba_model, 
                                                                 verysimple_numba_plasma, verysimple_estimators)
