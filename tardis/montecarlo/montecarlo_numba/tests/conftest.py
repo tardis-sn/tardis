@@ -2,6 +2,7 @@ from copy import deepcopy
 
 import pytest
 import numpy as np
+from numba import njit
 
 from tardis.simulation import Simulation
 from tardis.montecarlo.montecarlo_numba import RPacket, PacketCollection
@@ -102,3 +103,9 @@ def static_packet():
         index = 0,
         is_close_line = 0
     )
+
+@pytest.fixture()
+def set_seed_fixture():
+    def set_seed(value):
+        np.random.seed(value)
+    return njit(set_seed)
