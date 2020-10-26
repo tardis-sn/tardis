@@ -11,6 +11,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
 import tardis.montecarlo.montecarlo_numba.numba_config as numba_config
 from tardis.montecarlo.montecarlo_numba import macro_atom
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
+SIGMA_THOMSON = const.sigma_T.to('cm^2').value
 
 from numpy.testing import (
         assert_equal,
@@ -98,11 +99,32 @@ def test_calculate_distance_line(packet_params, expected_params, static_packet, 
     assert_almost_equal(d_line, expected_params['d_line'])
     assert obtained_tardis_error == expected_params['tardis_error']
 
-def test_calculate_distance_electron():
-    pass
 
-def test_calculate_tau_electron():
-    pass
+@pytest.mark.parametrize(
+    ['electron_density', 'tau_event'],
+    [(1e-5, 1.0),
+     (1e10, 1e10)]
+)
+def test_calculate_distance_electron(electron_density, tau_event):
+    actual = r_packet.calculate_distance_electron(electron_density, tau_event)
+    expected = tau_event / (electron_density * SIGMA_THOMSON)
+
+    assert_almost_equal(actual, expected)
+
+
+@pytest.mark.parametrize(
+    ['electron_density', 'distance'],
+    [(1e-5, 1.0),
+     (1e10, 1e10),
+     (-1, 0),
+     (-1e10, -1e10)]
+)
+def test_calculate_tau_electron(electron_density, distance):
+    actual = r_packet.calculate_tau_electron(electron_density, distance)
+    expected = electron_density * SIGMA_THOMSON * distance
+
+    assert_almost_equal(actual, expected)
+
 
 @pytest.mark.parametrize(
     ['mu', 'r', 'inv_t_exp', 'expected'],
@@ -123,6 +145,7 @@ def test_get_doppler_factor(mu, r, inv_t_exp, expected):
 
     # Perform required assertions
     assert_almost_equal(obtained, expected)
+
 
 @pytest.mark.parametrize(
     ['mu', 'r', 'inv_t_exp', 'expected'],
@@ -175,9 +198,16 @@ def test_update_line_estimators(estimators, static_packet, cur_line_id, distance
     assert_allclose(estimators.j_blue_estimator, expected_j_blue)
     assert_allclose(estimators.Edotlu_estimator, expected_Edotlu)
 
-@pytest.mark.xfail(reason='To be implemented')
-def test_trace_packet():
-    assert False
+#@pytest.mark.xfail(reason='To be implemented')
+def test_trace_packet(packet, verysimple_numba_model, verysimple_numba_plasma, 
+                        verysimple_estimators):
+    packet.initialize_line_id(verysimple_numba_plasma, verysimple_numba_model)
+    distance, interaction_type, delta_shell = r_packet.trace_packet(packet, verysimple_numba_model, 
+                                                                verysimple_numba_plasma, verysimple_estimators)
+
+    assert delta_shell == 1
+    assert interaction_type == 1
+    assert_almost_equal(distance, 581086681128631.8)
 
 
 @pytest.mark.xfail(reason='bug in full relativity')
@@ -225,12 +255,15 @@ def test_move_r_packet(packet_params, expected_params, packet, model, estimators
     assert_allclose(estimators.nu_bar_estimator[packet.current_shell_id],
         expected_nubar, rtol=5e-7)
 
+@pytest.mark.xfail(reason='To be implemented')
 def test_set_estimators():
     pass
 
+@pytest.mark.xfail(reason='To be implemented')
 def test_set_estimators_full_relativity():
     pass
 
+@pytest.mark.xfail(reason='To be implemented')
 def test_line_emission():
     pass
 
@@ -290,5 +323,15 @@ def test_packet_energy_limit_one(packet, distance_trace, time_explosion):
     new_energy = r_packet.calc_packet_energy(packet, distance_trace, time_explosion)
     assert_almost_equal(new_energy, initial_energy)
 """
-def test_test_for_close_line():
-    pass
+
+
+@pytest.mark.parametrize(
+    ['line_id', 'nu_line', 'expected'],
+    [(5495, 1629252823683562.5, True),
+     (3000, 0, False)]
+)
+def test_test_for_close_line(packet, line_id, nu_line, verysimple_numba_plasma, expected):
+    
+    r_packet.test_for_close_line(packet, line_id, nu_line, verysimple_numba_plasma)
+    
+    assert packet.is_close_line == expected
