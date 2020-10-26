@@ -84,12 +84,12 @@ def numba_plasma_initialize(plasma, line_interaction_type):
     if line_interaction_type == 'scatter':
         # to adhere to data types, we must have an array of minimum size 1
         array_size = 1
-        transition_probabilities = np.empty((array_size, array_size), dtype=np.float64)  # to adhere to data types
-        line2macro_level_upper = np.empty(array_size, dtype=np.int64)
-        macro_block_references = np.empty(array_size, dtype=np.int64)
-        transition_type = np.empty(array_size, dtype=np.int64)
-        destination_level_id = np.empty(array_size, dtype=np.int64)
-        transition_line_id = np.empty(array_size, dtype=np.int64)
+        transition_probabilities = np.zeros((array_size, array_size), dtype=np.float64)  # to adhere to data types
+        line2macro_level_upper = np.zeros(array_size, dtype=np.int64)
+        macro_block_references = np.zeros(array_size, dtype=np.int64)
+        transition_type = np.zeros(array_size, dtype=np.int64)
+        destination_level_id = np.zeros(array_size, dtype=np.int64)
+        transition_line_id = np.zeros(array_size, dtype=np.int64)
     else:
         transition_probabilities = np.ascontiguousarray(
             plasma.transition_probabilities.values.copy(), dtype=np.float64)
