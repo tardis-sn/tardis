@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           repository: tardis-sn/tardis_zenodo
-          token: ${{ secrets.EPASSARO_PAT }}
+          token: 153d8ce162e6e621c952e06b6a0cc9632c6b71ee
           path: tardis_zenodo
 
       - name: Setup conda
