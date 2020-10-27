@@ -1,3 +1,6 @@
+# For more information on how to use this template please refer to:
+# http://tardis-sn.github.io/tardis/development/continuous_integration.html
+
 name: documentation-build
 
 on:
