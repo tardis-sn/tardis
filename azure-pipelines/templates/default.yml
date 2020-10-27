@@ -35,7 +35,7 @@ steps:
       displayName: 'Set package manager'
  
   - checkout: self
-    path: $(tardis.dir)
+    path: s/tardis
     displayName: 'Fetch main repository'
 
   - ${{ if eq(parameters.fetchRefdata, true) }}:
