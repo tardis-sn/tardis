@@ -5,7 +5,7 @@ on:
     - cron: '50 23 * * 0'
 
 jobs:
-  build:
+  push:
     runs-on: ubuntu-latest
 
     steps:
