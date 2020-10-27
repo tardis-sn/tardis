@@ -1,8 +1,8 @@
 name: update-authors
 
 on:
-  pull_request:
-    branches: [ master ]
+  push:
+    branches: [ update-authors ]
 
 jobs:
   push:
@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           repository: tardis-sn/tardis_zenodo
-          token: 153d8ce162e6e621c952e06b6a0cc9632c6b71ee
+          token: ${{ secrets.GITHUB_TOKEN }}
           path: tardis_zenodo
 
       - name: Setup conda
