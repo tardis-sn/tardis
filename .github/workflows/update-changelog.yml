@@ -1,0 +1,18 @@
+name: update-changelog
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: 'Install github-changes'
+        run: sudo npm install -g github-changes
+
+      - name: 'Update changelog'
+        run: github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md
