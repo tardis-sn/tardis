@@ -261,8 +261,8 @@ extra steps to run the tests and upload the coverage results.
 Documentation pipeline
 ----------------------
 
-Builds and deploys the TARDIS documentation website. Currently, we are trying
-to move this pipeline to GitHub Actions.
+Builds and deploys the TARDIS documentation website. Currently, we are
+using a github action to complete this pipeline. The action can be found at ``.github/workflows/documentation-build.yml``
 
 
 Zenodo JSON pipeline
