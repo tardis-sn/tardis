@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+  schedule:
+    - cron: '10 0 * * 0'
 
 jobs:
   documentation_build:
