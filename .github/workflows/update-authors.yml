@@ -22,6 +22,9 @@ jobs:
             channels: conda-forge, defaults
             mamba-version: "*"
 
+      - run: |
+          echo ${{ secrets.AUTHOR_ORDER_TXT }} > author_order.txt
+
       - name: Install packages
         shell: bash -l {0}
         run: mamba install jupyter nbconvert numpy pandas orcid -y
