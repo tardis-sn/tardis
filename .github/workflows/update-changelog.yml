@@ -15,4 +15,4 @@ jobs:
         run: sudo npm install -g github-changes
 
       - name: 'Update changelog'
-        run: github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md
+        run: github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md -k ${{ secrets.GITHUB_TOKEN }}
