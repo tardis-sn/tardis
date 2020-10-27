@@ -9,7 +9,7 @@ variables:
   system.debug: false
 
 jobs:
-  - job: test
+  - job:
     pool:
       vmImage: $[variables.vm_Image]
 
