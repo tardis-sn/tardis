@@ -1,13 +1,11 @@
 import numpy as np
 import astropy.units as u
+
 from tardis import constants as const
+from tardis.energy_input.util import kappa_calculation
 
 MASS_SI = 28.085 * u.M_p
 MASS_FE = 55.845 * u.M_p
-
-def kappa_calculation(energy):
-    k = energy / (511.0e3 * u.eV)
-    return k.value
     
 def compton_opacity_calculation(electron_number_density, energy):
     

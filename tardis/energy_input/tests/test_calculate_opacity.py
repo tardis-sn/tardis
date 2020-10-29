@@ -4,21 +4,12 @@ import numpy.testing as npt
 import numpy as np
 
 import tardis.energy_input.calculate_opacity as calculate_opacity
+import tardis.energy_input.util as util
 from tardis import constants as const
 
+#this is terrible practice
 MASS_SI = 28.085 * u.M_p
 MASS_FE = 55.845 * u.M_p
-
-@pytest.mark.parametrize(
-    ["energy", "expected"],
-    [(511.0e3, 1.0),
-    (255.5e3, 0.5),
-    (0.0, 0.0),
-    (511.0e10, 1e7)]
-)
-def test_kappa_calculation(energy, expected):
-    kappa = calculate_opacity.kappa_calculation(energy)
-    npt.assert_almost_equal(kappa, expected)
 
 @pytest.mark.parametrize(
     ["electron_number_density", "energy"],
@@ -29,7 +20,7 @@ def test_kappa_calculation(energy, expected):
 def test_compton_opacity_calculation(electron_number_density, energy):
     opacity = calculate_opacity.compton_opacity_calculation(electron_number_density, energy)
 
-    kappa = calculate_opacity.kappa_calculation(energy)
+    kappa = util.kappa_calculation(energy)
     
     sigma_T = const.sigma_T.cgs.value
 
