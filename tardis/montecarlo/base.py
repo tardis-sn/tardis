@@ -55,7 +55,8 @@ class MontecarloRunner(HDFWriterMixin):
         "spectrum",
         "spectrum_virtual",
         "spectrum_reabsorbed",
-        "time_of_simulation"
+        "time_of_simulation",
+        "emitted_packet_mask",
     ]
 
     vpacket_hdf_properties = [
