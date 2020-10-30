@@ -152,11 +152,11 @@ def calculate_distance_line_full_relativity(nu_line, nu, time_explosion,
 @njit(**njit_dict)
 def calculate_distance_electron(electron_density, tau_event):
     # add full_relativity here
-    return tau_event / (electron_density * SIGMA_THOMSON)
+    return tau_event / (electron_density * numba_config.SIGMA_THOMSON)
 
 @njit(**njit_dict)
 def calculate_tau_electron(electron_density, distance):
-    return electron_density * SIGMA_THOMSON * distance
+    return electron_density * numba_config.SIGMA_THOMSON * distance
 
 
 @njit(**njit_dict)

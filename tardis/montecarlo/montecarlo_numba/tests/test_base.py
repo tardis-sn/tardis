@@ -9,6 +9,7 @@ import tardis.montecarlo.montecarlo_numba.base as base
 from tardis.montecarlo.montecarlo_numba.numba_interface import PacketCollection, VPacketCollection
 from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
 import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
+import tardis.montecarlo.montecarlo_numba.numba_config as numba_config
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
 import tardis.montecarlo.montecarlo_numba.single_packet_loop as spl
 
@@ -77,7 +78,7 @@ def test_montecarlo_radial1d():
 #@pytest.mark.xfail(reason='To be implemented')
 def test_montecarlo_main_loop(
     c_test_packet_collection, model, plasma, estimators,
-    nb_simulation_verysimple, set_seed_fixture
+    nb_simulation_verysimple, set_seed_fixture, random_call_fixture
 ):
     montecarlo_configuration.single_packet_seed = 0
     
@@ -89,6 +90,8 @@ def test_montecarlo_main_loop(
         np.zeros(len(c_test_packet_collection.packets_input_nu), dtype=np.float64)
     )
 
+    numba_config.SIGMA_THOMSON = 6.652486e-25
+    
     vpacket_collection = VPacketCollection(
         np.array([0, 0], dtype=np.float64), 0, np.inf, 
         0, 0
@@ -118,6 +121,8 @@ def test_montecarlo_main_loop(
             output_energies[i] = -packet.energy
         elif packet.status == r_packet.PacketStatus.EMITTED:
             output_energies[i] = packet.energy
+
+        #random_call_fixture()
 
     # np.savetxt('scatter_output_energy.txt', output_energies)
     output_packet_collection.packets_output_energy[:] = output_energies[:]

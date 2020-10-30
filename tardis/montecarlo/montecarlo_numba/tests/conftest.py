@@ -109,3 +109,9 @@ def set_seed_fixture():
     def set_seed(value):
         np.random.seed(value)
     return njit(set_seed)
+
+@pytest.fixture()
+def random_call_fixture():
+    def random_call():
+        np.random.random()
+    return njit(random_call)
