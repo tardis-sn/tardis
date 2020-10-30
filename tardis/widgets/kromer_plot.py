@@ -1,6 +1,8 @@
-"""A simple plotting tool to create spectral diagnostics plots similar to those
-originally proposed by M. Kromer (see, for example, Kromer et al. 2013, figure
-4).
+"""
+Interface to generate Kromer Plot for TARDIS simulation models.
+
+Kromer Plot is a spectral diagnostics plot similar to those originally
+proposed by M. Kromer (see, for example, Kromer et al. 2013, figure 4).
 """
 import numpy as np
 import pandas as pd
@@ -14,6 +16,8 @@ import matplotlib.cm as cm
 
 
 class KromerData:
+    """The data of simulation model which is used by Kromer Plot."""
+
     def __init__(
         self,
         last_interaction_type,
@@ -25,7 +29,7 @@ class KromerData:
         packet_energies,
         r_inner,
         spectrum_delta_frequency,
-        spectrum_frequency,  # stores _frequency not frequency
+        spectrum_frequency_bins,  # stores _frequency (bin edges) not frequency
         spectrum_luminosity_density_lambda,
         spectrum_wavelength,
         t_inner,
@@ -48,7 +52,8 @@ class KromerData:
         self.lines_df = lines_df
         self.r_inner = r_inner
         self.spectrum_delta_frequency = spectrum_delta_frequency
-        self.spectrum_frequency = spectrum_frequency
+        self.spectrum_frequency_bins = spectrum_frequency_bins
+        self.spectrum_frequency = spectrum_frequency_bins[:-1]
         self.spectrum_luminosity_density_lambda = (
             spectrum_luminosity_density_lambda
         )
@@ -100,7 +105,7 @@ class KromerData:
                 ),
                 r_inner=r_inner,
                 spectrum_delta_frequency=sim.runner.spectrum_virtual.delta_frequency,
-                spectrum_frequency=sim.runner.spectrum_virtual._frequency,
+                spectrum_frequency_bins=sim.runner.spectrum_virtual._frequency,
                 spectrum_luminosity_density_lambda=sim.runner.spectrum_virtual.luminosity_density_lambda,
                 spectrum_wavelength=sim.runner.spectrum_virtual.wavelength,
                 t_inner=t_inner,
@@ -128,7 +133,7 @@ class KromerData:
                 ],
                 r_inner=r_inner,
                 spectrum_delta_frequency=sim.runner.spectrum.delta_frequency,
-                spectrum_frequency=sim.runner.spectrum._frequency,
+                spectrum_frequency_bins=sim.runner.spectrum._frequency,
                 spectrum_luminosity_density_lambda=sim.runner.spectrum.luminosity_density_lambda,
                 spectrum_wavelength=sim.runner.spectrum.wavelength,
                 t_inner=t_inner,
@@ -191,7 +196,7 @@ class KromerData:
                         ].delta_frequency,
                         "Hz",
                     ),
-                    spectrum_frequency=u.Quantity(
+                    spectrum_frequency_bins=u.Quantity(
                         hdf[
                             "/simulation/runner/spectrum_virtual/_frequency"
                         ].to_numpy(),
@@ -255,7 +260,7 @@ class KromerData:
                         ].delta_frequency,
                         "Hz",
                     ),
-                    spectrum_frequency=u.Quantity(
+                    spectrum_frequency_bins=u.Quantity(
                         hdf[
                             "/simulation/runner/spectrum/_frequency"
                         ].to_numpy(),
@@ -335,7 +340,7 @@ class KromerPlotter:
             self.ax = ax
 
         # Bin edges
-        bins = self.data[packets_mode].spectrum_frequency
+        bins = self.data[packets_mode].spectrum_frequency_bins
 
         # Wavelengths
         wvl = self.data[packets_mode].spectrum_wavelength
@@ -473,7 +478,7 @@ class KromerPlotter:
         )
         L_lambda_noint = (
             L_nu_noint
-            * self.data[packets_mode].spectrum_frequency[:-1]
+            * self.data[packets_mode].spectrum_frequency
             / self.data[packets_mode].spectrum_wavelength
         )
 
@@ -496,7 +501,7 @@ class KromerPlotter:
         )
         L_lambda_escatter = (
             L_nu_escatter
-            * self.data[packets_mode].spectrum_frequency[:-1]
+            * self.data[packets_mode].spectrum_frequency
             / self.data[packets_mode].spectrum_wavelength
         )
 
@@ -556,7 +561,7 @@ class KromerPlotter:
             )
             L_lambda_el = (
                 L_nu_el
-                * self.data[packets_mode].spectrum_frequency[:-1]
+                * self.data[packets_mode].spectrum_frequency
                 / self.data[packets_mode].spectrum_wavelength
             )
 
@@ -628,7 +633,7 @@ class KromerPlotter:
             )
             L_lambda_el = (
                 L_nu_el
-                * self.data[packets_mode].spectrum_frequency[:-1]
+                * self.data[packets_mode].spectrum_frequency
                 / self.data[packets_mode].spectrum_wavelength
             )
 
