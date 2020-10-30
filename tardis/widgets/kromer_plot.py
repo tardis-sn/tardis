@@ -35,6 +35,42 @@ class KromerData:
         t_inner,
         time_of_simulation,
     ):
+        """
+        Initialize the KromerData with required properties of simulation model.
+
+        Parameters
+        ----------
+        last_interaction_type : np.array
+            Interaction type (no-interaction: -1, e-scattering: 1 and
+            line interaction: 2) values of emitted packets
+        last_line_interaction_in_id : np.array
+            IDs of atomic lines with which emitted packet had their last
+            absorption (interaction in)
+        last_line_interaction_out_id : np.array
+            IDs of atomic lines with which emitted packet had their last
+            emission (interaction out)
+        last_line_interaction_in_nu : np.array
+            Frequency values of the last absorption of emitted packets
+        lines_df : pd.DataFrame
+            Data about the atomic lines present in simulation model's plasma
+        packet_nus : astropy.Quantity
+            Frequency values of the last emission of emitted packets, having
+            unit of Hz
+        packet_energies : astropy.Quantity
+            Energy values of emitted packets, having unit of erg
+        r_inner : astropy.Quantity
+            Radius of innermost shell, having unit of cm
+        spectrum_delta_frequency : astropy.Quantity
+            Frequency bin width of spectrum, having unit of Hz
+        spectrum_frequency_bins : astropy.Quantity
+            Frequency bin edges of spectrum, having unit of Hz
+        spectrum_wavelength : astropy.Quantity
+            Wavelength values of spectrum, having unit of Angstrom
+        t_inner : astropy.Quantity
+            Temperature of innermost shell, having unit of K
+        time_of_simulation : astropy.Quantity
+            Time of simulation, having unit of s (second)
+        """
         # Save packets properties in a dataframe for easier data manipulation
         self.packets_df = pd.DataFrame(
             {
@@ -85,6 +121,21 @@ class KromerData:
 
     @classmethod
     def from_simulation(cls, sim, packets_mode):
+        """
+        Create an instance of KromerData from a TARDIS simulation object.
+
+        Parameters
+        ----------
+        sim : tardis.simulation.Simulation
+            TARDIS Simulation object produced by running a simulation
+        packets_mode : {'virtual', 'real'}
+            Mode of packets to be considered, either real or virtual
+
+        Returns
+        -------
+        KromerData
+        """
+        # Properties common among both packet modes
         lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(
             "line_id"
         )
@@ -113,6 +164,8 @@ class KromerData:
             )
 
         elif packets_mode == "real":
+            # Packets-specific properties need to be only for those packets
+            # which got emitted
             return cls(
                 last_interaction_type=sim.runner.last_interaction_type[
                     sim.runner.emitted_packet_mask
@@ -147,6 +200,20 @@ class KromerData:
 
     @classmethod
     def from_hdf(cls, hdf_fpath, packets_mode):
+        """
+        Create an instance of KromerData from a simulation HDF file.
+
+        Parameters
+        ----------
+        hdf_fpath : str
+            Valid path to the HDF file where simulation is saved
+        packets_mode : {'virtual', 'real'}
+            Mode of packets to be considered, either real or virtual
+
+        Returns
+        -------
+        KromerData
+        """
         with pd.HDFStore(hdf_fpath, "r") as hdf:
             lines_df = (
                 hdf["/simulation/plasma/lines"]
@@ -155,7 +222,7 @@ class KromerData:
             )
             r_inner = u.Quantity(
                 hdf["/simulation/model/r_inner"].to_numpy(), "cm"
-            )  # Convert series to array to construct quantity from it
+            )  # Convert pd.Series to np.array to construct quantity from it
             t_inner = u.Quantity(hdf["/simulation/model/scalars"].t_inner, "K")
             time_of_simulation = u.Quantity(
                 hdf["/simulation/runner/scalars"].time_of_simulation, "s"
@@ -289,11 +356,34 @@ class KromerData:
 
 
 class KromerPlotter:
+    """Plotting interface to generate Kromer Plot for a simulation model."""
+
     def __init__(self, data):
+        """
+        Initialize the KromerPlotter with required data of simulation model.
+
+        Parameters
+        ----------
+        data : dict of KromerData
+            Dictionary to store data required for Kromer plot, for both packet
+            modes i.e. real and virtual
+        """
         self.data = data
 
     @classmethod
     def from_simulation(cls, sim):
+        """
+        Create an instance of KromerPlotter from a TARDIS simulation object.
+
+        Parameters
+        ----------
+        sim : tardis.simulation.Simulation
+            TARDIS Simulation object produced by running a simulation
+
+        Returns
+        -------
+        KromerPlotter
+        """
         return cls(
             dict(
                 virtual=KromerData.from_simulation(sim, "virtual"),
@@ -303,6 +393,18 @@ class KromerPlotter:
 
     @classmethod
     def from_hdf(cls, hdf_fpath):
+        """
+        Create an instance of KromerPlotter from a simulation HDF file.
+
+        Parameters
+        ----------
+        hdf_fpath : str
+            Valid path to the HDF file where simulation is saved
+
+        Returns
+        -------
+        KromerPlotter
+        """
         return cls(
             dict(
                 virtual=KromerData.from_hdf(hdf_fpath, "virtual"),
@@ -321,8 +423,8 @@ class KromerPlotter:
         figsize=(10, 7),
         cmapname="jet",
     ):
+        # TODO: Read observed_spectrum in ascii or csv - 2 column format
 
-        # Read ascii or csv - 2 column format
         if packets_mode not in ["virtual", "real"]:
             raise ValueError(
                 "Invalid value passed to packets_mode. Only "
