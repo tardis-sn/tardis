@@ -142,14 +142,150 @@ class KromerData:
 
     @classmethod
     def from_hdf(cls, hdf_fpath, packets_mode):
-        pass
+        with pd.HDFStore(hdf_fpath, "r") as hdf:
+            lines_df = (
+                hdf["/simulation/plasma/lines"]
+                .reset_index()
+                .set_index("line_id")
+            )
+            r_inner = u.Quantity(
+                hdf["/simulation/model/r_inner"].to_numpy(), "cm"
+            )  # Convert series to array to construct quantity from it
+            t_inner = u.Quantity(hdf["/simulation/model/scalars"].t_inner, "K")
+            time_of_simulation = u.Quantity(
+                hdf["/simulation/runner/scalars"].time_of_simulation, "s"
+            )
+
+            if packets_mode == "virtual":
+                return cls(
+                    last_interaction_type=hdf[
+                        "/simulation/runner/virt_packet_last_interaction_type"
+                    ],
+                    last_line_interaction_in_id=hdf[
+                        "/simulation/runner/virt_packet_last_line_interaction_in_id"
+                    ],
+                    last_line_interaction_out_id=hdf[
+                        "/simulation/runner/virt_packet_last_line_interaction_out_id"
+                    ],
+                    last_line_interaction_in_nu=u.Quantity(
+                        hdf[
+                            "/simulation/runner/virt_packet_last_interaction_in_nu"
+                        ].to_numpy(),
+                        "Hz",
+                    ),
+                    lines_df=lines_df,
+                    packet_nus=u.Quantity(
+                        hdf["/simulation/runner/virt_packet_nus"].to_numpy(),
+                        "Hz",
+                    ),
+                    packet_energies=u.Quantity(
+                        hdf[
+                            "/simulation/runner/virt_packet_energies"
+                        ].to_numpy(),
+                        "erg",
+                    ),
+                    r_inner=r_inner,
+                    spectrum_delta_frequency=u.Quantity(
+                        hdf[
+                            "/simulation/runner/spectrum_virtual/scalars"
+                        ].delta_frequency,
+                        "Hz",
+                    ),
+                    spectrum_frequency=u.Quantity(
+                        hdf[
+                            "/simulation/runner/spectrum_virtual/_frequency"
+                        ].to_numpy(),
+                        "Hz",
+                    ),
+                    spectrum_luminosity_density_lambda=u.Quantity(
+                        hdf[
+                            "/simulation/runner/spectrum_virtual/luminosity_density_lambda"
+                        ].to_numpy(),
+                        "erg / s cm",  # luminosity_density_lambda is saved in hdf in CGS
+                    ).to("erg / s AA"),
+                    spectrum_wavelength=u.Quantity(
+                        hdf[
+                            "/simulation/runner/spectrum_virtual/wavelength"
+                        ].to_numpy(),
+                        "cm",  # wavelength is saved in hdf in CGS
+                    ).to("AA"),
+                    t_inner=t_inner,
+                    time_of_simulation=time_of_simulation,
+                )
+
+            elif packets_mode == "real":
+                emitted_packet_mask = hdf[
+                    "/simulation/runner/emitted_packet_mask"
+                ].to_numpy()
+                return cls(
+                    # First convert series read from hdf to array before masking
+                    # to eliminate index info which creates problems otherwise
+                    last_interaction_type=hdf[
+                        "/simulation/runner/last_interaction_type"
+                    ].to_numpy()[emitted_packet_mask],
+                    last_line_interaction_in_id=hdf[
+                        "/simulation/runner/last_line_interaction_in_id"
+                    ].to_numpy()[emitted_packet_mask],
+                    last_line_interaction_out_id=hdf[
+                        "/simulation/runner/last_line_interaction_out_id"
+                    ].to_numpy()[emitted_packet_mask],
+                    last_line_interaction_in_nu=u.Quantity(
+                        hdf[
+                            "/simulation/runner/last_interaction_in_nu"
+                        ].to_numpy()[emitted_packet_mask],
+                        "Hz",
+                    ),
+                    lines_df=lines_df,
+                    packet_nus=u.Quantity(
+                        hdf["/simulation/runner/output_nu"].to_numpy()[
+                            emitted_packet_mask
+                        ],
+                        "Hz",
+                    ),
+                    packet_energies=u.Quantity(
+                        hdf["/simulation/runner/output_energy"].to_numpy()[
+                            emitted_packet_mask
+                        ],
+                        "erg",
+                    ),
+                    r_inner=r_inner,
+                    spectrum_delta_frequency=u.Quantity(
+                        hdf[
+                            "/simulation/runner/spectrum/scalars"
+                        ].delta_frequency,
+                        "Hz",
+                    ),
+                    spectrum_frequency=u.Quantity(
+                        hdf[
+                            "/simulation/runner/spectrum/_frequency"
+                        ].to_numpy(),
+                        "Hz",
+                    ),
+                    spectrum_luminosity_density_lambda=u.Quantity(
+                        hdf[
+                            "/simulation/runner/spectrum/luminosity_density_lambda"
+                        ].to_numpy(),
+                        "erg / s cm",
+                    ).to("erg / s AA"),
+                    spectrum_wavelength=u.Quantity(
+                        hdf[
+                            "/simulation/runner/spectrum/wavelength"
+                        ].to_numpy(),
+                        "cm",
+                    ).to("AA"),
+                    t_inner=t_inner,
+                    time_of_simulation=time_of_simulation,
+                )
+            else:
+                raise ValueError(
+                    "Invalid value passed to packets_mode. Only "
+                    "allowed values are 'virtual' or 'real'"
+                )
 
 
 class KromerPlotter:
     def __init__(self, data):
         self.data = data
-        # TODO: how to do dist operation - here or there in data obj itself
-        # Moving it to plot function seems best
 
     @classmethod
     def from_simulation(cls, sim):
@@ -180,6 +316,8 @@ class KromerPlotter:
         figsize=(10, 7),
         cmapname="jet",
     ):
+
+        # Read ascii or csv - 2 column format
         if packets_mode not in ["virtual", "real"]:
             raise ValueError(
                 "Invalid value passed to packets_mode. Only "
