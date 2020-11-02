@@ -88,6 +88,7 @@ from tardis.montecarlo.struct import (
 )
 
 from tardis.simulation import Simulation
+from tardis import run_tardis
 
 
 @pytest.fixture(scope='module')
@@ -1069,8 +1070,11 @@ def montecarlo_one_packet_data_fname(tardis_ref_path):
 def test_montecarlo(montecarlo_one_packet_data_fname, config_verysimple, atomic_dataset):
 
     atomic_data = deepcopy(atomic_dataset)
-    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
-    sim.iterate(100000)
+    config_verysimple.montecarlo.last_no_of_packets = 1e5
+    config_verysimple.montecarlo.no_of_virtual_packets = 0
+    config_verysimple.montecarlo.iterations = 1
+    del config_verysimple['config_dirname']
 
+    sim = run_tardis(config_verysimple, atom_data=atomic_data)
     sim.to_hdf(montecarlo_one_packet_data_fname)
 
