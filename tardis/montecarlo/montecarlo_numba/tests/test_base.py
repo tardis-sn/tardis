@@ -6,6 +6,7 @@ import numpy as np
 from copy import deepcopy
 
 from tardis.simulation import Simulation
+from tardis import run_tardis
 
 
 @pytest.mark.xfail(reason='To be implemented')
@@ -18,8 +19,12 @@ def test_montecarlo_main_loop(config_verysimple, atomic_dataset, tardis_ref_path
     C_fname = os.path.join(tardis_ref_path, "montecarlo_one_packet_compare_data.h5")
 
     atomic_data = deepcopy(atomic_dataset)
-    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
-    sim.iterate(100000)
+    config_verysimple.montecarlo.last_no_of_packets = 1e5
+    config_verysimple.montecarlo.no_of_virtual_packets = 0
+    config_verysimple.montecarlo.iterations = 1
+    del config_verysimple['config_dirname']
+
+    sim = run_tardis(config_verysimple, atom_data=atomic_data)
     sim.to_hdf(fname)
 
     actual_nu = pd.read_hdf(fname, key="/simulation/runner/output_nu").values
