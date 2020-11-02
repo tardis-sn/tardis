@@ -3,15 +3,9 @@ import pandas as pd
 import os
 import numpy.testing as npt
 import numpy as np
-import copy
+from copy import deepcopy
 
-import tardis.montecarlo.montecarlo_numba.base as base
-from tardis.montecarlo.montecarlo_numba.numba_interface import PacketCollection, VPacketCollection
-from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
-import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
-import tardis.montecarlo.montecarlo_numba.numba_config as numba_config
-import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
-import tardis.montecarlo.montecarlo_numba.single_packet_loop as spl
+from tardis.simulation import Simulation
 
 
 @pytest.mark.xfail(reason='To be implemented')
@@ -19,11 +13,13 @@ def test_montecarlo_radial1d():
     assert False
 
 
-def test_montecarlo_main_loop(nb_simulation_verysimple, tardis_ref_path, tmpdir):
+def test_montecarlo_main_loop(config_verysimple, atomic_dataset, tardis_ref_path, tmpdir):
     fname = str(tmpdir.mkdir("data").join("test.hdf"))
     C_fname = os.path.join(tardis_ref_path, "montecarlo_one_packet_compare_data.h5")
 
-    sim = nb_simulation_verysimple
+    atomic_data = deepcopy(atomic_dataset)
+    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
+    sim.iterate(100000)
     sim.to_hdf(fname)
 
     actual_nu = pd.read_hdf(fname, key="/simulation/runner/output_nu").values
