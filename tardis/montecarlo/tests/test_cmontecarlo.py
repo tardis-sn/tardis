@@ -1066,18 +1066,6 @@ def montecarlo_one_packet_data_fname(tardis_ref_path):
     return os.path.abspath(os.path.join(tardis_ref_path, fname))
 
 
-@pytest.fixture(scope='module')
-def montecarlo_one_packet_compare_data(montecarlo_one_packet_data_fname,
-                                 request):
-
-    compare_data = pd.HDFStore(montecarlo_one_packet_data_fname, mode='r')
-    def fin():
-        compare_data.close()
-    request.addfinalizer(fin)
-
-    return compare_data
-
-
 def test_montecarlo(montecarlo_one_packet_data_fname, config_verysimple, atomic_dataset):
 
     atomic_data = deepcopy(atomic_dataset)
