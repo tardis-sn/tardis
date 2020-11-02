@@ -1082,7 +1082,7 @@ def test_montecarlo(montecarlo_one_packet_data_fname, config_verysimple, atomic_
 
     atomic_data = deepcopy(atomic_dataset)
     sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
-    sim.iterate(10)
+    sim.iterate(100000)
 
     sim.to_hdf(montecarlo_one_packet_data_fname)
 
