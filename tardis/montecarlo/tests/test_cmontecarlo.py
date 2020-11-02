@@ -48,7 +48,7 @@ import os
 import pytest
 import numpy as np
 import pandas as pd
-
+from copy import deepcopy
 
 from ctypes import (
         CDLL,
@@ -86,6 +86,8 @@ from tardis.montecarlo.struct import (
     INVERSE_C,
     BoundFreeTreatment
 )
+
+from tardis.simulation import Simulation
 
 
 @pytest.fixture(scope='module')
@@ -1056,3 +1058,31 @@ def test_compute_distance2line_relativistic(clib, mu, r, t_exp, nu, nu_line,
 @pytest.mark.skipif(True, reason="Yet to be written.")
 def test_montecarlo_free_free_scatter(packet, model, mt_state):
     pass
+
+
+@pytest.fixture(scope='module')
+def montecarlo_one_packet_data_fname(tardis_ref_path):
+    fname = 'montecarlo_one_packet_compare_data.h5'
+    return os.path.abspath(os.path.join(tardis_ref_path, fname))
+
+
+@pytest.fixture(scope='module')
+def montecarlo_one_packet_compare_data(montecarlo_one_packet_data_fname,
+                                 request):
+
+    compare_data = pd.HDFStore(montecarlo_one_packet_data_fname, mode='r')
+    def fin():
+        compare_data.close()
+    request.addfinalizer(fin)
+
+    return compare_data
+
+
+def test_montecarlo(montecarlo_one_packet_data_fname, config_verysimple, atomic_dataset):
+
+    atomic_data = deepcopy(atomic_dataset)
+    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
+    sim.iterate(10)
+
+    sim.to_hdf(montecarlo_one_packet_data_fname)
+
