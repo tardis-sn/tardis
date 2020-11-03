@@ -275,7 +275,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     start_line_id = r_packet.next_line_id
 
     # defining taus
-    tau_event = -np.log(1 - np.random.random())
+    tau_event = -np.log(np.random.random())
     tau_trace_line_combined = 0.0
 
     # e scattering initialization

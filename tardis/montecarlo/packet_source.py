@@ -3,6 +3,7 @@ import abc
 import numpy as np
 import numexpr as ne
 from tardis import constants as const
+from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
 
 
 class BasePacketSource(abc.ABC):
@@ -27,7 +28,11 @@ class BasePacketSource(abc.ABC):
             number of packets to be created
         """
 
-        return np.sqrt(rng.random(no_of_packets))
+        #For testing purposes
+        if montecarlo_configuration.LEGACY_MODE_ENABLED:
+            return np.sqrt(np.random.random(no_of_packets))
+        else:
+            return np.sqrt(rng.random(no_of_packets))
 
     @staticmethod
     def create_uniform_packet_energies(no_of_packets, rng):
@@ -83,7 +88,12 @@ class BasePacketSource(abc.ABC):
         l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64) ** -4)
         l_coef = np.pi ** 4 / 90.0
 
-        xis = rng.random((5, no_of_packets))
+        #For testing purposes
+        if montecarlo_configuration.LEGACY_MODE_ENABLED:
+            xis = np.random.random((5, no_of_packets))
+        else:
+            xis = rng.random((5, no_of_packets))
+
         l = l_array.searchsorted(xis[0] * l_coef) + 1.
         xis_prod = np.prod(xis[1:], 0)
         x = ne.evaluate('-log(xis_prod)/l')
