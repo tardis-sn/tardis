@@ -9,18 +9,16 @@ variables:
   system.debug: false
 
 jobs:
-  - job: test
-    displayName: 'TARDIS test'
-
+  - job:
     pool:
       vmImage: $[variables.vm_Image]
 
     strategy:
       matrix:
-        linux:
+        Linux:
           vm_Image: 'ubuntu-latest'
 
-        mac:
+        macOS:
           vm_Image: 'macOS-latest'
 
       maxParallel: 2
