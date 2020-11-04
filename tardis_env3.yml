@@ -27,6 +27,7 @@ dependencies:
   - h5py
   - requests
   - tqdm
+  - beautifulsoup4
 
   # Analysis
   - jupyter
