@@ -1062,19 +1062,42 @@ def test_montecarlo_free_free_scatter(packet, model, mt_state):
 
 
 @pytest.fixture(scope='module')
-def montecarlo_one_packet_data_fname(tardis_ref_path):
-    fname = 'montecarlo_one_packet_compare_data.h5'
+def montecarlo_1e5_data_fname(tardis_ref_path):
+    fname = 'montecarlo_1e5_compare_data.h5'
     return os.path.abspath(os.path.join(tardis_ref_path, fname))
 
-
-def test_montecarlo(montecarlo_one_packet_data_fname, config_verysimple, atomic_dataset):
-
+@pytest.fixture(scope='module')
+def montecarlo_1e5_sim(
+    montecarlo_1e5_data_fname, request, config_verysimple, atomic_dataset, tardis_ref_data
+    ):
     atomic_data = deepcopy(atomic_dataset)
     config_verysimple.montecarlo.last_no_of_packets = 1e5
     config_verysimple.montecarlo.no_of_virtual_packets = 0
     config_verysimple.montecarlo.iterations = 1
     del config_verysimple['config_dirname']
-
+    
     sim = run_tardis(config_verysimple, atom_data=atomic_data)
-    sim.to_hdf(montecarlo_one_packet_data_fname)
+    if request.config.getoption("--generate-reference"):
+        sim.to_hdf(montecarlo_1e5_data_fname)
+        pytest.skip("Reference data saved at {0}".format(tardis_ref_data))
+    return sim
 
+
+runner_properties = ['output_nu', 'output_energy', 'nu_bar_estimator',
+                     'j_estimator', 'montecarlo_virtual_luminosity',
+                     'last_interaction_in_nu',
+                     'last_interaction_type',
+                     'last_line_interaction_in_id',
+                     'last_line_interaction_out_id',
+                     'last_line_interaction_shell_id',
+                     'packet_luminosity']
+
+@pytest.mark.parametrize("attr", runner_properties)
+def test_montecarlo(montecarlo_1e5_data_fname, montecarlo_1e5_sim, attr):
+
+    actual = getattr(montecarlo_1e5_sim.runner, attr)
+    if hasattr(actual, 'cgs'):
+        actual = actual.cgs.value
+    path = os.path.join('simulation/runner', attr)
+    expected = pd.read_hdf(montecarlo_1e5_data_fname, path)
+    assert_almost_equal(actual, expected.values)
