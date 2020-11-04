@@ -16,35 +16,13 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     Estimators, configuration_initialize)
 
 
-@pytest.fixture()
-def read_c_test(tardis_ref_path):
-    mode = "r"
-    with pd.HDFStore(
-        os.path.join(tardis_ref_path, "montecarlo_one_packet_compare_data.h5"), mode=mode
-    ) as store:
-        yield store
-
-
-@pytest.fixture()
-def c_test_packet_collection(read_c_test):
-    input_data = read_c_test['/one_packet_loop']
-    input_nu = input_data['input_nu'].values
-    input_mu = input_data['input_mu'].values
-    input_energy = input_data['input_energy'].values
-    output_nu = input_data['output_nu'].values
-    output_energy = input_data['output_energy'].values
-    return PacketCollection(
-        input_nu, input_mu, input_energy,
-        output_nu, output_energy
-    )
-
 @pytest.mark.xfail(reason='To be implemented')
 def test_montecarlo_radial1d():
     assert False
 
 
 def test_montecarlo_main_loop(
-    config_verysimple, atomic_dataset, tardis_ref_path, tmpdir, set_seed_fixture, c_test_packet_collection, random_call_fixture
+    config_verysimple, atomic_dataset, tardis_ref_path, tmpdir, set_seed_fixture, random_call_fixture
     ):
 
     montecarlo_configuration.LEGACY_MODE_ENABLED = True 
