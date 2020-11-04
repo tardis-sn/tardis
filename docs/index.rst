@@ -96,6 +96,7 @@ Mission Statement
 
     CONTRIBUTING.md
     development/index
+    development/developer_corner
     CHANGELOG.md
     roadmap
 

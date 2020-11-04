@@ -23,14 +23,7 @@ to the Astropy team for designing it.
     git_workflow
 
 
-.. toctree::
-    :maxdepth: 2
-    :caption: TARDIS core team instructions
 
-    update_refdata
-    continuous_integration
-    matterbridge
-    developer_faq
 
 
 
