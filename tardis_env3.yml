@@ -28,6 +28,7 @@ dependencies:
   - requests
   - tqdm
   - beautifulsoup4
+  - lxml
 
   # Analysis
   - jupyter
