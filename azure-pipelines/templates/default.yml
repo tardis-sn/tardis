@@ -20,7 +20,6 @@ steps:
     condition: eq(variables['Agent.OS'], 'Linux')
 
   - bash: |
-      echo "##vso[task.setvariable variable=sources.dir]$(Build.SourcesDirectory)"
       echo "##vso[task.setvariable variable=tardis.dir]$(Build.SourcesDirectory)/tardis"
       echo "##vso[task.setvariable variable=refdata.dir]$(Build.SourcesDirectory)/tardis-refdata"
     displayName: 'Set source directories'
@@ -34,14 +33,15 @@ steps:
     - bash: |
         echo "##vso[task.setvariable variable=package.manager]mamba"
       displayName: 'Set package manager'
-
+ 
   - checkout: self
-    displayName: 'Fetch TARDIS repository from GitHub'
+    path: s/tardis
+    displayName: 'Fetch main repository'
 
   - ${{ if eq(parameters.fetchRefdata, true) }}:
     - checkout: git://TARDIS/tardis-refdata
       lfs: true
-      displayName: 'Fetch reference data repository from Azure Repos'
+      displayName: 'Fetch reference data repository'
 
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: 'Add conda to PATH'
@@ -52,17 +52,17 @@ steps:
 
   - ${{ if eq(parameters.useMamba, true) }}:
     - bash: conda install mamba -c conda-forge -y
-      displayName: 'Install Mamba package manager'
+      displayName: 'Install package manager'
 
   - ${{ if eq(parameters.skipInstall, false) }}:
     - bash: |
         cd $(tardis.dir)
         $(package.manager) env create -f tardis_env3.yml
-      displayName: 'TARDIS environment install'
+      displayName: 'Install conda environment'
 
   - ${{ if eq(parameters.skipInstall, false) }}:
     - bash: |
         cd $(tardis.dir)
         source activate tardis
         python setup.py build_ext --inplace
-      displayName: 'TARDIS build & install'
+      displayName: 'Build C extensions'
