@@ -436,32 +436,58 @@ class KromerPlotter:
         else:
             self.lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
 
-        if ax is None:
-            self.ax = plt.figure(figsize=figsize).add_subplot(111)
-        else:
-            self.ax = ax
-
         # Bin edges
         bins = self.data[packets_mode].spectrum_frequency_bins
 
         # Wavelengths
         wvl = self.data[packets_mode].spectrum_wavelength
 
+        emission_luminosities_df = self._calculate_emission_luminosities(
+            packets_mode=packets_mode,
+            bins=bins,
+            wvl=wvl,
+            packet_wvl_range=packet_wvl_range,
+        )
+        absorption_luminosities_df = self._calculate_absorption_luminosities(
+            packets_mode=packets_mode,
+            bins=bins,
+            wvl=wvl,
+            packet_wvl_range=packet_wvl_range,
+        )
+        photosphere_luminosity = self._calculate_photosphere_luminosity(
+            packets_mode=packets_mode
+        )
+
+        # Plotting ------------------------------------------------
+        if ax is None:
+            self.ax = plt.figure(figsize=figsize).add_subplot(111)
+        else:
+            self.ax = ax
+
+        # Plot virtual spectrum
+        if show_modeled_spectrum:
+            self.ax.plot(
+                self.data[packets_mode].spectrum_wavelength,
+                self.data[packets_mode].spectrum_luminosity_density_lambda
+                / self.lum_to_flux,
+                "--b",
+                label=f"{packets_mode.capitalize()} Spectrum",
+                # ds="steps-pre", # no need to make it look histogram
+                linewidth=1,
+            )
+
         self._plot_emission(
-            packets_mode=packets_mode,
-            bins=bins,
-            wvl=wvl,
-            packet_wvl_range=packet_wvl_range,
-            cmapname=cmapname,
-            show_modeled_spectrum=show_modeled_spectrum,
+            luminosities_df=emission_luminosities_df, cmapname=cmapname
         )
-        self._plot_absorption(
-            packets_mode=packets_mode,
-            bins=bins,
-            wvl=wvl,
-            packet_wvl_range=packet_wvl_range,
+        self._plot_absorption(absorption_luminosities_df)
+
+        # Plot Photosphere luminosity
+        self.ax.plot(
+            self.data[packets_mode].spectrum_wavelength,
+            photosphere_luminosity / self.lum_to_flux,
+            "--r",
+            label="Blackbody Photosphere",
         )
-        self._plot_photosphere(packets_mode=packets_mode)
 
         self.ax.legend(fontsize=12)
         self.ax.set_xlabel(r"Wavelength $(\AA)$", fontsize=15)
@@ -474,14 +500,12 @@ class KromerPlotter:
 
         return plt.gca()
 
-    def _plot_emission(
+    def _calculate_emission_luminosities(
         self,
         packets_mode,
         bins,
         wvl,
         packet_wvl_range,
-        cmapname,
-        show_modeled_spectrum,
     ):
         if packet_wvl_range is None:
             packet_nu_range_mask = np.ones(
@@ -510,12 +534,8 @@ class KromerPlotter:
             self.data[packets_mode].packets_df["energies"][packet_nu_range_mask]
             / self.lum_to_flux
         ) / self.data[packets_mode].time_of_simulation
-        hist = np.histogram(
-            self.data[packets_mode].packets_df["nus"][packet_nu_range_mask],
-            bins=bins,
-            weights=weights,
-            density=False,
-        )
+
+        luminosities_df = pd.DataFrame(index=wvl)
 
         # No interaction contribution
         # mask_noint selects packets with no interaction
@@ -533,6 +553,21 @@ class KromerPlotter:
             weights=weights[mask_noint],
             density=False,
         )
+
+        # We convert histogram values to luminosity density lambda.
+        L_nu_noint = (
+            hist_noint[0]
+            * u.erg
+            / u.s
+            / self.data[packets_mode].spectrum_delta_frequency
+        )
+        L_lambda_noint = (
+            L_nu_noint
+            * self.data[packets_mode].spectrum_frequency
+            / self.data[packets_mode].spectrum_wavelength
+        )
+        # Save it in df
+        luminosities_df["noint"] = L_lambda_noint.value
 
         # Electron scattering contribution
         # mask_escatter selects packets that ONLY experience
@@ -557,44 +592,6 @@ class KromerPlotter:
             density=False,
         )
 
-        # Plot virtual spectrum
-        if show_modeled_spectrum:
-            self.ax.plot(
-                self.data[packets_mode].spectrum_wavelength,
-                self.data[packets_mode].spectrum_luminosity_density_lambda
-                / self.lum_to_flux,
-                "--b",
-                label=f"{packets_mode.capitalize()} Spectrum",
-                # ds="steps-pre", # no need to make it look histogram
-                linewidth=1,
-            )
-
-        # No Scattering Contribution
-        # We convert histogram values to luminosity density lambda.
-        lower_level = np.zeros(len(hist_noint[1][1:]))
-        L_nu_noint = (
-            hist_noint[0]
-            * u.erg
-            / u.s
-            / self.data[packets_mode].spectrum_delta_frequency
-        )
-        L_lambda_noint = (
-            L_nu_noint
-            * self.data[packets_mode].spectrum_frequency
-            / self.data[packets_mode].spectrum_wavelength
-        )
-
-        self.ax.fill_between(
-            wvl,
-            lower_level,
-            L_lambda_noint.value,
-            # step="pre",
-            color="k",
-            label="No interaction",
-        )
-        lower_level = L_lambda_noint.value
-
-        # Only Electron Scattering
         L_nu_escatter = (
             hist_escatter[0]
             * u.erg
@@ -606,16 +603,7 @@ class KromerPlotter:
             * self.data[packets_mode].spectrum_frequency
             / self.data[packets_mode].spectrum_wavelength
         )
-
-        self.ax.fill_between(
-            wvl,
-            lower_level,
-            lower_level + L_lambda_escatter.value,
-            # step="pre",
-            color="grey",
-            label="Electron Scatter Only",
-        )
-        lower_level = lower_level + L_lambda_escatter.value
+        luminosities_df["escatter"] = L_lambda_escatter.value
 
         # Groupby packet dataframe by last atom interaction out
         g = (
@@ -624,29 +612,9 @@ class KromerPlotter:
             .groupby(by="last_line_interaction_out_atom")
         )
 
-        # Set up color map
-        elements_z = g.groups.keys()
-        elements_name = [pyne.nucname.name(el) for el in elements_z]
-        nelements = len(elements_z)
-
-        # Save color map for later use
-        self.cmap = cm.get_cmap(cmapname, nelements)
-
-        values = [self.cmap(i / nelements) for i in range(nelements)]
-        custcmap = matplotlib.colors.ListedColormap(values)
-        bounds = np.arange(nelements) + 0.5
-        norm = matplotlib.colors.Normalize(vmin=0, vmax=nelements)
-        mappable = cm.ScalarMappable(norm=norm, cmap=custcmap)
-
-        mappable.set_array(np.linspace(1, nelements + 1, 256))
-        labels = elements_name
-
         # Contribution from each element
-        for ind, groupkey in enumerate(elements_z):
-            # select subgroup of packet dataframe for specific element.
-            group = g.get_group(groupkey)
-
-            # histogram specific element.
+        for atomic_number, group in g:
+            # histogram of specific element
             hist_el = np.histogram(
                 group["nus"],
                 bins=bins,
@@ -667,29 +635,78 @@ class KromerPlotter:
                 / self.data[packets_mode].spectrum_wavelength
             )
 
+            luminosities_df[atomic_number] = L_lambda_el.value
+
+        return luminosities_df
+
+    def _plot_emission(self, luminosities_df, cmapname):
+        wavelength = luminosities_df.index.to_numpy()
+
+        lower_level = np.zeros(luminosities_df.shape[0])
+        upper_level = lower_level + luminosities_df.noint.to_numpy()
+
+        self.ax.fill_between(
+            wavelength,
+            lower_level,
+            upper_level,
+            # step="pre",
+            color="k",
+            label="No interaction",
+        )
+
+        lower_level = upper_level
+        upper_level = lower_level + luminosities_df.escatter.to_numpy()
+
+        self.ax.fill_between(
+            wavelength,
+            lower_level,
+            upper_level,
+            # step="pre",
+            color="grey",
+            label="Electron Scatter Only",
+        )
+
+        # Set up color map
+        elements_z = luminosities_df.columns[2:].to_list()
+        nelements = len(elements_z)
+
+        # Save color map for later use
+        self.cmap = cm.get_cmap(cmapname, nelements)
+
+        # Contribution from each element
+        for i, atomic_number in enumerate(elements_z):
+            lower_level = upper_level
+            upper_level = (
+                lower_level + luminosities_df[atomic_number].to_numpy()
+            )
+
             self.ax.fill_between(
-                wvl,
+                wavelength,
                 lower_level,
-                lower_level + L_lambda_el.value,
+                upper_level,
                 # step="pre",
-                color=self.cmap(ind / len(elements_z)),
+                color=self.cmap(i / nelements),
                 cmap=self.cmap,
                 linewidth=0,
             )
-            lower_level = lower_level + L_lambda_el.value
 
-        # Colorbar and Legend
-        # self.ax.legend(fontsize=20)
-        # self.ax.set_xlabel('Wavelength $(\AA)$', fontsize=20)
-        # self.ax.set_ylabel('$L$ (erg/s/$\AA$)', fontsize=20)
+        values = [self.cmap(i / nelements) for i in range(nelements)]
+        custcmap = matplotlib.colors.ListedColormap(values)
+        bounds = np.arange(nelements) + 0.5
+        norm = matplotlib.colors.Normalize(vmin=0, vmax=nelements)
+        mappable = cm.ScalarMappable(norm=norm, cmap=custcmap)
+        mappable.set_array(np.linspace(1, nelements + 1, 256))
+
+        elements_name = [pyne.nucname.name(el) for el in elements_z]
+        labels = elements_name
 
         cbar = plt.colorbar(mappable, ax=self.ax)
         cbar.set_ticks(bounds)
         cbar.set_ticklabels(labels)
 
-        return
-
-    def _plot_absorption(self, packets_mode, bins, wvl, packet_wvl_range):
+    def _calculate_absorption_luminosities(
+        self, packets_mode, bins, wvl, packet_wvl_range
+    ):
 
         # Set up a wavelength range to only analyze emitted packets in that range.
         # packet_wvl_range should be a list [lower_lambda, upper_lambda]*u.angstrom
@@ -710,7 +727,7 @@ class KromerPlotter:
                 > packet_nu_range[1]
             )
 
-        abs_lower_level = np.zeros(len(wvl))
+        luminosities_df = pd.DataFrame(index=wvl)
 
         # Groupby packet dataframe by last atom interaction in
         g_abs = (
@@ -718,9 +735,7 @@ class KromerPlotter:
             .packets_df_line_interaction.loc[packet_nu_line_range_mask]
             .groupby(by="last_line_interaction_in_atom")
         )
-        elements_z = g_abs.groups.keys()
-        for ind, groupkey in enumerate(elements_z):
-            group = g_abs.get_group(groupkey)
+        for atomic_number, group in g_abs:
             hist_el = np.histogram(
                 group["last_line_interaction_in_nu"],
                 bins=bins,
@@ -739,26 +754,39 @@ class KromerPlotter:
                 / self.data[packets_mode].spectrum_wavelength
             )
 
+            luminosities_df[atomic_number] = L_lambda_el.value
+
+        return luminosities_df
+
+    def _plot_absorption(self, luminosities_df):
+        wavelength = luminosities_df.index.to_numpy()
+        lower_level = np.zeros(luminosities_df.shape[0])
+
+        elements_z = luminosities_df.columns.to_list()
+        for i, atomic_number in enumerate(elements_z):
+            # Fill from upper to lower level, moving along -ve x-axis
+            upper_level = lower_level
+            lower_level = (
+                upper_level - luminosities_df[atomic_number].to_numpy()
+            )
+
             self.ax.fill_between(
-                wvl,
-                abs_lower_level,
-                abs_lower_level - L_lambda_el.value,
+                wavelength,
+                upper_level,
+                lower_level,
                 # step="pre",
-                color=self.cmap(ind / len(elements_z)),
+                color=self.cmap(i / len(elements_z)),
                 cmap=self.cmap,
                 linewidth=0,
             )
-            abs_lower_level = abs_lower_level - L_lambda_el.value
 
-        return
-
-    def _plot_photosphere(self, packets_mode):
+    def _calculate_photosphere_luminosity(self, packets_mode):
         """
         Plots the blackbody luminosity density from the inner
         boundary of the TARDIS simulation.
 
         """
-        Lph = (
+        return (
             abb.blackbody_lambda(
                 self.data[packets_mode].spectrum_wavelength,
                 self.data[packets_mode].t_inner,
@@ -768,10 +796,3 @@ class KromerPlotter:
             * self.data[packets_mode].r_inner[0] ** 2
             * u.sr
         ).to("erg / (AA s)")
-        self.ax.plot(
-            self.data[packets_mode].spectrum_wavelength,
-            Lph / self.lum_to_flux,
-            "--r",
-            label="Blackbody Photosphere",
-        )
-        return
