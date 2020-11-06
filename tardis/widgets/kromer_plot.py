@@ -431,34 +431,59 @@ class KromerPlotter:
                 "allowed values are 'virtual' or 'real'"
             )
 
+        # Set up a wavelength range to only analyze emitted packets in that range.
+        # packet_wvl_range should be a list [lower_lambda, upper_lambda]*u.angstrom
+        # Notice that we convert to frequency, where the lower_lambda is a larger
+        # frequency.
+        if packet_wvl_range is None:
+            self.packet_nu_range_mask = np.ones(
+                self.data[packets_mode].packets_df.shape[0], dtype=bool
+            )
+            self.packet_nu_line_range_mask = np.ones(
+                self.data[packets_mode].packets_df_line_interaction.shape[0],
+                dtype=bool,
+            )
+        else:
+            packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
+            # print(packet_nu_range)
+            self.packet_nu_range_mask = (
+                self.data[packets_mode].packets_df["nus"] < packet_nu_range[0]
+            ) & (self.data[packets_mode].packets_df["nus"] > packet_nu_range[1])
+            self.packet_nu_line_range_mask = (
+                self.data[packets_mode].packets_df_line_interaction["nus"]
+                < packet_nu_range[0]
+            ) & (
+                self.data[packets_mode].packets_df_line_interaction["nus"]
+                > packet_nu_range[1]
+            )
+
         if distance is None:
             self.lum_to_flux = 1  # so that this factor will have no effect
         else:
             self.lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
 
-        # Bin edges
-        bins = self.data[packets_mode].spectrum_frequency_bins
-
-        # Wavelengths
-        wvl = self.data[packets_mode].spectrum_wavelength
-
         emission_luminosities_df = self._calculate_emission_luminosities(
             packets_mode=packets_mode,
-            bins=bins,
-            wvl=wvl,
-            packet_wvl_range=packet_wvl_range,
+            bins=self.data[packets_mode].spectrum_frequency_bins,
+            wvl=self.data[packets_mode].spectrum_wavelength,
         )
         absorption_luminosities_df = self._calculate_absorption_luminosities(
             packets_mode=packets_mode,
-            bins=bins,
-            wvl=wvl,
-            packet_wvl_range=packet_wvl_range,
+            bins=self.data[packets_mode].spectrum_frequency_bins,
+            wvl=self.data[packets_mode].spectrum_wavelength,
         )
         photosphere_luminosity = self._calculate_photosphere_luminosity(
             packets_mode=packets_mode
         )
 
         # Plotting ------------------------------------------------
+
+        # if interactive == False:  # matplotlib plot
+        #     matplotlib_options = dict(
+        #         ax=None, figsize=(10, 7), cmapname="jet"
+        #     )
+        #     matplotlib_options.update(kwargs)
+
         if ax is None:
             self.ax = plt.figure(figsize=figsize).add_subplot(111)
         else:
@@ -476,9 +501,7 @@ class KromerPlotter:
                 linewidth=1,
             )
 
-        self._plot_emission(
-            luminosities_df=emission_luminosities_df, cmapname=cmapname
-        )
+        self._plot_emission(emission_luminosities_df, cmapname=cmapname)
         self._plot_absorption(absorption_luminosities_df)
 
         # Plot Photosphere luminosity
@@ -500,38 +523,12 @@ class KromerPlotter:
 
         return plt.gca()
 
-    def _calculate_emission_luminosities(
-        self,
-        packets_mode,
-        bins,
-        wvl,
-        packet_wvl_range,
-    ):
-        if packet_wvl_range is None:
-            packet_nu_range_mask = np.ones(
-                self.data[packets_mode].packets_df.shape[0], dtype=bool
-            )
-            packet_nu_line_range_mask = np.ones(
-                self.data[packets_mode].packets_df_line_interaction.shape[0],
-                dtype=bool,
-            )
-        else:
-            packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
-            # print(packet_nu_range)
-            packet_nu_range_mask = (
-                self.data[packets_mode].packets_df["nus"] < packet_nu_range[0]
-            ) & (self.data[packets_mode].packets_df["nus"] > packet_nu_range[1])
-            packet_nu_line_range_mask = (
-                self.data[packets_mode].packets_df_line_interaction["nus"]
-                < packet_nu_range[0]
-            ) & (
-                self.data[packets_mode].packets_df_line_interaction["nus"]
-                > packet_nu_range[1]
-            )
-
+    def _calculate_emission_luminosities(self, packets_mode, bins, wvl):
         # weights are packet luminosities or flux
         weights = (
-            self.data[packets_mode].packets_df["energies"][packet_nu_range_mask]
+            self.data[packets_mode].packets_df["energies"][
+                self.packet_nu_range_mask
+            ]
             / self.lum_to_flux
         ) / self.data[packets_mode].time_of_simulation
 
@@ -541,14 +538,14 @@ class KromerPlotter:
         # mask_noint selects packets with no interaction
         mask_noint = (
             self.data[packets_mode].packets_df["last_interaction_type"][
-                packet_nu_range_mask
+                self.packet_nu_range_mask
             ]
             == -1
         )
         hist_noint = np.histogram(
-            self.data[packets_mode].packets_df["nus"][packet_nu_range_mask][
-                mask_noint
-            ],
+            self.data[packets_mode].packets_df["nus"][
+                self.packet_nu_range_mask
+            ][mask_noint],
             bins=bins,
             weights=weights[mask_noint],
             density=False,
@@ -574,19 +571,19 @@ class KromerPlotter:
         # electron scattering.
         mask_escatter = (
             self.data[packets_mode].packets_df["last_interaction_type"][
-                packet_nu_range_mask
+                self.packet_nu_range_mask
             ]
             == 1
         ) & (
             self.data[packets_mode].packets_df["last_line_interaction_in_id"][
-                packet_nu_range_mask
+                self.packet_nu_range_mask
             ]
             == -1
         )
         hist_escatter = np.histogram(
-            self.data[packets_mode].packets_df["nus"][packet_nu_range_mask][
-                mask_escatter
-            ],
+            self.data[packets_mode].packets_df["nus"][
+                self.packet_nu_range_mask
+            ][mask_escatter],
             bins=bins,
             weights=weights[mask_escatter],
             density=False,
@@ -608,7 +605,7 @@ class KromerPlotter:
         # Groupby packet dataframe by last atom interaction out
         g = (
             self.data[packets_mode]
-            .packets_df_line_interaction.loc[packet_nu_line_range_mask]
+            .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
             .groupby(by="last_line_interaction_out_atom")
         )
 
@@ -704,35 +701,13 @@ class KromerPlotter:
         cbar.set_ticks(bounds)
         cbar.set_ticklabels(labels)
 
-    def _calculate_absorption_luminosities(
-        self, packets_mode, bins, wvl, packet_wvl_range
-    ):
-
-        # Set up a wavelength range to only analyze emitted packets in that range.
-        # packet_wvl_range should be a list [lower_lambda, upper_lambda]*u.angstrom
-        # Notice that we convert to frequency, where the lower_lambda is a larger
-        # frequency.
-        if packet_wvl_range is None:
-            packet_nu_line_range_mask = np.ones(
-                self.data[packets_mode].packets_df_line_interaction.shape[0],
-                dtype=bool,
-            )
-        else:
-            packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
-            packet_nu_line_range_mask = (
-                self.data[packets_mode].packets_df_line_interaction["nus"]
-                < packet_nu_range[0]
-            ) & (
-                self.data[packets_mode].packets_df_line_interaction["nus"]
-                > packet_nu_range[1]
-            )
-
+    def _calculate_absorption_luminosities(self, packets_mode, bins, wvl):
         luminosities_df = pd.DataFrame(index=wvl)
 
         # Groupby packet dataframe by last atom interaction in
         g_abs = (
             self.data[packets_mode]
-            .packets_df_line_interaction.loc[packet_nu_line_range_mask]
+            .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
             .groupby(by="last_line_interaction_in_atom")
         )
         for atomic_number, group in g_abs:
