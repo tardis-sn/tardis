@@ -412,19 +412,9 @@ class KromerPlotter:
             )
         )
 
-    def generate_plot(
-        self,
-        packets_mode="virtual",
-        packet_wvl_range=None,
-        distance=None,
-        observed_spectrum=None,
-        show_modeled_spectrum=True,
-        ax=None,
-        figsize=(10, 7),
-        cmapname="jet",
+    def _calculate_plotting_data(
+        self, packets_mode, packet_wvl_range, distance
     ):
-        # TODO: Read observed_spectrum in ascii or csv - 2 column format
-
         if packets_mode not in ["virtual", "real"]:
             raise ValueError(
                 "Invalid value passed to packets_mode. Only "
@@ -462,56 +452,73 @@ class KromerPlotter:
         else:
             self.lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
 
-        emission_luminosities_df = self._calculate_emission_luminosities(
+        self.emission_luminosities_df = self._calculate_emission_luminosities(
             packets_mode=packets_mode,
             bins=self.data[packets_mode].spectrum_frequency_bins,
             wvl=self.data[packets_mode].spectrum_wavelength,
         )
-        absorption_luminosities_df = self._calculate_absorption_luminosities(
-            packets_mode=packets_mode,
-            bins=self.data[packets_mode].spectrum_frequency_bins,
-            wvl=self.data[packets_mode].spectrum_wavelength,
+        self.absorption_luminosities_df = (
+            self._calculate_absorption_luminosities(
+                packets_mode=packets_mode,
+                bins=self.data[packets_mode].spectrum_frequency_bins,
+                wvl=self.data[packets_mode].spectrum_wavelength,
+            )
         )
-        photosphere_luminosity = self._calculate_photosphere_luminosity(
+        self.photosphere_luminosity = self._calculate_photosphere_luminosity(
             packets_mode=packets_mode
         )
+        self.modeled_spectrum_luminosity = (
+            self.data[packets_mode].spectrum_luminosity_density_lambda
+            / self.lum_to_flux
+        )  # TODO: slice as per wvl_range
 
-        # Plotting ------------------------------------------------
-
-        # if interactive == False:  # matplotlib plot
-        #     matplotlib_options = dict(
-        #         ax=None, figsize=(10, 7), cmapname="jet"
-        #     )
-        #     matplotlib_options.update(kwargs)
+    def generate_plot_mpl(
+        self,
+        packets_mode="virtual",
+        packet_wvl_range=None,
+        distance=None,
+        observed_spectrum=None,
+        show_modeled_spectrum=True,
+        ax=None,
+        figsize=(10, 7),
+        cmapname="jet",
+    ):
+        # Calculate data attributes required for plotting
+        # and save them in instance itself
+        self._calculate_plotting_data(
+            packets_mode=packets_mode,
+            packet_wvl_range=packet_wvl_range,
+            distance=distance,
+        )
 
         if ax is None:
             self.ax = plt.figure(figsize=figsize).add_subplot(111)
         else:
             self.ax = ax
 
-        # Plot virtual spectrum
+        # Plot modeled spectrum
         if show_modeled_spectrum:
             self.ax.plot(
                 self.data[packets_mode].spectrum_wavelength,
-                self.data[packets_mode].spectrum_luminosity_density_lambda
-                / self.lum_to_flux,
+                self.modeled_spectrum_luminosity,
                 "--b",
                 label=f"{packets_mode.capitalize()} Spectrum",
                 # ds="steps-pre", # no need to make it look histogram
                 linewidth=1,
             )
 
-        self._plot_emission(emission_luminosities_df, cmapname=cmapname)
-        self._plot_absorption(absorption_luminosities_df)
+        self._plot_emission(cmapname=cmapname)
+        self._plot_absorption()
 
-        # Plot Photosphere luminosity
+        # Plot photosphere
         self.ax.plot(
             self.data[packets_mode].spectrum_wavelength,
-            photosphere_luminosity / self.lum_to_flux,
+            self.photosphere_luminosity,
             "--r",
             label="Blackbody Photosphere",
         )
 
+        # Set legends and labels
         self.ax.legend(fontsize=12)
         self.ax.set_xlabel(r"Wavelength $(\AA)$", fontsize=15)
         if distance:  # Set y-axis label for flux
@@ -636,11 +643,15 @@ class KromerPlotter:
 
         return luminosities_df
 
-    def _plot_emission(self, luminosities_df, cmapname):
-        wavelength = luminosities_df.index.to_numpy()
+    def _plot_emission(self, cmapname):
+        wavelength = (
+            self.emission_luminosities_df.index.to_numpy()
+        )  # TODO: account for wvl_range
 
-        lower_level = np.zeros(luminosities_df.shape[0])
-        upper_level = lower_level + luminosities_df.noint.to_numpy()
+        lower_level = np.zeros(self.emission_luminosities_df.shape[0])
+        upper_level = (
+            lower_level + self.emission_luminosities_df.noint.to_numpy()
+        )
 
         self.ax.fill_between(
             wavelength,
@@ -652,7 +663,9 @@ class KromerPlotter:
         )
 
         lower_level = upper_level
-        upper_level = lower_level + luminosities_df.escatter.to_numpy()
+        upper_level = (
+            lower_level + self.emission_luminosities_df.escatter.to_numpy()
+        )
 
         self.ax.fill_between(
             wavelength,
@@ -664,7 +677,7 @@ class KromerPlotter:
         )
 
         # Set up color map
-        elements_z = luminosities_df.columns[2:].to_list()
+        elements_z = self.emission_luminosities_df.columns[2:].to_list()
         nelements = len(elements_z)
 
         # Save color map for later use
@@ -674,7 +687,8 @@ class KromerPlotter:
         for i, atomic_number in enumerate(elements_z):
             lower_level = upper_level
             upper_level = (
-                lower_level + luminosities_df[atomic_number].to_numpy()
+                lower_level
+                + self.emission_luminosities_df[atomic_number].to_numpy()
             )
 
             self.ax.fill_between(
@@ -733,16 +747,19 @@ class KromerPlotter:
 
         return luminosities_df
 
-    def _plot_absorption(self, luminosities_df):
-        wavelength = luminosities_df.index.to_numpy()
-        lower_level = np.zeros(luminosities_df.shape[0])
+    def _plot_absorption(self):
+        wavelength = (
+            self.absorption_luminosities_df.index.to_numpy()
+        )  # TODO: account for wvl_range
+        lower_level = np.zeros(self.absorption_luminosities_df.shape[0])
 
-        elements_z = luminosities_df.columns.to_list()
+        elements_z = self.absorption_luminosities_df.columns.to_list()
         for i, atomic_number in enumerate(elements_z):
             # Fill from upper to lower level, moving along -ve x-axis
             upper_level = lower_level
             lower_level = (
-                upper_level - luminosities_df[atomic_number].to_numpy()
+                upper_level
+                - self.absorption_luminosities_df[atomic_number].to_numpy()
             )
 
             self.ax.fill_between(
@@ -761,7 +778,7 @@ class KromerPlotter:
         boundary of the TARDIS simulation.
 
         """
-        return (
+        L_lambda_ph = (
             abb.blackbody_lambda(
                 self.data[packets_mode].spectrum_wavelength,
                 self.data[packets_mode].t_inner,
@@ -771,3 +788,7 @@ class KromerPlotter:
             * self.data[packets_mode].r_inner[0] ** 2
             * u.sr
         ).to("erg / (AA s)")
+
+        # TODO: do slicing as per wvl_range
+
+        return L_lambda_ph / self.lum_to_flux
