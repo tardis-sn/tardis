@@ -6,14 +6,15 @@ proposed by M. Kromer (see, for example, Kromer et al. 2013, figure 4).
 """
 import numpy as np
 import pandas as pd
-import pyne
 import astropy.units as u
 import astropy.modeling.blackbody as abb
 
-import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import matplotlib.colors as clr
 import plotly.graph_objects as go
+
+from tardis.util.base import atomic_number2element_symbol
 
 
 class KromerData:
@@ -525,6 +526,8 @@ class KromerPlotter:
             label="Blackbody Photosphere",
         )
 
+        self._show_colorbar_mpl()
+
         # Set legends and labels
         self.ax.legend(fontsize=12)
         self.ax.set_xlabel(r"Wavelength $(\AA)$", fontsize=15)
@@ -593,6 +596,8 @@ class KromerPlotter:
                 name="Blackbody Photosphere",
             )
         )
+
+        self._show_colorbar_ply()
 
         # Set legends and labels
         self.fig.update_layout(
@@ -762,7 +767,6 @@ class KromerPlotter:
             label="Electron Scatter Only",
         )
 
-        # Set up color map
         elements_z = self.emission_luminosities_df.columns[2:].to_list()
         nelements = len(elements_z)
 
@@ -784,19 +788,24 @@ class KromerPlotter:
                 linewidth=0,
             )
 
-        values = [self.cmap(i / nelements) for i in range(nelements)]
-        custcmap = matplotlib.colors.ListedColormap(values)
-        bounds = np.arange(nelements) + 0.5
-        norm = matplotlib.colors.Normalize(vmin=0, vmax=nelements)
+    def _show_colorbar_mpl(self):
+        color_values = [
+            self.cmap(i / self.elements.size) for i in range(self.elements.size)
+        ]
+        custcmap = clr.ListedColormap(color_values)
+        norm = clr.Normalize(vmin=0, vmax=self.elements.size)
         mappable = cm.ScalarMappable(norm=norm, cmap=custcmap)
-        mappable.set_array(np.linspace(1, nelements + 1, 256))
-
-        elements_name = [pyne.nucname.name(el) for el in elements_z]
-        labels = elements_name
-
+        mappable.set_array(np.linspace(1, self.elements.size + 1, 256))
         cbar = plt.colorbar(mappable, ax=self.ax)
+
+        bounds = np.arange(self.elements.size) + 0.5
         cbar.set_ticks(bounds)
-        cbar.set_ticklabels(labels)
+
+        elements_name = [
+            atomic_number2element_symbol(atomic_num)
+            for atomic_num in self.elements
+        ]
+        cbar.set_ticklabels(elements_name)
 
     def _calculate_absorption_luminosities(self, packets_mode, bins, wvl):
         luminosities_df = pd.DataFrame(index=wvl)
@@ -909,15 +918,16 @@ class KromerPlotter:
         elements_z = self.emission_luminosities_df.columns[2:]
         nelements = len(elements_z)
 
-        for i, atomic_number in enumerate(elements_z):
+        for i, atomic_num in enumerate(elements_z):
             self.fig.add_trace(
                 go.Scatter(
                     x=self.emission_luminosities_df.index,
-                    y=self.emission_luminosities_df[atomic_number],
+                    y=self.emission_luminosities_df[atomic_num],
                     mode="none",
-                    name=pyne.nucname.name(atomic_number),
+                    name=atomic_number2element_symbol(atomic_num),
                     fillcolor=self.to_rgb255_string(self.cmap(i / nelements)),
                     stackgroup="emission",
+                    showlegend=False,
                 )
             )
 
@@ -925,17 +935,56 @@ class KromerPlotter:
         elements_z = self.absorption_luminosities_df.columns
         nelements = len(elements_z)
 
-        for i, atomic_number in enumerate(elements_z):
+        for i, atomic_num in enumerate(elements_z):
             self.fig.add_trace(
                 go.Scatter(
                     x=self.absorption_luminosities_df.index,
                     # to plot absorption luminosities along negative y-axis
-                    y=self.absorption_luminosities_df[atomic_number] * -1,
+                    y=self.absorption_luminosities_df[atomic_num] * -1,
                     mode="none",
-                    name=pyne.nucname.name(atomic_number),
+                    name=atomic_number2element_symbol(atomic_num),
                     fillcolor=self.to_rgb255_string(self.cmap(i / nelements)),
                     stackgroup="absorption",
-                    # to prevent duplication of legend labels present due to emission
                     showlegend=False,
                 )
             )
+
+    def _show_colorbar_ply(self):
+        categorical_colorscale = []
+        colorscale_bins = np.linspace(0, 1, self.elements.size + 1)
+
+        for i in range(self.elements.size):
+            color = self.to_rgb255_string(self.cmap(colorscale_bins[i]))
+            categorical_colorscale.append((colorscale_bins[i], color))
+            categorical_colorscale.append((colorscale_bins[i + 1], color))
+
+        coloraxis_options = dict(
+            colorscale=categorical_colorscale,
+            showscale=True,
+            cmin=0,
+            cmax=self.elements.size,
+            colorbar=dict(
+                title="Elements",
+                tickvals=np.arange(0, self.elements.size) + 0.5,
+                ticktext=[
+                    atomic_number2element_symbol(atomic_num)
+                    for atomic_num in self.elements
+                ],
+                # to change length and position of colorbar
+                len=0.75,
+                yanchor="top",
+                y=0.75,
+            ),
+        )
+
+        # Plot an invisible one point scatter trace, to make colorbar show up
+        self.fig.add_trace(
+            go.Scatter(
+                x=[5000],  # TODO: Account for wvl_range
+                y=[0],
+                mode="markers",
+                showlegend=False,
+                hoverinfo="skip",
+                marker=dict(color=[0], opacity=0, **coloraxis_options),
+            )
+        )
