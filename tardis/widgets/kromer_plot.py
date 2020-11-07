@@ -13,6 +13,7 @@ import astropy.modeling.blackbody as abb
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import plotly.graph_objects as go
 
 
 class KromerData:
@@ -452,7 +453,10 @@ class KromerPlotter:
         else:
             self.lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
 
-        self.emission_luminosities_df = self._calculate_emission_luminosities(
+        (
+            self.emission_luminosities_df,
+            self.elements,
+        ) = self._calculate_emission_luminosities(
             packets_mode=packets_mode,
             bins=self.data[packets_mode].spectrum_frequency_bins,
             wvl=self.data[packets_mode].spectrum_wavelength,
@@ -496,6 +500,12 @@ class KromerPlotter:
         else:
             self.ax = ax
 
+        # Set colormap to be used in elements of emission and absorption plots
+        self.cmap = cm.get_cmap(cmapname, self.elements.size)
+
+        self._plot_emission_mpl()
+        self._plot_absorption_mpl()
+
         # Plot modeled spectrum
         if show_modeled_spectrum:
             self.ax.plot(
@@ -506,9 +516,6 @@ class KromerPlotter:
                 # ds="steps-pre", # no need to make it look histogram
                 linewidth=1,
             )
-
-        self._plot_emission(cmapname=cmapname)
-        self._plot_absorption()
 
         # Plot photosphere
         self.ax.plot(
@@ -529,6 +536,82 @@ class KromerPlotter:
             self.ax.set_ylabel(r"$L$ (erg/s/$\AA$)", fontsize=15)
 
         return plt.gca()
+
+    def generate_plot_ply(
+        self,
+        packets_mode="virtual",
+        packet_wvl_range=None,
+        distance=None,
+        observed_spectrum=None,
+        show_modeled_spectrum=True,
+        fig=None,
+        graph_height=600,
+        cmapname="jet",
+    ):
+        # Calculate data attributes required for plotting
+        # and save them in instance itself
+        self._calculate_plotting_data(
+            packets_mode=packets_mode,
+            packet_wvl_range=packet_wvl_range,
+            distance=distance,
+        )
+
+        if fig is None:
+            self.fig = go.Figure()  # TODO: pass figure size
+        else:
+            self.fig = fig
+
+        # Set colormap to be used in elements of emission and absorption plots
+        self.cmap = cm.get_cmap(cmapname, self.elements.size)
+
+        self._plot_emission_ply()
+        self._plot_absorption_ply()
+
+        # Plot modeled spectrum
+        if show_modeled_spectrum:
+            self.fig.add_trace(
+                go.Scatter(
+                    x=self.data[packets_mode].spectrum_wavelength,
+                    y=self.modeled_spectrum_luminosity,
+                    mode="lines",
+                    line=dict(
+                        color="blue",
+                        width=1,
+                        # dash="dash"
+                    ),
+                    name=f"{packets_mode.capitalize()} Spectrum",
+                )
+            )
+
+        # Plot photosphere
+        self.fig.add_trace(
+            go.Scatter(
+                x=self.data[packets_mode].spectrum_wavelength,
+                y=self.photosphere_luminosity,
+                mode="lines",
+                line=dict(width=1.5, color="red", dash="dash"),
+                name="Blackbody Photosphere",
+            )
+        )
+
+        # Set legends and labels
+        self.fig.update_layout(
+            xaxis=dict(
+                title="Wavelength [Angstrom]",
+                exponentformat="none",
+            ),
+            yaxis=dict(title="Luminosity [erg/s/Angstrom]", exponentformat="e"),
+            height=graph_height,
+        )
+        # TODO: Change units when flux
+        # if distance:  # Set y-axis label for flux
+        #     self.ax.set_ylabel(
+        #         r"$F_{\lambda}$ (erg/s/$cm^{2}/\AA$)", fontsize=15
+        #     )
+        # else:  # Set y-axis label for luminosity
+        #     self.ax.set_ylabel(r"$L$ (erg/s/$\AA$)", fontsize=15)
+
+        return self.fig
 
     def _calculate_emission_luminosities(self, packets_mode, bins, wvl):
         # weights are packet luminosities or flux
@@ -641,9 +724,12 @@ class KromerPlotter:
 
             luminosities_df[atomic_number] = L_lambda_el.value
 
-        return luminosities_df
+        # Create an array of elements present after masking
+        elements_in_range = np.array(list(g.groups.keys()))
 
-    def _plot_emission(self, cmapname):
+        return luminosities_df, elements_in_range
+
+    def _plot_emission_mpl(self):
         wavelength = (
             self.emission_luminosities_df.index.to_numpy()
         )  # TODO: account for wvl_range
@@ -658,7 +744,7 @@ class KromerPlotter:
             lower_level,
             upper_level,
             # step="pre",
-            color="k",
+            color="black",
             label="No interaction",
         )
 
@@ -679,9 +765,6 @@ class KromerPlotter:
         # Set up color map
         elements_z = self.emission_luminosities_df.columns[2:].to_list()
         nelements = len(elements_z)
-
-        # Save color map for later use
-        self.cmap = cm.get_cmap(cmapname, nelements)
 
         # Contribution from each element
         for i, atomic_number in enumerate(elements_z):
@@ -747,7 +830,7 @@ class KromerPlotter:
 
         return luminosities_df
 
-    def _plot_absorption(self):
+    def _plot_absorption_mpl(self):
         wavelength = (
             self.absorption_luminosities_df.index.to_numpy()
         )  # TODO: account for wvl_range
@@ -792,3 +875,67 @@ class KromerPlotter:
         # TODO: do slicing as per wvl_range
 
         return L_lambda_ph / self.lum_to_flux
+
+    @staticmethod
+    def to_rgb255_string(color_tuple):
+        # colors values in matploltib color tuple are normalized, so
+        # convert them to rgb integers 0-255
+        color_tuple_255 = tuple([int(x * 255) for x in color_tuple[:3]])
+        return f"rgb{color_tuple_255}"
+
+    def _plot_emission_ply(self):
+        self.fig.add_trace(
+            go.Scatter(
+                x=self.emission_luminosities_df.index,
+                y=self.emission_luminosities_df.noint,
+                mode="none",
+                name="No interaction",
+                fillcolor="black",
+                stackgroup="emission",
+            )
+        )
+
+        self.fig.add_trace(
+            go.Scatter(
+                x=self.emission_luminosities_df.index,
+                y=self.emission_luminosities_df.escatter,
+                mode="none",
+                name="Electron Scatter Only",
+                fillcolor="grey",
+                stackgroup="emission",
+            )
+        )
+
+        elements_z = self.emission_luminosities_df.columns[2:]
+        nelements = len(elements_z)
+
+        for i, atomic_number in enumerate(elements_z):
+            self.fig.add_trace(
+                go.Scatter(
+                    x=self.emission_luminosities_df.index,
+                    y=self.emission_luminosities_df[atomic_number],
+                    mode="none",
+                    name=pyne.nucname.name(atomic_number),
+                    fillcolor=self.to_rgb255_string(self.cmap(i / nelements)),
+                    stackgroup="emission",
+                )
+            )
+
+    def _plot_absorption_ply(self):
+        elements_z = self.absorption_luminosities_df.columns
+        nelements = len(elements_z)
+
+        for i, atomic_number in enumerate(elements_z):
+            self.fig.add_trace(
+                go.Scatter(
+                    x=self.absorption_luminosities_df.index,
+                    # to plot absorption luminosities along negative y-axis
+                    y=self.absorption_luminosities_df[atomic_number] * -1,
+                    mode="none",
+                    name=pyne.nucname.name(atomic_number),
+                    fillcolor=self.to_rgb255_string(self.cmap(i / nelements)),
+                    stackgroup="absorption",
+                    # to prevent duplication of legend labels present due to emission
+                    showlegend=False,
+                )
+            )
