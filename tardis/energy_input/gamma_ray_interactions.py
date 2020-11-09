@@ -43,3 +43,20 @@ def pair_creation(gamma_ray):
 def photoabsorption(gamma_ray):
     gamma_ray.status = 'Absorbed'
     return gamma_ray.energy
+
+def scatter_type(gamma_ray, compton_opacity, photoabsorption_opacity, total_opacity):
+    
+    z = np.random.random()
+    
+    ejecta_energy_gain = 0.0
+    pair_created = False
+    
+    if z <= compton_opacity / total_opacity:
+        ejecta_energy_gain = compton_scatter(gamma_ray)
+    elif z <= (compton_opacity + photoabsorption_opacity) / total_opacity:
+        ejecta_energy_gain = photoabsorption(gamma_ray)
+    else:
+        pair_creation(gamma_ray)
+        pair_created = True
+        
+    return ejecta_energy_gain, pair_created
