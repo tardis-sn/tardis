@@ -4,6 +4,19 @@ from tardis.energy_input.util import kappa_calculation, klein_nishina, euler_rod
 from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
 
 def compton_scatter(gamma_ray):
+    """
+    Gets the Compton scattering angle for the input gamma ray
+    Calculates the lost energy due to the scattering
+
+    Parameters
+    ----------
+    gamma_ray : GammaRay object
+
+    Returns
+    -------
+    lost_energy : dtype float
+
+    """
     theta_angles, theta_distribution = compton_theta_distribution(gamma_ray.energy)
     
     z = np.random.random()
@@ -35,17 +48,56 @@ def compton_scatter(gamma_ray):
     return lost_energy
 
 def pair_creation(gamma_ray):
+    """
+    Randomly scatters the input gamma ray
+    Sets its energy to 511 KeV
+
+    Parameters
+    ----------
+    gamma_ray : GammaRay object
+
+    Returns
+    -------
+
+    """
     direction_mu = get_random_mu()
     
     gamma_ray.energy = 511.0e3
     gamma_ray.direction = direction_mu
 
 def photoabsorption(gamma_ray):
+    """
+    Sets the gamma ray status to Absorbed
+
+    Parameters
+    ----------
+    gamma_ray : GammaRay object
+
+    Returns
+    -------
+    gamma_ray.energy : dtype float
+
+    """
     gamma_ray.status = 'Absorbed'
     return gamma_ray.energy
 
 def scatter_type(gamma_ray, compton_opacity, photoabsorption_opacity, total_opacity):
-    
+    """
+    Determines the scattering type based on process opacities
+
+    Parameters
+    ----------
+    gamma_ray : GammaRay object
+    compton_opacity : dtype float
+    photoabsorption_opacity : dtype float
+    total_opacity : dtype float
+
+    Returns
+    -------
+    ejecta_energy_gain : dtype float
+    pair_created : dtype bool
+
+    """
     z = np.random.random()
     
     ejecta_energy_gain = 0.0

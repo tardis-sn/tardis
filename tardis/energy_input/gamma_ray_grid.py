@@ -2,22 +2,30 @@ import numpy as np
 from tardis.energy_input.util import quadratic
 
 def calculate_distance_radial(gamma_ray, r_inner, r_outer):
+    """
+    Calculates 3D distance to shell from gamma ray position
+
+    Parameters
+    ----------
+    gamma_ray : GammaRay object
+    r_inner : dtype float
+    r_outer : dtype float
+
+    Returns
+    -------
+    distance : dtype float
+
+    """
     
     position_square = gamma_ray.location.x ** 2. + gamma_ray.location.y ** 2. + gamma_ray.location.z ** 2.
     position_direction = gamma_ray.direction.x * gamma_ray.location.x + \
                         gamma_ray.direction.y * gamma_ray.location.y + \
                         gamma_ray.direction.z * gamma_ray.location.z
     
-    on_inner_wall = False
-    on_outer_wall = False
-    
     distances = []
     
-    if np.abs(gamma_ray.location.r - r_inner) < 5:
-        on_inner_wall = True
-        
-    if np.abs(gamma_ray.location.r - r_outer) < 5:
-        on_outer_wall = True
+    on_inner_wall = np.abs(gamma_ray.location.r - r_inner) < 5     
+    on_outer_wall = np.abs(gamma_ray.location.r - r_outer) < 5
 
     quadratic_b = 2. * position_direction
     quadratic_c = position_square
@@ -55,7 +63,24 @@ def calculate_distance_radial(gamma_ray, r_inner, r_outer):
     return distance
 
 def distance_trace(gamma_ray, radii, total_opacity, distance_moved):
-    
+    """
+    Traces distance traveled by gamma ray and finds distance to 
+    next interaction and boundary
+
+    Parameters
+    ----------
+    gamma_ray : GammaRay object
+    radii : One dimensional Numpy array, dtype float
+    total_opacity : dtype float
+    distance_moved : dtype float
+
+    Returns
+    -------
+    distance_interaction : dtype float
+    distance_boundary : dtype float
+     : dtype bool
+
+    """  
     if gamma_ray.shell < len(radii) - 1:
         distance_boundary = calculate_distance_radial(gamma_ray, radii[gamma_ray.shell], radii[packet.shell + 1])
     else:
@@ -72,6 +97,19 @@ def distance_trace(gamma_ray, radii, total_opacity, distance_moved):
         return distance_interaction, distance_boundary, False
 
 def move_gamma_ray(gamma_ray, distance):
+    """
+    Moves gamma ray a distance along its direction vector
+
+    Parameters
+    ----------
+    gamma_ray : GammaRay object
+    distance : dtype float
+
+    Returns
+    -------
+    gamma_ray : GammaRay object
+
+    """
     x_old = gamma_ray.location.x
     y_old = gamma_ray.location.y
     z_old = gamma_ray.location.z
@@ -85,7 +123,21 @@ def move_gamma_ray(gamma_ray, distance):
     
     return gamma_ray
 
-def density_sampler(radii, mass_ratio):   
+def density_sampler(radii, mass_ratio):
+    """
+    Randomly samples the 
+
+    Parameters
+    ----------
+    radii : GammaRay object
+    mass_ratio : dtype float
+
+    Returns
+    -------
+    radius : dtype float
+    index : dtype int
+
+    """
     z = np.random.random()   
     index = np.searchsorted(mass_ratio, z)
     return radii[index], index
