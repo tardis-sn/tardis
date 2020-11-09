@@ -29,6 +29,22 @@ def euler_rodrigues(theta, direction):
                      [er21, er22, er23],
                      [er31, er32, er33]])
 
+def quadratic(b, c):
+    delta = b ** 2 - 4.0 * c
+    if delta > 0:
+        delta = np.sqrt(delta)
+        delta = delta * np.sign(b)
+        q = -0.5 * (b + delta)
+        x1 = q
+        x2 = c / q
+    elif delta < 0:
+        x1 = -np.inf
+        x2 = -np.inf
+    else:
+        x1 = -2.0 * c / b
+        x2 = -np.inf
+    return x1, x2
+
 def klein_nishina(energy, theta_C):
     kappa = kappa_calculation(energy) 
     return R_ELECTRON / 2 * \
