@@ -22,7 +22,7 @@ jobs:
 
       - name: Commit files
         run: |
-          git config --local user.email "wkerzendorf@gmail.com"
+          git config --local user.email "wkerzendorf+tardis@gmail.com"
           git add CHANGELOG.md
           git commit -m "Update CHANGELOG.md [skip ci]"
 
