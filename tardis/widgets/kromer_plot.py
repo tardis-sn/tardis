@@ -531,13 +531,13 @@ class KromerPlotter:
 
         # Set legends and labels
         self.ax.legend(fontsize=12)
-        self.ax.set_xlabel(r"Wavelength $(\AA)$", fontsize=15)
+        self.ax.set_xlabel(r"Wavelength $[\AA]$", fontsize=12)
         if distance:  # Set y-axis label for flux
             self.ax.set_ylabel(
-                r"$F_{\lambda}$ (erg/s/$cm^{2}/\AA$)", fontsize=15
+                r"$F_{\lambda}$ [erg/s/$\AA/cm^{2}$]", fontsize=12
             )
         else:  # Set y-axis label for luminosity
-            self.ax.set_ylabel(r"$L_{\lambda}$ (erg/s/$\AA$)", fontsize=15)
+            self.ax.set_ylabel(r"$L_{\lambda}$ [erg/s/$\AA$]", fontsize=12)
 
         return plt.gca()
 
