@@ -15,6 +15,7 @@ import matplotlib.colors as clr
 import plotly.graph_objects as go
 
 from tardis.util.base import atomic_number2element_symbol
+from tardis.widgets import plot_util as pu
 
 
 class KromerData:
@@ -536,7 +537,7 @@ class KromerPlotter:
                 r"$F_{\lambda}$ (erg/s/$cm^{2}/\AA$)", fontsize=15
             )
         else:  # Set y-axis label for luminosity
-            self.ax.set_ylabel(r"$L$ (erg/s/$\AA$)", fontsize=15)
+            self.ax.set_ylabel(r"$L_{\lambda}$ (erg/s/$\AA$)", fontsize=15)
 
         return plt.gca()
 
@@ -599,22 +600,25 @@ class KromerPlotter:
 
         self._show_colorbar_ply()
 
-        # Set legends and labels
+        # Set label and other layout options
+        xlabel = pu.axis_label_in_latex("Wavelength", u.AA)
+        if distance:  # Set y-axis label for flux
+            ylabel = pu.axis_label_in_latex(
+                "F_{\\lambda}", u.Unit("erg/(s cm**2 AA)"), only_text=False
+            )
+        else:  # Set y-axis label for luminosity
+            ylabel = pu.axis_label_in_latex(
+                "L_{\\lambda}", u.Unit("erg/(s AA)"), only_text=False
+            )
+
         self.fig.update_layout(
             xaxis=dict(
-                title="Wavelength [Angstrom]",
+                title=xlabel,
                 exponentformat="none",
             ),
-            yaxis=dict(title="Luminosity [erg/s/Angstrom]", exponentformat="e"),
+            yaxis=dict(title=ylabel, exponentformat="e"),
             height=graph_height,
         )
-        # TODO: Change units when flux
-        # if distance:  # Set y-axis label for flux
-        #     self.ax.set_ylabel(
-        #         r"$F_{\lambda}$ (erg/s/$cm^{2}/\AA$)", fontsize=15
-        #     )
-        # else:  # Set y-axis label for luminosity
-        #     self.ax.set_ylabel(r"$L$ (erg/s/$\AA$)", fontsize=15)
 
         return self.fig
 
@@ -978,9 +982,12 @@ class KromerPlotter:
         )
 
         # Plot an invisible one point scatter trace, to make colorbar show up
+        scatter_point_idx = pu.get_mid_point_idx(
+            self.emission_luminosities_df.index.to_numpy()
+        )
         self.fig.add_trace(
             go.Scatter(
-                x=[5000],  # TODO: Account for wvl_range
+                x=self.emission_luminosities_df.index[scatter_point_idx],
                 y=[0],
                 mode="markers",
                 showlegend=False,
