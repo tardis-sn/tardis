@@ -82,7 +82,7 @@ def distance_trace(gamma_ray, radii, total_opacity, distance_moved):
 
     """  
     if gamma_ray.shell < len(radii) - 1:
-        distance_boundary = calculate_distance_radial(gamma_ray, radii[gamma_ray.shell], radii[packet.shell + 1])
+        distance_boundary = calculate_distance_radial(gamma_ray, radii[gamma_ray.shell], radii[gamma_ray.shell + 1])
     else:
         distance_boundary = 0.0
     
