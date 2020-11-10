@@ -1,6 +1,7 @@
 import numpy as np
 
-from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
+#from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
+from tardis.energy_input.util import get_random_mu
 from tardis.energy_input.gamma_ray_grid import density_sampler
 from tardis.energy_input.energy_source import sample_energy_distribution
 
