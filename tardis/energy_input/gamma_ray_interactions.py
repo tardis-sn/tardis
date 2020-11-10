@@ -1,7 +1,7 @@
 import numpy as np
 
-from tardis.energy_input.util import kappa_calculation, klein_nishina, euler_rodrigues, compton_theta_distribution
-from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
+from tardis.energy_input.util import kappa_calculation, klein_nishina, euler_rodrigues, compton_theta_distribution, get_random_mu
+#from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
 
 def compton_scatter(gamma_ray):
     """
@@ -63,7 +63,7 @@ def pair_creation(gamma_ray):
     direction_mu = get_random_mu()
     
     gamma_ray.energy = 511.0e3
-    gamma_ray.direction = direction_mu
+    gamma_ray.direction.mu = direction_mu
 
 def photoabsorption(gamma_ray):
     """

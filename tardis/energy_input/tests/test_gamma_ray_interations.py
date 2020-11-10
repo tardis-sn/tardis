@@ -12,10 +12,10 @@ def test_compton_scatter():
 def test_pair_creation(basic_gamma_ray):
     initial_mu = basic_gamma_ray.direction.mu
 
-    actual = pair_creation(basic_gamma_ray)
+    pair_creation(basic_gamma_ray)
 
-    npt.assert_almost_equal(actual.energy, 511.0e3)
-    assert actual.direction.mu != initial_mu
+    npt.assert_almost_equal(basic_gamma_ray.energy, 511.0e3)
+    assert basic_gamma_ray.direction.mu != initial_mu
 
 
 def test_photoabsorption(basic_gamma_ray):

@@ -1,7 +1,8 @@
 import pytest
 import numpy.testing as npt
+import numpy as np
 
-from tardis.energy_input.gamma_ray_grid import calculate_distance_radial, \ 
+from tardis.energy_input.gamma_ray_grid import calculate_distance_radial, \
     distance_trace, move_gamma_ray, density_sampler
 
 @pytest.mark.xfail(reason="To be implemented")
@@ -14,6 +15,7 @@ def test_distance_trace():
 
 def test_move_gamma_ray(basic_gamma_ray):
     gamma_ray = basic_gamma_ray
+    distance = 1.e15
 
     x_old = gamma_ray.location.x
     y_old = gamma_ray.location.y
@@ -24,9 +26,9 @@ def test_move_gamma_ray(basic_gamma_ray):
     z_new = z_old + distance * gamma_ray.direction.z
     
     expected_r = np.sqrt(x_new ** 2. + y_new ** 2. + z_new ** 2.)
-    expected_mu = z_new / gamma_ray.location.r
+    expected_mu = z_new / expected_r
 
-    actual = move_gamma_ray(gamma_ray, 1e14)
+    actual = move_gamma_ray(gamma_ray, distance)
 
     npt.assert_almost_equal(actual.location.r, expected_r)
     npt.assert_almost_equal(actual.location.mu, expected_mu)
