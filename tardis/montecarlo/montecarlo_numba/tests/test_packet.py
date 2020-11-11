@@ -199,6 +199,7 @@ def test_update_line_estimators(estimators, static_packet, cur_line_id, distance
     assert_allclose(estimators.Edotlu_estimator, expected_Edotlu)
 
 #@pytest.mark.xfail(reason='To be implemented')
+#TODO set RNG consistently
 def test_trace_packet(packet, verysimple_numba_model, verysimple_numba_plasma, 
                         verysimple_estimators, set_seed_fixture):
 

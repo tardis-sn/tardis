@@ -31,7 +31,7 @@ MAX_SEED_VAL = 2**32 - 1
 # MAX_SEED_VAL must be multiple orders of magnitude larger than no_of_packets;
 # otherwise, each packet would not have its own seed. Here, we set the max
 # seed val to the maximum allowed by numpy.
-
+# TODO: refactor this into more parts
 class MontecarloRunner(HDFWriterMixin):
     """
     This class is designed as an interface between the Python part and the
@@ -90,6 +90,12 @@ class MontecarloRunner(HDFWriterMixin):
         self.seed = seed
         self._integrator = None
         self._spectrum_integrated = None
+        
+        self.virt_logging = False
+        self.virt_packet_last_interaction_type = np.ones(1) * -1
+        self.virt_packet_last_interaction_in_nu = np.ones(1) * -1
+        self.virt_packet_last_line_interaction_in_id = np.ones(1) * -1
+        self.virt_packet_last_line_interaction_out_id = np.ones(1) * -1
 
         # set up logger based on config
         mc_logger.DEBUG_MODE = debug_packets

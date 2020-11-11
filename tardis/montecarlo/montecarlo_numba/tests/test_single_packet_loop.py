@@ -7,7 +7,7 @@ from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
     single_packet_loop)
 
 
-
+#TODO set RNG consistently
 def test_verysimple_single_packet_loop(verysimple_numba_model,
                                        verysimple_numba_plasma,
                                        verysimple_estimators,

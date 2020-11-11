@@ -12,3 +12,4 @@ disable_line_scattering = False
 survival_probability = 0.0
 tau_russian = 10.0 
 LEGACY_MODE_ENABLED = False
+VPACKET_LOGGING = False
