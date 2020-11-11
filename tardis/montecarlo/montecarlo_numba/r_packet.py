@@ -36,7 +36,9 @@ rpacket_spec = [
     ('status', int64),
     ('seed', int64),
     ('index', int64),
-    ('is_close_line', boolean)
+    ('is_close_line', boolean),
+    ('last_interaction_type', int64),
+    ('last_line_interaction_out_id', int64)
 ]
 @jitclass(rpacket_spec)
 class RPacket(object):
@@ -50,6 +52,8 @@ class RPacket(object):
         self.seed = seed
         self.index = index
         self.is_close_line = is_close_line
+        self.last_interaction_type = -1
+        self.last_line_interaction_out_id = -1
 
     def initialize_line_id(self, numba_plasma, numba_model):
         inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
@@ -377,6 +381,8 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
 
     #r_packet.next_line_id = cur_line_id
 
+    r_packet.last_interaction_type = int(interaction_type)
+    
     return distance, interaction_type, delta_shell
 
 

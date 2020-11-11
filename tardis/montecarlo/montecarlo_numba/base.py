@@ -57,6 +57,8 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
     v_packets_energy_hist = np.zeros_like(spectrum_frequency)
     delta_nu = spectrum_frequency[1] - spectrum_frequency[0]
 
+    v_packets_total = []
+
     print("Running post-merge numba montecarlo (with C close lines)!")
     for i in prange(len(output_nus)):
         if montecarlo_configuration.single_packet_seed != -1:
@@ -72,6 +74,7 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
                            seed,
                            i, 0)
         vpacket_collection = VPacketCollection(
+            r_packet.index,
             spectrum_frequency, 
             montecarlo_configuration.v_packet_spawn_start_frequency,
             montecarlo_configuration.v_packet_spawn_end_frequency,
@@ -104,6 +107,8 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
                     (vpackets_nu[j] > spectrum_frequency[-1])):
                 continue
             v_packets_energy_hist[idx] += vpackets_energy[j]
+
+        v_packets_total.append(vpacket_collection)
 
     # np.savetxt('scatter_output_energy.txt', output_energies)
     packet_collection.packets_output_energy[:] = output_energies[:]

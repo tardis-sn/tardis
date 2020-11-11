@@ -208,8 +208,8 @@ def test_trace_packet(packet, verysimple_numba_model, verysimple_numba_plasma,
                                                                 verysimple_numba_plasma, verysimple_estimators)
 
     assert delta_shell == 1
-    assert interaction_type == 1
-    assert_almost_equal(distance, 581086681128631.8)
+    assert interaction_type == 3
+    assert_almost_equal(distance, 23104129179414.58)
 
 
 @pytest.mark.xfail(reason='bug in full relativity')

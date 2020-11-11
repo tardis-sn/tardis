@@ -81,7 +81,7 @@ def test_montecarlo_main_loop(
 
     #Empty vpacket collection
     vpacket_collection = VPacketCollection(
-        np.array([0, 0], dtype=np.float64), 0, np.inf, 
+        0, np.array([0, 0], dtype=np.float64), 0, np.inf, 
         0, 0
     )
     

@@ -69,7 +69,8 @@ def test_trace_vpacket(v_packet, verysimple_numba_model, verysimple_numba_plasma
     assert v_packet.is_close_line == False
     assert v_packet.current_shell_id == 1
 
-@pytest.mark.xfail(reason='To be implemented')
+#NEEDS TO TEST VPACKET COLLECTION OVERFLOW
+@pytest.mark.xfail(reason="Needs to be implemented")
 def test_trace_vpacket_volley(
                             packet, 
                             verysimple_packet_collection, 

@@ -224,6 +224,20 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
         
         v_packet.energy *= math.exp(-tau_vpacket)
 
+        vpacket_collection.set_properties(
+            v_packet.nu, 
+            v_packet.energy,
+            r_packet.nu,
+            r_packet.last_interaction_type,
+            r_packet.next_line_id,
+            r_packet.last_line_interaction_out_id
+            )
+
+        """
+        assert vpacket_collection.idx < montecarlo_configuration.temporary_v_packet_bins, \
+            "ERROR: vpacket collection overflowed!"
+             
         vpacket_collection.nus[vpacket_collection.idx] = v_packet.nu
         vpacket_collection.energies[vpacket_collection.idx] = v_packet.energy
         vpacket_collection.idx += 1
+        """
