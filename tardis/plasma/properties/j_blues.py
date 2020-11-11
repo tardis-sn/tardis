@@ -31,7 +31,7 @@ class JBluesBlackBody(ProcessingPlasmaProperty):
 
 class JBluesDiluteBlackBody(ProcessingPlasmaProperty):
     outputs = ("j_blues",)
-    latex_name = "J_{\\textrm{blue}}"
+    latex_name = r"J_{\textrm{blue}}"
 
     @staticmethod
     def calculate(lines, nu, t_rad, w):
@@ -76,8 +76,8 @@ class JBluesNormFactor(ProcessingPlasmaProperty):
 
     outputs = ("j_blues_norm_factor",)
     latex = (
-        "\\frac{c time_\\textrm{simulation}}}{4 \\pi "
-        "time_\\textrm{simulation} volume}"
+        r"\frac{c time_\textrm{simulation}}}{4\pi"
+        r"time_\textrm{simulation} volume}"
     )
 
     @staticmethod

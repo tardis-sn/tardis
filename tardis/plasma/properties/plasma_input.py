@@ -25,7 +25,7 @@ class TRadiative(ArrayInput):
     """
 
     outputs = ("t_rad",)
-    latex_name = ("T_{\\textrm{rad}}",)
+    latex_name = (r"T_{\textrm{rad}}",)
 
 
 class DilutionFactor(ArrayInput):
@@ -71,7 +71,7 @@ class Density(ArrayInput):
     """
 
     outputs = ("density",)
-    latex_name = ("\\rho",)
+    latex_name = (r"\rho",)
 
 
 class TimeExplosion(Input):
@@ -83,7 +83,7 @@ class TimeExplosion(Input):
     """
 
     outputs = ("time_explosion",)
-    latex_name = ("t_{\\textrm{exp}}",)
+    latex_name = (r"t_{\textrm{exp}}",)
 
 
 class JBlueEstimator(ArrayInput):
@@ -94,7 +94,7 @@ class JBlueEstimator(ArrayInput):
     """
 
     outputs = ("j_blue_estimators",)
-    latex_name = ("J_{\\textrm{blue-estimator}}",)
+    latex_name = (r"J_{\textrm{blue-estimator}}",)
 
 
 class LinkTRadTElectron(Input):
@@ -107,7 +107,7 @@ class LinkTRadTElectron(Input):
     """
 
     outputs = ("link_t_rad_t_electron",)
-    latex_name = ("T_{\\textrm{electron}}/T_{\\textrm{rad}}",)
+    latex_name = (r"T_{\textrm{electron}}/T_{\textrm{rad}}",)
 
 
 class HeliumTreatment(Input):

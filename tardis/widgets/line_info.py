@@ -12,6 +12,7 @@ import ipywidgets as ipw
 from tardis.analysis import LastLineInteraction
 from tardis.util.base import species_tuple_to_string, species_string_to_tuple
 from tardis.widgets.util import create_table_widget, TableSummaryLabel
+from tardis.widgets import plot_util as pu
 
 
 class LineInfoWidget:
@@ -393,41 +394,6 @@ class LineInfoWidget:
         return last_line_counts.sort_values(ascending=False).to_frame()
 
     @staticmethod
-    def axis_label_in_latex(label_text, unit):
-        """
-        Get axis label for plotly plots that can show units in latex.
-
-        Parameters
-        ----------
-        label_text : str
-            Text to show on label
-        unit : astropy.units
-            Unit of the label
-
-        Returns
-        -------
-        str
-            Latex string for label renderable by plotly
-        """
-        unit_in_latex = unit.to_string("latex_inline").strip("$")
-
-        # If present, place s^{-1} just after erg
-        if "erg" in unit_in_latex and "s^{-1}" in unit_in_latex:
-            constituent_units = (
-                re.compile("\\\mathrm\{(.*)\}")
-                .findall(unit_in_latex)[0]
-                .split("\\,")
-            )
-            constituent_units.remove("s^{-1}")
-            constituent_units.insert(
-                constituent_units.index("erg") + 1, "s^{-1}"
-            )
-            constituent_units_string = "\\,".join(constituent_units)
-            unit_in_latex = f"\\mathrm{{{constituent_units_string}}}"
-
-        return f"$\\text{{{label_text}}}\\,[{unit_in_latex}]$"
-
-    @staticmethod
     def get_middle_half_edges(arr):
         """
         Get edges of the middle half range of an array.
@@ -445,25 +411,6 @@ class LineInfoWidget:
             (arr[-1] - arr[0]) / 4 + arr[1],
             (arr[-1] - arr[0]) * 3 / 4 + arr[1],
         ]
-
-    @staticmethod
-    def get_mid_point_idx(arr):
-        """
-        Get index of the middle point of a sorted array (ascending or descending).
-
-        The values in array may not be evenly distributed so it picks the middle
-        point not by index but by their values.
-
-        Parameters
-        ----------
-        arr : np.array
-
-        Returns
-        -------
-        int
-        """
-        mid_value = (arr[0] + arr[-1]) / 2
-        return np.abs(arr - mid_value).argmin()
 
     def plot_spectrum(
         self,
@@ -497,7 +444,7 @@ class LineInfoWidget:
 
         # The scatter point should be a middle point in spectrum otherwise
         # the extra padding around it will be oddly visible when near the edge
-        scatter_point_idx = self.get_mid_point_idx(wavelength.value)
+        scatter_point_idx = pu.get_mid_point_idx(wavelength.value)
 
         return go.FigureWidget(
             [
@@ -523,15 +470,13 @@ class LineInfoWidget:
             layout=go.Layout(
                 title="Spectrum",
                 xaxis=dict(
-                    title=self.axis_label_in_latex(
-                        "Wavelength", wavelength.unit
-                    ),
+                    title=pu.axis_label_in_latex("Wavelength", wavelength.unit),
                     exponentformat="none",
                     rangeslider=dict(visible=True),
                     range=initial_zoomed_range,
                 ),
                 yaxis=dict(
-                    title=self.axis_label_in_latex(
+                    title=pu.axis_label_in_latex(
                         "Luminosity",
                         luminosity_density_lambda.unit,
                     ),

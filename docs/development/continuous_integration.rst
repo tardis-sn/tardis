@@ -160,14 +160,16 @@ The most important (and confusing) predefined variables are the ones related
 to paths in Azure:
 
 * All folders for a given pipeline are created under ``Agent.BuildDirectory`` 
-  variable, alias ``Pipeline.Workspace``.
+  variable, alias ``Pipeline.Workspace``. This includes subdirectories like
+  ``/s`` for sources or ``/a`` for artifacts.
 
-* Cloned repositories are under the ``Build.Repository.LocalPath`` variable
-  alias ``Build.SourcesDirectory``. In TARDIS we implemented another alias 
-  for this variable, named ``sources.dir``.
+* Path to source code varies depending on how many repositories we fetch.
+  For example, source code is located under the ``Build.Repository.LocalPath``
+  variable (alias ``Build.SourcesDirectory``) when fetching a single repository,
+  but after fetching a second repository code is moved automatically to
+  ``Build.Repository.LocalPath/repository-name``.
 
-Our advice is to stick with ``Build.SourcesDirectory`` as much as possible
-to avoid problems when `checking out multiple repositories`_.
+See the Azure documentation to learn more about `checking out multiple repositories`_.
 
 
 Jobs
@@ -245,7 +247,6 @@ to start a new pipeline use::
 
 **List of predefined custom variables:**
 
-- ``sources.dir`` is equivalent to ``$(Build.SourcesDirectory)``.
 - ``tardis.dir`` is equivalent to ``$(Build.SourcesDirectory)/tardis``.
 - ``refdata.dir`` is equivalent to ``$(Build.SourcesDirectory)/tardis-refdata``.
 
@@ -261,8 +262,8 @@ extra steps to run the tests and upload the coverage results.
 Documentation pipeline
 ----------------------
 
-Builds and deploys the TARDIS documentation website. Currently, we are trying
-to move this pipeline to GitHub Actions.
+Builds and deploys the TARDIS documentation website. Currently, we are
+using GitHub Actions for this purpose.
 
 
 Zenodo JSON pipeline
@@ -284,19 +285,20 @@ In the near future we want to auto-update the citation guidelines in the
 Release pipeline
 ----------------
 
-Publishes a new release of TARDIS every sunday at 22:30 UTC. 
-
-.. warning :: Fails if no new commits were merged since the last release.
+Publishes a new release of TARDIS every sunday at 00:00 UTC. 
 
 
 Reference data pipeline
 -----------------------
 
-Generates new reference data according to changes present in the pull
-request. Then, compares against reference data from the head of the
-*master* branch in ``tardis-refdata`` repository by running a
-notebook. Finally, uploads the rendered notebook to the pipeline
-results.
+Generates new reference data according to the changes present in the
+current pull request. Then, compares against reference data present in the
+head of ``tardis-refdata`` repository by running a notebook. Finally, uploads
+the rendered notebook to the pipeline results.
 
-.. note:: This pipeline runs manually (from the Azure web UI) or by
-        enabling the PR trigger via pull request.
+To trigger this pipeline is necessary to leave a comment in the GitHub pull
+request.
+::
+  /AzurePipelines run TARDIS refdata
+
+For brevity, you can comment using ``/azp`` instead of ``/AzurePipelines``.

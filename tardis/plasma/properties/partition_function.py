@@ -35,8 +35,7 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
     outputs = ("general_level_boltzmann_factor",)
     latex_name = ("bf_{i,j,k}",)
     latex_formula = (
-        "g_{i,j,k}e^{\\dfrac{-\\epsilon_{i,j,k}}{k_{\
-        \\textrm{B}}T_{\\textrm{rad}}}}",
+        r"g_{i,j,k}e^{\dfrac{-\epsilon_{i,j,k}}{k_{\textrm{B}}T_{\textrm{rad}}}}",
     )
 
     @staticmethod
@@ -65,10 +64,9 @@ class ThermalLevelBoltzmannFactorLTE(LevelBoltzmannFactorLTE):
     """
 
     outputs = ("thermal_lte_level_boltzmann_factor",)
-    latex_name = ("bf_{i,j,k}^{\\textrm{LTE}}(T_e)",)
+    latex_name = (r"bf_{i,j,k}^{\textrm{LTE}}(T_e)",)
     latex_formula = (
-        "g_{i,j,k}e^{\\dfrac{-\\epsilon_{i,j,k}}{k_{\
-        \\textrm{B}}T_{\\textrm{electron}}}}",
+        r"g_{i,j,k}e^{\dfrac{-\epsilon_{i,j,k}}{k_{\textrm{B}}T_{\textrm{electron}}}}",
     )
 
     @staticmethod
@@ -94,8 +92,7 @@ class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
     outputs = ("general_level_boltzmann_factor",)
     latex_name = ("bf_{i,j,k}",)
     latex_formula = (
-        "Wg_{i,j,k}e^{\\dfrac{-\\epsilon_{i,j,k}}{k_{\
-        \\textrm{B}}T_{\\textrm{rad}}}}",
+        r"Wg_{i,j,k}e^{\dfrac{-\epsilon_{i,j,k}}{k_{\textrm{B}}T_{\textrm{rad}}}}",
     )
 
     def calculate(
@@ -368,7 +365,7 @@ class PartitionFunction(ProcessingPlasmaProperty):
 
     outputs = ("partition_function",)
     latex_name = ("Z_{i,j}",)
-    latex_formula = ("\\sum_{k}bf_{i,j,k}",)
+    latex_formula = (r"\sum_{k}bf_{i,j,k}",)
 
     def calculate(self, level_boltzmann_factor):
         return level_boltzmann_factor.groupby(
@@ -386,7 +383,7 @@ class ThermalLTEPartitionFunction(PartitionFunction):
     """
 
     outputs = ("thermal_lte_partition_function",)
-    latex_name = ("Z_{i,j}(T_\\mathrm{e}",)
+    latex_name = (r"Z_{i,j}(T_\mathrm{e}",)
 
     def calculate(self, thermal_lte_level_boltzmann_factor):
         return super(ThermalLTEPartitionFunction, self).calculate(
