@@ -248,6 +248,7 @@ def configuration_initialize(runner, number_of_vpackets):
     montecarlo_configuration.v_packet_spawn_end_frequency = runner.virtual_spectrum_spawn_range.start.to(
         u.Hz, equivalencies=u.spectral()
     ).value
+    montecarlo_configuration.VPACKET_LOGGING = runner.virt_logging
 
 
 #class TrackRPacket(object):

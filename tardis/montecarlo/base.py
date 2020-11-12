@@ -65,7 +65,7 @@ class MontecarloRunner(HDFWriterMixin):
                  disable_electron_scattering, enable_reflective_inner_boundary,
                  enable_full_relativity, inner_boundary_albedo,
                  line_interaction_type, integrator_settings,
-                 v_packet_settings, spectrum_method,
+                 v_packet_settings, spectrum_method, virtual_packet_logging,
                  packet_source=None, debug_packets=False,
                  logger_buffer=1, single_packet_seed=None):
 
@@ -91,11 +91,13 @@ class MontecarloRunner(HDFWriterMixin):
         self._integrator = None
         self._spectrum_integrated = None
         
-        self.virt_logging = False
-        self.virt_packet_last_interaction_type = np.ones(1) * -1
-        self.virt_packet_last_interaction_in_nu = np.ones(1) * -1
-        self.virt_packet_last_line_interaction_in_id = np.ones(1) * -1
-        self.virt_packet_last_line_interaction_out_id = np.ones(1) * -1
+        self.virt_logging = virtual_packet_logging
+        self.virt_packet_last_interaction_type = np.ones(2) * -1
+        self.virt_packet_last_interaction_in_nu = np.ones(2) * -1.0
+        self.virt_packet_last_line_interaction_in_id = np.ones(2) * -1
+        self.virt_packet_last_line_interaction_out_id = np.ones(2) * -1
+        self.virt_packet_nus = np.ones(2) * -1.0
+        self.virt_packet_energies = np.ones(2) * -1.0
 
         # set up logger based on config
         mc_logger.DEBUG_MODE = debug_packets
@@ -257,8 +259,7 @@ class MontecarloRunner(HDFWriterMixin):
         self._initialize_packets(model.t_inner.value,
                                  no_of_packets, iteration)
 
-        montecarlo_configuration = configuration_initialize(self,
-                                                            no_of_virtual_packets)
+        configuration_initialize(self, no_of_virtual_packets)
         montecarlo_radial1d(model, plasma, self)
         #montecarlo.montecarlo_radial1d(
         #    model, plasma, self,
@@ -487,4 +488,5 @@ class MontecarloRunner(HDFWriterMixin):
                    packet_source=packet_source,
                    debug_packets=config.montecarlo.debug_packets,
                    logger_buffer=config.montecarlo.logger_buffer,
-                   single_packet_seed=config.montecarlo.single_packet_seed)
+                   single_packet_seed=config.montecarlo.single_packet_seed,
+                   virtual_packet_logging=config.spectrum.virtual.virtual_packet_logging)

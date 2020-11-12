@@ -32,6 +32,8 @@ def montecarlo_radial1d(model, plasma, runner):
 
     v_packets_energy_hist, \
     last_interaction_type, \
+    virt_packet_nus, \
+    virt_packet_energies, \
     virt_packet_last_interaction_in_nu, \
     virt_packet_last_interaction_type, \
     virt_packet_last_line_interaction_in_id, \
@@ -43,11 +45,13 @@ def montecarlo_radial1d(model, plasma, runner):
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
     runner.last_interaction_type = last_interaction_type
 
-    if montecarlo_configuration.VPACKET_LOGGING: 
-        runner.virt_packet_last_interaction_in_nu = virt_packet_last_interaction_in_nu
-        runner.virt_packet_last_interaction_type = virt_packet_last_interaction_type
-        runner.virt_packet_last_line_interaction_in_id = virt_packet_last_line_interaction_in_id
-        runner.virt_packet_last_line_interaction_out_id = virt_packet_last_line_interaction_out_id
+    if montecarlo_configuration.VPACKET_LOGGING and number_of_vpackets > 0:
+        runner.virt_packet_nus = np.array(virt_packet_nus)
+        runner.virt_packet_energies = np.array(virt_packet_energies)
+        runner.virt_packet_last_interaction_in_nu = np.array(virt_packet_last_interaction_in_nu)
+        runner.virt_packet_last_interaction_type = np.array(virt_packet_last_interaction_type)
+        runner.virt_packet_last_line_interaction_in_id = np.array(virt_packet_last_line_interaction_in_id)
+        runner.virt_packet_last_line_interaction_out_id = np.array(virt_packet_last_line_interaction_out_id)
 
 
 @njit(**njit_dict, nogil=True)
@@ -70,6 +74,8 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
     v_packets_energy_hist = np.zeros_like(spectrum_frequency)
     delta_nu = spectrum_frequency[1] - spectrum_frequency[0]
 
+    virt_packet_nus = []
+    virt_packet_energies = []
     virt_packet_last_interaction_in_nu = []
     virt_packet_last_interaction_type = []
     virt_packet_last_line_interaction_in_id = []
@@ -125,6 +131,8 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
             v_packets_energy_hist[idx] += vpackets_energy[j]
 
         if montecarlo_configuration.VPACKET_LOGGING:
+            virt_packet_nus.append(vpacket_collection.nus)
+            virt_packet_energies.append(vpacket_collection.energies)
             virt_packet_last_interaction_in_nu.append(vpacket_collection.last_interaction_in_nu)
             virt_packet_last_interaction_type.append(vpacket_collection.last_interaction_type)
             virt_packet_last_line_interaction_in_id.append(vpacket_collection.last_interaction_in_id)
@@ -136,6 +144,8 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
     
     return v_packets_energy_hist, \
             last_interaction_types, \
+            virt_packet_nus, \
+            virt_packet_energies, \
             virt_packet_last_interaction_in_nu, \
             virt_packet_last_interaction_type, \
             virt_packet_last_line_interaction_in_id, \
