@@ -489,150 +489,6 @@ class KromerPlotter:
             / self.lum_to_flux
         )
 
-    def generate_plot_mpl(
-        self,
-        packets_mode="virtual",
-        packet_wvl_range=None,
-        distance=None,
-        observed_spectrum=None,
-        show_modeled_spectrum=True,
-        ax=None,
-        figsize=(10, 7),
-        cmapname="jet",
-    ):
-        # Calculate data attributes required for plotting
-        # and save them in instance itself
-        self._calculate_plotting_data(
-            packets_mode=packets_mode,
-            packet_wvl_range=packet_wvl_range,
-            distance=distance,
-        )
-
-        if ax is None:
-            self.ax = plt.figure(figsize=figsize).add_subplot(111)
-        else:
-            self.ax = ax
-
-        # Set colormap to be used in elements of emission and absorption plots
-        self.cmap = cm.get_cmap(cmapname, self.elements.size)
-
-        self._plot_emission_mpl()
-        self._plot_absorption_mpl()
-
-        # Plot modeled spectrum
-        if show_modeled_spectrum:
-            self.ax.plot(
-                self.plot_wavelength,
-                self.modeled_spectrum_luminosity,
-                "--b",
-                label=f"{packets_mode.capitalize()} Spectrum",
-                # ds="steps-pre", # no need to make it look histogram
-                linewidth=1,
-            )
-
-        # Plot photosphere
-        self.ax.plot(
-            self.plot_wavelength,
-            self.photosphere_luminosity,
-            "--r",
-            label="Blackbody Photosphere",
-        )
-
-        self._show_colorbar_mpl()
-
-        # Set legends and labels
-        self.ax.legend(fontsize=12)
-        self.ax.set_xlabel(r"Wavelength $[\AA]$", fontsize=12)
-        if distance:  # Set y-axis label for flux
-            self.ax.set_ylabel(
-                r"$F_{\lambda}$ [erg/s/$\AA/cm^{2}$]", fontsize=12
-            )
-        else:  # Set y-axis label for luminosity
-            self.ax.set_ylabel(r"$L_{\lambda}$ [erg/s/$\AA$]", fontsize=12)
-
-        return plt.gca()
-
-    def generate_plot_ply(
-        self,
-        packets_mode="virtual",
-        packet_wvl_range=None,
-        distance=None,
-        observed_spectrum=None,
-        show_modeled_spectrum=True,
-        fig=None,
-        graph_height=600,
-        cmapname="jet",
-    ):
-        # Calculate data attributes required for plotting
-        # and save them in instance itself
-        self._calculate_plotting_data(
-            packets_mode=packets_mode,
-            packet_wvl_range=packet_wvl_range,
-            distance=distance,
-        )
-
-        if fig is None:
-            self.fig = go.Figure()
-        else:
-            self.fig = fig
-
-        # Set colormap to be used in elements of emission and absorption plots
-        self.cmap = cm.get_cmap(cmapname, self.elements.size)
-
-        self._plot_emission_ply()
-        self._plot_absorption_ply()
-
-        # Plot modeled spectrum
-        if show_modeled_spectrum:
-            self.fig.add_trace(
-                go.Scatter(
-                    x=self.plot_wavelength,
-                    y=self.modeled_spectrum_luminosity,
-                    mode="lines",
-                    line=dict(
-                        color="blue",
-                        width=1,
-                        # dash="dash"
-                    ),
-                    name=f"{packets_mode.capitalize()} Spectrum",
-                )
-            )
-
-        # Plot photosphere
-        self.fig.add_trace(
-            go.Scatter(
-                x=self.plot_wavelength,
-                y=self.photosphere_luminosity,
-                mode="lines",
-                line=dict(width=1.5, color="red", dash="dash"),
-                name="Blackbody Photosphere",
-            )
-        )
-
-        self._show_colorbar_ply()
-
-        # Set label and other layout options
-        xlabel = pu.axis_label_in_latex("Wavelength", u.AA)
-        if distance:  # Set y-axis label for flux
-            ylabel = pu.axis_label_in_latex(
-                "F_{\\lambda}", u.Unit("erg/(s cm**2 AA)"), only_text=False
-            )
-        else:  # Set y-axis label for luminosity
-            ylabel = pu.axis_label_in_latex(
-                "L_{\\lambda}", u.Unit("erg/(s AA)"), only_text=False
-            )
-
-        self.fig.update_layout(
-            xaxis=dict(
-                title=xlabel,
-                exponentformat="none",
-            ),
-            yaxis=dict(title=ylabel, exponentformat="e"),
-            height=graph_height,
-        )
-
-        return self.fig
-
     def _calculate_emission_luminosities(self, packets_mode, packet_wvl_range):
         # Calculate masks to be applied on data in packets_df
         if packet_wvl_range is None:
@@ -762,76 +618,6 @@ class KromerPlotter:
 
         return luminosities_df, elements_in_range
 
-    def _plot_emission_mpl(self):
-
-        lower_level = np.zeros(self.emission_luminosities_df.shape[0])
-        upper_level = (
-            lower_level + self.emission_luminosities_df.noint.to_numpy()
-        )
-
-        self.ax.fill_between(
-            self.plot_wavelength,
-            lower_level,
-            upper_level,
-            # step="pre",
-            color="black",
-            label="No interaction",
-        )
-
-        lower_level = upper_level
-        upper_level = (
-            lower_level + self.emission_luminosities_df.escatter.to_numpy()
-        )
-
-        self.ax.fill_between(
-            self.plot_wavelength,
-            lower_level,
-            upper_level,
-            # step="pre",
-            color="grey",
-            label="Electron Scatter Only",
-        )
-
-        elements_z = self.emission_luminosities_df.columns[2:].to_list()
-        nelements = len(elements_z)
-
-        # Contribution from each element
-        for i, atomic_number in enumerate(elements_z):
-            lower_level = upper_level
-            upper_level = (
-                lower_level
-                + self.emission_luminosities_df[atomic_number].to_numpy()
-            )
-
-            self.ax.fill_between(
-                self.plot_wavelength,
-                lower_level,
-                upper_level,
-                # step="pre",
-                color=self.cmap(i / nelements),
-                cmap=self.cmap,
-                linewidth=0,
-            )
-
-    def _show_colorbar_mpl(self):
-        color_values = [
-            self.cmap(i / self.elements.size) for i in range(self.elements.size)
-        ]
-        custcmap = clr.ListedColormap(color_values)
-        norm = clr.Normalize(vmin=0, vmax=self.elements.size)
-        mappable = cm.ScalarMappable(norm=norm, cmap=custcmap)
-        mappable.set_array(np.linspace(1, self.elements.size + 1, 256))
-        cbar = plt.colorbar(mappable, ax=self.ax)
-
-        bounds = np.arange(self.elements.size) + 0.5
-        cbar.set_ticks(bounds)
-
-        elements_name = [
-            atomic_number2element_symbol(atomic_num)
-            for atomic_num in self.elements
-        ]
-        cbar.set_ticklabels(elements_name)
-
     def _calculate_absorption_luminosities(
         self, packets_mode, packet_wvl_range
     ):
@@ -881,6 +667,138 @@ class KromerPlotter:
 
         return luminosities_df
 
+    def _calculate_photosphere_luminosity(self, packets_mode):
+        """
+        Plots the blackbody luminosity density from the inner
+        boundary of the TARDIS simulation.
+
+        """
+        L_lambda_ph = (
+            abb.blackbody_lambda(
+                self.plot_wavelength,
+                self.data[packets_mode].t_inner,
+            )
+            * 4
+            * np.pi ** 2
+            * self.data[packets_mode].r_inner[0] ** 2
+            * u.sr
+        ).to("erg / (AA s)")
+
+        return L_lambda_ph / self.lum_to_flux
+
+    def generate_plot_mpl(
+        self,
+        packets_mode="virtual",
+        packet_wvl_range=None,
+        distance=None,
+        observed_spectrum=None,
+        show_modeled_spectrum=True,
+        ax=None,
+        figsize=(10, 7),
+        cmapname="jet",
+    ):
+        # Calculate data attributes required for plotting
+        # and save them in instance itself
+        self._calculate_plotting_data(
+            packets_mode=packets_mode,
+            packet_wvl_range=packet_wvl_range,
+            distance=distance,
+        )
+
+        if ax is None:
+            self.ax = plt.figure(figsize=figsize).add_subplot(111)
+        else:
+            self.ax = ax
+
+        # Set colormap to be used in elements of emission and absorption plots
+        self.cmap = cm.get_cmap(cmapname, self.elements.size)
+
+        self._plot_emission_mpl()
+        self._plot_absorption_mpl()
+
+        # Plot modeled spectrum
+        if show_modeled_spectrum:
+            self.ax.plot(
+                self.plot_wavelength,
+                self.modeled_spectrum_luminosity,
+                "--b",
+                label=f"{packets_mode.capitalize()} Spectrum",
+                # ds="steps-pre", # no need to make it look histogram
+                linewidth=1,
+            )
+
+        # Plot photosphere
+        self.ax.plot(
+            self.plot_wavelength,
+            self.photosphere_luminosity,
+            "--r",
+            label="Blackbody Photosphere",
+        )
+
+        self._show_colorbar_mpl()
+
+        # Set legends and labels
+        self.ax.legend(fontsize=12)
+        self.ax.set_xlabel(r"Wavelength $[\AA]$", fontsize=12)
+        if distance:  # Set y-axis label for flux
+            self.ax.set_ylabel(
+                r"$F_{\lambda}$ [erg/s/$\AA/cm^{2}$]", fontsize=12
+            )
+        else:  # Set y-axis label for luminosity
+            self.ax.set_ylabel(r"$L_{\lambda}$ [erg/s/$\AA$]", fontsize=12)
+
+        return plt.gca()
+
+    def _plot_emission_mpl(self):
+        lower_level = np.zeros(self.emission_luminosities_df.shape[0])
+        upper_level = (
+            lower_level + self.emission_luminosities_df.noint.to_numpy()
+        )
+
+        self.ax.fill_between(
+            self.plot_wavelength,
+            lower_level,
+            upper_level,
+            # step="pre",
+            color="black",
+            label="No interaction",
+        )
+
+        lower_level = upper_level
+        upper_level = (
+            lower_level + self.emission_luminosities_df.escatter.to_numpy()
+        )
+
+        self.ax.fill_between(
+            self.plot_wavelength,
+            lower_level,
+            upper_level,
+            # step="pre",
+            color="grey",
+            label="Electron Scatter Only",
+        )
+
+        elements_z = self.emission_luminosities_df.columns[2:].to_list()
+        nelements = len(elements_z)
+
+        # Contribution from each element
+        for i, atomic_number in enumerate(elements_z):
+            lower_level = upper_level
+            upper_level = (
+                lower_level
+                + self.emission_luminosities_df[atomic_number].to_numpy()
+            )
+
+            self.ax.fill_between(
+                self.plot_wavelength,
+                lower_level,
+                upper_level,
+                # step="pre",
+                color=self.cmap(i / nelements),
+                cmap=self.cmap,
+                linewidth=0,
+            )
+
     def _plot_absorption_mpl(self):
         lower_level = np.zeros(self.absorption_luminosities_df.shape[0])
 
@@ -903,24 +821,105 @@ class KromerPlotter:
                 linewidth=0,
             )
 
-    def _calculate_photosphere_luminosity(self, packets_mode):
-        """
-        Plots the blackbody luminosity density from the inner
-        boundary of the TARDIS simulation.
+    def _show_colorbar_mpl(self):
+        color_values = [
+            self.cmap(i / self.elements.size) for i in range(self.elements.size)
+        ]
+        custcmap = clr.ListedColormap(color_values)
+        norm = clr.Normalize(vmin=0, vmax=self.elements.size)
+        mappable = cm.ScalarMappable(norm=norm, cmap=custcmap)
+        mappable.set_array(np.linspace(1, self.elements.size + 1, 256))
+        cbar = plt.colorbar(mappable, ax=self.ax)
 
-        """
-        L_lambda_ph = (
-            abb.blackbody_lambda(
-                self.plot_wavelength,
-                self.data[packets_mode].t_inner,
+        bounds = np.arange(self.elements.size) + 0.5
+        cbar.set_ticks(bounds)
+
+        elements_name = [
+            atomic_number2element_symbol(atomic_num)
+            for atomic_num in self.elements
+        ]
+        cbar.set_ticklabels(elements_name)
+
+    def generate_plot_ply(
+        self,
+        packets_mode="virtual",
+        packet_wvl_range=None,
+        distance=None,
+        observed_spectrum=None,
+        show_modeled_spectrum=True,
+        fig=None,
+        graph_height=600,
+        cmapname="jet",
+    ):
+        # Calculate data attributes required for plotting
+        # and save them in instance itself
+        self._calculate_plotting_data(
+            packets_mode=packets_mode,
+            packet_wvl_range=packet_wvl_range,
+            distance=distance,
+        )
+
+        if fig is None:
+            self.fig = go.Figure()
+        else:
+            self.fig = fig
+
+        # Set colormap to be used in elements of emission and absorption plots
+        self.cmap = cm.get_cmap(cmapname, self.elements.size)
+
+        self._plot_emission_ply()
+        self._plot_absorption_ply()
+
+        # Plot modeled spectrum
+        if show_modeled_spectrum:
+            self.fig.add_trace(
+                go.Scatter(
+                    x=self.plot_wavelength,
+                    y=self.modeled_spectrum_luminosity,
+                    mode="lines",
+                    line=dict(
+                        color="blue",
+                        width=1,
+                        # dash="dash"
+                    ),
+                    name=f"{packets_mode.capitalize()} Spectrum",
+                )
             )
-            * 4
-            * np.pi ** 2
-            * self.data[packets_mode].r_inner[0] ** 2
-            * u.sr
-        ).to("erg / (AA s)")
 
-        return L_lambda_ph / self.lum_to_flux
+        # Plot photosphere
+        self.fig.add_trace(
+            go.Scatter(
+                x=self.plot_wavelength,
+                y=self.photosphere_luminosity,
+                mode="lines",
+                line=dict(width=1.5, color="red", dash="dash"),
+                name="Blackbody Photosphere",
+            )
+        )
+
+        self._show_colorbar_ply()
+
+        # Set label and other layout options
+        xlabel = pu.axis_label_in_latex("Wavelength", u.AA)
+        if distance:  # Set y-axis label for flux
+            ylabel = pu.axis_label_in_latex(
+                "F_{\\lambda}", u.Unit("erg/(s cm**2 AA)"), only_text=False
+            )
+        else:  # Set y-axis label for luminosity
+            ylabel = pu.axis_label_in_latex(
+                "L_{\\lambda}", u.Unit("erg/(s AA)"), only_text=False
+            )
+
+        self.fig.update_layout(
+            xaxis=dict(
+                title=xlabel,
+                exponentformat="none",
+            ),
+            yaxis=dict(title=ylabel, exponentformat="e"),
+            height=graph_height,
+        )
+
+        return self.fig
 
     @staticmethod
     def to_rgb255_string(color_tuple):
