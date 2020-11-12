@@ -418,38 +418,62 @@ class KromerPlotter:
     def _calculate_plotting_data(
         self, packets_mode, packet_wvl_range, distance
     ):
+        """
+        Calculate data to be used in plotting based on parameters passed.
+
+        Parameters
+        ----------
+        packets_mode : {'virtual', 'real'}
+            Mode of packets to be considered, either real or virtual
+        packet_wvl_range : astropy.Quantity
+            Wavelength range to restrict the analysis of escaped packets. It
+            should be a list or tuple containing two values - lower and upper
+            lambda, having units of Angstrom.
+        distance : astropy.Quantity
+            Distance used to calculate flux instead of luminosities in the plot.
+            Preferrably having units of cm.
+
+        Notes
+        -----
+        It doesn't return the calculated properties but save them in instance
+        itself. So it should be always called before starting plotting to
+        update the plotting data based on parameters passed.
+        """
         if packets_mode not in ["virtual", "real"]:
             raise ValueError(
                 "Invalid value passed to packets_mode. Only "
                 "allowed values are 'virtual' or 'real'"
             )
 
-        # Set up a wavelength range to only analyze emitted packets in that range.
-        # packet_wvl_range should be a list [lower_lambda, upper_lambda]*u.angstrom
-        # Notice that we convert to frequency, where the lower_lambda is a larger
-        # frequency.
-
+        # Store the plottable range of each spectrum property which is
+        # same as entire range, initially
         self.plot_frequency_bins = self.data[
             packets_mode
         ].spectrum_frequency_bins
         self.plot_wavelength = self.data[packets_mode].spectrum_wavelength
         self.plot_frequency = self.data[packets_mode].spectrum_frequency
 
-        if packet_wvl_range:  # Filter all above properties
+        # Filter their plottable range based on packet_wvl_range specified
+        if packet_wvl_range:
             packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
+
             # Index of value just before the 1st value that is > packet_nu_range[1]
             start_idx = (
                 np.argmax(self.plot_frequency_bins > packet_nu_range[1]) - 1
             )
-            # Index of the last value that is < packet_nu_range[0]
+            # Index of value just after the last value that is < packet_nu_range[0]
             end_idx = np.argmin(self.plot_frequency_bins < packet_nu_range[0])
             self.plot_frequency_bins = self.plot_frequency_bins[
-                start_idx:end_idx
+                start_idx : end_idx + 1
             ]
 
-            self.packet_wvl_range_mask = (
-                self.plot_wavelength > packet_wvl_range[0]
-            ) & (self.plot_wavelength < packet_wvl_range[1])
+            # Since spectrum frequency (& hence wavelength) were created from
+            # frequency_bins[:-1], so we exclude end_idx when creating the mask
+            self.packet_wvl_range_mask = np.zeros(
+                self.plot_wavelength.size, dtype=bool
+            )
+            self.packet_wvl_range_mask[start_idx:end_idx] = True
+
             self.plot_wavelength = self.plot_wavelength[
                 self.packet_wvl_range_mask
             ]
@@ -461,13 +485,16 @@ class KromerPlotter:
                 self.plot_wavelength.size, dtype=bool
             )
 
+        # Make sure number of bin edges are always one more than wavelengths
         assert self.plot_frequency_bins.size == self.plot_wavelength.size + 1
 
+        # Calculate the area term to convert luminosity to flux
         if distance is None:
-            self.lum_to_flux = 1  # so that this factor will have no effect
+            self.lum_to_flux = 1  # so that this term will have no effect
         else:
             self.lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
 
+        # Calculate luminosities to be shown in plot
         (
             self.emission_luminosities_df,
             self.elements,
