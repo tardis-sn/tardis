@@ -68,16 +68,11 @@ TARDIS is used.
 
 For TARDIS development purposes please follow the steps :ref:`here <forking>`
 until the step to install TARDIS in the development mode
-``python setup.py develop``.
+``python setup.py develop``. Development guidelines for
+TARDIS can be found `here <https://tardis-sn.github.io/tardis/development/index.html>`_.
 
-You can also install TARDIS for the latest development version
-(but this is only recommended for pure users)::
-
-    pip install git+https://github.com/tardis-sn/tardis
-
-Development guidelines for TARDIS can be found `here <https://tardis-sn.github.io/tardis/development/index.html>`_.
-
-Alternatively, you can manually clone our repository and install TARDIS by::
+To install TARDIS, it is recommended to first clone our repository and
+then install TARDIS, as follows::
 
     git clone https://github.com/tardis-sn/tardis.git
     cd tardis

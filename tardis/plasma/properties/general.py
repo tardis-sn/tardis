@@ -30,8 +30,8 @@ class BetaRadiation(ProcessingPlasmaProperty):
     """
 
     outputs = ("beta_rad",)
-    latex_name = ("\\beta_{\\textrm{rad}}",)
-    latex_formula = ("\\dfrac{1}{k_{B} T_{\\textrm{rad}}}",)
+    latex_name = (r"\beta_{\textrm{rad}}",)
+    latex_formula = (r"\dfrac{1}{k_{B} T_{\textrm{rad}}}",)
 
     def __init__(self, plasma_parent):
         super(BetaRadiation, self).__init__(plasma_parent)
@@ -49,7 +49,7 @@ class GElectron(ProcessingPlasmaProperty):
     """
 
     outputs = ("g_electron",)
-    latex_name = ("g_{\\textrm{electron}}",)
+    latex_name = (r"g_{\textrm{electron}}",)
     latex_formula = (
         r"\Big(\dfrac{2\pi m_{e}/\beta_{\textrm{rad}}}{h^2}\Big)^{3/2}",
     )
@@ -69,7 +69,7 @@ class ThermalGElectron(GElectron):
     """
 
     outputs = ("thermal_g_electron",)
-    latex_name = ("g_{\\textrm{electron_thermal}}",)
+    latex_name = (r"g_{\textrm{electron_thermal}}",)
     latex_formula = (
         r"\Big(\dfrac{2\pi m_{e}/\beta_{\textrm{electron}}}{h^2}\Big)^{3/2}",
     )
@@ -117,8 +117,8 @@ class ElectronTemperature(ProcessingPlasmaProperty):
     """
 
     outputs = ("t_electrons",)
-    latex_name = ("T_{\\textrm{electron}}",)
-    latex_formula = ("\\textrm{const.}\\times T_{\\textrm{rad}}",)
+    latex_name = (r"T_{\textrm{electron}}",)
+    latex_formula = (r"\textrm{const.}\times T_{\textrm{rad}}",)
 
     def calculate(self, t_rad, link_t_rad_t_electron):
         return t_rad * link_t_rad_t_electron
@@ -132,8 +132,8 @@ class BetaElectron(ProcessingPlasmaProperty):
     """
 
     outputs = ("beta_electron",)
-    latex_name = ("\\beta_{\\textrm{electron}}",)
-    latex_formula = ("\\frac{1}{K_{B} T_{\\textrm{electron}}}",)
+    latex_name = (r"\beta_{\textrm{electron}}",)
+    latex_formula = (r"\frac{1}{K_{B} T_{\textrm{electron}}}",)
 
     def __init__(self, plasma_parent):
         super(BetaElectron, self).__init__(plasma_parent)

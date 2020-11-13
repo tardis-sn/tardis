@@ -5,10 +5,10 @@ from tardis.util.base import (
     species_tuple_to_string,
 )
 from tardis.simulation import Simulation
+from tardis.widgets.util import create_table_widget
 
 import pandas as pd
 import numpy as np
-import qgrid
 import ipywidgets as ipw
 
 
@@ -242,12 +242,12 @@ class ShellInfoWidget:
         self.data = shell_info_data
 
         # Creating the shells data table widget
-        self.shells_table = self.create_table_widget(
+        self.shells_table = create_table_widget(
             self.data.shells_data(), [30, 35, 35]
         )
 
         # Creating the element count table widget
-        self.element_count_table = self.create_table_widget(
+        self.element_count_table = create_table_widget(
             self.data.element_count(self.shells_table.df.index[0]),
             [15, 30, 55],
             changeable_col={
@@ -261,7 +261,7 @@ class ShellInfoWidget:
         )
 
         # Creating the ion count table widget
-        self.ion_count_table = self.create_table_widget(
+        self.ion_count_table = create_table_widget(
             self.data.ion_count(
                 self.element_count_table.df.index[0],
                 self.shells_table.df.index[0],
@@ -279,7 +279,7 @@ class ShellInfoWidget:
         )
 
         # Creating the level count table widget
-        self.level_count_table = self.create_table_widget(
+        self.level_count_table = create_table_widget(
             self.data.level_count(
                 self.ion_count_table.df.index[0],
                 self.element_count_table.df.index[0],
@@ -297,89 +297,6 @@ class ShellInfoWidget:
                     )
                 ],
             },
-        )
-
-    def create_table_widget(self, data, col_widths, changeable_col=None):
-        """Creates table widget object which supports interaction and updating
-        the data
-
-        Parameters
-        ----------
-        data : pandas.DataFrame
-            Data you want to display in table widget
-        col_widths : list
-            A list containing width of each column of data in order (including
-            the index as 1st column). The width values must be proportions of
-            100 i.e. they must sum to 100.
-        changeable_col : dict, optional
-            A dictionary to specify the information about column which will
-            change its name when data in generated table widget updates. It
-            must have two keys - :code:`index` to specify index of changeable
-            column in dataframe :code:`data` as an integer, and :code:`other_names`
-            to specify all possible names changeable column will get as a list
-            of strings. Default value :code:`None` indicates that there is no
-            changable column.
-
-        Returns
-        -------
-        qgrid.QgridWidget
-            Table widget object
-        """
-        # Setting the options to be used for creating table widgets
-        grid_options = {
-            "sortable": False,
-            "filterable": False,
-            "editable": False,
-            "minVisibleRows": 2,
-        }
-        column_options = {
-            "minWidth": None,
-        }
-
-        # Check whether passed col_widths list is correct or not
-        if len(col_widths) != data.shape[1] + 1:
-            raise ValueError(
-                "Size of column widths list do not match with "
-                "number of columns + 1 (index) in dataframe"
-            )
-
-        # Note: Since forceFitColumns is enabled by default in grid_options,
-        # the column widths (when all specified) get applied in proportions,
-        # despite their original unit is px thus it's better they sum to 100
-        if sum(col_widths) != 100:
-            raise ValueError(
-                "Column widths are not proportions of 100 (i.e. "
-                "they do not sum to 100)"
-            )
-
-        # Preparing dictionary that defines column widths
-        cols_with_index = [data.index.name] + data.columns.to_list()
-        column_widths_definitions = {
-            col_name: {"width": col_width}
-            for col_name, col_width in zip(cols_with_index, col_widths)
-        }
-
-        # We also need to define widths for different names of changeable column
-        if changeable_col:
-            if {"index", "other_names"}.issubset(set(changeable_col.keys())):
-                column_widths_definitions.update(
-                    {
-                        col_name: {"width": col_widths[changeable_col["index"]]}
-                        for col_name in changeable_col["other_names"]
-                    }
-                )
-            else:
-                raise ValueError(
-                    "Changeable column dictionary does not contain "
-                    "'index' or 'other_names' key"
-                )
-
-        # Create the table widget using qgrid
-        return qgrid.show_grid(
-            data,
-            grid_options=grid_options,
-            column_options=column_options,
-            column_definitions=column_widths_definitions,
         )
 
     def update_element_count_table(self, event, qgrid_widget):
@@ -566,11 +483,6 @@ class ShellInfoWidget:
         # Put text horizontally before shell info container
         shell_info_widget = ipw.VBox([text, shell_info_tables_container])
         return shell_info_widget
-
-
-# TODO: Class for model parameters and other stuff
-
-# TODO class for main tab widget
 
 
 def shell_info_from_simulation(sim_model):

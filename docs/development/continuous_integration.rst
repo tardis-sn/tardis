@@ -2,321 +2,306 @@
 Continuous Integration
 **********************
 
-We use a so-called `Continuous Integration`_ workflow with TARDIS. 
-This means that each time a change is proposed (via pull request) 
-or a proposed change is merged into the main master branch, a service will download the version 
-and execute all the unit tests and integration tests offered with TARDIS. This helps 
-us detect bugs immediately. 
-
-The following pages explain how we setup automated debugging on TARDIS through a remote 
-cloud service, called Azure, hosted by Visual Studio Team Services. This is done by 
-testing, building, and securely deploying this documentation to `gh-pages`. As 
-a developer, one should be familiar with how to smoothly run tests and record the 
-documentation. 
+We use a so-called `continuous integration`_ workflow with TARDIS.
+This means that each time a change is proposed (via pull request)
+or a change is merged into the *master* branch, a service will
+clone the repository, checkout to the current commit and execute
+all the TARDIS tests. This helps us to detect bugs immediately.
 
 
-Testing and Documentation
-=========================
+Azure Pipelines
+===============
 
-Testing
--------
+Currently, we use the `Azure DevOps`_ service to run most of our
+pipelines. The following section explains briefly the different
+components of a pipeline.
 
-To test TARDIS, we activate the designated environment, fetch the most recent reference data, install
-TARDIS, and use the Python app tester, `pytest`::
 
-    $ sh ci-helpers/fetch_reference_data.sh
-    $ source activate tardis
-    $ python setup.py build_ext --inplace
-    $ pytest tardis --tardis-refdata=$(ref.data.home) --test-run-title="TARDIS test" --cov=tardis --cov-report=xml --cov-report=html
+Repos
+-----
 
-The build_ext command is for accommodating C/C++ extensions. The ``--inplace`` command is to ensure that the build is in the source directory.
+Azure Repos is just another service to store Git repositories.
+Currently, we use Azure Repos to mirror ``tardis-refdata``
+repository since Azure does not impose limits on LFS bandwith
+nor storage. We should sync this mirror every time reference
+data is updated on GitHub.
 
-See https://docs.pytest.org/en/latest/ for more information on `pytest`.
+**To clone this repository:**
+::
+  git clone https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata
 
-Documentation
--------------
+**To download a LFS file trough HTTPS:**
+::
+  https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&resolveLfs=true
 
-The documentation is built using Sphinx from the master branch. We use Restructured Text (reST) to encode the 
-required files, which are then converted into html links, that are then pushed to the root of the 
-`gh-pages` branch. 
 
-See https://pythonhosted.org/an_example_pypi_project/sphinx.html and https://help.github.com/en/categories/github-pages-basics
-for more information.
 
-Setting up a secure pathway to GitHub
-=====================================
+YAML files
+----------
 
-.. _install-ssh-key:
+A pipeline is essentially a YAML configuration file with different
+sections such as variables, jobs and steps. Unlike other services
+such as GitHub Actions, pipelines on Azure must be created through
+the web UI for the first time. Then, making changes to an existing
+pipeline is as easy as making a pull request.
 
-Installing a ssh-key
+
+Triggers
+--------
+
+First thing to do is telling the pipeline when it should run.
+*trigger* (also known as the CI trigger) sets up the pipeline to
+run every time changes are merged to the *master* branch.
+::
+  trigger: 
+    - master
+
+If some trigger is not specified then the default configuration
+is assumed.
+::
+  trigger:
+    branches:
+      include:
+      - '*'
+
+  pr:
+    branches:
+      include:
+      - '*'
+
+This means the pipeline will start running every time changes are 
+merged  to any branch of the repository, or someone pushes new
+commits to a pull request.
+
+If you want to run a pipeline only manually set both triggers to 
+*none*.
+::
+  trigger: none
+
+  pr: none
+
+Notice that you can test changes in a pipeline by activating the PR
+trigger on a new pull request, even if that trigger is disabled on
+the YAML file present in the *master* branch.
+
+There are more useful triggers such as the *cron* trigger, see the 
+`Azure documentation section on triggers`_ for more information.
+
+.. warning:: Triggers also can be set on the Azure's web interface 
+          too, but this action is discouraged, since it overrides
+          any trigger specified in the YAML file and could lead to
+          confusing sitations.
+
+
+Variables
+---------
+
+Variable syntax
+***************
+
+Azure Pipelines supports three different ways to reference variables:
+*macro*, *template expression*, and *runtime expression*. Each syntax
+can be used for a different purpose and has some limitations.
+
+.. image:: images/variables.png
+      :align: center
+
+**What syntax should I use?** Use *macro syntax* if you are providing
+input for a task. Choose a *runtime expression* if you are working with
+conditions and expressions. If you are defining a variable in a template,
+use a *template expression*.
+
+
+Define variables
+****************
+
+Usually, we define variables at the top of the YAML file.
+::
+  variables:
+    my.var: 'foo'
+
+  steps:
+    - bash: |
+        echo $(my.var)
+
+When a variable is defined at the top of a YAML, it will be available
+to all jobs and stages in the pipeline as a *global variable*.
+Variables at the *stage* level override variables at the *root* level,
+while variables at the *job* level override variables at the *root* 
+and *stage* level.
+
+Also, variables are available to scripts through environment variables.
+The name is upper-cased and ``.``  is replaced with ``_``. For example::
+  variables:
+    my.var: 'foo'
+
+  steps:
+    - bash: |
+        echo $MY_VAR
+
+To set a variable from a script task, use the ``task.setvariable`` logging
+command.
+::
+  steps:
+
+    - bash: |
+        echo "##vso[task.setvariable variable=my.var]foo"
+
+    - bash: |
+        echo $(my.var)
+
+See the `Azure documentation section on variables`_ for more information.
+
+
+Predefined variables
 --------------------
 
-When setting up the Azure pipeline for the first time, generate a ssh key locally::
+The most important (and confusing) predefined variables are the ones related
+to paths in Azure:
 
-    $ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+* All folders for a given pipeline are created under ``Agent.BuildDirectory`` 
+  variable, alias ``Pipeline.Workspace``. This includes subdirectories like
+  ``/s`` for sources or ``/a`` for artifacts.
 
-Follow along with the command prompt, and you can neglect adding a passphrase due to Azure's added security.
+* Path to source code varies depending on how many repositories we fetch.
+  For example, source code is located under the ``Build.Repository.LocalPath``
+  variable (alias ``Build.SourcesDirectory``) when fetching a single repository,
+  but after fetching a second repository code is moved automatically to
+  ``Build.Repository.LocalPath/repository-name``.
 
-For more details, see `git key install`_.
+See the Azure documentation to learn more about `checking out multiple repositories`_.
 
-Adding it as a deploy key
--------------------------
-
-After you install the key, you must add it as a deploy key to grant access to push to your repository.
-
-To do this, go to GitHub_
-    - Go to your profile
-    - Go to your desired repository
-    - Open the Settings
-    - Click on Deploy keys and copy the contents of your public key (The default name is id_rsa.pub).
-                
-For explicit details, see `git deploy key`_.
-
-Adding your key locally and copying the known host name
--------------------------------------------------------
-
-**Instead of the method recommended by azure, you can add all the GitHub hosts by copying this output, starting from: github.com ssh-rs...**
-[Default option suggested by wk]::
-
-    ssh-keyscan -t rsa github.com
-
-If you wish to deploy the documentation locally to `gh-pages`, you must add the generated key on your computer and clone your repository::
-
-    $ eval "$(ssh-agent -s)"
-    $ ssh-add ~/.ssh/id_rsa (Or whatever you called your key)
-    $ ssh-agent -k
-    $ git clone git@github.com:myOrganizationName/myRepositoryName.git
-    
-
-Accept the warning to add GitHub and copy the saved known host, as we will need it for installing the key on Azure.
-It should look something like (should look something like [1]As3...=ssh-rsa ..) and will be the last line added to::
-
-     ~/.ssh/known_hosts 
-
-It is generally advisable to leave a comment at the end of your added known host line to be able to identify it later, by simply inputting it at the end
-of the known host, such as: ([1]As3...=ssh-rsa AAA.. comment). If you already have it added from before, the portion after ssh-rsa should always start with AAAAB3NzaC1yc2EAAAABIwAAAQ...
-
-Setting up Azure services 
-=========================
-
-The first step is to visit `Azure Devops`_ and create an account.
-
-Adding a pipeline on Azure Devops
----------------------------------
-
-Follow this `Azure tutorial`_ to generate your first test pipeline. This shows you how to add a YAML file for your pipeline.
-
-Adding the key to Azure's secure files
---------------------------------------
-
-Upload the secure key to Azure's library to download it in the script.
-
-In the library tab, select the **Secure files** tab, upload the file, and authorize it for use in all pipelines.
-As seen here:
-  .. image:: images/secure_file.png
-
-See also: `Azure secure files`_   
-
-One must use the DownloadSecureFile@1 `Azure task`_ to download the file onto the virtual machine when the pipeline runs.
-After which, one must use the InstallSSHKey@0 `Azure task`_ to add the ssh key.
-
-Setting up the YAML file to deploy
-----------------------------------
-
-YAML is short for "YAML Ain't Markup Language", as it is intended to be a simple way to write script
-that is standard for all programing languages. It is the file that communicates directly with the
-pipeline. 
-
-In the script, specify which branches you want to trigger for continuous deployment 
-and/or applicable for pull requests. Otherwise, it triggers all of them::
-
-    trigger:
-    - branch_name
-
-    pr:
-    - branch_name
-
-**Alternatively, you can input:- none, to not trigger anything.**
-
-It follows the following hierarchy:
-
-Pipeline hierarchy
-^^^^^^^^^^^^^^^^^^
-
-.. graphviz::
-
-  digraph {
-    a -> b -> c -> d -> e
-    c -> f
-    a [label="Stages",shape=circle,fillcolor="white",style="filled"];
-    b [label="Stage",shape=circle,fillcolor="white",style="filled"];
-    c [label="Jobs", shape="circle", fillcolor="white", style="filled"]
-    d [label="Job", shape="circle", fillcolor="white", style="filled"]
-    e [label="Steps", shape="circle", fillcolor="white", style="filled"]
-    f [label="Task", shape="circle", fillcolor="white", style="filled"]
-  }
-
-A job is referred to as the most basic building block that the pipeline runs, using a single agent, which 
-is composed of steps of script.
-A task is a predefined script with a definitive purpose, such as downloading the secure file or installing a ssh-key.
-
-To download and add the ssh-key, prepare the scripts as::
-
-      - task: DownloadSecureFile@1
-        inputs: 
-          secureFile: 'id_azure_rsa'
-
-Secure files stored in the Azure server are encrypted and again decrypted by the Azure task that uses the file.
-
-Download a secure file to a temporary location in the virtual machine::
-
-      - task: InstallSSHKey@0
-        inputs:
-          knownHostsEntry: $(gh_host)
-          sshPublicKey: $(public_key)
-          #sshPassphrase: # Optional - leave empty if it was left empty while generating the key.
-          sshKeySecureFile: 'id_azure_rsa'
-
-
-hostName is the line that was copied in `Adding your key locally and copying the known host name`_.
-
-sshPublicKey should be a string value of what is inside your .pub file (i.e: rsa-key Axddd... username@server).
-
-sshKeySecureFile is the downloaded secure file you generated, you can reference directly as shown.
-
-For more details, see `Azure ssh-task`_
-
-To define variables in the script, one can do so using key-value pairs. For example::
-
-    variables:
-      system.debug: 'true'
-
-To define secret variables, or variables outside the script, one must navigate to variables after
-selecting the three dots on the top right while editing that pipeline, as seen here:  
-
-  .. image:: images/variables.png
-
-After defining the variable, one could optionally encrypt it using this lock symbol:
-
-  .. image:: images/lock.png
-
-Variables are referenced as $(variable_name), as seen in the InstallSSHKey@0 task in the hostName and sshPublicKey inputs.
 
 Azure provides a list of agent hosts that can run the pipeline on a virtual machine. In our pipelines, we
 use the vm_Images: Ubuntu 16.04 and macOs-10.14.
 
-In a job, you can list a single vm as::
+Jobs
+----
 
-      pool:
-        vmImage: "Ubuntu 16.04"
+You can organize your pipeline into jobs. Every pipeline has at least one job.
+A job is a series of steps that run sequentially as a unit. In other words,
+a job is the smallest unit of work that can be scheduled to run.
+::
+  jobs:
+  - job: myJob
 
-If you are using a self-hosted agent (see `Installing and running a self-hosted agent` for more details)::
+    pool:
+      vmImage: 'ubuntu-latest'
 
-      pool:
-        name: "agent_pool_name"
+    steps:
+    - bash: echo "Hello world"
 
-Or if you prefer to use multiple virtual machines and specify the maximum that can run at the same time, in 
-addition to specifying variables as key-value pairs such as conda and miniconda.url below. ::
+Jobs can run in parallel (for example: run the same job on multiple OSes) or
+depend on a previous job.
 
-      strategy:
-        matrix: 
-          linux:
-            vmImage: "Ubuntu 16.04"
-            conda: '/usr/share/miniconda'
-          mac:
-            vm_Image: 'macOS-10.14'
-            miniconda.url: 'http://repo.continuum.io/miniconda/Miniconda2-latest-mac-x86_64.sh'
-        maxParallel: 2
-      pool:
-        vmImage: $(imageName)
-
-This trick is also convenient for specifying different variable builds for the same vmImage. As one can keep the vm_Image 
-constant and change the key value pair for each job in the matrix.
-        
-Installing and running a self-hosted agent
-------------------------------------------
-
-Microsoft supplies multiple hosted agents for running virtual machines, but it is useful to create a self-hosted
-agent for incremental builds and the dependency on local environments.
-
-To add a new agent or agent pool, you must have administrator privileges. See `agent pool security roles`_ to add a new administrator to an agent pool or for all the agent pools.
-
-You can view your current lists of agents for each agent pool from: https://dev.azure.com/{your_organization}/_settings/agentpools.
-
-First decide if you will add your agent to an already-existing agent pool, or if you wish to add a new pool, by clicking on Add pool.
-If you choose to add a new pool, make sure to click on security and add permissions to your team/self (you cannot directly add your own account), as well as granting access permission to all pipelines, or a specific pipeline.
-The first pool "Default" is owned by Azure Pipelines, and you cannot add pools to it without having even further permissions.
-
-To give someone all security privileges:
-  - Go to http://dev.azure.com/{your_organization}/_settings/permissions
-  - Click on {your_organization}\Project Collection Administrators
-  - Click on Members
-  - Click Add members on the top right.
-
-Then, you must generate a `personal access token PAT`_, to add any downloaded self agents. 
-
-For the scope, make sure to select: Agent Pools (read, manage).
-
-To download the latest available agents, see `Azure pipelines agent releases`_.
-
-Create the agent (for Linux and Mac_OS)::
-
-    ~/$ mkdir myagent && cd myagent
-    ~/myagent$ tar zxvf ~/Downloads/download_agent.tar.gz
-
-and configure it::
-
-    ~/myagent$ ./config.sh
-
-Here, you will input your organization name (https://dev.azure.com/{your_organization}), your generated PAT, agent pool name, and agent name. 
-
-To run the session interactively::
-
-    ~/myagent$ ./run.sh
-
-To run, stop, or check the status non-interactively, create the service file::
-
-    ~/myagent$ sudo ./svc install
-
-Manage it through::
-
-    ~/myagent$ sudo ./svc start
-    ~/myagent$ sudo ./svc stop
-    ~/myagent$ sudo ./svc status
-
-To uninstall ::
-
-    ~/myagent$ sudo ./svc uninstall
-
-For adding environmental variables or editing the `service file`_, 
-see `self agent services`_. 
-
-For more details, see `Azure self hosted agents`_.
-
-Carsus
-------
-
-"Carsus is a TARDIS support package for creating and working with atomic datasets" (Carsus_)
-
-Azure services are also set up on Carsus for automatic debugging. In addition to everything mentioned, the pipelines for
-Carsus also use `Azure condition statements`_, for activating a job, step, or stage upon a specific environment or case. 
-
-Debugging
----------
-
-Sometimes inputs are required using single citation marks '' instead of double ones "", and alternatively no citation marks at all.
-
-Additional references
---------------------
-
-https://thomas-cokelaer.info/tutorials/sphinx/rest_syntax.html#inline-markup-and-special-characters-e-g-bold-italic-verbatim
-
-https://docs.microsoft.com/en-us/azure/devops/pipelines/?view=azure-devops
-
-https://yaml.org/
-
-https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema?view=azure-devops&tabs=schema
-
+See the `Azure documentation section on jobs`_ for more information.
 
 .. include:: git_links.inc
 .. include:: azure_links.inc
+
+
+Templates
+---------
+
+Templates let you define reusable content, logic, and parameters. It functions
+like an include directive in many programming languages (content from one file
+is inserted into another file).
+
+See the `Azure documentation section on templates`_ for more information.
+
+
+TARDIS Pipelines
+================
+
+Already implemented on Azure or GitHub Actions.
+
+
+Default template
+----------------
+
+The common set of steps used across most TARDIS pipelines now lives in the
+"default" template.
+
+- Use ``set -e`` on Bash steps.
+- Set custom variables.
+- Fetch TARDIS main repository.
+- Fetch TARDIS reference data repository (optional).
+- Configure Anaconda for Linux and macOS agents.
+- Install Mamba package manager (optional).
+- Install TARDIS environment (optional).
+- Build and install TARDIS (optional).
+
+It was written to make pipelines easier to create and mantain. For example,
+to start a new pipeline use::
+
+  steps:
+    - template: templates/default.yml
+      parameters:
+        fetchRefdata: true
+
+**List of template parameters:**
+
+- ``fetchRefdata``: fetch the ``tardis-refdata`` repository from Azure Repos
+  (default is *false*).
+- ``useMamba``: use the ``mamba`` package manager instead of ``conda``
+  (default is *false*). 
+- ``skipInstall``: does not create the TARDIS environment
+  (default is *false*).
+
+**List of predefined custom variables:**
+
+- ``tardis.dir`` is equivalent to ``$(Build.SourcesDirectory)/tardis``.
+- ``refdata.dir`` is equivalent to ``$(Build.SourcesDirectory)/tardis-refdata``.
+
+
+Testing pipeline
+----------------
+
+The `testing pipeline`_ (CI) consists basically in the same job running twice
+in parallel (one for each OS) with the steps from the default template, plus
+extra steps to run the tests and upload the coverage results.
+
+
+Documentation pipeline
+----------------------
+
+Builds and deploys the TARDIS documentation website. Currently, we are
+using GitHub Actions for this purpose.
+
+
+Zenodo JSON pipeline
+--------------------
+
+This pipeline runs a notebook located in ``tardis-zenodo`` repository and
+pushes a new version of ``.zenodo.json`` to the root of ``tardis``
+repository if new commiters are found (or author order changes). The
+rendered notebook is uploaded to the pipeline results as an artifact.
+
+.. warning :: Fails if some author name is incomplete (due to an incomplete
+          GitHub profile) or duplicated (commited with more than one 
+          email adress). In both cases update ``.mailmap`` to fix it.
+
+In the near future we want to auto-update the citation guidelines in the
+``README.rst`` and the documentation.
+
+
+Release pipeline
+----------------
+
+Publishes a new release of TARDIS every sunday at 00:00 UTC. 
+
+
+Reference data pipeline
+-----------------------
+
+Generates new reference data according to the changes present in the
+current pull request. Then, compares against reference data present in the
+head of ``tardis-refdata`` repository by running a notebook. Finally, uploads
+the rendered notebook to the pipeline results.
+
+To trigger this pipeline is necessary to leave a comment in the GitHub pull
+request.
+::
+  /AzurePipelines run TARDIS refdata
+
+For brevity, you can comment using ``/azp`` instead of ``/AzurePipelines``.

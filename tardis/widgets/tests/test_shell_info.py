@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import pandas.testing as pdt
 
-from tardis.widgets.base import (
+from tardis.widgets.shell_info import (
     BaseShellInfo,
     SimulationShellInfo,
     HDFShellInfo,

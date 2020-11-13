@@ -21,7 +21,7 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
 
     outputs = ("level_number_density",)
     latex_name = ("N_{i,j,k}",)
-    latex_formula = ("N_{i,j}\\dfrac{bf_{i,j,k}}{Z_{i,j}}",)
+    latex_formula = (r"N_{i,j}\dfrac{bf_{i,j,k}}{Z_{i,j}}",)
 
     def __init__(self, plasma_parent):
         super(LevelNumberDensity, self).__init__(plasma_parent)

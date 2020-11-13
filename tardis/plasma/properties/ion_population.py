@@ -42,12 +42,11 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
     """
 
     outputs = ("phi",)
-    latex_name = ("\\Phi",)
+    latex_name = (r"\Phi",)
     latex_formula = (
-        "\\dfrac{2Z_{i,j+1}}{Z_{i,j}}\\Big(\
-                     \\dfrac{2\\pi m_{e}/\\beta_{\\textrm{rad}}}{h^2}\
-                     \\Big)^{3/2}e^{\\dfrac{-\\chi_{i,j}}{kT_{\
-                     \\textrm{rad}}}}",
+        r"\dfrac{2Z_{i,j+1}}{Z_{i,j}}\Big(\
+                     dfrac{2\pi m_{e}/\beta_{\textrm{rad}}}{h^2}\
+                     Big)^{3/2}e^{\dfrac{-\chi_{i,j}}{kT_{\textrm{rad}}}}",
     )
 
     broadcast_ionization_energy = None
@@ -99,12 +98,11 @@ class ThermalPhiSahaLTE(PhiSahaLTE):
     """
 
     outputs = ("thermal_phi_lte",)
-    latex_name = ("\\Phi^{*}(T_\\mathrm{e})",)
+    latex_name = (r"\Phi^{*}(T_\mathrm{e})",)
     latex_formula = (
-        "\\dfrac{2Z_{i,j+1}}{Z_{i,j}}\\Big(\
-                     \\dfrac{2\\pi m_{e}/\\beta_{\\textrm{electron}}}{h^2}\
-                     \\Big)^{3/2}e^{\\dfrac{-\\chi_{i,j}}{kT_{\
-                     \\textrm{electron}}}}",
+        r"\dfrac{2Z_{i,j+1}}{Z_{i,j}}\Big(\
+                     dfrac{2\pi m_{e}/\beta_{\textrm{electron}}}{h^2}\
+                     Big)^{3/2}e^{\dfrac{-\chi_{i,j}}{kT_{\textrm{electron}}}}",
     )
 
     @staticmethod
@@ -130,11 +128,10 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
     """
 
     outputs = ("phi",)
-    latex_name = ("\\Phi",)
+    latex_name = (r"\Phi",)
     latex_formula = (
-        "W(\\delta\\zeta_{i,j}+W(1-\\zeta_{i,j}))\\left(\
-                     \\dfrac{T_{\\textrm{electron}}}{T_{\\textrm{rad}}}\
-                     \\right)^{1/2}",
+        r"W(\delta\zeta_{i,j}+W(1-\zeta_{i,j}))\left(\
+                     dfrac{T_{\textrm{electron}}}{T_{\textrm{rad}}}\right)^{1/2}",
     )
 
     @staticmethod
@@ -196,7 +193,7 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
     """
 
     outputs = ("delta",)
-    latex_name = ("\\delta",)
+    latex_name = (r"\delta",)
 
     def __init__(
         self,
@@ -538,7 +535,7 @@ class SahaFactor(ProcessingPlasmaProperty):
     """
 
     outputs = ("phi_ik",)
-    latex_name = ("\\Phi_{i,\\kappa}",)
+    latex_name = (r"\Phi_{i,\kappa}",)
 
     def calculate(
         self,
