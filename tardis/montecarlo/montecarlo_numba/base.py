@@ -131,12 +131,12 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
             v_packets_energy_hist[idx] += vpackets_energy[j]
 
         if montecarlo_configuration.VPACKET_LOGGING:
-            virt_packet_nus.append(vpacket_collection.nus)
-            virt_packet_energies.append(vpacket_collection.energies)
-            virt_packet_last_interaction_in_nu.append(vpacket_collection.last_interaction_in_nu)
-            virt_packet_last_interaction_type.append(vpacket_collection.last_interaction_type)
-            virt_packet_last_line_interaction_in_id.append(vpacket_collection.last_interaction_in_id)
-            virt_packet_last_line_interaction_out_id.append(vpacket_collection.last_interaction_out_id)
+            virt_packet_nus.append(vpacket_collection.nus[:vpacket_collection.idx])
+            virt_packet_energies.append(vpacket_collection.energies[:vpacket_collection.idx])
+            virt_packet_last_interaction_in_nu.append(vpacket_collection.last_interaction_in_nu[:vpacket_collection.idx])
+            virt_packet_last_interaction_type.append(vpacket_collection.last_interaction_type[:vpacket_collection.idx])
+            virt_packet_last_line_interaction_in_id.append(vpacket_collection.last_interaction_in_id[:vpacket_collection.idx])
+            virt_packet_last_line_interaction_out_id.append(vpacket_collection.last_interaction_out_id[:vpacket_collection.idx])
 
     # np.savetxt('scatter_output_energy.txt', output_energies)
     packet_collection.packets_output_energy[:] = output_energies[:]
