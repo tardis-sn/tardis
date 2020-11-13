@@ -46,12 +46,12 @@ def montecarlo_radial1d(model, plasma, runner):
     runner.last_interaction_type = last_interaction_type
 
     if montecarlo_configuration.VPACKET_LOGGING and number_of_vpackets > 0:
-        runner.virt_packet_nus = np.array(virt_packet_nus)
-        runner.virt_packet_energies = np.array(virt_packet_energies)
-        runner.virt_packet_last_interaction_in_nu = np.array(virt_packet_last_interaction_in_nu)
-        runner.virt_packet_last_interaction_type = np.array(virt_packet_last_interaction_type)
-        runner.virt_packet_last_line_interaction_in_id = np.array(virt_packet_last_line_interaction_in_id)
-        runner.virt_packet_last_line_interaction_out_id = np.array(virt_packet_last_line_interaction_out_id)
+        runner.virt_packet_nus = np.concatenate(np.array(virt_packet_nus)).ravel()
+        runner.virt_packet_energies = np.concatenate(np.array(virt_packet_energies)).ravel()
+        runner.virt_packet_last_interaction_in_nu = np.concatenate(np.array(virt_packet_last_interaction_in_nu)).ravel()
+        runner.virt_packet_last_interaction_type = np.concatenate(np.array(virt_packet_last_interaction_type)).ravel()
+        runner.virt_packet_last_line_interaction_in_id = np.concatenate(np.array(virt_packet_last_line_interaction_in_id)).ravel()
+        runner.virt_packet_last_line_interaction_out_id = np.concatenate(np.array(virt_packet_last_line_interaction_out_id)).ravel()
 
 
 @njit(**njit_dict, nogil=True)
