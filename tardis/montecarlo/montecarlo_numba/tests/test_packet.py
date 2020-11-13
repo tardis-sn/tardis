@@ -167,13 +167,14 @@ def test_get_inverse_doppler_factor(mu, r, inv_t_exp, expected):
     assert_almost_equal(obtained, expected)
 
 
-def test_get_random_mu():
+def test_get_random_mu(set_seed_fixture):
     """
     Ensure that different calls results
     """
+    set_seed_fixture(1963)
+
     output1 = r_packet.get_random_mu()
-    output2 = r_packet.get_random_mu()
-    assert output1 != output2
+    assert output1 == 0.9136407866175174
 
 
 @pytest.mark.parametrize(
