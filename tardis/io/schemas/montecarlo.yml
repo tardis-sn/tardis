@@ -67,7 +67,7 @@ properties:
   debug_packets:
     type: boolean
     default: false
-    description: Decide whether to go into debugging mode.
+    description: Decide whether to go into debugging mode. [EXPERIMENTAL FEATURE DO NOT RELY ON IT]
   logger_buffer:
     type: number
     default: 1
