@@ -139,10 +139,10 @@ vpacket_collection_spec = [
     ('idx', int64),
     ('number_of_vpackets', int64),
     ('length', int64),
-    ('last_interaction_in_nu', float64[:]),
-    ('last_interaction_type', int64[:]),
-    ('last_interaction_in_id', int64[:]),
-    ('last_interaction_out_id', int64[:]),
+    ('last_interaction_in_nu', float64),
+    ('last_interaction_type', int64),
+    ('last_interaction_in_id', int64),
+    ('last_interaction_out_id', int64),
 ]
 
 
