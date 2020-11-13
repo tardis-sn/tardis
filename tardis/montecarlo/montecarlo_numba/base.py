@@ -48,10 +48,10 @@ def montecarlo_radial1d(model, plasma, runner):
     if montecarlo_configuration.VPACKET_LOGGING and number_of_vpackets > 0:
         runner.virt_packet_nus = np.concatenate(np.array(virt_packet_nus)).ravel()
         runner.virt_packet_energies = np.concatenate(np.array(virt_packet_energies)).ravel()
-        runner.virt_packet_last_interaction_in_nu = np.concatenate(np.array(virt_packet_last_interaction_in_nu)).ravel()
-        runner.virt_packet_last_interaction_type = np.concatenate(np.array(virt_packet_last_interaction_type)).ravel()
-        runner.virt_packet_last_line_interaction_in_id = np.concatenate(np.array(virt_packet_last_line_interaction_in_id)).ravel()
-        runner.virt_packet_last_line_interaction_out_id = np.concatenate(np.array(virt_packet_last_line_interaction_out_id)).ravel()
+        runner.virt_packet_last_interaction_in_nu = np.array(virt_packet_last_interaction_in_nu)
+        runner.virt_packet_last_interaction_type = np.array(virt_packet_last_interaction_type)
+        runner.virt_packet_last_line_interaction_in_id = np.array(virt_packet_last_line_interaction_in_id)
+        runner.virt_packet_last_line_interaction_out_id = np.array(virt_packet_last_line_interaction_out_id)
 
 
 @njit(**njit_dict, nogil=True)
@@ -133,10 +133,10 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
         if montecarlo_configuration.VPACKET_LOGGING:
             virt_packet_nus.append(vpacket_collection.nus[:vpacket_collection.idx])
             virt_packet_energies.append(vpacket_collection.energies[:vpacket_collection.idx])
-            virt_packet_last_interaction_in_nu.append(vpacket_collection.last_interaction_in_nu[:vpacket_collection.idx])
-            virt_packet_last_interaction_type.append(vpacket_collection.last_interaction_type[:vpacket_collection.idx])
-            virt_packet_last_line_interaction_in_id.append(vpacket_collection.last_interaction_in_id[:vpacket_collection.idx])
-            virt_packet_last_line_interaction_out_id.append(vpacket_collection.last_interaction_out_id[:vpacket_collection.idx])
+            virt_packet_last_interaction_in_nu.append(vpacket_collection.last_interaction_in_nu)
+            virt_packet_last_interaction_type.append(vpacket_collection.last_interaction_type)
+            virt_packet_last_line_interaction_in_id.append(vpacket_collection.last_interaction_in_id)
+            virt_packet_last_line_interaction_out_id.append(vpacket_collection.last_interaction_out_id)
 
     # np.savetxt('scatter_output_energy.txt', output_energies)
     packet_collection.packets_output_energy[:] = output_energies[:]
