@@ -39,3 +39,4 @@ def test_set_packet_props_partial_relativity():
 @pytest.mark.xfail(reason='To be implemented')
 def test_set_packet_props_full_relativity():
     assert False
+    

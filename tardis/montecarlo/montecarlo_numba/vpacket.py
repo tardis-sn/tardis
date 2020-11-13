@@ -40,7 +40,9 @@ class VPacket(object):
 
 @njit(**njit_dict)
 def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
-    
+    """
+    Trace VPacket within one shell (relatively simple operation)
+    """
     r_inner = numba_model.r_inner[v_packet.current_shell_id]
     r_outer = numba_model.r_outer[v_packet.current_shell_id]
 
@@ -232,12 +234,3 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
             r_packet.next_line_id,
             r_packet.last_line_interaction_out_id
             )
-
-        """
-        assert vpacket_collection.idx < montecarlo_configuration.temporary_v_packet_bins, \
-            "ERROR: vpacket collection overflowed!"
-             
-        vpacket_collection.nus[vpacket_collection.idx] = v_packet.nu
-        vpacket_collection.energies[vpacket_collection.idx] = v_packet.energy
-        vpacket_collection.idx += 1
-        """

@@ -21,8 +21,10 @@ def thomson_scatter(r_packet, time_explosion):
 
     Parameters
     ----------
-    distance : [type]
-        [description]
+    r_packet : RPacket
+    time_explosion: float
+        time since explosion in seconds
+
     """
     old_doppler_factor = get_doppler_factor(
         r_packet.r,
@@ -46,12 +48,13 @@ def thomson_scatter(r_packet, time_explosion):
 
 @njit(**njit_dict)
 def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
-    #increment_j_blue_estimator(packet, storage, distance, line2d_idx);
-    #increment_Edotlu_estimator(packet, storage, distance, line2d_idx);
-
-    # do_electron_scatter = False
-    # general_scatter(r_packet, time_explosion, do_electron_scatter)
-    # update last_interaction
+    """
+    Line scatter function that handles the scattering itself, including new angle drawn, and calculating nu out using macro atom
+    r_packet: RPacket
+    time_explosion: float
+    line_interaction_type: enum
+    numba_plasma: NumbaPlasma
+    """
 
     old_doppler_factor = get_doppler_factor(r_packet.r,
                                         r_packet.mu,
@@ -75,7 +78,17 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
 @njit(**njit_dict)
 def line_emission(r_packet, emission_line_id, time_explosion,
                   numba_plasma):
-
+    """
+    Sets the frequency of the RPacket properly given the emission channel
+    
+    Parameters
+    -----------
+    
+    r_packet: RPacket
+    emission_line_id: int
+    time_explosion: float
+    numba_plasma: NumbaPlasma
+    """
     r_packet.last_line_interaction_out_id = emission_line_id
 
     if emission_line_id != r_packet.next_line_id:
@@ -96,7 +109,6 @@ def line_emission(r_packet, emission_line_id, time_explosion,
             time_explosion,
             r_packet.mu
             )
-
 
 
 

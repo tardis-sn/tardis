@@ -64,8 +64,14 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
 
     Parameters
     ----------
-    storage_model : [type]
-        [description]
+    packet_collection: PacketCollection
+    numba_model: NumbaModel
+    estimators: NumbaEstimators
+    spectrum_frequency: astropy.units.Quantity
+        frequency bins 
+    number_of_vpackets: int
+        VPackets released per interaction
+    packet_seeds: numpy.array
     """
     output_nus = np.empty_like(packet_collection.packets_output_nu)
     last_interaction_types = np.ones_like(packet_collection.packets_output_nu) * -1
@@ -138,7 +144,6 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
             virt_packet_last_line_interaction_in_id.append(vpacket_collection.last_interaction_in_id)
             virt_packet_last_line_interaction_out_id.append(vpacket_collection.last_interaction_out_id)
 
-    # np.savetxt('scatter_output_energy.txt', output_energies)
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
     

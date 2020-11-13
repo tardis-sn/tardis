@@ -68,6 +68,22 @@ class RPacket(object):
 
 @njit(**njit_dict)
 def calculate_distance_boundary(r, mu, r_inner, r_outer):
+    """
+    Calculate distance to shell boundary in cm.
+    
+    Parameters:
+    ------------
+    
+    r: float
+       radial coordinate of the RPacket
+    mu: float
+       cosine of the direction of movement
+    r_inner: float
+       inner radius of current shell
+    r_outer: float
+       outer radius of current shell
+    """
+
     delta_shell = 0
     if (mu > 0.0):
         # direction outward
@@ -96,14 +112,18 @@ def calculate_distance_line(
         r_packet, comov_nu,
         is_last_line, nu_line, time_explosion):
     """
-
+    Calculate distance until RPacket is in resonance with the next line
     Parameters
     ----------
-    r_packet
-    comov_nu
-    nu_line
-    time_explosion
-    montecarlo_configuration
+    r_packet: RPacket
+    comov_nu: float
+        comoving frequency at the CURRENT position of the RPacket
+    nu_line: float
+        line to check the distance to
+    time_explosion: float
+        time since explosion in seconds
+    is_last_line: bool
+        return MISS_DISTANCE if at the end of the line list
 
     Returns
     -------
@@ -155,11 +175,26 @@ def calculate_distance_line_full_relativity(nu_line, nu, time_explosion,
 
 @njit(**njit_dict)
 def calculate_distance_electron(electron_density, tau_event):
+    """
+    Calculate distance to Thomson Scattering
+    
+    electron_density: float
+    tau_event: float
+    """
     # add full_relativity here
     return tau_event / (electron_density * numba_config.SIGMA_THOMSON)
 
 @njit(**njit_dict)
 def calculate_tau_electron(electron_density, distance):
+    """
+    Calculate tau for Thomson scattering
+    
+    Parameters:
+    ------------
+    
+    electron_density: float
+    distance: float
+    """
     return electron_density * numba_config.SIGMA_THOMSON * distance
 
 
@@ -185,6 +220,16 @@ def get_doppler_factor_full_relativity(mu, beta):
 
 @njit(**njit_dict)
 def get_inverse_doppler_factor(r, mu, time_explosion):
+    """
+    Calculate doppler factor for frame transformation
+    
+    Parameters:
+    ------------
+    
+    r: float
+    mu: float
+    time_explosion: float 
+    """
     inv_c = 1 / C_SPEED_OF_LIGHT
     inv_t = 1 / time_explosion
     beta = r * inv_t * inv_c
@@ -215,11 +260,11 @@ def update_line_estimators(estimators, r_packet, cur_line_id, distance_trace,
 
     Parameters
     ----------
-    estimators
-    r_packet
-    cur_line_id
-    distance_trace
-    time_explosion
+    estimators: Estimators 
+    r_packet: RPacket
+    cur_line_id: int
+    distance_trace: float
+    time_explosion: float
 
     """
 
@@ -257,7 +302,9 @@ def calc_packet_energy(r_packet, distance_trace, time_explosion):
 @njit(**njit_dict)
 def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     """
-
+    Traces the RPacket through the ejecta and stops when an interaction happens (heart of the calculation)
+    
+    r_packet: RPacket
     Parameters
     ----------
     numba_model: tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
@@ -388,7 +435,8 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
 
 @njit(**njit_dict)
 def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
-    """Move packet a distance and recalculate the new angle mu
+    """
+    Move packet a distance and recalculate the new angle mu
     
     Parameters
     ----------
@@ -434,6 +482,9 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
                                            doppler_factor)
 @njit(**njit_dict)
 def set_estimators(r_packet, distance, numba_estimator, comov_nu, comov_energy):
+   """
+   Updating the estimators
+   """
     numba_estimator.j_estimator[r_packet.current_shell_id] += (
             comov_energy * distance)
     numba_estimator.nu_bar_estimator[r_packet.current_shell_id] += (
@@ -451,31 +502,6 @@ def set_estimators_full_relativity(r_packet,
     numba_estimator.nu_bar_estimator[r_packet.current_shell_id] += (
             comov_energy * distance * comov_nu * doppler_factor)
 
-@njit(**njit_dict)
-def line_emission(r_packet, emission_line_id, numba_plasma, time_explosion):
-    """
-
-    Parameters
-    ----------
-    r_packet: tardis.montecarlo.montecarlo_numba.r_packet.RPacket
-    emission_line_id: int
-    numba_plasma
-    time_explosion
-
-    Returns
-    -------
-
-    """
-    doppler_factor = get_doppler_factor(r_packet.r,
-                                        r_packet.mu,
-                                        time_explosion,)
-    r_packet.nu = numba_plasma.line_list_nu[emission_line_id] / doppler_factor
-    r_packet.next_line_id = emission_line_id + 1
-    if montecarlo_configuration.full_relativity:
-        r_packet.mu = angle_aberration_CMF_to_LF(
-            r_packet,
-            time_explosion
-            )
 
 
 @njit(**njit_dict)

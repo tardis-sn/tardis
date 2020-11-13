@@ -314,19 +314,6 @@ def test_move_packet_across_shell_boundary_increment(packet, current_shell_id,
                                       no_of_shells)
     assert packet.current_shell_id == current_shell_id + delta_shell
 
-#SAYS WE NEED TO FIX/REMOVE PACKET CALC ENERGY BY MOVING DOPPLER FACTOR TO FUNCTION
-"""
-@pytest.mark.parametrize(
-    ['distance_trace', 'time_explosion'],
-    [(0, 1),
-     (1, 1),
-     (1, 1e9)]
-)
-def test_packet_energy_limit_one(packet, distance_trace, time_explosion):
-    initial_energy = packet.energy
-    new_energy = r_packet.calc_packet_energy(packet, distance_trace, time_explosion)
-    assert_almost_equal(new_energy, initial_energy)
-"""
 
 
 @pytest.mark.parametrize(

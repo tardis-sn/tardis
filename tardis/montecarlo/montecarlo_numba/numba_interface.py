@@ -56,7 +56,20 @@ class NumbaPlasma(object):
                  transition_probabilities, line2macro_level_upper,
                  macro_block_references, transition_type, destination_level_id,
                  transition_line_id):
-
+        """
+        Plasma for the Numba code
+        Parameters
+        ----------
+        
+        electron_density: numpy.array
+        line_list_nu: numpy.array
+        tau_sobolev: numpy.array
+        transition_probabilities: numpy.array
+        line2macro_level_upper: numpy.array
+        macro_block_references: numpy.array
+        transition_type: numpy.array
+        destination_level_id: numpy.array
+        transition_line_id: numpy.array
         self.electron_density = electron_density
         self.line_list_nu = line_list_nu
         self.tau_sobolev = tau_sobolev
@@ -74,6 +87,15 @@ class NumbaPlasma(object):
 
 
 def numba_plasma_initialize(plasma, line_interaction_type):
+    """
+    Initialize the NumbaPlasma object and copy over the data over from TARDIS Plasma
+    
+    Parameters
+    -----------
+    
+    plasma: tardis.plasma.BasePlasma
+    line_interaction_type: enum
+    """
     electron_densities = plasma.electron_densities.values
     line_list_nu = plasma.atomic_data.lines.nu.values
     tau_sobolev = np.ascontiguousarray(plasma.tau_sobolevs.values.copy(),

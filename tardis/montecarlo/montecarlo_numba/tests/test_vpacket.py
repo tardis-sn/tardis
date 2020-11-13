@@ -100,3 +100,4 @@ def broken_packet():
 
 def test_trace_bad_vpacket(broken_packet, verysimple_numba_model, verysimple_numba_plasma):
     vpacket.trace_vpacket(broken_packet, verysimple_numba_model, verysimple_numba_plasma)
+    

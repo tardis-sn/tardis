@@ -11,9 +11,6 @@ from tardis.montecarlo.montecarlo_numba import RPacket, PacketCollection
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     numba_plasma_initialize, NumbaModel, Estimators, VPacketCollection)
 
-#from tardis.montecarlo.montecarlo_numba.r_packet import (trace_packet, get_doppler_factor, get_doppler_factor_partial_relativity)
-
-#from tardis.montecarlo import montecarlo_configuration
 
 @pytest.fixture(scope='package')
 def nb_simulation_verysimple(config_verysimple, atomic_dataset):
