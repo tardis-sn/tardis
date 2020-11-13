@@ -482,9 +482,9 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
                                            doppler_factor)
 @njit(**njit_dict)
 def set_estimators(r_packet, distance, numba_estimator, comov_nu, comov_energy):
-   """
-   Updating the estimators
-   """
+    """
+    Updating the estimators
+    """
     numba_estimator.j_estimator[r_packet.current_shell_id] += (
             comov_energy * distance)
     numba_estimator.nu_bar_estimator[r_packet.current_shell_id] += (

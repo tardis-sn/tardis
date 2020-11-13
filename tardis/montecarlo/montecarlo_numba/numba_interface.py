@@ -70,6 +70,8 @@ class NumbaPlasma(object):
         transition_type: numpy.array
         destination_level_id: numpy.array
         transition_line_id: numpy.array
+        """
+        
         self.electron_density = electron_density
         self.line_list_nu = line_list_nu
         self.tau_sobolev = tau_sobolev
