@@ -7,7 +7,8 @@ import pytest
 import tardis
 from tardis.montecarlo.packet_source import BlackBodySimpleSource
 
-pytestmark = pytest.mark.skip(reason='needs to work with numba')
+pytestmark = pytest.mark.skip(reason="needs to work with numba")
+
 
 @pytest.fixture
 def data_path():

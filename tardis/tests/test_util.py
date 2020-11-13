@@ -149,7 +149,11 @@ def test_species_tuple_to_string(species_tuple, roman_numerals, species_string):
 
 @pytest.mark.parametrize(
     ["species_string", "species_tuple"],
-    [("si ii", (14, 1)), ("si 2", (14, 1)), ("si ix", (14, 8)),],
+    [
+        ("si ii", (14, 1)),
+        ("si 2", (14, 1)),
+        ("si ix", (14, 8)),
+    ],
 )
 def test_species_string_to_tuple(species_string, species_tuple):
     assert species_string_to_tuple(species_string) == species_tuple
@@ -198,7 +202,13 @@ def test_atomic_number2element_symbol():
 
 @pytest.mark.parametrize(
     ["unformatted_element_string", "formatted_element_string"],
-    [("si", "Si"), ("sI", "Si"), ("Si", "Si"), ("c", "C"), ("C", "C"),],
+    [
+        ("si", "Si"),
+        ("sI", "Si"),
+        ("Si", "Si"),
+        ("c", "C"),
+        ("C", "C"),
+    ],
 )
 def test_reformat_element_symbol(
     unformatted_element_string, formatted_element_string
