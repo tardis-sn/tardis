@@ -427,8 +427,9 @@ class KromerPlotter:
             Mode of packets to be considered, either real or virtual
         packet_wvl_range : astropy.Quantity
             Wavelength range to restrict the analysis of escaped packets. It
-            should be a list or tuple containing two values - lower and upper
-            lambda, having units of Angstrom.
+            should be a quantity having units of Angstrom, containing two
+            values - lower lambda and upper lambda i.e.
+            [lower_lambda, upper_lambda] * u.AA
         distance : astropy.Quantity
             Distance used to calculate flux instead of luminosities in the plot.
             Preferrably having units of cm.
@@ -517,7 +518,29 @@ class KromerPlotter:
         )
 
     def _calculate_emission_luminosities(self, packets_mode, packet_wvl_range):
-        # Calculate masks to be applied on data in packets_df
+        """
+        Calculate luminosities for the emission part of Kromer plot.
+
+        Parameters
+        ----------
+        packets_mode : {'virtual', 'real'}
+            Mode of packets to be considered, either real or virtual
+        packet_wvl_range : astropy.Quantity
+            Wavelength range to restrict the analysis of escaped packets. It
+            should be a quantity having units of Angstrom, containing two
+            values - lower lambda and upper lambda i.e.
+            [lower_lambda, upper_lambda] * u.AA
+
+        Returns
+        -------
+        luminosities_df : pd.DataFrame
+            Dataframe containing luminosities contributed by no interaction,
+            only e-scattering and emission with each element present
+        elements_present: np.array
+            Atomic numbers of the elements with which packets of specified
+            wavelength range interacted
+        """
+        # Calculate masks to be applied on packets data based on packet_wvl_range
         if packet_wvl_range is None:
             self.packet_nu_range_mask = np.ones(
                 self.data[packets_mode].packets_df.shape[0], dtype=bool
@@ -540,7 +563,7 @@ class KromerPlotter:
                 > packet_nu_range[1]
             )
 
-        # weights are packet luminosities or flux
+        # Histogram weights are packet luminosities or flux
         weights = (
             self.data[packets_mode].packets_df["energies"][
                 self.packet_nu_range_mask
@@ -550,14 +573,17 @@ class KromerPlotter:
 
         luminosities_df = pd.DataFrame(index=self.plot_wavelength)
 
-        # No interaction contribution
-        # mask_noint selects packets with no interaction
+        # Contribution of packets which experienced no interaction ------------
+        # Mask to select packets with no interaction
         mask_noint = (
             self.data[packets_mode].packets_df["last_interaction_type"][
                 self.packet_nu_range_mask
             ]
             == -1
         )
+
+        # Calculate weighted histogram of packet frequencies for
+        # plottable range of frequency bins
         hist_noint = np.histogram(
             self.data[packets_mode].packets_df["nus"][
                 self.packet_nu_range_mask
@@ -567,7 +593,7 @@ class KromerPlotter:
             density=False,
         )
 
-        # We convert histogram values to luminosity density lambda.
+        # Convert histogram (luminosity values) to luminosity density lambda
         L_nu_noint = (
             hist_noint[0]
             * u.erg
@@ -575,12 +601,11 @@ class KromerPlotter:
             / self.data[packets_mode].spectrum_delta_frequency
         )
         L_lambda_noint = L_nu_noint * self.plot_frequency / self.plot_wavelength
+
         # Save it in df
         luminosities_df["noint"] = L_lambda_noint.value
 
-        # Electron scattering contribution
-        # mask_escatter selects packets that ONLY experience
-        # electron scattering.
+        # Contribution of packets which only experienced electron scattering ---
         mask_escatter = (
             self.data[packets_mode].packets_df["last_interaction_type"][
                 self.packet_nu_range_mask
@@ -612,16 +637,17 @@ class KromerPlotter:
         )
         luminosities_df["escatter"] = L_lambda_escatter.value
 
-        # Groupby packet dataframe by last atom interaction out
+        # Group packets_df by atomic number of elements with which packets
+        # had their last emission (interaction out)
         packets_df_grouped = (
             self.data[packets_mode]
             .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
             .groupby(by="last_line_interaction_out_atom")
         )
 
-        # Contribution from each element
+        # Contribution of each element with which packets interacted ----------
         for atomic_number, group in packets_df_grouped:
-            # histogram of specific element
+            # Histogram of specific element
             hist_el = np.histogram(
                 group["nus"],
                 bins=self.plot_frequency_bins,
@@ -640,16 +666,34 @@ class KromerPlotter:
 
             luminosities_df[atomic_number] = L_lambda_el.value
 
-        # Create an array of elements present after masking
-        elements_in_range = np.array(list(packets_df_grouped.groups.keys()))
+        # Create an array of the elements with which packets interacted
+        elements_present = np.array(list(packets_df_grouped.groups.keys()))
 
-        return luminosities_df, elements_in_range
+        return luminosities_df, elements_present
 
     def _calculate_absorption_luminosities(
         self, packets_mode, packet_wvl_range
     ):
-        luminosities_df = pd.DataFrame(index=self.plot_wavelength)
+        """
+        Calculate luminosities for the absorption part of Kromer plot.
 
+        Parameters
+        ----------
+        packets_mode : {'virtual', 'real'}
+            Mode of packets to be considered, either real or virtual
+        packet_wvl_range : astropy.Quantity
+            Wavelength range to restrict the analysis of escaped packets. It
+            should be a quantity having units of Angstrom, containing two
+            values - lower lambda and upper lambda i.e.
+            [lower_lambda, upper_lambda] * u.AA
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe containing luminosities contributed by absorption with
+            each element present
+        """
+        # Calculate masks to be applied on packets data based on packet_wvl_range
         if packet_wvl_range is None:
             self.packet_nu_line_range_mask = np.ones(
                 self.data[packets_mode].packets_df_line_interaction.shape[0],
@@ -669,19 +713,25 @@ class KromerPlotter:
                 > packet_nu_range[1]
             )
 
-        # Groupby packet dataframe by last atom interaction in
+        luminosities_df = pd.DataFrame(index=self.plot_wavelength)
+
+        # Group packets_df by atomic number of elements with which packets
+        # had their last absorption (interaction in)
         packets_df_grouped = (
             self.data[packets_mode]
             .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
             .groupby(by="last_line_interaction_in_atom")
         )
         for atomic_number, group in packets_df_grouped:
+            # Histogram of specific element
             hist_el = np.histogram(
                 group["last_line_interaction_in_nu"],
                 bins=self.plot_frequency_bins,
                 weights=group["energies"]
                 / self.data[packets_mode].time_of_simulation,
             )
+
+            # Convert to luminosity density lambda
             L_nu_el = (
                 hist_el[0]
                 * u.erg
@@ -696,9 +746,18 @@ class KromerPlotter:
 
     def _calculate_photosphere_luminosity(self, packets_mode):
         """
-        Plots the blackbody luminosity density from the inner
-        boundary of the TARDIS simulation.
+        Calculate blackbody luminosity of the photosphere.
 
+        Parameters
+        ----------
+        packets_mode : {'virtual', 'real'}
+            Mode of packets to be considered, either real or virtual
+
+        Returns
+        -------
+        astropy.Quantity
+            Luminosity density lambda (or Flux) of photosphere (inner boundary
+            of TARDIS simulation)
         """
         L_lambda_ph = (
             abb.blackbody_lambda(
@@ -718,12 +777,44 @@ class KromerPlotter:
         packets_mode="virtual",
         packet_wvl_range=None,
         distance=None,
-        observed_spectrum=None,
         show_modeled_spectrum=True,
         ax=None,
         figsize=(10, 7),
         cmapname="jet",
     ):
+        """
+        Generate Kromer Plot using matplotlib.
+
+        Parameters
+        ----------
+        packets_mode : {'virtual', 'real'}, optional
+            Mode of packets to be considered, either real or virtual. Default
+            value is 'virtual'
+        packet_wvl_range : astropy.Quantity or None, optional
+            Wavelength range to restrict the analysis of escaped packets. It
+            should be a quantity having units of Angstrom, containing two
+            values - lower lambda and upper lambda i.e.
+            [lower_lambda, upper_lambda] * u.AA. Default value is None
+        distance : astropy.Quantity or None, optional
+            Distance used to calculate flux instead of luminosities in the plot.
+            Preferrably having units of cm. Default value is None
+        show_modeled_spectrum : bool, optional
+            Whether to show modeled spectrum in Kromer Plot. Default value is
+            True
+        ax : matplotlib.axes._subplots.AxesSubplot or None, optional
+            Axis on which to create plot. Default value is None which will
+            create plot on a new figure's axis.
+        figsize : tuple, optional
+            Size of the matplotlib figure to display. Default value is (10, 7)
+        cmapname : str, optional
+            Name of matplotlib colormap to be used for showing elements.
+            Default value is "jet"
+
+        Returns
+        -------
+        matplotlib.axes._subplots.AxesSubplot
+            Axis on which Kromer Plot is created
+        """
         # Calculate data attributes required for plotting
         # and save them in instance itself
         self._calculate_plotting_data(
@@ -777,6 +868,9 @@ class KromerPlotter:
         return plt.gca()
 
     def _plot_emission_mpl(self):
+        """Plot emission part of the Kromer Plot using matplotlib."""
+        # To create stacked area chart in matplotlib, we will start with zero
+        # lower level and will keep adding luminosities to it (upper level)
         lower_level = np.zeros(self.emission_luminosities_df.shape[0])
         upper_level = (
             lower_level + self.emission_luminosities_df.noint.to_numpy()
@@ -786,7 +880,6 @@ class KromerPlotter:
             self.plot_wavelength,
             lower_level,
             upper_level,
-            # step="pre",
             color="black",
             label="No interaction",
         )
@@ -800,7 +893,6 @@ class KromerPlotter:
             self.plot_wavelength,
             lower_level,
             upper_level,
-            # step="pre",
             color="grey",
             label="Electron Scatter Only",
         )
@@ -820,18 +912,20 @@ class KromerPlotter:
                 self.plot_wavelength,
                 lower_level,
                 upper_level,
-                # step="pre",
                 color=self.cmap(i / nelements),
                 cmap=self.cmap,
                 linewidth=0,
             )
 
     def _plot_absorption_mpl(self):
+        """Plot absorption part of the Kromer Plot using matplotlib."""
         lower_level = np.zeros(self.absorption_luminosities_df.shape[0])
 
         elements_z = self.absorption_luminosities_df.columns.to_list()
         for i, atomic_number in enumerate(elements_z):
-            # Fill from upper to lower level, moving along -ve x-axis
+            # To plot absorption part along -ve X-axis, we will start with
+            # zero upper level and keep subtracting luminosities to it (lower
+            # level) - fill from upper to lower level
             upper_level = lower_level
             lower_level = (
                 upper_level
@@ -842,13 +936,13 @@ class KromerPlotter:
                 self.plot_wavelength,
                 upper_level,
                 lower_level,
-                # step="pre",
                 color=self.cmap(i / len(elements_z)),
                 cmap=self.cmap,
                 linewidth=0,
             )
 
     def _show_colorbar_mpl(self):
+        """Show matplotlib colorbar with labels of elements mapped to colors."""
         color_values = [
             self.cmap(i / self.elements.size) for i in range(self.elements.size)
         ]
@@ -878,6 +972,39 @@ class KromerPlotter:
         graph_height=600,
         cmapname="jet",
     ):
+        """
+        Generate interactive Kromer Plot using plotly.
+
+        Parameters
+        ----------
+        packets_mode : {'virtual', 'real'}, optional
+            Mode of packets to be considered, either real or virtual. Default
+            value is 'virtual'
+        packet_wvl_range : astropy.Quantity or None, optional
+            Wavelength range to restrict the analysis of escaped packets. It
+            should be a quantity having units of Angstrom, containing two
+            values - lower lambda and upper lambda i.e.
+            [lower_lambda, upper_lambda] * u.AA. Default value is None
+        distance : astropy.Quantity or None, optional
+            Distance used to calculate flux instead of luminosities in the plot.
+            Preferrably having units of cm. Default value is None
+        show_modeled_spectrum : bool, optional
+            Whether to show modeled spectrum in Kromer Plot. Default value is
+            True
+        fig : plotly.graph_objs._figure.Figure or None, optional
+            Figure object on which to create plot. Default value is None which
+            will create plot on a new Figure object.
+        graph_height : int, optional
+            Height (in px) of the plotly graph to display. Default value is 600
+        cmapname : str, optional
+            Name of the colormap to be used for showing elements.
+            Default value is "jet"
+
+        Returns
+        -------
+        plotly.graph_objs._figure.Figure
+            Figure object on which Kromer Plot is created
+        """
         # Calculate data attributes required for plotting
         # and save them in instance itself
         self._calculate_plotting_data(
@@ -936,7 +1063,6 @@ class KromerPlotter:
             ylabel = pu.axis_label_in_latex(
                 "L_{\\lambda}", u.Unit("erg/(s AA)"), only_text=False
             )
-
         self.fig.update_layout(
             xaxis=dict(
                 title=xlabel,
@@ -950,12 +1076,27 @@ class KromerPlotter:
 
     @staticmethod
     def to_rgb255_string(color_tuple):
-        # colors values in matploltib color tuple are normalized, so
-        # convert them to rgb integers 0-255
+        """
+        Convert a matplotlib RGBA tuple to a generic RGB 255 string.
+
+        Parameters
+        ----------
+        color_tuple : tuple
+            Matplotlib RGBA tuple of float values in closed interval [0, 1]
+
+        Returns
+        -------
+        str
+            RGB string of format rgb(r,g,b) where r,g,b are integers between
+            0 and 255 (both inclusive)
+        """
         color_tuple_255 = tuple([int(x * 255) for x in color_tuple[:3]])
         return f"rgb{color_tuple_255}"
 
     def _plot_emission_ply(self):
+        """Plot emission part of the Kromer Plot using plotly."""
+        # By specifying a common stackgroup, plotly will itself add up
+        # luminosities, in order, to created stacked area chart
         self.fig.add_trace(
             go.Scatter(
                 x=self.emission_luminosities_df.index,
@@ -995,6 +1136,7 @@ class KromerPlotter:
             )
 
     def _plot_absorption_ply(self):
+        """Plot absorption part of the Kromer Plot using plotly."""
         elements_z = self.absorption_luminosities_df.columns
         nelements = len(elements_z)
 
@@ -1013,9 +1155,14 @@ class KromerPlotter:
             )
 
     def _show_colorbar_ply(self):
-        categorical_colorscale = []
-        colorscale_bins = np.linspace(0, 1, self.elements.size + 1)
+        """Show plotly colorbar with labels of elements mapped to colors."""
+        # Interpolate [0, 1] range to create bins equal to number of elements
+        colorscale_bins = np.linspace(0, 1, num=self.elements.size + 1)
 
+        # Create a categorical colorscale [a list of (reference point, color)]
+        # by mapping same reference points (excluding 1st and last bin edge)
+        # twice in a row (https://plotly.com/python/colorscales/#constructing-a-discrete-or-discontinuous-color-scale)
+        categorical_colorscale = []
         for i in range(self.elements.size):
             color = self.to_rgb255_string(self.cmap(colorscale_bins[i]))
             categorical_colorscale.append((colorscale_bins[i], color))
