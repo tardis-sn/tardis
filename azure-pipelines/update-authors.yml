@@ -24,7 +24,6 @@ jobs:
     steps:
       - template: templates/default.yml
         parameters:
-          useMamba: true
           skipInstall: true
           installSSHKey: true
 
@@ -74,31 +73,23 @@ jobs:
         displayName: 'Render notebook (allow errors)'
         condition: failed()
 
-      # This step should fail if there are changes in .zenodo.json
-      #- bash: |
-      #    diff $(tardis.zenodo.dir)/.zenodo.json .zenodo.json
-      #  displayName: 'Look for changes in JSON'
+      - bash: |
+          cd $(Build.SourcesDirectory)
+          git clone git@github.com:tardis-sn/tardis.git out
+          cd out
 
-      #- bash: |
-      #    set -e
-#
-      #    cd ..
-      #    git clone git@github.com:tardis-sn/tardis.git out
-      #    cd out
-#
-      #    git config --local user.name 'Azure Pipelines'
-      #    git config --local user.email 'azuredevops@microsoft.com'
-      #    cp $(tardis.zenodo.dir)/.zenodo.json .zenodo.json
-      #    git add .zenodo.json
-#
-      #    if git diff --staged --quiet; then
-      #       echo "Exiting with no changes"
-      #       exit 0
-      #    else
-      #      git commit -m 'Update zenodo.json [skip ci]'
-      #      git push origin master
-      #    fi
-      #  displayName: 'Push zenodo.json to master branch'
+          git config --local user.email 'wkerzendorf+tardis@gmail.com'
+          cp $(tardis.zenodo.dir)/.zenodo.json .zenodo.json
+          git add .zenodo.json
+
+          if git diff --staged --quiet; then
+             echo "No changes made"
+             exit 0
+          else
+            git commit -m 'Update zenodo.json [skip ci]'
+            git push origin master
+          fi
+        displayName: 'Push changes'
 
       - task: PublishPipelineArtifact@1
         inputs:
