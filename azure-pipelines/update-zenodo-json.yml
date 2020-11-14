@@ -50,7 +50,7 @@ jobs:
         displayName: 'Create CONDA environment'
 
       - bash: |
-          git clone https://epassaro:$GH_TOKEN@github.com/tardis-sn/tardis_zenodo.git $(tardis.zenodo.dir)
+          git clone https://$GH_TOKEN@github.com/tardis-sn/tardis_zenodo.git $(tardis.zenodo.dir)
         env:
           GH_TOKEN: $(epassaro_pat)
         displayName: 'Clone tardis_zenodo repository'
