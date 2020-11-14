@@ -15,7 +15,7 @@ schedules:
 variables:
   system.debug: false
   tardis.zenodo.dir: '$(Build.SourcesDirectory)/tardis_zenodo'
-You are using IPython 5.8.0 while we require 7.0.0+
+
 pool:
   vmImage: 'ubuntu-latest'
 
