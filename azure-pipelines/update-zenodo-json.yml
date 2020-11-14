@@ -30,19 +30,19 @@ jobs:
 
       - task: DownloadSecureFile@1
         name: zenodoSecretKey
-        displayName: 'Download Zenodo secret key'
+        displayName: 'Recover secret file'
         inputs:
           secureFile: 'key_secret.json'
 
       - task: DownloadSecureFile@1
         name: authorOrder
-        displayName: 'Download author order file'
+        displayName: 'Recover secret file'
         inputs:
           secureFile: 'author_order.txt'
 
       - task: DownloadSecureFile@1
         name: nonCommitContributors
-        displayName: 'Download non commit contributors file'
+        displayName: 'Recover secret file'
         inputs:
           secureFile: 'non_commit_contributors.txt'
 
@@ -56,7 +56,7 @@ jobs:
           cp $(zenodoSecretKey.secureFilePath) $(tardis.zenodo.dir)
           cp $(authorOrder.secureFilePath) $(tardis.zenodo.dir)
           cp $(nonCommitContributors.secureFilePath) $(tardis.zenodo.dir)
-        displayName: 'Recover secret files'
+        displayName: 'Copy secret files'
 
       - bash: |
           source activate zenodo
