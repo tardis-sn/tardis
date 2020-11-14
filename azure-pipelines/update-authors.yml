@@ -79,7 +79,9 @@ jobs:
           git clone git@github.com:tardis-sn/tardis.git out
           cd out
 
-          git config --local user.email 'wkerzendorf+tardis@gmail.com'
+          git config --local user.name "TARDIS bot"
+          git config --local user.email "wkerzendorf+tardis@gmail.com"
+
           cp $(tardis.zenodo.dir)/.zenodo.json .zenodo.json
           git add .zenodo.json
 
@@ -87,10 +89,10 @@ jobs:
              echo "No changes made"
              exit 0
           else
-            git commit -m 'Update zenodo.json [skip ci]'
+            git commit -m "Update author list [skip ci]"
             git push origin master
           fi
-        displayName: 'Push changes (if any)'
+        displayName: 'Push changes'
 
       - task: PublishPipelineArtifact@1
         inputs:
