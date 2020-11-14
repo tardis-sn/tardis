@@ -2,10 +2,10 @@
 # http://tardis-sn.github.io/tardis/development/continuous_integration.html
 
 trigger: none
-pr: [ master ]
+pr: none
 
 schedules:
-  - cron: '30 22 * * 5'
+  - cron: '0 0 * * 5'
     displayName: Scheduled update
     branches:
       include:
