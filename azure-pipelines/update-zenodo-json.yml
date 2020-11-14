@@ -47,10 +47,7 @@ jobs:
         inputs:
           secureFile: 'non_commit_contributors.txt'
 
-      - bash: |
-          source activate zenodo
-          $(package.manager) create -n zenodo python=3.6 -y
-          $(package.manager) install jupyter nbconvert numpy pandas orcid -c conda-forge -y
+      - bash: $(package.manager) create -n zenodo python=3.6 jupyter nbconvert numpy pandas orcid -c conda-forge -y
         displayName: 'Create CONDA environment'
 
       - bash: |
