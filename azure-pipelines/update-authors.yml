@@ -15,7 +15,7 @@ schedules:
 variables:
   system.debug: false
   tardis.zenodo.dir: '$(Build.SourcesDirectory)/tardis_zenodo'
-
+You are using IPython 5.8.0 while we require 7.0.0+
 pool:
   vmImage: 'ubuntu-latest'
 
@@ -24,6 +24,7 @@ jobs:
     steps:
       - template: templates/default.yml
         parameters:
+          useMamba: true
           skipInstall: true
           installSSHKey: true
 
@@ -89,7 +90,7 @@ jobs:
             git commit -m 'Update zenodo.json [skip ci]'
             git push origin master
           fi
-        displayName: 'Push changes'
+        displayName: 'Push changes (if any)'
 
       - task: PublishPipelineArtifact@1
         inputs:
