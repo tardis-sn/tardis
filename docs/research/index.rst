@@ -12,3 +12,4 @@ but also give an overview over our efforts.
     :maxdepth: 3
 
     code_comparison/index
+    research_done_using_TARDIS/research_papers
