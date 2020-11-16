@@ -1,7 +1,8 @@
 import astropy.units as u
+import tardis.constants as const
 import numpy as np
 
-R_ELECTRON = 2.8179403227e-15
+R_ELECTRON = const.a0.cgs * const.alpha.cgs ** 2.
 
 def kappa_calculation(energy):
     """

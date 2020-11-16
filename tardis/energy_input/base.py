@@ -2,8 +2,11 @@ import numpy as np
 
 #from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
 from tardis.energy_input.util import get_random_mu
-from tardis.energy_input.gamma_ray_grid import density_sampler
+from tardis.energy_input.gamma_ray_grid import density_sampler, distance_trace, move_gamma_ray, mass_distribution
 from tardis.energy_input.energy_source import sample_energy_distribution
+from tardis.energy_input.calculate_opacity import compton_opacity_calculation, photoabsorption_opacity_calculation, pair_creation_opacity_calculation, kappa_calculation
+from tardis.energy_input.gamma_ray_interactions import scatter_type
+from tqdm.auto import tqdm
 
 class SphericalVector(object):
     """
@@ -112,3 +115,92 @@ def spawn_gamma_ray(gamma_ray, radii, mass_ratio, positron=False):
     gamma_ray.location = SphericalVector(initial_radius, location_mu, location_phi)
         
     return gamma_ray
+
+
+def main_gamma_ray_loop(num_packets, velocity, time_since_explosion, rho0, inner_radius, radial_grid_length):
+
+    output_energies = []
+    ejecta_energy = []
+    ejecta_energy_r = []
+
+    velocity = 2.7e8
+    time = 20 * 86400
+    rho0 = 1e8
+
+    inner_radius = 0.
+    outer_radius = velocity * time
+
+    radii, masses, ejecta_density = mass_distribution(radial_grid_length, inner_radius, outer_radius, time, rho0, 1. * 86400)
+
+    iron_group_fraction = 0.5
+
+    packets = []
+
+    for i in range(num_packets):
+        
+        ray = GammaRay(0, 0, 1, 'InProcess', 0)
+        packets.append(spawn_gamma_ray(ray, radii, masses))
+
+    i=0
+    for packet in tqdm(packets):
+
+        distance_moved = 0.
+
+        #lol terrible
+        #basically prevents infinite loops
+        j=0
+        while j < 100:
+            compton_opacity = compton_opacity_calculation(ejecta_density[packet.shell], packet.energy)
+            photoabsorption_opacity = photoabsorption_opacity_calculation(packet.energy, ejecta_density[packet.shell], iron_group_fraction)
+            pair_creation_opacity = pair_creation_opacity_calculation(packet.energy, ejecta_density[packet.shell], iron_group_fraction)
+            total_opacity = compton_opacity + photoabsorption_opacity + pair_creation_opacity
+            
+            distance_interaction, distance_boundary, interaction = \
+                                            distance_trace(packet, radii, total_opacity, distance_moved)
+            
+            if interaction:
+                ejecta_energy_gained, pair_created = scatter_type(packet, compton_opacity, photoabsorption_opacity, total_opacity)
+                #Add antiparallel packet on pair creation at end of list
+                if pair_created:
+                    backward_ray = packet
+                    backward_ray.direction.phi += np.pi
+                    packets.append(backward_ray)
+
+                if ejecta_energy_gained > 0.0:
+                    ejecta_energy.append(ejecta_energy_gained)
+                    ejecta_energy_r.append(packet.location.r)
+                    
+                packet = move_gamma_ray(packet, distance_interaction)
+                distance_moved = 0.
+                
+            else:
+                rad_before = packet.location.r
+                packet = move_gamma_ray(packet, distance_boundary)
+                rad_after = packet.location.r
+                distance_moved = distance_boundary
+                if rad_after > rad_before:
+                    packet.shell += 1
+                else:
+                    packet.shell -= 1
+            
+            if packet.location.r > outer_radius or packet.shell >= len(radii) - 1:
+                packet.status = 'Emitted'
+                output_energies.append(packet.energy)
+                break
+            elif packet.location.r < inner_radius or packet.shell == 0:
+                packet.status = 'Absorbed'
+                packet.energy = 0.0
+                break 
+            
+            if packet.status == 'Absorbed':
+                #log where energy is deposited
+                ejecta_energy.append(packet.energy)
+                ejecta_energy_r.append(packet.location.r)
+                break
+
+            j+=1
+
+        output_energies.append(packet.energy)      
+        i+=1
+
+    return ejecta_energy, ejecta_energy_r, output_energies, radii
