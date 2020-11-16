@@ -44,19 +44,16 @@ class TestRunnerSimple:
 
         return get_ref_data
 
-    @pytest.mark.xfail(reason="Update refdata")
     def test_j_blue_estimators(self, runner, refdata):
         j_blue_estimator = refdata("j_blue_estimator").values
 
         npt.assert_allclose(runner.j_blue_estimator, j_blue_estimator)
 
-    @pytest.mark.xfail(reason="Update refdata")
     def test_spectrum(self, runner, refdata):
         luminosity = u.Quantity(refdata("spectrum/luminosity"), "erg /s")
 
         assert_quantity_allclose(runner.spectrum.luminosity, luminosity)
 
-    @pytest.mark.xfail(reason="Update refdata")
     def test_virtual_spectrum(self, runner, refdata):
         luminosity = u.Quantity(
             refdata("spectrum_virtual/luminosity"), "erg /s"
