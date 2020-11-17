@@ -13,8 +13,7 @@ import ipywidgets as ipw
 
 
 class BaseShellInfo:
-    """The simulation information that is used by shell info widget
-    """
+    """The simulation information that is used by shell info widget"""
 
     def __init__(
         self,

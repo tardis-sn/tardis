@@ -667,7 +667,7 @@ class ModelViewer(QtWidgets.QWidget):
 
     def change_spectrum_to_spec_flux_angstrom(self):
         """Change spectrum data back from virtual spectrum. (See the
-            method above)."""
+        method above)."""
         if self.model.runner.spectrum.luminosity_density_lambda is None:
             luminosity_density_lambda = np.zeros_like(
                 self.model.runner.spectrum.wavelength
@@ -946,7 +946,10 @@ class LineInfo(QtWidgets.QDialog):
         self.setGeometry(180 + len(self.parent.line_info) * 20, 150, 250, 400)
         self.setWindowTitle(
             "Line Interaction: %.2f - %.2f (A) "
-            % (wavelength_start, wavelength_end,)
+            % (
+                wavelength_start,
+                wavelength_end,
+            )
         )
         self.layout = QtWidgets.QVBoxLayout()
         packet_nu_line_interaction = analysis.LastLineInteraction.from_model(
@@ -1155,8 +1158,10 @@ class LineInteractionTables(QtWidgets.QWidget):
         self.line_interaction_analysis = line_interaction_analysis
         self.atom_data = atom_data
         self.lines_data = lines_data.reset_index().set_index("line_id")
-        line_interaction_species_group = line_interaction_analysis.last_line_in.groupby(
-            ["atomic_number", "ion_number"]
+        line_interaction_species_group = (
+            line_interaction_analysis.last_line_in.groupby(
+                ["atomic_number", "ion_number"]
+            )
         )
         self.species_selected = sorted(
             line_interaction_species_group.groups.keys()

@@ -12,6 +12,8 @@ from tardis.io.atom_data.base import AtomData
 from tardis.simulation import Simulation
 from tardis.io.config_reader import Configuration
 
+pytestmarker = [pytest.mark.no_cover, pytest.mark.integration]
+
 quantity_comparison = [
     (
         "/simulation/runner/last_line_interaction_in_id",
@@ -71,7 +73,7 @@ def model_quantities(request):
 @pytest.mark.integration
 class TestIntegration(object):
     """Slow integration test for various setups present in subdirectories of
-    ``tardis/tests/integration_tests``.	
+    ``tardis/tests/integration_tests``.
     """
 
     @classmethod

@@ -160,15 +160,20 @@ The most important (and confusing) predefined variables are the ones related
 to paths in Azure:
 
 * All folders for a given pipeline are created under ``Agent.BuildDirectory`` 
-  variable, alias ``Pipeline.Workspace``.
+  variable, alias ``Pipeline.Workspace``. This includes subdirectories like
+  ``/s`` for sources or ``/a`` for artifacts.
 
-* Cloned repositories are under the ``Build.Repository.LocalPath`` variable
-  alias ``Build.SourcesDirectory``. In TARDIS we implemented another alias 
-  for this variable, named ``sources.dir``.
+* Path to source code varies depending on how many repositories we fetch.
+  For example, source code is located under the ``Build.Repository.LocalPath``
+  variable (alias ``Build.SourcesDirectory``) when fetching a single repository,
+  but after fetching a second repository code is moved automatically to
+  ``Build.Repository.LocalPath/repository-name``.
 
-Our advice is to stick with ``Build.SourcesDirectory`` as much as possible
-to avoid problems when `checking out multiple repositories`_.
+See the Azure documentation to learn more about `checking out multiple repositories`_.
 
+
+Azure provides a list of agent hosts that can run the pipeline on a virtual machine. In our pipelines, we
+use the vm_Images: Ubuntu 16.04 and macOs-10.14.
 
 Jobs
 ----
@@ -245,7 +250,6 @@ to start a new pipeline use::
 
 **List of predefined custom variables:**
 
-- ``sources.dir`` is equivalent to ``$(Build.SourcesDirectory)``.
 - ``tardis.dir`` is equivalent to ``$(Build.SourcesDirectory)/tardis``.
 - ``refdata.dir`` is equivalent to ``$(Build.SourcesDirectory)/tardis-refdata``.
 
@@ -261,8 +265,8 @@ extra steps to run the tests and upload the coverage results.
 Documentation pipeline
 ----------------------
 
-Builds and deploys the TARDIS documentation website. Currently, we are trying
-to move this pipeline to GitHub Actions.
+Builds and deploys the TARDIS documentation website. Currently, we are
+using GitHub Actions for this purpose.
 
 
 Zenodo JSON pipeline
