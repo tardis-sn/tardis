@@ -1,7 +1,6 @@
 import numpy as np
 
-#from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
-from tardis.energy_input.util import get_random_mu
+from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
 from tardis.energy_input.gamma_ray_grid import density_sampler, distance_trace, move_gamma_ray, mass_distribution
 from tardis.energy_input.energy_source import sample_energy_distribution
 from tardis.energy_input.calculate_opacity import compton_opacity_calculation, photoabsorption_opacity_calculation, pair_creation_opacity_calculation, kappa_calculation
