@@ -172,6 +172,9 @@ to paths in Azure:
 See the Azure documentation to learn more about `checking out multiple repositories`_.
 
 
+Azure provides a list of agent hosts that can run the pipeline on a virtual machine. In our pipelines, we
+use the vm_Images: Ubuntu 16.04 and macOs-10.14.
+
 Jobs
 ----
 

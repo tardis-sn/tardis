@@ -62,12 +62,12 @@ class TestRunnerSimple:
         assert_quantity_allclose(runner.spectrum_virtual.luminosity, luminosity)
 
     def test_runner_properties(self, runner):
-        """Tests whether a number of runner attributes exist and also verifies
+        """
+        Tests whether a number of runner attributes exist and also verifies
         their types
 
         Currently, runner attributes needed to call the model routine to_hdf5
         are checked.
-
         """
 
         virt_type = np.ndarray
@@ -87,7 +87,8 @@ class TestRunnerSimple:
 
         for prop, prop_type in required_props.items():
             actual = getattr(runner, prop)
-            assert type(actual) == prop_type, (
-                "wrong type of attribute '{}':"
-                "expected {}, found {}".format(prop, prop_type, type(actual))
+            assert (
+                type(actual) == prop_type
+            ), "wrong type of attribute '{}':" "expected {}, found {}".format(
+                prop, prop_type, type(actual)
             )

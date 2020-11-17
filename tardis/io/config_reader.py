@@ -239,9 +239,10 @@ class ConfigWriterMixin(HDFWriterMixin):
     """
     Overrides HDFWriterMixin to obtain HDF properties from configuration keys
     """
+
     def get_properties(self):
         data = yaml.dump(self)
-        data = pd.DataFrame(index=[0], data={'config': data})
+        data = pd.DataFrame(index=[0], data={"config": data})
         return data
 
 
@@ -249,6 +250,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
     """
     Tardis configuration class
     """
+
     hdf_name = "simulation"
 
     @classmethod
@@ -358,21 +360,21 @@ def quantity_representer(dumper, data):
 
 def cns_representer(dumper, data):
     """
-    Represents Configuration as dict
+     Represents Configuration as dict
 
-   Parameters
-    ----------
+    Parameters
+     ----------
 
-    dumper :
-        YAML dumper object
+     dumper :
+         YAML dumper object
 
-    data :
-        ConfigurationNameSpace object
+     data :
+         ConfigurationNameSpace object
 
-    Returns
-    -------
+     Returns
+     -------
 
-    yaml dumper representation of Configuration as dict
+     yaml dumper representation of Configuration as dict
 
     """
     return dumper.represent_dict(dict(data))
