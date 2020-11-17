@@ -123,7 +123,6 @@ cdef extern from "src/cmontecarlo.h":
         double *tau_bias
         int enable_biasing
 
-    void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
 cdef extern from "src/integrator.h":
     double *_formal_integral(
@@ -246,14 +245,14 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
     storage.spectrum_start_nu = runner.spectrum_frequency.to('Hz').value.min()
     storage.spectrum_end_nu = runner.spectrum_frequency.to('Hz').value.max()
     # TODO: Linspace handling for virtual_spectrum_range
-    storage.spectrum_virt_start_nu = runner.virtual_spectrum_range.stop.to('Hz', units.spectral()).value
-    storage.spectrum_virt_end_nu = runner.virtual_spectrum_range.start.to('Hz', units.spectral()).value
+    storage.spectrum_virt_start_nu = runner.virtual_spectrum_spawn_range.end.to('Hz', units.spectral()).value
+    storage.spectrum_virt_end_nu = runner.virtual_spectrum_spawn_range.start.to('Hz', units.spectral()).value
     storage.spectrum_delta_nu = runner.spectrum_frequency.to('Hz').value[1] - runner.spectrum_frequency.to('Hz').value[0]
 
     storage.spectrum_virt_nu = <double*> PyArray_DATA(
         runner._montecarlo_virtual_luminosity.value)
 
-    storage.sigma_thomson = runner.sigma_thomson.cgs.value
+    storage.sigma_thomson = runner.sigma_thomson
     storage.inverse_sigma_thomson = 1.0 / storage.sigma_thomson
     storage.reflective_inner_boundary = runner.enable_reflective_inner_boundary
     storage.inner_boundary_albedo = runner.inner_boundary_albedo
@@ -270,66 +269,13 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
         runner.tau_bias[:-1] = (
             ((runner.r_outer_cgs - runner.r_inner_cgs) *
             plasma.electron_densities.values *
-            runner.sigma_thomson.cgs.value)[::-1].cumsum()[::-1]
+            runner.sigma_thomson)[::-1].cumsum()[::-1]
         )
         storage.tau_bias = <double*> PyArray_DATA(runner.tau_bias)
 
     # Data for continuum implementation
     cdef np.ndarray[double, ndim=1] t_electrons = plasma.t_electrons
     storage.t_electrons = <double*> t_electrons.data
-
-def montecarlo_radial1d(model, plasma, runner, int_type_t virtual_packet_flag=0,
-                        int nthreads=4,last_run=False):
-    """
-    Parameters
-    ----------
-    model : `tardis.model_radial_oned.ModelRadial1D`
-        complete model
-    param photon_packets : PacketSource object
-        photon packets
-
-    Returns
-    -------
-    output_nus : `numpy.ndarray`
-    output_energies : `numpy.ndarray`
-
-    TODO
-                    np.ndarray[double, ndim=1] line_list_nu,
-                    np.ndarray[double, ndim=2] tau_lines,
-                    np.ndarray[double, ndim=1] ne,
-                    double packet_energy,
-                    np.ndarray[double, ndim=2] p_transition,
-                    np.ndarray[int_type_t, ndim=1] type_transition,
-                    np.ndarray[int_type_t, ndim=1] target_level_id,
-                    np.ndarray[int_type_t, ndim=1] target_line_id,
-                    np.ndarray[int_type_t, ndim=1] unroll_reference,
-                    np.ndarray[int_type_t, ndim=1] line2level,
-                    int_type_t log_packets,
-                    int_type_t do_scatter
-    """
-
-    cdef storage_model_t storage
-
-    initialize_storage_model(model, plasma, runner, &storage)
-
-    montecarlo_main_loop(&storage, virtual_packet_flag, nthreads, runner.seed)
-    runner.virt_logging = LOG_VPACKETS
-    if LOG_VPACKETS != 0:
-        runner.virt_packet_nus = c_array_to_numpy(storage.virt_packet_nus, np.NPY_DOUBLE, storage.virt_packet_count)
-        runner.virt_packet_energies = c_array_to_numpy(storage.virt_packet_energies, np.NPY_DOUBLE, storage.virt_packet_count)
-        runner.virt_packet_last_interaction_in_nu = c_array_to_numpy(storage.virt_packet_last_interaction_in_nu, np.NPY_DOUBLE, storage.virt_packet_count)
-        runner.virt_packet_last_interaction_type = c_array_to_numpy(storage.virt_packet_last_interaction_type, np.NPY_INT64, storage.virt_packet_count)
-        runner.virt_packet_last_line_interaction_in_id = c_array_to_numpy(storage.virt_packet_last_line_interaction_in_id, np.NPY_INT64,
-                                                                          storage.virt_packet_count)
-        runner.virt_packet_last_line_interaction_out_id = c_array_to_numpy(storage.virt_packet_last_line_interaction_out_id, np.NPY_INT64,
-                                                                           storage.virt_packet_count)
-    else:
-        runner.virt_packet_nus = np.zeros(0)
-        runner.virt_packet_energies = np.zeros(0)
-        runner.virt_packet_last_interaction_in_nu = np.zeros(0)
-        runner.virt_packet_last_interaction_type = np.zeros(0)
-        runner.virt_packet_last_line_interaction_in_id = np.zeros(0)
-        runner.virt_packet_last_line_interaction_out_id = np.zeros(0)
 
 
 # This will be a method of the Simulation object

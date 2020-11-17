@@ -10,6 +10,7 @@ from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
 from tardis.io.config_reader import ConfigurationError
+from tardis.montecarlo import montecarlo_configuration as mc_config_module
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -332,6 +333,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             no_of_virtual_packets=no_of_virtual_packets,
             nthreads=self.nthreads,
             last_run=last_run,
+            iteration=self.iterations_executed,
         )
         output_energy = self.runner.output_energy
         if np.sum(output_energy < 0) == len(output_energy):
@@ -370,7 +372,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.electron_densities,
             self.model.t_inner,
         )
-        self.iterate(self.last_no_of_packets, self.no_of_virtual_packets, True)
+        self.iterate(
+            self.last_no_of_packets, self.no_of_virtual_packets, last_run=True
+        )
 
         self.reshape_plasma_state_store(self.iterations_executed)
 

@@ -24,7 +24,7 @@ def create_table_widget(
     table_options : dict, optional
         A dictionary to specify options to use when creating interactive table
         widget (same as :grid_options: of qgrid, specified in Notes section of
-        their `API documentation <https://qgrid.readthedocs.io/en/latest/#qgrid.show_grid>_`). 
+        their `API documentation <https://qgrid.readthedocs.io/en/latest/#qgrid.show_grid>_`).
         Invalid keys will have no effect and valid keys will override or add to
         the options used by this function.
     changeable_col : dict, optional
@@ -105,8 +105,8 @@ def create_table_widget(
 class TableSummaryLabel:
     """
     Label like widget to show summary of a qgrid table widget.
-    
-    Also handles aligning the label with the table columns exactly like a 
+
+    Also handles aligning the label with the table columns exactly like a
     summary row.
     """
 
@@ -145,10 +145,10 @@ class TableSummaryLabel:
     def update_and_resize(self, value):
         """
         Update the label value and resize it as per the size of target table.
-        
+
         Resizing is done in such a way so as to match the width of components
-        of label with columns of target table, making it look like another row. 
-        This method should be called whenever there is any update in data or 
+        of label with columns of target table, making it look like another row.
+        This method should be called whenever there is any update in data or
         layout of target table.
 
         Parameters
@@ -158,8 +158,8 @@ class TableSummaryLabel:
 
         Note
         ----
-        The width resizing operation is highly dependent on qgrid tables' 
-        layout. So it may not remain precise if there happens any CSS change 
+        The width resizing operation is highly dependent on qgrid tables'
+        layout. So it may not remain precise if there happens any CSS change
         in upcoming versions of qgrid.
         """
         self.widget.children[1].value = str(value)
@@ -216,7 +216,13 @@ class TableSummaryLabel:
                     f"<div style='text-align:right;'> <b>{key}:<b> </div>",
                     layout=component_layout_options,
                 ),
-                ipw.HTML(str(value), layout=component_layout_options,),
+                ipw.HTML(
+                    str(value),
+                    layout=component_layout_options,
+                ),
             ],
-            layout=dict(display="flex", justify_content="flex-start",),
+            layout=dict(
+                display="flex",
+                justify_content="flex-start",
+            ),
         )

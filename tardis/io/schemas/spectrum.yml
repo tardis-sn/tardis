@@ -50,3 +50,7 @@ properties:
         default: False
         description: If True bias v-packet emission based on the electron
             scattering optical depth
+      virtual_packet_logging:
+        type: boolean
+        default: False
+        description: If True, enable virtual packet logging output

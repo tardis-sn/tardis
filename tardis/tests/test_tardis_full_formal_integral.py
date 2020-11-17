@@ -1,13 +1,13 @@
 import os
 import pytest
-import numpy as np
 import numpy.testing as npt
 from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
 
 from tardis.simulation.base import Simulation
 from tardis.io.config_reader import Configuration
-import astropy
+
+pytestmark = pytest.mark.skip(reason="memory problem")
 
 config_line_modes = ["downbranch", "macroatom"]
 interpolate_shells = [-1, 30]
