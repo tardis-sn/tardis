@@ -1,3 +1,5 @@
+import sys
+
 import warnings
 import numpy as np
 import pandas as pd
@@ -5,7 +7,7 @@ import scipy.sparse as sp
 from scipy.interpolate import interp1d
 from astropy import units as u
 from tardis import constants as const
-from numba import njit
+from numba import njit, char, float64, int64, jitclass, typeof
 import pdb
 
 
@@ -15,7 +17,6 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     NumbaModel,
     NumbaPlasma,
 )
-from tardis.montecarlo import MontecarloRunner
 
 from tardis.montecarlo.montecarlo import formal_integral
 from tardis.montecarlo.spectrum import TARDISSpectrum
@@ -31,10 +32,47 @@ class IntegrationError(Exception):
     pass
 
 
+mock_runner_spec = [
+    ("line_interaction_type", char[:]),
+    ("time_of_simulation", float64),
+    ("Edotlu_estimator", float64[:]),
+    ("j_blue_estimator", float64[:]),
+    ("r_inner_i", float64[:]),
+    ("r_outer_i", float64[:]),
+    ("tau_sobolevs_integ", float64[:]),
+    ("electron_densities_integ", float64[:]),
+]
+
+
+@jitclass(mock_runner_spec)
+class MockMontecarloRunner(object):
+    """a class that contains similar data to the MonteCarlo runner
+    but in a simple jitclass that ONLY FUNCTIONS with FormalIntegrator
+    """
+
+    def __init__(self, runner, plasma, nshells):
+        """runner is a MontecarloRunner class
+        attributes of the class necessary for the FormalIntegrator
+        to function"""
+        self.line_interaction_type = runner.line_interaction_type
+        self.time_of_simulation = runner.time_of_simulation
+        self.Edotlu_estimator = runner.Edotlu_estimator
+
+        self.j_blue_estimator = runner.j_blue_estimator
+        self.r_inner_i = runner.r_inner_cgs
+        self.r_outer_i = runner.r_outer_cgs
+        self.tau_sobolevs_integ = self.plasma.tau_sobolev
+        self.electron_densities_integ = self.plasma.electron_density
+
+
 integrator_spec = [
-    ("model", NumbaModel),
-    ("plasma", NumbaPlasma),
-    ("runner", MontecarloRunner),
+    ("model", NumbaModel.class_type.instance_type),
+    ("no_of_shells", int64),
+    ("volume", float64),
+    ("time_explosion", float64),
+    ("time_of_simulation", float64),
+    ("plasma", NumbaPlasma.class_type.instance_type),
+    ("runner", MockMontecarloRunner.class_type.instance_type),
     ("points", int64),
 ]
 
@@ -50,7 +88,11 @@ class FormalIntegrator(object):
             # )
             self.atomic_data = plasma.atomic_data
             self.original_plasma = plasma
-        self.runner = runner
+        self.no_of_shells = model.no_of_shells
+        self.volume = model.volume
+        self.time_explosion = model.time_explosion
+        self.time_of_simulation = model.time_of_simulation
+        self.runner = MockMontecarloRunner(runner, plasma, no_of_shells)
         self.points = points
 
     def check(self, raises=True):
@@ -144,7 +186,7 @@ class FormalIntegrator(object):
         macro_data = self.atomic_data.macro_atom_data
 
         no_lvls = len(self.atomic_data.levels)
-        no_shells = len(model.w)
+        no_shells = model.no_of_shells
 
         if runner.line_interaction_type == "macroatom":
             internal_jump_mask = (macro_data.transition_type >= 0).values
