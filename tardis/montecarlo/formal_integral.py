@@ -257,26 +257,30 @@ class FormalIntegrator(object):
 
         r_middle_integ = (r_integ[:-1] + r_integ[1:]) / 2.0
 
-        runner.electron_densities_integ = pd.Series(interp1d(
-            r_middle,
-            plasma.electron_densities,
-            fill_value="extrapolate",
-            kind="nearest",
-        )(r_middle_integ))
+        runner.electron_densities_integ = pd.Series(
+            interp1d(
+                r_middle,
+                plasma.electron_densities,
+                fill_value="extrapolate",
+                kind="nearest",
+            )(r_middle_integ)
+        )
         # Assume tau_sobolevs to be constant within a shell
         # (as in the MC simulation)
-        runner.tau_sobolevs_integ = pd.DataFrame(interp1d(
-            r_middle,
-            plasma.tau_sobolevs,
-            fill_value="extrapolate",
-            kind="nearest",
-        )(r_middle_integ))
+        runner.tau_sobolevs_integ = pd.DataFrame(
+            interp1d(
+                r_middle,
+                plasma.tau_sobolevs,
+                fill_value="extrapolate",
+                kind="nearest",
+            )(r_middle_integ)
+        )
         att_S_ul = interp1d(r_middle, att_S_ul, fill_value="extrapolate")(
             r_middle_integ
         )
-        Jredlu = pd.DataFrame(interp1d(r_middle, Jredlu, fill_value="extrapolate")(
-            r_middle_integ
-        ))
+        Jredlu = pd.DataFrame(
+            interp1d(r_middle, Jredlu, fill_value="extrapolate")(r_middle_integ)
+        )
         Jbluelu = interp1d(r_middle, Jbluelu, fill_value="extrapolate")(
             r_middle_integ
         )
@@ -370,11 +374,18 @@ class FormalIntegrator(object):
                 zstart = self.model.time_explosion / C_INV * (1.0 - z[0])
 
                 # Initialize "pointers"
-                pline = self.plasma.line_list_nu + idx_nu_start
-                pexp_tau = exp_tau + offset + idx_nu_start
-                patt_S_ul = att_S_ul + offset + idx_nu_start
-                pJred_lu = Jred_lu + offset + idx_nu_start
-                pJblue_lu = Jblue_lu + offset + idx_nu_start
+
+                line_list_nu = self.plasma.line_list_nu
+                exp_tau = exp_tau.flatten()
+                att_S_ul = att_S_ul.flatten()
+                Jred_lu = Jred_lu.flatten()
+                Jblue_lu = Jblue_lu.flatten()
+
+                pline = idx_nu_start
+                pexp_tau = offset + idx_nu_start
+                patt_S_ul = offset + idx_nu_start
+                pJred_lu = offset + idx_nu_start
+                pJblue_lu = offset + idx_nu_start
 
                 # flag for first contribution to integration on current p-ray
                 first = 1
@@ -386,8 +397,8 @@ class FormalIntegrator(object):
                         * SIGMA_THOMSON
                     )
                     nu_end = nu * z[i + 1]
-                    while np.all(
-                        pline < self.plasma.line_list_nu + size_line
+                    while (
+                        line_list_nu[pline] < line_list_nu[size_line]
                     ):  # check all condition
                         # increment all pointers simulatenously
                         pline += 1
@@ -395,14 +406,14 @@ class FormalIntegrator(object):
                         patt_S_ul += 1
                         pJblue_lu += 1
 
-                        if pline[0] < nu_end.value:
+                        if line_list_nu[pline] < nu_end.value:
                             break
 
                         # calculate e-scattering optical depth to next resonance point
                         zend = (
                             self.model.time_explosion
                             / C_INV
-                            * (1.0 - pline[0] / nu.value)
+                            * (1.0 - line_list_nu[pline] / nu.value)
                         )  # check
 
                         if first == 1:
@@ -413,12 +424,14 @@ class FormalIntegrator(object):
                             escat_contrib += (
                                 (zend - zstart)
                                 * escat_op
-                                * (pJblue_lu[0] - I_nu[p_idx])
+                                * (Jblue_lu[pJblue_lu] - I_nu[p_idx])
                             )
                             first = 0
                         else:
                             # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
-                            Jkkp = 0.5 * (pJred_lu[0] + pJblue_lu[0])
+                            Jkkp = 0.5 * (
+                                Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu]
+                            )
                             escat_contrib += (
                                 (zend - zstart)
                                 * escat_op
@@ -431,7 +444,8 @@ class FormalIntegrator(object):
                         I_nu[p_idx] = I_nu[p_idx] + escat_contrib.value
                         # // Lucy 1999, Eq 26
                         I_nu[p_idx] = (
-                            I_nu[p_idx] * (pexp_tau[0][0]) + patt_S_ul[0]
+                            I_nu[p_idx] * (exp_tau[pexp_tau])
+                            + att_S_ul[patt_S_ul]
                         )  # check about taking about asterisks beforehand elsewhere
 
                         # // reset e-scattering opacity
@@ -439,7 +453,7 @@ class FormalIntegrator(object):
                         zstart = zend
                     # calculate e-scattering optical depth to grid cell boundary
 
-                    Jkkp = 0.5 * (pJred_lu[0] + pJblue_lu[0])
+                    Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
                     zend = (
                         self.model.time_explosion / C_INV * (1.0 - nu_end / nu)
                     )  # check
@@ -451,10 +465,10 @@ class FormalIntegrator(object):
                     if i < size_z - 1:
                         # advance pointers
                         direction = shell_id[i + 1] - shell_id[i]
-                        pexp_tau += direction * size_line
-                        patt_S_ul += direction * size_line
-                        pJred_lu += direction * size_line
-                        pJblue_lu += direction * size_line
+                        exp_tau[pexp_tau] += direction * size_line
+                        att_S_ul[patt_S_ul] += direction * size_line
+                        Jred_lu[pJred_lu] += direction * size_line
+                        Jblue_lu[pJblue_lu] += direction * size_line
                 I_nu[p_idx] *= p
             L[nu_idx] = (
                 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max / N, N)
@@ -535,7 +549,7 @@ class BoundsError(ValueError):
 
 
 @njit(**njit_dict)
-def line_search(nu, nu_insert, number_of_lines, result):
+def line_search(nu, nu_insert, number_of_lines):
     """
     Insert a value in to an array of line frequencies
 
@@ -558,13 +572,13 @@ def line_search(nu, nu_insert, number_of_lines, result):
     elif nu_insert < nu[imax]:
         result = imax + 1
     else:
-        result = reverse_binary_search(nu, nu_insert, imin, imax, result)
+        result = reverse_binary_search(nu, nu_insert, imin, imax)
         result = result + 1
     return result
 
 
 @njit(**njit_dict)
-def reverse_binary_search(x, x_insert, imin, imax, result):
+def reverse_binary_search(x, x_insert, imin, imax):
     """Look for a place to insert a value in an inversely sorted float array.
 
     Inputs:
