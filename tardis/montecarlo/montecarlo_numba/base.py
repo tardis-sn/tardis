@@ -193,10 +193,10 @@ def montecarlo_main_loop(
 
         if montecarlo_configuration.VPACKET_LOGGING:
             virt_packet_nus.append(
-                vpacket_collection.nus[: vpacket_collection.idx]
+                vpackets_nu
             )
             virt_packet_energies.append(
-                vpacket_collection.energies[: vpacket_collection.idx]
+                vpackets_energy
             )
             virt_packet_last_interaction_in_nu.append(
                 vpacket_collection.last_interaction_in_nu
