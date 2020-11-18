@@ -314,18 +314,25 @@ class FormalIntegrator(object):
                 nu_start = nu * z[0]
                 nu_end = nu * z[1]
                 idx_nu_start = line_search(self.plasma.line_list_nu,
-                                           nu_start, size_line, idx_nu_start)
+                                           nu_start, size_line)
                 offset = shell_id[0] * size_line
 
                 # start tracking accumulated e-scattering optical depth
                 zstart = self.model.time_explosion / C_INV * (1. - z[0])
 
                 # Initialize "pointers"
-                pline = self.plasma.line_list_nu + idx_nu_start
-                pexp_tau = exp_tau + offset + idx_nu_start
-                patt_S_ul = att_S_ul + offset + idx_nu_start
-                pJred_lu = Jred_lu + offset + idx_nu_start
-                pJblue_lu = Jblue_lu + offset + idx_nu_start
+
+                line_list_nu = self.plasma.line_list_nu
+                exp_tau = exp_tau.flatten()
+                att_S_ul = att_S_ul.flatten()
+                Jred_lu = Jred_lu.flatten()
+                Jblue_lu = Jblue_lu.flatten()
+
+                pline = idx_nu_start
+                pexp_tau = offset + idx_nu_start
+                patt_S_ul = offset + idx_nu_start
+                pJred_lu = offset + idx_nu_start
+                pJblue_lu = offset + idx_nu_start
 
                 # flag for first contribution to integration on current p-ray
                 first = 1
@@ -334,18 +341,18 @@ class FormalIntegrator(object):
                 for i in range(size_z - 1):
                     escat_op = self.plasma.electron_density[int(shell_id[i])] * SIGMA_THOMSON
                     nu_end = nu * z[i + 1]
-                    while np.all(pline < self.plasma.line_list_nu + size_line): # check all condition
+                    while (line_list_nu[pline] < line_list_nu[size_line]): # check all condition
                         # increment all pointers simulatenously
                         pline += 1
                         pexp_tau += 1
                         patt_S_ul += 1
                         pJblue_lu += 1
 
-                        if (pline[0] < nu_end.value):
+                        if (line_list_nu[pline] < nu_end.value):
                             break
 
                         # calculate e-scattering optical depth to next resonance point
-                        zend = self.model.time_explosion / C_INV * (1. - pline[0] / nu.value) # check
+                        zend = self.model.time_explosion / C_INV * (1. - line_list_nu[pline] / nu.value) # check
 
                         if first == 1:
                             # first contribution to integration
@@ -353,11 +360,11 @@ class FormalIntegrator(object):
                             #   by boundary conditions) is not in Lucy 1999;
                             #   should be re-examined carefully
                             escat_contrib += (zend - zstart) * escat_op * (
-                                pJblue_lu[0] - I_nu[p_idx]);
+                                Jblue_lu[pJblue_lu] - I_nu[p_idx]);
                             first = 0;
                         else:
                             # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
-                            Jkkp = 0.5 * (pJred_lu[0] + pJblue_lu[0]);
+                            Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu]);
                             escat_contrib += (zend - zstart) * escat_op * (
                                         Jkkp - I_nu[p_idx])
                             # this introduces the necessary ffset of one element between
@@ -366,14 +373,14 @@ class FormalIntegrator(object):
                         # pdb.set_trace()
                         I_nu[p_idx] = I_nu[p_idx] + escat_contrib.value
                         # // Lucy 1999, Eq 26
-                        I_nu[p_idx] = I_nu[p_idx] * (pexp_tau[0][0]) + patt_S_ul[0] # check about taking about asterisks beforehand elsewhere
+                        I_nu[p_idx] = I_nu[p_idx] * (exp_tau[pexp_tau]) + att_S_ul[patt_S_ul] # check about taking about asterisks beforehand elsewhere
 
                         # // reset e-scattering opacity
                         escat_contrib = 0
                         zstart = zend
                     # calculate e-scattering optical depth to grid cell boundary
 
-                    Jkkp = 0.5 * (pJred_lu[0] + pJblue_lu[0])
+                    Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
                     zend = self.model.time_explosion / C_INV * (1. - nu_end / nu) # check
                     escat_contrib += (zend - zstart) * escat_op * (
                                 Jkkp - I_nu[p_idx])
@@ -382,10 +389,10 @@ class FormalIntegrator(object):
                     if i < size_z - 1:
                         # advance pointers
                         direction = shell_id[i+1] - shell_id[i]
-                        pexp_tau += direction * size_line
-                        patt_S_ul += direction * size_line
-                        pJred_lu += direction * size_line
-                        pJblue_lu += direction * size_line
+                        exp_tau[pexp_tau] += direction * size_line
+                        att_S_ul[patt_S_ul] += direction * size_line
+                        Jred_lu[pJred_lu] += direction * size_line
+                        Jblue_lu[pJblue_lu] += direction * size_line
                 I_nu[p_idx] *= p
             L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max / N,
                                                                 N)
@@ -462,7 +469,7 @@ class BoundsError(ValueError):
     pass
 
 @njit(**njit_dict)
-def line_search(nu, nu_insert, number_of_lines, result):
+def line_search(nu, nu_insert, number_of_lines):
     """
     Insert a value in to an array of line frequencies
 
@@ -485,12 +492,12 @@ def line_search(nu, nu_insert, number_of_lines, result):
     elif nu_insert < nu[imax]:
         result = imax + 1
     else:
-        result = reverse_binary_search(nu, nu_insert, imin, imax, result)
+        result = reverse_binary_search(nu, nu_insert, imin, imax)
         result = result + 1
     return result
 
 @njit(**njit_dict)
-def reverse_binary_search(x, x_insert, imin, imax, result):
+def reverse_binary_search(x, x_insert, imin, imax):
     """Look for a place to insert a value in an inversely sorted float array.
 
     Inputs:
