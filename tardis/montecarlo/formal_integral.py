@@ -12,7 +12,10 @@ import pdb
 from tardis.montecarlo.montecarlo_numba import njit_dict
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     numba_plasma_initialize,
+    NumbaModel,
+    NumbaPlasma,
 )
+from tardis.montecarlo import MontecarloRunner
 
 from tardis.montecarlo.montecarlo import formal_integral
 from tardis.montecarlo.spectrum import TARDISSpectrum
@@ -28,14 +31,15 @@ class IntegrationError(Exception):
     pass
 
 
-# integrator_spec = [
-#     ('model', float64),
-#     ('plasma', float64),
-#     ('runner', float64),
-#     ('points', int64)
-# ]
-#
-# @jitclass(integrator_spec)
+integrator_spec = [
+    ("model", NumbaModel),
+    ("plasma", NumbaPlasma),
+    ("runner", MontecarloRunner),
+    ("points", int64),
+]
+
+
+@jitclass(integrator_spec)
 class FormalIntegrator(object):
     def __init__(self, model, plasma, runner, points=1000):
         self.model = model
