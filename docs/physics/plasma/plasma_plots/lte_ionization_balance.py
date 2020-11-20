@@ -21,13 +21,13 @@ ax2 = plt.figure(2).add_subplot(111)
 # reading in the HDF5 File
 atom_data = AtomData.from_hdf(atom_fname)
 
-# The atom_data needs to be prepared to create indices. The Class needs to know which atomic numbers are needed for the
-# calculation and what line interaction is needed (for "downbranch" and "macroatom" the code creates special tables)
+"""The atom_data needs to be prepared to create indices. The Class needs to know which atomic numbers are needed for the
+calculation and what line interaction is needed (for "downbranch" and "macroatom" the code creates special tables)"""
 atom_data.prepare_atom_data([14], "scatter")
 
-# Initializing the NebularPlasma class using the from_abundance class method.
-# This classmethod is normally only needed to test individual plasma classes
-# Usually the plasma class just gets the number densities from the model class
+"""Initializing the NebularPlasma class using the from_abundance class method.
+This classmethod is normally only needed to test individual plasma classes
+Usually the plasma class just gets the number densities from the model class"""
 assert True, (
     "This script needs a proper rewrite and should use the new"
     '"assemble_plasma" function.'
