@@ -35,7 +35,8 @@ def calculate_block_ids_from_dataframe(dataframe):
 
 class PhiSahaLTE(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     phi : Pandas DataFrame, dtype float
           Used for LTE ionization (at the radiation temperature).
           Indexed by atomic number, ion number. Columns are zones.
@@ -91,7 +92,8 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
 
 class ThermalPhiSahaLTE(PhiSahaLTE):
     """
-    Attributes:
+    Attributes
+    ----------
     phi : Pandas DataFrame, dtype float
           Used for LTE ionization (at the electron temperature).
           Indexed by atomic number, ion number. Columns are zones.
@@ -122,7 +124,8 @@ class ThermalPhiSahaLTE(PhiSahaLTE):
 
 class PhiSahaNebular(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     phi : Pandas DataFrame, dtype float
           Used for nebular ionization. Indexed by atomic number, ion number. Columns are zones.
     """
@@ -184,7 +187,8 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
 
 class RadiationFieldCorrection(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     delta : Pandas DataFrame, dtype float
             Calculates the radiation field correction (see Mazzali & Lucy, 1993) if
             not given as input in the config. file. The default chi_0_species is
@@ -257,7 +261,8 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
 
 class IonNumberDensity(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     ion_number_density : Pandas DataFrame, dtype float
                          Index atom number, ion number. Columns zones.
     electron_densities : Numpy Array, dtype float
@@ -387,7 +392,8 @@ class IonNumberDensity(ProcessingPlasmaProperty):
 
 class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     ion_number_density : Pandas DataFrame, dtype float
                          Index atom number, ion number. Columns zones.
     electron_densities : Numpy Array, dtype float
@@ -528,8 +534,9 @@ class SahaFactor(ProcessingPlasmaProperty):
     the ratio of the LTE level population n_i*, and the product of
     the LTE ion density n_k* and the actual electron density n_e.
 
-    Attributes:
-    phi_ik: Pandas DataFrame, dtype float
+    Attributes
+    ----------
+    phi_ik : Pandas DataFrame, dtype float
             Indexed by atom number, ion number, level number.
             Columns are zones.
     """

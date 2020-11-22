@@ -74,7 +74,7 @@ class Lines(BaseAtomicDataProperty):
             Line frequency data
     f_lu : Pandas DataFrame (index=line_id), dtype float
             Transition probability data
-    wavelength_cm: Pandas DataFrame (index=line_id), dtype float
+    wavelength_cm : Pandas DataFrame (index=line_id), dtype float
             Line wavelengths in cm
     """
 
@@ -94,18 +94,18 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    photo_ion_cross_sections: Pandas DataFrame (nu, x_sect,
+    photo_ion_cross_sections : Pandas DataFrame (nu, x_sect,
                                                 index=['atomic_number',
                                                        'ion_number',
                                                        'level_number']),
                                                 dtype float)
                               Table of photoionization cross sections as a
                               function of frequency.
-    photo_ion_block_references: One-dimensional Numpy Array, dtype int
+    photo_ion_block_references : One-dimensional Numpy Array, dtype int
                               Indices where the photoionization data for
                               a given level starts. Needed for calculation
                               of recombination rates.
-    photo_ion_index: Pandas MultiIndex, dtype int
+    photo_ion_index : Pandas MultiIndex, dtype int
                               Atomic, ion and level numbers for which
                               photoionization data exists.
     """
@@ -137,7 +137,8 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
 
 class LinesLowerLevelIndex(HiddenPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     lines_lower_level_index : One-dimensional Numpy Array, dtype int
         Levels data for lower levels of particular lines
     """
@@ -154,7 +155,8 @@ class LinesLowerLevelIndex(HiddenPlasmaProperty):
 
 class LinesUpperLevelIndex(HiddenPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     lines_upper_level_index : One-dimensional Numpy Array, dtype int
         Levels data for upper levels of particular lines
     """
@@ -171,7 +173,8 @@ class LinesUpperLevelIndex(HiddenPlasmaProperty):
 
 class AtomicMass(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     atomic_mass : Pandas Series
         Atomic masses of the elements used. Indexed by atomic number.
     """
@@ -187,7 +190,8 @@ class AtomicMass(ProcessingPlasmaProperty):
 
 class IonizationData(BaseAtomicDataProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     ionization_data : Pandas Series holding ionization energies
         Indexed by atomic number, ion number.
     """
@@ -215,7 +219,8 @@ class IonizationData(BaseAtomicDataProperty):
 
 class ZetaData(BaseAtomicDataProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     zeta_data : Pandas DataFrame, dtype float
         Zeta data for the elements used. Indexed by atomic number, ion number.
         Columns are temperature values up to 40,000 K in iterations of 2,000 K.
@@ -279,9 +284,10 @@ class ZetaData(BaseAtomicDataProperty):
 
 class NLTEData(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     nlte_data :
-#Finish later (need atomic dataset with NLTE data).
+        #Finish later (need atomic dataset with NLTE data).
     """
 
     outputs = ("nlte_data",)

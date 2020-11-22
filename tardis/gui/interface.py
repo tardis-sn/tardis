@@ -37,7 +37,6 @@ def show(model):
 
     Finally the eventloop is started using IPython functions (which start them
     consistently) if they were imported. Otherwise it is started explicitly. 
-
     """
     if importFailed:
         app = QtWidgets.QApplication([])
@@ -64,7 +63,6 @@ def show(model):
 if __name__ == "__main__":
     """When this module is executed as script, take arguments, calculate model
     and call the show function.
-
     """
     yamlfile = sys.argv[1]
     atomfile = sys.argv[2]

@@ -67,7 +67,6 @@ class TestRunnerSimple:
 
         Currently, runner attributes needed to call the model routine to_hdf5
         are checked.
-
         """
 
         virt_type = np.ndarray

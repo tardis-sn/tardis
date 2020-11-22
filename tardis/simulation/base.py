@@ -244,7 +244,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         Returns
         -------
-            converged : ~bool
+            converged : bool
         """
         (
             estimated_t_rad,
@@ -397,20 +397,19 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         Parameters
         ----------
-        t_rad: ~astropy.units.Quanity
+        t_rad : astropy.units.Quanity
             current t_rad
-        w: ~astropy.units.Quanity
+        w : astropy.units.Quanity
             current w
-        next_t_rad: ~astropy.units.Quanity
+        next_t_rad : astropy.units.Quanity
             next t_rad
-        next_w: ~astropy.units.Quanity
+        next_w : astropy.units.Quanity
             next_w
-        log_sampling: ~int
+        log_sampling : int
             the n-th shells to be plotted
 
         Returns
         -------
-
         """
 
         plasma_state_log = pd.DataFrame(
@@ -462,16 +461,16 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         Parameters
         ----------
-        cb_func: callable
+        cb_func : callable
             The callback function
-        arg1:
+        arg1 :
             The first additional arguments passed to the callable function
         ...
 
         Returns
         -------
         : int
-         The callback ID
+            The callback ID
         """
         cb_id = self._cb_next_id
         self._callbacks[cb_id] = (cb_func, args)
@@ -485,7 +484,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         Parameters
         ----------
-        id: int
+        id : int
             The callback ID
 
         Returns
@@ -514,7 +513,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         Returns
         -------
         Simulation
-
         """
         # Allow overriding some config structures. This is useful in some
         # unit tests, and could be extended in all the from_config classmethods.

@@ -80,8 +80,7 @@ class IsotopeAbundances(pd.DataFrame):
 
         Parameters
         ----------
-
-        t: float or astropy.units.Quantity
+        t : float or astropy.units.Quantity
             if float it will be understood as days
 
         Returns
@@ -117,7 +116,7 @@ class IsotopeAbundances(pd.DataFrame):
 
         Parameters
         ----------
-        other: pd.DataFrame 
+        other : pd.DataFrame 
         normalize : bool
             If true, resultant dataframe will be normalized
 

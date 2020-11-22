@@ -25,24 +25,19 @@ def read_density_file(filename, filetype):
 
     Parameters
     ----------
-
-    filename: str
+    filename : str
         filename or path of the density file
-
-    filetype: str
+    filetype : str
         type of the density file
 
     Returns
     -------
-    time_of_model: astropy.units.Quantity
+    time_of_model : astropy.units.Quantity
         time at which the model is valid
-
-    velocity: np.ndarray
+    velocity : np.ndarray
         the array containing the velocities
-
-    unscaled_mean_densities: np.ndarray
+    unscaled_mean_densities : np.ndarray
         the array containing the densities
-
     """
     file_parsers = {
         "artis": read_artis_density,
@@ -105,20 +100,14 @@ def read_abundances_file(
 
     Parameters
     ----------
-
-    abundance_filename: str
+    abundance_filename : str
         filename or path of the density file
-
-    abundance_filetype: str
+    abundance_filetype : str
         type of the density file
-
-    inner_boundary_index: int
+    inner_boundary_index : int
         index of the inner shell, default None
-
-    outer_boundary_index: int
+    outer_boundary_index : int
         index of the outer shell, default None
-
-
     """
 
     file_parsers = {
@@ -152,14 +141,13 @@ def read_uniform_abundances(abundances_section, no_of_shells):
     """
     Parameters
     ----------
-
-    abundances_section: config.model.abundances
-    no_of_shells: int
+    abundances_section : config.model.abundances
+    no_of_shells : int
 
     Returns
     -------
-    abundance: pandas.DataFrame
-    isotope_abundance: pandas.DataFrame
+    abundance : pandas.DataFrame
+    isotope_abundance : pandas.DataFrame
     """
     abundance = pd.DataFrame(
         columns=np.arange(no_of_shells),
@@ -211,18 +199,14 @@ def read_simple_ascii_density(fname):
 
     Parameters
     ----------
-
-    fname: str
+    fname : str
         filename or path with filename
-
 
     Returns
     -------
-
-    time_of_model: astropy.units.Quantity
+    time_of_model : astropy.units.Quantity
         time at which the model is valid
-
-    data: pandas.DataFrame
+    data : pandas.DataFrame
         data frame containing index, velocity (in km/s) and density
     """
 
@@ -253,18 +237,14 @@ def read_artis_density(fname):
 
     Parameters
     ----------
-
-    fname: str
+    fname : str
         filename or path with filename
-
 
     Returns
     -------
-
-    time_of_model: astropy.units.Quantity
+    time_of_model : astropy.units.Quantity
         time at which the model is valid
-
-    data: pandas.DataFrame
+    data : pandas.DataFrame
         data frame containing index, velocity (in km/s) and density
     """
 
@@ -320,22 +300,17 @@ def read_cmfgen_density(fname):
 
     Parameters
     ----------
-
-    fname: str
+    fname : str
         filename or path with filename
-
 
     Returns
     -------
-
-    time_of_model: astropy.units.Quantity
+    time_of_model : astropy.units.Quantity
         time at which the model is valid
-
-    velocity: np.ndarray
-    mean_density: np.ndarray
-    electron_densities: np.ndarray
-    temperature: np.ndarray
-
+    velocity : np.ndarray
+    mean_density : np.ndarray
+    electron_densities : np.ndarray
+    temperature : np.ndarray
     """
     warnings.warn(
         "The current CMFGEN model parser is deprecated", DeprecationWarning
@@ -376,17 +351,14 @@ def read_simple_ascii_abundances(fname):
 
     Parameters
     ----------
-
-    fname: str
+    fname : str
         filename or path with filename
 
     Returns
     -------
-
-    index: np.ndarray
+    index : np.ndarray
         containing the indices
-
-    abundances: pandas.DataFrame
+    abundances : pandas.DataFrame
         data frame containing index, element1 - element30 and columns according to the shells
     """
     data = np.loadtxt(fname)
@@ -406,9 +378,9 @@ def read_cmfgen_composition(fname, delimiter=r"\s+"):
     first four columns and the following ones contain elemental and isotopic
     abundances.
 
-    WARNING: deprecated
+    WARNING : deprecated
 
-    fname: str
+    fname : str
         filename of the csv file
     """
 
@@ -433,7 +405,7 @@ def read_csv_composition(fname, delimiter=r"\s+"):
 
     The i-th row specifies the composition in the i-th shell
 
-    fname: str
+    fname : str
         filename of the csv file
     """
 
@@ -471,16 +443,14 @@ def read_csv_isotope_abundances(
 
     Parameters
     ----------
-
-    fname: str
+    fname : str
         filename or path with filename
 
     Returns
     -------
-
-    index: np.ndarray
-    abundances: pandas.DataFrame
-    isotope_abundance: pandas.MultiIndex
+    index : np.ndarray
+    abundances : pandas.DataFrame
+    isotope_abundance : pandas.MultiIndex
     """
 
     df = pd.read_csv(
@@ -521,12 +491,10 @@ def parse_csv_abundances(csvy_data):
 
     Parameters
     ----------
-
     csvy_data : pandas.DataFrame
 
     Returns
     -------
-
     index : np.ndarray
     abundances : pandas.DataFrame
     isotope_abundance : pandas.MultiIndex
