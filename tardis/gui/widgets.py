@@ -8,9 +8,9 @@ elif os.environ.get("QT_API", None) == "pyside":
     from PySide2 import QtGui, QtCore, QtWidgets
 else:
     raise ImportError(
-        "QT_API was not set! Please exit the IPython console\n"
-        " and at the bash prompt use : \n\n export QT_API=pyside \n or\n"
-        " export QT_API=pyqt \n\n For more information refer to user guide."
+        """QT_API was not set! Please exit the IPython console\n
+         and at the bash prompt use : \n\n export QT_API=pyside \n or\n
+         export QT_API=pyqt \n\n For more information refer to user guide."""
     )
 
 import matplotlib
@@ -80,7 +80,6 @@ class MatplotlibWidget(FigureCanvas):
     def show_span(self, garbage=0, left=5000, right=10000):
         """Hide/Show/Change the buttons that show line info
         in spectrum plot widget.
-
         """
         if self.parent.spectrum_span_button.text() == "Show Wavelength Range":
             if not self.span:
@@ -118,7 +117,6 @@ class MatplotlibWidget(FigureCanvas):
     def on_span_left_motion(self, mouseevent):
         """Update data of span selector tool on left movement of mouse and
         redraw.
-
         """
         if mouseevent.xdata < self.span.xy[2][0]:
             self.span.xy[0][0] = mouseevent.xdata
@@ -129,7 +127,6 @@ class MatplotlibWidget(FigureCanvas):
     def on_span_right_motion(self, mouseevent):
         """Update data of span selector tool on right movement of mouse and
         redraw.
-
         """
         if mouseevent.xdata > self.span.xy[0][0]:
             self.span.xy[2][0] = mouseevent.xdata
@@ -173,7 +170,6 @@ class MatplotlibWidget(FigureCanvas):
     def span_picker(self, span, mouseevent, tolerance=5):
         """Detect mouseclicks inside tolerance region of the span selector
         tool and pick it.
-
         """
         left = float(span.xy[0][0])
         right = float(span.xy[2][0])
@@ -196,7 +192,6 @@ class MatplotlibWidget(FigureCanvas):
 class Shell(matplotlib.patches.Wedge):
     """A data holder to store measurements of shells that will be drawn in
     the plot.
-
     """
 
     def __init__(self, index, center, r_inner, r_outer, **kwargs):
@@ -222,12 +217,11 @@ class ConfigEditor(QtWidgets.QWidget):
 
         Parameters
         ----------
-            yamlconfigfile: string
-                File name of the yaml configuration file.
-            parent: None
-                Set to None. The parent is changed when the widget is
-                appended to the layout of its parent.
-
+        yamlconfigfile : string
+            File name of the yaml configuration file.
+        parent : None
+            Set to None. The parent is changed when the widget is
+            appended to the layout of its parent.
         """
         super(ConfigEditor, self).__init__(parent)
 
@@ -391,19 +385,19 @@ class ConfigEditor(QtWidgets.QWidget):
 
         Parameters
         ----------
-            dict1: dictionary
-                The dictionary of user provided configuration.
-            dict2: dictionary
-                The template dictionary with all default values set. This
-                one may have some keys missing that are present in the
-                `dict1`. Such keys will be appended.
+        dict1 : dictionary
+            The dictionary of user provided configuration.
+        dict2 : dictionary
+            The template dictionary with all default values set. This
+            one may have some keys missing that are present in the
+            `dict1`. Such keys will be appended.
+            
         Raises
         ------
-            IOError
-                If the configuration file has an invalid value for a
-                key that can only take values from a predefined list,
-                then this error is raised.
-
+        IOError
+            If the configuration file has an invalid value for a
+            key that can only take values from a predefined list,
+            then this error is raised.
         """
         for key in dict1:
             if key in dict2:
@@ -457,7 +451,6 @@ class ModelViewer(QtWidgets.QWidget):
     """The widget that holds all the plots and tables that visualize
     the data in the tardis model. This is also appended to the stacked
     widget in the top level window.
-
     """
 
     def __init__(self, tablecreator, parent=None):
@@ -537,7 +530,6 @@ class ModelViewer(QtWidgets.QWidget):
     def fill_output_label(self):
         """Read some data from tardis model and display on the label for
         quick user access.
-
         """
         labeltext = "Iterations requested: {} <br/> Iterations executed:  {}<br/>\
                      Model converged     : {} <br/> Simulation Time    :  {} s <br/>\
@@ -558,7 +550,6 @@ class ModelViewer(QtWidgets.QWidget):
     def make_shell_widget(self):
         """Create the plot of the the shells and place it inside a
         container widget. Return the container widget.
-
         """
         # Widgets for plot of shells
         self.graph = MatplotlibWidget(self.createTable, self, "model")
@@ -590,7 +581,6 @@ class ModelViewer(QtWidgets.QWidget):
     def make_spectrum_widget(self):
         """Create the spectrum plot and associated buttons and append to
         a container widget. Return the container widget.
-
         """
         self.spectrum = MatplotlibWidget(self.createTable, self)
         self.spectrum_label = QtWidgets.QLabel("Select Spectrum:")
@@ -682,7 +672,6 @@ class ModelViewer(QtWidgets.QWidget):
     def change_spectrum(self, data, name):
         """Replot the spectrum plot using the data provided. Called
         when changing spectrum types. See the two methods above.
-
         """
         self.spectrum_button.setText(name)
         self.spectrum.dataplot[0].set_ydata(data)
@@ -740,7 +729,6 @@ class ModelViewer(QtWidgets.QWidget):
     def plot_model(self):
         """Plot the two graphs, the shell model and the line plot
         both showing the radiation temperature and set labels.
-
         """
         self.graph.ax1.clear()
         self.graph.ax1.set_title("Rad. Temp vs Shell")
@@ -992,7 +980,6 @@ class LineInfo(QtWidgets.QDialog):
     def get_data(self, wavelength_start, wavelength_end):
         """Fetch line info data for the specified wavelength range
         from the model and create ionstable.
-
         """
         self.wavelength_start = wavelength_start * u.angstrom
         self.wavelength_end = wavelength_end * u.angstrom
@@ -1069,7 +1056,6 @@ class LineInfo(QtWidgets.QDialog):
     def on_atom_clicked(self, index):
         """Create and show transition table for the clicked item in the
         dialog created by the spectrum widget.
-
         """
         (
             self.transitionsin_parsed,
@@ -1101,7 +1087,6 @@ class LineInfo(QtWidgets.QDialog):
     def on_atom_clicked2(self, index):
         """Create and show transition table for the clicked item in the
         dialog created by the spectrum widget.
-
         """
         (
             self.transitionsin_parsed,
@@ -1134,7 +1119,6 @@ class LineInfo(QtWidgets.QDialog):
 class LineInteractionTables(QtWidgets.QWidget):
     """Widget to hold the line interaction tables used by
     LineInfo which in turn is used by spectrum widget.
-
     """
 
     def __init__(
@@ -1191,7 +1175,7 @@ class LineInteractionTables(QtWidgets.QWidget):
         self.show()
 
     def on_species_clicked(self, index):
-        """"""
+        """Needs docstring"""
         current_species = self.species_selected[index]
         last_line_in = self.line_interaction_analysis.last_line_in
         last_line_out = self.line_interaction_analysis.last_line_out
@@ -1248,7 +1232,6 @@ class LineInteractionTables(QtWidgets.QWidget):
 class Tardis(QtWidgets.QMainWindow):
     """Create the top level window for the GUI and wait for call to
     display data.
-
     """
 
     def __init__(self, tablemodel, config=None, atom_data=None, parent=None):
@@ -1259,21 +1242,20 @@ class Tardis(QtWidgets.QMainWindow):
         GUI starts in the active mode.
 
         Parameters
-        ---------
-            parent: None
-                Set to None by default and shouldn't be changed unless
-                you are developing something new.
-            config: string
-                yaml file with configuration information for TARDIS.
-            atom_data: string
-                hdf file that has the atom data.
+        ----------
+        parent : None
+            Set to None by default and shouldn't be changed unless
+            you are developing something new.
+        config : string
+            yaml file with configuration information for TARDIS.
+        atom_data : string
+            hdf file that has the atom data.
 
         Raises
         ------
-            TemporarilyUnavaliable
-                Raised when an attempt is made to start the active mode.
-                This will be removed when active mode is developed.
-
+        TemporarilyUnavaliable
+            Raised when an attempt is made to start the active mode.
+            This will be removed when active mode is developed.
         """
 
         # assumes that qt has already been initialized by starting IPython
@@ -1381,9 +1363,8 @@ class Tardis(QtWidgets.QMainWindow):
 
         Parameters
         ----------
-        model: TARDIS model object
+        model : TARDIS model object
             A keyword argument that takes the tardis model object.
-
         """
         if model:
             self.mdv.change_model(model)

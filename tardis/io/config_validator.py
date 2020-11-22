@@ -18,13 +18,12 @@ def extend_with_default(validator_class):
 
     Parameters
     ----------
-    validator_class:
+    validator_class :
         The `jsonschema.IValidator` class to extend
 
     Returns
     -------
     The extended `jsonschema.IValidator`
-
     """
     validate_properties = validator_class.VALIDATORS["properties"]
 

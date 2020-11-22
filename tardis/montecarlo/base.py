@@ -82,8 +82,7 @@ class MontecarloRunner(HDFWriterMixin):
 
         Parameters
         ----------
-
-        model: ~Radial1DModel
+        model : Radial1DModel
         """
 
         # Estimators
@@ -98,7 +97,6 @@ class MontecarloRunner(HDFWriterMixin):
 
         Parameters
         ----------
-
         model : model.Radial1DModel
         """
         self.r_inner_cgs = model.r_inner.to('cm').value
@@ -366,17 +364,13 @@ class MontecarloRunner(HDFWriterMixin):
 
         Parameters
         ----------
-
-        nubar_estimator : ~np.ndarray (float)
-
-        j_estimator : ~np.ndarray (float)
+        nubar_estimator : np.ndarray (float)
+        j_estimator : np.ndarray (float)
 
         Returns
         -------
-
-        t_rad : ~astropy.units.Quantity (float)
-
-        w : ~numpy.ndarray (float)
+        t_rad : astropy.units.Quantity (float)
+        w : numpy.ndarray (float)
 
         """
 

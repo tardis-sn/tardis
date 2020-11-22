@@ -28,8 +28,7 @@ def parse_convergence_section(convergence_section_dict):
 
     Parameters
     ----------
-
-    convergence_section_dict: ~dict
+    convergence_section_dict : dict
         dictionary
     """
 
@@ -60,14 +59,12 @@ class ConfigurationNameSpace(dict):
 
     Parameters
     ----------
-
-    config_dict: ~dict
+    config_dict : dict
         configuration dictionary
 
     Returns
     -------
-
-    config_ns: ConfigurationNameSpace
+    config_ns : ConfigurationNameSpace
     """
 
     @classmethod
@@ -77,8 +74,7 @@ class ConfigurationNameSpace(dict):
 
         Parameters
         ----------
-
-        fname: str
+        fname : str
             filename or path
         """
         try:
@@ -94,20 +90,14 @@ class ConfigurationNameSpace(dict):
         """
         Validating a config file.
 
-
         Parameters
         ----------
-
-        config_dict : ~dict
+        config_dict : dict
             dictionary of a raw unvalidated config file
-
-
 
         Returns
         -------
-
         `tardis.config_reader.Configuration`
-
         """
 
         return cls(config_validator.validate_dict(config_dict))
@@ -169,8 +159,7 @@ class ConfigurationNameSpace(dict):
 
         Parameters
         ----------
-
-        config_item_string: ~str
+        config_item_string : str
             string of shape 'section1.sectionb.param1'
         """
         config_item_path = config_item_string.split(".")
@@ -200,11 +189,9 @@ class ConfigurationNameSpace(dict):
 
         Parameters
         ----------
-
-        config_item_string: ~str
+        config_item_string : str
             string of shape 'section1.sectionb.param1'
-
-        value:
+        value :
             value to set the parameter with it
         """
 
@@ -278,18 +265,14 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
 
         Parameters
         ----------
-
-        config_dict : ~dict
+        config_dict : dict
             dictionary of a raw unvalidated config file
-
-        validate: ~bool
+        validate : bool
             Turn validation on or off.
 
         Returns
         -------
-
         `tardis.config_reader.Configuration`
-
         """
 
         if validate:
@@ -340,18 +323,14 @@ def quantity_representer(dumper, data):
 
     Parameters
     ----------
-
     dumper :
         YAML dumper object
-
     data :
         ConfigurationNameSpace object
 
     Returns
     -------
-
     yaml dumper representation of Quantity as string
-
     """
     return dumper.represent_data(str(data))
 
@@ -359,21 +338,17 @@ def quantity_representer(dumper, data):
 def cns_representer(dumper, data):
     """
     Represents Configuration as dict
-
-   Parameters
+    
+    Parameters
     ----------
-
     dumper :
         YAML dumper object
-
     data :
         ConfigurationNameSpace object
 
     Returns
     -------
-
     yaml dumper representation of Configuration as dict
-
     """
     return dumper.represent_dict(dict(data))
 

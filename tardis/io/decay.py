@@ -60,7 +60,7 @@ class IsotopeAbundances(pd.DataFrame):
 
         Returns
         -------
-            : ~list
+            : list
             list of pyne Materialss
         :return:
         """
@@ -80,11 +80,11 @@ class IsotopeAbundances(pd.DataFrame):
 
         Parameters
         ----------
-
-        t: ~float or ~astropy.units.Quantity
+        t : float or astropy.units.Quantity
             if float it will be understood as days
 
-        Returns:
+        Returns
+        -------
             : decayed abundances
         """
 
@@ -103,7 +103,8 @@ class IsotopeAbundances(pd.DataFrame):
         """
         Merge Isotope dataframe according to atomic number 
 
-        Returns:
+        Returns
+        -------
             : merged isotope abundances
         """
 
@@ -115,11 +116,12 @@ class IsotopeAbundances(pd.DataFrame):
 
         Parameters
         ----------
-        other: pd.DataFrame 
+        other : pd.DataFrame 
         normalize : bool
             If true, resultant dataframe will be normalized
 
-        Returns:
+        Returns
+        -------
             : merged abundances
         """
         isotope_abundance = self.as_atoms()

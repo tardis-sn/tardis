@@ -34,7 +34,6 @@ class BasePacketSource(abc.ABC):
         """
         Uniformly distribute energy in arbitrary units where the ensemble of 
         packets has energy of 1. 
-
         
         Parameters
         ----------
@@ -79,13 +78,12 @@ class BasePacketSource(abc.ABC):
         ----------
         T : float
             temperature
-        no_of_packets: int
-        l_samples: int
+        no_of_packets : int
+        l_samples : int
             number of l_samples needed in the algorithm
 
         Returns
         -------
-
             : numpy.ndarray
             array of frequencies
         """

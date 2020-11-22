@@ -3,7 +3,7 @@ import numpy as np
 
 def get_trivial_poisson_uncertainty(model):
     """
-
+    Empty Docstring
     """
     emitted_nu = model.montecarlo_nu[model.montecarlo_luminosity >= 0]
     emitted_luminosity = model.montecarlo_luminosity[

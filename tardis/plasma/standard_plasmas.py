@@ -48,15 +48,15 @@ def assemble_plasma(config, model, atom_data=None):
 
     Parameters
     ----------
-    config: ~io.config_reader.Configuration
-    model: ~model.Radial1DModel
-    atom_data: ~atomic.AtomData
+    config : io.config_reader.Configuration
+    model : model.Radial1DModel
+    atom_data : atomic.AtomData
         If None, an attempt will be made to read the atomic data
         from config.
 
     Returns
     -------
-    : ~plasma.BasePlasma
+        : plasma.BasePlasma
 
     """
     # Convert the nlte species list to a proper format.

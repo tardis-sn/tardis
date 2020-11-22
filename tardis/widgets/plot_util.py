@@ -18,7 +18,6 @@ def axis_label_in_latex(label_text, unit, only_text=True):
         If label_text is expressed purely in text (i.e. without
         using latex) or not. Default value is True
 
-
     Returns
     -------
     str

@@ -15,7 +15,6 @@ def get_atomic_repo_config():
     Returns
     -------
         : dict
-
     """
 
     atomic_repo_fname = get_internal_data_path("atomic_data_repo.yml")
@@ -28,13 +27,12 @@ def download_atom_data(atomic_data_name=None):
 
     Parameters
     ----------
-    atomic_data_name: str
+    atomic_data_name : str
         if None
 
     Returns
     -------
         : None
-
     """
     atomic_repo = get_atomic_repo_config()
 
