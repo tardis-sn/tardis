@@ -30,91 +30,77 @@ class AtomData(object):
 
     Parameters
     ----------
-    atom_data: pandas.DataFrame
+    atom_data : pandas.DataFrame
         A DataFrame containing the *basic atomic data* with:
-            index: atomic_number;
-            columns: symbol, name, mass[u].
-
-    ionization_data: pandas.DataFrame
+            index : atomic_number;
+            columns : symbol, name, mass[u].
+    ionization_data : pandas.DataFrame
         A DataFrame containing the *ionization data* with:
-            index: atomic_number, ion_number;
-            columns: ionization_energy[eV].
-
+            index : atomic_number, ion_number;
+            columns : ionization_energy[eV].
        It is important to note here is that `ion_number` describes the *final ion state*
             e.g. H I - H II is described with ion=1
-
-    levels: pandas.DataFrame
+    levels : pandas.DataFrame
         A DataFrame containing the *levels data* with:
-            index: numerical index;
-            columns: atomic_number, ion_number, level_number, energy[eV], g[1], metastable.
-
-    lines: pandas.DataFrame
+            index : numerical index;
+            columns : atomic_number, ion_number, level_number, energy[eV], g[1], metastable.
+    lines : pandas.DataFrame
         A DataFrame containing the *lines data* with:
-            index: numerical index;
-            columns: line_id, atomic_number, ion_number, level_number_lower, level_number_upper,
+            index : numerical index;
+            columns : line_id, atomic_number, ion_number, level_number_lower, level_number_upper,
                 wavelength[angstrom], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
-
-    macro_atom_data:
+    macro_atom_data :
         A DataFrame containing the *macro atom data* with:
-            index: numerical index;
-            columns: atomic_number, ion_number, source_level_number, destination_level_number,
+            index : numerical index;
+            columns : atomic_number, ion_number, source_level_number, destination_level_number,
                 transition_line_id, transition_type, transition_probability;
-
-    macro_atom_references:
+    macro_atom_references :
         A DataFrame containing  the *macro atom references* with:
-            index: numerical index;
-            columns: atomic_number, ion_number, source_level_number, count_down, count_up, count_total.
-
+            index : numerical index;
+            columns : atomic_number, ion_number, source_level_number, count_down, count_up, count_total.
         Refer to the docs: http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
-
-    collision_data: (pandas.DataFrame, np.array)
+    collision_data : (pandas.DataFrame, np.array)
         A DataFrame containing the *electron collisions data* with:
-            index: atomic_number, ion_number, level_number_lower, level_number_upper;
-            columns: e_col_id, delta_e, g_ratio, c_ul;
-
-    collision_data_temperatures: np.array
+            index : atomic_number, ion_number, level_number_lower, level_number_upper;
+            columns : e_col_id, delta_e, g_ratio, c_ul;
+    collision_data_temperatures : np.array
         An array with the collision temperatures.
-
-    zeta_data:
+    zeta_data :
         A DataFrame containing the *zeta data* for the
         nebular ionization calculation
         (i.e., the fraction of recombinations that go directly to the
         ground state) with:
-            index: atomic_number, ion_charge;
-            columns: temperatures[K]
-
-    synpp_refs: ?
-
-    photoionization_data: pandas.DataFrame
+            index : atomic_number, ion_charge;
+            columns : temperatures[K]
+    synpp_refs : ?
+    photoionization_data : pandas.DataFrame
         A DataFrame containing the *photoionization data* with:
-            index: numerical index;
-            columns: atomic_number, ion_number, level_number, nu[Hz], x_sect[cm^2]
+            index : numerical index;
+            columns : atomic_number, ion_number, level_number, nu[Hz], x_sect[cm^2]
 
     Attributes
-    -------------
-    prepared: bool
-
-    atom_data: pandas.DataFrame
-    ionization_data: pandas.DataFrame
-    macro_atom_data_all: pandas.DataFrame
-    macro_atom_references_all: pandas.DataFrame
-    collision_data: pandas.DataFrame
-    collision_data_temperatures: numpy.array
-    zeta_data: pandas.DataFrame
-    synpp_refs: pandas.DataFrame
-    symbol2atomic_number: OrderedDict
-    atomic_number2symbol OrderedDict
-    photoionization_data: pandas.DataFrame
+    ----------
+    prepared : bool
+    atom_data : pandas.DataFrame
+    ionization_data : pandas.DataFrame
+    macro_atom_data_all : pandas.DataFrame
+    macro_atom_references_all : pandas.DataFrame
+    collision_data : pandas.DataFrame
+    collision_data_temperatures : numpy.array
+    zeta_data : pandas.DataFrame
+    synpp_refs : pandas.DataFrame
+    symbol2atomic_number : OrderedDict
+    atomic_number2symbol : OrderedDict
+    photoionization_data : pandas.DataFrame
 
     Methods
-    --------
+    -------
     from_hdf
     prepare_atom_data
 
     Notes
-    ------
+    -----
     1. The units of some columns are given in the square brackets. They are **NOT** the parts of columns' names!
-
     """
 
     hdf_names = [
@@ -145,8 +131,7 @@ class AtomData(object):
 
         Parameters
         ----------
-
-        fname: str, optional
+        fname : str, optional
             Path to the HDFStore file or name of known atom data file
             (default: None)
         """
@@ -297,13 +282,10 @@ class AtomData(object):
 
         Parameters
         ----------
-
-        selected_atoms : `~set`
+        selected_atoms : set
             set of selected atom numbers, e.g. set([14, 26])
-
-        line_interaction_type : `~str`
+        line_interaction_type : str
             can be 'scatter', 'downbranch' or 'macroatom'
-
         """
         if not self.prepared:
             self.prepared = True
