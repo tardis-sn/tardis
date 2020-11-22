@@ -8,9 +8,9 @@ elif os.environ.get("QT_API", None) == "pyside":
     from PySide2 import QtGui, QtCore, QtWidgets
 else:
     raise ImportError(
-        "QT_API was not set! Please exit the IPython console\n"
-        " and at the bash prompt use : \n\n export QT_API=pyside \n or\n"
-        " export QT_API=pyqt \n\n For more information refer to user guide."
+        """QT_API was not set! Please exit the IPython console\n
+         and at the bash prompt use : \n\n export QT_API=pyside \n or\n
+         export QT_API=pyqt \n\n For more information refer to user guide."""
     )
 
 import matplotlib
