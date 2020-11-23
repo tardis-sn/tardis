@@ -67,7 +67,7 @@ def pair_creation(gamma_ray):
 
 def photoabsorption(gamma_ray):
     """
-    Sets the gamma ray status to Absorbed
+    Sets the gamma ray status to PhotoAbsorbed
 
     Parameters
     ----------
@@ -78,7 +78,7 @@ def photoabsorption(gamma_ray):
     gamma_ray.energy : dtype float
 
     """
-    gamma_ray.status = 'Absorbed'
+    gamma_ray.status = 'PhotoAbsorbed'
     return gamma_ray.energy
 
 def scatter_type(gamma_ray, compton_opacity, photoabsorption_opacity, total_opacity):

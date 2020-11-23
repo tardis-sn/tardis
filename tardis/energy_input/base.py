@@ -126,6 +126,8 @@ def main_gamma_ray_loop(num_packets, model):
 
     iron_group_fraction = 0.5
 
+    radii = model.r_outer[:].value
+
     packets = []
 
     for i in range(num_packets):
@@ -138,10 +140,7 @@ def main_gamma_ray_loop(num_packets, model):
 
         distance_moved = 0.
 
-        #lol terrible
-        #basically prevents infinite loops
-        j=0
-        while j < 100:
+        while packet.status == "InProcess":
             compton_opacity = compton_opacity_calculation(ejecta_density[packet.shell], packet.energy)
             photoabsorption_opacity = photoabsorption_opacity_calculation(packet.energy, ejecta_density[packet.shell], iron_group_fraction)
             pair_creation_opacity = pair_creation_opacity_calculation(packet.energy, ejecta_density[packet.shell], iron_group_fraction)
@@ -174,25 +173,19 @@ def main_gamma_ray_loop(num_packets, model):
                     packet.shell += 1
                 else:
                     packet.shell -= 1
-            
+                    
             if packet.location.r > outer_radius or packet.shell >= len(radii) - 1:
                 packet.status = 'Emitted'
                 output_energies.append(packet.energy)
-                break
             elif packet.location.r < inner_radius or packet.shell == 0:
                 packet.status = 'Absorbed'
                 packet.energy = 0.0
-                break 
             
-            if packet.status == 'Absorbed':
+            if packet.status == 'PhotoAbsorbed':
                 #log where energy is deposited
                 ejecta_energy.append(packet.energy)
                 ejecta_energy_r.append(packet.location.r)
-                break
 
-            j+=1
-
-        output_energies.append(packet.energy)      
         i+=1
 
     return ejecta_energy, ejecta_energy_r, output_energies, radii
