@@ -62,7 +62,7 @@ def calculate_distance_radial(gamma_ray, r_inner, r_outer):
 
     return distance
 
-def distance_trace(gamma_ray, radii, total_opacity, distance_moved):
+def distance_trace(gamma_ray, inner_radii, outer_radii, total_opacity, distance_moved):
     """
     Traces distance traveled by gamma ray and finds distance to 
     next interaction and boundary
@@ -81,8 +81,8 @@ def distance_trace(gamma_ray, radii, total_opacity, distance_moved):
      : dtype bool
 
     """  
-    if gamma_ray.shell < len(radii) - 1:
-        distance_boundary = calculate_distance_radial(gamma_ray, radii[gamma_ray.shell], radii[gamma_ray.shell + 1])
+    if gamma_ray.shell < len(inner_radii) - 1:
+        distance_boundary = calculate_distance_radial(gamma_ray, inner_radii[gamma_ray.shell], outer_radii[gamma_ray.shell])
     else:
         distance_boundary = 0.0
     
@@ -138,39 +138,28 @@ def density_sampler(radii, mass_ratio):
     index : dtype int
 
     """
-    z = np.random.random()   
-    index = np.searchsorted(mass_ratio, z)
+    z = np.random.random()
 
-    if index > len(radii) - 1:
-        index -= 1
+    mass_ratio_sorted_indices = np.argsort(mass_ratio)
+    index = np.searchsorted(mass_ratio, z, sorter=mass_ratio_sorted_indices)
+
+    index = len(radii) - 1 - index
+
     return radii[index], index
 
 
-def mass_distribution(radial_grid_size, inner_radius, outer_radius, density_profile):
-    
-    size = outer_radius - inner_radius
-    dr = size / radial_grid_size
-    
-    r = inner_radius
-    
+def mass_distribution(radial_grid_size, inner_radii, density_profile):
+        
     mass = np.zeros(radial_grid_size)
-    radii = np.zeros(radial_grid_size)
-    density = np.zeros(radial_grid_size)
     
     i = 0
     while i < radial_grid_size:
-        radii[i] = r
-        density[i] = density_profile[i].value
         if i == 0:
-            mass[i] = 4. / 3. * np.pi * density[i] * radii[i] ** 3.   
+            mass[i] = 4. / 3. * np.pi * density_profile[i] * inner_radii[i] ** 3.   
         else:
-            mass[i] = 4. / 3. * np.pi * density[i] * \
-            (radii[i] ** 3. - radii[i - 1] ** 3.)  
+            mass[i] = 4. / 3. * np.pi * density_profile[i] * \
+            (inner_radii[i] ** 3. - inner_radii[i - 1] ** 3.)  
 
         i += 1
-        r += dr
-        
-    mass[radial_grid_size - 1] = (4. / 3. * np.pi * density[i - 1] * \
-                              (radii[radial_grid_size - 1] ** 3. - radii[radial_grid_size - 2] ** 3.))
     
-    return radii, mass / np.max(mass), density
+    return mass / np.max(mass)

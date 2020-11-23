@@ -100,7 +100,6 @@ def spawn_gamma_ray(gamma_ray, radii, mass_ratio):
     
     if shell < len(radii) - 1:
         initial_radius += np.random.random() * (radii[shell + 1] - radii[shell])
-        
     
     gamma_ray.shell = shell
         
@@ -121,19 +120,22 @@ def main_gamma_ray_loop(num_packets, model):
 
     inner_radius = model.r_inner[0].value
     outer_radius =  model.r_outer[-1].value
+    
+    outer_radii = model.r_outer[:].value
+    inner_radii = model.r_inner[:].value
 
-    radii, masses, ejecta_density = mass_distribution(model.no_of_shells, inner_radius, outer_radius, model.density)
+    ejecta_density = model.density[:].value
+
+    masses = mass_distribution(model.no_of_shells, inner_radii, ejecta_density)
 
     iron_group_fraction = 0.5
-
-    radii = model.r_outer[:].value
 
     packets = []
 
     for i in range(num_packets):
         
         ray = GammaRay(0, 0, 1, 'InProcess', 0)
-        packets.append(spawn_gamma_ray(ray, radii, masses))
+        packets.append(spawn_gamma_ray(ray, outer_radii, masses))
 
     i=0
     for packet in tqdm(packets):
@@ -147,7 +149,7 @@ def main_gamma_ray_loop(num_packets, model):
             total_opacity = compton_opacity + photoabsorption_opacity + pair_creation_opacity
             
             distance_interaction, distance_boundary, interaction = \
-                                            distance_trace(packet, radii, total_opacity, distance_moved)
+                                            distance_trace(packet, inner_radii, outer_radii, total_opacity, distance_moved)
             
             if interaction:
                 ejecta_energy_gained, pair_created = scatter_type(packet, compton_opacity, photoabsorption_opacity, total_opacity)
@@ -174,10 +176,10 @@ def main_gamma_ray_loop(num_packets, model):
                 else:
                     packet.shell -= 1
                     
-            if packet.location.r > outer_radius or packet.shell >= len(radii) - 1:
+            if (packet.location.r - outer_radius) < 1.0:
                 packet.status = 'Emitted'
                 output_energies.append(packet.energy)
-            elif packet.location.r < inner_radius or packet.shell == 0:
+            elif packet.location.r < inner_radius:
                 packet.status = 'Absorbed'
                 packet.energy = 0.0
             
@@ -185,7 +187,7 @@ def main_gamma_ray_loop(num_packets, model):
                 #log where energy is deposited
                 ejecta_energy.append(packet.energy)
                 ejecta_energy_r.append(packet.location.r)
-
+        
         i+=1
 
-    return ejecta_energy, ejecta_energy_r, output_energies, radii
+    return ejecta_energy, ejecta_energy_r, output_energies, inner_radii
