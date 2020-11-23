@@ -140,14 +140,13 @@ def density_sampler(radii, mass_ratio):
     """
     z = np.random.random()   
     index = np.searchsorted(mass_ratio, z)
+
+    if index > len(radii) - 1:
+        index -= 1
     return radii[index], index
 
 
-def density_profile(t, rho_0, t_0, r, max_r):
-    return rho_0 * (t / t_0) ** -3. * np.exp(-r / max_r)
-
-
-def mass_distribution(radial_grid_size, inner_radius, outer_radius, t, rho_0, t_0):
+def mass_distribution(radial_grid_size, inner_radius, outer_radius, density_profile):
     
     size = outer_radius - inner_radius
     dr = size / radial_grid_size
@@ -161,17 +160,17 @@ def mass_distribution(radial_grid_size, inner_radius, outer_radius, t, rho_0, t_
     i = 0
     while i < radial_grid_size:
         radii[i] = r
-        density[i] = density_profile(t, rho_0, t_0, radii[i], outer_radius)
+        density[i] = density_profile[i].value
         if i == 0:
-            mass[i] = 4. / 3. * np.pi * density_profile(t, rho_0, t_0, radii[i], outer_radius) * radii[i] ** 3.   
+            mass[i] = 4. / 3. * np.pi * density[i] * radii[i] ** 3.   
         else:
-            mass[i] = 4. / 3. * np.pi * density_profile(t, rho_0, t_0, radii[i], outer_radius) * \
+            mass[i] = 4. / 3. * np.pi * density[i] * \
             (radii[i] ** 3. - radii[i - 1] ** 3.)  
 
         i += 1
         r += dr
         
-    mass[radial_grid_size - 1] = (4. / 3. * np.pi * density_profile(t, rho_0, t_0, radii[radial_grid_size - 1], outer_radius) * \
+    mass[radial_grid_size - 1] = (4. / 3. * np.pi * density[i - 1] * \
                               (radii[radial_grid_size - 1] ** 3. - radii[radial_grid_size - 2] ** 3.))
     
     return radii, mass / np.max(mass), density

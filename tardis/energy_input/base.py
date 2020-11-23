@@ -74,7 +74,7 @@ class GammaRay(object):
         self.status = status
         self.shell = shell
 
-def spawn_gamma_ray(gamma_ray, radii, mass_ratio, positron=False):
+def spawn_gamma_ray(gamma_ray, radii, mass_ratio):
     """
     Initializes a gamma ray in the simulation grid
 
@@ -94,10 +94,7 @@ def spawn_gamma_ray(gamma_ray, radii, mass_ratio, positron=False):
     direction_mu = get_random_mu()
     direction_phi = 0.0
     
-    if positron:
-        gamma_ray.energy = 511.0e3
-    else:
-        gamma_ray.energy = sample_energy_distribution()
+    gamma_ray.energy = sample_energy_distribution()
         
     initial_radius, shell = density_sampler(radii, mass_ratio)
     
@@ -116,20 +113,16 @@ def spawn_gamma_ray(gamma_ray, radii, mass_ratio, positron=False):
     return gamma_ray
 
 
-def main_gamma_ray_loop(num_packets, velocity, time_since_explosion, rho0, inner_radius, radial_grid_length):
+def main_gamma_ray_loop(num_packets, model):
 
     output_energies = []
     ejecta_energy = []
     ejecta_energy_r = []
 
-    velocity = 2.7e8
-    time = 20 * 86400
-    rho0 = 1e8
+    inner_radius = model.r_inner[0].value
+    outer_radius =  model.r_outer[-1].value
 
-    inner_radius = 0.
-    outer_radius = velocity * time
-
-    radii, masses, ejecta_density = mass_distribution(radial_grid_length, inner_radius, outer_radius, time, rho0, 1. * 86400)
+    radii, masses, ejecta_density = mass_distribution(model.no_of_shells, inner_radius, outer_radius, model.density)
 
     iron_group_fraction = 0.5
 
