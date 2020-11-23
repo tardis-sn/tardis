@@ -29,7 +29,7 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     """
 
     outputs = ("stimulated_emission_factor",)
-    latex_formula = ("1-\\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}",)
+    latex_formula = (r"1-\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}",)
 
     def __init__(self, plasma_parent=None, nlte_species=None):
         super(StimulatedEmissionFactor, self).__init__(plasma_parent)
@@ -117,10 +117,10 @@ class TauSobolev(ProcessingPlasmaProperty):
     """
 
     outputs = ("tau_sobolevs",)
-    latex_name = ("\\tau_{\\textrm{sobolev}}",)
+    latex_name = (r"\tau_{\textrm{sobolev}}",)
     latex_formula = (
-        "\\dfrac{\\pi e^{2}}{m_{e} c}f_{lu}\\lambda t_{exp}\
-        n_{lower} \\Big(1-\\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}\\Big)",
+        r"\dfrac{\pi e^{2}}{m_{e} c}f_{lu}\lambda t_{exp}\
+        n_{lower} \Big(1-\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}\Big)",
     )
 
     def __init__(self, plasma_parent):
@@ -184,7 +184,7 @@ class BetaSobolev(ProcessingPlasmaProperty):
     """
 
     outputs = ("beta_sobolev",)
-    latex_name = ("\\beta_{\\textrm{sobolev}}",)
+    latex_name = (r"\beta_{\textrm{sobolev}}",)
 
     def calculate(self, tau_sobolevs):
         if getattr(self, "beta_sobolev", None) is None:
@@ -249,8 +249,8 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
             self.initialize_macro_atom_transition_type_filters(
                 atomic_data, macro_atom_data
             )
-            self.transition_probability_coef = self._get_transition_probability_coefs(
-                macro_atom_data
+            self.transition_probability_coef = (
+                self._get_transition_probability_coefs(macro_atom_data)
             )
             self.initialize = False
         transition_probabilities = self._calculate_transition_probability(

@@ -1,61 +1,47 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+# For more information on how to use this pipeline please refer to:
+# http://tardis-sn.github.io/tardis/development/continuous_integration.html
 
 trigger: none
 pr: none
+
 schedules:
-  - cron: "30 22 * * 0"
-    displayName: Weekly build
+  - cron: '0 0 * * 0'
+    displayName: 'Weekly release'
     branches:
       include:
         - master
-    always: true
+    always: false
 
 variables:
-  system.debug: "true"
-  tardis.build.dir: $(Build.Repository.LocalPath)
+  system.debug: false
 
 pool:
-  vmImage: "ubuntu-latest"
+  vmImage: 'ubuntu-latest'
 
 jobs:
-  - job: gh_release
-    displayName: Upload GitHub release
+  - job: release
+    displayName: 'TARDIS release'
+
     steps:
-      - bash: |
-          echo "##vso[task.prependpath]$CONDA/bin"
-          sudo chown -R $USER $CONDA
-        displayName: "Add CONDA to path"
+      - template: templates/default.yml
+        parameters:
+          useMamba: true
 
       - bash: |
-          sh ci-helpers/install_tardis_env.sh
-        displayName: "Install TARDIS env"
-
-      - bash: |
-          source activate tardis
-          python setup.py install
-        displayName: "Build & install TARDIS"
-
-      - bash: |
+          cd $(tardis.dir)
           source activate tardis
           echo "##vso[task.setvariable variable=version]$(python -c 'import tardis; print(tardis.__version__)')"
-        displayName: "Get TARDIS version number"
-
-      - bash: |
-          echo $(VERSION)
-        displayName: "Recover TARDIS version number"
+        displayName: 'Get TARDIS version'
 
       - task: GitHubRelease@1
         inputs:
-          gitHubConnection: "wkerzendorf"
-          repositoryName: "$(Build.Repository.Name)"
-          action: "create"
-          target: "$(Build.SourceVersion)"
-          tagSource: "userSpecifiedTag"
-          tag: "v$(VERSION)"
-          title: "TARDIS v$(VERSION)"
-          isPreRelease: false
-          changeLogCompareToRelease: "lastFullRelease"
-          changeLogType: "commitBased"
+          gitHubConnection: 'wkerzendorf'
+          repositoryName: '$(Build.Repository.Name)'
+          action: 'create'
+          target: '$(Build.SourceVersion)'
+          tagSource: 'userSpecifiedTag'
+          tag: 'v$(version)'
+          title: 'TARDIS v$(version)'
+          changeLogCompareToRelease: 'lastFullRelease'
+          changeLogType: 'commitBased'
+        displayName: 'Create GitHub Release'

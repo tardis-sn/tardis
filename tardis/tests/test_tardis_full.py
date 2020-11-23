@@ -87,7 +87,8 @@ class TestRunnerSimple:
 
         for prop, prop_type in required_props.items():
             actual = getattr(runner, prop)
-            assert type(actual) == prop_type, (
-                "wrong type of attribute '{}':"
-                "expected {}, found {}".format(prop, prop_type, type(actual))
+            assert (
+                type(actual) == prop_type
+            ), "wrong type of attribute '{}':" "expected {}, found {}".format(
+                prop, prop_type, type(actual)
             )

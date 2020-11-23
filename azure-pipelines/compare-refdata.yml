@@ -1,73 +1,64 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+# For more information on how to use this pipeline please refer to:
+# http://tardis-sn.github.io/tardis/development/continuous_integration.html
 
 trigger: none
-pr: none
+pr: [ master ]
+
+schedules:
+  - cron: '0 0 1 * *'
+    displayName: 'Monthly test'
+    branches:
+      include:
+        - master
 
 variables:
-  system.debug: "true"
-  ref.data.home: "$(Agent.BuildDirectory)/tardis-refdata"
-  ref.data.github.url: "https://github.com/tardis-sn/tardis-refdata.git"
-  tardis.build.dir: $(Build.Repository.LocalPath)
+  system.debug: false
 
 jobs:
   - job: report
     pool:
-      vmImage: "ubuntu-latest"
+      vmImage: 'ubuntu-latest'
 
     steps:
-      - bash: |
-          echo "##vso[task.prependpath]$CONDA/bin"
-          sudo chown -R $USER $CONDA
-        displayName: "Add CONDA to path"
-
-      - bash: |
-          sh ci-helpers/install_tardis_env.sh
-        displayName: "Install TARDIS env"
-
+      - template: templates/default.yml
+        parameters:
+          fetchRefdata: true
+          useMamba: true
+      
       - bash: |
           source activate tardis
-          conda install bokeh -c conda-forge --no-update-deps --yes
-        displayName: "Install Bokeh"
+          $(package.manager) install bokeh --channel conda-forge --no-update-deps --yes
+        displayName: 'Install Bokeh'
 
       - bash: |
-          source activate tardis
-          git clone https://github.com/tardis-sn/tardis-refdata.git $(ref.data.home)
-        displayName: "Fetch ALL reference data"
-
-      - bash: |
-          source activate tardis
-          python setup.py build_ext --inplace
-        displayName: "Build & install TARDIS"
-
-      - bash: |
-          source activate tardis
-          python setup.py test --args="--tardis-refdata=$(ref.data.home) --generate-reference"
-        displayName: "Generate new reference data"
-
-      - bash: |
-          source activate tardis
-          cd $(ref.data.home)
-          git remote add upstream https://github.com/tardis-sn/tardis-refdata.git
+          cd $(refdata.dir)
+          git remote add upstream https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata
           git fetch upstream
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
-          cd notebooks
+        displayName: 'Set upstream remote'
+
+      - bash: |
+          cd $(tardis.dir)
+          source activate tardis
+          pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
+        displayName: 'Generate reference data'
+
+      - bash: |
+          cd $(refdata.dir)/notebooks
+          source activate tardis
+          jupyter nbconvert ref_data_compare.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
+        displayName: 'Render notebook'
+
+      - bash: |
+          cd $(refdata.dir)/notebooks
+          source activate tardis
           jupyter nbconvert ref_data_compare.ipynb --to html --execute --allow-errors --ExecutePreprocessor.timeout=6000
-        displayName: "Generating report"
+        displayName: 'Render notebook (allow errors)'
+        condition: failed()
 
       - task: PublishPipelineArtifact@1
         inputs:
-          targetPath: "$(ref.data.home)/notebooks/ref_data_compare.html"
-          artifact: "report"
-          publishLocation: "pipeline"
-
-      - bash: |
-          ls -lR /tmp
-          echo
+          targetPath: '$(refdata.dir)/notebooks/ref_data_compare.html'
+          artifactName: 'report'
+        displayName: 'Upload artifact'
         condition: succeededOrFailed()
-        displayName: "Check files in /tmp"
-
-# Keep this line, is useful for testing without changing the notebook.
-# sed -i "s/ref2_hash='upstream\/pr\/24'/ref1_hash='c998f44', ref2_hash='master'/g" ref_data_compare.ipynb

@@ -2,7 +2,7 @@ import logging
 from functools import wraps
 
 DEBUG_MODE = False
-LOG_FILE = 'montecarlo_log.log'
+LOG_FILE = "montecarlo_log.log"
 BUFFER = 1
 ticker = 1
 
@@ -17,10 +17,10 @@ else:
     console_handler = logging.StreamHandler()
 
 console_handler.setLevel(logging.DEBUG)
-console_formatter = logging.Formatter(
-    '%(name)s - %(levelname)s - %(message)s')
+console_formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
 console_handler.setFormatter(console_formatter)
 logger.addHandler(console_handler)
+
 
 def log_decorator(func):
     """
@@ -60,8 +60,8 @@ def log_decorator(func):
             global ticker
             ticker += 1
             if ticker % BUFFER == 0:  # without a buffer, performance suffers
-                logger.debug(f'Func: {func.__name__}. Input: {(args, kwargs)}')
-                logger.debug(f'Output: {result}.')
+                logger.debug(f"Func: {func.__name__}. Input: {(args, kwargs)}")
+                logger.debug(f"Output: {result}.")
         return result
 
     return wrapper
