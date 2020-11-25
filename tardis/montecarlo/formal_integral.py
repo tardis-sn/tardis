@@ -40,9 +40,10 @@ class FormalIntegrator(object):
     def __init__(self, model, plasma, runner, points=1000):
         self.model = model
         if plasma:
-            self.plasma = numba_plasma_initialize(
-                plasma, runner.line_interaction_type
-            )
+            self.plasma = plasma
+            # self.plasma = numba_plasma_initialize(
+            #     plasma, runner.line_interaction_type
+            # )
             self.atomic_data = plasma.atomic_data
             self.original_plasma = plasma
         self.runner = runner
@@ -92,8 +93,7 @@ class FormalIntegrator(object):
         N = points or self.points
         self.interpolate_shells = interpolate_shells
         frequency = frequency.to("Hz", u.spectral())
-
-        luminosity = u.Quantity(self.formal_integral(frequency, N), "erg") * (
+        luminosity = u.Quantity(formal_integral(self, frequency, N), "erg") * (
             frequency[1] - frequency[0]
         )
 
@@ -146,7 +146,7 @@ class FormalIntegrator(object):
             destination_level_idx = ma_int_data.destination_level_idx.values
 
         Edotlu_norm_factor = 1 / (runner.time_of_simulation * model.volume)
-        exptau = 1 - np.exp(-self.plasma.tau_sobolev)
+        exptau = 1 - np.exp(-self.plasma.tau_sobolevs)
         Edotlu = Edotlu_norm_factor * exptau * runner.Edotlu_estimator
 
         # The following may be achieved by calling the appropriate plasma
@@ -217,7 +217,7 @@ class FormalIntegrator(object):
 
         # Jredlu should already by in the correct order, i.e. by wavelength of
         # the transition l->u (similar to Jbluelu)
-        Jredlu = Jbluelu * np.exp(-self.plasma.tau_sobolev) + att_S_ul
+        Jredlu = Jbluelu * np.exp(-self.plasma.tau_sobolevs) + att_S_ul
         if self.interpolate_shells > 0:
             (
                 att_S_ul,
@@ -230,9 +230,8 @@ class FormalIntegrator(object):
         else:
             runner.r_inner_i = runner.r_inner_cgs
             runner.r_outer_i = runner.r_outer_cgs
-            runner.tau_sobolevs_integ = self.plasma.tau_sobolev
-            runner.electron_densities_integ = self.plasma.electron_density
-
+            runner.tau_sobolevs_integ = self.plasma.tau_sobolevs
+            runner.electron_densities_integ = self.plasma.electron_densities
         return att_S_ul, Jredlu, Jbluelu, e_dot_u
 
     def interpolate_integrator_quantities(
@@ -253,7 +252,7 @@ class FormalIntegrator(object):
 
         runner.electron_densities_integ = interp1d(
             r_middle,
-            plasma.electron_density,
+            plasma.electron_densities,
             fill_value="extrapolate",
             kind="nearest",
         )(r_middle_integ)
@@ -261,7 +260,7 @@ class FormalIntegrator(object):
         # (as in the MC simulation)
         runner.tau_sobolevs_integ = interp1d(
             r_middle,
-            plasma.tau_sobolev,
+            plasma.tau_sobolevs,
             fill_value="extrapolate",
             kind="nearest",
         )(r_middle_integ)
@@ -331,7 +330,7 @@ class FormalIntegrator(object):
         # instantiate more variables here, maybe?
 
         # prepare exp_tau
-        exp_tau = np.exp(-self.plasma.tau_sobolev)  # check
+        exp_tau = np.exp(-self.plasma.tau_sobolevs)  # check
         pp = calculate_p_values(R_max, N, pp)
 
         # done with instantiation
@@ -376,7 +375,7 @@ class FormalIntegrator(object):
                 # loop over all interactions
                 for i in range(size_z - 1):
                     escat_op = (
-                        self.plasma.electron_density[int(shell_id[i])]
+                        self.plasma.electron_densities[int(shell_id[i])]
                         * SIGMA_THOMSON
                     )
                     nu_end = nu * z[i + 1]
@@ -470,14 +469,14 @@ class FormalIntegrator(object):
             :oshell_id: (int64) will be set with the corresponding shell_ids
         """
         # abbreviations
-        r = self.runner.r_outer_i
+        r = self.model.r_outer_i
         N = self.model.no_of_shells  # check
         print(N)
         inv_t = 1 / self.model.time_explosion
         z = 0
         offset = N
 
-        if p <= self.runner.r_inner_i[0]:
+        if p <= self.model.r_inner_i[0]:
             # intersect the photosphere
             for i in range(N):
                 oz[i] = 1 - self.calculate_z(r[i], p, inv_t)
@@ -519,7 +518,7 @@ class FormalIntegrator(object):
             :inv_t: (double) inverse time_explosio is needed to norm to unit-length
         """
         if r > p:
-            return np.sqrt(r * r - p * p) * C_INV * inv_t.value
+            return np.sqrt(r * r - p * p) * C_INV * inv_t
         else:
             return 0
 
