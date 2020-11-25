@@ -31,13 +31,13 @@ class Levels(BaseAtomicDataProperty):
     Attributes
     ----------
     levels : Pandas MultiIndex (atomic_number, ion_number, level_number)
-             Index of filtered atomic data. Index used for all other attribute dataframes for this class
+        Index of filtered atomic data. Index used for all other attribute dataframes for this class
     excitation_energy : Pandas DataFrame (index=levels), dtype float
-             Excitation energies of atomic levels
+        Excitation energies of atomic levels
     metastability : Pandas DataFrame (index=levels), dtype bool
-             Records whether atomic levels are metastable
+        Records whether atomic levels are metastable
     g : Pandas DataFrame (index=levels), dtype float
-             Statistical weights of atomic levels
+        Statistical weights of atomic levels
     """
 
     outputs = ("levels", "excitation_energy", "metastability", "g")
@@ -69,13 +69,13 @@ class Lines(BaseAtomicDataProperty):
     ----------
     lines : Pandas DataFrame (wavelength, atomic_number, ion_number, f_ul, f_lu, level_number_lower,
                               level_number_upper, nu, B_lu, B_ul, A_ul, wavelength)
-            All atomic lines data. Index = line_id.
+        All atomic lines data. Index = line_id.
     nu : Pandas DataFrame (index=line_id), dtype float
-            Line frequency data
+        Line frequency data
     f_lu : Pandas DataFrame (index=line_id), dtype float
-            Transition probability data
+        Transition probability data
     wavelength_cm : Pandas DataFrame (index=line_id), dtype float
-            Line wavelengths in cm
+        Line wavelengths in cm
     """
 
     # Would like for lines to just be the line_id values
@@ -99,15 +99,15 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
                                                        'ion_number',
                                                        'level_number']),
                                                 dtype float)
-                              Table of photoionization cross sections as a
-                              function of frequency.
+        Table of photoionization cross sections as a
+        function of frequency.
     photo_ion_block_references : One-dimensional Numpy Array, dtype int
-                              Indices where the photoionization data for
-                              a given level starts. Needed for calculation
-                              of recombination rates.
+        Indices where the photoionization data for
+        a given level starts. Needed for calculation
+        of recombination rates.
     photo_ion_index : Pandas MultiIndex, dtype int
-                              Atomic, ion and level numbers for which
-                              photoionization data exists.
+        Atomic, ion and level numbers for which
+        photoionization data exists.
     """
 
     outputs = (

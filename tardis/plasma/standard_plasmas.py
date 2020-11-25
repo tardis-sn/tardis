@@ -56,7 +56,7 @@ def assemble_plasma(config, model, atom_data=None):
 
     Returns
     -------
-        : plasma.BasePlasma
+    : plasma.BasePlasma
 
     """
     # Convert the nlte species list to a proper format.
