@@ -469,14 +469,14 @@ class FormalIntegrator(object):
             :oshell_id: (int64) will be set with the corresponding shell_ids
         """
         # abbreviations
-        r = self.runner.r_outer_i
+        r = self.model.r_outer_i
         N = self.model.no_of_shells  # check
         print(N)
         inv_t = 1 / self.model.time_explosion
         z = 0
         offset = N
 
-        if p <= self.runner.r_inner_i[0]:
+        if p <= self.model.r_inner_i[0]:
             # intersect the photosphere
             for i in range(N):
                 oz[i] = 1 - self.calculate_z(r[i], p, inv_t)
@@ -518,7 +518,7 @@ class FormalIntegrator(object):
             :inv_t: (double) inverse time_explosio is needed to norm to unit-length
         """
         if r > p:
-            return np.sqrt(r * r - p * p) * C_INV * inv_t.value
+            return np.sqrt(r * r - p * p) * C_INV * inv_t
         else:
             return 0
 

@@ -61,7 +61,7 @@ TESTDATA = [
     {
         "r": np.linspace(0, 1, 3),
     },
-    {"r": np.linspace(1, 2, 10, dtype=np.float64)},
+    #{"r": np.linspace(1, 2, 10, dtype=np.float64)},
 ]
 
 
