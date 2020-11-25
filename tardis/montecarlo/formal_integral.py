@@ -50,27 +50,80 @@ class MockMontecarloRunner(object):
     but in a simple jitclass that ONLY FUNCTIONS with FormalIntegrator
     """
 
-    def __init__(self, runner, plasma, nshells):
+    def __init__(
+        self,
+        line_interaction_type,
+        time_of_simulation,
+        Edotlu_estimator,
+        j_blue_estimator,
+        r_inner_cgs,
+        r_outer_cgs,
+        tau_sobolev,
+        electron_density,
+    ):
         """runner is a MontecarloRunner class
         attributes of the class necessary for the FormalIntegrator
         to function"""
-        self.line_interaction_type = runner.line_interaction_type
-        self.time_of_simulation = runner.time_of_simulation
-        self.Edotlu_estimator = runner.Edotlu_estimator
+        self.line_interaction_type = line_interaction_type
+        self.time_of_simulation = time_of_simulation
+        self.Edotlu_estimator = Edotlu_estimator
 
-        self.j_blue_estimator = runner.j_blue_estimator
-        self.r_inner_i = runner.r_inner_cgs
-        self.r_outer_i = runner.r_outer_cgs
-        self.tau_sobolevs_integ = self.plasma.tau_sobolev
-        self.electron_densities_integ = self.plasma.electron_density
+        self.j_blue_estimator = j_blue_estimator
+        self.r_inner_i = r_inner_cgs
+        self.r_outer_i = r_outer_cgs
+        self.tau_sobolevs_integ = tau_sobolev
+        self.electron_densities_integ = electron_density
+
+
+mock_model_spec = [
+    ("volume", float64),
+    ("no_of_shells", int64),
+    ("t_inner", float64),
+    ("time_explosion", time_explosion),
+]
+
+
+@jitclass(mock_model_spec)
+class MockMontecarloModel(object):
+    def __init__(self, volume, time_explosion, no_of_shells, t_inner):
+        self.volume = volume
+        self.no_of_shells = no_of_shells
+        self.time_explosion = time_explosion
+        self.t_inner = t_inner
+
+
+def get_formal_integrator(model, plasma, runner, points=1000):
+
+    time_of_simulation = runner.time_of_simulation.value
+    volume = model.volume
+    time_explosion = model.time_explosion.value
+    no_of_shells = model.no_of_shells
+    t_inner = model.t_inner.value
+
+    mock_model = MockMontecarloModel(
+        volume, time_explosion, no_of_shells, t_inner
+    )
+    mock_runner = MockMontecarloRunner(
+        runner.line_interaction_type,
+        runner.time_of_simulation,
+        runner.Edotlu_estimator,
+        runner.j_blue_estimator,
+        runner.r_inner_cgs,
+        runner.r_outer_cgs,
+        plasma.tau_sobolev,
+        plasma.electron_density,
+    )
+
+    numba_plasma = numba_plasma_initialize(plasma, runner.line_interaction_type)
+    if plasma:
+        atomic_data = plasma.atomic_data
+
+    else:
+        raise Exception("Need to give me a plasma yo...")
 
 
 integrator_spec = [
-    ("model", NumbaModel.class_type.instance_type),
-    ("no_of_shells", int64),
-    ("volume", float64),
-    ("time_explosion", float64),
-    ("time_of_simulation", float64),
+    ("model", MockMontecarloModel.class_type.instance_type),
     ("plasma", NumbaPlasma.class_type.instance_type),
     ("runner", MockMontecarloRunner.class_type.instance_type),
     ("points", int64),
@@ -81,6 +134,7 @@ integrator_spec = [
 class FormalIntegrator(object):
     def __init__(self, model, plasma, runner, points=1000):
         self.model = model
+        self.plasma = plasma
         if plasma:
             self.plasma = plasma
             # self.plasma = numba_plasma_initialize(
@@ -88,11 +142,7 @@ class FormalIntegrator(object):
             # )
             self.atomic_data = plasma.atomic_data
             self.original_plasma = plasma
-        self.no_of_shells = model.no_of_shells
-        self.volume = model.volume
-        self.time_explosion = model.time_explosion
-        self.time_of_simulation = model.time_of_simulation
-        self.runner = MockMontecarloRunner(runner, plasma, no_of_shells)
+        self.runner = runner
         self.points = points
 
     def check(self, raises=True):
