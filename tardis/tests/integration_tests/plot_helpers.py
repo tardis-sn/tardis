@@ -30,7 +30,6 @@ class BasePlotSaver(object):
         ----------
         plot : matplotlib.pyplot.figure
         name : str
-
         """
         self._plots.append((plot, name))
 

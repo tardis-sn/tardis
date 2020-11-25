@@ -12,9 +12,9 @@ elif os.environ.get("QT_API", None) == "pyside":
     from PySide2 import QtGui, QtCore, QtWidgets
 else:
     raise ImportError(
-        "QT_API was not set! Please exit the IPython console\n"
-        " and at the bash prompt use : \n\n export QT_API=pyside \n or\n"
-        " export QT_API=pyqt \n\n For more information refer to user guide."
+        """QT_API was not set! Please exit the IPython console\n
+         and at the bash prompt use : \n\n export QT_API=pyside \n or\n
+         export QT_API=pyqt \n\n For more information refer to user guide."""
     )
 import yaml
 
@@ -39,6 +39,7 @@ class Node(object):
 
     Attributes
     ----------
+<<<<<<< HEAD
         parent: None/Node
             The parent of the node.
         children: list of Node
@@ -52,6 +53,20 @@ class Node(object):
             if the parent of this node happens to be a key that can
             take values from a list.
 
+=======
+    parent : None/Node 
+        The parent of the node.
+    children : list of Node
+        The children of the node.
+    data : list of string 
+        The data stored on the node. Can be a key or a value.
+    siblings : dictionary 
+        A dictionary of nodes that are siblings of this node. The 
+        keys are the values of the nodes themselves. This is 
+        used to keep track of which value the user has selected
+        if the parent of this node happens to be a key that can
+        take values from a list.
+>>>>>>> 56c506760fd38eb20d9ab479bf71e38c7ee4c43a
     """
 
     def __init__(self, data, parent=None):
@@ -59,11 +74,19 @@ class Node(object):
 
         Parameters
         ----------
+<<<<<<< HEAD
             data: list of string
                 The data that is intended to be stored on the node.
             parent: Node
                 Another node which is the parent of this node. The
                 root node has parent set to None.
+=======
+        data : list of string
+            The data that is intended to be stored on the node.
+        parent : Node 
+            Another node which is the parent of this node. The 
+            root node has parent set to None.
+>>>>>>> 56c506760fd38eb20d9ab479bf71e38c7ee4c43a
 
         Note
         ----
@@ -91,7 +114,10 @@ class Node(object):
             of the form valx are leaf nodes and are not dictionaries
             themselves. If the keys have non-dictionary values then they
             have a leaf attached. And no leaf can have a child.
+<<<<<<< HEAD
 
+=======
+>>>>>>> 56c506760fd38eb20d9ab479bf71e38c7ee4c43a
         """
         self.parent = parent
         self.children = []
@@ -109,7 +135,6 @@ class Node(object):
 
         No error is raised if the cild requested doesn't exist. A
         None is returned in such cases.
-
         """
         if i < self.num_children():
             return self.children[i]
@@ -129,7 +154,6 @@ class Node(object):
 
         No error is raised if the data list index is exceeded. A None is
         returned in such cases.
-
         """
         try:
             return self.data[i]
@@ -143,7 +167,6 @@ class Node(object):
     def get_index_of_self(self):
         """Returns the number at which it comes in the list of its
         parent's children. For root the index 0 is returned.
-
         """
         if self.parent:
             return self.parent.children.index(self)
@@ -153,7 +176,6 @@ class Node(object):
     def set_data(self, column, value):
         """Set the data for the ith index to the provided value. Returns
         true if the data was set successfully.
-
         """
         if column < 0 or column >= self.num_columns():
             return False
@@ -168,6 +190,7 @@ class TreeModel(QtCore.QAbstractItemModel):
 
     Parameters
     ----------
+<<<<<<< HEAD
         root: Node
             Root node of the tree.
         disabledNodes: list of Node
@@ -177,6 +200,16 @@ class TreeModel(QtCore.QAbstractItemModel):
             types. Look at tardis configuration template. These are the
             nodes that have values that can be set from a list.
 
+=======
+    root : Node
+        Root node of the tree.
+    disabledNodes : list of Node 
+        List of leaf nodes that are not editable currently.
+    typenodes : list of Node 
+        List of nodes that correspond to keys that set container 
+        types. Look at tardis configuration template. These are the
+        nodes that have values that can be set from a list.
+>>>>>>> 56c506760fd38eb20d9ab479bf71e38c7ee4c43a
     """
 
     def __init__(self, dictionary, parent=None):
@@ -184,11 +217,18 @@ class TreeModel(QtCore.QAbstractItemModel):
 
         Parameters
         ----------
+<<<<<<< HEAD
             dictionary: dictionary
                 The dictionary that needs to be converted to the tree.
             parent: None
                 Used to instantiate the QAbstractItemModel
 
+=======
+        dictionary : dictionary            
+            The dictionary that needs to be converted to the tree.
+        parent : None 
+            Used to instantiate the QAbstractItemModel
+>>>>>>> 56c506760fd38eb20d9ab479bf71e38c7ee4c43a
         """
         QtCore.QAbstractItemModel.__init__(self, parent)
 
@@ -201,7 +241,6 @@ class TreeModel(QtCore.QAbstractItemModel):
     def columnCount(self, index):
         """Return the number of columns in the node pointed to by
         the given model index.
-
         """
         if index.isValid():
             return index.internalPointer().num_columns()
@@ -256,7 +295,6 @@ class TreeModel(QtCore.QAbstractItemModel):
     def headerData(self, section, orientation, role):
         """Returns header data. This is not used in QColumnView. But will
         be needed for QTreeView.
-
         """
         if (
             orientation == QtCore.Qt.Horizontal
@@ -270,7 +308,6 @@ class TreeModel(QtCore.QAbstractItemModel):
         """Create a model index for the given row and column. For a
         tree model, the row is the set of nodes with the same parents and
         the column indexes the data in the node.
-
         """
         if parent.isValid() and parent.column() != 0:
             return QtCore.QModelIndex()
@@ -318,7 +355,6 @@ class TreeModel(QtCore.QAbstractItemModel):
         """The number of rows for a given node.
 
         (The number of rows is just the number of children for a node.)
-
         """
         parentItem = self.getItem(parent)
 
@@ -327,7 +363,6 @@ class TreeModel(QtCore.QAbstractItemModel):
     def setData(self, index, value, role=QtCore.Qt.EditRole):
         """Set the value as the data at the location pointed by the
         index.
-
         """
         if role != QtCore.Qt.EditRole:
             return False
@@ -358,11 +393,18 @@ class TreeModel(QtCore.QAbstractItemModel):
 
         Parameters
         ----------
+<<<<<<< HEAD
             dictionary: dictionary
                 The dictionary that is to be converted to the tree.
             root: Node
                 The root node of the tree.
 
+=======
+        dictionary : dictionary
+            The dictionary that is to be converted to the tree.
+        root : Node 
+            The root node of the tree.
+>>>>>>> 56c506760fd38eb20d9ab479bf71e38c7ee4c43a
         """
         # Construct tree with all nodes
         self.tree_from_node(dictionary, root)
@@ -413,7 +455,6 @@ class TreeModel(QtCore.QAbstractItemModel):
     def dict_from_node(self, node):
         """Take a node and convert the whole subtree rooted at it into a
         dictionary.
-
         """
         children = [node.get_child(i) for i in range(node.num_children())]
         if len(children) > 1:
@@ -431,7 +472,6 @@ class TreeModel(QtCore.QAbstractItemModel):
 class TreeDelegate(QtWidgets.QStyledItemDelegate):
     """Create a custom delegate to modify the columnview that displays the
     TreeModel.
-
     """
 
     def __init__(self, parent=None):
@@ -459,7 +499,6 @@ class TreeDelegate(QtWidgets.QStyledItemDelegate):
         """Called when new data id set in the model. This is where the
         siblings of type nodes are enabled or disabled according to the
         new choice made.
-
         """
         node = index.internalPointer()
 

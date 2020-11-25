@@ -38,9 +38,15 @@ class BasePacketSource(abc.ABC):
     @staticmethod
     def create_uniform_packet_energies(no_of_packets, rng):
         """
+<<<<<<< HEAD
         Uniformly distribute energy in arbitrary units where the ensemble of
         packets has energy of 1.
 
+=======
+        Uniformly distribute energy in arbitrary units where the ensemble of 
+        packets has energy of 1. 
+        
+>>>>>>> 56c506760fd38eb20d9ab479bf71e38c7ee4c43a
         Parameters
         ----------
         no_of_packets : int
@@ -77,8 +83,8 @@ class BasePacketSource(abc.ABC):
         ----------
         T : float
             temperature
-        no_of_packets: int
-        l_samples: int
+        no_of_packets : int
+        l_samples : int
             number of l_samples needed in the algorithm
         Returns
         -------

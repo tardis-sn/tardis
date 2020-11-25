@@ -9,7 +9,6 @@ def load_csvy(fname):
     """
     Parameters
     ----------
-
     fname : string
             Path to csvy file
 
@@ -17,7 +16,6 @@ def load_csvy(fname):
     -------
     yaml_dict : dictionary
                 YAML part of the csvy file
-
     data : pandas.dataframe
            csv data from csvy file
     """
@@ -48,7 +46,6 @@ def load_yaml_from_csvy(fname):
     """
     Parameters
     ----------
-
     fname : string
             Path to csvy file
 
@@ -79,7 +76,6 @@ def load_csv_from_csvy(fname):
     """
     Parameters
     ----------
-
     fname : string
             Path to csvy file
 

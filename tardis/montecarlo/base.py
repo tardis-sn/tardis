@@ -140,9 +140,13 @@ class MontecarloRunner(HDFWriterMixin):
 
         Parameters
         ----------
+<<<<<<< HEAD
 
         tau_sobolev_shape: tuple
             tuple for the tau_sobolev_shape
+=======
+        model : Radial1DModel
+>>>>>>> 56c506760fd38eb20d9ab479bf71e38c7ee4c43a
         """
 
         # Estimators
@@ -158,7 +162,6 @@ class MontecarloRunner(HDFWriterMixin):
 
         Parameters
         ----------
-
         model : model.Radial1DModel
         """
         self.r_inner_cgs = model.r_inner.to("cm").value
@@ -452,17 +455,13 @@ class MontecarloRunner(HDFWriterMixin):
 
         Parameters
         ----------
-
-        nubar_estimator : ~np.ndarray (float)
-
-        j_estimator : ~np.ndarray (float)
+        nubar_estimator : np.ndarray (float)
+        j_estimator : np.ndarray (float)
 
         Returns
         -------
-
-        t_rad : ~astropy.units.Quantity (float)
-
-        w : ~numpy.ndarray (float)
+        t_rad : astropy.units.Quantity (float)
+        w : numpy.ndarray (float)
 
         """
 
