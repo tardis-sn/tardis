@@ -66,12 +66,12 @@ class Node(object):
 
         Note
         ----
-            A leaf node is a node that is the only child of its parent. 
+            A leaf node is a node that is the only child of its parent.
             For this tree this will always be the case. This is because
             the tree stores the key at every node except the leaf node
             where it stores the value for the key. So if in the dictionary
-            the value of a key is another dictionary, then it will 
-            be a node with no leafs. If the key has a value that is a 
+            the value of a key is another dictionary, then it will
+            be a node with no leafs. If the key has a value that is a
             value or a list then it will have one child that is a leaf.
             The leaf can have no children. For example-
 
@@ -85,9 +85,9 @@ class Node(object):
                                   val7, val5 and val6 and is currently
                                   set to val5.
 
-            In the tree shown above all quoted values are keys in the 
-            dictionary and are non-leaf nodes in the tree. All values 
-            of the form valx are leaf nodes and are not dictionaries 
+            In the tree shown above all quoted values are keys in the
+            dictionary and are non-leaf nodes in the tree. All values
+            of the form valx are leaf nodes and are not dictionaries
             themselves. If the keys have non-dictionary values then they
             have a leaf attached. And no leaf can have a child.
         """
@@ -103,9 +103,9 @@ class Node(object):
         child.parent = self
 
     def get_child(self, i):
-        """Get the ith child of this node. 
+        """Get the ith child of this node.
 
-        No error is raised if the cild requested doesn't exist. A 
+        No error is raised if the cild requested doesn't exist. A
         None is returned in such cases.
         """
         if i < self.num_children():
@@ -137,7 +137,7 @@ class Node(object):
         return self.parent
 
     def get_index_of_self(self):
-        """Returns the number at which it comes in the list of its 
+        """Returns the number at which it comes in the list of its
         parent's children. For root the index 0 is returned.
         """
         if self.parent:
@@ -257,7 +257,7 @@ class TreeModel(QtCore.QAbstractItemModel):
         return None
 
     def index(self, row, column, parent=QtCore.QModelIndex()):
-        """Create a model index for the given row and column. For a 
+        """Create a model index for the given row and column. For a
         tree model, the row is the set of nodes with the same parents and
         the column indexes the data in the node.
         """
@@ -304,8 +304,8 @@ class TreeModel(QtCore.QAbstractItemModel):
         return self.createIndex(parentItem.get_index_of_self(), 0, parentItem)
 
     def rowCount(self, parent=QtCore.QModelIndex()):
-        """The number of rows for a given node. 
-        
+        """The number of rows for a given node.
+
         (The number of rows is just the number of children for a node.)
         """
         parentItem = self.getItem(parent)
@@ -313,7 +313,7 @@ class TreeModel(QtCore.QAbstractItemModel):
         return parentItem.num_hildren()
 
     def setData(self, index, value, role=QtCore.Qt.EditRole):
-        """Set the value as the data at the location pointed by the 
+        """Set the value as the data at the location pointed by the
         index.
         """
         if role != QtCore.Qt.EditRole:
@@ -397,7 +397,7 @@ class TreeModel(QtCore.QAbstractItemModel):
                     self.typenodes.append(child)
 
     def dict_from_node(self, node):
-        """Take a node and convert the whole subtree rooted at it into a 
+        """Take a node and convert the whole subtree rooted at it into a
         dictionary.
         """
         children = [node.get_child(i) for i in range(node.num_children())]
@@ -414,7 +414,7 @@ class TreeModel(QtCore.QAbstractItemModel):
 
 
 class TreeDelegate(QtWidgets.QStyledItemDelegate):
-    """Create a custom delegate to modify the columnview that displays the 
+    """Create a custom delegate to modify the columnview that displays the
     TreeModel.
     """
 
@@ -441,7 +441,7 @@ class TreeDelegate(QtWidgets.QStyledItemDelegate):
 
     def setModelData(self, editor, model, index):
         """Called when new data id set in the model. This is where the
-        siblings of type nodes are enabled or disabled according to the 
+        siblings of type nodes are enabled or disabled according to the
         new choice made.
         """
         node = index.internalPointer()

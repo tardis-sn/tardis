@@ -33,21 +33,17 @@ properties:
     multipleOf: 1.0
     default: 0
     description: Setting the number of virtual packets for the last iteration.
-  virtual_spectrum_range:
+  virtual_spectrum_spawn_range:
     type: object
     default: {}
     properties:
       start:
         type: quantity
-        default: 50 angstrom
-      stop:
+        default: 0 angstrom
+      end:
         type: quantity
-        default: 250000 angstrom
-      num:
-        type: number
-        multipleOf: 1.0
-        default: 1000000
-    description: Limits of virtual packet spectrum (giving maximum and minimum packet
+        default: inf angstrom
+    description: Limits of virtual packet spawn spectrum (giving maximum and minimum packet
       frequency)
   enable_reflective_inner_boundary:
     type: boolean
@@ -68,6 +64,19 @@ properties:
     default: false
     description: Enables a more complete treatment of relativitic effects. This includes
       angle aberration as well as use of the fully general Doppler formula.
+  debug_packets:
+    type: boolean
+    default: false
+    description: Decide whether to go into debugging mode. [EXPERIMENTAL FEATURE DO NOT RELY ON IT]
+  logger_buffer:
+    type: number
+    default: 1
+    description: Provides option to not log every line.
+  single_packet_seed:
+    type:
+      - number
+    default: -1
+    description: If debug_packets is true, this is the seed for the only packet.
 
 required:
 - no_of_packets

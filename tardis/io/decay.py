@@ -101,7 +101,7 @@ class IsotopeAbundances(pd.DataFrame):
 
     def as_atoms(self):
         """
-        Merge Isotope dataframe according to atomic number 
+        Merge Isotope dataframe according to atomic number
 
         Returns
         -------
@@ -112,7 +112,7 @@ class IsotopeAbundances(pd.DataFrame):
 
     def merge(self, other, normalize=True):
         """
-        Merge Isotope dataframe with abundance passed as parameter 
+        Merge Isotope dataframe with abundance passed as parameter
 
         Parameters
         ----------

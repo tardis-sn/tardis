@@ -249,8 +249,8 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
             self.initialize_macro_atom_transition_type_filters(
                 atomic_data, macro_atom_data
             )
-            self.transition_probability_coef = self._get_transition_probability_coefs(
-                macro_atom_data
+            self.transition_probability_coef = (
+                self._get_transition_probability_coefs(macro_atom_data)
             )
             self.initialize = False
         transition_probabilities = self._calculate_transition_probability(

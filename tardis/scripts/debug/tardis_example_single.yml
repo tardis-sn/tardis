@@ -1,0 +1,45 @@
+atom_data: kurucz_cd23_chianti_H_He.h5
+model:
+  abundances:
+    Si: 1.0
+    type: uniform
+  structure:
+    density:
+      type: branch85_w7
+    type: specific
+    velocity:
+      num: 20
+      start: 1.1e4 km/s
+      stop: 20000 km/s
+montecarlo:
+  convergence_strategy:
+    damping_constant: 1.0
+    fraction: 0.8
+    hold_iterations: 3
+    t_inner:
+      damping_constant: 1.0
+    threshold: 0.05
+    type: damped
+  debug_packets: true
+  iterations: 2
+  last_no_of_packets: 1000000.0
+  logger_buffer: 1
+  no_of_packets: 40000.0
+  no_of_virtual_packets: 0
+  nthreads: 6
+  seed: 23111963
+  single_packet_seed: 46
+plasma:
+  disable_electron_scattering: false
+  excitation: lte
+  ionization: lte
+  line_interaction_type: macroatom
+  radiative_rates_type: dilute-blackbody
+spectrum:
+  num: 10000
+  start: 500 angstrom
+  stop: 20000 angstrom
+supernova:
+  luminosity_requested: 9.44 log_lsun
+  time_explosion: 10 day
+tardis_config_version: v1.0
