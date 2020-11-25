@@ -279,9 +279,9 @@ class ZetaData(BaseAtomicDataProperty):
 
 class NLTEData(ProcessingPlasmaProperty):
     """
-    Attributes:
-    nlte_data :
-#Finish later (need atomic dataset with NLTE data).
+        Attributes:
+        nlte_data :
+    #Finish later (need atomic dataset with NLTE data).
     """
 
     outputs = ("nlte_data",)

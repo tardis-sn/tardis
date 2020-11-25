@@ -27,6 +27,9 @@ TARDIS
     :target: http://numfocus.org
     :alt: Powered by NumFOCUS
 
+.. image:: http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
+    :target: http://www.astropy.org
+
 TARDIS is a tool that creates synthetic observations (spectra) for exploding
 stars (supernovae).
 

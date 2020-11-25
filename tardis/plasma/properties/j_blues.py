@@ -65,9 +65,10 @@ class JBluesDetailed(ProcessingPlasmaProperty):
 
             for i in range(len(t_rad)):
                 zero_j_blues = j_blues[i] == 0.0
-                j_blues[i][zero_j_blues] = (
-                    self.w_epsilon
-                    * intensity_black_body(nu[zero_j_blues].values, t_rad[i])
+                j_blues[i][
+                    zero_j_blues
+                ] = self.w_epsilon * intensity_black_body(
+                    nu[zero_j_blues].values, t_rad[i]
                 )
             return j_blues
 

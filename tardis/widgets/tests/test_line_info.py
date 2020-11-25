@@ -24,6 +24,7 @@ def line_info_widget(simulation_verysimple):
 class TestLineInfoWidgetData:
     """Tests for methods that handles data in LineInfoWidget."""
 
+    @pytest.mark.xfail(reason="Add real packet information to runner")
     def test_get_species_interactions(
         self, line_info_widget, wavelength_range, filter_mode
     ):
@@ -170,6 +171,8 @@ class TestLineInfoWidgetEvents:
 
         return liw, selection_range
 
+
+    @pytest.mark.xfail(reason="Add real packet information to runner")
     def test_selection_on_plot(self, liw_with_selection):
         """
         Test if selection on spectrum plot, updates correct data in both
@@ -217,6 +220,7 @@ class TestLineInfoWidgetEvents:
             line_info_widget.total_packets_label.widget.children[1].value
         )
 
+    @pytest.mark.xfail(reason="Add real packet information to runner")
     @pytest.mark.parametrize("selected_filter_mode_idx", [0, 1])
     def test_filter_mode_toggle(
         self,
