@@ -11,7 +11,7 @@ from tardis.montecarlo.spectrum import TARDISSpectrum
 from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo import packet_source as source
-from tardis.montecarlo.formal_integral import FormalIntegrator
+from tardis.montecarlo.formal_integral import FormalIntegrator, get_formal_integrator
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
 
 
@@ -236,10 +236,6 @@ class MontecarloRunner(HDFWriterMixin):
         -------
         None
         """
-        self._integrator = FormalIntegrator(
-                model,
-                plasma,
-                self)
         self.time_of_simulation = self.calculate_time_of_simulation(model)
         self.volume = model.volume
 
@@ -254,6 +250,11 @@ class MontecarloRunner(HDFWriterMixin):
         montecarlo_configuration = configuration_initialize(self,
                                                             no_of_virtual_packets)
         montecarlo_radial1d(model, plasma, self)
+        self._integrator = get_formal_integrator(
+                model,
+                plasma,
+                self)
+
         #montecarlo.montecarlo_radial1d(
         #    model, plasma, self,
         #    virtual_packet_flag=no_of_virtual_packets,
