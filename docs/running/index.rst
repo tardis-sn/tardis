@@ -17,7 +17,7 @@ A quick start guide to run TARDIS can be found
 `here <../quickstart/quickstart.ipynb>`_.
 
 
-.. toctree::
+.. toctree::zzz
     :maxdepth: 2
     :caption: Running TARDIS and interactivity
 
@@ -26,6 +26,8 @@ A quick start guide to run TARDIS can be found
     interaction/index
     custom_source
     tardis_widgets/index
+    to_hdf
+    using_formal_integral
 
 
 .. toctree::
