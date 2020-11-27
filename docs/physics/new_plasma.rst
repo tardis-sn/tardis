@@ -39,3 +39,10 @@ If the necessary Python modules (`PyGraphviz <https://pygraphviz.github.io/>`_ a
 Updating the Plasma
 -------------------
 During each iteration of the main code, TARDIS updates the plasma using the `update_radiationfield` function. This requires, at minimum, new values for `t_rad` (the radiation temperature), `w` (the dilution factor) and `j_blues` (the intensity in the blue part of each line).
+
+
+
+.. toctree::
+    :maxdepth: 2
+    
+    plasma/index
