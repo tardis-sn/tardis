@@ -10,8 +10,6 @@ Old Physics Section of the TARDIS Docu (Outdated)
 
 
 .. toctree::
-    :hidden:
-    :caption:
     physical_quantities
     montecarlo_old
     plasma/index
