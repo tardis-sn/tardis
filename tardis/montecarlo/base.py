@@ -457,7 +457,6 @@ class MontecarloRunner(HDFWriterMixin):
         -------
         t_rad : astropy.units.Quantity (float)
         w : numpy.ndarray (float)
-
         """
 
         t_rad = (
@@ -505,7 +504,6 @@ class MontecarloRunner(HDFWriterMixin):
         Returns
         -------
         MontecarloRunner
-
         """
         if config.plasma.disable_electron_scattering:
             logger.warn(
