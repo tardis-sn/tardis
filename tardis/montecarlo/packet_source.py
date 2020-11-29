@@ -73,6 +73,7 @@ class BasePacketSource(abc.ABC):
         .. math::
             x = -\\ln{(\\xi_1\\xi_2\\xi_3\\xi_4)}/l_{\\rm min}\\; .
         where :math:`x=h\\nu/kT`
+        
         Parameters
         ----------
         T : float
@@ -80,6 +81,7 @@ class BasePacketSource(abc.ABC):
         no_of_packets : int
         l_samples : int
             number of l_samples needed in the algorithm
+            
         Returns
         -------
             : numpy.ndarray
