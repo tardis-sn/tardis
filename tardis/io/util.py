@@ -27,9 +27,8 @@ def get_internal_data_path(fname):
 
     Returns
     -------
-        data_path: str
-            internal data path of TARDIS
-
+    data_path : str
+        internal data path of TARDIS
     """
     return os.path.join(TARDIS_PATH[0], "data", fname)
 
@@ -37,10 +36,12 @@ def get_internal_data_path(fname):
 def quantity_from_str(text):
     """
     Convert a string to `astropy.units.Quantity`
+    
     Parameters
     ----------
-    text:
+    text :
         The string to convert to `astropy.units.Quantity`
+        
     Returns
     -------
     `astropy.units.Quantity`
@@ -71,11 +72,11 @@ class MockRegexPattern(object):
 
     def match(self, text):
         """
-
         Parameters
         ----------
-        text:
+        text :
             A string to be passed to `target_type` for conversion.
+            
         Returns
         -------
         `True` if `text` can be converted to `target_type`.
@@ -100,13 +101,11 @@ class YAMLLoader(yaml.Loader):
 
         Parameters
         ----------
-
-        node:
+        node :
             The YAML node to be constructed
 
         Returns
         -------
-
         `astropy.units.Quantity`
 
         """
@@ -146,16 +145,15 @@ def traverse_configs(base, other, func, *args):
 
     Parameters
     ----------
-    base:
+    base :
         The object on which the traversing is done
-    other:
+    other :
         The object which is traversed along with `base`
-    func:
+    func :
         A function called for each leaf of `base` and the correspnding leaf of `other`
         Signature: `func(item1, item2, *args)`
-    args:
+    args :
         Arguments passed into `func`
-
     """
     if isinstance(base, collections.Mapping):
         for k in base:
@@ -211,17 +209,16 @@ class HDFWriterMixin(object):
 
         Parameters
         ----------
-        path_or_buf:
+        path_or_buf :
             Path or buffer to the HDF store
-        path: str
+        path : str
             Path inside the HDF store to store the `elements`
-        elements: dict
+        elements : dict
             A dict of property names and their values to be
             stored.
 
         Returns
         -------
-
         """
         we_opened = False
 
@@ -298,16 +295,15 @@ class HDFWriterMixin(object):
         """
         Parameters
         ----------
-        file_path: str
+        file_path : str
             Path or buffer to the HDF store
-        path: str
+        path : str
             Path inside the HDF store to store the `elements`
-        name: str
+        name : str
             Group inside the HDF store to which the `elements` need to be saved
 
         Returns
         -------
-
         """
         if name is None:
             try:
@@ -346,13 +342,13 @@ class PlasmaWriterMixin(HDFWriterMixin):
         """
         Parameters
         ----------
-        file_path: str
+        file_path : str
             Path or buffer to the HDF store
-        path: str
+        path : str
             Path inside the HDF store to store the `elements`
-        name: str
+        name : str
             Group inside the HDF store to which the `elements` need to be saved
-        collection:
+        collection :
             `None` or a `PlasmaPropertyCollection` of which members are
             the property types which will be stored. If `None` then
             all types of properties will be stored.
@@ -363,7 +359,6 @@ class PlasmaWriterMixin(HDFWriterMixin):
 
         Returns
         -------
-
         """
         self.collection = collection
         super(PlasmaWriterMixin, self).to_hdf(file_path, path, name)

@@ -6,9 +6,9 @@ elif os.environ.get("QT_API", None) == "pyside":
     from PySide2 import QtCore, QtWidgets
 else:
     raise ImportError(
-        "QT_API was not set! Please exit the IPython console\n"
-        " and at the bash prompt use : \n\n export QT_API=pyside \n or\n"
-        " export QT_API=pyqt \n\n For more information refer to user guide."
+        """QT_API was not set! Please exit the IPython console\n
+         and at the bash prompt use : \n\n export QT_API=pyside \n or\n
+         export QT_API=pyqt \n\n For more information refer to user guide."""
     )
 import sys
 
@@ -36,8 +36,7 @@ def show(model):
     show method is called.
 
     Finally the eventloop is started using IPython functions (which start them
-    consistently) if they were imported. Otherwise it is started explicitly.
-
+    consistently) if they were imported. Otherwise it is started explicitly. 
     """
     if importFailed:
         app = QtWidgets.QApplication([])
@@ -64,7 +63,6 @@ def show(model):
 if __name__ == "__main__":
     """When this module is executed as script, take arguments, calculate model
     and call the show function.
-
     """
     yamlfile = sys.argv[1]
     atomfile = sys.argv[2]

@@ -26,11 +26,8 @@ A quick start guide to run TARDIS can be found
     interaction/index
     custom_source
     tardis_widgets/index
-
-
-.. toctree::
-    :maxdepth: 2
-
+    to_hdf
+    using_formal_integral
     converters/index
 
 
