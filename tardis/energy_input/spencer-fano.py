@@ -24,7 +24,19 @@ def coulomb_loss_function(energy, electron_number_density, number_density):
 
     return electron_fraction * (2 * np.pi * const.e ** 4) / energy * np.log(4 * energy / plasma_frequency)
 
-def cross_section(energy):
+def cross_section(energy, initial_electron_energy, oscillator_strength, van_regemorter_fit):
+    #Probably more useful from macro atom
+    hydrogen_ionization_potential = 1
+
+    k = initial_electron_energy / 13.60
+
+    return (8 * np.pi) / np.sqrt(3) * (1 / k ** 2) * \
+        (hydrogen_ionization_potential / energy) * \
+        oscillator_strength * van_regemorter_fit * const.a0 ** 2
+
+def collisional_cross_section(energy):
+    #Younger 1981 apparently
+    #But also used in macro atom
     return False
 
 def degradation(energy):
@@ -119,7 +131,7 @@ def ionization_fraction(energy, max_energy, number_density, mean_initial_energy)
     degradation_energies = np.linspace(energy, max_energy)
     degradation_spectrum = degradation(degradation_energies)
 
-    q = q(degradation_energies)
+    q = collisional_cross_section(degradation_energies)
 
     integral_degradation = np.trapz(degradation_spectrum * q)
 
