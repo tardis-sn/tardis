@@ -321,7 +321,6 @@ def species_tuple_to_string(species_tuple, roman_numerals=True):
     species_tuple : tuple
         Tuple of 2 values indicated atomic number and number of
         electrons missing
-
     roman_numerals : bool, optional(default = TRUE)
         Indicates whether the returned ion number is in roman numerals
 
@@ -405,7 +404,7 @@ def parse_quantity(quantity_string):
 
     Returns
     -------
-    q : ~u.Quantity
+    q : u.Quantity
         Corresponding astropy.Quantity object for passed string
 
     Raises
@@ -498,16 +497,16 @@ def quantity_linspace(start, stop, num, **kwargs):
 
     Parameters
     ----------
-    start : ~astropy.Quantity
+    start : astropy.Quantity
         Starting value of the sequence
-    stop : ~astropy.Quantity
+    stop : astropy.Quantity
         End value of the sequence
     num : int
         Number of samples to generate
 
     Returns
     -------
-    ~astropy.Quantity
+    astropy.Quantity
         Returns num evenly spaced characters of type astropy.Quantity
 
     Raises

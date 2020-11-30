@@ -50,7 +50,6 @@ class Radial1DModel(HDFWriterMixin):
 
     Attributes
     ----------
-    
     w : numpy.ndarray
         Shortcut for `dilution_factor`
     t_rad : astropy.units.quantity.Quantity
@@ -68,7 +67,6 @@ class Radial1DModel(HDFWriterMixin):
         The number of shells as formed by `v_boundary_inner` and
         `v_boundary_outer`
     no_of_raw_shells : int
-
 
     """
 

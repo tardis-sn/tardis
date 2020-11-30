@@ -25,11 +25,11 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
     Attributes
     ----------
     general_level_boltzmann_factor : Pandas DataFrame, dtype float
-                             Level population proportionality values.
-                             Evaluated at the radiation temperature.
-                             Indexed by atomic number, ion number, level number.
-                             Columns corresponding to zones. Does not consider
-                             NLTE.
+        Level population proportionality values.
+        Evaluated at the radiation temperature.
+        Indexed by atomic number, ion number, level number.
+        Columns corresponding to zones. Does not consider
+        NLTE.
     """
 
     outputs = ("general_level_boltzmann_factor",)
@@ -56,11 +56,11 @@ class ThermalLevelBoltzmannFactorLTE(LevelBoltzmannFactorLTE):
     Attributes
     ----------
     thermal_lte_level_boltzmann_factor : Pandas DataFrame, dtype float
-                             Level population proportionality values for LTE.
-                             Evaluated at the temperature of the
-                             electron gas (thermal). Indexed
-                             by atomic number, ion number, level number.
-                             Columns corresponding to zones.
+        Level population proportionality values for LTE.
+        Evaluated at the temperature of the
+        electron gas (thermal). Indexed
+        by atomic number, ion number, level number.
+        Columns corresponding to zones.
     """
 
     outputs = ("thermal_lte_level_boltzmann_factor",)
@@ -81,12 +81,12 @@ class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
     Attributes
     ----------
     general_level_boltzmann_factor : Pandas DataFrame, dtype float
-                             Level population proportionality values. Indexed
-                             by atomic number, ion number, level number.
-                             Columns corresponding to zones. Dilute radiation
-                             field means non-metastable level values are
-                             multiplied by an additional factor W. Does not
-                             consider NLTE.
+        Level population proportionality values. Indexed
+        by atomic number, ion number, level number.
+        Columns corresponding to zones. Dilute radiation
+        field means non-metastable level values are
+        multiplied by an additional factor W. Does not
+        consider NLTE.
     """
 
     outputs = ("general_level_boltzmann_factor",)
@@ -110,8 +110,8 @@ class LevelBoltzmannFactorNoNLTE(ProcessingPlasmaProperty):
     Attributes
     ----------
     level_boltzmann_factor : Pandas DataFrame, dtype float
-                             Returns general_level_boltzmann_factor as this
-                             property is included if NLTE is not used.
+        Returns general_level_boltzmann_factor as this
+        property is included if NLTE is not used.
     """
 
     outputs = ("level_boltzmann_factor",)
@@ -126,8 +126,8 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
     Attributes
     ----------
     level_boltzmann_factor : Pandas DataFrame, dtype float
-                             Returns general_level_boltzmann_factor but
-                             updated for those species treated in NLTE.
+        Returns general_level_boltzmann_factor but
+        updated for those species treated in NLTE.
     """
 
     outputs = ("level_boltzmann_factor",)
@@ -359,8 +359,8 @@ class PartitionFunction(ProcessingPlasmaProperty):
     Attributes
     ----------
     partition_function : Pandas DataFrame, dtype float
-                         Indexed by atomic number, ion number.
-                         Columns are zones.
+        Indexed by atomic number, ion number.
+        Columns are zones.
     """
 
     outputs = ("partition_function",)
@@ -378,8 +378,8 @@ class ThermalLTEPartitionFunction(PartitionFunction):
     Attributes
     ----------
     thermal_lte_partition_function : Pandas DataFrame, dtype float
-                                     Indexed by atomic number, ion number.
-                                     Columns are zones.
+        Indexed by atomic number, ion number.
+        Columns are zones.
     """
 
     outputs = ("thermal_lte_partition_function",)

@@ -30,7 +30,6 @@ def integrate_array_by_blocks(f, x, block_references):
     Returns
     -------
     integrated : Two-dimensional Numpy Array, dtype float
-
     """
     integrated = np.zeros((len(block_references) - 1, f.shape[1]))
     for i in prange(f.shape[1]):  # columns
@@ -57,7 +56,6 @@ def get_ion_multi_index(multi_index_full, next_higher=True):
     Returns
     -------
     multi_index : Pandas MultiIndex (atomic_number, ion_number)
-
     """
     atomic_number = multi_index_full.get_level_values(0)
     ion_number = multi_index_full.get_level_values(1)
