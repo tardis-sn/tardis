@@ -57,9 +57,9 @@ Mission Statement
     :caption: Using TARDIS
     :hidden:
 
-    components/index
-    gui/index
-    interaction/index
+    running/components
+    running/tardis_widgets/index
+    running/interaction/index
 
 
 .. toctree::
