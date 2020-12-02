@@ -2,6 +2,8 @@ import astropy.units as u
 import tardis.constants as const
 import numpy as np
 
+#Eqn 7 set up energy grid, bin-wise integration, multiply S(E) by the energy grid
+
 def coulomb_loss_function(energy, electron_number_density, number_density):
     """Calculates the Coulomb loss function for a given energy,
     electron number density, and atom number density
@@ -39,7 +41,19 @@ def collisional_cross_section(energy):
     #But also used in macro atom
     return False
 
-def degradation(energy):
+def electron_spectrum(energy):
+    """number of electrons at energy E
+
+    Parameters
+    ----------
+    energy : [type]
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
     return False
 
 def heating_fraction(energy, mean_initial_energy, electron_number_density, number_density, lowest_energy, max_energy):
@@ -66,11 +80,11 @@ def heating_fraction(energy, mean_initial_energy, electron_number_density, numbe
     """
     mean_fraction = 1 / mean_initial_energy
 
-    constant = lowest_energy * degradation(lowest_energy) * \
+    constant = lowest_energy * electron_spectrum(lowest_energy) * \
         coulomb_loss_function(lowest_energy, electron_number_density, number_density)
 
     degradation_energies = np.linspace(lowest_energy, max_energy)
-    degradation_spectrum = degradation(degradation_energies) 
+    degradation_spectrum = electron_spectrum(degradation_energies) 
     coulomb_loss_spectrum = coulomb_loss_function(degradation_energies, electron_number_density, number_density)
 
     integral_degradation = np.trapz(degradation_spectrum * coulomb_loss_spectrum)
@@ -101,7 +115,7 @@ def excitation_fraction(energy, max_energy, number_density, mean_initial_energy)
         fraction of energy going into excitation
     """
     degradation_energies = np.linspace(energy, max_energy)
-    degradation_spectrum = degradation(degradation_energies)
+    degradation_spectrum = electron_spectrum(degradation_energies)
 
     cross_sections = cross_section(degradation_energies)
 
@@ -129,7 +143,7 @@ def ionization_fraction(energy, max_energy, number_density, mean_initial_energy)
         Ionization fraction of electron energy
     """
     degradation_energies = np.linspace(energy, max_energy)
-    degradation_spectrum = degradation(degradation_energies)
+    degradation_spectrum = electron_spectrum(degradation_energies)
 
     q = collisional_cross_section(degradation_energies)
 
