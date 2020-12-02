@@ -4,6 +4,7 @@ import warnings
 
 from astropy import units as u
 from tardis import constants as const
+from numba import set_num_threads
 
 from scipy.special import zeta
 from tardis.montecarlo.spectrum import TARDISSpectrum
@@ -279,6 +280,9 @@ class MontecarloRunner(HDFWriterMixin):
         -------
         None
         """
+
+        set_num_threads(nthreads)
+
         self._integrator = FormalIntegrator(model, plasma, self)
         self.time_of_simulation = self.calculate_time_of_simulation(model)
         self.volume = model.volume
