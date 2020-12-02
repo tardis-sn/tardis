@@ -30,9 +30,8 @@ def thomson_scatter(r_packet, time_explosion):
     Parameters
     ----------
     r_packet : RPacket
-    time_explosion: float
+    time_explosion : float
         time since explosion in seconds
-
     """
     old_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
@@ -56,10 +55,13 @@ def thomson_scatter(r_packet, time_explosion):
 def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
     """
     Line scatter function that handles the scattering itself, including new angle drawn, and calculating nu out using macro atom
-    r_packet: RPacket
-    time_explosion: float
-    line_interaction_type: enum
-    numba_plasma: NumbaPlasma
+    
+    Parameters
+    ----------
+    r_packet : RPacket
+    time_explosion : float
+    line_interaction_type : enum
+    numba_plasma : NumbaPlasma
     """
 
     old_doppler_factor = get_doppler_factor(
@@ -89,12 +91,11 @@ def line_emission(r_packet, emission_line_id, time_explosion, numba_plasma):
     Sets the frequency of the RPacket properly given the emission channel
 
     Parameters
-    -----------
-
-    r_packet: RPacket
-    emission_line_id: int
-    time_explosion: float
-    numba_plasma: NumbaPlasma
+    ----------
+    r_packet : RPacket
+    emission_line_id : int
+    time_explosion : float
+    numba_plasma : NumbaPlasma
     """
     r_packet.last_line_interaction_out_id = emission_line_id
 

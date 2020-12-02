@@ -36,14 +36,13 @@ def single_packet_loop(
     r_packet, numba_model, numba_plasma, estimators, vpacket_collection
 ):
     """
-
     Parameters
     ----------
-    r_packet: tardis.montecarlo.montecarlo_numba.r_packet.RPacket
-    numba_model: tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
-    numba_plasma: tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
-    estimators: tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
-    vpacket_collection: tardis.montecarlo.montecarlo_numba.numba_interface.VPacketCollection
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    numba_model : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
+    numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
+    estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
+    vpacket_collection : tardis.montecarlo.montecarlo_numba.numba_interface.VPacketCollection
 
     Returns
     -------
