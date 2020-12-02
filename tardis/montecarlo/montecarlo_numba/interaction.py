@@ -21,11 +21,10 @@ from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
 def thomson_scatter(r_packet, time_explosion):
     """
     Thomson scattering — no longer line scattering
-    2) get the doppler factor at that position with the old angle
-    3) convert the current energy and nu into the comoving
-        frame with the old mu
-    4) Scatter and draw new mu - update mu
-    5) Transform the comoving energy and nu back using the new mu
+    \n2) get the doppler factor at that position with the old angle
+    \n3) convert the current energy and nu into the comoving frame with the old mu
+    \n4) Scatter and draw new mu - update mu
+    \n5) Transform the comoving energy and nu back using the new mu
 
     Parameters
     ----------

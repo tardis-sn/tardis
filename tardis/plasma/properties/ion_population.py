@@ -261,12 +261,6 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
 
 class IonNumberDensity(ProcessingPlasmaProperty):
     """
-    Attributes
-    ----------
-    ion_number_density : Pandas DataFrame, dtype float
-                         Index atom number, ion number. Columns zones.
-    electron_densities : Numpy Array, dtype float
-
     Convergence process to find the correct solution. A trial value for
     the electron density is initiated in a particular zone. The ion
     number densities are then calculated using the Saha equation. The
@@ -275,6 +269,12 @@ class IonNumberDensity(ProcessingPlasmaProperty):
     for the electron densities are not similar to within the threshold
     value, a new guess for the value of the electron density is chosen
     and the process is repeated.
+    
+    Attributes
+    ----------
+    ion_number_density : Pandas DataFrame, dtype float
+                         Index atom number, ion number. Columns zones.
+    electron_densities : Numpy Array, dtype float
     """
 
     outputs = ("ion_number_density", "electron_densities")
@@ -392,12 +392,6 @@ class IonNumberDensity(ProcessingPlasmaProperty):
 
 class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     """
-    Attributes
-    ----------
-    ion_number_density : Pandas DataFrame, dtype float
-                         Index atom number, ion number. Columns zones.
-    electron_densities : Numpy Array, dtype float
-
     Convergence process to find the correct solution. A trial value for
     the electron density is initiated in a particular zone. The ion
     number densities are then calculated using the Saha equation. The
@@ -406,6 +400,12 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     for the electron densities are not similar to within the threshold
     value, a new guess for the value of the electron density is chosen
     and the process is repeated.
+    
+    Attributes
+    ----------
+    ion_number_density : Pandas DataFrame, dtype float
+                         Index atom number, ion number. Columns zones.
+    electron_densities : Numpy Array, dtype float
     """
 
     outputs = (

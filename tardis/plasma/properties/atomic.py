@@ -67,8 +67,10 @@ class Lines(BaseAtomicDataProperty):
     """
     Attributes
     ----------
-    lines : Pandas DataFrame (wavelength, atomic_number, ion_number, f_ul, f_lu, level_number_lower,
-                              level_number_upper, nu, B_lu, B_ul, A_ul, wavelength)
+    lines : Pandas DataFrame 
+        Table of
+        (wavelength, atomic_number, ion_number, f_ul, f_lu, level_number_lower,
+        level_number_upper, nu, B_lu, B_ul, A_ul, wavelength)
         All atomic lines data. Index = line_id.
     nu : Pandas DataFrame (index=line_id), dtype float
         Line frequency data
@@ -94,11 +96,12 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    photo_ion_cross_sections : Pandas DataFrame (nu, x_sect,
-                                                index=['atomic_number',
-                                                       'ion_number',
-                                                       'level_number']),
-                                                dtype float)
+    photo_ion_cross_sections : Pandas DataFrame
+        Table of
+        (nu, 
+        x_sect,
+        index=['atomic_number','ion_number','level_number']),
+        dtype float
         Table of photoionization cross sections as a
         function of frequency.
     photo_ion_block_references : One-dimensional Numpy Array, dtype int
@@ -284,16 +287,10 @@ class ZetaData(BaseAtomicDataProperty):
 
 class NLTEData(ProcessingPlasmaProperty):
     """
-<<<<<<< HEAD
-        Attributes:
-        nlte_data :
-    #Finish later (need atomic dataset with NLTE data).
-=======
     Attributes
     ----------
     nlte_data :
         #Finish later (need atomic dataset with NLTE data).
->>>>>>> 56c506760fd38eb20d9ab479bf71e38c7ee4c43a
     """
 
     outputs = ("nlte_data",)

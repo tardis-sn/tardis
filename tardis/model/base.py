@@ -28,8 +28,7 @@ class Radial1DModel(HDFWriterMixin):
         An array with n+1 (for n shells) velocities "cut" to the provided
         boundaries
 
-        .. note:: To access the entire, "uncut", velocity array,
-        use `raw_velocity`
+        .. note:: To access the entire, "uncut", velocity array, use `raw_velocity`
     homologous_density : HomologousDensity
     abundance : pd.DataFrame
     time_explosion : astropy.units.Quantity
