@@ -14,7 +14,7 @@ The roles and their description can be found here:
 * **Principal Investigator**
   - Wolfgang Kerzendorf
 * **TARDIS CORE** [alphabetical]
-  - Yssavo Camacho-Neves, Andreas Flörs, Alice Harpole, Vytautas Jancauskas, Wolfgang Kerzendorf (founder), Luke Shingles, Stuart Sim (founder), Christian Vogl, Marc Williamson
+  - Yssavo Camacho-Neves, Andreas Flörs, Andrew Fullard, Alice Harpole, Vytautas Jancauskas, Wolfgang Kerzendorf (founder), Luke Shingles, Stuart Sim (founder), Christian Vogl, Marc Williamson
 * **TARDIS GSoC Coordinators (2020)**
   Yssavo Camacho-Neves, Alice Harpole, Wolfgang Kerzendorf, Marc Williamson
 * **TARDIS GSoC Mentors (2020)**
