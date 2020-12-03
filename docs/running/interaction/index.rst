@@ -8,11 +8,11 @@ have full access to the model properties (as described in :ref:`physical_quantit
     :maxdepth: 1 
 
     
-    ../commandline
+    commandline
     callback_example
-    ../converters/index
+    converters/index
     Custom_TARDIS_Model_Tutorial
-    ../gui
+    old_gui
     access
     init_trad_bug
     integrator
