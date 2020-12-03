@@ -17,7 +17,7 @@ have full access to the model properties (as described in :ref:`physical_quantit
     init_trad_bug
     integrator
     isotope_pd_subclass
-    to_hdf
+    to_hdf.rst
     hdf_writer
 
 ..    examples/run_simple_example.ipynb
