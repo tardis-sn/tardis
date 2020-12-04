@@ -153,7 +153,7 @@ def compare_spectra(actual, desired):
 
 @pytest.fixture(autouse=True)
 def to_hdf_buffer(hdf_file_path, spectrum):
-    spectrum.to_hdf(hdf_file_path, name="spectrum")
+    spectrum.to_hdf(hdf_file_path, name="spectrum", overwrite=True)
 
 
 @pytest.mark.parametrize("attr", TARDISSpectrum.hdf_properties)
