@@ -1,6 +1,8 @@
-*************************************
-Old Graphical User Interface Section
-*************************************
+.. _gui:
+
+************************
+Graphical User Interface
+************************
 
 TARDIS uses the `PyQt5 framework <http://www.riverbankcomputing.com/software/pyqt/download5>`_ for its cross-platform
 interface.
