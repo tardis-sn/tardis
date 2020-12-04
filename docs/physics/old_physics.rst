@@ -1,6 +1,6 @@
-*********************
-Old Physics Section of the TARDIS Docu (Outdated)
-*********************
+******************************
+Old Physics Section (Outdated)
+******************************
 
 .. note::
     The following entries reflects the physics section of the old TARDIS
