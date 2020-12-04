@@ -2,6 +2,7 @@
 Plasma
 ******
 
+
 The role of the plasma module is to determine the ionisation and excitation states of the elements of the 
 supernova ejecta, given the basic structure, including the elemental abundances, densities and radiation temperature.
 After the calculation of the plasma state, the :math:`\tau_{\textrm{sobolev}}` values can be calculated.
@@ -40,8 +41,8 @@ Updating the Plasma
 -------------------
 During each iteration of the main code, TARDIS updates the plasma using the `update_radiationfield` function. This requires, at minimum, new values for `t_rad` (the radiation temperature), `w` (the dilution factor) and `j_blues` (the intensity in the blue part of each line).
 
-
-
+Plasma Calculations
+-------------------
 .. toctree::
     :maxdepth: 2
     
