@@ -199,9 +199,7 @@ class HDFWriterMixin(object):
     def to_hdf_util(
         path_or_buf, path, elements, overwrite, complevel=9, complib="blosc"
     ):
-        """
-        A function to uniformly store TARDIS data
-        to an HDF file.
+        """A function to uniformly store TARDIS data to an HDF file.
 
         Scalars will be stored in a Series under path/scalars
         1D arrays will be stored under path/property_name as distinct Series
@@ -211,16 +209,20 @@ class HDFWriterMixin(object):
 
         Parameters
         ----------
-        path_or_buf :
-            Path or buffer to the HDF store
+        path_or_buf : str or pandas.io.pytables.HDFStore
+            Path or buffer to the HDF file
         path : str
-            Path inside the HDF store to store the `elements`
+            Path inside the HDF file to store the `elements`
         elements : dict
             A dict of property names and their values to be
             stored.
+        overwrite: bool
+            If the HDF file path already exists, whether overwrite it or not
 
-        Returns
-        -------
+        Notes
+        -----
+        `overwrite` option doesn't have any effect when `path_or_buf` is an
+        HDFStore because it depends on user that in which they've opened it.
         """
         buf_opened = False
 
@@ -232,7 +234,7 @@ class HDFWriterMixin(object):
                 buf = path_or_buf
             else:
                 raise e
-        else:
+        else:  # path_or_buf was a str
             if os.path.exists(path_or_buf) and not overwrite:
                 buf.close()
                 raise FileExistsError(
@@ -292,19 +294,18 @@ class HDFWriterMixin(object):
         s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", s)
         return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
-    def to_hdf(self, file_path, path="", name=None, overwrite=False):
+    def to_hdf(self, file_path_or_buf, path="", name=None, overwrite=False):
         """
         Parameters
         ----------
-        file_path : str
-            Path or buffer to the HDF store
+        file_path_or_buf : str or pandas.io.pytables.HDFStore
+            Path or buffer to the HDF file
         path : str
-            Path inside the HDF store to store the `elements`
+            Path inside the HDF file to store the `elements`
         name : str
-            Group inside the HDF store to which the `elements` need to be saved
-
-        Returns
-        -------
+            Group inside the HDF file to which the `elements` need to be saved
+        overwrite: bool
+            If the HDF file path already exists, whether overwrite it or not
         """
         if name is None:
             try:
@@ -314,7 +315,7 @@ class HDFWriterMixin(object):
 
         data = self.get_properties()
         buff_path = os.path.join(path, name)
-        self.to_hdf_util(file_path, buff_path, data, overwrite)
+        self.to_hdf_util(file_path_or_buf, buff_path, data, overwrite)
 
 
 class PlasmaWriterMixin(HDFWriterMixin):
@@ -340,31 +341,35 @@ class PlasmaWriterMixin(HDFWriterMixin):
         return data
 
     def to_hdf(
-        self, file_path, path="", name=None, collection=None, overwrite=False
+        self,
+        file_path_or_buf,
+        path="",
+        name=None,
+        collection=None,
+        overwrite=False,
     ):
         """
         Parameters
         ----------
-        file_path : str
-            Path or buffer to the HDF store
+        file_path_or_buf : str or pandas.io.pytables.HDFStore
+            Path or buffer to the HDF file
         path : str
-            Path inside the HDF store to store the `elements`
+            Path inside the HDF file to store the `elements`
         name : str
-            Group inside the HDF store to which the `elements` need to be saved
+            Group inside the HDF file to which the `elements` need to be saved
         collection :
             `None` or a `PlasmaPropertyCollection` of which members are
             the property types which will be stored. If `None` then
-            all types of properties will be stored.
-
-            This acts like a filter, for example if a value of
-            `property_collections.basic_inputs` is given, only
-            those input parameters will be stored to the HDF store.
-
-        Returns
-        -------
+            all types of properties will be stored. This acts like a filter,
+            for example if a value of `property_collections.basic_inputs` is
+            given, only those input parameters will be stored to the HDF file.
+        overwrite: bool
+            If the HDF file path already exists, whether overwrite it or not
         """
         self.collection = collection
-        super(PlasmaWriterMixin, self).to_hdf(file_path, path, name, overwrite)
+        super(PlasmaWriterMixin, self).to_hdf(
+            file_path_or_buf, path, name, overwrite
+        )
 
 
 def download_from_url(url, dst):
