@@ -36,12 +36,12 @@ def get_internal_data_path(fname):
 def quantity_from_str(text):
     """
     Convert a string to `astropy.units.Quantity`
-    
+
     Parameters
     ----------
     text :
         The string to convert to `astropy.units.Quantity`
-        
+
     Returns
     -------
     `astropy.units.Quantity`
@@ -76,7 +76,7 @@ class MockRegexPattern(object):
         ----------
         text :
             A string to be passed to `target_type` for conversion.
-            
+
         Returns
         -------
         `True` if `text` can be converted to `target_type`.
@@ -196,7 +196,9 @@ class HDFWriterMixin(object):
         return instance
 
     @staticmethod
-    def to_hdf_util(path_or_buf, path, elements, complevel=9, complib="blosc"):
+    def to_hdf_util(
+        path_or_buf, path, elements, overwrite, complevel=9, complib="blosc"
+    ):
         """
         A function to uniformly store TARDIS data
         to an HDF file.
@@ -220,21 +222,28 @@ class HDFWriterMixin(object):
         Returns
         -------
         """
-        we_opened = False
+        buf_opened = False
 
-        try:
+        try:  # when path_or_buf is a str, the HDFStore should get created
             buf = pd.HDFStore(path_or_buf, complevel=complevel, complib=complib)
-        except TypeError as e:  # Already a HDFStore
+        except TypeError as e:
             if e.message == "Expected bytes, got HDFStore":
+                # when path_or_buf is an HDFStore buffer instead
                 buf = path_or_buf
             else:
                 raise e
-        else:  # path_or_buf was a string and we opened the HDFStore
-            we_opened = True
+        else:
+            if os.path.exists(path_or_buf) and not overwrite:
+                buf.close()
+                raise FileExistsError(
+                    "The specified HDF file already exists. If you still want "
+                    "to overwrite it, set option overwrite=True"
+                )
+            buf_opened = True
 
         if not buf.is_open:
             buf.open()
-            we_opened = True
+            buf_opened = True
 
         scalars = {}
         for key, value in elements.items():
@@ -253,25 +262,17 @@ class HDFWriterMixin(object):
                         pd.DataFrame(value).to_hdf(buf, os.path.join(path, key))
                 else:
                     pd.DataFrame(value).to_hdf(buf, os.path.join(path, key))
-            else:
+            else:  # value is a TARDIS object like model, runner or plasma
                 try:
-                    value.to_hdf(buf, path, name=key)
+                    value.to_hdf(buf, path, name=key, overwrite=overwrite)
                 except AttributeError:
                     data = pd.DataFrame([value])
                     data.to_hdf(buf, os.path.join(path, key))
 
         if scalars:
-            scalars_series = pd.Series(scalars)
+            pd.Series(scalars).to_hdf(buf, os.path.join(path, "scalars"))
 
-            # Unfortunately, with to_hdf we cannot append, so merge beforehand
-            scalars_path = os.path.join(path, "scalars")
-            try:
-                scalars_series = buf[scalars_path].append(scalars_series)
-            except KeyError:  # no scalars in HDFStore
-                pass
-            scalars_series.to_hdf(buf, os.path.join(path, "scalars"))
-
-        if we_opened:
+        if buf_opened:
             buf.close()
 
     def get_properties(self):
@@ -291,7 +292,7 @@ class HDFWriterMixin(object):
         s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", s)
         return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
-    def to_hdf(self, file_path, path="", name=None):
+    def to_hdf(self, file_path, path="", name=None, overwrite=False):
         """
         Parameters
         ----------
@@ -313,7 +314,7 @@ class HDFWriterMixin(object):
 
         data = self.get_properties()
         buff_path = os.path.join(path, name)
-        self.to_hdf_util(file_path, buff_path, data)
+        self.to_hdf_util(file_path, buff_path, data, overwrite)
 
 
 class PlasmaWriterMixin(HDFWriterMixin):
@@ -338,7 +339,9 @@ class PlasmaWriterMixin(HDFWriterMixin):
             data.pop("nlte_data")
         return data
 
-    def to_hdf(self, file_path, path="", name=None, collection=None):
+    def to_hdf(
+        self, file_path, path="", name=None, collection=None, overwrite=False
+    ):
         """
         Parameters
         ----------
@@ -361,7 +364,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
         -------
         """
         self.collection = collection
-        super(PlasmaWriterMixin, self).to_hdf(file_path, path, name)
+        super(PlasmaWriterMixin, self).to_hdf(file_path, path, name, overwrite)
 
 
 def download_from_url(url, dst):
