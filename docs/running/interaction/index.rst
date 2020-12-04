@@ -12,6 +12,7 @@ have full access to the model properties (as described in :ref:`physical_quantit
     callback_example
     converters/index
     Custom_TARDIS_Model_Tutorial
+    custom_source
     old_gui
     access
     init_trad_bug
@@ -19,6 +20,7 @@ have full access to the model properties (as described in :ref:`physical_quantit
     isotope_pd_subclass
     to_hdf.rst
     hdf_writer
+    physical_quantities
 
 ..    examples/run_simple_example.ipynb
 
