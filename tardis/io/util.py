@@ -222,7 +222,8 @@ class HDFWriterMixin(object):
         Notes
         -----
         `overwrite` option doesn't have any effect when `path_or_buf` is an
-        HDFStore because it depends on user that in which they've opened it.
+        HDFStore because it depends on user that in which mode they've opened
+        it.
         """
         buf_opened = False
 
