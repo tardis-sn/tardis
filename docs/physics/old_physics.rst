@@ -10,6 +10,5 @@ Old Physics Section (Outdated)
 
 
 .. toctree::
-    physical_quantities
     montecarlo_old
     plasma/index
