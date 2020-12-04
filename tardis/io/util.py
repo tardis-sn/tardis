@@ -217,13 +217,13 @@ class HDFWriterMixin(object):
             A dict of property names and their values to be
             stored.
         overwrite: bool
-            If the HDF file path already exists, whether overwrite it or not
+            If the HDF file path already exists, whether to overwrite it or not
 
         Notes
         -----
         `overwrite` option doesn't have any effect when `path_or_buf` is an
-        HDFStore because it depends on user that in which mode they've opened
-        it.
+        HDFStore because the user decides on the mode in which they have
+        opened the HDFStore ('r', 'w' or 'a').
         """
         buf_opened = False
 
@@ -306,7 +306,7 @@ class HDFWriterMixin(object):
         name : str
             Group inside the HDF file to which the `elements` need to be saved
         overwrite: bool
-            If the HDF file path already exists, whether overwrite it or not
+            If the HDF file path already exists, whether to overwrite it or not
         """
         if name is None:
             try:
@@ -365,7 +365,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
             for example if a value of `property_collections.basic_inputs` is
             given, only those input parameters will be stored to the HDF file.
         overwrite: bool
-            If the HDF file path already exists, whether overwrite it or not
+            If the HDF file path already exists, whether to overwrite it or not
         """
         self.collection = collection
         super(PlasmaWriterMixin, self).to_hdf(
