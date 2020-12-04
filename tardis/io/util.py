@@ -225,8 +225,6 @@ class HDFWriterMixin(object):
         HDFStore because the user decides on the mode in which they have
         opened the HDFStore ('r', 'w' or 'a').
         """
-        buf_opened = False
-
         try:  # when path_or_buf is a str, the HDFStore should get created
             buf = pd.HDFStore(path_or_buf, complevel=complevel, complib=complib)
         except TypeError as e:
@@ -242,11 +240,9 @@ class HDFWriterMixin(object):
                     "The specified HDF file already exists. If you still want "
                     "to overwrite it, set option overwrite=True"
                 )
-            buf_opened = True
 
         if not buf.is_open:
             buf.open()
-            buf_opened = True
 
         scalars = {}
         for key, value in elements.items():
@@ -275,7 +271,7 @@ class HDFWriterMixin(object):
         if scalars:
             pd.Series(scalars).to_hdf(buf, os.path.join(path, "scalars"))
 
-        if buf_opened:
+        if buf.is_open:
             buf.close()
 
     def get_properties(self):
