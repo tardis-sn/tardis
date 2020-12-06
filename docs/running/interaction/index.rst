@@ -21,6 +21,7 @@ have full access to the model properties (as described in :ref:`physical_quantit
     to_hdf.rst
     hdf_writer
     physical_quantities
+    using_formal_integral
 
 ..    examples/run_simple_example.ipynb
 
