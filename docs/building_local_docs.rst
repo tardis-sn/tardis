@@ -3,7 +3,7 @@ Building Local Docs
 ##################
 
 
-Building local docs is done via compiling docs locally. In order to do this, go into the tardis/docs/conf.py file. Create a new line before line 80. Line 80 is::
+Building local docs is done via compiling docs locally. In order to do this, go into the tardis/docs/conf.py file. Create a new line before line 81. Line 80 is::
 
     # -- General configuration ----------------------------------------------------
     
