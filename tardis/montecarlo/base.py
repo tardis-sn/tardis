@@ -140,13 +140,8 @@ class MontecarloRunner(HDFWriterMixin):
 
         Parameters
         ----------
-<<<<<<< HEAD
-
-        tau_sobolev_shape: tuple
+        tau_sobolev_shape : tuple
             tuple for the tau_sobolev_shape
-=======
-        model : Radial1DModel
->>>>>>> 56c506760fd38eb20d9ab479bf71e38c7ee4c43a
         """
 
         # Estimators
@@ -462,7 +457,6 @@ class MontecarloRunner(HDFWriterMixin):
         -------
         t_rad : astropy.units.Quantity (float)
         w : numpy.ndarray (float)
-
         """
 
         t_rad = (
@@ -510,7 +504,6 @@ class MontecarloRunner(HDFWriterMixin):
         Returns
         -------
         MontecarloRunner
-
         """
         if config.plasma.disable_electron_scattering:
             logger.warn(

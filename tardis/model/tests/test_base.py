@@ -240,7 +240,7 @@ def test_model_decay(simple_isotope_abundance):
 
 @pytest.fixture(scope="module", autouse=True)
 def to_hdf_buffer(hdf_file_path, simulation_verysimple):
-    simulation_verysimple.model.to_hdf(hdf_file_path)
+    simulation_verysimple.model.to_hdf(hdf_file_path, overwrite=True)
 
 model_scalar_attrs = ['t_inner']
 
