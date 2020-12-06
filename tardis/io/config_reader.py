@@ -348,7 +348,6 @@ def cns_representer(dumper, data):
     data :
         ConfigurationNameSpace object
 
-
     Returns
     -------
     yaml dumper representation of Configuration as dict
