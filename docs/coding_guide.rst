@@ -1,10 +1,13 @@
 ##################
-Tardis Coding Guide
+TARDIS Coding Guide
 ##################
 
-TARDIS follows the `Black<https://black.readthedocs.io/en/stable/>`_coding sytle for files. To install Black, do::
+
+TARDIS follows the `Black <https://black.readthedocs.io/en/stable/>`_ coding style for files. To install Black, do::
+
     pip install black
-For more information on running black, please refer to `Black<https://black.readthedocs.io/en/stable/>`_. 
+    
+For more information on Black, please refer to `Black <https://black.readthedocs.io/en/stable/>`_. 
 
 For docstrings, TARDIS follows the docstring formatting of `Numpydocs <https://numpydoc.readthedocs.io/en/latest/format.html>`_. 
 This is an example of a properly formatted docstring::

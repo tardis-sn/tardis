@@ -504,7 +504,6 @@ class MontecarloRunner(HDFWriterMixin):
         Returns
         -------
         MontecarloRunner
-
         """
         if config.plasma.disable_electron_scattering:
             logger.warn(
