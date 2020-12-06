@@ -58,7 +58,7 @@ Mission Statement
     :hidden:
 
     using/components
-    using/tardis_widgets/index
+    using/gui/index
     using/interaction/index
 
 
