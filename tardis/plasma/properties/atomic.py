@@ -288,7 +288,6 @@ class NLTEData(ProcessingPlasmaProperty):
     ----------
     nlte_data :
         #Finish later (need atomic dataset with NLTE data).
-
     """
 
     outputs = ("nlte_data",)
