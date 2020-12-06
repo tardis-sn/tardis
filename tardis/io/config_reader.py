@@ -339,24 +339,6 @@ def quantity_representer(dumper, data):
 
 def cns_representer(dumper, data):
     """
-<<<<<<< HEAD
-     Represents Configuration as dict
-
-    Parameters
-     ----------
-
-     dumper :
-         YAML dumper object
-
-     data :
-         ConfigurationNameSpace object
-
-     Returns
-     -------
-
-     yaml dumper representation of Configuration as dict
-
-=======
     Represents Configuration as dict
     
     Parameters
@@ -366,10 +348,10 @@ def cns_representer(dumper, data):
     data :
         ConfigurationNameSpace object
 
+
     Returns
     -------
     yaml dumper representation of Configuration as dict
->>>>>>> 56c506760fd38eb20d9ab479bf71e38c7ee4c43a
     """
     return dumper.represent_dict(dict(data))
 

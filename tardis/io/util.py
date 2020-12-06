@@ -36,12 +36,12 @@ def get_internal_data_path(fname):
 def quantity_from_str(text):
     """
     Convert a string to `astropy.units.Quantity`
-    
+
     Parameters
     ----------
     text :
         The string to convert to `astropy.units.Quantity`
-        
+
     Returns
     -------
     `astropy.units.Quantity`
@@ -76,7 +76,7 @@ class MockRegexPattern(object):
         ----------
         text :
             A string to be passed to `target_type` for conversion.
-            
+
         Returns
         -------
         `True` if `text` can be converted to `target_type`.
@@ -196,10 +196,10 @@ class HDFWriterMixin(object):
         return instance
 
     @staticmethod
-    def to_hdf_util(path_or_buf, path, elements, complevel=9, complib="blosc"):
-        """
-        A function to uniformly store TARDIS data
-        to an HDF file.
+    def to_hdf_util(
+        path_or_buf, path, elements, overwrite, complevel=9, complib="blosc"
+    ):
+        """A function to uniformly store TARDIS data to an HDF file.
 
         Scalars will be stored in a Series under path/scalars
         1D arrays will be stored under path/property_name as distinct Series
@@ -209,32 +209,40 @@ class HDFWriterMixin(object):
 
         Parameters
         ----------
-        path_or_buf :
-            Path or buffer to the HDF store
+        path_or_buf : str or pandas.io.pytables.HDFStore
+            Path or buffer to the HDF file
         path : str
-            Path inside the HDF store to store the `elements`
+            Path inside the HDF file to store the `elements`
         elements : dict
             A dict of property names and their values to be
             stored.
+        overwrite: bool
+            If the HDF file path already exists, whether to overwrite it or not
 
-        Returns
-        -------
+        Notes
+        -----
+        `overwrite` option doesn't have any effect when `path_or_buf` is an
+        HDFStore because the user decides on the mode in which they have
+        opened the HDFStore ('r', 'w' or 'a').
         """
-        we_opened = False
-
-        try:
+        try:  # when path_or_buf is a str, the HDFStore should get created
             buf = pd.HDFStore(path_or_buf, complevel=complevel, complib=complib)
-        except TypeError as e:  # Already a HDFStore
+        except TypeError as e:
             if e.message == "Expected bytes, got HDFStore":
+                # when path_or_buf is an HDFStore buffer instead
                 buf = path_or_buf
             else:
                 raise e
-        else:  # path_or_buf was a string and we opened the HDFStore
-            we_opened = True
+        else:  # path_or_buf was a str
+            if os.path.exists(path_or_buf) and not overwrite:
+                buf.close()
+                raise FileExistsError(
+                    "The specified HDF file already exists. If you still want "
+                    "to overwrite it, set option overwrite=True"
+                )
 
         if not buf.is_open:
             buf.open()
-            we_opened = True
 
         scalars = {}
         for key, value in elements.items():
@@ -253,25 +261,17 @@ class HDFWriterMixin(object):
                         pd.DataFrame(value).to_hdf(buf, os.path.join(path, key))
                 else:
                     pd.DataFrame(value).to_hdf(buf, os.path.join(path, key))
-            else:
+            else:  # value is a TARDIS object like model, runner or plasma
                 try:
-                    value.to_hdf(buf, path, name=key)
+                    value.to_hdf(buf, path, name=key, overwrite=overwrite)
                 except AttributeError:
                     data = pd.DataFrame([value])
                     data.to_hdf(buf, os.path.join(path, key))
 
         if scalars:
-            scalars_series = pd.Series(scalars)
+            pd.Series(scalars).to_hdf(buf, os.path.join(path, "scalars"))
 
-            # Unfortunately, with to_hdf we cannot append, so merge beforehand
-            scalars_path = os.path.join(path, "scalars")
-            try:
-                scalars_series = buf[scalars_path].append(scalars_series)
-            except KeyError:  # no scalars in HDFStore
-                pass
-            scalars_series.to_hdf(buf, os.path.join(path, "scalars"))
-
-        if we_opened:
+        if buf.is_open:
             buf.close()
 
     def get_properties(self):
@@ -291,19 +291,18 @@ class HDFWriterMixin(object):
         s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", s)
         return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
-    def to_hdf(self, file_path, path="", name=None):
+    def to_hdf(self, file_path_or_buf, path="", name=None, overwrite=False):
         """
         Parameters
         ----------
-        file_path : str
-            Path or buffer to the HDF store
+        file_path_or_buf : str or pandas.io.pytables.HDFStore
+            Path or buffer to the HDF file
         path : str
-            Path inside the HDF store to store the `elements`
+            Path inside the HDF file to store the `elements`
         name : str
-            Group inside the HDF store to which the `elements` need to be saved
-
-        Returns
-        -------
+            Group inside the HDF file to which the `elements` need to be saved
+        overwrite: bool
+            If the HDF file path already exists, whether to overwrite it or not
         """
         if name is None:
             try:
@@ -313,7 +312,7 @@ class HDFWriterMixin(object):
 
         data = self.get_properties()
         buff_path = os.path.join(path, name)
-        self.to_hdf_util(file_path, buff_path, data)
+        self.to_hdf_util(file_path_or_buf, buff_path, data, overwrite)
 
 
 class PlasmaWriterMixin(HDFWriterMixin):
@@ -338,30 +337,36 @@ class PlasmaWriterMixin(HDFWriterMixin):
             data.pop("nlte_data")
         return data
 
-    def to_hdf(self, file_path, path="", name=None, collection=None):
+    def to_hdf(
+        self,
+        file_path_or_buf,
+        path="",
+        name=None,
+        collection=None,
+        overwrite=False,
+    ):
         """
         Parameters
         ----------
-        file_path : str
-            Path or buffer to the HDF store
+        file_path_or_buf : str or pandas.io.pytables.HDFStore
+            Path or buffer to the HDF file
         path : str
-            Path inside the HDF store to store the `elements`
+            Path inside the HDF file to store the `elements`
         name : str
-            Group inside the HDF store to which the `elements` need to be saved
+            Group inside the HDF file to which the `elements` need to be saved
         collection :
             `None` or a `PlasmaPropertyCollection` of which members are
             the property types which will be stored. If `None` then
-            all types of properties will be stored.
-
-            This acts like a filter, for example if a value of
-            `property_collections.basic_inputs` is given, only
-            those input parameters will be stored to the HDF store.
-
-        Returns
-        -------
+            all types of properties will be stored. This acts like a filter,
+            for example if a value of `property_collections.basic_inputs` is
+            given, only those input parameters will be stored to the HDF file.
+        overwrite : bool
+            If the HDF file path already exists, whether to overwrite it or not
         """
         self.collection = collection
-        super(PlasmaWriterMixin, self).to_hdf(file_path, path, name)
+        super(PlasmaWriterMixin, self).to_hdf(
+            file_path_or_buf, path, name, overwrite
+        )
 
 
 def download_from_url(url, dst):
