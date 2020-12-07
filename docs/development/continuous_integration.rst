@@ -26,23 +26,17 @@ nor storage.
   https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&resolveLfs=true
 
 This mirror is automatically synced by `a GitHub workflow`_. If you want
-to update it manually, remember to set ``git config http.version HTTP/1.1`` to
-avoid `error 413`_ while pushing large files.
+to `update it manually`_, remember to set ``git config http.version HTTP/1.1``
+to avoid `error 413`_ while pushing large files.
 
 
-Azure Pipelines and GitHub Actions
-==================================
+Azure Pipelines & GitHub Actions
+--------------------------------
 
 Currently, we use the `Azure DevOps`_ service to run most of our
-pipelines and GitHub Actions for some others (called "workflows").
-
-The following section explains briefly the different
-components of a pipeline/workflow, mostly focused on the Azure
-service.
-
-
-YAML files
-----------
+pipelines and GitHub Actions for some others (called "workflows"). The 
+following sections explains briefly the different components of a
+pipeline/workflow, mostly focused on the Azure service.
 
 A pipeline (or a workflow) is essentially a YAML configuration file 
 with different sections such as variables, jobs and steps. These files
@@ -51,10 +45,8 @@ commit being pushed to a certain branch.
 
 Pipelines on Azure must be created through the web UI for the first time.
 Then, making changes to an existing pipeline is as easy as making a pull
-request. 
-
-To create a new workflow on GitHub, just create a new YAML file in
-`.github/workflows`.
+request. To create a new workflow on GitHub, just create a new YAML file
+in ``.github/workflows``.
 
 
 Triggers
@@ -91,27 +83,27 @@ If you want to run a pipeline only manually set both triggers to
 
   pr: none
 
-On GitHub Actions these triggers are named ``push`` and ``pull_request``,
-and works mostly in the same way.
-
 Notice that you can test changes in a pipeline by activating the PR
 trigger on a new pull request, even if that trigger is disabled on
 the YAML file present in the *master* branch.
 
-There are more useful triggers such as the *cron* trigger, see the
-`Azure documentation section on triggers`_ for more information.
+On GitHub Actions these triggers are named ``push`` and ``pull_request``,
+and works mostly in the same way.
 
 .. warning:: Triggers also can be set on the Azure's web interface
           too, but this action is discouraged, since it overrides
           any trigger specified in the YAML file and could lead to
           confusing sitations.
 
+There are more useful triggers such as the *cron* trigger, see the
+`Azure documentation section on triggers`_ for more information.
+
 
 Variables
 ---------
 
 Variable syntax
-***************
+===============
 
 Azure Pipelines supports three different ways to reference variables:
 *macro*, *template expression*, and *runtime expression*. Each syntax
@@ -127,7 +119,7 @@ use a *template expression*.
 
 
 Define variables
-****************
+================
 
 Usually, we define variables at the top of the YAML file.
 ::
@@ -186,9 +178,6 @@ to paths in Azure:
 See the Azure documentation to learn more about `checking out multiple repositories`_.
 
 
-Azure provides a list of agent hosts that can run the pipeline on a virtual machine. In our pipelines, we
-use the vm_Images: Ubuntu 16.04 and macOs-10.14.
-
 Jobs
 ----
 
@@ -214,27 +203,21 @@ See the `Azure documentation section on jobs`_ for more information.
 .. include:: azure_links.inc
 
 
-Templates
----------
+TARDIS Pipelines
+----------------
+
+Brief description of pipelines already implemented on Azure or GitHub Actions.
+
+
+The default template
+====================
 
 Templates let you define reusable content, logic, and parameters. It functions
 like an include directive in many programming languages (content from one file
 is inserted into another file).
 
-See the `Azure documentation section on templates`_ for more information.
-
-
-TARDIS Pipelines
-================
-
-Brief description of pipelines already implemented on Azure or GitHub Actions.
-
-
-Default template
-----------------
-
 The common set of steps used across most TARDIS pipelines resides in the
-"default" template. These steps are:
+"default" template:
 
 - Force ``set -e`` on all Bash steps.
 - Set TARDIS custom variables.
@@ -267,24 +250,26 @@ to start a new pipeline use::
 - ``tardis.dir`` is equivalent to ``$(Build.SourcesDirectory)/tardis``.
 - ``refdata.dir`` is equivalent to ``$(Build.SourcesDirectory)/tardis-refdata``.
 
+See the `Azure documentation section on templates`_ for more information.
+
+
+Documentation pipeline
+======================
+
+Builds and deploys the TARDIS documentation website. Currently, we use
+GitHub Actions for this purpose.
+
 
 Testing pipeline
-----------------
+================
 
 The `testing pipeline`_ (CI) consists basically in the same job running twice
 in parallel (one for each OS) with the steps from the default template, plus
 extra steps to run the tests and upload the coverage results.
 
 
-Documentation pipeline
-----------------------
-
-Builds and deploys the TARDIS documentation website. Currently, we are
-using GitHub Actions for this purpose.
-
-
-Zenodo JSON pipeline
---------------------
+Authors pipeline
+================
 
 This pipeline runs a notebook located in ``tardis-zenodo`` repository and
 pushes a new version of ``.zenodo.json`` to the root of ``tardis``
@@ -300,13 +285,13 @@ In the near future we want to auto-update the citation guidelines in the
 
 
 Release pipeline
-----------------
+================
 
 Publishes a new release of TARDIS every sunday at 00:00 UTC. 
 
 
 Reference data pipeline
------------------------
+=======================
 
 Generates new reference data according to the changes present in the
 current pull request. Then, compares against reference data present in the
