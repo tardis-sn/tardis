@@ -4,10 +4,54 @@ import numpy as np
 
 R_ELECTRON = const.a0.cgs * const.alpha.cgs ** 2.
 
+class SphericalVector(object):
+    """
+    Direction object to hold spherical polar and Cartesian directions
+    Must be initialized with r, mu, phi
+
+    Attributes
+    ----------
+    r : float64
+             vector r position
+    mu : float64
+             vector mu position
+    phi : float64
+             vector phi position
+    theta : float64
+             calculated vector theta position
+    x : float64
+             calculated vector x position
+    y : float64
+             calculated vector y position
+    z : float64
+             calculated vector z position
+    """
+    def __init__(self, r, mu, phi=0.):
+        self.r = r
+        self.mu = mu
+        self.phi = phi
+        
+    @property
+    def theta(self):
+        return np.arccos(self.mu)
+        
+    @property
+    def x(self):
+        return self.r * np.sin(np.arccos(self.mu)) * np.cos(self.phi)
+    
+    @property
+    def y(self):
+        return self.r * np.sin(np.arccos(self.mu)) * np.sin(self.phi)
+    
+    @property
+    def z(self):
+        return self.r * self.mu
+
 def kappa_calculation(energy):
     """
     Calculates kappa for various other calculations
-    i.e. energy normalized to 511 KeV
+    i.e. energy normalized to electron rest energy
+    511.0 KeV
 
     Parameters
     ----------
@@ -18,8 +62,8 @@ def kappa_calculation(energy):
     kappa : dtype float
 
     """
-    k = energy / (511.0e3 * u.eV)
-    return k.value
+    k = energy / 511.0
+    return k
 
 def euler_rodrigues(theta, direction):
     """
@@ -100,7 +144,7 @@ def klein_nishina(energy, theta_C):
 
     """
     kappa = kappa_calculation(energy) 
-    return R_ELECTRON / 2 * \
+    return R_ELECTRON.value / 2 * \
             (1. + kappa * (1. - np.cos(theta_C))) ** -2. * \
             (1. + np.cos(theta_C) ** 2. + \
             (kappa ** 2. * (1. - np.cos(theta_C)) ** 2.) / (1. + kappa * (1. - np.cos(theta_C))))
