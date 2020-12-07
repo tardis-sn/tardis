@@ -9,22 +9,13 @@ clone the repository, checkout to the current commit and execute
 all the TARDIS tests. This helps us to detect bugs immediately.
 
 
-Azure Pipelines
-===============
-
-Currently, we use the `Azure DevOps`_ service to run most of our
-pipelines. The following section explains briefly the different
-components of a pipeline.
-
-
-Repos
------
+Azure Repos
+-----------
 
 Azure Repos is just another service to store Git repositories.
 Currently, we use Azure Repos to mirror ``tardis-refdata``
 repository since Azure does not impose limits on LFS bandwith
-nor storage. We should sync this mirror every time reference
-data is updated on GitHub.
+nor storage.
 
 **To clone this repository:**
 ::
@@ -34,24 +25,44 @@ data is updated on GitHub.
 ::
   https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&resolveLfs=true
 
+This mirror is automatically synced by `a GitHub workflow`_. If you want
+to update it manually, remember to set ``git config http.version HTTP/1.1`` to
+avoid `error 413`_ while pushing large files.
+
+
+Azure Pipelines and GitHub Actions
+==================================
+
+Currently, we use the `Azure DevOps`_ service to run most of our
+pipelines and GitHub Actions for some others (called "workflows").
+
+The following section explains briefly the different
+components of a pipeline/workflow, mostly focused on the Azure
+service.
 
 
 YAML files
 ----------
 
-A pipeline is essentially a YAML configuration file with different
-sections such as variables, jobs and steps. Unlike other services
-such as GitHub Actions, pipelines on Azure must be created through
-the web UI for the first time. Then, making changes to an existing
-pipeline is as easy as making a pull request.
+A pipeline (or a workflow) is essentially a YAML configuration file 
+with different sections such as variables, jobs and steps. These files
+run commands or tasks when they are triggered by some event, like a 
+commit being pushed to a certain branch.
+
+Pipelines on Azure must be created through the web UI for the first time.
+Then, making changes to an existing pipeline is as easy as making a pull
+request. 
+
+To create a new workflow on GitHub, just create a new YAML file in
+`.github/workflows`.
 
 
 Triggers
 --------
 
-First thing to do is telling the pipeline when it should run.
-*trigger* (also known as the CI trigger) sets up the pipeline to
-run every time changes are merged to the *master* branch.
+First thing to do is telling the pipeline when it should run. In
+Azure, *trigger* (also known as the CI trigger) sets up the pipeline
+to run every time changes are pushed to a branch.
 ::
   trigger: 
     - master
@@ -69,25 +80,28 @@ is assumed.
       include:
       - '*'
 
-This means the pipeline will start running every time changes are 
+This means the pipeline will start running every time changes are
 merged  to any branch of the repository, or someone pushes new
 commits to a pull request.
 
-If you want to run a pipeline only manually set both triggers to 
+If you want to run a pipeline only manually set both triggers to
 *none*.
 ::
   trigger: none
 
   pr: none
 
+On GitHub Actions these triggers are named ``push`` and ``pull_request``,
+and works mostly in the same way.
+
 Notice that you can test changes in a pipeline by activating the PR
 trigger on a new pull request, even if that trigger is disabled on
 the YAML file present in the *master* branch.
 
-There are more useful triggers such as the *cron* trigger, see the 
+There are more useful triggers such as the *cron* trigger, see the
 `Azure documentation section on triggers`_ for more information.
 
-.. warning:: Triggers also can be set on the Azure's web interface 
+.. warning:: Triggers also can be set on the Azure's web interface
           too, but this action is discouraged, since it overrides
           any trigger specified in the YAML file and could lead to
           confusing sitations.
