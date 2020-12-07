@@ -227,19 +227,19 @@ See the `Azure documentation section on templates`_ for more information.
 TARDIS Pipelines
 ================
 
-Already implemented on Azure or GitHub Actions.
+Brief description of pipelines already implemented on Azure or GitHub Actions.
 
 
 Default template
 ----------------
 
-The common set of steps used across most TARDIS pipelines now lives in the
-"default" template.
+The common set of steps used across most TARDIS pipelines resides in the
+"default" template. These steps are:
 
-- Use ``set -e`` on Bash steps.
-- Set custom variables.
+- Force ``set -e`` on all Bash steps.
+- Set TARDIS custom variables.
 - Fetch TARDIS main repository.
-- Fetch TARDIS reference data repository (optional).
+- Fetch TARDIS reference data repository from mirror (optional).
 - Configure Anaconda for Linux and macOS agents.
 - Install Mamba package manager (optional).
 - Install TARDIS environment (optional).
