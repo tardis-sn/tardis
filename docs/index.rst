@@ -57,7 +57,7 @@ Mission Statement
     :caption: Using TARDIS
     :hidden:
 
-    using/components
+    using/components/index
     using/gui/index
     using/interaction/index
 
