@@ -1,7 +1,8 @@
 import pytest
 import numpy as np
 
-from tardis.energy_input.base import GammaRay, SphericalVector
+from tardis.energy_input.util import SphericalVector
+from tardis.energy_input.base import GammaRay
 
 @pytest.fixture(scope="function")
 def basic_gamma_ray():

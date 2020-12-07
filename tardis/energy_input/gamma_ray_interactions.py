@@ -1,6 +1,6 @@
 import numpy as np
 
-from tardis.energy_input.util import kappa_calculation, klein_nishina, euler_rodrigues, compton_theta_distribution
+from tardis.energy_input.util import kappa_calculation, klein_nishina, euler_rodrigues, compton_theta_distribution, SphericalVector
 from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
 
 def compton_scatter(gamma_ray):
@@ -22,9 +22,8 @@ def compton_scatter(gamma_ray):
     z = np.random.random()
     
     #sample new random theta direction
-    random_vector = get_random_mu()
+    random_vector = SphericalVector(1., get_random_mu(), 0.0)
     
-    #REWRITE FOR 1D
     perpendicular_vector_x = gamma_ray.direction.y * random_vector.z - gamma_ray.direction.z * random_vector.y
     perpendicular_vector_y = gamma_ray.direction.z * random_vector.x - gamma_ray.direction.x * random_vector.z
     perpendicular_vector_z = gamma_ray.direction.x * random_vector.y - gamma_ray.direction.y * random_vector.x
@@ -62,7 +61,7 @@ def pair_creation(gamma_ray):
     """
     direction_mu = get_random_mu()
     
-    gamma_ray.energy = 511.0e3
+    gamma_ray.energy = 511.0
     gamma_ray.direction.mu = direction_mu
 
 def photoabsorption(gamma_ray):

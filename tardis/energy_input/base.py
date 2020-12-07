@@ -1,54 +1,12 @@
 import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
+from tardis.energy_input.util import SphericalVector
 from tardis.energy_input.gamma_ray_grid import density_sampler, distance_trace, move_gamma_ray, mass_distribution
-from tardis.energy_input.energy_source import sample_energy_distribution
+from tardis.energy_input.energy_source import setup_gamma_ray_energy, read_nuclear_dataframe, sample_energy_distribution
 from tardis.energy_input.calculate_opacity import compton_opacity_calculation, photoabsorption_opacity_calculation, pair_creation_opacity_calculation, kappa_calculation
 from tardis.energy_input.gamma_ray_interactions import scatter_type
 from tqdm.auto import tqdm
-
-class SphericalVector(object):
-    """
-    Direction object to hold spherical polar and Cartesian directions
-    Must be initialized with r, mu, phi
-
-    Attributes
-    ----------
-    r : float64
-             vector r position
-    mu : float64
-             vector mu position
-    phi : float64
-             vector phi position
-    theta : float64
-             calculated vector theta position
-    x : float64
-             calculated vector x position
-    y : float64
-             calculated vector y position
-    z : float64
-             calculated vector z position
-    """
-    def __init__(self, r, mu, phi=0.):
-        self.r = r
-        self.mu = mu
-        self.phi = phi
-        
-    @property
-    def theta(self):
-        return np.arccos(self.mu)
-        
-    @property
-    def x(self):
-        return self.r * np.sin(np.arccos(self.mu)) * np.cos(self.phi)
-    
-    @property
-    def y(self):
-        return self.r * np.sin(np.arccos(self.mu)) * np.sin(self.phi)
-    
-    @property
-    def z(self):
-        return self.r * self.mu
 
 class GammaRay(object):
     """
@@ -74,7 +32,7 @@ class GammaRay(object):
         self.status = status
         self.shell = shell
 
-def spawn_gamma_ray(gamma_ray, radii, mass_ratio):
+def spawn_gamma_ray(gamma_ray, radii, mass_ratio, energy_sorted, energy_cdf):
     """
     Initializes a gamma ray in the simulation grid
 
@@ -94,7 +52,9 @@ def spawn_gamma_ray(gamma_ray, radii, mass_ratio):
     direction_mu = get_random_mu()
     direction_phi = 0.0
     
-    gamma_ray.energy = sample_energy_distribution()
+    energy_KeV = sample_energy_distribution(energy_sorted, energy_cdf)
+
+    gamma_ray.energy = energy_KeV
         
     initial_radius, shell = density_sampler(radii, mass_ratio)
     
@@ -112,7 +72,7 @@ def spawn_gamma_ray(gamma_ray, radii, mass_ratio):
     return gamma_ray
 
 
-def main_gamma_ray_loop(num_packets, model):
+def main_gamma_ray_loop(num_packets, model, path):
 
     output_energies = []
     ejecta_energy = []
@@ -132,10 +92,14 @@ def main_gamma_ray_loop(num_packets, model):
 
     packets = []
 
+    nuclear_data = read_nuclear_dataframe(path)
+
+    energy_sorted, energy_cdf = setup_gamma_ray_energy(nuclear_data)
+
     for i in range(num_packets):
         
         ray = GammaRay(0, 0, 1, 'InProcess', 0)
-        packets.append(spawn_gamma_ray(ray, outer_radii, masses))
+        packets.append(spawn_gamma_ray(ray, outer_radii, masses, energy_sorted, energy_cdf))
 
     i=0
     for packet in tqdm(packets):
@@ -176,7 +140,7 @@ def main_gamma_ray_loop(num_packets, model):
                 else:
                     packet.shell -= 1
                     
-            if (packet.location.r - outer_radius) < 1.0:
+            if (packet.location.r - outer_radius) < 1.0 or packet.shell > len(ejecta_density) - 1:
                 packet.status = 'Emitted'
                 output_energies.append(packet.energy)
             elif packet.location.r < inner_radius:
