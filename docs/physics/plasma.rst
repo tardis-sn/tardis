@@ -45,5 +45,9 @@ Plasma Calculations
 -------------------
 .. toctree::
     :maxdepth: 2
-    
-    plasma/index
+
+    plasma/lte_plasma
+    plasma/nebular_plasma
+    plasma/macroatom
+    plasma/nlte
+    plasma/helium_nlte
