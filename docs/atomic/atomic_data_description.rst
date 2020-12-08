@@ -52,7 +52,7 @@ Ionization Data
 +------------------------+------------------------------+----------+
 
 
-
+.. note:: In TARDIS, Ion 0 is neutral. 
 The levels data is stored in ``levels_data``.
 
 Levels Data
