@@ -13,6 +13,7 @@ from numpy cimport PyArray_DATA
 from tardis import constants
 from astropy import units
 from libc.stdlib cimport free
+from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
 
 np.import_array()
 
@@ -252,7 +253,7 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
     storage.spectrum_virt_nu = <double*> PyArray_DATA(
         runner._montecarlo_virtual_luminosity.value)
 
-    storage.sigma_thomson = runner.sigma_thomson
+    storage.sigma_thomson = SIGMA_THOMSON
     storage.inverse_sigma_thomson = 1.0 / storage.sigma_thomson
     storage.reflective_inner_boundary = runner.enable_reflective_inner_boundary
     storage.inner_boundary_albedo = runner.inner_boundary_albedo
@@ -291,16 +292,16 @@ def formal_integral(self, nu, N):
     storage.r_outer_i = <double*> PyArray_DATA(self.runner.r_outer_i)
 
     storage.electron_densities_i = <double*> PyArray_DATA(
-        self.runner.electron_densities_integ)
+        self.runner.electron_densities_integ.values)
     self.runner.line_lists_tau_sobolevs_i = (
-            self.runner.tau_sobolevs_integ.flatten(order='F')
+            self.runner.tau_sobolevs_integ.values.flatten(order='F')
             )
     storage.line_lists_tau_sobolevs_i = <double*> PyArray_DATA(
             self.runner.line_lists_tau_sobolevs_i
             )
 
     att_S_ul = res[0].flatten(order='F')
-    Jred_lu = res[1].flatten(order='F')
+    Jred_lu = res[1].values.flatten(order='F')
     Jblue_lu = res[2].flatten(order='F')
 
     cdef double *L = _formal_integral(

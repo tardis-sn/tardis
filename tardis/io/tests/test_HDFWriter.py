@@ -37,7 +37,7 @@ simple_objects = [1.5, "random_string", 4.2e7]
 def test_simple_write(tmpdir, attr):
     fname = str(tmpdir.mkdir("data").join("test.hdf"))
     actual = MockHDF(attr)
-    actual.to_hdf(fname, path="test")
+    actual.to_hdf(fname, path="test", overwrite=True)
     expected = pd.read_hdf(fname, key="/test/mock_hdf/scalars")["property"]
     assert actual.property == expected
 
@@ -59,7 +59,7 @@ complex_objects = [
 def test_complex_obj_write(tmpdir, attr):
     fname = str(tmpdir.mkdir("data").join("test.hdf"))
     actual = MockHDF(attr)
-    actual.to_hdf(fname, path="test")
+    actual.to_hdf(fname, path="test", overwrite=True)
     expected = pd.read_hdf(fname, key="/test/mock_hdf/property").values
     assert_array_almost_equal(actual.property, expected)
 
@@ -76,7 +76,7 @@ mock_multiIndex = pd.MultiIndex.from_arrays(arr.transpose())
 def test_MultiIndex_write(tmpdir):
     fname = str(tmpdir.mkdir("data").join("test.hdf"))
     actual = MockHDF(mock_multiIndex)
-    actual.to_hdf(fname, path="test")
+    actual.to_hdf(fname, path="test", overwrite=True)
     expected = pd.read_hdf(fname, key="/test/mock_hdf/property")
     expected = pd.MultiIndex.from_tuples(expected.unstack().values)
     pdt.assert_almost_equal(actual.property, expected)
@@ -92,7 +92,7 @@ def test_quantity_objects_write(tmpdir, attr):
     fname = str(tmpdir.mkdir("data").join("test.hdf"))
     attr_quantity = u.Quantity(attr, "g/cm**3")
     actual = MockHDF(attr_quantity)
-    actual.to_hdf(fname, path="test")
+    actual.to_hdf(fname, path="test", overwrite=True)
     expected = pd.read_hdf(fname, key="/test/mock_hdf/property")
     assert_array_almost_equal(actual.property.cgs.value, expected)
 
@@ -105,7 +105,7 @@ def test_scalar_quantity_objects_write(tmpdir, attr):
     fname = str(tmpdir.mkdir("data").join("test.hdf"))
     attr_quantity = u.Quantity(attr, "g/cm**3")
     actual = MockHDF(attr_quantity)
-    actual.to_hdf(fname, path="test")
+    actual.to_hdf(fname, path="test", overwrite=True)
     expected = pd.read_hdf(fname, key="/test/mock_hdf/scalars/")["property"]
     assert_array_almost_equal(actual.property.cgs.value, expected)
 
@@ -113,7 +113,7 @@ def test_scalar_quantity_objects_write(tmpdir, attr):
 def test_none_write(tmpdir):
     fname = str(tmpdir.mkdir("data").join("test.hdf"))
     actual = MockHDF(None)
-    actual.to_hdf(fname, path="test")
+    actual.to_hdf(fname, path="test", overwrite=True)
     expected = pd.read_hdf(fname, key="/test/mock_hdf/scalars/")["property"]
     if expected == "none":
         expected = None
@@ -138,7 +138,7 @@ def test_objects_write(tmpdir, attr):
     nested_object = MockHDF(np.array([4.0e14, 2, 2e14, 27.5]))
     attr_quantity = u.Quantity(attr, "g/cm**3")
     actual = MockClass(attr_quantity, nested_object)
-    actual.to_hdf(fname, path="test")
+    actual.to_hdf(fname, path="test", overwrite=True)
     expected_property = pd.read_hdf(fname, key="/test/mock_class/property")
     assert_array_almost_equal(actual.property.cgs.value, expected_property)
     nested_property = pd.read_hdf(
