@@ -14,7 +14,7 @@ def test_pair_creation(basic_gamma_ray):
 
     pair_creation(basic_gamma_ray)
 
-    npt.assert_almost_equal(basic_gamma_ray.energy, 511.0e3)
+    npt.assert_almost_equal(basic_gamma_ray.energy, 511.0)
     assert basic_gamma_ray.direction.mu != initial_mu
 
 
@@ -24,7 +24,7 @@ def test_photoabsorption(basic_gamma_ray):
     expected = basic_gamma_ray.energy
 
     npt.assert_almost_equal(actual, expected)
-    assert basic_gamma_ray.status == "Absorbed"
+    assert basic_gamma_ray.status == "PhotoAbsorbed"
 
 
 @pytest.mark.xfail(reason="To be implemented")

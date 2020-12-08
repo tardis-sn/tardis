@@ -11,10 +11,10 @@ R_ELECTRON = 2.8179403227e-15
 
 @pytest.mark.parametrize(
     ["energy", "expected"],
-    [(511.0e3, 1.0),
-    (255.5e3, 0.5),
+    [(511.0, 1.0),
+    (255.5, 0.5),
     (0.0, 0.0),
-    (511.0e10, 1e7)]
+    (511.0e7, 1e7)]
 )
 def test_kappa_calculation(energy, expected):
     kappa = util.kappa_calculation(energy)
