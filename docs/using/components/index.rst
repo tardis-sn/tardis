@@ -8,7 +8,7 @@ The TARDIS code needs three components to calculate spectra:
 .. toctree::
     :maxdepth: 1
     
-    ../../configuration/index
+    configuration/index
     models/index
     ../../atomic/atomic_data
 
