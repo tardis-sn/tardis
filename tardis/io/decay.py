@@ -116,11 +116,7 @@ class IsotopeAbundances(pd.DataFrame):
 
         Parameters
         ----------
-<<<<<<< HEAD
-        other: pd.DataFrame
-=======
         other : pd.DataFrame 
->>>>>>> 56c506760fd38eb20d9ab479bf71e38c7ee4c43a
         normalize : bool
             If true, resultant dataframe will be normalized
 

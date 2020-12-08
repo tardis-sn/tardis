@@ -29,7 +29,7 @@ def simulation_shell_info(simulation_verysimple):
 
 @pytest.fixture(scope="class")
 def hdf_shell_info(hdf_file_path, simulation_verysimple):
-    simulation_verysimple.to_hdf(hdf_file_path)  # save sim at hdf_file_path
+    simulation_verysimple.to_hdf(hdf_file_path, overwrite=True)  # save sim at hdf_file_path
     return HDFShellInfo(hdf_file_path)
 
 

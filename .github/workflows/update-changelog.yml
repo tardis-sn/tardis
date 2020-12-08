@@ -1,0 +1,32 @@
+# For more information on how to use this template please refer to:
+# http://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+name: update-changelog
+
+on:
+  schedule:
+    - cron: '50 23 * * 0'
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install github-changes
+        run: sudo npm install -g github-changes
+
+      - name: Update changelog
+        run: github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md -k ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit files
+        run: |
+          git config --local user.email "wkerzendorf+tardis@gmail.com"
+          git add CHANGELOG.md
+          git commit -m "Update CHANGELOG.md [skip ci]"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
