@@ -197,10 +197,10 @@ vpacket_collection_spec = [
     ("idx", int64),
     ("number_of_vpackets", int64),
     ("length", int64),
-    ("last_interaction_in_nu", float64),
-    ("last_interaction_type", int64),
-    ("last_interaction_in_id", int64),
-    ("last_interaction_out_id", int64),
+    ("last_interaction_in_nu", float64[:]),
+    ("last_interaction_type", int64[:]),
+    ("last_interaction_in_id", int64[:]),
+    ("last_interaction_out_id", int64[:]),
 ]
 
 
@@ -221,10 +221,10 @@ class VPacketCollection(object):
         self.nus = np.empty(temporary_v_packet_bins, dtype=np.float64)
         self.energies = np.empty(temporary_v_packet_bins, dtype=np.float64)
         self.number_of_vpackets = number_of_vpackets
-        self.last_interaction_in_nu = 0.0
-        self.last_interaction_type = -1
-        self.last_interaction_in_id = -1
-        self.last_interaction_out_id = -1
+        self.last_interaction_in_nu = np.zeros(temporary_v_packet_bins, dtype=np.float64)
+        self.last_interaction_type = -1 * np.ones(temporary_v_packet_bins, dtype=np.int64)
+        self.last_interaction_in_id = -1 * np.ones(temporary_v_packet_bins, dtype=np.int64)
+        self.last_interaction_out_id = -1 * np.ones(temporary_v_packet_bins, dtype=np.int64)
         self.idx = 0
         self.rpacket_index = rpacket_index
         self.length = temporary_v_packet_bins
@@ -242,19 +242,31 @@ class VPacketCollection(object):
             temp_length = self.length * 2 + self.number_of_vpackets
             temp_nus = np.empty(temp_length, dtype=np.float64)
             temp_energies = np.empty(temp_length, dtype=np.float64)
+            temp_last_interaction_in_nu = np.empty(temp_length, dtype=np.float64)
+            temp_last_interaction_type = np.empty(temp_length, dtype=np.int64)
+            temp_last_interaction_in_id = np.empty(temp_length, dtype=np.int64)
+            temp_last_interaction_out_id = np.empty(temp_length, dtype=np.int64)
             temp_nus[: self.length] = self.nus
             temp_energies[: self.length] = self.energies
+            temp_last_interaction_in_nu[: self.length] = self.last_interaction_in_nu
+            temp_last_interaction_type[: self.length] = self.last_interaction_type
+            temp_last_interaction_in_id[: self.length] = self.last_interaction_in_id
+            temp_last_interaction_out_id[: self.length] = self.last_interaction_out_id
 
             self.nus = temp_nus
             self.energies = temp_energies
+            self.last_interaction_in_nu = temp_last_interaction_in_nu
+            self.last_interaction_type = temp_last_interaction_type 
+            self.last_interaction_in_id = temp_last_interaction_in_id
+            self.last_interaction_out_id = temp_last_interaction_out_id
             self.length = temp_length
 
         self.nus[self.idx] = nu
         self.energies[self.idx] = energy
-        self.last_interaction_type = last_interaction_type
-        self.last_interaction_in_nu = last_interaction_in_nu
-        self.last_interaction_in_id = last_interaction_in_id
-        self.last_interaction_out_id = last_interaction_out_id
+        self.last_interaction_in_nu[self.idx] = last_interaction_in_nu
+        self.last_interaction_type[self.idx] = last_interaction_type
+        self.last_interaction_in_id[self.idx] = last_interaction_in_id
+        self.last_interaction_out_id[self.idx] = last_interaction_out_id
         self.idx += 1
 
 
