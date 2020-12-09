@@ -84,13 +84,13 @@ def montecarlo_radial1d(model, plasma, runner):
             np.array(virt_packet_last_interaction_in_nu)
         ).ravel()
         runner.virt_packet_last_interaction_type = np.concatenate(
-        np.array(virt_packet_last_interaction_type)
+            np.array(virt_packet_last_interaction_type)
         ).ravel()
         runner.virt_packet_last_line_interaction_in_id = np.concatenate(
-        np.array(virt_packet_last_line_interaction_in_id)
+            np.array(virt_packet_last_line_interaction_in_id)
         ).ravel()
         runner.virt_packet_last_line_interaction_out_id = np.concatenate(
-        np.array(virt_packet_last_line_interaction_out_id)
+            np.array(virt_packet_last_line_interaction_out_id)
         ).ravel()
 
 
@@ -192,23 +192,27 @@ def montecarlo_main_loop(
             v_packets_energy_hist[idx] += vpackets_energy[j]
 
         if montecarlo_configuration.VPACKET_LOGGING:
-            virt_packet_nus.append(
-                vpackets_nu
-            )
-            virt_packet_energies.append(
-                vpackets_energy
-            )
+            virt_packet_nus.append(vpackets_nu)
+            virt_packet_energies.append(vpackets_energy)
             virt_packet_last_interaction_in_nu.append(
-                vpacket_collection.last_interaction_in_nu[: vpacket_collection.idx]
+                vpacket_collection.last_interaction_in_nu[
+                    : vpacket_collection.idx
+                ]
             )
             virt_packet_last_interaction_type.append(
-                vpacket_collection.last_interaction_type[: vpacket_collection.idx]
+                vpacket_collection.last_interaction_type[
+                    : vpacket_collection.idx
+                ]
             )
             virt_packet_last_line_interaction_in_id.append(
-                vpacket_collection.last_interaction_in_id[: vpacket_collection.idx]
+                vpacket_collection.last_interaction_in_id[
+                    : vpacket_collection.idx
+                ]
             )
             virt_packet_last_line_interaction_out_id.append(
-                vpacket_collection.last_interaction_out_id[: vpacket_collection.idx]
+                vpacket_collection.last_interaction_out_id[
+                    : vpacket_collection.idx
+                ]
             )
 
     packet_collection.packets_output_energy[:] = output_energies[:]
