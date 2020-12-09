@@ -54,6 +54,9 @@ def montecarlo_radial1d(model, plasma, runner):
     (
         v_packets_energy_hist,
         last_interaction_type,
+        last_interaction_in_nu,
+        last_line_interaction_in_id,
+        last_line_interaction_out_id,
         virt_packet_nus,
         virt_packet_energies,
         virt_packet_last_interaction_in_nu,
@@ -72,6 +75,9 @@ def montecarlo_radial1d(model, plasma, runner):
 
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
     runner.last_interaction_type = last_interaction_type
+    runner.last_interaction_in_nu = last_interaction_in_nu
+    runner.last_line_interaction_in_id = last_line_interaction_in_id
+    runner.last_line_interaction_out_id = last_line_interaction_out_id
 
     if montecarlo_configuration.VPACKET_LOGGING and number_of_vpackets > 0:
         runner.virt_packet_nus = np.concatenate(
@@ -125,6 +131,14 @@ def montecarlo_main_loop(
     )
     output_energies = np.empty_like(packet_collection.packets_output_nu)
 
+    last_interaction_in_nus = np.empty_like(packet_collection.packets_output_nu)
+    last_line_interaction_in_ids = (
+        np.ones_like(packet_collection.packets_output_nu) * -1
+    )
+    last_line_interaction_out_ids = (
+        np.ones_like(packet_collection.packets_output_nu) * -1
+    )
+
     v_packets_energy_hist = np.zeros_like(spectrum_frequency)
     delta_nu = spectrum_frequency[1] - spectrum_frequency[0]
 
@@ -167,6 +181,9 @@ def montecarlo_main_loop(
         #     raise MonteCarloException
 
         output_nus[i] = r_packet.nu
+        last_interaction_in_nus[i] = r_packet.last_interaction_in_nu
+        last_line_interaction_in_ids[i] = r_packet.last_line_interaction_in_id
+        last_line_interaction_out_ids[i] = r_packet.last_line_interaction_out_id
 
         if r_packet.status == PacketStatus.REABSORBED:
             output_energies[i] = -r_packet.energy
@@ -221,6 +238,9 @@ def montecarlo_main_loop(
     return (
         v_packets_energy_hist,
         last_interaction_types,
+        last_interaction_in_nus,
+        last_line_interaction_in_ids,
+        last_line_interaction_out_ids,
         virt_packet_nus,
         virt_packet_energies,
         virt_packet_last_interaction_in_nu,
