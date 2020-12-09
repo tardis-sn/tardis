@@ -1,6 +1,6 @@
-*********************
-Old Physics Section of the TARDIS Docu (Outdated)
-*********************
+******************************
+Old Physics Section (Outdated)
+******************************
 
 .. note::
     The following entries reflects the physics section of the old TARDIS
@@ -10,6 +10,5 @@ Old Physics Section of the TARDIS Docu (Outdated)
 
 
 .. toctree::
-    physical_quantities
     montecarlo_old
     plasma/index
