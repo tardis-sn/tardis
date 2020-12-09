@@ -68,7 +68,7 @@ Mission Statement
     :hidden:
     
     physics/montecarlo/index
-    physics/new_plasma
+    physics/plasma
     physics/old_physics
     
 
