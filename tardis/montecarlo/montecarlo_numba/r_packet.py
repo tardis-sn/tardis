@@ -45,6 +45,8 @@ rpacket_spec = [
     ("index", int64),
     ("is_close_line", boolean),
     ("last_interaction_type", int64),
+    ("last_interaction_in_nu", float64),
+    ("last_line_interaction_in_id", int64),
     ("last_line_interaction_out_id", int64),
 ]
 
@@ -62,6 +64,8 @@ class RPacket(object):
         self.index = index
         self.is_close_line = is_close_line
         self.last_interaction_type = -1
+        self.last_interaction_in_nu = 0.0
+        self.last_line_interaction_in_id = -1
         self.last_line_interaction_out_id = -1
 
     def initialize_line_id(self, numba_plasma, numba_model):
@@ -456,6 +460,8 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
             and not montecarlo_configuration.disable_line_scattering
         ):
             interaction_type = InteractionType.LINE  # Line
+            r_packet.last_interaction_in_nu = r_packet.nu
+            r_packet.last_line_interaction_in_id = cur_line_id
             r_packet.next_line_id = cur_line_id
             distance = distance_trace
             break
