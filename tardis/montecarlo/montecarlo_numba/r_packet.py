@@ -493,8 +493,6 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
 
     # r_packet.next_line_id = cur_line_id
 
-    r_packet.last_interaction_type = interaction_type
-
     return distance, interaction_type, delta_shell
 
 
