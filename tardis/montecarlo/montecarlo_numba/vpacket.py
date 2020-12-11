@@ -288,6 +288,6 @@ def trace_vpacket_volley(
             v_packet.energy,
             r_packet.nu,
             r_packet.last_interaction_type,
-            r_packet.next_line_id,
+            r_packet.last_line_interaction_in_id,
             r_packet.last_line_interaction_out_id,
         )
