@@ -158,8 +158,8 @@ frequency space they are switched around if necessary. The number of bins is
 just an integer. Finally, the method option selects the final spectral synthesis mode. Currently, there are three options:
 
 * real: construct spectrum from the real packet population alone
-* virtual: use the :doc:`virtual packet scheme <../montecarlo/virtualpackets>` for spectral synthesis
-* integrated: use the :doc:`formal integral method <../montecarlo/sourceintegration>` of Lucy 1999
+* virtual: use the :doc:`virtual packet scheme <../../../physics/montecarlo/virtualpackets>` for spectral synthesis
+* integrated: use the :doc:`formal integral method <../../../physics/montecarlo/sourceintegration>` of Lucy 1999
 
 .. warning::
 
@@ -168,4 +168,4 @@ just an integer. Finally, the method option selects the final spectral synthesis
   dedicated page.
 
 
-.. include:: ../running/example_data.inc
+.. include:: ../../example_data.inc
