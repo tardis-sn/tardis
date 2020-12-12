@@ -46,7 +46,7 @@ def single_packet_loop(
 
     Returns
     -------
-        : None
+    None
         This function does not return anything but changes the r_packet object
         and if virtual packets are requested - also updates the vpacket_collection
     """
