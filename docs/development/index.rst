@@ -27,6 +27,7 @@ to the Astropy team for designing it.
     :maxdepth: 2
     :caption: TARDIS core team instructions
 
+    pr_docs
     update_refdata
     continuous_integration
     matterbridge
