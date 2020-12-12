@@ -20,7 +20,7 @@ from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
 @njit(**njit_dict)
 def thomson_scatter(r_packet, time_explosion):
     """
-    Thomson scattering — no longer line scattering
+    \n1) Thomson scattering — no longer line scattering
     \n2) get the doppler factor at that position with the old angle
     \n3) convert the current energy and nu into the comoving frame with the old mu
     \n4) Scatter and draw new mu - update mu
