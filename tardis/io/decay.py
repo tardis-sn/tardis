@@ -61,7 +61,7 @@ class IsotopeAbundances(pd.DataFrame):
         Returns
         -------
         list
-            list of pyne Materialss
+            list of pyne Materials
         """
 
         comp_dicts = [dict() for i in range(len(self.columns))]
