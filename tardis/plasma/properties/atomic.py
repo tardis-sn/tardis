@@ -68,10 +68,9 @@ class Lines(BaseAtomicDataProperty):
     Attributes
     ----------
     lines : Pandas DataFrame 
-        Table of
-        (wavelength, atomic_number, ion_number, f_ul, f_lu, level_number_lower,
-        level_number_upper, nu, B_lu, B_ul, A_ul, wavelength)
-        All atomic lines data. Index = line_id.
+        Atomic lines data. Columns are wavelength, atomic_number,ion_number,
+        f_ul, f_lu, level_number_lower, level_number_upper, nu, B_lu, B_ul, A_ul,
+        wavelength. Index is line_id.
     nu : Pandas DataFrame (index=line_id), dtype float
         Line frequency data
     f_lu : Pandas DataFrame (index=line_id), dtype float
