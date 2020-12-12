@@ -60,7 +60,7 @@ class IsotopeAbundances(pd.DataFrame):
 
         Returns
         -------
-            : list
+        list
             list of pyne Materialss
         """
 
