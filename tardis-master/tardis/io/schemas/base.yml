@@ -1,0 +1,33 @@
+$schema: http://json-schema.org/draft-04/schema#
+type: object
+additionalProperties: false
+properties:
+  tardis_config_version:
+    type: string
+    description: Version of the configuration file. The current version is 1.0 and no other versions are allowed
+  supernova:
+    $ref: supernova.yml
+    description: a section pertaining to observations of the supernova
+  atom_data:
+    type: string
+    description: path or filename to the Atomic Data HDF5 file
+  plasma:
+    $ref: plasma.yml
+    description: configuration of the plasma microphysics
+  csvy_model:
+    type: string
+    description: defining the model using csvy format
+  model:
+    $ref: model.yml
+    description: defining the model in the config yaml file
+  montecarlo:
+    $ref: montecarlo.yml
+    description: configuring the physics of the monte carlo radiative transfer
+  spectrum:
+    $ref: spectrum.yml
+    description: Final spectrum sampling
+required:
+- tardis_config_version
+- atom_data
+- spectrum
+

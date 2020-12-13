@@ -1,0 +1,74 @@
+# Compiled files
+*.py[co]
+*.a
+*.o
+*.so
+__pycache__
+
+
+# Ignore .c files by default to avoid including generated code. If you want to
+# add a non-generated .c extension, use `git add -f filename.c`.
+*.c
+!tardis/montecarlo/src/*.c
+
+
+# Other generated files
+*/version.py
+*/cython_version.py
+htmlcov
+.coverage
+.ipynb_checkpoints/
+.pytest_cache/
+
+
+# IDE Specific files
+### Pycharm IDE - Jetbrains
+.idea/*
+
+# VSCode
+.vscode/
+*.code-workspace
+
+### PyDev IDE - Eclipse
+.metadata
+tmp/
+*.tmp
+*.bak
+local.properties
+.settings/
+.loadpath
+*.project
+*.pydevproject
+
+### YouCompleteMe - VIM plugin
+.ycm_extra_conf.py
+
+
+# Sphinx
+_build
+docs/api
+
+
+# Packages/installer info
+*.egg
+*.egg-info
+.eggs/
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+distribute-*.tar.gz
+
+
+# Other
+.*.swp
+*~
+
+
+# Mac OSX
+.DS_Store

@@ -1,0 +1,64 @@
+# For more information on how to use this pipeline please refer to:
+# http://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+trigger: none
+pr: [ master ]
+
+schedules:
+  - cron: '0 0 1 * *'
+    displayName: 'Monthly test'
+    branches:
+      include:
+        - master
+
+variables:
+  system.debug: false
+
+jobs:
+  - job: report
+    pool:
+      vmImage: 'ubuntu-latest'
+
+    steps:
+      - template: templates/default.yml
+        parameters:
+          fetchRefdata: true
+          useMamba: true
+      
+      - bash: |
+          source activate tardis
+          $(package.manager) install bokeh --channel conda-forge --no-update-deps --yes
+        displayName: 'Install Bokeh'
+
+      - bash: |
+          cd $(refdata.dir)
+          git remote add upstream https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata
+          git fetch upstream
+          git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
+        displayName: 'Set upstream remote'
+
+      - bash: |
+          cd $(tardis.dir)
+          source activate tardis
+          pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
+        displayName: 'Generate reference data'
+
+      - bash: |
+          cd $(refdata.dir)/notebooks
+          source activate tardis
+          jupyter nbconvert ref_data_compare.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
+        displayName: 'Render notebook'
+
+      - bash: |
+          cd $(refdata.dir)/notebooks
+          source activate tardis
+          jupyter nbconvert ref_data_compare.ipynb --to html --execute --allow-errors --ExecutePreprocessor.timeout=6000
+        displayName: 'Render notebook (allow errors)'
+        condition: failed()
+
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: '$(refdata.dir)/notebooks/ref_data_compare.html'
+          artifactName: 'report'
+        displayName: 'Upload artifact'
+        condition: succeededOrFailed()

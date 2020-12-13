@@ -1,0 +1,56 @@
+$$target: spectrum.yml
+type: object
+properties:
+  start:
+    type: quantity
+  stop:
+    type: quantity
+  num:
+    type: number
+    multipleOf: 1.0
+  method:
+    type: string
+    enum:
+            - integrated
+            - virtual
+            - real
+    default: virtual
+    description: The method to generate the final spectrum
+  integrated:
+    type: object
+    default: {}
+    additionalProperties: false
+    properties:
+      points:
+        type: number
+        default: 1000
+        description: Number of impact parameters p used in
+            the calculation of the integrated spectrum
+      interpolate_shells:
+        type: number
+        default: -1
+        description: Number of shells on which the formal
+            integral quantities are interpolated
+  virtual:
+    type: object
+    default: {}
+    additionalProperties: false
+    properties:
+      tau_russian:
+        type: number
+        default: 10.
+        description: For optical depths greater tau_russian russian rouletting
+            is used for the v-packets
+      survival_probability:
+        type: number
+        default: 0.0
+        description: Probability for not terminating the packet path
+      enable_biasing:
+        type: boolean
+        default: False
+        description: If True bias v-packet emission based on the electron
+            scattering optical depth
+      virtual_packet_logging:
+        type: boolean
+        default: False
+        description: If True, enable virtual packet logging output

@@ -1,0 +1,5 @@
+default: kurucz_cd23_chianti_H_He
+
+kurucz_cd23_chianti_H_He:
+  url: https://media.githubusercontent.com/media/tardis-sn/tardis-refdata/master/atom_data/kurucz_cd23_chianti_H_He.h5
+  uuid: NA

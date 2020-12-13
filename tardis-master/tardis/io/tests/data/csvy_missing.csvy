@@ -1,0 +1,19 @@
+---
+datatype:
+  fields:
+    -  name: velocity
+       unit: km/s
+    -  name: density
+       unit: g/cm^3
+       desc: density of shell.
+    -  name: H
+       desc: fractional H abundance
+    -  name: He
+       desc: fractional He abundance
+
+v_inner_boundary: 9000 km/s
+v_outer_boundary: 15000 km/s
+---
+velocity,density,H,He
+10000, 5e-9, 0.3, 0.7
+11000, 2e-9, 0.6, 0.4

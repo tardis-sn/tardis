@@ -1,0 +1,47 @@
+# For more information on how to use this pipeline please refer to:
+# http://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+trigger: none
+pr: none
+
+schedules:
+  - cron: '0 0 * * 0'
+    displayName: 'Weekly release'
+    branches:
+      include:
+        - master
+    always: false
+
+variables:
+  system.debug: false
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+  - job: release
+    displayName: 'TARDIS release'
+
+    steps:
+      - template: templates/default.yml
+        parameters:
+          useMamba: true
+
+      - bash: |
+          cd $(tardis.dir)
+          source activate tardis
+          echo "##vso[task.setvariable variable=version]$(python -c 'import tardis; print(tardis.__version__)')"
+        displayName: 'Get TARDIS version'
+
+      - task: GitHubRelease@1
+        inputs:
+          gitHubConnection: 'wkerzendorf'
+          repositoryName: '$(Build.Repository.Name)'
+          action: 'create'
+          target: '$(Build.SourceVersion)'
+          tagSource: 'userSpecifiedTag'
+          tag: 'v$(version)'
+          title: 'TARDIS v$(version)'
+          changeLogCompareToRelease: 'lastFullRelease'
+          changeLogType: 'commitBased'
+        displayName: 'Create GitHub Release'

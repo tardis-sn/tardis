@@ -1,0 +1,5 @@
+model:
+    abundances:
+        type: file
+        filename: abund.dat
+        filetype: simple_ascii

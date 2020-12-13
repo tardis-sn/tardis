@@ -1,0 +1,77 @@
+name: tardis
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3
+  - pip
+  - numpy=1.19
+  - scipy=1.5
+  - pandas=1.0
+  - astropy=3
+  - numba=0.50
+  - numexpr
+  - Cython=0.29
+  - compilers
+  - blas=*=openblas
+
+  # Plasma
+  - networkx
+
+  # I/O
+  - pyyaml
+  - jsonschema
+  - pyne=0.7.0
+  - pytables
+  - h5py
+  - requests
+  - tqdm
+  - beautifulsoup4
+  - lxml
+
+  # Analysis
+  - jupyter
+  - notebook
+  - matplotlib
+  - graphviz
+  - pygraphviz
+  - pyside2
+
+  # Widgets & Visualization
+  - ipywidgets
+  - qgrid
+  - plotly
+
+  # Documentation
+  - sphinx
+  - nbconvert
+  - numpydoc
+  - docutils
+  - nbformat
+  - nbsphinx
+  - sphinx_bootstrap_theme
+  - sphinxcontrib-bibtex
+  - sphinxcontrib-apidoc
+  - sphinx_rtd_theme
+  - recommonmark
+
+  # Test/Coverage requirements
+  - git-lfs
+  - pytest=5
+  - pytest-html
+  - pytest-cov
+  - coverage
+  - requests
+  - docopt
+
+  # Code quality
+  - black
+
+  - pip:
+      # Documentation
+      - sphinxcontrib-tikz
+      - dokuwiki
+      - dot2tex
+      - sphinx-jsonschema
+      - git+https://github.com/Naereen/dot2tex.git
