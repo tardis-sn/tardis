@@ -68,6 +68,7 @@ jobs:
           DOWNLOAD_URL="$(curl -s $ARTIFACT_URL | jq '.resource | .downloadUrl')"
           FILENAME_URL=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
           echo "##vso[task.setvariable variable=filename.url]$FILENAME_URL"
+        condition: succeededOrFailed()
 
       - task: GitHubComment@0
         inputs:
