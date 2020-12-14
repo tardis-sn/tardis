@@ -43,6 +43,7 @@ jobs:
           source activate tardis
           pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
         displayName: 'Generate reference data'
+        condition: false
 
       - bash: |
           cd $(refdata.dir)/notebooks
