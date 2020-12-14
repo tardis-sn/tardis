@@ -30,13 +30,16 @@ class Levels(BaseAtomicDataProperty):
     """
     Attributes
     ----------
-    levels : Pandas MultiIndex (atomic_number, ion_number, level_number)
+    levels : pandas.MultiIndex 
+        (atomic_number, ion_number, level_number)
         Index of filtered atomic data. Index used for all other attribute dataframes for this class
-    excitation_energy : Pandas DataFrame (index=levels), dtype float
+    excitation_energy : pandas.DataFrame, dtype float
+        (index=levels)
         Excitation energies of atomic levels
-    metastability : Pandas DataFrame (index=levels), dtype bool
+    metastability : pandas.DataFrame, dtype bool
+        (index=levels)
         Records whether atomic levels are metastable
-    g : Pandas DataFrame (index=levels), dtype float
+    g : pandas.DataFrame (index=levels), dtype float
         Statistical weights of atomic levels
     """
 
@@ -67,15 +70,19 @@ class Lines(BaseAtomicDataProperty):
     """
     Attributes
     ----------
-    lines : Pandas DataFrame 
+    lines : pandas.DataFrame 
+        (index=line_id)
         Atomic lines data. Columns are wavelength, atomic_number,ion_number,
         f_ul, f_lu, level_number_lower, level_number_upper, nu, B_lu, B_ul, A_ul,
-        wavelength. Index is line_id.
-    nu : Pandas DataFrame (index=line_id), dtype float
-        Line frequency data
-    f_lu : Pandas DataFrame (index=line_id), dtype float
+        wavelength. 
+    nu : pandas.DataFrame, dtype float
+        (index=line_id)
+        Line frequency data. 
+    f_lu : pandas.DataFrame, dtype float
+        (index=line_id)
         Transition probability data
-    wavelength_cm : Pandas DataFrame (index=line_id), dtype float
+    wavelength_cm : pandas.DataFrame, dtype float
+        (index=line_id)
         Line wavelengths in cm
     """
 
@@ -95,17 +102,17 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    photo_ion_cross_sections : Pandas DataFrame
+    photo_ion_cross_sections : pandas.DataFrame, dtype float
         Table of photoionization cross sections as a
         function of frequency.
         (nu, x_sect,
         index=['atomic_number','ion_number','level_number']),
-        dtype float
-    photo_ion_block_references : One-dimensional Numpy Array, dtype int
+    photo_ion_block_references : numpy.ndarray
+        dtype int
         Indices where the photoionization data for
         a given level starts. Needed for calculation
         of recombination rates.
-    photo_ion_index : Pandas MultiIndex, dtype int
+    photo_ion_index : pandas.MultiIndex, dtype int
         Atomic, ion and level numbers for which
         photoionization data exists.
     """
@@ -139,7 +146,8 @@ class LinesLowerLevelIndex(HiddenPlasmaProperty):
     """
     Attributes
     ----------
-    lines_lower_level_index : One-dimensional Numpy Array, dtype int
+    lines_lower_level_index : numpy.ndrarray
+        dtype int
         Levels data for lower levels of particular lines
     """
 
@@ -157,7 +165,8 @@ class LinesUpperLevelIndex(HiddenPlasmaProperty):
     """
     Attributes
     ----------
-    lines_upper_level_index : One-dimensional Numpy Array, dtype int
+    lines_upper_level_index : numpy.ndarray
+        dtype int
         Levels data for upper levels of particular lines
     """
 
@@ -175,7 +184,7 @@ class AtomicMass(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    atomic_mass : Pandas Series
+    atomic_mass : pandas.Series
         Atomic masses of the elements used. Indexed by atomic number.
     """
 
@@ -192,7 +201,8 @@ class IonizationData(BaseAtomicDataProperty):
     """
     Attributes
     ----------
-    ionization_data : Pandas Series holding ionization energies
+    ionization_data : pandas.Series 
+        Holding ionization energies
         Indexed by atomic number, ion number.
     """
 
@@ -221,7 +231,7 @@ class ZetaData(BaseAtomicDataProperty):
     """
     Attributes
     ----------
-    zeta_data : Pandas DataFrame, dtype float
+    zeta_data : pandas.DataFrame, dtype float
         Zeta data for the elements used. Indexed by atomic number, ion number.
         Columns are temperature values up to 40,000 K in iterations of 2,000 K.
         The zeta value represents the fraction of recombination events
