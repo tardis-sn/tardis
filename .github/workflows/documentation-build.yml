@@ -21,7 +21,6 @@ jobs:
         with:
             environment-file: tardis_env3.yml
             activate-environment: tardis
-            channels: conda-forge, defaults
             mamba-version: "*"
 
       - name: Install TARDIS
