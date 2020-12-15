@@ -187,10 +187,10 @@ def montecarlo_main_loop(
 
         if r_packet.status == PacketStatus.REABSORBED:
             output_energies[i] = -r_packet.energy
-            last_interaction_types[i] = 0
+            last_interaction_types[i] = r_packet.last_interaction_type
         elif r_packet.status == PacketStatus.EMITTED:
             output_energies[i] = r_packet.energy
-            last_interaction_types[i] = 1
+            last_interaction_types[i] = r_packet.last_interaction_type
 
         vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
         vpackets_energy = vpacket_collection.energies[: vpacket_collection.idx]
