@@ -49,22 +49,18 @@ class BasePlasmaProperty(object, metaclass=ABCMeta):
         self.type_str = repr(type(self.value))
 
     def get_latex_label(self):
-        latex_template = r"""\textbf{{Name}} {name}
-\textbf{{Formula}} {formula}
-{description}
+        latex_template = fr"""\textbf{{Name}} {complete_name}
+\textbf{{Formula}} {getattr(self, "latex_formula", "--")}
+{getattr(self, "latex_description", "")}
 """
         outputs = self.outputs.replace("_", r"\_")
         latex_name = getattr(self, "latex_name", "")
         if latex_name != "":
-            complete_name = "{0} [{1}]".format(latex_name, self.latex_name)
+            complete_name = f"{latex_name} [{self.latex_name}]"
         else:
             complete_name = latex_name
 
-        latex_label = latex_template.format(
-            name=complete_name,
-            formula=getattr(self, "latex_formula", "--"),
-            description=getattr(self, "latex_description", ""),
-        )
+        latex_label = latex_template
         return latex_label.replace("\\", r"\\")
 
 

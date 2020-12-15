@@ -25,10 +25,8 @@ class TARDISSpectrum(HDFWriterMixin):
         # Check for correct inputs
         if not _frequency.shape[0] == luminosity.shape[0] + 1:
             raise ValueError(
-                "shape of '_frequency' and 'luminosity' are not compatible"
-                ": '{}' and '{}'".format(
-                    _frequency.shape[0], luminosity.shape[0]
-                )
+                f"shape of '_frequency' and 'luminosity' are not compatible"
+                f": '{_frequency.shape[0]}' and '{luminosity.shape[0]}'"
             )
         self._frequency = _frequency.to("Hz", u.spectral())
         self.luminosity = luminosity.to("erg / s")
@@ -61,10 +59,8 @@ class TARDISSpectrum(HDFWriterMixin):
             )
         except AttributeError:
             raise AttributeError(
-                "distance is required as attribute of"
-                '{} to calculate "{}"'.format(
-                    self.__class__.__name__, "flux_nu"
-                )
+                f"distance is required as attribute of"
+                f'{self.__class__.__name__} to calculate "{"flux_nu"}"'
             )
 
     @property
@@ -84,10 +80,8 @@ class TARDISSpectrum(HDFWriterMixin):
             )
         except AttributeError:
             raise AttributeError(
-                "distance is required as attribute of"
-                '{} to calculate "{}"'.format(
-                    self.__class__.__name__, "flux_lambda"
-                )
+                f"distance is required as attribute of"
+                f'{self.__class__.__name__} to calculate "{"flux_lambda"}"'
             )
 
     @staticmethod
@@ -105,16 +99,14 @@ class TARDISSpectrum(HDFWriterMixin):
         if mode == "wavelength":
             ax.plot(self.wavelength.value, self.luminosity_density_lambda.value)
             ax.set_xlabel(
-                "Wavelength [{}]".format(self.wavelength.unit._repr_latex_())
+                f"Wavelength [{self.wavelength.unit._repr_latex_()}]"
             )
             ax.set_ylabel(
-                "Flux [{:s}]".format(
-                    self.luminosity_density_lambda.unit._repr_latex_()
-                )
+                f"Flux [{self.luminosity_density_lambda.unit._repr_latex_():s}]"
             )
         else:
             warnings.warn(
-                "Did not find plotting mode {}, doing nothing.".format(mode)
+                f"Did not find plotting mode {mode}, doing nothing."
             )
 
     def to_ascii(self, fname, mode="luminosity_density"):

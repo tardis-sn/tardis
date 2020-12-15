@@ -365,10 +365,8 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                 n_electron_iterations += 1
                 if n_electron_iterations > 100:
                     logger.warn(
-                        "n_electron iterations above 100 ({0}) -"
-                        " something is probably wrong".format(
-                            n_electron_iterations
-                        )
+                        f"n_electron iterations above 100 ({n_electron_iterations}) -"
+                        f" something is probably wrong"
                     )
                 if np.all(
                     np.abs(new_n_electron - n_electron) / n_electron
@@ -488,10 +486,8 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                 n_electron_iterations += 1
                 if n_electron_iterations > 100:
                     logger.warn(
-                        "n_electron iterations above 100 ({0}) -"
-                        " something is probably wrong".format(
-                            n_electron_iterations
-                        )
+                        f"n_electron iterations above 100 ({n_electron_iterations}) -"
+                        f" something is probably wrong"
                     )
                 if np.all(
                     np.abs(new_n_electron - n_electron) / n_electron

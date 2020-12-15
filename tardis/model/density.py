@@ -87,8 +87,8 @@ class HomologousDensity(HDFWriterMixin):
                                                           d_conf.rho_0)
                 time_0 = d_conf.get('time_0', time_explosion)
             else:
-                raise ValueError("Unrecognized density type "
-                                 "'{}'".format(d_conf.type))
+                raise ValueError(f"Unrecognized density type "
+                                 f"'{d_conf.type}'")
         return cls(density_0, time_0)
 
     @classmethod
@@ -134,8 +134,8 @@ class HomologousDensity(HDFWriterMixin):
                                                       d_conf.rho_0)
             time_0 = d_conf.get('time_0', time_explosion)
         else:
-            raise ValueError("Unrecognized density type "
-                             "'{}'".format(d_conf.type))
+            raise ValueError(f"Unrecognized density type "
+                             f"'{d_conf.type}'")
         return cls(density_0, time_0)
 
 
