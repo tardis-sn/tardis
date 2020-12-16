@@ -19,19 +19,19 @@ Procedure
 Imagine you are developing a new feature for TARDIS on your local
 branch named ``new-feature`` and follow these steps:
 
-1. Checkout to a new branch with a suitable name, like ``new-feature-docs``.
+1. Go to your fork's *Settings* tab make sure GitHub Pages are building from the *gh-pages* branch.
 
-2. Edit ``.github/workflows/documentation-build.yml`` and add a new trigger below the *push* trigger:
+2. Checkout to a new branch with a suitable name, like ``new-feature-docs``.
+
+3. Edit ``.github/workflows/documentation-build.yml`` and add a new trigger below the *push* trigger:
 
 .. code-block: none
     pull_request:
       branches:
         - master
 
-3. Push changes and make a new pull request to **your fork's** *master* branch.
-
-4. Go to your fork's *Settings* tab make sure GitHub Pages are building from the *gh-pages* branch.
+4. Push changes and make a new pull request to **your fork's** *master* branch.
 
 5. If everything is ok, the documentation preview should be available at ``<your-username>.github.io/tardis``.
 
-6. Remember you will need to rebase ``new-feature-docs`` to ``new-feature`` every time you push changes to ``new-feature``.
+6. **Remember you will need to rebase ``new-feature-docs`` to ``new-feature`` every time you push changes to ``new-feature``.**
