@@ -32,6 +32,6 @@ branch named ``new-feature`` and follow these steps:
 
 4. Go to your fork's *Settings* tab make sure GitHub Pages are building from the *gh-pages* branch.
 
-5. If everything is okm the documentation preview should be available at ``<your-username>.github.io/tardis``.
+5. If everything is ok, the documentation preview should be available at ``<your-username>.github.io/tardis``.
 
 6. Remember you will need to rebase ``new-feature-docs`` to ``new-feature`` every time you push changes to ``new-feature``.
