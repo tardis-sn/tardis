@@ -29,7 +29,7 @@ to the Astropy team for designing it.
 
     update_refdata
     continuous_integration
-    pr_docs
+    documentation_preview
     matterbridge
     developer_faq
 
