@@ -35,3 +35,12 @@ branch named ``new-feature`` and follow these steps:
 5. If everything is ok, the documentation preview should be available at ``<your-username>.github.io/tardis``.
 
 6. **Remember you will need to rebase ``new-feature-docs`` to ``new-feature`` every time you push changes to ``new-feature``.**
+
+
+===========
+Limitations
+===========
+
+This method has a major drawback: you can build just a single preview for your entire fork. This means if
+your are working on multiple pull request, your site ``<your-username.github.io/tardis>`` will display just
+the latest successful build, overwriting the previous one.
