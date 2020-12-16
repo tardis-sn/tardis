@@ -39,7 +39,7 @@ To use PySide2:
 
 **3**. An example of creating a model and GUI
 
-First, get the example file `tardis_example.yml <https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/models/examples/tardis_example.yml>`_.
+First, get the example file `tardis_example.yml <https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/using/components/models/examples/tardis_example.yml>`_.
 
 To download a copy of the atomic database (if you haven't already), add:
 
