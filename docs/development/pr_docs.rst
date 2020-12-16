@@ -34,4 +34,4 @@ branch named ``new-feature`` and follow these steps:
 
 5. If everything is okm the documentation preview should be available at ``<your-username>.github.io/tardis``.
 
-6. Remember you will need to rebase ``new-feature-docs`` to ``new-feature`` every time you make changes to ``new-feature``.
+6. Remember you will need to rebase ``new-feature-docs`` to ``new-feature`` every time you push changes to ``new-feature``.
