@@ -361,7 +361,7 @@ class _Bootstrapper(object):
         if not os.path.isdir(self.path):
             return
 
-        log.info(f'Attempting to import astropy_helpers from {'submodule' if self.is_submodule else 'directory'} {self.path!r}')
+        log.info(f"Attempting to import astropy_helpers from {'submodule' if (self.is_submodule) else 'directory'} {self.path!r}")
 
         dist = self._directory_import()
 
@@ -530,14 +530,14 @@ class _Bootstrapper(object):
             if DEBUG:
                 raise
 
-            msg = f'Error retrieving {DIST_NAME} from {source}:\n{repr(e)}'
+            
             if find_links:
                 source = find_links[0]
             elif index_url != INDEX_URL:
                 source = index_url
             else:
                 source = 'PyPI'
-
+            msg = f'Error retrieving {DIST_NAME} from {source}:\n{repr(e)}'
             raise Exception(msg)
 
     def _do_upgrade(self, dist):
@@ -585,8 +585,7 @@ class _Bootstrapper(object):
         cmd = ['git', 'submodule', 'status', '--', self.path]
 
         try:
-            log.info(f'Running `{' '.join(cmd)}`; use the --no-git option to disable git '
-                     'commands')
+            log.info(f"Running `{' '.join(cmd)}`; use the --no-git option to disable git commands")
             returncode, stdout, stderr = run_cmd(cmd)
         except _CommandNotFound:
             # The git command simply wasn't found; this is most likely the
@@ -735,11 +734,10 @@ class _Bootstrapper(object):
 
         err_msg = None
         cmd = ['git', 'submodule'] + cmd + ['--', submodule]
-        log.warn(f'{action} {submodule} submodule with: `{' '.join(cmd)}`')
+        log.warn(f"{action} {submodule} submodule with: `{' '.join(cmd)}`")
 
         try:
-            log.info(f'Running `{' '.join(cmd)}`; use the --no-git option to disable git '
-                     'commands')
+            log.info(f"Running `{' '.join(cmd)}`; use the --no-git option to disable git commands")
             returncode, stdout, stderr = run_cmd(cmd)
         except OSError as e:
             err_msg = str(e)
@@ -778,12 +776,12 @@ def run_cmd(cmd):
             raise
 
         if e.errno == errno.ENOENT:
-            msg = f'Command not found: `{' '.join(cmd)}`'
+            msg = f"Command not found: `{' '.join(cmd)}`"
             raise _CommandNotFound(msg, cmd)
         else:
             raise _AHBootstrapSystemExit(
                 'An unexpected error occurred when running the '
-                f'`{' '.join(cmd)}` command:\n{str(e)}')
+                f"`{' '.join(cmd)}` command:\n{str(e)}")
 
 
     # Can fail of the default locale is not configured properly.  See

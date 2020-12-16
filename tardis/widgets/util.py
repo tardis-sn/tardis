@@ -1,4 +1,4 @@
-"""Utility classes and functions for widgets."""
+f"""Utility classes and functions for widgets."""
 
 import logging
 import qgrid

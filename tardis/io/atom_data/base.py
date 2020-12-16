@@ -172,7 +172,7 @@ class AtomData(object):
             )
             if nonavailable:
                 logger.info(
-                    f"Non provided atomic data: {", ".join(nonavailable)}"
+                    f'Non provided atomic data: {", ".join(nonavailable)}'
                 )
 
         return atom_data
@@ -258,8 +258,8 @@ class AtomData(object):
 
             if len(check_list) != 0 and len(check_list) != len(group):
                 raise AtomDataMissingError(
-                    f"The following dataframes from the related group [{", ".join(group)}] "
-                    f"were not given: {", ".join(check_list)}"
+                    f'The following dataframes from the related group [{", ".join(group)}] '
+                    f'were not given: {", ".join(check_list)}'
                 )
 
     def prepare_atom_data(
