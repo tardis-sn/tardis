@@ -35,11 +35,11 @@ def get_data_dir():
             get_config_dir(), "tardis_internal_config.yml"
         )
         logging.critical(
-            f"\n{"*" * 80}\n\nTARDIS will download different kinds of data (e.g. atomic) to its data directory {DEFAULT_DATA_DIR}\n\n"
+            f'\n{"*" * 80}\n\nTARDIS will download different kinds of data (e.g. atomic) to its data directory {DEFAULT_DATA_DIR}\n\n'
             f"TARDIS DATA DIRECTORY not specified in {config_fpath}:\n\n"
             f"ASSUMING DEFAULT DATA DIRECTORY {DEFAULT_DATA_DIR}\n "
             f"YOU CAN CHANGE THIS AT ANY TIME IN {config_fpath} \n\n"
-            f"{"*" * 80} \n\n"
+            f'{"*" * 80} \n\n'
         )
         if not os.path.exists(DEFAULT_DATA_DIR):
             os.makedirs(DEFAULT_DATA_DIR)
