@@ -24,7 +24,6 @@ branch named ``new-feature`` and follow these steps:
 2. Checkout to a new branch with a suitable name, like ``new-feature-docs``.
 
 3. Edit ``.github/workflows/documentation-build.yml`` and add a new trigger below the *push* trigger:
-
 .. code-block: none
     pull_request:
       branches:
