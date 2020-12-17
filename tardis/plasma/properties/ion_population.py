@@ -275,8 +275,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
     ----------
     ion_number_density : pandas.DataFrame, dtype float
         Index atom number, ion number. Columns zones.
-    electron_densities : numpy.ndarray
-        dtype float
+    electron_densities : numpy.ndarray, dtype float
     """
 
     outputs = ("ion_number_density", "electron_densities")
@@ -407,8 +406,7 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     ----------
     ion_number_density : pandas.DataFrame, dtype float
         Index atom number, ion number. Columns zones.
-    electron_densities : numpy.ndarray
-        dtype float
+    electron_densities : numpy.ndarray, dtype float
     """
 
     outputs = (
