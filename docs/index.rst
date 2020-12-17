@@ -108,6 +108,8 @@ Mission Statement
     development/index
     CHANGELOG.md
     roadmap
+    building_local_docs.rst
+    coding_guidelines.rst
 
 .. toctree::
     :maxdepth: 2
