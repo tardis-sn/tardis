@@ -34,13 +34,13 @@ class Levels(BaseAtomicDataProperty):
         (atomic_number, ion_number, level_number)
         Index of filtered atomic data. Index used for all other attribute dataframes for this class
     excitation_energy : pandas.DataFrame, dtype float
-        (index=levels)
-        Excitation energies of atomic levels
+        Excitation energies of atomic levels.
+        Index is levels.
     metastability : pandas.DataFrame, dtype bool
-        (index=levels)
-        Records whether atomic levels are metastable
+        Records whether atomic levels are metastable.
+        Index is levels.
     g : pandas.DataFrame (index=levels), dtype float
-        Statistical weights of atomic levels
+        Statistical weights of atomic levels.
     """
 
     outputs = ("levels", "excitation_energy", "metastability", "g")
@@ -71,19 +71,15 @@ class Lines(BaseAtomicDataProperty):
     Attributes
     ----------
     lines : pandas.DataFrame 
-        (index=line_id)
         Atomic lines data. Columns are wavelength, atomic_number,ion_number,
         f_ul, f_lu, level_number_lower, level_number_upper, nu, B_lu, B_ul, A_ul,
-        wavelength. 
+        wavelength. Index is line_id.
     nu : pandas.DataFrame, dtype float
-        (index=line_id)
-        Line frequency data. 
+        Line frequency data. Index is line_id.
     f_lu : pandas.DataFrame, dtype float
-        (index=line_id)
-        Transition probability data
+        Transition probability data. Index is line_id.
     wavelength_cm : pandas.DataFrame, dtype float
-        (index=line_id)
-        Line wavelengths in cm
+        Line wavelengths in cm. Index is line_id.
     """
 
     # Would like for lines to just be the line_id values
@@ -103,12 +99,9 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     Attributes
     ----------
     photo_ion_cross_sections : pandas.DataFrame, dtype float
-        Table of photoionization cross sections as a
-        function of frequency.
-        (nu, x_sect,
-        index=['atomic_number','ion_number','level_number']),
-    photo_ion_block_references : numpy.ndarray
-        dtype int
+        Photoionization cross sections as a function of frequency.
+        nu, x_sect, index=['atomic_number','ion_number','level_number'].
+    photo_ion_block_references : numpy.ndarray, dtype int
         Indices where the photoionization data for
         a given level starts. Needed for calculation
         of recombination rates.
@@ -146,8 +139,7 @@ class LinesLowerLevelIndex(HiddenPlasmaProperty):
     """
     Attributes
     ----------
-    lines_lower_level_index : numpy.ndrarray
-        dtype int
+    lines_lower_level_index : numpy.ndrarray, dtype int
         Levels data for lower levels of particular lines
     """
 
@@ -165,8 +157,7 @@ class LinesUpperLevelIndex(HiddenPlasmaProperty):
     """
     Attributes
     ----------
-    lines_upper_level_index : numpy.ndarray
-        dtype int
+    lines_upper_level_index : numpy.ndarray, dtype int
         Levels data for upper levels of particular lines
     """
 
