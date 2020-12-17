@@ -48,7 +48,7 @@ Gitter
 ------
 
 Create a new GitHub dedicated account to use as a bot, refer to `this link`_
-and copy the token o use later in the TOML file.
+and copy the token to use later in the TOML file.
 
 
 ----------
