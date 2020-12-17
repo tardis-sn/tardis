@@ -1,8 +1,8 @@
 .. _plasmas:
 
-******
-Plasma
-******
+*****************
+Plasma (Outdated)
+*****************
 
 .. currentmodule:: tardis.plasma_array
 

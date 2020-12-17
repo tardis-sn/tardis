@@ -8,17 +8,20 @@ have full access to the model properties (as described in :ref:`physical_quantit
     :maxdepth: 1 
 
     
-    ../commandline
+    commandline
     callback_example
-    ../converters/index
+    converters/index
     Custom_TARDIS_Model_Tutorial
-    ../gui
+    custom_source
+    old_gui
     access
     init_trad_bug
     integrator
     isotope_pd_subclass
-    to_hdf
+    to_hdf.rst
     hdf_writer
+    physical_quantities
+    using_formal_integral
 
 ..    examples/run_simple_example.ipynb
 

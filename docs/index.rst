@@ -57,9 +57,9 @@ Mission Statement
     :caption: Using TARDIS
     :hidden:
 
-    running/components
-    running/tardis_widgets/index
-    running/interaction/index
+    using/components/index
+    using/gui/index
+    using/interaction/index
 
 
 .. toctree::
@@ -68,8 +68,8 @@ Mission Statement
     :hidden:
     
     physics/montecarlo/index
-    physics/new_plasma
-    physics/old_physics
+    physics/plasma
+    physics/old_physics/index
     
 
 .. toctree::

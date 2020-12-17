@@ -84,6 +84,8 @@ def single_packet_loop(
             )
 
         elif interaction_type == InteractionType.LINE:
+            r_packet.last_interaction_type = 2
+
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
             )
@@ -98,6 +100,8 @@ def single_packet_loop(
             )
 
         elif interaction_type == InteractionType.ESCATTERING:
+            r_packet.last_interaction_type = 1
+
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
             )
