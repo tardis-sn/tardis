@@ -131,7 +131,7 @@ def calculate_distance_line(
     
     Parameters
     ----------
-    r_packet : RPacket
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
     comov_nu : float
         comoving frequency at the CURRENT position of the RPacket
     nu_line : float
@@ -290,7 +290,7 @@ def update_line_estimators(
 
     Parameters
     ----------
-    estimators : Estimators
+    estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
     r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
     cur_line_id : int
     distance_trace : float
