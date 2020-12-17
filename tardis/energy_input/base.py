@@ -69,8 +69,8 @@ def spawn_gamma_ray(
     """
 
     if beta_decay:
-        gamma_ray.direction.mu += np.pi
-        return
+        gamma_ray.direction.phi += np.pi
+        return gamma_ray
 
     direction_mu = get_random_mu()
     direction_phi = 0.0
@@ -140,15 +140,11 @@ def main_gamma_ray_loop(num_packets, model, path):
                 )
             )
 
-    i = 0
     for packet in tqdm(packets):
 
         distance_moved = 0.0
 
         while packet.status == "InProcess":
-            if i == 12358:
-                print(packet.location.r)
-                print(inner_radii[packet.shell], outer_radii[packet.shell])
             compton_opacity = compton_opacity_calculation(
                 ejecta_density[packet.shell], packet.energy
             )
@@ -171,11 +167,6 @@ def main_gamma_ray_loop(num_packets, model, path):
             ) = distance_trace(
                 packet, inner_radii, outer_radii, total_opacity, distance_moved
             )
-
-            if i == 12358:
-                print(distance_boundary)
-                print(distance_interaction)
-                print(interaction)
 
             if interaction:
                 ejecta_energy_gained, pair_created = scatter_type(
@@ -207,12 +198,16 @@ def main_gamma_ray_loop(num_packets, model, path):
                 else:
                     packet.shell -= 1
 
-            if (packet.location.r - outer_radius) < 1.0 or packet.shell > len(
-                ejecta_density
-            ) - 1:
+            if (
+                np.abs(packet.location.r - outer_radius) < 1.0
+                or packet.shell > len(ejecta_density) - 1
+            ):
                 packet.status = "Emitted"
                 output_energies.append(packet.energy)
-            elif packet.location.r < inner_radius:
+            elif (
+                np.abs(packet.location.r - inner_radius) < 1.0
+                or packet.shell < 0
+            ):
                 packet.status = "Absorbed"
                 packet.energy = 0.0
 
@@ -220,7 +215,5 @@ def main_gamma_ray_loop(num_packets, model, path):
                 # log where energy is deposited
                 ejecta_energy.append(packet.energy)
                 ejecta_energy_r.append(packet.location.r)
-
-        i += 1
 
     return ejecta_energy, ejecta_energy_r, output_energies, inner_radii
