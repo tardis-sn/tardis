@@ -100,7 +100,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     ----------
     photo_ion_cross_sections : pandas.DataFrame, dtype float
         Photoionization cross sections as a function of frequency.
-        nu, x_sect, index=['atomic_number','ion_number','level_number'].
+        Columns are nu, x_sect, index=('atomic_number','ion_number','level_number')
     photo_ion_block_references : numpy.ndarray, dtype int
         Indices where the photoionization data for
         a given level starts. Needed for calculation
