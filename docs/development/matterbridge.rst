@@ -64,15 +64,15 @@ Setting up the server for the first time
 
 Follow these steps to set up the server for the first time:
 
-1. *ssh* to `OpenSupernova.org`_
-2. Download the Matterbridge binary for Linux from the `releases section`_
-3. Make the file executable and rename it to ``matterbridge``
-4. Copy ``matterbridge`` executable to ``/usr/local/bin``
-5. Clone ``tardis-matterbridge`` repository in your ``$HOME``
-6. Copy ``config-tardis-matterbridge.toml`` to ``/usr/local/etc/matterbridge/``
-7. Copy ``matterbridge.conf`` to ``/etc/init/``
-8. Run ``sudo service matterbridge start``
-9. Test your gateways
+1. *ssh* to `OpenSupernova.org`_ server.
+2. Download the Matterbridge binary for Linux from the `releases section`_.
+3. Make the file executable and rename it to ``matterbridge``.
+4. Copy ``matterbridge`` executable to ``/usr/local/bin``.
+5. Clone ``tardis-matterbridge`` repository in your ``$HOME``.
+6. Copy ``config-tardis-matterbridge.toml`` to ``/usr/local/etc/matterbridge/``.
+7. Copy ``matterbridge.conf`` to ``/etc/init/``.
+8. Run ``sudo service matterbridge start``.
+9. Test your gateways.
 
 
 -------------------
@@ -81,11 +81,11 @@ Adding new gateways
 
 After updating the TOML file, follow these steps:
 
-1. *ssh* to `OpenSupernova.org`_
-2. Copy your new ``config-tardis-matterbridge.toml`` to ``/usr/local/etc/matterbridge/``
-3. Run ``sudo service matterbridge restart``
-4. Test your gateways
-5. If everything is ok, make a pull request to ``tardis-matterbridge`` with your new TOML file
+1. *ssh* to `OpenSupernova.org`_ server.
+2. Copy your new ``config-tardis-matterbridge.toml`` to ``/usr/local/etc/matterbridge/``.
+3. Run ``sudo service matterbridge restart``.
+4. Test your gateways.
+5. If everything is ok, make a pull request to ``tardis-matterbridge`` with your new TOML file.
 
 
 --------
