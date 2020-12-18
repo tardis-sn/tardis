@@ -70,15 +70,15 @@ class NumbaPlasma(object):
         
         Parameters
         ----------
-        electron_density : numpy.array
-        line_list_nu : numpy.array
-        tau_sobolev : numpy.array
-        transition_probabilities : numpy.array
-        line2macro_level_upper : numpy.array
-        macro_block_references : numpy.array
-        transition_type : numpy.array
-        destination_level_id : numpy.array
-        transition_line_id : numpy.array
+        electron_density : numpy.ndarray
+        line_list_nu : numpy.ndarray
+        tau_sobolev : numpy.ndarray
+        transition_probabilities : numpy.ndarray
+        line2macro_level_upper : numpy.ndarray
+        macro_block_references : numpy.ndarray
+        transition_type : numpy.ndarray
+        destination_level_id : numpy.ndarray
+        transition_line_id : numpy.ndarray
         """
 
         self.electron_density = electron_density
