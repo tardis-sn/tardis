@@ -29,9 +29,9 @@ class NumbaModel(object):
 
         Parameters
         ----------
-        r_inner: numpy.ndarray
-        r_outer: numpy.ndarray
-        time_explosion: float
+        r_inner : numpy.ndarray
+        r_outer : numpy.ndarray
+        time_explosion : float
         """
         self.r_inner = r_inner
         self.r_outer = r_outer
@@ -67,18 +67,18 @@ class NumbaPlasma(object):
     ):
         """
         Plasma for the Numba code
+        
         Parameters
         ----------
-
-        electron_density: numpy.array
-        line_list_nu: numpy.array
-        tau_sobolev: numpy.array
-        transition_probabilities: numpy.array
-        line2macro_level_upper: numpy.array
-        macro_block_references: numpy.array
-        transition_type: numpy.array
-        destination_level_id: numpy.array
-        transition_line_id: numpy.array
+        electron_density : numpy.ndarray
+        line_list_nu : numpy.ndarray
+        tau_sobolev : numpy.ndarray
+        transition_probabilities : numpy.ndarray
+        line2macro_level_upper : numpy.ndarray
+        macro_block_references : numpy.ndarray
+        transition_type : numpy.ndarray
+        destination_level_id : numpy.ndarray
+        transition_line_id : numpy.ndarray
         """
 
         self.electron_density = electron_density
@@ -102,10 +102,9 @@ def numba_plasma_initialize(plasma, line_interaction_type):
     Initialize the NumbaPlasma object and copy over the data over from TARDIS Plasma
 
     Parameters
-    -----------
-
-    plasma: tardis.plasma.BasePlasma
-    line_interaction_type: enum
+    ----------
+    plasma : tardis.plasma.BasePlasma
+    line_interaction_type : enum
     """
     electron_densities = plasma.electron_densities.values
     line_list_nu = plasma.atomic_data.lines.nu.values

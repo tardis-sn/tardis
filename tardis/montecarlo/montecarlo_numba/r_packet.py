@@ -87,16 +87,15 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
     """
     Calculate distance to shell boundary in cm.
 
-    Parameters:
-    ------------
-
-    r: float
+    Parameters
+    ----------
+    r : float
        radial coordinate of the RPacket
-    mu: float
+    mu : float
        cosine of the direction of movement
-    r_inner: float
+    r_inner : float
        inner radius of current shell
-    r_outer: float
+    r_outer : float
        outer radius of current shell
     """
 
@@ -133,21 +132,21 @@ def calculate_distance_line(
 ):
     """
     Calculate distance until RPacket is in resonance with the next line
+    
     Parameters
     ----------
-    r_packet: RPacket
-    comov_nu: float
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    comov_nu : float
         comoving frequency at the CURRENT position of the RPacket
-    nu_line: float
-        line to check the distance to
-    time_explosion: float
-        time since explosion in seconds
-    is_last_line: bool
+    is_last_line : bool
         return MISS_DISTANCE if at the end of the line list
-
+    nu_line : float
+        line to check the distance to
+    time_explosion : float
+        time since explosion in seconds
+    
     Returns
     -------
-
     """
 
     nu = r_packet.nu
@@ -208,8 +207,10 @@ def calculate_distance_electron(electron_density, tau_event):
     """
     Calculate distance to Thomson Scattering
 
-    electron_density: float
-    tau_event: float
+    Parameters
+    ----------
+    electron_density : float
+    tau_event : float
     """
     # add full_relativity here
     return tau_event / (electron_density * numba_config.SIGMA_THOMSON)
@@ -220,11 +221,10 @@ def calculate_tau_electron(electron_density, distance):
     """
     Calculate tau for Thomson scattering
 
-    Parameters:
-    ------------
-
-    electron_density: float
-    distance: float
+    Parameters
+    ----------
+    electron_density : float
+    distance : float
     """
     return electron_density * numba_config.SIGMA_THOMSON * distance
 
@@ -255,12 +255,11 @@ def get_inverse_doppler_factor(r, mu, time_explosion):
     """
     Calculate doppler factor for frame transformation
 
-    Parameters:
-    ------------
-
-    r: float
-    mu: float
-    time_explosion: float
+    Parameters
+    ----------
+    r : float
+    mu : float
+    time_explosion : float
     """
     inv_c = 1 / C_SPEED_OF_LIGHT
     inv_t = 1 / time_explosion
@@ -295,12 +294,11 @@ def update_line_estimators(
 
     Parameters
     ----------
-    estimators: Estimators
-    r_packet: RPacket
-    cur_line_id: int
-    distance_trace: float
-    time_explosion: float
-
+    estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    cur_line_id : int
+    distance_trace : float
+    time_explosion : float
     """
 
     """ Actual calculation - simplified below
@@ -345,16 +343,15 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     """
     Traces the RPacket through the ejecta and stops when an interaction happens (heart of the calculation)
 
-    r_packet: RPacket
     Parameters
     ----------
-    numba_model: tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
-    numba_plasma: tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
-    estimators: tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    numba_model : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
+    numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
+    estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
 
     Returns
     -------
-
     """
 
     r_inner = numba_model.r_inner[r_packet.current_shell_id]
@@ -503,12 +500,11 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
 
     Parameters
     ----------
-
-    r_packet: tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
         r_packet objects
-    time_explosion: float
+    time_explosion : float
         time since explosion in s
-    numba_estimator: tardis.montecarlo.montecarlo_numba.numba_interface.NumbaEstimator
+    numba_estimator : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaEstimator
         Estimators object
     distance : float
         distance in cm
@@ -581,10 +577,10 @@ def move_packet_across_shell_boundary(packet, delta_shell, no_of_shells):
     distance : float
         distance to move to shell boundary
 
-    delta_shell: int
+    delta_shell : int
         is +1 if moving outward or -1 if moving inward
 
-    no_of_shells: int
+    no_of_shells : int
         number of shells in TARDIS simulation
     """
     next_shell_id = packet.current_shell_id + delta_shell

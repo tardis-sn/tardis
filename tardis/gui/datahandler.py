@@ -63,7 +63,7 @@ class Node(object):
         parent : Node 
             Another node which is the parent of this node. The 
             root node has parent set to None.
-        
+
         Note
         ----
             A leaf node is a node that is the only child of its parent.

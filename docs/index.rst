@@ -129,4 +129,3 @@ News
 ====
 
 .. include:: news.rst
-
