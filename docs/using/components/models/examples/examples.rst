@@ -15,11 +15,11 @@ These setups specify the ejecta solely via the YAML configuration file:
 
 
 API demonstrations
-=========================
+==================
 
 An example on how to use the formal integrator with tardis:
 
-:ref:`notebooks/integrator.ipynb`
+:ref:`integrator`
 
 
 Detailed Explosion Models
