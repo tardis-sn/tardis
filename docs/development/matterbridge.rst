@@ -14,11 +14,11 @@ in combination with a TOML configuration file::
 
 The TOML file includes all the parameters required to connect as many
 messaging platforms as you want, like *tokens* and *passwords*. Once the
-application is running, messages start be shared between the connected rooms.
+application is running, messages can be shared between the connected rooms.
 
-Currently, we keep a service running on `OpenSupernova.org`_ server to 
+Currently, we keep a service running on the `OpenSupernova.org`_ server to 
 run Matterbridge as a daemon. Our configuration files are stored in a private 
-GitHub repository, includin our custom TOML and the files needed to set up the
+GitHub repository, including our custom TOML and the files needed to set up the
 Linux service.
 
 Since this server runs Ubuntu 14.04 we use an `Upstart script`_ instead of a
@@ -31,7 +31,7 @@ Setup
 =====
 
 Use the TOML file in ``tardis-matterbridge`` as an example. You can set up
-as many gateways as you want!.
+as many gateways as you want!
 
 
 -----
