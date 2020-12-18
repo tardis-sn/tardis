@@ -360,7 +360,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
             all types of properties will be stored. This acts like a filter,
             for example if a value of `property_collections.basic_inputs` is
             given, only those input parameters will be stored to the HDF file.
-        overwrite : bool
+        overwrite: bool
             If the HDF file path already exists, whether to overwrite it or not
         """
         self.collection = collection
