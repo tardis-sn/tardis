@@ -17,8 +17,8 @@ messaging platforms as you want, like *tokens* and *passwords*. Once the
 application is running, messages can be shared between the connected rooms.
 
 Currently, we keep a service running on the `OpenSupernova.org`_ server to 
-run Matterbridge as a daemon. Our configuration files are stored in a private 
-GitHub repository, including our custom TOML and the files needed to set up the
+run Matterbridge as a daemon. Our configuration files are stored in a `private 
+GitHub repository`_, including our custom TOML and the files needed to set up the
 Linux service.
 
 Since this server runs Ubuntu 14.04 we use an `Upstart script`_ instead of a
