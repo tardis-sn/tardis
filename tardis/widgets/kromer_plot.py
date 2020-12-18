@@ -19,7 +19,11 @@ from tardis.widgets import plot_util as pu
 
 
 class KromerData:
-    """The data of simulation model which is used by Kromer Plot."""
+    """The data of simulation model which is used by Kromer Plot.
+
+    This preprocesses the data required by KromerPlotter class for doing
+    calculations and plotting.
+    """
 
     def __init__(
         self,
@@ -103,7 +107,7 @@ class KromerData:
         # Create dataframe of packets that experience line interaction
         line_mask = (self.packets_df["last_interaction_type"] > -1) & (
             self.packets_df["last_line_interaction_in_id"] > -1
-        )
+        )  # & operator is quite faster than np.logical_and on pd.Series
         self.packets_df_line_interaction = self.packets_df.loc[line_mask].copy()
 
         # Add columns for atomic number of last interaction in/out
@@ -551,7 +555,6 @@ class KromerPlotter:
             )
         else:
             packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
-            # print(packet_nu_range)
             self.packet_nu_range_mask = (
                 self.data[packets_mode].packets_df["nus"] < packet_nu_range[0]
             ) & (self.data[packets_mode].packets_df["nus"] > packet_nu_range[1])
@@ -841,7 +844,6 @@ class KromerPlotter:
                 self.modeled_spectrum_luminosity,
                 "--b",
                 label=f"{packets_mode.capitalize()} Spectrum",
-                # ds="steps-pre", # no need to make it look histogram
                 linewidth=1,
             )
 
@@ -1034,7 +1036,6 @@ class KromerPlotter:
                     line=dict(
                         color="blue",
                         width=1,
-                        # dash="dash"
                     ),
                     name=f"{packets_mode.capitalize()} Spectrum",
                 )
