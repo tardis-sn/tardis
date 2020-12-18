@@ -106,6 +106,7 @@ class IsotopeAbundances(pd.DataFrame):
         Returns
         -------
         pandas.DataFrame
+            Merged isotope abundances 
         """
 
         return self.groupby("atomic_number").sum()
@@ -123,6 +124,7 @@ class IsotopeAbundances(pd.DataFrame):
         Returns
         -------
         pandas.DataFrame
+            merged abundances
         """
         isotope_abundance = self.as_atoms()
         isotope_abundance = isotope_abundance.fillna(0.0)
