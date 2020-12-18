@@ -85,6 +85,7 @@ class IsotopeAbundances(pd.DataFrame):
         Returns
         -------
         pandas.DataFrame
+            Decayed abundances
         """
 
         materials = self.to_materials()
