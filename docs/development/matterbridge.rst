@@ -26,9 +26,9 @@ Since this server runs Ubuntu 14.04 we use an `Upstart script`_ instead of a
 A *cron* job restarts the service periodically to prevent disconnections.
 
 
-=====
-Setup
-=====
+=============
+Configuration
+=============
 
 Use the TOML file in ``tardis-matterbridge`` as an example. You can set up
 as many gateways as you want!
@@ -58,11 +58,11 @@ Mattermost
 Follow the `steps for Mattermost in the Matterbridge wiki`_.
 
 
-----------------------------------------
-Setting up the server for the first time
-----------------------------------------
+================
+First-time setup
+================
 
-Follow these steps to set up the server for the first time:
+Follow these steps to set up the server:
 
 1. *ssh* to `OpenSupernova.org`_ server.
 2. Download the Matterbridge binary for Linux from the `releases section`_.
@@ -75,9 +75,9 @@ Follow these steps to set up the server for the first time:
 9. Test your gateways.
 
 
--------------------
-Adding new gateways
--------------------
+===========================
+Update server configuration
+===========================
 
 After updating the TOML file, follow these steps:
 
@@ -88,9 +88,9 @@ After updating the TOML file, follow these steps:
 5. If everything is ok, make a pull request to ``tardis-matterbridge`` with your new TOML file.
 
 
---------
+========
 Cron job
---------
+========
  
 To edit the cron job, *ssh* to `OpenSupernova.org`_ and run ``sudo crontab -e``.
 
