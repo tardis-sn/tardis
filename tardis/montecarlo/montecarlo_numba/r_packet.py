@@ -138,13 +138,13 @@ def calculate_distance_line(
     r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
     comov_nu : float
         comoving frequency at the CURRENT position of the RPacket
+    is_last_line : bool
+        return MISS_DISTANCE if at the end of the line list
     nu_line : float
         line to check the distance to
     time_explosion : float
         time since explosion in seconds
-    is_last_line : bool
-        return MISS_DISTANCE if at the end of the line list
-
+    
     Returns
     -------
     """
