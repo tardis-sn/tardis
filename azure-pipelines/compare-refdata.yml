@@ -21,8 +21,6 @@ jobs:
       vmImage: 'ubuntu-latest'
 
     steps:
-      - bash: echo "$(Build.Reason)"
-
       - template: templates/default.yml
         parameters:
           fetchRefdata: false  # See the comment below
@@ -90,6 +88,7 @@ jobs:
         displayName: 'Upload artifact'
         condition: succeededOrFailed()
 
+
       # The following steps should run only if the pipeline is triggered from a pull request.
 
       - bash: |
@@ -97,7 +96,7 @@ jobs:
           FILENAME_URL=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
           echo "##vso[task.setvariable variable=filename.url]$FILENAME_URL"
         displayName: 'Get download URL'
-        condition: succeededOrFailed()
+        condition: and(succeededOrFailed(), eq('$(Build.Reason)', 'PullRequest'))
 
       - task: GitHubComment@0
         inputs:
@@ -106,6 +105,7 @@ jobs:
           id: $(System.PullRequest.PullRequestNumber)
           comment: 'Build succeeded: [Download report]($(filename.url))'
         displayName: 'Post results'
+        condition: eq('$(Build.Reason)', 'PullRequest')
 
       - task: GitHubComment@0
         inputs:
@@ -114,4 +114,4 @@ jobs:
           id: $(System.PullRequest.PullRequestNumber)
           comment: 'Build failed: [Download report]($(filename.url))'
         displayName: 'Post results'
-        condition: failed()
+        condition: and(failed(), eq('$(Build.Reason)', 'PullRequest'))
