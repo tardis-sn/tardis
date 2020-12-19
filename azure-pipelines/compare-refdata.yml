@@ -95,12 +95,14 @@ jobs:
     steps:
       - bash: |
           echo $ARTIFACT_URL
-          DOWNLOAD_URL=$(curl -s '$ARTIFACT_URL' | jq '.value | .[] | .resource | .downloadUrl')
+          JSON=$(curl -s $ARTIFACT_URL)
+          echo $JSON
+          DOWNLOAD_URL=$(echo $JSON | jq '.value | .[] | .resource | .downloadUrl')
           echo $DOWNLOAD_URL
-          FILENAME_URL=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
-          echo $FILENAME_URL
-          echo "##vso[task.setvariable variable=filename.url]$FILENAME_URL"
-          echo $(filename.url)
+          REPORT_HTML=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
+          echo $REPORT_HTML
+          echo "##vso[task.setvariable variable=report.html]$REPORT_HTML"
+          echo $(report.html)
         displayName: 'Get download URL'
         condition: succeededOrFailed()
 
@@ -109,7 +111,7 @@ jobs:
           gitHubConnection: 'tardis-sn'
           repositoryName: 'tardis-sn/tardis'
           id: $(System.PullRequest.PullRequestNumber)
-          comment: '**Build succeeded:** [Download report]($(filename.url))'
+          comment: '**Build succeeded:** [Download report]($(report.html))'
         displayName: 'Post results (success)'
 
       - task: GitHubComment@0
@@ -117,6 +119,6 @@ jobs:
           gitHubConnection: 'tardis-sn'
           repositoryName: 'tardis-sn/tardis'
           id: $(System.PullRequest.PullRequestNumber)
-          comment: '**Build failed:** [Download report]($(filename.url))'
+          comment: '**Build failed:** [Download report]($(report.html))'
         displayName: 'Post results (failed)'
         condition: failed()
