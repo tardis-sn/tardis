@@ -39,16 +39,9 @@ steps:
     displayName: 'Fetch main repository'
 
   - ${{ if eq(parameters.fetchRefdata, true) }}:
-    - bash: |
-        GIT_LFS_SKIP_SMUDGE=1 git clone https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata $(refdata.dir)
-        cd $(refdata.dir)
-        git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5"
-        git lfs pull --include="atom_data/chianti_He.h5"
-        git lfs pull --include="unit_test_data.h5"
-        git lfs pull --include="packet_unittest.h5"
-        git lfs pull --include="montecarlo_1e5_compare_data.h5"
-        git lfs pull --include="montecarlo_one_packet_compare_data.h5"
-      displayName: 'Fetch refdata repository'
+    - checkout: git://TARDIS/tardis-refdata
+      lfs: true
+      displayName: 'Fetch reference data repository'
 
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: 'Add conda to PATH'
