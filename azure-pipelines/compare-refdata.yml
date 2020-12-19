@@ -91,7 +91,7 @@ jobs:
 
     # The following steps will run only if the pipeline is triggered from a pull request.
 
-      if {{ eq(variables['Build.Reason'], 'PullRequest') }}:
+      - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
         - bash: |
             DOWNLOAD_URL="$(curl -s $ARTIFACT_URL | jq '.resource | .downloadUrl')"
             FILENAME_URL=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
