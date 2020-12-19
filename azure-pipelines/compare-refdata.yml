@@ -95,9 +95,7 @@ jobs:
     steps:
       - bash: |
           echo $ARTIFACT_URL
-          JSON=$(curl -s $ARTIFACT_URL)
-          echo $JSON
-          DOWNLOAD_URL=$(echo $JSON | jq '.value | .[] | .resource | .downloadUrl')
+          DOWNLOAD_URL=$(curl -s $ARTIFACT_URL | jq '.value | .[] | .resource | .downloadUrl')
           echo $DOWNLOAD_URL
           REPORT_HTML=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
           echo $REPORT_HTML
@@ -116,7 +114,7 @@ jobs:
 
       - task: GitHubComment@0
         inputs:
-          gitHubConnection: 'tardis-sn'
+          gitHubConnectDOWNLOAD_URL=$(echo $JSON1 | jq '.value | .[] | .resource | .downloadUrl')ion: 'tardis-sn'
           repositoryName: 'tardis-sn/tardis'
           id: $(System.PullRequest.PullRequestNumber)
           comment: '**Build failed:** [Download report]($(report.html))'
