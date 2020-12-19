@@ -41,6 +41,7 @@ jobs:
           git lfs pull --include="montecarlo_1e5_compare_data.h5"
           git lfs pull --include="montecarlo_one_packet_compare_data.h5"
         displayName: 'Fetch reference data repository'
+        condition: false
 
       - bash: |
           cd $(refdata.dir)
@@ -48,6 +49,7 @@ jobs:
           git fetch upstream
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
         displayName: 'Set upstream remote'
+        condition: false
 
       - bash: |
           cd $(tardis.dir)
@@ -87,7 +89,7 @@ jobs:
         inputs:
           gitHubConnection: 'tardis-sn'
           repositoryName: 'tardis-sn/tardis'
-          id: '$(System.PullRequest.PullRequestId)'
+          id: 1385
           comment: 'Build succeeded: [Download report]($(filename.url))'
         displayName: 'Post results'
 
@@ -95,7 +97,11 @@ jobs:
         inputs:
           gitHubConnection: 'tardis-sn'
           repositoryName: 'tardis-sn/tardis'
-          id: '$(System.PullRequest.PullRequestId)'
+          id: 1385
           comment: 'Build failed: [Download report]($(filename.url))'
         displayName: 'Post results'
         condition: failed()
+
+      - bash: echo "$(System.PullRequest.PullRequestId)"
+        displayName: "Check variable"
+        condition: succeededOrFailed()
