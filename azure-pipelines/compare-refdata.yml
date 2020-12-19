@@ -41,9 +41,6 @@ jobs:
           $(package.manager) install bokeh --channel conda-forge --no-update-deps --yes
         displayName: 'Install Bokeh'
 
-      - bash: sudo apt install jq
-        displayName: 'Install jq'
-
       - bash: |
           GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/tardis-sn/tardis-refdata.git $(refdata.dir)
         # cd $(refdata.dir)
@@ -95,12 +92,9 @@ jobs:
 
       - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
         - bash: |
-            echo "$ARTIFACT_URL"
-            DOWNLOAD_URL="$(curl -s $ARTIFACT_URL | jq '.resource | .downloadUrl')"
-            echo "$DOWNLOAD_URL"
+            DOWNLOAD_URL="$(curl -s $ARTIFACT_URL | jq '.value | .[] | .resource | .downloadUrl')"
             FILENAME_URL=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
-            echo "$FILENAME_URL"
-            echo "##vso[task.setvariable variable=fileurl]$FILENAME_URL"
+            echo "##vso[task.setvariable variable=filename.url]$FILENAME_URL"
           displayName: 'Get download URL'
           condition: succeededOrFailed()
 
@@ -109,7 +103,7 @@ jobs:
             gitHubConnection: 'tardis-sn'
             repositoryName: 'tardis-sn/tardis'
             id: $(System.PullRequest.PullRequestNumber)
-            comment: '$(fileurl)'
+            comment: '**Build succeeded:** [download report]($(filename.url))'
           displayName: 'Post results'
 
         - task: GitHubComment@0
@@ -117,6 +111,6 @@ jobs:
             gitHubConnection: 'tardis-sn'
             repositoryName: 'tardis-sn/tardis'
             id: $(System.PullRequest.PullRequestNumber)
-            comment: '$(fileurl)'
+            comment: '**Build failed:** [download report]($(filename.url))'
           displayName: 'Post results'
           condition: failed()
