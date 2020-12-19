@@ -89,7 +89,7 @@ jobs:
         inputs:
           gitHubConnection: 'tardis-sn'
           repositoryName: 'tardis-sn/tardis'
-          id: 1385
+          id: $(System.PullRequest.PullRequestNumber)
           comment: 'Build succeeded: [Download report]($(filename.url))'
         displayName: 'Post results'
 
@@ -97,11 +97,11 @@ jobs:
         inputs:
           gitHubConnection: 'tardis-sn'
           repositoryName: 'tardis-sn/tardis'
-          id: 1385
+          id: $(System.PullRequest.PullRequestNumber)
           comment: 'Build failed: [Download report]($(filename.url))'
         displayName: 'Post results'
         condition: failed()
 
-      - bash: echo "$(System.PullRequest.PullRequestId)"
+      - bash: echo "$(System.PullRequest.PullRequestNumber)"
         displayName: "Check variable"
         condition: succeededOrFailed()
