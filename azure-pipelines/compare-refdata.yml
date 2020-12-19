@@ -94,7 +94,9 @@ jobs:
         - bash: |
             DOWNLOAD_URL="$(curl -s $ARTIFACT_URL | jq '.value | .[] | .resource | .downloadUrl')"
             FILENAME_URL=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
+            echo $FILENAME_URL
             echo "##vso[task.setvariable variable=filename.url]$FILENAME_URL"
+            echo $(filename.url)
           displayName: 'Get download URL'
           condition: succeededOrFailed()
 
