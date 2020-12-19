@@ -40,6 +40,7 @@ jobs:
           git lfs pull --include="packet_unittest.h5"
           git lfs pull --include="montecarlo_1e5_compare_data.h5"
           git lfs pull --include="montecarlo_one_packet_compare_data.h5"
+        displayName: 'Fetch reference data repository'
 
       - bash: |
           cd $(refdata.dir)
@@ -53,6 +54,7 @@ jobs:
           source activate tardis
           pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
         displayName: 'Generate reference data'
+        condition: false
 
       - bash: |
           cd $(refdata.dir)/notebooks
@@ -79,13 +81,21 @@ jobs:
           FILENAME_URL=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
           echo "##vso[task.setvariable variable=filename.url]$FILENAME_URL"
         displayName: 'Get download URL'
-        #condition: and(succeededOrFailed(), eq('$(Build.Reason)', 'PullRequest'))
+        condition: succeededOrFailed()
 
       - task: GitHubComment@0
         inputs:
           gitHubConnection: 'tardis-sn'
           repositoryName: 'tardis-sn/tardis'
           id: '$(System.PullRequest.PullRequestId)'
-          comment: 'This is an automatic comment. [Download report]($(filename.url)).'
+          comment: 'Build succeeded: [Download report]($(filename.url))'
         displayName: 'Post results'
-        #condition: and(succeededOrFailed(), eq('$(Build.Reason)', 'PullRequest'))
+
+      - task: GitHubComment@0
+        inputs:
+          gitHubConnection: 'tardis-sn'
+          repositoryName: 'tardis-sn/tardis'
+          id: '$(System.PullRequest.PullRequestId)'
+          comment: 'Build failed: [Download report]($(filename.url))'
+        displayName: 'Post results'
+        condition: failed()
