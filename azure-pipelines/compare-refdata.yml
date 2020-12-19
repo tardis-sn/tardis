@@ -20,8 +20,6 @@ pool:
 
 jobs:
   - job: 'report'
-    displayName: 'Create report'
-
     steps:
       - template: templates/default.yml
         parameters:
@@ -91,14 +89,13 @@ jobs:
 
 
   - job: comment
-    displayName: 'Comment on PR'
     condition: eq(variables['Build.Reason'], 'PullRequest')
     dependsOn: report
 
     steps:
       - bash: |
           echo $ARTIFACT_URL
-          DOWNLOAD_URL="$(curl -s "$ARTIFACT_URL" | jq '.value | .[] | .resource | .downloadUrl')"
+          DOWNLOAD_URL="$(curl -s "$ARTIFACT_URL" | jq '.resource | .downloadUrl')"
           echo $DOWNLOAD_URL
           FILENAME_URL=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
           echo $FILENAME_URL
@@ -112,14 +109,14 @@ jobs:
           gitHubConnection: 'tardis-sn'
           repositoryName: 'tardis-sn/tardis'
           id: $(System.PullRequest.PullRequestNumber)
-          comment: '**Build succeeded:** [download report]($(filename.url))'
-        displayName: 'Post results'
+          comment: '**Build succeeded:** [Download report]($(filename.url))'
+        displayName: 'Post results (success)'
 
       - task: GitHubComment@0
         inputs:
           gitHubConnection: 'tardis-sn'
           repositoryName: 'tardis-sn/tardis'
           id: $(System.PullRequest.PullRequestNumber)
-          comment: '**Build failed:** [download report]($(filename.url))'
-        displayName: 'Post results'
+          comment: '**Build failed:** [Download report]($(filename.url))'
+        displayName: 'Post results (failed)'
         condition: failed()
