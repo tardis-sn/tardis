@@ -92,7 +92,7 @@ jobs:
 
   - job: comment
     displayName: 'Comment on PR'
-    condition: variables['Build.Reason'], 'PullRequest')
+    condition: eq(variables['Build.Reason'], 'PullRequest')
 
     steps:
       - bash: |
