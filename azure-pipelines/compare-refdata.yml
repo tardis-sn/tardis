@@ -89,29 +89,29 @@ jobs:
         condition: succeededOrFailed()
 
 
-      # The following steps should run only if the pipeline is triggered from a pull request.
+    # The following steps will run only if the pipeline is triggered from a pull request.
 
+    if {{ eq(variables['Build.Reason'], 'PullRequest') }}:
       - bash: |
           DOWNLOAD_URL="$(curl -s $ARTIFACT_URL | jq '.resource | .downloadUrl')"
           FILENAME_URL=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
           echo "##vso[task.setvariable variable=filename.url]$FILENAME_URL"
         displayName: 'Get download URL'
-        condition: and(succeededOrFailed(), eq('$(Build.Reason)', 'PullRequest'))
+        condition: succeededOrFailed()
 
       - task: GitHubComment@0
         inputs:
           gitHubConnection: 'tardis-sn'
           repositoryName: 'tardis-sn/tardis'
           id: $(System.PullRequest.PullRequestNumber)
-          comment: 'Build succeeded: [Download report]($(filename.url))'
+          comment: '$(filename.url)'
         displayName: 'Post results'
-        condition: eq('$(Build.Reason)', 'PullRequest')
 
       - task: GitHubComment@0
         inputs:
           gitHubConnection: 'tardis-sn'
           repositoryName: 'tardis-sn/tardis'
           id: $(System.PullRequest.PullRequestNumber)
-          comment: 'Build failed: [Download report]($(filename.url))'
+          comment: '$(filename.url)'
         displayName: 'Post results'
-        condition: and(failed(), eq('$(Build.Reason)', 'PullRequest'))
+        condition: failed()
