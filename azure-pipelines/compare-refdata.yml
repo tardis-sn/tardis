@@ -94,7 +94,8 @@ jobs:
         - bash: |
             DOWNLOAD_URL="$(curl -s $ARTIFACT_URL | jq '.resource | .downloadUrl')"
             FILENAME_URL=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
-            echo "##vso[task.setvariable variable=filename.url]$FILENAME_URL"
+            echo "$FILENAME_URL"
+            echo "##vso[task.setvariable variable=fileurl]$FILENAME_URL"
           displayName: 'Get download URL'
           condition: succeededOrFailed()
 
@@ -103,7 +104,7 @@ jobs:
             gitHubConnection: 'tardis-sn'
             repositoryName: 'tardis-sn/tardis'
             id: $(System.PullRequest.PullRequestNumber)
-            comment: '$(filename.url)'
+            comment: '$(fileurl)'
           displayName: 'Post results'
 
         - task: GitHubComment@0
@@ -111,6 +112,6 @@ jobs:
             gitHubConnection: 'tardis-sn'
             repositoryName: 'tardis-sn/tardis'
             id: $(System.PullRequest.PullRequestNumber)
-            comment: '$(filename.url)'
+            comment: '$(fileurl)'
           displayName: 'Post results'
           condition: failed()
