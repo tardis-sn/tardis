@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 class Radial1DModel(HDFWriterMixin):
-    """An object that hold information about the individual shells.
+    """
+    An object that hold information about the individual shells.
 
     Parameters
     ----------
@@ -66,7 +67,6 @@ class Radial1DModel(HDFWriterMixin):
         The number of shells as formed by `v_boundary_inner` and
         `v_boundary_outer`
     no_of_raw_shells : int
-
     """
 
     hdf_properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer', 'homologous_density']
@@ -371,7 +371,6 @@ class Radial1DModel(HDFWriterMixin):
         Returns
         -------
         Radial1DModel
-
         """
         time_explosion = config.supernova.time_explosion.cgs
 
@@ -468,7 +467,6 @@ class Radial1DModel(HDFWriterMixin):
         Returns
         -------
         Radial1DModel
-
         """
         CSVY_SUPPORTED_COLUMNS = {'velocity', 'density', 't_rad', 'dilution_factor'}
 

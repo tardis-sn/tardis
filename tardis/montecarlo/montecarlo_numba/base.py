@@ -116,14 +116,14 @@ def montecarlo_main_loop(
 
     Parameters
     ----------
-    packet_collection: PacketCollection
-    numba_model: NumbaModel
-    estimators: NumbaEstimators
-    spectrum_frequency: astropy.units.Quantity
+    packet_collection : PacketCollection
+    numba_model : NumbaModel
+    estimators : NumbaEstimators
+    spectrum_frequency : astropy.units.Quantity
         frequency bins
-    number_of_vpackets: int
+    number_of_vpackets : int
         VPackets released per interaction
-    packet_seeds: numpy.array
+    packet_seeds : numpy.array
     """
     output_nus = np.empty_like(packet_collection.packets_output_nu)
     last_interaction_types = (
