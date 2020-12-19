@@ -97,7 +97,7 @@ jobs:
           echo $ARTIFACT_URL
           DOWNLOAD_URL=$(curl -s $ARTIFACT_URL | jq -r '.value | .[] | .resource | .downloadUrl')
           echo $DOWNLOAD_URL
-          REPORT_HTML=$(echo $DOWNLOAD_URL | sed 's/zip"/file\&subPath=\%2Fref_data_compare.html/g') 
+          REPORT_HTML=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
           echo $REPORT_HTML
           echo "##vso[task.setvariable variable=report.html]$REPORT_HTML"
           echo $(report.html)
