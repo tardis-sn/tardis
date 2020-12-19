@@ -15,10 +15,12 @@ variables:
   system.debug: false
   artifact.url: 'https://dev.azure.com/tardis-sn/TARDIS/_apis/build/builds/$(Build.BuildId)/artifacts\?artifactName\=report\&api-version\=4.1'
 
+pool:
+  vmImage: 'ubuntu-latest'
+
 jobs:
   - job: 'report'
-    pool:
-      vmImage: 'ubuntu-latest'
+    displayName: 'Create report'
 
     steps:
       - template: templates/default.yml
@@ -88,33 +90,35 @@ jobs:
         condition: succeededOrFailed()
 
 
-    # The following steps will run only if the pipeline is triggered from a pull request.
+  - job: comment
+    displayName: 'Comment on PR'
+    condition: variables['Build.Reason'], 'PullRequest')
 
-      - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
-        - bash: |
-            echo $ARTIFACT_URL
-            DOWNLOAD_URL="$(curl -s $ARTIFACT_URL | jq '.value | .[] | .resource | .downloadUrl')"
-            echo $DOWNLOAD_URL
-            FILENAME_URL=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
-            echo $FILENAME_URL
-            echo "##vso[task.setvariable variable=filename.url]$FILENAME_URL"
-            echo $(filename.url)
-          displayName: 'Get download URL'
-          condition: succeededOrFailed()
+    steps:
+      - bash: |
+          echo $ARTIFACT_URL
+          DOWNLOAD_URL="$(curl -s "$ARTIFACT_URL" | jq '.value | .[] | .resource | .downloadUrl')"
+          echo $DOWNLOAD_URL
+          FILENAME_URL=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
+          echo $FILENAME_URL
+          echo "##vso[task.setvariable variable=filename.url]$FILENAME_URL"
+          echo $(filename.url)
+        displayName: 'Get download URL'
+        condition: succeededOrFailed()
 
-        - task: GitHubComment@0
-          inputs:
-            gitHubConnection: 'tardis-sn'
-            repositoryName: 'tardis-sn/tardis'
-            id: $(System.PullRequest.PullRequestNumber)
-            comment: '**Build succeeded:** [download report]($(filename.url))'
-          displayName: 'Post results'
+      - task: GitHubComment@0
+        inputs:
+          gitHubConnection: 'tardis-sn'
+          repositoryName: 'tardis-sn/tardis'
+          id: $(System.PullRequest.PullRequestNumber)
+          comment: '**Build succeeded:** [download report]($(filename.url))'
+        displayName: 'Post results'
 
-        - task: GitHubComment@0
-          inputs:
-            gitHubConnection: 'tardis-sn'
-            repositoryName: 'tardis-sn/tardis'
-            id: $(System.PullRequest.PullRequestNumber)
-            comment: '**Build failed:** [download report]($(filename.url))'
-          displayName: 'Post results'
-          condition: failed()
+      - task: GitHubComment@0
+        inputs:
+          gitHubConnection: 'tardis-sn'
+          repositoryName: 'tardis-sn/tardis'
+          id: $(System.PullRequest.PullRequestNumber)
+          comment: '**Build failed:** [download report]($(filename.url))'
+        displayName: 'Post results'
+        condition: failed()
