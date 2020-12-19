@@ -16,7 +16,7 @@ variables:
   artifact.url: 'https://dev.azure.com/tardis-sn/TARDIS/_apis/build/builds/$(Build.BuildId)/artifacts\?artifactName\=report\&api-version\=4.1'
 
 jobs:
-  - job: 'Generate report'
+  - job: 'report'
     pool:
       vmImage: 'ubuntu-latest'
 
