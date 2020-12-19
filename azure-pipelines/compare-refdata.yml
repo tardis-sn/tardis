@@ -21,11 +21,23 @@ jobs:
       vmImage: 'ubuntu-latest'
 
     steps:
+      - bash: echo "$(Build.Reason)"
+
       - template: templates/default.yml
         parameters:
-          fetchRefdata: false  # Comment here
+          fetchRefdata: false  # See the comment below
           useMamba: true
-      
+
+      #  Situation:
+      #
+      #     requirement 1: Azure Repos requires token auth for public repositories containing LFS objects (bug).
+      #     requirement 2: GitHubComment task requires secret sharing enabled to work.
+      #
+      #  If secret sharing is enabled, the token needed to fetch Azure Repos is not shared for security reasons,
+      #  breaking the pipeline.
+      #
+      #  Solution: Use the GitHub repository until a fix for Azure Repos bug arrives.
+
       - bash: |
           source activate tardis
           $(package.manager) install bokeh --channel conda-forge --no-update-deps --yes
@@ -78,6 +90,8 @@ jobs:
         displayName: 'Upload artifact'
         condition: succeededOrFailed()
 
+      # The following steps should run only if the pipeline is triggered from a pull request.
+
       - bash: |
           DOWNLOAD_URL="$(curl -s $ARTIFACT_URL | jq '.resource | .downloadUrl')"
           FILENAME_URL=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
@@ -101,7 +115,3 @@ jobs:
           comment: 'Build failed: [Download report]($(filename.url))'
         displayName: 'Post results'
         condition: failed()
-
-      - bash: echo "$(System.PullRequest.PullRequestNumber)"
-        displayName: "Check variable"
-        condition: succeededOrFailed()
