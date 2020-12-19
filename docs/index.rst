@@ -1,4 +1,3 @@
-=======
 ..
   .. image:: graphics/tardis_logo.jpg
 
