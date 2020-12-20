@@ -51,7 +51,7 @@ dependencies:
   - nbformat
   - nbsphinx
   - sphinx_bootstrap_theme
-  - sphinxcontrib-bibtex
+  - sphinxcontrib-bibtex=1.0
   - sphinxcontrib-apidoc
   - sphinx_rtd_theme
   - recommonmark

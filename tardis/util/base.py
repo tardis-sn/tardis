@@ -289,7 +289,7 @@ def intensity_black_body(nu, T):
     Calculate the intensity of a black-body according to the following formula
 
     .. math::
-        I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\frac{1}
+        I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\\frac{1}
         {e^{h\\nu \\beta_\\textrm{rad}} - 1}
 
     Parameters

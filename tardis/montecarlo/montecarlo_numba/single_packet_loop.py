@@ -36,21 +36,19 @@ def single_packet_loop(
     r_packet, numba_model, numba_plasma, estimators, vpacket_collection
 ):
     """
-
     Parameters
     ----------
-    r_packet: tardis.montecarlo.montecarlo_numba.r_packet.RPacket
-    numba_model: tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
-    numba_plasma: tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
-    estimators: tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
-    vpacket_collection: tardis.montecarlo.montecarlo_numba.numba_interface.VPacketCollection
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    numba_model : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
+    numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
+    estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
+    vpacket_collection : tardis.montecarlo.montecarlo_numba.numba_interface.VPacketCollection
 
     Returns
     -------
-        : None
-
-    This function does not return anything but changes the r_packet object
-    and if virtual packets are requested - also updates the vpacket_collection
+    None
+        This function does not return anything but changes the r_packet object
+        and if virtual packets are requested - also updates the vpacket_collection
     """
 
     line_interaction_type = montecarlo_configuration.line_interaction_type
@@ -86,6 +84,8 @@ def single_packet_loop(
             )
 
         elif interaction_type == InteractionType.LINE:
+            r_packet.last_interaction_type = 2
+
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
             )
@@ -100,6 +100,8 @@ def single_packet_loop(
             )
 
         elif interaction_type == InteractionType.ESCATTERING:
+            r_packet.last_interaction_type = 1
+
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
             )

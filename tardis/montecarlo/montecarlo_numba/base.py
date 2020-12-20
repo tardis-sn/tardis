@@ -54,6 +54,9 @@ def montecarlo_radial1d(model, plasma, runner):
     (
         v_packets_energy_hist,
         last_interaction_type,
+        last_interaction_in_nu,
+        last_line_interaction_in_id,
+        last_line_interaction_out_id,
         virt_packet_nus,
         virt_packet_energies,
         virt_packet_last_interaction_in_nu,
@@ -72,6 +75,9 @@ def montecarlo_radial1d(model, plasma, runner):
 
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
     runner.last_interaction_type = last_interaction_type
+    runner.last_interaction_in_nu = last_interaction_in_nu
+    runner.last_line_interaction_in_id = last_line_interaction_in_id
+    runner.last_line_interaction_out_id = last_line_interaction_out_id
 
     if montecarlo_configuration.VPACKET_LOGGING and number_of_vpackets > 0:
         runner.virt_packet_nus = np.concatenate(
@@ -80,18 +86,18 @@ def montecarlo_radial1d(model, plasma, runner):
         runner.virt_packet_energies = np.concatenate(
             np.array(virt_packet_energies)
         ).ravel()
-        runner.virt_packet_last_interaction_in_nu = np.array(
-            virt_packet_last_interaction_in_nu
-        )
-        runner.virt_packet_last_interaction_type = np.array(
-            virt_packet_last_interaction_type
-        )
-        runner.virt_packet_last_line_interaction_in_id = np.array(
-            virt_packet_last_line_interaction_in_id
-        )
-        runner.virt_packet_last_line_interaction_out_id = np.array(
-            virt_packet_last_line_interaction_out_id
-        )
+        runner.virt_packet_last_interaction_in_nu = np.concatenate(
+            np.array(virt_packet_last_interaction_in_nu)
+        ).ravel()
+        runner.virt_packet_last_interaction_type = np.concatenate(
+            np.array(virt_packet_last_interaction_type)
+        ).ravel()
+        runner.virt_packet_last_line_interaction_in_id = np.concatenate(
+            np.array(virt_packet_last_line_interaction_in_id)
+        ).ravel()
+        runner.virt_packet_last_line_interaction_out_id = np.concatenate(
+            np.array(virt_packet_last_line_interaction_out_id)
+        ).ravel()
 
 
 @njit(**njit_dict, nogil=True)
@@ -110,20 +116,28 @@ def montecarlo_main_loop(
 
     Parameters
     ----------
-    packet_collection: PacketCollection
-    numba_model: NumbaModel
-    estimators: NumbaEstimators
-    spectrum_frequency: astropy.units.Quantity
+    packet_collection : PacketCollection
+    numba_model : NumbaModel
+    estimators : NumbaEstimators
+    spectrum_frequency : astropy.units.Quantity
         frequency bins
-    number_of_vpackets: int
+    number_of_vpackets : int
         VPackets released per interaction
-    packet_seeds: numpy.array
+    packet_seeds : numpy.array
     """
     output_nus = np.empty_like(packet_collection.packets_output_nu)
     last_interaction_types = (
         np.ones_like(packet_collection.packets_output_nu) * -1
     )
     output_energies = np.empty_like(packet_collection.packets_output_nu)
+
+    last_interaction_in_nus = np.empty_like(packet_collection.packets_output_nu)
+    last_line_interaction_in_ids = (
+        np.ones_like(packet_collection.packets_output_nu) * -1
+    )
+    last_line_interaction_out_ids = (
+        np.ones_like(packet_collection.packets_output_nu) * -1
+    )
 
     v_packets_energy_hist = np.zeros_like(spectrum_frequency)
     delta_nu = spectrum_frequency[1] - spectrum_frequency[0]
@@ -151,7 +165,7 @@ def montecarlo_main_loop(
             seed,
             i,
             0,
-        )
+        )sn
         vpacket_collection = VPacketCollection(
             r_packet.index,
             spectrum_frequency,
@@ -167,13 +181,16 @@ def montecarlo_main_loop(
         #     raise MonteCarloException
 
         output_nus[i] = r_packet.nu
+        last_interaction_in_nus[i] = r_packet.last_interaction_in_nu
+        last_line_interaction_in_ids[i] = r_packet.last_line_interaction_in_id
+        last_line_interaction_out_ids[i] = r_packet.last_line_interaction_out_id
 
         if r_packet.status == PacketStatus.REABSORBED:
             output_energies[i] = -r_packet.energy
-            last_interaction_types[i] = 0
+            last_interaction_types[i] = r_packet.last_interaction_type
         elif r_packet.status == PacketStatus.EMITTED:
             output_energies[i] = r_packet.energy
-            last_interaction_types[i] = 1
+            last_interaction_types[i] = r_packet.last_interaction_type
 
         vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
         vpackets_energy = vpacket_collection.energies[: vpacket_collection.idx]
@@ -192,23 +209,27 @@ def montecarlo_main_loop(
             v_packets_energy_hist[idx] += vpackets_energy[j]
 
         if montecarlo_configuration.VPACKET_LOGGING:
-            virt_packet_nus.append(
-                vpacket_collection.nus[: vpacket_collection.idx]
-            )
-            virt_packet_energies.append(
-                vpacket_collection.energies[: vpacket_collection.idx]
-            )
+            virt_packet_nus.append(vpackets_nu)
+            virt_packet_energies.append(vpackets_energy)
             virt_packet_last_interaction_in_nu.append(
-                vpacket_collection.last_interaction_in_nu
+                vpacket_collection.last_interaction_in_nu[
+                    : vpacket_collection.idx
+                ]
             )
             virt_packet_last_interaction_type.append(
-                vpacket_collection.last_interaction_type
+                vpacket_collection.last_interaction_type[
+                    : vpacket_collection.idx
+                ]
             )
             virt_packet_last_line_interaction_in_id.append(
-                vpacket_collection.last_interaction_in_id
+                vpacket_collection.last_interaction_in_id[
+                    : vpacket_collection.idx
+                ]
             )
             virt_packet_last_line_interaction_out_id.append(
-                vpacket_collection.last_interaction_out_id
+                vpacket_collection.last_interaction_out_id[
+                    : vpacket_collection.idx
+                ]
             )
 
     packet_collection.packets_output_energy[:] = output_energies[:]
@@ -217,6 +238,9 @@ def montecarlo_main_loop(
     return (
         v_packets_energy_hist,
         last_interaction_types,
+        last_interaction_in_nus,
+        last_line_interaction_in_ids,
+        last_line_interaction_out_ids,
         virt_packet_nus,
         virt_packet_energies,
         virt_packet_last_interaction_in_nu,

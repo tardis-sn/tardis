@@ -38,9 +38,9 @@ class BasePacketSource(abc.ABC):
     @staticmethod
     def create_uniform_packet_energies(no_of_packets, rng):
         """
-        Uniformly distribute energy in arbitrary units where the ensemble of 
-        packets has energy of 1. 
-        
+        Uniformly distribute energy in arbitrary units where the ensemble of
+        packets has energy of 1.
+
         Parameters
         ----------
         no_of_packets : int

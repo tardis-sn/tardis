@@ -21,18 +21,16 @@ from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
 def thomson_scatter(r_packet, time_explosion):
     """
     Thomson scattering — no longer line scattering
-    2) get the doppler factor at that position with the old angle
-    3) convert the current energy and nu into the comoving
-        frame with the old mu
-    4) Scatter and draw new mu - update mu
-    5) Transform the comoving energy and nu back using the new mu
+    \n1) get the doppler factor at that position with the old angle
+    \n2) convert the current energy and nu into the comoving frame with the old mu
+    \n3) Scatter and draw new mu - update mu
+    \n4) Transform the comoving energy and nu back using the new mu
 
     Parameters
     ----------
-    r_packet : RPacket
-    time_explosion: float
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    time_explosion : float
         time since explosion in seconds
-
     """
     old_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
@@ -56,10 +54,13 @@ def thomson_scatter(r_packet, time_explosion):
 def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
     """
     Line scatter function that handles the scattering itself, including new angle drawn, and calculating nu out using macro atom
-    r_packet: RPacket
-    time_explosion: float
-    line_interaction_type: enum
-    numba_plasma: NumbaPlasma
+    
+    Parameters
+    ----------
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    time_explosion : float
+    line_interaction_type : enum
+    numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     """
 
     old_doppler_factor = get_doppler_factor(
@@ -89,12 +90,11 @@ def line_emission(r_packet, emission_line_id, time_explosion, numba_plasma):
     Sets the frequency of the RPacket properly given the emission channel
 
     Parameters
-    -----------
-
-    r_packet: RPacket
-    emission_line_id: int
-    time_explosion: float
-    numba_plasma: NumbaPlasma
+    ----------
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    emission_line_id : int
+    time_explosion : float
+    numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     """
     r_packet.last_line_interaction_out_id = emission_line_id
 

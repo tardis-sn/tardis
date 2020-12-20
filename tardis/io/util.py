@@ -64,7 +64,9 @@ class MockRegexPattern(object):
     A mock class to be used in place of a compiled regular expression
     when a type check is needed instead of a regex match.
 
-    Note: This is usually a lot slower than regex matching.
+    Notes
+    -----
+    This is usually a lot slower than regex matching.
     """
 
     def __init__(self, target_type):
@@ -79,7 +81,9 @@ class MockRegexPattern(object):
 
         Returns
         -------
-        `True` if `text` can be converted to `target_type`.
+        bool
+            Returns `True` if `text` can be converted to `target_type`,
+            otherwise returns `False`
         """
         try:
             self.type(text)
@@ -199,14 +203,15 @@ class HDFWriterMixin(object):
     def to_hdf_util(
         path_or_buf, path, elements, overwrite, complevel=9, complib="blosc"
     ):
-        """A function to uniformly store TARDIS data to an HDF file.
-
+        """
+        A function to uniformly store TARDIS data to an HDF file.
+        
         Scalars will be stored in a Series under path/scalars
         1D arrays will be stored under path/property_name as distinct Series
         2D arrays will be stored under path/property_name as distinct DataFrames
-
+        
         Units will be stored as their CGS value
-
+        
         Parameters
         ----------
         path_or_buf : str or pandas.io.pytables.HDFStore
@@ -216,9 +221,9 @@ class HDFWriterMixin(object):
         elements : dict
             A dict of property names and their values to be
             stored.
-        overwrite: bool
+        overwrite : bool
             If the HDF file path already exists, whether to overwrite it or not
-
+        
         Notes
         -----
         `overwrite` option doesn't have any effect when `path_or_buf` is an
@@ -301,7 +306,7 @@ class HDFWriterMixin(object):
             Path inside the HDF file to store the `elements`
         name : str
             Group inside the HDF file to which the `elements` need to be saved
-        overwrite: bool
+        overwrite : bool
             If the HDF file path already exists, whether to overwrite it or not
         """
         if name is None:
@@ -360,7 +365,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
             all types of properties will be stored. This acts like a filter,
             for example if a value of `property_collections.basic_inputs` is
             given, only those input parameters will be stored to the HDF file.
-        overwrite: bool
+        overwrite : bool
             If the HDF file path already exists, whether to overwrite it or not
         """
         self.collection = collection

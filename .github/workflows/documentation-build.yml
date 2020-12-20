@@ -4,7 +4,7 @@
 name: documentation-build
 
 on:
-  push:
+  pull_request:
     branches:
       - master
   schedule:
@@ -12,6 +12,7 @@ on:
 
 jobs:
   documentation_build:
+    name: Documentation Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -21,7 +22,7 @@ jobs:
         with:
             environment-file: tardis_env3.yml
             activate-environment: tardis
-            channels: conda-forge, defaults
+            channels: conda-forge
             mamba-version: "*"
 
       - name: Install TARDIS

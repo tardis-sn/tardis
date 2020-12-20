@@ -1,4 +1,4 @@
-# Contributing to TARDIS
+# Contribution Guidelines
 
 So you are wondering how can you contribute to TARDIS? Congrats, you've landed on the right page!
 
