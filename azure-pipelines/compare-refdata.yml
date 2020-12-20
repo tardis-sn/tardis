@@ -106,6 +106,8 @@ jobs:
         - bash: |
             ssh azuredevops@opensupernova.org "mkdir -p /home/azuredevops/files/refdata-results/$(System.PullRequest.PullRequestNumber)"
             ssh azuredevops@opensupernova.org "echo $(report.html) | xargs curl -o $(Build.SourceVersion).html"
+          displayName: 'Copy files to server'
+          condition: succeededOrFailed()
 
         - task: GitHubComment@0
           inputs:
@@ -120,6 +122,6 @@ jobs:
             gitHubConnection: 'tardis-sn'
             repositoryName: 'tardis-sn/tardis'
             id: $(System.PullRequest.PullRequestNumber)
-            comment: '**Build failed** $(Build.SourceVersion)'
+            comment: '**Build failed** $(Build.SourceVersion) <br><br> [Click here]($(results.url)/$(System.PullRequest.PullRequestNumber)/$(Build.SourceVersion).html) to see results.'
           displayName: 'Post results (failed)'
           condition: failed()
