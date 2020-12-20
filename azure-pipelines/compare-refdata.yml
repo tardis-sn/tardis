@@ -14,6 +14,7 @@ schedules:
 variables:
   system.debug: false
   artifact.url: 'https://dev.azure.com/tardis-sn/TARDIS/_apis/build/builds/$(Build.BuildId)/artifacts\?artifactName\=report\&api-version\=4.1'
+  results.url: 'http://opensupernova.org/~azuredevops/files/refdata-results'
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -34,12 +35,7 @@ jobs:
       #  If secret sharing is enabled, the token needed to fetch Azure Repos is not shared for security reasons,
       #  breaking the pipeline.
       #
-      #  Solution: Use the GitHub repository until a fix for Azure Repos bug arrives.
-
-      - bash: |
-          source activate tardis
-          $(package.manager) install bokeh --channel conda-forge --no-update-deps --yes
-        displayName: 'Install Bokeh'
+      #  Solution: Fetch reference data GitHub repository until a fix for Azure Repos bug arrives.
 
       - bash: |
           GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/tardis-sn/tardis-refdata.git $(refdata.dir)
@@ -66,6 +62,11 @@ jobs:
           pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
         displayName: 'Generate reference data'
         condition: false
+
+      - bash: |
+          source activate tardis
+          $(package.manager) install bokeh --channel conda-forge --no-update-deps --yes
+        displayName: 'Install Bokeh'
 
       - bash: |
           cd $(refdata.dir)/notebooks
@@ -96,12 +97,22 @@ jobs:
           displayName: 'Get download URL'
           condition: succeededOrFailed()
 
+        - task: InstallSSHKey@0
+          inputs:
+           knownHostsEntry: $(opensupernova_host)
+           sshPublicKey: $(opensupernova_pubkey)
+           sshKeySecureFile: azureOpenSupernovaKey
+
+        - bash: |
+            ssh azuredevops@opensupernova.org "mkdir -p /home/azuredevops/files/refdata-results/$(System.PullRequest.PullRequestNumber)"
+            ssh azuredevops@opensupernova.org "echo $(report.html) | xargs curl -o $(Build.SourceVersion).html"
+
         - task: GitHubComment@0
           inputs:
             gitHubConnection: 'tardis-sn'
             repositoryName: 'tardis-sn/tardis'
             id: $(System.PullRequest.PullRequestNumber)
-            comment: '**Build succeeded** $(Build.SourceVersion) <br><br> [Click here]($(report.html)) to see results.'
+            comment: '**Build succeeded** $(Build.SourceVersion) <br><br> [Click here]($(results.url)/$(System.PullRequest.PullRequestNumber)/$(Build.SourceVersion).html) to see results.'
           displayName: 'Post results (success)'
 
         - task: GitHubComment@0
@@ -109,6 +120,6 @@ jobs:
             gitHubConnection: 'tardis-sn'
             repositoryName: 'tardis-sn/tardis'
             id: $(System.PullRequest.PullRequestNumber)
-            comment: '**Build failed** $(Build.SourceVersion) <br><br> [Click here]($(report.html)) to see results.'
+            comment: '**Build failed** $(Build.SourceVersion)'
           displayName: 'Post results (failed)'
           condition: failed()
