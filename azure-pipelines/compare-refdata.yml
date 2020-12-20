@@ -101,7 +101,7 @@ jobs:
           inputs:
            knownHostsEntry: $(opensupernova_host)
            sshPublicKey: $(opensupernova_pubkey)
-           sshKeySecureFile: azureOpenSupernovaKey
+           sshKeySecureFile: openSupernovaKey
 
         - bash: |
             ssh azuredevops@opensupernova.org "mkdir -p /home/azuredevops/files/refdata-results/$(System.PullRequest.PullRequestNumber)"
