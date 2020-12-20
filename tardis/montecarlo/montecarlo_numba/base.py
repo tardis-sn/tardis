@@ -165,7 +165,7 @@ def montecarlo_main_loop(
             seed,
             i,
             0,
-        )sn
+        )
         vpacket_collection = VPacketCollection(
             r_packet.index,
             spectrum_frequency,
