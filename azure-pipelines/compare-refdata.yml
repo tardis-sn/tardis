@@ -106,7 +106,7 @@ jobs:
 
         - task: GitHubComment@0
           inputs:
-            gitHubConnectDOWNLOAD_URL=$(echo $JSON1 | jq '.value | .[] | .resource | .downloadUrl')ion: 'tardis-sn'
+            gitHubConnection: 'tardis-sn'
             repositoryName: 'tardis-sn/tardis'
             id: $(System.PullRequest.PullRequestNumber)
             comment: '**Build failed** $(Build.SourceVersion) <br><br> [Click here]($(report.html)) to see results.'
