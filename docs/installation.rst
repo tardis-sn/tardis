@@ -80,6 +80,7 @@ then install TARDIS, as follows::
 
 
 .. _install_openmp:
+
 Enabling parallel execution with OpenMP
 ---------------------------------------
 
