@@ -96,7 +96,7 @@ jobs:
 
       - bash: |
           ssh azuredevops@opensupernova.org "mkdir -p /home/azuredevops/public_html/files/refdata-results/$(System.PullRequest.PullRequestNumber)"
-          scp $(refdata.dir)/notebooks/ref_data_compare.html azuredevops@opensupernova.org:/home/azuredevops/public_html/files/refdata-results/$(Build.SourceVersion).html
+          scp $(refdata.dir)/notebooks/ref_data_compare.html azuredevops@opensupernova.org:/home/azuredevops/public_html/files/refdata-results/$(System.PullRequest.PullRequestNumber)/$(Build.SourceVersion).html
         displayName: 'Copy files to server'
         condition: succeededOrFailed()
 
