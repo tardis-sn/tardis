@@ -88,27 +88,20 @@ jobs:
         displayName: 'Upload artifact'
         condition: succeededOrFailed()
 
+      - task: InstallSSHKey@0
+        inputs:
+         knownHostsEntry: $(opensupernova_host)
+         sshPublicKey: $(opensupernova_pubkey)
+         sshKeySecureFile: openSupernovaKey
+
+      - bash: |
+          ssh azuredevops@opensupernova.org "mkdir -p /home/azuredevops/public_html/files/refdata-results/$(System.PullRequest.PullRequestNumber)"
+          scp $(refdata.dir)/notebooks/ref_data_compare.html azuredevops@opensupernova.org:/home/azuredevops/public_html/files/refdata-results/$(Build.SourceVersion).html
+        displayName: 'Copy files to server'
+        condition: succeededOrFailed()
+
       # Run if the pipeline is triggered by a pull request.
       - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
-        - bash: |
-            DOWNLOAD_URL=$(curl -s $ARTIFACT_URL | jq -r '.value | .[] | .resource | .downloadUrl')
-            REPORT_HTML=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
-            echo $REPORT_HTML | xargs curl -o $(Build.SourceVersion).html
-          displayName: 'Get download URL'
-          condition: succeededOrFailed()
-
-        - task: InstallSSHKey@0
-          inputs:
-           knownHostsEntry: $(opensupernova_host)
-           sshPublicKey: $(opensupernova_pubkey)
-           sshKeySecureFile: openSupernovaKey
-
-        - bash: |
-            ssh azuredevops@opensupernova.org "mkdir -p /home/azuredevops/public_html/files/refdata-results/$(System.PullRequest.PullRequestNumber)"
-            scp -r $(BuildSourceVersion).html azuredevops@opensupernova.org:/home/azuredevops/public_html/files/refdata-results/
-          displayName: 'Copy files to server'
-          condition: succeededOrFailed()
-
         - task: GitHubComment@0
           inputs:
             gitHubConnection: 'tardis-sn'
