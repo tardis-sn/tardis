@@ -23,7 +23,7 @@ jobs:
     steps:
       - template: templates/default.yml
         parameters:
-          fetchRefdata: false  # See the comment below
+          fetchRefdata: false  # See the comment below.
           useMamba: true
 
       #  Situation:
@@ -87,36 +87,28 @@ jobs:
         displayName: 'Upload artifact'
         condition: succeededOrFailed()
 
+      # Run if the pipeline is triggered by a pull request.
+      - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+        - bash: |
+            DOWNLOAD_URL=$(curl -s $ARTIFACT_URL | jq -r '.value | .[] | .resource | .downloadUrl')
+            REPORT_HTML=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
+            echo "##vso[task.setvariable variable=report.html]$REPORT_HTML"
+          displayName: 'Get download URL'
+          condition: succeededOrFailed()
 
-  - job: comment
-    condition: eq(variables['Build.Reason'], 'PullRequest')
-    dependsOn: report
+        - task: GitHubComment@0
+          inputs:
+            gitHubConnection: 'tardis-sn'
+            repositoryName: 'tardis-sn/tardis'
+            id: $(System.PullRequest.PullRequestNumber)
+            comment: '**Build succeeded** $(Build.SourceVersion) <br><br> [Click here]($(report.html)) to see results.'
+          displayName: 'Post results (success)'
 
-    steps:
-      - bash: |
-          echo $ARTIFACT_URL
-          DOWNLOAD_URL=$(curl -s $ARTIFACT_URL | jq -r '.value | .[] | .resource | .downloadUrl')
-          echo $DOWNLOAD_URL
-          REPORT_HTML=$(echo $DOWNLOAD_URL | sed 's/zip/file\&subPath=\%2Fref_data_compare.html/g') 
-          echo $REPORT_HTML
-          echo "##vso[task.setvariable variable=report.html]$REPORT_HTML"
-          echo $(report.html)
-        displayName: 'Get download URL'
-        condition: succeededOrFailed()
-
-      - task: GitHubComment@0
-        inputs:
-          gitHubConnection: 'tardis-sn'
-          repositoryName: 'tardis-sn/tardis'
-          id: $(System.PullRequest.PullRequestNumber)
-          comment: '**Build succeeded:** [Download report]($(report.html))'
-        displayName: 'Post results (success)'
-
-      - task: GitHubComment@0
-        inputs:
-          gitHubConnectDOWNLOAD_URL=$(echo $JSON1 | jq '.value | .[] | .resource | .downloadUrl')ion: 'tardis-sn'
-          repositoryName: 'tardis-sn/tardis'
-          id: $(System.PullRequest.PullRequestNumber)
-          comment: '**Build failed:** [Download report]($(report.html))'
-        displayName: 'Post results (failed)'
-        condition: failed()
+        - task: GitHubComment@0
+          inputs:
+            gitHubConnectDOWNLOAD_URL=$(echo $JSON1 | jq '.value | .[] | .resource | .downloadUrl')ion: 'tardis-sn'
+            repositoryName: 'tardis-sn/tardis'
+            id: $(System.PullRequest.PullRequestNumber)
+            comment: '**Build failed** $(Build.SourceVersion) <br><br> [Click here]($(report.html)) to see results.'
+          displayName: 'Post results (failed)'
+          condition: failed()
