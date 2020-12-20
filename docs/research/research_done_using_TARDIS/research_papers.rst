@@ -1,6 +1,6 @@
-##################
+###################
 Papers Using TARDIS
-##################
+###################
     **Magee, M. R., Maguire, K.** 2020, A&A, *"An investigation of* :sup:`56`\ *Ni shells as the source of early light curve bumps in type Ia supernovae"* `(ADS Link) <https://ui.adsabs.harvard.edu/abs/2020A&A...642A.189M>`_
     
 
