@@ -69,7 +69,8 @@ class Radial1DModel(HDFWriterMixin):
     no_of_raw_shells : int
     """
 
-    hdf_properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer', 'homologous_density']
+    hdf_properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer',
+                      'homologous_density', 'r_inner']
     hdf_name = 'model'
 
     def __init__(self, velocity, homologous_density, abundance, isotope_abundance,
