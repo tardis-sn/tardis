@@ -168,7 +168,7 @@ The following bibtex entries are needed for the references.
                       Magee, Mark and
                       Yap, Kevin and
                       Gupta, Suyash},
-      title        = {tardis-sn/tardis: TARDIS v3.0.dev3459},
+      title        = {tardis-sn/tardis: TARDIS v3.0.dev3794},
       month        = jun,
       year         = 2020,
       publisher    = {Zenodo},
