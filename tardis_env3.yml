@@ -68,6 +68,9 @@ dependencies:
   # Code quality
   - black
 
+  # Other
+  - parso=0.8
+
   - pip:
       # Documentation
       - sphinxcontrib-tikz
