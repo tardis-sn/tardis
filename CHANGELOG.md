@@ -1,5 +1,8 @@
 ## Change Log
 
+### v3.0.dev3794 (2020/12/21 15:22 +00:00)
+- [#1241](https://github.com/tardis-sn/tardis/pull/1241) Add modified Kromer plot to work with widgets (@jaladh-singhal)
+
 ### v3.0.dev3769 (2020/12/18 21:07 +00:00)
 - [#1395](https://github.com/tardis-sn/tardis/pull/1395) Update Matterbridge docs (#1395) (@epassaro)
 - [#1369](https://github.com/tardis-sn/tardis/pull/1369) Fix incorrect docstrings (#1369) (@KevinCawley)
