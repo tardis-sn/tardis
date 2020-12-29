@@ -270,7 +270,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
     for the electron densities are not similar to within the threshold
     value, a new guess for the value of the electron density is chosen
     and the process is repeated.
-    
+
     Attributes
     ----------
     ion_number_density : pandas.DataFrame, dtype float
@@ -401,7 +401,7 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     for the electron densities are not similar to within the threshold
     value, a new guess for the value of the electron density is chosen
     and the process is repeated.
-    
+
     Attributes
     ----------
     ion_number_density : pandas.DataFrame, dtype float
