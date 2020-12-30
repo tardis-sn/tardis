@@ -28,6 +28,8 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # Load all of the global Astropy configuration
 
+import datetime
+
 intersphinx_mapping = {
     'python': ('http://docs.python.org/', None),
     'numpy': ('http://docs.scipy.org/doc/numpy/', None),
@@ -98,7 +100,7 @@ rst_epilog = """
 # This does not *have* to match the package name, but typically does
 project = u'TARDIS'
 author = u'TARDIS collaboration'
-copyright = u'2013, ' + author
+copyright = '{0}-{1}, {2}'.format(2013, datetime.datetime.now().year, author)
 
 master_doc = 'index'
 #default_role = 'obj'
