@@ -540,7 +540,7 @@ After committing your changes you push your change to your repository
 Documentation Guidelines
 ========================
 
-Building local docs is done via compiling docs locally. In order to do this, in the terminal type::
+These instructions cover how to compile documentation locally. In order to do this, in the terminal type::
 
     python setup.py develop
     python setup.py build_docs
@@ -553,7 +553,7 @@ To create new documentation that will have a link inside the `TARDIS pages <http
 
 When making or adding changes to the functionality of an aspect of TARDIS, an example notebook file should be made to be submitted with your Pull Request (PR) to show the changes/function that is created using that file. If a file is being converted from one language to another, a notebook should be included to show that the same values are outputted given the same input. 
 
-Another way to check documentation before it is submitted in a pull request is to preview the documentation online. This steps to do this are described `here <https://tardis-sn.github.io/tardis/development/documentation_preview.html>`_. This is an alternative way to build your own docs to check how they look before they are submitted if building locally is not available for any reason.
+Another way to check documentation before it is submitted in a pull request is to preview the documentation online. The steps to do this are described `here <https://tardis-sn.github.io/tardis/development/documentation_preview.html>`_. This is an alternative way to build your own docs to check how they look before they are submitted if building locally is not available for any reason.
 
 .. include:: git_links.inc
 .. include:: this_project.inc
