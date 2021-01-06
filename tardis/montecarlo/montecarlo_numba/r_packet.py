@@ -622,3 +622,4 @@ def test_for_close_line(r_packet, line_id, nu_line, numba_plasma):
     r_packet.is_close_line = abs(
         numba_plasma.line_list_nu[line_id] - nu_line
     ) < (nu_line * CLOSE_LINE_THRESHOLD)
+    
