@@ -14,7 +14,6 @@ dependencies:
   - numexpr
   - Cython=0.29
   - compilers
-  - blas=*=openblas
 
   # Plasma
   - networkx
@@ -22,7 +21,7 @@ dependencies:
   # I/O
   - pyyaml
   - jsonschema
-  - pyne=0.7.0
+  - pyne=0.7
   - pytables
   - h5py
   - requests
@@ -36,12 +35,12 @@ dependencies:
   - matplotlib
   - graphviz
   - pygraphviz
-  - pyside2
 
   # Widgets & Visualization
   - ipywidgets
   - qgrid
   - plotly
+  - pyside2
 
   # Documentation
   - sphinx
