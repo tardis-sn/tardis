@@ -161,7 +161,7 @@ class TestPlasma(object):
         config["atom_data"] = chianti_he_db_fpath
         sim = Simulation.from_config(config)
         if request.config.getoption("--generate-reference"):
-            sim.plasma.to_hdf(tardis_ref_data, path=config.plasma.save_path)
+            sim.plasma.to_hdf(tardis_ref_data, path=config.plasma.save_path, overwrite=True)
             pytest.skip("Reference data saved at {0}".format(tardis_ref_data))
         return sim.plasma
 
