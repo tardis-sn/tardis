@@ -1,5 +1,8 @@
 ## Change Log
 
+### v3.0.dev3801 (2021/01/08 21:28 +00:00)
+- [#1393](https://github.com/tardis-sn/tardis/pull/1393) update env file (#1393) (@epassaro)
+
 ### v3.0.dev3794 (2020/12/21 15:22 +00:00)
 - [#1241](https://github.com/tardis-sn/tardis/pull/1241) Add modified Kromer plot to work with widgets (@jaladh-singhal)
 
