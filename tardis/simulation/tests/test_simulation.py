@@ -53,9 +53,9 @@ def simulation_one_loop(
             "output_nu",
             "output_energy",
         ]
-        simulation.to_hdf(tardis_ref_data, "", "test_simulation")
-        simulation.model.to_hdf(tardis_ref_data, "", "test_simulation")
-        simulation.runner.to_hdf(tardis_ref_data, "", "test_simulation")
+        simulation.to_hdf(tardis_ref_data, "", "test_simulation", overwrite=True)
+        simulation.model.to_hdf(tardis_ref_data, "", "test_simulation", overwrite=True)
+        simulation.runner.to_hdf(tardis_ref_data, "", "test_simulation", overwrite=True)
         pytest.skip("Reference data was generated during this run.")
 
 
