@@ -13,26 +13,45 @@ schedules:
 
 variables:
   system.debug: false
+  results.url: 'http://opensupernova.org/~azuredevops/files/refdata-results'
+  commit.sha: '$(Build.SourceVersion)'
+  pr.number: '$(System.PullRequest.PullRequestNumber)'
+
+pool:
+  vmImage: 'ubuntu-latest'
 
 jobs:
-  - job: report
-    pool:
-      vmImage: 'ubuntu-latest'
-
+  - job: 'report'
     steps:
       - template: templates/default.yml
         parameters:
-          fetchRefdata: true
+          fetchRefdata: false  # See the comment below.
           useMamba: true
-      
+
+      #  Conflict:
+      #
+      #     requirement 1: Azure Repos requires token auth for public repositories containing LFS objects (bug).
+      #     requirement 2: GitHubComment task requires secret sharing enabled to work.
+      #
+      #  If secret sharing is enabled, the token needed to fetch Azure Repos is not shared for security reasons,
+      #  breaking the pipeline.
+      #
+      #  Solution: Fetch reference data from GitHub repository until a fix for Azure Repos bug arrives.
+
       - bash: |
-          source activate tardis
-          $(package.manager) install bokeh --channel conda-forge --no-update-deps --yes
-        displayName: 'Install Bokeh'
+          GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/tardis-sn/tardis-refdata.git $(refdata.dir)
+          cd $(refdata.dir)
+          git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5"
+          git lfs pull --include="atom_data/chianti_He.h5"
+          git lfs pull --include="unit_test_data.h5"
+          git lfs pull --include="packet_unittest.h5"
+          git lfs pull --include="montecarlo_1e5_compare_data.h5"
+          git lfs pull --include="montecarlo_one_packet_compare_data.h5"
+        displayName: 'Fetch reference data repository'
 
       - bash: |
           cd $(refdata.dir)
-          git remote add upstream https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata
+          git remote add upstream https://github.com/tardis-sn/tardis-refdata.git
           git fetch upstream
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
         displayName: 'Set upstream remote'
@@ -42,6 +61,11 @@ jobs:
           source activate tardis
           pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
         displayName: 'Generate reference data'
+
+      - bash: |
+          source activate tardis
+          $(package.manager) install bokeh --channel conda-forge --no-update-deps --yes
+        displayName: 'Install Bokeh'
 
       - bash: |
           cd $(refdata.dir)/notebooks
@@ -62,3 +86,34 @@ jobs:
           artifactName: 'report'
         displayName: 'Upload artifact'
         condition: succeededOrFailed()
+
+      - task: InstallSSHKey@0
+        inputs:
+         knownHostsEntry: $(opensupernova_host)
+         sshPublicKey: $(opensupernova_pubkey)
+         sshKeySecureFile: openSupernovaKey
+
+      - bash: |
+          ssh azuredevops@opensupernova.org "mkdir -p /home/azuredevops/public_html/files/refdata-results/$(pr.number)"
+          scp $(refdata.dir)/notebooks/ref_data_compare.html azuredevops@opensupernova.org:/home/azuredevops/public_html/files/refdata-results/$(pr.number)/$(commit.sha).html
+        displayName: 'Copy files to server'
+        condition: succeededOrFailed()
+
+      # Run if the pipeline is triggered by a pull request.
+      - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+        - task: GitHubComment@0
+          inputs:
+            gitHubConnection: 'tardis-sn'
+            repositoryName: 'tardis-sn/tardis'
+            id: $(pr.number)
+            comment: '**Build succeeded** $(commit.sha) <br><br> [Click here]($(results.url)/$(pr.number)/$(commit.sha).html) to see results.'
+          displayName: 'Post results (success)'
+
+        - task: GitHubComment@0
+          inputs:
+            gitHubConnection: 'tardis-sn'
+            repositoryName: 'tardis-sn/tardis'
+            id: $(pr.number)
+            comment: '**Build failed** $(commit.sha) <br><br> [Click here]($(results.url)/$(pr.number)/$(commit.sha).html) to see results.'
+          displayName: 'Post results (failed)'
+          condition: failed()
