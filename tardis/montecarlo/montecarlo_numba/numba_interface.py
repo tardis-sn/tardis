@@ -330,4 +330,3 @@ class LineInteractionType(IntEnum):
     SCATTER = 0
     DOWNBRANCH = 1
     MACROATOM = 2
-    
