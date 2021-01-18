@@ -1,7 +1,7 @@
 .. _Code_Quality_Guidelines:
 
 *******************
-TARDIS Coding Guide
+Code Quality Guidelines
 *******************
 
 General Code Format
