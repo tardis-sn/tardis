@@ -4,7 +4,7 @@
 Code Quality Guidelines
 *******************
 
-General Code Format
+Code Style
 ===================
 
 TARDIS follows the `Black <https://black.readthedocs.io/en/stable/>`_ coding style for files, and files submitted should follow the Black style. To install Black, do::
