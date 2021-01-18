@@ -153,4 +153,3 @@ def set_packet_props_full_relativity(r_packet, numba_model):
     r_packet.nu *= inverse_doppler_factor
     r_packet.energy *= inverse_doppler_factor
     r_packet.mu = (r_packet.mu + beta) / (1 + beta * r_packet.mu)
-    
