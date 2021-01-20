@@ -99,7 +99,6 @@ Mission Statement
     development/index
     CHANGELOG.md
     roadmap
-    Code Quality Guidelines <Code_Quality_Guidelines.rst>
 
 .. toctree::
     :maxdepth: 2
