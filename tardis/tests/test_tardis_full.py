@@ -34,7 +34,9 @@ class TestRunnerSimple:
                 "spectrum",
                 "spectrum_virtual",
             ]
-            simulation.runner.to_hdf(tardis_ref_data, "", self.name, overwrite=True)
+            simulation.runner.to_hdf(
+                tardis_ref_data, "", self.name, overwrite=True
+            )
             pytest.skip("Reference data was generated during this run.")
 
     @pytest.fixture(scope="class")
