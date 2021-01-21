@@ -1,19 +1,38 @@
-
+************************
 Documentation Guidelines
-========================
+************************
 
-These instructions cover how to compile documentation locally. In order to do
-this, in the terminal type::
+High-quality and consistent documentation are very important at TARDIS. It allow new users to find how to do something specific using TARDIS, as well as help developers (like you!) to understand the best practices.
 
-    python setup.py develop
+TARDIS uses the popular Python documentation generator - `Sphinx <https://www.sphinx-doc.org/>`_. It translates a set of plain text source files (often written in `reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_) to HTML files, automatically producing cross-references, indices, etc. If you haven't worked with Sphinx before, you should first read their `quickstart <https://www.sphinx-doc.org/en/master/usage/quickstart.html>`_ guide.
+
+
+Documenting the code you write
+==============================
+
+When making or adding changes to the functionality of an aspect of TARDIS, an example notebook or .rst file should be created to demonstrate how it works. A good example of it is the `quickstart notebook <https://tardis-sn.github.io/tardis/quickstart/quickstart.html>`_ which gives an overview of how TARDIS works. You will also need to add the .rst (or notebook) file's path within the relevant ``index.rst`` file - it is usually present within the same (or parent) directory where you've created your file. For example, when the documentation was created for `research papers that used TARDIS <https://tardis-sn.github.io/tardis/research/research_done_using_TARDIS/research_papers.html>`_, toctree in `this index file <https://github.com/tardis-sn/tardis/blob/master/docs/research/index.rst>`_ was edited to add the path to the .rst file.
+
+Besides this, the functions and classes in your code must always contain **docstrings**. Read :ref:`this section <docstrings>` of our code quality guidelines to understand their importance and how they should be formatted. Sphinx uses these docstrings to auto-generate the `API documentation <https://tardis-sn.github.io/tardis/api/modules.html>`_ for entire TARDIS package. Please make sure if you've correctly formatted the written docstrings by checking how corresponding module's API looks, once you build the documentation.
+
+
+Building documentation locally
+==============================
+
+To build TARDIS documentation locally, you can use either of the following commands: ::
+
     python setup.py build_docs
     
-The first command only needs to be done once. This command allows you to create a link in the deployment directory so you can edit code and see changes without having to reinstall the environment every time you make a change. 
+or ::
 
-The second command needs to be used every time you want to compile the docs to see your changes. If you don't type this command after making changes, your local docs will not recompile. Upon running this command, a new folder, _build, should be created inside of tardis/docs. Go through this folder and find the local docs that you are changing/creating to view how they will be compiled once a PR is approved. This method is good to check the formatting of docstrings in the API and the formatting of display files such as this one, as well as any other aspects that will be loaded in the tardis docs. For information on how docstrings should be formatted, refer to the `Tardis Coding Guide <https://tardis-sn.github.io/tarids/Code_Quality_Guidelines.html>`_ for more information and examples. 
+    cd docs
+    make html
 
-To create new documentation that will have a link inside the `TARDIS pages <https://tardis-sn.github.io/tardis>`_, you will need to edit the corresponding index.rst file to include your file inside of the toctree. For example, when the documentation was made for `research papers that used TARDIS <https://tardis-sn.github.io/tardis/research/research_done_using_TARDIS/research_papers.html>`_, this location's `index.rst <https://github.com/tardis-sn/tardis/blob/master/docs/research/index.rst>`_ toctree was editted to include the path to the .rst file that would be generated when the docs are compiled. The `folder <https://github.com/tardis-sn/tardis/tree/master/docs/research/research_done_using_TARDIS>`_ that holds research_papers.rst also holds the notebook that creates the .rst document. In general, notebooks aren't displayed in the toctree and following documentation because their purpose is to generate a file or show the code running. They should be present in order to show examples of the code running and how it works, but they shouldn't show up in the documentation unless they have a documentation purpose such as the `quickstart notebook <https://tardis-sn.github.io/tardis/quickstart/quickstart.html>`_. 
+.. note :: If you're working on a fresh local copy of TARDIS repository, you might need to do ``python setup.py develop`` before these commands.
 
-When making or adding changes to the functionality of an aspect of TARDIS, an example notebook file should be made to be submitted with your Pull Request (PR) to show the changes/function that is created using that file. If a file is being converted from one language to another, a notebook should be included to show that the same values are outputted given the same input. 
+After running this command, you can find the built docs i.e. HTML webpages in ``docs/_build``. Open the ``index.html`` in your browser to see how the documentation looks like with your edits. Navigate to page where you made changes or that you added to check whether it looks as intended or not.
 
-Another way to check documentation before it is submitted in a pull request is to preview the documentation online. The steps to do this are described `here <https://tardis-sn.github.io/tardis/development/documentation_preview.html>`_. This is an alternative way to build your own docs to check how they look before they are submitted if building locally is not available for any reason.
+
+Sharing the built documentation in your PR
+==========================================
+
+When you make edits in TARDIS documentation and submit a PR, we can only see the changes in source files in GitHub files diff, but not the built documentation (webpages). This is usually fine unless you have made changes in the way documentation pages are structured or anything that affects lot of files. In such cases, you should share the preview of documentation with your changes by building it online. The steps to do this are described :ref:`here <doc-preview>`. This will help us (reviewers of your PR) to check how the documentation will look once your PR is merged.
