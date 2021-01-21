@@ -38,7 +38,7 @@ Please make sure that you provide all the necessary information requested by pro
 
 There is always a scope of improvement in documentation to add some missing information or to make it easier for reading. And here lies an opportunity for you, since you can edit the documentation page you want which is stored as a text file in [`docs`](https://github.com/tardis-sn/tardis/tree/master/docs) directory of TARDIS.
 
-After editing the file locally, build the docs as described in [these instructions](#) and then you can submit your changes to us by making a patch as described in the next section.
+After editing the file locally, build the docs as described in [these instructions](https://tardis-sn.github.io/tardis/development/documentation_guidelines.html#building-documentation-locally) and then you can submit your changes to us by making a patch as described in the next section.
 
 ### Making a Patch
 
@@ -48,10 +48,9 @@ To contribute your code to TARDIS, you'll need to make a [pull request](https://
 
 When you make a pull request, please provide all the necessary information requested by prompts in the pull request body. Also, make sure that the code you're submitting always accounts for the following three:
 
-- **Maintaining code quality:** Your code must follow the PEP8 style guide, should cover edge cases, etc. Check our [code quality guidelines](#) for more details.
-- **Documenting the code:** You must write docstrings in functions/classes, put a relevant example in TARDIS docs and make sure docs get built correctly. To build the documentation locally, you can follow [this guide](#).
+- **Maintaining code quality:** Your code must follow the PEP8 style guide, should cover edge cases, etc. Check our [code quality guidelines](https://tardis-sn.github.io/tardis/development/code_quality.html) for more details.
+- **Documenting the code:** You must write docstrings in functions/classes, put a relevant example in TARDIS docs and make sure docs get built correctly. This is explained in detail in our [documentation guidelines](https://tardis-sn.github.io/tardis/development/documentation_guidelines.html).
 - **Testing the code:** There should be unit-tests for most of the functions/methods and they must pass our testing framework. To run test locally, you can follow [this guide](https://tardis-sn.github.io/tardis/development/running_tests.html).
-
 
 ### Spreading the word of mouth
 
