@@ -39,15 +39,15 @@ class Node(object):
 
     Attributes
     ----------
-    parent : None/Node 
+    parent : None/Node
         The parent of the node.
     children : list of Node
         The children of the node.
-    data : list of string 
+    data : list of string
         The data stored on the node. Can be a key or a value.
-    siblings : dictionary 
-        A dictionary of nodes that are siblings of this node. The 
-        keys are the values of the nodes themselves. This is 
+    siblings : dictionary
+        A dictionary of nodes that are siblings of this node. The
+        keys are the values of the nodes themselves. This is
         used to keep track of which value the user has selected
         if the parent of this node happens to be a key that can
         take values from a list.
@@ -60,8 +60,8 @@ class Node(object):
         ----------
         data : list of string
             The data that is intended to be stored on the node.
-        parent : Node 
-            Another node which is the parent of this node. The 
+        parent : Node
+            Another node which is the parent of this node. The
             root node has parent set to None.
 
         Note
@@ -164,10 +164,10 @@ class TreeModel(QtCore.QAbstractItemModel):
     ----------
     root : Node
         Root node of the tree.
-    disabledNodes : list of Node 
+    disabledNodes : list of Node
         List of leaf nodes that are not editable currently.
-    typenodes : list of Node 
-        List of nodes that correspond to keys that set container 
+    typenodes : list of Node
+        List of nodes that correspond to keys that set container
         types. Look at tardis configuration template. These are the
         nodes that have values that can be set from a list.
     """
@@ -177,9 +177,9 @@ class TreeModel(QtCore.QAbstractItemModel):
 
         Parameters
         ----------
-        dictionary : dictionary            
+        dictionary : dictionary
             The dictionary that needs to be converted to the tree.
-        parent : None 
+        parent : None
             Used to instantiate the QAbstractItemModel
         """
         QtCore.QAbstractItemModel.__init__(self, parent)
@@ -347,7 +347,7 @@ class TreeModel(QtCore.QAbstractItemModel):
         ----------
         dictionary : dictionary
             The dictionary that is to be converted to the tree.
-        root : Node 
+        root : Node
             The root node of the tree.
         """
         # Construct tree with all nodes

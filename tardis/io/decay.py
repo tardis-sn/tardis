@@ -106,7 +106,7 @@ class IsotopeAbundances(pd.DataFrame):
         Returns
         -------
         pandas.DataFrame
-            Merged isotope abundances 
+            Merged isotope abundances
         """
 
         return self.groupby("atomic_number").sum()
@@ -117,7 +117,7 @@ class IsotopeAbundances(pd.DataFrame):
 
         Parameters
         ----------
-        other : pd.DataFrame 
+        other : pd.DataFrame
         normalize : bool
             If true, resultant dataframe will be normalized
 

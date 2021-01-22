@@ -205,13 +205,13 @@ class HDFWriterMixin(object):
     ):
         """
         A function to uniformly store TARDIS data to an HDF file.
-        
+
         Scalars will be stored in a Series under path/scalars
         1D arrays will be stored under path/property_name as distinct Series
         2D arrays will be stored under path/property_name as distinct DataFrames
-        
+
         Units will be stored as their CGS value
-        
+
         Parameters
         ----------
         path_or_buf : str or pandas.io.pytables.HDFStore
@@ -223,7 +223,7 @@ class HDFWriterMixin(object):
             stored.
         overwrite : bool
             If the HDF file path already exists, whether to overwrite it or not
-        
+
         Notes
         -----
         `overwrite` option doesn't have any effect when `path_or_buf` is an

@@ -36,7 +36,7 @@ def show(model):
     show method is called.
 
     Finally the eventloop is started using IPython functions (which start them
-    consistently) if they were imported. Otherwise it is started explicitly. 
+    consistently) if they were imported. Otherwise it is started explicitly.
     """
     if importFailed:
         app = QtWidgets.QApplication([])

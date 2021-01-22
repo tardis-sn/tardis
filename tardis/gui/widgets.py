@@ -391,7 +391,7 @@ class ConfigEditor(QtWidgets.QWidget):
             The template dictionary with all default values set. This
             one may have some keys missing that are present in the
             `dict1`. Such keys will be appended.
-            
+
         Raises
         ------
         IOError

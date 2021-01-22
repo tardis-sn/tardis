@@ -340,7 +340,7 @@ def quantity_representer(dumper, data):
 def cns_representer(dumper, data):
     """
     Represents Configuration as dict
-    
+
     Parameters
     ----------
     dumper :

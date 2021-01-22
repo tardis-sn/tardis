@@ -30,7 +30,7 @@ class Levels(BaseAtomicDataProperty):
     """
     Attributes
     ----------
-    levels : pandas.MultiIndex 
+    levels : pandas.MultiIndex
         (atomic_number, ion_number, level_number)
         Index of filtered atomic data. Index used for all other attribute dataframes for this class
     excitation_energy : pandas.DataFrame, dtype float
@@ -70,7 +70,7 @@ class Lines(BaseAtomicDataProperty):
     """
     Attributes
     ----------
-    lines : pandas.DataFrame 
+    lines : pandas.DataFrame
         Atomic lines data. Columns are wavelength, atomic_number,ion_number,
         f_ul, f_lu, level_number_lower, level_number_upper, nu, B_lu, B_ul, A_ul,
         wavelength. Index is line_id.
@@ -192,7 +192,7 @@ class IonizationData(BaseAtomicDataProperty):
     """
     Attributes
     ----------
-    ionization_data : pandas.Series 
+    ionization_data : pandas.Series
         Holding ionization energies
         Indexed by atomic number, ion number.
     """
