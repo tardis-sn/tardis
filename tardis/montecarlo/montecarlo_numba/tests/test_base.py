@@ -3,130 +3,167 @@ import pandas as pd
 import os
 import numpy.testing as npt
 import numpy as np
-import copy
+from copy import deepcopy
+from astropy import units as u
 
+from tardis.montecarlo import (
+    montecarlo_configuration as montecarlo_configuration,
+)
 import tardis.montecarlo.montecarlo_numba.base as base
-from tardis.montecarlo.montecarlo_numba.numba_interface import PacketCollection, VPacketCollection
-from tardis.montecarlo import montecarlo_configuration as montecarlo_configuration
-import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
-import tardis.montecarlo.montecarlo_numba.numba_config as numba_config
+from tardis.simulation import Simulation
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
 import tardis.montecarlo.montecarlo_numba.single_packet_loop as spl
-
-@pytest.fixture()
-def read_c_test(tardis_ref_path):
-    mode = "r"
-    with pd.HDFStore(
-        os.path.join(tardis_ref_path, "montecarlo_one_packet_compare_data.h5"), mode=mode
-    ) as store:
-        yield store
-
-@pytest.fixture()
-def c_test_packet_collection(read_c_test):
-    input_data = read_c_test['/one_packet_loop']
-    input_nu = input_data['input_nu'].values
-    input_mu = input_data['input_mu'].values
-    input_energy = input_data['input_energy'].values
-    output_nu = input_data['output_nu'].values
-    output_energy = input_data['output_energy'].values
-    return PacketCollection(
-        input_nu, input_mu, input_energy,
-        output_nu, output_energy
-    )
-
-@pytest.fixture(scope="function")
-def model():
-    return numba_interface.NumbaModel(
-        r_inner = np.array([6.912e14, 8.64e14], dtype=np.float64),
-        r_outer = np.array([8.64e14, 1.0368e15], dtype=np.float64),
-        time_explosion = 5.2e7
-    )
-
-@pytest.fixture(scope="function")
-def estimators():
-    return numba_interface.Estimators(
-        j_estimator = np.array([0.0, 0.0], dtype=np.float64),
-        nu_bar_estimator = np.array([0.0, 0.0], dtype=np.float64),
-        j_blue_estimator = np.array([[1.e-10], [1.e-10]], dtype=np.float64),
-        Edotlu_estimator = np.array([[0.0, 0.0, 1.0], [0.0, 0.0, 1.0]], dtype=np.float64)
-    )
-
-@pytest.fixture(scope="function")
-def plasma():
-    return numba_interface.NumbaPlasma(
-        electron_density = np.array([1.0e9, 1.0e9], dtype=np.float64),
-        line_list_nu = np.array([
-            1.26318289e+16,
-            1.26318289e+16,
-            1.23357675e+16,
-            1.23357675e+16,
-            1.16961598e+16], dtype=np.float64),
-        tau_sobolev = np.ones((500, 2), dtype=np.float64) * 1.0e-5,
-        transition_probabilities = np.array([[0], [0]], dtype=np.float64),
-        line2macro_level_upper = np.array([0, 0], dtype=np.int64),
-        macro_block_references = np.array([0, 0], dtype=np.int64),
-        transition_type = np.array([0, 0], dtype=np.int64),
-        destination_level_id = np.array([0, 0], dtype=np.int64),
-        transition_line_id = np.array([0, 0], dtype=np.int64)
-    )
+from tardis.montecarlo.montecarlo_numba.numba_interface import (
+    PacketCollection,
+    VPacketCollection,
+    NumbaModel,
+    numba_plasma_initialize,
+    Estimators,
+    configuration_initialize,
+)
 
 
-@pytest.mark.xfail(reason='To be implemented')
+@pytest.mark.xfail(reason="To be implemented")
 def test_montecarlo_radial1d():
     assert False
 
-#@pytest.mark.xfail(reason='To be implemented')
+
 def test_montecarlo_main_loop(
-    c_test_packet_collection, model, plasma, estimators,
-    nb_simulation_verysimple, set_seed_fixture, random_call_fixture
+    config_verysimple,
+    atomic_dataset,
+    tardis_ref_path,
+    tmpdir,
+    set_seed_fixture,
+    random_call_fixture,
 ):
+
+    montecarlo_configuration.LEGACY_MODE_ENABLED = True
+
+    # Load C data from refdata
+    C_fname = os.path.join(tardis_ref_path, "montecarlo_1e5_compare_data.h5")
+    expected_nu = pd.read_hdf(
+        C_fname, key="/simulation/runner/output_nu"
+    ).values
+    expected_energy = pd.read_hdf(
+        C_fname, key="/simulation/runner/output_energy"
+    ).values
+    expected_nu_bar_estimator = pd.read_hdf(
+        C_fname, key="/simulation/runner/nu_bar_estimator"
+    ).values
+    expected_j_estimator = pd.read_hdf(
+        C_fname, key="/simulation/runner/j_estimator"
+    ).values
+
+    # Setup model config from verysimple
+    atomic_data = deepcopy(atomic_dataset)
+    config_verysimple.montecarlo.last_no_of_packets = 1e5
+    config_verysimple.montecarlo.no_of_virtual_packets = 0
+    config_verysimple.montecarlo.iterations = 1
+    config_verysimple.montecarlo.single_packet_seed = 0
+    del config_verysimple["config_dirname"]
+
+    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
+
+    # Init model
+    numba_plasma = numba_plasma_initialize(
+        sim.plasma, line_interaction_type="macroatom"
+    )
+
+    runner = sim.runner
+    model = sim.model
+
+    runner._initialize_geometry_arrays(model)
+    runner._initialize_estimator_arrays(numba_plasma.tau_sobolev.shape)
+    runner._initialize_packets(model.t_inner.value, 100000, 0)
+
+    # Init parameters
+    montecarlo_configuration.v_packet_spawn_start_frequency = (
+        runner.virtual_spectrum_spawn_range.end.to(
+            u.Hz, equivalencies=u.spectral()
+        ).value
+    )
+    montecarlo_configuration.v_packet_spawn_end_frequency = (
+        runner.virtual_spectrum_spawn_range.start.to(
+            u.Hz, equivalencies=u.spectral()
+        ).value
+    )
+    montecarlo_configuration.temporary_v_packet_bins = 20000
+    montecarlo_configuration.full_relativity = runner.enable_full_relativity
     montecarlo_configuration.single_packet_seed = 0
-    
-    output_packet_collection = PacketCollection(
-        c_test_packet_collection.packets_input_nu,
-        c_test_packet_collection.packets_input_mu,
-        c_test_packet_collection.packets_input_energy,
-        np.zeros(len(c_test_packet_collection.packets_input_nu), dtype=np.float64),
-        np.zeros(len(c_test_packet_collection.packets_input_nu), dtype=np.float64)
+
+    # Init packet collection from runner
+    packet_collection = PacketCollection(
+        runner.input_nu,
+        runner.input_mu,
+        runner.input_energy,
+        runner._output_nu,
+        runner._output_energy,
     )
 
-    numba_config.SIGMA_THOMSON = 6.652486e-25
-    
+    # Init model from runner
+    numba_model = NumbaModel(
+        runner.r_inner_cgs,
+        runner.r_outer_cgs,
+        model.time_explosion.to("s").value,
+    )
+
+    # Init estimators from runner
+    estimators = Estimators(
+        runner.j_estimator,
+        runner.nu_bar_estimator,
+        runner.j_blue_estimator,
+        runner.Edotlu_estimator,
+    )
+
+    # Empty vpacket collection
     vpacket_collection = VPacketCollection(
-        np.array([0, 0], dtype=np.float64), 0, np.inf, 
-        0, 0
+        0, np.array([0, 0], dtype=np.float64), 0, np.inf, 0, 0
     )
 
-    output_nus = np.empty_like(output_packet_collection.packets_output_nu)
-    output_energies = np.empty_like(output_packet_collection.packets_output_nu)
+    # output arrays
+    output_nus = np.empty_like(packet_collection.packets_output_nu)
+    output_energies = np.empty_like(packet_collection.packets_output_nu)
 
-    set_seed_fixture(23111963)
+    # IMPORTANT: seeds RNG state within JIT
     seed = 23111963
-    for i in range(len(c_test_packet_collection.packets_input_nu)):
-        packet = r_packet.RPacket(model.r_inner[0],
-                           output_packet_collection.packets_input_mu[i],
-                           output_packet_collection.packets_input_nu[i],
-                           output_packet_collection.packets_input_energy[i],
-                           seed,
-                           i, 0)
-
-    
-        spl.single_packet_loop(
-            packet, model, plasma, estimators, vpacket_collection 
+    set_seed_fixture(seed)
+    for i in range(len(packet_collection.packets_input_nu)):
+        # Generate packet
+        packet = r_packet.RPacket(
+            numba_model.r_inner[0],
+            packet_collection.packets_input_mu[i],
+            packet_collection.packets_input_nu[i],
+            packet_collection.packets_input_energy[i],
+            seed,
+            i,
+            0,
         )
 
+        # Loop packet
+        spl.single_packet_loop(
+            packet, numba_model, numba_plasma, estimators, vpacket_collection
+        )
         output_nus[i] = packet.nu
-
         if packet.status == r_packet.PacketStatus.REABSORBED:
             output_energies[i] = -packet.energy
         elif packet.status == r_packet.PacketStatus.EMITTED:
             output_energies[i] = packet.energy
 
-        #random_call_fixture()
+        # RNG to match C
+        random_call_fixture()
 
-    # np.savetxt('scatter_output_energy.txt', output_energies)
-    output_packet_collection.packets_output_energy[:] = output_energies[:]
-    output_packet_collection.packets_output_nu[:] = output_nus[:]
+    packet_collection.packets_output_energy[:] = output_energies[:]
+    packet_collection.packets_output_nu[:] = output_nus[:]
 
-    npt.assert_allclose(output_packet_collection.packets_output_nu, c_test_packet_collection.packets_output_nu, rtol=1e-12)
-    npt.assert_allclose(output_packet_collection.packets_output_energy, c_test_packet_collection.packets_output_energy, rtol=1e-12)
+    actual_energy = packet_collection.packets_output_energy
+    actual_nu = packet_collection.packets_output_nu
+    actual_nu_bar_estimator = estimators.nu_bar_estimator
+    actual_j_estimator = estimators.j_estimator
+
+    # Compare
+    npt.assert_allclose(
+        actual_nu_bar_estimator, expected_nu_bar_estimator, rtol=1e-13
+    )
+    npt.assert_allclose(actual_j_estimator, expected_j_estimator, rtol=1e-13)
+    npt.assert_allclose(actual_energy, expected_energy, rtol=1e-13)
+    npt.assert_allclose(actual_nu, expected_nu, rtol=1e-13)

@@ -7,7 +7,7 @@ from astropy.tests.helper import assert_quantity_allclose
 from tardis.simulation.base import Simulation
 from tardis.io.config_reader import Configuration
 
-pytestmark = pytest.mark.skip(reason='memory problem')
+pytestmark = pytest.mark.skip(reason="memory problem")
 
 config_line_modes = ["downbranch", "macroatom"]
 interpolate_shells = [-1, 30]

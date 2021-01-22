@@ -4,8 +4,10 @@ from enum import IntEnum
 from numba import njit
 from tardis.montecarlo.montecarlo_numba import njit_dict
 
+
 class MacroAtomError(ValueError):
     pass
+
 
 class MacroAtomTransitionType(IntEnum):
     INTERNAL_UP = 1
@@ -30,7 +32,8 @@ def macro_atom(r_packet, numba_plasma):
 
     """
     activation_level_id = numba_plasma.line2macro_level_upper[
-        r_packet.next_line_id]
+        r_packet.next_line_id
+    ]
     current_transition_type = 0
 
     while current_transition_type >= 0:
@@ -44,24 +47,28 @@ def macro_atom(r_packet, numba_plasma):
         for transition_id in range(block_start, block_end):
 
             transition_probability = numba_plasma.transition_probabilities[
-                transition_id, r_packet.current_shell_id]
+                transition_id, r_packet.current_shell_id
+            ]
 
             probability += transition_probability
 
             if probability > probability_event:
                 activation_level_id = numba_plasma.destination_level_id[
-                    transition_id]
+                    transition_id
+                ]
                 current_transition_type = numba_plasma.transition_type[
-                    transition_id]
+                    transition_id
+                ]
                 break
 
         else:
             raise MacroAtomError(
-                'MacroAtom ran out of the block. This should not happen as '
-                'the sum of probabilities is normalized to 1 and '
-                'the probability_event should be less than 1')
+                "MacroAtom ran out of the block. This should not happen as "
+                "the sum of probabilities is normalized to 1 and "
+                "the probability_event should be less than 1"
+            )
 
     if current_transition_type == MacroAtomTransitionType.BB_EMISSION:
         return numba_plasma.transition_line_id[transition_id]
     else:
-        raise MacroAtomError('MacroAtom currently only allows BB transitions')
+        raise MacroAtomError("MacroAtom currently only allows BB transitions")

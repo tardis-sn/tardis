@@ -9,6 +9,7 @@ from tardis.simulation import Simulation
 
 DATA_PATH = os.path.join(tardis.__path__[0], "plasma", "tests", "data")
 
+
 @pytest.fixture
 def config_init_trad_fname():
     return os.path.join(DATA_PATH, "config_init_trad.yml")
