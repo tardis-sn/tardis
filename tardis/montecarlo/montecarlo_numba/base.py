@@ -127,16 +127,16 @@ def montecarlo_main_loop(
     """
     output_nus = np.empty_like(packet_collection.packets_output_nu)
     last_interaction_types = (
-        np.ones_like(packet_collection.packets_output_nu) * -1
+        np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
     )
     output_energies = np.empty_like(packet_collection.packets_output_nu)
 
     last_interaction_in_nus = np.empty_like(packet_collection.packets_output_nu)
     last_line_interaction_in_ids = (
-        np.ones_like(packet_collection.packets_output_nu) * -1
+        np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
     )
     last_line_interaction_out_ids = (
-        np.ones_like(packet_collection.packets_output_nu) * -1
+        np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
     )
 
     v_packets_energy_hist = np.zeros_like(spectrum_frequency)
