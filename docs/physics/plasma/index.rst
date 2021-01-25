@@ -1,3 +1,5 @@
+.. _plasma_index:
+
 *******************************
 Overview of plasma calculations
 *******************************

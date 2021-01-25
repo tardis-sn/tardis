@@ -8,8 +8,7 @@ Before installing TARDIS, please check its :ref:`requirements
 <requirements_label>`. We provide :ref:`instructions <anaconda_inst_label>` for installing TARDIS using 
 Anaconda. If you encounter problems, consult the
 :ref:`troubleshooting <troubleshooting_inst_label>` section. Once you have
-installed TARDIS, check out :doc:`running` for instructions regarding how to perform
-simple TARDIS calculations.
+installed TARDIS, check out the "Using TARDIS" section (in sidebar) for instructions regarding how to perform simple TARDIS calculations.
 
 .. _requirements_label:
 

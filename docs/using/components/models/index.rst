@@ -6,7 +6,7 @@ TARDIS requires a model of the homologously expanding ejecta in order to run a s
 A model will include information like the velocity shell structure, abundances, density, etc.
 TARDIS offers two ways of specifying the model: either directly in the configuration YAML file
 or separately in a model.csvy file. See `here <https://csvy.org/>`_ for an explanation of
-the CSVY file format and :ref:`here <../running/configuration/config-file>` for a link to the csvy_model schema.
+the CSVY file format and :ref:`here <config-file>` for a link to the csvy_model schema.
 
 .. note::
     We highly recommend using the cleaner CSVY format.

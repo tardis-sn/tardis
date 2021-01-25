@@ -1,3 +1,5 @@
+.. _nebular_plasma:
+
 Nebular Plasma
 --------------
 
