@@ -11,5 +11,5 @@ Old Physics Section (Outdated)
 
 .. toctree::
     montecarlo_old
-    ../plasma/old_plasma
+    old_plasma
     ../plasma/index
