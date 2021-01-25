@@ -1,3 +1,5 @@
+.. _plasma:
+
 ******
 Plasma
 ******
@@ -41,13 +43,15 @@ Updating the Plasma
 -------------------
 During each iteration of the main code, TARDIS updates the plasma using the `update_radiationfield` function. This requires, at minimum, new values for `t_rad` (the radiation temperature), `w` (the dilution factor) and `j_blues` (the intensity in the blue part of each line).
 
+.. _plasma_calculations:
+
 Plasma Calculations
 -------------------
 .. toctree::
     :maxdepth: 2
 
-    plasma/lte_plasma
-    plasma/nebular_plasma
-    plasma/macroatom
-    plasma/nlte
-    plasma/helium_nlte
+    lte_plasma
+    nebular_plasma
+    macroatom
+    nlte
+    helium_nlte
