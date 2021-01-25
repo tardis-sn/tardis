@@ -1,3 +1,5 @@
+.. _propagation:
+
 ******************
 Packet Propagation
 ******************

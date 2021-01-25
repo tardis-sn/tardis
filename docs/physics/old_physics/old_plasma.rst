@@ -60,8 +60,8 @@ Plasma Types
 .. toctree::
     :maxdepth: 0
 
-    lte_plasma.rst
-    nebular_plasma.rst
+    ../plasma/lte_plasma.rst
+    ../plasma/nebular_plasma.rst
 
 
 .. _tau_sobolev:
@@ -87,8 +87,8 @@ This function calculates the Sobolev optical depth :math:`\tau_\textrm{Sobolev}`
 .. toctree::
     :maxdepth: 1
 
-    macroatom.rst
-    nlte.rst
+    ../plasma/macroatom.rst
+    ../plasma/nlte.rst
 
 
 .. .. automodapi:: tardis.plasma_array

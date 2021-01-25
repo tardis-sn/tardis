@@ -94,8 +94,8 @@ radiation field from a thermal field with the same colour temperature may be cal
 
     
 These two quantities, :math:`T_{\mathrm{R}}` and :math:`W` are vital for the
-calculation of the plasma state of the ejecta (see :doc:`Plasma State
-Calulation <../physics/plasma/index>`).
+calculation of the plasma state of the ejecta (see :ref:`Plasma State
+Calulation <plasma_index>`).
 
 Finally, TARDIS also reconstructs the mean intensity of the radiation field in
 the blue wing of each line transition :math:`l \rightarrow u`, which is used in
@@ -106,7 +106,7 @@ the Macro Atom treatment and in the ionisation calculation.
     J_{lu}^b = \frac{1}{4\pi \Delta V \Delta t} \frac{t_{\mathrm{exp}}}{c} \sum_i \frac{\varepsilon_i}{\nu_{lu}} D_{\mu}.
     
 The summation here only involves packets which passed through the Sobolev point
-(see :doc:`Propagation <propagation>`) of the transition. For a derivation of this
+(see :ref:`Propagation <propagation>`) of the transition. For a derivation of this
 estimator, in particular, for a motivation of the expansion factor involving
 the time since explosion :math:`t_{\mathrm{exp}}`, we refer to
 :cite:`Lucy2003`, section 6.2.
