@@ -2,9 +2,9 @@
 Code Quality Guidelines
 ***********************
 
-Code quality ensures that new developers will have an easier time understanding what previous developers have written. Hence, in an open-source software like TARDIS, writing quality code is very essential. Quoting from `this RealPython article <https://realpython.com/python-code-quality>`_, a high-quality code is identified by:
+Code quality ensures that new developers will have an easier time understanding what previous developers have written. Hence, in an open-source software like TARDIS, writing quality code is essential. Quoting from `this RealPython article <https://realpython.com/python-code-quality>`_, a high-quality code is identified by:
 
-- **It does what it is supposed to do** - code should obviously perform the functionality it is written for.
+- **It does what it is supposed to do** - code should perform the functions that it is written for.
 
 - **It does not contain defects or problems** - things shouldn't break on edge cases and defects should throw exceptions instead of causing unwanted behavior.
 
@@ -14,28 +14,28 @@ Code quality ensures that new developers will have an easier time understanding 
 Code Style Conventions
 ======================
 
-TARDIS follows the `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_ - style guide written by the author of the Python programming language itself. It defines a consistent way to write your code making it easier to read and maintain.
+TARDIS follows the `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_ style guide written by the author of the Python programming language. It defines a consistent way to write your code making, it easier to read and maintain.
 
 Black
 -----
-`Black <https://black.readthedocs.io/en/stable/index.html>`_ is a PEP 8 compliant opinionated code formatter. At TARDIS, we use Black that automatically takes care of PEP 8 compilance. It is already installed in the TARDIS conda environment you have created, so all you have to do is to run black before commiting your changes: ::
+`Black <https://black.readthedocs.io/en/stable/index.html>`_ is a PEP 8 compliant opinionated code formatter. At TARDIS. we use Black to automatically conform to PEP 8. It is already installed in the TARDIS conda environment, so all you have to do is to run Black before commiting your changes: ::
     
     black {source_file_or_directory}
 
-A better way instead is to run black automatically - first `integrate it within the code editor <https://black.readthedocs.io/en/stable/editor_integration.html>`_ you use and then enable "format on save" or "format on type" option in your editor settings.
+A better method is to run Black automatically - first `integrate it within the code editor <https://black.readthedocs.io/en/stable/editor_integration.html>`_ you use and then enable the "format on save" or "format on type" option in your editor settings.
 
-.. warning :: If your code doesn't follow black code style, black-check action on your PR will fail.
+.. warning :: If your code doesn't follow the Black code style, then the Black-check action on your PR will fail.
 
 Naming Conventions
 ------------------
 
-While black will take care of the most aspects of PEP 8 (like whitespace usage, string quotes, code layout, etc.), you still yourself need to take care of the `PEP 8 naming conventions <https://www.python.org/dev/peps/pep-0008/#naming-conventions>`_. The main things here to keep in mind are:
+While Black automatically conforms your code to a majority of the PEP 8 style guide (like whitespace usage, string quotes, code layout, etc.), your code still needs to conform to the `PEP 8 naming conventions <https://www.python.org/dev/peps/pep-0008/#naming-conventions>`_. The main things to keep in mind are:
 
 - Function names should be lowercase, with words separated by underscores as necessary to improve readability (i.e. snake_case).
 
 - Variable names follow the same convention as function names. 
 
-- Class names should normally use the CapWords convention.
+- Class names should use the CapWords convention.
 
 
 .. _docstrings:
@@ -43,40 +43,40 @@ While black will take care of the most aspects of PEP 8 (like whitespace usage, 
 Docstrings
 ==========
 
-Docstring (short for documentation string) is a string that describes a module, function, class, or method definition. The docstring is a special attribute of the object (``object.__doc__``) and, for consistency, is surrounded by triple double quotes. Besides helping others understand what your code does, docstrings are used by Sphinx to auto-generate `API documentation <https://tardis-sn.github.io/tardis/api/modules.html>`_.
+A docstring (short for documentation string) is a string that describes a module, function, class, or method definition. The docstring is a special attribute of the object (``object.__doc__``) and, for consistency, is surrounded by triple double quotes. Besides helping others understand what your code does, docstrings are used by Sphinx to auto-generate `API documentation <https://tardis-sn.github.io/tardis/api/modules.html>`_.
 
-At TARDIS, we use `Numpy docstring format <https://numpydoc.readthedocs.io/en/latest/format.html>`_ - please go through this format guide before writing docstrings. Following is an example of a properly formatted docstring from `model_reader <https://github.com/tardis-sn/tardis/blob/master/tardis/io/model_reader.py>`_ module of TARDIS:
+At TARDIS, we follow the `Numpy docstring format <https://numpydoc.readthedocs.io/en/latest/format.html>`_ - please go through this format guide before writing docstrings. The following is an example of a properly formatted docstring from the `model_reader <https://github.com/tardis-sn/tardis/blob/master/tardis/io/model_reader.py>`_ module of TARDIS:
 
 .. code-block:: python
 
     def read_density_file(filename, filetype):
         """
-        read different density file formats
+        Read different density file formats.
 
         Parameters
         ----------
-        filename : str
+        `filename` : str
             filename or path of the density file
-        filetype : str
+        `filetype` : str
             type of the density file
 
         Returns
         -------
-        time_of_model : astropy.units.Quantity
+        `time_of_model` : astropy.units.Quantity
             time at which the model is valid
-        velocity : np.ndarray
+        `velocity` : np.ndarray
             the array containing the velocities
-        unscaled_mean_densities : np.ndarray
+        `unscaled_mean_densities` : np.ndarray
             the array containing the densities
         """
 
         # Code goes here
 
-Some of the important formatting conventions to note here, are:
+Some of the important formatting conventions to note here are:
 
 - The docstring should have no leading or trailing carriage returns, and there should be a carriage return between each segment. 
 
-- At the start of the docstring there is a summary explaining the purpose of the function/class/module. This summary should follow the standard English syntax, starting with a capitalized letter and ending with appropriate punctuation.
+- At the start of the docstring there is a summary explaining the purpose of the function/class/module/method. This summary should follow standard English syntax, starting with a capitalized letter and ending with appropriate punctuation.
 
 - The docstring summary should not explain individual lines or the returns, it should summarize the purpose of the function/class/module. Comments on how individual lines work should be written using inline comments (``# comment``).
 
@@ -97,7 +97,7 @@ Some of the important formatting conventions to note here, are:
 Edge Cases and Exception Handling
 =================================
 
-Code should be written with a bit of foresight to handle errors that can occur during the execution. If you know that an `exception <https://docs.python.org/3/tutorial/errors.html>`_ is likely to occur in a certain case and can be dealt accordingly, then your code should `handle <https://docs.python.org/3/tutorial/errors.html#handling-exceptions>`_ that exception. In another scenario, you may know that a particular edge case might cause your code to break, then you should `raise <https://docs.python.org/3/tutorial/errors.html#raising-exceptions>`_ an appropriate exception to inform what has gone wrong and to terminate the program execution. An example of this in practice (taken from `here <https://github.com/tardis-sn/tardis/blob/7d7c4bc4f99c909ff45070ae9576390d96734014/tardis/widgets/kromer_plot.py#L447-L451>`_):
+Code should be written with a bit of foresight to handle errors that can occur during its execution. If you know that an `exception <https://docs.python.org/3/tutorial/errors.html>`_ is likely to occur in a certain case and can be dealt with accordingly, then your code should `handle <https://docs.python.org/3/tutorial/errors.html#handling-exceptions>`_ that exception. In another scenario, you may know that a particular edge case might cause your code to break, then you should `raise <https://docs.python.org/3/tutorial/errors.html#raising-exceptions>`_ an appropriate exception to describe what has gone wrong and terminate the program's execution. An example of this in practice (taken from `here <https://github.com/tardis-sn/tardis/blob/7d7c4bc4f99c909ff45070ae9576390d96734014/tardis/widgets/kromer_plot.py#L447-L451>`_) is featured below:
 
 .. code-block:: python
 
@@ -109,4 +109,4 @@ Code should be written with a bit of foresight to handle errors that can occur d
             )
         # Rest of the code ...
 
-Here ``packets_mode`` parameter can only be string "virtual" or "real". Thus in case of an invalid value passed, it raises a specific exception (``ValueError``) and informs the user about what is the error and how it can be resolved. Besides, by raising exception, the method safely returns without executing code with wrong parameter value which would have caused unwanted behaviour.
+Here, the ``packets_mode`` parameter can only be string "virtual" or "real". Thus, in case of an invalid value passed, it raises a specific exception (``ValueError``) and informs the user of what the error is and how it can be resolved. Aside from raising exception an exception, this method safely returns without executing code with an invalid parameter value which would have caused unwanted behaviour.
