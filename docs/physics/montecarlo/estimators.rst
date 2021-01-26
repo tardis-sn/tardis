@@ -94,8 +94,7 @@ radiation field from a thermal field with the same colour temperature may be cal
 
     
 These two quantities, :math:`T_{\mathrm{R}}` and :math:`W` are vital for the
-calculation of the plasma state of the ejecta (see :ref:`Plasma State
-Calulation <plasma_index>`).
+calculation of the plasma state of the ejecta (see :ref:`plasma_calculations`).
 
 Finally, TARDIS also reconstructs the mean intensity of the radiation field in
 the blue wing of each line transition :math:`l \rightarrow u`, which is used in

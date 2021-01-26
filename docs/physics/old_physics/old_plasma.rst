@@ -1,4 +1,4 @@
-.. _plasmas:
+.. _old_plasma:
 
 *****************
 Plasma (Outdated)
