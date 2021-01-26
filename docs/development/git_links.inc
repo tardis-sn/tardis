@@ -56,6 +56,7 @@
 .. _python: http://www.python.org
 .. _carsus: https://tardis-sn.github.io/carsus/
 .. _testing pipeline: https://github.com/tardis-sn/tardis/blob/master/azure-pipelines/simple_test_framework.yml
+.. _a GitHub workflow: https://github.com/tardis-sn/tardis-refdata/blob/master/.github/workflows/sync-mirror.yml
 
 .. |emdash| unicode:: U+02014
 
