@@ -43,7 +43,7 @@ While Black automatically conforms your code to a majority of the PEP 8 style gu
 Docstrings
 ==========
 
-A docstring (short for documentation string) is a string that describes a module, function, class, or method definition. The docstring is a special attribute of the object (``object.__doc__``) and, for consistency, is surrounded by triple double quotes. Besides helping others understand what your code does, docstrings are used by Sphinx to auto-generate `API documentation <https://tardis-sn.github.io/tardis/api/modules.html>`_.
+A docstring (short for documentation string) is a string that describes a module's, function's, class's, or method's definition. The docstring is a special attribute of the object (``object.__doc__``) and, for consistency, is surrounded by triple double quotes. Besides helping others understand what your code does, docstrings are used by Sphinx to auto-generate `API documentation <https://tardis-sn.github.io/tardis/api/modules.html>`_.
 
 At TARDIS, we follow the `Numpy docstring format <https://numpydoc.readthedocs.io/en/latest/format.html>`_ - please go through this format guide before writing docstrings. The following is an example of a properly formatted docstring from the `model_reader <https://github.com/tardis-sn/tardis/blob/master/tardis/io/model_reader.py>`_ module of TARDIS:
 
