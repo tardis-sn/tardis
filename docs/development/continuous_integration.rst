@@ -1,3 +1,6 @@
+.. include:: git_links.inc
+.. include:: azure_links.inc
+
 **********************
 Continuous Integration
 **********************
@@ -199,9 +202,6 @@ depend on a previous job.
 
 See the `Azure documentation section on jobs`_ for more information.
 
-.. include:: git_links.inc
-.. include:: azure_links.inc
-
 
 TARDIS Pipelines
 ----------------
@@ -301,6 +301,6 @@ the rendered notebook to the pipeline results.
 To trigger this pipeline is necessary to leave a comment in the GitHub pull
 request.
 ::
-  /AzurePipelines run TARDIS refdata
+  /AzurePipelines run compare-refdata
 
 For brevity, you can comment using ``/azp`` instead of ``/AzurePipelines``.
