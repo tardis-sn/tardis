@@ -2,7 +2,7 @@
 Documentation Guidelines
 ************************
 
-High-quality and consistent documentation is very important at TARDIS. It allow new users to find out how to do something specific using TARDIS, as well as help developers (like you!) to understand the best practices.
+High-quality and consistent documentation is very important at TARDIS. It allows new users to find out how to do something specific using TARDIS, as well as helps developers (like you!) to understand the best practices.
 
 TARDIS uses the popular Python documentation generator `Sphinx <https://www.sphinx-doc.org/>`_. Sphinx translates a set of plain text source files (often written in `reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_) to HTML files, automatically producing cross-references, indices, etc. If you haven't worked with Sphinx before, you should first read their `quickstart <https://www.sphinx-doc.org/en/master/usage/quickstart.html>`_ guide.
 
