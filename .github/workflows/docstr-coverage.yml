@@ -24,7 +24,6 @@ jobs:
       - name: Get base coverage
         run: |
           git checkout ${{ github.event.pull_request.base.sha }}
-          git checkout ${{ github.event.pull_request.head.sha }} -- .docstr.yaml
           echo "BASE_COV=$(docstr-coverage -p)" >> $GITHUB_ENV
 
       - name: Get head coverage
