@@ -1,3 +1,5 @@
+.. _doc-preview:
+
 *********************
 Documentation Preview
 *********************

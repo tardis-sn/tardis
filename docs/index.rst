@@ -68,7 +68,7 @@ Mission Statement
     :hidden:
     
     physics/montecarlo/index
-    physics/plasma
+    physics/plasma/index
     physics/old_physics/index
 
 
@@ -99,7 +99,6 @@ Mission Statement
     development/index
     CHANGELOG.md
     roadmap
-    Code Quaility Guidelines <Code_Quality_Guidelines.rst>
 
 .. toctree::
     :maxdepth: 2

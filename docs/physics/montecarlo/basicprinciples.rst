@@ -1,3 +1,5 @@
+.. _montecarlo_basics:
+
 *************************************************
 Monte Carlo Radiative Transfer - Basic Principles
 *************************************************

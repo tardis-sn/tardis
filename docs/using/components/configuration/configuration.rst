@@ -84,7 +84,7 @@ Plasma
 boundary. ``initial_t_rad`` is the initial radiation temperature (will be updated for most modes of TARDIS - see convergence section). For debugging purposes and to compare to
 :term:`synapps` calculations one can disable the electron scattering. TARDIS will issue a warning that this is not physical.
 There are currently two ``plasma_type`` options available: ``nebular`` and ``lte``, which tell TARDIS how to run the
-ionization equilibrium and level population calculations (see :ref:`plasmas` for more information).
+ionization equilibrium and level population calculations (see :ref:`plasma` for more information).
 The radiative rates describe how to calculate the :math:`J_\textrm{blue}` needed for the :ref:`nlte` calculations and
 :ref:`macroatom` calculations. There are three options for ``radiative_rates_type``: 
 

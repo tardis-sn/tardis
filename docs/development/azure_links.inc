@@ -8,6 +8,8 @@
 .. _checking out multiple repositories: https://github.com/microsoft/azure-pipelines-yaml/blob/master/design/multi-checkout.md#behavior-changes-in-multi-checkout-mode
 .. general stuff
 .. _continuous integration: https://en.wikipedia.org/wiki/Continuous_integration
+.. _update it manually: https://docs.microsoft.com/en-us/azure/devops/repos/git/import-git-repository?view=azure-devops#what-if-my-source-repository-contains-git-lfs-objects
+.. _error 413: https://developercommunity.visualstudio.com/content/problem/867488/git-lfs-push-got-413-error.html
 
 .. |emdash| unicode:: U+02014
 
