@@ -1,15 +1,15 @@
 paths:
   - tardis
 #badge: docs
-exclude: .*/test # regex
+#exclude: .*/test # regex
 verbose: 2 # int (0-3)
 skip_magic: True
 skip_file_doc: True
-skip_init: False
-skip_class_def: True
+skip_init: True
+skip_class_def: False
 skip_private: True
 follow_links: True
-ignore_names_file: .*/test # regex
+#ignore_names_file: .*/test # regex
 #fail_under: 90
 percentage_only: False
 #ignore_patterns: # Dict with key/value pairs of file-pattern/node-pattern
