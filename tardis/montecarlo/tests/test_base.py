@@ -12,7 +12,9 @@ from numpy.testing import assert_almost_equal
 
 @pytest.fixture(scope="module", autouse=True)
 def to_hdf_buffer(hdf_file_path, simulation_verysimple):
-    simulation_verysimple.runner.to_hdf(hdf_file_path, name="runner")
+    simulation_verysimple.runner.to_hdf(
+        hdf_file_path, name="runner", overwrite=True
+    )
 
 
 runner_properties = [

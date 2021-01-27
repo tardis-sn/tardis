@@ -57,25 +57,19 @@ Mission Statement
     :caption: Using TARDIS
     :hidden:
 
-
-    running/index
+    using/components/index
+    using/gui/index
+    using/interaction/index
 
 
 .. toctree::
     :maxdepth: 2
     :caption: The Physics of TARDIS
     :hidden:
-
-    Physics overview <physics/index>
+    
+    physics/montecarlo/index
     physics/plasma/index
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Testing TARDIS
-    :hidden:
-
-    testing/automated_tests
-    testing/numba
+    physics/old_physics/index
 
 
 .. toctree::
@@ -91,8 +85,7 @@ Mission Statement
     :caption: Team & Credits
     :hidden:
 
-    team
-    governance
+    team_and_governance/index
     credits
     Code of Conduct <CODE_OF_CONDUCT.md>
 
@@ -127,4 +120,3 @@ News
 ====
 
 .. include:: news.rst
-

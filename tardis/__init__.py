@@ -17,7 +17,7 @@ from ._astropy_init import *
 from tardis.base import run_tardis
 from tardis.io.util import yaml_load_config_file as yaml_load
 
-warnings.filterwarnings("ignore", category=pyne.data.QAWarning)
+warnings.filterwarnings("ignore", category=pyne.utils.QAWarning)
 
 FORMAT = "[$BOLD%(name)-20s$RESET][%(levelname)-18s]  %(message)s ($BOLD%(filename)s$RESET:%(lineno)d)"
 COLOR_FORMAT = formatter_message(FORMAT, True)

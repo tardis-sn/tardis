@@ -120,8 +120,8 @@ class TableSummaryLabel:
             Table widget whose summary label it is
         table_col_widths : list
             A list containing width of each column of table in order (including
-        the index as 1st column). The width values must be proportions of
-        100 i.e. they must sum to 100
+            the index as 1st column). The width values must be proportions of
+            100 i.e. they must sum to 100
         label_key : str
             Brief description of what label summarizes about table
         label_value : int

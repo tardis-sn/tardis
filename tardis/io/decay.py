@@ -60,9 +60,8 @@ class IsotopeAbundances(pd.DataFrame):
 
         Returns
         -------
-            : ~list
-            list of pyne Materialss
-        :return:
+        list
+            list of pyne Materials
         """
 
         comp_dicts = [dict() for i in range(len(self.columns))]
@@ -80,12 +79,13 @@ class IsotopeAbundances(pd.DataFrame):
 
         Parameters
         ----------
-
-        t: ~float or ~astropy.units.Quantity
+        t : float or astropy.units.Quantity
             if float it will be understood as days
 
-        Returns:
-            : decayed abundances
+        Returns
+        -------
+        pandas.DataFrame
+            Decayed abundances
         """
 
         materials = self.to_materials()
@@ -103,8 +103,10 @@ class IsotopeAbundances(pd.DataFrame):
         """
         Merge Isotope dataframe according to atomic number
 
-        Returns:
-            : merged isotope abundances
+        Returns
+        -------
+        pandas.DataFrame
+            Merged isotope abundances
         """
 
         return self.groupby("atomic_number").sum()
@@ -115,12 +117,14 @@ class IsotopeAbundances(pd.DataFrame):
 
         Parameters
         ----------
-        other: pd.DataFrame
+        other : pd.DataFrame
         normalize : bool
             If true, resultant dataframe will be normalized
 
-        Returns:
-            : merged abundances
+        Returns
+        -------
+        pandas.DataFrame
+            merged abundances
         """
         isotope_abundance = self.as_atoms()
         isotope_abundance = isotope_abundance.fillna(0.0)

@@ -56,7 +56,7 @@ class Abundance(Input):
     Attributes
     ----------
     abundance : Numpy array, dtype float
-                Fractional abundance of elements
+        Fractional abundance of elements
     """
 
     outputs = ("abundance",)
@@ -67,7 +67,7 @@ class Density(ArrayInput):
     Attributes
     ----------
     density : Numpy array, dtype float
-              Total density values
+      Total density values
     """
 
     outputs = ("density",)
@@ -77,9 +77,9 @@ class Density(ArrayInput):
 class TimeExplosion(Input):
     """
     Attributes
-    ----------s
+    ----------
     time_explosion : Float
-                     Time since explosion in seconds
+         Time since explosion in seconds
     """
 
     outputs = ("time_explosion",)
@@ -102,8 +102,8 @@ class LinkTRadTElectron(Input):
     Attributes
     ----------
     link_t_rad_t_electron : Float
-                            Value used for estimate of electron temperature.
-                            Default is 0.9.
+        Value used for estimate of electron temperature.
+        Default is 0.9.
     """
 
     outputs = ("link_t_rad_t_electron",)
@@ -130,7 +130,7 @@ class ContinuumInteractionSpecies(Input):
     """
     Attributes
     ----------
-    continuum_interaction_species: Pandas MultiIndex, dtype int
+    continuum_interaction_species : Pandas MultiIndex, dtype int
         Atomic and ion numbers of elements for which continuum interactions
         (radiative/collisional ionization and recombination) are treated
     """
