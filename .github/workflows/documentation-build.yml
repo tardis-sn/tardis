@@ -4,7 +4,7 @@
 name: documentation-build
 
 on:
-  pull_request:
+  push:
     branches:
       - master
   schedule:
@@ -23,6 +23,7 @@ jobs:
             environment-file: tardis_env3.yml
             activate-environment: tardis
             channels: conda-forge
+            mamba-version: "*"
 
       - name: Install TARDIS
         shell: bash -l {0}
