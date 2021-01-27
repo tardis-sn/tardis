@@ -208,3 +208,6 @@ class TestPlasma(object):
             key = os.path.join(config.plasma.save_path, "plasma", "zeta_data")
             expected = tardis_ref_data[key]
             assert_almost_equal(actual, expected.values)
+
+    def new_test(self)
+        assert True == True
