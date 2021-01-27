@@ -70,15 +70,6 @@ Mission Statement
     physics/montecarlo/index
     physics/plasma/index
     physics/old_physics/index
-    
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Testing TARDIS
-    :hidden:
-
-    testing/automated_tests
-    testing/numba
 
 
 .. toctree::

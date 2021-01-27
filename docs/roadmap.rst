@@ -15,12 +15,15 @@ Physics
 #######
 
 * Simulate Type IIP Supernovae  (Fall 2020)
+
  - TARDIS is currently capable of simulating type Ia and stripped
    envelope supernovae, but Type IIP require new physics.
  - NLTE ionization and excitation treatment of Hydrogen, relativistic
    effects, free-free and bound-free processes have all been implemented
    and are being integrated into the main TARDIS branch.
+   
 * Simulate Supernovae in the Nebular Phase (Summer 2021)
+
  - Currently TARDIS assumes an inner boundary approximation to the
    photosphere.  New physics is required to handle the breakdown of the
    photosphere at late times. This involves a detailed treatment of the
@@ -39,6 +42,7 @@ Website and Documentation
 #########################
 
 * Notebookify (Fall 2021)
+
  - TARDIS currently has detailed code and physics documentation
    (https://tardis-sn.github.io/tardis/)
  - In order to help new members join the TARDIS development team, we want
@@ -52,6 +56,7 @@ Analysis
 ########
 
 * Visualization (Fall 2020)
+
  - TARDIS is used to explore potential models for observed supernovae,
    and it is often difficult to find optimal parameter values.
  - We are working on an interactive Graphical User Interface for
@@ -66,6 +71,7 @@ Maintenance
 ###########
 
 * TARDIS Code Restructure (Fall 2020)
+
  - TARDIS needs to be more modularized to facilitate the addition of
    new physics modules (see https://github.com/tardis-sn/tardis/projects/11 )
    and improve maintainability.
@@ -78,6 +84,7 @@ Performance
 ###########
 
 * Numba (Spring 2021)
+
  - In the past, TARDIS has used Cython and C for performance-critical parts
    of the code. However, this requires significant code overhead and is difficult
    to maintain given that many of our developers are junior researchers who may
@@ -88,7 +95,9 @@ Performance
  - We are currently in the process of converting this Cython and C code to Numba,
    which we hope will allow us to maintain the performance of Cython but with code
    that is now exclusively written in (numba-fied) Python.
+   
 * GPU (Spring 20201)
+
  - As part of our work to optimize TARDIS’ performance, we would like to explore
    GPUs and see if there are parts of the code which would benefit from GPU
    acceleration.
@@ -99,6 +108,7 @@ Interoperability
 ################
 
 * Carsus (Fall 2020)
+
  - There is evidence that the choice of atomic data has a significant impact on
    model results. As part of Google Summer of Code a version control system for
    atomic data is being implemented, so that previously published results become
@@ -108,5 +118,7 @@ Interoperability
  - Updated properties of the atomic data will be automatically collected and
    ingested by Carsus. In addition, a comparison spectrum will be computed,
    highlighting the effects of the new atomic data.
+   
 * Read different model data (Fall 2020)
+
  - Add readers for more types of initial model data.

@@ -12,29 +12,22 @@ to the Astropy team for designing it.
     :maxdepth: 2
 
     issues
-    debug_numba
-
-
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Git and coding workflow
-
     git_workflow
-
-
-.. toctree::
-    :maxdepth: 2
-    :caption: TARDIS core team instructions
-
-    update_refdata
-    continuous_integration
+    documentation_guidelines
+    running_tests
+    code_quality
     documentation_preview
-    matterbridge
     developer_faq
 
+TARDIS core team Instructions
+=============================
+Following are **advanced** development guidelines that are mainly intended for
+the core team (active maintainers) of TARDIS.
 
+.. toctree::
+    :maxdepth: 2
 
-
-
-
+    continuous_integration
+    update_refdata
+    matterbridge
+    debug_numba
