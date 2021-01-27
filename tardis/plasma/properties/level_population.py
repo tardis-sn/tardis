@@ -13,7 +13,8 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
     """
     Calculates the level populations
 
-    Attributes:
+    Attributes
+    ----------
     level_number_density : Pandas DataFrame, dtype float
                            Index atom number, ion number, level number.
                            Columns are zones.
@@ -70,7 +71,8 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
 
 class LevelNumberDensityHeNLTE(LevelNumberDensity):
     """
-    Attributes:
+    Attributes
+    ----------
     level_number_density : Pandas DataFrame, dtype float
                            Index atom number, ion number, level number.
                            Columns are zones.

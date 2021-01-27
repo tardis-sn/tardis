@@ -29,9 +29,9 @@ class NumbaModel(object):
 
         Parameters
         ----------
-        r_inner: numpy.ndarray
-        r_outer: numpy.ndarray
-        time_explosion: float
+        r_inner : numpy.ndarray
+        r_outer : numpy.ndarray
+        time_explosion : float
         """
         self.r_inner = r_inner
         self.r_outer = r_outer
@@ -67,18 +67,18 @@ class NumbaPlasma(object):
     ):
         """
         Plasma for the Numba code
+        
         Parameters
         ----------
-
-        electron_density: numpy.array
-        line_list_nu: numpy.array
-        tau_sobolev: numpy.array
-        transition_probabilities: numpy.array
-        line2macro_level_upper: numpy.array
-        macro_block_references: numpy.array
-        transition_type: numpy.array
-        destination_level_id: numpy.array
-        transition_line_id: numpy.array
+        electron_density : numpy.ndarray
+        line_list_nu : numpy.ndarray
+        tau_sobolev : numpy.ndarray
+        transition_probabilities : numpy.ndarray
+        line2macro_level_upper : numpy.ndarray
+        macro_block_references : numpy.ndarray
+        transition_type : numpy.ndarray
+        destination_level_id : numpy.ndarray
+        transition_line_id : numpy.ndarray
         """
 
         self.electron_density = electron_density
@@ -102,10 +102,9 @@ def numba_plasma_initialize(plasma, line_interaction_type):
     Initialize the NumbaPlasma object and copy over the data over from TARDIS Plasma
 
     Parameters
-    -----------
-
-    plasma: tardis.plasma.BasePlasma
-    line_interaction_type: enum
+    ----------
+    plasma : tardis.plasma.BasePlasma
+    line_interaction_type : enum
     """
     electron_densities = plasma.electron_densities.values
     line_list_nu = plasma.atomic_data.lines.nu.values
@@ -197,10 +196,10 @@ vpacket_collection_spec = [
     ("idx", int64),
     ("number_of_vpackets", int64),
     ("length", int64),
-    ("last_interaction_in_nu", float64),
-    ("last_interaction_type", int64),
-    ("last_interaction_in_id", int64),
-    ("last_interaction_out_id", int64),
+    ("last_interaction_in_nu", float64[:]),
+    ("last_interaction_type", int64[:]),
+    ("last_interaction_in_id", int64[:]),
+    ("last_interaction_out_id", int64[:]),
 ]
 
 
@@ -221,10 +220,10 @@ class VPacketCollection(object):
         self.nus = np.empty(temporary_v_packet_bins, dtype=np.float64)
         self.energies = np.empty(temporary_v_packet_bins, dtype=np.float64)
         self.number_of_vpackets = number_of_vpackets
-        self.last_interaction_in_nu = 0.0
-        self.last_interaction_type = -1
-        self.last_interaction_in_id = -1
-        self.last_interaction_out_id = -1
+        self.last_interaction_in_nu = np.zeros(temporary_v_packet_bins, dtype=np.float64)
+        self.last_interaction_type = -1 * np.ones(temporary_v_packet_bins, dtype=np.int64)
+        self.last_interaction_in_id = -1 * np.ones(temporary_v_packet_bins, dtype=np.int64)
+        self.last_interaction_out_id = -1 * np.ones(temporary_v_packet_bins, dtype=np.int64)
         self.idx = 0
         self.rpacket_index = rpacket_index
         self.length = temporary_v_packet_bins
@@ -242,19 +241,31 @@ class VPacketCollection(object):
             temp_length = self.length * 2 + self.number_of_vpackets
             temp_nus = np.empty(temp_length, dtype=np.float64)
             temp_energies = np.empty(temp_length, dtype=np.float64)
+            temp_last_interaction_in_nu = np.empty(temp_length, dtype=np.float64)
+            temp_last_interaction_type = np.empty(temp_length, dtype=np.int64)
+            temp_last_interaction_in_id = np.empty(temp_length, dtype=np.int64)
+            temp_last_interaction_out_id = np.empty(temp_length, dtype=np.int64)
             temp_nus[: self.length] = self.nus
             temp_energies[: self.length] = self.energies
+            temp_last_interaction_in_nu[: self.length] = self.last_interaction_in_nu
+            temp_last_interaction_type[: self.length] = self.last_interaction_type
+            temp_last_interaction_in_id[: self.length] = self.last_interaction_in_id
+            temp_last_interaction_out_id[: self.length] = self.last_interaction_out_id
 
             self.nus = temp_nus
             self.energies = temp_energies
+            self.last_interaction_in_nu = temp_last_interaction_in_nu
+            self.last_interaction_type = temp_last_interaction_type 
+            self.last_interaction_in_id = temp_last_interaction_in_id
+            self.last_interaction_out_id = temp_last_interaction_out_id
             self.length = temp_length
 
         self.nus[self.idx] = nu
         self.energies[self.idx] = energy
-        self.last_interaction_type = last_interaction_type
-        self.last_interaction_in_nu = last_interaction_in_nu
-        self.last_interaction_in_id = last_interaction_in_id
-        self.last_interaction_out_id = last_interaction_out_id
+        self.last_interaction_in_nu[self.idx] = last_interaction_in_nu
+        self.last_interaction_type[self.idx] = last_interaction_type
+        self.last_interaction_in_id[self.idx] = last_interaction_in_id
+        self.last_interaction_out_id[self.idx] = last_interaction_out_id
         self.idx += 1
 
 

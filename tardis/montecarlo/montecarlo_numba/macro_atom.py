@@ -21,15 +21,13 @@ class MacroAtomTransitionType(IntEnum):
 @njit(**njit_dict)
 def macro_atom(r_packet, numba_plasma):
     """
-
     Parameters
     ----------
-    r_packet: tardis.montecarlo.montecarlo_numba.r_packet.RPacket
-    numba_plasma: tardis.montecarlo.numba_interface.numba_plasma
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    numba_plasma : tardis.montecarlo.numba_interface.numba_plasma.NumbaPlasma
 
     Returns
     -------
-
     """
     activation_level_id = numba_plasma.line2macro_level_upper[
         r_packet.next_line_id

@@ -918,7 +918,6 @@ def use_astropy_helpers(**kwargs):
 
     Parameters
     ----------
-
     path : str or None, optional
         A filesystem path relative to the root of the project's source code
         that should be added to `sys.path` so that `astropy_helpers` can be
@@ -933,7 +932,6 @@ def use_astropy_helpers(**kwargs):
         archive.
 
         If `None` skip straight to downloading.
-
     download_if_needed : bool, optional
         If the provided filesystem path is not found an attempt will be made to
         download astropy_helpers from PyPI.  It will then be made temporarily
@@ -941,16 +939,13 @@ def use_astropy_helpers(**kwargs):
         ``setup_requires`` feature of setuptools.  If the ``--offline`` option
         is given at the command line the value of this argument is overridden
         to `False`.
-
     index_url : str, optional
         If provided, use a different URL for the Python package index than the
         main PyPI server.
-
     use_git : bool, optional
         If `False` no git commands will be used--this effectively disables
         support for git submodules. If the ``--no-git`` option is given at the
         command line the value of this argument is overridden to `False`.
-
     auto_upgrade : bool, optional
         By default, when installing a package from a non-development source
         distribution ah_boostrap will try to automatically check for patch
@@ -958,7 +953,6 @@ def use_astropy_helpers(**kwargs):
         any bundled versions.  Setting this to `False` will disable that
         functionality. If the ``--offline`` option is given at the command line
         the value of this argument is overridden to `False`.
-
     offline : bool, optional
         If `False` disable all actions that require an internet connection,
         including downloading packages from the package index and fetching

@@ -115,17 +115,15 @@ class BasePlasma(PlasmaWriterMixin):
 
         Parameters
         ----------
-
-        plasma_modules: ~list
+        plasma_modules : list
             list of Plasma properties
-        property_kwargs: ~dict
+        property_kwargs : dict
             dict of plasma module : kwargs pairs. kwargs should be a dict
             of arguments that will be passed to the __init__ method of
             the respective plasma module.
-        kwargs: dictionary
+        kwargs : dictionary
             input values for input properties. For example, t_rad=[5000, 6000,],
             j_blues=[..]
-
         """
         if property_kwargs is None:
             property_kwargs = {}
@@ -197,14 +195,12 @@ class BasePlasma(PlasmaWriterMixin):
 
         Parameters
         ----------
-
-        changed_modules: ~list
+        changed_modules : list
             all modules changed in the plasma
 
         Returns
         -------
-
-            : ~list
+            : list
             all affected modules.
         """
 

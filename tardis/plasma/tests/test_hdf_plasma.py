@@ -12,7 +12,7 @@ from tardis.plasma.properties import property_collections
 
 @pytest.fixture(scope="module", autouse=True)
 def to_hdf_buffer(hdf_file_path, simulation_verysimple):
-    simulation_verysimple.plasma.to_hdf(hdf_file_path)
+    simulation_verysimple.plasma.to_hdf(hdf_file_path, overwrite=True)
 
 
 plasma_properties_list = [
@@ -104,6 +104,7 @@ def to_hdf_collection_buffer(hdf_file_path, simulation_verysimple):
         hdf_file_path,
         name="collection",
         collection=property_collections.basic_inputs,
+        overwrite=True,
     )
 
 

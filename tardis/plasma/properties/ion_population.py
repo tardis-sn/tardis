@@ -35,10 +35,11 @@ def calculate_block_ids_from_dataframe(dataframe):
 
 class PhiSahaLTE(ProcessingPlasmaProperty):
     """
-    Attributes:
-    phi : Pandas DataFrame, dtype float
-          Used for LTE ionization (at the radiation temperature).
-          Indexed by atomic number, ion number. Columns are zones.
+    Attributes
+    ----------
+    phi : pandas.DataFrame, dtype float
+        Used for LTE ionization (at the radiation temperature).
+        Indexed by atomic number, ion number. Columns are zones.
     """
 
     outputs = ("phi",)
@@ -91,10 +92,11 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
 
 class ThermalPhiSahaLTE(PhiSahaLTE):
     """
-    Attributes:
-    phi : Pandas DataFrame, dtype float
-          Used for LTE ionization (at the electron temperature).
-          Indexed by atomic number, ion number. Columns are zones.
+    Attributes
+    ----------
+    phi : pandas.DataFrame, dtype float
+        Used for LTE ionization (at the electron temperature).
+        Indexed by atomic number, ion number. Columns are zones.
     """
 
     outputs = ("thermal_phi_lte",)
@@ -122,9 +124,11 @@ class ThermalPhiSahaLTE(PhiSahaLTE):
 
 class PhiSahaNebular(ProcessingPlasmaProperty):
     """
-    Attributes:
-    phi : Pandas DataFrame, dtype float
-          Used for nebular ionization. Indexed by atomic number, ion number. Columns are zones.
+    Attributes
+    ----------
+    phi : pandas.DataFrame, dtype float
+        Used for nebular ionization. Indexed by atomic number, ion number.
+        Columns are zones.
     """
 
     outputs = ("phi",)
@@ -184,12 +188,13 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
 
 class RadiationFieldCorrection(ProcessingPlasmaProperty):
     """
-    Attributes:
-    delta : Pandas DataFrame, dtype float
-            Calculates the radiation field correction (see Mazzali & Lucy, 1993) if
-            not given as input in the config. file. The default chi_0_species is
-            Ca II, which is good for type Ia supernovae. For type II supernovae,
-            (1, 1) should be used. Indexed by atomic number, ion number. The columns are zones.
+    Attributes
+    ----------
+    delta : pandas.DataFrame, dtype float
+        Calculates the radiation field correction (see Mazzali & Lucy, 1993) if
+        not given as input in the config. file. The default chi_0_species is
+        Ca II, which is good for type Ia supernovae. For type II supernovae,
+        (1, 1) should be used. Indexed by atomic number, ion number. The columns are zones.
     """
 
     outputs = ("delta",)
@@ -257,11 +262,6 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
 
 class IonNumberDensity(ProcessingPlasmaProperty):
     """
-    Attributes:
-    ion_number_density : Pandas DataFrame, dtype float
-                         Index atom number, ion number. Columns zones.
-    electron_densities : Numpy Array, dtype float
-
     Convergence process to find the correct solution. A trial value for
     the electron density is initiated in a particular zone. The ion
     number densities are then calculated using the Saha equation. The
@@ -270,6 +270,12 @@ class IonNumberDensity(ProcessingPlasmaProperty):
     for the electron densities are not similar to within the threshold
     value, a new guess for the value of the electron density is chosen
     and the process is repeated.
+
+    Attributes
+    ----------
+    ion_number_density : pandas.DataFrame, dtype float
+        Index atom number, ion number. Columns zones.
+    electron_densities : numpy.ndarray, dtype float
     """
 
     outputs = ("ion_number_density", "electron_densities")
@@ -387,11 +393,6 @@ class IonNumberDensity(ProcessingPlasmaProperty):
 
 class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     """
-    Attributes:
-    ion_number_density : Pandas DataFrame, dtype float
-                         Index atom number, ion number. Columns zones.
-    electron_densities : Numpy Array, dtype float
-
     Convergence process to find the correct solution. A trial value for
     the electron density is initiated in a particular zone. The ion
     number densities are then calculated using the Saha equation. The
@@ -400,6 +401,12 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     for the electron densities are not similar to within the threshold
     value, a new guess for the value of the electron density is chosen
     and the process is repeated.
+
+    Attributes
+    ----------
+    ion_number_density : pandas.DataFrame, dtype float
+        Index atom number, ion number. Columns zones.
+    electron_densities : numpy.ndarray, dtype float
     """
 
     outputs = (
@@ -528,10 +535,11 @@ class SahaFactor(ProcessingPlasmaProperty):
     the ratio of the LTE level population n_i*, and the product of
     the LTE ion density n_k* and the actual electron density n_e.
 
-    Attributes:
-    phi_ik: Pandas DataFrame, dtype float
-            Indexed by atom number, ion number, level number.
-            Columns are zones.
+    Attributes
+    ----------
+    phi_ik : pandas.DataFrame, dtype float
+        Indexed by atom number, ion number, level number.
+        Columns are zones.
     """
 
     outputs = ("phi_ik",)
