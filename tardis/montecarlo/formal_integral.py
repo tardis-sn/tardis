@@ -814,12 +814,18 @@ class FormalIntegrator(object):
 
         res = self.make_source_function()
 
-        att_S_ul = res[0].flatten(order="F")
-        Jred_lu = res[1].flatten(order="F")
-        Jblue_lu = res[2].flatten(order="F")
+        att_S_ul = res[0].flatten(order='F')
+        Jred_lu = res[1].flatten(order='F')
+        Jblue_lu = res[2].flatten(order='F')
         L = self.numba_integrator.formal_integral(
-            self.model.t_inner, nu, nu.shape[0], att_S_ul, Jred_lu, Jblue_lu, N
-        )
+                self.model.t_inner,
+                nu,
+                nu.shape[0],
+                att_S_ul,
+                Jred_lu,
+                Jblue_lu,
+                N
+                )
         return np.array(L, np.float64)
 
     def _formal_integral(
@@ -999,9 +1005,9 @@ class FormalIntegrator(object):
         """
         # abbreviations
         r = self.runner.r_outer_i
-        N = self.model.no_of_shells  # check
-        # print(N)
-        inv_t = 1 / self.model.time_explosion
+        N = self.model.no_of_shells # check
+        #print(N)
+        inv_t = 1/self.model.time_explosion
         z = 0
         offset = N
 
@@ -1160,4 +1166,4 @@ def intensity_black_body(nu, T):
 def calculate_p_values(R_max, N, opp):
     for i in range(N):
         opp[i] = R_max / (N - 1) * (i)
-    return opp
+    returu/0/rn opp
