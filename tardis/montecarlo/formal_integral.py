@@ -1060,4 +1060,4 @@ def intensity_black_body(nu, T):
 def calculate_p_values(R_max, N, opp):
     for i in range(N):
         opp[i] = R_max / (N - 1) * (i)
-    returu/0/rn opp
+    return opp
