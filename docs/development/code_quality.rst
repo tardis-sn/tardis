@@ -55,18 +55,18 @@ At TARDIS, we follow the `Numpy docstring format <https://numpydoc.readthedocs.i
 
         Parameters
         ----------
-        `filename` : str
-            filename or path of the density file
-        `filetype` : str
+        filename : str
+            file name or path of the density file
+        filetype : str
             type of the density file
 
         Returns
         -------
-        `time_of_model` : astropy.units.Quantity
+        time_of_model : astropy.units.Quantity
             time at which the model is valid
-        `velocity` : np.ndarray
+        velocity : np.ndarray
             the array containing the velocities
-        `unscaled_mean_densities` : np.ndarray
+        unscaled_mean_densities : np.ndarray
             the array containing the densities
         """
 
