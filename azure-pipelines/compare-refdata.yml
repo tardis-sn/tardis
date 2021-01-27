@@ -34,8 +34,7 @@ jobs:
           MY_PAT=$(azure_pat)
           B64_PAT=$(printf ":$MY_PAT" | base64)
           GIT_LFS_SKIP_SMUDGE=1 git -c http.extraHeader="Authorization: Basic ${B64_PAT}" clone https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata $(refdata.dir)
-          cd $(refdata.dir)
-          git -c http.extraHeader="Authorization: Basic ${B64_PAT}" lfs fetch --all
+          cd $(refdata.dir); git -c http.extraHeader="Authorization: Basic ${B64_PAT}" lfs fetch --all
         displayName: 'Fetch reference data repository (slow)'
 
       - bash: |
@@ -50,7 +49,7 @@ jobs:
           source activate tardis
           pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
         displayName: 'Generate reference data'
-        condition: and(eq(variables['ref1.hash'], ''), eq(variables['ref2.hash'], ''))
+        condition: or(eq(variables['ref1.hash'], ''), eq(variables['ref2.hash'], ''))
 
       - bash: |
           source activate tardis
