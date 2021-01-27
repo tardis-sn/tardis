@@ -38,7 +38,7 @@ jobs:
           git -c http.extraHeader="Authorization: Basic ${B64_PAT}" clone https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata $(refdata.dir)
         displayName: 'Fetch reference data repository'
 
-      - bash:
+      - bash: |
           cd $(refdata.dir)
           git checkout $(ref1.hash)
           git checkout $(ref2.hash)
@@ -51,7 +51,7 @@ jobs:
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
         displayName: 'Set upstream remote'
 
-      - bash:
+      - bash: |
           cd $(refdata.dir)
           git checkout $(ref1.hash)
           git checkout $(ref2.hash)
@@ -66,7 +66,7 @@ jobs:
 
       - bash: |
           source activate tardis
-          $(package.manager) install bokeh --channel conda-forge --no-update-deps --yes
+          $(package.manager) install bokeh=2.2 --channel conda-forge --no-update-deps --yes
         displayName: 'Install Bokeh'
 
       - bash: |
