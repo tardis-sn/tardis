@@ -257,12 +257,8 @@ integrator_spec = [
     ('points', int64)
 ]
 @jitclass(integrator_spec)
-<<<<<<< HEAD
 class NumbaFormalIntegrator(object):
 
-=======
-class FormalIntegrator(object):
->>>>>>> afbb1753adf70e67fbd43b214a85561668797ac0
     def __init__(self, model, plasma, runner, points=1000):
         self.model = model
         self.plasma = plasma
@@ -593,11 +589,6 @@ class FormalIntegrator(object):
 
         # The following may be achieved by calling the appropriate plasma
         # functions
-<<<<<<< HEAD
-        Jbluelu_norm_factor = (const.c.cgs * model.time_explosion /
-                                (4 * np.pi * runner.time_of_simulation *
-                                 model.volume))
-=======
         Jbluelu_norm_factor = (
             (
                 const.c.cgs
@@ -607,7 +598,6 @@ class FormalIntegrator(object):
             .to("1/(cm^2 s)")
             .value
         )
->>>>>>> afbb1753adf70e67fbd43b214a85561668797ac0
         # Jbluelu should already by in the correct order, i.e. by wavelength of
         # the transition l->u
         Jbluelu = runner.j_blue_estimator * Jbluelu_norm_factor
@@ -738,7 +728,6 @@ class FormalIntegrator(object):
 
         res = self.make_source_function()
 
-<<<<<<< HEAD
         att_S_ul = res[0].flatten(order='F')
         Jred_lu = res[1].flatten(order='F')
         Jblue_lu = res[2].flatten(order='F')
@@ -752,21 +741,6 @@ class FormalIntegrator(object):
                 N
                 )
         return np.array(L, np.float64)
-=======
-        att_S_ul = res[0].flatten(order="F")
-        Jred_lu = res[1].flatten(order="F")
-        Jblue_lu = res[2].flatten(order="F")
-        L = self._formal_integral(
-            self.model.t_inner.value,
-            nu,
-            nu.shape[0],
-            att_S_ul,
-            Jred_lu,
-            Jblue_lu,
-            N,
-        )
-        return np.array(L, np.NPY_DOUBLE, nu.shape[0])
->>>>>>> afbb1753adf70e67fbd43b214a85561668797ac0
 
     def _formal_integral(
         self, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, N
@@ -925,15 +899,9 @@ class FormalIntegrator(object):
         """
         # abbreviations
         r = self.runner.r_outer_i
-<<<<<<< HEAD
         N = self.model.no_of_shells # check
         #print(N)
         inv_t = 1/self.model.time_explosion
-=======
-        N = self.model.no_of_shells  # check
-        print(N)
-        inv_t = 1 / self.model.time_explosion
->>>>>>> afbb1753adf70e67fbd43b214a85561668797ac0
         z = 0
         offset = N
 
@@ -1092,4 +1060,4 @@ def intensity_black_body(nu, T):
 def calculate_p_values(R_max, N, opp):
     for i in range(N):
         opp[i] = R_max / (N - 1) * (i)
-    return opp
+    returu/0/rn opp
