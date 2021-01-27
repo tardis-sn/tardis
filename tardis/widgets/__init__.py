@@ -3,4 +3,4 @@ from tardis.widgets.shell_info import (
     shell_info_from_hdf,
 )
 from tardis.widgets.line_info import LineInfoWidget
-from tardis.widgets.sed_plot import SEDPlotter
+from tardis.widgets.sedec_plot import SEDecPlotter
