@@ -144,7 +144,7 @@
 - [#653](https://github.com/tardis-sn/tardis/pull/653) Facility to provide per-setup atom data as well as save report locally. (@kdexd)
 - [#641](https://github.com/tardis-sn/tardis/pull/641) Fix detailed radiative rates (@yeganer)
 - [#642](https://github.com/tardis-sn/tardis/pull/642) Use pytest-html==1.10.0, modify DokuReport class accordingly. (@kdexd)
-- [#630](https://github.com/tardis-sn/tardis/pull/630) [IntegrationTests] Overview page on Dokuwiki.
+- [#630](https://github.com/tardis-sn/tardis/pull/630) [IntegrationTests] Overview page on Dokuwiki.  Running the integration tests will update an overview page on DokuWiki. (@kdexd)
  
  Running the integration tests will update an overview page on DokuWiki. (@kdexd)
 - [#620](https://github.com/tardis-sn/tardis/pull/620) Runner script to automate execution of integration tests. (@kdexd)
@@ -380,8 +380,7 @@
 - [#6](https://github.com/tardis-sn/tardis/pull/6) updated documentation to numpydoc standard (@wkerzendorf)
 - [#121](https://github.com/tardis-sn/tardis/pull/121) warning added for density file readin outside tabulated range (@ssim)
 - [#119](https://github.com/tardis-sn/tardis/pull/119) Fix to deal with possible problem in end of line list (@ssim)
-- [#118](https://github.com/tardis-sn/tardis/pull/118) Fix for the issue #84
- Pull request for fixes / documentation edits related to the profiles (@ssim, @mklauser)
+- [#118](https://github.com/tardis-sn/tardis/pull/118) Fix for the issue #84 Pull request for fixes / documentation edits related to the profiles (@ssim, @mklauser)
 - [#91](https://github.com/tardis-sn/tardis/pull/91) Documentation update to download atomic databases (@wkerzendorf)
 - [#110](https://github.com/tardis-sn/tardis/pull/110) #106 suggestion for private variable names (@mklauser, @ssim)
 - [#111](https://github.com/tardis-sn/tardis/pull/111) minor fixed / logger statements (@ssim)
@@ -419,8 +418,7 @@
 - [#40](https://github.com/tardis-sn/tardis/pull/40) Gui/matplotlib figure (@nathanielatom, @maryampatel)
 - [#34](https://github.com/tardis-sn/tardis/pull/34) General bugfixing (@wkerzendorf)
 - [#32](https://github.com/tardis-sn/tardis/pull/32) Plasma/testing2 (@maryampatel)
-- [#29](https://github.com/tardis-sn/tardis/pull/29) General bugfixing
- looks good to me (@wkerzendorf)
+- [#29](https://github.com/tardis-sn/tardis/pull/29) General bugfixing looks good to me (@wkerzendorf)
 - [#28](https://github.com/tardis-sn/tardis/pull/28) The same as last time  but with small changes. (@mklauser)
 - [#26](https://github.com/tardis-sn/tardis/pull/26) Plasma/bound free (@mklauser)
 - [#25](https://github.com/tardis-sn/tardis/pull/25) Simulation/run single simulation (@wkerzendorf)
@@ -431,7 +429,6 @@
 - [#20](https://github.com/tardis-sn/tardis/pull/20) Plasma/testing (@maryampatel)
 - [#18](https://github.com/tardis-sn/tardis/pull/18) Docs/fixdocs (@maryampatel)
 - [#17](https://github.com/tardis-sn/tardis/pull/17) Docs/fixdocs (@maryampatel)
-- [#16](https://github.com/tardis-sn/tardis/pull/16) Doc/atomic
- preliminary merge (@maryampatel)
+- [#16](https://github.com/tardis-sn/tardis/pull/16) Doc/atomic preliminary merge (@maryampatel)
 - [#14](https://github.com/tardis-sn/tardis/pull/14) Implemented all changes (@maryampatel)
 - [#13](https://github.com/tardis-sn/tardis/pull/13) Changed the main documentation page (@maryampatel)
