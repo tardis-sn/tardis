@@ -25,7 +25,7 @@ KB_CGS = 1.3806488e-16
 H_CGS = 6.62606957e-27
 SIGMA_THOMSON = 6.652486e-25
 
-
+print(njit_dict)
 class IntegrationError(Exception):
     pass
 
@@ -93,13 +93,17 @@ def get_formal_integrator(model, plasma, runner, points=1000):
     t_inner = model.t_inner.value
 
     mock_model = MockMontecarloModel(volume, time_explosion, no_of_shells, t_inner)
-    mock_runner = MockMontecarloRunner(runner.line_interaction_type, runner.time_of_simulation.cgs.value, runner.Edotlu_estimator, runner.j_blue_estimator, runner.r_inner_cgs, runner.r_outer_cgs, plasma.tau_sobolevs.values.copy(), plasma.electron_densities.values)
+    mock_runner = MockMontecarloRunner(runner.line_interaction_type, 
+                                        runner.time_of_simulation.cgs.value, 
+                                        runner.Edotlu_estimator, runner.j_blue_estimator, 
+                                        runner.r_inner_cgs, runner.r_outer_cgs, 
+                                        plasma.tau_sobolevs.values.copy(), plasma.electron_densities.values)
 
     numba_plasma = numba_plasma_initialize(plasma, runner.line_interaction_type)
 
     return FormalIntegrator(model, plasma, runner, NumbaFormalIntegrator(mock_model, numba_plasma, mock_runner))
 
-@njit(**njit_dict, parallel=True)
+@njit(**njit_dict)
 def numba_formal_integral(self, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, N):
     # todo: add all the original todos
     # Initialize the output which is shared among threads
@@ -115,28 +119,14 @@ def numba_formal_integral(self, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, 
     pp = np.zeros(N) # check
     exp_tau = np.zeros(size_tau)
     # TODO: multiprocessing
-    #offset = 0
-    #size_z = 0
-    #idx_nu_start = 0
-    #direction = 0
-    #I_nu = np.zeros(N)
-    #shell_id = np.zeros(2 * self.model.no_of_shells)
-    #z = np.zeros(2 * self.model.no_of_shells)
     # instantiate more variables here, maybe?
 
     # prepare exp_tau
-    #exp_tau = np.exp(-self.plasma.tau_sobolev.flatten()) # check
-    #print(exp_tau)
     for i in prange(self.plasma.tau_sobolev.shape[0]):
         for j in prange(self.plasma.tau_sobolev.shape[1]):
             exp_tau[j*self.plasma.tau_sobolev.shape[0]+i] = np.exp(-self.plasma.tau_sobolev[i,j])
     pp = calculate_p_values(R_max, N, pp)
-
     line_list_nu = self.plasma.line_list_nu
-    #exp_tau = exp_tau.flatten()
-    #att_S_ul = att_S_ul.flatten()
-    #Jred_lu = Jred_lu.flatten()
-    #Jblue_lu = Jblue_lu.flatten()
 
     # done with instantiation
     # now loop over wavelength in spectrum
@@ -173,7 +163,6 @@ def numba_formal_integral(self, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, 
             idx_nu_start = line_search(self.plasma.line_list_nu,
                                        nu_start, size_line)
             offset = shell_id[0] * size_line
-
             # start tracking accumulated e-scattering optical depth
             zstart = self.model.time_explosion / C_INV * (1. - z[0])
             # Initialize "pointers"
@@ -196,6 +185,7 @@ def numba_formal_integral(self, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, 
                     pexp_tau += 1
                     patt_S_ul += 1
                     pJblue_lu += 1
+                    pJred_lu += 1
 
                     if (line_list_nu[pline] < nu_end):
                         break
@@ -267,142 +257,6 @@ class NumbaFormalIntegrator(object):
 
     def formal_integral(self, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, N):
         return numba_formal_integral(self, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, N)
-        # todo: add all the original todos
-        # Initialize the output which is shared among threads
-        L = np.zeros(inu_size)
-        # global read-only values
-        size_line = len(self.plasma.line_list_nu)
-        size_shell = self.model.no_of_shells # check
-        size_tau = size_line * size_shell
-        finished_nus = 0
-
-        R_ph = self.runner.r_inner_i[0]
-        R_max = self.runner.r_outer_i[size_shell - 1]
-        pp = np.zeros(N) # check
-        exp_tau = np.zeros(size_tau)
-        # TODO: multiprocessing
-        offset = 0
-        size_z = 0
-        z = np.zeros(2 * self.model.no_of_shells)
-        idx_nu_start = 0
-        direction = 0
-        I_nu = np.zeros(N)
-        shell_id = np.zeros(2 * self.model.no_of_shells)
-        # instantiate more variables here, maybe?
-
-        # prepare exp_tau
-        exp_tau = np.exp(-self.plasma.tau_sobolev).flatten() # check
-        #print(exp_tau)
-        pp = calculate_p_values(R_max, N, pp)
-
-        # done with instantiation
-        # now loop over wavelength in spectrum
-        for nu_idx in range(inu_size):
-            print(nu_idx,'/',inu_size)
-            nu = inu[nu_idx]
-            # now loop over discrete values along line
-            for p_idx in range(1, N):
-                escat_contrib = 0
-                p = pp[p_idx]
-
-                # initialize z intersections for p values
-                size_z = self.populate_z(p, z, shell_id) # check returns
-
-                # initialize I_nu
-                if p <= R_ph:
-                    I_nu[p_idx] = intensity_black_body(nu * z[0], iT)
-                else:
-                    I_nu[p_idx] = 0
-
-                # find first contributing lines
-                nu_start = nu * z[0]
-                nu_end = nu * z[1]
-                idx_nu_start = line_search(self.plasma.line_list_nu,
-                                           nu_start, size_line)
-                offset = shell_id[0] * size_line
-
-                # start tracking accumulated e-scattering optical depth
-                zstart = self.model.time_explosion / C_INV * (1. - z[0])
-
-                # Initialize "pointers"
-
-                line_list_nu = self.plasma.line_list_nu
-                exp_tau = exp_tau.flatten()
-                att_S_ul = att_S_ul.flatten()
-                Jred_lu = Jred_lu.flatten()
-                Jblue_lu = Jblue_lu.flatten()
-
-                pline = int(idx_nu_start)
-                pexp_tau = int(offset + idx_nu_start)
-                patt_S_ul = int(offset + idx_nu_start)
-                pJred_lu = int(offset + idx_nu_start)
-                pJblue_lu = int(offset + idx_nu_start)
-
-                # flag for first contribution to integration on current p-ray
-                first = 1
-
-                # loop over all interactions
-                for i in range(size_z - 1):
-                    escat_op = self.plasma.electron_density[int(shell_id[i])] * SIGMA_THOMSON
-                    nu_end = nu * z[i + 1]
-                    while (line_list_nu[pline] < line_list_nu[size_line]): # check all condition
-                        # increment all pointers simulatenously
-                        pline += 1
-                        pexp_tau += 1
-                        patt_S_ul += 1
-                        pJblue_lu += 1
-
-                        if (line_list_nu[pline] < nu_end):
-                            break
-
-                        # calculate e-scattering optical depth to next resonance point
-                        zend = self.model.time_explosion / C_INV * (1. - line_list_nu[pline] / nu) # check
-
-                        if first == 1:
-                            # first contribution to integration
-                            # NOTE: this treatment of I_nu_b (given
-                            #   by boundary conditions) is not in Lucy 1999;
-                            #   should be re-examined carefully
-                            escat_contrib += (zend - zstart) * escat_op * (
-                                Jblue_lu[pJblue_lu] - I_nu[p_idx]);
-                            first = 0;
-                        else:
-                            # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
-                            Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu]);
-                            escat_contrib += (zend - zstart) * escat_op * (
-                                        Jkkp - I_nu[p_idx])
-                            # this introduces the necessary ffset of one element between
-                            # pJblue_lu and pJred_lu
-                            pJred_lu += 1
-                        # pdb.set_trace()
-                        I_nu[p_idx] = I_nu[p_idx] + escat_contrib
-                        # // Lucy 1999, Eq 26
-                        I_nu[p_idx] = I_nu[p_idx] * (exp_tau[pexp_tau]) + att_S_ul[patt_S_ul] # check about taking about asterisks beforehand elsewhere
-
-                        # // reset e-scattering opacity
-                        escat_contrib = 0
-                        zstart = zend
-                    # calculate e-scattering optical depth to grid cell boundary
-
-                    Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
-                    zend = self.model.time_explosion / C_INV * (1. - nu_end / nu) # check
-                    escat_contrib += (zend - zstart) * escat_op * (
-                                Jkkp - I_nu[p_idx])
-                    zstart = zend
-
-                    if i < size_z - 1:
-                        # advance pointers
-                        direction = shell_id[i+1] - shell_id[i]
-                        exp_tau[pexp_tau] += direction * size_line
-                        att_S_ul[patt_S_ul] += direction * size_line
-                        Jred_lu[pJred_lu] += direction * size_line
-                        Jblue_lu[pJblue_lu] += direction * size_line
-                I_nu[p_idx] *= p
-            L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max / N,
-                                                                N)
-            # something pragma op atomic
-        return L
-
 
     # @njit(**njit_dict)
     def populate_z(self, p, oz, oshell_id):
@@ -655,7 +509,7 @@ class FormalIntegrator(object):
 
         # Jredlu should already by in the correct order, i.e. by wavelength of
         # the transition l->u (similar to Jbluelu)
-        Jredlu = Jbluelu * np.exp(-self.plasma.tau_sobolev) + att_S_ul*Jbluelu.unit
+        Jredlu = Jbluelu * np.exp(-self.plasma.tau_sobolev) + att_S_ul*Jbluelu
         if self.interpolate_shells > 0:
             (
                 att_S_ul,
@@ -701,7 +555,8 @@ class FormalIntegrator(object):
             r_middle,
             plasma.tau_sobolev,
             fill_value="extrapolate",
-            kind="nearest",
+         
+   kind="nearest",
         )(r_middle_integ)
         att_S_ul = interp1d(r_middle, att_S_ul, fill_value="extrapolate")(
             r_middle_integ
@@ -741,148 +596,6 @@ class FormalIntegrator(object):
                 N
                 )
         return np.array(L, np.float64)
-
-    def _formal_integral(
-        self, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, N
-    ):
-        # todo: add all the original todos
-        # Initialize the output which is shared among threads
-        L = np.zeros(inu_size)
-        # global read-only values
-        size_line = len(self.plasma.line_list_nu)
-        size_shell = self.model.no_of_shells  # check
-        size_tau = size_line * size_shell
-        finished_nus = 0
-
-        R_ph = self.runner.r_inner_i[0]
-        R_max = self.runner.r_outer_i[size_shell - 1]
-        pp = np.zeros(N)  # check
-        exp_tau = np.zeros(size_tau)
-        # TODO: multiprocessing
-        offset = 0
-        size_z = 0
-        z = np.zeros(2 * self.model.no_of_shells)
-        idx_nu_start = 0
-        direction = 0
-        I_nu = np.zeros(N)
-        shell_id = np.zeros(2 * self.model.no_of_shells)
-        # instantiate more variables here, maybe?
-
-        # prepare exp_tau
-        exp_tau = np.exp(-self.plasma.tau_sobolev)  # check
-        pp = calculate_p_values(R_max, N, pp)
-
-        # done with instantiation
-        # now loop over wavelength in spectrum
-        for nu_idx in range(inu_size):
-            nu = inu[nu_idx]
-            # now loop over discrete values along line
-            for p_idx in range(1, N):
-                escat_contrib = 0
-                p = pp[p_idx]
-
-                # initialize z intersections for p values
-                size_z = self.populate_z(p, z, shell_id)  # check returns
-
-                # initialize I_nu
-                if p <= R_ph:
-                    I_nu[p_idx] = intensity_black_body(nu * z[0], iT)
-                else:
-                    I_nu[p_idx] = 0
-
-                # find first contributing lines
-                nu_start = nu * z[0]
-                nu_end = nu * z[1]
-                idx_nu_start = line_search(
-                    self.plasma.line_list_nu, nu_start, size_line, idx_nu_start
-                )
-                offset = shell_id[0] * size_line
-
-                # start tracking accumulated e-scattering optical depth
-                zstart = self.model.time_explosion / C_INV * (1.0 - z[0])
-
-                # Initialize "pointers"
-
-                line_list_nu = self.plasma.line_list_nu
-                exp_tau = exp_tau.flatten()
-                att_S_ul = att_S_ul.flatten()
-                Jred_lu = Jred_lu.flatten()
-                Jblue_lu = Jblue_lu.flatten()
-
-                pline = idx_nu_start
-                pexp_tau = offset + idx_nu_start
-                patt_S_ul = offset + idx_nu_start
-                pJred_lu = offset + idx_nu_start
-                pJblue_lu = offset + idx_nu_start
-
-                # flag for first contribution to integration on current p-ray
-                first = 1
-
-                # loop over all interactions
-                for i in range(size_z - 1):
-                    escat_op = (
-                        self.plasma.electron_density[int(shell_id[i])]
-                        * SIGMA_THOMSON
-                    )
-                    nu_end = nu * z[i + 1]
-                    while (line_list_nu[pline] < line_list_nu[size_line]): # check all condition
-                        # increment all pointers simulatenously
-                        pline += 1
-                        pexp_tau += 1
-                        patt_S_ul += 1
-                        pJblue_lu += 1
-
-                        if (line_list_nu[pline] < nu_end.value):
-                            break
-
-                        # calculate e-scattering optical depth to next resonance point
-                        zend = self.model.time_explosion / C_INV * (1. - line_list_nu[pline] / nu.value) # check
-
-                        if first == 1:
-                            # first contribution to integration
-                            # NOTE: this treatment of I_nu_b (given
-                            #   by boundary conditions) is not in Lucy 1999;
-                            #   should be re-examined carefully
-                            escat_contrib += (zend - zstart) * escat_op * (
-                                Jblue_lu[pJblue_lu] - I_nu[p_idx]);
-                            first = 0;
-                        else:
-                            # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
-                            Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu]);
-                            escat_contrib += (zend - zstart) * escat_op * (
-                                        Jkkp - I_nu[p_idx])
-                            # this introduces the necessary ffset of one element between
-                            # pJblue_lu and pJred_lu
-                            pJred_lu += 1
-                        # pdb.set_trace()
-                        I_nu[p_idx] = I_nu[p_idx] + escat_contrib.value
-                        # // Lucy 1999, Eq 26
-                        I_nu[p_idx] = I_nu[p_idx] * (exp_tau[pexp_tau]) + att_S_ul[patt_S_ul] # check about taking about asterisks beforehand elsewhere
-
-                        # // reset e-scattering opacity
-                        escat_contrib = 0
-                        zstart = zend
-                    # calculate e-scattering optical depth to grid cell boundary
-
-                    Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
-                    zend = self.model.time_explosion / C_INV * (1. - nu_end / nu) # check
-                    escat_contrib += (zend - zstart) * escat_op * (
-                                Jkkp - I_nu[p_idx])
-                    zstart = zend
-
-                    if i < size_z - 1:
-                        # advance pointers
-                        direction = shell_id[i+1] - shell_id[i]
-                        exp_tau[pexp_tau] += direction * size_line
-                        att_S_ul[patt_S_ul] += direction * size_line
-                        Jred_lu[pJred_lu] += direction * size_line
-                        Jblue_lu[pJblue_lu] += direction * size_line
-                I_nu[p_idx] *= p
-            L[nu_idx] = (
-                8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max / N, N)
-            )
-            # something pragma op atomic
-        return L
 
     # @njit(**njit_dict)
     def populate_z(self, p, oz, oshell_id):
