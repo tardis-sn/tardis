@@ -283,11 +283,6 @@ class MontecarloRunner(HDFWriterMixin):
 
         set_num_threads(nthreads)
 
-<<<<<<< HEAD
-        #self._integrator = FormalIntegrator(model, plasma, self)
-=======
-        self._integrator = FormalIntegrator(model, plasma, self)
->>>>>>> 9f5bd24d88be01ee04f61df694ff4c55721a675e
         self.time_of_simulation = self.calculate_time_of_simulation(model)
         self.volume = model.volume
 
