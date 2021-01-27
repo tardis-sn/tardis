@@ -16,8 +16,6 @@ variables:
   results.url: 'http://opensupernova.org/~azuredevops/files/refdata-results'
   commit.sha: '$(Build.SourceVersion)'
   pr.number: '$(System.PullRequest.PullRequestNumber)'
-  ref1.hash: '1b73a6bb74d56636101e62257774c43009fabc88'
-  ref2.hash: '34a759c65050784e7dd799d1358a464abc04653c'
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -35,14 +33,10 @@ jobs:
       - bash: |
           MY_PAT=$(azure_pat)
           B64_PAT=$(printf ":$MY_PAT" | base64)
-          git -c http.extraHeader="Authorization: Basic ${B64_PAT}" clone https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata $(refdata.dir)
-        displayName: 'Fetch reference data repository'
-
-      - bash: |
+          GIT_LFS_SKIP_SMUDGE=1 git -c http.extraHeader="Authorization: Basic ${B64_PAT}" clone https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata $(refdata.dir)
           cd $(refdata.dir)
-          git checkout $(ref1.hash)
-          git checkout $(ref2.hash)
-        displayName: 'Debug step 1'
+          git -c http.extraHeader="Authorization: Basic ${B64_PAT}" lfs fetch --all
+        displayName: 'Fetch reference data repository (slow)'
 
       - bash: |
           cd $(refdata.dir)
@@ -50,12 +44,6 @@ jobs:
           git fetch upstream
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
         displayName: 'Set upstream remote'
-
-      - bash: |
-          cd $(refdata.dir)
-          git checkout $(ref1.hash)
-          git checkout $(ref2.hash)
-        displayName: 'Debug step 2'
 
       - bash: |
           cd $(tardis.dir)
