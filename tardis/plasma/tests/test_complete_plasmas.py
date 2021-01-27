@@ -209,5 +209,5 @@ class TestPlasma(object):
             expected = tardis_ref_data[key]
             assert_almost_equal(actual, expected.values)
 
-    def new_test(self)
+    def new_test(self):
         assert True == True
