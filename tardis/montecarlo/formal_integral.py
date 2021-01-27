@@ -332,10 +332,9 @@ class FormalIntegrator(object):
         self.runner = runner 
         self.points = points
         if plasma:
-            self.plasma = plasma
-            # self.plasma = numba_plasma_initialize(
-            #     plasma, runner.line_interaction_type
-            # )
+            self.plasma = numba_plasma_initialize(
+                plasma, runner.line_interaction_type
+            )
             self.atomic_data = plasma.atomic_data
             self.original_plasma = plasma
  
@@ -385,7 +384,8 @@ class FormalIntegrator(object):
         N = points or self.points
         self.interpolate_shells = interpolate_shells
         frequency = frequency.to("Hz", u.spectral())
-        luminosity = u.Quantity(formal_integral(self, frequency, N), "erg") * (
+
+        luminosity = u.Quantity(self.formal_integral(frequency, N), "erg") * (
             frequency[1] - frequency[0]
         )
 
@@ -438,7 +438,7 @@ class FormalIntegrator(object):
             destination_level_idx = ma_int_data.destination_level_idx.values
 
         Edotlu_norm_factor = 1 / (runner.time_of_simulation * model.volume)
-        exptau = 1 - np.exp(-self.plasma.tau_sobolevs)
+        exptau = 1 - np.exp(-self.plasma.tau_sobolev)
         Edotlu = Edotlu_norm_factor * exptau * runner.Edotlu_estimator
 
         # The following may be achieved by calling the appropriate plasma
@@ -522,8 +522,9 @@ class FormalIntegrator(object):
         else:
             runner.r_inner_i = runner.r_inner_cgs
             runner.r_outer_i = runner.r_outer_cgs
-            runner.tau_sobolevs_integ = self.plasma.tau_sobolevs
-            runner.electron_densities_integ = self.plasma.electron_densities
+            runner.tau_sobolevs_integ = self.plasma.tau_sobolev
+            runner.electron_densities_integ = self.plasma.electron_density
+
         return att_S_ul, Jredlu, Jbluelu, e_dot_u
 
     def interpolate_integrator_quantities(
@@ -544,7 +545,7 @@ class FormalIntegrator(object):
 
         runner.electron_densities_integ = interp1d(
             r_middle,
-            plasma.electron_densities,
+            plasma.electron_density,
             fill_value="extrapolate",
             kind="nearest",
         )(r_middle_integ)
@@ -552,7 +553,7 @@ class FormalIntegrator(object):
         # (as in the MC simulation)
         runner.tau_sobolevs_integ = interp1d(
             r_middle,
-            plasma.tau_sobolevs,
+            plasma.tau_sobolev,
             fill_value="extrapolate",
          
    kind="nearest",
@@ -595,6 +596,7 @@ class FormalIntegrator(object):
                 N
                 )
         return np.array(L, np.float64)
+
     # @njit(**njit_dict)
     def populate_z(self, p, oz, oshell_id):
         """Calculate p line intersections
@@ -616,7 +618,7 @@ class FormalIntegrator(object):
         z = 0
         offset = N
 
-        if p <= self.model.r_inner_i[0]:
+        if p <= self.runner.r_inner_i[0]:
             # intersect the photosphere
             for i in range(N):
                 oz[i] = 1 - self.calculate_z(r[i], p, inv_t)
