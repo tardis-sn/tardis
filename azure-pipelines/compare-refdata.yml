@@ -16,6 +16,8 @@ variables:
   results.url: 'http://opensupernova.org/~azuredevops/files/refdata-results'
   commit.sha: '$(Build.SourceVersion)'
   pr.number: '$(System.PullRequest.PullRequestNumber)'
+  #ref1.hash: ''
+  #ref2.hash: ''
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -28,8 +30,8 @@ jobs:
           fetchRefdata: false  # See the comment below.
           useMamba: true
 
-      #  Azure Repos requires token auth for public repositories containing LFS objects (bug).
-      #  Fetch reference data from Azure with a PAT until a fix arrives.
+      # Azure Repos requires token auth for public repositories containing LFS objects (bug).
+      # Fetch reference data from Azure with a PAT until a fix arrives.
       - bash: |
           MY_PAT=$(azure_pat)
           B64_PAT=$(printf ":$MY_PAT" | base64)
