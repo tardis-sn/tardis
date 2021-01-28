@@ -1,5 +1,4 @@
-.. include:: git_links.inc
-.. include:: azure_links.inc
+.. include:: links.inc
 
 **********************
 Continuous Integration
@@ -290,17 +289,28 @@ Release pipeline
 Publishes a new release of TARDIS every sunday at 00:00 UTC. 
 
 
-Reference data pipeline
-=======================
+Compare reference data pipeline
+===============================
 
-Generates new reference data according to the changes present in the
-current pull request. Then, compares against reference data present in the
-head of ``tardis-refdata`` repository by running a notebook. Finally, uploads
-the rendered notebook to the pipeline results.
-
-To trigger this pipeline is necessary to leave a comment in the GitHub pull
-request.
+This pipeline compares two versions of the reference data. It's triggered manually via
+the Azure Pipelines web UI, or when a TARDIS contributor leaves the following comment
+on a pull request:
 ::
   /AzurePipelines run compare-refdata
 
 For brevity, you can comment using ``/azp`` instead of ``/AzurePipelines``.
+
+By default, generates new reference data for the ``HEAD`` of the pull request. Then, 
+compares against latest reference data stored in ``tardis-refdata`` repository. The
+web UI also allows to compare any version of the reference data by providing two
+labels (SHAs, branches, tags, etc.) as variables named ``ref1.hash`` and ``ref2.hash``
+at runtime.
+
+.. warning:: Do not define ``ref1.hash`` and ``ref2.hash`` between quotation marks 
+            or **the pipeline will fail**.
+
+Finally, the report is uploaded to the
+`OpenSupernova.org server <http://opensupernova.org/~azuredevops/files/refdata-results/>`_
+following the ``<pr>/<commit>`` folder structure. If the pipeline fails, also a report is 
+generated, but not necessarily gives useful debug information (depends on which step the
+pipeline has failed).
