@@ -303,8 +303,8 @@ For brevity, you can comment using ``/azp`` instead of ``/AzurePipelines``.
 By default, generates new reference data for the ``HEAD`` of the pull request. Then, 
 compares against latest reference data stored in ``tardis-refdata`` repository. If
 you want to compare two different labels (SHAs, branches, tags, etc.) uncomment and
-set the `ref1.hash` and `ref2.hash` variables in `.github/workflows/compare-refdata.yml`
-on your pull request. For example:
+set the ``ref1.hash`` and ``ref2.hash`` variables in 
+`.github/workflows/compare-refdata.yml` on your pull request. For example:
 ::
   ref1.hash: 'upstream/pr/11'
   ref2.hash: 'upstream/master'
