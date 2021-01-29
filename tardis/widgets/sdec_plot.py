@@ -1,5 +1,5 @@
 """
-Spectral Element Decomposition (SEDec) Plot for TARDIS simulation models.
+Spectral element DEComposition (SDEC) Plot for TARDIS simulation models.
 
 This plot is a spectral diagnostics plot similar to those originally
 proposed by M. Kromer (see, for example, Kromer et al. 2013, figure 4).
@@ -18,10 +18,10 @@ from tardis.util.base import atomic_number2element_symbol
 from tardis.widgets import plot_util as pu
 
 
-class SEDecData:
-    """The data of simulation model used by Spectral Element Decomposition (SEDec) Plot.
+class SDECData:
+    """The data of simulation model used by Spectral element DEComposition (SDEC) Plot.
 
-    This preprocesses the data required by SEDecPlotter class for doing
+    This preprocesses the data required by SDECPlotter class for doing
     calculations and plotting.
     """
 
@@ -43,7 +43,7 @@ class SEDecData:
         time_of_simulation,
     ):
         """
-        Initialize the SEDecData with required properties of simulation model.
+        Initialize the SDECData with required properties of simulation model.
 
         Parameters
         ----------
@@ -129,7 +129,7 @@ class SEDecData:
     @classmethod
     def from_simulation(cls, sim, packets_mode):
         """
-        Create an instance of SEDecData from a TARDIS simulation object.
+        Create an instance of SDECData from a TARDIS simulation object.
 
         Parameters
         ----------
@@ -140,7 +140,7 @@ class SEDecData:
 
         Returns
         -------
-        SEDecData
+        SDECData
         """
         # Properties common among both packet modes
         lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(
@@ -208,7 +208,7 @@ class SEDecData:
     @classmethod
     def from_hdf(cls, hdf_fpath, packets_mode):
         """
-        Create an instance of SEDecData from a simulation HDF file.
+        Create an instance of SDECData from a simulation HDF file.
 
         Parameters
         ----------
@@ -219,7 +219,7 @@ class SEDecData:
 
         Returns
         -------
-        SEDecData
+        SDECData
         """
         with pd.HDFStore(hdf_fpath, "r") as hdf:
             lines_df = (
@@ -362,22 +362,22 @@ class SEDecData:
                 )
 
 
-class SEDecPlotter:
+class SDECPlotter:
     """
-    Plotting interface for Spectral Element Decomposition (SEDec) Plot.
+    Plotting interface for Spectral element DEComposition (SDEC) Plot.
 
-    It performs necessary calculations to generate SEDec Plot for a simulation
+    It performs necessary calculations to generate SDEC Plot for a simulation
     model, and allows to plot it in matplotlib and plotly.
     """
 
     def __init__(self, data):
         """
-        Initialize the SEDecPlotter with required data of simulation model.
+        Initialize the SDECPlotter with required data of simulation model.
 
         Parameters
         ----------
-        data : dict of SEDecData
-            Dictionary to store data required for SEDec plot, for both packet
+        data : dict of SDECData
+            Dictionary to store data required for SDEC plot, for both packet
             modes i.e. real and virtual
         """
         self.data = data
@@ -385,7 +385,7 @@ class SEDecPlotter:
     @classmethod
     def from_simulation(cls, sim):
         """
-        Create an instance of SEDecPlotter from a TARDIS simulation object.
+        Create an instance of SDECPlotter from a TARDIS simulation object.
 
         Parameters
         ----------
@@ -394,19 +394,19 @@ class SEDecPlotter:
 
         Returns
         -------
-        SEDecPlotter
+        SDECPlotter
         """
         return cls(
             dict(
-                virtual=SEDecData.from_simulation(sim, "virtual"),
-                real=SEDecData.from_simulation(sim, "real"),
+                virtual=SDECData.from_simulation(sim, "virtual"),
+                real=SDECData.from_simulation(sim, "real"),
             )
         )
 
     @classmethod
     def from_hdf(cls, hdf_fpath):
         """
-        Create an instance of SEDecPlotter from a simulation HDF file.
+        Create an instance of SDECPlotter from a simulation HDF file.
 
         Parameters
         ----------
@@ -415,12 +415,12 @@ class SEDecPlotter:
 
         Returns
         -------
-        SEDecPlotter
+        SDECPlotter
         """
         return cls(
             dict(
-                virtual=SEDecData.from_hdf(hdf_fpath, "virtual"),
-                real=SEDecData.from_hdf(hdf_fpath, "real"),
+                virtual=SDECData.from_hdf(hdf_fpath, "virtual"),
+                real=SDECData.from_hdf(hdf_fpath, "real"),
             )
         )
 
@@ -528,7 +528,7 @@ class SEDecPlotter:
 
     def _calculate_emission_luminosities(self, packets_mode, packet_wvl_range):
         """
-        Calculate luminosities for the emission part of SEDec plot.
+        Calculate luminosities for the emission part of SDEC plot.
 
         Parameters
         ----------
@@ -683,7 +683,7 @@ class SEDecPlotter:
         self, packets_mode, packet_wvl_range
     ):
         """
-        Calculate luminosities for the absorption part of SEDec plot.
+        Calculate luminosities for the absorption part of SDEC plot.
 
         Parameters
         ----------
@@ -791,7 +791,7 @@ class SEDecPlotter:
         cmapname="jet",
     ):
         """
-        Generate Spectral Element Decomposition (SEDec) Plot using matplotlib.
+        Generate Spectral element DEComposition (SDEC) Plot using matplotlib.
 
         Parameters
         ----------
@@ -807,7 +807,7 @@ class SEDecPlotter:
             Distance used to calculate flux instead of luminosities in the plot.
             Preferrably having units of cm. Default value is None
         show_modeled_spectrum : bool, optional
-            Whether to show modeled spectrum in SEDec Plot. Default value is
+            Whether to show modeled spectrum in SDEC Plot. Default value is
             True
         ax : matplotlib.axes._subplots.AxesSubplot or None, optional
             Axis on which to create plot. Default value is None which will
@@ -821,7 +821,7 @@ class SEDecPlotter:
         Returns
         -------
         matplotlib.axes._subplots.AxesSubplot
-            Axis on which SEDec Plot is created
+            Axis on which SDEC Plot is created
         """
         # Calculate data attributes required for plotting
         # and save them in instance itself
@@ -875,7 +875,7 @@ class SEDecPlotter:
         return plt.gca()
 
     def _plot_emission_mpl(self):
-        """Plot emission part of the SEDec Plot using matplotlib."""
+        """Plot emission part of the SDEC Plot using matplotlib."""
         # To create stacked area chart in matplotlib, we will start with zero
         # lower level and will keep adding luminosities to it (upper level)
         lower_level = np.zeros(self.emission_luminosities_df.shape[0])
@@ -925,7 +925,7 @@ class SEDecPlotter:
             )
 
     def _plot_absorption_mpl(self):
-        """Plot absorption part of the SEDec Plot using matplotlib."""
+        """Plot absorption part of the SDEC Plot using matplotlib."""
         lower_level = np.zeros(self.absorption_luminosities_df.shape[0])
 
         elements_z = self.absorption_luminosities_df.columns.to_list()
@@ -980,7 +980,7 @@ class SEDecPlotter:
         cmapname="jet",
     ):
         """
-        Generate interactive Spectral Element Decomposition (SEDec) Plot using plotly.
+        Generate interactive Spectral element DEComposition (SDEC) Plot using plotly.
 
         Parameters
         ----------
@@ -996,7 +996,7 @@ class SEDecPlotter:
             Distance used to calculate flux instead of luminosities in the plot.
             Preferrably having units of cm. Default value is None
         show_modeled_spectrum : bool, optional
-            Whether to show modeled spectrum in SEDec Plot. Default value is
+            Whether to show modeled spectrum in SDEC Plot. Default value is
             True
         fig : plotly.graph_objs._figure.Figure or None, optional
             Figure object on which to create plot. Default value is None which
@@ -1010,7 +1010,7 @@ class SEDecPlotter:
         Returns
         -------
         plotly.graph_objs._figure.Figure
-            Figure object on which SEDec Plot is created
+            Figure object on which SDEC Plot is created
         """
         # Calculate data attributes required for plotting
         # and save them in instance itself
@@ -1100,7 +1100,7 @@ class SEDecPlotter:
         return f"rgb{color_tuple_255}"
 
     def _plot_emission_ply(self):
-        """Plot emission part of the SEDec Plot using plotly."""
+        """Plot emission part of the SDEC Plot using plotly."""
         # By specifying a common stackgroup, plotly will itself add up
         # luminosities, in order, to created stacked area chart
         self.fig.add_trace(
@@ -1142,7 +1142,7 @@ class SEDecPlotter:
             )
 
     def _plot_absorption_ply(self):
-        """Plot absorption part of the SEDec Plot using plotly."""
+        """Plot absorption part of the SDEC Plot using plotly."""
         elements_z = self.absorption_luminosities_df.columns
         nelements = len(elements_z)
 
