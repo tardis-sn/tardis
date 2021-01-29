@@ -56,6 +56,6 @@ jobs:
             gitHubConnection: 'tardis-sn'
             repositoryName: 'tardis-sn/tardis'
             id: $(pr.number)
-            comment: '**Update failed** $(commit.sha) <br><br> Check the [job log]($(log.url)) for more information.'
+            comment: '**Update failed** $(commit.sha) <br><br> For more information, check the [job log]($(log.url)).'
           displayName: 'Post results (failed)'
           #condition: failed()  # Commented for testing purposes
