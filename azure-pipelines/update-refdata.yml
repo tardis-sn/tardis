@@ -2,7 +2,11 @@
 # http://tardis-sn.github.io/tardis/development/continuous_integration.html
 
 trigger: none
-pr: [ master ]
+
+pr:
+  branches:
+    include:
+    - '*'
 
 variables:
   system.debug: false
@@ -20,9 +24,9 @@ jobs:
     steps:
       - template: templates/default.yml
         parameters:
-          fetchRefdata: false  # We don't want to fetch the mirror
+          fetchRefdata: false  # We don't want to fetch from the mirror
           useMamba: true
-          skipInstall: true  # Enable temporarily (works ok)
+          skipInstall: true  # Disable temporarily (works ok)
 
       - bash: git clone https://github.com/tardis-sn/tardis-refdata $(refdata.dir)
         displayName: 'Fetch reference data repository'
@@ -35,7 +39,7 @@ jobs:
         displayName: 'Generate reference data'
         condition: false  # Disable temporarily (not tested but should work)
 
-      # Push changes
+      # Step to push changes goes here
 
       # Run only if the pipeline is triggered by a pull request.
       - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
@@ -52,6 +56,6 @@ jobs:
             gitHubConnection: 'tardis-sn'
             repositoryName: 'tardis-sn/tardis'
             id: $(pr.number)
-            comment: '**Update failed** $(commit.sha) <br><br> Please check the [job log]($(log.url)).'
+            comment: '**Update failed** $(commit.sha) <br><br> Check the [job log]($(log.url)) for more information.'
           displayName: 'Post results (failed)'
           #condition: failed()  # Commented for testing purposes

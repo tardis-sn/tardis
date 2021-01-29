@@ -2,7 +2,11 @@
 # http://tardis-sn.github.io/tardis/development/continuous_integration.html
 
 trigger: none
-pr: [ master ]
+
+pr:
+  branches:
+    include:
+    - '*'
 
 schedules:
   - cron: '0 0 1 * *'
