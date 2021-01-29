@@ -441,7 +441,7 @@ class SDECPlotter:
             [lower_lambda, upper_lambda] * u.AA
         distance : astropy.Quantity
             Distance used to calculate flux instead of luminosities in the plot.
-            Preferrably having units of cm.
+            It should have a length unit like m, Mpc, etc.
 
         Notes
         -----
@@ -660,6 +660,7 @@ class SDECPlotter:
                 group["nus"],
                 bins=self.plot_frequency_bins,
                 weights=group["energies"]
+                / self.lum_to_flux
                 / self.data[packets_mode].time_of_simulation,
             )
 
@@ -736,6 +737,7 @@ class SDECPlotter:
                 group["last_line_interaction_in_nu"],
                 bins=self.plot_frequency_bins,
                 weights=group["energies"]
+                / self.lum_to_flux
                 / self.data[packets_mode].time_of_simulation,
             )
 
@@ -805,7 +807,7 @@ class SDECPlotter:
             [lower_lambda, upper_lambda] * u.AA. Default value is None
         distance : astropy.Quantity or None, optional
             Distance used to calculate flux instead of luminosities in the plot.
-            Preferrably having units of cm. Default value is None
+            It should have a length unit like m, Mpc, etc. Default value is None
         show_modeled_spectrum : bool, optional
             Whether to show modeled spectrum in SDEC Plot. Default value is
             True
@@ -994,7 +996,7 @@ class SDECPlotter:
             [lower_lambda, upper_lambda] * u.AA. Default value is None
         distance : astropy.Quantity or None, optional
             Distance used to calculate flux instead of luminosities in the plot.
-            Preferrably having units of cm. Default value is None
+            It should have a length unit like m, Mpc, etc. Default value is None
         show_modeled_spectrum : bool, optional
             Whether to show modeled spectrum in SDEC Plot. Default value is
             True
