@@ -39,7 +39,16 @@ jobs:
         displayName: 'Generate reference data'
         condition: false  # Disable temporarily (not tested but should work)
 
-      # Step to push changes goes here
+      - bash: |
+          cd $(refdata.dir)
+          git add unit_test_data.h5
+          git config --local user.email "wkerzendorf+tardis@gmail.com"
+          git config --local user.name "TARDIS Bot"
+          git commit -m "update reference data (pr $(pr.number))"
+          git remote set-url origin https://$(bot_token)@github.com/tardis-sn/tardis-refdata
+          git push origin master
+        displayName: 'Push new reference data'
+        condition: false  # Disable until final run
 
       # Run only if the pipeline is triggered by a pull request.
       - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
