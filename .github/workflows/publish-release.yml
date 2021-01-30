@@ -1,0 +1,36 @@
+# For more information on how to use this template please refer to:
+# http://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+name: publish-release
+
+on:
+  pull_request:
+    branches:
+      - master
+
+  schedule:
+    - cron: '0 0 * * 0'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'tardis-sn' }}  # Do not run scheduled jobs on forks
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install setuptools_scm  # Remove this step after moving to new Astropy's package template
+        run: pip install setuptools_scm
+
+      - name: Get TARDIS version
+        run: echo "VERSION=$(python -c 'from setuptools_scm import get_version; print(get_version(root="."))')" >> $GITHUB_ENV
+
+      - name: Debug steps
+        run: echo $VERSION
