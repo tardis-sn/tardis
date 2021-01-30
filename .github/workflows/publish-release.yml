@@ -26,7 +26,7 @@ jobs:
         with:
           python-version: 3.x
 
-      - name: Install setuptools_scm  # Remove this step after moving to new Astropy's package template
+      - name: Install setuptools_scm
         run: pip install setuptools_scm
 
       - name: Get TARDIS version
