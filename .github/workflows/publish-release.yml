@@ -3,7 +3,7 @@
 
 name: publish-release
 
-on:
+on:  # Remove this trigger before merge
   pull_request:
     branches:
       - master
@@ -32,5 +32,5 @@ jobs:
       - name: Get TARDIS version
         run: echo "VERSION=$(python -c 'from setuptools_scm import get_version; print(get_version(root="."))')" >> $GITHUB_ENV
 
-      - name: Debug steps
+      - name: Debug step
         run: echo $VERSION
