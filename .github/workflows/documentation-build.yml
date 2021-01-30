@@ -6,14 +6,15 @@ name: documentation-build
 on:
   push:
     branches:
-      - master
+    - master
+
   schedule:
     - cron: '10 0 * * 0'
 
 jobs:
   documentation_build:
-    name: Documentation Build
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
 

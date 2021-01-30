@@ -10,6 +10,7 @@ on:
 jobs:
   push:
     runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'tardis-sn' }}  # Do not run scheduled jobs on forks
 
     steps:
       - uses: actions/checkout@v2
@@ -23,11 +24,11 @@ jobs:
       - name: Commit files
         run: |
           git config --local user.email "wkerzendorf+tardis@gmail.com"
-          git config --local user.name "TARDIS bot"
+          git config --local user.name "TARDIS Bot"
           git add CHANGELOG.md
           git commit -m "Update CHANGELOG.md [skip ci]"
 
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.BOT_TOKEN }}  # Use BOT_TOKEN to push on write-protected branches
