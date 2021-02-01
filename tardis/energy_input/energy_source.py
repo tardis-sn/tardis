@@ -1,6 +1,9 @@
 import numpy as np
 import pandas as pd
 
+# Need to scale deposited energy to rate of decay reaction to get energy per second in steady state
+# Assume photon path is small compared to dynamical effects
+
 
 def read_nuclear_dataframe(path):
     return pd.read_hdf(path, key="decay_radiation")
