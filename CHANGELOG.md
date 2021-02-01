@@ -1,5 +1,13 @@
 ## Change Log
 
+### upcoming (2021/02/01 00:00 +00:00)
+- [#1432](https://github.com/tardis-sn/tardis/pull/1432) fix update changelog workflow (#1432) (@epassaro)
+- [#1441](https://github.com/tardis-sn/tardis/pull/1441) Rename SEDec to SDEC in Spectral element DEComposition plot (#1441) (@jaladh-singhal)
+- [#1430](https://github.com/tardis-sn/tardis/pull/1430) compare refdata with arbitrary labels (#1430) (@epassaro)
+- [#1431](https://github.com/tardis-sn/tardis/pull/1431) Documentation guidelines hotfix (#1431) (@KevinCawley)
+- [#1424](https://github.com/tardis-sn/tardis/pull/1424) Rename Kromer Plot to Spectral Element Decomposition (SEDec) Plot (#1424) (@jaladh-singhal)
+- [#1409](https://github.com/tardis-sn/tardis/pull/1409) add docstr-coverage workflow (#1409) (@epassaro)
+
 ### v3.0.dev3801 (2021/01/08 21:28 +00:00)
 - [#1393](https://github.com/tardis-sn/tardis/pull/1393) update env file (#1393) (@epassaro)
 
