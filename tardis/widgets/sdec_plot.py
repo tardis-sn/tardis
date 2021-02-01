@@ -502,7 +502,10 @@ class SDECPlotter:
         if distance is None:
             self.lum_to_flux = 1  # so that this term will have no effect
         else:
-            self.lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
+            if distance <= 0:
+                raise ValueError("distance passed must be greater than 0")
+            else:
+                self.lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
 
         # Calculate luminosities to be shown in plot
         (
