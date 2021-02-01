@@ -106,8 +106,8 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
             'level_number').isin(continuum_interaction_species)
         photoionization_data = photoionization_data[mask_selected_species]
         phot_nus = photoionization_data['nu']
-        block_references = np.hstack(
-            [[0], phot_nus.groupby(level=[0, 1, 2]).count().values.cumsum()]
+        block_references = np.pad(
+            phot_nus.groupby(level=[0, 1, 2]).count().values.cumsum(), [1, 0]
         )
         photo_ion_index = photoionization_data.index.unique()
         nu_i = photoionization_data.groupby(level=[0, 1, 2]).first().nu
@@ -210,8 +210,8 @@ class ZetaData(BaseAtomicDataProperty):
     outputs = ('zeta_data',)
 
     def _filter_atomic_property(self, zeta_data, selected_atoms):
-        zeta_data['atomic_number'] = zeta_data.index.labels[0] + 1
-        zeta_data['ion_number'] = zeta_data.index.labels[1] + 1
+        zeta_data['atomic_number'] = zeta_data.index.codes[0] + 1
+        zeta_data['ion_number'] = zeta_data.index.codes[1] + 1
         zeta_data = zeta_data[zeta_data.atomic_number.isin(selected_atoms)]
         zeta_data_check = counter(zeta_data.atomic_number.values)
         keys = np.array(list(zeta_data_check.keys()))

@@ -18,7 +18,9 @@ __all__ = ['SpontRecombRateCoeff', 'StimRecombRateCoeff', 'PhotoIonRateCoeff',
            'BfHeatingRateCoeffEstimator', 'SpontRecombCoolingRateCoeff',
            'BaseRecombTransProbs', 'BasePhotoIonTransProbs',
            'CollDeexcRateCoeff', 'CollExcRateCoeff', 'BaseCollisionTransProbs',
-           'AdiabaticCoolingRate', 'FreeFreeCoolingRate']
+           'AdiabaticCoolingRate', 'FreeFreeCoolingRate',
+           'BoundFreeOpacity', 'LevelNumberDensityLTE',
+           'PhotoIonBoltzmannFactor']
 
 logger = logging.getLogger(__name__)
 
@@ -165,15 +167,14 @@ class SpontRecombRateCoeff(ProcessingPlasmaProperty):
     latex_name = ('\\alpha^{\\textrm{sp}}',)
 
     def calculate(self, photo_ion_cross_sections, t_electrons,
-                  photo_ion_block_references, photo_ion_index, phi_ik):
+                  photo_ion_block_references, photo_ion_index, phi_ik,
+                  boltzmann_factor_photo_ion):
         x_sect = photo_ion_cross_sections['x_sect'].values
         nu = photo_ion_cross_sections['nu'].values
 
         alpha_sp = (8 * np.pi * x_sect * nu ** 2 / (const.c.cgs.value) ** 2)
         alpha_sp = alpha_sp[:, np.newaxis]
-        boltzmann_factor = np.exp(-nu[np.newaxis].T / t_electrons *
-                                  (const.h.cgs.value / const.k_B.cgs.value))
-        alpha_sp = alpha_sp * boltzmann_factor
+        alpha_sp = alpha_sp * boltzmann_factor_photo_ion
         alpha_sp = integrate_array_by_blocks(alpha_sp, nu,
                                              photo_ion_block_references)
         alpha_sp = pd.DataFrame(alpha_sp, index=photo_ion_index)
@@ -192,16 +193,15 @@ class SpontRecombCoolingRateCoeff(ProcessingPlasmaProperty):
     latex_name = ('ca^{\\textrm{sp}}_{\\textrm{fb}}',)
 
     def calculate(self, photo_ion_cross_sections, t_electrons,
-                  photo_ion_block_references, photo_ion_index, phi_ik, nu_i):
+                  photo_ion_block_references, photo_ion_index, phi_ik, nu_i,
+                  boltzmann_factor_photo_ion):
         x_sect = photo_ion_cross_sections['x_sect'].values
         nu = photo_ion_cross_sections['nu'].values
         factor = (1 - nu_i / photo_ion_cross_sections['nu']).values
         alpha_sp = (8 * np.pi * x_sect * factor * nu ** 3 /
                     (const.c.cgs.value) ** 2)
         alpha_sp = alpha_sp[:, np.newaxis]
-        boltzmann_factor = np.exp(-nu[np.newaxis].T / t_electrons *
-                                  (const.h.cgs.value / const.k_B.cgs.value))
-        alpha_sp = alpha_sp * boltzmann_factor
+        alpha_sp = alpha_sp * boltzmann_factor_photo_ion
         alpha_sp = integrate_array_by_blocks(alpha_sp, nu,
                                              photo_ion_block_references)
         alpha_sp = pd.DataFrame(alpha_sp, index=photo_ion_index)
@@ -260,12 +260,14 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
 
     def calculate(self, photo_ion_cross_sections, alpha_stim_estimator,
                   photo_ion_norm_factor, photo_ion_block_references,
-                  photo_ion_index, t_rad, w, phi_ik, t_electrons):
+                  photo_ion_index, t_rad, w, phi_ik, t_electrons,
+                  boltzmann_factor_photo_ion):
         # Used for initialization
         if alpha_stim_estimator is None:
             alpha_stim = self.calculate_from_dilute_bb(
                 photo_ion_cross_sections, photo_ion_block_references,
-                photo_ion_index, t_rad, w, t_electrons
+                photo_ion_index, t_rad, w, t_electrons,
+                boltzmann_factor_photo_ion
             )
             alpha_stim *= phi_ik.loc[alpha_stim.index]
         else:
@@ -275,15 +277,14 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
     @staticmethod
     def calculate_from_dilute_bb(photo_ion_cross_sections,
                                  photo_ion_block_references,
-                                 photo_ion_index, t_rad, w, t_electrons):
+                                 photo_ion_index, t_rad, w, t_electrons,
+                                 boltzmann_factor_photo_ion):
         nu = photo_ion_cross_sections['nu']
         x_sect = photo_ion_cross_sections['x_sect']
-        boltzmann_factor = np.exp(-nu.values[np.newaxis].T / t_electrons *
-                                  (const.h.cgs.value / const.k_B.cgs.value))
         j_nus = JBluesDiluteBlackBody.calculate(
             photo_ion_cross_sections, nu, t_rad, w
         )
-        j_nus *= boltzmann_factor
+        j_nus *= boltzmann_factor_photo_ion
         alpha_stim = j_nus.multiply(
             4. * np.pi * x_sect / nu / const.h.cgs.value, axis=0
         )
@@ -420,7 +421,7 @@ class CollExcRateCoeff(ProcessingPlasmaProperty):
         boltzmann_factor = np.exp(
             - delta_E_yg.values[np.newaxis].T / (t_electrons * k_B)
         )
-        q_ij = 8.629e-6 / np.sqrt(t_electrons) * yg * boltzmann_factor # see formula A2 in Przybilla, Butler 2004 - Apj 609, 1181
+        q_ij = 8.629e-6 / np.sqrt(t_electrons) * yg * boltzmann_factor  # see formula A2 in Przybilla, Butler 2004 - Apj 609, 1181
         return pd.DataFrame(q_ij, index=yg_index)
 
 
@@ -547,3 +548,70 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
         factor = electron_densities * ion_number_density.multiply(
             ion_charge ** 2, axis=0).sum()
         return factor
+
+
+class BoundFreeOpacity(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    chi_bf : Pandas DataFrame, dtype float
+    """
+    outputs = ('chi_bf',)
+    latex_name = ('\\chi^{\\textrm{bf}}',)
+
+    def calculate(self, photo_ion_cross_sections, t_electrons,
+                  phi_ik, level_number_density, lte_level_number_density,
+                  boltzmann_factor_photo_ion):
+        x_sect = photo_ion_cross_sections['x_sect'].values
+        nu = photo_ion_cross_sections['nu'].values
+
+        n_i = level_number_density.loc[photo_ion_cross_sections.index]
+        lte_n_i = lte_level_number_density.loc[photo_ion_cross_sections.index]
+        chi_bf = (n_i - lte_n_i * boltzmann_factor_photo_ion).multiply(
+            x_sect, axis=0
+        )
+
+        num_neg_elements = (chi_bf < 0).sum().sum()
+        if num_neg_elements:
+            raise PlasmaException(
+                "Negative values in bound-free opacity."
+            )
+        return chi_bf
+
+
+class LevelNumberDensityLTE(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    lte_level_number_density : Pandas DataFrame, dtype float
+    """
+    outputs = ('lte_level_number_density',)
+    latex_name = ('n_{\\textrm{i}}^*',)
+
+    # TODO: only do this for continuum species
+    def calculate(self, electron_densities, phi_ik, ion_number_density):
+        next_higher_ion_index = get_ion_multi_index(
+            phi_ik.index, next_higher=True
+        )
+        # TODO: Check that n_k is correct (and not n_k*)
+        lte_level_number_density = (
+            phi_ik * ion_number_density.loc[next_higher_ion_index].values
+        ).multiply(electron_densities, axis=1)
+        return lte_level_number_density
+
+
+class PhotoIonBoltzmannFactor(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    boltzmann_factor_photo_ion : Pandas DataFrame, dtype float
+    """
+    outputs = ('boltzmann_factor_photo_ion',)
+
+    def calculate(self, photo_ion_cross_sections, t_electrons):
+        x_sect = photo_ion_cross_sections['x_sect'].values
+        nu = photo_ion_cross_sections['nu'].values
+
+        boltzmann_factor = np.exp(-nu[np.newaxis].T / t_electrons *
+                                  (const.h.cgs.value / const.k_B.cgs.value))
+        return boltzmann_factor
