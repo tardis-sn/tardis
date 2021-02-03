@@ -80,7 +80,7 @@ upper energy level to a lower one (macro atom deactivation). Again, all
 involved processes are governed by probabilities reflecting the different line
 transition strengths, radiative emission and absorption processes. More details
 about the implementation of the Macro Atom scheme in TARDIS is provided
-:doc:`here <../physics/plasma/macroatom>`. For more background information and
+:ref:`here <macroatom>`. For more background information and
 an in-depth derivation of the scheme, we refer to :cite:`Lucy2002` and
 :cite:`Lucy2003`.
 

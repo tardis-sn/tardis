@@ -16,7 +16,7 @@ def resolve_atom_data_fname(fname):
 
     Parameters
     ----------
-    fname: str
+    fname : str
         name or path of atom data HDF file
 
     Returns

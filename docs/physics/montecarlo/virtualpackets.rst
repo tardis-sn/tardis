@@ -120,8 +120,7 @@ This formulation of the formal solution is valid for the supernova ejecta proble
 involves the location of the photosphere, the radius of the ejecta surface
 :math:`R` and the packet trajectory :math:`s`. Here, the optical depth
 :math:`\tau(s)` measures the optical depth from :math:`s` to the ejecta surface.
-For more details see :doc:`Radiative Transfer Primer
-<../physics/radiativetransfer>`.
+For more details see :ref:`montecarlo_basics`.
 
 Essentially, the virtual packets solve this formal solution equation along a
 large number of directional rays. In particular, the virtual packets spawned at

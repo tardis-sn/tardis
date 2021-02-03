@@ -68,11 +68,6 @@ def test_luminosity_density_lambda(spectrum):
 def test_flux_nu(spectrum):
     if getattr(spectrum, "distance", None):
 
-        if pytest.__version__ < "2.8":
-            pytest.xfail(
-                reason="requires pytest.warns (introduced in pytest v2.8)",
-            )
-
         with pytest.warns(DeprecationWarning):
             test_helper.assert_quantity_allclose(
                 spectrum.flux_nu,
@@ -87,11 +82,6 @@ def test_flux_nu(spectrum):
 
 def test_flux_lambda(spectrum):
     if getattr(spectrum, "distance", None):
-
-        if pytest.__version__ < "2.8":
-            pytest.xfail(
-                reason="requires pytest.warns (introduced in pytest v2.8)",
-            )
 
         with pytest.warns(DeprecationWarning):
             test_helper.assert_quantity_allclose(
@@ -151,9 +141,9 @@ def compare_spectra(actual, desired):
         test_helper.assert_quantity_allclose(actual.distance, desired.distance)
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(scope="module", autouse=True)
 def to_hdf_buffer(hdf_file_path, spectrum):
-    spectrum.to_hdf(hdf_file_path, name="spectrum")
+    spectrum.to_hdf(hdf_file_path, name="spectrum", overwrite=True)
 
 
 @pytest.mark.parametrize("attr", TARDISSpectrum.hdf_properties)
@@ -161,9 +151,15 @@ def test_hdf_spectrum(hdf_file_path, spectrum, attr):
     actual = getattr(spectrum, attr)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
-    path = os.path.join("spectrum", attr)
-    expected = pd.read_hdf(hdf_file_path, path)
-    assert_almost_equal(actual, expected.values)
+
+    if np.isscalar(actual):
+        path = os.path.join("spectrum", "scalars")
+        expected = getattr(pd.read_hdf(hdf_file_path, path), attr)
+        assert_almost_equal(actual, expected)
+    else:
+        path = os.path.join("spectrum", attr)
+        expected = pd.read_hdf(hdf_file_path, path)
+        assert_almost_equal(actual, expected.values)
 
 
 ###

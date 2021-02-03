@@ -4,6 +4,7 @@ import warnings
 
 from astropy import units as u
 from tardis import constants as const
+from numba import set_num_threads
 
 from scipy.special import zeta
 from tardis.montecarlo.spectrum import TARDISSpectrum
@@ -54,6 +55,8 @@ class MontecarloRunner(HDFWriterMixin):
         "spectrum",
         "spectrum_virtual",
         "spectrum_reabsorbed",
+        "time_of_simulation",
+        "emitted_packet_mask",
     ]
 
     vpacket_hdf_properties = [
@@ -140,8 +143,7 @@ class MontecarloRunner(HDFWriterMixin):
 
         Parameters
         ----------
-
-        tau_sobolev_shape: tuple
+        tau_sobolev_shape : tuple
             tuple for the tau_sobolev_shape
         """
 
@@ -158,7 +160,6 @@ class MontecarloRunner(HDFWriterMixin):
 
         Parameters
         ----------
-
         model : model.Radial1DModel
         """
         self.r_inner_cgs = model.r_inner.to("cm").value
@@ -279,6 +280,9 @@ class MontecarloRunner(HDFWriterMixin):
         -------
         None
         """
+
+        set_num_threads(nthreads)
+
         self._integrator = FormalIntegrator(model, plasma, self)
         self.time_of_simulation = self.calculate_time_of_simulation(model)
         self.volume = model.volume
@@ -452,18 +456,13 @@ class MontecarloRunner(HDFWriterMixin):
 
         Parameters
         ----------
-
-        nubar_estimator : ~np.ndarray (float)
-
-        j_estimator : ~np.ndarray (float)
+        nubar_estimator : np.ndarray (float)
+        j_estimator : np.ndarray (float)
 
         Returns
         -------
-
-        t_rad : ~astropy.units.Quantity (float)
-
-        w : ~numpy.ndarray (float)
-
+        t_rad : astropy.units.Quantity (float)
+        w : numpy.ndarray (float)
         """
 
         t_rad = (
@@ -511,7 +510,6 @@ class MontecarloRunner(HDFWriterMixin):
         Returns
         -------
         MontecarloRunner
-
         """
         if config.plasma.disable_electron_scattering:
             logger.warn(

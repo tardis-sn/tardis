@@ -25,7 +25,7 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     Attributes
     ----------
     stimulated_emission_factor : Numpy Array, dtype float
-                                 Indexed by lines, columns as zones.
+         Indexed by lines, columns as zones.
     """
 
     outputs = ("stimulated_emission_factor",)
@@ -112,8 +112,8 @@ class TauSobolev(ProcessingPlasmaProperty):
     Attributes
     ----------
     tau_sobolev : Pandas DataFrame, dtype float
-                  Sobolev optical depth for each line. Indexed by line.
-                  Columns as zones.
+          Sobolev optical depth for each line. Indexed by line.
+          Columns as zones.
     """
 
     outputs = ("tau_sobolevs",)

@@ -12,11 +12,9 @@ def run_tardis(
 
     Parameters
     ----------
-
-    config: ~str or ~dict
+    config : str or dict
         filename of configuration yaml file or dictionary
-
-    atom_data: ~str or ~tardis.atomic.AtomData
+    atom_data : str or tardis.atomic.AtomData
         if atom_data is a string it is interpreted as a path to a file storing
         the atomic data. Atomic data to use for this TARDIS simulation. If set to None, the
         atomic data will be loaded according to keywords set in the configuration

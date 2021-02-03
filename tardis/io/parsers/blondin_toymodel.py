@@ -20,16 +20,14 @@ def read_blondin_toymodel(fname):
 
     Parameters
     ----------
-    fname: str
+    fname : str
         path or filename to blondin toymodel
 
     Returns
     -------
-
-    blondin_dict: dict
+    blondin_dict : dict
         dictionary containing most of the meta data of the model
-
-    blondin_csv: pandas.DataFrame
+    blondin_csv : pandas.DataFrame
         DataFrame containing the csv part of the toymodel
     """
     with open(fname, "r") as fh:
@@ -122,21 +120,18 @@ def convert_blondin_toymodel(
     in_fname, out_fname, v_inner, v_outer, conversion_t_electron_rad=None
 ):
     """
-
     Parameters
     ----------
-    in_fname: str
+    in_fname : str
         input toymodel file
-    out_fname: str
+    out_fname : str
         output csvy file
-
-    conversion_t_electron_rad: float or None
+    conversion_t_electron_rad : float or None
         multiplicative conversion factor from t_electron to t_rad.
         if `None` t_rad is not calculated
-
-    v_inner: float or astropy.unit.Quantity
+    v_inner : float or astropy.unit.Quantity
         inner boundary velocity. If float will be interpreted as km/s
-    v_outer: float or astropy.unit.Quantity
+    v_outer : float or astropy.unit.Quantity
         outer boundary velocity. If float will be interpreted as km/s
     """
     blondin_dict, blondin_csv = read_blondin_toymodel(in_fname)

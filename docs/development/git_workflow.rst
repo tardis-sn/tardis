@@ -536,7 +536,5 @@ implement your work.
 After committing your changes you push your change to your repository
 `git push origin helping-with-PR116`.
 
- 
-
 .. include:: git_links.inc
 .. include:: this_project.inc

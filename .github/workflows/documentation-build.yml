@@ -1,13 +1,20 @@
+# For more information on how to use this template please refer to:
+# http://tardis-sn.github.io/tardis/development/continuous_integration.html
+
 name: documentation-build
 
 on:
   push:
     branches:
-      - master
+    - master
+
+  schedule:
+    - cron: '10 0 * * 0'
 
 jobs:
   documentation_build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
 
@@ -16,7 +23,7 @@ jobs:
         with:
             environment-file: tardis_env3.yml
             activate-environment: tardis
-            channels: conda-forge, defaults
+            channels: conda-forge
             mamba-version: "*"
 
       - name: Install TARDIS
