@@ -4,15 +4,15 @@ import numpy as np
 import scipy.linalg as linalg
 import pandas as pd
 
-M_E = const.m_e.to_cgs().value
-H = const.h.to_cgs().value
-H_BAR = const.hbar.to_cgs().value
-E_CHARGE = const.e.to_cgs().value
+M_E = const.m_e.cgs.value
+H = const.h.cgs.value
+H_BAR = const.hbar.cgs.value
+E_CHARGE = const.e.esu.value
 K_B = const.k_B.to("eV / K").value
-C_LIGHT = const.c.to_cgs().value
+C_LIGHT = const.c.cgs.value
 EV2ERG = u.eV.to(u.erg)
 H_ION_POTENTIAL = M_E * C_LIGHT ** 2
-A0 = const.a0.to_cgs().value
+A0 = const.a0.cgs.value
 
 # Eqn 7 set up energy grid, bin-wise integration, multiply S(E) by the energy grid
 class Energy_Grid:
@@ -255,7 +255,7 @@ def spencer_fano_matrix_add_ionization_shell(
 ):
     """contains the terms related to ionisation cross sections"""
     ion_potential = shell.ion_potential
-    J = get_J(shell.atomic_number, shell.ionization_number, ion_potential)
+    J = get_J(shell.atomic_number, shell.ion_number, ion_potential)
 
     arnaud_cross_section_array = get_arnaud_cross_section_array_shell(
         energy_grid.grid, shell
@@ -289,7 +289,7 @@ def spencer_fano_matrix_add_ionization_shell(
             prefactor = (
                 number_ion
                 * arnaud_cross_section_array[j]
-                / np.atan((energy_dash - ion_potential) / 2.0 / J)
+                / np.arctan((energy_dash - ion_potential) / 2.0 / J)
                 * energy_grid.delta_energy
             )
             assert not np.isnan(prefactor)
@@ -394,11 +394,16 @@ def solve_spencer_fano(
 
     transitions_dict = {}
 
-    for atomic_number, ion_number in ions:
+    for ion_info, value in ions.iteritems():
+        atomic_number, ion_number = ion_info[0], ion_info[1]
         number_ion = ion_populations[(atomic_number, ion_number)]
+        ion_collision_data_current = ion_collision_data.query(
+            "atomic_number == @atomic_number and ion_number == @ion_number",
+            inplace=False,
+        )
 
-        for index, shell in ion_collision_data:
-            assert shell.ion_potential >= energy_grid[0]
+        for index, shell in ion_collision_data_current.iterrows():
+            assert shell.ion_potential >= energy_grid.grid[0]
             spencer_fano_matrix = spencer_fano_matrix_add_ionization_shell(
                 energy_grid,
                 number_ion,
@@ -489,12 +494,12 @@ def setup_solution(
 
     atomic_levels = plasma.atomic_data.levels
     lte_populations = plasma.level_boltzmann_factor
-    ion_collision_data = plasma.atomic_data.collision_data
-    number_density = plasma.number_density
-    ion_populations = plasma.ion_number_density
-    electron_number_density = (
-        plasma.electron_densities
-    )  # not sure if number density but should be
+    ion_collision_data = plasma.ion_collision_data
+    number_density = plasma.number_density[0]
+    ion_populations = plasma.ion_number_density[0]
+    electron_number_density = plasma.electron_densities[
+        0
+    ]  # not sure if number density but should be
     ions = plasma.ionization_data
 
     electron_spectrum, transitions_dict = solve_spencer_fano(
