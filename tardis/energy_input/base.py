@@ -102,6 +102,8 @@ def main_gamma_ray_loop(num_packets, model, path):
     output_energies = []
     ejecta_energy = []
     ejecta_energy_r = []
+    # list of energy input types as integers 0, 1, 2 for Compton scattering, photoabsorption, pair creation
+    energy_input_type = []
 
     inner_radius = model.r_inner[0].value
     outer_radius = model.r_outer[-1].value
@@ -169,22 +171,32 @@ def main_gamma_ray_loop(num_packets, model, path):
             )
 
             if interaction:
-                ejecta_energy_gained, pair_created = scatter_type(
+                ejecta_energy_gained = scatter_type(
                     packet,
                     compton_opacity,
                     photoabsorption_opacity,
                     total_opacity,
                 )
                 # Add antiparallel packet on pair creation at end of list
-                if pair_created:
-                    backward_ray = packet
-                    backward_ray.direction.phi += np.pi
-                    packets.append(backward_ray)
 
                 if ejecta_energy_gained > 0.0:
                     ejecta_energy.append(ejecta_energy_gained)
                     ejecta_energy_r.append(packet.location.r)
 
+                if packet.status == "ComptonScatter":
+                    energy_input_type.append(0)
+
+                if packet.status == "PhotoAbsorbed":
+                    energy_input_type.append(1)
+                    # Packet destroyed, go to the next packet
+                    break
+
+                if packet.status == "PairCreated":
+                    backward_ray = packet
+                    backward_ray.direction.phi += np.pi
+                    packets.append(backward_ray)
+
+                packet.status = "InProcess"
                 packet = move_gamma_ray(packet, distance_interaction)
                 distance_moved = 0.0
 
@@ -211,9 +223,10 @@ def main_gamma_ray_loop(num_packets, model, path):
                 packet.status = "Absorbed"
                 packet.energy = 0.0
 
-            if packet.status == "PhotoAbsorbed":
-                # log where energy is deposited
-                ejecta_energy.append(packet.energy)
-                ejecta_energy_r.append(packet.location.r)
-
-    return ejecta_energy, ejecta_energy_r, output_energies, inner_radii
+    return (
+        ejecta_energy,
+        ejecta_energy_r,
+        output_energies,
+        inner_radii,
+        energy_input_type,
+    )
