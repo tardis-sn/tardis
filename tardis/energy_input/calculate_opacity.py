@@ -28,7 +28,7 @@ def compton_opacity_calculation(electron_number_density, energy):
         )
     )
 
-    return electron_number_density * sigma_KN
+    return electron_number_density / u.M_p.to(u.g) * sigma_KN
 
 
 def photoabsorption_opacity_calculation(
