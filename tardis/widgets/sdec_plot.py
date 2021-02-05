@@ -796,7 +796,7 @@ class SDECPlotter:
         distance=None,
         show_modeled_spectrum=True,
         ax=None,
-        figsize=(10, 7),
+        figsize=(12, 7),
         cmapname="jet",
     ):
         """
