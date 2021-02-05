@@ -4,8 +4,8 @@ import astropy.units as u
 from tardis import constants as const
 from tardis.energy_input.util import kappa_calculation, SphericalVector
 
-MASS_SI = 28.085 * u.M_p
-MASS_FE = 55.845 * u.M_p
+MASS_SI = 28.085 * u.M_p.to(u.g)
+MASS_FE = 55.845 * u.M_p.to(u.g)
 SIGMA_T = const.sigma_T.cgs.value
 
 
@@ -39,7 +39,7 @@ def photoabsorption_opacity_calculation(
         1.16e-24
         * (energy / 100.0) ** -3.13
         * ejecta_density
-        / MASS_SI.value
+        / MASS_SI
         * (1.0 - iron_group_fraction)
     )
 
@@ -47,7 +47,7 @@ def photoabsorption_opacity_calculation(
         25.7e-24
         * (energy / 100.0) ** -3.0
         * ejecta_density
-        / MASS_FE.value
+        / MASS_FE
         * (1.0 - iron_group_fraction)
     )
 
@@ -61,8 +61,8 @@ def pair_creation_opacity_calculation(
     Z_Si = 14
     Z_Fe = 26
 
-    Si_proton_ratio = Z_Si ** 2.0 / MASS_SI.value
-    Fe_proton_ratio = Z_Fe ** 2.0 / MASS_FE.value
+    Si_proton_ratio = Z_Si ** 2.0 / MASS_SI
+    Fe_proton_ratio = Z_Fe ** 2.0 / MASS_FE
 
     multiplier = ejecta_density * (
         Si_proton_ratio * (1.0 - iron_group_fraction)
