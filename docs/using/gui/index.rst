@@ -12,7 +12,7 @@ diagnostic visualizations.
 .. toctree::
     :maxdepth: 2
 
-    sedec_plot
+    sdec_plot
 
 
 TARDIS Widgets (Graphical User Interfaces)
