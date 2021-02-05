@@ -1,4 +1,4 @@
-.. _gui:
+.. _visualization:
 
 *****************************
 Visualization Tools & Widgets
