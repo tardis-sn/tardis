@@ -20,14 +20,14 @@ Specifying the density
 ======================
 
 .. toctree::
-    densitypow
-    densityexp
-    densitycust
+    ../densitypow/densitypow
+    ../densityexp/densityexp
+    ../densitycust/densitycust
 
 
 Specifying the composition
 ==========================
 
 .. toctree::
-    abundanceuni
-    abundancecust
+    ../abundanceuni/abundanceuni
+    ../abundancecust/abundancecust
