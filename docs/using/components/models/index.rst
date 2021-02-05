@@ -33,7 +33,7 @@ Example CSVY Model
 
 Below we provide an example model.csvy file.
 
-.. literalinclude:: examples/csvy_full_rad.csvy
+.. literalinclude:: csvy_full_rad.csvy
 
 Using the Config Model
 ======================
@@ -46,10 +46,9 @@ see the following links:
 .. toctree::
     :maxdepth: 1
 
-    examples/modelconfig
-    examples/densityexp
-    examples/densitypow
-    examples/densitycust
-    examples/abundanceuni
-    examples/abundancecust
+    densityexp/densityexp
+    densitypow/densitypow
+    densitycust/densitycust
+    abundanceuni/abundanceuni
+    abundancecust/abundancecust
 
