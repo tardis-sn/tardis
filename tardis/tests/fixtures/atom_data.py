@@ -15,8 +15,13 @@ def atomic_data_fname(tardis_ref_path):
     )
 
     atom_data_missing_str = (
+<<<<<<< HEAD
         "{0} atomic datafiles "
         "does not seem to exist".format(atomic_data_fname)
+=======
+        f"{atomic_data_fname} atomic datafiles "
+        f"does not seem to exist"
+>>>>>>> 5c7f60f3... all string formatting done
     )
 
     if not os.path.exists(atomic_data_fname):
@@ -31,9 +36,13 @@ def atomic_dataset(atomic_data_fname):
 
     if atomic_data.md5 != DEFAULT_ATOM_DATA_UUID:
         pytest.skip(
+<<<<<<< HEAD
             'Need default Kurucz atomic dataset (md5="{}"'.format(
                 DEFAULT_ATOM_DATA_UUID
             )
+=======
+            f'Need default Kurucz atomic dataset (md5="{DEFAULT_ATOM_DATA_UUID}")'
+>>>>>>> 5c7f60f3... all string formatting done
         )
     else:
         return atomic_data

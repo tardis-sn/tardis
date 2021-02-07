@@ -155,9 +155,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
         else:
             raise ValueError(
+<<<<<<< HEAD
                 "Convergence strategy type is "
                 "not damped or custom "
                 "- input is {0}".format(convergence_strategy.type)
+=======
+                f"Convergence strategy type is "
+                f"not damped or custom "
+                f"- input is {convergence_strategy.type}"
+>>>>>>> 5c7f60f3... all string formatting done
             )
 
         self._callbacks = OrderedDict()
@@ -224,10 +230,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             hold_iterations = self.convergence_strategy.hold_iterations
             self.consecutive_converges_count += 1
             logger.info(
+<<<<<<< HEAD
                 "Iteration converged {0:d}/{1:d} consecutive "
                 "times.".format(
                     self.consecutive_converges_count, hold_iterations + 1
                 )
+=======
+                f"Iteration converged {self.consecutive_converges_count:d}/{(hold_iterations + 1):d} consecutive "
+                f"times."
+>>>>>>> 5c7f60f3... all string formatting done
             )
             # If an iteration has converged, require hold_iterations more
             # iterations to converge before we conclude that the Simulation
@@ -322,9 +333,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     def iterate(self, no_of_packets, no_of_virtual_packets=0, last_run=False):
         logger.info(
+<<<<<<< HEAD
             "Starting iteration {0:d}/{1:d}".format(
                 self.iterations_executed + 1, self.iterations
             )
+=======
+            f"Starting iteration {(self.iterations_executed + 1):d}/{self.iterations:d}"
+>>>>>>> 5c7f60f3... all string formatting done
         )
         self.runner.run(
             self.model,
@@ -379,10 +394,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.reshape_plasma_state_store(self.iterations_executed)
 
         logger.info(
+<<<<<<< HEAD
             "Simulation finished in {0:d} iterations "
             "and took {1:.2f} s".format(
                 self.iterations_executed, time.time() - start_time
             )
+=======
+            f"Simulation finished in {self.iterations_executed:d} iterations "
+            f"and took {(time.time() - start_time):.2f} s"
+>>>>>>> 5c7f60f3... all string formatting done
         )
         self._call_back()
 
@@ -435,13 +455,18 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         logger.info("Plasma stratification:\n%s\n", plasma_state_log)
         logger.info(
+<<<<<<< HEAD
             "t_inner {0:.3f} -- next t_inner {1:.3f}".format(
                 t_inner, next_t_inner
             )
+=======
+            f"t_inner {t_inner:.3f} -- next t_inner {next_t_inner:.3f}"
+>>>>>>> 5c7f60f3... all string formatting done
         )
 
     def log_run_results(self, emitted_luminosity, absorbed_luminosity):
         logger.info(
+<<<<<<< HEAD
             "Luminosity emitted = {0:.5e} "
             "Luminosity absorbed = {1:.5e} "
             "Luminosity requested = {2:.5e}".format(
@@ -449,6 +474,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 absorbed_luminosity,
                 self.luminosity_requested,
             )
+=======
+            f"Luminosity emitted = {emitted_luminosity:.5e} "
+            f"Luminosity absorbed = {absorbed_luminosity:.5e} "
+            f"Luminosity requested = {self.luminosity_requested:.5e}"
+>>>>>>> 5c7f60f3... all string formatting done
         )
 
     def _call_back(self):

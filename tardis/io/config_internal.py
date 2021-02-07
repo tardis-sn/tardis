@@ -19,9 +19,13 @@ def get_internal_configuration():
     config_fpath = os.path.join(get_config_dir(), "tardis_internal_config.yml")
     if not os.path.exists(config_fpath):
         logger.warning(
+<<<<<<< HEAD
             "Configuration File {0} does not exist - creating new one from default".format(
                 config_fpath
             )
+=======
+            f"Configuration File {config_fpath} does not exist - creating new one from default"
+>>>>>>> 5c7f60f3... all string formatting done
         )
         shutil.copy(DEFAULT_CONFIG_PATH, config_fpath)
     with open(config_fpath) as config_fh:
@@ -37,6 +41,7 @@ def get_data_dir():
             get_config_dir(), "tardis_internal_config.yml"
         )
         logging.critical(
+<<<<<<< HEAD
             "\n{line_stars}\n\nTARDIS will download different kinds of data (e.g. atomic) to its data directory {default_data_dir}\n\n"
             "TARDIS DATA DIRECTORY not specified in {config_file}:\n\n"
             "ASSUMING DEFAULT DATA DIRECTORY {default_data_dir}\n "
@@ -46,6 +51,13 @@ def get_data_dir():
                 config_file=config_fpath,
                 default_data_dir=DEFAULT_DATA_DIR,
             )
+=======
+            f"\n{'*' * 80}\n\nTARDIS will download different kinds of data (e.g. atomic) to its data directory {DEFAULT_DATA_DIR}\n\n"
+            f"TARDIS DATA DIRECTORY not specified in {config_fpath}:\n\n"
+            f"ASSUMING DEFAULT DATA DIRECTORY {DEFAULT_DATA_DIR}\n "
+            f"YOU CAN CHANGE THIS AT ANY TIME IN {config_fpath} \n\n"
+            f"{'*' * 80} \n\n"
+>>>>>>> 5c7f60f3... all string formatting done
         )
         if not os.path.exists(DEFAULT_DATA_DIR):
             os.makedirs(DEFAULT_DATA_DIR)
@@ -55,7 +67,11 @@ def get_data_dir():
 
     if not os.path.exists(data_dir):
         raise IOError(
+<<<<<<< HEAD
             "Data directory specified in {0} does not exist".format(data_dir)
+=======
+            f"Data directory specified in {data_dir} does not exist"
+>>>>>>> 5c7f60f3... all string formatting done
         )
 
     return data_dir

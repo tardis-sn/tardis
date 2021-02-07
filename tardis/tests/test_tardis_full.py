@@ -91,6 +91,10 @@ class TestRunnerSimple:
             actual = getattr(runner, prop)
             assert (
                 type(actual) == prop_type
+<<<<<<< HEAD
             ), "wrong type of attribute '{}':" "expected {}, found {}".format(
                 prop, prop_type, type(actual)
             )
+=======
+            ), f"wrong type of attribute '{prop}':" f"expected {prop_type}, found {type(actual)}"
+>>>>>>> 5c7f60f3... all string formatting done

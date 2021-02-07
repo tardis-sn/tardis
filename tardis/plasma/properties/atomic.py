@@ -208,10 +208,14 @@ class IonizationData(BaseAtomicDataProperty):
             return ionization_data
         else:
             raise IncompleteAtomicData(
+<<<<<<< HEAD
                 "ionization data for the ion ({}, {})".format(
                     str(counts.index[counts.index != counts]),
                     str(counts[counts.index != counts]),
                 )
+=======
+                f"ionization data for the ion ({str(counts.index[counts.index != counts])}, {str(counts[counts.index != counts])})"
+>>>>>>> 5c7f60f3... all string formatting done
             )
 
     def _set_index(self, ionization_data):
@@ -253,9 +257,13 @@ class ZetaData(BaseAtomicDataProperty):
                         missing_ions.append((atom, ion))
                     updated_index.append([atom, ion])
             logger.warn(
+<<<<<<< HEAD
                 "Zeta_data missing - replaced with 1s. Missing ions: {}".format(
                     missing_ions
                 )
+=======
+                f"Zeta_data missing - replaced with 1s. Missing ions: {missing_ions}"
+>>>>>>> 5c7f60f3... all string formatting done
             )
             updated_index = np.array(updated_index)
             updated_dataframe = pd.DataFrame(

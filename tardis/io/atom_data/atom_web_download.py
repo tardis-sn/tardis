@@ -41,11 +41,20 @@ def download_atom_data(atomic_data_name=None):
 
     if atomic_data_name not in atomic_repo:
         raise ValueError(
+<<<<<<< HEAD
             "Atomic Data name {0} not known".format(atomic_data_name)
         )
     dst_dir = os.path.join(get_data_dir(), "{0}.h5".format(atomic_data_name))
     src_url = atomic_repo[atomic_data_name]["url"]
     logger.info(
         "Downloading atomic data from {0} to {1}".format(src_url, dst_dir)
+=======
+            f"Atomic Data name {atomic_data_name} not known"
+        )
+    dst_dir = os.path.join(get_data_dir(), f"{atomic_data_name}.h5")
+    src_url = atomic_repo[atomic_data_name]["url"]
+    logger.info(
+        f"Downloading atomic data from {src_url} to {dst_dir}"
+>>>>>>> 5c7f60f3... all string formatting done
     )
     download_from_url(src_url, dst_dir)

@@ -142,6 +142,7 @@ class TestIntegration(object):
         self.result.run()
         if request.config.getoption("--generate-reference"):
             ref_data_path = os.path.join(
+<<<<<<< HEAD
                 data_path["reference_path"], "{0}.h5".format(self.name)
             )
             if os.path.exists(ref_data_path):
@@ -154,6 +155,18 @@ class TestIntegration(object):
                 "Reference data saved at {0}".format(
                     data_path["reference_path"]
                 )
+=======
+                data_path["reference_path"], f"{self.name}.h5"
+            )
+            if os.path.exists(ref_data_path):
+                pytest.skip(
+                    f"Reference data {ref_data_path} does exist and tests will not "
+                    f"proceed generating new data"
+                )
+            self.result.to_hdf(file_path=ref_data_path)
+            pytest.skip(
+                f'Reference data saved at {data_path["reference_path"]}'
+>>>>>>> 5c7f60f3... all string formatting done
             )
         capmanager.resume_global_capture()
 
@@ -164,7 +177,11 @@ class TestIntegration(object):
         reference_quantity_name, tardis_quantity_name = model_quantities
         if reference_quantity_name not in self.reference:
             pytest.skip(
+<<<<<<< HEAD
                 "{0} not calculated in this run".format(reference_quantity_name)
+=======
+                f"{reference_quantity_name} not calculated in this run"
+>>>>>>> 5c7f60f3... all string formatting done
             )
         reference_quantity = self.reference[reference_quantity_name]
         tardis_quantity = eval("self.result." + tardis_quantity_name)
@@ -211,7 +228,11 @@ class TestIntegration(object):
         return figure
 
     def test_spectrum(self, plot_object):
+<<<<<<< HEAD
         plot_object.add(self.plot_spectrum(), "{0}_spectrum".format(self.name))
+=======
+        plot_object.add(self.plot_spectrum(), f"{self.name}_spectrum")
+>>>>>>> 5c7f60f3... all string formatting done
 
         assert_allclose(
             self.reference["/simulation/runner/spectrum/luminosity_density_nu"],

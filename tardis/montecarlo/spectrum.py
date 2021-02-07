@@ -32,9 +32,13 @@ class TARDISSpectrum(HDFWriterMixin):
         if not _frequency.shape[0] == luminosity.shape[0] + 1:
             raise ValueError(
                 "shape of '_frequency' and 'luminosity' are not compatible"
+<<<<<<< HEAD
                 ": '{}' and '{}'".format(
                     _frequency.shape[0], luminosity.shape[0]
                 )
+=======
+                f": '{_frequency.shape[0]}' and '{luminosity.shape[0]}'"
+>>>>>>> 5c7f60f3... all string formatting done
             )
         self._frequency = _frequency.to("Hz", u.spectral())
         self.luminosity = luminosity.to("erg / s")
@@ -66,11 +70,18 @@ class TARDISSpectrum(HDFWriterMixin):
                 self.luminosity_density_nu, self.distance
             )
         except AttributeError:
+<<<<<<< HEAD
             raise AttributeError(
                 "distance is required as attribute of"
                 '{} to calculate "{}"'.format(
                     self.__class__.__name__, "flux_nu"
                 )
+=======
+            flux="flux_nu"
+            raise AttributeError(
+                "distance is required as attribute of"
+                f'{self.__class__.__name__} to calculate "{flux}"'
+>>>>>>> 5c7f60f3... all string formatting done
             )
 
     @property
@@ -89,11 +100,18 @@ class TARDISSpectrum(HDFWriterMixin):
                 self.luminosity_density_lambda, self.distance
             )
         except AttributeError:
+<<<<<<< HEAD
             raise AttributeError(
                 "distance is required as attribute of"
                 '{} to calculate "{}"'.format(
                     self.__class__.__name__, "flux_lambda"
                 )
+=======
+            flux_lambda="flux_lambda"
+            raise AttributeError(
+                "distance is required as attribute of"
+                f'{self.__class__.__name__} to calculate "{flux_lambda}"'
+>>>>>>> 5c7f60f3... all string formatting done
             )
 
     @staticmethod
@@ -111,6 +129,7 @@ class TARDISSpectrum(HDFWriterMixin):
         if mode == "wavelength":
             ax.plot(self.wavelength.value, self.luminosity_density_lambda.value)
             ax.set_xlabel(
+<<<<<<< HEAD
                 "Wavelength [{}]".format(self.wavelength.unit._repr_latex_())
             )
             ax.set_ylabel(
@@ -121,6 +140,16 @@ class TARDISSpectrum(HDFWriterMixin):
         else:
             warnings.warn(
                 "Did not find plotting mode {}, doing nothing.".format(mode)
+=======
+                f"Wavelength [{self.wavelength.unit._repr_latex_()}]"
+            )
+            ax.set_ylabel(
+                f"Flux [{self.luminosity_density_lambda.unit._repr_latex_():s}]"
+            )
+        else:
+            warnings.warn(
+                f"Did not find plotting mode {mode}, doing nothing."
+>>>>>>> 5c7f60f3... all string formatting done
             )
 
     def to_ascii(self, fname, mode="luminosity_density"):

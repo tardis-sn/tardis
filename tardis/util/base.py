@@ -60,7 +60,11 @@ class MalformedSpeciesError(MalformedError):
     def __str__(self):
         return (
             'Expecting a species notation (e.g. "Si 2", "Si II", "Fe IV") '
+<<<<<<< HEAD
             "- supplied {0}".format(self.malformed_element_symbol)
+=======
+            f"- supplied {self.malformed_element_symbol}"
+>>>>>>> 5c7f60f3... all string formatting done
         )
 
 
@@ -69,9 +73,13 @@ class MalformedElementSymbolError(MalformedError):
         self.malformed_element_symbol = malformed_element_symbol
 
     def __str__(self):
+<<<<<<< HEAD
         return ("Expecting an atomic symbol (e.g. Fe) - supplied {0}").format(
             self.malformed_element_symbol
         )
+=======
+        return (f"Expecting an atomic symbol (e.g. Fe) - supplied {self.malformed_element_symbol}")
+>>>>>>> 5c7f60f3... all string formatting done
 
 
 class MalformedQuantityError(MalformedError):
@@ -80,9 +88,15 @@ class MalformedQuantityError(MalformedError):
 
     def __str__(self):
         return (
+<<<<<<< HEAD
             'Expecting a quantity string(e.g. "5 km/s") for keyword '
             "- supplied {0}"
         ).format(self.malformed_quantity_string)
+=======
+            f'Expecting a quantity string(e.g. "5 km/s") for keyword '
+            f"- supplied {self.malformed_quantity_string}"
+        )
+>>>>>>> 5c7f60f3... all string formatting done
 
 
 def int_to_roman(i):
@@ -126,7 +140,11 @@ def roman_to_int(roman_string):
     roman_string = roman_string.upper()
     if len(set(list(roman_string.upper())) - NUMERALS_SET) != 0:
         raise ValueError(
+<<<<<<< HEAD
             "{0} does not seem to be a roman numeral".format(roman_string)
+=======
+            f"{roman_string} does not seem to be a roman numeral"
+>>>>>>> 5c7f60f3... all string formatting done
         )
     i = result = 0
     for integer, numeral in NUMERAL_MAP:
@@ -135,7 +153,11 @@ def roman_to_int(roman_string):
             i += len(numeral)
     if result < 1:
         raise ValueError(
+<<<<<<< HEAD
             "Can not interpret Roman Numeral {0}".format(roman_string)
+=======
+            f"Can not interpret Roman Numeral {roman_string}"
+>>>>>>> 5c7f60f3... all string formatting done
         )
     return result
 
@@ -333,9 +355,15 @@ def species_tuple_to_string(species_tuple, roman_numerals=True):
     element_symbol = ATOMIC_NUMBER2SYMBOL[atomic_number]
     if roman_numerals:
         roman_ion_number = int_to_roman(ion_number + 1)
+<<<<<<< HEAD
         return "{0} {1}".format(str(element_symbol), roman_ion_number)
     else:
         return "{0} {1:d}".format(element_symbol, ion_number)
+=======
+        return f"{str(element_symbol)} {roman_ion_number}"
+    else:
+        return f"{element_symbol} {ion_number:d}"
+>>>>>>> 5c7f60f3... all string formatting done
 
 
 def species_string_to_tuple(species_string):
@@ -367,8 +395,13 @@ def species_string_to_tuple(species_string):
             element_symbol, ion_number_string = species_string.split()
         except ValueError:
             raise MalformedSpeciesError(
+<<<<<<< HEAD
                 'Species string "{0}" is not of format <element_symbol><number>'
                 " (e.g. Fe 2, Fe2, ..)".format(species_string)
+=======
+                f'Species string "{species_string}" is not of format <element_symbol><number>'
+                f" (e.g. Fe 2, Fe2, ..)"
+>>>>>>> 5c7f60f3... all string formatting done
             )
 
     atomic_number = element_symbol2atomic_number(element_symbol)
@@ -380,9 +413,13 @@ def species_string_to_tuple(species_string):
             ion_number = int(ion_number_string)
         except ValueError:
             raise MalformedSpeciesError(
+<<<<<<< HEAD
                 "Given ion number ('{}') could not be parsed".format(
                     ion_number_string
                 )
+=======
+                f"Given ion number ('{ion_number_string}') could not be parsed"
+>>>>>>> 5c7f60f3... all string formatting done
             )
 
     if ion_number > atomic_number:

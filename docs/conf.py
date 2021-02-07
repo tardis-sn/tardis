@@ -100,7 +100,11 @@ rst_epilog = """
 # This does not *have* to match the package name, but typically does
 project = u'TARDIS'
 author = u'TARDIS collaboration'
+<<<<<<< HEAD
 copyright = '{0}-{1}, {2}'.format(2013, datetime.datetime.now().year, author)
+=======
+copyright = f'{2013}-{datetime.datetime.now().year}, {author}'
+>>>>>>> 5c7f60f3... all string formatting done
 
 master_doc = 'index'
 #default_role = 'obj'
@@ -156,7 +160,11 @@ html_favicon = 'tardis_logo.ico'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
+<<<<<<< HEAD
 html_title = '{0} v{1}'.format(project, release)
+=======
+html_title = f'{project} v{release}'
+>>>>>>> 5c7f60f3... all string formatting done
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = project + 'doc'
