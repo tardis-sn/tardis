@@ -1,6 +1,7 @@
 ## Change Log
 
-### upcoming (2021/02/01 00:00 +00:00)
+### upcoming (2021/02/07 23:54 +00:00)
+- [#1442](https://github.com/tardis-sn/tardis/pull/1442) Fixed distance parameter not producing accurate SDEC plots (#1442) (@jaladh-singhal)
 - [#1432](https://github.com/tardis-sn/tardis/pull/1432) fix update changelog workflow (#1432) (@epassaro)
 - [#1441](https://github.com/tardis-sn/tardis/pull/1441) Rename SEDec to SDEC in Spectral element DEComposition plot (#1441) (@jaladh-singhal)
 - [#1430](https://github.com/tardis-sn/tardis/pull/1430) compare refdata with arbitrary labels (#1430) (@epassaro)
