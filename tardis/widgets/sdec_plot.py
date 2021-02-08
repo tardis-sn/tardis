@@ -1,7 +1,7 @@
 """
-Interface to generate Kromer Plot for TARDIS simulation models.
+Spectral element DEComposition (SDEC) Plot for TARDIS simulation models.
 
-Kromer Plot is a spectral diagnostics plot similar to those originally
+This plot is a spectral diagnostics plot similar to those originally
 proposed by M. Kromer (see, for example, Kromer et al. 2013, figure 4).
 """
 import numpy as np
@@ -18,10 +18,10 @@ from tardis.util.base import atomic_number2element_symbol
 from tardis.widgets import plot_util as pu
 
 
-class KromerData:
-    """The data of simulation model which is used by Kromer Plot.
+class SDECData:
+    """The data of simulation model used by Spectral element DEComposition (SDEC) Plot.
 
-    This preprocesses the data required by KromerPlotter class for doing
+    This preprocesses the data required by SDECPlotter class for doing
     calculations and plotting.
     """
 
@@ -43,7 +43,7 @@ class KromerData:
         time_of_simulation,
     ):
         """
-        Initialize the KromerData with required properties of simulation model.
+        Initialize the SDECData with required properties of simulation model.
 
         Parameters
         ----------
@@ -129,7 +129,7 @@ class KromerData:
     @classmethod
     def from_simulation(cls, sim, packets_mode):
         """
-        Create an instance of KromerData from a TARDIS simulation object.
+        Create an instance of SDECData from a TARDIS simulation object.
 
         Parameters
         ----------
@@ -140,7 +140,7 @@ class KromerData:
 
         Returns
         -------
-        KromerData
+        SDECData
         """
         # Properties common among both packet modes
         lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(
@@ -208,7 +208,7 @@ class KromerData:
     @classmethod
     def from_hdf(cls, hdf_fpath, packets_mode):
         """
-        Create an instance of KromerData from a simulation HDF file.
+        Create an instance of SDECData from a simulation HDF file.
 
         Parameters
         ----------
@@ -219,7 +219,7 @@ class KromerData:
 
         Returns
         -------
-        KromerData
+        SDECData
         """
         with pd.HDFStore(hdf_fpath, "r") as hdf:
             lines_df = (
@@ -362,17 +362,22 @@ class KromerData:
                 )
 
 
-class KromerPlotter:
-    """Plotting interface to generate Kromer Plot for a simulation model."""
+class SDECPlotter:
+    """
+    Plotting interface for Spectral element DEComposition (SDEC) Plot.
+
+    It performs necessary calculations to generate SDEC Plot for a simulation
+    model, and allows to plot it in matplotlib and plotly.
+    """
 
     def __init__(self, data):
         """
-        Initialize the KromerPlotter with required data of simulation model.
+        Initialize the SDECPlotter with required data of simulation model.
 
         Parameters
         ----------
-        data : dict of KromerData
-            Dictionary to store data required for Kromer plot, for both packet
+        data : dict of SDECData
+            Dictionary to store data required for SDEC plot, for both packet
             modes i.e. real and virtual
         """
         self.data = data
@@ -380,7 +385,7 @@ class KromerPlotter:
     @classmethod
     def from_simulation(cls, sim):
         """
-        Create an instance of KromerPlotter from a TARDIS simulation object.
+        Create an instance of SDECPlotter from a TARDIS simulation object.
 
         Parameters
         ----------
@@ -389,19 +394,19 @@ class KromerPlotter:
 
         Returns
         -------
-        KromerPlotter
+        SDECPlotter
         """
         return cls(
             dict(
-                virtual=KromerData.from_simulation(sim, "virtual"),
-                real=KromerData.from_simulation(sim, "real"),
+                virtual=SDECData.from_simulation(sim, "virtual"),
+                real=SDECData.from_simulation(sim, "real"),
             )
         )
 
     @classmethod
     def from_hdf(cls, hdf_fpath):
         """
-        Create an instance of KromerPlotter from a simulation HDF file.
+        Create an instance of SDECPlotter from a simulation HDF file.
 
         Parameters
         ----------
@@ -410,12 +415,12 @@ class KromerPlotter:
 
         Returns
         -------
-        KromerPlotter
+        SDECPlotter
         """
         return cls(
             dict(
-                virtual=KromerData.from_hdf(hdf_fpath, "virtual"),
-                real=KromerData.from_hdf(hdf_fpath, "real"),
+                virtual=SDECData.from_hdf(hdf_fpath, "virtual"),
+                real=SDECData.from_hdf(hdf_fpath, "real"),
             )
         )
 
@@ -436,7 +441,7 @@ class KromerPlotter:
             [lower_lambda, upper_lambda] * u.AA
         distance : astropy.Quantity
             Distance used to calculate flux instead of luminosities in the plot.
-            Preferrably having units of cm.
+            It should have a length unit like m, Mpc, etc.
 
         Notes
         -----
@@ -497,7 +502,14 @@ class KromerPlotter:
         if distance is None:
             self.lum_to_flux = 1  # so that this term will have no effect
         else:
-            self.lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
+            if distance <= 0:
+                raise ValueError(
+                    "distance passed must be greater than 0. If you intended "
+                    "to plot luminosities instead of flux, set distance=None "
+                    "or don't specify distance parameter in the function call."
+                )
+            else:
+                self.lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
 
         # Calculate luminosities to be shown in plot
         (
@@ -523,7 +535,7 @@ class KromerPlotter:
 
     def _calculate_emission_luminosities(self, packets_mode, packet_wvl_range):
         """
-        Calculate luminosities for the emission part of Kromer plot.
+        Calculate luminosities for the emission part of SDEC plot.
 
         Parameters
         ----------
@@ -655,6 +667,7 @@ class KromerPlotter:
                 group["nus"],
                 bins=self.plot_frequency_bins,
                 weights=group["energies"]
+                / self.lum_to_flux
                 / self.data[packets_mode].time_of_simulation,
             )
 
@@ -678,7 +691,7 @@ class KromerPlotter:
         self, packets_mode, packet_wvl_range
     ):
         """
-        Calculate luminosities for the absorption part of Kromer plot.
+        Calculate luminosities for the absorption part of SDEC plot.
 
         Parameters
         ----------
@@ -731,6 +744,7 @@ class KromerPlotter:
                 group["last_line_interaction_in_nu"],
                 bins=self.plot_frequency_bins,
                 weights=group["energies"]
+                / self.lum_to_flux
                 / self.data[packets_mode].time_of_simulation,
             )
 
@@ -786,7 +800,7 @@ class KromerPlotter:
         cmapname="jet",
     ):
         """
-        Generate Kromer Plot using matplotlib.
+        Generate Spectral element DEComposition (SDEC) Plot using matplotlib.
 
         Parameters
         ----------
@@ -800,9 +814,9 @@ class KromerPlotter:
             [lower_lambda, upper_lambda] * u.AA. Default value is None
         distance : astropy.Quantity or None, optional
             Distance used to calculate flux instead of luminosities in the plot.
-            Preferrably having units of cm. Default value is None
+            It should have a length unit like m, Mpc, etc. Default value is None
         show_modeled_spectrum : bool, optional
-            Whether to show modeled spectrum in Kromer Plot. Default value is
+            Whether to show modeled spectrum in SDEC Plot. Default value is
             True
         ax : matplotlib.axes._subplots.AxesSubplot or None, optional
             Axis on which to create plot. Default value is None which will
@@ -816,7 +830,7 @@ class KromerPlotter:
         Returns
         -------
         matplotlib.axes._subplots.AxesSubplot
-            Axis on which Kromer Plot is created
+            Axis on which SDEC Plot is created
         """
         # Calculate data attributes required for plotting
         # and save them in instance itself
@@ -862,7 +876,7 @@ class KromerPlotter:
         self.ax.set_xlabel(r"Wavelength $[\AA]$", fontsize=12)
         if distance:  # Set y-axis label for flux
             self.ax.set_ylabel(
-                r"$F_{\lambda}$ [erg/s/$\AA/cm^{2}$]", fontsize=12
+                r"$F_{\lambda}$ [erg/s/cm^{2}/$\AA$]", fontsize=12
             )
         else:  # Set y-axis label for luminosity
             self.ax.set_ylabel(r"$L_{\lambda}$ [erg/s/$\AA$]", fontsize=12)
@@ -870,7 +884,7 @@ class KromerPlotter:
         return plt.gca()
 
     def _plot_emission_mpl(self):
-        """Plot emission part of the Kromer Plot using matplotlib."""
+        """Plot emission part of the SDEC Plot using matplotlib."""
         # To create stacked area chart in matplotlib, we will start with zero
         # lower level and will keep adding luminosities to it (upper level)
         lower_level = np.zeros(self.emission_luminosities_df.shape[0])
@@ -920,7 +934,7 @@ class KromerPlotter:
             )
 
     def _plot_absorption_mpl(self):
-        """Plot absorption part of the Kromer Plot using matplotlib."""
+        """Plot absorption part of the SDEC Plot using matplotlib."""
         lower_level = np.zeros(self.absorption_luminosities_df.shape[0])
 
         elements_z = self.absorption_luminosities_df.columns.to_list()
@@ -975,7 +989,7 @@ class KromerPlotter:
         cmapname="jet",
     ):
         """
-        Generate interactive Kromer Plot using plotly.
+        Generate interactive Spectral element DEComposition (SDEC) Plot using plotly.
 
         Parameters
         ----------
@@ -989,9 +1003,9 @@ class KromerPlotter:
             [lower_lambda, upper_lambda] * u.AA. Default value is None
         distance : astropy.Quantity or None, optional
             Distance used to calculate flux instead of luminosities in the plot.
-            Preferrably having units of cm. Default value is None
+            It should have a length unit like m, Mpc, etc. Default value is None
         show_modeled_spectrum : bool, optional
-            Whether to show modeled spectrum in Kromer Plot. Default value is
+            Whether to show modeled spectrum in SDEC Plot. Default value is
             True
         fig : plotly.graph_objs._figure.Figure or None, optional
             Figure object on which to create plot. Default value is None which
@@ -1005,7 +1019,7 @@ class KromerPlotter:
         Returns
         -------
         plotly.graph_objs._figure.Figure
-            Figure object on which Kromer Plot is created
+            Figure object on which SDEC Plot is created
         """
         # Calculate data attributes required for plotting
         # and save them in instance itself
@@ -1095,7 +1109,7 @@ class KromerPlotter:
         return f"rgb{color_tuple_255}"
 
     def _plot_emission_ply(self):
-        """Plot emission part of the Kromer Plot using plotly."""
+        """Plot emission part of the SDEC Plot using plotly."""
         # By specifying a common stackgroup, plotly will itself add up
         # luminosities, in order, to created stacked area chart
         self.fig.add_trace(
@@ -1137,7 +1151,7 @@ class KromerPlotter:
             )
 
     def _plot_absorption_ply(self):
-        """Plot absorption part of the Kromer Plot using plotly."""
+        """Plot absorption part of the SDEC Plot using plotly."""
         elements_z = self.absorption_luminosities_df.columns
         nelements = len(elements_z)
 

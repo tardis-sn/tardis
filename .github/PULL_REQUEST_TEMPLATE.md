@@ -9,6 +9,7 @@
 
 ## How Has This Been Tested?
 - [ ] Testing pipeline
+- [ ] Reference Data Comparison following these [instructions](https://tardis-sn.github.io/tardis/development/continuous_integration.html)
 - [ ] Other (please describe)
 <!--- Please describe in detail how you tested your changes. -->
 <!--- Include details of your testing environment, tests ran to see how -->

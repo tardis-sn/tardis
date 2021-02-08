@@ -74,7 +74,7 @@ The calculations for the distance to the inner boundary:
 
 
 Radiation field estimators
-^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 During the Monte Carlo run, we collect two estimators for the radiation field:
 
