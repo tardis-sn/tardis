@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
 import numpy.testing as npt
+import pandas as pd
 
 from tardis.energy_input.energy_source import (
     read_nuclear_dataframe,
@@ -10,15 +11,42 @@ from tardis.energy_input.energy_source import (
     setup_gamma_ray_energy,
 )
 
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_read_nuclear_dataframe():
-    assert False
+# TODO make dummy nuclear_data
 
 
 @pytest.mark.xfail(reason="To be implemented")
-def test_get_type_property():
-    assert False
+def test_read_nuclear_dataframe(path):
+    actual = read_nuclear_dataframe(path)
+    expected = pd.read_hdf(path, key="decay_radiation")
+
+
+@pytest.mark.parametrize(
+    ["path", "type_of_radiation", "property"],
+    [
+        (
+            "/home/afullard/Downloads/tardisnuclear/decay_radiation.h5",
+            "'gamma_rays'",
+            "energy",
+        ),
+        (
+            "/home/afullard/Downloads/tardisnuclear/decay_radiation.h5",
+            "'e+'",
+            "energy",
+        ),
+        (
+            "/home/afullard/Downloads/tardisnuclear/decay_radiation.h5",
+            "'gamma_rays'",
+            "intensity",
+        ),
+    ],
+)
+def test_get_type_property(path, type_of_radiation, property):
+    nuclear_df = pd.read_hdf(path, key="decay_radiation")
+
+    expected = nuclear_df.query("type==" + type_of_radiation)[property].values
+    actual = get_type_property(nuclear_df, type_of_radiation, property)
+
+    npt.assert_array_equal(actual, expected)
 
 
 @pytest.mark.parametrize(

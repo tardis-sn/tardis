@@ -4,12 +4,13 @@ import astropy.units as u
 from tardis import constants as const
 from tardis.energy_input.util import kappa_calculation, SphericalVector
 
-MASS_SI = 28.085 * u.M_p.to(u.g)
-MASS_FE = 55.845 * u.M_p.to(u.g)
+MASS_SI = 28.085 * const.m_p.to(u.g).value
+MASS_FE = 55.845 * const.m_p.to(u.g).value
+M_P = const.m_p.to(u.g).value
 SIGMA_T = const.sigma_T.cgs.value
 
 
-def compton_opacity_calculation(electron_number_density, energy):
+def compton_opacity_calculation(ejecta_density, energy):
 
     kappa = kappa_calculation(energy)
 
@@ -28,7 +29,7 @@ def compton_opacity_calculation(electron_number_density, energy):
         )
     )
 
-    return electron_number_density / u.M_p.to(u.g) * sigma_KN
+    return ejecta_density / (M_P * 2) * sigma_KN
 
 
 def photoabsorption_opacity_calculation(
@@ -69,7 +70,7 @@ def pair_creation_opacity_calculation(
         + Fe_proton_ratio * iron_group_fraction
     )
 
-    if energy > 1.022e6 and energy < 1.5e6:
+    if energy > 1.022e3 and energy < 1.5e3:
         opacity = multiplier * 1.0063 * (energy / 1.0e3 - 1.022) * 1.0e-27
     else:
         opacity = (
