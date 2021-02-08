@@ -198,13 +198,13 @@ def main_gamma_ray_loop(num_packets, model, path):
 
                 packet.status = "InProcess"
                 packet = move_gamma_ray(packet, distance_interaction)
-                distance_moved = 0.0
+                distance_moved += distance_interaction
 
             else:
                 rad_before = packet.location.r
                 packet = move_gamma_ray(packet, distance_boundary)
                 rad_after = packet.location.r
-                distance_moved = distance_boundary
+                distance_moved += distance_boundary
                 if rad_after > rad_before:
                     packet.shell += 1
                 else:
