@@ -22,6 +22,8 @@ from tardis.energy_input.calculate_opacity import (
 from tardis.energy_input.gamma_ray_interactions import scatter_type
 from tqdm.auto import tqdm
 
+np.random.seed(1)
+
 
 class GammaRay(object):
     """
@@ -104,6 +106,7 @@ def main_gamma_ray_loop(num_packets, model, path):
     ejecta_energy_r = []
     # list of energy input types as integers 0, 1, 2 for Compton scattering, photoabsorption, pair creation
     energy_input_type = []
+    interaction_count = []
 
     inner_radius = model.r_inner[0].value
     outer_radius = model.r_outer[-1].value
@@ -141,10 +144,15 @@ def main_gamma_ray_loop(num_packets, model, path):
                     beta_decay=True,
                 )
             )
-
+    i = 0
     for packet in tqdm(packets):
 
         distance_moved = 0.0
+
+        z = np.random.random()
+        tau = -np.log(z)
+
+        interaction_count.append(0)
 
         while packet.status == "InProcess":
             compton_opacity = compton_opacity_calculation(
@@ -167,10 +175,20 @@ def main_gamma_ray_loop(num_packets, model, path):
                 distance_boundary,
                 interaction,
             ) = distance_trace(
-                packet, inner_radii, outer_radii, total_opacity, distance_moved
+                packet,
+                tau,
+                inner_radii,
+                outer_radii,
+                total_opacity,
+                distance_moved,
             )
 
             if interaction:
+                interaction_count[i] += 1
+
+                z = np.random.random()
+                tau = -np.log(z)
+
                 ejecta_energy_gained = scatter_type(
                     packet,
                     compton_opacity,
@@ -178,16 +196,19 @@ def main_gamma_ray_loop(num_packets, model, path):
                     total_opacity,
                 )
                 # Add antiparallel packet on pair creation at end of list
-
-                if ejecta_energy_gained > 0.0:
-                    ejecta_energy.append(ejecta_energy_gained)
-                    ejecta_energy_r.append(packet.location.r)
-
-                if packet.status == "ComptonScatter":
+                if (
+                    packet.status == "ComptonScatter"
+                    and ejecta_energy_gained > 0.0
+                ):
                     energy_input_type.append(0)
 
-                if packet.status == "PhotoAbsorbed":
+                if (
+                    packet.status == "PhotoAbsorbed"
+                    and ejecta_energy_gained > 0.0
+                ):
                     energy_input_type.append(1)
+                    ejecta_energy.append(ejecta_energy_gained)
+                    ejecta_energy_r.append(packet.location.r)
                     # Packet destroyed, go to the next packet
                     break
 
@@ -198,30 +219,39 @@ def main_gamma_ray_loop(num_packets, model, path):
 
                 packet.status = "InProcess"
                 packet = move_gamma_ray(packet, distance_interaction)
-                distance_moved += distance_interaction
+                distance_moved = 0.0
+
+                if ejecta_energy_gained > 0.0:
+                    ejecta_energy.append(ejecta_energy_gained)
+                    ejecta_energy_r.append(packet.location.r)
 
             else:
                 rad_before = packet.location.r
                 packet = move_gamma_ray(packet, distance_boundary)
                 rad_after = packet.location.r
                 distance_moved += distance_boundary
-                if rad_after > rad_before:
+                if rad_after > rad_before or (
+                    distance_boundary < 5.0
+                    and packet.shell == len(ejecta_density) - 1
+                ):
                     packet.shell += 1
                 else:
                     packet.shell -= 1
 
             if (
-                np.abs(packet.location.r - outer_radius) < 1.0
+                np.abs(packet.location.r - outer_radius) < 10.0
                 or packet.shell > len(ejecta_density) - 1
             ):
                 packet.status = "Emitted"
                 output_energies.append(packet.energy)
             elif (
-                np.abs(packet.location.r - inner_radius) < 1.0
+                np.abs(packet.location.r - inner_radius) < 10.0
                 or packet.shell < 0
             ):
                 packet.status = "Absorbed"
                 packet.energy = 0.0
+
+        i += 1
 
     return (
         ejecta_energy,
@@ -229,4 +259,5 @@ def main_gamma_ray_loop(num_packets, model, path):
         output_energies,
         inner_radii,
         energy_input_type,
+        interaction_count,
     )

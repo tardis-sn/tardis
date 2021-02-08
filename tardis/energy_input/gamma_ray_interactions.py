@@ -111,7 +111,6 @@ def scatter_type(
     z = np.random.random()
 
     ejecta_energy_gain = 0.0
-    pair_created = False
 
     if z <= (compton_opacity / total_opacity):
         gamma_ray.status = "ComptonScatter"
