@@ -30,3 +30,11 @@ The following YAML file summarizes the tardis_example setup:
     treatments and the reduced abundance set, this TARDIS setup serves for
     illustrative purposes and not for detailed SNe Ia spectral synthesis
     calculations.
+    
+See the following link for an example of running TARDIS with this setup in a Jupyter notebook:
+
+.. toctree::
+    :maxdepth: 1
+    
+    run_simple_example
+
