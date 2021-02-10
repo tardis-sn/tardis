@@ -1,5 +1,5 @@
 from numba import njit
-from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.montecarlo.montecarlo_numba import njit_dict,njit_dict_no_parallel
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     LineInteractionType,
 )
@@ -17,7 +17,7 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
 from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def thomson_scatter(r_packet, time_explosion):
     """
     Thomson scattering — no longer line scattering
@@ -50,7 +50,7 @@ def thomson_scatter(r_packet, time_explosion):
         )
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
     """
     Line scatter function that handles the scattering itself, including new angle drawn, and calculating nu out using macro atom
@@ -84,7 +84,7 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
         line_emission(r_packet, emission_line_id, time_explosion, numba_plasma)
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def line_emission(r_packet, emission_line_id, time_explosion, numba_plasma):
     """
     Sets the frequency of the RPacket properly given the emission channel
