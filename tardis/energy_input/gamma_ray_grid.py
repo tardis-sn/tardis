@@ -161,7 +161,9 @@ def density_sampler(radii, mass_ratio):
     return radii[index], index
 
 
-def mass_distribution(radial_grid_size, inner_radii, density_profile):
+def mass_distribution(
+    radial_grid_size, inner_radii, outer_radii, density_profile
+):
 
     mass = np.zeros(radial_grid_size)
 
@@ -169,7 +171,11 @@ def mass_distribution(radial_grid_size, inner_radii, density_profile):
     while i < radial_grid_size:
         if i == 0:
             mass[i] = (
-                4.0 / 3.0 * np.pi * density_profile[i] * inner_radii[i] ** 3.0
+                4.0
+                / 3.0
+                * np.pi
+                * density_profile[i]
+                * (outer_radii[i] - inner_radii[i]) ** 3.0
             )
         else:
             mass[i] = (
@@ -177,7 +183,7 @@ def mass_distribution(radial_grid_size, inner_radii, density_profile):
                 / 3.0
                 * np.pi
                 * density_profile[i]
-                * (inner_radii[i] ** 3.0 - inner_radii[i - 1] ** 3.0)
+                * (outer_radii[i] ** 3.0 - outer_radii[i - 1] ** 3.0)
             )
 
         i += 1
