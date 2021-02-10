@@ -6,8 +6,11 @@ from tardis.energy_input.util import (
     euler_rodrigues,
     compton_theta_distribution,
     SphericalVector,
+    get_random_mu_gamma_ray,
+    get_random_phi_gamma_ray,
 )
-from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
+
+# from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
 
 
 def compton_scatter(gamma_ray):
@@ -31,7 +34,9 @@ def compton_scatter(gamma_ray):
     z = np.random.random()
 
     # sample new random theta direction
-    random_vector = SphericalVector(1.0, get_random_mu(), 0.0)
+    random_vector = SphericalVector(
+        1.0, get_random_mu_gamma_ray(), get_random_phi_gamma_ray()
+    )
 
     perpendicular_vector_x = (
         gamma_ray.direction.y * random_vector.z
@@ -46,23 +51,45 @@ def compton_scatter(gamma_ray):
         - gamma_ray.direction.y * random_vector.x
     )
 
-    perpendicular_vector = np.array(
-        [perpendicular_vector_x, perpendicular_vector_y, perpendicular_vector_z]
+    # perpendicular_vector = np.array(
+    #    [perpendicular_vector_x, perpendicular_vector_y, perpendicular_vector_z]
+    # )
+
+    perpendicular_vector = SphericalVector(
+        1.0, perpendicular_vector_z, np.arccos(perpendicular_vector_x)
     )
 
     # get Compton scattering angle
     compton_angle = theta_angles[np.searchsorted(theta_distribution, z)]
 
     # rotate to match
-    rotation_matrix = euler_rodrigues(compton_angle, gamma_ray.direction)
-    resulting_direction = np.dot(rotation_matrix, perpendicular_vector)
+    rotation_matrix = euler_rodrigues(compton_angle, perpendicular_vector)
+    resulting_direction = np.dot(
+        rotation_matrix,
+        np.array(
+            (
+                gamma_ray.direction.x,
+                gamma_ray.direction.y,
+                gamma_ray.direction.z,
+            )
+        ),
+    )
 
-    gamma_ray.direction.mu = resulting_direction[2]
+    phi = get_random_phi_gamma_ray()
+    rotation_matrix_phi = euler_rodrigues(phi, gamma_ray.direction)
+    final_direction = np.dot(rotation_matrix_phi, resulting_direction)
+
+    gamma_ray.direction.r = 1.0
+    gamma_ray.direction.mu = final_direction[2]
+    gamma_ray.direction.phi = np.arccos(final_direction[1])
+
+    if gamma_ray.direction.phi < 0:
+        gamma_ray.direction.phi += 2 * np.pi
 
     # Energy calculations
     new_energy = gamma_ray.energy / (
         1.0
-        + kappa_calculation(gamma_ray.energy) * (1.0 - gamma_ray.direction.mu)
+        + kappa_calculation(gamma_ray.energy) * (1.0 - np.cos(compton_angle))
     )
     lost_energy = gamma_ray.energy - new_energy
     gamma_ray.energy = new_energy
@@ -83,7 +110,7 @@ def pair_creation(gamma_ray):
     -------
 
     """
-    direction_mu = get_random_mu()
+    direction_mu = get_random_mu_gamma_ray()
 
     gamma_ray.energy = 511.0
     gamma_ray.direction.mu = direction_mu

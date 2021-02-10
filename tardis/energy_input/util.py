@@ -180,3 +180,9 @@ def compton_theta_distribution(energy, sample_resolution = 100):
     norm_theta_distribution = theta_distribution / np.max(theta_distribution)
     
     return theta_angles, norm_theta_distribution
+
+def get_random_mu_gamma_ray():
+    return 2.0 * np.random.random() - 1.0
+
+def get_random_phi_gamma_ray():
+    return 2.0 * np.pi * np.random.random()

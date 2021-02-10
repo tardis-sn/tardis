@@ -1,6 +1,6 @@
 import numpy as np
 
-from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
+# from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
 from tardis.energy_input.util import SphericalVector
 from tardis.energy_input.gamma_ray_grid import (
     density_sampler,
@@ -20,9 +20,8 @@ from tardis.energy_input.calculate_opacity import (
     kappa_calculation,
 )
 from tardis.energy_input.gamma_ray_interactions import scatter_type
+from tardis.energy_input.util import get_random_mu_gamma_ray
 from tqdm.auto import tqdm
-
-np.random.seed(1)
 
 
 class GammaRay(object):
@@ -52,7 +51,13 @@ class GammaRay(object):
 
 
 def spawn_gamma_ray(
-    gamma_ray, radii, mass_ratio, energy_sorted, energy_cdf, beta_decay=False
+    gamma_ray,
+    inner_radii,
+    outer_radii,
+    mass_ratio,
+    energy_sorted,
+    energy_cdf,
+    beta_decay=False,
 ):
     """
     Initializes a gamma ray in the simulation grid
@@ -74,23 +79,25 @@ def spawn_gamma_ray(
         gamma_ray.direction.phi += np.pi
         return gamma_ray
 
-    direction_mu = get_random_mu()
+    direction_mu = get_random_mu_gamma_ray()
     direction_phi = 0.0
 
     energy_KeV = sample_energy_distribution(energy_sorted, energy_cdf)
 
     gamma_ray.energy = energy_KeV
 
-    initial_radius, shell = density_sampler(radii, mass_ratio)
+    initial_radius, shell = density_sampler(inner_radii, mass_ratio)
 
-    if shell < len(radii) - 1:
-        initial_radius += np.random.random() * (radii[shell + 1] - radii[shell])
+    if shell < len(inner_radii):
+        initial_radius += np.random.random() * (
+            outer_radii[shell] - inner_radii[shell]
+        )
 
     gamma_ray.shell = shell
 
     gamma_ray.direction = SphericalVector(1.0, direction_mu, direction_phi)
 
-    location_mu = get_random_mu()
+    location_mu = get_random_mu_gamma_ray()
     location_phi = 0.0
     gamma_ray.location = SphericalVector(
         initial_radius, location_mu, location_phi
@@ -104,9 +111,11 @@ def main_gamma_ray_loop(num_packets, model, path):
     output_energies = []
     ejecta_energy = []
     ejecta_energy_r = []
+    ejecta_energy_theta = []
     # list of energy input types as integers 0, 1, 2 for Compton scattering, photoabsorption, pair creation
     energy_input_type = []
     interaction_count = []
+    initial_positions = []
 
     inner_radius = model.r_inner[0].value
     outer_radius = model.r_outer[-1].value
@@ -116,7 +125,9 @@ def main_gamma_ray_loop(num_packets, model, path):
 
     ejecta_density = model.density[:].value
 
-    masses = mass_distribution(model.no_of_shells, inner_radii, ejecta_density)
+    masses = mass_distribution(
+        model.no_of_shells, inner_radii, outer_radii, ejecta_density
+    )
 
     iron_group_fraction = 0.5
 
@@ -130,7 +141,7 @@ def main_gamma_ray_loop(num_packets, model, path):
 
         ray = GammaRay(0, 0, 1, "InProcess", 0)
         gamma_ray = spawn_gamma_ray(
-            ray, inner_radii, masses, energy_sorted, energy_cdf
+            ray, inner_radii, outer_radii, masses, energy_sorted, energy_cdf
         )
         packets.append(gamma_ray)
         if gamma_ray.energy == 511.0:
@@ -138,14 +149,18 @@ def main_gamma_ray_loop(num_packets, model, path):
                 spawn_gamma_ray(
                     packets[i],
                     inner_radii,
+                    outer_radii,
                     masses,
                     energy_sorted,
                     energy_cdf,
                     beta_decay=True,
                 )
             )
+
     i = 0
     for packet in tqdm(packets):
+
+        initial_positions.append(packet.location.r)
 
         distance_moved = 0.0
 
@@ -209,11 +224,18 @@ def main_gamma_ray_loop(num_packets, model, path):
                     energy_input_type.append(1)
                     ejecta_energy.append(ejecta_energy_gained)
                     ejecta_energy_r.append(packet.location.r)
+                    ejecta_energy_theta.append(packet.location.theta)
                     # Packet destroyed, go to the next packet
                     break
 
                 if packet.status == "PairCreated":
-                    backward_ray = packet
+                    backward_ray = GammaRay(
+                        packet.location,
+                        packet.direction,
+                        packet.energy,
+                        "InProcess",
+                        packet.shell,
+                    )
                     backward_ray.direction.phi += np.pi
                     packets.append(backward_ray)
 
@@ -224,6 +246,7 @@ def main_gamma_ray_loop(num_packets, model, path):
                 if ejecta_energy_gained > 0.0:
                     ejecta_energy.append(ejecta_energy_gained)
                     ejecta_energy_r.append(packet.location.r)
+                    ejecta_energy_theta.append(packet.location.theta)
 
             else:
                 rad_before = packet.location.r
@@ -256,8 +279,10 @@ def main_gamma_ray_loop(num_packets, model, path):
     return (
         ejecta_energy,
         ejecta_energy_r,
+        ejecta_energy_theta,
         output_energies,
         inner_radii,
         energy_input_type,
         interaction_count,
+        initial_positions,
     )
