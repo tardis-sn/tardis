@@ -300,14 +300,8 @@ class TARDISHistory(object):
             iterations = self.iterations[iterations]
 
         for iter in iterations:
-<<<<<<< HEAD
-            current_iter = "iter{:03d}".format(iter)
-            ws_dict[current_iter] = hdf_store["model{:03d}/ws".format(iter)]
-=======
             current_iter = f"iter{iter:03d}"
             ws_dict[current_iter] = hdf_store[f"model{iter:03d}/ws"]
->>>>>>> 5c7f60f3... all string formatting done
-
         hdf_store.close()
 
         return pd.DataFrame(ws_dict)
@@ -327,11 +321,7 @@ class TARDISHistory(object):
         for iter in iterations:
             current_iter = "iter%03d" % iter
             level_populations_dict[current_iter] = hdf_store[
-<<<<<<< HEAD
-                "model{:03d}/level_populations".format(iter)
-=======
                 f"model{iter:03d}/level_populations"
->>>>>>> 5c7f60f3... all string formatting done
             ]
 
         hdf_store.close()
@@ -353,15 +343,9 @@ class TARDISHistory(object):
             iterations = self.iterations[iterations]
 
         for iter in iterations:
-<<<<<<< HEAD
-            current_iter = "iter{:03d}".format(iter)
-            jblues_dict[current_iter] = hdf_store[
-                "model{:03d}/j_blues".format(iter)
-=======
             current_iter = f"iter{iter:03d}"
             jblues_dict[current_iter] = hdf_store[
                 f"model{iter:03d}/j_blues"
->>>>>>> 5c7f60f3... all string formatting done
             ]
 
         hdf_store.close()
@@ -384,15 +368,9 @@ class TARDISHistory(object):
             iterations = self.iterations[iterations]
 
         for iter in iterations:
-<<<<<<< HEAD
-            current_iter = "iter{:03d}".format(iter)
-            ion_populations_dict[current_iter] = hdf_store[
-                "model{:03d}/ion_populations".format(iter)
-=======
             current_iter = f"iter{iter:03d}"
             ion_populations_dict[current_iter] = hdf_store[
                 f"model{iter:03d}/ion_populations"
->>>>>>> 5c7f60f3... all string formatting done
             ]
 
         hdf_store.close()
