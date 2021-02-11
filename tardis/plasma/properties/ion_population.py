@@ -173,19 +173,9 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
 
         if np.any(np.isnan(zeta)):
             warnings.warn(
-<<<<<<< HEAD
-                "t_rads outside of zeta factor interpolation"
-                " zeta_min={0:.2f} zeta_max={1:.2f} "
-                "- replacing with 1s".format(
-                    zeta_data.columns.values.min(),
-                    zeta_data.columns.values.max(),
-                    t_rad,
-                )
-=======
                 f"t_rads outside of zeta factor interpolation"
                 f" zeta_min={zeta_data.columns.values.min():.2f} zeta_max={zeta_data.columns.values.max():.2f} "
                 f"- replacing with {t_rad}"
->>>>>>> 5c7f60f3... all string formatting done
             )
             zeta[np.isnan(zeta)] = 1.0
 
@@ -372,15 +362,8 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                 n_electron_iterations += 1
                 if n_electron_iterations > 100:
                     logger.warn(
-<<<<<<< HEAD
-                        "n_electron iterations above 100 ({0}) -"
-                        " something is probably wrong".format(
-                            n_electron_iterations
-                        )
-=======
                         f"n_electron iterations above 100 ({n_electron_iterations}) -"
                         f" something is probably wrong"
->>>>>>> 5c7f60f3... all string formatting done
                     )
                 if np.all(
                     np.abs(new_n_electron - n_electron) / n_electron
@@ -500,15 +483,8 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                 n_electron_iterations += 1
                 if n_electron_iterations > 100:
                     logger.warn(
-<<<<<<< HEAD
-                        "n_electron iterations above 100 ({0}) -"
-                        " something is probably wrong".format(
-                            n_electron_iterations
-                        )
-=======
                         f"n_electron iterations above 100 ({n_electron_iterations}) -"
                         f" something is probably wrong"
->>>>>>> 5c7f60f3... all string formatting done
                     )
                 if np.all(
                     np.abs(new_n_electron - n_electron) / n_electron
