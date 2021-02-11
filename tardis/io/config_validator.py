@@ -57,11 +57,7 @@ DefaultDraft4Validator = extend_with_default(Draft4Validator)
 
 def _yaml_handler(path):
     if not path.startswith("file://"):
-<<<<<<< HEAD
-        raise Exception("Not a file URL: {}".format(path))
-=======
         raise Exception(f"Not a file URL: {path}")
->>>>>>> 5c7f60f3... all string formatting done
     with open(path[len("file://") :]) as f:
         return yaml.load(f, Loader=YAMLLoader)
 
