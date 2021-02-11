@@ -440,7 +440,7 @@ class SDECPlotter:
             values - lower lambda and upper lambda i.e.
             [lower_lambda, upper_lambda] * u.AA
         distance : astropy.Quantity
-            Distance used to calculate flux instead of luminosities in the plot.
+            Distance used to calculate flux instead of luminosity in the plot.
             It should have a length unit like m, Mpc, etc.
 
         Notes
@@ -796,7 +796,7 @@ class SDECPlotter:
         distance=None,
         show_modeled_spectrum=True,
         ax=None,
-        figsize=(10, 7),
+        figsize=(12, 7),
         cmapname="jet",
     ):
         """
@@ -813,7 +813,7 @@ class SDECPlotter:
             values - lower lambda and upper lambda i.e.
             [lower_lambda, upper_lambda] * u.AA. Default value is None
         distance : astropy.Quantity or None, optional
-            Distance used to calculate flux instead of luminosities in the plot.
+            Distance used to calculate flux instead of luminosity in the plot.
             It should have a length unit like m, Mpc, etc. Default value is None
         show_modeled_spectrum : bool, optional
             Whether to show modeled spectrum in SDEC Plot. Default value is
@@ -822,7 +822,7 @@ class SDECPlotter:
             Axis on which to create plot. Default value is None which will
             create plot on a new figure's axis.
         figsize : tuple, optional
-            Size of the matplotlib figure to display. Default value is (10, 7)
+            Size of the matplotlib figure to display. Default value is (12, 7)
         cmapname : str, optional
             Name of matplotlib colormap to be used for showing elements.
             Default value is "jet"
@@ -1002,7 +1002,7 @@ class SDECPlotter:
             values - lower lambda and upper lambda i.e.
             [lower_lambda, upper_lambda] * u.AA. Default value is None
         distance : astropy.Quantity or None, optional
-            Distance used to calculate flux instead of luminosities in the plot.
+            Distance used to calculate flux instead of luminosity in the plot.
             It should have a length unit like m, Mpc, etc. Default value is None
         show_modeled_spectrum : bool, optional
             Whether to show modeled spectrum in SDEC Plot. Default value is
