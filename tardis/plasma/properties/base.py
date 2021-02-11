@@ -56,17 +56,10 @@ class BasePlasmaProperty(object, metaclass=ABCMeta):
         outputs = self.outputs.replace("_", r"\_")
         latex_name = getattr(self, "latex_name", "")
         if latex_name != "":
-<<<<<<< HEAD
-            complete_name = "{0} [{1}]".format(latex_name, self.latex_name)
-        else:
-            complete_name = latex_name
-
-=======
             complete_name = f"{latex_name} [{self.latex_name}]"
         else:
             complete_name = latex_name
             
->>>>>>> 5c7f60f3... all string formatting done
         latex_label = latex_template.format(
             name=complete_name,
             formula=getattr(self, "latex_formula", "--"),
