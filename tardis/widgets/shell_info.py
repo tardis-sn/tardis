@@ -69,12 +69,8 @@ class BaseShellInfo:
         )  # Overwrite index
         shells_temp_w.index.name = "Shell No."
         # Format to string to make qgrid show values in scientific notations
-<<<<<<< HEAD
-        return shells_temp_w.applymap(lambda x: "{:.6e}".format(x))
-=======
         return shells_temp_w.applymap(lambda x: f"{x:.6e}")
->>>>>>> 5c7f60f3... all string formatting done
-
+    
     def element_count(self, shell_num):
         """Generates fractional abundance of elements present in a specific
         shell in a form that can be used by a table widget
@@ -100,13 +96,7 @@ class BaseShellInfo:
                     atomic_number2element_symbol
                 ),
                 # Format to string to show in scientific notation
-<<<<<<< HEAD
-                "Frac. Ab. (Shell {})".format(
-                    shell_num
-                ): element_count_data.map("{:.6e}".format),
-=======
                 f"Frac. Ab. (Shell {shell_num})": element_count_data.map("{:.6e}".format),
->>>>>>> 5c7f60f3... all string formatting done
             }
         )
 
@@ -138,11 +128,7 @@ class BaseShellInfo:
                 "Species": ion_count_data.index.map(
                     lambda x: species_tuple_to_string((atomic_num, x))
                 ),
-<<<<<<< HEAD
-                "Frac. Ab. (Z={})".format(atomic_num): ion_count_data.map(
-=======
                 f"Frac. Ab. (Z={atomic_num})": ion_count_data.map(
->>>>>>> 5c7f60f3... all string formatting done
                     "{:.6e}".format
                 ),
             }
@@ -177,11 +163,7 @@ class BaseShellInfo:
         ]
         level_count_data = level_num_density / ion_num_density  # Normalization
         level_count_data.index.name = "Level"
-<<<<<<< HEAD
-        level_count_data.name = "Frac. Ab. (Ion={})".format(ion)
-=======
         level_count_data.name = f"Frac. Ab. (Ion={ion})"
->>>>>>> 5c7f60f3... all string formatting done
         level_count_data.fillna(0, inplace=True)
         return level_count_data.map("{:.6e}".format).to_frame()
 
@@ -269,11 +251,7 @@ class ShellInfoWidget:
                 "index": -1,  # since last column will change names
                 # Shells table index will give all possible shell numbers
                 "other_names": [
-<<<<<<< HEAD
-                    "Frac. Ab. (Shell {})".format(shell_num)
-=======
                     f"Frac. Ab. (Shell {shell_num})"
->>>>>>> 5c7f60f3... all string formatting done
                     for shell_num in self.shells_table.df.index
                 ],
             },
@@ -291,11 +269,7 @@ class ShellInfoWidget:
                 # Since element are same for each shell thus previous table
                 # (element counts for shell 1) will give all possible elements
                 "other_names": [
-<<<<<<< HEAD
-                    "Frac. Ab. (Z={})".format(atomic_num)
-=======
                     f"Frac. Ab. (Z={atomic_num})"
->>>>>>> 5c7f60f3... all string formatting done
                     for atomic_num in self.element_count_table.df.index
                 ],
             },
@@ -314,11 +288,7 @@ class ShellInfoWidget:
                 # Ion values range from 0 to max atomic_num present in
                 # element count table
                 "other_names": [
-<<<<<<< HEAD
-                    "Frac. Ab. (Ion={})".format(ion)
-=======
                     f"Frac. Ab. (Ion={ion})"
->>>>>>> 5c7f60f3... all string formatting done
                     for ion in range(
                         0, self.element_count_table.df.index.max() + 1
                     )
