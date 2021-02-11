@@ -49,13 +49,8 @@ def run_tests():
         "test",
         "--test-path=tardis/tests/integration_tests/test_integration.py",
         "--args",
-<<<<<<< HEAD
-        "--capture=no --integration-tests={0} --tardis-refdata={1} --remote-data "
-        "{2}".format(args.yaml_filepath, args.tardis_refdata, less_packets),
-=======
         f"--capture=no --integration-tests={args.yaml_filepath} --tardis-refdata={args.tardis_refdata} --remote-data "
         f"{less_packets}",
->>>>>>> 5c7f60f3... all string formatting done
     ]
     subprocess.call(test_command)
 
@@ -70,11 +65,7 @@ def run_tests():
         # Check whether a report of this githash is uploaded on dokuwiki.
         # If not, then this is a new commit and tests should be executed.
         dokuwiki_report = doku_conn.pages.get(
-<<<<<<< HEAD
-            "reports:{0}".format(gh_tardis_githash)
-=======
             f"reports:{gh_tardis_githash}"
->>>>>>> 5c7f60f3... all string formatting done
         )
 
         # If dokuwiki returns empty string, then it means that report has not
@@ -92,12 +83,6 @@ def run_tests():
         else:
             checked = datetime.datetime.now()
             logger.info(
-<<<<<<< HEAD
-                "Up-to-date. Checked on {0} {1}".format(
-                    checked.strftime("%d-%b-%Y"), checked.strftime("%H:%M:%S")
-                )
-=======
                 f'Up-to-date. Checked on {checked.strftime("%d-%b-%Y")} {checked.strftime("%H:%M:%S")}'
->>>>>>> 5c7f60f3... all string formatting done
             )
             time.sleep(600)
