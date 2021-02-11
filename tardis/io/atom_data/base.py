@@ -168,23 +168,11 @@ class AtomData(object):
             # ToDo: strore data sources as attributes in carsus
 
             logger.info(
-<<<<<<< HEAD
-                "Read Atom Data with UUID={0} and MD5={1}.".format(
-                    atom_data.uuid1, atom_data.md5
-                )
-            )
-            if nonavailable:
-                logger.info(
-                    "Non provided atomic data: {0}".format(
-                        ", ".join(nonavailable)
-                    )
-=======
                 f"Read Atom Data with UUID={atom_data.uuid1} and MD5={atom_data.md5}."
             )
             if nonavailable:
                 logger.info(
                     f'Non provided atomic data: {", ".join(nonavailable)}'
->>>>>>> 5c7f60f3... all string formatting done
                 )
 
         return atom_data
