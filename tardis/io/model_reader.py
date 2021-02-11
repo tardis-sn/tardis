@@ -67,13 +67,8 @@ def read_density_file(filename, filetype):
     if invalid_volume_mask.sum() > 0:
         message = "\n".join(
             [
-<<<<<<< HEAD
-                "cell {0:d}: v_inner {1:s}, v_outer "
-                "{2:s}".format(i, v_inner_i, v_outer_i)
-=======
                 f"cell {i:d}: v_inner {v_inner_i:s}, v_outer "
                 f"{v_outer_i:s}"
->>>>>>> 5c7f60f3... all string formatting done
                 for i, v_inner_i, v_outer_i in zip(
                     np.arange(len(v_outer))[invalid_volume_mask],
                     v_inner[invalid_volume_mask],
@@ -82,11 +77,7 @@ def read_density_file(filename, filetype):
             ]
         )
         raise ConfigurationError(
-<<<<<<< HEAD
-            "Invalid volume of following cell(s):\n" "{:s}".format(message)
-=======
             "Invalid volume of following cell(s):\n" f"{message:s}"
->>>>>>> 5c7f60f3... all string formatting done
         )
 
     return (
@@ -189,13 +180,7 @@ def read_uniform_abundances(abundances_section, no_of_shells):
 
         except RuntimeError as err:
             raise RuntimeError(
-<<<<<<< HEAD
-                "Abundances are not defined properly in config file : {}".format(
-                    err.args
-                )
-=======
                 f"Abundances are not defined properly in config file : {err.args}"
->>>>>>> 5c7f60f3... all string formatting done
             )
 
     return abundance, isotope_abundance
