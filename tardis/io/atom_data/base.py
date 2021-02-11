@@ -258,15 +258,9 @@ class AtomData(object):
 
             if len(check_list) != 0 and len(check_list) != len(group):
                 raise AtomDataMissingError(
-<<<<<<< HEAD
-                    "The following dataframes from the related group [{0}] "
-                    "were not given: {1}".format(
-                        ", ".join(group), ", ".join(check_list)
-                    )
-=======
+
                     f'The following dataframes from the related group [{", ".join(group)}]'
                     f'were not given: {", ".join(check_list)}'
->>>>>>> 5c7f60f3... all string formatting done
                 )
 
     def prepare_atom_data(
@@ -464,26 +458,12 @@ class AtomData(object):
             missing_atom_mask = np.logical_not(atomic_number_check)
             missing_atomic_numbers = selected_atomic_numbers[missing_atom_mask]
             missing_numbers_str = ",".join(missing_atomic_numbers.astype("str"))
-<<<<<<< HEAD
-            msg = "For atomic numbers {} there is no atomic data.".format(
-                missing_numbers_str
-            )
-            raise AtomDataMissingError(msg)
 
-    def __repr__(self):
-        return "<Atomic Data UUID={} MD5={} Lines={:d} Levels={:d}>".format(
-            self.uuid1,
-            self.md5,
-            self.lines.line_id.count(),
-            self.levels.energy.count(),
-        )
-=======
             msg = f"For atomic numbers {missing_numbers_str} there is no atomic data."
             raise AtomDataMissingError(msg)
 
     def __repr__(self):
         return f"<Atomic Data UUID={self.uuid1} MD5={self.md5} Lines={self.lines.line_id.count():d} Levels={self.levels.energy.count():d}>"
->>>>>>> 5c7f60f3... all string formatting done
 
 
 class NLTEData(object):
