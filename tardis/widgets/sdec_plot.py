@@ -873,13 +873,17 @@ class SDECPlotter:
 
         # Set legends and labels
         self.ax.legend(fontsize=12)
-        self.ax.set_xlabel(r"Wavelength $[\AA]$", fontsize=12)
+        self.ax.set_xlabel(r"Wavelength $[\mathrm{\AA}]$", fontsize=12)
         if distance:  # Set y-axis label for flux
             self.ax.set_ylabel(
-                r"$F_{\lambda}$ [erg/s/cm^{2}/$\AA$]", fontsize=12
+                r"$F_{\lambda}$ [erg $\mathrm{s^{-1}}$ $\mathrm{cm^{-2}}$ $\mathrm{\AA^{-1}}$]",
+                fontsize=12,
             )
         else:  # Set y-axis label for luminosity
-            self.ax.set_ylabel(r"$L_{\lambda}$ [erg/s/$\AA$]", fontsize=12)
+            self.ax.set_ylabel(
+                r"$L_{\lambda}$ [erg $\mathrm{s^{-1}}$ $\mathrm{\AA^{-1}}$]",
+                fontsize=12,
+            )
 
         return plt.gca()
 
