@@ -1,11 +1,26 @@
-.. _gui:
+.. _visualization:
 
-*************************
-Graphical User Interface
-*************************
+*****************************
+Visualization Tools & Widgets
+*****************************
 
-A collection of widgets (simple GUIs) that makes it easier for you to explore
-the simulation data within Jupyter Notebooks. 
+TARDIS Visualization Tools
+==========================
+A collection of tools that post-process TARDIS simulations to generate
+diagnostic visualizations.
+
+.. toctree::
+    :maxdepth: 2
+
+    sdec_plot
+
+
+TARDIS Widgets (Graphical User Interfaces)
+==========================================
+
+A collection of Jupyter widgets that allow you to interactively explore TARDIS
+simulations. Widgets are simple Graphical User Interfaces (GUIs) that run within
+Jupyter Notebooks, making data exploration much easier.
 
 .. toctree::
     :maxdepth: 2
