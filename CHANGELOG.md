@@ -1,6 +1,10 @@
 ## Change Log
 
-### upcoming (2021/02/07 23:53 +00:00)
+### upcoming (2021/02/14 23:53 +00:00)
+- [#1457](https://github.com/tardis-sn/tardis/pull/1457) Reproduced SDEC plots in demo notebook (@jaladh-singhal)
+- [#1446](https://github.com/tardis-sn/tardis/pull/1446) Fixed italicised Units in sdec_plot (#1446) (@DhruvSondhi)
+- [#1438](https://github.com/tardis-sn/tardis/pull/1438) Add documentation for Spectral Element Decomposition Plot (#1438) (@jaladh-singhal)
+- [#1455](https://github.com/tardis-sn/tardis/pull/1455) numba_warning (#1455) (@antreev-brar)
 - [#1442](https://github.com/tardis-sn/tardis/pull/1442) Fixed distance parameter not producing accurate SDEC plots (#1442) (@jaladh-singhal)
 - [#1432](https://github.com/tardis-sn/tardis/pull/1432) fix update changelog workflow (#1432) (@epassaro)
 - [#1441](https://github.com/tardis-sn/tardis/pull/1441) Rename SEDec to SDEC in Spectral element DEComposition plot (#1441) (@jaladh-singhal)
