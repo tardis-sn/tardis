@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 
 # from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
 from tardis.energy_input.util import SphericalVector
@@ -10,9 +11,10 @@ from tardis.energy_input.gamma_ray_grid import (
     get_shell,
 )
 from tardis.energy_input.energy_source import (
-    setup_gamma_ray_energy,
+    setup_input_energy,
     read_nuclear_dataframe,
     sample_energy_distribution,
+    intensity_ratio,
 )
 from tardis.energy_input.calculate_opacity import (
     compton_opacity_calculation,
@@ -76,12 +78,16 @@ def spawn_gamma_ray(
 
     """
 
-    if beta_decay:
-        gamma_ray.direction.phi += np.pi
-        return gamma_ray
-
     direction_mu = get_random_mu_gamma_ray()
     direction_phi = 0.0
+
+    if beta_decay:
+        location_mu = get_random_mu_gamma_ray()
+        location_phi = 0.0
+        gamma_ray.location = SphericalVector(0, location_mu, location_phi)
+        gamma_ray.direction = SphericalVector(1.0, direction_mu, direction_phi)
+        gamma_ray.energy = 511.0
+        return gamma_ray
 
     energy_KeV = sample_energy_distribution(energy_sorted, energy_cdf)
 
@@ -106,6 +112,21 @@ def spawn_gamma_ray(
     return gamma_ray
 
 
+def spawn_positron(
+    inner_radii, outer_radii, mass_ratio, energy_sorted, energy_cdf
+):
+
+    energy_KeV = sample_energy_distribution(energy_sorted, energy_cdf)
+
+    initial_radius, shell = density_sampler(inner_radii, mass_ratio)
+
+    initial_radius += np.random.random() * (
+        outer_radii[shell] - inner_radii[shell]
+    )
+
+    return energy_KeV, initial_radius, shell
+
+
 def main_gamma_ray_loop(num_packets, model, path):
 
     output_energies = []
@@ -125,7 +146,7 @@ def main_gamma_ray_loop(num_packets, model, path):
 
     ejecta_density = model.density[:].value
 
-    masses = mass_distribution(
+    mass_cdf = mass_distribution(
         model.no_of_shells, inner_radii, outer_radii, ejecta_density
     )
 
@@ -135,28 +156,71 @@ def main_gamma_ray_loop(num_packets, model, path):
 
     nuclear_data = read_nuclear_dataframe(path)
 
-    energy_sorted, energy_cdf = setup_gamma_ray_energy(nuclear_data)
+    gamma_ratio, positron_ratio = intensity_ratio(
+        nuclear_data, "'gamma_rays'", "'e+'"
+    )
+
+    # Need to decay particles, not just spawn gamma rays
+    energy_sorted, energy_cdf = setup_input_energy(nuclear_data, "'gamma_rays'")
+    positron_energy_sorted, positron_energy_cdf = setup_input_energy(
+        nuclear_data, "'e+'"
+    )
 
     for i in range(num_packets):
 
-        ray = GammaRay(0, 0, 1, "InProcess", 0)
-        gamma_ray = spawn_gamma_ray(
-            ray, inner_radii, outer_radii, masses, energy_sorted, energy_cdf
-        )
+        z = np.random.random()
 
-        packets.append(gamma_ray)
-        if gamma_ray.energy == 511.0:
-            packets.append(
-                spawn_gamma_ray(
-                    packets[i],
-                    inner_radii,
-                    outer_radii,
-                    masses,
-                    energy_sorted,
-                    energy_cdf,
-                    beta_decay=True,
-                )
+        if z > gamma_ratio:
+            # Spawn a pair annihilation
+            energy_KeV, initial_radius, shell = spawn_positron(
+                inner_radii,
+                outer_radii,
+                mass_cdf,
+                positron_energy_sorted,
+                positron_energy_cdf,
             )
+            energy_input_type.append(2)
+            ejecta_energy.append(energy_KeV)
+            ejecta_energy_r.append(initial_radius)
+
+            ray = GammaRay(0, 0, 1, "InProcess", 0)
+            gamma_ray = spawn_gamma_ray(
+                ray,
+                inner_radii,
+                outer_radii,
+                mass_cdf,
+                energy_sorted,
+                energy_cdf,
+                beta_decay=True,
+            )
+
+            gamma_ray.location.r = initial_radius
+            gamma_ray.shell = shell
+
+            ejecta_energy_theta.append(gamma_ray.location.theta)
+
+            packets.append(gamma_ray)
+
+            gamma_ray_2 = copy.deepcopy(gamma_ray)
+            gamma_ray_2.direction.phi += np.pi
+
+            if gamma_ray_2.direction.phi > 2 * np.pi:
+                gamma_ray_2.direction.phi -= 2 * np.pi
+
+            packets.append(gamma_ray_2)
+
+        else:
+            # Spawn a gamma ray emission
+            ray = GammaRay(0, 0, 1, "InProcess", 0)
+            gamma_ray = spawn_gamma_ray(
+                ray,
+                inner_radii,
+                outer_radii,
+                mass_cdf,
+                energy_sorted,
+                energy_cdf,
+            )
+            packets.append(gamma_ray)
 
     i = 0
     for packet in tqdm(packets):
