@@ -83,7 +83,10 @@ def compton_scatter(gamma_ray):
     gamma_ray.direction.mu = final_direction[2]
     gamma_ray.direction.phi = np.arccos(final_direction[1])
 
-    if gamma_ray.direction.phi < 0:
+    if gamma_ray.direction.mu < -1.0:
+        gamma_ray.direction.mu += 2
+
+    if gamma_ray.direction.phi < 0.0:
         gamma_ray.direction.phi += 2 * np.pi
 
     # Energy calculations

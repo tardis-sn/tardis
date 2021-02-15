@@ -91,7 +91,7 @@ def distance_trace(
      : dtype bool
 
     """
-    if gamma_ray.shell < len(inner_radii) - 1:
+    if gamma_ray.shell < len(inner_radii):
         distance_boundary = calculate_distance_radial(
             gamma_ray,
             inner_radii[gamma_ray.shell],
@@ -154,9 +154,9 @@ def density_sampler(radii, mass_ratio):
     z = np.random.random()
 
     mass_ratio_sorted_indices = np.argsort(mass_ratio)
-    index = np.searchsorted(mass_ratio, z, sorter=mass_ratio_sorted_indices)
-
-    index = len(radii) - 1 - index
+    index = mass_ratio_sorted_indices[
+        np.searchsorted(mass_ratio, z, sorter=mass_ratio_sorted_indices)
+    ]
 
     return radii[index], index
 
@@ -186,6 +186,14 @@ def mass_distribution(
                 * (outer_radii[i] ** 3.0 - outer_radii[i - 1] ** 3.0)
             )
 
+            mass[i] += mass[i - 1]
+
         i += 1
 
     return mass / np.max(mass)
+
+
+def get_shell(radius, outer_radii):
+    shell_inner = np.searchsorted(outer_radii, radius, side="left")
+
+    return shell_inner
