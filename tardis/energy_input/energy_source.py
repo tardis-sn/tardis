@@ -34,14 +34,19 @@ def sample_energy_distribution(energy_sorted, cdf):
     return energy_sorted[index]
 
 
-def setup_gamma_ray_energy(nuclear_data):
-    intensity = get_type_property(nuclear_data, "'gamma_rays'", "intensity")
-    intensity = np.append(
-        intensity,
-        [np.sum(get_type_property(nuclear_data, "'e+'", "intensity"))],
-    )
-    energy = get_type_property(nuclear_data, "'gamma_rays'", "energy")
-    energy = np.append(energy, [511.0])
+def setup_input_energy(nuclear_data, source):
+    intensity = get_type_property(nuclear_data, source, "intensity")
+    energy = get_type_property(nuclear_data, source, "energy")
     energy_sorted, cdf = create_energy_cdf(energy, intensity)
 
     return energy_sorted, cdf
+
+
+def intensity_ratio(nuclear_data, source_1, source_2):
+    intensity_1 = get_type_property(nuclear_data, source_1, "intensity")
+    intensity_2 = get_type_property(nuclear_data, source_2, "intensity")
+    total_intensity = np.sum(intensity_1) + np.sum(intensity_2)
+    return (
+        np.sum(intensity_1) / total_intensity,
+        np.sum(intensity_2) / total_intensity,
+    )
