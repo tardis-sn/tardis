@@ -58,7 +58,7 @@ Mission Statement
     :hidden:
 
     using/components/index
-    using/gui/index
+    using/visualization/index
     using/interaction/index
 
 
