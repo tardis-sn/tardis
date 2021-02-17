@@ -242,7 +242,7 @@ def test_update_line_estimators(
     assert_allclose(estimators.Edotlu_estimator, expected_Edotlu)
 
 
-@pytest.mark.xfail(reason='Need to fix estimator differences across runs')
+# @pytest.mark.xfail(reason='Need to fix estimator differences across runs')
 # TODO set RNG consistently
 def test_trace_packet(
     packet,

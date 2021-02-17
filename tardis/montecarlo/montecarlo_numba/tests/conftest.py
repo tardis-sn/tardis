@@ -1,9 +1,14 @@
+
+
+import os
+
 from copy import deepcopy
 
 import pytest
 import numpy as np
 from numba import njit
 
+from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
 from tardis.montecarlo.montecarlo_numba import RPacket, PacketCollection
 
@@ -16,10 +21,17 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
 )
 
 
+@pytest.fixture(scope="session")
+def nb_config_verysimple():
+    filename = "tardis_configv1_verysimple.yml"
+    path = os.path.abspath(os.path.join("../data/", filename))
+    config = Configuration.from_yaml(path)
+    return config
+
 @pytest.fixture(scope="package")
-def nb_simulation_verysimple(config_verysimple, atomic_dataset):
+def nb_simulation_verysimple(nb_config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
-    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
+    sim = Simulation.from_config(nb_config_verysimple, atom_data=atomic_data)
     sim.iterate(10)
     return sim
 

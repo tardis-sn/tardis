@@ -47,6 +47,7 @@ def read_density_file(filename, filetype):
 
     electron_densities = None
     temperature = None
+    print("======================= FILETYPE ===================:", filetype)
     if filetype == "cmfgen_model":
         (
             time_of_model,

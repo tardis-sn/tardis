@@ -378,6 +378,7 @@ class Radial1DModel(HDFWriterMixin):
         structure = config.model.structure
         electron_densities = None
         temperature = None
+        print("structure: ", structure)
         if structure.type == 'specific':
             velocity = quantity_linspace(structure.velocity.start,
                                          structure.velocity.stop,
