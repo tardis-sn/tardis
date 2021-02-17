@@ -9,7 +9,7 @@ ASCII Format
 
 To use a stratified ejecta composition in TARDIS, the elemental abundances may
 be specified on a per-cell basis via an external ASCII file (similar to setting
-up a :doc:`custom density <densitycust>` profile). An ASCII file that could
+up a :ref:`custom density <densitycust>` profile). An ASCII file that could
 work on a mesh with ten cells should be formatted like this:
 
 .. literalinclude:: abund.dat
