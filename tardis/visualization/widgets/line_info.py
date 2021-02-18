@@ -11,8 +11,11 @@ import ipywidgets as ipw
 
 from tardis.analysis import LastLineInteraction
 from tardis.util.base import species_tuple_to_string, species_string_to_tuple
-from tardis.widgets.util import create_table_widget, TableSummaryLabel
-from tardis.widgets import plot_util as pu
+from tardis.visualization.widgets.util import (
+    create_table_widget,
+    TableSummaryLabel,
+)
+from tardis.visualization import plot_util as pu
 
 
 class LineInfoWidget:

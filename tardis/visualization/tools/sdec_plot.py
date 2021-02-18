@@ -15,7 +15,7 @@ import matplotlib.colors as clr
 import plotly.graph_objects as go
 
 from tardis.util.base import atomic_number2element_symbol
-from tardis.widgets import plot_util as pu
+from tardis.visualization import plot_util as pu
 
 
 class SDECData:

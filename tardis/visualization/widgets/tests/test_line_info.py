@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 import numpy as np
 from plotly.callbacks import Points, BoxSelector
-from tardis.widgets.line_info import LineInfoWidget
+from tardis.visualization.widgets.line_info import LineInfoWidget
 from tardis.util.base import species_string_to_tuple
 
 
