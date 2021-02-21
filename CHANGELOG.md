@@ -1,6 +1,9 @@
 ## Change Log
 
-### upcoming (2021/02/14 23:53 +00:00)
+### upcoming (2021/02/21 23:53 +00:00)
+- [#1464](https://github.com/tardis-sn/tardis/pull/1464) Fix the array types when interpolate_shells > 0 (@Rodot-)
+- [#1454](https://github.com/tardis-sn/tardis/pull/1454) Reorganizing Models (#1454) (@smithis7)
+- [#1458](https://github.com/tardis-sn/tardis/pull/1458) Added option to create redirects in docs configuration and redirected gui to visualization (#1458) (@jaladh-singhal)
 - [#1457](https://github.com/tardis-sn/tardis/pull/1457) Reproduced SDEC plots in demo notebook (@jaladh-singhal)
 - [#1446](https://github.com/tardis-sn/tardis/pull/1446) Fixed italicised Units in sdec_plot (#1446) (@DhruvSondhi)
 - [#1438](https://github.com/tardis-sn/tardis/pull/1438) Add documentation for Spectral Element Decomposition Plot (#1438) (@jaladh-singhal)
