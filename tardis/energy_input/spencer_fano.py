@@ -25,8 +25,38 @@ class Energy_Grid:
 
 
 # Already in TARDIS but need to make sure hitting the format
-def compute_lte_populations(atomic_levels, ions, ion_populations, temperature):
+# Maybe missing some of this info
+def compute_lte_populations(
+    atomic_levels, ions, ion_populations, temperature, partition_functions
+):
     population_list = []
+
+    K_B = const.k_B.to("eV / K").value
+
+    for name, ion in atomic_levels.iterrows():
+        ionid = (name[0], name[1])
+        if ionid in ions:
+            Z = name[0]
+            ion_stage = name[1]
+            level_number = name[2]
+            nnion = ion_populations[(Z, ion_stage)]
+
+            ltepartfunc = partition_functions.sum()
+
+            nnlevel = (
+                nnion / ltepartfunc * np.exp(-ion.energy / K_B / temperature)
+            )
+
+            poprow = (
+                Z,
+                ion_stage,
+                level_number,
+                nnlevel,
+                nnlevel,
+                nnlevel / nnion,
+            )
+            population_list.append(poprow)
+
     lte_populations = pd.DataFrame(
         population_list,
         columns=[
@@ -493,7 +523,6 @@ def setup_solution(
             )
 
     atomic_levels = plasma.atomic_data.levels
-    lte_populations = plasma.level_boltzmann_factor
     ion_collision_data = plasma.ion_collision_data
     number_density = plasma.number_density[0]
     ion_populations = plasma.ion_number_density[0]
@@ -501,6 +530,10 @@ def setup_solution(
         0
     ]  # not sure if number density but should be
     ions = plasma.ionization_data
+    partition_functions = plasma.partition_function.loc[:, 0]
+    lte_populations = compute_lte_populations(
+        atomic_levels, ions, ion_populations, temperature, partition_functions
+    )
 
     electron_spectrum, transitions_dict = solve_spencer_fano(
         energy_grid,

@@ -179,6 +179,8 @@ def main_gamma_ray_loop(num_packets, model, path):
                 positron_energy_sorted,
                 positron_energy_cdf,
             )
+
+            # Dump energy into the ejecta (via presumed Coulomb interaction)
             energy_input_type.append(2)
             ejecta_energy.append(energy_KeV)
             ejecta_energy_r.append(initial_radius)
