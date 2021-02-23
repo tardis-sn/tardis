@@ -5,7 +5,7 @@ from numba import njit
 from numba.experimental import jitclass
 
 import math
-from tardis.montecarlo.montecarlo_numba import njit_dict, numba_config
+from tardis.montecarlo.montecarlo_numba import njit_dict, numba_config , njit_dict_no_parallel
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
@@ -82,7 +82,7 @@ class RPacket(object):
         self.next_line_id = next_line_id
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def calculate_distance_boundary(r, mu, r_inner, r_outer):
     """
     Calculate distance to shell boundary in cm.
@@ -126,7 +126,7 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
 
 # @log_decorator
 #'float64(RPacket, float64, int64, float64, float64)'
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def calculate_distance_line(
     r_packet, comov_nu, is_last_line, nu_line, time_explosion
 ):
@@ -177,7 +177,7 @@ def calculate_distance_line(
     return distance
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def calculate_distance_line_full_relativity(
     nu_line, nu, time_explosion, r_packet
 ):
@@ -202,7 +202,7 @@ def calculate_distance_line_full_relativity(
     return distance
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def calculate_distance_electron(electron_density, tau_event):
     """
     Calculate distance to Thomson Scattering
@@ -216,7 +216,7 @@ def calculate_distance_electron(electron_density, tau_event):
     return tau_event / (electron_density * numba_config.SIGMA_THOMSON)
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def calculate_tau_electron(electron_density, distance):
     """
     Calculate tau for Thomson scattering
@@ -229,7 +229,7 @@ def calculate_tau_electron(electron_density, distance):
     return electron_density * numba_config.SIGMA_THOMSON * distance
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def get_doppler_factor(r, mu, time_explosion):
     inv_c = 1 / C_SPEED_OF_LIGHT
     inv_t = 1 / time_explosion
@@ -240,17 +240,17 @@ def get_doppler_factor(r, mu, time_explosion):
         return get_doppler_factor_full_relativity(mu, beta)
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def get_doppler_factor_partial_relativity(mu, beta):
     return 1.0 - mu * beta
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def get_doppler_factor_full_relativity(mu, beta):
     return (1.0 - mu * beta) / math.sqrt(1 - beta * beta)
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def get_inverse_doppler_factor(r, mu, time_explosion):
     """
     Calculate doppler factor for frame transformation
@@ -270,22 +270,22 @@ def get_inverse_doppler_factor(r, mu, time_explosion):
         return get_inverse_doppler_factor_full_relativity(mu, beta)
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def get_inverse_doppler_factor_partial_relativity(mu, beta):
     return 1.0 / (1.0 - mu * beta)
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def get_inverse_doppler_factor_full_relativity(mu, beta):
     return (1.0 + mu * beta) / math.sqrt(1 - beta * beta)
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def get_random_mu():
     return 2.0 * np.random.random() - 1.0
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def update_line_estimators(
     estimators, r_packet, cur_line_id, distance_trace, time_explosion
 ):
@@ -322,13 +322,13 @@ def update_line_estimators(
     ] += energy
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def calc_packet_energy_full_relativity(r_packet):
     # accurate to 1 / gamma - according to C. Vogl
     return r_packet.energy
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def calc_packet_energy(r_packet, distance_trace, time_explosion):
     doppler_factor = 1.0 - (
         (distance_trace + r_packet.mu * r_packet.r)
@@ -338,7 +338,7 @@ def calc_packet_energy(r_packet, distance_trace, time_explosion):
     return energy
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     """
     Traces the RPacket through the ejecta and stops when an interaction happens (heart of the calculation)
@@ -493,7 +493,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     return distance, interaction_type, delta_shell
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
     """
     Move packet a distance and recalculate the new angle mu
@@ -540,7 +540,7 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
             )
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def set_estimators(r_packet, distance, numba_estimator, comov_nu, comov_energy):
     """
     Updating the estimators
@@ -553,7 +553,7 @@ def set_estimators(r_packet, distance, numba_estimator, comov_nu, comov_energy):
     )
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def set_estimators_full_relativity(
     r_packet, distance, numba_estimator, comov_nu, comov_energy, doppler_factor
 ):
@@ -565,7 +565,7 @@ def set_estimators_full_relativity(
     )
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def move_packet_across_shell_boundary(packet, delta_shell, no_of_shells):
     """
     Move packet across shell boundary - realizing if we are still in the simulation or have
@@ -593,7 +593,7 @@ def move_packet_across_shell_boundary(packet, delta_shell, no_of_shells):
         packet.current_shell_id = next_shell_id
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def angle_aberration_CMF_to_LF(r_packet, time_explosion, mu):
     """
     Converts angle aberration from comoving frame to
@@ -604,7 +604,7 @@ def angle_aberration_CMF_to_LF(r_packet, time_explosion, mu):
     return (r_packet.mu + beta) / (1.0 + beta * mu)
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def angle_aberration_LF_to_CMF(r_packet, time_explosion, mu):
     """
 
@@ -617,7 +617,7 @@ def angle_aberration_LF_to_CMF(r_packet, time_explosion, mu):
     return (mu - beta) / (1.0 - beta * mu)
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def test_for_close_line(r_packet, line_id, nu_line, numba_plasma):
     r_packet.is_close_line = abs(
         numba_plasma.line_list_nu[line_id] - nu_line

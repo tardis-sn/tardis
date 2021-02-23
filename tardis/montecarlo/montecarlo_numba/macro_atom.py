@@ -2,7 +2,7 @@ import numpy as np
 from enum import IntEnum
 
 from numba import njit
-from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.montecarlo.montecarlo_numba import njit_dict ,njit_dict_no_parallel
 
 
 class MacroAtomError(ValueError):
@@ -18,7 +18,7 @@ class MacroAtomTransitionType(IntEnum):
     ADIABATIC_COOLING = -4
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def macro_atom(r_packet, numba_plasma):
     """
     Parameters
