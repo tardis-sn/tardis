@@ -19,7 +19,7 @@ __all__ = ['SpontRecombRateCoeff', 'StimRecombRateCoeff', 'PhotoIonRateCoeff',
            'BaseRecombTransProbs', 'BasePhotoIonTransProbs',
            'CollDeexcRateCoeff', 'CollExcRateCoeff', 'BaseCollisionTransProbs',
            'AdiabaticCoolingRate', 'FreeFreeCoolingRate',
-           'BoundFreeOpacity', 'LevelNumberDensityLTE',
+           'FreeBoundCoolingRate', 'BoundFreeOpacity', 'LevelNumberDensityLTE',
            'PhotoIonBoltzmannFactor']
 
 logger = logging.getLogger(__name__)
@@ -537,9 +537,7 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
             ion_number_density, electron_densities
         )
         C_ff = 1.426e-27 * np.sqrt(t_electrons) * ff_cooling_factor
-        C_ff = cooling_rate_series2dataframe(
-            C_ff, destination_level_idx='ff'
-        )
+        C_ff = cooling_rate_series2dataframe(C_ff, destination_level_idx='ff')
         return C_ff
 
     @staticmethod
@@ -548,6 +546,28 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
         factor = electron_densities * ion_number_density.multiply(
             ion_charge ** 2, axis=0).sum()
         return factor
+
+
+class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
+    """
+    Attributes
+    ----------
+    C_fb_total : pandas.DataFrame, dtype float
+        The total free-bound cooling rate of the electron gas.
+    C_fb : pandas.DataFrame, dtype float
+        The individual free-bound cooling rates of the electron gas.
+    """
+    outputs = ('C_fb_tot', 'C_fb' )
+    transition_probabilities_outputs = ('C_fb_tot', )
+    latex_name = ('C^{\\textrm{fb, tot}}', 'C^{\\textrm{fb}}')
+
+    def calculate(self, c_fb_sp, electron_densities, ion_number_density):
+        next_ion_stage_index = get_ion_multi_index(c_fb_sp.index)
+        n_k = ion_number_density.loc[next_ion_stage_index]
+
+        C_fb = c_fb_sp.multiply(electron_densities, axis=1) * n_k.values
+        C_fb_tot = cooling_rate_series2dataframe(C_fb.sum(axis=0), 'bf')
+        return C_fb_tot, C_fb
 
 
 class BoundFreeOpacity(ProcessingPlasmaProperty):
