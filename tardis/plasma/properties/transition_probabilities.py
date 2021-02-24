@@ -21,13 +21,13 @@ def normalize_trans_probs(p):
 
     Parameters
     ----------
-    p : Pandas DataFrame, dtype float
+    p : pandas.DataFrame, dtype float
         Unnormalized transition probabilities. Indexed by
         source_level_idx, destination_level_idx.
 
     Returns
     -------
-    Pandas DataFrame, dtype float
+    pandas.DataFrame, dtype float
         Normalized transition probabilities: the sum of
         all probabilites with the same source_level_idx sum to one.
         Indexed by source_level_idx, destination_level_idx.
@@ -47,10 +47,10 @@ class SpMatrixSeriesConverterMixin(object):
 
         Parameters
         ----------
-        series : Pandas Series, dtype float
+        series : pandas.Series, dtype float
             Rates or transition probabilities. Indexed by
             source_level_idx, destination_level_idx.
-        idx2reduced_idx: Pandas Series
+        idx2reduced_idx: pandas.Series
             Values of (compact) matrix index. Indexed by references_idx.
             Maps the references_idx of a level to the index
             used in the sparse matrix.
@@ -85,7 +85,7 @@ class SpMatrixSeriesConverterMixin(object):
             Names of levels in MultiIndex of returned Series.
         Returns
         -------
-        Pandas Series
+        pandas.Series
             Rates or transition probabilities. Indexed by
             source_level_idx, destination_level_idx.
         """
@@ -106,7 +106,7 @@ class MarkovChainIndex(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    idx2mkv_idx : Pandas Series, dtype int
+    idx2mkv_idx : pandas.Series, dtype int
     """
     outputs = ('idx2mkv_idx',)
 
@@ -129,7 +129,7 @@ class MarkovChainTransProbsCollector(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    p_combined : Pandas DataFrame, dtype float
+    p_combined : pandas.DataFrame, dtype float
         Combined and normalized transition probabilities.
         Indexed by source_level_idx, destination_level_idx.
     """
@@ -152,21 +152,21 @@ class MarkovChainTransProbs(ProcessingPlasmaProperty,
     """
     Attributes
     ----------
-    N : Pandas DataFrame, dtype float
+    N : pandas.DataFrame, dtype float
         Fundamental matrix of the Markov-chain macro atom.
         Indexed by source_level_idx, destination_level_idx.
         Expected number of visits to destination_level_idx starting
         from souce_level_idx (before being absorbed).
-    R : Pandas DataFrame, dtype float
+    R : pandas.DataFrame, dtype float
         Deactivation probabilities of the Markov-chain macro atom.
         Indexed by source_level_idx.
         Probability of deactivation/absorption in source_level_idx.
-    B : Pandas DataFrame, dtype float
+    B : pandas.DataFrame, dtype float
         Absorbing probabilities of the Markov-chain macro atom.
         Indexed by source_level_idx, destination_level_idx.
         Probability of being absorbed in destination_level_idx when
         starting from source_level_idx.
-    p_deac : Pandas DataFrame, dtype float
+    p_deac : pandas.DataFrame, dtype float
         Redistribution probabilities after deactivation of the Markov-chain
         macro atom. Indexed by source_level_idx, destination_level_idx.
         Probability of an r-packet being emitted in the transition

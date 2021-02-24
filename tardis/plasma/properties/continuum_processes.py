@@ -64,7 +64,7 @@ def get_ion_multi_index(multi_index_full, next_higher=True):
 
     Parameters
     ----------
-    multi_index_full : Pandas MultiIndex (atomic_number, ion_number,
+    multi_index_full : pandas.MultiIndex (atomic_number, ion_number,
                                           level_number)
     next_higher : bool, default True
         If True use ion number of next higher ion, else use ion_number from
@@ -72,7 +72,7 @@ def get_ion_multi_index(multi_index_full, next_higher=True):
 
     Returns
     -------
-    Pandas MultiIndex (atomic_number, ion_number)
+    pandas.MultiIndex (atomic_number, ion_number)
        Ion MultiIndex for the given level MultiIndex.
     """
     atomic_number = multi_index_full.get_level_values(0)
@@ -88,12 +88,12 @@ def get_ground_state_multi_index(multi_index_full):
 
     Parameters
     ----------
-    multi_index_full : Pandas MultiIndex (atomic_number, ion_number,
+    multi_index_full : pandas.MultiIndex (atomic_number, ion_number,
                                           level_number)
 
     Returns
     -------
-    Pandas MultiIndex (atomic_number, ion_number)
+    pandas.MultiIndex (atomic_number, ion_number)
         Ground-state MultiIndex for the next higher ion.
     """
     atomic_number = multi_index_full.get_level_values(0)
@@ -112,7 +112,7 @@ def cooling_rate_series2dataframe(cooling_rate_series,
 
     Parameters
     ----------
-    cooling_rate_series : Pandas Series, dtype float
+    cooling_rate_series : pandas.Series, dtype float
         Cooling rates for a process with a single destination idx.
         Examples are adiabatic cooling or free-free cooling.
     destination_level_idx: String
@@ -121,7 +121,7 @@ def cooling_rate_series2dataframe(cooling_rate_series,
 
     Returns
     -------
-    cooling_rate_frame : Pandas DataFrame, dtype float
+    cooling_rate_frame : pandas.DataFrame, dtype float
         Indexed by source_level_idx, destination_level_idx, transition_type
         for the use in MarkovChainTransProbs.
     """
@@ -160,8 +160,8 @@ class SpontRecombRateCoeff(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    alpha_sp : Pandas DataFrame, dtype float
-               The rate coefficient for spontaneous recombination.
+    alpha_sp : pandas.DataFrame, dtype float
+        The rate coefficient for spontaneous recombination.
     """
     outputs = ('alpha_sp',)
     latex_name = ('\\alpha^{\\textrm{sp}}',)
@@ -185,9 +185,9 @@ class SpontRecombCoolingRateCoeff(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    c_fb_sp : Pandas DataFrame, dtype float
-              The rate coefficient for cooling by
-              spontaneous recombination.
+    c_fb_sp : pandas.DataFrame, dtype float
+        The rate coefficient for cooling by
+        spontaneous recombination.
     """
     outputs = ('c_fb_sp',)
     latex_name = ('ca^{\\textrm{sp}}_{\\textrm{fb}}',)
@@ -212,8 +212,8 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    gamma : Pandas DataFrame, dtype float
-            The rate coefficient for radiative ionization.
+    gamma : pandas.DataFrame, dtype float
+        The rate coefficient for radiative ionization.
     """
     outputs = ('gamma',)
     latex_name = ('\\gamma',)
@@ -252,8 +252,8 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    alpha_stim : Pandas DataFrame, dtype float
-                 The rate coefficient for stimulated recombination.
+    alpha_stim : pandas.DataFrame, dtype float
+        The rate coefficient for stimulated recombination.
     """
     outputs = ('alpha_stim',)
     latex_name = ('\\alpha^{\\textrm{stim}}',)
@@ -298,9 +298,9 @@ class BaseRecombTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
     """
     Attributes
     ----------
-    p_recomb : Pandas DataFrame, dtype float
-               The unnormalized transition probabilities for
-               spontaneous recombination.
+    p_recomb : pandas.DataFrame, dtype float
+        The unnormalized transition probabilities for
+        spontaneous recombination.
     """
     outputs = ('p_recomb', )
     transition_probabilities_outputs = ('p_recomb', )
@@ -323,9 +323,9 @@ class BasePhotoIonTransProbs(TransitionProbabilitiesProperty,
     """
     Attributes
     ----------
-    p_photo_ion : Pandas DataFrame, dtype float
-                  The unnormalized transition probabilities for
-                  radiative ionization.
+    p_photo_ion : pandas.DataFrame, dtype float
+        The unnormalized transition probabilities for
+        radiative ionization.
     """
     outputs = ('p_photo_ion', )
     transition_probabilities_outputs = ('p_photo_ion', )
@@ -341,7 +341,7 @@ class CorrPhotoIonRateCoeff(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    gamma_corr : Pandas DataFrame, dtype float
+    gamma_corr : pandas.DataFrame, dtype float
         The rate coefficient for radiative ionization corrected for
         stimulated recombination.
     """
@@ -376,9 +376,9 @@ class PhotoIonRateCoeffEstimator(Input):
     """
     Attributes
     ----------
-    gamma_estimator : Pandas DataFrame, dtype float
-                      Unnormalized MC estimator for the rate coefficient
-                      for radiative ionization.
+    gamma_estimator : pandas.DataFrame, dtype float
+        Unnormalized MC estimator for the rate coefficient for radiative
+        ionization.
     """
     outputs = ('gamma_estimator',)
 
@@ -387,9 +387,9 @@ class StimRecombRateCoeffEstimator(Input):
     """
     Attributes
     ----------
-    alpha_stim_estimator : Pandas DataFrame, dtype float
-                           Unnormalized MC estimator for the rate coefficient
-                           for stimulated recombination.
+    alpha_stim_estimator : pandas.DataFrame, dtype float
+        Unnormalized MC estimator for the rate coefficient for stimulated
+        recombination.
     """
     outputs = ('alpha_stim_estimator',)
 
@@ -398,9 +398,9 @@ class BfHeatingRateCoeffEstimator(Input):
     """
     Attributes
     ----------
-    bf_heating_coeff_estimator : Pandas DataFrame, dtype float
-                                 Unnormalized MC estimator for the rate
-                                 coefficient for bound-free heating.
+    bf_heating_coeff_estimator : pandas.DataFrame, dtype float
+        Unnormalized MC estimator for the rate
+        coefficient for bound-free heating.
     """
     outputs = ('bf_heating_coeff_estimator',)
 
@@ -409,7 +409,7 @@ class CollExcRateCoeff(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    coll_exc_coeff : Pandas DataFrame, dtype float
+    coll_exc_coeff : pandas.DataFrame, dtype float
         Rate coefficient for collisional excitation.
     """
     outputs = ('coll_exc_coeff',)
@@ -429,7 +429,7 @@ class CollDeexcRateCoeff(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    coll_deexc_coeff : Pandas DataFrame, dtype float
+    coll_deexc_coeff : pandas.DataFrame, dtype float
         Rate coefficient for collisional deexcitation.
     """
     outputs = ('coll_deexc_coeff',)
@@ -451,7 +451,7 @@ class BaseCollisionTransProbs(TransitionProbabilitiesProperty,
     """
     Attributes
     ----------
-    p_coll : Pandas DataFrame, dtype float
+    p_coll : pandas.DataFrame, dtype float
         The unnormalized transition probabilities for
         collisional excitation.
     """
@@ -503,7 +503,7 @@ class AdiabaticCoolingRate(TransitionProbabilitiesProperty):
     """
     Attributes
     ----------
-    C_adiabatic : Pandas DataFrame, dtype float
+    C_adiabatic : pandas.DataFrame, dtype float
         The adiabatic cooling rate of the electron gas.
     """
     outputs = ('C_adiabatic', )
@@ -524,7 +524,7 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
     """
     Attributes
     ----------
-    C_ff : Pandas DataFrame, dtype float
+    C_ff : pandas.DataFrame, dtype float
         The free-free cooling rate of the electron gas.
     """
     outputs = ('C_ff', )
@@ -574,7 +574,7 @@ class BoundFreeOpacity(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    chi_bf : Pandas DataFrame, dtype float
+    chi_bf : pandas.DataFrame, dtype float
     """
     outputs = ('chi_bf',)
     latex_name = ('\\chi^{\\textrm{bf}}',)
@@ -603,7 +603,7 @@ class LevelNumberDensityLTE(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    lte_level_number_density : Pandas DataFrame, dtype float
+    lte_level_number_density : pandas.DataFrame, dtype float
     """
     outputs = ('lte_level_number_density',)
     latex_name = ('n_{\\textrm{i}}^*',)
@@ -624,7 +624,7 @@ class PhotoIonBoltzmannFactor(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    boltzmann_factor_photo_ion : Pandas DataFrame, dtype float
+    boltzmann_factor_photo_ion : pandas.DataFrame, dtype float
     """
     outputs = ('boltzmann_factor_photo_ion',)
 

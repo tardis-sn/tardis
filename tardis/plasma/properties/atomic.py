@@ -78,20 +78,22 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    photo_ion_cross_sections: Pandas DataFrame (nu, x_sect,
+    photo_ion_cross_sections: pandas.DataFrame (nu, x_sect,
                                                 index=['atomic_number',
                                                        'ion_number',
                                                        'level_number']),
                                                 dtype float)
-                              Table of photoionization cross sections as a
-                              function of frequency.
+        Table of photoionization cross sections as a function of frequency.
     photo_ion_block_references: One-dimensional Numpy Array, dtype int
-                              Indices where the photoionization data for
-                              a given level starts. Needed for calculation
-                              of recombination rates.
+        Indices where the photoionization data for a given level starts.
+        Needed for calculation of recombination rates.
+    nu_i: pandas.Series, dtype float
+        Threshold frequencies for ionization
+    energy_i: pandas.Series, dtype float
+        Energies of levels with bound-free transitions. Needed to calculate
+        for example internal transition probabilities in the macro atom scheme.
     photo_ion_index: Pandas MultiIndex, dtype int
-                              Atomic, ion and level numbers for which
-                              photoionization data exists.
+        Atomic, ion and level numbers for which photoionization data exists.
     """
     outputs = ('photo_ion_cross_sections', 'photo_ion_block_references',
                'photo_ion_index', 'nu_i', 'energy_i', 'photo_ion_idx')
