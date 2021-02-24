@@ -128,7 +128,7 @@ def cooling_rate_series2dataframe(cooling_rate_series,
     index_names = ['source_level_idx', 'destination_level_idx',
                    'transition_type']
     index = pd.MultiIndex.from_tuples(
-        [('k', destination_level_idx, 0)], names=index_names
+        [('k', destination_level_idx, -1)], names=index_names
     )
     cooling_rate_frame = pd.DataFrame(
         cooling_rate_series.values[np.newaxis],

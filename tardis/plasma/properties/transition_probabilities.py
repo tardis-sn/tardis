@@ -110,10 +110,6 @@ class MarkovChainIndex(ProcessingPlasmaProperty):
     """
     outputs = ('idx2mkv_idx',)
 
-    def __init__(self, plasma_parent, additional_idxs=None):
-        super().__init__(plasma_parent)
-        self.additional_idxs = additional_idxs
-
     def calculate(self, atomic_data, continuum_interaction_species):
         ma_ref = atomic_data.macro_atom_references
         mask = ma_ref.index.droplevel('source_level_number').isin(
@@ -126,15 +122,6 @@ class MarkovChainIndex(ProcessingPlasmaProperty):
         idx = ma_ref[mask].references_idx.values
         idx2mkv_idx = pd.Series(np.arange(len(idx)), index=idx)
         idx2mkv_idx.loc['k'] = idx2mkv_idx.max() + 1
-        idx2mkv_idx.loc['ff'] = idx2mkv_idx.max() + 1
-
-        if self.additional_idxs:
-            max_idx = idx2mkv_idx.max() + 1
-            additional_idxs = pd.Series(
-                np.arange(max_idx, max_idx + len(self.additional_idxs)),
-                index=self.additional_idxs
-            )
-            idx2mkv_idx = idx2mkv_idx.append(additional_idxs)
         return idx2mkv_idx
 
 

@@ -118,13 +118,11 @@ def assemble_plasma(config, model, atom_data=None):
                 'macroatom (instead of {}).'.format(line_interaction_type)
             )
 
-        additional_idxs = []
         plasma_modules += continuum_interaction_properties
         plasma_modules += continuum_interaction_inputs
 
         if config.plasma.continuum_interaction.enable_adiabatic_cooling:
             plasma_modules += adiabatic_cooling_properties
-            additional_idxs += ['adiabatic']
 
 
         transition_probabilities_outputs = [
@@ -139,8 +137,6 @@ def assemble_plasma(config, model, atom_data=None):
 
         property_kwargs[MarkovChainTransProbsCollector] = {
             'inputs': transition_probabilities_outputs}
-        property_kwargs[MarkovChainIndex] = {'additional_idxs':
-                                             additional_idxs}
 
         kwargs.update(gamma_estimator=None,
                       bf_heating_coeff_estimator=None,
