@@ -11,6 +11,7 @@ E_CHARGE = const.e.esu.value
 K_B = const.k_B.to("eV / K").value
 C_LIGHT = const.c.cgs.value
 EV2ERG = u.eV.to(u.erg)
+ERG2EV = u.erg.to(u.eV)
 H_ION_POTENTIAL = M_E * C_LIGHT ** 2
 A0 = const.a0.cgs.value
 
@@ -186,14 +187,18 @@ def excitation_cross_section_vector(energy_grid, row):
     A0_squared = A0 ** 2  # Bohr radius squared in cm^2
     cross_section_excitation_vector = np.empty(energy_grid.size)
 
-    coll_str = row.collstr
+    # coll_str = row.collstr
+    coll_str = 0
     epsilon_trans = (
         row.epsilon_trans_ev * EV2ERG
     )  # electron volt converted to erg
     epsilon_trans_ev = row.epsilon_trans_ev
 
-    start_index = np.ceil(
-        (epsilon_trans_ev - energy_grid.energy_min) / energy_grid.delta_energy
+    start_index = int(
+        np.ceil(
+            (epsilon_trans_ev - energy_grid.energy_min)
+            / energy_grid.delta_energy
+        )
     )
     cross_section_excitation_vector[:start_index] = 0.0
 
@@ -208,7 +213,7 @@ def excitation_cross_section_vector(energy_grid, row):
             constantfactor * (energy_grid.grid[start_index:] * EV2ERG) ** -2
         )
 
-    elif not row.forbidden:
+    elif row.transition_probability > 0.0:
 
         nu_trans = epsilon_trans / H
         g = row.upper_g / row.lower_g
@@ -381,7 +386,7 @@ def spencer_fano_matrix_add_excitation(
                 * excitation_cross_section_vector(energy_grid, row)
             )
             for i in range(points):
-                stop_index = i + np.ceil(epsilon_trans_ev / delta_energy)
+                stop_index = i + int(np.ceil(epsilon_trans_ev / delta_energy))
 
                 if stop_index < points - 1:
                     sfmatrix[
@@ -400,8 +405,9 @@ def solve_spencer_fano(
     energy_deposition_density,
     ion_collision_data,
     lte_populations,
-    atomic_levels,
+    atomic_transition_data,
     ion_populations,
+    level_data,
 ):
     delta_energy = energy_grid.delta_energy
     points = energy_grid.size
@@ -426,6 +432,7 @@ def solve_spencer_fano(
 
     for ion_info, value in ions.iteritems():
         atomic_number, ion_number = ion_info[0], ion_info[1]
+
         number_ion = ion_populations[(atomic_number, ion_number)]
         ion_collision_data_current = ion_collision_data.query(
             "atomic_number == @atomic_number and ion_number == @ion_number",
@@ -449,41 +456,88 @@ def solve_spencer_fano(
             x.level: x["n_NLTE"] for _, x in population_current_ion.iterrows()
         }
 
-        ion = atomic_levels.query(
+        ion = atomic_transition_data.query(
             "atomic_number == @atomic_number and ion_number == @ion_number"
-        ).iloc[0]
+        )
         # Horrible syntax, probably a better way with Carsus/plasma input
-        ground_level_no_j = ion.levels.iloc[0].levelname.split("[")[0]
+        # ground_level_no_j = ion.levels.iloc[0].levelname.split("[")[0]
         # Currently set to 4 after this in Andreas code
-        top_gm_level = ion.levels[
-            ion.levels.levelname.str.startswith(ground_level_no_j)
-        ].index.max()
-        transitions_dict[(atomic_number, ion_number)] = ion.transitions.query(
-            "lower <= @top_gm_level", inplace=False
+        # top_gm_level = ion.levels[
+        #    ion.levels.levelname.str.startswith(ground_level_no_j)
+        # ].index.max()
+
+        top_gm_level = 4
+        transitions_dict[(atomic_number, ion_number)] = ion.query(
+            "source_level_number <= @top_gm_level", inplace=False
         ).copy()
+
+        current_level_data = level_data.query(
+            "ion_number == @ion_number and atomic_number == @atomic_number"
+        )
 
         if not transitions_dict[(atomic_number, ion_number)].empty:
             transitions_dict[(atomic_number, ion_number)].query(
-                "collstr >= 0 or forbidden == False", inplace=True
+                "transition_probability > 0.0", inplace=True
             )
+
+            source_level_numbers = transitions_dict[
+                (atomic_number, ion_number)
+            ].loc[:, "source_level_number"]
+            destination_level_numbers = transitions_dict[
+                (atomic_number, ion_number)
+            ].loc[:, "destination_level_number"]
+
+            transition_energy = []
+            lower_g = []
+            upper_g = []
+
+            for source, destination in zip(
+                source_level_numbers, destination_level_numbers
+            ):
+                source_level = current_level_data.query(
+                    "level_number == @source"
+                )
+                destination_level = current_level_data.query(
+                    "level_number == @destination"
+                )
+
+                source_energy = source_level.energy.values * ERG2EV
+                lower_g.append(source_level.g.values)
+
+                destination_energy = destination_level.energy.values * ERG2EV
+                upper_g.append(destination_level.g.values)
+
+                transition_energy.append(destination_energy - source_energy)
+
+            transition_energy = np.array(transition_energy)
+            lower_g = np.array(lower_g).flatten()
+            upper_g = np.array(upper_g).flatten()
+
             transitions_dict[(atomic_number, ion_number)].eval(
-                "epsilon_trans_ev = "
-                "@ion.levels.loc[upper].energy_ev.values - @ion.levels.loc[lower].energy_ev.values",
+                "epsilon_trans_ev = @transition_energy",
                 inplace=True,
             )
+
+            # dict is ok to here
             transitions_dict[(atomic_number, ion_number)].query(
-                "epsilon_trans_ev >= @engrid[0]", inplace=True
+                "epsilon_trans_ev >= @energy_grid.grid[0]", inplace=True
+            )
+
+            transitions_dict[(atomic_number, ion_number)].eval(
+                "lower_g = @lower_g",
+                inplace=True,
             )
             transitions_dict[(atomic_number, ion_number)].eval(
-                "lower_g = @ion.levels.loc[lower].g.values", inplace=True
+                "upper_g = @upper_g",
+                inplace=True,
             )
-            transitions_dict[(atomic_number, ion_number)].eval(
-                "upper_g = @ion.levels.loc[upper].g.values", inplace=True
-            )
+
+            # not sure what is happening here
             transitions_dict[(atomic_number, ion_number)][
                 "lower_pop"
             ] = transitions_dict[(atomic_number, ion_number)].apply(
-                lambda x: population_dict.get(x.lower, 0.0), axis=1
+                lambda x: population_dict.get(x.source_level_number, 0.0),
+                axis=1,
             )
 
             spencer_fano_matrix_add_excitation(
@@ -508,6 +562,8 @@ def setup_solution(
     plasma,
     energy_deposition_density,
 ):
+
+    assert not energy_min == 0.0
 
     energy_grid = Energy_Grid(energy_min, energy_max, points)
 
@@ -535,6 +591,10 @@ def setup_solution(
         atomic_levels, ions, ion_populations, temperature, partition_functions
     )
 
+    atomic_transition_data = plasma.atomic_data.macro_atom_data.query(
+        "destination_level_number > source_level_number"
+    )
+
     electron_spectrum, transitions_dict = solve_spencer_fano(
         energy_grid,
         source_vector,
@@ -544,8 +604,19 @@ def setup_solution(
         energy_deposition_density,
         ion_collision_data,
         lte_populations,
-        atomic_levels,
+        atomic_transition_data,
         ion_populations,
+        atomic_levels,
     )
 
-    return electron_spectrum, transitions_dict
+    return (
+        electron_spectrum,
+        transitions_dict,
+        energy_grid,
+        ions,
+        ion_populations,
+        energy_deposition_density,
+        ion_collision_data,
+        electron_number_density,
+        number_density,
+    )
