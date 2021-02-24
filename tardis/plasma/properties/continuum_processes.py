@@ -199,7 +199,7 @@ class SpontRecombCoolingRateCoeff(ProcessingPlasmaProperty):
         nu = photo_ion_cross_sections['nu'].values
         factor = (1 - nu_i / photo_ion_cross_sections['nu']).values
         alpha_sp = (8 * np.pi * x_sect * factor * nu ** 3 /
-                    (const.c.cgs.value) ** 2)
+                    (const.c.cgs.value) ** 2) * const.h.cgs.value
         alpha_sp = alpha_sp[:, np.newaxis]
         alpha_sp = alpha_sp * boltzmann_factor_photo_ion
         alpha_sp = integrate_array_by_blocks(alpha_sp, nu,
