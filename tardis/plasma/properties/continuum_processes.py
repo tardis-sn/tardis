@@ -20,7 +20,7 @@ __all__ = ['SpontRecombRateCoeff', 'StimRecombRateCoeff', 'PhotoIonRateCoeff',
            'CollDeexcRateCoeff', 'CollExcRateCoeff', 'BaseCollisionTransProbs',
            'AdiabaticCoolingRate', 'FreeFreeCoolingRate',
            'FreeBoundCoolingRate', 'BoundFreeOpacity', 'LevelNumberDensityLTE',
-           'PhotoIonBoltzmannFactor']
+           'PhotoIonBoltzmannFactor', 'FreeBoundEmissionCDF']
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +55,67 @@ def integrate_array_by_blocks(f, x, block_references):
             start = block_references[j]
             stop = block_references[j + 1]
             integrated[j, i] = np.trapz(f[start:stop, i], x[start:stop])
+    return integrated
+
+
+# It is currently not possible to use scipy.integrate.cumtrapz in numba.
+# So here is my own implementation.
+@njit(**njit_dict)
+def cumtrapz(f, x):
+    """
+    Cumulatively integrate f(x) using the composite trapezoidal rule.
+
+    Parameters
+    ----------
+    f : numpy.ndarray, dtype float
+        Input array to integrate.
+    x : numpy.ndarray, dtype float
+        The coordinate to integrate along.
+
+    Returns
+    -------
+    numpy.ndarray, dtype float
+        The result of cumulative integration of f along x
+    """
+    integ = (np.diff(x) * (f[1:] + f[:-1]) / 2.).cumsum()
+    return integ / integ[-1]
+
+
+@njit(**njit_dict)
+def cumulative_integrate_array_by_blocks(f, x, block_references):
+    """
+    Cumulatively integrate a function over blocks.
+
+    This function cumulatively integrates a function `f` defined at
+    locations `x` over blocks given in `block_references`.
+
+    Parameters
+    ----------
+    f : numpy.ndarray, dtype float
+        Input array to integrate. Shape is (N_freq, N_shells), where
+        N_freq is the number of frequency values and N_shells is the number
+        of computational shells.
+    x : numpy.ndarray, dtype float
+        The sample points corresponding to the `f` values. Shape is (N_freq,).
+    block_references : numpy.ndarray, dtype int
+        The start indices of the blocks to be integrated. Shape is (N_blocks,).
+
+    Returns
+    -------
+    numpy.ndarray, dtype float
+        Array with cumulatively integrated values. Shape is (N_freq, N_shells)
+        same as f.
+    """
+    n_rows = len(block_references) - 1
+    integrated = np.zeros_like(f)
+    for i in prange(f.shape[1]):  # columns
+        # TODO: Avoid this loop through vectorization of cumtrapz
+        for j in prange(n_rows):  # rows
+            start = block_references[j]
+            stop = block_references[j + 1]
+            integrated[start + 1: stop, i] = cumtrapz(
+                f[start:stop, i], x[start:stop]
+            )
     return integrated
 
 
@@ -206,6 +267,38 @@ class SpontRecombCoolingRateCoeff(ProcessingPlasmaProperty):
                                              photo_ion_block_references)
         alpha_sp = pd.DataFrame(alpha_sp, index=photo_ion_index)
         return alpha_sp * phi_ik.loc[alpha_sp.index]
+
+
+class FreeBoundEmissionCDF(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    fb_emission_cdf : pandas.DataFrame, dtype float
+        The cumulative distribution function (CDF) for the frequencies of
+        energy packets emitted in free-bound transitions. The tabulated CDF
+        is used to sample packet frequencies in the Monte Carlo simulation.
+        We use the same CDF for free-bound emission from k- and i-packets
+        (in contrast to ARTIS).
+    """
+    outputs = ('fb_emission_cdf',)
+    latex_name = (r'P(\nu_{bf, emission}) \leq \nu)',)
+
+    def calculate(self, photo_ion_cross_sections, t_electrons,
+                  photo_ion_block_references, photo_ion_index, nu_i,
+                  boltzmann_factor_photo_ion):
+        x_sect = photo_ion_cross_sections['x_sect'].values
+        nu = photo_ion_cross_sections['nu'].values
+        # alpha_sp_E will be missing a lot of prefactors since we are only
+        # interested in relative values here
+        alpha_sp_E = nu ** 3 * x_sect
+        alpha_sp_E = alpha_sp_E[:, np.newaxis]
+        alpha_sp_E = alpha_sp_E * boltzmann_factor_photo_ion
+        alpha_sp_E = cumulative_integrate_array_by_blocks(
+            alpha_sp_E, nu, photo_ion_block_references
+        )
+        fb_emission_cdf = pd.DataFrame(alpha_sp_E,
+                                       index=photo_ion_cross_sections.index)
+        return fb_emission_cdf
 
 
 class PhotoIonRateCoeff(ProcessingPlasmaProperty):
