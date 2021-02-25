@@ -149,6 +149,7 @@ class MarkovChainTransProbsCollector(ProcessingPlasmaProperty):
 class MarkovChainTransProbs(ProcessingPlasmaProperty,
                             SpMatrixSeriesConverterMixin):
     outputs = ('N', 'R', 'B', 'p_deac')
+    latex_name = ('N', 'R', 'B', r'p_\textrm{deac}')
     """
     Attributes
     ----------

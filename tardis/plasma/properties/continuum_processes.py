@@ -225,7 +225,7 @@ class SpontRecombRateCoeff(ProcessingPlasmaProperty):
         The rate coefficient for spontaneous recombination.
     """
     outputs = ('alpha_sp',)
-    latex_name = ('\\alpha^{\\textrm{sp}}',)
+    latex_name = (r'\alpha^{\textrm{sp}}',)
 
     def calculate(self, photo_ion_cross_sections, t_electrons,
                   photo_ion_block_references, photo_ion_index, phi_ik,
@@ -251,7 +251,7 @@ class SpontRecombCoolingRateCoeff(ProcessingPlasmaProperty):
         spontaneous recombination.
     """
     outputs = ('c_fb_sp',)
-    latex_name = ('ca^{\\textrm{sp}}_{\\textrm{fb}}',)
+    latex_name = (r'c^{\textrm{sp}}_{\textrm{fb}}',)
 
     def calculate(self, photo_ion_cross_sections, t_electrons,
                   photo_ion_block_references, photo_ion_index, phi_ik, nu_i,
@@ -309,7 +309,7 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
         The rate coefficient for radiative ionization.
     """
     outputs = ('gamma',)
-    latex_name = ('\\gamma',)
+    latex_name = (r'\gamma',)
 
     def calculate(self, photo_ion_cross_sections, gamma_estimator,
                   photo_ion_norm_factor, photo_ion_block_references,
@@ -349,7 +349,7 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
         The rate coefficient for stimulated recombination.
     """
     outputs = ('alpha_stim',)
-    latex_name = ('\\alpha^{\\textrm{stim}}',)
+    latex_name = (r'\alpha^{\textrm{stim}}',)
 
     def calculate(self, photo_ion_cross_sections, alpha_stim_estimator,
                   photo_ion_norm_factor, photo_ion_block_references,
@@ -396,8 +396,8 @@ class BaseRecombTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
         spontaneous recombination.
     """
     outputs = ('p_recomb', )
-    transition_probabilities_outputs = ('p_recomb', )
-    latex_name = ('p^{\\textrm{recomb}}', '')
+    transition_probabilities_outputs = ('p_recomb',)
+    latex_name = (r'p^{\textrm{recomb}}',)
 
     def calculate(self, alpha_sp, nu_i, energy_i, photo_ion_idx):
         p_recomb_deac = alpha_sp.multiply(nu_i, axis=0) * const.h.cgs.value
@@ -422,7 +422,7 @@ class BasePhotoIonTransProbs(TransitionProbabilitiesProperty,
     """
     outputs = ('p_photo_ion', )
     transition_probabilities_outputs = ('p_photo_ion', )
-    latex_name = ('p^{\\textrm{photo_ion}}', )
+    latex_name = (r'p^{\textrm{photo_ion}}', )
 
     def calculate(self, gamma_corr, nu_i, photo_ion_idx):
         p_photo_ion = gamma_corr.multiply(nu_i, axis=0) * const.h.cgs.value
@@ -439,7 +439,7 @@ class CorrPhotoIonRateCoeff(ProcessingPlasmaProperty):
         stimulated recombination.
     """
     outputs = ('gamma_corr',)
-    latex_name = ('\\gamma_\\mathrm{corr}',)
+    latex_name = (r'\gamma_\mathrm{corr}',)
 
     def calculate(self, gamma, alpha_stim, electron_densities,
                   ion_number_density, level_number_density):
@@ -457,8 +457,7 @@ class CorrPhotoIonRateCoeff(ProcessingPlasmaProperty):
 
 class PhotoIonEstimatorsNormFactor(ProcessingPlasmaProperty):
     outputs = ('photo_ion_norm_factor',)
-    latex = ('\\frac{1}}}{'
-             'time_\\textrm{simulation} volume h}')
+    latex_name = (r'\frac{1}{t_\textrm{simulation volume h}}',)
 
     @staticmethod
     def calculate(time_simulation, volume):
@@ -474,6 +473,7 @@ class PhotoIonRateCoeffEstimator(Input):
         ionization.
     """
     outputs = ('gamma_estimator',)
+    latex_name = (r'\gamma_\textrm{estim}',)
 
 
 class StimRecombRateCoeffEstimator(Input):
@@ -485,6 +485,7 @@ class StimRecombRateCoeffEstimator(Input):
         recombination.
     """
     outputs = ('alpha_stim_estimator',)
+    latex_name = (r'\alpha^{\textrm{stim}}_\textrm{estim}',)
 
 
 class BfHeatingRateCoeffEstimator(Input):
@@ -496,6 +497,7 @@ class BfHeatingRateCoeffEstimator(Input):
         coefficient for bound-free heating.
     """
     outputs = ('bf_heating_coeff_estimator',)
+    latex_name = (r'h_\textrm{bf}_\textrm{estim}',)
 
 
 class CollExcRateCoeff(ProcessingPlasmaProperty):
@@ -550,7 +552,7 @@ class BaseCollisionTransProbs(TransitionProbabilitiesProperty,
     """
     outputs = ('p_coll', )
     transition_probabilities_outputs = ('p_coll', )
-    latex_name = ('p^{\\textrm{coll}}', )
+    latex_name = (r'p^{\textrm{coll}}', )
 
     def calculate(self, coll_exc_coeff, coll_deexc_coeff, yg_idx,
                   electron_densities, delta_E_yg, atomic_data,
@@ -601,7 +603,7 @@ class AdiabaticCoolingRate(TransitionProbabilitiesProperty):
     """
     outputs = ('C_adiabatic', )
     transition_probabilities_outputs = ('C_adiabatic', )
-    latex_name = ('C_{\\textrm{adiabatic}}', )
+    latex_name = (r'C_{\textrm{adiabatic}}', )
 
     def calculate(self, electron_densities, t_electrons, time_explosion):
         C_adiabatic = (3. * electron_densities * const.k_B.cgs.value *
@@ -622,7 +624,7 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
     """
     outputs = ('C_ff', )
     transition_probabilities_outputs = ('C_ff', )
-    latex_name = ('C^{\\textrm{ff}}', )
+    latex_name = (r'C^{\textrm{ff}}', )
 
     def calculate(self, ion_number_density, electron_densities,
                   t_electrons):
@@ -670,7 +672,7 @@ class BoundFreeOpacity(ProcessingPlasmaProperty):
     chi_bf : pandas.DataFrame, dtype float
     """
     outputs = ('chi_bf',)
-    latex_name = ('\\chi^{\\textrm{bf}}',)
+    latex_name = (r'\chi^{\textrm{bf}}',)
 
     def calculate(self, photo_ion_cross_sections, t_electrons,
                   phi_ik, level_number_density, lte_level_number_density,
@@ -698,7 +700,7 @@ class LevelNumberDensityLTE(ProcessingPlasmaProperty):
     lte_level_number_density : pandas.DataFrame, dtype float
     """
     outputs = ('lte_level_number_density',)
-    latex_name = ('n_{\\textrm{i}}^*',)
+    latex_name = (r'n_{\textrm{i}}^*',)
 
     # TODO: only do this for continuum species
     def calculate(self, electron_densities, phi_ik, ion_number_density):
