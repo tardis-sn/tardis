@@ -557,7 +557,7 @@ class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
     C_fb : pandas.DataFrame, dtype float
         The individual free-bound cooling rates of the electron gas.
     """
-    outputs = ('C_fb_tot', 'C_fb' )
+    outputs = ('C_fb_tot', 'C_fb')
     transition_probabilities_outputs = ('C_fb_tot', )
     latex_name = ('C^{\\textrm{fb, tot}}', 'C^{\\textrm{fb}}')
 
@@ -583,7 +583,6 @@ class BoundFreeOpacity(ProcessingPlasmaProperty):
                   phi_ik, level_number_density, lte_level_number_density,
                   boltzmann_factor_photo_ion):
         x_sect = photo_ion_cross_sections['x_sect'].values
-        nu = photo_ion_cross_sections['nu'].values
 
         n_i = level_number_density.loc[photo_ion_cross_sections.index]
         lte_n_i = lte_level_number_density.loc[photo_ion_cross_sections.index]
@@ -629,7 +628,6 @@ class PhotoIonBoltzmannFactor(ProcessingPlasmaProperty):
     outputs = ('boltzmann_factor_photo_ion',)
 
     def calculate(self, photo_ion_cross_sections, t_electrons):
-        x_sect = photo_ion_cross_sections['x_sect'].values
         nu = photo_ion_cross_sections['nu'].values
 
         boltzmann_factor = np.exp(-nu[np.newaxis].T / t_electrons *
