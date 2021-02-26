@@ -3,11 +3,11 @@ import tardis.constants as const
 import numpy as np
 import scipy.linalg as linalg
 
-import spencer_fano as sf
+import tardis.energy_input.spencer_fano as sf
 
-M_E = const.m_e.to_cgs().value
-H_BAR = const.hbar.to_cgs().value
-E_CHARGE = const.e.to_cgs().value
+M_E = sf.M_E
+H_BAR = sf.H_BAR
+E_CHARGE = sf.E_CHARGE
 
 
 def probability_secondary_electron(
@@ -30,7 +30,14 @@ def probability_secondary_electron(
     )
 
 
-def calculate_number_electron(energy, energy_grid, electron_spectrum):
+def calculate_number_electron(
+    energy,
+    energy_grid,
+    electron_spectrum,
+    ion_populations,
+    ion_collision_data,
+    transitions_dict,
+):
     # Kozma & Fransson equation 6.
     # Something related to a number of electrons, needed to calculate the heating fraction in equation 3
     # not valid for energy > E_0
@@ -41,20 +48,25 @@ def calculate_number_electron(energy, energy_grid, electron_spectrum):
 
     N_e = 0.0
 
-    for atomic_number, ion_number in ions:
+    for indexes, population in ion_populations.iteritems():
+        atomic_number = indexes[0]
+        ion_number = indexes[1]
         N_e_ion = 0.0
-        nnion = ionpopdict[(atomic_number, ion_number)]
-        dfcollion_thision = dfcollion.query(
-            "Z == @Z and ionstage == @ionstage", inplace=False
+        nnion = population
+        dfcollion_thision = ion_collision_data.query(
+            "atomic_number == @atomic_number and ion_number == @ion_number",
+            inplace=False,
         )
 
         for index, shell in dfcollion_thision.iterrows():
-            ionization_potential = shell.ionpot_ev
+            ionization_potential = shell.ion_potential
 
             energy_lambda = min(
                 energy_grid.energy_max - energy, energy + ionization_potential
             )
-            J = sf.get_J(shell.Z, shell.ionstage, ionization_potential)
+            J = sf.get_J(
+                shell.atomic_number, shell.ion_number, ionization_potential
+            )
 
             arnaud_cross_section_array = (
                 sf.get_arnaud_cross_section_array_shell(energy_grid.grid, shell)
@@ -107,8 +119,10 @@ def calculate_number_electron(energy, energy_grid, electron_spectrum):
 
         N_e += nnion * N_e_ion
 
-    for Z, ion_stage in ions:
-        for _, row in dftransitions[(Z, ion_stage)].iterrows():
+    for indexes, population in ion_populations.iteritems():
+        atomic_number = indexes[0]
+        ion_number = indexes[1]
+        for _, row in transitions_dict[(atomic_number, ion_number)].iterrows():
             nnlevel = row.lower_pop
             epsilon_trans_ev = row.epsilon_trans_ev
             if epsilon_trans_ev >= energy_grid.energy_min:
@@ -134,6 +148,9 @@ def heating_fraction(
     electron_number_density,
     number_density,
     energy_deposition_density,
+    ion_populations,
+    ion_collision_data,
+    transitions_dict,
 ):
     """Calculates the heating fraction of electrons
 
@@ -145,6 +162,8 @@ def heating_fraction(
         fraction of energy going into heating
     """
 
+    fraction_heating = 0.0
+
     for i, energy in enumerate(energy_grid.grid):
         weight = 1 if (i == 0 or i == energy_grid.size - 1) else 2
         fraction_heating += (
@@ -155,7 +174,7 @@ def heating_fraction(
             )
             * electron_spectrum[i]
             * energy_grid.delta_energy
-            / energy_deposition_density,
+            / energy_deposition_density
         )
 
     fraction_heating += (
@@ -173,10 +192,9 @@ def heating_fraction(
         number_electron = calculate_number_electron(
             energy,
             energy_grid,
-            ions,
-            ion_population,
-            collision_data,
             electron_spectrum,
+            ion_populations,
+            ion_collision_data,
             transitions_dict,
         )
 
@@ -246,7 +264,7 @@ def ionization_fraction_per_ion(
 
         fractional_ionization_of_shell = (
             ion_number_density
-            * shell.ionpot_ev
+            * shell.ion_potential
             * np.dot(electron_spectrum, arnaud_cross_section_array)
             * energy_grid.delta_energy
             / energy_deposition_density
@@ -279,14 +297,20 @@ def total_fractions(
     ion_collision_data,
     ion_populations,
     energy_deposition_density,
+    electron_number_density,
+    number_density,
 ):
     fraction_ionization = 0.0
     fraction_excitation = 0.0
 
-    for atomic_number, ion_number in ion_populations:
-        ion_number_density = ion_populations[(atomic_number, ion_number)]
+    for indexes, population in ion_populations.iteritems():
+        atomic_number = indexes[0]
+        ion_number = indexes[1]
+        ion_number_density = population
 
-        ion_collision_data_current = ion_collision_data.query("This ion")
+        ion_collision_data_current = ion_collision_data.query(
+            "atomic_number == @atomic_number and ion_number == @ion_number"
+        )
 
         fraction_ionization += ionization_fraction_per_ion(
             energy_grid,
@@ -303,6 +327,19 @@ def total_fractions(
             energy_deposition_density,
         )
 
-    fraction_heating = heating_fraction(electron_number_density, number_density)
+    fraction_heating = heating_fraction(
+        energy_grid,
+        electron_spectrum,
+        electron_number_density,
+        number_density,
+        energy_deposition_density,
+        ion_populations,
+        ion_collision_data,
+        transitions_dict,
+    )
+
+    print("fraction excitation: ", fraction_excitation)
+    print("fraction ionization: ", fraction_ionization)
+    print("fraction heating: ", fraction_heating)
 
     return fraction_ionization, fraction_excitation, fraction_heating
