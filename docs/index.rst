@@ -69,7 +69,6 @@ Mission Statement
     
     physics/montecarlo/index
     physics/plasma/index
-    physics/old_physics/index
 
 
 .. toctree::

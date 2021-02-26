@@ -220,6 +220,10 @@ Here, the subscripts highlight the packet properties before (:math:`i` for
 initial) and after (:math:`f` for final) the scattering. Also, the common
 parameter of special relativity, :math:`\beta = v / c`, is used.
 
+The ratio :math:`\frac{1 - \beta \mu_i}{1 - \beta \mu_f}` can be visualized with the following graph for a speed of :math:`1.1 \times 10^4` km/s:
+
+.. plot:: physics/pyplot/plot_mu_in_out_packet.py
+
 Line interactions proceed in a similar fashion. Since we assume that the
 re-emission process occurs isotropically as well, the same directional sampling
 as described above is used. Energy conservation again dictates how the packet

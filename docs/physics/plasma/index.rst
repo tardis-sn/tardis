@@ -47,11 +47,57 @@ During each iteration of the main code, TARDIS updates the plasma using the `upd
 
 Plasma Calculations
 -------------------
+
+.. note::
+    In this documentation we use the indices :math:`i, j, k` to mean atomic number, ion number and level number respectively.
+
+`BasePlasma` serves as the base class for all plasmas and can just calculate the atom number densities for a given input of abundance fraction.
+
+.. math::
+    N_{atom} = \rho_\textrm{total} \times \textrm{Abundance fraction} / m_\textrm{atom}
+
+In the next step the line and level tables are purged of entries that are not represented in the abundance fractions are saved in `BasePlasma.levels` and `BasePlasma.lines`. Finally, the function `BasePlasma.update_t_rad` is called at the end of initialization to update the plasma conditions to a new :math:`T_\textrm{radiation field}` (with the give t_rad). This function is the same in the other plasma classes and does the main part of the calculation. In the case of `BasePlasma` this is only setting `BasePlasma.beta_rad` to :math:`\frac{1}{k_\textrm{B}T_\textrm{rad}}`.
+
+The next more complex class is `LTEPlasma` which will calculate the ionization balance and level populations in Local Thermal Equilibrium conditions (LTE). The :class:`NebularPlasma`-class inherits from `LTEPlasma` and uses a more complex description of the BasePlasma.
+
 .. toctree::
     :maxdepth: 2
 
     lte_plasma
     nebular_plasma
-    macroatom
+
+TARDIS also allows for NLTE treatments of specified species, as well as special NLTE treatments for Helium.
+
+.. toctree::
+    :maxdepth: 2
+
     nlte
     helium_nlte
+    
+
+
+.. _tau_sobolev:
+
+Sobolev optical depth
+---------------------
+
+After the above calculations, TARDIS calculates the Sobolev optical depth :math:`\tau_\textrm{Sobolev}` with the following formula:
+
+
+.. math::
+    C_\textrm{Sobolev} = \frac{\pi e^2}{m_e c}
+
+    \tau_\textrm{Sobolev} = C_\textrm{Sobolev}\,  \lambda\, f_{\textrm{lower}\rightarrow\textrm{upper}}\,
+        t_\textrm{explosion}\, N_\textrm{lower}
+        (1 - \frac{g_\textrm{lower}}{g_\textrm{upper}}\frac{N_\textrm{upper}}{N_\textrm{lower}})
+        
+
+Macro Atom Line Interaction Treatment
+-------------------------------------
+
+The following page describes the macro atom treatment of line interactions:
+
+.. toctree::
+    :maxdepth: 2
+    
+    macroatom
