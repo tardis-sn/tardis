@@ -16,8 +16,8 @@ variables:
   results.url: 'http://opensupernova.org/~azuredevops/files/refdata-results'
   commit.sha: '$(Build.SourceVersion)'
   pr.number: '$(System.PullRequest.PullRequestNumber)'
-  ref1.hash: '0a890a0'
-  ref2.hash: 'b447418'
+  ref1.hash: 'b447418'
+  ref2.hash: 'b6e5283'
 
 pool:
   vmImage: 'ubuntu-latest'
