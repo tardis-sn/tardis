@@ -425,7 +425,7 @@ class SDECPlotter:
         )
 
     def _calculate_plotting_data(
-        self, packets_mode, packet_wvl_range, distance
+        self, packets_mode, packet_wvl_range, distance, nelements
     ):
         """
         Calculate data to be used in plotting based on parameters passed.
@@ -442,6 +442,8 @@ class SDECPlotter:
         distance : astropy.Quantity
             Distance used to calculate flux instead of luminosity in the plot.
             It should have a length unit like m, Mpc, etc.
+        nelements : int
+            The number of elements that the user wants to display
 
         Notes
         -----
@@ -532,6 +534,12 @@ class SDECPlotter:
             ]
             / self.lum_to_flux
         )
+
+        # nelements calculation here
+        # order the luminosity df's by contribution
+        # Combine all elements outside of nelements into one category: Other
+        # Modify self.elements to reflect nelements choice by user.
+        # Specify Other element to always be plotted in gray.
 
     def _calculate_emission_luminosities(self, packets_mode, packet_wvl_range):
         """
@@ -659,6 +667,8 @@ class SDECPlotter:
             .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
             .groupby(by="last_line_interaction_out_atom")
         )
+        # return this instead of calculating contributions below, calculate them
+        # instead in caller function: calculate_plotting_data()
 
         # Contribution of each element with which packets interacted ----------
         for atomic_number, group in packets_df_grouped:
@@ -793,6 +803,7 @@ class SDECPlotter:
         self,
         packets_mode="virtual",
         packet_wvl_range=None,
+        nelements=None,
         distance=None,
         show_modeled_spectrum=True,
         ax=None,
@@ -812,6 +823,12 @@ class SDECPlotter:
             should be a quantity having units of Angstrom, containing two
             values - lower lambda and upper lambda i.e.
             [lower_lambda, upper_lambda] * u.AA. Default value is None
+        nelements : int or None, optional
+            Number of elements that should be included in the SDEC plot.
+            The top nelements are determined based on those with the largest
+            cumulative luminosity contribution (within the wavelength range of
+            the model). Default value is None - that means all elements are
+            included.
         distance : astropy.Quantity or None, optional
             Distance used to calculate flux instead of luminosity in the plot.
             It should have a length unit like m, Mpc, etc. Default value is None
@@ -838,6 +855,7 @@ class SDECPlotter:
             packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
             distance=distance,
+            nelements=nelements,
         )
 
         if ax is None:
@@ -985,6 +1003,7 @@ class SDECPlotter:
         self,
         packets_mode="virtual",
         packet_wvl_range=None,
+        nelements=None,
         distance=None,
         observed_spectrum=None,
         show_modeled_spectrum=True,
@@ -1031,6 +1050,7 @@ class SDECPlotter:
             packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
             distance=distance,
+            nelements=nelements,
         )
 
         if fig is None:
