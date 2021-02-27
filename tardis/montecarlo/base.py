@@ -328,6 +328,48 @@ class MontecarloRunner(HDFWriterMixin):
         return u.Quantity(self._output_energy, u.erg)
 
     @property
+    def virtual_packet_nu(self):
+        try:
+            return u.Quantity(self.virt_packet_nus, u.Hz)
+        except AttributeError:
+            warnings.warn(
+                "MontecarloRunner.virtual_packet_nu:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
+
+    @property
+    def virtual_packet_energy(self):
+        try:
+            return u.Quantity(self.virt_packet_energies, u.erg)
+        except AttributeError:
+            warnings.warn(
+                "MontecarloRunner.virtual_packet_energy:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
+
+    @property
+    def virtual_packet_luminosity(self):
+        try:
+            return self.virtual_packet_energy / self.time_of_simulation
+        except TypeError:
+            warnings.warn(
+                "MontecarloRunner.virtual_packet_luminosity:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
+
+    @property
     def packet_luminosity(self):
         return self.output_energy / self.time_of_simulation
 
