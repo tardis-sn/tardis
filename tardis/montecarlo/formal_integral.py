@@ -250,26 +250,26 @@ class FormalIntegrator(object):
 
         r_middle_integ = (r_integ[:-1] + r_integ[1:]) / 2.0
 
-        runner.electron_densities_integ = interp1d(
+        runner.electron_densities_integ = pd.Series(interp1d(
             r_middle,
             plasma.electron_densities,
             fill_value="extrapolate",
             kind="nearest",
-        )(r_middle_integ)
+        )(r_middle_integ))
         # Assume tau_sobolevs to be constant within a shell
         # (as in the MC simulation)
-        runner.tau_sobolevs_integ = interp1d(
+        runner.tau_sobolevs_integ = pd.DataFrame(interp1d(
             r_middle,
             plasma.tau_sobolevs,
             fill_value="extrapolate",
             kind="nearest",
-        )(r_middle_integ)
+        )(r_middle_integ))
         att_S_ul = interp1d(r_middle, att_S_ul, fill_value="extrapolate")(
             r_middle_integ
         )
-        Jredlu = interp1d(r_middle, Jredlu, fill_value="extrapolate")(
+        Jredlu = pd.DataFrame(interp1d(r_middle, Jredlu, fill_value="extrapolate")(
             r_middle_integ
-        )
+        ))
         Jbluelu = interp1d(r_middle, Jbluelu, fill_value="extrapolate")(
             r_middle_integ
         )
