@@ -1,6 +1,7 @@
 ## Change Log
 
-### upcoming (2021/02/21 23:53 +00:00)
+### upcoming (2021/02/28 23:55 +00:00)
+- [#1462](https://github.com/tardis-sn/tardis/pull/1462) Renamed widgets subpackage to visualization and restructured modules within it (#1462) (@jaladh-singhal)
 - [#1464](https://github.com/tardis-sn/tardis/pull/1464) Fix the array types when interpolate_shells > 0 (@Rodot-)
 - [#1454](https://github.com/tardis-sn/tardis/pull/1454) Reorganizing Models (#1454) (@smithis7)
 - [#1458](https://github.com/tardis-sn/tardis/pull/1458) Added option to create redirects in docs configuration and redirected gui to visualization (#1458) (@jaladh-singhal)
