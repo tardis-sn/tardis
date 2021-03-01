@@ -767,19 +767,36 @@ class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
         The total free-bound cooling rate of the electron gas.
     C_fb : pandas.DataFrame, dtype float
         The individual free-bound cooling rates of the electron gas.
+    p_fb_deac: pandas.DataFrame, dtype float
+        Probabilities of free-bound cooling in a specific continuum
+        (identified by its continuum_idx).
     """
 
-    outputs = ("C_fb_tot", "C_fb")
+    outputs = ("C_fb_tot", "C_fb", "p_fb_deac")
     transition_probabilities_outputs = ("C_fb_tot",)
     latex_name = ("C^{\\textrm{fb, tot}}", "C^{\\textrm{fb}}")
 
-    def calculate(self, c_fb_sp, electron_densities, ion_number_density):
+    def calculate(
+        self,
+        c_fb_sp,
+        electron_densities,
+        ion_number_density,
+        level2continuum_idx,
+    ):
         next_ion_stage_index = get_ion_multi_index(c_fb_sp.index)
         n_k = ion_number_density.loc[next_ion_stage_index]
 
         C_fb = c_fb_sp.multiply(electron_densities, axis=1) * n_k.values
         C_fb_tot = cooling_rate_series2dataframe(C_fb.sum(axis=0), "bf")
-        return C_fb_tot, C_fb
+
+        p_fb_deac = C_fb / C_fb_tot.values
+        # TODO: this will be needed more often; put it in a function
+        continuum_idx = level2continuum_idx.loc[p_fb_deac.index].values
+        p_fb_deac = p_fb_deac.set_index(continuum_idx).sort_index(
+            ascending=True
+        )
+        p_fb_deac.index.name = "continuum_idx"
+        return C_fb_tot, C_fb, p_fb_deac
 
 
 class BoundFreeOpacity(ProcessingPlasmaProperty):

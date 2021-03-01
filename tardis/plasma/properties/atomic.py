@@ -92,11 +92,16 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     energy_i: pandas.Series, dtype float
         Energies of levels with bound-free transitions. Needed to calculate
         for example internal transition probabilities in the macro atom scheme.
-    photo_ion_index: Pandas MultiIndex, dtype int
+    photo_ion_index: pandas.MultiIndex, dtype int
         Atomic, ion and level numbers for which photoionization data exists.
+    level2continuum_idx: pandas.Series, dtype int
+        Maps a level MultiIndex (atomic_number, ion_number, level_number) to
+        the continuum_idx of the corresponding bound-free continuum (which are
+        sorted by decreasing frequency).
     """
     outputs = ('photo_ion_cross_sections', 'photo_ion_block_references',
-               'photo_ion_index', 'nu_i', 'energy_i', 'photo_ion_idx')
+               'photo_ion_index', 'nu_i', 'energy_i', 'photo_ion_idx',
+               'level2continuum_idx')
     latex_name = ('\\xi_{\\textrm{i}}(\\nu)', '', '', '\\nu_i',
                   '\\epsilon_i', '')
 
@@ -124,8 +129,14 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
              'destination_level_idx': destination_idx.values},
             index=photo_ion_index
         )
+
+        level2continuum_edge_idx = pd.Series(
+            np.arange(len(nu_i)),
+            nu_i.sort_values(ascending=False).index,
+            name='continuum_idx'
+        )
         return (photoionization_data, block_references, photo_ion_index, nu_i,
-                energy_i, photo_ion_idx)
+                energy_i, photo_ion_idx, level2continuum_edge_idx)
 
 
 class LinesLowerLevelIndex(HiddenPlasmaProperty):
