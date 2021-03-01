@@ -17,7 +17,8 @@ logger = logging.getLogger(__name__)
 
 __all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
            'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData',
-           'PhotoIonizationData', 'YgData', 'YgInterpolator']
+           'PhotoIonizationData', 'YgData', 'YgInterpolator',
+           'LevelIdxs2LineIdx']
 
 
 class Levels(BaseAtomicDataProperty):
@@ -165,6 +166,28 @@ class LinesUpperLevelIndex(HiddenPlasmaProperty):
                                  index=levels)
         lines_index = lines.index.droplevel('level_number_lower')
         return np.array(levels_index.loc[lines_index])
+
+
+class LevelIdxs2LineIdx(HiddenPlasmaProperty):
+    """
+    Attributes:
+    level_idxs2line_idx : pandas.Series, dtype int
+       Maps a source_level_idx destination_level_idx pair to a line_idx.
+    """
+    outputs = ('level_idxs2line_idx',)
+
+    def calculate(self, atomic_data):
+        index = pd.MultiIndex.from_arrays(
+            [atomic_data.lines_upper2level_idx,
+             atomic_data.lines_lower2level_idx],
+            names=['source_level_idx', 'destination_level_idx']
+        )
+        level_idxs2line_idx = pd.Series(
+            np.arange(len(index)),
+            index=index,
+            name='lines_idx'
+        )
+        return level_idxs2line_idx
 
 
 class AtomicMass(ProcessingPlasmaProperty):

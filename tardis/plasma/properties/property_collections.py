@@ -51,6 +51,6 @@ continuum_interaction_properties = PlasmaPropertyCollection(
      CollDeexcRateCoeff, BaseCollisionTransProbs, MarkovChainIndex,
      MarkovChainTransProbsCollector, FreeFreeCoolingRate, FreeBoundCoolingRate,
      BoundFreeOpacity, LevelNumberDensityLTE, PhotoIonBoltzmannFactor,
-     FreeBoundEmissionCDF]
+     FreeBoundEmissionCDF, LevelIdxs2LineIdx]
 )
 adiabatic_cooling_properties = PlasmaPropertyCollection([AdiabaticCoolingRate])
