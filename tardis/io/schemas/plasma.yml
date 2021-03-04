@@ -85,6 +85,10 @@ properties:
         type: boolean
         default: false
         description: enables adiabatic cooling of the electron gas
+      enable_two_photon_decay:
+        type: boolean
+        default: false
+        description: enables two photon decay processes
   helium_treatment:
     type: string
     default: none

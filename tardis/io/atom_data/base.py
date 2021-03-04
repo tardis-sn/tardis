@@ -89,6 +89,11 @@ class AtomData(object):
             index: numerical index;
             columns: atomic_number, ion_number, level_number, nu[Hz], x_sect[cm^2]
 
+    two_photon_data: pandas.DataFrame
+        A DataFrame containing the *two photon decay data* with:
+            index: atomic_number, ion_number, level_number_lower, level_number_upper
+            columns: A_ul[1/s], nu0[Hz], C[1/s], alpha, beta, gamma
+
     Attributes
     -------------
     prepared: bool
@@ -104,6 +109,7 @@ class AtomData(object):
     symbol2atomic_number: OrderedDict
     atomic_number2symbol OrderedDict
     photoionization_data: pandas.DataFrame
+    two_photon_data: pandas.DataFrame
 
     Methods
     --------
@@ -128,7 +134,8 @@ class AtomData(object):
             "collision_data_temperatures",
             "synpp_refs",
             "photoionization_data",
-            "yg_data"
+            "yg_data",
+            "two_photon_data"
     ]
 
     # List of tuples of the related dataframes.
@@ -193,7 +200,7 @@ class AtomData(object):
                  macro_atom_data=None, macro_atom_references=None,
                  zeta_data=None, collision_data=None,
                  collision_data_temperatures=None, synpp_refs=None,
-                 photoionization_data=None, yg_data=None):
+                 photoionization_data=None, yg_data=None, two_photon_data=None):
 
         self.prepared = False
 
@@ -242,6 +249,8 @@ class AtomData(object):
         self.photoionization_data = photoionization_data
 
         self.yg_data = yg_data
+
+        self.two_photon_data = two_photon_data
 
         self._check_related()
 

@@ -127,3 +127,6 @@ continuum_interaction_properties = PlasmaPropertyCollection(
     ]
 )
 adiabatic_cooling_properties = PlasmaPropertyCollection([AdiabaticCoolingRate])
+two_photon_properties = PlasmaPropertyCollection(
+    [BaseTwoPhotonTransProbs, TwoPhotonData, TwoPhotonEmissionCDF]
+)

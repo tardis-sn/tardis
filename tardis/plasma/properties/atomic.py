@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 __all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
            'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData',
            'PhotoIonizationData', 'YgData', 'YgInterpolator',
-           'LevelIdxs2LineIdx']
+           'LevelIdxs2LineIdx', 'TwoPhotonData']
 
 
 class Levels(BaseAtomicDataProperty):
@@ -138,6 +138,45 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
         )
         return (photoionization_data, block_references, photo_ion_index, nu_i,
                 energy_i, photo_ion_idx, level2continuum_edge_idx)
+
+
+class TwoPhotonData(ProcessingPlasmaProperty):
+    outputs = ('two_photon_data', 'two_photon_idx')
+    """
+    Attributes:
+    two_photon_data : pandas.DataFrame, dtype float
+        A DataFrame containing the *two photon decay data* with:
+            index: atomic_number, ion_number, level_number_lower, level_number_upper
+            columns: A_ul[1/s], nu0[Hz], C[1/s], alpha, beta, gamma
+        C, alpha, beta, gamma are fit coefficients for the frequency dependent
+        transition probability A(y) of the two photon decay. See Eq. 2 in
+        Nussbaumer & Schmutz (1984).
+    two_photon_idx: pandas.DataFrame, dtype int
+    """
+    def calculate(self, atomic_data, continuum_interaction_species):
+        two_photon_data = atomic_data.two_photon_data
+        mask_selected_species = two_photon_data.index.droplevel(
+            ['level_number_lower', 'level_number_upper']
+        ).isin(continuum_interaction_species)
+        if not mask_selected_species.sum():
+            raise IncompleteAtomicData(
+                'two photon transition data for the requested '
+                'continuum_interactions species: {}'.format(
+                    continuum_interaction_species.values.tolist())
+            )
+        two_photon_data = two_photon_data[mask_selected_species]
+        index_lower = two_photon_data.index.droplevel('level_number_upper')
+        index_upper = two_photon_data.index.droplevel('level_number_lower')
+        source_idx = atomic_data.macro_atom_references.loc[
+            index_upper].references_idx
+        destination_idx = atomic_data.macro_atom_references.loc[
+            index_lower].references_idx
+        two_photon_idx = pd.DataFrame(
+            {'source_level_idx': source_idx.values,
+             'destination_level_idx': destination_idx.values},
+            index=two_photon_data.index
+        )
+        return two_photon_data, two_photon_idx
 
 
 class LinesLowerLevelIndex(HiddenPlasmaProperty):

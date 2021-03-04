@@ -16,7 +16,9 @@ from tardis.plasma.properties.property_collections import (basic_inputs,
     nlte_properties, helium_nlte_properties, helium_numerical_nlte_properties,
     helium_lte_properties, detailed_j_blues_properties,
     detailed_j_blues_inputs, continuum_interaction_properties,
-    continuum_interaction_inputs, adiabatic_cooling_properties)
+    continuum_interaction_inputs, adiabatic_cooling_properties,
+    two_photon_properties)
+
 from tardis.plasma.exceptions import PlasmaConfigError
 
 from tardis.plasma.properties import (
@@ -124,6 +126,8 @@ def assemble_plasma(config, model, atom_data=None):
         if config.plasma.continuum_interaction.enable_adiabatic_cooling:
             plasma_modules += adiabatic_cooling_properties
 
+        if config.plasma.continuum_interaction.enable_two_photon_decay:
+            plasma_modules += two_photon_properties
 
         transition_probabilities_outputs = [
             plasma_property.transition_probabilities_outputs for

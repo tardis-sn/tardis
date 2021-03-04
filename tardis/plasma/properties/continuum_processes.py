@@ -36,6 +36,8 @@ __all__ = [
     "LevelNumberDensityLTE",
     "PhotoIonBoltzmannFactor",
     "FreeBoundEmissionCDF",
+    "BaseTwoPhotonTransProbs",
+    "TwoPhotonEmissionCDF",
 ]
 
 logger = logging.getLogger(__name__)
@@ -704,6 +706,105 @@ class BaseCollisionTransProbs(
             [p_deexc_deac, p_deexc_internal, p_exc_internal, p_exc_cool]
         )
         return p_coll
+
+
+class BaseTwoPhotonTransProbs(
+    TransitionProbabilitiesProperty, IndexSetterMixin
+):
+    """
+    Attributes
+    ----------
+    p_two_photon : pandas.DataFrame, dtype float
+        The unnormalized transition probabilities for two photon decay.
+    """
+
+    outputs = ("p_two_photon",)
+    transition_probabilities_outputs = ("p_two_photon",)
+
+    def calculate(self, two_photon_data, two_photon_idx, density):
+        no_shells = len(density)
+        p_two_phot = (
+            two_photon_data.A_ul * two_photon_data.nu0 * const.h.cgs.value
+        )
+        p_two_phot = pd.concat([p_two_phot] * no_shells, axis=1)
+        # TODO: In principle there could be internal two photon transitions
+        p_two_phot = self.set_index(
+            p_two_phot,
+            two_photon_idx,
+            transition_type=-1,
+            reverse=False,
+        )
+        p_two_phot.index = p_two_phot.index.set_levels(
+            ["two-photon"], level="destination_level_idx"
+        )
+        return p_two_phot
+
+
+class TwoPhotonEmissionCDF(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    two_photon_emission_cdf : pandas.DataFrame, dtype float
+        The cumulative distribution function (CDF) for the frequencies of
+        energy packets emitted in two photon transitions. The tabulated CDF
+        is used to sample packet frequencies in the Monte Carlo simulation.
+    """
+
+    outputs = ("two_photon_emission_cdf",)
+
+    def calculate(self, two_photon_data):
+        bins = 500
+        # The number of two photon transitions is very small
+        # and the CDF has to be calculated only once.
+        # There is no need to vectorize the calculation.
+        emission_cdfs = []
+        for index, row in two_photon_data.iterrows():
+            alpha = row.alpha
+            beta = row.beta
+            gamma = row.gamma
+            nu = np.linspace(0.0, row.nu0, bins)
+            y = nu / row.nu0
+            j_nu = self.calculate_j_nu(y, alpha, beta, gamma)
+
+            cdf = np.zeros_like(nu)
+            cdf[1:] = cumtrapz(j_nu, nu)
+            cdf /= cdf[-1]
+            index_cdf = pd.MultiIndex.from_tuples([index] * bins)
+            cdf = pd.DataFrame({"nu": nu, "cdf": cdf}, index=index_cdf)
+            emission_cdfs.append(cdf)
+        return pd.concat(emission_cdfs)
+
+    @staticmethod
+    def calculate_j_nu(y, alpha, beta, gamma):
+        """
+        Calculate two photon emissivity.
+
+        This function calculates the two photon emissivity in the frequency
+        scale based on Eq. 2 and Eq. 3 in Nussbaumer & Schmutz (1984). The
+        emissivity is not normalized since it is only used to calculate
+        relative emission probabilities.
+
+        Parameters
+        ----------
+        y : np.ndarray, dtype float
+            Emission frequency divided by that of the normal line
+            transition corresponding to the two photon decay.
+        alpha: float
+            Fit coefficient.
+        beta: float
+            Fit coefficient.
+        gamma: float
+            Fit coefficient.
+
+        Returns
+        -------
+        np.ndarray, dtype float
+            Unnormalized two photon emissivity in the frequency scale.
+        """
+        ay = y * (1 - y) * (1 - (4 * y * (1 - y)) ** gamma)
+        ay += alpha * (y * (1 - y)) ** beta * (4 * y * (1 - y)) ** gamma
+        j_nu = ay * y
+        return j_nu
 
 
 class AdiabaticCoolingRate(TransitionProbabilitiesProperty):
