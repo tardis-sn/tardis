@@ -111,7 +111,18 @@ propagation is stopped and it is no longer considered. Instead, processing the
 next packet of the population is started. Similarly, the propagation is stopped
 if the packet escapes through the outer surface of the domain. However, in this
 case the packet contributes to the final emergent spectrum (see :doc:`Spectrum
-Formation <virtualpackets>`).
+Formation <virtualpackets>`). The following figures summarize the calculations
+of these distances:
+
+The calculations for the distance to the outer boundary:
+
+.. image:: ../../graphics/d_outer.png
+    :width: 400
+
+The calculations for the distance to the inner boundary:
+
+.. image:: ../../graphics/d_inner.png
+    :width: 400
 
 Physical Events
 ===============
