@@ -17,6 +17,11 @@ properties:
     default: false
     description: disable electron scattering process in montecarlo part - non-physical
       only for tests
+  disable_line_scattering:
+    type: boolean
+    default: false
+    description: disable line scattering process in montecarlo part - non-physical
+      only for tests
   ionization:
     type: string
     enum:

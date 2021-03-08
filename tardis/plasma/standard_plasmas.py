@@ -29,7 +29,6 @@ from tardis.plasma.properties.property_collections import (
     adiabatic_cooling_properties,
     two_photon_properties,
 )
-
 from tardis.plasma.exceptions import PlasmaConfigError
 
 from tardis.plasma.properties import (
@@ -55,15 +54,15 @@ def assemble_plasma(config, model, atom_data=None):
 
     Parameters
     ----------
-    config: ~io.config_reader.Configuration
-    model: ~model.Radial1DModel
-    atom_data: ~atomic.AtomData
+    config : io.config_reader.Configuration
+    model : model.Radial1DModel
+    atom_data : atomic.AtomData
         If None, an attempt will be made to read the atomic data
         from config.
 
     Returns
     -------
-    : ~plasma.BasePlasma
+    : plasma.BasePlasma
 
     """
     # Convert the nlte species list to a proper format.
@@ -100,7 +99,7 @@ def assemble_plasma(config, model, atom_data=None):
                 e,
                 "Error might be from the use of an old-format of the atomic database, \n"
                 "please see https://github.com/tardis-sn/tardis-refdata/tree/master/atom_data"
-                ",for the most recent version.",
+                " for the most recent version.",
             )
             raise
 
@@ -192,8 +191,7 @@ def assemble_plasma(config, model, atom_data=None):
         property_kwargs[JBluesDetailed] = {"w_epsilon": config.plasma.w_epsilon}
     else:
         raise ValueError(
-            "radiative_rates_type type unknown - %s",
-            config.plasma.radiative_rates_type,
+            f"radiative_rates_type type unknown - {config.plasma.radiative_rates_type}"
         )
 
     if config.plasma.excitation == "lte":

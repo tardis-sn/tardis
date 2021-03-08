@@ -40,21 +40,24 @@ class Levels(BaseAtomicDataProperty):
     """
     Attributes
     ----------
-    levels : Pandas MultiIndex (atomic_number, ion_number, level_number)
-             Index of filtered atomic data. Index used for all other attribute dataframes for this class
-    excitation_energy : Pandas DataFrame (index=levels), dtype float
-             Excitation energies of atomic levels
-    metastability : Pandas DataFrame (index=levels), dtype bool
-             Records whether atomic levels are metastable
-    g : Pandas DataFrame (index=levels), dtype float
-             Statistical weights of atomic levels
+    levels : pandas.MultiIndex
+        (atomic_number, ion_number, level_number)
+        Index of filtered atomic data. Index used for all other attribute dataframes for this class
+    excitation_energy : pandas.DataFrame, dtype float
+        Excitation energies of atomic levels.
+        Index is levels.
+    metastability : pandas.DataFrame, dtype bool
+        Records whether atomic levels are metastable.
+        Index is levels.
+    g : pandas.DataFrame (index=levels), dtype float
+        Statistical weights of atomic levels.
     """
 
     outputs = ("levels", "excitation_energy", "metastability", "g")
     latex_name = (
-        "\\textrm{levels}",
-        "\\epsilon_{\\textrm{k}}",
-        "\\textrm{metastability}",
+        r"\textrm{levels}",
+        r"\epsilon_{\textrm{k}}",
+        r"\textrm{metastability}",
         "g",
     )
 
@@ -77,15 +80,16 @@ class Lines(BaseAtomicDataProperty):
     """
     Attributes
     ----------
-    lines : Pandas DataFrame (wavelength, atomic_number, ion_number, f_ul, f_lu, level_number_lower,
-                              level_number_upper, nu, B_lu, B_ul, A_ul, wavelength)
-            All atomic lines data. Index = line_id.
-    nu : Pandas DataFrame (index=line_id), dtype float
-            Line frequency data
-    f_lu : Pandas DataFrame (index=line_id), dtype float
-            Transition probability data
-    wavelength_cm: Pandas DataFrame (index=line_id), dtype float
-            Line wavelengths in cm
+    lines : pandas.DataFrame
+        Atomic lines data. Columns are wavelength, atomic_number,ion_number,
+        f_ul, f_lu, level_number_lower, level_number_upper, nu, B_lu, B_ul, A_ul,
+        wavelength. Index is line_id.
+    nu : pandas.DataFrame, dtype float
+        Line frequency data. Index is line_id.
+    f_lu : pandas.DataFrame, dtype float
+        Transition probability data. Index is line_id.
+    wavelength_cm : pandas.DataFrame, dtype float
+        Line wavelengths in cm. Index is line_id.
     """
 
     # Would like for lines to just be the line_id values
@@ -104,15 +108,13 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    photo_ion_cross_sections: pandas.DataFrame (nu, x_sect,
-                                                index=['atomic_number',
-                                                       'ion_number',
-                                                       'level_number']),
-                                                dtype float)
-        Table of photoionization cross sections as a function of frequency.
-    photo_ion_block_references: One-dimensional Numpy Array, dtype int
-        Indices where the photoionization data for a given level starts.
-        Needed for calculation of recombination rates.
+    photo_ion_cross_sections : pandas.DataFrame, dtype float
+        Photoionization cross sections as a function of frequency.
+        Columns are nu, x_sect, index=('atomic_number','ion_number','level_number')
+    photo_ion_block_references : numpy.ndarray, dtype int
+        Indices where the photoionization data for
+        a given level starts. Needed for calculation
+        of recombination rates.
     nu_i: pandas.Series, dtype float
         Threshold frequencies for ionization
     energy_i: pandas.Series, dtype float
@@ -136,11 +138,11 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
         "level2continuum_idx",
     )
     latex_name = (
-        "\\xi_{\\textrm{i}}(\\nu)",
+        r"\xi_{\textrm{i}}(\nu)",
         "",
         "",
-        "\\nu_i",
-        "\\epsilon_i",
+        r"\nu_i",
+        r"\epsilon_i",
         "",
     )
 
@@ -237,8 +239,9 @@ class TwoPhotonData(ProcessingPlasmaProperty):
 
 class LinesLowerLevelIndex(HiddenPlasmaProperty):
     """
-    Attributes:
-    lines_lower_level_index : One-dimensional Numpy Array, dtype int
+    Attributes
+    ----------
+    lines_lower_level_index : numpy.ndrarray, dtype int
         Levels data for lower levels of particular lines
     """
 
@@ -254,8 +257,9 @@ class LinesLowerLevelIndex(HiddenPlasmaProperty):
 
 class LinesUpperLevelIndex(HiddenPlasmaProperty):
     """
-    Attributes:
-    lines_upper_level_index : One-dimensional Numpy Array, dtype int
+    Attributes
+    ----------
+    lines_upper_level_index : numpy.ndarray, dtype int
         Levels data for upper levels of particular lines
     """
 
@@ -294,8 +298,9 @@ class LevelIdxs2LineIdx(HiddenPlasmaProperty):
 
 class AtomicMass(ProcessingPlasmaProperty):
     """
-    Attributes:
-    atomic_mass : Pandas Series
+    Attributes
+    ----------
+    atomic_mass : pandas.Series
         Atomic masses of the elements used. Indexed by atomic number.
     """
 
@@ -310,8 +315,10 @@ class AtomicMass(ProcessingPlasmaProperty):
 
 class IonizationData(BaseAtomicDataProperty):
     """
-    Attributes:
-    ionization_data : Pandas Series holding ionization energies
+    Attributes
+    ----------
+    ionization_data : pandas.Series
+        Holding ionization energies
         Indexed by atomic number, ion number.
     """
 
@@ -338,8 +345,9 @@ class IonizationData(BaseAtomicDataProperty):
 
 class ZetaData(BaseAtomicDataProperty):
     """
-    Attributes:
-    zeta_data : Pandas DataFrame, dtype float
+    Attributes
+    ----------
+    zeta_data : pandas.DataFrame, dtype float
         Zeta data for the elements used. Indexed by atomic number, ion number.
         Columns are temperature values up to 40,000 K in iterations of 2,000 K.
         The zeta value represents the fraction of recombination events
@@ -402,9 +410,10 @@ class ZetaData(BaseAtomicDataProperty):
 
 class NLTEData(ProcessingPlasmaProperty):
     """
-        Attributes:
-        nlte_data :
-    #Finish later (need atomic dataset with NLTE data).
+    Attributes
+    ----------
+    nlte_data :
+        #Finish later (need atomic dataset with NLTE data).
     """
 
     outputs = ("nlte_data",)

@@ -1,7 +1,9 @@
 # functions that are important for the general usage of TARDIS
 
-def run_tardis(config, atom_data=None, packet_source=None,
-               simulation_callbacks=[]):
+
+def run_tardis(
+    config, atom_data=None, packet_source=None, simulation_callbacks=[]
+):
     """
     This function is one of the core functions to run TARDIS from a given
     config object.
@@ -10,11 +12,9 @@ def run_tardis(config, atom_data=None, packet_source=None,
 
     Parameters
     ----------
-
-    config: ~str or ~dict
+    config : str or dict
         filename of configuration yaml file or dictionary
-
-    atom_data: ~str or ~tardis.atomic.AtomData
+    atom_data : str or tardis.atomic.AtomData
         if atom_data is a string it is interpreted as a path to a file storing
         the atomic data. Atomic data to use for this TARDIS simulation. If set to None, the
         atomic data will be loaded according to keywords set in the configuration
@@ -35,11 +35,11 @@ def run_tardis(config, atom_data=None, packet_source=None,
     except TypeError:
         tardis_config = Configuration.from_config_dict(config)
 
-    simulation = Simulation.from_config(tardis_config,
-                                        packet_source=packet_source,
-                                        atom_data=atom_data)
+    simulation = Simulation.from_config(
+        tardis_config, packet_source=packet_source, atom_data=atom_data
+    )
     for cb in simulation_callbacks:
-        simulation.add_callback(cb)
+        simulation.add_callback(*cb)
 
     simulation.run()
 

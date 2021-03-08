@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 class Radial1DModel(HDFWriterMixin):
-    """An object that hold information about the individual shells.
+    """
+    An object that hold information about the individual shells.
 
     Parameters
     ----------
@@ -28,8 +29,7 @@ class Radial1DModel(HDFWriterMixin):
         An array with n+1 (for n shells) velocities "cut" to the provided
         boundaries
 
-        .. note:: To access the entire, "uncut", velocity array,
-        use `raw_velocity`
+        .. note:: To access the entire, "uncut", velocity array, use `raw_velocity`
     homologous_density : HomologousDensity
     abundance : pd.DataFrame
     time_explosion : astropy.units.Quantity
@@ -50,7 +50,6 @@ class Radial1DModel(HDFWriterMixin):
 
     Attributes
     ----------
-    
     w : numpy.ndarray
         Shortcut for `dilution_factor`
     t_rad : astropy.units.quantity.Quantity
@@ -68,11 +67,10 @@ class Radial1DModel(HDFWriterMixin):
         The number of shells as formed by `v_boundary_inner` and
         `v_boundary_outer`
     no_of_raw_shells : int
-
-
     """
 
-    hdf_properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer', 'homologous_density']
+    hdf_properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer',
+                      'homologous_density', 'r_inner']
     hdf_name = 'model'
 
     def __init__(self, velocity, homologous_density, abundance, isotope_abundance,
@@ -374,7 +372,6 @@ class Radial1DModel(HDFWriterMixin):
         Returns
         -------
         Radial1DModel
-
         """
         time_explosion = config.supernova.time_explosion.cgs
 
@@ -471,7 +468,6 @@ class Radial1DModel(HDFWriterMixin):
         Returns
         -------
         Radial1DModel
-
         """
         CSVY_SUPPORTED_COLUMNS = {'velocity', 'density', 't_rad', 'dilution_factor'}
 
@@ -589,14 +585,16 @@ class Radial1DModel(HDFWriterMixin):
             abundance, isotope_abundance = read_uniform_abundances(abundances_section, no_of_shells)
         else:
             index, abundance, isotope_abundance = parse_csv_abundances(csvy_model_data)
-
+            abundance = abundance.loc[:, 1:]
+            abundance.columns = np.arange(abundance.shape[1])
+            isotope_abundance = isotope_abundance.loc[:, 1:]
+            isotope_abundance.columns = np.arange(isotope_abundance.shape[1])
 
 
         abundance = abundance.replace(np.nan, 0.0)
         abundance = abundance[abundance.sum(axis=1) > 0]
-        abundance = abundance.loc[:, 1:]
-        abundance.columns = np.arange(abundance.shape[1])
-
+        isotope_abundance = isotope_abundance.replace(np.nan, 0.0)
+        isotope_abundance = isotope_abundance[isotope_abundance.sum(axis=1) > 0]
         norm_factor = abundance.sum(axis=0) + isotope_abundance.sum(axis=0)
 
         if np.any(np.abs(norm_factor - 1) > 1e-12):

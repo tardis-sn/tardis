@@ -5,6 +5,9 @@
 *.so
 __pycache__
 
+# Logging
+*.log
+
 
 # Ignore .c files by default to avoid including generated code. If you want to
 # add a non-generated .c extension, use `git add -f filename.c`.
@@ -18,6 +21,7 @@ __pycache__
 htmlcov
 .coverage
 .ipynb_checkpoints/
+.pytest_cache/
 
 
 # IDE Specific files
@@ -71,6 +75,3 @@ distribute-*.tar.gz
 
 # Mac OSX
 .DS_Store
-
-# Jupyter checkpoints
-.ipynb_checkpoints

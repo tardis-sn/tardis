@@ -1,9 +1,20 @@
-from tardis.plasma.properties.base import (Input, ArrayInput, DataFrameInput)
+from tardis.plasma.properties.base import Input, ArrayInput, DataFrameInput
 
-__all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
-           'TimeExplosion', 'JBlueEstimator', 'LinkTRadTElectron',
-           'HeliumTreatment', 'RInner', 'TInner', 'Volume',
-           'ContinuumInteractionSpecies']
+__all__ = [
+    "TRadiative",
+    "DilutionFactor",
+    "AtomicData",
+    "Abundance",
+    "Density",
+    "TimeExplosion",
+    "JBlueEstimator",
+    "LinkTRadTElectron",
+    "HeliumTreatment",
+    "RInner",
+    "TInner",
+    "Volume",
+    "ContinuumInteractionSpecies",
+]
 
 
 class TRadiative(ArrayInput):
@@ -12,8 +23,9 @@ class TRadiative(ArrayInput):
     ----------
     t_rad : Numpy Array, dtype float
     """
-    outputs = ('t_rad',)
-    latex_name = ('T_{\\textrm{rad}}',)
+
+    outputs = ("t_rad",)
+    latex_name = (r"T_{\textrm{rad}}",)
 
 
 class DilutionFactor(ArrayInput):
@@ -24,8 +36,9 @@ class DilutionFactor(ArrayInput):
         Factor used in nebular ionisation / dilute excitation calculations
         to account for the dilution of the radiation field.
     """
-    outputs = ('w',)
-    latex_name = ('W',)
+
+    outputs = ("w",)
+    latex_name = ("W",)
 
 
 class AtomicData(Input):
@@ -34,7 +47,8 @@ class AtomicData(Input):
     ----------
     atomic_data : Object
     """
-    outputs = ('atomic_data',)
+
+    outputs = ("atomic_data",)
 
 
 class Abundance(Input):
@@ -42,9 +56,10 @@ class Abundance(Input):
     Attributes
     ----------
     abundance : Numpy array, dtype float
-                Fractional abundance of elements
+        Fractional abundance of elements
     """
-    outputs = ('abundance',)
+
+    outputs = ("abundance",)
 
 
 class Density(ArrayInput):
@@ -52,21 +67,23 @@ class Density(ArrayInput):
     Attributes
     ----------
     density : Numpy array, dtype float
-              Total density values
+      Total density values
     """
-    outputs = ('density',)
-    latex_name = ('\\rho',)
+
+    outputs = ("density",)
+    latex_name = (r"\rho",)
 
 
 class TimeExplosion(Input):
     """
     Attributes
-    ----------s
+    ----------
     time_explosion : Float
-                     Time since explosion in seconds
+         Time since explosion in seconds
     """
-    outputs = ('time_explosion',)
-    latex_name = ('t_{\\textrm{exp}}',)
+
+    outputs = ("time_explosion",)
+    latex_name = (r"t_{\textrm{exp}}",)
 
 
 class JBlueEstimator(ArrayInput):
@@ -75,8 +92,9 @@ class JBlueEstimator(ArrayInput):
     ----------
     j_blue_estimators : Numpy array
     """
-    outputs = ('j_blue_estimators',)
-    latex_name = ('J_{\\textrm{blue-estimator}}',)
+
+    outputs = ("j_blue_estimators",)
+    latex_name = (r"J_{\textrm{blue-estimator}}",)
 
 
 class LinkTRadTElectron(Input):
@@ -84,35 +102,37 @@ class LinkTRadTElectron(Input):
     Attributes
     ----------
     link_t_rad_t_electron : Float
-                            Value used for estimate of electron temperature.
-                            Default is 0.9.
+        Value used for estimate of electron temperature.
+        Default is 0.9.
     """
-    outputs = ('link_t_rad_t_electron',)
-    latex_name = ('T_{\\textrm{electron}}/T_{\\textrm{rad}}',)
+
+    outputs = ("link_t_rad_t_electron",)
+    latex_name = (r"T_{\textrm{electron}}/T_{\textrm{rad}}",)
 
 
 class HeliumTreatment(Input):
-    outputs = ('helium_treatment',)
+    outputs = ("helium_treatment",)
 
 
 class RInner(Input):
-    outputs = ('r_inner',)
+    outputs = ("r_inner",)
 
 
 class TInner(Input):
-    outputs = ('t_inner',)
+    outputs = ("t_inner",)
 
 
 class Volume(Input):
-    outputs = ('volume',)
+    outputs = ("volume",)
 
 
 class ContinuumInteractionSpecies(Input):
     """
     Attributes
     ----------
-    continuum_interaction_species: Pandas MultiIndex, dtype int
+    continuum_interaction_species : Pandas MultiIndex, dtype int
         Atomic and ion numbers of elements for which continuum interactions
         (radiative/collisional ionization and recombination) are treated
     """
-    outputs = ('continuum_interaction_species',)
+
+    outputs = ("continuum_interaction_species",)

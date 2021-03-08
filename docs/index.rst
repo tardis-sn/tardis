@@ -9,7 +9,7 @@
 ..    </style>
 
 ##################################
-Tardis Core Package Documentation
+TARDIS Core Package Documentation
 ##################################
 
 .. image:: graphics/tardis_banner.svg
@@ -22,13 +22,24 @@ including software engineers, computer scientists, statisticians,
 and astrophysicists.
 
 If you use this code for any publications or presentations please follow our
-citation guidelines in :ref:`tardiscredits`
+citation guidelines in :ref:`tardiscredits`.
 
 User modifications and additions that lead to publications **need to be handed
 back to the community** by incorporating them into TARDIS.
-Please contact the TARDIS team via the `github page
+Please contact the TARDIS team via the `GitHub page
 <https://github.com/tardis-sn/tardis>`_ if you have questions or need
 assistance.
+
+-----------------
+Mission Statement
+-----------------
+
+    *The mission of the TARDIS community is to develop open-source software 
+    instruments to analyze and simulate astronomical transients 
+    (supernovae, kilonovae, etc.) for research and education purposes. 
+    We aim to build up a diverse group of researchers and developers 
+    using an open-community model that emphasizes interdisciplinary 
+    research and science reproducibility.*
 
 
 
@@ -46,18 +57,19 @@ assistance.
     :caption: Using TARDIS
     :hidden:
 
-
-    running/index
+    using/components/index
+    using/visualization/index
+    using/interaction/index
 
 
 .. toctree::
     :maxdepth: 2
     :caption: The Physics of TARDIS
     :hidden:
-
-    Physics overview <physics/index>
-    physics/plasma/index
+    
     physics/montecarlo/index
+    physics/plasma/index
+    physics/old_physics/index
 
 
 .. toctree::
@@ -73,17 +85,20 @@ assistance.
     :caption: Team & Credits
     :hidden:
 
-    team
+    team_and_governance/index
     credits
+    Code of Conduct <CODE_OF_CONDUCT.md>
 
 
 .. toctree::
     :maxdepth: 2
-    :caption: Developers Guide
+    :caption: Contributing to TARDIS
     :hidden:
 
+    CONTRIBUTING.md
     development/index
     CHANGELOG.md
+    roadmap
 
 .. toctree::
     :maxdepth: 2
@@ -105,4 +120,3 @@ News
 ====
 
 .. include:: news.rst
-

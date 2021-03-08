@@ -2,12 +2,12 @@ LTE Plasma
 ----------
 
 The `LTEPlasma` plasma class is the child of `BasePlasma` but is the first class that actually calculates plasma conditions.
-After running exactley through the same steps as `BasePlasma`, `LTEPlasma` will start calculating the `partition functions <http://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics)>`_.
+After running exactly through the same steps as `BasePlasma`, `LTEPlasma` will start calculating the `partition functions <http://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics)>`_.
 
 .. math::
     Z_{i, j} = \sum_{k=0}^{max (k)} g_k \times e^{-E_k / (k_\textrm{b} T)}
 
-, where Z is the partition function, g is the degeneracy factor, E the energy of the level and T the temperature of the radiation field.
+where Z is the partition function, g is the degeneracy factor, E the energy of the level and T the temperature of the radiation field.
 
 The next step is to calculate the ionization balance using the `Saha ionization equation <http://en.wikipedia.org/wiki/Saha_ionization_equation>`_.
 and then calculating the Number density of the ions (and an electron number density) in a second step.
@@ -30,11 +30,11 @@ In the second step (`LTEPlasma.calculate_ionization_balance`), we calculate in a
     N_1 &= \frac{N(X)}{\alpha}
 
 Initially, we set the electron density (:math:`N_e`) to the sum of all atom number densities. After having calculated the
-ion species number densities we recalculated the electron density by weighting the ion species number densities with their
+ion species number densities, we recalculate the electron density by weighting the ion species number densities with their
 ion number (e.g. neutral ion number densities don't contribute at all to the electron number density, once ionized contribute with a
 factor of 1, twice ionized contribute with a factor of two, ....).
 
-Finally we calculate the level populations (`LTEPlasma.calculate_level_populations`), by using the calculated ion species number densities:
+Finally, we calculate the level populations (`LTEPlasma.calculate_level_populations`) by using the calculated ion species number densities:
 
 .. math::
     N_{i, j, k} = \frac{g_k}{Z_{i, j}}\times N_{i, j} \times e^{-\beta_\textrm{rad} E_k}
