@@ -1,46 +1,36 @@
 ---
 title: 'TARDIS: a framework for transient radiative transfer'
-
 tags:
 - Python
 - radiative transfer
 - astrophysics
-
 authors:
 - name: Wolfgang E. Kerzendorf
   orcid: 0000-0002-0479-7235
   affiliation: 1
 
-authors:
-- name: and others
-  orcid: XXXX
-  affiliation: 1
-
 affiliations:
 - name: Department of Physics and Astronomy
   index: 1
-
-bibliography: paper.bib
+bibliography: tardis.bib
 ---
 
 # Summary
 
-TARDIS is a radiative-transfer framework using Monte-Carlo techniques to calculate synthetic spectra transients (with a specific focus). The code calculates a synthetic spectrum from a 1D model input assuming homologous expansion. The input model is structured into different shells with the required parameters of density and isotopic/elemental mass fractions. The current version of TARDIS then calculates the spectrum assuming a steady-state solution at a given time after explosion. The code scales the model (density and radii) and injects energy approximated by an inner boundary black-body of a given temperature.
+TARDIS is a radiative-transfer framework using Monte-Carlo techniques to calculate synthetic spectra for transients. The code is an open-science implementation of the indivisible energy-packet Monte Carlo formalism [@Abbott1985].  The code calculates a synthetic spectrum from a 1D model input assuming homologous expansion. The input model is structured into different shells with the required parameters of density and isotopic/elemental mass fractions. The current version of TARDIS then calculates the spectrum assuming a steady-state solution at a given time after explosion. The code scales the model (density and radii) and injects energy approximated by an inner boundary black-body of a given temperature.
 
-# Detailed physics description
+# Statement of Need
 
-TARDIS uses a 1D input model (spherically symmetric shells; called cells in our documentation) that requires at the very least a density an elemental/isotopic mass fraction. The model can include more information such as radiative temperature, electron gas temperature, and ??? that will be taken into account at time of computation. Following the parsing of the input model, the code scales the densities and radii of the model to the appropriate time after explosion. We use the PYNE toolkit to calculate the decay chains for any isotopes that are potentially given and then generate a dataframe with elemental abundances for the given time after explosion. The team is currently working on an extension to include energy from nuclear decay into account (requiring gamma-ray deposition). 
+Supernovae are critical components of the Universe and impact large fields of astronomy. The community has invested considerable resources to acquire high-quality data of many of these transient phenomena. However, the analysis of these data (especially by comparison to highly complex simulations) has been lacking as only very few scientists can run these complex codes. 
 
-TARDIS can calculate the plasma state using a variety of different approximation ranging from simple pure thermal approximation via semi-analytical to full Non-LTE calculations (currently only for excitation). The final step in the plasma calculation phase is to calculate optical depths (assuming a Sobolev approximation) for the radiative transfer step.
+Answering the question of the connection between progenitor stars, explosion mechanisms, and the wide range of observed SNe requires models that allow us to investigate the physical processes that are involved. Stellar evolution codes simulate the process across long time-scales from stellar birth to the point of explosions. Spectral synthesis is a critical component of the aforementioned link between SNe and the processes that produce them. Specifically, there are large collections of supernova spectra available from dedicated repositories (cite wise; cite sne.space).
 
-The Monte Carlo radiative transfer part uses an indivisible packet scheme in which each packet is described by a frequency, an energy (can be thought of as a collection of photons), a direction, and position in the ejecta. The packet can interact through several physical mechanisms (line interaction, thomson scattering) and can change direction on the path throught the ejecta. The final outcome is that the packet escapes the outer boundary is counted towards the spectrum or moves to the inner boundary and is reabsorbed and lost. The code tracks several packet statistics that are used to calculate the state of the radiation field (e.g. temperature).  
-
-The updated radiation field parameters are then used in the plasma part to calculate a new plasma state. The MonteCarlo calculation and the plasma calculation are then performed iteratively until the plasma parameters converge. The code returns a converged model and several spectral outputs (specifically a formal integral solution).
-
-
+TARDIS aims to provide a community-developed open-science based code designed to synthesize spectra for transients from parameterized abundance and density models. The code is structured in a modular way that allows to use different microphysics approximations for different applications (e.g. an analytical NLTE solution for computational expedience, a numerical NLTE solution for accuracy). The TARDIS framework also provides an open reference implementation of the widely used indivisible energy packet Monte Carlo method which is used in several other radiative transfer codes. 
 
 # Acknowledgements
 
-XXXX
+The TARDIS community would like to acknowledge the continued support from the Google Summer of Code initiative and the Python Software Foundation. We have received support from NumFOCUS. The PI was supported by an ESO Fellowship for part of the project.
+
+
 
 # References
