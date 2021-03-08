@@ -7,18 +7,33 @@ from scipy.interpolate import PchipInterpolator
 from collections import Counter as counter
 from astropy import constants as const
 
-from tardis.plasma.properties.base import (ProcessingPlasmaProperty,
-    HiddenPlasmaProperty, BaseAtomicDataProperty)
+from tardis.plasma.properties.base import (
+    ProcessingPlasmaProperty,
+    HiddenPlasmaProperty,
+    BaseAtomicDataProperty,
+)
 from tardis.plasma.exceptions import IncompleteAtomicData
 from tardis.plasma.properties.continuum_processes import (
-    get_ground_state_multi_index)
+    get_ground_state_multi_index,
+)
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
-           'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData',
-           'PhotoIonizationData', 'YgData', 'YgInterpolator',
-           'LevelIdxs2LineIdx', 'TwoPhotonData']
+__all__ = [
+    "Levels",
+    "Lines",
+    "LinesLowerLevelIndex",
+    "LinesUpperLevelIndex",
+    "AtomicMass",
+    "IonizationData",
+    "ZetaData",
+    "NLTEData",
+    "PhotoIonizationData",
+    "YgData",
+    "YgInterpolator",
+    "LevelIdxs2LineIdx",
+    "TwoPhotonData",
+]
 
 
 class Levels(BaseAtomicDataProperty):
@@ -34,9 +49,14 @@ class Levels(BaseAtomicDataProperty):
     g : Pandas DataFrame (index=levels), dtype float
              Statistical weights of atomic levels
     """
-    outputs = ('levels', 'excitation_energy', 'metastability', 'g')
-    latex_name = ('\\textrm{levels}', '\\epsilon_{\\textrm{k}}', '\\textrm{metastability}',
-        'g')
+
+    outputs = ("levels", "excitation_energy", "metastability", "g")
+    latex_name = (
+        "\\textrm{levels}",
+        "\\epsilon_{\\textrm{k}}",
+        "\\textrm{metastability}",
+        "g",
+    )
 
     def _filter_atomic_property(self, levels, selected_atoms):
         return levels
@@ -45,8 +65,12 @@ class Levels(BaseAtomicDataProperty):
     def _set_index(self, levels):
         # levels = levels.set_index(['atomic_number', 'ion_number',
         #                          'level_number'])
-        return (levels.index, levels['energy'], levels['metastable'],
-            levels['g'])
+        return (
+            levels.index,
+            levels["energy"],
+            levels["metastable"],
+            levels["g"],
+        )
 
 
 class Lines(BaseAtomicDataProperty):
@@ -63,8 +87,9 @@ class Lines(BaseAtomicDataProperty):
     wavelength_cm: Pandas DataFrame (index=line_id), dtype float
             Line wavelengths in cm
     """
-# Would like for lines to just be the line_id values
-    outputs = ('lines', 'nu', 'f_lu', 'wavelength_cm')
+
+    # Would like for lines to just be the line_id values
+    outputs = ("lines", "nu", "f_lu", "wavelength_cm")
 
     def _filter_atomic_property(self, lines, selected_atoms):
         # return lines[lines.atomic_number.isin(selected_atoms)]
@@ -72,7 +97,7 @@ class Lines(BaseAtomicDataProperty):
 
     def _set_index(self, lines):
         # lines.set_index('line_id', inplace=True)
-        return lines, lines['nu'], lines['f_lu'], lines['wavelength_cm']
+        return lines, lines["nu"], lines["f_lu"], lines["wavelength_cm"]
 
 
 class PhotoIonizationData(ProcessingPlasmaProperty):
@@ -100,20 +125,34 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
         the continuum_idx of the corresponding bound-free continuum (which are
         sorted by decreasing frequency).
     """
-    outputs = ('photo_ion_cross_sections', 'photo_ion_block_references',
-               'photo_ion_index', 'nu_i', 'energy_i', 'photo_ion_idx',
-               'level2continuum_idx')
-    latex_name = ('\\xi_{\\textrm{i}}(\\nu)', '', '', '\\nu_i',
-                  '\\epsilon_i', '')
+
+    outputs = (
+        "photo_ion_cross_sections",
+        "photo_ion_block_references",
+        "photo_ion_index",
+        "nu_i",
+        "energy_i",
+        "photo_ion_idx",
+        "level2continuum_idx",
+    )
+    latex_name = (
+        "\\xi_{\\textrm{i}}(\\nu)",
+        "",
+        "",
+        "\\nu_i",
+        "\\epsilon_i",
+        "",
+    )
 
     def calculate(self, atomic_data, continuum_interaction_species):
         photoionization_data = atomic_data.photoionization_data.set_index(
-            ['atomic_number', 'ion_number', 'level_number']
+            ["atomic_number", "ion_number", "level_number"]
         )
         mask_selected_species = photoionization_data.index.droplevel(
-            'level_number').isin(continuum_interaction_species)
+            "level_number"
+        ).isin(continuum_interaction_species)
         photoionization_data = photoionization_data[mask_selected_species]
-        phot_nus = photoionization_data['nu']
+        phot_nus = photoionization_data["nu"]
         block_references = np.pad(
             phot_nus.groupby(level=[0, 1, 2]).count().values.cumsum(), [1, 0]
         )
@@ -122,26 +161,37 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
         energy_i = atomic_data.levels.loc[photo_ion_index].energy
 
         source_idx = atomic_data.macro_atom_references.loc[
-            photo_ion_index].references_idx
+            photo_ion_index
+        ].references_idx
         destination_idx = atomic_data.macro_atom_references.loc[
-            get_ground_state_multi_index(photo_ion_index)].references_idx
+            get_ground_state_multi_index(photo_ion_index)
+        ].references_idx
         photo_ion_idx = pd.DataFrame(
-            {'source_level_idx': source_idx.values,
-             'destination_level_idx': destination_idx.values},
-            index=photo_ion_index
+            {
+                "source_level_idx": source_idx.values,
+                "destination_level_idx": destination_idx.values,
+            },
+            index=photo_ion_index,
         )
 
         level2continuum_edge_idx = pd.Series(
             np.arange(len(nu_i)),
             nu_i.sort_values(ascending=False).index,
-            name='continuum_idx'
+            name="continuum_idx",
         )
-        return (photoionization_data, block_references, photo_ion_index, nu_i,
-                energy_i, photo_ion_idx, level2continuum_edge_idx)
+        return (
+            photoionization_data,
+            block_references,
+            photo_ion_index,
+            nu_i,
+            energy_i,
+            photo_ion_idx,
+            level2continuum_edge_idx,
+        )
 
 
 class TwoPhotonData(ProcessingPlasmaProperty):
-    outputs = ('two_photon_data', 'two_photon_idx')
+    outputs = ("two_photon_data", "two_photon_idx")
     """
     Attributes:
     two_photon_data : pandas.DataFrame, dtype float
@@ -153,28 +203,34 @@ class TwoPhotonData(ProcessingPlasmaProperty):
         Nussbaumer & Schmutz (1984).
     two_photon_idx: pandas.DataFrame, dtype int
     """
+
     def calculate(self, atomic_data, continuum_interaction_species):
         two_photon_data = atomic_data.two_photon_data
         mask_selected_species = two_photon_data.index.droplevel(
-            ['level_number_lower', 'level_number_upper']
+            ["level_number_lower", "level_number_upper"]
         ).isin(continuum_interaction_species)
         if not mask_selected_species.sum():
             raise IncompleteAtomicData(
-                'two photon transition data for the requested '
-                'continuum_interactions species: {}'.format(
-                    continuum_interaction_species.values.tolist())
+                "two photon transition data for the requested "
+                "continuum_interactions species: {}".format(
+                    continuum_interaction_species.values.tolist()
+                )
             )
         two_photon_data = two_photon_data[mask_selected_species]
-        index_lower = two_photon_data.index.droplevel('level_number_upper')
-        index_upper = two_photon_data.index.droplevel('level_number_lower')
+        index_lower = two_photon_data.index.droplevel("level_number_upper")
+        index_upper = two_photon_data.index.droplevel("level_number_lower")
         source_idx = atomic_data.macro_atom_references.loc[
-            index_upper].references_idx
+            index_upper
+        ].references_idx
         destination_idx = atomic_data.macro_atom_references.loc[
-            index_lower].references_idx
+            index_lower
+        ].references_idx
         two_photon_idx = pd.DataFrame(
-            {'source_level_idx': source_idx.values,
-             'destination_level_idx': destination_idx.values},
-            index=two_photon_data.index
+            {
+                "source_level_idx": source_idx.values,
+                "destination_level_idx": destination_idx.values,
+            },
+            index=two_photon_data.index,
         )
         return two_photon_data, two_photon_idx
 
@@ -185,12 +241,16 @@ class LinesLowerLevelIndex(HiddenPlasmaProperty):
     lines_lower_level_index : One-dimensional Numpy Array, dtype int
         Levels data for lower levels of particular lines
     """
-    outputs = ('lines_lower_level_index',)
+
+    outputs = ("lines_lower_level_index",)
+
     def calculate(self, levels, lines):
-        levels_index = pd.Series(np.arange(len(levels), dtype=np.int64),
-                                 index=levels)
-        lines_index = lines.index.droplevel('level_number_upper')
+        levels_index = pd.Series(
+            np.arange(len(levels), dtype=np.int64), index=levels
+        )
+        lines_index = lines.index.droplevel("level_number_upper")
         return np.array(levels_index.loc[lines_index])
+
 
 class LinesUpperLevelIndex(HiddenPlasmaProperty):
     """
@@ -198,12 +258,14 @@ class LinesUpperLevelIndex(HiddenPlasmaProperty):
     lines_upper_level_index : One-dimensional Numpy Array, dtype int
         Levels data for upper levels of particular lines
     """
-    outputs = ('lines_upper_level_index',)
+
+    outputs = ("lines_upper_level_index",)
 
     def calculate(self, levels, lines):
-        levels_index = pd.Series(np.arange(len(levels), dtype=np.int64),
-                                 index=levels)
-        lines_index = lines.index.droplevel('level_number_lower')
+        levels_index = pd.Series(
+            np.arange(len(levels), dtype=np.int64), index=levels
+        )
+        lines_index = lines.index.droplevel("level_number_lower")
         return np.array(levels_index.loc[lines_index])
 
 
@@ -213,18 +275,19 @@ class LevelIdxs2LineIdx(HiddenPlasmaProperty):
     level_idxs2line_idx : pandas.Series, dtype int
        Maps a source_level_idx destination_level_idx pair to a line_idx.
     """
-    outputs = ('level_idxs2line_idx',)
+
+    outputs = ("level_idxs2line_idx",)
 
     def calculate(self, atomic_data):
         index = pd.MultiIndex.from_arrays(
-            [atomic_data.lines_upper2level_idx,
-             atomic_data.lines_lower2level_idx],
-            names=['source_level_idx', 'destination_level_idx']
+            [
+                atomic_data.lines_upper2level_idx,
+                atomic_data.lines_lower2level_idx,
+            ],
+            names=["source_level_idx", "destination_level_idx"],
         )
         level_idxs2line_idx = pd.Series(
-            np.arange(len(index)),
-            index=index,
-            name='lines_idx'
+            np.arange(len(index)), index=index, name="lines_idx"
         )
         return level_idxs2line_idx
 
@@ -235,13 +298,15 @@ class AtomicMass(ProcessingPlasmaProperty):
     atomic_mass : Pandas Series
         Atomic masses of the elements used. Indexed by atomic number.
     """
-    outputs = ('atomic_mass',)
+
+    outputs = ("atomic_mass",)
 
     def calculate(self, atomic_data, selected_atoms):
         if getattr(self, self.outputs[0]) is not None:
-            return getattr(self, self.outputs[0]),
+            return (getattr(self, self.outputs[0]),)
         else:
             return atomic_data.atom_data.loc[selected_atoms].mass
+
 
 class IonizationData(BaseAtomicDataProperty):
     """
@@ -249,29 +314,27 @@ class IonizationData(BaseAtomicDataProperty):
     ionization_data : Pandas Series holding ionization energies
         Indexed by atomic number, ion number.
     """
-    outputs = ('ionization_data',)
+
+    outputs = ("ionization_data",)
 
     def _filter_atomic_property(self, ionization_data, selected_atoms):
-        mask = ionization_data.index.isin(
-                selected_atoms,
-                level='atomic_number'
-                )
+        mask = ionization_data.index.isin(selected_atoms, level="atomic_number")
         ionization_data = ionization_data[mask]
-        counts = ionization_data.groupby(
-                level='atomic_number').count()
+        counts = ionization_data.groupby(level="atomic_number").count()
 
         if np.alltrue(counts.index == counts):
             return ionization_data
         else:
             raise IncompleteAtomicData(
-                    'ionization data for the ion ({}, {})'.format(
-                            str(counts.index[counts.index != counts]),
-                            str(counts[counts.index != counts])
-                            )
-                    )
+                "ionization data for the ion ({}, {})".format(
+                    str(counts.index[counts.index != counts]),
+                    str(counts[counts.index != counts]),
+                )
+            )
 
     def _set_index(self, ionization_data):
         return ionization_data
+
 
 class ZetaData(BaseAtomicDataProperty):
     """
@@ -282,11 +345,12 @@ class ZetaData(BaseAtomicDataProperty):
         The zeta value represents the fraction of recombination events
         from the ionized state that go directly to the ground state.
     """
-    outputs = ('zeta_data',)
+
+    outputs = ("zeta_data",)
 
     def _filter_atomic_property(self, zeta_data, selected_atoms):
-        zeta_data['atomic_number'] = zeta_data.index.codes[0] + 1
-        zeta_data['ion_number'] = zeta_data.index.codes[1] + 1
+        zeta_data["atomic_number"] = zeta_data.index.codes[0] + 1
+        zeta_data["ion_number"] = zeta_data.index.codes[1] + 1
         zeta_data = zeta_data[zeta_data.atomic_number.isin(selected_atoms)]
         zeta_data_check = counter(zeta_data.atomic_number.values)
         keys = np.array(list(zeta_data_check.keys()))
@@ -294,44 +358,56 @@ class ZetaData(BaseAtomicDataProperty):
         if np.alltrue(keys + 1 == values):
             return zeta_data
         else:
-#            raise IncompleteAtomicData('zeta data')
-# This currently replaces missing zeta data with 1, which is necessary with
-# the present atomic data. Will replace with the error above when I have
-# complete atomic data.
+            #            raise IncompleteAtomicData('zeta data')
+            # This currently replaces missing zeta data with 1, which is necessary with
+            # the present atomic data. Will replace with the error above when I have
+            # complete atomic data.
             missing_ions = []
             updated_index = []
             for atom in selected_atoms:
                 for ion in range(1, atom + 2):
                     if (atom, ion) not in zeta_data.index:
-                        missing_ions.append((atom,ion))
+                        missing_ions.append((atom, ion))
                     updated_index.append([atom, ion])
-            logger.warn('Zeta_data missing - replaced with 1s. Missing ions: {}'.format(missing_ions))
+            logger.warn(
+                "Zeta_data missing - replaced with 1s. Missing ions: {}".format(
+                    missing_ions
+                )
+            )
             updated_index = np.array(updated_index)
-            updated_dataframe = pd.DataFrame(index=pd.MultiIndex.from_arrays(
-                updated_index.transpose().astype(int)),
-                columns=zeta_data.columns)
+            updated_dataframe = pd.DataFrame(
+                index=pd.MultiIndex.from_arrays(
+                    updated_index.transpose().astype(int)
+                ),
+                columns=zeta_data.columns,
+            )
             for value in range(len(zeta_data)):
-                updated_dataframe.loc[zeta_data.atomic_number.values[value],
-                    zeta_data.ion_number.values[value]] = \
-                    zeta_data.loc[zeta_data.atomic_number.values[value],
-                        zeta_data.ion_number.values[value]]
+                updated_dataframe.loc[
+                    zeta_data.atomic_number.values[value],
+                    zeta_data.ion_number.values[value],
+                ] = zeta_data.loc[
+                    zeta_data.atomic_number.values[value],
+                    zeta_data.ion_number.values[value],
+                ]
             updated_dataframe = updated_dataframe.astype(float)
             updated_index = pd.DataFrame(updated_index)
-            updated_dataframe['atomic_number'] = np.array(updated_index[0])
-            updated_dataframe['ion_number'] = np.array(updated_index[1])
+            updated_dataframe["atomic_number"] = np.array(updated_index[0])
+            updated_dataframe["ion_number"] = np.array(updated_index[1])
             updated_dataframe.fillna(1.0, inplace=True)
             return updated_dataframe
 
     def _set_index(self, zeta_data):
-        return zeta_data.set_index(['atomic_number', 'ion_number'])
+        return zeta_data.set_index(["atomic_number", "ion_number"])
+
 
 class NLTEData(ProcessingPlasmaProperty):
     """
-    Attributes:
-    nlte_data :
-#Finish later (need atomic dataset with NLTE data).
+        Attributes:
+        nlte_data :
+    #Finish later (need atomic dataset with NLTE data).
     """
-    outputs = ('nlte_data',)
+
+    outputs = ("nlte_data",)
 
     def calculate(self, atomic_data):
         if getattr(self, self.outputs[0]) is not None:
@@ -358,16 +434,22 @@ class YgData(ProcessingPlasmaProperty):
         Indexed by atomic_number, ion_number, level_number_lower,
         level_number_upper.
     """
-    outputs = ('yg_data', 't_yg', 'yg_index', 'delta_E_yg', 'yg_idx')
-    latex_name = ('\\frac{Y_{ij}}{g_i}', 'T_\\textrm{Yg}',
-                  '\\textrm{yg_index}', '\\delta E_{ij}', '\\textrm{yg_idx}')
+
+    outputs = ("yg_data", "t_yg", "yg_index", "delta_E_yg", "yg_idx")
+    latex_name = (
+        "\\frac{Y_{ij}}{g_i}",
+        "T_\\textrm{Yg}",
+        "\\textrm{yg_index}",
+        "\\delta E_{ij}",
+        "\\textrm{yg_idx}",
+    )
 
     def calculate(self, atomic_data, continuum_interaction_species):
         yg_data = atomic_data.yg_data
 
         mask_selected_species = yg_data.index.droplevel(
-           ['level_number_lower', 'level_number_upper']).isin(
-               continuum_interaction_species)
+            ["level_number_lower", "level_number_upper"]
+        ).isin(continuum_interaction_species)
         yg_data = yg_data[mask_selected_species]
 
         t_yg = yg_data.columns.values.astype(float)
@@ -380,29 +462,35 @@ class YgData(ProcessingPlasmaProperty):
 
         energies = atomic_data.levels.energy
         index = yg_data.index
-        lu_index = index.droplevel('level_number_lower')
-        ll_index = index.droplevel('level_number_upper')
+        lu_index = index.droplevel("level_number_lower")
+        ll_index = index.droplevel("level_number_upper")
         delta_E = energies.loc[lu_index].values - energies.loc[ll_index].values
         delta_E = pd.Series(delta_E, index=index)
 
         source_idx = atomic_data.macro_atom_references.loc[
-            ll_index].references_idx
+            ll_index
+        ].references_idx
         destination_idx = atomic_data.macro_atom_references.loc[
-            lu_index].references_idx
+            lu_index
+        ].references_idx
         yg_idx = pd.DataFrame(
-            {'source_level_idx': source_idx.values,
-             'destination_level_idx': destination_idx.values}, index=index
+            {
+                "source_level_idx": source_idx.values,
+                "destination_level_idx": destination_idx.values,
+            },
+            index=index,
         )
         return yg_data, t_yg, index, delta_E, yg_idx
 
     @staticmethod
-    def calculate_yg_van_regemorter(atomic_data, t_electrons,
-                                    continuum_interaction_species):
+    def calculate_yg_van_regemorter(
+        atomic_data, t_electrons, continuum_interaction_species
+    ):
         I_H = atomic_data.ionization_data.loc[(1, 1)]
 
         mask_selected_species = atomic_data.lines.index.droplevel(
-           ['level_number_lower', 'level_number_upper']).isin(
-               continuum_interaction_species)
+            ["level_number_lower", "level_number_upper"]
+        ).isin(continuum_interaction_species)
         lines_filtered = atomic_data.lines[mask_selected_species]
         f_lu = lines_filtered.f_lu.values
         nu_lines = lines_filtered.nu.values
@@ -410,8 +498,11 @@ class YgData(ProcessingPlasmaProperty):
         yg = f_lu * (I_H / (const.h.cgs.value * nu_lines)) ** 2
         yg = 14.5 * 5.465e-11 * t_electrons * yg[:, np.newaxis]
 
-        u0 = nu_lines[np.newaxis].T / t_electrons * (
-            const.h.cgs.value / const.k_B.cgs.value)
+        u0 = (
+            nu_lines[np.newaxis].T
+            / t_electrons
+            * (const.h.cgs.value / const.k_B.cgs.value)
+        )
         gamma = 0.276 * np.exp(u0) * expn(1, u0)
         gamma[gamma < 0.2] = 0.2
 
@@ -430,10 +521,10 @@ class YgInterpolator(ProcessingPlasmaProperty):
         (divided by the statistical weight of the lower level) Y_ij / g_i as
         a function of electron temperature.
     """
-    outputs = ('yg_interp',)
-    latex_name = ('\\frac{Y_ij}{g_i}_{\\textrm{interp}}',)
+
+    outputs = ("yg_interp",)
+    latex_name = ("\\frac{Y_ij}{g_i}_{\\textrm{interp}}",)
 
     def calculate(self, yg_data, t_yg):
-        yg_interp = PchipInterpolator(t_yg, yg_data, axis=1,
-                                      extrapolate=True)
+        yg_interp = PchipInterpolator(t_yg, yg_data, axis=1, extrapolate=True)
         return yg_interp

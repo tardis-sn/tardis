@@ -541,9 +541,7 @@ class CorrPhotoIonRateCoeff(ProcessingPlasmaProperty):
         gamma_corr = gamma - alpha_stim * n_k * electron_densities / n_i
         num_neg_elements = (gamma_corr < 0).sum().sum()
         if num_neg_elements:
-            raise PlasmaException(
-                "Negative values in CorrPhotoIonRateCoeff."
-            )
+            raise PlasmaException("Negative values in CorrPhotoIonRateCoeff.")
         return gamma_corr
 
 
@@ -929,9 +927,7 @@ class BoundFreeOpacity(ProcessingPlasmaProperty):
 
         num_neg_elements = (chi_bf < 0).sum().sum()
         if num_neg_elements:
-            raise PlasmaException(
-                "Negative values in bound-free opacity."
-            )
+            raise PlasmaException("Negative values in bound-free opacity.")
         return chi_bf
 
 
