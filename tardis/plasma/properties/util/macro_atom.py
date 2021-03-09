@@ -19,7 +19,7 @@ def calculate_transition_probabilities(
     lines_idx,
     block_references,
     transition_probabilities,
-    normalize
+    normalize,
 ):
     """
     Calculates transition probabilities for macro_atom interactions

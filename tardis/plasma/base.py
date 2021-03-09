@@ -186,15 +186,19 @@ class BasePlasma(PlasmaWriterMixin):
     def freeze(self, *args):
         for key in args:
             if key not in self.outputs_dict:
-                raise PlasmaMissingModule('Trying to freeze property {0}'
-                                          ' that is unavailable'.format(key))
+                raise PlasmaMissingModule(
+                    "Trying to freeze property {0}"
+                    " that is unavailable".format(key)
+                )
             self.outputs_dict[key].frozen = True
 
     def thaw(self, *args):
         for key in args:
             if key not in self.outputs_dict:
-                raise PlasmaMissingModule('Trying to thaw property {0}'
-                                          ' that is unavailable'.format(key))
+                raise PlasmaMissingModule(
+                    "Trying to thaw property {0}"
+                    " that is unavailable".format(key)
+                )
             self.outputs_dict[key].frozen = False
 
     def _update_module_type_str(self):
