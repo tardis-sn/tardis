@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 
 from tardis.io.atom_data import AtomData
-from tardis.io.config_reader import ConfigurationError
 from tardis.util.base import species_string_to_tuple
 from tardis.plasma import BasePlasma
 from tardis.plasma.properties.base import TransitionProbabilitiesProperty
@@ -41,7 +40,6 @@ from tardis.plasma.properties import (
     HeliumNumericalNLTE,
     IonNumberDensity,
     MarkovChainTransProbsCollector,
-    MarkovChainIndex,
 )
 
 logger = logging.getLogger(__name__)
