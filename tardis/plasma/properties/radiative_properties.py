@@ -368,9 +368,9 @@ class BaseRadBoundBoundTransProbs(
     """
     Attributes
     ----------
-    p_rad_bb : Pandas DataFrame, dtype float
-               Unnormalized transition probabilities for radiative bound-bound
-               transitions
+    p_rad_bb : pandas.DataFrame, dtype float
+        Unnormalized transition probabilities for radiative bound-bound
+        transitions
     """
 
     outputs = ("p_rad_bb",)

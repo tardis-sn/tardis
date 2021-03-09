@@ -429,16 +429,16 @@ class YgData(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    yg_data : Pandas DataFrame
+    yg_data : pandas.DataFrame
         Table of thermally averaged effective collision strengths
         (divided by the statistical weight of the lower level) Y_ij / g_i .
         Columns are temperatures.
-    t_yg : Numpy Array
+    t_yg : numpy.ndarray
         Temperatures at which collision strengths are tabulated.
     yg_index : Pandas MultiIndex
-    delta_E_yg : Pandas DataFrame
+    delta_E_yg : pandas.DataFrame
         Energy difference between upper and lower levels coupled by collisions.
-    yg_idx : Pandas DataFrame
+    yg_idx : pandas.DataFrame
         Source_level_idx and destination_level_idx of collision transitions.
         Indexed by atomic_number, ion_number, level_number_lower,
         level_number_upper.
@@ -446,11 +446,11 @@ class YgData(ProcessingPlasmaProperty):
 
     outputs = ("yg_data", "t_yg", "yg_index", "delta_E_yg", "yg_idx")
     latex_name = (
-        "\\frac{Y_{ij}}{g_i}",
-        "T_\\textrm{Yg}",
-        "\\textrm{yg_index}",
-        "\\delta E_{ij}",
-        "\\textrm{yg_idx}",
+        r"\frac{Y_{ij}}{g_i}",
+        r"T_\textrm{Yg}",
+        r"\textrm{yg_index}",
+        r"\delta E_{ij}",
+        r"\textrm{yg_idx}",
     )
 
     def calculate(self, atomic_data, continuum_interaction_species):
