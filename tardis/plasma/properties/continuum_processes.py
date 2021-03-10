@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from numba import prange, njit
-from astropy import constants as const
+from tardis import constants as const
 
 from tardis.plasma.exceptions import PlasmaException
 from tardis.plasma.properties.base import (
@@ -24,11 +24,11 @@ __all__ = [
     "CorrPhotoIonRateCoeff",
     "BfHeatingRateCoeffEstimator",
     "SpontRecombCoolingRateCoeff",
-    "BaseRecombTransProbs",
-    "BasePhotoIonTransProbs",
+    "RawRecombTransProbs",
+    "RawPhotoIonTransProbs",
     "CollDeexcRateCoeff",
     "CollExcRateCoeff",
-    "BaseCollisionTransProbs",
+    "RawCollisionTransProbs",
     "AdiabaticCoolingRate",
     "FreeFreeCoolingRate",
     "FreeBoundCoolingRate",
@@ -36,7 +36,7 @@ __all__ = [
     "LevelNumberDensityLTE",
     "PhotoIonBoltzmannFactor",
     "FreeBoundEmissionCDF",
-    "BaseTwoPhotonTransProbs",
+    "RawTwoPhotonTransProbs",
     "TwoPhotonEmissionCDF",
 ]
 
@@ -469,7 +469,7 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
         return alpha_stim
 
 
-class BaseRecombTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
+class RawRecombTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
     """
     Attributes
     ----------
@@ -496,7 +496,7 @@ class BaseRecombTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
         return p_recomb
 
 
-class BasePhotoIonTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
+class RawPhotoIonTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
     """
     Attributes
     ----------
@@ -638,7 +638,7 @@ class CollDeexcRateCoeff(ProcessingPlasmaProperty):
         return coll_deexc_coeff
 
 
-class BaseCollisionTransProbs(
+class RawCollisionTransProbs(
     TransitionProbabilitiesProperty, IndexSetterMixin
 ):
     """
@@ -706,7 +706,7 @@ class BaseCollisionTransProbs(
         return p_coll
 
 
-class BaseTwoPhotonTransProbs(
+class RawTwoPhotonTransProbs(
     TransitionProbabilitiesProperty, IndexSetterMixin
 ):
     """

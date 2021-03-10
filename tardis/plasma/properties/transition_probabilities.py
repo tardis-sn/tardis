@@ -85,7 +85,7 @@ class SpMatrixSeriesConverterMixin(object):
         ----------
         matrix : scipy.sparse.coo.coo_matrix
             Sparse matrix of rates or transition probabilites.
-        idx2reduced_idx : Pandas Series
+        idx2reduced_idx : pandas.Series
             Values of (compact) matrix index. Indexed by references_idx.
             Maps the references_idx of a level to the index
             used in the sparse matrix.

@@ -20,7 +20,7 @@ __all__ = [
     "TauSobolev",
     "BetaSobolev",
     "TransitionProbabilities",
-    "BaseRadBoundBoundTransProbs",
+    "RawRadBoundBoundTransProbs",
 ]
 
 C_EINSTEIN = (
@@ -362,7 +362,7 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
             return atomic_data.macro_atom_data_all
 
 
-class BaseRadBoundBoundTransProbs(
+class RawRadBoundBoundTransProbs(
     TransitionProbabilities, TransitionProbabilitiesProperty
 ):
     """
@@ -377,7 +377,7 @@ class BaseRadBoundBoundTransProbs(
     transition_probabilities_outputs = ("p_rad_bb",)
 
     def __init__(self, plasma_parent):
-        super(BaseRadBoundBoundTransProbs, self).__init__(plasma_parent)
+        super(RawRadBoundBoundTransProbs, self).__init__(plasma_parent)
         self.normalize = False
 
     def calculate(

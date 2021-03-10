@@ -107,14 +107,14 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         StimRecombRateCoeff,
         CorrPhotoIonRateCoeff,
         SpontRecombCoolingRateCoeff,
-        BaseRecombTransProbs,
-        BasePhotoIonTransProbs,
-        BaseRadBoundBoundTransProbs,
+        RawRecombTransProbs,
+        RawPhotoIonTransProbs,
+        RawRadBoundBoundTransProbs,
         MarkovChainTransProbs,
         YgInterpolator,
         CollExcRateCoeff,
         CollDeexcRateCoeff,
-        BaseCollisionTransProbs,
+        RawCollisionTransProbs,
         MarkovChainIndex,
         MarkovChainTransProbsCollector,
         FreeFreeCoolingRate,
@@ -128,5 +128,5 @@ continuum_interaction_properties = PlasmaPropertyCollection(
 )
 adiabatic_cooling_properties = PlasmaPropertyCollection([AdiabaticCoolingRate])
 two_photon_properties = PlasmaPropertyCollection(
-    [BaseTwoPhotonTransProbs, TwoPhotonData, TwoPhotonEmissionCDF]
+    [RawTwoPhotonTransProbs, TwoPhotonData, TwoPhotonEmissionCDF]
 )
