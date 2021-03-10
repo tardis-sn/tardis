@@ -81,7 +81,7 @@ class AtomData(object):
     two_photon_data: pandas.DataFrame
         A DataFrame containing the *two photon decay data* with:
             index: atomic_number, ion_number, level_number_lower, level_number_upper
-            columns: A_ul[1/s], nu0[Hz], C[1/s], alpha, beta, gamma
+            columns: A_ul[1/s], nu0[Hz], alpha, beta, gamma
 
     Attributes
     ----------

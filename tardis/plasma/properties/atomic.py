@@ -203,8 +203,8 @@ class TwoPhotonData(ProcessingPlasmaProperty):
     two_photon_data : pandas.DataFrame, dtype float
         A DataFrame containing the *two photon decay data* with:
             index: atomic_number, ion_number, level_number_lower, level_number_upper
-            columns: A_ul[1/s], nu0[Hz], C[1/s], alpha, beta, gamma
-        C, alpha, beta, gamma are fit coefficients for the frequency dependent
+            columns: A_ul[1/s], nu0[Hz], alpha, beta, gamma
+        alpha, beta, gamma are fit coefficients for the frequency dependent
         transition probability A(y) of the two photon decay. See Eq. 2 in
         Nussbaumer & Schmutz (1984).
     two_photon_idx: pandas.DataFrame, dtype int
