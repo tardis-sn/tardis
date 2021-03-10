@@ -5,7 +5,7 @@ import pandas as pd
 from scipy.special import expn
 from scipy.interpolate import PchipInterpolator
 from collections import Counter as counter
-from astropy import constants as const
+from tardis import constants as const
 
 from tardis.plasma.properties.base import (
     ProcessingPlasmaProperty,
@@ -34,6 +34,10 @@ __all__ = [
     "LevelIdxs2LineIdx",
     "TwoPhotonData",
 ]
+
+
+K_B = const.k_B.cgs.value
+H = const.h.cgs.value
 
 
 class Levels(BaseAtomicDataProperty):
@@ -504,14 +508,10 @@ class YgData(ProcessingPlasmaProperty):
         f_lu = lines_filtered.f_lu.values
         nu_lines = lines_filtered.nu.values
 
-        yg = f_lu * (I_H / (const.h.cgs.value * nu_lines)) ** 2
+        yg = f_lu * (I_H / (H * nu_lines)) ** 2
         yg = 14.5 * 5.465e-11 * t_electrons * yg[:, np.newaxis]
 
-        u0 = (
-            nu_lines[np.newaxis].T
-            / t_electrons
-            * (const.h.cgs.value / const.k_B.cgs.value)
-        )
+        u0 = nu_lines[np.newaxis].T / t_electrons * (H / K_B)
         gamma = 0.276 * np.exp(u0) * expn(1, u0)
         gamma[gamma < 0.2] = 0.2
 

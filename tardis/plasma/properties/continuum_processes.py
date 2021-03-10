@@ -40,6 +40,12 @@ __all__ = [
     "TwoPhotonEmissionCDF",
 ]
 
+
+K_B = const.k_B.cgs.value
+H = const.h.cgs.value
+C = const.c.cgs.value
+
+
 logger = logging.getLogger(__name__)
 
 njit_dict = {"fastmath": False, "parallel": False}
@@ -259,7 +265,7 @@ class SpontRecombRateCoeff(ProcessingPlasmaProperty):
         x_sect = photo_ion_cross_sections["x_sect"].values
         nu = photo_ion_cross_sections["nu"].values
 
-        alpha_sp = 8 * np.pi * x_sect * nu ** 2 / (const.c.cgs.value) ** 2
+        alpha_sp = 8 * np.pi * x_sect * nu ** 2 / C ** 2
         alpha_sp = alpha_sp[:, np.newaxis]
         alpha_sp = alpha_sp * boltzmann_factor_photo_ion
         alpha_sp = integrate_array_by_blocks(
@@ -294,9 +300,7 @@ class SpontRecombCoolingRateCoeff(ProcessingPlasmaProperty):
         x_sect = photo_ion_cross_sections["x_sect"].values
         nu = photo_ion_cross_sections["nu"].values
         factor = (1 - nu_i / photo_ion_cross_sections["nu"]).values
-        alpha_sp = (
-            8 * np.pi * x_sect * factor * nu ** 3 / (const.c.cgs.value) ** 2
-        ) * const.h.cgs.value
+        alpha_sp = (8 * np.pi * x_sect * factor * nu ** 3 / C ** 2) * H
         alpha_sp = alpha_sp[:, np.newaxis]
         alpha_sp = alpha_sp * boltzmann_factor_photo_ion
         alpha_sp = integrate_array_by_blocks(
@@ -393,9 +397,7 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
         j_nus = JBluesDiluteBlackBody.calculate(
             photo_ion_cross_sections, nu, t_rad, w
         )
-        gamma = j_nus.multiply(
-            4.0 * np.pi * x_sect / nu / const.h.cgs.value, axis=0
-        )
+        gamma = j_nus.multiply(4.0 * np.pi * x_sect / nu / H, axis=0)
         gamma = integrate_array_by_blocks(
             gamma.values, nu.values, photo_ion_block_references
         )
@@ -459,9 +461,7 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
             photo_ion_cross_sections, nu, t_rad, w
         )
         j_nus *= boltzmann_factor_photo_ion
-        alpha_stim = j_nus.multiply(
-            4.0 * np.pi * x_sect / nu / const.h.cgs.value, axis=0
-        )
+        alpha_stim = j_nus.multiply(4.0 * np.pi * x_sect / nu / H, axis=0)
         alpha_stim = integrate_array_by_blocks(
             alpha_stim.values, nu.values, photo_ion_block_references
         )
@@ -483,7 +483,7 @@ class RawRecombTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
     latex_name = (r"p^{\textrm{recomb}}",)
 
     def calculate(self, alpha_sp, nu_i, energy_i, photo_ion_idx):
-        p_recomb_deac = alpha_sp.multiply(nu_i, axis=0) * const.h.cgs.value
+        p_recomb_deac = alpha_sp.multiply(nu_i, axis=0) * H
         p_recomb_deac = self.set_index(
             p_recomb_deac, photo_ion_idx, transition_type=-1
         )
@@ -510,7 +510,7 @@ class RawPhotoIonTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
     latex_name = (r"p^{\textrm{photo_ion}}",)
 
     def calculate(self, gamma_corr, nu_i, photo_ion_idx):
-        p_photo_ion = gamma_corr.multiply(nu_i, axis=0) * const.h.cgs.value
+        p_photo_ion = gamma_corr.multiply(nu_i, axis=0) * H
         p_photo_ion = self.set_index(p_photo_ion, photo_ion_idx, reverse=False)
         return p_photo_ion
 
@@ -551,7 +551,7 @@ class PhotoIonEstimatorsNormFactor(ProcessingPlasmaProperty):
 
     @staticmethod
     def calculate(time_simulation, volume):
-        return (time_simulation * volume * const.h.cgs.value) ** -1
+        return (time_simulation * volume * H) ** -1
 
 
 class PhotoIonRateCoeffEstimator(Input):
@@ -606,9 +606,8 @@ class CollExcRateCoeff(ProcessingPlasmaProperty):
 
     def calculate(self, yg_interp, yg_index, t_electrons, delta_E_yg):
         yg = yg_interp(t_electrons)
-        k_B = const.k_B.cgs.value
         boltzmann_factor = np.exp(
-            -delta_E_yg.values[np.newaxis].T / (t_electrons * k_B)
+            -delta_E_yg.values[np.newaxis].T / (t_electrons * K_B)
         )
         q_ij = (
             8.629e-6 / np.sqrt(t_electrons) * yg * boltzmann_factor
@@ -638,9 +637,7 @@ class CollDeexcRateCoeff(ProcessingPlasmaProperty):
         return coll_deexc_coeff
 
 
-class RawCollisionTransProbs(
-    TransitionProbabilitiesProperty, IndexSetterMixin
-):
+class RawCollisionTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
     """
     Attributes
     ----------
@@ -706,9 +703,7 @@ class RawCollisionTransProbs(
         return p_coll
 
 
-class RawTwoPhotonTransProbs(
-    TransitionProbabilitiesProperty, IndexSetterMixin
-):
+class RawTwoPhotonTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
     """
     Attributes
     ----------
@@ -721,9 +716,7 @@ class RawTwoPhotonTransProbs(
 
     def calculate(self, two_photon_data, two_photon_idx, density):
         no_shells = len(density)
-        p_two_phot = (
-            two_photon_data.A_ul * two_photon_data.nu0 * const.h.cgs.value
-        )
+        p_two_phot = two_photon_data.A_ul * two_photon_data.nu0 * H
         p_two_phot = pd.concat([p_two_phot] * no_shells, axis=1)
         # TODO: In principle there could be internal two photon transitions
         p_two_phot = self.set_index(
@@ -819,7 +812,7 @@ class AdiabaticCoolingRate(TransitionProbabilitiesProperty):
 
     def calculate(self, electron_densities, t_electrons, time_explosion):
         C_adiabatic = (
-            3.0 * electron_densities * const.k_B.cgs.value * t_electrons
+            3.0 * electron_densities * K_B * t_electrons
         ) / time_explosion
 
         C_adiabatic = cooling_rate_series2dataframe(
@@ -965,9 +958,5 @@ class PhotoIonBoltzmannFactor(ProcessingPlasmaProperty):
     def calculate(self, photo_ion_cross_sections, t_electrons):
         nu = photo_ion_cross_sections["nu"].values
 
-        boltzmann_factor = np.exp(
-            -nu[np.newaxis].T
-            / t_electrons
-            * (const.h.cgs.value / const.k_B.cgs.value)
-        )
+        boltzmann_factor = np.exp(-nu[np.newaxis].T / t_electrons * (H / K_B))
         return boltzmann_factor
