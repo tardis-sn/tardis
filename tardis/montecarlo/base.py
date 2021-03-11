@@ -334,8 +334,9 @@ class MontecarloRunner(HDFWriterMixin):
         except AttributeError:
             warnings.warn(
                 "MontecarloRunner.virtual_packet_nu:"
-                "compile with --with-vpacket-logging"
-                "to access this property",
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
                 UserWarning,
             )
             return None
@@ -347,8 +348,9 @@ class MontecarloRunner(HDFWriterMixin):
         except AttributeError:
             warnings.warn(
                 "MontecarloRunner.virtual_packet_energy:"
-                "compile with --with-vpacket-logging"
-                "to access this property",
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
                 UserWarning,
             )
             return None
@@ -360,8 +362,9 @@ class MontecarloRunner(HDFWriterMixin):
         except TypeError:
             warnings.warn(
                 "MontecarloRunner.virtual_packet_luminosity:"
-                "compile with --with-vpacket-logging"
-                "to access this property",
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
                 UserWarning,
             )
             return None
