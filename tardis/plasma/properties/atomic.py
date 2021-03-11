@@ -38,6 +38,9 @@ __all__ = [
 
 K_B = const.k_B.cgs.value
 H = const.h.cgs.value
+A0 = const.a0.cgs.value
+M_E = const.m_e.cgs.value
+BETA_COLL = (H ** 4 / (8 * K_B * M_E ** 3 * np.pi ** 3)) ** 0.5
 
 
 class Levels(BaseAtomicDataProperty):
@@ -509,13 +512,13 @@ class YgData(ProcessingPlasmaProperty):
         nu_lines = lines_filtered.nu.values
 
         yg = f_lu * (I_H / (H * nu_lines)) ** 2
-        yg = 14.5 * 5.465e-11 * t_electrons * yg[:, np.newaxis]
+        coll_const = A0 ** 2 * np.pi * np.sqrt(8 * K_B / (np.pi * M_E))
+        yg = 14.5 * coll_const * t_electrons * yg[:, np.newaxis]
 
         u0 = nu_lines[np.newaxis].T / t_electrons * (H / K_B)
         gamma = 0.276 * np.exp(u0) * expn(1, u0)
         gamma[gamma < 0.2] = 0.2
-
-        yg *= u0 * gamma / 8.629e-6
+        yg *= u0 * gamma / BETA_COLL
         yg = pd.DataFrame(yg, index=lines_filtered.index, columns=t_electrons)
 
         return yg

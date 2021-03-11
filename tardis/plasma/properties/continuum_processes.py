@@ -13,6 +13,7 @@ from tardis.plasma.properties.base import (
     TransitionProbabilitiesProperty,
 )
 from tardis.plasma.properties.j_blues import JBluesDiluteBlackBody
+from tardis.plasma.properties.atomic import K_B, C, H, BETA_COLL
 
 __all__ = [
     "SpontRecombRateCoeff",
@@ -39,11 +40,6 @@ __all__ = [
     "RawTwoPhotonTransProbs",
     "TwoPhotonEmissionCDF",
 ]
-
-
-K_B = const.k_B.cgs.value
-H = const.h.cgs.value
-C = const.c.cgs.value
 
 
 logger = logging.getLogger(__name__)
@@ -610,7 +606,7 @@ class CollExcRateCoeff(ProcessingPlasmaProperty):
             -delta_E_yg.values[np.newaxis].T / (t_electrons * K_B)
         )
         q_ij = (
-            8.629e-6 / np.sqrt(t_electrons) * yg * boltzmann_factor
+            BETA_COLL / np.sqrt(t_electrons) * yg * boltzmann_factor
         )  # see formula A2 in Przybilla, Butler 2004 - Apj 609, 1181
         return pd.DataFrame(q_ij, index=yg_index)
 
