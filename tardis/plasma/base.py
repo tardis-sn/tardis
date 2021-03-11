@@ -184,6 +184,22 @@ class BasePlasma(PlasmaWriterMixin):
             self.plasma_properties_dict[module_name].update()
 
     def freeze(self, *args):
+        """
+        Freeze plama properties.
+
+        This method freezes plasma properties to prevent them from being
+        updated: the values of a frozen property are fixed in the plasma
+        calculation. This is useful for example for setting up test cases.
+
+        Parameters
+        ----------
+        args : iterable of str
+            Names of plasma properties to freeze.
+
+        Examples
+        --------
+        >>> plasma.freeze('t_electrons')
+        """
         for key in args:
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(
@@ -193,6 +209,21 @@ class BasePlasma(PlasmaWriterMixin):
             self.outputs_dict[key].frozen = True
 
     def thaw(self, *args):
+        """
+        Thaw plama properties.
+
+        This method thaws (unfreezes) plasma properties allowing them to be
+        updated again.
+
+        Parameters
+        ----------
+        args : iterable of str
+            Names of plasma properties to unfreeze.
+
+        Examples
+        --------
+        >>> plasma.thaw('t_electrons')
+        """
         for key in args:
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(

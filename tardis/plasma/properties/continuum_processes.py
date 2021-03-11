@@ -195,7 +195,7 @@ def cooling_rate_series2dataframe(cooling_rate_series, destination_level_idx):
     cooling_rate_series : pandas.Series, dtype float
         Cooling rates for a process with a single destination idx.
         Examples are adiabatic cooling or free-free cooling.
-    destination_level_idx : String
+    destination_level_idx : str
         Destination idx of the cooling process; for example
         'adiabatic' for adiabatic cooling.
 
