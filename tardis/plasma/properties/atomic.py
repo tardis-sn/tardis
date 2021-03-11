@@ -502,6 +502,31 @@ class YgData(ProcessingPlasmaProperty):
     def calculate_yg_van_regemorter(
         atomic_data, t_electrons, continuum_interaction_species
     ):
+        """
+        Calculate collision strengths in the van Regemorter approximation.
+
+        This function calculates thermally averaged effective collision
+        strengths (divided by the statistical weight of the lower level)
+        Y_ij / g_i using the van Regemorter approximation.
+
+        Parameters
+        ----------
+        atomic_data : tardis.io.atom_data.AtomData
+        t_electrons : numpy.ndarray
+        continuun_interaction_species : pandas.MultiIndex
+
+        Returns
+        -------
+        pandas.DataFrame
+            Thermally averaged effective collision strengths
+            (divided by the statistical weight of the lower level) Y_ij / g_i
+
+        References
+        ----------
+        .. [1] van Regemorter, H., “Rate of Collisional Excitation in Stellar
+               Atmospheres.”, The Astrophysical Journal, vol. 136, p. 906, 1962.
+               doi:10.1086/147445.
+        """
         I_H = atomic_data.ionization_data.loc[(1, 1)]
 
         mask_selected_species = atomic_data.lines.index.droplevel(
