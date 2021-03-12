@@ -13,7 +13,7 @@ trigger: none
 pr:
   branches:
     include:
-    - '*'  # Change to `master` before merge
+    - master
 
 variables:
   system.debug: false
@@ -33,18 +33,16 @@ jobs:
         parameters:
           fetchRefdata: false  # We don't want to fetch from the mirror
           useMamba: true
-          skipInstall: true  # Disable temporarily (works ok)
+          skipInstall: false
 
       - bash: git clone https://github.com/tardis-sn/tardis-refdata $(refdata.dir)
         displayName: 'Fetch reference data repository'
-        condition: false  # Disable temporarily (works ok)
 
       - bash: |
           cd $(tardis.dir)
           source activate tardis
           pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
         displayName: 'Generate reference data'
-        condition: false  # Disable temporarily (not tested but should work)
 
       - bash: |
           cd $(refdata.dir)
@@ -55,7 +53,6 @@ jobs:
           git remote set-url origin https://$(bot_token)@github.com/tardis-sn/tardis-refdata
           git push origin master
         displayName: 'Push new reference data'
-        condition: false  # Disable until final run
 
       # Run only if the pipeline is triggered by a pull request.
       - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
@@ -74,4 +71,4 @@ jobs:
             id: $(pr.number)
             comment: '**Update failed** $(commit.sha) <br><br> For more information, check the [job log]($(log.url)).'
           displayName: 'Post results (failed)'
-          #condition: failed()  # Commented for testing purposes
+          condition: failed()
