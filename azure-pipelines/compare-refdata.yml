@@ -1,8 +1,19 @@
 # For more information on how to use this pipeline please refer to:
 # http://tardis-sn.github.io/tardis/development/continuous_integration.html
 
+# IMPORTANT: Only contributors with `Write` permission can trigger the build
+#            by commenting `/AzurePipelines run <pipeline-name>` on the pull
+#            request.
+#
+#            This feature can be disabled only through the Azure Pipelines
+#            dashboard.
+
 trigger: none
-pr: [ master ]
+
+pr:
+  branches:
+    include:
+    - '*'
 
 schedules:
   - cron: '0 0 1 * *'

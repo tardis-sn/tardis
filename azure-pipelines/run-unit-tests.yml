@@ -2,7 +2,14 @@
 # http://tardis-sn.github.io/tardis/development/continuous_integration.html
 
 trigger:
-  - master
+  branches:
+    include:
+    - '*'
+
+pr:
+  branches:
+    include:
+    - '*'
 
 variables:
   codecov.token: 'a876d307-9ed5-4f5d-a6c4-e58291ac4111'
