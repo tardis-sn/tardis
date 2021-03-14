@@ -1,5 +1,4 @@
 import time
-import logging
 import numpy as np
 import pandas as pd
 from astropy import units as u, constants as const
@@ -13,7 +12,7 @@ from tardis.io.config_reader import ConfigurationError
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
 
 # Adding logging support
-logger = logging.getLogger(__name__)
+from tardis.util.custom_logger import logger
 
 
 class PlasmaStateStorerMixin(object):
@@ -223,7 +222,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if np.all([t_rad_converged, w_converged, t_inner_converged]):
             hold_iterations = self.convergence_strategy.hold_iterations
             self.consecutive_converges_count += 1
-            logger.info(
+            logger.tardis_info(
                 "Iteration converged {0:d}/{1:d} consecutive "
                 "times.".format(
                     self.consecutive_converges_count, hold_iterations + 1
@@ -321,7 +320,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         return converged
 
     def iterate(self, no_of_packets, no_of_virtual_packets=0, last_run=False):
-        logger.info(
+        logger.tardis_info(
             "Starting iteration {0:d}/{1:d}".format(
                 self.iterations_executed + 1, self.iterations
             )
@@ -378,7 +377,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         self.reshape_plasma_state_store(self.iterations_executed)
 
-        logger.info(
+        logger.tardis_info(
             "Simulation finished in {0:d} iterations "
             "and took {1:.2f} s".format(
                 self.iterations_executed, time.time() - start_time
@@ -433,15 +432,17 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             ["\t%s\n" % item for item in plasma_state_log.split("\n")]
         )
 
-        logger.info("Plasma stratification:\n%s\n", plasma_state_log)
-        logger.info(
+        plasma_state_log = "\n" + plasma_state_log
+        logger.tardis_info("Plasma stratification:")
+        logger.tardis_info(plasma_state_log)
+        logger.tardis_info(
             "t_inner {0:.3f} -- next t_inner {1:.3f}".format(
                 t_inner, next_t_inner
             )
         )
 
     def log_run_results(self, emitted_luminosity, absorbed_luminosity):
-        logger.info(
+        logger.tardis_info(
             "Luminosity emitted = {0:.5e} "
             "Luminosity absorbed = {1:.5e} "
             "Luminosity requested = {2:.5e}".format(
