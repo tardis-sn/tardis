@@ -1,6 +1,8 @@
 ## Change Log
 
-### upcoming (2021/03/07 23:55 +00:00)
+### upcoming (2021/03/14 23:55 +00:00)
+- [#1470](https://github.com/tardis-sn/tardis/pull/1470) Incorporating old physics section of the documentation (#1470) (@smithis7)
+- [#1459](https://github.com/tardis-sn/tardis/pull/1459) Removed the deprecated --with-vpacket-logging flag (#1459) (@antreev-brar)
 - [#1462](https://github.com/tardis-sn/tardis/pull/1462) Renamed widgets subpackage to visualization and restructured modules within it (#1462) (@jaladh-singhal)
 - [#1464](https://github.com/tardis-sn/tardis/pull/1464) Fix the array types when interpolate_shells > 0 (@Rodot-)
 - [#1454](https://github.com/tardis-sn/tardis/pull/1454) Reorganizing Models (#1454) (@smithis7)
