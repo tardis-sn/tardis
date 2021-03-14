@@ -5,7 +5,7 @@ import warnings
 
 import pyne.data
 
-from tardis.util.colored_logger import ColoredFormatter, formatter_message
+import tardis.util.custom_logger as custom_logger_settings
 
 # Affiliated packages may add whatever they like to this file, but
 # should keep this content at the top.
@@ -19,16 +19,10 @@ from tardis.io.util import yaml_load_config_file as yaml_load
 
 warnings.filterwarnings("ignore", category=pyne.utils.QAWarning)
 
-FORMAT = "[$BOLD%(name)-20s$RESET][%(levelname)-18s]  %(message)s ($BOLD%(filename)s$RESET:%(lineno)d)"
-COLOR_FORMAT = formatter_message(FORMAT, True)
+custom_logger_settings.init()
+custom_logger_settings.save = False
 
-logging.captureWarnings(True)
-logger = logging.getLogger("tardis")
-logger.setLevel(logging.INFO)
-
-console_handler = logging.StreamHandler(sys.stdout)
-console_formatter = ColoredFormatter(COLOR_FORMAT)
-console_handler.setFormatter(console_formatter)
-
-logger.addHandler(console_handler)
-logging.getLogger("py.warnings").addHandler(console_handler)
+# the default level is TARDIS INFO
+# due to this, no WARNINGS are shown by default
+custom_logger_settings.level = "TARDIS INFO"
+custom_logger_settings.reset_logger()
