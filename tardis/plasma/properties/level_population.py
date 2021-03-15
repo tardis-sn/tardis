@@ -1,10 +1,9 @@
-import logging
 import pandas as pd
 import numpy as np
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
-logger = logging.getLogger(__name__)
+from tardis.util.custom_logger import logger
 
 __all__ = ["LevelNumberDensity", "LevelNumberDensityHeNLTE"]
 

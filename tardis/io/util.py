@@ -18,7 +18,7 @@ from astropy import units as u
 
 from tardis import __path__ as TARDIS_PATH
 
-logger = logging.getLogger(__name__)
+from tardis.util.custom_logger import logger
 
 
 def get_internal_data_path(fname):

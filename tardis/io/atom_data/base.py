@@ -1,7 +1,6 @@
 # atomic model
 
 
-import logging
 import numpy as np
 import pandas as pd
 
@@ -21,7 +20,7 @@ class AtomDataMissingError(Exception):
     pass
 
 
-logger = logging.getLogger(__name__)
+from tardis.util.custom_logger import logger
 
 
 class AtomData(object):
@@ -167,13 +166,13 @@ class AtomData(object):
 
             # ToDo: strore data sources as attributes in carsus
 
-            logger.info(
+            logger.tardis_info(
                 "Read Atom Data with UUID={0} and MD5={1}.".format(
                     atom_data.uuid1, atom_data.md5
                 )
             )
             if nonavailable:
-                logger.info(
+                logger.tardis_info(
                     "Non provided atomic data: {0}".format(
                         ", ".join(nonavailable)
                     )
@@ -484,7 +483,7 @@ class NLTEData(object):
         self.nlte_species = nlte_species
 
         if nlte_species:
-            logger.info("Preparing the NLTE data")
+            logger.tardis_info("Preparing the NLTE data")
             self._init_indices()
             if atom_data.collision_data is not None:
                 self._create_collision_coefficient_matrix()

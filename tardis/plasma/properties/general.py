@@ -1,5 +1,3 @@
-import logging
-
 import numpy as np
 import pandas as pd
 from astropy import units as u
@@ -7,7 +5,7 @@ from tardis import constants as const
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
-logger = logging.getLogger(__name__)
+from tardis.util.custom_logger import logger
 
 __all__ = [
     "BetaRadiation",

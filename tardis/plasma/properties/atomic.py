@@ -1,5 +1,3 @@
-import logging
-
 import numpy as np
 import pandas as pd
 from collections import Counter as counter
@@ -11,7 +9,7 @@ from tardis.plasma.properties.base import (
 )
 from tardis.plasma.exceptions import IncompleteAtomicData
 
-logger = logging.getLogger(__name__)
+from tardis.util.custom_logger import logger
 
 __all__ = [
     "Levels",
@@ -252,7 +250,7 @@ class ZetaData(BaseAtomicDataProperty):
                     if (atom, ion) not in zeta_data.index:
                         missing_ions.append((atom, ion))
                     updated_index.append([atom, ion])
-            logger.warn(
+            logger.warning(
                 "Zeta_data missing - replaced with 1s. Missing ions: {}".format(
                     missing_ions
                 )

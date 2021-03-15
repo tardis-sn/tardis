@@ -1,5 +1,3 @@
-import logging
-
 from abc import ABCMeta, abstractmethod, abstractproperty
 import numpy as np
 import pandas as pd
@@ -16,7 +14,7 @@ __all__ = [
     "PreviousIterationProperty",
 ]
 
-logger = logging.getLogger(__name__)
+from tardis.util.custom_logger import logger
 
 import os
 

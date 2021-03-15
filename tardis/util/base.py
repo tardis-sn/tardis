@@ -1,4 +1,3 @@
-import logging
 import os
 import re
 from collections import OrderedDict
@@ -20,7 +19,8 @@ h_cgs = constants.h.cgs.value
 m_e_cgs = constants.m_e.cgs.value
 e_charge_gauss = constants.e.gauss.value
 
-logger = logging.getLogger(__name__)
+from tardis.util.custom_logger import logger
+
 tardis_dir = os.path.realpath(tardis.__path__[0])
 
 ATOMIC_SYMBOLS_DATA = (

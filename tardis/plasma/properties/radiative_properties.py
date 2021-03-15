@@ -1,5 +1,3 @@
-import logging
-
 import numpy as np
 import pandas as pd
 import numexpr as ne
@@ -10,7 +8,7 @@ from numba import jit, prange
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.properties.util import macro_atom
 
-logger = logging.getLogger(__name__)
+from tardis.util.custom_logger import logger
 
 __all__ = [
     "StimulatedEmissionFactor",

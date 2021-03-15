@@ -1,11 +1,9 @@
 import os
-import logging
-
 from tardis.io.util import get_internal_data_path, download_from_url
 from tardis.io.config_internal import get_data_dir
 import yaml
 
-logger = logging.getLogger(__name__)
+from tardis.util.custom_logger import logger
 
 
 def get_atomic_repo_config():
@@ -45,7 +43,7 @@ def download_atom_data(atomic_data_name=None):
         )
     dst_dir = os.path.join(get_data_dir(), "{0}.h5".format(atomic_data_name))
     src_url = atomic_repo[atomic_data_name]["url"]
-    logger.info(
+    logger.tardis_info(
         "Downloading atomic data from {0} to {1}".format(src_url, dst_dir)
     )
     download_from_url(src_url, dst_dir)

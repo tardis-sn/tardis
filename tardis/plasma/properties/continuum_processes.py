@@ -10,7 +10,7 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 __all__ = ["SpontRecombRateCoeff"]
 
-logger = logging.getLogger(__name__)
+from tardis.util.custom_logger import logger
 
 njit_dict = {"fastmath": False, "parallel": False}
 

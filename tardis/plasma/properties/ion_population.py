@@ -1,4 +1,3 @@
-import logging
 import warnings
 
 import sys
@@ -13,7 +12,7 @@ from tardis.plasma.properties.continuum_processes import get_ion_multi_index
 from tardis.plasma.exceptions import PlasmaIonizationError
 
 
-logger = logging.getLogger(__name__)
+from tardis.util.custom_logger import logger
 
 __all__ = [
     "PhiSahaNebular",
@@ -365,7 +364,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                     )
                 n_electron_iterations += 1
                 if n_electron_iterations > 100:
-                    logger.warn(
+                    logger.warning(
                         "n_electron iterations above 100 ({0}) -"
                         " something is probably wrong".format(
                             n_electron_iterations
@@ -488,7 +487,7 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                     )
                 n_electron_iterations += 1
                 if n_electron_iterations > 100:
-                    logger.warn(
+                    logger.warning(
                         "n_electron iterations above 100 ({0}) -"
                         " something is probably wrong".format(
                             n_electron_iterations

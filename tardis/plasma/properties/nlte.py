@@ -1,4 +1,3 @@
-import logging
 import os
 
 import numpy as np
@@ -17,7 +16,7 @@ __all__ = [
     "HeliumNumericalNLTE",
 ]
 
-logger = logging.getLogger(__name__)
+from tardis.util.custom_logger import logger
 
 
 class PreviousElectronDensities(PreviousIterationProperty):
@@ -186,7 +185,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
         g,
         time_explosion,
     ):
-        logger.info("Performing numerical NLTE He calculations.")
+        logger.tardis_info("Performing numerical NLTE He calculations.")
         if len(j_blues) == 0:
             return None
         # Outputting data required by SH module

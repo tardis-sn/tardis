@@ -1,5 +1,4 @@
 import os
-import logging
 import copy
 import pprint
 import yaml
@@ -10,10 +9,11 @@ import tardis
 from tardis.io import config_validator
 from tardis.io.util import YAMLLoader, yaml_load_file, HDFWriterMixin
 from tardis.io.parsers.csvy import load_yaml_from_csvy
+from tardis.util.custom_logger import logger
+
 
 pp = pprint.PrettyPrinter(indent=4)
 
-logger = logging.getLogger(__name__)
 
 data_dir = os.path.abspath(os.path.join(tardis.__path__[0], "data"))
 

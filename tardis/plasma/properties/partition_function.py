@@ -1,5 +1,3 @@
-import logging
-
 import numpy as np
 from numpy.linalg.linalg import LinAlgError
 import pandas as pd
@@ -7,7 +5,7 @@ import pandas as pd
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import PlasmaConfigError
 
-logger = logging.getLogger(__name__)
+from tardis.util.custom_logger import logger
 
 __all__ = [
     "LevelBoltzmannFactorLTE",
@@ -178,7 +176,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         options.
         """
         for species in nlte_data.nlte_species:
-            logger.info(f"Calculating rates for species {species}")
+            logger.tardis_info(f"Calculating rates for species {species}")
             number_of_levels = atomic_data.levels.energy.loc[species].count()
             lnl = nlte_data.lines_level_number_lower[species]
             lnu = nlte_data.lines_level_number_upper[species]
