@@ -25,7 +25,7 @@ __all__ = [
 
 C_EINSTEIN = (
     4.0 * (np.pi * const.e.esu) ** 2 / (const.c.cgs * const.m_e.cgs)
-).value * u.eV.to(u.erg)
+).value  # See tardis/docs/physics/plasma/macroatom.rst
 
 
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):
@@ -413,4 +413,9 @@ class RawRadBoundBoundTransProbs(
             ]
         ).isin(continuum_interaction_species)
         p_rad_bb = p_rad_bb.set_index(index, drop=True)[mask_continuum_species]
-        return p_rad_bb * C_EINSTEIN
+        # To obtain energy-flow rates in cgs from the precomputed transition
+        # probabilities in the atomic data, we have to multiply by the
+        # constant C_EINSTEIN and convert from eV to erg.
+        # See tardis/docs/physics/plasma/macroatom.rst
+        p_rad_bb = p_rad_bb * C_EINSTEIN * u.eV.to(u.erg)
+        return p_rad_bb
