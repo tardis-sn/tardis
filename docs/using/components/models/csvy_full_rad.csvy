@@ -1,6 +1,7 @@
 ---
 name: csvy_full
 model_density_time_0: 1 day
+model_isotope_time_0: 0 day
 description: Example csvy config file for TARDIS.
 tardis_model_config_version: v1.0
 datatype:
