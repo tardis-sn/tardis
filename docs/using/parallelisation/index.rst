@@ -27,7 +27,7 @@ To compile TARDIS for parallel execution::
 
 
 
-Usage Guide
+Numba Usage Guide
 ===========
 
 The ``montecarlo`` section of the Configuration file accepts the parameter ``nthreads`` which sets the number of
