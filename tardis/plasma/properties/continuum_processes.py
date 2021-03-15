@@ -13,7 +13,6 @@ from tardis.plasma.properties.base import (
     TransitionProbabilitiesProperty,
 )
 from tardis.plasma.properties.j_blues import JBluesDiluteBlackBody
-from tardis.plasma.properties.atomic import K_B, C, H, BETA_COLL
 
 __all__ = [
     "SpontRecombRateCoeff",
@@ -40,6 +39,14 @@ __all__ = [
     "RawTwoPhotonTransProbs",
     "TwoPhotonEmissionCDF",
 ]
+
+
+K_B = const.k_B.cgs.value
+C = const.c.cgs.value
+H = const.h.cgs.value
+A0 = const.a0.cgs.value
+M_E = const.m_e.cgs.value
+BETA_COLL = (H ** 4 / (8 * K_B * M_E ** 3 * np.pi ** 3)) ** 0.5
 
 
 logger = logging.getLogger(__name__)

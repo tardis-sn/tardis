@@ -15,6 +15,12 @@ from tardis.plasma.properties.base import (
 from tardis.plasma.exceptions import IncompleteAtomicData
 from tardis.plasma.properties.continuum_processes import (
     get_ground_state_multi_index,
+    K_B,
+    BETA_COLL,
+    H,
+    A0,
+    M_E,
+    C,
 )
 
 logger = logging.getLogger(__name__)
@@ -34,13 +40,6 @@ __all__ = [
     "LevelIdxs2LineIdx",
     "TwoPhotonData",
 ]
-
-
-K_B = const.k_B.cgs.value
-H = const.h.cgs.value
-A0 = const.a0.cgs.value
-M_E = const.m_e.cgs.value
-BETA_COLL = (H ** 4 / (8 * K_B * M_E ** 3 * np.pi ** 3)) ** 0.5
 
 
 class Levels(BaseAtomicDataProperty):
