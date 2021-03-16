@@ -38,6 +38,7 @@ __all__ = [
     "FreeBoundEmissionCDF",
     "RawTwoPhotonTransProbs",
     "TwoPhotonEmissionCDF",
+    "CollIonRateCoeffSeaton",
 ]
 
 
@@ -963,3 +964,53 @@ class PhotoIonBoltzmannFactor(ProcessingPlasmaProperty):
 
         boltzmann_factor = np.exp(-nu[np.newaxis].T / t_electrons * (H / K_B))
         return boltzmann_factor
+
+
+class CollIonRateCoeffSeaton(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    coll_ion_coeff : pandas.DataFrame, dtype float
+        The rate coefficient for collisional ionization in the Seaton
+        approximation. Multiply with the electron density and the
+        level number density to obtain the total rate.
+
+    Notes
+    -----
+    The rate coefficient for collisional ionization in the Seaton approximation
+    is calculated according to Eq. 9.60 in [1].
+
+    References
+    ----------
+    .. [1] Hubeny, I. and Mihalas, D., "Theory of Stellar Atmospheres". 2014.
+    """
+
+    outputs = ("coll_ion_coeff",)
+    latex_name = (r"c_{\textrm{i,}\kappa}",)
+
+    def calculate(self, photo_ion_cross_sections, t_electrons):
+        photo_ion_cross_sections_threshold = photo_ion_cross_sections.groupby(
+            level=[0, 1, 2]
+        ).first()
+        nu_i = photo_ion_cross_sections_threshold["nu"]
+        factor = self._calculate_factor(nu_i, t_electrons)
+        coll_ion_coeff = 1.55e13 * photo_ion_cross_sections_threshold["x_sect"]
+        coll_ion_coeff = factor.multiply(coll_ion_coeff, axis=0)
+        coll_ion_coeff = coll_ion_coeff.divide(np.sqrt(t_electrons), axis=1)
+
+        ion_number = coll_ion_coeff.index.get_level_values("ion_number").values
+        coll_ion_coeff[ion_number == 0] *= 0.1
+        coll_ion_coeff[ion_number == 1] *= 0.2
+        coll_ion_coeff[ion_number >= 2] *= 0.3
+        return coll_ion_coeff
+
+    def _calculate_factor(self, nu_i, t_electrons):
+        u0s = self._calculate_u0s(nu_i.values, t_electrons)
+        factor = np.exp(-u0s) / u0s
+        factor = pd.DataFrame(factor, index=nu_i.index)
+        return factor
+
+    @staticmethod
+    def _calculate_u0s(nu, t_electrons):
+        u0s = nu[np.newaxis].T / t_electrons * (H / K_B)
+        return u0s
