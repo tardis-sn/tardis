@@ -1,0 +1,43 @@
+---
+name: model_via_CSVY
+model_density_time_0: 1 day
+model_isotope_time_0: 0 day
+description: Sample model for abundance vs velocity graph
+tardis_model_config_version: v1.0
+datatype:
+  fields:
+    -  name: velocity
+       unit: km/s
+       desc: velocities of shell outer bounderies.
+    -  name: density
+       unit: g/cm^3
+       desc: density of shell.
+    -  name: t_rad
+       unit: K
+       desc: radiative temperature.
+    -  name: H
+       desc: fractional H abundance
+    -  name: He
+       desc: fractional He abundance
+    -  name: O
+       desc: fractional O abundance
+    -  name: Al
+       desc: fractional Al abundance
+    
+
+v_inner_boundary: 5000 km/s
+v_outer_boundary: 21000 km/s
+---
+velocity,density,t_rad,H,He,O,Al
+5000,  5.0e-10,  7000, 1.0, 1.0,  1.0,  1.0
+7000,  4.0e-10,  7000, 0.8, 0.99, 0.50, 0.60 
+9000,  3.25e-10, 7000, 0.0, 0.70, 0.06, 0.71
+11000, 3.0e-10,  7000, 0.2, 0.65, 0.43, 0.83
+13000, 2.65e-10, 7000, 0.7, 0.82, 0.30, 0.54
+15000, 2.0e-10,  7000, 0.0, 0.99, 0.01, 0.25
+17000, 1.55e-10, 7000, 0.3, 0.24, 0.00, 0.85
+19000, 1.0e-10,  7000, 0.2, 0.79, 0.14, 0.90
+20000, 9.50e-11, 7000, 0.0, 0.42, 0.06, 0.65
+21000, 9.0e-11,  7000, 0.4, 0.58, 0.02, 0.75
+
+
