@@ -3,6 +3,30 @@ import matplotlib.pyplot as plt
 
 
 def plot_abundance_vs_velocity(sim):
+    """
+    Plots the abundance of elements vs velocity provided simulation result.
+
+    Parameters
+    ----------
+    sim : Model Object containing
+
+        config : str or dict
+            filename of configuration yaml file or dictionary
+
+        atom_data : str or tardis.atomic.AtomData
+            if atom_data is a string it is interpreted as a path to a file storing
+            the atomic data. Atomic data to use for this TARDIS simulation.
+            If set to None, the atomic data will be loaded according to keywords set in the configuration
+            [default=None]
+
+
+    Returns
+    -------
+    None
+
+    """
+    # code goes here
+
     # loading abundance sata in 'df'
     df = (sim.model.abundance).T
 
