@@ -7,25 +7,15 @@ import warnings
 level = ""
 logger.remove()
 save = None
+colorize = True
+format = "  [ <bold><level>{level: <8}</level></bold> ][ <bold>{name}:{function}:{line}</bold> ]- {message}"
 
-
-class Rotator:
-    """
-    copied from: https://loguru.readthedocs.io/en/stable/resources/recipes.html#rotating-log-file-based-on-both-size-and-time
-    """
-
-    def __init__(self, *, size):
-        self._size_limit = size
-
-    def should_rotate(self, message, file):
-        file.seek(0, 2)
-        if file.tell() + len(message) > self._size_limit:
-            return True
-        return False
-
-
-# Rotate file if over 100 MB
-rotator = Rotator(size=1e8)
+# capturing application warnings
+# extra warnings come out as logs instead of normal prints
+def showwarning(message, *args, **kwargs):
+    name_of_class = args[0].__name__
+    message = "[" + name_of_class + "]" + "[" + args[1] + "]:  " + str(message)
+    logger.warning(message)
 
 
 class verbosity_filter:
@@ -52,16 +42,23 @@ class verbosity_filter:
         return record["level"].no >= levelno
 
 
-# format of the message
-format_ = "  [ <bold><level>{level: <8}</level></bold> ][ {name}:{function}:{line}]- {message}"
-colorize = True
-#  adding custom TARDIS INFO Level, just above WARNING
-# this is an additional level, which is above warning and below error
-logger.level("TARDIS INFO", no=35, color="<fg #FF4500>")
-logger.__class__.tardis_info = partialmethod(
-    logger.__class__.log,
-    "TARDIS INFO",
-)
+class Rotator:
+    """
+    copied from: https://loguru.readthedocs.io/en/stable/resources/recipes.html#rotating-log-file-based-on-both-size-and-time
+    """
+
+    def __init__(self, *, size):
+        self._size_limit = size
+
+    def should_rotate(self, message, file):
+        file.seek(0, 2)
+        if file.tell() + len(message) > self._size_limit:
+            return True
+        return False
+
+
+# Rotate file if over 100 MB
+rotator = Rotator(size=1e8)
 
 
 def reset_logger():
@@ -74,27 +71,28 @@ def reset_logger():
         sys.stdout,
         filter=filter_,
         level="TRACE",
-        format=format_,
+        format=format,
         colorize=colorize,
     )
     if save:
         logger.add(
             f"file_{level}.log",
             rotation=rotator.should_rotate,
-            format=format_,
+            format=format,
             filter=filter_,
         )
 
 
-# capturing application warnings
-# extra warnings come out as logs instead of normal prints
-def showwarning(message, *args, **kwargs):
-    name_of_class = args[0].__name__
-    message = "[" + name_of_class + "]" + "[" + args[1] + "]:  " + str(message)
-    logger.warning(message)
-
-
 warnings.showwarning = showwarning
+
+
+#  adding custom TARDIS INFO Level, just above WARNING
+# this is an additional level, which is above warning and below error
+logger.level("TARDIS INFO", no=35, color="<fg #FF4500>")
+logger.__class__.tardis_info = partialmethod(
+    logger.__class__.log,
+    "TARDIS INFO",
+)
 
 
 def init():

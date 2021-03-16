@@ -28,6 +28,8 @@ dependencies:
   - tqdm
   - beautifulsoup4
   - lxml
+  - loguru
+
 
   # Analysis
   - jupyter
