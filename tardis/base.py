@@ -2,7 +2,7 @@
 
 
 def run_tardis(
-    config, atom_data=None, packet_source=None, simulation_callbacks=[]
+    config, atom_data=None, packet_source=None, simulation_callbacks=[], verbose = 0
 ):
     """
     This function is one of the core functions to run TARDIS from a given
@@ -23,6 +23,12 @@ def run_tardis(
     from tardis.io.config_reader import Configuration
     from tardis.io.atom_data.base import AtomData
     from tardis.simulation import Simulation
+    import warnings
+
+    if verbose==1:
+        warnings.filterwarnings("default")
+    else:
+        warnings.filterwarnings("ignore")
 
     if atom_data is not None:
         try:
