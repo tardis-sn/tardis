@@ -520,11 +520,16 @@ class YgData(ProcessingPlasmaProperty):
             Thermally averaged effective collision strengths
             (divided by the statistical weight of the lower level) Y_ij / g_i
 
+        Notes
+        -----
+        See Eq. 9.58 in [2].
+
         References
         ----------
         .. [1] van Regemorter, H., “Rate of Collisional Excitation in Stellar
                Atmospheres.”, The Astrophysical Journal, vol. 136, p. 906, 1962.
                doi:10.1086/147445.
+        .. [2] Hubeny, I. and Mihalas, D., "Theory of Stellar Atmospheres". 2014.
         """
         I_H = atomic_data.ionization_data.loc[(1, 1)]
 
