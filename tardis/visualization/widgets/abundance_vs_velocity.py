@@ -44,7 +44,7 @@ def plot_abundance_vs_velocity(sim):
         plt.plot(velocity[:-1], df[index], "o-", label=a[index])
     plt.legend()
     plt.title("Abundance of elements v/s Velocity")
-    plt.xlabel("Velocity")
+    plt.xlabel("Velocity in " + str(sim.model.velocity.unit))
     plt.ylabel("Abundance (in Fraction)")
     plt.show()
 
