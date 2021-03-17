@@ -425,7 +425,7 @@ class SDECPlotter:
         )
 
     def _calculate_plotting_data(
-        self, packets_mode, packet_wvl_range, distance
+        self, packets_mode, packet_wvl_range, distance, nelements
     ):
         """
         Calculate data to be used in plotting based on parameters passed.
@@ -442,6 +442,11 @@ class SDECPlotter:
         distance : astropy.Quantity
             Distance used to calculate flux instead of luminosity in the plot.
             It should have a length unit like m, Mpc, etc.
+        nelements: int
+            Number of elements to include in plot. Determined by the
+            contribution to total lumionsity absorbed and emitted.
+            Other elements are shown in silver. Default value is
+            None, which displays all elements
 
         Notes
         -----
@@ -514,15 +519,31 @@ class SDECPlotter:
         # Calculate luminosities to be shown in plot
         (
             self.emission_luminosities_df,
-            self.elements,
+            self.emission_elements,
         ) = self._calculate_emission_luminosities(
             packets_mode=packets_mode, packet_wvl_range=packet_wvl_range
         )
-        self.absorption_luminosities_df = (
-            self._calculate_absorption_luminosities(
+        (
+            self.absorption_luminosities_df,
+            self.absorption_elements,
+        ) = self._calculate_absorption_luminosities(
                 packets_mode=packets_mode, packet_wvl_range=packet_wvl_range
-            )
         )
+
+        self.total_luminosities_df = (
+            self.absorption_luminosities_df + self.emission_luminosities_df
+        )
+
+        self.total_luminosities_df.drop(['noint', 'escatter'], axis=1, inplace=True)
+        sorted_list = self.total_luminosities_df.sum().sort_values(ascending=False)
+
+        if nelements is None:
+            self.elements = np.array(list( self.total_luminosities_df.keys() ))
+            self.other_elements = None
+        else:
+            self.elements = np.sort(np.array(list( sorted_list.keys()[:nelements] )))
+            self.other_elements = np.sort(list(set(self.total_luminosities_df.keys()) - set(self.elements)))
+
         self.photosphere_luminosity = self._calculate_photosphere_luminosity(
             packets_mode=packets_mode
         )
@@ -683,9 +704,9 @@ class SDECPlotter:
             luminosities_df[atomic_number] = L_lambda_el.value
 
         # Create an array of the elements with which packets interacted
-        elements_present = np.array(list(packets_df_grouped.groups.keys()))
+        emission_elements_present = np.array(list(packets_df_grouped.groups.keys()))
 
-        return luminosities_df, elements_present
+        return luminosities_df, emission_elements_present
 
     def _calculate_absorption_luminosities(
         self, packets_mode, packet_wvl_range
@@ -731,6 +752,9 @@ class SDECPlotter:
 
         luminosities_df = pd.DataFrame(index=self.plot_wavelength)
 
+        luminosities_df['noint'] = np.zeros_like(self.plot_wavelength)
+        luminosities_df['escatter'] = np.zeros_like(self.plot_wavelength)
+
         # Group packets_df by atomic number of elements with which packets
         # had their last absorption (interaction in)
         packets_df_grouped = (
@@ -759,7 +783,9 @@ class SDECPlotter:
 
             luminosities_df[atomic_number] = L_lambda_el.value
 
-        return luminosities_df
+        absorption_elements_present = np.array(list(packets_df_grouped.groups.keys()))
+
+        return luminosities_df, absorption_elements_present
 
     def _calculate_photosphere_luminosity(self, packets_mode):
         """
@@ -798,6 +824,7 @@ class SDECPlotter:
         ax=None,
         figsize=(12, 7),
         cmapname="jet",
+        nelements = None
     ):
         """
         Generate Spectral element DEComposition (SDEC) Plot using matplotlib.
@@ -826,6 +853,11 @@ class SDECPlotter:
         cmapname : str, optional
             Name of matplotlib colormap to be used for showing elements.
             Default value is "jet"
+       nelements: int
+           Number of elements to include in plot. Determined by the
+           contribution to total lumionsity absorbed and emitted.
+           Other elements are shown in silver. Default value is
+           None, which displays all elements
 
         Returns
         -------
@@ -838,6 +870,7 @@ class SDECPlotter:
             packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
             distance=distance,
+            nelements=nelements
         )
 
         if ax is None:
@@ -921,45 +954,124 @@ class SDECPlotter:
         nelements = len(elements_z)
 
         # Contribution from each element
-        for i, atomic_number in enumerate(elements_z):
-            lower_level = upper_level
-            upper_level = (
-                lower_level
-                + self.emission_luminosities_df[atomic_number].to_numpy()
-            )
+        if self.other_elements is None:
+            elements_z = self.elements
 
-            self.ax.fill_between(
-                self.plot_wavelength,
-                lower_level,
-                upper_level,
-                color=self.cmap(i / nelements),
-                cmap=self.cmap,
-                linewidth=0,
+            for i, atomic_number in enumerate(elements_z):
+                lower_level = upper_level
+                upper_level = (
+                    lower_level
+                    + self.emission_luminosities_df[atomic_number].to_numpy()
+                )
+
+                self.ax.fill_between(
+                    self.plot_wavelength,
+                    lower_level,
+                    upper_level,
+                    color=self.cmap(i / len(self.elements)),
+                    cmap=self.cmap,
+                    linewidth=0,
+                )
+        else:
+            elements_z = self.elements
+            other_elements_z = self.other_elements
+
+            for i, atomic_number in enumerate(other_elements_z):
+                lower_level = upper_level
+                upper_level = (
+                    lower_level
+                    + self.emission_luminosities_df[atomic_number].to_numpy()
+                )
+
+                self.ax.fill_between(
+                    self.plot_wavelength,
+                    lower_level,
+                    upper_level,
+                    color='silver',
+                    cmap=self.cmap,
+                    linewidth=0,
+                )
+
+            for i, atomic_number in enumerate(elements_z):
+                lower_level = upper_level
+                upper_level = (
+                    lower_level
+                    + self.emission_luminosities_df[atomic_number].to_numpy()
+                )
+
+                self.ax.fill_between(
+                    self.plot_wavelength,
+                    lower_level,
+                    upper_level,
+                    color=self.cmap(i / len(self.elements)),
+                    cmap=self.cmap,
+                    linewidth=0,
             )
 
     def _plot_absorption_mpl(self):
         """Plot absorption part of the SDEC Plot using matplotlib."""
         lower_level = np.zeros(self.absorption_luminosities_df.shape[0])
 
-        elements_z = self.absorption_luminosities_df.columns.to_list()
-        for i, atomic_number in enumerate(elements_z):
-            # To plot absorption part along -ve X-axis, we will start with
-            # zero upper level and keep subtracting luminosities to it (lower
-            # level) - fill from upper to lower level
-            upper_level = lower_level
-            lower_level = (
-                upper_level
-                - self.absorption_luminosities_df[atomic_number].to_numpy()
-            )
+        if self.other_elements is None:
+            elements_z = self.elements
+            for i, atomic_number in enumerate(elements_z):
+                # To plot absorption part along -ve X-axis, we will start with
+                # zero upper level and keep subtracting luminosities to it (lower
+                # level) - fill from upper to lower level
+                upper_level = lower_level
+                lower_level = (
+                    upper_level
+                    - self.absorption_luminosities_df[atomic_number].to_numpy()
+                )
 
-            self.ax.fill_between(
-                self.plot_wavelength,
-                upper_level,
-                lower_level,
-                color=self.cmap(i / len(elements_z)),
-                cmap=self.cmap,
-                linewidth=0,
-            )
+                self.ax.fill_between(
+                    self.plot_wavelength,
+                    upper_level,
+                    lower_level,
+                    color=self.cmap(i / len(elements_z)),
+                    cmap=self.cmap,
+                    linewidth=0,
+                )
+        else:
+            elements_z = self.elements
+            other_elements_z = self.other_elements
+            for i, atomic_number in enumerate(other_elements_z):
+                # To plot absorption part along -ve X-axis, we will start with
+                # zero upper level and keep subtracting luminosities to it (lower
+                # level) - fill from upper to lower level
+                upper_level = lower_level
+                lower_level = (
+                    upper_level
+                    - self.absorption_luminosities_df[atomic_number].to_numpy()
+                )
+
+                self.ax.fill_between(
+                    self.plot_wavelength,
+                    upper_level,
+                    lower_level,
+                    color='silver',
+                    cmap=self.cmap,
+                    linewidth=0,
+                )
+            for i, atomic_number in enumerate(elements_z):
+                # To plot absorption part along -ve X-axis, we will start with
+                # zero upper level and keep subtracting luminosities to it (lower
+                # level) - fill from upper to lower level
+                upper_level = lower_level
+                lower_level = (
+                    upper_level
+                    - self.absorption_luminosities_df[atomic_number].to_numpy()
+                )
+
+                self.ax.fill_between(
+                    self.plot_wavelength,
+                    upper_level,
+                    lower_level,
+                    color=self.cmap(i / len(self.elements)),
+                    cmap=self.cmap,
+                    linewidth=0,
+                )
+
 
     def _show_colorbar_mpl(self):
         """Show matplotlib colorbar with labels of elements mapped to colors."""
@@ -991,6 +1103,7 @@ class SDECPlotter:
         fig=None,
         graph_height=600,
         cmapname="jet",
+        nelements=None
     ):
         """
         Generate interactive Spectral element DEComposition (SDEC) Plot using plotly.
@@ -1019,6 +1132,11 @@ class SDECPlotter:
         cmapname : str, optional
             Name of the colormap to be used for showing elements.
             Default value is "jet"
+       nelements: int
+           Number of elements to include in plot. Determined by the
+           contribution to total lumionsity absorbed and emitted.
+           Other elements are shown in silver. Default value is
+           None, which displays all elements
 
         Returns
         -------
@@ -1031,6 +1149,7 @@ class SDECPlotter:
             packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
             distance=distance,
+            nelements=nelements
         )
 
         if fig is None:
@@ -1138,40 +1257,99 @@ class SDECPlotter:
             )
         )
 
-        elements_z = self.emission_luminosities_df.columns[2:]
-        nelements = len(elements_z)
+        if self.other_elements is None:
+            elements_z = self.elements
 
-        for i, atomic_num in enumerate(elements_z):
-            self.fig.add_trace(
-                go.Scatter(
-                    x=self.emission_luminosities_df.index,
-                    y=self.emission_luminosities_df[atomic_num],
-                    mode="none",
-                    name=atomic_number2element_symbol(atomic_num),
-                    fillcolor=self.to_rgb255_string(self.cmap(i / nelements)),
-                    stackgroup="emission",
-                    showlegend=False,
+            for i, atomic_num in enumerate(elements_z):
+                self.fig.add_trace(
+                    go.Scatter(
+                        x=self.emission_luminosities_df.index,
+                        y=self.emission_luminosities_df[atomic_num],
+                        mode="none",
+                        name=atomic_number2element_symbol(atomic_num),
+                        fillcolor=self.to_rgb255_string(self.cmap(i / len(self.elements))),
+                        stackgroup="emission",
+                        showlegend=False,
+                    )
                 )
-            )
+        else:
+            elements_z = self.elements
+            other_elements_z = self.other_elements
+
+            for i, atomic_num in enumerate(other_elements_z):
+                self.fig.add_trace(
+                    go.Scatter(
+                        x=self.emission_luminosities_df.index,
+                        y=self.emission_luminosities_df[atomic_num],
+                        mode="none",
+                        name=atomic_number2element_symbol(atomic_num),
+                        fillcolor='silver',
+                        stackgroup="emission",
+                        showlegend=False,
+                    )
+                )
+            for i, atomic_num in enumerate(elements_z):
+                self.fig.add_trace(
+                    go.Scatter(
+                        x=self.emission_luminosities_df.index,
+                        y=self.emission_luminosities_df[atomic_num],
+                        mode="none",
+                        name=atomic_number2element_symbol(atomic_num),
+                        fillcolor=self.to_rgb255_string(self.cmap(i / len(self.elements))),
+                        stackgroup="emission",
+                        showlegend=False,
+                    )
+                )
+
 
     def _plot_absorption_ply(self):
         """Plot absorption part of the SDEC Plot using plotly."""
-        elements_z = self.absorption_luminosities_df.columns
-        nelements = len(elements_z)
+        if self.other_elements is None:
+            elements_z = self.elements
 
-        for i, atomic_num in enumerate(elements_z):
-            self.fig.add_trace(
-                go.Scatter(
-                    x=self.absorption_luminosities_df.index,
-                    # to plot absorption luminosities along negative y-axis
-                    y=self.absorption_luminosities_df[atomic_num] * -1,
-                    mode="none",
-                    name=atomic_number2element_symbol(atomic_num),
-                    fillcolor=self.to_rgb255_string(self.cmap(i / nelements)),
-                    stackgroup="absorption",
-                    showlegend=False,
+            for i, atomic_num in enumerate(elements_z):
+                self.fig.add_trace(
+                    go.Scatter(
+                        x=self.absorption_luminosities_df.index,
+                        # to plot absorption luminosities along negative y-axis
+                        y=self.absorption_luminosities_df[atomic_num] * -1,
+                        mode="none",
+                        name=atomic_number2element_symbol(atomic_num),
+                        fillcolor=self.to_rgb255_string(self.cmap(i / len(self.elements))),
+                        stackgroup="absorption",
+                        showlegend=False,
+                    )
                 )
-            )
+        else:
+            elements_z = self.elements
+            other_elements_z = self.other_elements
+
+            for i, atomic_num in enumerate(other_elements_z):
+                self.fig.add_trace(
+                    go.Scatter(
+                        x=self.absorption_luminosities_df.index,
+                        # to plot absorption luminosities along negative y-axis
+                        y=self.absorption_luminosities_df[atomic_num] * -1,
+                        mode="none",
+                        name=atomic_number2element_symbol(atomic_num),
+                        fillcolor='silver',
+                        stackgroup="absorption",
+                        showlegend=False,
+                    )
+                )
+            for i, atomic_num in enumerate(elements_z):
+                self.fig.add_trace(
+                    go.Scatter(
+                        x=self.absorption_luminosities_df.index,
+                        # to plot absorption luminosities along negative y-axis
+                        y=self.absorption_luminosities_df[atomic_num] * -1,
+                        mode="none",
+                        name=atomic_number2element_symbol(atomic_num),
+                        fillcolor=self.to_rgb255_string(self.cmap(i / len(self.elements))),
+                        stackgroup="absorption",
+                        showlegend=False,
+                    )
+                )
 
     def _show_colorbar_ply(self):
         """Show plotly colorbar with labels of elements mapped to colors."""
