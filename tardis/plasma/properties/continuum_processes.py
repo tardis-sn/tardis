@@ -40,6 +40,7 @@ __all__ = [
     "TwoPhotonEmissionCDF",
     "CollIonRateCoeffSeaton",
     "CollRecombRateCoeff",
+    "RawCollIonTransProbs",
 ]
 
 
@@ -668,7 +669,7 @@ class RawCollisionTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
         p_deexc_deac = (coll_deexc_coeff * electron_densities).multiply(
             delta_E_yg.values, axis=0
         )
-        p_deexc_deac = self.set_index(p_deexc_deac, yg_idx)
+        p_deexc_deac = self.set_index(p_deexc_deac, yg_idx, reverse=True)
         p_deexc_deac = p_deexc_deac.groupby(level=[0]).sum()
         index_dd = pd.MultiIndex.from_product(
             [p_deexc_deac.index.values, ["k"], [0]],
@@ -1032,8 +1033,85 @@ class CollRecombRateCoeff(ProcessingPlasmaProperty):
     collisional ionization rate coefficient based on the requirement of detailed
     balance.
     """
-    outputs = ('coll_recomb_coeff',)
-    latex_name = (r'c_{\kappa\textrm{i,}}',)
+
+    outputs = ("coll_recomb_coeff",)
+    latex_name = (r"c_{\kappa\textrm{i,}}",)
 
     def calculate(self, phi_ik, coll_ion_coeff):
         return coll_ion_coeff.multiply(phi_ik.loc[coll_ion_coeff.index])
+
+
+class RawCollIonTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
+    """
+    Attributes
+    ----------
+    p_coll_ion : pandas.DataFrame, dtype float
+        The unnormalized transition probabilities for
+        collisional ionization.
+    p_coll_recomb : pandas.DataFrame, dtype float
+        The unnormalized transition probabilities for
+        collisional recombination.
+    C_coll_ion : pandas.DataFrame, dtype float
+        The collisional ionization cooling rates of the electron gas.
+    """
+
+    outputs = ("p_coll_ion", "p_coll_recomb", "C_coll_ion")
+    transition_probabilities_outputs = (
+        "p_coll_ion",
+        "p_coll_recomb",
+        "C_coll_ion",
+    )
+    latex_name = (
+        r"p^{\textrm{coll ion}}",
+        r"p^{\textrm{coll recomb}}",
+        r"C^{\textrm{ion}}",
+    )
+
+    def calculate(
+        self,
+        coll_ion_coeff,
+        coll_recomb_coeff,
+        nu_i,
+        photo_ion_idx,
+        electron_densities,
+        energy_i,
+        level_number_density,
+    ):
+        p_coll_ion = coll_ion_coeff.multiply(energy_i, axis=0)
+        p_coll_ion = p_coll_ion.multiply(electron_densities, axis=1)
+        p_coll_ion = self.set_index(p_coll_ion, photo_ion_idx, reverse=False)
+
+        coll_recomb_rate = coll_recomb_coeff.multiply(
+            electron_densities, axis=1
+        )  # The full rate is obtained from this by multiplying by the
+        # electron density and ion number density.
+        p_recomb_deac = coll_recomb_rate.multiply(nu_i, axis=0) * H
+        p_recomb_deac = self.set_index(
+            p_recomb_deac, photo_ion_idx, transition_type=-1
+        )
+        p_recomb_deac = p_recomb_deac.groupby(level=[0]).sum()
+        index_dd = pd.MultiIndex.from_product(
+            [p_recomb_deac.index.values, ["k"], [0]],
+            names=list(photo_ion_idx.columns) + ["transition_type"],
+        )
+        p_recomb_deac = p_recomb_deac.set_index(index_dd)
+
+        p_recomb_internal = coll_recomb_rate.multiply(energy_i, axis=0)
+        p_recomb_internal = self.set_index(
+            p_recomb_internal, photo_ion_idx, transition_type=0
+        )
+        p_coll_recomb = pd.concat([p_recomb_deac, p_recomb_internal])
+
+        C_coll_ion = (coll_ion_coeff * electron_densities).multiply(
+            nu_i * H, axis=0
+        )
+        ll_index = coll_ion_coeff.index
+        C_coll_ion = C_coll_ion * level_number_density.loc[ll_index].values
+        C_coll_ion = self.set_index(C_coll_ion, photo_ion_idx, reverse=False)
+        C_coll_ion = C_coll_ion.groupby(level="destination_level_idx").sum()
+        ion_cool_index = pd.MultiIndex.from_product(
+            [["k"], C_coll_ion.index.values, [0]],
+            names=list(photo_ion_idx.columns) + ["transition_type"],
+        )
+        C_coll_ion = C_coll_ion.set_index(ion_cool_index)
+        return p_coll_ion, p_coll_recomb, C_coll_ion
