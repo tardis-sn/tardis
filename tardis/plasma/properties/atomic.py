@@ -121,14 +121,14 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
         Indices where the photoionization data for
         a given level starts. Needed for calculation
         of recombination rates.
-    nu_i: pandas.Series, dtype float
+    nu_i : pandas.Series, dtype float
         Threshold frequencies for ionization
-    energy_i: pandas.Series, dtype float
+    energy_i : pandas.Series, dtype float
         Energies of levels with bound-free transitions. Needed to calculate
         for example internal transition probabilities in the macro atom scheme.
-    photo_ion_index: pandas.MultiIndex, dtype int
+    photo_ion_index : pandas.MultiIndex, dtype int
         Atomic, ion and level numbers for which photoionization data exists.
-    level2continuum_idx: pandas.Series, dtype int
+    level2continuum_idx : pandas.Series, dtype int
         Maps a level MultiIndex (atomic_number, ion_number, level_number) to
         the continuum_idx of the corresponding bound-free continuum (which are
         sorted by decreasing frequency).
@@ -209,7 +209,7 @@ class TwoPhotonData(ProcessingPlasmaProperty):
         alpha, beta, gamma are fit coefficients for the frequency dependent
         transition probability A(y) of the two photon decay. See Eq. 2 in
         Nussbaumer & Schmutz (1984).
-    two_photon_idx: pandas.DataFrame, dtype int
+    two_photon_idx : pandas.DataFrame, dtype int
     """
 
     def calculate(self, atomic_data, continuum_interaction_species):
@@ -512,7 +512,7 @@ class YgData(ProcessingPlasmaProperty):
         ----------
         atomic_data : tardis.io.atom_data.AtomData
         t_electrons : numpy.ndarray
-        continuun_interaction_species : pandas.MultiIndex
+        continuum_interaction_species : pandas.MultiIndex
 
         Returns
         -------

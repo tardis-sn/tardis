@@ -784,11 +784,11 @@ class TwoPhotonEmissionCDF(ProcessingPlasmaProperty):
         y : np.ndarray, dtype float
             Emission frequency divided by that of the normal line
             transition corresponding to the two photon decay.
-        alpha: float
+        alpha : float
             Fit coefficient.
-        beta: float
+        beta : float
             Fit coefficient.
-        gamma: float
+        gamma : float
             Fit coefficient.
 
         Returns
@@ -863,7 +863,7 @@ class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
         The total free-bound cooling rate of the electron gas.
     C_fb : pandas.DataFrame, dtype float
         The individual free-bound cooling rates of the electron gas.
-    p_fb_deac: pandas.DataFrame, dtype float
+    p_fb_deac : pandas.DataFrame, dtype float
         Probabilities of free-bound cooling in a specific continuum
         (identified by its continuum_idx).
     """
