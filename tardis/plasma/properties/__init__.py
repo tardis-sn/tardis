@@ -8,3 +8,4 @@ from tardis.plasma.properties.radiative_properties import *
 from tardis.plasma.properties.nlte import *
 from tardis.plasma.properties.j_blues import *
 from tardis.plasma.properties.continuum_processes import *
+from tardis.plasma.properties.transition_probabilities import *
