@@ -91,6 +91,7 @@ class SpMatrixSeriesConverterMixin(object):
             used in the sparse matrix.
         names : array-like, optional
             Names of levels in MultiIndex of returned Series.
+
         Returns
         -------
         pandas.Series
