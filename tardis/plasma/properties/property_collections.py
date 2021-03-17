@@ -125,6 +125,7 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         FreeBoundEmissionCDF,
         LevelIdxs2LineIdx,
         CollIonRateCoeffSeaton,
+        CollRecombRateCoeff,
     ]
 )
 adiabatic_cooling_properties = PlasmaPropertyCollection([AdiabaticCoolingRate])
