@@ -26,14 +26,14 @@ def abundance_velocity_matplot(sim):
     """
     plt.figure(figsize=(20,6))
 
-    #Data for plot
+    # Data for plot
     plotdf = (sim.model.abundance).T
     velocity = sim.model.velocity
     elements=plotdf.columns.values
 
-    #Plot line graph for each element
+    # Plot line graph for each element
     for atomic_number in elements:
-        plt.plot( velocity[:-1], plotdf[atomic_number],marker='o', markersize=12, linewidth=4,label=atomic_number2element_symbol(atomic_number))
+        plt.plot( velocity[:-1], plotdf[atomic_number],marker="o", markersize=12, linewidth=4,label=atomic_number2element_symbol(atomic_number))
     
     # Edit the layout
     plt.title("Abundance vs Velocity", fontsize=18)
@@ -56,15 +56,15 @@ def abundance_velocity_plotly(sim):
     """
     fig = go.Figure()
 
-    #Data for plot
+    # Data for plot
     plotdf = (sim.model.abundance).T
     velocity = sim.model.velocity
     elements=plotdf.columns.values
 
-    #Plot line graph for each element
+    # Plot line graph for each element
     for atomic_number in elements:
         fig.add_trace(go.Scatter(x=velocity, y=plotdf[atomic_number],
-                    mode='lines+markers',
+                    mode="lines+markers",
                     name=atomic_number2element_symbol(atomic_number)))
 
     # Edit the layout
@@ -72,7 +72,7 @@ def abundance_velocity_plotly(sim):
                    xaxis_title="Velocity ( Inner Shell Boundary in " + str(sim.model.velocity.unit)+")",
                    yaxis_title="Abundance (Fraction)"
                    )
-    fig.update_xaxes(tickformat='e') 
+    fig.update_xaxes(tickformat="e") 
     fig.show()
 
 
