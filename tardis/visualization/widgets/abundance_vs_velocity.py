@@ -1,10 +1,11 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
 
 def plot_abundance_vs_velocity(sim):
     """
-    Plots the abundance of elements vs velocity provided simulation result.
+    Plots the abundance of elements vs velocity provided simulation result using matplotlib.
 
     Parameters
     ----------
@@ -49,7 +50,86 @@ def plot_abundance_vs_velocity(sim):
     plt.show()
 
 
+def plotly_abundance_vs_velocity(sim):
+    """
+    Plots the abundance of elements vs velocity provided simulation result using plotly.
+
+    Parameters
+    ----------
+    sim : Model Object containing
+
+        config : str or dict
+            filename of configuration yaml file or dictionary
+
+        atom_data : str or tardis.atomic.AtomData
+            if atom_data is a string it is interpreted as a path to a file storing
+            the atomic data. Atomic data to use for this TARDIS simulation.
+            If set to None, the atomic data will be loaded according to keywords set in the configuration
+            [default=None]
+
+
+    Returns
+    -------
+    None
+
+    """
+
+    # loading abundance sata in 'df'
+    df = (sim.model.abundance).T
+
+    # saving the velocity array in 'velocity'
+    velocity = sim.model.velocity
+
+    # obtaing a map of atomic numbers to element symbol
+    # the index of a will be the atomic number and corresponding value will be element symbol
+    a = atomic_number_to_element_symbol()
+
+    # plotting the graph of abundance of element vs velocity
+
+    # for loop iterate and plot abundance of each element at a time
+    fig = go.Figure()
+    for index, row in df.T.iterrows():
+        fig.add_trace(
+            go.Scatter(
+                x=velocity[:-1],
+                y=df[index],
+                mode="lines+markers",
+                name=a[index],
+            )
+        )
+    fig.update_layout(
+        xaxis=dict(
+            title="Velocity in " + str(sim.model.velocity.unit),
+            exponentformat="e",
+        ),
+        yaxis=dict(title="Abundance (in Fraction)"),
+        title={
+            "text": "Abundance of elements v/s Velocity",
+            "y": 0.9,
+            "x": 0.5,
+            "xanchor": "center",
+            "yanchor": "top",
+        },
+    )
+    fig.update_yaxes(range=[0, 1])
+    fig.show()
+
+
 def atomic_number_to_element_symbol():
+    """
+    Convert atomic numbers into atomic symbols.
+
+    Parameters
+    ----------
+    None
+
+
+    Returns
+    -------
+    a : list
+    the list whose index is mapped to atomic symbols.
+
+    """
     a = [None] * 119
     a[1:16] = [
         "H",

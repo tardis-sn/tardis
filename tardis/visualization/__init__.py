@@ -9,4 +9,5 @@ from tardis.visualization.tools.sdec_plot import SDECPlotter
 
 from tardis.visualization.widgets.abundance_vs_velocity import (
     plot_abundance_vs_velocity,
+    plotly_abundance_vs_velocity,
 )
