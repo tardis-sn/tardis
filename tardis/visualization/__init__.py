@@ -6,3 +6,4 @@ from tardis.visualization.widgets.shell_info import (
 )
 from tardis.visualization.widgets.line_info import LineInfoWidget
 from tardis.visualization.tools.sdec_plot import SDECPlotter
+from tardis.visualization.tools.abundance_velocity_plot import abundance_velocity_matplot , abundance_velocity_plotly

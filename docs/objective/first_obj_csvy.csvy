@@ -1,0 +1,38 @@
+---
+name: first_obj
+model_density_time_0: 1 day
+model_isotope_time_0: 0 day
+description: Example csvy config file for TARDIS.
+tardis_model_config_version: v1.0
+datatype:
+  fields:
+    -  name: velocity
+       unit: km/s
+       desc: velocities of shell outer bounderies.
+    -  name: density
+       unit: g/cm^3
+       desc: density of shell.
+    -  name: t_rad
+       unit: K
+       desc: radiative temperature.
+    -  name: H
+       desc: fractional H abundance
+    -  name: He
+       desc: fractional He abundance
+    -  name: Si
+       desc: fractional Si abundance
+    -  name: Co
+       desc: fractional Co abundance
+
+v_inner_boundary: 9000 km/s
+v_outer_boundary: 15000 km/s
+---
+velocity,density,t_rad,H,He,Si,Co
+9000, 5e-10, 7000, 1.0, 1.0, 1.0,1.0
+10000, 2.0e-10, 7000, 0.0, 0.97, 0.01, 0.02
+11000, 9e-11, 7000, 0.37, 0.5, 0.1, 0.03
+12000, 6e-11, 7000, 0.4, 0.45, 0.14, 0.01
+13000, 5e-11, 7000, 0.45, 0.5, 0.2, 0.04
+14000, 4e-11, 7000, 0.7, 0.2, 0.05, 0.05
+15000, 3e-11, 7000, 0.7, 0.02, 0.25, 0.01
+
