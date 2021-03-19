@@ -502,7 +502,7 @@ class MontecarloRunner(HDFWriterMixin):
         pass
 
     @classmethod
-    def from_config(cls, config, packet_source=None):
+    def from_config(cls, config, packet_source=None, virtual_packet_logging=False):
         """
         Create a new MontecarloRunner instance from a Configuration object.
 
@@ -552,5 +552,5 @@ class MontecarloRunner(HDFWriterMixin):
             debug_packets=config.montecarlo.debug_packets,
             logger_buffer=config.montecarlo.logger_buffer,
             single_packet_seed=config.montecarlo.single_packet_seed,
-            virtual_packet_logging=config.spectrum.virtual.virtual_packet_logging,
+            virtual_packet_logging=(config.spectrum.virtual.virtual_packet_logging | virtual_packet_logging),
         )

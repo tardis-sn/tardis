@@ -502,7 +502,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             return False
 
     @classmethod
-    def from_config(cls, config, packet_source=None, **kwargs):
+    def from_config(cls, config, packet_source=None, virtual_packet_logging=False, **kwargs):
         """
         Create a new Simulation instance from a Configuration object.
 
@@ -541,7 +541,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             runner = kwargs["runner"]
         else:
             runner = MontecarloRunner.from_config(
-                config, packet_source=packet_source
+                config, packet_source=packet_source, virtual_packet_logging=virtual_packet_logging
             )
 
         luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(

@@ -2,7 +2,7 @@
 
 
 def run_tardis(
-    config, atom_data=None, packet_source=None, simulation_callbacks=[]
+    config, atom_data=None, packet_source=None, simulation_callbacks=[], virtual_packet_logging=False
 ):
     """
     This function is one of the core functions to run TARDIS from a given
@@ -36,7 +36,7 @@ def run_tardis(
         tardis_config = Configuration.from_config_dict(config)
 
     simulation = Simulation.from_config(
-        tardis_config, packet_source=packet_source, atom_data=atom_data
+        tardis_config, packet_source=packet_source, atom_data=atom_data, virtual_packet_logging=virtual_packet_logging
     )
     for cb in simulation_callbacks:
         simulation.add_callback(*cb)
