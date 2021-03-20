@@ -2,6 +2,7 @@ import time
 import logging
 import numpy as np
 import pandas as pd
+import plotly.graph_objs as go
 from astropy import units as u, constants as const
 from collections import OrderedDict
 
@@ -112,6 +113,35 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         "iterations_t_inner",
     ]
     hdf_name = "simulation"
+
+    tmp_dict = {
+        "t_rad_shell_0": [],
+        "t_rad_shell_5": [],
+        "t_rad_shell_10": [],
+        "t_rad_shell_15": [],
+        "w_shell_0": [],
+        "w_shell_5": [],
+        "w_shell_10": [],
+        "w_shell_15": [],
+    }
+
+    fig1 = go.FigureWidget()
+    fig1.add_scatter(name="shell 0")
+    fig1.add_scatter(name="shell 5")
+    fig1.add_scatter(name="shell 10")
+    fig1.add_scatter(name="shell 15")
+    fig1.layout.title = "Radiation Temperature"
+    fig1.update_xaxes(title_text="iteration")
+    fig1.update_yaxes(title_text="Temp")
+
+    fig2 = go.FigureWidget()
+    fig2.add_scatter(name="shell 0")
+    fig2.add_scatter(name="shell 5")
+    fig2.add_scatter(name="shell 10")
+    fig2.add_scatter(name="shell 15")
+    fig2.layout.title = "Dilution factor"
+    fig2.update_xaxes(title_text="iteration")
+    fig2.update_yaxes(title_text="W")
 
     def __init__(
         self,
@@ -348,6 +378,64 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)
         self.iterations_executed += 1
 
+    def visualization(self, t_rad, w, next_t_rad, next_w):
+        t_rad = list(t_rad)
+        w = list(w)
+        next_t_rad = list(next_t_rad)
+        next_w = list(next_w)
+        if len(self.tmp_dict["t_rad_shell_0"]) == 0:
+            display(self.fig1, self.fig2)
+            self.tmp_dict["t_rad_shell_0"].extend(
+                [t_rad[0].value, next_t_rad[0].value]
+            )
+            self.tmp_dict["t_rad_shell_5"].extend(
+                [t_rad[5].value, next_t_rad[5].value]
+            )
+            self.tmp_dict["t_rad_shell_10"].extend(
+                [t_rad[10].value, next_t_rad[10].value]
+            )
+            self.tmp_dict["t_rad_shell_15"].extend(
+                [t_rad[15].value, next_t_rad[15].value]
+            )
+            self.tmp_dict["w_shell_0"].extend([w[0], next_w[0]])
+            self.tmp_dict["w_shell_5"].extend([w[5], next_w[5]])
+            self.tmp_dict["w_shell_10"].extend([w[10], next_w[10]])
+            self.tmp_dict["w_shell_15"].extend([w[15], next_w[15]])
+
+            with self.fig1.batch_update():
+                self.fig1.data[0].y = self.tmp_dict["t_rad_shell_0"]
+                self.fig1.data[1].y = self.tmp_dict["t_rad_shell_5"]
+                self.fig1.data[2].y = self.tmp_dict["t_rad_shell_10"]
+                self.fig1.data[3].y = self.tmp_dict["t_rad_shell_15"]
+
+            with self.fig2.batch_update():
+                self.fig2.data[0].y = self.tmp_dict["w_shell_0"]
+                self.fig2.data[1].y = self.tmp_dict["w_shell_5"]
+                self.fig2.data[2].y = self.tmp_dict["w_shell_10"]
+                self.fig2.data[3].y = self.tmp_dict["w_shell_15"]
+
+        else:
+            self.tmp_dict["t_rad_shell_0"].extend([next_t_rad[0].value])
+            self.tmp_dict["t_rad_shell_5"].extend([next_t_rad[5].value])
+            self.tmp_dict["t_rad_shell_10"].extend([next_t_rad[10].value])
+            self.tmp_dict["t_rad_shell_15"].extend([next_t_rad[15].value])
+            self.tmp_dict["w_shell_0"].extend([next_w[0]])
+            self.tmp_dict["w_shell_5"].extend([next_w[5]])
+            self.tmp_dict["w_shell_10"].extend([next_w[10]])
+            self.tmp_dict["w_shell_15"].extend([next_w[15]])
+
+            with self.fig1.batch_update():
+                self.fig1.data[0].y = self.tmp_dict["t_rad_shell_0"]
+                self.fig1.data[1].y = self.tmp_dict["t_rad_shell_5"]
+                self.fig1.data[2].y = self.tmp_dict["t_rad_shell_10"]
+                self.fig1.data[3].y = self.tmp_dict["t_rad_shell_15"]
+
+            with self.fig2.batch_update():
+                self.fig2.data[0].y = self.tmp_dict["w_shell_0"]
+                self.fig2.data[1].y = self.tmp_dict["w_shell_5"]
+                self.fig2.data[2].y = self.tmp_dict["w_shell_10"]
+                self.fig2.data[3].y = self.tmp_dict["w_shell_15"]
+
     def run(self):
         start_time = time.time()
         while self.iterations_executed < self.iterations - 1:
@@ -434,6 +522,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         logger.info("Plasma stratification:\n%s\n", plasma_state_log)
+        self.visualization(t_rad, w, next_t_rad, next_w)
         logger.info(
             "t_inner {0:.3f} -- next t_inner {1:.3f}".format(
                 t_inner, next_t_inner
