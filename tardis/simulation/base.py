@@ -349,6 +349,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.iterations_executed += 1
 
     def run(self):
+        """
+        run the simulation
+        """
         start_time = time.time()
         while self.iterations_executed < self.iterations - 1:
             self.store_plasma_state(
@@ -509,6 +512,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         Parameters
         ----------
         config : tardis.io.config_reader.Configuration
+
         **kwargs
             Allow overriding some structures, such as model, plasma, atomic data
             and the runner, instead of creating them from the configuration
