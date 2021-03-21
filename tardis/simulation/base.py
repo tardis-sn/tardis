@@ -1,3 +1,5 @@
+#code for simulation and visualization
+
 import time
 import logging
 import numpy as np
