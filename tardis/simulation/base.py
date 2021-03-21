@@ -1,4 +1,4 @@
-#code for simulation and visualization
+# code for simulation and visualization
 
 import time
 import logging
@@ -381,6 +381,22 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.iterations_executed += 1
 
     def visualization(self, t_rad, w, next_t_rad, next_w):
+        """
+        Visualize convergence of the plot
+
+        Parameters
+        ----------
+        t_rad : astropy.units.Quanity
+            current t_rad
+        w : astropy.units.Quanity
+            current w
+        next_t_rad : astropy.units.Quanity
+            next t_rad
+        next_w : astropy.units.Quanity
+            next_w
+        Returns
+        -------
+        """
         t_rad = list(t_rad)
         w = list(w)
         next_t_rad = list(next_t_rad)
