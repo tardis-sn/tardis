@@ -5,6 +5,7 @@ import logging
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
+from IPython.display import display
 from astropy import units as u, constants as const
 from collections import OrderedDict
 
