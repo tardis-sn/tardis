@@ -527,28 +527,56 @@ class SDECPlotter:
             self.absorption_luminosities_df,
             self.absorption_elements,
         ) = self._calculate_absorption_luminosities(
-                packets_mode=packets_mode, packet_wvl_range=packet_wvl_range
+            packets_mode=packets_mode, packet_wvl_range=packet_wvl_range
         )
 
         self.total_luminosities_df = (
             self.absorption_luminosities_df + self.emission_luminosities_df
         )
 
-        self.total_luminosities_df.drop(['noint', 'escatter'], axis=1, inplace=True)
-        sorted_list = self.total_luminosities_df.sum().sort_values(ascending=False)
+        self.total_luminosities_df.drop(
+            ["noint", "escatter"], axis=1, inplace=True
+        )
+        sorted_list = self.total_luminosities_df.sum().sort_values(
+            ascending=False
+        )
 
         if nelements is None:
-            self.elements = np.array(list( self.total_luminosities_df.keys() ))
+            self.elements = np.array(list(self.total_luminosities_df.keys()))
         else:
-            self.total_luminosities_df.insert(loc=0, column='other', value=self.total_luminosities_df[sorted_list.keys()[nelements:]].sum(axis=1))
-            self.total_luminosities_df.drop(sorted_list.keys()[nelements:], inplace=True, axis=1)
-             
-            self.emission_luminosities_df.insert(loc=2, column='other', value=self.emission_luminosities_df[sorted_list.keys()[nelements:]].sum(axis=1))
-            self.emission_luminosities_df.drop(sorted_list.keys()[nelements:], inplace=True, axis=1)
+            self.total_luminosities_df.insert(
+                loc=0,
+                column="other",
+                value=self.total_luminosities_df[
+                    sorted_list.keys()[nelements:]
+                ].sum(axis=1),
+            )
+            self.total_luminosities_df.drop(
+                sorted_list.keys()[nelements:], inplace=True, axis=1
+            )
 
-            self.absorption_luminosities_df.insert(loc=2, column='other', value=self.absorption_luminosities_df[sorted_list.keys()[nelements:]].sum(axis=1))
-            self.absorption_luminosities_df.drop(sorted_list.keys()[nelements:], inplace=True, axis=1)
-                                                 
+            self.emission_luminosities_df.insert(
+                loc=2,
+                column="other",
+                value=self.emission_luminosities_df[
+                    sorted_list.keys()[nelements:]
+                ].sum(axis=1),
+            )
+            self.emission_luminosities_df.drop(
+                sorted_list.keys()[nelements:], inplace=True, axis=1
+            )
+
+            self.absorption_luminosities_df.insert(
+                loc=2,
+                column="other",
+                value=self.absorption_luminosities_df[
+                    sorted_list.keys()[nelements:]
+                ].sum(axis=1),
+            )
+            self.absorption_luminosities_df.drop(
+                sorted_list.keys()[nelements:], inplace=True, axis=1
+            )
+
             self.elements = np.sort(self.total_luminosities_df.keys()[1:])
 
         self.photosphere_luminosity = self._calculate_photosphere_luminosity(
@@ -711,7 +739,9 @@ class SDECPlotter:
             luminosities_df[atomic_number] = L_lambda_el.value
 
         # Create an array of the elements with which packets interacted
-        emission_elements_present = np.array(list(packets_df_grouped.groups.keys()))
+        emission_elements_present = np.array(
+            list(packets_df_grouped.groups.keys())
+        )
 
         return luminosities_df, emission_elements_present
 
@@ -759,8 +789,8 @@ class SDECPlotter:
 
         luminosities_df = pd.DataFrame(index=self.plot_wavelength)
 
-        luminosities_df['noint'] = np.zeros_like(self.plot_wavelength)
-        luminosities_df['escatter'] = np.zeros_like(self.plot_wavelength)
+        luminosities_df["noint"] = np.zeros_like(self.plot_wavelength)
+        luminosities_df["escatter"] = np.zeros_like(self.plot_wavelength)
 
         # Group packets_df by atomic number of elements with which packets
         # had their last absorption (interaction in)
@@ -790,7 +820,9 @@ class SDECPlotter:
 
             luminosities_df[atomic_number] = L_lambda_el.value
 
-        absorption_elements_present = np.array(list(packets_df_grouped.groups.keys()))
+        absorption_elements_present = np.array(
+            list(packets_df_grouped.groups.keys())
+        )
 
         return luminosities_df, absorption_elements_present
 
@@ -831,45 +863,45 @@ class SDECPlotter:
         ax=None,
         figsize=(12, 7),
         cmapname="jet",
-        nelements = None
+        nelements=None,
     ):
         """
-        Generate Spectral element DEComposition (SDEC) Plot using matplotlib.
+         Generate Spectral element DEComposition (SDEC) Plot using matplotlib.
 
-        Parameters
-        ----------
-        packets_mode : {'virtual', 'real'}, optional
-            Mode of packets to be considered, either real or virtual. Default
-            value is 'virtual'
-        packet_wvl_range : astropy.Quantity or None, optional
-            Wavelength range to restrict the analysis of escaped packets. It
-            should be a quantity having units of Angstrom, containing two
-            values - lower lambda and upper lambda i.e.
-            [lower_lambda, upper_lambda] * u.AA. Default value is None
-        distance : astropy.Quantity or None, optional
-            Distance used to calculate flux instead of luminosity in the plot.
-            It should have a length unit like m, Mpc, etc. Default value is None
-        show_modeled_spectrum : bool, optional
-            Whether to show modeled spectrum in SDEC Plot. Default value is
-            True
-        ax : matplotlib.axes._subplots.AxesSubplot or None, optional
-            Axis on which to create plot. Default value is None which will
-            create plot on a new figure's axis.
-        figsize : tuple, optional
-            Size of the matplotlib figure to display. Default value is (12, 7)
-        cmapname : str, optional
-            Name of matplotlib colormap to be used for showing elements.
-            Default value is "jet"
-       nelements: int
-           Number of elements to include in plot. Determined by the
-           contribution to total lumionsity absorbed and emitted.
-           Other elements are shown in silver. Default value is
-           None, which displays all elements
+         Parameters
+         ----------
+         packets_mode : {'virtual', 'real'}, optional
+             Mode of packets to be considered, either real or virtual. Default
+             value is 'virtual'
+         packet_wvl_range : astropy.Quantity or None, optional
+             Wavelength range to restrict the analysis of escaped packets. It
+             should be a quantity having units of Angstrom, containing two
+             values - lower lambda and upper lambda i.e.
+             [lower_lambda, upper_lambda] * u.AA. Default value is None
+         distance : astropy.Quantity or None, optional
+             Distance used to calculate flux instead of luminosity in the plot.
+             It should have a length unit like m, Mpc, etc. Default value is None
+         show_modeled_spectrum : bool, optional
+             Whether to show modeled spectrum in SDEC Plot. Default value is
+             True
+         ax : matplotlib.axes._subplots.AxesSubplot or None, optional
+             Axis on which to create plot. Default value is None which will
+             create plot on a new figure's axis.
+         figsize : tuple, optional
+             Size of the matplotlib figure to display. Default value is (12, 7)
+         cmapname : str, optional
+             Name of matplotlib colormap to be used for showing elements.
+             Default value is "jet"
+        nelements: int
+            Number of elements to include in plot. Determined by the
+            contribution to total lumionsity absorbed and emitted.
+            Other elements are shown in silver. Default value is
+            None, which displays all elements
 
-        Returns
-        -------
-        matplotlib.axes._subplots.AxesSubplot
-            Axis on which SDEC Plot is created
+         Returns
+         -------
+         matplotlib.axes._subplots.AxesSubplot
+             Axis on which SDEC Plot is created
         """
         # Calculate data attributes required for plotting
         # and save them in instance itself
@@ -877,7 +909,7 @@ class SDECPlotter:
             packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
             distance=distance,
-            nelements=nelements
+            nelements=nelements,
         )
 
         if ax is None:
@@ -956,13 +988,13 @@ class SDECPlotter:
             color="grey",
             label="Electron Scatter Only",
         )
-        
-        if 'other' in self.emission_luminosities_df.keys():
+
+        if "other" in self.emission_luminosities_df.keys():
             lower_level = upper_level
             upper_level = (
                 lower_level + self.emission_luminosities_df.other.to_numpy()
             )
-        
+
             self.ax.fill_between(
                 self.plot_wavelength,
                 lower_level,
@@ -970,7 +1002,7 @@ class SDECPlotter:
                 color="silver",
                 label="Other elements",
             )
-        
+
         elements_z = self.emission_luminosities_df.columns[3:].to_list()
 
         # Contribution from each element
@@ -990,24 +1022,23 @@ class SDECPlotter:
                 linewidth=0,
             )
 
-
     def _plot_absorption_mpl(self):
         """Plot absorption part of the SDEC Plot using matplotlib."""
         lower_level = np.zeros(self.absorption_luminosities_df.shape[0])
 
-        if 'other' in self.absorption_luminosities_df.keys():
+        if "other" in self.absorption_luminosities_df.keys():
             upper_level = lower_level
             lower_level = (
                 upper_level - self.absorption_luminosities_df.other.to_numpy()
             )
-        
+
             self.ax.fill_between(
                 self.plot_wavelength,
                 upper_level,
                 lower_level,
                 color="silver",
             )
-            
+
         elements_z = self.elements
         for i, atomic_number in enumerate(elements_z):
             # To plot absorption part along -ve X-axis, we will start with
@@ -1027,7 +1058,6 @@ class SDECPlotter:
                 cmap=self.cmap,
                 linewidth=0,
             )
-
 
     def _show_colorbar_mpl(self):
         """Show matplotlib colorbar with labels of elements mapped to colors."""
@@ -1059,45 +1089,45 @@ class SDECPlotter:
         fig=None,
         graph_height=600,
         cmapname="jet",
-        nelements=None
+        nelements=None,
     ):
         """
-        Generate interactive Spectral element DEComposition (SDEC) Plot using plotly.
+         Generate interactive Spectral element DEComposition (SDEC) Plot using plotly.
 
-        Parameters
-        ----------
-        packets_mode : {'virtual', 'real'}, optional
-            Mode of packets to be considered, either real or virtual. Default
-            value is 'virtual'
-        packet_wvl_range : astropy.Quantity or None, optional
-            Wavelength range to restrict the analysis of escaped packets. It
-            should be a quantity having units of Angstrom, containing two
-            values - lower lambda and upper lambda i.e.
-            [lower_lambda, upper_lambda] * u.AA. Default value is None
-        distance : astropy.Quantity or None, optional
-            Distance used to calculate flux instead of luminosity in the plot.
-            It should have a length unit like m, Mpc, etc. Default value is None
-        show_modeled_spectrum : bool, optional
-            Whether to show modeled spectrum in SDEC Plot. Default value is
-            True
-        fig : plotly.graph_objs._figure.Figure or None, optional
-            Figure object on which to create plot. Default value is None which
-            will create plot on a new Figure object.
-        graph_height : int, optional
-            Height (in px) of the plotly graph to display. Default value is 600
-        cmapname : str, optional
-            Name of the colormap to be used for showing elements.
-            Default value is "jet"
-       nelements: int
-           Number of elements to include in plot. Determined by the
-           contribution to total lumionsity absorbed and emitted.
-           Other elements are shown in silver. Default value is
-           None, which displays all elements
+         Parameters
+         ----------
+         packets_mode : {'virtual', 'real'}, optional
+             Mode of packets to be considered, either real or virtual. Default
+             value is 'virtual'
+         packet_wvl_range : astropy.Quantity or None, optional
+             Wavelength range to restrict the analysis of escaped packets. It
+             should be a quantity having units of Angstrom, containing two
+             values - lower lambda and upper lambda i.e.
+             [lower_lambda, upper_lambda] * u.AA. Default value is None
+         distance : astropy.Quantity or None, optional
+             Distance used to calculate flux instead of luminosity in the plot.
+             It should have a length unit like m, Mpc, etc. Default value is None
+         show_modeled_spectrum : bool, optional
+             Whether to show modeled spectrum in SDEC Plot. Default value is
+             True
+         fig : plotly.graph_objs._figure.Figure or None, optional
+             Figure object on which to create plot. Default value is None which
+             will create plot on a new Figure object.
+         graph_height : int, optional
+             Height (in px) of the plotly graph to display. Default value is 600
+         cmapname : str, optional
+             Name of the colormap to be used for showing elements.
+             Default value is "jet"
+        nelements: int
+            Number of elements to include in plot. Determined by the
+            contribution to total lumionsity absorbed and emitted.
+            Other elements are shown in silver. Default value is
+            None, which displays all elements
 
-        Returns
-        -------
-        plotly.graph_objs._figure.Figure
-            Figure object on which SDEC Plot is created
+         Returns
+         -------
+         plotly.graph_objs._figure.Figure
+             Figure object on which SDEC Plot is created
         """
         # Calculate data attributes required for plotting
         # and save them in instance itself
@@ -1105,7 +1135,7 @@ class SDECPlotter:
             packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
             distance=distance,
-            nelements=nelements
+            nelements=nelements,
         )
 
         if fig is None:
@@ -1212,8 +1242,8 @@ class SDECPlotter:
                 stackgroup="emission",
             )
         )
-        
-        if 'other' in self.emission_luminosities_df.keys():
+
+        if "other" in self.emission_luminosities_df.keys():
             self.fig.add_trace(
                 go.Scatter(
                     x=self.emission_luminosities_df.index,
@@ -1222,8 +1252,8 @@ class SDECPlotter:
                     name="Other elements",
                     fillcolor="silver",
                     stackgroup="emission",
+                )
             )
-        )
 
         elements_z = self.elements
         for i, atomic_num in enumerate(elements_z):
@@ -1233,18 +1263,18 @@ class SDECPlotter:
                     y=self.emission_luminosities_df[atomic_num],
                     mode="none",
                     name=atomic_number2element_symbol(atomic_num),
-                    fillcolor=self.to_rgb255_string(self.cmap(i / len(self.elements))),
+                    fillcolor=self.to_rgb255_string(
+                        self.cmap(i / len(self.elements))
+                    ),
                     stackgroup="emission",
                     showlegend=False,
+                )
             )
-        )
-
-
 
     def _plot_absorption_ply(self):
         """Plot absorption part of the SDEC Plot using plotly."""
-        
-        if 'other' in self.absorption_luminosities_df.keys():
+
+        if "other" in self.absorption_luminosities_df.keys():
             self.fig.add_trace(
                 go.Scatter(
                     x=self.absorption_luminosities_df.index,
@@ -1257,7 +1287,6 @@ class SDECPlotter:
                 )
             )
 
-        
         elements_z = self.elements
 
         for i, atomic_num in enumerate(elements_z):
@@ -1268,12 +1297,13 @@ class SDECPlotter:
                     y=self.absorption_luminosities_df[atomic_num] * -1,
                     mode="none",
                     name=atomic_number2element_symbol(atomic_num),
-                    fillcolor=self.to_rgb255_string(self.cmap(i / len(self.elements))),
+                    fillcolor=self.to_rgb255_string(
+                        self.cmap(i / len(self.elements))
+                    ),
                     stackgroup="absorption",
                     showlegend=False,
                 )
             )
-
 
     def _show_colorbar_ply(self):
         """Show plotly colorbar with labels of elements mapped to colors."""
