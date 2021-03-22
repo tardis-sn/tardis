@@ -2,7 +2,7 @@ import logging
 from functools import wraps
 
 DEBUG_MODE = False
-LOG_FILE = False
+LOG_FILE = "montecarlo_log.log"
 BUFFER = 1
 ticker = 1
 
@@ -11,6 +11,7 @@ logger.setLevel(logging.DEBUG)
 logger.handlers = []
 
 if LOG_FILE:
+    logging.basicConfig(filename=LOG_FILE, filemode='w', level=logger.getEffectiveLevel())
     logger.propagate = False
     console_handler = logging.FileHandler(LOG_FILE)
 else:
