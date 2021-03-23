@@ -900,11 +900,11 @@ class SDECPlotter:
          cmapname : str, optional
              Name of matplotlib colormap to be used for showing elements.
              Default value is "jet"
-        nelements: int
-            Number of elements to include in plot. Determined by the
-            contribution to total lumionsity absorbed and emitted.
-            Other elements are shown in silver. Default value is
-            None, which displays all elements
+         nelements: int
+             Number of elements to include in plot. Determined by the
+             contribution to total luminosity absorbed and emitted.
+             Other elements are shown in silver. Default value is
+             None, which displays all elements
 
          Returns
          -------
@@ -1128,11 +1128,11 @@ class SDECPlotter:
          cmapname : str, optional
              Name of the colormap to be used for showing elements.
              Default value is "jet"
-        nelements: int
-            Number of elements to include in plot. Determined by the
-            contribution to total lumionsity absorbed and emitted.
-            Other elements are shown in silver. Default value is
-            None, which displays all elements
+         nelements: int
+             Number of elements to include in plot. Determined by the
+             contribution to total luminosity absorbed and emitted.
+             Other elements are shown in silver. Default value is
+             None, which displays all elements
 
          Returns
          -------
