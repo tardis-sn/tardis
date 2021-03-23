@@ -515,8 +515,8 @@ class RawPhotoIonTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
     transition_probabilities_outputs = ("p_photo_ion",)
     latex_name = (r"p^{\textrm{photo_ion}}",)
 
-    def calculate(self, gamma_corr, nu_i, photo_ion_idx):
-        p_photo_ion = gamma_corr.multiply(nu_i, axis=0) * H
+    def calculate(self, gamma_corr, energy_i, photo_ion_idx):
+        p_photo_ion = gamma_corr.multiply(energy_i, axis=0)
         p_photo_ion = self.set_index(p_photo_ion, photo_ion_idx, reverse=False)
         return p_photo_ion
 
