@@ -874,42 +874,42 @@ class SDECPlotter:
         nelements=None,
     ):
         """
-         Generate Spectral element DEComposition (SDEC) Plot using matplotlib.
+        Generate Spectral element DEComposition (SDEC) Plot using matplotlib.
 
-         Parameters
-         ----------
-         packets_mode : {'virtual', 'real'}, optional
-             Mode of packets to be considered, either real or virtual. Default
-             value is 'virtual'
-         packet_wvl_range : astropy.Quantity or None, optional
-             Wavelength range to restrict the analysis of escaped packets. It
-             should be a quantity having units of Angstrom, containing two
-             values - lower lambda and upper lambda i.e.
-             [lower_lambda, upper_lambda] * u.AA. Default value is None
-         distance : astropy.Quantity or None, optional
-             Distance used to calculate flux instead of luminosity in the plot.
-             It should have a length unit like m, Mpc, etc. Default value is None
-         show_modeled_spectrum : bool, optional
-             Whether to show modeled spectrum in SDEC Plot. Default value is
-             True
-         ax : matplotlib.axes._subplots.AxesSubplot or None, optional
-             Axis on which to create plot. Default value is None which will
-             create plot on a new figure's axis.
-         figsize : tuple, optional
-             Size of the matplotlib figure to display. Default value is (12, 7)
-         cmapname : str, optional
-             Name of matplotlib colormap to be used for showing elements.
-             Default value is "jet"
-         nelements: int
-             Number of elements to include in plot. Determined by the
-             contribution to total luminosity absorbed and emitted.
-             Other elements are shown in silver. Default value is
-             None, which displays all elements
+        Parameters
+        ----------
+        packets_mode : {'virtual', 'real'}, optional
+            Mode of packets to be considered, either real or virtual. Default
+            value is 'virtual'
+        packet_wvl_range : astropy.Quantity or None, optional
+            Wavelength range to restrict the analysis of escaped packets. It
+            should be a quantity having units of Angstrom, containing two
+            values - lower lambda and upper lambda i.e.
+            [lower_lambda, upper_lambda] * u.AA. Default value is None
+        distance : astropy.Quantity or None, optional
+            Distance used to calculate flux instead of luminosity in the plot.
+            It should have a length unit like m, Mpc, etc. Default value is None
+        show_modeled_spectrum : bool, optional
+            Whether to show modeled spectrum in SDEC Plot. Default value is
+            True
+        ax : matplotlib.axes._subplots.AxesSubplot or None, optional
+            Axis on which to create plot. Default value is None which will
+            create plot on a new figure's axis.
+        figsize : tuple, optional
+            Size of the matplotlib figure to display. Default value is (12, 7)
+        cmapname : str, optional
+            Name of matplotlib colormap to be used for showing elements.
+            Default value is "jet"
+        nelements: int
+            Number of elements to include in plot. Determined by the
+            contribution to total luminosity absorbed and emitted.
+            Other elements are shown in silver. Default value is
+            None, which displays all elements
 
-         Returns
-         -------
-         matplotlib.axes._subplots.AxesSubplot
-             Axis on which SDEC Plot is created
+        Returns
+        -------
+        matplotlib.axes._subplots.AxesSubplot
+            Axis on which SDEC Plot is created
         """
         # Calculate data attributes required for plotting
         # and save them in instance itself
@@ -1012,7 +1012,6 @@ class SDECPlotter:
                 label="Other elements",
             )
 
-
         elements_z = self.elements
         # Contribution from each element
         for i, atomic_number in enumerate(elements_z):
@@ -1102,42 +1101,42 @@ class SDECPlotter:
         nelements=None,
     ):
         """
-         Generate interactive Spectral element DEComposition (SDEC) Plot using plotly.
+        Generate interactive Spectral element DEComposition (SDEC) Plot using plotly.
 
-         Parameters
-         ----------
-         packets_mode : {'virtual', 'real'}, optional
-             Mode of packets to be considered, either real or virtual. Default
-             value is 'virtual'
-         packet_wvl_range : astropy.Quantity or None, optional
-             Wavelength range to restrict the analysis of escaped packets. It
-             should be a quantity having units of Angstrom, containing two
-             values - lower lambda and upper lambda i.e.
-             [lower_lambda, upper_lambda] * u.AA. Default value is None
-         distance : astropy.Quantity or None, optional
-             Distance used to calculate flux instead of luminosity in the plot.
-             It should have a length unit like m, Mpc, etc. Default value is None
-         show_modeled_spectrum : bool, optional
-             Whether to show modeled spectrum in SDEC Plot. Default value is
-             True
-         fig : plotly.graph_objs._figure.Figure or None, optional
-             Figure object on which to create plot. Default value is None which
-             will create plot on a new Figure object.
-         graph_height : int, optional
-             Height (in px) of the plotly graph to display. Default value is 600
-         cmapname : str, optional
-             Name of the colormap to be used for showing elements.
-             Default value is "jet"
-         nelements: int
-             Number of elements to include in plot. Determined by the
-             contribution to total luminosity absorbed and emitted.
-             Other elements are shown in silver. Default value is
-             None, which displays all elements
+        Parameters
+        ----------
+        packets_mode : {'virtual', 'real'}, optional
+            Mode of packets to be considered, either real or virtual. Default
+            value is 'virtual'
+        packet_wvl_range : astropy.Quantity or None, optional
+            Wavelength range to restrict the analysis of escaped packets. It
+            should be a quantity having units of Angstrom, containing two
+            values - lower lambda and upper lambda i.e.
+            [lower_lambda, upper_lambda] * u.AA. Default value is None
+        distance : astropy.Quantity or None, optional
+            Distance used to calculate flux instead of luminosity in the plot.
+            It should have a length unit like m, Mpc, etc. Default value is None
+        show_modeled_spectrum : bool, optional
+            Whether to show modeled spectrum in SDEC Plot. Default value is
+            True
+        fig : plotly.graph_objs._figure.Figure or None, optional
+            Figure object on which to create plot. Default value is None which
+            will create plot on a new Figure object.
+        graph_height : int, optional
+            Height (in px) of the plotly graph to display. Default value is 600
+        cmapname : str, optional
+            Name of the colormap to be used for showing elements.
+            Default value is "jet"
+        nelements: int
+            Number of elements to include in plot. Determined by the
+            contribution to total luminosity absorbed and emitted.
+            Other elements are shown in silver. Default value is
+            None, which displays all elements
 
-         Returns
-         -------
-         plotly.graph_objs._figure.Figure
-             Figure object on which SDEC Plot is created
+        Returns
+        -------
+        plotly.graph_objs._figure.Figure
+            Figure object on which SDEC Plot is created
         """
         # Calculate data attributes required for plotting
         # and save them in instance itself
