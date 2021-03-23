@@ -530,20 +530,27 @@ class SDECPlotter:
             packets_mode=packets_mode, packet_wvl_range=packet_wvl_range
         )
 
+        # Calculate the total contribution of elements
+        # by summing absorption and emission
         self.total_luminosities_df = (
             self.absorption_luminosities_df + self.emission_luminosities_df
         )
 
+        # Drop no interaction and electron scattering so you can sort element contributions
         self.total_luminosities_df.drop(
             ["noint", "escatter"], axis=1, inplace=True
         )
+        # Sort the element list based on the total contribution
         sorted_list = self.total_luminosities_df.sum().sort_values(
             ascending=False
         )
 
+        # If nelements is not included, the list of elements is just all elements
         if nelements is None:
             self.elements = np.array(list(self.total_luminosities_df.keys()))
         else:
+            # If nelements is included then create a new column which is the sum
+            # of all other elements, i.e. those that aren't in the top contributing nelements
             self.total_luminosities_df.insert(
                 loc=0,
                 column="other",
@@ -577,6 +584,7 @@ class SDECPlotter:
                 sorted_list.keys()[nelements:], inplace=True, axis=1
             )
 
+            # Index from 1: to avoid the 'other' column
             self.elements = np.sort(self.total_luminosities_df.keys()[1:])
 
         self.photosphere_luminosity = self._calculate_photosphere_luminosity(
@@ -989,6 +997,7 @@ class SDECPlotter:
             label="Electron Scatter Only",
         )
 
+        # If the 'other' column exists then plot it as silver
         if "other" in self.emission_luminosities_df.keys():
             lower_level = upper_level
             upper_level = (
@@ -1003,8 +1012,8 @@ class SDECPlotter:
                 label="Other elements",
             )
 
-        elements_z = self.emission_luminosities_df.columns[3:].to_list()
 
+        elements_z = self.elements
         # Contribution from each element
         for i, atomic_number in enumerate(elements_z):
             lower_level = upper_level
@@ -1026,6 +1035,7 @@ class SDECPlotter:
         """Plot absorption part of the SDEC Plot using matplotlib."""
         lower_level = np.zeros(self.absorption_luminosities_df.shape[0])
 
+        # If the 'other' column exists then plot it as silver
         if "other" in self.absorption_luminosities_df.keys():
             upper_level = lower_level
             lower_level = (
@@ -1243,6 +1253,7 @@ class SDECPlotter:
             )
         )
 
+        # If 'other' column exists then plot as silver
         if "other" in self.emission_luminosities_df.keys():
             self.fig.add_trace(
                 go.Scatter(
@@ -1274,6 +1285,7 @@ class SDECPlotter:
     def _plot_absorption_ply(self):
         """Plot absorption part of the SDEC Plot using plotly."""
 
+        # If 'other' column exists then plot as silver
         if "other" in self.absorption_luminosities_df.keys():
             self.fig.add_trace(
                 go.Scatter(
