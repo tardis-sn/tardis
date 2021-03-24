@@ -532,14 +532,14 @@ class SDECPlotter:
 
         # Calculate the total contribution of elements
         # by summing absorption and emission
+        # Only care about elements, so drop no interaction and electron scattering
+        # contributions from the emitted luminosities
         self.total_luminosities_df = (
-            self.absorption_luminosities_df + self.emission_luminosities_df
+            self.absorption_luminosities_df + self.emission_luminosities_df.drop(
+                ["noint", "escatter"], axis=1
+            )
         )
 
-        # Drop no interaction and electron scattering so you can sort element contributions
-        self.total_luminosities_df.drop(
-            ["noint", "escatter"], axis=1, inplace=True
-        )
         # Sort the element list based on the total contribution
         sorted_list = self.total_luminosities_df.sum().sort_values(
             ascending=False
@@ -558,10 +558,12 @@ class SDECPlotter:
                     sorted_list.keys()[nelements:]
                 ].sum(axis=1),
             )
+            # Then drop all of the individual columns for elements included in 'other'
             self.total_luminosities_df.drop(
                 sorted_list.keys()[nelements:], inplace=True, axis=1
             )
-
+            # If nelements is included then create a new column which is the sum
+            # of all other elements, i.e. those that aren't in the top contributing nelements
             self.emission_luminosities_df.insert(
                 loc=2,
                 column="other",
@@ -569,10 +571,12 @@ class SDECPlotter:
                     sorted_list.keys()[nelements:]
                 ].sum(axis=1),
             )
+            # Then drop all of the individual columns for elements included in 'other'
             self.emission_luminosities_df.drop(
                 sorted_list.keys()[nelements:], inplace=True, axis=1
             )
-
+            # If nelements is included then create a new column which is the sum
+            # of all other elements, i.e. those that aren't in the top contributing nelements
             self.absorption_luminosities_df.insert(
                 loc=2,
                 column="other",
@@ -580,6 +584,7 @@ class SDECPlotter:
                     sorted_list.keys()[nelements:]
                 ].sum(axis=1),
             )
+            # Then drop all of the individual columns for elements included in 'other'
             self.absorption_luminosities_df.drop(
                 sorted_list.keys()[nelements:], inplace=True, axis=1
             )
@@ -797,9 +802,6 @@ class SDECPlotter:
 
         luminosities_df = pd.DataFrame(index=self.plot_wavelength)
 
-        luminosities_df["noint"] = np.zeros_like(self.plot_wavelength)
-        luminosities_df["escatter"] = np.zeros_like(self.plot_wavelength)
-
         # Group packets_df by atomic number of elements with which packets
         # had their last absorption (interaction in)
         packets_df_grouped = (
@@ -902,7 +904,7 @@ class SDECPlotter:
             Default value is "jet"
         nelements: int
             Number of elements to include in plot. Determined by the
-            contribution to total luminosity absorbed and emitted.
+            largest contribution to total luminosity absorbed and emitted.
             Other elements are shown in silver. Default value is
             None, which displays all elements
 
@@ -1034,6 +1036,9 @@ class SDECPlotter:
         """Plot absorption part of the SDEC Plot using matplotlib."""
         lower_level = np.zeros(self.absorption_luminosities_df.shape[0])
 
+        # To plot absorption part along -ve X-axis, we will start with
+        # zero upper level and keep subtracting luminosities to it (lower
+        # level) - fill from upper to lower level
         # If the 'other' column exists then plot it as silver
         if "other" in self.absorption_luminosities_df.keys():
             upper_level = lower_level
@@ -1050,9 +1055,6 @@ class SDECPlotter:
 
         elements_z = self.elements
         for i, atomic_number in enumerate(elements_z):
-            # To plot absorption part along -ve X-axis, we will start with
-            # zero upper level and keep subtracting luminosities to it (lower
-            # level) - fill from upper to lower level
             upper_level = lower_level
             lower_level = (
                 upper_level
@@ -1129,7 +1131,7 @@ class SDECPlotter:
             Default value is "jet"
         nelements: int
             Number of elements to include in plot. Determined by the
-            contribution to total luminosity absorbed and emitted.
+            largest contribution to total luminosity absorbed and emitted.
             Other elements are shown in silver. Default value is
             None, which displays all elements
 
