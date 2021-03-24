@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 
 from tardis.io.atom_data import AtomData
-from tardis.io.config_reader import ConfigurationError
 from tardis.util.base import species_string_to_tuple
 from tardis.plasma import BasePlasma
+from tardis.plasma.properties.base import TransitionProbabilitiesProperty
 from tardis.plasma.properties.property_collections import (
     basic_inputs,
     basic_properties,
@@ -23,6 +23,9 @@ from tardis.plasma.properties.property_collections import (
     detailed_j_blues_properties,
     detailed_j_blues_inputs,
     continuum_interaction_properties,
+    continuum_interaction_inputs,
+    adiabatic_cooling_properties,
+    two_photon_properties,
 )
 from tardis.plasma.exceptions import PlasmaConfigError
 
@@ -35,6 +38,7 @@ from tardis.plasma.properties import (
     StimulatedEmissionFactor,
     HeliumNumericalNLTE,
     IonNumberDensity,
+    MarkovChainTransProbsCollector,
 )
 
 from tardis.util.custom_logger import logger
@@ -110,7 +114,7 @@ def assemble_plasma(config, model, atom_data=None):
         continuum_atoms.isin(atom_data.selected_atomic_numbers)
     )
     if not continuum_atoms_in_selected_atoms:
-        raise ConfigurationError(
+        raise PlasmaConfigError(
             "Not all continuum interaction species "
             "belong to atoms that have been specified "
             "in the configuration."
@@ -130,7 +134,45 @@ def assemble_plasma(config, model, atom_data=None):
     plasma_modules = basic_inputs + basic_properties
     property_kwargs = {}
     if config.plasma.continuum_interaction.species:
+        line_interaction_type = config.plasma.line_interaction_type
+        if line_interaction_type != "macroatom":
+            raise PlasmaConfigError(
+                "Continuum interactions require line_interaction_type "
+                "macroatom (instead of {}).".format(line_interaction_type)
+            )
+
         plasma_modules += continuum_interaction_properties
+        plasma_modules += continuum_interaction_inputs
+
+        if config.plasma.continuum_interaction.enable_adiabatic_cooling:
+            plasma_modules += adiabatic_cooling_properties
+
+        if config.plasma.continuum_interaction.enable_two_photon_decay:
+            plasma_modules += two_photon_properties
+
+        transition_probabilities_outputs = [
+            plasma_property.transition_probabilities_outputs
+            for plasma_property in plasma_modules
+            if issubclass(plasma_property, TransitionProbabilitiesProperty)
+        ]
+        transition_probabilities_outputs = [
+            item
+            for sublist in transition_probabilities_outputs
+            for item in sublist
+        ]
+
+        property_kwargs[MarkovChainTransProbsCollector] = {
+            "inputs": transition_probabilities_outputs
+        }
+
+        kwargs.update(
+            gamma_estimator=None,
+            bf_heating_coeff_estimator=None,
+            alpha_stim_estimator=None,
+            volume=model.volume,
+            r_inner=model.r_inner,
+            t_inner=model.t_inner,
+        )
     if config.plasma.radiative_rates_type == "blackbody":
         plasma_modules.append(JBluesBlackBody)
     elif config.plasma.radiative_rates_type == "dilute-blackbody":

@@ -5,7 +5,10 @@ from astropy import units as u
 from tardis import constants as const
 from numba import jit, prange
 
-from tardis.plasma.properties.base import ProcessingPlasmaProperty
+from tardis.plasma.properties.base import (
+    ProcessingPlasmaProperty,
+    TransitionProbabilitiesProperty,
+)
 from tardis.plasma.properties.util import macro_atom
 
 from tardis.util.custom_logger import logger
@@ -15,7 +18,12 @@ __all__ = [
     "TauSobolev",
     "BetaSobolev",
     "TransitionProbabilities",
+    "RawRadBoundBoundTransProbs",
 ]
+
+C_EINSTEIN = (
+    4.0 * (np.pi * const.e.esu) ** 2 / (const.c.cgs * const.m_e.cgs)
+).value  # See tardis/docs/physics/plasma/macroatom.rst
 
 
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):
@@ -226,6 +234,7 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
     def __init__(self, plasma_parent):
         super(TransitionProbabilities, self).__init__(plasma_parent)
         self.initialize = True
+        self.normalize = True
 
     def calculate(
         self,
@@ -280,6 +289,7 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
             lines_idx,
             self.block_references,
             transition_probabilities,
+            self.normalize,
         )
         return transition_probabilities
 
@@ -348,3 +358,62 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
             return atomic_data.macro_atom_data
         except:
             return atomic_data.macro_atom_data_all
+
+
+class RawRadBoundBoundTransProbs(
+    TransitionProbabilities, TransitionProbabilitiesProperty
+):
+    """
+    Attributes
+    ----------
+    p_rad_bb : pandas.DataFrame, dtype float
+        Unnormalized transition probabilities for radiative bound-bound
+        transitions
+    """
+
+    outputs = ("p_rad_bb",)
+    transition_probabilities_outputs = ("p_rad_bb",)
+
+    def __init__(self, plasma_parent):
+        super(RawRadBoundBoundTransProbs, self).__init__(plasma_parent)
+        self.normalize = False
+
+    def calculate(
+        self,
+        atomic_data,
+        beta_sobolev,
+        j_blues,
+        stimulated_emission_factor,
+        tau_sobolevs,
+        continuum_interaction_species,
+    ):
+        p_rad_bb = super().calculate(
+            atomic_data,
+            beta_sobolev,
+            j_blues,
+            stimulated_emission_factor,
+            tau_sobolevs,
+        )
+        transition_type = atomic_data.macro_atom_data.transition_type.replace(
+            1, 0
+        )
+        index = pd.MultiIndex.from_arrays(
+            [
+                atomic_data.macro_atom_data.source_level_idx,
+                atomic_data.macro_atom_data.destination_level_idx,
+                transition_type,
+            ]
+        )
+        mask_continuum_species = pd.MultiIndex.from_arrays(
+            [
+                atomic_data.macro_atom_data.atomic_number,
+                atomic_data.macro_atom_data.ion_number,
+            ]
+        ).isin(continuum_interaction_species)
+        p_rad_bb = p_rad_bb.set_index(index, drop=True)[mask_continuum_species]
+        # To obtain energy-flow rates in cgs from the precomputed transition
+        # probabilities in the atomic data, we have to multiply by the
+        # constant C_EINSTEIN and convert from eV to erg.
+        # See tardis/docs/physics/plasma/macroatom.rst
+        p_rad_bb = p_rad_bb * C_EINSTEIN * u.eV.to(u.erg)
+        return p_rad_bb

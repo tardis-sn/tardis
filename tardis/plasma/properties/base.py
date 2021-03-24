@@ -16,8 +16,6 @@ __all__ = [
 
 from tardis.util.custom_logger import logger
 
-import os
-
 
 class BasePlasmaProperty(object, metaclass=ABCMeta):
     """
@@ -78,6 +76,7 @@ class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
         super(ProcessingPlasmaProperty, self).__init__()
         self.plasma_parent = plasma_parent
         self._update_inputs()
+        self.frozen = False
 
     def _update_inputs(self):
         """
@@ -101,14 +100,19 @@ class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
 
         :return:
         """
-        if len(self.outputs) == 1:
-            setattr(
-                self, self.outputs[0], self.calculate(*self._get_input_values())
-            )
+        if not self.frozen:
+            if len(self.outputs) == 1:
+                setattr(
+                    self,
+                    self.outputs[0],
+                    self.calculate(*self._get_input_values()),
+                )
+            else:
+                new_values = self.calculate(*self._get_input_values())
+                for i, output in enumerate(self.outputs):
+                    setattr(self, output, new_values[i])
         else:
-            new_values = self.calculate(*self._get_input_values())
-            for i, output in enumerate(self.outputs):
-                setattr(self, output, new_values[i])
+            logger.info("{} has been frozen!".format(self.name))
 
     @abstractmethod
     def calculate(self, *args, **kwargs):
@@ -127,6 +131,20 @@ class HiddenPlasmaProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
 
     def __init__(self, plasma_parent):
         super(HiddenPlasmaProperty, self).__init__(plasma_parent)
+
+
+class TransitionProbabilitiesProperty(
+    ProcessingPlasmaProperty, metaclass=ABCMeta
+):
+    """
+    Used for plasma properties that have unnormalized transition
+    probabilities as one of their outputs. This makes it possible to easily
+    track all transition probabilities and to later combine them.
+    """
+
+    @abstractproperty
+    def transition_probabilities_outputs(self):
+        pass
 
 
 class BaseAtomicDataProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
