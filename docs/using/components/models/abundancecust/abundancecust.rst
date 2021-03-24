@@ -33,7 +33,7 @@ The example file shown here has three simple layers:
 
 - a middle region (indices 3 to 7) that is composed of O (Z=8), Mg (Z=12), Si, S, Ar and Ca
 
-- an outer region (indices 8 and 9) that is composed of C (Z=6) and O.
+- an outer region (indices 8 and 9) that is composed of C (Z=6) and O (Z=8).
 
 .. warning::
 

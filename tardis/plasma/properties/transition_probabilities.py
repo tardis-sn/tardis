@@ -54,7 +54,7 @@ class SpMatrixSeriesConverterMixin(object):
         series : pandas.Series, dtype float
             Rates or transition probabilities. Indexed by
             source_level_idx, destination_level_idx.
-        idx2reduced_idx: pandas.Series
+        idx2reduced_idx : pandas.Series
             Values of (compact) matrix index. Indexed by references_idx.
             Maps the references_idx of a level to the index
             used in the sparse matrix.
@@ -91,6 +91,7 @@ class SpMatrixSeriesConverterMixin(object):
             used in the sparse matrix.
         names : array-like, optional
             Names of levels in MultiIndex of returned Series.
+
         Returns
         -------
         pandas.Series

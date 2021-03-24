@@ -349,6 +349,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.iterations_executed += 1
 
     def run(self):
+        """
+        run the simulation
+        """
         start_time = time.time()
         while self.iterations_executed < self.iterations - 1:
             self.store_plasma_state(
@@ -502,13 +505,16 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             return False
 
     @classmethod
-    def from_config(cls, config, packet_source=None, **kwargs):
+    def from_config(
+        cls, config, packet_source=None, virtual_packet_logging=False, **kwargs
+    ):
         """
         Create a new Simulation instance from a Configuration object.
 
         Parameters
         ----------
         config : tardis.io.config_reader.Configuration
+
         **kwargs
             Allow overriding some structures, such as model, plasma, atomic data
             and the runner, instead of creating them from the configuration
@@ -541,7 +547,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             runner = kwargs["runner"]
         else:
             runner = MontecarloRunner.from_config(
-                config, packet_source=packet_source
+                config,
+                packet_source=packet_source,
+                virtual_packet_logging=virtual_packet_logging,
             )
 
         luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(

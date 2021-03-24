@@ -67,17 +67,17 @@ def integrate_array_by_blocks(f, x, block_references):
 
     Parameters
     ----------
-    f : Two-dimensional Numpy Array, dtype float
-        Input array to integrate.
-    x : One-dimensional Numpy Array, dtype float
-        The sample points corresponding to the `f` values.
-    block_references : One-dimensional Numpy Array, dtype int
-        The start indices of the blocks to be integrated.
+    f : numpy.ndarray, dtype float
+        2D input array to integrate.
+    x : numpy.ndarray, dtype float
+        1D array with the sample points corresponding to the `f` values.
+    block_references : numpy.ndarray, dtype int
+        1D array with the start indices of the blocks to be integrated.
 
     Returns
     -------
-    Two-dimensional Numpy Array, dtype float
-        Array with integrated values.
+    numpy.ndarray, dtype float
+        2D array with integrated values.
     """
     integrated = np.zeros((len(block_references) - 1, f.shape[1]))
     for i in prange(f.shape[1]):  # columns
@@ -793,19 +793,19 @@ class TwoPhotonEmissionCDF(ProcessingPlasmaProperty):
 
         Parameters
         ----------
-        y : np.ndarray, dtype float
+        y : numpy.ndarray, dtype float
             Emission frequency divided by that of the normal line
             transition corresponding to the two photon decay.
-        alpha: float
+        alpha : float
             Fit coefficient.
-        beta: float
+        beta : float
             Fit coefficient.
-        gamma: float
+        gamma : float
             Fit coefficient.
 
         Returns
         -------
-        np.ndarray, dtype float
+        numpy.ndarray, dtype float
             Unnormalized two photon emissivity in the frequency scale.
         """
         ay = y * (1 - y) * (1 - (4 * y * (1 - y)) ** gamma)
@@ -916,6 +916,7 @@ class BoundFreeOpacity(ProcessingPlasmaProperty):
     Attributes
     ----------
     chi_bf : pandas.DataFrame, dtype float
+        Bound-free opacity corrected for stimulated emission.
     """
 
     outputs = ("chi_bf",)
