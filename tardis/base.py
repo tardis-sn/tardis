@@ -7,7 +7,7 @@ def run_tardis(
     packet_source=None,
     simulation_callbacks=[],
     virtual_packet_logging=False,
-    verbosity=False
+    verbosity=False,
 ):
     """
     This function is one of the core functions to run TARDIS from a given
@@ -36,12 +36,13 @@ def run_tardis(
     from tardis.io.atom_data.base import AtomData
     from tardis.simulation import Simulation
 
-    #verbosity feature
+    # verbosity feature
     import warnings
-    if verbosity==False:
+
+    if verbosity == False:
         warnings.filterwarnings("ignore")
     else:
-        warnings.filterwarnings('default')
+        warnings.filterwarnings("default")
 
     if atom_data is not None:
         try:
