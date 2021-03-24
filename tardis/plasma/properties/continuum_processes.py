@@ -89,7 +89,7 @@ def integrate_array_by_blocks(f, x, block_references):
 
 
 # It is currently not possible to use scipy.integrate.cumulative_trapezoid in
-# numba.So here is my own implementation.
+# numba. So here is my own implementation.
 @njit(**njit_dict)
 def numba_cumulative_trapezoid(f, x):
     """
