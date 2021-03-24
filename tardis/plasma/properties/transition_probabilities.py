@@ -160,8 +160,8 @@ class MarkovChainTransProbsCollector(ProcessingPlasmaProperty):
 class MarkovChainTransProbs(
     ProcessingPlasmaProperty, SpMatrixSeriesConverterMixin
 ):
-    outputs = ("N", "R", "B", "p_deac")
-    latex_name = ("N", "R", "B", r"p_\textrm{deac}")
+    outputs = ("N", "R", "B", "p_deactivation")
+    latex_name = ("N", "R", "B", r"p_\textrm{deactivation}")
     """
     Attributes
     ----------
@@ -179,7 +179,7 @@ class MarkovChainTransProbs(
         Indexed by source_level_idx, destination_level_idx.
         Probability of being absorbed in destination_level_idx when
         starting from source_level_idx.
-    p_deac : pandas.DataFrame, dtype float
+    p_deactivation : pandas.DataFrame, dtype float
         Redistribution probabilities after deactivation of the Markov-chain
         macro atom. Indexed by source_level_idx, destination_level_idx.
         Probability of an r-packet being emitted in the transition
@@ -190,7 +190,9 @@ class MarkovChainTransProbs(
     def calculate(self, p_combined, idx2mkv_idx):
         p = p_combined
         p_internal = p.xs(0, level="transition_type")
-        p_deac = normalize_trans_probs(p.xs(-1, level="transition_type"))
+        p_deactivation = normalize_trans_probs(
+            p.xs(-1, level="transition_type")
+        )
 
         N = pd.DataFrame(columns=p_internal.columns)
         B = pd.DataFrame(columns=p_internal.columns)
@@ -213,4 +215,4 @@ class MarkovChainTransProbs(
             R[column] = R1
         N = N.sort_index()
         B = B.sort_index()
-        return N, R, B, p_deac
+        return N, R, B, p_deactivation

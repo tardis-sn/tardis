@@ -39,6 +39,8 @@ __all__ = [
     "RawTwoPhotonTransProbs",
     "TwoPhotonEmissionCDF",
     "CollIonRateCoeffSeaton",
+    "CollRecombRateCoeff",
+    "RawCollIonTransProbs",
 ]
 
 
@@ -86,10 +88,10 @@ def integrate_array_by_blocks(f, x, block_references):
     return integrated
 
 
-# It is currently not possible to use scipy.integrate.cumtrapz in numba.
-# So here is my own implementation.
+# It is currently not possible to use scipy.integrate.cumulative_trapezoid in
+# numba. So here is my own implementation.
 @njit(**njit_dict)
-def cumtrapz(f, x):
+def numba_cumulative_trapezoid(f, x):
     """
     Cumulatively integrate f(x) using the composite trapezoidal rule.
 
@@ -137,11 +139,11 @@ def cumulative_integrate_array_by_blocks(f, x, block_references):
     n_rows = len(block_references) - 1
     integrated = np.zeros_like(f)
     for i in prange(f.shape[1]):  # columns
-        # TODO: Avoid this loop through vectorization of cumtrapz
+        # TODO: Avoid this loop through vectorization of cumulative_trapezoid
         for j in prange(n_rows):  # rows
             start = block_references[j]
             stop = block_references[j + 1]
-            integrated[start + 1 : stop, i] = cumtrapz(
+            integrated[start + 1 : stop, i] = numba_cumulative_trapezoid(
                 f[start:stop, i], x[start:stop]
             )
     return integrated
@@ -487,16 +489,16 @@ class RawRecombTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
     latex_name = (r"p^{\textrm{recomb}}",)
 
     def calculate(self, alpha_sp, nu_i, energy_i, photo_ion_idx):
-        p_recomb_deac = alpha_sp.multiply(nu_i, axis=0) * H
-        p_recomb_deac = self.set_index(
-            p_recomb_deac, photo_ion_idx, transition_type=-1
+        p_recomb_deactivation = alpha_sp.multiply(nu_i, axis=0) * H
+        p_recomb_deactivation = self.set_index(
+            p_recomb_deactivation, photo_ion_idx, transition_type=-1
         )
 
         p_recomb_internal = alpha_sp.multiply(energy_i, axis=0)
         p_recomb_internal = self.set_index(
             p_recomb_internal, photo_ion_idx, transition_type=0
         )
-        p_recomb = pd.concat([p_recomb_deac, p_recomb_internal])
+        p_recomb = pd.concat([p_recomb_deactivation, p_recomb_internal])
         return p_recomb
 
 
@@ -513,8 +515,8 @@ class RawPhotoIonTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
     transition_probabilities_outputs = ("p_photo_ion",)
     latex_name = (r"p^{\textrm{photo_ion}}",)
 
-    def calculate(self, gamma_corr, nu_i, photo_ion_idx):
-        p_photo_ion = gamma_corr.multiply(nu_i, axis=0) * H
+    def calculate(self, gamma_corr, energy_i, photo_ion_idx):
+        p_photo_ion = gamma_corr.multiply(energy_i, axis=0)
         p_photo_ion = self.set_index(p_photo_ion, photo_ion_idx, reverse=False)
         return p_photo_ion
 
@@ -631,11 +633,15 @@ class CollDeexcRateCoeff(ProcessingPlasmaProperty):
     latex_name = ("c_{ul}",)
 
     def calculate(self, thermal_lte_level_boltzmann_factor, coll_exc_coeff):
-        ll_index = coll_exc_coeff.index.droplevel("level_number_upper")
-        lu_index = coll_exc_coeff.index.droplevel("level_number_lower")
+        level_lower_index = coll_exc_coeff.index.droplevel("level_number_upper")
+        level_upper_index = coll_exc_coeff.index.droplevel("level_number_lower")
 
-        n_lower_prop = thermal_lte_level_boltzmann_factor.loc[ll_index].values
-        n_upper_prop = thermal_lte_level_boltzmann_factor.loc[lu_index].values
+        n_lower_prop = thermal_lte_level_boltzmann_factor.loc[
+            level_lower_index
+        ].values
+        n_upper_prop = thermal_lte_level_boltzmann_factor.loc[
+            level_upper_index
+        ].values
 
         coll_deexc_coeff = coll_exc_coeff * n_lower_prop / n_upper_prop
         return coll_deexc_coeff
@@ -664,19 +670,23 @@ class RawCollisionTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
         atomic_data,
         level_number_density,
     ):
-        p_deexc_deac = (coll_deexc_coeff * electron_densities).multiply(
+        p_deexc_deactivation = (coll_deexc_coeff * electron_densities).multiply(
             delta_E_yg.values, axis=0
         )
-        p_deexc_deac = self.set_index(p_deexc_deac, yg_idx)
-        p_deexc_deac = p_deexc_deac.groupby(level=[0]).sum()
+        p_deexc_deactivation = self.set_index(
+            p_deexc_deactivation, yg_idx, reverse=True
+        )
+        p_deexc_deactivation = p_deexc_deactivation.groupby(level=[0]).sum()
         index_dd = pd.MultiIndex.from_product(
-            [p_deexc_deac.index.values, ["k"], [0]],
+            [p_deexc_deactivation.index.values, ["k"], [0]],
             names=list(yg_idx.columns) + ["transition_type"],
         )
-        p_deexc_deac = p_deexc_deac.set_index(index_dd)
+        p_deexc_deactivation = p_deexc_deactivation.set_index(index_dd)
 
-        ll_index = coll_deexc_coeff.index.droplevel("level_number_upper")
-        energy_lower = atomic_data.levels.energy.loc[ll_index]
+        level_lower_index = coll_deexc_coeff.index.droplevel(
+            "level_number_upper"
+        )
+        energy_lower = atomic_data.levels.energy.loc[level_lower_index]
         p_deexc_internal = (coll_deexc_coeff * electron_densities).multiply(
             energy_lower.values, axis=0
         )
@@ -693,7 +703,9 @@ class RawCollisionTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
         p_exc_cool = (coll_exc_coeff * electron_densities).multiply(
             delta_E_yg.values, axis=0
         )
-        p_exc_cool = p_exc_cool * level_number_density.loc[ll_index].values
+        p_exc_cool = (
+            p_exc_cool * level_number_density.loc[level_lower_index].values
+        )
         p_exc_cool = self.set_index(p_exc_cool, yg_idx, reverse=False)
         p_exc_cool = p_exc_cool.groupby(level="destination_level_idx").sum()
         exc_cool_index = pd.MultiIndex.from_product(
@@ -702,7 +714,7 @@ class RawCollisionTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
         )
         p_exc_cool = p_exc_cool.set_index(exc_cool_index)
         p_coll = pd.concat(
-            [p_deexc_deac, p_deexc_internal, p_exc_internal, p_exc_cool]
+            [p_deexc_deactivation, p_deexc_internal, p_exc_internal, p_exc_cool]
         )
         return p_coll
 
@@ -762,7 +774,7 @@ class TwoPhotonEmissionCDF(ProcessingPlasmaProperty):
             j_nu = self.calculate_j_nu(y, alpha, beta, gamma)
 
             cdf = np.zeros_like(nu)
-            cdf[1:] = cumtrapz(j_nu, nu)
+            cdf[1:] = numba_cumulative_trapezoid(j_nu, nu)
             cdf /= cdf[-1]
             index_cdf = pd.MultiIndex.from_tuples([index] * bins)
             cdf = pd.DataFrame({"nu": nu, "cdf": cdf}, index=index_cdf)
@@ -806,44 +818,46 @@ class AdiabaticCoolingRate(TransitionProbabilitiesProperty):
     """
     Attributes
     ----------
-    C_adiabatic : pandas.DataFrame, dtype float
+    cool_rate_adiabatic : pandas.DataFrame, dtype float
         The adiabatic cooling rate of the electron gas.
     """
 
-    outputs = ("C_adiabatic",)
-    transition_probabilities_outputs = ("C_adiabatic",)
+    outputs = ("cool_rate_adiabatic",)
+    transition_probabilities_outputs = ("cool_rate_adiabatic",)
     latex_name = (r"C_{\textrm{adiabatic}}",)
 
     def calculate(self, electron_densities, t_electrons, time_explosion):
-        C_adiabatic = (
+        cool_rate_adiabatic = (
             3.0 * electron_densities * K_B * t_electrons
         ) / time_explosion
 
-        C_adiabatic = cooling_rate_series2dataframe(
-            C_adiabatic, destination_level_idx="adiabatic"
+        cool_rate_adiabatic = cooling_rate_series2dataframe(
+            cool_rate_adiabatic, destination_level_idx="adiabatic"
         )
-        return C_adiabatic
+        return cool_rate_adiabatic
 
 
 class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
     """
     Attributes
     ----------
-    C_ff : pandas.DataFrame, dtype float
+    cool_rate_ff : pandas.DataFrame, dtype float
         The free-free cooling rate of the electron gas.
     """
 
-    outputs = ("C_ff",)
-    transition_probabilities_outputs = ("C_ff",)
+    outputs = ("cool_rate_ff",)
+    transition_probabilities_outputs = ("cool_rate_ff",)
     latex_name = (r"C^{\textrm{ff}}",)
 
     def calculate(self, ion_number_density, electron_densities, t_electrons):
         ff_cooling_factor = self._calculate_ff_cooling_factor(
             ion_number_density, electron_densities
         )
-        C_ff = 1.426e-27 * np.sqrt(t_electrons) * ff_cooling_factor
-        C_ff = cooling_rate_series2dataframe(C_ff, destination_level_idx="ff")
-        return C_ff
+        cool_rate_ff = 1.426e-27 * np.sqrt(t_electrons) * ff_cooling_factor
+        cool_rate_ff = cooling_rate_series2dataframe(
+            cool_rate_ff, destination_level_idx="ff"
+        )
+        return cool_rate_ff
 
     @staticmethod
     def _calculate_ff_cooling_factor(ion_number_density, electron_densities):
@@ -859,18 +873,18 @@ class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
     """
     Attributes
     ----------
-    C_fb_total : pandas.DataFrame, dtype float
+    cool_rate_fb_total : pandas.DataFrame, dtype float
         The total free-bound cooling rate of the electron gas.
-    C_fb : pandas.DataFrame, dtype float
+    cool_rate_fb : pandas.DataFrame, dtype float
         The individual free-bound cooling rates of the electron gas.
-    p_fb_deac : pandas.DataFrame, dtype float
+    p_fb_deactivation: pandas.DataFrame, dtype float
         Probabilities of free-bound cooling in a specific continuum
         (identified by its continuum_idx).
     """
 
-    outputs = ("C_fb_tot", "C_fb", "p_fb_deac")
-    transition_probabilities_outputs = ("C_fb_tot",)
-    latex_name = ("C^{\\textrm{fb, tot}}", "C^{\\textrm{fb}}")
+    outputs = ("cool_rate_fb_tot", "cool_rate_fb", "p_fb_deactivation")
+    transition_probabilities_outputs = ("cool_rate_fb_tot",)
+    latex_name = (r"C^{\textrm{fb, tot}}", r"C^{\textrm{fb}}")
 
     def calculate(
         self,
@@ -882,17 +896,19 @@ class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
         next_ion_stage_index = get_ion_multi_index(c_fb_sp.index)
         n_k = ion_number_density.loc[next_ion_stage_index]
 
-        C_fb = c_fb_sp.multiply(electron_densities, axis=1) * n_k.values
-        C_fb_tot = cooling_rate_series2dataframe(C_fb.sum(axis=0), "bf")
-
-        p_fb_deac = C_fb / C_fb_tot.values
-        # TODO: this will be needed more often; put it in a function
-        continuum_idx = level2continuum_idx.loc[p_fb_deac.index].values
-        p_fb_deac = p_fb_deac.set_index(continuum_idx).sort_index(
-            ascending=True
+        cool_rate_fb = c_fb_sp.multiply(electron_densities, axis=1) * n_k.values
+        cool_rate_fb_tot = cooling_rate_series2dataframe(
+            cool_rate_fb.sum(axis=0), "bf"
         )
-        p_fb_deac.index.name = "continuum_idx"
-        return C_fb_tot, C_fb, p_fb_deac
+
+        p_fb_deactivation = cool_rate_fb / cool_rate_fb_tot.values
+        # TODO: this will be needed more often; put it in a function
+        continuum_idx = level2continuum_idx.loc[p_fb_deactivation.index].values
+        p_fb_deactivation = p_fb_deactivation.set_index(
+            continuum_idx
+        ).sort_index(ascending=True)
+        p_fb_deactivation.index.name = "continuum_idx"
+        return cool_rate_fb_tot, cool_rate_fb, p_fb_deactivation
 
 
 class BoundFreeOpacity(ProcessingPlasmaProperty):
@@ -1015,3 +1031,109 @@ class CollIonRateCoeffSeaton(ProcessingPlasmaProperty):
     def _calculate_u0s(nu, t_electrons):
         u0s = nu[np.newaxis].T / t_electrons * (H / K_B)
         return u0s
+
+
+class CollRecombRateCoeff(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    coll_recomb_coeff : pandas.DataFrame, dtype float
+        The rate coefficient for collisional recombination.
+        Multiply with the electron density squared and the ion number density
+        to obtain the total rate.
+
+    Notes
+    -----
+    The collisional recombination rate coefficient is calculated from the
+    collisional ionization rate coefficient based on the requirement of detailed
+    balance.
+    """
+
+    outputs = ("coll_recomb_coeff",)
+    latex_name = (r"c_{\kappa\textrm{i,}}",)
+
+    def calculate(self, phi_ik, coll_ion_coeff):
+        return coll_ion_coeff.multiply(phi_ik.loc[coll_ion_coeff.index])
+
+
+class RawCollIonTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
+    """
+    Attributes
+    ----------
+    p_coll_ion : pandas.DataFrame, dtype float
+        The unnormalized transition probabilities for
+        collisional ionization.
+    p_coll_recomb : pandas.DataFrame, dtype float
+        The unnormalized transition probabilities for
+        collisional recombination.
+    cool_rate_coll_ion : pandas.DataFrame, dtype float
+        The collisional ionization cooling rates of the electron gas.
+    """
+
+    outputs = ("p_coll_ion", "p_coll_recomb", "cool_rate_coll_ion")
+    transition_probabilities_outputs = (
+        "p_coll_ion",
+        "p_coll_recomb",
+        "cool_rate_coll_ion",
+    )
+    latex_name = (
+        r"p^{\textrm{coll ion}}",
+        r"p^{\textrm{coll recomb}}",
+        r"C^{\textrm{ion}}",
+    )
+
+    def calculate(
+        self,
+        coll_ion_coeff,
+        coll_recomb_coeff,
+        nu_i,
+        photo_ion_idx,
+        electron_densities,
+        energy_i,
+        level_number_density,
+    ):
+        p_coll_ion = coll_ion_coeff.multiply(energy_i, axis=0)
+        p_coll_ion = p_coll_ion.multiply(electron_densities, axis=1)
+        p_coll_ion = self.set_index(p_coll_ion, photo_ion_idx, reverse=False)
+
+        coll_recomb_rate = coll_recomb_coeff.multiply(
+            electron_densities, axis=1
+        )  # The full rate is obtained from this by multiplying by the
+        # electron density and ion number density.
+        p_recomb_deactivation = coll_recomb_rate.multiply(nu_i, axis=0) * H
+        p_recomb_deactivation = self.set_index(
+            p_recomb_deactivation, photo_ion_idx, transition_type=-1
+        )
+        p_recomb_deactivation = p_recomb_deactivation.groupby(level=[0]).sum()
+        index_dd = pd.MultiIndex.from_product(
+            [p_recomb_deactivation.index.values, ["k"], [0]],
+            names=list(photo_ion_idx.columns) + ["transition_type"],
+        )
+        p_recomb_deactivation = p_recomb_deactivation.set_index(index_dd)
+
+        p_recomb_internal = coll_recomb_rate.multiply(energy_i, axis=0)
+        p_recomb_internal = self.set_index(
+            p_recomb_internal, photo_ion_idx, transition_type=0
+        )
+        p_coll_recomb = pd.concat([p_recomb_deactivation, p_recomb_internal])
+
+        cool_rate_coll_ion = (coll_ion_coeff * electron_densities).multiply(
+            nu_i * H, axis=0
+        )
+        level_lower_index = coll_ion_coeff.index
+        cool_rate_coll_ion = (
+            cool_rate_coll_ion
+            * level_number_density.loc[level_lower_index].values
+        )
+        cool_rate_coll_ion = self.set_index(
+            cool_rate_coll_ion, photo_ion_idx, reverse=False
+        )
+        cool_rate_coll_ion = cool_rate_coll_ion.groupby(
+            level="destination_level_idx"
+        ).sum()
+        ion_cool_index = pd.MultiIndex.from_product(
+            [["k"], cool_rate_coll_ion.index.values, [0]],
+            names=list(photo_ion_idx.columns) + ["transition_type"],
+        )
+        cool_rate_coll_ion = cool_rate_coll_ion.set_index(ion_cool_index)
+        return p_coll_ion, p_coll_recomb, cool_rate_coll_ion
