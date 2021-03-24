@@ -88,10 +88,10 @@ def integrate_array_by_blocks(f, x, block_references):
     return integrated
 
 
-# It is currently not possible to use scipy.integrate.cumtrapz in numba.
-# So here is my own implementation.
+# It is currently not possible to use scipy.integrate.cumulative_trapezoid in
+# numba.So here is my own implementation.
 @njit(**njit_dict)
-def cumtrapz(f, x):
+def numba_cumulative_trapezoid(f, x):
     """
     Cumulatively integrate f(x) using the composite trapezoidal rule.
 
@@ -139,11 +139,11 @@ def cumulative_integrate_array_by_blocks(f, x, block_references):
     n_rows = len(block_references) - 1
     integrated = np.zeros_like(f)
     for i in prange(f.shape[1]):  # columns
-        # TODO: Avoid this loop through vectorization of cumtrapz
+        # TODO: Avoid this loop through vectorization of cumulative_trapezoid
         for j in prange(n_rows):  # rows
             start = block_references[j]
             stop = block_references[j + 1]
-            integrated[start + 1 : stop, i] = cumtrapz(
+            integrated[start + 1 : stop, i] = numba_cumulative_trapezoid(
                 f[start:stop, i], x[start:stop]
             )
     return integrated
@@ -764,7 +764,7 @@ class TwoPhotonEmissionCDF(ProcessingPlasmaProperty):
             j_nu = self.calculate_j_nu(y, alpha, beta, gamma)
 
             cdf = np.zeros_like(nu)
-            cdf[1:] = cumtrapz(j_nu, nu)
+            cdf[1:] = numba_cumulative_trapezoid(j_nu, nu)
             cdf /= cdf[-1]
             index_cdf = pd.MultiIndex.from_tuples([index] * bins)
             cdf = pd.DataFrame({"nu": nu, "cdf": cdf}, index=index_cdf)
