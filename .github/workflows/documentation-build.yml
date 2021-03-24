@@ -5,11 +5,14 @@ name: documentation-build
 
 on:
   push:
+    pull_request:
+      branches:
+        - master
     branches:
-    - master
+      - master
 
   schedule:
-    - cron: '10 0 * * 0'
+    - cron: "10 0 * * 0"
 
 jobs:
   documentation_build:
@@ -18,17 +21,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup TARDIS Environment 
+      - name: Setup TARDIS Environment
         uses: conda-incubator/setup-miniconda@v2
         with:
-            environment-file: tardis_env3.yml
-            activate-environment: tardis
-            channels: conda-forge
-            mamba-version: "*"
+          environment-file: tardis_env3.yml
+          activate-environment: tardis
+          channels: conda-forge
+          mamba-version: "*"
 
       - name: Install TARDIS
         shell: bash -l {0}
-        run: python setup.py install 
+        run: python setup.py install
 
       - name: Build Sphinx Documentation
         shell: bash -l {0}
