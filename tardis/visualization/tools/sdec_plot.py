@@ -535,9 +535,8 @@ class SDECPlotter:
         # Only care about elements, so drop no interaction and electron scattering
         # contributions from the emitted luminosities
         self.total_luminosities_df = (
-            self.absorption_luminosities_df + self.emission_luminosities_df.drop(
-                ["noint", "escatter"], axis=1
-            )
+            self.absorption_luminosities_df
+            + self.emission_luminosities_df.drop(["noint", "escatter"], axis=1)
         )
 
         # Sort the element list based on the total contribution
