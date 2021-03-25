@@ -7,7 +7,7 @@ def run_tardis(
     packet_source=None,
     simulation_callbacks=[],
     virtual_packet_logging=False,
-    verbose_suppression=True, #CHANGE1!! adding a paramenter to suppress the verbosity
+    verbose_suppression=True,  # CHANGE1!! adding a paramenter to suppress the verbosity
 ):
     """
     This function is one of the core functions to run TARDIS from a given
@@ -38,10 +38,11 @@ def run_tardis(
     from tardis.io.atom_data.base import AtomData
     from tardis.simulation import Simulation
 
-    #CHANGE2!! warning removal's code
+    # CHANGE2!! warning removal's code
     import warnings
+
     if verbose_suppression == True:
-        warnings.filterwarnings('ignore')
+        warnings.filterwarnings("ignore")
     #########
 
     if atom_data is not None:
