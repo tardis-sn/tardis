@@ -1063,7 +1063,7 @@ class SDECPlotter:
         elements_z = self.elements
         for i, atomic_number in enumerate(elements_z):
             # Add a try catch because elemets_z comes from the total contribution of absorption and emission.
-            # Therefore it's possible that something in elements_z is not in the emission df
+            # Therefore it's possible that something in elements_z is not in the absorption df
             try:
                 upper_level = lower_level
                 lower_level = (
@@ -1327,7 +1327,7 @@ class SDECPlotter:
         elements_z = self.elements
         for i, atomic_num in enumerate(elements_z):
             # Add a try catch because elemets_z comes from the total contribution of absorption and emission.
-            # Therefore it's possible that something in elements_z is not in the emission df
+            # Therefore it's possible that something in elements_z is not in the absorption df
             try:
                 self.fig.add_trace(
                     go.Scatter(
