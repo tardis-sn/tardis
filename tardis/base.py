@@ -38,12 +38,10 @@ def run_tardis(
     from tardis.io.atom_data.base import AtomData
     from tardis.simulation import Simulation
 
-    # CHANGE2!! warning removal's code
     import warnings
 
     if verbose_suppression == True:
         warnings.filterwarnings("ignore")
-    #########
 
     if atom_data is not None:
         try:
