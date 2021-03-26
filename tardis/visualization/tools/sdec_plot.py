@@ -444,7 +444,7 @@ class SDECPlotter:
             It should have a length unit like m, Mpc, etc.
         nelements: int
             Number of elements to include in plot. Determined by the
-            largest contribution to total lumionsity absorbed and emitted.
+            largest contribution to the total luminosity absorbed and emitted.
             Other elements are shown in silver. Default value is
             None, which displays all elements
 
