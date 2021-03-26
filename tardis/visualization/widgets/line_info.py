@@ -651,7 +651,9 @@ class LineInfoWidget:
     @staticmethod
     def ui_control_description(text):
         """Get description label of a UI control with increased font size."""
-        return ipw.HTML(f"<span style='font-size: 1.15em;'>{text}:</span>")
+        return ipw.HTML(
+            f"<span style='font-size: 1.15em; color:white; background-color:black'>{text}:</span>"
+        )
 
     def display(self):
         """
