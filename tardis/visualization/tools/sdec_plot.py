@@ -1034,7 +1034,10 @@ class SDECPlotter:
                     linewidth=0,
                 )
             except:
-                print(atomic_number2element_symbol(atomic_number) + " is not in the emitted packets; skipping")
+                print(
+                    atomic_number2element_symbol(atomic_number)
+                    + " is not in the emitted packets; skipping"
+                )
 
     def _plot_absorption_mpl(self):
         """Plot absorption part of the SDEC Plot using matplotlib."""
@@ -1077,7 +1080,10 @@ class SDECPlotter:
                     linewidth=0,
                 )
             except:
-                print(atomic_number2element_symbol(atomic_number) + " is not in the absorbed packets; skipping")
+                print(
+                    atomic_number2element_symbol(atomic_number)
+                    + " is not in the absorbed packets; skipping"
+                )
 
     def _show_colorbar_mpl(self):
         """Show matplotlib colorbar with labels of elements mapped to colors."""
@@ -1295,8 +1301,10 @@ class SDECPlotter:
                     )
                 )
             except:
-                print(atomic_number2element_symbol(atomic_num) + " is not in the emitted packets; skipping")
-
+                print(
+                    atomic_number2element_symbol(atomic_num)
+                    + " is not in the emitted packets; skipping"
+                )
 
     def _plot_absorption_ply(self):
         """Plot absorption part of the SDEC Plot using plotly."""
@@ -1336,7 +1344,10 @@ class SDECPlotter:
                     )
                 )
             except:
-                print(atomic_number2element_symbol(atomic_num) + " is not in the absorbed packets; skipping")
+                print(
+                    atomic_number2element_symbol(atomic_num)
+                    + " is not in the absorbed packets; skipping"
+                )
 
     def _show_colorbar_ply(self):
         """Show plotly colorbar with labels of elements mapped to colors."""
