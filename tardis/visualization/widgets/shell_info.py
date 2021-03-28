@@ -474,7 +474,10 @@ class ShellInfoWidget:
 
         # Notes text explaining how to interpret tables widgets' data
         text = ipw.HTML(
-            "<span style='font-size: 1.15em; color:white; background-color:black'><b>Frac. Ab.</b> denotes <i>Fractional Abundances</i> (i.e all values sum to 1)<br><b>W</b> denotes <i>Dilution Factor</i> and <b>Rad. Temp.</b> is <i>Radiative Temperature (in K)</i></span>"
+            "<span style='font-size: 1.15em; color:white; background-color:black'>"
+            "<b>Frac. Ab.</b> denotes <i>Fractional Abundances</i> (i.e all"
+            "values sum to 1)<br><b>W</b> denotes <i>Dilution Factor</i> and "
+            "<b>Rad. Temp.</b> is <i>Radiative Temperature (in K)</i></span>"
         )
 
         # Put text horizontally before shell info container
