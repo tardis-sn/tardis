@@ -7,6 +7,7 @@ def run_tardis(
     packet_source=None,
     simulation_callbacks=[],
     virtual_packet_logging=False,
+    display_type=0,
 ):
     """
     This function is one of the core functions to run TARDIS from a given
@@ -26,6 +27,12 @@ def run_tardis(
     virtual_packet_logging : bool
         option to enable virtual packet logging
         [default=False]
+    display_type : int
+        option to choose type of display for "Plasma stratification"
+        0 -> using normal logger
+        1 -> dataframe kind of log table
+        2 -> using TableLogger
+        [default=0]
 
     Returns
     -------
@@ -55,6 +62,6 @@ def run_tardis(
     for cb in simulation_callbacks:
         simulation.add_callback(*cb)
 
-    simulation.run()
+    simulation.run(display_type)
 
     return simulation

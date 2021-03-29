@@ -237,7 +237,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.consecutive_converges_count = 0
             return False
 
-    def advance_state(self):
+    def advance_state(self, display_type):
         """
         Advances the state of the model and the plasma for the next
         iteration of the simulation. Returns True if the convergence criteria
@@ -296,6 +296,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             next_t_rad,
             next_w,
             next_t_inner,
+            display_type,
         )
         self.model.t_rad = next_t_rad
         self.model.w = next_w
@@ -322,7 +323,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     def iterate(self, no_of_packets, no_of_virtual_packets=0, last_run=False):
         logger.info(
-            "Starting iteration {0:d}/{1:d}".format(
+            "\n\nStarting iteration {0:d}/{1:d}".format(
                 self.iterations_executed + 1, self.iterations
             )
         )
@@ -348,7 +349,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)
         self.iterations_executed += 1
 
-    def run(self):
+    def run(self, display_type):
         """
         run the simulation
         """
@@ -362,7 +363,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.model.t_inner,
             )
             self.iterate(self.no_of_packets)
-            self.converged = self.advance_state()
+            self.converged = self.advance_state(display_type)
             self._call_back()
             if self.converged:
                 if self.convergence_strategy.stop_if_converged:
@@ -397,6 +398,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         next_t_rad,
         next_w,
         next_t_inner,
+        display_type,
         log_sampling=5,
     ):
         """
@@ -430,13 +432,33 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         plasma_state_log.index.name = "Shell"
 
-        plasma_state_log = str(plasma_state_log[::log_sampling])
+        if display_type == 0:
+            plasma_state_log = str(plasma_state_log[::log_sampling])
+            plasma_state_log = "".join(
+                ["\t%s\n" % item for item in plasma_state_log.split("\n")]
+            )
+            logger.info("Plasma stratification:\n%s\n", plasma_state_log)
 
-        plasma_state_log = "".join(
-            ["\t%s\n" % item for item in plasma_state_log.split("\n")]
-        )
+        elif display_type == 1:
+            from IPython.display import display, HTML
 
-        logger.info("Plasma stratification:\n%s\n", plasma_state_log)
+            plasma_state_log = plasma_state_log[::log_sampling]
+            logger.info("Plasma stratification: \n")
+            display(HTML(plasma_state_log.to_html()))
+
+        else:
+            from table_logger import TableLogger
+
+            plasma_state_log = plasma_state_log[::log_sampling]
+            tbl = TableLogger(
+                columns="Shell,t_rad,next_t_rad,w,next_w",
+                float_format="{:.6f}".format,
+                default_colwidth=15,
+            )
+            logger.info("Plasma stratification: \n")
+            for i in plasma_state_log.index:
+                tbl(i, t_rad[i], next_t_rad[i], w[i], next_w[i])
+
         logger.info(
             "t_inner {0:.3f} -- next t_inner {1:.3f}".format(
                 t_inner, next_t_inner
@@ -445,9 +467,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     def log_run_results(self, emitted_luminosity, absorbed_luminosity):
         logger.info(
-            "Luminosity emitted = {0:.5e} "
-            "Luminosity absorbed = {1:.5e} "
-            "Luminosity requested = {2:.5e}".format(
+            "\n Luminosity emitted = {0:.5e} "
+            "\n Luminosity absorbed = {1:.5e} "
+            "\n Luminosity requested = {2:.5e}".format(
                 emitted_luminosity,
                 absorbed_luminosity,
                 self.luminosity_requested,
