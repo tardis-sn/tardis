@@ -7,7 +7,8 @@ def run_tardis(
     packet_source=None,
     simulation_callbacks=[],
     virtual_packet_logging=False,
-    display_type=0,
+    display_type=0,  # passing display_type as an argument which decides the display type
+    # of Plasma Stratification
 ):
     """
     This function is one of the core functions to run TARDIS from a given
@@ -31,7 +32,7 @@ def run_tardis(
         option to choose type of display for "Plasma stratification"
         0 -> using normal logger
         1 -> dataframe kind of log table
-        2 -> using TableLogger
+        anything other than 0 and 1 -> using TableLogger
         [default=0]
 
     Returns
@@ -62,6 +63,8 @@ def run_tardis(
     for cb in simulation_callbacks:
         simulation.add_callback(*cb)
 
-    simulation.run(display_type)
+    simulation.run(
+        display_type
+    )  # calling run() with display type as an argument
 
     return simulation

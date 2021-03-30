@@ -237,7 +237,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.consecutive_converges_count = 0
             return False
 
-    def advance_state(self, display_type):
+    def advance_state(self, display_type):  # added display_type in the header
         """
         Advances the state of the model and the plasma for the next
         iteration of the simulation. Returns True if the convergence criteria
@@ -296,7 +296,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             next_t_rad,
             next_w,
             next_t_inner,
-            display_type,
+            display_type,  # added display_type in the call of log_plasma_state()
         )
         self.model.t_rad = next_t_rad
         self.model.w = next_w
@@ -349,7 +349,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)
         self.iterations_executed += 1
 
-    def run(self, display_type):
+    def run(self, display_type):  # added display_type in the header
         """
         run the simulation
         """
@@ -363,7 +363,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.model.t_inner,
             )
             self.iterate(self.no_of_packets)
-            self.converged = self.advance_state(display_type)
+            self.converged = self.advance_state(
+                display_type
+            )  # passing display_typein advance_state() call
             self._call_back()
             if self.converged:
                 if self.convergence_strategy.stop_if_converged:
@@ -398,7 +400,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         next_t_rad,
         next_w,
         next_t_inner,
-        display_type,
+        display_type,  # added display_type in the header
         log_sampling=5,
     ):
         """
@@ -432,32 +434,46 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         plasma_state_log.index.name = "Shell"
 
-        if display_type == 0:
+        """option to choose type of display for "Plasma stratification"
+        0 -> using normal logger
+        1 -> dataframe kind of log table
+        anything other than 0 and 1 -> using TableLogger"""
+        if display_type == 0:  # same as how it was displayed earlier
             plasma_state_log = str(plasma_state_log[::log_sampling])
             plasma_state_log = "".join(
                 ["\t%s\n" % item for item in plasma_state_log.split("\n")]
             )
             logger.info("Plasma stratification:\n%s\n", plasma_state_log)
 
-        elif display_type == 1:
+        elif display_type == 1:  # display in form of dataframe
             from IPython.display import display, HTML
 
-            plasma_state_log = plasma_state_log[::log_sampling]
+            plasma_state_log = plasma_state_log[
+                ::log_sampling
+            ]  # instead of converting to str like in the previous case, leaving it as a dataframe
             logger.info("Plasma stratification: \n")
-            display(HTML(plasma_state_log.to_html()))
+            display(HTML(plasma_state_log.to_html()))  # displays as a dataframe
 
-        else:
-            from table_logger import TableLogger
+        else:  # display in logger table format
+            from table_logger import (
+                TableLogger,
+            )  # importing TableLogger. New library installed to tardis env using "pip install table-logger"
 
             plasma_state_log = plasma_state_log[::log_sampling]
             tbl = TableLogger(
-                columns="Shell,t_rad,next_t_rad,w,next_w",
-                float_format="{:.6f}".format,
-                default_colwidth=15,
+                columns="Shell,t_rad,next_t_rad,w,next_w",  # setting column names
+                float_format="{:.6f}".format,  # rounding of float values to 6 decimal places
+                default_colwidth=15,  # setting column width in the table to 15
             )
             logger.info("Plasma stratification: \n")
-            for i in plasma_state_log.index:
-                tbl(i, t_rad[i], next_t_rad[i], w[i], next_w[i])
+            for (
+                i
+            ) in (
+                plasma_state_log.index
+            ):  # adding each row one by one using for loop
+                tbl(
+                    i, t_rad[i], next_t_rad[i], w[i], next_w[i]
+                )  # tbl is TableLogger object which add values into the table
 
         logger.info(
             "t_inner {0:.3f} -- next t_inner {1:.3f}".format(
@@ -466,7 +482,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
     def log_run_results(self, emitted_luminosity, absorbed_luminosity):
-        logger.info(
+        logger.info(  # added '\n' to display results in new line to make it more readable
             "\n Luminosity emitted = {0:.5e} "
             "\n Luminosity absorbed = {1:.5e} "
             "\n Luminosity requested = {2:.5e}".format(
