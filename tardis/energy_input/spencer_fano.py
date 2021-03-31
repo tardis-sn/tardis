@@ -8,7 +8,7 @@ M_E = const.m_e.cgs.value
 H = const.h.cgs.value
 H_BAR = const.hbar.cgs.value
 E_CHARGE = const.e.esu.value
-K_B = const.k_B.to("eV / K").value
+K_B = const.k_B.to("erg / K").value
 C_LIGHT = const.c.cgs.value
 EV2ERG = u.eV.to(u.erg)
 ERG2EV = u.erg.to(u.eV)
@@ -31,8 +31,6 @@ def compute_lte_populations(
     atomic_levels, ions, ion_populations, temperature, partition_functions
 ):
     population_list = []
-
-    K_B = const.k_B.to("eV / K").value
 
     for name, ion in atomic_levels.iterrows():
         ionid = (name[0], name[1])
@@ -200,6 +198,7 @@ def excitation_cross_section_vector(energy_grid, row):
             / energy_grid.delta_energy
         )
     )
+
     cross_section_excitation_vector[:start_index] = 0.0
 
     if coll_str >= 0:
@@ -213,7 +212,7 @@ def excitation_cross_section_vector(energy_grid, row):
             constantfactor * (energy_grid.grid[start_index:] * EV2ERG) ** -2
         )
 
-    # forbidden transition check
+    # forbidden transition check previously
     elif True:
 
         nu_trans = epsilon_trans / H
@@ -249,12 +248,7 @@ def excitation_cross_section_vector(energy_grid, row):
         cross_section_excitation_vector[start_index:] = (
             constantfactor * g_bar / U
         )
-        for j, energy_ev in enumerate(energy_grid.grid):
-            energy = energy_ev * EV2ERG
-            if energy >= epsilon_trans:
-                U = energy / epsilon_trans
-                g_bar = A * np.log(U) + B
-                cross_section_excitation_vector[j] = constantfactor * g_bar / U
+
     else:
         cross_section_excitation_vector[start_index:] = 0.0
 
@@ -377,6 +371,7 @@ def spencer_fano_matrix_add_ionization_shell(
 def spencer_fano_matrix_add_excitation(
     energy_grid, transitions_dict, nnion, sfmatrix
 ):
+
     delta_energy = energy_grid.delta_energy
     points = energy_grid.size
     for _, row in transitions_dict.iterrows():
@@ -415,7 +410,14 @@ def solve_spencer_fano(
     delta_energy = energy_grid.delta_energy
     points = energy_grid.size
 
+    print(
+        "\nSetting up Spencer-Fano equation with {} energy points from {} to {} eV...".format(
+            points, energy_grid.grid[0], energy_grid.grid[-1]
+        )
+    )
+
     initial_energy = np.dot(energy_grid.grid, source_vector) * delta_energy
+    print("    E_init: {} eV/s/cm3".format(round(initial_energy, 2)))
 
     # set up the constant vector
     # sum of source vector times dE
@@ -478,6 +480,12 @@ def solve_spencer_fano(
             "ion_number == @ion_number and atomic_number == @atomic_number"
         )
 
+        print(
+            "with {} transitions from lower <= {}".format(
+                len(transitions_dict[(atomic_number, ion_number)]), top_gm_level
+            )
+        )
+
         if not transitions_dict[(atomic_number, ion_number)].empty:
             # previously here: forbidden line filter
 
@@ -536,6 +544,8 @@ def solve_spencer_fano(
                 axis=1,
             )
 
+            # TODO: This is the problem child- specifically the 3E9 number_ion for
+            # the first ionization of Oxygen
             spencer_fano_matrix_add_excitation(
                 energy_grid,
                 transitions_dict[(atomic_number, ion_number)],
@@ -576,11 +586,11 @@ def setup_solution(
 
     atomic_levels = plasma.atomic_data.levels
     ion_collision_data = plasma.ion_collision_data
+    # dataframes with the [0] index are just computed for the zeroth radial
+    # grid cell. Can be easily looped to cover all radial grid cells.
     number_density = plasma.number_density[0].values
     ion_populations = plasma.ion_number_density[0]
-    electron_number_density = plasma.electron_densities[
-        0
-    ]  # not sure if number density but should be
+    electron_number_density = plasma.electron_densities[0]
     ions = plasma.ionization_data
     partition_functions = plasma.partition_function.loc[:, 0]
     lte_populations = compute_lte_populations(
