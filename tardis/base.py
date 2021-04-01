@@ -6,6 +6,7 @@ def run_tardis(
     atom_data=None,
     packet_source=None,
     simulation_callbacks=[],
+    virtual_packet_logging=False,
     verbose=0,
 ):
     """
