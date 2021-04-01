@@ -128,7 +128,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         "w_shell_15": [],
     }
 
-    iteration_count=0
+    iteration_count = 0
 
     fig1 = go.FigureWidget()
     fig1.add_scatter(name="shell 0")
@@ -466,10 +466,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.fig2.data[1].y = self.tmp_dict["w_shell_5"]
                 self.fig2.data[2].y = self.tmp_dict["w_shell_10"]
                 self.fig2.data[3].y = self.tmp_dict["w_shell_15"]
-        
+
         tmp_t_rad = []
         tmp_w = []
-        if self.iteration_count==0:
+        if self.iteration_count == 0:
             display(self.fig3, self.fig4)
         for i in range(len(next_t_rad)):
             tmp_t_rad.extend([next_t_rad[i].value])
@@ -477,19 +477,16 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             tmp_w.extend([next_w[i]])
 
         with self.fig3.batch_update():
-            self.fig3.add_scatter(name="iteration "+str(self.iteration_count))
+            self.fig3.add_scatter(name="iteration " + str(self.iteration_count))
             self.fig3.data[self.iteration_count].y = tmp_t_rad
-        
+
         with self.fig4.batch_update():
-            self.fig4.add_scatter(name="iteration "+str(self.iteration_count))
+            self.fig4.add_scatter(name="iteration " + str(self.iteration_count))
             self.fig4.data[self.iteration_count].y = tmp_w
-        
-        self.iteration_count+=1
+
+        self.iteration_count += 1
 
     def run(self):
-        """
-        run the simulation
-        """
         start_time = time.time()
         while self.iterations_executed < self.iterations - 1:
             self.store_plasma_state(
@@ -643,16 +640,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             return False
 
     @classmethod
-    def from_config(
-        cls, config, packet_source=None, virtual_packet_logging=False, **kwargs
-    ):
+    def from_config(cls, config, packet_source=None, **kwargs):
         """
         Create a new Simulation instance from a Configuration object.
 
         Parameters
         ----------
         config : tardis.io.config_reader.Configuration
-
         **kwargs
             Allow overriding some structures, such as model, plasma, atomic data
             and the runner, instead of creating them from the configuration
@@ -685,9 +679,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             runner = kwargs["runner"]
         else:
             runner = MontecarloRunner.from_config(
-                config,
-                packet_source=packet_source,
-                virtual_packet_logging=virtual_packet_logging,
+                config, packet_source=packet_source
             )
 
         luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(
