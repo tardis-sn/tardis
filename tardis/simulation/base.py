@@ -128,13 +128,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         "w_shell_15": [],
     }
 
+    iteration_count=0
+
     fig1 = go.FigureWidget()
     fig1.add_scatter(name="shell 0")
     fig1.add_scatter(name="shell 5")
     fig1.add_scatter(name="shell 10")
     fig1.add_scatter(name="shell 15")
-    fig1.layout.title = "Radiation Temperature"
-    fig1.update_xaxes(title_text="iteration")
+    fig1.layout.title = "Radiation Temperature vs Iteration"
+    fig1.update_xaxes(title_text="shell")
     fig1.update_yaxes(title_text="Temp")
 
     fig2 = go.FigureWidget()
@@ -142,9 +144,19 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     fig2.add_scatter(name="shell 5")
     fig2.add_scatter(name="shell 10")
     fig2.add_scatter(name="shell 15")
-    fig2.layout.title = "Dilution factor"
-    fig2.update_xaxes(title_text="iteration")
+    fig2.layout.title = "Dilution factor vs Iteration"
+    fig2.update_xaxes(title_text="shell")
     fig2.update_yaxes(title_text="W")
+
+    fig3 = go.FigureWidget()
+    fig3.layout.title = "Radiation Temperature vs Shell"
+    fig3.update_xaxes(title_text="shell")
+    fig3.update_yaxes(title_text="Temp")
+
+    fig4 = go.FigureWidget()
+    fig4.layout.title = "Dilution Factor vs Shell"
+    fig4.update_xaxes(title_text="shell")
+    fig4.update_yaxes(title_text="Temp")
 
     def __init__(
         self,
@@ -381,9 +393,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)
         self.iterations_executed += 1
 
-    def visualization(self, t_rad, w, next_t_rad, next_w):
+    def visualize(self, t_rad, w, next_t_rad, next_w):
         """
-        Visualize convergence of the plot
+        Visualize convergence of the plot:
+        1. Radiation Temperature vs. Iteration
+        2. Dilution Factor vs. Iteration
+        3. Radiation Temperature vs. Shell
+        4. Dilution Factor vs. Shell
 
         Parameters
         ----------
@@ -398,10 +414,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         Returns
         -------
         """
-        t_rad = list(t_rad)
-        w = list(w)
-        next_t_rad = list(next_t_rad)
-        next_w = list(next_w)
         if len(self.tmp_dict["t_rad_shell_0"]) == 0:
             display(self.fig1, self.fig2)
             self.tmp_dict["t_rad_shell_0"].extend(
@@ -454,6 +466,25 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.fig2.data[1].y = self.tmp_dict["w_shell_5"]
                 self.fig2.data[2].y = self.tmp_dict["w_shell_10"]
                 self.fig2.data[3].y = self.tmp_dict["w_shell_15"]
+        
+        tmp_t_rad = []
+        tmp_w = []
+        if self.iteration_count==0:
+            display(self.fig3, self.fig4)
+        for i in range(len(next_t_rad)):
+            tmp_t_rad.extend([next_t_rad[i].value])
+        for i in range(len(next_w)):
+            tmp_w.extend([next_w[i]])
+
+        with self.fig3.batch_update():
+            self.fig3.add_scatter(name="iteration "+str(self.iteration_count))
+            self.fig3.data[self.iteration_count].y = tmp_t_rad
+        
+        with self.fig4.batch_update():
+            self.fig4.add_scatter(name="iteration "+str(self.iteration_count))
+            self.fig4.data[self.iteration_count].y = tmp_w
+        
+        self.iteration_count+=1
 
     def run(self):
         start_time = time.time()
@@ -522,7 +553,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         Returns
         -------
         """
-
+        self.visualize(t_rad, w, next_t_rad, next_w)
         plasma_state_log = pd.DataFrame(
             index=np.arange(len(t_rad)),
             columns=["t_rad", "next_t_rad", "w", "next_w"],
@@ -541,7 +572,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         logger.info("Plasma stratification:\n%s\n", plasma_state_log)
-        self.visualization(t_rad, w, next_t_rad, next_w)
         logger.info(
             "t_inner {0:.3f} -- next t_inner {1:.3f}".format(
                 t_inner, next_t_inner
