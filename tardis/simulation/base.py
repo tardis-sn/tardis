@@ -1,5 +1,3 @@
-# code for simulation and visualization
-
 import time
 import logging
 import numpy as np
@@ -130,6 +128,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     iteration_count = 0
 
+    # plot figure details
     fig1 = go.FigureWidget()
     fig1.add_scatter(name="shell 0")
     fig1.add_scatter(name="shell 5")
@@ -395,12 +394,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     def visualize(self, t_rad, w, next_t_rad, next_w):
         """
-        Visualize convergence of the plot:
-        1. Radiation Temperature vs. Iteration
-        2. Dilution Factor vs. Iteration
-        3. Radiation Temperature vs. Shell
-        4. Dilution Factor vs. Shell
-
         Parameters
         ----------
         t_rad : astropy.units.Quanity
@@ -416,56 +409,27 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         if len(self.tmp_dict["t_rad_shell_0"]) == 0:
             display(self.fig1, self.fig2)
-            self.tmp_dict["t_rad_shell_0"].extend(
-                [t_rad[0].value, next_t_rad[0].value]
-            )
-            self.tmp_dict["t_rad_shell_5"].extend(
-                [t_rad[5].value, next_t_rad[5].value]
-            )
-            self.tmp_dict["t_rad_shell_10"].extend(
-                [t_rad[10].value, next_t_rad[10].value]
-            )
-            self.tmp_dict["t_rad_shell_15"].extend(
-                [t_rad[15].value, next_t_rad[15].value]
-            )
-            self.tmp_dict["w_shell_0"].extend([w[0], next_w[0]])
-            self.tmp_dict["w_shell_5"].extend([w[5], next_w[5]])
-            self.tmp_dict["w_shell_10"].extend([w[10], next_w[10]])
-            self.tmp_dict["w_shell_15"].extend([w[15], next_w[15]])
 
-            with self.fig1.batch_update():
-                self.fig1.data[0].y = self.tmp_dict["t_rad_shell_0"]
-                self.fig1.data[1].y = self.tmp_dict["t_rad_shell_5"]
-                self.fig1.data[2].y = self.tmp_dict["t_rad_shell_10"]
-                self.fig1.data[3].y = self.tmp_dict["t_rad_shell_15"]
+        self.tmp_dict["t_rad_shell_0"].extend([next_t_rad[0].value])
+        self.tmp_dict["t_rad_shell_5"].extend([next_t_rad[5].value])
+        self.tmp_dict["t_rad_shell_10"].extend([next_t_rad[10].value])
+        self.tmp_dict["t_rad_shell_15"].extend([next_t_rad[15].value])
+        self.tmp_dict["w_shell_0"].extend([next_w[0]])
+        self.tmp_dict["w_shell_5"].extend([next_w[5]])
+        self.tmp_dict["w_shell_10"].extend([next_w[10]])
+        self.tmp_dict["w_shell_15"].extend([next_w[15]])
 
-            with self.fig2.batch_update():
-                self.fig2.data[0].y = self.tmp_dict["w_shell_0"]
-                self.fig2.data[1].y = self.tmp_dict["w_shell_5"]
-                self.fig2.data[2].y = self.tmp_dict["w_shell_10"]
-                self.fig2.data[3].y = self.tmp_dict["w_shell_15"]
+        with self.fig1.batch_update():
+            self.fig1.data[0].y = self.tmp_dict["t_rad_shell_0"]
+            self.fig1.data[1].y = self.tmp_dict["t_rad_shell_5"]
+            self.fig1.data[2].y = self.tmp_dict["t_rad_shell_10"]
+            self.fig1.data[3].y = self.tmp_dict["t_rad_shell_15"]
 
-        else:
-            self.tmp_dict["t_rad_shell_0"].extend([next_t_rad[0].value])
-            self.tmp_dict["t_rad_shell_5"].extend([next_t_rad[5].value])
-            self.tmp_dict["t_rad_shell_10"].extend([next_t_rad[10].value])
-            self.tmp_dict["t_rad_shell_15"].extend([next_t_rad[15].value])
-            self.tmp_dict["w_shell_0"].extend([next_w[0]])
-            self.tmp_dict["w_shell_5"].extend([next_w[5]])
-            self.tmp_dict["w_shell_10"].extend([next_w[10]])
-            self.tmp_dict["w_shell_15"].extend([next_w[15]])
-
-            with self.fig1.batch_update():
-                self.fig1.data[0].y = self.tmp_dict["t_rad_shell_0"]
-                self.fig1.data[1].y = self.tmp_dict["t_rad_shell_5"]
-                self.fig1.data[2].y = self.tmp_dict["t_rad_shell_10"]
-                self.fig1.data[3].y = self.tmp_dict["t_rad_shell_15"]
-
-            with self.fig2.batch_update():
-                self.fig2.data[0].y = self.tmp_dict["w_shell_0"]
-                self.fig2.data[1].y = self.tmp_dict["w_shell_5"]
-                self.fig2.data[2].y = self.tmp_dict["w_shell_10"]
-                self.fig2.data[3].y = self.tmp_dict["w_shell_15"]
+        with self.fig2.batch_update():
+            self.fig2.data[0].y = self.tmp_dict["w_shell_0"]
+            self.fig2.data[1].y = self.tmp_dict["w_shell_5"]
+            self.fig2.data[2].y = self.tmp_dict["w_shell_10"]
+            self.fig2.data[3].y = self.tmp_dict["w_shell_15"]
 
         tmp_t_rad = []
         tmp_w = []
