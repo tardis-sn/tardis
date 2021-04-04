@@ -14,8 +14,15 @@ import matplotlib.cm as cm
 import matplotlib.colors as clr
 import plotly.graph_objects as go
 
-from tardis.util.base import atomic_number2element_symbol
-from tardis.visualization import plot_util as pu
+from tardis.util.base import (
+    atomic_number2element_symbol,
+    element_symbol2atomic_number,
+    species_string_to_tuple,
+    species_tuple_to_string,
+    roman_to_int,
+    int_to_roman,
+)
+from tardis.widgets import plot_util as pu
 
 
 class SDECData:
@@ -111,17 +118,23 @@ class SDECData:
         self.packets_df_line_interaction = self.packets_df.loc[line_mask].copy()
 
         # Add columns for atomic number of last interaction in/out
-        self.packets_df_line_interaction["last_line_interaction_out_atom"] = (
+        self.packets_df_line_interaction["last_line_interaction_atom"] = (
             self.lines_df["atomic_number"]
             .iloc[
                 self.packets_df_line_interaction["last_line_interaction_out_id"]
             ]
             .to_numpy()
         )
-        self.packets_df_line_interaction["last_line_interaction_in_atom"] = (
+        self.packets_df_line_interaction["last_line_interaction_species"] = (
             self.lines_df["atomic_number"]
             .iloc[
-                self.packets_df_line_interaction["last_line_interaction_in_id"]
+                self.packets_df_line_interaction["last_line_interaction_out_id"]
+            ]
+            .to_numpy() * 100
+            +
+            self.lines_df["ion_number"]
+            .iloc[
+                self.packets_df_line_interaction["last_line_interaction_out_id"]
             ]
             .to_numpy()
         )
@@ -725,7 +738,7 @@ class SDECPlotter:
         packets_df_grouped = (
             self.data[packets_mode]
             .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
-            .groupby(by="last_line_interaction_out_atom")
+            .groupby(by="last_line_interaction_atom")
         )
 
         # Contribution of each element with which packets interacted ----------
@@ -806,7 +819,7 @@ class SDECPlotter:
         packets_df_grouped = (
             self.data[packets_mode]
             .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
-            .groupby(by="last_line_interaction_in_atom")
+            .groupby(by="last_line_interaction_atom")
         )
         for atomic_number, group in packets_df_grouped:
             # Histogram of specific element
