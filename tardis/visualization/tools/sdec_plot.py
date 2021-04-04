@@ -453,15 +453,15 @@ class SDECPlotter:
 
         """
 
+        if species_list is not None:
         # check if there are any digits in the species list. If there are then exit.
         # species_list should only contain species in the Roman numeral
         # format, e.g. Si II, and each ion must contain a space
-        if any(char.isdigit() for char in " ".join(species_list)) == True:
-            raise ValueError(
-            "All species must be in Roman numeral form, e.g. Si II"
-           )
-        else:
-            if species_list is not None:
+            if any(char.isdigit() for char in " ".join(species_list)) == True:
+                raise ValueError(
+                "All species must be in Roman numeral form, e.g. Si II"
+                )
+            else:
                 full_species_list = []
                 for species in species_list:
                     # check if a hyphen is present. If it is, then it indicates a
@@ -514,12 +514,10 @@ class SDECPlotter:
                     species_id for list in requested_species_ids for species_id in list
                 ]
 
-
                 self._species_list = requested_species_ids
                 self._keep_colour = keep_colour
-
-            else:
-                self._species_list = None
+        else:
+            self._species_list = None
 
     def _calculate_plotting_data(
         self, packets_mode, packet_wvl_range, distance, nelements
@@ -644,6 +642,11 @@ class SDECPlotter:
         # If nelements is not included, the list of elements is just all elements
         if nelements is None and self._species_list is None:
             self.elements = np.array(list(self.total_luminosities_df.keys()))
+        elif self._species_list is not None:
+            mask = np.in1d(
+                np.array(list(temp.keys())), self._species_list
+            )
+            print(mask)
         else:
             # If nelements is included then create a new column which is the sum
             # of all other elements, i.e. those that aren't in the top contributing nelements
@@ -1011,8 +1014,7 @@ class SDECPlotter:
             Axis on which SDEC Plot is created
         """
 
-        if species_list is not None:
-            self._parse_species_list(species_list = species_list)
+        self._parse_species_list(species_list = species_list)
 
         # Calculate data attributes required for plotting
         # and save them in instance itself
