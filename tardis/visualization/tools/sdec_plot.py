@@ -517,6 +517,7 @@ class SDECPlotter:
 
                 self._species_list = requested_species_ids
                 self._keep_colour = keep_colour
+
             else:
                 self._species_list = None
 
@@ -969,6 +970,7 @@ class SDECPlotter:
         figsize=(12, 7),
         cmapname="jet",
         nelements=None,
+        species_list = None
     ):
         """
         Generate Spectral element DEComposition (SDEC) Plot using matplotlib.
@@ -1008,6 +1010,10 @@ class SDECPlotter:
         matplotlib.axes._subplots.AxesSubplot
             Axis on which SDEC Plot is created
         """
+
+        if species_list is not None:
+            self._parse_species_list(species_list = species_list)
+
         # Calculate data attributes required for plotting
         # and save them in instance itself
         self._calculate_plotting_data(
