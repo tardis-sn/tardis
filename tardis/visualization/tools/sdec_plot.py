@@ -22,7 +22,7 @@ from tardis.util.base import (
     roman_to_int,
     int_to_roman,
 )
-from tardis.widgets import plot_util as pu
+from tardis.visualization import plot_util as pu
 
 
 class SDECData:
@@ -1469,9 +1469,6 @@ class SDECPlotter:
         self._plot_emission_ply()
         self._plot_absorption_ply()
 
-        print(self.emission_luminosities_df)
-        print(self.absorption_luminosities_df)
-
         # Plot modeled spectrum
         if show_modeled_spectrum:
             self.fig.add_trace(
@@ -1755,8 +1752,6 @@ class SDECPlotter:
                 y=0.75,
             ),
         )
-        print(self._species_name)
-        print(coloraxis_options)
 
         # Plot an invisible one point scatter trace, to make colorbar show up
         scatter_point_idx = pu.get_mid_point_idx(self.plot_wavelength)
