@@ -1093,7 +1093,7 @@ class SDECPlotter:
             self.ax = ax
 
         # Set colormap to be used in elements of emission and absorption plots
-        self._make_colorbar_labels_mpl()
+        self._make_colorbar_labels()
         self.cmap = cm.get_cmap(cmapname, len(self._species_name))
         self._show_colorbar_mpl()
 
@@ -1339,7 +1339,26 @@ class SDECPlotter:
                         + " is not in the emitted packets; skipping"
                         )
 
-    def _make_colorbar_labels_mpl(self):
+    def _show_colorbar_mpl(self):
+        """Show matplotlib colorbar with labels of elements mapped to colors."""
+
+        color_values = [
+            self.cmap(i / len(self._species_name)) for i in range(len(self._species_name))
+        ]
+
+        custcmap = clr.ListedColormap(color_values)
+        norm = clr.Normalize(vmin=0, vmax=len(self._species_name))
+        mappable = cm.ScalarMappable(norm=norm, cmap=custcmap)
+        mappable.set_array(np.linspace(1, len(self._species_name) + 1, 256))
+        cbar = plt.colorbar(mappable, ax=self.ax)
+
+        bounds = np.arange(len(self._species_name)) + 0.5
+        cbar.set_ticks(bounds)
+
+        cbar.set_ticklabels(self._species_name)
+
+
+    def _make_colorbar_labels(self):
         """Get the labels for the species in the colorbar."""
         if self._species_list is None:
             species_name = [
@@ -1367,25 +1386,6 @@ class SDECPlotter:
                     species_name.append(label)
 
         self._species_name = species_name
-
-
-    def _show_colorbar_mpl(self):
-        """Show matplotlib colorbar with labels of elements mapped to colors."""
-
-        color_values = [
-            self.cmap(i / len(self._species_name)) for i in range(len(self._species_name))
-        ]
-
-        custcmap = clr.ListedColormap(color_values)
-        norm = clr.Normalize(vmin=0, vmax=len(self._species_name))
-        mappable = cm.ScalarMappable(norm=norm, cmap=custcmap)
-        mappable.set_array(np.linspace(1, len(self._species_name) + 1, 256))
-        cbar = plt.colorbar(mappable, ax=self.ax)
-
-        bounds = np.arange(len(self._species_name)) + 0.5
-        cbar.set_ticks(bounds)
-
-        cbar.set_ticklabels(self._species_name)
 
 
     def generate_plot_ply(
