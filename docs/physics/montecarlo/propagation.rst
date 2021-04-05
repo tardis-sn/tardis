@@ -43,6 +43,12 @@ selecting an initial propagation direction, since the Planck function has to be
 sampled. TARDIS uses the technique described in :cite:`Carter1975` and
 summarized in :cite:`Bjorkmann1999` for this purpose.
 
+.. _expansion:
+
+Model of Supernovae
+===================
+**ADD**
+
 Propagation in a spherical domain
 =================================
 
@@ -75,9 +81,28 @@ Note that the propagation direction has also changed and now takes the value
 
 .. math::
     \mu_f = \frac{l + r_i \mu_i}{r_f}.
+    
+.. _referenceframes:
+
+Reference Frames
+================
+**ADD**
 
 Numerical and Physical Events
 =============================
+**STUFF**
+
+Distance to Next Cell
+---------------------
+**STUFF**
+
+Physical Interactions
+---------------------
+**STUFF**
+
+Example Cases
+-------------
+**STUFF**
 
 As a packet propagates through the computational domain, a number of events may
 trigger changes in the packet properties. Naturally, physical radiation-matter
@@ -150,7 +175,7 @@ Thomson scattering according to
 
 .. math::
 
-    \Delta \tau = \sigma_{\mathrm{T}} l.
+    \Delta \tau = \chi_{\mathrm{T}} l.
 
 The situation is complicated by the inclusion of frequency-dependent
 bound-bound interactions, i.e. interactions with atomic line transitions.
