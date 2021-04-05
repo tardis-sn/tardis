@@ -1030,7 +1030,7 @@ class SDECPlotter:
         figsize=(12, 7),
         cmapname="jet",
         nelements=None,
-        species_list = None
+        species_list=None
     ):
         """
         Generate Spectral element DEComposition (SDEC) Plot using matplotlib.
@@ -1092,8 +1092,9 @@ class SDECPlotter:
         else:
             self.ax = ax
 
-        # Set colormap to be used in elements of emission and absorption plots
+        # Get the labels in the color bar. This determines the number of unique colors
         self._make_colorbar_labels()
+        # Set colormap to be used in elements of emission and absorption plots
         self.cmap = cm.get_cmap(cmapname, len(self._species_name))
         self._show_colorbar_mpl()
 
@@ -1191,45 +1192,45 @@ class SDECPlotter:
         for i, identifier in enumerate(self.species):
             # Add a try catch because elemets_z comes from the total contribution of absorption and emission.
             # Therefore it's possible that something in elements_z is not in the emission df
+
+
+            if self._species_list is not None:
+                # Get the ion number and atomic number for each species
+                ion_number = identifier % 100
+                atomic_number = (identifier - ion_number) / 100
+                if previous_atomic_number == 0:
+                    # If this is the first species being plotted, then take note of the atomic number
+                    # don't update the colour index
+                    ii = ii
+                    previous_atomic_number = atomic_number
+                elif previous_atomic_number in self._keep_colour:
+                    # If the atomic number is in the list of elements that should all be plotted in the same colour
+                    # then dont update the colour index
+                    if previous_atomic_number == atomic_number:
+                        ii = ii
+                        previous_atomic_number = atomic_number
+                    else:
+                        # Otherwise, increase the colour counter by one
+                        ii = ii + 1
+                        previous_atomic_number = atomic_number
+                else:
+                    # If this is just a normal species that was requested then increment the colour index
+                    ii = ii + 1
+                    previous_atomic_number = atomic_number
+                # Calculate the colour of this species
+                color = self.cmap(ii / len(self._species_name))
+
+            else:
+                # If you're not using species list then this is just a fraction based on the total
+                # number of columns in the dataframe
+                color = self.cmap(i / len(self.species))
+
             try:
                 lower_level = upper_level
                 upper_level = (
                     lower_level
                     + self.emission_luminosities_df[identifier].to_numpy()
                 )
-
-                if self._species_list is not None:
-                    # Get the ion number and atomic number for each species
-                    ion_number = identifier % 100
-                    atomic_number = (identifier - ion_number) / 100
-                    if previous_atomic_number == 0:
-                        # If this is the first species being plotted, then take note of the atomic number
-                        # don't update the colour index
-                        ii = ii
-                        previous_atomic_number = atomic_number
-                    elif previous_atomic_number in self._keep_colour:
-                        # If the atomic number is in the list of elements that should all be plotted in the same colour
-                        # then dont update the colour index
-                        if previous_atomic_number == atomic_number:
-                            ii = ii
-                            previous_atomic_number = atomic_number
-                        else:
-                            # Otherwise, increase the colour counter by one
-                            ii = ii + 1
-                            previous_atomic_number = atomic_number
-                    else:
-                        # If this is just a normal species that was requested then increment the colour index
-                        ii = ii + 1
-                        previous_atomic_number = atomic_number
-                    # Calculate the colour of this species
-                    color = self.cmap(ii / len(self._species_name))
-                    print(ii, identifier, self._species_name, color)
-
-                else:
-                    # If you're not using species list then this is just a fraction based on the total
-                    # number of columns in the dataframe
-                    color = self.cmap(i / len(self.species))
-                    print(i, identifier, self.species, color)
 
                 self.ax.fill_between(
                     self.plot_wavelength,
@@ -1278,45 +1279,44 @@ class SDECPlotter:
         for i, identifier in enumerate(self.species):
             # Add a try catch because elemets_z comes from the total contribution of absorption and emission.
             # Therefore it's possible that something in elements_z is not in the absorption df
+
+            if self._species_list is not None:
+                # Get the ion number and atomic number for each species
+                ion_number = identifier % 100
+                atomic_number = (identifier - ion_number) / 100
+                if previous_atomic_number == 0:
+                    # If this is the first species being plotted, then take note of the atomic number
+                    # don't update the colour index
+                    ii = ii
+                    previous_atomic_number = atomic_number
+                elif previous_atomic_number in self._keep_colour:
+                    # If the atomic number is in the list of elements that should all be plotted in the same colour
+                    # then dont update the colour index
+                    if previous_atomic_number == atomic_number:
+                        ii = ii
+                        previous_atomic_number = atomic_number
+                    else:
+                        # Otherwise, increase the colour counter by one
+                        ii = ii + 1
+                        previous_atomic_number = atomic_number
+                else:
+                    # If this is just a normal species that was requested then increment the colour index
+                    ii = ii + 1
+                    previous_atomic_number = atomic_number
+                # Calculate the colour of this species
+                color = self.cmap(ii / len(self._species_name))
+
+            else:
+                # If you're not using species list then this is just a fraction based on the total
+                # number of columns in the dataframe
+                color = self.cmap(i / len(self.species))
+
             try:
                 upper_level = lower_level
                 lower_level = (
                     upper_level
                     - self.absorption_luminosities_df[identifier].to_numpy()
                 )
-
-                if self._species_list is not None:
-                    # Get the ion number and atomic number for each species
-                    ion_number = identifier % 100
-                    atomic_number = (identifier - ion_number) / 100
-                    if previous_atomic_number == 0:
-                        # If this is the first species being plotted, then take note of the atomic number
-                        # don't update the colour index
-                        ii = ii
-                        previous_atomic_number = atomic_number
-                    elif previous_atomic_number in self._keep_colour:
-                        # If the atomic number is in the list of elements that should all be plotted in the same colour
-                        # then dont update the colour index
-                        if previous_atomic_number == atomic_number:
-                            ii = ii
-                            previous_atomic_number = atomic_number
-                        else:
-                            # Otherwise, increase the colour counter by one
-                            ii = ii + 1
-                            previous_atomic_number = atomic_number
-                    else:
-                        # If this is just a normal species that was requested then increment the colour index
-                        ii = ii + 1
-                        previous_atomic_number = atomic_number
-                    # Calculate the colour of this species
-                    color = self.cmap(ii / len(self._species_name))
-                    print(ii, identifier, self._species_name, color)
-
-                else:
-                    # If you're not using species list then this is just a fraction based on the total
-                    # number of columns in the dataframe
-                    color = self.cmap(i / len(self.species))
-                    print(i, identifier, self.species, color)
 
                 self.ax.fill_between(
                     self.plot_wavelength,
@@ -1326,6 +1326,7 @@ class SDECPlotter:
                     cmap=self.cmap,
                     linewidth=0,
                 )
+
             except:
                 if self._species_list is None:
                     print(
@@ -1382,7 +1383,7 @@ class SDECPlotter:
                     species_name.append(label)
                 elif atomic_number not in self._keep_colour:
                     # otherwise add the ion to the label list
-                    label = f"{atomic_symbol}$\,${ion_numeral}"
+                    label = f"{atomic_symbol} {ion_numeral}"
                     species_name.append(label)
 
         self._species_name = species_name
@@ -1399,6 +1400,7 @@ class SDECPlotter:
         graph_height=600,
         cmapname="jet",
         nelements=None,
+        species_list=None,
     ):
         """
         Generate interactive Spectral element DEComposition (SDEC) Plot using plotly.
@@ -1432,12 +1434,19 @@ class SDECPlotter:
             largest contribution to total luminosity absorbed and emitted.
             Other elements are shown in silver. Default value is
             None, which displays all elements
-
+        species_list: list of strings or None
+            list of strings containing the names of species that should be included in the Kromer plots.
+            Must be given in Roman numeral format. Can include specific ions, a range of ions,
+            individual elements, or any combination of these:
+            e.g. ['Si II', 'Ca II', 'C', 'Fe I-V']
         Returns
         -------
         plotly.graph_objs._figure.Figure
             Figure object on which SDEC Plot is created
         """
+
+        self._parse_species_list(species_list = species_list)
+
         # Calculate data attributes required for plotting
         # and save them in instance itself
         self._calculate_plotting_data(
@@ -1452,11 +1461,16 @@ class SDECPlotter:
         else:
             self.fig = fig
 
+        # Get the labels in the color bar. This determines the number of unique colors
+        self._make_colorbar_labels()
         # Set colormap to be used in elements of emission and absorption plots
-        self.cmap = cm.get_cmap(cmapname, self.species.size)
+        self.cmap = cm.get_cmap(cmapname, len(self._species_name))
 
         self._plot_emission_ply()
         self._plot_absorption_ply()
+
+        print(self.emission_luminosities_df)
+        print(self.absorption_luminosities_df)
 
         # Plot modeled spectrum
         if show_modeled_spectrum:
@@ -1511,7 +1525,6 @@ class SDECPlotter:
     def to_rgb255_string(color_tuple):
         """
         Convert a matplotlib RGBA tuple to a generic RGB 255 string.
-
         Parameters
         ----------
         color_tuple : tuple
@@ -1565,29 +1578,72 @@ class SDECPlotter:
                 )
             )
 
-        elements_z = self.species
-        for i, atomic_num in enumerate(elements_z):
+        # Contribution from each element
+        # Create new variables to keep track of the last atomic number that was plotted
+        # This is used when plotting species incase an element was given in the list
+        # This is to ensure that all ions of that element are grouped together
+        # ii is to track the colour index
+        ii = 0
+        previous_atomic_number = 0
+        for i, identifier in enumerate(self.species):
+
+            if self._species_list is not None:
+                # Get the ion number and atomic number for each species
+                ion_number = identifier % 100
+                atomic_number = (identifier - ion_number) / 100
+                if previous_atomic_number == 0:
+                    # If this is the first species being plotted, then take note of the atomic number
+                    # don't update the colour index
+                    ii = ii
+                    previous_atomic_number = atomic_number
+                elif previous_atomic_number in self._keep_colour:
+                    # If the atomic number is in the list of elements that should all be plotted in the same colour
+                   # then dont update the colour index
+                    if previous_atomic_number == atomic_number:
+                        ii = ii
+                        previous_atomic_number = atomic_number
+                    else:
+                        # Otherwise, increase the colour counter by one
+                        ii = ii + 1
+                        previous_atomic_number = atomic_number
+                else:
+                    # If this is just a normal species that was requested then increment the colour index
+                    ii = ii + 1
+                    previous_atomic_number = atomic_number
+                # Calculate the colour of this species
+                color = self.cmap(ii / len(self._species_name))
+            else:
+                # If you're not using species list then this is just a fraction based on the total
+                # number of columns in the dataframe
+                color = self.cmap(i / len(self.species))
+
             # Add a try catch because elemets_z comes from the total contribution of absorption and emission.
             # Therefore it's possible that something in elements_z is not in the emission df
             try:
                 self.fig.add_trace(
-                    go.Scatter(
-                        x=self.emission_luminosities_df.index,
-                        y=self.emission_luminosities_df[atomic_num],
-                        mode="none",
-                        name=atomic_number2element_symbol(atomic_num),
-                        fillcolor=self.to_rgb255_string(
-                            self.cmap(i / len(self.species))
-                        ),
-                        stackgroup="emission",
-                        showlegend=False,
+                        go.Scatter(
+                            x=self.emission_luminosities_df.index,
+                            y=self.emission_luminosities_df[identifier],
+                            mode="none",
+                            name="none",
+                            fillcolor=self.to_rgb255_string(
+                                color),
+                            stackgroup="emission",
+                            showlegend=False,
+                        )
                     )
-                )
             except:
-                print(
-                    atomic_number2element_symbol(atomic_num)
-                    + " is not in the emitted packets; skipping"
-                )
+                if self._species_list is None:
+                    print(
+                        atomic_number2element_symbol(identifier)
+                        + " is not in the emitted packets; skipping"
+                        )
+                else:
+                    print(
+                        atomic_number2element_symbol(atomic_number)
+                        + int_to_roman(ion_number + 1)
+                        + " is not in the emitted packets; skipping"
+                        )
 
     def _plot_absorption_ply(self):
         """Plot absorption part of the SDEC Plot using plotly."""
@@ -1607,8 +1663,39 @@ class SDECPlotter:
                 )
             )
 
-        elements_z = self.species
-        for i, atomic_num in enumerate(elements_z):
+        ii = 0
+        previous_atomic_number = 0
+        for i, identifier in enumerate(self.species):
+            if self._species_list is not None:
+                # Get the ion number and atomic number for each species
+                ion_number = identifier % 100
+                atomic_number = (identifier - ion_number) / 100
+                if previous_atomic_number == 0:
+                    # If this is the first species being plotted, then take note of the atomic number
+                    # don't update the colour index
+                    ii = ii
+                    previous_atomic_number = atomic_number
+                elif previous_atomic_number in self._keep_colour:
+                    # If the atomic number is in the list of elements that should all be plotted in the same colour
+                   # then dont update the colour index
+                    if previous_atomic_number == atomic_number:
+                        ii = ii
+                        previous_atomic_number = atomic_number
+                    else:
+                        # Otherwise, increase the colour counter by one
+                        ii = ii + 1
+                        previous_atomic_number = atomic_number
+                else:
+                    # If this is just a normal species that was requested then increment the colour index
+                    ii = ii + 1
+                    previous_atomic_number = atomic_number
+                # Calculate the colour of this species
+                color = self.cmap(ii / len(self._species_name))
+            else:
+                # If you're not using species list then this is just a fraction based on the total
+                # number of columns in the dataframe
+                color = self.cmap(i / len(self.species))
+
             # Add a try catch because elemets_z comes from the total contribution of absorption and emission.
             # Therefore it's possible that something in elements_z is not in the absorption df
             try:
@@ -1616,32 +1703,39 @@ class SDECPlotter:
                     go.Scatter(
                         x=self.absorption_luminosities_df.index,
                         # to plot absorption luminosities along negative y-axis
-                        y=self.absorption_luminosities_df[atomic_num] * -1,
+                        y=self.absorption_luminosities_df[identifier] * -1,
                         mode="none",
-                        name=atomic_number2element_symbol(atomic_num),
+                        name="none",
                         fillcolor=self.to_rgb255_string(
-                            self.cmap(i / len(self.species))
-                        ),
+                            color),
                         stackgroup="absorption",
                         showlegend=False,
                     )
                 )
+
             except:
-                print(
-                    atomic_number2element_symbol(atomic_num)
-                    + " is not in the absorbed packets; skipping"
-                )
+                if self._species_list is None:
+                    print(
+                        atomic_number2element_symbol(identifier)
+                        + " is not in the emitted packets; skipping"
+                        )
+                else:
+                    print(
+                        atomic_number2element_symbol(atomic_number)
+                        + int_to_roman(ion_number + 1)
+                        + " is not in the emitted packets; skipping"
+                        )
 
     def _show_colorbar_ply(self):
         """Show plotly colorbar with labels of elements mapped to colors."""
         # Interpolate [0, 1] range to create bins equal to number of elements
-        colorscale_bins = np.linspace(0, 1, num=self.species.size + 1)
+        colorscale_bins = np.linspace(0, 1, num=len(self._species_name) + 1)
 
         # Create a categorical colorscale [a list of (reference point, color)]
         # by mapping same reference points (excluding 1st and last bin edge)
         # twice in a row (https://plotly.com/python/colorscales/#constructing-a-discrete-or-discontinuous-color-scale)
         categorical_colorscale = []
-        for i in range(self.species.size):
+        for i in range(len(self._species_name)):
             color = self.to_rgb255_string(self.cmap(colorscale_bins[i]))
             categorical_colorscale.append((colorscale_bins[i], color))
             categorical_colorscale.append((colorscale_bins[i + 1], color))
@@ -1650,20 +1744,19 @@ class SDECPlotter:
             colorscale=categorical_colorscale,
             showscale=True,
             cmin=0,
-            cmax=self.species.size,
+            cmax=len(self._species_name),
             colorbar=dict(
                 title="Elements",
-                tickvals=np.arange(0, self.species.size) + 0.5,
-                ticktext=[
-                    atomic_number2element_symbol(atomic_num)
-                    for atomic_num in self.species
-                ],
+                tickvals=np.arange(0, len(self._species_name)) + 0.5,
+                ticktext=self._species_name,
                 # to change length and position of colorbar
                 len=0.75,
                 yanchor="top",
                 y=0.75,
             ),
         )
+        print(self._species_name)
+        print(coloraxis_options)
 
         # Plot an invisible one point scatter trace, to make colorbar show up
         scatter_point_idx = pu.get_mid_point_idx(self.plot_wavelength)
