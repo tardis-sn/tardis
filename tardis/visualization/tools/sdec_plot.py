@@ -1016,20 +1016,28 @@ class SDECPlotter:
         elements_z = self.elements
         # Contribution from each element
         for i, atomic_number in enumerate(elements_z):
-            lower_level = upper_level
-            upper_level = (
-                lower_level
-                + self.emission_luminosities_df[atomic_number].to_numpy()
-            )
+            # Add a try catch because elemets_z comes from the total contribution of absorption and emission.
+            # Therefore it's possible that something in elements_z is not in the emission df
+            try:
+                lower_level = upper_level
+                upper_level = (
+                    lower_level
+                    + self.emission_luminosities_df[atomic_number].to_numpy()
+                )
 
-            self.ax.fill_between(
-                self.plot_wavelength,
-                lower_level,
-                upper_level,
-                color=self.cmap(i / len(self.elements)),
-                cmap=self.cmap,
-                linewidth=0,
-            )
+                self.ax.fill_between(
+                    self.plot_wavelength,
+                    lower_level,
+                    upper_level,
+                    color=self.cmap(i / len(self.elements)),
+                    cmap=self.cmap,
+                    linewidth=0,
+                )
+            except:
+                print(
+                    atomic_number2element_symbol(atomic_number)
+                    + " is not in the emitted packets; skipping"
+                )
 
     def _plot_absorption_mpl(self):
         """Plot absorption part of the SDEC Plot using matplotlib."""
@@ -1054,20 +1062,28 @@ class SDECPlotter:
 
         elements_z = self.elements
         for i, atomic_number in enumerate(elements_z):
-            upper_level = lower_level
-            lower_level = (
-                upper_level
-                - self.absorption_luminosities_df[atomic_number].to_numpy()
-            )
+            # Add a try catch because elemets_z comes from the total contribution of absorption and emission.
+            # Therefore it's possible that something in elements_z is not in the absorption df
+            try:
+                upper_level = lower_level
+                lower_level = (
+                    upper_level
+                    - self.absorption_luminosities_df[atomic_number].to_numpy()
+                )
 
-            self.ax.fill_between(
-                self.plot_wavelength,
-                upper_level,
-                lower_level,
-                color=self.cmap(i / len(elements_z)),
-                cmap=self.cmap,
-                linewidth=0,
-            )
+                self.ax.fill_between(
+                    self.plot_wavelength,
+                    upper_level,
+                    lower_level,
+                    color=self.cmap(i / len(elements_z)),
+                    cmap=self.cmap,
+                    linewidth=0,
+                )
+            except:
+                print(
+                    atomic_number2element_symbol(atomic_number)
+                    + " is not in the absorbed packets; skipping"
+                )
 
     def _show_colorbar_mpl(self):
         """Show matplotlib colorbar with labels of elements mapped to colors."""
@@ -1268,19 +1284,27 @@ class SDECPlotter:
 
         elements_z = self.elements
         for i, atomic_num in enumerate(elements_z):
-            self.fig.add_trace(
-                go.Scatter(
-                    x=self.emission_luminosities_df.index,
-                    y=self.emission_luminosities_df[atomic_num],
-                    mode="none",
-                    name=atomic_number2element_symbol(atomic_num),
-                    fillcolor=self.to_rgb255_string(
-                        self.cmap(i / len(self.elements))
-                    ),
-                    stackgroup="emission",
-                    showlegend=False,
+            # Add a try catch because elemets_z comes from the total contribution of absorption and emission.
+            # Therefore it's possible that something in elements_z is not in the emission df
+            try:
+                self.fig.add_trace(
+                    go.Scatter(
+                        x=self.emission_luminosities_df.index,
+                        y=self.emission_luminosities_df[atomic_num],
+                        mode="none",
+                        name=atomic_number2element_symbol(atomic_num),
+                        fillcolor=self.to_rgb255_string(
+                            self.cmap(i / len(self.elements))
+                        ),
+                        stackgroup="emission",
+                        showlegend=False,
+                    )
                 )
-            )
+            except:
+                print(
+                    atomic_number2element_symbol(atomic_num)
+                    + " is not in the emitted packets; skipping"
+                )
 
     def _plot_absorption_ply(self):
         """Plot absorption part of the SDEC Plot using plotly."""
@@ -1290,6 +1314,7 @@ class SDECPlotter:
             self.fig.add_trace(
                 go.Scatter(
                     x=self.absorption_luminosities_df.index,
+                    # to plot absorption luminosities along negative y-axis
                     y=self.absorption_luminosities_df.other * -1,
                     mode="none",
                     name="Other elements",
@@ -1300,22 +1325,29 @@ class SDECPlotter:
             )
 
         elements_z = self.elements
-
         for i, atomic_num in enumerate(elements_z):
-            self.fig.add_trace(
-                go.Scatter(
-                    x=self.absorption_luminosities_df.index,
-                    # to plot absorption luminosities along negative y-axis
-                    y=self.absorption_luminosities_df[atomic_num] * -1,
-                    mode="none",
-                    name=atomic_number2element_symbol(atomic_num),
-                    fillcolor=self.to_rgb255_string(
-                        self.cmap(i / len(self.elements))
-                    ),
-                    stackgroup="absorption",
-                    showlegend=False,
+            # Add a try catch because elemets_z comes from the total contribution of absorption and emission.
+            # Therefore it's possible that something in elements_z is not in the absorption df
+            try:
+                self.fig.add_trace(
+                    go.Scatter(
+                        x=self.absorption_luminosities_df.index,
+                        # to plot absorption luminosities along negative y-axis
+                        y=self.absorption_luminosities_df[atomic_num] * -1,
+                        mode="none",
+                        name=atomic_number2element_symbol(atomic_num),
+                        fillcolor=self.to_rgb255_string(
+                            self.cmap(i / len(self.elements))
+                        ),
+                        stackgroup="absorption",
+                        showlegend=False,
+                    )
                 )
-            )
+            except:
+                print(
+                    atomic_number2element_symbol(atomic_num)
+                    + " is not in the absorbed packets; skipping"
+                )
 
     def _show_colorbar_ply(self):
         """Show plotly colorbar with labels of elements mapped to colors."""
