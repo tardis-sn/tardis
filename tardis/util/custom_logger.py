@@ -88,7 +88,7 @@ warnings.showwarning = showwarning
 
 #  adding custom TARDIS INFO Level, just above WARNING
 # this is an additional level, which is above warning and below error
-logger.level("TARDIS INFO", no=35, color="<fg #FF4500>")
+logger.level("TARDIS INFO", no=35, color="<fg #8588ff>")
 logger.__class__.tardis_info = partialmethod(
     logger.__class__.log,
     "TARDIS INFO",
