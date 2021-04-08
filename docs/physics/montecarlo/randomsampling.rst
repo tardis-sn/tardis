@@ -1,3 +1,5 @@
+.. _randomsampling:
+
 **********************
 Random Sampling Basics
 **********************
