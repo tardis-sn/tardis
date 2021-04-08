@@ -100,17 +100,17 @@ In TARDIS, two reference frames are of particular importance: the lab frame and 
 
 The co-moving frame at some point in the supernova, however, has the plasma at that point be at rest. This is the frame of reference "according to the plasma."
 
-If a photon propigating in the ejecta with a frequency :math:`\nu_{lab}` in the lab frame and a propogation direction :math:`\mu`, the doppler effect says that in the co-moving frame at a distance :math:`r` from the center of the supernova, the photon's frequency is shifted to
+If a photon propigating in the ejecta with a frequency :math:`\nu_\mathrm{lab}` in the lab frame and a propogation direction :math:`\mu`, the doppler effect says that in the co-moving frame at a distance :math:`r` from the center of the supernova, the photon's frequency is shifted to
 
 .. math::
-    \nu_{co-moving} = \nu_{lab}\frac{1-\beta\mu}{\sqrt{1-\beta^2}}
+    \nu_\mathrm{co-moving} = \nu_\mathrm{lab}\frac{1-\beta\mu}{\sqrt{1-\beta^2}}
     
-where :math:`\beta = \frac{v_{plasma}}{c} = \frac{r}{ct_{explosion}}`. The term :math:`\frac{1-\beta\mu}{\sqrt{1-\beta^2}}` is known as the doppler factor. In the nonrelativistic limit (as :math:`v_{plasma} << c`), we get
+where :math:`\beta = \frac{v_\mathrm{plasma}}{c} = \frac{r}{ct_\mathrm{explosion}}`. The term :math:`\frac{1-\beta\mu}{\sqrt{1-\beta^2}}` is known as the doppler factor. In the nonrelativistic limit (as :math:`v_\mathrm{plasma} << c`), we get
 
 .. math::
-    \nu_{co-moving} = \nu_{lab}(1-\beta\mu).
+    \nu_\mathrm{co-moving} = \nu_\mathrm{lab}(1-\beta\mu).
     
-Note that if the photon is propogating away from the center of the supernova (:math:`\mu>0`), it is red-shifted (:math:`\nu_{co-moving}<\nu_{lab}`); and if the photon is propogating towards the center of the supernova (:math:`\mu<0`), it is blue-shifted (:math:`\nu_{co-moving}>\nu_{lab}`).
+Note that if the photon is propogating away from the center of the supernova (:math:`\mu>0`), it is red-shifted (:math:`\nu_\mathrm{co-moving}<\nu_\mathrm{lab}`); and if the photon is propogating towards the center of the supernova (:math:`\mu<0`), it is blue-shifted (:math:`\nu_\mathrm{co-moving}>\nu_\mathrm{lab}`).
 
 Numerical and Physical Events
 =============================
@@ -194,9 +194,17 @@ line. The location at which this occurs is referred to as the resonance or
 Sobolev point. This effectively reduces the line optical depth determination to
 a pure local problem.
 
-The location of these Sobolev points **EDIT**
+If a packet with a frequency :math:`\nu_\mathrm{lab}` in the lab frame is at a radius :math:`r_i` with a propogation direction :math:`\mu_i`, the distance that the packet must travel to reach the next Sobolev point is calculated by setting the frequency of the packet in the co-moving frame at the Sobolev point equal to the resonant frequency that it will next hit, which we will label :math:`\nu_\mathrm{line}` (which is, of course, in the co-moving frame). Using the nonrelativistic doppler shift formula, we get
 
-At a Sobolev point, the packet instantaneously accumulates optical depth, the value of which is called the Sobolev optical depth :math:`\tau_{sobolev}` (see :ref:`tau_sobolev`). This corresponds to a probability of :math:`1-e^{-\tau_{sobolev}}` that the packet interacts with the atomic line.
+.. math:: \nu_\mathrm{line} = (1-\beta_f \mu_f)\nu_\mathrm{lab}
+
+where the subscript :math:`f` refers to being at the sobolev point. Using :math:`\beta_f=\frac{r_f}{ct_\mathrm{explosion}}` and :math:`\mu_f = \frac{l + r_i \mu_i}{r_f}`, we get that the distance :math:`l` to the next Sobolev point is
+
+.. math:: l = \left( 1-\beta_i\mu_i - \frac{\nu_\mathrm{line}}{\nu_\mathrm{lab}} \right)ct_\mathrm{explosion} = \frac{\nu_{\mathrm{CMF},i}-\nu_\mathrm{line}}{\nu_\mathrm{lab}}ct_\mathrm{explosion}
+
+where :math:`\nu_{\mathrm{CMF},i}` is the frequency of the packet in the co-moving frame at the initial position.
+
+At a Sobolev point, the packet instantaneously accumulates optical depth, the value of which is called the Sobolev optical depth :math:`\tau_\mathrm{Sobolev}` (see :ref:`tau_sobolev`). This corresponds to a probability of :math:`1-e^{-\tau_\mathrm{Sobolev}}` that the packet interacts with the atomic line.
 
 While the packet is propogating through the supernova ejecta, it continuously accumulates optical depth due to Thomson scattering until it reaches a Sobolev point, at which it instantaneously gains the Sobolev optical depth. If the random interaction optical depth :math:`\tau_0` is reached between Sobolev points (where the packet is just accumulating optical depth due to the possibility Thomson scattering), the packet performs a Thomson scattering. Similarly, if the interaction optical depth is reached at a Sobolev point (where the packet accumuates optical depth due to the possibility of a line interaction), the packet performs a line interaction. In either case, the packet is moved to the interaction location and a new propogation direction is assigned. Since this process is isotropic, the new direction is
 sampled according to
@@ -226,7 +234,7 @@ The ratio :math:`\frac{1 - \beta \mu_i}{1 - \beta \mu_f}` can be visualized with
 .. note::
 
     Note that the inclusion of special relativistic effects in TARDIS is at
-    best to first order in :math:`\beta`. **EDIT**
+    best to first order in :math:`\beta`.
 
 Distance to Next Event
 ----------------------
