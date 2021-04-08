@@ -7,7 +7,11 @@ on:
   push:
     branches:
     - master
-
+    
+  pull_request:
+    branches:
+    - master
+    
   schedule:
     - cron: '10 0 * * 0'
 
