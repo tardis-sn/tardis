@@ -29,7 +29,7 @@ are initialised (the black body temperature :math:`T_{\mathrm{phot}}`, the
 photospheric radius :math:`R_{\mathrm{phot}}`, the Stefan-Boltzmann constant
 :math:`\sigma_{\mathrm{R}}` and the physical duration of the simulation
 :math:`\Delta t` appear here). To commence the packet propagation, each packet
-is assigned an initial propagation direction (note that propogation direction is defined as :math:`\mu = \cos
+is assigned an initial propagation direction (note that propagation direction is defined as :math:`\mu = \cos
 \theta` with :math:`\theta` being the angle the photon path makes with the
 radial direction)
 
@@ -100,7 +100,7 @@ In TARDIS, two reference frames are of particular importance: the lab frame and 
 
 The co-moving frame at some point in the supernova, however, has the plasma at that point be at rest. This is the frame of reference "according to the plasma."
 
-If a photon is propogating in the ejecta with a frequency :math:`\nu_\mathrm{lab}` in the lab frame and a propogation direction :math:`\mu`, the doppler effect says that in the co-moving frame at a distance :math:`r` from the center of the supernova, the photon's frequency is shifted to
+If a photon is propagating in the ejecta with a frequency :math:`\nu_\mathrm{lab}` in the lab frame and a propagation direction :math:`\mu`, the doppler effect says that in the co-moving frame at a distance :math:`r` from the center of the supernova, the photon's frequency is shifted to
 
 .. math::
     \nu_\mathrm{co-moving} = \nu_\mathrm{lab}\frac{1-\beta\mu}{\sqrt{1-\beta^2}}
@@ -110,11 +110,11 @@ where :math:`\beta = \frac{v_\mathrm{plasma}}{c} = \frac{r}{ct_\mathrm{explosion
 .. math::
     \nu_\mathrm{co-moving} = \nu_\mathrm{lab}(1-\beta\mu).
     
-Note that if the photon is propogating away from the center of the supernova (:math:`\mu>0`) it is red-shifted (:math:`\nu_\mathrm{co-moving}<\nu_\mathrm{lab}`), and if the photon is propogating towards the center of the supernova (:math:`\mu<0`) it is blue-shifted (:math:`\nu_\mathrm{co-moving}>\nu_\mathrm{lab}`).
+Note that if the photon is propagating away from the center of the supernova (:math:`\mu>0`) it is red-shifted (:math:`\nu_\mathrm{co-moving}<\nu_\mathrm{lab}`), and if the photon is propagating towards the center of the supernova (:math:`\mu<0`) it is blue-shifted (:math:`\nu_\mathrm{co-moving}>\nu_\mathrm{lab}`).
 
 Numerical and Physical Events
 =============================
-While a packet is propogating through the computational domain, TARDIS calculates the distance the packet will propogate until it (i) crosses into a new cell and (ii) interacts with the plasma in the ejecta. If the former distance is shorter, the packet will be moved into the new cell (and the plasma properties will be recalculated), and if the latter distance is shorter, the packet will be moved to the location of the interaction, and the interaction will be performed.
+While a packet is propagating through the computational domain, TARDIS calculates the distance the packet will propagate until it (i) crosses into a new cell and (ii) interacts with the plasma in the ejecta. If the former distance is shorter, the packet will be moved into the new cell (and the plasma properties will be recalculated), and if the latter distance is shorter, the packet will be moved to the location of the interaction, and the interaction will be performed.
 
 Distance to Next Cell
 ---------------------
@@ -144,7 +144,7 @@ if the packet escapes through the outer surface of the domain. However, in this
 case the packet contributes to the final emergent spectrum (see :ref:`Spectrum
 Formation <virtual_packets>`).
 
-When a packet is moved into a new cell, as mentioned before, it is moved to the location at which it crosses the boundary, the plasma properties are recalculated, and the propogation direction of the packet is updated (using :math:`\mu_f = \frac{l + r_i \mu_i}{r_f}`).
+When a packet is moved into a new cell, as mentioned before, it is moved to the location at which it crosses the boundary, the plasma properties are recalculated, and the propagation direction of the packet is updated (using :math:`\mu_f = \frac{l + r_i \mu_i}{r_f}`).
 
 
 Physical Interactions
@@ -152,7 +152,7 @@ Physical Interactions
 
 As a packet propagates through the computational domain, physical radiation-matter interactions can trigger changes in the packet properties. The probability that a photon/packet will interact with matter is characterized by its optical depth :math:`\tau`; the probability that a packet will have interacted after going through an optical depth :math:`\Delta \tau` is :math:`1-e^{-\Delta \tau}`. To model this (see :ref:`Random Sampling <randomsampling>`), the packet is assigned a random value of optical depth :math:`\tau_0 = -\log z` (for another random :math:`z` between 0 and 1), and upon reaching that optical depth, the packet will interact.
 
-TARDIS considers two different radiation-matter interactions within the simulation: electron scattering and atomic line interactions. As packets propogate, they accumulate optical depth due to the possibility of going through either of these interations. Since the main focus of TARDIS is to calculate optical spectra,
+TARDIS considers two different radiation-matter interactions within the simulation: electron scattering and atomic line interactions. As packets propagate, they accumulate optical depth due to the possibility of going through either of these interations. Since the main focus of TARDIS is to calculate optical spectra,
 electron-scatterings are treated in the elastic low-energy limit as classical
 Thomson scatterings. In this case, the electron scattering process is frequency-independent. Its opacity only depends on the number density of free electrons
 :math:`n_e`
@@ -178,7 +178,7 @@ Photons and thus Monte Carlo packets can only interact with a line transition
 if their frequency in the co-moving frame corresponds to the energy difference between the
 atomic levels linked by the transition, i.e. if it comes into resonance. As discussed above, as a
 photon/packet propagates through the homologously expanding ejecta, its
-co-moving frame frequency is continuously red- or blue-shifted (depending on the packet's propogation direction). 
+co-moving frame frequency is continuously red- or blue-shifted (depending on the packet's propagation direction). 
 Thus, during its
 propagation through the supernova ejecta, a photon/packet may come into resonance with
 many line transitions. This and the fact that line transitions have a finite
@@ -194,7 +194,7 @@ line. The location at which this occurs is referred to as the resonance or
 Sobolev point. This effectively reduces the line optical depth determination to
 a pure local problem.
 
-If a packet with a frequency :math:`\nu_\mathrm{lab}` in the lab frame is at a radius :math:`r_i` with a propogation direction :math:`\mu_i`, the distance that the packet must travel to reach the next Sobolev point is calculated by setting the frequency of the packet in the co-moving frame at the Sobolev point equal to the resonant frequency that it will next hit, which we will label :math:`\nu_\mathrm{line}` (which is, of course, in the co-moving frame). Using the nonrelativistic doppler shift formula, we get
+If a packet with a frequency :math:`\nu_\mathrm{lab}` in the lab frame is at a radius :math:`r_i` with a propagation direction :math:`\mu_i`, the distance that the packet must travel to reach the next Sobolev point is calculated by setting the frequency of the packet in the co-moving frame at the Sobolev point equal to the resonant frequency that it will next hit, which we will label :math:`\nu_\mathrm{line}` (which is, of course, in the co-moving frame). Using the nonrelativistic doppler shift formula, we get
 
 .. math:: \nu_\mathrm{line} = (1-\beta_f \mu_f)\nu_\mathrm{lab}
 
@@ -206,7 +206,7 @@ where :math:`\nu_{\mathrm{CMF},i}` is the frequency of the packet in the co-movi
 
 At a Sobolev point, the packet instantaneously accumulates optical depth, the value of which is called the Sobolev optical depth :math:`\tau_\mathrm{Sobolev}` (see :ref:`tau_sobolev`). This corresponds to a probability of :math:`1-e^{-\tau_\mathrm{Sobolev}}` that the packet interacts with the atomic line.
 
-While the packet is propogating through the supernova ejecta, it continuously accumulates optical depth due to Thomson scattering until it reaches a Sobolev point, at which it instantaneously gains the Sobolev optical depth. If the random interaction optical depth :math:`\tau_0` is reached between Sobolev points (where the packet is just accumulating optical depth due to the possibility Thomson scattering), the packet performs a Thomson scattering. Similarly, if the interaction optical depth is reached at a Sobolev point (where the packet accumuates optical depth due to the possibility of a line interaction), the packet performs a line interaction. In either case, the packet is moved to the interaction location and a new propogation direction is assigned. Since this process is isotropic, the new direction is
+While the packet is propagating through the supernova ejecta, it continuously accumulates optical depth due to Thomson scattering until it reaches a Sobolev point, at which it instantaneously gains the Sobolev optical depth. If the random interaction optical depth :math:`\tau_0` is reached between Sobolev points (where the packet is just accumulating optical depth due to the possibility Thomson scattering), the packet performs a Thomson scattering. Similarly, if the interaction optical depth is reached at a Sobolev point (where the packet accumuates optical depth due to the possibility of a line interaction), the packet performs a line interaction. In either case, the packet is moved to the interaction location and a new propagation direction is assigned. Since this process is isotropic, the new direction is
 sampled according to
 
 .. math::
@@ -223,7 +223,7 @@ For Thomson scattering, the energy of the packet in the co-moving frame is conse
     \nu_f & = \nu_i \frac{1 - \beta \mu_i}{1 - \beta \mu_f}
     
 Here, the subscripts highlight the packet properties before (:math:`i` for
-initial) and after (:math:`f` for final) the scattering. Note that :math:`\mu_i` is the propogation direction prior to the interaction **but at the interaction location.**
+initial) and after (:math:`f` for final) the scattering. Note that :math:`\mu_i` is the propagation direction prior to the interaction **but at the interaction location.**
 
 For line interactions, the energy of the packet after the interaction is still given by the same formula (based on energy conservation in the co-moving frame). However, the post-interaction frequency depends on the selected line interaction treatment (see :ref:`Line Interaction Treatments <lineinteraction>`).
 
@@ -261,7 +261,7 @@ points, where the packet is accumulating electron scattering optical depth.
 Thus, the packet performs a Thomson scattering. In case II, the interaction
 optical depth is reached during the instantaneous increment by the line optical
 depth at one of the Sobolev points. As a consequence, the packet performs an
-interaction with the corresponding atomic line transition. In both of these cases, the packet is moved to the interaction location; a new propogation direction, energy, and frequency are assigned (as discussed above); and the process of accumulating optical depth starts over. Finally, if the packet reaches the shell boundary before the optical depth value necessary for a physical interaction is achieved (as in case III), the packet will be moved to the next cell, the plasma properties will be updated, and the accumulation of optical depth will continue in the next cell.
+interaction with the corresponding atomic line transition. In both of these cases, the packet is moved to the interaction location; a new propagation direction, energy, and frequency are assigned (as discussed above); and the process of accumulating optical depth starts over. Finally, if the packet reaches the shell boundary before the optical depth value necessary for a physical interaction is achieved (as in case III), the packet will be moved to the next cell, the plasma properties will be updated, and the accumulation of optical depth will continue in the next cell.
 
 
 Implementation: Main Propagation Loop
