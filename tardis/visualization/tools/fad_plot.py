@@ -65,11 +65,7 @@ class FADPlotter:
         matplotlib.axes._subplots.AxesSubplot
         """
 
-        self.data.plot(
-            figsize=figsize,
-            marker="o",
-            fontsize=12
-        )
+        self.data.plot(figsize=figsize, marker="o", fontsize=12)
         plt.title("Abundance as a function of velocity", size=16)
         plt.ylabel("Fractional Abundance", fontsize=12)
         plt.xlabel("Velocity of Shell Outer Boundary (km/s)", fontsize=12)
