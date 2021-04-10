@@ -425,7 +425,18 @@ class MontecarloRunner(HDFWriterMixin):
     def calculate_emitted_luminosity(
         self, luminosity_nu_start, luminosity_nu_end
     ):
+        """
+        Calculate emitted luminosity.
 
+        Parameters
+        ----------
+        luminosity_nu_start : astropy.units.Quantity
+        luminosity_nu_end : astropy.units.Quantity
+
+        Returns
+        -------
+        astropy.units.Quantity
+        """
         luminosity_wavelength_filter = (
             self.emitted_packet_nu > luminosity_nu_start
         ) & (self.emitted_packet_nu < luminosity_nu_end)
@@ -439,7 +450,18 @@ class MontecarloRunner(HDFWriterMixin):
     def calculate_reabsorbed_luminosity(
         self, luminosity_nu_start, luminosity_nu_end
     ):
+        """
+        Calculate reabsorbed luminosity.
 
+        Parameters
+        ----------
+        luminosity_nu_start : astropy.units.Quantity
+        luminosity_nu_end : astropy.units.Quantity
+
+        Returns
+        -------
+        astropy.units.Quantity
+        """
         luminosity_wavelength_filter = (
             self.reabsorbed_packet_nu > luminosity_nu_start
         ) & (self.reabsorbed_packet_nu < luminosity_nu_end)
@@ -484,6 +506,17 @@ class MontecarloRunner(HDFWriterMixin):
         return t_rad * u.K, w
 
     def calculate_luminosity_inner(self, model):
+        """
+        Calculate inner luminosity.
+
+        Parameters
+        ----------
+        model : model.Radial1DModel
+
+        Returns
+        -------
+        astropy.units.Quantity
+        """
         return (
             4
             * np.pi
@@ -493,6 +526,17 @@ class MontecarloRunner(HDFWriterMixin):
         ).to("erg/s")
 
     def calculate_time_of_simulation(self, model):
+        """
+        Calculate time of montecarlo simulation.
+
+        Parameters
+        ----------
+        model : model.Radial1DModel
+
+        Returns
+        -------
+        float
+        """
         return 1.0 * u.erg / self.calculate_luminosity_inner(model)
 
     def calculate_f_nu(self, frequency):
@@ -502,13 +546,14 @@ class MontecarloRunner(HDFWriterMixin):
         pass
 
     @classmethod
-    def from_config(cls, config, packet_source=None):
+    def from_config(cls, config, packet_source=None, virtual_packet_logging=False):
         """
         Create a new MontecarloRunner instance from a Configuration object.
 
         Parameters
         ----------
         config : tardis.io.config_reader.Configuration
+        virtual_packet_logging : bool
 
         Returns
         -------
@@ -552,5 +597,5 @@ class MontecarloRunner(HDFWriterMixin):
             debug_packets=config.montecarlo.debug_packets,
             logger_buffer=config.montecarlo.logger_buffer,
             single_packet_seed=config.montecarlo.single_packet_seed,
-            virtual_packet_logging=config.spectrum.virtual.virtual_packet_logging,
+            virtual_packet_logging=(config.spectrum.virtual.virtual_packet_logging | virtual_packet_logging),
         )
