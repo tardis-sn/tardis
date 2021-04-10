@@ -53,7 +53,10 @@ class FADPlotter:
 
         return cls(data)
 
-    def generate_plot_mpl(self):
+    def generate_plot_mpl(
+        self,
+        figsize=(15, 5),
+    ):
         """
         Generate Spectral element DEComposition (SDEC) Plot using matplotlib.
 
@@ -63,13 +66,14 @@ class FADPlotter:
         """
 
         self.data.plot(
-            figsize=(15, 5),
-            title="Abundance as a function of velocity",
+            figsize=figsize,
             marker="o",
+            fontsize=12
         )
-        plt.ylabel("Fractional Abundance")
-        plt.xlabel("Velocity of Shell Outer Boundary (km/s)")
-        plt.legend(loc="best", title="Element")
+        plt.title("Abundance as a function of velocity", size=16)
+        plt.ylabel("Fractional Abundance", fontsize=12)
+        plt.xlabel("Velocity of Shell Outer Boundary (km/s)", fontsize=12)
+        plt.legend(loc=1, title="Element", fontsize=12)
 
         return plt.gca()
 
