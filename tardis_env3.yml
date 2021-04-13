@@ -4,7 +4,7 @@ channels:
   - conda-forge
 
 dependencies:
-  - python>=3.8
+  - python=3
   - pip
   - numpy=1.19
   - scipy=1.5
@@ -28,6 +28,7 @@ dependencies:
   - tqdm
   - beautifulsoup4
   - lxml
+  - pickle5
 
   # Analysis
   - jupyter
