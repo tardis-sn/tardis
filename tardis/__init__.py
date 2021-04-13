@@ -32,3 +32,8 @@ console_handler.setFormatter(console_formatter)
 
 logger.addHandler(console_handler)
 logging.getLogger("py.warnings").addHandler(console_handler)
+
+# ----------------------------------------------------------------------------
+import pickle5
+
+sys.modules["pickle"] = pickle5
