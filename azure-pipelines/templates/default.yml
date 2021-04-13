@@ -14,6 +14,10 @@ parameters:
     type: boolean
     default: false
 
+  - name: tardisRef
+    type: string
+    default: 'HEAD'
+
 steps:
   - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
     displayName: 'Set BASH exit on error'
@@ -37,6 +41,12 @@ steps:
   - checkout: self
     path: s/tardis
     displayName: 'Fetch main repository'
+
+  - ${{ if ne(parameters.tardisRef, 'HEAD') }}:
+    - bash: |
+        cd $(tardis.dir)
+        git checkout ${{ parameters.tardisRef }}
+      displayName: 'Check out to ${{ parameters.tardisRef }}'
 
   - ${{ if eq(parameters.fetchRefdata, true) }}:
     - checkout: git://TARDIS/tardis-refdata
