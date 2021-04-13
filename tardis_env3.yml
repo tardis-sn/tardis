@@ -4,7 +4,7 @@ channels:
   - conda-forge
 
 dependencies:
-  - python=3
+  - python>=3.8
   - pip
   - numpy=1.19
   - scipy=1.5
