@@ -2,7 +2,7 @@ import logging
 from functools import wraps
 
 DEBUG_MODE = False
-LOG_FILE = False
+LOG_FILE = "simulation_output.log"
 BUFFER = 1
 ticker = 1
 
@@ -11,11 +11,12 @@ logger.setLevel(logging.DEBUG)
 logger.handlers = []
 
 if LOG_FILE:
-    logger.propagate = False
-    console_handler = logging.FileHandler(LOG_FILE)
+	logging.basicConfig(filename = LOG_FILE, filemode='w', level=logger.getEffectiveLevel())
+	logger.propagate = False
+	console_handler = logging.FileHandler(LOG_FILE)
 else:
-    console_handler = logging.StreamHandler()
-
+	console_handler = logging.StreamHandler()
+	
 console_handler.setLevel(logging.DEBUG)
 console_formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
 console_handler.setFormatter(console_formatter)
