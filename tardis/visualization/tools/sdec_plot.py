@@ -1368,6 +1368,7 @@ class SDECPlotter:
                         + " is not in the emitted packets; skipping"
                         )
 
+
     def _show_colorbar_mpl(self):
         """Show matplotlib colorbar with labels of elements mapped to colors."""
 
@@ -1677,7 +1678,7 @@ class SDECPlotter:
                         + int_to_roman(ion_number + 1)
                         + " is not in the emitted packets; skipping"
                         )
-
+                    
     def _plot_absorption_ply(self):
         """Plot absorption part of the SDEC Plot using plotly."""
 
@@ -1758,6 +1759,7 @@ class SDECPlotter:
                         + int_to_roman(ion_number + 1)
                         + " is not in the emitted packets; skipping"
                         )
+
 
     def _show_colorbar_ply(self):
         """Show plotly colorbar with labels of elements mapped to colors."""

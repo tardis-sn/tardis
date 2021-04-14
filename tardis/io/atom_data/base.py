@@ -230,9 +230,7 @@ class AtomData(object):
         levels.loc[:, "energy"] = Quantity(levels["energy"].values, "eV").cgs
 
         # Create a new columns with wavelengths in the CGS units
-        lines.loc[:, "wavelength_cm"] = Quantity(
-            lines["wavelength"], "angstrom"
-        ).cgs
+        lines["wavelength_cm"] = Quantity(lines["wavelength"], "angstrom").cgs
 
         # SET ATTRIBUTES
 

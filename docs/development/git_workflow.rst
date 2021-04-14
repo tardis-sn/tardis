@@ -38,7 +38,7 @@ Creating a fork
 
 You need to do this only once for each package you want to contribute to. The
 instructions here are very similar to the instructions at
-http://help.github.com/fork-a-repo/ |emdash| please see that page for more
+https://help.github.com/fork-a-repo/ |emdash| please see that page for more
 details. We're repeating some of it here just to give the specifics for the
 TARDIS_ project, and to suggest some default names.
 
@@ -49,7 +49,7 @@ If you don't have a GitHub account, go to the GitHub_ page and make one.
 
 You then need to configure your account to allow write access |emdash| see
 the `Generating SSH keys
-<http://help.github.com/articles/generating-ssh-keys>`_ help on `GitHub Help`_.
+<https://help.github.com/articles/generating-ssh-keys>`_ help on `GitHub Help`_.
 
 Create your own fork of a repository
 ------------------------------------
@@ -188,8 +188,8 @@ given in the following sections.
   documentation follows the guidelines (see :ref:`documentation-guidelines`).
 
 * Once your code is ready to be accepted, please add an entry to the changelog
-  (see :ref:`changelog-format`).  If you're sure where to put this, please at
-  least suggest a brief (one or two sentence) description of your change so
+  (see :ref:`changelog-format`).  If you're not sure where to put this, please
+  at least suggest a brief (one or two sentence) description of your change so
   that another developer can add it to the changelog.
 
 This way of working helps to keep work well-organized, with readable history.
@@ -240,7 +240,7 @@ or ``buxfix-for-issue-42``.
     git fetch upstream
 
     # Make new feature branch starting at current trunk
-    git checkout upstream/master # checking out the newest master versio
+    git checkout upstream/master # checking out the newest master version
     git checkout -b my-new-feature
 
 Generally, you will want to keep your feature branches on your public GitHub_
@@ -279,7 +279,7 @@ In more detail
 #. Make some changes
 
 #. Once you are a bit further along, test your changes do not lead to
-   regressions, and add new tests (see the Astropy :ref:`testing-guidelines` we follow).::
+   regressions, and add new tests (see the Astropy :ref:`testing-guidelines` we follow)::
 
      python setup.py test
 
@@ -295,7 +295,7 @@ In more detail
 #. See which files have changed with ``git status`` (see `git status`_).
    You'll see a listing like this one::
 
-     # On branch ny-new-feature
+     # On branch my-new-feature
      # Changed but not updated:
      #   (use "git add <file>..." to update what will be committed)
      #   (use "git checkout -- <file>..." to discard changes in working directory)
@@ -337,7 +337,7 @@ Asking for your changes to be reviewed and/or merged
 When you are ready to ask for someone to review your code and consider a merge:
 
 #. Go to the URL of your forked repo, e.g.,
-   ``http://github.com/your-user-name/tardis``.
+   ``https://github.com/your-user-name/tardis``.
 
 #. Use the 'Switch Branches' dropdown menu near the top left of the page to
    select the branch with your changes:
@@ -481,8 +481,8 @@ If you forgot to make a backup branch::
 Reviewing and helping others with Pull Requests
 -----------------------------------------------
 
-Github offers an extensive array of tools to comment on Pull Requests (line-based, normal forum-like discussion, etc.). This system is described here in
-detail `<http://help.github.com/articles/using-pull-requests>`_.
+GitHub offers an extensive array of tools to comment on Pull Requests (line-based, normal forum-like discussion, etc.). This system is described here in
+detail `<https://help.github.com/articles/using-pull-requests>`_.
 
 However, it is sometimes easier to just add a few changes yourself to quickly
 show what you would suggest to be changed. So it is possible to make a
@@ -530,7 +530,7 @@ and now it is possible to *check out* a the pull request branch, in this case PR
 
     HEAD is now at b1f32ba... added the git workflow still WIP
 
-Finally, you can make a new branch `git checkout -b helping-with-PR116` and work
+Finally, you can make a new branch `git checkout -b helping-with-PR116` and
 implement your work.
 
 After committing your changes you push your change to your repository
