@@ -117,7 +117,7 @@ class SDECData:
         )  # & operator is quite faster than np.logical_and on pd.Series
         self.packets_df_line_interaction = self.packets_df.loc[line_mask].copy()
 
-        # Add columns for atomic number of last interaction in/out
+        # Add columns for atomic number of last interaction out
         self.packets_df_line_interaction["last_line_interaction_atom"] = (
             self.lines_df["atomic_number"]
             .iloc[
@@ -125,6 +125,8 @@ class SDECData:
             ]
             .to_numpy()
         )
+        # Add columns for the species id of last interaction
+        # Species id is given by 100 * Z + X, where Z is atomic number and X is ion number
         self.packets_df_line_interaction["last_line_interaction_species"] = (
             self.lines_df["atomic_number"]
             .iloc[
@@ -454,7 +456,7 @@ class SDECPlotter:
         """
 
         if species_list is not None:
-        # check if there are any digits in the species list. If there are then exit.
+        # check if there are any digits in the species list. If there are, then exit.
         # species_list should only contain species in the Roman numeral
         # format, e.g. Si II, and each ion must contain a space
             if any(char.isdigit() for char in " ".join(species_list)) == True:
@@ -465,7 +467,7 @@ class SDECPlotter:
                 full_species_list = []
                 for species in species_list:
                     # check if a hyphen is present. If it is, then it indicates a
-                    # range of ions. Add each ion in that range to the list
+                    # range of ions. Add each ion in that range to the list as a new entry
                     if "-" in species:
                         # split the string on spaces. First thing in the list is then the element
                         element = species.split(" ")[0]
@@ -481,6 +483,7 @@ class SDECPlotter:
                         for i in np.arange(first_ion_numeral, second_ion_numeral + 1):
                             full_species_list.append(element + " " + int_to_roman(i))
                     else:
+                        # Otherwise it's either an element or ion so just add to the list
                         full_species_list.append(species)
 
                 # full_species_list is now a list containing each individual species requested
@@ -662,26 +665,47 @@ class SDECPlotter:
                 sorted_list.keys()[~mask], inplace=True, axis=1
             )
             # Repeat this for the emission and absorption dfs
+            # This will require creating a temporary list that includes 'noint' and 'escatter'
+            # packets, because you don't want them dropped or included in 'other'
+            temp = [species for species in self._species_list]
+            temp.append('noint')
+            temp.append('escatter')
+            mask = np.in1d(
+                np.array(list(self.emission_luminosities_df.keys())), temp
+            )
+            # If species_list is included then create a new column which is the sum
+            # of all other species i.e. those that aren't in the requested list
             self.emission_luminosities_df.insert(
                 loc=0,
                 column="other",
                 value=self.emission_luminosities_df[
-                    sorted_list.keys()[~mask]
+                    self.emission_luminosities_df.keys()[~mask]
                 ].sum(axis=1),
             )
+            # Need to add a new value to the mask array for the 'other' column just added
+            mask = np.insert(mask, 0, True)
+            # Then drop all of the individual columns for species included in 'other'
             self.emission_luminosities_df.drop(
-                sorted_list.keys()[~mask], inplace=True, axis=1
+                self.emission_luminosities_df.keys()[~mask], inplace=True, axis=1
             )
 
+            mask = np.in1d(
+                np.array(list(self.absorption_luminosities_df.keys())), temp
+            )
+            # If species_list is included then create a new column which is the sum
+            # of all other species i.e. those that aren't in the requested list
             self.absorption_luminosities_df.insert(
                 loc=0,
                 column="other",
                 value=self.absorption_luminosities_df[
-                    sorted_list.keys()[~mask]
+                    self.absorption_luminosities_df.keys()[~mask]
                 ].sum(axis=1),
             )
+            # Need to add a new value to the mask array for the 'other' column just added
+            mask = np.insert(mask, 0, True)
+            # Then drop all of the individual columns for species included in 'other'
             self.absorption_luminosities_df.drop(
-                sorted_list.keys()[~mask], inplace=True, axis=1
+                self.absorption_luminosities_df.keys()[~mask], inplace=True, axis=1
             )
 
             # Get the list of species in the model
@@ -879,7 +903,7 @@ class SDECPlotter:
 
         # Contribution of each species with which packets interacted ----------
         for identifier, group in packets_df_grouped:
-            # Histogram of specific element
+            # Histogram of specific species
             hist_el = np.histogram(
                 group["nus"],
                 bins=self.plot_frequency_bins,
@@ -952,6 +976,7 @@ class SDECPlotter:
 
         # Group packets_df by atomic number of elements with which packets
         # had their last absorption (interaction in)
+        # or if species_list is requested then group by species id
         if self._species_list is None:
             packets_df_grouped = (
                 self.data[packets_mode]
@@ -966,7 +991,7 @@ class SDECPlotter:
                 )
 
         for identifier, group in packets_df_grouped:
-            # Histogram of specific element
+            # Histogram of specific species
             hist_el = np.histogram(
                 group["last_line_interaction_in_nu"],
                 bins=self.plot_frequency_bins,
@@ -1076,6 +1101,11 @@ class SDECPlotter:
             Axis on which SDEC Plot is created
         """
 
+        # If species_list and nelements requested, tell user that nelements is ignored
+        if species_list is not None and nelements is not None:
+            print("Both nelements and species_list were requested. Species_list takes priority; nelements is ignored")
+
+        # Parse the requested species list
         self._parse_species_list(species_list = species_list)
 
         # Calculate data attributes required for plotting
@@ -1098,7 +1128,7 @@ class SDECPlotter:
         self.cmap = cm.get_cmap(cmapname, len(self._species_name))
         self._show_colorbar_mpl()
 
-
+        # Plot emission and absorption components
         self._plot_emission_mpl()
         self._plot_absorption_mpl()
 
@@ -1187,13 +1217,10 @@ class SDECPlotter:
         # This is used when plotting species incase an element was given in the list
         # This is to ensure that all ions of that element are grouped together
         # ii is to track the colour index
+        # e.g. if Si is given in species_list, this is to ensure Si I, Si II, etc. all have the same colour
         ii = 0
         previous_atomic_number = 0
         for i, identifier in enumerate(self.species):
-            # Add a try catch because elemets_z comes from the total contribution of absorption and emission.
-            # Therefore it's possible that something in elements_z is not in the emission df
-
-
             if self._species_list is not None:
                 # Get the ion number and atomic number for each species
                 ion_number = identifier % 100
@@ -1205,12 +1232,12 @@ class SDECPlotter:
                     previous_atomic_number = atomic_number
                 elif previous_atomic_number in self._keep_colour:
                     # If the atomic number is in the list of elements that should all be plotted in the same colour
-                    # then dont update the colour index
+                    # then dont update the colour index if this element has been plotted already
                     if previous_atomic_number == atomic_number:
                         ii = ii
                         previous_atomic_number = atomic_number
                     else:
-                        # Otherwise, increase the colour counter by one
+                        # Otherwise, increase the colour counter by one, because this is a new element
                         ii = ii + 1
                         previous_atomic_number = atomic_number
                 else:
@@ -1224,7 +1251,8 @@ class SDECPlotter:
                 # If you're not using species list then this is just a fraction based on the total
                 # number of columns in the dataframe
                 color = self.cmap(i / len(self.species))
-
+            # Add a try catch because the identifier comes from the total contribution of absorption and emission.
+            # Therefore it's possible that something in list is not in the emission df
             try:
                 lower_level = upper_level
                 upper_level = (
@@ -1241,6 +1269,7 @@ class SDECPlotter:
                     linewidth=0,
                 )
             except:
+                # Add notifications that this species was not in the emission df
                 if self._species_list is None:
                     print(
                         atomic_number2element_symbol(identifier)
@@ -1277,9 +1306,6 @@ class SDECPlotter:
         ii = 0
         previous_atomic_number = 0
         for i, identifier in enumerate(self.species):
-            # Add a try catch because elemets_z comes from the total contribution of absorption and emission.
-            # Therefore it's possible that something in elements_z is not in the absorption df
-
             if self._species_list is not None:
                 # Get the ion number and atomic number for each species
                 ion_number = identifier % 100
@@ -1291,12 +1317,12 @@ class SDECPlotter:
                     previous_atomic_number = atomic_number
                 elif previous_atomic_number in self._keep_colour:
                     # If the atomic number is in the list of elements that should all be plotted in the same colour
-                    # then dont update the colour index
+                    # then dont update the colour index if this element has been plotted already
                     if previous_atomic_number == atomic_number:
                         ii = ii
                         previous_atomic_number = atomic_number
                     else:
-                        # Otherwise, increase the colour counter by one
+                        # Otherwise, increase the colour counter by one, because this is a new element
                         ii = ii + 1
                         previous_atomic_number = atomic_number
                 else:
@@ -1310,7 +1336,8 @@ class SDECPlotter:
                 # If you're not using species list then this is just a fraction based on the total
                 # number of columns in the dataframe
                 color = self.cmap(i / len(self.species))
-
+            # Add a try catch because elemets_z comes from the total contribution of absorption and emission.
+            # Therefore it's possible that something in elements_z is not in the absorption df
             try:
                 upper_level = lower_level
                 lower_level = (
@@ -1328,6 +1355,7 @@ class SDECPlotter:
                 )
 
             except:
+                # Add notifications that this species was not in the emission df
                 if self._species_list is None:
                     print(
                         atomic_number2element_symbol(identifier)
@@ -1362,6 +1390,7 @@ class SDECPlotter:
     def _make_colorbar_labels(self):
         """Get the labels for the species in the colorbar."""
         if self._species_list is None:
+            # If species_list is none then the labels are just elements
             species_name = [
                 atomic_number2element_symbol(atomic_num)
                 for atomic_num in self.species
@@ -1369,6 +1398,7 @@ class SDECPlotter:
         else:
             species_name = []
             for species in self.species:
+                # Go through each species requested
                 ion_number = species % 100
                 atomic_number = (species - ion_number) / 100
 
@@ -1445,6 +1475,11 @@ class SDECPlotter:
             Figure object on which SDEC Plot is created
         """
 
+        # If species_list and nelements requested, tell user that nelements is ignored
+        if species_list is not None and nelements is not None:
+            print("Both nelements and species_list were requested. Species_list takes priority; nelements is ignored")
+
+        # Parse the requested species list
         self._parse_species_list(species_list = species_list)
 
         # Calculate data attributes required for plotting
@@ -1466,6 +1501,7 @@ class SDECPlotter:
         # Set colormap to be used in elements of emission and absorption plots
         self.cmap = cm.get_cmap(cmapname, len(self._species_name))
 
+        # Plot absorption and emission components
         self._plot_emission_ply()
         self._plot_absorption_ply()
 
@@ -1595,12 +1631,12 @@ class SDECPlotter:
                     previous_atomic_number = atomic_number
                 elif previous_atomic_number in self._keep_colour:
                     # If the atomic number is in the list of elements that should all be plotted in the same colour
-                   # then dont update the colour index
+                    # then dont update the colour index if this element has been plotted already
                     if previous_atomic_number == atomic_number:
                         ii = ii
                         previous_atomic_number = atomic_number
                     else:
-                        # Otherwise, increase the colour counter by one
+                        # Otherwise, increase the colour counter by one, because this is a new element
                         ii = ii + 1
                         previous_atomic_number = atomic_number
                 else:
@@ -1614,8 +1650,8 @@ class SDECPlotter:
                 # number of columns in the dataframe
                 color = self.cmap(i / len(self.species))
 
-            # Add a try catch because elemets_z comes from the total contribution of absorption and emission.
-            # Therefore it's possible that something in elements_z is not in the emission df
+            # Add a try catch because identifier comes from the total contribution of absorption and emission.
+            # Therefore it's possible that something in the list is not in the emission df
             try:
                 self.fig.add_trace(
                         go.Scatter(
@@ -1674,12 +1710,12 @@ class SDECPlotter:
                     previous_atomic_number = atomic_number
                 elif previous_atomic_number in self._keep_colour:
                     # If the atomic number is in the list of elements that should all be plotted in the same colour
-                   # then dont update the colour index
+                    # then dont update the colour index if this element has been plotted already
                     if previous_atomic_number == atomic_number:
                         ii = ii
                         previous_atomic_number = atomic_number
                     else:
-                        # Otherwise, increase the colour counter by one
+                        # Otherwise, increase the colour counter by one, because this is a new element
                         ii = ii + 1
                         previous_atomic_number = atomic_number
                 else:
@@ -1693,8 +1729,8 @@ class SDECPlotter:
                 # number of columns in the dataframe
                 color = self.cmap(i / len(self.species))
 
-            # Add a try catch because elemets_z comes from the total contribution of absorption and emission.
-            # Therefore it's possible that something in elements_z is not in the absorption df
+            # Add a try catch because the identifier comes from the total contribution of absorption and emission.
+            # Therefore it's possible that something in list is not in the absorption df
             try:
                 self.fig.add_trace(
                     go.Scatter(
