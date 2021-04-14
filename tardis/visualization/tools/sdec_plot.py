@@ -132,9 +132,9 @@ class SDECData:
             .iloc[
                 self.packets_df_line_interaction["last_line_interaction_out_id"]
             ]
-            .to_numpy() * 100
-            +
-            self.lines_df["ion_number"]
+            .to_numpy()
+            * 100
+            + self.lines_df["ion_number"]
             .iloc[
                 self.packets_df_line_interaction["last_line_interaction_out_id"]
             ]
@@ -439,10 +439,7 @@ class SDECPlotter:
             )
         )
 
-
-    def _parse_species_list(
-        self, species_list
-    ):
+    def _parse_species_list(self, species_list):
         """
         Parse user requested species list and create list of species ids to be used.
 
@@ -456,12 +453,12 @@ class SDECPlotter:
         """
 
         if species_list is not None:
-        # check if there are any digits in the species list. If there are, then exit.
-        # species_list should only contain species in the Roman numeral
-        # format, e.g. Si II, and each ion must contain a space
+            # check if there are any digits in the species list. If there are, then exit.
+            # species_list should only contain species in the Roman numeral
+            # format, e.g. Si II, and each ion must contain a space
             if any(char.isdigit() for char in " ".join(species_list)) == True:
                 raise ValueError(
-                "All species must be in Roman numeral form, e.g. Si II"
+                    "All species must be in Roman numeral form, e.g. Si II"
                 )
             else:
                 full_species_list = []
@@ -475,13 +472,17 @@ class SDECPlotter:
                         # convert the requested ions into numerals
                         first_ion_numeral = roman_to_int(
                             species.split(" ")[-1].split("-")[0]
-                            )
+                        )
                         second_ion_numeral = roman_to_int(
                             species.split(" ")[-1].split("-")[-1]
+                        )
+                        # add each ion between the two requested into the species list
+                        for i in np.arange(
+                            first_ion_numeral, second_ion_numeral + 1
+                        ):
+                            full_species_list.append(
+                                element + " " + int_to_roman(i)
                             )
-                            # add each ion between the two requested into the species list
-                        for i in np.arange(first_ion_numeral, second_ion_numeral + 1):
-                            full_species_list.append(element + " " + int_to_roman(i))
                     else:
                         # Otherwise it's either an element or ion so just add to the list
                         full_species_list.append(species)
@@ -507,14 +508,19 @@ class SDECPlotter:
                     else:
                         atomic_number = element_symbol2atomic_number(species)
                         requested_species_ids.append(
-                            [atomic_number * 100 + i for i in np.arange(atomic_number)]
+                            [
+                                atomic_number * 100 + i
+                                for i in np.arange(atomic_number)
+                            ]
                         )
                         # add the atomic number to a list so you know that this element should
                         # have all species in the same colour, i.e. it was requested like
                         # species_list = [Si]
                         keep_colour.append(atomic_number)
                 requested_species_ids = [
-                    species_id for list in requested_species_ids for species_id in list
+                    species_id
+                    for list in requested_species_ids
+                    for species_id in list
                 ]
 
                 self._species_list = requested_species_ids
@@ -656,9 +662,9 @@ class SDECPlotter:
             self.total_luminosities_df.insert(
                 loc=0,
                 column="other",
-                value=self.total_luminosities_df[
-                    sorted_list.keys()[~mask]
-                ].sum(axis=1),
+                value=self.total_luminosities_df[sorted_list.keys()[~mask]].sum(
+                    axis=1
+                ),
             )
             # Then drop all of the individual columns for species included in 'other'
             self.total_luminosities_df.drop(
@@ -668,8 +674,8 @@ class SDECPlotter:
             # This will require creating a temporary list that includes 'noint' and 'escatter'
             # packets, because you don't want them dropped or included in 'other'
             temp = [species for species in self._species_list]
-            temp.append('noint')
-            temp.append('escatter')
+            temp.append("noint")
+            temp.append("escatter")
             mask = np.in1d(
                 np.array(list(self.emission_luminosities_df.keys())), temp
             )
@@ -686,7 +692,9 @@ class SDECPlotter:
             mask = np.insert(mask, 0, True)
             # Then drop all of the individual columns for species included in 'other'
             self.emission_luminosities_df.drop(
-                self.emission_luminosities_df.keys()[~mask], inplace=True, axis=1
+                self.emission_luminosities_df.keys()[~mask],
+                inplace=True,
+                axis=1,
             )
 
             mask = np.in1d(
@@ -705,7 +713,9 @@ class SDECPlotter:
             mask = np.insert(mask, 0, True)
             # Then drop all of the individual columns for species included in 'other'
             self.absorption_luminosities_df.drop(
-                self.absorption_luminosities_df.keys()[~mask], inplace=True, axis=1
+                self.absorption_luminosities_df.keys()[~mask],
+                inplace=True,
+                axis=1,
             )
 
             # Get the list of species in the model
@@ -893,13 +903,13 @@ class SDECPlotter:
                 self.data[packets_mode]
                 .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
                 .groupby(by="last_line_interaction_atom")
-                )
+            )
         else:
             packets_df_grouped = (
                 self.data[packets_mode]
                 .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
                 .groupby(by="last_line_interaction_species")
-                )
+            )
 
         # Contribution of each species with which packets interacted ----------
         for identifier, group in packets_df_grouped:
@@ -982,13 +992,13 @@ class SDECPlotter:
                 self.data[packets_mode]
                 .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
                 .groupby(by="last_line_interaction_atom")
-                )
+            )
         else:
             packets_df_grouped = (
                 self.data[packets_mode]
                 .packets_df_line_interaction.loc[self.packet_nu_line_range_mask]
                 .groupby(by="last_line_interaction_species")
-                )
+            )
 
         for identifier, group in packets_df_grouped:
             # Histogram of specific species
@@ -1055,7 +1065,7 @@ class SDECPlotter:
         figsize=(12, 7),
         cmapname="jet",
         nelements=None,
-        species_list=None
+        species_list=None,
     ):
         """
         Generate Spectral element DEComposition (SDEC) Plot using matplotlib.
@@ -1103,10 +1113,12 @@ class SDECPlotter:
 
         # If species_list and nelements requested, tell user that nelements is ignored
         if species_list is not None and nelements is not None:
-            print("Both nelements and species_list were requested. Species_list takes priority; nelements is ignored")
+            print(
+                "Both nelements and species_list were requested. Species_list takes priority; nelements is ignored"
+            )
 
         # Parse the requested species list
-        self._parse_species_list(species_list = species_list)
+        self._parse_species_list(species_list=species_list)
 
         # Calculate data attributes required for plotting
         # and save them in instance itself
@@ -1149,7 +1161,6 @@ class SDECPlotter:
             "--r",
             label="Blackbody Photosphere",
         )
-
 
         # Set legends and labels
         self.ax.legend(fontsize=12)
@@ -1274,13 +1285,13 @@ class SDECPlotter:
                     print(
                         atomic_number2element_symbol(identifier)
                         + " is not in the emitted packets; skipping"
-                        )
+                    )
                 else:
                     print(
                         atomic_number2element_symbol(atomic_number)
                         + int_to_roman(ion_number + 1)
                         + " is not in the emitted packets; skipping"
-                        )
+                    )
 
     def _plot_absorption_mpl(self):
         """Plot absorption part of the SDEC Plot using matplotlib."""
@@ -1360,20 +1371,20 @@ class SDECPlotter:
                     print(
                         atomic_number2element_symbol(identifier)
                         + " is not in the emitted packets; skipping"
-                        )
+                    )
                 else:
                     print(
                         atomic_number2element_symbol(atomic_number)
                         + int_to_roman(ion_number + 1)
                         + " is not in the emitted packets; skipping"
-                        )
-
+                    )
 
     def _show_colorbar_mpl(self):
         """Show matplotlib colorbar with labels of elements mapped to colors."""
 
         color_values = [
-            self.cmap(i / len(self._species_name)) for i in range(len(self._species_name))
+            self.cmap(i / len(self._species_name))
+            for i in range(len(self._species_name))
         ]
 
         custcmap = clr.ListedColormap(color_values)
@@ -1386,7 +1397,6 @@ class SDECPlotter:
         cbar.set_ticks(bounds)
 
         cbar.set_ticklabels(self._species_name)
-
 
     def _make_colorbar_labels(self):
         """Get the labels for the species in the colorbar."""
@@ -1408,7 +1418,9 @@ class SDECPlotter:
 
                 # if the element was requested, and not a specific ion, then
                 # add the element symbol to the label list
-                if (atomic_number in self._keep_colour) & (atomic_symbol not in species_name):
+                if (atomic_number in self._keep_colour) & (
+                    atomic_symbol not in species_name
+                ):
                     # compiling the label, and adding it to the list
                     label = f"{atomic_symbol}"
                     species_name.append(label)
@@ -1418,7 +1430,6 @@ class SDECPlotter:
                     species_name.append(label)
 
         self._species_name = species_name
-
 
     def generate_plot_ply(
         self,
@@ -1478,10 +1489,12 @@ class SDECPlotter:
 
         # If species_list and nelements requested, tell user that nelements is ignored
         if species_list is not None and nelements is not None:
-            print("Both nelements and species_list were requested. Species_list takes priority; nelements is ignored")
+            print(
+                "Both nelements and species_list were requested. Species_list takes priority; nelements is ignored"
+            )
 
         # Parse the requested species list
-        self._parse_species_list(species_list = species_list)
+        self._parse_species_list(species_list=species_list)
 
         # Calculate data attributes required for plotting
         # and save them in instance itself
@@ -1655,30 +1668,29 @@ class SDECPlotter:
             # Therefore it's possible that something in the list is not in the emission df
             try:
                 self.fig.add_trace(
-                        go.Scatter(
-                            x=self.emission_luminosities_df.index,
-                            y=self.emission_luminosities_df[identifier],
-                            mode="none",
-                            name="none",
-                            fillcolor=self.to_rgb255_string(
-                                color),
-                            stackgroup="emission",
-                            showlegend=False,
-                        )
+                    go.Scatter(
+                        x=self.emission_luminosities_df.index,
+                        y=self.emission_luminosities_df[identifier],
+                        mode="none",
+                        name="none",
+                        fillcolor=self.to_rgb255_string(color),
+                        stackgroup="emission",
+                        showlegend=False,
                     )
+                )
             except:
                 if self._species_list is None:
                     print(
                         atomic_number2element_symbol(identifier)
                         + " is not in the emitted packets; skipping"
-                        )
+                    )
                 else:
                     print(
                         atomic_number2element_symbol(atomic_number)
                         + int_to_roman(ion_number + 1)
                         + " is not in the emitted packets; skipping"
-                        )
-                    
+                    )
+
     def _plot_absorption_ply(self):
         """Plot absorption part of the SDEC Plot using plotly."""
 
@@ -1740,8 +1752,7 @@ class SDECPlotter:
                         y=self.absorption_luminosities_df[identifier] * -1,
                         mode="none",
                         name="none",
-                        fillcolor=self.to_rgb255_string(
-                            color),
+                        fillcolor=self.to_rgb255_string(color),
                         stackgroup="absorption",
                         showlegend=False,
                     )
@@ -1752,14 +1763,13 @@ class SDECPlotter:
                     print(
                         atomic_number2element_symbol(identifier)
                         + " is not in the emitted packets; skipping"
-                        )
+                    )
                 else:
                     print(
                         atomic_number2element_symbol(atomic_number)
                         + int_to_roman(ion_number + 1)
                         + " is not in the emitted packets; skipping"
-                        )
-
+                    )
 
     def _show_colorbar_ply(self):
         """Show plotly colorbar with labels of elements mapped to colors."""
