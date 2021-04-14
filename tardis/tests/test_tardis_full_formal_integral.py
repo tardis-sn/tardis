@@ -7,8 +7,6 @@ from astropy.tests.helper import assert_quantity_allclose
 from tardis.simulation.base import Simulation
 from tardis.io.config_reader import Configuration
 
-pytestmark = pytest.mark.skip(reason="memory problem")
-
 config_line_modes = ["downbranch", "macroatom"]
 interpolate_shells = [-1, 30]
 
@@ -66,7 +64,9 @@ class TestRunnerSimpleFormalInegral:
                 "spectrum",
                 "spectrum_integrated",
             ]
-            simulation.runner.to_hdf(tardis_ref_data, "", self.name)
+            simulation.runner.to_hdf(
+                tardis_ref_data, "", self.name, overwrite=True
+            )
             pytest.skip("Reference data was generated during this run.")
 
     @pytest.fixture(scope="class")
