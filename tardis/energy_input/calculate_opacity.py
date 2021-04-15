@@ -10,8 +10,21 @@ M_P = const.m_p.to(u.g).value
 SIGMA_T = const.sigma_T.cgs.value
 
 
-def compton_opacity_calculation(ejecta_density, energy):
+def compton_opacity_calculation(energy, ejecta_density):
+    """Calculate the Compton scattering opacity for a given energy
 
+    Parameters
+    ----------
+    energy : float
+        The energy of the packet
+    ejecta_density : float
+        The density of the ejecta
+
+    Returns
+    -------
+    float
+        The Compton scattering opacity
+    """
     kappa = kappa_calculation(energy)
 
     a = 1.0 + 2.0 * kappa
@@ -35,7 +48,22 @@ def compton_opacity_calculation(ejecta_density, energy):
 def photoabsorption_opacity_calculation(
     energy, ejecta_density, iron_group_fraction
 ):
+    """Calculates photoabsorption opacity for a given energy
 
+    Parameters
+    ----------
+    energy : float
+        Packet energy
+    ejecta_density : float
+        The density of the ejecta
+    iron_group_fraction : float
+        Fraction of iron group elements in the shell
+
+    Returns
+    -------
+    float
+        Photoabsorption opacity
+    """
     Si_opacity = (
         1.16e-24
         * (energy / 100.0) ** -3.13
@@ -58,7 +86,22 @@ def photoabsorption_opacity_calculation(
 def pair_creation_opacity_calculation(
     energy, ejecta_density, iron_group_fraction
 ):
+    """Calculates pair creation opacity for a given energy
 
+    Parameters
+    ----------
+    energy : float
+        Packet energy
+    ejecta_density : float
+        The density of the ejecta
+    iron_group_fraction : float
+        Fraction of iron group elements in the shell
+
+    Returns
+    -------
+    float
+        Pair creation opacity
+    """
     Z_Si = 14
     Z_Fe = 26
 

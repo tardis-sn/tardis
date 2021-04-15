@@ -164,7 +164,25 @@ def density_sampler(radii, mass_ratio):
 def mass_distribution(
     radial_grid_size, inner_radii, outer_radii, density_profile
 ):
+    """Calculates the distribution of mass in the shells
+    based on a density profile
 
+    Parameters
+    ----------
+    radial_grid_size : int
+        Number of radial grid cells
+    inner_radii : One-dimensional Numpy Array, dtype float
+        Inner radii of shells
+    outer_radii : One-dimensional Numpy Array, dtype float
+        Outer radii of shells
+    density_profile : One-dimensional Numpy Array, dtype float
+        Density of shells
+
+    Returns
+    -------
+    One-dimensional Numpy Array, dtype float
+        Normalized array of mass in each shell
+    """
     mass = np.zeros(radial_grid_size)
 
     i = 0
@@ -194,6 +212,20 @@ def mass_distribution(
 
 
 def get_shell(radius, outer_radii):
+    """Returns the shell index at a given radius
+
+    Parameters
+    ----------
+    radius : float
+        Radius of interest
+    outer_radii : One-dimensional Numpy Array, dtype float
+        Outer radii of shells
+
+    Returns
+    -------
+    int
+        Shell index corresponding to radius
+    """
     shell_inner = np.searchsorted(outer_radii, radius, side="left")
 
     return shell_inner

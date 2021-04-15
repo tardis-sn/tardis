@@ -198,8 +198,22 @@ def compton_theta_distribution(energy, sample_resolution=100):
 
 
 def get_random_mu_gamma_ray():
+    """Get a random mu direction between -1 and 1
+
+    Returns
+    -------
+    float
+        Random mu direction
+    """
     return 2.0 * np.random.random() - 1.0
 
 
 def get_random_phi_gamma_ray():
+    """Get a random phi direction between 0 and 2 * pi
+
+    Returns
+    -------
+    float
+        Random phi direction
+    """
     return 2.0 * np.pi * np.random.random()

@@ -14,6 +14,12 @@ def test_compton_scatter():
 
 
 def test_pair_creation(basic_gamma_ray):
+    """
+
+    Parameters
+    ----------
+    basic_gamma_ray : GammaRay object
+    """
     initial_mu = basic_gamma_ray.direction.mu
 
     pair_creation(basic_gamma_ray)

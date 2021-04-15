@@ -21,6 +21,12 @@ def test_distance_trace():
 
 
 def test_move_gamma_ray(basic_gamma_ray):
+    """
+
+    Parameters
+    ----------
+    basic_gamma_ray : GammaRay object
+    """
     gamma_ray = basic_gamma_ray
     distance = 1.0e15
 

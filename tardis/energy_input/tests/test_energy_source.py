@@ -16,6 +16,11 @@ from tardis.energy_input.energy_source import (
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_read_nuclear_dataframe(path):
+    """
+    Parameters
+    ----------
+    path : str
+    """
     actual = read_nuclear_dataframe(path)
     expected = pd.read_hdf(path, key="decay_radiation")
 
@@ -41,6 +46,14 @@ def test_read_nuclear_dataframe(path):
     ],
 )
 def test_get_type_property(path, type_of_radiation, property):
+    """
+
+    Parameters
+    ----------
+    path : str
+    type_of_radiation : str
+    property : str
+    """
     nuclear_df = pd.read_hdf(path, key="decay_radiation")
 
     expected = nuclear_df.query("type==" + type_of_radiation)[property].values
@@ -57,6 +70,13 @@ def test_get_type_property(path, type_of_radiation, property):
     ],
 )
 def test_create_energy_cdf(energy, intensity, expected_cdf):
+    """
+    Parameters
+    ----------
+    energy : One-dimensional Numpy Array, dtype float
+    intensity : One-dimensional Numpy Array, dtype float
+    expected_cdf : One-dimensional Numpy Array, dtype float
+    """
     actual_energy, actual_cdf = create_energy_cdf(energy, intensity)
     expected_energy = np.sort(energy)
 

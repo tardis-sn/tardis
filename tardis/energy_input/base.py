@@ -74,7 +74,7 @@ def spawn_gamma_ray(
 
     Returns
     -------
-    gamma_ray : GammaRay object
+    GammaRay object
 
     """
 
@@ -115,7 +115,30 @@ def spawn_gamma_ray(
 def spawn_positron(
     inner_radii, outer_radii, mass_ratio, energy_sorted, energy_cdf
 ):
+    """Spawns a positron and immediately decays it to an energy
 
+    Parameters
+    ----------
+    inner_radii : float
+        Inner radius of simulation
+    outer_radii : float
+        Outer radius of simulation
+    mass_ratio : One-dimensional Numpy Array, dtype float
+        CDF of masses
+    energy_sorted : One-dimensional Numpy Array, dtype float
+        Sorted array of possible energies
+    energy_cdf : One-dimensional Numpy Array, dtype float
+        CDF of possible energies
+
+    Returns
+    -------
+    float
+        Emitted energy
+    float
+        Radius of emitted energy
+    int
+        Shell of emitted energy
+    """
     energy_KeV = sample_energy_distribution(energy_sorted, energy_cdf)
 
     initial_radius, shell = density_sampler(inner_radii, mass_ratio)
@@ -128,7 +151,36 @@ def spawn_positron(
 
 
 def main_gamma_ray_loop(num_packets, model, path):
+    """Main loop that determines the gamma ray propagation
 
+    Parameters
+    ----------
+    num_packets : int
+        Number of gamma-ray packets to run
+    model : tardis.Radial1DModel
+        Input tardis model
+    path : str
+        Path to nuclear dataframe
+
+    Returns
+    -------
+    list
+        Energy deposited in the ejecta from events
+    list
+        Radial location of energy deposition
+    list
+        Theta location of energy deposition
+    list
+        Escaped energy
+    One-dimensional Numpy Array, dtype float
+        Inner radii of ejecta grid shells
+    list
+        Event type that deposited energy
+    list
+        Number of events each packet encountered
+    list
+        Initial positions of packets
+    """
     output_energies = []
     ejecta_energy = []
     ejecta_energy_r = []
@@ -238,7 +290,7 @@ def main_gamma_ray_loop(num_packets, model, path):
         while packet.status == "InProcess":
 
             compton_opacity = compton_opacity_calculation(
-                ejecta_density[packet.shell], packet.energy
+                packet.energy, ejecta_density[packet.shell]
             )
             photoabsorption_opacity = photoabsorption_opacity_calculation(
                 packet.energy, ejecta_density[packet.shell], iron_group_fraction

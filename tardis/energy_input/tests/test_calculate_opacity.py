@@ -17,9 +17,15 @@ M_P = const.m_p.to(u.g).value
     ["electron_number_density", "energy"],
     [(1.0, 511.0), (1e-2, 255.5), (1e5, 511.0e7)],
 )
-def test_compton_opacity_calculation(electron_number_density, energy):
+def test_compton_opacity_calculation(energy, electron_number_density):
+    """
+    Parameters
+    ----------
+    energy : float
+    electron_number_density : float
+    """
     opacity = calculate_opacity.compton_opacity_calculation(
-        electron_number_density, energy
+        energy, electron_number_density
     )
 
     kappa = util.kappa_calculation(energy)
@@ -58,7 +64,13 @@ def test_compton_opacity_calculation(electron_number_density, energy):
 def test_photoabsorption_opacity_calculation(
     energy, ejecta_density, iron_group_fraction
 ):
-
+    """
+    Parameters
+    ----------
+    energy : float
+    ejecta_density : float
+    iron_group_fraction : float
+    """
     opacity = calculate_opacity.photoabsorption_opacity_calculation(
         energy, ejecta_density, iron_group_fraction
     )
@@ -96,7 +108,13 @@ def test_photoabsorption_opacity_calculation(
 def test_pair_creation_opacity_calculation(
     energy, ejecta_density, iron_group_fraction
 ):
-
+    """
+    Parameters
+    ----------
+    energy : float
+    ejecta_density : float
+    iron_group_fraction : float
+    """
     opacity = calculate_opacity.pair_creation_opacity_calculation(
         energy, ejecta_density, iron_group_fraction
     )
