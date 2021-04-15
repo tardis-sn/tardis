@@ -16,6 +16,8 @@ variables:
   results.url: 'http://opensupernova.org/~azuredevops/files/refdata-results'
   commit.sha: '$(Build.SourceVersion)'
   pr.number: '$(System.PullRequest.PullRequestNumber)'
+  #ref1.hash: ''
+  #ref2.hash: ''
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -28,30 +30,18 @@ jobs:
           fetchRefdata: false  # See the comment below.
           useMamba: true
 
-      #  Conflict:
-      #
-      #     requirement 1: Azure Repos requires token auth for public repositories containing LFS objects (bug).
-      #     requirement 2: GitHubComment task requires secret sharing enabled to work.
-      #
-      #  If secret sharing is enabled, the token needed to fetch Azure Repos is not shared for security reasons,
-      #  breaking the pipeline.
-      #
-      #  Solution: Fetch reference data from GitHub repository until a fix for Azure Repos bug arrives.
-
+      # Azure Repos requires token auth for public repositories containing LFS objects (bug).
+      # Fetch reference data from Azure with a PAT until a fix arrives.
       - bash: |
-          GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/tardis-sn/tardis-refdata.git $(refdata.dir)
-          cd $(refdata.dir)
-          git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5"
-          git lfs pull --include="atom_data/chianti_He.h5"
-          git lfs pull --include="unit_test_data.h5"
-          git lfs pull --include="packet_unittest.h5"
-          git lfs pull --include="montecarlo_1e5_compare_data.h5"
-          git lfs pull --include="montecarlo_one_packet_compare_data.h5"
+          MY_PAT=$(azure_pat)
+          B64_PAT=$(printf ":$MY_PAT" | base64)
+          git -c http.extraHeader="Authorization: Basic ${B64_PAT}" clone https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata $(refdata.dir)
+          cd $(refdata.dir); git -c http.extraHeader="Authorization: Basic ${B64_PAT}" lfs fetch --all
         displayName: 'Fetch reference data repository'
 
       - bash: |
           cd $(refdata.dir)
-          git remote add upstream https://github.com/tardis-sn/tardis-refdata.git
+          git remote add upstream https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata
           git fetch upstream
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
         displayName: 'Set upstream remote'
@@ -61,10 +51,11 @@ jobs:
           source activate tardis
           pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
         displayName: 'Generate reference data'
+        condition: or(eq(variables['ref1.hash'], ''), eq(variables['ref2.hash'], ''))
 
       - bash: |
           source activate tardis
-          $(package.manager) install bokeh --channel conda-forge --no-update-deps --yes
+          $(package.manager) install bokeh=2.2 --channel conda-forge --no-update-deps --yes
         displayName: 'Install Bokeh'
 
       - bash: |
@@ -99,7 +90,7 @@ jobs:
         displayName: 'Copy files to server'
         condition: succeededOrFailed()
 
-      # Run if the pipeline is triggered by a pull request.
+      # Run only if the pipeline is triggered by a pull request.
       - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
         - task: GitHubComment@0
           inputs:

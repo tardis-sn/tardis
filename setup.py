@@ -88,12 +88,6 @@ add_command_option('build', 'with-openmp', 'compile TARDIS with OpenMP',
                    is_bool=True)
 add_command_option('develop', 'with-openmp', 'compile TARDIS with OpenMP',
                    is_bool=True)
-add_command_option('install', 'with-vpacket-logging', 'compile TARDIS with virtual packet logging',
-                   is_bool=True)
-add_command_option('build', 'with-vpacket-logging', 'compile TARDIS with virtual packet logging',
-                   is_bool=True)
-add_command_option('develop', 'with-vpacket-logging', 'compile TARDIS with virtual packet logging',
-                   is_bool=True)
 
 # Freeze build information in version.py
 generate_version_py(PACKAGENAME, VERSION, RELEASE,

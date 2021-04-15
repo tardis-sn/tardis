@@ -2,7 +2,7 @@ from numba import float64, int64, boolean
 from numba import njit, gdb
 from numba.experimental import jitclass
 
-from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.montecarlo.montecarlo_numba import njit_dict , njit_dict_no_parallel
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
@@ -58,7 +58,7 @@ class VPacket(object):
         self.is_close_line = is_close_line
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
     """
     Trace VPacket within one shell (relatively simple operation)
@@ -134,7 +134,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
     return tau_trace_combined, distance_boundary, delta_shell
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def trace_vpacket(v_packet, numba_model, numba_plasma):
     """
     Trace single vpacket.
@@ -189,7 +189,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
     return tau_trace_combined
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def trace_vpacket_volley(
     r_packet, vpacket_collection, numba_model, numba_plasma
 ):

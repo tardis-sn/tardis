@@ -26,15 +26,6 @@ else:
     define_macros = []
 
 
-if (
-    get_distutils_option(
-        "with_vpacket_logging", ["build", "install", "develop"]
-    )
-    is not None
-):
-    define_macros.append(("WITH_VPACKET_LOGGING", None))
-
-
 def get_extensions():
     sources = ["tardis/montecarlo/montecarlo.pyx"]
     sources += [

@@ -19,6 +19,7 @@ def calculate_transition_probabilities(
     lines_idx,
     block_references,
     transition_probabilities,
+    normalize,
 ):
     """
     Calculates transition probabilities for macro_atom interactions
@@ -43,17 +44,18 @@ def calculate_transition_probabilities(
                     * j_blues[line_idx, j]
                 )
 
-    for i in range(block_references.shape[0] - 1):
-        for k in range(transition_probabilities.shape[1]):
-            norm_factor[k] = 0.0
-        for j in range(block_references[i], block_references[i + 1]):
+    if normalize:
+        for i in range(block_references.shape[0] - 1):
             for k in range(transition_probabilities.shape[1]):
-                norm_factor[k] += transition_probabilities[j, k]
-        for k in range(transition_probabilities.shape[1]):
-            if norm_factor[k] != 0.0:
-                norm_factor[k] = 1 / norm_factor[k]
-            else:
-                norm_factor[k] = 1.0
-        for j in range(block_references[i], block_references[i + 1]):
-            for k in range(0, transition_probabilities.shape[1]):
-                transition_probabilities[j, k] *= norm_factor[k]
+                norm_factor[k] = 0.0
+            for j in range(block_references[i], block_references[i + 1]):
+                for k in range(transition_probabilities.shape[1]):
+                    norm_factor[k] += transition_probabilities[j, k]
+            for k in range(transition_probabilities.shape[1]):
+                if norm_factor[k] != 0.0:
+                    norm_factor[k] = 1 / norm_factor[k]
+                else:
+                    norm_factor[k] = 1.0
+            for j in range(block_references[i], block_references[i + 1]):
+                for k in range(0, transition_probabilities.shape[1]):
+                    transition_probabilities[j, k] *= norm_factor[k]

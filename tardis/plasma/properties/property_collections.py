@@ -79,15 +79,57 @@ detailed_j_blues_inputs = PlasmaPropertyCollection(
 detailed_j_blues_properties = PlasmaPropertyCollection(
     [JBluesDetailed, JBluesNormFactor, LuminosityInner, TimeSimulation]
 )
+continuum_interaction_inputs = PlasmaPropertyCollection(
+    [
+        StimRecombRateCoeffEstimator,
+        PhotoIonRateCoeffEstimator,
+        RInner,
+        TInner,
+        Volume,
+        BfHeatingRateCoeffEstimator,
+        YgData,
+    ]
+)
 continuum_interaction_properties = PlasmaPropertyCollection(
     [
         PhotoIonizationData,
         SpontRecombRateCoeff,
+        PhotoIonRateCoeff,
         ThermalLevelBoltzmannFactorLTE,
         ThermalLTEPartitionFunction,
         BetaElectron,
         ThermalGElectron,
         ThermalPhiSahaLTE,
         SahaFactor,
+        TimeSimulation,
+        PhotoIonEstimatorsNormFactor,
+        LuminosityInner,
+        StimRecombRateCoeff,
+        CorrPhotoIonRateCoeff,
+        SpontRecombCoolingRateCoeff,
+        RawRecombTransProbs,
+        RawPhotoIonTransProbs,
+        RawRadBoundBoundTransProbs,
+        MarkovChainTransProbs,
+        YgInterpolator,
+        CollExcRateCoeff,
+        CollDeexcRateCoeff,
+        RawCollisionTransProbs,
+        MarkovChainIndex,
+        MarkovChainTransProbsCollector,
+        FreeFreeCoolingRate,
+        FreeBoundCoolingRate,
+        BoundFreeOpacity,
+        LevelNumberDensityLTE,
+        PhotoIonBoltzmannFactor,
+        FreeBoundEmissionCDF,
+        LevelIdxs2LineIdx,
+        CollIonRateCoeffSeaton,
+        CollRecombRateCoeff,
+        RawCollIonTransProbs,
     ]
+)
+adiabatic_cooling_properties = PlasmaPropertyCollection([AdiabaticCoolingRate])
+two_photon_properties = PlasmaPropertyCollection(
+    [RawTwoPhotonTransProbs, TwoPhotonData, TwoPhotonEmissionCDF]
 )
