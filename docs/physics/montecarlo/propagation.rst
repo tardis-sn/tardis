@@ -154,23 +154,15 @@ As a packet propagates through the computational domain, physical radiation-matt
 
 TARDIS considers two different radiation-matter interactions within the simulation: electron scattering and atomic line interactions. As packets propagate, they accumulate optical depth due to the possibility of going through either of these interations. Since the main focus of TARDIS is to calculate optical spectra,
 electron-scatterings are treated in the elastic low-energy limit as classical
-Thomson scatterings. In this case, the electron scattering process is frequency-independent. Its opacity only depends on the number density of free electrons
-:math:`n_e`
+Thomson scatterings. In this case, the electron scattering process is frequency-independent. As a consequence to the frequency independence, the rate at which a packet accumulates electron scattering optical depth depends only on the free electron density :math:`n_e`. The optical depth that a Monte Carlo packet accumulates along a path of length :math:`l` due to
+Thomson scattering is calculated by the formula
 
 .. math::
 
-    \chi_{\mathrm{T}} = \sigma_{\mathrm{T}} n_e.
+    \Delta \tau = \sigma_{\mathrm{T}} n_e l.
 
 The Thomson cross section :math:`\sigma_{\mathrm{T}}`, which is a constant,
-appears here. As a consequence to the frequency independence, a Monte Carlo
-packet accumulates optical depth along a path of length :math:`l` due to
-Thomson scattering according to
-
-.. math::
-
-    \Delta \tau = \chi_{\mathrm{T}} l.
-    
-This corresponds to the fact that a packet has a probability of :math:`1-e^{\sigma_{\mathrm{T}} n_e l}` of going through a Thomson scattering prior to traveling a distance :math:`l` (in other words, the probability of the packet making it across a distance :math:`l` without scattering is :math:`e^{\sigma_{\mathrm{T}} n_e l}`).
+appears here. This corresponds to the fact that a packet has a probability of :math:`1-e^{\sigma_{\mathrm{T}} n_e l}` of going through a Thomson scattering prior to traveling a distance :math:`l` (in other words, the probability of the packet making it across a distance :math:`l` without scattering is :math:`e^{\sigma_{\mathrm{T}} n_e l}`).
 
 The situation is complicated by the inclusion of frequency-dependent
 bound-bound interactions, i.e. interactions with atomic line transitions.
