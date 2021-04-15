@@ -15,6 +15,13 @@ R_ELECTRON = 2.8179403227e-15
     [(511.0, 1.0), (255.5, 0.5), (0.0, 0.0), (511.0e7, 1e7)],
 )
 def test_kappa_calculation(energy, expected):
+    """
+
+    Parameters
+    ----------
+    energy : float
+    expected : float
+    """
     kappa = util.kappa_calculation(energy)
     npt.assert_almost_equal(kappa, expected)
 
@@ -29,6 +36,14 @@ def test_kappa_calculation(energy, expected):
     ],
 )
 def test_klein_nishina(energy, theta_C):
+    """
+
+    Parameters
+    ----------
+    energy : float
+    theta_C : float
+        In radians
+    """
     actual = util.klein_nishina(energy, theta_C)
 
     kappa = util.kappa_calculation(energy)

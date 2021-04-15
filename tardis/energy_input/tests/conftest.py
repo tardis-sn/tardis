@@ -7,6 +7,12 @@ from tardis.energy_input.base import GammaRay
 
 @pytest.fixture(scope="function")
 def basic_gamma_ray():
+    """basic gamma ray fixture
+
+    Returns
+    -------
+    GammaRay
+    """
     return GammaRay(
         location=SphericalVector(1.0e15, 0.5),
         direction=SphericalVector(1, 0.25),
