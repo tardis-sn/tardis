@@ -2,7 +2,8 @@ import astropy.units as u
 import tardis.constants as const
 import numpy as np
 
-R_ELECTRON = const.a0.cgs * const.alpha.cgs ** 2.
+R_ELECTRON = const.a0.cgs * const.alpha.cgs ** 2.0
+
 
 class SphericalVector(object):
     """
@@ -26,26 +27,28 @@ class SphericalVector(object):
     z : float64
              calculated vector z position
     """
-    def __init__(self, r, mu, phi=0.):
+
+    def __init__(self, r, mu, phi=0.0):
         self.r = r
         self.mu = mu
         self.phi = phi
-        
+
     @property
     def theta(self):
         return np.arccos(self.mu)
-        
+
     @property
     def x(self):
         return self.r * np.sin(np.arccos(self.mu)) * np.cos(self.phi)
-    
+
     @property
     def y(self):
         return self.r * np.sin(np.arccos(self.mu)) * np.sin(self.phi)
-    
+
     @property
     def z(self):
         return self.r * self.mu
+
 
 def kappa_calculation(energy):
     """
@@ -65,6 +68,7 @@ def kappa_calculation(energy):
     k = energy / 511.0
     return k
 
+
 def euler_rodrigues(theta, direction):
     """
     Calculates the Euler-Rodrigues rotation matrix
@@ -83,22 +87,23 @@ def euler_rodrigues(theta, direction):
     b = direction.x * np.sin(theta / 2)
     c = direction.y * np.sin(theta / 2)
     d = direction.z * np.sin(theta / 2)
-    
-    er11 = a ** 2. + b ** 2. - c ** 2. - d ** 2.
-    er12 = 2. * (b * c - a * d)
-    er13 = 2. * (b * d + a * d)
-    
-    er21 = 2. * (b * c + a * d)
-    er22 = a ** 2. + c ** 2. - b ** 2. - d ** 2.
-    er23 = 2. * (c * d - a * b)
-    
-    er31 = 2. * (b * d - a * c)
-    er32 = 2. * (c * d + a * b)
-    er33 = a ** 2. + d ** 2. - b ** 2. - c ** 2.
-    
-    return np.array([[er11, er12, er13],
-                     [er21, er22, er23],
-                     [er31, er32, er33]])
+
+    er11 = a ** 2.0 + b ** 2.0 - c ** 2.0 - d ** 2.0
+    er12 = 2.0 * (b * c - a * d)
+    er13 = 2.0 * (b * d + a * d)
+
+    er21 = 2.0 * (b * c + a * d)
+    er22 = a ** 2.0 + c ** 2.0 - b ** 2.0 - d ** 2.0
+    er23 = 2.0 * (c * d - a * b)
+
+    er31 = 2.0 * (b * d - a * c)
+    er32 = 2.0 * (c * d + a * b)
+    er33 = a ** 2.0 + d ** 2.0 - b ** 2.0 - c ** 2.0
+
+    return np.array(
+        [[er11, er12, er13], [er21, er22, er23], [er31, er32, er33]]
+    )
+
 
 def quadratic(b, c):
     """
@@ -129,6 +134,7 @@ def quadratic(b, c):
         x2 = -np.inf
     return x1, x2
 
+
 def klein_nishina(energy, theta_C):
     """
     Calculates the Klein-Nishina equation
@@ -143,15 +149,23 @@ def klein_nishina(energy, theta_C):
      : dtype float
 
     """
-    kappa = kappa_calculation(energy) 
-    return R_ELECTRON.value / 2 * \
-            (1. + kappa * (1. - np.cos(theta_C))) ** -2. * \
-            (1. + np.cos(theta_C) ** 2. + \
-            (kappa ** 2. * (1. - np.cos(theta_C)) ** 2.) / (1. + kappa * (1. - np.cos(theta_C))))
+    kappa = kappa_calculation(energy)
+    return (
+        R_ELECTRON.value
+        / 2
+        * (1.0 + kappa * (1.0 - np.cos(theta_C))) ** -2.0
+        * (
+            1.0
+            + np.cos(theta_C) ** 2.0
+            + (kappa ** 2.0 * (1.0 - np.cos(theta_C)) ** 2.0)
+            / (1.0 + kappa * (1.0 - np.cos(theta_C)))
+        )
+    )
 
-def compton_theta_distribution(energy, sample_resolution = 100):
+
+def compton_theta_distribution(energy, sample_resolution=100):
     """
-    Calculates the distribution of theta angles 
+    Calculates the distribution of theta angles
     for Compton Scattering
 
     Parameters
@@ -166,23 +180,26 @@ def compton_theta_distribution(energy, sample_resolution = 100):
 
     """
     dtheta = np.pi / sample_resolution
-    
+
     theta_distribution = np.zeros(sample_resolution)
     theta_angles = np.ones(sample_resolution) * np.pi
-    
-    theta = 0.
+
+    theta = 0.0
     for i in range(sample_resolution - 1):
-        theta_distribution[i + 1] = \
-                theta_distribution[i] + klein_nishina(energy, theta)
+        theta_distribution[i + 1] = theta_distribution[i] + klein_nishina(
+            energy, theta
+        )
         theta_angles[i] = theta
         theta += dtheta
 
     norm_theta_distribution = theta_distribution / np.max(theta_distribution)
-    
+
     return theta_angles, norm_theta_distribution
+
 
 def get_random_mu_gamma_ray():
     return 2.0 * np.random.random() - 1.0
+
 
 def get_random_phi_gamma_ray():
     return 2.0 * np.pi * np.random.random()
