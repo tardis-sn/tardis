@@ -270,6 +270,17 @@ def ionization_fraction_per_ion(
             / energy_deposition_density
         )
 
+        print(
+            "fractional_ionization_of_shell(n {} l {}): ".format(
+                int(shell.n), int(shell.l)
+            )
+        )
+        print(
+            "{} (ionpot {} eV)".format(
+                round(fractional_ionization_of_shell, 4), shell.ion_potential
+            )
+        )
+
         if fractional_ionization_of_shell > 1:
             fractional_ionization_of_shell = 0.0
             print(
