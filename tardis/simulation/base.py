@@ -349,7 +349,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)
         self.iterations_executed += 1
 
-    def run(self, display_type):  # added display_type in the header
+    def run(self, display_type=0):  # added display_type in the header
         """
         run the simulation
         """
