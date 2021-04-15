@@ -8,7 +8,7 @@ from tardis.energy_input.energy_source import (
     get_type_property,
     create_energy_cdf,
     sample_energy_distribution,
-    setup_gamma_ray_energy,
+    setup_input_energy,
 )
 
 # TODO make dummy nuclear_data
