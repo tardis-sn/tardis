@@ -333,13 +333,13 @@ def spencer_fano_matrix_add_ionization_shell(
             # in Kozma & Fransson 1992 equation 4
 
             # KF 92 limit
-            epsilon_upper = (energy_dash + ion_potential) / 2
+            epsilon_upper = min((energy_dash + ion_potential) / 2, energy_dash)
             # Li+2012 limit
             # epsilon_upper = (endash + en) / 2
 
             int_eps_upper = np.arctan((epsilon_upper - ion_potential) / J)
 
-            epsilon_lower = energy_dash - energy
+            epsilon_lower = max(energy_dash - energy, ion_potential)
             int_eps_lower = np.arctan((epsilon_lower - ion_potential) / J)
 
             spencer_fano_matrix[i, j] += prefactor * (
