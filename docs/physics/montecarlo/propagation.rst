@@ -58,7 +58,7 @@ Additionally, TARDIS divides the space between the inner and outer computational
     images/expansion_animation.gif
     :width: 500
 
-Propagation in a spherical domain
+Propagation in a Spherical Domain
 =================================
 
 Once the initial packet properties are assigned, the propagation process
@@ -150,7 +150,7 @@ When a packet is moved into a new cell, as mentioned before, it is moved to the 
 Physical Interactions
 ---------------------
 
-As a packet propagates through the computational domain, physical radiation-matter interactions can trigger changes in the packet properties. The probability that a photon/packet will interact with matter is characterized by its optical depth :math:`\tau`; the probability that a packet will have interacted after going through an optical depth :math:`\Delta \tau` is :math:`1-e^{-\Delta \tau}`. To model this (see :ref:`Random Sampling <randomsampling>`), the packet is assigned a random value of optical depth :math:`\tau_0 = -\log z` (for another random :math:`z` between 0 and 1), and upon reaching that optical depth, the packet will interact.
+As a packet propagates through the computational domain, physical radiation-matter interactions can trigger changes in the packet properties. The probability that a photon/packet will interact with matter is characterized by its optical depth :math:`\tau`; the probability that a packet will have interacted after going through an optical depth :math:`\Delta \tau` is :math:`1-e^{-\Delta \tau}`. To model this (see :ref:`Random Sampling <randomsampling>`), the packet is assigned a random value of optical depth :math:`\tau_\mathrm{interaction} = -\log z` (for another random :math:`z` between 0 and 1), and upon reaching that optical depth, the packet will interact.
 
 TARDIS considers two different radiation-matter interactions within the simulation: electron scattering and atomic line interactions. As packets propagate, they accumulate optical depth due to the possibility of going through either of these interations. Since the main focus of TARDIS is to calculate optical spectra,
 electron-scatterings are treated in the elastic low-energy limit as classical
@@ -198,7 +198,37 @@ where :math:`\nu_{\mathrm{CMF},i}` is the frequency of the packet in the co-movi
 
 At a Sobolev point, the packet instantaneously accumulates optical depth, the value of which is called the Sobolev optical depth :math:`\tau_\mathrm{Sobolev}` (see :ref:`tau_sobolev`). This corresponds to a probability of :math:`1-e^{-\tau_\mathrm{Sobolev}}` that the packet interacts with the atomic line.
 
-While the packet is propagating through the supernova ejecta, it continuously accumulates optical depth due to Thomson scattering until it reaches a Sobolev point, at which it instantaneously gains the Sobolev optical depth. If the random interaction optical depth :math:`\tau_0` is reached between Sobolev points (where the packet is just accumulating optical depth due to the possibility Thomson scattering), the packet performs a Thomson scattering. Similarly, if the interaction optical depth is reached at a Sobolev point (where the packet accumuates optical depth due to the possibility of a line interaction), the packet performs a line interaction. In either case, the packet is moved to the interaction location and a new propagation direction is assigned. Since this process is isotropic, the new direction is
+Distance to Next Event
+---------------------- 
+
+With these assumptions, the accumulation of optical depth along a packet's trajectory currently proceeds according
+to the following scheme (which was originally introduced by :cite:`Mazzali1993`): 
+given the current lab-frame frequency of the packet, the distance to the next
+Sobolev point (i.e. to the next line resonance) is calculated as discussed above. 
+Until this location, the packet continuously accumulates optical depth due to the possibility of
+electron-scattering. At the Sobolev point, the accumulated optical depth is
+instantaneously incremented by the Sobolev optical depth. Afterwards, the
+procedure is repeated, now with respect to the next transition in the
+frequency-ordered list of all possible atomic line transitions. The point at
+which the accumulated optical depth reaches the randomly generated interaction optical depth :math:`\tau_\mathrm{interaction}` determines the type of interaction the packet performs and at which location in the spatial mesh, as shown with the example cases in the sketch below (taken from :cite:`Noebauer2014`, adapted from
+:cite:`Mazzali1993`):
+
+.. image::
+    images/optical_depth_summation.png
+    :width: 500
+
+Three possible cases are highlighted in the above diagram, with the dotted lines showing the (randomly assigned) optical depth :math:`\tau_\mathrm{interaction}` at which the packet interacts. In case I, the interaction optical
+depth value is reached on one of the path segments between successive Sobolev
+points, where the packet is accumulating electron scattering optical depth.
+Thus, the packet performs a Thomson scattering at the point at which its accumulated optical depth reaches :math:`\tau_\mathrm{interaction}`. In case II, the interaction
+optical depth is reached during the instantaneous increment by the line optical
+depth at one of the Sobolev points. As a consequence, the packet performs an
+interaction with the corresponding atomic line transition. In both of these cases, the packet is moved to the interaction location, the interaction will be performed (as will be described in the next section), and the process of accumulating optical depth starts over. Finally, if the packet reaches the shell boundary before the optical depth value necessary for a physical interaction is achieved (as in case III), the packet will be moved to the next cell, the plasma properties will be updated, and the accumulation of optical depth will continue in the next cell.
+
+Performing an Interaction
+-------------------------
+
+When a physical interaction occurs, whether it is a Thomson scattering or a line interaction, the packet is moved to the interaction location and a new propagation direction is assigned. Since this process is isotropic, the new direction is
 sampled according to
 
 .. math::
@@ -222,38 +252,6 @@ For line interactions, the energy of the packet after the interaction is still g
 The ratio :math:`\frac{1 - \beta \mu_i}{1 - \beta \mu_f}` can be visualized with the following graph for a plasma speed of :math:`1.1 \times 10^4` km/s:
 
 .. plot:: physics/pyplot/plot_mu_in_out_packet.py
-
-.. note::
-
-    Note that the inclusion of special relativistic effects in TARDIS is at
-    best to first order in :math:`\beta`.
-
-Distance to Next Event
-----------------------
-
-With these assumptions, the accumulation of optical depth along a packet's trajectory currently proceeds according
-to the following scheme (which was originally introduced by :cite:`Mazzali1993`): 
-given the current lab-frame frequency of the packet, the distance to the next
-Sobolev point (i.e. to the next line resonance) is calculated as discussed above. Until this location, the packet continuously accumulates optical depth due to
-electron-scattering. At the Sobolev point, the accumulated optical depth is
-instantaneously incremented by the Sobolev optical depth. Afterwards, the
-procedure is repeated, now with respect to the next transition in the
-frequency-ordered list of all possible atomic line transitions. The point at
-which the accumulated optical depth surpasses the (randomly calculated) interaction optical depth determines the type of interaction the packet performs
-and at which location in the spatial mesh. The entire process is summarized in the sketch below (taken from :cite:`Noebauer2014`, adapted from
-:cite:`Mazzali1993`):
-
-.. image::
-    images/optical_depth_summation.png
-    :width: 500
-
-Three possible cases are highlighted in the diagram above, with the dotted lines showing the (randomly assigned) optical depth at which the packet interacts. In case I, the interaction optical
-depth value is reached on one of the path segments between successive Sobolev
-points, where the packet is accumulating electron scattering optical depth.
-Thus, the packet performs a Thomson scattering. In case II, the interaction
-optical depth is reached during the instantaneous increment by the line optical
-depth at one of the Sobolev points. As a consequence, the packet performs an
-interaction with the corresponding atomic line transition. In both of these cases, the packet is moved to the interaction location; a new propagation direction, energy, and frequency are assigned (as discussed above); and the process of accumulating optical depth starts over. Finally, if the packet reaches the shell boundary before the optical depth value necessary for a physical interaction is achieved (as in case III), the packet will be moved to the next cell, the plasma properties will be updated, and the accumulation of optical depth will continue in the next cell.
 
 
 Implementation: Main Propagation Loop
