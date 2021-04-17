@@ -10,7 +10,7 @@ jobs:
   documentation_preview:
     runs-on: ubuntu-latest
 
-    if: github.repository_owner != 'tardis-sn' && contains(github.event.head_commit.message, '[build_docs]')
+    if: github.repository_owner != 'tardis-sn' && (contains(github.ref, 'doc') || contains(github.event.head_commit.message, '[build_docs]'))
 
     steps:
       - uses: actions/checkout@v2
