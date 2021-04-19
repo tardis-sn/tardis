@@ -50,4 +50,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: docs/_build/html/
-          destination_dir: ${{ steps.extract_branch.outputs.branch }}
+          destination_dir: branch/${{ steps.extract_branch.outputs.branch }}
