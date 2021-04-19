@@ -252,11 +252,17 @@ to start a new pipeline use::
 See the `Azure documentation section on templates`_ for more information.
 
 
-Documentation pipeline
-======================
+Documentation build pipeline
+============================
 
-Builds and deploys the TARDIS documentation website. Currently, we use
-GitHub Actions for this purpose.
+A GitHub Actions workflow that builds and deploys the TARDIS documentation website.
+
+
+Documentation preview pipeline
+==============================
+
+This workflow does not run on the main repository, just on forks.
+See the :ref:`Documentation Preview <doc-preview>` section for more information.
 
 
 Testing pipeline
