@@ -1,3 +1,8 @@
+# Adapted from: 
+# https://github.com/artis-mcrt/artistools & Shingles et al. 2020
+# MIT License
+# Copyright (c) 2017-2021 ARTIS Collaboration
+
 import astropy.units as u
 import tardis.constants as const
 import numpy as np
@@ -191,7 +196,8 @@ def excitation_cross_section_vector(energy_grid, row):
         row.epsilon_trans_ev * EV2ERG
     )  # electron volt converted to erg
     epsilon_trans_ev = row.epsilon_trans_ev
-
+    
+    # maybe include the index arithmetic in some function?
     start_index = int(
         np.ceil(
             (epsilon_trans_ev - energy_grid.energy_min)
@@ -270,6 +276,7 @@ def get_J(atomic_number, ionization_number, ion_potential):
 
 
 def get_index(indexed_energy, energy_grid):
+    # this shouldn't always return the lower grid cell. 
     assert indexed_energy >= energy_grid[0]
     assert indexed_energy < (
         energy_grid[-1] + (energy_grid[1] - energy_grid[0])
@@ -296,6 +303,7 @@ def spencer_fano_matrix_add_ionization_shell(
     if ion_potential <= energy_grid.grid[0]:
         cross_section_start_index = 0
     else:
+        # this should not be the lower but the upper grid index
         cross_section_start_index = get_index(ion_potential, energy_grid.grid)
 
     for i, energy in enumerate(energy_grid.grid):
@@ -488,7 +496,7 @@ def solve_spencer_fano(
 
         if not transitions_dict[(atomic_number, ion_number)].empty:
             # previously here: forbidden line filter
-
+            # need to add forbidden lines through carsus?
             transition_energy = []
             lower_g = []
             upper_g = []
