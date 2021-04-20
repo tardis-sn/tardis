@@ -1,3 +1,8 @@
+# Adapted from: 
+# https://github.com/artis-mcrt/artistools & Shingles et al. 2020
+# MIT License
+# Copyright (c) 2017-2021 ARTIS Collaboration
+
 import astropy.units as u
 import tardis.constants as const
 import numpy as np
@@ -44,7 +49,6 @@ def calculate_number_electron(
     if energy == 0.0:
         return 0.0
 
-    # Andreas cached values
 
     N_e = 0.0
 
