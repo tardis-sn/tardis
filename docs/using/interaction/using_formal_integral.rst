@@ -23,4 +23,6 @@ Note that the integrated spectrum (``simulation.runner.spectrum_integrated``)
 is a lazy property so it will be only generated (and then cached) once it is
 accessed. The spectrum integration routine is Open-MP parallelized, so this
 process may be significantly sped-up if TARDIS is built with the
-``--with-openmp`` option and more then one thread is used.
+``--with-openmp`` option and more then one thread is used. More instructions on
+how to enable parallelisation of the code is given in the :ref:`parallelisation`
+section.

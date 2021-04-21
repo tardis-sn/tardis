@@ -84,13 +84,20 @@ class FormalIntegrator(object):
         return True
 
     def calculate_spectrum(
-        self, frequency, points=None, interpolate_shells=-1, raises=True
+        self, frequency, points=None, interpolate_shells=0, raises=True
     ):
         # Very crude implementation
         # The c extension needs bin centers (or something similar)
         # while TARDISSpectrum needs bin edges
         self.check(raises)
         N = points or self.points
+        if interpolate_shells == 0:  # Default value
+            interpolate_shells = max(2 * self.model.no_of_shells, 80)
+            warnings.warn(
+                "The number of interpolate_shells was not "
+                f"specified. The value was set to {interpolate_shells}."
+            )
+
         self.interpolate_shells = interpolate_shells
         frequency = frequency.to("Hz", u.spectral())
         luminosity = u.Quantity(formal_integral(self, frequency, N), "erg") * (
@@ -250,26 +257,26 @@ class FormalIntegrator(object):
 
         r_middle_integ = (r_integ[:-1] + r_integ[1:]) / 2.0
 
-        runner.electron_densities_integ = interp1d(
+        runner.electron_densities_integ = pd.Series(interp1d(
             r_middle,
             plasma.electron_densities,
             fill_value="extrapolate",
             kind="nearest",
-        )(r_middle_integ)
+        )(r_middle_integ))
         # Assume tau_sobolevs to be constant within a shell
         # (as in the MC simulation)
-        runner.tau_sobolevs_integ = interp1d(
+        runner.tau_sobolevs_integ = pd.DataFrame(interp1d(
             r_middle,
             plasma.tau_sobolevs,
             fill_value="extrapolate",
             kind="nearest",
-        )(r_middle_integ)
+        )(r_middle_integ))
         att_S_ul = interp1d(r_middle, att_S_ul, fill_value="extrapolate")(
             r_middle_integ
         )
-        Jredlu = interp1d(r_middle, Jredlu, fill_value="extrapolate")(
+        Jredlu = pd.DataFrame(interp1d(r_middle, Jredlu, fill_value="extrapolate")(
             r_middle_integ
-        )
+        ))
         Jbluelu = interp1d(r_middle, Jbluelu, fill_value="extrapolate")(
             r_middle_integ
         )

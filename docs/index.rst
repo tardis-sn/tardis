@@ -58,8 +58,9 @@ Mission Statement
     :hidden:
 
     using/components/index
-    using/gui/index
+    using/visualization/index
     using/interaction/index
+    using/parallelisation/index
 
 
 .. toctree::
@@ -69,7 +70,6 @@ Mission Statement
     
     physics/montecarlo/index
     physics/plasma/index
-    physics/old_physics/index
 
 
 .. toctree::

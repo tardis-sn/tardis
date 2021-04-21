@@ -37,7 +37,7 @@ omit =
    tardis/simulation/setup_package.py
    tardis/io/setup_package.py
 
-   tardis/gui*
+   tardis/gui/*
    tardis/stats/*
    tardis/analysis.py
 
