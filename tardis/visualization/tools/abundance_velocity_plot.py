@@ -5,13 +5,13 @@ This plot is the first objective for Tardis Custom Abundance Widget project idea
 There are two function for plotting this graph using different libraries.
 """
 
-import pandas 
+import pandas
 import numpy as np
 import matplotlib.pyplot as plt
 from tardis.util.base import atomic_number2element_symbol
 import plotly.graph_objects as go
 import numpy as np
-    
+
 
 class AVData:
     """The data of simulation model used by Abundace Velocity (AV) Plot.
@@ -19,24 +19,22 @@ class AVData:
     This preprocesses the data required by AVPlotter class for doing
     calculations and plotting
     """
-    def __init__(
-        self,
-        AV_df,
-        velocity,
-        elements
-    ):
-    
+
+    def __init__(self, av_df, velocity, elements):
+
         """
         Initialize the AVData with required properties of simulation model.
 
-        AV_df : pd.DataFrame
+        Parameters
+        ----------
+        av_df : pd.DataFrame
             Data about the atomic abundance present in simulation model
         velocity : numpy.ndarray
              An np array that stores inner shell velocities  in cm /s
         elements : numpy.ndarray
-             It stores values of all elements present in the model 
-        """  
-        self.AV_df = AV_df
+             It stores values of all elements present in the model
+        """
+        self.av_df = av_df
         self.velocity = velocity
         self.elements = elements
 
@@ -55,16 +53,11 @@ class AVData:
         -------
         AVData
         """
-        AV_df = (sim.model.abundance).T
+        av_df = (sim.model.abundance).T
         velocity = sim.model.velocity[:-1]
-        elements = AV_df.columns.values
-        return cls(
-            AV_df = AV_df,
-            velocity = velocity,
-            elements = elements
-        )
+        elements = av_df.columns.values
+        return cls(av_df=av_df, velocity=velocity, elements=elements)
 
-    
 
 class AVPlotter:
     """
@@ -80,7 +73,7 @@ class AVPlotter:
 
         Parameters
         ----------
-        data : DataFrame 
+        data : DataFrame
             Abundance and velocity data required for AV plot
         """
         self.data = data
@@ -99,58 +92,66 @@ class AVPlotter:
         -------
         AVPlotter
         """
-        return cls( 
-                data = AVData.from_simulation(sim)   
-        )
+        return cls(data=AVData.from_simulation(sim))
 
     def abundance_velocity_mpl(self):
         """
         Plots the abundance vs velocity of elements provided simulation result using matplotlib
-        
+
         Returns
         -------
         None
         """
 
-        plt.figure(figsize=(20,6))
+        plt.figure(figsize=(20, 6))
 
         # Plot line graph for each element
         for atomic_number in self.data.elements:
-            plt.plot( self.data.velocity, self.data.AV_df[atomic_number],marker="o", markersize=12, linewidth=4,label=atomic_number2element_symbol(atomic_number))
+            plt.plot(
+                self.data.velocity,
+                self.data.av_df[atomic_number],
+                marker="o",
+                markersize=12,
+                linewidth=4,
+                label=atomic_number2element_symbol(atomic_number),
+            )
 
         # Edit the layout
         plt.title("Abundance vs Velocity", fontsize=18)
         plt.xlabel("Velocity ( Inner Shell Boundary in cm/s)")
         plt.ylabel("Abundance (Fraction)")
-        plt.legend(loc="best",title="Atomic number", fontsize=10)
+        plt.legend(loc="best", title="Atomic number", fontsize=10)
         plt.show()
 
-
-
-    def abundance_velocity_plotly(self): 
+    def abundance_velocity_plotly(self):
         """
         Plots the abundance vs velocity of elements provided simulation result using plotly.
-        
+
         Returns
         -------
         plotly.graph_objs._figure.Figure
+            Figure object on which AV Plot is created
         """
         fig = go.Figure()
 
         # Plot line graph for each element
         for atomic_number in self.data.elements:
-            fig.add_trace(go.Scatter(x=self.data.velocity, y=self.data.AV_df[atomic_number],
+            fig.add_trace(
+                go.Scatter(
+                    x=self.data.velocity,
+                    y=self.data.av_df[atomic_number],
                     mode="lines+markers",
-                    name=atomic_number2element_symbol(atomic_number)))
+                    name=atomic_number2element_symbol(atomic_number),
+                )
+            )
 
         # Edit the layout
-        fig.update_layout(title="Abundance vs Velocity",
-                   xaxis_title="Velocity ( Inner Shell Boundary in cm/s )",
-                   yaxis_title="Abundance (Fraction)"
-                   )
-        fig.update_xaxes(tickformat="e") 
+        fig.update_layout(
+            title="Abundance vs Velocity",
+            xaxis_title="Velocity ( Inner Shell Boundary in cm/s )",
+            yaxis_title="Abundance (Fraction)",
+        )
+        fig.update_xaxes(tickformat="e")
         fig.show()
 
         return fig
-
-
