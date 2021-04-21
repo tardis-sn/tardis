@@ -1,23 +1,16 @@
-import numpy as np
-from enum import IntEnum
-from numba import int64, float64, boolean
-from numba import njit
-from numba.experimental import jitclass
-
 import math
+
+from numba import njit
+
 from tardis.montecarlo.montecarlo_numba import (
-    njit_dict,
-    numba_config,
     njit_dict_no_parallel,
 )
-from tardis.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
-)
+
 from tardis.montecarlo.montecarlo_numba.numba_config import (
-    CLOSE_LINE_THRESHOLD,
     C_SPEED_OF_LIGHT,
     MISS_DISTANCE,
     SIGMA_THOMSON,
+    ENABLE_FULL_RELATIVITY,
 )
 
 from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
@@ -111,7 +104,7 @@ def calculate_distance_line(
             " information, see print statement beforehand"
         )
 
-    if numba_config.ENABLE_FULL_RELATIVITY:
+    if ENABLE_FULL_RELATIVITY:
         return calculate_distance_line_full_relativity(
             nu_line, nu, time_explosion, r_packet
         )
@@ -154,4 +147,4 @@ def calculate_distance_electron(electron_density, tau_event):
     tau_event : float
     """
     # add full_relativity here
-    return tau_event / (electron_density * numba_config.SIGMA_THOMSON)
+    return tau_event / (electron_density * SIGMA_THOMSON)

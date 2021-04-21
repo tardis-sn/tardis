@@ -1,32 +1,33 @@
-import numpy as np
+import math
 from enum import IntEnum
+
+import numpy as np
 from numba import int64, float64, boolean
 from numba import njit
 from numba.experimental import jitclass
 
-import math
 from tardis.montecarlo.montecarlo_numba import (
-    njit_dict,
-    numba_config,
     njit_dict_no_parallel,
-    utils,
-    opacities,
-    calculate_distances,
-    frame_transformations,
 )
+from tardis.montecarlo.montecarlo_numba.interaction import InteractionType
 from tardis.montecarlo.montecarlo_numba.estimators import (
     set_estimators,
     set_estimators_full_relativity,
     update_line_estimators,
 )
-from tardis.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
+from tardis.montecarlo.montecarlo_numba.opacities import calculate_tau_electron
+from tardis.montecarlo.montecarlo_numba.calculate_distances import (
+    calculate_distance_boundary,
+    calculate_distance_electron,
+    calculate_distance_line,
 )
+from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+    get_doppler_factor,
+)
+from tardis.montecarlo import montecarlo_configuration
 from tardis.montecarlo.montecarlo_numba.numba_config import (
     CLOSE_LINE_THRESHOLD,
-    C_SPEED_OF_LIGHT,
-    MISS_DISTANCE,
-    SIGMA_THOMSON,
+    ENABLE_FULL_RELATIVITY,
 )
 
 
@@ -34,12 +35,6 @@ class PacketStatus(IntEnum):
     IN_PROCESS = 0
     EMITTED = 1
     REABSORBED = 2
-
-
-class InteractionType(IntEnum):
-    BOUNDARY = 1
-    LINE = 2
-    ESCATTERING = 3
 
 
 rpacket_spec = [
@@ -79,7 +74,7 @@ class RPacket(object):
 
     def initialize_line_id(self, numba_plasma, numba_model):
         inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
-        doppler_factor = frame_transformations.get_doppler_factor(
+        doppler_factor = get_doppler_factor(
             self.r, self.mu, numba_model.time_explosion
         )
         comov_nu = self.nu * doppler_factor
@@ -113,9 +108,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     (
         distance_boundary,
         delta_shell,
-    ) = calculate_distances.calculate_distance_boundary(
-        r_packet.r, r_packet.mu, r_inner, r_outer
-    )
+    ) = calculate_distance_boundary(r_packet.r, r_packet.mu, r_inner, r_outer)
 
     # defining start for line interaction
     start_line_id = r_packet.next_line_id
@@ -129,12 +122,12 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     cur_electron_density = numba_plasma.electron_density[
         r_packet.current_shell_id
     ]
-    distance_electron = calculate_distances.calculate_distance_electron(
+    distance_electron = calculate_distance_electron(
         cur_electron_density, tau_event
     )
 
     # Calculating doppler factor
-    doppler_factor = frame_transformations.get_doppler_factor(
+    doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, numba_model.time_explosion
     )
     comov_nu = r_packet.nu * doppler_factor
@@ -161,7 +154,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
         # redshifts to the line frequency
         is_last_line = cur_line_id == last_line_id
 
-        distance_trace = calculate_distances.calculate_distance_line(
+        distance_trace = calculate_distance_line(
             r_packet,
             comov_nu,
             is_last_line,
@@ -170,7 +163,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
         )
 
         # calculating the tau electron of how far the trace has progressed
-        tau_trace_electron = opacities.calculate_tau_electron(
+        tau_trace_electron = calculate_tau_electron(
             cur_electron_density, distance_trace
         )
 
@@ -226,7 +219,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
 
         # Recalculating distance_electron using tau_event -
         # tau_trace_line_combined
-        distance_electron = calculate_distances.calculate_distance_electron(
+        distance_electron = calculate_distance_electron(
             cur_electron_density, tau_event - tau_trace_line_combined
         )
 
@@ -266,9 +259,7 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
         distance in cm
     """
 
-    doppler_factor = frame_transformations.get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
-    )
+    doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu, time_explosion)
 
     r = r_packet.r
     if distance > 0.0:
@@ -281,7 +272,7 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
         comov_nu = r_packet.nu * doppler_factor
         comov_energy = r_packet.energy * doppler_factor
 
-        if not numba_config.ENABLE_FULL_RELATIVITY:
+        if not ENABLE_FULL_RELATIVITY:
             set_estimators(
                 r_packet, distance, numba_estimator, comov_nu, comov_energy
             )

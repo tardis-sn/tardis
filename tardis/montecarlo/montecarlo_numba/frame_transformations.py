@@ -1,23 +1,14 @@
-import numpy as np
-from enum import IntEnum
-from numba import int64, float64, boolean
-from numba import njit
-from numba.experimental import jitclass
-
 import math
+
+from numba import njit
+
 from tardis.montecarlo.montecarlo_numba import (
-    njit_dict,
-    numba_config,
     njit_dict_no_parallel,
 )
-from tardis.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
-)
+
 from tardis.montecarlo.montecarlo_numba.numba_config import (
-    CLOSE_LINE_THRESHOLD,
     C_SPEED_OF_LIGHT,
-    MISS_DISTANCE,
-    SIGMA_THOMSON,
+    ENABLE_FULL_RELATIVITY,
 )
 
 
@@ -26,7 +17,7 @@ def get_doppler_factor(r, mu, time_explosion):
     inv_c = 1 / C_SPEED_OF_LIGHT
     inv_t = 1 / time_explosion
     beta = r * inv_t * inv_c
-    if not numba_config.ENABLE_FULL_RELATIVITY:
+    if not ENABLE_FULL_RELATIVITY:
         return get_doppler_factor_partial_relativity(mu, beta)
     else:
         return get_doppler_factor_full_relativity(mu, beta)
@@ -56,7 +47,7 @@ def get_inverse_doppler_factor(r, mu, time_explosion):
     inv_c = 1 / C_SPEED_OF_LIGHT
     inv_t = 1 / time_explosion
     beta = r * inv_t * inv_c
-    if not numba_config.ENABLE_FULL_RELATIVITY:
+    if not ENABLE_FULL_RELATIVITY:
         return get_inverse_doppler_factor_partial_relativity(mu, beta)
     else:
         return get_inverse_doppler_factor_full_relativity(mu, beta)

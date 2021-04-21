@@ -1,3 +1,6 @@
+import math
+
+import numpy as np
 from numba import float64, int64, boolean
 from numba import njit, gdb
 from numba.experimental import jitclass
@@ -6,8 +9,6 @@ from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
-import math
-import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,

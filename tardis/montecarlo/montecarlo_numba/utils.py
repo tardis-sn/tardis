@@ -1,8 +1,6 @@
 import numpy as np
 from numba import njit
 from tardis.montecarlo.montecarlo_numba import (
-    njit_dict,
-    numba_config,
     njit_dict_no_parallel,
 )
 

@@ -1,24 +1,9 @@
-import numpy as np
-from enum import IntEnum
-from numba import int64, float64, boolean
 from numba import njit
-from numba.experimental import jitclass
 
-import math
 from tardis.montecarlo.montecarlo_numba import (
-    njit_dict,
-    numba_config,
     njit_dict_no_parallel,
 )
-from tardis.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
-)
-from tardis.montecarlo.montecarlo_numba.numba_config import (
-    CLOSE_LINE_THRESHOLD,
-    C_SPEED_OF_LIGHT,
-    MISS_DISTANCE,
-    SIGMA_THOMSON,
-)
+
 from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     calc_packet_energy,
     calc_packet_energy_full_relativity,

@@ -2,7 +2,6 @@ from numba import njit
 import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
-    InteractionType,
     PacketStatus,
     trace_packet,
     move_packet_across_shell_boundary,
@@ -15,6 +14,7 @@ from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     get_inverse_doppler_factor,
 )
 from tardis.montecarlo.montecarlo_numba.interaction import (
+    InteractionType,
     thomson_scatter,
     line_scatter,
 )
