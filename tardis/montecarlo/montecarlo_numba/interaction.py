@@ -1,5 +1,3 @@
-from enum import IntEnum
-
 from numba import njit
 from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
@@ -14,15 +12,12 @@ from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     get_inverse_doppler_factor,
     angle_aberration_CMF_to_LF,
 )
-from tardis.montecarlo.montecarlo_numba.r_packet import test_for_close_line
+from tardis.montecarlo.montecarlo_numba.r_packet import (
+    test_for_close_line,
+    InteractionType,
+)
 from tardis.montecarlo.montecarlo_numba.utils import get_random_mu
 from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
-
-
-class InteractionType(IntEnum):
-    BOUNDARY = 1
-    LINE = 2
-    ESCATTERING = 3
 
 
 @njit(**njit_dict_no_parallel)

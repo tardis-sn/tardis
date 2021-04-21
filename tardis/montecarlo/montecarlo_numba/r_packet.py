@@ -9,7 +9,7 @@ from numba.experimental import jitclass
 from tardis.montecarlo.montecarlo_numba import (
     njit_dict_no_parallel,
 )
-from tardis.montecarlo.montecarlo_numba.interaction import InteractionType
+
 from tardis.montecarlo.montecarlo_numba.estimators import (
     set_estimators,
     set_estimators_full_relativity,
@@ -29,6 +29,12 @@ from tardis.montecarlo.montecarlo_numba.numba_config import (
     CLOSE_LINE_THRESHOLD,
     ENABLE_FULL_RELATIVITY,
 )
+
+
+class InteractionType(IntEnum):
+    BOUNDARY = 1
+    LINE = 2
+    ESCATTERING = 3
 
 
 class PacketStatus(IntEnum):
