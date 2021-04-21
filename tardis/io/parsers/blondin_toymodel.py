@@ -91,7 +91,7 @@ def read_blondin_toymodel(fname):
     t0 = parse_quantity(t0_string.replace("DAYS", "day"))
     blondin_dict = {}
     blondin_dict["model_density_time_0"] = str(t0)
-    blondin_dict["description"] = "Converted {0} to csvy format".format(fname)
+    blondin_dict["description"] = f"Converted {fname} to csvy format"
     blondin_dict["tardis_model_config_version"] = "v1.0"
     blondin_dict_fields = [
         dict(
@@ -109,7 +109,7 @@ def read_blondin_toymodel(fname):
 
     for abund in blondin_csv.columns[3:]:
         blondin_dict_fields.append(
-            dict(name=abund, desc="Fraction {0} abundance".format(abund))
+            dict(name=abund, desc=f"Fraction {abund} abundance")
         )
     blondin_dict["datatype"] = {"fields": blondin_dict_fields}
 
@@ -142,9 +142,7 @@ def convert_blondin_toymodel(
         blondin_dict["datatype"]["fields"].append(
             {
                 "desc": "converted radiation temperature "
-                "using multiplicative factor={0}".format(
-                    conversion_t_electron_rad
-                ),
+                f"using multiplicative factor={conversion_t_electron_rad}",
                 "name": "t_rad",
                 "unit": "K",
             }
@@ -154,10 +152,7 @@ def convert_blondin_toymodel(
             conversion_t_electron_rad * blondin_csv.t_electron
         )
 
-    csvy_file = "---\n{0}\n---\n{1}".format(
-        yaml.dump(blondin_dict, default_flow_style=False),
-        blondin_csv.to_csv(index=False),
-    )
+    csvy_file = f"---\n{yaml.dump(blondin_dict, default_flow_style=False)}\n---\n{blondin_csv.to_csv(index=False)}"
 
     with open(out_fname, "w") as fh:
         fh.write(csvy_file)

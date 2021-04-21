@@ -192,7 +192,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
         # Outputting data required by SH module
         for zone, _ in enumerate(electron_densities):
             with open(
-                "He_NLTE_Files/shellconditions_{}.txt".format(zone), "w"
+                f"He_NLTE_Files/shellconditions_{zone}.txt", "w"
             ) as output_file:
                 output_file.write(ion_number_density.loc[2].sum()[zone])
                 output_file.write(electron_densities[zone])
@@ -206,7 +206,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
 
         for zone, _ in enumerate(electron_densities):
             with open(
-                "He_NLTE_Files/abundances_{}.txt".format(zone), "w"
+                f"He_NLTE_Files/abundances_{zone}.txt", "w"
             ) as output_file:
                 for element in range(1, 31):
                     try:
@@ -221,7 +221,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
             helium_lines = helium_lines[helium_lines["ion_number"] == 0]
         for zone, _ in enumerate(electron_densities):
             with open(
-                "He_NLTE_Files/discradfield_{}.txt".format(zone), "w"
+                f"He_NLTE_Files/discradfield_{zone}.txt", "w"
             ) as output_file:
                 j_blues = pd.DataFrame(j_blues, index=lines.index)
                 helium_j_blues = j_blues[zone].loc[helium_lines.index]
@@ -235,36 +235,36 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
         # Running numerical simulations
         for zone, _ in enumerate(electron_densities):
             os.rename(
-                "He_NLTE_Files/abundances{}.txt".format(zone),
+                f"He_NLTE_Files/abundances{zone}.txt",
                 "He_NLTE_Files/abundances_current.txt",
             )
             os.rename(
-                "He_NLTE_Files/shellconditions{}.txt".format(zone),
+                f"He_NLTE_Files/shellconditions{zone}.txt",
                 "He_NLTE_Files/shellconditions_current.txt",
             )
             os.rename(
-                "He_NLTE_Files/discradfield{}.txt".format(zone),
+                f"He_NLTE_Files/discradfield{zone}.txt",
                 "He_NLTE_Files/discradfield_current.txt",
             )
             os.system("nlte-solver-module/bin/nlte_solvertest >/dev/null")
             os.rename(
                 "He_NLTE_Files/abundances_current.txt",
-                "He_NLTE_Files/abundances{}.txt".format(zone),
+                f"He_NLTE_Files/abundances{zone}.txt",
             )
             os.rename(
                 "He_NLTE_Files/shellconditions_current.txt",
-                "He_NLTE_Files/shellconditions{}.txt".format(zone),
+                f"He_NLTE_Files/shellconditions{zone}.txt",
             )
             os.rename(
                 "He_NLTE_Files/discradfield_current.txt",
-                "He_NLTE_Files/discradfield{}.txt".format(zone),
+                f"He_NLTE_Files/discradfield{zone}.txt",
             )
-            os.rename("debug_occs.dat", "He_NLTE_Files/occs{}.txt".format(zone))
+            os.rename("debug_occs.dat", f"He_NLTE_Files/occs{zone}.txt")
         # Reading in populations from files
         helium_population = level_boltzmann_factor.loc[2].copy()
         for zone, _ in enumerate(electron_densities):
             with open(
-                "He_NLTE_Files/discradfield{}.txt".format(zone), "r"
+                f"He_NLTE_Files/discradfield{zone}.txt", "r"
             ) as read_file:
                 for level in range(0, 35):
                     level_population = read_file.readline()

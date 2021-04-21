@@ -47,9 +47,7 @@ class TestRunnerSimpleFormalInegral:
     ):
         config.atom_data = atomic_data_fname
 
-        self.name = self._name + "_{:s}".format(
-            config.plasma.line_interaction_type
-        )
+        self.name = self._name + f"_{config.plasma.line_interaction_type:s}"
         if config.spectrum.integrated.interpolate_shells > 0:
             self.name += "_interp"
 
