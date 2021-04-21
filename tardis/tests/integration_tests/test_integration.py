@@ -161,9 +161,7 @@ class TestIntegration(object):
     def test_model_quantities(self, model_quantities):
         reference_quantity_name, tardis_quantity_name = model_quantities
         if reference_quantity_name not in self.reference:
-            pytest.skip(
-                f"{reference_quantity_name} not calculated in this run"
-            )
+            pytest.skip(f"{reference_quantity_name} not calculated in this run")
         reference_quantity = self.reference[reference_quantity_name]
         tardis_quantity = eval("self.result." + tardis_quantity_name)
         assert_allclose(tardis_quantity, reference_quantity)

@@ -57,7 +57,7 @@ class BasePlasmaProperty(object, metaclass=ABCMeta):
             complete_name = f"{latex_name} [{self.latex_name}]"
         else:
             complete_name = latex_name
-            
+
         latex_label = latex_template.format(
             name=complete_name,
             formula=getattr(self, "latex_formula", "--"),

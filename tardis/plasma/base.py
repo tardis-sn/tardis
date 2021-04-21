@@ -175,8 +175,7 @@ class BasePlasma(PlasmaWriterMixin):
         for key in kwargs:
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(
-                    f"Trying to update property {key}"
-                    f" that is unavailable"
+                    f"Trying to update property {key}" f" that is unavailable"
                 )
             self.outputs_dict[key].set_value(kwargs[key])
 

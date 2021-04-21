@@ -344,9 +344,7 @@ class TARDISHistory(object):
 
         for iter in iterations:
             current_iter = f"iter{iter:03d}"
-            jblues_dict[current_iter] = hdf_store[
-                f"model{iter:03d}/j_blues"
-            ]
+            jblues_dict[current_iter] = hdf_store[f"model{iter:03d}/j_blues"]
 
         hdf_store.close()
         if is_scalar:

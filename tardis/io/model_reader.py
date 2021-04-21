@@ -67,8 +67,7 @@ def read_density_file(filename, filetype):
     if invalid_volume_mask.sum() > 0:
         message = "\n".join(
             [
-                f"cell {i:d}: v_inner {v_inner_i:s}, v_outer "
-                f"{v_outer_i:s}"
+                f"cell {i:d}: v_inner {v_inner_i:s}, v_outer " f"{v_outer_i:s}"
                 for i, v_inner_i, v_outer_i in zip(
                     np.arange(len(v_outer))[invalid_volume_mask],
                     v_inner[invalid_volume_mask],

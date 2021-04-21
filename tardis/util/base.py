@@ -69,7 +69,8 @@ class MalformedElementSymbolError(MalformedError):
         self.malformed_element_symbol = malformed_element_symbol
 
     def __str__(self):
-        return (f"Expecting an atomic symbol (e.g. Fe) - supplied {self.malformed_element_symbol}")
+        return f"Expecting an atomic symbol (e.g. Fe) - supplied {self.malformed_element_symbol}"
+
 
 class MalformedQuantityError(MalformedError):
     def __init__(self, malformed_quantity_string):
@@ -122,18 +123,14 @@ def roman_to_int(roman_string):
     NUMERALS_SET = set(list(zip(*NUMERAL_MAP))[1])
     roman_string = roman_string.upper()
     if len(set(list(roman_string.upper())) - NUMERALS_SET) != 0:
-        raise ValueError(
-            f"{roman_string} does not seem to be a roman numeral"
-        )
+        raise ValueError(f"{roman_string} does not seem to be a roman numeral")
     i = result = 0
     for integer, numeral in NUMERAL_MAP:
         while roman_string[i : i + len(numeral)] == numeral:
             result += integer
             i += len(numeral)
     if result < 1:
-        raise ValueError(
-            f"Can not interpret Roman Numeral {roman_string}"
-        )
+        raise ValueError(f"Can not interpret Roman Numeral {roman_string}")
     return result
 
 
@@ -333,6 +330,7 @@ def species_tuple_to_string(species_tuple, roman_numerals=True):
         return f"{str(element_symbol)} {roman_ion_number}"
     else:
         return f"{element_symbol} {ion_number:d}"
+
 
 def species_string_to_tuple(species_string):
     """

@@ -532,8 +532,12 @@ class ModelViewer(QtWidgets.QWidget):
         quick user access.
         """
 
-        model_converged= '<font color="green"><b>True</b></font>' if self.model.converged else '<font color="red"><b>False</b></font>'
-        
+        model_converged = (
+            '<font color="green"><b>True</b></font>'
+            if self.model.converged
+            else '<font color="red"><b>False</b></font>'
+        )
+
         labeltext = f"Iterations requested: {self.model.iterations} <br/> Iterations executed:  {self.model.iterations_executed}<br/>\
                      Model converged     : {model_converged} <br/> Simulation Time    :  {self.model.runner.time_of_simulation.value} s <br/>\
                      Inner Temperature   : {self.model.model.t_inner.value} K <br/> Number of packets  :  {self.model.last_no_of_packets}<br/>\

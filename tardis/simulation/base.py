@@ -431,9 +431,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         logger.info("Plasma stratification:\n%s\n", plasma_state_log)
-        logger.info(
-            f"t_inner {t_inner:.3f} -- next t_inner {next_t_inner:.3f}"
-        )
+        logger.info(f"t_inner {t_inner:.3f} -- next t_inner {next_t_inner:.3f}")
 
     def log_run_results(self, emitted_luminosity, absorbed_luminosity):
         logger.info(

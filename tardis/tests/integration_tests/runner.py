@@ -64,9 +64,7 @@ def run_tests():
 
         # Check whether a report of this githash is uploaded on dokuwiki.
         # If not, then this is a new commit and tests should be executed.
-        dokuwiki_report = doku_conn.pages.get(
-            f"reports:{gh_tardis_githash}"
-        )
+        dokuwiki_report = doku_conn.pages.get(f"reports:{gh_tardis_githash}")
 
         # If dokuwiki returns empty string, then it means that report has not
         # been created yet.

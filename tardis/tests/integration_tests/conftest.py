@@ -147,7 +147,7 @@ def reference(request, data_path):
         except IOError:
             raise IOError(
                 f'Reference file {data_path["reference_path"]} does not exist and is needed'
-                f' for the tests'
+                f" for the tests"
             )
 
         else:

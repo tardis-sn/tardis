@@ -15,8 +15,7 @@ def atomic_data_fname(tardis_ref_path):
     )
 
     atom_data_missing_str = (
-        f"{atomic_data_fname} atomic datafiles "
-        f"does not seem to exist"
+        f"{atomic_data_fname} atomic datafiles " f"does not seem to exist"
     )
 
     if not os.path.exists(atomic_data_fname):

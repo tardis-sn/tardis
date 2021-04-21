@@ -109,7 +109,6 @@ def read_blondin_toymodel(fname):
 
     for abund in blondin_csv.columns[3:]:
         blondin_dict_fields.append(
-
             dict(name=abund, desc=f"Fraction {abund} abundance")
         )
     blondin_dict["datatype"] = {"fields": blondin_dict_fields}
@@ -152,7 +151,6 @@ def convert_blondin_toymodel(
         blondin_csv["t_rad"] = (
             conversion_t_electron_rad * blondin_csv.t_electron
         )
-
 
     csvy_file = f"---\n{yaml.dump(blondin_dict, default_flow_style=False)}\n---\n{blondin_csv.to_csv(index=False)}"
 
