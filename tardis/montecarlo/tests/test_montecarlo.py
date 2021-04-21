@@ -50,6 +50,7 @@ import numpy as np
 import pandas as pd
 import tardis.montecarlo.formal_integral as formal_integral
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
+import tardis.montecarlo.montecarlo_numba.utils as utils
 import tardis.montecarlo.montecarlo_configuration as mc
 from tardis import constants as const
 from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
@@ -679,11 +680,11 @@ def test_compute_distance2boundary(
         ),
         (
             {"nu_line": 0.5, "next_line_id": 1, "last_line": 0},
-            {"tardis_error": r_packet.MonteCarloException, "d_line": 0.0},
+            {"tardis_error": utils.MonteCarloException, "d_line": 0.0},
         ),
         (
             {"nu_line": 0.6, "next_line_id": 0, "last_line": 0},
-            {"tardis_error": r_packet.MonteCarloException, "d_line": 0.0},
+            {"tardis_error": utils.MonteCarloException, "d_line": 0.0},
         ),
     ],
 )
@@ -706,8 +707,8 @@ def test_compute_distance2line(packet_params, expected_params, packet, model):
         d_line = r_packet.calculate_distance_line(
             packet, comov_nu, nu_line, time_explosion
         )
-    except r_packet.MonteCarloException:
-        obtained_tardis_error = r_packet.MonteCarloException
+    except utils.MonteCarloException:
+        obtained_tardis_error = utils.MonteCarloException
 
     assert_almost_equal(d_line, expected_params["d_line"])
     assert obtained_tardis_error == expected_params["tardis_error"]
