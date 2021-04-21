@@ -103,13 +103,13 @@ class TARDISSpectrum(HDFWriterMixin):
     def f_nu_to_f_lambda(self, f_nu):
         return f_nu * self.frequency / self.wavelength
 
-    def plot(self, ax=None, mode="wavelength"):
+    def plot(self, ax=None, mode="wavelength", **kwargs):
         if ax is None:
             from matplotlib.pyplot import gca
 
             ax = gca()
         if mode == "wavelength":
-            ax.plot(self.wavelength.value, self.luminosity_density_lambda.value)
+            ax.plot(self.wavelength.value, self.luminosity_density_lambda.value, **kwargs)
             ax.set_xlabel(
                 "Wavelength [{}]".format(self.wavelength.unit._repr_latex_())
             )

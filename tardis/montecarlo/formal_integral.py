@@ -84,13 +84,20 @@ class FormalIntegrator(object):
         return True
 
     def calculate_spectrum(
-        self, frequency, points=None, interpolate_shells=-1, raises=True
+        self, frequency, points=None, interpolate_shells=0, raises=True
     ):
         # Very crude implementation
         # The c extension needs bin centers (or something similar)
         # while TARDISSpectrum needs bin edges
         self.check(raises)
         N = points or self.points
+        if interpolate_shells == 0:  # Default value
+            interpolate_shells = max(2 * self.model.no_of_shells, 80)
+            warnings.warn(
+                "The number of interpolate_shells was not "
+                f"specified. The value was set to {interpolate_shells}."
+            )
+
         self.interpolate_shells = interpolate_shells
         frequency = frequency.to("Hz", u.spectral())
         luminosity = u.Quantity(formal_integral(self, frequency, N), "erg") * (
