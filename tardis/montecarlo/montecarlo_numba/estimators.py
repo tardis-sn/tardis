@@ -9,6 +9,10 @@ from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     calc_packet_energy_full_relativity,
 )
 
+from tardis.montecarlo.montecarlo_numba.numba_config import (
+    ENABLE_FULL_RELATIVITY,
+)
+
 
 @njit(**njit_dict_no_parallel)
 def set_estimators(r_packet, distance, numba_estimator, comov_nu, comov_energy):
@@ -59,7 +63,7 @@ def update_line_estimators(
     ( time_explosion * C)
     """
 
-    if not numba_config.ENABLE_FULL_RELATIVITY:
+    if not ENABLE_FULL_RELATIVITY:
         energy = calc_packet_energy(r_packet, distance_trace, time_explosion)
     else:
         energy = calc_packet_energy_full_relativity(r_packet)
