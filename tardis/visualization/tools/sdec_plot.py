@@ -22,8 +22,10 @@ from tardis.util.base import (
     roman_to_int,
     int_to_roman,
 )
-from tardis.widgets import plot_util as pu
+from tardis.visualization import plot_util as pu
 
+import logging
+logger = logging.getLogger(__name__)
 
 class SDECData:
     """The data of simulation model used by Spectral element DEComposition (SDEC) Plot.
@@ -519,8 +521,8 @@ class SDECPlotter:
                         keep_colour.append(atomic_number)
                 requested_species_ids = [
                     species_id
-                    for list in requested_species_ids
-                    for species_id in list
+                    for temp_list in requested_species_ids
+                    for species_id in temp_list
                 ]
 
                 self._species_list = requested_species_ids
@@ -1114,7 +1116,7 @@ class SDECPlotter:
 
         # If species_list and nelements requested, tell user that nelements is ignored
         if species_list is not None and nelements is not None:
-            print(
+            logger.info(
                 "Both nelements and species_list were requested. Species_list takes priority; nelements is ignored"
             )
 
@@ -1246,7 +1248,7 @@ class SDECPlotter:
             except:
                 # Add notifications that this species was not in the emission df
                 if self._species_list is None:
-                    print(
+                    longer.info(
                         atomic_number2element_symbol(identifier)
                         + " is not in the emitted packets; skipping"
                     )
@@ -1255,7 +1257,7 @@ class SDECPlotter:
                     ion_number = identifier % 100
                     atomic_number = (identifier - ion_number) / 100
 
-                    print(
+                    logger.info(
                         atomic_number2element_symbol(atomic_number)
                         + int_to_roman(ion_number + 1)
                         + " is not in the emitted packets; skipping"
@@ -1302,7 +1304,7 @@ class SDECPlotter:
             except:
                 # Add notifications that this species was not in the emission df
                 if self._species_list is None:
-                    print(
+                    logger.info(
                         atomic_number2element_symbol(identifier)
                         + " is not in the absorbed packets; skipping"
                     )
@@ -1311,7 +1313,7 @@ class SDECPlotter:
                     ion_number = identifier % 100
                     atomic_number = (identifier - ion_number) / 100
 
-                    print(
+                    logger.info(
                         atomic_number2element_symbol(atomic_number)
                         + int_to_roman(ion_number + 1)
                         + " is not in the absorbed packets; skipping"
@@ -1479,7 +1481,7 @@ class SDECPlotter:
 
         # If species_list and nelements requested, tell user that nelements is ignored
         if species_list is not None and nelements is not None:
-            print(
+            logger.info(
                 "Both nelements and species_list were requested. Species_list takes priority; nelements is ignored"
             )
 
@@ -1504,7 +1506,7 @@ class SDECPlotter:
         self._make_colorbar_labels()
         # Set colormap to be used in elements of emission and absorption plots
         self.cmap = cm.get_cmap(cmapname, len(self._species_name))
-        # Get the number of unqie colors
+        # Get the number of unique colors
         self._make_colorbar_colors()
 
         # Plot absorption and emission components
@@ -1564,6 +1566,7 @@ class SDECPlotter:
     def to_rgb255_string(color_tuple):
         """
         Convert a matplotlib RGBA tuple to a generic RGB 255 string.
+
         Parameters
         ----------
         color_tuple : tuple
@@ -1633,7 +1636,7 @@ class SDECPlotter:
                 )
             except:
                 if self._species_list is None:
-                    print(
+                    logger.info(
                         atomic_number2element_symbol(identifier)
                         + " is not in the emitted packets; skipping"
                     )
@@ -1642,7 +1645,7 @@ class SDECPlotter:
                     ion_number = identifier % 100
                     atomic_number = (identifier - ion_number) / 100
 
-                    print(
+                    logger.info(
                         atomic_number2element_symbol(atomic_number)
                         + int_to_roman(ion_number + 1)
                         + " is not in the emitted packets; skipping"
@@ -1683,7 +1686,7 @@ class SDECPlotter:
 
             except:
                 if self._species_list is None:
-                    print(
+                    logger.info(
                         atomic_number2element_symbol(identifier)
                         + " is not in the absorbed packets; skipping"
                     )
@@ -1692,7 +1695,7 @@ class SDECPlotter:
                     ion_number = identifier % 100
                     atomic_number = (identifier - ion_number) / 100
 
-                    print(
+                    logger.info(
                         atomic_number2element_symbol(atomic_number)
                         + int_to_roman(ion_number + 1)
                         + " is not in the absorbed packets; skipping"
