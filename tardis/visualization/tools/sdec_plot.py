@@ -25,7 +25,9 @@ from tardis.util.base import (
 from tardis.visualization import plot_util as pu
 
 import logging
+
 logger = logging.getLogger(__name__)
+
 
 class SDECData:
     """The data of simulation model used by Spectral element DEComposition (SDEC) Plot.
