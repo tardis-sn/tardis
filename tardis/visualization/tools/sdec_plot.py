@@ -477,11 +477,11 @@ class SDECPlotter:
                             species.split(" ")[-1].split("-")[-1]
                         )
                         # add each ion between the two requested into the species list
-                        for i in np.arange(
+                        for ii in np.arange(
                             first_ion_numeral, second_ion_numeral + 1
                         ):
                             full_species_list.append(
-                                element + " " + int_to_roman(i)
+                                element + " " + int_to_roman(ii)
                             )
                     else:
                         # Otherwise it's either an element or ion so just add to the list
@@ -509,8 +509,8 @@ class SDECPlotter:
                         atomic_number = element_symbol2atomic_number(species)
                         requested_species_ids.append(
                             [
-                                atomic_number * 100 + i
-                                for i in np.arange(atomic_number)
+                                atomic_number * 100 + ii
+                                for ii in np.arange(atomic_number)
                             ]
                         )
                         # add the atomic number to a list so you know that this element should
@@ -1101,7 +1101,7 @@ class SDECPlotter:
             Other elements are shown in silver. Default value is
             None, which displays all elements
         species_list: list of strings or None
-            list of strings containing the names of species that should be included in the Kromer plots.
+            list of strings containing the names of species that should be included in the SDEC plots.
             Must be given in Roman numeral format. Can include specific ions, a range of ions,
             individual elements, or any combination of these:
             e.g. ['Si II', 'Ca II', 'C', 'Fe I-V']
@@ -1227,7 +1227,7 @@ class SDECPlotter:
             )
 
         # Contribution from each element
-        for i, identifier in enumerate(self.species):
+        for ii, identifier in enumerate(self.species):
             try:
                 lower_level = upper_level
                 upper_level = (
@@ -1239,7 +1239,7 @@ class SDECPlotter:
                     self.plot_wavelength,
                     lower_level,
                     upper_level,
-                    color=self._color_list[i],
+                    color=self._color_list[ii],
                     cmap=self.cmap,
                     linewidth=0,
                 )
@@ -1282,7 +1282,7 @@ class SDECPlotter:
                 color="silver",
             )
 
-        for i, identifier in enumerate(self.species):
+        for ii, identifier in enumerate(self.species):
             try:
                 upper_level = lower_level
                 lower_level = (
@@ -1294,7 +1294,7 @@ class SDECPlotter:
                     self.plot_wavelength,
                     upper_level,
                     lower_level,
-                    color=self._color_list[i],
+                    color=self._color_list[ii],
                     cmap=self.cmap,
                     linewidth=0,
                 )
@@ -1321,8 +1321,8 @@ class SDECPlotter:
         """Show matplotlib colorbar with labels of elements mapped to colors."""
 
         color_values = [
-            self.cmap(i / len(self._species_name))
-            for i in range(len(self._species_name))
+            self.cmap(ii / len(self._species_name))
+            for ii in range(len(self._species_name))
         ]
 
         custcmap = clr.ListedColormap(color_values)
@@ -1379,13 +1379,13 @@ class SDECPlotter:
 
         # Colors for each element
         # Create new variables to keep track of the last atomic number that was plotted
-        # This is used when plotting species incase an element was given in the list
+        # This is used when plotting species in case an element was given in the list
         # This is to ensure that all ions of that element are grouped together
         # ii is to track the colour index
         # e.g. if Si is given in species_list, this is to ensure Si I, Si II, etc. all have the same colour
-        ii = 0
+        counter = 0
         previous_atomic_number = 0
-        for i, identifier in enumerate(self.species):
+        for ii, identifier in enumerate(self.species):
             if self._species_list is not None:
                 # Get the ion number and atomic number for each species
                 ion_number = identifier % 100
@@ -1393,29 +1393,29 @@ class SDECPlotter:
                 if previous_atomic_number == 0:
                     # If this is the first species being plotted, then take note of the atomic number
                     # don't update the colour index
-                    ii = ii
+                    counter = counter
                     previous_atomic_number = atomic_number
                 elif previous_atomic_number in self._keep_colour:
                     # If the atomic number is in the list of elements that should all be plotted in the same colour
-                    # then dont update the colour index if this element has been plotted already
+                    # then don't update the colour index if this element has been plotted already
                     if previous_atomic_number == atomic_number:
-                        ii = ii
+                        counter = counter
                         previous_atomic_number = atomic_number
                     else:
                         # Otherwise, increase the colour counter by one, because this is a new element
-                        ii = ii + 1
+                        counter = counter + 1
                         previous_atomic_number = atomic_number
                 else:
                     # If this is just a normal species that was requested then increment the colour index
-                    ii = ii + 1
+                    counter = counter + 1
                     previous_atomic_number = atomic_number
                 # Calculate the colour of this species
-                color = self.cmap(ii / len(self._species_name))
+                color = self.cmap(counter / len(self._species_name))
 
             else:
                 # If you're not using species list then this is just a fraction based on the total
                 # number of columns in the dataframe
-                color = self.cmap(i / len(self.species))
+                color = self.cmap(ii / len(self.species))
 
             color_list.append(color)
 
@@ -1467,7 +1467,7 @@ class SDECPlotter:
             Other elements are shown in silver. Default value is
             None, which displays all elements
         species_list: list of strings or None
-            list of strings containing the names of species that should be included in the Kromer plots.
+            list of strings containing the names of species that should be included in the SDEC plots.
             Must be given in Roman numeral format. Can include specific ions, a range of ions,
             individual elements, or any combination of these:
             e.g. ['Si II', 'Ca II', 'C', 'Fe I-V']
@@ -1618,7 +1618,7 @@ class SDECPlotter:
             )
 
         # Contribution from each element
-        for i, identifier in enumerate(self.species):
+        for ii, identifier in enumerate(self.species):
             try:
                 self.fig.add_trace(
                     go.Scatter(
@@ -1626,7 +1626,7 @@ class SDECPlotter:
                         y=self.emission_luminosities_df[identifier],
                         mode="none",
                         name="none",
-                        fillcolor=self.to_rgb255_string(self._color_list[i]),
+                        fillcolor=self.to_rgb255_string(self._color_list[ii]),
                         stackgroup="emission",
                         showlegend=False,
                     )
@@ -1666,7 +1666,7 @@ class SDECPlotter:
                 )
             )
 
-        for i, identifier in enumerate(self.species):
+        for ii, identifier in enumerate(self.species):
             try:
                 self.fig.add_trace(
                     go.Scatter(
@@ -1675,7 +1675,7 @@ class SDECPlotter:
                         y=self.absorption_luminosities_df[identifier] * -1,
                         mode="none",
                         name="none",
-                        fillcolor=self.to_rgb255_string(self._color_list[i]),
+                        fillcolor=self.to_rgb255_string(self._color_list[ii]),
                         stackgroup="absorption",
                         showlegend=False,
                     )
@@ -1707,10 +1707,10 @@ class SDECPlotter:
         # by mapping same reference points (excluding 1st and last bin edge)
         # twice in a row (https://plotly.com/python/colorscales/#constructing-a-discrete-or-discontinuous-color-scale)
         categorical_colorscale = []
-        for i in range(len(self._species_name)):
-            color = self.to_rgb255_string(self.cmap(colorscale_bins[i]))
-            categorical_colorscale.append((colorscale_bins[i], color))
-            categorical_colorscale.append((colorscale_bins[i + 1], color))
+        for ii in range(len(self._species_name)):
+            color = self.to_rgb255_string(self.cmap(colorscale_bins[ii]))
+            categorical_colorscale.append((colorscale_bins[ii], color))
+            categorical_colorscale.append((colorscale_bins[ii + 1], color))
 
         coloraxis_options = dict(
             colorscale=categorical_colorscale,
