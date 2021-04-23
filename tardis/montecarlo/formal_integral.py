@@ -562,14 +562,8 @@ class FormalIntegrator(object):
             r_middle,
             plasma.tau_sobolev,
             fill_value="extrapolate",
-<<<<<<< HEAD
-         
-   kind="nearest",
-        )(r_middle_integ)
-=======
             kind="nearest",
-        )(r_middle_integ))
->>>>>>> 888575d4244ced6a327097b20c84980afff758a6
+            )(r_middle_integ))
         att_S_ul = interp1d(r_middle, att_S_ul, fill_value="extrapolate")(
             r_middle_integ
         )
