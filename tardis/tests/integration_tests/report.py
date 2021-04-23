@@ -111,9 +111,7 @@ class DokuReport(HTMLReport):
         # A string which holds the complete report.
         report_content = (
             "Test executed on commit "
-            "[[https://www.github.com/tardis-sn/tardis/commit/{0}|{0}]]\n\n".format(
-                tardis_githash
-            )
+            f"[[https://www.github.com/tardis-sn/tardis/commit/{tardis_githash}|{tardis_githash}]]\n\n"
         ) + report_content
 
         # Quick hack for preventing log to be placed in narrow left out space
@@ -133,7 +131,7 @@ class DokuReport(HTMLReport):
             # Upload the report content to wiki
             try:
                 self.doku_conn.pages.set(
-                    "reports:{0}".format(tardis_githash[:7]), report_content
+                    f"reports:{tardis_githash[:7]}", report_content
                 )
             except (gaierror, TypeError):
                 pass
@@ -163,9 +161,7 @@ class DokuReport(HTMLReport):
 
         # Fetch commit message from github.
         gh_request = requests.get(
-            "https://api.github.com/repos/tardis-sn/tardis/git/commits/{0}".format(
-                tardis_githash
-            )
+            f"https://api.github.com/repos/tardis-sn/tardis/git/commits/{tardis_githash}"
         )
         gh_commit_data = json.loads(gh_request.content)
         # Pick only first line of commit message
@@ -173,22 +169,18 @@ class DokuReport(HTMLReport):
 
         # Truncate long commit messages
         if len(gh_commit_message) > 60:
-            gh_commit_message = "{0}...".format(gh_commit_message[:57])
+            gh_commit_message = f"{gh_commit_message[:57]}..."
         row = "|  "
         # Append hash
-        row += "[[reports:{0}|{0}]]  | ".format(tardis_githash[:7])
+        row += f"[[reports:{tardis_githash[:7]}|{tardis_githash[:7]}]]  | "
         # Append commit message
-        row += "[[https://www.github.com/tardis-sn/tardis/commit/{0}|{1}]] |  ".format(
-            tardis_githash, gh_commit_message
-        )
+        row += f"[[https://www.github.com/tardis-sn/tardis/commit/{tardis_githash}|{gh_commit_message}]] |  "
         # Append start time
-        row += "{0}  |  ".format(
-            suite_start_datetime.strftime("%d %b %H:%M:%S")
-        )
+        row += f'{suite_start_datetime.strftime("%d %b %H:%M:%S")}  |  '
         # Append time elapsed
-        row += "{0:.2f} sec  |  ".format(self.suite_time_delta)
+        row += f"{self.suite_time_delta:.2f} sec  |  "
         # Append status
-        row += "{0}  |\n".format(status)
+        row += f"{status}  |\n"
         try:
             self.doku_conn.pages.append("/", row)
         except (gaierror, TypeError):
@@ -215,7 +207,7 @@ class DokuReport(HTMLReport):
         if self.save_mode == "remote":
             try:
                 uploaded_report = self.doku_conn.pages.get(
-                    "reports:{0}".format(tardis_githash[:7])
+                    f"reports:{tardis_githash[:7]}"
                 )
             except (gaierror, TypeError):
                 uploaded_report = ""
@@ -226,9 +218,7 @@ class DokuReport(HTMLReport):
                 )
                 terminalreporter.write_sep(
                     "-",
-                    "URL: {0}doku.php?id=reports:{1}".format(
-                        self.dokuwiki_url, tardis_githash[:7]
-                    ),
+                    f"URL: {self.dokuwiki_url}doku.php?id=reports:{tardis_githash[:7]}",
                 )
             else:
                 terminalreporter.write_sep(

@@ -54,7 +54,7 @@ class BasePlasmaProperty(object, metaclass=ABCMeta):
         outputs = self.outputs.replace("_", r"\_")
         latex_name = getattr(self, "latex_name", "")
         if latex_name != "":
-            complete_name = "{0} [{1}]".format(latex_name, self.latex_name)
+            complete_name = f"{latex_name} [{self.latex_name}]"
         else:
             complete_name = latex_name
 

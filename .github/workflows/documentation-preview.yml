@@ -1,0 +1,55 @@
+# For more information on how to use this pipeline please refer to:
+# - http://tardis-sn.github.io/tardis/development/continuous_integration.html
+# - https://tardis-sn.github.io/tardis/development/documentation_preview.html
+
+name: documentation-preview
+
+on:
+  push:
+
+jobs:
+  documentation_preview:
+  
+    # This workflow will be triggered:
+    #
+    # 1. Only on forks, never on main repository.
+    # 2. If the branch name contains the word `doc`.
+    # 3. If the commit message includes the tag `[build docs]`.
+
+    if: github.repository_owner != 'tardis-sn' && (contains(github.ref, 'doc') || contains(github.event.head_commit.message, '[build docs]'))
+  
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
+            environment-file: tardis_env3.yml
+            activate-environment: tardis
+            use-mamba: true
+
+      - name: Install package
+        shell: bash -l {0}
+        run: python setup.py install
+
+      - name: Build documentation
+        shell: bash -l {0}
+        run: python setup.py build_docs
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Deploy site
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: docs/_build/html/
+          destination_dir: branch/${{ steps.extract_branch.outputs.branch }}

@@ -90,9 +90,9 @@ class BasePlasma(PlasmaWriterMixin):
             for input in plasma_property.inputs:
                 if input not in self.outputs_dict:
                     raise PlasmaMissingModule(
-                        "Module {0} requires input "
-                        "{1} which has not been added"
-                        " to this plasma".format(plasma_property.name, input)
+                        f"Module {plasma_property.name} requires input "
+                        f"{input} which has not been added"
+                        f" to this plasma"
                     )
                 try:
                     position = self.outputs_dict[input].outputs.index(input)
@@ -147,10 +147,10 @@ class BasePlasma(PlasmaWriterMixin):
                         kwargs.keys()
                     )
                     raise NotInitializedModule(
-                        "Input {0} required for "
-                        "plasma but not given when "
-                        "instantiating the "
-                        "plasma".format(missing_input_values)
+                        f"Input {missing_input_values} required for "
+                        f"plasma but not given when "
+                        f"instantiating the "
+                        f"plasma"
                     )
                 current_property_object = plasma_property(
                     **property_kwargs.get(plasma_property, {})
@@ -175,8 +175,7 @@ class BasePlasma(PlasmaWriterMixin):
         for key in kwargs:
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(
-                    "Trying to update property {0}"
-                    " that is unavailable".format(key)
+                    f"Trying to update property {key}" f" that is unavailable"
                 )
             self.outputs_dict[key].set_value(kwargs[key])
 
@@ -265,9 +264,7 @@ class BasePlasma(PlasmaWriterMixin):
         descendants_ob.sort(key=lambda val: sort_order.index(val))
 
         logger.debug(
-            "Updating modules in the following order: {}".format(
-                "->".join(descendants_ob)
-            )
+            f'Updating modules in the following order: {"->".join(descendants_ob)}'
         )
 
         return descendants_ob
