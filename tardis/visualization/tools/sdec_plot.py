@@ -1631,7 +1631,9 @@ class SDECPlotter:
                         y=self.emission_luminosities_df[identifier],
                         mode="none",
                         name="none",
-                        fillcolor=self.to_rgb255_string(self._color_list[species_counter]),
+                        fillcolor=self.to_rgb255_string(
+                            self._color_list[species_counter]
+                        ),
                         stackgroup="emission",
                         showlegend=False,
                     )
@@ -1681,7 +1683,9 @@ class SDECPlotter:
                         y=self.absorption_luminosities_df[identifier] * -1,
                         mode="none",
                         name="none",
-                        fillcolor=self.to_rgb255_string(self._color_list[species_counter]),
+                        fillcolor=self.to_rgb255_string(
+                            self._color_list[species_counter]
+                        ),
                         stackgroup="absorption",
                         showlegend=False,
                     )
@@ -1715,9 +1719,15 @@ class SDECPlotter:
         # twice in a row (https://plotly.com/python/colorscales/#constructing-a-discrete-or-discontinuous-color-scale)
         categorical_colorscale = []
         for species_counter in range(len(self._species_name)):
-            color = self.to_rgb255_string(self.cmap(colorscale_bins[species_counter]))
-            categorical_colorscale.append((colorscale_bins[species_counter], color))
-            categorical_colorscale.append((colorscale_bins[species_counter + 1], color))
+            color = self.to_rgb255_string(
+                self.cmap(colorscale_bins[species_counter])
+            )
+            categorical_colorscale.append(
+                (colorscale_bins[species_counter], color)
+            )
+            categorical_colorscale.append(
+                (colorscale_bins[species_counter + 1], color)
+            )
 
         coloraxis_options = dict(
             colorscale=categorical_colorscale,
