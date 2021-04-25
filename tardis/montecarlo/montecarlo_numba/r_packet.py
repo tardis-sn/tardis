@@ -30,12 +30,11 @@ from tardis.montecarlo.montecarlo_numba.numba_config import (
     ENABLE_FULL_RELATIVITY,
 )
 
-
 class InteractionType(IntEnum):
-    BOUNDARY = 1
+    NO_INTERACTION = -1
+    BOUNDARY = 0
+    ESCATTERING = 1
     LINE = 2
-    ESCATTERING = 3
-
 
 class PacketStatus(IntEnum):
     IN_PROCESS = 0
@@ -189,7 +188,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
             (distance_electron < distance_trace)
             and (distance_electron < distance_boundary)
         ) and distance_trace != 0.0:
-            interaction_type = InteractionType.ESCATTERING
+            interaction_type = InteractionType.ESCATTERING  # E-SCATTERING
             # print('scattering')
             distance = distance_electron
             r_packet.next_line_id = cur_line_id
@@ -211,7 +210,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
             tau_trace_combined > tau_event
             and not montecarlo_configuration.disable_line_scattering
         ):
-            interaction_type = InteractionType.LINE  # Line
+            interaction_type = InteractionType.LINE  # LINE
             r_packet.last_interaction_in_nu = r_packet.nu
             r_packet.last_line_interaction_in_id = cur_line_id
             r_packet.next_line_id = cur_line_id

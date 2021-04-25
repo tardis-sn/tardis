@@ -22,6 +22,7 @@ from tardis.util.base import (
     roman_to_int,
     int_to_roman,
 )
+from tardis.montecarlo.montecarlo_numba.r_packet import InteractionType
 from tardis.visualization import plot_util as pu
 
 import logging
@@ -116,7 +117,10 @@ class SDECData:
         self.time_of_simulation = time_of_simulation
 
         # Create dataframe of packets that experience line interaction
-        line_mask = (self.packets_df["last_interaction_type"] > -1) & (
+        line_mask = (
+            self.packets_df["last_interaction_type"]
+            > InteractionType.NO_INTERACTION
+        ) & (
             self.packets_df["last_line_interaction_in_id"] > -1
         )  # & operator is quite faster than np.logical_and on pd.Series
         self.packets_df_line_interaction = self.packets_df.loc[line_mask].copy()
