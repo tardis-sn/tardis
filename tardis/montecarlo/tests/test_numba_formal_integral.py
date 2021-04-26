@@ -95,9 +95,9 @@ def test_populate_z_photosphere(formal_integral_model, p):
     oshell_id = np.zeros_like(oz, dtype=np.int64)
 
     numba_model = NumbaModel(
-            formal_integral_model.r_inner_i,
-            formal_integral_model.r_outer_i,
-            formal_integral_model.time_explosion.to("s").value
+            r_inner,
+            r_outer,
+            formal_integral_model.time_explosion
     )
 
     N = func(numba_model, p, oz, oshell_id)
@@ -147,9 +147,9 @@ def test_populate_z_shells(formal_integral_model, p):
     )
 
     numba_model = NumbaModel(
-            formal_integral_model.r_inner_i,
-            formal_integral_model.r_outer_i,
-            formal_integral_model.time_explosion.to("s").value
+            r_inner,
+            r_outer,
+            formal_integral_model.time_explosion
     )
 
     N = func(numba_model, p, oz, oshell_id)
