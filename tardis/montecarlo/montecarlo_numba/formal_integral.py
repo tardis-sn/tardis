@@ -12,7 +12,7 @@ from numba import njit, char, float64, int64, jitclass, typeof, byte, prange
 import pdb
 
 
-from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.montecarlo.montecarlo_numba import njit_dict as njit_dict
 from tardis.montecarlo.montecarlo_numba.numba_interface \
     import numba_plasma_initialize, NumbaModel, NumbaPlasma
 
@@ -27,6 +27,8 @@ SIGMA_THOMSON = 6.652486e-25
 
 class IntegrationError(Exception):
     pass
+
+njit_dict.update({'fastmath':False})
 
 @njit(**njit_dict)
 def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, N):
@@ -108,7 +110,8 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
             for i in range(size_z - 1):
                 escat_op = plasma.electron_density[int(shell_id[i])] * SIGMA_THOMSON
                 nu_end = nu * z[i + 1]
-                for _ in range(max(size_line-pline,0)):
+                #for _ in range(max(size_line-pline,0)):
+                while pline < size_line:
                 #while (pline < size_line): # check all condition
                     # increment all pointers simulatenously
                     if (line_list_nu[pline] < nu_end):
