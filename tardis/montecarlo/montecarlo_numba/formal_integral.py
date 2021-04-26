@@ -49,7 +49,7 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
     exp_tau = np.zeros(size_tau)
     # TODO: multiprocessing
     # instantiate more variables here, maybe?
-    exp_tau = np.exp(-plasma.tau_sobolev.T.ravel()).ravel() # maybe make this 2D?
+    exp_tau = np.exp(-plasma.tau_sobolev.T.ravel()) # maybe make this 2D?
     # prepare exp_tau
     #for i in prange(plasma.tau_sobolev.shape[0]):
     #    for j in prange(plasma.tau_sobolev.shape[1]):
