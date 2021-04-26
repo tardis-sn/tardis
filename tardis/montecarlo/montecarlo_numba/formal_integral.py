@@ -54,7 +54,7 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
     #for i in prange(plasma.tau_sobolev.shape[0]):
     #    for j in prange(plasma.tau_sobolev.shape[1]):
     #        exp_tau[j*plasma.tau_sobolev.shape[0]+i] = np.exp(-plasma.tau_sobolev[i,j])
-    pp = calculate_p_values(R_max, N, pp)
+    pp[::] = calculate_p_values(R_max, N)
     line_list_nu = plasma.line_list_nu
 
     # done with instantiation
@@ -163,8 +163,7 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
                     pJred_lu += int(direction * size_line)
                     pJblue_lu += int(direction * size_line)
             I_nu[p_idx] *= p
-        L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max / N,
-                                                            N)
+        L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max / N)
         # something pragma op atomic
     return L
 
@@ -646,7 +645,7 @@ def binary_search(x, x_insert, imin, imax, result):
 
 
 @njit(**njit_dict)
-def trapezoid_integration(array, h, N):
+def trapezoid_integration(array, h):
     '''in the future, let's just replace
     this with the numpy trapz
     since it is numba compatable
@@ -671,8 +670,9 @@ def intensity_black_body(nu, T):
 
 
 @njit(**njit_dict)
-def calculate_p_values(R_max, N, opp):
+def calculate_p_values(R_max, N):
     '''This can probably be replaced with a simpler function'''
-    for i in range(N):
-        opp[i] = R_max / (N - 1) * (i)
-    return opp
+    return np.arange(N) * R_max / (N - 1)
+    #for i in range(N):
+    #    opp[i] = R_max / (N - 1) * (i)
+    #return opp

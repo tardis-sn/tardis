@@ -37,7 +37,7 @@ def test_trapezoid_integration(N):
     N = int(N)
     data = np.random.random(N)
 
-    actual = func(data, h, int(N))
+    actual = func(data, h)
     expected = np.trapz(data)
 
     ntest.assert_almost_equal(actual, expected)
@@ -176,5 +176,5 @@ def test_calculate_p_values(N):
     expected = r / (N - 1) * np.arange(0, N, dtype=np.float64)
     actual = np.zeros_like(expected, dtype=np.float64)
 
-    func(r, N, actual)
+    actual[::] = func(r, N)
     ntest.assert_allclose(actual, expected)
