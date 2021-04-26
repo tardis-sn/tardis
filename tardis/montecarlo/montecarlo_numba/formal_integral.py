@@ -110,12 +110,6 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
                 for _ in range(max(size_line-pline,0)):
                 #while (pline < size_line): # check all condition
                     # increment all pointers simulatenously
-                    pline += 1
-                    pexp_tau += 1
-                    patt_S_ul += 1
-                    pJblue_lu += 1
-                    pJred_lu += 1
-
                     if (line_list_nu[pline] < nu_end):
                         break
 
@@ -146,6 +140,13 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
                     # // reset e-scattering opacity
                     escat_contrib = 0
                     zstart = zend
+
+                    pline += 1
+                    pexp_tau += 1
+                    patt_S_ul += 1
+                    pJblue_lu += 1
+                    pJred_lu += 1
+
                 # calculate e-scattering optical depth to grid cell boundary
 
                 Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
