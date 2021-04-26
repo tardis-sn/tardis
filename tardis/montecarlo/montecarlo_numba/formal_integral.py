@@ -38,7 +38,7 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
     L = np.zeros(inu_size)
     # global read-only values
     size_line = len(plasma.line_list_nu)
-    size_shell = len(model.r_inner) - 1
+    size_shell = len(model.r_inner)
     #size_shell = self.model.no_of_shells # check
     size_tau = size_line * size_shell
     finished_nus = 0
@@ -495,7 +495,7 @@ def populate_z(model, p, oz, oshell_id):
         """
     # abbreviations
     r = model.r_outer
-    N = len(model.r_inner)-1 # check
+    N = len(model.r_inner) # check
     #print(N)
     inv_t = 1/model.time_explosion
     z = 0
