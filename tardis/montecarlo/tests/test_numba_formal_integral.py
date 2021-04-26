@@ -12,7 +12,7 @@ import numpy.testing as ntest
 
 from tardis.util.base import intensity_black_body
 import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral
-
+from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
 
 @pytest.mark.parametrize(
     ["nu", "T"],
@@ -94,7 +94,13 @@ def test_populate_z_photosphere(formal_integral_model, p):
     oz = np.zeros_like(r_inner)
     oshell_id = np.zeros_like(oz, dtype=np.int64)
 
-    N = func(formal_integral_model, p, oz, oshell_id)
+    numba_model = NumbaModel(
+            formal_integral_model.r_inner_i,
+            formal_integral_model.r_outer_i,
+            formal_integral_model.time_explosion
+    )
+
+    N = func(numba_model, p, oz, oshell_id)
     assert N == size
 
     ntest.assert_allclose(oshell_id, np.arange(0, size, 1))
@@ -140,7 +146,13 @@ def test_populate_z_shells(formal_integral_model, p):
         r_outer[np.arange(idx, size, 1)], p
     )
 
-    N = func(formal_integral_model, p, oz, oshell_id)
+    numba_model = NumbaModel(
+            formal_integral_model.r_inner_i,
+            formal_integral_model.r_outer_i,
+            formal_integral_model.time_explosion
+    )
+
+    N = func(numba_model, p, oz, oshell_id)
 
     assert N == expected_N
 
