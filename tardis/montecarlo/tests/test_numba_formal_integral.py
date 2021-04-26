@@ -110,7 +110,7 @@ def test_populate_z_shells(formal_integral_model, p):
     integrator = formal_integral.FormalIntegrator(
         formal_integral_model, None, None
     )
-    func = formal_integrator.populate_z
+    func = formal_integral.populate_z
 
     size = formal_integral_model.no_of_shells_i
     r_inner = as_array(formal_integral_model.r_inner_i, (size,))
