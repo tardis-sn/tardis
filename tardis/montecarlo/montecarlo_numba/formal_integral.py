@@ -37,14 +37,13 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
     # Initialize the output which is shared among threads
     L = np.zeros(inu_size)
     # global read-only values
-    size_line = len(plasma.line_list_nu)
-    size_shell = len(model.r_inner)
+    size_line, size_shell = plasma.tau_sobolev.shape
+    #size_line = len(plasma.line_list_nu)
+    #size_shell = len(model.r_inner)
     #size_shell = self.model.no_of_shells # check
-    print('Size Shell:', size_shell)
-    print('Tau Sobolev Shape:', plasma.tau_sobolev.shape)
+    #print('Size Shell:', size_shell)
+    #print('Tau Sobolev Shape:', plasma.tau_sobolev.shape)
     size_tau = size_line * size_shell
-    finished_nus = 0
-
     R_ph = model.r_inner[0] # make sure these are cgs
     R_max = model.r_outer[size_shell - 1]
     pp = np.zeros(N) # check
