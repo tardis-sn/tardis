@@ -411,8 +411,8 @@ def test_test_for_close_line(
     packet, line_id, nu_line, verysimple_numba_plasma, expected
 ):
 
-    r_packet.test_for_close_line(
-        packet, line_id, nu_line, verysimple_numba_plasma
+    is_close_line = r_packet.test_for_close_line(
+        verysimple_numba_plasma.line_list_nu[line_id], nu_line
     )
 
-    assert packet.is_close_line == expected
+    assert is_close_line == expected

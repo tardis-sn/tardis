@@ -122,11 +122,10 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
         )
 
         if cur_line_id != (len(numba_plasma.line_list_nu) - 1):
-            test_for_close_line(
-                v_packet,
-                cur_line_id,
-                numba_plasma.line_list_nu[cur_line_id - 1],
-                numba_plasma,
+            nu_prev_line = numba_plasma.line_list_nu[cur_line_id - 1]
+            v_packet.is_close_line = test_for_close_line(
+                nu_line,
+                nu_prev_line,
             )
 
         if distance_boundary <= distance_trace_line:
@@ -280,11 +279,9 @@ def trace_vpacket_volley(
         )
 
         if r_packet.next_line_id <= (len(numba_plasma.line_list_nu) - 1):
-            test_for_close_line(
-                v_packet,
-                r_packet.next_line_id,
+            v_packet.is_close_line = test_for_close_line(
+                numba_plasma.line_list_nu[r_packet.next_line_id],
                 numba_plasma.line_list_nu[r_packet.next_line_id - 1],
-                numba_plasma,
             )
 
         tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma)
