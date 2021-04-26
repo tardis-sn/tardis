@@ -40,6 +40,8 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
     size_line = len(plasma.line_list_nu)
     size_shell = len(model.r_inner)
     #size_shell = self.model.no_of_shells # check
+    print('Size Shell:', size_shell)
+    print('Tau Sobolev Shape:', plasma.tau_sobolev.shape)
     size_tau = size_line * size_shell
     finished_nus = 0
 
