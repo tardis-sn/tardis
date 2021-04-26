@@ -177,7 +177,10 @@ integrator_spec = [
 ]
 @jitclass(integrator_spec)
 class NumbaFormalIntegrator(object):
-
+    '''
+    Helper class for performing the formal integral
+    with numba.
+    '''
     #def __init__(self, model, plasma, runner, points=1000):
     def __init__(self, model, plasma, points=1000):
 
@@ -190,6 +193,9 @@ class NumbaFormalIntegrator(object):
 
 
 class FormalIntegrator(object):
+    '''
+    Class containing the formal integrator
+    '''
 
     def __init__(self, model, plasma, runner, points=1000):
 
@@ -204,7 +210,8 @@ class FormalIntegrator(object):
             self.original_plasma = plasma
 
     def generate_numba_objects(self):
-    
+        '''instantiate the numba interface objects
+        needed for computing the formal integral'''
         self.numba_model = NumbaModel(
                 self.runner.r_inner_cgs,
                 self.runner.r_outer_cgs,
@@ -461,6 +468,8 @@ class FormalIntegrator(object):
         return att_S_ul, Jredlu, Jbluelu, e_dot_u
 
     def formal_integral(self, nu, N):
+        '''Do the formal integral with the numba
+        routines'''
         # TODO: get rid of storage later on
 
         res = self.make_source_function()
@@ -614,6 +623,8 @@ def reverse_binary_search(x, x_insert, imin, imax):
 
 @njit(**njit_dict)
 def binary_search(x, x_insert, imin, imax, result):
+    '''numpy searchsorted is compatable with numba
+    so let's think about using that instead'''
     # TODO: actually return result
     if x_insert < x[imin] or x_insert > x[imax]:
         raise BoundsError
@@ -636,6 +647,10 @@ def binary_search(x, x_insert, imin, imax, result):
 
 @njit(**njit_dict)
 def trapezoid_integration(array, h, N):
+    '''in the future, let's just replace
+    this with the numpy trapz
+    since it is numba compatable
+    '''
     # TODO: replace with np.trapz?
     return np.trapz(array, dx=h)
     #result = (array[0] + array[N - 1]) / 2
@@ -646,6 +661,8 @@ def trapezoid_integration(array, h, N):
 
 @njit
 def intensity_black_body(nu, T):
+    '''Get the black body intensity at frequency nu
+    and temperature T '''
     if nu == 0:
         return np.nan  # to avoid ZeroDivisionError
     beta_rad = 1 / (KB_CGS * T)
@@ -655,6 +672,7 @@ def intensity_black_body(nu, T):
 
 @njit(**njit_dict)
 def calculate_p_values(R_max, N, opp):
+    '''This can probably be replaced with a simpler function'''
     for i in range(N):
         opp[i] = R_max / (N - 1) * (i)
     return opp
