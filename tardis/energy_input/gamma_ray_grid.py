@@ -1,5 +1,6 @@
 import numpy as np
-from tardis.energy_input.util import quadratic
+from tardis.energy_input.util import solve_quadratic_equation
+from astropy.coordinates import cartesian_to_spherical
 
 
 def calculate_distance_radial(gamma_ray, r_inner, r_outer):
@@ -17,61 +18,34 @@ def calculate_distance_radial(gamma_ray, r_inner, r_outer):
     distance : dtype float
 
     """
-
-    position_square = (
-        gamma_ray.location.x ** 2.0
-        + gamma_ray.location.y ** 2.0
-        + gamma_ray.location.z ** 2.0
+    # determine cartesian location coordinates of gamma-ray object
+    x, y, z = gamma_ray.location.get_cartesian_coords
+    # determine cartesian direction coordinates of gamma-ray object
+    x_dir, y_dir, z_dir = gamma_ray.direction.get_cartesian_coords
+    # solve the quadratic distance equation for the inner and
+    # outer shell boundaries
+    inner_1, inner_2 = solve_quadratic_equation(
+        x, y, z, x_dir, y_dir, z_dir, r_inner
     )
-    position_direction = (
-        gamma_ray.direction.x * gamma_ray.location.x
-        + gamma_ray.direction.y * gamma_ray.location.y
-        + gamma_ray.direction.z * gamma_ray.location.z
+    outer_1, outer_2 = solve_quadratic_equation(
+        x, y, z, x_dir, y_dir, z_dir, r_outer
     )
-
-    distances = []
-
-    on_inner_wall = np.abs(gamma_ray.location.r - r_inner) < 5
-    on_outer_wall = np.abs(gamma_ray.location.r - r_outer) < 5
-
-    quadratic_b = 2.0 * position_direction
-    quadratic_c = position_square
-
-    quad_c_inner = quadratic_c - r_inner ** 2
-    distance_1, distance_2 = quadratic(quadratic_b, quad_c_inner)
-
-    if on_inner_wall:
-        if np.abs(distance_1) < np.abs(distance_2):
-            distances.append(distance_2)
-        else:
-            distances.append(distance_1)
-    else:
-        distances.append(distance_1)
-        distances.append(distance_2)
-
-    quad_c_outer = quadratic_c - r_outer ** 2
-    distance_3, distance_4 = quadratic(quadratic_b, quad_c_outer)
-
-    if on_outer_wall:
-        if np.abs(distance_3) < np.abs(distance_4):
-            distances.append(distance_4)
-        else:
-            distances.append(distance_3)
-    else:
-        distances.append(distance_3)
-        distances.append(distance_4)
-
-    distances = [item for item in distances if item >= 0]
-    if len(distances) > 0:
-        distance = min(distances, key=abs)
-    else:
-        distance = 0.0
+    distances = [inner_1, inner_2, outer_1, outer_2]
+    print(distances)
+    # the correct distance is the shortest positive distance
+    distance = min(i for i in distances if i > 0.0)
+    print("selected distance ", distance)
 
     return distance
 
 
 def distance_trace(
-    gamma_ray, tau, inner_radii, outer_radii, total_opacity, distance_moved
+    gamma_ray,
+    inner_radii,
+    outer_radii,
+    total_opacity,
+    distance_moved,
+    ejecta_epoch,
 ):
     """
     Traces distance traveled by gamma ray and finds distance to
@@ -99,12 +73,17 @@ def distance_trace(
         )
     else:
         distance_boundary = 0.0
-
-    distance_interaction = (tau / total_opacity) - distance_moved
-
+    print("current tau: ", gamma_ray.tau)
+    distance_interaction = gamma_ray.tau / total_opacity / ejecta_epoch
+    print("distance interaction: ", distance_interaction)
+    print("distance boundary: ", distance_boundary)
     if distance_interaction < distance_boundary:
+        gamma_ray.tau -= total_opacity * distance_interaction * ejecta_epoch
+        print("remaining tau: ", gamma_ray.tau)
         return distance_interaction, distance_boundary, True
     else:
+        gamma_ray.tau -= total_opacity * distance_boundary * ejecta_epoch
+        print("remaining tau: ", gamma_ray.tau)
         return distance_interaction, distance_boundary, False
 
 
@@ -122,17 +101,34 @@ def move_gamma_ray(gamma_ray, distance):
     gamma_ray : GammaRay object
 
     """
-    x_old = gamma_ray.location.x
-    y_old = gamma_ray.location.y
-    z_old = gamma_ray.location.z
-
-    x_new = x_old + distance * gamma_ray.direction.x
-    y_new = y_old + distance * gamma_ray.direction.y
-    z_new = z_old + distance * gamma_ray.direction.z
-
-    gamma_ray.location.r = np.sqrt(x_new ** 2.0 + y_new ** 2.0 + z_new ** 2.0)
-    gamma_ray.location.mu = z_new / gamma_ray.location.r
-
+    x_old, y_old, z_old = gamma_ray.location.get_cartesian_coords
+    x_dir, y_dir, z_dir = gamma_ray.direction.get_cartesian_coords
+    print("direction vector: ", x_dir, y_dir, z_dir)
+    # overshoot by 1e-7 * distance to shell boundary
+    # so that the gamma-ray is comfortably in the next shell
+    x_new = x_old + distance * (1 + 1e-7) * x_dir
+    y_new = y_old + distance * (1 + 1e-7) * y_dir
+    z_new = z_old + distance * (1 + 1e-7) * z_dir
+    print("selected distance: ", distance)
+    print("velocity coordinate change: ")
+    print("x:\t", distance * (1 + 1e-7) * x_dir)
+    print("y:\t", distance * (1 + 1e-7) * y_dir)
+    print("z:\t", distance * (1 + 1e-7) * z_dir)
+    print(
+        "moved from (",
+        round(x_old, 5),
+        round(y_old, 5),
+        round(z_old, 5),
+        ")\n\t to (",
+        round(x_new, 5),
+        round(y_new, 5),
+        round(z_new, 5),
+        ")",
+    )
+    r, theta, phi = cartesian_to_spherical(x_new, y_new, z_new)
+    gamma_ray.location.r = r.value
+    gamma_ray.location.theta = theta.value + 0.5 * np.pi
+    gamma_ray.location.phi = phi.value
     return gamma_ray
 
 
