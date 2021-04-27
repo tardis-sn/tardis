@@ -29,6 +29,8 @@ class IntegrationError(Exception):
     pass
 
 
+njit_dict['fastmath'] = False
+#njit_dict['parallel'] = False
 @njit(**njit_dict)
 def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N):
     '''
@@ -322,7 +324,7 @@ class FormalIntegrator(object):
         macro_data = self.atomic_data.macro_atom_data
 
         no_lvls = len(self.atomic_data.levels)
-        no_shells = model.no_of_shells
+        no_shells = len(model.w)
 
         if runner.line_interaction_type == "macroatom":
             internal_jump_mask = (macro_data.transition_type >= 0).values
@@ -335,7 +337,7 @@ class FormalIntegrator(object):
             destination_level_idx = ma_int_data.destination_level_idx.values
 
         Edotlu_norm_factor = 1 / (runner.time_of_simulation * model.volume)
-        exptau = 1 - np.exp(-self.plasma.tau_sobolev)
+        exptau = 1 - np.exp(-self.original_plasma.tau_sobolevs)
         Edotlu = Edotlu_norm_factor * exptau * runner.Edotlu_estimator
 
         # The following may be achieved by calling the appropriate plasma
@@ -406,7 +408,7 @@ class FormalIntegrator(object):
 
         # Jredlu should already by in the correct order, i.e. by wavelength of
         # the transition l->u (similar to Jbluelu)
-        Jredlu = Jbluelu * np.exp(-self.plasma.tau_sobolev) + att_S_ul*Jbluelu
+        Jredlu = Jbluelu * np.exp(-self.original_plasma.tau_sobolevs) + att_S_ul
         if self.interpolate_shells > 0:
             (
                 att_S_ul,
@@ -419,8 +421,8 @@ class FormalIntegrator(object):
         else:
             runner.r_inner_i = runner.r_inner_cgs
             runner.r_outer_i = runner.r_outer_cgs
-            runner.tau_sobolevs_integ = self.plasma.tau_sobolev
-            runner.electron_densities_integ = self.plasma.electron_density
+            runner.tau_sobolevs_integ = self.original_plasma.tau_sobolevs.values
+            runner.electron_densities_integ = self.original_plasma.electron_densities.values
 
         return att_S_ul, Jredlu, Jbluelu, e_dot_u
 
@@ -428,7 +430,7 @@ class FormalIntegrator(object):
         self, att_S_ul, Jredlu, Jbluelu, e_dot_u
     ):
         runner = self.runner
-        plasma = self.plasma
+        plasma = self.original_plasma
         nshells = self.interpolate_shells
         r_middle = (runner.r_inner_cgs + runner.r_outer_cgs) / 2.0
 
@@ -442,7 +444,7 @@ class FormalIntegrator(object):
 
         runner.electron_densities_integ = interp1d(
             r_middle,
-            plasma.electron_density,
+            plasma.electron_densities,
             fill_value="extrapolate",
             kind="nearest",
         )(r_middle_integ)
@@ -450,17 +452,16 @@ class FormalIntegrator(object):
         # (as in the MC simulation)
         runner.tau_sobolevs_integ = interp1d(
             r_middle,
-            plasma.tau_sobolev,
+            plasma.tau_sobolevs,
             fill_value="extrapolate",
-         
-   kind="nearest",
+            kind="nearest",
         )(r_middle_integ)
         att_S_ul = interp1d(r_middle, att_S_ul, fill_value="extrapolate")(
             r_middle_integ
         )
-        Jredlu = interp1d(r_middle, Jredlu, fill_value="extrapolate")(
+        Jredlu = pd.DataFrame(interp1d(r_middle, Jredlu, fill_value="extrapolate")(
             r_middle_integ
-        )
+        ))
         Jbluelu = interp1d(r_middle, Jbluelu, fill_value="extrapolate")(
             r_middle_integ
         )
@@ -483,7 +484,7 @@ class FormalIntegrator(object):
         res = self.make_source_function()
 
         att_S_ul = res[0].flatten(order='F')
-        Jred_lu = res[1].flatten(order='F')
+        Jred_lu = res[1].values.flatten(order='F')
         Jblue_lu = res[2].flatten(order='F')
 
         self.generate_numba_objects()
@@ -614,7 +615,7 @@ def reverse_binary_search(x, x_insert, imin, imax):
         index of the next boundary to the left
     """
     # ret_val = TARDIS_ERROR_OK # check
-    if x_insert > x[imin] or x_insert < x[imax]:
+    if (x_insert > x[imin]) or (x_insert < x[imax]):
         raise BoundsError  # check
     else:
         imid = (imin + imax) >> 1
@@ -624,7 +625,7 @@ def reverse_binary_search(x, x_insert, imin, imax):
             else:
                 imin = imid
             imid = (imin + imax) >> 1
-        if imax - imin == 2 and x_insert < x[imin + 1]:
+        if (imax - imin == 2) and (x_insert < x[imin + 1]):
             result = imin + 1
         else:
             result = imin
@@ -662,11 +663,11 @@ def trapezoid_integration(array, h):
     since it is numba compatable
     '''
     # TODO: replace with np.trapz?
-    return np.trapz(array, dx=h)
-    #result = (array[0] + array[N - 1]) / 2
-    #for idx in range(1, N - 1):
-    #    result += array[idx]
-    #return result * h
+    #return np.trapz(array, dx=h)
+    result = (array[0] + array[-1]) / 2
+    for idx in range(1, len(array)-1):
+        result += array[idx]
+    return result * h
 
 
 @njit
