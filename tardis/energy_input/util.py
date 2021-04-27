@@ -1,6 +1,7 @@
 import astropy.units as u
 import tardis.constants as const
 import numpy as np
+from astropy.coordinates import spherical_to_cartesian
 
 R_ELECTRON = const.a0.cgs * const.alpha.cgs ** 2.0
 
@@ -8,17 +9,17 @@ R_ELECTRON = const.a0.cgs * const.alpha.cgs ** 2.0
 class SphericalVector(object):
     """
     Direction object to hold spherical polar and Cartesian directions
-    Must be initialized with r, mu, phi
+    Must be initialized with r, theta, phi
 
     Attributes
     ----------
     r : float64
              vector r position
-    mu : float64
+    theta : float64
              vector mu position
     phi : float64
              vector phi position
-    theta : float64
+    mu : float64
              calculated vector theta position
     x : float64
              calculated vector x position
@@ -28,26 +29,23 @@ class SphericalVector(object):
              calculated vector z position
     """
 
-    def __init__(self, r, mu, phi=0.0):
+    def __init__(self, r, theta, phi=0.0):
         self.r = r
-        self.mu = mu
+        self.theta = theta
         self.phi = phi
 
     @property
-    def theta(self):
-        return np.arccos(self.mu)
+    def mu(self):
+        return np.cos(self.theta)
 
     @property
-    def x(self):
-        return self.r * np.sin(np.arccos(self.mu)) * np.cos(self.phi)
-
-    @property
-    def y(self):
-        return self.r * np.sin(np.arccos(self.mu)) * np.sin(self.phi)
-
-    @property
-    def z(self):
-        return self.r * self.mu
+    def get_cartesian_coords(self):
+        # 0.5*np.pi subtracted because of the definition of theta
+        # in astropy.coordinates.cartesian_to_spherical
+        x, y, z = spherical_to_cartesian(
+            self.r, self.theta - 0.5 * np.pi, self.phi
+        )
+        return x.value, y.value, z.value
 
 
 def kappa_calculation(energy):
@@ -84,9 +82,10 @@ def euler_rodrigues(theta, direction):
 
     """
     a = np.cos(theta / 2)
-    b = direction.x * np.sin(theta / 2)
-    c = direction.y * np.sin(theta / 2)
-    d = direction.z * np.sin(theta / 2)
+    dir_x, dir_y, dir_z = direction
+    b = dir_x * np.sin(theta / 2)
+    c = dir_y * np.sin(theta / 2)
+    d = dir_z * np.sin(theta / 2)
 
     er11 = a ** 2.0 + b ** 2.0 - c ** 2.0 - d ** 2.0
     er12 = 2.0 * (b * c - a * d)
@@ -105,34 +104,33 @@ def euler_rodrigues(theta, direction):
     )
 
 
-def quadratic(b, c):
+def solve_quadratic_equation(x, y, z, x_dir, y_dir, z_dir, radius_velocity):
     """
-    Solves the reduced quadratic equation
+    Solves the quadratic equation for the distance to the shell boundary
 
     Parameters
     ----------
-    b : dtype float
-    c : dtype float
+    x,y,z : dtype float
+    x_dir, y_dir, z_dir : dtype float
+    radius_velocity : dtype float
 
     Returns
     -------
-    x1, x2 : dtype float
+    solution_1 : dtype float
+    solution_2 : dtype float
 
     """
-    delta = b ** 2 - 4.0 * c
-    if delta > 0:
-        delta = np.sqrt(delta)
-        delta = delta * np.sign(b)
-        q = -0.5 * (b + delta)
-        x1 = q
-        x2 = c / q
-    elif delta < 0:
-        x1 = -np.inf
-        x2 = -np.inf
-    else:
-        x1 = -2.0 * c / b
-        x2 = -np.inf
-    return x1, x2
+    b = 2.0 * (x * x_dir + y * y_dir + z * z_dir)
+    c = -(radius_velocity ** 2) + x ** 2 + y ** 2 + z ** 2
+    root = b ** 2 - 4 * c
+    solution_1 = -np.inf
+    solution_2 = -np.inf
+    if root > 0.0:
+        solution_1 = 0.5 * (-b + np.sqrt(root))
+        solution_2 = 0.5 * (-b - np.sqrt(root))
+    elif root == 0:
+        solution_1 = -0.5 * b
+    return solution_1, solution_2
 
 
 def klein_nishina(energy, theta_C):
@@ -197,15 +195,14 @@ def compton_theta_distribution(energy, sample_resolution=100):
     return theta_angles, norm_theta_distribution
 
 
-def get_random_mu_gamma_ray():
-    """Get a random mu direction between -1 and 1
-
+def get_random_theta_gamma_ray():
+    """Get a random theta direction between 0 and pi
     Returns
     -------
     float
-        Random mu direction
+        Random theta direction
     """
-    return 2.0 * np.random.random() - 1.0
+    return np.arccos(1.0 - 2.0 * np.random.random())
 
 
 def get_random_phi_gamma_ray():

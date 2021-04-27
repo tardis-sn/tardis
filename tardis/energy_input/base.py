@@ -22,9 +22,16 @@ from tardis.energy_input.calculate_opacity import (
     pair_creation_opacity_calculation,
     kappa_calculation,
 )
-from tardis.energy_input.gamma_ray_interactions import scatter_type
-from tardis.energy_input.util import get_random_mu_gamma_ray
+from tardis.energy_input.gamma_ray_interactions import (
+    scatter_type,
+    compton_scatter,
+)
+from tardis.energy_input.util import (
+    get_random_theta_gamma_ray,
+    get_random_phi_gamma_ray,
+)
 from tqdm.auto import tqdm
+from astropy import constants as const
 
 
 class GammaRay(object):
@@ -51,6 +58,9 @@ class GammaRay(object):
         self.energy = energy
         self.status = status
         self.shell = shell
+        self.time_created = 0
+        self.time_current = 0
+        self.tau = -np.log(np.random.random())
 
 
 def spawn_gamma_ray(
@@ -78,14 +88,16 @@ def spawn_gamma_ray(
 
     """
 
-    direction_mu = get_random_mu_gamma_ray()
-    direction_phi = 0.0
+    direction_theta = get_random_theta_gamma_ray()
+    direction_phi = get_random_phi_gamma_ray()
 
     if beta_decay:
-        location_mu = get_random_mu_gamma_ray()
-        location_phi = 0.0
-        gamma_ray.location = SphericalVector(0, location_mu, location_phi)
-        gamma_ray.direction = SphericalVector(1.0, direction_mu, direction_phi)
+        location_theta = get_random_theta_gamma_ray()
+        location_phi = get_random_phi_gamma_ray()
+        gamma_ray.location = SphericalVector(0, location_theta, location_phi)
+        gamma_ray.direction = SphericalVector(
+            1.0, direction_theta, direction_phi
+        )
         gamma_ray.energy = 511.0
         return gamma_ray
 
@@ -101,12 +113,12 @@ def spawn_gamma_ray(
 
     gamma_ray.shell = shell
 
-    gamma_ray.direction = SphericalVector(1.0, direction_mu, direction_phi)
+    gamma_ray.direction = SphericalVector(1.0, direction_theta, direction_phi)
 
-    location_mu = get_random_mu_gamma_ray()
-    location_phi = 0.0
+    location_theta = get_random_theta_gamma_ray()
+    location_phi = get_random_phi_gamma_ray()
     gamma_ray.location = SphericalVector(
-        initial_radius, location_mu, location_phi
+        initial_radius, location_theta, location_phi
     )
 
     return gamma_ray
@@ -187,17 +199,18 @@ def main_gamma_ray_loop(num_packets, model, path):
     ejecta_energy_theta = []
     # list of energy input types as integers 0, 1, 2 for Compton scattering, photoabsorption, pair creation
     energy_input_type = []
+    # list of energy input times due to photon travel times
+    energy_input_time = []
     interaction_count = []
     initial_positions = []
 
-    inner_radius = model.r_inner[0].value
-    outer_radius = model.r_outer[-1].value
+    inner_radius = model.v_inner[0].value
+    outer_radius = model.v_outer[-1].value
 
-    outer_radii = model.r_outer[:].value
-    inner_radii = model.r_inner[:].value
-
+    outer_radii = model.v_outer[:].value
+    inner_radii = model.v_inner[:].value
     ejecta_density = model.density[:].value
-
+    ejecta_epoch = model.time_explosion.to("s").value
     mass_cdf = mass_distribution(
         model.no_of_shells, inner_radii, outer_radii, ejecta_density
     )
@@ -211,7 +224,6 @@ def main_gamma_ray_loop(num_packets, model, path):
     gamma_ratio, positron_ratio = intensity_ratio(
         nuclear_data, "'gamma_rays'", "'e+'"
     )
-
     # Need to decay particles, not just spawn gamma rays
     energy_sorted, energy_cdf = setup_input_energy(nuclear_data, "'gamma_rays'")
     positron_energy_sorted, positron_energy_cdf = setup_input_energy(
@@ -279,15 +291,29 @@ def main_gamma_ray_loop(num_packets, model, path):
     i = 0
     for packet in tqdm(packets):
         initial_positions.append(packet.location.r)
-
+        print(
+            "Initialized packet ",
+            i,
+            " at location ",
+            round(packet.location.r / model.v_outer[-1].value, 5),
+            " in shell ",
+            packet.shell,
+        )
         distance_moved = 0.0
-
-        z = np.random.random()
-        tau = -np.log(z)
 
         interaction_count.append(0)
         j = 0
         while packet.status == "InProcess":
+            print("\nstarting gamma-ray loop as the gamma-ray still exists.")
+            print(
+                "Current packet ",
+                i,
+                " at location ",
+                round(packet.location.r / model.v_outer[-1].value, 5),
+                " in shell ",
+                packet.shell,
+            )
+            print("Current direction: ", packet.direction.get_cartesian_coords)
 
             compton_opacity = compton_opacity_calculation(
                 packet.energy, ejecta_density[packet.shell]
@@ -310,13 +336,12 @@ def main_gamma_ray_loop(num_packets, model, path):
                 interaction,
             ) = distance_trace(
                 packet,
-                tau,
                 inner_radii,
                 outer_radii,
                 total_opacity,
                 distance_moved,
+                ejecta_epoch,
             )
-
             # if j > 20:
             # print("Packet", i, "going slow")
             # print(np.rad2deg(packet.direction.phi))
@@ -326,15 +351,14 @@ def main_gamma_ray_loop(num_packets, model, path):
             if interaction:
                 interaction_count[i] += 1
 
-                z = np.random.random()
-                tau = -np.log(z)
-
-                ejecta_energy_gained = scatter_type(
+                packet.tau = -np.log(np.random.random())
+                compton_angle, ejecta_energy_gained = scatter_type(
                     packet,
                     compton_opacity,
                     photoabsorption_opacity,
                     total_opacity,
                 )
+
                 # Add antiparallel packet on pair creation at end of list
                 if (
                     packet.status == "ComptonScatter"
@@ -342,6 +366,15 @@ def main_gamma_ray_loop(num_packets, model, path):
                 ):
                     energy_input_type.append(0)
                     packet = move_gamma_ray(packet, distance_interaction)
+                    print(
+                        "moved to radius: ",
+                        round(packet.location.r / model.v_outer[-1].value, 5),
+                    )
+
+                    distance_moved += distance_interaction
+                    packet.time_current += distance_moved / const.c
+                    energy_input_time.append(packet.time_current)
+                    compton_scatter(packet, compton_angle)
                     ejecta_energy.append(ejecta_energy_gained)
                     ejecta_energy_r.append(packet.location.r)
                     ejecta_energy_theta.append(packet.location.theta)
@@ -352,6 +385,13 @@ def main_gamma_ray_loop(num_packets, model, path):
                 ):
                     energy_input_type.append(1)
                     packet = move_gamma_ray(packet, distance_interaction)
+                    print(
+                        "moved to radius: ",
+                        round(packet.location.r / model.v_outer[-1].value, 5),
+                    )
+                    distance_moved += distance_interaction
+                    packet.time_current += distance_moved / const.c
+                    energy_input_time.append(packet.time_current)
                     ejecta_energy.append(ejecta_energy_gained)
                     ejecta_energy_r.append(packet.location.r)
                     ejecta_energy_theta.append(packet.location.theta)
@@ -360,6 +400,13 @@ def main_gamma_ray_loop(num_packets, model, path):
 
                 if packet.status == "PairCreated":
                     packet = move_gamma_ray(packet, distance_interaction)
+                    print(
+                        "moved to radius: ",
+                        round(packet.location.r / model.v_outer[-1].value, 5),
+                    )
+                    distance_moved += distance_interaction
+                    packet.time_current += distance_moved / const.c
+                    energy_input_time.append(packet.time_current)
                     backward_ray = GammaRay(
                         packet.location,
                         packet.direction,
@@ -372,23 +419,47 @@ def main_gamma_ray_loop(num_packets, model, path):
                         backward_ray.direction.phi -= 2 * np.pi
 
                     packets.append(backward_ray)
-
+                print(
+                    "Packet ",
+                    i,
+                    " interacted (",
+                    packet.status,
+                    "). \nIt took ",
+                    round(distance_moved / 3e10 / 3600, 2),
+                    " h and moved through ",
+                    j,
+                    "shells",
+                )
                 packet.status = "InProcess"
                 distance_moved = 0.0
 
             else:
                 packet = move_gamma_ray(packet, distance_boundary)
-                distance_moved += distance_boundary
+                old_shell = packet.shell
+                distance_moved += distance_boundary * ejecta_epoch
+                packet.time_current += distance_moved / const.c
                 packet.shell = get_shell(packet.location.r, outer_radii)
-
                 if distance_boundary == 0.0:
                     packet.shell += 1
+                print(
+                    "moved to radius: ",
+                    round(packet.location.r / model.v_outer[-1].value, 5),
+                    " . From shell ",
+                    old_shell,
+                    "to shell ",
+                    packet.shell,
+                )
+                print(
+                    "after move: current gamma-ray location: ",
+                    packet.location.get_cartesian_coords,
+                )
 
             if (
                 np.abs(packet.location.r - outer_radius) < 10.0
                 or packet.shell > len(ejecta_density) - 1
             ):
                 packet.status = "Emitted"
+                print("Packet ", i, " has escaped.\n\n\n")
                 output_energies.append(packet.energy)
             elif (
                 np.abs(packet.location.r - inner_radius) < 10.0
