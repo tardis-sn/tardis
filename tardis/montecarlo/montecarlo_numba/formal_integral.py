@@ -11,8 +11,8 @@ from tardis import constants as const
 from numba import njit, char, float64, int64, jitclass, typeof, byte, prange
 import pdb
 
-
-from tardis.montecarlo.montecarlo_numba import njit_dict as njit_dict
+from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
+from tardis.montecarlo.montecarlo_numba import njit_dict
 from tardis.montecarlo.montecarlo_numba.numba_interface \
     import numba_plasma_initialize, NumbaModel, NumbaPlasma
 
@@ -23,14 +23,12 @@ C_INV = 3.33564e-11
 M_PI = np.arccos(-1)
 KB_CGS = 1.3806488e-16
 H_CGS = 6.62606957e-27
-SIGMA_THOMSON = 6.652486e-25
+#SIGMA_THOMSON = 6.652486e-25
 
 class IntegrationError(Exception):
     pass
 
 
-njit_dict['fastmath'] = False
-#njit_dict['parallel'] = False
 @njit(**njit_dict)
 def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N):
     '''
@@ -38,7 +36,7 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
     '''
     # todo: add all the original todos
     # Initialize the output which is shared among threads
-    L = np.zeros(inu_size)
+    L = np.zeros(inu_size, dtype=np.float64)
     # global read-only values
     size_line, size_shell = tau_sobolev.shape
     #size_line = len(plasma.line_list_nu)
@@ -49,8 +47,8 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
     size_tau = size_line * size_shell
     R_ph = model.r_inner[0] # make sure these are cgs
     R_max = model.r_outer[size_shell - 1]
-    pp = np.zeros(N) # check
-    exp_tau = np.zeros(size_tau)
+    pp = np.zeros(N, dtype=np.float64) # check
+    exp_tau = np.zeros(size_tau, dtype=np.float64)
     # TODO: multiprocessing
     # instantiate more variables here, maybe?
     exp_tau = np.exp(-tau_sobolev.T.ravel()) # maybe make this 2D?
@@ -60,20 +58,33 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
     #        exp_tau[j*plasma.tau_sobolev.shape[0]+i] = np.exp(-plasma.tau_sobolev[i,j])
     pp[::] = calculate_p_values(R_max, N)
     line_list_nu = plasma.line_list_nu
-
     # done with instantiation
     # now loop over wavelength in spectrum
     for nu_idx in prange(inu_size):
-        I_nu = np.zeros(N)
-        z = np.zeros(2 * size_shell)
-        shell_id = np.zeros(2 * size_shell)
+        I_nu = np.zeros(N, dtype=np.float64)
+        z = np.zeros(2 * size_shell, dtype=np.float64)
+        shell_id = np.zeros(2 * size_shell, dtype=np.int64)
         offset = 0
         size_z = 0
         idx_nu_start = 0
         direction = 0
         first = 0
         i = 0
-        p = 0
+        p = 0.0
+        nu_start = 0.0
+        nu_end = 0.0
+        nu = 0.0
+        zstart = 0.0
+        zend = 0.0
+        escat_contrib = 0.0
+        escat_op = 0.0
+        Jkkp = 0.0
+        pexp_tau = 0
+        patt_S_ul = 0
+        pJred_lu = 0
+        pJblue_lu = 0
+        pline = 0
+
 
         nu = inu[nu_idx]
         #print(nu_idx)
@@ -169,7 +180,7 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
                     pJblue_lu += int(direction * size_line)
             I_nu[p_idx] *= p
         L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max / N)
-        # something pragma op atomic
+
     return L
 
 
@@ -684,7 +695,7 @@ def intensity_black_body(nu, T):
 @njit(**njit_dict)
 def calculate_p_values(R_max, N):
     '''This can probably be replaced with a simpler function'''
-    return np.arange(N) * R_max / (N - 1)
+    return np.arange(N).astype(np.float64) * R_max / (N - 1)
     #for i in range(N):
     #    opp[i] = R_max / (N - 1) * (i)
     #return opp
