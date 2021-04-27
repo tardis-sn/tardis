@@ -28,10 +28,9 @@ SIGMA_THOMSON = 6.652486e-25
 class IntegrationError(Exception):
     pass
 
-njit_dict.update({'fastmath':False})
 
 @njit(**njit_dict)
-def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, N):
+def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N):
     '''
     model, plasma, and estimator are the numba variants
     '''
@@ -39,7 +38,7 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
     # Initialize the output which is shared among threads
     L = np.zeros(inu_size)
     # global read-only values
-    size_line, size_shell = plasma.tau_sobolev.shape
+    size_line, size_shell = tau_sobolev.shape
     #size_line = len(plasma.line_list_nu)
     #size_shell = len(model.r_inner)
     #size_shell = self.model.no_of_shells # check
@@ -52,7 +51,7 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
     exp_tau = np.zeros(size_tau)
     # TODO: multiprocessing
     # instantiate more variables here, maybe?
-    exp_tau = np.exp(-plasma.tau_sobolev.T.ravel()) # maybe make this 2D?
+    exp_tau = np.exp(-tau_sobolev.T.ravel()) # maybe make this 2D?
     # prepare exp_tau
     #for i in prange(plasma.tau_sobolev.shape[0]):
     #    for j in prange(plasma.tau_sobolev.shape[1]):
@@ -108,11 +107,11 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
             first = 1
             # loop over all interactions
             for i in range(size_z - 1):
-                escat_op = plasma.electron_density[int(shell_id[i])] * SIGMA_THOMSON
+                escat_op = electron_density[int(shell_id[i])] * SIGMA_THOMSON
                 nu_end = nu * z[i + 1]
-                #for _ in range(max(size_line-pline,0)):
-                while pline < size_line:
-                #while (pline < size_line): # check all condition
+                for _ in range(max(size_line-pline,0)):
+                    #while pline < size_line:
+                    #while (pline < size_line): # check all condition
                     # increment all pointers simulatenously
                     if (line_list_nu[pline] < nu_end):
                         break
@@ -191,8 +190,8 @@ class NumbaFormalIntegrator(object):
         self.plasma = plasma
         self.points = points
 
-    def formal_integral(self, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, N):
-        return numba_formal_integral(self.model, self.plasma, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, N)
+    def formal_integral(self, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N):
+        return numba_formal_integral(self.model, self.plasma, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N)
 
 
 class FormalIntegrator(object):
@@ -216,8 +215,8 @@ class FormalIntegrator(object):
         '''instantiate the numba interface objects
         needed for computing the formal integral'''
         self.numba_model = NumbaModel(
-                self.runner.r_inner_cgs,
-                self.runner.r_outer_cgs,
+                self.runner.r_inner_i,
+                self.runner.r_outer_i,
                 self.model.time_explosion.to("s").value,
         )
         self.numba_plasma = numba_plasma_initialize(
@@ -279,7 +278,7 @@ class FormalIntegrator(object):
             warnings.warn(
                 "The number of interpolate_shells was not "
                 f"specified. The value was set to {interpolate_shells}."
-            )
+        )
         self.interpolate_shells = interpolate_shells
         frequency = frequency.to("Hz", u.spectral())
 
@@ -495,6 +494,8 @@ class FormalIntegrator(object):
                 att_S_ul,
                 Jred_lu,
                 Jblue_lu,
+                self.runner.tau_sobolevs_integ,
+                self.runner.electron_densities_integ,
                 N
                 )
         return np.array(L, np.float64)
