@@ -150,7 +150,7 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
                     pexp_tau += 1
                     patt_S_ul += 1
                     pJblue_lu += 1
-                    pJred_lu += 1
+                    #pJred_lu += 1
 
                 # calculate e-scattering optical depth to grid cell boundary
 
