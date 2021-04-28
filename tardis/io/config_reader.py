@@ -313,6 +313,14 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 "relativity mode. "
             )
 
+        # SuperNova Section Implementation
+        supernova_section = validated_config_dict["supernova"]
+        time_explosion = supernova_section["time_explosion"]
+        if not time_explosion.value > 0:
+            raise ValueError(
+                f"Time Of Explosion is an Invalid Time, {time_explosion}"
+            )
+
         return cls(validated_config_dict)
 
     def __init__(self, config_dict):
