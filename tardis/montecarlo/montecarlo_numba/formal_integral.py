@@ -16,7 +16,6 @@ from tardis.montecarlo.montecarlo_numba import njit_dict
 from tardis.montecarlo.montecarlo_numba.numba_interface \
     import numba_plasma_initialize, NumbaModel, NumbaPlasma
 
-#from tardis.montecarlo.montecarlo import formal_integral
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
 C_INV = 3.33564e-11
