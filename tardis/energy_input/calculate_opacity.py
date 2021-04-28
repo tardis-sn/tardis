@@ -115,10 +115,12 @@ def pair_creation_opacity_calculation(
 
     if energy > 1.022e3 and energy < 1.5e3:
         opacity = multiplier * 1.0063 * (energy / 1.0e3 - 1.022) * 1.0e-27
-    else:
+    elif energy > 1.5e3:
         opacity = (
             multiplier * (0.0481 + 0.301 * (energy / 1.0e3 - 1.5)) * 1.0e-27
         )
+    else:
+        opacity = 0
 
     if opacity < 0.0:
         opacity = 0.0
