@@ -12,8 +12,8 @@ dependencies:
   - astropy=3
   - numba=0.50
   - numexpr
-  - Cython=0.29
-  - compilers
+  #- Cython=0.29
+  #- compilers
 
   # Plasma
   - networkx

@@ -91,7 +91,7 @@ try:
     PYTEST_HEADER_MODULES["Pandas"] = "pandas"
     PYTEST_HEADER_MODULES["Astropy"] = "astropy"
     PYTEST_HEADER_MODULES["Yaml"] = "yaml"
-    PYTEST_HEADER_MODULES["Cython"] = "cython"
+    #PYTEST_HEADER_MODULES["Cython"] = "cython"
     PYTEST_HEADER_MODULES["h5py"] = "h5py"
     PYTEST_HEADER_MODULES["Matplotlib"] = "matplotlib"
     PYTEST_HEADER_MODULES["Ipython"] = "IPython"
