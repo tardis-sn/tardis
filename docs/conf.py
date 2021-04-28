@@ -200,6 +200,13 @@ def to_html_ext(path):
     return os.path.splitext(path)[0] + ".html"
 
 
+def autodoc_skip_member(app, what, name, obj, skip, options):
+    """Exclude specific functions/methods from the documentation"""
+    exclusions = ("yaml_constructors", "yaml_implicit_resolvers")
+    exclude = name in exclusions
+    return skip or exclude
+
+
 def create_redirect_files(app, docname):
     """Create redirect html files at old paths specified in `redirects` list."""
     template_html_path = os.path.join(
@@ -224,4 +231,5 @@ def create_redirect_files(app, docname):
 
 
 def setup(app):
+    app.connect("autodoc-skip-member", autodoc_skip_member)
     app.connect("build-finished", create_redirect_files)

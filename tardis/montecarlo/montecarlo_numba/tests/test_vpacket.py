@@ -10,6 +10,10 @@ from tardis import constants as const
 from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
 from tardis.montecarlo.montecarlo_numba import macro_atom
 
+from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+    get_doppler_factor,
+)
+
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
 import numpy.testing as npt
@@ -31,7 +35,7 @@ def v_packet():
 
 def v_packet_initialize_line_id(v_packet, numba_plasma, numba_model):
     inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
-    doppler_factor = r_packet.get_doppler_factor(
+    doppler_factor = get_doppler_factor(
         v_packet.r, v_packet.mu, numba_model.time_explosion
     )
     comov_nu = v_packet.nu * doppler_factor
