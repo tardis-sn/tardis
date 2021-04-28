@@ -62,22 +62,26 @@ def compton_scatter(gamma_ray, compton_angle):
 
     """
     # transform original direction vector to cartesian coordinates
-    original_direction = gamma_ray.direction.get_cartesian_coords
+    original_direction = normalize(gamma_ray.direction.get_cartesian_coords)
     # compute an arbitrary perpendicular vector to the original direction
     orthogonal_vector = get_perpendicular_vector(original_direction)
     # determine a random vector with compton_angle to the original direction
-    new_vector = np.dot(
-        euler_rodrigues(compton_angle, orthogonal_vector), original_direction
+    new_vector = normalize(
+        np.dot(
+            euler_rodrigues(compton_angle, orthogonal_vector),
+            original_direction,
+        )
     )
     print(
         "resulting direction vector dot product original direction: ",
         360 / 2 / np.pi * np.arccos(np.dot(new_vector, original_direction)),
     )
+
     # draw a random angle from [0,2pi]
     phi = 2.0 * np.pi * np.random.random()
     # rotate the vector with compton_angle around the original direction
-    final_compton_scattered_vector = np.dot(
-        euler_rodrigues(phi, original_direction), new_vector
+    final_compton_scattered_vector = normalize(
+        np.dot(euler_rodrigues(phi, original_direction), new_vector)
     )
     print(
         "angle between in and outgoing ray: ",
