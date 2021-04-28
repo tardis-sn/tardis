@@ -43,16 +43,8 @@ def test_trapezoid_integration(N):
     ntest.assert_almost_equal(actual, expected)
 
 
-@pytest.mark.skipif(
-    True, reason="static inline functions are not inside the library"
-)
-def test_calculate_z():
-    pass
-
-
 def calculate_z(r, p):
     return np.sqrt(r * r - p * p)
-
 
 TESTDATA = [
     {
@@ -74,8 +66,25 @@ def formal_integral_model(request, model):
     model.r_inner_i.contents = as_ctypes(r[:-1])
     return model
 
+@pytest.mark.parametrize(
+        'p', [0.0, 0.5, 1.0]
+)
+def test_calculate_z(formal_integral_model, p):
+   
+    func = formal_integral.calculate_z
+    inv_t = 1.0 / formal_integral_model.time_explosion
+    size = formal_integral_model.no_of_shells_i
+    r_outer = as_array(formal_integral_model.r_outer_i, (size,)) 
+    for r in r_outer:
 
-@pytest.mark.xfail(reason="not implemented")
+        actual = func(r, p, inv_t)
+        if p >= r:
+            assert actual == 0
+        else:
+            desired = np.sqrt(r * r - p * p) * formal_integral.C_INV * inv_t
+            ntest.assert_almost_equal(actual, desired)
+
+
 @pytest.mark.parametrize("p", [0, 0.5, 1])
 def test_populate_z_photosphere(formal_integral_model, p):
     """
