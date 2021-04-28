@@ -158,9 +158,11 @@ def pair_creation(gamma_ray):
 
     """
     direction_theta = get_random_theta_gamma_ray()
+    direction_phi = get_random_phi_gamma_ray()
 
     gamma_ray.energy = 511.0
     gamma_ray.direction.theta = direction_theta
+    gamma_ray.direction.phi = direction_phi
 
 
 def scatter_type(
@@ -197,7 +199,7 @@ def scatter_type(
         compton_angle = 0.0
     else:
         gamma_ray.status = "PairCreated"
-        pair_creation(gamma_ray)
+        ejecta_energy_gain = gamma_ray.energy - (2.0 * 511.0)
         compton_angle = 0.0
 
     return ejecta_energy_gain, compton_angle

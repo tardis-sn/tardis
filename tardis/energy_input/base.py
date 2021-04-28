@@ -25,6 +25,7 @@ from tardis.energy_input.calculate_opacity import (
 from tardis.energy_input.gamma_ray_interactions import (
     scatter_type,
     compton_scatter,
+    pair_creation,
 )
 from tardis.energy_input.util import (
     get_random_theta_gamma_ray,
@@ -366,6 +367,7 @@ def main_gamma_ray_loop(num_packets, model, path):
                 ):
                     energy_input_type.append(0)
                     packet = move_gamma_ray(packet, distance_interaction)
+                    packet.shell = get_shell(packet.location.r, outer_radii)
                     print(
                         "moved to radius: ",
                         round(packet.location.r / model.v_outer[-1].value, 5),
@@ -385,6 +387,7 @@ def main_gamma_ray_loop(num_packets, model, path):
                 ):
                     energy_input_type.append(1)
                     packet = move_gamma_ray(packet, distance_interaction)
+                    packet.shell = get_shell(packet.location.r, outer_radii)
                     print(
                         "moved to radius: ",
                         round(packet.location.r / model.v_outer[-1].value, 5),
@@ -396,29 +399,50 @@ def main_gamma_ray_loop(num_packets, model, path):
                     ejecta_energy_r.append(packet.location.r)
                     ejecta_energy_theta.append(packet.location.theta)
                     # Packet destroyed, go to the next packet
-                    break
 
                 if packet.status == "PairCreated":
                     packet = move_gamma_ray(packet, distance_interaction)
+                    packet.shell = get_shell(packet.location.r, outer_radii)
                     print(
                         "moved to radius: ",
                         round(packet.location.r / model.v_outer[-1].value, 5),
                     )
                     distance_moved += distance_interaction
                     packet.time_current += distance_moved / const.c
+
+                    energy_input_type.append(2)
                     energy_input_time.append(packet.time_current)
+                    ejecta_energy.append(ejecta_energy_gained)
+                    ejecta_energy_r.append(packet.location.r)
+                    ejecta_energy_theta.append(packet.location.theta)
+
+                    pair_creation(gamma_ray)
                     backward_ray = GammaRay(
-                        packet.location,
-                        packet.direction,
-                        packet.energy,
+                        copy.deepcopy(packet.location),
+                        copy.deepcopy(packet.direction),
+                        copy.deepcopy(packet.energy),
                         "InProcess",
-                        packet.shell,
+                        copy.deepcopy(packet.shell),
                     )
+
+                    print(
+                        "Pair creation: ",
+                        " at location ",
+                        round(packet.location.r / model.v_outer[-1].value, 5),
+                        round(
+                            backward_ray.location.r / model.v_outer[-1].value, 5
+                        ),
+                        " in shell ",
+                        packet.shell,
+                        backward_ray.shell,
+                    )
+
                     backward_ray.direction.phi += np.pi
                     if backward_ray.direction.phi > 2 * np.pi:
                         backward_ray.direction.phi -= 2 * np.pi
 
                     packets.append(backward_ray)
+
                 print(
                     "Packet ",
                     i,
@@ -430,7 +454,11 @@ def main_gamma_ray_loop(num_packets, model, path):
                     j,
                     "shells",
                 )
-                packet.status = "InProcess"
+
+                if packet.status == "PhotoAbsorbed":
+                    break
+                else:
+                    packet.status = "InProcess"
                 distance_moved = 0.0
 
             else:
