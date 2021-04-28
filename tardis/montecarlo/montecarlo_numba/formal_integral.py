@@ -39,11 +39,6 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
     L = np.zeros(inu_size, dtype=np.float64)
     # global read-only values
     size_line, size_shell = tau_sobolev.shape
-    #size_line = len(plasma.line_list_nu)
-    #size_shell = len(model.r_inner)
-    #size_shell = self.model.no_of_shells # check
-    #print('Size Shell:', size_shell)
-    #print('Tau Sobolev Shape:', plasma.tau_sobolev.shape)
     size_tau = size_line * size_shell
     R_ph = model.r_inner[0] # make sure these are cgs
     R_max = model.r_outer[size_shell - 1]
@@ -204,6 +199,7 @@ class NumbaFormalIntegrator(object):
         self.points = points
 
     def formal_integral(self, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N):
+        '''simple wrapper for the numba implementation of the formal integral'''
         return numba_formal_integral(self.model, self.plasma, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N)
 
 
