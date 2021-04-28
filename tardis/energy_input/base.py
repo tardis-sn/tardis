@@ -222,10 +222,12 @@ def main_gamma_ray_loop(num_packets, model, path):
     nuclear_data = read_nuclear_dataframe(path)
 
     gamma_ratio, positron_ratio = intensity_ratio(
-        nuclear_data, "'gamma_rays'", "'e+'"
+        nuclear_data, "'gamma_rays' or type=='x_rays'", "'e+'"
     )
     # Need to decay particles, not just spawn gamma rays
-    energy_sorted, energy_cdf = setup_input_energy(nuclear_data, "'gamma_rays'")
+    energy_sorted, energy_cdf = setup_input_energy(
+        nuclear_data, "'gamma_rays' or type=='x_rays'"
+    )
     positron_energy_sorted, positron_energy_cdf = setup_input_energy(
         nuclear_data, "'e+'"
     )
@@ -245,7 +247,7 @@ def main_gamma_ray_loop(num_packets, model, path):
             )
 
             # Dump energy into the ejecta (via presumed Coulomb interaction)
-            energy_input_type.append(2)
+            energy_input_type.append(-1)
             ejecta_energy.append(energy_KeV)
             ejecta_energy_r.append(initial_radius)
 
@@ -299,6 +301,8 @@ def main_gamma_ray_loop(num_packets, model, path):
             round(packet.location.r / model.v_outer[-1].value, 5),
             " in shell ",
             packet.shell,
+            "with energy",
+            packet.energy,
         )
         distance_moved = 0.0
 
@@ -353,13 +357,23 @@ def main_gamma_ray_loop(num_packets, model, path):
                 interaction_count[i] += 1
 
                 packet.tau = -np.log(np.random.random())
-                compton_angle, ejecta_energy_gained = scatter_type(
+
+                ejecta_energy_gained, compton_angle = scatter_type(
                     packet,
                     compton_opacity,
                     photoabsorption_opacity,
                     total_opacity,
                 )
-
+                print(
+                    "Packet ",
+                    i,
+                    " interacted (",
+                    packet.status,
+                    "with energy",
+                    packet.energy,
+                    "depositing energy",
+                    ejecta_energy_gained,
+                )
                 # Add antiparallel packet on pair creation at end of list
                 if (
                     packet.status == "ComptonScatter"
@@ -453,6 +467,10 @@ def main_gamma_ray_loop(num_packets, model, path):
                     " h and moved through ",
                     j,
                     "shells",
+                    "with energy",
+                    packet.energy,
+                    "depositing energy",
+                    ejecta_energy_gained,
                 )
 
                 if packet.status == "PhotoAbsorbed":

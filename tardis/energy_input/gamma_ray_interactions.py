@@ -181,25 +181,24 @@ def scatter_type(
     Returns
     -------
     ejecta_energy_gain : dtype float
-    pair_created : dtype bool
+    compton_angle : dtype float
 
     """
     z = np.random.random()
 
     ejecta_energy_gain = 0.0
+    compton_angle = 0.0
 
     if z <= (compton_opacity / total_opacity):
         gamma_ray.status = "ComptonScatter"
         # not happy about computing the compton angle twice.
         # should be restructured
-        ejecta_energy_gain, compton_angle = get_compton_angle(gamma_ray)
+        compton_angle, ejecta_energy_gain = get_compton_angle(gamma_ray)
     elif z <= (compton_opacity + photoabsorption_opacity) / total_opacity:
         gamma_ray.status = "PhotoAbsorbed"
         ejecta_energy_gain = gamma_ray.energy
-        compton_angle = 0.0
     else:
         gamma_ray.status = "PairCreated"
         ejecta_energy_gain = gamma_ray.energy - (2.0 * 511.0)
-        compton_angle = 0.0
 
     return ejecta_energy_gain, compton_angle
