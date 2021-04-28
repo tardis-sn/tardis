@@ -105,6 +105,7 @@ definitions:
           description: the fraction of shells that have to converge to the given  convergence
             threshold. For example, 0.8 means that 80% of shells have to converge
             to the threshold that convergence is established
+          minimum: 0
         hold_iterations:
           type: number
           multipleOf: 1.0
@@ -115,11 +116,13 @@ definitions:
           type: number
           default: 1.0
           description: damping constant
+          minimum: 0
         threshold:
           type: number
           default: 0.05
           description: specifies the threshold that is taken as convergence  (i.e.
             0.05 means that the value does not change more than 5%)
+          minimum: 0
         t_inner:
           type: object
           additionalProperties: false
@@ -128,10 +131,12 @@ definitions:
               type: number
               default: 0.5
               description: damping constant
+              minimum: 0
             threshold:
               type: number
               description: specifies the threshold that is taken as convergence  (i.e.
                 0.05 means that the value does not change more than 5%)
+              minimum: 0
         t_rad:
           type: object
           additionalProperties: false
@@ -140,10 +145,12 @@ definitions:
               type: number
               default: 0.5
               description: damping constant
+              minimum: 0
             threshold:
               type: number
               description: specifies the threshold that is taken as convergence  (i.e.
                 0.05 means that the value does not change more than 5%)
+              minimum: 0
           required:
           - threshold
         w:
@@ -154,10 +161,12 @@ definitions:
               type: number
               default: 0.5
               description: damping constant
+              minimum: 0
             threshold:
               type: number
               description: specifies the threshold that is taken as convergence  (i.e.
                 0.05 means that the value does not change more than 5%)
+              minimum: 0
           required:
           - threshold
         lock_t_inner_cycles:
