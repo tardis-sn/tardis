@@ -31,10 +31,10 @@ def calculate_distance_radial(gamma_ray, r_inner, r_outer):
         x, y, z, x_dir, y_dir, z_dir, r_outer
     )
     distances = [inner_1, inner_2, outer_1, outer_2]
-    print(distances)
+    # print(distances)
     # the correct distance is the shortest positive distance
     distance = min(i for i in distances if i > 0.0)
-    print("selected distance ", distance)
+    # print("selected distance ", distance)
 
     return distance
 
@@ -73,17 +73,17 @@ def distance_trace(
         )
     else:
         distance_boundary = 0.0
-    print("current tau: ", gamma_ray.tau)
+    # print("current tau: ", gamma_ray.tau)
     distance_interaction = gamma_ray.tau / total_opacity / ejecta_epoch
-    print("distance interaction: ", distance_interaction)
-    print("distance boundary: ", distance_boundary)
+    # print("distance interaction: ", distance_interaction)
+    # print("distance boundary: ", distance_boundary)
     if distance_interaction < distance_boundary:
         gamma_ray.tau -= total_opacity * distance_interaction * ejecta_epoch
-        print("remaining tau: ", gamma_ray.tau)
+        # print("remaining tau: ", gamma_ray.tau)
         return distance_interaction, distance_boundary, True
     else:
         gamma_ray.tau -= total_opacity * distance_boundary * ejecta_epoch
-        print("remaining tau: ", gamma_ray.tau)
+        # print("remaining tau: ", gamma_ray.tau)
         return distance_interaction, distance_boundary, False
 
 
@@ -103,28 +103,28 @@ def move_gamma_ray(gamma_ray, distance):
     """
     x_old, y_old, z_old = gamma_ray.location.get_cartesian_coords
     x_dir, y_dir, z_dir = gamma_ray.direction.get_cartesian_coords
-    print("direction vector: ", x_dir, y_dir, z_dir)
+    # print("direction vector: ", x_dir, y_dir, z_dir)
     # overshoot by 1e-7 * distance to shell boundary
     # so that the gamma-ray is comfortably in the next shell
     x_new = x_old + distance * (1 + 1e-7) * x_dir
     y_new = y_old + distance * (1 + 1e-7) * y_dir
     z_new = z_old + distance * (1 + 1e-7) * z_dir
-    print("selected distance: ", distance)
-    print("velocity coordinate change: ")
-    print("x:\t", distance * (1 + 1e-7) * x_dir)
-    print("y:\t", distance * (1 + 1e-7) * y_dir)
-    print("z:\t", distance * (1 + 1e-7) * z_dir)
-    print(
-        "moved from (",
-        round(x_old, 5),
-        round(y_old, 5),
-        round(z_old, 5),
-        ")\n\t to (",
-        round(x_new, 5),
-        round(y_new, 5),
-        round(z_new, 5),
-        ")",
-    )
+    # print("selected distance: ", distance)
+    # print("velocity coordinate change: ")
+    # print("x:\t", distance * (1 + 1e-7) * x_dir)
+    # print("y:\t", distance * (1 + 1e-7) * y_dir)
+    # print("z:\t", distance * (1 + 1e-7) * z_dir)
+    # print(
+    #     "moved from (",
+    #     round(x_old, 5),
+    #     round(y_old, 5),
+    #     round(z_old, 5),
+    #     ")\n\t to (",
+    #     round(x_new, 5),
+    #     round(y_new, 5),
+    #     round(z_new, 5),
+    #     ")",
+    # )
     r, theta, phi = cartesian_to_spherical(x_new, y_new, z_new)
     gamma_ray.location.r = r.value
     gamma_ray.location.theta = theta.value + 0.5 * np.pi

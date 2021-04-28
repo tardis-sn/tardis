@@ -153,7 +153,6 @@ def spawn_positron(
         Shell of emitted energy
     """
     energy_KeV = sample_energy_distribution(energy_sorted, energy_cdf)
-
     initial_radius, shell = density_sampler(inner_radii, mass_ratio)
 
     initial_radius += np.random.random() * (
@@ -261,10 +260,11 @@ def main_gamma_ray_loop(num_packets, model, path):
                 beta_decay=True,
             )
 
+            ejecta_energy_theta.append(gamma_ray.location.theta)
+
+            gamma_ray.energy = 511.0
             gamma_ray.location.r = initial_radius
             gamma_ray.shell = shell
-
-            ejecta_energy_theta.append(gamma_ray.location.theta)
 
             packets.append(gamma_ray)
 
@@ -305,16 +305,16 @@ def main_gamma_ray_loop(num_packets, model, path):
         interaction_count.append(0)
         j = 0
         while packet.status == "InProcess":
-            print("\nstarting gamma-ray loop as the gamma-ray still exists.")
-            print(
-                "Current packet ",
-                i,
-                " at location ",
-                round(packet.location.r / model.v_outer[-1].value, 5),
-                " in shell ",
-                packet.shell,
-            )
-            print("Current direction: ", packet.direction.get_cartesian_coords)
+            # print("\nstarting gamma-ray loop as the gamma-ray still exists.")
+            # print(
+            #     "Current packet ",
+            #     i,
+            #     " at location ",
+            #     round(packet.location.r / model.v_outer[-1].value, 5),
+            #     " in shell ",
+            #     packet.shell,
+            # )
+            # print("Current direction: ", packet.direction.get_cartesian_coords)
 
             compton_opacity = compton_opacity_calculation(
                 packet.energy, ejecta_density[packet.shell]
@@ -469,18 +469,18 @@ def main_gamma_ray_loop(num_packets, model, path):
                 packet.shell = get_shell(packet.location.r, outer_radii)
                 if distance_boundary == 0.0:
                     packet.shell += 1
-                print(
-                    "moved to radius: ",
-                    round(packet.location.r / model.v_outer[-1].value, 5),
-                    " . From shell ",
-                    old_shell,
-                    "to shell ",
-                    packet.shell,
-                )
-                print(
-                    "after move: current gamma-ray location: ",
-                    packet.location.get_cartesian_coords,
-                )
+                # print(
+                #     "moved to radius: ",
+                #     round(packet.location.r / model.v_outer[-1].value, 5),
+                #     " . From shell ",
+                #     old_shell,
+                #     "to shell ",
+                #     packet.shell,
+                # )
+                # print(
+                #     "after move: current gamma-ray location: ",
+                #     packet.location.get_cartesian_coords,
+                # )
 
             if (
                 np.abs(packet.location.r - outer_radius) < 10.0
