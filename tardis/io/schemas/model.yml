@@ -70,7 +70,6 @@ definitions:
         exponent:
           type: number
           description: exponent for exponential density profile
-          minimum: 0
       required:
       - rho_0
       - v_0
