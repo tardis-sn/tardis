@@ -94,8 +94,6 @@ try:
     PYTEST_HEADER_MODULES["h5py"] = "h5py"
     PYTEST_HEADER_MODULES["Matplotlib"] = "matplotlib"
     PYTEST_HEADER_MODULES["Ipython"] = "IPython"
-#     PYTEST_HEADER_MODULES["Cython"] = "cython"
-#     del PYTEST_HEADER_MODULES['h5py']
 except (NameError, KeyError):  # NameError is needed to support Astropy < 1.0
     pass
 
