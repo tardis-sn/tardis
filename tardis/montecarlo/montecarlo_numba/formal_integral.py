@@ -12,7 +12,7 @@ from numba import njit, char, float64, int64, jitclass, typeof, byte, prange
 import pdb
 
 from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
-from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
 from tardis.montecarlo.montecarlo_numba.numba_interface \
     import numba_plasma_initialize, NumbaModel, NumbaPlasma
 
@@ -43,13 +43,7 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
     R_max = model.r_outer[size_shell - 1]
     pp = np.zeros(N, dtype=np.float64) # check
     exp_tau = np.zeros(size_tau, dtype=np.float64)
-    # TODO: multiprocessing
-    # instantiate more variables here, maybe?
     exp_tau = np.exp(-tau_sobolev.T.ravel()) # maybe make this 2D?
-    # prepare exp_tau
-    #for i in prange(plasma.tau_sobolev.shape[0]):
-    #    for j in prange(plasma.tau_sobolev.shape[1]):
-    #        exp_tau[j*plasma.tau_sobolev.shape[0]+i] = np.exp(-plasma.tau_sobolev[i,j])
     pp[::] = calculate_p_values(R_max, N)
     line_list_nu = plasma.line_list_nu
     # done with instantiation
@@ -81,7 +75,6 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
 
 
         nu = inu[nu_idx]
-        #print(nu_idx)
         # now loop over discrete values along line
         for p_idx in range(1, N):
             escat_contrib = 0
@@ -117,9 +110,6 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
                 escat_op = electron_density[int(shell_id[i])] * SIGMA_THOMSON
                 nu_end = nu * z[i + 1]
                 for _ in range(max(size_line-pline,0)):
-                    #while pline < size_line:
-                    #while (pline < size_line): # check all condition
-                    # increment all pointers simulatenously
                     if (line_list_nu[pline] < nu_end):
                         break
 
@@ -142,10 +132,10 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
                         # this introduces the necessary ffset of one element between
                         # pJblue_lu and pJred_lu
                         pJred_lu += 1
-                    # pdb.set_trace()
-                    I_nu[p_idx] = I_nu[p_idx] + escat_contrib
+                    I_nu[p_idx] += escat_contrib
                     # // Lucy 1999, Eq 26
-                    I_nu[p_idx] = I_nu[p_idx] * (exp_tau[pexp_tau]) + att_S_ul[patt_S_ul] 
+                    I_nu[p_idx] *= (exp_tau[pexp_tau])
+                    I_nu[p_idx] += att_S_ul[patt_S_ul] 
 
                     # // reset e-scattering opacity
                     escat_contrib = 0
@@ -155,7 +145,6 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
                     pexp_tau += 1
                     patt_S_ul += 1
                     pJblue_lu += 1
-                    #pJred_lu += 1
 
                 # calculate e-scattering optical depth to grid cell boundary
 
@@ -165,13 +154,13 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
                             Jkkp - I_nu[p_idx])
                 zstart = zend
 
-                if i < size_z - 1:
-                    # advance pointers
-                    direction = shell_id[i+1] - shell_id[i]
-                    pexp_tau += int(direction * size_line)
-                    patt_S_ul += int(direction * size_line)
-                    pJred_lu += int(direction * size_line)
-                    pJblue_lu += int(direction * size_line)
+                #if i < size_z - 1:
+                # advance pointers
+                direction = shell_id[i+1] - shell_id[i]
+                pexp_tau += int(direction * size_line)
+                patt_S_ul += int(direction * size_line)
+                pJred_lu += int(direction * size_line)
+                pJblue_lu += int(direction * size_line)
             I_nu[p_idx] *= p
         L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max / N)
 
@@ -507,7 +496,7 @@ class FormalIntegrator(object):
                 )
         return np.array(L, np.float64)
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def populate_z(model, p, oz, oshell_id):
     """Calculate p line intersections
 
@@ -555,7 +544,7 @@ def populate_z(model, p, oz, oshell_id):
         return 2 * (N - offset)
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def calculate_z(r, p, inv_t):
     """Calculate distance to p line
 
@@ -578,7 +567,7 @@ class BoundsError(ValueError):
     pass
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def line_search(nu, nu_insert, number_of_lines):
     """
     Insert a value in to an array of line frequencies
@@ -607,7 +596,7 @@ def line_search(nu, nu_insert, number_of_lines):
     return result
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def reverse_binary_search(x, x_insert, imin, imax):
     """Look for a place to insert a value in an inversely sorted float array.
 
@@ -623,22 +612,9 @@ def reverse_binary_search(x, x_insert, imin, imax):
     # ret_val = TARDIS_ERROR_OK # check
     if (x_insert > x[imin]) or (x_insert < x[imax]):
         raise BoundsError  # check
-    else:
-        imid = (imin + imax) >> 1
-        while imax - imin > 2:
-            if x[imid] < x_insert:
-                imax = imid + 1
-            else:
-                imin = imid
-            imid = (imin + imax) >> 1
-        if (imax - imin == 2) and (x_insert < x[imin + 1]):
-            result = imin + 1
-        else:
-            result = imin
-    return result
+    return len(x) - 1 - np.searchsorted(x[::-1], x_insert, side='right')
 
-
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def binary_search(x, x_insert, imin, imax, result):
     '''numpy searchsorted is compatable with numba
     so let's think about using that instead'''
@@ -662,21 +638,16 @@ def binary_search(x, x_insert, imin, imax, result):
     return result
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def trapezoid_integration(array, h):
     '''in the future, let's just replace
     this with the numpy trapz
     since it is numba compatable
     '''
-    # TODO: replace with np.trapz?
-    #return np.trapz(array, dx=h)
-    result = (array[0] + array[-1]) / 2
-    for idx in range(1, len(array)-1):
-        result += array[idx]
-    return result * h
+    return np.trapz(array, dx=h)
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def intensity_black_body(nu, T):
     '''Get the black body intensity at frequency nu
     and temperature T '''
@@ -687,7 +658,7 @@ def intensity_black_body(nu, T):
     return coefficient * nu * nu * nu / (np.exp(H_CGS * nu * beta_rad) - 1)
 
 
-@njit(**njit_dict)
+@njit(**njit_dict_no_parallel)
 def calculate_p_values(R_max, N):
     '''This can probably be replaced with a simpler function'''
     return np.arange(N).astype(np.float64) * R_max / (N - 1)
