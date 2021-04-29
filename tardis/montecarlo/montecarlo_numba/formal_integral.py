@@ -105,13 +105,18 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
 
             # flag for first contribution to integration on current p-ray
             first = 1
+            nu_ends = nu * z[1:]
+            nu_ends_idxs = size_line - np.searchsorted(
+                    line_list_nu[::-1], 
+                    nu_ends, 
+                    side='right'
+            )
             # loop over all interactions
             for i in range(size_z - 1):
                 escat_op = electron_density[int(shell_id[i])] * SIGMA_THOMSON
-                nu_end = nu * z[i + 1]
-                for _ in range(max(size_line-pline,0)):
-                    if (line_list_nu[pline] < nu_end):
-                        break
+                nu_end = nu_ends[i]
+                nu_end_idx = nu_ends_idxs[i]
+                for _ in range(max(nu_end_idx-pline,0)):
 
                     # calculate e-scattering optical depth to next resonance point
                     zend = model.time_explosion / C_INV * (1. - line_list_nu[pline] / nu) # check
@@ -154,13 +159,12 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
                             Jkkp - I_nu[p_idx])
                 zstart = zend
 
-                #if i < size_z - 1:
                 # advance pointers
-                direction = shell_id[i+1] - shell_id[i]
-                pexp_tau += int(direction * size_line)
-                patt_S_ul += int(direction * size_line)
-                pJred_lu += int(direction * size_line)
-                pJblue_lu += int(direction * size_line)
+                direction = int((shell_id[i+1] - shell_id[i]) * size_line)
+                pexp_tau += direction
+                patt_S_ul += direction
+                pJred_lu += direction
+                pJblue_lu += direction
             I_nu[p_idx] *= p
         L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max / N)
 
