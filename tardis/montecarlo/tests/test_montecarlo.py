@@ -48,7 +48,7 @@ import os
 import pytest
 import numpy as np
 import pandas as pd
-import tardis.montecarlo.formal_integral as formal_integral
+import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
 import tardis.montecarlo.montecarlo_numba.utils as utils
 import tardis.montecarlo.montecarlo_configuration as mc
@@ -56,24 +56,17 @@ from tardis import constants as const
 from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
 from tardis.montecarlo.montecarlo_numba import macro_atom
 
+from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+    get_doppler_factor,
+    angle_aberration_LF_to_CMF,
+    angle_aberration_CMF_to_LF,
+)
+
+
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
 pytestmark = pytest.mark.skip(reason="Port from C to numba")
 
-
-from ctypes import (
-    CDLL,
-    byref,
-    c_uint,
-    c_int64,
-    c_double,
-    c_ulong,
-    c_void_p,
-    cast,
-    POINTER,
-    pointer,
-    CFUNCTYPE,
-)
 
 from numpy.testing import (
     assert_equal,
@@ -83,23 +76,6 @@ from numpy.testing import (
 )
 
 from tardis import __path__ as path
-from tardis.montecarlo.struct import (
-    RPacket,
-    StorageModel,
-    RKState,
-    PhotoXsect1level,
-    TARDIS_ERROR_OK,
-    TARDIS_ERROR_BOUNDS_ERROR,
-    TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE,
-    TARDIS_PACKET_STATUS_IN_PROCESS,
-    TARDIS_PACKET_STATUS_EMITTED,
-    TARDIS_PACKET_STATUS_REABSORBED,
-    CONTINUUM_OFF,
-    CONTINUUM_ON,
-    INVERSE_C,
-    BoundFreeTreatment,
-)
-
 
 @pytest.fixture(scope="module")
 def continuum_compare_data_fname():
@@ -132,59 +108,6 @@ def expected_ff_emissivity(continuum_compare_data):
 
     return ff_emissivity
 
-
-@pytest.fixture(scope="module")
-def get_rkstate(continuum_compare_data):
-    data = continuum_compare_data["z2rkstate_key"]
-    pos_data = continuum_compare_data["z2rkstate_pos"]
-
-    def z2rkstate(z_random):
-        key = (c_ulong * 624)(*data.loc[z_random].values)
-        pos = pos_data.loc[z_random]
-        return RKState(key=key, pos=pos, has_gauss=0, gauss=0.0)
-
-    return z2rkstate
-
-
-@pytest.fixture(scope="function")
-def model_w_edges(ion_edges, model):
-    photo_xsect = (POINTER(PhotoXsect1level) * len(ion_edges))()
-
-    for i, edge in enumerate(ion_edges):
-        x_sect_1level = PhotoXsect1level()
-        for key, value in edge.items():
-            if key in ["nu", "x_sect"]:
-                value = (c_double * len(value))(*value)
-            setattr(x_sect_1level, key, value)
-        photo_xsect[i] = pointer(x_sect_1level)
-
-    no_of_edges = len(ion_edges)
-    continuum_list_nu = (c_double * no_of_edges)(
-        *[edge["nu"][0] for edge in ion_edges]
-    )
-
-    model.photo_xsect = photo_xsect
-    model.continuum_list_nu = continuum_list_nu
-    model.no_of_edges = no_of_edges
-
-    estimator_size = model.no_of_shells * no_of_edges
-    estims = [
-        "photo_ion_estimator",
-        "stim_recomb_estimator",
-        "bf_heating_estimator",
-        "stim_recomb_cooling_estimator",
-    ]
-    for estimator in estims:
-        setattr(
-            model, estimator, (c_double * estimator_size)(*[0] * estimator_size)
-        )
-
-    model.photo_ion_estimator_statistics = (c_int64 * estimator_size)(
-        *[0] * estimator_size
-    )
-    return model
-
-
 @pytest.fixture(scope="module")
 def ion_edges():
     return [
@@ -205,84 +128,6 @@ def ion_edges():
         },
     ]
 
-
-@pytest.fixture(scope="module")
-def mock_sample_nu():
-    SAMPLE_NUFUNC = CFUNCTYPE(
-        c_double, POINTER(RPacket), POINTER(StorageModel), POINTER(RKState)
-    )
-
-    def sample_nu_simple(packet, model, mt_state):
-        return packet.contents.nu
-
-    return SAMPLE_NUFUNC(sample_nu_simple)
-
-
-@pytest.fixture(scope="function")
-def model_3lvlatom(model):
-    model.line2macro_level_upper = (c_int64 * 3)(*[2, 1, 2])
-    model.macro_block_references = (c_int64 * 3)(*[0, 2, 5])
-
-    transition_probabilities = [
-        0.0,
-        0.0,
-        0.75,
-        0.25,
-        0.0,
-        0.25,
-        0.5,
-        0.25,
-        0.0,  # shell_id = 0
-        0.0,
-        0.0,
-        1.00,
-        0.00,
-        0.0,
-        0.00,
-        0.0,
-        1.00,
-        0.0,  # shell_id = 1
-    ]
-
-    nd = len(transition_probabilities) // 2
-    model.transition_type = (c_int64 * nd)(*[1, 1, -1, 1, 0, 0, -1, -1, 0])
-    model.destination_level_id = (c_int64 * nd)(*[1, 2, 0, 2, 0, 1, 1, 0, 0])
-    model.transition_line_id = (c_int64 * nd)(*[0, 1, 1, 2, 1, 2, 2, 0, 0])
-
-    model.transition_probabilities_nd = c_int64(nd)
-    model.transition_probabilities = (c_double * (nd * 2))(
-        *transition_probabilities
-    )
-
-    model.last_line_interaction_out_id = (c_int64 * 1)(*[-5])
-
-    return model
-
-
-def d_cont_setter(d_cont, model, packet):
-    model.inverse_electron_densities[packet.current_shell_id] = c_double(1.0)
-    model.inverse_sigma_thomson = c_double(1.0)
-    packet.tau_event = c_double(d_cont)
-
-
-def d_line_setter(d_line, model, packet):
-    packet.mu = c_double(0.0)
-    scale = d_line * 1e1
-    model.time_explosion = c_double(INVERSE_C * scale)
-    packet.nu = c_double(1.0)
-    nu_line = 1.0 - d_line / scale
-    packet.nu_line = c_double(nu_line)
-
-
-def d_boundary_setter(d_boundary, model, packet):
-    packet.mu = c_double(1e-16)
-    r_outer = 2.0 * d_boundary
-    model.r_outer[packet.current_shell_id] = r_outer
-
-    r = np.sqrt(r_outer ** 2 - d_boundary ** 2)
-    packet.r = r
-
-
 """
 Important Tests:
 ----------------
@@ -300,14 +145,14 @@ relatively old and stable code.
             2.0,
             0,
             3,
-            {"result": 2, "ret_val": TARDIS_ERROR_OK},
+            {"result": 2},
         ),
         (
             [5.0, 4.0, 3.0, 2.0],
             0.0,
             0,
             3,
-            {"result": 0, "ret_val": TARDIS_ERROR_BOUNDS_ERROR},
+            {"result": 0}, # This one might need to check for a bounds error
         ),
     ],
 )
@@ -315,12 +160,11 @@ def test_reverse_binary_search(x, x_insert, imin, imax, expected_params):
     # x = (c_double * (imax - imin + 1))(*x)
     obtained_result = 0
 
-    obtained_tardis_error = formal_integral.reverse_binary_search(
-        x, x_insert, imin, imax, obtained_result
+    obtained_result = formal_integral.reverse_binary_search(
+        x, x_insert, imin, imax
     )
 
-    assert obtained_result.value == expected_params["result"]
-    assert obtained_tardis_error == expected_params["ret_val"]
+    assert obtained_result == expected_params["result"]
 
 
 @pytest.mark.parametrize(
@@ -330,19 +174,19 @@ def test_reverse_binary_search(x, x_insert, imin, imax, expected_params):
             [0.5, 0.4, 0.3, 0.1],
             0.2,
             4,
-            {"result": 3, "ret_val": TARDIS_ERROR_OK},
+            {"result": 3},
         ),
         (
             [0.5, 0.4, 0.3, 0.2],
             0.1,
             4,
-            {"result": 4, "ret_val": TARDIS_ERROR_OK},
+            {"result": 4},
         ),
         (
             [0.4, 0.3, 0.2, 0.1],
             0.5,
             4,
-            {"result": 0, "ret_val": TARDIS_ERROR_OK},
+            {"result": 0},
         ),
     ],
 )
@@ -350,12 +194,11 @@ def test_line_search(nu, nu_insert, number_of_lines, expected_params):
     # nu = (c_double * number_of_lines)(*nu)
     obtained_result = 0
 
-    obtained_tardis_error = formal_integral.line_search(
+    obtained_result = formal_integral.line_search(
         nu, nu_insert, number_of_lines, obtained_result
     )
 
-    assert obtained_result.value == expected_params["result"]
-    assert obtained_tardis_error == expected_params["ret_val"]
+    assert obtained_result == expected_params["result"]
 
 
 @pytest.mark.parametrize(
@@ -366,33 +209,32 @@ def test_line_search(nu, nu_insert, number_of_lines, expected_params):
             5.0,
             0,
             3,
-            {"result": 2, "ret_val": TARDIS_ERROR_OK},
+            {"result": 2},
         ),
         (
             [2.0, 3.0, 5.0, 7.0],
             8.0,
             0,
             3,
-            {"result": 0, "ret_val": TARDIS_ERROR_BOUNDS_ERROR},
+            {"result": 0}, # this one too
         ),
         (
             [2.0, 4.0, 6.0, 7.0],
             4.0,
             0,
             3,
-            {"result": 0, "ret_val": TARDIS_ERROR_OK},
+            {"result": 0},
         ),
     ],
 )
 def test_binary_search(x, x_insert, imin, imax, expected_params):
     obtained_result = 0
 
-    obtained_tardis_error = formal_integral.binary_search(
-        x, x_insert, imin, imax, obtained_result
+    obtained_result = formal_integral.binary_search(
+        x, x_insert, imin, imax
     )
 
-    assert obtained_result.value == expected_params["result"]
-    assert obtained_tardis_error == expected_params["ret_val"]
+    assert obtained_result == expected_params["result"]
 
 
 @pytest.mark.parametrize(
@@ -403,7 +245,7 @@ def test_binary_search(x, x_insert, imin, imax, expected_params):
         (0, 1, 1 / 2.6e7, 1.0),
     ],
 )
-def test_get_doppler_factor(mu, r, inv_t_exp, expected, packet, model):
+def test_get_doppler_factor(mu, r, inv_t_exp, expected):
     # Set the params from test cases here
     # TODO: add relativity tests
     time_explosion = 1 / inv_t_exp
@@ -411,14 +253,14 @@ def test_get_doppler_factor(mu, r, inv_t_exp, expected, packet, model):
     # Perform any other setups just before this, they can be additional calls
     # to other methods or introduction of some temporary variables
 
-    obtained = r_packet.get_doppler_factor(r, mu, time_explosion)
+    obtained = get_doppler_factor(r, mu, time_explosion)
 
     # Perform required assertions
     assert_almost_equal(obtained, expected)
 
 
 @pytest.mark.parametrize(["mu", "r", "inv_t_exp"], [(-0.3, 5, 1e10)])
-def test_unphysical_doppler_factor(mu, r, inv_t_exp, packet, model):
+def test_unphysical_doppler_factor(mu, r, inv_t_exp):
     # Set the params from test cases here
     # TODO: add relativity tests
     time_explosion = 1 / inv_t_exp
@@ -426,7 +268,7 @@ def test_unphysical_doppler_factor(mu, r, inv_t_exp, packet, model):
     # Perform any other setups just before this, they can be additional calls
     # to other methods or introduction of some temporary variables
     with pytest.raises(r_packet.SuperluminalError):
-        obtained = r_packet.get_doppler_factor(r, mu, time_explosion)
+        obtained = get_doppler_factor(r, mu, time_explosion)
 
 
 @pytest.mark.parametrize(
@@ -437,7 +279,7 @@ def test_unphysical_doppler_factor(mu, r, inv_t_exp, packet, model):
         (0, 1, 1 / 2.6e7, 1.0),
     ],
 )
-def test_get_inverse_doppler_factor(mu, r, inv_t_exp, expected, packet, model):
+def test_get_inverse_doppler_factor(mu, r, inv_t_exp, expected):
     # Set the params from test cases here
     # TODO: add relativity tests
     time_explosion = 1 / inv_t_exp
@@ -452,7 +294,7 @@ def test_get_inverse_doppler_factor(mu, r, inv_t_exp, expected, packet, model):
 
 
 @pytest.mark.parametrize(["mu", "r", "inv_t_exp"], [(-0.3, 5, 1e10)])
-def test_unphysical_inverse_doppler_factor(mu, r, inv_t_exp, packet, model):
+def test_unphysical_inverse_doppler_factor(mu, r, inv_t_exp):
     # Set the params from test cases here
     # TODO: add relativity tests
     time_explosion = 1 / inv_t_exp
@@ -472,7 +314,7 @@ def test_unphysical_inverse_doppler_factor(mu, r, inv_t_exp, packet, model):
     ],
 )
 def test_get_doppler_factor_full_relativity(
-    mu, r, inv_t_exp, expected, packet, model
+    mu, r, inv_t_exp, expected
 ):
     # Set the params from test cases here
     # TODO: add relativity tests
@@ -482,7 +324,7 @@ def test_get_doppler_factor_full_relativity(
     # Perform any other setups just before this, they can be additional calls
     # to other methods or introduction of some temporary variables
 
-    obtained = r_packet.get_doppler_factor(r, mu, time_explosion)
+    obtained = get_doppler_factor(r, mu, time_explosion)
     mc.full_relativity = False
     # Perform required assertions
     assert_almost_equal(obtained, expected)
@@ -497,7 +339,7 @@ def test_get_doppler_factor_full_relativity(
     ],
 )
 def test_get_inverse_doppler_factor_full_relativity(
-    mu, r, inv_t_exp, expected, packet, model
+    mu, r, inv_t_exp, expected
 ):
     # Set the params from test cases here
     # TODO: add relativity tests
@@ -534,13 +376,13 @@ def test_get_random_mu_different_output():
 @pytest.mark.parametrize(
     ["mu", "r", "time_explosion"], [(1, C_SPEED_OF_LIGHT, 1)]
 )
-def test_angle_ab_LF_to_CMF_diverge(mu, r, time_explosion, packet):
+def test_angle_ab_LF_to_CMF_diverge(mu, r, time_explosion):
     """
     This equation should diverage as costheta --> 1 and beta --> 1
     """
-    packet = r_packet.RPacket(packet.r, packet.mu, packet.nu, packet.energy)
-    packet.r = r
-    packet.mu = mu
+    nu = 0.4
+    energy = 0.9
+    packet = r_packet.RPacket(r, mu, nu, energy)
     with pytest.raises(ZeroDivisionError):
         obtained = r_packet.angle_aberration_LF_to_CMF(
             packet, time_explosion, mu
@@ -550,17 +392,19 @@ def test_angle_ab_LF_to_CMF_diverge(mu, r, time_explosion, packet):
 @pytest.mark.parametrize(
     ["mu", "r", "time_explosion"], [(0.3, 1e7, 1e10), (-0.3, 1e7, 1e11)]
 )
-def test_both_angle_aberrations(mu, r, time_explosion, packet):
+def test_both_angle_aberrations(mu, r, time_explosion):
     """
     The angle aberration functions should be the functional inverse of one
     another.
     """
-    packet = r_packet.RPacket(r, packet.mu, packet.nu, packet.energy)
+    nu = 0.4
+    energy = 0.9
+    packet = r_packet.RPacket(r, mu, nu, energy)
     packet.r = r
-    obtained_mu = r_packet.angle_aberration_LF_to_CMF(
+    obtained_mu = angle_aberration_LF_to_CMF(
         packet, time_explosion, mu
     )
-    inverse_obtained_mu = r_packet.angle_aberration_CMF_to_LF(
+    inverse_obtained_mu = angle_aberration_CMF_to_LF(
         packet, time_explosion, obtained_mu
     )
     assert_almost_equal(inverse_obtained_mu, mu)
@@ -569,17 +413,19 @@ def test_both_angle_aberrations(mu, r, time_explosion, packet):
 @pytest.mark.parametrize(
     ["mu", "r", "time_explosion"], [(0.3, 7.5e14, 5.2e5), (-0.3, 7.5e14, 5.2e5)]
 )
-def test_both_angle_aberrations_inverse(mu, r, time_explosion, packet):
+def test_both_angle_aberrations_inverse(mu, r, time_explosion):
     """
     The angle aberration functions should be the functional inverse of one
     another.
     """
-    packet = r_packet.RPacket(r, packet.mu, packet.nu, packet.energy)
+    nu = 0.4
+    energy = 0.9
+    packet = r_packet.RPacket(r, mu, nu, energy)
     packet.r = r
-    obtained_mu = r_packet.angle_aberration_CMF_to_LF(
+    obtained_mu = angle_aberration_CMF_to_LF(
         packet, time_explosion, mu
     )
-    inverse_obtained_mu = r_packet.angle_aberration_LF_to_CMF(
+    inverse_obtained_mu = angle_aberration_LF_to_CMF(
         packet, time_explosion, obtained_mu
     )
     assert_almost_equal(inverse_obtained_mu, mu)
@@ -590,9 +436,13 @@ def test_both_angle_aberrations_inverse(mu, r, time_explosion, packet):
     [(132, 11, 132), (132, 1, 133), (132, 2, 133)],
 )
 def test_move_packet_across_shell_boundary_emitted(
-    packet, current_shell_id, delta_shell, no_of_shells
+    current_shell_id, delta_shell, no_of_shells
 ):
-    packet = r_packet.RPacket(packet.r, packet.mu, packet.nu, packet.energy)
+    r = 7.5e14
+    mu = 0.3
+    nu = 0.4
+    energy = 0.9
+    packet = r_packet.RPacket(r, mu, nu, energy)
     packet.current_shell_id = current_shell_id
     r_packet.move_packet_across_shell_boundary(
         packet, delta_shell, no_of_shells
@@ -605,9 +455,13 @@ def test_move_packet_across_shell_boundary_emitted(
     [(132, -133, 132), (132, -133, 133), (132, -1e9, 133)],
 )
 def test_move_packet_across_shell_boundary_reabsorbed(
-    packet, current_shell_id, delta_shell, no_of_shells
+    current_shell_id, delta_shell, no_of_shells
 ):
-    packet = r_packet.RPacket(packet.r, packet.mu, packet.nu, packet.energy)
+    r = 7.5e14
+    mu = 0.3
+    nu = 0.4
+    energy = 0.9
+    packet = r_packet.RPacket(r, mu, nu, energy)
     packet.current_shell_id = current_shell_id
     r_packet.move_packet_across_shell_boundary(
         packet, delta_shell, no_of_shells
@@ -620,9 +474,13 @@ def test_move_packet_across_shell_boundary_reabsorbed(
     [(132, -1, 199), (132, 0, 132), (132, 20, 154)],
 )
 def test_move_packet_across_shell_boundary_increment(
-    packet, current_shell_id, delta_shell, no_of_shells
+    current_shell_id, delta_shell, no_of_shells
 ):
-    packet = r_packet.RPacket(packet.r, packet.mu, packet.nu, packet.energy)
+    r = 7.5e14
+    mu = 0.3
+    nu = 0.4
+    energy = 0.9
+    packet = r_packet.RPacket(r, mu, nu, energy)
     packet.current_shell_id = current_shell_id
     r_packet.move_packet_across_shell_boundary(
         packet, delta_shell, no_of_shells
@@ -634,9 +492,10 @@ def test_move_packet_across_shell_boundary_increment(
     ["distance_trace", "time_explosion", "mu", "r"],
     [(0, 1, 0, 0), (0, 1, 1, 0), (0, 1, 0, 1)],
 )
-def test_packet_energy_limit_one(packet, distance_trace, time_explosion, mu, r):
-    initial_energy = packet.energy
-    packet = r_packet.RPacket(r, mu, packet.nu, packet.energy)
+def test_packet_energy_limit_one(distance_trace, time_explosion, mu, r):
+    initial_energy = 0.9 
+    nu = 0.4
+    packet = r_packet.RPacket(r, mu, nu, initial_energy)
     new_energy = r_packet.calc_packet_energy(
         packet, distance_trace, time_explosion
     )
@@ -652,13 +511,15 @@ def test_packet_energy_limit_one(packet, distance_trace, time_explosion, mu, r):
     ],
 )
 def test_compute_distance2boundary(
-    packet_params, expected_params, packet, model
+    packet_params, expected_params
 ):
     mu = packet_params["mu"]
     r = packet_params["r"]
+    r_inner = np.array([6.912e14, 8.64e14], dtype=np.float64)
+    r_outer = np.array([8.64e14, 1.0368e15], dtype=np.float64)
 
     d_boundary = r_packet.calculate_distance_boundary(
-        r, mu, model.r_inner[0], model.r_outer[0]
+        r, mu, r_inner[0], r_outer[0]
     )
 
     assert_almost_equal(d_boundary[0], expected_params["d_boundary"])
@@ -688,15 +549,19 @@ def test_compute_distance2boundary(
         ),
     ],
 )
-def test_compute_distance2line(packet_params, expected_params, packet, model):
-    packet = r_packet.RPacket(packet.r, packet.mu, packet.nu, packet.energy)
+def test_compute_distance2line(packet_params, expected_params):
+    r = 7.5e14
+    mu = 0.3
+    nu = 0.4
+    energy = 0.9
+    packet = r_packet.RPacket(r, mu, nu, energy)
     nu_line = packet_params["nu_line"]
     # packet.next_line_id = packet_params['next_line_id']
     # packet.last_line = packet_params['last_line']
 
-    time_explosion = model.time_explosion
+    time_explosion = 5.2e7
 
-    doppler_factor = r_packet.get_doppler_factor(
+    doppler_factor = get_doppler_factor(
         packet.r, packet.mu, time_explosion
     )
     comov_nu = packet.nu * doppler_factor
@@ -756,9 +621,12 @@ def test_compute_distance2line(packet_params, expected_params, packet, model):
     ],
 )
 def test_move_packet(
-    packet_params, expected_params, packet, model, full_relativity
+    packet_params, expected_params, full_relativity
 ):
     distance = 1e13
+    r, mu, nu, energy = 7.5e14, 0.3, 0.4, 0.9
+    time_explosion = 5.2e7
+    packet = r_packet.RPacket(r, mu, nu, energy)
     packet.nu = packet_params["nu"]
     packet.mu = packet_params["mu"]
     packet.energy = packet_params["energy"]
@@ -766,14 +634,14 @@ def test_move_packet(
     # model.full_relativity = full_relativity
     mc.full_relativity = full_relativity
 
-    doppler_factor = r_packet.get_doppler_factor(
-        packet.r, packet.mu, model.time_explosion
+    doppler_factor = get_doppler_factor(
+        packet.r, packet.mu, time_explosion
     )
     numba_estimator = Estimators(
         packet_params["j"], packet_params["nu_bar"], 0, 0
     )
     r_packet.move_r_packet(
-        packet, distance, model.time_explosion, numba_estimator
+        packet, distance, time_explosion, numba_estimator
     )
 
     assert_almost_equal(packet.mu, expected_params["mu"])
@@ -850,136 +718,6 @@ def test_move_packet(
 #     assert_almost_equal(model.line_lists_j_blues[j_blue_idx], expected)
 
 
-@pytest.mark.parametrize(
-    ["packet_params", "expected_params"],
-    [
-        (
-            {"nu": 0.4, "mu": 0.3, "energy": 0.9, "r": 7.5e14},
-            {"nu": 0.39974659819356556, "energy": 0.8994298459355226},
-        ),
-        (
-            {"nu": 0.6, "mu": -0.5, "energy": 0.5, "r": 8.1e14},
-            {"nu": 0.5998422620533325, "energy": 0.4998685517111104},
-        ),
-    ],
-)
-def test_montecarlo_thomson_scatter(
-    clib, packet_params, expected_params, packet, model, mt_state
-):
-    packet.nu = packet_params["nu"]
-    packet.mu = packet_params["mu"]
-    packet.energy = packet_params["energy"]
-    packet.r = packet_params["r"]
-
-    clib.montecarlo_thomson_scatter(
-        byref(packet), byref(model), c_double(1.0e13), byref(mt_state)
-    )
-
-    assert_almost_equal(packet.nu, expected_params["nu"])
-    assert_almost_equal(packet.energy, expected_params["energy"])
-
-
-@pytest.mark.parametrize(
-    ["packet_params", "expected_params"],
-    # TODO: Add scientifically sound test cases.
-    [
-        (
-            {"virtual_packet": 1, "tau_event": 2.9e13, "last_line": 0},
-            {"tau_event": 2.9e13, "next_line_id": 2},
-        ),
-        (
-            {"virtual_packet": 0, "tau_event": 2.9e13, "last_line": 0},
-            {"tau_event": 2.9e13, "next_line_id": 2},
-        ),
-        (
-            {"virtual_packet": 0, "tau_event": 2.9e13, "last_line": 0},
-            {"tau_event": 2.9e13, "next_line_id": 2},
-        ),
-    ],
-)
-def test_montecarlo_line_scatter(
-    clib, packet_params, expected_params, packet, model, mt_state
-):
-    packet.virtual_packet = packet_params["virtual_packet"]
-    packet.tau_event = packet_params["tau_event"]
-    packet.last_line = packet_params["last_line"]
-
-    clib.montecarlo_line_scatter(
-        byref(packet), byref(model), c_double(1.0e13), byref(mt_state)
-    )
-
-    assert_almost_equal(packet.tau_event, expected_params["tau_event"])
-    assert_almost_equal(packet.next_line_id, expected_params["next_line_id"])
-
-
-@pytest.mark.parametrize(
-    ["z_random", "packet_params", "expected"],
-    [
-        (
-            0.22443743797312765,
-            {"activation_level": 1, "shell_id": 0},
-            1,
-        ),  # Direct deactivation
-        (
-            0.78961460371187597,  # next z_random = 0.818455414618
-            {"activation_level": 1, "shell_id": 0},
-            0,
-        ),  # Upwards jump, then deactivation
-        (
-            0.22443743797312765,  # next z_random = 0.545678896748
-            {"activation_level": 2, "shell_id": 0},
-            1,
-        ),  # Downwards jump, then deactivation
-        (
-            0.765958602560605,  # next z_random = 0.145914243888, 0.712382380384
-            {"activation_level": 1, "shell_id": 0},
-            1,
-        ),  # Upwards jump, downwards jump, then deactivation
-        (0.22443743797312765, {"activation_level": 2, "shell_id": 1}, 0),
-    ],  # Direct deactivation
-)
-def test_macro_atom(packet, z_random, packet_params, get_rkstate, expected):
-    packet.macro_atom_activation_level = packet_params["activation_level"]
-    packet = r_packet.RPacket(
-        r=packet.r, mu=packet.mu, nu=packet.nu, energy=packet.energy
-    )
-    packet.current_shell_id = packet_params["shell_id"]
-    rkstate = get_rkstate(z_random)
-
-    macro_atom.macro_atom(packet, numba_plasma)
-    obtained_line_id = model_3lvlatom.last_line_interaction_out_id[packet.id]
-
-    assert_equal(obtained_line_id, expected)
-
-
-"""
-Simple Tests:
-----------------
-These test check very simple pieces of code still work.
-"""
-
-
-@pytest.mark.parametrize(
-    ["packet_params", "line_idx", "expected"],
-    [
-        ({"energy": 0.0}, 0, 0),
-        ({"energy": 1.0}, 1, 1),
-        ({"energy": 0.5}, 2, 1.5),
-    ],
-)
-@pytest.mark.skipif(True, reason="Needs rewrite to be relevant.")
-def test_increment_Edotlu_estimator(
-    clib, packet_params, line_idx, expected, packet, model
-):
-    packet.energy = packet_params["energy"]
-
-    clib.increment_Edotlu_estimator(
-        byref(packet), byref(model), c_int64(line_idx)
-    )
-
-    assert_almost_equal(model.line_lists_Edotlu[line_idx], expected)
-
-
 """
 Continuum Tests:
 ----------------
@@ -999,8 +737,8 @@ methods related to continuum interactions.
         (-0.7, 7.5e14, 1 / 5.2e5, 0),
     ],
 )
-def test_frame_transformations(packet, mu, r, inv_t_exp, full_relativity):
-    packet = r_packet.RPacket(r=r, mu=mu, energy=packet.energy, nu=packet.nu)
+def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
+    packet = r_packet.RPacket(r=r, mu=mu, energy=0.9, nu=0.4)
     mc.full_relativity = bool(full_relativity)
     mc.full_relativity = full_relativity
 
@@ -1009,7 +747,7 @@ def test_frame_transformations(packet, mu, r, inv_t_exp, full_relativity):
     )
     r_packet.angle_aberration_CMF_to_LF(packet, 1 / inv_t_exp, packet.mu)
 
-    doppler_factor = r_packet.get_doppler_factor(r, mu, 1 / inv_t_exp)
+    doppler_factor = get_doppler_factor(r, mu, 1 / inv_t_exp)
     mc.full_relativity = False
 
     assert_almost_equal(doppler_factor * inverse_doppler_factor, 1.0)
@@ -1026,15 +764,16 @@ def test_frame_transformations(packet, mu, r, inv_t_exp, full_relativity):
         (-0.7, 7.5e14, 1 / 5.2e5),
     ],
 )
-def test_angle_transformation_invariance(packet, model, mu, r, inv_t_exp):
-    packet = r_packet.RPacket(r, mu, packet.nu, packet.energy)
-    model.full_relativity = 1
+def test_angle_transformation_invariance(mu, r, inv_t_exp):
+    packet = r_packet.RPacket(r, mu, 0.4, 0.9)
+    mc.full_relativity = True
 
-    mu1 = r_packet.angle_aberration_CMF_to_LF(packet, 1 / inv_t_exp, mu)
-    mu_obtained = r_packet.angle_aberration_LF_to_CMF(
+    mu1 = angle_aberration_CMF_to_LF(packet, 1 / inv_t_exp, mu)
+    mu_obtained = angle_aberration_LF_to_CMF(
         packet, 1 / inv_t_exp, mu1
     )
 
+    mc.full_relativity = False
     assert_almost_equal(mu_obtained, mu)
 
 
@@ -1052,9 +791,9 @@ def test_angle_transformation_invariance(packet, model, mu, r, inv_t_exp):
     ],
 )
 def test_compute_distance2line_relativistic(
-    mu, r, t_exp, nu, nu_line, full_relativity, packet, runner
+    mu, r, t_exp, nu, nu_line, full_relativity
 ):
-    packet = r_packet.RPacket(r=r, nu=nu, mu=mu, energy=packet.energy)
+    packet = r_packet.RPacket(r=r, nu=nu, mu=mu, energy=0.9)
     # packet.nu_line = nu_line
     numba_estimator = Estimators(
         runner.j_estimator,
@@ -1064,15 +803,16 @@ def test_compute_distance2line_relativistic(
     )
     mc.full_relativity = bool(full_relativity)
 
-    doppler_factor = r_packet.get_doppler_factor(r, mu, t_exp)
+    doppler_factor = get_doppler_factor(r, mu, t_exp)
     comov_nu = packet.nu * doppler_factor
     distance = r_packet.calculate_distance_line(
         packet, comov_nu, nu_line, t_exp
     )
     r_packet.move_r_packet(packet, distance, t_exp, numba_estimator)
 
-    doppler_factor = r_packet.get_doppler_factor(r, mu, t_exp)
+    doppler_factor = get_doppler_factor(r, mu, t_exp)
     comov_nu = packet.nu * doppler_factor
     mc.full_relativity = False
 
     assert_allclose(comov_nu, nu_line, rtol=1e-14)
+

@@ -2,7 +2,6 @@ import os
 import pytest
 import numpy as np
 import pandas as pd
-import tardis.montecarlo.formal_integral as formal_integral
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
 import tardis.montecarlo.montecarlo_numba.calculate_distances as calculate_distances
 import tardis.montecarlo.montecarlo_numba.frame_transformations as frame_transformations

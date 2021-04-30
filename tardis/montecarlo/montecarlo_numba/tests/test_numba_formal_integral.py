@@ -2,17 +2,12 @@ import pytest
 import numpy as np
 from tardis import constants as c
 
-from numpy.ctypeslib import (
-    as_array,
-    as_ctypes,
-)
-
-
+from copy import deepcopy
 import numpy.testing as ntest
 
 from tardis.util.base import intensity_black_body
-import tardis.montecarlo.formal_integral as formal_integral
-
+import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral
+from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
 
 @pytest.mark.parametrize(
     ["nu", "T"],
@@ -37,22 +32,14 @@ def test_trapezoid_integration(N):
     N = int(N)
     data = np.random.random(N)
 
-    actual = func(data, h, int(N))
+    actual = func(data, h)
     expected = np.trapz(data)
 
     ntest.assert_almost_equal(actual, expected)
 
 
-@pytest.mark.skipif(
-    True, reason="static inline functions are not inside the library"
-)
-def test_calculate_z():
-    pass
-
-
 def calculate_z(r, p):
     return np.sqrt(r * r - p * p)
-
 
 TESTDATA = [
     {
@@ -66,16 +53,33 @@ TESTDATA = [
 
 
 @pytest.fixture(scope="function", params=TESTDATA)
-def formal_integral_model(request, model):
+def formal_integral_model(request):
     r = request.param["r"]
-    model.no_of_shells_i = r.shape[0] - 1
-    model.time_explosion = 1 / c.c.cgs.value
-    model.r_outer_i.contents = as_ctypes(r[1:])
-    model.r_inner_i.contents = as_ctypes(r[:-1])
+    model = NumbaModel(
+            r[:-1],
+            r[1:],
+            1/c.c.cgs.value)
     return model
 
+@pytest.mark.parametrize(
+        'p', [0.0, 0.5, 1.0]
+)
+def test_calculate_z(formal_integral_model, p):
+   
+    func = formal_integral.calculate_z
+    inv_t = 1.0 / formal_integral_model.time_explosion
+    size = len(formal_integral_model.r_outer)
+    r_outer = formal_integral_model.r_outer 
+    for r in r_outer:
 
-@pytest.mark.xfail(reason="not implemented")
+        actual = func(r, p, inv_t)
+        if p >= r:
+            assert actual == 0
+        else:
+            desired = np.sqrt(r * r - p * p) * formal_integral.C_INV * inv_t
+            ntest.assert_almost_equal(actual, desired)
+
+
 @pytest.mark.parametrize("p", [0, 0.5, 1])
 def test_populate_z_photosphere(formal_integral_model, p):
     """
@@ -85,16 +89,16 @@ def test_populate_z_photosphere(formal_integral_model, p):
     integrator = formal_integral.FormalIntegrator(
         formal_integral_model, None, None
     )
-    func = integrator.populate_z
-    size = formal_integral_model.no_of_shells_i
-    r_inner = as_array(formal_integral_model.r_inner_i, (size,))
-    r_outer = as_array(formal_integral_model.r_outer_i, (size,))
+    func = formal_integral.populate_z
+    size = len(formal_integral_model.r_outer)
+    r_inner = formal_integral_model.r_inner
+    r_outer = formal_integral_model.r_outer
 
     p = r_inner[0] * p
     oz = np.zeros_like(r_inner)
     oshell_id = np.zeros_like(oz, dtype=np.int64)
 
-    N = func(p, oz, oshell_id)
+    N = func(formal_integral_model, p, oz, oshell_id)
     assert N == size
 
     ntest.assert_allclose(oshell_id, np.arange(0, size, 1))
@@ -110,11 +114,11 @@ def test_populate_z_shells(formal_integral_model, p):
     integrator = formal_integral.FormalIntegrator(
         formal_integral_model, None, None
     )
-    func = integrator.populate_z
+    func = formal_integral.populate_z
 
-    size = formal_integral_model.no_of_shells_i
-    r_inner = as_array(formal_integral_model.r_inner_i, (size,))
-    r_outer = as_array(formal_integral_model.r_outer_i, (size,))
+    size = len(formal_integral_model.r_inner)
+    r_inner = formal_integral_model.r_inner
+    r_outer = formal_integral_model.r_outer
 
     p = r_inner[0] + (r_outer[-1] - r_inner[0]) * p
     idx = np.searchsorted(r_outer, p, side="right")
@@ -140,7 +144,7 @@ def test_populate_z_shells(formal_integral_model, p):
         r_outer[np.arange(idx, size, 1)], p
     )
 
-    N = func(p, oz, oshell_id)
+    N = func(formal_integral_model, p, oz, oshell_id)
 
     assert N == expected_N
 
@@ -164,5 +168,5 @@ def test_calculate_p_values(N):
     expected = r / (N - 1) * np.arange(0, N, dtype=np.float64)
     actual = np.zeros_like(expected, dtype=np.float64)
 
-    func(r, N, actual)
+    actual[::] = func(r, N)
     ntest.assert_allclose(actual, expected)
