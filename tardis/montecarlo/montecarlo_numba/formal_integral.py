@@ -1,6 +1,4 @@
-
 import sys
-
 import warnings
 import numpy as np
 import pandas as pd
@@ -13,8 +11,8 @@ import pdb
 
 from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
 from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
-from tardis.montecarlo.montecarlo_numba.numba_interface \
-    import numba_plasma_initialize, NumbaModel, NumbaPlasma
+from tardis.montecarlo.montecarlo_numba.numba_interface import \
+        (numba_plasma_initialize, NumbaModel, NumbaPlasma)
 
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
@@ -22,7 +20,6 @@ C_INV = 3.33564e-11
 M_PI = np.arccos(-1)
 KB_CGS = 1.3806488e-16
 H_CGS = 6.62606957e-27
-#SIGMA_THOMSON = 6.652486e-25
 
 class IntegrationError(Exception):
     pass
@@ -183,7 +180,6 @@ class NumbaFormalIntegrator(object):
     Helper class for performing the formal integral
     with numba.
     '''
-    #def __init__(self, model, plasma, runner, points=1000):
     def __init__(self, model, plasma, points=1000):
 
         self.model = model
@@ -619,30 +615,6 @@ def reverse_binary_search(x, x_insert, imin, imax):
     return len(x) - 1 - np.searchsorted(x[::-1], x_insert, side='right')
 
 @njit(**njit_dict_no_parallel)
-def binary_search(x, x_insert, imin, imax, result):
-    '''numpy searchsorted is compatable with numba
-    so let's think about using that instead'''
-    # TODO: actually return result
-    if x_insert < x[imin] or x_insert > x[imax]:
-        raise BoundsError
-    else:
-        while imax >= imin:
-            imid = (imin + imax) / 2
-            if x[imid] == x_insert:
-                result = imid
-                break
-            elif x[imid] < x_insert:
-                imin = imid + 1
-            else:
-                imax = imid - 1
-        if imax - imid == 2 and x_insert < x[imin + 1]:
-            result = imin
-        else:
-            result = imin  # check
-    return result
-
-
-@njit(**njit_dict_no_parallel)
 def trapezoid_integration(array, h):
     '''in the future, let's just replace
     this with the numpy trapz
@@ -661,11 +633,7 @@ def intensity_black_body(nu, T):
     coefficient = 2 * H_CGS * C_INV * C_INV
     return coefficient * nu * nu * nu / (np.exp(H_CGS * nu * beta_rad) - 1)
 
-
 @njit(**njit_dict_no_parallel)
 def calculate_p_values(R_max, N):
     '''This can probably be replaced with a simpler function'''
     return np.arange(N).astype(np.float64) * R_max / (N - 1)
-    #for i in range(N):
-    #    opp[i] = R_max / (N - 1) * (i)
-    #return opp
