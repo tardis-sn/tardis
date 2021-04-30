@@ -319,8 +319,6 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         elif "model" in validated_config_dict.keys():
 
             # Model Section Validation
-            # Only Valid for Tardis Config File
-            # Not Valid for CSVY File Config
             model_section = validated_config_dict["model"]
 
             if model_section["structure"]["type"] == "specific":
