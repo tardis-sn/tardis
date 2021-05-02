@@ -41,10 +41,13 @@ def run_tardis(
         except TypeError:
             atom_data = atom_data
 
-    try:
-        tardis_config = Configuration.from_yaml(config)
-    except TypeError:
-        tardis_config = Configuration.from_config_dict(config)
+    if isinstance(config, Configuration):
+        tardis_config = config
+    else:
+        try:
+            tardis_config = Configuration.from_yaml(config)
+        except TypeError:
+            tardis_config = Configuration.from_config_dict(config)
 
     simulation = Simulation.from_config(
         tardis_config,
