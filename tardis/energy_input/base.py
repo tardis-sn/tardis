@@ -282,31 +282,11 @@ def main_gamma_ray_loop(num_packets, model, path):
     i = 0
     for packet in tqdm(packets):
         initial_positions.append(packet.location.r)
-        print(
-            "Initialized packet ",
-            i,
-            " at location ",
-            round(packet.location.r / model.v_outer[-1].value, 5),
-            " in shell ",
-            packet.shell,
-            "with energy",
-            packet.energy,
-        )
         distance_moved = 0.0
 
         interaction_count.append(0)
         j = 0
         while packet.status == "InProcess":
-            # print("\nstarting gamma-ray loop as the gamma-ray still exists.")
-            # print(
-            #     "Current packet ",
-            #     i,
-            #     " at location ",
-            #     round(packet.location.r / model.v_outer[-1].value, 5),
-            #     " in shell ",
-            #     packet.shell,
-            # )
-            # print("Current direction: ", packet.direction.get_cartesian_coords)
 
             compton_opacity = compton_opacity_calculation(
                 packet.energy, ejecta_density[packet.shell]
@@ -347,16 +327,7 @@ def main_gamma_ray_loop(num_packets, model, path):
                     photoabsorption_opacity,
                     total_opacity,
                 )
-                print(
-                    "Packet ",
-                    i,
-                    " interacted (",
-                    packet.status,
-                    "with energy",
-                    packet.energy,
-                    "depositing energy",
-                    ejecta_energy_gained,
-                )
+
                 # Add antiparallel packet on pair creation at end of list
                 if (
                     packet.status == "ComptonScatter"
@@ -365,10 +336,6 @@ def main_gamma_ray_loop(num_packets, model, path):
                     energy_input_type.append(0)
                     packet = move_gamma_ray(packet, distance_interaction)
                     packet.shell = get_shell(packet.location.r, outer_radii)
-                    print(
-                        "moved to radius: ",
-                        round(packet.location.r / model.v_outer[-1].value, 5),
-                    )
 
                     distance_moved += distance_interaction
                     packet.time_current += distance_moved / const.c
@@ -385,10 +352,6 @@ def main_gamma_ray_loop(num_packets, model, path):
                     energy_input_type.append(1)
                     packet = move_gamma_ray(packet, distance_interaction)
                     packet.shell = get_shell(packet.location.r, outer_radii)
-                    print(
-                        "moved to radius: ",
-                        round(packet.location.r / model.v_outer[-1].value, 5),
-                    )
                     distance_moved += distance_interaction
                     packet.time_current += distance_moved / const.c
                     energy_input_time.append(packet.time_current)
@@ -400,10 +363,6 @@ def main_gamma_ray_loop(num_packets, model, path):
                 if packet.status == "PairCreated":
                     packet = move_gamma_ray(packet, distance_interaction)
                     packet.shell = get_shell(packet.location.r, outer_radii)
-                    print(
-                        "moved to radius: ",
-                        round(packet.location.r / model.v_outer[-1].value, 5),
-                    )
                     distance_moved += distance_interaction
                     packet.time_current += distance_moved / const.c
 
@@ -422,39 +381,11 @@ def main_gamma_ray_loop(num_packets, model, path):
                         copy.deepcopy(packet.shell),
                     )
 
-                    print(
-                        "Pair creation: ",
-                        " at location ",
-                        round(packet.location.r / model.v_outer[-1].value, 5),
-                        round(
-                            backward_ray.location.r / model.v_outer[-1].value, 5
-                        ),
-                        " in shell ",
-                        packet.shell,
-                        backward_ray.shell,
-                    )
-
                     backward_ray.direction.phi += np.pi
                     if backward_ray.direction.phi > 2 * np.pi:
                         backward_ray.direction.phi -= 2 * np.pi
 
                     packets.append(backward_ray)
-
-                print(
-                    "Packet ",
-                    i,
-                    " interacted (",
-                    packet.status,
-                    "). \nIt took ",
-                    round(distance_moved / 3e10 / 3600, 2),
-                    " h and moved through ",
-                    j,
-                    "shells",
-                    "with energy",
-                    packet.energy,
-                    "depositing energy",
-                    ejecta_energy_gained,
-                )
 
                 if packet.status == "PhotoAbsorbed":
                     break
@@ -470,25 +401,12 @@ def main_gamma_ray_loop(num_packets, model, path):
                 packet.shell = get_shell(packet.location.r, outer_radii)
                 if distance_boundary == 0.0:
                     packet.shell += 1
-                # print(
-                #     "moved to radius: ",
-                #     round(packet.location.r / model.v_outer[-1].value, 5),
-                #     " . From shell ",
-                #     old_shell,
-                #     "to shell ",
-                #     packet.shell,
-                # )
-                # print(
-                #     "after move: current gamma-ray location: ",
-                #     packet.location.get_cartesian_coords,
-                # )
 
             if (
                 np.abs(packet.location.r - outer_radius) < 10.0
                 or packet.shell > len(ejecta_density) - 1
             ):
                 packet.status = "Emitted"
-                print("Packet ", i, " has escaped.\n\n\n")
                 output_energies.append(packet.energy)
             elif (
                 np.abs(packet.location.r - inner_radius) < 10.0

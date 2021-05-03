@@ -36,7 +36,6 @@ def get_compton_angle(gamma_ray):
 
     # get Compton scattering angle
     compton_angle = theta_angles[np.searchsorted(theta_distribution, z)]
-    print("compton angle: ", compton_angle * 360 / 2 / np.pi)
     # Energy calculations
     new_energy = gamma_ray.energy / (
         1.0
@@ -72,27 +71,12 @@ def compton_scatter(gamma_ray, compton_angle):
             original_direction,
         )
     )
-    print(
-        "resulting direction vector dot product original direction: ",
-        360 / 2 / np.pi * np.arccos(np.dot(new_vector, original_direction)),
-    )
 
     # draw a random angle from [0,2pi]
     phi = 2.0 * np.pi * np.random.random()
     # rotate the vector with compton_angle around the original direction
     final_compton_scattered_vector = normalize(
         np.dot(euler_rodrigues(phi, original_direction), new_vector)
-    )
-    print(
-        "angle between in and outgoing ray: ",
-        np.arccos(
-            original_direction[0] * final_compton_scattered_vector[0]
-            + original_direction[1] * final_compton_scattered_vector[1]
-            + original_direction[2] * final_compton_scattered_vector[2]
-        )
-        * 360
-        / 2
-        / np.pi,
     )
     # transform the cartesian coordinates to spherical coordinates
     r_final, theta_final, phi_final = cartesian_to_spherical(
