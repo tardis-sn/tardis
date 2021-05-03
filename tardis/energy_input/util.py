@@ -89,7 +89,7 @@ def euler_rodrigues(theta, direction):
 
     er11 = a ** 2.0 + b ** 2.0 - c ** 2.0 - d ** 2.0
     er12 = 2.0 * (b * c - a * d)
-    er13 = 2.0 * (b * d + a * d)
+    er13 = 2.0 * (b * d + a * c)
 
     er21 = 2.0 * (b * c + a * d)
     er22 = a ** 2.0 + c ** 2.0 - b ** 2.0 - d ** 2.0
