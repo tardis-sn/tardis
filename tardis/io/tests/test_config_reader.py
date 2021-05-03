@@ -74,6 +74,21 @@ def test_config_hdf(hdf_file_path, tardis_config_verysimple):
 
 
 def test_model_section_config(tardis_config_verysimple):
+    """
+    Configuration Validation Test for Model Section of the Tardis Config YAML File
+
+    Validates:
+        Density: branch85_w7
+        Velocity (Start < End)
+
+    Parameter
+    ---------
+        `tardis_config_verysimple` : YAML File
+
+    Result
+    ------
+        Assertion based on validation for specified values
+    """
     conf = Configuration.from_config_dict(
         tardis_config_verysimple, validate=True, config_dirname="test"
     )
@@ -96,6 +111,21 @@ def test_model_section_config(tardis_config_verysimple):
 
 
 def test_supernova_section_config(tardis_config_verysimple):
+    """
+    Configuration Validation Test for Supernova Section of the Tardis Config YAML File
+
+    Validates:
+        Time of Explosion (Must always be positive)
+        Luminosity Wavelength Limits (Start < End)
+
+    Parameter
+    ---------
+        `tardis_config_verysimple` : YAML File
+
+    Result
+    ------
+        Assertion based on validation for specified values
+    """
     conf = Configuration.from_config_dict(
         tardis_config_verysimple, validate=True, config_dirname="test"
     )
@@ -123,6 +153,21 @@ def test_supernova_section_config(tardis_config_verysimple):
 
 
 def test_plasma_section_config(tardis_config_verysimple):
+    """
+    Configuration Validation Test for Plasma Section of the Tardis Config YAML File
+
+    Validates:
+        Initial temperature inner (must be greater than -1K)
+        Initial radiative temperature (must be greater than -1K)
+
+    Parameter
+    ---------
+        `tardis_config_verysimple` : YAML File
+
+    Result
+    ------
+        Assertion based on validation for specified values
+    """
     conf = Configuration.from_config_dict(
         tardis_config_verysimple, validate=True, config_dirname="test"
     )
@@ -137,6 +182,20 @@ def test_plasma_section_config(tardis_config_verysimple):
 
 
 def test_spectrum_section_config(tardis_config_verysimple):
+    """
+    Configuration Validation Test for Plasma Section of the Tardis Config YAML File
+
+    Validates:
+        Spectrum Start & End Limits (Start < End)
+
+    Parameter
+    ---------
+        `tardis_config_verysimple` : YAML File
+
+    Result
+    ------
+        Assertion based on validation for specified values
+    """
     conf = Configuration.from_config_dict(
         tardis_config_verysimple, validate=True, config_dirname="test"
     )
