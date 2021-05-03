@@ -71,7 +71,6 @@ def spawn_gamma_ray(
     mass_ratio,
     energy_sorted,
     energy_cdf,
-    beta_decay=False,
 ):
     """
     Initializes a gamma ray in the simulation grid
@@ -91,16 +90,6 @@ def spawn_gamma_ray(
 
     direction_theta = get_random_theta_gamma_ray()
     direction_phi = get_random_phi_gamma_ray()
-
-    if beta_decay:
-        location_theta = get_random_theta_gamma_ray()
-        location_phi = get_random_phi_gamma_ray()
-        gamma_ray.location = SphericalVector(0, location_theta, location_phi)
-        gamma_ray.direction = SphericalVector(
-            1.0, direction_theta, direction_phi
-        )
-        gamma_ray.energy = 511.0
-        return gamma_ray
 
     energy_KeV = sample_energy_distribution(energy_sorted, energy_cdf)
 
@@ -259,7 +248,6 @@ def main_gamma_ray_loop(num_packets, model, path):
                 mass_cdf,
                 energy_sorted,
                 energy_cdf,
-                beta_decay=True,
             )
 
             ejecta_energy_theta.append(gamma_ray.location.theta)
@@ -347,11 +335,6 @@ def main_gamma_ray_loop(num_packets, model, path):
                 distance_moved,
                 ejecta_epoch,
             )
-            # if j > 20:
-            # print("Packet", i, "going slow")
-            # print(np.rad2deg(packet.direction.phi))
-            # print(np.rad2deg(packet.direction.theta))
-            # print(distance_boundary)
 
             if interaction:
                 interaction_count[i] += 1
