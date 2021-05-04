@@ -3,13 +3,13 @@ from tardis.energy_input.util import solve_quadratic_equation
 from astropy.coordinates import cartesian_to_spherical
 
 
-def calculate_distance_radial(gamma_ray, r_inner, r_outer):
+def calculate_distance_radial(gxpacket, r_inner, r_outer):
     """
     Calculates 3D distance to shell from gamma ray position
 
     Parameters
     ----------
-    gamma_ray : GammaRay object
+    gxpacket : GXPacket object
     r_inner : dtype float
     r_outer : dtype float
 
@@ -19,9 +19,9 @@ def calculate_distance_radial(gamma_ray, r_inner, r_outer):
 
     """
     # determine cartesian location coordinates of gamma-ray object
-    x, y, z = gamma_ray.location.get_cartesian_coords
+    x, y, z = gxpacket.location.get_cartesian_coords
     # determine cartesian direction coordinates of gamma-ray object
-    x_dir, y_dir, z_dir = gamma_ray.direction.get_cartesian_coords
+    x_dir, y_dir, z_dir = gxpacket.direction.get_cartesian_coords
     # solve the quadratic distance equation for the inner and
     # outer shell boundaries
     inner_1, inner_2 = solve_quadratic_equation(
@@ -38,11 +38,10 @@ def calculate_distance_radial(gamma_ray, r_inner, r_outer):
 
 
 def distance_trace(
-    gamma_ray,
+    gxpacket,
     inner_radii,
     outer_radii,
     total_opacity,
-    distance_moved,
     ejecta_epoch,
 ):
     """
@@ -51,52 +50,48 @@ def distance_trace(
 
     Parameters
     ----------
-    gamma_ray : GammaRay object
-    radii : One dimensional Numpy array, dtype float
+    gxpacket : GXPacket object
+    inner_radii : One dimensional Numpy array, dtype float
+    outer_radii : One dimensional Numpy array, dtype float
     total_opacity : dtype float
-    distance_moved : dtype float
+    ejecta_epoch : dtype float
 
     Returns
     -------
     distance_interaction : dtype float
     distance_boundary : dtype float
-     : dtype bool
 
     """
-    if gamma_ray.shell < len(inner_radii):
+    if gxpacket.shell < len(inner_radii):
         distance_boundary = calculate_distance_radial(
-            gamma_ray,
-            inner_radii[gamma_ray.shell],
-            outer_radii[gamma_ray.shell],
+            gxpacket,
+            inner_radii[gxpacket.shell],
+            outer_radii[gxpacket.shell],
         )
     else:
         distance_boundary = 0.0
-    distance_interaction = gamma_ray.tau / total_opacity / ejecta_epoch
 
-    if distance_interaction < distance_boundary:
-        gamma_ray.tau -= total_opacity * distance_interaction * ejecta_epoch
-        return distance_interaction, distance_boundary, True
-    else:
-        gamma_ray.tau -= total_opacity * distance_boundary * ejecta_epoch
-        return distance_interaction, distance_boundary, False
+    distance_interaction = gxpacket.tau / total_opacity / ejecta_epoch
+
+    return distance_interaction, distance_boundary
 
 
-def move_gamma_ray(gamma_ray, distance):
+def move_gamma_ray(gxpacket, distance):
     """
     Moves gamma ray a distance along its direction vector
 
     Parameters
     ----------
-    gamma_ray : GammaRay object
+    gxpacket : GXPacket object
     distance : dtype float
 
     Returns
     -------
-    gamma_ray : GammaRay object
+    gxpacket : GXPacket object
 
     """
-    x_old, y_old, z_old = gamma_ray.location.get_cartesian_coords
-    x_dir, y_dir, z_dir = gamma_ray.direction.get_cartesian_coords
+    x_old, y_old, z_old = gxpacket.location.get_cartesian_coords
+    x_dir, y_dir, z_dir = gxpacket.direction.get_cartesian_coords
     # overshoot by 1e-7 * distance to shell boundary
     # so that the gamma-ray is comfortably in the next shell
     x_new = x_old + distance * (1 + 1e-7) * x_dir
@@ -104,10 +99,10 @@ def move_gamma_ray(gamma_ray, distance):
     z_new = z_old + distance * (1 + 1e-7) * z_dir
 
     r, theta, phi = cartesian_to_spherical(x_new, y_new, z_new)
-    gamma_ray.location.r = r.value
-    gamma_ray.location.theta = theta.value + 0.5 * np.pi
-    gamma_ray.location.phi = phi.value
-    return gamma_ray
+    gxpacket.location.r = r.value
+    gxpacket.location.theta = theta.value + 0.5 * np.pi
+    gxpacket.location.phi = phi.value
+    return gxpacket
 
 
 def density_sampler(radii, mass_ratio):
