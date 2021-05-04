@@ -400,7 +400,6 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                     total_opacity,
                 )
 
-                # Add antiparallel packet on pair creation at end of list
                 if (
                     packet.status == "ComptonScatter"
                     and ejecta_energy_gained > 0.0
@@ -462,6 +461,7 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                     if backward_ray.direction.phi > 2 * np.pi:
                         backward_ray.direction.phi -= 2 * np.pi
 
+                    # Add antiparallel packet on pair creation at end of list
                     packets.append(backward_ray)
 
                 if packet.status == "PhotoAbsorbed":

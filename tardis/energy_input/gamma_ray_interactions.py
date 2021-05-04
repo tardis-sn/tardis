@@ -14,13 +14,13 @@ from tardis.energy_input.util import (
 # from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
 
 
-def get_compton_angle(gamma_ray):
+def get_compton_angle(gxpacket):
     """
     Computes the compton angle from the Klein-Nishina equation.
 
     Parameters
     ----------
-    gamma_ray : GammaRay object
+    gxpacket : GXPacket object
 
     Returns
     -------
@@ -29,7 +29,7 @@ def get_compton_angle(gamma_ray):
     """
 
     theta_angles, theta_distribution = compton_theta_distribution(
-        gamma_ray.energy
+        gxpacket.energy
     )
 
     z = np.random.random()
@@ -37,23 +37,22 @@ def get_compton_angle(gamma_ray):
     # get Compton scattering angle
     compton_angle = theta_angles[np.searchsorted(theta_distribution, z)]
     # Energy calculations
-    new_energy = gamma_ray.energy / (
-        1.0
-        + kappa_calculation(gamma_ray.energy) * (1.0 - np.cos(compton_angle))
+    new_energy = gxpacket.energy / (
+        1.0 + kappa_calculation(gxpacket.energy) * (1.0 - np.cos(compton_angle))
     )
-    lost_energy = gamma_ray.energy - new_energy
-    gamma_ray.energy = new_energy
+    lost_energy = gxpacket.energy - new_energy
+    gxpacket.energy = new_energy
 
     return compton_angle, lost_energy
 
 
-def compton_scatter(gamma_ray, compton_angle):
+def compton_scatter(gxpacket, compton_angle):
     """
     Changes the direction of the gamma-ray by the Compton scattering angle
 
     Parameters
     ----------
-    gamma_ray : GammaRay object
+    gxpacket : GXPacket object
     compton_angle : dtype float
 
     Returns
@@ -61,7 +60,7 @@ def compton_scatter(gamma_ray, compton_angle):
 
     """
     # transform original direction vector to cartesian coordinates
-    original_direction = normalize(gamma_ray.direction.get_cartesian_coords)
+    original_direction = normalize(gxpacket.direction.get_cartesian_coords)
     # compute an arbitrary perpendicular vector to the original direction
     orthogonal_vector = get_perpendicular_vector(original_direction)
     # determine a random vector with compton_angle to the original direction
@@ -86,8 +85,8 @@ def compton_scatter(gamma_ray, compton_angle):
     )
     # 0.5*np.pi added because of the definition of theta
     # in astropy.coordinates.cartesian_to_spherical
-    gamma_ray.direction.theta = theta_final.value + 0.5 * np.pi
-    gamma_ray.direction.phi = phi_final.value
+    gxpacket.direction.theta = theta_final.value + 0.5 * np.pi
+    gxpacket.direction.phi = phi_final.value
 
 
 def normalize(vector):
@@ -132,14 +131,14 @@ def get_perpendicular_vector(original_direction):
     return perpendicular_vector
 
 
-def pair_creation(gamma_ray):
+def pair_creation(gxpacket):
     """
     Randomly scatters the input gamma ray
     Sets its energy to 511 KeV
 
     Parameters
     ----------
-    gamma_ray : GammaRay object
+    gxpacket : GXPacket object
 
     Returns
     -------
@@ -148,20 +147,20 @@ def pair_creation(gamma_ray):
     direction_theta = get_random_theta_gamma_ray()
     direction_phi = get_random_phi_gamma_ray()
 
-    gamma_ray.energy = 511.0
-    gamma_ray.direction.theta = direction_theta
-    gamma_ray.direction.phi = direction_phi
+    gxpacket.energy = 511.0
+    gxpacket.direction.theta = direction_theta
+    gxpacket.direction.phi = direction_phi
 
 
 def scatter_type(
-    gamma_ray, compton_opacity, photoabsorption_opacity, total_opacity
+    gxpacket, compton_opacity, photoabsorption_opacity, total_opacity
 ):
     """
     Determines the scattering type based on process opacities
 
     Parameters
     ----------
-    gamma_ray : GammaRay object
+    gxpacket : GXPacket object
     compton_opacity : dtype float
     photoabsorption_opacity : dtype float
     total_opacity : dtype float
@@ -178,15 +177,13 @@ def scatter_type(
     compton_angle = 0.0
 
     if z <= (compton_opacity / total_opacity):
-        gamma_ray.status = "ComptonScatter"
-        # not happy about computing the compton angle twice.
-        # should be restructured
-        compton_angle, ejecta_energy_gain = get_compton_angle(gamma_ray)
+        gxpacket.status = "ComptonScatter"
+        compton_angle, ejecta_energy_gain = get_compton_angle(gxpacket)
     elif z <= (compton_opacity + photoabsorption_opacity) / total_opacity:
-        gamma_ray.status = "PhotoAbsorbed"
-        ejecta_energy_gain = gamma_ray.energy
+        gxpacket.status = "PhotoAbsorbed"
+        ejecta_energy_gain = gxpacket.energy
     else:
-        gamma_ray.status = "PairCreated"
-        ejecta_energy_gain = gamma_ray.energy - (2.0 * 511.0)
+        gxpacket.status = "PairCreated"
+        ejecta_energy_gain = gxpacket.energy - (2.0 * 511.0)
 
     return ejecta_energy_gain, compton_angle
