@@ -91,7 +91,7 @@ class RPacket(object):
 
 
 @njit(**njit_dict_no_parallel)
-def trace_packet(r_packet, numba_model, numba_plasma, estimators):
+def trace_packet(r_packet, numba_model, numba_plasma, estimators, chi_bf_interpolator):
     """
     Traces the RPacket through the ejecta and stops when an interaction happens (heart of the calculation)
 
@@ -126,6 +126,9 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     cur_electron_density = numba_plasma.electron_density[
         r_packet.current_shell_id
     ]
+    # Just for demonstration purposes
+    chi_bf, chi_bf_contributions, current_continua = chi_bf_interpolator(3e15, 10)
+    #print(chi_bf)
     distance_electron = calculate_distance_electron(
         cur_electron_density, tau_event
     )

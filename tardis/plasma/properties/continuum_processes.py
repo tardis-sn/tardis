@@ -41,6 +41,7 @@ __all__ = [
     "CollIonRateCoeffSeaton",
     "CollRecombRateCoeff",
     "RawCollIonTransProbs",
+    "BoundFreeOpacityInterpolator",
 ]
 
 
@@ -943,6 +944,37 @@ class BoundFreeOpacity(ProcessingPlasmaProperty):
         if num_neg_elements:
             raise PlasmaException("Negative values in bound-free opacity.")
         return chi_bf
+
+
+class BoundFreeOpacityInterpolator(ProcessingPlasmaProperty):
+    outputs = ("chi_bf_interpolator",)
+
+    def calculate(
+        self,
+        photo_ion_block_references,
+        chi_bf,
+        photo_ion_cross_sections,
+        get_current_bound_free_continua,
+    ):
+        phot_nus = photo_ion_cross_sections.nu.values
+        chi_bf = chi_bf.values
+
+        @njit(error_model="numpy", fastmath=True)
+        def chi_bf_interpolator(nu, shell):
+            current_continua = get_current_bound_free_continua(nu)
+            chi_bfs = np.zeros(len(current_continua))
+            for i, continuum_id in enumerate(current_continua):
+                start = photo_ion_block_references[continuum_id]
+                end = photo_ion_block_references[continuum_id + 1]
+                chi_bfs[i] = np.interp(
+                    nu, phot_nus[start:end], chi_bf[start:end, shell]
+                )
+            chi_bf_contributions = chi_bfs.cumsum()
+            chi_bf_tot = chi_bf_contributions[-1]
+            chi_bf_contributions /= chi_bf_tot
+            return chi_bf_tot, chi_bf_contributions, current_continua
+
+        return chi_bf_interpolator
 
 
 class LevelNumberDensityLTE(ProcessingPlasmaProperty):

@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 import pandas as pd
+from numba import njit
 from scipy.special import expn
 from scipy.interpolate import PchipInterpolator
 from collections import Counter as counter
@@ -39,6 +40,7 @@ __all__ = [
     "YgInterpolator",
     "LevelIdxs2LineIdx",
     "TwoPhotonData",
+    "BoundFreeContinuaFinder",
 ]
 
 
@@ -196,6 +198,27 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
             photo_ion_idx,
             level2continuum_edge_idx,
         )
+
+
+class BoundFreeContinuaFinder(ProcessingPlasmaProperty):
+    outputs = ("get_current_bound_free_continua",)
+
+    def calculate(self, photo_ion_cross_sections, level2continuum_idx):
+        nus = photo_ion_cross_sections.nu.loc[
+            level2continuum_idx
+        ]  # Sort by descending frequency
+        nu_mins = nus.groupby(level=[0, 1, 2]).first().values
+        nu_maxs = nus.groupby(level=[0, 1, 2]).last().values
+
+        @njit(error_model="numpy", fastmath=True)
+        def get_current_bound_free_continua(nu):
+            # searchsorted would be faster but would need stricter format for photoionization data
+            current_continua = np.where(
+                np.logical_and(nu >= nu_mins, nu <= nu_maxs)
+            )[0]
+            return current_continua
+
+        return get_current_bound_free_continua
 
 
 class TwoPhotonData(ProcessingPlasmaProperty):
