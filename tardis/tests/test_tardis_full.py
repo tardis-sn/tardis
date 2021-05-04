@@ -12,6 +12,10 @@ from tardis import run_tardis
 
 
 def test_run_tardis_from_config_obj(atomic_data_fname):
+    """
+    Tests whether the run_tardis function can take in the Configuration object
+    as arguments
+    """
     config = Configuration.from_yaml(
         "tardis/io/tests/data/tardis_configv1_verysimple.yml"
     )
