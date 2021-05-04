@@ -37,7 +37,8 @@ from tardis.io.logger import montecarlo_tracking as mc_tracker
 # @log_decorator
 @njit
 def single_packet_loop(
-    r_packet, numba_model, numba_plasma, estimators, vpacket_collection
+    r_packet, numba_model, numba_plasma, estimators, vpacket_collection,
+    chi_bf_interpolator
 ):
     """
     Parameters
@@ -76,7 +77,8 @@ def single_packet_loop(
 
     while r_packet.status == PacketStatus.IN_PROCESS:
         distance, interaction_type, delta_shell = trace_packet(
-            r_packet, numba_model, numba_plasma, estimators
+            r_packet, numba_model, numba_plasma,
+            estimators, chi_bf_interpolator
         )
 
         if interaction_type == InteractionType.BOUNDARY:
