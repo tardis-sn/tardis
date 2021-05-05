@@ -204,6 +204,8 @@ def setup_packets(
 
     # list of energy input types as integers 0, 1, 2 for Compton scattering, photoabsorption, pair creation
     energy_input_type = []
+    # list of energy input times due to photon travel times
+    energy_input_time = []
 
     for i in range(num_packets):
 
@@ -223,6 +225,7 @@ def setup_packets(
             energy_input_type.append(-1)
             ejecta_energy.append(energy_KeV)
             ejecta_energy_r.append(initial_radius)
+            energy_input_time.append(0.0)
 
             ray = GXPacket(0, 0, 1, "InProcess", 0)
             gxpacket = spawn_gxpacket(
@@ -269,6 +272,7 @@ def setup_packets(
         ejecta_energy_r,
         ejecta_energy_theta,
         energy_input_type,
+        energy_input_time,
     )
 
 
@@ -302,10 +306,7 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
         Number of events each packet encountered
     """
     escape_energy = []
-
     energy_input_type = []
-    # list of energy input times due to photon travel times
-    energy_input_time = []
     interaction_count = []
 
     # Note the use of velocity as the radial coordinate
@@ -339,6 +340,7 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
         ejecta_energy_r,
         ejecta_energy_theta,
         energy_input_type,
+        energy_input_time,
     ) = setup_packets(
         num_packets,
         gamma_ratio,
@@ -411,7 +413,6 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                     ejecta_energy.append(ejecta_energy_gained)
                     ejecta_energy_r.append(packet.location.r)
                     ejecta_energy_theta.append(packet.location.theta)
-
                 if (
                     packet.status == "PhotoAbsorbed"
                     and ejecta_energy_gained > 0.0
