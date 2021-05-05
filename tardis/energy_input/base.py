@@ -383,14 +383,8 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
             )
 
             if distance_interaction < distance_boundary:
-                packet.tau -= (
-                    total_opacity * distance_interaction * ejecta_epoch
-                )
-
                 interaction_count[i] += 1
 
-                # TODO: Given refactoring either this is irrelevant or the packet
-                # tau subtraction above is.
                 packet.tau = -np.log(np.random.random())
 
                 ejecta_energy_gained, compton_angle = scatter_type(
