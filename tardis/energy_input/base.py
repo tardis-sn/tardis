@@ -1,5 +1,6 @@
 import numpy as np
 import copy
+from tqdm.auto import tqdm
 
 # from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
 from tardis.energy_input.util import SphericalVector
@@ -31,8 +32,7 @@ from tardis.energy_input.util import (
     get_random_theta_gamma_ray,
     get_random_phi_gamma_ray,
 )
-from tqdm.auto import tqdm
-from astropy import constants as const
+from tardis import constants as const
 
 
 class GXPacket(object):
@@ -400,8 +400,8 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                 ):
                     packet = move_gamma_ray(packet, distance_interaction)
                     packet.shell = get_shell(packet.location.r, outer_radii)
-                    distance_moved += distance_interaction
-                    packet.time_current += distance_moved / const.c
+                    distance_moved += distance_interaction * ejecta_epoch
+                    packet.time_current += distance_moved / const.c.cgs.value
 
                     energy_input_time.append(packet.time_current)
 
@@ -418,8 +418,8 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                 ):
                     packet = move_gamma_ray(packet, distance_interaction)
                     packet.shell = get_shell(packet.location.r, outer_radii)
-                    distance_moved += distance_interaction
-                    packet.time_current += distance_moved / const.c
+                    distance_moved += distance_interaction * ejecta_epoch
+                    packet.time_current += distance_moved / const.c.cgs.value
 
                     energy_input_type.append(1)
                     energy_input_time.append(packet.time_current)
@@ -431,8 +431,8 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                 if packet.status == "PairCreated":
                     packet = move_gamma_ray(packet, distance_interaction)
                     packet.shell = get_shell(packet.location.r, outer_radii)
-                    distance_moved += distance_interaction
-                    packet.time_current += distance_moved / const.c
+                    distance_moved += distance_interaction * ejecta_epoch
+                    packet.time_current += distance_moved / const.c.cgs.value
 
                     energy_input_type.append(2)
                     energy_input_time.append(packet.time_current)
@@ -469,7 +469,7 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
 
                 packet = move_gamma_ray(packet, distance_boundary)
                 distance_moved += distance_boundary * ejecta_epoch
-                packet.time_current += distance_moved / const.c
+                packet.time_current += distance_moved / const.c.cgs.value
                 packet.shell = get_shell(packet.location.r, outer_radii)
                 if distance_boundary == 0.0:
                     packet.shell += 1
@@ -498,4 +498,5 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
         escape_energy,
         energy_input_type,
         interaction_count,
+        energy_input_time,
     )
