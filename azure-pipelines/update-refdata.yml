@@ -1,0 +1,74 @@
+# For more information on how to use this pipeline please refer to:
+# http://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+# IMPORTANT: Only contributors with `Write` permission can trigger the build
+#            by commenting `/AzurePipelines run <pipeline-name>` on the pull
+#            request.
+#
+#            This feature can be disabled only through the Azure Pipelines
+#            dashboard.
+
+trigger: none
+
+pr:
+  branches:
+    include:
+    - master
+
+variables:
+  system.debug: false
+  commit.sha: '$(Build.SourceVersion)'
+  pr.number: '$(System.PullRequest.PullRequestNumber)'
+  build.id: '$(Build.BuildId)'
+  job.id: '$(System.JobId)'
+  log.url: 'https://dev.azure.com/tardis-sn/TARDIS/_build/results?buildId=$(build.id)&view=logs&jobId=$(job.id)'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+  - job: 'push'
+    steps:
+      - template: templates/default.yml
+        parameters:
+          fetchRefdata: false  # We don't want to fetch from the mirror
+          useMamba: true
+          skipInstall: false
+
+      - bash: git clone https://github.com/tardis-sn/tardis-refdata $(refdata.dir)
+        displayName: 'Fetch reference data repository'
+
+      - bash: |
+          cd $(tardis.dir)
+          source activate tardis
+          pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
+        displayName: 'Generate reference data'
+
+      - bash: |
+          cd $(refdata.dir)
+          git add unit_test_data.h5
+          git config --local user.email "wkerzendorf+tardis@gmail.com"
+          git config --local user.name "TARDIS Bot"
+          git commit -m "update reference data (pr $(pr.number))"
+          git remote set-url origin https://$(bot_token)@github.com/tardis-sn/tardis-refdata
+          git push origin master
+        displayName: 'Push new reference data'
+
+      # Run only if the pipeline is triggered by a pull request.
+      - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+        - task: GitHubComment@0
+          inputs:
+            gitHubConnection: 'tardis-sn'
+            repositoryName: 'tardis-sn/tardis'
+            id: $(pr.number)
+            comment: '**Update succeeded** $(commit.sha) <br><br> Changes pushed to [tardis-sn/tardis-refdata](/tardis-sn/tardis-refdata).'
+          displayName: 'Post results (success)'
+
+        - task: GitHubComment@0
+          inputs:
+            gitHubConnection: 'tardis-sn'
+            repositoryName: 'tardis-sn/tardis'
+            id: $(pr.number)
+            comment: '**Update failed** $(commit.sha) <br><br> For more information, check the [job log]($(log.url)).'
+          displayName: 'Post results (failed)'
+          condition: failed()
