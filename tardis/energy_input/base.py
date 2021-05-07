@@ -10,12 +10,14 @@ from tardis.energy_input.gamma_ray_grid import (
     move_gamma_ray,
     mass_distribution,
     get_shell,
+    compute_required_packets_per_shell,
 )
 from tardis.energy_input.energy_source import (
     setup_input_energy,
     read_nuclear_dataframe,
     sample_energy_distribution,
     intensity_ratio,
+    load_nndc_decay_data,
 )
 from tardis.energy_input.calculate_opacity import (
     compton_opacity_calculation,
@@ -33,6 +35,7 @@ from tardis.energy_input.util import (
     get_random_phi_gamma_ray,
 )
 from tardis import constants as const
+from astropy.coordinates import cartesian_to_spherical
 
 
 class GXPacket(object):
@@ -64,103 +67,8 @@ class GXPacket(object):
         self.tau = -np.log(np.random.random())
 
 
-def spawn_gxpacket(
-    gxpacket,
-    inner_radii,
-    outer_radii,
-    mass_ratio,
-    energy_sorted,
-    energy_cdf,
-):
-    """
-    Initializes a gamma ray in the simulation grid
-
-    Parameters
-    ----------
-    gxpacket : GXPacket object
-    radii : One-dimensional Numpy Array, dtype float
-    mass_ratio : One-dimensional Numpy Array, dtype int
-    positron : dtype bool
-
-    Returns
-    -------
-    GXPacket object
-
-    """
-
-    direction_theta = get_random_theta_gamma_ray()
-    direction_phi = get_random_phi_gamma_ray()
-
-    gxpacket.energy = sample_energy_distribution(energy_sorted, energy_cdf)
-
-    initial_radius, shell = density_sampler(inner_radii, mass_ratio)
-
-    initial_radius += np.random.random() * (
-        outer_radii[shell] - inner_radii[shell]
-    )
-
-    gxpacket.shell = shell
-
-    gxpacket.direction = SphericalVector(1.0, direction_theta, direction_phi)
-
-    location_theta = get_random_theta_gamma_ray()
-    location_phi = get_random_phi_gamma_ray()
-    gxpacket.location = SphericalVector(
-        initial_radius, location_theta, location_phi
-    )
-
-    return gxpacket
-
-
-def spawn_positron(
-    inner_radii, outer_radii, mass_ratio, energy_sorted, energy_cdf
-):
-    """Spawns a positron and immediately decays it to an energy
-
-    Parameters
-    ----------
-    inner_radii : float
-        Inner radius of simulation
-    outer_radii : float
-        Outer radius of simulation
-    mass_ratio : One-dimensional Numpy Array, dtype float
-        CDF of masses
-    energy_sorted : One-dimensional Numpy Array, dtype float
-        Sorted array of possible energies
-    energy_cdf : One-dimensional Numpy Array, dtype float
-        CDF of possible energies
-
-    Returns
-    -------
-    float
-        Emitted energy
-    float
-        Radius of emitted energy
-    int
-        Shell of emitted energy
-    """
-    energy_KeV = sample_energy_distribution(energy_sorted, energy_cdf)
-    initial_radius, shell = density_sampler(inner_radii, mass_ratio)
-
-    initial_radius += np.random.random() * (
-        outer_radii[shell] - inner_radii[shell]
-    )
-
-    return energy_KeV, initial_radius, shell
-
-
-def setup_packets(
-    num_packets,
-    gamma_ratio,
-    inner_radii,
-    outer_radii,
-    mass_cdf,
-    energy_sorted,
-    energy_cdf,
-    positron_energy_sorted,
-    positron_energy_cdf,
-):
-    """Setup a list of packets and energy input from positrons
+def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
+    """Main loop that determines the gamma ray propagation
 
     Parameters
     ----------
@@ -194,109 +102,6 @@ def setup_packets(
     list
         Beta decay energy theta location in the ejecta
     list
-        Energy input type (-1 for beta decay)
-    """
-
-    packets = []
-    ejecta_energy = []
-    ejecta_energy_r = []
-    ejecta_energy_theta = []
-
-    # list of energy input types as integers 0, 1, 2 for Compton scattering, photoabsorption, pair creation
-    energy_input_type = []
-    # list of energy input times due to photon travel times
-    energy_input_time = []
-
-    for i in range(num_packets):
-
-        z = np.random.random()
-
-        if z > gamma_ratio:
-            # Spawn a pair annihilation
-            energy_KeV, initial_radius, shell = spawn_positron(
-                inner_radii,
-                outer_radii,
-                mass_cdf,
-                positron_energy_sorted,
-                positron_energy_cdf,
-            )
-
-            # Dump energy into the ejecta (via presumed Coulomb interaction)
-            energy_input_type.append(-1)
-            ejecta_energy.append(energy_KeV)
-            ejecta_energy_r.append(initial_radius)
-            energy_input_time.append(0.0)
-
-            ray = GXPacket(0, 0, 1, "InProcess", 0)
-            gxpacket = spawn_gxpacket(
-                ray,
-                inner_radii,
-                outer_radii,
-                mass_cdf,
-                energy_sorted,
-                energy_cdf,
-            )
-
-            ejecta_energy_theta.append(gxpacket.location.theta)
-
-            gxpacket.energy = 511.0
-            gxpacket.location.r = initial_radius
-            gxpacket.shell = shell
-
-            packets.append(gxpacket)
-
-            gxpacket_2 = copy.deepcopy(gxpacket)
-            gxpacket_2.direction.phi += np.pi
-
-            if gxpacket_2.direction.phi > 2 * np.pi:
-                gxpacket_2.direction.phi -= 2 * np.pi
-
-            packets.append(gxpacket_2)
-
-        else:
-            # Spawn a gamma ray emission
-            ray = GXPacket(0, 0, 1, "InProcess", 0)
-            gxpacket = spawn_gxpacket(
-                ray,
-                inner_radii,
-                outer_radii,
-                mass_cdf,
-                energy_sorted,
-                energy_cdf,
-            )
-            packets.append(gxpacket)
-
-    return (
-        packets,
-        ejecta_energy,
-        ejecta_energy_r,
-        ejecta_energy_theta,
-        energy_input_type,
-        energy_input_time,
-    )
-
-
-def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
-    """Main loop that determines the gamma ray propagation
-
-    Parameters
-    ----------
-    num_packets : int
-        Number of gamma-ray packets to run
-    model : tardis.Radial1DModel
-        Input tardis model
-    path : str
-        Path to nuclear dataframe
-
-    Returns
-    -------
-    list
-        Energy deposited in the ejecta from events
-    list
-        Radial location of energy deposition
-    list
-        Theta location of energy deposition
-    list
         Escaped energy
     One-dimensional Numpy Array, dtype float
         Inner velocities of ejecta grid shells
@@ -312,7 +117,7 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
     # Note the use of velocity as the radial coordinate
     inner_radius = model.v_inner[0].value
     outer_radius = model.v_outer[-1].value
-
+    load_nndc_decay_data(model.raw_isotope_abundance)
     outer_radii = model.v_outer[:].value
     inner_radii = model.v_inner[:].value
     ejecta_density = model.density[:].value
@@ -320,43 +125,111 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
     mass_cdf = mass_distribution(
         model.no_of_shells, inner_radii, outer_radii, ejecta_density
     )
-
-    nuclear_data = read_nuclear_dataframe(path)
-
-    gamma_ratio, positron_ratio = intensity_ratio(
-        nuclear_data, "'gamma_rays' or type=='x_rays'", "'e+'"
-    )
-    # Need to decay particles, not just spawn gamma rays
-    energy_sorted, energy_cdf = setup_input_energy(
-        nuclear_data, "'gamma_rays' or type=='x_rays'"
-    )
-    positron_energy_sorted, positron_energy_cdf = setup_input_energy(
-        nuclear_data, "'e+'"
-    )
-
-    (
-        packets,
-        ejecta_energy,
-        ejecta_energy_r,
-        ejecta_energy_theta,
-        energy_input_type,
-        energy_input_time,
-    ) = setup_packets(
-        num_packets,
-        gamma_ratio,
-        inner_radii,
+    packets_per_shell, decay_rad_db = compute_required_packets_per_shell(
         outer_radii,
-        mass_cdf,
-        energy_sorted,
-        energy_cdf,
-        positron_energy_sorted,
-        positron_energy_cdf,
+        inner_radii,
+        ejecta_density,
+        model.no_of_shells,
+        model.raw_isotope_abundance,
+        num_packets,
     )
+    print(packets_per_shell)
+
+    packets = []
+    ejecta_energy = []
+    ejecta_energy_r = []
+    ejecta_energy_theta = []
+    # list of energy input types as integers 0, 1, 2 for Compton scattering, photoabsorption, pair creation
+    energy_input_type = []
+    # list of energy input times due to photon travel times
+    energy_input_time = []
+    for column in packets_per_shell:
+        # print(column)
+        subtable = decay_rad_db.loc[column]
+        gamma_ratio, positron_ratio = intensity_ratio(
+            subtable, "'gamma_rays' or type=='x_rays'", "'e+'"
+        )
+        energy_sorted, energy_cdf = setup_input_energy(
+            subtable, "'gamma_rays' or type=='x_rays'"
+        )
+        positron_energy_sorted, positron_energy_cdf = setup_input_energy(
+            subtable, "'e+'"
+        )
+        for shell in range(model.no_of_shells):
+            required_packets_in_shell = packets_per_shell[column].iloc[shell]
+            for i_packet in range(required_packets_in_shell):
+                # draw a random gamma-ray in shell
+                ray1 = GXPacket(0, 0, 1, "InProcess", 0)
+                z1 = np.random.random()
+                initial_radius = inner_radii[shell] + z1 * (
+                    outer_radii[shell] - inner_radii[shell]
+                )
+                location_theta = get_random_theta_gamma_ray()
+                location_phi = get_random_phi_gamma_ray()
+                ray1.location = SphericalVector(
+                    initial_radius, location_theta, location_phi
+                )
+                direction_theta = get_random_theta_gamma_ray()
+                direction_phi = get_random_phi_gamma_ray()
+                ray1.direction = SphericalVector(
+                    1.0, direction_theta, direction_phi
+                )
+                ray1.shell = shell
+                z2 = np.random.random()
+                if z2 > gamma_ratio:
+                    # positron: sets gamma-ray energy to 511keV
+                    ray1.energy = 511.0
+                    packets.append(ray1)
+
+                    # annihilation dumps energy into medium
+                    energy_KeV = sample_energy_distribution(
+                        positron_energy_sorted, positron_energy_cdf
+                    )
+                    ejecta_energy.append(energy_KeV)
+                    ejecta_energy_r.append(initial_radius)
+                    ejecta_energy_theta.append(ray1.location.theta)
+                    energy_input_type.append(-1)
+                    energy_input_time.append(0.0)
+
+                    # annihilation produces second gamma-ray in opposite direction
+                    (
+                        ray1_x,
+                        ray1_y,
+                        ray1_z,
+                    ) = ray1.direction.get_cartesian_coords
+                    ray2 = copy.deepcopy(ray1)
+                    ray2_x = -ray1_x
+                    ray2_y = -ray1_y
+                    ray2_z = -ray1_z
+                    ray2_r, ray2_theta, ray2_phi = cartesian_to_spherical(
+                        ray2_x, ray2_y, ray2_z
+                    )
+                    ray2.direction.r = ray2_r
+                    # print(
+                    #     "Spawning positron at r = ",
+                    #     round(ray1.location.r / outer_radius, 5),
+                    #     " in shell ",
+                    #     shell,
+                    # )
+                    ray2.direction.theta = ray2_theta.value + 0.5 * np.pi
+                    ray2.direction.phi = ray2_phi.value
+
+                else:
+                    # Spawn a gamma ray emission with energy from gamma-ray list
+                    ray1.energy = sample_energy_distribution(
+                        energy_sorted, energy_cdf
+                    )
+                    # print(
+                    #     "Spawning gamma-ray at r = ",
+                    #     round(ray1.location.r / outer_radius, 5),
+                    #     " in shell ",
+                    #     shell,
+                    # )
+                    packets.append(ray1)
 
     i = 0
     for packet in tqdm(packets):
         distance_moved = 0.0
-
         interaction_count.append(0)
         j = 0
         while packet.status == "InProcess":
@@ -403,8 +276,9 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                     packet = move_gamma_ray(packet, distance_interaction)
                     packet.shell = get_shell(packet.location.r, outer_radii)
                     distance_moved += distance_interaction * ejecta_epoch
-                    packet.time_current += distance_moved / const.c.cgs.value
-
+                    packet.time_current += (
+                        distance_interaction / const.c.cgs.value * ejecta_epoch
+                    )
                     energy_input_time.append(packet.time_current)
 
                     compton_scatter(packet, compton_angle)
@@ -420,7 +294,9 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                     packet = move_gamma_ray(packet, distance_interaction)
                     packet.shell = get_shell(packet.location.r, outer_radii)
                     distance_moved += distance_interaction * ejecta_epoch
-                    packet.time_current += distance_moved / const.c.cgs.value
+                    packet.time_current += (
+                        distance_interaction / const.c.cgs.value * ejecta_epoch
+                    )
 
                     energy_input_type.append(1)
                     energy_input_time.append(packet.time_current)
@@ -433,7 +309,9 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                     packet = move_gamma_ray(packet, distance_interaction)
                     packet.shell = get_shell(packet.location.r, outer_radii)
                     distance_moved += distance_interaction * ejecta_epoch
-                    packet.time_current += distance_moved / const.c.cgs.value
+                    packet.time_current += (
+                        distance_interaction / const.c.cgs.value * ejecta_epoch
+                    )
 
                     energy_input_type.append(2)
                     energy_input_time.append(packet.time_current)
@@ -463,14 +341,16 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                     break
                 else:
                     packet.status = "InProcess"
+
                 distance_moved = 0.0
 
             else:
                 packet.tau -= total_opacity * distance_boundary * ejecta_epoch
-
                 packet = move_gamma_ray(packet, distance_boundary)
                 distance_moved += distance_boundary * ejecta_epoch
-                packet.time_current += distance_moved / const.c.cgs.value
+                packet.time_current += (
+                    distance_boundary / const.c.cgs.value * ejecta_epoch
+                )
                 packet.shell = get_shell(packet.location.r, outer_radii)
                 if distance_boundary == 0.0:
                     packet.shell += 1

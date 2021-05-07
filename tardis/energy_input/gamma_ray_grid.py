@@ -1,6 +1,14 @@
 import numpy as np
-from tardis.energy_input.util import solve_quadratic_equation
+from tardis.energy_input.util import (
+    solve_quadratic_equation,
+    convert_half_life_to_astropy_units,
+)
 from astropy.coordinates import cartesian_to_spherical
+import re
+from nuclear.io.nndc import get_decay_radiation_database, store_decay_radiation
+import pandas as pd
+import astropy.units as u
+from tardis.util.base import atomic_number2element_symbol
 
 
 def calculate_distance_radial(gxpacket, r_inner, r_outer):
@@ -72,7 +80,6 @@ def distance_trace(
         distance_boundary = 0.0
 
     distance_interaction = gxpacket.tau / total_opacity / ejecta_epoch
-
     return distance_interaction, distance_boundary
 
 
@@ -130,9 +137,7 @@ def density_sampler(radii, mass_ratio):
     return radii[index], index
 
 
-def mass_distribution(
-    radial_grid_size, inner_radii, outer_radii, density_profile
-):
+def mass_per_shell(radial_grid_size, inner_radii, outer_radii, density_profile):
     """Calculates the distribution of mass in the shells
     based on a density profile
 
@@ -154,8 +159,7 @@ def mass_distribution(
     """
     mass = np.zeros(radial_grid_size)
 
-    i = 0
-    while i < radial_grid_size:
+    for i in range(radial_grid_size):
         if i == 0:
             mass[i] = (
                 4.0
@@ -172,12 +176,21 @@ def mass_distribution(
                 * density_profile[i]
                 * (outer_radii[i] ** 3.0 - outer_radii[i - 1] ** 3.0)
             )
+    return mass
 
-            mass[i] += mass[i - 1]
 
-        i += 1
-
-    return mass / np.max(mass)
+def mass_distribution(
+    radial_grid_size, inner_radii, outer_radii, density_profile
+):
+    shell_masses = mass_per_shell(
+        radial_grid_size, inner_radii, outer_radii, density_profile
+    )
+    mass_cdf = mass = np.zeros(radial_grid_size)
+    mass = 0
+    for i in range(radial_grid_size):
+        mass += shell_masses[i]
+        mass_cdf[i] = mass
+    return mass_cdf / np.max(mass_cdf)
 
 
 def get_shell(radius, outer_radii):
@@ -198,3 +211,44 @@ def get_shell(radius, outer_radii):
     shell_inner = np.searchsorted(outer_radii, radius, side="left")
 
     return shell_inner
+
+
+def compute_required_packets_per_shell(
+    outer_radii,
+    inner_radii,
+    ejecta_density,
+    number_of_shells,
+    raw_isotope_abundance,
+    number_of_packets,
+):
+    shell_masses = mass_per_shell(
+        number_of_shells, inner_radii, outer_radii, ejecta_density
+    )
+    shell_masses = shell_masses / np.sum(shell_masses)
+    abundance_dict = {}
+    for index, row in raw_isotope_abundance.iterrows():
+        isotope_string = atomic_number2element_symbol(index[0]) + str(index[1])
+        store_decay_radiation(isotope_string, force_update=False)
+        abundance_dict[isotope_string] = row * shell_masses
+    abundance_df = pd.DataFrame.from_dict(abundance_dict)
+
+    decay_rad_db, meta = get_decay_radiation_database()
+
+    activity_df = abundance_df.copy()
+    for column in activity_df:
+        isotope_meta = meta.loc[column]
+        half_life = isotope_meta.loc[
+            isotope_meta["key"] == "Parent T1/2 value"
+        ]["value"].values[0]
+        half_life = convert_half_life_to_astropy_units(half_life)
+        atomic_mass = float(re.findall("\d+", column)[0])
+        activity_factor = np.log(2) / atomic_mass / half_life
+        activity_df[column] = activity_df[column] * activity_factor
+    total_activity = activity_df.to_numpy().sum()
+    packet_per_shell_df = activity_df.copy()
+    for column in packet_per_shell_df:
+        packet_per_shell_df[column] = round(
+            packet_per_shell_df[column] * number_of_packets / total_activity
+        )
+        packet_per_shell_df[column] = packet_per_shell_df[column].astype(int)
+    return packet_per_shell_df, decay_rad_db

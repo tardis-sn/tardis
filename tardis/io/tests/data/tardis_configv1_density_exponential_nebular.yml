@@ -28,10 +28,12 @@ model:
         type: uniform
         O: 0.19
         Mg: 0.03
-        Si: 0.52
-        S: 0.19
+        Si: 0.12
+        S: 0.09
         Ar: 0.04
         Ca: 0.03
+        Ni56: 0.4
+        Ni57: 0.1
 
 plasma:
     ionization: nebular

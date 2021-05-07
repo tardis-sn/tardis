@@ -214,3 +214,17 @@ def get_random_phi_gamma_ray():
         Random phi direction
     """
     return 2.0 * np.pi * np.random.random()
+
+
+def convert_half_life_to_astropy_units(half_life_string):
+    [value, unit] = half_life_string.split(" ")
+    try:
+        [nominal_value, magnitude] = value.split("×")
+        [base, exponent] = magnitude.split("+")
+        nominal_value = float(nominal_value) * float(base) ** float(exponent)
+    except ValueError:
+        nominal_value = float(value)
+    if unit == "y":
+        unit = "yr"
+    half_life_with_unit = nominal_value * u.Unit(unit)
+    return half_life_with_unit.to(u.s)
