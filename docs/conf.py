@@ -100,7 +100,7 @@ rst_epilog = """
 # This does not *have* to match the package name, but typically does
 project = "TARDIS"
 author = "TARDIS collaboration"
-copyright = "{0}-{1}, {2}".format(2013, datetime.datetime.now().year, author)
+copyright = f"{2013}-{datetime.datetime.now().year}, {author}"
 
 master_doc = "index"
 # default_role = 'obj'
@@ -157,7 +157,8 @@ html_favicon = "tardis_logo.ico"
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = "{0} v{1}".format(project, release)
+
+html_title = f"{project} v{release}"
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = project + "doc"
@@ -199,6 +200,13 @@ def to_html_ext(path):
     return os.path.splitext(path)[0] + ".html"
 
 
+def autodoc_skip_member(app, what, name, obj, skip, options):
+    """Exclude specific functions/methods from the documentation"""
+    exclusions = ("yaml_constructors", "yaml_implicit_resolvers")
+    exclude = name in exclusions
+    return skip or exclude
+
+
 def create_redirect_files(app, docname):
     """Create redirect html files at old paths specified in `redirects` list."""
     template_html_path = os.path.join(
@@ -223,4 +231,5 @@ def create_redirect_files(app, docname):
 
 
 def setup(app):
+    app.connect("autodoc-skip-member", autodoc_skip_member)
     app.connect("build-finished", create_redirect_files)

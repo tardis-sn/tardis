@@ -531,20 +531,18 @@ class ModelViewer(QtWidgets.QWidget):
         """Read some data from tardis model and display on the label for
         quick user access.
         """
-        labeltext = "Iterations requested: {} <br/> Iterations executed:  {}<br/>\
-                     Model converged     : {} <br/> Simulation Time    :  {} s <br/>\
-                     Inner Temperature   : {} K <br/> Number of packets  :  {}<br/>\
-                     Inner Luminosity    : {}".format(
-            self.model.iterations,
-            self.model.iterations_executed,
+
+        model_converged = (
             '<font color="green"><b>True</b></font>'
             if self.model.converged
-            else '<font color="red"><b>False</b></font>',
-            self.model.runner.time_of_simulation.value,
-            self.model.model.t_inner.value,
-            self.model.last_no_of_packets,
-            self.model.runner.calculate_luminosity_inner(self.model.model),
+            else '<font color="red"><b>False</b></font>'
         )
+
+        labeltext = f"Iterations requested: {self.model.iterations} <br/> Iterations executed:  {self.model.iterations_executed}<br/>\
+                     Model converged     : {model_converged} <br/> Simulation Time    :  {self.model.runner.time_of_simulation.value} s <br/>\
+                     Inner Temperature   : {self.model.model.t_inner.value} K <br/> Number of packets  :  {self.model.last_no_of_packets}<br/>\
+                     Inner Luminosity    : {self.model.runner.calculate_luminosity_inner(self.model.model)}"
+
         self.outputLabel.setText(labeltext)
 
     def make_shell_widget(self):

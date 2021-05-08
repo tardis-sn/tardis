@@ -103,7 +103,7 @@ class RemotePlotSaver(BasePlotSaver):
             self.save(plot, plot_file.name, report)
 
             self.request.config.dokureport.doku_conn.medias.add(
-                "reports:{0}:{1}.png".format(tardis_githash[:7], name),
+                f"reports:{tardis_githash[:7]}:{name}.png",
                 plot_file.name,
             )
 
@@ -146,7 +146,7 @@ class LocalPlotSaver(BasePlotSaver):
         for plot, name in self._plots:
             self.save(
                 plot,
-                os.path.join(self.assets_dirpath, "{0}.png".format(name)),
+                os.path.join(self.assets_dirpath, f"{name}.png"),
                 report,
             )
 

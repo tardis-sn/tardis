@@ -12,8 +12,6 @@ dependencies:
   - astropy=3
   - numba=0.50
   - numexpr
-  - Cython=0.29
-  - compilers
 
   # Plasma
   - networkx
@@ -46,7 +44,7 @@ dependencies:
   - sphinx
   - nbconvert
   - numpydoc
-  - docutils
+  - docutils>=0.16,<0.17
   - nbformat
   - nbsphinx
   - sphinx_bootstrap_theme
@@ -77,3 +75,4 @@ dependencies:
       - dot2tex
       - sphinx-jsonschema
       - git+https://github.com/Naereen/dot2tex.git
+      - pickle5
