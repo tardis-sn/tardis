@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 from astropy import units as u, constants as const
 from collections import OrderedDict
+import matplotlib.pyplot as plt
+import matplotlib.ticker
 
 from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
@@ -101,6 +103,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         .. note:: TARDIS must be built with OpenMP support in order for
         `nthreads` to have effect.
     """
+
+    var_t_rad, var_w = [], []  # lists to store all the values of t_rad and w
+    count = 1
 
     hdf_properties = [
         "model",
@@ -391,6 +396,52 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
         )
         self._call_back()
+        self.visualize(
+            self.var_t_rad, self.var_w
+        )  # call to visualize the simulation results
+
+    def type_converter(self, t_rad, w):
+        temp_t_rad, temp_w = [], []
+        for i in range(len(t_rad)):
+            temp_t_rad.extend([t_rad[i].value])
+
+        for i in range(len(t_rad)):
+            temp_w.extend([w[i]])
+        return temp_t_rad, temp_w
+
+    def visualize(self, t_rad, w):
+        ### FOR FIG1: RADIATION TEMPERATURE VS SHELL
+        fig = plt.figure(figsize=(14, 7))
+        plt.title("Radiation Temperature VS Shell GRAPH")
+        plt.xlabel("SHELL")
+        formatter = matplotlib.ticker.StrMethodFormatter("{x:.0f}")
+        plt.gca().xaxis.set_major_formatter(formatter)
+        plt.ylabel("TEMPERATURE")
+        plt.tick_params(axis="both", which="major", labelsize=15)
+        plt.plot()
+        self.count = 1
+        with plt.style.context("Solarize_Light2"):
+            for row in t_rad:
+                plt.plot(range(len(row)), row, label=f"iteration{self.count}")
+                self.count += 1
+        plt.legend(loc="upper right")
+        plt.show()
+
+        ### FOR FIG2: DILUTION FACTOR VS SHELL
+        fig2 = plt.figure(figsize=(14, 7))
+        plt.title("Dilution factor VS Shell GRAPH")
+        plt.xlabel("SHELL")
+        plt.ylabel("W")
+        plt.tick_params(axis="both", which="major", labelsize=15)
+        plt.plot()
+        self.count = 1
+        with plt.style.context("Solarize_Light2"):
+            for row in w:
+                plt.plot(range(len(row)), row, label=f"iteration{self.count}")
+                self.count += 1
+        plt.legend(loc="upper right")
+        plt.gca().xaxis.set_major_formatter(formatter)
+        plt.show()
 
     def log_plasma_state(
         self,
@@ -422,6 +473,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         Returns
         -------
         """
+        x, y = self.type_converter(t_rad, w)
+        self.var_t_rad.append(x)
+        self.var_w.append(y)
 
         plasma_state_log = pd.DataFrame(
             index=np.arange(len(t_rad)),
