@@ -205,10 +205,10 @@ class BoundFreeContinuaFinder(ProcessingPlasmaProperty):
 
     def calculate(self, photo_ion_cross_sections, level2continuum_idx):
         nus = photo_ion_cross_sections.nu.loc[
-            level2continuum_idx
+            level2continuum_idx.index
         ]  # Sort by descending frequency
-        nu_mins = nus.groupby(level=[0, 1, 2]).first().values
-        nu_maxs = nus.groupby(level=[0, 1, 2]).last().values
+        nu_mins = nus.groupby(level=[0, 1, 2], sort=False).first().values
+        nu_maxs = nus.groupby(level=[0, 1, 2], sort=False).last().values
 
         @njit(error_model="numpy", fastmath=True)
         def get_current_bound_free_continua(nu):
