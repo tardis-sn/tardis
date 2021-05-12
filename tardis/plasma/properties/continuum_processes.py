@@ -951,13 +951,22 @@ class BoundFreeOpacityInterpolator(ProcessingPlasmaProperty):
 
     def calculate(
         self,
-        photo_ion_block_references,
         chi_bf,
         photo_ion_cross_sections,
         get_current_bound_free_continua,
+        level2continuum_idx,
     ):
-        phot_nus = photo_ion_cross_sections.nu.values
-        chi_bf = chi_bf.values
+        # Sort everything by descending frequeny (i.e. continuum_id)
+        # TODO: Do we really gain much by sorting by continuum_id?
+        phot_nus = photo_ion_cross_sections.nu.loc[level2continuum_idx.index]
+        photo_ion_block_references = np.pad(
+            phot_nus.groupby(level=[0, 1, 2], sort=False)
+            .count()
+            .values.cumsum(),
+            [1, 0],
+        )
+        phot_nus = phot_nus.values
+        chi_bf = chi_bf.loc[level2continuum_idx.index].values
 
         @njit(error_model="numpy", fastmath=True)
         def chi_bf_interpolator(nu, shell):
