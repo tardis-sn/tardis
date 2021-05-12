@@ -50,8 +50,14 @@ C = const.c.cgs.value
 H = const.h.cgs.value
 A0 = const.a0.cgs.value
 M_E = const.m_e.cgs.value
+E = const.e.esu.value
 BETA_COLL = (H ** 4 / (8 * K_B * M_E ** 3 * np.pi ** 3)) ** 0.5
-
+F_K = (
+    16
+    / (3.0 * np.sqrt(3))
+    * np.sqrt((2 * np.pi) ** 3 * K_B / (H ** 2 * M_E ** 3))
+    * (E ** 2 / C) ** 3
+)  # See Eq. 19 in Sutherland, R. S. 1998, MNRAS, 300, 321
 
 logger = logging.getLogger(__name__)
 
@@ -854,7 +860,7 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
         ff_cooling_factor = self._calculate_ff_cooling_factor(
             ion_number_density, electron_densities
         )
-        cool_rate_ff = 1.426e-27 * np.sqrt(t_electrons) * ff_cooling_factor
+        cool_rate_ff = F_K * np.sqrt(t_electrons) * ff_cooling_factor
         cool_rate_ff = cooling_rate_series2dataframe(
             cool_rate_ff, destination_level_idx="ff"
         )
