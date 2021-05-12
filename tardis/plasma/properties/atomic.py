@@ -201,9 +201,14 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
 
 
 class BoundFreeContinuaFinder(ProcessingPlasmaProperty):
-    outputs = ("get_current_bound_free_continua",)
+    outputs = (
+        "get_current_bound_free_continua",
+        "determine_bf_macro_activation_idx",
+    )
 
-    def calculate(self, photo_ion_cross_sections, level2continuum_idx):
+    def calculate(
+        self, photo_ion_cross_sections, level2continuum_idx, photo_ion_idx
+    ):
         nus = photo_ion_cross_sections.nu.loc[
             level2continuum_idx.index
         ]  # Sort by descending frequency
@@ -212,13 +217,72 @@ class BoundFreeContinuaFinder(ProcessingPlasmaProperty):
 
         @njit(error_model="numpy", fastmath=True)
         def get_current_bound_free_continua(nu):
+            """
+            Determine bound-free continua for which absorption is possible.
+
+            Parameters
+            ----------
+            nu : float
+                Comoving frequency of the r-packet.
+
+            Returns
+            -------
+            numpy.ndarray, dtype int
+                Continuum ids for which absorption is possible for frequency `nu`.
+            """
             # searchsorted would be faster but would need stricter format for photoionization data
             current_continua = np.where(
                 np.logical_and(nu >= nu_mins, nu <= nu_maxs)
             )[0]
             return current_continua
 
-        return get_current_bound_free_continua
+        destination_level_idxs = photo_ion_idx.loc[
+            level2continuum_idx.index, "destination_level_idx"
+        ].values
+
+        @njit(error_model="numpy", fastmath=True)
+        def determine_bf_macro_activation_idx(
+            nu, chi_bf_contributions, active_continua
+        ):
+            """
+            Determine the macro atom activation level after bound-free absorption.
+
+            Parameters
+            ----------
+            nu : float
+                Comoving frequency of the r-packet.
+            chi_bf_contributions : numpy.ndarray, dtype float
+                Cumulative distribution of bound-free opacities at frequency
+                `nu`.
+            active_continua : numpy.ndarray, dtype int
+                Continuum ids for which absorption is possible for frequency `nu`.
+
+            Returns
+            -------
+            float
+                Macro atom activation idx.
+            """
+            # Perform a MC experiment to determine the continuum for absorption
+            index = np.searchsorted(chi_bf_contributions, np.random.random())
+            continuum_id = active_continua[index]
+
+            # Perform a MC experiment to determine whether thermal or
+            # ionization energy is created
+            nu_threshold = nu_mins[continuum_id]
+            fraction_ionization = nu_threshold / nu
+            if (
+                np.random.random() < fraction_ionization
+            ):  # Create ionization energy (i-packet)
+                destination_level_idx = destination_level_idxs[continuum_id]
+            else:  # Create thermal energy (k-packet)
+                # TODO: Replace with the actual macro atom idx
+                destination_level_idx = -1
+            return destination_level_idx
+
+        return (
+            get_current_bound_free_continua,
+            determine_bf_macro_activation_idx,
+        )
 
 
 class TwoPhotonData(ProcessingPlasmaProperty):
