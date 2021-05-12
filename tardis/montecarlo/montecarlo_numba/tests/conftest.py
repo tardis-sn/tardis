@@ -116,7 +116,6 @@ def packet(verysimple_packet_collection):
         energy=verysimple_packet_collection.packets_input_energy[0],
         seed=1963,
         index=0,
-        is_close_line=0,
     )
 
 
@@ -129,7 +128,6 @@ def static_packet():
         energy=0.9,
         seed=1963,
         index=0,
-        is_close_line=0,
     )
 
 
