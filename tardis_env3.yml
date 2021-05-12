@@ -26,6 +26,7 @@ dependencies:
   - tqdm
   - beautifulsoup4
   - lxml
+  - pickle5
 
   # Analysis
   - jupyter
@@ -44,7 +45,7 @@ dependencies:
   - sphinx
   - nbconvert
   - numpydoc
-  - docutils>=0.16,<0.17
+  - docutils=0.16
   - nbformat
   - nbsphinx
   - sphinx_bootstrap_theme
@@ -59,7 +60,6 @@ dependencies:
   - pytest-html
   - pytest-cov
   - coverage
-  - requests
   - docopt
 
   # Code quality
@@ -75,4 +75,3 @@ dependencies:
       - dot2tex
       - sphinx-jsonschema
       - git+https://github.com/Naereen/dot2tex.git
-      - pickle5
