@@ -166,7 +166,6 @@ def montecarlo_main_loop(
             packet_collection.packets_input_energy[i],
             seed,
             i,
-            0,
         )
         vpacket_collection = VPacketCollection(
             r_packet.index,

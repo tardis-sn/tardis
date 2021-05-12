@@ -29,7 +29,6 @@ def v_packet():
         current_shell_id=0,
         next_line_id=0,
         index=0,
-        is_close_line=0,
     )
 
 
@@ -87,7 +86,6 @@ def test_trace_vpacket(
     npt.assert_almost_equal(v_packet.energy, 0.0)
     npt.assert_almost_equal(v_packet.mu, 0.8309726858508629)
     assert v_packet.next_line_id == 2773
-    assert v_packet.is_close_line == False
     assert v_packet.current_shell_id == 1
 
 
@@ -121,7 +119,6 @@ def broken_packet():
         mu=0.4916053094346575,
         energy=2.474533071386993e-07,
         index=3,
-        is_close_line=True,
         current_shell_id=0,
         next_line_id=5495,
     )
