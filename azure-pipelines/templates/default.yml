@@ -20,18 +20,18 @@ parameters:
 
 steps:
   - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
-    displayName: 'Set BASH exit on error'
+    displayName: 'Force BASH exit on error'
     condition: eq(variables['Agent.OS'], 'Linux')
 
   - bash: |
       echo "##vso[task.setvariable variable=tardis.dir]$(Build.SourcesDirectory)/tardis"
       echo "##vso[task.setvariable variable=refdata.dir]$(Build.SourcesDirectory)/tardis-refdata"
-    displayName: 'Set source directories'
+    displayName: 'Set environment variables'
 
   - ${{ if eq(parameters.useMamba, false) }}:
     - bash: |
         echo "##vso[task.setvariable variable=package.manager]conda"
-      displayName: 'Set package manager'
+      displayName: 'Set environment variables'
 
   - ${{ if eq(parameters.useMamba, true) }}:
     - bash: |
@@ -41,12 +41,11 @@ steps:
   - checkout: self
     path: s/tardis
     fetchDepth: ${{ parameters.fetchDepth }}
-    displayName: 'Fetch main repository'
 
   - ${{ if eq(parameters.fetchRefdata, true) }}:
     - checkout: git://TARDIS/tardis-refdata
       lfs: true
-      displayName: 'Fetch reference data repository'
+      displayName: 'Fetch reference data'
 
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: 'Add conda to PATH'
@@ -57,17 +56,17 @@ steps:
 
   - ${{ if eq(parameters.useMamba, true) }}:
     - bash: conda install mamba -c conda-forge -y
-      displayName: 'Install package manager'
+      displayName: 'Install Mamba'
 
   - ${{ if eq(parameters.skipInstall, false) }}:
     - bash: |
         cd $(tardis.dir)
         $(package.manager) env create -f tardis_env3.yml
-      displayName: 'Install conda environment'
+      displayName: 'Setup environment'
 
   - ${{ if eq(parameters.skipInstall, false) }}:
     - bash: |
         cd $(tardis.dir)
         source activate tardis
         python setup.py install
-      displayName: 'Build C extensions'
+      displayName: 'Install package'
