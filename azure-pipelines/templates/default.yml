@@ -2,6 +2,10 @@
 # http://tardis-sn.github.io/tardis/development/continuous_integration.html
 
 parameters:
+  - name: fetchDepth
+    type: number
+    default: 0
+
   - name: fetchRefdata
     type: boolean
     default: false
@@ -36,6 +40,7 @@ steps:
  
   - checkout: self
     path: s/tardis
+    fetchDepth: ${{ parameters.fetchDepth }}
     displayName: 'Fetch main repository'
 
   - ${{ if eq(parameters.fetchRefdata, true) }}:
