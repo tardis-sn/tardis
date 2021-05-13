@@ -69,5 +69,5 @@ steps:
     - bash: |
         cd $(tardis.dir)
         source activate tardis
-        python setup.py build_ext --inplace
+        python setup.py install
       displayName: 'Build C extensions'
