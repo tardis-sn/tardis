@@ -15,10 +15,10 @@ During a Monte Carlo calculation, a large number of packets, all with a certain
 energy :math:`\varepsilon`, are created. In addition, each packet is associated
 with a frequency. These assignments are performed in a manner which ensures
 that the ensemble of packets represents the spectral energy distribution of the
-radiation field (see :doc:`Propagation <propagation>`).
+radiation field (see :ref:`Propagation <propagation>`).
 
 During the simulation, the energy of the packet remains constant in the local
-co-moving frame (see :doc:`Reference Frames <../physics/referenceframes>` for
+co-moving frame (see :ref:`Reference Frames <referenceframes>` for
 details about the lab and co-moving frames). This naturally ensures energy
 conservation and constitutes the main advantage of this discretization scheme.
 There is one side effect of this so-called indivisible packet energy scheme
