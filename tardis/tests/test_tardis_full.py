@@ -8,6 +8,24 @@ from astropy.tests.helper import assert_quantity_allclose
 from tardis.simulation.base import Simulation
 from tardis.io.config_reader import Configuration
 
+from tardis import run_tardis
+
+
+def test_run_tardis_from_config_obj(atomic_data_fname):
+    """
+    Tests whether the run_tardis function can take in the Configuration object
+    as arguments
+    """
+    config = Configuration.from_yaml(
+        "tardis/io/tests/data/tardis_configv1_verysimple.yml"
+    )
+    config["atom_data"] = atomic_data_fname
+
+    try:
+        sim = run_tardis(config)
+    except Exception as e:
+        pytest.fail(str(e.args[0]))
+
 
 class TestRunnerSimple:
     """
