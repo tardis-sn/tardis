@@ -40,7 +40,7 @@ __all__ = [
     "YgInterpolator",
     "LevelIdxs2LineIdx",
     "TwoPhotonData",
-    "BoundFreeContinuaFinder",
+    "ContinuumInteractionHandler",
 ]
 
 
@@ -200,10 +200,11 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
         )
 
 
-class BoundFreeContinuaFinder(ProcessingPlasmaProperty):
+class ContinuumInteractionHandler(ProcessingPlasmaProperty):
     outputs = (
         "get_current_bound_free_continua",
         "determine_bf_macro_activation_idx",
+        "determine_continuum_macro_activation_idx",
     )
 
     def calculate(
@@ -279,9 +280,48 @@ class BoundFreeContinuaFinder(ProcessingPlasmaProperty):
                 destination_level_idx = -1
             return destination_level_idx
 
+        @njit(error_model="numpy", fastmath=True)
+        def determine_continuum_macro_activation_idx(
+            nu, chi_bf, chi_ff, chi_bf_contributions, active_continua
+        ):
+            """
+            Determine the macro atom activation level after a continuum absorption.
+
+            Parameters
+            ----------
+            nu : float
+                Comoving frequency of the r-packet.
+            chi_bf : numpy.ndarray, dtype float
+                Bound-free opacity.
+            chi_bf : numpy.ndarray, dtype float
+                Free-free opacity.
+            chi_bf_contributions : numpy.ndarray, dtype float
+                Cumulative distribution of bound-free opacities at frequency
+                `nu`.
+            active_continua : numpy.ndarray, dtype int
+                Continuum ids for which absorption is possible for frequency `nu`.
+
+            Returns
+            -------
+            float
+                Macro atom activation idx.
+            """
+            fraction_bf = chi_bf / (chi_bf + chi_ff)
+            # TODO: In principle, we can also decide here whether a Thomson
+            # scattering event happens and need one less RNG call.
+            if np.random.random() < fraction_bf:  # Bound-free absorption
+                destination_level_idx = determine_bf_macro_activation_idx(
+                    nu, chi_bf_contributions, active_continua
+                )
+            else:  # Free-free absorption (i.e. k-packet creation)
+                # TODO: Replace with the actual macro atom idx
+                destination_level_idx = -1
+            return destination_level_idx
+
         return (
             get_current_bound_free_continua,
             determine_bf_macro_activation_idx,
+            determine_continuum_macro_activation_idx,
         )
 
 
