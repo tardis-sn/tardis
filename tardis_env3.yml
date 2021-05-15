@@ -67,6 +67,7 @@ dependencies:
   - coverage
 
   # Code quality
+  - pre-commit
   - black
 
   # Other
