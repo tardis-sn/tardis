@@ -2,15 +2,19 @@ from numba import njit
 import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
-    InteractionType,
     PacketStatus,
-    get_inverse_doppler_factor,
     trace_packet,
     move_packet_across_shell_boundary,
     move_r_packet,
-    MonteCarloException,
+)
+
+from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
+
+from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+    get_inverse_doppler_factor,
 )
 from tardis.montecarlo.montecarlo_numba.interaction import (
+    InteractionType,
     thomson_scatter,
     line_scatter,
 )

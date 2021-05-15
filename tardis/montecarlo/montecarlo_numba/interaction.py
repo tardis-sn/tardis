@@ -1,5 +1,5 @@
 from numba import njit
-from tardis.montecarlo.montecarlo_numba import njit_dict,njit_dict_no_parallel
+from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     LineInteractionType,
 )
@@ -7,13 +7,16 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
-from tardis.montecarlo.montecarlo_numba.r_packet import (
+from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
-    get_random_mu,
     angle_aberration_CMF_to_LF,
-    test_for_close_line,
 )
+from tardis.montecarlo.montecarlo_numba.r_packet import (
+    test_for_close_line,
+    InteractionType,
+)
+from tardis.montecarlo.montecarlo_numba.utils import get_random_mu
 from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
 
 
@@ -54,7 +57,7 @@ def thomson_scatter(r_packet, time_explosion):
 def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
     """
     Line scatter function that handles the scattering itself, including new angle drawn, and calculating nu out using macro atom
-    
+
     Parameters
     ----------
     r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket

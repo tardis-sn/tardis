@@ -145,8 +145,11 @@ definitions:
   abundance:
     uniform:
       type: object
-      additionalProperties: true
       properties:
         type:
           enum:
           - uniform
+      additionalProperties:
+        type: number
+        minimum: 0
+        maximum: 1

@@ -48,14 +48,7 @@ def pytest_terminal_summary(terminalreporter):
         # TODO: Add a check whether generation was successful or not.
         terminalreporter.write_sep(
             "-",
-            "Generated reference data: {0}".format(
-                os.path.join(
-                    terminalreporter.config.integration_tests_config[
-                        "reference"
-                    ],
-                    tardis_githash[:7],
-                )
-            ),
+            f"Generated reference data: {os.path.join(terminalreporter.config.integration_tests_config['reference'], tardis_githash[:7],)}",
         )
 
 
@@ -97,7 +90,7 @@ def plot_object(request):
 )
 def data_path(request):
     integration_tests_config = request.config.integration_tests_config
-    hdf_filename = "{0}.h5".format(os.path.basename(request.param))
+    hdf_filename = f"{os.path.basename(request.param)}.h5"
     if request.config.getoption("--generate-reference"):
         ref_path = os.path.join(
             os.path.expandvars(
@@ -153,8 +146,8 @@ def reference(request, data_path):
             reference = pd.HDFStore(data_path["reference_path"], "r")
         except IOError:
             raise IOError(
-                "Reference file {0} does not exist and is needed"
-                " for the tests".format(data_path["reference_path"])
+                f'Reference file {data_path["reference_path"]} does not exist and is needed'
+                f" for the tests"
             )
 
         else:

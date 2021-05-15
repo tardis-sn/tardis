@@ -12,7 +12,7 @@ from tardis.montecarlo.spectrum import TARDISSpectrum
 from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo import packet_source as source
-from tardis.montecarlo.formal_integral import FormalIntegrator
+from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
 
 
@@ -283,7 +283,6 @@ class MontecarloRunner(HDFWriterMixin):
 
         set_num_threads(nthreads)
 
-        self._integrator = FormalIntegrator(model, plasma, self)
         self.time_of_simulation = self.calculate_time_of_simulation(model)
         self.volume = model.volume
 
@@ -296,6 +295,7 @@ class MontecarloRunner(HDFWriterMixin):
 
         configuration_initialize(self, no_of_virtual_packets)
         montecarlo_radial1d(model, plasma, self)
+        self._integrator = FormalIntegrator(model, plasma, self)
         # montecarlo.montecarlo_radial1d(
         #    model, plasma, self,
         #    virtual_packet_flag=no_of_virtual_packets,
@@ -546,7 +546,9 @@ class MontecarloRunner(HDFWriterMixin):
         pass
 
     @classmethod
-    def from_config(cls, config, packet_source=None, virtual_packet_logging=False):
+    def from_config(
+        cls, config, packet_source=None, virtual_packet_logging=False
+    ):
         """
         Create a new MontecarloRunner instance from a Configuration object.
 
@@ -597,5 +599,8 @@ class MontecarloRunner(HDFWriterMixin):
             debug_packets=config.montecarlo.debug_packets,
             logger_buffer=config.montecarlo.logger_buffer,
             single_packet_seed=config.montecarlo.single_packet_seed,
-            virtual_packet_logging=(config.spectrum.virtual.virtual_packet_logging | virtual_packet_logging),
+            virtual_packet_logging=(
+                config.spectrum.virtual.virtual_packet_logging
+                | virtual_packet_logging
+            ),
         )

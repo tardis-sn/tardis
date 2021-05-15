@@ -5,8 +5,9 @@ import numpy as np
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     RPacket,
     PacketStatus,
-    MonteCarloException,
 )
+from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
+
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     PacketCollection,
     VPacketCollection,

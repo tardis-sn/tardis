@@ -2,8 +2,15 @@ import os
 import pytest
 import numpy as np
 import pandas as pd
-import tardis.montecarlo.formal_integral as formal_integral
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
+import tardis.montecarlo.montecarlo_numba.calculate_distances as calculate_distances
+import tardis.montecarlo.montecarlo_numba.frame_transformations as frame_transformations
+import tardis.montecarlo.montecarlo_numba.opacities as opacities
+from tardis.montecarlo.montecarlo_numba.estimators import (
+    set_estimators,
+    update_line_estimators,
+)
+import tardis.montecarlo.montecarlo_numba.utils as utils
 import tardis.montecarlo.montecarlo_configuration as mc
 import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
 from tardis import constants as const
@@ -57,7 +64,7 @@ def test_calculate_distance_boundary(packet_params, expected_params, model):
     mu = packet_params["mu"]
     r = packet_params["r"]
 
-    d_boundary = r_packet.calculate_distance_boundary(
+    d_boundary = calculate_distances.calculate_distance_boundary(
         r, mu, model.r_inner[0], model.r_outer[0]
     )
 
@@ -81,11 +88,11 @@ def test_calculate_distance_boundary(packet_params, expected_params, model):
         ),
         (
             {"nu_line": 0.5, "next_line_id": 1, "is_last_line": False},
-            {"tardis_error": r_packet.MonteCarloException, "d_line": 0.0},
+            {"tardis_error": utils.MonteCarloException, "d_line": 0.0},
         ),
         (
             {"nu_line": 0.6, "next_line_id": 0, "is_last_line": False},
-            {"tardis_error": r_packet.MonteCarloException, "d_line": 0.0},
+            {"tardis_error": utils.MonteCarloException, "d_line": 0.0},
         ),
     ],
 )
@@ -97,7 +104,7 @@ def test_calculate_distance_line(
 
     time_explosion = model.time_explosion
 
-    doppler_factor = r_packet.get_doppler_factor(
+    doppler_factor = frame_transformations.get_doppler_factor(
         static_packet.r, static_packet.mu, time_explosion
     )
     comov_nu = static_packet.nu * doppler_factor
@@ -105,11 +112,11 @@ def test_calculate_distance_line(
     d_line = 0
     obtained_tardis_error = None
     try:
-        d_line = r_packet.calculate_distance_line(
+        d_line = calculate_distances.calculate_distance_line(
             static_packet, comov_nu, is_last_line, nu_line, time_explosion
         )
-    except r_packet.MonteCarloException:
-        obtained_tardis_error = r_packet.MonteCarloException
+    except utils.MonteCarloException:
+        obtained_tardis_error = utils.MonteCarloException
 
     assert_almost_equal(d_line, expected_params["d_line"])
     assert obtained_tardis_error == expected_params["tardis_error"]
@@ -119,7 +126,9 @@ def test_calculate_distance_line(
     ["electron_density", "tau_event"], [(1e-5, 1.0), (1e10, 1e10)]
 )
 def test_calculate_distance_electron(electron_density, tau_event):
-    actual = r_packet.calculate_distance_electron(electron_density, tau_event)
+    actual = calculate_distances.calculate_distance_electron(
+        electron_density, tau_event
+    )
     expected = tau_event / (electron_density * SIGMA_THOMSON)
 
     assert_almost_equal(actual, expected)
@@ -130,7 +139,7 @@ def test_calculate_distance_electron(electron_density, tau_event):
     [(1e-5, 1.0), (1e10, 1e10), (-1, 0), (-1e10, -1e10)],
 )
 def test_calculate_tau_electron(electron_density, distance):
-    actual = r_packet.calculate_tau_electron(electron_density, distance)
+    actual = opacities.calculate_tau_electron(electron_density, distance)
     expected = electron_density * SIGMA_THOMSON * distance
 
     assert_almost_equal(actual, expected)
@@ -152,7 +161,7 @@ def test_get_doppler_factor(mu, r, inv_t_exp, expected):
     # Perform any other setups just before this, they can be additional calls
     # to other methods or introduction of some temporary variables
 
-    obtained = r_packet.get_doppler_factor(r, mu, time_explosion)
+    obtained = frame_transformations.get_doppler_factor(r, mu, time_explosion)
 
     # Perform required assertions
     assert_almost_equal(obtained, expected)
@@ -174,7 +183,9 @@ def test_get_inverse_doppler_factor(mu, r, inv_t_exp, expected):
     # Perform any other setups just before this, they can be additional calls
     # to other methods or introduction of some temporary variables
 
-    obtained = r_packet.get_inverse_doppler_factor(r, mu, time_explosion)
+    obtained = frame_transformations.get_inverse_doppler_factor(
+        r, mu, time_explosion
+    )
 
     # Perform required assertions
     assert_almost_equal(obtained, expected)
@@ -186,7 +197,7 @@ def test_get_random_mu(set_seed_fixture):
     """
     set_seed_fixture(1963)
 
-    output1 = r_packet.get_random_mu()
+    output1 = utils.get_random_mu()
     assert output1 == 0.9136407866175174
 
 
@@ -234,7 +245,7 @@ def test_update_line_estimators(
     expected_j_blue,
     expected_Edotlu,
 ):
-    r_packet.update_line_estimators(
+    update_line_estimators(
         estimators, static_packet, cur_line_id, distance_trace, time_explosion
     )
 
@@ -242,7 +253,7 @@ def test_update_line_estimators(
     assert_allclose(estimators.Edotlu_estimator, expected_Edotlu)
 
 
-@pytest.mark.xfail(reason='Need to fix estimator differences across runs')
+@pytest.mark.xfail(reason="Need to fix estimator differences across runs")
 # TODO set RNG consistently
 def test_trace_packet(
     packet,
@@ -307,7 +318,7 @@ def test_move_r_packet(
 
     numba_config.ENABLE_FULL_RELATIVITY = ENABLE_FULL_RELATIVITY
     r_packet.move_r_packet.recompile()  # This must be done as move_r_packet was jitted with ENABLE_FULL_RELATIVITY
-    doppler_factor = r_packet.get_doppler_factor(
+    doppler_factor = frame_transformations.get_doppler_factor(
         packet.r, packet.mu, model.time_explosion
     )
 

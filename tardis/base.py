@@ -16,8 +16,8 @@ def run_tardis(
 
     Parameters
     ----------
-    config : str or dict
-        filename of configuration yaml file or dictionary
+    config : str or dict or tardis.io.config_reader.Configuration
+        filename of configuration yaml file or dictionary or TARDIS Configuration object
     atom_data : str or tardis.atomic.AtomData
         if atom_data is a string it is interpreted as a path to a file storing
         the atomic data. Atomic data to use for this TARDIS simulation. If set to None, the
@@ -41,10 +41,13 @@ def run_tardis(
         except TypeError:
             atom_data = atom_data
 
-    try:
-        tardis_config = Configuration.from_yaml(config)
-    except TypeError:
-        tardis_config = Configuration.from_config_dict(config)
+    if isinstance(config, Configuration):
+        tardis_config = config
+    else:
+        try:
+            tardis_config = Configuration.from_yaml(config)
+        except TypeError:
+            tardis_config = Configuration.from_config_dict(config)
 
     simulation = Simulation.from_config(
         tardis_config,

@@ -1,3 +1,5 @@
+.. _lineinteraction:
+
 ***************************
 Line Interaction Treatments
 ***************************
