@@ -127,7 +127,7 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         CollIonRateCoeffSeaton,
         CollRecombRateCoeff,
         RawCollIonTransProbs,
-        BoundFreeContinuaFinder,
+        ContinuumInteractionHandler,
         BoundFreeOpacityInterpolator,
     ]
 )
