@@ -42,6 +42,7 @@ __all__ = [
     "CollRecombRateCoeff",
     "RawCollIonTransProbs",
     "BoundFreeOpacityInterpolator",
+    "FreeFreeOpacity",
 ]
 
 
@@ -58,6 +59,9 @@ F_K = (
     * np.sqrt((2 * np.pi) ** 3 * K_B / (H ** 2 * M_E ** 3))
     * (E ** 2 / C) ** 3
 )  # See Eq. 19 in Sutherland, R. S. 1998, MNRAS, 300, 321
+FF_OPAC_CONST = (
+    (2 * np.pi / (3 * M_E * K_B)) ** 0.5 * 4 * E ** 6 / (3 * M_E * H * C)
+)  # See Eq. 6.1.8 in http://personal.psu.edu/rbc3/A534/lec6.pdf
 
 logger = logging.getLogger(__name__)
 
@@ -850,9 +854,12 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
     ----------
     cool_rate_ff : pandas.DataFrame, dtype float
         The free-free cooling rate of the electron gas.
+    ff_cooling_factor : pandas.Series, dtype float
+        Pre-factor needed in the calculation of the free-free cooling rate and
+        the free-free opacity.
     """
 
-    outputs = ("cool_rate_ff",)
+    outputs = ("cool_rate_ff", "ff_cooling_factor")
     transition_probabilities_outputs = ("cool_rate_ff",)
     latex_name = (r"C^{\textrm{ff}}",)
 
@@ -864,7 +871,7 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
         cool_rate_ff = cooling_rate_series2dataframe(
             cool_rate_ff, destination_level_idx="ff"
         )
-        return cool_rate_ff
+        return cool_rate_ff, ff_cooling_factor.values
 
     @staticmethod
     def _calculate_ff_cooling_factor(ion_number_density, electron_densities):
@@ -874,6 +881,34 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
             * ion_number_density.multiply(ion_charge ** 2, axis=0).sum()
         )
         return factor
+
+
+class FreeFreeOpacity(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    cool_rate_ff : pandas.DataFrame, dtype float
+        The free-free cooling rate of the electron gas.
+    ff_cooling_factor : pandas.Series, dtype float
+        Pre-factor needed in the calculation of the free-free opacity.
+    """
+
+    outputs = ("chi_ff",)
+
+    def calculate(self, t_electrons, ff_cooling_factor):
+        ff_opacity_factor = ff_cooling_factor / np.sqrt(t_electrons)
+
+        @njit(error_model="numpy", fastmath=True)
+        def chi_ff(nu, shell):
+            chi_ff = (
+                FF_OPAC_CONST
+                * ff_opacity_factor[shell]
+                / nu ** 3
+                * (1 - np.exp(-H * nu / (K_B * t_electrons[shell])))
+            )
+            return chi_ff
+
+        return chi_ff
 
 
 class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
