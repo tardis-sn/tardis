@@ -24,6 +24,8 @@ def test_montecarlo_main_loop(
     request
 ):
 
+    if request.config.getoption("--generate-reference"):
+        return True
     montecarlo_configuration.LEGACY_MODE_ENABLED = True
     # Setup model config from verysimple
     atomic_data = deepcopy(atomic_dataset)
