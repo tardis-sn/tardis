@@ -24,6 +24,8 @@ Black
 
 A better method is to run Black automatically - first `integrate it within the code editor <https://black.readthedocs.io/en/stable/editor_integration.html>`_ you use and then enable the "format on save" or "format on type" option in your editor settings.
 
+If you've installed pre-commit hooks (`pre-commit install`) Black will run before each commit.
+
 .. warning :: If your code doesn't follow the Black code style, then the Black-check action on your PR will fail.
 
 Naming Conventions

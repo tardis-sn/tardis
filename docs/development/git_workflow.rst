@@ -151,6 +151,14 @@ TARDIS repository clone.
    repository will always be immediately available next time you start a Python
    interpreter and ``import tardis``.
 
+#. Install pre-commit hooks::
+
+       $ pre-commit install --install-hooks
+   
+   This will install all pre-commit hooks used in TARDIS, which will then run
+   before each commit. You can check the full list of hooks in the
+   `.pre-commit-config.yaml`.
+
 Workflow summary
 ----------------
 
@@ -327,6 +335,9 @@ In more detail
    Then use ``git commit -m 'A commit message'``. The ``m`` flag just
    signals that you're going to type a message on the command line. The `git
    commit`_ manual page might also be useful.
+
+   All pre-commit hooks will run automatically if you've correctly installed
+   them before.
 
 #. Push the changes up to your forked repo on GitHub with ``git push`` (see
    `git push`_).
