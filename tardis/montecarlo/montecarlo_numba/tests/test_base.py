@@ -35,8 +35,11 @@ def test_montecarlo_main_loop(
     tmpdir,
     set_seed_fixture,
     random_call_fixture,
+    request
 ):
 
+    if request.config.getoption("--generate-reference"):
+        return True
     montecarlo_configuration.LEGACY_MODE_ENABLED = True
 
     # Load C data from refdata
