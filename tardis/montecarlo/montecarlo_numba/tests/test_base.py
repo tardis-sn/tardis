@@ -139,7 +139,6 @@ def test_montecarlo_main_loop(
             packet_collection.packets_input_energy[i],
             seed,
             i,
-            0,
         )
 
         # Loop packet
