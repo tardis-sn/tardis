@@ -34,9 +34,9 @@ logger.addHandler(console_handler)
 logging.getLogger("py.warnings").addHandler(console_handler)
 
 # ----------------------------------------------------------------------------
-# pyne holds Python 3.7 on macOS, but refdata is pickled with protocol 5 (3.8)
+# pyne holds Python 3.7 on macOS, but refdata is pickled with protocol 5 (3.8.3)
 
-if sys.version_info < (3, 8):
+if sys.version_info < (3, 8, 3):
     import pickle5
 
     sys.modules["pickle"] = pickle5
