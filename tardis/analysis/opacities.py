@@ -68,8 +68,15 @@ class opacity_calculator(object):
         'log' for logarithmic scaling of the frequency grid, 'linear' for a
         linear one (default 'log')
     """
-    def __init__(self, mdl, nbins=300, lam_min=100*units.AA,
-                 lam_max=2e4*units.AA, bin_scaling="log"):
+
+    def __init__(
+        self,
+        mdl,
+        nbins=300,
+        lam_min=100 * units.AA,
+        lam_max=2e4 * units.AA,
+        bin_scaling="log",
+    ):
 
         # Private attributes
         self._mdl = None
@@ -142,8 +149,10 @@ class opacity_calculator(object):
     def bin_scaling(self, val):
         allowed_values = ["log", "linear"]
         if val not in allowed_values:
-            raise ValueError("wrong bin_scaling; must be "
-                             "among {:s}".format(",".join(allowed_values)))
+            raise ValueError(
+                "wrong bin_scaling; must be "
+                "among {:s}".format(",".join(allowed_values))
+            )
         self._reset_bins()
         self._bin_scaling = val
 
@@ -219,11 +228,16 @@ class opacity_calculator(object):
             nu_max = self.lam_min.to("Hz", equivalencies=units.spectral())
             nu_min = self.lam_max.to("Hz", equivalencies=units.spectral())
             if self.bin_scaling == "log":
-                nu_bins = (np.logspace(np.log10(nu_min.value),
-                                       np.log10(nu_max.value), self.nbins+1) *
-                           units.Hz)
+                nu_bins = (
+                    np.logspace(
+                        np.log10(nu_min.value),
+                        np.log10(nu_max.value),
+                        self.nbins + 1,
+                    )
+                    * units.Hz
+                )
             elif self.bin_scaling == "linear":
-                nu_bins = np.linspace(nu_min, nu_max, self.nbins+1)
+                nu_bins = np.linspace(nu_min, nu_max, self.nbins + 1)
             self._nu_bins = nu_bins
         return self._nu_bins
 
@@ -306,25 +320,29 @@ class opacity_calculator(object):
         """
 
         index = self.mdl.plasma.tau_sobolevs.index
-        line_waves = \
-            self.mdl.plasma.atomic_data.lines.loc[index]
+        line_waves = self.mdl.plasma.atomic_data.lines.loc[index]
         line_waves = line_waves.wavelength.values * units.AA
 
         kappa_exp = np.zeros((self.nbins, self.nshells)) / units.cm
 
         for i in range(self.nbins):
 
-            lam_low = self.nu_bins[i+1].to("AA",
-                                           equivalencies=units.spectral())
+            lam_low = self.nu_bins[i + 1].to(
+                "AA", equivalencies=units.spectral()
+            )
             lam_up = self.nu_bins[i].to("AA", equivalencies=units.spectral())
 
-            mask = np.argwhere((line_waves > lam_low) * (line_waves <
-                                                         lam_up)).ravel()
+            mask = np.argwhere(
+                (line_waves > lam_low) * (line_waves < lam_up)
+            ).ravel()
             taus = self.mdl.plasma.tau_sobolevs.iloc[mask]
             tmp = np.sum(1 - np.exp(-taus)).values
-            kappa_exp[i, :] = (tmp * self.nu_bins[i] / (self.nu_bins[i+1] -
-                                                        self.nu_bins[i]) /
-                               (csts.c * self.t_exp))
+            kappa_exp[i, :] = (
+                tmp
+                * self.nu_bins[i]
+                / (self.nu_bins[i + 1] - self.nu_bins[i])
+                / (csts.c * self.t_exp)
+            )
 
         return kappa_exp.to("1/cm")
 
@@ -345,7 +363,7 @@ class opacity_calculator(object):
             sigma_T = csts.sigma_T
         except AttributeError:
             logger.warning("using astropy < 1.1.1: setting sigma_T manually")
-            sigma_T = 6.65245873e-29 * units.m**2
+            sigma_T = 6.65245873e-29 * units.m ** 2
 
         edens = self.mdl.plasma.electron_densities.values
 
@@ -353,7 +371,7 @@ class opacity_calculator(object):
             edens.to("1/cm^3")
         except AttributeError:
             logger.info("setting electron density units by hand (cm^-3)")
-            edens = edens / units.cm**3
+            edens = edens / units.cm ** 3
 
         kappa_thom = edens * sigma_T
 
@@ -374,11 +392,14 @@ class opacity_calculator(object):
         kappa_planck_mean = np.zeros(self.nshells) / units.cm
 
         for i in range(self.nshells):
-            delta_nu = (self.nu_bins[1:] - self.nu_bins[:-1])
+            delta_nu = self.nu_bins[1:] - self.nu_bins[:-1]
             T = self.mdl.plasma.t_rad[i]
 
-            tmp = (blackbody_nu(self.nu_bins[:-1], T) * delta_nu *
-                   self.kappa_tot[:, 0]).sum()
+            tmp = (
+                blackbody_nu(self.nu_bins[:-1], T)
+                * delta_nu
+                * self.kappa_tot[:, 0]
+            ).sum()
             tmp /= (blackbody_nu(self.nu_bins[:-1], T) * delta_nu).sum()
 
             kappa_planck_mean[i] = tmp
@@ -413,7 +434,7 @@ class opacity_calculator(object):
         tau = np.zeros(self.nshells)
 
         tau[-1] = self.planck_delta_tau[-1]
-        for i in range(self.nshells-2, -1, -1):
-            tau[i] = tau[i+1] + self.planck_delta_tau[i]
+        for i in range(self.nshells - 2, -1, -1):
+            tau[i] = tau[i + 1] + self.planck_delta_tau[i]
 
         return tau
