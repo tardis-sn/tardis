@@ -3,16 +3,15 @@
 Macro Atom
 ----------
 
-The macro atom is described in detail in :cite:`2002A&A...384..725L`. The basic principal is that when an energy packet
+The macro atom is described in detail in :cite:`Lucy2002`. The basic principal is that when an energy packet
 is absorbed that the macro atom is on a certain level. Three probabilities govern the next step the P\ :sub:`up`,
 P\ :sub:`down` and P\ :sub:`down emission` being the probability for going to a higher level, a lower level and a lower
-level and emitting a photon while doing this respectively (see Figure 1 in :cite:`2002A&A...384..725L` ).
-
+level and emitting a photon while doing this respectively (see Figure 1 in :cite:`Lucy2002` ).
 
 The macro atom is the most complex idea to implement as a data structure. The setup is done in `~tardisatomic`, but
 we will nonetheless discuss it here (as `~tardisatomic` is even less documented than this one).
 
-For each level,                                                                                               we look at the line list to see what transitions (upwards or downwards are possible). We create a two arrays,
+For each level, we look at the line list to see what transitions (upwards or downwards are possible). We create a two arrays,
 the first is a long one-dimensional array containing the probabilities. Each level contains a set of probabilities. The first
 part of each set contains the upwards probabilities (internal upward), the second part the downwards probabilities
 (internal downward), and the last part is the downward and emission probability.
@@ -30,8 +29,8 @@ The second array is for book-keeping; it has exactly the length as levels (with 
 
 
 We now will calculate the transition probabilites, using the radiative rates in Equation 20, 21, and 22
-in :cite:`2002A&A...384..725L`. Then we calculate the downward emission probability from Equation 5, the downward and
-upward internal transition probabilities in :cite:`2003A&A...403..261L`.
+in :cite:`Lucy2002`. Then we calculate the downward emission probability from Equation 5, the downward and
+upward internal transition probabilities in :cite:`Lucy2003`.
 
 .. math::
     p_\textrm{emission down}&= {\cal R}_{\textrm{i}\rightarrow\textrm{lower}}\,(\epsilon_\textrm{upper} - \epsilon_\textrm{lower}) / {\cal D}_{i}\\
@@ -44,7 +43,7 @@ where :math:`i` is the current level, :math:`\epsilon` is the energy of the leve
 
 We ignore the probability to emit a k-packet as TARDIS only works with photon packets.
 Next we calculate the radiative
-rates using equation 10 in :cite:`2003A&A...403..261L`.
+rates using equation 10 in :cite:`Lucy2003`.
 
 .. math::
     {\cal R}_{\textrm{upper}\rightarrow\textrm{lower}} &=

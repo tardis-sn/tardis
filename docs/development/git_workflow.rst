@@ -180,7 +180,7 @@ given in the following sections.
 
 * Once your code is nearing completion, run the test suite to ensure
   you have not accidentally caused regressions, and add new tests to ensure
-  your contribution behaves correctly (see :ref:`testing-guidelines`).
+  your contribution behaves correctly (see :ref:`running-tests`).
 
 * Issue a pull request on GitHub!
 
@@ -188,7 +188,7 @@ given in the following sections.
   documentation follows the guidelines (see :ref:`documentation-guidelines`).
 
 * Once your code is ready to be accepted, please add an entry to the changelog
-  (see :ref:`changelog-format`).  If you're not sure where to put this, please
+  (see :ref:`changelog-format`). If you're not sure where to put this, please
   at least suggest a brief (one or two sentence) description of your change so
   that another developer can add it to the changelog.
 
@@ -236,12 +236,12 @@ or ``buxfix-for-issue-42``.
 
 ::
 
-    # Update the mirror of trunk
-    git fetch upstream
+   # Update the mirror of trunk
+   git fetch upstream
 
-    # Make new feature branch starting at current trunk
-    git checkout upstream/master # checking out the newest master version
-    git checkout -b my-new-feature
+   # Make new feature branch starting at current trunk
+   git checkout upstream/master # checking out the newest master version
+   git checkout -b my-new-feature
 
 Generally, you will want to keep your feature branches on your public GitHub_
 fork. To do this, you `git push`_ this new branch up to your
@@ -295,18 +295,18 @@ In more detail
 #. See which files have changed with ``git status`` (see `git status`_).
    You'll see a listing like this one::
 
-     # On branch my-new-feature
-     # Changed but not updated:
-     #   (use "git add <file>..." to update what will be committed)
-     #   (use "git checkout -- <file>..." to discard changes in working directory)
-     #
-     #    modified:   README
-     #
-     # Untracked files:
-     #   (use "git add <file>..." to include in what will be committed)
-     #
-     #    INSTALL
-     no changes added to commit (use "git add" and/or "git commit -a")
+      # On branch my-new-feature
+      # Changed but not updated:
+      #   (use "git add <file>..." to update what will be committed)
+      #   (use "git checkout -- <file>..." to discard changes in working directory)
+      #
+      #    modified:   README
+      #
+      # Untracked files:
+      #   (use "git add <file>..." to include in what will be committed)
+      #
+      #    INSTALL
+      no changes added to commit (use "git add" and/or "git commit -a")
 
 #. Check what the actual changes are with ``git diff`` (see `git diff`_).
 
@@ -319,10 +319,10 @@ In more detail
 #. Once you are ready to commit, check with ``git status`` which files are
    about to be committed::
 
-    # Changes to be committed:
-    #   (use "git reset HEAD <file>..." to unstage)
-    #
-    #    modified:   README
+      # Changes to be committed:
+      #   (use "git reset HEAD <file>..." to unstage)
+      #
+      #    modified:   README
 
    Then use ``git commit -m 'A commit message'``. The ``m`` flag just
    signals that you're going to type a message on the command line. The `git
