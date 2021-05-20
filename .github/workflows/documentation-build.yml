@@ -14,7 +14,7 @@ on:
   workflow_dispatch:  # Manual trigger
 
 jobs:
-  documentation_build:
+  build:
     runs-on: ubuntu-latest
 
     steps:
