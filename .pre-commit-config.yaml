@@ -3,3 +3,12 @@ repos:
     rev: 21.5b1
     hooks:
     -   id: black
+        exclude: |
+            (?x)^(
+                (tardis/model
+                | tardis/montecarlo).*
+                | setup.py
+                | docs/conf.py
+                | ez_setup.py
+                | ah_bootstrap.py
+            )$
