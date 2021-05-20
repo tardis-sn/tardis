@@ -6,7 +6,8 @@ import scipy.sparse as sp
 from scipy.interpolate import interp1d
 from astropy import units as u
 from tardis import constants as const
-from numba import njit, char, float64, int64, jitclass, typeof, byte, prange
+from numba import njit, char, float64, int64, typeof, byte, prange
+from numba.experimental import jitclass
 import pdb
 
 from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
