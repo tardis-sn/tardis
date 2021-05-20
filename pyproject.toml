@@ -7,23 +7,11 @@ build-backend = 'setuptools.build_meta'
 [tool.black]
 line-length = 80
 target-version = ['py36']
-exclude = '''
+extend-exclude = '''
 (
   /(
-      \.eggs         # all directories in the root of the project
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.nox
-    | \.tox
-    | \.venv
-    | \.svn
-    | _build
-    | buck-out
-    | build
-    | dist
-    | model         # temporary - to remove later
-    | montecarlo    # temporary
+    model           # Temporary - to remove later
+    | montecarlo    # Temporary
   )/
   | setup.py
   | docs/conf.py

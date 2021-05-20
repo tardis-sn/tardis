@@ -12,10 +12,9 @@ __pycache__
 # Other generated files
 */version.py
 */cython_version.py
-htmlcov
-.coverage
 MANIFEST
 .ipynb_checkpoints
+buck-out
 
 # Sphinx
 docs/api
@@ -63,3 +62,27 @@ pip-wheel-metadata/
 
 # Mac OSX
 .DS_Store
+
+
+# Mercurial
+.hg/
+
+
+# SVN
+.svn/
+
+
+# mypy
+.mypy_cache/
+
+
+# Unit test / coverage reports
+htmlcov
+.coverage
+.pytest_cache/
+.tox/
+.nox/
+
+
+# Environments
+.venv
