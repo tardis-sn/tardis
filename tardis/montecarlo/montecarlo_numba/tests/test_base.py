@@ -56,7 +56,6 @@ def test_montecarlo_main_loop(
         compare_fname, key="/simulation/runner/j_estimator"
     ).values
 
-
     actual_energy = sim.runner.output_energy
     actual_nu = sim.runner.output_nu
     actual_nu_bar_estimator = sim.runner.nu_bar_estimator
