@@ -41,6 +41,11 @@ jobs:
           fetchRefdata: false  # See the comment below.
           useMamba: true
 
+      - bash: |
+          source activate tardis
+          $(package.manager) install bokeh=2.2 --channel conda-forge --no-update-deps --yes
+        displayName: 'Install Bokeh'
+
       # Azure Repos requires token auth for public repositories containing LFS objects (bug).
       # Fetch reference data from Azure with a PAT until a fix arrives.
       - bash: |
@@ -63,11 +68,6 @@ jobs:
           pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
         displayName: 'Generate reference data'
         condition: or(eq(variables['ref1.hash'], ''), eq(variables['ref2.hash'], ''))
-
-      - bash: |
-          source activate tardis
-          $(package.manager) install bokeh=2.2 --channel conda-forge --no-update-deps --yes
-        displayName: 'Install Bokeh'
 
       - bash: |
           cd $(refdata.dir)/notebooks
