@@ -2,7 +2,7 @@
 Sponsors
 ********
 
-|
+We are grateful to the following organisations for sponsoring us and helping us sustain TARDIS as a free and open-source software.
 
 .. image:: graphics/google.png
     :width: 500
