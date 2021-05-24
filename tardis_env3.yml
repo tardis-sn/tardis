@@ -36,7 +36,6 @@ dependencies:
 
   # Analysis
   - jupyter
-  - notebook
 
   # Documentation
   - sphinx
@@ -52,7 +51,7 @@ dependencies:
   - nbsphinx
   - docutils=0.16  # Issue #1522
 
-  # Test/Coverage requirements
+  # Test/Coverage
   - pytest
   - pytest-cov
   - pytest-html
