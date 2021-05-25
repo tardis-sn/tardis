@@ -877,7 +877,7 @@ class SDECPlotter:
             self.data[packets_mode].packets_df["last_interaction_type"][
                 self.packet_nu_range_mask
             ]
-            == 1  # E-Scattering 
+            == 1  # E-Scattering
         ) & (
             self.data[packets_mode].packets_df["last_line_interaction_in_id"][
                 self.packet_nu_range_mask
