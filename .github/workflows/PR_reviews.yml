@@ -1,16 +1,17 @@
 name: comment-on-pr example
-on: pull_request
+on: pull_request_target
+  types: [review_requested]
 jobs:
   review:
     name: PR review
     runs-on: ubuntu-latest
     steps:
       - name: comment PR
-        uses: unsplash/comment-on-pr@master
+        uses: mshick/add-pr-comment@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          msg: "Before a PR is accepted, it must meet the following criteria: \n
+          message: "Before a PR is accepted, it must meet the following criteria: \n
                 - [ ] Is the necessary information provided? \n
                   \t - [ ] Does the PR have a complete description? Does it explain what the PR is attempting to do/fix, does it explain how it does this? \n
                   \t - [ ] Is there an explanation of why this PR is needed? \n
@@ -29,4 +30,4 @@ jobs:
                   \t - [ ] Is this the best way of fixing the problem? \n
                 - [ ] Is the code tidy? \n
                   \t - [ ] No unnecessary print lines or code comments \n"
-          check_for_duplicate_msg: true  # this is only commented once
+          allow-repeats: true  # this is only commented once
