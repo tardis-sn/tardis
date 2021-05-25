@@ -101,6 +101,7 @@ def move_gamma_ray(gxpacket, distance):
     x_dir, y_dir, z_dir = gxpacket.direction.get_cartesian_coords
     # overshoot by 1e-7 * distance to shell boundary
     # so that the gamma-ray is comfortably in the next shell
+    # TODO: change to close line threshold constant
     x_new = x_old + distance * (1 + 1e-7) * x_dir
     y_new = y_old + distance * (1 + 1e-7) * y_dir
     z_new = z_old + distance * (1 + 1e-7) * z_dir
