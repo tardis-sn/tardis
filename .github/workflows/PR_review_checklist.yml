@@ -1,4 +1,4 @@
-name: comment-on-pr example
+name: PR-review-checklist
 on:
   pull_request_target:
     types: [review_requested]
