@@ -1,6 +1,7 @@
 name: comment-on-pr example
-on: pull_request_target
-  types: [review_requested]
+on:
+  pull_request_target:
+    types: [review_requested]
 jobs:
   review:
     name: PR review
