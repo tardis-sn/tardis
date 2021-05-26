@@ -1,29 +1,25 @@
 import numpy as np
 import copy
 from tqdm.auto import tqdm
+import pandas as pd
 
 # from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
 from tardis.energy_input.util import SphericalVector
 from tardis.energy_input.gamma_ray_grid import (
-    density_sampler,
     distance_trace,
     move_gamma_ray,
-    mass_distribution,
     get_shell,
     compute_required_packets_per_shell,
 )
 from tardis.energy_input.energy_source import (
     setup_input_energy,
-    read_nuclear_dataframe,
     sample_energy_distribution,
     intensity_ratio,
-    load_nndc_decay_data,
 )
 from tardis.energy_input.calculate_opacity import (
     compton_opacity_calculation,
     photoabsorption_opacity_calculation,
     pair_creation_opacity_calculation,
-    kappa_calculation,
 )
 from tardis.energy_input.gamma_ray_interactions import (
     scatter_type,
@@ -117,14 +113,11 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
     # Note the use of velocity as the radial coordinate
     inner_radius = model.v_inner[0].value
     outer_radius = model.v_outer[-1].value
-    load_nndc_decay_data(model.raw_isotope_abundance)
     outer_radii = model.v_outer[:].value
     inner_radii = model.v_inner[:].value
     ejecta_density = model.density[:].value
     ejecta_epoch = model.time_explosion.to("s").value
-    mass_cdf = mass_distribution(
-        model.no_of_shells, inner_radii, outer_radii, ejecta_density
-    )
+
     packets_per_shell, decay_rad_db = compute_required_packets_per_shell(
         outer_radii,
         inner_radii,
@@ -136,13 +129,9 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
     print(packets_per_shell)
 
     packets = []
-    ejecta_energy = []
-    ejecta_energy_r = []
+    energy_df_rows = []
     ejecta_energy_theta = []
-    # list of energy input types as integers 0, 1, 2 for Compton scattering, photoabsorption, pair creation
-    energy_input_type = []
-    # list of energy input times due to photon travel times
-    energy_input_time = []
+
     for column in packets_per_shell:
         # print(column)
         subtable = decay_rad_db.loc[column]
@@ -185,11 +174,9 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                     energy_KeV = sample_energy_distribution(
                         positron_energy_sorted, positron_energy_cdf
                     )
-                    ejecta_energy.append(energy_KeV)
-                    ejecta_energy_r.append(initial_radius)
+
+                    energy_df_rows.append([energy_KeV, initial_radius, 0.0, -1])
                     ejecta_energy_theta.append(ray1.location.theta)
-                    energy_input_type.append(-1)
-                    energy_input_time.append(0.0)
 
                     # annihilation produces second gamma-ray in opposite direction
                     (
@@ -205,12 +192,6 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                         ray2_x, ray2_y, ray2_z
                     )
                     ray2.direction.r = ray2_r
-                    # print(
-                    #     "Spawning positron at r = ",
-                    #     round(ray1.location.r / outer_radius, 5),
-                    #     " in shell ",
-                    #     shell,
-                    # )
                     ray2.direction.theta = ray2_theta.value + 0.5 * np.pi
                     ray2.direction.phi = ray2_phi.value
 
@@ -219,19 +200,13 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                     ray1.energy = sample_energy_distribution(
                         energy_sorted, energy_cdf
                     )
-                    # print(
-                    #     "Spawning gamma-ray at r = ",
-                    #     round(ray1.location.r / outer_radius, 5),
-                    #     " in shell ",
-                    #     shell,
-                    # )
                     packets.append(ray1)
 
     i = 0
     for packet in tqdm(packets):
         distance_moved = 0.0
         interaction_count.append(0)
-        j = 0
+
         while packet.status == "InProcess":
 
             compton_opacity = compton_opacity_calculation(
@@ -279,13 +254,18 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                     packet.time_current += (
                         distance_interaction / const.c.cgs.value * ejecta_epoch
                     )
-                    energy_input_time.append(packet.time_current)
 
                     compton_scatter(packet, compton_angle)
 
-                    energy_input_type.append(0)
-                    ejecta_energy.append(ejecta_energy_gained)
-                    ejecta_energy_r.append(packet.location.r)
+                    energy_df_rows.append(
+                        [
+                            ejecta_energy_gained,
+                            packet.location.r,
+                            packet.time_current,
+                            0,
+                        ]
+                    )
+
                     ejecta_energy_theta.append(packet.location.theta)
                 if (
                     packet.status == "PhotoAbsorbed"
@@ -298,10 +278,15 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                         distance_interaction / const.c.cgs.value * ejecta_epoch
                     )
 
-                    energy_input_type.append(1)
-                    energy_input_time.append(packet.time_current)
-                    ejecta_energy.append(ejecta_energy_gained)
-                    ejecta_energy_r.append(packet.location.r)
+                    energy_df_rows.append(
+                        [
+                            ejecta_energy_gained,
+                            packet.location.r,
+                            packet.time_current,
+                            1,
+                        ]
+                    )
+
                     ejecta_energy_theta.append(packet.location.theta)
                     # Packet destroyed, go to the next packet
 
@@ -313,10 +298,15 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                         distance_interaction / const.c.cgs.value * ejecta_epoch
                     )
 
-                    energy_input_type.append(2)
-                    energy_input_time.append(packet.time_current)
-                    ejecta_energy.append(ejecta_energy_gained)
-                    ejecta_energy_r.append(packet.location.r)
+                    energy_df_rows.append(
+                        [
+                            ejecta_energy_gained,
+                            packet.location.r,
+                            packet.time_current,
+                            2,
+                        ]
+                    )
+
                     ejecta_energy_theta.append(packet.location.theta)
 
                     pair_creation(packet)
@@ -368,16 +358,22 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                 packet.status = "Absorbed"
                 packet.energy = 0.0
 
-            j += 1
-
         i += 1
 
+    # DataFrame of energy information
+    energy_df = pd.DataFrame(
+        data=energy_df_rows,
+        columns=[
+            "energy_input",
+            "energy_input_r",
+            "energy_input_time",
+            "energy_input_type",
+        ],
+    )
+
     return (
-        ejecta_energy,
-        ejecta_energy_r,
+        energy_df,
         ejecta_energy_theta,
         escape_energy,
-        energy_input_type,
         interaction_count,
-        energy_input_time,
     )
