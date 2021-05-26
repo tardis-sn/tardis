@@ -38,7 +38,7 @@ class AtomData(object):
         A DataFrame containing the *ionization data* with:
             index : atomic_number, ion_number;
             columns : ionization_energy[eV].
-       It is important to note here is that `ion_number` describes the *final ion state*
+        It is important to note here is that `ion_number` describes the *final ion state*
             e.g. H I - H II is described with ion=1
     levels : pandas.DataFrame
         A DataFrame containing the *levels data* with:
