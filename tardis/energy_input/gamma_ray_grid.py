@@ -1,14 +1,16 @@
 import numpy as np
-from tardis.energy_input.util import (
-    solve_quadratic_equation,
-    convert_half_life_to_astropy_units,
-)
 from astropy.coordinates import cartesian_to_spherical
 import re
 from nuclear.io.nndc import get_decay_radiation_database, store_decay_radiation
 import pandas as pd
-import astropy.units as u
+
 from tardis.util.base import atomic_number2element_symbol
+from tardis.energy_input.util import (
+    solve_quadratic_equation,
+    convert_half_life_to_astropy_units,
+)
+from tardis.montecarlo.montecarlo_numba.numba_config import CLOSE_LINE_THRESHOLD
+from tardis.energy_input.energy_source import load_nndc_decay_data
 
 
 def calculate_distance_radial(gxpacket, r_inner, r_outer):
@@ -186,7 +188,7 @@ def mass_distribution(
     shell_masses = mass_per_shell(
         radial_grid_size, inner_radii, outer_radii, density_profile
     )
-    mass_cdf = mass = np.zeros(radial_grid_size)
+    mass_cdf = np.zeros(radial_grid_size)
     mass = 0
     for i in range(radial_grid_size):
         mass += shell_masses[i]
@@ -228,9 +230,9 @@ def compute_required_packets_per_shell(
     shell_masses = shell_masses / np.sum(shell_masses)
     abundance_dict = {}
     for index, row in raw_isotope_abundance.iterrows():
-        isotope_string = atomic_number2element_symbol(index[0]) + str(index[1])
-        store_decay_radiation(isotope_string, force_update=False)
+        isotope_string = load_nndc_decay_data(index, force_update=False)
         abundance_dict[isotope_string] = row * shell_masses
+
     abundance_df = pd.DataFrame.from_dict(abundance_dict)
 
     decay_rad_db, meta = get_decay_radiation_database()
@@ -245,11 +247,14 @@ def compute_required_packets_per_shell(
         atomic_mass = float(re.findall("\d+", column)[0])
         activity_factor = np.log(2) / atomic_mass / half_life
         activity_df[column] = activity_df[column] * activity_factor
+
     total_activity = activity_df.to_numpy().sum()
     packet_per_shell_df = activity_df.copy()
+
     for column in packet_per_shell_df:
         packet_per_shell_df[column] = round(
             packet_per_shell_df[column] * number_of_packets / total_activity
         )
         packet_per_shell_df[column] = packet_per_shell_df[column].astype(int)
+
     return packet_per_shell_df, decay_rad_db
