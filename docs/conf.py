@@ -58,6 +58,8 @@ extensions = [
     "sphinxcontrib.apidoc",
 ]
 
+bibtex_bibfiles = ['tardis.bib']
+
 source_suffix = {
     ".rst": "restructuredtext",
     #    '.txt': 'markdown',
