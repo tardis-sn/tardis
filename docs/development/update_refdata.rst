@@ -10,13 +10,13 @@ We assume that you have added the necessary changes to TARDIS and have an open p
 
 #. Activate your ``tardis`` conda environment.
 
-    .. code-block:: 
+    .. code-block:: none
     
         conda activate tardis
 
 #. Navigate to your ``tardis-refdata`` directory and type:
 
-    .. code-block:: 
+    .. code-block:: none
     
         git lfs install
         git lfs fetch upstream
@@ -24,13 +24,13 @@ We assume that you have added the necessary changes to TARDIS and have an open p
 
 #. Go to your ``tardis`` directory. Make sure you are working on the correct branch and generate new reference data using:
 
-    .. code-block:: 
+    .. code-block:: none
 
         python setup.py test --args="--tardis-refdata=<path to refdata repo on the right branch> --generate-reference"
 
 #. Re-run the tests to make sure it does not fail using:
 
-    .. code-block::
+    .. code-block:: none
 
         python setup.py test --args="--tardis-refdata=<path to refdata repo on the right branch>"
 
@@ -38,7 +38,7 @@ We assume that you have added the necessary changes to TARDIS and have an open p
 
 #. Open the ``ref_data_compare.ipynb`` file notebook and look for the cell with the following code:
 
-    .. code-block::
+    .. code-block:: none
 
         comparer = ReferenceComparer(ref2_hash='upstream/pr/24')
         
@@ -50,7 +50,7 @@ We assume that you have added the necessary changes to TARDIS and have an open p
 
 #. Switch back to the ``tardis`` directory. Open the ``.travis.yml`` file and change the following lines:
 
-    .. code-block::
+    .. code-block:: none
 
         - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin pull/<your tardis-refdata PR number; not the TARDIS PR number>/head:<some descriptive name>; fi
         - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout <some descriptive name>; fi
@@ -63,7 +63,7 @@ We assume that you have added the necessary changes to TARDIS and have an open p
 
 #. Then change the ``.travis.yml`` in ``tardis`` directory to:
 
-    .. code-block::
+    .. code-block:: none
 
         - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin; fi
         - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi
