@@ -246,16 +246,17 @@ to start a new pipeline use::
   steps:
     - template: templates/default.yml
       parameters:
-        fetchRefdata: true
+        useMamba: true
 
 **List of template parameters:**
 
-- ``fetchRefdata``: fetch the ``tardis-refdata`` repository from Azure Repos
-  (default is *false*).
-- ``useMamba``: use the ``mamba`` package manager instead of ``conda``
-  (default is *false*). 
-- ``skipInstall``: does not create the TARDIS environment
-  (default is *false*).
+- ``fetchDepth`` (*int*): the depth of commits to fetch from ``tardis`` repository,
+  default is ``0`` (no limit).
+- ``fetchRefdata`` (*bool*): fetch the ``tardis-refdata`` repository from Azure Repos,
+  default is ``false``.
+- ``useMamba`` (*bool*): use the ``mamba`` package manager instead of ``conda``,
+  default is ``false``. 
+- ``skipInstall`` (*bool*): does not create the TARDIS environment, default is ``false``.
 
 **List of predefined custom variables:**
 
