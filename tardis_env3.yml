@@ -42,7 +42,7 @@ dependencies:
   - sphinx_bootstrap_theme
   - sphinx_rtd_theme
   - sphinxcontrib-apidoc
-  - sphinxcontrib-bibtex
+  - sphinxcontrib-bibtex=1.0
   - sphinx-jsonschema
   - recommonmark
   - numpydoc
