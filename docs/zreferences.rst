@@ -12,7 +12,7 @@ TARDIS Code papers
 * :cite:`Kerzendorf2014`
 
 Studies using TARDIS
-==================
+====================
 
 * :cite:`Smartt2017`
 * :cite:`Barna2017`
