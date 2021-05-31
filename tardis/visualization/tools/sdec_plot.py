@@ -415,12 +415,18 @@ class SDECPlotter:
         -------
         SDECPlotter
         """
-        return cls(
-            dict(
-                virtual=SDECData.from_simulation(sim, "virtual"),
-                real=SDECData.from_simulation(sim, "real"),
+        if sim.runner.virt_logging:
+            return cls(
+                dict(
+                    virtual=SDECData.from_simulation(sim, "virtual"),
+                    real=SDECData.from_simulation(sim, "real"),
+                )
             )
-        )
+        else:
+            raise ValueError(
+                "Virtual packet logging is inactive. "
+                "Please set config option virtual_packet_logging: True."
+            )
 
     @classmethod
     def from_hdf(cls, hdf_fpath):
