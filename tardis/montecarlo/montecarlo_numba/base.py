@@ -47,6 +47,7 @@ def montecarlo_radial1d(
         runner.input_mu,
         runner.input_energy,
         runner._output_nu,
+        runner._output_r,
         runner._output_energy,
     )
 
@@ -76,6 +77,7 @@ def montecarlo_radial1d(
         v_packets_energy_hist,
         last_interaction_type,
         last_interaction_in_nu,
+        last_interaction_in_r,
         last_line_interaction_in_id,
         last_line_interaction_out_id,
         virt_packet_nus,
@@ -83,6 +85,7 @@ def montecarlo_radial1d(
         virt_packet_initial_mus,
         virt_packet_initial_rs,
         virt_packet_last_interaction_in_nu,
+        virt_packet_last_interaction_in_r,
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
@@ -104,6 +107,7 @@ def montecarlo_radial1d(
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
     runner.last_interaction_type = last_interaction_type
     runner.last_interaction_in_nu = last_interaction_in_nu
+    runner.last_interaction_in_r = last_interaction_in_r
     runner.last_line_interaction_in_id = last_line_interaction_in_id
     runner.last_line_interaction_out_id = last_line_interaction_out_id
 
@@ -120,6 +124,9 @@ def montecarlo_radial1d(
         ).ravel()
         runner.virt_packet_last_interaction_in_nu = np.concatenate(
             virt_packet_last_interaction_in_nu
+        ).ravel()
+        runner.virt_packet_last_interaction_in_r = np.concatenate(
+            np.array(virt_packet_last_interaction_in_r)
         ).ravel()
         runner.virt_packet_last_interaction_type = np.concatenate(
             virt_packet_last_interaction_type
@@ -170,12 +177,14 @@ def montecarlo_main_loop(
         Option to enable virtual packet logging.
     """
     output_nus = np.empty_like(packet_collection.packets_input_nu)
+    output_rs = np.empty_like(packet_collection.packets_output_r)
     last_interaction_types = (
         np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
     )
     output_energies = np.empty_like(packet_collection.packets_output_nu)
 
     last_interaction_in_nus = np.empty_like(packet_collection.packets_output_nu)
+    last_interaction_in_rs = np.empty_like(packet_collection.packets_output_r)
     last_line_interaction_in_ids = (
         np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
     )
@@ -227,6 +236,7 @@ def montecarlo_main_loop(
     virt_packet_initial_mus = []
     virt_packet_initial_rs = []
     virt_packet_last_interaction_in_nu = []
+    virt_packet_last_interaction_in_r = []
     virt_packet_last_interaction_type = []
     virt_packet_last_line_interaction_in_id = []
     virt_packet_last_line_interaction_out_id = []
@@ -268,7 +278,9 @@ def montecarlo_main_loop(
         )
 
         output_nus[i] = r_packet.nu
+        output_rs[i] = r_packet.r
         last_interaction_in_nus[i] = r_packet.last_interaction_in_nu
+        last_interaction_in_rs[i] = r_packet.last_interaction_in_r
         last_line_interaction_in_ids[i] = r_packet.last_line_interaction_in_id
         last_line_interaction_out_ids[i] = r_packet.last_line_interaction_out_id
 
@@ -329,6 +341,11 @@ def montecarlo_main_loop(
                     ]
                 )
             )
+            virt_packet_last_interaction_in_r.append(
+                vpacket_collection.last_interaction_in_r[
+                    : vpacket_collection.idx
+                ]
+            )
             virt_packet_last_interaction_type.append(
                 np.ascontiguousarray(
                     vpacket_collection.last_interaction_type[
@@ -357,10 +374,12 @@ def montecarlo_main_loop(
 
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
+    packet_collection.packets_output_r[:] = output_rs[:]
     return (
         v_packets_energy_hist,
         last_interaction_types,
         last_interaction_in_nus,
+        last_interaction_in_rs,
         last_line_interaction_in_ids,
         last_line_interaction_out_ids,
         virt_packet_nus,
@@ -368,6 +387,7 @@ def montecarlo_main_loop(
         virt_packet_initial_mus,
         virt_packet_initial_rs,
         virt_packet_last_interaction_in_nu,
+        virt_packet_last_interaction_in_r,
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,

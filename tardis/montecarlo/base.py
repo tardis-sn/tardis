@@ -221,6 +221,7 @@ class MontecarloRunner(HDFWriterMixin):
         self.input_energy = energies
 
         self._output_nu = np.ones(no_of_packets, dtype=np.float64) * -99.0
+        self._output_r = np.ones(no_of_packets, dtype=np.float64) * -99.0
         self._output_energy = np.ones(no_of_packets, dtype=np.float64) * -99.0
 
         self.last_line_interaction_in_id = -1 * np.ones(
@@ -384,6 +385,10 @@ class MontecarloRunner(HDFWriterMixin):
     @property
     def output_nu(self):
         return u.Quantity(self._output_nu, u.Hz)
+
+    @property
+    def output_r(self):
+        return u.Quantity(self._output_r, u.cm)
 
     @property
     def output_energy(self):
