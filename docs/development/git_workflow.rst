@@ -151,6 +151,8 @@ TARDIS repository clone.
    repository will always be immediately available next time you start a Python
    interpreter and ``import tardis``.
 
+.. _pre-commit-install:
+
 #. Install pre-commit hooks::
 
        $ pre-commit install --install-hooks
