@@ -28,6 +28,7 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
 def verysimple_collection(nb_simulation_verysimple):
     runner = nb_simulation_verysimple.runner
     return PacketCollection(
+        runner.input_r,
         runner.input_nu,
         runner.input_mu,
         runner.input_energy,
@@ -99,6 +100,7 @@ def verysimple_3vpacket_collection(nb_simulation_verysimple):
 def verysimple_packet_collection(nb_simulation_verysimple):
     runner = nb_simulation_verysimple.runner
     return PacketCollection(
+        runner.input_r,
         runner.input_nu,
         runner.input_mu,
         runner.input_energy,

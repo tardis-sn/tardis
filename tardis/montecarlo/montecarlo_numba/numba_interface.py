@@ -67,7 +67,7 @@ class NumbaPlasma(object):
     ):
         """
         Plasma for the Numba code
-        
+
         Parameters
         ----------
         electron_density : numpy.ndarray
@@ -161,6 +161,7 @@ def numba_plasma_initialize(plasma, line_interaction_type):
 
 
 packet_collection_spec = [
+    ("packets_input_radius", float64[:]),
     ("packets_input_nu", float64[:]),
     ("packets_input_mu", float64[:]),
     ("packets_input_energy", float64[:]),
@@ -173,12 +174,14 @@ packet_collection_spec = [
 class PacketCollection(object):
     def __init__(
         self,
+        packets_input_radius,
         packets_input_nu,
         packets_input_mu,
         packets_input_energy,
         packets_output_nu,
         packets_output_energy,
     ):
+        self.packets_input_radius = packets_input_radius
         self.packets_input_nu = packets_input_nu
         self.packets_input_mu = packets_input_mu
         self.packets_input_energy = packets_input_energy
@@ -220,10 +223,18 @@ class VPacketCollection(object):
         self.nus = np.empty(temporary_v_packet_bins, dtype=np.float64)
         self.energies = np.empty(temporary_v_packet_bins, dtype=np.float64)
         self.number_of_vpackets = number_of_vpackets
-        self.last_interaction_in_nu = np.zeros(temporary_v_packet_bins, dtype=np.float64)
-        self.last_interaction_type = -1 * np.ones(temporary_v_packet_bins, dtype=np.int64)
-        self.last_interaction_in_id = -1 * np.ones(temporary_v_packet_bins, dtype=np.int64)
-        self.last_interaction_out_id = -1 * np.ones(temporary_v_packet_bins, dtype=np.int64)
+        self.last_interaction_in_nu = np.zeros(
+            temporary_v_packet_bins, dtype=np.float64
+        )
+        self.last_interaction_type = -1 * np.ones(
+            temporary_v_packet_bins, dtype=np.int64
+        )
+        self.last_interaction_in_id = -1 * np.ones(
+            temporary_v_packet_bins, dtype=np.int64
+        )
+        self.last_interaction_out_id = -1 * np.ones(
+            temporary_v_packet_bins, dtype=np.int64
+        )
         self.idx = 0
         self.rpacket_index = rpacket_index
         self.length = temporary_v_packet_bins
@@ -241,21 +252,31 @@ class VPacketCollection(object):
             temp_length = self.length * 2 + self.number_of_vpackets
             temp_nus = np.empty(temp_length, dtype=np.float64)
             temp_energies = np.empty(temp_length, dtype=np.float64)
-            temp_last_interaction_in_nu = np.empty(temp_length, dtype=np.float64)
+            temp_last_interaction_in_nu = np.empty(
+                temp_length, dtype=np.float64
+            )
             temp_last_interaction_type = np.empty(temp_length, dtype=np.int64)
             temp_last_interaction_in_id = np.empty(temp_length, dtype=np.int64)
             temp_last_interaction_out_id = np.empty(temp_length, dtype=np.int64)
             temp_nus[: self.length] = self.nus
             temp_energies[: self.length] = self.energies
-            temp_last_interaction_in_nu[: self.length] = self.last_interaction_in_nu
-            temp_last_interaction_type[: self.length] = self.last_interaction_type
-            temp_last_interaction_in_id[: self.length] = self.last_interaction_in_id
-            temp_last_interaction_out_id[: self.length] = self.last_interaction_out_id
+            temp_last_interaction_in_nu[
+                : self.length
+            ] = self.last_interaction_in_nu
+            temp_last_interaction_type[
+                : self.length
+            ] = self.last_interaction_type
+            temp_last_interaction_in_id[
+                : self.length
+            ] = self.last_interaction_in_id
+            temp_last_interaction_out_id[
+                : self.length
+            ] = self.last_interaction_out_id
 
             self.nus = temp_nus
             self.energies = temp_energies
             self.last_interaction_in_nu = temp_last_interaction_in_nu
-            self.last_interaction_type = temp_last_interaction_type 
+            self.last_interaction_type = temp_last_interaction_type
             self.last_interaction_in_id = temp_last_interaction_in_id
             self.last_interaction_out_id = temp_last_interaction_out_id
             self.length = temp_length

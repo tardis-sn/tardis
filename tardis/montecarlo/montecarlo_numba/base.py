@@ -29,6 +29,7 @@ from tardis.montecarlo.montecarlo_numba import njit_dict
 
 def montecarlo_radial1d(model, plasma, runner):
     packet_collection = PacketCollection(
+        runner.input_r,
         runner.input_nu,
         runner.input_mu,
         runner.input_energy,
