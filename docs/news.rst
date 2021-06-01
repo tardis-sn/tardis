@@ -22,6 +22,15 @@
 
         var customizeTweetMedia = function () {
           var iframe = document.getElementById("twitter-widget-0");
+
+          var cssLink = iframe.contentWindow.document.createElement("link");
+          cssLink.setAttribute("rel", "stylesheet");
+          cssLink.setAttribute("type", "text/css");
+          cssLink.setAttribute("href", "./_static/css/theme.css");
+
+          iframeHead = iframe.contentWindow.document.getElementsByTagName("head")[0];
+          iframeHead.appendChild(cssLink);
+
           var headerTitle = iframe.contentWindow.document.getElementsByClassName("timeline-Header-title")[0];
           headerTitle.style.fontSize = "18px";
 
