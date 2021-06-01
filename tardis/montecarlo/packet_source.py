@@ -111,6 +111,29 @@ class BlackBodySimpleSource(BasePacketSource):
     """
 
     def create_packets(self, T, no_of_packets, rng, radius):
+        """Generate black-body packet properties as arrays
+
+        Parameters
+        ----------
+        T : float64
+            Temperature
+        no_of_packets : int
+            Number of packets
+        rng : numpy random number generator
+        radius : float64
+            Initial packet radius
+
+        Returns
+        -------
+        array
+            Packet radii
+        array
+            Packet frequencies
+        array
+            Packet directions
+        array
+            Packet energies
+        """
         radii = np.ones(no_of_packets) * radius
         nus = self.create_blackbody_packet_nus(T, no_of_packets, rng)
         mus = self.create_zero_limb_darkening_packet_mus(no_of_packets, rng)
