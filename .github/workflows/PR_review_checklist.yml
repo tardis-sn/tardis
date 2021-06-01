@@ -1,0 +1,34 @@
+name: PR-review-checklist
+on:
+  pull_request_target:
+    types: [review_requested]
+jobs:
+  review:
+    name: PR review
+    runs-on: ubuntu-latest
+    steps:
+      - name: comment PR
+        uses: mshick/add-pr-comment@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          message: "Before a PR is accepted, it must meet the following criteria: \n
+                - [ ] Is the necessary information provided? \n
+                  \t - [ ] Does the PR have a complete description? Does it explain what the PR is attempting to do/fix, does it explain how it does this? \n
+                  \t - [ ] Is there an explanation of why this PR is needed? \n
+                  \t - [ ] Please use the [TARDIS PR template](https://github.com/tardis-sn/tardis/blob/master/.github/PULL_REQUEST_TEMPLATE.md) \n
+                - [ ] Is this a duplicate PR? \n
+                  \t - [ ] If a new PR is clearly a duplicate, ask how this PR is different from the original PR? \n
+                  \t - [ ] If this PR is about to be merged, close the original PR with a link to this new PR that solved the issue. \n
+                - [ ] Does it pass existing tests and are new tests provided if required? \n
+                  \t - [ ] The test coverage should not decrease, and for new features should be at or very close to 100%. \n
+                - [ ] Is the code properly documented? \n
+                  \t - [ ] If this modifies existing code, then the docs should be updated. If this adds a new feature, additional documentation should be created. \n
+                  \t - [ ] Sphinx and docstrings in the code (in numpydoc format) \n
+                - [ ] Does this conform to PEP 8 and the TARDIS style guidelines? \n
+                - [ ] Does the PR fix the problem it describes? \n
+                  \t - [ ] Make sure it doesn’t e.g. just fix the problem for a specific case \n
+                  \t - [ ] Is this the best way of fixing the problem? \n
+                - [ ] Is the code tidy? \n
+                  \t - [ ] No unnecessary print lines or code comments \n"
+          allow-repeats: true  # this is only commented once
