@@ -151,7 +151,6 @@ def montecarlo_main_loop(
     virt_packet_last_line_interaction_in_id = []
     virt_packet_last_line_interaction_out_id = []
 
-    print("Running post-merge numba montecarlo (with C close lines)!")
     for i in prange(len(output_nus)):
         if montecarlo_configuration.single_packet_seed != -1:
             seed = packet_seeds[montecarlo_configuration.single_packet_seed]
