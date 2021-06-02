@@ -43,6 +43,7 @@ __all__ = [
     "RawCollIonTransProbs",
     "BoundFreeOpacityInterpolator",
     "FreeFreeOpacity",
+    "ContinuumOpacityCalculator",
 ]
 
 
@@ -898,7 +899,7 @@ class FreeFreeOpacity(ProcessingPlasmaProperty):
         Pre-factor needed in the calculation of the free-free opacity.
     """
 
-    outputs = ("chi_ff",)
+    outputs = ("chi_ff_calculator",)
 
     def calculate(self, t_electrons, ff_cooling_factor):
         ff_opacity_factor = ff_cooling_factor / np.sqrt(t_electrons)
@@ -1030,6 +1031,23 @@ class BoundFreeOpacityInterpolator(ProcessingPlasmaProperty):
             return chi_bf_tot, chi_bf_contributions, current_continua
 
         return chi_bf_interpolator
+
+
+class ContinuumOpacityCalculator(ProcessingPlasmaProperty):
+    outputs = ("chi_continuum_calculator",)
+
+    def calculate(self, chi_ff_calculator, chi_bf_interpolator):
+        @njit(error_model="numpy", fastmath=True)
+        def chi_continuum_calculator(nu, shell):
+            (
+                chi_bf_tot,
+                chi_bf_contributions,
+                current_continua,
+            ) = chi_bf_interpolator(nu, shell)
+            chi_ff = chi_ff_calculator(nu, shell)
+            return chi_bf_tot, chi_bf_contributions, current_continua, chi_ff
+
+        return chi_continuum_calculator
 
 
 class LevelNumberDensityLTE(ProcessingPlasmaProperty):

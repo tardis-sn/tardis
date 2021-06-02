@@ -76,7 +76,7 @@ def montecarlo_radial1d(model, plasma, runner):
         runner.spectrum_frequency.value,
         number_of_vpackets,
         packet_seeds,
-        plasma.chi_bf_interpolator
+        plasma.chi_continuum_calculator
     )
 
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
@@ -121,7 +121,7 @@ def montecarlo_main_loop(
     spectrum_frequency,
     number_of_vpackets,
     packet_seeds,
-    chi_bf_interpolator
+    chi_continuum_calculator
 ):
     """
     This is the main loop of the MonteCarlo routine that generates packets
@@ -198,7 +198,7 @@ def montecarlo_main_loop(
 
         loop = single_packet_loop(
             r_packet, numba_model, numba_plasma, estimators, vpacket_collection,
-            chi_bf_interpolator
+            chi_continuum_calculator
         )
         # if loop and 'stop' in loop:
         #     raise MonteCarloException

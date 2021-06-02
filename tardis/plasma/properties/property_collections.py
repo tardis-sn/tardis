@@ -130,6 +130,7 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         ContinuumInteractionHandler,
         BoundFreeOpacityInterpolator,
         FreeFreeOpacity,
+        ContinuumOpacityCalculator,
     ]
 )
 adiabatic_cooling_properties = PlasmaPropertyCollection([AdiabaticCoolingRate])
