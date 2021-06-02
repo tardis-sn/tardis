@@ -401,6 +401,8 @@ class SDECData:
                 )
 
 
+
+
 class SDECPlotter:
     """
     Plotting interface for Spectral element DEComposition (SDEC) Plot.
