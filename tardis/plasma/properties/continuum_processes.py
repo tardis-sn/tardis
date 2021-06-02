@@ -857,6 +857,11 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
     ff_cooling_factor : pandas.Series, dtype float
         Pre-factor needed in the calculation of the free-free cooling rate and
         the free-free opacity.
+
+    Notes
+    -----
+    This implementation uses a free-free Gaunt factor of one for all species
+    and ionization stages, which is an approximation.
     """
 
     outputs = ("cool_rate_ff", "ff_cooling_factor")
