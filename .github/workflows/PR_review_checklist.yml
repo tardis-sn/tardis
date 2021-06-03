@@ -31,4 +31,4 @@ jobs:
                   \t - [ ] Is this the best way of fixing the problem? \n
                 - [ ] Is the code tidy? \n
                   \t - [ ] No unnecessary print lines or code comments \n"
-          allow-repeats: true  # this is only commented once
+          allow-repeats: false  # this is only commented once
