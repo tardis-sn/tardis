@@ -55,9 +55,21 @@ Abundances
 The ``abundance`` section has a possible ``file`` parameter with ``type`` (currently only ``artis`` is allowed)
 and a ``name`` parameter giving a path to a file containing the abundance information.
 
+.. warning::
+    In contrast to the ``structure`` section, the ``abundance`` section will not ignore abundances set in the rest of
+    the section but merely will overwrite the abundances given in the file section.
+
+The rest of the section can be used to configure uniform abundances for all shells, by giving the atom name and a
+relative abundance fraction. If it does not add up to 1., TARDIS will warn --- but normalize the numbers.
+
+
 .. jsonschema:: schemas/model_definitions.yml#/definitions/abundances/file
 
 .. jsonschema:: schemas/model_definitions.yml#/definitions/abundances/uniform
+
+Structure
+^^^^^^^^^
+All types of ``structure`` definitions have two keywords in common: ``v_inner_boundary`` and ``v_outer_boundary``.
 
 In the ``structure`` section, one can specify a ``file`` section containing a ``type`` parameter
 (currently only ``artis`` is supported``) and a ``name`` parameter giving a path top a file.
@@ -65,10 +77,6 @@ In the ``structure`` section, one can specify a ``file`` section containing a ``
 If one doesn't specify a ``file`` section, the code requires two sections (``velocities`` and ``densities``) and a
 parameter ``no_of_shells``. ``no_of_shells`` is the requested number of shells for a model. The ``velocity`` section
 requires a ``type``. Currently, only ``linear`` is supported.
-
-Structure
-^^^^^^^^^
-All types of ``structure`` definitions have two keywords in common: ``v_inner_boundary`` and ``v_outer_boundary``.
 
 .. jsonschema:: schemas/model_definitions.yml#/definitions/structure/file
 
@@ -88,13 +96,6 @@ to sensible defaults and should not be changed.
 .. jsonschema:: schemas/model_definitions.yml#/definitions/density/power_law
 
 .. jsonschema:: schemas/model_definitions.yml#/definitions/density/uniform
-
-.. warning::
-    In contrast to the ``structure`` section, the ``abundance`` section will not ignore abundances set in the rest of
-    the section but merely will overwrite the abundances given in the file section.
-
-The rest of the section can be used to configure uniform abundances for all shells, by giving the atom name and a
-relative abundance fraction. If it does not add up to 1., TARDIS will warn --- but normalize the numbers.
 
 
 Plasma
@@ -188,10 +189,9 @@ just an integer. Finally, the method option selects the final spectral synthesis
 * integrated: use the :doc:`formal integral method <../../../physics/montecarlo/sourceintegration>` of Lucy 1999
 
 .. warning::
-
-  Currently, the "integrated" mode only works with the downbranching line
-  interaction mode. Note also the limitations listed at the bottom of the
-  dedicated page.
+    Currently, the "integrated" mode only works with the downbranching line
+    interaction mode. Note also the limitations listed at the bottom of the
+    dedicated page.
 
 
 .. include:: ../../example_data.inc
