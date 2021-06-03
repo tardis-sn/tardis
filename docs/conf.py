@@ -58,6 +58,9 @@ extensions = [
     "sphinxcontrib.apidoc",
 ]
 
+if os.getenv('DISABLE_NBSPHINX') == "1":
+    extensions.remove("nbsphinx")
+
 bibtex_bibfiles = ['tardis.bib']
 
 source_suffix = {
