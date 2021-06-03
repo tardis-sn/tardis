@@ -1,0 +1,178 @@
+title: 'definitions for the values in Model.yml'
+definitions:
+  density:
+    branch85_w7:
+      $$target: '#/definitions/density/branch85_w7'
+      title: 'Branch85_w7 Density'
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          enum:
+          - branch85_w7
+        w7_time_0:
+          type: quantity
+          default: 0.000231481 day
+          description: This needs no change - DO NOT TOUCH
+        w7_rho_0:
+          type: quantity
+          default: 3e29 g/cm^3
+          description: This needs no change - DO NOT TOUCH
+        w7_v_0:
+          type: quantity
+          default: 1 km/s
+          description: This needs no change - DO NOT TOUCH
+    exponential:
+      $$target: '#/definitions/density/exponential'
+      title: 'Exponential Density'
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          enum:
+          - exponential
+        time_0:
+          type: quantity
+          description: Time at which the pure model densities are right
+        rho_0:
+          type: quantity
+          description: density at time_0
+        v_0:
+          type: quantity
+          description: at what velocity the density rho_0 applies
+      required:
+      - rho_0
+      - v_0
+    power_law:
+      $$target: '#/definitions/density/power_law'
+      title: 'Power_law Density'
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          enum:
+          - power_law
+        time_0:
+          type: quantity
+          description: Time at which the pure model densities are right
+        rho_0:
+          type: quantity
+          description: density at time_0
+        v_0:
+          type: quantity
+          description: at what velocity the density rho_0 applies
+        exponent:
+          type: number
+          description: exponent for exponential density profile
+      required:
+      - rho_0
+      - v_0
+      - exponent
+    uniform:
+      $$target: '#/definitions/density/uniform'
+      title: 'Uniform Density'
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          enum:
+          - uniform
+        time_0:
+          type: quantity
+          description: Time at which the pure model densities are right
+        value:
+          type: quantity
+          description: value for uniform density
+      required:
+      - value
+  structure:
+    file:
+      $$target: 'model_definitions.yml#/definitions/structure/file'
+      title: 'File Structure'
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          enum:
+          - file
+        filename:
+          type: string
+          description: file name (with path) to structure model
+        filetype:
+          type: string
+          enum:
+          - simple_ascii
+          - artis
+          - cmfgen_model
+          description: file type
+        v_inner_boundary:
+          type: quantity
+          default: -1 km/s
+          description: location of the inner boundary chosen from the model
+        v_outer_boundary:
+          type: quantity
+          default: -1 km/s
+          description: location of the inner boundary chosen from the model
+      required:
+      - filename
+      - filetype
+    specific:
+      $$target: 'model_definitions.yml#/definitions/structure/specific'
+      title: 'Specific Structure'
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          enum:
+          - specific
+        velocity:
+          type: object
+          properties:
+            start:
+              type: quantity
+            stop:
+              type: quantity
+            num:
+              type: number
+              multipleOf: 1.0
+          description: description of the boundaries of the shells
+        density:
+          oneOf:
+          - $ref: '#/definitions/density/branch85_w7'
+          - $ref: '#/definitions/density/exponential'
+          - $ref: '#/definitions/density/power_law'
+          - $ref: '#/definitions/density/uniform'
+      required:
+      - velocity
+      - density
+  abundances:
+    file:
+      $$target: 'model_definitions.yml#/definitions/abundances/file'
+      title: 'File Abundance'
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          enum:
+          - file
+        filetype:
+          type: string
+          description: type of abundance file to read in
+        filename:
+          type: string
+          description: filename
+      required:
+      - filetype
+      - filename
+    uniform:
+      $$target: 'model_definitions.yml#/definitions/abundances/uniform'
+      title: 'Uniform Abundance'
+      type: object
+      properties:
+        type:
+          enum:
+          - uniform
+      additionalProperties:
+        type: number
+        minimum: 0
+        maximum: 1

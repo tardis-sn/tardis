@@ -50,20 +50,9 @@ file type where the information is stored or a number of other sections.
 
 .. jsonschema:: schemas/model.yml
 
-All types of ``structure`` definitions have two keywords in common: ``v_inner_boundary`` and ``v_outer_boundary``.
-In the ``structure`` section, one can specify a ``file`` section containing a ``type`` parameter
-(currently only ``artis`` is supported``) and a ``name`` parameter giving a path top a file.
-
-If one doesn't specify a ``file`` section, the code requires two sections (``velocities`` and ``densities``) and a
-parameter ``no_of_shells``. ``no_of_shells`` is the requested number of shells for a model. The ``velocity`` section
-requires a ``type``. Currently, only ``linear`` is supported.
-
-In the ``densities`` section the ``type`` parameter again decides on the parameters. The type ``uniform`` only needs a
- ``value`` parameter with a density compatible quantity. The type ``branch85_w7`` uses a seven-order polynomial fit to
- the W7 model and is parametrised by time since explosion. The parameters ``time_0`` and ``density_coefficient`` are set
- to sensible defaults and should not be changed.
-
-The ``abundance`` section again has a possible ``file`` parameter with ``type`` (currently only ``artis`` is allowed)
+Abundances
+^^^^^^^^^^
+The ``abundance`` section has a possible ``file`` parameter with ``type`` (currently only ``artis`` is allowed)
 and a ``name`` parameter giving a path to a file containing the abundance information.
 
 .. warning::
@@ -73,6 +62,40 @@ and a ``name`` parameter giving a path to a file containing the abundance inform
 The rest of the section can be used to configure uniform abundances for all shells, by giving the atom name and a
 relative abundance fraction. If it does not add up to 1., TARDIS will warn --- but normalize the numbers.
 
+
+.. jsonschema:: schemas/model_definitions.yml#/definitions/abundances/file
+
+.. jsonschema:: schemas/model_definitions.yml#/definitions/abundances/uniform
+
+Structure
+^^^^^^^^^
+All types of ``structure`` definitions have two keywords in common: ``v_inner_boundary`` and ``v_outer_boundary``.
+
+In the ``structure`` section, one can specify a ``file`` section containing a ``type`` parameter
+(currently only ``artis`` is supported``) and a ``name`` parameter giving a path top a file.
+
+If one doesn't specify a ``file`` section, the code requires two sections (``velocities`` and ``densities``) and a
+parameter ``no_of_shells``. ``no_of_shells`` is the requested number of shells for a model. The ``velocity`` section
+requires a ``type``. Currently, only ``linear`` is supported.
+
+.. jsonschema:: schemas/model_definitions.yml#/definitions/structure/file
+
+.. jsonschema:: schemas/model_definitions.yml#/definitions/structure/specific
+
+Densities
+"""""""""
+In the ``densities`` section the ``type`` parameter again decides on the parameters. The type ``uniform`` only needs a
+``value`` parameter with a density compatible quantity. The type ``branch85_w7`` uses a seven-order polynomial fit to
+the W7 model and is parametrised by time since explosion. The parameters ``time_0`` and ``density_coefficient`` are set
+to sensible defaults and should not be changed.
+
+.. jsonschema:: schemas/model_definitions.yml#/definitions/density/branch85_w7
+
+.. jsonschema:: schemas/model_definitions.yml#/definitions/density/exponential
+
+.. jsonschema:: schemas/model_definitions.yml#/definitions/density/power_law
+
+.. jsonschema:: schemas/model_definitions.yml#/definitions/density/uniform
 
 
 Plasma
@@ -127,6 +150,10 @@ The ``montecarlo`` section describes the parameters for the Monte Carlo radiatio
 
 .. jsonschema:: schemas/montecarlo.yml
 
+.. jsonschema:: schemas/montecarlo_definitions.yml#/definitions/convergence_strategy/damped
+
+.. jsonschema:: schemas/montecarlo_definitions.yml#/definitions/convergence_strategy/custom
+
 The ``seed`` parameter seeds the random number generator first for the creation of the packets
 (:math:`\nu` and :math:`\mu`) and then the interactions in the actual Monte Carlo process.
 The ``no_of_packets`` parameter can take a float number for input convenience and gives the number of packets normally
@@ -143,8 +170,8 @@ All convergence criteria can be specified separately for the three variables for
 override the defaults.
 
 
-#. ``damped`` only has one parameter ``damping-constant`` and does not check for convergence. This can be used to fix the
-    temperature of the inner boundary (by increasing the ``convergence_criteria`` and
+``damped`` only has one parameter ``damping-constant`` and does not check for convergence. This can be used to fix the
+temperature of the inner boundary (by increasing the ``convergence_criteria`` and
 
 
 
@@ -162,10 +189,9 @@ just an integer. Finally, the method option selects the final spectral synthesis
 * integrated: use the :doc:`formal integral method <../../../physics/montecarlo/sourceintegration>` of Lucy 1999
 
 .. warning::
-
-  Currently, the "integrated" mode only works with the downbranching line
-  interaction mode. Note also the limitations listed at the bottom of the
-  dedicated page.
+    Currently, the "integrated" mode only works with the downbranching line
+    interaction mode. Note also the limitations listed at the bottom of the
+    dedicated page.
 
 
 .. include:: ../../example_data.inc
