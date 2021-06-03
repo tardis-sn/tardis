@@ -82,25 +82,19 @@ def montecarlo_radial1d(model, plasma, runner):
     runner.last_line_interaction_out_id = last_line_interaction_out_id
 
     if montecarlo_configuration.VPACKET_LOGGING and number_of_vpackets > 0:
-        runner.virt_packet_nus = np.concatenate(
-            np.array(virt_packet_nus)
-        ).ravel()
-        runner.virt_packet_energies = np.concatenate(
-            np.array(virt_packet_energies)
-        ).ravel()
-        runner.virt_packet_last_interaction_in_nu = np.concatenate(
-            np.array(virt_packet_last_interaction_in_nu)
-        ).ravel()
-        runner.virt_packet_last_interaction_type = np.concatenate(
-            np.array(virt_packet_last_interaction_type)
-        ).ravel()
-        runner.virt_packet_last_line_interaction_in_id = np.concatenate(
-            np.array(virt_packet_last_line_interaction_in_id)
-        ).ravel()
-        runner.virt_packet_last_line_interaction_out_id = np.concatenate(
-            np.array(virt_packet_last_line_interaction_out_id)
-        ).ravel()
+        runner.virt_packet_nus = virt_packet_nus
+        runner.virt_packet_energies = virt_packet_energies
+        runner.virt_packet_last_interaction_in_nu = virt_packet_last_interaction_in_nu
+        runner.virt_packet_last_interaction_type = virt_packet_last_interaction_type
+        runner.virt_packet_last_line_interaction_in_id = virt_packet_last_line_interaction_in_id
+        runner.virt_packet_last_line_interaction_out_id = virt_packet_last_line_interaction_out_id
 
+
+@njit
+def _flatten_arr_list(myarr, arr_list):
+    for arr_i in arr_list:
+        arr = np.append(myarr, arr_i)
+    return arr
 
 @njit(**njit_dict, nogil=True)
 def montecarlo_main_loop(
@@ -150,6 +144,13 @@ def montecarlo_main_loop(
     virt_packet_last_interaction_type = []
     virt_packet_last_line_interaction_in_id = []
     virt_packet_last_line_interaction_out_id = []
+
+    virt_packet_nus_arr = np.empty(0, dtype=np.float64)
+    virt_packet_energies_arr = np.empty(0, dtype=np.float64)
+    virt_packet_last_interaction_in_nu_arr = np.empty(0, dtype=np.float64)
+    virt_packet_last_interaction_type_arr = np.empty(0, dtype=np.int64)
+    virt_packet_last_line_interaction_in_id_arr = np.empty(0, dtype=np.int64)
+    virt_packet_last_line_interaction_out_id_arr = np.empty(0, dtype=np.int64)
 
     print("Running post-merge numba montecarlo (with C close lines)!")
     for i in prange(len(output_nus)):
@@ -237,16 +238,30 @@ def montecarlo_main_loop(
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
 
+
+    if montecarlo_configuration.VPACKET_LOGGING and montecarlo_configuration.number_of_vpackets > 0:
+
+        virt_packet_nus_arr = _flatten_arr_list(virt_packet_nus_arr, virt_packet_nus)
+        virt_packet_energies_arr = _flatten_arr_list(virt_packet_energies_arr, virt_packet_energies)
+        virt_packet_last_interaction_in_nu_arr = _flatten_arr_list(virt_packet_last_interaction_in_nu_arr, virt_packet_last_interaction_in_nu)
+        virt_packet_last_interaction_type_arr = _flatten_arr_list(virt_packet_last_interaction_type_arr, virt_packet_last_interaction_type)
+        virt_packet_last_line_interaction_in_id_arr = _flatten_arr_list(virt_packet_last_line_interaction_in_id_arr, virt_packet_last_line_interaction_in_id)
+        virt_packet_last_line_interaction_out_id_arr = _flatten_arr_list(virt_packet_last_line_interaction_out_id_arr, virt_packet_last_line_interaction_out_id)
+
+
+
+
+
     return (
         v_packets_energy_hist,
         last_interaction_types,
         last_interaction_in_nus,
         last_line_interaction_in_ids,
         last_line_interaction_out_ids,
-        virt_packet_nus,
-        virt_packet_energies,
-        virt_packet_last_interaction_in_nu,
-        virt_packet_last_interaction_type,
-        virt_packet_last_line_interaction_in_id,
-        virt_packet_last_line_interaction_out_id,
+        virt_packet_nus_arr,
+        virt_packet_energies_arr,
+        virt_packet_last_interaction_in_nu_arr,
+        virt_packet_last_interaction_type_arr,
+        virt_packet_last_line_interaction_in_id_arr,
+        virt_packet_last_line_interaction_out_id_arr,
     )
