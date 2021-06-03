@@ -97,6 +97,17 @@ exclude_patterns = ["_build", "_templates", "**.ipynb_checkpoints"]
 rst_epilog = """
 """
 
+# this forces the documentation to load MathJax v2, see here: https://github.com/spatialaudio/nbsphinx/issues/572#issuecomment-853389268
+mathjax_path = 'https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
+mathjax2_config = {
+    'tex2jax': {
+        'inlineMath': [['$', '$'], ['\\(', '\\)']],
+        'processEscapes': True,
+        'ignoreClass': 'document',
+        'processClass': 'math|output_area',
+    }
+}
+
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
