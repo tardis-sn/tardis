@@ -38,9 +38,9 @@ class BasePacketSource(abc.ABC):
     @staticmethod
     def create_uniform_packet_energies(no_of_packets, rng):
         """
-        Uniformly distribute energy in arbitrary units where the ensemble of 
-        packets has energy of 1. 
-        
+        Uniformly distribute energy in arbitrary units where the ensemble of
+        packets has energy of 1.
+
         Parameters
         ----------
         no_of_packets : int
@@ -73,7 +73,7 @@ class BasePacketSource(abc.ABC):
         .. math::
             x = -\\ln{(\\xi_1\\xi_2\\xi_3\\xi_4)}/l_{\\rm min}\\; .
         where :math:`x=h\\nu/kT`
-        
+
         Parameters
         ----------
         T : float
@@ -81,7 +81,7 @@ class BasePacketSource(abc.ABC):
         no_of_packets : int
         l_samples : int
             number of l_samples needed in the algorithm
-            
+
         Returns
         -------
             : numpy.ndarray
@@ -110,9 +110,33 @@ class BlackBodySimpleSource(BasePacketSource):
     part.
     """
 
-    def create_packets(self, T, no_of_packets, rng):
+    def create_packets(self, T, no_of_packets, rng, radius):
+        """Generate black-body packet properties as arrays
+
+        Parameters
+        ----------
+        T : float64
+            Temperature
+        no_of_packets : int
+            Number of packets
+        rng : numpy random number generator
+        radius : float64
+            Initial packet radius
+
+        Returns
+        -------
+        array
+            Packet radii
+        array
+            Packet frequencies
+        array
+            Packet directions
+        array
+            Packet energies
+        """
+        radii = np.ones(no_of_packets) * radius
         nus = self.create_blackbody_packet_nus(T, no_of_packets, rng)
         mus = self.create_zero_limb_darkening_packet_mus(no_of_packets, rng)
         energies = self.create_uniform_packet_energies(no_of_packets, rng)
 
-        return nus, mus, energies
+        return radii, nus, mus, energies

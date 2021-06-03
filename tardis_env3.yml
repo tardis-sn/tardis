@@ -12,66 +12,58 @@ dependencies:
   - astropy=3
   - numba=0.53.1
   - numexpr
+  - pyne=0.7  # Issue #1537
 
   # Plasma
   - networkx
+  - pygraphviz
 
   # I/O
   - pyyaml
   - jsonschema
-  - pyne=0.7
   - pytables
   - h5py
+  - pickle5  # Issue #1566
   - requests
   - tqdm
-  - beautifulsoup4
-  - lxml
-  - pickle5
-
-  # Analysis
-  - jupyter
-  - notebook
-  - matplotlib
-  - graphviz
-  - pygraphviz
 
   # Widgets & Visualization
   - ipywidgets
+  - matplotlib
   - qgrid
   - plotly
-  - pyside2
+  - pyside2  # Qt GUI
+
+  # Analysis
+  - jupyter
 
   # Documentation
   - sphinx
-  - nbconvert
+  - sphinx_bootstrap_theme
+  - sphinx_rtd_theme
+  - sphinxcontrib-apidoc
+  - sphinxcontrib-bibtex
+  - sphinx-jsonschema
+  - recommonmark
   - numpydoc
-  - docutils=0.16
+  - nbconvert
   - nbformat
   - nbsphinx
-  - sphinx_bootstrap_theme
-  - sphinxcontrib-bibtex=1.0
-  - sphinxcontrib-apidoc
-  - sphinx_rtd_theme
-  - recommonmark
+  - docutils=0.16  # Issue #1522
 
-  # Test/Coverage requirements
-  - git-lfs
-  - pytest=5
-  - pytest-html
+  # Test/Coverage
+  - pytest
   - pytest-cov
+  - pytest-html
   - coverage
-  - docopt
 
   # Code quality
   - black
 
   # Other
-  - parso=0.8
+  - git-lfs
 
   - pip:
-      # Documentation
       - sphinxcontrib-tikz
       - dokuwiki
-      - dot2tex
-      - sphinx-jsonschema
-      - git+https://github.com/Naereen/dot2tex.git
+      - dot2tex  # conda-forge package requires python>=3.8

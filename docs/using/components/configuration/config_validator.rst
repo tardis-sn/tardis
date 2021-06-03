@@ -8,6 +8,7 @@ The default config validator takes a user configuration and a default configurat
 	- Second_level:
 		- Third_level:
 			…
+
 or a declaration of a configuration item like:
 
 - item:
@@ -19,14 +20,16 @@ or a declaration of a configuration item like:
 This contains always  the keywords ``help``, ``default``, ``mandatory``, and ``property_type``. The keyword help is  a doc-string which describes the corresponding item. "Default" specifies the default value which is used in case that no value for this item is specified in the corresponding user configuration item. If the keyword mandatory is ``True``, the item has to be specified in the user configuration. The keyword ``property_type`` is used to specify the type of the item. At the moment, the config parser knows the following types:
 
 .. ::
+
 - **Int:** The property type int is for integer like config items.
 - **Float:** The property type float is for float like config items.
 - **String:** The property type string is for string like config items.
 - **Quantity:** The property type quantity is for physical quantities with units given as string. The string contains value and unit separated by a whitespace E.g. 2 cm.
 - **Range:** The property type range specifies a range via start and end.
-.. note:: ``abs(start - end ) > 0``.
-- **Quantity_range:** Like property type range but with quantities as start and stop. The consistency of the units is checked.
 
+.. note:: ``abs(start - end ) > 0``.
+
+- **Quantity_range:** Like property type range but with quantities as start and stop. The consistency of the units is checked.
 
 Additionally to the four standard keywords the types integer, float, and quantity can have the keywords ``allowed_value`` and ``allowed_type``. ``allowed_value`` specifies the allowed values in a list, whereas ``allowed_type`` specifies a range of allowed values, such as “x>10”.
 
@@ -75,6 +78,7 @@ How to use
 ^^^^^^^^^^
                 
 To use the default parser create a new config object form the class ConfigurationValidator either from a dictionaries or from YAML files:
+
 ::
 
 - My_config = ConfigurationValidator(default configuration dictionary, user configuration dictionary)

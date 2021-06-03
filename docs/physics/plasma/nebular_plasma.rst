@@ -36,7 +36,7 @@ Calculating Zeta
 Calculating Delta
 ^^^^^^^^^^^^^^^^^
 
-:math:`\delta` is a radiation field correction factors which is calculated according to Mazzali & Lucy 1993 (:cite:`1993A&A...279..447M`; henceforth ML93)
+:math:`\delta` is a radiation field correction factors which is calculated according to Mazzali & Lucy 1993 (:cite:`Mazzali1993`; henceforth ML93)
 
 In ML93, the radiation field correction factor is denoted as :math:`\delta` and is calculated in Formula 15 & 20.
 
@@ -60,7 +60,7 @@ where :math:`T_\textrm{R}` is the radiation field temperature, :math:`T_\textrm{
 dilution factor.
 
 
-Now, we can calculate the ionization balance using equation 14 in :cite:`1993A&A...279..447M`:
+Now, we can calculate the ionization balance using equation 14 in :cite:`Mazzali1993`:
 
 .. math::
     \Phi_{i,j} &= \frac{N_{i, j+1} n_e}{N_{i, j}} \\

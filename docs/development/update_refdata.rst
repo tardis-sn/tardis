@@ -10,13 +10,13 @@ We assume that you have added the necessary changes to TARDIS and have an open p
 
 #. Activate your ``tardis`` conda environment.
 
-    .. code-block:: None
+    .. code-block:: none
     
         conda activate tardis
 
 #. Navigate to your ``tardis-refdata`` directory and type:
 
-    .. code-block:: None
+    .. code-block:: none
     
         git lfs install
         git lfs fetch upstream
@@ -24,13 +24,13 @@ We assume that you have added the necessary changes to TARDIS and have an open p
 
 #. Go to your ``tardis`` directory. Make sure you are working on the correct branch and generate new reference data using:
 
-    .. code-block:: None
+    .. code-block:: none
 
         python setup.py test --args="--tardis-refdata=<path to refdata repo on the right branch> --generate-reference"
 
 #. Re-run the tests to make sure it does not fail using:
 
-    .. code-block:: None
+    .. code-block:: none
 
         python setup.py test --args="--tardis-refdata=<path to refdata repo on the right branch>"
 
@@ -38,11 +38,11 @@ We assume that you have added the necessary changes to TARDIS and have an open p
 
 #. Open the ``ref_data_compare.ipynb`` file notebook and look for the cell with the following code:
 
-    .. code-block:: None
+    .. code-block:: none
 
         comparer = ReferenceComparer(ref2_hash='upstream/pr/24')
         
-   Replace '24' for the number of the last merged pull request showed `here <https://github.com/tardis-sn/tardis-refdata/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Aclosed>`_.
+    Replace '24' for the number of the last merged pull request showed `here <https://github.com/tardis-sn/tardis-refdata/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Aclosed>`_.
 
 #. Run all cells and check if there are any unexpected changes in the updated reference data respect the previous one.
 
@@ -50,10 +50,10 @@ We assume that you have added the necessary changes to TARDIS and have an open p
 
 #. Switch back to the ``tardis`` directory. Open the ``.travis.yml`` file and change the following lines:
 
-    .. code-block:: None
+    .. code-block:: none
 
         - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin pull/<your tardis-refdata PR number; not the TARDIS PR number>/head:<some descriptive name>; fi
-        - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout <some descriptive name>; fi```
+        - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout <some descriptive name>; fi
 
 #. Commit the ``.travis.yml`` to your pull request.
 
@@ -63,10 +63,10 @@ We assume that you have added the necessary changes to TARDIS and have an open p
 
 #. Then change the ``.travis.yml`` in ``tardis`` directory to:
 
-    .. code-block:: None
+    .. code-block:: none
 
         - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin; fi
-        - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi```
+        - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi
 
 #. Ensure TARDIS pull request passes Travis-CI again and ping someone to merge your PR to the TARDIS master branch.
 

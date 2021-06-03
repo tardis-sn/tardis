@@ -88,6 +88,7 @@ Mission Statement
     team_and_governance/index
     credits
     Code of Conduct <CODE_OF_CONDUCT.md>
+    sponsors
 
 
 .. toctree::

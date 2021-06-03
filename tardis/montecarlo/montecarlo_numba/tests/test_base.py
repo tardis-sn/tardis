@@ -74,7 +74,9 @@ def test_montecarlo_main_loop(
 
     runner._initialize_geometry_arrays(model)
     runner._initialize_estimator_arrays(numba_plasma.tau_sobolev.shape)
-    runner._initialize_packets(model.t_inner.value, 100000, 0)
+    runner._initialize_packets(
+        model.t_inner.value, 100000, 0, model.r_inner[0].value
+    )
 
     # Init parameters
     montecarlo_configuration.v_packet_spawn_start_frequency = (
@@ -93,6 +95,7 @@ def test_montecarlo_main_loop(
 
     # Init packet collection from runner
     packet_collection = PacketCollection(
+        runner.input_r,
         runner.input_nu,
         runner.input_mu,
         runner.input_energy,
@@ -130,7 +133,7 @@ def test_montecarlo_main_loop(
     for i in range(len(packet_collection.packets_input_nu)):
         # Generate packet
         packet = r_packet.RPacket(
-            numba_model.r_inner[0],
+            packet_collection.packets_input_radius[i],
             packet_collection.packets_input_mu[i],
             packet_collection.packets_input_nu[i],
             packet_collection.packets_input_energy[i],

@@ -41,7 +41,7 @@ random number generator which provides uniformly distributed numbers :math:`z`
 on the interval :math:`[0,1]`. The frequency assignment is more involved than
 selecting an initial propagation direction, since the Planck function has to be
 sampled. TARDIS uses the technique described in :cite:`Carter1975` and
-summarized in :cite:`Bjorkmann1999` for this purpose.
+summarized in :cite:`Bjorkman2001` for this purpose.
 
 .. _expansion:
 

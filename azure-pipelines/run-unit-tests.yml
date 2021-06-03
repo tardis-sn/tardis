@@ -33,6 +33,7 @@ jobs:
     steps:
       - template: templates/default.yml
         parameters:
+          fetchDepth: 1
           fetchRefdata: true
           useMamba: true
 
@@ -41,7 +42,7 @@ jobs:
           source activate tardis
           pip install pytest-azurepipelines
           pytest tardis --tardis-refdata=$(refdata.dir) --cov=tardis --cov-report=xml --cov-report=html
-        displayName: 'TARDIS test'
+        displayName: 'Run tests'
 
       - bash: bash <(curl -s https://codecov.io/bash)
         displayName: 'Upload to codecov.io'
