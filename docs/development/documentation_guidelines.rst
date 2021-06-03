@@ -29,7 +29,10 @@ or ::
     cd docs
     make html
 
-.. note :: If you're working on a fresh local copy of the TARDIS repository, you might need to do ``python setup.py develop`` before executing these commands.
+.. note :: 
+
+    - If you're working on a fresh local copy of the TARDIS repository, you might need to do ``python setup.py develop`` before executing these commands.
+    - Prepend ``DISABLE_NBSPHINX=1`` to the build command to disable notebook rendering (fast mode).
 
 After running this command, you can find the built docs (i.e. HTML webpages) in ``docs/_build``. Open the ``index.html`` in your browser to see how the documentation looks like with your edits. Navigate to page where you made changes or file that you added to check whether it looks as intended or not.
 
