@@ -21,7 +21,7 @@ tests, you can run this with:
 
 .. code-block:: shell
 
-    > python setup.py test
+    > pytest tardis
 
 
 Running the more advanced unit tests requires TARDIS Reference data that can be
@@ -30,7 +30,7 @@ downloaded
 
 .. code-block:: shell
 
-    > python setup.py test --args="--tardis-refdata=/path/to/tardis-refdata/"
+    > pytest tardis --args="--tardis-refdata=/path/to/tardis-refdata/"
 
 Generating Plasma Reference
 ===========================
