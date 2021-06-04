@@ -116,8 +116,8 @@ Mission Statement
 
     zreferences
 
-====
+----
 News
-====
+----
 
 .. include:: news.rst
