@@ -29,7 +29,7 @@ jobs:
       - name: Configure bot user
         run: |
           git config --global user.email "tardis.sn.bot@gmail.com"
-          git config --global user.name "TARDIS Bot"
+          git config --global user.name "tardis-bot"
 
       - name: Push changes
         run: |
