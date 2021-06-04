@@ -6,23 +6,23 @@ We are grateful to the following organisations for sponsoring us and helping us 
 
 |
 
-.. image:: graphics/google.png
-    :width: 500
-
-|
-|
-
 .. image:: graphics/esa.png
     :width: 500
 
 |
 |
 
-.. image:: graphics/numfocus.png
+.. image:: graphics/github.png
     :width: 500
 
 |
 |
 
-.. image:: graphics/github.png
+.. image:: graphics/google.png
+    :width: 500
+
+|
+|
+
+.. image:: graphics/numfocus.png
     :width: 500
