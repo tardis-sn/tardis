@@ -11,6 +11,7 @@ The following pages are no longer relevant to the most recent release of TARDIS:
     commandline
     old_gui
     openmp
+    old_install
 
 
 The following pages are no longer applicable to the TARDIS documentation in its current form, but will be edited
