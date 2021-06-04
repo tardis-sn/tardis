@@ -25,7 +25,7 @@ from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
     single_packet_loop,
 )
 from tardis.montecarlo.montecarlo_numba import njit_dict
-
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 def montecarlo_radial1d(model, plasma, runner):
     packet_collection = PacketCollection(
@@ -100,8 +100,79 @@ def montecarlo_radial1d(model, plasma, runner):
             np.array(virt_packet_last_line_interaction_out_id)
         ).ravel()
 
+@njit(**njit_dict)
+def run_single_packet(i,
+        delta_nu,
+        packet_collection,
+        numba_model,
+        numba_plasma,
+        estimators,
+        spectrum_frequency,
+        number_of_vpackets,
+        packet_seeds):
+    v_packets_energy_hist = np.zeros_like(spectrum_frequency)
+    if montecarlo_configuration.single_packet_seed != -1:
+        seed = packet_seeds[montecarlo_configuration.single_packet_seed]
+        np.random.seed(seed)
+    else:
+        seed = packet_seeds[i]
+        np.random.seed(seed)
+    r_packet = RPacket(
+        numba_model.r_inner[0],
+        packet_collection.packets_input_mu[i],
+        packet_collection.packets_input_nu[i],
+        packet_collection.packets_input_energy[i],
+        seed,
+        i,
+    )
+    vpacket_collection = VPacketCollection(
+        r_packet.index,
+        spectrum_frequency,
+        montecarlo_configuration.v_packet_spawn_start_frequency,
+        montecarlo_configuration.v_packet_spawn_end_frequency,
+        number_of_vpackets,
+        montecarlo_configuration.temporary_v_packet_bins,
+    )
+    loop = single_packet_loop(
+        r_packet, numba_model, numba_plasma, estimators, vpacket_collection
+    )
+    # if loop and 'stop' in loop:
+    #     raise MonteCarloException
 
-@njit(**njit_dict, nogil=True)
+    output_nu = r_packet.nu
+    last_interaction_in_nu = r_packet.last_interaction_in_nu
+    last_line_interaction_in_id = r_packet.last_line_interaction_in_id
+    last_line_interaction_out_id = r_packet.last_line_interaction_out_id
+
+    if r_packet.status == PacketStatus.REABSORBED:
+        output_energy = -r_packet.energy
+        last_interaction_type = r_packet.last_interaction_type
+    elif r_packet.status == PacketStatus.EMITTED:
+        output_energy = r_packet.energy
+        last_interaction_type = r_packet.last_interaction_type
+
+    vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
+    vpackets_energy = vpacket_collection.energies[: vpacket_collection.idx]
+
+    v_packets_idx = np.floor(
+        (vpackets_nu - spectrum_frequency[0]) / delta_nu
+    ).astype(np.int64)
+    # if we're only in a single-packet mode
+    # if montecarlo_configuration.single_packet_seed == -1:
+    #     break
+    for j, idx in enumerate(v_packets_idx):
+        if (vpackets_nu[j] < spectrum_frequency[0]) or (
+            vpackets_nu[j] > spectrum_frequency[-1]
+        ):
+            continue
+        v_packets_energy_hist[idx] += vpackets_energy[j]
+
+    #if montecarlo_configuration.VPACKET_LOGGING:
+    return (vpackets_nu, vpackets_energy, vpacket_collection.last_interaction_in_nu[: vpacket_collection.idx], 
+    (vpacket_collection.last_interaction_type[: vpacket_collection.idx]), (vpacket_collection.last_interaction_in_id[: vpacket_collection.idx]),
+    (vpacket_collection.last_interaction_out_id[: vpacket_collection.idx])), (output_nu, output_energy, last_interaction_in_nu, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type), v_packets_energy_hist
+
+#@njit(**njit_dict, nogil=True)
 def montecarlo_main_loop(
     packet_collection,
     numba_model,
@@ -126,6 +197,7 @@ def montecarlo_main_loop(
         VPackets released per interaction
     packet_seeds : numpy.array
     """
+    print("HI")
     output_nus = np.empty_like(packet_collection.packets_output_nu)
     last_interaction_types = (
         np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
@@ -150,7 +222,14 @@ def montecarlo_main_loop(
     virt_packet_last_line_interaction_in_id = []
     virt_packet_last_line_interaction_out_id = []
 
-    for i in prange(len(output_nus)):
+    virt_packet_props = (virt_packet_nus, virt_packet_energies, virt_packet_last_interaction_in_nu, virt_packet_last_interaction_type,
+            virt_packet_last_line_interaction_in_id, virt_packet_last_line_interaction_out_id)
+
+
+    #for i in prange(len(output_nus)):
+    @njit(**njit_dict)
+    def run_single_packet_(i):
+        v_packets_energy_hist = np.zeros_like(spectrum_frequency)
         if montecarlo_configuration.single_packet_seed != -1:
             seed = packet_seeds[montecarlo_configuration.single_packet_seed]
             np.random.seed(seed)
@@ -179,17 +258,17 @@ def montecarlo_main_loop(
         # if loop and 'stop' in loop:
         #     raise MonteCarloException
 
-        output_nus[i] = r_packet.nu
-        last_interaction_in_nus[i] = r_packet.last_interaction_in_nu
-        last_line_interaction_in_ids[i] = r_packet.last_line_interaction_in_id
-        last_line_interaction_out_ids[i] = r_packet.last_line_interaction_out_id
+        output_nu = r_packet.nu
+        last_interaction_in_nu = r_packet.last_interaction_in_nu
+        last_line_interaction_in_id = r_packet.last_line_interaction_in_id
+        last_line_interaction_out_id = r_packet.last_line_interaction_out_id
 
         if r_packet.status == PacketStatus.REABSORBED:
-            output_energies[i] = -r_packet.energy
-            last_interaction_types[i] = r_packet.last_interaction_type
+            output_energy = -r_packet.energy
+            last_interaction_type = r_packet.last_interaction_type
         elif r_packet.status == PacketStatus.EMITTED:
-            output_energies[i] = r_packet.energy
-            last_interaction_types[i] = r_packet.last_interaction_type
+            output_energy = r_packet.energy
+            last_interaction_type = r_packet.last_interaction_type
 
         vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
         vpackets_energy = vpacket_collection.energies[: vpacket_collection.idx]
@@ -207,29 +286,24 @@ def montecarlo_main_loop(
                 continue
             v_packets_energy_hist[idx] += vpackets_energy[j]
 
-        if montecarlo_configuration.VPACKET_LOGGING:
-            virt_packet_nus.append(vpackets_nu)
-            virt_packet_energies.append(vpackets_energy)
-            virt_packet_last_interaction_in_nu.append(
-                vpacket_collection.last_interaction_in_nu[
-                    : vpacket_collection.idx
-                ]
-            )
-            virt_packet_last_interaction_type.append(
-                vpacket_collection.last_interaction_type[
-                    : vpacket_collection.idx
-                ]
-            )
-            virt_packet_last_line_interaction_in_id.append(
-                vpacket_collection.last_interaction_in_id[
-                    : vpacket_collection.idx
-                ]
-            )
-            virt_packet_last_line_interaction_out_id.append(
-                vpacket_collection.last_interaction_out_id[
-                    : vpacket_collection.idx
-                ]
-            )
+        #if montecarlo_configuration.VPACKET_LOGGING:
+        return (vpackets_nu, vpackets_energy, vpacket_collection.last_interaction_in_nu[: vpacket_collection.idx], 
+        (vpacket_collection.last_interaction_type[: vpacket_collection.idx]), (vpacket_collection.last_interaction_in_id[: vpacket_collection.idx]),
+        (vpacket_collection.last_interaction_out_id[: vpacket_collection.idx])), (output_nu, output_energy, last_interaction_in_nu, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type), v_packets_energy_hist
+    with ThreadPoolExecutor(16) as tpe:
+        v_packets = []
+        for i,v in enumerate(as_completed([tpe.submit(run_single_packet, i, delta_nu, packet_collection, numba_model, numba_plasma, estimators, spectrum_frequency, number_of_vpackets, packet_seeds) for i in range(len(output_nus))])):
+            virt_props, r_props, energy_hist = v.result()
+            output_nus[i] = r_props[0]
+            output_energies[i] = r_props[1]
+            last_interaction_in_nus[i] = r_props[2]
+            last_line_interaction_in_ids[i] = r_props[3]
+            last_line_interaction_out_ids[i] = r_props[4]
+            last_interaction_types[i] = r_props[5]
+            v_packets_energy_hist += energy_hist
+            for prop, vprop in zip(virt_packet_props, virt_props):
+                prop.append(vprop)
+
 
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
