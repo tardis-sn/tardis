@@ -578,7 +578,7 @@ class SDECPlotter:
 
         if packets_mode == "virtual" and self.data[packets_mode] is None:
             raise ValueError(
-                "SDECPlotter doesn't have any data for virtual packets population and SDEC plot for the same was requested.\nEither set virtual_packet_logging: True in your configuration file to generate SDEC plot with virtual packets, or pass packets_mode=\"real\" in your function call to generate SDEC plot with real packets."
+                'SDECPlotter doesn\'t have any data for virtual packets population and SDEC plot for the same was requested.\nEither set virtual_packet_logging: True in your configuration file to generate SDEC plot with virtual packets, or pass packets_mode="real" in your function call to generate SDEC plot with real packets.'
             )
 
         # Store the plottable range of each spectrum property which is
