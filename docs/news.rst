@@ -29,7 +29,12 @@
           cssLink.setAttribute("href", "./_static/css/theme.css");
 
           iframeHead = iframe.contentWindow.document.getElementsByTagName("head")[0];
-          iframeHead.appendChild(cssLink);
+
+          if (!iframeHead.contains(iframe.contentDocument.getElementById("sphinx-css"))) {
+            iframeHead.appendChild(cssLink);
+          }
+
+          iframe.contentWindow.document.body.style.overflow = "hidden";
 
           var headerTitle = iframe.contentWindow.document.getElementsByClassName("timeline-Header-title")[0];
           headerTitle.style.fontSize = "18px";
