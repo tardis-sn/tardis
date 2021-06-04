@@ -70,7 +70,7 @@ jobs:
 
       - name: Push Changes
         run: |
-          git add -f zenodo.json
+          git add -f .zenodo.json
 
           if git diff --staged --quiet; then
              echo "No changes made. Exiting."
