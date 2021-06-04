@@ -198,7 +198,6 @@ def montecarlo_main_loop(
         VPackets released per interaction
     packet_seeds : numpy.array
     """
-    print("HI")
     output_nus = np.empty_like(packet_collection.packets_output_nu)
     last_interaction_types = (
         np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
@@ -226,6 +225,7 @@ def montecarlo_main_loop(
     virt_packet_props = (virt_packet_nus, virt_packet_energies, virt_packet_last_interaction_in_nu, virt_packet_last_interaction_type,
             virt_packet_last_line_interaction_in_id, virt_packet_last_line_interaction_out_id)
 
+<<<<<<< HEAD
 
     #for i in prange(len(output_nus)):
     @njit(**njit_dict)
@@ -291,6 +291,8 @@ def montecarlo_main_loop(
         return (vpackets_nu, vpackets_energy, vpacket_collection.last_interaction_in_nu[: vpacket_collection.idx], 
         (vpacket_collection.last_interaction_type[: vpacket_collection.idx]), (vpacket_collection.last_interaction_in_id[: vpacket_collection.idx]),
         (vpacket_collection.last_interaction_out_id[: vpacket_collection.idx])), (output_nu, output_energy, last_interaction_in_nu, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type), v_packets_energy_hist
+=======
+>>>>>>> Cleaned up the code a little bit, removed unused functions
     with ThreadPoolExecutor(16) as tpe:
         v_packets = []
         for i,v in enumerate(as_completed([tpe.submit(run_single_packet, i, delta_nu, packet_collection, numba_model, numba_plasma, estimators, spectrum_frequency, number_of_vpackets, packet_seeds) for i in range(len(output_nus))])):
