@@ -1,17 +1,17 @@
-name: PR-review-checklist
+name: pr-review
+
 on:
   pull_request_target:
     types: [review_requested]
+
 jobs:
-  review:
-    name: PR review
+  comment:
     runs-on: ubuntu-latest
     steps:
-      - name: comment PR
-        uses: mshick/add-pr-comment@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: mshick/add-pr-comment@v1
         with:
+          repo-token: ${{ secrets.BOT_TOKEN }}
+          repo-token-user-login: 'tardis-bot'
           message: "Before a PR is accepted, it must meet the following criteria: \n
                 - [ ] Is the necessary information provided? \n
                   \t - [ ] Does the PR have a complete description? Does it explain what the PR is attempting to do/fix, does it explain how it does this? \n
@@ -31,4 +31,4 @@ jobs:
                   \t - [ ] Is this the best way of fixing the problem? \n
                 - [ ] Is the code tidy? \n
                   \t - [ ] No unnecessary print lines or code comments \n"
-          allow-repeats: true  # this is only commented once
+          allow-repeats: false
