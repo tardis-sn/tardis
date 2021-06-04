@@ -6,3 +6,5 @@ from tardis.visualization.widgets.shell_info import (
 )
 from tardis.visualization.widgets.line_info import LineInfoWidget
 from tardis.visualization.tools.sdec_plot import SDECPlotter
+
+from tardis.visualization.tools import convergence_plot
