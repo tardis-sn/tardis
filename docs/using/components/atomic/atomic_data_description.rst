@@ -53,11 +53,11 @@ Ionization Data
 
 
 .. note:: In TARDIS, Ion 0 is neutral. 
-The levels data is stored in ``levels_data``.
+
 
 Levels Data
 ^^^^^^^^^^^
-
+The levels data is stored in ``levels_data``.
 
 +------------------------+------------------------------+----------+
 |Name                    | Description                  | Unit     |
@@ -129,8 +129,8 @@ has three states:
 
 * -1 for downwards emitting
 * 0 for downwards internal
-* 1 for upwards internal (for more explanations, please
-refer to :ref:`macroatom`).
+* 1 for upwards internal (for more explanations, please refer to :ref:`macroatom`).
+
 
 Macro Atom Data
 ^^^^^^^^^^^^^^^
