@@ -246,3 +246,42 @@ def create_redirect_files(app, docname):
 def setup(app):
     app.connect("autodoc-skip-member", autodoc_skip_member)
     app.connect("build-finished", create_redirect_files)
+
+
+# Generate ZENODO.rst
+# Adapted from: https://astrodata.nyc/posts/2021-04-23-zenodo-sphinx/
+
+import re
+import pathlib
+import requests
+import textwrap
+import warnings
+
+CONCEPT_DOI = '592480'  # See: https://help.zenodo.org/#versioning
+zenodo_path = pathlib.Path('ZENODO.rst')
+
+try:
+    headers = {'accept': 'application/x-bibtex'}
+    response = requests.get(f'https://zenodo.org/api/records/{CONCEPT_DOI}',
+                            headers=headers)
+    response.encoding = 'utf-8'
+    citation = re.findall('@software{(.*)\,', response.text)
+    zenodo_record = (f".. |ZENODO| replace:: {citation[0]}\n\n"
+                     ".. code-block:: bibtex\n\n" + textwrap.indent(response.text, " "*4))
+
+except Exception as e:
+    warnings.warn("Failed to retrieve Zenodo record for TARDIS: "
+                  f"{str(e)}")
+
+    not_found_msg = """
+                    Couldn't retrieve the TARDIS software citation from Zenodo. Get it 
+                    directly from `this link <https://zenodo.org/record/{CONCEPT_DOI}>`_    .
+                    """
+
+    zenodo_record = (".. |ZENODO| replace:: <TARDIS SOFTWARE CITATION HERE> \n\n"
+                     ".. warning:: \n\n" + textwrap.indent(not_found_msg, " "*4))
+
+with open(zenodo_path, 'w') as f:
+    f.write(zenodo_record)
+
+print(zenodo_record)
