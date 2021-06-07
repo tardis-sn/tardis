@@ -101,12 +101,11 @@ def move_gamma_ray(gxpacket, distance):
     """
     x_old, y_old, z_old = gxpacket.location.get_cartesian_coords
     x_dir, y_dir, z_dir = gxpacket.direction.get_cartesian_coords
-    # overshoot by 1e-7 * distance to shell boundary
+    # overshoot by CLOSE_LINE_THRESHOLD * distance to shell boundary
     # so that the gamma-ray is comfortably in the next shell
-    # TODO: change to close line threshold constant
-    x_new = x_old + distance * (1 + 1e-7) * x_dir
-    y_new = y_old + distance * (1 + 1e-7) * y_dir
-    z_new = z_old + distance * (1 + 1e-7) * z_dir
+    y_new = y_old + distance * (1 + CLOSE_LINE_THRESHOLD) * y_dir
+    z_new = z_old + distance * (1 + CLOSE_LINE_THRESHOLD) * z_dir
+    x_new = x_old + distance * (1 + CLOSE_LINE_THRESHOLD) * x_dir
 
     r, theta, phi = cartesian_to_spherical(x_new, y_new, z_new)
     gxpacket.location.r = r.value
@@ -185,6 +184,24 @@ def mass_per_shell(radial_grid_size, inner_radii, outer_radii, density_profile):
 def mass_distribution(
     radial_grid_size, inner_radii, outer_radii, density_profile
 ):
+    """Calculate the mass distribution of the density profile
+
+    Parameters
+    ----------
+    radial_grid_size : int64
+        Number of radial grid cells
+    inner_radii : ndarray
+        Array of inner radii
+    outer_radii : ndarray
+        Array of outer radii
+    density_profile : ndarray
+        Array of density
+
+    Returns
+    -------
+    ndarray
+        Mass cumulative distribution function
+    """
     shell_masses = mass_per_shell(
         radial_grid_size, inner_radii, outer_radii, density_profile
     )
@@ -224,6 +241,31 @@ def compute_required_packets_per_shell(
     raw_isotope_abundance,
     number_of_packets,
 ):
+    """Computes the number of packets required per shell
+    that sum to the total number of requested packets
+
+    Parameters
+    ----------
+    outer_radii : ndarray
+        Outer radii of shells
+    inner_radii : ndarray
+        Inner radii of shells
+    ejecta_density : ndarray
+        Array of densities
+    number_of_shells : int64
+        Number of radial grid cells
+    raw_isotope_abundance : pandas DataFrame
+        Abundances of isotopes
+    number_of_packets : int64
+        Total number of simulation packets
+
+    Returns
+    -------
+    pandas DataFrame
+        Packets required per shell
+    pandas DataFrame
+        Database of decay radiation
+    """
     shell_masses = mass_per_shell(
         number_of_shells, inner_radii, outer_radii, ejecta_density
     )

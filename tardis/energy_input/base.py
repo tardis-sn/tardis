@@ -138,7 +138,6 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
     energy_df_rows = np.zeros(number_of_shells)
 
     for column in packets_per_shell:
-        # print(column)
         subtable = decay_rad_db.loc[column]
         gamma_ratio, positron_ratio = intensity_ratio(
             subtable, "'gamma_rays' or type=='x_rays'", "'e+'"
@@ -270,7 +269,10 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                         distance_interaction / const.c.cgs.value * ejecta_epoch
                     )
 
-                    compton_scatter(packet, compton_angle)
+                    (
+                        packet.direction.theta,
+                        packet.direction.phi,
+                    ) = compton_scatter(packet, compton_angle)
 
                     energy_df_rows[packet.shell] += calculate_energy_per_mass(
                         ejecta_energy_gained, shell_masses[shell]
