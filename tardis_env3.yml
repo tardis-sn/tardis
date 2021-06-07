@@ -12,7 +12,7 @@ dependencies:
   - astropy=3
   - numba=0.53.1
   - numexpr
-  - pyne=0.7  # Issue #1537
+  - pyne=0.7=nomoab_openmc*  # Issue #1537
 
   # Plasma
   - networkx
