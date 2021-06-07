@@ -26,7 +26,8 @@
     },
     {
       "name": "Fl\u00f6rs, Andreas",
-      "orcid": "0000-0003-2024-2819"
+      "orcid": "0000-0003-2024-2819",
+      "affiliation": "Max-Planck-Institut f\u00fcr Astrophysik"
     },
     {
       "name": "Camacho, Yssa",
@@ -90,106 +91,158 @@
       "name": "Barna, Barnab\u00e1s"
     },
     {
+      "name": "Wahi, Ujjwal"
+    },
+    {
       "name": "Gautam, Gaurav"
     },
     {
-      "name": "Barbosa, Talytha"
-    },
-    {
-      "name": "Patel, Maryam"
-    },
-    {
-      "name": "Varanasi, Kaushik"
-    },
-    {
-      "name": "Eweis, Youssef"
-    },
-    {
-      "name": "Reinecke, Martin"
-    },
-    {
-      "name": "Bylund, Tomas"
-    },
-    {
-      "name": "Bentil, Laud"
-    },
-    {
-      "name": "Eguren, Jordi"
-    },
-    {
-      "name": "Livneh, Ran"
-    },
-    {
-      "name": "Singhal, Jaladh"
-    },
-    {
-      "name": "O'Brien, Jack"
-    },
-    {
-      "name": "Rajagopalan, Srinath"
-    },
-    {
-      "name": "Jain, Rinkle"
-    },
-    {
-      "name": "Reichenbach, John"
-    },
-    {
-      "name": "Mishra, Sashank"
-    },
-    {
-      "name": "Singh, Sourav"
-    },
-    {
-      "name": "Sofiatti, Caroline"
-    },
-    {
-      "name": "Selsing, Jonatan"
-    },
-    {
-      "name": "Kowalski, Nathan"
-    },
-    {
-      "name": "Savel, Arjun"
-    },
-    {
-      "name": "Talegaonkar, Chinmay"
-    },
-    {
-      "name": "Patel, Pratik"
-    },
-    {
-      "name": "Patra, Nilesh"
-    },
-    {
-      "name": "Nayak, Ashwin"
-    },
-    {
-      "name": "Kumar, Atul"
-    },
-    {
-      "name": "Sarafina, Nance"
-    },
-    {
-      "name": "Gillanders, James"
+      "name": "Nayak U, Ashwin"
     },
     {
       "name": "Sharma, Sampark"
     },
     {
-      "name": "Wahi, Ujjwal"
+      "name": "Patel, Pratik"
     },
     {
-      "name": "Dasgupta, Debajyoti"
+      "name": "Singh Rathore, Parikshit"
     },
     {
-      "name": "Magee, Mark"
+      "name": "Patra, Nilesh"
+    },
+    {
+      "name": "Sarafina, Nance"
+    },
+    {
+      "name": "Volodin, Dmitry"
+    },
+    {
+      "name": "Kharkar, Atharwa"
+    },
+    {
+      "name": "Gupta, Suyash"
+    },
+    {
+      "name": "Aggarwal, Yash"
+    },
+    {
+      "name": "Kumar, Atul"
     },
     {
       "name": "Yap, Kevin"
     },
     {
-      "name": "Gupta, Suyash"
+      "name": "k, chaitanya"
+    },
+    {
+      "name": "Dasgupta, Debajyoti"
+    },
+    {
+      "name": "Sandler, Morgan"
+    },
+    {
+      "name": "Selsing, Jonatan"
+    },
+    {
+      "name": "Sofiatti, Caroline"
+    },
+    {
+      "name": "Kowalski, Nathan"
+    },
+    {
+      "name": "Talegaonkar, Chinmay"
+    },
+    {
+      "name": "Yu, Jenny"
+    },
+    {
+      "name": "Singh, Sourav"
+    },
+    {
+      "name": "Brar, Antreev"
+    },
+    {
+      "name": "Reichenbach, John"
+    },
+    {
+      "name": "Floers, Andreas"
+    },
+    {
+      "name": "Jain, Rinkle"
+    },
+    {
+      "name": "Rajagopalan, Srinath"
+    },
+    {
+      "name": "Mishra, Sashank",
+      "orcid": "0000-0001-8302-1584"
+    },
+    {
+      "name": "Livneh, Ran"
+    },
+    {
+      "name": "Magee, Mark"
+    },
+    {
+      "name": "Arya, Atharva"
+    },
+    {
+      "name": "Sondhi, Dhruv"
+    },
+    {
+      "name": "Alam, Arib"
+    },
+    {
+      "name": "Eguren, Jordi",
+      "orcid": "0000-0002-2328-8030"
+    },
+    {
+      "name": "Savel, Arjun"
+    },
+    {
+      "name": "Bentil, Laud"
+    },
+    {
+      "name": "Bylund, Tomas"
+    },
+    {
+      "name": "Reinecke, Martin"
+    },
+    {
+      "name": "Eweis, Youssef"
+    },
+    {
+      "name": "O'Brien, Jack"
+    },
+    {
+      "name": "Gillanders, James",
+      "orcid": "0000-0002-8094-6108"
+    },
+    {
+      "name": "Varanasi, Kaushik"
+    },
+    {
+      "name": "Patel, Maryam"
+    },
+    {
+      "name": "Barbosa, Talytha"
+    },
+    {
+      "name": "Smith, Isaac"
+    },
+    {
+      "name": "Singhal, Jaladh",
+      "orcid": "0000-0002-8310-0829",
+      "affiliation": "Python Software Foundation (StarKit)"
+    },
+    {
+      "name": "Cawley, Kevin"
+    },
+    {
+      "name": "Fullard, Andrew",
+      "orcid": "0000-0001-7343-1678",
+      "affiliation": "Michigan State University"
     }
   ]
 }
