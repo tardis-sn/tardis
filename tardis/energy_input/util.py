@@ -4,6 +4,7 @@ import numpy as np
 from astropy.coordinates import spherical_to_cartesian
 
 R_ELECTRON = const.a0.cgs * const.alpha.cgs ** 2.0
+KEV2ERG = (1000 * u.eV).to("erg").value
 
 
 class SphericalVector(object):
@@ -228,3 +229,21 @@ def convert_half_life_to_astropy_units(half_life_string):
         unit = "yr"
     half_life_with_unit = nominal_value * u.Unit(unit)
     return half_life_with_unit.to(u.s)
+
+
+def calculate_energy_per_mass(energy, mass):
+    """Calculates energy in erg / g
+
+    Parameters
+    ----------
+    energy : float64
+        Energy in KeV
+    mass : float64
+        Mass in grams
+
+    Returns
+    -------
+    float64
+        Energy density in erg / g
+    """
+    return energy * KEV2ERG / mass
