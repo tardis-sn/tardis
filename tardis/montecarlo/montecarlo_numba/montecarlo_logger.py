@@ -23,20 +23,32 @@ logger.addHandler(console_handler)
 
 
 def logging_state(log_state):
+    """
+    The configuration for the Logging status of the run() simulation object
+    Called from run_tardis()
+    Invoked via Function, argument 
+    Proposed : Invoking via YAML & Flags
+
+    Parameters
+    ----------
+    log_state: boolean or string
+        False, turns the logger off for the simulation, Default
+        True, allows logging for the simulation
+        Log_level = ["NotSet", "Debug", "Info", "Warning", "Error", "Critical"]
+        Allowed values which set the particular log level for the simulation
+    """
     loggers = [
         logging.getLogger(name) for name in logging.root.manager.loggerDict
     ]
     if log_state == False:
         for logger in loggers:
-            # logger.disabled = True
             logger.setLevel(logging.CRITICAL)
     elif log_state == True:
         for logger in loggers:
-            # logger.disabled = False
             logger.setLevel(logging.INFO)
     elif log_state in [
         "NotSet",
-        "Debuggit stat",
+        "Debug",
         "Info",
         "Warning",
         "Error",
@@ -51,7 +63,6 @@ def logging_state(log_state):
             "Critical": logging.CRITICAL,
         }
         for logger in loggers:
-            # logger.disabled = False
             logger.setLevel(logging_levels[log_state])
 
 
