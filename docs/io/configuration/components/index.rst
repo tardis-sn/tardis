@@ -1,8 +1,8 @@
 .. _config-components:
 
-************************
-Configuration Components
-************************
+*****************************
+Configuration File Components
+*****************************
 
 TARDIS uses the `YAML markup language <https://en.wikipedia.org/wiki/YAML>`_
 for its configuration files. There are several sections which allow different
@@ -29,10 +29,10 @@ schemas to show what options are available. Our schema mark-up defines names in 
 Configuration Schema
 ====================
 
-.. jsonschema:: schemas/schemas/base.yml
+.. jsonschema:: schemas/base.yml
 
 
-The base schema links to several other configuration parts.
+The base schema links to several other configuration parts
 
 
 Supernova

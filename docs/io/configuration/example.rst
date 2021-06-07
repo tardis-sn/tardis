@@ -1,11 +1,11 @@
-tardis_example
---------------
+****************************
+Tardis Example Configuration
+****************************
 
 The simple and fast TARDIS setup is provided by ``tardis_example.yml`` which
-may be obtained from `tardis-setups
-<https://github.com/tardis-sn/tardis-setups>`_ repository. It is located in
-the ``tardis-setups/2014/2014_kerzendorf_sim/appendix_A1`` subfolder. We suggest every new user of TARDIS to run this
-setup first.
+may be obtained `here
+<https://github.com/tardis-sn/tardis/docs/tardis_example.yml>`_. We suggest every new user of TARDIS to run this
+setup first, which can be donw using the :ref:`quickstart guide <quickstart>`.
 
 It calculates a spectrum for a Type Ia supernova model 13 days after explosion,
 requesting a total output luminosity of
@@ -30,11 +30,3 @@ The following YAML file summarizes the tardis_example setup:
     treatments and the reduced abundance set, this TARDIS setup serves for
     illustrative purposes and not for detailed SNe Ia spectral synthesis
     calculations.
-    
-See the following link for an example of running TARDIS with this setup in a Jupyter notebook:
-
-.. toctree::
-    :maxdepth: 1
-    
-    run_simple_example
-

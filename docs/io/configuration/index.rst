@@ -1,18 +1,20 @@
-*************
-Configuration
-*************
+.. _config-file:
+
+******************************
+Configuration (Required Input)
+******************************
 
 
-The bulk of the parameters for a TARDIS simulation are provided via a YAML
-configuration file. In a first step, the integrity of the specified
-configuration file is checked by a configuration validator. During this
-process, missing entries are replaced by default values. The following sections
-and pages provide more details concerning the TARDIS configuration process.
+The necessary parameters for a TARDIS simulation are provided via a `YAML <https://en.wikipedia.org/wiki/YAML>`_
+configuration file. The following sections respectively describes what can or must be included in the
+configuration file, shows an example configuration file, describes how TARDIS checks to make sure a configuration
+file is valid, and demonstrates how a YAML configuration file is read in.
 
 
 .. toctree::
   :maxdepth: 2
 
-  configuration
+  components/index
+  example
   config_validator
   read_configuration
