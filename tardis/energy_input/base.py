@@ -65,48 +65,32 @@ class GXPacket(object):
         self.tau = -np.log(np.random.random())
 
 
-def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
+def main_gamma_ray_loop(num_packets, model, iron_group_fraction=0.5):
     """Main loop that determines the gamma ray propagation
 
     Parameters
     ----------
     num_packets : int
         Number of packets
-    gamma_ratio : float
-        Relative fraction of photons compared to beta decay
-    inner_radii : ndarray
-        Inner shell edge velocities
-    outer_radii : ndarray
-        Outer shell edge velocities
-    mass_cdf : ndarray
-        Mass cumulative density function
-    energy_sorted : ndarray
-        Sorted array of photon energies
-    energy_cdf : ndarray
-        Photon energy cumulative density function
-    positron_energy_sorted : ndarray
-        Sorted array of beta decay energies
-    positron_energy_cdf : ndarray
-        Beta decay energy cumulative density function
+    model : tardis.Radial1DModel
+        The tardis model to calculate gamma ray propagation through
 
     Returns
     -------
-    list of GXPacket objects
-        Packets for the MC simulation
-    list
-        Beta decay energy in the ejecta
-    list
-        Beta decay energy velocity location in the ejecta
-    list
-        Beta decay energy theta location in the ejecta
-    list
-        Escaped energy
-    One-dimensional Numpy Array, dtype float
-        Inner velocities of ejecta grid shells
-    list
-        Event type that deposited energy
-    list
-        Number of events each packet encountered
+    pandas DataFrame
+        Energy per mass per shell in units of erg / g
+    pandas DataFrame
+        Columns:
+        Energy input per packet,
+        radius of deposition,
+        theta angle of deposition,
+        time of deposition,
+        type of deposition where:
+            -1 = beta decay,
+            0 = Compton scatter,
+            1 = photoabsorption,
+            2 = pair creation
+
     """
     escape_energy = []
     interaction_count = []
