@@ -22,6 +22,39 @@ console_handler.setFormatter(console_formatter)
 logger.addHandler(console_handler)
 
 
+def logging_state(log_state):
+    loggers = [
+        logging.getLogger(name) for name in logging.root.manager.loggerDict
+    ]
+    if log_state == False:
+        for logger in loggers:
+            # logger.disabled = True
+            logger.setLevel(logging.CRITICAL)
+    elif log_state == True:
+        for logger in loggers:
+            # logger.disabled = False
+            logger.setLevel(logging.INFO)
+    elif log_state in [
+        "NotSet",
+        "Debuggit stat",
+        "Info",
+        "Warning",
+        "Error",
+        "Critical",
+    ]:
+        logging_levels = {
+            "NotSet": logging.NOTSET,
+            "Debug": logging.DEBUG,
+            "Info": logging.INFO,
+            "Warning": logging.WARNING,
+            "Error": logging.ERROR,
+            "Critical": logging.CRITICAL,
+        }
+        for logger in loggers:
+            # logger.disabled = False
+            logger.setLevel(logging_levels[log_state])
+
+
 def log_decorator(func):
     """
     Decorator to log functions while in debug mode, i.e., when

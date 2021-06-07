@@ -7,6 +7,7 @@ def run_tardis(
     packet_source=None,
     simulation_callbacks=[],
     virtual_packet_logging=False,
+    log_state=False,
 ):
     """
     This function is one of the core functions to run TARDIS from a given
@@ -31,15 +32,12 @@ def run_tardis(
     -------
     Simulation
     """
+    from tardis.montecarlo.montecarlo_numba.montecarlo_logger import (
+        logging_state,
+    )
     from tardis.io.config_reader import Configuration
     from tardis.io.atom_data.base import AtomData
     from tardis.simulation import Simulation
-
-    if atom_data is not None:
-        try:
-            atom_data = AtomData.from_hdf(atom_data)
-        except TypeError:
-            atom_data = atom_data
 
     if isinstance(config, Configuration):
         tardis_config = config
@@ -48,6 +46,14 @@ def run_tardis(
             tardis_config = Configuration.from_yaml(config)
         except TypeError:
             tardis_config = Configuration.from_config_dict(config)
+
+    logging_state(log_state)
+
+    if atom_data is not None:
+        try:
+            atom_data = AtomData.from_hdf(atom_data)
+        except TypeError:
+            atom_data = atom_data
 
     simulation = Simulation.from_config(
         tardis_config,
