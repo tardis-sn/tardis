@@ -16,6 +16,7 @@ from tardis.util.base import (
     int_to_roman,
 )
 
+
 def axis_label_in_latex(label_text, unit, only_text=True):
     """
     Get axis label for plotly plots that can show units in latex.
@@ -78,6 +79,7 @@ class Plotter:
     """
     Class to encapsulate common functions used by other plotter tools.
     """
+
     def _parse_species_list(self, species_list):
         """
         Parse user requested species list and create list of species ids to be used.
@@ -188,7 +190,7 @@ class Plotter:
                 # if the element was requested, and not a specific ion, then
                 # add the element symbol to the label list
                 if (atomic_number in self._keep_colour) & (
-                        atomic_symbol not in species_name
+                    atomic_symbol not in species_name
                 ):
                     # compiling the label, and adding it to the list
                     label = f"{atomic_symbol}"
