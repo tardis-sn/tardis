@@ -348,6 +348,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         run the simulation
         """
+
         start_time = time.time()
         while self.iterations_executed < self.iterations - 1:
             self.store_plasma_state(
@@ -415,14 +416,16 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         plasma_state_log = pd.DataFrame(
             index=np.arange(len(t_rad)),
-            columns=["t_rad", "next_t_rad", "w", "next_w"],
+            columns=["t_rad (K)", "next_t_rad (K)", "w", "next_w"],
         )
-        plasma_state_log["t_rad"] = t_rad
-        plasma_state_log["next_t_rad"] = next_t_rad
-        plasma_state_log["w"] = w
-        plasma_state_log["next_w"] = next_w
+        plasma_state_log["t_rad (K)"] = np.around(t_rad.value, decimals=3)
+        plasma_state_log["next_t_rad (K)"] = np.around(
+            next_t_rad.value, decimals=3
+        )
+        plasma_state_log["w"] = np.around(w, decimals=3)
+        plasma_state_log["next_w"] = np.around(next_w, decimals=3)
 
-        plasma_state_log.index.name = "Shell"
+        plasma_state_log.columns.name = "Shell"
 
         plasma_state_log = str(plasma_state_log[::log_sampling])
 
@@ -431,13 +434,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         logger.info("Plasma stratification:\n%s\n", plasma_state_log)
-        logger.info(f"t_inner {t_inner:.3f} -- next t_inner {next_t_inner:.3f}")
+        logger.info(
+            f"\n\tCurrent t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
+        )
 
     def log_run_results(self, emitted_luminosity, absorbed_luminosity):
         logger.info(
-            f"Luminosity emitted = {emitted_luminosity:.5e} "
-            f"Luminosity absorbed = {absorbed_luminosity:.5e} "
-            f"Luminosity requested = {self.luminosity_requested:.5e}"
+            f"\n\tLuminosity emitted   = {emitted_luminosity:.5e}\n"
+            f"\tLuminosity absorbed  = {absorbed_luminosity:.5e}\n"
+            f"\tLuminosity requested = {self.luminosity_requested:.5e}\n"
         )
 
     def _call_back(self):
