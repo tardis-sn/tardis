@@ -200,7 +200,7 @@ def montecarlo_main_loop(
         ).astype(np.int64)
         # if we're only in a single-packet mode
         # if montecarlo_configuration.single_packet_seed == -1:
-        #     break
+        #    break
         for j, idx in enumerate(v_packets_idx):
             if (vpackets_nu[j] < spectrum_frequency[0]) or (
                 vpackets_nu[j] > spectrum_frequency[-1]
