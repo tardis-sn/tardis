@@ -4,7 +4,6 @@ import re
 from nuclear.io.nndc import get_decay_radiation_database, store_decay_radiation
 import pandas as pd
 
-from tardis.util.base import atomic_number2element_symbol
 from tardis.energy_input.util import (
     solve_quadratic_equation,
     convert_half_life_to_astropy_units,
