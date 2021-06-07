@@ -218,6 +218,18 @@ def get_random_phi_gamma_ray():
 
 
 def convert_half_life_to_astropy_units(half_life_string):
+    """Converts input half=life to use astropy units
+
+    Parameters
+    ----------
+    half_life_string : string
+        Half-life as a string
+
+    Returns
+    -------
+    astropy unit
+        Half-life in seconds
+    """
     [value, unit] = half_life_string.split(" ")
     try:
         [nominal_value, magnitude] = value.split("×")

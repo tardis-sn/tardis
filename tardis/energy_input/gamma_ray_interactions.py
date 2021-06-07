@@ -57,7 +57,10 @@ def compton_scatter(gxpacket, compton_angle):
 
     Returns
     -------
-
+    float64
+        Packet theta direction
+    float64
+        Packet phi direction
     """
     # transform original direction vector to cartesian coordinates
     original_direction = normalize(gxpacket.direction.get_cartesian_coords)
@@ -87,6 +90,8 @@ def compton_scatter(gxpacket, compton_angle):
     # in astropy.coordinates.cartesian_to_spherical
     gxpacket.direction.theta = theta_final.value + 0.5 * np.pi
     gxpacket.direction.phi = phi_final.value
+
+    return theta_final.value + 0.5 * np.pi, phi_final.value
 
 
 def normalize(vector):
