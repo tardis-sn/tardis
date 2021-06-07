@@ -70,6 +70,9 @@ jobs:
           git config --global user.email "tardis.sn.bot@gmail.com"
           git config --global user.name "tardis-bot"
 
+      - name: Debug step
+        run: ls -a
+
       - name: Push Changes
         run: |
           git add -f .zenodo.json
