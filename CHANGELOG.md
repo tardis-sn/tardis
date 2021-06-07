@@ -1,6 +1,7 @@
 ## Change Log
 
-### upcoming (2021/06/04 15:10 +00:00)
+### v3.0.dev3983 (2021/06/04 16:50 +00:00)
+- [#1555](https://github.com/tardis-sn/tardis/pull/1555) Replacing the contents of the news section with TARDIS twitter feed (#1555) (@atharva-2001)
 - [#1610](https://github.com/tardis-sn/tardis/pull/1610) add token at checkout step (#1610) (@epassaro)
 - [#1594](https://github.com/tardis-sn/tardis/pull/1594) Fixing JSON Schema not Rendering Properly in the Documentation (#1594) (@DhruvSondhi)
 - [#1607](https://github.com/tardis-sn/tardis/pull/1607) SDEC Visibility Fix (#1607) (@atharva-2001)
