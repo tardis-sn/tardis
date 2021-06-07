@@ -2,7 +2,7 @@ import numpy as np
 import astropy.units as u
 
 from tardis import constants as const
-from tardis.energy_input.util import kappa_calculation, SphericalVector
+from tardis.energy_input.util import kappa_calculation
 
 MASS_SI = 28.085 * const.m_p.to(u.g).value
 MASS_FE = 55.845 * const.m_p.to(u.g).value

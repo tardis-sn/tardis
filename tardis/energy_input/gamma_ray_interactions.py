@@ -3,10 +3,8 @@ from astropy.coordinates import cartesian_to_spherical
 from astropy.coordinates import spherical_to_cartesian
 from tardis.energy_input.util import (
     kappa_calculation,
-    klein_nishina,
     euler_rodrigues,
     compton_theta_distribution,
-    SphericalVector,
     get_random_theta_gamma_ray,
     get_random_phi_gamma_ray,
 )
