@@ -25,8 +25,8 @@ class CustomAbundanceWidget:
         self.no_of_shell = abundance.shape[1]
 
     @classmethod
-    def from_csvy(cls, fname):
-        csvy_model_config, csvy_model_data = load_csvy(fname)
+    def from_csvy(cls, fpath):
+        csvy_model_config, csvy_model_data = load_csvy(fpath)
         base_dir = os.path.abspath(os.path.dirname(__file__))
         schema_dir = os.path.join(base_dir, "../..", "io", "schemas")
         csvy_schema_file = os.path.join(schema_dir, "csvy_model.yml")
@@ -73,8 +73,8 @@ class CustomAbundanceWidget:
         return cls(csvy_model_config, abundance)
 
     @classmethod
-    def from_yml(cls, fname):
-        config = Configuration.from_yaml(fname)
+    def from_yml(cls, fpath):
+        config = Configuration.from_yaml(fpath)
 
         if hasattr(config, "csvy_model"):
             raise ValueError(
@@ -141,8 +141,15 @@ class CustomAbundanceWidget:
         return cls(config, abundance)
 
     @classmethod
-    def from_hdf(cls, fname):
-        pass
+    def from_hdf(cls, fpath):
+        with pd.HDFStore(fpath, "r") as hdf:
+            abundance = (hdf['/simulation/plasma/abundance'])
+
+        abundance["mass_number"] = 0.0
+        abundance.set_index("mass_number", append=True, inplace=True)
+        
+        return cls(config=None, abundance=abundance)
+
 
     @classmethod
     def from_simulation(cls, sim):
