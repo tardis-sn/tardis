@@ -10,6 +10,7 @@ from tardis.energy_input.gamma_ray_grid import (
     move_gamma_ray,
     get_shell,
     compute_required_packets_per_shell,
+    mass_per_shell,
 )
 from tardis.energy_input.energy_source import (
     setup_input_energy,
@@ -29,6 +30,7 @@ from tardis.energy_input.gamma_ray_interactions import (
 from tardis.energy_input.util import (
     get_random_theta_gamma_ray,
     get_random_phi_gamma_ray,
+    calculate_energy_per_mass,
 )
 from tardis import constants as const
 from astropy.coordinates import cartesian_to_spherical
@@ -107,7 +109,6 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
         Number of events each packet encountered
     """
     escape_energy = []
-    energy_input_type = []
     interaction_count = []
 
     # Note the use of velocity as the radial coordinate
@@ -117,20 +118,24 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
     inner_radii = model.v_inner[:].value
     ejecta_density = model.density[:].value
     ejecta_epoch = model.time_explosion.to("s").value
+    number_of_shells = model.no_of_shells
+
+    shell_masses = mass_per_shell(
+        number_of_shells, inner_radii, outer_radii, ejecta_density
+    )
 
     packets_per_shell, decay_rad_db = compute_required_packets_per_shell(
         outer_radii,
         inner_radii,
         ejecta_density,
-        model.no_of_shells,
+        number_of_shells,
         model.raw_isotope_abundance,
         num_packets,
     )
-    print(packets_per_shell)
 
     packets = []
-    energy_df_rows = []
-    ejecta_energy_theta = []
+    energy_plot_df_rows = []
+    energy_df_rows = np.zeros(number_of_shells)
 
     for column in packets_per_shell:
         # print(column)
@@ -175,8 +180,18 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                         positron_energy_sorted, positron_energy_cdf
                     )
 
-                    energy_df_rows.append([energy_KeV, initial_radius, 0.0, -1])
-                    ejecta_energy_theta.append(ray1.location.theta)
+                    energy_df_rows[shell] += calculate_energy_per_mass(
+                        energy_KeV, shell_masses[shell]
+                    )
+                    energy_plot_df_rows.append(
+                        [
+                            energy_KeV,
+                            initial_radius,
+                            ray1.location.theta,
+                            0.0,
+                            -1,
+                        ]
+                    )
 
                     # annihilation produces second gamma-ray in opposite direction
                     (
@@ -257,16 +272,19 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
 
                     compton_scatter(packet, compton_angle)
 
-                    energy_df_rows.append(
+                    energy_df_rows[packet.shell] += calculate_energy_per_mass(
+                        ejecta_energy_gained, shell_masses[shell]
+                    )
+                    energy_plot_df_rows.append(
                         [
                             ejecta_energy_gained,
                             packet.location.r,
+                            packet.location.theta,
                             packet.time_current,
                             0,
                         ]
                     )
 
-                    ejecta_energy_theta.append(packet.location.theta)
                 if (
                     packet.status == "PhotoAbsorbed"
                     and ejecta_energy_gained > 0.0
@@ -278,16 +296,19 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                         distance_interaction / const.c.cgs.value * ejecta_epoch
                     )
 
-                    energy_df_rows.append(
+                    energy_df_rows[packet.shell] += calculate_energy_per_mass(
+                        ejecta_energy_gained, shell_masses[shell]
+                    )
+                    energy_plot_df_rows.append(
                         [
                             ejecta_energy_gained,
                             packet.location.r,
+                            packet.location.theta,
                             packet.time_current,
                             1,
                         ]
                     )
 
-                    ejecta_energy_theta.append(packet.location.theta)
                     # Packet destroyed, go to the next packet
 
                 if packet.status == "PairCreated":
@@ -298,16 +319,18 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
                         distance_interaction / const.c.cgs.value * ejecta_epoch
                     )
 
-                    energy_df_rows.append(
+                    energy_df_rows[packet.shell] += calculate_energy_per_mass(
+                        ejecta_energy_gained, shell_masses[shell]
+                    )
+                    energy_plot_df_rows.append(
                         [
                             ejecta_energy_gained,
                             packet.location.r,
+                            packet.location.theta,
                             packet.time_current,
                             2,
                         ]
                     )
-
-                    ejecta_energy_theta.append(packet.location.theta)
 
                     pair_creation(packet)
 
@@ -361,19 +384,17 @@ def main_gamma_ray_loop(num_packets, model, path, iron_group_fraction=0.5):
         i += 1
 
     # DataFrame of energy information
-    energy_df = pd.DataFrame(
-        data=energy_df_rows,
+    energy_plot_df = pd.DataFrame(
+        data=energy_plot_df_rows,
         columns=[
             "energy_input",
             "energy_input_r",
+            "energy_input_theta",
             "energy_input_time",
             "energy_input_type",
         ],
     )
 
-    return (
-        energy_df,
-        ejecta_energy_theta,
-        escape_energy,
-        interaction_count,
-    )
+    energy_df = pd.DataFrame(data=energy_df_rows, columns=["energy_per_mass"])
+
+    return (energy_df, energy_plot_df)
