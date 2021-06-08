@@ -4,23 +4,11 @@ import os
 import numpy.testing as npt
 import numpy as np
 from copy import deepcopy
-from astropy import units as u
 
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
-import tardis.montecarlo.montecarlo_numba.base as base
 from tardis.simulation import Simulation
-import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
-import tardis.montecarlo.montecarlo_numba.single_packet_loop as spl
-from tardis.montecarlo.montecarlo_numba.numba_interface import (
-    PacketCollection,
-    VPacketCollection,
-    NumbaModel,
-    numba_plasma_initialize,
-    Estimators,
-    configuration_initialize,
-)
 
 
 @pytest.mark.xfail(reason="To be implemented")
