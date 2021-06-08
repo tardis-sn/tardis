@@ -1,6 +1,6 @@
-*******************************
-Outdated Documentation Sections
-*******************************
+**********************
+Outdated Documentation
+**********************
 
 The following pages are no longer relevant to the most recent release of TARDIS:
 

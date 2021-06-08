@@ -65,7 +65,7 @@ Mission Statement
 
 .. toctree::
     :maxdepth: 2
-    :caption: The Physics of TARDIS
+    :caption: Physics Walkthrough
     :hidden:
     
     physics/setup/index
@@ -80,14 +80,6 @@ Mission Statement
     :hidden:
 
     Overview <research/index>
-
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Outdated Documentation
-    :hidden:
-
-    outdated/index
 
 
 .. toctree::
@@ -125,6 +117,14 @@ Mission Statement
     :hidden:
 
     zreferences
+
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Outdated
+    :hidden:
+
+    outdated/index
 
 ----
 News
