@@ -35,3 +35,7 @@ References
 ==========
 
 .. bibliography:: tardis.bib
+
+.. glossary:: 
+
+    synapps
