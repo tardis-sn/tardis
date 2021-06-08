@@ -1,3 +1,6 @@
-********************
-Setting Up SOMETHING
-********************
+*************************
+Setting Up the Simulation
+*************************
+
+.. toctree::
+    plasma/index

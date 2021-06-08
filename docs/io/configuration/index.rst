@@ -12,7 +12,7 @@ file is valid, and demonstrates how a YAML configuration file is read in.
 
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 1
 
   components/index
   example

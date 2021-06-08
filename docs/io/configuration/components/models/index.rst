@@ -2,6 +2,56 @@
 Models
 ******
 
+.. jsonschema:: ../schemas/model.yml
+
+Abundances
+^^^^^^^^^^
+The ``abundance`` section has a possible ``file`` parameter with ``type`` (currently only ``artis`` is allowed)
+and a ``name`` parameter giving a path to a file containing the abundance information.
+
+.. warning::
+    In contrast to the ``structure`` section, the ``abundance`` section will not ignore abundances set in the rest of
+    the section but merely will overwrite the abundances given in the file section.
+
+The rest of the section can be used to configure uniform abundances for all shells, by giving the atom name and a
+relative abundance fraction. If it does not add up to 1., TARDIS will warn --- but normalize the numbers.
+
+
+.. jsonschema:: ../schemas/model_definitions.yml#/definitions/abundances/file
+
+.. jsonschema:: ../schemas/model_definitions.yml#/definitions/abundances/uniform
+
+Structure
+^^^^^^^^^
+All types of ``structure`` definitions have two keywords in common: ``v_inner_boundary`` and ``v_outer_boundary``.
+
+In the ``structure`` section, one can specify a ``file`` section containing a ``type`` parameter
+(currently only ``artis`` is supported``) and a ``name`` parameter giving a path top a file.
+
+If one doesn't specify a ``file`` section, the code requires two sections (``velocities`` and ``densities``) and a
+parameter ``no_of_shells``. ``no_of_shells`` is the requested number of shells for a model. The ``velocity`` section
+requires a ``type``. Currently, only ``linear`` is supported.
+
+.. jsonschema:: ../schemas/model_definitions.yml#/definitions/structure/file
+
+.. jsonschema:: ../schemas/model_definitions.yml#/definitions/structure/specific
+
+Densities
+"""""""""
+In the ``densities`` section the ``type`` parameter again decides on the parameters. The type ``uniform`` only needs a
+``value`` parameter with a density compatible quantity. The type ``branch85_w7`` uses a seven-order polynomial fit to
+the W7 model and is parametrised by time since explosion. The parameters ``time_0`` and ``density_coefficient`` are set
+to sensible defaults and should not be changed.
+
+.. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/branch85_w7
+
+.. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/exponential
+
+.. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/power_law
+
+.. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/uniform
+
+
 TARDIS requires a model of the homologously expanding ejecta in order to run a simulation.
 A model will include information like the velocity shell structure, abundances, density, etc.
 TARDIS offers two ways of specifying the model: either directly in the configuration YAML file
@@ -54,6 +104,8 @@ of the CSVY file is for setting model parameters like **v_inner_boundary** or
 physical parameters of the model (e.g. abundances, radiative temperature, dilution factor, etc).
 If you use the CSVY model, then you will need to specify the path to the CSVY model file
 in the main TARDIS configuration file:
+
+.. jsonschema:: ../schemas/csvy_model.yml
 
 .. code-block::
 
