@@ -46,24 +46,24 @@ def logging_state(log_state):
     elif log_state == True:
         for logger in loggers:
             logger.setLevel(logging.INFO)
-    elif log_state in [
-        "NotSet",
-        "Debug",
-        "Info",
-        "Warning",
-        "Error",
-        "Critical",
+    elif log_state.upper() in [
+        "NOTSET",
+        "DEBUG",
+        "INFO",
+        "WARNING",
+        "ERROR",
+        "CRITICAL",
     ]:
         logging_levels = {
-            "NotSet": logging.NOTSET,
-            "Debug": logging.DEBUG,
-            "Info": logging.INFO,
-            "Warning": logging.WARNING,
-            "Error": logging.ERROR,
-            "Critical": logging.CRITICAL,
+            "NOTSET": logging.NOTSET,
+            "DEBUG": logging.DEBUG,
+            "INFO": logging.INFO,
+            "WARNING": logging.WARNING,
+            "ERROR": logging.ERROR,
+            "CRITICAL": logging.CRITICAL,
         }
         for logger in loggers:
-            logger.setLevel(logging_levels[log_state])
+            logger.setLevel(logging_levels[log_state.upper()])
 
 
 def log_decorator(func):
