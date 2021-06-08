@@ -46,9 +46,9 @@ jobs:
 
       - bash: |
           cd $(refdata.dir)
-          git add unit_test_data.h5
+          git add unit_test_data.h5 montecarlo_1e5_compare_data.h5
           git config --local user.email "tardis.sn.bot@gmail.com"
-          git config --local user.name "TARDIS Bot"
+          git config --local user.name "tardis-bot"
           git commit -m "update reference data (pr $(pr.number))"
           git remote set-url origin https://$(bot_token)@github.com/tardis-sn/tardis-refdata
           git push origin master
