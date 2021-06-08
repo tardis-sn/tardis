@@ -236,7 +236,7 @@ class FormalIntegrator(object):
 
         The function returns False if the configuration conflicts with the
         required settings. If raises evaluates to True, then a
-        IntegrationError is raised instead
+        IntegrationError is raised instead 
         """
 
         def raise_or_return(message):
