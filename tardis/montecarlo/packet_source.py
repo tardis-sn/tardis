@@ -48,8 +48,7 @@ class BasePacketSource(abc.ABC):
 
         Returns
         -------
-            : numpy.ndarray
-            energies for packets
+            energies for packets : numpy.ndarray
         """
         return np.ones(no_of_packets) / no_of_packets
 
@@ -62,16 +61,17 @@ class BasePacketSource(abc.ABC):
         First, generate a uniform random number, :math:`\\xi_0 \\in [0, 1]` and
         determine the minimum value of
         :math:`l, l_{\\rm min}`, that satisfies the condition
+
         .. math::
-            \\sum_{i=1}^{l} i^{-4} \\ge {{\\pi^4}\\over{90}} m_0 \\; .
+            \\sum_{i=1}^{l} i^{-4} \\ge {{\\pi^4}\\over{90}} m_0 \\;.
 
         Next obtain four additional uniform random numbers (in the range 0
         to 1) :math:`\\xi_1, \\xi_2, \\xi_3, {\\rm and } \\xi_4`.
-
         Finally, the packet frequency is given by
 
         .. math::
-            x = -\\ln{(\\xi_1\\xi_2\\xi_3\\xi_4)}/l_{\\rm min}\\; .
+            x = -\\ln{(\\xi_1\\xi_2\\xi_3\\xi_4)}/l_{\\rm min}\\;.
+
         where :math:`x=h\\nu/kT`
 
         Parameters
@@ -84,8 +84,7 @@ class BasePacketSource(abc.ABC):
 
         Returns
         -------
-            : numpy.ndarray
-            array of frequencies
+            array of frequencies: numpy.ndarray
         """
         l_samples = l_samples
         l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64) ** -4)

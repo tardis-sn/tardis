@@ -98,8 +98,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     nthreads : int
         The number of threads to run montecarlo with
 
-        .. note:: TARDIS must be built with OpenMP support in order for
-        `nthreads` to have effect.
+        .. note:: TARDIS must be built with OpenMP support in order for ``nthreads`` to have effect.
+
     """
 
     hdf_properties = [
