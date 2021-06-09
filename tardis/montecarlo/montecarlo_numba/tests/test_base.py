@@ -2,7 +2,6 @@ import pytest
 import pandas as pd
 import os
 import numpy.testing as npt
-import numpy as np
 from copy import deepcopy
 
 from tardis.montecarlo import (
@@ -15,8 +14,6 @@ from tardis.simulation import Simulation
 def test_montecarlo_radial1d():
     assert False
 
-# Currently, this essentially tests the full simulation, would probably be better to
-# test individual elements
 def test_montecarlo_main_loop(
     config_verysimple,
     atomic_dataset,
@@ -44,32 +41,31 @@ def test_montecarlo_main_loop(
     compare_fname = os.path.join(tardis_ref_path, "montecarlo_1e5_compare_data.h5")
     if request.config.getoption("--generate-reference"):
         sim.to_hdf(compare_fname, overwrite=True)
-
+        
     # Load compare data from refdata
-    else:
-        expected_nu = pd.read_hdf(
-            compare_fname, key="/simulation/runner/output_nu"
-        ).values
-        expected_energy = pd.read_hdf(
-            compare_fname, key="/simulation/runner/output_energy"
-        ).values
-        expected_nu_bar_estimator = pd.read_hdf(
-            compare_fname, key="/simulation/runner/nu_bar_estimator"
-        ).values
-        expected_j_estimator = pd.read_hdf(
-            compare_fname, key="/simulation/runner/j_estimator"
-        ).values
+    expected_nu = pd.read_hdf(
+        compare_fname, key="/simulation/runner/output_nu"
+    ).values
+    expected_energy = pd.read_hdf(
+        compare_fname, key="/simulation/runner/output_energy"
+    ).values
+    expected_nu_bar_estimator = pd.read_hdf(
+        compare_fname, key="/simulation/runner/nu_bar_estimator"
+    ).values
+    expected_j_estimator = pd.read_hdf(
+        compare_fname, key="/simulation/runner/j_estimator"
+    ).values
 
 
-        actual_energy = sim.runner.output_energy
-        actual_nu = sim.runner.output_nu
-        actual_nu_bar_estimator = sim.runner.nu_bar_estimator
-        actual_j_estimator = sim.runner.j_estimator
+    actual_energy = sim.runner.output_energy
+    actual_nu = sim.runner.output_nu
+    actual_nu_bar_estimator = sim.runner.nu_bar_estimator
+    actual_j_estimator = sim.runner.j_estimator
 
-        # Compare
-        npt.assert_allclose(
-            actual_nu_bar_estimator, expected_nu_bar_estimator, rtol=1e-13
-        )
-        npt.assert_allclose(actual_j_estimator, expected_j_estimator, rtol=1e-13)
-        npt.assert_allclose(actual_energy.value, expected_energy, rtol=1e-13)
-        npt.assert_allclose(actual_nu.value, expected_nu, rtol=1e-13)
+    # Compare
+    npt.assert_allclose(
+        actual_nu_bar_estimator, expected_nu_bar_estimator, rtol=1e-13
+    )
+    npt.assert_allclose(actual_j_estimator, expected_j_estimator, rtol=1e-13)
+    npt.assert_allclose(actual_energy.value, expected_energy, rtol=1e-13)
+    npt.assert_allclose(actual_nu.value, expected_nu, rtol=1e-13)
