@@ -26,6 +26,9 @@ properties:
   spectrum:
     $ref: spectrum.yml
     description: Final spectrum sampling
+  debug:
+    $ref: debug.yml
+    description: Debugging Status for the Simulation
 required:
 - tardis_config_version
 - atom_data

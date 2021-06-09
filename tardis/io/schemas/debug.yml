@@ -1,0 +1,37 @@
+$$target: debug.yml
+type: object
+additionalProperties: false
+properties:
+  logging_state:
+    type: boolean
+    default: False
+    description: Logging Status for the Simulation execution
+  logging_level:
+    type: string
+    default: "Info"
+    description: Sets the Logging Level for the logger
+    properties:
+      type:
+        enum:
+          - "Notset"
+          - "Info"
+          - "Debug"
+          - "Warning"
+          - "Error"
+          - "Critical"
+  # debug_packets:
+  #   type: boolean
+  #   default: false
+  #   description: Decide whether to go into debugging mode. [EXPERIMENTAL FEATURE DO NOT RELY ON IT]
+  # logger_buffer:
+  #   type: number
+  #   default: 1
+  #   description: Provides option to not log every line.
+  # single_packet_seed:
+  #   type:
+  #     - number
+  #   default: -1
+  #   description: If debug_packets is true, this is the seed for the only packet.
+
+# required:
+# - logging_state

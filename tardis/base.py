@@ -47,7 +47,16 @@ def run_tardis(
         except TypeError:
             tardis_config = Configuration.from_config_dict(config)
 
-    logging_state(log_state)
+    if tardis_config["debug"]["logging_state"] or log_state:
+        if log_state:
+            logging_state(log_state)
+            if tardis_config["debug"]["logging_state"] and log_state:
+                print("Log_state & logging_level both specified")
+                print("Log_state will be used for Log Level Determination\n")
+        else:
+            logging_state(tardis_config["debug"]["logging_level"])
+    else:
+        logging_state(False)
 
     if atom_data is not None:
         try:
