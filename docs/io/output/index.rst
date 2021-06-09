@@ -2,12 +2,12 @@
 Additional Outputs
 ******************
 
+In addition to the widgets, TARDIS can output information in several other forms:
+
 .. toctree::
     :maxdepth: 1
 
     access
     physical_quantities
     access_iterations
-    hdf_writer
-    to_hdf_notebook
     to_hdf

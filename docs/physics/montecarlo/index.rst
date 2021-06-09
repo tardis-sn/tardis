@@ -1,3 +1,5 @@
+.. _montecarlo:
+
 *********************
 Monte Carlo Iteration
 *********************

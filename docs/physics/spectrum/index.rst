@@ -1,3 +1,5 @@
+.. _spectrum:
+
 *******************
 Spectrum Generation
 *******************

@@ -2,7 +2,42 @@
 Models
 ******
 
-.. jsonschema:: ../schemas/model.yml
+CSVY Model
+==========
+
+Example CSVY Model
+------------------
+
+
+
+Model Configuration
+===================
+
+Structure
+---------
+
+Abundance
+---------
+
+
+
+Model Converters
+================
+
+There are a variety of formats for models from other codes
+(both hydro and radiative transfer) that can be converted to TARDIS input files.
+Here we aim to provide converters for the most commonly used file formats.
+
+.. toctree::
+    :maxdepth: 2
+
+    converters/stella_to_tardis
+    converters/cmfgen
+
+
+
+
+    .. jsonschema:: ../schemas/model.yml
 
 Abundances
 ^^^^^^^^^^
