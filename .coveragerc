@@ -22,10 +22,11 @@ omit =
     *tests*
     *conftest*
     *setup_package*
-   
-    tardis/gui/*
-    tardis/stats/*
+
     tardis/analysis.py
+    tardis/gui/*
+    tardis/scripts/*
+    tardis/stats/*
    
 ignore_errors = True
 
