@@ -19,6 +19,7 @@ exclude_lines =
 omit =
     *__init__*
     *_astropy_init*
+    *version*
     *tests*
     *conftest*
     *setup_package*
