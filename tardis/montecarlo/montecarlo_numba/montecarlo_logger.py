@@ -40,13 +40,7 @@ def logging_state(log_state):
     loggers = [
         logging.getLogger(name) for name in logging.root.manager.loggerDict
     ]
-    if log_state == False:
-        for logger in loggers:
-            logger.setLevel(logging.CRITICAL)
-    elif log_state == True:
-        for logger in loggers:
-            logger.setLevel(logging.INFO)
-    elif log_state.upper() in [
+    if log_state.upper() in [
         "NOTSET",
         "DEBUG",
         "INFO",

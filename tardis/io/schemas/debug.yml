@@ -2,10 +2,6 @@ $$target: debug.yml
 type: object
 additionalProperties: false
 properties:
-  logging_state:
-    type: boolean
-    default: False
-    description: Logging Status for the Simulation execution
   logging_level:
     type: string
     default: "Info"

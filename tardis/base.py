@@ -7,7 +7,7 @@ def run_tardis(
     packet_source=None,
     simulation_callbacks=[],
     virtual_packet_logging=False,
-    log_state=False,
+    log_state="Critical",
 ):
     """
     This function is one of the core functions to run TARDIS from a given
@@ -47,16 +47,19 @@ def run_tardis(
         except TypeError:
             tardis_config = Configuration.from_config_dict(config)
 
-    if tardis_config["debug"]["logging_state"] or log_state:
-        if log_state:
+    if tardis_config["debug"]["logging_level"] or log_state:
+        if (
+            log_state.upper() == "CRITICAL"
+            and tardis_config["debug"]["logging_level"]
+        ):
+            logging_state(tardis_config["debug"]["logging_level"])
+        elif log_state:
             logging_state(log_state)
-            if tardis_config["debug"]["logging_state"] and log_state:
+            if tardis_config["debug"]["logging_level"] and log_state:
                 print("Log_state & logging_level both specified")
                 print("Log_state will be used for Log Level Determination\n")
         else:
             logging_state(tardis_config["debug"]["logging_level"])
-    else:
-        logging_state(False)
 
     if atom_data is not None:
         try:
