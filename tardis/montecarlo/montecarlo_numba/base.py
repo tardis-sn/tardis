@@ -151,7 +151,6 @@ def montecarlo_main_loop(
     virt_packet_last_line_interaction_in_id = []
     virt_packet_last_line_interaction_out_id = []
 
-    print("Running post-merge numba montecarlo (with C close lines)!")
     for i in prange(len(output_nus)):
         if montecarlo_configuration.single_packet_seed != -1:
             seed = packet_seeds[montecarlo_configuration.single_packet_seed]
@@ -166,7 +165,6 @@ def montecarlo_main_loop(
             packet_collection.packets_input_energy[i],
             seed,
             i,
-            0,
         )
         vpacket_collection = VPacketCollection(
             r_packet.index,
@@ -202,7 +200,7 @@ def montecarlo_main_loop(
         ).astype(np.int64)
         # if we're only in a single-packet mode
         # if montecarlo_configuration.single_packet_seed == -1:
-        #     break
+        #    break
         for j, idx in enumerate(v_packets_idx):
             if (vpackets_nu[j] < spectrum_frequency[0]) or (
                 vpackets_nu[j] > spectrum_frequency[-1]
