@@ -2,13 +2,13 @@
 # - http://tardis-sn.github.io/tardis/development/continuous_integration.html
 # - https://tardis-sn.github.io/tardis/development/documentation_preview.html
 
-name: documentation-preview
+name: docs-preview
 
 on:
   push:
 
 jobs:
-  documentation_preview:
+  build:
   
     # This workflow will be triggered:
     #
