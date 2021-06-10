@@ -28,11 +28,11 @@ in the base schema, and important information about the configuration is linked 
 .. jsonschema:: schemas/base.yml
 
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 2
 
-    supernova/index
+    supernova
     atomic/atomic_data
-    plasma/index
+    plasma
     models/index
-    montecarlo/index
-    spectrum/index
+    montecarlo
+    spectrum

@@ -1,4 +1,4 @@
-.. _source_integration:
+.. _formal_integral:
 
 *****************************************
 Direct integration of the radiation field

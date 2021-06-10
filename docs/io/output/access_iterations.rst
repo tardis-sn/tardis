@@ -2,6 +2,11 @@
 Access information about individual iterations
 **********************************************
 
+Various information about numerical and physical properties of a Tardis
+simulation are stored during a run and can be accessed afterwards. Here, we
+describe how some of this information, which we deem most useful for typical
+use cases, can be accessed.
+
 Currently we store information about the plasma state and the inner boundary
 for each iteration. This is saved in the simulation object and can be accessed
 via

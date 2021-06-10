@@ -1,3 +1,5 @@
+.. _estimators:
+
 ***********************************
 Volume-based Monte Carlo Estimators
 ***********************************

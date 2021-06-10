@@ -1,3 +1,5 @@
+.. _tardis-example:
+
 ****************************
 Tardis Example Configuration
 ****************************
