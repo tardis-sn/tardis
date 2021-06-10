@@ -26,13 +26,7 @@ from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
 )
 from tardis.montecarlo.montecarlo_numba import njit_dict
 from numba.typed import List
-from numba.types import Array
-import numba
-from numba import typeof
-from numba import jitclass
-from numba import types
 
-vpacket_collection_type = VPacketCollection.class_type.instance_type
 def montecarlo_radial1d(model, plasma, runner):
     packet_collection = PacketCollection(
         runner.input_r,
