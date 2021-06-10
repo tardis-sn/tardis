@@ -34,6 +34,9 @@ temperature of the inner boundary.
 
 .. jsonschema:: schemas/montecarlo_definitions.yml#/definitions/convergence_strategy/custom
 
+
+.. _parallelization:
+
 Parallel Execution with Numba
 -----------------------------
 The ``montecarlo`` section of the Configuration file accepts the parameter ``nthreads`` which sets the number of
