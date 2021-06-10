@@ -26,7 +26,13 @@ from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
 )
 from tardis.montecarlo.montecarlo_numba import njit_dict
 from numba.typed import List
+from numba.types import Array
+import numba
+from numba import typeof
+from numba import jitclass
+from numba import types
 
+vpacket_collection_type = VPacketCollection.class_type.instance_type
 def montecarlo_radial1d(model, plasma, runner):
     packet_collection = PacketCollection(
         runner.input_r,
@@ -102,60 +108,6 @@ def montecarlo_radial1d(model, plasma, runner):
         ).ravel()
 
 @njit(**njit_dict)
-def run_single_packet(i,
-        delta_nu,
-        packet_collection,
-        numba_model,
-        numba_plasma,
-        estimators,
-        spectrum_frequency,
-        number_of_vpackets,
-        packet_seeds):
-    v_packets_energy_hist = np.zeros_like(spectrum_frequency)
-    if montecarlo_configuration.single_packet_seed != -1:
-        seed = packet_seeds[montecarlo_configuration.single_packet_seed]
-        np.random.seed(seed)
-    else:
-        seed = packet_seeds[i]
-        np.random.seed(seed)
-    r_packet = RPacket(
-        numba_model.r_inner[0],
-        packet_collection.packets_input_mu[i],
-        packet_collection.packets_input_nu[i],
-        packet_collection.packets_input_energy[i],
-        seed,
-        i,
-    )
-    vpacket_collection = VPacketCollection(
-        r_packet.index,
-        spectrum_frequency,
-        montecarlo_configuration.v_packet_spawn_start_frequency,
-        montecarlo_configuration.v_packet_spawn_end_frequency,
-        number_of_vpackets,
-        montecarlo_configuration.temporary_v_packet_bins,
-    )
-    loop = single_packet_loop(
-        r_packet, numba_model, numba_plasma, estimators, vpacket_collection
-    )
-    # if loop and 'stop' in loop:
-    #     raise MonteCarloException
-
-    output_nu = r_packet.nu
-    last_interaction_in_nu = r_packet.last_interaction_in_nu
-    last_line_interaction_in_id = r_packet.last_line_interaction_in_id
-    last_line_interaction_out_id = r_packet.last_line_interaction_out_id
-
-    if r_packet.status == PacketStatus.REABSORBED:
-        output_energy = -r_packet.energy
-        last_interaction_type = r_packet.last_interaction_type
-    elif r_packet.status == PacketStatus.EMITTED:
-        output_energy = r_packet.energy
-        last_interaction_type = r_packet.last_interaction_type
-
-    vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
-    vpackets_energy = vpacket_collection.energies[: vpacket_collection.idx]
-
-@njit(**njit_dict)
 def montecarlo_main_loop(
     packet_collection,
     numba_model,
@@ -196,8 +148,8 @@ def montecarlo_main_loop(
 
     v_packets_energy_hist = np.zeros_like(spectrum_frequency)
     delta_nu = spectrum_frequency[1] - spectrum_frequency[0]
-
-    #vpacket_collections = np.empty((len(output_nus),), dtype=VPacketCollection)
+ 
+    # Pre-allocate a list of vpacket collections for later storage
     vpacket_collections = List()
     for i in range(len(output_nus)):
         vpacket_collections.append(VPacketCollection(i, 
@@ -207,6 +159,7 @@ def montecarlo_main_loop(
             number_of_vpackets,
             montecarlo_configuration.temporary_v_packet_bins))
 
+    # Arrays for vpacket logging
     virt_packet_nus = []
     virt_packet_energies = []
     virt_packet_last_interaction_in_nu = []
@@ -230,14 +183,7 @@ def montecarlo_main_loop(
             i,
         )
         vpacket_collection = vpacket_collections[i]
-        #vpacket_collections[i] = vpacket_collection = VPacketCollection(
-        #    r_packet.index,
-        #    spectrum_frequency,
-        #    montecarlo_configuration.v_packet_spawn_start_frequency,
-        #    montecarlo_configuration.v_packet_spawn_end_frequency,
-        #    number_of_vpackets,
-        #    montecarlo_configuration.temporary_v_packet_bins,
-        #)
+
         loop = single_packet_loop(
             r_packet, numba_model, numba_plasma, estimators, vpacket_collection
         )
@@ -256,11 +202,26 @@ def montecarlo_main_loop(
             output_energies[i] = r_packet.energy
             last_interaction_types[i] = r_packet.last_interaction_type
 
-
-    for vpacket_collection in vpacket_collections:
         vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
         vpackets_energy = vpacket_collection.energies[: vpacket_collection.idx]
-        if montecarlo_configuration.VPACKET_LOGGING:
+
+        v_packets_idx = np.floor(
+                (vpackets_nu - spectrum_frequency[0]) / delta_nu
+        ).astype(np.int64)
+        # if we're only in a single-packet mode
+        # if montecarlo_configuration.single_packet_seed == -1:
+        #    break
+        for j, idx in enumerate(v_packets_idx):
+            if (vpackets_nu[j] < spectrum_frequency[0]) or (
+                vpackets_nu[j] > spectrum_frequency[-1]
+            ):
+                continue
+            v_packets_energy_hist[idx] += vpackets_energy[j]
+
+    if montecarlo_configuration.VPACKET_LOGGING:
+        for vpacket_collection in vpacket_collections:
+            vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
+            vpackets_energy = vpacket_collection.energies[: vpacket_collection.idx]
             virt_packet_nus.append(np.ascontiguousarray(vpackets_nu))
             virt_packet_energies.append(np.ascontiguousarray(vpackets_energy))
             virt_packet_last_interaction_in_nu.append(np.ascontiguousarray(
@@ -283,22 +244,6 @@ def montecarlo_main_loop(
                     : vpacket_collection.idx
                 ])
             )
-
-        v_packets_idx = np.floor(
-            (vpackets_nu - spectrum_frequency[0]) / delta_nu
-        ).astype(np.int64)
-        # if we're only in a single-packet mode
-        # if montecarlo_configuration.single_packet_seed == -1:
-        #    break
-        for j, idx in enumerate(v_packets_idx):
-            if (vpackets_nu[j] < spectrum_frequency[0]) or (
-                vpackets_nu[j] > spectrum_frequency[-1]
-            ):
-                continue
-            v_packets_energy_hist[idx] += vpackets_energy[j]
-
-
-
 
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
