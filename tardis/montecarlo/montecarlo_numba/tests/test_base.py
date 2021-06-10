@@ -39,7 +39,6 @@ def test_montecarlo_main_loop(
     sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
     sim.run()
 
-
     compare_fname = os.path.join(tardis_ref_path, "montecarlo_1e5_compare_data.h5")
     if request.config.getoption("--generate-reference"):
         sim.to_hdf(compare_fname, overwrite=True)
