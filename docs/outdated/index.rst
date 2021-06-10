@@ -4,7 +4,7 @@ Outdated Documentation
 
 The following pages are no longer relevant to the most recent release of TARDIS:
 
-.. warning:: Please update to a newer version of TARDIS.
+.. warning:: Please update to a newer version of TARDIS. The most recent version number can be found near the top of the documentation sidebar.
 
 .. toctree::
 

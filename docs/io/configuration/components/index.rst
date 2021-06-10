@@ -11,8 +11,9 @@ configuration file (with a small subset of the options that can be specified) ca
 <https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/tardis_example.yml>`_.
 
 .. warning::
-    One should note that currently floats in YAML need to be specified in a special format:
-    any pure floats need to have a +/- after the "e", e.g. 2e+5
+    One should note that currently floats in YAML that are expressed in scientific notation
+    need to be specified in a special format:
+    any pure floats in scientific notation need to have a +/- after the "e", e.g. 2e+5
 
 
 The TARDIS configuration consists of multiple sections that pertain to certain parts of the code. We will use the
