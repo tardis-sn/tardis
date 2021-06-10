@@ -59,7 +59,7 @@ optical depth. In particular, it contributes with the
 to the emergent luminosity in the frequency interval :math:`[\nu, \nu + \Delta
 \nu]`. Here, :math:`\Delta t` denotes the physical duration of the simulation
 step (the same duration which is used during the initialization process at the
-photosphere, see :doc:`Propagation <propagation>`), and :math:`\varepsilon` is
+photosphere, see :ref:`Propagation <propagation>`), and :math:`\varepsilon` is
 the energy of the virtual packet when it was generated.
 
 .. note::

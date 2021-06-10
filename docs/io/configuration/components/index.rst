@@ -7,7 +7,8 @@ Configuration Components
 TARDIS uses the `YAML markup language <https://en.wikipedia.org/wiki/YAML>`_
 for its configuration files. There are several sections which allow different
 settings for the different aspects of the TARDIS calculation. An example
-configuration file (with a small subset of the options that can be specified) can be downloaded at `example_yml`_.
+configuration file (with a small subset of the options that can be specified) can be downloaded `here
+<https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/tardis_example.yml>`_.
 
 .. warning::
     One should note that currently floats in YAML need to be specified in a special format:

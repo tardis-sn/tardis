@@ -6,8 +6,8 @@ Tardis Example Configuration
 
 The simple and fast TARDIS setup is provided by ``tardis_example.yml`` which
 may be obtained `here
-<https://github.com/tardis-sn/tardis/docs/tardis_example.yml>`_. We suggest every new user of TARDIS to run this
-setup first, which can be donw using the :ref:`quickstart guide <quickstart>`.
+<https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/tardis_example.yml>`_. We suggest every new user of TARDIS to run this
+setup first, which can be done using the :doc:`quickstart guide <../../quickstart/quickstart>`.
 
 It calculates a spectrum for a Type Ia supernova model 13 days after explosion,
 requesting a total output luminosity of
