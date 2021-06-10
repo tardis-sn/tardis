@@ -4,7 +4,7 @@
 Models
 ******
 
-TARDIS requires a model of the homologously expanding ejecta in order to run a simulation (see :ref`model`).
+TARDIS requires a model of the homologously expanding ejecta in order to run a simulation (see :ref:`model`).
 A model will include information like the velocity shell structure, abundances, density, etc.
 TARDIS offers two ways of specifying the model: either directly in the configuration YAML file
 or separately in a model.csvy file. See `here <https://csvy.org/>`_ for an explanation of
