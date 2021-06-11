@@ -425,11 +425,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         plasma_state_log["next_w"] = next_w
         plasma_state_log.columns.name = "Shell No."
 
-        # pd.set_option("display.precision", 3)
-        pd.set_option("display.expand_frame_repr", True)
-        pd.set_option("display.max_rows", None)
-        pd.set_option("display.max_columns", None)
-
         if self.check_notebook():
             logger.info(f"\n\tPlasma stratification:")
             logger.info(
