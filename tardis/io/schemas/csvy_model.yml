@@ -58,7 +58,7 @@ properties:
     - $ref: 'model_definitions.yml#/definitions/density/uniform'
 
   abundance:
-    $ref: 'model_definitions.yml#/definitions/abundances/uniform'
+    $ref: 'model_definitions.yml#/definitions/abundance/uniform'
 
 required:
 - tardis_model_config_version
