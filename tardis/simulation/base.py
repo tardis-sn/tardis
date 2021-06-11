@@ -425,21 +425,27 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         plasma_state_log["next_w"] = next_w
         plasma_state_log.columns.name = "Shell No."
 
-        pd.set_option("display.precision", 3)
+        # pd.set_option("display.precision", 3)
         pd.set_option("display.expand_frame_repr", True)
         pd.set_option("display.max_rows", None)
         pd.set_option("display.max_columns", None)
 
-        output_df = ""
-        for value in (
-            plasma_state_log.iloc[::log_sampling]
-            .to_string(justify="center")
-            .split("\n")
-        ):
-            output_df = output_df + "\t" + value + "\n"
-        logger.info(f"\n\tPlasma stratification:\n\n{output_df}")
-        # logger.info(f"\n\tPlasma stratification:\n")
-        # logger.info(display(plasma_state_log.iloc[::log_sampling]))
+        if self.check_notebook():
+            logger.info(f"\n\tPlasma stratification:")
+            logger.info(
+                display(
+                    plasma_state_log.iloc[::log_sampling].style.format("{:.3g}")
+                )
+            )
+        else:
+            output_df = ""
+            plasma_output = plasma_state_log.iloc[::log_sampling].to_string(
+                float_format=lambda x: "{:.3g}".format(x), justify="center",
+            )
+            for value in plasma_output.split("\n"):
+                output_df = output_df + "\t{}\n".format(value)
+            logger.info(f"\n\tPlasma stratification:\n\n{output_df}")
+
         logger.info(
             f"\n\tCurrent t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
         )
@@ -450,6 +456,18 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
             f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
         )
+
+    def check_notebook(self):
+        try:
+            shell = get_ipython().__class__.__name__
+            if shell == "ZMQInteractiveShell":
+                return True
+            elif shell == "TerminalInteractiveShell":
+                return False
+            else:
+                return False
+        except NameError:
+            return False
 
     def _call_back(self):
         for cb, args in self._callbacks.values():
