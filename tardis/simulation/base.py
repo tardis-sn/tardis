@@ -11,6 +11,7 @@ from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
 from tardis.io.config_reader import ConfigurationError
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
+from IPython.display import display
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -320,7 +321,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     def iterate(self, no_of_packets, no_of_virtual_packets=0, last_run=False):
         logger.info(
-            f"Starting iteration {(self.iterations_executed + 1):d}/{self.iterations:d}"
+            f"\n\tStarting iteration {(self.iterations_executed + 1):d}/{self.iterations:d}"
         )
         self.runner.run(
             self.model,
@@ -379,7 +380,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.reshape_plasma_state_store(self.iterations_executed)
 
         logger.info(
-            f"Simulation finished in {self.iterations_executed:d} iterations "
+            f"\n\tSimulation finished in {self.iterations_executed:d} iterations "
             f"and took {(time.time() - start_time):.2f} s"
         )
         self._call_back()
@@ -416,24 +417,29 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         plasma_state_log = pd.DataFrame(
             index=np.arange(len(t_rad)),
-            columns=["t_rad (K)", "next_t_rad (K)", "w", "next_w"],
+            columns=["t_rad", "next_t_rad", "w", "next_w"],
         )
-        plasma_state_log["t_rad (K)"] = np.around(t_rad.value, decimals=3)
-        plasma_state_log["next_t_rad (K)"] = np.around(
-            next_t_rad.value, decimals=3
-        )
-        plasma_state_log["w"] = np.around(w, decimals=3)
-        plasma_state_log["next_w"] = np.around(next_w, decimals=3)
+        plasma_state_log["t_rad"] = t_rad
+        plasma_state_log["next_t_rad"] = next_t_rad
+        plasma_state_log["w"] = w
+        plasma_state_log["next_w"] = next_w
+        plasma_state_log.columns.name = "Shell No."
 
-        plasma_state_log.columns.name = "Shell"
+        pd.set_option("display.precision", 3)
+        pd.set_option("display.expand_frame_repr", True)
+        pd.set_option("display.max_rows", None)
+        pd.set_option("display.max_columns", None)
 
-        plasma_state_log = str(plasma_state_log[::log_sampling])
-
-        plasma_state_log = "".join(
-            ["\t%s\n" % item for item in plasma_state_log.split("\n")]
-        )
-
-        logger.info("Plasma stratification:\n%s\n", plasma_state_log)
+        output_df = ""
+        for value in (
+            plasma_state_log.iloc[::log_sampling]
+            .to_string(justify="center")
+            .split("\n")
+        ):
+            output_df = output_df + "\t" + value + "\n"
+        logger.info(f"\n\tPlasma stratification:\n\n{output_df}")
+        # logger.info(f"\n\tPlasma stratification:\n")
+        # logger.info(display(plasma_state_log.iloc[::log_sampling]))
         logger.info(
             f"\n\tCurrent t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
         )
