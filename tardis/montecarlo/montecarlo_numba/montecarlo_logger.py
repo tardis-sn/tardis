@@ -22,44 +22,6 @@ console_handler.setFormatter(console_formatter)
 logger.addHandler(console_handler)
 
 
-def logging_state(log_state):
-    """
-    The configuration for the Logging status of the run() simulation object
-    Called from run_tardis()
-    Invoked via Function, argument 
-    Proposed : Invoking via YAML & Flags
-
-    Parameters
-    ----------
-    log_state: boolean or string
-        False, turns the logger off for the simulation, Default
-        True, allows logging for the simulation
-        Log_level = ["NotSet", "Debug", "Info", "Warning", "Error", "Critical"]
-        Allowed values which set the particular log level for the simulation
-    """
-    loggers = [
-        logging.getLogger(name) for name in logging.root.manager.loggerDict
-    ]
-    if log_state.upper() in [
-        "NOTSET",
-        "DEBUG",
-        "INFO",
-        "WARNING",
-        "ERROR",
-        "CRITICAL",
-    ]:
-        logging_levels = {
-            "NOTSET": logging.NOTSET,
-            "DEBUG": logging.DEBUG,
-            "INFO": logging.INFO,
-            "WARNING": logging.WARNING,
-            "ERROR": logging.ERROR,
-            "CRITICAL": logging.CRITICAL,
-        }
-        for logger in loggers:
-            logger.setLevel(logging_levels[log_state.upper()])
-
-
 def log_decorator(func):
     """
     Decorator to log functions while in debug mode, i.e., when
