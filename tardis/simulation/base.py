@@ -440,9 +440,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     def log_run_results(self, emitted_luminosity, absorbed_luminosity):
         logger.info(
-            f"\n\tLuminosity emitted   = {emitted_luminosity:.5e}\n"
-            f"\tLuminosity absorbed  = {absorbed_luminosity:.5e}\n"
-            f"\tLuminosity requested = {self.luminosity_requested:.5e}\n"
+            f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
+            f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
+            f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
         )
 
     def _call_back(self):
