@@ -1,4 +1,4 @@
-from numba import prange, njit
+from numba import prange, njit, jit
 import logging
 import numpy as np
 
