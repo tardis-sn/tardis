@@ -5,7 +5,7 @@ properties:
   logging_level:
     type: string
     default: "Info"
-    description: Sets the Logging Level for the logger
+    description: Sets the logging Level for the logger
     properties:
       type:
         enum:
@@ -15,6 +15,10 @@ properties:
           - "Warning"
           - "Error"
           - "Critical"
+  specific_logging:
+    type: boolean
+    default: false
+    description: Allows for logging on the specified level logs 
   # debug_packets:
   #   type: boolean
   #   default: false

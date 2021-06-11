@@ -8,6 +8,7 @@ def run_tardis(
     simulation_callbacks=[],
     virtual_packet_logging=False,
     log_state="Critical",
+    specific=False,
 ):
     """
     This function is one of the core functions to run TARDIS from a given
@@ -32,9 +33,7 @@ def run_tardis(
     -------
     Simulation
     """
-    from tardis.montecarlo.montecarlo_numba.montecarlo_logger import (
-        logging_state,
-    )
+    from tardis import logging_state
     from tardis.io.config_reader import Configuration
     from tardis.io.atom_data.base import AtomData
     from tardis.simulation import Simulation
@@ -47,19 +46,24 @@ def run_tardis(
         except TypeError:
             tardis_config = Configuration.from_config_dict(config)
 
+    if specific or tardis_config["debug"]["specific_logging"]:
+        specific = True
+    else:
+        specific = False
+
     if tardis_config["debug"]["logging_level"] or log_state:
         if (
             log_state.upper() == "CRITICAL"
             and tardis_config["debug"]["logging_level"]
         ):
-            logging_state(tardis_config["debug"]["logging_level"])
+            logging_state(tardis_config["debug"]["logging_level"], specific)
         elif log_state:
-            logging_state(log_state)
+            logging_state(log_state, specific)
             if tardis_config["debug"]["logging_level"] and log_state:
                 print("Log_state & logging_level both specified")
                 print("Log_state will be used for Log Level Determination\n")
         else:
-            logging_state(tardis_config["debug"]["logging_level"])
+            logging_state(tardis_config["debug"]["logging_level"], specific)
 
     if atom_data is not None:
         try:
