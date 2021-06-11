@@ -1,5 +1,4 @@
 $schema: http://json-schema.org/draft-04/schema#
-$$target: csvy_model.yml
 type: object
 additionalProperties: false
 properties:
