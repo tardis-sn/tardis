@@ -6,8 +6,8 @@ Documentation Preview
 
 To preview your changes to the documentation please:
 
-#. Enable GitHub Actions to run on your fork (see the *Actions* tab).
-#. Make sure your fork is deploying GitHub Pages inside the root of ``gh-pages`` branch (go to *Settings* -> *Pages*).
+#. Enable GitHub Actions in the *Actions* tab of your fork.
+#. Under *Settings -> Pages* in your fork, make sure GitHub Pages is being built from the ``gh-pages`` branch and the ``/ (root)`` folder.
 
 Then, there are two ways to trigger the build:
 
@@ -16,8 +16,7 @@ Then, there are two ways to trigger the build:
 
 .. note::
 
-    If you forgot to folow any of the two ways described above, you always can trigger push an empty commit
-    as follows: ``git commit --allow-empty -m "[build docs]"``
+    You always can trigger a new build by pushing an empty commit: ``git commit --allow-empty -m "[build docs]"``
 
 
 Your preview will be available at ``<username>.github.io/tardis/branch/<branch name>/index.html``.
