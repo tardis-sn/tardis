@@ -28,7 +28,6 @@ omit =
 
     tardis/analysis.py
     tardis/gui/*
-    tardis/scripts/*
     tardis/stats/*
    
 ignore_errors = True
