@@ -56,8 +56,8 @@ class CustomAbundanceWidget:
         isotope_abundance = isotope_abundance.replace(np.nan, 0.0)
         isotope_abundance = isotope_abundance[isotope_abundance.sum(axis=1) > 0]
 
-        # Combine element and isotope to one DataFrame
-        abundance["mass_number"] = 0.0
+        # Combine elements and isotopes to one DataFrame
+        abundance["mass_number"] = ""
         abundance.set_index("mass_number", append=True, inplace=True)
         abundance = pd.concat([abundance, isotope_abundance])
         abundance.sort_index(inplace=True)
@@ -118,8 +118,8 @@ class CustomAbundanceWidget:
                     isotope_abundance.sum(axis=1) > 0
                 ]
 
-                # integrate element and isotope to one DataFrame
-                abundance["mass_number"] = 0.0
+                # Combine elements and isotopes to one DataFrame
+                abundance["mass_number"] = ""
                 abundance.set_index("mass_number", append=True, inplace=True)
                 abundance = pd.concat([abundance, isotope_abundance])
                 abundance.sort_index(inplace=True)
@@ -145,7 +145,7 @@ class CustomAbundanceWidget:
         with pd.HDFStore(fpath, "r") as hdf:
             abundance = (hdf['/simulation/plasma/abundance'])
 
-        abundance["mass_number"] = 0.0
+        abundance["mass_number"] = ""
         abundance.set_index("mass_number", append=True, inplace=True)
         
         return cls(config=None, abundance=abundance)
@@ -157,7 +157,7 @@ class CustomAbundanceWidget:
         isotope_abundance = sim.model.raw_isotope_abundance.copy()
 
         # integrate element and isotope to one DataFrame
-        abundance["mass_number"] = 0.0
+        abundance["mass_number"] = ""
         abundance.set_index("mass_number", append=True, inplace=True)
         abundance = pd.concat([abundance, isotope_abundance])
         abundance.sort_index(inplace=True)
