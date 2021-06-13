@@ -1,5 +1,17 @@
 ## Change Log
 
+### upcoming (2021/06/13 23:52 +00:00)
+- [#1609](https://github.com/tardis-sn/tardis/pull/1609) update refdata procedure docs (#1609) (@epassaro)
+- [#1635](https://github.com/tardis-sn/tardis/pull/1635) Run tests before making a new release (#1635) (@epassaro)
+- [#1617](https://github.com/tardis-sn/tardis/pull/1617) Fixing docstrings & indentation related warnings for Sphinx (#1617) (@DhruvSondhi)
+- [#1565](https://github.com/tardis-sn/tardis/pull/1565) Fix for close line test.   (#1565) (@Rodot-)
+- [#1639](https://github.com/tardis-sn/tardis/pull/1639) push montecarlo data (#1639) (@epassaro)
+- [#1595](https://github.com/tardis-sn/tardis/pull/1595) move zenodo pipeline to GA (#1595) (@epassaro)
+- [#1623](https://github.com/tardis-sn/tardis/pull/1623) force pyne nomoab_openmc version (#1623) (@epassaro)
+- [#1622](https://github.com/tardis-sn/tardis/pull/1622) Adding GitHub to sponsors page (#1622) (@smithis7)
+- [#1631](https://github.com/tardis-sn/tardis/pull/1631) update mailmap and orcid (#1631) (@epassaro)
+- [#1619](https://github.com/tardis-sn/tardis/pull/1619) disable repeat on pr comment (#1619) (@epassaro)
+
 ### v3.0.dev3983 (2021/06/04 16:50 +00:00)
 - [#1555](https://github.com/tardis-sn/tardis/pull/1555) Replacing the contents of the news section with TARDIS twitter feed (#1555) (@atharva-2001)
 - [#1610](https://github.com/tardis-sn/tardis/pull/1610) add token at checkout step (#1610) (@epassaro)
