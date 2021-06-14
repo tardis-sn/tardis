@@ -1,6 +1,8 @@
-******************
-Monte Carlo Primer
-******************
+.. _montecarlo:
+
+*********************
+Monte Carlo Iteration
+*********************
 
 The following pages provide a very basic introduction to Monte Carlo radiative
 transfer techniques as they are used in TARDIS. All the information listed here
