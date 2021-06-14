@@ -51,6 +51,6 @@ jobs:
           title: 'TARDIS v$(version)'
           isPreRelease: true
           addChangeLog: true
-          changeLogCompareToRelease: 'lastRelease'
+          changeLogCompareToRelease: 'lastNonDraftRelease'
           changeLogType: 'commitBased'
         displayName: 'Create GitHub Release'
