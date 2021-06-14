@@ -13,6 +13,7 @@ from pyne import nucname
 
 import tardis
 from tardis.io.util import get_internal_data_path
+from IPython import get_ipython
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
@@ -539,3 +540,25 @@ def convert_abundances_format(fname, delimiter=r"\s+"):
     # Assign header row
     df.columns = [nucname.name(i) for i in range(1, df.shape[1] + 1)]
     return df
+
+
+def check_simulation_env():
+    """
+    Checking the environment where the simulation is run
+
+    Returns
+    -------
+    True : if the environment is IPython Based
+    False : if the environment is Terminal or anything else
+    """
+    try:
+        shell = get_ipython().__class__.__name__
+    except NameError:
+        return False
+
+    if shell == "ZMQInteractiveShell":
+        return True
+    elif shell == "TerminalInteractiveShell":
+        return False
+    else:
+        return False
