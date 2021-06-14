@@ -8,7 +8,6 @@ from tardis.energy_input.util import (
     solve_quadratic_equation,
     convert_half_life_to_astropy_units,
 )
-from tardis.montecarlo.montecarlo_numba.numba_config import CLOSE_LINE_THRESHOLD
 from tardis.energy_input.energy_source import load_nndc_decay_data
 
 
@@ -102,9 +101,9 @@ def move_gamma_ray(gxpacket, distance):
     x_dir, y_dir, z_dir = gxpacket.direction.get_cartesian_coords
     # overshoot by CLOSE_LINE_THRESHOLD * distance to shell boundary
     # so that the gamma-ray is comfortably in the next shell
-    y_new = y_old + distance * (1 + CLOSE_LINE_THRESHOLD) * y_dir
-    z_new = z_old + distance * (1 + CLOSE_LINE_THRESHOLD) * z_dir
-    x_new = x_old + distance * (1 + CLOSE_LINE_THRESHOLD) * x_dir
+    y_new = y_old + distance * y_dir
+    z_new = z_old + distance * z_dir
+    x_new = x_old + distance * x_dir
 
     r, theta, phi = cartesian_to_spherical(x_new, y_new, z_new)
     gxpacket.location.r = r.value

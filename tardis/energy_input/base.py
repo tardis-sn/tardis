@@ -34,6 +34,7 @@ from tardis.energy_input.util import (
 )
 from tardis import constants as const
 from astropy.coordinates import cartesian_to_spherical
+from tardis.montecarlo.montecarlo_numba.numba_config import CLOSE_LINE_THRESHOLD
 
 
 class GXPacket(object):
@@ -359,14 +360,14 @@ def main_gamma_ray_loop(num_packets, model):
 
             else:
                 packet.tau -= total_opacity * distance_boundary * ejecta_epoch
-                packet = move_gamma_ray(packet, distance_boundary)
+                packet = move_gamma_ray(
+                    packet, distance_boundary * (1 + CLOSE_LINE_THRESHOLD)
+                )
                 distance_moved += distance_boundary * ejecta_epoch
                 packet.time_current += (
                     distance_boundary / const.c.cgs.value * ejecta_epoch
                 )
                 packet.shell = get_shell(packet.location.r, outer_radii)
-                if distance_boundary == 0.0:
-                    packet.shell += 1
 
             if (
                 np.abs(packet.location.r - outer_radius) < 10.0
