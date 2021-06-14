@@ -1,49 +1,35 @@
-[run]
-source = tardis
+# .coveragerc to control coverage.py
 
 [report]
+# Regexes for lines to exclude from consideration
 exclude_lines =
-   # Have to re-enable the standard pragma
-   pragma: no cover
+    # Have to re-enable the standard pragma
+    pragma: no cover
 
-   # Don't complain about packages we have installed
-   except ImportError
+    # Don't complain about missing debug-only code:
+    def __repr__
+    if self\.debug
 
-   # Don't complain if tests don't hit assertions
-   raise AssertionError
-   raise NotImplementedError
+    # Don't complain if tests don't hit defensive assertion code:
+    raise AssertionError
+    raise NotImplementedError
 
-   # Don't complain about script hooks
-   def main\(.*\):
-
-   # Ignore branches that don't pertain to this version of Python
-   pragma: py{ignore_python_version}
+    # Don't complain if non-runnable code isn't run:
+    if 0:
+    if __name__ == .__main__.:
 
 omit =
-   
-   # Tests should not appear in coveralls 
-   tardis/tests/*
-   tardis/plasma/tests/*
-   tardis/model/tests/*
-   tardis/montecarlo/tests/*
-   tardis/simulation/tests/*
-   tardis/io/tests/*
-   
-   # Omit all setup_package.py files 
-   tardis/tests/setup_package.py
-   tardis/plasma/setup_package.py
-   tardis/montecarlo/setup_package.py
-   tardis/model/setup_package.py
-   tardis/simulation/setup_package.py
-   tardis/io/setup_package.py
+    *__init__*
+    *_astropy_init*
+    *version*
+    *tests*
+    *conftest*
+    *setup_package*
 
-   tardis/gui/*
-   tardis/stats/*
-   tardis/analysis.py
-
-   # Omit all version and __init__.py files 
-   *version*
-   *__init__*
-   *_astropy_init*
+    tardis/gui/*
+    tardis/stats/*
    
+ignore_errors = True
 
+[html]
+directory = coverage_html_report
