@@ -26,7 +26,6 @@ omit =
     *conftest*
     *setup_package*
 
-    tardis/analysis.py
     tardis/gui/*
     tardis/stats/*
    
