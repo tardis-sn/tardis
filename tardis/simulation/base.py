@@ -18,7 +18,6 @@ from tardis.visualization import ConvergencePlots
 from tardis.visualization.widgets.util import create_table_widget
 from IPython.display import display
 
-
 # Adding logging support
 logger = logging.getLogger(__name__)
 
