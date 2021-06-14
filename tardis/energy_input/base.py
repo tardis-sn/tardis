@@ -65,7 +65,7 @@ class GXPacket(object):
         self.tau = -np.log(np.random.random())
 
 
-def main_gamma_ray_loop(num_packets, model, iron_group_fraction=0.5):
+def main_gamma_ray_loop(num_packets, model):
     """Main loop that determines the gamma ray propagation
 
     Parameters
@@ -103,6 +103,7 @@ def main_gamma_ray_loop(num_packets, model, iron_group_fraction=0.5):
     ejecta_density = model.density[:].value
     ejecta_epoch = model.time_explosion.to("s").value
     number_of_shells = model.no_of_shells
+    raw_isotope_abundance = model.raw_isotope_abundance
 
     shell_masses = mass_per_shell(
         number_of_shells, inner_radii, outer_radii, ejecta_density
@@ -113,8 +114,13 @@ def main_gamma_ray_loop(num_packets, model, iron_group_fraction=0.5):
         inner_radii,
         ejecta_density,
         number_of_shells,
-        model.raw_isotope_abundance,
+        raw_isotope_abundance,
         num_packets,
+    )
+
+    # Taking iron group to be elements 21-30
+    iron_group_fraction_per_shell = raw_isotope_abundance.loc[(21,):(30,)].sum(
+        axis=0
     )
 
     packets = []
@@ -168,6 +174,7 @@ def main_gamma_ray_loop(num_packets, model, iron_group_fraction=0.5):
                     )
                     energy_plot_df_rows.append(
                         [
+                            -1,
                             energy_KeV,
                             initial_radius,
                             ray1.location.theta,
@@ -211,10 +218,14 @@ def main_gamma_ray_loop(num_packets, model, iron_group_fraction=0.5):
                 packet.energy, ejecta_density[packet.shell]
             )
             photoabsorption_opacity = photoabsorption_opacity_calculation(
-                packet.energy, ejecta_density[packet.shell], iron_group_fraction
+                packet.energy,
+                ejecta_density[packet.shell],
+                iron_group_fraction_per_shell[packet.shell],
             )
             pair_creation_opacity = pair_creation_opacity_calculation(
-                packet.energy, ejecta_density[packet.shell], iron_group_fraction
+                packet.energy,
+                ejecta_density[packet.shell],
+                iron_group_fraction_per_shell[packet.shell],
             )
             total_opacity = (
                 compton_opacity
@@ -263,6 +274,7 @@ def main_gamma_ray_loop(num_packets, model, iron_group_fraction=0.5):
                     )
                     energy_plot_df_rows.append(
                         [
+                            i,
                             ejecta_energy_gained,
                             packet.location.r,
                             packet.location.theta,
@@ -287,6 +299,7 @@ def main_gamma_ray_loop(num_packets, model, iron_group_fraction=0.5):
                     )
                     energy_plot_df_rows.append(
                         [
+                            i,
                             ejecta_energy_gained,
                             packet.location.r,
                             packet.location.theta,
@@ -310,6 +323,7 @@ def main_gamma_ray_loop(num_packets, model, iron_group_fraction=0.5):
                     )
                     energy_plot_df_rows.append(
                         [
+                            i,
                             ejecta_energy_gained,
                             packet.location.r,
                             packet.location.theta,
@@ -373,6 +387,7 @@ def main_gamma_ray_loop(num_packets, model, iron_group_fraction=0.5):
     energy_plot_df = pd.DataFrame(
         data=energy_plot_df_rows,
         columns=[
+            "packet_index",
             "energy_input",
             "energy_input_r",
             "energy_input_theta",
