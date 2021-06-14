@@ -10,9 +10,9 @@ from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
 from tardis.io.config_reader import ConfigurationError
+from tardis.util.base import check_simulation_env
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
 from IPython.display import display
-from IPython import get_ipython
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -426,7 +426,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         plasma_state_log["next_w"] = next_w
         plasma_state_log.columns.name = "Shell No."
 
-        if self.check_notebook():
+        if check_simulation_env():
             logger.info(f"\n\tPlasma stratification:")
             logger.info(
                 display(
@@ -452,18 +452,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
             f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
         )
-
-    def check_notebook(self):
-        try:
-            shell = get_ipython().__class__.__name__
-            if shell == "ZMQInteractiveShell":
-                return True
-            elif shell == "TerminalInteractiveShell":
-                return False
-            else:
-                return False
-        except NameError:
-            return False
 
     def _call_back(self):
         for cb, args in self._callbacks.values():
