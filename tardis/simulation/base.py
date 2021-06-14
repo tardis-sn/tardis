@@ -12,6 +12,7 @@ from tardis.io.util import HDFWriterMixin
 from tardis.io.config_reader import ConfigurationError
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
 from IPython.display import display
+from IPython import get_ipython
 
 # Adding logging support
 logger = logging.getLogger(__name__)
