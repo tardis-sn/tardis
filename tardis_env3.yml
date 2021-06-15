@@ -33,7 +33,7 @@ dependencies:
   - ipywidgets
   - plotly
   - qgrid
-# - pyside2  # Qt GUI
+# - pyside2  # (Qt GUI) Issue #1652
 
 # --- Not required for conda-forge package and Numba integration pipeline ---
 
