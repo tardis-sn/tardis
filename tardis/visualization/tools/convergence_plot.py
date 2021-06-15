@@ -2,6 +2,7 @@ from collections import defaultdict
 import matplotlib.cm as cm
 import matplotlib.colors as clr
 import plotly.graph_objects as go
+from IPython.display import display
 import matplotlib as mpl
 import ipywidgets as widgets
 
@@ -15,7 +16,7 @@ def transistion_colors(name="jet", iterations=20):
     return colors
 
 
-class ConvergencePlots:
+class ConvergencePlots(object):
     def __init__(self):
         self.iterable_data = {}
         self.value_data = defaultdict(list)
@@ -32,7 +33,7 @@ class ConvergencePlots:
         self.iterations = 20
         self.current_iteration = 1
 
-    def fetch_data(self, name=None, value=None):
+    def fetch_data(self, name=None, value=None, type=None):
         """
         This allows user to fetch data from the Simulation class.
         This data is stored and used when an iteration is completed.
@@ -40,9 +41,10 @@ class ConvergencePlots:
             iterable_data: iterable data from the simulation, values like radiation temperature
             value_data: values like luminosity
         """
-        self.iterable_data[name] = value
-        self.value_data[name].append(value)
-        self.current_iteration += 1
+        if type == "iterable":
+            self.iterable_data[name] = value
+        if type == "value":
+            self.value_data[name].append(value)
 
     def get_data(self):
         """
@@ -182,8 +184,7 @@ class BuildCplots(ConvergencePlots):
     def build(self):
         self.create_plasma_plot()
         self.create_luminosity_plot()
-
-        return widgets.VBox([self.plasma_plot, self.luminosity_plot])
+        display(widgets.VBox([self.plasma_plot, self.luminosity_plot]))
 
 
 class UpdateCplots(BuildCplots):
@@ -192,7 +193,17 @@ class UpdateCplots(BuildCplots):
 
     def update_plasma_plots(self):
         x = self.iterable_data["velocity"].value.tolist()
-        # customdata = len(shell_velocity)*['Emitted Luminosity: ' +f'{emitted_luminosity.value:.2g}' +'<br>'+'Requested Luminosity: ' + f'{reabsorbed_luminosity.value:.2g}' + '<br>'+'Absorbed Luminosity: ' + f'{sim.luminosity_requested.value:.2g}']
+        customdata = len(x) * [
+            "<br>"
+            + "Emitted Luminosity: "
+            + f'{self.value_data["Absorbed"][-1]:.2g}'
+            + "<br>"
+            + "Requested Luminosity: "
+            + f'{self.value_data["Requested"][-1]:.2g}'
+            + "<br>"
+            + "Absorbed Luminosity: "
+            + f'{self.value_data["Requested"][-1]:.2g}'
+        ]
 
         self.plasma_plot.add_scatter(
             x=[item / 100000 for item in x],
@@ -203,21 +214,19 @@ class UpdateCplots(BuildCplots):
             name=self.current_iteration,
             legendgroup=f"group-{self.current_iteration}",
             showlegend=False,
-            # customdata = customdata,
+            customdata=customdata,
             hovertemplate="%{customdata}",
         )
         self.plasma_plot.add_scatter(
             x=[item / 100000 for item in x],
-            y=self.iterable_data[
-                "w"
-            ].value.tolist(),  # TODO: is tolist() required?
+            y=self.iterable_data["w"].tolist(),  # TODO: is tolist() required?
             line_color=transistion_colors()[self.current_iteration - 1],
             row=1,
             col=2,
             legendgroup=f"group-{self.current_iteration}",
             name=self.current_iteration,
-            # customdata = customdata,
-            hovertemplate="%{customdata}",
+            customdata=customdata,
+            hovertemplate="<b>Y</b>: %{y:.2f} at <b>X</b> = %{x:,.0f}%{customdata}",
         )
 
     def update_luminosity_plot(self):
@@ -225,9 +234,7 @@ class UpdateCplots(BuildCplots):
         with self.luminosity_plot.batch_update():
             for index, luminosity in zip(range(3), self.luminosities):
                 self.luminosity_plot.data[index].x = x
-                self.luminosity_plot.data[index].y = self.value_data[
-                    luminosity
-                ].value
+                self.luminosity_plot.data[index].y = self.value_data[luminosity]
                 self.luminosity_plot.data[index].hovertemplate = (
                     "<b>%{y:.2g}</b>" + "<br>at X = %{x}<br>"
                 )
@@ -249,3 +256,10 @@ class UpdateCplots(BuildCplots):
                 self.luminosity_plot.data[
                     -1
                 ].hovertemplate = "Next Inner Body Temperature: %{y:.2f} at X = %{x:,.0f}<extra></extra>"
+
+    def update(self):
+        if self.current_iteration == 1:
+            self.build()
+        self.update_plasma_plots()
+        self.update_luminosity_plot()
+        self.current_iteration += 1
