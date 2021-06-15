@@ -7,6 +7,7 @@ def run_tardis(
     packet_source=None,
     simulation_callbacks=[],
     virtual_packet_logging=False,
+    **kwargs,
 ):
     """
     This function is one of the core functions to run TARDIS from a given
@@ -54,6 +55,7 @@ def run_tardis(
         packet_source=packet_source,
         atom_data=atom_data,
         virtual_packet_logging=virtual_packet_logging,
+        **kwargs,
     )
     for cb in simulation_callbacks:
         simulation.add_callback(*cb)

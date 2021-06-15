@@ -17,29 +17,25 @@ def transistion_colors(name="jet", iterations=20):
 
 
 class ConvergencePlots(object):
-    def __init__(self):
+    def __init__(self, iterations, **kwargs):
         self.iterable_data = {}
         self.value_data = defaultdict(list)
-        self.rows = 4
-        self.cols = 2
-        self.specs = [
-            [{}, {}],
-            [{"colspan": 2}, None],
-            [{"colspan": 2}, None],
-            [{"colspan": 2}, None],
-        ]
-        self.row_heights = [0.45, 0.1, 0.4, 0.1]
-        self.vertical_spacing = 0.07
-        self.iterations = 20
+        self.iterations = iterations
         self.current_iteration = 1
+        self.luminosities = ["Emitted", "Absorbed", "Requested"]
+
+        if "plasma_plot_config" in kwargs:
+            if kwargs["plasma_plot_config"] != {}:
+                self.plasma_plot_config = kwargs["plasma_plot_config"]
+
+        if "luminosity_plot_config" in kwargs:
+            if kwargs["luminosity_plot_config"] != {}:
+                self.luminosity_plot_config = kwargs["luminosity_plot_config"]
 
     def fetch_data(self, name=None, value=None, type=None):
         """
         This allows user to fetch data from the Simulation class.
         This data is stored and used when an iteration is completed.
-        Returns:
-            iterable_data: iterable data from the simulation, values like radiation temperature
-            value_data: values like luminosity
         """
         if type == "iterable":
             self.iterable_data[name] = value
@@ -55,12 +51,6 @@ class ConvergencePlots(object):
             value_data: values like luminosity
         """
         return self.iterable_data, self.value_data
-
-
-class BuildCplots(ConvergencePlots):
-    def __init__(self):
-        super().__init__()
-        self.use_vbox = True
 
     def create_plasma_plot(self):
         """
@@ -81,20 +71,27 @@ class BuildCplots(ConvergencePlots):
             },
             yaxis={
                 "tickformat": "g",
-                "title": r"$T_{rad}\ [K]$",
+                "title": r"$W$",
                 "range": [9000, 14000],
             },
-            yaxis2={"tickformat": "g", "title": r"$W$"},
+            yaxis2={"tickformat": "g", "title": r"$T_{rad}\ [K]$"},
             height=580,
         )
+
+        # allows overriding default layout
+        if hasattr(self, "plasma_plot_config"):
+            for key in self.plasma_plot_config:
+                fig["layout"][key] = self.plasma_plot_config[key]
 
         self.plasma_plot = fig
 
     def create_luminosity_plot(self):
+        """
+        creates empty luminosity plot
+        """
         marker_colors = ["#958aff", "#ff8b85", "#5cff74"]
         marker_line_colors = ["#27006b", "#800000", "#00801c"]
         marker_colors = ["#636EFA", "#EF553B", "#00CC96"]
-        self.luminosities = ["Emitted", "Absorbed", "Requested"]
 
         fig = go.FigureWidget().set_subplots(
             3,
@@ -132,7 +129,7 @@ class BuildCplots(ConvergencePlots):
         )
 
         fig.add_scatter(
-            name="Next Inner<br>Boundary Temperature",
+            name="Inner<br>Boundary Temperature",
             row=1,
             col=1,
             hovertext="text",
@@ -144,10 +141,10 @@ class BuildCplots(ConvergencePlots):
         )
 
         fig = fig.update_layout(
-            xaxis=dict(range=[0, 21], dtick=2),
+            xaxis=dict(range=[0, self.iterations + 1], dtick=2),
             xaxis2=dict(
                 matches="x",
-                range=[0, 21],
+                range=[0, self.iterations + 1],
                 dtick=2,
             ),
             xaxis3=dict(
@@ -179,17 +176,18 @@ class BuildCplots(ConvergencePlots):
             hoverlabel_align="right",
             legend_title_text="Luminosity",
         )
+
+        # allows overriding default layout
+        if hasattr(self, "luminosity_plot_config"):
+            for key in self.luminosity_plot_config:
+                fig["layout"][key] = self.luminosity_plot_config[key]
+
         self.luminosity_plot = fig
 
     def build(self):
         self.create_plasma_plot()
         self.create_luminosity_plot()
         display(widgets.VBox([self.plasma_plot, self.luminosity_plot]))
-
-
-class UpdateCplots(BuildCplots):
-    def __init__(self):
-        super().__init__()
 
     def update_plasma_plots(self):
         x = self.iterable_data["velocity"].value.tolist()
@@ -255,7 +253,7 @@ class UpdateCplots(BuildCplots):
                 self.luminosity_plot.data[-1].y = self.value_data["t_inner"]
                 self.luminosity_plot.data[
                     -1
-                ].hovertemplate = "Next Inner Body Temperature: %{y:.2f} at X = %{x:,.0f}<extra></extra>"
+                ].hovertemplate = "Inner Body Temperature: %{y:.2f} at X = %{x:,.0f}<extra></extra>"
 
     def update(self):
         if self.current_iteration == 1:

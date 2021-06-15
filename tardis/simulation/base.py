@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import pandas as pd
 from astropy import units as u, constants as const
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from tardis import model
 
 from tardis.montecarlo import MontecarloRunner
@@ -12,7 +12,7 @@ from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
 from tardis.io.config_reader import ConfigurationError
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
-from tardis.visualization import UpdateCplots
+from tardis.visualization import ConvergencePlots
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -129,6 +129,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         luminosity_requested,
         convergence_strategy,
         nthreads,
+        cplots_kwargs,
     ):
 
         super(Simulation, self).__init__(iterations, model.no_of_shells)
@@ -162,7 +163,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 f"not damped or custom "
                 f"- input is {convergence_strategy.type}"
             )
-        self.cplots = UpdateCplots()
+        self.cplots = ConvergencePlots(
+            iterations=self.iterations, **cplots_kwargs
+        )
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
 
@@ -567,6 +570,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 virtual_packet_logging=virtual_packet_logging,
             )
 
+        cplots_config_options = ["plasma_plot_config", "luminosity_plot_config"]
+        cplots_kwargs = defaultdict(dict)
+        if any([item in cplots_config_options for item in kwargs.keys()]):
+            for item in cplots_config_options:
+                cplots_kwargs[item] = kwargs[item]
+
         luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(
             u.Hz, u.spectral()
         )
@@ -598,4 +607,5 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             luminosity_requested=config.supernova.luminosity_requested.cgs,
             convergence_strategy=config.montecarlo.convergence_strategy,
             nthreads=config.montecarlo.nthreads,
+            cplots_kwargs=cplots_kwargs,
         )
