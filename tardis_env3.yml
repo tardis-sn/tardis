@@ -64,6 +64,5 @@ dependencies:
   - git-lfs
 
   - pip:
-      - sphinxcontrib-tikz
       - dokuwiki
       - dot2tex  # conda-forge package requires python>=3.8
