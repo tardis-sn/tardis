@@ -36,6 +36,11 @@ dependencies:
 # - pyside2  # Qt GUI
 
 # --- Not required for conda-forge package and Numba integration pipeline ---
+
+  # tardis-sn/nuclear dependencies
+  - beautifulsoup4
+  - lxml
+
   # Documentation
   - sphinx
   - sphinx_bootstrap_theme
