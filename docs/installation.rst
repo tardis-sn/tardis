@@ -16,7 +16,7 @@ installed TARDIS, check out the "Using TARDIS" section (in sidebar) for instruct
 .. note::
         
     - TARDIS is only compatible with Python >=3.6
-    - TARDIS only supports Linux and MacOS.
+    - TARDIS only supports MacOS and Linux.
     - We strongly recommend installing TARDIS within an Anaconda environment and to always use the latest GitHub development version.
 
 Requirements
