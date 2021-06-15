@@ -74,7 +74,7 @@ class FilterLog(object):
 list_of_filter = []
 
 
-def logging_state(log_state, specific):
+def logging_state(log_state, tardis_config, specific):
     """
     The configuration for the Logging status of the run() simulation object
     Called from run_tardis()
@@ -89,10 +89,29 @@ def logging_state(log_state, specific):
         Log_level = ["NotSet", "Debug", "Info", "Warning", "Error", "Critical"]
         Allowed values which set the particular log level for the simulation
     """
+    if specific or tardis_config["debug"]["specific_logging"]:
+        specific = True
+    else:
+        specific = False
+
+    if tardis_config["debug"]["logging_level"] or log_state:
+        if (
+            log_state.upper() == "CRITICAL"
+            and tardis_config["debug"]["logging_level"]
+        ):
+            logging_level = tardis_config["debug"]["logging_level"]
+        elif log_state:
+            logging_level = log_state
+            if tardis_config["debug"]["logging_level"] and log_state:
+                print("Log_state & logging_level both specified")
+                print("Log_state will be used for Log Level Determination\n")
+        else:
+            logging_level = tardis_config["debug"]["logging_level"]
+
     loggers = [
         logging.getLogger(name) for name in logging.root.manager.loggerDict
     ]
-    if log_state.upper() in [
+    if logging_level.upper() in [
         "NOTSET",
         "DEBUG",
         "INFO",
@@ -109,7 +128,7 @@ def logging_state(log_state, specific):
             "CRITICAL": logging.CRITICAL,
         }
         for logger in loggers:
-            logger.setLevel(logging_levels[log_state.upper()])
+            logger.setLevel(logging_levels[logging_level.upper()])
 
     if not list_of_filter == []:
         for filter in list_of_filter:
@@ -117,7 +136,7 @@ def logging_state(log_state, specific):
                 logger.removeFilter(filter)
 
     if specific:
-        filter_log = FilterLog(logging_levels[log_state.upper()])
+        filter_log = FilterLog(logging_levels[logging_level.upper()])
         list_of_filter.append(filter_log)
         for logger in loggers:
             logger.addFilter(filter_log)
