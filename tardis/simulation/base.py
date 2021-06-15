@@ -427,7 +427,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         plasma_state_log.columns.name = "Shell No."
 
         if check_simulation_env():
-            logger.info(f"\n\tPlasma stratification:")
+            logger.info("\n\tPlasma stratification:")
             logger.info(
                 display(
                     plasma_state_log.iloc[::log_sampling].style.format("{:.3g}")
@@ -436,11 +436,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         else:
             output_df = ""
             plasma_output = plasma_state_log.iloc[::log_sampling].to_string(
-                float_format=lambda x: "{:.3g}".format(x), justify="center",
+                float_format=lambda x: "{:.3g}".format(x),
+                justify="center",
             )
             for value in plasma_output.split("\n"):
                 output_df = output_df + "\t{}\n".format(value)
-            logger.info(f"\n\tPlasma stratification:\n\n{output_df}")
+            logger.info("\n\tPlasma stratification:")
+            logger.info(f"\n{output_df}")
 
         logger.info(
             f"\n\tCurrent t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
