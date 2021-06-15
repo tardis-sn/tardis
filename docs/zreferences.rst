@@ -38,4 +38,12 @@ References
 
 .. glossary:: 
 
-    synapps
+    :term: Synapps
+        
+        
+    Chianti
+        
+    
+    Meta-Stable
+        
+    
