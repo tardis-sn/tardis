@@ -24,6 +24,13 @@ class ConvergencePlots(object):
         self.current_iteration = 1
         self.luminosities = ["Emitted", "Absorbed", "Requested"]
 
+        if "colorscale" in kwargs:
+            self.colorscale = transistion_colors(
+                kwargs["colorscale"], iterations=self.iterations
+            )
+        else:
+            self.colorscale = transistion_colors()
+
         if "plasma_plot_config" in kwargs:
             if kwargs["plasma_plot_config"] != {}:
                 self.plasma_plot_config = kwargs["plasma_plot_config"]
@@ -206,7 +213,7 @@ class ConvergencePlots(object):
         self.plasma_plot.add_scatter(
             x=[item / 100000 for item in x],
             y=self.iterable_data["t_rad"].value.tolist(),
-            line_color=transistion_colors()[self.current_iteration - 1],
+            line_color=self.colorscale[self.current_iteration - 1],
             row=1,
             col=1,
             name=self.current_iteration,
@@ -218,7 +225,7 @@ class ConvergencePlots(object):
         self.plasma_plot.add_scatter(
             x=[item / 100000 for item in x],
             y=self.iterable_data["w"].tolist(),  # TODO: is tolist() required?
-            line_color=transistion_colors()[self.current_iteration - 1],
+            line_color=self.colorscale[self.current_iteration - 1],
             row=1,
             col=2,
             legendgroup=f"group-{self.current_iteration}",

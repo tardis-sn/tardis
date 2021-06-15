@@ -163,9 +163,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 f"not damped or custom "
                 f"- input is {convergence_strategy.type}"
             )
-        self.cplots = ConvergencePlots(
-            iterations=self.iterations, **cplots_kwargs
-        )
+        if cplots_kwargs["show_plots"] is not False:
+            self.cplots = ConvergencePlots(
+                iterations=self.iterations, **cplots_kwargs
+            )
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
 
@@ -293,16 +294,19 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         else:
             next_t_inner = self.model.t_inner
 
-        self.cplots.fetch_data(
-            name="t_inner", value=self.model.t_inner.value, type="value"
-        )
-        self.cplots.fetch_data(
-            name="t_rad", value=self.model.t_rad, type="iterable"
-        )
-        self.cplots.fetch_data(name="w", value=self.model.w, type="iterable")
-        self.cplots.fetch_data(
-            name="velocity", value=self.model.velocity, type="iterable"
-        )
+        if hasattr(self, "cplots"):
+            self.cplots.fetch_data(
+                name="t_inner", value=self.model.t_inner.value, type="value"
+            )
+            self.cplots.fetch_data(
+                name="t_rad", value=self.model.t_rad, type="iterable"
+            )
+            self.cplots.fetch_data(
+                name="w", value=self.model.w, type="iterable"
+            )
+            self.cplots.fetch_data(
+                name="velocity", value=self.model.velocity, type="iterable"
+            )
 
         self.log_plasma_state(
             self.model.t_rad,
@@ -358,18 +362,18 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         reabsorbed_luminosity = self.runner.calculate_reabsorbed_luminosity(
             self.luminosity_nu_start, self.luminosity_nu_end
         )
-
-        self.cplots.fetch_data(
-            name="Emitted", value=emitted_luminosity.value, type="value"
-        )
-        self.cplots.fetch_data(
-            name="Absorbed", value=reabsorbed_luminosity.value, type="value"
-        )
-        self.cplots.fetch_data(
-            name="Requested",
-            value=self.luminosity_requested.value,
-            type="value",
-        )
+        if hasattr(self, "cplots"):
+            self.cplots.fetch_data(
+                name="Emitted", value=emitted_luminosity.value, type="value"
+            )
+            self.cplots.fetch_data(
+                name="Absorbed", value=reabsorbed_luminosity.value, type="value"
+            )
+            self.cplots.fetch_data(
+                name="Requested",
+                value=self.luminosity_requested.value,
+                type="value",
+            )
 
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)
         self.iterations_executed += 1
@@ -389,7 +393,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
             self.iterate(self.no_of_packets)
             self.converged = self.advance_state()
-            self.cplots.update()
+            if hasattr(self, "cplots"):
+                self.cplots.update()
             self._call_back()
             if self.converged:
                 if self.convergence_strategy.stop_if_converged:
@@ -407,8 +412,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         self.reshape_plasma_state_store(self.iterations_executed)
+        if hasattr(self, "cplots"):
+            self.cplots.update()
 
-        self.cplots.update()
         logger.info(
             f"Simulation finished in {self.iterations_executed:d} iterations "
             f"and took {(time.time() - start_time):.2f} s"
@@ -570,11 +576,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 virtual_packet_logging=virtual_packet_logging,
             )
 
-        cplots_config_options = ["plasma_plot_config", "luminosity_plot_config"]
+        cplots_config_options = [
+            "plasma_plot_config",
+            "luminosity_plot_config",
+            "colorscale",
+            "show_plots",
+        ]
         cplots_kwargs = defaultdict(dict)
-        if any([item in cplots_config_options for item in kwargs.keys()]):
-            for item in cplots_config_options:
-                cplots_kwargs[item] = kwargs[item]
+        for item in set(cplots_config_options).intersection(kwargs.keys()):
+            cplots_kwargs[item] = kwargs[item]
 
         luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(
             u.Hz, u.spectral()
