@@ -69,7 +69,10 @@ source_suffix = {
 numpydoc_show_class_members = False
 extensions += ["matplotlib.sphinxext.plot_directive", "sphinxcontrib.bibtex"]
 
-nbsphinx_execute = "auto"
+if os.getenv('DISABLE_NBSPHINX') == "1":
+    nbsphinx_execute = "never"
+else:
+    nbsphinx_execute = "auto"
 
 nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
@@ -79,6 +82,7 @@ nbsphinx_execute_arguments = [
 nbsphinx_prolog = """
 This notebook is available at 
 https://github.com/tardis-sn/tardis/tree/master/docs/{{ env.doc2path(env.docname, base=None) }}
+
 ----
 """
 
