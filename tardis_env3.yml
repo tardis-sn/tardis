@@ -41,9 +41,9 @@ dependencies:
   - sphinx
   - sphinx_bootstrap_theme
   - sphinx_rtd_theme
+  - sphinx-jsonschema
   - sphinxcontrib-apidoc
   - sphinxcontrib-bibtex
-  - sphinx-jsonschema
   - recommonmark
   - numpydoc
   - nbconvert
