@@ -1,8 +1,9 @@
 """Visualization tools and widgets for TARDIS."""
 
 from tardis.visualization.tools.convergence_plot import (
-    update_cplots,
-    build_cplots,
+    ConvergencePlots,
+    BuildCplots,
+    UpdateCplots,
 )
 
 from tardis.visualization.widgets.shell_info import (
