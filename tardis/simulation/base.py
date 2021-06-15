@@ -97,6 +97,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     luminosity_nu_start : astropy.units.Quantity
     luminosity_nu_end : astropy.units.Quantity
     luminosity_requested : astropy.units.Quantity
+    cplots_kwargs: dict
     nthreads : int
         The number of threads to run montecarlo with
 

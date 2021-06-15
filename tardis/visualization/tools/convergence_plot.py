@@ -8,6 +8,19 @@ import ipywidgets as widgets
 
 
 def transistion_colors(name="jet", iterations=20):
+    """
+    Function to create colorscale for convergence plots, returns a list of colors.
+
+    Parameters
+    ----------
+    name : string
+        Name of the colorscale. Defaults to "jet".
+    iterations : int
+        Number of iterations. Defaults to 20.
+    Returns
+    -------
+    colors: list
+    """
     cmap = mpl.cm.get_cmap(name, iterations)
     colors = []
     for i in range(cmap.N):
@@ -17,6 +30,16 @@ def transistion_colors(name="jet", iterations=20):
 
 
 class ConvergencePlots(object):
+    """
+    Class to create and update convergence plots for visualizing convergence of the
+    simulation.
+
+    Parameters
+    ----------
+    iteration : int
+        iteration number
+    """
+
     def __init__(self, iterations, **kwargs):
         self.iterable_data = {}
         self.value_data = defaultdict(list)
@@ -43,25 +66,26 @@ class ConvergencePlots(object):
         """
         This allows user to fetch data from the Simulation class.
         This data is stored and used when an iteration is completed.
+
+        Parameters
+        ----------
+        name : string
+            name of the data
+        value : string or array
+            string or array of quantities,
+        type : string
+            either iterable or value
+
         """
         if type == "iterable":
             self.iterable_data[name] = value
         if type == "value":
             self.value_data[name].append(value)
 
-    def get_data(self):
-        """
-        Returns data for convergence plots
-
-        Returns:
-            iterable_data: iterable data from the simulation, values like radiation temperature
-            value_data: values like luminosity
-        """
-        return self.iterable_data, self.value_data
-
     def create_plasma_plot(self):
         """
-        creates empty plasma plot
+        Creates an empty plasma plot.
+        The default layout can be overidden by passing plasma_plot_config dictionary in the run_tardis function.
         """
         fig = go.FigureWidget().set_subplots(rows=1, cols=2, shared_xaxes=True)
         fig.add_scatter(row=1, col=1)
@@ -94,7 +118,8 @@ class ConvergencePlots(object):
 
     def create_luminosity_plot(self):
         """
-        creates empty luminosity plot
+        Creates an empty luminosity plot.
+        The default layout can be overidden by passing luminosity_plot_config dictionary in the run_tardis function.
         """
         marker_colors = ["#958aff", "#ff8b85", "#5cff74"]
         marker_line_colors = ["#27006b", "#800000", "#00801c"]
@@ -192,11 +217,23 @@ class ConvergencePlots(object):
         self.luminosity_plot = fig
 
     def build(self):
+        """
+        Calls the create_plasma_plot and the create_luminosity_plot to build plots.
+        """
         self.create_plasma_plot()
         self.create_luminosity_plot()
-        display(widgets.VBox([self.plasma_plot, self.luminosity_plot]))
+        display(
+            widgets.VBox(
+                [self.plasma_plot, self.luminosity_plot],
+                layout=widgets.Layout(height="1000px"),
+            )
+        )
 
     def update_plasma_plots(self):
+        """
+        Updates the plasma plots using the data collected using the fetch_data function.
+        This function is run every iteration.
+        """
         x = self.iterable_data["velocity"].value.tolist()
         customdata = len(x) * [
             "<br>"
@@ -235,6 +272,10 @@ class ConvergencePlots(object):
         )
 
     def update_luminosity_plot(self):
+        """
+        Updates the plasma plots using the data collected using the fetch_data function.
+        This function is run every iteration.
+        """
         x = list(range(1, self.iterations + 1))
         with self.luminosity_plot.batch_update():
             for index, luminosity in zip(range(3), self.luminosities):
@@ -263,6 +304,9 @@ class ConvergencePlots(object):
                 ].hovertemplate = "Inner Body Temperature: %{y:.2f} at X = %{x:,.0f}<extra></extra>"
 
     def update(self):
+        """
+        Calls functions used to build and update convergence plots.
+        """
         if self.current_iteration == 1:
             self.build()
         self.update_plasma_plots()
