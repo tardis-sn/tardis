@@ -28,14 +28,12 @@ dependencies:
   - tqdm
 
   # Widgets & Visualization
-  - ipywidgets
-  - matplotlib
-  - qgrid
-  - plotly
-  - pyside2  # Qt GUI
-
-  # Analysis
   - jupyter
+  - matplotlib
+  - ipywidgets
+  - plotly
+  - qgrid
+  - pyside2  # Qt GUI
 
   # Documentation
   - sphinx
