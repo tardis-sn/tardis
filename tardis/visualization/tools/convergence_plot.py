@@ -100,12 +100,12 @@ class ConvergencePlots(object):
                 "title": r"$Shell~~Velocity$",
                 "matches": "x",
             },
-            yaxis={
+            yaxis={"tickformat": "g", "title": r"$T_{rad}\ [K]$"},
+            yaxis2={
                 "tickformat": "g",
                 "title": r"$W$",
                 "range": [9000, 14000],
             },
-            yaxis2={"tickformat": "g", "title": r"$T_{rad}\ [K]$"},
             height=580,
         )
 
