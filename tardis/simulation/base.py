@@ -10,7 +10,7 @@ from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
 from tardis.io.config_reader import ConfigurationError
-from tardis.util.base import check_simulation_env
+from tardis.util.base import is_notebook
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
 from IPython.display import display
 
@@ -426,7 +426,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         plasma_state_log["next_w"] = next_w
         plasma_state_log.columns.name = "Shell No."
 
-        if check_simulation_env():
+        if is_notebook():
             logger.info("\n\tPlasma stratification:")
             logger.info(
                 display(
