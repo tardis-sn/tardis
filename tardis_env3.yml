@@ -4,13 +4,13 @@ channels:
   - conda-forge
 
 dependencies:
-  - python=3
+  - python=3.7
   - pip
   - numpy=1.19
   - scipy=1.5
   - pandas=1.0
   - astropy=3
-  - numba=0.53.1
+  - numba=0.53
   - numexpr
   - pyne=0.7=nomoab_openmc*  # Issue #1537
 
@@ -28,22 +28,26 @@ dependencies:
   - tqdm
 
   # Widgets & Visualization
-  - ipywidgets
-  - matplotlib
-  - qgrid
-  - plotly
-  - pyside2  # Qt GUI
-
-  # Analysis
   - jupyter
+  - matplotlib
+  - ipywidgets
+  - plotly
+  - qgrid
+# - pyside2  # (Qt GUI) Issue #1652
+
+# --- Not required for conda-forge package and Numba integration pipeline ---
+
+  # tardis-sn/nuclear dependencies
+  - beautifulsoup4
+  - lxml
 
   # Documentation
   - sphinx
   - sphinx_bootstrap_theme
   - sphinx_rtd_theme
+  - sphinx-jsonschema
   - sphinxcontrib-apidoc
   - sphinxcontrib-bibtex
-  - sphinx-jsonschema
   - recommonmark
   - numpydoc
   - nbconvert
@@ -64,6 +68,5 @@ dependencies:
   - git-lfs
 
   - pip:
-      - sphinxcontrib-tikz
       - dokuwiki
       - dot2tex  # conda-forge package requires python>=3.8
