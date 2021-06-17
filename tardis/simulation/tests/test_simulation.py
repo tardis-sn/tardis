@@ -1,6 +1,8 @@
 import os
 
 import pytest
+import logging
+
 from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
 
@@ -153,3 +155,20 @@ def test_plasma_state_storer_reshape(
 
 #     assert_quantity_allclose(
 #             t_rad, simulation_compare_data['test1/t_rad'] * u.Unit('K'), atol=0.0 * u.Unit('K'))
+
+
+def test_logging_simulation(atomic_data_fname, caplog):
+    """
+    Testing the logs for simulations runs
+    """
+    config = Configuration.from_yaml(
+        "tardis/io/tests/data/tardis_configv1_verysimple.yml"
+    )
+    config["atom_data"] = atomic_data_fname
+
+    simulation = Simulation.from_config(config)
+
+    simulation.run()
+
+    for record in caplog.records:
+        assert record.levelno >= logging.INFO
