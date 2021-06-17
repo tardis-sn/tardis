@@ -38,7 +38,7 @@ class FilterLog(object):
     """
     Filter Log Class for Filtering Logging Output
     to a particular level
-    
+
     Parameters
     ----------
     log_level : logging object
@@ -63,9 +63,9 @@ class FilterLog(object):
 
         Returns
         -------
-        boolean : True, if the current log_record has the 
+        boolean : True, if the current log_record has the
             level that of the specified log_level
-            False, if the current log_record doesn't have the 
+            False, if the current log_record doesn't have the
             same log_level as the specified one
         """
         return log_record.levelno == self.log_level
@@ -78,7 +78,7 @@ def logging_state(log_state, tardis_config, specific):
     """
     The configuration for the Logging status of the run() simulation object
     Called from run_tardis()
-    Invoked via Function, argument 
+    Invoked via Function, argument
     Proposed : Invoking via YAML & Flags
 
     Parameters
@@ -89,24 +89,30 @@ def logging_state(log_state, tardis_config, specific):
         Log_level = ["NotSet", "Debug", "Info", "Warning", "Error", "Critical"]
         Allowed values which set the particular log level for the simulation
     """
-    if specific or tardis_config["debug"]["specific_logging"]:
-        specific = True
-    else:
-        specific = False
-
-    if tardis_config["debug"]["logging_level"] or log_state:
-        if (
-            log_state.upper() == "CRITICAL"
-            and tardis_config["debug"]["logging_level"]
-        ):
-            logging_level = tardis_config["debug"]["logging_level"]
-        elif log_state:
-            logging_level = log_state
-            if tardis_config["debug"]["logging_level"] and log_state:
-                print("Log_state & logging_level both specified")
-                print("Log_state will be used for Log Level Determination\n")
+    if "debug" in tardis_config:
+        if specific or tardis_config["debug"]["specific_logging"]:
+            specific = True
         else:
-            logging_level = tardis_config["debug"]["logging_level"]
+            specific = False
+
+        if tardis_config["debug"]["logging_level"] or log_state:
+            if (
+                log_state.upper() == "CRITICAL"
+                and tardis_config["debug"]["logging_level"]
+            ):
+                logging_level = tardis_config["debug"]["logging_level"]
+            elif log_state:
+                logging_level = log_state
+                if tardis_config["debug"]["logging_level"] and log_state:
+                    print("Log_state & logging_level both specified")
+                    print(
+                        "Log_state will be used for Log Level Determination\n"
+                    )
+            else:
+                logging_level = tardis_config["debug"]["logging_level"]
+    else:
+        logging_level = log_state
+        specific = specific
 
     loggers = [
         logging.getLogger(name) for name in logging.root.manager.loggerDict

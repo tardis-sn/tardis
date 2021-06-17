@@ -428,11 +428,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         if is_notebook():
             logger.info("\n\tPlasma stratification:")
-            logger.info(
+
+            # Displaying the DataFrame only when the logging level is NOTSET, DEBUG or INFO
+            if logger.level <= 20:
                 display(
                     plasma_state_log.iloc[::log_sampling].style.format("{:.3g}")
                 )
-            )
         else:
             output_df = ""
             plasma_output = plasma_state_log.iloc[::log_sampling].to_string(

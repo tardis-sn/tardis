@@ -19,19 +19,6 @@ properties:
     type: boolean
     default: false
     description: Allows for logging on the specified level logs 
-  # debug_packets:
-  #   type: boolean
-  #   default: false
-  #   description: Decide whether to go into debugging mode. [EXPERIMENTAL FEATURE DO NOT RELY ON IT]
-  # logger_buffer:
-  #   type: number
-  #   default: 1
-  #   description: Provides option to not log every line.
-  # single_packet_seed:
-  #   type:
-  #     - number
-  #   default: -1
-  #   description: If debug_packets is true, this is the seed for the only packet.
 
-# required:
-# - logging_state
+required:
+- logging_level
