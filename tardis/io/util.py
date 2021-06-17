@@ -237,7 +237,7 @@ class HDFWriterMixin(object):
         ):
             raise FileExistsError(
                 "The specified HDF file already exists. If you still want "
-                "to overwrite it, set option overwrite=True"
+                "to overwrite it, set function parameter overwrite=True"
             )
 
         else:
