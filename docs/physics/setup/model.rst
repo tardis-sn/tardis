@@ -28,5 +28,5 @@ light blue lines. As TARDIS is a time-independent code which calculates the spec
 of the boundaries (either of the computational domain or of the cells) do not chage throughout the simulation.
 
 .. image::
-    images/expansion_animation.gif
+    ../images/expansion_animation.gif
     :width: 500

@@ -26,7 +26,7 @@ TARDIS simulates radiative transfer between an inner boundary (the photosphere, 
 Additionally, TARDIS divides the space between the inner and outer computational boundaries into cells -- radial shells for which the plasma state is (spatially) constant. In the animation, 6 cells are shown, being divided by the light blue lines. As TARDIS is a time-independent code which calculates the spectra at an instant in time, the radii of the boundaries (either of the computational domain or of the cells) do not chage throughout the simulation.
 
 .. image::
-    images/expansion_animation.gif
+    ../images/expansion_animation.gif
     :width: 500
 
 Propagation in a Spherical Domain
@@ -46,7 +46,7 @@ following sketch (taken from :cite:`Noebauer2014`):
 
 
 .. image::
-    images/spherical_symmetry.png
+    ../images/spherical_symmetry.png
     :width: 500
 
 
@@ -190,7 +190,7 @@ which the accumulated optical depth reaches the randomly generated interaction o
 :cite:`Mazzali1993`):
 
 .. image::
-    images/optical_depth_summation.png
+    ../images/optical_depth_summation.png
     :width: 500
 
 Three possible cases are highlighted in the above diagram, with the dotted lines showing the (randomly assigned) optical depth :math:`\tau_\mathrm{interaction}` at which the packet interacts. In case I, the interaction optical
