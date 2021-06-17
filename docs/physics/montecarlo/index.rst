@@ -13,7 +13,7 @@ can also be found in various papers by L. Lucy and in the main TARDIS publicatio
 
 .. toctree::
     basicprinciples
-    discretization
+    initialization
     propagation
     lineinteraction
     estimators
