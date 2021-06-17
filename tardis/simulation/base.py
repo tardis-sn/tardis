@@ -322,7 +322,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     def iterate(self, no_of_packets, no_of_virtual_packets=0, last_run=False):
         logger.info(
-            f"\n\tStarting iteration {(self.iterations_executed + 1):d}/{self.iterations:d}"
+            f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
         self.runner.run(
             self.model,
@@ -382,7 +382,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         logger.info(
             f"\n\tSimulation finished in {self.iterations_executed:d} iterations "
-            f"and took {(time.time() - start_time):.2f} s"
+            f"\n\tSimulation took {(time.time() - start_time):.2f} s\n"
         )
         self._call_back()
 
