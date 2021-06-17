@@ -23,7 +23,7 @@ parameters:
 
   - name: skipInstall
     type: boolean
-    default: true
+    default: false
 
 steps:
   - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
@@ -45,21 +45,20 @@ steps:
         echo "##vso[task.setvariable variable=package.manager]mamba"
       displayName: 'Set package manager'
  
-  - ${{ if eq(parameters.skipinstall, true) }}:
-    - checkout: self
-      path: s/tardis
-      fetchDepth: ${{ parameters.fetchDepth }}
+  - checkout: self
+    path: s/tardis
+    fetchDepth: ${{ parameters.fetchDepth }}
 
-    - ${{ if and(eq(parameters.fetchRefdata, true), eq(parameters.refdataRepo, 'azure')) }}:
-      - checkout: git://TARDIS/tardis-refdata
-        lfs: true
-        displayName: 'Fetch reference data (Azure)'
+  - ${{ if and(eq(parameters.fetchRefdata, true), eq(parameters.refdataRepo, 'azure')) }}:
+    - checkout: git://TARDIS/tardis-refdata
+      lfs: true
+      displayName: 'Fetch reference data (Azure)'
 
-    - ${{ if and(eq(parameters.fetchRefdata, true), eq(parameters.refdataRepo, 'github')) }}:
-      - bash: |
-          git clone https://github.com/tardis-sn/tardis-refdata.git $(refdata.dir)
-          cd $(refdata.dir); git lfs fetch
-        displayName: 'Fetch reference data (GitHub)'
+  - ${{ if and(eq(parameters.fetchRefdata, true), eq(parameters.refdataRepo, 'github')) }}:
+    - bash: |
+        git clone https://github.com/tardis-sn/tardis-refdata.git $(refdata.dir)
+        cd $(refdata.dir); git lfs fetch
+      displayName: 'Fetch reference data (GitHub)'
 
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: 'Add conda to PATH'
@@ -72,13 +71,13 @@ steps:
     - bash: conda install mamba -c conda-forge -y
       displayName: 'Install Mamba'
 
-  - ${{ if eq(parameters.skipinstall, true) }}:
+  - ${{ if eq(parameters.skipInstall, false) }}:
     - bash: |
         cd $(tardis.dir)
         $(package.manager) env create -f tardis_env3.yml
       displayName: 'Setup environment'
 
-  - ${{ if eq(parameters.skipinstall, true) }}:
+  - ${{ if eq(parameters.skipInstall, false) }}:
     - bash: |
         cd $(tardis.dir)
         source activate tardis
