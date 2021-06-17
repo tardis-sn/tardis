@@ -25,8 +25,8 @@ schedules:
 variables:
   system.debug: false
   results.url: 'http://opensupernova.org/~azuredevops/files/refdata-results'
-  commit.sha: '$(Build.SourceVersion)'
   pr.number: '$(System.PullRequest.PullRequestNumber)'
+  commit.sha: '$(Build.SourceVersion)'
   #ref1.hash: ''
   #ref2.hash: ''
 
@@ -95,13 +95,25 @@ jobs:
          sshPublicKey: $(opensupernova_pubkey)
          sshKeySecureFile: openSupernovaKey
 
+      - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+        - bash: echo "##vso[task.setvariable variable=subfolder]$(pr.number)"
+          displayName: "Set subfolder name"
+
+      - ${{ if eq(variables['Build.Reason'], 'Schedule') }}:
+        - bash: echo "##vso[task.setvariable variable=subfolder]scheduled"
+          displayName: "Set subfolder name"
+
+      - ${{ if eq(variables['Build.Reason'], 'Manual') }}:
+        - bash: echo "##vso[task.setvariable variable=subfolder]manual"
+          displayName: "Set subfolder name"
+
       - bash: |
-          ssh azuredevops@opensupernova.org "mkdir -p /home/azuredevops/public_html/files/refdata-results/$(pr.number)"
+          ssh azuredevops@opensupernova.org "mkdir -p /home/azuredevops/public_html/files/refdata-results/$(subfolder)"
           scp $(refdata.dir)/notebooks/ref_data_compare.html azuredevops@opensupernova.org:/home/azuredevops/public_html/files/refdata-results/$(pr.number)/$(commit.sha).html
         displayName: 'Copy files to server'
         condition: succeededOrFailed()
 
-      # Run only if the pipeline is triggered by a pull request.
+      # Run if the pipeline is triggered by a pull request.
       - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
         - task: GitHubComment@0
           inputs:
