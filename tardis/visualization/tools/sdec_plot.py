@@ -1250,7 +1250,7 @@ class SDECPlotter:
             except:
                 # Add notifications that this species was not in the emission df
                 if self._species_list is None:
-                    longer.info(
+                    logger.info(
                         f"{atomic_number2element_symbol(identifier)}"
                         f" is not in the emitted packets; skipping"
                     )
@@ -1306,7 +1306,7 @@ class SDECPlotter:
             except:
                 # Add notifications that this species was not in the emission df
                 if self._species_list is None:
-                    longer.info(
+                    logger.info(
                         f"{atomic_number2element_symbol(identifier)}"
                         f" is not in the absorbed packets; skipping"
                     )
@@ -1641,7 +1641,7 @@ class SDECPlotter:
             except:
                 # Add notifications that this species was not in the emission df
                 if self._species_list is None:
-                    longer.info(
+                    logger.info(
                         f"{atomic_number2element_symbol(identifier)}"
                         f" is not in the emitted packets; skipping"
                     )
@@ -1694,7 +1694,7 @@ class SDECPlotter:
             except:
                 # Add notifications that this species was not in the emission df
                 if self._species_list is None:
-                    longer.info(
+                    logger.info(
                         f"{atomic_number2element_symbol(identifier)}"
                         f" is not in the absorbed packets; skipping"
                     )
