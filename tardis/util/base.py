@@ -542,23 +542,44 @@ def convert_abundances_format(fname, delimiter=r"\s+"):
     return df
 
 
-def check_simulation_env():
+def is_notebook():
     """
-    Checking the environment where the simulation is run
+    Checking the shell environment where the simulation is run is Jupyter based
 
     Returns
     -------
-    True : if the environment is IPython Based
-    False : if the environment is Terminal or anything else
+    True : if the shell environment is IPython Based
+    False : if the shell environment is Terminal or anything else
     """
     try:
-        shell = get_ipython().__class__.__name__
+        # Trying to import the ZMQInteractiveShell for Jupyter based environments
+        from ipykernel.zmqshell import ZMQInteractiveShell
     except NameError:
+        # If the class cannot be imported then we are automatically return False Value
+        # Raised due to Name Error with the imported Class
         return False
 
-    if shell == "ZMQInteractiveShell":
-        return True
-    elif shell == "TerminalInteractiveShell":
+    try:
+        # Trying to import Interactive Terminal based IPython shell
+        from IPython.core.interactiveshell import InteractiveShell
+    except NameError:
+        # If the class cannot be imported then we are automatically return False Value
+        # Raised due to Name Error with the imported Class
         return False
+
+    try:
+        # Trying to get the value of the shell via the get_ipython() method
+        shell = get_ipython()
+    except NameError:
+        # Returns False if the shell name cannot be inferred correctly
+        return False
+
+    # Checking if the shell instance is Jupyter based & if True, returning True
+    if isinstance(shell, ZMQInteractiveShell):
+        return True
+    # Checking if the shell instance is Terminal IPython based & if True, returning False
+    elif isinstance(shell, InteractiveShell):
+        return False
+    # All other shell instances are returned False
     else:
         return False

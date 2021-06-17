@@ -10,7 +10,9 @@ from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
 from tardis.io.config_reader import ConfigurationError
+from tardis.util.base import is_notebook
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
+from IPython.display import display
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -320,7 +322,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     def iterate(self, no_of_packets, no_of_virtual_packets=0, last_run=False):
         logger.info(
-            f"Starting iteration {(self.iterations_executed + 1):d}/{self.iterations:d}"
+            f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
         self.runner.run(
             self.model,
@@ -348,6 +350,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         run the simulation
         """
+
         start_time = time.time()
         while self.iterations_executed < self.iterations - 1:
             self.store_plasma_state(
@@ -378,8 +381,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.reshape_plasma_state_store(self.iterations_executed)
 
         logger.info(
-            f"Simulation finished in {self.iterations_executed:d} iterations "
-            f"and took {(time.time() - start_time):.2f} s"
+            f"\n\tSimulation finished in {self.iterations_executed:d} iterations "
+            f"\n\tSimulation took {(time.time() - start_time):.2f} s\n"
         )
         self._call_back()
 
@@ -421,23 +424,35 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         plasma_state_log["next_t_rad"] = next_t_rad
         plasma_state_log["w"] = w
         plasma_state_log["next_w"] = next_w
+        plasma_state_log.columns.name = "Shell No."
 
-        plasma_state_log.index.name = "Shell"
+        if is_notebook():
+            logger.info("\n\tPlasma stratification:")
+            logger.info(
+                display(
+                    plasma_state_log.iloc[::log_sampling].style.format("{:.3g}")
+                )
+            )
+        else:
+            output_df = ""
+            plasma_output = plasma_state_log.iloc[::log_sampling].to_string(
+                float_format=lambda x: "{:.3g}".format(x),
+                justify="center",
+            )
+            for value in plasma_output.split("\n"):
+                output_df = output_df + "\t{}\n".format(value)
+            logger.info("\n\tPlasma stratification:")
+            logger.info(f"\n{output_df}")
 
-        plasma_state_log = str(plasma_state_log[::log_sampling])
-
-        plasma_state_log = "".join(
-            ["\t%s\n" % item for item in plasma_state_log.split("\n")]
+        logger.info(
+            f"\n\tCurrent t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
         )
-
-        logger.info("Plasma stratification:\n%s\n", plasma_state_log)
-        logger.info(f"t_inner {t_inner:.3f} -- next t_inner {next_t_inner:.3f}")
 
     def log_run_results(self, emitted_luminosity, absorbed_luminosity):
         logger.info(
-            f"Luminosity emitted = {emitted_luminosity:.5e} "
-            f"Luminosity absorbed = {absorbed_luminosity:.5e} "
-            f"Luminosity requested = {self.luminosity_requested:.5e}"
+            f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
+            f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
+            f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
         )
 
     def _call_back(self):
