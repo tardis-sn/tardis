@@ -164,10 +164,17 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 f"not damped or custom "
                 f"- input is {convergence_strategy.type}"
             )
+
         if cplots_kwargs["show_plots"] is not False:
             self.cplots = ConvergencePlots(
                 iterations=self.iterations, **cplots_kwargs
             )
+
+        if "export_cplots" in cplots_kwargs:
+            self.export_cplots = cplots_kwargs["export_cplots"]
+        else:
+            self.export_cplots = False
+
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
 
@@ -414,7 +421,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         self.reshape_plasma_state_store(self.iterations_executed)
         if hasattr(self, "cplots"):
-            self.cplots.update()
+            self.cplots.update(export_cplots=self.export_cplots)
 
         logger.info(
             f"Simulation finished in {self.iterations_executed:d} iterations "
@@ -582,6 +589,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             "luminosity_plot_config",
             "colorscale",
             "show_plots",
+            "export_cplots",
         ]
         cplots_kwargs = defaultdict(dict)
         for item in set(cplots_config_options).intersection(kwargs.keys()):

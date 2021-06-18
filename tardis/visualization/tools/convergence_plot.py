@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 from IPython.display import display
 import matplotlib as mpl
 import ipywidgets as widgets
+from contextlib import suppress
 
 
 def transistion_colors(name="jet", iterations=20):
@@ -303,7 +304,7 @@ class ConvergencePlots(object):
                     -1
                 ].hovertemplate = "Inner Body Temperature: %{y:.2f} at X = %{x:,.0f}<extra></extra>"
 
-    def update(self):
+    def update(self, export_cplots = False):
         """
         Calls functions used to build and update convergence plots.
         """
@@ -312,3 +313,17 @@ class ConvergencePlots(object):
         self.update_plasma_plots()
         self.update_luminosity_plot()
         self.current_iteration += 1
+        if export_cplots:
+            with suppress(Exception):
+                display(
+                    widgets.VBox(
+                        [
+                            self.plasma_plot.show(
+                                renderer="notebook_connected"
+                            ),
+                            self.luminosity_plot.show(
+                                renderer="notebook_connected"
+                            ),
+                        ]
+                    )
+                )
