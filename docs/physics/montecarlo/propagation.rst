@@ -48,9 +48,8 @@ Note that the propagation direction has also changed and now takes the value
     \mu_f = \frac{l + r_i \mu_i}{r_f}.
     
 
-*******************
 Supernova Expansion
-*******************
+===================
 
 .. note::
     This section is a summary of part of :ref:`model` which is included here for easy reference. For a complete
@@ -67,9 +66,9 @@ TARDIS simulates radiative transfer between an inner boundary (the photosphere) 
 :math:`r_\mathrm{outer\_boundary}`. Additionally, TARDIS divides the space between the inner and outer computational
 boundaries into cells -- radial shells for which the plasma state is (spatially) constant. In the animation, 6 cells 
 are shown, being divided by the light blue lines. The boundaries of the computational domain and of these cells are 
-computed during the simulation setup (refer back to :ref:`model`). As TARDIS is a time-independent code which
-calculates the spectra at an instant in time (namely at the time :math:`t_\mathrm{explosion}`), the radii of the
-boundaries (either of the computational domain or of the cells) do not chage throughout the simulation.
+computed during the simulation setup (refer back to :ref:`model`). As TARDIS is a time-independent code, meeaning
+that it calculates the spectra at an instant in time (namely at the time :math:`t_\mathrm{explosion}`), the radii of
+the boundaries (both of the computational domain and of the cells) do not chage throughout the simulation.
 
 .. image::
     ../images/expansion_animation.gif

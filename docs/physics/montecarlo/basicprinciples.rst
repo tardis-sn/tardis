@@ -10,15 +10,14 @@ the radiative transfer problem is in most astrophysical cases only possible by m
 While there are many different numerical techniques available to tackle this, Monte Carlo techniques have become a
 successful and elegant tool particularly for radiative transfer problems in supernovae.
 
-Monte Carlo Radiative Transfer methods track a sufficiently large number of representative light packets as they
-propagate through the supernova ejecta. The initial properties of these packets are randomly (in a probabilistic
-sense) assigned in accordance with the macroscopic properties of the radiation field (see :ref:`Energy Packets
-<initialization>`) and in a similar manner the decisions about when, where and how the packets interact with the
-surrounding material are made (see :ref:`Propagation <propagation>`). Given a large enough sample, these packets
-behave as a microcosom of all of the light traveling through the ejecta -- that is, based on the behavior of these
-packets, we can draw conclusions about the propagation of light through the ejecta as a whole. This is eventually
-used to determine the actual steady-state plasma properties (see :ref:`est_and_conv`) and the emitted spectrum (see
-:ref:`spectrum`).
+Monte Carlo Radiative Transfer methods track a sufficiently large number of photons (light particles) as they
+propagate through the supernova ejecta. The initial properties of these photons are randomly (in a probabilistic
+sense) assigned in accordance with the macroscopic properties of the radiation field (see :ref:`initialization`)
+and in a similar manner the decisions about when, where and how the photons interact with the surrounding material
+are made (see :ref:`Propagation <propagation>`). Given a large enough sample, these photons behave as a microcosom
+of all of the light traveling through the ejecta -- that is, based on the behavior of these photons, we can draw
+conclusions about the propagation of light through the ejecta as a whole. This is eventually used to determine the
+actual steady-state plasma properties (see :ref:`est_and_conv`) and the emitted spectrum (see :ref:`spectrum`).
 
 
 .. _randomsampling:
@@ -26,7 +25,7 @@ used to determine the actual steady-state plasma properties (see :ref:`est_and_c
 Random Sampling Basics
 ======================
 
-During both the initialization of these packets and their propagation through the ejecta are modeled through
+During both the initialization of these photons and their propagation through the ejecta are modeled through
 probabilistic processes. This involves assigning probabilities to the occurrence of certain events or properties.
 For example, during isotropic scattering, finding a photon scattering into any given direction is equally likely.
 During the Monte Carlo simulation, assignments
@@ -107,7 +106,7 @@ This leads to the sampling rule
 Next Interaction Location
 -------------------------
 
-The probability of a packet interacting after covering an optical depth
+The probability of a photon interacting after covering an optical depth
 :math:`\tau` is given by (see :ref:`propagation`)
 
 .. math::
