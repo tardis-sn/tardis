@@ -5,6 +5,7 @@ import logging
 
 from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
+from tardis import run_tardis
 
 import numpy as np
 import pandas as pd
@@ -172,3 +173,95 @@ def test_logging_simulation(atomic_data_fname, caplog):
 
     for record in caplog.records:
         assert record.levelno >= logging.INFO
+
+
+# Testing Configuration of Logger via run_tardis() Function
+# TODO: Move to its own Testing Module (Logger)
+@pytest.mark.parametrize(
+    ["log_state", "specific"],
+    [
+        ("Info", False),
+        ("inFO", False),
+        ("info", False),
+        ("InFo", False),
+        ("INFO", False),
+        ("INFO", True),
+        ("DEBUG", False),
+        ("DEBUG", True),
+        ("WARNING", False),
+        ("WARNING", True),
+        ("ERROR", False),
+        ("ERROR", True),
+        ("CRITICAL", False),
+        ("CRITICAL", True),
+        ("NOTSET", False),
+        ("NOTSET", True),
+    ],
+)
+def test_logging_config(atomic_data_fname, caplog, log_state, specific):
+    config = Configuration.from_yaml(
+        "tardis/io/tests/data/tardis_configv1_verysimple.yml"
+    )
+    config["atom_data"] = atomic_data_fname
+
+    log_states = {
+        "NOTSET": logging.NOTSET,
+        "DEBUG": logging.DEBUG,
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL,
+    }
+    caplog.clear()
+    run_tardis(config=config, log_state=log_state, specific=specific)
+    for record in caplog.records:
+        if specific == True:
+            assert record.levelno == log_states[log_state.upper()]
+        else:
+            assert record.levelno >= log_states[log_state.upper()]
+
+
+@pytest.mark.parametrize(
+    ["log_state", "specific"],
+    [
+        ("Info", False),
+        ("inFO", False),
+        ("info", False),
+        ("InFo", False),
+        ("INFO", False),
+        ("INFO", True),
+        ("DEBUG", False),
+        ("DEBUG", True),
+        ("WARNING", False),
+        ("WARNING", True),
+        ("ERROR", False),
+        ("ERROR", True),
+        ("CRITICAL", False),
+        ("CRITICAL", True),
+        ("NOTSET", False),
+        ("NOTSET", True),
+    ],
+)
+def test_logging_config_yaml(atomic_data_fname, caplog, log_state, specific):
+    config = Configuration.from_yaml(
+        "tardis/io/tests/data/tardis_configv1_verysimple_debug.yml"
+    )
+    config["atom_data"] = atomic_data_fname
+    config["debug"]["logging_level"] = log_state
+    config["debug"]["specific_logging"] = specific
+
+    log_states = {
+        "NOTSET": logging.NOTSET,
+        "DEBUG": logging.DEBUG,
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL,
+    }
+    caplog.clear()
+    run_tardis(config=config)
+    for record in caplog.records:
+        if specific == True:
+            assert record.levelno == log_states[log_state.upper()]
+        else:
+            assert record.levelno >= log_states[log_state.upper()]
