@@ -6,6 +6,7 @@ from IPython.display import display
 import matplotlib as mpl
 import ipywidgets as widgets
 from contextlib import suppress
+from traitlets import TraitError
 
 
 def transistion_colors(name="jet", iterations=20):
@@ -130,8 +131,8 @@ class ConvergencePlots(object):
             3,
             1,
             shared_xaxes=True,
-            vertical_spacing=0.1,
-            row_heights=[0.15, 0.7, 0.15],
+            vertical_spacing=0.08,
+            row_heights=[0.2, 0.6, 0.2],
         )
 
         for luminosity, line_color in zip(self.luminosities, line_colors):
@@ -298,11 +299,13 @@ class ConvergencePlots(object):
         """
         if self.current_iteration == 1:
             self.build()
-        self.update_plasma_plots()
-        self.update_luminosity_plot()
+        if "t_inner" in self.value_data and self.iterable_data != {}:
+            self.update_plasma_plots()
+            self.update_luminosity_plot()
+
         self.current_iteration += 1
         if export_cplots:
-            with suppress(Exception):
+            with suppress(TraitError):
                 display(
                     widgets.VBox(
                         [
