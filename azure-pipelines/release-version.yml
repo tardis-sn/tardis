@@ -25,7 +25,14 @@ jobs:
     steps:
       - template: templates/default.yml
         parameters:
+          fetchRefdata: true
           useMamba: true
+
+      - bash: |
+          cd $(tardis.dir)
+          source activate tardis
+          pytest tardis --tardis-refdata=$(refdata.dir)
+        displayName: 'Run tests'
 
       - bash: |
           cd $(tardis.dir)
@@ -35,13 +42,15 @@ jobs:
 
       - task: GitHubRelease@1
         inputs:
-          gitHubConnection: 'wkerzendorf'
+          gitHubConnection: 'tardis-bot'
           repositoryName: '$(Build.Repository.Name)'
           action: 'create'
           target: '$(Build.SourceVersion)'
           tagSource: 'userSpecifiedTag'
           tag: 'v$(version)'
           title: 'TARDIS v$(version)'
-          changeLogCompareToRelease: 'lastFullRelease'
+          isPreRelease: true
+          addChangeLog: true
+          changeLogCompareToRelease: 'lastNonDraftRelease'
           changeLogType: 'commitBased'
         displayName: 'Create GitHub Release'

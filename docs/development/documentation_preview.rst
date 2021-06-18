@@ -4,13 +4,19 @@
 Documentation Preview
 *********************
 
-Most of the time it's enough to build the documentation locally and see how things are going. But sometimes 
-it's nice to share our changes and get some feedback from other collaborators. 
+To preview your changes to the documentation please:
 
-To preview your changes to the documentation first make sure you have GitHub Actions activated on your fork
-(see the Actions tab). Then, there are two ways to trigger the build:
+#. Enable GitHub Actions in the *Actions* tab of your fork.
+#. Under *Settings -> Pages* in your fork, make sure GitHub Pages is being built from the ``gh-pages`` branch and the ``/ (root)`` folder.
 
-#. If the branch you are working on contains the word ``doc`` in it, then every commit will trigger the build.
-#. Add the tag ``[build docs]`` on the commit message before pushing.
+Then, there are two ways to trigger the build:
+
+#. If the branch you are working on contains the word ``doc`` in it, then every commit pushed to that branch will trigger the build.
+#. If your commit message contains the ``[build docs]`` tag, then that commit will trigger the build.
+
+.. note::
+
+    You always can trigger a new build by pushing an empty commit: ``git commit --allow-empty -m "[build docs]"``
+
 
 Your preview will be available at ``<username>.github.io/tardis/branch/<branch name>/index.html``.

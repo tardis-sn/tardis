@@ -14,10 +14,11 @@ installed TARDIS, check out the "Using TARDIS" section (in sidebar) for instruct
 
 
 .. note::
-        
+
     - TARDIS is only compatible with Python >=3.6
     - TARDIS only supports MacOS and Linux.
     - We strongly recommend installing TARDIS within an Anaconda environment and to always use the latest GitHub development version.
+
 
 Requirements
 ============
@@ -40,25 +41,30 @@ where ``root``-rights are not available. Use these `instructions
 <http://docs.continuum.io/anaconda/install.html>`_ to install Anaconda on your
 machine. The next step is to create an environment for TARDIS that contains all
 of the necessary packages (this ensures that TARDIS requirements won't clash
-with any other Python installs on disc)::
+with any other Python installs on disc):
 
-First, download the `environment definition file <https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env3.yml>`_ from::
+First, download the `environment definition file <https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env3.yml>`_ from:
+::
 
     https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env3.yml
 
-To create the environment, change to the directory that you downloaded the environment definition file and run::
+To create the environment, change to the directory that you downloaded the environment definition file and run:
+::
 
     conda env create -f tardis_env3.yml
 
-Then to activate this environment simply do::
+Then to activate this environment simply do:
+::
 
     source activate tardis
 
-or the new method::
+or the new method:
+::
 
     conda activate tardis
 
-and after you are done with TARDIS you can deactivate::
+and after you are done with TARDIS you can deactivate:
+::
 
     conda deactivate
 
@@ -71,7 +77,8 @@ until the step to install TARDIS in the development mode
 TARDIS can be found `here <https://tardis-sn.github.io/tardis/development/index.html>`_.
 
 To install TARDIS, it is recommended to first clone our repository and
-then install TARDIS, as follows::
+then install TARDIS, as follows:
+::
 
     git clone https://github.com/tardis-sn/tardis.git
     cd tardis

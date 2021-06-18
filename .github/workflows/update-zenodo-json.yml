@@ -1,0 +1,88 @@
+# For more information on how to use this template please refer to:
+# http://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+name: zenodo
+
+on:
+  schedule:
+    - cron: '40 23 * * 0'
+
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'tardis-sn' }}  # Do not run scheduled jobs on forks
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: tardis-sn/tardis_zenodo
+          token: ${{ secrets.BOT_TOKEN }}
+
+      - name: Dump Secret Key
+        run: echo "$KEY_SECRET_JSON" > key_secret.json
+        env:
+          KEY_SECRET_JSON: ${{ secrets.ZENODO_KEY_SECRET_JSON }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+
+      - name: Install Packages
+        run: pip install pandas==1.0.5 jupyter nbconvert==5.3.1 tornado==4.2 orcid
+
+      - name: Run Notebook
+        run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
+
+      - name: Run Notebook (allow errors)
+        run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000 --allow-errors
+        if: ${{ failure() }}
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: zenodo_json
+          path: .zenodo.json
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: notebook
+          path: gather_data.html
+        if: ${{ always() }}
+
+  push:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: tardis-sn/tardis
+          token: ${{ secrets.BOT_TOKEN }}
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: zenodo_json
+
+      - name: Configure Bot User
+        run: |
+          git config --global user.email "tardis.sn.bot@gmail.com"
+          git config --global user.name "tardis-bot"
+
+      - name: Debug step
+        run: ls -a
+
+      - name: Push Changes
+        run: |
+          git add -f .zenodo.json
+
+          if git diff --staged --quiet; then
+             echo "No changes made. Exiting."
+             exit 0
+
+          else
+            git commit -m "Update zenodo.json [skip ci]"
+            git push
+
+          fi
