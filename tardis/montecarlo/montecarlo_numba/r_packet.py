@@ -53,7 +53,6 @@ rpacket_spec = [
     ("status", int64),
     ("seed", int64),
     ("index", int64),
-    ("is_close_line", boolean),
     ("last_interaction_type", int64),
     ("last_interaction_in_nu", float64),
     ("last_line_interaction_in_id", int64),
@@ -63,7 +62,7 @@ rpacket_spec = [
 
 @jitclass(rpacket_spec)
 class RPacket(object):
-    def __init__(self, r, mu, nu, energy, seed, index=0, is_close_line=False):
+    def __init__(self, r, mu, nu, energy, seed, index=0):
         self.r = r
         self.mu = mu
         self.nu = nu
@@ -72,7 +71,6 @@ class RPacket(object):
         self.status = PacketStatus.IN_PROCESS
         self.seed = seed
         self.index = index
-        self.is_close_line = is_close_line
         self.last_interaction_type = -1
         self.last_interaction_in_nu = 0.0
         self.last_line_interaction_in_id = -1
@@ -141,7 +139,6 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     cur_line_id = start_line_id  # initializing varibale for Numba
     # - do not remove
     last_line_id = len(numba_plasma.line_list_nu) - 1
-
     for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
 
         # Going through the lines
@@ -218,10 +215,6 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
             distance = distance_trace
             break
 
-        if not is_last_line:
-            test_for_close_line(
-                r_packet, cur_line_id + 1, nu_line, numba_plasma
-            )
 
         # Recalculating distance_electron using tau_event -
         # tau_trace_line_combined
@@ -322,9 +315,3 @@ def move_packet_across_shell_boundary(packet, delta_shell, no_of_shells):
     else:
         packet.current_shell_id = next_shell_id
 
-
-@njit(**njit_dict_no_parallel)
-def test_for_close_line(r_packet, line_id, nu_line, numba_plasma):
-    r_packet.is_close_line = abs(
-        numba_plasma.line_list_nu[line_id] - nu_line
-    ) < (nu_line * CLOSE_LINE_THRESHOLD)

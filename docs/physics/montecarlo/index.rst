@@ -1,6 +1,8 @@
-******************
-Monte Carlo Primer
-******************
+.. _montecarlo:
+
+*********************
+Monte Carlo Iteration
+*********************
 
 The following pages provide a very basic introduction to Monte Carlo radiative
 transfer techniques as they are used in TARDIS. All the information listed here
@@ -11,7 +13,7 @@ can also be found in various papers by L. Lucy and in the main TARDIS publicatio
 
 .. toctree::
     basicprinciples
-    discretization
+    initialization
     propagation
     lineinteraction
     estimators

@@ -13,7 +13,6 @@ from tardis.montecarlo import (
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,
     move_packet_across_shell_boundary,
-    test_for_close_line,
 )
 
 from tardis.montecarlo.montecarlo_numba.calculate_distances import (
@@ -38,7 +37,6 @@ vpacket_spec = [
     ("current_shell_id", int64),
     ("status", int64),
     ("index", int64),
-    ("is_close_line", boolean),
 ]
 
 
@@ -53,7 +51,6 @@ class VPacket(object):
         current_shell_id,
         next_line_id,
         index=0,
-        is_close_line=0,
     ):
         self.r = r
         self.mu = mu
@@ -63,7 +60,6 @@ class VPacket(object):
         self.next_line_id = next_line_id
         self.status = PacketStatus.IN_PROCESS
         self.index = index
-        self.is_close_line = is_close_line
 
 
 @njit(**njit_dict_no_parallel)
@@ -121,13 +117,6 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
             numba_model.time_explosion,
         )
 
-        if cur_line_id != (len(numba_plasma.line_list_nu) - 1):
-            test_for_close_line(
-                v_packet,
-                cur_line_id,
-                numba_plasma.line_list_nu[cur_line_id - 1],
-                numba_plasma,
-            )
 
         if distance_boundary <= distance_trace_line:
             break
@@ -276,16 +265,7 @@ def trace_vpacket_volley(
             r_packet.current_shell_id,
             r_packet.next_line_id,
             i,
-            r_packet.is_close_line,
         )
-
-        if r_packet.next_line_id <= (len(numba_plasma.line_list_nu) - 1):
-            test_for_close_line(
-                v_packet,
-                r_packet.next_line_id,
-                numba_plasma.line_list_nu[r_packet.next_line_id - 1],
-                numba_plasma,
-            )
 
         tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma)
 
