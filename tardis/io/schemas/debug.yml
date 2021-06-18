@@ -18,7 +18,7 @@ properties:
   specific_logging:
     type: boolean
     default: false
-    description: Allows for logging on the specified level logs 
+    description: Allows for logging on the specified logging levels
 
 required:
 - logging_level
