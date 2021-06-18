@@ -11,12 +11,12 @@ example, if the outer edge of the ejecta moves outward at some velocity :math:`v
 velocity of the ejecta half way between the outer edge and the center would be
 :math:`\frac{v_\mathrm{outer\_boundary}}{2}`. The animation below demonstrates this type of expansion.
 
-TARDIS simulates radiative transfer between an inner boundary (the photosphere, as discussed above) and an outer
+TARDIS simulates radiative transfer between an inner boundary (the photosphere) and an outer
 boundary (the outer edge of the supernova ejecta). The velocity of the inner boundary
 :math:`v_\mathrm{inner\_boundary}` and the velocity of the outer boundary :math:`v_\mathrm{outer\_boundary}` are
-supplied in the configuration file (see :ref:`config-file`), as well as the time after the explosion for which TARDIS
-is calculating the spectrum (:math:`t_\mathrm{explosion}`). The radii of the inner and outer boundaries are therefore
-calcuated by :math:`r_\mathrm{inner\_boundary}=v_\mathrm{inner\_boundary}*t_\mathrm{explosion}` and
+supplied in the configuration file (see :ref:`model-csvy-and-config`), as well as the time after the explosion for
+which TARDIS is calculating the spectrum (:math:`t_\mathrm{explosion}`). The radii of the inner and outer boundaries
+are therefore calcuated by :math:`r_\mathrm{inner\_boundary}=v_\mathrm{inner\_boundary}*t_\mathrm{explosion}` and
 :math:`r_\mathrm{outer\_boundary}=v_\mathrm{outer\_boundary}*t_\mathrm{explosion}`. Plasma at a distance :math:`r`
 from the center of the supernova would then be traveling outward at a speed
 :math:`v=\frac{r}{r_\mathrm{outer\_boundary}}v_\mathrm{outer\_boundary} = \frac{r}{t_\mathrm{explosion}}`. This is

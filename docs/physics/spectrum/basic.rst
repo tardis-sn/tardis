@@ -13,7 +13,7 @@ luminosity of the supernova's photosphere (see :ref:`initialization`).
 .. note:: 
     
     The only packets which are used for this calculation are the packets which escape the outer boundary of the
-    computational domain -- those reabsorbed into the photosphere are not included (see :ref:`<propagation>`).
+    computational domain -- those reabsorbed into the photosphere are not included (see :ref:`propagation`).
 
 The spectrum calculation is very straightforward. A packet of energy :math:`E_\mathrm{packet}` contributes a
 luminosity
