@@ -1,3 +1,5 @@
+.. _optional-input:
+
 ***************
 Optional Inputs
 ***************
