@@ -198,6 +198,21 @@ def test_logging_simulation(atomic_data_fname, caplog):
     ],
 )
 class Test_Simulation_Logging:
+    """
+    Class implemented for testing the logging configuration available via run_tardis()
+    Tests Functional Arguments : log_state & specific
+    Tests YAML Parameters : logging_level & specific_logging
+    """
+
+    log_states = {
+        "NOTSET": logging.NOTSET,
+        "DEBUG": logging.DEBUG,
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL,
+    }
+
     def test_logging_config(
         self, atomic_data_fname, caplog, log_state, specific
     ):
@@ -206,21 +221,13 @@ class Test_Simulation_Logging:
         )
         config["atom_data"] = atomic_data_fname
 
-        log_states = {
-            "NOTSET": logging.NOTSET,
-            "DEBUG": logging.DEBUG,
-            "INFO": logging.INFO,
-            "WARNING": logging.WARNING,
-            "ERROR": logging.ERROR,
-            "CRITICAL": logging.CRITICAL,
-        }
         caplog.clear()
         run_tardis(config=config, log_state=log_state, specific=specific)
         for record in caplog.records:
             if specific == True:
-                assert record.levelno == log_states[log_state.upper()]
+                assert record.levelno == self.log_states[log_state.upper()]
             else:
-                assert record.levelno >= log_states[log_state.upper()]
+                assert record.levelno >= self.log_states[log_state.upper()]
 
     def test_logging_config_yaml(
         self, atomic_data_fname, caplog, log_state, specific
@@ -232,21 +239,13 @@ class Test_Simulation_Logging:
         config["debug"]["logging_level"] = log_state
         config["debug"]["specific_logging"] = specific
 
-        log_states = {
-            "NOTSET": logging.NOTSET,
-            "DEBUG": logging.DEBUG,
-            "INFO": logging.INFO,
-            "WARNING": logging.WARNING,
-            "ERROR": logging.ERROR,
-            "CRITICAL": logging.CRITICAL,
-        }
         caplog.clear()
         run_tardis(config=config)
         for record in caplog.records:
             if specific == True:
-                assert record.levelno == log_states[log_state.upper()]
+                assert record.levelno == self.log_states[log_state.upper()]
             else:
-                assert record.levelno >= log_states[log_state.upper()]
+                assert record.levelno >= self.log_states[log_state.upper()]
 
     def test_logging_both_specified(
         self, atomic_data_fname, caplog, log_state, specific
@@ -258,18 +257,10 @@ class Test_Simulation_Logging:
         config["debug"]["logging_level"] = log_state
         config["debug"]["specific_logging"] = specific
 
-        log_states = {
-            "NOTSET": logging.NOTSET,
-            "DEBUG": logging.DEBUG,
-            "INFO": logging.INFO,
-            "WARNING": logging.WARNING,
-            "ERROR": logging.ERROR,
-            "CRITICAL": logging.CRITICAL,
-        }
         caplog.clear()
         run_tardis(config=config, log_state=log_state, specific=specific)
         for record in caplog.records:
             if specific == True:
-                assert record.levelno == log_states[log_state.upper()]
+                assert record.levelno == self.log_states[log_state.upper()]
             else:
-                assert record.levelno >= log_states[log_state.upper()]
+                assert record.levelno >= self.log_states[log_state.upper()]
