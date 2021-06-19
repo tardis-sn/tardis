@@ -76,18 +76,18 @@ list_of_filter = []
 
 def logging_state(log_state, tardis_config, specific):
     """
-    The configuration for the Logging status of the run() simulation object
-    Called from run_tardis()
-    Invoked via Function, argument
-    Proposed : Invoking via YAML & Flags
+    Function to set the logging configuration for the simulation output
+    Called from within run_tardis()
+    Configured via functional arguments passed through run_tardis() - log_state & specific
+    Configured via YAML parameters under `debug` section - logging_level & specific_logging
 
     Parameters
     ----------
-    log_state: boolean or string
-        False, turns the logger off for the simulation, Default
-        True, allows logging for the simulation
-        Log_level = ["NotSet", "Debug", "Info", "Warning", "Error", "Critical"]
-        Allowed values which set the particular log level for the simulation
+    log_state: str
+        Allows to input the log level for the simulation
+        Uses Python logging framework to determine the messages that will be output
+    specific: boolean
+        Allows to set specific logging levels. Logs of the `log_state` level would be output.
     """
     if "debug" in tardis_config:
         if specific or tardis_config["debug"]["specific_logging"]:
