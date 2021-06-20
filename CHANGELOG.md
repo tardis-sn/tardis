@@ -1,6 +1,21 @@
 ## Change Log
 
-### upcoming (2021/06/13 23:52 +00:00)
+### v3.0.dev4010 (2021/06/18 21:22 +00:00)
+- [#1644](https://github.com/tardis-sn/tardis/pull/1644) add mailmap check workflow (#1644) (@epassaro)
+- [#1589](https://github.com/tardis-sn/tardis/pull/1589) Adding Interactive Initialization Documentation (#1589) (@smithis7)
+- [#1627](https://github.com/tardis-sn/tardis/pull/1627) Correct misspelling in sdec_plot (#1627) (@yuyizheng1112)
+- [#1632](https://github.com/tardis-sn/tardis/pull/1632) Formatting Logging Output for Simulation (#1632) (@DhruvSondhi)
+- [#1652](https://github.com/tardis-sn/tardis/pull/1652) Changes to tardis environment (#1652) (@epassaro)
+- [#1650](https://github.com/tardis-sn/tardis/pull/1650) Added functionality to detect running environment for simulations (#1650) (@DhruvSondhi)
+- [#1615](https://github.com/tardis-sn/tardis/pull/1615) Added flag to disable notebook rendering in Sphinx (#1615) (@epassaro)
+- [#1651](https://github.com/tardis-sn/tardis/pull/1651) force orphan gh-pages branch (#1651) (@epassaro)
+- [#1643](https://github.com/tardis-sn/tardis/pull/1643) Restructure Documentation (#1643) (@smithis7)
+- [#1647](https://github.com/tardis-sn/tardis/pull/1647) Added fix for the packet logging while parallelism is enbaled.  The vpacket collections are cached at the start of the loop and data is extracted afterwards (#1647) (@Rodot-)
+- [#1645](https://github.com/tardis-sn/tardis/pull/1645) Configured codecov (#1645) (@epassaro)
+- [#1586](https://github.com/tardis-sn/tardis/pull/1586) Added GitHub pages instructions (#1586) (@epassaro)
+
+### v3.0.dev3998 (2021/06/14 14:52 +00:00)
+- [#1648](https://github.com/tardis-sn/tardis/pull/1648) Fixed compareWith parameter in release pipeline (#1648) (@epassaro)
 - [#1609](https://github.com/tardis-sn/tardis/pull/1609) update refdata procedure docs (#1609) (@epassaro)
 - [#1635](https://github.com/tardis-sn/tardis/pull/1635) Run tests before making a new release (#1635) (@epassaro)
 - [#1617](https://github.com/tardis-sn/tardis/pull/1617) Fixing docstrings & indentation related warnings for Sphinx (#1617) (@DhruvSondhi)
