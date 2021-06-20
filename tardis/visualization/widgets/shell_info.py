@@ -5,7 +5,6 @@ from tardis.util.base import (
     species_tuple_to_string,
 )
 
-# from tardis.simulation import Simulation
 from tardis.visualization.widgets.util import create_table_widget
 
 import pandas as pd
