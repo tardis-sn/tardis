@@ -117,9 +117,7 @@ class ConvergencePlots(object):
 
         # allows overriding default layout
         if hasattr(self, "plasma_plot_config"):
-            for key in self.plasma_plot_config:
-                fig["layout"][key] = self.plasma_plot_config[key]
-
+            self.override_plot_parameters(fig, self.plasma_plot_config)
         self.plasma_plot = fig
 
     def create_luminosity_plot(self):
@@ -204,10 +202,23 @@ class ConvergencePlots(object):
 
         # allows overriding default layout
         if hasattr(self, "luminosity_plot_config"):
-            for key in self.luminosity_plot_config:
-                fig["layout"][key] = self.luminosity_plot_config[key]
+            self.override_plot_parameters(fig, self.luminosity_plot_config)
 
         self.luminosity_plot = fig
+
+    def override_plot_parameters(self, fig, parameters):
+        """
+        Overrides default plot properties.
+        """
+        for key, value in parameters.items():
+            if key == "data":
+                for trace in list(fig.data):
+                    self.override_plot_parameters(trace, value)
+            else:
+                if type(value) == dict:
+                    self.override_plot_parameters(fig[key], value)
+                else:
+                    fig[key] = value
 
     def build(self, display_plot=True):
         """
@@ -271,7 +282,7 @@ class ConvergencePlots(object):
 
     def update_luminosity_plot(self):
         """
-        Updates the luminosity plots using the data collected using the fetch_data function.
+        Updates the plasma plots using the data collected using the fetch_data function.
         This function is run every iteration.
         """
         x = list(range(1, self.iterations + 1))
@@ -301,7 +312,7 @@ class ConvergencePlots(object):
                     -1
                 ].hovertemplate = "Inner Body Temperature: %{y:.2f} at X = %{x:,.0f}<extra></extra>"
 
-    def update(self, export_cplots=False):
+    def update(self, export_cplots=False, last=False):
         """
         Calls functions used to build and update convergence plots.
         """
@@ -311,6 +322,12 @@ class ConvergencePlots(object):
 
             self.update_plasma_plots()
             self.update_luminosity_plot()
+            if last:
+                if hasattr(self, "plasma_plot_config"):
+                    if "data" in self.plasma_plot_config:
+                        self.override_plot_parameters(
+                            self.plasma_plot, self.plasma_plot_config
+                        )
 
         self.current_iteration += 1
         if export_cplots:

@@ -430,7 +430,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         self.reshape_plasma_state_store(self.iterations_executed)
         if hasattr(self, "cplots"):
-            self.cplots.update(export_cplots=self.export_cplots)
+            self.cplots.update(export_cplots=self.export_cplots, last=True)
 
         logger.info(
             f"\n\tSimulation finished in {self.iterations_executed:d} iterations "
