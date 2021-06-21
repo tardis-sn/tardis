@@ -306,7 +306,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         if hasattr(self, "cplots"):
             self.cplots.fetch_data(
-                name="t_inner", value=self.model.t_inner.value, item_type="value"
+                name="t_inner",
+                value=self.model.t_inner.value,
+                item_type="value",
             )
             self.cplots.fetch_data(
                 name="t_rad", value=self.model.t_rad, item_type="iterable"
@@ -374,10 +376,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
         if hasattr(self, "cplots"):
             self.cplots.fetch_data(
-                name="Emitted", value=emitted_luminosity.value, item_type="value"
+                name="Emitted",
+                value=emitted_luminosity.value,
+                item_type="value",
             )
             self.cplots.fetch_data(
-                name="Absorbed", value=reabsorbed_luminosity.value, item_type="value"
+                name="Absorbed",
+                value=reabsorbed_luminosity.value,
+                item_type="value",
             )
             self.cplots.fetch_data(
                 name="Requested",

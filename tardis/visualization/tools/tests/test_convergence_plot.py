@@ -1,5 +1,8 @@
 import pytest
-from tardis.visualization.tools.convergence_plot import ConvergencePlots, transition_colors
+from tardis.visualization.tools.convergence_plot import (
+    ConvergencePlots,
+    transition_colors,
+)
 from collections import defaultdict
 import plotly.graph_objects as go
 
@@ -19,11 +22,17 @@ def test_transition_colors():
 def test_convergence_construction(convergence_class):
     assert convergence_class.iterable_data == {}
     assert convergence_class.value_data == defaultdict(list)
-    assert convergence_class.luminosities == ["Emitted", "Absorbed", "Requested"]
+    assert convergence_class.luminosities == [
+        "Emitted",
+        "Absorbed",
+        "Requested",
+    ]
 
 
 def test_fetch_data(convergence_class):
-    convergence_class.fetch_data(name="iterable", value=range(3), item_type="iterable")
+    convergence_class.fetch_data(
+        name="iterable", value=range(3), item_type="iterable"
+    )
     convergence_class.fetch_data(name="value", value=0, item_type="value")
     assert len(convergence_class.iterable_data["iterable"]) == 3
 
