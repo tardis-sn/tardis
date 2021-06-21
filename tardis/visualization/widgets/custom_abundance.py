@@ -3,8 +3,9 @@ import os
 import logging
 import numpy as np
 import pandas as pd
-import ipywidgets as ipw
+from astropy import units as u
 
+from tardis.util.base import quantity_linspace
 from tardis.io.config_reader import Configuration
 from tardis.io.config_validator import validate_dict
 from tardis.io.parsers.csvy import load_csvy
@@ -18,10 +19,11 @@ logger = logging.getLogger(__name__)
 
 
 class CustomAbundanceWidget:
-    def __init__(self, config, abundance):
+    def __init__(self, config, abundance, velocity):
         self.config = config  # Save the config for output.
 
         self.abundance = abundance
+        self.velocity = np.array(velocity) # unit: cm/s
         self.no_of_shell = abundance.shape[1]
 
     @classmethod
@@ -35,7 +37,16 @@ class CustomAbundanceWidget:
         )
 
         if hasattr(csvy_model_config, "velocity"):
-            no_of_shells = csvy_model_config.velocity.num
+            velocity = quantity_linspace(csvy_model_config.velocity.start,
+                                         csvy_model_config.velocity.stop,
+                                         csvy_model_config.velocity.num + 1).cgs
+        else:
+            velocity_field_index = [field['name'] for field in csvy_model_config.datatype.fields].index('velocity')
+            velocity_unit = u.Unit(csvy_model_config.datatype.fields[velocity_field_index]['unit'])
+            velocity = csvy_model_data['velocity'].values * velocity_unit
+            velocity = velocity.to('cm/s')
+
+        no_of_shells = len(velocity) - 1
 
         if hasattr(csvy_model_config, "abundance"):
             abundances_section = csvy_model_config.abundance
@@ -70,7 +81,7 @@ class CustomAbundanceWidget:
             )
             abundance /= norm_factor
 
-        return cls(csvy_model_config, abundance)
+        return cls(config=csvy_model_config, abundance=abundance, velocity=velocity)
 
     @classmethod
     def from_yml(cls, fpath):
@@ -87,7 +98,9 @@ class CustomAbundanceWidget:
                 structure = config.model.structure
 
                 if structure.type == "specific":
-                    no_of_shells = structure.velocity.num
+                    velocity = quantity_linspace(structure.velocity.start,
+                                         structure.velocity.stop,
+                                         structure.velocity.num + 1).cgs
 
                 elif structure.type == "file":
                     if os.path.isabs(structure.filename):
@@ -100,12 +113,12 @@ class CustomAbundanceWidget:
                     _, velocity, _, _, _ = read_density_file(
                         structure_fname, structure.filetype
                     )
-                    # Note: This is the number of shells *without* taking in mind the
-                    #       v boundaries.
-                    no_of_shells = len(velocity) - 1
 
                 else:
                     raise NotImplementedError
+                # Note: This is the number of shells *without* taking in mind the
+                #       v boundaries.
+                no_of_shells = len(velocity) - 1
 
                 abundance, isotope_abundance = read_uniform_abundances(
                     abundances_section, no_of_shells
@@ -138,17 +151,20 @@ class CustomAbundanceWidget:
                     "'from_yml()' only supports uniform abundance currently."
                 )
 
-        return cls(config, abundance)
+        return cls(config=config, abundance=abundance, velocity=velocity)
 
     @classmethod
     def from_hdf(cls, fpath):
         with pd.HDFStore(fpath, "r") as hdf:
             abundance = (hdf['/simulation/plasma/abundance'])
+            v_inner = hdf['/simulation/model/v_inner'].to_numpy()
+            v_outer = hdf['/simulation/model/v_outer'].to_numpy()
+            velocity = np.append(v_inner, v_outer[-1])
 
         abundance["mass_number"] = ""
         abundance.set_index("mass_number", append=True, inplace=True)
         
-        return cls(config=None, abundance=abundance)
+        return cls(config=None, abundance=abundance, velocity=velocity)
 
 
     @classmethod
@@ -162,4 +178,6 @@ class CustomAbundanceWidget:
         abundance = pd.concat([abundance, isotope_abundance])
         abundance.sort_index(inplace=True)
 
-        return cls(config=None, abundance=abundance)
+        velocity = sim.model.velocity
+
+        return cls(config=None, abundance=abundance, velocity=velocity)
