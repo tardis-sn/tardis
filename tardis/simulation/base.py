@@ -306,16 +306,16 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         if hasattr(self, "cplots"):
             self.cplots.fetch_data(
-                name="t_inner", value=self.model.t_inner.value, type="value"
+                name="t_inner", value=self.model.t_inner.value, item_type="value"
             )
             self.cplots.fetch_data(
-                name="t_rad", value=self.model.t_rad, type="iterable"
+                name="t_rad", value=self.model.t_rad, item_type="iterable"
             )
             self.cplots.fetch_data(
-                name="w", value=self.model.w, type="iterable"
+                name="w", value=self.model.w, item_type="iterable"
             )
             self.cplots.fetch_data(
-                name="velocity", value=self.model.velocity, type="iterable"
+                name="velocity", value=self.model.velocity, item_type="iterable"
             )
 
         self.log_plasma_state(
@@ -374,15 +374,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
         if hasattr(self, "cplots"):
             self.cplots.fetch_data(
-                name="Emitted", value=emitted_luminosity.value, type="value"
+                name="Emitted", value=emitted_luminosity.value, item_type="value"
             )
             self.cplots.fetch_data(
-                name="Absorbed", value=reabsorbed_luminosity.value, type="value"
+                name="Absorbed", value=reabsorbed_luminosity.value, item_type="value"
             )
             self.cplots.fetch_data(
                 name="Requested",
                 value=self.luminosity_requested.value,
-                type="value",
+                item_type="value",
             )
 
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)

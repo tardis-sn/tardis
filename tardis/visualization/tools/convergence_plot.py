@@ -9,7 +9,7 @@ from contextlib import suppress
 from traitlets import TraitError
 
 
-def transistion_colors(name="jet", iterations=20):
+def transition_colors(name="jet", iterations=20):
     """
     Function to create colorscale for convergence plots, returns a list of colors.
 
@@ -48,13 +48,15 @@ class ConvergencePlots(object):
         self.iterations = iterations
         self.current_iteration = 1
         self.luminosities = ["Emitted", "Absorbed", "Requested"]
+        self.plasma_plot = None
+        self.luminosity_plot = None
 
         if "colorscale" in kwargs:
-            self.colorscale = transistion_colors(
+            self.colorscale = transition_colors(
                 kwargs["colorscale"], iterations=self.iterations
             )
         else:
-            self.colorscale = transistion_colors(iterations=self.iterations)
+            self.colorscale = transition_colors(iterations=self.iterations)
 
         if "plasma_plot_config" in kwargs:
             if kwargs["plasma_plot_config"] != {}:
@@ -64,7 +66,7 @@ class ConvergencePlots(object):
             if kwargs["luminosity_plot_config"] != {}:
                 self.luminosity_plot_config = kwargs["luminosity_plot_config"]
 
-    def fetch_data(self, name=None, value=None, type=None):
+    def fetch_data(self, name=None, value=None, item_type=None):
         """
         This allows user to fetch data from the Simulation class.
         This data is stored and used when an iteration is completed.
@@ -74,20 +76,20 @@ class ConvergencePlots(object):
         name : string
             name of the data
         value : string or array
-            string or array of quantities,
-        type : string
+            string or array of quantities
+        item_type : string
             either iterable or value
 
         """
-        if type == "iterable":
+        if item_type == "iterable":
             self.iterable_data[name] = value
-        if type == "value":
+        if item_type == "value":
             self.value_data[name].append(value)
 
     def create_plasma_plot(self):
         """
         Creates an empty plasma plot.
-        The default layout can be overidden by passing plasma_plot_config dictionary in the run_tardis function.
+        The default layout can be overridden by passing plasma_plot_config dictionary in the run_tardis function.
         """
         fig = go.FigureWidget().set_subplots(rows=1, cols=2, shared_xaxes=True)
         fig.add_scatter(row=1, col=1)
@@ -123,13 +125,13 @@ class ConvergencePlots(object):
     def create_luminosity_plot(self):
         """
         Creates an empty luminosity plot.
-        The default layout can be overidden by passing luminosity_plot_config dictionary in the run_tardis function.
+        The default layout can be overridden by passing luminosity_plot_config dictionary in the run_tardis function.
         """
         line_colors = ["orangered", "lightseagreen", "indigo"]
 
         fig = go.FigureWidget().set_subplots(
-            3,
-            1,
+            rows=3,
+            cols=1,
             shared_xaxes=True,
             vertical_spacing=0.08,
             row_heights=[0.2, 0.6, 0.2],
@@ -207,17 +209,18 @@ class ConvergencePlots(object):
 
         self.luminosity_plot = fig
 
-    def build(self):
+    def build(self, display_plot=True):
         """
         Calls the create_plasma_plot and the create_luminosity_plot to build plots.
         """
         self.create_plasma_plot()
         self.create_luminosity_plot()
-        display(
-            widgets.VBox(
-                [self.plasma_plot, self.luminosity_plot],
+        if display_plot:
+            display(
+                widgets.VBox(
+                    [self.plasma_plot, self.luminosity_plot],
+                )
             )
-        )
 
     def update_plasma_plots(self):
         """
@@ -225,6 +228,8 @@ class ConvergencePlots(object):
         This function is run every iteration.
         """
         x = self.iterable_data["velocity"].value.tolist()
+        x = [item / 100000 for item in x]
+
         customdata = len(x) * [
             "<br>"
             + "Emitted Luminosity: "
@@ -237,9 +242,10 @@ class ConvergencePlots(object):
             + f'{self.value_data["Requested"][-1]:.2g}'
         ]
 
+        # this adds radiation temperature vs shell velocity plot
         self.plasma_plot.add_scatter(
-            x=[item / 100000 for item in x],
-            y=self.iterable_data["t_rad"].value.tolist(),
+            x=x,
+            y=self.iterable_data["t_rad"],
             line_color=self.colorscale[self.current_iteration - 1],
             row=1,
             col=1,
@@ -249,9 +255,11 @@ class ConvergencePlots(object):
             customdata=customdata,
             hovertemplate="<b>Y</b>: %{y:.2f} at <b>X</b> = %{x:,.0f}%{customdata}",
         )
+
+        # this adds dilution factor vs shell velocity plot
         self.plasma_plot.add_scatter(
-            x=[item / 100000 for item in x],
-            y=self.iterable_data["w"].tolist(),  # TODO: is tolist() required?
+            x=x,
+            y=self.iterable_data["w"],
             line_color=self.colorscale[self.current_iteration - 1],
             row=1,
             col=2,
@@ -263,7 +271,7 @@ class ConvergencePlots(object):
 
     def update_luminosity_plot(self):
         """
-        Updates the plasma plots using the data collected using the fetch_data function.
+        Updates the luminosity plots using the data collected using the fetch_data function.
         This function is run every iteration.
         """
         x = list(range(1, self.iterations + 1))
@@ -297,9 +305,10 @@ class ConvergencePlots(object):
         """
         Calls functions used to build and update convergence plots.
         """
-        if self.current_iteration == 1:
-            self.build()
-        if "t_inner" in self.value_data and self.iterable_data != {}:
+        if self.iterable_data != {}:
+            if self.current_iteration == 1:
+                self.build()
+
             self.update_plasma_plots()
             self.update_luminosity_plot()
 
