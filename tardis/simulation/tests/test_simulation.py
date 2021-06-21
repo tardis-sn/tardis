@@ -181,20 +181,14 @@ def test_logging_simulation(atomic_data_fname, caplog):
     ["log_state", "specific"],
     [
         ("Info", False),
-        ("info", False),
-        ("InFo", False),
         ("INFO", False),
         ("INFO", True),
         ("DEBUG", False),
         ("DEBUG", True),
-        ("WARNING", False),
         ("WARNING", True),
-        ("ERROR", False),
         ("ERROR", True),
-        ("CRITICAL", False),
         ("CRITICAL", True),
         ("NOTSET", False),
-        ("NOTSET", True),
     ],
 )
 class Test_Simulation_Logging:
@@ -217,7 +211,7 @@ class Test_Simulation_Logging:
         self, atomic_data_fname, caplog, log_state, specific
     ):
         config = Configuration.from_yaml(
-            "tardis/io/tests/data/tardis_configv1_verysimple.yml"
+            "tardis/io/tests/data/tardis_configv1_verysimple_logger.yml"
         )
         config["atom_data"] = atomic_data_fname
 
@@ -233,7 +227,7 @@ class Test_Simulation_Logging:
         self, atomic_data_fname, caplog, log_state, specific
     ):
         config = Configuration.from_yaml(
-            "tardis/io/tests/data/tardis_configv1_verysimple_debug.yml"
+            "tardis/io/tests/data/tardis_configv1_verysimple_logger.yml"
         )
         config["atom_data"] = atomic_data_fname
         config["debug"]["logging_level"] = log_state
@@ -251,7 +245,7 @@ class Test_Simulation_Logging:
         self, atomic_data_fname, caplog, log_state, specific
     ):
         config = Configuration.from_yaml(
-            "tardis/io/tests/data/tardis_configv1_verysimple_debug.yml"
+            "tardis/io/tests/data/tardis_configv1_verysimple_logger.yml"
         )
         config["atom_data"] = atomic_data_fname
         config["debug"]["logging_level"] = log_state

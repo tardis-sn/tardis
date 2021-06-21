@@ -104,9 +104,9 @@ def logging_state(log_state, tardis_config, specific):
             elif log_state:
                 logging_level = log_state
                 if tardis_config["debug"]["logging_level"] and log_state:
-                    print("Log_state & logging_level both specified")
+                    print("log_state & logging_level both specified")
                     print(
-                        "Log_state will be used for Log Level Determination\n"
+                        f"log_state = {log_state} will be used for Log Level Determination\n"
                     )
             else:
                 logging_level = tardis_config["debug"]["logging_level"]
