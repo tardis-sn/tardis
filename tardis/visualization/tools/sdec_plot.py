@@ -415,12 +415,20 @@ class SDECPlotter:
         -------
         SDECPlotter
         """
-        return cls(
-            dict(
-                virtual=SDECData.from_simulation(sim, "virtual"),
-                real=SDECData.from_simulation(sim, "real"),
+        if sim.runner.virt_logging:
+            return cls(
+                dict(
+                    virtual=SDECData.from_simulation(sim, "virtual"),
+                    real=SDECData.from_simulation(sim, "real"),
+                )
             )
-        )
+        else:
+            return cls(
+                dict(
+                    virtual=None,
+                    real=SDECData.from_simulation(sim, "real"),
+                )
+            )
 
     @classmethod
     def from_hdf(cls, hdf_fpath):
@@ -566,6 +574,15 @@ class SDECPlotter:
             raise ValueError(
                 "Invalid value passed to packets_mode. Only "
                 "allowed values are 'virtual' or 'real'"
+            )
+
+        if packets_mode == "virtual" and self.data[packets_mode] is None:
+            raise ValueError(
+                "SDECPlotter doesn't have any data for virtual packets population and SDEC "
+                "plot for the same was requested. Either set virtual_packet_logging: True "
+                "in your configuration file to generate SDEC plot with virtual packets, or "
+                "pass packets_mode='real' in your function call to generate SDEC plot with "
+                "real packets."
             )
 
         # Store the plottable range of each spectrum property which is
