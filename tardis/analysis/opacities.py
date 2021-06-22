@@ -1,26 +1,5 @@
-# -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.
-#
-#  File Name : opacities.py
-#
-#  Purpose : diagnostics tools for tardis runs; determine mean opacities and
-#  optical depths
-#
-#  Creation Date : 28-01-2016
-#
-#  Last Modified : Thur 20 May 2021 20:48:52 BST
-#
-#  Created By : U.M.Noebauer
-#
-# _._._._._._._._._._._._._._._._._._._._._.
 """This module provides an opacity calculator class with which the opacities
-and optical depth information may be extracted from Tardis runs.
-
-Currently, the diagnostics tools require the full model information (i.e. the
-full Radial1DModel object) which is typically only available when running
-Tardis within an interactive python shell or within a script. Also, the tools
-were written with the model structure of Tardis v1.5dev in mind (the upstream
-repository was at fe26323be95b44a948c98e5b026a714628208b84). No backwards
-compatibility is guaranteed!  """
+and optical depth information may be extracted from Tardis runs."""
 import logging
 import numpy as np
 import astropy.units as units
