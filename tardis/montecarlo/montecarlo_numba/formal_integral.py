@@ -109,7 +109,7 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
                     nu_ends, 
                     side='right'
             )
-            # loop over all interactions
+            # loop over all interactions 
             for i in range(size_z - 1):
                 escat_op = electron_density[int(shell_id[i])] * SIGMA_THOMSON
                 nu_end = nu_ends[i]
@@ -236,7 +236,7 @@ class FormalIntegrator(object):
 
         The function returns False if the configuration conflicts with the
         required settings. If raises evaluates to True, then a
-        IntegrationError is raised instead
+        IntegrationError is raised instead 
         """
 
         def raise_or_return(message):

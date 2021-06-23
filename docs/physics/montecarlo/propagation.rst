@@ -6,42 +6,13 @@ Packet Propagation
 
 The bulk of a Monte Carlo Radiative Transfer calculation is spent on
 determining the propagation history of the different packets. After a packet is
-initialised, it is launched and may then perform interactions with the
+initialised (see :ref:`initialization`), it is launched and may then perform interactions with the
 surrounding material. This occurs again in a probabilistic manner. The packet
 propagation is followed until it escapes through the outer boundary of the
 computational domain, at which point the packet contributes to the synthetic
 spectrum, the main product of a TARDIS calculation. The different spectral
 features are simply a combined product of the changes in the packet properties
 induced in the radiation-matter interactions.
-
-Initialization
-==============
-
-During each TARDIS Monte Carlo simulation cycle, a large number :math:`N` of
-Monte Carlo packets are initialised at the lower boundary of the computational domain
-(i.e. the photosphere). Since the inner boundary is currently treated as a
-black-body in TARDIS, :math:`N` packets with energies
-
-.. math::
-    \varepsilon = \frac{4 \pi R_{\mathrm{phot}}^2 \sigma_{\mathrm{R}} T_{\mathrm{phot}}^4 \Delta t}{N}
-
-are initialised (the black body temperature :math:`T_{\mathrm{phot}}`, the
-photospheric radius :math:`R_{\mathrm{phot}}`, the Stefan-Boltzmann constant
-:math:`\sigma_{\mathrm{R}}` and the physical duration of the simulation
-:math:`\Delta t` appear here). To commence the packet propagation, each packet
-is assigned an initial propagation direction (note that propagation direction is defined as :math:`\mu = \cos
-\theta` with :math:`\theta` being the angle the photon path makes with the
-radial direction)
-
-.. math::
-    \mu = \sqrt{z}
-
-and an initial frequency :math:`\nu` in random number experiments, using a
-random number generator which provides uniformly distributed numbers :math:`z`
-on the interval :math:`[0,1]`. The frequency assignment is more involved than
-selecting an initial propagation direction, since the Planck function has to be
-sampled. TARDIS uses the technique described in :cite:`Carter1975` and
-summarized in :cite:`Bjorkman2001` for this purpose.
 
 .. _expansion:
 

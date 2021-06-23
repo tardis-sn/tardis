@@ -2,7 +2,7 @@ title: 'definitions for the values in Model.yml'
 definitions:
   density:
     branch85_w7:
-      $$target: '#/definitions/density/branch85_w7'
+      $$target: 'model_definitions.yml#/definitions/density/branch85_w7'
       title: 'Branch85_w7 Density'
       type: object
       additionalProperties: false
@@ -23,7 +23,7 @@ definitions:
           default: 1 km/s
           description: This needs no change - DO NOT TOUCH
     exponential:
-      $$target: '#/definitions/density/exponential'
+      $$target: 'model_definitions.yml#/definitions/density/exponential'
       title: 'Exponential Density'
       type: object
       additionalProperties: false
@@ -44,7 +44,7 @@ definitions:
       - rho_0
       - v_0
     power_law:
-      $$target: '#/definitions/density/power_law'
+      $$target: 'model_definitions.yml#/definitions/density/power_law'
       title: 'Power_law Density'
       type: object
       additionalProperties: false
@@ -69,7 +69,7 @@ definitions:
       - v_0
       - exponent
     uniform:
-      $$target: '#/definitions/density/uniform'
+      $$target: 'model_definitions.yml#/definitions/density/uniform'
       title: 'Uniform Density'
       type: object
       additionalProperties: false
@@ -138,10 +138,10 @@ definitions:
           description: description of the boundaries of the shells
         density:
           oneOf:
-          - $ref: '#/definitions/density/branch85_w7'
-          - $ref: '#/definitions/density/exponential'
-          - $ref: '#/definitions/density/power_law'
-          - $ref: '#/definitions/density/uniform'
+          - $ref: 'model_definitions.yml#/definitions/density/branch85_w7'
+          - $ref: 'model_definitions.yml#/definitions/density/exponential'
+          - $ref: 'model_definitions.yml#/definitions/density/power_law'
+          - $ref: 'model_definitions.yml#/definitions/density/uniform'
       required:
       - velocity
       - density

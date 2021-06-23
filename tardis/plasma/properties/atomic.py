@@ -201,11 +201,12 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
 class TwoPhotonData(ProcessingPlasmaProperty):
     outputs = ("two_photon_data", "two_photon_idx")
     """
-    Attributes:
+    Attributes
+    ----------
     two_photon_data : pandas.DataFrame, dtype float
-        A DataFrame containing the *two photon decay data* with:
-            index: atomic_number, ion_number, level_number_lower, level_number_upper
-            columns: A_ul[1/s], nu0[Hz], alpha, beta, gamma
+    A DataFrame containing the *two photon decay data* with:
+        index: atomic_number, ion_number, level_number_lower, level_number_upper
+        columns: A_ul[1/s], nu0[Hz], alpha, beta, gamma
         alpha, beta, gamma are fit coefficients for the frequency dependent
         transition probability A(y) of the two photon decay. See Eq. 2 in
         Nussbaumer & Schmutz (1984).
@@ -281,9 +282,10 @@ class LinesUpperLevelIndex(HiddenPlasmaProperty):
 
 class LevelIdxs2LineIdx(HiddenPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     level_idxs2line_idx : pandas.Series, dtype int
-       Maps a source_level_idx destination_level_idx pair to a line_idx.
+        Maps a source_level_idx destination_level_idx pair to a line_idx.
     """
 
     outputs = ("level_idxs2line_idx",)

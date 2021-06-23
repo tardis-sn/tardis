@@ -402,16 +402,3 @@ def test_move_packet_across_shell_boundary_increment(
     assert packet.current_shell_id == current_shell_id + delta_shell
 
 
-@pytest.mark.parametrize(
-    ["line_id", "nu_line", "expected"],
-    [(5495, 1629252823683562.5, True), (3000, 0, False)],
-)
-def test_test_for_close_line(
-    packet, line_id, nu_line, verysimple_numba_plasma, expected
-):
-
-    r_packet.test_for_close_line(
-        packet, line_id, nu_line, verysimple_numba_plasma
-    )
-
-    assert packet.is_close_line == expected

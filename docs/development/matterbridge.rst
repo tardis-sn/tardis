@@ -9,7 +9,9 @@ Overview
 We use Matterbridge to connect channels across different messaging platforms
 such as *Slack*, *Mattermost* and *Gitter*. Matterbridge provides binaries 
 for  many operating systems. The ``matterbridge`` binary is intended to be used
+
 in combination with a :term:`TOML` configuration file::
+
   $ ./matterbridge -conf config-tardis-matterbridge.toml
 
 The TOML file includes all the parameters required to connect as many
@@ -91,7 +93,7 @@ After updating the TOML file, follow these steps:
 ========
 Cron job
 ========
- 
+
 To edit the cron job, *ssh* to `OpenSupernova.org`_ and run ``sudo crontab -e``.
 
 

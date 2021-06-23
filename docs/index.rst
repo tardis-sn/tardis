@@ -54,22 +54,24 @@ Mission Statement
 
 .. toctree::
     :maxdepth: 3
-    :caption: Using TARDIS
+    :caption: Input/Output
     :hidden:
-
-    using/components/index
-    using/visualization/index
-    using/interaction/index
-    using/parallelisation/index
+    
+    io/configuration/index
+    io/optional/index
+    io/visualization/index
+    io/output/index
 
 
 .. toctree::
     :maxdepth: 2
-    :caption: The Physics of TARDIS
+    :caption: Physics Walkthrough
     :hidden:
     
+    physics/setup/index
     physics/montecarlo/index
-    physics/plasma/index
+    physics/est_and_conv/index
+    physics/spectrum/index
 
 
 .. toctree::
@@ -115,6 +117,14 @@ Mission Statement
     :hidden:
 
     zreferences
+
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Outdated
+    :hidden:
+
+    outdated/index
 
 ----
 News

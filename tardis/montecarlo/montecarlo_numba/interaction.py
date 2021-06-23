@@ -13,7 +13,6 @@ from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     angle_aberration_CMF_to_LF,
 )
 from tardis.montecarlo.montecarlo_numba.r_packet import (
-    test_for_close_line,
     InteractionType,
 )
 from tardis.montecarlo.montecarlo_numba.utils import get_random_mu
@@ -112,10 +111,6 @@ def line_emission(r_packet, emission_line_id, time_explosion, numba_plasma):
     r_packet.next_line_id = emission_line_id + 1
     nu_line = numba_plasma.line_list_nu[emission_line_id]
 
-    if emission_line_id != (len(numba_plasma.line_list_nu) - 1):
-        test_for_close_line(
-            r_packet, emission_line_id + 1, nu_line, numba_plasma
-        )
 
     if montecarlo_configuration.full_relativity:
         r_packet.mu = angle_aberration_CMF_to_LF(

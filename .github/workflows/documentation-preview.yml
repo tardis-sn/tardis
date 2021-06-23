@@ -2,22 +2,27 @@
 # - http://tardis-sn.github.io/tardis/development/continuous_integration.html
 # - https://tardis-sn.github.io/tardis/development/documentation_preview.html
 
-name: documentation-preview
+name: docs-preview
 
 on:
   push:
 
 jobs:
-  documentation_preview:
+  build:
   
     # This workflow will be triggered:
     #
     # 1. Only on forks, never on main repository.
     # 2. If the branch name contains the word `doc`.
-    # 3. If the commit message includes the tag `[build docs]`.
+    # 3. If the commit message includes the a valid tag.
 
-    if: github.repository_owner != 'tardis-sn' && (contains(github.ref, 'doc') || contains(github.event.head_commit.message, '[build docs]'))
-  
+    if: github.repository_owner != 'tardis-sn' && (
+        contains(github.ref, 'doc') ||
+        contains(github.event.head_commit.message, '[build docs]') ||
+        contains(github.event.head_commit.message, '[build_docs]') ||
+        contains(github.event.head_commit.message, '[build doc]') ||
+        contains(github.event.head_commit.message, '[build_doc]'))
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
