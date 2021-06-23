@@ -33,6 +33,15 @@ console_handler.setFormatter(console_formatter)
 logger.addHandler(console_handler)
 logging.getLogger("py.warnings").addHandler(console_handler)
 
+LOGGING_LEVELS = {
+    "NOTSET": logging.NOTSET,
+    "DEBUG": logging.DEBUG,
+    "INFO": logging.INFO,
+    "WARNING": logging.WARNING,
+    "ERROR": logging.ERROR,
+    "CRITICAL": logging.CRITICAL,
+}
+
 
 class FilterLog(object):
     """
@@ -117,24 +126,9 @@ def logging_state(log_state, tardis_config, specific):
     loggers = [
         logging.getLogger(name) for name in logging.root.manager.loggerDict
     ]
-    if logging_level.upper() in [
-        "NOTSET",
-        "DEBUG",
-        "INFO",
-        "WARNING",
-        "ERROR",
-        "CRITICAL",
-    ]:
-        logging_levels = {
-            "NOTSET": logging.NOTSET,
-            "DEBUG": logging.DEBUG,
-            "INFO": logging.INFO,
-            "WARNING": logging.WARNING,
-            "ERROR": logging.ERROR,
-            "CRITICAL": logging.CRITICAL,
-        }
+    if logging_level.upper() in LOGGING_LEVELS.keys():
         for logger in loggers:
-            logger.setLevel(logging_levels[logging_level.upper()])
+            logger.setLevel(LOGGING_LEVELS[logging_level.upper()])
 
     if not list_of_filter == []:
         for filter in list_of_filter:
@@ -142,7 +136,7 @@ def logging_state(log_state, tardis_config, specific):
                 logger.removeFilter(filter)
 
     if specific:
-        filter_log = FilterLog(logging_levels[logging_level.upper()])
+        filter_log = FilterLog(LOGGING_LEVELS[logging_level.upper()])
         list_of_filter.append(filter_log)
         for logger in loggers:
             logger.addFilter(filter_log)

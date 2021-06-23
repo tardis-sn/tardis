@@ -5,7 +5,7 @@ import logging
 
 from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
-from tardis import run_tardis
+from tardis import run_tardis, LOGGING_LEVELS
 
 import numpy as np
 import pandas as pd
@@ -191,21 +191,12 @@ def test_logging_simulation(atomic_data_fname, caplog):
         ("NOTSET", False),
     ],
 )
-class Test_Simulation_Logging:
+class TestSimulationLogging:
     """
     Class implemented for testing the logging configuration available via run_tardis()
     Tests Functional Arguments : log_state & specific
     Tests YAML Parameters : logging_level & specific_logging
     """
-
-    log_states = {
-        "NOTSET": logging.NOTSET,
-        "DEBUG": logging.DEBUG,
-        "INFO": logging.INFO,
-        "WARNING": logging.WARNING,
-        "ERROR": logging.ERROR,
-        "CRITICAL": logging.CRITICAL,
-    }
 
     def test_logging_config(
         self, atomic_data_fname, caplog, log_state, specific
@@ -219,9 +210,9 @@ class Test_Simulation_Logging:
         run_tardis(config=config, log_state=log_state, specific=specific)
         for record in caplog.records:
             if specific == True:
-                assert record.levelno == self.log_states[log_state.upper()]
+                assert record.levelno == LOGGING_LEVELS[log_state.upper()]
             else:
-                assert record.levelno >= self.log_states[log_state.upper()]
+                assert record.levelno >= LOGGING_LEVELS[log_state.upper()]
 
     def test_logging_config_yaml(
         self, atomic_data_fname, caplog, log_state, specific
@@ -237,9 +228,9 @@ class Test_Simulation_Logging:
         run_tardis(config=config)
         for record in caplog.records:
             if specific == True:
-                assert record.levelno == self.log_states[log_state.upper()]
+                assert record.levelno == LOGGING_LEVELS[log_state.upper()]
             else:
-                assert record.levelno >= self.log_states[log_state.upper()]
+                assert record.levelno >= LOGGING_LEVELS[log_state.upper()]
 
     def test_logging_both_specified(
         self, atomic_data_fname, caplog, log_state, specific
@@ -255,6 +246,6 @@ class Test_Simulation_Logging:
         run_tardis(config=config, log_state=log_state, specific=specific)
         for record in caplog.records:
             if specific == True:
-                assert record.levelno == self.log_states[log_state.upper()]
+                assert record.levelno == LOGGING_LEVELS[log_state.upper()]
             else:
-                assert record.levelno >= self.log_states[log_state.upper()]
+                assert record.levelno >= LOGGING_LEVELS[log_state.upper()]
