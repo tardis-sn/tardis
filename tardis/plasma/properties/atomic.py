@@ -464,6 +464,10 @@ class LevelIdxs2TransitionIdx(HiddenPlasmaProperty):
             columns=({'continuum_idx': 'lines_idx'})
         )
 
+        names = level_idxs2continuum_idx.index.names
+        level_idxs2continuum_idx = level_idxs2continuum_idx.swaplevel()
+        level_idxs2continuum_idx.index.names = names
+
         level_idxs2transition_idx = pd.concat(
             [level_idxs2continuum_idx, level_idxs2line_idx]
         )
