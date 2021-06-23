@@ -107,12 +107,18 @@ class ConvergencePlots(object):
             yaxis={
                 "tickformat": "g",
                 "title": r"$T_{rad}\ [K]$",
+                "tickmode": "auto",
+                "nticks": 15,
             },
             yaxis2={
                 "tickformat": "g",
                 "title": r"$W$",
+                "tickmode": "auto",
+                "nticks": 15,
             },
-            margin=dict(l=10, r=135, b=80, t=25, pad=0),
+            height=450,
+            legend_title_text="Iterations",
+            margin=dict(l=10, r=135, b=25, t=25, pad=0),
         )
 
         # allows overriding default layout
@@ -132,7 +138,7 @@ class ConvergencePlots(object):
             cols=1,
             shared_xaxes=True,
             vertical_spacing=0.08,
-            row_heights=[0.2, 0.6, 0.2],
+            row_heights=[0.25, 0.5, 0.25],
         )
 
         for luminosity, line_color in zip(self.luminosities, line_colors):
@@ -170,34 +176,42 @@ class ConvergencePlots(object):
                 dtick=2,
             ),
             xaxis3=dict(
-                matches="x",
+                matches="x2",
                 title=r"$\mbox{Iteration Number}$",
                 dtick=2,
             ),
             yaxis=dict(
-                title=r"$\mbox{T}_{inner}$",
+                title=r"$\mbox{T}_{inner}\ [K]$",
                 automargin=True,
                 side="top",
                 tickformat="g",
                 exponentformat="e",
+                tickmode="auto",
+                nticks=4,
             ),
             yaxis2=dict(
                 exponentformat="e",
                 title=r"$\mbox{Luminosity}~(erg~sec^{-1})$",
                 title_font_size=13,
                 automargin=True,
+                tickmode="auto",
+                nticks=7,
             ),
             yaxis3=dict(
                 exponentformat="e",
                 title=r"$~~\mbox{Residual}\\\mbox{Luminosity(%)}$",
                 title_font_size=12,
                 automargin=True,
+                tickformat="%",
+                tickmode="auto",
+                nticks=4,
             ),
             legend_tracegroupgap=0,
-            height=600,
+            height=630,
             hoverlabel_align="right",
             legend_title_text="Luminosity",
             hoverlabel_font_color="white",
+            margin=dict(b=25, t=25, pad=0),
         )
 
         # allows overriding default layout
