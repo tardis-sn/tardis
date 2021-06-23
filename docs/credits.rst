@@ -17,12 +17,11 @@ following paragraph to the Acknowledgement section:
 
 .. parsed-literal::
 
-    This research made use of \textsc{Tardis}, a community-developed software package for spectral
-    synthesis in supernovae \citep{2014MNRAS.440..387K, |ZENODO|}. The
-    development of \textsc{Tardis} received support from the Google Summer of Code initiative and
-    from ESA's Summer of Code in Space program. \textsc{Tardis} makes extensive use of Astropy
-    and PyNE.
-
+    This research made use of \\textsc{tardis}, a community-developed software package for spectral
+    synthesis in supernovae \\citep{2014MNRAS.440..387K, |ZENODO|}. The
+    development of \\textsc{tardis} received support from GitHub, the Google Summer of Code
+    initiative, and from ESA's Summer of Code in Space program. \\textsc{tardis} is a fiscally
+    sponsored project of NumFOCUS. \\textsc{tardis} makes extensive use of Astropy and Pyne.
 If you use any of the full relativity treatments or use TARDIS for modelling
 Type II supernovae, also add `Spectral modeling of type II supernovae. I. Dilution factors <https://ui.adsabs.harvard.edu/abs/2019A%26A...621A..29V>`_ 
 to the Acknowledgement.
