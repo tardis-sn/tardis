@@ -39,6 +39,7 @@ __all__ = [
     "YgData",
     "YgInterpolator",
     "LevelIdxs2LineIdx",
+    "LevelIdxs2TransitionIdx",
     "TwoPhotonData",
     "ContinuumInteractionHandler",
 ]
@@ -134,6 +135,8 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
         Maps a level MultiIndex (atomic_number, ion_number, level_number) to
         the continuum_idx of the corresponding bound-free continuum (which are
         sorted by decreasing frequency).
+    level_idxs2continuum_idx : pandas.DataFrame, dtype int
+        Maps a source_level_idx destination_level_idx pair to a continuum_idx.
     """
 
     outputs = (
@@ -144,6 +147,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
         "energy_i",
         "photo_ion_idx",
         "level2continuum_idx",
+        "level_idxs2continuum_idx",
     )
     latex_name = (
         r"\xi_{\textrm{i}}(\nu)",
@@ -151,6 +155,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
         "",
         r"\nu_i",
         r"\epsilon_i",
+        "",
         "",
     )
 
@@ -189,6 +194,12 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
             nu_i.sort_values(ascending=False).index,
             name="continuum_idx",
         )
+
+        level_idxs2continuum_idx = photo_ion_idx.copy()
+        level_idxs2continuum_idx['continuum_idx'] = level2continuum_edge_idx
+        level_idxs2continuum_idx = level_idxs2continuum_idx.set_index(
+            ['source_level_idx', 'destination_level_idx']
+        )
         return (
             photoionization_data,
             block_references,
@@ -197,6 +208,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
             energy_i,
             photo_ion_idx,
             level2continuum_edge_idx,
+            level_idxs2continuum_idx
         )
 
 
@@ -429,6 +441,33 @@ class LevelIdxs2LineIdx(HiddenPlasmaProperty):
             np.arange(len(index)), index=index, name="lines_idx"
         )
         return level_idxs2line_idx
+
+
+class LevelIdxs2TransitionIdx(HiddenPlasmaProperty):
+    """
+    Attributes
+    ----------
+    level_idxs2transition_idx : pandas.DataFrame, dtype int
+       Maps a source_level_idx destination_level_idx pair to a transition_idx
+       and transition type.
+    """
+
+    outputs = ("level_idxs2transition_idx",)
+
+    def calculate(self, level_idxs2line_idx, level_idxs2continuum_idx):
+        level_idxs2line_idx = level_idxs2line_idx.to_frame()
+        level_idxs2line_idx.insert(1, 'transition_type', -1)
+
+        level_idxs2continuum_idx = level_idxs2continuum_idx.copy()
+        level_idxs2continuum_idx.insert(1, 'transition_type', -2)
+        level_idxs2continuum_idx = level_idxs2continuum_idx.rename(
+            columns=({'continuum_idx': 'lines_idx'})
+        )
+
+        level_idxs2transition_idx = pd.concat(
+            [level_idxs2continuum_idx, level_idxs2line_idx]
+        )
+        return level_idxs2transition_idx
 
 
 class AtomicMass(ProcessingPlasmaProperty):

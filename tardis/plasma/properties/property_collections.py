@@ -124,6 +124,7 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         PhotoIonBoltzmannFactor,
         FreeBoundEmissionCDF,
         LevelIdxs2LineIdx,
+        LevelIdxs2TransitionIdx,
         CollIonRateCoeffSeaton,
         CollRecombRateCoeff,
         RawCollIonTransProbs,
