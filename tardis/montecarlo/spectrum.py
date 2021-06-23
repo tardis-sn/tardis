@@ -112,6 +112,14 @@ class TARDISSpectrum(HDFWriterMixin):
             ax.set_ylabel(
                 f"Flux [{self.luminosity_density_lambda.unit._repr_latex_():s}]"
             )
+        elif mode == "frequency":
+            ax.plot(self.frequency.value, self.luminosity_density_nu.value, **kwargs)
+            ax.set_xlabel(
+                f"Frequency [{self.frequency.unit._repr_latex_()}]"
+            )
+            ax.set_ylabel(
+                f"Flux [{self.luminosity_density_nu.unit._repr_latex_():s}]"
+            )
         else:
             warnings.warn(
                 f"Did not find plotting mode {mode}, doing nothing."
