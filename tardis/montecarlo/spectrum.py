@@ -100,6 +100,15 @@ class TARDISSpectrum(HDFWriterMixin):
         return f_nu * self.frequency / self.wavelength
 
     def plot(self, ax=None, mode="wavelength", **kwargs):
+        """[summary]
+
+        Parameters
+        ----------
+        ax : [type], optional
+            [description], by default None
+        mode : str, optional
+            [description], by default "wavelength"
+        """        
         if ax is None:
             from matplotlib.pyplot import gca
 
@@ -110,7 +119,7 @@ class TARDISSpectrum(HDFWriterMixin):
                 f"Wavelength [{self.wavelength.unit._repr_latex_()}]"
             )
             ax.set_ylabel(
-                f"Flux [{self.luminosity_density_lambda.unit._repr_latex_():s}]"
+                f"$L_\\lambda$ [{self.luminosity_density_lambda.unit._repr_latex_():s}]"
             )
         elif mode == "frequency":
             ax.plot(self.frequency.value, self.luminosity_density_nu.value, **kwargs)
@@ -118,7 +127,7 @@ class TARDISSpectrum(HDFWriterMixin):
                 f"Frequency [{self.frequency.unit._repr_latex_()}]"
             )
             ax.set_ylabel(
-                f"Flux [{self.luminosity_density_nu.unit._repr_latex_():s}]"
+                f"$L_\\nu$ [{self.luminosity_density_nu.unit._repr_latex_():s}]"
             )
         else:
             warnings.warn(
