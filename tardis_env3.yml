@@ -60,7 +60,7 @@ dependencies:
   - pytest
   - pytest-cov
   - pytest-html
-  - python-dokuwiki
+  #- python-dokuwiki
   - coverage
 
   # Code quality
