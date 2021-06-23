@@ -96,5 +96,5 @@ shows the situation in the resonant scatter mode, the middle one for the
 downbranching scheme and the right one the macro atom results.
 
 .. image::
-    images/scatter_downbranch_ma.png
+    ../images/scatter_downbranch_ma.png
     :width: 700

@@ -45,6 +45,6 @@ the quantities calculated here.
 Example Calculations
 ^^^^^^^^^^^^^^^^^^^^
 
-.. .. plot:: physics/plasma/plasma_plots/lte_ionization_balance.py
+.. .. plot:: physics/pyplot/lte_ionization_balance.py
     :include-source:
 
