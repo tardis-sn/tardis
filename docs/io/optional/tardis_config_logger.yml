@@ -57,5 +57,5 @@ spectrum:
   num: 10000
 
 debug:
-  logging_level: ""
-  specific_logging: False
+  log_state: ""
+  specific: False

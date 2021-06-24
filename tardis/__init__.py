@@ -99,26 +99,28 @@ def logging_state(log_state, tardis_config, specific):
         Allows to set specific logging levels. Logs of the `log_state` level would be output.
     """
     if "debug" in tardis_config:
-        if specific or tardis_config["debug"]["specific_logging"]:
+        if specific or tardis_config["debug"]["specific"]:
             specific = True
         else:
             specific = False
 
-        if tardis_config["debug"]["logging_level"] or log_state:
+        if tardis_config["debug"]["log_state"] or log_state:
             if (
                 log_state.upper() == "CRITICAL"
-                and tardis_config["debug"]["logging_level"]
+                and tardis_config["debug"]["log_state"]
             ):
-                logging_level = tardis_config["debug"]["logging_level"]
+                logging_level = tardis_config["debug"]["log_state"]
             elif log_state:
                 logging_level = log_state
-                if tardis_config["debug"]["logging_level"] and log_state:
-                    print("log_state & logging_level both specified")
+                if tardis_config["debug"]["log_state"] and log_state:
+                    print(
+                        "log_state is defined both in Functional Argument & YAML Configuration {debug section}"
+                    )
                     print(
                         f"log_state = {log_state} will be used for Log Level Determination\n"
                     )
             else:
-                logging_level = tardis_config["debug"]["logging_level"]
+                logging_level = tardis_config["debug"]["log_state"]
     else:
         logging_level = log_state
         specific = specific

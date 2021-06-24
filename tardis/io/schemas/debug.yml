@@ -2,7 +2,7 @@ $$target: debug.yml
 type: object
 additionalProperties: false
 properties:
-  logging_level:
+  log_state:
     type: string
     default: "Info"
     description: Sets the logging Level for the logger
@@ -15,10 +15,10 @@ properties:
           - "Warning"
           - "Error"
           - "Critical"
-  specific_logging:
+  specific:
     type: boolean
     default: false
     description: Allows for logging on the specified logging levels
 
 required:
-- logging_level
+- log_state

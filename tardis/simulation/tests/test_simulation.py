@@ -221,8 +221,8 @@ class TestSimulationLogging:
             "tardis/io/tests/data/tardis_configv1_verysimple_logger.yml"
         )
         config["atom_data"] = atomic_data_fname
-        config["debug"]["logging_level"] = log_state
-        config["debug"]["specific_logging"] = specific
+        config["debug"]["log_state"] = log_state
+        config["debug"]["specific"] = specific
 
         caplog.clear()
         run_tardis(config=config)
@@ -239,8 +239,8 @@ class TestSimulationLogging:
             "tardis/io/tests/data/tardis_configv1_verysimple_logger.yml"
         )
         config["atom_data"] = atomic_data_fname
-        config["debug"]["logging_level"] = log_state
-        config["debug"]["specific_logging"] = specific
+        config["debug"]["log_state"] = log_state
+        config["debug"]["specific"] = specific
 
         caplog.clear()
         run_tardis(config=config, log_state=log_state, specific=specific)
