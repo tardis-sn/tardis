@@ -278,9 +278,4 @@ def trace_vpacket_volley(
             r_packet.last_interaction_type,
             r_packet.last_line_interaction_in_id,
             r_packet.last_line_interaction_out_id,
-<<<<<<< Updated upstream
-=======
-            r_packet.r,
-            v_packet_mu,
->>>>>>> Stashed changes
         )
