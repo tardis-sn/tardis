@@ -28,7 +28,7 @@ variables:
   commit.sha: '$(Build.SourceVersion)'
   pr.number: '$(System.PullRequest.PullRequestNumber)'
   #ref1.hash: ''
-  #ref2.hash: ''
+  ref2.hash: 'upstream/pr/46'
 
 pool:
   vmImage: 'ubuntu-latest'
