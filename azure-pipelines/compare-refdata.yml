@@ -27,7 +27,7 @@ variables:
   results.url: 'http://opensupernova.org/~azuredevops/files/refdata-results'
   commit.sha: '$(Build.SourceVersion)'
   pr.number: '$(System.PullRequest.PullRequestNumber)'
-  #ref1.hash: ''
+  ref1.hash: 'upstream/master'
   ref2.hash: 'upstream/pr/46'
 
 pool:
