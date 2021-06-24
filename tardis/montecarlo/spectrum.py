@@ -100,14 +100,14 @@ class TARDISSpectrum(HDFWriterMixin):
         return f_nu * self.frequency / self.wavelength
 
     def plot(self, ax=None, mode="wavelength", **kwargs):
-        """[summary]
+        """plots the TARDISSpectrum
 
         Parameters
         ----------
-        ax : [type], optional
-            [description], by default None
+        ax : matplotlib.axes.Axes, optional
+            axes to plot on, by default None
         mode : str, optional
-            [description], by default "wavelength"
+            plot against wavelength or frequency, by default "wavelength"
         """        
         if ax is None:
             from matplotlib.pyplot import gca
