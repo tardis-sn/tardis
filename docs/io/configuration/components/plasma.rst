@@ -30,7 +30,7 @@ TARDIS currently supports three different kinds of line interaction: ``scatter``
 version of ``macroatom`` in which only downward transitions are allowed (see :ref:`lineinteraction`).
  
 Finally, ``w_epsilon`` describes the dilution factor to use to calculate :math:`J_\textrm{blue}` that are 0, which
-causes problemsl with the code (so :math:`J_\textrm{blue}` are set to a very small number).
+causes problems with the code (so :math:`J_\textrm{blue}` are set to a very small number).
 
 NLTE
 ^^^^

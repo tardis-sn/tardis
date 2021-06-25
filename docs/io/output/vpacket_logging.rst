@@ -19,6 +19,8 @@ After running the simulation, the following information can be retrieved:
  
     * - Attribute of Simulation
       - Description
+    * - ``virt_packet_logging``
+      - Boolean that shows if virtual packet logging is turned on
     * - ``runner.virt_packet_nus``
       - List of virtual packet frequencies
     * - ``runner.virt_packet_energies``
