@@ -21,9 +21,9 @@ parameters:
     type: number
     default: 0
 
-  - name: skipInstall
+  - name: tardisEnv
     type: boolean
-    default: false
+    default: true
 
 steps:
   - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
@@ -71,13 +71,13 @@ steps:
     - bash: conda install mamba -c conda-forge -y
       displayName: 'Install Mamba'
 
-  - ${{ if eq(parameters.skipInstall, false) }}:
+  - ${{ if eq(parameters.tardisEnv, true) }}:
     - bash: |
         cd $(tardis.dir)
         $(package.manager) env create -f tardis_env3.yml
       displayName: 'Setup environment'
 
-  - ${{ if eq(parameters.skipInstall, false) }}:
+  - ${{ if eq(parameters.tardisEnv, true) }}:
     - bash: |
         cd $(tardis.dir)
         source activate tardis

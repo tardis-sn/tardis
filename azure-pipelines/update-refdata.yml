@@ -33,7 +33,6 @@ jobs:
         parameters:
           fetchRefdata: false  # We don't want to fetch from the mirror
           useMamba: true
-          skipInstall: false
 
       - bash: git clone https://github.com/tardis-sn/tardis-refdata $(refdata.dir)
         displayName: 'Fetch reference data repository'

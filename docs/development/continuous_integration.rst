@@ -256,7 +256,7 @@ to start a new pipeline use::
   default is ``false``.
 - ``useMamba`` (*bool*): use the ``mamba`` package manager instead of ``conda``,
   default is ``false``. 
-- ``skipInstall`` (*bool*): does not create the TARDIS environment, default is ``false``.
+- ``tardisEnv`` (*bool*): setup the TARDIS environment, default is ``true``.
 
 **List of predefined custom variables:**
 
