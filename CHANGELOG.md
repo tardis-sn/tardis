@@ -1,5 +1,15 @@
 ## Change Log
 
+### v3.0.dev4019 (2021/06/25 16:09 +00:00)
+- [#1664](https://github.com/tardis-sn/tardis/pull/1664) Use conda-forge packages instead of pypi (#1664) (@epassaro)
+- [#1667](https://github.com/tardis-sn/tardis/pull/1667) Moving Profiling Page (#1667) (@smithis7)
+- [#1659](https://github.com/tardis-sn/tardis/pull/1659) Restructure Documentation pt. 2 (#1659) (@smithis7)
+- [#1656](https://github.com/tardis-sn/tardis/pull/1656) Editing sponsors and credits pages of documentation (#1656) (@smithis7)
+- [#1597](https://github.com/tardis-sn/tardis/pull/1597) Added value error to ensure active virtual packet logging in SDECPlotter (#1597) (@yuyizheng1112)
+- [#1630](https://github.com/tardis-sn/tardis/pull/1630) Fix FileExistsError in to_hdf() (#1630) (@yuyizheng1112)
+- [#1641](https://github.com/tardis-sn/tardis/pull/1641) Editing Installation Page  (#1641) (@musabbihaz)
+- [#1657](https://github.com/tardis-sn/tardis/pull/1657) Add SnakeViz profiling example (#1657) (@KevinCawley)
+
 ### v3.0.dev4010 (2021/06/18 21:22 +00:00)
 - [#1644](https://github.com/tardis-sn/tardis/pull/1644) add mailmap check workflow (#1644) (@epassaro)
 - [#1589](https://github.com/tardis-sn/tardis/pull/1589) Adding Interactive Initialization Documentation (#1589) (@smithis7)
