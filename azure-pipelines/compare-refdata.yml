@@ -48,8 +48,6 @@ jobs:
           git remote add upstream $(git remote get-url origin)
           git fetch upstream
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
-          echo $(git remote get-url origin)
-          echo $(git remote get-url upstream)
         displayName: 'Set upstream remote'
 
       - bash: |
