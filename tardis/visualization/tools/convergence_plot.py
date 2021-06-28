@@ -99,6 +99,7 @@ class ConvergencePlots(object):
         fig = go.FigureWidget().set_subplots(rows=1, cols=2, shared_xaxes=True)
         fig.add_scatter(row=1, col=1)
         fig.add_scatter(row=1, col=2)
+
         fig = fig.update_layout(
             xaxis={
                 "tickformat": "g",
@@ -173,6 +174,7 @@ class ConvergencePlots(object):
             mode="lines",
         )
 
+        # 3 y axes and 3 x axes correspond to the 3 subplots in the luminosity convergence plot
         fig = fig.update_layout(
             xaxis=dict(range=[0, self.iterations + 1], dtick=2),
             xaxis2=dict(
@@ -228,6 +230,14 @@ class ConvergencePlots(object):
     def override_plot_parameters(self, fig, parameters):
         """
         Overrides default plot properties.
+
+        Parameters
+        ----------
+        fig : go.FigureWidget
+            FigureWidget object to be updated
+        parameters : dict
+            Dictionary used to update the default plot style. The dictionary should have a structure
+            like that of go.FigureWidget.to_dict(), for more information please see https://plotly.com/python/figure-structure/
         """
         for key, value in parameters.items():
             if key == "data":
@@ -241,7 +251,12 @@ class ConvergencePlots(object):
 
     def build(self, display_plot=True):
         """
-        Calls the create_plasma_plot and the create_luminosity_plot to build plots.
+        Creates empty plasma and luminosity convergence plots and displays them together.
+
+        Parameters
+        ----------
+        display_plot : bool
+            Displays empty plots. Defaults to True.
         """
         self.create_plasma_plot()
         self.create_luminosity_plot()
@@ -254,8 +269,7 @@ class ConvergencePlots(object):
 
     def update_plasma_plots(self):
         """
-        Updates the plasma plots using the data collected using the fetch_data function.
-        This function is run every iteration.
+        Updates plasma convergence plots every iteration.
         """
         x = self.iterable_data["velocity"].value.tolist()
         x = [item / 100000 for item in x]
@@ -301,8 +315,7 @@ class ConvergencePlots(object):
 
     def update_luminosity_plot(self):
         """
-        Updates the plasma plots using the data collected using the fetch_data function.
-        This function is run every iteration.
+        Updates luminosity convergence plots every iteration.
         """
         x = list(range(1, self.iterations + 1))
         with self.luminosity_plot.batch_update():
@@ -333,7 +346,18 @@ class ConvergencePlots(object):
 
     def update(self, export_cplots=False, last=False):
         """
-        Calls functions used to build and update convergence plots.
+        Updates the plasma and the luminosity convergence plots every iteration
+        and displays them again after the last iteration for exporting if desired.
+
+        Parameters
+        ----------
+        export_cplots : bool
+            Displays  the convergence plots using plotly's 'notebook_connected' renderer.
+            This displays the plot in notebooks when shared on platforms like nbviewer.
+            Please see https://plotly.com/python/renderers/ for more information.
+            Defaults to False.
+        last : bool
+            True if it's last iteration.
         """
         if self.iterable_data != {}:
             if self.current_iteration == 1:
@@ -341,12 +365,12 @@ class ConvergencePlots(object):
 
             self.update_plasma_plots()
             self.update_luminosity_plot()
-            if last:
-                if hasattr(self, "plasma_plot_config"):
-                    if "data" in self.plasma_plot_config:
-                        self.override_plot_parameters(
-                            self.plasma_plot, self.plasma_plot_config
-                        )
+
+            if hasattr(self, "plasma_plot_config") and last:
+                if "data" in self.plasma_plot_config:
+                    self.override_plot_parameters(
+                        self.plasma_plot, self.plasma_plot_config
+                    )
 
         self.current_iteration += 1
         if export_cplots:
