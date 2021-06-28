@@ -64,6 +64,62 @@ exclude_patterns.append('_templates')
 rst_epilog += """
 """
 
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.graphviz",
+    "sphinx.ext.intersphinx",
+    "sphinx-jsonschema",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.todo",
+    "sphinx.ext.viewcode",
+    "sphinxcontrib.apidoc",
+    "nbsphinx",
+    "numpydoc",
+    "recommonmark",
+]
+
+intersphinx_mapping = {
+    "python": ("http://docs.python.org/", None),
+    "numpy": ("http://docs.scipy.org/doc/numpy/", None),
+    "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
+    "matplotlib": ("http://matplotlib.sourceforge.net/", None),
+    "astropy": ("http://docs.astropy.org/en/stable/", None),
+    "h5py": ("http://docs.h5py.org/en/latest/", None),
+    "pandas": ("http://pandas.pydata.org/pandas-docs/dev/", None),
+}
+
+apidoc_module_dir = "../tardis"
+apidoc_output_dir = "api"
+apidoc_excluded_paths = ["*tests*", "*setup_package*", "*conftest*", "*version*" ]
+apidoc_separate_modules = True
+
+bibtex_bibfiles = ['tardis.bib']
+
+source_suffix = {
+    ".rst": "restructuredtext",
+    #    '.txt': 'markdown',
+    ".md": "markdown",
+}
+## get's rid of many toctree contains errors: see https://github.com/phn/pytpm/issues/3#issuecomment-12133978
+numpydoc_show_class_members = False
+extensions += ["matplotlib.sphinxext.plot_directive", "sphinxcontrib.bibtex"]
+
+if os.getenv('DISABLE_NBSPHINX') == "1":
+    nbsphinx_execute = "never"
+else:
+    nbsphinx_execute = "auto"
+
+nbsphinx_execute_arguments = [
+    "--InlineBackend.figure_formats={'svg', 'pdf'}",
+    "--InlineBackend.rc={'figure.dpi': 96}",
+]
+
+nbsphinx_prolog = """
+This notebook is available at 
+https://github.com/tardis-sn/tardis/tree/master/docs/{{ env.doc2path(env.docname, base=None) }}
+
+"""
+
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
@@ -97,12 +153,13 @@ release = package.__version__
 
 # Add any paths that contain custom themes here, relative to this directory.
 # To use a different custom theme, add the directory containing the theme.
-#html_theme_path = []
+import sphinx_rtd_theme
+html_theme_path = sphinx_rtd_theme.get_html_theme_path()
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes. To override the custom theme, set this to the
 # name of a builtin theme or the name of a custom theme in html_theme_path.
-#html_theme = None
+html_theme = 'sphinx_rtd_theme'
 
 
 html_theme_options = {
@@ -122,7 +179,7 @@ html_theme_options = {
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-#html_favicon = ''
+html_favicon = 'tardis_logo.ico'
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -204,3 +261,42 @@ linkcheck_anchors = False
 #     dtype, target = line.split(None, 1)
 #     target = target.strip()
 #     nitpick_ignore.append((dtype, six.u(target)))
+
+
+# Generate ZENODO.rst
+# Adapted from: https://astrodata.nyc/posts/2021-04-23-zenodo-sphinx/
+
+import re
+import pathlib
+import requests
+import textwrap
+import warnings
+
+CONCEPT_DOI = '592480'  # See: https://help.zenodo.org/#versioning
+zenodo_path = pathlib.Path('ZENODO.rst')
+
+try:
+    headers = {'accept': 'application/x-bibtex'}
+    response = requests.get(f'https://zenodo.org/api/records/{CONCEPT_DOI}',
+                            headers=headers)
+    response.encoding = 'utf-8'
+    citation = re.findall('@software{(.*)\,', response.text)
+    zenodo_record = (f".. |ZENODO| replace:: {citation[0]}\n\n"
+                     ".. code-block:: bibtex\n\n" + textwrap.indent(response.text, " "*4))
+
+except Exception as e:
+    warnings.warn("Failed to retrieve Zenodo record for TARDIS: "
+                  f"{str(e)}")
+
+    not_found_msg = """
+                    Couldn't retrieve the TARDIS software citation from Zenodo. Get it 
+                    directly from `this link <https://zenodo.org/record/{CONCEPT_DOI}>`_    .
+                    """
+
+    zenodo_record = (".. |ZENODO| replace:: <TARDIS SOFTWARE CITATION HERE> \n\n"
+                     ".. warning:: \n\n" + textwrap.indent(not_found_msg, " "*4))
+
+with open(zenodo_path, 'w') as f:
+    f.write(zenodo_record)
+
+print(zenodo_record)
