@@ -43,9 +43,10 @@ dependencies:
 
   # Documentation
   - sphinx
+  - sphinx-astropy
   - sphinx_bootstrap_theme
-  - sphinx_rtd_theme
   - sphinx-jsonschema
+  - sphinx_rtd_theme
   - sphinxcontrib-apidoc
   - sphinxcontrib-bibtex
   - recommonmark
