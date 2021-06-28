@@ -1,4 +1,4 @@
-Copyright 2021 Wolfgang Kerzendorf
+Copyright 2021 TARDIS Collaboration
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:

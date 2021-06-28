@@ -183,7 +183,7 @@ The following BibTeX entries are needed for the references:
 License
 *******
 
-This project is Copyright (c) Wolfgang Kerzendorf and licensed under
+This project is Copyright (c) TARDIS Collaboration and licensed under
 the terms of the BSD 3-Clause license. This package is based upon
 the `Astropy package template <https://github.com/astropy/package-template>`_
 which is licensed under the BSD 3-clause license. See the licenses folder for
