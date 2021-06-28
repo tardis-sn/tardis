@@ -27,5 +27,6 @@ exclude = '''
   )/
   | setup.py
   | docs/conf.py
+  | _astropy_init.py
 )
 '''

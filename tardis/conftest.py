@@ -12,13 +12,18 @@ import os
 from astropy.version import version as astropy_version
 
 # For Astropy 3.0 and later, we can use the standalone pytest plugin
-if astropy_version < '3.0':
+if astropy_version < "3.0":
     from astropy.tests.pytest_plugins import *  # noqa
+
     del pytest_report_header
     ASTROPY_HEADER = True
 else:
     try:
-        from pytest_astropy_header.display import PYTEST_HEADER_MODULES, TESTED_VERSIONS
+        from pytest_astropy_header.display import (
+            PYTEST_HEADER_MODULES,
+            TESTED_VERSIONS,
+        )
+
         ASTROPY_HEADER = True
     except ImportError:
         ASTROPY_HEADER = False
@@ -38,12 +43,14 @@ def pytest_configure(config):
 
         # Customize the following lines to add/remove entries from the list of
         # packages for which version numbers are displayed when running the tests.
-        PYTEST_HEADER_MODULES.pop('Pandas', None)
-        PYTEST_HEADER_MODULES['scikit-image'] = 'skimage'
+        PYTEST_HEADER_MODULES.pop("Pandas", None)
+        PYTEST_HEADER_MODULES["scikit-image"] = "skimage"
 
         from . import __version__
+
         packagename = os.path.basename(os.path.dirname(__file__))
         TESTED_VERSIONS[packagename] = __version__
+
 
 # Uncomment the last two lines in this block to treat all DeprecationWarnings as
 # exceptions. For Astropy v2.0 or later, there are 2 additional keywords,
@@ -67,6 +74,7 @@ import pandas as pd
 from tardis.io.util import yaml_load_config_file
 from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
+
 
 def pytest_addoption(parser):
     parser.addoption(

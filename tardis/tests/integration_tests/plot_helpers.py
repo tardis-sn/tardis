@@ -2,7 +2,8 @@ import os
 import tempfile
 
 from pytest_html import extras
-#from tardis import __githash__ as tardis_githash
+
+# from tardis import __githash__ as tardis_githash
 
 
 class BasePlotSaver(object):

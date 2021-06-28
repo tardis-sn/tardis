@@ -4,7 +4,7 @@ import yaml
 import pandas as pd
 import pytest
 
-#from tardis import __githash__ as tardis_githash
+# from tardis import __githash__ as tardis_githash
 from tardis.tests.integration_tests.report import DokuReport
 from tardis.tests.integration_tests.plot_helpers import (
     LocalPlotSaver,
