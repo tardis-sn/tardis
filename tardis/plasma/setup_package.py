@@ -1,8 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from setuptools import Extension
-from astropy_helpers.distutils_helpers import get_distutils_option
 import numpy as np
-
+from setuptools import Extension
 
 if (
     get_distutils_option("with_openmp", ["build", "install", "develop"])
