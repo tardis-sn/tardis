@@ -93,6 +93,17 @@ apidoc_output_dir = "api"
 apidoc_excluded_paths = ["*tests*", "*setup_package*", "*conftest*", "*version*" ]
 apidoc_separate_modules = True
 
+# Force MathJax v2, see: https://github.com/spatialaudio/nbsphinx/issues/572#issuecomment-853389268
+mathjax_path = 'https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
+mathjax2_config = {
+    'tex2jax': {
+        'inlineMath': [['$', '$'], ['\\(', '\\)']],
+        'processEscapes': True,
+        'ignoreClass': 'document',
+        'processClass': 'math|output_area',
+    }
+}
+
 bibtex_bibfiles = ['tardis.bib']
 
 source_suffix = {
