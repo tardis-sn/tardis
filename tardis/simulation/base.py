@@ -132,6 +132,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         luminosity_requested,
         convergence_strategy,
         nthreads,
+        show_cplots,
         cplots_kwargs,
     ):
 
@@ -167,12 +168,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 f"- input is {convergence_strategy.type}"
             )
 
-        if cplots_kwargs["show_plots"] is not False:
+        if show_cplots:
             self.cplots = ConvergencePlots(
                 iterations=self.iterations, **cplots_kwargs
             )
 
         if "export_cplots" in cplots_kwargs:
+            if not isinstance(cplots_kwargs["export_cplots"], bool):
+                raise TypeError("Expected bool in export_cplots argument")
             self.export_cplots = cplots_kwargs["export_cplots"]
         else:
             self.export_cplots = False
@@ -559,7 +562,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     @classmethod
     def from_config(
-        cls, config, packet_source=None, virtual_packet_logging=False, **kwargs
+        cls,
+        config,
+        packet_source=None,
+        virtual_packet_logging=False,
+        show_cplots=True,
+        **kwargs,
     ):
         """
         Create a new Simulation instance from a Configuration object.
@@ -609,10 +617,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             "plasma_plot_config",
             "luminosity_plot_config",
             "colorscale",
-            "show_plots",
             "export_cplots",
         ]
-        cplots_kwargs = defaultdict(dict)
+        cplots_kwargs = {}
         for item in set(cplots_config_options).intersection(kwargs.keys()):
             cplots_kwargs[item] = kwargs[item]
 
@@ -639,6 +646,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             model=model,
             plasma=plasma,
             runner=runner,
+            show_cplots=show_cplots,
             no_of_packets=int(config.montecarlo.no_of_packets),
             no_of_virtual_packets=int(config.montecarlo.no_of_virtual_packets),
             luminosity_nu_start=luminosity_nu_start,

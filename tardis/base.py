@@ -7,6 +7,7 @@ def run_tardis(
     packet_source=None,
     simulation_callbacks=[],
     virtual_packet_logging=False,
+    show_cplots=True,
     **kwargs,
 ):
     """
@@ -50,11 +51,15 @@ def run_tardis(
         except TypeError:
             tardis_config = Configuration.from_config_dict(config)
 
+    if not isinstance(show_cplots, bool):
+        raise TypeError("Expected bool in show_cplots argument")
+
     simulation = Simulation.from_config(
         tardis_config,
         packet_source=packet_source,
         atom_data=atom_data,
         virtual_packet_logging=virtual_packet_logging,
+        show_cplots=show_cplots,
         **kwargs,
     )
     for cb in simulation_callbacks:

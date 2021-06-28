@@ -9,16 +9,17 @@ from contextlib import suppress
 from traitlets import TraitError
 
 
-def transition_colors(name="jet", iterations=20):
+def transition_colors(iterations, name="jet"):
     """
     Function to create colorscale for convergence plots, returns a list of colors.
 
     Parameters
     ----------
+    iterations : int
+        Number of iterations.
     name : string
         Name of the colorscale. Defaults to "jet".
-    iterations : int
-        Number of iterations. Defaults to 20.
+
     Returns
     -------
     colors: list
@@ -59,12 +60,16 @@ class ConvergencePlots(object):
             self.colorscale = transition_colors(iterations=self.iterations)
 
         if "plasma_plot_config" in kwargs:
-            if kwargs["plasma_plot_config"] != {}:
-                self.plasma_plot_config = kwargs["plasma_plot_config"]
+            if not isinstance(kwargs["plasma_plot_config"], dict):
+                raise TypeError("Expected dict in plasma_plot_config argument")
+            self.plasma_plot_config = kwargs["plasma_plot_config"]
 
         if "luminosity_plot_config" in kwargs:
-            if kwargs["luminosity_plot_config"] != {}:
-                self.luminosity_plot_config = kwargs["luminosity_plot_config"]
+            if not isinstance(kwargs["luminosity_plot_config"], dict):
+                raise TypeError(
+                    "Expected dict in luminosity_plot_config argument"
+                )
+            self.luminosity_plot_config = kwargs["luminosity_plot_config"]
 
     def fetch_data(self, name=None, value=None, item_type=None):
         """
@@ -191,7 +196,7 @@ class ConvergencePlots(object):
             ),
             yaxis2=dict(
                 exponentformat="e",
-                title=r"$\mbox{Luminosity}~(erg~sec^{-1})$",
+                title=r"$\mbox{Luminosity}~(erg~s^{-1})$",
                 title_font_size=13,
                 automargin=True,
                 tickmode="auto",
