@@ -718,7 +718,7 @@ class ModelViewer(QtWidgets.QWidget):
         self.graph.cb.set_clim(vmin=data.min(), vmax=data.max())
         self.graph.cb.update_normal(color_map)
         if unit == "(K)":
-            unit = "T (K)"
+            unit = "Temprature (K)"
         self.graph.cb.set_label(unit)
         for i, item in enumerate(data):
             self.shells[i].set_facecolor(color_map.to_rgba(item))
@@ -760,7 +760,7 @@ class ModelViewer(QtWidgets.QWidget):
             self.graph.cb.update_normal(t_rad_color_map)
         else:
             self.graph.cb = self.graph.figure.colorbar(t_rad_color_map)
-            self.graph.cb.set_label("T (K)")
+            self.graph.cb.set_label("Temprature (K)")
         self.graph.normalizing_factor = (
             0.2
             * (
