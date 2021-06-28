@@ -263,7 +263,60 @@ linkcheck_anchors = False
 #     nitpick_ignore.append((dtype, six.u(target)))
 
 
-# Generate ZENODO.rst
+# -- Creating redirects -------------------------------------------------------
+
+# One entry per redirect. List of tuples: (old_fpath, new_fpath)
+# Paths are relative to source dir i.e. "docs/" & must include file extension
+# Only source files that convert to html like .rst, .ipynb, etc. are allowed
+
+redirects = [
+    ("using/gui/index.rst", "using/visualization/index.rst"),
+]
+
+from shutil import copyfile
+
+
+def to_html_ext(path):
+    """Convert extension in the file path to .html"""
+    return os.path.splitext(path)[0] + ".html"
+
+
+def autodoc_skip_member(app, what, name, obj, skip, options):
+    """Exclude specific functions/methods from the documentation"""
+    exclusions = ("yaml_constructors", "yaml_implicit_resolvers")
+    exclude = name in exclusions
+    return skip or exclude
+
+
+def create_redirect_files(app, docname):
+    """Create redirect html files at old paths specified in `redirects` list."""
+    template_html_path = os.path.join(
+        app.srcdir, "_templates/redirect_file.html"
+    )
+
+    if app.builder.name == "html":
+        for (old_fpath, new_fpath) in redirects:
+            # Create a page redirection html file for old_fpath
+            old_html_fpath = to_html_ext(os.path.join(app.outdir, old_fpath))
+            os.makedirs(os.path.dirname(old_html_fpath), exist_ok=True)
+            copyfile(template_html_path, old_html_fpath)
+
+            # Replace url placeholders i.e. "#" in this file with the new url
+            new_url = os.path.relpath(
+                to_html_ext(new_fpath), os.path.dirname(old_fpath)
+            )  # urls in a html file are relative to the dir containing it
+            with open(old_html_fpath) as f:
+                new_content = f.read().replace("#", new_url)
+            with open(old_html_fpath, "w") as f:
+                f.write(new_content)
+
+
+def setup(app):
+    app.connect("autodoc-skip-member", autodoc_skip_member)
+    app.connect("build-finished", create_redirect_files)
+
+
+# -- Creating ZENODO.rst ------------------------------------------------------
 # Adapted from: https://astrodata.nyc/posts/2021-04-23-zenodo-sphinx/
 
 import re
