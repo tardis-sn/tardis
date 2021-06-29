@@ -4,14 +4,91 @@
 Models
 ******
 
-TARDIS requires a model of the homologously expanding ejecta in order to run a simulation (see :ref:`model`).
-A model will include information like the velocity shell structure, abundances, density, etc.
-TARDIS offers two ways of specifying the model: either directly in the configuration YAML file
-or separately in a model.csvy file. See `here <https://csvy.org/>`_ for an explanation of
-the CSVY file format and :ref:`here <config-file>` for a link to the csvy_model schema.
+TARDIS requires a model of the ejecta in order to run a simulation. A model typically includes information
+for the velocity shell structure, density, and abundances. **See :ref:`model` for more information on the
+TARDIS model**. TARDIS offers two ways of specifying the model: either directly in the configuration YAML file
+or separately in a CSVY file. See `here <https://csvy.org/>`_ for an explanation of the CSVY file format.
 
-.. note::
-    We highly recommend using the cleaner CSVY format.
+TARDIS has several built-in models for the shell structure, density, and abundance. If only these are being used,
+we recommend using the YAML configuration method. For creating a custom model (which will be discussed below), we
+reccomend using the CSVY method.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+TARDIS allows users to use a CSVY file to input information about the model. To do this, instead of a
+``model`` section, one includes ``csvy_model: <file path to CSVY file>`` in the main TARDIS configuration
+file.
+
+The CSVY model has a YAML part as well as a CSV part, separated by the YAML delimiter ``---``. This means
+that each CSVY model file has the following structure: The first line of the file is the YAML delimiter,
+followed by the YAML portion of the CSVY model, then another line with just the YAML delimiter,
+and finally the CSV portion of the CSVY file. This is shown in the example CSVY file later in this section.
+
+The YAML portion of the CSVY file allows the user to use most of the features of the YAML model configuration,
+as shown in the schema below:
+
+.. jsonschema:: ../schemas/csvy_model.yml
+
+The CSV part of the CSVY file creates a table that can include
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 .. contents::
     :local:
