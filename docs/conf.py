@@ -66,9 +66,6 @@ exclude_patterns.append('**.ipynb_checkpoints')
 rst_epilog += """
 """
 
-templates_path = ["_templates"]
-html_static_path = ["_static"]
-
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.graphviz",
@@ -183,6 +180,8 @@ html_theme_options = {
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
+html_static_path = ["_static"]
+templates_path = ["_templates"]
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
