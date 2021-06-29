@@ -132,6 +132,10 @@ def logging_state(log_state, tardis_config, specific):
     if logging_level.upper() in LOGGING_LEVELS.keys():
         for logger in loggers:
             logger.setLevel(LOGGING_LEVELS[logging_level.upper()])
+    else:
+        raise ValueError(
+            f"Passed Value for log_state = {logging_level.upper()} is Invalid. Must be one of the following {list(LOGGING_LEVELS.keys())}"
+        )
 
     if len(list_of_filter) > 0:
         for filter in list_of_filter:
