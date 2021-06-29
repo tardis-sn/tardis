@@ -78,10 +78,14 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.viewcode",
     "sphinxcontrib.apidoc",
+    "sphinxcontrib.bibtex",
+    "matplotlib.sphinxext.plot_directive",
     "nbsphinx",
     "numpydoc",
     "recommonmark",
 ]
+
+bibtex_bibfiles = ['tardis.bib']
 
 intersphinx_mapping = {
     "python": ("http://docs.python.org/", None),
@@ -98,6 +102,9 @@ apidoc_output_dir = "api"
 apidoc_excluded_paths = ["*tests*", "*setup_package*", "*conftest*", "*version*" ]
 apidoc_separate_modules = True
 
+## https://github.com/phn/pytpm/issues/3#issuecomment-12133978
+numpydoc_show_class_members = False
+
 # Force MathJax v2, see: https://github.com/spatialaudio/nbsphinx/issues/572#issuecomment-853389268
 mathjax_path = 'https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
 mathjax2_config = {
@@ -109,22 +116,6 @@ mathjax2_config = {
     }
 }
 
-bibtex_bibfiles = ['tardis.bib']
-
-source_suffix = {
-    ".rst": "restructuredtext",
-    #    '.txt': 'markdown',
-    ".md": "markdown",
-}
-## get's rid of many toctree contains errors: see https://github.com/phn/pytpm/issues/3#issuecomment-12133978
-numpydoc_show_class_members = False
-extensions += ["matplotlib.sphinxext.plot_directive", "sphinxcontrib.bibtex"]
-
-if os.getenv('DISABLE_NBSPHINX') == "1":
-    nbsphinx_execute = "never"
-else:
-    nbsphinx_execute = "auto"
-
 nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
     "--InlineBackend.rc={'figure.dpi': 96}",
@@ -135,6 +126,11 @@ This notebook is available at
 https://github.com/tardis-sn/tardis/tree/master/docs/{{ env.doc2path(env.docname, base=None) }}
 
 """
+
+if os.getenv('DISABLE_NBSPHINX') == "1":
+    nbsphinx_execute = "never"
+else:
+    nbsphinx_execute = "auto"
 
 # -- Project information ------------------------------------------------------
 
