@@ -430,7 +430,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             logger.info("\n\tPlasma stratification:")
 
             # Displaying the DataFrame only when the logging level is NOTSET, DEBUG or INFO
-            if logger.level <= 20:
+            if logger.level <= logging.INFO:
                 if not logger.filters:
                     display(
                         plasma_state_log.iloc[::log_sampling].style.format(

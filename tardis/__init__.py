@@ -80,6 +80,7 @@ class FilterLog(object):
         return log_record.levelno == self.log_level
 
 
+# Setting up a list to store the Logging Filters set by logger.addFilter()
 list_of_filter = []
 
 
@@ -132,7 +133,7 @@ def logging_state(log_state, tardis_config, specific):
         for logger in loggers:
             logger.setLevel(LOGGING_LEVELS[logging_level.upper()])
 
-    if not list_of_filter == []:
+    if len(list_of_filter) > 0:
         for filter in list_of_filter:
             for logger in loggers:
                 logger.removeFilter(filter)
