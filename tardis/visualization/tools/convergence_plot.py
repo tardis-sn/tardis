@@ -7,6 +7,7 @@ import matplotlib as mpl
 import ipywidgets as widgets
 from contextlib import suppress
 from traitlets import TraitError
+from astropy import units as u
 
 
 def transition_colors(iterations, name="jet"):
@@ -103,22 +104,22 @@ class ConvergencePlots(object):
         fig = fig.update_layout(
             xaxis={
                 "tickformat": "g",
-                "title": r"$Shell~~Velocity$",
+                "title": r"$\mbox{Velocity}~({km}~{s^{-1}})$",
             },
             xaxis2={
                 "tickformat": "g",
-                "title": r"$Shell~~Velocity$",
+                "title": r"$\mbox{Velocity}~({km}~{s^{-1}})$",
                 "matches": "x",
             },
             yaxis={
                 "tickformat": "g",
-                "title": r"$T_{rad}\ [K]$",
+                "title": r"$\mbox{T}_{rad}\ [K]$",
                 "tickmode": "auto",
                 "nticks": 15,
             },
             yaxis2={
                 "tickformat": "g",
-                "title": r"$W$",
+                "title": r"$\mbox{W}$",
                 "tickmode": "auto",
                 "nticks": 15,
             },
@@ -147,6 +148,15 @@ class ConvergencePlots(object):
             row_heights=[0.25, 0.5, 0.25],
         )
 
+        fig.add_scatter(
+            name="Inner<br>Boundary<br>Temperature",
+            row=1,
+            col=1,
+            hovertext="text",
+            marker_color="crimson",
+            mode="lines",
+        )
+
         for luminosity, line_color in zip(self.luminosities, line_colors):
             fig.add_scatter(
                 name=luminosity + "<br>Luminosity",
@@ -162,15 +172,6 @@ class ConvergencePlots(object):
             row=3,
             col=1,
             marker_color="cornflowerblue",
-            mode="lines",
-        )
-
-        fig.add_scatter(
-            name="Inner<br>Boundary<br>Temperature",
-            row=1,
-            col=1,
-            hovertext="text",
-            marker_color="crimson",
             mode="lines",
         )
 
@@ -271,9 +272,7 @@ class ConvergencePlots(object):
         """
         Updates plasma convergence plots every iteration.
         """
-        x = self.iterable_data["velocity"].value.tolist()
-        x = [item / 100000 for item in x]
-
+        x = self.iterable_data["velocity"].to(u.km / u.s).value.tolist()
         customdata = len(x) * [
             "<br>"
             + "Emitted Luminosity: "
@@ -319,7 +318,13 @@ class ConvergencePlots(object):
         """
         x = list(range(1, self.iterations + 1))
         with self.luminosity_plot.batch_update():
-            for index, luminosity in zip(range(3), self.luminosities):
+            self.luminosity_plot.data[0].x = x
+            self.luminosity_plot.data[0].y = self.value_data["t_inner"]
+            self.luminosity_plot.data[
+                0
+            ].hovertemplate = "Inner Body Temperature: %{y:.2f} at X = %{x:,.0f}<extra></extra>"
+
+            for index, luminosity in zip(range(1, 4), self.luminosities):
                 self.luminosity_plot.data[index].x = x
                 self.luminosity_plot.data[index].y = self.value_data[luminosity]
                 self.luminosity_plot.data[index].hovertemplate = (
@@ -332,17 +337,11 @@ class ConvergencePlots(object):
                         self.value_data["Emitted"], self.value_data["Requested"]
                     )
                 ]
-                self.luminosity_plot.data[-2].x = x
-                self.luminosity_plot.data[-2].y = y
+                self.luminosity_plot.data[4].x = x
+                self.luminosity_plot.data[4].y = y
                 self.luminosity_plot.data[
-                    -2
+                    4
                 ].hovertemplate = "Residual Luminosity: %{y:.2f}% at X = %{x:,.0f}<extra></extra>"
-
-                self.luminosity_plot.data[-1].x = x
-                self.luminosity_plot.data[-1].y = self.value_data["t_inner"]
-                self.luminosity_plot.data[
-                    -1
-                ].hovertemplate = "Inner Body Temperature: %{y:.2f} at X = %{x:,.0f}<extra></extra>"
 
     def update(self, export_cplots=False, last=False):
         """
