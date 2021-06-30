@@ -4,7 +4,7 @@ additionalProperties: false
 properties:
   log_state:
     type: string
-    default: "Info"
+    default: "Critical"
     description: Sets the logging Level for the logger
     properties:
       type:
@@ -20,5 +20,3 @@ properties:
     default: false
     description: Allows for logging on the specified logging levels
 
-required:
-- log_state

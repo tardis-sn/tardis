@@ -7,8 +7,8 @@ def run_tardis(
     packet_source=None,
     simulation_callbacks=[],
     virtual_packet_logging=False,
-    log_state="Critical",
-    specific=False,
+    log_state=None,
+    specific=None,
 ):
     """
     This function is one of the core functions to run TARDIS from a given

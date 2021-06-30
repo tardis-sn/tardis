@@ -41,6 +41,7 @@ LOGGING_LEVELS = {
     "ERROR": logging.ERROR,
     "CRITICAL": logging.CRITICAL,
 }
+DEFAULT_LOG_STATE = "CRITICAL"
 
 
 class FilterLog(object):
@@ -99,43 +100,31 @@ def logging_state(log_state, tardis_config, specific):
     specific: boolean
         Allows to set specific logging levels. Logs of the `log_state` level would be output.
     """
-    if "debug" in tardis_config:
-        if specific or tardis_config["debug"]["specific"]:
-            specific = True
-        else:
-            specific = False
 
-        if tardis_config["debug"]["log_state"] or log_state:
-            if (
-                log_state.upper() == "CRITICAL"
-                and tardis_config["debug"]["log_state"]
-            ):
-                logging_level = tardis_config["debug"]["log_state"]
-            elif log_state:
-                logging_level = log_state
-                if tardis_config["debug"]["log_state"] and log_state:
-                    print(
-                        "log_state is defined both in Functional Argument & YAML Configuration {debug section}"
-                    )
-                    print(
-                        f"log_state = {log_state} will be used for Log Level Determination\n"
-                    )
-            else:
-                logging_level = tardis_config["debug"]["log_state"]
+    if "debug" in tardis_config:
+        specific = (
+            tardis_config["debug"]["specific"] if specific is None else specific
+        )
+
+        logging_level = (
+            log_state if log_state else tardis_config["debug"]["log_state"]
+        )
+        logging_level = logging_level.upper()
+
+        if not logging_level in LOGGING_LEVELS:
+            raise ValueError(
+                f"Passed Value for log_state = {logging_level} is Invalid. Must be one of the following {list(LOGGING_LEVELS.keys())}"
+            )
     else:
-        logging_level = log_state
-        specific = specific
+        tardis_config["debug"] = {"log_state": DEFAULT_LOG_STATE}
+        logging_level = tardis_config["debug"]["log_state"]
 
     loggers = [
         logging.getLogger(name) for name in logging.root.manager.loggerDict
     ]
-    if logging_level.upper() in LOGGING_LEVELS.keys():
+    if logging_level in LOGGING_LEVELS:
         for logger in loggers:
-            logger.setLevel(LOGGING_LEVELS[logging_level.upper()])
-    else:
-        raise ValueError(
-            f"Passed Value for log_state = {logging_level.upper()} is Invalid. Must be one of the following {list(LOGGING_LEVELS.keys())}"
-        )
+            logger.setLevel(LOGGING_LEVELS[logging_level])
 
     if len(list_of_filter) > 0:
         for filter in list_of_filter:
@@ -143,7 +132,7 @@ def logging_state(log_state, tardis_config, specific):
                 logger.removeFilter(filter)
 
     if specific:
-        filter_log = FilterLog(LOGGING_LEVELS[logging_level.upper()])
+        filter_log = FilterLog(LOGGING_LEVELS[logging_level])
         list_of_filter.append(filter_log)
         for logger in loggers:
             logger.addFilter(filter_log)
