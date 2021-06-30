@@ -33,8 +33,8 @@ stars (*supernovae*).
 .. image:: https://github.com/tardis-sn/tardis/actions/workflows/documentation-build.yml/badge.svg
     :target: https://tardis-sn.github.io/tardis/index.html
 
-.. image:: https://dev.azure.com/tardis-sn/TARDIS/_apis/build/status/TARDIS%20tests?repoName=tardis-sn%2Ftardis&branchName=refs%2Fpull%2F1573%2Fmerge
-    :target: https://dev.azure.com/tardis-sn/TARDIS/_build/latest?definitionId=3&repoName=tardis-sn%2Ftardis&branchName=refs%2Fpull%2F1573%2Fmerge
+.. image:: https://dev.azure.com/tardis-sn/TARDIS/_apis/build/status/TARDIS%20tests?branchName=master
+    :target: https://dev.azure.com/tardis-sn/TARDIS/_build/latest?definitionId=6&branchName=master
 
 
 ******************************
