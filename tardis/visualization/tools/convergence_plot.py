@@ -104,22 +104,22 @@ class ConvergencePlots(object):
         fig = fig.update_layout(
             xaxis={
                 "tickformat": "g",
-                "title": r"$\mbox{Velocity}~({km}~{s^{-1}})$",
+                "title": r"$\text{Velocity}~[\text{km}~\text{s}^{-1}]$",
             },
             xaxis2={
                 "tickformat": "g",
-                "title": r"$\mbox{Velocity}~({km}~{s^{-1}})$",
+                "title": r"$\text{Velocity}~[\text{km}~\text{s}^{-1}]$",
                 "matches": "x",
             },
             yaxis={
                 "tickformat": "g",
-                "title": r"$\mbox{T}_{rad}\ [K]$",
+                "title": r"$T_{\text{rad}}\ [\text{K}]$",
                 "tickmode": "auto",
                 "nticks": 15,
             },
             yaxis2={
                 "tickformat": "g",
-                "title": r"$\mbox{W}$",
+                "title": r"$W$",
                 "tickmode": "auto",
                 "nticks": 15,
             },
@@ -189,7 +189,7 @@ class ConvergencePlots(object):
                 dtick=2,
             ),
             yaxis=dict(
-                title=r"$\mbox{T}_{inner}\ [K]$",
+                title=r"$T_{\text{inner}}\ [\text{K}]$",
                 automargin=True,
                 side="top",
                 tickformat="g",
@@ -199,25 +199,22 @@ class ConvergencePlots(object):
             ),
             yaxis2=dict(
                 exponentformat="e",
-                title=r"$\mbox{Luminosity}~(erg~s^{-1})$",
+                title=r"$\text{Luminosity}~[\text{erg s}^{-1}]$",
                 title_font_size=13,
                 automargin=True,
                 tickmode="auto",
                 nticks=7,
             ),
             yaxis3=dict(
-                exponentformat="e",
-                title=r"$~~\mbox{Residual}\\\mbox{Luminosity(%)}$",
+                title=r"$~~\text{Residual}\\\text{Luminosity[%]}$",
                 title_font_size=12,
                 automargin=True,
-                tickformat="%",
                 tickmode="auto",
                 nticks=4,
             ),
             legend_tracegroupgap=0,
             height=630,
             hoverlabel_align="right",
-            legend_title_text="Luminosity",
             hoverlabel_font_color="white",
             margin=dict(b=25, t=25, pad=0),
         )
@@ -276,13 +273,13 @@ class ConvergencePlots(object):
         customdata = len(x) * [
             "<br>"
             + "Emitted Luminosity: "
-            + f'{self.value_data["Absorbed"][-1]:.2g}'
+            + f'{self.value_data["Absorbed"][-1]:.4g}'
             + "<br>"
             + "Requested Luminosity: "
-            + f'{self.value_data["Requested"][-1]:.2g}'
+            + f'{self.value_data["Requested"][-1]:.4g}'
             + "<br>"
             + "Absorbed Luminosity: "
-            + f'{self.value_data["Requested"][-1]:.2g}'
+            + f'{self.value_data["Requested"][-1]:.4g}'
         ]
 
         # this adds radiation temperature vs shell velocity plot
@@ -296,7 +293,7 @@ class ConvergencePlots(object):
             legendgroup=f"group-{self.current_iteration}",
             showlegend=False,
             customdata=customdata,
-            hovertemplate="<b>Y</b>: %{y:.2f} at <b>X</b> = %{x:,.0f}%{customdata}",
+            hovertemplate="<b>Y</b>: %{y:.3f} at <b>X</b> = %{x:,.0f}%{customdata}",
         )
 
         # this adds dilution factor vs shell velocity plot
@@ -309,7 +306,7 @@ class ConvergencePlots(object):
             legendgroup=f"group-{self.current_iteration}",
             name=self.current_iteration,
             customdata=customdata,
-            hovertemplate="<b>Y</b>: %{y:.2f} at <b>X</b> = %{x:,.0f}%{customdata}",
+            hovertemplate="<b>Y</b>: %{y:.3f} at <b>X</b> = %{x:,.0f}%{customdata}",
         )
 
     def update_luminosity_plot(self):
@@ -322,13 +319,13 @@ class ConvergencePlots(object):
             self.luminosity_plot.data[0].y = self.value_data["t_inner"]
             self.luminosity_plot.data[
                 0
-            ].hovertemplate = "Inner Body Temperature: %{y:.2f} at X = %{x:,.0f}<extra></extra>"
+            ].hovertemplate = "Inner Body Temperature: %{y:.3f} at X = %{x:,.0f}<extra></extra>"
 
             for index, luminosity in zip(range(1, 4), self.luminosities):
                 self.luminosity_plot.data[index].x = x
                 self.luminosity_plot.data[index].y = self.value_data[luminosity]
                 self.luminosity_plot.data[index].hovertemplate = (
-                    "<b>%{y:.2g}</b>" + "<br>at X = %{x}<br>"
+                    "<b>%{y:.4g}</b>" + "<br>at X = %{x}<br>"
                 )
 
                 y = [
