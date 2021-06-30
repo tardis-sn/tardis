@@ -215,7 +215,6 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
             distance = distance_trace
             break
 
-
         # Recalculating distance_electron using tau_event -
         # tau_trace_line_combined
         distance_electron = calculate_distance_electron(
@@ -314,4 +313,3 @@ def move_packet_across_shell_boundary(packet, delta_shell, no_of_shells):
         packet.status = PacketStatus.REABSORBED
     else:
         packet.current_shell_id = next_shell_id
-
