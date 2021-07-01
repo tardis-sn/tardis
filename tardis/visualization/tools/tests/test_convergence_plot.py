@@ -14,7 +14,7 @@ def convergence_class() -> ConvergencePlots:
 
 def test_transition_colors():
     iterations = 3
-    colors = transition_colors(iterations=iterations)
+    colors = transition_colors(length=iterations)
     assert type(colors) == list
     assert len(colors) == iterations
 

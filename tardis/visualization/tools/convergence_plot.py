@@ -10,14 +10,14 @@ from traitlets import TraitError
 from astropy import units as u
 
 
-def transition_colors(iterations, name="jet"):
+def transition_colors(length, name="jet"):
     """
     Function to create colorscale for convergence plots, returns a list of colors.
 
     Parameters
     ----------
-    iterations : int
-        Number of iterations.
+    length : int
+        The length of the colorscale.
     name : string
         Name of the colorscale. Defaults to "jet".
 
@@ -25,7 +25,7 @@ def transition_colors(iterations, name="jet"):
     -------
     colors: list
     """
-    cmap = mpl.cm.get_cmap(name, iterations)
+    cmap = mpl.cm.get_cmap(name, length)
     colors = []
     for i in range(cmap.N):
         rgb = cmap(i)[:3]
@@ -53,13 +53,6 @@ class ConvergencePlots(object):
         self.plasma_plot = None
         self.luminosity_plot = None
 
-        if "colorscale" in kwargs:
-            self.colorscale = transition_colors(
-                kwargs["colorscale"], iterations=self.iterations
-            )
-        else:
-            self.colorscale = transition_colors(iterations=self.iterations)
-
         if "plasma_plot_config" in kwargs:
             if not isinstance(kwargs["plasma_plot_config"], dict):
                 raise TypeError("Expected dict in plasma_plot_config argument")
@@ -71,6 +64,18 @@ class ConvergencePlots(object):
                     "Expected dict in luminosity_plot_config argument"
                 )
             self.luminosity_plot_config = kwargs["luminosity_plot_config"]
+
+        if "cmap" in kwargs:
+            self.luminosity_line_colors = transition_colors(
+                length=5,
+                name=kwargs["cmap"],
+            )
+            self.plasma_colorscale = transition_colors(
+                name=kwargs["cmap"], length=self.iterations
+            )
+        else:
+            self.luminosity_line_colors = transition_colors(length=5)
+            self.plasma_colorscale = transition_colors(length=self.iterations)
 
     def fetch_data(self, name=None, value=None, item_type=None):
         """
@@ -138,7 +143,6 @@ class ConvergencePlots(object):
         Creates an empty luminosity plot.
         The default layout can be overridden by passing luminosity_plot_config dictionary in the run_tardis function.
         """
-        line_colors = ["orangered", "lightseagreen", "indigo"]
 
         fig = go.FigureWidget().set_subplots(
             rows=3,
@@ -153,11 +157,13 @@ class ConvergencePlots(object):
             row=1,
             col=1,
             hovertext="text",
-            marker_color="crimson",
+            marker_color=self.luminosity_line_colors[0],
             mode="lines",
         )
 
-        for luminosity, line_color in zip(self.luminosities, line_colors):
+        for luminosity, line_color in zip(
+            self.luminosities, self.luminosity_line_colors[1:4]
+        ):
             fig.add_scatter(
                 name=luminosity + "<br>Luminosity",
                 mode="lines",
@@ -171,7 +177,7 @@ class ConvergencePlots(object):
             name="Residual<br>Luminosity",
             row=3,
             col=1,
-            marker_color="cornflowerblue",
+            marker_color=self.luminosity_line_colors[4],
             mode="lines",
         )
 
@@ -215,7 +221,6 @@ class ConvergencePlots(object):
             legend_tracegroupgap=0,
             height=630,
             hoverlabel_align="right",
-            hoverlabel_font_color="white",
             margin=dict(b=25, t=25, pad=0),
         )
 
@@ -286,7 +291,7 @@ class ConvergencePlots(object):
         self.plasma_plot.add_scatter(
             x=x,
             y=self.iterable_data["t_rad"],
-            line_color=self.colorscale[self.current_iteration - 1],
+            line_color=self.plasma_colorscale[self.current_iteration - 1],
             row=1,
             col=1,
             name=self.current_iteration,
@@ -300,7 +305,7 @@ class ConvergencePlots(object):
         self.plasma_plot.add_scatter(
             x=x,
             y=self.iterable_data["w"],
-            line_color=self.colorscale[self.current_iteration - 1],
+            line_color=self.plasma_colorscale[self.current_iteration - 1],
             row=1,
             col=2,
             legendgroup=f"group-{self.current_iteration}",
@@ -319,7 +324,7 @@ class ConvergencePlots(object):
             self.luminosity_plot.data[0].y = self.value_data["t_inner"]
             self.luminosity_plot.data[
                 0
-            ].hovertemplate = "Inner Body Temperature: %{y:.3f} at X = %{x:,.0f}<extra></extra>"
+            ].hovertemplate = "<b>%{y:.3f}</b> at X = %{x:,.0f}<extra>Inner Boundary Temperature</extra>"
 
             for index, luminosity in zip(range(1, 4), self.luminosities):
                 self.luminosity_plot.data[index].x = x
@@ -338,7 +343,7 @@ class ConvergencePlots(object):
                 self.luminosity_plot.data[4].y = y
                 self.luminosity_plot.data[
                     4
-                ].hovertemplate = "Residual Luminosity: %{y:.2f}% at X = %{x:,.0f}<extra></extra>"
+                ].hovertemplate = "<b>%{y:.2f}%</b> at X = %{x:,.0f}"
 
     def update(self, export_cplots=False, last=False):
         """
