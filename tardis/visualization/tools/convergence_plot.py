@@ -35,13 +35,29 @@ def transition_colors(length, name="jet"):
 
 class ConvergencePlots(object):
     """
-    Class to create and update convergence plots for visualizing convergence of the
+    Class to create and update convergence plots for visualizing convergence of the \
     simulation.
 
     Parameters
     ----------
     iteration : int
         iteration number
+    **kwargs : dict, optional
+        keyword arguments
+
+    Other Parameters
+    ----------------
+    plasma_plot_config, luminosity_plot_config : dict
+        Dictionary used to override default plot properties of the plots.
+        The  plasma_plot_config dictionary updates the plasma plot while 
+        the luminosity_plot_config dict updates the luminosity and the inner boundary temperature plots.
+        All properties related to data will be applied equally across all traces. 
+    cmap : str, default: 'jet'
+        String defining the cmap used in plots.
+    export_cplots : bool, default: False
+        If True, plots are displayed again using the `notebook_connected` renderer. This helps 
+        display the plots in the documentation or in platforms like nbviewer. 
+    
     """
 
     def __init__(self, iterations, **kwargs):
@@ -74,6 +90,7 @@ class ConvergencePlots(object):
                 name=kwargs["cmap"], length=self.iterations
             )
         else:
+            # default color scale is jet
             self.luminosity_line_colors = transition_colors(length=5)
             self.plasma_colorscale = transition_colors(length=self.iterations)
 
@@ -92,8 +109,11 @@ class ConvergencePlots(object):
             either iterable or value
 
         """
+        # trace data for plasma plots is added in iterable data dictionary
         if item_type == "iterable":
             self.iterable_data[name] = value
+
+        # trace data for luminosity plots and inner boundary temperature plot is stored in value_data dictionary
         if item_type == "value":
             self.value_data[name].append(value)
 
@@ -170,7 +190,6 @@ class ConvergencePlots(object):
                 row=2,
                 col=1,
                 marker_color=line_color,
-                legendgroup=luminosity,
             )
 
         fig.add_scatter(
@@ -190,7 +209,6 @@ class ConvergencePlots(object):
                 dtick=2,
             ),
             xaxis3=dict(
-                matches="x2",
                 title=r"$\mbox{Iteration Number}$",
                 dtick=2,
             ),
@@ -221,7 +239,9 @@ class ConvergencePlots(object):
             legend_tracegroupgap=0,
             height=630,
             hoverlabel_align="right",
-            margin=dict(b=25, t=25, pad=0),
+            margin=dict(
+                b=25, t=25, pad=0
+            ),  # reduces whitespace surrounding the plot
         )
 
         # allows overriding default layout
@@ -232,7 +252,8 @@ class ConvergencePlots(object):
 
     def override_plot_parameters(self, fig, parameters):
         """
-        Overrides default plot properties.
+        Overrides default plot properties. Any property inside the data dictionary is
+        however, shared across all traces. This means trace-specific data properties can't be changed.
 
         Parameters
         ----------
@@ -242,8 +263,13 @@ class ConvergencePlots(object):
             Dictionary used to update the default plot style. The dictionary should have a structure
             like that of go.FigureWidget.to_dict(), for more information please see https://plotly.com/python/figure-structure/
         """
+
+        # because fig.data is a tuple of traces, a property in the data dictionary is applied to all traces
+        # the fig is a nested dictionary, a property n levels deep is not changed until the value is a not dictionary
+        # fig["property_1"]["property_2"]...["property_n"] = "value"
         for key, value in parameters.items():
             if key == "data":
+                # all traces will have same data property
                 for trace in list(fig.data):
                     self.override_plot_parameters(trace, value)
             else:
@@ -274,7 +300,10 @@ class ConvergencePlots(object):
         """
         Updates plasma convergence plots every iteration.
         """
+        # convert velocity to km/s
         x = self.iterable_data["velocity"].to(u.km / u.s).value.tolist()
+
+        # add luminosity data in hover data in plasma plots
         customdata = len(x) * [
             "<br>"
             + "Emitted Luminosity: "
@@ -319,13 +348,17 @@ class ConvergencePlots(object):
         Updates luminosity convergence plots every iteration.
         """
         x = list(range(1, self.iterations + 1))
+
         with self.luminosity_plot.batch_update():
+            # traces are updated according to the order they were added
+            # the first trace is of the inner boundary temperature plot
             self.luminosity_plot.data[0].x = x
             self.luminosity_plot.data[0].y = self.value_data["t_inner"]
             self.luminosity_plot.data[
                 0
-            ].hovertemplate = "<b>%{y:.3f}</b> at X = %{x:,.0f}<extra>Inner Boundary Temperature</extra>"
+            ].hovertemplate = "<b>%{y:.3f}</b> at X = %{x:,.0f}<extra>Inner Boundary Temperature</extra>"  # trace name in extra tag to avoid new lines in hoverdata
 
+            # the next three for emitted, absorbed and requested luminosities
             for index, luminosity in zip(range(1, 4), self.luminosities):
                 self.luminosity_plot.data[index].x = x
                 self.luminosity_plot.data[index].y = self.value_data[luminosity]
@@ -333,12 +366,14 @@ class ConvergencePlots(object):
                     "<b>%{y:.4g}</b>" + "<br>at X = %{x}<br>"
                 )
 
+                # last is for the residual luminosity
                 y = [
                     ((emitted - requested) * 100) / requested
                     for emitted, requested in zip(
                         self.value_data["Emitted"], self.value_data["Requested"]
                     )
                 ]
+
                 self.luminosity_plot.data[4].x = x
                 self.luminosity_plot.data[4].y = y
                 self.luminosity_plot.data[
@@ -361,12 +396,15 @@ class ConvergencePlots(object):
             True if it's last iteration.
         """
         if self.iterable_data != {}:
+            # build only at first iteration
             if self.current_iteration == 1:
                 self.build()
 
             self.update_plasma_plots()
             self.update_luminosity_plot()
 
+            # data property for plasma plots needs to be
+            # updated after the last iteration because new traces have been added
             if hasattr(self, "plasma_plot_config") and last:
                 if "data" in self.plasma_plot_config:
                     self.override_plot_parameters(
@@ -374,6 +412,9 @@ class ConvergencePlots(object):
                     )
 
         self.current_iteration += 1
+
+        # the display function expects a Widget, while
+        # fig.show() returns None, which causes the TraitError.
         if export_cplots:
             with suppress(TraitError):
                 display(
