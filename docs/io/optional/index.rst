@@ -9,6 +9,7 @@ TARDIS also allows other inputs that are passed as arguments into the ``run_tard
 
     custom_source
     callback_example
+    logging_configuration
 
 
 Additionally, ``run_tardis`` can take in a filepath for the atomic data and a boolian for virtual packet logging, both of
