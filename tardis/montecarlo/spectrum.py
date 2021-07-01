@@ -64,7 +64,7 @@ class TARDISSpectrum(HDFWriterMixin):
                 self.luminosity_density_nu, self.distance
             )
         except AttributeError:
-            flux="flux_nu"
+            flux = "flux_nu"
             raise AttributeError(
                 "distance is required as attribute of"
                 f'{self.__class__.__name__} to calculate "{flux}"'
@@ -86,7 +86,7 @@ class TARDISSpectrum(HDFWriterMixin):
                 self.luminosity_density_lambda, self.distance
             )
         except AttributeError:
-            flux_lambda="flux_lambda"
+            flux_lambda = "flux_lambda"
             raise AttributeError(
                 "distance is required as attribute of"
                 f'{self.__class__.__name__} to calculate "{flux_lambda}"'
@@ -105,17 +105,17 @@ class TARDISSpectrum(HDFWriterMixin):
 
             ax = gca()
         if mode == "wavelength":
-            ax.plot(self.wavelength.value, self.luminosity_density_lambda.value, **kwargs)
-            ax.set_xlabel(
-                f"Wavelength [{self.wavelength.unit._repr_latex_()}]"
+            ax.plot(
+                self.wavelength.value,
+                self.luminosity_density_lambda.value,
+                **kwargs,
             )
+            ax.set_xlabel(f"Wavelength [{self.wavelength.unit._repr_latex_()}]")
             ax.set_ylabel(
                 f"Flux [{self.luminosity_density_lambda.unit._repr_latex_():s}]"
             )
         else:
-            warnings.warn(
-                f"Did not find plotting mode {mode}, doing nothing."
-            )
+            warnings.warn(f"Did not find plotting mode {mode}, doing nothing.")
 
     def to_ascii(self, fname, mode="luminosity_density"):
         if mode == "luminosity_density":

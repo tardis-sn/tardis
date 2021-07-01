@@ -13,7 +13,6 @@ model:
         filetype: artis
         v_inner_boundary: 9000 km/s
         v_outer_boundary: 20000 km/s
-
     abundances:
         type: uniform
         O: 0.19

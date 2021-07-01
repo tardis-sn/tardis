@@ -54,11 +54,13 @@ dependencies:
   - nbformat
   - nbsphinx
   - docutils=0.16  # Issue #1522
+  - snakeviz
 
   # Test/Coverage
   - pytest
   - pytest-cov
   - pytest-html
+  - python-dokuwiki
   - coverage
 
   # Code quality
@@ -68,5 +70,4 @@ dependencies:
   - git-lfs
 
   - pip:
-      - dokuwiki
       - dot2tex  # conda-forge package requires python>=3.8

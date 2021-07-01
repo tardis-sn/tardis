@@ -14,8 +14,9 @@ class HomologousDensity(HDFWriterMixin):
     time_0 : astropy.units.Quantity
 
     """
-    hdf_properties = ['density_0', 'time_0']
-    
+
+    hdf_properties = ["density_0", "time_0"]
+
     def __init__(self, density_0, time_0):
         self.density_0 = density_0
         self.time_0 = time_0
@@ -32,8 +33,9 @@ class HomologousDensity(HDFWriterMixin):
         -------
         astropy.units.Quantity
         """
-        return calculate_density_after_time(self.density_0, self.time_0,
-                                            time_explosion).cgs
+        return calculate_density_after_time(
+            self.density_0, self.time_0, time_explosion
+        ).cgs
 
     @classmethod
     def from_csvy(cls, config, csvy_model_config):
@@ -51,44 +53,51 @@ class HomologousDensity(HDFWriterMixin):
         HomologousDensity
 
         """
-        if hasattr(csvy_model_config, 'velocity'):
-            velocity = quantity_linspace(csvy_model_config.velocity.start,
-                                         csvy_model_config.velocity.stop,
-                                         csvy_model_config.velocity.num + 1).cgs
+        if hasattr(csvy_model_config, "velocity"):
+            velocity = quantity_linspace(
+                csvy_model_config.velocity.start,
+                csvy_model_config.velocity.stop,
+                csvy_model_config.velocity.num + 1,
+            ).cgs
         else:
-            velocity_field_index = [field.name for field in csvy_model_config.datatype.fields].index('velocity')
-            velocity_unit = u.Unit(csvy_model_config.datatype.fields[velocity_field_index].unit)
+            velocity_field_index = [
+                field.name for field in csvy_model_config.datatype.fields
+            ].index("velocity")
+            velocity_unit = u.Unit(
+                csvy_model_config.datatype.fields[velocity_field_index].unit
+            )
             velocity = csvy_model_config.velocity.values * velocity_unit
 
         adjusted_velocity = velocity.insert(0, 0)
-        v_middle = (adjusted_velocity[1:] * 0.5 +
-                    adjusted_velocity[:-1] * 0.5)
+        v_middle = adjusted_velocity[1:] * 0.5 + adjusted_velocity[:-1] * 0.5
         no_of_shells = len(adjusted_velocity) - 1
         time_explosion = config.supernova.time_explosion.cgs
 
-        if hasattr(csvy_model_config, 'density'):
+        if hasattr(csvy_model_config, "density"):
             d_conf = csvy_model_config.density
             density_type = d_conf.type
-            if density_type == 'branch85_w7':
-                density_0 = calculate_power_law_density(v_middle, d_conf.w7_v_0,
-                                                        d_conf.w7_rho_0, -7)
+            if density_type == "branch85_w7":
+                density_0 = calculate_power_law_density(
+                    v_middle, d_conf.w7_v_0, d_conf.w7_rho_0, -7
+                )
                 time_0 = d_conf.w7_time_0
-            elif density_type == 'uniform':
-                density_0 = (d_conf.value.to('g cm^-3') *
-                             np.ones(no_of_shells))
-                time_0 = d_conf.get('time_0', time_explosion)
-            elif density_type == 'power_law':
-                density_0 = calculate_power_law_density(v_middle, d_conf.v_0,
-                                                        d_conf.rho_0,
-                                                        d_conf.exponent)
-                time_0 = d_conf.get('time_0', time_explosion)
-            elif density_type == 'exponential':
-                density_0 = calculate_exponential_density(v_middle, d_conf.v_0,
-                                                          d_conf.rho_0)
-                time_0 = d_conf.get('time_0', time_explosion)
+            elif density_type == "uniform":
+                density_0 = d_conf.value.to("g cm^-3") * np.ones(no_of_shells)
+                time_0 = d_conf.get("time_0", time_explosion)
+            elif density_type == "power_law":
+                density_0 = calculate_power_law_density(
+                    v_middle, d_conf.v_0, d_conf.rho_0, d_conf.exponent
+                )
+                time_0 = d_conf.get("time_0", time_explosion)
+            elif density_type == "exponential":
+                density_0 = calculate_exponential_density(
+                    v_middle, d_conf.v_0, d_conf.rho_0
+                )
+                time_0 = d_conf.get("time_0", time_explosion)
             else:
-                raise ValueError(f"Unrecognized density type "
-                                 f"'{d_conf.type}'")
+                raise ValueError(
+                    f"Unrecognized density type " f"'{d_conf.type}'"
+                )
         return cls(density_0, time_0)
 
     @classmethod
@@ -106,36 +115,37 @@ class HomologousDensity(HDFWriterMixin):
 
         """
         d_conf = config.model.structure.density
-        velocity = quantity_linspace(config.model.structure.velocity.start,
-                                     config.model.structure.velocity.stop,
-                                     config.model.structure.velocity.num + 1).cgs
+        velocity = quantity_linspace(
+            config.model.structure.velocity.start,
+            config.model.structure.velocity.stop,
+            config.model.structure.velocity.num + 1,
+        ).cgs
 
         adjusted_velocity = velocity.insert(0, 0)
-        v_middle = (adjusted_velocity[1:] * 0.5 +
-                    adjusted_velocity[:-1] * 0.5)
+        v_middle = adjusted_velocity[1:] * 0.5 + adjusted_velocity[:-1] * 0.5
         no_of_shells = len(adjusted_velocity) - 1
         time_explosion = config.supernova.time_explosion.cgs
 
-        if d_conf.type == 'branch85_w7':
-            density_0 = calculate_power_law_density(v_middle, d_conf.w7_v_0,
-                                                    d_conf.w7_rho_0, -7)
+        if d_conf.type == "branch85_w7":
+            density_0 = calculate_power_law_density(
+                v_middle, d_conf.w7_v_0, d_conf.w7_rho_0, -7
+            )
             time_0 = d_conf.w7_time_0
-        elif d_conf.type == 'uniform':
-            density_0 = (d_conf.value.to('g cm^-3') *
-                         np.ones(no_of_shells))
-            time_0 = d_conf.get('time_0', time_explosion)
-        elif d_conf.type == 'power_law':
-            density_0 = calculate_power_law_density(v_middle, d_conf.v_0,
-                                                    d_conf.rho_0,
-                                                    d_conf.exponent)
-            time_0 = d_conf.get('time_0', time_explosion)
-        elif d_conf.type == 'exponential':
-            density_0 = calculate_exponential_density(v_middle, d_conf.v_0,
-                                                      d_conf.rho_0)
-            time_0 = d_conf.get('time_0', time_explosion)
+        elif d_conf.type == "uniform":
+            density_0 = d_conf.value.to("g cm^-3") * np.ones(no_of_shells)
+            time_0 = d_conf.get("time_0", time_explosion)
+        elif d_conf.type == "power_law":
+            density_0 = calculate_power_law_density(
+                v_middle, d_conf.v_0, d_conf.rho_0, d_conf.exponent
+            )
+            time_0 = d_conf.get("time_0", time_explosion)
+        elif d_conf.type == "exponential":
+            density_0 = calculate_exponential_density(
+                v_middle, d_conf.v_0, d_conf.rho_0
+            )
+            time_0 = d_conf.get("time_0", time_explosion)
         else:
-            raise ValueError(f"Unrecognized density type "
-                             f"'{d_conf.type}'")
+            raise ValueError(f"Unrecognized density type " f"'{d_conf.type}'")
         return cls(density_0, time_0)
 
 

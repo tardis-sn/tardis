@@ -10,3 +10,5 @@ In addition to the widgets, TARDIS can output information in several other forms
     physical_quantities
     access_iterations
     to_hdf
+    callback
+    vpacket_logging

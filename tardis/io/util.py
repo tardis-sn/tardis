@@ -230,21 +230,27 @@ class HDFWriterMixin(object):
         HDFStore because the user decides on the mode in which they have
         opened the HDFStore ('r', 'w' or 'a').
         """
-        try:  # when path_or_buf is a str, the HDFStore should get created
-            buf = pd.HDFStore(path_or_buf, complevel=complevel, complib=complib)
-        except TypeError as e:
-            if e.message == "Expected bytes, got HDFStore":
-                # when path_or_buf is an HDFStore buffer instead
-                buf = path_or_buf
-            else:
-                raise e
-        else:  # path_or_buf was a str
-            if os.path.exists(path_or_buf) and not overwrite:
-                buf.close()
-                raise FileExistsError(
-                    "The specified HDF file already exists. If you still want "
-                    "to overwrite it, set option overwrite=True"
+        if (
+            isinstance(path_or_buf, str)
+            and os.path.exists(path_or_buf)
+            and not overwrite
+        ):
+            raise FileExistsError(
+                "The specified HDF file already exists. If you still want "
+                "to overwrite it, set function parameter overwrite=True"
+            )
+
+        else:
+            try:  # when path_or_buf is a str, the HDFStore should get created
+                buf = pd.HDFStore(
+                    path_or_buf, complevel=complevel, complib=complib
                 )
+            except TypeError as e:
+                if e.message == "Expected bytes, got HDFStore":
+                    # when path_or_buf is an HDFStore buffer instead
+                    buf = path_or_buf
+                else:
+                    raise e
 
         if not buf.is_open:
             buf.open()

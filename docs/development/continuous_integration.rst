@@ -44,7 +44,7 @@ pipelines and GitHub Actions for some others (called "workflows"). The
 following sections explains briefly the different components of a
 pipeline/workflow, mostly focused on the Azure service.
 
-A pipeline (or a workflow) is essentially a YAML configuration file 
+A pipeline (or a workflow) is essentially a :term:`YAML` configuration file 
 with different sections such as variables, jobs and steps. These files
 run commands or tasks when they are triggered by some event, like a 
 commit being pushed to a certain branch.

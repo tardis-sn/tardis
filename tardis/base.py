@@ -8,6 +8,8 @@ def run_tardis(
     simulation_callbacks=[],
     virtual_packet_logging=False,
     show_cplots=True,
+    log_state=None,
+    specific=None,
     **kwargs,
 ):
     """
@@ -33,15 +35,10 @@ def run_tardis(
     -------
     Simulation
     """
+    from tardis import logging_state
     from tardis.io.config_reader import Configuration
     from tardis.io.atom_data.base import AtomData
     from tardis.simulation import Simulation
-
-    if atom_data is not None:
-        try:
-            atom_data = AtomData.from_hdf(atom_data)
-        except TypeError:
-            atom_data = atom_data
 
     if isinstance(config, Configuration):
         tardis_config = config
@@ -53,6 +50,14 @@ def run_tardis(
 
     if not isinstance(show_cplots, bool):
         raise TypeError("Expected bool in show_cplots argument")
+
+    logging_state(log_state, tardis_config, specific)
+
+    if atom_data is not None:
+        try:
+            atom_data = AtomData.from_hdf(atom_data)
+        except TypeError:
+            atom_data = atom_data
 
     simulation = Simulation.from_config(
         tardis_config,

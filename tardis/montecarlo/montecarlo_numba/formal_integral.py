@@ -12,8 +12,11 @@ import pdb
 
 from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
 from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
-from tardis.montecarlo.montecarlo_numba.numba_interface import \
-        (numba_plasma_initialize, NumbaModel, NumbaPlasma)
+from tardis.montecarlo.montecarlo_numba.numba_interface import (
+    numba_plasma_initialize,
+    NumbaModel,
+    NumbaPlasma,
+)
 
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
@@ -22,26 +25,39 @@ M_PI = np.arccos(-1)
 KB_CGS = 1.3806488e-16
 H_CGS = 6.62606957e-27
 
+
 class IntegrationError(Exception):
     pass
 
 
 @njit(**njit_dict)
-def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N):
-    '''
+def numba_formal_integral(
+    model,
+    plasma,
+    iT,
+    inu,
+    inu_size,
+    att_S_ul,
+    Jred_lu,
+    Jblue_lu,
+    tau_sobolev,
+    electron_density,
+    N,
+):
+    """
     model, plasma, and estimator are the numba variants
-    '''
+    """
     # todo: add all the original todos
     # Initialize the output which is shared among threads
     L = np.zeros(inu_size, dtype=np.float64)
     # global read-only values
     size_line, size_shell = tau_sobolev.shape
     size_tau = size_line * size_shell
-    R_ph = model.r_inner[0] # make sure these are cgs
+    R_ph = model.r_inner[0]  # make sure these are cgs
     R_max = model.r_outer[size_shell - 1]
-    pp = np.zeros(N, dtype=np.float64) # check
+    pp = np.zeros(N, dtype=np.float64)  # check
     exp_tau = np.zeros(size_tau, dtype=np.float64)
-    exp_tau = np.exp(-tau_sobolev.T.ravel()) # maybe make this 2D?
+    exp_tau = np.exp(-tau_sobolev.T.ravel())  # maybe make this 2D?
     pp[::] = calculate_p_values(R_max, N)
     line_list_nu = plasma.line_list_nu
     # done with instantiation
@@ -71,7 +87,6 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
         pJblue_lu = 0
         pline = 0
 
-
         nu = inu[nu_idx]
         # now loop over discrete values along line
         for p_idx in range(1, N):
@@ -79,7 +94,7 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
             p = pp[p_idx]
 
             # initialize z intersections for p values
-            size_z = populate_z(model, p, z, shell_id) # check returns
+            size_z = populate_z(model, p, z, shell_id)  # check returns
             # initialize I_nu
             if p <= R_ph:
                 I_nu[p_idx] = intensity_black_body(nu * z[0], iT)
@@ -89,11 +104,10 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
             # find first contributing lines
             nu_start = nu * z[0]
             nu_end = nu * z[1]
-            idx_nu_start = line_search(plasma.line_list_nu,
-                                       nu_start, size_line)
+            idx_nu_start = line_search(plasma.line_list_nu, nu_start, size_line)
             offset = shell_id[0] * size_line
             # start tracking accumulated e-scattering optical depth
-            zstart = model.time_explosion / C_INV * (1. - z[0])
+            zstart = model.time_explosion / C_INV * (1.0 - z[0])
             # Initialize "pointers"
             pline = int(idx_nu_start)
             pexp_tau = int(offset + idx_nu_start)
@@ -105,40 +119,46 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
             first = 1
             nu_ends = nu * z[1:]
             nu_ends_idxs = size_line - np.searchsorted(
-                    line_list_nu[::-1], 
-                    nu_ends, 
-                    side='right'
+                line_list_nu[::-1], nu_ends, side="right"
             )
-            # loop over all interactions 
+            # loop over all interactions
             for i in range(size_z - 1):
                 escat_op = electron_density[int(shell_id[i])] * SIGMA_THOMSON
                 nu_end = nu_ends[i]
                 nu_end_idx = nu_ends_idxs[i]
-                for _ in range(max(nu_end_idx-pline,0)):
+                for _ in range(max(nu_end_idx - pline, 0)):
 
                     # calculate e-scattering optical depth to next resonance point
-                    zend = model.time_explosion / C_INV * (1. - line_list_nu[pline] / nu) # check
+                    zend = (
+                        model.time_explosion
+                        / C_INV
+                        * (1.0 - line_list_nu[pline] / nu)
+                    )  # check
 
                     if first == 1:
                         # first contribution to integration
                         # NOTE: this treatment of I_nu_b (given
                         #   by boundary conditions) is not in Lucy 1999;
                         #   should be re-examined carefully
-                        escat_contrib += (zend - zstart) * escat_op * (
-                            Jblue_lu[pJblue_lu] - I_nu[p_idx]);
-                        first = 0;
+                        escat_contrib += (
+                            (zend - zstart)
+                            * escat_op
+                            * (Jblue_lu[pJblue_lu] - I_nu[p_idx])
+                        )
+                        first = 0
                     else:
                         # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
-                        Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu]);
-                        escat_contrib += (zend - zstart) * escat_op * (
-                                    Jkkp - I_nu[p_idx])
+                        Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
+                        escat_contrib += (
+                            (zend - zstart) * escat_op * (Jkkp - I_nu[p_idx])
+                        )
                         # this introduces the necessary ffset of one element between
                         # pJblue_lu and pJred_lu
                         pJred_lu += 1
                     I_nu[p_idx] += escat_contrib
                     # // Lucy 1999, Eq 26
-                    I_nu[p_idx] *= (exp_tau[pexp_tau])
-                    I_nu[p_idx] += att_S_ul[patt_S_ul] 
+                    I_nu[p_idx] *= exp_tau[pexp_tau]
+                    I_nu[p_idx] += att_S_ul[patt_S_ul]
 
                     # // reset e-scattering opacity
                     escat_contrib = 0
@@ -152,13 +172,16 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
                 # calculate e-scattering optical depth to grid cell boundary
 
                 Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
-                zend = model.time_explosion / C_INV * (1. - nu_end / nu) # check
-                escat_contrib += (zend - zstart) * escat_op * (
-                            Jkkp - I_nu[p_idx])
+                zend = (
+                    model.time_explosion / C_INV * (1.0 - nu_end / nu)
+                )  # check
+                escat_contrib += (
+                    (zend - zstart) * escat_op * (Jkkp - I_nu[p_idx])
+                )
                 zstart = zend
 
                 # advance pointers
-                direction = int((shell_id[i+1] - shell_id[i]) * size_line)
+                direction = int((shell_id[i + 1] - shell_id[i]) * size_line)
                 pexp_tau += direction
                 patt_S_ul += direction
                 pJred_lu += direction
@@ -169,38 +192,63 @@ def numba_formal_integral(model, plasma, iT, inu, inu_size, att_S_ul, Jred_lu, J
     return L
 
 
-
 integrator_spec = [
-    ('model', NumbaModel.class_type.instance_type),
-    ('plasma', NumbaPlasma.class_type.instance_type),
-    ('points', int64)
+    ("model", NumbaModel.class_type.instance_type),
+    ("plasma", NumbaPlasma.class_type.instance_type),
+    ("points", int64),
 ]
+
+
 @jitclass(integrator_spec)
 class NumbaFormalIntegrator(object):
-    '''
+    """
     Helper class for performing the formal integral
     with numba.
-    '''
+    """
+
     def __init__(self, model, plasma, points=1000):
 
         self.model = model
         self.plasma = plasma
         self.points = points
 
-    def formal_integral(self, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N):
-        '''simple wrapper for the numba implementation of the formal integral'''
-        return numba_formal_integral(self.model, self.plasma, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N)
+    def formal_integral(
+        self,
+        iT,
+        inu,
+        inu_size,
+        att_S_ul,
+        Jred_lu,
+        Jblue_lu,
+        tau_sobolev,
+        electron_density,
+        N,
+    ):
+        """simple wrapper for the numba implementation of the formal integral"""
+        return numba_formal_integral(
+            self.model,
+            self.plasma,
+            iT,
+            inu,
+            inu_size,
+            att_S_ul,
+            Jred_lu,
+            Jblue_lu,
+            tau_sobolev,
+            electron_density,
+            N,
+        )
 
 
 class FormalIntegrator(object):
-    '''
+    """
     Class containing the formal integrator
-    '''
+    """
 
     def __init__(self, model, plasma, runner, points=1000):
 
         self.model = model
-        self.runner = runner 
+        self.runner = runner
         self.points = points
         if plasma:
             self.plasma = numba_plasma_initialize(
@@ -210,24 +258,20 @@ class FormalIntegrator(object):
             self.original_plasma = plasma
 
     def generate_numba_objects(self):
-        '''instantiate the numba interface objects
-        needed for computing the formal integral'''
+        """instantiate the numba interface objects
+        needed for computing the formal integral"""
         self.numba_model = NumbaModel(
-                self.runner.r_inner_i,
-                self.runner.r_outer_i,
-                self.model.time_explosion.to("s").value,
+            self.runner.r_inner_i,
+            self.runner.r_outer_i,
+            self.model.time_explosion.to("s").value,
         )
         self.numba_plasma = numba_plasma_initialize(
-                self.original_plasma, 
-                self.runner.line_interaction_type
+            self.original_plasma, self.runner.line_interaction_type
         )
 
         self.numba_integrator = NumbaFormalIntegrator(
-                self.numba_model, 
-                self.numba_plasma, 
-                self.points
+            self.numba_model, self.numba_plasma, self.points
         )
-
 
     def check(self, raises=True):
         """
@@ -236,7 +280,7 @@ class FormalIntegrator(object):
 
         The function returns False if the configuration conflicts with the
         required settings. If raises evaluates to True, then a
-        IntegrationError is raised instead 
+        IntegrationError is raised instead
         """
 
         def raise_or_return(message):
@@ -271,12 +315,12 @@ class FormalIntegrator(object):
         # while TARDISSpectrum needs bin edges
         self.check(raises)
         N = points or self.points
-        if interpolate_shells == 0: # Default Value
+        if interpolate_shells == 0:  # Default Value
             interpolate_shells = max(2 * self.model.no_of_shells, 80)
             warnings.warn(
                 "The number of interpolate_shells was not "
                 f"specified. The value was set to {interpolate_shells}."
-        )
+            )
         self.interpolate_shells = interpolate_shells
         frequency = frequency.to("Hz", u.spectral())
 
@@ -418,7 +462,9 @@ class FormalIntegrator(object):
             runner.r_inner_i = runner.r_inner_cgs
             runner.r_outer_i = runner.r_outer_cgs
             runner.tau_sobolevs_integ = self.original_plasma.tau_sobolevs.values
-            runner.electron_densities_integ = self.original_plasma.electron_densities.values
+            runner.electron_densities_integ = (
+                self.original_plasma.electron_densities.values
+            )
 
         return att_S_ul, Jredlu, Jbluelu, e_dot_u
 
@@ -455,9 +501,9 @@ class FormalIntegrator(object):
         att_S_ul = interp1d(r_middle, att_S_ul, fill_value="extrapolate")(
             r_middle_integ
         )
-        Jredlu = pd.DataFrame(interp1d(r_middle, Jredlu, fill_value="extrapolate")(
-            r_middle_integ
-        ))
+        Jredlu = pd.DataFrame(
+            interp1d(r_middle, Jredlu, fill_value="extrapolate")(r_middle_integ)
+        )
         Jbluelu = interp1d(r_middle, Jbluelu, fill_value="extrapolate")(
             r_middle_integ
         )
@@ -473,48 +519,49 @@ class FormalIntegrator(object):
         return att_S_ul, Jredlu, Jbluelu, e_dot_u
 
     def formal_integral(self, nu, N):
-        '''Do the formal integral with the numba
-        routines'''
+        """Do the formal integral with the numba
+        routines"""
         # TODO: get rid of storage later on
 
         res = self.make_source_function()
 
-        att_S_ul = res[0].flatten(order='F')
-        Jred_lu = res[1].values.flatten(order='F')
-        Jblue_lu = res[2].flatten(order='F')
+        att_S_ul = res[0].flatten(order="F")
+        Jred_lu = res[1].values.flatten(order="F")
+        Jblue_lu = res[2].flatten(order="F")
 
         self.generate_numba_objects()
         L = self.numba_integrator.formal_integral(
-                self.model.t_inner,
-                nu,
-                nu.shape[0],
-                att_S_ul,
-                Jred_lu,
-                Jblue_lu,
-                self.runner.tau_sobolevs_integ,
-                self.runner.electron_densities_integ,
-                N
-                )
+            self.model.t_inner,
+            nu,
+            nu.shape[0],
+            att_S_ul,
+            Jred_lu,
+            Jblue_lu,
+            self.runner.tau_sobolevs_integ,
+            self.runner.electron_densities_integ,
+            N,
+        )
         return np.array(L, np.float64)
+
 
 @njit(**njit_dict_no_parallel)
 def populate_z(model, p, oz, oshell_id):
     """Calculate p line intersections
 
-        This function calculates the intersection points of the p-line with
-        each shell
+    This function calculates the intersection points of the p-line with
+    each shell
 
-        Inputs:
-            :p: (double) distance of the integration line to the center
-            :oz: (array of doubles) will be set with z values. the array is truncated
-                        by the value `1`.
-            :oshell_id: (int64) will be set with the corresponding shell_ids
-        """
+    Inputs:
+        :p: (double) distance of the integration line to the center
+        :oz: (array of doubles) will be set with z values. the array is truncated
+                    by the value `1`.
+        :oshell_id: (int64) will be set with the corresponding shell_ids
+    """
     # abbreviations
     r = model.r_outer
-    N = len(model.r_inner) # check
-    #print(N)
-    inv_t = 1/model.time_explosion
+    N = len(model.r_inner)  # check
+    # print(N)
+    inv_t = 1 / model.time_explosion
     z = 0
     offset = N
 
@@ -613,28 +660,30 @@ def reverse_binary_search(x, x_insert, imin, imax):
     # ret_val = TARDIS_ERROR_OK # check
     if (x_insert > x[imin]) or (x_insert < x[imax]):
         raise BoundsError  # check
-    return len(x) - 1 - np.searchsorted(x[::-1], x_insert, side='right')
+    return len(x) - 1 - np.searchsorted(x[::-1], x_insert, side="right")
+
 
 @njit(**njit_dict_no_parallel)
 def trapezoid_integration(array, h):
-    '''in the future, let's just replace
+    """in the future, let's just replace
     this with the numpy trapz
     since it is numba compatable
-    '''
+    """
     return np.trapz(array, dx=h)
 
 
 @njit(**njit_dict_no_parallel)
 def intensity_black_body(nu, T):
-    '''Get the black body intensity at frequency nu
-    and temperature T '''
+    """Get the black body intensity at frequency nu
+    and temperature T"""
     if nu == 0:
         return np.nan  # to avoid ZeroDivisionError
     beta_rad = 1 / (KB_CGS * T)
     coefficient = 2 * H_CGS * C_INV * C_INV
     return coefficient * nu * nu * nu / (np.exp(H_CGS * nu * beta_rad) - 1)
 
+
 @njit(**njit_dict_no_parallel)
 def calculate_p_values(R_max, N):
-    '''This can probably be replaced with a simpler function'''
+    """This can probably be replaced with a simpler function"""
     return np.arange(N).astype(np.float64) * R_max / (N - 1)
