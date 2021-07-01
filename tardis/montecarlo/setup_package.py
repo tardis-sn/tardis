@@ -7,4 +7,3 @@ from glob import glob
 
 def get_package_data():
     return {"tardis.montecarlo.tests": ["data/*.npy", "data/*.hdf"]}
-

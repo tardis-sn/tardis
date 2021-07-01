@@ -2,7 +2,7 @@ import numpy as np
 from enum import IntEnum
 
 from numba import njit
-from tardis.montecarlo.montecarlo_numba import njit_dict ,njit_dict_no_parallel
+from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
 
 
 class MacroAtomError(ValueError):

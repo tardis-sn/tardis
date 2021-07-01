@@ -111,7 +111,6 @@ def line_emission(r_packet, emission_line_id, time_explosion, numba_plasma):
     r_packet.next_line_id = emission_line_id + 1
     nu_line = numba_plasma.line_list_nu[emission_line_id]
 
-
     if montecarlo_configuration.full_relativity:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu

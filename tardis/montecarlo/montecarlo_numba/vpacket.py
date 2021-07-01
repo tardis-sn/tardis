@@ -117,7 +117,6 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
             numba_model.time_explosion,
         )
 
-
         if distance_boundary <= distance_trace_line:
             break
 

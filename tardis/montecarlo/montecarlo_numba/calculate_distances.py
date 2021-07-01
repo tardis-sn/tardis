@@ -11,7 +11,7 @@ from tardis.montecarlo.montecarlo_numba.numba_config import (
     MISS_DISTANCE,
     SIGMA_THOMSON,
     ENABLE_FULL_RELATIVITY,
-    CLOSE_LINE_THRESHOLD
+    CLOSE_LINE_THRESHOLD,
 )
 
 from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
@@ -92,7 +92,7 @@ def calculate_distance_line(
     nu_diff = comov_nu - nu_line
 
     # for numerical reasons, if line is too close, we set the distance to 0.
-    if abs(nu_diff/nu) < CLOSE_LINE_THRESHOLD:
+    if abs(nu_diff / nu) < CLOSE_LINE_THRESHOLD:
         nu_diff = 0.0
 
     if nu_diff >= 0:
