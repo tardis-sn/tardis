@@ -122,27 +122,27 @@ supernova:
 
 test:
     structure:
-         property_type : container-property
-         type:
-             property_type: container-declaration
-             containers: ['file', 'specific']
-             _file: ['file_property']
-         file_property:
-               filename:
-                   property_type: string
-                   default: None
-                   mandatory: True
-                   help: file name (with path) to atomic data HDF5 file
-               file_container:
-                   property_type : container-property
-                   type:
-                       property_type: container-declaration
-                       containers: ['bla','blub']
-                       _bla: ['subset']
-                   subset:
-                       subvalue:
-                           property_type: string
-                           default: blabla
-                           mandatory: False
-                           help: very helpful 
+        property_type : container-property
+        type:
+            property_type: container-declaration
+            containers: ['file', 'specific']
+            _file: ['file_property']
+    file_property:
+            filename:
+                property_type: string
+                default: None
+                mandatory: True
+                help: file name (with path) to atomic data HDF5 file
+            file_container:
+                property_type : container-property
+                type:
+                    property_type: container-declaration
+                    containers: ['bla','blub']
+                    _bla: ['subset']
+                subset:
+                    subvalue:
+                        property_type: string
+                        default: blabla
+                        mandatory: False
+                        help: very helpful 
 

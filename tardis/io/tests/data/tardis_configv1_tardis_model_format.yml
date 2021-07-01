@@ -5,13 +5,12 @@ supernova:
     time_explosion: 13 day
 
 atom_data: kurucz_cd23_chianti_H_He.h5
-model:
 
+model:
     structure:
         type: file
         filename: cmfgen_model.csv
         filetype: cmfgen_model
-
     abundances:
         type: file
         filename: cmfgen_model.csv
