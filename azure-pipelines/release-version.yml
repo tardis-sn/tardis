@@ -50,8 +50,8 @@ jobs:
           tagSource: 'userSpecifiedTag'
           tag: 'v$(version)'
           title: 'TARDIS v$(version)'
-          isPreRelease: true
+          isPreRelease: false
           addChangeLog: true
-          changeLogCompareToRelease: 'lastNonDraftRelease'
+          changeLogCompareToRelease: 'lastFullRelease'
           changeLogType: 'commitBased'
         displayName: 'Create GitHub Release'
