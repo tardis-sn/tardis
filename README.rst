@@ -34,9 +34,6 @@ stars (*supernovae*).
     :target: https://dev.azure.com/tardis-sn/TARDIS/_build/latest?definitionId=3&repoName=tardis-sn%2Ftardis&branchName=refs%2Fpull%2F1573%2Fmerge
 
 
-
-
-
 ******************************
 Credits & Publication Policies
 ******************************
@@ -180,3 +177,14 @@ The following BibTeX entries are needed for the references:
       doi          = {10.5281/zenodo.3893940},
       url          = {https://doi.org/10.5281/zenodo.3893940}
     }
+
+
+*******
+License
+*******
+
+This project is Copyright (c) TARDIS Collaboration and licensed under
+the terms of the BSD 3-Clause license. This package is based upon
+the `Astropy package template <https://github.com/astropy/package-template>`_
+which is licensed under the BSD 3-clause license. See the licenses folder for
+more information.
