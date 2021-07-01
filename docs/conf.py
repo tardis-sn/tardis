@@ -134,7 +134,7 @@ else:
 # This does not *have* to match the package name, but typically does
 project = setup_cfg["name"]
 author = setup_cfg["author"]
-copyright = "{0}, {1}".format(
+copyright = "2013-{0}, {1}".format(
     datetime.datetime.now().year, setup_cfg["author"])
 
 # The version info for the project you"re documenting, acts as replacement for
