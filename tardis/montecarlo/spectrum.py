@@ -116,7 +116,7 @@ class TARDISSpectrum(HDFWriterMixin):
         if mode == "wavelength":
             ax.plot(self.wavelength.value, self.luminosity_density_lambda.value, **kwargs)
             ax.set_xlabel(
-                f"Wavelength [{self.wavelength.unit.to_string('latex_inline'):s}]"
+                f"Wavelength [{self.wavelength.unit.to_string('latex_inline')}]"
             )
             ax.set_ylabel(
                 f"$L_\\lambda$ [{self.luminosity_density_lambda.unit.to_string('latex_inline'):s}]"
@@ -124,10 +124,10 @@ class TARDISSpectrum(HDFWriterMixin):
         elif mode == "frequency":
             ax.plot(self.frequency.value, self.luminosity_density_nu.value, **kwargs)
             ax.set_xlabel(
-                f"Frequency [{self.frequency.unit.to_string('latex_inline'):s}]"
+                f"Frequency [{self.frequency.unit.to_string('latex_inline')}]"
             )
             ax.set_ylabel(
-                f"$L_\\nu$ [{self.luminosity_density_nu.unit.to_string('latex_inline'):s}]"
+                f"$L_\\nu$ [{self.luminosity_density_nu.unit.to_string('latex_inline')}]"
             )
         else:
             warnings.warn(
