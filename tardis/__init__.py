@@ -109,15 +109,31 @@ def logging_state(log_state, tardis_config, specific):
         logging_level = (
             log_state if log_state else tardis_config["debug"]["log_state"]
         )
-        logging_level = logging_level.upper()
 
-        if not logging_level in LOGGING_LEVELS:
-            raise ValueError(
-                f"Passed Value for log_state = {logging_level} is Invalid. Must be one of the following {list(LOGGING_LEVELS.keys())}"
+        # Displays a message when both log_state & tardis["debug"]["log_state"] are specified
+        if log_state and tardis_config["debug"]["log_state"]:
+            print(
+                "log_state is defined both in Functional Argument & YAML Configuration {debug section}"
             )
+            print(
+                f"log_state = {log_state.upper()} will be used for Log Level Determination\n"
+            )
+
     else:
-        tardis_config["debug"] = {"log_state": DEFAULT_LOG_STATE}
-        logging_level = tardis_config["debug"]["log_state"]
+        if log_state:
+            logging_level = log_state
+        else:
+            tardis_config["debug"] = {"log_state": DEFAULT_LOG_STATE}
+            logging_level = tardis_config["debug"]["log_state"]
+
+        if specific:
+            specific = specific
+
+    logging_level = logging_level.upper()
+    if not logging_level in LOGGING_LEVELS:
+        raise ValueError(
+            f"Passed Value for log_state = {logging_level} is Invalid. Must be one of the following {list(LOGGING_LEVELS.keys())}"
+        )
 
     loggers = [
         logging.getLogger(name) for name in logging.root.manager.loggerDict
@@ -126,7 +142,7 @@ def logging_state(log_state, tardis_config, specific):
         for logger in loggers:
             logger.setLevel(LOGGING_LEVELS[logging_level])
 
-    if len(list_of_filter) > 0:
+    if list_of_filter:
         for filter in list_of_filter:
             for logger in loggers:
                 logger.removeFilter(filter)
