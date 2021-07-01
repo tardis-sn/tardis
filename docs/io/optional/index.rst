@@ -13,7 +13,7 @@ TARDIS also allows other inputs that are passed as keyword arguments into the ``
     callback_example
 
 
-Additionally, ``run_tardis`` can take in a filepath for the atomic data and a boolian for virtual packet logging. For example:
+Additionally, ``run_tardis`` can take in a filepath for the atomic data and a boolean for virtual packet logging. For example:
 
 .. code-block:: python
     
