@@ -3,6 +3,9 @@ import tempfile
 
 from pytest_html import extras
 
+# NOTE: the __githash__ variable is not available anymore
+# on `version.py`. Find another way to fix it!
+
 # from tardis import __githash__ as tardis_githash
 
 
