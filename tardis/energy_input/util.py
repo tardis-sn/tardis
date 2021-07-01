@@ -1,3 +1,4 @@
+from enum import IntEnum
 import astropy.units as u
 import tardis.constants as const
 import numpy as np
@@ -5,6 +6,44 @@ from astropy.coordinates import spherical_to_cartesian
 
 R_ELECTRON = const.a0.cgs * const.alpha.cgs ** 2.0
 KEV2ERG = (1000 * u.eV).to("erg").value
+
+
+class GXPacketStatus(IntEnum):
+    BETA_DECAY = -1
+    COMPTON_SCATTER = 0
+    PHOTOABSORPTION = 1
+    PAIR_CREATION = 2
+    IN_PROCESS = 3
+    END = 4
+
+
+class GXPacket(object):
+    """
+    Gamma ray or X ray object with location, direction, energy, time and optical depth
+
+    Attributes
+    ----------
+    location : SphericalVector object
+             GXPacket position vector
+    direction : SphericalVector object
+             GXPacket direction vector (unitary)
+    energy : float64
+             GXPacket energy
+    status : InteractionType
+             GXPacket status
+    shell : int64
+             GXPacket shell location index
+    """
+
+    def __init__(self, location, direction, energy, status, shell):
+        self.location = location
+        self.direction = direction
+        self.energy = energy
+        self.status = status
+        self.shell = shell
+        self.time_created = 0
+        self.time_current = 0
+        self.tau = -np.log(np.random.random())
 
 
 class SphericalVector(object):
