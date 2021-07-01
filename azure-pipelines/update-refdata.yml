@@ -31,12 +31,9 @@ jobs:
     steps:
       - template: templates/default.yml
         parameters:
-          fetchRefdata: false  # We don't want to fetch from the mirror
+          fetchRefdata: true
+          refdataRepo: 'github'
           useMamba: true
-          skipInstall: false
-
-      - bash: git clone https://github.com/tardis-sn/tardis-refdata $(refdata.dir)
-        displayName: 'Fetch reference data repository'
 
       - bash: |
           cd $(tardis.dir)

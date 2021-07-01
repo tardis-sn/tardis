@@ -254,9 +254,11 @@ to start a new pipeline use::
   default is ``0`` (no limit).
 - ``fetchRefdata`` (*bool*): fetch the ``tardis-refdata`` repository from Azure Repos,
   default is ``false``.
+- ``refdataRepo`` (*option*): source of the ``tardis-refdata`` repository,
+  options are ``azure`` (default) or ``github``.
 - ``useMamba`` (*bool*): use the ``mamba`` package manager instead of ``conda``,
   default is ``false``. 
-- ``skipInstall`` (*bool*): does not create the TARDIS environment, default is ``false``.
+- ``tardisEnv`` (*bool*): setup the TARDIS environment, default is ``true``.
 
 **List of predefined custom variables:**
 
