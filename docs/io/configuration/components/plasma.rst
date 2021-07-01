@@ -30,4 +30,18 @@ TARDIS currently supports three different kinds of line interaction: ``scatter``
 version of ``macroatom`` in which only downward transitions are allowed (see :ref:`lineinteraction`).
  
 Finally, ``w_epsilon`` describes the dilution factor to use to calculate :math:`J_\textrm{blue}` that are 0, which
-causes problemsl with the code (so :math:`J_\textrm{blue}` are set to a very small number).
+causes problems with the code (so :math:`J_\textrm{blue}` are set to a very small number).
+
+NLTE
+^^^^
+
+.. code-block:: yaml
+
+    nlte:
+        coronal_approximation: True
+        classical_nebular: False
+
+The NLTE configuration currently allows setting ``coronal_approximation``, which sets all :math:`J_\textrm{blue}` to 0.
+This is useful for debugging with :term:`chianti` for example. Furthermore, one can enable 'classical_nebular' to set all
+:math:`\beta_\textrm{Sobolev}` to 1. Both options are used for checking with other codes and should not be enabled in
+normal operations.
