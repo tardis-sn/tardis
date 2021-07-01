@@ -91,120 +91,42 @@
       "name": "Barna, Barnab\u00e1s"
     },
     {
-      "name": "Nayak U, Ashwin"
-    },
-    {
       "name": "Gautam, Gaurav"
     },
     {
-      "name": "Kumar, Atul"
+      "name": "Fullard, Andrew",
+      "orcid": "0000-0001-7343-1678",
+      "affiliation": "Michigan State University"
     },
     {
-      "name": "Kharkar, Atharwa"
+      "name": "Cawley, Kevin"
     },
     {
-      "name": "Yap, Kevin"
+      "name": "Singhal, Jaladh",
+      "orcid": "0000-0002-8310-0829",
+      "affiliation": "Python Software Foundation (StarKit)"
     },
     {
-      "name": "Dasgupta, Debajyoti"
+      "name": "Smith, Isaac"
     },
     {
-      "name": "Volodin, Dmitry"
+      "name": "Barbosa, Talytha"
     },
     {
-      "name": "Sandler, Morgan"
+      "name": "Patel, Maryam"
     },
     {
-      "name": "k, chaitanya"
+      "name": "Varanasi, Kaushik"
     },
     {
-      "name": "Patra, Nilesh"
+      "name": "Gillanders, James",
+      "orcid": "0000-0002-8094-6108"
     },
     {
-      "name": "Singh Rathore, Parikshit"
-    },
-    {
-      "name": "Patel, Pratik"
-    },
-    {
-      "name": "Sharma, Sampark"
-    },
-    {
-      "name": "Gupta, Suyash"
-    },
-    {
-      "name": "Wahi, Ujjwal"
-    },
-    {
-      "name": "Aggarwal, Yash"
-    },
-    {
-      "name": "Sarafina, Nance"
-    },
-    {
-      "name": "Kowalski, Nathan"
-    },
-    {
-      "name": "Sofiatti, Caroline"
-    },
-    {
-      "name": "Selsing, Jonatan"
-    },
-    {
-      "name": "Talegaonkar, Chinmay"
-    },
-    {
-      "name": "Yu, Jenny"
-    },
-    {
-      "name": "Brar, Antreev"
-    },
-    {
-      "name": "Singh, Sourav"
-    },
-    {
-      "name": "Jain, Rinkle"
-    },
-    {
-      "name": "Floers, Andreas"
-    },
-    {
-      "name": "Reichenbach, John"
-    },
-    {
-      "name": "Mishra, Sashank",
-      "orcid": "0000-0001-8302-1584"
-    },
-    {
-      "name": "Rajagopalan, Srinath"
-    },
-    {
-      "name": "Magee, Mark"
-    },
-    {
-      "name": "Livneh, Ran"
-    },
-    {
-      "name": "Arya, Atharva"
-    },
-    {
-      "name": "Alam, Arib"
+      "name": "O'Brien, Jack"
     },
     {
       "name": "Sondhi, Dhruv"
-    },
-    {
-      "name": "Eguren, Jordi",
-      "orcid": "0000-0002-2328-8030"
-    },
-    {
-      "name": "Bentil, Laud"
-    },
-    {
-      "name": "Savel, Arjun"
-    },
-    {
-      "name": "Bylund, Tomas"
     },
     {
       "name": "Eweis, Youssef"
@@ -213,36 +135,114 @@
       "name": "Reinecke, Martin"
     },
     {
-      "name": "O'Brien, Jack"
+      "name": "Bylund, Tomas"
     },
     {
-      "name": "Gillanders, James",
-      "orcid": "0000-0002-8094-6108"
+      "name": "Bentil, Laud"
     },
     {
-      "name": "Varanasi, Kaushik"
+      "name": "Savel, Arjun"
     },
     {
-      "name": "Patel, Maryam"
+      "name": "Eguren, Jordi",
+      "orcid": "0000-0002-2328-8030"
     },
     {
-      "name": "Barbosa, Talytha"
+      "name": "Alam, Arib"
     },
     {
-      "name": "Smith, Isaac"
+      "name": "Magee, Mark"
     },
     {
-      "name": "Singhal, Jaladh",
-      "orcid": "0000-0002-8310-0829",
-      "affiliation": "Python Software Foundation (StarKit)"
+      "name": "Arya, Atharva"
     },
     {
-      "name": "Cawley, Kevin"
+      "name": "Yu, Jenny"
     },
     {
-      "name": "Fullard, Andrew",
-      "orcid": "0000-0001-7343-1678",
-      "affiliation": "Michigan State University"
+      "name": "Livneh, Ran"
+    },
+    {
+      "name": "Rajagopalan, Srinath"
+    },
+    {
+      "name": "Mishra, Sashank",
+      "orcid": "0000-0001-8302-1584"
+    },
+    {
+      "name": "Floers, Andreas"
+    },
+    {
+      "name": "Reichenbach, John"
+    },
+    {
+      "name": "Jain, Rinkle"
+    },
+    {
+      "name": "Brar, Antreev"
+    },
+    {
+      "name": "Singh, Sourav"
+    },
+    {
+      "name": "Selsing, Jonatan"
+    },
+    {
+      "name": "Talegaonkar, Chinmay"
+    },
+    {
+      "name": "Sofiatti, Caroline"
+    },
+    {
+      "name": "Kowalski, Nathan"
+    },
+    {
+      "name": "Patra, Nilesh"
+    },
+    {
+      "name": "Gupta, Suyash"
+    },
+    {
+      "name": "Aggarwal, Yash"
+    },
+    {
+      "name": "Sandler, Morgan"
+    },
+    {
+      "name": "Sarafina, Nance"
+    },
+    {
+      "name": "Volodin, Dmitry"
+    },
+    {
+      "name": "Dasgupta, Debajyoti"
+    },
+    {
+      "name": "Kolliboyina, Chaitanya"
+    },
+    {
+      "name": "Wahi, Ujjwal"
+    },
+    {
+      "name": "Yap, Kevin"
+    },
+    {
+      "name": "Kharkar, Atharwa"
+    },
+    {
+      "name": "Singh Rathore, Parikshit"
+    },
+    {
+      "name": "Nayak U, Ashwin"
+    },
+    {
+      "name": "Patel, Pratik"
+    },
+    {
+      "name": "Kumar, Atul"
+    },
+    {
+      "name": "Sharma, Sampark"
     }
   ]
 }
