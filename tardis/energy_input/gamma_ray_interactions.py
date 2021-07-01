@@ -3,8 +3,9 @@ import numpy as np
 from astropy.coordinates import cartesian_to_spherical
 from astropy.coordinates import spherical_to_cartesian
 
-from tardis.energy_input.base import GXPacketStatus, GXPacket
 from tardis.energy_input.util import (
+    GXPacket,
+    GXPacketStatus,
     kappa_calculation,
     euler_rodrigues,
     compton_theta_distribution,

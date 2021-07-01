@@ -1,11 +1,10 @@
-from enum import IntEnum
 import numpy as np
 import copy
 from tqdm.auto import tqdm
 import pandas as pd
 
 # from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
-from tardis.energy_input.util import SphericalVector
+from tardis.energy_input.util import SphericalVector, GXPacket, GXPacketStatus
 from tardis.energy_input.gamma_ray_grid import (
     distance_trace,
     move_gamma_ray,
@@ -36,43 +35,6 @@ from tardis.energy_input.util import (
 from tardis import constants as const
 from astropy.coordinates import cartesian_to_spherical
 from tardis.montecarlo.montecarlo_numba.numba_config import CLOSE_LINE_THRESHOLD
-
-
-class GXPacketStatus(IntEnum):
-    BETA_DECAY = -1
-    COMPTON_SCATTER = 0
-    PHOTOABSORPTION = 1
-    PAIR_CREATION = 2
-    IN_PROCESS = 3
-
-
-class GXPacket(object):
-    """
-    Gamma ray or X ray object with location, direction, energy, time and optical depth
-
-    Attributes
-    ----------
-    location : SphericalVector object
-             GXPacket position vector
-    direction : SphericalVector object
-             GXPacket direction vector (unitary)
-    energy : float64
-             GXPacket energy
-    status : InteractionType
-             GXPacket status
-    shell : int64
-             GXPacket shell location index
-    """
-
-    def __init__(self, location, direction, energy, status, shell):
-        self.location = location
-        self.direction = direction
-        self.energy = energy
-        self.status = status
-        self.shell = shell
-        self.time_created = 0
-        self.time_current = 0
-        self.tau = -np.log(np.random.random())
 
 
 def initialize_packets(
@@ -364,11 +326,13 @@ def main_gamma_ray_loop(num_packets, model):
                 or packet.shell > len(ejecta_density) - 1
             ):
                 escape_energy.append(packet.energy)
+                packet.status = GXPacketStatus.END
             elif (
                 np.abs(packet.location.r - inner_radius) < 10.0
                 or packet.shell < 0
             ):
                 packet.energy = 0.0
+                packet.status = GXPacketStatus.END
 
         i += 1
 
@@ -387,4 +351,4 @@ def main_gamma_ray_loop(num_packets, model):
 
     energy_df = pd.DataFrame(data=energy_df_rows, columns=["energy_per_mass"])
 
-    return (energy_df, energy_plot_df)
+    return (energy_df, energy_plot_df, escape_energy)
