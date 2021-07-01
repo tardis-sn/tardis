@@ -52,8 +52,11 @@ class ConvergencePlots(object):
         The  plasma_plot_config dictionary updates the plasma plot while 
         the luminosity_plot_config dict updates the luminosity and the inner boundary temperature plots.
         All properties related to data will be applied equally across all traces. 
-    cmap : str, default: 'jet'
-        String defining the cmap used in plots.
+    plasma_cmap : str, default: 'jet'
+        String defining the cmap used in plasma plots.
+    other_plot_colors : str or list
+        String defining cmap for luminosity and inner boundary temperature plot.
+        The list can be a list of colors in rgb, hex or css-names format as well.
     export_cplots : bool, default: False
         If True, plots are displayed again using the `notebook_connected` renderer. This helps 
         display the plots in the documentation or in platforms like nbviewer. 
@@ -81,18 +84,24 @@ class ConvergencePlots(object):
                 )
             self.luminosity_plot_config = kwargs["luminosity_plot_config"]
 
-        if "cmap" in kwargs:
-            self.luminosity_line_colors = transition_colors(
-                length=5,
-                name=kwargs["cmap"],
-            )
+        if "plasma_cmap" in kwargs:
             self.plasma_colorscale = transition_colors(
-                name=kwargs["cmap"], length=self.iterations
+                name=kwargs["plasma_cmap"], length=self.iterations
             )
         else:
             # default color scale is jet
-            self.luminosity_line_colors = transition_colors(length=5)
             self.plasma_colorscale = transition_colors(length=self.iterations)
+
+        if "other_plot_colors" in kwargs:
+            if type(kwargs["other_plot_colors"]) == str:
+                self.luminosity_line_colors = transition_colors(
+                    length=5,
+                    name=kwargs["other_plot_colors"],
+                )
+            else:
+                self.luminosity_line_colors = kwargs["other_plot_colors"]
+        else:
+            self.luminosity_line_colors = [None] * 5
 
     def fetch_data(self, name=None, value=None, item_type=None):
         """
