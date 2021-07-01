@@ -27,9 +27,9 @@ def calculate_distance_radial(gxpacket, r_inner, r_outer):
 
     """
     # determine cartesian location coordinates of gamma-ray object
-    x, y, z = gxpacket.location.get_cartesian_coords
+    x, y, z = gxpacket.location.cartesian_coords
     # determine cartesian direction coordinates of gamma-ray object
-    x_dir, y_dir, z_dir = gxpacket.direction.get_cartesian_coords
+    x_dir, y_dir, z_dir = gxpacket.direction.cartesian_coords
     # solve the quadratic distance equation for the inner and
     # outer shell boundaries
     inner_1, inner_2 = solve_quadratic_equation(
@@ -97,8 +97,8 @@ def move_gamma_ray(gxpacket, distance):
     gxpacket : GXPacket object
 
     """
-    x_old, y_old, z_old = gxpacket.location.get_cartesian_coords
-    x_dir, y_dir, z_dir = gxpacket.direction.get_cartesian_coords
+    x_old, y_old, z_old = gxpacket.location.cartesian_coords
+    x_dir, y_dir, z_dir = gxpacket.direction.cartesian_coords
     # overshoot by CLOSE_LINE_THRESHOLD * distance to shell boundary
     # so that the gamma-ray is comfortably in the next shell
     y_new = y_old + distance * y_dir
@@ -114,7 +114,7 @@ def move_gamma_ray(gxpacket, distance):
 
 def density_sampler(radii, mass_ratio):
     """
-    Randomly samples the
+    Randomly samples the density of the model shells
 
     Parameters
     ----------

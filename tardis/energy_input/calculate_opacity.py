@@ -49,6 +49,7 @@ def photoabsorption_opacity_calculation(
     energy, ejecta_density, iron_group_fraction
 ):
     """Calculates photoabsorption opacity for a given energy
+    Approximate treatment from Ambwani & Sutherland (1988)
 
     Parameters
     ----------
@@ -87,6 +88,7 @@ def pair_creation_opacity_calculation(
     energy, ejecta_density, iron_group_fraction
 ):
     """Calculates pair creation opacity for a given energy
+    Approximate treatment from Ambwani & Sutherland (1988)
 
     Parameters
     ----------
@@ -121,8 +123,5 @@ def pair_creation_opacity_calculation(
         )
     else:
         opacity = 0
-
-    if opacity < 0.0:
-        opacity = 0.0
 
     return opacity
