@@ -185,7 +185,8 @@ def main_gamma_ray_loop(num_packets, model):
             0 = Compton scatter,
             1 = photoabsorption,
             2 = pair creation
-
+    list
+        Energy of escaping packets
     """
     escape_energy = []
     interaction_count = []
