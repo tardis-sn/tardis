@@ -15,19 +15,19 @@ class SphericalVector(object):
     Attributes
     ----------
     r : float64
-             vector r position
+        vector r position
     theta : float64
-             vector mu position
+        vector mu position
     phi : float64
-             vector phi position
+        vector phi position
     mu : float64
-             calculated vector theta position
+        calculated vector theta position
     x : float64
-             calculated vector x position
+        calculated vector x position
     y : float64
-             calculated vector y position
+        calculated vector y position
     z : float64
-             calculated vector z position
+        calculated vector z position
     """
 
     def __init__(self, r, theta, phi=0.0):
@@ -40,7 +40,7 @@ class SphericalVector(object):
         return np.cos(self.theta)
 
     @property
-    def get_cartesian_coords(self):
+    def cartesian_coords(self):
         # 0.5*np.pi subtracted because of the definition of theta
         # in astropy.coordinates.cartesian_to_spherical
         x, y, z = spherical_to_cartesian(
@@ -57,11 +57,11 @@ def kappa_calculation(energy):
 
     Parameters
     ----------
-    energy : dtype float
+    energy : float
 
     Returns
     -------
-    kappa : dtype float
+    kappa : float
 
     """
     k = energy / 511.0
@@ -74,7 +74,7 @@ def euler_rodrigues(theta, direction):
 
     Parameters
     ----------
-    theta : dtype float
+    theta : float
     direction : SphericalVector object
 
     Returns
@@ -111,14 +111,14 @@ def solve_quadratic_equation(x, y, z, x_dir, y_dir, z_dir, radius_velocity):
 
     Parameters
     ----------
-    x,y,z : dtype float
-    x_dir, y_dir, z_dir : dtype float
-    radius_velocity : dtype float
+    x,y,z : float
+    x_dir, y_dir, z_dir : float
+    radius_velocity : float
 
     Returns
     -------
-    solution_1 : dtype float
-    solution_2 : dtype float
+    solution_1 : float
+    solution_2 : float
 
     """
     b = 2.0 * (x * x_dir + y * y_dir + z * z_dir)
@@ -140,13 +140,14 @@ def klein_nishina(energy, theta_C):
 
     Parameters
     ----------
-    energy : dtype float
-    theta_C : dtype float
-
+    energy : float
+        Packet energy
+    theta_C : float
+        Compton angle
     Returns
     -------
-     : dtype float
-
+    float
+        Klein-Nishina solution
     """
     kappa = kappa_calculation(energy)
     return (
@@ -164,13 +165,13 @@ def klein_nishina(energy, theta_C):
 
 def compton_theta_distribution(energy, sample_resolution=100):
     """
-    Calculates the distribution of theta angles
+    Calculates the cumulative distribution function of theta angles
     for Compton Scattering
 
     Parameters
     ----------
-    energy : dtype float
-    sample_resolution : dtype int
+    energy : float
+    sample_resolution : int
 
     Returns
     -------
@@ -218,7 +219,7 @@ def get_random_phi_gamma_ray():
 
 
 def convert_half_life_to_astropy_units(half_life_string):
-    """Converts input half=life to use astropy units
+    """Converts input half-life to use astropy units
 
     Parameters
     ----------
@@ -259,3 +260,45 @@ def calculate_energy_per_mass(energy, mass):
         Energy density in erg / g
     """
     return energy * KEV2ERG / mass
+
+
+def normalize(vector):
+    """
+    Normalizes a vector in cartesian coordinates
+
+    Parameters
+    ----------
+    vector : One-dimensional Numpy Array, dtype float
+
+    Returns
+    -------
+    normalized_vector : One-dimensional Numpy Array, dtype float
+    """
+    normalized_vector = vector / np.sqrt(
+        vector[0] ** 2 + vector[1] ** 2 + vector[2] ** 2
+    )
+    return normalized_vector
+
+
+def get_perpendicular_vector(original_direction):
+    """
+    Computes a vector which is perpendicular to the input vector
+
+    Parameters
+    ----------
+    original_direction : SphericalVector object
+
+    Returns
+    -------
+
+    """
+    # draw random angles
+    theta = get_random_theta_gamma_ray()
+    phi = get_random_phi_gamma_ray()
+    # transform random angles to cartesian coordinates
+    # 0.5*np.pi subtracted because of the definition of theta
+    # in astropy.coordinates.cartesian_to_spherical
+    random_vector = spherical_to_cartesian(1, theta - 0.5 * np.pi, phi)
+    perpendicular_vector = np.cross(original_direction, random_vector)
+    perpendicular_vector = normalize(perpendicular_vector)
+    return perpendicular_vector

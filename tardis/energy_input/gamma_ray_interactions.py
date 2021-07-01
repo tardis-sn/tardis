@@ -1,12 +1,17 @@
+import copy
 import numpy as np
 from astropy.coordinates import cartesian_to_spherical
 from astropy.coordinates import spherical_to_cartesian
+
+from tardis.energy_input.base import GXPacketStatus, GXPacket
 from tardis.energy_input.util import (
     kappa_calculation,
     euler_rodrigues,
     compton_theta_distribution,
     get_random_theta_gamma_ray,
     get_random_phi_gamma_ray,
+    normalize,
+    get_perpendicular_vector,
 )
 
 # from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
@@ -22,8 +27,8 @@ def get_compton_angle(gxpacket):
 
     Returns
     -------
-    compton_angle : dtype float
-    lost_energy : dtype float
+    compton_angle : float
+    lost_energy : float
     """
 
     theta_angles, theta_distribution = compton_theta_distribution(
@@ -51,7 +56,7 @@ def compton_scatter(gxpacket, compton_angle):
     Parameters
     ----------
     gxpacket : GXPacket object
-    compton_angle : dtype float
+    compton_angle : float
 
     Returns
     -------
@@ -61,7 +66,7 @@ def compton_scatter(gxpacket, compton_angle):
         Packet phi direction
     """
     # transform original direction vector to cartesian coordinates
-    original_direction = normalize(gxpacket.direction.get_cartesian_coords)
+    original_direction = normalize(gxpacket.direction.cartesian_coords)
     # compute an arbitrary perpendicular vector to the original direction
     orthogonal_vector = get_perpendicular_vector(original_direction)
     # determine a random vector with compton_angle to the original direction
@@ -84,60 +89,15 @@ def compton_scatter(gxpacket, compton_angle):
         final_compton_scattered_vector[1],
         final_compton_scattered_vector[2],
     )
-    # 0.5*np.pi added because of the definition of theta
-    # in astropy.coordinates.cartesian_to_spherical
-    gxpacket.direction.theta = theta_final.value + 0.5 * np.pi
-    gxpacket.direction.phi = phi_final.value
 
     return theta_final.value + 0.5 * np.pi, phi_final.value
-
-
-def normalize(vector):
-    """
-    Normalizes a vector in cartesian coordinates
-
-    Parameters
-    ----------
-    vector : One-dimensional Numpy Array, dtype float
-
-    Returns
-    -------
-    normalized_vector : One-dimensional Numpy Array, dtype float
-    """
-    normalized_vector = vector / np.sqrt(
-        vector[0] ** 2 + vector[1] ** 2 + vector[2] ** 2
-    )
-    return normalized_vector
-
-
-def get_perpendicular_vector(original_direction):
-    """
-    Computes a vector which is perpendicular to the input vector
-
-    Parameters
-    ----------
-    original_direction : SphericalVector object
-
-    Returns
-    -------
-
-    """
-    # draw random angles
-    theta = get_random_theta_gamma_ray()
-    phi = get_random_phi_gamma_ray()
-    # transform random angles to cartesian coordinates
-    # 0.5*np.pi subtracted because of the definition of theta
-    # in astropy.coordinates.cartesian_to_spherical
-    random_vector = spherical_to_cartesian(1, theta - 0.5 * np.pi, phi)
-    perpendicular_vector = np.cross(original_direction, random_vector)
-    perpendicular_vector = normalize(perpendicular_vector)
-    return perpendicular_vector
 
 
 def pair_creation(gxpacket):
     """
     Randomly scatters the input gamma ray
     Sets its energy to 511 KeV
+    Creates backwards packet
 
     Parameters
     ----------
@@ -145,7 +105,10 @@ def pair_creation(gxpacket):
 
     Returns
     -------
-
+        GXPacket
+            forward packet
+        GXPacket
+            backward packet
     """
     direction_theta = get_random_theta_gamma_ray()
     direction_phi = get_random_phi_gamma_ray()
@@ -153,6 +116,21 @@ def pair_creation(gxpacket):
     gxpacket.energy = 511.0
     gxpacket.direction.theta = direction_theta
     gxpacket.direction.phi = direction_phi
+
+    backward_ray = GXPacket(
+        copy.deepcopy(gxpacket.location),
+        copy.deepcopy(gxpacket.direction),
+        copy.deepcopy(gxpacket.energy),
+        GXPacketStatus.IN_PROCESS,
+        copy.deepcopy(gxpacket.shell),
+    )
+
+    backward_ray.direction.phi += np.pi
+
+    if backward_ray.direction.phi > 2 * np.pi:
+        backward_ray.direction.phi -= 2 * np.pi
+
+    return gxpacket, backward_ray
 
 
 def scatter_type(
@@ -164,14 +142,14 @@ def scatter_type(
     Parameters
     ----------
     gxpacket : GXPacket object
-    compton_opacity : dtype float
-    photoabsorption_opacity : dtype float
-    total_opacity : dtype float
+    compton_opacity : float
+    photoabsorption_opacity : float
+    total_opacity : float
 
     Returns
     -------
-    ejecta_energy_gain : dtype float
-    compton_angle : dtype float
+    ejecta_energy_gain : float
+    compton_angle : float
 
     """
     z = np.random.random()
@@ -180,13 +158,13 @@ def scatter_type(
     compton_angle = 0.0
 
     if z <= (compton_opacity / total_opacity):
-        gxpacket.status = "ComptonScatter"
+        gxpacket.status = GXPacketStatus.COMPTON_SCATTER
         compton_angle, ejecta_energy_gain = get_compton_angle(gxpacket)
     elif z <= (compton_opacity + photoabsorption_opacity) / total_opacity:
-        gxpacket.status = "PhotoAbsorbed"
+        gxpacket.status = GXPacketStatus.PHOTOABSORPTION
         ejecta_energy_gain = gxpacket.energy
     else:
-        gxpacket.status = "PairCreated"
+        gxpacket.status = GXPacketStatus.PAIR_CREATION
         ejecta_energy_gain = gxpacket.energy - (2.0 * 511.0)
 
     return ejecta_energy_gain, compton_angle

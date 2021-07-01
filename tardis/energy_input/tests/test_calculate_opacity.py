@@ -5,12 +5,6 @@ import numpy as np
 
 import tardis.energy_input.calculate_opacity as calculate_opacity
 import tardis.energy_input.util as util
-from tardis import constants as const
-
-# this is terrible practice
-MASS_SI = 28.085 * const.m_p.to(u.g).value
-MASS_FE = 55.845 * const.m_p.to(u.g).value
-M_P = const.m_p.to(u.g).value
 
 
 @pytest.mark.parametrize(
@@ -30,14 +24,12 @@ def test_compton_opacity_calculation(energy, electron_number_density):
 
     kappa = util.kappa_calculation(energy)
 
-    sigma_T = const.sigma_T.cgs.value
-
     a = 1.0 + 2.0 * kappa
 
     sigma_KN = (
         3.0
         / 4.0
-        * sigma_T
+        * calculate_opacity.SIGMA_T
         * (
             (1.0 + kappa)
             / kappa ** 3.0
@@ -47,7 +39,7 @@ def test_compton_opacity_calculation(energy, electron_number_density):
         )
     )
 
-    expected = electron_number_density / (M_P * 2) * sigma_KN
+    expected = electron_number_density / (calculate_opacity.M_P * 2) * sigma_KN
 
     npt.assert_almost_equal(opacity, expected)
 
@@ -79,7 +71,7 @@ def test_photoabsorption_opacity_calculation(
         1.16e-24
         * (energy / 100.0) ** -3.13
         * ejecta_density
-        / MASS_SI
+        / calculate_opacity.MASS_SI
         * (1.0 - iron_group_fraction)
     )
 
@@ -87,7 +79,7 @@ def test_photoabsorption_opacity_calculation(
         25.7e-24
         * (energy / 100.0) ** -3.0
         * ejecta_density
-        / MASS_FE
+        / calculate_opacity.MASS_FE
         * (1.0 - iron_group_fraction)
     )
 
@@ -122,8 +114,8 @@ def test_pair_creation_opacity_calculation(
     Z_Si = 14
     Z_Fe = 26
 
-    Si_proton_ratio = Z_Si ** 2.0 / MASS_SI
-    Fe_proton_ratio = Z_Fe ** 2.0 / MASS_FE
+    Si_proton_ratio = Z_Si ** 2.0 / calculate_opacity.MASS_SI
+    Fe_proton_ratio = Z_Fe ** 2.0 / calculate_opacity.MASS_FE
 
     multiplier = ejecta_density * (
         Si_proton_ratio * (1.0 - iron_group_fraction)
