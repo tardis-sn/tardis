@@ -33,7 +33,6 @@ jobs:
     steps:
       - template: templates/default.yml
         parameters:
-          fetchDepth: 1
           fetchRefdata: true
           refdataRepo: 'azure'
           useMamba: true
