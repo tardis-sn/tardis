@@ -69,3 +69,7 @@ def test_build(convergence_class):
     convergence_class.build(display_plot=False)
     assert type(convergence_class.plasma_plot) == go.FigureWidget
     assert type(convergence_class.luminosity_plot) == go.FigureWidget
+
+    # check number of traces
+    assert len(convergence_class.luminosity_plot.data) == 5
+    assert len(convergence_class.plasma_plot.data) == 2
