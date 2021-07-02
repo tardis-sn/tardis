@@ -31,8 +31,8 @@ from tardis import constants as const
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
-from tardis.montecarlo.montecarlo_numba.montecarlo_logger import log_decorator
-from tardis.montecarlo.montecarlo_numba import montecarlo_logger as mc_logger
+from tardis.io.logger.montecarlo_logger import log_decorator
+from tardis.io.logger import montecarlo_logger as mc_logger
 
 # @log_decorator
 @njit

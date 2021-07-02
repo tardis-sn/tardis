@@ -17,11 +17,11 @@ from tardis.montecarlo import montecarlo_configuration as mc_config_module
 
 
 from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
-from tardis.montecarlo.montecarlo_numba import montecarlo_logger as mc_logger
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     configuration_initialize,
 )
 from tardis.montecarlo.montecarlo_numba import numba_config
+from tardis.io.logger import montecarlo_logger as mc_logger
 
 import numpy as np
 
