@@ -1,13 +1,25 @@
 #!/usr/bin/env python
-from tardis.io import config_reader
-
-from tardis.simulation import Simulation
-import numpy as np
-
-import logging
-import argparse
 
 import warnings
+import argparse
+import logging
+import numpy as np
+from tardis.io import config_reader
+from tardis.simulation import Simulation
+
+
+def get_virtual_spectrum():
+    # Catch warning when acessing invalid spectrum_virtual
+    with warnings.catch_warnings(record=True) as w:
+        spectrum = simulation.runner.spectrum_virtual
+
+        if len(w) > 0 and w[-1]._category_name == "UserWarning":
+            warnings.warn(
+                "Virtual spectrum is not available, using the "
+                "real packet spectrum instead."
+            )
+            spectrum = simulation.runner.spectrum
+    return spectrum
 
 
 tardis_description = """
@@ -80,44 +92,31 @@ if args.packet_log_file:
 tardis_config = config_reader.Configuration.from_yaml(args.config_fname)
 simulation = Simulation.from_config(tardis_config)
 
-
-def get_virtual_spectrum():
-    # Catch warning when acessing invalid spectrum_virtual
-    with warnings.catch_warnings(record=True) as w:
-        spectrum = simulation.runner.spectrum_virtual
-
-        if len(w) > 0 and w[-1]._category_name == "UserWarning":
-            warnings.warn(
-                "Virtual spectrum is not available, using the "
-                "real packet spectrum instead."
-            )
-            spectrum = simulation.runner.spectrum
-    return spectrum
-
-
 print("Saving the {} spectrum.".format(tardis_config.spectrum.method))
 
-# Believe it or not, that is a fancy switch-case statement
-# We need functions so that only one spectrum is accessed so we can catch
+# Believe it or not, that is a fancy switch-case statement. We need
+# functions so that only one spectrum is accessed so we can catch
 # the warning properly
+
 get_spectrum = {
     "real": lambda: simulation.runner.spectrum,
     "virtual": get_virtual_spectrum,
     "integrated": lambda: simulation.runner.spectrum_integrated,
 }[tardis_config.spectrum.method]
 
-
 if args.gdb:
     import os
 
     print(os.getpid())
     raw_input()  # Workaround to attach gdb
+
 if args.profile:
     import cProfile
 
     cProfile.runctx(
         "simulation.run()", locals(), globals(), filename=args.profiler_log_file
     )
+
 else:
     simulation.run()
 
