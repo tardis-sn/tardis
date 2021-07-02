@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import pandas as pd
 from astropy import units as u, constants as const
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 from tardis import model
 
 from tardis.montecarlo import MontecarloRunner
@@ -173,12 +173,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 iterations=self.iterations, **cplots_kwargs
             )
 
-        if "export_cplots" in cplots_kwargs:
-            if not isinstance(cplots_kwargs["export_cplots"], bool):
-                raise TypeError("Expected bool in export_cplots argument")
-            self.export_cplots = cplots_kwargs["export_cplots"]
-        else:
-            self.export_cplots = False
+            if "export_cplots" in cplots_kwargs:
+                if not isinstance(cplots_kwargs["export_cplots"], bool):
+                    raise TypeError("Expected bool in export_cplots argument")
+                self.export_cplots = cplots_kwargs["export_cplots"]
+            else:
+                self.export_cplots = False
 
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
