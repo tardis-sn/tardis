@@ -7,6 +7,7 @@ from astropy import units as u
 
 from tardis.util.base import quantity_linspace
 from tardis.io.config_reader import Configuration
+from tardis.model.density import HomologousDensity
 from tardis.io.config_validator import validate_dict
 from tardis.io.parsers.csvy import load_csvy
 from tardis.io.model_reader import (
@@ -19,11 +20,12 @@ logger = logging.getLogger(__name__)
 
 
 class CustomAbundanceWidget:
-    def __init__(self, config, abundance, velocity):
+    def __init__(self, config, density, abundance, velocity):
         self.config = config  # Save the config for output.
 
+        self.density = density.to('g cm^-3')
         self.abundance = abundance
-        self.velocity = np.array(velocity) # unit: cm/s
+        self.velocity = velocity.to('km/s') # unit: km/s
         self.no_of_shell = abundance.shape[1]
 
     @classmethod
@@ -40,11 +42,11 @@ class CustomAbundanceWidget:
             velocity = quantity_linspace(csvy_model_config.velocity.start,
                                          csvy_model_config.velocity.stop,
                                          csvy_model_config.velocity.num + 1).cgs
+            homologous_density = HomologousDensity.from_config(csvy_model_config)
         else:
             velocity_field_index = [field['name'] for field in csvy_model_config.datatype.fields].index('velocity')
             velocity_unit = u.Unit(csvy_model_config.datatype.fields[velocity_field_index]['unit'])
             velocity = csvy_model_data['velocity'].values * velocity_unit
-            velocity = velocity.to('cm/s')
 
         no_of_shells = len(velocity) - 1
 
@@ -101,6 +103,7 @@ class CustomAbundanceWidget:
                     velocity = quantity_linspace(structure.velocity.start,
                                          structure.velocity.stop,
                                          structure.velocity.num + 1).cgs
+                    homologous_density = HomologousDensity.from_config(config)
 
                 elif structure.type == "file":
                     if os.path.isabs(structure.filename):
@@ -110,9 +113,11 @@ class CustomAbundanceWidget:
                             config.config_dirname, structure.filename
                         )
 
-                    _, velocity, _, _, _ = read_density_file(
+                    time_0, velocity, density_0, _, _ = read_density_file(
                         structure_fname, structure.filetype
                     )
+                    density_0 = density_0.insert(0, 0)
+                    homologous_density = HomologousDensity(density_0, time_0)
 
                 else:
                     raise NotImplementedError
@@ -151,14 +156,20 @@ class CustomAbundanceWidget:
                     "'from_yml()' only supports uniform abundance currently."
                 )
 
-        return cls(config=config, abundance=abundance, velocity=velocity)
+        return cls(
+            config=config, 
+            density = homologous_density.density_0,
+            abundance=abundance, 
+            velocity=velocity)
 
     @classmethod
     def from_hdf(cls, fpath):
         with pd.HDFStore(fpath, "r") as hdf:
             abundance = (hdf['/simulation/plasma/abundance'])
-            v_inner = hdf['/simulation/model/v_inner'].to_numpy()
-            v_outer = hdf['/simulation/model/v_outer'].to_numpy()
+            
+            #########
+            v_inner = hdf['/simulation/model/v_inner']
+            v_outer = hdf['/simulation/model/v_outer']
             velocity = np.append(v_inner, v_outer[-1])
 
         abundance["mass_number"] = ""
