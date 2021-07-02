@@ -46,7 +46,7 @@ jobs:
           cd $(tardis.dir)
           source activate tardis
           echo "##vso[task.setvariable variable=newtag]$(python -c 'from setuptools_scm import version_from_scm; from setuptools_scm.version import guess_next_date_ver; release = version_from_scm("."); print(guess_next_date_ver(release.tag.public))')"
-        displayName: 'Get next TARDIS tag'
+        displayName: 'Get new TARDIS tag'
 
       - bash: echo $(newtag)
         displayName: 'Check new TARDIS tag'
