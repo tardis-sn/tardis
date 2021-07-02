@@ -33,7 +33,7 @@ def run_tardis(
     -------
     Simulation
     """
-    from tardis import logging_state
+    from tardis import SimulationLogger
     from tardis.io.config_reader import Configuration
     from tardis.io.atom_data.base import AtomData
     from tardis.simulation import Simulation
@@ -46,7 +46,9 @@ def run_tardis(
         except TypeError:
             tardis_config = Configuration.from_config_dict(config)
 
-    logging_state(log_state, tardis_config, specific)
+    SimulationLogger.logging_state(
+        tardis_config, log_state=log_state, specific=specific
+    )
 
     if atom_data is not None:
         try:

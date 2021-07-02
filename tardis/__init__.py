@@ -86,81 +86,127 @@ class FilterLog(object):
         return log_record.levelno == self.log_level
 
 
-# Setting up a list to store the Logging Filters set by logger.addFilter()
-list_of_filter = []
-
-
-def logging_state(log_state, tardis_config, specific):
+class SimulationLogger:
     """
-    Function to set the logging configuration for the simulation output
-    Called from within run_tardis()
-    Configured via functional arguments passed through run_tardis() - log_state & specific
-    Configured via YAML parameters under `debug` section - logging_level & specific_logging
-
-    Parameters
-    ----------
-    log_state: str
-        Allows to input the log level for the simulation
-        Uses Python logging framework to determine the messages that will be output
-    specific: boolean
-        Allows to set specific logging levels. Logs of the `log_state` level would be output.
+    Implementation for the Simulation Logger
+    Contains the `logging_state` method for determining the logging status for the simulation
+    Contains two helper methods: add & remove log filters, nature determined by `specific`
     """
 
-    if "debug" in tardis_config:
-        specific = (
-            tardis_config["debug"]["specific"] if specific is None else specific
-        )
+    # Setting up a list to store the Logging Filters set by logger.addFilter()
+    list_of_filters = []
 
-        logging_level = (
-            log_state if log_state else tardis_config["debug"]["log_state"]
-        )
+    @classmethod
+    def add_filter_to_logger(self, filters_list, loggers_list, logging_level):
+        """
+        Function for adding the filters (instance of the `FilterLog` class) to the loggers present in
+        the `loggers_list` list
 
-        # Displays a message when both log_state & tardis["debug"]["log_state"] are specified
-        if log_state and tardis_config["debug"]["log_state"]:
-            print(
-                "log_state is defined both in Functional Argument & YAML Configuration {debug section}"
+        Parameters
+        ----------
+        filter_list : list
+            A list containing all the filters in a particular logger
+        loggers_list : list
+            A list containing all the loggers that are present when we run the `run_tardis()` function
+        logging_level : str
+            The logging level which needs to be filtered out
+        """
+        filter_log = FilterLog(LOGGING_LEVELS[logging_level])
+        filters_list.append(filter_log)
+        for logger in loggers_list:
+            logger.addFilter(filter_log)
+
+    @classmethod
+    def remove_filter_from_logger(self, filters_list, loggers_list):
+        """
+        Function for removing the filters from all the loggers present in the `loggers_list`
+
+        Parameters
+        ----------
+        filter_list : list
+            A list containing all the filters in a particular logger
+        loggers_list : list
+            A list containing all the loggers that are present when we run the `run_tardis()` function
+        """
+        for filter in filters_list:
+            for logger in loggers_list:
+                logger.removeFilter(filter)
+
+    @classmethod
+    def logging_state(self, tardis_config, log_state=None, specific=None):
+        """
+        Function to set the logging configuration for the simulation output
+        Called from within run_tardis()
+        Configured via functional arguments passed through run_tardis() - log_state & specific
+        Configured via YAML parameters under `debug` section - logging_level & specific_logging
+
+        Parameters
+        ----------
+        log_state: str
+            Allows to input the log level for the simulation
+            Uses Python logging framework to determine the messages that will be output
+        specific: boolean
+            Allows to set specific logging levels. Logs of the `log_state` level would be output.
+        """
+
+        if "debug" in tardis_config:
+            specific = (
+                tardis_config["debug"]["specific"]
+                if specific is None
+                else specific
             )
-            print(
-                f"log_state = {log_state.upper()} will be used for Log Level Determination\n"
+
+            logging_level = (
+                log_state if log_state else tardis_config["debug"]["log_state"]
             )
 
-    else:
-        if log_state:
-            logging_level = log_state
+            # Displays a message when both log_state & tardis["debug"]["log_state"] are specified
+            if log_state and tardis_config["debug"]["log_state"]:
+                print(
+                    "log_state is defined both in Functional Argument & YAML Configuration {debug section}"
+                )
+                print(
+                    f"log_state = {log_state.upper()} will be used for Log Level Determination\n"
+                )
+
         else:
-            tardis_config["debug"] = {"log_state": DEFAULT_LOG_STATE}
-            logging_level = tardis_config["debug"]["log_state"]
+            if log_state:
+                logging_level = log_state
+            else:
+                tardis_config["debug"] = {"log_state": DEFAULT_LOG_STATE}
+                logging_level = tardis_config["debug"]["log_state"]
+
+            if specific:
+                specific = specific
+
+        logging_level = logging_level.upper()
+        if not logging_level in LOGGING_LEVELS:
+            raise ValueError(
+                f"Passed Value for log_state = {logging_level} is Invalid. Must be one of the following {list(LOGGING_LEVELS.keys())}"
+            )
+
+        loggers = [
+            logging.getLogger(name) for name in logging.root.manager.loggerDict
+        ]
+        if logging_level in LOGGING_LEVELS:
+            for logger in loggers:
+                logger.setLevel(LOGGING_LEVELS[logging_level])
+
+        if self.list_of_filters:
+            self.remove_filter_from_logger(
+                filters_list=self.list_of_filters, loggers_list=loggers
+            )
 
         if specific:
-            specific = specific
-
-    logging_level = logging_level.upper()
-    if not logging_level in LOGGING_LEVELS:
-        raise ValueError(
-            f"Passed Value for log_state = {logging_level} is Invalid. Must be one of the following {list(LOGGING_LEVELS.keys())}"
-        )
-
-    loggers = [
-        logging.getLogger(name) for name in logging.root.manager.loggerDict
-    ]
-    if logging_level in LOGGING_LEVELS:
-        for logger in loggers:
-            logger.setLevel(LOGGING_LEVELS[logging_level])
-
-    if list_of_filter:
-        for filter in list_of_filter:
-            for logger in loggers:
-                logger.removeFilter(filter)
-
-    if specific:
-        filter_log = FilterLog(LOGGING_LEVELS[logging_level])
-        list_of_filter.append(filter_log)
-        for logger in loggers:
-            logger.addFilter(filter_log)
-    else:
-        for filter in list_of_filter:
-            for logger in loggers:
-                logger.removeFilter(filter)
+            self.add_filter_to_logger(
+                logging_level,
+                filters_list=self.list_of_filters,
+                loggers_list=loggers,
+            )
+        else:
+            self.remove_filter_from_logger(
+                filters_list=self.list_of_filters, loggers_list=loggers
+            )
 
 
 # ----------------------------------------------------------------------------
