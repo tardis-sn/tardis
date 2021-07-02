@@ -3,7 +3,8 @@ import logging
 
 from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
-from tardis import run_tardis, LOGGING_LEVELS
+from tardis.io.logger.simulation_logger import LOGGING_LEVELS
+from tardis import run_tardis
 
 
 def test_logging_simulation(atomic_data_fname, caplog):
