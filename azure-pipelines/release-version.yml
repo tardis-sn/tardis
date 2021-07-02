@@ -59,7 +59,7 @@ jobs:
           target: '$(Build.SourceVersion)'
           tagSource: 'userSpecifiedTag'
           tag: 'release-$(newtag)'
-          title: 'TARDIS $(newtag)'
+          title: 'TARDIS v$(newtag)'
           isPreRelease: false
           addChangeLog: true
           changeLogCompareToRelease: 'lastFullRelease'
