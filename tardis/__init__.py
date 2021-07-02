@@ -133,7 +133,7 @@ class SimulationLogger:
                 logger.removeFilter(filter)
 
     @classmethod
-    def logging_state(self, tardis_config, log_state=None, specific=None):
+    def logging_state(self, tardis_config, log_state, specific):
         """
         Function to set the logging configuration for the simulation output
         Called from within run_tardis()
@@ -193,20 +193,16 @@ class SimulationLogger:
                 logger.setLevel(LOGGING_LEVELS[logging_level])
 
         if self.list_of_filters:
-            self.remove_filter_from_logger(
-                filters_list=self.list_of_filters, loggers_list=loggers
-            )
+            self.remove_filter_from_logger(self.list_of_filters, loggers)
 
         if specific:
             self.add_filter_to_logger(
+                self.list_of_filters,
+                loggers,
                 logging_level,
-                filters_list=self.list_of_filters,
-                loggers_list=loggers,
             )
         else:
-            self.remove_filter_from_logger(
-                filters_list=self.list_of_filters, loggers_list=loggers
-            )
+            self.remove_filter_from_logger(self.list_of_filters, loggers)
 
 
 # ----------------------------------------------------------------------------
