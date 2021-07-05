@@ -59,7 +59,8 @@ as shown in the schema below:
 
 .. jsonschema:: ../schemas/csvy_model.yml
 
-The CSV part of the CSVY file creates a table that can include
+The CSV part of the CSVY file creates a table that can include information about shell velocities, densities,
+and abundances in each cell. The column headers (the first row of the CSV part) may contain
 
 
 
