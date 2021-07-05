@@ -29,6 +29,7 @@ jobs:
           refdataRepo: 'azure'
           useMamba: true
 
+      # Test before relase, we do not want to release broken software!
       - bash: |
           cd $(tardis.dir)
           source activate tardis
@@ -38,8 +39,17 @@ jobs:
       - bash: |
           cd $(tardis.dir)
           source activate tardis
-          echo "##vso[task.setvariable variable=version]$(python -c 'import tardis; print(tardis.__version__)')"
-        displayName: 'Get TARDIS version'
+          echo $(python -c 'from setuptools_scm import version_from_scm; from setuptools_scm.version import guess_next_date_ver; release = version_from_scm("."); print(release.tag.public)')
+        displayName: 'Check latest TARDIS tag'
+
+      - bash: |
+          cd $(tardis.dir)
+          source activate tardis
+          echo "##vso[task.setvariable variable=newtag]$(python -c 'from setuptools_scm import version_from_scm; from setuptools_scm.version import guess_next_date_ver; release = version_from_scm("."); print(guess_next_date_ver(release.tag.public))')"
+        displayName: 'Get new TARDIS tag'
+
+      - bash: echo $(newtag)
+        displayName: 'Check new TARDIS tag'
 
       - task: GitHubRelease@1
         inputs:
@@ -48,8 +58,8 @@ jobs:
           action: 'create'
           target: '$(Build.SourceVersion)'
           tagSource: 'userSpecifiedTag'
-          tag: 'release-$(version)'
-          title: 'TARDIS $(version)'
+          tag: 'release-$(newtag)'
+          title: 'TARDIS v$(newtag)'
           isPreRelease: false
           addChangeLog: true
           changeLogCompareToRelease: 'lastFullRelease'
