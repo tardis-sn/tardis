@@ -31,9 +31,9 @@ def model_config_fnames(request):
 
 
 def test_compare_models(model_config_fnames):
-    """Compare identical models produced by .from_config and 
-       .from_csvy to check that velocities, densities and abundances 
-       (pre and post decay) are the same"""
+    """Compare identical models produced by .from_config and
+    .from_csvy to check that velocities, densities and abundances
+    (pre and post decay) are the same"""
     csvy_config_file, old_config_file = model_config_fnames
     tardis_config = Configuration.from_yaml(csvy_config_file)
     tardis_config_old = Configuration.from_yaml(old_config_file)
@@ -47,8 +47,7 @@ def test_compare_models(model_config_fnames):
         config_model_val = config_model.get_properties()[prop]
         if prop == "homologous_density":
             npt.assert_array_almost_equal(
-                csvy_model_val.density_0.value,
-                config_model_val.density_0.value
+                csvy_model_val.density_0.value, config_model_val.density_0.value
             )
             npt.assert_array_almost_equal(
                 csvy_model_val.time_0.value, config_model_val.time_0.value
@@ -66,7 +65,8 @@ def test_compare_models(model_config_fnames):
     )
     assert csvy_model.abundance.shape == config_model.abundance.shape
     npt.assert_array_almost_equal(
-      csvy_model.raw_abundance.to_numpy(), config_model.raw_abundance.to_numpy()
+        csvy_model.raw_abundance.to_numpy(),
+        config_model.raw_abundance.to_numpy(),
     )
     npt.assert_array_almost_equal(
         csvy_model.raw_isotope_abundance.to_numpy(),
@@ -75,6 +75,7 @@ def test_compare_models(model_config_fnames):
     npt.assert_array_almost_equal(
         csvy_model.abundance.to_numpy(), config_model.abundance.to_numpy()
     )
+
 
 @pytest.fixture(scope="module")
 def csvy_model_test_abundances():
@@ -87,11 +88,11 @@ def csvy_model_test_abundances():
 
 @pytest.fixture(scope="function")
 def reference_input_dataframes():
-    """Reference elemental and isotope abundances dataframes for 
+    """Reference elemental and isotope abundances dataframes for
     `test_read_csvy`.
     Constructed from `csvy_model_to_test_abundances.yml`
-    Rows in dataframes are abundances for a fixed element or isotope; 
-    columns represent different shells """
+    Rows in dataframes are abundances for a fixed element or isotope;
+    columns represent different shells"""
 
     abundance_index = pd.Index([1, 2], name="atomic_number")
     reference_input_abundance = pd.DataFrame(
@@ -104,8 +105,9 @@ def reference_input_dataframes():
         arrays, names=["atomic_number", "mass_number"]
     )
     reference_input_isotopes = pd.DataFrame(
-        [[0.02, 0.03, 0.1, 0.1, 0.05, 0.01]], 
-        columns=np.arange(6), index=isotope_index
+        [[0.02, 0.03, 0.1, 0.1, 0.05, 0.01]],
+        columns=np.arange(6),
+        index=isotope_index,
     )
     return reference_input_abundance, reference_input_isotopes
 
@@ -113,9 +115,12 @@ def reference_input_dataframes():
 def test_read_csvy_abundances(
     csvy_model_test_abundances, reference_input_dataframes
 ):
-    """Test if model reads abundances and isotope abundances 
-       and constructs dataframes correctly before applying decay"""
-    reference_input_abundance, reference_input_isotopes = reference_input_dataframes
+    """Test if model reads abundances and isotope abundances
+    and constructs dataframes correctly before applying decay"""
+    (
+        reference_input_abundance,
+        reference_input_isotopes,
+    ) = reference_input_dataframes
 
     model_abundance_shape = csvy_model_test_abundances.raw_abundance.shape
     reference_input_shape = reference_input_abundance.shape
@@ -125,7 +130,9 @@ def test_read_csvy_abundances(
         csvy_model_test_abundances.raw_abundance.to_numpy(),
     )
 
-    model_isotopes_shape = csvy_model_test_abundances.raw_isotope_abundance.shape
+    model_isotopes_shape = (
+        csvy_model_test_abundances.raw_isotope_abundance.shape
+    )
     reference_input_isotopes_shape = reference_input_isotopes.shape
     assert model_isotopes_shape == reference_input_isotopes_shape
     npt.assert_array_almost_equal(
@@ -150,9 +157,9 @@ def reference_decayed_abundance():
     def N1(N0, lambda1, t=4.0 * u.d):
         return N0 * np.exp(-lambda1 * t)
 
-    
+
     def N2(N1_0, lambda_1, lambda_2, t=4.0 * u.d):
-        return (lambda_1 * N1_0 
+        return (lambda_1 * N1_0
                 * (np.exp(-lambda_1 * t) / (lambda_2 - lambda_1)
                 + np.exp(-lambda_2 * t) / (lambda_1 - lambda_2)))
 
@@ -160,7 +167,7 @@ def reference_decayed_abundance():
 
      cobalt_abundance_after_4_days = N2(0.05, lambda_Ni, lambda_Co)
      nickel_abundance_after_4_days = N1(0.05, lambda_Ni)
-     iron_abundance_after_4_days = 0.05 - cobalt_abundance_after_4_days 
+     iron_abundance_after_4_days = 0.05 - cobalt_abundance_after_4_days
                                     - nickel_abundance_after_4_days
      In the reference_decayed_dataframe every row represents a specific element
      and every column represents a shell"""
@@ -199,9 +206,10 @@ def reference_decayed_abundance():
     return reference_decayed_abundance
 
 
-def test_csvy_model_decay(csvy_model_test_abundances,
-                         reference_decayed_abundance):
-    """Compare model abundance decay against decay calculations 
+def test_csvy_model_decay(
+    csvy_model_test_abundances, reference_decayed_abundance
+):
+    """Compare model abundance decay against decay calculations
     done by hand."""
     model_decayed_abundance_shape = csvy_model_test_abundances.abundance.shape
     reference_decayed_abundance_shape = reference_decayed_abundance.shape

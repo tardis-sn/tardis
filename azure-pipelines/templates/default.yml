@@ -2,21 +2,28 @@
 # http://tardis-sn.github.io/tardis/development/continuous_integration.html
 
 parameters:
-  - name: fetchDepth
-    type: number
-    default: 0
+  - name: useMamba
+    type: boolean
+    default: false
 
   - name: fetchRefdata
     type: boolean
     default: false
 
-  - name: useMamba
-    type: boolean
-    default: false
+  - name: refdataRepo
+    type: string
+    default: azure
+    values:
+      - azure
+      - github
 
-  - name: skipInstall
+  - name: fetchDepth
+    type: number
+    default: 0
+
+  - name: tardisEnv
     type: boolean
-    default: false
+    default: true
 
 steps:
   - bash: echo "##vso[task.setvariable variable=shellopts]errexit"
@@ -42,10 +49,16 @@ steps:
     path: s/tardis
     fetchDepth: ${{ parameters.fetchDepth }}
 
-  - ${{ if eq(parameters.fetchRefdata, true) }}:
+  - ${{ if and(eq(parameters.fetchRefdata, true), eq(parameters.refdataRepo, 'azure')) }}:
     - checkout: git://TARDIS/tardis-refdata
       lfs: true
-      displayName: 'Fetch reference data'
+      displayName: 'Fetch reference data (Azure)'
+
+  - ${{ if and(eq(parameters.fetchRefdata, true), eq(parameters.refdataRepo, 'github')) }}:
+    - bash: |
+        git clone https://github.com/tardis-sn/tardis-refdata.git $(refdata.dir)
+        cd $(refdata.dir); git lfs fetch
+      displayName: 'Fetch reference data (GitHub)'
 
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: 'Add conda to PATH'
@@ -58,13 +71,13 @@ steps:
     - bash: conda install mamba -c conda-forge -y
       displayName: 'Install Mamba'
 
-  - ${{ if eq(parameters.skipInstall, false) }}:
+  - ${{ if eq(parameters.tardisEnv, true) }}:
     - bash: |
         cd $(tardis.dir)
         $(package.manager) env create -f tardis_env3.yml
       displayName: 'Setup environment'
 
-  - ${{ if eq(parameters.skipInstall, false) }}:
+  - ${{ if eq(parameters.tardisEnv, true) }}:
     - bash: |
         cd $(tardis.dir)
         source activate tardis

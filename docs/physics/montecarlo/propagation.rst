@@ -14,21 +14,6 @@ spectrum, the main product of a TARDIS calculation. The different spectral
 features are simply a combined product of the changes in the packet properties
 induced in the radiation-matter interactions.
 
-.. _expansion:
-
-Model of Supernova Domain
-=========================
-
-TARDIS models supernovae as expanding homologously. This means that at the beginning of the explosion, the supernova starts at a single point and proceeds to expand radially outward such that the ratio of the velocity of the ejecta to the distance from the ejecta to the supernova's center is uniform throughout the supernova. As an example, if the outer edge of the ejecta moves outward at some velocity :math:`v_\mathrm{outer\_boundary}`, the velocity of the ejecta half way between the outer edge and the center would be :math:`\frac{v_\mathrm{outer\_boundary}}{2}`. The animation below demonstrates this type of expansion.
-
-TARDIS simulates radiative transfer between an inner boundary (the photosphere, as discussed above) and an outer boundary (the outer edge of the supernova ejecta). The velocity of the inner boundary :math:`v_\mathrm{inner\_boundary}` and the velocity of the outer boundary :math:`v_\mathrm{outer\_boundary}` are supplied in the configuration file (see :ref:`config-file`), as well as the time after the explosion for which TARDIS is calculating the spectrum (:math:`t_\mathrm{explosion}`). The radii of the inner and outer boundaries are therefore calcuated by :math:`r_\mathrm{inner\_boundary}=v_\mathrm{inner\_boundary}*t_\mathrm{explosion}` and :math:`r_\mathrm{outer\_boundary}=v_\mathrm{outer\_boundary}*t_\mathrm{explosion}`. Plasma at a distance :math:`r` from the center of the supernova would then be traveling outward at a speed :math:`v=\frac{r}{r_\mathrm{outer\_boundary}}v_\mathrm{outer\_boundary} = \frac{r}{t_\mathrm{explosion}}`. This is also shown in the animation.
-
-Additionally, TARDIS divides the space between the inner and outer computational boundaries into cells -- radial shells for which the plasma state is (spatially) constant. In the animation, 6 cells are shown, being divided by the light blue lines. As TARDIS is a time-independent code which calculates the spectra at an instant in time, the radii of the boundaries (either of the computational domain or of the cells) do not chage throughout the simulation.
-
-.. image::
-    images/expansion_animation.gif
-    :width: 500
-
 Propagation in a Spherical Domain
 =================================
 
@@ -46,7 +31,7 @@ following sketch (taken from :cite:`Noebauer2014`):
 
 
 .. image::
-    images/spherical_symmetry.png
+    ../images/spherical_symmetry.png
     :width: 500
 
 
@@ -62,39 +47,85 @@ Note that the propagation direction has also changed and now takes the value
 .. math::
     \mu_f = \frac{l + r_i \mu_i}{r_f}.
     
-    
+
+Supernova Expansion
+===================
+
+.. note::
+    This section is a summary of part of :ref:`model` which is included here for easy reference. For a complete
+    explanation, please refer back to that page.
+
+TARDIS models supernovae as expanding homologously, as shown in the animation below. This means that plasma at a
+distance :math:`r` from the center of the supernova will be moving outwards at a velocity
+:math:`v=\frac{r}{t_\mathrm{explosion}}`, where :math:`t_\mathrm{explosion}` is the time after the explosion for
+which TARDIS is running (which is provided in the :ref:`model configuration <model-csvy-and-config>`). This is also
+shown in the animation.
+
+TARDIS simulates radiative transfer between an inner boundary (the photosphere) with a radius
+:math:`r_\mathrm{inner\_boundary}`, and an outer boundary (the outer edge of the supernova ejecta) with a radius
+:math:`r_\mathrm{outer\_boundary}`. Additionally, TARDIS divides the space between the inner and outer computational
+boundaries into cells -- radial shells for which the plasma state is (spatially) constant. In the animation, 6 cells 
+are shown, being divided by the light blue lines. The boundaries of the computational domain and of these cells are 
+computed during the simulation setup (refer back to :ref:`model`). As TARDIS is a time-independent code, meeaning
+that it calculates the spectra at an instant in time (namely at the time :math:`t_\mathrm{explosion}`), the radii of
+the boundaries (both of the computational domain and of the cells) do not chage throughout the simulation.
+
+.. image::
+    ../images/expansion_animation.gif
+    :width: 500
+
+
 .. _referenceframes:
 
 Reference Frames
 ================
-In TARDIS, two reference frames are of particular importance: the lab frame and the co-moving frame. In the lab frame, the center of the supernova is at rest; for example, the animation above is shown in the lab frame. This is the frame for which the spectra are calculated.
 
-The co-moving frame at some point in the supernova, however, has the plasma at that point be at rest. This is the frame of reference "according to the plasma."
+Because ejecta in the supernva is moving, TARDIS must take reference frames into account.
 
-If a photon is propagating in the ejecta with a frequency :math:`\nu_\mathrm{lab}` in the lab frame and a propagation direction :math:`\mu`, the doppler effect says that in the co-moving frame at a distance :math:`r` from the center of the supernova, the photon's frequency is shifted to
+In TARDIS, two reference frames are of particular importance: the lab frame and the co-moving frame. In the lab 
+frame, the center of the supernova is at rest; for example, the animation above is shown in the lab frame.
+This is the frame for which the spectra are calculated.
+
+The co-moving frame at some point in the supernova, however, has the plasma at that point be at rest. This is the 
+frame of reference "according to the plasma."
+
+If a photon is propagating in the ejecta with a frequency :math:`\nu_\mathrm{lab}` in the lab frame and a propagation
+direction :math:`\mu`, the doppler effect says that in the co-moving frame at a distance :math:`r` from the center of
+the supernova, the photon's frequency is shifted to
 
 .. math::
     \nu_\mathrm{co-moving} = \nu_\mathrm{lab}\frac{1-\beta\mu}{\sqrt{1-\beta^2}}
     
-where :math:`\beta = \frac{v}{c} = \frac{r}{ct_\mathrm{explosion}}` (note again that :math:`v` is the velocity of the plasma at a radius :math:`r` from the center of the supernova). The term :math:`\frac{1-\beta\mu}{\sqrt{1-\beta^2}}` is known as the doppler factor. In the nonrelativistic limit (as :math:`v << c`), we get
+where :math:`\beta = \frac{v}{c} = \frac{r}{ct_\mathrm{explosion}}` (note again that :math:`v` is the velocity of the
+plasma at a radius :math:`r` from the center of the supernova). The term :math:`\frac{1-\beta\mu}{\sqrt{1-\beta^2}}`
+is known as the doppler factor. In the nonrelativistic limit (as :math:`v << c`), we get
 
 .. math::
     \nu_\mathrm{co-moving} = \nu_\mathrm{lab}(1-\beta\mu).
     
-Note that if the photon is propagating away from the center of the supernova (:math:`\mu>0`) it is red-shifted (:math:`\nu_\mathrm{co-moving}<\nu_\mathrm{lab}`), and if the photon is propagating towards the center of the supernova (:math:`\mu<0`) it is blue-shifted (:math:`\nu_\mathrm{co-moving}>\nu_\mathrm{lab}`).
+Note that if the photon is propagating away from the center of the supernova (:math:`\mu>0`) it is red-shifted
+(:math:`\nu_\mathrm{co-moving}<\nu_\mathrm{lab}`), and if the photon is propagating towards the center of the
+supernova (:math:`\mu<0`) it is blue-shifted (:math:`\nu_\mathrm{co-moving}>\nu_\mathrm{lab}`).
 
 Numerical and Physical Events
 =============================
-While a packet is propagating through the computational domain, TARDIS calculates the distance the packet will propagate until it (i) crosses into a new cell and (ii) interacts with the plasma in the ejecta. If the former distance is shorter, the packet will be moved into the new cell (and the plasma properties will be recalculated), and if the latter distance is shorter, the packet will be moved to the location of the interaction, and the interaction will be performed.
+While a packet is propagating through the computational domain, TARDIS calculates the distance the packet will
+propagate until it (i) crosses into a new cell and (ii) interacts with the plasma in the ejecta. If the former
+distance is shorter, the packet will be moved into the new cell (and the plasma properties will be recalculated), and
+if the latter distance is shorter, the packet will be moved to the location of the interaction, and the interaction
+will be performed.
 
 Distance to Next Cell
 ---------------------
 
 .. note::
-    In this documentation, and in TARDIS as a whole, the subscripts "inner" and "outer" refer respectively to the inner an outer boundaries of a cell. The subscripts "inner_boundary" and "outer_boundary" refer respectively to the inner and outer boundaries of the computational domain.
+    In this documentation, and in TARDIS as a whole, the subscripts "inner" and "outer" refer respectively to the
+    inner an outer boundaries of a cell. The subscripts "inner_boundary" and "outer_boundary" refer respectively to
+    the inner and outer boundaries of the computational domain.
 
 
-As previously mentioned, the physical properties of the plasma are stored in a discrete mesh of cells for which the plasma state is spatially constant. As a consequence, whenever a packet propagates into a
+As previously mentioned, the physical properties of the plasma are stored in a discrete mesh of cells for which the
+plasma state is spatially constant. As a consequence, whenever a packet propagates into a
 new cell, important quantities which are relevant for performing
 radiation-matter interactions have to be re-evaluated in accordance with the
 new state of the ambient material. Thus, during the packet propagation, the
@@ -118,19 +149,31 @@ propagation is stopped and it is no longer considered. Instead, processing the
 next packet of the population is started. Similarly, the propagation is stopped
 if the packet escapes through the outer surface of the domain. However, in this
 case the packet contributes to the final emergent spectrum (see :ref:`Spectrum
-Formation <virtual_packets>`).
+Formation <spectrum>`).
 
-When a packet is moved into a new cell, as mentioned before, it is moved to the location at which it crosses the boundary, the plasma properties are recalculated, and the propagation direction of the packet is updated (using :math:`\mu_f = \frac{l + r_i \mu_i}{r_f}`).
+When a packet is moved into a new cell, as mentioned before, it is moved to the location at which it crosses the
+boundary, the plasma properties are recalculated, and the propagation direction of the packet is updated (using
+:math:`\mu_f = \frac{l + r_i \mu_i}{r_f}`).
 
 
 Physical Interactions
 ---------------------
 
-As a packet propagates through the computational domain, physical radiation-matter interactions can trigger changes in the packet properties. The probability that a photon/packet will interact with matter is characterized by its optical depth :math:`\tau`; the probability that a packet will have interacted after going through an optical depth :math:`\Delta \tau` is :math:`1-e^{-\Delta \tau}`. To model this (see :ref:`Random Sampling <randomsampling>`), the packet is assigned a random value of optical depth :math:`\tau_\mathrm{interaction} = -\log z` (for another random :math:`z` between 0 and 1), and upon reaching that optical depth, the packet will interact.
+As a packet propagates through the computational domain, physical radiation-matter interactions can trigger changes
+in the packet properties. The probability that a photon/packet will interact with matter is characterized by its
+optical depth :math:`\tau`; the probability that a packet will have interacted after going through an optical depth
+:math:`\Delta \tau` is :math:`1-e^{-\Delta \tau}`. To model this (see :ref:`Random Sampling <randomsampling>`), the
+packet is assigned a random value of optical depth :math:`\tau_\mathrm{interaction} = -\log z` (for another random
+:math:`z` between 0 and 1), and upon reaching that optical depth, the packet will interact.
 
-TARDIS considers two different radiation-matter interactions within the simulation: electron scattering and atomic line interactions. As packets propagate, they accumulate optical depth due to the possibility of going through either of these interations. Since the main focus of TARDIS is to calculate optical spectra,
+TARDIS considers two different radiation-matter interactions within the simulation: electron scattering and atomic
+line interactions. As packets propagate, they accumulate optical depth due to the possibility of going through either
+of these interations. Since the main focus of TARDIS is to calculate optical spectra,
 electron-scatterings are treated in the elastic low-energy limit as classical
-Thomson scatterings. In this case, the electron scattering process is frequency-independent. As a consequence to the frequency independence, the rate at which a packet accumulates electron scattering optical depth depends only on the free electron density :math:`n_e`. The optical depth that a Monte Carlo packet accumulates along a path of length :math:`l` due to
+Thomson scatterings. In this case, the electron scattering process is frequency-independent. As a consequence to the
+frequency independence, the rate at which a packet accumulates electron scattering optical depth depends only on the
+free electron density :math:`n_e`. The optical depth that a Monte Carlo packet accumulates along a path of length
+:math:`l` due to
 Thomson scattering is calculated by the formula
 
 .. math::
@@ -138,7 +181,9 @@ Thomson scattering is calculated by the formula
     \Delta \tau = \sigma_{\mathrm{T}} n_e l.
 
 The Thomson cross section :math:`\sigma_{\mathrm{T}}`, which is a constant,
-appears here. This corresponds to the fact that a packet has a probability of :math:`1-e^{\sigma_{\mathrm{T}} n_e l}` of going through a Thomson scattering prior to traveling a distance :math:`l` (in other words, the probability of the packet making it across a distance :math:`l` without scattering is :math:`e^{\sigma_{\mathrm{T}} n_e l}`).
+appears here. This corresponds to the fact that a packet has a probability of :math:`1-e^{\sigma_{\mathrm{T}} n_e l}`
+of going through a Thomson scattering prior to traveling a distance :math:`l` (in other words, the probability of the
+packet making it across a distance :math:`l` without scattering is :math:`e^{\sigma_{\mathrm{T}} n_e l}`).
 
 The situation is complicated by the inclusion of frequency-dependent
 bound-bound interactions, i.e. interactions with atomic line transitions.
@@ -162,17 +207,25 @@ line. The location at which this occurs is referred to as the resonance or
 Sobolev point. This effectively reduces the line optical depth determination to
 a pure local problem.
 
-If a packet with a frequency :math:`\nu_\mathrm{lab}` in the lab frame is at a radius :math:`r_i` with a propagation direction :math:`\mu_i`, the distance that the packet must travel to reach the next Sobolev point is calculated by setting the frequency of the packet in the co-moving frame at the Sobolev point equal to the resonant frequency that it will next hit, which we will label :math:`\nu_\mathrm{line}` (which is, of course, in the co-moving frame). Using the nonrelativistic doppler shift formula, we get
+If a packet with a frequency :math:`\nu_\mathrm{lab}` in the lab frame is at a radius :math:`r_i` with a propagation
+direction :math:`\mu_i`, the distance that the packet must travel to reach the next Sobolev point is calculated by
+setting the frequency of the packet in the co-moving frame at the Sobolev point equal to the resonant frequency that
+it will next hit, which we will label :math:`\nu_\mathrm{line}` (which is, of course, in the co-moving frame). Using
+the nonrelativistic doppler shift formula, we get
 
 .. math:: \nu_\mathrm{line} = (1-\beta_f \mu_f)\nu_\mathrm{lab}
 
-where the subscript :math:`f` refers to being at the sobolev point. Using :math:`\beta_f=\frac{r_f}{ct_\mathrm{explosion}}` and :math:`\mu_f = \frac{l + r_i \mu_i}{r_f}`, we get that the distance :math:`l` to the next Sobolev point is
+where the subscript :math:`f` refers to being at the sobolev point. Using
+:math:`\beta_f=\frac{r_f}{ct_\mathrm{explosion}}` and :math:`\mu_f = \frac{l + r_i \mu_i}{r_f}`, we get that the
+distance :math:`l` to the next Sobolev point is
 
 .. math:: l = \left( 1-\beta_i\mu_i - \frac{\nu_\mathrm{line}}{\nu_\mathrm{lab}} \right)ct_\mathrm{explosion} = \frac{\nu_{\mathrm{CMF},i}-\nu_\mathrm{line}}{\nu_\mathrm{lab}}ct_\mathrm{explosion}
 
 where :math:`\nu_{\mathrm{CMF},i}` is the frequency of the packet in the co-moving frame at the initial position.
 
-At a Sobolev point, the packet instantaneously accumulates optical depth, the value of which is called the Sobolev optical depth :math:`\tau_\mathrm{Sobolev}` (see :ref:`tau_sobolev`). This corresponds to a probability of :math:`1-e^{-\tau_\mathrm{Sobolev}}` that the packet interacts with the atomic line.
+At a Sobolev point, the packet instantaneously accumulates optical depth, the value of which is called the Sobolev
+optical depth :math:`\tau_\mathrm{Sobolev}` (see :ref:`tau_sobolev`). This corresponds to a probability of
+:math:`1-e^{-\tau_\mathrm{Sobolev}}` that the packet interacts with the atomic line.
 
 Distance to Next Event
 ---------------------- 
@@ -186,26 +239,35 @@ electron-scattering. At the Sobolev point, the accumulated optical depth is
 instantaneously incremented by the Sobolev optical depth. Afterwards, the
 procedure is repeated, now with respect to the next transition in the
 frequency-ordered list of all possible atomic line transitions. The point at
-which the accumulated optical depth reaches the randomly generated interaction optical depth :math:`\tau_\mathrm{interaction}` determines the type of interaction the packet performs and at which location in the spatial mesh, as shown with the example cases in the sketch below (taken from :cite:`Noebauer2014`, adapted from
+which the accumulated optical depth reaches the randomly generated interaction optical depth
+:math:`\tau_\mathrm{interaction}` determines the type of interaction the packet performs and at which location in
+the spatial mesh, as shown with the example cases in the sketch below (taken from :cite:`Noebauer2014`, adapted from
 :cite:`Mazzali1993`):
 
 .. image::
-    images/optical_depth_summation.png
+    ../images/optical_depth_summation.png
     :width: 500
 
-Three possible cases are highlighted in the above diagram, with the dotted lines showing the (randomly assigned) optical depth :math:`\tau_\mathrm{interaction}` at which the packet interacts. In case I, the interaction optical
+Three possible cases are highlighted in the above diagram, with the dotted lines showing the (randomly assigned)
+optical depth :math:`\tau_\mathrm{interaction}` at which the packet interacts. In case I, the interaction optical
 depth value is reached on one of the path segments between successive Sobolev
 points, where the packet is accumulating electron scattering optical depth.
-Thus, the packet performs a Thomson scattering at the point at which its accumulated optical depth reaches :math:`\tau_\mathrm{interaction}`. In case II, the interaction
+Thus, the packet performs a Thomson scattering at the point at which its accumulated optical depth reaches
+:math:`\tau_\mathrm{interaction}`. In case II, the interaction
 optical depth is reached during the instantaneous increment by the line optical
 depth at one of the Sobolev points. As a consequence, the packet performs an
-interaction with the corresponding atomic line transition. In both of these cases, the packet is moved to the interaction location, the interaction will be performed (as will be described in the next section), and the process of accumulating optical depth starts over. Finally, if the packet reaches the shell boundary before the optical depth value necessary for a physical interaction is achieved (as in case III), the packet will be moved to the next cell, the plasma properties will be updated, and the accumulation of optical depth will continue in the next cell.
+interaction with the corresponding atomic line transition. In both of these cases, the packet is moved to the
+interaction location, the interaction will be performed (as will be described in the next section), and the process
+of accumulating optical depth starts over. Finally, if the packet reaches the shell boundary before the optical depth
+value necessary for a physical interaction is achieved (as in case III), the packet will be moved to the next cell,
+the plasma properties will be updated, and the accumulation of optical depth will continue in the next cell.
 
 Performing an Interaction
 -------------------------
 
-When a physical interaction occurs, whether it is a Thomson scattering or a line interaction, the packet is moved to the interaction location and a new propagation direction is assigned. Since this process is isotropic, the new direction is
-sampled according to
+When a physical interaction occurs, whether it is a Thomson scattering or a line interaction, the packet is moved to
+the interaction location and a new propagation direction is assigned. Since this process is isotropic, the new
+direction is sampled according to (see :ref:`Random Sampling <randomsampling>`)
 
 .. math::
 
@@ -213,7 +275,8 @@ sampled according to
     
 using a new random :math:`z` (between 0 and 1).
 
-For Thomson scattering, the energy of the packet in the co-moving frame is conserved, and thus the new energy and frequency of the packet in the lab frame (due to the doppler effect) is:
+For Thomson scattering, the energy of the packet in the co-moving frame is conserved, and thus the new energy and
+frequency of the packet in the lab frame (due to the doppler effect) is:
 
 .. math::
 
@@ -221,11 +284,15 @@ For Thomson scattering, the energy of the packet in the co-moving frame is conse
     \nu_f & = \nu_i \frac{1 - \beta \mu_i}{1 - \beta \mu_f}
     
 Here, the subscripts highlight the packet properties before (:math:`i` for
-initial) and after (:math:`f` for final) the scattering. Note that :math:`\mu_i` is the propagation direction prior to the interaction **but at the interaction location.**
+initial) and after (:math:`f` for final) the scattering. Note that :math:`\mu_i` is the propagation direction prior
+to the interaction **but at the interaction location.**
 
-For line interactions, the energy of the packet after the interaction is still given by the same formula (based on energy conservation in the co-moving frame). However, the post-interaction frequency depends on the selected line interaction treatment (see :ref:`Line Interaction Treatments <lineinteraction>`).
+For line interactions, the energy of the packet after the interaction is still given by the same formula (based on
+energy conservation in the co-moving frame). However, the post-interaction frequency depends on the selected line
+interaction treatment (see :ref:`Line Interaction Treatments <lineinteraction>`).
 
-The ratio :math:`\frac{1 - \beta \mu_i}{1 - \beta \mu_f}` can be visualized with the following graph for a plasma speed of :math:`1.1 \times 10^4` km/s:
+The ratio :math:`\frac{1 - \beta \mu_i}{1 - \beta \mu_f}` can be visualized with the following graph for a plasma
+speed of :math:`1.1 \times 10^4` km/s:
 
 .. plot:: physics/pyplot/plot_mu_in_out_packet.py
 

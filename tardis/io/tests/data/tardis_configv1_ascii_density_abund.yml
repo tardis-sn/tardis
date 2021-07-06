@@ -18,7 +18,6 @@ model:
         filetype: simple_ascii
         v_inner_boundary: 11000 km/s
         v_outer_boundary: 20000 km/s
-
     abundances:
         type: file
         filename: abund.dat
@@ -37,7 +36,6 @@ montecarlo:
     iterations: 20
     last_no_of_packets: 1.e+5
     no_of_virtual_packets: 5
-
     convergence_strategy:
         type: damped
         damping_constant: 1.0

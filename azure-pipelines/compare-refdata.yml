@@ -8,25 +8,21 @@
 #            This feature can be disabled only through the Azure Pipelines
 #            dashboard.
 
-trigger: none
+trigger:
+  tags:
+    include:
+    - '*'
 
 pr:
   branches:
     include:
     - '*'
 
-schedules:
-  - cron: '0 0 1 * *'
-    displayName: 'Monthly test'
-    branches:
-      include:
-        - master
-
 variables:
   system.debug: false
   results.url: 'http://opensupernova.org/~azuredevops/files/refdata-results'
-  commit.sha: '$(Build.SourceVersion)'
   pr.number: '$(System.PullRequest.PullRequestNumber)'
+  commit.sha: '$(Build.SourceVersion)'
   #ref1.hash: ''
   #ref2.hash: ''
 
@@ -38,7 +34,8 @@ jobs:
     steps:
       - template: templates/default.yml
         parameters:
-          fetchRefdata: false  # See the comment below.
+          fetchRefdata: true
+          refdataRepo: 'github'
           useMamba: true
 
       - bash: |
@@ -46,18 +43,9 @@ jobs:
           $(package.manager) install bokeh=2.2 --channel conda-forge --no-update-deps --yes
         displayName: 'Install Bokeh'
 
-      # Azure Repos requires token auth for public repositories containing LFS objects (bug).
-      # Fetch reference data from Azure with a PAT until a fix arrives.
-      - bash: |
-          MY_PAT=$(azure_pat)
-          B64_PAT=$(printf ":$MY_PAT" | base64)
-          git -c http.extraHeader="Authorization: Basic ${B64_PAT}" clone https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata $(refdata.dir)
-          cd $(refdata.dir); git -c http.extraHeader="Authorization: Basic ${B64_PAT}" lfs fetch --all
-        displayName: 'Fetch reference data repository'
-
       - bash: |
           cd $(refdata.dir)
-          git remote add upstream https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata
+          git remote add upstream $(git remote get-url origin)
           git fetch upstream
           git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
         displayName: 'Set upstream remote'
@@ -95,13 +83,25 @@ jobs:
          sshPublicKey: $(opensupernova_pubkey)
          sshKeySecureFile: openSupernovaKey
 
+      - ${{ if eq(variables['Build.Reason'], 'IndividualCI') }}:
+        - bash: echo "##vso[task.setvariable variable=subfolder]releases"
+          displayName: "Set subfolder name"
+
+      - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+        - bash: echo "##vso[task.setvariable variable=subfolder]$(pr.number)"
+          displayName: "Set subfolder name"
+
+      - ${{ if eq(variables['Build.Reason'], 'Manual') }}:
+        - bash: echo "##vso[task.setvariable variable=subfolder]manual"
+          displayName: "Set subfolder name"
+
       - bash: |
-          ssh azuredevops@opensupernova.org "mkdir -p /home/azuredevops/public_html/files/refdata-results/$(pr.number)"
+          ssh azuredevops@opensupernova.org "mkdir -p /home/azuredevops/public_html/files/refdata-results/$(subfolder)"
           scp $(refdata.dir)/notebooks/ref_data_compare.html azuredevops@opensupernova.org:/home/azuredevops/public_html/files/refdata-results/$(pr.number)/$(commit.sha).html
         displayName: 'Copy files to server'
         condition: succeededOrFailed()
 
-      # Run only if the pipeline is triggered by a pull request.
+      # Run if the pipeline is triggered by a pull request.
       - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
         - task: GitHubComment@0
           inputs:
