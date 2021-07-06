@@ -433,6 +433,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         self.reshape_plasma_state_store(self.iterations_executed)
         if hasattr(self, "cplots"):
+            self.cplots.fetch_data(
+                name="t_inner",
+                value=self.model.t_inner.value,
+                item_type="value",
+            )
             self.cplots.update(export_cplots=self.export_cplots, last=True)
 
         logger.info(
