@@ -69,51 +69,6 @@ class FilterLog(object):
         return log_record.levelno == self.log_level
 
 
-LOGGING_LEVELS = {
-    "NOTSET": logging.NOTSET,
-    "DEBUG": logging.DEBUG,
-    "INFO": logging.INFO,
-    "WARNING": logging.WARNING,
-    "ERROR": logging.ERROR,
-    "CRITICAL": logging.CRITICAL,
-}
-DEFAULT_LOG_STATE = "CRITICAL"
-
-
-class FilterLog(object):
-    """
-    Filter Log Class for Filtering Logging Output
-    to a particular level
-    Parameters
-    ----------
-    log_level : logging object
-        allows to have a filter for the
-        particular log_level
-    """
-
-    def __init__(self, log_level):
-        self.log_level = log_level
-
-    def filter(self, log_record):
-        """
-        filter() allows to set the logging level for
-        all the record that are being parsed & hence remove those
-        which are not of the particular level
-        Parameters
-        ----------
-        log_record : logging.record
-            which the paricular record upon which the
-            filter will be applied
-        Returns
-        -------
-        boolean : True, if the current log_record has the
-            level that of the specified log_level
-            False, if the current log_record doesn't have the
-            same log_level as the specified one
-        """
-        return log_record.levelno == self.log_level
-
-
 # Setting up a list to store the Logging Filters set by logger.addFilter()
 list_of_filter = []
 
