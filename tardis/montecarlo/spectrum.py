@@ -37,16 +37,19 @@ class TARDISSpectrum(HDFWriterMixin):
         self._frequency = _frequency.to("Hz", u.spectral())
         self.luminosity = luminosity.to("erg / s")
 
+        l_nu_unit = u.def_unit('erg\ s^{-1}\ Hz^{-1}', u.Unit('erg/(s Hz)'))
+        l_lambda_unit = u.def_unit('erg\ s^{-1}\ \\AA^{-1}', u.Unit('erg/(s AA)'))
+
         self.frequency = self._frequency[:-1]
         self.delta_frequency = self._frequency[1] - self._frequency[0]
         self.wavelength = self.frequency.to("angstrom", u.spectral())
 
         self.luminosity_density_nu = (
             self.luminosity / self.delta_frequency
-        ).to("s^-1 erg/ Hz")
+        ).to(l_nu_unit)
         self.luminosity_density_lambda = self.f_nu_to_f_lambda(
             self.luminosity_density_nu,
-        )
+        ).to(l_lambda_unit)
 
     @property
     def flux_nu(self):
@@ -119,7 +122,7 @@ class TARDISSpectrum(HDFWriterMixin):
                 f"Wavelength [{self.wavelength.unit.to_string('latex_inline')}]"
             )
             ax.set_ylabel(
-                f"$L_\\lambda$ [{self.luminosity_density_lambda.unit.to_string('latex_inline'):s}]"
+                f"$L_\\lambda$ [{self.luminosity_density_lambda.unit.to_string('latex_inline')}]"
             )
         elif mode == "frequency":
             ax.plot(self.frequency.value, self.luminosity_density_nu.value, **kwargs)
