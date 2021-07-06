@@ -129,7 +129,6 @@ class TARDISSpectrum(HDFWriterMixin):
             ax.set_xlabel(
                 f"Frequency [{self.frequency.unit.to_string('latex_inline')}]"
             )
-            ax.set_xlabel(f"Wavelength [{self.wavelength.unit._repr_latex_()}]")
             ax.set_ylabel(
                 f"$L_\\nu$ [{self.luminosity_density_nu.unit.to_string('latex_inline')}]"
             )
