@@ -20,9 +20,9 @@ from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
 
 
 @njit(**njit_dict_no_parallel)
-def thomson_scatter(r_packet, time_explosion):
-    """
-    Thomson scattering — no longer line scattering
+def scatter(r_packet, time_explosion):
+	"""
+    Continuum scattering 
     \n1) get the doppler factor at that position with the old angle
     \n2) convert the current energy and nu into the comoving frame with the old mu
     \n3) Scatter and draw new mu - update mu
@@ -44,8 +44,27 @@ def thomson_scatter(r_packet, time_explosion):
         r_packet.r, r_packet.mu, time_explosion
     )
 
-    r_packet.nu = comov_nu * inverse_new_doppler_factor
     r_packet.energy = comov_energy * inverse_new_doppler_factor
+    r_packet.nu = comov_nu * inverse_new_doppler_factor
+    
+
+@njit(**njit_dict_no_parallel)
+def thomson_scatter(r_packet, time_explosion):
+    """
+    Thomson scattering — no longer line scattering
+    \n1) get the doppler factor at that position with the old angle
+    \n2) convert the current energy and nu into the comoving frame with the old mu
+    \n3) Scatter and draw new mu - update mu
+    \n4) Transform the comoving energy and nu back using the new mu
+
+    Parameters
+    ----------
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    time_explosion : float
+        time since explosion in seconds
+    """
+    scatter(r_packet, time_explosion)
+
     if montecarlo_configuration.full_relativity:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
@@ -64,18 +83,7 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
     line_interaction_type : enum
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     """
-
-    old_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
-    )
-    r_packet.mu = get_random_mu()
-
-    inverse_new_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
-    )
-
-    comov_energy = r_packet.energy * old_doppler_factor
-    r_packet.energy = comov_energy * inverse_new_doppler_factor
+	scatter(r_packet, time_explosion)
 
     if line_interaction_type == LineInteractionType.SCATTER:
         line_emission(
