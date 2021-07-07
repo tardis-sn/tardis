@@ -25,6 +25,10 @@ After running the simulation, the following information can be retrieved:
       - List of virtual packet frequencies
     * - ``runner.virt_packet_energies``
       - List of virtual packet energies
+    * - ``runner.virt_packet_initial_mus``
+      - List of propagation directions that virtual packets are launched at
+    * - ``runner.virt_packet_initial_rs``
+      - List of radii that virtual packets are launched at
     * - ``runner.virt_packet_last_interaction_type``
       - Type of interaction that caused the virtual packet to be spawned
     * - ``runner.virt_packet_last_interaction_in_nu``
