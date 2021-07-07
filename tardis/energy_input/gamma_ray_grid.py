@@ -26,6 +26,7 @@ def calculate_distance_radial(gxpacket, r_inner, r_outer):
     distance : dtype float
 
     """
+    # TODO: Maybe only calculate distances that are strictly needed instead of all four by default?
     # determine cartesian location coordinates of gamma-ray object
     x, y, z = gxpacket.location.cartesian_coords
     # determine cartesian direction coordinates of gamma-ray object
@@ -70,6 +71,7 @@ def distance_trace(
     distance_boundary : dtype float
 
     """
+    # TODO: Is this if statement still needed?
     if gxpacket.shell < len(inner_radii):
         distance_boundary = calculate_distance_radial(
             gxpacket,
@@ -137,6 +139,9 @@ def density_sampler(radii, mass_ratio):
     return radii[index], index
 
 
+# TODO: Check if parts of the calculation are already implemented in the TARDIS model.
+# At the very least, the model should contain the density and the volume.
+# This should already simplify the calculation.
 def mass_per_shell(radial_grid_size, inner_radii, outer_radii, density_profile):
     """Calculates the distribution of mass in the shells
     based on a density profile
@@ -203,6 +208,7 @@ def mass_distribution(
     shell_masses = mass_per_shell(
         radial_grid_size, inner_radii, outer_radii, density_profile
     )
+    # TODO: np.cumsum and np.pad could probably do the same in one line?
     mass_cdf = np.zeros(radial_grid_size)
     mass = 0
     for i in range(radial_grid_size):

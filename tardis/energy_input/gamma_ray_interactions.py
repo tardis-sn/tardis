@@ -32,6 +32,9 @@ def get_compton_angle(gxpacket):
     lost_energy : float
     """
 
+    # TODO: The sampled angles are discrete.
+    # The default seems to be 100 discrete values, which is not all that much.
+    # Maybe we should use linear interpolation to sample from a continuous approximation of the CDF.
     theta_angles, theta_distribution = compton_theta_distribution(
         gxpacket.energy
     )

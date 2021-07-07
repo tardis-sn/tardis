@@ -63,7 +63,7 @@ def create_energy_cdf(energy, intensity):
     """
     norm_intensity = intensity / np.sum(intensity)
     cdf = np.zeros_like(norm_intensity)
-
+    # TODO: Maybe do np.hstack or np.pad and reduce this to a one liner?
     for index, i in enumerate(norm_intensity):
         cdf[index] = cdf[index - 1] + i
 

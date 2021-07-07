@@ -9,7 +9,7 @@ MASS_FE = 55.845 * const.m_p.to(u.g).value
 M_P = const.m_p.to(u.g).value
 SIGMA_T = const.sigma_T.cgs.value
 
-
+# TODO: add units for completeness
 def compton_opacity_calculation(energy, ejecta_density):
     """Calculate the Compton scattering opacity for a given energy
 
