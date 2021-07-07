@@ -118,10 +118,13 @@ nbsphinx_execute_arguments = [
     "--InlineBackend.rc={'figure.dpi': 96}",
 ]
 
-nbsphinx_prolog = """
-This notebook is available at 
-https://github.com/tardis-sn/tardis/tree/master/docs/{{ env.doc2path(env.docname, base=None) }}
-
+nbsphinx_prolog = r"""
+{% set docname = 'docs/' + env.doc2path(env.docname, base=None) %}
+.. raw:: html
+    
+    <div class="admonition note">
+      Click to interact with this notebook: <span style="white-space: nowrap;"><a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath={{ docname|e }}"><img alt="Interact Button" src="https://img.shields.io/badge/-Interact%20With%20This%20Notebook-red" style="vertical-align:text-bottom"></a></span>
+    </div>
 """
 
 if os.getenv("DISABLE_NBSPHINX") == "1":
