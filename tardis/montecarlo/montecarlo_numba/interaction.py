@@ -21,7 +21,7 @@ from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
 
 @njit(**njit_dict_no_parallel)
 def scatter(r_packet, time_explosion):
-	"""
+    """
     Continuum scattering 
     \n1) get the doppler factor at that position with the old angle
     \n2) convert the current energy and nu into the comoving frame with the old mu
@@ -83,7 +83,7 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
     line_interaction_type : enum
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     """
-	scatter(r_packet, time_explosion)
+    scatter(r_packet, time_explosion)
 
     if line_interaction_type == LineInteractionType.SCATTER:
         line_emission(
