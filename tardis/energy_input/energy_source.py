@@ -62,11 +62,7 @@ def create_energy_cdf(energy, intensity):
         the sorted array
     """
     norm_intensity = intensity / np.sum(intensity)
-    cdf = np.zeros_like(norm_intensity)
-    # TODO: Maybe do np.hstack or np.pad and reduce this to a one liner?
-    for index, i in enumerate(norm_intensity):
-        cdf[index] = cdf[index - 1] + i
-
+    cdf = np.cumsum(norm_intensity)
     energy.sort()
 
     return energy, cdf

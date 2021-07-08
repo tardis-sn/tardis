@@ -218,19 +218,9 @@ def compton_theta_distribution(energy, sample_resolution=100):
     norm_theta_distribution : One dimensional Numpy array, dtype float
 
     """
-    dtheta = np.pi / sample_resolution
+    theta_angles = np.linspace(0, np.pi, sample_resolution)
 
-    theta_distribution = np.zeros(sample_resolution)
-    theta_angles = np.ones(sample_resolution) * np.pi
-
-    theta = 0.0
-    for i in range(sample_resolution - 1):
-        theta_distribution[i + 1] = theta_distribution[i] + klein_nishina(
-            energy, theta
-        )
-        theta_angles[i] = theta
-        theta += dtheta
-
+    theta_distribution = np.cumsum(klein_nishina(energy, theta_angles))
     norm_theta_distribution = theta_distribution / np.max(theta_distribution)
 
     return theta_angles, norm_theta_distribution

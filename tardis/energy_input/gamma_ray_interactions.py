@@ -15,42 +15,38 @@ from tardis.energy_input.util import (
     get_perpendicular_vector,
 )
 
-# from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
 
-
-def get_compton_angle(gxpacket):
+def get_compton_angle(energy):
     """
     Computes the compton angle from the Klein-Nishina equation.
 
     Parameters
     ----------
-    gxpacket : GXPacket object
+    energy : float
+        Packet energy
 
     Returns
     -------
     compton_angle : float
+        Compton scattering angle
     lost_energy : float
+        Energy lost based on angle
+    new_energy : float
+        Packet energy
     """
-
-    # TODO: The sampled angles are discrete.
-    # The default seems to be 100 discrete values, which is not all that much.
-    # Maybe we should use linear interpolation to sample from a continuous approximation of the CDF.
-    theta_angles, theta_distribution = compton_theta_distribution(
-        gxpacket.energy
-    )
+    theta_angles, theta_distribution = compton_theta_distribution(energy)
 
     z = np.random.random()
 
     # get Compton scattering angle
-    compton_angle = theta_angles[np.searchsorted(theta_distribution, z)]
+    compton_angle = np.interp(z, theta_angles, theta_distribution)
     # Energy calculations
-    new_energy = gxpacket.energy / (
-        1.0 + kappa_calculation(gxpacket.energy) * (1.0 - np.cos(compton_angle))
+    new_energy = energy / (
+        1.0 + kappa_calculation(energy) * (1.0 - np.cos(compton_angle))
     )
-    lost_energy = gxpacket.energy - new_energy
-    gxpacket.energy = new_energy
+    lost_energy = energy - new_energy
 
-    return compton_angle, lost_energy
+    return compton_angle, lost_energy, new_energy
 
 
 def compton_scatter(gxpacket, compton_angle):
@@ -137,38 +133,29 @@ def pair_creation(gxpacket):
     return gxpacket, backward_ray
 
 
-def scatter_type(
-    gxpacket, compton_opacity, photoabsorption_opacity, total_opacity
-):
+def scatter_type(compton_opacity, photoabsorption_opacity, total_opacity):
     """
     Determines the scattering type based on process opacities
 
     Parameters
     ----------
-    gxpacket : GXPacket object
     compton_opacity : float
     photoabsorption_opacity : float
     total_opacity : float
 
     Returns
     -------
-    ejecta_energy_gain : float
-    compton_angle : float
+    status : GXPacketStatus
+        Scattering process the packet encounters
 
     """
     z = np.random.random()
 
-    ejecta_energy_gain = 0.0
-    compton_angle = 0.0
-
     if z <= (compton_opacity / total_opacity):
-        gxpacket.status = GXPacketStatus.COMPTON_SCATTER
-        compton_angle, ejecta_energy_gain = get_compton_angle(gxpacket)
+        status = GXPacketStatus.COMPTON_SCATTER
     elif z <= (compton_opacity + photoabsorption_opacity) / total_opacity:
-        gxpacket.status = GXPacketStatus.PHOTOABSORPTION
-        ejecta_energy_gain = gxpacket.energy
+        status = GXPacketStatus.PHOTOABSORPTION
     else:
-        gxpacket.status = GXPacketStatus.PAIR_CREATION
-        ejecta_energy_gain = gxpacket.energy - (2.0 * 511.0)
+        status = GXPacketStatus.PAIR_CREATION
 
-    return ejecta_energy_gain, compton_angle
+    return status

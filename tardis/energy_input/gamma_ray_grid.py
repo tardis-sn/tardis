@@ -71,15 +71,11 @@ def distance_trace(
     distance_boundary : dtype float
 
     """
-    # TODO: Is this if statement still needed?
-    if gxpacket.shell < len(inner_radii):
-        distance_boundary = calculate_distance_radial(
-            gxpacket,
-            inner_radii[gxpacket.shell],
-            outer_radii[gxpacket.shell],
-        )
-    else:
-        distance_boundary = 0.0
+    distance_boundary = calculate_distance_radial(
+        gxpacket,
+        inner_radii[gxpacket.shell],
+        outer_radii[gxpacket.shell],
+    )
 
     distance_interaction = gxpacket.tau / total_opacity / ejecta_epoch
     return distance_interaction, distance_boundary
@@ -101,8 +97,7 @@ def move_gamma_ray(gxpacket, distance):
     """
     x_old, y_old, z_old = gxpacket.location.cartesian_coords
     x_dir, y_dir, z_dir = gxpacket.direction.cartesian_coords
-    # overshoot by CLOSE_LINE_THRESHOLD * distance to shell boundary
-    # so that the gamma-ray is comfortably in the next shell
+
     y_new = y_old + distance * y_dir
     z_new = z_old + distance * z_dir
     x_new = x_old + distance * x_dir
@@ -139,21 +134,14 @@ def density_sampler(radii, mass_ratio):
     return radii[index], index
 
 
-# TODO: Check if parts of the calculation are already implemented in the TARDIS model.
-# At the very least, the model should contain the density and the volume.
-# This should already simplify the calculation.
-def mass_per_shell(radial_grid_size, inner_radii, outer_radii, density_profile):
+def mass_per_shell(volume, density_profile):
     """Calculates the distribution of mass in the shells
     based on a density profile
 
     Parameters
     ----------
-    radial_grid_size : int
-        Number of radial grid cells
-    inner_radii : One-dimensional Numpy Array, dtype float
-        Inner radii of shells
-    outer_radii : One-dimensional Numpy Array, dtype float
-        Outer radii of shells
+    volume : One-dimensional Numpy Array, dtype float
+        Volume of shells
     density_profile : One-dimensional Numpy Array, dtype float
         Density of shells
 
@@ -162,59 +150,7 @@ def mass_per_shell(radial_grid_size, inner_radii, outer_radii, density_profile):
     One-dimensional Numpy Array, dtype float
         Normalized array of mass in each shell
     """
-    mass = np.zeros(radial_grid_size)
-
-    for i in range(radial_grid_size):
-        if i == 0:
-            mass[i] = (
-                4.0
-                / 3.0
-                * np.pi
-                * density_profile[i]
-                * (outer_radii[i] - inner_radii[i]) ** 3.0
-            )
-        else:
-            mass[i] = (
-                4.0
-                / 3.0
-                * np.pi
-                * density_profile[i]
-                * (outer_radii[i] ** 3.0 - outer_radii[i - 1] ** 3.0)
-            )
-    return mass
-
-
-def mass_distribution(
-    radial_grid_size, inner_radii, outer_radii, density_profile
-):
-    """Calculate the mass distribution of the density profile
-
-    Parameters
-    ----------
-    radial_grid_size : int64
-        Number of radial grid cells
-    inner_radii : ndarray
-        Array of inner radii
-    outer_radii : ndarray
-        Array of outer radii
-    density_profile : ndarray
-        Array of density
-
-    Returns
-    -------
-    ndarray
-        Mass cumulative distribution function
-    """
-    shell_masses = mass_per_shell(
-        radial_grid_size, inner_radii, outer_radii, density_profile
-    )
-    # TODO: np.cumsum and np.pad could probably do the same in one line?
-    mass_cdf = np.zeros(radial_grid_size)
-    mass = 0
-    for i in range(radial_grid_size):
-        mass += shell_masses[i]
-        mass_cdf[i] = mass
-    return mass_cdf / np.max(mass_cdf)
+    return volume * density_profile
 
 
 def get_shell(radius, outer_radii):
@@ -238,10 +174,7 @@ def get_shell(radius, outer_radii):
 
 
 def compute_required_packets_per_shell(
-    outer_radii,
-    inner_radii,
-    ejecta_density,
-    number_of_shells,
+    shell_masses,
     raw_isotope_abundance,
     number_of_packets,
 ):
@@ -250,14 +183,8 @@ def compute_required_packets_per_shell(
 
     Parameters
     ----------
-    outer_radii : ndarray
-        Outer radii of shells
-    inner_radii : ndarray
-        Inner radii of shells
-    ejecta_density : ndarray
-        Array of densities
-    number_of_shells : int64
-        Number of radial grid cells
+    shell_masses : ndarray
+        Array of shell masses
     raw_isotope_abundance : pandas DataFrame
         Abundances of isotopes
     number_of_packets : int64
@@ -270,9 +197,7 @@ def compute_required_packets_per_shell(
     pandas DataFrame
         Database of decay radiation
     """
-    shell_masses = mass_per_shell(
-        number_of_shells, inner_radii, outer_radii, ejecta_density
-    )
+
     shell_masses = shell_masses / np.sum(shell_masses)
     abundance_dict = {}
     for index, row in raw_isotope_abundance.iterrows():

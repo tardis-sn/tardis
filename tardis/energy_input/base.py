@@ -26,6 +26,7 @@ from tardis.energy_input.gamma_ray_interactions import (
     scatter_type,
     compton_scatter,
     pair_creation,
+    get_compton_angle,
 )
 from tardis.energy_input.util import (
     get_random_theta_gamma_ray,
@@ -52,7 +53,7 @@ def initialize_packets(
     ----------
     number_of_shells : int64
         Number of shells in model
-    packets_per_shell : array of int64
+    packets_per_shell : pandas dataframe
         Number of packets in a shell
     shell_masses : array of float64
         Mass per shell
@@ -197,19 +198,15 @@ def main_gamma_ray_loop(num_packets, model):
     outer_velocities = model.v_outer[:].value
     inner_velocities = model.v_inner[:].value
     ejecta_density = model.density[:].value
+    ejecta_volume = model.volume[:].value
     ejecta_epoch = model.time_explosion.to("s").value
     number_of_shells = model.no_of_shells
     raw_isotope_abundance = model.raw_isotope_abundance
 
-    shell_masses = mass_per_shell(
-        number_of_shells, inner_velocities, outer_velocities, ejecta_density
-    )
+    shell_masses = mass_per_shell(ejecta_volume, ejecta_density)
 
     packets_per_shell, decay_rad_db = compute_required_packets_per_shell(
-        outer_velocities,
-        inner_velocities,
-        ejecta_density,
-        number_of_shells,
+        shell_masses,
         raw_isotope_abundance,
         num_packets,
     )
@@ -266,8 +263,7 @@ def main_gamma_ray_loop(num_packets, model):
 
                 packet.tau = -np.log(np.random.random())
 
-                ejecta_energy_gained, compton_angle = scatter_type(
-                    packet,
+                packet.status = scatter_type(
                     compton_opacity,
                     photoabsorption_opacity,
                     total_opacity,
@@ -281,15 +277,24 @@ def main_gamma_ray_loop(num_packets, model):
 
                 if packet.status == GXPacketStatus.COMPTON_SCATTER:
                     (
+                        compton_angle,
+                        ejecta_energy_gained,
+                        packet.energy,
+                    ) = get_compton_angle(packet.energy)
+                    (
                         packet.direction.theta,
                         packet.direction.phi,
                     ) = compton_scatter(packet, compton_angle)
 
                 if packet.status == GXPacketStatus.PAIR_CREATION:
+                    ejecta_energy_gained = packet.energy - (2.0 * 511.0)
                     packet, backward_ray = pair_creation(packet)
 
                     # Add antiparallel packet on pair creation at end of list
                     packets.append(backward_ray)
+
+                if packet.status == GXPacketStatus.PHOTOABSORPTION:
+                    ejecta_energy_gained = packet.energy
 
                 # Save packets to dataframe rows
                 energy_df_rows[packet.shell] += calculate_energy_per_mass(
@@ -314,6 +319,7 @@ def main_gamma_ray_loop(num_packets, model):
 
             else:
                 packet.tau -= total_opacity * distance_boundary * ejecta_epoch
+                # overshoot so that the gamma-ray is comfortably in the next shell
                 packet = move_gamma_ray(packet, distance_boundary * (1 + 1e-7))
                 packet.time_current += (
                     distance_boundary / const.c.cgs.value * ejecta_epoch
