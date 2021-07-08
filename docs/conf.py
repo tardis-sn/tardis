@@ -123,8 +123,38 @@ nbsphinx_prolog = r"""
 {% set docname = 'docs/' + env.doc2path(env.docname, base=None) %}
 .. raw:: html
     
+    <style>
+        .launch-btn {
+            background-color: #2980B9;
+            border: none;
+            border-radius: 4px;
+            color: #fcfcfc;
+            font-family: inherit;
+            text-decoration: none;
+            padding: 3px 8px;
+            letter-spacing: 0.03em;
+            display: inline-block;
+            line-height: 1.5em;
+        }
+
+        .launch-btn:hover {
+            background-color: #1b6391;
+        }
+
+        .launch-btn:visited {
+            color: #fcfcfc;
+        }
+
+        .note-p {
+            margin-bottom: 0.4em;
+            line-height: 2em;
+        }
+    </style>
+    
     <div class="admonition note">
-      Click to interact with this notebook: <span style="white-space: nowrap;"><a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath={{ docname|e }}"><img alt="Interact Button" src="https://img.shields.io/badge/-Interact%20With%20This%20Notebook-red" style="vertical-align:text-bottom"></a></span>
+    <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath={{ docname|e }}" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch Interactive Version</a></p>
+    <p>And you can download it from
+<a class="reference external" href="https://github.com/tardis-sn/tardis/tree/master/docs/quickstart/quickstart.ipynb" target="_blank" rel="noopener noreferrer">GitHub</a></p>
     </div>
 """
 
