@@ -314,9 +314,7 @@ def main_gamma_ray_loop(num_packets, model):
 
             else:
                 packet.tau -= total_opacity * distance_boundary * ejecta_epoch
-                packet = move_gamma_ray(
-                    packet, distance_boundary * (1 + CLOSE_LINE_THRESHOLD)
-                )
+                packet = move_gamma_ray(packet, distance_boundary * (1 + 1e-7))
                 packet.time_current += (
                     distance_boundary / const.c.cgs.value * ejecta_epoch
                 )
