@@ -359,6 +359,9 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
         try:
             return atomic_data.macro_atom_data
         except:
+            logger.debug(
+                "\n\tMacro Atom Data was not found.\n\tInstead returning All Macro Atom Data"
+            )
             return atomic_data.macro_atom_data_all
 
 
