@@ -69,10 +69,6 @@ class FilterLog(object):
         return log_record.levelno == self.log_level
 
 
-# Setting up a list to store the Logging Filters set by logger.addFilter()
-list_of_filter = []
-
-
 def logging_state(log_state, tardis_config, specific):
     """
     Function to set the logging configuration for the simulation output
@@ -122,24 +118,48 @@ def logging_state(log_state, tardis_config, specific):
             f"Passed Value for log_state = {logging_level} is Invalid. Must be one of the following {list(LOGGING_LEVELS.keys())}"
         )
 
-    loggers = [
-        logging.getLogger(name) for name in logging.root.manager.loggerDict
-    ]
-    if logging_level in LOGGING_LEVELS:
-        for logger in loggers:
-            logger.setLevel(LOGGING_LEVELS[logging_level])
+    # Getting the TARDIS logger & all its children loggers
+    logger = logging.getLogger("tardis")
 
-    if list_of_filter:
-        for filter in list_of_filter:
-            for logger in loggers:
+    # Creating a list for storing all the Loggers which are derived from TARDIS
+    tardis_loggers = []
+
+    # Populating the List with the loggers
+    tardis_loggers = tardis_logger(tardis_loggers)
+
+    if logging_level in LOGGING_LEVELS:
+        logger.setLevel(LOGGING_LEVELS[logging_level])
+
+    if logger.filters:
+        for filter in logger.filters:
+            for logger in tardis_loggers:
                 logger.removeFilter(filter)
 
     if specific:
         filter_log = FilterLog(LOGGING_LEVELS[logging_level])
-        list_of_filter.append(filter_log)
-        for logger in loggers:
+        for logger in tardis_loggers:
             logger.addFilter(filter_log)
     else:
-        for filter in list_of_filter:
-            for logger in loggers:
+        for filter in logger.filters:
+            for logger in tardis_loggers:
                 logger.removeFilter(filter)
+
+
+def tardis_logger(list_for_loggers):
+    """
+    Generates the list of the loggers which are derived from TARDIS
+    All loggers which are of the form `tardis.module_name` are added to the list
+
+    Parameters
+    ----------
+    list_for_loggers : list
+        List for storing the loggers derived from TARDIS
+
+    Returns
+    -------
+    list_for_loggers : list
+    """
+    for name in logging.root.manager.loggerDict:
+        if not name.find("tardis"):
+            list_for_loggers.append(logging.getLogger(name))
+    return list_for_loggers
