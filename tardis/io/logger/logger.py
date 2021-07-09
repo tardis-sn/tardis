@@ -121,11 +121,8 @@ def logging_state(log_state, tardis_config, specific):
     # Getting the TARDIS logger & all its children loggers
     logger = logging.getLogger("tardis")
 
-    # Creating a list for storing all the Loggers which are derived from TARDIS
-    tardis_loggers = []
-
-    # Populating the List with the loggers
-    tardis_loggers = tardis_logger(tardis_loggers)
+    # Creating a list for Storing all the Loggers which are derived from TARDIS
+    tardis_loggers = tardis_logger()
 
     if logging_level in LOGGING_LEVELS:
         logger.setLevel(LOGGING_LEVELS[logging_level])
@@ -145,7 +142,7 @@ def logging_state(log_state, tardis_config, specific):
                 logger.removeFilter(filter)
 
 
-def tardis_logger(list_for_loggers):
+def tardis_logger():
     """
     Generates the list of the loggers which are derived from TARDIS
     All loggers which are of the form `tardis.module_name` are added to the list
@@ -159,6 +156,7 @@ def tardis_logger(list_for_loggers):
     -------
     list_for_loggers : list
     """
+    list_for_loggers = []
     for name in logging.root.manager.loggerDict:
         if not name.find("tardis"):
             list_for_loggers.append(logging.getLogger(name))
