@@ -1,13 +1,18 @@
 name: docstr-coverage
 
 on:
+  push:
+    branches:
+    - master
+
   pull_request:
     branches:
-      - master
+    - master
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -35,3 +40,30 @@ jobs:
         if: ${{ failure() }}
         run: |
           git diff --name-only $(git merge-base ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}) | xargs docstr-coverage --accept-empty
+
+  post:
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'tardis-sn' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install docstr-coverage
+        run: pip install docstr-coverage
+
+      - name: Get coverage (rounded)
+        run: echo "NEW_COV=$(printf "%.f" $(docstr-coverage -p))" >> $GITHUB_ENV
+
+      # Using jsonbin.org with tardis-bot GitHub account
+      - name: Post results
+        run: |
+          curl -X POST https://jsonbin.org/tardis-bot/badges/tardis/docstr-coverage -H 'authorization: token ${{ secrets.JSONBIN_APIKEY }}' -d "{ \"schemaVersion\": 1, \"label\": \"docstr-coverage\", \"message\": \"$NEW_COV%\", \"color\": \"orange\" }"
+
+      # Updated badge will be available at: https://img.shields.io/endpoint?url=https://jsonbin.org/tardis-bot/badges/tardis/docstr-coverage
+      # Could take some minutes!
