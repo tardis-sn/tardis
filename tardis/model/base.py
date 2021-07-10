@@ -447,19 +447,37 @@ class Radial1DModel(HDFWriterMixin):
         -------
         Radial1DModel
         """
+        logger.debug(
+            f"Setting up the Time Of Explosion : {config.supernova.time_explosion.cgs}"
+        )
         time_explosion = config.supernova.time_explosion.cgs
 
         structure = config.model.structure
         electron_densities = None
         temperature = None
         if structure.type == "specific":
+            logger.debug(
+                f"Structure type for the Model is set to {structure.type}Using Specific values for Velocity & Density"
+            )
+            logger.debug(
+                f"Specific Velocity is present, Using values for Calculation"
+            )
             velocity = quantity_linspace(
                 structure.velocity.start,
                 structure.velocity.stop,
                 structure.velocity.num + 1,
             ).cgs
+            logger.debug(
+                f"Velocity Start : {structure.velocity.start}Velocity Stop  : {structure.velocity.stop}"
+            )
+            logger.debug(
+                f"Density Profile is set to {structure.type} for Model Structure, Setting up Profile"
+            )
             homologous_density = HomologousDensity.from_config(config)
         elif structure.type == "file":
+            logger.debug(
+                f"Structure Type for the Simulation is set to {structure.type} : {structure.filename}Using File to set up values of Velocity & Density"
+            )
             if os.path.isabs(structure.filename):
                 structure_fname = structure.filename
             else:
@@ -475,13 +493,20 @@ class Radial1DModel(HDFWriterMixin):
                 temperature,
             ) = read_density_file(structure_fname, structure.filetype)
             density_0 = density_0.insert(0, 0)
+            logger.debug(
+                f"Density Profile is set to {structure.type} for Model Structure, Setting up Profile"
+            )
             homologous_density = HomologousDensity(density_0, time_0)
         else:
             raise NotImplementedError
         # Note: This is the number of shells *without* taking in mind the
         #       v boundaries.
         no_of_shells = len(velocity) - 1
+        logger.debug(
+            f"Number of Shells for Velocity Consideration : {no_of_shells} "
+        )
 
+        logger.debug(f"Setting up the Radiative Temperature for the Simulation")
         if temperature:
             t_radiative = temperature
         elif config.plasma.initial_t_rad > 0 * u.K:
@@ -490,23 +515,37 @@ class Radial1DModel(HDFWriterMixin):
             )
         else:
             t_radiative = None
+        logger.debug(f"Radiative Temperature : {t_radiative}")
 
+        logger.debug(
+            "Setting up the Luminosity Requested & T_Inner for the Plasma"
+        )
         if config.plasma.initial_t_inner < 0.0 * u.K:
             luminosity_requested = config.supernova.luminosity_requested
             t_inner = None
         else:
             luminosity_requested = None
             t_inner = config.plasma.initial_t_inner
+        logger.debug(
+            f"Luminosity Requested       : {luminosity_requested}\n\tInner Boundary Temperature : {t_inner}"
+        )
 
         abundances_section = config.model.abundances
         isotope_abundance = pd.DataFrame()
 
+        logger.debug("Setting up the Elements Abundances")
         if abundances_section.type == "uniform":
+            logger.debug(
+                f"Abundance Profile is set to {abundances_section.type}, Setting up Profile"
+            )
             abundance, isotope_abundance = read_uniform_abundances(
                 abundances_section, no_of_shells
             )
 
         elif abundances_section.type == "file":
+            logger.debug(
+                f"Abundance Profile is set to {abundances_section.type}, Setting up Profile via File {abundances_section.filename}"
+            )
             if os.path.isabs(abundances_section.filename):
                 abundances_fname = abundances_section.filename
             else:
@@ -530,6 +569,7 @@ class Radial1DModel(HDFWriterMixin):
             abundance /= norm_factor
             isotope_abundance /= norm_factor
 
+        logger.debug("Setting up the Isotope Abundances for the Model")
         isotope_abundance = IsotopeAbundances(isotope_abundance)
 
         return cls(
@@ -567,6 +607,9 @@ class Radial1DModel(HDFWriterMixin):
             "dilution_factor",
         }
 
+        logger.debug(
+            f"Using CSVY File : {config.csvy_model} to Setup the Radial1DModel Parameters"
+        )
         if os.path.isabs(config.csvy_model):
             csvy_model_fname = config.csvy_model
         else:
@@ -582,6 +625,9 @@ class Radial1DModel(HDFWriterMixin):
         )
 
         if hasattr(csvy_model_data, "columns"):
+            logger.debug(
+                "Setting up Abundances for the Elements via CSVY File Data"
+            )
             abund_names = set(
                 [
                     name
@@ -611,6 +657,9 @@ class Radial1DModel(HDFWriterMixin):
                  f" but are IGNORED by TARDIS: {str(unsupported_columns)}"
             )
 
+        logger.debug(
+            f"Setting up the Time Of Explosion : {config.supernova.time_explosion} "
+        )
         time_explosion = config.supernova.time_explosion.cgs
 
         electron_densities = None
@@ -627,11 +676,17 @@ class Radial1DModel(HDFWriterMixin):
         #    v_boundary_outer = None
 
         if hasattr(config, "model"):
+            logger.debug(
+                "Setting up Inner Boundary Velocity from Model Section of CSVY File"
+            )
             if hasattr(config.model, "v_inner_boundary"):
                 v_boundary_inner = config.model.v_inner_boundary
             else:
                 v_boundary_inner = None
 
+            logger.debug(
+                "Setting up Outer Boundary Velocity from Model Section of CSVY File"
+            )
             if hasattr(config.model, "v_outer_boundary"):
                 v_boundary_outer = config.model.v_outer_boundary
             else:
@@ -639,13 +694,19 @@ class Radial1DModel(HDFWriterMixin):
         else:
             v_boundary_inner = None
             v_boundary_outer = None
+        logger.debug(f"Inner Boundary Velocity : {v_boundary_inner}")
+        logger.debug(f"Outer Boundary Velocity : {v_boundary_outer}")
 
+        logger.debug("Setting up Velocity values from CSVY File Config")
         if hasattr(csvy_model_config, "velocity"):
             velocity = quantity_linspace(
                 csvy_model_config.velocity.start,
                 csvy_model_config.velocity.stop,
                 csvy_model_config.velocity.num + 1,
             ).cgs
+            logger.debug(
+                f"Velocity Start : {csvy_model_config.velocity.start}\n\tVelocity Stop : {csvy_model_config.velocity.st}"
+            )
         else:
             velocity_field_index = [
                 field["name"] for field in csvy_model_config.datatype.fields
@@ -655,7 +716,9 @@ class Radial1DModel(HDFWriterMixin):
             )
             velocity = csvy_model_data["velocity"].values * velocity_unit
             velocity = velocity.to("cm/s")
+            logger.debug(f"Velocity : {velocity}")
 
+        logger.debug("Setting up Density Profile from CSVY File Config")
         if hasattr(csvy_model_config, "density"):
             homologous_density = HomologousDensity.from_csvy(
                 config, csvy_model_config
@@ -674,9 +737,15 @@ class Radial1DModel(HDFWriterMixin):
             homologous_density = HomologousDensity(density_0, time_0)
 
         no_of_shells = len(velocity) - 1
+        logger.debug(
+            f"Number of Shells for Velocity Consideration : {no_of_shells} "
+        )
 
         # TODO -- implement t_radiative
         # t_radiative = None
+        logger.debug(
+            "Setting up the Radiative Temperature from CSVY File Config"
+        )
         if temperature:
             t_radiative = temperature
         elif hasattr(csvy_model_data, "columns"):
@@ -692,26 +761,38 @@ class Radial1DModel(HDFWriterMixin):
                 )
             else:
                 t_radiative = None
+        logger.debug(f"Radiative Temperature : {t_radiative}")
 
         dilution_factor = None
+        logger.debug(
+            "Setting up the Dilution Factor (w) for the Model via CSVY File"
+        )
         if hasattr(csvy_model_data, "columns"):
             if "dilution_factor" in csvy_model_data.columns:
                 dilution_factor = (
                     csvy_model_data["dilution_factor"].iloc[0:].to_numpy()
                 )
-
         elif config.plasma.initial_t_rad > 0 * u.K:
             t_radiative = np.ones(no_of_shells) * config.plasma.initial_t_rad
         else:
             t_radiative = None
 
+        logger.debug(
+            "Setting up the Luminosity Requested & T_Inner for the Plasma via CSVY File Config"
+        )
         if config.plasma.initial_t_inner < 0.0 * u.K:
             luminosity_requested = config.supernova.luminosity_requested
             t_inner = None
         else:
             luminosity_requested = None
             t_inner = config.plasma.initial_t_inner
+        logger.debug(
+            f"Luminosity Requested       : {luminosity_requested}\n\tInner Boundary Temperature : {t_inner}"
+        )
 
+        logger.debug(
+            "Setting up the Abundance Profile for the Elements from the CSVY File Config"
+        )
         if hasattr(csvy_model_config, "abundance"):
             abundances_section = csvy_model_config.abundance
             abundance, isotope_abundance = read_uniform_abundances(
@@ -740,6 +821,9 @@ class Radial1DModel(HDFWriterMixin):
             isotope_abundance /= norm_factor
 
         # isotope_abundance = IsotopeAbundances(isotope_abundance)
+        logger.debug(
+            "Setting up the Isotope Abundances for the Model via CSVY File Config"
+        )
         isotope_abundance = IsotopeAbundances(
             isotope_abundance, time_0=csvy_model_config.model_isotope_time_0
         )

@@ -619,25 +619,47 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # Allow overriding some config structures. This is useful in some
         # unit tests, and could be extended in all the from_config classmethods.
         if "model" in kwargs:
+            logger.debug(
+                'Model found in Kwargs, Setting up the Model from Kwargs["model"]'
+            )
             model = kwargs["model"]
         else:
             if hasattr(config, "csvy_model"):
+                logger.debug(
+                    "Setting up the Radial1Model with CSVY Configuration"
+                )
                 model = Radial1DModel.from_csvy(config)
             else:
+                logger.debug(
+                    "Setting up the Radial1DModel with Model Configuration"
+                )
                 model = Radial1DModel.from_config(config)
         if "plasma" in kwargs:
+            logger.debug(
+                'Plasma found in Kwargs, Setting up the Nature Plasma from Kwargs["plasma"]'
+            )
             plasma = kwargs["plasma"]
         else:
+            logger.debug(
+                "Setting up the Plasma Properties from Plasma Configuration & Radial1DModel Config"
+            )
+            logger.debug(f"Plasma Config : {list(config.plasma.items())} ")
             plasma = assemble_plasma(
                 config, model, atom_data=kwargs.get("atom_data", None)
             )
         if "runner" in kwargs:
+            logger.debug(
+                'Runner found in Kwargs, Setting up the Runner from Kwargs["runner"]'
+            )
             if packet_source is not None:
                 raise ConfigurationError(
                     "Cannot specify packet_source and runner at the same time."
                 )
             runner = kwargs["runner"]
         else:
+            logger.debug(
+                "Setting up the MontecarloRunner with Runner Configuration"
+            )
             runner = MontecarloRunner.from_config(
                 config,
                 packet_source=packet_source,

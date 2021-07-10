@@ -392,6 +392,9 @@ class AtomData(object):
             ].copy()
 
             if line_interaction_type == "downbranch":
+                logger.debug(
+                    "Line Interaction Type for the Photons are DownBranch, Proceeding with Preparation of Atom Data"
+                )
                 self.macro_atom_data = self.macro_atom_data.loc[
                     self.macro_atom_data["transition_type"] == -1
                 ]
@@ -413,6 +416,9 @@ class AtomData(object):
                 )
 
             elif line_interaction_type == "macroatom":
+                logger.debug(
+                    "Line Interaction Type for the Photon is MacroAtom, Proceeding with Preparation of Atom Data"
+                )
                 self.macro_atom_references.loc[
                     :, "block_references"
                 ] = np.hstack(
@@ -483,8 +489,16 @@ class AtomData(object):
 
             if self.yg_data is not None:
                 self.yg_data = self.yg_data.loc[self.selected_atomic_numbers]
+        else:
+            # Just using this else block for logging Scatter Line Interaction Type
+            logger.debug(
+                "Line Interaction Type for the Photon is Scatter, Proceeding with Preparation of Atom Data"
+            )
 
+        logger.debug("Setting up the NLTE data")
         self.nlte_data = NLTEData(self, nlte_species)
+
+    logger.debug("Checking Atomic Data for the Atomic Numbers")
 
     def _check_selected_atomic_numbers(self):
         selected_atomic_numbers = self.selected_atomic_numbers
