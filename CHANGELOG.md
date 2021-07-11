@@ -1,5 +1,13 @@
 ## Change Log
 
+### release-2021.7.11.0 (2021/07/09 17:07 +00:00)
+- [#1680](https://github.com/tardis-sn/tardis/pull/1680) Added docstring-coverage badge (#1680) (@epassaro)
+- [#1696](https://github.com/tardis-sn/tardis/pull/1696) Adding mu and r to virtual packet logging (#1696) (@smithis7)
+- [#1695](https://github.com/tardis-sn/tardis/pull/1695) Enabling spectrum plotting in the frequency domain (#1695) (@smithis7)
+
+### release-2021.7.5 (2021/07/05 14:32 +00:00)
+- [#1688](https://github.com/tardis-sn/tardis/pull/1688) final changes for release pipeline (#1688) (@epassaro)
+
 ### release-2021.7.2.dev1+g58e4e79d (2021/07/02 15:44 +00:00)
 - [#1683](https://github.com/tardis-sn/tardis/pull/1683) prepare release pipeline for CalVer (#1683) (@epassaro)
 
