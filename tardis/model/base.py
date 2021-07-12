@@ -530,9 +530,6 @@ class Radial1DModel(HDFWriterMixin):
         else:
             luminosity_requested = None
             t_inner = config.plasma.initial_t_inner
-        logger.debug(
-            f"Luminosity Requested       : {luminosity_requested:.3e}\n\tInner Boundary Temperature : {t_inner}"
-        )
 
         abundances_section = config.model.abundances
         isotope_abundance = pd.DataFrame()
