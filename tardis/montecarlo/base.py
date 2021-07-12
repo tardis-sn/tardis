@@ -586,7 +586,12 @@ class MontecarloRunner(HDFWriterMixin):
         -------
         MontecarloRunner
         """
+        logger.debug(
+            f"Disable Electron Scattering : {config.plasma.disable_electron_scattering}"
+        )
+
         if config.plasma.disable_electron_scattering:
+            logger.debug("Electron scattering switched Off")
             logger.warn(
                 "Disabling electron scattering - this is not physical."
                 "Likely bug in formal integral - "
@@ -595,7 +600,7 @@ class MontecarloRunner(HDFWriterMixin):
             numba_config.SIGMA_THOMSON = 1e-200
             # mc_config_module.disable_electron_scattering = True
         else:
-            logger.debug("Electron scattering switched on")
+            logger.debug("Electron scattering switched On")
             numba_config.SIGMA_THOMSON = const.sigma_T.to("cm^2").value
             # mc_config_module.disable_electron_scattering = False
 
@@ -603,6 +608,9 @@ class MontecarloRunner(HDFWriterMixin):
             config.spectrum.stop.to("Hz", u.spectral()),
             config.spectrum.start.to("Hz", u.spectral()),
             num=config.spectrum.num + 1,
+        )
+        logger.debug(
+            f"Disable Line Scattering : {config.plasma.disable_line_scattering}"
         )
         mc_config_module.disable_line_scattering = (
             config.plasma.disable_line_scattering

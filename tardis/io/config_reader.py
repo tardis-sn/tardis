@@ -243,7 +243,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
     @classmethod
     def from_yaml(cls, fname, *args, **kwargs):
         logger.info(
-            f"Reading YAML file : {fname}Path to YAML file : {os.path.realpath(fname)}\n"
+            f"Reading YAML file : {fname}\n\tPath to YAML file : {os.path.realpath(fname)}\n"
         )
         try:
             yaml_dict = yaml_load_file(

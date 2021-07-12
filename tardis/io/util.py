@@ -421,3 +421,10 @@ def download_from_url(url, dst):
                 pbar.update(1024)
     pbar.close()
     return file_size
+
+
+def config_iteratation(dictionary):
+    log_string = ""
+    for key, value in dictionary.items():
+        log_string += f"{key}: {value}\n\t  "
+    return log_string

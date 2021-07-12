@@ -1,8 +1,11 @@
 import numpy as np
 from astropy import units as u
+import logging
 
 from tardis.util.base import quantity_linspace
-from tardis.io.util import HDFWriterMixin
+from tardis.io.util import HDFWriterMixin, config_iteratation
+
+logger = logging.getLogger(__name__)
 
 
 class HomologousDensity(HDFWriterMixin):
@@ -146,6 +149,8 @@ class HomologousDensity(HDFWriterMixin):
             time_0 = d_conf.get("time_0", time_explosion)
         else:
             raise ValueError(f"Unrecognized density type " f"'{d_conf.type}'")
+        log_string = config_iteratation(d_conf)
+        logger.debug(f"Density Config:\n\t  {log_string}")
         return cls(density_0, time_0)
 
 

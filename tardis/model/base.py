@@ -15,7 +15,7 @@ from tardis.io.model_reader import (
 )
 from tardis.io.config_validator import validate_dict
 from tardis.io.config_reader import Configuration
-from tardis.io.util import HDFWriterMixin
+from tardis.io.util import HDFWriterMixin, config_iteratation
 from tardis.io.decay import IsotopeAbundances
 from tardis.model.density import HomologousDensity
 from pyne import nucname
@@ -448,7 +448,7 @@ class Radial1DModel(HDFWriterMixin):
         Radial1DModel
         """
         logger.debug(
-            f"Setting up the Time Of Explosion : {config.supernova.time_explosion.cgs}"
+            f"Setting up the Time Of Explosion : {config.supernova.time_explosion}"
         )
         time_explosion = config.supernova.time_explosion.cgs
 
@@ -457,10 +457,10 @@ class Radial1DModel(HDFWriterMixin):
         temperature = None
         if structure.type == "specific":
             logger.debug(
-                f"Structure type for the Model is set to {structure.type}Using Specific values for Velocity & Density"
+                f"Structure type for the Model is set to {structure.type}\n\tUsing Specific values for Velocity & Density"
             )
             logger.debug(
-                f"Specific Velocity is present, Using values for Calculation"
+                f"Specific Velocity is present, Using values for Velocity Calculation"
             )
             velocity = quantity_linspace(
                 structure.velocity.start,
@@ -468,15 +468,16 @@ class Radial1DModel(HDFWriterMixin):
                 structure.velocity.num + 1,
             ).cgs
             logger.debug(
-                f"Velocity Start : {structure.velocity.start}Velocity Stop  : {structure.velocity.stop}"
+                f"Structure Velocity Config\n\tVelocity Start : {structure.velocity.start}\n\tVelocity Stop  : {structure.velocity.stop}"
             )
             logger.debug(
-                f"Density Profile is set to {structure.type} for Model Structure, Setting up Profile"
+                f"Density Profile is set to {structure.type} : {structure.density.type} for Model Structure, Setting up Profile"
             )
             homologous_density = HomologousDensity.from_config(config)
+
         elif structure.type == "file":
             logger.debug(
-                f"Structure Type for the Simulation is set to {structure.type} : {structure.filename}Using File to set up values of Velocity & Density"
+                f"Structure Type for the Simulation is set to {structure.type} : {structure.filename}\n\tUsing File to set up values of Velocity & Density"
             )
             if os.path.isabs(structure.filename):
                 structure_fname = structure.filename
@@ -497,6 +498,9 @@ class Radial1DModel(HDFWriterMixin):
                 f"Density Profile is set to {structure.type} for Model Structure, Setting up Profile"
             )
             homologous_density = HomologousDensity(density_0, time_0)
+            logger.debug(
+                f"Density Profile is set with density : {density_0} & time : {time_0}"
+            )
         else:
             raise NotImplementedError
         # Note: This is the number of shells *without* taking in mind the
@@ -527,7 +531,7 @@ class Radial1DModel(HDFWriterMixin):
             luminosity_requested = None
             t_inner = config.plasma.initial_t_inner
         logger.debug(
-            f"Luminosity Requested       : {luminosity_requested}\n\tInner Boundary Temperature : {t_inner}"
+            f"Luminosity Requested       : {luminosity_requested:.3e}\n\tInner Boundary Temperature : {t_inner}"
         )
 
         abundances_section = config.model.abundances
@@ -541,6 +545,8 @@ class Radial1DModel(HDFWriterMixin):
             abundance, isotope_abundance = read_uniform_abundances(
                 abundances_section, no_of_shells
             )
+            log_string = config_iteratation(abundances_section)
+            logger.debug(f"Abundance Of Elements : \n\t  {log_string}")
 
         elif abundances_section.type == "file":
             logger.debug(
@@ -555,6 +561,9 @@ class Radial1DModel(HDFWriterMixin):
 
             index, abundance, isotope_abundance = read_abundances_file(
                 abundances_fname, abundances_section.filetype
+            )
+            logger.debug(
+                f"Abundances File Config:\n\t  {abundances_section.filename}\n\t  {abundances_section.filetype} "
             )
 
         abundance = abundance.replace(np.nan, 0.0)
