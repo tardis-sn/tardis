@@ -32,7 +32,7 @@ def load_csvy(fname):
                 yaml_end_ind = i
                 break
         else:
-            raise ValueError("End %s not found" % (YAML_DELIMITER))
+            raise ValueError(f"End {YAML_DELIMITER} not found" )
         yaml_dict = yaml.load("".join(yaml_lines[1:-1]), YAMLLoader)
         try:
             data = pd.read_csv(fname, skiprows=yaml_end_ind + 1)
@@ -67,7 +67,7 @@ def load_yaml_from_csvy(fname):
                 yaml_end_ind = i
                 break
         else:
-            raise ValueError("End %s not found" % (YAML_DELIMITER))
+            raise ValueError(f"End {YAML_DELIMITER} not found" )
         yaml_dict = yaml.load("".join(yaml_lines[1:-1]), YAMLLoader)
     return yaml_dict
 

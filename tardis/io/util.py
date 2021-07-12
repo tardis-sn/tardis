@@ -393,7 +393,7 @@ def download_from_url(url, dst):
         first_byte = 0
     if first_byte >= file_size:
         return file_size
-    header = {"Range": "bytes=%s-%s" % (first_byte, file_size)}
+    header = {f"Range": "bytes={first_byte}-{file_size}" }
     pbar = tqdm(
         total=file_size,
         initial=first_byte,
