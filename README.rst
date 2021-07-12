@@ -9,7 +9,7 @@ stars (*supernovae*).
     :target: https://numfocus.salsalabs.org/donate-to-tardis/index.html
 
 .. image:: https://open.vscode.dev/badges/open-in-vscode.svg
-    :target: https://open.vscode.dev/organization/repository
+    :target: https://open.vscode.dev/tardis-sn/tardis
 
 .. image:: https://codecov.io/gh/tardis-sn/tardis/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/tardis-sn/tardis
