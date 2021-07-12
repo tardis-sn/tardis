@@ -74,6 +74,10 @@ except Exception:
     version = '{version}'
 """.lstrip()
 
-setup(use_scm_version={'write_to': os.path.join('tardis', 'version.py'),
+# Pure Python scripts that are not entry points, required for `pip install`.
+scripts = ['tardis/scripts/tardis']
+
+setup(scripts=scripts,
+      use_scm_version={'write_to': os.path.join('tardis', 'version.py'),
                        'write_to_template': VERSION_TEMPLATE,
-                       'version_scheme': 'calver-by-date'})
+                       'version_scheme': 'calver-by-date'},)
