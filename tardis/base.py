@@ -33,7 +33,7 @@ def run_tardis(
     -------
     Simulation
     """
-    from tardis import logging_state
+    from tardis.io.logger.logger import logging_state
     from tardis.io.config_reader import Configuration
     from tardis.io.atom_data.base import AtomData
     from tardis.simulation import Simulation
