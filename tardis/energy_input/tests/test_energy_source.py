@@ -90,5 +90,10 @@ def test_sample_energy_distribution():
 
 
 @pytest.mark.xfail(reason="To be implemented")
-def test_setup_gamma_ray_energy():
+def test_setup_input_energy():
+    assert False
+
+
+@pytest.mark.xfail(reason="To be implemented")
+def test_intensity_ratio():
     assert False

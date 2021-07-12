@@ -7,7 +7,7 @@ from tardis.io.config_reader import Configuration
 
 
 @pytest.mark.skip(reason="To be implemented")
-def test_spawn_gamma_ray():
+def test_initialize_packets():
     assert False
 
 

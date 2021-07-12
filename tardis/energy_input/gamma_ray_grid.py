@@ -8,7 +8,7 @@ from tardis.energy_input.util import (
     solve_quadratic_equation,
     convert_half_life_to_astropy_units,
 )
-from tardis.energy_input.energy_source import load_nndc_decay_data
+from tardis.util.base import atomic_number2element_symbol
 
 
 def calculate_distance_radial(gxpacket, r_inner, r_outer):
@@ -134,25 +134,6 @@ def density_sampler(radii, mass_ratio):
     return radii[index], index
 
 
-def mass_per_shell(volume, density_profile):
-    """Calculates the distribution of mass in the shells
-    based on a density profile
-
-    Parameters
-    ----------
-    volume : One-dimensional Numpy Array, dtype float
-        Volume of shells
-    density_profile : One-dimensional Numpy Array, dtype float
-        Density of shells
-
-    Returns
-    -------
-    One-dimensional Numpy Array, dtype float
-        Normalized array of mass in each shell
-    """
-    return volume * density_profile
-
-
 def get_shell(radius, outer_radii):
     """Returns the shell index at a given radius
 
@@ -179,7 +160,8 @@ def compute_required_packets_per_shell(
     number_of_packets,
 ):
     """Computes the number of packets required per shell
-    that sum to the total number of requested packets
+    that sum to the total number of requested packets.
+    Also stores/updates decay radiation in an HDF file.
 
     Parameters
     ----------
@@ -201,7 +183,8 @@ def compute_required_packets_per_shell(
     shell_masses = shell_masses / np.sum(shell_masses)
     abundance_dict = {}
     for index, row in raw_isotope_abundance.iterrows():
-        isotope_string = load_nndc_decay_data(index, force_update=False)
+        isotope_string = atomic_number2element_symbol(index[0]) + str(index[1])
+        store_decay_radiation(isotope_string, force_update=False)
         abundance_dict[isotope_string] = row * shell_masses
 
     abundance_df = pd.DataFrame.from_dict(abundance_dict)

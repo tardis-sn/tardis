@@ -1,7 +1,6 @@
 import copy
 import numpy as np
 from astropy.coordinates import cartesian_to_spherical
-from astropy.coordinates import spherical_to_cartesian
 
 from tardis.energy_input.util import (
     GXPacket,

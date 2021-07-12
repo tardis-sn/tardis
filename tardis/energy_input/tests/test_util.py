@@ -26,6 +26,16 @@ def test_kappa_calculation(energy, expected):
     npt.assert_almost_equal(kappa, expected)
 
 
+@pytest.mark.xfail(reason="To be removed")
+def test_euler_rodrigues():
+    assert False
+
+
+@pytest.mark.xfail(reason="To be implemented")
+def test_solve_quadratic_equation():
+    assert False
+
+
 @pytest.mark.parametrize(
     ["energy", "theta_C"],
     [
@@ -68,6 +78,16 @@ def test_compton_theta_distribution():
     assert False
 
 
-@pytest.mark.xfail(reason="To be removed")
-def test_euler_rodrigues():
+@pytest.mark.xfail(reason="To be implemented")
+def test_calculate_energy_per_mass():
+    assert False
+
+
+@pytest.mark.xfail(reason="To be implemented")
+def test_normalize():
+    assert False
+
+
+@pytest.mark.xfail(reason="To be implemented")
+def test_get_perpendicular_vector():
     assert False

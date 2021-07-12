@@ -34,9 +34,9 @@ def test_move_gamma_ray(basic_gamma_ray):
     x_old, y_old, z_old = gamma_ray.location.cartesian_coords
     x_dir, y_dir, z_dir = gamma_ray.direction.cartesian_coords
 
-    x_new = x_old + distance * (1 + 1e-7) * x_dir
-    y_new = y_old + distance * (1 + 1e-7) * y_dir
-    z_new = z_old + distance * (1 + 1e-7) * z_dir
+    x_new = x_old + distance * x_dir
+    y_new = y_old + distance * y_dir
+    z_new = z_old + distance * z_dir
 
     r, theta, phi = cartesian_to_spherical(x_new, y_new, z_new)
 
@@ -53,4 +53,14 @@ def test_move_gamma_ray(basic_gamma_ray):
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_density_sampler():
+    assert False
+
+
+@pytest.mark.xfail(reason="To be implemented")
+def test_get_shell():
+    assert False
+
+
+@pytest.mark.xfail(reason="To be implemented")
+def test_compute_required_packets_per_shell():
     assert False

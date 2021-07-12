@@ -1,7 +1,5 @@
 import numpy as np
 import pandas as pd
-from tardis.util.base import atomic_number2element_symbol
-from nuclear.io.nndc import store_decay_radiation
 
 # Need to scale deposited energy to rate of decay reaction to get energy per second in steady state
 # Assume photon path is small compared to dynamical effects
@@ -143,9 +141,3 @@ def intensity_ratio(nuclear_data, source_1, source_2):
         np.sum(intensity_1) / total_intensity,
         np.sum(intensity_2) / total_intensity,
     )
-
-
-def load_nndc_decay_data(index, force_update=True):
-    isotope_string = atomic_number2element_symbol(index[0]) + str(index[1])
-    store_decay_radiation(isotope_string, force_update=force_update)
-    return isotope_string

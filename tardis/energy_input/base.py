@@ -10,7 +10,6 @@ from tardis.energy_input.gamma_ray_grid import (
     move_gamma_ray,
     get_shell,
     compute_required_packets_per_shell,
-    mass_per_shell,
 )
 from tardis.energy_input.energy_source import (
     setup_input_energy,
@@ -203,7 +202,7 @@ def main_gamma_ray_loop(num_packets, model):
     number_of_shells = model.no_of_shells
     raw_isotope_abundance = model.raw_isotope_abundance
 
-    shell_masses = mass_per_shell(ejecta_volume, ejecta_density)
+    shell_masses = ejecta_volume * ejecta_density
 
     packets_per_shell, decay_rad_db = compute_required_packets_per_shell(
         shell_masses,
