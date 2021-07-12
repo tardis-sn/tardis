@@ -1,8 +1,11 @@
+import logging
 import yaml
 import pandas as pd
 from tardis.io.util import YAMLLoader
 
 YAML_DELIMITER = "---"
+
+logger = logging.getLogger(__name__)
 
 
 def load_csvy(fname):
@@ -17,7 +20,7 @@ def load_csvy(fname):
     yaml_dict : dictionary
                 YAML part of the csvy file
     data : pandas.dataframe
-           csv data from csvy file
+            csv data from csvy file
     """
     with open(fname) as fh:
         yaml_lines = []
@@ -37,6 +40,7 @@ def load_csvy(fname):
         try:
             data = pd.read_csv(fname, skiprows=yaml_end_ind + 1)
         except pd.errors.EmptyDataError as e:
+            logger.debug(f"Could not Read CSV. Setting Dataframe to None")
             data = None
 
     return yaml_dict, data

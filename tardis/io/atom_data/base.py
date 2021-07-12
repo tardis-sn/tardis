@@ -164,6 +164,7 @@ class AtomData(object):
                 try:
                     dataframes[name] = store[name]
                 except KeyError:
+                    logger.debug("Dataframe does not contain NAME column")
                     nonavailable.append(name)
 
             atom_data = cls(**dataframes)
@@ -171,26 +172,37 @@ class AtomData(object):
             try:
                 atom_data.uuid1 = store.root._v_attrs["uuid1"].decode("ascii")
             except KeyError:
+                logger.debug(
+                    "UUID not available for Atom Data. Setting value to None"
+                )
                 atom_data.uuid1 = None
 
             try:
                 atom_data.md5 = store.root._v_attrs["md5"].decode("ascii")
             except KeyError:
+                logger.debug(
+                    "MD5 not available for Atom Data. Setting value to None"
+                )
                 atom_data.md5 = None
 
             try:
                 atom_data.version = store.root._v_attrs["database_version"]
             except KeyError:
+                logger.debug(
+                    "VERSION not available for Atom Data. Setting value to None"
+                )
                 atom_data.version = None
 
             # ToDo: strore data sources as attributes in carsus
 
             logger.info(
-                f"\n\tReading Atom Data with:\n\tUUID = {atom_data.uuid1}\n\tMD5  = {atom_data.md5} "
+                f"Reading Atom Data with: UUID = {atom_data.uuid1} MD5  = {atom_data.md5} "
             )
             if nonavailable:
                 logger.info(
-                    f'\n\tNon provided atomic data:\n\t{", ".join(nonavailable)}'
+                    "Non provided Atomic Data: {0}".format(
+                        ", ".join(nonavailable)
+                    )
                 )
 
         return atom_data

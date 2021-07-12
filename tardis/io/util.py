@@ -248,6 +248,9 @@ class HDFWriterMixin(object):
             except TypeError as e:
                 if e.message == "Expected bytes, got HDFStore":
                     # when path_or_buf is an HDFStore buffer instead
+                    logger.debug(
+                        "Expected bytes, got HDFStore. Changing path to HDF buffer"
+                    )
                     buf = path_or_buf
                 else:
                     raise e
@@ -269,6 +272,9 @@ class HDFWriterMixin(object):
                     try:
                         pd.Series(value).to_hdf(buf, os.path.join(path, key))
                     except NotImplementedError:
+                        logger.debug(
+                            "Could not convert SERIES to HDF. Converting DATAFRAME to HDF"
+                        )
                         pd.DataFrame(value).to_hdf(buf, os.path.join(path, key))
                 else:
                     pd.DataFrame(value).to_hdf(buf, os.path.join(path, key))
@@ -276,6 +282,9 @@ class HDFWriterMixin(object):
                 try:
                     value.to_hdf(buf, path, name=key, overwrite=overwrite)
                 except AttributeError:
+                    logger.debug(
+                        "Could not convert VALUE to HDF. Converting DATA (Dataframe) to HDF"
+                    )
                     data = pd.DataFrame([value])
                     data.to_hdf(buf, os.path.join(path, key))
 
@@ -319,6 +328,9 @@ class HDFWriterMixin(object):
                 name = self.hdf_name
             except AttributeError:
                 name = self.convert_to_snake_case(self.__class__.__name__)
+                logger.debug(
+                    f"self.hdf_name not present, setting name to {name} for HDF"
+                )
 
         data = self.get_properties()
         buff_path = os.path.join(path, name)

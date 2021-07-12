@@ -1,5 +1,10 @@
 # functions that are important for the general usage of TARDIS
 
+import logging
+
+
+logger = logging.getLogger(__name__)
+
 
 def run_tardis(
     config,
@@ -44,6 +49,9 @@ def run_tardis(
         try:
             tardis_config = Configuration.from_yaml(config)
         except TypeError:
+            logger.debug(
+                "TARDIS Config not available via YAML. Reading through TARDIS Config Dictionary"
+            )
             tardis_config = Configuration.from_config_dict(config)
 
     logging_state(log_state, tardis_config, specific)
@@ -52,6 +60,9 @@ def run_tardis(
         try:
             atom_data = AtomData.from_hdf(atom_data)
         except TypeError:
+            logger.debug(
+                "Atom Data Cannot be Read from HDF. Setting to Default Atom Data"
+            )
             atom_data = atom_data
 
     simulation = Simulation.from_config(
