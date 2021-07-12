@@ -1,7 +1,9 @@
 import os
 import logging
 import warnings
+from llvmlite.binding import value
 
+import numpy as np
 from astropy import units as u
 from tardis import constants as const
 from numba import set_num_threads
@@ -10,7 +12,7 @@ from scipy.special import zeta
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
 from tardis.util.base import quantity_linspace
-from tardis.io.util import HDFWriterMixin
+from tardis.io.util import HDFWriterMixin, config_iteratation
 from tardis.montecarlo import packet_source as source
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
@@ -18,6 +20,7 @@ from tardis.montecarlo import montecarlo_configuration as mc_config_module
 
 from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
+    VPacketCollection,
     configuration_initialize,
 )
 from tardis.montecarlo.montecarlo_numba import numba_config
@@ -299,17 +302,27 @@ class MontecarloRunner(HDFWriterMixin):
         set_num_threads(nthreads)
 
         self.time_of_simulation = self.calculate_time_of_simulation(model)
+        logger.debug(f"Time for Simulation : {self.time_of_simulation:.3g}")
+
         self.volume = model.volume
+        log_string = ""
+        for (pos, value) in enumerate(self.volume):
+            log_string += f"Shell No {pos} : {value:.3g}\n\t"
+        logger.debug(f"Volumes of the Shells :\n\t{log_string}")
 
         # Initializing estimator array
+        logger.debug("Initializing Estimator Arrays")
         self._initialize_estimator_arrays(plasma.tau_sobolevs.shape)
 
+        logger.debug("Initializing Geometry Arrays")
         self._initialize_geometry_arrays(model)
 
+        logger.debug("Initializing Packets")
         self._initialize_packets(
             model.t_inner.value, no_of_packets, iteration, model.r_inner[0]
         )
 
+        logger.debug("Initializing Montecarlo Runner Numba Configuration")
         configuration_initialize(self, no_of_virtual_packets)
         montecarlo_radial1d(
             model,
@@ -320,6 +333,9 @@ class MontecarloRunner(HDFWriterMixin):
             show_progress_bars,
             self,
         )
+        logger.debug("Setting & Simulating the Montecarlo Radial1D Model")
+        montecarlo_radial1d(model, plasma, self)
+        logger.debug("Setting up the Formal Integrator")
         self._integrator = FormalIntegrator(model, plasma, self)
         # montecarlo.montecarlo_radial1d(
         #    model, plasma, self,
@@ -617,7 +633,33 @@ class MontecarloRunner(HDFWriterMixin):
         )
 
         mc_config_module.INITIAL_TRACKING_ARRAY_LENGTH = (
-            config.montecarlo.tracking.initial_array_length
+            config.montecarlo.tracking.initial_array_length)
+
+        logger.debug(f"Seed Value : {config.montecarlo.seed}")
+        logger.debug(f"Number Of Packets : {config.montecarlo.no_of_packets}")
+        logger.debug(f"Number Of Iterations : {config.montecarlo.iterations}")
+        logger.debug(f"Number Of Threads : {config.montecarlo.nthreads}")
+        logger.debug(
+            f"Last Number Of Virtual Packets : {config.montecarlo.last_no_of_packets}"
+        )
+        logger.debug(
+            f"Number Of Virtual Packets : {config.montecarlo.no_of_virtual_packets}"
+        )
+        logger.debug(
+            f"Enable Reflective Inner Boundary : {config.montecarlo.enable_reflective_inner_boundary}"
+        )
+        logger.debug(
+            f"Amount Of Albedo For Inner Boundary : {config.montecarlo.inner_boundary_albedo}"
+        )
+        logger.debug(
+            f"Enable Full Relativity : {config.montecarlo.enable_full_relativity}"
+        )
+        logger.debug(f"Debug Packets State : {config.montecarlo.debug_packets}")
+        logger.debug(
+            f"Logger Buffer For Packet Debugging : {config.montecarlo.logger_buffer}"
+        )
+        logger.debug(
+            f"Single Packet Seed For Debugging : {config.montecarlo.single_packet_seed}"
         )
 
         return cls(

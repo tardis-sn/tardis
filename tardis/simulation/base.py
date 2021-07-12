@@ -207,6 +207,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     @staticmethod
     def damped_converge(value, estimated_value, damping_factor):
+        logger.debug("Using Damping Convergence Strategy")
         # FIXME: Should convergence strategy have its own class containing this
         # as a method
         return value + damping_factor * (estimated_value - value)
@@ -220,10 +221,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         convergence_t_rad = (
             abs(t_rad - estimated_t_rad) / estimated_t_rad
         ).value
+        logger.debug(f"Convergence Radiative Temperature = {convergence_t_rad}")
         convergence_w = abs(w - estimated_w) / estimated_w
+        logger.debug(f"Convergence Dilution Factor = {convergence_w}")
         convergence_t_inner = (
             abs(t_inner - estimated_t_inner) / estimated_t_inner
         ).value
+        logger.debug(
+            f"Convergence Inner Boundary Temperature = {convergence_t_inner:.3g}"
+        )
 
         fraction_t_rad_converged = (
             np.count_nonzero(
@@ -284,6 +290,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             t_inner_update_exponent=self.convergence_strategy.t_inner_update_exponent,
         )
 
+        logger.debug("Convergence Status")
         converged = self._get_convergence_status(
             self.model.t_rad,
             self.model.w,
@@ -295,11 +302,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         # calculate_next_plasma_state equivalent
         # FIXME: Should convergence strategy have its own class?
+        logger.debug("Generating Next Radiative Temperature for Simulation")
         next_t_rad = self.damped_converge(
             self.model.t_rad,
             estimated_t_rad,
             self.convergence_strategy.t_rad.damping_constant,
         )
+        logger.debug("Generating Next Dilution Factor for Simulation")
         next_w = self.damped_converge(
             self.model.w,
             estimated_w,
@@ -350,6 +359,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if "nlte_data" in self.plasma.outputs_dict:
             self.plasma.store_previous_properties()
 
+        logger.debug("Updating t_rad & w for the Simulation Model")
         update_properties = dict(t_rad=self.model.t_rad, w=self.model.w)
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
@@ -359,13 +369,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 j_blue_estimator=self.runner.j_blue_estimator,
             )
 
+        logger.debug("Updating Properties to Plasma")
         self.plasma.update(**update_properties)
 
         return converged
 
     def iterate(self, no_of_packets, no_of_virtual_packets=0, last_run=False):
         logger.info(
-            f"Starting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
+            f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
         self.runner.run(
             self.model,
@@ -379,6 +390,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             show_progress_bars=self.show_progress_bars,
         )
         output_energy = self.runner.output_energy
+        logger.debug(f"Total Output Energy = {output_energy}")
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
@@ -415,6 +427,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         start_time = time.time()
         while self.iterations_executed < self.iterations - 1:
+            logger.debug(
+                f"Storing Plasma State for {self.iterations_executed+1} iteration"
+            )
             self.store_plasma_state(
                 self.iterations_executed,
                 self.model.w,
@@ -422,15 +437,30 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.plasma.electron_densities,
                 self.model.t_inner,
             )
+            logger.debug(
+                f"Running Iteration : {self.iterations_executed+1} via iterate()"
+            )
             self.iterate(self.no_of_packets)
+            logger.debug(
+                "Advancing State for the Simulation & Checking for Convergence"
+            )
             self.converged = self.advance_state()
             if hasattr(self, "convergence_plots"):
                 self.convergence_plots.update()
+            if hasattr(self, "cplots"):
+                self.cplots.update()
+            logger.debug(f"Current Convergence Status : {self.converged}")
             self._call_back()
             if self.converged:
                 if self.convergence_strategy.stop_if_converged:
                     break
+        logger.debug(
+            f"Last Iteration Underway (Iteration No : {self.iterations_executed+1})"
+        )
         # Last iteration
+        logger.debug(
+            f"Storing Plasma State for {self.iterations_executed+1} iteration [Last Iteration]"
+        )
         self.store_plasma_state(
             self.iterations_executed,
             self.model.w,
@@ -438,10 +468,25 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.electron_densities,
             self.model.t_inner,
         )
+        logger.debug(
+            f"Running Last Iteration : {self.iterations_executed+1} via iterate()"
+        )
         self.iterate(
             self.last_no_of_packets, self.no_of_virtual_packets, last_run=True
         )
 
+        self.log_plasma_state(
+            self.model.t_rad,
+            self.model.w,
+            self.model.t_inner,
+            self.model.t_rad,
+            self.model.w,
+            self.model.t_inner,
+        )
+
+        logger.debug(
+            "Reshaping the Plasma Stored Values based on Convergence Status"
+        )
         self.reshape_plasma_state_store(self.iterations_executed)
         if hasattr(self, "convergence_plots"):
             self.convergence_plots.fetch_data(
@@ -455,8 +500,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
 
         logger.info(
-            f"Simulation finished in {self.iterations_executed:d} iterations "
-            f"Simulation took {(time.time() - start_time):.2f} s\n"
+            f"\n\tSimulation finished in {self.iterations_executed:d} iterations "
+            f"\n\tSimulation took {(time.time() - start_time):.2f} s\n"
         )
         self._call_back()
 
@@ -501,7 +546,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         plasma_state_log.columns.name = "Shell No."
 
         if is_notebook():
-            logger.info("Plasma stratification:")
+            logger.info("\n\tPlasma stratification:")
 
             # Displaying the DataFrame only when the logging level is NOTSET, DEBUG or INFO
             if logger.level <= logging.INFO:
@@ -529,12 +574,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             logger.info(f"\n{output_df}")
 
         logger.info(
-            f"Current t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
+            f"\n\tCurrent t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
         )
 
     def log_run_results(self, emitted_luminosity, absorbed_luminosity):
         logger.info(
-            f"Luminosity emitted   = {emitted_luminosity:.3e}\n"
+            f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
             f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
             f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
         )
@@ -659,6 +704,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             logger.debug(
                 "Setting up the MontecarloRunner with Runner Configuration"
             )
+            # log_string = config_iteratation(config.montecarlo)
+            # logger.debug(f"{log_string}")
             runner = MontecarloRunner.from_config(
                 config,
                 packet_source=packet_source,
@@ -690,6 +737,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             luminosity_nu_end = (
                 const.c / config.supernova.luminosity_wavelength_start
             ).to(u.Hz)
+        logger.debug(
+            f"Luminosity nu Start : {luminosity_nu_start}\n\tLuminosity nu Stop  : {luminosity_nu_end}"
+        )
 
         last_no_of_packets = config.montecarlo.last_no_of_packets
         if last_no_of_packets is None or last_no_of_packets < 0:

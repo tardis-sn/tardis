@@ -3,6 +3,7 @@ from enum import IntEnum
 from numba import float64, int64, boolean
 from numba.experimental import jitclass
 import numpy as np
+import logging
 
 from astropy import units as u
 from tardis import constants as const
@@ -19,6 +20,8 @@ numba_model_spec = [
     ("r_outer", float64[:]),
     ("time_explosion", float64),
 ]
+
+logger = logging.getLogger(__name__)
 
 
 @jitclass(numba_model_spec)
@@ -114,6 +117,9 @@ def numba_plasma_initialize(plasma, line_interaction_type):
     if montecarlo_configuration.disable_line_scattering:
         tau_sobolev *= 0
 
+    logger.debug(
+        f"Line Interaction Type (inside Numba Plasma) : {line_interaction_type}"
+    )
     if line_interaction_type == "scatter":
         # to adhere to data types, we must have an array of minimum size 1
         array_size = 1
@@ -460,12 +466,21 @@ def configuration_initialize(runner, number_of_vpackets):
             u.Hz, equivalencies=u.spectral()
         ).value
     )
+    logger.debug(
+        f"Virtual Packet Spawn Start Frequency = {montecarlo_configuration.v_packet_spawn_start_frequency}"
+    )
     montecarlo_configuration.v_packet_spawn_end_frequency = (
         runner.virtual_spectrum_spawn_range.start.to(
             u.Hz, equivalencies=u.spectral()
         ).value
     )
+    logger.debug(
+        f"Virtual Packet Spawn End Frequency = {montecarlo_configuration.v_packet_spawn_end_frequency}"
+    )
     montecarlo_configuration.VPACKET_LOGGING = runner.virt_logging
+    logger.debug(
+        f"Virtual Packet Logging : {montecarlo_configuration.VPACKET_LOGGING}"
+    )
 
 
 # class TrackRPacket(object):
