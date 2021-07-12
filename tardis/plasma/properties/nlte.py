@@ -214,10 +214,10 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
                             ion_number_density[zone].loc[element].sum()
                         )
                     except:
-                        logger.debug(
-                            "\n\tNumber Density could not be calculated.\n\tSetting Number Density to 0.0"
-                        )
                         number_density = 0.0
+                        logger.debug(
+                            f"Number Density could not be calculated. Setting Number Density to {number_density}"
+                        )
                     output_file.write(number_density)
 
             helium_lines = lines[lines["atomic_number"] == 2]

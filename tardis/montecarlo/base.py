@@ -339,7 +339,7 @@ class MontecarloRunner(HDFWriterMixin):
         try:
             return u.Quantity(self.virt_packet_nus, u.Hz)
         except AttributeError:
-            logger.warning(
+            warnings.warn(
                 "MontecarloRunner.virtual_packet_nu:"
                 "Set 'virtual_packet_logging: True' in the configuration file"
                 "to access this property"
@@ -353,7 +353,7 @@ class MontecarloRunner(HDFWriterMixin):
         try:
             return u.Quantity(self.virt_packet_energies, u.erg)
         except AttributeError:
-            logger.warning(
+            warnings.warn(
                 "MontecarloRunner.virtual_packet_energy:"
                 "Set 'virtual_packet_logging: True' in the configuration file"
                 "to access this property"
@@ -367,7 +367,7 @@ class MontecarloRunner(HDFWriterMixin):
         try:
             return self.virtual_packet_energy / self.time_of_simulation
         except TypeError:
-            logger.warning(
+            warnings.warn(
                 "MontecarloRunner.virtual_packet_luminosity:"
                 "Set 'virtual_packet_logging: True' in the configuration file"
                 "to access this property"

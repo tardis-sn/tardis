@@ -220,7 +220,7 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
             )
         except KeyError:
             logger.debug(
-                "\n\tSynpp Ref does not have valid KEY value for ref_log_tau"
+                "Synpp Ref does not have valid KEY for ref_log_tau in Radial1D Model"
             )
             pass
 
@@ -375,7 +375,7 @@ def species_string_to_tuple(species_string):
         ion_number = roman_to_int(ion_number_string)
     except ValueError:
         logger.debug(
-            "\n\tIon Number does not contain a Roman Numeral.\n\tChecking for integer value"
+            "Ion Number does not contain a Roman Numeral. Checking for integer value"
         )
         try:
             ion_number = int(ion_number_string)
@@ -562,7 +562,7 @@ def is_notebook():
         from ipykernel.zmqshell import ZMQInteractiveShell
     except NameError:
         logger.debug(
-            "\n\tCannot Import ipykernel.zmqshell.\n\tNot present inside Jupyter Environment"
+            "Cannot Import ipykernel.zmqshell. Not present inside Jupyter Environment"
         )
         # If the class cannot be imported then we are automatically return False Value
         # Raised due to Name Error with the imported Class
@@ -573,7 +573,7 @@ def is_notebook():
         from IPython.core.interactiveshell import InteractiveShell
     except NameError:
         logger.debug(
-            "\n\tCannot Import IPython.core.interactiveshell.\n\tNot present in IPython shell"
+            "Cannot Import IPython.core.interactiveshell. Not present in IPython shell"
         )
         # If the class cannot be imported then we are automatically return False Value
         # Raised due to Name Error with the imported Class
@@ -583,7 +583,7 @@ def is_notebook():
         # Trying to get the value of the shell via the get_ipython() method
         shell = get_ipython()
     except NameError:
-        logger.debug("\n\tCannot infer SHELL Id")
+        logger.debug("Cannot infer Shell Id")
         # Returns False if the shell name cannot be inferred correctly
         return False
 

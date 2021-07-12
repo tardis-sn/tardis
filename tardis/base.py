@@ -50,7 +50,7 @@ def run_tardis(
             tardis_config = Configuration.from_yaml(config)
         except TypeError:
             logger.debug(
-                "\n\tTARDIS Config not available via YAML\n\tReading through TARDIS Config Dictionary"
+                "TARDIS Config not available via YAML. Reading through TARDIS Config Dictionary"
             )
             tardis_config = Configuration.from_config_dict(config)
 
@@ -61,7 +61,7 @@ def run_tardis(
             atom_data = AtomData.from_hdf(atom_data)
         except TypeError:
             logger.debug(
-                "\n\tAtom Data Cannot be Read from HDF.\n\tSetting to Default Atom Data"
+                "Atom Data Cannot be Read from HDF. Setting to Default Atom Data"
             )
             atom_data = atom_data
 
