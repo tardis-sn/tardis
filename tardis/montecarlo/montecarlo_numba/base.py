@@ -86,28 +86,28 @@ def montecarlo_radial1d(model, plasma, runner):
 
     if montecarlo_configuration.VPACKET_LOGGING and number_of_vpackets > 0:
         runner.virt_packet_nus = np.concatenate(
-            np.array(virt_packet_nus)
+            np.array(virt_packet_nus, dtype=object)
         ).ravel()
         runner.virt_packet_energies = np.concatenate(
-            np.array(virt_packet_energies)
+            np.array(virt_packet_energies, dtype=object)
         ).ravel()
         runner.virt_packet_initial_mus = np.concatenate(
-            np.array(virt_packet_initial_mus)
+            np.array(virt_packet_initial_mus, dtype=object)
         ).ravel()
         runner.virt_packet_initial_rs = np.concatenate(
-            np.array(virt_packet_initial_rs)
+            np.array(virt_packet_initial_rs, dtype=object)
         ).ravel()
         runner.virt_packet_last_interaction_in_nu = np.concatenate(
-            np.array(virt_packet_last_interaction_in_nu)
+            np.array(virt_packet_last_interaction_in_nu, dtype=object)
         ).ravel()
         runner.virt_packet_last_interaction_type = np.concatenate(
-            np.array(virt_packet_last_interaction_type)
+            np.array(virt_packet_last_interaction_type, dtype=object)
         ).ravel()
         runner.virt_packet_last_line_interaction_in_id = np.concatenate(
-            np.array(virt_packet_last_line_interaction_in_id)
+            np.array(virt_packet_last_line_interaction_in_id, dtype=object)
         ).ravel()
         runner.virt_packet_last_line_interaction_out_id = np.concatenate(
-            np.array(virt_packet_last_line_interaction_out_id)
+            np.array(virt_packet_last_line_interaction_out_id, dtype=object)
         ).ravel()
 
 
@@ -214,8 +214,12 @@ def montecarlo_main_loop(
 
         vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
         vpackets_energy = vpacket_collection.energies[: vpacket_collection.idx]
-        vpackets_initial_mu = vpacket_collection.initial_mus[: vpacket_collection.idx]
-        vpackets_initial_r = vpacket_collection.initial_rs[: vpacket_collection.idx]
+        vpackets_initial_mu = vpacket_collection.initial_mus[
+            : vpacket_collection.idx
+        ]
+        vpackets_initial_r = vpacket_collection.initial_rs[
+            : vpacket_collection.idx
+        ]
 
         v_packets_idx = np.floor(
             (vpackets_nu - spectrum_frequency[0]) / delta_nu
@@ -233,17 +237,29 @@ def montecarlo_main_loop(
     if montecarlo_configuration.VPACKET_LOGGING:
         for vpacket_collection in vpacket_collections:
             vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
-            vpackets_energy = vpacket_collection.energies[: vpacket_collection.idx]
-            vpackets_initial_mu = vpacket_collection.initial_mus[: vpacket_collection.idx]
-            vpackets_initial_r = vpacket_collection.initial_rs[: vpacket_collection.idx]
+            vpackets_energy = vpacket_collection.energies[
+                : vpacket_collection.idx
+            ]
+            vpackets_initial_mu = vpacket_collection.initial_mus[
+                : vpacket_collection.idx
+            ]
+            vpackets_initial_r = vpacket_collection.initial_rs[
+                : vpacket_collection.idx
+            ]
             virt_packet_nus.append(np.ascontiguousarray(vpackets_nu))
             virt_packet_energies.append(np.ascontiguousarray(vpackets_energy))
-            virt_packet_initial_mus.append(np.ascontiguousarray(vpackets_initial_mu))
-            virt_packet_initial_rs.append(np.ascontiguousarray(vpackets_initial_r))
-            virt_packet_last_interaction_in_nu.append(np.ascontiguousarray(
-                vpacket_collection.last_interaction_in_nu[
-                    : vpacket_collection.idx
-                ])
+            virt_packet_initial_mus.append(
+                np.ascontiguousarray(vpackets_initial_mu)
+            )
+            virt_packet_initial_rs.append(
+                np.ascontiguousarray(vpackets_initial_r)
+            )
+            virt_packet_last_interaction_in_nu.append(
+                np.ascontiguousarray(
+                    vpacket_collection.last_interaction_in_nu[
+                        : vpacket_collection.idx
+                    ]
+                )
             )
             virt_packet_last_interaction_type.append(
                 np.ascontiguousarray(
