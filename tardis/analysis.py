@@ -193,12 +193,14 @@ class LastLineInteraction(object):
             print("-" * 80)
             print(
                 "Line_in" 
-                f"({len(event.ind)}/{self.current_no_packets}):\n{self.last_line_list_in.ix[event.ind]}"
+                 f"({len(event.ind)}/{self.current_no_packets})"
+                 f":\n{self.last_line_list_in.ix[event.ind]}"
             )
             print("\n\n")
             print(
                 "Line_out" 
-                f"({len(event.ind)}/{self.current_no_packets}):\n{self.last_line_list_in.ix[event.ind]}"
+                f"({len(event.ind)}/{self.current_no_packets})"
+                f":\n{self.last_line_list_in.ix[event.ind]}"
             )
             print("^" * 80)
 
