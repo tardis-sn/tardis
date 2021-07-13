@@ -192,11 +192,13 @@ class LastLineInteraction(object):
         def onpick(event):
             print("-" * 80)
             print(
-                f"Line_in ({len(event.ind)}/{self.current_no_packets}):\n{self.last_line_list_in.ix[event.ind]}"
+                "Line_in" 
+                f"({len(event.ind)}/{self.current_no_packets}):\n{self.last_line_list_in.ix[event.ind]}"
             )
             print("\n\n")
             print(
-                f"Line_out ({len(event.ind)}/{self.current_no_packets}):\n{self.last_line_list_in.ix[event.ind]}"
+                "Line_out" 
+                f"({len(event.ind)}/{self.current_no_packets}):\n{self.last_line_list_in.ix[event.ind]}"
             )
             print("^" * 80)
 

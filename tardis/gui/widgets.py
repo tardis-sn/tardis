@@ -1039,7 +1039,7 @@ class LineInfo(QtWidgets.QDialog):
             transitions_count[index] /= float(s)
         for key, value in transitions.items():
             transitions_parsed.append(
-                f"{key[0]}-{key[1]} {self.parent.model.atom_data.lines.ix[value[0]]["wavelength"]}"
+                f"{key[0]}-{key[1]} {self.parent.model.atom_data.lines.ix[value[0]]["wavelength"]:.2f} A"
             )
         return transitions_parsed, transitions_count
 
@@ -1214,7 +1214,7 @@ class LineInteractionTables(QtWidgets.QWidget):
         last_line_in_model = self.createTable(
             [
                 last_line_in_string,
-                [f"Num. pkts {current_last_line_in.wavelength.count()}" ],
+                [f"Num. pkts {current_last_line_in.wavelength.count()}"],
             ]
         )
         last_line_in_model.add_data(last_line_count)
