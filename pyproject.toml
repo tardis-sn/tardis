@@ -10,8 +10,8 @@ target-version = ['py36']
 extend-exclude = '''
 (
   /(
-    model           # Temporary - to remove later
-    | montecarlo    # Temporary
+    model           # temporary - to remove later
+    | montecarlo    # temporary
   )/
   | setup.py
   | docs/conf.py
