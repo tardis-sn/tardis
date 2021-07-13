@@ -254,7 +254,7 @@ class TARDISHistory(object):
 
         for iter in iterations:
             t_inners.append(
-                hdf_store[f"model{iter:003d}/configuration"].ix["t_inner"]
+                hdf_store[f"model{iter:03d}/configuration"].ix["t_inner"]
             )
         hdf_store.close()
 
@@ -273,8 +273,8 @@ class TARDISHistory(object):
             iterations = self.iterations[iterations]
 
         for iter in iterations:
-            current_iter = f"iter{iter:003d}" 
-            t_rads_dict[current_iter] = hdf_store[f"model{iter:003d}/t_rads"]
+            current_iter = f"iter{iter:03d}" 
+            t_rads_dict[current_iter] = hdf_store[f"model{iter:03d}/t_rads"]
 
         t_rads = pd.DataFrame(t_rads_dict)
         hdf_store.close()
@@ -311,7 +311,7 @@ class TARDISHistory(object):
             iterations = self.iterations[iterations]
 
         for iter in iterations:
-            current_iter = f"iter{iter:003d}" 
+            current_iter = f"iter{iter:03d}" 
             level_populations_dict[current_iter] = hdf_store[
                 f"model{iter:03d}/level_populations"
             ]
@@ -373,7 +373,7 @@ class TARDISHistory(object):
         hdf_store = pd.HDFStore(self.hdf5_fname, "r")
 
         spectrum = hdf_store[
-            f"model{self.iterations[iteration]:003d}/{spectrum_keyword}"
+            f"model{self.iterations[iteration]:03d}/{spectrum_keyword}"
         ]
         hdf_store.close()
         return spectrum
@@ -418,7 +418,7 @@ class TARDISHistory(object):
         self.load_atom_data()
 
         hdf_store = pd.HDFStore(self.hdf5_fname, "r")
-        model_string = "model" + (f"{iteration:003d}" ) + "/%s"
+        model_string = "model" + (f"{iteration:03d}" ) + "/%s"
         last_line_interaction_in_id = hdf_store[
             model_string % "last_line_interaction_in_id"
         ].values
