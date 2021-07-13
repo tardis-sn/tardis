@@ -7,12 +7,11 @@ from tardis.io.logger.colored_logger import ColoredFormatter, formatter_message
 
 warnings.filterwarnings("ignore", category=pyne.utils.QAWarning)
 
-FORMAT = "[$BOLD%(name)-20s$RESET][%(levelname)-18s]  %(message)s ($BOLD%(filename)s$RESET:%(lineno)d)"
+FORMAT = "[$BOLD{name:20s}$RESET][{levelname:18s}]  \n\t{message:s} ($BOLD{filename:s}$RESET:{lineno:d})"
 COLOR_FORMAT = formatter_message(FORMAT, True)
 
 logging.captureWarnings(True)
 logger = logging.getLogger("tardis")
-logger.setLevel(logging.INFO)
 
 console_handler = logging.StreamHandler(sys.stdout)
 console_formatter = ColoredFormatter(COLOR_FORMAT)
