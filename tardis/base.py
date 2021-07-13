@@ -27,10 +27,10 @@ def run_tardis(
         the atomic data. Atomic data to use for this TARDIS simulation. If set to None, the
         atomic data will be loaded according to keywords set in the configuration
         [default=None]
-    virtual_packet_logging : bool
+    virtual_packet_logging : bool, optional
         option to enable virtual packet logging
         [default=False]
-    show_cplots : bool
+    show_cplots : bool, optional
         option to enable tardis convergence plots
         [default=True]
     **kwargs : dict, optional

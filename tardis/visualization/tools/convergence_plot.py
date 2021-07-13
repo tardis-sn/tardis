@@ -1,3 +1,4 @@
+"""Convergence Plots to see the convergence of the simulation in real time."""
 from collections import defaultdict
 import matplotlib.cm as cm
 import matplotlib.colors as clr
@@ -12,13 +13,13 @@ from astropy import units as u
 
 def transition_colors(length, name="jet"):
     """
-    Function to create colorscale for convergence plots, returns a list of colors.
+    Create colorscale for convergence plots, returns a list of colors.
 
     Parameters
     ----------
     length : int
         The length of the colorscale.
-    name : string
+    name : string, optional
         Name of the colorscale. Defaults to "jet".
 
     Returns
@@ -35,34 +36,36 @@ def transition_colors(length, name="jet"):
 
 class ConvergencePlots(object):
     """
-    Class to create and update convergence plots for visualizing convergence of the simulation.
+    Create and update convergence plots for visualizing convergence of the simulation.
 
     Parameters
     ----------
-    iteration : int
+    iterations : int
         iteration number
     **kwargs : dict, optional
-        keyword arguments
+        Additional keyword arguments. These arguments are defined in the Other Parameters section.
 
     Other Parameters
     ----------------
-    plasma_plot_config, luminosity_plot_config : dict
-        Dictionary used to override default plot properties of the plots.
-        The  ``plasma_plot_config`` dictionary updates the plasma plot while
-        the ``luminosity_plot_config`` dictionary updates the luminosity and the inner boundary temperature plots.
-
-        All properties related to data will be applied equally across all traces.
-        The dictionary should have a structure like that of ``plotly.graph_objs.FigureWidget.to_dict()``,
-        for more information please see https://plotly.com/python/figure-structure/
-    plasma_cmap : str, default: 'jet'
+    plasma_plot_config, luminosity_plot_config : dict, optional
+        Dictionary used to override default plot properties of plasma plots.
+    luminosity_plot_config : dict, optional
+        Dictionary used to override default plot properties of the inner boundary temperature and luminosity plots.
+    plasma_cmap : str, default: 'jet', optional
         String defining the cmap used in plasma plots.
-    other_plot_colors : str or list
+    other_plot_colors : str or list, optional
         String defining cmap for luminosity and inner boundary temperature plot.
         The list can be a list of colors in rgb, hex or css-names format as well.
-    export_cplots : bool, default: False
+    export_cplots : bool, default: False, optional
         If True, plots are displayed again using the ``notebook_connected`` renderer. This helps
         display the plots in the documentation or in platforms like nbviewer.
 
+    Notes
+    -----
+        When overriding plots using the ``plasma_plot_config`` and the ``luminosity_plot_config`` dictionaries,
+        data related properties are applied equally accross all traces.
+        The dictionary should have a structure like that of ``plotly.graph_objs.FigureWidget.to_dict()``,
+        for more information please see https://plotly.com/python/figure-structure/
     """
 
     def __init__(self, iterations, **kwargs):
@@ -75,15 +78,9 @@ class ConvergencePlots(object):
         self.luminosity_plot = None
 
         if "plasma_plot_config" in kwargs:
-            if not isinstance(kwargs["plasma_plot_config"], dict):
-                raise TypeError("Expected dict in plasma_plot_config argument")
             self.plasma_plot_config = kwargs["plasma_plot_config"]
 
         if "luminosity_plot_config" in kwargs:
-            if not isinstance(kwargs["luminosity_plot_config"], dict):
-                raise TypeError(
-                    "Expected dict in luminosity_plot_config argument"
-                )
             self.luminosity_plot_config = kwargs["luminosity_plot_config"]
 
         if "plasma_cmap" in kwargs:
@@ -95,6 +92,7 @@ class ConvergencePlots(object):
             self.plasma_colorscale = transition_colors(length=self.iterations)
 
         if "other_plot_colors" in kwargs:
+            # use cmap if string
             if type(kwargs["other_plot_colors"]) == str:
                 self.luminosity_line_colors = transition_colors(
                     length=5,
@@ -103,19 +101,19 @@ class ConvergencePlots(object):
             else:
                 self.luminosity_line_colors = kwargs["other_plot_colors"]
         else:
+            # using default plotly colors
             self.luminosity_line_colors = [None] * 5
 
     def fetch_data(self, name=None, value=None, item_type=None):
         """
-        This allows user to fetch data from the Simulation class.
-        This data is stored and used when an iteration is completed.
+        Fetch data from the Simulation class.
 
         Parameters
         ----------
         name : string
             name of the data
         value : string or array
-            string or array of quantities
+            string or an array of quantities
         item_type : string
             either iterable or value
 
@@ -129,14 +127,14 @@ class ConvergencePlots(object):
             self.value_data[name].append(value)
 
     def create_plasma_plot(self):
-        """
-        Creates an empty plasma plot.
-        The default layout can be overridden by passing ``plasma_plot_config`` dictionary in the ``run_tardis`` function.
-        """
+        """Create an empty plasma plot."""
         fig = go.FigureWidget().set_subplots(rows=1, cols=2, shared_xaxes=True)
+
+        # empty traces to build figure
         fig.add_scatter(row=1, col=1)
         fig.add_scatter(row=1, col=2)
 
+        # 2 y axes and 2 x axes correspond to the 2 subplots in the luminosity convergence plot
         fig = fig.update_layout(
             xaxis={
                 "tickformat": "g",
@@ -159,20 +157,18 @@ class ConvergencePlots(object):
             },
             height=450,
             legend_title_text="Iterations",
-            margin=dict(l=10, r=135, b=25, t=25, pad=0),
+            margin=dict(
+                l=10, r=135, b=25, t=25, pad=0
+            ),  # reduce whitespace surrounding the plot and increase right indentation to align with the luminosity plot
         )
 
-        # allows overriding default layout
+        # allow overriding default layout
         if hasattr(self, "plasma_plot_config"):
             self.override_plot_parameters(fig, self.plasma_plot_config)
         self.plasma_plot = fig
 
     def create_luminosity_plot(self):
-        """
-        Creates an empty luminosity plot.
-        The default layout can be overridden by passing ``luminosity_plot_config`` dictionary in the ``run_tardis`` function.
-        """
-
+        """Create an empty luminosity plot."""
         fig = go.FigureWidget().set_subplots(
             rows=3,
             cols=1,
@@ -181,6 +177,7 @@ class ConvergencePlots(object):
             row_heights=[0.25, 0.5, 0.25],
         )
 
+        # add inner boundary temperature vs iterations plot
         fig.add_scatter(
             name="Inner<br>Boundary<br>Temperature",
             row=1,
@@ -190,6 +187,8 @@ class ConvergencePlots(object):
             mode="lines",
         )
 
+        # add luminosity vs iterations plot
+        # has three traces for emitted, requested and absorbed luminosities
         for luminosity, line_color in zip(
             self.luminosities, self.luminosity_line_colors[1:4]
         ):
@@ -201,6 +200,7 @@ class ConvergencePlots(object):
                 marker_color=line_color,
             )
 
+        # add residual luminosity vs iterations plot
         fig.add_scatter(
             name="Residual<br>Luminosity",
             row=3,
@@ -248,7 +248,7 @@ class ConvergencePlots(object):
             ),  # reduces whitespace surrounding the plot
         )
 
-        # allows overriding default layout
+        # allow overriding default layout
         if hasattr(self, "luminosity_plot_config"):
             self.override_plot_parameters(fig, self.luminosity_plot_config)
 
@@ -256,8 +256,10 @@ class ConvergencePlots(object):
 
     def override_plot_parameters(self, fig, parameters):
         """
-        Overrides default plot properties. Any property inside the data dictionary is
-        however, shared across all traces. This means trace-specific data properties can't be changed.
+        Override default plot properties.
+
+        Any property inside the data dictionary is however, applied equally across all traces.
+        This means trace-specific data properties can't be changed using this function.
 
         Parameters
         ----------
@@ -266,7 +268,6 @@ class ConvergencePlots(object):
         parameters : dict
             Dictionary used to update the default plot style.
         """
-
         # because fig.data is a tuple of traces, a property in the data dictionary is applied to all traces
         # the fig is a nested dictionary, any property n levels deep is not changed until the value is a not dictionary
         # fig["property_1"]["property_2"]...["property_n"] = "value"
@@ -283,7 +284,7 @@ class ConvergencePlots(object):
 
     def build(self, display_plot=True):
         """
-        Creates empty plasma and luminosity convergence plots and displays them together.
+        Create empty plasma and luminosity convergence plots and display them together.
 
         Parameters
         ----------
@@ -292,6 +293,7 @@ class ConvergencePlots(object):
         """
         self.create_plasma_plot()
         self.create_luminosity_plot()
+
         if display_plot:
             display(
                 widgets.VBox(
@@ -300,9 +302,7 @@ class ConvergencePlots(object):
             )
 
     def update_plasma_plots(self):
-        """
-        Updates plasma convergence plots every iteration.
-        """
+        """Update plasma convergence plots every iteration."""
         # convert velocity to km/s
         x = self.iterable_data["velocity"].to(u.km / u.s).value.tolist()
 
@@ -347,9 +347,7 @@ class ConvergencePlots(object):
         )
 
     def update_luminosity_plot(self):
-        """
-        Updates luminosity convergence plots every iteration.
-        """
+        """Update the luminosity convergence plots every iteration."""
         x = list(range(1, self.iterations + 1))
 
         with self.luminosity_plot.batch_update():
@@ -369,30 +367,29 @@ class ConvergencePlots(object):
                     "<b>%{y:.4g}</b>" + "<br>at X = %{x}<br>"
                 )
 
-                # last is for the residual luminosity
-                y = [
-                    ((emitted - requested) * 100) / requested
-                    for emitted, requested in zip(
-                        self.value_data["Emitted"], self.value_data["Requested"]
-                    )
-                ]
+            # last is for the residual luminosity
+            y = [
+                ((emitted - requested) * 100) / requested
+                for emitted, requested in zip(
+                    self.value_data["Emitted"], self.value_data["Requested"]
+                )
+            ]
 
-                self.luminosity_plot.data[4].x = x
-                self.luminosity_plot.data[4].y = y
-                self.luminosity_plot.data[
-                    4
-                ].hovertemplate = "<b>%{y:.2f}%</b> at X = %{x:,.0f}"
+            self.luminosity_plot.data[4].x = x
+            self.luminosity_plot.data[4].y = y
+            self.luminosity_plot.data[
+                4
+            ].hovertemplate = "<b>%{y:.2f}%</b> at X = %{x:,.0f}"
 
     def update(self, export_cplots=False, last=False):
         """
-        Updates the plasma and the luminosity convergence plots every iteration
-        and displays them again after the last iteration for exporting if desired.
+        Update the plasma and the luminosity convergence plots every iteration.
 
         Parameters
         ----------
         export_cplots : bool
-            Displays  the convergence plots using plotly's ``notebook_connected`` renderer.
-            This displays the plot in notebooks when shared on platforms like nbviewer.
+            Displays the convergence plots again using plotly's ``notebook_connected`` renderer.
+            This helps display the plots in notebooks when shared on platforms like nbviewer.
             Please see https://plotly.com/python/renderers/ for more information.
             Defaults to False.
         last : bool
