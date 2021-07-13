@@ -139,6 +139,7 @@ nbsphinx_prolog = r"""
 
         .launch-btn:hover {
             background-color: #1b6391;
+            color: #fcfcfc;
         }
 
         .launch-btn:visited {
