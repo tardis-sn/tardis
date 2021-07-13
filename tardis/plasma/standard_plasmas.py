@@ -88,7 +88,7 @@ def assemble_plasma(config, model, atom_data=None):
         else:
             raise ValueError("No atom_data option found in the configuration.")
 
-        logger.info(f"\n\tReading Atomic Data from {atom_data_fname}")
+        logger.info(f"Reading Atomic Data from {atom_data_fname}")
 
         try:
             atom_data = AtomData.from_hdf(atom_data_fname)
