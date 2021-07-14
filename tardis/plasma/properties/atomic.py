@@ -456,12 +456,12 @@ class LevelIdxs2TransitionIdx(HiddenPlasmaProperty):
 
     def calculate(self, level_idxs2line_idx, level_idxs2continuum_idx):
         level_idxs2line_idx = level_idxs2line_idx.to_frame()
-        level_idxs2line_idx.insert(1, 'transition_type', -1)
+        level_idxs2line_idx.insert(1, "transition_type", -1)
 
         level_idxs2continuum_idx = level_idxs2continuum_idx.copy()
-        level_idxs2continuum_idx.insert(1, 'transition_type', -2)
+        level_idxs2continuum_idx.insert(1, "transition_type", -2)
         level_idxs2continuum_idx = level_idxs2continuum_idx.rename(
-            columns=({'continuum_idx': 'lines_idx'})
+            columns=({"continuum_idx": "lines_idx"})
         )
 
         names = level_idxs2continuum_idx.index.names
