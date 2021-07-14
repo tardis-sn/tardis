@@ -4,76 +4,73 @@ channels:
   - conda-forge
 
 dependencies:
-  - python=3
+  - python=3.7
+  - setuptools
+  - setuptools_scm
   - pip
   - numpy=1.19
   - scipy=1.5
   - pandas=1.0
   - astropy=3
-  - numba=0.50
+  - numba=0.53
   - numexpr
-  - Cython=0.29
-  - compilers
+  - pyne=0.7=nomoab_openmc*  # Issue #1537
 
   # Plasma
   - networkx
+  - pygraphviz
 
   # I/O
   - pyyaml
   - jsonschema
-  - pyne=0.7
   - pytables
   - h5py
+  - pickle5  # Issue #1566
   - requests
   - tqdm
+
+  # Widgets & Visualization
+  - jupyter
+  - matplotlib
+  - ipywidgets
+  - plotly
+  - qgrid
+# - pyside2  # (Qt GUI) Issue #1652
+
+# --- Not required for conda-forge package and Numba integration pipeline ---
+
+  # tardis-sn/nuclear dependencies
   - beautifulsoup4
   - lxml
 
-  # Analysis
-  - jupyter
-  - notebook
-  - matplotlib
-  - graphviz
-  - pygraphviz
-
-  # Widgets & Visualization
-  - ipywidgets
-  - qgrid
-  - plotly
-  - pyside2
-
   # Documentation
   - sphinx
-  - nbconvert
+  - sphinx-astropy
+  - sphinx_bootstrap_theme
+  - sphinx-jsonschema
+  - sphinx_rtd_theme
+  - sphinxcontrib-apidoc
+  - sphinxcontrib-bibtex
+  - recommonmark
   - numpydoc
-  - docutils
+  - nbconvert
   - nbformat
   - nbsphinx
-  - sphinx_bootstrap_theme
-  - sphinxcontrib-bibtex=1.0
-  - sphinxcontrib-apidoc
-  - sphinx_rtd_theme
-  - recommonmark
+  - docutils=0.16  # Issue #1522
+  - snakeviz
 
-  # Test/Coverage requirements
-  - git-lfs
-  - pytest=5
-  - pytest-html
+  # Test/Coverage
+  - pytest
   - pytest-cov
+  - pytest-html
+  - python-dokuwiki
   - coverage
-  - requests
-  - docopt
 
   # Code quality
   - black
 
   # Other
-  - parso=0.8
+  - git-lfs
 
   - pip:
-      # Documentation
-      - sphinxcontrib-tikz
-      - dokuwiki
-      - dot2tex
-      - sphinx-jsonschema
-      - git+https://github.com/Naereen/dot2tex.git
+      - dot2tex  # conda-forge package requires python>=3.8

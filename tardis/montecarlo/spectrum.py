@@ -32,12 +32,13 @@ class TARDISSpectrum(HDFWriterMixin):
         if not _frequency.shape[0] == luminosity.shape[0] + 1:
             raise ValueError(
                 "shape of '_frequency' and 'luminosity' are not compatible"
-                ": '{}' and '{}'".format(
-                    _frequency.shape[0], luminosity.shape[0]
-                )
+                f": '{_frequency.shape[0]}' and '{luminosity.shape[0]}'"
             )
         self._frequency = _frequency.to("Hz", u.spectral())
         self.luminosity = luminosity.to("erg / s")
+
+        l_nu_unit = u.def_unit('erg\ s^{-1}\ Hz^{-1}', u.Unit('erg/(s Hz)'))
+        l_lambda_unit = u.def_unit('erg\ s^{-1}\ \\AA^{-1}', u.Unit('erg/(s AA)'))
 
         self.frequency = self._frequency[:-1]
         self.delta_frequency = self._frequency[1] - self._frequency[0]
@@ -45,10 +46,10 @@ class TARDISSpectrum(HDFWriterMixin):
 
         self.luminosity_density_nu = (
             self.luminosity / self.delta_frequency
-        ).to("erg / (s Hz)")
+        ).to(l_nu_unit)
         self.luminosity_density_lambda = self.f_nu_to_f_lambda(
             self.luminosity_density_nu,
-        )
+        ).to(l_lambda_unit)
 
     @property
     def flux_nu(self):
@@ -66,11 +67,10 @@ class TARDISSpectrum(HDFWriterMixin):
                 self.luminosity_density_nu, self.distance
             )
         except AttributeError:
+            flux = "flux_nu"
             raise AttributeError(
                 "distance is required as attribute of"
-                '{} to calculate "{}"'.format(
-                    self.__class__.__name__, "flux_nu"
-                )
+                f'{self.__class__.__name__} to calculate "{flux}"'
             )
 
     @property
@@ -89,11 +89,10 @@ class TARDISSpectrum(HDFWriterMixin):
                 self.luminosity_density_lambda, self.distance
             )
         except AttributeError:
+            flux_lambda = "flux_lambda"
             raise AttributeError(
                 "distance is required as attribute of"
-                '{} to calculate "{}"'.format(
-                    self.__class__.__name__, "flux_lambda"
-                )
+                f'{self.__class__.__name__} to calculate "{flux_lambda}"'
             )
 
     @staticmethod
@@ -103,25 +102,38 @@ class TARDISSpectrum(HDFWriterMixin):
     def f_nu_to_f_lambda(self, f_nu):
         return f_nu * self.frequency / self.wavelength
 
-    def plot(self, ax=None, mode="wavelength"):
+    def plot(self, ax=None, mode="wavelength", **kwargs):
+        """plots the TARDISSpectrum
+
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes, optional
+            axes to plot on, by default None
+        mode : str, optional
+            plot against wavelength or frequency, by default "wavelength"
+        """        
         if ax is None:
             from matplotlib.pyplot import gca
 
             ax = gca()
         if mode == "wavelength":
-            ax.plot(self.wavelength.value, self.luminosity_density_lambda.value)
+            ax.plot(self.wavelength.value, self.luminosity_density_lambda.value, **kwargs)
             ax.set_xlabel(
-                "Wavelength [{}]".format(self.wavelength.unit._repr_latex_())
+                f"Wavelength [{self.wavelength.unit.to_string('latex_inline')}]"
             )
             ax.set_ylabel(
-                "Flux [{:s}]".format(
-                    self.luminosity_density_lambda.unit._repr_latex_()
-                )
+                f"$L_\\lambda$ [{self.luminosity_density_lambda.unit.to_string('latex_inline')}]"
+            )
+        elif mode == "frequency":
+            ax.plot(self.frequency.value, self.luminosity_density_nu.value, **kwargs)
+            ax.set_xlabel(
+                f"Frequency [{self.frequency.unit.to_string('latex_inline')}]"
+            )
+            ax.set_ylabel(
+                f"$L_\\nu$ [{self.luminosity_density_nu.unit.to_string('latex_inline')}]"
             )
         else:
-            warnings.warn(
-                "Did not find plotting mode {}, doing nothing.".format(mode)
-            )
+            warnings.warn(f"Did not find plotting mode {mode}, doing nothing.")
 
     def to_ascii(self, fname, mode="luminosity_density"):
         if mode == "luminosity_density":

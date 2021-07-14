@@ -4,41 +4,19 @@
 Documentation Preview
 *********************
 
-Most of the time it's enough to build the documentation locally and see how things are going. But sometimes 
-it's nice to share our changes and get some feedback from other collaborators. 
+To preview your changes to the documentation please:
 
-Unfortunately, GitHub Pages does not provide a simple way to preview documentation changes from pull requests
-(as ReadTheDocs does) but there's a way to achieve this that suits for most of our use cases.
+#. Enable GitHub Actions in the *Actions* tab of your fork.
+#. Under *Settings -> Pages* in your fork, make sure GitHub Pages is being built from the ``gh-pages`` branch and the ``/ (root)`` folder.
 
+Then, there are two ways to trigger the build:
 
-=========
-Procedure
-=========
+#. If the branch you are working on contains the word ``doc`` in it, then every commit pushed to that branch will trigger the build.
+#. If your commit message contains the ``[build docs]`` tag, then that commit will trigger the build.
 
-Imagine you are developing a new feature for TARDIS on your local
-branch named ``new-feature`` and follow these steps:
+.. note::
 
-1. Go to your fork's *Settings* tab make sure GitHub Pages are building from the *gh-pages* branch.
-
-2. Checkout to a new branch with a suitable name, like ``new-feature-docs``.
-
-3. Edit ``.github/workflows/documentation-build.yml`` and add a new trigger below the *push* trigger::
-
-    pull_request:
-      branches:
-        - master
-
-4. Push changes and make a new pull request to **your fork's** *master* branch.
-
-5. If everything is ok, the documentation preview should be available at ``<your-username>.github.io/tardis``.
-
-.. note :: Remember you will need to rebase ``new-feature-docs`` to ``new-feature`` every time you push changes to ``new-feature``.
+    You always can trigger a new build by pushing an empty commit: ``git commit --allow-empty -m "[build docs]"``
 
 
-===========
-Limitations
-===========
-
-This method has a major drawback: you can build just a single preview for your entire fork. This means if
-your are working on multiple pull request, your site ``<your-username.github.io/tardis>`` will display just
-the latest successful build, overwriting the previous one.
+Your preview will be available at ``<username>.github.io/tardis/branch/<branch name>/index.html``.

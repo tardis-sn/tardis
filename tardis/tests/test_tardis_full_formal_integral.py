@@ -7,8 +7,6 @@ from astropy.tests.helper import assert_quantity_allclose
 from tardis.simulation.base import Simulation
 from tardis.io.config_reader import Configuration
 
-pytestmark = pytest.mark.skip(reason="memory problem")
-
 config_line_modes = ["downbranch", "macroatom"]
 interpolate_shells = [-1, 30]
 
@@ -49,9 +47,7 @@ class TestRunnerSimpleFormalInegral:
     ):
         config.atom_data = atomic_data_fname
 
-        self.name = self._name + "_{:s}".format(
-            config.plasma.line_interaction_type
-        )
+        self.name = self._name + f"_{config.plasma.line_interaction_type:s}"
         if config.spectrum.integrated.interpolate_shells > 0:
             self.name += "_interp"
 
@@ -66,7 +62,9 @@ class TestRunnerSimpleFormalInegral:
                 "spectrum",
                 "spectrum_integrated",
             ]
-            simulation.runner.to_hdf(tardis_ref_data, "", self.name)
+            simulation.runner.to_hdf(
+                tardis_ref_data, "", self.name, overwrite=True
+            )
             pytest.skip("Reference data was generated during this run.")
 
     @pytest.fixture(scope="class")

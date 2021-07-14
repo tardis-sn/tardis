@@ -1,12 +1,14 @@
+.. _lineinteraction:
+
 ***************************
 Line Interaction Treatments
 ***************************
 
 TARDIS currently offers different ways to handle line interactions, which may be
-activated via the YAML configuration file. Independently of the chosen
+activated via the :term:`YAML` configuration file. Independently of the chosen
 treatment, a number of steps are always carried out when a Monte Carlo packet
 performs a line interaction. Since TARDIS adopts the indivisible energy packet
-formalism (see :doc:`Discretization <discretization>`), the packet will have the
+formalism (see :ref:`Energy Packets <initialization>`), the packet will have the
 same energy in the co-moving frame after (f for final) the line interaction as
 before (i for initial). Thus, after accounting for the frame transformations,
 
@@ -94,5 +96,5 @@ shows the situation in the resonant scatter mode, the middle one for the
 downbranching scheme and the right one the macro atom results.
 
 .. image::
-    images/scatter_downbranch_ma.png
+    ../images/scatter_downbranch_ma.png
     :width: 700

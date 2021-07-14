@@ -230,21 +230,30 @@ class HDFWriterMixin(object):
         HDFStore because the user decides on the mode in which they have
         opened the HDFStore ('r', 'w' or 'a').
         """
-        try:  # when path_or_buf is a str, the HDFStore should get created
-            buf = pd.HDFStore(path_or_buf, complevel=complevel, complib=complib)
-        except TypeError as e:
-            if e.message == "Expected bytes, got HDFStore":
-                # when path_or_buf is an HDFStore buffer instead
-                buf = path_or_buf
-            else:
-                raise e
-        else:  # path_or_buf was a str
-            if os.path.exists(path_or_buf) and not overwrite:
-                buf.close()
-                raise FileExistsError(
-                    "The specified HDF file already exists. If you still want "
-                    "to overwrite it, set option overwrite=True"
+        if (
+            isinstance(path_or_buf, str)
+            and os.path.exists(path_or_buf)
+            and not overwrite
+        ):
+            raise FileExistsError(
+                "The specified HDF file already exists. If you still want "
+                "to overwrite it, set function parameter overwrite=True"
+            )
+
+        else:
+            try:  # when path_or_buf is a str, the HDFStore should get created
+                buf = pd.HDFStore(
+                    path_or_buf, complevel=complevel, complib=complib
                 )
+            except TypeError as e:
+                if e.message == "Expected bytes, got HDFStore":
+                    # when path_or_buf is an HDFStore buffer instead
+                    logger.debug(
+                        "Expected bytes, got HDFStore. Changing path to HDF buffer"
+                    )
+                    buf = path_or_buf
+                else:
+                    raise e
 
         if not buf.is_open:
             buf.open()
@@ -263,6 +272,9 @@ class HDFWriterMixin(object):
                     try:
                         pd.Series(value).to_hdf(buf, os.path.join(path, key))
                     except NotImplementedError:
+                        logger.debug(
+                            "Could not convert SERIES to HDF. Converting DATAFRAME to HDF"
+                        )
                         pd.DataFrame(value).to_hdf(buf, os.path.join(path, key))
                 else:
                     pd.DataFrame(value).to_hdf(buf, os.path.join(path, key))
@@ -270,6 +282,9 @@ class HDFWriterMixin(object):
                 try:
                     value.to_hdf(buf, path, name=key, overwrite=overwrite)
                 except AttributeError:
+                    logger.debug(
+                        "Could not convert VALUE to HDF. Converting DATA (Dataframe) to HDF"
+                    )
                     data = pd.DataFrame([value])
                     data.to_hdf(buf, os.path.join(path, key))
 
@@ -285,7 +300,6 @@ class HDFWriterMixin(object):
 
     @property
     def full_hdf_properties(self):
-        # If tardis was compiled --with-vpacket-logging, add vpacket properties
         if hasattr(self, "virt_logging") and self.virt_logging:
             self.hdf_properties.extend(self.vpacket_hdf_properties)
 
@@ -314,6 +328,9 @@ class HDFWriterMixin(object):
                 name = self.hdf_name
             except AttributeError:
                 name = self.convert_to_snake_case(self.__class__.__name__)
+                logger.debug(
+                    f"self.hdf_name not present, setting name to {name} for HDF"
+                )
 
         data = self.get_properties()
         buff_path = os.path.join(path, name)

@@ -2,7 +2,11 @@ import os
 import tempfile
 
 from pytest_html import extras
-from tardis import __githash__ as tardis_githash
+
+# NOTE: the __githash__ variable is not available anymore
+# on `version.py`. Find another way to fix it!
+
+# from tardis import __githash__ as tardis_githash
 
 
 class BasePlotSaver(object):
@@ -103,7 +107,7 @@ class RemotePlotSaver(BasePlotSaver):
             self.save(plot, plot_file.name, report)
 
             self.request.config.dokureport.doku_conn.medias.add(
-                "reports:{0}:{1}.png".format(tardis_githash[:7], name),
+                f"reports:{tardis_githash[:7]}:{name}.png",
                 plot_file.name,
             )
 
@@ -146,7 +150,7 @@ class LocalPlotSaver(BasePlotSaver):
         for plot, name in self._plots:
             self.save(
                 plot,
-                os.path.join(self.assets_dirpath, "{0}.png".format(name)),
+                os.path.join(self.assets_dirpath, f"{name}.png"),
                 report,
             )
 

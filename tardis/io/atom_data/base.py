@@ -31,52 +31,67 @@ class AtomData(object):
     Parameters
     ----------
     atom_data : pandas.DataFrame
-        A DataFrame containing the *basic atomic data* with:
-            index : atomic_number;
-            columns : symbol, name, mass[u].
+    A DataFrame containing the *basic atomic data* with:
+        index : atomic_number
+        columns : symbol, name, mass[u].
+
     ionization_data : pandas.DataFrame
-        A DataFrame containing the *ionization data* with:
-            index : atomic_number, ion_number;
-            columns : ionization_energy[eV].
-       It is important to note here is that `ion_number` describes the *final ion state*
-            e.g. H I - H II is described with ion=1
+    A DataFrame containing the *ionization data* with:
+        index : atomic_number, ion_number
+        columns : ionization_energy[eV].
+    It is important to note here is that `ion_number` describes the *final ion state*
+    e.g. H I - H II is described with ion=1
+
     levels : pandas.DataFrame
-        A DataFrame containing the *levels data* with:
-            index : numerical index;
-            columns : atomic_number, ion_number, level_number, energy[eV], g[1], metastable.
+    A DataFrame containing the *levels data* with:
+        index : numerical index
+        columns : atomic_number, ion_number, level_number, energy[eV], g[1], metastable.
+
     lines : pandas.DataFrame
-        A DataFrame containing the *lines data* with:
-            index : numerical index;
-            columns : line_id, atomic_number, ion_number, level_number_lower, level_number_upper,
-                wavelength[angstrom], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
+    A DataFrame containing the *lines data* with:
+        index : numerical index
+        columns : line_id, atomic_number, ion_number, level_number_lower, level_number_upper,
+        wavelength[angstrom], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
+
     macro_atom_data :
-        A DataFrame containing the *macro atom data* with:
-            index : numerical index;
-            columns : atomic_number, ion_number, source_level_number, destination_level_number,
-                transition_line_id, transition_type, transition_probability;
+    A DataFrame containing the *macro atom data* with:
+        index : numerical index
+        columns : atomic_number, ion_number, source_level_number, destination_level_number,
+        transition_line_id, transition_type, transition_probability;
+
     macro_atom_references :
-        A DataFrame containing  the *macro atom references* with:
-            index : numerical index;
-            columns : atomic_number, ion_number, source_level_number, count_down, count_up, count_total.
-        Refer to the docs: http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
+    A DataFrame containing  the *macro atom references* with:
+        index : numerical index
+        columns : atomic_number, ion_number, source_level_number, count_down, count_up, count_total.
+    Refer to the docs: http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
+
     collision_data : (pandas.DataFrame, np.array)
-        A DataFrame containing the *electron collisions data* with:
-            index : atomic_number, ion_number, level_number_lower, level_number_upper;
-            columns : e_col_id, delta_e, g_ratio, c_ul;
+    A DataFrame containing the *electron collisions data* with:
+        index : atomic_number, ion_number, level_number_lower, level_number_upper
+        columns : e_col_id, delta_e, g_ratio, c_ul;
+
     collision_data_temperatures : np.array
         An array with the collision temperatures.
+
     zeta_data :
-        A DataFrame containing the *zeta data* for the
-        nebular ionization calculation
-        (i.e., the fraction of recombinations that go directly to the
-        ground state) with:
-            index : atomic_number, ion_charge;
-            columns : temperatures[K]
+    A DataFrame containing the *zeta data* for the
+    nebular ionization calculation
+    (i.e., the fraction of recombinations that go directly to the
+    ground state) with:
+        index : atomic_number, ion_charge
+        columns : temperatures[K]
+
     synpp_refs : ?
+
     photoionization_data : pandas.DataFrame
-        A DataFrame containing the *photoionization data* with:
-            index : numerical index;
-            columns : atomic_number, ion_number, level_number, nu[Hz], x_sect[cm^2]
+    A DataFrame containing the *photoionization data* with:
+        index : numerical index
+        columns : atomic_number, ion_number, level_number, nu[Hz], x_sect[cm^2]
+
+    two_photon_data : pandas.DataFrame
+    A DataFrame containing the *two photon decay data* with:
+        index: atomic_number, ion_number, level_number_lower, level_number_upper
+        columns: A_ul[1/s], nu0[Hz], alpha, beta, gamma
 
     Attributes
     ----------
@@ -92,6 +107,7 @@ class AtomData(object):
     symbol2atomic_number : OrderedDict
     atomic_number2symbol : OrderedDict
     photoionization_data : pandas.DataFrame
+    two_photon_data : pandas.DataFrame
 
     Methods
     -------
@@ -115,6 +131,8 @@ class AtomData(object):
         "collision_data_temperatures",
         "synpp_refs",
         "photoionization_data",
+        "yg_data",
+        "two_photon_data",
     ]
 
     # List of tuples of the related dataframes.
@@ -146,6 +164,7 @@ class AtomData(object):
                 try:
                     dataframes[name] = store[name]
                 except KeyError:
+                    logger.debug("Dataframe does not contain NAME column")
                     nonavailable.append(name)
 
             atom_data = cls(**dataframes)
@@ -153,28 +172,35 @@ class AtomData(object):
             try:
                 atom_data.uuid1 = store.root._v_attrs["uuid1"].decode("ascii")
             except KeyError:
+                logger.debug(
+                    "UUID not available for Atom Data. Setting value to None"
+                )
                 atom_data.uuid1 = None
 
             try:
                 atom_data.md5 = store.root._v_attrs["md5"].decode("ascii")
             except KeyError:
+                logger.debug(
+                    "MD5 not available for Atom Data. Setting value to None"
+                )
                 atom_data.md5 = None
 
             try:
                 atom_data.version = store.root._v_attrs["database_version"]
             except KeyError:
+                logger.debug(
+                    "VERSION not available for Atom Data. Setting value to None"
+                )
                 atom_data.version = None
 
             # ToDo: strore data sources as attributes in carsus
 
             logger.info(
-                "Read Atom Data with UUID={0} and MD5={1}.".format(
-                    atom_data.uuid1, atom_data.md5
-                )
+                f"Reading Atom Data with: UUID = {atom_data.uuid1} MD5  = {atom_data.md5} "
             )
             if nonavailable:
                 logger.info(
-                    "Non provided atomic data: {0}".format(
+                    "Non provided Atomic Data: {0}".format(
                         ", ".join(nonavailable)
                     )
                 )
@@ -194,6 +220,8 @@ class AtomData(object):
         collision_data_temperatures=None,
         synpp_refs=None,
         photoionization_data=None,
+        yg_data=None,
+        two_photon_data=None,
     ):
 
         self.prepared = False
@@ -220,9 +248,7 @@ class AtomData(object):
         levels.loc[:, "energy"] = Quantity(levels["energy"].values, "eV").cgs
 
         # Create a new columns with wavelengths in the CGS units
-        lines.loc[:, "wavelength_cm"] = Quantity(
-            lines["wavelength"], "angstrom"
-        ).cgs
+        lines["wavelength_cm"] = Quantity(lines["wavelength"], "angstrom").cgs
 
         # SET ATTRIBUTES
 
@@ -244,6 +270,10 @@ class AtomData(object):
 
         self.photoionization_data = photoionization_data
 
+        self.yg_data = yg_data
+
+        self.two_photon_data = two_photon_data
+
         self._check_related()
 
         self.symbol2atomic_number = OrderedDict(
@@ -262,10 +292,8 @@ class AtomData(object):
 
             if len(check_list) != 0 and len(check_list) != len(group):
                 raise AtomDataMissingError(
-                    "The following dataframes from the related group [{0}] "
-                    "were not given: {1}".format(
-                        ", ".join(group), ", ".join(check_list)
-                    )
+                    f'The following dataframes from the related group [{", ".join(group)}]'
+                    f'were not given: {", ".join(check_list)}'
                 )
 
     def prepare_atom_data(
@@ -448,6 +476,9 @@ class AtomData(object):
                 # are not used in downbranch calculations
                 self.macro_atom_data.loc[:, "destination_level_idx"] = -1
 
+            if self.yg_data is not None:
+                self.yg_data = self.yg_data.loc[self.selected_atomic_numbers]
+
         self.nlte_data = NLTEData(self, nlte_species)
 
     def _check_selected_atomic_numbers(self):
@@ -463,18 +494,12 @@ class AtomData(object):
             missing_atom_mask = np.logical_not(atomic_number_check)
             missing_atomic_numbers = selected_atomic_numbers[missing_atom_mask]
             missing_numbers_str = ",".join(missing_atomic_numbers.astype("str"))
-            msg = "For atomic numbers {} there is no atomic data.".format(
-                missing_numbers_str
-            )
+
+            msg = f"For atomic numbers {missing_numbers_str} there is no atomic data."
             raise AtomDataMissingError(msg)
 
     def __repr__(self):
-        return "<Atomic Data UUID={} MD5={} Lines={:d} Levels={:d}>".format(
-            self.uuid1,
-            self.md5,
-            self.lines.line_id.count(),
-            self.levels.energy.count(),
-        )
+        return f"<Atomic Data UUID={self.uuid1} MD5={self.md5} Lines={self.lines.line_id.count():d} Levels={self.levels.energy.count():d}>"
 
 
 class NLTEData(object):

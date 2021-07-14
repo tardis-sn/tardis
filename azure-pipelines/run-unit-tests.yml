@@ -2,7 +2,14 @@
 # http://tardis-sn.github.io/tardis/development/continuous_integration.html
 
 trigger:
-  - master
+  branches:
+    include:
+    - '*'
+
+pr:
+  branches:
+    include:
+    - '*'
 
 variables:
   codecov.token: 'a876d307-9ed5-4f5d-a6c4-e58291ac4111'
@@ -27,6 +34,7 @@ jobs:
       - template: templates/default.yml
         parameters:
           fetchRefdata: true
+          refdataRepo: 'azure'
           useMamba: true
 
       - bash: |
@@ -34,7 +42,7 @@ jobs:
           source activate tardis
           pip install pytest-azurepipelines
           pytest tardis --tardis-refdata=$(refdata.dir) --cov=tardis --cov-report=xml --cov-report=html
-        displayName: 'TARDIS test'
+        displayName: 'Run tests'
 
       - bash: bash <(curl -s https://codecov.io/bash)
         displayName: 'Upload to codecov.io'

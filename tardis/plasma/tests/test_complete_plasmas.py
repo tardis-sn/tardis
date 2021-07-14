@@ -66,9 +66,7 @@ def idfn(fixture_value):
     This function creates a string from a dictionary.
     We use it to obtain a readable name for the config fixture.
     """
-    return str(
-        "-".join(["{}:{}".format(k, v) for k, v in fixture_value.items()])
-    )
+    return str("-".join([f"{k}:{v}" for k, v in fixture_value.items()]))
 
 
 class TestPlasma(object):
@@ -164,7 +162,7 @@ class TestPlasma(object):
             sim.plasma.to_hdf(
                 tardis_ref_data, path=config.plasma.save_path, overwrite=True
             )
-            pytest.skip("Reference data saved at {0}".format(tardis_ref_data))
+            pytest.skip(f"Reference data saved at {tardis_ref_data}")
         return sim.plasma
 
     @pytest.mark.parametrize("attr", combined_properties)
@@ -179,7 +177,7 @@ class TestPlasma(object):
             expected = tardis_ref_data[key]
             pdt.assert_almost_equal(actual, expected)
         else:
-            warnings.warn('Property "{}" not found'.format(attr))
+            warnings.warn(f'Property "{attr}" not found')
 
     def test_levels(self, plasma, tardis_ref_data, config):
         actual = pd.DataFrame(plasma.levels)

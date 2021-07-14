@@ -65,6 +65,8 @@ def test_VPacketCollection_set_properties(verysimple_3vpacket_collection):
 
     nus = [3.0e15, 0.0, 1e15, 1e5]
     energies = [0.4, 0.1, 0.6, 1e10]
+    initial_mus = [.1, 0, 1, .9]
+    initial_rs = [3e42, 4.5e45, 0, 9.0e40]
     last_interaction_in_nus = np.array(
         [3.0e15, 0.0, 1e15, 1e5], dtype=np.float64
     )
@@ -75,6 +77,8 @@ def test_VPacketCollection_set_properties(verysimple_3vpacket_collection):
     for (
         nu,
         energy,
+        initial_mu,
+        initial_r,
         last_interaction_in_nu,
         last_interaction_type,
         last_interaction_in_id,
@@ -82,6 +86,8 @@ def test_VPacketCollection_set_properties(verysimple_3vpacket_collection):
     ) in zip(
         nus,
         energies,
+        initial_mus,
+        initial_rs,
         last_interaction_in_nus,
         last_interaction_types,
         last_interaction_in_ids,
@@ -90,6 +96,8 @@ def test_VPacketCollection_set_properties(verysimple_3vpacket_collection):
         verysimple_3vpacket_collection.set_properties(
             nu,
             energy,
+            initial_mu,
+            initial_r,
             last_interaction_in_nu,
             last_interaction_type,
             last_interaction_in_id,
@@ -107,6 +115,18 @@ def test_VPacketCollection_set_properties(verysimple_3vpacket_collection):
             : verysimple_3vpacket_collection.idx
         ],
         energies,
+    )
+    npt.assert_array_equal(
+        verysimple_3vpacket_collection.initial_mus[
+            : verysimple_3vpacket_collection.idx
+        ],
+        initial_mus,
+    )
+    npt.assert_array_equal(
+        verysimple_3vpacket_collection.initial_rs[
+            : verysimple_3vpacket_collection.idx
+        ],
+        initial_rs,
     )
     npt.assert_array_equal(
         verysimple_3vpacket_collection.last_interaction_in_nu[

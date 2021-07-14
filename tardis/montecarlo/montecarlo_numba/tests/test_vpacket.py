@@ -2,7 +2,6 @@ import os
 import pytest
 import numpy as np
 import pandas as pd
-import tardis.montecarlo.formal_integral as formal_integral
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
 import tardis.montecarlo.montecarlo_numba.vpacket as vpacket
 import tardis.montecarlo.montecarlo_configuration as mc
@@ -10,6 +9,10 @@ import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
 from tardis import constants as const
 from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
 from tardis.montecarlo.montecarlo_numba import macro_atom
+
+from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+    get_doppler_factor,
+)
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -26,13 +29,12 @@ def v_packet():
         current_shell_id=0,
         next_line_id=0,
         index=0,
-        is_close_line=0,
     )
 
 
 def v_packet_initialize_line_id(v_packet, numba_plasma, numba_model):
     inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
-    doppler_factor = r_packet.get_doppler_factor(
+    doppler_factor = get_doppler_factor(
         v_packet.r, v_packet.mu, numba_model.time_explosion
     )
     comov_nu = v_packet.nu * doppler_factor
@@ -84,7 +86,6 @@ def test_trace_vpacket(
     npt.assert_almost_equal(v_packet.energy, 0.0)
     npt.assert_almost_equal(v_packet.mu, 0.8309726858508629)
     assert v_packet.next_line_id == 2773
-    assert v_packet.is_close_line == False
     assert v_packet.current_shell_id == 1
 
 
@@ -118,7 +119,6 @@ def broken_packet():
         mu=0.4916053094346575,
         energy=2.474533071386993e-07,
         index=3,
-        is_close_line=True,
         current_shell_id=0,
         next_line_id=5495,
     )

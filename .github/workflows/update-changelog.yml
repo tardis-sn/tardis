@@ -7,6 +7,8 @@ on:
   schedule:
     - cron: '50 23 * * 0'
 
+  workflow_dispatch:
+
 jobs:
   push:
     runs-on: ubuntu-latest
@@ -14,6 +16,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.BOT_TOKEN }}
 
       - name: Install github-changes
         run: sudo npm install -g github-changes
@@ -21,14 +26,13 @@ jobs:
       - name: Update changelog
         run: github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md -k ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Commit files
+      - name: Configure bot user
         run: |
-          git config --local user.email "wkerzendorf+tardis@gmail.com"
-          git config --local user.name "TARDIS Bot"
-          git add CHANGELOG.md
-          git commit -m "Update CHANGELOG.md [skip ci]"
+          git config --global user.email "tardis.sn.bot@gmail.com"
+          git config --global user.name "tardis-bot"
 
       - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.BOT_TOKEN }}  # Use BOT_TOKEN to push on write-protected branches
+        run: |
+          git add CHANGELOG.md
+          git commit -m "Update CHANGELOG.md [skip ci]"
+          git push

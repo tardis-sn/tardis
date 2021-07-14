@@ -1,0 +1,24 @@
+name: pr-review
+
+on:
+  pull_request_target:
+    types: [review_requested]
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mshick/add-pr-comment@v1
+        with:
+          repo-token: ${{ secrets.BOT_TOKEN }}
+          repo-token-user-login: 'tardis-bot'
+          message: "Before a pull request is accepted, it must meet the following criteria: \n
+                - [ ] Is the necessary information provided? \n
+                - [ ] Is this a duplicate PR? \n
+                  \t - [ ] If a new PR is clearly a duplicate, ask how this PR is different from the original PR? \n
+                  \t - [ ] If this PR is about to be merged, close the original PR with a link to this new PR that solved the issue. \n
+                - [ ] Does it pass existing tests and are new tests provided if required? \n
+                  \t - [ ] The test coverage should not decrease, and for new features should be close to 100%. \n
+                - [ ] Is the code tidy? \n
+                  \t - [ ] No unnecessary print lines or code comments. \n"
+          allow-repeats: false

@@ -86,6 +86,14 @@ properties:
         description: Species that are requested to be treated with continuum
             interactios (radiative/collisional ionization and recombination)
             in the format ['Si II', 'Ca I', etc.]
+      enable_adiabatic_cooling:
+        type: boolean
+        default: false
+        description: enables adiabatic cooling of the electron gas
+      enable_two_photon_decay:
+        type: boolean
+        default: false
+        description: enables two photon decay processes
   helium_treatment:
     type: string
     default: none

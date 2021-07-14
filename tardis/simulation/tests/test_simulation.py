@@ -1,8 +1,11 @@
 import os
 
 import pytest
+import logging
+
 from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
+from tardis import run_tardis
 
 import numpy as np
 import pandas as pd

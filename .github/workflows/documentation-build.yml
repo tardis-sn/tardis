@@ -1,7 +1,7 @@
 # For more information on how to use this template please refer to:
 # http://tardis-sn.github.io/tardis/development/continuous_integration.html
 
-name: documentation-build
+name: docs
 
 on:
   push:
@@ -11,20 +11,25 @@ on:
   schedule:
     - cron: '10 0 * * 0'
 
+  workflow_dispatch:  # Manual trigger
+
 jobs:
-  documentation_build:
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-      - name: Setup TARDIS Environment 
+      - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
         with:
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
             environment-file: tardis_env3.yml
             activate-environment: tardis
-            channels: conda-forge
-            mamba-version: "*"
+            use-mamba: true
 
       - name: Install TARDIS
         shell: bash -l {0}
@@ -32,7 +37,7 @@ jobs:
 
       - name: Build Sphinx Documentation
         shell: bash -l {0}
-        run: python setup.py build_docs
+        run: cd docs/; make html
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
@@ -40,3 +45,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/_build/html/
           publish_branch: gh-pages
+          force_orphan: true

@@ -25,23 +25,43 @@ jobs:
     steps:
       - template: templates/default.yml
         parameters:
+          fetchRefdata: true
+          refdataRepo: 'azure'
           useMamba: true
+
+      # Test before relase, we do not want to release broken software!
+      - bash: |
+          cd $(tardis.dir)
+          source activate tardis
+          pytest tardis --tardis-refdata=$(refdata.dir)
+        displayName: 'Run tests'
 
       - bash: |
           cd $(tardis.dir)
           source activate tardis
-          echo "##vso[task.setvariable variable=version]$(python -c 'import tardis; print(tardis.__version__)')"
-        displayName: 'Get TARDIS version'
+          echo $(python -c 'from setuptools_scm import version_from_scm; from setuptools_scm.version import guess_next_date_ver; release = version_from_scm("."); print(release.tag.public)')
+        displayName: 'Check latest TARDIS tag'
+
+      - bash: |
+          cd $(tardis.dir)
+          source activate tardis
+          echo "##vso[task.setvariable variable=newtag]$(python -c 'from setuptools_scm import version_from_scm; from setuptools_scm.version import guess_next_date_ver; release = version_from_scm("."); print(guess_next_date_ver(release.tag.public))')"
+        displayName: 'Get new TARDIS tag'
+
+      - bash: echo $(newtag)
+        displayName: 'Check new TARDIS tag'
 
       - task: GitHubRelease@1
         inputs:
-          gitHubConnection: 'wkerzendorf'
+          gitHubConnection: 'tardis-bot'
           repositoryName: '$(Build.Repository.Name)'
           action: 'create'
           target: '$(Build.SourceVersion)'
           tagSource: 'userSpecifiedTag'
-          tag: 'v$(version)'
-          title: 'TARDIS v$(version)'
+          tag: 'release-$(newtag)'
+          title: 'TARDIS v$(newtag)'
+          isPreRelease: false
+          addChangeLog: true
           changeLogCompareToRelease: 'lastFullRelease'
           changeLogType: 'commitBased'
         displayName: 'Create GitHub Release'

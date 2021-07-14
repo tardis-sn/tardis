@@ -14,9 +14,9 @@ to the Astropy team for designing it.
     issues
     git_workflow
     documentation_guidelines
+    documentation_preview
     running_tests
     code_quality
-    documentation_preview
     developer_faq
 
 TARDIS core team Instructions
@@ -31,3 +31,4 @@ the core team (active maintainers) of TARDIS.
     update_refdata
     matterbridge
     debug_numba
+    profiling/index

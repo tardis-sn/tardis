@@ -5,21 +5,16 @@ supernova:
 
 atom_data: kurucz_cd23_chianti_H_He.h5
 
-
 model:
-
     structure:
         type: specific
-
         velocity:
             start : 11000 km/s
             stop : 20000 km/s
             num: 20
-
         density:
             type : uniform
             value: 1.e-14 g/cm3
-
     abundances:
         type: uniform
         O: 0.19
@@ -41,7 +36,6 @@ montecarlo:
     iterations: 10
     last_no_of_packets: 1.e+5
     no_of_virtual_packets: 10
-
     convergence_strategy:
         type: damped
         damping_constant: 1.0

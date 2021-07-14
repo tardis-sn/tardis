@@ -28,9 +28,11 @@ properties:
             the calculation of the integrated spectrum
       interpolate_shells:
         type: number
-        default: -1
+        default: 0
         description: Number of shells on which the formal
-            integral quantities are interpolated
+            integral quantities are interpolated. For -1 no interpolation
+            is used. The default is to use twice the number of computational
+            shells but at least 80.
   virtual:
     type: object
     default: {}

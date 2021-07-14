@@ -1,28 +1,25 @@
-******
+======
 TARDIS
-******
+======
 
-.. image:: https://img.shields.io/badge/read-documentation-blue
-  :target: https://tardis-sn.github.io/tardis
-
-.. image:: https://dev.azure.com/tardis-sn/TARDIS/_apis/build/status/tardis-sn.tardis?branchName=master
-  :target: https://dev.azure.com/tardis-sn/TARDIS/_build/latest?definitionId=1&branchName=master
-
-.. image:: https://codecov.io/gh/tardis-sn/tardis/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/tardis-sn/tardis
-
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3893940.svg
-   :target: https://doi.org/10.5281/zenodo.3893940
-
-.. image:: https://badges.gitter.im/Join%20Chat.svg
-  :target: https://gitter.im/tardis-sn/tardis
-
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/psf/black
+TARDIS is a tool that creates synthetic observations (*spectra*) for exploding
+stars (*supernovae*).
 
 .. image:: https://img.shields.io/badge/Donate-to%20TARDIS-brightgreen.svg
     :target: https://numfocus.salsalabs.org/donate-to-tardis/index.html
-    
+
+.. image:: https://open.vscode.dev/badges/open-in-vscode.svg
+    :target: https://open.vscode.dev/tardis-sn/tardis
+
+.. image:: https://codecov.io/gh/tardis-sn/tardis/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/tardis-sn/tardis
+
+.. image:: https://img.shields.io/endpoint?url=https://jsonbin.org/tardis-bot/badges/tardis/docstr-coverage
+    :target: https://github.com/tardis-sn/tardis/actions/workflows/docstr-coverage.yml?query=branch%3Amaster
+
+.. image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.592480-blue
+    :target: https://doi.org/10.5281/zenodo.592480
+
 .. image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
     :target: http://numfocus.org
     :alt: Powered by NumFOCUS
@@ -30,8 +27,18 @@ TARDIS
 .. image:: http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
     :target: http://www.astropy.org
 
-TARDIS is a tool that creates synthetic observations (spectra) for exploding
-stars (supernovae).
+.. image:: https://badges.gitter.im/Join%20Chat.svg
+    :target: https://gitter.im/tardis-sn/tardis
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
+
+.. image:: https://github.com/tardis-sn/tardis/actions/workflows/documentation-build.yml/badge.svg
+    :target: https://tardis-sn.github.io/tardis/index.html
+
+.. image:: https://dev.azure.com/tardis-sn/TARDIS/_apis/build/status/TARDIS%20tests?branchName=master
+    :target: https://dev.azure.com/tardis-sn/TARDIS/_build/latest?definitionId=6&branchName=master
+
 
 ******************************
 Credits & Publication Policies
@@ -40,12 +47,13 @@ Credits & Publication Policies
 We provide TARDIS as a free, open-source tool. If you are using it, please
 adhere to a few policies and acknowledge the TARDIS Team.
 
+
 Publication Policies
 ====================
 
 If you use this code for any publications or presentations please acknowledge
 it.  Please cite `Kerzendorf & Sim 2014
-<http://adsabs.harvard.edu/abs/2014MNRAS.440..387K>`_  in the text
+<http://adsabs.harvard.edu/abs/2014MNRAS.440..387K>`_  in the text.
 
 Please add this paragraph to the Acknowledgement:
 
@@ -60,7 +68,6 @@ Please add this paragraph to the Acknowledgement:
     extensive use of Astropy and PyNE.
 
 
-
 If you use any of the full relativity treatments or use TARDIS for
 modelling Type II supernovae you also add this citation to acknowledgement
 `Spectral modeling of type II supernovae. I. Dilution factors
@@ -70,7 +77,7 @@ modelling Type II supernovae you also add this citation to acknowledgement
 
     \citep{2019A&A...621A..29V}
 
-The following bibtex entries are needed for the references.
+The following BibTeX entries are needed for the references:
 
 .. code-block:: none
 
@@ -176,3 +183,14 @@ The following bibtex entries are needed for the references.
       doi          = {10.5281/zenodo.3893940},
       url          = {https://doi.org/10.5281/zenodo.3893940}
     }
+
+
+*******
+License
+*******
+
+This project is Copyright (c) TARDIS Collaboration and licensed under
+the terms of the BSD 3-Clause license. This package is based upon
+the `Astropy package template <https://github.com/astropy/package-template>`_
+which is licensed under the BSD 3-clause license. See the licenses folder for
+more information.

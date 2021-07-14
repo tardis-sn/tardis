@@ -188,10 +188,16 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 j_blues_filtered = j_blues.iloc[lines_index]
             except AttributeError:
                 j_blues_filtered = j_blues
+                logger.debug(
+                    f"J Blues Filtered Value could not be calculated. Using j_blues_filtered = {j_blues_filtered}"
+                )
             try:
                 beta_sobolevs_filtered = beta_sobolevs.iloc[lines_index]
             except AttributeError:
                 beta_sobolevs_filtered = beta_sobolevs
+                logger.debug(
+                    f"Beta Sobolevs Filtered Value could not be calculated. Using beta_sobolevs_filtered = {beta_sobolevs}"
+                )
             A_uls = nlte_data.A_uls[species]
             B_uls = nlte_data.B_uls[species]
             B_lus = nlte_data.B_lus[species]

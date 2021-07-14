@@ -13,6 +13,7 @@ from pyne import nucname
 
 import tardis
 from tardis.io.util import get_internal_data_path
+from IPython import get_ipython
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
@@ -60,7 +61,7 @@ class MalformedSpeciesError(MalformedError):
     def __str__(self):
         return (
             'Expecting a species notation (e.g. "Si 2", "Si II", "Fe IV") '
-            "- supplied {0}".format(self.malformed_element_symbol)
+            f"- supplied {self.malformed_element_symbol}"
         )
 
 
@@ -69,9 +70,7 @@ class MalformedElementSymbolError(MalformedError):
         self.malformed_element_symbol = malformed_element_symbol
 
     def __str__(self):
-        return ("Expecting an atomic symbol (e.g. Fe) - supplied {0}").format(
-            self.malformed_element_symbol
-        )
+        return f"Expecting an atomic symbol (e.g. Fe) - supplied {self.malformed_element_symbol}"
 
 
 class MalformedQuantityError(MalformedError):
@@ -80,9 +79,9 @@ class MalformedQuantityError(MalformedError):
 
     def __str__(self):
         return (
-            'Expecting a quantity string(e.g. "5 km/s") for keyword '
-            "- supplied {0}"
-        ).format(self.malformed_quantity_string)
+            f'Expecting a quantity string(e.g. "5 km/s") for keyword '
+            f"- supplied {self.malformed_quantity_string}"
+        )
 
 
 def int_to_roman(i):
@@ -125,18 +124,14 @@ def roman_to_int(roman_string):
     NUMERALS_SET = set(list(zip(*NUMERAL_MAP))[1])
     roman_string = roman_string.upper()
     if len(set(list(roman_string.upper())) - NUMERALS_SET) != 0:
-        raise ValueError(
-            "{0} does not seem to be a roman numeral".format(roman_string)
-        )
+        raise ValueError(f"{roman_string} does not seem to be a roman numeral")
     i = result = 0
     for integer, numeral in NUMERAL_MAP:
         while roman_string[i : i + len(numeral)] == numeral:
             result += integer
             i += len(numeral)
     if result < 1:
-        raise ValueError(
-            "Can not interpret Roman Numeral {0}".format(roman_string)
-        )
+        raise ValueError(f"Can not interpret Roman Numeral {roman_string}")
     return result
 
 
@@ -224,6 +219,9 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
                 radial1d_mdl.plasma.tau_sobolevs[0].loc[value["line_id"]]
             )
         except KeyError:
+            logger.debug(
+                "Synpp Ref does not have valid KEY for ref_log_tau in Radial1D Model"
+            )
             pass
 
     relevant_synpp_refs = radial1d_mdl.atom_data.synpp_refs[
@@ -333,9 +331,9 @@ def species_tuple_to_string(species_tuple, roman_numerals=True):
     element_symbol = ATOMIC_NUMBER2SYMBOL[atomic_number]
     if roman_numerals:
         roman_ion_number = int_to_roman(ion_number + 1)
-        return "{0} {1}".format(str(element_symbol), roman_ion_number)
+        return f"{str(element_symbol)} {roman_ion_number}"
     else:
-        return "{0} {1:d}".format(element_symbol, ion_number)
+        return f"{element_symbol} {ion_number:d}"
 
 
 def species_string_to_tuple(species_string):
@@ -367,8 +365,8 @@ def species_string_to_tuple(species_string):
             element_symbol, ion_number_string = species_string.split()
         except ValueError:
             raise MalformedSpeciesError(
-                'Species string "{0}" is not of format <element_symbol><number>'
-                " (e.g. Fe 2, Fe2, ..)".format(species_string)
+                f'Species string "{species_string}" is not of format <element_symbol><number>'
+                f" (e.g. Fe 2, Fe2, ..)"
             )
 
     atomic_number = element_symbol2atomic_number(element_symbol)
@@ -376,13 +374,14 @@ def species_string_to_tuple(species_string):
     try:
         ion_number = roman_to_int(ion_number_string)
     except ValueError:
+        logger.debug(
+            "Ion Number does not contain a Roman Numeral. Checking for integer value"
+        )
         try:
             ion_number = int(ion_number_string)
         except ValueError:
             raise MalformedSpeciesError(
-                "Given ion number ('{}') could not be parsed".format(
-                    ion_number_string
-                )
+                f"Given ion number ('{ion_number_string}') could not be parsed"
             )
 
     if ion_number > atomic_number:
@@ -547,3 +546,53 @@ def convert_abundances_format(fname, delimiter=r"\s+"):
     # Assign header row
     df.columns = [nucname.name(i) for i in range(1, df.shape[1] + 1)]
     return df
+
+
+def is_notebook():
+    """
+    Checking the shell environment where the simulation is run is Jupyter based
+
+    Returns
+    -------
+    True : if the shell environment is IPython Based
+    False : if the shell environment is Terminal or anything else
+    """
+    try:
+        # Trying to import the ZMQInteractiveShell for Jupyter based environments
+        from ipykernel.zmqshell import ZMQInteractiveShell
+    except NameError:
+        logger.debug(
+            "Cannot Import ipykernel.zmqshell. Not present inside Jupyter Environment"
+        )
+        # If the class cannot be imported then we are automatically return False Value
+        # Raised due to Name Error with the imported Class
+        return False
+
+    try:
+        # Trying to import Interactive Terminal based IPython shell
+        from IPython.core.interactiveshell import InteractiveShell
+    except NameError:
+        logger.debug(
+            "Cannot Import IPython.core.interactiveshell. Not present in IPython shell"
+        )
+        # If the class cannot be imported then we are automatically return False Value
+        # Raised due to Name Error with the imported Class
+        return False
+
+    try:
+        # Trying to get the value of the shell via the get_ipython() method
+        shell = get_ipython()
+    except NameError:
+        logger.debug("Cannot infer Shell Id")
+        # Returns False if the shell name cannot be inferred correctly
+        return False
+
+    # Checking if the shell instance is Jupyter based & if True, returning True
+    if isinstance(shell, ZMQInteractiveShell):
+        return True
+    # Checking if the shell instance is Terminal IPython based & if True, returning False
+    elif isinstance(shell, InteractiveShell):
+        return False
+    # All other shell instances are returned False
+    else:
+        return False
