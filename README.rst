@@ -8,6 +8,9 @@ stars (*supernovae*).
 .. image:: https://img.shields.io/badge/Donate-to%20TARDIS-brightgreen.svg
     :target: https://numfocus.salsalabs.org/donate-to-tardis/index.html
 
+.. image:: https://open.vscode.dev/badges/open-in-vscode.svg
+    :target: https://open.vscode.dev/tardis-sn/tardis
+
 .. image:: https://codecov.io/gh/tardis-sn/tardis/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/tardis-sn/tardis
 
