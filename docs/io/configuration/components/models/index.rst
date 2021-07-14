@@ -13,7 +13,20 @@ TARDIS has several built-in models for the shell structure, density, and abundan
 we recommend using the YAML configuration method. For creating a custom model (which will be discussed below), we
 reccomend using the CSVY method.
 
+.. _model-config:
 
+Model Configuration
+===================
+
+The following schema
+
+Although we strongly recommend using the CSVY Model, TARDIS also allows the user
+to define structure and abundance profiles in separate files and reference
+these files directly in the main TARDIS configuration file:
+
+.. jsonschema:: ../schemas/model.yml
+
+For an example of this in use, see :ref:`tardis-example`.
 
 
 
@@ -60,7 +73,7 @@ as shown in the schema below:
 .. jsonschema:: ../schemas/csvy_model.yml
 
 The CSV part of the CSVY file creates a table that can include information about shell velocities, densities,
-and abundances in each cell. The column headers (the first row of the CSV part) may contain
+and abundances in each cell. The column headers (the first row of the CSV part) may contain ??????????????????????????????????????????????????????????????????????????
 
 
 
@@ -120,20 +133,6 @@ Example CSVY Model
 We provide an example CSVY model file:
 
 .. literalinclude:: csvy_full_rad.csvy
-
-
-.. _model-config:
-
-Model Configuration
-===================
-
-Although we strongly recommend using the CSVY Model, TARDIS also allows the user
-to define structure and abundance profiles in separate files and reference
-these files directly in the main TARDIS configuration file:
-
-.. jsonschema:: ../schemas/model.yml
-
-For an example of this in use, see :ref:`tardis-example`.
 
 
 Structure, Density, and Abundance
