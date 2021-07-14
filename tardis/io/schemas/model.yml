@@ -6,7 +6,9 @@ properties:
     oneOf:
     - $ref: 'model_definitions.yml#/definitions/structure/specific'
     - $ref: 'model_definitions.yml#/definitions/structure/file'
+    - $ref: 'model_definitions.yml#/definitions/structure/tardismodel'
   abundances:
     oneOf:
     - $ref: 'model_definitions.yml#/definitions/abundances/file'
     - $ref: 'model_definitions.yml#/definitions/abundances/uniform'
+    - $ref: 'model_definitions.yml#/definitions/abundances/tardismodel'

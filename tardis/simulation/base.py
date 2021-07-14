@@ -539,8 +539,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # Allow overriding some config structures. This is useful in some
         # unit tests, and could be extended in all the from_config classmethods.
         if "model" in kwargs:
+            if not config.model.structure.type == 'tardismodel':
+                raise ValueError("Must set model structure type to tardismodel in config yml")
+            if not config.model.abundances.type == 'tardismodel':
+                raise ValueError("Must set model abundances type to tardismodel in config yml")
             model = kwargs["model"]
         else:
+            if config.model.structure.type == 'tardismodel' or config.model.abundances.type == 'tardismodel':
+                raise ValueError("Must pass a Radial1DModel object as kwarg to simulation.")
             if hasattr(config, "csvy_model"):
                 model = Radial1DModel.from_csvy(config)
             else:

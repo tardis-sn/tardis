@@ -14,6 +14,7 @@ def run_tardis(
     virtual_packet_logging=False,
     log_state=None,
     specific=None,
+    model=None,
 ):
     """
     This function is one of the core functions to run TARDIS from a given
@@ -65,12 +66,21 @@ def run_tardis(
             )
             atom_data = atom_data
 
-    simulation = Simulation.from_config(
-        tardis_config,
-        packet_source=packet_source,
-        atom_data=atom_data,
-        virtual_packet_logging=virtual_packet_logging,
-    )
+    if not model is None:
+        simulation = Simulation.from_config(
+            tardis_config,
+            packet_source=packet_source,
+            atom_data=atom_data,
+            virtual_packet_logging=virtual_packet_logging,
+            model=model,
+        )
+    else:
+        simulation = Simulation.from_config(
+            tardis_config,
+            packet_source=packet_source,
+            atom_data=atom_data,
+            virtual_packet_logging=virtual_packet_logging,
+        )
     for cb in simulation_callbacks:
         simulation.add_callback(*cb)
 

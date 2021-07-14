@@ -116,6 +116,14 @@ definitions:
       required:
       - filename
       - filetype
+    tardismodel:
+      title: 'Pre-made TARDIS Model'
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          enum:
+          - tardismodel
     specific:
       $$target: 'model_definitions.yml#/definitions/structure/specific'
       title: 'Specific Structure'
@@ -164,6 +172,14 @@ definitions:
       required:
       - filetype
       - filename
+    tardismodel:
+      title: 'Pre-made TARDIS Model'
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          enum:
+          - tardismodel
     uniform:
       $$target: 'model_definitions.yml#/definitions/abundances/uniform'
       title: 'Uniform Abundance'
