@@ -1,5 +1,4 @@
 import pytest
-import numpy as np
 
 from tardis.energy_input.util import SphericalVector, GXPacket, GXPacketStatus
 

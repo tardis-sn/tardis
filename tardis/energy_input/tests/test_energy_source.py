@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
+import os
 
 from tardis.energy_input.energy_source import (
     read_nuclear_dataframe,
@@ -11,55 +12,55 @@ from tardis.energy_input.energy_source import (
     setup_input_energy,
 )
 
-# TODO make dummy nuclear_data
 
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_read_nuclear_dataframe(path):
+def test_read_nuclear_dataframe(tardis_ref_path):
     """
     Parameters
     ----------
     path : str
     """
+    path = os.path.join(tardis_ref_path, "nuclear_data/simple_nuclear.h5")
     actual = read_nuclear_dataframe(path)
     expected = pd.read_hdf(path, key="decay_radiation")
+    pd.testing.assert_frame_equal(actual, expected)
 
 
 @pytest.mark.parametrize(
-    ["path", "type_of_radiation", "property"],
+    ["type_of_radiation", "property", "expected"],
     [
         (
-            "/home/afullard/Downloads/tardisnuclear/decay_radiation.h5",
             "'gamma_rays'",
             "energy",
+            3177.28,
         ),
         (
-            "/home/afullard/Downloads/tardisnuclear/decay_radiation.h5",
             "'e+'",
             "energy",
+            65.0,
         ),
         (
-            "/home/afullard/Downloads/tardisnuclear/decay_radiation.h5",
             "'gamma_rays'",
             "intensity",
+            0.0111,
         ),
     ],
 )
-def test_get_type_property(path, type_of_radiation, property):
+def test_get_type_property(
+    tardis_ref_path, type_of_radiation, property, expected
+):
     """
-
     Parameters
     ----------
     path : str
     type_of_radiation : str
     property : str
+    expected : float
     """
+    path = os.path.join(tardis_ref_path, "nuclear_data/simple_nuclear.h5")
     nuclear_df = pd.read_hdf(path, key="decay_radiation")
-
-    expected = nuclear_df.query("type==" + type_of_radiation)[property].values
     actual = get_type_property(nuclear_df, type_of_radiation, property)
 
-    npt.assert_array_equal(actual, expected)
+    npt.assert_equal(actual[0], expected)
 
 
 @pytest.mark.parametrize(
