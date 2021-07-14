@@ -468,9 +468,30 @@ class LevelIdxs2TransitionIdx(HiddenPlasmaProperty):
         level_idxs2continuum_idx = level_idxs2continuum_idx.swaplevel()
         level_idxs2continuum_idx.index.names = names
 
-        level_idxs2transition_idx = pd.concat(
-            [level_idxs2continuum_idx, level_idxs2line_idx]
+        # TODO: This should probably be defined somewhere else.
+        # One possibility would be to attach it to the cooling properties as
+        # a class attribute.
+        index_cooling = pd.MultiIndex.from_product(
+            [["k"], ["ff", "bf", "adiabatic"]], names=names
         )
+        num_cool = len(index_cooling)
+        level_idxs2cooling_idx = pd.DataFrame(
+            {
+                "lines_idx": np.ones(num_cool, dtype=int) * -1,
+                "transition_type": np.arange(-3, -3 - num_cool, -1),
+            },
+            index=index_cooling,
+        )
+        level_idxs2transition_idx = pd.concat(
+            [
+                level_idxs2continuum_idx,
+                level_idxs2line_idx,
+                level_idxs2cooling_idx,
+            ]
+        )
+
+        # TODO: Add two-photon processes
+
         return level_idxs2transition_idx
 
 
