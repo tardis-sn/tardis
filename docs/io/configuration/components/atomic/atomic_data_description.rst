@@ -224,9 +224,3 @@ ion number and level number. The `pandas <https://pandas.pydata.org/>`_ framewor
 use :py:class:`pandas.MultiIndex`, :py:class:`pandas.Series` and :py:class:`pandas.DataFrame`.
 
 TO BE BETTER DOCUMENTED ...
-
-
-
-
-
-.. automodapi:: tardis.io.atomic

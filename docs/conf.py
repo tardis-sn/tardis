@@ -60,10 +60,11 @@ highlight_language = "none"
 exclude_patterns.append("_templates")
 exclude_patterns.append("_build")
 exclude_patterns.append("**.ipynb_checkpoints")
+exclude_patterns.append("**/ads.ipynb")
 
 # This is added to the end of RST files - a good place to put substitutions to
 # be used globally.
-rst_epilog += """
+rst_epilog = """
 """
 
 extensions = [
@@ -163,7 +164,7 @@ release = package.__version__
 # Add any paths that contain custom themes here, relative to this directory.
 # To use a different custom theme, add the directory containing the theme.
 import sphinx_rtd_theme
-html_theme_path = sphinx_rtd_theme.get_html_theme_path()
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes. To override the custom theme, set this to the
