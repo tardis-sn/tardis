@@ -29,6 +29,8 @@ All convergence criteria can be specified separately for the three variables for
 override the defaults. Two more schemas are presented that further explain the ``damped`` and
 ``custom`` convergence strategies:
 
+.. _damped-config:
+
 .. jsonschema:: schemas/montecarlo_definitions.yml#/definitions/convergence_strategy/damped
 
 ``damped`` only has one parameter ``damping-constant`` and does not check for convergence. This can be used to fix the

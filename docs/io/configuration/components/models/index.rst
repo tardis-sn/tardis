@@ -175,8 +175,8 @@ is required for ``velocity``, ``density``, and ``t_rad``.
 Since the ``velocity`` column contains the outer shell velocity, the first entry in the velocity column is the
 velocity of the photosphere -- i.e. the inner boundary of the computational domain (see :ref:`model`).
 Consequently, **none of the other information in the first row is used**. In our example, there are only two
-shells, and the shell will have an inner boundary with a velocity of :math:`9000 km/s`, an outer boundary with a velocity
-of :math:`10500 km/s`, a density of :math:`2.0*10^{-10} g/cm^3`, a dilution factor of .8, etc.
+shells, and the first shell will have an inner boundary with a velocity of :math:`9000 km/s`, an outer boundary
+with a velocity of :math:`10500 km/s`, a density of :math:`2.0*10^{-10} g/cm^3`, a dilution factor of .8, etc.
 
 .. note::
 
@@ -188,8 +188,8 @@ of :math:`10500 km/s`, a density of :math:`2.0*10^{-10} g/cm^3`, a dilution fact
 
     ``t_rad`` and ``dilution_factor`` are the values of the temperature and dilution factor for the first
     iteration, and will be updated in subsequent iterations (see :ref:`est_and_conv`). To prevent these
-    quantities from being changed, you must set the damping constant to zero in the :ref:`Convergence
-    Configuration <conv-config>` in the Monte Carlo section of the configuration file.
+    quantities from being changed, you must set the damping constant to zero in the :ref:`Damped Convergence
+    Configuration <damped-config>` in the Monte Carlo section of the configuration file.
 
 CSVY Model Tutorial
 -------------------
