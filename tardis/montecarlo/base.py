@@ -305,10 +305,6 @@ class MontecarloRunner(HDFWriterMixin):
         logger.debug(f"Time for Simulation : {self.time_of_simulation:.3g}")
 
         self.volume = model.volume
-        log_string = ""
-        for (pos, value) in enumerate(self.volume):
-            log_string += f"Shell No {pos} : {value:.3g}\n\t"
-        logger.debug(f"Volumes of the Shells :\n\t{log_string}")
 
         # Initializing estimator array
         logger.debug("Initializing Estimator Arrays")

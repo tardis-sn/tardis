@@ -31,7 +31,7 @@ def resolve_atom_data_fname(fname):
     fpath = os.path.join(os.path.join(get_data_dir(), fname))
     if os.path.exists(fpath):
         logger.info(
-            f"\n\tAtom Data {fname} not found in local path.\n\tExists in TARDIS Data repo {fpath}"
+            f"Atom Data {fname} not found in local path.\n\tExists in TARDIS Data repo {fpath}"
         )
         return fpath
 

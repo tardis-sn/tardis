@@ -134,38 +134,37 @@ def montecarlo_radial1d(
         runner.virt_packet_nus = np.concatenate(
             np.array(
                 virt_packet_nus,
-                dtype=object,
             ),
         ).ravel()
         logger.debug(f"Virtual Packet nu's = {runner.virt_packet_nus}")
         runner.virt_packet_energies = np.concatenate(
-            np.array(virt_packet_energies, dtype=object),
+            np.array(virt_packet_energies),
         ).ravel()
-        logger.debug(f"Virtual Packet Energies = {runner.virt_packet_nus}")
+        logger.debug(f"Virtual Packet Energies = {runner.virt_packet_energies}")
         runner.virt_packet_last_interaction_in_nu = np.concatenate(
-            np.array(virt_packet_last_interaction_in_nu, dtype=object),
+            np.array(virt_packet_last_interaction_in_nu),
         ).ravel()
         logger.debug(
-            f"Virtual Packet Last Interaction in nu = {runner.virt_packet_nus}"
+            f"Virtual Packet Last Interaction in nu = {runner.virt_packet_last_interaction_in_nu}"
         )
         runner.virt_packet_last_interaction_type = np.concatenate(
-            np.array(virt_packet_last_interaction_type, dtype=object),
+            np.array(virt_packet_last_interaction_type),
         ).ravel()
         logger.debug(
-            f"Virtual Packet Last Interaction Type = {runner.virt_packet_nus}"
+            f"Virtual Packet Last Interaction Type = {runner.virt_packet_last_interaction_type}"
         )
         runner.virt_packet_last_line_interaction_in_id = np.concatenate(
-            np.array(virt_packet_last_line_interaction_in_id, dtype=object),
+            np.array(virt_packet_last_line_interaction_in_id),
         ).ravel()
         logger.debug(
-            f"Virtual Packet Last Line Interaction In Id = {runner.virt_packet_nus}"
+            f"Virtual Packet Last Line Interaction In Id = {runner.virt_packet_last_line_interaction_in_id}"
         )
         runner.virt_packet_last_line_interaction_out_id = np.concatenate(
-            np.array(virt_packet_last_line_interaction_out_id, dtype=object),
+            np.array(virt_packet_last_line_interaction_out_id),
         ).ravel()
     update_iterations_pbar(1)
         logger.debug(
-            f"Virtual Packet Last Line Interaction In Id = {runner.virt_packet_nus}"
+            f"Virtual Packet Last Line Interaction Out Id = {runner.virt_packet_last_line_interaction_out_id}"
         )
 
     # Condition for Checking if RPacket Tracking is enabled
