@@ -5,7 +5,7 @@ Models
 ******
 
 TARDIS requires a model of the ejecta in order to run a simulation. A model typically includes information
-for the velocity shell structure, density, and abundances. **See :ref:`model` for more information on the
+for the velocity shell structure, density, and abundances. **See** :ref:`model` **for more information on the
 TARDIS model**. TARDIS offers two ways of specifying the model: either directly in the configuration YAML file
 or separately in a CSVY file. See `here <https://csvy.org/>`_ for an explanation of the CSVY file format.
 
@@ -97,7 +97,7 @@ Density
 In the ``densities`` section the ``type`` parameter again decides on the parameters. The type ``uniform`` only needs a
 ``value`` parameter with a density compatible quantity. The type ``branch85_w7`` uses a seven-order polynomial fit to
 the W7 model and is parametrised by time since explosion. The parameters ``time_0`` and ``density_coefficient`` are set
-to sensible defaults and should not be changed. The physics of these density models are further discussed in
+to sensible defaults and should not be changed. The physics of these density models is further discussed in
 :ref:`model`.
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/branch85_w7
