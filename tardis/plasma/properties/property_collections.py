@@ -111,6 +111,7 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         RawPhotoIonTransProbs,
         RawRadBoundBoundTransProbs,
         MarkovChainTransProbs,
+        NonContinuumTransProbsMask,
         YgInterpolator,
         CollExcRateCoeff,
         CollDeexcRateCoeff,
