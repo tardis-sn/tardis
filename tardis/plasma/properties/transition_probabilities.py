@@ -14,6 +14,7 @@ __all__ = [
     "MarkovChainTransProbs",
     "MarkovChainIndex",
     "MarkovChainTransProbsCollector",
+    "NonContinuumTransProbsMask",
 ]
 
 logger = logging.getLogger(__name__)
@@ -116,9 +117,10 @@ class MarkovChainIndex(ProcessingPlasmaProperty):
     Attributes
     ----------
     idx2mkv_idx : pandas.Series, dtype int
+    k_packet_idx : int
     """
 
-    outputs = ("idx2mkv_idx",)
+    outputs = ("idx2mkv_idx", "k_packet_idx")
 
     def calculate(self, atomic_data, continuum_interaction_species):
         ma_ref = atomic_data.macro_atom_references
@@ -132,7 +134,31 @@ class MarkovChainIndex(ProcessingPlasmaProperty):
         idx = ma_ref[mask].references_idx.values
         idx2mkv_idx = pd.Series(np.arange(len(idx)), index=idx)
         idx2mkv_idx.loc["k"] = idx2mkv_idx.max() + 1
-        return idx2mkv_idx
+
+        k_packet_idx = ma_ref.references_idx.max() + 1
+        return idx2mkv_idx, k_packet_idx
+
+
+class NonContinuumTransProbsMask(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    non_continuum_trans_probs_mask : numpy.ndarray, dtype bool
+    """
+
+    outputs = ("non_continuum_trans_probs_mask",)
+
+    def calculate(self, atomic_data, continuum_interaction_species):
+        # I don't have to remove the ground states of
+        # the next higher ionization states of the continuum species
+        # since they only contain zero probabilities.
+        continuum_trans_probs_mask = atomic_data.macro_atom_data.set_index(
+            ["atomic_number", "ion_number"]
+        ).index.isin(continuum_interaction_species)
+        non_continuum_trans_probs_mask = np.logical_not(
+            continuum_trans_probs_mask
+        )
+        return non_continuum_trans_probs_mask
 
 
 class MarkovChainTransProbsCollector(ProcessingPlasmaProperty):
