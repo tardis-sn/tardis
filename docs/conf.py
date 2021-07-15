@@ -45,8 +45,8 @@ setup_cfg = dict(conf.items("metadata"))
 
 # -- General configuration ----------------------------------------------------
 
-# By default, highlight as Python 3.
-highlight_language = "python3"
+# By default, code is not highlighted.
+highlight_language = "none"
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = "1.2"
@@ -171,11 +171,11 @@ html_theme_path = sphinx_rtd_theme.get_html_theme_path()
 html_theme = "sphinx_rtd_theme"
 
 
-html_theme_options = {
-    "logotext1": "tardis",  # white,  semi-bold
-    "logotext2": "",  # orange, light
-    "logotext3": ":docs"   # white,  light
-    }
+#html_theme_options = {
+#    "logotext1": "tardis",  # white,  semi-bold
+#    "logotext2": "",  # orange, light
+#    "logotext3": ":docs"   # white,  light
+#    }
 
 
 # Custom sidebar templates, maps document names to template names.
