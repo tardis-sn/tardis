@@ -4,6 +4,7 @@ import copy
 import tardis
 
 from tardis.io.config_reader import Configuration
+from tardis.model import Radial1DModel
 
 
 def _set_tardis_config_property(tardis_config, key, value):
@@ -91,6 +92,24 @@ class tardisGrid:
         for colname, value in zip(self.grid.columns, grid_row.values):
             _set_tardis_config_property(tmp_config, colname, value)
         return tmp_config
+
+    def grid_row_to_model(self, row_index):
+        """
+        Generates a TARDIS Radial1DModel object using the base
+        self.config modified by the specified grid row.
+
+        Parameters
+        ----------
+        row_index : int
+            Row index in grid.
+
+        Returns
+        -------
+        model : tardis.model.base.Radial1DModel
+        """
+        rowconfig = self.grid_row_to_config(row_index)
+        model = Radial1DModel.from_config(rowconfig)
+        return model
 
     def run_sim_from_grid(self, row_index):
         """
