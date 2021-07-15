@@ -4,16 +4,19 @@ from astropy import units as u
 
 
 class IsotopeAbundances(pd.DataFrame):
+    """[summary]
+
+        Parameters
+        ----------
+        time_0 : astropy.units.Quantity
+            time where the given isotopes are defined
+    """
 
     _metadata = ["time_0"]
+    def __init__(self, time_0, *args, **kwargs):
 
-    def __init__(self, *args, **kwargs):
-        if "time_0" in kwargs:
-            time_0 = kwargs["time_0"]
-            kwargs.pop("time_0")
-        else:
-            time_0 = 0 * u.d
         super(IsotopeAbundances, self).__init__(*args, **kwargs)
+        assert hasattr(time_0, 'unit')
         self.time_0 = time_0
 
     @property
