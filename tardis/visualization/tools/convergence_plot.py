@@ -47,13 +47,13 @@ class ConvergencePlots(object):
 
     Other Parameters
     ----------------
-    plasma_plot_config, luminosity_plot_config : dict, optional
+    plasma_plot_config : dict, optional
         Dictionary used to override default plot properties of plasma plots.
-    luminosity_plot_config : dict, optional
+    t_inner_luminosities_config : dict, optional
         Dictionary used to override default plot properties of the inner boundary temperature and luminosity plots.
     plasma_cmap : str, default: 'jet', optional
         String defining the cmap used in plasma plots.
-    other_plot_colors : str or list, optional
+    t_inner_luminosities_colors : str or list, optional
         String defining cmap for luminosity and inner boundary temperature plot.
         The list can be a list of colors in rgb, hex or css-names format as well.
     export_cplots : bool, default: False, optional
@@ -62,7 +62,7 @@ class ConvergencePlots(object):
 
     Notes
     -----
-        When overriding plots using the ``plasma_plot_config`` and the ``luminosity_plot_config`` dictionaries,
+        When overriding plots using the ``plasma_plot_config`` and the ``t_inner_luminosities_config`` dictionaries,
         data related properties are applied equally accross all traces.
         The dictionary should have a structure like that of ``plotly.graph_objs.FigureWidget.to_dict()``,
         for more information please see https://plotly.com/python/figure-structure/
@@ -75,13 +75,15 @@ class ConvergencePlots(object):
         self.current_iteration = 1
         self.luminosities = ["Emitted", "Absorbed", "Requested"]
         self.plasma_plot = None
-        self.luminosity_plot = None
+        self.t_inner_luminosities_plot = None
 
         if "plasma_plot_config" in kwargs:
             self.plasma_plot_config = kwargs["plasma_plot_config"]
 
-        if "luminosity_plot_config" in kwargs:
-            self.luminosity_plot_config = kwargs["luminosity_plot_config"]
+        if "t_inner_luminosities_config" in kwargs:
+            self.t_inner_luminosities_config = kwargs[
+                "t_inner_luminosities_config"
+            ]
 
         if "plasma_cmap" in kwargs:
             self.plasma_colorscale = transition_colors(
@@ -91,18 +93,20 @@ class ConvergencePlots(object):
             # default color scale is jet
             self.plasma_colorscale = transition_colors(length=self.iterations)
 
-        if "other_plot_colors" in kwargs:
+        if "t_inner_luminosities_colors" in kwargs:
             # use cmap if string
-            if type(kwargs["other_plot_colors"]) == str:
-                self.luminosity_line_colors = transition_colors(
+            if type(kwargs["t_inner_luminosities_colors"]) == str:
+                self.t_inner_luminosities_colors = transition_colors(
                     length=5,
-                    name=kwargs["other_plot_colors"],
+                    name=kwargs["t_inner_luminosities_colors"],
                 )
             else:
-                self.luminosity_line_colors = kwargs["other_plot_colors"]
+                self.t_inner_luminosities_colors = kwargs[
+                    "t_inner_luminosities_colors"
+                ]
         else:
             # using default plotly colors
-            self.luminosity_line_colors = [None] * 5
+            self.t_inner_luminosities_colors = [None] * 5
 
     def fetch_data(self, name=None, value=None, item_type=None):
         """
@@ -134,7 +138,7 @@ class ConvergencePlots(object):
         fig.add_scatter(row=1, col=1)
         fig.add_scatter(row=1, col=2)
 
-        # 2 y axes and 2 x axes correspond to the 2 subplots in the luminosity convergence plot
+        # 2 y axes and 2 x axes correspond to the 2 subplots in the plasma plot
         fig = fig.update_layout(
             xaxis={
                 "tickformat": "g",
@@ -159,7 +163,7 @@ class ConvergencePlots(object):
             legend_title_text="Iterations",
             margin=dict(
                 l=10, r=135, b=25, t=25, pad=0
-            ),  # reduce whitespace surrounding the plot and increase right indentation to align with the luminosity plot
+            ),  # reduce whitespace surrounding the plot and increase right indentation to align with the t_inner and luminosity plot
         )
 
         # allow overriding default layout
@@ -167,8 +171,8 @@ class ConvergencePlots(object):
             self.override_plot_parameters(fig, self.plasma_plot_config)
         self.plasma_plot = fig
 
-    def create_luminosity_plot(self):
-        """Create an empty luminosity plot."""
+    def create_t_inner_luminosities_plot(self):
+        """Create an empty t_inner and luminosity plot."""
         fig = go.FigureWidget().set_subplots(
             rows=3,
             cols=1,
@@ -183,14 +187,14 @@ class ConvergencePlots(object):
             row=1,
             col=1,
             hovertext="text",
-            marker_color=self.luminosity_line_colors[0],
+            marker_color=self.t_inner_luminosities_colors[0],
             mode="lines",
         )
 
         # add luminosity vs iterations plot
         # has three traces for emitted, requested and absorbed luminosities
         for luminosity, line_color in zip(
-            self.luminosities, self.luminosity_line_colors[1:4]
+            self.luminosities, self.t_inner_luminosities_colors[1:4]
         ):
             fig.add_scatter(
                 name=luminosity + "<br>Luminosity",
@@ -205,11 +209,11 @@ class ConvergencePlots(object):
             name="Residual<br>Luminosity",
             row=3,
             col=1,
-            marker_color=self.luminosity_line_colors[4],
+            marker_color=self.t_inner_luminosities_colors[4],
             mode="lines",
         )
 
-        # 3 y axes and 3 x axes correspond to the 3 subplots in the luminosity convergence plot
+        # 3 y axes and 3 x axes correspond to the 3 subplots in the t_inner and luminosity convergence plot
         fig = fig.update_layout(
             xaxis=dict(range=[0, self.iterations + 1], dtick=2),
             xaxis2=dict(
@@ -249,10 +253,10 @@ class ConvergencePlots(object):
         )
 
         # allow overriding default layout
-        if hasattr(self, "luminosity_plot_config"):
-            self.override_plot_parameters(fig, self.luminosity_plot_config)
+        if hasattr(self, "t_inner_luminosities_config"):
+            self.override_plot_parameters(fig, self.t_inner_luminosities_config)
 
-        self.luminosity_plot = fig
+        self.t_inner_luminosities_plot = fig
 
     def override_plot_parameters(self, fig, parameters):
         """
@@ -284,20 +288,20 @@ class ConvergencePlots(object):
 
     def build(self, display_plot=True):
         """
-        Create empty plasma and luminosity convergence plots and display them together.
+        Create empty convergence plots and display them.
 
         Parameters
         ----------
-        display_plot : bool
+        display_plot : bool, optional
             Displays empty plots. Defaults to True.
         """
         self.create_plasma_plot()
-        self.create_luminosity_plot()
+        self.create_t_inner_luminosities_plot()
 
         if display_plot:
             display(
                 widgets.VBox(
-                    [self.plasma_plot, self.luminosity_plot],
+                    [self.plasma_plot, self.t_inner_luminosities_plot],
                 )
             )
 
@@ -346,24 +350,28 @@ class ConvergencePlots(object):
             hovertemplate="<b>Y</b>: %{y:.3f} at <b>X</b> = %{x:,.0f}%{customdata}",
         )
 
-    def update_luminosity_plot(self):
-        """Update the luminosity convergence plots every iteration."""
+    def update_t_inner_luminosities_plot(self):
+        """Update the t_inner and luminosity convergence plots every iteration."""
         x = list(range(1, self.iterations + 1))
 
-        with self.luminosity_plot.batch_update():
+        with self.t_inner_luminosities_plot.batch_update():
             # traces are updated according to the order they were added
             # the first trace is of the inner boundary temperature plot
-            self.luminosity_plot.data[0].x = x
-            self.luminosity_plot.data[0].y = self.value_data["t_inner"]
-            self.luminosity_plot.data[
+            self.t_inner_luminosities_plot.data[0].x = x
+            self.t_inner_luminosities_plot.data[0].y = self.value_data[
+                "t_inner"
+            ]
+            self.t_inner_luminosities_plot.data[
                 0
             ].hovertemplate = "<b>%{y:.3f}</b> at X = %{x:,.0f}<extra>Inner Boundary Temperature</extra>"  # trace name in extra tag to avoid new lines in hoverdata
 
             # the next three for emitted, absorbed and requested luminosities
             for index, luminosity in zip(range(1, 4), self.luminosities):
-                self.luminosity_plot.data[index].x = x
-                self.luminosity_plot.data[index].y = self.value_data[luminosity]
-                self.luminosity_plot.data[index].hovertemplate = (
+                self.t_inner_luminosities_plot.data[index].x = x
+                self.t_inner_luminosities_plot.data[index].y = self.value_data[
+                    luminosity
+                ]
+                self.t_inner_luminosities_plot.data[index].hovertemplate = (
                     "<b>%{y:.4g}</b>" + "<br>at X = %{x}<br>"
                 )
 
@@ -375,15 +383,15 @@ class ConvergencePlots(object):
                 )
             ]
 
-            self.luminosity_plot.data[4].x = x
-            self.luminosity_plot.data[4].y = y
-            self.luminosity_plot.data[
+            self.t_inner_luminosities_plot.data[4].x = x
+            self.t_inner_luminosities_plot.data[4].y = y
+            self.t_inner_luminosities_plot.data[
                 4
             ].hovertemplate = "<b>%{y:.2f}%</b> at X = %{x:,.0f}"
 
     def update(self, export_cplots=False, last=False):
         """
-        Update the plasma and the luminosity convergence plots every iteration.
+        Update the convergence plots every iteration.
 
         Parameters
         ----------
@@ -401,7 +409,7 @@ class ConvergencePlots(object):
                 self.build()
 
             self.update_plasma_plots()
-            self.update_luminosity_plot()
+            self.update_t_inner_luminosities_plot()
 
             # data property for plasma plots needs to be
             # updated after the last iteration because new traces have been added
@@ -423,7 +431,7 @@ class ConvergencePlots(object):
                             self.plasma_plot.show(
                                 renderer="notebook_connected"
                             ),
-                            self.luminosity_plot.show(
+                            self.t_inner_luminosities_plot.show(
                                 renderer="notebook_connected"
                             ),
                         ]

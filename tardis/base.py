@@ -30,9 +30,8 @@ def run_tardis(
     virtual_packet_logging : bool, optional
         option to enable virtual packet logging
         [default=False]
-    show_cplots : bool, optional
+    show_cplots : bool, default True, optional
         option to enable tardis convergence plots
-        [default=True]
     **kwargs : dict, optional
         optional keyword arguments supported by :obj:`tardis.visualization.tools.convergence_plot.ConvergencePlots`
 

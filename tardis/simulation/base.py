@@ -630,9 +630,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         cplots_config_options = [
             "plasma_plot_config",
-            "luminosity_plot_config",
+            "t_inner_luminosities_config",
             "plasma_cmap",
-            "other_plot_colors",
+            "t_inner_luminosities_colors",
             "export_cplots",
         ]
         cplots_kwargs = {}
