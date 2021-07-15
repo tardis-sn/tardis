@@ -30,111 +30,6 @@ For an example of this in use, see :ref:`tardis-example`.
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-TARDIS allows users to use a CSVY file to input information about the model. To do this, instead of a
-``model`` section, one includes ``csvy_model: <file path to CSVY file>`` in the main TARDIS configuration
-file.
-
-The CSVY model has a YAML part as well as a CSV part, separated by the YAML delimiter ``---``. This means
-that each CSVY model file has the following structure: The first line of the file is the YAML delimiter,
-followed by the YAML portion of the CSVY model, then another line with just the YAML delimiter,
-and finally the CSV portion of the CSVY file. This is shown in the example CSVY file later in this section.
-
-The YAML portion of the CSVY file allows the user to use most of the features of the YAML model configuration,
-as shown in the schema below:
-
-.. jsonschema:: ../schemas/csvy_model.yml
-
-The CSV part of the CSVY file creates a table that can include information about shell velocities, densities,
-and abundances in each cell. The column headers (the first row of the CSV part) may contain ??????????????????????????????????????????????????????????????????????????
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-.. contents::
-    :local:
-
-
-.. _csvy-model:
-
-CSVY Model
-==========
-
-TARDIS allows users to use a CSVY file to input information about the model:
-
-.. jsonschema:: ../schemas/csvy_model.yml
-
-The TARDIS YAML delimiter for CSVY files is ``---``. This means that each CSVY model
-file has the following structure: The first line of the file is the YAML delimiter,
-followed by the YAML portion of the CSVY model. A line consisting of only the YAML
-delimiter separates the YAML portion of the CSVY file from the CSV part. The YAML part
-of the CSVY file is for setting model parameters like **v_inner_boundary** or
-**model_density_time_0**, while the CSV part of the file is for setting profiles of
-physical parameters of the model (e.g. abundances, radiative temperature, dilution factor, etc).
-If you use the CSVY model, then you will need to specify the path to the CSVY model file
-in the main TARDIS configuration file.
-
-Example CSVY Model
-------------------
-
-We provide an example CSVY model file:
-
-.. literalinclude:: csvy_full_rad.csvy
-
-
 Structure, Density, and Abundance
 =================================
 
@@ -222,6 +117,81 @@ relative abundance fraction. If it does not add up to 1., TARDIS will warn --- b
     :maxdepth: 1
     
     abundanceuni/abundanceuni
+
+
+.. _csvy-model:
+
+CSVY Model
+==========
+
+TARDIS allows users to use a CSVY file to input information about the model. To do this, instead of a
+``model`` section, one includes ``csvy_model: <file path to CSVY file>`` in the main TARDIS configuration
+file.
+
+The CSVY model has a YAML part as well as a CSV part, separated by the YAML delimiter ``---``. This means
+that each CSVY model file has the following structure: The first line of the file is the YAML delimiter,
+followed by the YAML portion of the CSVY model, then another line with just the YAML delimiter,
+and finally the CSV portion of the CSVY file. This is shown in the example CSVY file later in this section.
+
+The YAML portion of the CSVY file allows the user to use most of the features of the YAML model configuration,
+as shown in the schema below:
+
+.. jsonschema:: ../schemas/csvy_model.yml
+
+The CSV part of the CSVY file creates a table that can include information about shell velocities, densities,
+and abundances in each cell. The column headers (the first row of the CSV part) may contain ``velocity``,
+``density``, ``t_rad``, ``dilution_factor``, or the name of any element or isotope (e.g. ``H``, ``Mg``,
+``Ni56``). These columns are explained in the following example:
+
+.. literalinclude:: csvy_full_rad.csvy
+
+Notice that for each column that is used in the CSV section of the file, there is a corresponding field under
+``datatype`` in the YAML section of the file. In our example, each of the fields under ``datatype`` has a brief
+description to go along with it. While the description is not necessary for any of the fields, the unit section
+is required for ``velocity``, ``density``, and ``t_rad``.
+
+Since the ``velocity`` column contains the outer shell velocity, the first entry in the velocity column is the
+velocity of the photosphere -- i.e. the inner boundary of the computational domain (see :ref:`model`).
+Consequently, **none of the other information in the first row is used**. In our example, there are only two
+shells, and the shell will have an inner boundary with a velocity of :math:`9000 km/s`, an outer boundary with a velocity
+of :math:`10500 km/s`, a density of :math:`2.0*10^{-10} g/cm^3`, a dilution factor of .8, etc.
+
+.. note::
+
+    None of the CSV columns are required. However, if ``velocity``, ``density``, or the abundances are missing,
+    they must be specified in the YAML portion of the file. If ``t_rad`` or ``dilution_factor`` are missing,
+    they will be automatically calculated (see :ref:`plasma`).
+
+.. note::
+
+    ``t_rad`` and ``dilution_factor`` are the values of the temperature and dilution factor for the first
+    iteration, and will be updated in subsequent iterations (see :ref:`est_and_conv`). To prevent these
+    quantities from being changed, you must set the damping constant to zero in the :ref:`Convergence
+    Configuration <conv-config>` in the Monte Carlo section of the configuration file.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 Tutorials

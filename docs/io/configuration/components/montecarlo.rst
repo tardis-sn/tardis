@@ -18,6 +18,8 @@ use the Virtual Packet formalism. Increasing this number drastically increases c
 The ``iterations`` parameter describes the maximum number of Monte Carlo loops executed in a simulation before it ends. Convergence criteria can be used to make the simulation stop
 sooner when the convergence threshold has been reached (see :ref:`convergence`).
  
+.. _conv-config:
+
 Convergence Strategy
 --------------------
 
