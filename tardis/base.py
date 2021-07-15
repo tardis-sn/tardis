@@ -34,6 +34,11 @@ def run_tardis(
     virtual_packet_logging : bool
         option to enable virtual packet logging
         [default=False]
+    model : tardis.model.base.Radial1DModel
+        passes a TARDIS Radial1DModel as a kwarg to the Simulation class instead of
+        requiring the user to specify the model structure or csvy file in the yml.
+        Passing a model this way requires setting the model.structure.type = "tardismodel"
+        and the model.abundances.type = "tardismodel" in the yml.
 
     Returns
     -------
