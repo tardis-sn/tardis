@@ -13,39 +13,80 @@ TARDIS has several built-in models for the shell structure, density, and abundan
 we recommend using the YAML configuration method. For creating a custom model (which will be discussed below), we
 reccomend using the CSVY method.
 
+.. contents::
+    :local:
+
 .. _model-config:
 
 Model Configuration
 ===================
 
-The following schema
-
-Although we strongly recommend using the CSVY Model, TARDIS also allows the user
-to define structure and abundance profiles in separate files and reference
-these files directly in the main TARDIS configuration file:
+The following schema shows how the model section of the YAML configuration is set up:
 
 .. jsonschema:: ../schemas/model.yml
 
-For an example of this in use, see :ref:`tardis-example`.
+For an example of this in use, see :ref:`tardis-example`. This configuration allows for both built-in
+structures and abundances, which will be described below, as well as custom models for the shell structure
+and abundances. For the latter, while we recommend using the CSVY model, one can specify custom structures
+and abundances using other files:
+
+.. jsonschema:: ../schemas/model_definitions.yml#/definitions/structure/file
+
+For more information on a custom structure/density file, see:
+
+.. toctree::
+    :maxdepth: 1
+    
+    densitycust/densitycust
+
+.. jsonschema:: ../schemas/model_definitions.yml#/definitions/abundances/file
+
+For more information on a custom abundence file, see:
+
+.. toctree::
+    :maxdepth: 1
+        
+    abundancecust/abundancecust
+
+
+Custom Model Tutorial
+---------------------
+
+.. toctree::
+    :maxdepth: 2
+
+    Custom_TARDIS_Model_Tutorial
+
+
+.. _converters:
+
+Model Converters
+----------------
+    
+There are a variety of formats for models from other codes
+(both hydro and radiative transfer) that can be converted to TARDIS input files.
+Here we aim to provide converters for the most commonly used file formats.
+    
+.. toctree::
+    :maxdepth: 2
+
+    converters/stella_to_tardis
+    converters/cmfgen
+
 
 
 
 Structure, Density, and Abundance
 =================================
 
+TARDIS's built-in models are described in the following sections:
+
 Structure
 ---------
 
-All types of ``structure`` definitions have two keywords in common: ``v_inner_boundary`` and ``v_outer_boundary``.
-
-In the ``structure`` section, one can specify a ``file`` section containing a ``type`` parameter
-(currently only ``artis`` is supported``) and a ``name`` parameter giving a path top a file.
-
-If one doesn't specify a ``file`` section, the code requires two sections (``velocities`` and ``densities``) and a
+When using the built-in structure functionality, the code requires two sections (``velocities`` and ``densities``) and a
 parameter ``no_of_shells``. ``no_of_shells`` is the requested number of shells for a model. The ``velocity`` section
 requires a ``type``. Currently, only ``linear`` is supported.
-
-.. jsonschema:: ../schemas/model_definitions.yml#/definitions/structure/file
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/structure/specific
 
@@ -56,11 +97,14 @@ Density
 In the ``densities`` section the ``type`` parameter again decides on the parameters. The type ``uniform`` only needs a
 ``value`` parameter with a density compatible quantity. The type ``branch85_w7`` uses a seven-order polynomial fit to
 the W7 model and is parametrised by time since explosion. The parameters ``time_0`` and ``density_coefficient`` are set
-to sensible defaults and should not be changed.
+to sensible defaults and should not be changed. The physics of these density models are further discussed in
+:ref:`model`.
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/branch85_w7
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/exponential
+
+For more information, see:
 
 .. toctree::
     :maxdepth: 1
@@ -70,6 +114,8 @@ to sensible defaults and should not be changed.
     
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/power_law
 
+For more information, see:
+
 .. toctree::
     :maxdepth: 1
     
@@ -78,40 +124,16 @@ to sensible defaults and should not be changed.
     
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/uniform
 
-Custom Density
-^^^^^^^^^^^^^^
-
-TARDIS also allows for a custom density profile:
-
-.. toctree::
-    :maxdepth: 1
-    
-    densitycust/densitycust
-
     
 Abundance
 ---------
 
-The ``abundance`` section has a possible ``file`` parameter with ``type`` (currently only ``artis`` is allowed)
-and a ``name`` parameter giving a path to a file containing the abundance information.
-
-.. warning::
-    In contrast to the ``structure`` section, the ``abundance`` section will not ignore abundances set in the rest of
-    the section but merely will overwrite the abundances given in the file section.
-
-The rest of the section can be used to configure uniform abundances for all shells, by giving the atom name and a
+This section can be used to configure uniform abundances for all shells, by giving the atom name and a
 relative abundance fraction. If it does not add up to 1., TARDIS will warn --- but normalize the numbers.
 
-
-.. jsonschema:: ../schemas/model_definitions.yml#/definitions/abundances/file
-
-.. toctree::
-    :maxdepth: 1
-    
-    abundancecust/abundancecust
-
-
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/abundances/uniform
+
+For more information, see:
 
 .. toctree::
     :maxdepth: 1
@@ -169,51 +191,7 @@ of :math:`10500 km/s`, a density of :math:`2.0*10^{-10} g/cm^3`, a dilution fact
     quantities from being changed, you must set the damping constant to zero in the :ref:`Convergence
     Configuration <conv-config>` in the Monte Carlo section of the configuration file.
 
+CSVY Model Tutorial
+-------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Tutorials
-=========
-
-.. toctree::
-    :maxdepth: 2
-
-    Custom_TARDIS_Model_Tutorial
-
-
-.. _converters:
-
-Model Converters
-================
-
-There are a variety of formats for models from other codes
-(both hydro and radiative transfer) that can be converted to TARDIS input files.
-Here we aim to provide converters for the most commonly used file formats.
-
-.. toctree::
-    :maxdepth: 2
-
-    converters/stella_to_tardis
-    converters/cmfgen
+Coming soon!
