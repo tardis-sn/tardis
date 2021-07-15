@@ -39,7 +39,6 @@ from tardis.plasma.properties import (
     StimulatedEmissionFactor,
     HeliumNumericalNLTE,
     IonNumberDensity,
-    IonNumberDensityHeNLTE,
     MarkovChainTransProbsCollector,
 )
 
