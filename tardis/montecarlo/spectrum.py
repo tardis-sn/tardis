@@ -103,14 +103,22 @@ class TARDISSpectrum(HDFWriterMixin):
         return f_nu * self.frequency / self.wavelength
 
     def plot(self, ax=None, mode="wavelength", **kwargs):
-        """plots the TARDISSpectrum
+        """
+        Plot the Spectrum
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes, optional
-            axes to plot on, by default None
-        mode : str, optional
-            plot against wavelength or frequency, by default "wavelength"
+        ax : matplotlib.axes._subplots.AxesSubplot or None, optional
+            Axis on which to create plot. Default value is None which will
+            create plot on a new figure's axis.
+        mode : {'wavelength', 'frequency'}, optional
+            Quantity to plot spectrum against, either 'wavelength' or
+            'frequency'. Default value is 'wavelength'.
+        **kwargs : dict, optional
+            ``matplotlib.lines.Line2D`` properties to style the plot: refer to
+            `matplotlib documentation
+            <https://matplotlib.org/stable/api/_as_gen/matplotlib.lines.Line2D.html#matplotlib.lines.Line2D>`_
+            for a list of all possible arguments.
         """        
         if ax is None:
             from matplotlib.pyplot import gca
