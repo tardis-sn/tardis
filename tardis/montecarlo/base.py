@@ -302,7 +302,9 @@ class MontecarloRunner(HDFWriterMixin):
         set_num_threads(nthreads)
 
         self.time_of_simulation = self.calculate_time_of_simulation(model)
-        logger.debug(f"Time for Simulation : {self.time_of_simulation:.3g}")
+        logger.debug(
+            f"Time for 1 Erg to be Emitted : {self.time_of_simulation:.3g}"
+        )
 
         self.volume = model.volume
 

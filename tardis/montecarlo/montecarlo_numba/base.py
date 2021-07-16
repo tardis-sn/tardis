@@ -70,9 +70,9 @@ def montecarlo_radial1d(
     )
 
     packet_seeds = montecarlo_configuration.packet_seeds
-    logger.debug(
-        f"Packet Seeds for the Simulation : {montecarlo_configuration.packet_seeds}\n\tNumber Of Packet Seeds = {len(montecarlo_configuration.packet_seeds)}"
-    )
+    # logger.debug(
+    #     f"Packet Seeds for the Simulation : {montecarlo_configuration.packet_seeds}\n\tNumber Of Packet Seeds = {len(montecarlo_configuration.packet_seeds)}"
+    # )
     number_of_vpackets = montecarlo_configuration.number_of_vpackets
     logger.debug(f"Number Of Virtual Packets considered = {number_of_vpackets}")
 
@@ -110,21 +110,21 @@ def montecarlo_radial1d(
     )
 
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
-    logger.debug(
-        f"Montecarlo Virtual Luminosity Values : {runner._montecarlo_virtual_luminosity.value[:]}"
-    )
+    # logger.debug(
+    #     f"Montecarlo Virtual Luminosity Values : {runner._montecarlo_virtual_luminosity.value[:]}"
+    # )
     runner.last_interaction_type = last_interaction_type
-    logger.debug(f"Last Interaction Type : {runner.last_interaction_type}")
+    # logger.debug(f"Last Interaction Type : {runner.last_interaction_type}")
     runner.last_interaction_in_nu = last_interaction_in_nu
-    logger.debug(f"Last Interaction in nu : {runner.last_interaction_in_nu}")
+    # logger.debug(f"Last Interaction in nu : {runner.last_interaction_in_nu}")
     runner.last_line_interaction_in_id = last_line_interaction_in_id
-    logger.debug(
-        f"Last Line Interaction In Id : {runner.last_line_interaction_in_id}"
-    )
+    # logger.debug(
+    #     f"Last Line Interaction In Id : {runner.last_line_interaction_in_id}"
+    # )
     runner.last_line_interaction_out_id = last_line_interaction_out_id
-    logger.debug(
-        f"Last Line Interaction Out Id : {runner.last_line_interaction_out_id}"
-    )
+    # logger.debug(
+    #     f"Last Line Interaction Out Id : {runner.last_line_interaction_out_id}"
+    # )
 
     if montecarlo_configuration.VPACKET_LOGGING and number_of_vpackets > 0:
         # Log message To be determined correctly
@@ -136,36 +136,40 @@ def montecarlo_radial1d(
                 virt_packet_nus,
             ),
         ).ravel()
-        logger.debug(f"Virtual Packet nu's = {runner.virt_packet_nus}")
+        # logger.debug(f"Virtual Packet nu's = {runner.virt_packet_nus}")
         runner.virt_packet_energies = np.concatenate(
             np.array(virt_packet_energies),
         ).ravel()
-        logger.debug(f"Virtual Packet Energies = {runner.virt_packet_energies}")
+        # logger.debug(f"Virtual Packet Energies = {runner.virt_packet_energies}")
         runner.virt_packet_last_interaction_in_nu = np.concatenate(
             np.array(virt_packet_last_interaction_in_nu),
         ).ravel()
-        logger.debug(
-            f"Virtual Packet Last Interaction in nu = {runner.virt_packet_last_interaction_in_nu}"
-        )
+        # logger.debug(
+        #     f"Virtual Packet Last Interaction in nu = {runner.virt_packet_last_interaction_in_nu}"
+        # )
         runner.virt_packet_last_interaction_type = np.concatenate(
             np.array(virt_packet_last_interaction_type),
         ).ravel()
-        logger.debug(
-            f"Virtual Packet Last Interaction Type = {runner.virt_packet_last_interaction_type}"
-        )
+        # logger.debug(
+        #     f"Virtual Packet Last Interaction Type = {runner.virt_packet_last_interaction_type}"
+        # )
         runner.virt_packet_last_line_interaction_in_id = np.concatenate(
             np.array(virt_packet_last_line_interaction_in_id),
         ).ravel()
-        logger.debug(
-            f"Virtual Packet Last Line Interaction In Id = {runner.virt_packet_last_line_interaction_in_id}"
-        )
+        # logger.debug(
+        #     f"Virtual Packet Last Line Interaction In Id = {runner.virt_packet_last_line_interaction_in_id}"
+        # )
         runner.virt_packet_last_line_interaction_out_id = np.concatenate(
             np.array(virt_packet_last_line_interaction_out_id),
         ).ravel()
-    update_iterations_pbar(1)
+
         logger.debug(
             f"Virtual Packet Last Line Interaction Out Id = {runner.virt_packet_last_line_interaction_out_id}"
         )
+        # logger.debug(
+        #     f"Virtual Packet Last Line Interaction Out Id = {runner.virt_packet_last_line_interaction_out_id}"
+        # )
+    update_iterations_pbar(1)
 
     # Condition for Checking if RPacket Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:

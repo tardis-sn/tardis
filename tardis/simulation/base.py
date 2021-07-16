@@ -207,7 +207,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     @staticmethod
     def damped_converge(value, estimated_value, damping_factor):
-        logger.debug("Using Damping Convergence Strategy")
         # FIXME: Should convergence strategy have its own class containing this
         # as a method
         return value + damping_factor * (estimated_value - value)
@@ -221,14 +220,18 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         convergence_t_rad = (
             abs(t_rad - estimated_t_rad) / estimated_t_rad
         ).value
-        logger.debug(f"Convergence Radiative Temperature = {convergence_t_rad}")
+        logger.debug(
+            f"Calculated Convergence fraction for Radiative Temperature for all Shells"
+        )
         convergence_w = abs(w - estimated_w) / estimated_w
-        logger.debug(f"Convergence Dilution Factor = {convergence_w}")
+        logger.debug(
+            f"Calculated Convergence fraction for Dilution Factor for all Shells"
+        )
         convergence_t_inner = (
             abs(t_inner - estimated_t_inner) / estimated_t_inner
         ).value
         logger.debug(
-            f"Convergence Inner Boundary Temperature = {convergence_t_inner:.3g}"
+            f"Calculated Convergence fraction for Inner Boundary Temperature = {convergence_t_inner:.3g}"
         )
 
         fraction_t_rad_converged = (
@@ -290,7 +293,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             t_inner_update_exponent=self.convergence_strategy.t_inner_update_exponent,
         )
 
-        logger.debug("Convergence Status")
+        logger.debug("Checking for Convergence Status")
         converged = self._get_convergence_status(
             self.model.t_rad,
             self.model.w,
@@ -308,11 +311,16 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             estimated_t_rad,
             self.convergence_strategy.t_rad.damping_constant,
         )
-        logger.debug("Generating Next Dilution Factor for Simulation")
+        logger.debug(
+            "Calculating Dilution Factor for next Iteration of Simulation"
+        )
         next_w = self.damped_converge(
             self.model.w,
             estimated_w,
             self.convergence_strategy.w.damping_constant,
+        )
+        logger.debug(
+            "Calculating value of Dilution factor for next iteration, Using Damped Convergence Strategy"
         )
         if (
             self.iterations_executed + 1
@@ -324,6 +332,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
         else:
             next_t_inner = self.model.t_inner
+        logger.debug(
+            "Calculating value of Inner Boundary Temperature for next iteration, Using Damped Convergence Strategy"
+        )
 
         if hasattr(self, "convergence_plots"):
             self.convergence_plots.fetch_data(
@@ -390,7 +401,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             show_progress_bars=self.show_progress_bars,
         )
         output_energy = self.runner.output_energy
-        logger.debug(f"Total Output Energy = {output_energy}")
+        logger.debug(f"Calculated Total Output Energy for all the Packets")
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
@@ -450,6 +461,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             if hasattr(self, "cplots"):
                 self.cplots.update()
             logger.debug(f"Current Convergence Status : {self.converged}")
+            logger.debug(f"Convergence in Simulation : {self.converged}")
             self._call_back()
             if self.converged:
                 if self.convergence_strategy.stop_if_converged:
@@ -474,16 +486,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.iterate(
             self.last_no_of_packets, self.no_of_virtual_packets, last_run=True
         )
-
-        self.log_plasma_state(
-            self.model.t_rad,
-            self.model.w,
-            self.model.t_inner,
-            self.model.t_rad,
-            self.model.w,
-            self.model.t_inner,
-        )
-
         logger.debug(
             "Reshaping the Plasma Stored Values based on Convergence Status"
         )
