@@ -11,7 +11,7 @@ from astropy import units as u
 from tardis import constants as const
 from astropy.units import Quantity
 from tardis.io.atom_data.util import resolve_atom_data_fname
-
+from tardis.util import QDataFrame
 
 class AtomDataNotPreparedError(Exception):
     pass
@@ -255,7 +255,7 @@ class AtomData(object):
         self.atom_data = atom_data
         self.ionization_data = ionization_data
         self.levels = levels
-        self.lines = lines
+        self.lines = QDataFrame(lines, units=['our_test_units'])
 
         # Rename these (drop "_all") when `prepare_atom_data` is removed!
         self.macro_atom_data_all = macro_atom_data
