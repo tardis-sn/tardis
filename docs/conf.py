@@ -172,11 +172,11 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_theme = "sphinx_rtd_theme"
 
 
-#html_theme_options = {
+html_theme_options = {
 #    "logotext1": "tardis",  # white,  semi-bold
 #    "logotext2": "",  # orange, light
 #    "logotext3": ":docs"   # white,  light
-#    }
+    }
 
 
 # Custom sidebar templates, maps document names to template names.
