@@ -4,7 +4,7 @@ import re
 import os
 
 from astropy import units as u
-from tardis import constants
+from tardis import constants as const
 import numpy as np
 import pandas as pd
 
@@ -389,7 +389,7 @@ class TARDISHistory(object):
     def calculate_relative_lte_level_populations(self, species, iteration=-1):
         self.load_atom_data()
         t_rads = self.load_t_rads(iteration)
-        beta_rads = 1 / (constants.k_B.cgs.value * t_rads.values[:, 0])
+        beta_rads = 1 / (const.k_B.cgs.value * t_rads.values[:, 0])
 
         species_levels = self.levels.ix[species]
 
@@ -405,7 +405,7 @@ class TARDISHistory(object):
     def calculate_departure_coefficients(self, species, iteration=-1):
         self.load_atom_data()
         t_rads = self.load_t_rads(iteration)
-        beta_rads = 1 / (constants.k_B.cgs.value * t_rads.values[:, 0])
+        beta_rads = 1 / (const.k_B.cgs.value * t_rads.values[:, 0])
 
         species_levels = self.levels.ix[species]
         species_level_populations = self.load_level_populations(iteration).ix[

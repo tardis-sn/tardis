@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import pandas as pd
 from astropy import units as u
-from tardis import constants
+from tardis import constants as const
 
 from tardis.util.base import quantity_linspace
 from tardis.io.parsers.csvy import load_csvy
@@ -122,7 +122,7 @@ class Radial1DModel(HDFWriterMixin):
                             4
                             * np.pi
                             * self.r_inner[0] ** 2
-                            * constants.sigma_sb
+                            * const.sigma_sb
                         )
                     )
                     ** 0.25
@@ -135,10 +135,10 @@ class Radial1DModel(HDFWriterMixin):
             self.t_inner = t_inner
 
         if t_radiative is None:
-            lambda_wien_inner = constants.b_wien / self.t_inner
-            self._t_radiative = constants.b_wien / (
+            lambda_wien_inner = const.b_wien / self.t_inner
+            self._t_radiative = const.b_wien / (
                 lambda_wien_inner
-                * (1 + (self.v_middle - self.v_boundary_inner) / constants.c)
+                * (1 + (self.v_middle - self.v_boundary_inner) / const.c)
             )
         else:
             # self._t_radiative = t_radiative[self.v_boundary_inner_index + 1:self.v_boundary_outer_index]

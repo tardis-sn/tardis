@@ -7,7 +7,7 @@ import numexpr as ne
 import numpy as np
 import pandas as pd
 import yaml
-from tardis import constants
+from tardis import constants as const
 from astropy import units as u
 from pyne import nucname
 
@@ -15,11 +15,11 @@ import tardis
 from tardis.io.util import get_internal_data_path
 from IPython import get_ipython
 
-k_B_cgs = constants.k_B.cgs.value
-c_cgs = constants.c.cgs.value
-h_cgs = constants.h.cgs.value
-m_e_cgs = constants.m_e.cgs.value
-e_charge_gauss = constants.e.gauss.value
+k_B_cgs = const.k_B.cgs.value
+c_cgs = const.c.cgs.value
+h_cgs = const.h.cgs.value
+m_e_cgs = const.m_e.cgs.value
+e_charge_gauss = const.e.gauss.value
 
 logger = logging.getLogger(__name__)
 tardis_dir = os.path.realpath(tardis.__path__[0])
