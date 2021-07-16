@@ -770,7 +770,6 @@ class Radial1DModel(HDFWriterMixin):
                 )
             else:
                 t_radiative = None
-        logger.debug(f"Radiative Temperature : {t_radiative}")
 
         dilution_factor = None
         logger.debug(
@@ -785,6 +784,7 @@ class Radial1DModel(HDFWriterMixin):
             t_radiative = np.ones(no_of_shells) * config.plasma.initial_t_rad
         else:
             t_radiative = None
+        logger.debug(f"Radiative Temperature : {t_radiative}")
 
         logger.debug(
             "Setting up the Luminosity Requested & T_Inner for the Plasma via CSVY File Config"
