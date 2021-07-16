@@ -596,3 +596,13 @@ def is_notebook():
     # All other shell instances are returned False
     else:
         return False
+
+class QDataFrame(pd.DataFrame):
+    # normal properties
+    _metadata = ["units"]
+    def __init__(self, units=[], *args, **kwargs):
+        super(QDataFrame, self).__init__(*args, **kwargs)
+        self.units = units
+    @property
+    def _constructor(self):
+        return QDataFrame
