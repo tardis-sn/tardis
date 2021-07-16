@@ -12,7 +12,7 @@ def run_tardis(
     packet_source=None,
     simulation_callbacks=[],
     virtual_packet_logging=False,
-    log_state=None,
+    log_level=None,
     specific=None,
 ):
     """
@@ -54,7 +54,7 @@ def run_tardis(
             )
             tardis_config = Configuration.from_config_dict(config)
 
-    logging_state(log_state, tardis_config, specific)
+    logging_state(log_level, tardis_config, specific)
 
     if atom_data is not None:
         try:
