@@ -20,15 +20,12 @@ montecarlo:
       damping_constant: 1.0
     threshold: 0.05
     type: damped
-  debug_packets: true
   iterations: 2
   last_no_of_packets: 1000000.0
-  logger_buffer: 1
   no_of_packets: 40000.0
   no_of_virtual_packets: 0
   nthreads: 6
   seed: 23111963
-  single_packet_seed: 46
 plasma:
   disable_electron_scattering: false
   excitation: lte
@@ -43,3 +40,7 @@ supernova:
   luminosity_requested: 9.44 log_lsun
   time_explosion: 10 day
 tardis_config_version: v1.0
+debug:
+  debug_packets: true
+  logger_buffer: 1
+  single_packet_seed: 46

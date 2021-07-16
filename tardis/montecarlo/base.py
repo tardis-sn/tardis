@@ -603,9 +603,9 @@ class MontecarloRunner(HDFWriterMixin):
             spectrum_method=config.spectrum.method,
             disable_electron_scattering=config.plasma.disable_electron_scattering,
             packet_source=packet_source,
-            debug_packets=config.montecarlo.debug_packets,
-            logger_buffer=config.montecarlo.logger_buffer,
-            single_packet_seed=config.montecarlo.single_packet_seed,
+            debug_packets=config.debug.debug_packets,
+            logger_buffer=config.debug.logger_buffer,
+            single_packet_seed=config.debug.single_packet_seed,
             virtual_packet_logging=(
                 config.spectrum.virtual.virtual_packet_logging
                 | virtual_packet_logging
