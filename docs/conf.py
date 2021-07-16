@@ -129,13 +129,14 @@ if os.getenv("DISABLE_NBSPHINX") == "1":
 else:
     nbsphinx_execute = "auto"
 
+
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
 project = setup_cfg["name"]
 author = setup_cfg["author"]
 copyright = "2013-{0}, {1}".format(
-    datetime.datetime.now().year, setup_cfg["author"])
+    datetime.datetime.now().year, author)
 
 # The version info for the project you"re documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -145,7 +146,7 @@ import_module(setup_cfg["name"])
 package = sys.modules[setup_cfg["name"]]
 
 # The short X.Y version.
-version = package.__version__.split("-", 1)[0]
+version = "latest" # package.__version__.split("-", 1)[0]
 # The full version, including alpha/beta/rc tags.
 release = package.__version__
 
@@ -198,7 +199,7 @@ html_favicon = "tardis_logo.ico"
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = "{0} v{1}".format(project, release)
+html_title = project # "{0} v{1}".format(project, release)
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = project + "doc"
