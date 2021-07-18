@@ -40,3 +40,6 @@ spectrum:
     start: 500 angstrom
     stop: 20000 angstrom
     num: 10000
+
+debug:
+    specific: false
