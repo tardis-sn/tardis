@@ -1,5 +1,24 @@
 ## Change Log
 
+### release-2021.7.18.0 (2021/07/16 14:41 +00:00)
+- [#1665](https://github.com/tardis-sn/tardis/pull/1665) Demonstrating the `nelements` and the `species_list` functionality in the SDEC plot notebook (@atharva-2001)
+- [#1727](https://github.com/tardis-sn/tardis/pull/1727) Fixing Quickstart Metadata (#1727) (@smithis7)
+- [#1726](https://github.com/tardis-sn/tardis/pull/1726) display "latest" in doc version (#1726) (@epassaro)
+- [#1716](https://github.com/tardis-sn/tardis/pull/1716) Small fixes to docs (#1716) (@smithis7)
+- [#1722](https://github.com/tardis-sn/tardis/pull/1722) Added missing import for IonNumberDensityHeNLTE (#1722) (@DhruvSondhi)
+- [#1714](https://github.com/tardis-sn/tardis/pull/1714) Removed Formatting from exisiting log messages (#1714) (@DhruvSondhi)
+
+### release-2021.7.14.0 (2021/07/14 15:39 +00:00)
+- [#1707](https://github.com/tardis-sn/tardis/pull/1707) Open in VSCode badge (#1707) (@wkerzendorf)
+- [#1713](https://github.com/tardis-sn/tardis/pull/1713) fix package data for conda-forge package (#1713) (@epassaro)
+- [#1711](https://github.com/tardis-sn/tardis/pull/1711) Changed the xlim and the ylabel in the quickstart notebook plot (#1711) (@Rodot-)
+
+### release-2021.7.12.0 (2021/07/12 20:05 +00:00)
+- [#1686](https://github.com/tardis-sn/tardis/pull/1686) fix pip install (#1686) (@epassaro)
+- [#1701](https://github.com/tardis-sn/tardis/pull/1701) Adding Logging Support for Caught Exceptions (#1701) (@DhruvSondhi)
+- [#1684](https://github.com/tardis-sn/tardis/pull/1684) Moved Simulation & Montecarlo Logging Frameworks to `tardis/io/logger` folder (#1684) (@DhruvSondhi)
+- [#1691](https://github.com/tardis-sn/tardis/pull/1691) Create profiling documentation directory (#1691) (@KevinCawley)
+
 ### release-2021.7.11.0 (2021/07/09 17:07 +00:00)
 - [#1680](https://github.com/tardis-sn/tardis/pull/1680) Added docstring-coverage badge (#1680) (@epassaro)
 - [#1696](https://github.com/tardis-sn/tardis/pull/1696) Adding mu and r to virtual packet logging (#1696) (@smithis7)
