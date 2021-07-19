@@ -49,7 +49,7 @@ montecarlo:
     fraction: 0.8
     hold_iterations: 3
     t_inner:
-      damping_constant: 1.0
+      damping_constant: 0.5
 
 spectrum:
   start: 500 angstrom
