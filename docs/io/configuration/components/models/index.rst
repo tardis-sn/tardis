@@ -11,7 +11,7 @@ or separately in a CSVY file. See `here <https://csvy.org/>`_ for an explanation
 
 TARDIS has several built-in models for the shell structure, density, and abundance. If only these are being used,
 we recommend using the YAML configuration method. For creating a custom model (which will be discussed below), we
-reccomend using the CSVY method.
+recommend using the CSVY method.
 
 .. contents::
     :local:
@@ -25,10 +25,11 @@ The following schema shows how the model section of the YAML configuration is se
 
 .. jsonschema:: ../schemas/model.yml
 
-Several examples are shown in the following sections. This configuration allows for both built-in
-structures and abundances, which will be described in later sections, as well as custom models for
-the shell structure and abundances. For the latter, while we recommend using the CSVY model, one can
-specify custom structures and abundances using other files.
+Several examples are shown in the following sections; additionally, see :ref:`tardis-example` to see
+an example model configuration section within the full TARDIS configuration. This configuration allows
+for both built-in structures and abundances, which will be described in later sections, as well as custom
+models for the shell structure and abundances. For the latter, while we recommend using the CSVY model,
+one can specify custom structures and abundances using other files.
 
 .. note::
 
@@ -50,8 +51,8 @@ For example:
 .. literalinclude:: densitycust/tardis_configv1_density_cust_example.yml
     :language: yaml
  
-This configuration references a file named ``density.dat`` (that is just the name chosen for this example;
-one can use any file name they would like). For more information on what this file would entail, see:
+    In this example, our configuration references a file named ``density.dat``. For more information on what this file
+    would entail, see:
  
 .. toctree::
     :maxdepth: 1
@@ -66,8 +67,8 @@ For example:
 .. literalinclude:: abundancecust/tardis_configv1_abundance_cust_example.yml
     :language: yaml
  
-This configuration references a file named ``abund.dat`` (that is just the name chosen for this example;
-one can use any file name they would like). For more information on what this file would entail, see:
+In this example, our configuration references a file named ``abund.dat``. For more information on what this file
+would entail, see:
  
 .. toctree::
     :maxdepth: 1
@@ -285,7 +286,7 @@ factor of .8, etc.
 
     None of the CSV columns are required. However, if ``velocity``, ``density``, or the abundances are missing,
     they must be specified in the YAML portion of the file. If ``t_rad`` or ``dilution_factor`` are missing,
-    they will be automatically calculated (see :ref:`plasma`).
+    they will be automatically calculated (see :ref:`model`).
 
 .. note::
 
