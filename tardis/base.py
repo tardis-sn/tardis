@@ -33,7 +33,8 @@ def run_tardis(
     show_cplots : bool, default True, optional
         option to enable tardis convergence plots
     **kwargs : dict, optional
-        optional keyword arguments supported by :obj:`tardis.visualization.tools.convergence_plot.ConvergencePlots`
+        optional keyword arguments including those
+        supported by :obj:`tardis.visualization.tools.convergence_plot.ConvergencePlots`
 
 
     Returns

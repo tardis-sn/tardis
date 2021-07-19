@@ -19,8 +19,8 @@ def transition_colors(length, name="jet"):
     ----------
     length : int
         The length of the colorscale.
-    name : string, optional
-        Name of the colorscale. Defaults to "jet".
+    name : string, default: 'jet', optional
+        Name of the colorscale.
 
     Returns
     -------
@@ -57,14 +57,15 @@ class ConvergencePlots(object):
         String defining cmap for luminosity and inner boundary temperature plot.
         The list can be a list of colors in rgb, hex or css-names format as well.
     export_cplots : bool, default: False, optional
-        If True, plots are displayed again using the ``notebook_connected`` renderer. This helps
-        display the plots in the documentation or in platforms like nbviewer.
+        If True, plots are displayed again using the `notebook_connected` renderer. This helps
+        to display the plots in the documentation or in platforms like nbviewer.
 
     Notes
     -----
-        When overriding plots using the ``plasma_plot_config`` and the ``t_inner_luminosities_config`` dictionaries,
-        data related properties are applied equally accross all traces.
-        The dictionary should have a structure like that of ``plotly.graph_objs.FigureWidget.to_dict()``,
+        When overriding plot's configuration using the `plasma_plot_config` and the
+        `t_inner_luminosities_config` dictionaries, data related properties are
+        applied equally accross all traces.
+        The dictionary should have a structure like that of `plotly.graph_objs.FigureWidget.to_dict()`,
         for more information please see https://plotly.com/python/figure-structure/
     """
 
@@ -292,8 +293,8 @@ class ConvergencePlots(object):
 
         Parameters
         ----------
-        display_plot : bool, optional
-            Displays empty plots. Defaults to True.
+        display_plot : bool, default: True, optional
+            Displays empty plots.
         """
         self.create_plasma_plot()
         self.create_t_inner_luminosities_plot()
@@ -395,12 +396,11 @@ class ConvergencePlots(object):
 
         Parameters
         ----------
-        export_cplots : bool
-            Displays the convergence plots again using plotly's ``notebook_connected`` renderer.
-            This helps display the plots in notebooks when shared on platforms like nbviewer.
+        export_cplots : bool, default: False, optional
+            Displays the convergence plots again using plotly's `notebook_connected` renderer.
+            This helps to display the plots in notebooks when shared on platforms like nbviewer.
             Please see https://plotly.com/python/renderers/ for more information.
-            Defaults to False.
-        last : bool
+        last : bool, default: False, optional
             True if it's last iteration.
         """
         if self.iterable_data != {}:
