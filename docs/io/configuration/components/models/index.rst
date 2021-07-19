@@ -26,13 +26,22 @@ The following schema shows how the model section of the YAML configuration is se
 .. jsonschema:: ../schemas/model.yml
 
 Several examples are shown in the following sections. This configuration allows for both built-in
-structures and abundances, which will be described below, as well as custom models for the shell structure
-and abundances. For the latter, while we recommend using the CSVY model, one can specify custom structures
-and abundances using other files:
+structures and abundances, which will be described in later sections, as well as custom models for
+the shell structure and abundances. For the latter, while we recommend using the CSVY model, one can
+specify custom structures and abundances using other files.
+
+.. note::
+
+    If using a custom shell structure, you must also use a custom density profile (and vice versa), as
+    they are recorded in the same file (see below). Therefore, if you wish to use a built-in shell
+    structure you must also use a built-in density profile, and vice versa.
 
 Custom Model Configurations
 ---------------------------
- 
+
+The following two sections demonstrate how to specify custom structures and abundances in the
+model configuration.
+
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/structure/file
     :lift_description:
  
@@ -89,10 +98,10 @@ Here we aim to provide converters for the most commonly used file formats.
     converters/stella_to_tardis
     converters/cmfgen
 
-Structure, Density, and Abundance
-=================================
+Built-in Structure, Density, and Abundance
+==========================================
 
-TARDIS's built-in models are described in the following sections:
+TARDIS's built-in models for structure, density, and abundance are described in the following sections:
 
 Structure
 ---------
