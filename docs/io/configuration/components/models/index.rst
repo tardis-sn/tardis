@@ -51,8 +51,8 @@ For example:
 .. literalinclude:: densitycust/tardis_configv1_density_cust_example.yml
     :language: yaml
  
-    In this example, our configuration references a file named ``density.dat``. For more information on what this file
-    would entail, see:
+In this example, our configuration references a file named ``density.dat``. For more information on what this file
+would entail, see:
  
 .. toctree::
     :maxdepth: 1
@@ -278,8 +278,8 @@ is required for ``velocity``, ``density``, and ``t_rad``.
 Since the ``velocity`` column contains the outer shell velocity, the first entry in the velocity column is the
 velocity of the photosphere -- i.e. the inner boundary of the computational domain (see :ref:`model`).
 Consequently, **none of the other information in the first row is used**. In our example, there are only two
-shells, and the first shell will have an inner boundary with a velocity of :math:`9000 km/s`, an outer boundary
-with a velocity of :math:`10500 \mathrm{km/s}`, a density of :math:`2.0*10^{-10} \mathrm{g/cm^3}`, a dilution
+shells, and the first shell will have an inner boundary with a velocity of :math:`9000 \mathrm{ km/s}`, an outer boundary
+with a velocity of :math:`10500 \mathrm{ km/s}`, a density of :math:`2.0*10^{-10} \mathrm{ g/cm^3}`, a dilution
 factor of .8, etc.
 
 .. note::

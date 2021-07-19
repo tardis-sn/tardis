@@ -3,7 +3,7 @@ definitions:
   density:
     branch85_w7:
       $$target: 'model_definitions.yml#/definitions/density/branch85_w7'
-      $$description: The type ``branch85_w7`` uses a seven-order polynomial
+      $$description: The type ``branch85_w7`` uses a seventh-order polynomial
                       fit to the W7 model and is parametrised by time since
                       explosion. The parameters ``time_0`` and
                       ``density_coefficient`` are set to sensible defaults
