@@ -63,3 +63,4 @@ properties:
 required:
 - tardis_model_config_version
 - model_isotope_time_0
+- model_density_time_0

@@ -25,29 +25,45 @@ The following schema shows how the model section of the YAML configuration is se
 
 .. jsonschema:: ../schemas/model.yml
 
-For an example of this in use, see :ref:`tardis-example`. This configuration allows for both built-in
+Several examples are shown in the following sections. This configuration allows for both built-in
 structures and abundances, which will be described below, as well as custom models for the shell structure
 and abundances. For the latter, while we recommend using the CSVY model, one can specify custom structures
 and abundances using other files:
 
+Custom Model Configurations
+---------------------------
+ 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/structure/file
-
-For more information on a custom structure/density file, see:
-
+    :lift_description:
+ 
+For example:
+ 
+.. literalinclude:: densitycust/tardis_configv1_density_cust_example.yml
+    :language: yaml
+ 
+This configuration references a file named ``density.dat`` (that is just the name chosen for this example;
+one can use any file name they would like). For more information on what this file would entail, see:
+ 
 .. toctree::
     :maxdepth: 1
     
     densitycust/densitycust
-
+ 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/abundances/file
-
-For more information on a custom abundence file, see:
-
+    :lift_description:
+ 
+For example:
+ 
+.. literalinclude:: abundancecust/tardis_configv1_abundance_cust_example.yml
+    :language: yaml
+ 
+This configuration references a file named ``abund.dat`` (that is just the name chosen for this example;
+one can use any file name they would like). For more information on what this file would entail, see:
+ 
 .. toctree::
     :maxdepth: 1
         
     abundancecust/abundancecust
-
 
 Custom Model Tutorial
 ---------------------
@@ -73,9 +89,6 @@ Here we aim to provide converters for the most commonly used file formats.
     converters/stella_to_tardis
     converters/cmfgen
 
-
-
-
 Structure, Density, and Abundance
 =================================
 
@@ -89,20 +102,58 @@ parameter ``no_of_shells``. ``no_of_shells`` is the requested number of shells f
 requires a ``type``. Currently, only ``linear`` is supported.
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/structure/specific
+    :lift_description:
+
+We present an example of the above schema:
+
+.. code-block:: yaml
+
+    model:
+        structure:
+            type: specific
+            velocity:
+                start: 1000 km/s
+                stop: 2000 km/s
+                num: 15
+            density:
+                type: branch85_w7 #see density schemas below for all options in the density section
 
 
 Density
 -------
 
-In the ``densities`` section the ``type`` parameter again decides on the parameters. The type ``uniform`` only needs a
-``value`` parameter with a density compatible quantity. The type ``branch85_w7`` uses a seven-order polynomial fit to
-the W7 model and is parametrised by time since explosion. The parameters ``time_0`` and ``density_coefficient`` are set
-to sensible defaults and should not be changed. The physics of these density models is further discussed in
-:ref:`model`.
+In the ``densities`` section of the specific structure, the ``type`` parameter decides on the parameters.
+The physics of these density models is further discussed in :ref:`model`.
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/branch85_w7
+    :lift_description:
+
+For example:
+
+.. code-block:: yaml
+
+    model:
+        structure:
+            type: specific
+        
+            density:
+                type: branch85_w7
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/exponential
+    :lift_description:
+
+For example:
+
+.. code-block:: yaml
+
+    model:
+        structure:
+            type: specific
+        
+            density:
+                type: exponential
+                rho_0: 1e-10 g/cm^3
+                v_0: 10000 km/s
 
 For more information, see:
 
@@ -113,6 +164,21 @@ For more information, see:
 
     
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/power_law
+    :lift_description:
+
+For example:
+
+.. code-block:: yaml
+
+    model:
+        structure:
+            type: specific
+        
+            density:
+                type: power_law
+                rho_0: 1e-10 g/cm^3
+                v_0: 10000 km/s
+                exponent: 3
 
 For more information, see:
 
@@ -123,15 +189,42 @@ For more information, see:
 
     
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/uniform
+    :lift_description:
 
+For example:
+
+.. code-block:: yaml
+
+    model:
+        structure:
+            type: specific
+
+            density:
+                type: uniform
+                value: 1e-10 g/cm^3
     
 Abundance
 ---------
 
-This section can be used to configure uniform abundances for all shells, by giving the atom name and a
-relative abundance fraction. If it does not add up to 1., TARDIS will warn --- but normalize the numbers.
+This section can be used to configure uniform abundances for all shells, by giving the atom or isotope name
+and a relative abundance fraction. If it does not add up to 1, TARDIS will warn -- but normalize the numbers.
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/abundances/uniform
+    :lift_description:
+
+For example:
+
+.. code-block:: yaml
+
+    model:
+
+        abundances:
+            type: uniform
+            H: 0.2
+            He: 0.4
+            O: 0.15
+            Ni56: 0.25
+
 
 For more information, see:
 
@@ -176,7 +269,8 @@ Since the ``velocity`` column contains the outer shell velocity, the first entry
 velocity of the photosphere -- i.e. the inner boundary of the computational domain (see :ref:`model`).
 Consequently, **none of the other information in the first row is used**. In our example, there are only two
 shells, and the first shell will have an inner boundary with a velocity of :math:`9000 km/s`, an outer boundary
-with a velocity of :math:`10500 km/s`, a density of :math:`2.0*10^{-10} g/cm^3`, a dilution factor of .8, etc.
+with a velocity of :math:`10500 \mathrm{km/s}`, a density of :math:`2.0*10^{-10} \mathrm{g/cm^3}`, a dilution
+factor of .8, etc.
 
 .. note::
 
