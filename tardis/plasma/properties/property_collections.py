@@ -118,6 +118,7 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         RawCollisionTransProbs,
         MarkovChainIndex,
         MarkovChainTransProbsCollector,
+        MonteCarloTransProbs,
         FreeFreeCoolingRate,
         FreeBoundCoolingRate,
         BoundFreeOpacity,

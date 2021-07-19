@@ -15,6 +15,7 @@ __all__ = [
     "MarkovChainIndex",
     "MarkovChainTransProbsCollector",
     "NonContinuumTransProbsMask",
+    "MonteCarloTransProbs",
 ]
 
 logger = logging.getLogger(__name__)
@@ -118,9 +119,11 @@ class MarkovChainIndex(ProcessingPlasmaProperty):
     ----------
     idx2mkv_idx : pandas.Series, dtype int
     k_packet_idx : int
+        Macro atom level idx corresponding to a k-packet.
+    idx2deactivation_idx : pandas.Series, dtype int
     """
 
-    outputs = ("idx2mkv_idx", "k_packet_idx")
+    outputs = ("idx2mkv_idx", "k_packet_idx", "idx2deactivation_idx")
 
     def calculate(self, atomic_data, continuum_interaction_species):
         ma_ref = atomic_data.macro_atom_references
@@ -136,7 +139,9 @@ class MarkovChainIndex(ProcessingPlasmaProperty):
         idx2mkv_idx.loc["k"] = idx2mkv_idx.max() + 1
 
         k_packet_idx = ma_ref.references_idx.max() + 1
-        return idx2mkv_idx, k_packet_idx
+
+        idx2deactivation_idx = idx2mkv_idx + k_packet_idx + 1
+        return idx2mkv_idx, k_packet_idx, idx2deactivation_idx
 
 
 class NonContinuumTransProbsMask(ProcessingPlasmaProperty):
@@ -242,3 +247,94 @@ class MarkovChainTransProbs(
         N = N.sort_index()
         B = B.sort_index()
         return N, R, B, p_deactivation
+
+
+class MonteCarloTransProbs(ProcessingPlasmaProperty):
+    outputs = (
+        "non_continuum_trans_probs",
+        "level_absorption_probs",
+        "deactivation_channel_probs",
+        "combined_trans_probs",
+    )
+    """
+    Attributes
+    ----------
+    """
+
+    def calculate(
+        self,
+        transition_probabilities,
+        atomic_data,
+        non_continuum_trans_probs_mask,
+        k_packet_idx,
+        idx2deactivation_idx,
+        level_idxs2transition_idx,
+        p_deactivation,
+        B,
+    ):
+        # Prepare the transition probabilities for the non continuum species
+        macro_atom_data = atomic_data.macro_atom_data
+        transition_info = macro_atom_data[
+            ["lines_idx", "transition_type"]
+        ].set_index(transition_probabilities.index)
+        non_continuum_trans_probs = pd.concat(
+            [transition_info, transition_probabilities], axis=1
+        )
+        index = macro_atom_data.set_index(
+            ["source_level_idx", "destination_level_idx"]
+        ).index
+        non_continuum_trans_probs = non_continuum_trans_probs.set_index(index)
+        non_continuum_trans_probs = non_continuum_trans_probs[
+            non_continuum_trans_probs_mask
+        ]
+
+        # Prepare the level absorption probabilities for the continuum species
+        level_absorption_probs = B.copy()
+        level_absorption_probs.insert(0, "lines_idx", -1)
+        level_absorption_probs.insert(0, "transition_type", 3)
+        destination_level_idx = level_absorption_probs.index.get_level_values(
+            "destination_level_idx"
+        )
+        source_level_idx = level_absorption_probs.rename(
+            index={"k": k_packet_idx}
+        ).index.get_level_values("source_level_idx")
+        destination_level_idx = idx2deactivation_idx.loc[destination_level_idx]
+        absorption_index = pd.MultiIndex.from_arrays(
+            [source_level_idx, destination_level_idx], names=B.index.names
+        )
+        level_absorption_probs.index = absorption_index
+
+        # Prepare the deactivation channel probabilities for the continuum species
+        deactivation_channel_probs = p_deactivation.copy()
+        deactivation_channel_probs = pd.concat(
+            [level_idxs2transition_idx, deactivation_channel_probs], axis=1
+        ).reindex(deactivation_channel_probs.index)
+
+        source_level_idx = deactivation_channel_probs.index.get_level_values(
+            "source_level_idx"
+        )
+
+        source_level_idx = idx2deactivation_idx.loc[source_level_idx]
+        destination_level_idx = np.ones_like(source_level_idx) * -1
+        deactivation_index = pd.MultiIndex.from_arrays(
+            [source_level_idx, destination_level_idx], names=B.index.names
+        )
+
+        deactivation_channel_probs.index = deactivation_index
+
+        # Combine everything
+        combined_trans_probs = pd.concat(
+            [
+                level_absorption_probs,
+                deactivation_channel_probs,
+                non_continuum_trans_probs,
+            ]
+        )
+        combined_trans_probs = combined_trans_probs.sort_index()
+
+        return (
+            non_continuum_trans_probs,
+            level_absorption_probs,
+            deactivation_channel_probs,
+            combined_trans_probs,
+        )
