@@ -60,7 +60,7 @@ highlight_language = "none"
 exclude_patterns.append("_templates")
 exclude_patterns.append("_build")
 exclude_patterns.append("**.ipynb_checkpoints")
-exclude_patterns.append("**/ads.ipynb")
+exclude_patterns.append("research/research_done_using_TARDIS/ads.ipynb")
 
 # This is added to the end of RST files - a good place to put substitutions to
 # be used globally.
