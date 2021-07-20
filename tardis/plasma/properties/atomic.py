@@ -196,9 +196,9 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
         )
 
         level_idxs2continuum_idx = photo_ion_idx.copy()
-        level_idxs2continuum_idx['continuum_idx'] = level2continuum_edge_idx
+        level_idxs2continuum_idx["continuum_idx"] = level2continuum_edge_idx
         level_idxs2continuum_idx = level_idxs2continuum_idx.set_index(
-            ['source_level_idx', 'destination_level_idx']
+            ["source_level_idx", "destination_level_idx"]
         )
         return (
             photoionization_data,
@@ -208,7 +208,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
             energy_i,
             photo_ion_idx,
             level2continuum_edge_idx,
-            level_idxs2continuum_idx
+            level_idxs2continuum_idx,
         )
 
 
