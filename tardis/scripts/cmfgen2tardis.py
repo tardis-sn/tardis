@@ -7,7 +7,8 @@ import pandas as pd
 from tardis.io.atom_data import AtomData
 
 # The from_hdf() method requires an argument, so the line below doesn't work
-#atomic_dataset = AtomData.from_hdf()
+# atomic_dataset = AtomData.from_hdf()
+
 
 def get_atomic_number(element):
     index = -1
