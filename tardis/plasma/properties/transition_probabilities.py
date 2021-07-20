@@ -254,6 +254,7 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         "non_continuum_trans_probs",
         "level_absorption_probs",
         "deactivation_channel_probs",
+        "transition_probabilities",
         "combined_trans_probs",
     )
     """
@@ -263,7 +264,7 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
 
     def calculate(
         self,
-        transition_probabilities,
+        non_markov_transition_probabilities,
         atomic_data,
         non_continuum_trans_probs_mask,
         k_packet_idx,
@@ -276,9 +277,9 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         macro_atom_data = atomic_data.macro_atom_data
         transition_info = macro_atom_data[
             ["lines_idx", "transition_type"]
-        ].set_index(transition_probabilities.index)
+        ].set_index(non_markov_transition_probabilities.index)
         non_continuum_trans_probs = pd.concat(
-            [transition_info, transition_probabilities], axis=1
+            [transition_info, non_markov_transition_probabilities], axis=1
         )
         index = macro_atom_data.set_index(
             ["source_level_idx", "destination_level_idx"]
@@ -336,5 +337,6 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
             non_continuum_trans_probs,
             level_absorption_probs,
             deactivation_channel_probs,
+            non_markov_transition_probabilities,  # TODO: replace with combined_trans_probs as soons as this works
             combined_trans_probs,
         )

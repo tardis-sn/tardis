@@ -21,6 +21,7 @@ __all__ = [
     "BetaSobolev",
     "TransitionProbabilities",
     "RawRadBoundBoundTransProbs",
+    "NonMarkovChainTransitionProbabilities",
 ]
 
 C_EINSTEIN = (
@@ -360,6 +361,10 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
             return atomic_data.macro_atom_data
         except:
             return atomic_data.macro_atom_data_all
+
+
+class NonMarkovChainTransitionProbabilities(TransitionProbabilities):
+    outputs = ("non_markov_transition_probabilities",)
 
 
 class RawRadBoundBoundTransProbs(

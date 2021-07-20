@@ -213,7 +213,8 @@ def assemble_plasma(config, model, atom_data=None):
         plasma_modules += non_nlte_properties
 
     if config.plasma.line_interaction_type in ("downbranch", "macroatom"):
-        plasma_modules += macro_atom_properties
+        if not config.plasma.continuum_interaction.species:
+            plasma_modules += macro_atom_properties
 
     if "delta_treatment" in config.plasma:
         property_kwargs[RadiationFieldCorrection] = dict(

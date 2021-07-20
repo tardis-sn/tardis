@@ -118,6 +118,7 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         RawCollisionTransProbs,
         MarkovChainIndex,
         MarkovChainTransProbsCollector,
+        NonMarkovChainTransitionProbabilities,
         MonteCarloTransProbs,
         FreeFreeCoolingRate,
         FreeBoundCoolingRate,
@@ -134,6 +135,7 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         BoundFreeOpacityInterpolator,
         FreeFreeOpacity,
         ContinuumOpacityCalculator,
+        BetaSobolev,
     ]
 )
 adiabatic_cooling_properties = PlasmaPropertyCollection([AdiabaticCoolingRate])
