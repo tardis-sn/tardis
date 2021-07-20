@@ -256,6 +256,7 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         "deactivation_channel_probs",
         "transition_probabilities",
         "combined_trans_probs",
+        "macro_block_references",
     )
     """
     Attributes
@@ -333,10 +334,20 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         )
         combined_trans_probs = combined_trans_probs.sort_index()
 
+        block_references = (
+            combined_trans_probs[0].groupby("source_level_idx").count().cumsum()
+        )
+        continous_index = np.arange(block_references.index.max() + 1)
+        block_references = (
+            block_references.reindex(continous_index).ffill().astype(int)
+        )  # This is needed because some macro atom levels have no transitions
+        block_references = np.pad(block_references, (1, 0), constant_values=0.0)
+
         return (
             non_continuum_trans_probs,
             level_absorption_probs,
             deactivation_channel_probs,
             non_markov_transition_probabilities,  # TODO: replace with combined_trans_probs as soons as this works
             combined_trans_probs,
+            block_references,
         )
