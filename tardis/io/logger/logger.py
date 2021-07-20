@@ -29,7 +29,7 @@ LOGGING_LEVELS = {
     "ERROR": logging.ERROR,
     "CRITICAL": logging.CRITICAL,
 }
-DEFAULT_LOG_STATE = "CRITICAL"
+DEFAULT_LOG_LEVEL = "CRITICAL"
 
 
 class FilterLog(object):
@@ -69,20 +69,20 @@ class FilterLog(object):
         return log_record.levelno == self.log_level
 
 
-def logging_state(log_state, tardis_config, specific):
+def logging_state(log_level, tardis_config, specific):
     """
     Function to set the logging configuration for the simulation output
     Called from within run_tardis()
-    Configured via functional arguments passed through run_tardis() - log_state & specific
+    Configured via functional arguments passed through run_tardis() - log_level & specific
     Configured via YAML parameters under `debug` section - logging_level & specific_logging
 
     Parameters
     ----------
-    log_state: str
+    log_level: str
         Allows to input the log level for the simulation
         Uses Python logging framework to determine the messages that will be output
     specific: boolean
-        Allows to set specific logging levels. Logs of the `log_state` level would be output.
+        Allows to set specific logging levels. Logs of the `log_level` level would be output.
     """
 
     if "debug" in tardis_config:
@@ -91,24 +91,24 @@ def logging_state(log_state, tardis_config, specific):
         )
 
         logging_level = (
-            log_state if log_state else tardis_config["debug"]["log_state"]
+            log_level if log_level else tardis_config["debug"]["log_level"]
         )
 
-        # Displays a message when both log_state & tardis["debug"]["log_state"] are specified
-        if log_state and tardis_config["debug"]["log_state"]:
+        # Displays a message when both log_level & tardis["debug"]["log_level"] are specified
+        if log_level and tardis_config["debug"]["log_level"]:
             print(
-                "log_state is defined both in Functional Argument & YAML Configuration {debug section}"
+                "log_level is defined both in Functional Argument & YAML Configuration {debug section}"
             )
             print(
-                f"log_state = {log_state.upper()} will be used for Log Level Determination\n"
+                f"log_level = {log_level.upper()} will be used for Log Level Determination\n"
             )
 
     else:
-        if log_state:
-            logging_level = log_state
+        if log_level:
+            logging_level = log_level
         else:
-            tardis_config["debug"] = {"log_state": DEFAULT_LOG_STATE}
-            logging_level = tardis_config["debug"]["log_state"]
+            tardis_config["debug"] = {"log_level": DEFAULT_LOG_LEVEL}
+            logging_level = tardis_config["debug"]["log_level"]
 
         if specific:
             specific = specific
@@ -116,7 +116,7 @@ def logging_state(log_state, tardis_config, specific):
     logging_level = logging_level.upper()
     if not logging_level in LOGGING_LEVELS:
         raise ValueError(
-            f"Passed Value for log_state = {logging_level} is Invalid. Must be one of the following {list(LOGGING_LEVELS.keys())}"
+            f"Passed Value for log_level = {logging_level} is Invalid. Must be one of the following {list(LOGGING_LEVELS.keys())}"
         )
 
     # Getting the TARDIS logger & all its children loggers
