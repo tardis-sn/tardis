@@ -75,6 +75,7 @@ def logging_state(log_state, tardis_config, specific):
     Called from within run_tardis()
     Configured via functional arguments passed through run_tardis() - log_state & specific
     Configured via YAML parameters under `debug` section - logging_level & specific_logging
+
     Parameters
     ----------
     log_state: str

@@ -45,8 +45,8 @@ setup_cfg = dict(conf.items("metadata"))
 
 # -- General configuration ----------------------------------------------------
 
-# By default, highlight as Python 3.
-highlight_language = "python3"
+# By default, code is not highlighted.
+highlight_language = "none"
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = "1.2"
@@ -60,10 +60,11 @@ highlight_language = "python3"
 exclude_patterns.append("_templates")
 exclude_patterns.append("_build")
 exclude_patterns.append("**.ipynb_checkpoints")
+exclude_patterns.append("research/research_done_using_TARDIS/ads.ipynb")
 
 # This is added to the end of RST files - a good place to put substitutions to
 # be used globally.
-rst_epilog += """
+rst_epilog = """
 """
 
 extensions = [
@@ -164,7 +165,7 @@ release = package.__version__
 # Add any paths that contain custom themes here, relative to this directory.
 # To use a different custom theme, add the directory containing the theme.
 import sphinx_rtd_theme
-html_theme_path = sphinx_rtd_theme.get_html_theme_path()
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes. To override the custom theme, set this to the
@@ -173,9 +174,9 @@ html_theme = "sphinx_rtd_theme"
 
 
 html_theme_options = {
-    "logotext1": "tardis",  # white,  semi-bold
-    "logotext2": "",  # orange, light
-    "logotext3": ":docs"   # white,  light
+#    "logotext1": "tardis",  # white,  semi-bold
+#    "logotext2": "",  # orange, light
+#    "logotext3": ":docs"   # white,  light
     }
 
 

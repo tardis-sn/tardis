@@ -82,12 +82,16 @@ Some of the important formatting conventions to note here are:
 
 - Variable, module, function, and class names should be written between single back-ticks \` \`.
 
-- In the above example the return variable and type is specified. For the "Returns" section, the type must always be stated, even if the variable is not. The "Returns" section should follow the format of: ::
+- In the above example the return variable and type is specified. For the "Returns" section, the type must always be stated, even if the variable is not. The "Returns" section should follow the format of:
 
+.. code-block:: python
+    
+    """
     Returns
     -------
     (`optional variable name` : )type
         (optional descriptor)
+    """
 
 - The "Returns" section should not be included if the function/module/class does not have a return value(s).
 

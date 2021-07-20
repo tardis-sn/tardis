@@ -111,8 +111,13 @@ class AtomData(object):
 
     Methods
     -------
-    from_hdf
-    prepare_atom_data
+    from_hdf:
+        Function to read the atom data from a TARDIS atom HDF Store
+    prepare_atom_data:
+        Prepares the atom data to set the lines, levels and if requested macro
+        atom data.  This function mainly cuts the `levels` and `lines` by
+        discarding any data that is not needed (any data for atoms that are not
+        needed
 
     Notes
     -----

@@ -4,10 +4,10 @@ import argparse
 import numpy as np
 import pandas as pd
 
-from tardis.atomic import AtomData
+from tardis.io.atom_data import AtomData
 
-
-atomic_dataset = AtomData.from_hdf5()
+# The from_hdf() method requires an argument, so the line below doesn't work
+# atomic_dataset = AtomData.from_hdf()
 
 
 def get_atomic_number(element):
