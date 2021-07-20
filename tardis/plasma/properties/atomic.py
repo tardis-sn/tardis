@@ -220,7 +220,11 @@ class ContinuumInteractionHandler(ProcessingPlasmaProperty):
     )
 
     def calculate(
-        self, photo_ion_cross_sections, level2continuum_idx, photo_ion_idx
+        self,
+        photo_ion_cross_sections,
+        level2continuum_idx,
+        photo_ion_idx,
+        k_packet_idx,
     ):
         nus = photo_ion_cross_sections.nu.loc[
             level2continuum_idx.index
@@ -288,8 +292,7 @@ class ContinuumInteractionHandler(ProcessingPlasmaProperty):
             ):  # Create ionization energy (i-packet)
                 destination_level_idx = destination_level_idxs[continuum_id]
             else:  # Create thermal energy (k-packet)
-                # TODO: Replace with the actual macro atom idx
-                destination_level_idx = -1
+                destination_level_idx = k_packet_idx
             return destination_level_idx
 
         @njit(error_model="numpy", fastmath=True)
@@ -326,8 +329,7 @@ class ContinuumInteractionHandler(ProcessingPlasmaProperty):
                     nu, chi_bf_contributions, active_continua
                 )
             else:  # Free-free absorption (i.e. k-packet creation)
-                # TODO: Replace with the actual macro atom idx
-                destination_level_idx = -1
+                destination_level_idx = k_packet_idx
             return destination_level_idx
 
         return (
