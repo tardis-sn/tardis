@@ -1,8 +1,8 @@
 import logging
 import sys
-import logging
 import warnings
 import pyne.data
+
 from tardis.io.logger.colored_logger import ColoredFormatter, formatter_message
 
 warnings.filterwarnings("ignore", category=pyne.utils.QAWarning)
@@ -125,7 +125,8 @@ def logging_state(log_state, tardis_config, specific):
     tardis_loggers = tardis_logger()
 
     if logging_level in LOGGING_LEVELS:
-        logger.setLevel(LOGGING_LEVELS[logging_level])
+        for logger in tardis_loggers:
+            logger.setLevel(LOGGING_LEVELS[logging_level])
 
     if logger.filters:
         for filter in logger.filters:
