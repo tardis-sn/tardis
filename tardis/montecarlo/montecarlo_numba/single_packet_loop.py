@@ -1,4 +1,5 @@
-from numba import njit
+import logging
+from numba import njit, objmode
 import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
@@ -34,6 +35,12 @@ C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 from tardis.io.logger.montecarlo_logger import log_decorator
 from tardis.io.logger import montecarlo_logger as mc_logger
 
+logger = logging.getLogger("tardis_montecarlo")
+logger.setLevel(logging.DEBUG)
+
+file_handler = logging.FileHandler("montecarlo_log.log", mode="w")
+logger.addHandler(file_handler)
+
 # @log_decorator
 @njit
 def single_packet_loop(
@@ -54,6 +61,9 @@ def single_packet_loop(
         This function does not return anything but changes the r_packet object
         and if virtual packets are requested - also updates the vpacket_collection
     """
+
+    with objmode():
+        logger.debug("Logging Packet Value")
 
     line_interaction_type = montecarlo_configuration.line_interaction_type
 

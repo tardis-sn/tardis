@@ -68,6 +68,7 @@ def montecarlo_radial1d(model, plasma, runner):
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
+        loop,
     ) = montecarlo_main_loop(
         packet_collection,
         numba_model,
@@ -241,9 +242,10 @@ def montecarlo_main_loop(
             virt_packet_initial_mus.append(np.ascontiguousarray(vpackets_initial_mu))
             virt_packet_initial_rs.append(np.ascontiguousarray(vpackets_initial_r))
             virt_packet_last_interaction_in_nu.append(np.ascontiguousarray(
-                vpacket_collection.last_interaction_in_nu[
+            vpacket_collection.last_interaction_in_nu[
                     : vpacket_collection.idx
-                ])
+                    ]
+                )
             )
             virt_packet_last_interaction_type.append(
                 np.ascontiguousarray(
@@ -284,4 +286,5 @@ def montecarlo_main_loop(
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
+        loop,
     )

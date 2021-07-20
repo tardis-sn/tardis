@@ -1,7 +1,7 @@
 import logging
 from functools import wraps
 
-DEBUG_MODE = False
+DEBUG_MODE = True
 LOG_FILE = False
 BUFFER = 1
 ticker = 1
