@@ -39,7 +39,7 @@ basic_properties = PlasmaPropertyCollection(
 lte_ionization_properties = PlasmaPropertyCollection([PhiSahaLTE])
 lte_excitation_properties = PlasmaPropertyCollection([LevelBoltzmannFactorLTE])
 macro_atom_properties = PlasmaPropertyCollection(
-    [BetaSobolev, TransitionProbabilities]
+    [BetaSobolev, TransitionProbabilities, MacroAtomData]
 )
 nebular_ionization_properties = PlasmaPropertyCollection(
     [PhiSahaNebular, ZetaData, BetaElectron, RadiationFieldCorrection]
@@ -92,6 +92,7 @@ continuum_interaction_inputs = PlasmaPropertyCollection(
 )
 continuum_interaction_properties = PlasmaPropertyCollection(
     [
+        MacroAtomData,  # TODO: Remove this once everything works
         PhotoIonizationData,
         SpontRecombRateCoeff,
         PhotoIonRateCoeff,
