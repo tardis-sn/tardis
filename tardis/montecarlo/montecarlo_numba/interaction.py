@@ -82,7 +82,14 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
             r_packet, r_packet.next_line_id, time_explosion, numba_plasma
         )
     else:  # includes both macro atom and downbranch - encoded in the transition probabilities
-        emission_line_id = macro_atom(r_packet, numba_plasma)
+        activation_level_id = numba_plasma.line2macro_level_upper[
+            r_packet.next_line_id
+        ]
+        emission_line_id = macro_atom(
+            activation_level_id,
+            r_packet.current_shell_id,
+            numba_plasma
+        )
         line_emission(r_packet, emission_line_id, time_explosion, numba_plasma)
 
 
