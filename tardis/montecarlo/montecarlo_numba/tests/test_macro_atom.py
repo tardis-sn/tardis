@@ -19,5 +19,6 @@ def test_macro_atom(
     static_packet.initialize_line_id(
         verysimple_numba_plasma, verysimple_numba_model
     )
+    # TODO: Change the input from static_packet to activation_level_id, current_shell_id
     result = macro_atom.macro_atom(static_packet, verysimple_numba_plasma)
     assert result == expected

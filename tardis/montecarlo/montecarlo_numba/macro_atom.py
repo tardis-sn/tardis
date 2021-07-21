@@ -19,19 +19,18 @@ class MacroAtomTransitionType(IntEnum):
 
 
 @njit(**njit_dict_no_parallel)
-def macro_atom(r_packet, numba_plasma):
+def macro_atom(activation_level_id, current_shell_id, numba_plasma):
     """
     Parameters
     ----------
-    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    activation_level_id : int
+        Activation level idx of the macro atom.
+    current_shell_id : int
     numba_plasma : tardis.montecarlo.numba_interface.numba_plasma.NumbaPlasma
 
     Returns
     -------
     """
-    activation_level_id = numba_plasma.line2macro_level_upper[
-        r_packet.next_line_id
-    ]
     current_transition_type = 0
 
     while current_transition_type >= 0:
@@ -45,7 +44,7 @@ def macro_atom(r_packet, numba_plasma):
         for transition_id in range(block_start, block_end):
 
             transition_probability = numba_plasma.transition_probabilities[
-                transition_id, r_packet.current_shell_id
+                transition_id, current_shell_id
             ]
 
             probability += transition_probability
