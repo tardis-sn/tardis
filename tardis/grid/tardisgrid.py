@@ -24,7 +24,7 @@ def _set_tardis_config_property(tardis_config, key, value):
         The value to assign to the config dict for the
         corresponding key.
     """
-    keyitems = key.split('.')
+    keyitems = key.split(".")
     tmp_dict = getattr(tardis_config, keyitems[0])
     for key in keyitems[1:-1]:
         tmp_dict = getattr(tmp_dict, key)
@@ -167,9 +167,6 @@ class tardisGrid:
             dim = dim * len(ax)
         axesmesh = np.meshgrid(*axes)
         tmp = np.dstack(axesmesh)
-        gridpoints = tmp.reshape((dim, len(axes)), order='F')
+        gridpoints = tmp.reshape((dim, len(axes)), order="F")
         df = pd.DataFrame(data=gridpoints, columns=axesdict.keys())
         return cls(configFile=configFile, gridFrame=df)
-
-
-
