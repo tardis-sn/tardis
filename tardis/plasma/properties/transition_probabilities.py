@@ -257,6 +257,7 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         "transition_probabilities",
         "combined_trans_probs",
         "macro_block_references",
+        "macro_atom_info",  # TODO: Rename this to macro_atom_data once things work
     )
     """
     Attributes
@@ -343,6 +344,14 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         )  # This is needed because some macro atom levels have no transitions
         block_references = np.pad(block_references, (1, 0), constant_values=0.0)
 
+        macro_atom_info = combined_trans_probs[
+            ["transition_type", "lines_idx"]
+        ].reset_index()
+
+        combined_trans_probs = combined_trans_probs.drop(
+            ["lines_idx", "transition_type"], axis="columns"
+        )
+
         return (
             non_continuum_trans_probs,
             level_absorption_probs,
@@ -350,4 +359,5 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
             non_markov_transition_probabilities,  # TODO: replace with combined_trans_probs as soons as this works
             combined_trans_probs,
             block_references,
+            macro_atom_info,
         )
