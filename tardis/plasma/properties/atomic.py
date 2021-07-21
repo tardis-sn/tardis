@@ -485,7 +485,7 @@ class LevelIdxs2TransitionIdx(HiddenPlasmaProperty):
         # One possibility would be to attach it to the cooling properties as
         # a class attribute.
         index_cooling = pd.MultiIndex.from_product(
-            [["k"], ["ff", "bf", "adiabatic"]], names=names
+            [["k"], ["ff", "adiabatic", "bf"]], names=names
         )
         num_cool = len(index_cooling)
         level_idxs2cooling_idx = pd.DataFrame(
