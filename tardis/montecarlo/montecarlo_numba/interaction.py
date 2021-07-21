@@ -85,7 +85,7 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
         activation_level_id = numba_plasma.line2macro_level_upper[
             r_packet.next_line_id
         ]
-        emission_line_id = macro_atom(
+        emission_line_id, transition_type = macro_atom(
             activation_level_id,
             r_packet.current_shell_id,
             numba_plasma
