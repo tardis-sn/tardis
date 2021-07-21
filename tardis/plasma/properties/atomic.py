@@ -35,6 +35,7 @@ __all__ = [
     "IonizationData",
     "ZetaData",
     "NLTEData",
+    "MacroAtomData",
     "PhotoIonizationData",
     "YgData",
     "YgInterpolator",
@@ -111,6 +112,16 @@ class Lines(BaseAtomicDataProperty):
     def _set_index(self, lines):
         # lines.set_index('line_id', inplace=True)
         return lines, lines["nu"], lines["f_lu"], lines["wavelength_cm"]
+
+
+class MacroAtomData(BaseAtomicDataProperty):
+    outputs = ("macro_atom_data",)
+
+    def _filter_atomic_property(self, macro_atom_data, selected_atoms):
+        return macro_atom_data
+
+    def _set_index(self, macro_atom_data):
+        return macro_atom_data
 
 
 class PhotoIonizationData(ProcessingPlasmaProperty):

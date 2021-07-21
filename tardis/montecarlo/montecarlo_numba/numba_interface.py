@@ -135,17 +135,13 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         macro_block_references = plasma.atomic_data.macro_atom_references[
             "block_references"
         ].values
-        transition_type = plasma.atomic_data.macro_atom_data[
-            "transition_type"
-        ].values
+        transition_type = plasma.macro_atom_data["transition_type"].values
 
         # Destination level is not needed and/or generated for downbranch
-        destination_level_id = plasma.atomic_data.macro_atom_data[
+        destination_level_id = plasma.macro_atom_data[
             "destination_level_idx"
         ].values
-        transition_line_id = plasma.atomic_data.macro_atom_data[
-            "lines_idx"
-        ].values
+        transition_line_id = plasma.macro_atom_data["lines_idx"].values
 
     return NumbaPlasma(
         electron_densities,
