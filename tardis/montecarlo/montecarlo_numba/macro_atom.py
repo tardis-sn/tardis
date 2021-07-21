@@ -66,7 +66,5 @@ def macro_atom(activation_level_id, current_shell_id, numba_plasma):
                 "the probability_event should be less than 1"
             )
 
-    if current_transition_type == MacroAtomTransitionType.BB_EMISSION:
-        return numba_plasma.transition_line_id[transition_id]
-    else:
-        raise MacroAtomError("MacroAtom currently only allows BB transitions")
+    # current_transition_type = MacroAtomTransitionType(current_transition_type)
+    return numba_plasma.transition_line_id[transition_id], current_transition_type
