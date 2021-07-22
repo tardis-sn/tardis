@@ -68,7 +68,7 @@ boundaries into cells -- radial shells for which the plasma state is (spatially)
 are shown, being divided by the light blue lines. The boundaries of the computational domain and of these cells are 
 computed during the simulation setup (refer back to :ref:`model`). As TARDIS is a time-independent code, meeaning
 that it calculates the spectra at an instant in time (namely at the time :math:`t_\mathrm{explosion}`), the radii of
-the boundaries (both of the computational domain and of the cells) do not chage throughout the simulation.
+the boundaries (both of the computational domain and of the cells) do not change throughout the simulation.
 
 .. image::
     ../images/expansion_animation.gif
@@ -168,7 +168,7 @@ packet is assigned a random value of optical depth :math:`\tau_\mathrm{interacti
 
 TARDIS considers two different radiation-matter interactions within the simulation: electron scattering and atomic
 line interactions. As packets propagate, they accumulate optical depth due to the possibility of going through either
-of these interations. Since the main focus of TARDIS is to calculate optical spectra,
+of these interactions. Since the main focus of TARDIS is to calculate optical spectra,
 electron-scatterings are treated in the elastic low-energy limit as classical
 Thomson scatterings. In this case, the electron scattering process is frequency-independent. As a consequence to the
 frequency independence, the rate at which a packet accumulates electron scattering optical depth depends only on the

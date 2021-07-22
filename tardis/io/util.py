@@ -154,7 +154,7 @@ def traverse_configs(base, other, func, *args):
     other :
         The object which is traversed along with `base`
     func :
-        A function called for each leaf of `base` and the correspnding leaf of `other`
+        A function called for each leaf of `base` and the corresponding leaf of `other`
         Signature: `func(item1, item2, *args)`
     args :
         Arguments passed into `func`

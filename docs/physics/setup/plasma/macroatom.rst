@@ -28,7 +28,7 @@ The second array is for book-keeping; it has exactly the length as levels (with 
 +--------+------------------+------------+----------------+-----------------+
 
 
-We now will calculate the transition probabilites, using the radiative rates in Equation 20, 21, and 22
+We now will calculate the transition probabilities, using the radiative rates in Equation 20, 21, and 22
 in :cite:`Lucy2002`. Then we calculate the downward emission probability from Equation 5, the downward and
 upward internal transition probabilities in :cite:`Lucy2003`.
 

@@ -97,7 +97,7 @@ def read_blondin_toymodel(fname):
         dict(
             name="velocity",
             unit="km/s",
-            desc="velocities of shell outer bounderies.",
+            desc="velocities of shell outer boundaries.",
         )
     ]
     blondin_dict_fields.append(

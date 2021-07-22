@@ -8,7 +8,7 @@ datatype:
   fields:
     -  name: velocity
        unit: km/s
-       desc: velocities of shell outer bounderies.
+       desc: velocities of shell outer boundaries.
     -  name: density
        unit: g/cm^3
        desc: density of shell.

@@ -11,7 +11,7 @@ def formatter_message(message, use_color=True):
     """
     Helper Function used for Coloring Log Output
     """
-    # These are the sequences need to get colored ouput
+    # These are the sequences need to get colored output
     RESET_SEQ = "\033[0m"
     BOLD_SEQ = "\033[1m"
     if use_color:

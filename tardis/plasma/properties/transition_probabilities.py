@@ -33,7 +33,7 @@ def normalize_trans_probs(p):
     -------
     pandas.DataFrame, dtype float
         Normalized transition probabilities: the sum of
-        all probabilites with the same source_level_idx sum to one.
+        all probabilities with the same source_level_idx sum to one.
         Indexed by source_level_idx, destination_level_idx.
     """
     p_summed = p.groupby(level=0).sum()
@@ -62,7 +62,7 @@ class SpMatrixSeriesConverterMixin(object):
         Returns
         -------
         scipy.sparse.coo.coo_matrix
-            Sparse matrix of rates or transition probabilites.
+            Sparse matrix of rates or transition probabilities.
         """
         q_indices = (
             series.index.get_level_values(0),
@@ -84,7 +84,7 @@ class SpMatrixSeriesConverterMixin(object):
         Parameters
         ----------
         matrix : scipy.sparse.coo.coo_matrix
-            Sparse matrix of rates or transition probabilites.
+            Sparse matrix of rates or transition probabilities.
         idx2reduced_idx : pandas.Series
             Values of (compact) matrix index. Indexed by references_idx.
             Maps the references_idx of a level to the index

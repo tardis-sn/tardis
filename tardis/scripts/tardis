@@ -9,7 +9,7 @@ from tardis.simulation import Simulation
 
 
 def get_virtual_spectrum():
-    # Catch warning when acessing invalid spectrum_virtual
+    # Catch warning when accessing invalid spectrum_virtual
     with warnings.catch_warnings(record=True) as w:
         spectrum = simulation.runner.spectrum_virtual
 

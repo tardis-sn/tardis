@@ -16,7 +16,7 @@ Azure Repos
 
 Azure Repos is just another service to store Git repositories.
 Currently, we use Azure Repos to mirror ``tardis-refdata``
-repository since Azure does not impose limits on LFS bandwith
+repository since Azure does not impose limits on LFS bandwidth
 nor storage.
 
 **To clone this repository:**
@@ -25,7 +25,7 @@ nor storage.
 
   git clone https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata
 
-**To download a LFS file trough HTTPS:**
+**To download a LFS file through HTTPS:**
 
 .. code-block:: none
 
@@ -105,7 +105,7 @@ and works mostly in the same way.
 .. warning:: Triggers also can be set on the Azure's web interface
           too, but this action is discouraged, since it overrides
           any trigger specified in the YAML file and could lead to
-          confusing sitations.
+          confusing situations.
 
 There are more useful triggers such as the *cron* trigger, see the
 `Azure documentation section on triggers`_ for more information.
@@ -247,7 +247,7 @@ The common set of steps used across most TARDIS pipelines resides in the
 - Install TARDIS environment (optional).
 - Build and install TARDIS (optional).
 
-It was written to make pipelines easier to create and mantain. For example,
+It was written to make pipelines easier to create and maintain. For example,
 to start a new pipeline use::
 
   steps:
@@ -301,12 +301,12 @@ Authors pipeline
 
 This pipeline runs a notebook located in ``tardis-zenodo`` repository and
 pushes a new version of ``.zenodo.json`` to the root of ``tardis``
-repository if new commiters are found (or author order changes). The
+repository if new committers are found (or author order changes). The
 rendered notebook is uploaded to the pipeline results as an artifact.
 
 .. warning :: Fails if some author name is incomplete (due to an incomplete
-          GitHub profile) or duplicated (commited with more than one 
-          email adress). In both cases update ``.mailmap`` to fix it.
+          GitHub profile) or duplicated (committed with more than one 
+          email address). In both cases update ``.mailmap`` to fix it.
 
 In the near future we want to auto-update the citation guidelines in the
 ``README.rst`` and the documentation.

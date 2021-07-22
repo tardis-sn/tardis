@@ -18,7 +18,7 @@ TARDIS follows the `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_ style gu
 
 Black
 -----
-`Black <https://black.readthedocs.io/en/stable/index.html>`_ is a PEP 8 compliant opinionated code formatter. At TARDIS. we use Black to automatically conform to PEP 8. It is already installed in the TARDIS conda environment, so all you have to do is to run Black before commiting your changes: ::
+`Black <https://black.readthedocs.io/en/stable/index.html>`_ is a PEP 8 compliant opinionated code formatter. At TARDIS. we use Black to automatically conform to PEP 8. It is already installed in the TARDIS conda environment, so all you have to do is to run Black before committing your changes: ::
     
     black {source_file_or_directory}
 

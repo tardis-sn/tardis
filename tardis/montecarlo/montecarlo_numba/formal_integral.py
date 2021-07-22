@@ -667,7 +667,7 @@ def reverse_binary_search(x, x_insert, imin, imax):
 def trapezoid_integration(array, h):
     """in the future, let's just replace
     this with the numpy trapz
-    since it is numba compatable
+    since it is numba compatible
     """
     return np.trapz(array, dx=h)
 

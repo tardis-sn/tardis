@@ -152,7 +152,7 @@ class TestLineInfoWidgetEvents:
 
         selection_range = request.param
 
-        # Since we cannot programatically make a Box selection on spectrum
+        # Since we cannot programmatically make a Box selection on spectrum
         # so we have to directly call its event listener by passing
         # selected wavelength range in a BoxSelector object
         if selection_range:

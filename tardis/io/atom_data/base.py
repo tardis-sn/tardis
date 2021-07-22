@@ -198,7 +198,7 @@ class AtomData(object):
                 )
                 atom_data.version = None
 
-            # ToDo: strore data sources as attributes in carsus
+            # ToDo: store data sources as attributes in carsus
 
             logger.info(
                 f"Reading Atom Data with: UUID = {atom_data.uuid1} MD5  = {atom_data.md5} "
@@ -592,7 +592,7 @@ class NLTEData(object):
 
     def get_collision_matrix(self, species, t_electrons):
         """
-        Creat collision matrix by interpolating the C_ul values for
+        Create collision matrix by interpolating the C_ul values for
         the desired temperatures.
         """
         c_ul_matrix = self.C_ul_interpolator[species](t_electrons)

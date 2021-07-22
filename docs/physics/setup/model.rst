@@ -25,7 +25,7 @@ also shown in the animation.
 Additionally, TARDIS divides the space between the inner and outer computational boundaries into cells -- radial
 shells for which the plasma state is (spatially) constant. In the animation, 6 cells are shown, being divided by the
 light blue lines. As TARDIS is a time-independent code which calculates the spectra at an instant in time, the radii
-of the boundaries (either of the computational domain or of the cells) do not chage throughout the simulation.
+of the boundaries (either of the computational domain or of the cells) do not change throughout the simulation.
 
 .. image::
     ../images/expansion_animation.gif

@@ -136,7 +136,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     )
     comov_nu = r_packet.nu * doppler_factor
 
-    cur_line_id = start_line_id  # initializing varibale for Numba
+    cur_line_id = start_line_id  # initializing variable for Numba
     # - do not remove
     last_line_id = len(numba_plasma.line_list_nu) - 1
     for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):

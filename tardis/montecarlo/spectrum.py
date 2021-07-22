@@ -9,7 +9,7 @@ class TARDISSpectrum(HDFWriterMixin):
     TARDISSpectrum(_frequency, luminosity)
 
     _frequency: astropy.units.Quantity with unit 'Hz' or a length
-        These are bin edges of frequency or wavelenght bins for the spectrum.
+        These are bin edges of frequency or wavelength bins for the spectrum.
 
     luminosity: astropy.units.Quantity with unit Energy per second
         The luminosity in each bin of the spectrum.
