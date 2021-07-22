@@ -26,22 +26,20 @@ from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
 )
 from tardis.montecarlo.montecarlo_numba import njit_dict
 from numba.typed import List
-import tqdm.notebook as tq
-from tqdm import tqdm
+from tardis.util.base import progress_bars
+from IPython.display import display
 
-packet_pbar = tq.tqdm(
-    total=860000,
-    desc="Packets",
-    bar_format="{bar}{percentage:3.0f}% packets propagated",
-)
-iteration_pbar = tq.tqdm(
-    total=20,
-    desc="Iterations",
-    bar_format="{bar}{n_fmt} of 20 iterations completed",
+iterations = 20
+packets = 860000
+iterations_pbar, packet_pbar, pbar_init = progress_bars(
+    packets=packets, iterations=iterations
 )
 
 
-def update_packet_pbar(i):
+def update_packet_pbar(i, reset=False):
+    if packet_pbar.n == packets:
+        packet_pbar.reset()
+        display(packet_pbar.container)
     packet_pbar.update(int(i))
 
 
@@ -126,7 +124,10 @@ def montecarlo_radial1d(model, plasma, runner):
         runner.virt_packet_last_line_interaction_out_id = np.concatenate(
             np.array(virt_packet_last_line_interaction_out_id)
         ).ravel()
-    iteration_pbar.update(1)
+    if iterations_pbar.n == iterations:
+        iterations_pbar.reset()
+        display(iterations_pbar.container)
+    iterations_pbar.update(1)
 
 
 @njit(**njit_dict)
@@ -198,6 +199,7 @@ def montecarlo_main_loop(
     for i in prange(len(output_nus)):
         with objmode:
             update_packet_pbar(1)
+
         if montecarlo_configuration.single_packet_seed != -1:
             seed = packet_seeds[montecarlo_configuration.single_packet_seed]
             np.random.seed(seed)

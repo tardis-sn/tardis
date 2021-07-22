@@ -14,6 +14,8 @@ from pyne import nucname
 import tardis
 from tardis.io.util import get_internal_data_path
 from IPython import get_ipython
+import tqdm.notebook as tq
+from tqdm import tqdm
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
@@ -596,3 +598,21 @@ def is_notebook():
     # All other shell instances are returned False
     else:
         return False
+
+
+def progress_bars(packets, iterations):
+    if is_notebook():
+        pbar = tq.tqdm
+    else:
+        pbar = tqdm
+    iteration_bar_format = (
+        "{bar}{n_fmt} out of" + f" {iterations} iterations completed"
+    )
+    iteration_pbar = pbar(total=iterations, bar_format=iteration_bar_format)
+
+    packet_pbar = pbar(
+        total=packets,
+        bar_format="{bar}{percentage:3.0f}%  of packets propagated",
+    )
+
+    return iteration_pbar, packet_pbar, True
