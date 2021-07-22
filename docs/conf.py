@@ -153,9 +153,7 @@ nbsphinx_prolog = r"""
     </style>
     
     <div class="admonition note">
-    <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath={{ docname|e }}" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch Interactive Version</a></p>
-    <p>And you can download it from
-    <a class="reference external" href="https://github.com/tardis-sn/tardis/tree/master/{{ docname|e }}" target="_blank" rel="noopener noreferrer">GitHub.</a></p>
+    <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath={{ docname|e }}" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch interactive version</a></p>
     </div>
 """
 
