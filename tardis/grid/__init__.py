@@ -1,1 +1,1 @@
-from tardis.grid.tardisgrid import *
+from tardis.grid.base import *
