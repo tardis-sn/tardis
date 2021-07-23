@@ -119,10 +119,42 @@ nbsphinx_execute_arguments = [
     "--InlineBackend.rc={'figure.dpi': 96}",
 ]
 
-nbsphinx_prolog = """
-This notebook is available at 
-https://github.com/tardis-sn/tardis/tree/master/docs/{{ env.doc2path(env.docname, base=None) }}
+nbsphinx_prolog = r"""
+{% set docname = 'docs/' + env.doc2path(env.docname, base=None) %}
+.. raw:: html
+    
+    <style>
+        .launch-btn {
+            background-color: #2980B9;
+            border: none;
+            border-radius: 4px;
+            color: #fcfcfc;
+            font-family: inherit;
+            text-decoration: none;
+            padding: 3px 8px;
+            letter-spacing: 0.03em;
+            display: inline-block;
+            line-height: 1.5em;
+        }
 
+        .launch-btn:hover {
+            background-color: #1b6391;
+            color: #fcfcfc;
+        }
+
+        .launch-btn:visited {
+            color: #fcfcfc;
+        }
+
+        .note-p {
+            margin-bottom: 0.4em;
+            line-height: 2em;
+        }
+    </style>
+    
+    <div class="admonition note">
+    <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath={{ docname|e }}" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch interactive version</a></p>
+    </div>
 """
 
 if os.getenv("DISABLE_NBSPHINX") == "1":
