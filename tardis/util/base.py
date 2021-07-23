@@ -600,9 +600,11 @@ def is_notebook():
 class QDataFrame(pd.DataFrame):
     # normal properties
     _metadata = ["units"]
-    def __init__(self, units=[], *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        units = kwargs.pop('units', [])
         super(QDataFrame, self).__init__(*args, **kwargs)
         self.units = units
     @property
     def _constructor(self):
         return QDataFrame
+
