@@ -1,5 +1,47 @@
 ## Change Log
 
+### release-2021.7.18.0 (2021/07/16 14:41 +00:00)
+- [#1665](https://github.com/tardis-sn/tardis/pull/1665) Demonstrating the `nelements` and the `species_list` functionality in the SDEC plot notebook (@atharva-2001)
+- [#1727](https://github.com/tardis-sn/tardis/pull/1727) Fixing Quickstart Metadata (#1727) (@smithis7)
+- [#1726](https://github.com/tardis-sn/tardis/pull/1726) display "latest" in doc version (#1726) (@epassaro)
+- [#1716](https://github.com/tardis-sn/tardis/pull/1716) Small fixes to docs (#1716) (@smithis7)
+- [#1722](https://github.com/tardis-sn/tardis/pull/1722) Added missing import for IonNumberDensityHeNLTE (#1722) (@DhruvSondhi)
+- [#1714](https://github.com/tardis-sn/tardis/pull/1714) Removed Formatting from exisiting log messages (#1714) (@DhruvSondhi)
+
+### release-2021.7.14.0 (2021/07/14 15:39 +00:00)
+- [#1707](https://github.com/tardis-sn/tardis/pull/1707) Open in VSCode badge (#1707) (@wkerzendorf)
+- [#1713](https://github.com/tardis-sn/tardis/pull/1713) fix package data for conda-forge package (#1713) (@epassaro)
+- [#1711](https://github.com/tardis-sn/tardis/pull/1711) Changed the xlim and the ylabel in the quickstart notebook plot (#1711) (@Rodot-)
+
+### release-2021.7.12.0 (2021/07/12 20:05 +00:00)
+- [#1686](https://github.com/tardis-sn/tardis/pull/1686) fix pip install (#1686) (@epassaro)
+- [#1701](https://github.com/tardis-sn/tardis/pull/1701) Adding Logging Support for Caught Exceptions (#1701) (@DhruvSondhi)
+- [#1684](https://github.com/tardis-sn/tardis/pull/1684) Moved Simulation & Montecarlo Logging Frameworks to `tardis/io/logger` folder (#1684) (@DhruvSondhi)
+- [#1691](https://github.com/tardis-sn/tardis/pull/1691) Create profiling documentation directory (#1691) (@KevinCawley)
+
+### release-2021.7.11.0 (2021/07/09 17:07 +00:00)
+- [#1680](https://github.com/tardis-sn/tardis/pull/1680) Added docstring-coverage badge (#1680) (@epassaro)
+- [#1696](https://github.com/tardis-sn/tardis/pull/1696) Adding mu and r to virtual packet logging (#1696) (@smithis7)
+- [#1695](https://github.com/tardis-sn/tardis/pull/1695) Enabling spectrum plotting in the frequency domain (#1695) (@smithis7)
+
+### release-2021.7.5 (2021/07/05 14:32 +00:00)
+- [#1688](https://github.com/tardis-sn/tardis/pull/1688) final changes for release pipeline (#1688) (@epassaro)
+
+### release-2021.7.2.dev1+g58e4e79d (2021/07/02 15:44 +00:00)
+- [#1683](https://github.com/tardis-sn/tardis/pull/1683) prepare release pipeline for CalVer (#1683) (@epassaro)
+
+### release-2021.07.01 (2021/07/01 23:05 +00:00)
+- [#1674](https://github.com/tardis-sn/tardis/pull/1674) APE 17 migration (#1674) (@epassaro)
+- [#1658](https://github.com/tardis-sn/tardis/pull/1658) add refdata repo selection in template (#1658) (@epassaro)
+- [#1682](https://github.com/tardis-sn/tardis/pull/1682) Opacities script with proper credit (#1682) (@andrewfullard)
+- [#1580](https://github.com/tardis-sn/tardis/pull/1580) Revert "Port tardis_opacities script from tardisanalysis (#1580)" (#1677) (@andrewfullard)
+- [#1660](https://github.com/tardis-sn/tardis/pull/1660) Small fixes to I/O documentation (#1660) (@smithis7)
+- [#1678](https://github.com/tardis-sn/tardis/pull/1678) Enabling Repository on Binder (#1678) (@smithis7)
+- [#1679](https://github.com/tardis-sn/tardis/pull/1679) Formatted files with Black  (#1679) (@DhruvSondhi)
+- [#1633](https://github.com/tardis-sn/tardis/pull/1633) Implementing Logging Configuration for Notebook Logging (#1633) (@DhruvSondhi)
+- [#1642](https://github.com/tardis-sn/tardis/pull/1642) Adding Glossary (#1642) (@J-Je0ng)
+- [#1580](https://github.com/tardis-sn/tardis/pull/1580) Port tardis_opacities script from tardisanalysis (#1580) (@MarkMageeAstro)
+
 ### v3.0.dev4019 (2021/06/25 16:09 +00:00)
 - [#1664](https://github.com/tardis-sn/tardis/pull/1664) Use conda-forge packages instead of pypi (#1664) (@epassaro)
 - [#1667](https://github.com/tardis-sn/tardis/pull/1667) Moving Profiling Page (#1667) (@smithis7)

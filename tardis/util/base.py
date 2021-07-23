@@ -219,6 +219,9 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
                 radial1d_mdl.plasma.tau_sobolevs[0].loc[value["line_id"]]
             )
         except KeyError:
+            logger.debug(
+                "Synpp Ref does not have valid KEY for ref_log_tau in Radial1D Model"
+            )
             pass
 
     relevant_synpp_refs = radial1d_mdl.atom_data.synpp_refs[
@@ -371,6 +374,9 @@ def species_string_to_tuple(species_string):
     try:
         ion_number = roman_to_int(ion_number_string)
     except ValueError:
+        logger.debug(
+            "Ion Number does not contain a Roman Numeral. Checking for integer value"
+        )
         try:
             ion_number = int(ion_number_string)
         except ValueError:
@@ -555,6 +561,9 @@ def is_notebook():
         # Trying to import the ZMQInteractiveShell for Jupyter based environments
         from ipykernel.zmqshell import ZMQInteractiveShell
     except NameError:
+        logger.debug(
+            "Cannot Import ipykernel.zmqshell. Not present inside Jupyter Environment"
+        )
         # If the class cannot be imported then we are automatically return False Value
         # Raised due to Name Error with the imported Class
         return False
@@ -563,6 +572,9 @@ def is_notebook():
         # Trying to import Interactive Terminal based IPython shell
         from IPython.core.interactiveshell import InteractiveShell
     except NameError:
+        logger.debug(
+            "Cannot Import IPython.core.interactiveshell. Not present in IPython shell"
+        )
         # If the class cannot be imported then we are automatically return False Value
         # Raised due to Name Error with the imported Class
         return False
@@ -571,6 +583,7 @@ def is_notebook():
         # Trying to get the value of the shell via the get_ipython() method
         shell = get_ipython()
     except NameError:
+        logger.debug("Cannot infer Shell Id")
         # Returns False if the shell name cannot be inferred correctly
         return False
 

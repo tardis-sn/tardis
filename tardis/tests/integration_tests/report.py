@@ -33,7 +33,7 @@ import time
 # For specifying error while exception handling
 from socket import gaierror
 
-from tardis import __githash__ as tardis_githash
+# from tardis import __githash__ as tardis_githash
 
 try:
     from pytest_html import __name__ as pytest_html_path

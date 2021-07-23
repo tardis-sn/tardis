@@ -8,8 +8,14 @@ stars (*supernovae*).
 .. image:: https://img.shields.io/badge/Donate-to%20TARDIS-brightgreen.svg
     :target: https://numfocus.salsalabs.org/donate-to-tardis/index.html
 
+.. image:: https://open.vscode.dev/badges/open-in-vscode.svg
+    :target: https://open.vscode.dev/tardis-sn/tardis
+
 .. image:: https://codecov.io/gh/tardis-sn/tardis/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/tardis-sn/tardis
+
+.. image:: https://img.shields.io/endpoint?url=https://jsonbin.org/tardis-bot/badges/tardis/docstr-coverage
+    :target: https://github.com/tardis-sn/tardis/actions/workflows/docstr-coverage.yml?query=branch%3Amaster
 
 .. image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.592480-blue
     :target: https://doi.org/10.5281/zenodo.592480
@@ -30,11 +36,8 @@ stars (*supernovae*).
 .. image:: https://github.com/tardis-sn/tardis/actions/workflows/documentation-build.yml/badge.svg
     :target: https://tardis-sn.github.io/tardis/index.html
 
-.. image:: https://dev.azure.com/tardis-sn/TARDIS/_apis/build/status/TARDIS%20tests?repoName=tardis-sn%2Ftardis&branchName=refs%2Fpull%2F1573%2Fmerge
-    :target: https://dev.azure.com/tardis-sn/TARDIS/_build/latest?definitionId=3&repoName=tardis-sn%2Ftardis&branchName=refs%2Fpull%2F1573%2Fmerge
-
-
-
+.. image:: https://dev.azure.com/tardis-sn/TARDIS/_apis/build/status/TARDIS%20tests?branchName=master
+    :target: https://dev.azure.com/tardis-sn/TARDIS/_build/latest?definitionId=6&branchName=master
 
 
 ******************************
@@ -180,3 +183,14 @@ The following BibTeX entries are needed for the references:
       doi          = {10.5281/zenodo.3893940},
       url          = {https://doi.org/10.5281/zenodo.3893940}
     }
+
+
+*******
+License
+*******
+
+This project is Copyright (c) TARDIS Collaboration and licensed under
+the terms of the BSD 3-Clause license. This package is based upon
+the `Astropy package template <https://github.com/astropy/package-template>`_
+which is licensed under the BSD 3-clause license. See the licenses folder for
+more information.

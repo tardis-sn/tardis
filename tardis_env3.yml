@@ -5,6 +5,8 @@ channels:
 
 dependencies:
   - python=3.7
+  - setuptools
+  - setuptools_scm
   - pip
   - numpy=1.19
   - scipy=1.5
@@ -43,9 +45,10 @@ dependencies:
 
   # Documentation
   - sphinx
+  - sphinx-astropy
   - sphinx_bootstrap_theme
-  - sphinx_rtd_theme
   - sphinx-jsonschema
+  - sphinx_rtd_theme
   - sphinxcontrib-apidoc
   - sphinxcontrib-bibtex
   - recommonmark

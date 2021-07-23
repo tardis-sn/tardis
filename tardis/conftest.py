@@ -1,124 +1,79 @@
-# this contains imports plugins that configure py.test for astropy tests.
-# by importing them here in conftest.py they are discoverable by py.test
-# no matter how it is invoked within the source tree.
+"""Configure Test Suite.
 
-# This file is used to configure the behavior of pytest when using the Astropy
-# test infrastructure.
+This file is used to configure the behavior of pytest when using the Astropy
+test infrastructure. It needs to live inside the package in order for it to
+get picked up when running the tests inside an interpreter using
+packagename.test
+
+"""
+
+import os
 
 from astropy.version import version as astropy_version
 
+# For Astropy 3.0 and later, we can use the standalone pytest plugin
 if astropy_version < "3.0":
-    # With older versions of Astropy, we actually need to import the pytest
-    # plugins themselves in order to make them discoverable by pytest.
-    from astropy.tests.pytest_plugins import *
+    from astropy.tests.pytest_plugins import *  # noqa
+
+    del pytest_report_header
+    ASTROPY_HEADER = True
 else:
-    # As of Astropy 3.0, the pytest plugins provided by Astropy are
-    # automatically made available when Astropy is installed. This means it's
-    # not necessary to import them here, but we still need to import global
-    # variables that are used for configuration.
-    from astropy.tests.plugins.display import (
-        PYTEST_HEADER_MODULES,
-        TESTED_VERSIONS,
-    )
+    try:
+        from pytest_astropy_header.display import (
+            PYTEST_HEADER_MODULES,
+            TESTED_VERSIONS,
+        )
 
-from astropy.tests.helper import enable_deprecations_as_exceptions
+        ASTROPY_HEADER = True
+    except ImportError:
+        ASTROPY_HEADER = False
 
-## Uncomment the following line to treat all DeprecationWarnings as
-## exceptions. For Astropy v2.0 or later, there are 2 additional keywords,
-## as follow (although default should work for most cases).
-## To ignore some packages that produce deprecation warnings on import
-## (in addition to 'compiler', 'scipy', 'pygments', 'ipykernel', and
-## 'setuptools'), add:
-##     modules_to_ignore_on_import=['module_1', 'module_2']
-## To ignore some specific deprecation warning messages for Python version
-## MAJOR.MINOR or later, add:
-##     warnings_to_ignore_by_pyver={(MAJOR, MINOR): ['Message to ignore']}
+
+def pytest_configure(config):
+    """Configure Pytest with Astropy.
+
+    Parameters
+    ----------
+    config : pytest configuration
+
+    """
+    if ASTROPY_HEADER:
+
+        config.option.astropy_header = True
+
+        # Customize the following lines to add/remove entries from the list of
+        # packages for which version numbers are displayed when running the tests.
+        PYTEST_HEADER_MODULES.pop("Pandas", None)
+        PYTEST_HEADER_MODULES["scikit-image"] = "skimage"
+
+        from . import __version__
+
+        packagename = os.path.basename(os.path.dirname(__file__))
+        TESTED_VERSIONS[packagename] = __version__
+
+
+# Uncomment the last two lines in this block to treat all DeprecationWarnings as
+# exceptions. For Astropy v2.0 or later, there are 2 additional keywords,
+# as follow (although default should work for most cases).
+# To ignore some packages that produce deprecation warnings on import
+# (in addition to 'compiler', 'scipy', 'pygments', 'ipykernel', and
+# 'setuptools'), add:
+#     modules_to_ignore_on_import=['module_1', 'module_2']
+# To ignore some specific deprecation warning messages for Python version
+# MAJOR.MINOR or later, add:
+#     warnings_to_ignore_by_pyver={(MAJOR, MINOR): ['Message to ignore']}
+# from astropy.tests.helper import enable_deprecations_as_exceptions  # noqa
 # enable_deprecations_as_exceptions()
 
-## Uncomment and customize the following lines to add/remove entries from
-## the list of packages for which version numbers are displayed when running
-## the tests. Making it pass for KeyError is essential in some cases when
-## the package uses other astropy affiliated packages.
-# try:
-#     PYTEST_HEADER_MODULES['Astropy'] = 'astropy'
-#     PYTEST_HEADER_MODULES['scikit-image'] = 'skimage'
-#     del PYTEST_HEADER_MODULES['h5py']
-# except (NameError, KeyError):  # NameError is needed to support Astropy < 1.0
-#     pass
-
-## Uncomment the following lines to display the version number of the
-## package rather than the version number of Astropy in the top line when
-## running the tests.
-# import os
-#
-## This is to figure out the package version, rather than
-## using Astropy's
-# try:
-#     from .version import version
-# except ImportError:
-#     version = 'dev'
-#
-# try:
-#     packagename = os.path.basename(os.path.dirname(__file__))
-#     TESTED_VERSIONS[packagename] = version
-# except NameError:   # Needed to support Astropy <= 1.0.0
-#     pass
-
-### XXX #### Here the TARDIS testing stuff begins ### XXX ####
+# -------------------------------------------------------------------------
+# Here the TARDIS testing stuff begins
+# -------------------------------------------------------------------------
 
 import pytest
-
+import pandas as pd
 from tardis.io.util import yaml_load_config_file
 from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
-import pandas as pd
-
-###
-# Astropy
-###
-
-# Uncomment the following line to treat all DeprecationWarnings as
-# exceptions
-# enable_deprecations_as_exceptions()
-
-# Uncomment and customize the following lines to add/remove entries from
-# the list of packages for which version numbers are displayed when running
-# the tests. Making it pass for KeyError is essential in some cases when
-# the package uses other astropy affiliated packages.
-try:
-    PYTEST_HEADER_MODULES["Numpy"] = "numpy"
-    PYTEST_HEADER_MODULES["Scipy"] = "scipy"
-    PYTEST_HEADER_MODULES["Pandas"] = "pandas"
-    PYTEST_HEADER_MODULES["Astropy"] = "astropy"
-    PYTEST_HEADER_MODULES["Yaml"] = "yaml"
-    PYTEST_HEADER_MODULES["h5py"] = "h5py"
-    PYTEST_HEADER_MODULES["Matplotlib"] = "matplotlib"
-    PYTEST_HEADER_MODULES["Ipython"] = "IPython"
-except (NameError, KeyError):  # NameError is needed to support Astropy < 1.0
-    pass
-
-# Uncomment the following lines to display the version number of the
-# package rather than the version number of Astropy in the top line when
-# running the tests.
-import os
-
-# This is to figure out the affiliated package version, rather than
-# using Astropy's
-try:
-    from .version import version
-except ImportError:
-    version = "dev"
-
-try:
-    packagename = os.path.basename(os.path.dirname(__file__))
-    TESTED_VERSIONS[packagename] = version
-except NameError:  # Needed to support Astropy <= 1.0.0
-    pass
-
-
-# -------------------------------------------------------------------------
-# Initialization
-# -------------------------------------------------------------------------
 
 
 def pytest_addoption(parser):

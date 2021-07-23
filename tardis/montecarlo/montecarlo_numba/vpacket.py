@@ -273,6 +273,8 @@ def trace_vpacket_volley(
         vpacket_collection.set_properties(
             v_packet.nu,
             v_packet.energy,
+            v_packet_mu,
+            r_packet.r,
             r_packet.last_interaction_in_nu,
             r_packet.last_interaction_type,
             r_packet.last_line_interaction_in_id,

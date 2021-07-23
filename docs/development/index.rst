@@ -31,4 +31,4 @@ the core team (active maintainers) of TARDIS.
     update_refdata
     matterbridge
     debug_numba
-    profiling_example
+    profiling/index

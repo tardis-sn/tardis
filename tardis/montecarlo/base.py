@@ -17,11 +17,11 @@ from tardis.montecarlo import montecarlo_configuration as mc_config_module
 
 
 from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
-from tardis.montecarlo.montecarlo_numba import montecarlo_logger as mc_logger
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     configuration_initialize,
 )
 from tardis.montecarlo.montecarlo_numba import numba_config
+from tardis.io.logger import montecarlo_logger as mc_logger
 
 import numpy as np
 
@@ -60,12 +60,14 @@ class MontecarloRunner(HDFWriterMixin):
     ]
 
     vpacket_hdf_properties = [
+        "virt_packet_nus",
+        "virt_packet_energies",
+        "virt_packet_initial_rs",
+        "virt_packet_initial_mus",
         "virt_packet_last_interaction_in_nu",
         "virt_packet_last_interaction_type",
         "virt_packet_last_line_interaction_in_id",
         "virt_packet_last_line_interaction_out_id",
-        "virt_packet_nus",
-        "virt_packet_energies",
     ]
 
     hdf_name = "runner"
@@ -129,6 +131,8 @@ class MontecarloRunner(HDFWriterMixin):
         self.virt_packet_last_line_interaction_out_id = np.ones(2) * -1
         self.virt_packet_nus = np.ones(2) * -1.0
         self.virt_packet_energies = np.ones(2) * -1.0
+        self.virt_packet_initial_rs = np.ones(2) * -1.0
+        self.virt_packet_initial_mus = np.ones(2) * -1.0
 
         # set up logger based on config
         mc_logger.DEBUG_MODE = debug_packets

@@ -44,7 +44,7 @@ jobs:
 
       - name: Build documentation
         shell: bash -l {0}
-        run: python setup.py build_docs
+        run: cd docs/; make html
 
       - name: Extract branch name
         shell: bash

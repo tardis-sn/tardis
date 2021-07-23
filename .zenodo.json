@@ -119,6 +119,9 @@
       "name": "Varanasi, Kaushik"
     },
     {
+      "name": "Sondhi, Dhruv"
+    },
+    {
       "name": "Gillanders, James",
       "orcid": "0000-0002-8094-6108"
     },
@@ -126,13 +129,10 @@
       "name": "O'Brien, Jack"
     },
     {
-      "name": "Sondhi, Dhruv"
+      "name": "Reinecke, Martin"
     },
     {
       "name": "Eweis, Youssef"
-    },
-    {
-      "name": "Reinecke, Martin"
     },
     {
       "name": "Bylund, Tomas"
@@ -163,26 +163,32 @@
       "name": "Livneh, Ran"
     },
     {
-      "name": "Rajagopalan, Srinath"
-    },
-    {
       "name": "Mishra, Sashank",
       "orcid": "0000-0001-8302-1584"
     },
     {
-      "name": "Floers, Andreas"
-    },
-    {
-      "name": "Reichenbach, John"
+      "name": "Rajagopalan, Srinath"
     },
     {
       "name": "Jain, Rinkle"
     },
     {
-      "name": "Brar, Antreev"
+      "name": "Reichenbach, John"
+    },
+    {
+      "name": "Floers, Andreas"
     },
     {
       "name": "Singh, Sourav"
+    },
+    {
+      "name": "Brar, Antreev"
+    },
+    {
+      "name": "Kowalski, Nathan"
+    },
+    {
+      "name": "Sofiatti, Caroline"
     },
     {
       "name": "Selsing, Jonatan"
@@ -191,25 +197,34 @@
       "name": "Talegaonkar, Chinmay"
     },
     {
-      "name": "Sofiatti, Caroline"
+      "name": "Wahi, Ujjwal"
     },
     {
-      "name": "Kowalski, Nathan"
+      "name": "Patel, Pratik"
+    },
+    {
+      "name": "Singh Rathore, Parikshit"
     },
     {
       "name": "Patra, Nilesh"
     },
     {
-      "name": "Gupta, Suyash"
-    },
-    {
-      "name": "Aggarwal, Yash"
+      "name": "Sarafina, Nance"
     },
     {
       "name": "Sandler, Morgan"
     },
     {
-      "name": "Sarafina, Nance"
+      "name": "Gupta, Suyash"
+    },
+    {
+      "name": "Yap, Kevin"
+    },
+    {
+      "name": "Sharma, Sampark"
+    },
+    {
+      "name": "Aggarwal, Yash"
     },
     {
       "name": "Volodin, Dmitry"
@@ -221,28 +236,13 @@
       "name": "Kolliboyina, Chaitanya"
     },
     {
-      "name": "Wahi, Ujjwal"
-    },
-    {
-      "name": "Yap, Kevin"
-    },
-    {
-      "name": "Kharkar, Atharwa"
-    },
-    {
-      "name": "Singh Rathore, Parikshit"
+      "name": "Kumar, Atul"
     },
     {
       "name": "Nayak U, Ashwin"
     },
     {
-      "name": "Patel, Pratik"
-    },
-    {
-      "name": "Kumar, Atul"
-    },
-    {
-      "name": "Sharma, Sampark"
+      "name": "Kharkar, Atharwa"
     }
   ]
 }

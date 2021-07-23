@@ -37,7 +37,7 @@ jobs:
 
       - name: Build Sphinx Documentation
         shell: bash -l {0}
-        run: python setup.py build_docs
+        run: cd docs/; make html
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
