@@ -273,6 +273,9 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         idx2deactivation_idx,
         level_idxs2transition_idx,
         p_deactivation,
+        cool_rate_fb,
+        cool_rate_fb_tot,
+        level2continuum_idx,
         B,
     ):
         # Prepare the transition probabilities for the non continuum species
@@ -307,11 +310,36 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         )
         level_absorption_probs.index = absorption_index
 
+        # Prepare the free-bound cooling probabilities
+        fb_cooling_probs = (
+            cool_rate_fb
+            / cool_rate_fb_tot.values
+            * p_deactivation.loc[("k"), ("bf")]
+        )
+        continuum_idx = level2continuum_idx.loc[fb_cooling_probs.index].values
+        fb_cooling_probs.index = pd.MultiIndex.from_product(
+            [["k"], np.ones(len(fb_cooling_probs), dtype=int) * -1],
+            names=p_deactivation.index.names,
+        )
+        fb_cooling_probs.insert(0, "lines_idx", continuum_idx)
+        fb_cooling_probs.insert(
+            0,
+            "transition_type",
+            level_idxs2transition_idx.loc[("k", "bf"), "transition_type"],
+        )
+
         # Prepare the deactivation channel probabilities for the continuum species
         deactivation_channel_probs = p_deactivation.copy()
         deactivation_channel_probs = pd.concat(
             [level_idxs2transition_idx, deactivation_channel_probs], axis=1
         ).reindex(deactivation_channel_probs.index)
+
+        deactivation_channel_probs = deactivation_channel_probs.drop(
+            ("k", "bf")
+        )
+        deactivation_channel_probs = pd.concat(
+            [deactivation_channel_probs, fb_cooling_probs], sort=False
+        )
 
         source_level_idx = deactivation_channel_probs.index.get_level_values(
             "source_level_idx"
