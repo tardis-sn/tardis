@@ -1,5 +1,17 @@
 ## Change Log
 
+### release-2021.7.25.0 (2021/07/23 16:16 +00:00)
+- [#1697](https://github.com/tardis-sn/tardis/pull/1697) Interact Button in Documentation (#1697) (@smithis7)
+- [#1636](https://github.com/tardis-sn/tardis/pull/1636) Adding Convergence Plots (#1636) (@atharva-2001)
+- [#1723](https://github.com/tardis-sn/tardis/pull/1723) Edit docstring in `run_tardis` (#1723) (@atharva-2001)
+- [#1743](https://github.com/tardis-sn/tardis/pull/1743) Fix for Unresponsive Main Page due to Twitter Widget (#1743) (@atharva-2001)
+- [#1746](https://github.com/tardis-sn/tardis/pull/1746) Fix docs build [build docs] (#1746) (@smithis7)
+- [#1730](https://github.com/tardis-sn/tardis/pull/1730) Renamed log_state to log_level (#1730) (@DhruvSondhi)
+- [#1736](https://github.com/tardis-sn/tardis/pull/1736) Fixing Doc Build Warnings (#1736) (@smithis7)
+- [#1737](https://github.com/tardis-sn/tardis/pull/1737) Add Jaladh to mailmap (#1737) (@jaladh-singhal)
+- [#1739](https://github.com/tardis-sn/tardis/pull/1739) Fixed IPython Displaying the Plasma Stratification (Table) even when the Logger is turned Off (#1739) (@DhruvSondhi)
+- [#1742](https://github.com/tardis-sn/tardis/pull/1742) Reduce damping_constant under t_inner for tardis_example.yml (#1742) (@atharva-2001)
+
 ### release-2021.7.18.0 (2021/07/16 14:41 +00:00)
 - [#1665](https://github.com/tardis-sn/tardis/pull/1665) Demonstrating the `nelements` and the `species_list` functionality in the SDEC plot notebook (@atharva-2001)
 - [#1727](https://github.com/tardis-sn/tardis/pull/1727) Fixing Quickstart Metadata (#1727) (@smithis7)
