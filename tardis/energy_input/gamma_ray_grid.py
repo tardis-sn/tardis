@@ -9,6 +9,7 @@ from tardis.energy_input.util import (
     convert_half_life_to_astropy_units,
 )
 from tardis.util.base import atomic_number2element_symbol
+import tardis.constants as const
 
 
 def calculate_distance_radial(gxpacket, r_inner, r_outer):
@@ -180,18 +181,22 @@ def compute_required_packets_per_shell(
         Database of decay radiation
     """
 
-    shell_masses = shell_masses / np.sum(shell_masses)
+    norm_shell_masses = shell_masses / np.sum(shell_masses)
     abundance_dict = {}
+    nuclide_mass_dict = {}
     for index, row in raw_isotope_abundance.iterrows():
         isotope_string = atomic_number2element_symbol(index[0]) + str(index[1])
         store_decay_radiation(isotope_string, force_update=False)
-        abundance_dict[isotope_string] = row * shell_masses
+        abundance_dict[isotope_string] = row * norm_shell_masses
+        nuclide_mass_dict[isotope_string] = row * shell_masses
 
     abundance_df = pd.DataFrame.from_dict(abundance_dict)
+    nuclide_mass_df = pd.DataFrame.from_dict(nuclide_mass_dict)
 
     decay_rad_db, meta = get_decay_radiation_database()
 
     activity_df = abundance_df.copy()
+    decay_rate_per_shell_df = nuclide_mass_df.copy()
     for column in activity_df:
         isotope_meta = meta.loc[column]
         half_life = isotope_meta.loc[
@@ -202,7 +207,14 @@ def compute_required_packets_per_shell(
         activity_factor = np.log(2) / atomic_mass / half_life
         activity_df[column] = activity_df[column] * activity_factor
 
+        decay_rate_per_shell_df[column] = (
+            (np.log(2) / half_life)
+            * const.N_A
+            * (nuclide_mass_df[column] / (atomic_mass ** 2.0))
+        )
+
     total_activity = activity_df.to_numpy().sum()
+    decay_rate_per_shell = decay_rate_per_shell_df.to_numpy().sum(axis=1)
     packet_per_shell_df = activity_df.copy()
 
     for column in packet_per_shell_df:
@@ -211,4 +223,4 @@ def compute_required_packets_per_shell(
         )
         packet_per_shell_df[column] = packet_per_shell_df[column].astype(int)
 
-    return packet_per_shell_df, decay_rad_db
+    return packet_per_shell_df, decay_rad_db, decay_rate_per_shell

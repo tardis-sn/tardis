@@ -30,7 +30,6 @@ from tardis.energy_input.gamma_ray_interactions import (
 from tardis.energy_input.util import (
     get_random_theta_gamma_ray,
     get_random_phi_gamma_ray,
-    calculate_energy_per_mass,
 )
 from tardis import constants as const
 from astropy.coordinates import cartesian_to_spherical
@@ -40,7 +39,7 @@ from tardis.montecarlo.montecarlo_numba.numba_config import CLOSE_LINE_THRESHOLD
 def initialize_packets(
     number_of_shells,
     packets_per_shell,
-    shell_masses,
+    ejecta_volume,
     inner_velocities,
     outer_velocities,
     decay_rad_db,
@@ -54,8 +53,8 @@ def initialize_packets(
         Number of shells in model
     packets_per_shell : pandas dataframe
         Number of packets in a shell
-    shell_masses : array of float64
-        Mass per shell
+    ejecta_volume : array of float64
+        Volume per shell
     inner_velocities : array of float64
         Shell inner velocities
     outer_velocities : array of float64
@@ -118,8 +117,8 @@ def initialize_packets(
                         positron_energy_sorted, positron_energy_cdf
                     )
 
-                    energy_df_rows[shell] += calculate_energy_per_mass(
-                        energy_KeV, shell_masses[shell]
+                    energy_df_rows[shell] += (
+                        energy_KeV * 1000.0 / ejecta_volume[shell]
                     )
                     energy_plot_df_rows.append(
                         [
@@ -204,10 +203,18 @@ def main_gamma_ray_loop(num_packets, model):
 
     shell_masses = ejecta_volume * ejecta_density
 
-    packets_per_shell, decay_rad_db = compute_required_packets_per_shell(
+    (
+        packets_per_shell,
+        decay_rad_db,
+        decay_rate_per_shell,
+    ) = compute_required_packets_per_shell(
         shell_masses,
         raw_isotope_abundance,
         num_packets,
+    )
+
+    scaled_decay_rate_per_shell = (
+        decay_rate_per_shell / packets_per_shell.to_numpy().sum(axis=1)
     )
 
     # Taking iron group to be elements 21-30
@@ -218,7 +225,7 @@ def main_gamma_ray_loop(num_packets, model):
     packets, energy_df_rows, energy_plot_df_rows = initialize_packets(
         number_of_shells,
         packets_per_shell,
-        shell_masses,
+        ejecta_volume,
         inner_velocities,
         outer_velocities,
         decay_rad_db,
@@ -296,8 +303,8 @@ def main_gamma_ray_loop(num_packets, model):
                     ejecta_energy_gained = packet.energy
 
                 # Save packets to dataframe rows
-                energy_df_rows[packet.shell] += calculate_energy_per_mass(
-                    ejecta_energy_gained, shell_masses[packet.shell]
+                energy_df_rows[packet.shell] += (
+                    ejecta_energy_gained * 1000.0 / ejecta_volume[packet.shell]
                 )
                 energy_plot_df_rows.append(
                     [
@@ -353,6 +360,10 @@ def main_gamma_ray_loop(num_packets, model):
         ],
     )
 
-    energy_df = pd.DataFrame(data=energy_df_rows, columns=["energy_per_mass"])
+    energy_df_rows *= scaled_decay_rate_per_shell
+
+    energy_df = pd.DataFrame(
+        data=energy_df_rows, columns=["energy [eV/s/cm^-3]"]
+    )
 
     return (energy_df, energy_plot_df, escape_energy)
