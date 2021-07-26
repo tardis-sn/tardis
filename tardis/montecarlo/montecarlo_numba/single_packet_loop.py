@@ -3,6 +3,10 @@ import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,
+    trace_packet,
+    move_packet_across_shell_boundary,
+    move_r_packet,
+    track_r_packet,
 )
 from tardis.montecarlo.montecarlo_numba.r_packet_transport import trace_packet, \
     move_r_packet, move_packet_across_shell_boundary
@@ -38,7 +42,7 @@ def single_packet_loop(
     numba_plasma,
     estimators,
     vpacket_collection,
-    rpacket_collection,
+    r_packet_track,
 ):
     """
     Parameters
@@ -70,7 +74,7 @@ def single_packet_loop(
     )
 
     if montecarlo_configuration.RPACKET_TRACKING:
-        rpacket_collection.track(r_packet)
+        track_r_packet(r_packet, r_packet_track, distance=0)
 
     while r_packet.status == PacketStatus.IN_PROCESS:
         distance, interaction_type, delta_shell = trace_packet(
@@ -84,6 +88,9 @@ def single_packet_loop(
             move_packet_across_shell_boundary(
                 r_packet, delta_shell, len(numba_model.r_inner)
             )
+
+            if montecarlo_configuration.RPACKET_TRACKING:
+                track_r_packet(r_packet, r_packet_track, distance)
 
         elif interaction_type == InteractionType.LINE:
             r_packet.last_interaction_type = 2
@@ -101,6 +108,9 @@ def single_packet_loop(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
 
+            if montecarlo_configuration.RPACKET_TRACKING:
+                track_r_packet(r_packet, r_packet_track, distance)
+
         elif interaction_type == InteractionType.ESCATTERING:
             r_packet.last_interaction_type = 1
 
@@ -113,8 +123,8 @@ def single_packet_loop(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
 
-        if montecarlo_configuration.RPACKET_TRACKING:
-            rpacket_collection.track(r_packet)
+            if montecarlo_configuration.RPACKET_TRACKING:
+                track_r_packet(r_packet, r_packet_track, distance)
 
     # check where else initialize line ID happens!
 

@@ -306,7 +306,6 @@ class VPacketCollection(object):
 
 
 rpacket_collection_spec = [
-    ("length", int64),
     ("seed", int64[:]),
     ("index", int64[:]),
     ("status", int64[:]),
@@ -314,8 +313,12 @@ rpacket_collection_spec = [
     ("nu", float64[:]),
     ("mu", float64[:]),
     ("energy", float64[:]),
-    ("shell_id", int64[:]),
-    ("interact_id", int64),
+    ("current_shell_id", int64[:]),
+    ("distance", float64[:]),
+    ("last_interaction_type", int64[:]),
+    ("last_interaction_in_nu", float64[:]),
+    ("last_line_interaction_in_id", int64[:]),
+    ("last_line_interaction_out_id", int64[:]),
 ]
 
 
