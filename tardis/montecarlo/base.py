@@ -21,7 +21,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     configuration_initialize,
 )
 from tardis.montecarlo.montecarlo_numba import numba_config
-from tardis.io.logger import montecarlo_logger as mc_logger
+from tardis.io.logger import montecarlo_tracking as mc_tracker
 
 import numpy as np
 
@@ -135,8 +135,8 @@ class MontecarloRunner(HDFWriterMixin):
         self.virt_packet_initial_mus = np.ones(2) * -1.0
 
         # set up logger based on config
-        mc_logger.DEBUG_MODE = debug_packets
-        mc_logger.BUFFER = logger_buffer
+        mc_tracker.DEBUG_MODE = debug_packets
+        mc_tracker.BUFFER = logger_buffer
 
         if self.spectrum_method == "integrated":
             self.optional_hdf_properties.append("spectrum_integrated")
