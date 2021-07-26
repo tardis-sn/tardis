@@ -372,6 +372,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             nthreads=self.nthreads,
             last_run=last_run,
             iteration=self.iterations_executed,
+            total_iterations=self.iterations,
         )
         output_energy = self.runner.output_energy
         if np.sum(output_energy < 0) == len(output_energy):

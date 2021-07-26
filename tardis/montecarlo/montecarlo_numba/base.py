@@ -26,24 +26,61 @@ from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
 )
 from tardis.montecarlo.montecarlo_numba import njit_dict
 from numba.typed import List
-from tardis.util.base import progress_bars
+from tardis.util.base import is_notebook
 from IPython.display import display
+import tqdm
 
-iterations = 20
-packets = 860000
-iterations_pbar, packet_pbar, pbar_init = progress_bars(
-    packets=packets, iterations=iterations
+if is_notebook():
+    pbar = tqdm.notebook.tqdm
+else:
+    pbar = tqdm.tqdm
+
+packet_pbar = pbar(
+    dynamic_ncols=True,
+    bar_format="{bar}{percentage:3.0f}%  of packets propagated on iteration ",
 )
 
 
-def update_packet_pbar(i, reset=False):
-    if packet_pbar.n == packets:
-        packet_pbar.reset()
-        display(packet_pbar.container)
+def update_packet_pbar(
+    i,
+    total_no_of_packets,
+    current_iteration,
+    total_iterations,
+):
+    # set bar attributes when first called
+    if packet_pbar.total == None:
+        packet_pbar.desc = "0"
+        packet_pbar.reset(total=total_no_of_packets)
+        packet_pbar.n = 0
+
+    # reset the bar when the iteration changes
+    if packet_pbar.n >= packet_pbar.total or packet_pbar.desc == "":
+        # display the bar again
+        # only required in notebooks
+        if (
+            float(packet_pbar.desc) > total_iterations
+            and type(packet_pbar) == tqdm.notebook.tqdm
+        ):
+            display(packet_pbar.container)
+            packet_pbar.desc = "0"
+
+        # desc acts as a counter
+        packet_pbar.desc = str(int(packet_pbar.desc) + 1)
+
+        # change iteration in the format string
+        bar_format = packet_pbar.bar_format.split(" ")[:-1]
+        packet_pbar.bar_format = (
+            " ".join(bar_format) + " " + str(current_iteration + 1)
+        )
+
+        packet_pbar.reset(total=total_no_of_packets)
+        
     packet_pbar.update(int(i))
 
 
-def montecarlo_radial1d(model, plasma, runner):
+def montecarlo_radial1d(
+    model, plasma, number_of_packets, iteration, total_iterations, runner
+):
     packet_collection = PacketCollection(
         runner.input_r,
         runner.input_nu,
@@ -89,8 +126,11 @@ def montecarlo_radial1d(model, plasma, runner):
         numba_plasma,
         estimators,
         runner.spectrum_frequency.value,
+        number_of_packets,
         number_of_vpackets,
         packet_seeds,
+        iteration=iteration,
+        total_iterations=total_iterations,
     )
 
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
@@ -124,10 +164,6 @@ def montecarlo_radial1d(model, plasma, runner):
         runner.virt_packet_last_line_interaction_out_id = np.concatenate(
             np.array(virt_packet_last_line_interaction_out_id)
         ).ravel()
-    if iterations_pbar.n == iterations:
-        iterations_pbar.reset()
-        display(iterations_pbar.container)
-    iterations_pbar.update(1)
 
 
 @njit(**njit_dict)
@@ -137,8 +173,11 @@ def montecarlo_main_loop(
     numba_plasma,
     estimators,
     spectrum_frequency,
+    number_of_packets,
     number_of_vpackets,
     packet_seeds,
+    iteration,
+    total_iterations,
 ):
     """
     This is the main loop of the MonteCarlo routine that generates packets
@@ -198,7 +237,12 @@ def montecarlo_main_loop(
 
     for i in prange(len(output_nus)):
         with objmode:
-            update_packet_pbar(1)
+            update_packet_pbar(
+                1,
+                total_no_of_packets=number_of_packets,
+                current_iteration=iteration,
+                total_iterations=total_iterations,
+            )
 
         if montecarlo_configuration.single_packet_seed != -1:
             seed = packet_seeds[montecarlo_configuration.single_packet_seed]
