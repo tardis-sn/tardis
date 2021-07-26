@@ -100,6 +100,7 @@ class MontecarloRunner(HDFWriterMixin):
         debug_packets=False,
         logger_buffer=1,
         single_packet_seed=None,
+        track_r_packet=False,
     ):
 
         self.seed = seed
@@ -134,9 +135,13 @@ class MontecarloRunner(HDFWriterMixin):
         self.virt_packet_initial_rs = np.ones(2) * -1.0
         self.virt_packet_initial_mus = np.ones(2) * -1.0
 
+        self.r_packet_tracking = np.zeros(1)
+
         # set up logger based on config
         mc_tracker.DEBUG_MODE = debug_packets
         mc_tracker.BUFFER = logger_buffer
+
+        mc_config_module.RPACKET_TRACKING = track_r_packet
 
         if self.spectrum_method == "integrated":
             self.optional_hdf_properties.append("spectrum_integrated")
@@ -622,4 +627,5 @@ class MontecarloRunner(HDFWriterMixin):
                 config.spectrum.virtual.virtual_packet_logging
                 | virtual_packet_logging
             ),
+            track_r_packet=config.montecarlo.montecarlo_tracking.r_packet_tracking,
         )

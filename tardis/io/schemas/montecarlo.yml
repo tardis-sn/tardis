@@ -64,6 +64,15 @@ properties:
     default: false
     description: Enables a more complete treatment of relativitic effects. This includes
       angle aberration as well as use of the fully general Doppler formula.
+  montecarlo_tracking:
+    type: object
+    default: {}
+    properties:
+      r_packet_tracking:
+        type: boolean
+        default: false
+        description: Allows for Tracking the properties of the RPackets in Single Packet Loop
+      description: Sets up tracking for Montecarlo 
   debug_packets:
     type: boolean
     default: false

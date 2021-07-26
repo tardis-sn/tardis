@@ -11,6 +11,7 @@ from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     PacketCollection,
     VPacketCollection,
+    RPacketCollection,
     NumbaModel,
     numba_plasma_initialize,
     Estimators,
@@ -77,6 +78,7 @@ def montecarlo_radial1d(
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
+        r_packet_tracker,
     ) = montecarlo_main_loop(
         packet_collection,
         numba_model,
@@ -123,6 +125,9 @@ def montecarlo_radial1d(
             np.array(virt_packet_last_line_interaction_out_id)
         ).ravel()
     update_iterations_pbar(1)
+
+    # Condition for Checking if R Packet Tracking is enabled
+    runner.r_packet_tracking = r_packet_tracker
 
 
 @njit(**njit_dict)
@@ -195,6 +200,11 @@ def montecarlo_main_loop(
     virt_packet_last_line_interaction_in_id = []
     virt_packet_last_line_interaction_out_id = []
 
+    # Tracking for R_Packet
+    r_packet_tracker = List()
+    for i in range(len(output_nus)):
+        r_packet_tracker.append(RPacketCollection())
+
     for i in prange(len(output_nus)):
         if show_progress_bars:
             with objmode:
@@ -221,9 +231,15 @@ def montecarlo_main_loop(
             i,
         )
         vpacket_collection = vpacket_collections[i]
+        r_packet_track = r_packet_tracker[i]
 
-        loop = single_packet_loop(
-            r_packet, numba_model, numba_plasma, estimators, vpacket_collection
+        single_packet_loop(
+            r_packet,
+            numba_model,
+            numba_plasma,
+            estimators,
+            vpacket_collection,
+            r_packet_track,
         )
         # if loop and 'stop' in loop:
         #     raise MonteCarloException
@@ -328,4 +344,5 @@ def montecarlo_main_loop(
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
+        r_packet_tracker,
     )

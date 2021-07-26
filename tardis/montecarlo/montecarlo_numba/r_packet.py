@@ -313,3 +313,8 @@ def move_packet_across_shell_boundary(packet, delta_shell, no_of_shells):
         packet.status = PacketStatus.REABSORBED
     else:
         packet.current_shell_id = next_shell_id
+
+
+@njit(**njit_dict_no_parallel)
+def track_r_packet(r_packet, r_packet_track, distance):
+    r_packet_track.set_properties(r_packet, distance)

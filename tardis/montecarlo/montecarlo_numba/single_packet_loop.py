@@ -6,6 +6,7 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
     trace_packet,
     move_packet_across_shell_boundary,
     move_r_packet,
+    track_r_packet,
 )
 
 from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
@@ -31,13 +32,15 @@ from tardis import constants as const
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
-from tardis.io.logger.montecarlo_tracking import log_decorator
-from tardis.io.logger import montecarlo_tracking as mc_tracker
 
-# @log_decorator
 @njit
 def single_packet_loop(
-    r_packet, numba_model, numba_plasma, estimators, vpacket_collection
+    r_packet,
+    numba_model,
+    numba_plasma,
+    estimators,
+    vpacket_collection,
+    r_packet_track,
 ):
     """
     Parameters
@@ -67,12 +70,8 @@ def single_packet_loop(
         r_packet, vpacket_collection, numba_model, numba_plasma
     )
 
-    if mc_tracker.DEBUG_MODE:
-        r_packet_track_nu = [r_packet.nu]
-        r_packet_track_mu = [r_packet.mu]
-        r_packet_track_r = [r_packet.r]
-        r_packet_track_interaction = [InteractionType.BOUNDARY]
-        r_packet_track_distance = [0.0]
+    if montecarlo_configuration.RPACKET_TRACKING:
+        track_r_packet(r_packet, r_packet_track, distance=0)
 
     while r_packet.status == PacketStatus.IN_PROCESS:
         distance, interaction_type, delta_shell = trace_packet(
@@ -86,6 +85,9 @@ def single_packet_loop(
             move_packet_across_shell_boundary(
                 r_packet, delta_shell, len(numba_model.r_inner)
             )
+
+            if montecarlo_configuration.RPACKET_TRACKING:
+                track_r_packet(r_packet, r_packet_track, distance)
 
         elif interaction_type == InteractionType.LINE:
             r_packet.last_interaction_type = 2
@@ -103,6 +105,9 @@ def single_packet_loop(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
 
+            if montecarlo_configuration.RPACKET_TRACKING:
+                track_r_packet(r_packet, r_packet_track, distance)
+
         elif interaction_type == InteractionType.ESCATTERING:
             r_packet.last_interaction_type = 1
 
@@ -114,21 +119,9 @@ def single_packet_loop(
             trace_vpacket_volley(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
-        if mc_tracker.DEBUG_MODE:
-            r_packet_track_nu.append(r_packet.nu)
-            r_packet_track_mu.append(r_packet.mu)
-            r_packet_track_r.append(r_packet.r)
-            r_packet_track_interaction.append(interaction_type)
-            r_packet_track_distance.append(distance)
 
-    if mc_tracker.DEBUG_MODE:
-        return (
-            r_packet_track_nu,
-            r_packet_track_mu,
-            r_packet_track_r,
-            r_packet_track_interaction,
-            r_packet_track_distance,
-        )
+            if montecarlo_configuration.RPACKET_TRACKING:
+                track_r_packet(r_packet, r_packet_track, distance)
 
     # check where else initialize line ID happens!
 

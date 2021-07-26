@@ -304,6 +304,88 @@ class VPacketCollection(object):
         self.idx += 1
 
 
+rpacket_collection_spec = [
+    ("seed", int64[:]),
+    ("index", int64[:]),
+    ("status", int64[:]),
+    ("r", float64[:]),
+    ("nu", float64[:]),
+    ("mu", float64[:]),
+    ("energy", float64[:]),
+    ("current_shell_id", int64[:]),
+    ("distance", float64[:]),
+    ("last_interaction_type", int64[:]),
+    ("last_interaction_in_nu", float64[:]),
+    ("last_line_interaction_in_id", int64[:]),
+    ("last_line_interaction_out_id", int64[:]),
+]
+
+
+@jitclass(rpacket_collection_spec)
+class RPacketCollection(object):
+    def __init__(self):
+        self.seed = np.zeros(1, dtype=np.int64)
+        self.index = np.zeros(1, dtype=np.int64)
+        self.status = np.zeros(1, dtype=np.int64)
+        self.r = np.zeros(1, dtype=np.float64)
+        self.nu = np.zeros(1, dtype=np.float64)
+        self.mu = np.zeros(1, dtype=np.float64)
+        self.energy = np.zeros(1, dtype=np.float64)
+        self.current_shell_id = np.zeros(1, dtype=np.int64)
+        self.distance = np.zeros(1, dtype=np.float64)
+        self.last_interaction_type = -1 * np.ones(1, dtype=np.int64)
+        self.last_interaction_in_nu = np.zeros(1, dtype=np.float64)
+        self.last_line_interaction_in_id = -1 * np.ones(1, dtype=np.int64)
+        self.last_line_interaction_out_id = -1 * np.ones(1, dtype=np.int64)
+
+    def set_properties(self, r_packet, distance):
+        self.seed = np.concatenate(
+            (self.seed, np.array([r_packet.seed]))
+        ).ravel()
+        self.index = np.concatenate(
+            (self.index, np.array([r_packet.index]))
+        ).ravel()
+        self.status = np.concatenate(
+            (self.status, np.array([r_packet.status]))
+        ).ravel()
+        self.r = np.concatenate((self.r, np.array([r_packet.r]))).ravel()
+        self.nu = np.concatenate((self.nu, np.array([r_packet.nu]))).ravel()
+        self.mu = np.concatenate((self.mu, np.array([r_packet.mu]))).ravel()
+        self.energy = np.concatenate(
+            (self.energy, np.array([r_packet.energy]))
+        ).ravel()
+        self.current_shell_id = np.concatenate(
+            (self.current_shell_id, np.array([r_packet.current_shell_id]))
+        ).ravel()
+        self.distance = np.concatenate(
+            (self.distance, np.array([distance]))
+        ).ravel()
+        self.last_interaction_type = np.concatenate(
+            (
+                self.last_interaction_type,
+                np.array([r_packet.last_interaction_type]),
+            )
+        ).ravel()
+        self.last_interaction_in_nu = np.concatenate(
+            (
+                self.last_interaction_in_nu,
+                np.array([r_packet.last_interaction_in_nu]),
+            )
+        ).ravel()
+        self.last_line_interaction_in_id = np.concatenate(
+            (
+                self.last_line_interaction_in_id,
+                np.array([r_packet.last_line_interaction_in_id]),
+            )
+        ).ravel()
+        self.last_line_interaction_out_id = np.concatenate(
+            (
+                self.last_line_interaction_out_id,
+                np.array([r_packet.last_line_interaction_out_id]),
+            )
+        ).ravel()
+
+
 estimators_spec = [
     ("j_estimator", float64[:]),
     ("nu_bar_estimator", float64[:]),
