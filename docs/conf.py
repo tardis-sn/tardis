@@ -399,6 +399,7 @@ with open(zenodo_path, "w") as f:
 
 print(zenodo_record)
 
+
 # -- Creating tutorials.rst ---------------------------------------------------
 
 notebook_list = []
