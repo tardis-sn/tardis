@@ -398,3 +398,26 @@ with open(zenodo_path, "w") as f:
     f.write(zenodo_record)
 
 print(zenodo_record)
+
+# -- Creating tutorials.rst ---------------------------------------------------
+
+notebook_list = []
+
+walk = os.walk("io/")
+
+for root, dirs, fnames in walk:
+    for fname in fnames:
+        if fname.endswith(".ipynb") and "checkpoint" not in fname:
+            notebook_list.append("* :doc:`" + root + "/" + fname[:-6] + "`")
+
+notebook_string = ""
+
+for notebook in notebook_list:
+    notebook_string += "\n" + notebook
+
+title = "Tutorials\n*********\n"
+
+description = "\nThe following pages contain the TARDIS tutorials:\n"
+
+with open("tutorials.rst", mode="wt", encoding="utf-8") as f:
+    f.write(title + description + notebook_string)

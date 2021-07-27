@@ -50,7 +50,8 @@ Mission Statement
 
     installation
     quickstart/quickstart
-
+    tutorials
+    API <api/modules>
 
 
 .. toctree::
@@ -103,14 +104,6 @@ Mission Statement
     development/index
     CHANGELOG.md
     roadmap
-
-.. toctree::
-    :maxdepth: 2
-    :caption: API
-    :hidden:
-
-    api/modules
-
 
 
 .. toctree::
