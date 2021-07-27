@@ -145,6 +145,7 @@ def trace_packet(
         chi_bf,
         chi_bf_contributions,
         current_continua,
+        x_sect_bfs,
         chi_ff,
     ) = chi_continuum_calculator(comov_nu, r_packet.current_shell_id)
 
