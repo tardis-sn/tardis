@@ -137,6 +137,8 @@ class MontecarloRunner(HDFWriterMixin):
 
         self.r_packet_tracking = np.zeros(1)
 
+        # self.r_packet_record = []
+
         # set up logger based on config
         mc_tracker.DEBUG_MODE = debug_packets
         mc_tracker.BUFFER = logger_buffer
