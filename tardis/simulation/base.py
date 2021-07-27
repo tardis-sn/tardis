@@ -349,6 +349,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 t_inner=next_t_inner,
                 j_blue_estimator=self.runner.j_blue_estimator,
             )
+        if "gamma_estimator" in self.plasma.outputs_dict:
+            update_properties.update(
+                gamma_estimator=self.runner.photo_ion_estimator,
+                alpha_stim_estimator=self.runner.stim_recomb_estimator,
+                bf_heating_coeff_estimator=self.runner.bf_heating_estimator,
+            )
 
         self.plasma.update(**update_properties)
 
