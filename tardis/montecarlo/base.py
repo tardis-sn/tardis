@@ -138,6 +138,8 @@ class MontecarloRunner(HDFWriterMixin):
         # Setting up the Tracking array for storing all the RPacketTracker instances
         self.rpacket_tracker = None
 
+        # self.r_packet_record = []
+
         # set up logger based on config
         mc_tracker.DEBUG_MODE = debug_packets
         mc_tracker.BUFFER = logger_buffer

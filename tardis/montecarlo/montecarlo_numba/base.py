@@ -79,6 +79,15 @@ def montecarlo_radial1d(
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
         rpacket_trackers,
+        # r_packet_index,
+        # r_packet_seed,
+        # r_packet_status,
+        # r_packet_r,
+        # r_packet_nu,
+        # r_packet_mu,
+        # r_packet_energy,
+        # r_packet_shell_id,
+        # r_packet_distance,
     ) = montecarlo_main_loop(
         packet_collection,
         numba_model,
@@ -127,9 +136,25 @@ def montecarlo_radial1d(
         ).ravel()
     update_iterations_pbar(1)
 
-    # Condition for Checking if RPacket Tracking is enabled
-    if montecarlo_configuration.RPACKET_TRACKING:
-        runner.rpacket_tracker = rpacket_trackers
+    # Condition for Checking if R Packet Tracking is enabled
+    runner.r_packet_tracking = rpacket_trackers
+
+    # if montecarlo_configuration.RPACKET_TRACKING:
+    #     for i in range(len(r_packet_index)):
+    #         for j in range(len(r_packet_index[i])):
+    #             runner.r_packet_record.append(
+    #                 [
+    #                     r_packet_index[i][j],
+    #                     r_packet_seed[i][j],
+    #                     r_packet_status[i][j],
+    #                     r_packet_r[i][j],
+    #                     r_packet_shell_id[i][j],
+    #                     r_packet_nu[i][j],
+    #                     r_packet_mu[i][j],
+    #                     r_packet_energy[i][j],
+    #                     r_packet_distance[i][j],
+    #                 ]
+    #             )
 
 
 @njit(**njit_dict)
@@ -210,6 +235,24 @@ def montecarlo_main_loop(
     virt_packet_last_line_interaction_in_id = []
     virt_packet_last_line_interaction_out_id = []
 
+    # Tracking for R_Packet
+    # r_packet_tracker = List()
+
+    tracked_rpacket = RPacketTracker()
+
+    # for i in range(len(output_nus)):
+    #     r_packet_tracker.append(RPacketTrackers())
+
+    # r_packet_index = []
+    # r_packet_seed = []
+    # r_packet_status = []
+    # r_packet_r = []
+    # r_packet_nu = []
+    # r_packet_mu = []
+    # r_packet_energy = []
+    # r_packet_shell_id = []
+    # r_packet_distance = []
+
     for i in prange(len(output_nus)):
         if show_progress_bars:
             with objmode:
@@ -236,7 +279,7 @@ def montecarlo_main_loop(
             i,
         )
         vpacket_collection = vpacket_collections[i]
-        tracked_rpacket = rpacket_trackers[i]
+        # r_packet_track = r_packet_tracker[i]
 
         single_packet_loop(
             r_packet,
@@ -330,9 +373,21 @@ def montecarlo_main_loop(
                 )
             )
 
-    if montecarlo_configuration.RPACKET_TRACKING:
-        for rpacket_tracker in rpacket_trackers:
-            rpacket_tracker.finalize_array()
+    # if montecarlo_configuration.RPACKET_TRACKING:
+    #     for tracked_packet in r_packet_tracker:
+    #         r_packet_index.append(np.ascontiguousarray(tracked_packet.index))
+    #         r_packet_seed.append(np.ascontiguousarray(tracked_packet.seed))
+    #         r_packet_status.append(np.ascontiguousarray(tracked_packet.status))
+    #         r_packet_r.append(np.ascontiguousarray(tracked_packet.r))
+    #         r_packet_nu.append(np.ascontiguousarray(tracked_packet.nu))
+    #         r_packet_mu.append(np.ascontiguousarray(tracked_packet.mu))
+    #         r_packet_energy.append(np.ascontiguousarray(tracked_packet.energy))
+    #         r_packet_shell_id.append(
+    #             np.ascontiguousarray(tracked_packet.shell_id)
+    #         )
+    #         r_packet_distance.append(
+    #             np.ascontiguousarray(tracked_packet.distance)
+    #         )
 
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
@@ -352,4 +407,13 @@ def montecarlo_main_loop(
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
         rpacket_trackers,
+        # r_packet_index,
+        # r_packet_seed,
+        # r_packet_status,
+        # r_packet_r,
+        # r_packet_nu,
+        # r_packet_mu,
+        # r_packet_energy,
+        # r_packet_shell_id,
+        # r_packet_distance,
     )

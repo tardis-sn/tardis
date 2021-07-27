@@ -1,6 +1,7 @@
 from enum import IntEnum
 
 from numba import float64, int64, boolean
+from numba.core.types.containers import List
 from numba.experimental import jitclass
 import numpy as np
 
@@ -313,12 +314,8 @@ rpacket_collection_spec = [
     ("nu", float64[:]),
     ("mu", float64[:]),
     ("energy", float64[:]),
-    ("current_shell_id", int64[:]),
+    ("shell_id", int64[:]),
     ("distance", float64[:]),
-    ("last_interaction_type", int64[:]),
-    ("last_interaction_in_nu", float64[:]),
-    ("last_line_interaction_in_id", int64[:]),
-    ("last_line_interaction_out_id", int64[:]),
 ]
 
 
@@ -352,67 +349,49 @@ class RPacketTracker(object):
     """
 
     def __init__(self):
-        self.length = montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
-        self.seed = np.empty(self.length, dtype=np.int64)
-        self.index = np.empty(self.length, dtype=np.int64)
-        self.status = np.empty(self.length, dtype=np.int64)
-        self.r = np.empty(self.length, dtype=np.float64)
-        self.nu = np.empty(self.length, dtype=np.float64)
-        self.mu = np.empty(self.length, dtype=np.float64)
-        self.energy = np.empty(self.length, dtype=np.float64)
-        self.shell_id = np.empty(self.length, dtype=np.int64)
-        self.interact_id = 0
+        self.seed = np.zeros(1, dtype=np.int64)
+        self.index = np.zeros(1, dtype=np.int64)
+        self.status = np.zeros(1, dtype=np.int64)
+        self.r = np.zeros(1, dtype=np.float64)
+        self.nu = np.zeros(1, dtype=np.float64)
+        self.mu = np.zeros(1, dtype=np.float64)
+        self.energy = np.zeros(1, dtype=np.float64)
+        self.shell_id = np.zeros(1, dtype=np.int64)
+        self.distance = np.zeros(1, dtype=np.float64)
 
-    def track(self, r_packet):
-        if self.interact_id >= self.length:
-            temp_length = self.length * 2
-            temp_index = np.empty(temp_length, dtype=np.int64)
-            temp_seed = np.empty(temp_length, dtype=np.int64)
-            temp_status = np.empty(temp_length, dtype=np.int64)
-            temp_r = np.empty(temp_length, dtype=np.float64)
-            temp_nu = np.empty(temp_length, dtype=np.float64)
-            temp_mu = np.empty(temp_length, dtype=np.float64)
-            temp_energy = np.empty(temp_length, dtype=np.float64)
-            temp_shell_id = np.empty(temp_length, dtype=np.int64)
+    def set_properties(self, r_packet, distance):
+        if self.seed[0] == 0:
+            self.seed = np.array([r_packet.seed])
+            self.index = np.array([r_packet.index])
+            self.status = np.array([r_packet.status])
+            self.r = np.array([r_packet.r])
+            self.nu = np.array([r_packet.nu])
+            self.mu = np.array([r_packet.mu])
+            self.energy = np.array([r_packet.energy])
+            self.shell_id = np.array([r_packet.current_shell_id])
+            self.distance = np.array([distance])
 
-            temp_index[: self.length] = self.index
-            temp_seed[: self.length] = self.seed
-            temp_status[: self.length] = self.status
-            temp_r[: self.length] = self.r
-            temp_nu[: self.length] = self.nu
-            temp_mu[: self.length] = self.mu
-            temp_energy[: self.length] = self.energy
-            temp_shell_id[: self.length] = self.shell_id
-
-            self.index = temp_index
-            self.seed = temp_seed
-            self.status = temp_status
-            self.r = temp_r
-            self.nu = temp_nu
-            self.mu = temp_mu
-            self.energy = temp_energy
-            self.shell_id = temp_shell_id
-            self.length = temp_length
-
-        self.index[self.interact_id] = r_packet.index
-        self.seed[self.interact_id] = r_packet.seed
-        self.status[self.interact_id] = r_packet.status
-        self.r[self.interact_id] = r_packet.r
-        self.nu[self.interact_id] = r_packet.nu
-        self.mu[self.interact_id] = r_packet.mu
-        self.energy[self.interact_id] = r_packet.energy
-        self.shell_id[self.interact_id] = r_packet.current_shell_id
-        self.interact_id += 1
-
-    def finalize_array(self):
-        self.index = self.index[: self.interact_id]
-        self.seed = self.seed[: self.interact_id]
-        self.status = self.status[: self.interact_id]
-        self.r = self.r[: self.interact_id]
-        self.nu = self.nu[: self.interact_id]
-        self.mu = self.mu[: self.interact_id]
-        self.energy = self.energy[: self.interact_id]
-        self.shell_id = self.shell_id[: self.interact_id]
+        self.seed = np.concatenate(
+            (self.seed, np.array([r_packet.seed]))
+        ).ravel()
+        self.index = np.concatenate(
+            (self.index, np.array([r_packet.index]))
+        ).ravel()
+        self.status = np.concatenate(
+            (self.status, np.array([r_packet.status]))
+        ).ravel()
+        self.r = np.concatenate((self.r, np.array([r_packet.r]))).ravel()
+        self.nu = np.concatenate((self.nu, np.array([r_packet.nu]))).ravel()
+        self.mu = np.concatenate((self.mu, np.array([r_packet.mu]))).ravel()
+        self.energy = np.concatenate(
+            (self.energy, np.array([r_packet.energy]))
+        ).ravel()
+        self.shell_id = np.concatenate(
+            (self.shell_id, np.array([r_packet.current_shell_id]))
+        ).ravel()
+        self.distance = np.concatenate(
+            (self.distance, np.array([distance]))
+        ).ravel()
 
 
 estimators_spec = [
