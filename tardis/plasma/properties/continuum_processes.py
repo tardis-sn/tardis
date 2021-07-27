@@ -241,6 +241,33 @@ def cooling_rate_series2dataframe(cooling_rate_series, destination_level_idx):
     return cooling_rate_frame
 
 
+def bf_estimator_array2frame(bf_estimator_array, level2continuum_idx):
+    """
+    Transform a bound-free estimator array to a DataFrame.
+
+    This function transforms a bound-free estimator array with entries
+    sorted by frequency to a multi-indexed DataFrame sorted by level.
+
+    Parameters
+    ----------
+    bf_estimator_array : numpy.ndarray, dtype float
+        Array of bound-free estimators (e.g., for the stimulated recombination rate)
+        with entries sorted by the threshold frequency of the bound-free continuum.
+    level2continuum_idx : pandas.Series, dtype int
+        Maps a level MultiIndex (atomic_number, ion_number, level_number) to
+        the continuum_idx of the corresponding bound-free continuum (which are
+        sorted by decreasing frequency).
+
+    Returns
+    -------
+    pandas.DataFrame, dtype float
+        Bound-free estimators indexed by (atomic_number, ion_number, level_number).
+    """
+    return pd.DataFrame(
+        bf_estimator_array, index=level2continuum_idx.index
+    ).sort_index()
+
+
 class IndexSetterMixin(object):
     @staticmethod
     def set_index(p, photo_ion_idx, transition_type=0, reverse=True):
@@ -388,6 +415,7 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
         photo_ion_index,
         t_rad,
         w,
+        level2continuum_idx,
     ):
         # Used for initialization
         if gamma_estimator is None:
@@ -399,7 +427,11 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
                 w,
             )
         else:
-            gamma = gamma_estimator * photo_ion_norm_factor
+            gamma_estimator = bf_estimator_array2frame(
+                gamma_estimator, level2continuum_idx
+            )
+            gamma = gamma_estimator * photo_ion_norm_factor.value
+
         return gamma
 
     @staticmethod
@@ -446,6 +478,7 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
         phi_ik,
         t_electrons,
         boltzmann_factor_photo_ion,
+        level2continuum_idx,
     ):
         # Used for initialization
         if alpha_stim_estimator is None:
@@ -460,6 +493,9 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
             )
             alpha_stim *= phi_ik.loc[alpha_stim.index]
         else:
+            alpha_stim_estimator = bf_estimator_array2frame(
+                alpha_stim_estimator, level2continuum_idx
+            )
             alpha_stim = alpha_stim_estimator * photo_ion_norm_factor
         return alpha_stim
 
