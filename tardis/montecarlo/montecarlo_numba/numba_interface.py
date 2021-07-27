@@ -40,6 +40,7 @@ class NumbaModel(object):
 
 numba_plasma_spec = [
     ("electron_density", float64[:]),
+    ("t_electrons", float64[:]),
     ("line_list_nu", float64[:]),
     ("tau_sobolev", float64[:, :]),
     ("transition_probabilities", float64[:, :]),
@@ -56,6 +57,7 @@ class NumbaPlasma(object):
     def __init__(
         self,
         electron_density,
+        t_electrons,
         line_list_nu,
         tau_sobolev,
         transition_probabilities,
@@ -71,6 +73,7 @@ class NumbaPlasma(object):
         Parameters
         ----------
         electron_density : numpy.ndarray
+        t_electrons : numpy.ndarray
         line_list_nu : numpy.ndarray
         tau_sobolev : numpy.ndarray
         transition_probabilities : numpy.ndarray
@@ -82,6 +85,7 @@ class NumbaPlasma(object):
         """
 
         self.electron_density = electron_density
+        self.t_electrons = t_electrons
         self.line_list_nu = line_list_nu
         self.tau_sobolev = tau_sobolev
 
@@ -107,6 +111,7 @@ def numba_plasma_initialize(plasma, line_interaction_type):
     line_interaction_type : enum
     """
     electron_densities = plasma.electron_densities.values
+    t_electrons = plasma.t_electrons
     line_list_nu = plasma.atomic_data.lines.nu.values
     tau_sobolev = np.ascontiguousarray(
         plasma.tau_sobolevs.values.copy(), dtype=np.float64
@@ -145,6 +150,7 @@ def numba_plasma_initialize(plasma, line_interaction_type):
 
     return NumbaPlasma(
         electron_densities,
+        t_electrons,
         line_list_nu,
         tau_sobolev,
         transition_probabilities,
