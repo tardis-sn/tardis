@@ -5,6 +5,7 @@ import tardis
 
 from tardis.io.config_reader import Configuration
 from tardis.model import Radial1DModel
+from functools import partial
 
 
 def _set_tardis_config_property(tardis_config, key, value):
@@ -30,6 +31,180 @@ def _set_tardis_config_property(tardis_config, key, value):
         tmp_dict = getattr(tmp_dict, key)
     setattr(tmp_dict, keyitems[-1], value)
     return
+
+
+def runner(config):
+    import tardis
+    sim = tardis.run_tardis(config)
+    return sim
+
+
+class tardisGridFrame(pd.DataFrame):
+
+    _metadata = ["config", "configFile"]
+    config = None
+
+    def __init__(self, *args, **kwargs):
+        
+        configFile = None
+        if len(args):
+            try:
+                configFile = args[0]
+                try:
+                    try:
+                        tardis_config = Configuration.from_yaml(configFile)
+                    except TypeError:
+                        tardis_config = Configuration.from_config_dict(configFile)
+                    args = args[1:]
+                except:
+                    configFile = None
+            except IndexError:
+                pass
+        
+        super(tardisGridFrame, self).__init__(*args, **kwargs)
+        if configFile is not None:
+            self.load_config(configFile)
+
+    def load_config(self, configFile):
+
+        try:
+            tardis_config = Configuration.from_yaml(configFile)
+        except TypeError:
+            tardis_config = Configuration.from_config_dict(configFile)
+
+        self.config = tardis_config
+        self.configFile = configFile
+
+    def iter_configs(self):
+
+        yield from map(self.grid_row_to_config, range(self.shape[0]))
+
+    def iter_run_sim(self, executor=None, **kwargs):
+        '''Iterator that runs simulations and yields them.
+        can optionally take an executor (like a threadpoolexecutor
+        or dask client or anything with a submit method
+        by default'''
+        #runner = partial(self.run_sim_from_grid, **kwargs)
+        #indices = range(self.shape[0])
+
+        if executor is None:
+            for config in self.iter_configs():
+                yield tardis.run_tardis(config, **kwargs)
+        else:
+            futures = []
+            for config in self.iter_configs():
+                futures.append(executor.submit(
+                    tardis.run_tardis, config, **kwargs
+                    )
+                )
+            for future in futures:
+                yield future.result()
+
+    def grid_row_to_config(self, row_index):
+        """
+        Converts a grid row to a TARDIS config dict.
+        Modifies the base self.config according to the
+        row in self.grid accessed at the provided row_index.
+        Returns a deep copy so that the base config is
+        not changed.
+
+        Parameters
+        ----------
+        row_index : int
+            Row index in grid.
+
+        Returns
+        -------
+        tmp_config : tardis.io.config_reader.Configuration
+            Deep copy of the base self.config with modified
+            properties according to the selected row in the grid.
+        """
+        tmp_config = copy.deepcopy(self.config)
+        grid_row = self.iloc[row_index]
+        for colname, value in zip(self.columns, grid_row.values):
+            _set_tardis_config_property(tmp_config, colname, value)
+        return tmp_config
+
+    def grid_row_to_model(self, row_index):
+        """
+        Generates a TARDIS Radial1DModel object using the base
+        self.config modified by the specified grid row.
+
+        Parameters
+        ----------
+        row_index : int
+            Row index in grid.
+
+        Returns
+        -------
+        model : tardis.model.base.Radial1DModel
+        """
+        rowconfig = self.grid_row_to_config(row_index)
+        model = Radial1DModel.from_config(rowconfig)
+        return model
+
+    def run_sim_from_grid(self, row_index, **tardiskwargs):
+        """
+        Runs a full TARDIS simulation using the base self.config
+        modified by the user specified row_index.
+
+        Parameters
+        ----------
+        row_index : int
+            Row index in grid.
+
+        Returns
+        -------
+        sim : tardis.simulation.base.Simulation
+            Completed TARDIS simulation object.
+        """
+        tardis_config = self.grid_row_to_config(row_index)
+        sim = tardis.run_tardis(tardis_config, **tardiskwargs)
+        return sim
+
+    def save_grid(self, filename):
+        """
+        Saves the parameter grid. Does not save the base
+        self.config in any way.
+
+        Parameters
+        ----------
+        filename : str
+            File name to save grid.
+        """
+        self.to_csv(filename, index=False)
+        return
+
+    @classmethod
+    def from_axes(cls, configFile, axesdict):
+        """
+        Creates a grid from a set of axes. The axes are provided
+        as a dictionary, where each key is a valid tardis config
+        key, and the value is an iterable of values.
+
+        Parameters
+        ----------
+        configFile : str
+            Path to TARDIS yml file.
+        axesdict : dict()
+            Dictionary containing tardis config keys and the
+            corresponding values to define a grid of tardis
+            parameters.
+        """
+        axes = []
+        dim = 1
+        for key in axesdict:
+            ax = axesdict[key]
+            axes.append(ax)
+            dim = dim * len(ax)
+        axesmesh = np.meshgrid(*axes)
+        tmp = np.dstack(axesmesh)
+        gridpoints = tmp.reshape((dim, len(axes)), order="F")
+        return cls(configFile, data=gridpoints, columns=axesdict.keys())
+
+    @property
+    def _constructor(self):
+        return tardisGridFrame
 
 
 class tardisGrid:
