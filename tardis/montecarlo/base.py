@@ -314,7 +314,10 @@ class MontecarloRunner(HDFWriterMixin):
         self._initialize_estimator_arrays(plasma.tau_sobolevs.shape)
 
         if not plasma.continuum_interaction_species.empty:
-            self._initialize_continuum_estimator_arrays(plasma.gamma.shape)
+            gamma_shape = plasma.gamma.shape
+        else:
+            gamma_shape = (0,0)
+        self._initialize_continuum_estimator_arrays(gamma_shape)
 
         self._initialize_geometry_arrays(model)
 
