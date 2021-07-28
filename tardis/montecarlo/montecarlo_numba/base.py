@@ -49,6 +49,10 @@ def montecarlo_radial1d(model, plasma, runner):
         runner.nu_bar_estimator,
         runner.j_blue_estimator,
         runner.Edotlu_estimator,
+        runner.photo_ion_estimator,
+        runner.stim_recomb_estimator,
+        runner.bf_heating_estimator,
+        runner.photo_ion_estimator_statistics,
     )
     packet_seeds = montecarlo_configuration.packet_seeds
 

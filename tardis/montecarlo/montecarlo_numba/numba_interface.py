@@ -306,23 +306,42 @@ class VPacketCollection(object):
         self.idx += 1
 
 
-estimators_spec = [
+base_estimators_spec = [
     ("j_estimator", float64[:]),
     ("nu_bar_estimator", float64[:]),
     ("j_blue_estimator", float64[:, :]),
     ("Edotlu_estimator", float64[:, :]),
 ]
 
+continuum_estimators_spec = [
+    ("photo_ion_estimator", float64[:, :]),
+    ("stim_recomb_estimator", float64[:, :]),
+    ("bf_heating_estimator", float64[:, :]),
+    ("photo_ion_estimator_statistics", int64[:, :]),
+]
 
-@jitclass(estimators_spec)
+
+@jitclass(base_estimators_spec + continuum_estimators_spec)
 class Estimators(object):
     def __init__(
-        self, j_estimator, nu_bar_estimator, j_blue_estimator, Edotlu_estimator
+        self,
+        j_estimator,
+        nu_bar_estimator,
+        j_blue_estimator,
+        Edotlu_estimator,
+        photo_ion_estimator,
+        stim_recomb_estimator,
+        bf_heating_estimator,
+        photo_ion_estimator_statistics,
     ):
         self.j_estimator = j_estimator
         self.nu_bar_estimator = nu_bar_estimator
         self.j_blue_estimator = j_blue_estimator
         self.Edotlu_estimator = Edotlu_estimator
+        self.photo_ion_estimator = photo_ion_estimator
+        self.stim_recomb_estimator = stim_recomb_estimator
+        self.bf_heating_estimator = bf_heating_estimator
+        self.photo_ion_estimator_statistics = photo_ion_estimator_statistics
 
 
 def configuration_initialize(runner, number_of_vpackets):
