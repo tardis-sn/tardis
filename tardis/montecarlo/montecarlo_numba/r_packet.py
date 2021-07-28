@@ -35,7 +35,9 @@ from tardis.montecarlo.montecarlo_numba.numba_config import (
 class InteractionType(IntEnum):
     BOUNDARY = 1
     LINE = 2
-    ESCATTERING = 3
+    ESCATTERING = 4
+    BOUND_FREE = 8
+    FREE_FREE = 16
 
 
 class PacketStatus(IntEnum):
@@ -89,6 +91,20 @@ class RPacket(object):
         if next_line_id == len(numba_plasma.line_list_nu):
             next_line_id -= 1
         self.next_line_id = next_line_id
+
+
+@njit(**njit_dict_no_parallel)
+def determine_continuum_process(chi_continuum, chi_e, chi_bf, chi_ff):
+
+    zrand = np.random.random()
+
+    if zrand < SIGMA_THOMSON / chi_continuum:
+        return InteractionType.ESCATTER
+    elif zrand < (SIGMA_THOMSON + chi_bf) / chi_continuum:
+        return InteractionType.BOUND_FREE
+    else:
+        return InteractionType.FREE_FREE
+
 
 
 @njit(**njit_dict_no_parallel)
@@ -194,7 +210,9 @@ def trace_packet(
                 r_packet.next_line_id = cur_line_id
                 break
             elif distance == distance_continuum:
-                interaction_type = InteractionType.ESCATTERING
+                interaction_type = determine_continuum_process(
+                        chi_continuum, chi_e, chi_bf, chi_ff
+                )
                 r_packet.next_line_id = cur_line_id
                 break
 
