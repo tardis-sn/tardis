@@ -18,6 +18,54 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
 from tardis.montecarlo.montecarlo_numba.utils import get_random_mu
 from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
 
+def scatter(r_packet, time_explosion):
+
+    old_doppler_factor = get_doppler_factor(
+        r_packet.r, r_packet.mu, time_explosion
+    )
+    comov_nu = r_packet.nu * old_doppler_factor
+    comov_energy = r_packet.energy * old_doppler_factor
+    r_packet.mu = get_random_mu()
+    inverse_new_doppler_factor = get_inverse_doppler_factor(
+        r_packet.r, r_packet.mu, time_explosion
+    )
+
+    r_packet.energy = comov_energy * inverse_new_doppler_factor
+ 
+    return comov_nu, inverse_new_doppler_factor
+
+def continuum_event(r_packet, time_explosion, plasma, chi_continuum_calculator):
+
+    comov_nu, inverse_new_doppler_factor = scatter(r_packet, time_explosion)
+
+    old_doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu, time_explosion)
+    comov_nu = r_packet.nu * old_doppler_factor
+
+    zrand = np.random.random()
+
+    (
+        chi_bf,
+        chi_bf_contributions,
+        current_continua,
+        chi_ff,
+    ) = chi_continuum_calculator(comov_nu, r_packet.current_shell_id)
+
+    cur_electron_density = numba_plasma.electron_density[
+        r_packet.current_shell_id
+    ]
+
+    chi_e = cur_electron_density * SIGMA_THOMSON
+
+    chi_nu = chi_bf + chi_ff + chi_e
+
+
+    if zrand < SIGMA_THOMSON / chi_nu:
+        thomson_scatter(r_packet, time_explosion)
+    elif zrand < (SIGMA_THOMSON + chi_bf) / chi_nu:
+        bound_free_absorption(r_packet, time_explosion, plasma)
+    else:
+        free_free_absorption(r_packet, time_explosion)
+
 
 @njit(**njit_dict_no_parallel)
 def thomson_scatter(r_packet, time_explosion):
