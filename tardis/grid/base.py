@@ -40,8 +40,8 @@ class tardisGrid:
 
     Parameters
     ----------
-    configFile : str
-        path to TARDIS yml file.
+    configFile : str or dict
+        path to TARDIS yml file, or a pre-validated config dictionary.
     gridFrame : pandas.core.frame.DataFrame
         dataframe where each row is a set of parameters for
         a TARDIS simulation.
