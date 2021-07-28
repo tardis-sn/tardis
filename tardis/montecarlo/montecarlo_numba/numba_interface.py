@@ -49,6 +49,7 @@ numba_plasma_spec = [
     ("transition_type", int64[:]),
     ("destination_level_id", int64[:]),
     ("transition_line_id", int64[:]),
+    ("bf_threshold_list_nu", float64[:]),
 ]
 
 
@@ -66,6 +67,7 @@ class NumbaPlasma(object):
         transition_type,
         destination_level_id,
         transition_line_id,
+        bf_threshold_list_nu,
     ):
         """
         Plasma for the Numba code
@@ -82,12 +84,14 @@ class NumbaPlasma(object):
         transition_type : numpy.ndarray
         destination_level_id : numpy.ndarray
         transition_line_id : numpy.ndarray
+        bf_threshold_list_nu : numpy.ndarray
         """
 
         self.electron_density = electron_density
         self.t_electrons = t_electrons
         self.line_list_nu = line_list_nu
         self.tau_sobolev = tau_sobolev
+        self.bf_threshold_list_nu = bf_threshold_list_nu
 
         #### Macro Atom transition probabilities
         self.transition_probabilities = transition_probabilities
@@ -147,6 +151,12 @@ def numba_plasma_initialize(plasma, line_interaction_type):
             "destination_level_idx"
         ].values
         transition_line_id = plasma.macro_atom_data["lines_idx"].values
+    if not plasma.continuum_interaction_species.empty:
+        bf_threshold_list_nu = plasma.nu_i.loc[
+            plasma.level2continuum_idx.index
+        ].values
+    else:
+        bf_threshold_list_nu = np.zeros(0, dtype=np.int64)
 
     return NumbaPlasma(
         electron_densities,
@@ -159,6 +169,7 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         transition_type,
         destination_level_id,
         transition_line_id,
+        bf_threshold_list_nu,
     )
 
 
