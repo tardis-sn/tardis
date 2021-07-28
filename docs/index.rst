@@ -62,7 +62,7 @@ Mission Statement
     io/optional/index
     io/visualization/index
     io/output/index
-
+    io/grid/TardisGridTutorial
 
 .. toctree::
     :maxdepth: 2
