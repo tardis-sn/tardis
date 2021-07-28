@@ -185,25 +185,18 @@ def trace_packet(
 
         # calculating the trace
         tau_trace_combined = tau_trace_line_combined + tau_trace_continuum
+    
+        distance = min(distance_trace, distance_boundary, distance_continuum)
 
-        if (
-            (distance_boundary <= distance_trace)
-            and (distance_boundary <= distance_continuum)
-        ) and distance_trace != 0.0:
-            interaction_type = InteractionType.BOUNDARY  # BOUNDARY
-            r_packet.next_line_id = cur_line_id
-            distance = distance_boundary
-            break
-
-        if (
-            (distance_continuum < distance_trace)
-            and (distance_continuum < distance_boundary)
-        ) and distance_trace != 0.0:
-            interaction_type = InteractionType.ESCATTERING
-            # print('scattering')
-            distance = distance_continuum
-            r_packet.next_line_id = cur_line_id
-            break
+        if distance_trace != 0:
+            if distance == distance_boundary:
+                interaction_type = InteractionType.BOUNDARY  # BOUNDARY
+                r_packet.next_line_id = cur_line_id
+                break
+            elif distance == distance_continuum:
+                interaction_type = InteractionType.ESCATTERING
+                r_packet.next_line_id = cur_line_id
+                break
 
         # Updating the J_b_lu and E_dot_lu
         # This means we are still looking for line interaction and have not
