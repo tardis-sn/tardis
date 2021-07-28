@@ -265,6 +265,7 @@ class MontecarloRunner(HDFWriterMixin):
         plasma,
         no_of_packets,
         no_of_virtual_packets=0,
+        total_packets=0,
         nthreads=1,
         last_run=False,
         iteration=0,
@@ -304,7 +305,12 @@ class MontecarloRunner(HDFWriterMixin):
 
         configuration_initialize(self, no_of_virtual_packets)
         montecarlo_radial1d(
-            model, plasma, no_of_packets, iteration, total_iterations, self
+            model,
+            plasma,
+            iteration,
+            total_packets,
+            total_iterations,
+            self,
         )
         self._integrator = FormalIntegrator(model, plasma, self)
         # montecarlo.montecarlo_radial1d(

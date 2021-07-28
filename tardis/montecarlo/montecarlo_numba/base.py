@@ -37,49 +37,52 @@ else:
 
 packet_pbar = pbar(
     dynamic_ncols=True,
-    bar_format="{bar}{percentage:3.0f}%  of packets propagated on iteration ",
+    bar_format="{bar}{percentage:3.0f}% of packets propagated, iteration 0/?",
 )
 
 
-def update_packet_pbar(
-    i,
-    total_no_of_packets,
-    current_iteration,
-    total_iterations,
-):
+def update_packet_pbar(i, current_iteration, total_iterations, total_packets):
+    bar_format = packet_pbar.bar_format.split(" ")
+    bar = bar_format[:-1]
+    bar_iteration = int(bar_format[-1].split("/")[0]) - 1
+
     # set bar attributes when first called
     if packet_pbar.total == None:
-        packet_pbar.desc = "0"
-        packet_pbar.reset(total=total_no_of_packets)
-        packet_pbar.n = 0
+        packet_pbar.reset(total=total_packets)
 
-    # reset the bar when the iteration changes
-    if packet_pbar.n >= packet_pbar.total or packet_pbar.desc == "":
-        # display the bar again
-        # only required in notebooks
-        if (
-            float(packet_pbar.desc) > total_iterations
-            and type(packet_pbar) == tqdm.notebook.tqdm
-        ):
-            display(packet_pbar.container)
-            packet_pbar.desc = "0"
-
-        # desc acts as a counter
-        packet_pbar.desc = str(int(packet_pbar.desc) + 1)
-
-        # change iteration in the format string
-        bar_format = packet_pbar.bar_format.split(" ")[:-1]
+    # display progress bar again when run_tardis is called again
+    if bar_iteration > current_iteration:
         packet_pbar.bar_format = (
-            " ".join(bar_format) + " " + str(current_iteration + 1)
+            " ".join(bar)
+            + " "
+            + str(current_iteration + 1)
+            + "/"
+            + str(total_iterations)
         )
+        if type(packet_pbar) != tqdm.tqdm:
+            display(packet_pbar.container)
+        packet_pbar.reset(total=total_packets)
 
-        packet_pbar.reset(total=total_no_of_packets)
-        
+    if bar_iteration < current_iteration:
+        packet_pbar.bar_format = (
+            " ".join(bar)
+            + " "
+            + str(current_iteration + 1)
+            + "/"
+            + str(total_iterations)
+        )
+        packet_pbar.display()
+
     packet_pbar.update(int(i))
 
 
 def montecarlo_radial1d(
-    model, plasma, number_of_packets, iteration, total_iterations, runner
+    model,
+    plasma,
+    iteration,
+    total_packets,
+    total_iterations,
+    runner,
 ):
     packet_collection = PacketCollection(
         runner.input_r,
@@ -126,8 +129,8 @@ def montecarlo_radial1d(
         numba_plasma,
         estimators,
         runner.spectrum_frequency.value,
-        number_of_packets,
         number_of_vpackets,
+        total_packets,
         packet_seeds,
         iteration=iteration,
         total_iterations=total_iterations,
@@ -173,8 +176,8 @@ def montecarlo_main_loop(
     numba_plasma,
     estimators,
     spectrum_frequency,
-    number_of_packets,
     number_of_vpackets,
+    total_packets,
     packet_seeds,
     iteration,
     total_iterations,
@@ -239,9 +242,9 @@ def montecarlo_main_loop(
         with objmode:
             update_packet_pbar(
                 1,
-                total_no_of_packets=number_of_packets,
                 current_iteration=iteration,
                 total_iterations=total_iterations,
+                total_packets=total_packets,
             )
 
         if montecarlo_configuration.single_packet_seed != -1:
@@ -280,8 +283,12 @@ def montecarlo_main_loop(
 
         vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
         vpackets_energy = vpacket_collection.energies[: vpacket_collection.idx]
-        vpackets_initial_mu = vpacket_collection.initial_mus[: vpacket_collection.idx]
-        vpackets_initial_r = vpacket_collection.initial_rs[: vpacket_collection.idx]
+        vpackets_initial_mu = vpacket_collection.initial_mus[
+            : vpacket_collection.idx
+        ]
+        vpackets_initial_r = vpacket_collection.initial_rs[
+            : vpacket_collection.idx
+        ]
 
         v_packets_idx = np.floor(
             (vpackets_nu - spectrum_frequency[0]) / delta_nu
@@ -299,17 +306,29 @@ def montecarlo_main_loop(
     if montecarlo_configuration.VPACKET_LOGGING:
         for vpacket_collection in vpacket_collections:
             vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
-            vpackets_energy = vpacket_collection.energies[: vpacket_collection.idx]
-            vpackets_initial_mu = vpacket_collection.initial_mus[: vpacket_collection.idx]
-            vpackets_initial_r = vpacket_collection.initial_rs[: vpacket_collection.idx]
+            vpackets_energy = vpacket_collection.energies[
+                : vpacket_collection.idx
+            ]
+            vpackets_initial_mu = vpacket_collection.initial_mus[
+                : vpacket_collection.idx
+            ]
+            vpackets_initial_r = vpacket_collection.initial_rs[
+                : vpacket_collection.idx
+            ]
             virt_packet_nus.append(np.ascontiguousarray(vpackets_nu))
             virt_packet_energies.append(np.ascontiguousarray(vpackets_energy))
-            virt_packet_initial_mus.append(np.ascontiguousarray(vpackets_initial_mu))
-            virt_packet_initial_rs.append(np.ascontiguousarray(vpackets_initial_r))
-            virt_packet_last_interaction_in_nu.append(np.ascontiguousarray(
-                vpacket_collection.last_interaction_in_nu[
-                    : vpacket_collection.idx
-                ])
+            virt_packet_initial_mus.append(
+                np.ascontiguousarray(vpackets_initial_mu)
+            )
+            virt_packet_initial_rs.append(
+                np.ascontiguousarray(vpackets_initial_r)
+            )
+            virt_packet_last_interaction_in_nu.append(
+                np.ascontiguousarray(
+                    vpacket_collection.last_interaction_in_nu[
+                        : vpacket_collection.idx
+                    ]
+                )
             )
             virt_packet_last_interaction_type.append(
                 np.ascontiguousarray(

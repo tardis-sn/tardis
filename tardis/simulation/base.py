@@ -126,6 +126,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         runner,
         no_of_packets,
         no_of_virtual_packets,
+        total_packets,
         luminosity_nu_start,
         luminosity_nu_end,
         last_no_of_packets,
@@ -146,6 +147,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.runner = runner
         self.no_of_packets = no_of_packets
         self.last_no_of_packets = last_no_of_packets
+        self.total_packets = total_packets
         self.no_of_virtual_packets = no_of_virtual_packets
         self.luminosity_nu_start = luminosity_nu_start
         self.luminosity_nu_end = luminosity_nu_end
@@ -369,6 +371,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma,
             no_of_packets,
             no_of_virtual_packets=no_of_virtual_packets,
+            total_packets=self.total_packets,
             nthreads=self.nthreads,
             last_run=last_run,
             iteration=self.iterations_executed,
@@ -665,19 +668,25 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 const.c / config.supernova.luminosity_wavelength_start
             ).to(u.Hz)
 
+        iterations = int(config.montecarlo.iterations)
+        no_of_packets = int(config.montecarlo.no_of_packets)
+
         last_no_of_packets = config.montecarlo.last_no_of_packets
         if last_no_of_packets is None or last_no_of_packets < 0:
             last_no_of_packets = config.montecarlo.no_of_packets
         last_no_of_packets = int(last_no_of_packets)
 
+        total_packets = last_no_of_packets + no_of_packets * (iterations - 1)
+
         return cls(
-            iterations=config.montecarlo.iterations,
+            iterations=iterations,
             model=model,
             plasma=plasma,
             runner=runner,
             show_convergence_plots=show_convergence_plots,
-            no_of_packets=int(config.montecarlo.no_of_packets),
+            no_of_packets=no_of_packets,
             no_of_virtual_packets=int(config.montecarlo.no_of_virtual_packets),
+            total_packets=total_packets,
             luminosity_nu_start=luminosity_nu_start,
             luminosity_nu_end=luminosity_nu_end,
             last_no_of_packets=last_no_of_packets,
