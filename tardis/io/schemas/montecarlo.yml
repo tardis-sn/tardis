@@ -64,7 +64,7 @@ properties:
     default: false
     description: Enables a more complete treatment of relativitic effects. This includes
       angle aberration as well as use of the fully general Doppler formula.
-  montecarlo_tracking:
+  tracking:
     type: object
     default: {}
     properties:
