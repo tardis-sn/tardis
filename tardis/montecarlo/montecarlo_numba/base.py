@@ -42,27 +42,57 @@ packet_pbar = pbar(
 
 
 def update_packet_pbar(i, current_iteration, total_iterations, total_packets):
+    """
+    Update progress bars as each packet is propagated.
+
+    Parameters
+    ----------
+    i : int
+        Amount by which the progress bar needs to be updated.
+    current_iteration : int
+        Current iteration number.
+    total_iterations : int
+        Total number of iterations.
+    total_packets : int
+        Total number of packets.
+    """
     bar_format = packet_pbar.bar_format.split(" ")
     bar = bar_format[:-1]
     bar_iteration = int(bar_format[-1].split("/")[0]) - 1
 
-    # set bar attributes when first called
+    # set bar total when first called
     if packet_pbar.total == None:
         packet_pbar.reset(total=total_packets)
 
-    # display progress bar again when run_tardis is called again
+    # display and reset progress bar when run_tardis is called again
     if bar_iteration > current_iteration:
         packet_pbar.bar_format = (
             " ".join(bar)
             + " "
-            + str(current_iteration + 1)
+            + str(current_iteration)
             + "/"
             + str(total_iterations)
         )
+
         if type(packet_pbar) != tqdm.tqdm:
+            # stop displaying last container
+            packet_pbar.container.close()
+
+            # the dynamic ncols gets reset
+            # we have dynamic ncols set to True
+            packet_pbar.ncols = "100%"
+            packet_pbar.container = packet_pbar.status_printer(
+                packet_pbar.fp,
+                packet_pbar.total,
+                packet_pbar.desc,
+                packet_pbar.ncols,
+            )
             display(packet_pbar.container)
+            packet_pbar.display()
+
         packet_pbar.reset(total=total_packets)
 
+    # update iteration number in progress bar
     if bar_iteration < current_iteration:
         packet_pbar.bar_format = (
             " ".join(bar)
