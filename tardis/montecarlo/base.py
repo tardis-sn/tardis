@@ -270,6 +270,7 @@ class MontecarloRunner(HDFWriterMixin):
         last_run=False,
         iteration=0,
         total_iterations=0,
+        show_progress_bar=True,
     ):
         """
         Run the montecarlo calculation
@@ -310,6 +311,7 @@ class MontecarloRunner(HDFWriterMixin):
             iteration,
             total_packets,
             total_iterations,
+            show_progress_bar,
             self,
         )
         self._integrator = FormalIntegrator(model, plasma, self)

@@ -39,6 +39,7 @@ packet_pbar = pbar(
     dynamic_ncols=True,
     bar_format="{bar}{percentage:3.0f}% of packets propagated, iteration 0/?",
 )
+packet_pbar.container.close()
 
 
 def update_packet_pbar(i, current_iteration, total_iterations, total_packets):
@@ -62,7 +63,16 @@ def update_packet_pbar(i, current_iteration, total_iterations, total_packets):
 
     # set bar total when first called
     if packet_pbar.total == None:
+        packet_pbar.ncols = "100%"
+        packet_pbar.container = packet_pbar.status_printer(
+            packet_pbar.fp,
+            packet_pbar.total,
+            packet_pbar.desc,
+            packet_pbar.ncols,
+        )
+        display(packet_pbar.container)
         packet_pbar.reset(total=total_packets)
+        packet_pbar.display()
 
     # display and reset progress bar when run_tardis is called again
     if bar_iteration > current_iteration:
@@ -112,6 +122,7 @@ def montecarlo_radial1d(
     iteration,
     total_packets,
     total_iterations,
+    show_progress_bar,
     runner,
 ):
     packet_collection = PacketCollection(
@@ -164,6 +175,7 @@ def montecarlo_radial1d(
         packet_seeds,
         iteration=iteration,
         total_iterations=total_iterations,
+        show_progress_bar=show_progress_bar,
     )
 
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
@@ -211,6 +223,7 @@ def montecarlo_main_loop(
     packet_seeds,
     iteration,
     total_iterations,
+    show_progress_bar,
 ):
     """
     This is the main loop of the MonteCarlo routine that generates packets
@@ -269,13 +282,14 @@ def montecarlo_main_loop(
     virt_packet_last_line_interaction_out_id = []
 
     for i in prange(len(output_nus)):
-        with objmode:
-            update_packet_pbar(
-                1,
-                current_iteration=iteration,
-                total_iterations=total_iterations,
-                total_packets=total_packets,
-            )
+        if show_progress_bar:
+            with objmode:
+                update_packet_pbar(
+                    1,
+                    current_iteration=iteration,
+                    total_iterations=total_iterations,
+                    total_packets=total_packets,
+                )
 
         if montecarlo_configuration.single_packet_seed != -1:
             seed = packet_seeds[montecarlo_configuration.single_packet_seed]
