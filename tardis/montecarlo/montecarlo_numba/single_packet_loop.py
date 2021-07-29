@@ -1,4 +1,4 @@
-from numba import njit
+from numba import njit, jit
 import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
@@ -42,7 +42,7 @@ def single_packet_loop(
     numba_plasma,
     estimators,
     vpacket_collection,
-    r_packet_tracking,
+    r_packet_track,
 ):
     """
     Parameters
@@ -74,7 +74,7 @@ def single_packet_loop(
     )
 
     if montecarlo_configuration.RPACKET_TRACKING:
-        track_r_packet(r_packet, r_packet_tracking, distance=0.0)
+        track_r_packet(r_packet, r_packet_track)
 
     while r_packet.status == PacketStatus.IN_PROCESS:
         distance, interaction_type, delta_shell = trace_packet(
@@ -90,7 +90,7 @@ def single_packet_loop(
             )
 
             if montecarlo_configuration.RPACKET_TRACKING:
-                track_r_packet(r_packet, r_packet_tracking, distance)
+                track_r_packet(r_packet, r_packet_track)
 
         elif interaction_type == InteractionType.LINE:
             r_packet.last_interaction_type = 2
@@ -109,7 +109,7 @@ def single_packet_loop(
             )
 
             if montecarlo_configuration.RPACKET_TRACKING:
-                track_r_packet(r_packet, r_packet_tracking, distance)
+                track_r_packet(r_packet, r_packet_track)
 
         elif interaction_type == InteractionType.ESCATTERING:
             r_packet.last_interaction_type = 1
@@ -124,7 +124,7 @@ def single_packet_loop(
             )
 
             if montecarlo_configuration.RPACKET_TRACKING:
-                track_r_packet(r_packet, r_packet_tracking, distance)
+                track_r_packet(r_packet, r_packet_track)
 
     # check where else initialize line ID happens!
 
