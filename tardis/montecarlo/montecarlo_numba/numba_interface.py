@@ -1,7 +1,6 @@
 from enum import IntEnum
 
 from numba import float64, int64, boolean
-from numba.core.types.containers import List
 from numba.experimental import jitclass
 import numpy as np
 
