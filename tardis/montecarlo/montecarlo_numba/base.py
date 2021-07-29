@@ -79,13 +79,6 @@ def montecarlo_radial1d(
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
         r_packet_track,
-        r_packet_indices,
-        r_packet_seeds,
-        r_packet_status,
-        r_packet_rs,
-        r_packet_nus,
-        r_packet_mus,
-        r_packet_energies,
     ) = montecarlo_main_loop(
         packet_collection,
         numba_model,
@@ -136,15 +129,6 @@ def montecarlo_radial1d(
 
     # Condition for Checking if R Packet Tracking is enabled
     runner.r_packet_tracking = r_packet_track
-
-    # Properties to store the properties of the packets
-    runner.r_packet_index = r_packet_indices
-    runner.r_packet_seed = r_packet_seeds
-    runner.r_packet_status = r_packet_status
-    runner.r_packet_r = r_packet_rs
-    runner.r_packet_nu = r_packet_nus
-    runner.r_packet_mu = r_packet_mus
-    runner.r_packet_energy = r_packet_energies
 
 
 @njit(**njit_dict)
@@ -227,14 +211,6 @@ def montecarlo_main_loop(
 
     # Tracking for R_Packet
     r_packet_track = RPacketTracker()
-
-    r_packet_indices = []
-    r_packet_seeds = []
-    r_packet_status = []
-    r_packet_rs = []
-    r_packet_nus = []
-    r_packet_mus = []
-    r_packet_energies = []
 
     for i in prange(len(output_nus)):
         if show_progress_bars:
@@ -356,15 +332,7 @@ def montecarlo_main_loop(
             )
 
     if montecarlo_configuration.RPACKET_TRACKING:
-        for i in range(len(r_packet_track.seed)):
-            if r_packet_track.seed[i] != 0:
-                r_packet_indices.append(r_packet_track.index[i])
-                r_packet_seeds.append(r_packet_track.seed[i])
-                r_packet_status.append(r_packet_track.status[i])
-                r_packet_rs.append(r_packet_track.r[i])
-                r_packet_nus.append(r_packet_track.nu[i])
-                r_packet_mus.append(r_packet_track.mu[i])
-                r_packet_energies.append(r_packet_track.energy[i])
+        r_packet_track.finalise_array()
 
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
@@ -384,11 +352,4 @@ def montecarlo_main_loop(
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
         r_packet_track,
-        r_packet_indices,
-        r_packet_seeds,
-        r_packet_status,
-        r_packet_rs,
-        r_packet_nus,
-        r_packet_mus,
-        r_packet_energies,
     )
