@@ -13,6 +13,7 @@ diagnostic visualizations.
     :maxdepth: 2
 
     sdec_plot
+    convergence_plot
 
 
 TARDIS Widgets (Graphical User Interfaces)
