@@ -316,5 +316,5 @@ def move_packet_across_shell_boundary(packet, delta_shell, no_of_shells):
 
 
 @njit(**njit_dict_no_parallel)
-def track_r_packet(r_packet, r_packet_track):
-    r_packet_track.set_properties(r_packet)
+def track_r_packet(r_packet, tracked_rpacket_properties):
+    tracked_rpacket_properties.set_properties(r_packet)
