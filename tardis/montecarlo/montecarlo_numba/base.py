@@ -39,7 +39,8 @@ packet_pbar = pbar(
     dynamic_ncols=True,
     bar_format="{bar}{percentage:3.0f}% of packets propagated, iteration 0/?",
 )
-packet_pbar.container.close()
+if type(packet_pbar).__name__ == "tqdm_notebook":
+    packet_pbar.container.close()
 
 
 def update_packet_pbar(i, current_iteration, total_iterations, total_packets):
@@ -64,13 +65,14 @@ def update_packet_pbar(i, current_iteration, total_iterations, total_packets):
     # set bar total when first called
     if packet_pbar.total == None:
         packet_pbar.ncols = "100%"
-        packet_pbar.container = packet_pbar.status_printer(
-            packet_pbar.fp,
-            packet_pbar.total,
-            packet_pbar.desc,
-            packet_pbar.ncols,
-        )
-        display(packet_pbar.container)
+        if type(packet_pbar).__name__ == "tqdm_notebook":
+            packet_pbar.container = packet_pbar.status_printer(
+                packet_pbar.fp,
+                packet_pbar.total,
+                packet_pbar.desc,
+                packet_pbar.ncols,
+            )
+            display(packet_pbar.container)
         packet_pbar.reset(total=total_packets)
         packet_pbar.display()
 
@@ -84,7 +86,7 @@ def update_packet_pbar(i, current_iteration, total_iterations, total_packets):
             + str(total_iterations)
         )
 
-        if type(packet_pbar) != tqdm.tqdm:
+        if type(packet_pbar).__name__ == "tqdm_notebook":
             # stop displaying last container
             packet_pbar.container.close()
 
