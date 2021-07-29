@@ -375,6 +375,19 @@ class RPacketCollection(object):
         self.shell_id[self.interact_id] = r_packet.current_shell_id
         self.interact_id += 1
 
+    def finalise_array(self):
+        for i in range(self.length):
+            if self.seed[i] == 0:
+                array_size = i
+                break
+        self.index = self.index[:array_size]
+        self.seed = self.seed[:array_size]
+        self.status = self.status[:array_size]
+        self.r = self.r[:array_size]
+        self.nu = self.nu[:array_size]
+        self.mu = self.mu[:array_size]
+        self.energy = self.energy[:array_size]
+
 
 estimators_spec = [
     ("j_estimator", float64[:]),

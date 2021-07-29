@@ -135,15 +135,7 @@ class MontecarloRunner(HDFWriterMixin):
         self.virt_packet_initial_rs = np.ones(2) * -1.0
         self.virt_packet_initial_mus = np.ones(2) * -1.0
 
-        # self.r_packet_tracking = np.zeros(1)
-
-        self.r_packet_index = np.zeros(1)
-        self.r_packet_seed = np.zeros(1)
-        self.r_packet_status = np.zeros(1)
-        self.r_packet_r = np.zeros(1)
-        self.r_packet_nu = np.zeros(1)
-        self.r_packet_mu = np.zeros(1)
-        self.r_packet_energy = np.zeros(1)
+        self.r_packet_tracking = np.zeros(1)
 
         # set up logger based on config
         mc_tracker.DEBUG_MODE = debug_packets
