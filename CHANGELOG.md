@@ -1,5 +1,11 @@
 ## Change Log
 
+### release-2021.8.1.0 (2021/07/29 18:57 +00:00)
+- [#1753](https://github.com/tardis-sn/tardis/pull/1753) Adding Convergence Plots to the Documentation (#1753) (@atharva-2001)
+- [#1738](https://github.com/tardis-sn/tardis/pull/1738) TARDIS Grid (#1738) (@marxwillia)
+- [#1755](https://github.com/tardis-sn/tardis/pull/1755) changing note format (#1755) (@smithis7)
+- [#1740](https://github.com/tardis-sn/tardis/pull/1740) Renamed `montecarlo_logger.py` to `montecarlo_tracking.py` (#1740) (@DhruvSondhi)
+
 ### release-2021.7.25.0 (2021/07/23 16:16 +00:00)
 - [#1697](https://github.com/tardis-sn/tardis/pull/1697) Interact Button in Documentation (#1697) (@smithis7)
 - [#1636](https://github.com/tardis-sn/tardis/pull/1636) Adding Convergence Plots (#1636) (@atharva-2001)
