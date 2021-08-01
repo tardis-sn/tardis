@@ -20,7 +20,6 @@ MANIFEST
 # Sphinx
 docs/api
 docs/_build
-docs/tutorials.rst
 
 # Eclipse editor project files
 .project
@@ -64,3 +63,6 @@ pip-wheel-metadata/
 
 # Mac OSX
 .DS_Store
+
+# Generated docs pages
+docs/tutorials.rst
