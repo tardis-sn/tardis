@@ -402,10 +402,8 @@ class RPacketTracker(object):
         self.interact_id += 1
 
     def finalise_array(self):
-        for i in range(self.length):
-            if self.seed[i] == 0:
-                array_size = i
-                break
+        array_size = np.where(self.seed == 0)
+        array_size = array_size[0][0]
         self.index = self.index[:array_size]
         self.seed = self.seed[:array_size]
         self.status = self.status[:array_size]
