@@ -974,7 +974,7 @@ class FreeBoundFrequencySampler(ProcessingPlasmaProperty):
             end = photo_ion_block_references[continuum_id + 1]
             
             zrand = np.random.random()
-            idx = np.searchsorted(em, zrand, side="right")
+            idx = np.searchsorted(em[start:end], zrand, side="right")
 
             return phot_nus[i] - (em[i] - zrand) / (em[i] - em[i-1]) * (phot_nus[i] - phot_nus[i-1])
 
