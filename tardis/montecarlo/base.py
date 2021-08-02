@@ -136,7 +136,7 @@ class MontecarloRunner(HDFWriterMixin):
         self.virt_packet_initial_mus = np.ones(2) * -1.0
 
         # Setting up the Tracking array for RPacketCollection
-        self.tracked_rpacket_properties = np.zeros(1)
+        self.tracked_rpacket_properties = None
 
         # set up logger based on config
         mc_tracker.DEBUG_MODE = debug_packets
@@ -606,6 +606,10 @@ class MontecarloRunner(HDFWriterMixin):
         )
         mc_config_module.disable_line_scattering = (
             config.plasma.disable_line_scattering
+        )
+
+        mc_config_module.initial_array_length = (
+            config.montecarlo.tracking.initial_array_length
         )
 
         return cls(

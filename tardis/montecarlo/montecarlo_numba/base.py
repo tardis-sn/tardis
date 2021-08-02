@@ -127,7 +127,8 @@ def montecarlo_radial1d(
     update_iterations_pbar(1)
 
     # Condition for Checking if R Packet Tracking is enabled
-    runner.tracked_rpacket_properties = tracked_rpacket_properties
+    if montecarlo_configuration.RPACKET_TRACKING:
+        runner.tracked_rpacket_properties = tracked_rpacket_properties
 
 
 @njit(**njit_dict)
@@ -200,7 +201,7 @@ def montecarlo_main_loop(
     virt_packet_last_line_interaction_in_id = []
     virt_packet_last_line_interaction_out_id = []
 
-    # Tracking for R_Packet
+    # Configuring the Tracking for R_Packets 
     tracked_rpacket_properties = RPacketCollection()
 
     for i in prange(len(output_nus)):
