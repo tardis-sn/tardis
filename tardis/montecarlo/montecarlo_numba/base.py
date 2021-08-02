@@ -37,13 +37,22 @@ else:
 
 packet_pbar = pbar(
     dynamic_ncols=True,
-    bar_format="{bar}{percentage:3.0f}% of packets propagated, iteration 0/?",
+    desc=0,
+    bar_format="{percentage:3.0f}%{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}{postfix}]",
 )
 if type(packet_pbar).__name__ == "tqdm_notebook":
     packet_pbar.container.close()
 
+iterations_pbar = pbar(
+    dynamic_ncols=True,
+)
+if type(iterations_pbar).__name__ == "tqdm_notebook":
+    iterations_pbar.container.close()
 
-def update_packet_pbar(i, current_iteration, total_iterations, total_packets):
+
+def update_packet_pbar(
+    i, current_iteration, total_iterations, total_packets, no_of_packets
+):
     """
     Update progress bars as each packet is propagated.
 
@@ -58,9 +67,9 @@ def update_packet_pbar(i, current_iteration, total_iterations, total_packets):
     total_packets : int
         Total number of packets.
     """
-    bar_format = packet_pbar.bar_format.split(" ")
-    bar = bar_format[:-1]
-    bar_iteration = int(bar_format[-1].split("/")[0]) - 1
+    if packet_pbar.desc == "":
+        packet_pbar.desc = "0"
+    bar_iteration = int(packet_pbar.desc) - 1
 
     # set bar total when first called
     if packet_pbar.total == None:
@@ -73,18 +82,12 @@ def update_packet_pbar(i, current_iteration, total_iterations, total_packets):
                 packet_pbar.ncols,
             )
             display(packet_pbar.container)
-        packet_pbar.reset(total=total_packets)
+        packet_pbar.reset(total=no_of_packets)
         packet_pbar.display()
 
     # display and reset progress bar when run_tardis is called again
     if bar_iteration > current_iteration:
-        packet_pbar.bar_format = (
-            " ".join(bar)
-            + " "
-            + str(current_iteration)
-            + "/"
-            + str(total_iterations)
-        )
+        packet_pbar.desc = current_iteration
 
         if type(packet_pbar).__name__ == "tqdm_notebook":
             # stop displaying last container
@@ -102,26 +105,61 @@ def update_packet_pbar(i, current_iteration, total_iterations, total_packets):
             display(packet_pbar.container)
             packet_pbar.display()
 
-        packet_pbar.reset(total=total_packets)
+        packet_pbar.reset(total=no_of_packets)
 
     # update iteration number in progress bar
     if bar_iteration < current_iteration:
-        packet_pbar.bar_format = (
-            " ".join(bar)
-            + " "
-            + str(current_iteration + 1)
-            + "/"
-            + str(total_iterations)
-        )
+        packet_pbar.reset(total=no_of_packets)
+        packet_pbar.desc = str(current_iteration + 1)
         packet_pbar.display()
 
     packet_pbar.update(int(i))
+
+
+def update_iterations_pbar(i, total_iterations):
+    """
+    Update progress bar for each iteration.
+    """
+    if iterations_pbar.total == None:
+        iterations_pbar.ncols = "100%"
+        if type(iterations_pbar).__name__ == "tqdm_notebook":
+            iterations_pbar.container = packet_pbar.status_printer(
+                iterations_pbar.fp,
+                iterations_pbar.total,
+                iterations_pbar.desc,
+                iterations_pbar.ncols,
+            )
+            display(iterations_pbar.container)
+        iterations_pbar.reset(total=total_iterations)
+
+    # display and reset progress bar when run_tardis is called again
+    if iterations_pbar.n >= total_iterations:
+
+        if type(iterations_pbar).__name__ == "tqdm_notebook":
+            # stop displaying last container
+            iterations_pbar.container.close()
+
+            # the dynamic ncols gets reset
+            # we have dynamic ncols set to True
+            iterations_pbar.ncols = "100%"
+            iterations_pbar.container = iterations_pbar.status_printer(
+                iterations_pbar.fp,
+                iterations_pbar.total,
+                iterations_pbar.desc,
+                iterations_pbar.ncols,
+            )
+            iterations_pbar.reset(total=total_iterations)
+            display(iterations_pbar.container)
+            iterations_pbar.display()
+
+    iterations_pbar.update(i)
 
 
 def montecarlo_radial1d(
     model,
     plasma,
     iteration,
+    no_of_packets,
     total_packets,
     total_iterations,
     show_progress_bar,
@@ -178,6 +216,7 @@ def montecarlo_radial1d(
         iteration=iteration,
         total_iterations=total_iterations,
         show_progress_bar=show_progress_bar,
+        no_of_packets=no_of_packets,
     )
 
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
@@ -212,6 +251,8 @@ def montecarlo_radial1d(
             np.array(virt_packet_last_line_interaction_out_id)
         ).ravel()
 
+    update_iterations_pbar(1, total_iterations=total_iterations)
+
 
 @njit(**njit_dict)
 def montecarlo_main_loop(
@@ -226,6 +267,7 @@ def montecarlo_main_loop(
     iteration,
     total_iterations,
     show_progress_bar,
+    no_of_packets,
 ):
     """
     This is the main loop of the MonteCarlo routine that generates packets
@@ -290,6 +332,7 @@ def montecarlo_main_loop(
                     1,
                     current_iteration=iteration,
                     total_iterations=total_iterations,
+                    no_of_packets=no_of_packets,
                     total_packets=total_packets,
                 )
 

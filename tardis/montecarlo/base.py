@@ -309,6 +309,7 @@ class MontecarloRunner(HDFWriterMixin):
             model,
             plasma,
             iteration,
+            no_of_packets,
             total_packets,
             total_iterations,
             show_progress_bar,
