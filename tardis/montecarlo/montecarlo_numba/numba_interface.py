@@ -9,6 +9,7 @@ from tardis import constants as const
 
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
+    montecarlo_numba,
 )
 
 
@@ -349,7 +350,7 @@ class RPacketTracker(object):
     """
 
     def __init__(self):
-        self.length = 2
+        self.length = montecarlo_configuration.initial_array_length
         self.seed = np.empty(self.length, dtype=np.int64)
         self.index = np.empty(self.length, dtype=np.int64)
         self.status = np.empty(self.length, dtype=np.int64)
