@@ -320,10 +320,12 @@ def track_r_packet(r_packet, tracked_rpacket_properties):
     """
     Tracks the RPacket Properties in the tracked_rpacket_properties class instance
 
-    Args:
-        r_packet: tardis.montecarlo.montecarlo_numba.r_packet.RPacket
-            Rpacket containing the information for the packet properties that undergo an interaction in Single Packet Loop
-        tracked_rpacket_properties: tardis.montecarlo.montecarlo_numba.numba_interface.RPacketCollection
-            Instance of RPacketCollection Class that tracks the properties of the rpackets in an iteration of the Simulation
+    Parameters
+    ----------
+    r_packet: tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+        Rpacket containing the information for the packet properties that undergo an interaction in Single Packet Loop
+    
+    tracked_rpacket_properties: tardis.montecarlo.montecarlo_numba.numba_interface.RPacketCollection
+        Instance of RPacketCollection Class that tracks the properties of the rpackets in an iteration of the Simulation
     """
     tracked_rpacket_properties.set_properties(r_packet)
