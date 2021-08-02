@@ -12,13 +12,13 @@ from tardis.util.base import atomic_number2element_symbol
 import tardis.constants as const
 
 
-def calculate_distance_radial(gxpacket, r_inner, r_outer):
+def calculate_distance_radial(photon, r_inner, r_outer):
     """
     Calculates 3D distance to shell from gamma ray position
 
     Parameters
     ----------
-    gxpacket : GXPacket object
+    photon : GXPhoton object
     r_inner : dtype float
     r_outer : dtype float
 
@@ -29,9 +29,9 @@ def calculate_distance_radial(gxpacket, r_inner, r_outer):
     """
     # TODO: Maybe only calculate distances that are strictly needed instead of all four by default?
     # determine cartesian location coordinates of gamma-ray object
-    x, y, z = gxpacket.location.cartesian_coords
+    x, y, z = photon.location.cartesian_coords
     # determine cartesian direction coordinates of gamma-ray object
-    x_dir, y_dir, z_dir = gxpacket.direction.cartesian_coords
+    x_dir, y_dir, z_dir = photon.direction.cartesian_coords
     # solve the quadratic distance equation for the inner and
     # outer shell boundaries
     inner_1, inner_2 = solve_quadratic_equation(
@@ -48,7 +48,7 @@ def calculate_distance_radial(gxpacket, r_inner, r_outer):
 
 
 def distance_trace(
-    gxpacket,
+    photon,
     inner_radii,
     outer_radii,
     total_opacity,
@@ -60,7 +60,7 @@ def distance_trace(
 
     Parameters
     ----------
-    gxpacket : GXPacket object
+    photon : GXPhoton object
     inner_radii : One dimensional Numpy array, dtype float
     outer_radii : One dimensional Numpy array, dtype float
     total_opacity : dtype float
@@ -73,41 +73,41 @@ def distance_trace(
 
     """
     distance_boundary = calculate_distance_radial(
-        gxpacket,
-        inner_radii[gxpacket.shell],
-        outer_radii[gxpacket.shell],
+        photon,
+        inner_radii[photon.shell],
+        outer_radii[photon.shell],
     )
 
-    distance_interaction = gxpacket.tau / total_opacity / ejecta_epoch
+    distance_interaction = photon.tau / total_opacity / ejecta_epoch
     return distance_interaction, distance_boundary
 
 
-def move_gamma_ray(gxpacket, distance):
+def move_photon(photon, distance):
     """
     Moves gamma ray a distance along its direction vector
 
     Parameters
     ----------
-    gxpacket : GXPacket object
+    photon : GXPhoton object
     distance : dtype float
 
     Returns
     -------
-    gxpacket : GXPacket object
+    photon : GXPhoton object
 
     """
-    x_old, y_old, z_old = gxpacket.location.cartesian_coords
-    x_dir, y_dir, z_dir = gxpacket.direction.cartesian_coords
+    x_old, y_old, z_old = photon.location.cartesian_coords
+    x_dir, y_dir, z_dir = photon.direction.cartesian_coords
 
     y_new = y_old + distance * y_dir
     z_new = z_old + distance * z_dir
     x_new = x_old + distance * x_dir
 
     r, theta, phi = cartesian_to_spherical(x_new, y_new, z_new)
-    gxpacket.location.r = r.value
-    gxpacket.location.theta = theta.value + 0.5 * np.pi
-    gxpacket.location.phi = phi.value
-    return gxpacket
+    photon.location.r = r.value
+    photon.location.theta = theta.value + 0.5 * np.pi
+    photon.location.phi = phi.value
+    return photon
 
 
 def density_sampler(radii, mass_ratio):
@@ -155,13 +155,13 @@ def get_shell(radius, outer_radii):
     return shell_inner
 
 
-def compute_required_packets_per_shell(
+def compute_required_photons_per_shell(
     shell_masses,
     raw_isotope_abundance,
-    number_of_packets,
+    number_of_photons,
 ):
-    """Computes the number of packets required per shell
-    that sum to the total number of requested packets.
+    """Computes the number of photons required per shell
+    that sum to the total number of requested photons.
     Also stores/updates decay radiation in an HDF file.
 
     Parameters
@@ -170,13 +170,13 @@ def compute_required_packets_per_shell(
         Array of shell masses
     raw_isotope_abundance : pandas DataFrame
         Abundances of isotopes
-    number_of_packets : int64
-        Total number of simulation packets
+    number_of_photons : int64
+        Total number of simulation photons
 
     Returns
     -------
     pandas DataFrame
-        Packets required per shell
+        Photons required per shell
     pandas DataFrame
         Database of decay radiation
     """
@@ -215,12 +215,12 @@ def compute_required_packets_per_shell(
 
     total_activity = activity_df.to_numpy().sum()
     decay_rate_per_shell = decay_rate_per_shell_df.to_numpy().sum(axis=1)
-    packet_per_shell_df = activity_df.copy()
+    photon_per_shell_df = activity_df.copy()
 
-    for column in packet_per_shell_df:
-        packet_per_shell_df[column] = round(
-            packet_per_shell_df[column] * number_of_packets / total_activity
+    for column in photon_per_shell_df:
+        photon_per_shell_df[column] = round(
+            photon_per_shell_df[column] * number_of_photons / total_activity
         )
-        packet_per_shell_df[column] = packet_per_shell_df[column].astype(int)
+        photon_per_shell_df[column] = photon_per_shell_df[column].astype(int)
 
-    return packet_per_shell_df, decay_rad_db, decay_rate_per_shell
+    return photon_per_shell_df, decay_rad_db, decay_rate_per_shell

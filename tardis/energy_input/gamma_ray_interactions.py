@@ -3,13 +3,13 @@ import numpy as np
 from astropy.coordinates import cartesian_to_spherical
 
 from tardis.energy_input.util import (
-    GXPacket,
-    GXPacketStatus,
+    GXPhoton,
+    GXPhotonStatus,
     kappa_calculation,
     euler_rodrigues,
     compton_theta_distribution,
-    get_random_theta_gamma_ray,
-    get_random_phi_gamma_ray,
+    get_random_theta_photon,
+    get_random_phi_photon,
     normalize,
     get_perpendicular_vector,
 )
@@ -22,7 +22,7 @@ def get_compton_angle(energy):
     Parameters
     ----------
     energy : float
-        Packet energy
+        Photon energy
 
     Returns
     -------
@@ -31,7 +31,7 @@ def get_compton_angle(energy):
     lost_energy : float
         Energy lost based on angle
     new_energy : float
-        Packet energy
+        Photon energy
     """
     theta_angles, theta_distribution = compton_theta_distribution(energy)
 
@@ -48,24 +48,24 @@ def get_compton_angle(energy):
     return compton_angle, lost_energy, new_energy
 
 
-def compton_scatter(gxpacket, compton_angle):
+def compton_scatter(photon, compton_angle):
     """
     Changes the direction of the gamma-ray by the Compton scattering angle
 
     Parameters
     ----------
-    gxpacket : GXPacket object
+    photon : GXPhoton object
     compton_angle : float
 
     Returns
     -------
     float64
-        Packet theta direction
+        Photon theta direction
     float64
-        Packet phi direction
+        Photon phi direction
     """
     # transform original direction vector to cartesian coordinates
-    original_direction = normalize(gxpacket.direction.cartesian_coords)
+    original_direction = normalize(photon.direction.cartesian_coords)
     # compute an arbitrary perpendicular vector to the original direction
     orthogonal_vector = get_perpendicular_vector(original_direction)
     # determine a random vector with compton_angle to the original direction
@@ -92,36 +92,36 @@ def compton_scatter(gxpacket, compton_angle):
     return theta_final.value + 0.5 * np.pi, phi_final.value
 
 
-def pair_creation(gxpacket):
+def pair_creation(photon):
     """
     Randomly scatters the input gamma ray
     Sets its energy to 511 KeV
-    Creates backwards packet
+    Creates backwards photon
 
     Parameters
     ----------
-    gxpacket : GXPacket object
+    photon : GXPhoton object
 
     Returns
     -------
-        GXPacket
-            forward packet
-        GXPacket
-            backward packet
+        GXPhoton
+            forward photon
+        GXPhoton
+            backward photon
     """
-    direction_theta = get_random_theta_gamma_ray()
-    direction_phi = get_random_phi_gamma_ray()
+    direction_theta = get_random_theta_photon()
+    direction_phi = get_random_phi_photon()
 
-    gxpacket.energy = 511.0
-    gxpacket.direction.theta = direction_theta
-    gxpacket.direction.phi = direction_phi
+    photon.energy = 511.0
+    photon.direction.theta = direction_theta
+    photon.direction.phi = direction_phi
 
-    backward_ray = GXPacket(
-        copy.deepcopy(gxpacket.location),
-        copy.deepcopy(gxpacket.direction),
-        copy.deepcopy(gxpacket.energy),
-        GXPacketStatus.IN_PROCESS,
-        copy.deepcopy(gxpacket.shell),
+    backward_ray = GXPhoton(
+        copy.deepcopy(photon.location),
+        copy.deepcopy(photon.direction),
+        copy.deepcopy(photon.energy),
+        GXPhotonStatus.IN_PROCESS,
+        copy.deepcopy(photon.shell),
     )
 
     backward_ray.direction.phi += np.pi
@@ -129,7 +129,7 @@ def pair_creation(gxpacket):
     if backward_ray.direction.phi > 2 * np.pi:
         backward_ray.direction.phi -= 2 * np.pi
 
-    return gxpacket, backward_ray
+    return photon, backward_ray
 
 
 def scatter_type(compton_opacity, photoabsorption_opacity, total_opacity):
@@ -144,17 +144,17 @@ def scatter_type(compton_opacity, photoabsorption_opacity, total_opacity):
 
     Returns
     -------
-    status : GXPacketStatus
-        Scattering process the packet encounters
+    status : GXPhotonStatus
+        Scattering process the photon encounters
 
     """
     z = np.random.random()
 
     if z <= (compton_opacity / total_opacity):
-        status = GXPacketStatus.COMPTON_SCATTER
+        status = GXPhotonStatus.COMPTON_SCATTER
     elif z <= (compton_opacity + photoabsorption_opacity) / total_opacity:
-        status = GXPacketStatus.PHOTOABSORPTION
+        status = GXPhotonStatus.PHOTOABSORPTION
     else:
-        status = GXPacketStatus.PAIR_CREATION
+        status = GXPhotonStatus.PAIR_CREATION
 
     return status

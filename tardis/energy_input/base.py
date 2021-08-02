@@ -3,13 +3,12 @@ import copy
 from tqdm.auto import tqdm
 import pandas as pd
 
-# from tardis.montecarlo.montecarlo_numba.r_packet import get_random_mu
-from tardis.energy_input.util import SphericalVector, GXPacket, GXPacketStatus
+from tardis.energy_input.util import SphericalVector, GXPhoton, GXPhotonStatus
 from tardis.energy_input.gamma_ray_grid import (
     distance_trace,
-    move_gamma_ray,
+    move_photon,
     get_shell,
-    compute_required_packets_per_shell,
+    compute_required_photons_per_shell,
 )
 from tardis.energy_input.energy_source import (
     setup_input_energy,
@@ -28,56 +27,58 @@ from tardis.energy_input.gamma_ray_interactions import (
     get_compton_angle,
 )
 from tardis.energy_input.util import (
-    get_random_theta_gamma_ray,
-    get_random_phi_gamma_ray,
+    get_random_theta_photon,
+    get_random_phi_photon,
 )
 from tardis import constants as const
 from astropy.coordinates import cartesian_to_spherical
-from tardis.montecarlo.montecarlo_numba.numba_config import CLOSE_LINE_THRESHOLD
+
+ELECTRON_MASS_ENERGY_KEV = 511.0
+BOUNDARY_THRESHOLD = 1e-7
 
 
-def initialize_packets(
+def initialize_photons(
     number_of_shells,
-    packets_per_shell,
+    photons_per_shell,
     ejecta_volume,
     inner_velocities,
     outer_velocities,
     decay_rad_db,
 ):
-    """Initializes packet properties
+    """Initializes photon properties
     and appends beta decay energy to output tables
 
     Parameters
     ----------
-    number_of_shells : int64
+    number_of_shells : int
         Number of shells in model
-    packets_per_shell : pandas dataframe
-        Number of packets in a shell
-    ejecta_volume : array of float64
+    photons_per_shell : pandas.Dataframe
+        Number of photons in a shell
+    ejecta_volume : numpy.array
         Volume per shell
-    inner_velocities : array of float64
+    inner_velocities : numpy.array
         Shell inner velocities
-    outer_velocities : array of float64
+    outer_velocities : numpy.array
         Shell outer velocities
-    decay_rad_db : pandas dataframe
+    decay_rad_db : pandas.Dataframe
         Decay radiation database
 
     Returns
     -------
     list
-        GXPacket objects
+        GXPhoton objects
     numpy array
         energy binned per shell
     list
-        packet info
+        photon info
     """
-    packets = []
+    photons = []
     energy_df_rows = np.zeros(number_of_shells)
     energy_plot_df_rows = []
 
-    for column in packets_per_shell:
+    for column in photons_per_shell:
         subtable = decay_rad_db.loc[column]
-        gamma_ratio, positron_ratio = intensity_ratio(
+        gamma_ray_probability, positron_probability = intensity_ratio(
             subtable, "'gamma_rays' or type=='x_rays'", "'e+'"
         )
         energy_sorted, energy_cdf = setup_input_energy(
@@ -87,36 +88,42 @@ def initialize_packets(
             subtable, "'e+'"
         )
         for shell in range(number_of_shells):
-            required_packets_in_shell = packets_per_shell[column].iloc[shell]
-            for i_packet in range(required_packets_in_shell):
+            required_photons_in_shell = photons_per_shell[column].iloc[shell]
+            for _ in range(required_photons_in_shell):
                 # draw a random gamma-ray in shell
-                ray1 = GXPacket(0, 0, 1, GXPacketStatus.IN_PROCESS, 0)
-                z1 = np.random.random()
-                initial_radius = inner_velocities[shell] + z1 * (
+                primary_photon = GXPhoton(
+                    location=0,
+                    direction=0,
+                    energy=1,
+                    status=GXPhotonStatus.IN_PROCESS,
+                    shell=0,
+                )
+                z = np.random.random()
+                initial_radius = inner_velocities[shell] + z * (
                     outer_velocities[shell] - inner_velocities[shell]
                 )
-                location_theta = get_random_theta_gamma_ray()
-                location_phi = get_random_phi_gamma_ray()
-                ray1.location = SphericalVector(
+                location_theta = get_random_theta_photon()
+                location_phi = get_random_phi_photon()
+                primary_photon.location = SphericalVector(
                     initial_radius, location_theta, location_phi
                 )
-                direction_theta = get_random_theta_gamma_ray()
-                direction_phi = get_random_phi_gamma_ray()
-                ray1.direction = SphericalVector(
+                direction_theta = get_random_theta_photon()
+                direction_phi = get_random_phi_photon()
+                primary_photon.direction = SphericalVector(
                     1.0, direction_theta, direction_phi
                 )
-                ray1.shell = shell
-                z2 = np.random.random()
-                if z2 > gamma_ratio:
+                primary_photon.shell = shell
+                if gamma_ray_probability < np.random.random():
                     # positron: sets gamma-ray energy to 511keV
-                    ray1.energy = 511.0
-                    packets.append(ray1)
+                    primary_photon.energy = ELECTRON_MASS_ENERGY_KEV
+                    photons.append(primary_photon)
 
                     # annihilation dumps energy into medium
                     energy_KeV = sample_energy_distribution(
                         positron_energy_sorted, positron_energy_cdf
                     )
 
+                    # convert KeV to eV
                     energy_df_rows[shell] += (
                         energy_KeV * 1000.0 / ejecta_volume[shell]
                     )
@@ -125,7 +132,7 @@ def initialize_packets(
                             -1,
                             energy_KeV,
                             initial_radius,
-                            ray1.location.theta,
+                            primary_photon.location.theta,
                             0.0,
                             -1,
                         ]
@@ -133,49 +140,57 @@ def initialize_packets(
 
                     # annihilation produces second gamma-ray in opposite direction
                     (
-                        ray1_x,
-                        ray1_y,
-                        ray1_z,
-                    ) = ray1.direction.cartesian_coords
-                    ray2 = copy.deepcopy(ray1)
-                    ray2_x = -ray1_x
-                    ray2_y = -ray1_y
-                    ray2_z = -ray1_z
-                    ray2_r, ray2_theta, ray2_phi = cartesian_to_spherical(
-                        ray2_x, ray2_y, ray2_z
+                        primary_photon_x,
+                        primary_photon_y,
+                        primary_photon_z,
+                    ) = primary_photon.direction.cartesian_coords
+                    secondary_photon = copy.deepcopy(primary_photon)
+                    secondary_photon_x = -primary_photon_x
+                    secondary_photon_y = -primary_photon_y
+                    secondary_photon_z = -primary_photon_z
+                    (
+                        secondary_photon_r,
+                        secondary_photon_theta,
+                        secondary_photon_phi,
+                    ) = cartesian_to_spherical(
+                        secondary_photon_x,
+                        secondary_photon_y,
+                        secondary_photon_z,
                     )
-                    ray2.direction.r = ray2_r
-                    ray2.direction.theta = ray2_theta.value + 0.5 * np.pi
-                    ray2.direction.phi = ray2_phi.value
+                    secondary_photon.direction.r = secondary_photon_r
+                    secondary_photon.direction.theta = (
+                        secondary_photon_theta.value + 0.5 * np.pi
+                    )
+                    secondary_photon.direction.phi = secondary_photon_phi.value
 
                 else:
                     # Spawn a gamma ray emission with energy from gamma-ray list
-                    ray1.energy = sample_energy_distribution(
+                    primary_photon.energy = sample_energy_distribution(
                         energy_sorted, energy_cdf
                     )
-                    packets.append(ray1)
+                    photons.append(primary_photon)
 
-    return packets, energy_df_rows, energy_plot_df_rows
+    return photons, energy_df_rows, energy_plot_df_rows
 
 
-def main_gamma_ray_loop(num_packets, model):
+def main_gamma_ray_loop(num_photons, model):
     """Main loop that determines the gamma ray propagation
 
     Parameters
     ----------
-    num_packets : int
-        Number of packets
+    num_photons : int
+        Number of photons
     model : tardis.Radial1DModel
         The tardis model to calculate gamma ray propagation through
 
     Returns
     -------
-    pandas DataFrame
-        Energy per mass per shell in units of erg / g
-    pandas DataFrame
+    pandas.DataFrame
+        Energy per mass per shell in units of eV/s/cm^-3
+    pandas.DataFrame
         Columns:
-        Packet index,
-        Energy input per packet,
+        Photon index,
+        Energy input per photon,
         radius of deposition,
         theta angle of deposition,
         time of deposition,
@@ -185,18 +200,15 @@ def main_gamma_ray_loop(num_packets, model):
             1 = photoabsorption,
             2 = pair creation
     list
-        Energy of escaping packets
+        Energy of escaping photons
     """
     escape_energy = []
-    interaction_count = []
 
     # Note the use of velocity as the radial coordinate
-    inner_radius = model.v_inner[0].value
-    outer_radius = model.v_outer[-1].value
-    outer_velocities = model.v_outer[:].value
-    inner_velocities = model.v_inner[:].value
-    ejecta_density = model.density[:].value
-    ejecta_volume = model.volume[:].value
+    outer_velocities = model.v_outer.value
+    inner_velocities = model.v_inner.value
+    ejecta_density = model.density.value
+    ejecta_volume = model.volume.value
     ejecta_epoch = model.time_explosion.to("s").value
     number_of_shells = model.no_of_shells
     raw_isotope_abundance = model.raw_isotope_abundance
@@ -204,27 +216,29 @@ def main_gamma_ray_loop(num_packets, model):
     shell_masses = ejecta_volume * ejecta_density
 
     (
-        packets_per_shell,
+        photons_per_shell,
         decay_rad_db,
         decay_rate_per_shell,
-    ) = compute_required_packets_per_shell(
+    ) = compute_required_photons_per_shell(
         shell_masses,
         raw_isotope_abundance,
-        num_packets,
+        num_photons,
     )
 
     scaled_decay_rate_per_shell = (
-        decay_rate_per_shell / packets_per_shell.to_numpy().sum(axis=1)
+        decay_rate_per_shell / photons_per_shell.to_numpy().sum(axis=1)
     )
 
     # Taking iron group to be elements 21-30
+    # Used as part of the approximations for photoabsorption and pair creation
+    # Dependent on atomic data
     iron_group_fraction_per_shell = raw_isotope_abundance.loc[(21,):(30,)].sum(
         axis=0
     )
 
-    packets, energy_df_rows, energy_plot_df_rows = initialize_packets(
+    photons, energy_df_rows, energy_plot_df_rows = initialize_photons(
         number_of_shells,
-        packets_per_shell,
+        photons_per_shell,
         ejecta_volume,
         inner_velocities,
         outer_velocities,
@@ -232,23 +246,22 @@ def main_gamma_ray_loop(num_packets, model):
     )
 
     i = 0
-    for packet in tqdm(packets):
-        interaction_count.append(0)
+    for photon in tqdm(photons):
 
-        while packet.status == GXPacketStatus.IN_PROCESS:
+        while photon.status == GXPhotonStatus.IN_PROCESS:
 
             compton_opacity = compton_opacity_calculation(
-                packet.energy, ejecta_density[packet.shell]
+                photon.energy, ejecta_density[photon.shell]
             )
             photoabsorption_opacity = photoabsorption_opacity_calculation(
-                packet.energy,
-                ejecta_density[packet.shell],
-                iron_group_fraction_per_shell[packet.shell],
+                photon.energy,
+                ejecta_density[photon.shell],
+                iron_group_fraction_per_shell[photon.shell],
             )
             pair_creation_opacity = pair_creation_opacity_calculation(
-                packet.energy,
-                ejecta_density[packet.shell],
-                iron_group_fraction_per_shell[packet.shell],
+                photon.energy,
+                ejecta_density[photon.shell],
+                iron_group_fraction_per_shell[photon.shell],
             )
             total_opacity = (
                 compton_opacity
@@ -257,7 +270,7 @@ def main_gamma_ray_loop(num_packets, model):
             )
 
             (distance_interaction, distance_boundary,) = distance_trace(
-                packet,
+                photon,
                 inner_velocities,
                 outer_velocities,
                 total_opacity,
@@ -265,85 +278,83 @@ def main_gamma_ray_loop(num_packets, model):
             )
 
             if distance_interaction < distance_boundary:
-                interaction_count[i] += 1
 
-                packet.tau = -np.log(np.random.random())
+                photon.tau = -np.log(np.random.random())
 
-                packet.status = scatter_type(
+                photon.status = scatter_type(
                     compton_opacity,
                     photoabsorption_opacity,
                     total_opacity,
                 )
 
-                packet = move_gamma_ray(packet, distance_interaction)
-                packet.shell = get_shell(packet.location.r, outer_velocities)
-                packet.time_current += (
+                photon = move_photon(photon, distance_interaction)
+                photon.shell = get_shell(photon.location.r, outer_velocities)
+                photon.time_current += (
                     distance_interaction / const.c.cgs.value * ejecta_epoch
                 )
 
-                if packet.status == GXPacketStatus.COMPTON_SCATTER:
+                if photon.status == GXPhotonStatus.COMPTON_SCATTER:
                     (
                         compton_angle,
                         ejecta_energy_gained,
-                        packet.energy,
-                    ) = get_compton_angle(packet.energy)
+                        photon.energy,
+                    ) = get_compton_angle(photon.energy)
                     (
-                        packet.direction.theta,
-                        packet.direction.phi,
-                    ) = compton_scatter(packet, compton_angle)
+                        photon.direction.theta,
+                        photon.direction.phi,
+                    ) = compton_scatter(photon, compton_angle)
 
-                if packet.status == GXPacketStatus.PAIR_CREATION:
-                    ejecta_energy_gained = packet.energy - (2.0 * 511.0)
-                    packet, backward_ray = pair_creation(packet)
+                if photon.status == GXPhotonStatus.PAIR_CREATION:
+                    ejecta_energy_gained = photon.energy - (
+                        2.0 * ELECTRON_MASS_ENERGY_KEV
+                    )
+                    photon, backward_photon = pair_creation(photon)
 
-                    # Add antiparallel packet on pair creation at end of list
-                    packets.append(backward_ray)
+                    # Add antiparallel photon on pair creation at end of list
+                    photons.append(backward_photon)
 
-                if packet.status == GXPacketStatus.PHOTOABSORPTION:
-                    ejecta_energy_gained = packet.energy
+                if photon.status == GXPhotonStatus.PHOTOABSORPTION:
+                    ejecta_energy_gained = photon.energy
 
-                # Save packets to dataframe rows
-                energy_df_rows[packet.shell] += (
-                    ejecta_energy_gained * 1000.0 / ejecta_volume[packet.shell]
+                # Save photons to dataframe rows
+                # convert KeV to eV
+                energy_df_rows[photon.shell] += (
+                    ejecta_energy_gained * 1000.0 / ejecta_volume[photon.shell]
                 )
                 energy_plot_df_rows.append(
                     [
                         i,
                         ejecta_energy_gained,
-                        packet.location.r,
-                        packet.location.theta,
-                        packet.time_current,
-                        int(packet.status),
+                        photon.location.r,
+                        photon.location.theta,
+                        photon.time_current,
+                        int(photon.status),
                     ]
                 )
 
-                if packet.status == GXPacketStatus.PHOTOABSORPTION:
-                    # Packet destroyed, go to the next packet
+                if photon.status == GXPhotonStatus.PHOTOABSORPTION:
+                    # Photon destroyed, go to the next photon
                     break
                 else:
-                    packet.status = GXPacketStatus.IN_PROCESS
+                    photon.status = GXPhotonStatus.IN_PROCESS
 
             else:
-                packet.tau -= total_opacity * distance_boundary * ejecta_epoch
+                photon.tau -= total_opacity * distance_boundary * ejecta_epoch
                 # overshoot so that the gamma-ray is comfortably in the next shell
-                packet = move_gamma_ray(packet, distance_boundary * (1 + 1e-7))
-                packet.time_current += (
+                photon = move_photon(
+                    photon, distance_boundary * (1 + BOUNDARY_THRESHOLD)
+                )
+                photon.time_current += (
                     distance_boundary / const.c.cgs.value * ejecta_epoch
                 )
-                packet.shell = get_shell(packet.location.r, outer_velocities)
+                photon.shell = get_shell(photon.location.r, outer_velocities)
 
-            if (
-                np.abs(packet.location.r - outer_radius) < 10.0
-                or packet.shell > len(ejecta_density) - 1
-            ):
-                escape_energy.append(packet.energy)
-                packet.status = GXPacketStatus.END
-            elif (
-                np.abs(packet.location.r - inner_radius) < 10.0
-                or packet.shell < 0
-            ):
-                packet.energy = 0.0
-                packet.status = GXPacketStatus.END
+            if photon.shell > len(ejecta_density) - 1:
+                escape_energy.append(photon.energy)
+                photon.status = GXPhotonStatus.END
+            elif photon.shell < 0:
+                photon.energy = 0.0
+                photon.status = GXPhotonStatus.END
 
         i += 1
 
@@ -351,7 +362,7 @@ def main_gamma_ray_loop(num_packets, model):
     energy_plot_df = pd.DataFrame(
         data=energy_plot_df_rows,
         columns=[
-            "packet_index",
+            "photon_index",
             "energy_input",
             "energy_input_r",
             "energy_input_theta",
@@ -360,10 +371,10 @@ def main_gamma_ray_loop(num_packets, model):
         ],
     )
 
+    # Convert to eV/s/cm^-3
     energy_df_rows *= scaled_decay_rate_per_shell
 
-    energy_df = pd.DataFrame(
-        data=energy_df_rows, columns=["energy [eV/s/cm^-3]"]
-    )
+    # Energy is eV/s/cm^-3
+    energy_df = pd.DataFrame(data=energy_df_rows, columns=["energy"])
 
     return (energy_df, energy_plot_df, escape_energy)

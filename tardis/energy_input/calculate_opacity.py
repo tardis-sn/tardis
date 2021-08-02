@@ -12,11 +12,18 @@ SIGMA_T = const.sigma_T.cgs.value
 # TODO: add units for completeness
 def compton_opacity_calculation(energy, ejecta_density):
     """Calculate the Compton scattering opacity for a given energy
+    (Rybicki & Lightman, 1979)
+
+    $
+    \\rho / 2 p_m \\times 3/4 \\sigma_T ((1 + \kappa) / \kappa^3
+    ((2\kappa(1 + \kappa)) / (1 + 2\kappa) - \ln(1 + 2\kappa) + 1/(2\kappa) \ln(1 + 2\kappa)
+    - (1 + 3\kappa)/(1 + 2\kappa) / (1 + 2\kappa)^2)
+    $
 
     Parameters
     ----------
     energy : float
-        The energy of the packet
+        The energy of the photon
     ejecta_density : float
         The density of the ejecta
 
@@ -42,6 +49,7 @@ def compton_opacity_calculation(energy, ejecta_density):
         )
     )
 
+    # TODO: use model electron density instead of density / 2 * proton mass
     return ejecta_density / (M_P * 2) * sigma_KN
 
 
@@ -54,7 +62,7 @@ def photoabsorption_opacity_calculation(
     Parameters
     ----------
     energy : float
-        Packet energy
+        Photon energy
     ejecta_density : float
         The density of the ejecta
     iron_group_fraction : float
@@ -65,7 +73,7 @@ def photoabsorption_opacity_calculation(
     float
         Photoabsorption opacity
     """
-    Si_opacity = (
+    si_opacity = (
         1.16e-24
         * (energy / 100.0) ** -3.13
         * ejecta_density
@@ -73,7 +81,7 @@ def photoabsorption_opacity_calculation(
         * (1.0 - iron_group_fraction)
     )
 
-    Fe_opacity = (
+    fe_opacity = (
         25.7e-24
         * (energy / 100.0) ** -3.0
         * ejecta_density
@@ -81,7 +89,7 @@ def photoabsorption_opacity_calculation(
         * (1.0 - iron_group_fraction)
     )
 
-    return Si_opacity + Fe_opacity
+    return si_opacity + fe_opacity
 
 
 def pair_creation_opacity_calculation(
@@ -93,7 +101,7 @@ def pair_creation_opacity_calculation(
     Parameters
     ----------
     energy : float
-        Packet energy
+        Photon energy
     ejecta_density : float
         The density of the ejecta
     iron_group_fraction : float
@@ -104,17 +112,19 @@ def pair_creation_opacity_calculation(
     float
         Pair creation opacity
     """
-    Z_Si = 14
-    Z_Fe = 26
+    z_si = 14
+    z_fe = 26
 
-    Si_proton_ratio = Z_Si ** 2.0 / MASS_SI
-    Fe_proton_ratio = Z_Fe ** 2.0 / MASS_FE
+    si_proton_ratio = z_si ** 2.0 / MASS_SI
+    fe_proton_ratio = z_fe ** 2.0 / MASS_FE
 
     multiplier = ejecta_density * (
-        Si_proton_ratio * (1.0 - iron_group_fraction)
-        + Fe_proton_ratio * iron_group_fraction
+        si_proton_ratio * (1.0 - iron_group_fraction)
+        + fe_proton_ratio * iron_group_fraction
     )
 
+    # Conditions prevent divide by zero
+    # Ambwani & Sutherland (1988)
     if energy > 1.022e3 and energy < 1.5e3:
         opacity = multiplier * 1.0063 * (energy / 1.0e3 - 1.022) * 1.0e-27
     elif energy >= 1.5e3:

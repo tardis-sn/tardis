@@ -1,45 +1,6 @@
 import numpy as np
 import pandas as pd
 
-# Need to scale deposited energy to rate of decay reaction to get energy per second in steady state
-# Assume photon path is small compared to dynamical effects
-
-
-def read_nuclear_dataframe(path):
-    """Reads HDF5 output from tardis nuclear
-
-    Parameters
-    ----------
-    path : str
-        Path to HDF5 file
-
-    Returns
-    -------
-    Pandas dataframe
-        Dataframe of decay radiation properties
-    """
-    return pd.read_hdf(path, key="decay_radiation")
-
-
-def get_type_property(nuclear_df, type_of_radiation, property):
-    """Queries a dataframe of decay radiation properties
-
-    Parameters
-    ----------
-    nuclear_df : Pandas dataframe
-        Dataframe of nuclear decay properties
-    type_of_radiation : str
-        The type of radiation to get properties from
-    property : str
-        Property to return
-
-    Returns
-    -------
-    One-dimensional Numpy Array, dtype float
-        Array of values matching the queried type and property
-    """
-    return nuclear_df.query("type==" + type_of_radiation)[property].values
-
 
 def create_energy_cdf(energy, intensity):
     """Creates a CDF of given intensities
@@ -81,9 +42,7 @@ def sample_energy_distribution(energy_sorted, cdf):
     float
         Sampled energy
     """
-    z = np.random.random()
-
-    index = np.searchsorted(cdf, z)
+    index = np.searchsorted(cdf, np.random.random())
 
     return energy_sorted[index]
 
@@ -107,8 +66,8 @@ def setup_input_energy(nuclear_data, source):
         CDF where each index corresponds to the energy in
         the sorted array
     """
-    intensity = get_type_property(nuclear_data, source, "intensity")
-    energy = get_type_property(nuclear_data, source, "energy")
+    intensity = nuclear_data.query("type==" + source)["intensity"].values
+    energy = nuclear_data.query("type==" + source)["energy"].values
     energy_sorted, cdf = create_energy_cdf(energy, intensity)
 
     return energy_sorted, cdf
@@ -120,7 +79,7 @@ def intensity_ratio(nuclear_data, source_1, source_2):
 
     Parameters
     ----------
-    nuclear_data : Pandas dataframe
+    nuclear_data : pandas.Dataframe
         Dataframe of nuclear decay properties
     source_1 : str
         Type of decay radiation to compare
@@ -134,8 +93,8 @@ def intensity_ratio(nuclear_data, source_1, source_2):
     float
         Fractional intensity of source_2
     """
-    intensity_1 = get_type_property(nuclear_data, source_1, "intensity")
-    intensity_2 = get_type_property(nuclear_data, source_2, "intensity")
+    intensity_1 = nuclear_data.query("type==" + source_1)["intensity"].values
+    intensity_2 = nuclear_data.query("type==" + source_2)["intensity"].values
     total_intensity = np.sum(intensity_1) + np.sum(intensity_2)
     return (
         np.sum(intensity_1) / total_intensity,

@@ -1,66 +1,10 @@
 import pytest
 import numpy as np
 import numpy.testing as npt
-import pandas as pd
-import os
 
 from tardis.energy_input.energy_source import (
-    read_nuclear_dataframe,
-    get_type_property,
     create_energy_cdf,
-    sample_energy_distribution,
-    setup_input_energy,
 )
-
-
-def test_read_nuclear_dataframe(tardis_ref_path):
-    """
-    Parameters
-    ----------
-    path : str
-    """
-    path = os.path.join(tardis_ref_path, "nuclear_data/simple_nuclear.h5")
-    actual = read_nuclear_dataframe(path)
-    expected = pd.read_hdf(path, key="decay_radiation")
-    pd.testing.assert_frame_equal(actual, expected)
-
-
-@pytest.mark.parametrize(
-    ["type_of_radiation", "property", "expected"],
-    [
-        (
-            "'gamma_rays'",
-            "energy",
-            3177.28,
-        ),
-        (
-            "'e+'",
-            "energy",
-            65.0,
-        ),
-        (
-            "'gamma_rays'",
-            "intensity",
-            0.0111,
-        ),
-    ],
-)
-def test_get_type_property(
-    tardis_ref_path, type_of_radiation, property, expected
-):
-    """
-    Parameters
-    ----------
-    path : str
-    type_of_radiation : str
-    property : str
-    expected : float
-    """
-    path = os.path.join(tardis_ref_path, "nuclear_data/simple_nuclear.h5")
-    nuclear_df = pd.read_hdf(path, key="decay_radiation")
-    actual = get_type_property(nuclear_df, type_of_radiation, property)
-
-    npt.assert_equal(actual[0], expected)
 
 
 @pytest.mark.parametrize(

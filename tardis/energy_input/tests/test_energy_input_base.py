@@ -7,15 +7,15 @@ from tardis.io.config_reader import Configuration
 
 
 @pytest.mark.skip(reason="To be implemented")
-def test_initialize_packets():
+def test_initialize_photons():
     assert False
 
 
 @pytest.mark.skip(reason="To be implemented")
 def test_main_gamma_ray_loop():
 
-    num_packets = 1e5
-    num_packets = int(num_packets)
+    num_photons = 1e5
+    num_photons = int(num_photons)
 
     np.random.seed(1)
 
@@ -24,7 +24,7 @@ def test_main_gamma_ray_loop():
     model = Radial1DModel.from_config(config)
 
     ejecta_energy, ejecta_energy_r, escape_energy, radii = main_gamma_ray_loop(
-        num_packets,
+        num_photons,
         model,
         path="decay_radiation.h5",
     )

@@ -1,10 +1,7 @@
 import pytest
 import numpy.testing as npt
-import numpy as np
 
-import tardis.constants as const
 import tardis.energy_input.calculate_opacity as calculate_opacity
-import tardis.energy_input.util as util
 
 
 @pytest.mark.parametrize(

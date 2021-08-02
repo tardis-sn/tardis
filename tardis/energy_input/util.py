@@ -8,7 +8,7 @@ R_ELECTRON = const.a0.cgs * const.alpha.cgs ** 2.0
 KEV2ERG = (1000 * u.eV).to("erg").value
 
 
-class GXPacketStatus(IntEnum):
+class GXPhotonStatus(IntEnum):
     BETA_DECAY = -1
     COMPTON_SCATTER = 0
     PHOTOABSORPTION = 1
@@ -17,22 +17,22 @@ class GXPacketStatus(IntEnum):
     END = 4
 
 
-class GXPacket(object):
+class GXPhoton(object):
     """
     Gamma ray or X ray object with location, direction, energy, time and optical depth
 
     Attributes
     ----------
     location : SphericalVector object
-             GXPacket position vector
+             GXPhoton position vector
     direction : SphericalVector object
-             GXPacket direction vector (unitary)
+             GXPhoton direction vector (unitary)
     energy : float64
-             GXPacket energy
+             GXPhoton energy
     status : InteractionType
-             GXPacket status
+             GXPhoton status
     shell : int64
-             GXPacket shell location index
+             GXPhoton shell location index
     """
 
     def __init__(self, location, direction, energy, status, shell):
@@ -226,7 +226,7 @@ def compton_theta_distribution(energy, sample_resolution=100):
     return theta_angles, norm_theta_distribution
 
 
-def get_random_theta_gamma_ray():
+def get_random_theta_photon():
     """Get a random theta direction between 0 and pi
     Returns
     -------
@@ -236,7 +236,7 @@ def get_random_theta_gamma_ray():
     return np.arccos(1.0 - 2.0 * np.random.random())
 
 
-def get_random_phi_gamma_ray():
+def get_random_phi_photon():
     """Get a random phi direction between 0 and 2 * pi
 
     Returns
@@ -322,8 +322,8 @@ def get_perpendicular_vector(original_direction):
 
     """
     # draw random angles
-    theta = get_random_theta_gamma_ray()
-    phi = get_random_phi_gamma_ray()
+    theta = get_random_theta_photon()
+    phi = get_random_phi_photon()
     # transform random angles to cartesian coordinates
     # 0.5*np.pi subtracted because of the definition of theta
     # in astropy.coordinates.cartesian_to_spherical
