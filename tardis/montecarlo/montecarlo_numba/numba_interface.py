@@ -323,8 +323,8 @@ rpacket_collection_spec = [
 @jitclass(rpacket_collection_spec)
 class RPacketCollection(object):
     def __init__(self):
-        self.length = montecarlo_configuration.initial_array_length
-        self.seed = np.empty(self.length, dtype=np.int64)
+        self.length = montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
+        self.seed = np.zeros(self.length, dtype=np.int64)
         self.index = np.empty(self.length, dtype=np.int64)
         self.status = np.empty(self.length, dtype=np.int64)
         self.r = np.empty(self.length, dtype=np.float64)
@@ -375,16 +375,14 @@ class RPacketCollection(object):
         self.shell_id[self.interact_id] = r_packet.current_shell_id
         self.interact_id += 1
 
-    def finalise_array(self):
-        array_size = np.where(self.seed == 0)
-        array_size = array_size[0][0]
-        self.index = self.index[:array_size]
-        self.seed = self.seed[:array_size]
-        self.status = self.status[:array_size]
-        self.r = self.r[:array_size]
-        self.nu = self.nu[:array_size]
-        self.mu = self.mu[:array_size]
-        self.energy = self.energy[:array_size]
+    def finalize_array(self):
+        self.index = self.index[: self.interact_id]
+        self.seed = self.seed[: self.interact_id]
+        self.status = self.status[: self.interact_id]
+        self.r = self.r[: self.interact_id]
+        self.nu = self.nu[: self.interact_id]
+        self.mu = self.mu[: self.interact_id]
+        self.energy = self.energy[: self.interact_id]
 
 
 estimators_spec = [
