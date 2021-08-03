@@ -15,7 +15,7 @@ properties:
           - "Warning"
           - "Error"
           - "Critical"
-  specific:
+  specific_log_level:
     type: boolean
     default: false
     description: Allows for logging on the specified logging levels

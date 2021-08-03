@@ -14,7 +14,7 @@ def run_tardis(
     virtual_packet_logging=False,
     show_cplots=True,
     log_level=None,
-    specific=None,
+    specific_log_level=None,
     **kwargs,
 ):
     """
@@ -45,11 +45,11 @@ def run_tardis(
         Set the level of the TARDIS logger (follows native python logging framework log levels).
         Use this parameter to override the `log_level` specified in the configuration file.
         The default value `None` means that the `log_level` specified in the configuration file will be used.
-    specific : bool, default: None, optional
+    specific_log_level : bool, default: None, optional
         Allows to set specific logging levels, overriding the value in the configuration file.
         If True, only show the log messages from a particular log level, set by `log_level`.
         If False, the logger shows log messages belonging to the level set and all levels above it in severity.
-        The default value None means that the `specific` specified in the configuration file will be used.
+        The default value None means that the `specific_log_level` specified in the configuration file will be used.
     show_cplots : bool, default: True, optional
         Option to enable tardis convergence plots.
     **kwargs : dict, optional
@@ -84,7 +84,7 @@ def run_tardis(
     if not isinstance(show_cplots, bool):
         raise TypeError("Expected bool in show_cplots argument")
 
-    logging_state(log_level, tardis_config, specific)
+    logging_state(log_level, tardis_config, specific_log_level)
 
     if atom_data is not None:
         try:
