@@ -23,6 +23,7 @@ __all__ = [
     "StimRecombRateCoeffEstimator",
     "CorrPhotoIonRateCoeff",
     "BfHeatingRateCoeffEstimator",
+    "StimRecombCoolingRateCoeffEstimator",
     "SpontRecombCoolingRateCoeff",
     "RawRecombTransProbs",
     "RawPhotoIonTransProbs",
@@ -632,6 +633,18 @@ class StimRecombRateCoeffEstimator(Input):
 
     outputs = ("alpha_stim_estimator",)
     latex_name = (r"\alpha^{\textrm{stim}}_\textrm{estim}",)
+
+
+class StimRecombCoolingRateCoeffEstimator(Input):
+    """
+    Attributes
+    ----------
+    stim_recomb_cooling_coeff_estimator : pandas.DataFrame, dtype float
+        Unnormalized MC estimator for the stimulated recombination cooling rate
+        coefficient.
+    """
+
+    outputs = ("stim_recomb_cooling_coeff_estimator",)
 
 
 class BfHeatingRateCoeffEstimator(Input):

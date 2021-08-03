@@ -354,6 +354,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 gamma_estimator=self.runner.photo_ion_estimator,
                 alpha_stim_estimator=self.runner.stim_recomb_estimator,
                 bf_heating_coeff_estimator=self.runner.bf_heating_estimator,
+                stim_recomb_cooling_coeff_estimator=self.runner.stim_recomb_cooling_estimator,
             )
 
         self.plasma.update(**update_properties)

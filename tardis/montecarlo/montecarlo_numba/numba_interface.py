@@ -328,6 +328,7 @@ continuum_estimators_spec = [
     ("photo_ion_estimator", float64[:, :]),
     ("stim_recomb_estimator", float64[:, :]),
     ("bf_heating_estimator", float64[:, :]),
+    ("stim_recomb_cooling_estimator", float64[:, :]),
     ("photo_ion_estimator_statistics", int64[:, :]),
 ]
 
@@ -343,6 +344,7 @@ class Estimators(object):
         photo_ion_estimator,
         stim_recomb_estimator,
         bf_heating_estimator,
+        stim_recomb_cooling_estimator,
         photo_ion_estimator_statistics,
     ):
         self.j_estimator = j_estimator
@@ -352,6 +354,7 @@ class Estimators(object):
         self.photo_ion_estimator = photo_ion_estimator
         self.stim_recomb_estimator = stim_recomb_estimator
         self.bf_heating_estimator = bf_heating_estimator
+        self.stim_recomb_cooling_estimator = stim_recomb_cooling_estimator
         self.photo_ion_estimator_statistics = photo_ion_estimator_statistics
 
 
