@@ -40,6 +40,7 @@ class NumbaModel(object):
 
 numba_plasma_spec = [
     ("electron_density", float64[:]),
+    ("t_electrons", float64[:]),
     ("line_list_nu", float64[:]),
     ("tau_sobolev", float64[:, :]),
     ("transition_probabilities", float64[:, :]),
@@ -48,6 +49,7 @@ numba_plasma_spec = [
     ("transition_type", int64[:]),
     ("destination_level_id", int64[:]),
     ("transition_line_id", int64[:]),
+    ("bf_threshold_list_nu", float64[:]),
 ]
 
 
@@ -56,6 +58,7 @@ class NumbaPlasma(object):
     def __init__(
         self,
         electron_density,
+        t_electrons,
         line_list_nu,
         tau_sobolev,
         transition_probabilities,
@@ -64,6 +67,7 @@ class NumbaPlasma(object):
         transition_type,
         destination_level_id,
         transition_line_id,
+        bf_threshold_list_nu,
     ):
         """
         Plasma for the Numba code
@@ -71,6 +75,7 @@ class NumbaPlasma(object):
         Parameters
         ----------
         electron_density : numpy.ndarray
+        t_electrons : numpy.ndarray
         line_list_nu : numpy.ndarray
         tau_sobolev : numpy.ndarray
         transition_probabilities : numpy.ndarray
@@ -79,11 +84,14 @@ class NumbaPlasma(object):
         transition_type : numpy.ndarray
         destination_level_id : numpy.ndarray
         transition_line_id : numpy.ndarray
+        bf_threshold_list_nu : numpy.ndarray
         """
 
         self.electron_density = electron_density
+        self.t_electrons = t_electrons
         self.line_list_nu = line_list_nu
         self.tau_sobolev = tau_sobolev
+        self.bf_threshold_list_nu = bf_threshold_list_nu
 
         #### Macro Atom transition probabilities
         self.transition_probabilities = transition_probabilities
@@ -107,6 +115,7 @@ def numba_plasma_initialize(plasma, line_interaction_type):
     line_interaction_type : enum
     """
     electron_densities = plasma.electron_densities.values
+    t_electrons = plasma.t_electrons
     line_list_nu = plasma.atomic_data.lines.nu.values
     tau_sobolev = np.ascontiguousarray(
         plasma.tau_sobolevs.values.copy(), dtype=np.float64
@@ -142,9 +151,16 @@ def numba_plasma_initialize(plasma, line_interaction_type):
             "destination_level_idx"
         ].values
         transition_line_id = plasma.macro_atom_data["lines_idx"].values
+    if not plasma.continuum_interaction_species.empty:
+        bf_threshold_list_nu = plasma.nu_i.loc[
+            plasma.level2continuum_idx.index
+        ].values
+    else:
+        bf_threshold_list_nu = np.zeros(0, dtype=np.int64)
 
     return NumbaPlasma(
         electron_densities,
+        t_electrons,
         line_list_nu,
         tau_sobolev,
         transition_probabilities,
@@ -153,6 +169,7 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         transition_type,
         destination_level_id,
         transition_line_id,
+        bf_threshold_list_nu,
     )
 
 
@@ -300,6 +317,7 @@ class VPacketCollection(object):
         self.idx += 1
 
 
+
 def create_continuum_class(chi_continuum_calculator):
     """called before mainloop"""
     continuum_spec = [
@@ -335,23 +353,43 @@ def create_continuum_class(chi_continuum_calculator):
 
 
 
-estimators_spec = [
+
+base_estimators_spec = [
     ("j_estimator", float64[:]),
     ("nu_bar_estimator", float64[:]),
     ("j_blue_estimator", float64[:, :]),
     ("Edotlu_estimator", float64[:, :]),
 ]
 
+continuum_estimators_spec = [
+    ("photo_ion_estimator", float64[:, :]),
+    ("stim_recomb_estimator", float64[:, :]),
+    ("bf_heating_estimator", float64[:, :]),
+    ("photo_ion_estimator_statistics", int64[:, :]),
+]
 
-@jitclass(estimators_spec)
+
+@jitclass(base_estimators_spec + continuum_estimators_spec)
 class Estimators(object):
     def __init__(
-        self, j_estimator, nu_bar_estimator, j_blue_estimator, Edotlu_estimator
+        self,
+        j_estimator,
+        nu_bar_estimator,
+        j_blue_estimator,
+        Edotlu_estimator,
+        photo_ion_estimator,
+        stim_recomb_estimator,
+        bf_heating_estimator,
+        photo_ion_estimator_statistics,
     ):
         self.j_estimator = j_estimator
         self.nu_bar_estimator = nu_bar_estimator
         self.j_blue_estimator = j_blue_estimator
         self.Edotlu_estimator = Edotlu_estimator
+        self.photo_ion_estimator = photo_ion_estimator
+        self.stim_recomb_estimator = stim_recomb_estimator
+        self.bf_heating_estimator = bf_heating_estimator
+        self.photo_ion_estimator_statistics = photo_ion_estimator_statistics
 
 
 def configuration_initialize(runner, number_of_vpackets):

@@ -14,6 +14,7 @@ from tardis.montecarlo.montecarlo_numba.estimators import (
     set_estimators,
     set_estimators_full_relativity,
     update_line_estimators,
+    update_bound_free_estimators,
 )
 from tardis.montecarlo.montecarlo_numba.opacities import calculate_tau_electron
 from tardis.montecarlo.montecarlo_numba.calculate_distances import (
@@ -147,6 +148,7 @@ def trace_packet(
         chi_bf,
         chi_bf_contributions,
         current_continua,
+        x_sect_bfs,
         chi_ff,
     ) = continuum.chi_bf_tot, continuum.chi_bf_contributions, continuum.current_continua, continuum.chi_ff
 
@@ -247,6 +249,17 @@ def trace_packet(
             interaction_type = InteractionType.BOUNDARY
 
     # r_packet.next_line_id = cur_line_id
+    update_bound_free_estimators(
+        comov_nu,
+        r_packet.energy * doppler_factor,
+        r_packet.current_shell_id,
+        distance,
+        estimators,
+        numba_plasma.t_electrons[r_packet.current_shell_id],
+        x_sect_bfs,
+        current_continua,
+        numba_plasma.bf_threshold_list_nu,
+    )
 
     return distance, interaction_type, delta_shell
 

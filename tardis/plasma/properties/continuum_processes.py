@@ -241,6 +241,33 @@ def cooling_rate_series2dataframe(cooling_rate_series, destination_level_idx):
     return cooling_rate_frame
 
 
+def bf_estimator_array2frame(bf_estimator_array, level2continuum_idx):
+    """
+    Transform a bound-free estimator array to a DataFrame.
+
+    This function transforms a bound-free estimator array with entries
+    sorted by frequency to a multi-indexed DataFrame sorted by level.
+
+    Parameters
+    ----------
+    bf_estimator_array : numpy.ndarray, dtype float
+        Array of bound-free estimators (e.g., for the stimulated recombination rate)
+        with entries sorted by the threshold frequency of the bound-free continuum.
+    level2continuum_idx : pandas.Series, dtype int
+        Maps a level MultiIndex (atomic_number, ion_number, level_number) to
+        the continuum_idx of the corresponding bound-free continuum (which are
+        sorted by decreasing frequency).
+
+    Returns
+    -------
+    pandas.DataFrame, dtype float
+        Bound-free estimators indexed by (atomic_number, ion_number, level_number).
+    """
+    return pd.DataFrame(
+        bf_estimator_array, index=level2continuum_idx.index
+    ).sort_index()
+
+
 class IndexSetterMixin(object):
     @staticmethod
     def set_index(p, photo_ion_idx, transition_type=0, reverse=True):
@@ -388,6 +415,7 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
         photo_ion_index,
         t_rad,
         w,
+        level2continuum_idx,
     ):
         # Used for initialization
         if gamma_estimator is None:
@@ -399,7 +427,11 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
                 w,
             )
         else:
-            gamma = gamma_estimator * photo_ion_norm_factor
+            gamma_estimator = bf_estimator_array2frame(
+                gamma_estimator, level2continuum_idx
+            )
+            gamma = gamma_estimator * photo_ion_norm_factor.value
+
         return gamma
 
     @staticmethod
@@ -446,6 +478,7 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
         phi_ik,
         t_electrons,
         boltzmann_factor_photo_ion,
+        level2continuum_idx,
     ):
         # Used for initialization
         if alpha_stim_estimator is None:
@@ -460,6 +493,9 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
             )
             alpha_stim *= phi_ik.loc[alpha_stim.index]
         else:
+            alpha_stim_estimator = bf_estimator_array2frame(
+                alpha_stim_estimator, level2continuum_idx
+            )
             alpha_stim = alpha_stim_estimator * photo_ion_norm_factor
         return alpha_stim
 
@@ -1079,21 +1115,59 @@ class BoundFreeOpacityInterpolator(ProcessingPlasmaProperty):
         )
         phot_nus = phot_nus.values
         chi_bf = chi_bf.loc[level2continuum_idx.index].values
+        x_sect = photo_ion_cross_sections.x_sect.loc[
+            level2continuum_idx.index
+        ].values
 
         @njit(error_model="numpy", fastmath=True)
         def chi_bf_interpolator(nu, shell):
+            """
+            Interpolate the bound-free opacity.
+
+            This function interpolates the tabulated bound-free opacities
+            and cross-sections to new frequency values `nu`.
+
+            Parameters
+            ----------
+            nu : float, dtype float
+                Comoving frequency of the r-packet.
+            shell : int, dtype float
+                Current computational shell.
+
+            Returns
+            -------
+            chi_bf_tot : float
+                Total bound-free opacity at frequency `nu`.
+            chi_bf_contributions : numpy.ndarray, dtype float
+                Cumulative distribution function of the contributions of the
+                individual bound free continua to the total bound-free opacity.
+            current_continua : numpy.ndarray, dtype int
+                Continuum ids for which absorption is possible for frequency `nu`.
+            x_sect_bfs : numpy.ndarray, dtype float
+                Photoionization cross-sections of all bound-free continua for
+                which absorption is possible for frequency `nu`.
+            """
             current_continua = get_current_bound_free_continua(nu)
             chi_bfs = np.zeros(len(current_continua))
+            x_sect_bfs = np.zeros(len(current_continua))
             for i, continuum_id in enumerate(current_continua):
                 start = photo_ion_block_references[continuum_id]
                 end = photo_ion_block_references[continuum_id + 1]
                 chi_bfs[i] = np.interp(
                     nu, phot_nus[start:end], chi_bf[start:end, shell]
                 )
+                x_sect_bfs[i] = np.interp(
+                    nu, phot_nus[start:end], x_sect[start:end]
+                )
             chi_bf_contributions = chi_bfs.cumsum()
             chi_bf_tot = chi_bf_contributions[-1]
             chi_bf_contributions /= chi_bf_tot
-            return chi_bf_tot, chi_bf_contributions, current_continua
+            return (
+                chi_bf_tot,
+                chi_bf_contributions,
+                current_continua,
+                x_sect_bfs,
+            )
 
         return chi_bf_interpolator
 
@@ -1108,9 +1182,16 @@ class ContinuumOpacityCalculator(ProcessingPlasmaProperty):
                 chi_bf_tot,
                 chi_bf_contributions,
                 current_continua,
+                x_sect_bfs,
             ) = chi_bf_interpolator(nu, shell)
             chi_ff = chi_ff_calculator(nu, shell)
-            return chi_bf_tot, chi_bf_contributions, current_continua, chi_ff
+            return (
+                chi_bf_tot,
+                chi_bf_contributions,
+                current_continua,
+                x_sect_bfs,
+                chi_ff,
+            )
 
         return chi_continuum_calculator
 
