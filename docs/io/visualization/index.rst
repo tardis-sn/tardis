@@ -14,6 +14,7 @@ diagnostic visualizations.
 
     sdec_plot
     convergence_plot
+    abundance_widget
 
 
 TARDIS Widgets (Graphical User Interfaces)
