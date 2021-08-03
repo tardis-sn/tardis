@@ -220,21 +220,22 @@ class CustomAbundanceWidget:
                                 value=1,
                                 layout=ipw.Layout(width="160px")
                             )
-        self.dpd_shell_no.observe(self.dpd_shell_no_eventhandler, "name")
+        self.dpd_shell_no.observe(self.dpd_shell_no_eventhandler, "value")
         self.btn_prev = ipw.Button(icon="chevron-left", 
                                 disabled=True, 
                                 layout=ipw.Layout(width="30px", height="30px")
                                 )
+        self.btn_prev.on_click(self.on_btn_prev)
         self.btn_next = ipw.Button(icon="chevron-right", 
                             layout=ipw.Layout(width="30px", height="30px")
                             )
+        self.btn_next.on_click(self.on_btn_next)
 
         self.checks = [
             ipw.Checkbox(
                 indent=False, 
                 layout=ipw.Layout(
                     width="30px",
-                    margin="0 0 0 5px"
                 )
             ) for element in self.elements]
         self.input_items = [ipw.BoundedFloatText(min=0, 
@@ -242,10 +243,10 @@ class CustomAbundanceWidget:
                                     step=0.01, 
                                     description=element) 
                 for element in self.elements]
-        for i in self.no_of_elements:
+        for i in range(self.no_of_elements):
             self.input_items[i].observe(self.input_item_eventhandler, "value")
             self.input_items[i].index = i
-            self.checks[i].observe(self.check_handler, "value")
+            self.checks[i].observe(self.check_eventhandler, "value")
             self.checks[i].index = i
 
         self.btn_norm = ipw.Button(description="Normalize",
@@ -269,7 +270,7 @@ class CustomAbundanceWidget:
             description="Element: ",
             style={"description_width": "initial"},
             placeholder="symbol",
-            layout=ipw.Layout(width="120px"),
+            layout=ipw.Layout(width="125px"),
         )
         self.input_symb.observe(self.input_symb_eventhandler, "value")
         self.btn_add_element = ipw.Button(
@@ -302,17 +303,20 @@ class CustomAbundanceWidget:
 
         self.btn_add_shell = ipw.Button(
             icon="plus-square", 
-            description=" Add New Shell",
+            description="Add",
             disabled=True,
-            layout=ipw.Layout(margin="0 0 0 10px")
+            layout=ipw.Layout(
+                width="90px",
+                # margin="0 0 0 10px"
+            )
         )
         self.btn_add_shell.on_click(self.on_btn_add_shell)        
         self.input_v_start = ipw.FloatText(
             min=0,
-            description="Velocity range (km/s): ",
+            description="Add shell(s) with velocity range (km/s): ",
             style={"description_width": "initial"},
             layout=ipw.Layout(
-                width="230px"
+                width="330px",
             )
         )
         self.input_v_end = ipw.FloatText(
@@ -357,7 +361,7 @@ class CustomAbundanceWidget:
             style={"description_width": "initial"},
             value="Linear"
         )
-        self.tbs_scale.observe(self.tbs_scale_handler, "value")
+        self.tbs_scale.observe(self.tbs_scale_eventhandler, "value")
 
 
     def update_input_item_value(self, index, value):
@@ -387,8 +391,8 @@ class CustomAbundanceWidget:
     # Ensure the sum of locked elements less than 1
     def bound_locked_sum_to_1(self, index):
         """Ensure the sum of locked abundances is no more than 1. If the 
-        locked sum is more than 1, adjust the changed value to the maximum 
-        with the sum is no more than 1.
+        locked sum is more than 1, calculate the maximum with the sum no 
+        more than 1 and return it.
 
         Parameters
         ----------
@@ -396,14 +400,15 @@ class CustomAbundanceWidget:
                 The index of the widget in `input_items` widget list.
         """
         locked_mask = np.array(self.checked_list)
-        back_value = self.abundance[index, self.shell_no-1] # abundance value in back end (DataFrame)
+        back_value = self.abundance.iloc[index, self.shell_no-1] # abundance value in back end (DataFrame)
         front_value = self.input_items[index].value # abundance value in front end (widget)
         locked_sum = self.abundance.loc[locked_mask, self.shell_no-1].sum() - back_value + front_value
 
         if locked_sum > 1:
-            new = 1 - (locked_sum - back_value)
-            self.abundance[index, self.shell_no-1] = new
-            self.update_input_item_value(self, index, new)
+            new = 1 - (locked_sum - front_value)
+            self.abundance.iloc[index, self.shell_no-1] = new
+            self.update_input_item_value(index, new)
+            self.fig.data[index+2].y = self.abundance.iloc[index]
    
     def update_front(self):
         """Update checkbox widgets, input widgets and plot in the front 
@@ -416,8 +421,7 @@ class CustomAbundanceWidget:
         self.density_editor.read_density()
         with self.fig.batch_update():
             # Change line diagonal
-            self.fig.layout.shapes[0].x0 = self.velocity[self.shell_no].value
-            self.fig.layout.shapes[0].x1 = self.velocity[self.shell_no].value 
+            self.fig.data[0].x = [self.velocity[self.shell_no].value]*2
 
     def overwrite_existing_shells(self, v_0, v_1):
         """Judge whether the existing shell(s) will be overwritten when 
@@ -446,8 +450,13 @@ class CustomAbundanceWidget:
         else:
             return False
 
-    def add_shell(self):
+    def on_btn_add_shell(self, obj):
         """Add new shell with given boundary velocities.
+
+        Parameters
+        ----------
+            obj : ipywidgets.widgets.widget_button.Button
+                The clicked button instance.
         """
         v_start = self.input_v_start.value
         v_end = self.input_v_end.value
@@ -495,11 +504,11 @@ class CustomAbundanceWidget:
         
         # Update data and x axis in plot.
         with self.fig.batch_update():
-            self.fig.data[0].x = self.velocity[1:]
-            self.fig.data[0].y = self.density[1:]
+            self.fig.data[1].x = self.velocity[1:]
+            self.fig.data[1].y = self.density[1:]
             for i in range(self.no_of_elements):
-                self.fig.data[i+1].x = self.velocity[1:]
-                self.fig.data[i+1].y = self.abundance.iloc[i]
+                self.fig.data[i+2].x = self.velocity[1:]
+                self.fig.data[i+2].y = self.abundance.iloc[i]
         
         self.dpd_shell_no.options = list(range(1, self.no_of_shells+1))
         self.shell_no = start_index + 1
@@ -552,16 +561,16 @@ class CustomAbundanceWidget:
             
             if is_locked:
                 self.bound_locked_sum_to_1(item_index)
-
-            self.abundance.iloc[item_index, self.shell_no-1] = obj.new
             
             if math.isclose(self.abundance.iloc[:, self.shell_no-1].sum(), 1):
                 self.norm_warning.layout.visibility = "hidden"
             else:
                 self.norm_warning.layout.visibility = "visible"
             
+            self.abundance.iloc[item_index, self.shell_no-1] = obj.owner.value
+
             # Update plot
-            self.fig.data[item_index+1].y = self.abundance.iloc[item_index]
+            self.fig.data[item_index+2].y = self.abundance.iloc[item_index]
 
     def check_eventhandler(self, obj):
         """The callback for the item in `checks` widget list. 
@@ -657,6 +666,12 @@ class CustomAbundanceWidget:
             self.btn_add_element.disabled = True
             return
         
+        if element_symbol_string in self.elements:        
+            self.symb_warning.layout.visibility = "visible"
+            self.btn_add_element.disabled = True
+            self.symb_warning.readout = "Already exists!"
+            return
+
         try:
             if nucname.iselement(element_symbol_string) or nucname.isnuclide(element_symbol_string):
                 self.symb_warning.layout.visibility = "hidden"
@@ -668,11 +683,7 @@ class CustomAbundanceWidget:
         
         self.symb_warning.layout.visibility = "visible"
         self.btn_add_element.disabled = True
-
-        if element_symbol_string in self.elements:        
-            self.symb_warning.readout = "Already exists!"
-        else:
-            self.symb_warning.readout = "invalid"
+        self.symb_warning.readout = "invalid"
     
     def on_btn_add_element(self, obj):
         """The callback for `btn_add_element` button. Add new element and 
@@ -749,7 +760,7 @@ class CustomAbundanceWidget:
         # update plot
         update_list = np.where(applied_mask == True)[0]
         for i in update_list:
-            self.fig.data[i+1].y = self.abundance.iloc[i]
+            self.fig.data[i+2].y = self.abundance.iloc[i]
 
     def input_v_eventhandler(self, obj):
         """The callback for `input_v` widget. Judge whether the input
@@ -796,6 +807,20 @@ class CustomAbundanceWidget:
         self.fig = go.FigureWidget()
         title = "Abundance/Density vs Velocity"
         data = self.abundance.T
+
+        # Line Diagonal
+        self.fig.add_trace(
+            go.Scatter(
+                x=[self.velocity[1].value]*2,
+                y=(0, 1),
+                mode="lines",
+                name="Selected shell",
+                line=dict(
+                    color="Red",
+                    dash="dot",
+                )
+            )
+        )
         
         self.fig.add_trace(
             go.Scatter(
@@ -832,20 +857,6 @@ class CustomAbundanceWidget:
                         exponentformat="e",                    
                         overlaying="y",
                         side="right"),
-            shapes=[         # Line Diagonal
-                    dict(
-                        type="line",
-                        yref="y",
-                        y0=0,
-                        y1=1,
-                        xref="x",
-                        x0=self.velocity[1].value,
-                        x1=self.velocity[1].value,
-                        line=dict(
-                            color="Red",
-                            dash="dot",
-                        )
-                    )],
             height=500,
             title=title,
             hovermode="closest",
@@ -864,13 +875,15 @@ class CustomAbundanceWidget:
             ipywidgets.widgets.widget_box.VBox
                 A box that contains all the widgets in the GUI.
         """
-        box_head = ipw.HBox([self.dpd_shell_no, self.btn_prev, self.btn_next])
+        box_editor = ipw.HBox([ipw.VBox(self.input_items), ipw.VBox(self.checks, layout=ipw.Layout(margin="0 0 0 10px"))])
 
-        box_editor = ipw.HBox([ipw.VBox(self.input_items), ipw.VBox(self.checks)])
+        box_add_shell = ipw.HBox([self.input_v_start, self.input_v_end, self.btn_add_shell, self.overwrite_warning],
+            layout=ipw.Layout(
+                margin="0 0 0 50px"))
+        
+        box_head = ipw.HBox([self.dpd_shell_no, self.btn_prev, self.btn_next, box_add_shell])
 
-        box_add_shell = ipw.HBox([self.input_v_start, self.input_v_end, self.btn_add_shell, self.overwrite_warning])
-
-        box_add_element = ipw.VBox([ipw.HBox([self.input_symb, self.btn_add_element]), self.symb_warning], layout=ipw.Layout(margin="0 0 0 100px"))
+        box_add_element = ipw.HBox([self.input_symb, self.btn_add_element, self.symb_warning], layout=ipw.Layout(margin="0 0 0 80px"))
 
         help_note = ipw.HTML(
             value="<p style=\"text-indent: 40px\"><b>Click the checkbox</b> to </p> <p style=\"text-indent: 40px\"> 1) lock the abundance you don't want to normalize </p> <p style=\"text-indent: 40px\"> 2) apply the abundance to other shells.</p>",
@@ -883,14 +896,15 @@ class CustomAbundanceWidget:
                             layout=ipw.Layout(margin="5px 0 0 50px"))
         
         box_features = ipw.VBox([help_note, box_norm, box_apply])
-        box_abundance = ipw.VBox([box_add_element, ipw.HBox([box_editor, box_features])])
+        box_abundance = ipw.VBox([ipw.HBox([box_editor, box_features]), box_add_element])
         box_density = self.density_editor.display()
 
         main_tab = ipw.Tab([box_abundance, box_density])
         main_tab.set_title(0, "Edit Abundance")
         main_tab.set_title(1, "Edit Density")
 
-        box_output = ipw.VBox([self.input_i_time_0, self.input_d_time_0, ipw.HBox([self.input_path, self.btn_output, self.ckb_overwrite])])
+        hint = ipw.HTML(value="<b><font size='3'>Save model as file: </font></b>")
+        box_output = ipw.VBox([hint, self.input_i_time_0, self.input_d_time_0, ipw.HBox([self.input_path, self.btn_output, self.ckb_overwrite])])
         self.read_abundance()
         self.density_editor.read_density()
 
@@ -898,7 +912,6 @@ class CustomAbundanceWidget:
             self.tbs_scale,
             self.fig,
             box_head,
-            box_add_shell,
             main_tab,
             box_output,
             self.error_view
@@ -920,7 +933,7 @@ class CustomAbundanceWidget:
                     "The file already exists. Click the 'overwrite' checkbox to overwrite it."
                 )
         else:
-            self.self.write_yaml_portion(path)
+            self.write_yaml_portion(path)
             self.write_csv_portion(path)
 
     @error_view.capture(clear_output=True)
@@ -1087,8 +1100,8 @@ class CustomAbundanceWidget:
 
         velocity = model.velocity
         density = model.homologous_density.density_0
-        abundance = model.abundance
-        isotope_abundance = model.isotope_abundance
+        abundance = model.raw_abundance
+        isotope_abundance = model.raw_isotope_abundance
 
         # Combine elements and isotopes to one DataFrame
         abundance["mass_number"] = ""
@@ -1250,12 +1263,12 @@ class DensityEditor:
 
         # Formula to compute density profile
         form_exp = ipw.HTMLMath(
-            description="Exponential: ",
-            value=r"$$\rho = \rho_0 \times \exp \left( -\frac{v}{v_0} \right)$$"
+            value=r"$$\rho = \rho_0 \times \exp \left( -\frac{v}{v_0} \right)$$",
+            layout=ipw.Layout(margin="0 0 0 100px")
         )
         form_pow = ipw.HTMLMath(
-            description="Power Law: ",
-            value=r"$$\rho = \rho_0 \times \left( \frac{v}{v_0} \right)^n$$"
+            value=r"$$\rho = \rho_0 \times \left( \frac{v}{v_0} \right)^n$$",
+            layout=ipw.Layout(margin="0 0 0 100px")
         )
 
         self.exp_box = ipw.VBox([
@@ -1289,10 +1302,10 @@ class DensityEditor:
         """
         if self._trigger:
             new_value = obj.new
-            self.d[self.shell_no] = new_value
+            self.d[self.shell_no] = new_value * self.d.unit
             
             # update plot
-            self.fig.data[0].y = self.d[1:]
+            self.fig.data[1].y = self.d[1:]
 
     dtype_out = ipw.Output()
 
@@ -1313,11 +1326,11 @@ class DensityEditor:
                 type parameters.
         """
         if obj.new == "uniform":
-            return self.uniform_box
+            display(self.uniform_box)
         elif obj.new == "exponential":
-            return self.exp_box
+            display(self.exp_box)
         elif obj.new == "power_law":
-            return self.pow_box
+            display(self.pow_box)
 
     def on_btn_calculate(self, obj):
         """The callback for `btn_calculate` button. Calculate density
@@ -1368,8 +1381,10 @@ class DensityEditor:
             ipywidgets.widgets.widget_box.VBox
                 A box that contains all the widgets in the GUI.
         """
+        hint1 = ipw.HTML(value="<font size='3'>1) Edit density of the selected shell:</font>")
+        hint2 = ipw.HTML(value="<font size='3'>2) Edit densities for all shells:</font>")
         d_box = ipw.HBox(
             [self.input_d, ipw.Label(value="g/cm^3")], 
             layout=ipw.Layout(margin="0 0 20px 0")
         )
-        return ipw.VBox([d_box, self.dpd_dtype, self.dtype_out, self.btn_calculate])
+        return ipw.VBox([hint1, d_box, hint2, self.dpd_dtype, self.dtype_out, self.btn_calculate])
