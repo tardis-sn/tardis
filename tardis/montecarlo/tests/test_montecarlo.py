@@ -818,6 +818,8 @@ Tests for Tracking RPacket Properties
     ],
 )
 def test_rpacket_tracking(index, seed, r, nu, mu, energy):
+    mc.INITIAL_TRACKING_ARRAY_LENGTH = 10
+
     tracked_rpacket_properties = RPacketTracker()
     test_rpacket = r_packet.RPacket(
         index=index,
@@ -828,8 +830,10 @@ def test_rpacket_tracking(index, seed, r, nu, mu, energy):
         energy=energy,
     )
 
+    mc.INITIAL_TRACKING_ARRAY_LENGTH = None
+
     tracked_rpacket_properties.set_properties(test_rpacket)
-    tracked_rpacket_properties.finalise_array()
+    tracked_rpacket_properties.finalize_array()
 
     assert test_rpacket.index == tracked_rpacket_properties.index
     assert test_rpacket.seed == tracked_rpacket_properties.seed

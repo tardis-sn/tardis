@@ -608,7 +608,7 @@ class MontecarloRunner(HDFWriterMixin):
             config.plasma.disable_line_scattering
         )
 
-        mc_config_module.initial_array_length = (
+        mc_config_module.INITIAL_TRACKING_ARRAY_LENGTH = (
             config.montecarlo.tracking.initial_array_length
         )
 

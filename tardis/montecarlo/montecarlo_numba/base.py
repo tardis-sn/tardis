@@ -333,7 +333,7 @@ def montecarlo_main_loop(
             )
 
     if montecarlo_configuration.RPACKET_TRACKING:
-        tracked_rpacket_properties.finalise_array()
+        tracked_rpacket_properties.finalize_array()
 
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
