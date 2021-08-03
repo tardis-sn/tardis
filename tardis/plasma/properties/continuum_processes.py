@@ -264,9 +264,11 @@ def bf_estimator_array2frame(bf_estimator_array, level2continuum_idx):
     pandas.DataFrame, dtype float
         Bound-free estimators indexed by (atomic_number, ion_number, level_number).
     """
-    return pd.DataFrame(
+    bf_estimator_frame = pd.DataFrame(
         bf_estimator_array, index=level2continuum_idx.index
     ).sort_index()
+    bf_estimator_frame.columns.name = "Shell No."
+    return bf_estimator_frame
 
 
 class IndexSetterMixin(object):
