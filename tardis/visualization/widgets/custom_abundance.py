@@ -408,7 +408,11 @@ class CustomAbundanceWidget:
             new = 1 - (locked_sum - front_value)
             self.abundance.iloc[index, self.shell_no-1] = new
             self.update_input_item_value(index, new)
-            self.fig.data[index+2].y = self.abundance.iloc[index]
+            self.updata_abundance_plot(index)
+
+    def updata_abundance_plot(self, index):
+        y = self.abundance.iloc[index]
+        self.fig.data[index+2].y = np.append(y, y.iloc[-1])
    
     def update_front(self):
         """Update checkbox widgets, input widgets and plot in the front 
@@ -420,8 +424,11 @@ class CustomAbundanceWidget:
         self.read_abundance()
         self.density_editor.read_density()
         with self.fig.batch_update():
-            # Change line diagonal
-            self.fig.data[0].x = [self.velocity[self.shell_no].value]*2
+            # Change bar diagonal
+            v_inner = self.velocity[self.shell_no-1].value
+            v_outer = self.velocity[self.shell_no].value
+            self.fig.data[0].x = [(v_inner+v_outer)/2]
+            self.fig.data[0].width = [v_outer-v_inner]
 
     def overwrite_existing_shells(self, v_0, v_1):
         """Judge whether the existing shell(s) will be overwritten when 
@@ -504,11 +511,11 @@ class CustomAbundanceWidget:
         
         # Update data and x axis in plot.
         with self.fig.batch_update():
-            self.fig.data[1].x = self.velocity[1:]
-            self.fig.data[1].y = self.density[1:]
+            self.fig.data[1].x = self.velocity
+            self.fig.data[1].y = np.append(self.density[1:], self.density[-1])
             for i in range(self.no_of_elements):
-                self.fig.data[i+2].x = self.velocity[1:]
-                self.fig.data[i+2].y = self.abundance.iloc[i]
+                self.fig.data[i+2].x = self.velocity
+                self.updata_abundance_plot(i)
         
         self.dpd_shell_no.options = list(range(1, self.no_of_shells+1))
         self.shell_no = start_index + 1
@@ -568,9 +575,7 @@ class CustomAbundanceWidget:
                 self.norm_warning.layout.visibility = "visible"
             
             self.abundance.iloc[item_index, self.shell_no-1] = obj.owner.value
-
-            # Update plot
-            self.fig.data[item_index+2].y = self.abundance.iloc[item_index]
+            self.updata_abundance_plot(item_index)
 
     def check_eventhandler(self, obj):
         """The callback for the item in `checks` widget list. 
@@ -724,8 +729,8 @@ class CustomAbundanceWidget:
         self.box_abundance_editor.children = [ipw.VBox(self.input_items), ipw.VBox(self.checks)]
         
         # Add new trace to plot.
-        self.fig.add_scatter(x=self.velocity[1:], # convert to km/s
-                        y=[0]*self.no_of_shells,
+        self.fig.add_scatter(x=self.velocity, # convert to km/s
+                        y=[0]*(self.no_of_shells+1),
                         mode="lines+markers",
                         name=element_symbol_string,
                     )
@@ -757,10 +762,9 @@ class CustomAbundanceWidget:
         abundance_np = self.abundance.values
         abundance_np[applied_mask, start_index:end_index] = abundance_np[applied_mask, applied_index].reshape(-1, 1)
         
-        # update plot
         update_list = np.where(applied_mask == True)[0]
         for i in update_list:
-            self.fig.data[i+2].y = self.abundance.iloc[i]
+            self.updata_abundance_plot(i)
 
     def input_v_eventhandler(self, obj):
         """The callback for `input_v` widget. Judge whether the input
@@ -806,30 +810,29 @@ class CustomAbundanceWidget:
         """
         self.fig = go.FigureWidget()
         title = "Abundance/Density vs Velocity"
-        data = self.abundance.T
+        data = self.abundance
 
-        # Line Diagonal
+        # Bar Diagonal
         self.fig.add_trace(
-            go.Scatter(
-                x=[self.velocity[1].value]*2,
-                y=(0, 1),
-                mode="lines",
+            go.Bar(
+                x=[(self.velocity[0].value + self.velocity[1].value)/2],
+                y=[1],
+                width=[self.velocity[1].value - self.velocity[0].value],
                 name="Selected shell",
-                line=dict(
-                    color="Red",
-                    dash="dot",
+                marker=dict(
+                    color="rgb(253,205,172)",
                 )
             )
         )
         
         self.fig.add_trace(
             go.Scatter(
-                x=self.velocity[1:],
-                y=self.density[1:],
+                x=self.velocity,
+                y=np.append(self.density[1:], self.density[-1]),
                 mode="lines+markers",
                 name="<b>Density</b>",
                 yaxis="y2",
-                line=dict(color="black"),
+                line=dict(color="black", shape="hv"),
                 marker_symbol="square",
             ),
         )
@@ -837,9 +840,10 @@ class CustomAbundanceWidget:
         for i in range(self.no_of_elements):
             self.fig.add_trace(
                 go.Scatter(
-                    x=self.velocity[1:],
-                    y=data.iloc[:,i],
+                    x=self.velocity,
+                    y=np.append(data.iloc[i],data.iloc[i,-1]),
                     mode="lines+markers",
+                    line={"shape": "hv"},
                     name=self.elements[i],
                 ),
             )
@@ -1304,8 +1308,8 @@ class DensityEditor:
             new_value = obj.new
             self.d[self.shell_no] = new_value * self.d.unit
             
-            # update plot
-            self.fig.data[1].y = self.d[1:]
+            # update density plot
+            np.append(self.d[1:], self.d[-1])
 
     dtype_out = ipw.Output()
 
