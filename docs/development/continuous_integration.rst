@@ -21,13 +21,13 @@ nor storage.
 
 **To clone this repository:**
 
-::
+.. code-block:: bash
 
   git clone https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata
 
 **To download a LFS file trough HTTPS:**
 
-::
+.. code-block:: none
 
   https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&resolveLfs=true
 
@@ -61,14 +61,16 @@ Triggers
 First thing to do is telling the pipeline when it should run. In
 Azure, *trigger* (also known as the CI trigger) sets up the pipeline
 to run every time changes are pushed to a branch.
-::
+
+.. code-block:: yaml
 
   trigger: 
     - master
 
 If some trigger is not specified then the default configuration
 is assumed.
-::
+
+.. code-block:: yaml
 
   trigger:
     branches:
@@ -86,7 +88,8 @@ commits to a pull request.
 
 If you want to run a pipeline only manually set both triggers to
 *none*.
-::
+
+.. code-block:: yaml
 
   trigger: none
 
@@ -132,7 +135,7 @@ Define variables
 
 Usually, we define variables at the top of the YAML file.
 
-::
+.. code-block:: yaml
 
   variables:
     my.var: 'foo'
@@ -149,7 +152,8 @@ and *stage* level.
 
 Also, variables are available to scripts through environment variables.
 The name is upper-cased and ``.``  is replaced with ``_``. For example
-::
+
+.. code-block:: yaml
 
   variables:
     my.var: 'foo'
@@ -160,7 +164,8 @@ The name is upper-cased and ``.``  is replaced with ``_``. For example
 
 To set a variable from a script task, use the ``task.setvariable`` logging
 command.
-::
+
+.. code-block:: yaml
 
   steps:
 
@@ -198,7 +203,9 @@ Jobs
 You can organize your pipeline into jobs. Every pipeline has at least one job.
 A job is a series of steps that run sequentially as a unit. In other words,
 a job is the smallest unit of work that can be scheduled to run.
-::
+
+
+.. code-block:: yaml
 
   jobs:
   - job: myJob
@@ -328,7 +335,7 @@ compares against latest reference data stored in ``tardis-refdata`` repository. 
 you want to compare two different labels (SHAs, branches, tags, etc.) uncomment and
 set the ``ref1.hash`` and ``ref2.hash`` variables in 
 ``.github/workflows/compare-refdata.yml`` on your pull request. For example:
-::
+.. code-block:: yaml
 
   ref1.hash: 'upstream/pr/11'
   ref2.hash: 'upstream/master'

@@ -1,5 +1,7 @@
 """Visualization tools and widgets for TARDIS."""
 
+from tardis.visualization.tools.convergence_plot import ConvergencePlots
+
 from tardis.visualization.widgets.shell_info import (
     shell_info_from_simulation,
     shell_info_from_hdf,

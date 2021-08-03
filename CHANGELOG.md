@@ -1,5 +1,50 @@
 ## Change Log
 
+### release-2021.8.1.0 (2021/07/29 18:57 +00:00)
+- [#1753](https://github.com/tardis-sn/tardis/pull/1753) Adding Convergence Plots to the Documentation (#1753) (@atharva-2001)
+- [#1738](https://github.com/tardis-sn/tardis/pull/1738) TARDIS Grid (#1738) (@marxwillia)
+- [#1755](https://github.com/tardis-sn/tardis/pull/1755) changing note format (#1755) (@smithis7)
+- [#1740](https://github.com/tardis-sn/tardis/pull/1740) Renamed `montecarlo_logger.py` to `montecarlo_tracking.py` (#1740) (@DhruvSondhi)
+
+### release-2021.7.25.0 (2021/07/23 16:16 +00:00)
+- [#1697](https://github.com/tardis-sn/tardis/pull/1697) Interact Button in Documentation (#1697) (@smithis7)
+- [#1636](https://github.com/tardis-sn/tardis/pull/1636) Adding Convergence Plots (#1636) (@atharva-2001)
+- [#1723](https://github.com/tardis-sn/tardis/pull/1723) Edit docstring in `run_tardis` (#1723) (@atharva-2001)
+- [#1743](https://github.com/tardis-sn/tardis/pull/1743) Fix for Unresponsive Main Page due to Twitter Widget (#1743) (@atharva-2001)
+- [#1746](https://github.com/tardis-sn/tardis/pull/1746) Fix docs build [build docs] (#1746) (@smithis7)
+- [#1730](https://github.com/tardis-sn/tardis/pull/1730) Renamed log_state to log_level (#1730) (@DhruvSondhi)
+- [#1736](https://github.com/tardis-sn/tardis/pull/1736) Fixing Doc Build Warnings (#1736) (@smithis7)
+- [#1737](https://github.com/tardis-sn/tardis/pull/1737) Add Jaladh to mailmap (#1737) (@jaladh-singhal)
+- [#1739](https://github.com/tardis-sn/tardis/pull/1739) Fixed IPython Displaying the Plasma Stratification (Table) even when the Logger is turned Off (#1739) (@DhruvSondhi)
+- [#1742](https://github.com/tardis-sn/tardis/pull/1742) Reduce damping_constant under t_inner for tardis_example.yml (#1742) (@atharva-2001)
+
+### release-2021.7.18.0 (2021/07/16 14:41 +00:00)
+- [#1665](https://github.com/tardis-sn/tardis/pull/1665) Demonstrating the `nelements` and the `species_list` functionality in the SDEC plot notebook (@atharva-2001)
+- [#1727](https://github.com/tardis-sn/tardis/pull/1727) Fixing Quickstart Metadata (#1727) (@smithis7)
+- [#1726](https://github.com/tardis-sn/tardis/pull/1726) display "latest" in doc version (#1726) (@epassaro)
+- [#1716](https://github.com/tardis-sn/tardis/pull/1716) Small fixes to docs (#1716) (@smithis7)
+- [#1722](https://github.com/tardis-sn/tardis/pull/1722) Added missing import for IonNumberDensityHeNLTE (#1722) (@DhruvSondhi)
+- [#1714](https://github.com/tardis-sn/tardis/pull/1714) Removed Formatting from exisiting log messages (#1714) (@DhruvSondhi)
+
+### release-2021.7.14.0 (2021/07/14 15:39 +00:00)
+- [#1707](https://github.com/tardis-sn/tardis/pull/1707) Open in VSCode badge (#1707) (@wkerzendorf)
+- [#1713](https://github.com/tardis-sn/tardis/pull/1713) fix package data for conda-forge package (#1713) (@epassaro)
+- [#1711](https://github.com/tardis-sn/tardis/pull/1711) Changed the xlim and the ylabel in the quickstart notebook plot (#1711) (@Rodot-)
+
+### release-2021.7.12.0 (2021/07/12 20:05 +00:00)
+- [#1686](https://github.com/tardis-sn/tardis/pull/1686) fix pip install (#1686) (@epassaro)
+- [#1701](https://github.com/tardis-sn/tardis/pull/1701) Adding Logging Support for Caught Exceptions (#1701) (@DhruvSondhi)
+- [#1684](https://github.com/tardis-sn/tardis/pull/1684) Moved Simulation & Montecarlo Logging Frameworks to `tardis/io/logger` folder (#1684) (@DhruvSondhi)
+- [#1691](https://github.com/tardis-sn/tardis/pull/1691) Create profiling documentation directory (#1691) (@KevinCawley)
+
+### release-2021.7.11.0 (2021/07/09 17:07 +00:00)
+- [#1680](https://github.com/tardis-sn/tardis/pull/1680) Added docstring-coverage badge (#1680) (@epassaro)
+- [#1696](https://github.com/tardis-sn/tardis/pull/1696) Adding mu and r to virtual packet logging (#1696) (@smithis7)
+- [#1695](https://github.com/tardis-sn/tardis/pull/1695) Enabling spectrum plotting in the frequency domain (#1695) (@smithis7)
+
+### release-2021.7.5 (2021/07/05 14:32 +00:00)
+- [#1688](https://github.com/tardis-sn/tardis/pull/1688) final changes for release pipeline (#1688) (@epassaro)
+
 ### release-2021.7.2.dev1+g58e4e79d (2021/07/02 15:44 +00:00)
 - [#1683](https://github.com/tardis-sn/tardis/pull/1683) prepare release pipeline for CalVer (#1683) (@epassaro)
 

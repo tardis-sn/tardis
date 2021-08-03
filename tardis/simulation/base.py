@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from astropy import units as u, constants as const
 from collections import OrderedDict
+from tardis import model
 
 from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
@@ -12,6 +13,7 @@ from tardis.io.util import HDFWriterMixin
 from tardis.io.config_reader import ConfigurationError
 from tardis.util.base import is_notebook
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
+from tardis.visualization import ConvergencePlots
 from IPython.display import display
 
 # Adding logging support
@@ -97,6 +99,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     luminosity_nu_start : astropy.units.Quantity
     luminosity_nu_end : astropy.units.Quantity
     luminosity_requested : astropy.units.Quantity
+    cplots_kwargs: dict
     nthreads : int
         The number of threads to run montecarlo with
 
@@ -129,6 +132,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         luminosity_requested,
         convergence_strategy,
         nthreads,
+        show_cplots,
+        cplots_kwargs,
     ):
 
         super(Simulation, self).__init__(iterations, model.no_of_shells)
@@ -146,6 +151,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.luminosity_nu_end = luminosity_nu_end
         self.luminosity_requested = luminosity_requested
         self.nthreads = nthreads
+
         if convergence_strategy.type in ("damped"):
             self.convergence_strategy = convergence_strategy
             self.converged = False
@@ -161,6 +167,18 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 f"not damped or custom "
                 f"- input is {convergence_strategy.type}"
             )
+
+        if show_cplots:
+            self.cplots = ConvergencePlots(
+                iterations=self.iterations, **cplots_kwargs
+            )
+
+            if "export_cplots" in cplots_kwargs:
+                if not isinstance(cplots_kwargs["export_cplots"], bool):
+                    raise TypeError("Expected bool in export_cplots argument")
+                self.export_cplots = cplots_kwargs["export_cplots"]
+            else:
+                self.export_cplots = False
 
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
@@ -289,6 +307,22 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         else:
             next_t_inner = self.model.t_inner
 
+        if hasattr(self, "cplots"):
+            self.cplots.fetch_data(
+                name="t_inner",
+                value=self.model.t_inner.value,
+                item_type="value",
+            )
+            self.cplots.fetch_data(
+                name="t_rad", value=self.model.t_rad, item_type="iterable"
+            )
+            self.cplots.fetch_data(
+                name="w", value=self.model.w, item_type="iterable"
+            )
+            self.cplots.fetch_data(
+                name="velocity", value=self.model.velocity, item_type="iterable"
+            )
+
         self.log_plasma_state(
             self.model.t_rad,
             self.model.w,
@@ -328,7 +362,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     def iterate(self, no_of_packets, no_of_virtual_packets=0, last_run=False):
         logger.info(
-            f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
+            f"Starting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
         self.runner.run(
             self.model,
@@ -349,6 +383,23 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         reabsorbed_luminosity = self.runner.calculate_reabsorbed_luminosity(
             self.luminosity_nu_start, self.luminosity_nu_end
         )
+        if hasattr(self, "cplots"):
+            self.cplots.fetch_data(
+                name="Emitted",
+                value=emitted_luminosity.value,
+                item_type="value",
+            )
+            self.cplots.fetch_data(
+                name="Absorbed",
+                value=reabsorbed_luminosity.value,
+                item_type="value",
+            )
+            self.cplots.fetch_data(
+                name="Requested",
+                value=self.luminosity_requested.value,
+                item_type="value",
+            )
+
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)
         self.iterations_executed += 1
 
@@ -368,6 +419,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
             self.iterate(self.no_of_packets)
             self.converged = self.advance_state()
+            if hasattr(self, "cplots"):
+                self.cplots.update()
             self._call_back()
             if self.converged:
                 if self.convergence_strategy.stop_if_converged:
@@ -385,10 +438,17 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         self.reshape_plasma_state_store(self.iterations_executed)
+        if hasattr(self, "cplots"):
+            self.cplots.fetch_data(
+                name="t_inner",
+                value=self.model.t_inner.value,
+                item_type="value",
+            )
+            self.cplots.update(export_cplots=self.export_cplots, last=True)
 
         logger.info(
-            f"\n\tSimulation finished in {self.iterations_executed:d} iterations "
-            f"\n\tSimulation took {(time.time() - start_time):.2f} s\n"
+            f"Simulation finished in {self.iterations_executed:d} iterations "
+            f"Simulation took {(time.time() - start_time):.2f} s\n"
         )
         self._call_back()
 
@@ -433,7 +493,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         plasma_state_log.columns.name = "Shell No."
 
         if is_notebook():
-            logger.info("\n\tPlasma stratification:")
+            logger.info("Plasma stratification:")
 
             # Displaying the DataFrame only when the logging level is NOTSET, DEBUG or INFO
             if logger.level <= logging.INFO:
@@ -457,16 +517,16 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
             for value in plasma_output.split("\n"):
                 output_df = output_df + "\t{}\n".format(value)
-            logger.info("\n\tPlasma stratification:")
+            logger.info("Plasma stratification:")
             logger.info(f"\n{output_df}")
 
         logger.info(
-            f"\n\tCurrent t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
+            f"Current t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
         )
 
     def log_run_results(self, emitted_luminosity, absorbed_luminosity):
         logger.info(
-            f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
+            f"Luminosity emitted   = {emitted_luminosity:.3e}\n"
             f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
             f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
         )
@@ -519,11 +579,17 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             del self._callbacks[id]
             return True
         except KeyError:
+            logger.debug(f"Call Back was not found in {self._callbacks.keys()}")
             return False
 
     @classmethod
     def from_config(
-        cls, config, packet_source=None, virtual_packet_logging=False, **kwargs
+        cls,
+        config,
+        packet_source=None,
+        virtual_packet_logging=False,
+        show_cplots=True,
+        **kwargs,
     ):
         """
         Create a new Simulation instance from a Configuration object.
@@ -569,6 +635,17 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 virtual_packet_logging=virtual_packet_logging,
             )
 
+        cplots_config_options = [
+            "plasma_plot_config",
+            "t_inner_luminosities_config",
+            "plasma_cmap",
+            "t_inner_luminosities_colors",
+            "export_cplots",
+        ]
+        cplots_kwargs = {}
+        for item in set(cplots_config_options).intersection(kwargs.keys()):
+            cplots_kwargs[item] = kwargs[item]
+
         luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(
             u.Hz, u.spectral()
         )
@@ -592,6 +669,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             model=model,
             plasma=plasma,
             runner=runner,
+            show_cplots=show_cplots,
             no_of_packets=int(config.montecarlo.no_of_packets),
             no_of_virtual_packets=int(config.montecarlo.no_of_virtual_packets),
             luminosity_nu_start=luminosity_nu_start,
@@ -600,4 +678,5 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             luminosity_requested=config.supernova.luminosity_requested.cgs,
             convergence_strategy=config.montecarlo.convergence_strategy,
             nthreads=config.montecarlo.nthreads,
+            cplots_kwargs=cplots_kwargs,
         )

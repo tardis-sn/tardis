@@ -102,7 +102,7 @@ When you launch the GUI, the first screen that you see will be something like th
 You can inspect the plot of shells on this window and use the toggle button to change between the 
 plot of dilution factor and the radiation temperature in shells.
     
-.. image:: images/OpeningScreen.png
+.. image:: ../io/images/OpeningScreen.png
     :width: 900
 
 Shell Info
@@ -112,7 +112,7 @@ similar strategy in the tables that appear to bring up the ion and level populat
 The snapshot below shows all the tables that you can bring up by successively clicking the horizontal
 table headers. This feature is not supported at the moment.
 
-.. image:: images/ShellInfo.png
+.. image:: ../io/images/ShellInfo.png
     :width: 900
 
 Line Info
@@ -121,5 +121,5 @@ If you switch to the spectrum tab, you can see the spectrum plot and a button to
 Once again, you can double-click the table headers to get further information. The snapshot below
 shows all the tables that you can bring up in this window. This feature is not supported at the moment.
 
-.. image:: images/LineInfo.png
+.. image:: ../io/images/LineInfo.png
     :width: 900

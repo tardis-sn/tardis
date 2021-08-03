@@ -7,13 +7,35 @@
 
 
     <script>
+
+        // observe the DOM for changes
+        const config = { childList: true };
+
+        // callback function to be called on change
+        const callback = function (mutationsList, observer) {
+          for (const mutation of mutationsList) {
+            if (mutation.type === "childList") {
+              // customize tweet media if change is detected
+              customizeTweetMedia();
+            }
+          }
+        };
+        // create an observer instance linked to the callback function
+        const observer = new MutationObserver(callback);
+
         document.getElementsByClassName("twitter-block")[0].addEventListener(
           "DOMSubtreeModified",
           function (e) {
             for (var target = e.target; target && target != this; target = target.parentNode) {
-              // loop parent nodes from the target to the delegation node
+              // if target matches the twitter widget
               if (target.matches("#twitter-widget-0")) {
                 customizeTweetMedia();
+
+                var iframe = document.getElementById("twitter-widget-0");
+                const targetNode = iframe.contentWindow.document.getElementsByClassName("timeline-TweetList")[0];
+
+                // observe tweet list
+                observer.observe(targetNode, config);
               }
             }
           },
@@ -50,14 +72,7 @@
             tweetTextList[index].style.lineHeight = "1.1";
           }
 
-          tweetList = iframe.contentWindow.document.getElementsByClassName("timeline-TweetList")[0];
-          tweetList.addEventListener(
-            "DOMSubtreeModified",
-            function () {
-              customizeTweetMedia();
-            },
-            false
-          );
+          
         };
 
         // checks if the widget hasn't loaded and prints a message after 4 seconds

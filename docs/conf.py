@@ -45,8 +45,8 @@ setup_cfg = dict(conf.items("metadata"))
 
 # -- General configuration ----------------------------------------------------
 
-# By default, highlight as Python 3.
-highlight_language = "python3"
+# By default, code is not highlighted.
+highlight_language = "none"
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = "1.2"
@@ -60,10 +60,11 @@ highlight_language = "python3"
 exclude_patterns.append("_templates")
 exclude_patterns.append("_build")
 exclude_patterns.append("**.ipynb_checkpoints")
+exclude_patterns.append("research/research_done_using_TARDIS/ads.ipynb")
 
 # This is added to the end of RST files - a good place to put substitutions to
 # be used globally.
-rst_epilog += """
+rst_epilog = """
 """
 
 extensions = [
@@ -118,10 +119,42 @@ nbsphinx_execute_arguments = [
     "--InlineBackend.rc={'figure.dpi': 96}",
 ]
 
-nbsphinx_prolog = """
-This notebook is available at 
-https://github.com/tardis-sn/tardis/tree/master/docs/{{ env.doc2path(env.docname, base=None) }}
+nbsphinx_prolog = r"""
+{% set docname = 'docs/' + env.doc2path(env.docname, base=None) %}
+.. raw:: html
+    
+    <style>
+        .launch-btn {
+            background-color: #2980B9;
+            border: none;
+            border-radius: 4px;
+            color: #fcfcfc;
+            font-family: inherit;
+            text-decoration: none;
+            padding: 3px 8px;
+            letter-spacing: 0.03em;
+            display: inline-block;
+            line-height: 1.5em;
+        }
 
+        .launch-btn:hover {
+            background-color: #1b6391;
+            color: #fcfcfc;
+        }
+
+        .launch-btn:visited {
+            color: #fcfcfc;
+        }
+
+        .note-p {
+            margin-bottom: 0.4em;
+            line-height: 2em;
+        }
+    </style>
+    
+    <div class="admonition note">
+    <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath={{ docname|e }}" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch interactive version</a></p>
+    </div>
 """
 
 if os.getenv("DISABLE_NBSPHINX") == "1":
@@ -129,13 +162,14 @@ if os.getenv("DISABLE_NBSPHINX") == "1":
 else:
     nbsphinx_execute = "auto"
 
+
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
 project = setup_cfg["name"]
 author = setup_cfg["author"]
 copyright = "2013-{0}, {1}".format(
-    datetime.datetime.now().year, setup_cfg["author"])
+    datetime.datetime.now().year, author)
 
 # The version info for the project you"re documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -145,7 +179,7 @@ import_module(setup_cfg["name"])
 package = sys.modules[setup_cfg["name"]]
 
 # The short X.Y version.
-version = package.__version__.split("-", 1)[0]
+version = "latest" # package.__version__.split("-", 1)[0]
 # The full version, including alpha/beta/rc tags.
 release = package.__version__
 
@@ -163,7 +197,7 @@ release = package.__version__
 # Add any paths that contain custom themes here, relative to this directory.
 # To use a different custom theme, add the directory containing the theme.
 import sphinx_rtd_theme
-html_theme_path = sphinx_rtd_theme.get_html_theme_path()
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes. To override the custom theme, set this to the
@@ -172,9 +206,9 @@ html_theme = "sphinx_rtd_theme"
 
 
 html_theme_options = {
-    "logotext1": "tardis",  # white,  semi-bold
-    "logotext2": "",  # orange, light
-    "logotext3": ":docs"   # white,  light
+#    "logotext1": "tardis",  # white,  semi-bold
+#    "logotext2": "",  # orange, light
+#    "logotext3": ":docs"   # white,  light
     }
 
 
@@ -198,7 +232,7 @@ html_favicon = "tardis_logo.ico"
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = "{0} v{1}".format(project, release)
+html_title = project # "{0} v{1}".format(project, release)
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = project + "doc"
