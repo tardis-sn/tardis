@@ -726,7 +726,7 @@ class CustomAbundanceWidget:
         for i in range(self.no_of_elements):
             self.input_items[i].description = self.elements[i]
 
-        self.box_abundance_editor.children = [ipw.VBox(self.input_items), ipw.VBox(self.checks)]
+        self.box_editor.children = [ipw.VBox(self.input_items), ipw.VBox(self.checks)]
         
         # Add new trace to plot.
         self.fig.add_scatter(x=self.velocity, # convert to km/s
@@ -736,7 +736,7 @@ class CustomAbundanceWidget:
                     )
         # Sort the legend in atomic order.
         fig_data_lst = list(self.fig.data)
-        fig_data_lst.insert(np.argwhere(self.elements == element_symbol_string)[0][0]+1, self.fig.data[-1])
+        fig_data_lst.insert(np.argwhere(self.elements == element_symbol_string)[0][0]+2, self.fig.data[-1])
         self.fig.data = fig_data_lst[:-1]
         
         self.read_abundance()
@@ -879,7 +879,7 @@ class CustomAbundanceWidget:
             ipywidgets.widgets.widget_box.VBox
                 A box that contains all the widgets in the GUI.
         """
-        box_editor = ipw.HBox([ipw.VBox(self.input_items), ipw.VBox(self.checks, layout=ipw.Layout(margin="0 0 0 10px"))])
+        self.box_editor = ipw.HBox([ipw.VBox(self.input_items), ipw.VBox(self.checks, layout=ipw.Layout(margin="0 0 0 10px"))])
 
         box_add_shell = ipw.HBox([self.input_v_start, self.input_v_end, self.btn_add_shell, self.overwrite_warning],
             layout=ipw.Layout(
@@ -900,7 +900,7 @@ class CustomAbundanceWidget:
                             layout=ipw.Layout(margin="5px 0 0 50px"))
         
         box_features = ipw.VBox([help_note, box_norm, box_apply])
-        box_abundance = ipw.VBox([ipw.HBox([box_editor, box_features]), box_add_element])
+        box_abundance = ipw.VBox([ipw.HBox([self.box_editor, box_features]), box_add_element])
         box_density = self.density_editor.display()
 
         main_tab = ipw.Tab([box_abundance, box_density])
