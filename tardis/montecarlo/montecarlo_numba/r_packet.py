@@ -36,8 +36,7 @@ class InteractionType(IntEnum):
     BOUNDARY = 1
     LINE = 2
     ESCATTERING = 4
-    BOUND_FREE = 8
-    FREE_FREE = 16
+    CONTINUUM_PROCESS = 8
 
 
 class PacketStatus(IntEnum):
@@ -100,10 +99,7 @@ def determine_continuum_process(chi_continuum, chi_e, chi_bf, chi_ff):
 
     if zrand < SIGMA_THOMSON / chi_continuum:
         return InteractionType.ESCATTER
-    elif zrand < (SIGMA_THOMSON + chi_bf) / chi_continuum:
-        return InteractionType.BOUND_FREE
-    else:
-        return InteractionType.FREE_FREE
+    return InteractionType.CONTINUUM_PROCESS
 
 
 

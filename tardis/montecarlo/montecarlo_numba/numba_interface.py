@@ -300,6 +300,26 @@ class VPacketCollection(object):
         self.idx += 1
 
 
+continuum_spec = [("chi_bf_tot", float64),
+        ("chi_bf_contributions", float64[:]),
+        ("current_continua", float64[:]),
+        ("x_sect_bfs", float64[:]),
+        ("chi_ff", float64),
+]
+@jitclass(continuum_spec)
+class Continuum(object):
+
+    def __init__(self):
+
+        self.chi_bf_tot = 0.0
+        self.chi_bf_contributions = np.empty(0)
+        self.current_continua = np.empty(0)
+        self.x_sect_bfs = np.empty(0)
+        self.chi_ff = 0.0
+
+
+
+
 estimators_spec = [
     ("j_estimator", float64[:]),
     ("nu_bar_estimator", float64[:]),

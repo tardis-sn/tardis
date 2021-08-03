@@ -931,7 +931,7 @@ class FreeFreeFrequencySampler(ProcessingPlasmaProperty):
     def calculate(self, t_electrons):
 
         @njit(error_model="numpy", fastmath=True)
-        def nu_ff(nu, shell):
+        def nu_ff(shell):
 
             T = t_electrons[shell]
             zrand = np.random.random()
@@ -967,7 +967,7 @@ class FreeBoundFrequencySampler(ProcessingPlasmaProperty):
         emissivities = fb_emmission_cdf.loc[level2continuum_idx.index].values
 
         @njit(error_model="numpy", fastmath=True)
-        def nu_fb(nu, shell, continuum_id):
+        def nu_fb(shell, continuum_id):
 
             em = emissivities[:, shell]
             start = photo_ion_block_references[continuum_id]
