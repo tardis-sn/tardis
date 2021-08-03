@@ -1,6 +1,6 @@
 from enum import IntEnum
 
-from numba import float64, int64, boolean
+from numba import float64, int64, boolean, njit
 from numba.experimental import jitclass
 import numpy as np
 
@@ -10,7 +10,7 @@ from tardis import constants as const
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
-
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -300,23 +300,38 @@ class VPacketCollection(object):
         self.idx += 1
 
 
-continuum_spec = [("chi_bf_tot", float64),
-        ("chi_bf_contributions", float64[:]),
-        ("current_continua", float64[:]),
-        ("x_sect_bfs", float64[:]),
-        ("chi_ff", float64),
-]
-@jitclass(continuum_spec)
-class Continuum(object):
+def create_continuum_class(chi_continuum_calculator):
+    """called before mainloop"""
+    continuum_spec = [
+            ("chi_bf_tot", float64),
+            ("chi_bf_contributions", float64[:]),
+            ("current_continua", int64[:]),
+            ("chi_ff", float64),
+    ]
+    @jitclass(continuum_spec)
+    class Continuum(object):
 
-    def __init__(self):
+        def __init__(self):
 
-        self.chi_bf_tot = 0.0
-        self.chi_bf_contributions = np.empty(0)
-        self.current_continua = np.empty(0)
-        self.x_sect_bfs = np.empty(0)
-        self.chi_ff = 0.0
+            self.chi_bf_tot = 0.0
+            self.chi_bf_contributions = np.empty(0)
+            self.current_continua = np.empty(0, dtype=int64)
+            self.chi_ff = 0.0
 
+        def calculate(self, nu, shell):
+
+            (
+            self.chi_bf_tot,
+            self.chi_bf_contributions,
+            self.current_continua,
+            self.chi_ff,
+            ) = chi_continuum_calculator(nu, shell)
+
+    @njit(**njit_dict_no_parallel)
+    def continuum_constructor():
+        return Continuum()
+
+    return continuum_constructor
 
 
 

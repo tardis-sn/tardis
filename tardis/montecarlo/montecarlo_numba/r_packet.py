@@ -93,23 +93,12 @@ class RPacket(object):
 
 
 @njit(**njit_dict_no_parallel)
-def determine_continuum_process(chi_continuum, chi_e, chi_bf, chi_ff):
-
-    zrand = np.random.random()
-
-    if zrand < SIGMA_THOMSON / chi_continuum:
-        return InteractionType.ESCATTER
-    return InteractionType.CONTINUUM_PROCESS
-
-
-
-@njit(**njit_dict_no_parallel)
 def trace_packet(
         r_packet,
         numba_model,
         numba_plasma,
         estimators,
-        chi_continuum_calculator
+        continuum
 ):
     """
     Traces the RPacket through the ejecta and stops when an interaction happens (heart of the calculation)
@@ -152,13 +141,14 @@ def trace_packet(
         r_packet.r, r_packet.mu, numba_model.time_explosion
     )
     comov_nu = r_packet.nu * doppler_factor
+    continuum.calculate(comov_nu, r_packet.current_shell_id)
 
     (
         chi_bf,
         chi_bf_contributions,
         current_continua,
         chi_ff,
-    ) = chi_continuum_calculator(comov_nu, r_packet.current_shell_id)
+    ) = continuum.chi_bf_tot, continuum.chi_bf_contributions, continuum.current_continua, continuum.chi_ff
 
     chi_continuum = chi_e + chi_bf + chi_ff
     distance_continuum = tau_event / chi_continuum
@@ -206,9 +196,10 @@ def trace_packet(
                 r_packet.next_line_id = cur_line_id
                 break
             elif distance == distance_continuum:
-                interaction_type = determine_continuum_process(
-                        chi_continuum, chi_e, chi_bf, chi_ff
-                )
+                zrand = np.random.random()
+                if zrand < chi_e / chi_continuum:
+                    interaction_type = InteractionType.ESCATTERING
+                interaction_type = InteractionType.CONTINUUM_PROCESS
                 r_packet.next_line_id = cur_line_id
                 break
 

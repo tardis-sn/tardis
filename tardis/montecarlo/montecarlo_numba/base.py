@@ -15,6 +15,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     numba_plasma_initialize,
     Estimators,
     configuration_initialize,
+    create_continuum_class
 )
 
 from tardis.montecarlo import (
@@ -53,6 +54,7 @@ def montecarlo_radial1d(model, plasma, runner):
     packet_seeds = montecarlo_configuration.packet_seeds
 
     number_of_vpackets = montecarlo_configuration.number_of_vpackets
+    ContinuumObject = create_continuum_class(plasma.chi_continuum_calculator)
 
     (
         v_packets_energy_hist,
@@ -76,7 +78,7 @@ def montecarlo_radial1d(model, plasma, runner):
         runner.spectrum_frequency.value,
         number_of_vpackets,
         packet_seeds,
-        plasma.chi_continuum_calculator
+        ContinuumObject
     )
 
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
@@ -121,7 +123,7 @@ def montecarlo_main_loop(
     spectrum_frequency,
     number_of_vpackets,
     packet_seeds,
-    chi_continuum_calculator
+    ContinuumObject
 ):
     """
     This is the main loop of the MonteCarlo routine that generates packets
@@ -194,11 +196,12 @@ def montecarlo_main_loop(
             seed,
             i,
         )
+        continuum = ContinuumObject()
         vpacket_collection = vpacket_collections[i]
 
         loop = single_packet_loop(
             r_packet, numba_model, numba_plasma, estimators, vpacket_collection,
-            chi_continuum_calculator
+            continuum
         )
         # if loop and 'stop' in loop:
         #     raise MonteCarloException
