@@ -36,15 +36,14 @@ else:
     pbar = tqdm.tqdm
 
 packet_pbar = pbar(
-    dynamic_ncols=True,
     desc=0,
-    bar_format="{percentage:3.0f}%{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}{postfix}]",
+    bar_format="Packets: {bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}{postfix}]",
 )
 if type(packet_pbar).__name__ == "tqdm_notebook":
     packet_pbar.container.close()
 
 iterations_pbar = pbar(
-    dynamic_ncols=True,
+    bar_format="Iterations: {bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}{postfix}]",
 )
 if type(iterations_pbar).__name__ == "tqdm_notebook":
     iterations_pbar.container.close()
@@ -73,7 +72,6 @@ def update_packet_pbar(
 
     # set bar total when first called
     if packet_pbar.total == None:
-        packet_pbar.ncols = "100%"
         if type(packet_pbar).__name__ == "tqdm_notebook":
             packet_pbar.container = packet_pbar.status_printer(
                 packet_pbar.fp,
@@ -81,9 +79,15 @@ def update_packet_pbar(
                 packet_pbar.desc,
                 packet_pbar.ncols,
             )
+            packet_pbar.reset(total=no_of_packets)
+            packet_pbar.container.children[0].layout.width = "7%"
+            packet_pbar.container.children[1].layout.width = "60%"
             display(packet_pbar.container)
-        packet_pbar.reset(total=no_of_packets)
-        packet_pbar.display()
+            packet_pbar.display()
+
+        else:
+            packet_pbar.reset(total=no_of_packets)
+            packet_pbar.display()
 
     # display and reset progress bar when run_tardis is called again
     if bar_iteration > current_iteration:
@@ -95,13 +99,14 @@ def update_packet_pbar(
 
             # the dynamic ncols gets reset
             # we have dynamic ncols set to True
-            packet_pbar.ncols = "100%"
             packet_pbar.container = packet_pbar.status_printer(
                 packet_pbar.fp,
                 packet_pbar.total,
                 packet_pbar.desc,
                 packet_pbar.ncols,
             )
+            packet_pbar.container.children[0].layout.width = "7%"
+            packet_pbar.container.children[1].layout.width = "60%"
             display(packet_pbar.container)
             packet_pbar.display()
 
@@ -121,7 +126,6 @@ def update_iterations_pbar(i, total_iterations):
     Update progress bar for each iteration.
     """
     if iterations_pbar.total == None:
-        iterations_pbar.ncols = "100%"
         if type(iterations_pbar).__name__ == "tqdm_notebook":
             iterations_pbar.container = packet_pbar.status_printer(
                 iterations_pbar.fp,
@@ -129,8 +133,13 @@ def update_iterations_pbar(i, total_iterations):
                 iterations_pbar.desc,
                 iterations_pbar.ncols,
             )
+            iterations_pbar.reset(total=total_iterations)
+            iterations_pbar.container.children[0].layout.width = "7%"
+            iterations_pbar.container.children[1].layout.width = "60%"
             display(iterations_pbar.container)
-        iterations_pbar.reset(total=total_iterations)
+        else:
+            iterations_pbar.reset(total=total_iterations)
+            packet_pbar.display()
 
     # display and reset progress bar when run_tardis is called again
     if iterations_pbar.n >= total_iterations:
@@ -141,7 +150,6 @@ def update_iterations_pbar(i, total_iterations):
 
             # the dynamic ncols gets reset
             # we have dynamic ncols set to True
-            iterations_pbar.ncols = "100%"
             iterations_pbar.container = iterations_pbar.status_printer(
                 iterations_pbar.fp,
                 iterations_pbar.total,
@@ -149,6 +157,8 @@ def update_iterations_pbar(i, total_iterations):
                 iterations_pbar.ncols,
             )
             iterations_pbar.reset(total=total_iterations)
+            iterations_pbar.container.children[0].layout.width = "7%"
+            iterations_pbar.container.children[1].layout.width = "60%"
             display(iterations_pbar.container)
             iterations_pbar.display()
 
