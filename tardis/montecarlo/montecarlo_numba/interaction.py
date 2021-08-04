@@ -34,7 +34,7 @@ def scatter(r_packet, time_explosion):
  
     return comov_nu, inverse_new_doppler_factor
 
-def continuum_event(r_packet, time_explosion, plasma, chi_continuum_calculator):
+def continuum_event(r_packet, time_explosion, continuum):
 
     comov_nu, inverse_new_doppler_factor = scatter(r_packet, time_explosion)
 
@@ -43,25 +43,25 @@ def continuum_event(r_packet, time_explosion, plasma, chi_continuum_calculator):
 
     zrand = np.random.random()
 
-    (
-        chi_bf,
-        chi_bf_contributions,
-        current_continua,
-        chi_ff,
-    ) = chi_continuum_calculator(comov_nu, r_packet.current_shell_id)
+    # Does this need to be re-calculated?
+    continuum.calculate(comov_nu, r_packet.current_shell_id)
+    chi_continuum = continuum.chi_bf + continuum.chi_ff
 
-    cur_electron_density = numba_plasma.electron_density[
-        r_packet.current_shell_id
-    ]
+    # Since trace_packet differentiates between thomson scattering
+    # and other continuum processes, we need to renormalize
+    # our odds of selecting each continuum process given that
+    # we are not thomson scattering
+    # P(bf|~e_scat) = P(~e_scat|bf) P(bf) / P(~e_scat)
+    # P(~e_scat) = 1 - P(e_scat) = 1 - chi_e / chi_nu
+    # P(bf) = chi_bf / chi_nu
+    # P(bf|~e_scat) = chi_bf / chi_nu / (1 - chi_e / chi_nu)
+    # P(bf|~e_scat) = chi_bf / (chi_nu - chi_e)
+    # Since chi_nu is the sum of ff, bf, and e_scat opacities
+    # we can just set chi_continuum = chi_nu - chi_e = chi_bf + chi_ff
+    # alternatively, this could again just be selected in
+    # trace packet, it seems pretty straightforward to do
 
-    chi_e = cur_electron_density * SIGMA_THOMSON
-
-    chi_nu = chi_bf + chi_ff + chi_e
-
-
-    if zrand < SIGMA_THOMSON / chi_nu:
-        thomson_scatter(r_packet, time_explosion)
-    elif zrand < (SIGMA_THOMSON + chi_bf) / chi_nu:
+    if zrand < chi_bf / chi_continuum:
         bound_free_absorption(r_packet, time_explosion, plasma)
     else:
         free_free_absorption(r_packet, time_explosion)
