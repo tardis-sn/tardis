@@ -18,6 +18,7 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
 from tardis.montecarlo.montecarlo_numba.utils import get_random_mu
 from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
 
+
 def scatter(r_packet, time_explosion):
 
     old_doppler_factor = get_doppler_factor(
@@ -65,6 +66,30 @@ def continuum_event(r_packet, time_explosion, continuum):
         bound_free_absorption(r_packet, time_explosion, plasma)
     else:
         free_free_absorption(r_packet, time_explosion)
+
+
+def free_free_emission(r_packet, time_explosion, numba_plasma):
+    
+    inverse_doppler_factor = get_inverse_doppler_factor(
+        r_packet.r, r_packet.mu, time_explosion
+    )
+    comov_nu = numba_plasma.nu_ff_sampler(r_packet.current_shell_id)
+    r_packet.nu = comov_nu * inverse_doppler_factor
+
+    current_line_id = len(
+            numba_plasma.line_list_nu
+            ) - np.searchsorted(
+                    numba_plasma.line_list_nu[::-1], 
+                    r_packet.nu
+                    )
+
+    r_packet.next_line_id = current_line_id
+    if montecarlo_configuration.full_relativity:
+        r_packet.mu = angle_aberration_CMF_to_LF(
+            r_packet, time_explosion, r_packet.mu
+        )
+
+
 
 
 @njit(**njit_dict_no_parallel)
