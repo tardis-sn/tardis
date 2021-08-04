@@ -1002,7 +1002,7 @@ class FreeBoundFrequencySampler(ProcessingPlasmaProperty):
             [1, 0],
         )
         phot_nus = phot_nus.values
-        emissivities = fb_emmission_cdf.loc[level2continuum_idx.index].values
+        emissivities = fb_emission_cdf.loc[level2continuum_idx.index].values
 
         @njit(error_model="numpy", fastmath=True)
         def nu_fb(shell, continuum_id):
@@ -1014,7 +1014,7 @@ class FreeBoundFrequencySampler(ProcessingPlasmaProperty):
             zrand = np.random.random()
             idx = np.searchsorted(em[start:end], zrand, side="right")
 
-            return phot_nus[i] - (em[i] - zrand) / (em[i] - em[i-1]) * (phot_nus[i] - phot_nus[i-1])
+            return phot_nus[idx] - (em[idx] - zrand) / (em[idx] - em[idx-1]) * (phot_nus[idx] - phot_nus[idx-1])
 
         return nu_fb
 
