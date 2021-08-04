@@ -324,6 +324,7 @@ def create_continuum_class(chi_continuum_calculator):
             ("chi_bf_tot", float64),
             ("chi_bf_contributions", float64[:]),
             ("current_continua", int64[:]),
+            ("x_sect_bfs", float64[:]),
             ("chi_ff", float64),
     ]
     @jitclass(continuum_spec)
@@ -332,8 +333,9 @@ def create_continuum_class(chi_continuum_calculator):
         def __init__(self):
 
             self.chi_bf_tot = 0.0
-            self.chi_bf_contributions = np.empty(0)
+            self.chi_bf_contributions = np.empty(0, dtype=float64)
             self.current_continua = np.empty(0, dtype=int64)
+            self.x_sect_bfs = np.empty(0, dtype=float64)
             self.chi_ff = 0.0
 
         def calculate(self, nu, shell):
@@ -342,6 +344,7 @@ def create_continuum_class(chi_continuum_calculator):
             self.chi_bf_tot,
             self.chi_bf_contributions,
             self.current_continua,
+            self.x_sect_bfs,
             self.chi_ff,
             ) = chi_continuum_calculator(nu, shell)
 

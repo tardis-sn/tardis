@@ -44,6 +44,8 @@ __all__ = [
     "BoundFreeOpacityInterpolator",
     "FreeFreeOpacity",
     "ContinuumOpacityCalculator",
+    "FreeFreeFrequencySampler",
+    "FreeBoundFrequencySampler",
 ]
 
 

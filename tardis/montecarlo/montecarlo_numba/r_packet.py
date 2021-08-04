@@ -150,7 +150,13 @@ def trace_packet(
         current_continua,
         x_sect_bfs,
         chi_ff,
-    ) = continuum.chi_bf_tot, continuum.chi_bf_contributions, continuum.current_continua, continuum.chi_ff
+    ) = (
+            continuum.chi_bf_tot, 
+            continuum.chi_bf_contributions, 
+            continuum.current_continua, 
+            continuum.x_sect_bfs, 
+            continuum.chi_ff
+    )
 
     chi_continuum = chi_e + chi_bf + chi_ff
     distance_continuum = tau_event / chi_continuum
