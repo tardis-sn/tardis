@@ -18,6 +18,8 @@ use the Virtual Packet formalism. Increasing this number drastically increases c
 The ``iterations`` parameter describes the maximum number of Monte Carlo loops executed in a simulation before it ends. Convergence criteria can be used to make the simulation stop
 sooner when the convergence threshold has been reached (see :ref:`convergence`).
  
+.. _conv-config:
+
 Convergence Strategy
 --------------------
 
@@ -26,6 +28,8 @@ All convergence criteria can be specified separately for the three variables for
 (``t_inner``, ``t_rad``, ``ws``) by specifying subsections in the ``convergence_criteria`` of the same name. These then
 override the defaults. Two more schemas are presented that further explain the ``damped`` and
 ``custom`` convergence strategies:
+
+.. _damped-config:
 
 .. jsonschema:: schemas/montecarlo_definitions.yml#/definitions/convergence_strategy/damped
 
