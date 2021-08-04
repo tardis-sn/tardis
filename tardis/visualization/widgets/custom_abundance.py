@@ -234,6 +234,7 @@ class CustomAbundanceWidget:
         self.checks = [
             ipw.Checkbox(
                 indent=False, 
+                icon="lock",
                 layout=ipw.Layout(
                     width="30px",
                 )
@@ -283,18 +284,18 @@ class CustomAbundanceWidget:
         )
         self.btn_add_element.on_click(self.on_btn_add_element)
 
-        self.btn_apply = ipw.Button(
-            description=" Apply", 
-            icon="pencil-square-o",
-            layout = ipw.Layout(width="100px")
-        )
-        self.btn_apply.on_click(self.on_btn_apply)
+        # self.btn_apply = ipw.Button(
+        #     description=" Apply", 
+        #     icon="pencil-square-o",
+        #     layout = ipw.Layout(width="100px")
+        # )
+        # self.btn_apply.on_click(self.on_btn_apply)
         self.irs_shell_range = ipw.IntRangeSlider(
             value=[1, self.no_of_shells],
             min=1,
             max=self.no_of_shells,
             step=1,
-            description="Shell: ",
+            description="No. ",
             style={"description_width": "initial"},
             disabled=False,
             continuous_update=False,
@@ -362,6 +363,15 @@ class CustomAbundanceWidget:
             value="Linear"
         )
         self.tbs_scale.observe(self.tbs_scale_eventhandler, "value")
+
+        self.rbs_apply_type = ipw.RadioButtons(
+            options=[
+                "Only selected shell",
+                "A range of shells: "
+            ]
+        )
+        self.rbs_apply_type.observe(self.rbs_apply_type_eventhandler)
+        self._edit_multi_shells = False
 
 
     def update_input_item_value(self, index, value):
@@ -575,7 +585,11 @@ class CustomAbundanceWidget:
                 self.norm_warning.layout.visibility = "visible"
             
             self.abundance.iloc[item_index, self.shell_no-1] = obj.owner.value
-            self.updata_abundance_plot(item_index)
+
+            if self._edit_multi_shells:
+                self.apply_to_multiple_shells(item_index)
+            else: 
+                self.updata_abundance_plot(item_index)
 
     def check_eventhandler(self, obj):
         """The callback for the item in `checks` widget list. 
@@ -745,26 +759,17 @@ class CustomAbundanceWidget:
         self.input_symb.value = ""
     
     # Edit abundances in multiple shells
-    def on_btn_apply(self, obj):
-        """The callback for `btn_apply` button. Apply the clicked abundances to 
-        specified range of shell(s).
-
-        Parameters
-        ----------
-            obj : ipywidgets.widgets.widget_button.Button
-                The clicked button instance.
+    def apply_to_multiple_shells(self, item_index):
+        """Apply the changed abundances to specified range of shell(s).
         """
         start_index = self.irs_shell_range.value[0] - 1
         end_index = self.irs_shell_range.value[1]
-        applied_index = self.shell_no - 1
-        applied_mask = np.array(self.checked_list)
+        applied_shell_index = self.shell_no - 1
 
         abundance_np = self.abundance.values
-        abundance_np[applied_mask, start_index:end_index] = abundance_np[applied_mask, applied_index].reshape(-1, 1)
+        abundance_np[item_index, start_index:end_index] = abundance_np[item_index, applied_shell_index].reshape(-1, 1)
         
-        update_list = np.where(applied_mask == True)[0]
-        for i in update_list:
-            self.updata_abundance_plot(i)
+        self.updata_abundance_plot(item_index)
 
     def input_v_eventhandler(self, obj):
         """The callback for `input_v` widget. Judge whether the input
@@ -804,6 +809,13 @@ class CustomAbundanceWidget:
         
         self.to_csvy(path, overwrite)
 
+    def rbs_apply_type_eventhandler(self, obj):
+        if obj.new == obj.owner.options[0]: # Apply to the selected shell
+            self.irs_shell_range.disabled = True
+            self._edit_multi_shells = False
+        else:
+            self.irs_shell_range.disabled = False
+            self._edit_multi_shells = True
 
     def generate_abundance_density_plot(self):
         """Generate abundance and density plot in different shells.
@@ -821,7 +833,8 @@ class CustomAbundanceWidget:
                 name="Selected shell",
                 marker=dict(
                     color="rgb(253,205,172)",
-                )
+                ),
+                hoverinfo="none"
             )
         )
         
@@ -890,17 +903,19 @@ class CustomAbundanceWidget:
         box_add_element = ipw.HBox([self.input_symb, self.btn_add_element, self.symb_warning], layout=ipw.Layout(margin="0 0 0 80px"))
 
         help_note = ipw.HTML(
-            value="<p style=\"text-indent: 40px\"><b>Click the checkbox</b> to </p> <p style=\"text-indent: 40px\"> 1) lock the abundance you don't want to normalize </p> <p style=\"text-indent: 40px\"> 2) apply the abundance to other shells.</p>",
+            value="<p style=\"text-indent: 40px\">* Select a checkbox to lock the abundance. </p>"
+            "<p style=\"text-indent: 40px\"> The locked abundance will <b>not be normalized</b> </p>"
+            "<p style=\"text-indent: 40px\">after the click of 'Normalize' button. </p>",
             indent=True
         )
 
         box_norm = ipw.HBox([self.btn_norm, self.norm_warning])
 
-        box_apply = ipw.VBox([ipw.HBox([self.btn_apply, ipw.Label(value="choosed abundance(s) to")]), self.irs_shell_range],
-                            layout=ipw.Layout(margin="5px 0 0 50px"))
+        box_apply = ipw.VBox([ipw.Label(value="Apply abundance(s) to:"), self.rbs_apply_type, self.irs_shell_range],
+                            layout=ipw.Layout(margin="0 0 15px 50px"))
         
-        box_features = ipw.VBox([help_note, box_norm, box_apply])
-        box_abundance = ipw.VBox([ipw.HBox([self.box_editor, box_features]), box_add_element])
+        box_features = ipw.VBox([box_norm, help_note])
+        box_abundance = ipw.VBox([box_apply, ipw.HBox([self.box_editor, box_features]), box_add_element])
         box_density = self.density_editor.display()
 
         main_tab = ipw.Tab([box_abundance, box_density])
