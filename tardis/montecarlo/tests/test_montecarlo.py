@@ -818,6 +818,7 @@ Tests for Tracking RPacket Properties
     ],
 )
 def test_rpacket_tracking(index, seed, r, nu, mu, energy):
+    # Setup Montecarlo_Configuration.INITIAL_TRACKING_ARRAY_LENGTH
     mc.INITIAL_TRACKING_ARRAY_LENGTH = 10
 
     tracked_rpacket_properties = RPacketTracker()
@@ -830,6 +831,7 @@ def test_rpacket_tracking(index, seed, r, nu, mu, energy):
         energy=energy,
     )
 
+    # TearDown Montecarlo_Configuration.INITIAL_TRACKING_ARRAY_LENGTH
     mc.INITIAL_TRACKING_ARRAY_LENGTH = None
 
     tracked_rpacket_properties.set_properties(test_rpacket)

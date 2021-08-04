@@ -361,7 +361,7 @@ class RPacketTracker(object):
         self.shell_id = np.empty(self.length, dtype=np.int64)
         self.interact_id = 0
 
-    def set_properties(self, r_packet):
+    def track(self, r_packet):
         if self.interact_id >= self.length:
             temp_length = self.length * 2
             temp_index = np.empty(temp_length, dtype=np.int64)
