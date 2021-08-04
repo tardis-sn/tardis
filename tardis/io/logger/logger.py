@@ -30,6 +30,7 @@ LOGGING_LEVELS = {
     "CRITICAL": logging.CRITICAL,
 }
 DEFAULT_LOG_LEVEL = "CRITICAL"
+DEFAULT_SPECIFIC_STATE = False
 
 
 class FilterLog(object):
