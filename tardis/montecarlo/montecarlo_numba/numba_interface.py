@@ -9,7 +9,6 @@ from tardis import constants as const
 
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
-    montecarlo_numba,
 )
 
 
