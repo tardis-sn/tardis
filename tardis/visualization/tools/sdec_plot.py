@@ -1082,6 +1082,7 @@ class SDECPlotter:
         packets_mode="virtual",
         packet_wvl_range=None,
         distance=None,
+        observed_spectrum=None,
         show_modeled_spectrum=True,
         ax=None,
         figsize=(12, 7),
@@ -1105,6 +1106,8 @@ class SDECPlotter:
         distance : astropy.Quantity or None, optional
             Distance used to calculate flux instead of luminosity in the plot.
             It should have a length unit like m, Mpc, etc. Default value is None
+        observed_spectrum : tuple or list of two astropy quantities, optional
+            Option to plot the observed spectrum.
         show_modeled_spectrum : bool, optional
             Whether to show modeled spectrum in SDEC Plot. Default value is
             True
@@ -1175,6 +1178,33 @@ class SDECPlotter:
                 self.modeled_spectrum_luminosity,
                 "--b",
                 label=f"{packets_mode.capitalize()} Spectrum",
+                linewidth=1,
+            )
+
+        # Plot observed spectrum
+        if observed_spectrum:
+            observed_spectrum_wavelength = None
+            observed_spectrum_luminosity = None
+
+            if (
+                type(observed_spectrum[0]) is u.quantity.Quantity
+                and type(observed_spectrum[1]) is u.quantity.Quantity
+            ):
+                # If the observed spectrum is a list of quantities, then convert to wavelength and luminosity units
+                observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
+                observed_spectrum_luminosity = observed_spectrum[1].to(
+                    "erg / s"
+                )
+
+            else:
+                raise ValueError(
+                    "Both wavelength and luminosity should be astropy quantities."
+                )
+            self.ax.plot(
+                observed_spectrum_wavelength,
+                observed_spectrum_luminosity / self.lum_to_flux,
+                linestyle="--",
+                label="Observed Spectrum",
                 linewidth=1,
             )
 
@@ -1471,6 +1501,8 @@ class SDECPlotter:
         distance : astropy.Quantity or None, optional
             Distance used to calculate flux instead of luminosity in the plot.
             It should have a length unit like m, Mpc, etc. Default value is None
+        observed_spectrum : tuple or list of two astropy quantities, optional
+            Option to plot the observed spectrum.
         show_modeled_spectrum : bool, optional
             Whether to show modeled spectrum in SDEC Plot. Default value is
             True
@@ -1545,6 +1577,31 @@ class SDECPlotter:
                     ),
                     name=f"{packets_mode.capitalize()} Spectrum",
                 )
+            )
+
+        # Plot observed spectrum
+        if observed_spectrum:
+            observed_spectrum_wavelength = None
+            observed_spectrum_luminosity = None
+
+            if (
+                type(observed_spectrum[0]) is u.quantity.Quantity
+                and type(observed_spectrum[1]) is u.quantity.Quantity
+            ):
+                # If the observed spectrum is a list of quantities, then convert to wavelength and luminosity units
+                observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
+                observed_spectrum_luminosity = observed_spectrum[1].to(
+                    "erg / s"
+                )
+            else:
+                raise ValueError(
+                    "Both wavelength and luminosity should be astropy quantities."
+                )
+
+            self.fig.add_scatter(
+                x=observed_spectrum_wavelength,
+                y=observed_spectrum_luminosity / self.lum_to_flux,
+                name="Observed Spectrum",
             )
 
         # Plot photosphere
