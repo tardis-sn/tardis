@@ -12,5 +12,6 @@ In addition to the widgets, TARDIS can output information in several other forms
     to_hdf
     callback
     vpacket_logging
-    progress_bars
     rpacket_tracking
+    progress_bars
+
