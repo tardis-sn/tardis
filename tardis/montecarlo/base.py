@@ -265,7 +265,6 @@ class MontecarloRunner(HDFWriterMixin):
         plasma,
         no_of_packets,
         no_of_virtual_packets=0,
-        total_packets=0,
         nthreads=1,
         last_run=False,
         iteration=0,
@@ -284,6 +283,7 @@ class MontecarloRunner(HDFWriterMixin):
         nthreads : int
         last_run : bool
         total_iterations : int
+            The total number of iterations in the simulation.
 
         Returns
         -------
@@ -310,7 +310,6 @@ class MontecarloRunner(HDFWriterMixin):
             plasma,
             iteration,
             no_of_packets,
-            total_packets,
             total_iterations,
             show_progress_bar,
             self,
