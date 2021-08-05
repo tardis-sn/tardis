@@ -69,25 +69,27 @@ class FilterLog(object):
         return log_record.levelno == self.log_level
 
 
-def logging_state(log_level, tardis_config, specific):
+def logging_state(log_level, tardis_config, specific_log_level):
     """
     Function to set the logging configuration for the simulation output
     Called from within run_tardis()
-    Configured via functional arguments passed through run_tardis() - log_level & specific
-    Configured via YAML parameters under `debug` section - logging_level & specific_logging
+    Configured via functional arguments passed through run_tardis() - log_level & specific_log_level
+    Configured via YAML parameters under `debug` section - log_level & specific_log_level
 
     Parameters
     ----------
     log_level: str
         Allows to input the log level for the simulation
         Uses Python logging framework to determine the messages that will be output
-    specific: boolean
+    specific_log_level: boolean
         Allows to set specific logging levels. Logs of the `log_level` level would be output.
     """
 
     if "debug" in tardis_config:
-        specific = (
-            tardis_config["debug"]["specific"] if specific is None else specific
+        specific_log_level = (
+            tardis_config["debug"]["specific_log_level"]
+            if specific_log_level is None
+            else specific_log_level
         )
 
         logging_level = (
@@ -110,8 +112,8 @@ def logging_state(log_level, tardis_config, specific):
             tardis_config["debug"] = {"log_level": DEFAULT_LOG_LEVEL}
             logging_level = tardis_config["debug"]["log_level"]
 
-        if specific:
-            specific = specific
+        if specific_log_level:
+            specific_log_level = specific_log_level
 
     logging_level = logging_level.upper()
     if not logging_level in LOGGING_LEVELS:
@@ -134,7 +136,7 @@ def logging_state(log_level, tardis_config, specific):
             for logger in tardis_loggers:
                 logger.removeFilter(filter)
 
-    if specific:
+    if specific_log_level:
         filter_log = FilterLog(LOGGING_LEVELS[logging_level])
         for logger in tardis_loggers:
             logger.addFilter(filter_log)

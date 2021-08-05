@@ -26,7 +26,7 @@ def test_logging_simulation(atomic_data_fname, caplog):
 
 # Testing Configuration of Logger via run_tardis() Function
 @pytest.mark.parametrize(
-    ["log_level", "specific"],
+    ["log_level", "specific_log_level"],
     [
         ("Info", False),
         ("INFO", False),
@@ -47,7 +47,7 @@ class TestSimulationLogging:
     """
 
     def test_logging_config(
-        self, atomic_data_fname, caplog, log_level, specific
+        self, atomic_data_fname, caplog, log_level, specific_log_level
     ):
         config = Configuration.from_yaml(
             "tardis/io/tests/data/tardis_configv1_verysimple_logger.yml"
@@ -55,45 +55,53 @@ class TestSimulationLogging:
         config["atom_data"] = atomic_data_fname
 
         caplog.clear()
-        run_tardis(config=config, log_level=log_level, specific=specific)
+        run_tardis(
+            config=config,
+            log_level=log_level,
+            specific_log_level=specific_log_level,
+        )
         for record in caplog.records:
-            if specific == True:
+            if specific_log_level == True:
                 assert record.levelno == LOGGING_LEVELS[log_level.upper()]
             else:
                 assert record.levelno >= LOGGING_LEVELS[log_level.upper()]
 
     def test_logging_config_yaml(
-        self, atomic_data_fname, caplog, log_level, specific
+        self, atomic_data_fname, caplog, log_level, specific_log_level
     ):
         config = Configuration.from_yaml(
             "tardis/io/tests/data/tardis_configv1_verysimple_logger.yml"
         )
         config["atom_data"] = atomic_data_fname
         config["debug"]["log_level"] = log_level
-        config["debug"]["specific"] = specific
+        config["debug"]["specific_log_level"] = specific_log_level
 
         caplog.clear()
         run_tardis(config=config)
         for record in caplog.records:
-            if specific == True:
+            if specific_log_level == True:
                 assert record.levelno == LOGGING_LEVELS[log_level.upper()]
             else:
                 assert record.levelno >= LOGGING_LEVELS[log_level.upper()]
 
     def test_logging_both_specified(
-        self, atomic_data_fname, caplog, log_level, specific
+        self, atomic_data_fname, caplog, log_level, specific_log_level
     ):
         config = Configuration.from_yaml(
             "tardis/io/tests/data/tardis_configv1_verysimple_logger.yml"
         )
         config["atom_data"] = atomic_data_fname
         config["debug"]["log_level"] = log_level
-        config["debug"]["specific"] = specific
+        config["debug"]["specific_log_level"] = specific_log_level
 
         caplog.clear()
-        run_tardis(config=config, log_level=log_level, specific=specific)
+        run_tardis(
+            config=config,
+            log_level=log_level,
+            specific_log_level=specific_log_level,
+        )
         for record in caplog.records:
-            if specific == True:
+            if specific_log_level == True:
                 assert record.levelno == LOGGING_LEVELS[log_level.upper()]
             else:
                 assert record.levelno >= LOGGING_LEVELS[log_level.upper()]
