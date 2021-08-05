@@ -72,7 +72,7 @@ def single_packet_loop(
     )
 
     if montecarlo_configuration.RPACKET_TRACKING:
-        track_r_packet(r_packet, tracked_rpacket_properties)
+        tracked_rpacket_properties.track(r_packet)
 
     while r_packet.status == PacketStatus.IN_PROCESS:
         distance, interaction_type, delta_shell = trace_packet(
@@ -88,7 +88,7 @@ def single_packet_loop(
             )
 
             if montecarlo_configuration.RPACKET_TRACKING:
-                track_r_packet(r_packet, tracked_rpacket_properties)
+                tracked_rpacket_properties.track(r_packet)
 
         elif interaction_type == InteractionType.LINE:
             r_packet.last_interaction_type = 2
@@ -107,7 +107,7 @@ def single_packet_loop(
             )
 
             if montecarlo_configuration.RPACKET_TRACKING:
-                track_r_packet(r_packet, tracked_rpacket_properties)
+                tracked_rpacket_properties.track(r_packet)
 
         elif interaction_type == InteractionType.ESCATTERING:
             r_packet.last_interaction_type = 1
@@ -122,7 +122,7 @@ def single_packet_loop(
             )
 
             if montecarlo_configuration.RPACKET_TRACKING:
-                track_r_packet(r_packet, tracked_rpacket_properties)
+                tracked_rpacket_properties.track(r_packet)
 
     # check where else initialize line ID happens!
 
