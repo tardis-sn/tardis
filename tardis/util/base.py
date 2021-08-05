@@ -600,12 +600,12 @@ def is_notebook():
 
 
 if is_notebook():
-    iterations_pbar =  tqdm.notebook.tqdm(
+    iterations_pbar = tqdm.notebook.tqdm(
         desc="Iterations:",
         bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
     )
     iterations_pbar.container.close()
-    packet_pbar =  tqdm.notebook.tqdm(
+    packet_pbar = tqdm.notebook.tqdm(
         desc="Packets:   ",
         postfix="0",
         bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
@@ -622,6 +622,7 @@ else:
         postfix="0",
         bar_format="{desc:<}{bar:80}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
     )
+
 
 def update_packet_pbar(i, current_iteration, no_of_packets, total_iterations):
     """
