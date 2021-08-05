@@ -68,7 +68,7 @@ properties:
     type: object
     default: {}
     properties:
-      r_packet_tracking:
+      track_rpacket:
         type: boolean
         default: false
         description: Allows for Tracking the properties of the RPackets in Single Packet Loop

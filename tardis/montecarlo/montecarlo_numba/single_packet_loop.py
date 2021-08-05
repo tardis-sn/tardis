@@ -6,7 +6,6 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
     trace_packet,
     move_packet_across_shell_boundary,
     move_r_packet,
-    track_r_packet,
 )
 from tardis.montecarlo.montecarlo_numba.r_packet_transport import trace_packet, \
     move_r_packet, move_packet_across_shell_boundary
@@ -42,7 +41,7 @@ def single_packet_loop(
     numba_plasma,
     estimators,
     vpacket_collection,
-    tracked_rpacket_properties,
+    tracked_rpacket,
 ):
     """
     Parameters
@@ -74,7 +73,7 @@ def single_packet_loop(
     )
 
     if montecarlo_configuration.RPACKET_TRACKING:
-        tracked_rpacket_properties.track(r_packet)
+        tracked_rpacket.track(r_packet)
 
     while r_packet.status == PacketStatus.IN_PROCESS:
         distance, interaction_type, delta_shell = trace_packet(
@@ -90,7 +89,7 @@ def single_packet_loop(
             )
 
             if montecarlo_configuration.RPACKET_TRACKING:
-                tracked_rpacket_properties.track(r_packet)
+                tracked_rpacket.track(r_packet)
 
         elif interaction_type == InteractionType.LINE:
             r_packet.last_interaction_type = 2
@@ -109,7 +108,7 @@ def single_packet_loop(
             )
 
             if montecarlo_configuration.RPACKET_TRACKING:
-                tracked_rpacket_properties.track(r_packet)
+                tracked_rpacket.track(r_packet)
 
         elif interaction_type == InteractionType.ESCATTERING:
             r_packet.last_interaction_type = 1
@@ -124,7 +123,7 @@ def single_packet_loop(
             )
 
             if montecarlo_configuration.RPACKET_TRACKING:
-                tracked_rpacket_properties.track(r_packet)
+                tracked_rpacket.track(r_packet)
 
     # check where else initialize line ID happens!
 
