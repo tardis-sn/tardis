@@ -323,7 +323,7 @@ rpacket_collection_spec = [
 class RPacketCollection(object):
     def __init__(self):
         self.length = montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
-        self.seed = np.zeros(self.length, dtype=np.int64)
+        self.seed = np.empty(self.length, dtype=np.int64)
         self.index = np.empty(self.length, dtype=np.int64)
         self.status = np.empty(self.length, dtype=np.int64)
         self.r = np.empty(self.length, dtype=np.float64)
