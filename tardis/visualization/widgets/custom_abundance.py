@@ -382,7 +382,7 @@ class CustomAbundanceWidget:
             self.rbs_single_apply_eventhandler, "value"
         )
         self.rbs_multi_apply = ipw.RadioButtons(
-            options=["A range of shells: "],
+            options=["A range of shells "],
             index=None,
             layout=ipw.Layout(width="130px", margin="10px 0 10px 0"),
         )
@@ -440,9 +440,9 @@ class CustomAbundanceWidget:
             new = 1 - (locked_sum - front_value)
             self.abundance.iloc[index, self.shell_no - 1] = new
             self.update_input_item_value(index, new)
-            self.updata_abundance_plot(index)
+            self.update_abundance_plot(index)
 
-    def updata_abundance_plot(self, index):
+    def update_abundance_plot(self, index):
         y = self.abundance.iloc[index]
         self.fig.data[index + 2].y = np.append(y, y.iloc[-1])
 
@@ -532,7 +532,7 @@ class CustomAbundanceWidget:
         ):
             # New shell will overwrite the original shell that ends at v_end.
             v_scalar = np.delete(self.velocity, end_index).value
-            self.abundance.drop(end_index, 1, inplace=True)
+            self.abundance.drop(end_index - 1, 1, inplace=True)
         else:
             v_scalar = self.velocity.value
 
@@ -589,7 +589,7 @@ class CustomAbundanceWidget:
             self.fig.data[1].y = np.append(self.density[1:], self.density[-1])
             for i in range(self.no_of_elements):
                 self.fig.data[i + 2].x = self.velocity
-                self.updata_abundance_plot(i)
+                self.update_abundance_plot(i)
 
         self.dpd_shell_no.options = list(range(1, self.no_of_shells + 1))
         self.shell_no = start_index + 1
@@ -651,7 +651,7 @@ class CustomAbundanceWidget:
             self.abundance.iloc[item_index, self.shell_no - 1] = obj.owner.value
 
             if self.rbs_multi_apply.index is None:
-                self.updata_abundance_plot(item_index)
+                self.update_abundance_plot(item_index)
             else:
                 self.apply_to_multiple_shells(item_index)
 
@@ -733,6 +733,11 @@ class CustomAbundanceWidget:
         )
 
         self.read_abundance()
+
+        for i in range(self.no_of_elements):
+            # only selected shell
+            self.update_abundance_plot(i)
+            # self.apply_to_multiple_shells(i)
 
     @debounce(0.5)
     def input_symb_eventhandler(self, obj):
@@ -840,12 +845,11 @@ class CustomAbundanceWidget:
         end_index = self.irs_shell_range.value[1]
         applied_shell_index = self.shell_no - 1
 
-        abundance_np = self.abundance.values
-        abundance_np[item_index, start_index:end_index] = abundance_np[
-            item_index, applied_shell_index
-        ].reshape(-1, 1)
+        self.abundance.iloc[
+            item_index, start_index:end_index
+        ] = self.abundance.iloc[item_index, applied_shell_index]
 
-        self.updata_abundance_plot(item_index)
+        self.update_abundance_plot(item_index)
 
     def input_v_eventhandler(self, obj):
         """The callback for `input_v` widget. Judge whether the input
