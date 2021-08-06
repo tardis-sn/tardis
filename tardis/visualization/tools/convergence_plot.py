@@ -162,6 +162,7 @@ class ConvergencePlots(object):
             },
             height=450,
             legend_title_text="Iterations",
+            legend_traceorder="reversed",
             margin=dict(
                 l=10, r=135, b=25, t=25, pad=0
             ),  # reduce whitespace surrounding the plot and increase right indentation to align with the t_inner and luminosity plot
