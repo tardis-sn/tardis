@@ -19,7 +19,7 @@ def transition_colors(length, name="Blues"):
     ----------
     length : int
         The length of the colorscale.
-    name : string, default: 'jet', optional
+    name : string, default: 'Blues', optional
         Name of the colorscale.
 
     Returns
@@ -51,7 +51,7 @@ class ConvergencePlots(object):
         Dictionary used to override default plot properties of plasma plots.
     t_inner_luminosities_config : dict, optional
         Dictionary used to override default plot properties of the inner boundary temperature and luminosity plots.
-    plasma_cmap : str, default: 'jet', optional
+    plasma_cmap : str, default: 'Blues', optional
         String defining the cmap used in plasma plots.
     t_inner_luminosities_colors : str or list, optional
         String defining cmap for luminosity and inner boundary temperature plot.
@@ -87,12 +87,10 @@ class ConvergencePlots(object):
             ]
 
         if "plasma_cmap" in kwargs:
-            self.plasma_colorscale = transition_colors(
-                name=kwargs["plasma_cmap"], length=self.iterations
-            )
+            self.plasma_colorscale_string = kwargs["plasma_cmap"]
         else:
-            # default color scale is jet
-            self.plasma_colorscale = transition_colors(length=self.iterations)
+            # default color scale is Blues
+            self.plasma_colorscale_string = "Blues"
 
         if "t_inner_luminosities_colors" in kwargs:
             # use cmap if string
@@ -312,6 +310,9 @@ class ConvergencePlots(object):
         # convert velocity to km/s
         x = self.iterable_data["velocity"].to(u.km / u.s).value.tolist()
 
+        self.plasma_colorscale = transition_colors(
+            name=self.plasma_colorscale_string, length=self.current_iteration
+        )
         # add luminosity data in hover data in plasma plots
         customdata = len(x) * [
             "<br>"
@@ -324,38 +325,43 @@ class ConvergencePlots(object):
             + "Absorbed Luminosity: "
             + f'{self.value_data["Requested"][-1]:.4g}'
         ]
-
-        # add a radiation temperature vs shell velocity trace to the plasma plot
-        self.plasma_plot.add_scatter(
-            x=x,
-            y=self.iterable_data["t_rad"],
-            line_color=self.plasma_colorscale[self.current_iteration - 1],
-            row=1,
-            col=1,
-            name=self.current_iteration,
-            legendgroup=f"group-{self.current_iteration}",
-            showlegend=False,
-            customdata=customdata,
-            hovertemplate="<b>Y</b>: %{y:.3f} at <b>X</b> = %{x:,.0f}%{customdata}",
-        )
-
-        # add a dilution factor vs shell velocity trace to the plasma plot
-        self.plasma_plot.add_scatter(
-            x=x,
-            y=self.iterable_data["w"],
-            line_color=self.plasma_colorscale[self.current_iteration - 1],
-            row=1,
-            col=2,
-            legendgroup=f"group-{self.current_iteration}",
-            name=self.current_iteration,
-            customdata=customdata,
-            hovertemplate="<b>Y</b>: %{y:.3f} at <b>X</b> = %{x:,.0f}%{customdata}",
-        )
-        
         with self.plasma_plot.batch_update():
+            # add a radiation temperature vs shell velocity trace to the plasma plot
+            self.plasma_plot.add_scatter(
+                x=x,
+                y=self.iterable_data["t_rad"],
+                line_color=self.plasma_colorscale[-1],
+                row=1,
+                col=1,
+                name=self.current_iteration,
+                legendgroup=f"group-{self.current_iteration}",
+                showlegend=False,
+                customdata=customdata,
+                hovertemplate="<b>Y</b>: %{y:.3f} at <b>X</b> = %{x:,.0f}%{customdata}",
+            )
+
+            # add a dilution factor vs shell velocity trace to the plasma plot
+            self.plasma_plot.add_scatter(
+                x=x,
+                y=self.iterable_data["w"],
+                line_color=self.plasma_colorscale[-1],
+                row=1,
+                col=2,
+                legendgroup=f"group-{self.current_iteration}",
+                name=self.current_iteration,
+                customdata=customdata,
+                hovertemplate="<b>Y</b>: %{y:.3f} at <b>X</b> = %{x:,.0f}%{customdata}",
+            )
+            for trace_t_rad, trace_w, line_color in zip(
+                self.plasma_plot.data[0::2][1:-1],
+                self.plasma_plot.data[1::2][1:-1],
+                self.plasma_colorscale,
+            ):
+                trace_t_rad.line.color = line_color
+                trace_w.line.color = line_color
+
             for trace in self.plasma_plot.data[:-2]:
-                trace.opacity = 0.35
-                
+                trace.opacity = 0.5
 
     def update_t_inner_luminosities_plot(self):
         """Update the t_inner and luminosity convergence plots every iteration."""
