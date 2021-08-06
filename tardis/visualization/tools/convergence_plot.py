@@ -11,7 +11,7 @@ from traitlets import TraitError
 from astropy import units as u
 
 
-def transition_colors(length, name="jet"):
+def transition_colors(length, name="Blues"):
     """
     Create colorscale for convergence plots, returns a list of colors.
 
@@ -351,6 +351,11 @@ class ConvergencePlots(object):
             customdata=customdata,
             hovertemplate="<b>Y</b>: %{y:.3f} at <b>X</b> = %{x:,.0f}%{customdata}",
         )
+        
+        with self.plasma_plot.batch_update():
+            for trace in self.plasma_plot.data[:-2]:
+                trace.opacity = 0.35
+                
 
     def update_t_inner_luminosities_plot(self):
         """Update the t_inner and luminosity convergence plots every iteration."""
