@@ -19,12 +19,12 @@ def calculate_distance_radial(photon, r_inner, r_outer):
     Parameters
     ----------
     photon : GXPhoton object
-    r_inner : dtype float
-    r_outer : dtype float
+    r_inner : float
+    r_outer : float
 
     Returns
     -------
-    distance : dtype float
+    distance : float
 
     """
     # TODO: Maybe only calculate distances that are strictly needed instead of all four by default?
@@ -63,13 +63,13 @@ def distance_trace(
     photon : GXPhoton object
     inner_radii : One dimensional Numpy array, dtype float
     outer_radii : One dimensional Numpy array, dtype float
-    total_opacity : dtype float
-    ejecta_epoch : dtype float
+    total_opacity : float
+    ejecta_epoch : float
 
     Returns
     -------
-    distance_interaction : dtype float
-    distance_boundary : dtype float
+    distance_interaction : float
+    distance_boundary : float
 
     """
     distance_boundary = calculate_distance_radial(
@@ -89,7 +89,7 @@ def move_photon(photon, distance):
     Parameters
     ----------
     photon : GXPhoton object
-    distance : dtype float
+    distance : float
 
     Returns
     -------
@@ -108,51 +108,6 @@ def move_photon(photon, distance):
     photon.location.theta = theta.value + 0.5 * np.pi
     photon.location.phi = phi.value
     return photon
-
-
-def density_sampler(radii, mass_ratio):
-    """
-    Randomly samples the density of the model shells
-
-    Parameters
-    ----------
-    radii : GammaRay object
-    mass_ratio : dtype float
-
-    Returns
-    -------
-    radius : dtype float
-    index : dtype int
-
-    """
-    z = np.random.random()
-
-    mass_ratio_sorted_indices = np.argsort(mass_ratio)
-    index = mass_ratio_sorted_indices[
-        np.searchsorted(mass_ratio, z, sorter=mass_ratio_sorted_indices)
-    ]
-
-    return radii[index], index
-
-
-def get_shell(radius, outer_radii):
-    """Returns the shell index at a given radius
-
-    Parameters
-    ----------
-    radius : float
-        Radius of interest
-    outer_radii : One-dimensional Numpy Array, dtype float
-        Outer radii of shells
-
-    Returns
-    -------
-    int
-        Shell index corresponding to radius
-    """
-    shell_inner = np.searchsorted(outer_radii, radius, side="left")
-
-    return shell_inner
 
 
 def compute_required_photons_per_shell(
@@ -184,8 +139,10 @@ def compute_required_photons_per_shell(
     norm_shell_masses = shell_masses / np.sum(shell_masses)
     abundance_dict = {}
     nuclide_mass_dict = {}
-    for index, row in raw_isotope_abundance.iterrows():
-        isotope_string = atomic_number2element_symbol(index[0]) + str(index[1])
+    for (atom_number, atom_mass), row in raw_isotope_abundance.iterrows():
+        isotope_string = atomic_number2element_symbol(atom_number) + str(
+            atom_mass
+        )
         store_decay_radiation(isotope_string, force_update=False)
         abundance_dict[isotope_string] = row * norm_shell_masses
         nuclide_mass_dict[isotope_string] = row * shell_masses

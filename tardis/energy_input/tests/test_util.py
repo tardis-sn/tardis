@@ -4,10 +4,8 @@ import numpy.testing as npt
 import numpy as np
 
 import tardis.energy_input.util as util
+from tardis.energy_input.util import R_ELECTRON_SQUARED
 from tardis import constants as const
-
-# this is terrible practice
-R_ELECTRON = 2.8179403227e-15
 
 
 @pytest.mark.parametrize(
@@ -59,7 +57,7 @@ def test_klein_nishina(energy, theta_C):
     kappa = util.kappa_calculation(energy)
 
     expected = (
-        R_ELECTRON
+        R_ELECTRON_SQUARED.value
         / 2
         * (1.0 + kappa * (1.0 - np.cos(theta_C))) ** -2.0
         * (
@@ -75,11 +73,6 @@ def test_klein_nishina(energy, theta_C):
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_compton_theta_distribution():
-    assert False
-
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_calculate_energy_per_mass():
     assert False
 
 

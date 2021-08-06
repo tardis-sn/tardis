@@ -7,7 +7,6 @@ from tardis.energy_input.util import SphericalVector, GXPhoton, GXPhotonStatus
 from tardis.energy_input.gamma_ray_grid import (
     distance_trace,
     move_photon,
-    get_shell,
     compute_required_photons_per_shell,
 )
 from tardis.energy_input.energy_source import (
@@ -29,12 +28,11 @@ from tardis.energy_input.gamma_ray_interactions import (
 from tardis.energy_input.util import (
     get_random_theta_photon,
     get_random_phi_photon,
+    ELECTRON_MASS_ENERGY_KEV,
+    BOUNDARY_THRESHOLD,
 )
 from tardis import constants as const
 from astropy.coordinates import cartesian_to_spherical
-
-ELECTRON_MASS_ENERGY_KEV = 511.0
-BOUNDARY_THRESHOLD = 1e-7
 
 
 def initialize_photons(
@@ -288,7 +286,9 @@ def main_gamma_ray_loop(num_photons, model):
                 )
 
                 photon = move_photon(photon, distance_interaction)
-                photon.shell = get_shell(photon.location.r, outer_velocities)
+                photon.shell = np.searchsorted(
+                    outer_velocities, photon.location.r, side="left"
+                )
                 photon.time_current += (
                     distance_interaction / const.c.cgs.value * ejecta_epoch
                 )
@@ -347,7 +347,9 @@ def main_gamma_ray_loop(num_photons, model):
                 photon.time_current += (
                     distance_boundary / const.c.cgs.value * ejecta_epoch
                 )
-                photon.shell = get_shell(photon.location.r, outer_velocities)
+                photon.shell = np.searchsorted(
+                    outer_velocities, photon.location.r, side="left"
+                )
 
             if photon.shell > len(ejecta_density) - 1:
                 escape_energy.append(photon.energy)

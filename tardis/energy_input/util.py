@@ -4,8 +4,10 @@ import tardis.constants as const
 import numpy as np
 from astropy.coordinates import spherical_to_cartesian
 
-R_ELECTRON = const.a0.cgs * const.alpha.cgs ** 2.0
+R_ELECTRON_SQUARED = const.a0.cgs * const.alpha.cgs ** 2.0
 KEV2ERG = (1000 * u.eV).to("erg").value
+ELECTRON_MASS_ENERGY_KEV = 511.0
+BOUNDARY_THRESHOLD = 1e-7
 
 
 class GXPhotonStatus(IntEnum):
@@ -103,8 +105,7 @@ def kappa_calculation(energy):
     kappa : float
 
     """
-    k = energy / 511.0
-    return k
+    return energy / ELECTRON_MASS_ENERGY_KEV
 
 
 def euler_rodrigues(theta, direction):
@@ -177,6 +178,13 @@ def klein_nishina(energy, theta_C):
     """
     Calculates the Klein-Nishina equation
 
+    https://en.wikipedia.org/wiki/Klein%E2%80%93Nishina_formula
+
+    .. math::
+        \frac{r_e}{2} [1 + \kappa (1 - \cos\theta_C)]^{-2} \left( 1 + \cos^2\theta_C + \frac{\kappa^2 (1 - \cos\theta_C)^2}{1 + \kappa(1 - \cos\theta_C)}\right)
+
+    where :math:`\kappa = E / (m_e c^2)`
+
     Parameters
     ----------
     energy : float
@@ -190,7 +198,7 @@ def klein_nishina(energy, theta_C):
     """
     kappa = kappa_calculation(energy)
     return (
-        R_ELECTRON.value
+        R_ELECTRON_SQUARED.value
         / 2
         * (1.0 + kappa * (1.0 - np.cos(theta_C))) ** -2.0
         * (
@@ -257,13 +265,13 @@ def convert_half_life_to_astropy_units(half_life_string):
 
     Returns
     -------
-    astropy unit
+    astropy Quantity
         Half-life in seconds
     """
-    [value, unit] = half_life_string.split(" ")
+    value, unit = half_life_string.split(" ")
     try:
-        [nominal_value, magnitude] = value.split("×")
-        [base, exponent] = magnitude.split("+")
+        nominal_value, magnitude = value.split("×")
+        base, exponent = magnitude.split("+")
         nominal_value = float(nominal_value) * float(base) ** float(exponent)
     except ValueError:
         nominal_value = float(value)
@@ -273,24 +281,6 @@ def convert_half_life_to_astropy_units(half_life_string):
     return half_life_with_unit.to(u.s)
 
 
-def calculate_energy_per_mass(energy, mass):
-    """Calculates energy in erg / g
-
-    Parameters
-    ----------
-    energy : float64
-        Energy in KeV
-    mass : float64
-        Mass in grams
-
-    Returns
-    -------
-    float64
-        Energy density in erg / g
-    """
-    return energy * KEV2ERG / mass
-
-
 def normalize(vector):
     """
     Normalizes a vector in cartesian coordinates
@@ -298,15 +288,14 @@ def normalize(vector):
     Parameters
     ----------
     vector : One-dimensional Numpy Array, dtype float
+        Input vector
 
     Returns
     -------
-    normalized_vector : One-dimensional Numpy Array, dtype float
+    One-dimensional Numpy Array, dtype float
+        Normalized vector
     """
-    normalized_vector = vector / np.sqrt(
-        vector[0] ** 2 + vector[1] ** 2 + vector[2] ** 2
-    )
-    return normalized_vector
+    return vector / np.linalg.norm(vector)
 
 
 def get_perpendicular_vector(original_direction):

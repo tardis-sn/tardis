@@ -7,7 +7,6 @@ from tardis.energy_input.gamma_ray_grid import (
     calculate_distance_radial,
     distance_trace,
     move_photon,
-    density_sampler,
 )
 
 
@@ -49,16 +48,6 @@ def test_move_photon(basic_gamma_ray):
     npt.assert_almost_equal(actual.location.r, expected_r)
     npt.assert_almost_equal(actual.location.theta, expected_theta)
     npt.assert_almost_equal(actual.location.phi, expected_phi)
-
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_density_sampler():
-    assert False
-
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_get_shell():
-    assert False
 
 
 @pytest.mark.xfail(reason="To be implemented")
