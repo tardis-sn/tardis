@@ -12,7 +12,7 @@ def run_tardis(
     packet_source=None,
     simulation_callbacks=[],
     virtual_packet_logging=False,
-    show_cplots=True,
+    show_convergence_plots=True,
     log_level=None,
     specific_log_level=None,
     **kwargs,
@@ -50,7 +50,7 @@ def run_tardis(
         If True, only show the log messages from a particular log level, set by `log_level`.
         If False, the logger shows log messages belonging to the level set and all levels above it in severity.
         The default value None means that the `specific_log_level` specified in the configuration file will be used.
-    show_cplots : bool, default: True, optional
+    show_convergence_plots : bool, default: True, optional
         Option to enable tardis convergence plots.
     **kwargs : dict, optional
         Optional keyword arguments including those
@@ -81,8 +81,8 @@ def run_tardis(
             )
             tardis_config = Configuration.from_config_dict(config)
 
-    if not isinstance(show_cplots, bool):
-        raise TypeError("Expected bool in show_cplots argument")
+    if not isinstance(show_convergence_plots, bool):
+        raise TypeError("Expected bool in show_convergence_plots argument")
 
     logging_state(log_level, tardis_config, specific_log_level)
 
@@ -100,7 +100,7 @@ def run_tardis(
         packet_source=packet_source,
         atom_data=atom_data,
         virtual_packet_logging=virtual_packet_logging,
-        show_cplots=show_cplots,
+        show_convergence_plots=show_convergence_plots,
         **kwargs,
     )
     for cb in simulation_callbacks:
