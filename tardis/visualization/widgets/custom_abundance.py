@@ -22,6 +22,7 @@ from tardis.io.model_reader import (
     parse_csv_abundances,
 )
 from tardis.util.base import atomic_number2element_symbol, quantity_linspace
+from tardis.visualization.tools.convergence_plot import transition_colors
 
 import asyncio
 
@@ -546,10 +547,8 @@ class CustomAbundanceWidget:
         self.density = (
             np.interp(
                 v_scalar,
-                self.velocity.value,
-                density.value,
-                left=density[0].value,
-                right=density[-1].value,
+                self.velocity[1:].value,
+                density[1:].value,
             )
             * density.unit
         )
@@ -939,13 +938,14 @@ class CustomAbundanceWidget:
             ),
         )
 
+        self.colorscale = transition_colors(20, "tab20")
         for i in range(self.no_of_elements):
             self.fig.add_trace(
                 go.Scatter(
                     x=self.velocity,
                     y=np.append(data.iloc[i], data.iloc[i, -1]),
                     mode="lines+markers",
-                    line={"shape": "hv"},
+                    line=dict(shape="hv", color=self.colorscale[i]),
                     name=self.elements[i],
                 ),
             )
