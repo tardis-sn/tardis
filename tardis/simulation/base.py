@@ -174,9 +174,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
 
             if "export_convergence_plots" in convergence_plots_kwargs:
-                if not isinstance(convergence_plots_kwargs["export_convergence_plots"], bool):
-                    raise TypeError("Expected bool in export_convergence_plots argument")
-                self.export_convergence_plots = convergence_plots_kwargs["export_convergence_plots"]
+                if not isinstance(
+                    convergence_plots_kwargs["export_convergence_plots"], bool
+                ):
+                    raise TypeError(
+                        "Expected bool in export_convergence_plots argument"
+                    )
+                self.export_convergence_plots = convergence_plots_kwargs[
+                    "export_convergence_plots"
+                ]
             else:
                 self.export_convergence_plots = False
 
@@ -438,7 +444,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 value=self.model.t_inner.value,
                 item_type="value",
             )
-            self.convergence_plots.update(export_convergence_plots=self.export_convergence_plots, last=True)
+            self.convergence_plots.update(
+                export_convergence_plots=self.export_convergence_plots,
+                last=True,
+            )
 
         logger.info(
             f"Simulation finished in {self.iterations_executed:d} iterations "
@@ -637,7 +646,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             "export_convergence_plots",
         ]
         convergence_plots_kwargs = {}
-        for item in set(convergence_plots_config_options).intersection(kwargs.keys()):
+        for item in set(convergence_plots_config_options).intersection(
+            kwargs.keys()
+        ):
             convergence_plots_kwargs[item] = kwargs[item]
 
         luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(
