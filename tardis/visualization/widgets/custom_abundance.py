@@ -1,6 +1,8 @@
 """Class to create and display Custom Abundance Widget."""
 import os
 import math
+from ipywidgets.widgets.widget_layout import Layout
+from ipywidgets.widgets.widget_selection import RadioButtons
 import numpy as np
 import pandas as pd
 import ipywidgets as ipw
@@ -297,9 +299,8 @@ class CustomAbundanceWidget:
             step=1,
             description="No. ",
             style={"description_width": "initial"},
-            disabled=False,
             continuous_update=False,
-            orientation="horizontal",
+            layout=ipw.Layout(margin="5px 0 0 0")
         )
 
         self.btn_add_shell = ipw.Button(
@@ -364,14 +365,18 @@ class CustomAbundanceWidget:
         )
         self.tbs_scale.observe(self.tbs_scale_eventhandler, "value")
 
-        self.rbs_apply_type = ipw.RadioButtons(
-            options=[
-                "Only selected shell",
-                "A range of shells: "
-            ]
+        self.rbs_single_apply = ipw.RadioButtons(
+            options=["Only selected shell"],
+            layout=ipw.Layout(margin="10px 0 0 0")
         )
-        self.rbs_apply_type.observe(self.rbs_apply_type_eventhandler)
-        self._edit_multi_shells = False
+        self.rbs_single_apply.observe(self.rbs_single_apply_eventhandler, "value")
+        self.rbs_multi_apply = ipw.RadioButtons(
+            options=["A range of shells: "],
+            index=None,
+            layout=ipw.Layout(width="130px", margin="10px 0 10px 0")
+        )
+        self.rbs_multi_apply.observe(self.rbs_multi_apply_eventhandler, "value")
+
 
 
     def update_input_item_value(self, index, value):
@@ -586,10 +591,10 @@ class CustomAbundanceWidget:
             
             self.abundance.iloc[item_index, self.shell_no-1] = obj.owner.value
 
-            if self._edit_multi_shells:
-                self.apply_to_multiple_shells(item_index)
-            else: 
+            if self.rbs_multi_apply.index is None:
                 self.updata_abundance_plot(item_index)
+            else: 
+                self.apply_to_multiple_shells(item_index)
 
     def check_eventhandler(self, obj):
         """The callback for the item in `checks` widget list. 
@@ -768,7 +773,7 @@ class CustomAbundanceWidget:
 
         abundance_np = self.abundance.values
         abundance_np[item_index, start_index:end_index] = abundance_np[item_index, applied_shell_index].reshape(-1, 1)
-        
+
         self.updata_abundance_plot(item_index)
 
     def input_v_eventhandler(self, obj):
@@ -809,13 +814,17 @@ class CustomAbundanceWidget:
         
         self.to_csvy(path, overwrite)
 
-    def rbs_apply_type_eventhandler(self, obj):
-        if obj.new == obj.owner.options[0]: # Apply to the selected shell
-            self.irs_shell_range.disabled = True
-            self._edit_multi_shells = False
-        else:
-            self.irs_shell_range.disabled = False
-            self._edit_multi_shells = True
+    def rbs_single_apply_eventhandler(self, obj):
+        self.rbs_multi_apply.unobserve(self.rbs_multi_apply_eventhandler, "value")
+        self.rbs_multi_apply.index = None
+        self.rbs_multi_apply.observe(self.rbs_multi_apply_eventhandler, "value")
+        self.irs_shell_range.disabled = True
+
+    def rbs_multi_apply_eventhandler(self, obj):
+        self.rbs_single_apply.unobserve(self.rbs_single_apply_eventhandler, "value")
+        self.rbs_single_apply.index = None
+        self.rbs_single_apply.observe(self.rbs_single_apply_eventhandler, "value")
+        self.irs_shell_range.disabled = False
 
     def generate_abundance_density_plot(self):
         """Generate abundance and density plot in different shells.
@@ -903,16 +912,23 @@ class CustomAbundanceWidget:
         box_add_element = ipw.HBox([self.input_symb, self.btn_add_element, self.symb_warning], layout=ipw.Layout(margin="0 0 0 80px"))
 
         help_note = ipw.HTML(
-            value="<p style=\"text-indent: 40px\">* Select a checkbox to lock the abundance. </p>"
-            "<p style=\"text-indent: 40px\"> The locked abundance will <b>not be normalized</b> </p>"
-            "<p style=\"text-indent: 40px\">after the click of 'Normalize' button. </p>",
+            value="<p style=\"text-indent: 40px\">* Select a checkbox to lock the "
+            "abundance of corresponding element. </p>"
+            "<p style=\"text-indent: 40px\"> On clicking the \"Normalize\" button, "
+            "the locked abundance(s) will <b>not be normalized</b>. </p>",
             indent=True
         )
 
         box_norm = ipw.HBox([self.btn_norm, self.norm_warning])
 
-        box_apply = ipw.VBox([ipw.Label(value="Apply abundance(s) to:"), self.rbs_apply_type, self.irs_shell_range],
-                            layout=ipw.Layout(margin="0 0 15px 50px"))
+        box_apply = ipw.VBox(
+            [
+                ipw.Label(value="Apply abundance(s) to:"), 
+                self.rbs_single_apply, 
+                ipw.HBox([self.rbs_multi_apply, self.irs_shell_range])
+            ],
+            layout=ipw.Layout(margin="0 0 15px 50px")
+        )
         
         box_features = ipw.VBox([box_norm, help_note])
         box_abundance = ipw.VBox([box_apply, ipw.HBox([self.box_editor, box_features]), box_add_element])
