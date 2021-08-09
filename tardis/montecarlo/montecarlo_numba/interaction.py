@@ -16,7 +16,10 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
     InteractionType,
 )
 from tardis.montecarlo.montecarlo_numba.utils import get_random_mu
-from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
+from tardis.montecarlo.montecarlo_numba.macro_atom import (
+        macro_atom, MacroAtomTransitionType
+)
+
 
 
 def scatter(r_packet, time_explosion):
@@ -35,7 +38,8 @@ def scatter(r_packet, time_explosion):
  
     return comov_nu, inverse_new_doppler_factor
 
-def continuum_event(r_packet, time_explosion, continuum):
+# Maybe make the continuum selection a method of the continuum?
+def continuum_event(r_packet, time_explosion, continuum, plasma):
 
     comov_nu, inverse_new_doppler_factor = scatter(r_packet, time_explosion)
 
@@ -46,33 +50,73 @@ def continuum_event(r_packet, time_explosion, continuum):
 
     # Does this need to be re-calculated?
     continuum.calculate(comov_nu, r_packet.current_shell_id)
-    chi_continuum = continuum.chi_bf + continuum.chi_ff
 
-    # Since trace_packet differentiates between thomson scattering
-    # and other continuum processes, we need to renormalize
-    # our odds of selecting each continuum process given that
-    # we are not thomson scattering
-    # P(bf|~e_scat) = P(~e_scat|bf) P(bf) / P(~e_scat)
-    # P(~e_scat) = 1 - P(e_scat) = 1 - chi_e / chi_nu
-    # P(bf) = chi_bf / chi_nu
-    # P(bf|~e_scat) = chi_bf / chi_nu / (1 - chi_e / chi_nu)
-    # P(bf|~e_scat) = chi_bf / (chi_nu - chi_e)
-    # Since chi_nu is the sum of ff, bf, and e_scat opacities
-    # we can just set chi_continuum = chi_nu - chi_e = chi_bf + chi_ff
-    # alternatively, this could again just be selected in
-    # trace packet, it seems pretty straightforward to do
+    # Need to determine if a collisional process or not.  If not:
 
-    if zrand < chi_bf / chi_continuum:
-        bound_free_absorption(r_packet, time_explosion, plasma)
+    # This somehow determines the transition type and continuum id needed
+    # but does not sample new frequencies
+    destination_level_idx = plasma.determine_continuum_macro_activation_idx(
+            comov_nu,
+            continuum.chi_bf_tot,
+            continuum.chi_ff,
+            continuum.chi_bf_contributions,
+            continuum.current_continua
+            )
+
+    transition_id, transition_type = macro_atom(
+            destination_level_idx, 
+            r_packet.current_shell_id, 
+            numba_plasma
+            )
+
+    # Then use this to get a transition id from the macroatom 
+    if transition_type == MacroAtomTransitionType.FF_EMISSION: 
+        free_free_emission(r_packet, time_explosion, numba_plasma)
+    elif transition_type = MacroAtomTransitionType.BF_EMISSION:
+        bound_free_emission(r_packet, 
+                time_explosion, 
+                numba_plasma, 
+                continuum, 
+                transition_id)
+
+    macro_atom(destination_level_id, current_shell_id, numba_plasma)
+
+
+# TODO: numbafy | Add cooling rates to numba plasma
+def get_emission_probabilities(plasma, shell):
+    
+    C_fb = sim.plasma.cool_rate_fb_tot.iloc[0, shell]
+    C_ff = sim.plasma.cool_rate_ff.iloc[0, shell]
+    C_cl = sim.plasma.cool_rate_adiabatic.iloc[0, shell]
+    C_cl += sim.plasma.cool_rate_coll_ion.iloc[0, shell]
+    
+    pi_fb = C_fb / (C_fb + C_ff + C_cl)
+    pi_ff = C_ff / (C_fb + C_ff + C_cl)
+    
+    return pi_fb, pi_ff
+
+# TODO: numbafy
+def free_free_absorption(r_packet, numba_plasma):
+    # Do the k_packet thing, but don't actually make one
+    
+    pi_fb, pi_ff = get_emission_probabilities(numba_plasma, shell)
+    
+    # a little hack
+    z = np.random.random() - pi_fb
+    if z < 0:
+        free_bound_emission(r_packet, time_explosion, numba_plasma) 
+    elif z < pi_ff:
+        free_free_emission(r_packet, time_explosion, numba_plasma)
     else:
-        free_free_absorption(r_packet, time_explosion)
-
+        macroatom()
 
 def free_free_emission(r_packet, time_explosion, numba_plasma):
     
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
+    # Need to get the sampler into numba somehow
+    # maybe I'll update the numba_plasma?
     comov_nu = numba_plasma.nu_ff_sampler(r_packet.current_shell_id)
     r_packet.nu = comov_nu * inverse_doppler_factor
 
@@ -89,7 +133,33 @@ def free_free_emission(r_packet, time_explosion, numba_plasma):
             r_packet, time_explosion, r_packet.mu
         )
 
+def get_current_continuum_id(nu, continuum, plasma):
 
+    # TODO:
+    continuum_id = 0
+    return continuum_id
+
+def free_bound_emission(r_packet, time_explosion, numba_plasma, continuum, continuum_d):
+
+    inverse_doppler_factor = get_inverse_doppler_factor(
+        r_packet.r, r_packet.mu, time_explosion
+    )
+
+    comov_nu = numba_plasma.nu_fb_sampler(
+            r_packet.current_shell_id, 
+            continuum_id
+            )
+    
+    r_packet.nu = comov_nu * inverse_doppler_factor
+
+    current_line_id = len(
+            numba_plasma.line_list_nu
+            ) - np.searchsorted(
+                    numba_plasma.line_list_nu[::-1], 
+                    r_packet.nu
+                    )
+
+    r_packet.next_line_id = current_line_id
 
 
 @njit(**njit_dict_no_parallel)
