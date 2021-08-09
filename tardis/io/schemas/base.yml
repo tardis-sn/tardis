@@ -16,7 +16,7 @@ properties:
     description: configuration of the plasma microphysics
   csvy_model:
     type: string
-    description: defining the model using csvy format
+    description: defining the model using csvy format (see :ref:`csvy-model`)
   model:
     $ref: model.yml
     description: defining the model in the config yaml file
