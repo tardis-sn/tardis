@@ -58,7 +58,10 @@ def montecarlo_radial1d(model, plasma, runner):
     packet_seeds = montecarlo_configuration.packet_seeds
 
     number_of_vpackets = montecarlo_configuration.number_of_vpackets
-    ContinuumObject = create_continuum_class(plasma.chi_continuum_calculator)
+    ContinuumObject = create_continuum_class(
+            plasma.chi_continuum_calculator,
+            plasma.nu_fb_sampler,
+            plasma.nu_ff_sampler)
 
     (
         v_packets_energy_hist,

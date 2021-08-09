@@ -318,7 +318,10 @@ class VPacketCollection(object):
 
 
 
-def create_continuum_class(chi_continuum_calculator):
+def create_continuum_class(
+        chi_continuum_calculator, 
+        nu_fb_sampler, 
+        nu_ff_sampler):
     """called before mainloop"""
     continuum_spec = [
             ("chi_bf_tot", float64),
@@ -347,6 +350,16 @@ def create_continuum_class(chi_continuum_calculator):
             self.x_sect_bfs,
             self.chi_ff,
             ) = chi_continuum_calculator(nu, shell)
+
+        def sample_nu_free_bound(self, shell, continuum_id):
+
+            return nu_fb_sampler(shell, continuum_id)
+
+        def sample_nu_free_free(self, shell):
+
+            return nu_ff_sampler(shell)
+
+
 
     @njit(**njit_dict_no_parallel)
     def continuum_constructor():
