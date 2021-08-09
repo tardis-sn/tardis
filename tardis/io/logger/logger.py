@@ -102,19 +102,9 @@ def logging_state(log_level, tardis_config, specific_log_level):
             print(
                 "log_level is defined both in Functional Argument & YAML Configuration {debug section}"
             )
-
-            logging_level = (
-                log_level if log_level else tardis_config["debug"]["log_level"]
+            print(
+                f"log_level = {log_level.upper()} will be used for Log Level Determination\n"
             )
-
-            # Displays a message when both log_level & tardis["debug"]["log_level"] are specified
-            if log_level and tardis_config["debug"]["log_level"]:
-                print(
-                    "log_level is defined both in Functional Argument & YAML Configuration {debug section}"
-                )
-                print(
-                    f"log_level = {log_level.upper()} will be used for Log Level Determination\n"
-                )
 
     else:
         # Adds empty `debug` section for the YAML
@@ -128,6 +118,11 @@ def logging_state(log_level, tardis_config, specific_log_level):
 
         if specific_log_level:
             specific_log_level = specific_log_level
+        else:
+            tardis_config["debug"][
+                "specific_log_level"
+            ] = DEFAULT_SPECIFIC_STATE
+            specific_log_level = tardis_config["debug"]["specific_log_level"]
 
     logging_level = logging_level.upper()
     if not logging_level in LOGGING_LEVELS:
