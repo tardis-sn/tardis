@@ -142,6 +142,9 @@ class CustomYAML(yaml.YAMLObject):
             self.datatype["fields"].append(field)
 
 
+COLORMAP = "viridis"
+
+
 class CustomAbundanceWidget:
     """A widget like object to edit abundances and densities graphically.
 
@@ -163,14 +166,14 @@ class CustomAbundanceWidget:
         True, else is False.
     elements : list of str
         A list of elements or isotopes' symbols.
-    trigger : bool
-        If it is False, unable to trigger `input_item_eventhandler` when
+    _trigger : bool
+        If it is False, disable `input_item_eventhandler` when
         `input_item` is changed.
     """
 
     error_view = ipw.Output()
 
-    def __init__(self, density, abundance, velocity):
+    def __init__(self, density_t_0, density, abundance, velocity):
         """Initialize CustomAbundanceWidget with density, abundance and
         velocity data.
 
@@ -180,6 +183,7 @@ class CustomAbundanceWidget:
             abundance : pd.DataFrame
             velocity : astropy.units.quantity.Quantity
         """
+        density_t_0 = density_t_0.to("day")
         self.density = density.to("g cm^-3")
         self.abundance = abundance
         self.velocity = velocity.to("km/s")
@@ -189,7 +193,11 @@ class CustomAbundanceWidget:
         self.create_widgets()
         self.generate_abundance_density_plot()
         self.density_editor = DensityEditor(
-            self.density, self.velocity, self.fig, self.dpd_shell_no
+            density_t_0,
+            self.density,
+            self.velocity,
+            self.fig,
+            self.dpd_shell_no,
         )
 
     @property
@@ -306,15 +314,17 @@ class CustomAbundanceWidget:
         # )
         # self.btn_apply.on_click(self.on_btn_apply)
         self.irs_shell_range = ipw.IntRangeSlider(
-            value=[1, self.no_of_shells],
+            # value=[1, 1],
             min=1,
             max=self.no_of_shells,
             step=1,
             description="Shell No. ",
+            disabled=True,
             style={"description_width": "initial"},
             continuous_update=False,
             layout=ipw.Layout(margin="5px 0 0 0"),
         )
+        self.irs_shell_range.observe(self.irs_shell_range_eventhandler)
 
         self.btn_add_shell = ipw.Button(
             icon="plus-square",
@@ -351,17 +361,16 @@ class CustomAbundanceWidget:
             description="Output CSVY File",
         )
         self.btn_output.on_click(self.on_btn_output)
+
         self.input_path = ipw.Text(
             description="File path: ", placeholder="Input file name or path"
         )
+
         self.input_i_time_0 = ipw.FloatText(
-            description="model_isotope_time_0 (day): ",
+            description="Isotope time_0 (day): ",
             style={"description_width": "initial"},
         )
-        self.input_d_time_0 = ipw.FloatText(
-            description="model_density_time_0 (day): ",
-            style={"description_width": "initial"},
-        )
+
         self.ckb_overwrite = ipw.Checkbox(
             description="overwrite",
             indent=False,
@@ -383,7 +392,7 @@ class CustomAbundanceWidget:
             self.rbs_single_apply_eventhandler, "value"
         )
         self.rbs_multi_apply = ipw.RadioButtons(
-            options=["A range of shells "],
+            options=["A range of shells: "],
             index=None,
             layout=ipw.Layout(width="130px", margin="10px 0 10px 0"),
         )
@@ -458,10 +467,14 @@ class CustomAbundanceWidget:
         self.density_editor.read_density()
         with self.fig.batch_update():
             # Change bar diagonal
-            v_inner = self.velocity[self.shell_no - 1].value
-            v_outer = self.velocity[self.shell_no].value
-            self.fig.data[0].x = [(v_inner + v_outer) / 2]
-            self.fig.data[0].width = [v_outer - v_inner]
+            x = list(self.fig.data[0].x)
+            width = list(self.fig.data[0].width)
+            x_inner = self.velocity[self.shell_no - 1].value
+            x_outer = self.velocity[self.shell_no].value
+            x[0] = (x_inner + x_outer) / 2
+            self.fig.data[0].x = x
+            width[0] = x_outer - x_inner
+            self.fig.data[0].width = width
 
     def overwrite_existing_shells(self, v_0, v_1):
         """Judge whether the existing shell(s) will be overwritten when
@@ -494,9 +507,13 @@ class CustomAbundanceWidget:
         )
 
         if (index_1 - index_0 > 1) or (
-            index_1 - index_0 == 1
-            and math.isclose(
-                self.velocity[min(index_1, len(self.velocity) - 1)].value, v_1
+            (
+                index_1 < len(self.velocity)
+                and math.isclose(self.velocity[index_1].value, v_1)
+            )
+            or (
+                index_1 - index_0 == 1
+                and not math.isclose(self.velocity[index_0].value, v_0)
             )
         ):
             return True
@@ -528,12 +545,12 @@ class CustomAbundanceWidget:
         )
 
         # Delete the overwritten shell (abundances and velocities).
-        if math.isclose(
-            self.velocity[min(end_index, len(self.velocity) - 1)].value, v_end
+        if end_index < len(self.velocity) and math.isclose(
+            self.velocity[end_index].value, v_end
         ):
             # New shell will overwrite the original shell that ends at v_end.
             v_scalar = np.delete(self.velocity, end_index).value
-            self.abundance.drop(end_index - 1, 1, inplace=True)
+            self.abundance.drop(max(0, end_index - 1), 1, inplace=True)
         else:
             v_scalar = self.velocity.value
 
@@ -584,6 +601,7 @@ class CustomAbundanceWidget:
 
         # Update data and x axis in plot.
         with self.fig.batch_update():
+            self.fig.layout.xaxis.autorange = True
             self.fig.data[1].x = self.velocity
             self.fig.data[1].y = np.append(self.density[1:], self.density[-1])
             for i in range(self.no_of_elements):
@@ -595,7 +613,7 @@ class CustomAbundanceWidget:
         self.update_front()
 
         self.irs_shell_range.max = self.no_of_shells
-        self.irs_shell_range.value = [1, self.no_of_shells]
+        # self.irs_shell_range.value = [1, self.no_of_shells]
 
     def tbs_scale_eventhandler(self, obj):
         """The callback for `tbs_scale` widget. Switch the scale type
@@ -734,9 +752,11 @@ class CustomAbundanceWidget:
         self.read_abundance()
 
         for i in range(self.no_of_elements):
-            # only selected shell
-            self.update_abundance_plot(i)
-            # self.apply_to_multiple_shells(i)
+            if self.rbs_multi_apply.index is None:
+                # Only normalize selected shell
+                self.update_abundance_plot(i)
+            else:
+                self.apply_to_multiple_shells(i)
 
     @debounce(0.5)
     def input_symb_eventhandler(self, obj):
@@ -817,20 +837,25 @@ class CustomAbundanceWidget:
             ipw.VBox(self.checks),
         ]
 
-        # Add new trace to plot.
-        self.fig.add_scatter(
-            x=self.velocity,  # convert to km/s
-            y=[0] * (self.no_of_shells + 1),
-            mode="lines+markers",
-            name=element_symbol_string,
-        )
-        # Sort the legend in atomic order.
-        fig_data_lst = list(self.fig.data)
-        fig_data_lst.insert(
-            np.argwhere(self.elements == element_symbol_string)[0][0] + 2,
-            self.fig.data[-1],
-        )
-        self.fig.data = fig_data_lst[:-1]
+        with self.fig.batch_update():
+            # Add new trace to plot.
+            self.fig.add_scatter(
+                x=self.velocity,  # convert to km/s
+                y=[0] * (self.no_of_shells + 1),
+                mode="lines+markers",
+                name=element_symbol_string,
+            )
+            # Sort the legend in atomic order.
+            fig_data_lst = list(self.fig.data)
+            fig_data_lst.insert(
+                np.argwhere(self.elements == element_symbol_string)[0][0] + 2,
+                self.fig.data[-1],
+            )
+            self.fig.data = fig_data_lst[:-1]
+
+            colorscale = transition_colors(self.no_of_elements, COLORMAP)
+            for i in range(self.no_of_elements):
+                self.fig.data[2 + i].line.color = colorscale[i]
 
         self.read_abundance()
 
@@ -839,7 +864,13 @@ class CustomAbundanceWidget:
 
     # Edit abundances in multiple shells
     def apply_to_multiple_shells(self, item_index):
-        """Apply the changed abundances to specified range of shell(s)."""
+        """Apply the changed abundances to specified range of shell(s).
+
+        Parameters
+        ----------
+            item_index : int
+                The index of the widget in `input_items` widget list.
+        """
         start_index = self.irs_shell_range.value[0] - 1
         end_index = self.irs_shell_range.value[1]
         applied_shell_index = self.shell_no - 1
@@ -904,7 +935,31 @@ class CustomAbundanceWidget:
         self.rbs_single_apply.observe(
             self.rbs_single_apply_eventhandler, "value"
         )
+        # self.irs_shell_range.value = [self.shell_no, self.shell_no]
         self.irs_shell_range.disabled = False
+
+    def irs_shell_range_eventhandler(self, obj):
+        x = self.fig.data[0].x
+        width = self.fig.data[0].width
+        range = self.fig.layout.xaxis.range
+
+        if self.irs_shell_range.disabled:
+            x = [x[0]]
+            width = [width[0]]
+            y = [1]
+        else:
+            (start_shell_no, end_shell_no) = self.irs_shell_range.value
+            x_inner = self.velocity[start_shell_no - 1].value
+            x_outer = self.velocity[end_shell_no].value
+            x = [x[0], (x_outer + x_inner) / 2]
+            width = [width[0], x_outer - x_inner]
+            y = [1, 1]
+
+        with self.fig.batch_update():
+            self.fig.data[0].x = x
+            self.fig.data[0].width = width
+            self.fig.data[0].y = y
+            self.fig.layout.xaxis.range = range
 
     def generate_abundance_density_plot(self):
         """Generate abundance and density plot in different shells."""
@@ -938,30 +993,30 @@ class CustomAbundanceWidget:
             ),
         )
 
-        self.colorscale = transition_colors(20, "tab20")
+        colorscale = transition_colors(self.no_of_elements, COLORMAP)
         for i in range(self.no_of_elements):
             self.fig.add_trace(
                 go.Scatter(
                     x=self.velocity,
                     y=np.append(data.iloc[i], data.iloc[i, -1]),
                     mode="lines+markers",
-                    line=dict(shape="hv", color=self.colorscale[i]),
+                    line=dict(shape="hv", color=colorscale[i]),
                     name=self.elements[i],
                 ),
             )
 
         self.fig.update_layout(
             xaxis=dict(
-                title=r"$\text{Velocity (}\text{km}/\text{s}\text{)}$",
+                title="Velocity (km/s)",
                 tickformat="f",
             ),
             yaxis=dict(
-                title=r"$\text{Fractional Abundance}$",
+                title="Fractional Abundance",
                 exponentformat="e",
                 range=[0, 1],
             ),
             yaxis2=dict(
-                title=r"$\text{Density (}\text{g}/\text{cm}^3\text{)}$",
+                title="Density (g/cm^3)",
                 exponentformat="e",
                 overlaying="y",
                 side="right",
@@ -1048,7 +1103,6 @@ class CustomAbundanceWidget:
             [
                 hint,
                 self.input_i_time_0,
-                self.input_d_time_0,
                 ipw.HBox(
                     [self.input_path, self.btn_output, self.ckb_overwrite]
                 ),
@@ -1079,6 +1133,9 @@ class CustomAbundanceWidget:
             overwrite : bool
                 True if overwriting, False otherwise.
         """
+        if not path.endswith(".csvy"):
+            path += ".csvy"
+
         if os.path.exists(path) and not overwrite:
             raise FileExistsError(
                 "The file already exists. Click the 'overwrite' checkbox to overwrite it."
@@ -1096,7 +1153,7 @@ class CustomAbundanceWidget:
             path : str
         """
         name = path.split("/")[-1]
-        d_time_0 = self.input_d_time_0.value * u.day
+        d_time_0 = self.density_editor.density_t_0 * u.day
         i_time_0 = self.input_i_time_0.value * u.day
         custom_yaml = CustomYAML(
             name, d_time_0, i_time_0, self.velocity[0], self.velocity[-1]
@@ -1191,16 +1248,20 @@ class CustomAbundanceWidget:
                 density_0 = calculate_power_law_density(
                     v_middle, d_conf.w7_v_0, d_conf.w7_rho_0, -7
                 )
+                time_0 = d_conf.w7_time_0
             elif density_type == "uniform":
                 density_0 = d_conf.value.to("g cm^-3") * np.ones(no_of_shells)
+                time_0 = d_conf.get("time_0", 0 * u.day)
             elif density_type == "power_law":
                 density_0 = calculate_power_law_density(
                     v_middle, d_conf.v_0, d_conf.rho_0, d_conf.exponent
                 )
+                time_0 = d_conf.get("time_0", 0 * u.day)
             elif density_type == "exponential":
                 density_0 = calculate_exponential_density(
                     v_middle, d_conf.v_0, d_conf.rho_0
                 )
+                time_0 = d_conf.get("time_0", 0 * u.day)
             else:
                 raise ValueError(f"Unrecognized density type " f"{d_conf.type}")
         else:
@@ -1237,7 +1298,12 @@ class CustomAbundanceWidget:
         abundance = pd.concat([abundance, isotope_abundance])
         abundance.sort_index(inplace=True)
 
-        return cls(density=density_0, abundance=abundance, velocity=velocity)
+        return cls(
+            density_t_0=time_0,
+            density=density_0,
+            abundance=abundance,
+            velocity=velocity,
+        )
 
     @classmethod
     def from_yml(cls, fpath):
@@ -1260,6 +1326,7 @@ class CustomAbundanceWidget:
             model = Radial1DModel.from_config(config)
 
         velocity = model.velocity
+        density_t_0 = model.homologous_density.time_0
         density = model.homologous_density.density_0
         abundance = model.raw_abundance
         isotope_abundance = model.raw_isotope_abundance
@@ -1270,7 +1337,12 @@ class CustomAbundanceWidget:
         abundance = pd.concat([abundance, isotope_abundance])
         abundance.sort_index(inplace=True)
 
-        return cls(density=density, abundance=abundance, velocity=velocity)
+        return cls(
+            density_t_0=density_t_0,
+            density=density,
+            abundance=abundance,
+            velocity=velocity,
+        )
 
     @classmethod
     def from_hdf(cls, fpath):
@@ -1287,17 +1359,24 @@ class CustomAbundanceWidget:
         """
         with pd.HDFStore(fpath, "r") as hdf:
             abundance = hdf["/simulation/plasma/abundance"]
+            _density_t_0 = hdf["/simulation/model/homologous_density/scalars"]
             _density = hdf["/simulation/model/homologous_density/density_0"]
             v_inner = hdf["/simulation/model/v_inner"]
             v_outer = hdf["/simulation/model/v_outer"]
 
+        density_t_0 = float(_density_t_0) * u.s
         density = np.array(_density) * u.g / (u.cm) ** 3
         velocity = np.append(v_inner, v_outer[len(v_outer) - 1]) * u.cm / u.s
 
         abundance["mass_number"] = ""
         abundance.set_index("mass_number", append=True, inplace=True)
 
-        return cls(density=density, abundance=abundance, velocity=velocity)
+        return cls(
+            density_t_0=density_t_0,
+            density=density,
+            abundance=abundance,
+            velocity=velocity,
+        )
 
     @classmethod
     def from_simulation(cls, sim):
@@ -1321,9 +1400,15 @@ class CustomAbundanceWidget:
         abundance.sort_index(inplace=True)
 
         velocity = sim.model.velocity
+        density_t_0 = sim.model.homologous_density.time_0
         density = sim.model.homologous_density.density_0
 
-        return cls(density=density, abundance=abundance, velocity=velocity)
+        return cls(
+            density_t_0=density_t_0,
+            density=density,
+            abundance=abundance,
+            velocity=velocity,
+        )
 
 
 class DensityEditor:
@@ -1342,7 +1427,7 @@ class DensityEditor:
         `input_d` is changed.
     """
 
-    def __init__(self, density, velocity, fig, shell_no_widget):
+    def __init__(self, density_t_0, density, velocity, fig, shell_no_widget):
         """Initialize DensityEditor with data and widget components.
 
         Parameters
@@ -1360,6 +1445,12 @@ class DensityEditor:
         self.v = velocity
         self.fig = fig
         self.shell_no_widget = shell_no_widget
+        self.input_d_time_0 = ipw.FloatText(
+            value=density_t_0.value,
+            description="Density time_0 (day): ",
+            style={"description_width": "initial"},
+            layout=ipw.Layout(margin="0 0 20px 0"),
+        )
 
         self.create_widgets()
         self._trigger = True
@@ -1367,6 +1458,10 @@ class DensityEditor:
     @property
     def shell_no(self):
         return self.shell_no_widget.value
+
+    @property
+    def density_t_0(self):
+        return self.input_d_time_0.value
 
     def create_widgets(self):
         """Create widget components in density editor GUI and register
@@ -1556,6 +1651,7 @@ class DensityEditor:
         )
         return ipw.VBox(
             [
+                self.input_d_time_0,
                 hint1,
                 d_box,
                 hint2,
