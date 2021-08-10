@@ -60,6 +60,13 @@ def montecarlo_radial1d(
         runner.j_blue_estimator,
         runner.Edotlu_estimator,
     )
+
+    # Configuring the Tracking for R_Packets
+    if montecarlo_configuration.RPACKET_TRACKING:
+        tracked_rpacket = RPacketTracker()
+    else:
+        tracked_rpacket = None
+
     packet_seeds = montecarlo_configuration.packet_seeds
 
     number_of_vpackets = montecarlo_configuration.number_of_vpackets
@@ -78,7 +85,6 @@ def montecarlo_radial1d(
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
-        tracked_rpacket,
     ) = montecarlo_main_loop(
         packet_collection,
         numba_model,
@@ -88,6 +94,7 @@ def montecarlo_radial1d(
         number_of_vpackets,
         packet_seeds,
         montecarlo_configuration.VPACKET_LOGGING,
+        tracked_rpacket,
         iteration=iteration,
         show_progress_bars=show_progress_bars,
         no_of_packets=no_of_packets,
@@ -129,7 +136,7 @@ def montecarlo_radial1d(
 
     # Condition for Checking if R Packet Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
-        runner.tracked_rpacket = tracked_rpacket
+        runner.tracked_rpacket.append(tracked_rpacket)
 
 
 @njit(**njit_dict)
@@ -146,6 +153,7 @@ def montecarlo_main_loop(
     show_progress_bars,
     no_of_packets,
     total_iterations,
+    tracked_rpacket,
 ):
     """
     This is the main loop of the MonteCarlo routine that generates packets
@@ -204,9 +212,6 @@ def montecarlo_main_loop(
     virt_packet_last_interaction_type = []
     virt_packet_last_line_interaction_in_id = []
     virt_packet_last_line_interaction_out_id = []
-
-    # Configuring the Tracking for R_Packets
-    tracked_rpacket = RPacketTracker()
 
     for i in prange(len(output_nus)):
         if show_progress_bars:
@@ -347,5 +352,4 @@ def montecarlo_main_loop(
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
-        tracked_rpacket,
     )
