@@ -30,7 +30,10 @@ import asyncio
 class Timer:
     """An object to implement debounce using an asynchronous loop.
 
-    Cited from https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html
+    Notes
+    -----
+    This class is reproduced from ipywidgets documentation, for more information
+    please see https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html
     """
 
     def __init__(self, timeout, callback):
@@ -59,8 +62,6 @@ def debounce(wait):
     """Decorator that will postpone a function's execution until after
      `wait` seconds have elapsed since the last time it was invoked.
 
-    Cited from https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html
-
     Parameters
     ----------
         wait : float
@@ -68,6 +69,11 @@ def debounce(wait):
     Returns
     -------
         function
+
+    Notes
+    -----
+    This decorator is reproduced from ipywidgets documentation, for more information
+    please see https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html
     """
 
     def decorator(fn):
@@ -105,10 +111,15 @@ class CustomYAML(yaml.YAMLObject):
         Parameters
         ----------
             name : str
+                Name of the YAML file.
             d_time_0 : astropy.units.quantity.Quantity
+                Model density time 0.
             i_time_0 : astropy.units.quantity.Quantity
+                Model isotope time 0.
             v_inner_boundary : astropy.units.quantity.Quantity
+                Velocity of the inner boundary.
             v_outer_boundary : astropy.units.quantity.Quantity
+                Velocity of the outer boundary.
         """
         self.name = name
         self.model_density_time_0 = d_time_0
@@ -148,7 +159,7 @@ COLORMAP = "viridis"
 class CustomAbundanceWidget:
     """A widget like object to edit abundances and densities graphically.
 
-    It generates a GUI based on imported data. The GUI has a plot section
+    It generates a GUI based on input data. The GUI has a plot section
     to visualize the profile, a edit section to allow the user directly
     edit abundance and density profile, and an output section to output
     the model to CSVY file.
@@ -162,13 +173,13 @@ class CustomAbundanceWidget:
     no_of_elements : int
         The number of elements in the model.
     checked_list : list of bool
-        If the checkbox of the abundance is checked, then the value is
-        True, else is False.
+        A list of bool to record whether the checkbox is checked.
+        The index of the bool corresponds to the index of checkbox.
     elements : list of str
         A list of elements or isotopes' symbols.
     _trigger : bool
-        If it is False, disable `input_item_eventhandler` when
-        `input_item` is changed.
+        If False, disable `input_item_eventhandler` when `input_item`
+        is changed.
     """
 
     error_view = ipw.Output()
@@ -314,7 +325,6 @@ class CustomAbundanceWidget:
         # )
         # self.btn_apply.on_click(self.on_btn_apply)
         self.irs_shell_range = ipw.IntRangeSlider(
-            # value=[1, 1],
             min=1,
             max=self.no_of_shells,
             step=1,
@@ -453,12 +463,19 @@ class CustomAbundanceWidget:
             self.update_abundance_plot(index)
 
     def update_abundance_plot(self, index):
+        """Update the abundance line of certain element in the plot.
+
+        Parameters
+        ----------
+            index : int
+                The index of the widget in `input_items` widget list.
+        """
         y = self.abundance.iloc[index]
         self.fig.data[index + 2].y = np.append(y, y.iloc[-1])
 
     def update_front(self):
         """Update checkbox widgets, input widgets and plot in the front
-        end when `shell_no` is changed.
+        end when selected shell No is changed.
         """
         # Update checkboxes, input boxes and plot.
         for check in self.checks:
@@ -611,9 +628,7 @@ class CustomAbundanceWidget:
         self.dpd_shell_no.options = list(range(1, self.no_of_shells + 1))
         self.shell_no = start_index + 1
         self.update_front()
-
         self.irs_shell_range.max = self.no_of_shells
-        # self.irs_shell_range.value = [1, self.no_of_shells]
 
     def tbs_scale_eventhandler(self, obj):
         """The callback for `tbs_scale` widget. Switch the scale type
@@ -862,7 +877,6 @@ class CustomAbundanceWidget:
         # Clear symbol input box.
         self.input_symb.value = ""
 
-    # Edit abundances in multiple shells
     def apply_to_multiple_shells(self, item_index):
         """Apply the changed abundances to specified range of shell(s).
 
@@ -920,6 +934,14 @@ class CustomAbundanceWidget:
         self.to_csvy(path, overwrite)
 
     def rbs_single_apply_eventhandler(self, obj):
+        """The callback for `rbs_single_apply` radio button. Switch to single
+        shell editing mode.
+
+        Parameters
+        ----------
+            obj : ipywidgets.widgets.widget_button.Button
+                The clicked button instance.
+        """
         self.rbs_multi_apply.unobserve(
             self.rbs_multi_apply_eventhandler, "value"
         )
@@ -928,6 +950,14 @@ class CustomAbundanceWidget:
         self.irs_shell_range.disabled = True
 
     def rbs_multi_apply_eventhandler(self, obj):
+        """The callback for `rbs_single_apply` radio button. Switch to multi-
+        shell editing mode.
+
+        Parameters
+        ----------
+            obj : ipywidgets.widgets.widget_button.Button
+                The clicked button instance.
+        """
         self.rbs_single_apply.unobserve(
             self.rbs_single_apply_eventhandler, "value"
         )
@@ -939,6 +969,14 @@ class CustomAbundanceWidget:
         self.irs_shell_range.disabled = False
 
     def irs_shell_range_eventhandler(self, obj):
+        """The callback for `irs_shell_range` int slider. Select the velocity
+        range of new shell and highlight the range in the plot.
+
+        Parameters
+        ----------
+            obj : ipywidgets.widgets.widget_button.Button
+                The clicked button instance.
+        """
         x = self.fig.data[0].x
         width = self.fig.data[0].width
         range = self.fig.layout.xaxis.range
@@ -1546,6 +1584,7 @@ class DensityEditor:
         self._trigger = True
 
     def update_density_plot(self):
+        """Update the density line in the plot."""
         y = np.append(self.d[1:], self.d[-1])
         self.fig.data[1].y = y
 
