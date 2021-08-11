@@ -4,10 +4,11 @@
 name: update-changelog
 
 on:
-  schedule:
-    - cron: '50 23 * * 0'
+  push:
+    tags:
+    - 'release-*'
 
-  workflow_dispatch:
+  workflow_dispatch:  # Manual trigger
 
 jobs:
   push:
@@ -34,5 +35,5 @@ jobs:
       - name: Push changes
         run: |
           git add CHANGELOG.md
-          git commit -m "Update CHANGELOG.md [skip ci]"
+          git commit -m "post-release changes [auto]"
           git push
