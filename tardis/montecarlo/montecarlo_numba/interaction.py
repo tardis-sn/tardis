@@ -39,7 +39,8 @@ def scatter(r_packet, time_explosion):
     return comov_nu, inverse_new_doppler_factor
 
 # Maybe make the continuum selection a method of the continuum?
-def continuum_event(r_packet, time_explosion, continuum, plasma):
+@njit(**njit_dict_no_parallel)
+def continuum_event(r_packet, time_explosion, continuum, numba_plasma):
 
     comov_nu, inverse_new_doppler_factor = scatter(r_packet, time_explosion)
 
@@ -79,9 +80,6 @@ def continuum_event(r_packet, time_explosion, continuum, plasma):
                 continuum, 
                 transition_id)
 
-    macro_atom(destination_level_id, current_shell_id, numba_plasma)
-
-
 # TODO: numbafy | Add cooling rates to numba plasma
 def get_emission_probabilities(plasma, shell):
     
@@ -110,6 +108,19 @@ def free_free_absorption(r_packet, numba_plasma):
     else:
         macroatom()
 
+@njit(**njit_dict_no_parallel)
+def get_current_line_id(nu, numba_plasma):
+    '''
+    Get the next line id corresponding to a packet at frequency nu
+    '''
+
+    reverse_line_list = numba_plasma.line_list_nu[::-1]
+    number_of_lines = len(numba_plasma.line_list_nu)
+    line_id = number_of_lines - np.searchsorted(reverse_line_list, nu)
+    return line_id
+
+
+@njit(**njit_dict_no_parallel)
 def free_free_emission(r_packet, time_explosion, numba_plasma):
     
     inverse_doppler_factor = get_inverse_doppler_factor(
@@ -119,26 +130,15 @@ def free_free_emission(r_packet, time_explosion, numba_plasma):
     # maybe I'll update the numba_plasma?
     comov_nu = numba_plasma.nu_ff_sampler(r_packet.current_shell_id)
     r_packet.nu = comov_nu * inverse_doppler_factor
-
-    current_line_id = len(
-            numba_plasma.line_list_nu
-            ) - np.searchsorted(
-                    numba_plasma.line_list_nu[::-1], 
-                    r_packet.nu
-                    )
-
+    current_line_id = get_current_line_id(r_packet.nu, numba_plasma) 
     r_packet.next_line_id = current_line_id
+    
     if montecarlo_configuration.full_relativity:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
 
-def get_current_continuum_id(nu, continuum, plasma):
-
-    # TODO:
-    continuum_id = 0
-    return continuum_id
-
+@njit(**njit_dict_no_parallel)
 def free_bound_emission(r_packet, time_explosion, numba_plasma, continuum, continuum_d):
 
     inverse_doppler_factor = get_inverse_doppler_factor(
@@ -151,15 +151,14 @@ def free_bound_emission(r_packet, time_explosion, numba_plasma, continuum, conti
             )
     
     r_packet.nu = comov_nu * inverse_doppler_factor
-
-    current_line_id = len(
-            numba_plasma.line_list_nu
-            ) - np.searchsorted(
-                    numba_plasma.line_list_nu[::-1], 
-                    r_packet.nu
-                    )
-
+    current_line_id = get_current_line_id(r_packet.nu, numba_plasma)
     r_packet.next_line_id = current_line_id
+
+    if montecarlo_configuration.full_relativity:
+        r_packet.mu = angle_aberration_CMF_to_LF(
+            r_packet, time_explosion, r_packet.mu
+        )
+
 
 
 @njit(**njit_dict_no_parallel)
