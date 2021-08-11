@@ -13,7 +13,6 @@ on:
 jobs:
   push:
     runs-on: ubuntu-latest
-    if: ${{ github.repository_owner == 'tardis-sn' }}  # Do not run scheduled jobs on forks
 
     steps:
       - uses: actions/checkout@v2
