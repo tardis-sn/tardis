@@ -50,12 +50,13 @@ def continuum_event(r_packet, time_explosion, continuum, numba_plasma):
     zrand = np.random.random()
 
     # Does this need to be re-calculated?
-    continuum.calculate(comov_nu, r_packet.current_shell_id)
+    # continuum.calculate(comov_nu, r_packet.current_shell_id)
 
     # Need to determine if a collisional process or not.  If not:
 
     # This somehow determines the transition type and continuum id needed
     # but does not sample new frequencies
+    # This reruns continuum.calculate
     destination_level_idx = continuum.determine_macro_activation_idx(
             comov_nu, r_packet.current_shell_id)
 
