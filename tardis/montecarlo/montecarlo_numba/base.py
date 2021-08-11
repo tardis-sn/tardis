@@ -137,7 +137,12 @@ def montecarlo_radial1d(
 
     # Condition for Checking if R Packet Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
-        runner.tracked_rpacket = tracked_rpacket_dataframe(runner.tracked_rpacket, tracked_rpacket)
+        runner.tracked_rpacket = append_df(
+            runner.tracked_rpacket, tracked_rpacket
+        )
+
+        if last_run:
+            runner.tracked_rpacket = tracked_rpacket_df(runner.tracked_rpacket)
 
 
 @njit(**njit_dict)
@@ -356,8 +361,7 @@ def montecarlo_main_loop(
     )
 
 
-def tracked_rpacket_dataframe(tracking_rpacket_array, tracked_rpacket):
-    # for iteration in range(3):
+def append_df(tracking_rpacket_array, tracked_rpacket):
     seed = tracked_rpacket.seed
     index = tracked_rpacket.index
     status = tracked_rpacket.status
@@ -366,11 +370,30 @@ def tracked_rpacket_dataframe(tracking_rpacket_array, tracked_rpacket):
     mu = tracked_rpacket.mu
     energy = tracked_rpacket.energy
     shell_id = tracked_rpacket.shell_id
-    
+
     vals = [index, seed, status, r, nu, mu, energy, shell_id]
-    columns_name = ["Packet Index", "Packet Seed", "Packet Status", "r", "nu", "mu", "energy", "shell_id"]
+    columns_name = [
+        "Packet Index",
+        "Packet Seed",
+        "Packet Status",
+        "r",
+        "nu",
+        "mu",
+        "energy",
+        "shell_id",
+    ]
 
     df = pd.DataFrame(zip(*vals), columns=columns_name)
     multi = df.set_index(["Packet Index", "Packet Seed"])
     tracking_rpacket_array.append(multi)
     return tracking_rpacket_array
+
+
+def tracked_rpacket_df(list_of_df):
+    frames = [df for df in list_of_df]
+    keys = [iteration for iteration in range(len(list_of_df))]
+
+    tracked_rpacket_dataframe = pd.concat(
+        frames, keys=keys, names=["Iteration"]
+    )
+    return tracked_rpacket_dataframe
