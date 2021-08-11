@@ -78,34 +78,6 @@ def continuum_event(r_packet, time_explosion, continuum, numba_plasma):
                 continuum, 
                 transition_id)
 
-# TODO: numbafy | Add cooling rates to numba plasma
-def get_emission_probabilities(plasma, shell):
-    
-    C_fb = sim.plasma.cool_rate_fb_tot.iloc[0, shell]
-    C_ff = sim.plasma.cool_rate_ff.iloc[0, shell]
-    C_cl = sim.plasma.cool_rate_adiabatic.iloc[0, shell]
-    C_cl += sim.plasma.cool_rate_coll_ion.iloc[0, shell]
-    
-    pi_fb = C_fb / (C_fb + C_ff + C_cl)
-    pi_ff = C_ff / (C_fb + C_ff + C_cl)
-    
-    return pi_fb, pi_ff
-
-# TODO: numbafy
-def free_free_absorption(r_packet, numba_plasma):
-    # Do the k_packet thing, but don't actually make one
-    
-    pi_fb, pi_ff = get_emission_probabilities(numba_plasma, shell)
-    
-    # a little hack
-    z = np.random.random() - pi_fb
-    if z < 0:
-        bound_free_emission(r_packet, time_explosion, numba_plasma) 
-    elif z < pi_ff:
-        free_free_emission(r_packet, time_explosion, numba_plasma)
-    else:
-        macroatom()
-
 @njit(**njit_dict_no_parallel)
 def get_current_line_id(nu, numba_plasma):
     '''
