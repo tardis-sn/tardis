@@ -319,9 +319,6 @@ class VPacketCollection(object):
 
 
 def create_continuum_class(plasma)
-        chi_continuum_calculator, 
-        nu_fb_sampler, 
-        nu_ff_sampler):
     """called before mainloop"""
 
     chi_continuum_calculator = plasma.chi_continuum_calculator
