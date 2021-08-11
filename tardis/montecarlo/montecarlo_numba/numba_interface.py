@@ -318,7 +318,7 @@ class VPacketCollection(object):
 
 
 
-def create_continuum_class(plasma)
+def create_continuum_class(plasma):
     """called before mainloop"""
 
     chi_continuum_calculator = plasma.chi_continuum_calculator
@@ -365,7 +365,7 @@ def create_continuum_class(plasma)
 
             self.calculate(nu, shell) # maybe don't do this here
             idx = get_macro_activation_idx(
-                    nu, self.chi_bf, self.chi_ff, 
+                    nu, self.chi_bf_tot, self.chi_ff, 
                     self.chi_bf_contributions, self.current_continua
                     )
             return idx

@@ -1,4 +1,5 @@
 from numba import njit
+import numpy as np
 from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     LineInteractionType,
@@ -22,6 +23,7 @@ from tardis.montecarlo.montecarlo_numba.macro_atom import (
 
 
 
+@njit(**njit_dict_no_parallel)
 def scatter(r_packet, time_explosion):
 
     old_doppler_factor = get_doppler_factor(
@@ -68,8 +70,8 @@ def continuum_event(r_packet, time_explosion, continuum, numba_plasma):
 
     # Then use this to get a transition id from the macroatom 
     if transition_type == MacroAtomTransitionType.FF_EMISSION: 
-        free_free_emission(r_packet, time_explosion, numba_plasma)
-    elif transition_type = MacroAtomTransitionType.BF_EMISSION:
+        free_free_emission(r_packet, time_explosion, numba_plasma, continuum)
+    elif transition_type == MacroAtomTransitionType.BF_EMISSION:
         bound_free_emission(r_packet, 
                 time_explosion, 
                 numba_plasma, 
@@ -98,7 +100,7 @@ def free_free_absorption(r_packet, numba_plasma):
     # a little hack
     z = np.random.random() - pi_fb
     if z < 0:
-        free_bound_emission(r_packet, time_explosion, numba_plasma) 
+        bound_free_emission(r_packet, time_explosion, numba_plasma) 
     elif z < pi_ff:
         free_free_emission(r_packet, time_explosion, numba_plasma)
     else:
@@ -117,14 +119,14 @@ def get_current_line_id(nu, numba_plasma):
 
 
 @njit(**njit_dict_no_parallel)
-def free_free_emission(r_packet, time_explosion, numba_plasma):
+def free_free_emission(r_packet, time_explosion, numba_plasma, continuum):
     
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
     # Need to get the sampler into numba somehow
     # maybe I'll update the numba_plasma?
-    comov_nu = numba_plasma.nu_ff_sampler(r_packet.current_shell_id)
+    comov_nu = continuum.sample_nu_free_free(r_packet.current_shell_id)
     r_packet.nu = comov_nu * inverse_doppler_factor
     current_line_id = get_current_line_id(r_packet.nu, numba_plasma) 
     r_packet.next_line_id = current_line_id
@@ -135,16 +137,15 @@ def free_free_emission(r_packet, time_explosion, numba_plasma):
         )
 
 @njit(**njit_dict_no_parallel)
-def free_bound_emission(r_packet, time_explosion, numba_plasma, continuum, continuum_d):
+def bound_free_emission(r_packet, time_explosion, numba_plasma, continuum, continuum_id):
 
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
 
-    comov_nu = numba_plasma.nu_fb_sampler(
+    comov_nu = continuum.sample_nu_free_bound(
             r_packet.current_shell_id, 
-            continuum_id
-            )
+            continuum_id)
     
     r_packet.nu = comov_nu * inverse_doppler_factor
     current_line_id = get_current_line_id(r_packet.nu, numba_plasma)

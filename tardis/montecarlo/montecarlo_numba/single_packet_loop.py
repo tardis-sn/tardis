@@ -117,9 +117,9 @@ def single_packet_loop(
             trace_vpacket_volley(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
-        elif interaction_type = InteractionType.CONTINUUM_PROCESS:
+        elif interaction_type == InteractionType.CONTINUUM_PROCESS:
             r_packet.last_interaction_type = InteractionType.CONTINUUM_PROCESS
-             move_r_packet(
+            move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
             )
             continuum_event(r_packet, numba_model.time_explosion,
