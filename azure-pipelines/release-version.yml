@@ -60,8 +60,6 @@ jobs:
           tagSource: 'userSpecifiedTag'
           tag: 'release-$(newtag)'
           title: 'TARDIS v$(newtag)'
-          isPreRelease: false
-          addChangeLog: true
-          changeLogCompareToRelease: 'lastFullRelease'
-          changeLogType: 'commitBased'
+          releaseNotesSource: 'input'
+          releaseNotes: 'This release has been made automatically through our continous delivery pipeline. For a complete list of changes see [CHANGELOG.md](https://github.com/tardis-sn/tardis/blob/master/CHANGELOG.md).'
         displayName: 'Create GitHub Release'
