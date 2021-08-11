@@ -1029,7 +1029,7 @@ class FreeBoundFrequencySampler(ProcessingPlasmaProperty):
             zrand = np.random.random()
             idx = np.searchsorted(em[start:end], zrand, side="right")
 
-            return phot_nus[idx] - (em[idx] - zrand) / (em[idx] - em[idx-1]) * (phot_nus[idx] - phot_nus[idx-1])
+            return phot_nus[idx] - (em[idx] - zrand) / (em[idx] - em[idx - 1]) * (phot_nus[idx] - phot_nus[idx - 1])
 
         return nu_fb
 
