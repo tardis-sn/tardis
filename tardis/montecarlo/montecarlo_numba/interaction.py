@@ -1,4 +1,5 @@
 from numba import njit
+import numpy as np
 from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     LineInteractionType,
@@ -16,8 +17,13 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
     InteractionType,
 )
 from tardis.montecarlo.montecarlo_numba.utils import get_random_mu
-from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
+from tardis.montecarlo.montecarlo_numba.macro_atom import (
+        macro_atom, MacroAtomTransitionType
+)
 
+
+
+@njit(**njit_dict_no_parallel)
 def scatter(r_packet, time_explosion):
 
     old_doppler_factor = get_doppler_factor(
@@ -34,7 +40,9 @@ def scatter(r_packet, time_explosion):
  
     return comov_nu, inverse_new_doppler_factor
 
-def continuum_event(r_packet, time_explosion, plasma, chi_continuum_calculator):
+# Maybe make the continuum selection a method of the continuum?
+@njit(**njit_dict_no_parallel)
+def continuum_event(r_packet, time_explosion, continuum, numba_plasma):
 
     comov_nu, inverse_new_doppler_factor = scatter(r_packet, time_explosion)
 
@@ -43,28 +51,83 @@ def continuum_event(r_packet, time_explosion, plasma, chi_continuum_calculator):
 
     zrand = np.random.random()
 
-    (
-        chi_bf,
-        chi_bf_contributions,
-        current_continua,
-        chi_ff,
-    ) = chi_continuum_calculator(comov_nu, r_packet.current_shell_id)
+    # Does this need to be re-calculated?
+    # continuum.calculate(comov_nu, r_packet.current_shell_id)
 
-    cur_electron_density = numba_plasma.electron_density[
-        r_packet.current_shell_id
-    ]
+    # Need to determine if a collisional process or not.  If not:
 
-    chi_e = cur_electron_density * SIGMA_THOMSON
+    # This somehow determines the transition type and continuum id needed
+    # but does not sample new frequencies
+    # This reruns continuum.calculate
+    destination_level_idx = continuum.determine_macro_activation_idx(
+            comov_nu, r_packet.current_shell_id)
 
-    chi_nu = chi_bf + chi_ff + chi_e
+    transition_id, transition_type = macro_atom(
+            destination_level_idx, 
+            r_packet.current_shell_id, 
+            numba_plasma
+            )
+
+    # Then use this to get a transition id from the macroatom 
+    if transition_type == MacroAtomTransitionType.FF_EMISSION: 
+        free_free_emission(r_packet, time_explosion, numba_plasma, continuum)
+    elif transition_type == MacroAtomTransitionType.BF_EMISSION:
+        bound_free_emission(r_packet, 
+                time_explosion, 
+                numba_plasma, 
+                continuum, 
+                transition_id)
+
+@njit(**njit_dict_no_parallel)
+def get_current_line_id(nu, numba_plasma):
+    '''
+    Get the next line id corresponding to a packet at frequency nu
+    '''
+
+    reverse_line_list = numba_plasma.line_list_nu[::-1]
+    number_of_lines = len(numba_plasma.line_list_nu)
+    line_id = number_of_lines - np.searchsorted(reverse_line_list, nu)
+    return line_id
 
 
-    if zrand < SIGMA_THOMSON / chi_nu:
-        thomson_scatter(r_packet, time_explosion)
-    elif zrand < (SIGMA_THOMSON + chi_bf) / chi_nu:
-        bound_free_absorption(r_packet, time_explosion, plasma)
-    else:
-        free_free_absorption(r_packet, time_explosion)
+@njit(**njit_dict_no_parallel)
+def free_free_emission(r_packet, time_explosion, numba_plasma, continuum):
+    
+    inverse_doppler_factor = get_inverse_doppler_factor(
+        r_packet.r, r_packet.mu, time_explosion
+    )
+    # Need to get the sampler into numba somehow
+    # maybe I'll update the numba_plasma?
+    comov_nu = continuum.sample_nu_free_free(r_packet.current_shell_id)
+    r_packet.nu = comov_nu * inverse_doppler_factor
+    current_line_id = get_current_line_id(r_packet.nu, numba_plasma) 
+    r_packet.next_line_id = current_line_id
+    
+    if montecarlo_configuration.full_relativity:
+        r_packet.mu = angle_aberration_CMF_to_LF(
+            r_packet, time_explosion, r_packet.mu
+        )
+
+@njit(**njit_dict_no_parallel)
+def bound_free_emission(r_packet, time_explosion, numba_plasma, continuum, continuum_id):
+
+    inverse_doppler_factor = get_inverse_doppler_factor(
+        r_packet.r, r_packet.mu, time_explosion
+    )
+
+    comov_nu = continuum.sample_nu_free_bound(
+            r_packet.current_shell_id, 
+            continuum_id)
+    
+    r_packet.nu = comov_nu * inverse_doppler_factor
+    current_line_id = get_current_line_id(r_packet.nu, numba_plasma)
+    r_packet.next_line_id = current_line_id
+
+    if montecarlo_configuration.full_relativity:
+        r_packet.mu = angle_aberration_CMF_to_LF(
+            r_packet, time_explosion, r_packet.mu
+        )
+
 
 
 @njit(**njit_dict_no_parallel)

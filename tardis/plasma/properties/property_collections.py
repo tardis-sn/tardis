@@ -93,7 +93,7 @@ continuum_interaction_inputs = PlasmaPropertyCollection(
 )
 continuum_interaction_properties = PlasmaPropertyCollection(
     [
-        MacroAtomData,  # TODO: Remove this once everything works
+        MacroAtomData, # TODO: Remove this once everything works
         PhotoIonizationData,
         SpontRecombRateCoeff,
         PhotoIonRateCoeff,

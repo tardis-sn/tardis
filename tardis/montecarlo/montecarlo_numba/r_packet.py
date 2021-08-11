@@ -161,17 +161,6 @@ def trace_packet(
     chi_continuum = chi_e + chi_bf + chi_ff
     distance_continuum = tau_event / chi_continuum
 
-    (
-        chi_bf,
-        chi_bf_contributions,
-        current_continua,
-        x_sect_bfs,
-        chi_ff,
-    ) = chi_continuum_calculator(comov_nu, r_packet.current_shell_id)
-
-    chi_continuum = chi_e + chi_bf + chi_ff
-    distance_continuum = tau_event / chi_continuum
-
     cur_line_id = start_line_id  # initializing varibale for Numba
     # - do not remove
     last_line_id = len(numba_plasma.line_list_nu) - 1
@@ -210,6 +199,7 @@ def trace_packet(
         distance = min(distance_trace, distance_boundary, distance_continuum)
 
         if distance_trace != 0:
+
             if distance == distance_boundary:
                 interaction_type = InteractionType.BOUNDARY  # BOUNDARY
                 r_packet.next_line_id = cur_line_id

@@ -318,8 +318,13 @@ class VPacketCollection(object):
 
 
 
-def create_continuum_class(chi_continuum_calculator):
+def create_continuum_class(plasma):
     """called before mainloop"""
+
+    chi_continuum_calculator = plasma.chi_continuum_calculator
+    nu_fb_sampler = plasma.nu_fb_sampler
+    nu_ff_sampler = plasma.nu_ff_sampler
+    get_macro_activation_idx = plasma.determine_continuum_macro_activation_idx
     continuum_spec = [
             ("chi_bf_tot", float64),
             ("chi_bf_contributions", float64[:]),
@@ -347,6 +352,24 @@ def create_continuum_class(chi_continuum_calculator):
             self.x_sect_bfs,
             self.chi_ff,
             ) = chi_continuum_calculator(nu, shell)
+
+        def sample_nu_free_bound(self, shell, continuum_id):
+
+            return nu_fb_sampler(shell, continuum_id)
+
+        def sample_nu_free_free(self, shell):
+
+            return nu_ff_sampler(shell)
+
+        def determine_macro_activation_idx(self, nu, shell):
+
+            self.calculate(nu, shell) # maybe don't do this here
+            idx = get_macro_activation_idx(
+                    nu, self.chi_bf_tot, self.chi_ff, 
+                    self.chi_bf_contributions, self.current_continua
+                    )
+            return idx
+
 
     @njit(**njit_dict_no_parallel)
     def continuum_constructor():

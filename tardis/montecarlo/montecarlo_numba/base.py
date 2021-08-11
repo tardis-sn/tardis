@@ -59,8 +59,7 @@ def montecarlo_radial1d(model, plasma, runner):
     packet_seeds = montecarlo_configuration.packet_seeds
 
     number_of_vpackets = montecarlo_configuration.number_of_vpackets
-    ContinuumObject = create_continuum_class(plasma.chi_continuum_calculator)
-
+    ContinuumObject = create_continuum_class(plasma)
     (
         v_packets_energy_hist,
         last_interaction_type,
@@ -205,15 +204,11 @@ def montecarlo_main_loop(
         vpacket_collection = vpacket_collections[i]
 
         loop = single_packet_loop(
-
             r_packet,
             numba_model,
             numba_plasma,
             estimators,
             vpacket_collection,
-            continuum,
-
-            r_packet, numba_model, numba_plasma, estimators, vpacket_collection,
             continuum
         )
         # if loop and 'stop' in loop:

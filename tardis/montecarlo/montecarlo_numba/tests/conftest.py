@@ -24,6 +24,17 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
     return sim
 
 
+@pytest.fixture(scope="package")
+def verysimple_continuum(nu_simulation_verysimple):
+    plasma = nu_simulation_verysimple
+    numba_plasma = numba_interface.numba_plasma_initialize(plasma, "macroatom")
+
+    ContinuumClass = create_continuum_class(plasma)
+
+    continuum = ContinuumClass()
+    return continuum
+
+
 @pytest.fixture()
 def verysimple_collection(nb_simulation_verysimple):
     runner = nb_simulation_verysimple.runner

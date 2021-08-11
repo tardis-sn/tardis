@@ -17,6 +17,7 @@ from tardis.montecarlo.montecarlo_numba.interaction import (
     InteractionType,
     thomson_scatter,
     line_scatter,
+    continuum_event,
 )
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     LineInteractionType,
@@ -38,7 +39,7 @@ from tardis.io.logger import montecarlo_tracking as mc_tracker
 @njit
 def single_packet_loop(
     r_packet, numba_model, numba_plasma, estimators, vpacket_collection,
-    chi_bf_interpolator
+    continuum
 ):
     """
     Parameters
@@ -78,7 +79,7 @@ def single_packet_loop(
     while r_packet.status == PacketStatus.IN_PROCESS:
         distance, interaction_type, delta_shell = trace_packet(
             r_packet, numba_model, numba_plasma,
-            estimators, chi_bf_interpolator
+            estimators, continuum
         )
 
         if interaction_type == InteractionType.BOUNDARY:
@@ -116,6 +117,19 @@ def single_packet_loop(
             trace_vpacket_volley(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
+        elif interaction_type == InteractionType.CONTINUUM_PROCESS:
+            r_packet.last_interaction_type = InteractionType.CONTINUUM_PROCESS
+            move_r_packet(
+                r_packet, distance, numba_model.time_explosion, estimators
+            )
+            continuum_event(r_packet, numba_model.time_explosion,
+                    continuum, numba_plasma)
+
+            trace_vpacket_volley(
+                r_packet, vpacket_collection, numba_model, numba_plasma
+            )
+
+
         if mc_tracker.DEBUG_MODE:
             r_packet_track_nu.append(r_packet.nu)
             r_packet_track_mu.append(r_packet.mu)
