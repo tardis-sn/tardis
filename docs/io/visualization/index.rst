@@ -14,7 +14,6 @@ diagnostic visualizations.
 
     sdec_plot
     convergence_plot
-    abundance_widget
 
 
 TARDIS Widgets (Graphical User Interfaces)
@@ -29,3 +28,4 @@ Jupyter Notebooks, making data exploration much easier.
 
     using_widgets
     Generating Widgets in a Notebook <generating_widgets>
+    abundance_widget
