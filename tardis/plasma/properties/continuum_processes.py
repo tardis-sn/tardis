@@ -23,6 +23,7 @@ __all__ = [
     "StimRecombRateCoeffEstimator",
     "CorrPhotoIonRateCoeff",
     "BfHeatingRateCoeffEstimator",
+    "StimRecombCoolingRateCoeffEstimator",
     "SpontRecombCoolingRateCoeff",
     "RawRecombTransProbs",
     "RawPhotoIonTransProbs",
@@ -265,9 +266,11 @@ def bf_estimator_array2frame(bf_estimator_array, level2continuum_idx):
     pandas.DataFrame, dtype float
         Bound-free estimators indexed by (atomic_number, ion_number, level_number).
     """
-    return pd.DataFrame(
+    bf_estimator_frame = pd.DataFrame(
         bf_estimator_array, index=level2continuum_idx.index
     ).sort_index()
+    bf_estimator_frame.columns.name = "Shell No."
+    return bf_estimator_frame
 
 
 class IndexSetterMixin(object):
@@ -634,6 +637,18 @@ class StimRecombRateCoeffEstimator(Input):
 
     outputs = ("alpha_stim_estimator",)
     latex_name = (r"\alpha^{\textrm{stim}}_\textrm{estim}",)
+
+
+class StimRecombCoolingRateCoeffEstimator(Input):
+    """
+    Attributes
+    ----------
+    stim_recomb_cooling_coeff_estimator : pandas.DataFrame, dtype float
+        Unnormalized MC estimator for the stimulated recombination cooling rate
+        coefficient.
+    """
+
+    outputs = ("stim_recomb_cooling_coeff_estimator",)
 
 
 class BfHeatingRateCoeffEstimator(Input):

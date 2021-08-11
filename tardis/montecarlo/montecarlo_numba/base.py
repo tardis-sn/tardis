@@ -53,6 +53,7 @@ def montecarlo_radial1d(model, plasma, runner):
         runner.photo_ion_estimator,
         runner.stim_recomb_estimator,
         runner.bf_heating_estimator,
+        runner.stim_recomb_cooling_estimator,
         runner.photo_ion_estimator_statistics,
     )
     packet_seeds = montecarlo_configuration.packet_seeds
@@ -85,7 +86,6 @@ def montecarlo_radial1d(model, plasma, runner):
         runner.spectrum_frequency.value,
         number_of_vpackets,
         packet_seeds,
-
         ContinuumObject
     )
 
@@ -132,7 +132,6 @@ def montecarlo_main_loop(
     number_of_vpackets,
     packet_seeds,
     ContinuumObject
-
 ):
     """
     This is the main loop of the MonteCarlo routine that generates packets
@@ -209,6 +208,14 @@ def montecarlo_main_loop(
         vpacket_collection = vpacket_collections[i]
 
         loop = single_packet_loop(
+
+            r_packet,
+            numba_model,
+            numba_plasma,
+            estimators,
+            vpacket_collection,
+            continuum,
+
             r_packet, numba_model, numba_plasma, estimators, vpacket_collection,
             continuum
         )

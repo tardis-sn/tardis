@@ -57,4 +57,4 @@ spectrum:
   num: 10000
 
 debug:
-  specific: False
+  specific_log_level: False

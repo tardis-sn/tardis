@@ -97,6 +97,9 @@ def update_bound_free_estimators(
         numba_estimator.bf_heating_estimator[
             current_continuum, shell_id
         ] += bf_heating_estimator_increment
+        numba_estimator.stim_recomb_cooling_estimator[
+            current_continuum, shell_id
+        ] += (bf_heating_estimator_increment * boltzmann_factor)
 
 
 @njit(**njit_dict_no_parallel)

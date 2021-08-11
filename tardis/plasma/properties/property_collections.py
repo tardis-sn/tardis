@@ -87,6 +87,7 @@ continuum_interaction_inputs = PlasmaPropertyCollection(
         TInner,
         Volume,
         BfHeatingRateCoeffEstimator,
+        StimRecombCoolingRateCoeffEstimator,
         YgData,
     ]
 )
