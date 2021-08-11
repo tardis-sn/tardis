@@ -208,15 +208,11 @@ def montecarlo_main_loop(
         vpacket_collection = vpacket_collections[i]
 
         loop = single_packet_loop(
-
             r_packet,
             numba_model,
             numba_plasma,
             estimators,
             vpacket_collection,
-            continuum,
-
-            r_packet, numba_model, numba_plasma, estimators, vpacket_collection,
             continuum
         )
         # if loop and 'stop' in loop:
