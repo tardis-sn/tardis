@@ -20,7 +20,30 @@ def test_coninuum_opacities(
     print(continuum.x_sect_bfs)
     print(continuum.chi_ff)
 
-    
+ 
+@pytest.mark.parametrize(
+       "current_shell_id",
+       [0, 1, 2]
+       ) 
+def test_continuum_free_free_sampler(
+        verysimple_continuum, current_shell_id):
+
+    continuum = verysimple_continuum
+    nu = continuum.sample_nu_free_free(current_shell_id)
+    print(nu)
+
+@pytest.mark.parametrize(
+       ["current_shell_id", "continuum_id"],
+       [(0, 0), (1, 0)]
+       ) 
+def test_coninuum_opacities(
+    verysimple_continuum, current_shell_id, continuum_id):
+
+    continuum = verysimple_continuum
+    nu = continuum.sample_nu_free_bound(current_shell_id, continuum_id)
+    print(nu)
+
+
 
 @pytest.mark.parametrize("input_params", ["scatter", "macroatom", "downbranch"])
 def test_numba_plasma_initialize(nb_simulation_verysimple, input_params):

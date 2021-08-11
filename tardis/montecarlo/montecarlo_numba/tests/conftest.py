@@ -29,11 +29,7 @@ def verysimple_continuum(nu_simulation_verysimple):
     plasma = nu_simulation_verysimple
     numba_plasma = numba_interface.numba_plasma_initialize(plasma, "macroatom")
 
-    ContinuumClass = create_continuum_class(
-            plasma.chi_continuum_calculator,
-            plasma.nu_bf_sampler,
-            plasma.nu_ff_sampelr
-            )
+    ContinuumClass = create_continuum_class(plasma)
 
     continuum = ContinuumClass()
     return continuum
