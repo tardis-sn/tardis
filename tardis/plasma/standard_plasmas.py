@@ -170,6 +170,7 @@ def assemble_plasma(config, model, atom_data=None):
         kwargs.update(
             gamma_estimator=None,
             bf_heating_coeff_estimator=None,
+            stim_recomb_cooling_coeff_estimator=None,
             alpha_stim_estimator=None,
             volume=model.volume,
             r_inner=model.r_inner,
