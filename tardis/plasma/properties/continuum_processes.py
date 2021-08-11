@@ -45,6 +45,8 @@ __all__ = [
     "BoundFreeOpacityInterpolator",
     "FreeFreeOpacity",
     "ContinuumOpacityCalculator",
+    "FreeFreeFrequencySampler",
+    "FreeBoundFrequencySampler",
 ]
 
 
@@ -966,6 +968,71 @@ class FreeFreeOpacity(ProcessingPlasmaProperty):
             return chi_ff
 
         return chi_ff
+
+
+class FreeFreeFrequencySampler(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    nu_ff_sampler : float
+        Frequency of the free-free emission process
+
+    """
+
+    outputs = ("nu_ff_sampler",)
+
+    def calculate(self, t_electrons):
+
+        @njit(error_model="numpy", fastmath=True)
+        def nu_ff(shell):
+
+            T = t_electrons[shell]
+            zrand = np.random.random()
+            return -K_B * T / H * np.log(zrand)
+
+        return nu_ff
+
+class FreeBoundFrequencySampler(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    nu_fb_sampler : float
+        Frequency of the free-bounds emission process
+    """
+
+    outputs = ("nu_fb_sampler",)
+
+    def calculate(
+            self, 
+            photo_ion_cross_sections,
+            fb_emission_cdf,
+            level2continuum_idx
+    ):
+
+        phot_nus = photo_ion_cross_sections.nu.loc[level2continuum_idx.index]
+        photo_ion_block_references = np.pad(
+            phot_nus.groupby(level=[0, 1, 2], sort=False)
+            .count()
+            .values.cumsum(),
+            [1, 0],
+        )
+        phot_nus = phot_nus.values
+        emissivities = fb_emission_cdf.loc[level2continuum_idx.index].values
+
+        @njit(error_model="numpy", fastmath=True)
+        def nu_fb(shell, continuum_id):
+
+            em = emissivities[:, shell]
+            start = photo_ion_block_references[continuum_id]
+            end = photo_ion_block_references[continuum_id + 1]
+            
+            zrand = np.random.random()
+            idx = np.searchsorted(em[start:end], zrand, side="right")
+
+            return phot_nus[idx] - (em[idx] - zrand) / (em[idx] - em[idx-1]) * (phot_nus[idx] - phot_nus[idx-1])
+
+        return nu_fb
+
 
 
 class FreeBoundCoolingRate(TransitionProbabilitiesProperty):

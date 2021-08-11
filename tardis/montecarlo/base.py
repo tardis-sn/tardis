@@ -173,9 +173,11 @@ class MontecarloRunner(HDFWriterMixin):
             gamma_shape, dtype=np.float64
         )
         self.bf_heating_estimator = np.zeros(gamma_shape, dtype=np.float64)
+
         self.stim_recomb_cooling_estimator = np.zeros(
             gamma_shape, dtype=np.float64
         )
+
         self.photo_ion_estimator_statistics = np.zeros(
             gamma_shape, dtype=np.int64
         )
@@ -320,6 +322,7 @@ class MontecarloRunner(HDFWriterMixin):
             gamma_shape = plasma.gamma.shape
         else:
             gamma_shape = (0, 0)
+
         self._initialize_continuum_estimator_arrays(gamma_shape)
 
         self._initialize_geometry_arrays(model)

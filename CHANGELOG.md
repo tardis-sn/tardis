@@ -1,5 +1,9 @@
 ## Change Log
 
+### release-2021.8.8.0 (2021/08/05 18:49 +00:00)
+- [#1768](https://github.com/tardis-sn/tardis/pull/1768) Renamed `specific` log flag to `specific_log_level`  (#1768) (@DhruvSondhi)
+- [#1721](https://github.com/tardis-sn/tardis/pull/1721) Restructure Model Configuration Documentation (#1721) (@smithis7)
+
 ### release-2021.8.1.0 (2021/07/29 18:57 +00:00)
 - [#1753](https://github.com/tardis-sn/tardis/pull/1753) Adding Convergence Plots to the Documentation (#1753) (@atharva-2001)
 - [#1738](https://github.com/tardis-sn/tardis/pull/1738) TARDIS Grid (#1738) (@marxwillia)

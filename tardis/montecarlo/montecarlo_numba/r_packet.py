@@ -36,7 +36,8 @@ from tardis.montecarlo.montecarlo_numba.numba_config import (
 class InteractionType(IntEnum):
     BOUNDARY = 1
     LINE = 2
-    ESCATTERING = 3
+    ESCATTERING = 4
+    CONTINUUM_PROCESS = 8
 
 
 class PacketStatus(IntEnum):
@@ -98,7 +99,7 @@ def trace_packet(
         numba_model,
         numba_plasma,
         estimators,
-        chi_continuum_calculator
+        continuum
 ):
     """
     Traces the RPacket through the ejecta and stops when an interaction happens (heart of the calculation)
@@ -141,6 +142,24 @@ def trace_packet(
         r_packet.r, r_packet.mu, numba_model.time_explosion
     )
     comov_nu = r_packet.nu * doppler_factor
+    continuum.calculate(comov_nu, r_packet.current_shell_id)
+
+    (
+        chi_bf,
+        chi_bf_contributions,
+        current_continua,
+        x_sect_bfs,
+        chi_ff,
+    ) = (
+            continuum.chi_bf_tot, 
+            continuum.chi_bf_contributions, 
+            continuum.current_continua, 
+            continuum.x_sect_bfs, 
+            continuum.chi_ff
+    )
+
+    chi_continuum = chi_e + chi_bf + chi_ff
+    distance_continuum = tau_event / chi_continuum
 
     (
         chi_bf,
@@ -187,25 +206,21 @@ def trace_packet(
 
         # calculating the trace
         tau_trace_combined = tau_trace_line_combined + tau_trace_continuum
+    
+        distance = min(distance_trace, distance_boundary, distance_continuum)
 
-        if (
-            (distance_boundary <= distance_trace)
-            and (distance_boundary <= distance_continuum)
-        ) and distance_trace != 0.0:
-            interaction_type = InteractionType.BOUNDARY  # BOUNDARY
-            r_packet.next_line_id = cur_line_id
-            distance = distance_boundary
-            break
-
-        if (
-            (distance_continuum < distance_trace)
-            and (distance_continuum < distance_boundary)
-        ) and distance_trace != 0.0:
-            interaction_type = InteractionType.ESCATTERING
-            # print('scattering')
-            distance = distance_continuum
-            r_packet.next_line_id = cur_line_id
-            break
+        if distance_trace != 0:
+            if distance == distance_boundary:
+                interaction_type = InteractionType.BOUNDARY  # BOUNDARY
+                r_packet.next_line_id = cur_line_id
+                break
+            elif distance == distance_continuum:
+                zrand = np.random.random()
+                if zrand < chi_e / chi_continuum:
+                    interaction_type = InteractionType.ESCATTERING
+                interaction_type = InteractionType.CONTINUUM_PROCESS
+                r_packet.next_line_id = cur_line_id
+                break
 
         # Updating the J_b_lu and E_dot_lu
         # This means we are still looking for line interaction and have not
