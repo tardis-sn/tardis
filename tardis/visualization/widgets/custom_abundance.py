@@ -341,8 +341,7 @@ class CustomAbundanceWidget:
             description="Add",
             disabled=True,
             layout=ipw.Layout(
-                width="90px",
-                # margin="0 0 0 10px"
+                width="80px",
             ),
         )
         self.btn_add_shell.on_click(self.on_btn_add_shell)
@@ -351,14 +350,14 @@ class CustomAbundanceWidget:
             description="Add shell(s) with velocity range (km/s): ",
             style={"description_width": "initial"},
             layout=ipw.Layout(
-                width="330px",
+                width="320px",
             ),
         )
         self.input_v_end = ipw.FloatText(
             min=0,
             description="to",
             style={"description_width": "initial"},
-            layout=ipw.Layout(width="120px"),
+            layout=ipw.Layout(width="110px"),
         )
         self.input_v_start.observe(self.input_v_eventhandler, "value")
         self.input_v_end.observe(self.input_v_eventhandler, "value")
@@ -1089,7 +1088,7 @@ class CustomAbundanceWidget:
                 self.btn_add_shell,
                 self.overwrite_warning,
             ],
-            layout=ipw.Layout(margin="0 0 0 50px"),
+            layout=ipw.Layout(margin="0 0 0 30px")
         )
 
         box_head = ipw.HBox(
@@ -1149,14 +1148,15 @@ class CustomAbundanceWidget:
         self.read_abundance()
         self.density_editor.read_density()
 
+        self.visual_part = ipw.VBox([self.tbs_scale, self.fig])
+        self.editor_part = ipw.VBox([box_head, main_tab])
+        self.output_part = ipw.VBox([box_output, self.error_view])
+
         return ipw.VBox(
             [
-                self.tbs_scale,
-                self.fig,
-                box_head,
-                main_tab,
-                box_output,
-                self.error_view,
+                self.visual_part,
+                self.editor_part,
+                self.output_part
             ]
         )
 
