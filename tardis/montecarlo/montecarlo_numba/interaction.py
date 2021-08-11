@@ -56,13 +56,8 @@ def continuum_event(r_packet, time_explosion, continuum, numba_plasma):
 
     # This somehow determines the transition type and continuum id needed
     # but does not sample new frequencies
-    destination_level_idx = plasma.determine_continuum_macro_activation_idx(
-            comov_nu,
-            continuum.chi_bf_tot,
-            continuum.chi_ff,
-            continuum.chi_bf_contributions,
-            continuum.current_continua
-            )
+    destination_level_idx = continuum.determine_macro_activation_idx(
+            comov_nu, r_packet.current_shell_id)
 
     transition_id, transition_type = macro_atom(
             destination_level_idx, 
