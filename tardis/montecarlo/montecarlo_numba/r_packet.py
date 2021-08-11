@@ -210,6 +210,7 @@ def trace_packet(
         distance = min(distance_trace, distance_boundary, distance_continuum)
 
         if distance_trace != 0:
+
             if distance == distance_boundary:
                 interaction_type = InteractionType.BOUNDARY  # BOUNDARY
                 r_packet.next_line_id = cur_line_id
