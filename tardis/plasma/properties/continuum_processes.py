@@ -496,12 +496,12 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
                 t_electrons,
                 boltzmann_factor_photo_ion,
             )
-            alpha_stim *= phi_ik.loc[alpha_stim.index]
         else:
             alpha_stim_estimator = bf_estimator_array2frame(
                 alpha_stim_estimator, level2continuum_idx
             )
             alpha_stim = alpha_stim_estimator * photo_ion_norm_factor
+        alpha_stim *= phi_ik.loc[alpha_stim.index]
         return alpha_stim
 
     @staticmethod
@@ -597,7 +597,9 @@ class CorrPhotoIonRateCoeff(ProcessingPlasmaProperty):
         n_k_index = get_ion_multi_index(alpha_stim.index)
         n_k = ion_number_density.loc[n_k_index].values
         n_i = level_number_density.loc[alpha_stim.index].values
-        gamma_corr = gamma - alpha_stim * n_k * electron_densities / n_i
+        gamma_corr = gamma - (alpha_stim * n_k / n_i).multiply(
+            electron_densities
+        )
         num_neg_elements = (gamma_corr < 0).sum().sum()
         if num_neg_elements:
             raise PlasmaException("Negative values in CorrPhotoIonRateCoeff.")
