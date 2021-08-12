@@ -9,6 +9,82 @@ notebook in action.
 
 Currently, TARDIS supports the following widgets:
 
+Custom Abundance Widget
+#######################
+This widget is a GUI that allows you to develop custom model compositions 
+graphically and output the model to a new file.
+
+.. image:: ../images/custom_abundance_widget.png
+    :alt: Demo of Custom Abundance Widget
+
+The GUI consists of three parts:
+
+1. **Visualization plot** - A step graph generated using `Plotly` that shows 
+abundances and densities as a function of velocity. 
+
+2. **Data editor** - An interface to edit abundances, densities and velocity 
+shells.
+
+3. **File output** - An output module to save the model compositions as a CSVY 
+file.
+
+Interacting with the GUI
+========================
+
+This GUI is developed and composited by `ipywidgets`. Thus you can interact 
+with it in the notebook. There is some main functionality of it.
+
+Edit Abundances
+---------------
+There are two radio buttons which allow you to edit either single shell or 
+mutiple shells. The new input will be applied to selected shell(s) immediately 
+and the plot is updated at the same time. If you want to edit multiple shells 
+at a time, remember to choose the second radio button and set the range of 
+shell number using int slider. The selected shell(s) is highlighted in the 
+plot.
+
+.. image:: ../images/cus_abund_edit_abundance.gif
+    :alt: Demo of editing abundances
+
+Normalize Abundances
+--------------------
+Click `Normalize` button to normalize the abundances on selected shell(s) to 
+1. If you wish to fix the abundance of a certain element during the 
+normalization, you can select the checkbox near that element to lock it. 
+The normalization will be applied to other elements and the sum of the 
+abundances still remains at 1.
+
+.. image:: ../images/cus_abund_norm.gif
+    :alt: Demo of normalization
+
+Edit Densities
+--------------
+In `Edit Density` tab, you also can edit either single shell or the whole 
+density profile. To calculate a new profile, you need to choose the density 
+type and input required parameters.
+
+.. image:: ../images/cus_abund_edit_density.gif
+    :alt: Demo of editing densities
+
+Add New Element
+---------------
+At the bottom of the editor, the symbol input box allows you to add new element 
+or isotope to the model. It automatically recognizes whether the symbol exists 
+or whether the element is already in the model.
+
+.. image:: ../images/cus_abund_add_element.gif
+    :alt: Demo of adding new element
+
+Add New Shell
+-------------
+Another important functionality is to add new shell to the model. You need to 
+specify the velocity range of the new shell and abundances at that new shell 
+will be set to 0. Note that the existing shell(s) might be overwritten after 
+this operation.
+
+.. image:: ../images/cus_abund_add_shell.gif
+    :alt: Demo of adding new shell
+
 Shell Info Widget
 #################
 
