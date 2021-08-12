@@ -82,7 +82,7 @@ jobs:
              exit 0
 
           else
-            git commit -m "Update zenodo.json [skip ci]"
+            git commit -m "Update zenodo.json [auto] [skip ci]"
             git push
 
           fi
