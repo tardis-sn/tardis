@@ -56,7 +56,7 @@ class ConvergencePlots(object):
     t_inner_luminosities_colors : str or list, optional
         String defining cmap for luminosity and inner boundary temperature plot.
         The list can be a list of colors in rgb, hex or css-names format as well.
-    export_cplots : bool, default: False, optional
+    export_convergence_plots : bool, default: False, optional
         If True, plots are displayed again using the `notebook_connected` renderer. This helps
         to display the plots in the documentation or in platforms like nbviewer.
 
@@ -391,13 +391,13 @@ class ConvergencePlots(object):
                 4
             ].hovertemplate = "<b>%{y:.2f}%</b> at X = %{x:,.0f}"
 
-    def update(self, export_cplots=False, last=False):
+    def update(self, export_convergence_plots=False, last=False):
         """
         Update the convergence plots every iteration.
 
         Parameters
         ----------
-        export_cplots : bool, default: False, optional
+        export_convergence_plots : bool, default: False, optional
             Displays the convergence plots again using plotly's `notebook_connected` renderer.
             This helps to display the plots in notebooks when shared on platforms like nbviewer.
             Please see https://plotly.com/python/renderers/ for more information.
@@ -424,7 +424,7 @@ class ConvergencePlots(object):
 
         # the display function expects a Widget, while
         # fig.show() returns None, which causes the TraitError.
-        if export_cplots:
+        if export_convergence_plots:
             with suppress(TraitError):
                 display(
                     widgets.VBox(

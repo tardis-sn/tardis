@@ -12,9 +12,9 @@ from astropy import units as u
 @pytest.fixture(scope="module", params=[0, 1, 2])
 def convergence_plots(request):
     """Initialize ConvergencePlots class and build empty plots."""
-    cplots = ConvergencePlots(iterations=request.param)
-    cplots.build(display_plot=False)
-    return cplots
+    convergence_plots = ConvergencePlots(iterations=request.param)
+    convergence_plots.build(display_plot=False)
+    return convergence_plots
 
 
 @pytest.fixture()
