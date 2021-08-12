@@ -35,7 +35,7 @@ def montecarlo_radial1d(
     iteration,
     no_of_packets,
     total_iterations,
-    show_progress_bar,
+    show_progress_bars,
     runner,
 ):
     packet_collection = PacketCollection(
@@ -86,7 +86,7 @@ def montecarlo_radial1d(
         number_of_vpackets,
         packet_seeds,
         iteration=iteration,
-        show_progress_bar=show_progress_bar,
+        show_progress_bars=show_progress_bars,
         no_of_packets=no_of_packets,
         total_iterations=total_iterations,
     )
@@ -135,7 +135,7 @@ def montecarlo_main_loop(
     number_of_vpackets,
     packet_seeds,
     iteration,
-    show_progress_bar,
+    show_progress_bars,
     no_of_packets,
     total_iterations,
 ):
@@ -196,7 +196,7 @@ def montecarlo_main_loop(
     virt_packet_last_line_interaction_out_id = []
 
     for i in prange(len(output_nus)):
-        if show_progress_bar:
+        if show_progress_bars:
             with objmode:
                 update_amount  = 1
                 update_packet_pbar(
