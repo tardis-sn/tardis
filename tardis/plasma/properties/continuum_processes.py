@@ -984,7 +984,6 @@ class FreeFreeFrequencySampler(ProcessingPlasmaProperty):
     outputs = ("nu_ff_sampler",)
 
     def calculate(self, t_electrons):
-
         @njit(error_model="numpy", fastmath=True)
         def nu_ff(shell):
 
@@ -993,6 +992,7 @@ class FreeFreeFrequencySampler(ProcessingPlasmaProperty):
             return -K_B * T / H * np.log(zrand)
 
         return nu_ff
+
 
 class FreeBoundFrequencySampler(ProcessingPlasmaProperty):
     """
@@ -1005,10 +1005,7 @@ class FreeBoundFrequencySampler(ProcessingPlasmaProperty):
     outputs = ("nu_fb_sampler",)
 
     def calculate(
-            self, 
-            photo_ion_cross_sections,
-            fb_emission_cdf,
-            level2continuum_idx
+        self, photo_ion_cross_sections, fb_emission_cdf, level2continuum_idx
     ):
 
         phot_nus = photo_ion_cross_sections.nu.loc[level2continuum_idx.index]
@@ -1027,14 +1024,15 @@ class FreeBoundFrequencySampler(ProcessingPlasmaProperty):
             em = emissivities[:, shell]
             start = photo_ion_block_references[continuum_id]
             end = photo_ion_block_references[continuum_id + 1]
-            
+
             zrand = np.random.random()
             idx = np.searchsorted(em[start:end], zrand, side="right")
 
-            return phot_nus[idx] - (em[idx] - zrand) / (em[idx] - em[idx - 1]) * (phot_nus[idx] - phot_nus[idx - 1])
+            return phot_nus[idx] - (em[idx] - zrand) / (
+                em[idx] - em[idx - 1]
+            ) * (phot_nus[idx] - phot_nus[idx - 1])
 
         return nu_fb
-
 
 
 class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
