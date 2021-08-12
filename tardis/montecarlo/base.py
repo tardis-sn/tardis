@@ -24,6 +24,7 @@ from tardis.montecarlo.montecarlo_numba import numba_config
 from tardis.io.logger import montecarlo_tracking as mc_tracker
 
 import numpy as np
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +72,20 @@ class MontecarloRunner(HDFWriterMixin):
     ]
 
     hdf_name = "runner"
+
+    rpacket_tracker = pd.DataFrame(
+        columns=[
+            "Packet Index",
+            "Packet Seed",
+            "Packet Status",
+            "r",
+            "nu",
+            "mu",
+            "energy",
+            "shell_id",
+        ]
+    )
+
     w_estimator_constant = (
         (const.c ** 2 / (2 * const.h))
         * (15 / np.pi ** 4)
@@ -135,11 +150,8 @@ class MontecarloRunner(HDFWriterMixin):
         self.virt_packet_initial_rs = np.ones(2) * -1.0
         self.virt_packet_initial_mus = np.ones(2) * -1.0
 
-        # Setting up the Tracking array for RPacketCollection
-        if track_rpacket:
-            self.tracked_rpacket = []
-        else:
-            self.tracked_rpacket = None
+        self.rpacket_tracker_df = None
+        # self.rpacket_tracker = None
 
         # set up logger based on config
         mc_tracker.DEBUG_MODE = debug_packets
@@ -330,6 +342,50 @@ class MontecarloRunner(HDFWriterMixin):
         #    virtual_packet_flag=no_of_virtual_packets,
         #    nthreads=nthreads,
         #    last_run=last_run)
+
+        # if mc_config_module.RPACKET_TRACKING:
+        #     self.tracked_rpacket = append_df(runner.tracked_rpacket, tracked_rpacket)
+
+        #     if last_run:
+        #         runner.tracked_rpacket = tracked_rpacket_df(runner.tracked_rpacket)
+
+        # rpacket_tracker_df = convert class to DF
+        # rpacket_tracker_df["iteration"]=current
+        # if self.rpacket is None:
+        # self.rpacket convert to dataframe
+        # else:
+        # self.rpacket append
+
+        # self.rpacket_tracker = pd.DataFrame(
+        #     columns=[
+        #         "Packet Index",
+        #         "Packet Seed",
+        #         "Packet Status",
+        #         "r",
+        #         "nu",
+        #         "mu",
+        #         "energy",
+        #         "shell_id",
+        #     ]
+        # )
+        # self.rpacket_tracker["Iteration"] = iteration
+
+        # if mc_config_module.RPACKET_TRACKING:
+        #     self.rpacket_tracker = self.rpacket_tracker.append(
+        #         self.rpacket_tracker_df
+        #     )
+
+        # rpacket_tracker_df = convert_rpacket_class_to_df(
+        #     self.rpacket_tracker_class
+        # )
+        # rpacket_tracker_df["iteration"] = iteration
+
+        # if self.rpacket_tracker is None:
+        #     self.rpacket_tracker = convert_rpacket_class_to_df(
+        #         self.rpacket_tracker_class
+        #     )
+        # else:
+        #     self.rpacket_tracker.append(rpacket_tracker_df)
 
     def legacy_return(self):
         return (
@@ -638,3 +694,16 @@ class MontecarloRunner(HDFWriterMixin):
             ),
             track_rpacket=config.montecarlo.tracking.track_rpacket,
         )
+
+
+# def convert_rpacket_class_to_df(rpacket_tracker_class):
+#     df = pd.DataFrame()
+#     df["packet index"] = rpacket_tracker_class.index
+#     df["packet seed"] = rpacket_tracker_class.seed
+#     df["packet status"] = rpacket_tracker_class.status
+#     df["r"] = rpacket_tracker_class.r
+#     df["nu"] = rpacket_tracker_class.nu
+#     df["mu"] = rpacket_tracker_class.mu
+#     df["energy"] = rpacket_tracker_class.energy
+#     # df["shell id"] = rpacket_tracker_class.shell_id
+#     return df

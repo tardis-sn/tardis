@@ -137,12 +137,14 @@ def montecarlo_radial1d(
 
     # Condition for Checking if R Packet Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
-        runner.tracked_rpacket = append_df(
-            runner.tracked_rpacket, tracked_rpacket
+        tracked_df = append_df(tracked_rpacket, iteration)
+        runner.rpacket_tracker = tracked_rpacket_df(
+            runner.rpacket_tracker, tracked_df
         )
+        # runner.rpacket_tracker_class = tracked_rpacket
 
-        if last_run:
-            runner.tracked_rpacket = tracked_rpacket_df(runner.tracked_rpacket)
+        # if last_run:
+        #     runner.tracked_rpacket = tracked_rpacket_df(runner.tracked_rpacket)
 
 
 @njit(**njit_dict)
@@ -361,7 +363,7 @@ def montecarlo_main_loop(
     )
 
 
-def append_df(tracking_rpacket_array, tracked_rpacket):
+def append_df(tracked_rpacket, iteration):
     seed = tracked_rpacket.seed
     index = tracked_rpacket.index
     status = tracked_rpacket.status
@@ -370,6 +372,7 @@ def append_df(tracking_rpacket_array, tracked_rpacket):
     mu = tracked_rpacket.mu
     energy = tracked_rpacket.energy
     shell_id = tracked_rpacket.shell_id
+    iteration = iteration
 
     vals = [index, seed, status, r, nu, mu, energy, shell_id]
     columns_name = [
@@ -383,17 +386,18 @@ def append_df(tracking_rpacket_array, tracked_rpacket):
         "shell_id",
     ]
 
-    df = pd.DataFrame(zip(*vals), columns=columns_name)
-    multi = df.set_index(["Packet Index", "Packet Seed"])
-    tracking_rpacket_array.append(multi)
-    return tracking_rpacket_array
+    rpacket_tracked_df = pd.DataFrame(zip(*vals), columns=columns_name)
+    rpacket_tracked_df["Iteration"] = iteration
+
+    return rpacket_tracked_df
 
 
-def tracked_rpacket_df(list_of_df):
-    frames = [df for df in list_of_df]
-    keys = [iteration for iteration in range(len(list_of_df))]
+def tracked_rpacket_df(tracked_rpacket_df, tracked_df):
+    # frames = [df for df in list_of_df]
+    # keys = [iteration for iteration in range(len(list_of_df))]
 
-    tracked_rpacket_dataframe = pd.concat(
-        frames, keys=keys, names=["Iteration"]
-    )
-    return tracked_rpacket_dataframe
+    # tracked_rpacket_dataframe = pd.concat(
+    #     frames, keys=keys, names=["Iteration"]
+    # )
+    tracked_rpacket_df = tracked_rpacket_df.append(tracked_df)
+    return tracked_rpacket_df
