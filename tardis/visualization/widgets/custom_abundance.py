@@ -396,7 +396,7 @@ class CustomAbundanceWidget:
         y = self.abundance.iloc[index]
         self.fig.data[index + 2].y = np.append(y, y.iloc[-1])
 
-    def update_front(self):
+    def update_front_end(self):
         """Update checkbox widgets, input widgets and plot in the front
         end when selected shell No. is changed.
         """
@@ -418,7 +418,7 @@ class CustomAbundanceWidget:
 
     def overwrite_existing_shells(self, v_0, v_1):
         """Judge whether the existing shell(s) will be overwritten when
-        inserting a new shell within the entered velosity range.
+        inserting a new shell within the entered velocity range.
 
         Parameters
         ----------
@@ -551,7 +551,7 @@ class CustomAbundanceWidget:
 
         self.dpd_shell_no.options = list(range(1, self.no_of_shells + 1))
         self.shell_no = start_index + 1
-        self.update_front()
+        self.update_front_end()
         self.irs_shell_range.max = self.no_of_shells
 
     def tbs_scale_eventhandler(self, obj):
@@ -643,7 +643,7 @@ class CustomAbundanceWidget:
         else:
             self.btn_next.disabled = False
 
-        self.update_front()
+        self.update_front_end()
 
     def on_btn_prev(self, obj):
         """Move to previous shell. 
@@ -755,14 +755,14 @@ class CustomAbundanceWidget:
         self.abundance.sort_index(inplace=True)
 
         # Add new BoundedFloatText control and Checkbox control.
-        _item = ipw.BoundedFloatText(min=0, max=1, step=0.01)
-        _check = ipw.Checkbox(indent=False, layout=ipw.Layout(width="30px"))
-        _item.index = self.no_of_elements - 1
-        _check.index = self.no_of_elements - 1
-        _item.observe(self.input_item_eventhandler, "value")
-        _check.observe(self.check_eventhandler, "value")
-        self.input_items.append(_item)
-        self.checks.append(_check)
+        item = ipw.BoundedFloatText(min=0, max=1, step=0.01)
+        check = ipw.Checkbox(indent=False, layout=ipw.Layout(width="30px"))
+        item.index = self.no_of_elements - 1
+        check.index = self.no_of_elements - 1
+        item.observe(self.input_item_eventhandler, "value")
+        check.observe(self.check_eventhandler, "value")
+        self.input_items.append(item)
+        self.checks.append(check)
 
         # Keep the order of description same with atomic number
         self.elements = self.get_symbols()
@@ -1371,7 +1371,7 @@ class CustomAbundanceWidget:
 
 
 class DensityEditor:
-    """A widget like object to edit density profile.
+    """Widget to edit density profile of simulation model.
 
     It provides an interface to allow the user directly change
     the density, or calculate the density with given type and
