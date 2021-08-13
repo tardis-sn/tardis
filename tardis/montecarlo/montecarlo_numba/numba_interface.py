@@ -363,7 +363,6 @@ def create_continuum_class(plasma):
 
         def determine_macro_activation_idx(self, nu, shell):
 
-            self.calculate(nu, shell) # maybe don't do this here
             idx = get_macro_activation_idx(
                     nu, self.chi_bf_tot, self.chi_ff, 
                     self.chi_bf_contributions, self.current_continua
