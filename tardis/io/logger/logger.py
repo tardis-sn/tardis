@@ -116,9 +116,7 @@ def logging_state(log_level, tardis_config, specific_log_level):
             tardis_config["debug"]["log_level"] = DEFAULT_LOG_LEVEL
             logging_level = tardis_config["debug"]["log_level"]
 
-        if specific_log_level:
-            specific_log_level = specific_log_level
-        else:
+        if not specific_log_level:
             tardis_config["debug"][
                 "specific_log_level"
             ] = DEFAULT_SPECIFIC_STATE
