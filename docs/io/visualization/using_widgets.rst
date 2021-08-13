@@ -11,7 +11,7 @@ Currently, TARDIS supports the following widgets:
 
 Custom Abundance Widget
 #######################
-This widget is a GUI that allows you to develop custom model compositions 
+This widget (or GUI) allows you to develop custom model compositions 
 graphically and output the model to a new file.
 
 .. image:: ../images/custom_abundance_widget.png
@@ -19,8 +19,8 @@ graphically and output the model to a new file.
 
 The GUI consists of three parts:
 
-1. **Visualization plot** - A step graph generated using `Plotly` that shows 
-abundances and densities as a function of velocity. 
+1. **Visualization plot** - An interactive step graph that shows abundances 
+and densities as a function of velocity. 
 
 2. **Data editor** - An interface to edit abundances, densities and velocity 
 shells.
@@ -31,8 +31,7 @@ file.
 Interacting with the GUI
 ========================
 
-This GUI is developed and composited by `ipywidgets`. Thus you can interact 
-with it in the notebook. There is some main functionality of it.
+You can interact with this GUI in the following ways:
 
 Edit Abundances
 ---------------
@@ -49,7 +48,7 @@ plot.
 Normalize Abundances
 --------------------
 Click `Normalize` button to normalize the abundances on selected shell(s) to 
-1. If you wish to fix the abundance of a certain element during the 
+1. If you wish to keep the abundance of a certain element unchanged during the 
 normalization, you can select the checkbox near that element to lock it. 
 The normalization will be applied to other elements and the sum of the 
 abundances still remains at 1.
@@ -79,8 +78,8 @@ Add New Shell
 -------------
 Another important functionality is to add new shell to the model. You need to 
 specify the velocity range of the new shell and abundances at that new shell 
-will be set to 0. Note that the existing shell(s) might be overwritten after 
-this operation.
+will be set to 0. Note that the existing shell(s) will be resized smartly if 
+the new shell overlaps with it.
 
 .. image:: ../images/cus_abund_add_shell.gif
     :alt: Demo of adding new shell
