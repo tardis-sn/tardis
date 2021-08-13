@@ -86,7 +86,7 @@ class CustomYAML(yaml.YAMLObject):
 
 
 class CustomAbundanceWidget:
-    """Widget to edit abundances and densities of simulation model 
+    """Widget to edit abundances and densities of simulation model
     graphically.
 
     It generates a GUI based on input data. The GUI has a plot section
@@ -331,9 +331,9 @@ class CustomAbundanceWidget:
         self.rbs_multi_apply.observe(self.rbs_multi_apply_eventhandler, "value")
 
     def update_input_item_value(self, index, value):
-        """Update the value of the widget in the list of abundance inputs. 
-        
-        Keep two decimal places for displayed value and disable 
+        """Update the value of the widget in the list of abundance inputs.
+
+        Keep two decimal places for displayed value and disable
         `input_item_eventhandler` while changing the value.
 
         Parameters
@@ -461,7 +461,7 @@ class CustomAbundanceWidget:
             return False
 
     def on_btn_add_shell(self, obj):
-        """Add new shell with given boundary velocities. Triggered if 
+        """Add new shell with given boundary velocities. Triggered if
         the button is clicked.
 
         Parameters
@@ -555,7 +555,7 @@ class CustomAbundanceWidget:
         self.irs_shell_range.max = self.no_of_shells
 
     def tbs_scale_eventhandler(self, obj):
-        """Switch the scale type of y axis between linear mode and log 
+        """Switch the scale type of y axis between linear mode and log
         mode. Triggered if the toggle button is changed.
 
         Parameters
@@ -583,7 +583,7 @@ class CustomAbundanceWidget:
             )
 
     def input_item_eventhandler(self, obj):
-        """Update the data and the widget when it gets new abundance 
+        """Update the data and the widget when it gets new abundance
         input. Triggered if the abundance input is changed.
 
         Parameters
@@ -624,7 +624,7 @@ class CustomAbundanceWidget:
             self.bound_locked_sum_to_1(item_index)
 
     def dpd_shell_no_eventhandler(self, obj):
-        """Make the data in widgets correspond with the selected shell. 
+        """Make the data in widgets correspond with the selected shell.
         Triggered if the dropdown value is changed.
 
         Parameters
@@ -646,7 +646,7 @@ class CustomAbundanceWidget:
         self.update_front_end()
 
     def on_btn_prev(self, obj):
-        """Move to previous shell. 
+        """Move to previous shell.
 
         Parameters
         ----------
@@ -666,7 +666,7 @@ class CustomAbundanceWidget:
         self.shell_no += 1
 
     def on_btn_norm(self, obj):
-        """Normalize unlocked abundances to 1. Triggered if the 
+        """Normalize unlocked abundances to 1. Triggered if the
         normalize button is clicked.
 
         Parameters
@@ -697,7 +697,7 @@ class CustomAbundanceWidget:
 
     @debounce(0.5)
     def input_symb_eventhandler(self, obj):
-        """Judge whether the input symbol is valid. Triggered after 0.5s 
+        """Judge whether the input symbol is valid. Triggered after 0.5s
         when the symbol input is changed.
 
         Parameters
@@ -734,7 +734,7 @@ class CustomAbundanceWidget:
         self.symb_warning.readout = "invalid"
 
     def on_btn_add_element(self, obj):
-        """Add new element and update the display in the front end. 
+        """Add new element and update the display in the front end.
         Triggered if the add button is clicked.
 
         Parameters
@@ -818,7 +818,7 @@ class CustomAbundanceWidget:
         self.update_abundance_plot(item_index)
 
     def input_v_eventhandler(self, obj):
-        """Judge whether the input velocity range is valid. Triggered if the 
+        """Judge whether the input velocity range is valid. Triggered if the
         velocity input is changed.
 
         Parameters
@@ -855,7 +855,7 @@ class CustomAbundanceWidget:
         self.to_csvy(path, overwrite)
 
     def rbs_single_apply_eventhandler(self, obj):
-        """Switch to single shell editing mode. Triggered if the 
+        """Switch to single shell editing mode. Triggered if the
         first radio button is selected.
 
         Parameters
@@ -871,7 +871,7 @@ class CustomAbundanceWidget:
         self.irs_shell_range.disabled = True
 
     def rbs_multi_apply_eventhandler(self, obj):
-        """Switch to multi-shells editing mode. Triggered if the 
+        """Switch to multi-shells editing mode. Triggered if the
         second radio button is selected.
 
         Parameters
@@ -890,7 +890,7 @@ class CustomAbundanceWidget:
         self.irs_shell_range.disabled = False
 
     def irs_shell_range_eventhandler(self, obj):
-        """Select the velocity range of new shell and highlight the range 
+        """Select the velocity range of new shell and highlight the range
         in the plot. Triggered if the shell range slider is changed.
 
         Parameters
