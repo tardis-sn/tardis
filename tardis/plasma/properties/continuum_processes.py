@@ -496,12 +496,12 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
                 t_electrons,
                 boltzmann_factor_photo_ion,
             )
-            alpha_stim *= phi_ik.loc[alpha_stim.index]
         else:
             alpha_stim_estimator = bf_estimator_array2frame(
                 alpha_stim_estimator, level2continuum_idx
             )
             alpha_stim = alpha_stim_estimator * photo_ion_norm_factor
+        alpha_stim *= phi_ik.loc[alpha_stim.index]
         return alpha_stim
 
     @staticmethod
@@ -597,7 +597,9 @@ class CorrPhotoIonRateCoeff(ProcessingPlasmaProperty):
         n_k_index = get_ion_multi_index(alpha_stim.index)
         n_k = ion_number_density.loc[n_k_index].values
         n_i = level_number_density.loc[alpha_stim.index].values
-        gamma_corr = gamma - alpha_stim * n_k * electron_densities / n_i
+        gamma_corr = gamma - (alpha_stim * n_k / n_i).multiply(
+            electron_densities
+        )
         num_neg_elements = (gamma_corr < 0).sum().sum()
         if num_neg_elements:
             raise PlasmaException("Negative values in CorrPhotoIonRateCoeff.")
@@ -982,7 +984,6 @@ class FreeFreeFrequencySampler(ProcessingPlasmaProperty):
     outputs = ("nu_ff_sampler",)
 
     def calculate(self, t_electrons):
-
         @njit(error_model="numpy", fastmath=True)
         def nu_ff(shell):
 
@@ -991,6 +992,7 @@ class FreeFreeFrequencySampler(ProcessingPlasmaProperty):
             return -K_B * T / H * np.log(zrand)
 
         return nu_ff
+
 
 class FreeBoundFrequencySampler(ProcessingPlasmaProperty):
     """
@@ -1003,10 +1005,7 @@ class FreeBoundFrequencySampler(ProcessingPlasmaProperty):
     outputs = ("nu_fb_sampler",)
 
     def calculate(
-            self, 
-            photo_ion_cross_sections,
-            fb_emission_cdf,
-            level2continuum_idx
+        self, photo_ion_cross_sections, fb_emission_cdf, level2continuum_idx
     ):
 
         phot_nus = photo_ion_cross_sections.nu.loc[level2continuum_idx.index]
@@ -1025,14 +1024,15 @@ class FreeBoundFrequencySampler(ProcessingPlasmaProperty):
             em = emissivities[:, shell]
             start = photo_ion_block_references[continuum_id]
             end = photo_ion_block_references[continuum_id + 1]
-            
+
             zrand = np.random.random()
             idx = np.searchsorted(em[start:end], zrand, side="right")
 
-            return phot_nus[idx] - (em[idx] - zrand) / (em[idx] - em[idx - 1]) * (phot_nus[idx] - phot_nus[idx - 1])
+            return phot_nus[idx] - (em[idx] - zrand) / (
+                em[idx] - em[idx - 1]
+            ) * (phot_nus[idx] - phot_nus[idx - 1])
 
         return nu_fb
-
 
 
 class FreeBoundCoolingRate(TransitionProbabilitiesProperty):

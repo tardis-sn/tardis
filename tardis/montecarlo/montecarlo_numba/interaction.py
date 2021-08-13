@@ -100,7 +100,7 @@ def free_free_emission(r_packet, time_explosion, numba_plasma, continuum):
     # maybe I'll update the numba_plasma?
     comov_nu = continuum.sample_nu_free_free(r_packet.current_shell_id)
     r_packet.nu = comov_nu * inverse_doppler_factor
-    current_line_id = get_current_line_id(r_packet.nu, numba_plasma) 
+    current_line_id = get_current_line_id(comov_nu, numba_plasma) 
     r_packet.next_line_id = current_line_id
     
     if montecarlo_configuration.full_relativity:
