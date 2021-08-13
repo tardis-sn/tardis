@@ -106,7 +106,8 @@ def single_packet_loop(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
 
-        elif interaction_type == InteractionType.ESCATTERING or interaction_type == InteractionType.CONTINUUM_PROCESS:
+        elif interaction_type == InteractionType.ESCATTERING or \
+                interaction_type == InteractionType.CONTINUUM_PROCESS:
             r_packet.last_interaction_type = 1
 
             move_r_packet(
