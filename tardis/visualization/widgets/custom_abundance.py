@@ -8,7 +8,6 @@ import plotly.graph_objects as go
 from astropy import units as u
 from pyne import nucname
 from pathlib import Path
-import asyncio
 
 import tardis
 from tardis.util.base import quantity_linspace
@@ -26,79 +25,11 @@ from tardis.io.model_reader import (
 )
 from tardis.util.base import atomic_number2element_symbol, quantity_linspace
 from tardis.visualization.tools.convergence_plot import transition_colors
-
+from tardis.visualization.widgets.util import debounce
 
 BASE_DIR = tardis.__path__[0]
 YAML_DELIMITER = "---"
 COLORMAP = "viridis"
-
-
-class Timer:
-    """An object to implement debounce using an asynchronous loop.
-
-    Notes
-    -----
-    This class is reproduced from ipywidgets documentation, for more information
-    please see https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#Debouncing
-    """
-
-    def __init__(self, timeout, callback):
-        """Initialize the Timer with delay time and delayed function.
-
-        Parameters
-        ----------
-            timeout : float
-            callback : function
-        """
-        self._timeout = timeout
-        self._callback = callback
-
-    async def _job(self):
-        await asyncio.sleep(self._timeout)
-        self._callback()
-
-    def start(self):
-        self._task = asyncio.ensure_future(self._job())
-
-    def cancel(self):
-        self._task.cancel()
-
-
-def debounce(wait):
-    """Decorator that will postpone a function's execution until after
-     `wait` seconds have elapsed since the last time it was invoked.
-
-    Parameters
-    ----------
-        wait : float
-
-    Returns
-    -------
-        function
-
-    Notes
-    -----
-    This decorator is reproduced from ipywidgets documentation, for more information
-    please see https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html
-    """
-
-    def decorator(fn):
-        timer = None
-
-        def debounced(*args, **kwargs):
-            nonlocal timer
-
-            def call_it():
-                fn(*args, **kwargs)
-
-            if timer is not None:
-                timer.cancel()
-            timer = Timer(wait, call_it)
-            timer.start()
-
-        return debounced
-
-    return decorator
 
 
 class CustomYAML(yaml.YAMLObject):
@@ -155,7 +86,8 @@ class CustomYAML(yaml.YAMLObject):
 
 
 class CustomAbundanceWidget:
-    """A widget like object to edit abundances and densities graphically.
+    """Widget to edit abundances and densities of simulation model 
+    graphically.
 
     It generates a GUI based on input data. The GUI has a plot section
     to visualize the profile, a edit section to allow the user directly
@@ -176,8 +108,7 @@ class CustomAbundanceWidget:
     elements : list of str
         A list of elements or isotopes' symbols.
     _trigger : bool
-        If False, disable `input_item_eventhandler` when `input_item`
-        is changed.
+        If False, disable the callback when abundance input is changed.
     """
 
     error_view = ipw.Output()
@@ -400,30 +331,31 @@ class CustomAbundanceWidget:
         self.rbs_multi_apply.observe(self.rbs_multi_apply_eventhandler, "value")
 
     def update_input_item_value(self, index, value):
-        """Update the value of the widget in `input_items` list. Keep two
-        decimal places for displayed value and disable `input_item_eventhandler`
-        while changing the value.
+        """Update the value of the widget in the list of abundance inputs. 
+        
+        Keep two decimal places for displayed value and disable 
+        `input_item_eventhandler` while changing the value.
 
         Parameters
         ----------
             index : int
-                The index of the widget in `input_items` widget list.
+                The index of the widget in the list of abundance inputs.
             value : float
                 New abundance value.
         """
         self._trigger = False
+        # `input_items` is the list of  abundance input widgets.
         self.input_items[index].value = float("{:.2e}".format(value))
         self._trigger = True
 
     def read_abundance(self):
         """Read abundances data in DataFrame to input items box when
-        `shell_no` changes.
+        shell No. changes.
         """
         for i in range(self.no_of_elements):
             value = self.abundance.iloc[i, self.shell_no - 1]
             self.update_input_item_value(i, value)
 
-    # Ensure the sum of locked elements less than 1
     def bound_locked_sum_to_1(self, index):
         """Ensure the sum of locked abundances is no more than 1. If the
         locked sum is more than 1, calculate the maximum with the sum no
@@ -432,7 +364,7 @@ class CustomAbundanceWidget:
         Parameters
         ----------
             index : int
-                The index of the widget in `input_items` widget list.
+                The index of the widget in the list of abundance inputs.
         """
         locked_mask = np.array(self.checked_list)
         back_value = self.abundance.iloc[
@@ -459,14 +391,14 @@ class CustomAbundanceWidget:
         Parameters
         ----------
             index : int
-                The index of the widget in `input_items` widget list.
+                The index of the widget in the list of abundance inputs.
         """
         y = self.abundance.iloc[index]
         self.fig.data[index + 2].y = np.append(y, y.iloc[-1])
 
     def update_front(self):
         """Update checkbox widgets, input widgets and plot in the front
-        end when selected shell No is changed.
+        end when selected shell No. is changed.
         """
         # Update checkboxes, input boxes and plot.
         for check in self.checks:
@@ -529,7 +461,8 @@ class CustomAbundanceWidget:
             return False
 
     def on_btn_add_shell(self, obj):
-        """Add new shell with given boundary velocities.
+        """Add new shell with given boundary velocities. Triggered if 
+        the button is clicked.
 
         Parameters
         ----------
@@ -622,8 +555,8 @@ class CustomAbundanceWidget:
         self.irs_shell_range.max = self.no_of_shells
 
     def tbs_scale_eventhandler(self, obj):
-        """The callback for `tbs_scale` widget. Switch the scale type
-        of y axis between linear mode and log mode.
+        """Switch the scale type of y axis between linear mode and log 
+        mode. Triggered if the toggle button is changed.
 
         Parameters
         ----------
@@ -650,9 +583,8 @@ class CustomAbundanceWidget:
             )
 
     def input_item_eventhandler(self, obj):
-        """The callback for the item in `input_items` widget list.
-        Update the data and the widget when it gets new abundance
-        input.
+        """Update the data and the widget when it gets new abundance 
+        input. Triggered if the abundance input is changed.
 
         Parameters
         ----------
@@ -679,8 +611,7 @@ class CustomAbundanceWidget:
                 self.apply_to_multiple_shells(item_index)
 
     def check_eventhandler(self, obj):
-        """The callback for the item in `checks` widget list.
-        Triggered if the checkbox is changed.
+        """Triggered if the checkbox is changed.
 
         Parameters
         ----------
@@ -693,8 +624,8 @@ class CustomAbundanceWidget:
             self.bound_locked_sum_to_1(item_index)
 
     def dpd_shell_no_eventhandler(self, obj):
-        """The callback for `dpd_shell_no` widget. Make the data in
-        widgets correspond with the selected shell.
+        """Make the data in widgets correspond with the selected shell. 
+        Triggered if the dropdown value is changed.
 
         Parameters
         ----------
@@ -715,7 +646,7 @@ class CustomAbundanceWidget:
         self.update_front()
 
     def on_btn_prev(self, obj):
-        """The callback for `btn_prev` button. Move to previous shell.
+        """Move to previous shell. 
 
         Parameters
         ----------
@@ -725,18 +656,18 @@ class CustomAbundanceWidget:
         self.shell_no -= 1
 
     def on_btn_next(self, obj):
-        """The callback for `btn_prev` button. Move to next shell.
+        """Move to next shell.
 
         Parameters
         ----------
             obj : ipywidgets.widgets.widget_button.Button
-                A dictionary holding the information about the change.
+                The clicked button instance.
         """
         self.shell_no += 1
 
     def on_btn_norm(self, obj):
-        """The callback for `btn_norm` button. Normalize unlocked abundances
-        to 1.
+        """Normalize unlocked abundances to 1. Triggered if the 
+        normalize button is clicked.
 
         Parameters
         ----------
@@ -766,8 +697,8 @@ class CustomAbundanceWidget:
 
     @debounce(0.5)
     def input_symb_eventhandler(self, obj):
-        """The callback for `input_symb` button. Judge whether the input
-        symbol is valid.
+        """Judge whether the input symbol is valid. Triggered after 0.5s 
+        when the symbol input is changed.
 
         Parameters
         ----------
@@ -803,8 +734,8 @@ class CustomAbundanceWidget:
         self.symb_warning.readout = "invalid"
 
     def on_btn_add_element(self, obj):
-        """The callback for `btn_add_element` button. Add new element and
-        update the display in the front end.
+        """Add new element and update the display in the front end. 
+        Triggered if the add button is clicked.
 
         Parameters
         ----------
@@ -874,7 +805,7 @@ class CustomAbundanceWidget:
         Parameters
         ----------
             item_index : int
-                The index of the widget in `input_items` widget list.
+                The index of the widget in the list of abundance inputs.
         """
         start_index = self.irs_shell_range.value[0] - 1
         end_index = self.irs_shell_range.value[1]
@@ -887,8 +818,8 @@ class CustomAbundanceWidget:
         self.update_abundance_plot(item_index)
 
     def input_v_eventhandler(self, obj):
-        """The callback for `input_v` widget. Judge whether the input
-        velocity range is valid.
+        """Judge whether the input velocity range is valid. Triggered if the 
+        velocity input is changed.
 
         Parameters
         ----------
@@ -911,8 +842,7 @@ class CustomAbundanceWidget:
             self.overwrite_warning.layout.visibility = "hidden"
 
     def on_btn_output(self, obj):
-        """The callback for `btn_output` button. Output the model to
-        CSVY file.
+        """Triggered if the output button is clicked.
 
         Parameters
         ----------
@@ -925,8 +855,8 @@ class CustomAbundanceWidget:
         self.to_csvy(path, overwrite)
 
     def rbs_single_apply_eventhandler(self, obj):
-        """The callback for `rbs_single_apply` radio button. Switch to single
-        shell editing mode.
+        """Switch to single shell editing mode. Triggered if the 
+        first radio button is selected.
 
         Parameters
         ----------
@@ -941,8 +871,8 @@ class CustomAbundanceWidget:
         self.irs_shell_range.disabled = True
 
     def rbs_multi_apply_eventhandler(self, obj):
-        """The callback for `rbs_single_apply` radio button. Switch to multi-
-        shell editing mode.
+        """Switch to multi-shells editing mode. Triggered if the 
+        second radio button is selected.
 
         Parameters
         ----------
@@ -960,8 +890,8 @@ class CustomAbundanceWidget:
         self.irs_shell_range.disabled = False
 
     def irs_shell_range_eventhandler(self, obj):
-        """The callback for `irs_shell_range` int slider. Select the velocity
-        range of new shell and highlight the range in the plot.
+        """Select the velocity range of new shell and highlight the range 
+        in the plot. Triggered if the shell range slider is changed.
 
         Parameters
         ----------
@@ -1452,8 +1382,7 @@ class DensityEditor:
     shell_no : int
         The selected shell number.
     trigger : bool
-        If it is False, unable to trigger `input_d_eventhandler` when
-        `input_d` is changed.
+        If False, disable the callback when density input is changed.
     """
 
     def __init__(self, density_t_0, density, velocity, fig, shell_no_widget):
@@ -1567,7 +1496,7 @@ class DensityEditor:
 
     def read_density(self):
         """Read density data in DataFrame to density input box when
-        `shell_no` changes.
+        shell No. changes.
         """
         dvalue = self.d[self.shell_no].value
         self._trigger = False
@@ -1580,8 +1509,7 @@ class DensityEditor:
         self.fig.data[1].y = y
 
     def input_d_eventhandler(self, obj):
-        """The callback for `input_d` widget. Update the data and the widgets
-        when it gets new density input.
+        """Update the data and the widgets when it gets new density input.
 
         Parameters
         ----------
@@ -1598,8 +1526,8 @@ class DensityEditor:
 
     @dtype_out.capture(clear_output=True)
     def dpd_dtype_eventhandler(self, obj):
-        """The callback for `dpd_dtype` widget. Display the input boxes
-        of the specified density type.
+        """Display the input boxes of the specified density type.
+        Triggered if the density type dropdown is changed.
 
         Parameters
         ----------
@@ -1620,8 +1548,8 @@ class DensityEditor:
             display(self.pow_box)
 
     def on_btn_calculate(self, obj):
-        """The callback for `btn_calculate` button. Calculate density
-        according to density parameters input.
+        """Calculate density according to density parameters input.
+        Triggered if the density calculate button is clicked.
 
         Parameters
         ----------
