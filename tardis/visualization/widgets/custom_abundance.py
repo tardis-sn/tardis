@@ -39,7 +39,7 @@ class Timer:
     Notes
     -----
     This class is reproduced from ipywidgets documentation, for more information
-    please see https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html
+    please see https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#Debouncing
     """
 
     def __init__(self, timeout, callback):
