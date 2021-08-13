@@ -3,6 +3,7 @@
 import logging
 import qgrid
 import ipywidgets as ipw
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -226,3 +227,71 @@ class TableSummaryLabel:
                 justify_content="flex-start",
             ),
         )
+
+
+class Timer:
+    """An object to implement debounce using an asynchronous loop.
+
+    Notes
+    -----
+    This class is reproduced from ipywidgets documentation, for more information
+    please see https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html
+    """
+
+    def __init__(self, timeout, callback):
+        """Initialize the Timer with delay time and delayed function.
+
+        Parameters
+        ----------
+            timeout : float
+            callback : function
+        """
+        self._timeout = timeout
+        self._callback = callback
+
+    async def _job(self):
+        await asyncio.sleep(self._timeout)
+        self._callback()
+
+    def start(self):
+        self._task = asyncio.ensure_future(self._job())
+
+    def cancel(self):
+        self._task.cancel()
+
+
+def debounce(wait):
+    """Decorator that will postpone a function's execution until after
+     `wait` seconds have elapsed since the last time it was invoked.
+
+    Parameters
+    ----------
+        wait : float
+
+    Returns
+    -------
+        function
+
+    Notes
+    -----
+    This decorator is reproduced from ipywidgets documentation, for more information
+    please see https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html
+    """
+
+    def decorator(fn):
+        timer = None
+
+        def debounced(*args, **kwargs):
+            nonlocal timer
+
+            def call_it():
+                fn(*args, **kwargs)
+
+            if timer is not None:
+                timer.cancel()
+            timer = Timer(wait, call_it)
+            timer.start()
+
+        return debounced
+
+    return decorator
