@@ -1,5 +1,9 @@
 ## Change Log
 
+### release-2021.8.15.0 (2021/08/12 14:24 +00:00)
+- [#1770](https://github.com/tardis-sn/tardis/pull/1770) Rename cplots to convergence_plots (#1770) (@atharva-2001)
+- [#1772](https://github.com/tardis-sn/tardis/pull/1772) Reverse legend in Plasma Convergence Plots (#1772) (@atharva-2001)
+
 ### release-2021.8.8.0 (2021/08/05 18:49 +00:00)
 - [#1768](https://github.com/tardis-sn/tardis/pull/1768) Renamed `specific` log flag to `specific_log_level`  (#1768) (@DhruvSondhi)
 - [#1721](https://github.com/tardis-sn/tardis/pull/1721) Restructure Model Configuration Documentation (#1721) (@smithis7)
