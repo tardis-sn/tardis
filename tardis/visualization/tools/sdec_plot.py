@@ -1185,18 +1185,21 @@ class SDECPlotter:
 
         # Plot observed spectrum
         if observed_spectrum:
+            if distance is None:
+                raise ValueError(
+                    "Distance must be specified if an observed_spectrum is given"
+                )
+
             observed_spectrum_wavelength = None
-            observed_spectrum_luminosity = None
+            observed_spectrum_flux = None
 
             # Convert to wavelength and luminosity units
             observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
-            observed_spectrum_luminosity = observed_spectrum[1].to(
-                "erg/(s cm**2 AA)"
-            )
+            observed_spectrum_flux = observed_spectrum[1].to("erg/(s cm**2 AA)")
 
             self.ax.plot(
                 observed_spectrum_wavelength,
-                observed_spectrum_luminosity / self.lum_to_flux,
+                observed_spectrum_flux,
                 linestyle="--",
                 label="Observed Spectrum",
                 linewidth=1,
@@ -1577,18 +1580,21 @@ class SDECPlotter:
 
         # Plot observed spectrum
         if observed_spectrum:
+            if distance is None:
+                raise ValueError(
+                    "Distance must be specified if an observed_spectrum is given"
+                )
+
             observed_spectrum_wavelength = None
-            observed_spectrum_luminosity = None
+            observed_spectrum_flux = None
 
             # Convert to wavelength and luminosity units
             observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
-            observed_spectrum_luminosity = observed_spectrum[1].to(
-                "erg/(s cm**2 AA)"
-            )
+            observed_spectrum_flux = observed_spectrum[1].to("erg/(s cm**2 AA)")
 
             self.fig.add_scatter(
                 x=observed_spectrum_wavelength,
-                y=observed_spectrum_luminosity / self.lum_to_flux,
+                y=observed_spectrum_flux,
                 name="Observed Spectrum",
             )
 
