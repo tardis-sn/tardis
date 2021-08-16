@@ -331,7 +331,6 @@ class MontecarloRunner(HDFWriterMixin):
             total_iterations,
             show_progress_bars,
             self,
-            last_run,
         )
         self._integrator = FormalIntegrator(model, plasma, self)
         # montecarlo.montecarlo_radial1d(

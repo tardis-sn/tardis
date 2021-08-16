@@ -158,7 +158,6 @@ def montecarlo_main_loop(
     show_progress_bars,
     no_of_packets,
     total_iterations,
-    tracked_rpacket,
 ):
     """
     This is the main loop of the MonteCarlo routine that generates packets
@@ -373,9 +372,17 @@ def create_tracked_rpacket_df(tracked_rpacket, iteration):
     mu = tracked_rpacket.mu
     energy = tracked_rpacket.energy
     shell_id = tracked_rpacket.shell_id
-    iteration = iteration
 
-    vals = [index, seed, status, r, nu, mu, energy, shell_id]
+    vals = [
+        index,
+        seed,
+        status,
+        r,
+        nu,
+        mu,
+        energy,
+        shell_id,
+    ]
     columns_name = [
         "Packet Index",
         "Packet Seed",
@@ -387,11 +394,28 @@ def create_tracked_rpacket_df(tracked_rpacket, iteration):
         "shell_id",
     ]
 
-    rpacket_tracked_df = pd.DataFrame(zip(*vals), columns=columns_name)
+    rpacket_tracked_df = pd.DataFrame(
+        zip(*vals), columns=columns_name, dtype=object
+    )
     rpacket_tracked_df["Iteration"] = iteration
     return rpacket_tracked_df
 
 
 def track_rpacket_dataframe(tracked_rpacket_df, tracked_df):
-    tracked_rpacket_df = tracked_rpacket_df.append(tracked_df)
+    tracked_rpacket_df = tracked_rpacket_df.append(
+        tracked_df, ignore_index=True
+    )
+    tracked_rpacket_df = tracked_rpacket_df.convert_dtypes()
+    columns_reorder = [
+        "Iteration",
+        "Packet Index",
+        "Packet Seed",
+        "Packet Status",
+        "r",
+        "nu",
+        "mu",
+        "energy",
+        "shell_id",
+    ]
+    tracked_rpacket_df = tracked_rpacket_df[columns_reorder]
     return tracked_rpacket_df
