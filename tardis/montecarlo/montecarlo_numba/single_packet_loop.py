@@ -49,7 +49,7 @@ def single_packet_loop(
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
     vpacket_collection : tardis.montecarlo.montecarlo_numba.numba_interface.VPacketCollection
-    tracked_rpackets_properties: tardis.montecarlo.montecarlo_numba.numba_interface.RPacketCollection
+    tracked_rpackets : tardis.montecarlo.montecarlo_numba.numba_interface.RPacketCollection
 
     Returns
     -------

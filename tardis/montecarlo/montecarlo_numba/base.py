@@ -128,7 +128,7 @@ def montecarlo_radial1d(
 
     # Condition for Checking if R Packet Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
-        runner.rpacket_tracker= tracked_rpackets
+        runner.rpacket_tracker = tracked_rpackets
 
 
 @njit(**njit_dict)
