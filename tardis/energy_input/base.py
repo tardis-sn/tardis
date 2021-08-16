@@ -207,7 +207,7 @@ def main_gamma_ray_loop(num_photons, model):
     inner_velocities = model.v_inner.value
     ejecta_density = model.density.value
     ejecta_volume = model.volume.value
-    ejecta_epoch = model.time_explosion.to("s").value
+    time_explosion = model.time_explosion.to("s").value
     number_of_shells = model.no_of_shells
     raw_isotope_abundance = model.raw_isotope_abundance
 
@@ -272,7 +272,7 @@ def main_gamma_ray_loop(num_photons, model):
                 inner_velocities,
                 outer_velocities,
                 total_opacity,
-                ejecta_epoch,
+                time_explosion,
             )
 
             if distance_interaction < distance_boundary:
@@ -290,7 +290,7 @@ def main_gamma_ray_loop(num_photons, model):
                     outer_velocities, photon.location.r, side="left"
                 )
                 photon.time_current += (
-                    distance_interaction / const.c.cgs.value * ejecta_epoch
+                    distance_interaction / const.c.cgs.value * time_explosion
                 )
 
                 if photon.status == GXPhotonStatus.COMPTON_SCATTER:
@@ -339,13 +339,13 @@ def main_gamma_ray_loop(num_photons, model):
                     photon.status = GXPhotonStatus.IN_PROCESS
 
             else:
-                photon.tau -= total_opacity * distance_boundary * ejecta_epoch
+                photon.tau -= total_opacity * distance_boundary * time_explosion
                 # overshoot so that the gamma-ray is comfortably in the next shell
                 photon = move_photon(
                     photon, distance_boundary * (1 + BOUNDARY_THRESHOLD)
                 )
                 photon.time_current += (
-                    distance_boundary / const.c.cgs.value * ejecta_epoch
+                    distance_boundary / const.c.cgs.value * time_explosion
                 )
                 photon.shell = np.searchsorted(
                     outer_velocities, photon.location.r, side="left"

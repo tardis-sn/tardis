@@ -104,10 +104,10 @@ def pair_creation(photon):
 
     Returns
     -------
-        GXPhoton
-            forward photon
-        GXPhoton
-            backward photon
+    GXPhoton
+        forward photon
+    GXPhoton
+        backward photon
     """
     direction_theta = get_random_theta_photon()
     direction_phi = get_random_phi_photon()

@@ -52,7 +52,7 @@ def distance_trace(
     inner_radii,
     outer_radii,
     total_opacity,
-    ejecta_epoch,
+    time_explosion,
 ):
     """
     Traces distance traveled by gamma ray and finds distance to
@@ -64,7 +64,7 @@ def distance_trace(
     inner_radii : One dimensional Numpy array, dtype float
     outer_radii : One dimensional Numpy array, dtype float
     total_opacity : float
-    ejecta_epoch : float
+    time_explosion : float
 
     Returns
     -------
@@ -78,7 +78,7 @@ def distance_trace(
         outer_radii[photon.shell],
     )
 
-    distance_interaction = photon.tau / total_opacity / ejecta_epoch
+    distance_interaction = photon.tau / total_opacity / time_explosion
     return distance_interaction, distance_boundary
 
 
