@@ -255,9 +255,8 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         "level_absorption_probs",
         "deactivation_channel_probs",
         "transition_probabilities",
-        "combined_trans_probs",
         "macro_block_references",
-        "macro_atom_info",  # TODO: Rename this to macro_atom_data once things work
+        "macro_atom_data",
     )
     """
     Attributes
@@ -384,7 +383,6 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
             non_continuum_trans_probs,
             level_absorption_probs,
             deactivation_channel_probs,
-            non_markov_transition_probabilities,  # TODO: replace with combined_trans_probs as soons as this works
             combined_trans_probs,
             block_references,
             macro_atom_info,
