@@ -71,7 +71,8 @@ def continuum_event(r_packet, time_explosion, continuum, numba_plasma):
     # Then use this to get a transition id from the macroatom 
     if transition_type == MacroAtomTransitionType.FF_EMISSION: 
         free_free_emission(r_packet, time_explosion, numba_plasma, continuum)
-    elif transition_type == MacroAtomTransitionType.BF_EMISSION:
+    elif transition_type == MacroAtomTransitionType.BF_EMISSION or \
+            transition_type == MacroAtomTransitionType.BF_COOLING:
         bound_free_emission(r_packet, 
                 time_explosion, 
                 numba_plasma, 
@@ -79,13 +80,13 @@ def continuum_event(r_packet, time_explosion, continuum, numba_plasma):
                 transition_id)
 
 @njit(**njit_dict_no_parallel)
-def get_current_line_id(nu, numba_plasma):
+def get_current_line_id(nu, line_list):
     '''
     Get the next line id corresponding to a packet at frequency nu
     '''
 
-    reverse_line_list = numba_plasma.line_list_nu[::-1]
-    number_of_lines = len(numba_plasma.line_list_nu)
+    reverse_line_list = line_list[::-1]
+    number_of_lines = len(line_list)
     line_id = number_of_lines - np.searchsorted(reverse_line_list, nu)
     return line_id
 
@@ -100,7 +101,10 @@ def free_free_emission(r_packet, time_explosion, numba_plasma, continuum):
     # maybe I'll update the numba_plasma?
     comov_nu = continuum.sample_nu_free_free(r_packet.current_shell_id)
     r_packet.nu = comov_nu * inverse_doppler_factor
-    current_line_id = get_current_line_id(comov_nu, numba_plasma) 
+    current_line_id = get_current_line_id(
+            comov_nu,
+            numba_plasma.line_list_nu
+            ) 
     r_packet.next_line_id = current_line_id
     
     if montecarlo_configuration.full_relativity:
@@ -120,7 +124,10 @@ def bound_free_emission(r_packet, time_explosion, numba_plasma, continuum, conti
             continuum_id)
     
     r_packet.nu = comov_nu * inverse_doppler_factor
-    current_line_id = get_current_line_id(r_packet.nu, numba_plasma)
+    current_line_id = get_current_line_id(
+            comov_nu, 
+            numba_plasma.line_list_nu
+            )
     r_packet.next_line_id = current_line_id
 
     if montecarlo_configuration.full_relativity:
