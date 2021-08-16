@@ -141,9 +141,11 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         line2macro_level_upper = (
             plasma.atomic_data.lines_upper2macro_reference_idx
         )
-        macro_block_references = plasma.atomic_data.macro_atom_references[
-            "block_references"
-        ].values
+        # macro_block_references = plasma.atomic_data.macro_atom_references[
+        #     "block_references"
+        # ].values
+        # TODO: Fix setting of block references for non-continuum mode
+        macro_block_references = plasma.macro_block_references
         transition_type = plasma.macro_atom_data["transition_type"].values
 
         # Destination level is not needed and/or generated for downbranch
