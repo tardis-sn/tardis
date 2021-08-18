@@ -49,7 +49,7 @@ __all__ = [
     "FreeBoundFrequencySampler",
 ]
 
-
+N_A = const.N_A.cgs.value
 K_B = const.k_B.cgs.value
 C = const.c.cgs.value
 H = const.h.cgs.value
@@ -956,7 +956,7 @@ class FreeFreeOpacity(ProcessingPlasmaProperty):
 
     outputs = ("chi_ff_calculator",)
 
-    def calculate(self, t_electrons, ff_cooling_factor):
+    def calculate(self, t_electrons, ff_cooling_factor, electron_densities):
         ff_opacity_factor = ff_cooling_factor / np.sqrt(t_electrons)
 
         @njit(error_model="numpy", fastmath=True)
@@ -1021,16 +1021,17 @@ class FreeBoundFrequencySampler(ProcessingPlasmaProperty):
         @njit(error_model="numpy", fastmath=True)
         def nu_fb(shell, continuum_id):
 
-            em = emissivities[:, shell]
             start = photo_ion_block_references[continuum_id]
             end = photo_ion_block_references[continuum_id + 1]
+            phot_nus_block = phot_nus[start:end]
+            em = emissivities[start:end, shell]
 
             zrand = np.random.random()
-            idx = np.searchsorted(em[start:end], zrand, side="right")
+            idx = np.searchsorted(em, zrand, side="right")
 
-            return phot_nus[idx] - (em[idx] - zrand) / (
+            return phot_nus_block[idx] - (em[idx] - zrand) / (
                 em[idx] - em[idx - 1]
-            ) * (phot_nus[idx] - phot_nus[idx - 1])
+            ) * (phot_nus_block[idx] - phot_nus_block[idx - 1])
 
         return nu_fb
 
