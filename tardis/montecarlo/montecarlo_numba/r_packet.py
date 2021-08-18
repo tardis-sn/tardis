@@ -208,7 +208,8 @@ def trace_packet(
                 zrand = np.random.random()
                 if zrand < chi_e / chi_continuum:
                     interaction_type = InteractionType.ESCATTERING
-                interaction_type = InteractionType.CONTINUUM_PROCESS
+                else:
+                    interaction_type = InteractionType.CONTINUUM_PROCESS
                 r_packet.next_line_id = cur_line_id
                 break
 
@@ -237,6 +238,9 @@ def trace_packet(
 
         # Recalculating distance_continuum using tau_event -
         # tau_trace_line_combined
+        # I don't think this needs to be updated
+        # since tau_event is already the result of the integral
+        # from the initial line
         distance_continuum = (tau_event - tau_trace_line_combined) / (
             chi_continuum
         )
