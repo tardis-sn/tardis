@@ -17,6 +17,7 @@ class MacroAtomTransitionType(IntEnum):
     FF_EMISSION = -3
     ADIABATIC_COOLING = -4
     BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION
+    TWO_PHOTON = -6
 
 
 @njit(**njit_dict_no_parallel)
