@@ -39,6 +39,7 @@ __all__ = [
     "FreeBoundEmissionCDF",
     "RawTwoPhotonTransProbs",
     "TwoPhotonEmissionCDF",
+    "TwoPhotonFrequencySampler",
     "CollIonRateCoeffSeaton",
     "CollRecombRateCoeff",
     "RawCollIonTransProbs",
@@ -1033,6 +1034,33 @@ class FreeBoundFrequencySampler(ProcessingPlasmaProperty):
             ) * (phot_nus[idx] - phot_nus[idx - 1])
 
         return nu_fb
+
+
+class TwoPhotonFrequencySampler(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    nu_two_photon_sampler : float
+        Frequency of the two-photon emission process
+    """
+
+    outputs = ("nu_two_photon_sampler",)
+
+    def calculate(self, two_photon_emission_cdf):
+
+        nus = two_photon_emission_cdf["nu"].values
+        em = two_photon_emission_cdf["cdf"].values
+
+        @njit(error_model="numpy", fastmath=True)
+        def nu_two_photon():
+            zrand = np.random.random()
+            idx = np.searchsorted(em, zrand, side="right")
+
+            return nus[idx] - (em[idx] - zrand) / (em[idx] - em[idx - 1]) * (
+                nus[idx] - nus[idx - 1]
+            )
+
+        return nu_two_photon
 
 
 class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
