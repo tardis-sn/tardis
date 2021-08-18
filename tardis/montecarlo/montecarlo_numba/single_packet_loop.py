@@ -92,7 +92,6 @@ def single_packet_loop(
 
         elif interaction_type == InteractionType.LINE:
             r_packet.last_interaction_type = 2
-
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
             )
@@ -101,13 +100,13 @@ def single_packet_loop(
                 numba_model.time_explosion,
                 line_interaction_type,
                 numba_plasma,
+                continuum,
             )
             trace_vpacket_volley(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
 
-        elif interaction_type == InteractionType.ESCATTERING or \
-                interaction_type == InteractionType.CONTINUUM_PROCESS:
+        elif interaction_type == InteractionType.ESCATTERING:
             r_packet.last_interaction_type = 1
 
             move_r_packet(
@@ -129,6 +128,8 @@ def single_packet_loop(
             trace_vpacket_volley(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
+        else:
+            pass
 
 
         if mc_tracker.DEBUG_MODE:
