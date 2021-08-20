@@ -45,9 +45,9 @@ class CustomYAML(yaml.YAMLObject):
             name : str
                 Name of the YAML file.
             d_time_0 : astropy.units.quantity.Quantity
-                Model density time 0.
+                Initial time for the density in the model.
             i_time_0 : astropy.units.quantity.Quantity
-                Model isotope time 0.
+                Initial time for isotope decay. Set to 0 for no isotopes.
             v_inner_boundary : astropy.units.quantity.Quantity
                 Velocity of the inner boundary.
             v_outer_boundary : astropy.units.quantity.Quantity
