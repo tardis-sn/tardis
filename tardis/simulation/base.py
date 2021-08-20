@@ -134,6 +134,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         nthreads,
         show_convergence_plots,
         convergence_plots_kwargs,
+        show_progress_bars,
     ):
 
         super(Simulation, self).__init__(iterations, model.no_of_shells)
@@ -151,6 +152,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.luminosity_nu_end = luminosity_nu_end
         self.luminosity_requested = luminosity_requested
         self.nthreads = nthreads
+        self.show_progress_bars = show_progress_bars
 
         if convergence_strategy.type in ("damped"):
             self.convergence_strategy = convergence_strategy
@@ -372,6 +374,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             nthreads=self.nthreads,
             last_run=last_run,
             iteration=self.iterations_executed,
+            total_iterations=self.iterations,
+            show_progress_bars=self.show_progress_bars,
         )
         output_energy = self.runner.output_energy
         if np.sum(output_energy < 0) == len(output_energy):
@@ -592,6 +596,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         packet_source=None,
         virtual_packet_logging=False,
         show_convergence_plots=True,
+        show_progress_bars=True,
         **kwargs,
     ):
         """
@@ -684,4 +689,5 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             convergence_strategy=config.montecarlo.convergence_strategy,
             nthreads=config.montecarlo.nthreads,
             convergence_plots_kwargs=convergence_plots_kwargs,
+            show_progress_bars=show_progress_bars,
         )

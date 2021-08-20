@@ -15,6 +15,7 @@ def run_tardis(
     show_convergence_plots=True,
     log_level=None,
     specific_log_level=None,
+    show_progress_bars=True,
     **kwargs,
 ):
     """
@@ -52,6 +53,8 @@ def run_tardis(
         The default value None means that the `specific_log_level` specified in the configuration file will be used.
     show_convergence_plots : bool, default: True, optional
         Option to enable tardis convergence plots.
+    show_progress_bars : bool, default: True, optional
+        Option to enable the progress bar.
     **kwargs : dict, optional
         Optional keyword arguments including those
         supported by :obj:`tardis.visualization.tools.convergence_plot.ConvergencePlots`.
@@ -101,6 +104,7 @@ def run_tardis(
         atom_data=atom_data,
         virtual_packet_logging=virtual_packet_logging,
         show_convergence_plots=show_convergence_plots,
+        show_progress_bars=show_progress_bars,
         **kwargs,
     )
     for cb in simulation_callbacks:
