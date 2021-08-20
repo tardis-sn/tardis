@@ -1109,7 +1109,8 @@ class SDECPlotter:
         observed_spectrum : tuple or list of astropy.Quantity, optional
             Option to plot an observed spectrum in the SDEC plot. If given, the first element
             should be the wavelength and the second element should be flux,
-            i.e. (wavelength, flux)
+            i.e. (wavelength, flux). The assumed units for wavelength and flux are
+            angstroms and erg/(angstroms * s * /cm^2), respectively. Default value is None.
         show_modeled_spectrum : bool, optional
             Whether to show modeled spectrum in SDEC Plot. Default value is
             True
@@ -1187,7 +1188,10 @@ class SDECPlotter:
         if observed_spectrum:
             if distance is None:
                 raise ValueError(
-                    "Distance must be specified if an observed_spectrum is given"
+                    """
+                    Distance must be specified if an observed_spectrum is given 
+                    so that the model spectrum can be converted into flux space correctly.
+                    """
                 )
 
             observed_spectrum_wavelength = None
@@ -1501,7 +1505,8 @@ class SDECPlotter:
         observed_spectrum : tuple or list of astropy.Quantity, optional
             Option to plot an observed spectrum in the SDEC plot. If given, the first element
             should be the wavelength and the second element should be flux,
-            i.e. (wavelength, flux)
+            i.e. (wavelength, flux). The assumed units for wavelength and flux are
+            angstroms and erg/(angstroms * s * /cm^2), respectively. Default value is None.
         show_modeled_spectrum : bool, optional
             Whether to show modeled spectrum in SDEC Plot. Default value is
             True
@@ -1582,7 +1587,10 @@ class SDECPlotter:
         if observed_spectrum:
             if distance is None:
                 raise ValueError(
-                    "Distance must be specified if an observed_spectrum is given"
+                    """
+                    Distance must be specified if an observed_spectrum is given 
+                    so that the model spectrum can be converted into flux space correctly.
+                    """
                 )
 
             observed_spectrum_wavelength = None
