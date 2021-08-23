@@ -58,7 +58,7 @@ class CustomAbundanceWidgetData:
         self.abundance = abundance
         self.velocity = velocity.to("km/s")
         self.elements = self.get_symbols()
-
+        
     def get_symbols(self):
         """Get symbol string from atomic number and mass number."""
         str_symbols = np.array(
@@ -73,7 +73,7 @@ class CustomAbundanceWidgetData:
 
     @classmethod
     def from_csvy(cls, fpath):
-        """Create a new CustomAbundanceWidgetData instance with data
+        """Create a new CustomAbundanceWidgetData instance with data 
         from CSVY file.
 
         Parameters
@@ -182,7 +182,7 @@ class CustomAbundanceWidgetData:
 
     @classmethod
     def from_yml(cls, fpath):
-        """Create a new CustomAbundanceWidgetData instance with data
+        """Create a new CustomAbundanceWidgetData instance with data 
         from YAML file.
 
         Parameters
@@ -222,7 +222,7 @@ class CustomAbundanceWidgetData:
 
     @classmethod
     def from_hdf(cls, fpath):
-        """Create a new CustomAbundanceWidgetData instance with data
+        """Create a new CustomAbundanceWidgetData instance with data 
         from HDF file.
 
         Parameters
@@ -257,7 +257,7 @@ class CustomAbundanceWidgetData:
 
     @classmethod
     def from_simulation(cls, sim):
-        """Create a new CustomAbundanceWidgetData instance from a
+        """Create a new CustomAbundanceWidgetData instance from a 
         Simulation object.
 
         Parameters
@@ -683,8 +683,14 @@ class CustomAbundanceWidget:
         )
 
         if (index_1 - index_0 > 1) or (
-            (index_1 < len(v_vals) and np.isclose(v_vals[index_1], v_1))
-            or (index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0))
+            (
+                index_1 < len(v_vals)
+                and np.isclose(v_vals[index_1], v_1)
+            )
+            or (
+                index_1 - index_0 == 1
+                and not np.isclose(v_vals[index_0], v_0)
+            )
         ):
             return True
         else:
@@ -717,14 +723,18 @@ class CustomAbundanceWidget:
         )
 
         # Delete the overwritten shell (abundances and velocities).
-        if end_index < len(v_vals) and np.isclose(v_vals[end_index], v_end):
+        if end_index < len(v_vals) and np.isclose(
+            v_vals[end_index], v_end
+        ):
             # New shell will overwrite the original shell that ends at v_end.
             v_vals = np.delete(v_vals, end_index)
             self.data.abundance.drop(max(0, end_index - 1), 1, inplace=True)
 
         # Insert new velocities calculate new densities according
         # to new velocities through interpolation.
-        v_vals = np.insert(v_vals, [start_index, end_index], [v_start, v_end])
+        v_vals = np.insert(
+            v_vals, [start_index, end_index], [v_start, v_end]
+        )
         v_vals = np.delete(v_vals, slice(start_index + 1, end_index + 1))
 
         self.data.density = (
@@ -1513,6 +1523,14 @@ class DensityEditor:
             ),
         )
         self.input_d.observe(self.input_d_eventhandler, "value")
+        
+        self.input_d_time_0 = ipw.FloatText(
+            value=self.data.density_t_0.value,
+            description="Density time_0 (day): ",
+            style={"description_width": "initial"},
+            layout=ipw.Layout(margin="0 0 20px 0"),
+        )
+        self.input_d_time_0.observe(self.input_d_time_0_eventhandler, "value")
 
         self.input_d_time_0 = ipw.FloatText(
             value=self.data.density_t_0.value,
@@ -1613,6 +1631,10 @@ class DensityEditor:
             )
 
             self.update_density_plot()
+    
+    def input_d_time_0_eventhandler(self, obj):
+        new_value = obj.new
+        self.data.density_t_0 = new_value * self.data.density_t_0.unit
 
     def input_d_time_0_eventhandler(self, obj):
         """Update density time 0 data when the widget gets new input.
