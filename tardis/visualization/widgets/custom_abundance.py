@@ -33,13 +33,32 @@ COLORMAP = "jet"
 
 
 class CustomAbundanceWidgetData:
+    """The model information and data that required in custom
+    abundance widget.
+
+    Attributes
+    ----------
+    elements : list of str
+        A list of elements or isotopes' symbols.
+    """
+
     def __init__(self, density_t_0, density, abundance, velocity):
+        """Initialize CustomAbundanceWidgetData with model information.
+
+        Parameters
+        ----------
+        density_t_0 : astropy.units.quantity.Quantity
+            Initial time for the density in the model.
+        density : astropy.units.quantity.Quantity
+        abundance : pd.DataFrame
+        velocity : astropy.units.quantity.Quantity
+        """
         self.density_t_0 = density_t_0.to("day")
         self.density = density.to("g cm^-3")
         self.abundance = abundance
         self.velocity = velocity.to("km/s")
         self.elements = self.get_symbols()
-        
+
     def get_symbols(self):
         """Get symbol string from atomic number and mass number."""
         str_symbols = np.array(
@@ -54,7 +73,7 @@ class CustomAbundanceWidgetData:
 
     @classmethod
     def from_csvy(cls, fpath):
-        """Create a new CustomAbundanceWidgetData instance with data 
+        """Create a new CustomAbundanceWidgetData instance with data
         from CSVY file.
 
         Parameters
@@ -163,7 +182,7 @@ class CustomAbundanceWidgetData:
 
     @classmethod
     def from_yml(cls, fpath):
-        """Create a new CustomAbundanceWidgetData instance with data 
+        """Create a new CustomAbundanceWidgetData instance with data
         from YAML file.
 
         Parameters
@@ -203,7 +222,7 @@ class CustomAbundanceWidgetData:
 
     @classmethod
     def from_hdf(cls, fpath):
-        """Create a new CustomAbundanceWidgetData instance with data 
+        """Create a new CustomAbundanceWidgetData instance with data
         from HDF file.
 
         Parameters
@@ -238,7 +257,7 @@ class CustomAbundanceWidgetData:
 
     @classmethod
     def from_simulation(cls, sim):
-        """Create a new CustomAbundanceWidgetData instance from a 
+        """Create a new CustomAbundanceWidgetData instance from a
         Simulation object.
 
         Parameters
@@ -247,7 +266,7 @@ class CustomAbundanceWidgetData:
 
         Returns
         -------
-        CustomAbundanceWidget
+        CustomAbundanceWidgetData
         """
         abundance = sim.model.raw_abundance.copy()
         isotope_abundance = sim.model.raw_isotope_abundance.copy()
@@ -280,16 +299,16 @@ class CustomYAML(yaml.YAMLObject):
 
         Parameters
         ----------
-            name : str
-                Name of the YAML file.
-            d_time_0 : astropy.units.quantity.Quantity
-                Initial time for the density in the model.
-            i_time_0 : astropy.units.quantity.Quantity
-                Initial time for isotope decay. Set to 0 for no isotopes.
-            v_inner_boundary : astropy.units.quantity.Quantity
-                Velocity of the inner boundary.
-            v_outer_boundary : astropy.units.quantity.Quantity
-                Velocity of the outer boundary.
+        name : str
+            Name of the YAML file.
+        d_time_0 : astropy.units.quantity.Quantity
+            Initial time for the density in the model.
+        i_time_0 : astropy.units.quantity.Quantity
+            Initial time for isotope decay. Set to 0 for no isotopes.
+        v_inner_boundary : astropy.units.quantity.Quantity
+            Velocity of the inner boundary.
+        v_outer_boundary : astropy.units.quantity.Quantity
+            Velocity of the outer boundary.
         """
         self.name = name
         self.model_density_time_0 = d_time_0
@@ -304,8 +323,8 @@ class CustomYAML(yaml.YAMLObject):
 
         Parameters
         ----------
-            elements : list of str
-                A list of elements or isotopes' symbols.
+        elements : list of str
+            A list of elements or isotopes' symbols.
         """
         for i in range(len(elements) + 2):
             field = {}
@@ -328,7 +347,7 @@ class CustomAbundanceWidget:
     graphically.
 
     It generates a GUI based on input data. The GUI has a plot section
-    to visualize the profile, a edit section to allow the user directly
+    to visualize the profile, an edit section to allow the user directly
     edit abundance and density profile, and an output section to output
     the model to CSVY file.
 
@@ -343,8 +362,6 @@ class CustomAbundanceWidget:
     checked_list : list of bool
         A list of bool to record whether the checkbox is checked.
         The index of the bool corresponds to the index of checkbox.
-    elements : list of str
-        A list of elements or isotopes' symbols.
     _trigger : bool
         If False, disable the callback when abundance input is changed.
     """
@@ -352,14 +369,12 @@ class CustomAbundanceWidget:
     error_view = ipw.Output()
 
     def __init__(self, widget_data):
-        """Initialize CustomAbundanceWidget with density, abundance and
-        velocity data.
+        """Initialize CustomAbundanceWidget with data and generate
+        the widgets and plot.
 
         Parameters
         ----------
-            density : astropy.units.quantity.Quantity
-            abundance : pd.DataFrame
-            velocity : astropy.units.quantity.Quantity
+        widget_data : CustomAbundanceWidgetData
         """
         self.data = widget_data
         self._trigger = True
@@ -558,10 +573,10 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            index : int
-                The index of the widget in the list of abundance inputs.
-            value : float
-                New abundance value.
+        index : int
+            The index of the widget in the list of abundance inputs.
+        value : float
+            New abundance value.
         """
         self._trigger = False
         # `input_items` is the list of  abundance input widgets.
@@ -583,8 +598,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            index : int
-                The index of the widget in the list of abundance inputs.
+        index : int
+            The index of the widget in the list of abundance inputs.
         """
         locked_mask = np.array(self.checked_list)
         back_value = self.data.abundance.iloc[
@@ -610,8 +625,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            index : int
-                The index of the widget in the list of abundance inputs.
+        index : int
+            The index of the widget in the list of abundance inputs.
         """
         y = self.data.abundance.iloc[index]
         self.fig.data[index + 2].y = np.append(y, y.iloc[-1])
@@ -642,15 +657,15 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            v_0 : float
-                The velocity of inner boundary.
-            v_1 : float
-                The velocity of outer boundary.
+        v_0 : float
+            The velocity of inner boundary.
+        v_1 : float
+            The velocity of outer boundary.
 
         Returns
         -------
-            bool
-                True if the existing shell will be overwritten, False otherwise.
+        bool
+            True if the existing shell will be overwritten, False otherwise.
         """
         v_vals = self.data.velocity.value
         position_0 = np.searchsorted(v_vals, v_0)
@@ -668,14 +683,8 @@ class CustomAbundanceWidget:
         )
 
         if (index_1 - index_0 > 1) or (
-            (
-                index_1 < len(v_vals)
-                and np.isclose(v_vals[index_1], v_1)
-            )
-            or (
-                index_1 - index_0 == 1
-                and not np.isclose(v_vals[index_0], v_0)
-            )
+            (index_1 < len(v_vals) and np.isclose(v_vals[index_1], v_1))
+            or (index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0))
         ):
             return True
         else:
@@ -687,8 +696,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            obj : ipywidgets.widgets.widget_button.Button
-                The clicked button instance.
+        obj : ipywidgets.widgets.widget_button.Button
+            The clicked button instance.
         """
         v_start = self.input_v_start.value
         v_end = self.input_v_end.value
@@ -708,18 +717,14 @@ class CustomAbundanceWidget:
         )
 
         # Delete the overwritten shell (abundances and velocities).
-        if end_index < len(v_vals) and np.isclose(
-            v_vals[end_index], v_end
-        ):
+        if end_index < len(v_vals) and np.isclose(v_vals[end_index], v_end):
             # New shell will overwrite the original shell that ends at v_end.
             v_vals = np.delete(v_vals, end_index)
             self.data.abundance.drop(max(0, end_index - 1), 1, inplace=True)
 
         # Insert new velocities calculate new densities according
         # to new velocities through interpolation.
-        v_vals = np.insert(
-            v_vals, [start_index, end_index], [v_start, v_end]
-        )
+        v_vals = np.insert(v_vals, [start_index, end_index], [v_start, v_end])
         v_vals = np.delete(v_vals, slice(start_index + 1, end_index + 1))
 
         self.data.density = (
@@ -752,7 +757,9 @@ class CustomAbundanceWidget:
                     self.data.abundance.insert(end_index - 1, "gap", 0)
                 else:
                     self.data.abundance.insert(
-                        end_index - 1, "gap", self.data.abundance.iloc[:, end_index]
+                        end_index - 1,
+                        "gap",
+                        self.data.abundance.iloc[:, end_index],
                     )  # Add a shell to fill the gap with original abundances
 
         self.data.abundance.columns = range(self.no_of_shells)
@@ -761,7 +768,9 @@ class CustomAbundanceWidget:
         with self.fig.batch_update():
             self.fig.layout.xaxis.autorange = True
             self.fig.data[1].x = self.data.velocity
-            self.fig.data[1].y = np.append(self.data.density[1:], self.data.density[-1])
+            self.fig.data[1].y = np.append(
+                self.data.density[1:], self.data.density[-1]
+            )
             for i in range(self.no_of_elements):
                 self.fig.data[i + 2].x = self.data.velocity
                 self.update_abundance_plot(i)
@@ -777,8 +786,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            obj : traitlets.utils.bunch.Bunch
-                A dictionary holding the information about the change.
+        obj : traitlets.utils.bunch.Bunch
+            A dictionary holding the information about the change.
         """
         scale_mode = obj.new
 
@@ -805,8 +814,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            obj : traitlets.utils.bunch.Bunch
-                A dictionary holding the information about the change.
+        obj : traitlets.utils.bunch.Bunch
+            A dictionary holding the information about the change.
         """
         if self._trigger:
             item_index = obj.owner.index
@@ -815,12 +824,16 @@ class CustomAbundanceWidget:
             if is_locked:
                 self.bound_locked_sum_to_1(item_index)
 
-            if np.isclose(self.data.abundance.iloc[:, self.shell_no - 1].sum(), 1):
+            if np.isclose(
+                self.data.abundance.iloc[:, self.shell_no - 1].sum(), 1
+            ):
                 self.norm_warning.layout.visibility = "hidden"
             else:
                 self.norm_warning.layout.visibility = "visible"
 
-            self.data.abundance.iloc[item_index, self.shell_no - 1] = obj.owner.value
+            self.data.abundance.iloc[
+                item_index, self.shell_no - 1
+            ] = obj.owner.value
 
             if self.rbs_multi_apply.index is None:
                 self.update_abundance_plot(item_index)
@@ -832,8 +845,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            obj : traitlets.utils.bunch.Bunch
-                A dictionary holding the information about the change.
+        obj : traitlets.utils.bunch.Bunch
+            A dictionary holding the information about the change.
         """
         item_index = obj.owner.index
 
@@ -846,8 +859,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            obj : traitlets.utils.bunch.Bunch
-                A dictionary holding the information about the change.
+        obj : traitlets.utils.bunch.Bunch
+            A dictionary holding the information about the change.
         """
         # Disable "previous" and "next" buttons when shell no comes to boundaries.
         if obj.new == 1:
@@ -867,8 +880,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            obj : ipywidgets.widgets.widget_button.Button
-                The clicked button instance.
+        obj : ipywidgets.widgets.widget_button.Button
+            The clicked button instance.
         """
         self.shell_no -= 1
 
@@ -877,8 +890,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            obj : ipywidgets.widgets.widget_button.Button
-                The clicked button instance.
+        obj : ipywidgets.widgets.widget_button.Button
+            The clicked button instance.
         """
         self.shell_no += 1
 
@@ -888,11 +901,13 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            obj : ipywidgets.widgets.widget_button.Button
-                The clicked button instance.
+        obj : ipywidgets.widgets.widget_button.Button
+            The clicked button instance.
         """
         locked_mask = np.array(self.checked_list)
-        locked_sum = self.data.abundance.loc[locked_mask, self.shell_no - 1].sum()
+        locked_sum = self.data.abundance.loc[
+            locked_mask, self.shell_no - 1
+        ].sum()
         unlocked_arr = self.data.abundance.loc[~locked_mask, self.shell_no - 1]
 
         # if abundances are all zero
@@ -919,8 +934,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            obj : traitlets.utils.bunch.Bunch
-                A dictionary holding the information about the change.
+        obj : traitlets.utils.bunch.Bunch
+            A dictionary holding the information about the change.
         """
         element_symbol_string = obj.new.capitalize()
 
@@ -956,8 +971,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            obj : ipywidgets.widgets.widget_button.Button
-                The clicked button instance.
+        obj : ipywidgets.widgets.widget_button.Button
+            The clicked button instance.
         """
         element_symbol_string = self.input_symb.value.capitalize()
 
@@ -998,12 +1013,13 @@ class CustomAbundanceWidget:
                 y=[0] * (self.no_of_shells + 1),
                 mode="lines+markers",
                 name=element_symbol_string,
-                line=dict(shape="hv")
+                line=dict(shape="hv"),
             )
             # Sort the legend in atomic order.
             fig_data_lst = list(self.fig.data)
             fig_data_lst.insert(
-                np.argwhere(self.data.elements == element_symbol_string)[0][0] + 2,
+                np.argwhere(self.data.elements == element_symbol_string)[0][0]
+                + 2,
                 self.fig.data[-1],
             )
             self.fig.data = fig_data_lst[:-1]
@@ -1022,8 +1038,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            item_index : int
-                The index of the widget in the list of abundance inputs.
+        item_index : int
+            The index of the widget in the list of abundance inputs.
         """
         start_index = self.irs_shell_range.value[0] - 1
         end_index = self.irs_shell_range.value[1]
@@ -1041,8 +1057,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            obj : traitlets.utils.bunch.Bunch
-                A dictionary holding the information about the change.
+        obj : traitlets.utils.bunch.Bunch
+            A dictionary holding the information about the change.
         """
         v_start = self.input_v_start.value
         v_end = self.input_v_end.value
@@ -1064,8 +1080,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            obj : ipywidgets.widgets.widget_button.Button
-                The clicked button instance.
+        obj : ipywidgets.widgets.widget_button.Button
+            The clicked button instance.
         """
         path = self.input_path.value
         overwrite = self.ckb_overwrite.value
@@ -1078,8 +1094,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            obj : ipywidgets.widgets.widget_button.Button
-                The clicked button instance.
+        obj : ipywidgets.widgets.widget_button.Button
+            The clicked button instance.
         """
         self.rbs_multi_apply.unobserve(
             self.rbs_multi_apply_eventhandler, "value"
@@ -1094,8 +1110,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            obj : ipywidgets.widgets.widget_button.Button
-                The clicked button instance.
+        obj : ipywidgets.widgets.widget_button.Button
+            The clicked button instance.
         """
         self.rbs_single_apply.unobserve(
             self.rbs_single_apply_eventhandler, "value"
@@ -1113,8 +1129,8 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            obj : ipywidgets.widgets.widget_button.Button
-                The clicked button instance.
+        obj : ipywidgets.widgets.widget_button.Button
+            The clicked button instance.
         """
         x = self.fig.data[0].x
         width = self.fig.data[0].width
@@ -1213,8 +1229,8 @@ class CustomAbundanceWidget:
 
         Returns
         -------
-            ipywidgets.widgets.widget_box.VBox
-                A box that contains all the widgets in the GUI.
+        ipywidgets.widgets.widget_box.VBox
+            A box that contains all the widgets in the GUI.
         """
         self.box_editor = ipw.HBox(
             [
@@ -1307,10 +1323,10 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            path : str
-                Output path.
-            overwrite : bool
-                True if overwriting, False otherwise.
+        path : str
+            Output path.
+        overwrite : bool
+            True if overwriting, False otherwise.
         """
         posix_path = Path(path)
         posix_path = posix_path.with_suffix(".csvy")
@@ -1329,13 +1345,17 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            path : pathlib.PosixPath
+        path : pathlib.PosixPath
         """
         name = path.name
         d_time_0 = self.data.density_t_0
         i_time_0 = self.input_i_time_0.value * u.day
         custom_yaml = CustomYAML(
-            name, d_time_0, i_time_0, self.data.velocity[0], self.data.velocity[-1]
+            name,
+            d_time_0,
+            i_time_0,
+            self.data.velocity[0],
+            self.data.velocity[-1],
         )
         custom_yaml.create_fields_dict(self.data.elements)
 
@@ -1356,7 +1376,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            path : pathlib.PosixPath
+        path : pathlib.PosixPath
         """
         try:
             data = self.data.abundance.T
@@ -1382,18 +1402,16 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            fpath : str
-                the path of CSVY file.
+        fpath : str
+            the path of CSVY file.
 
         Returns
         -------
-            CustomAbundanceWidget
+        CustomAbundanceWidget
         """
         widget_data = CustomAbundanceWidgetData.from_csvy(fpath)
 
-        return cls(
-            widget_data
-        )
+        return cls(widget_data)
 
     @classmethod
     def from_yml(cls, fpath):
@@ -1401,18 +1419,16 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-            fpath : str
-                The path of YAML file.
+        fpath : str
+            The path of YAML file.
 
         Returns
         -------
-            CustomAbundanceWidget
+        CustomAbundanceWidget
         """
         widget_data = CustomAbundanceWidgetData.from_yml(fpath)
 
-        return cls(
-            widget_data
-        )
+        return cls(widget_data)
 
     @classmethod
     def from_hdf(cls, fpath):
@@ -1429,9 +1445,7 @@ class CustomAbundanceWidget:
         """
         widget_data = CustomAbundanceWidgetData.from_hdf(fpath)
 
-        return cls(
-            widget_data
-        )
+        return cls(widget_data)
 
     @classmethod
     def from_simulation(cls, sim):
@@ -1447,13 +1461,11 @@ class CustomAbundanceWidget:
         """
         widget_data = CustomAbundanceWidgetData.from_simulation(sim)
 
-        return cls(
-            widget_data
-        )
+        return cls(widget_data)
 
 
 class DensityEditor:
-    """Widget to edit density profile of simulation model.
+    """Widget to edit density profile of the model.
 
     It provides an interface to allow the user directly change
     the density, or calculate the density with given type and
@@ -1463,7 +1475,7 @@ class DensityEditor:
     ----------
     shell_no : int
         The selected shell number.
-    trigger : bool
+    _trigger : bool
         If False, disable the callback when density input is changed.
     """
 
@@ -1472,14 +1484,12 @@ class DensityEditor:
 
         Parameters
         ----------
-            density : astropy.units.quantity.Quantity
-                Density data.
-            velocity : astropy.units.quantity.Quantity
-                Velocity data.
-            fig : plotly.graph_objs._figurewidget.FigureWidget
-                The figure object of density plot.
-            shell_no_widget : ipywidgets.widgets.widget_selection.Dropdown
-                A widget to record the selected shell number.
+        widget_data : CustomAbundanceWidgetData
+            Data in the custom abundance widget.
+        fig : plotly.graph_objs._figurewidget.FigureWidget
+            The figure object of density plot.
+        shell_no_widget : ipywidgets.widgets.widget_selection.Dropdown
+            A widget to record the selected shell number.
         """
         self.data = widget_data
         self.fig = fig
@@ -1503,7 +1513,7 @@ class DensityEditor:
             ),
         )
         self.input_d.observe(self.input_d_eventhandler, "value")
-        
+
         self.input_d_time_0 = ipw.FloatText(
             value=self.data.density_t_0.value,
             description="Density time_0 (day): ",
@@ -1588,20 +1598,30 @@ class DensityEditor:
         self.fig.data[1].y = y
 
     def input_d_eventhandler(self, obj):
-        """Update the data and the widgets when it gets new density input.
+        """Update the data and the widgets when the widget gets new
+        density input.
 
         Parameters
         ----------
-            obj : traitlets.utils.bunch.Bunch
-                A dictionary holding the information about the change.
+        obj : traitlets.utils.bunch.Bunch
+            A dictionary holding the information about the change.
         """
         if self._trigger:
             new_value = obj.new
-            self.data.density[self.shell_no] = new_value * self.data.density.unit
+            self.data.density[self.shell_no] = (
+                new_value * self.data.density.unit
+            )
 
             self.update_density_plot()
-    
+
     def input_d_time_0_eventhandler(self, obj):
+        """Update density time 0 data when the widget gets new input.
+
+        Parameters
+        ----------
+        obj : traitlets.utils.bunch.Bunch
+            A dictionary holding the information about the change.
+        """
         new_value = obj.new
         self.data.density_t_0 = new_value * self.data.density_t_0.unit
 
@@ -1614,14 +1634,14 @@ class DensityEditor:
 
         Parameters
         ----------
-            obj : traitlets.utils.bunch.Bunch
-                A dictionary holding the information about the change.
+        obj : traitlets.utils.bunch.Bunch
+            A dictionary holding the information about the change.
 
         Returns
         -------
-            ipywidgets.widgets.widget_box.VBox
-                A box widget that contains the input boxes of certain density
-                type parameters.
+        ipywidgets.widgets.widget_box.VBox
+            A box widget that contains the input boxes of certain density
+            type parameters.
         """
         if obj.new == "uniform":
             display(self.uniform_box)
@@ -1636,8 +1656,8 @@ class DensityEditor:
 
         Parameters
         ----------
-            obj : ipywidgets.widgets.widget_button.Button
-                The clicked button instance.
+        obj : ipywidgets.widgets.widget_button.Button
+            The clicked button instance.
         """
         dtype = self.dpd_dtype.value
         density = self.data.density
@@ -1650,7 +1670,9 @@ class DensityEditor:
             if self.input_value.value == 0:
                 return
 
-            self.data.density = self.input_value.value * density.unit * np.ones(len(density))
+            self.data.density = (
+                self.input_value.value * density.unit * np.ones(len(density))
+            )
         else:
             if self.input_v_0.value == 0 or self.input_rho_0.value == 0:
                 return
@@ -1663,7 +1685,9 @@ class DensityEditor:
             rho_0 = self.input_rho_0.value * density.unit
 
             if dtype == "exponential":
-                self.data.density = calculate_exponential_density(v_middle, v_0, rho_0)
+                self.data.density = calculate_exponential_density(
+                    v_middle, v_0, rho_0
+                )
 
             elif dtype == "power_law":
                 exponent = self.input_exp.value
@@ -1679,8 +1703,8 @@ class DensityEditor:
 
         Returns
         -------
-            ipywidgets.widgets.widget_box.VBox
-                A box that contains all the widgets in the GUI.
+        ipywidgets.widgets.widget_box.VBox
+            A box that contains all the widgets in the GUI.
         """
         hint1 = ipw.HTML(
             value="<font size='3'>1) Edit density of the selected shell:</font>"
