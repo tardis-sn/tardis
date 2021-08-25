@@ -2,7 +2,7 @@
 # http://tardis-sn.github.io/tardis/development/continuous_integration.html
 
 trigger: none
-pr: none
+pr: [master]
 
 schedules:
   - cron: '0 0 * * 0'
@@ -39,27 +39,27 @@ jobs:
       - bash: |
           cd $(tardis.dir)
           source activate tardis
-          echo $(python -c 'from setuptools_scm import version_from_scm; from setuptools_scm.version import guess_next_date_ver; release = version_from_scm("."); print(release.tag.public)')
+          echo $(python .ci-helpers/get_current_version.py)
         displayName: 'Check latest TARDIS tag'
 
       - bash: |
           cd $(tardis.dir)
           source activate tardis
-          echo "##vso[task.setvariable variable=newtag]$(python -c 'from setuptools_scm import version_from_scm; from setuptools_scm.version import guess_next_date_ver; release = version_from_scm("."); print(guess_next_date_ver(release.tag.public))')"
+          echo "##vso[task.setvariable variable=newtag]$(python .ci-helpers/get_next_version.py)"
         displayName: 'Get new TARDIS tag'
 
       - bash: echo $(newtag)
         displayName: 'Check new TARDIS tag'
 
-      - task: GitHubRelease@1
-        inputs:
-          gitHubConnection: 'tardis-bot'
-          repositoryName: '$(Build.Repository.Name)'
-          action: 'create'
-          target: '$(Build.SourceVersion)'
-          tagSource: 'userSpecifiedTag'
-          tag: 'release-$(newtag)'
-          title: 'TARDIS v$(newtag)'
-          releaseNotesSource: 'inline'
-          releaseNotes: 'This release has been made automatically through our continous delivery pipeline. For a complete list of changes see [CHANGELOG.md](https://github.com/tardis-sn/tardis/blob/master/CHANGELOG.md).'
-        displayName: 'Create GitHub Release'
+#      - task: GitHubRelease@1
+#        inputs:
+#          gitHubConnection: 'tardis-bot'
+#          repositoryName: '$(Build.Repository.Name)'
+#          action: 'create'
+#          target: '$(Build.SourceVersion)'
+#          tagSource: 'userSpecifiedTag'
+#          tag: 'release-$(newtag)'
+#          title: 'TARDIS v$(newtag)'
+#          releaseNotesSource: 'inline'
+#          releaseNotes: 'This release has been made automatically through our continous delivery pipeline. For a complete list of changes see [CHANGELOG.md](https://github.com/tardis-sn/tardis/blob/master/CHANGELOG.md).'
+#        displayName: 'Create GitHub Release'
