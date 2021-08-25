@@ -279,7 +279,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         -------
         `tardis.config_reader.Configuration`
         """
-        logger.info(f"Reading Configuration Dictionary")
+        logger.info(f"Reading configuration dictionary")
 
         if validate:
             validated_config_dict = config_validator.validate_dict(config_dict)
@@ -289,7 +289,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         validated_config_dict["config_dirname"] = config_dirname
 
         # Montecarlo Section Implementation
-        logger.debug("Reading Montecarlo Config from Config Dictionary")
+        logger.debug("Reading montecarlo config from config dictionary")
         montecarlo_section = validated_config_dict["montecarlo"]
         if montecarlo_section["convergence_strategy"]["type"] == "damped":
             montecarlo_section[
@@ -320,10 +320,10 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
             )
 
         if "csvy_model" in validated_config_dict.keys():
-            logger.debug("Reading CSVY Model Config from Config Dictionary")
+            logger.debug("Reading CSVY model config from config dictionary")
             pass
         elif "model" in validated_config_dict.keys():
-            logger.debug("Reading Model Config from Config Dictionary")
+            logger.debug("Reading model config from config dictionary")
 
             # Model Section Validation
             model_section = validated_config_dict["model"]
@@ -405,7 +405,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
 
             # SuperNova Section Validation
             supernova_section = validated_config_dict["supernova"]
-            logger.debug("Reading Supernova Config from Config Dictionary")
+            logger.debug("Reading supernova config from config dictionary")
             time_explosion = supernova_section["time_explosion"]
             luminosity_wavelength_start = supernova_section[
                 "luminosity_wavelength_start"
@@ -429,7 +429,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
 
             # Plasma Section Validation
             plasma_section = validated_config_dict["plasma"]
-            logger.debug("Reading Plasma Config from Config Dictionary")
+            logger.debug("Reading plasma config from config dictionary")
             initial_t_inner = plasma_section["initial_t_inner"]
             initial_t_rad = plasma_section["initial_t_rad"]
             if not initial_t_inner.value >= -1:
@@ -443,7 +443,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
 
             # Spectrum Section Validation
             spectrum_section = validated_config_dict["spectrum"]
-            logger.debug("Reading Spectrum Config from Config Dictionary")
+            logger.debug("Reading spectrum config from config dictionary")
             start = spectrum_section["start"]
             stop = spectrum_section["stop"]
             if start.value > stop.value:

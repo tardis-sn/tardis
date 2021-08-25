@@ -118,7 +118,7 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         tau_sobolev *= 0
 
     logger.debug(
-        f"Line Interaction Type (inside Numba Plasma) : {line_interaction_type}"
+        f"Line interaction type (inside numba plasma) : {line_interaction_type}"
     )
     if line_interaction_type == "scatter":
         # to adhere to data types, we must have an array of minimum size 1

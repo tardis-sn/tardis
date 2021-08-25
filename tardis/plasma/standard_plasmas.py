@@ -68,7 +68,7 @@ def assemble_plasma(config, model, atom_data=None):
     nlte_species = [
         species_string_to_tuple(s) for s in config.plasma.nlte.species
     ]
-    logger.debug(f"NLTE Species : {config.plasma.nlte.species}")
+    logger.debug(f"NLTE species : {config.plasma.nlte.species}")
 
     # Convert the continuum interaction species list to a proper format.
     continuum_interaction_species = [
@@ -76,13 +76,13 @@ def assemble_plasma(config, model, atom_data=None):
         for s in config.plasma.continuum_interaction.species
     ]
     logger.debug(
-        f"Continuum Interaction Species : {config.plasma.continuum_interaction.species}"
+        f"Continuum interaction species : {config.plasma.continuum_interaction.species}"
     )
     continuum_interaction_species = pd.MultiIndex.from_tuples(
         continuum_interaction_species, names=["atomic_number", "ion_number"]
     )
 
-    logger.debug("Setting up Atom Data for the Simulation")
+    logger.debug("Setting up atom data for the simulation")
     if atom_data is None:
         if "atom_data" in config:
             if os.path.isabs(config.atom_data):
@@ -94,7 +94,7 @@ def assemble_plasma(config, model, atom_data=None):
         else:
             raise ValueError("No atom_data option found in the configuration.")
 
-        logger.info(f"Reading Atomic Data from {atom_data_fname}")
+        logger.info(f"Reading atomic data from {atom_data_fname}")
 
         try:
             atom_data = AtomData.from_hdf(atom_data_fname)
@@ -108,7 +108,7 @@ def assemble_plasma(config, model, atom_data=None):
             raise
 
     logger.debug(
-        "Generating the Atom Data with the Model, Plasma & NLTE Species Configuration"
+        "Generating the atom data with the model, plasma & NLTE species configuration"
     )
     atom_data.prepare_atom_data(
         model.abundance.index,
@@ -117,7 +117,7 @@ def assemble_plasma(config, model, atom_data=None):
     )
 
     logger.debug(
-        "Checking & Setting up Continuum Interaction Species from given Atom"
+        "Checking & setting up continuum interaction species from given atom"
     )
     # Check if continuum interaction species are in selected_atoms
     continuum_atoms = continuum_interaction_species.get_level_values(
@@ -158,13 +158,13 @@ def assemble_plasma(config, model, atom_data=None):
         plasma_modules += continuum_interaction_inputs
 
         logger.debug(
-            f"Adiabatic Cooling Config : {config.plasma.continuum_interaction.enable_adiabatic_cooling}"
+            f"Adiabatic cooling config : {config.plasma.continuum_interaction.enable_adiabatic_cooling}"
         )
         if config.plasma.continuum_interaction.enable_adiabatic_cooling:
             plasma_modules += adiabatic_cooling_properties
 
         logger.debug(
-            f"Two Photon Decay Config : {config.plasma.continuum_interaction.enable_two_photon_decay}"
+            f"Two photon decay config : {config.plasma.continuum_interaction.enable_two_photon_decay}"
         )
         if config.plasma.continuum_interaction.enable_two_photon_decay:
             plasma_modules += two_photon_properties
@@ -193,7 +193,7 @@ def assemble_plasma(config, model, atom_data=None):
             t_inner=model.t_inner,
         )
     logger.debug(
-        f"Radiative Rates Type Config : {config.plasma.radiative_rates_type}"
+        f"Radiative rates type config : {config.plasma.radiative_rates_type}"
     )
     if config.plasma.radiative_rates_type == "blackbody":
         plasma_modules.append(JBluesBlackBody)
@@ -213,13 +213,13 @@ def assemble_plasma(config, model, atom_data=None):
             f"radiative_rates_type type unknown - {config.plasma.radiative_rates_type}"
         )
 
-    logger.debug(f"Plasma Excitation Config : {config.plasma.excitation}")
+    logger.debug(f"Plasma excitation config : {config.plasma.excitation}")
     if config.plasma.excitation == "lte":
         plasma_modules += lte_excitation_properties
     elif config.plasma.excitation == "dilute-lte":
         plasma_modules += dilute_lte_excitation_properties
 
-    logger.debug(f"Plasma Ionization Config : {config.plasma.ionization}")
+    logger.debug(f"Plasma ionization config : {config.plasma.ionization}")
     if config.plasma.ionization == "lte":
         plasma_modules += lte_ionization_properties
     elif config.plasma.ionization == "nebular":
@@ -236,7 +236,7 @@ def assemble_plasma(config, model, atom_data=None):
         plasma_modules += non_nlte_properties
 
     logger.debug(
-        f"Plasma Line Iteraction Type : {config.plasma.line_interaction_type}"
+        f"Plasma line iteraction type : {config.plasma.line_interaction_type}"
     )
     if config.plasma.line_interaction_type in ("downbranch", "macroatom"):
         plasma_modules += macro_atom_properties
@@ -246,14 +246,14 @@ def assemble_plasma(config, model, atom_data=None):
             delta_treatment=config.plasma.delta_treatment
         )
 
-    logger.debug(f"Helium Treatment Config : {config.plasma.helium_treatment}")
+    logger.debug(f"Helium treatment config : {config.plasma.helium_treatment}")
     if config.plasma.helium_treatment == "recomb-nlte":
         plasma_modules += helium_nlte_properties
     elif config.plasma.helium_treatment == "numerical-nlte":
         plasma_modules += helium_numerical_nlte_properties
         # TODO: See issue #633
         logger.debug(
-            f"Heating Rate Data File : {config.plasma.heating_rate_data_file}"
+            f"Heating rate data file : {config.plasma.heating_rate_data_file}"
         )
         if config.plasma.heating_rate_data_file in ["none", None]:
             raise PlasmaConfigError("Heating rate data file not specified")
@@ -277,7 +277,7 @@ def assemble_plasma(config, model, atom_data=None):
 
     kwargs["helium_treatment"] = config.plasma.helium_treatment
 
-    logger.debug("Setting up the Plasma via BasePlasma Class")
+    logger.debug("Setting up the plasma via BasePlasma class")
     plasma = BasePlasma(
         plasma_properties=plasma_modules,
         property_kwargs=property_kwargs,

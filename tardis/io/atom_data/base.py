@@ -169,7 +169,7 @@ class AtomData(object):
                 try:
                     dataframes[name] = store[name]
                 except KeyError:
-                    logger.debug("Dataframe does not contain NAME column")
+                    logger.debug("Dataframe does not contain {name} column")
                     nonavailable.append(name)
 
             atom_data = cls(**dataframes)
@@ -178,7 +178,7 @@ class AtomData(object):
                 atom_data.uuid1 = store.root._v_attrs["uuid1"].decode("ascii")
             except KeyError:
                 logger.debug(
-                    "UUID not available for Atom Data. Setting value to None"
+                    "UUID not available for Atom Data. Setting value to none"
                 )
                 atom_data.uuid1 = None
 
@@ -186,7 +186,7 @@ class AtomData(object):
                 atom_data.md5 = store.root._v_attrs["md5"].decode("ascii")
             except KeyError:
                 logger.debug(
-                    "MD5 not available for Atom Data. Setting value to None"
+                    "MD5 not available for Atom Data. Setting value to none"
                 )
                 atom_data.md5 = None
 
@@ -194,7 +194,7 @@ class AtomData(object):
                 atom_data.version = store.root._v_attrs["database_version"]
             except KeyError:
                 logger.debug(
-                    "VERSION not available for Atom Data. Setting value to None"
+                    "Version not available for Atom Data. Setting value to none"
                 )
                 atom_data.version = None
 
@@ -393,7 +393,7 @@ class AtomData(object):
 
             if line_interaction_type == "downbranch":
                 logger.debug(
-                    "Line Interaction Type for the Photons are DownBranch, Proceeding with Preparation of Atom Data"
+                    "Line Interaction type for the photons are Downbranch, proceeding with preparation of Atom Data"
                 )
                 self.macro_atom_data = self.macro_atom_data.loc[
                     self.macro_atom_data["transition_type"] == -1
@@ -417,7 +417,7 @@ class AtomData(object):
 
             elif line_interaction_type == "macroatom":
                 logger.debug(
-                    "Line Interaction Type for the Photon is MacroAtom, Proceeding with Preparation of Atom Data"
+                    "Line Interaction type for the photon is Macroatom, proceeding with preparation of Atom Data"
                 )
                 self.macro_atom_references.loc[
                     :, "block_references"
@@ -492,13 +492,13 @@ class AtomData(object):
         else:
             # Just using this else block for logging Scatter Line Interaction Type
             logger.debug(
-                "Line Interaction Type for the Photon is Scatter, Proceeding with Preparation of Atom Data"
+                "Line Interaction type for the photon is Scatter, proceeding with preparation of Atom Data"
             )
 
         logger.debug("Setting up the NLTE data")
         self.nlte_data = NLTEData(self, nlte_species)
 
-    logger.debug("Checking Atomic Data for the Atomic Numbers")
+    logger.debug("Checking Atomic Data for the atomic numbers (Z)")
 
     def _check_selected_atomic_numbers(self):
         selected_atomic_numbers = self.selected_atomic_numbers

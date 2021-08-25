@@ -41,7 +41,7 @@ def montecarlo_radial1d(
     show_progress_bars,
     runner,
 ):
-    logger.debug("Configuring the Packet Collection for Montecarlo Main Loop")
+    logger.debug("Configuring the packet collection for montecarlo main loop")
     packet_collection = PacketCollection(
         runner.input_r,
         runner.input_nu,
@@ -51,16 +51,16 @@ def montecarlo_radial1d(
         runner._output_energy,
     )
 
-    logger.debug("Setting the Numba Model Parameters for the Run")
+    logger.debug("Setting the numba model parameters for the run")
     numba_model = NumbaModel(
         runner.r_inner_cgs,
         runner.r_outer_cgs,
         model.time_explosion.to("s").value,
     )
-    logger.debug("Initializing the Numba Plasma Model for Simulation run")
+    logger.debug("Initializing the numba plasma model for simulation run")
     numba_plasma = numba_plasma_initialize(plasma, runner.line_interaction_type)
     logger.debug(
-        "Setting up the Values for the Estimator Arrays :\n\t[j_estimator, nu_bar_estimator, j_blue_estimator, Edotlu_estimator]"
+        "Setting up the values for the estimator arrays :\n\t[j_estimator, nu_bar_estimator, j_blue_estimator, Edotlu_estimator]"
     )
     estimators = Estimators(
         runner.j_estimator,
@@ -74,11 +74,11 @@ def montecarlo_radial1d(
     #     f"Packet Seeds for the Simulation : {montecarlo_configuration.packet_seeds}\n\tNumber Of Packet Seeds = {len(montecarlo_configuration.packet_seeds)}"
     # )
     number_of_vpackets = montecarlo_configuration.number_of_vpackets
-    logger.debug(f"Number Of Virtual Packets considered = {number_of_vpackets}")
+    logger.debug(f"Number of virtual packets considered = {number_of_vpackets}")
 
-    logger.debug("Running the Main Loop for the Simulation")
+    logger.debug("Running the main loop for the simulation")
     logger.debug(
-        "This is a NJIT (Numba Just In Time) complied Function,\n\tFor Detailed logs about the Montecarlo Main Loop, please configure the Montecarlo Numba Logger\n"
+        "This is a NJIT (Numba Just In Time) complied function,\n\tFor detailed logs about the montecarlo main loop, please configure the montecarlo numba logger\n"
     )
     (
         v_packets_energy_hist,
@@ -110,21 +110,10 @@ def montecarlo_radial1d(
     )
 
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
-    # logger.debug(
-    #     f"Montecarlo Virtual Luminosity Values : {runner._montecarlo_virtual_luminosity.value[:]}"
-    # )
     runner.last_interaction_type = last_interaction_type
-    # logger.debug(f"Last Interaction Type : {runner.last_interaction_type}")
     runner.last_interaction_in_nu = last_interaction_in_nu
-    # logger.debug(f"Last Interaction in nu : {runner.last_interaction_in_nu}")
     runner.last_line_interaction_in_id = last_line_interaction_in_id
-    # logger.debug(
-    #     f"Last Line Interaction In Id : {runner.last_line_interaction_in_id}"
-    # )
     runner.last_line_interaction_out_id = last_line_interaction_out_id
-    # logger.debug(
-    #     f"Last Line Interaction Out Id : {runner.last_line_interaction_out_id}"
-    # )
 
     if montecarlo_configuration.VPACKET_LOGGING and number_of_vpackets > 0:
         # Log message To be determined correctly

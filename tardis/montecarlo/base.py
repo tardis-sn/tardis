@@ -303,24 +303,24 @@ class MontecarloRunner(HDFWriterMixin):
 
         self.time_of_simulation = self.calculate_time_of_simulation(model)
         logger.debug(
-            f"Time for 1 Erg to be Emitted : {self.time_of_simulation:.3g}"
+            f"Time for 1 erg to be emitted : {self.time_of_simulation:.3g}"
         )
 
         self.volume = model.volume
 
         # Initializing estimator array
-        logger.debug("Initializing Estimator Arrays")
+        logger.debug("Initializing estimator arrays")
         self._initialize_estimator_arrays(plasma.tau_sobolevs.shape)
 
-        logger.debug("Initializing Geometry Arrays")
+        logger.debug("Initializing geometry arrays")
         self._initialize_geometry_arrays(model)
 
-        logger.debug("Initializing Packets")
+        logger.debug("Initializing packets")
         self._initialize_packets(
             model.t_inner.value, no_of_packets, iteration, model.r_inner[0]
         )
 
-        logger.debug("Initializing Montecarlo Runner Numba Configuration")
+        logger.debug("Initializing montecarlo runner numba configuration")
         configuration_initialize(self, no_of_virtual_packets)
         montecarlo_radial1d(
             model,
@@ -331,9 +331,9 @@ class MontecarloRunner(HDFWriterMixin):
             show_progress_bars,
             self,
         )
-        logger.debug("Setting & Simulating the Montecarlo Radial1D Model")
+        logger.debug("Setting & simulating the montecarlo radial1d model")
         montecarlo_radial1d(model, plasma, self)
-        logger.debug("Setting up the Formal Integrator")
+        logger.debug("Setting up the formal integrator")
         self._integrator = FormalIntegrator(model, plasma, self)
         # montecarlo.montecarlo_radial1d(
         #    model, plasma, self,
@@ -601,7 +601,7 @@ class MontecarloRunner(HDFWriterMixin):
         MontecarloRunner
         """
         logger.debug(
-            f"Disable Electron Scattering : {config.plasma.disable_electron_scattering}"
+            f"Disable electron scattering : {config.plasma.disable_electron_scattering}"
         )
 
         if config.plasma.disable_electron_scattering:
@@ -614,7 +614,7 @@ class MontecarloRunner(HDFWriterMixin):
             numba_config.SIGMA_THOMSON = 1e-200
             # mc_config_module.disable_electron_scattering = True
         else:
-            logger.debug("Electron scattering switched On")
+            logger.debug("Electron scattering switched on")
             numba_config.SIGMA_THOMSON = const.sigma_T.to("cm^2").value
             # mc_config_module.disable_electron_scattering = False
 
@@ -624,40 +624,41 @@ class MontecarloRunner(HDFWriterMixin):
             num=config.spectrum.num + 1,
         )
         logger.debug(
-            f"Disable Line Scattering : {config.plasma.disable_line_scattering}"
+            f"Disable line scattering : {config.plasma.disable_line_scattering}"
         )
         mc_config_module.disable_line_scattering = (
             config.plasma.disable_line_scattering
         )
 
         mc_config_module.INITIAL_TRACKING_ARRAY_LENGTH = (
-            config.montecarlo.tracking.initial_array_length)
+            config.montecarlo.tracking.initial_array_length
+        )
 
-        logger.debug(f"Seed Value : {config.montecarlo.seed}")
-        logger.debug(f"Number Of Packets : {config.montecarlo.no_of_packets}")
-        logger.debug(f"Number Of Iterations : {config.montecarlo.iterations}")
-        logger.debug(f"Number Of Threads : {config.montecarlo.nthreads}")
+        logger.debug(f"Seed value : {config.montecarlo.seed}")
+        logger.debug(f"Number of packets : {config.montecarlo.no_of_packets}")
+        logger.debug(f"Number of iterations : {config.montecarlo.iterations}")
+        logger.debug(f"Number of threads : {config.montecarlo.nthreads}")
         logger.debug(
-            f"Last Number Of Virtual Packets : {config.montecarlo.last_no_of_packets}"
+            f"Last number of virtual packets : {config.montecarlo.last_no_of_packets}"
         )
         logger.debug(
-            f"Number Of Virtual Packets : {config.montecarlo.no_of_virtual_packets}"
+            f"Number of virtual packets : {config.montecarlo.no_of_virtual_packets}"
         )
         logger.debug(
-            f"Enable Reflective Inner Boundary : {config.montecarlo.enable_reflective_inner_boundary}"
+            f"Enable reflective inner boundary : {config.montecarlo.enable_reflective_inner_boundary}"
         )
         logger.debug(
-            f"Amount Of Albedo For Inner Boundary : {config.montecarlo.inner_boundary_albedo}"
+            f"Amount of albedo for inner boundary : {config.montecarlo.inner_boundary_albedo}"
         )
         logger.debug(
-            f"Enable Full Relativity : {config.montecarlo.enable_full_relativity}"
+            f"Enable full relativity : {config.montecarlo.enable_full_relativity}"
         )
-        logger.debug(f"Debug Packets State : {config.montecarlo.debug_packets}")
+        logger.debug(f"Debug packets state : {config.montecarlo.debug_packets}")
         logger.debug(
-            f"Logger Buffer For Packet Debugging : {config.montecarlo.logger_buffer}"
+            f"Logger buffer for packet debugging : {config.montecarlo.logger_buffer}"
         )
         logger.debug(
-            f"Single Packet Seed For Debugging : {config.montecarlo.single_packet_seed}"
+            f"Single packet seed for debugging : {config.montecarlo.single_packet_seed}"
         )
 
         return cls(

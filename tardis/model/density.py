@@ -150,7 +150,7 @@ class HomologousDensity(HDFWriterMixin):
         else:
             raise ValueError(f"Unrecognized density type " f"'{d_conf.type}'")
         log_string = config_iteratation(d_conf)
-        logger.debug(f"Density Config:\n\t  {log_string}")
+        logger.debug(f"Density config:\n\t  {log_string}")
         return cls(density_0, time_0)
 
 

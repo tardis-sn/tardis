@@ -221,17 +221,17 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             abs(t_rad - estimated_t_rad) / estimated_t_rad
         ).value
         logger.debug(
-            f"Calculated Convergence fraction for Radiative Temperature for all Shells"
+            f"Calculated convergence fraction for radiative temperature for all shells"
         )
         convergence_w = abs(w - estimated_w) / estimated_w
         logger.debug(
-            f"Calculated Convergence fraction for Dilution Factor for all Shells"
+            f"Calculated convergence fraction for dilution factor for all shells"
         )
         convergence_t_inner = (
             abs(t_inner - estimated_t_inner) / estimated_t_inner
         ).value
         logger.debug(
-            f"Calculated Convergence fraction for Inner Boundary Temperature = {convergence_t_inner:.3g}"
+            f"Calculated convergence fraction for inner boundary temperature = {convergence_t_inner:.3g}"
         )
 
         fraction_t_rad_converged = (
@@ -293,7 +293,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             t_inner_update_exponent=self.convergence_strategy.t_inner_update_exponent,
         )
 
-        logger.debug("Checking for Convergence Status")
+        logger.debug("Checking for convergence status")
         converged = self._get_convergence_status(
             self.model.t_rad,
             self.model.w,
@@ -305,14 +305,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         # calculate_next_plasma_state equivalent
         # FIXME: Should convergence strategy have its own class?
-        logger.debug("Generating Next Radiative Temperature for Simulation")
+        logger.debug("Generating next radiative temperature for simulation")
         next_t_rad = self.damped_converge(
             self.model.t_rad,
             estimated_t_rad,
             self.convergence_strategy.t_rad.damping_constant,
         )
         logger.debug(
-            "Calculating Dilution Factor for next Iteration of Simulation"
+            "Calculating dilution factor for next iteration of simulation"
         )
         next_w = self.damped_converge(
             self.model.w,
@@ -320,7 +320,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.convergence_strategy.w.damping_constant,
         )
         logger.debug(
-            "Calculating value of Dilution factor for next iteration, Using Damped Convergence Strategy"
+            "Calculating value of dilution factor for next iteration, using damped convergence strategy"
         )
         if (
             self.iterations_executed + 1
@@ -333,7 +333,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         else:
             next_t_inner = self.model.t_inner
         logger.debug(
-            "Calculating value of Inner Boundary Temperature for next iteration, Using Damped Convergence Strategy"
+            "Calculating value of inner boundary temperature for next iteration, using damped convergence strategy"
         )
 
         if hasattr(self, "convergence_plots"):
@@ -370,7 +370,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if "nlte_data" in self.plasma.outputs_dict:
             self.plasma.store_previous_properties()
 
-        logger.debug("Updating t_rad & w for the Simulation Model")
+        logger.debug("Updating t_rad & w for the simulation model")
         update_properties = dict(t_rad=self.model.t_rad, w=self.model.w)
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
@@ -380,7 +380,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 j_blue_estimator=self.runner.j_blue_estimator,
             )
 
-        logger.debug("Updating Properties to Plasma")
+        logger.debug("Updating properties to plasma")
         self.plasma.update(**update_properties)
 
         return converged
@@ -401,7 +401,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             show_progress_bars=self.show_progress_bars,
         )
         output_energy = self.runner.output_energy
-        logger.debug(f"Calculated Total Output Energy for all the Packets")
+        logger.debug(f"Calculated total output energy for all the packets")
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
@@ -439,7 +439,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         start_time = time.time()
         while self.iterations_executed < self.iterations - 1:
             logger.debug(
-                f"Storing Plasma State for {self.iterations_executed+1} iteration"
+                f"Storing plasma state for {self.iterations_executed+1} iteration"
             )
             self.store_plasma_state(
                 self.iterations_executed,
@@ -449,29 +449,29 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.model.t_inner,
             )
             logger.debug(
-                f"Running Iteration : {self.iterations_executed+1} via iterate()"
+                f"Running iteration : {self.iterations_executed+1} via iterate()"
             )
             self.iterate(self.no_of_packets)
             logger.debug(
-                "Advancing State for the Simulation & Checking for Convergence"
+                "Advancing state for the simulation & checking for convergence"
             )
             self.converged = self.advance_state()
             if hasattr(self, "convergence_plots"):
                 self.convergence_plots.update()
             if hasattr(self, "cplots"):
                 self.cplots.update()
-            logger.debug(f"Current Convergence Status : {self.converged}")
-            logger.debug(f"Convergence in Simulation : {self.converged}")
+            logger.debug(f"Current convergence status : {self.converged}")
+            logger.debug(f"Convergence in simulation : {self.converged}")
             self._call_back()
             if self.converged:
                 if self.convergence_strategy.stop_if_converged:
                     break
         logger.debug(
-            f"Last Iteration Underway (Iteration No : {self.iterations_executed+1})"
+            f"Last iteration underway (iteration number : {self.iterations_executed+1})"
         )
         # Last iteration
         logger.debug(
-            f"Storing Plasma State for {self.iterations_executed+1} iteration [Last Iteration]"
+            f"Storing plasma state for {self.iterations_executed+1} iteration [last iteration]"
         )
         self.store_plasma_state(
             self.iterations_executed,
@@ -481,13 +481,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.model.t_inner,
         )
         logger.debug(
-            f"Running Last Iteration : {self.iterations_executed+1} via iterate()"
+            f"Running last iteration : {self.iterations_executed+1} via iterate()"
         )
         self.iterate(
             self.last_no_of_packets, self.no_of_virtual_packets, last_run=True
         )
         logger.debug(
-            "Reshaping the Plasma Stored Values based on Convergence Status"
+            "Reshaping the plasma stored values based on convergence status"
         )
         self.reshape_plasma_state_store(self.iterations_executed)
         if hasattr(self, "convergence_plots"):
@@ -667,35 +667,35 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # unit tests, and could be extended in all the from_config classmethods.
         if "model" in kwargs:
             logger.debug(
-                'Model found in Kwargs, Setting up the Model from Kwargs["model"]'
+                'Model found in kwargs, setting up the model from kwargs["model"]'
             )
             model = kwargs["model"]
         else:
             if hasattr(config, "csvy_model"):
                 logger.debug(
-                    "Setting up the Radial1Model with CSVY Configuration"
+                    "Setting up the radial1d model with CSVY configuration"
                 )
                 model = Radial1DModel.from_csvy(config)
             else:
                 logger.debug(
-                    "Setting up the Radial1DModel with Model Configuration"
+                    "Setting up the radial1d model with model configuration"
                 )
                 model = Radial1DModel.from_config(config)
         if "plasma" in kwargs:
             logger.debug(
-                'Plasma found in Kwargs, Setting up the Nature Plasma from Kwargs["plasma"]'
+                'Plasma found in kwargs, setting up the nature of plasma from kwargs["plasma"]'
             )
             plasma = kwargs["plasma"]
         else:
             logger.debug(
-                "Setting up the Plasma Properties from Plasma Configuration & Radial1DModel Config"
+                "Setting up the plasma properties from plasma configuration & radial1d model config"
             )
             plasma = assemble_plasma(
                 config, model, atom_data=kwargs.get("atom_data", None)
             )
         if "runner" in kwargs:
             logger.debug(
-                'Runner found in Kwargs, Setting up the Runner from Kwargs["runner"]'
+                'Runner found in kwargs, setting up the runner from kwargs["runner"]'
             )
             if packet_source is not None:
                 raise ConfigurationError(
@@ -704,7 +704,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             runner = kwargs["runner"]
         else:
             logger.debug(
-                "Setting up the MontecarloRunner with Runner Configuration"
+                "Setting up the montecarlo runner with runner configuration"
             )
             # log_string = config_iteratation(config.montecarlo)
             # logger.debug(f"{log_string}")
@@ -740,7 +740,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 const.c / config.supernova.luminosity_wavelength_start
             ).to(u.Hz)
         logger.debug(
-            f"Luminosity nu Start : {luminosity_nu_start}\n\tLuminosity nu Stop  : {luminosity_nu_end}"
+            f"Luminosity nu start : {luminosity_nu_start}\n\tLuminosity nu stop  : {luminosity_nu_end}"
         )
 
         last_no_of_packets = config.montecarlo.last_no_of_packets
