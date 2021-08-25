@@ -3,7 +3,7 @@
 
 name: zenodo
 
-on: 
+on:
   schedule:
     - cron: '40 23 * * 0'
 
