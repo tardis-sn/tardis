@@ -322,6 +322,7 @@ class MontecarloRunner(HDFWriterMixin):
 
         logger.debug("Initializing montecarlo runner numba configuration")
         configuration_initialize(self, no_of_virtual_packets)
+        logger.debug("Setting & simulating the montecarlo radial1d model")
         montecarlo_radial1d(
             model,
             plasma,
@@ -331,8 +332,6 @@ class MontecarloRunner(HDFWriterMixin):
             show_progress_bars,
             self,
         )
-        logger.debug("Setting & simulating the montecarlo radial1d model")
-        montecarlo_radial1d(model, plasma, self)
         logger.debug("Setting up the formal integrator")
         self._integrator = FormalIntegrator(model, plasma, self)
         # montecarlo.montecarlo_radial1d(
