@@ -29,7 +29,6 @@ from tardis.visualization.widgets.util import debounce
 
 BASE_DIR = tardis.__path__[0]
 YAML_DELIMITER = "---"
-COLORMAP = "jet"
 
 
 class CustomAbundanceWidgetData:
@@ -362,6 +361,10 @@ class CustomAbundanceWidget:
     checked_list : list of bool
         A list of bool to record whether the checkbox is checked.
         The index of the bool corresponds to the index of checkbox.
+    fig : plotly.graph_objs._figurewidget.FigureWidget
+        The figure object of abundance density plot.
+    plot_cmap : str, default: "jet", optional
+        String defines the colormap used in abundance density plot.
     _trigger : bool
         If False, disable the callback when abundance input is changed.
     """
@@ -377,6 +380,7 @@ class CustomAbundanceWidget:
         widget_data : CustomAbundanceWidgetData
         """
         self.data = widget_data
+        self.fig = go.FigureWidget()
         self._trigger = True
 
         self.create_widgets()
@@ -650,6 +654,13 @@ class CustomAbundanceWidget:
             self.fig.data[0].x = x
             width[0] = x_outer - x_inner
             self.fig.data[0].width = width
+    
+    def update_line_color(self):
+        """Update line color in the plot according to colormap.
+        """
+        colorscale = transition_colors(self.no_of_elements, self.plot_cmap)
+        for i in range(self.no_of_elements):
+            self.fig.data[2 + i].line.color = colorscale[i]
 
     def overwrite_existing_shells(self, v_0, v_1):
         """Judge whether the existing shell(s) will be overwritten when
@@ -1024,9 +1035,7 @@ class CustomAbundanceWidget:
             )
             self.fig.data = fig_data_lst[:-1]
 
-            colorscale = transition_colors(self.no_of_elements, COLORMAP)
-            for i in range(self.no_of_elements):
-                self.fig.data[2 + i].line.color = colorscale[i]
+            self.update_line_color()
 
         self.read_abundance()
 
@@ -1156,7 +1165,6 @@ class CustomAbundanceWidget:
 
     def generate_abundance_density_plot(self):
         """Generate abundance and density plot in different shells."""
-        self.fig = go.FigureWidget()
         title = "Abundance/Density vs Velocity"
         abundance = self.data.abundance
         velocity = self.data.velocity
@@ -1188,14 +1196,13 @@ class CustomAbundanceWidget:
             ),
         )
 
-        colorscale = transition_colors(self.no_of_elements, COLORMAP)
         for i in range(self.no_of_elements):
             self.fig.add_trace(
                 go.Scatter(
                     x=velocity,
                     y=np.append(abundance.iloc[i], abundance.iloc[i, -1]),
                     mode="lines+markers",
-                    line=dict(shape="hv", color=colorscale[i]),
+                    line=dict(shape="hv"),
                     name=self.data.elements[i],
                 ),
             )
@@ -1224,14 +1231,20 @@ class CustomAbundanceWidget:
             ),
         )
 
-    def display(self):
+    def display(self, cmap="jet"):
         """Display the GUI.
+
+        Parameters
+        ----------
+        cmap : str, default: "jet", optional
+            String defines the colormap used in abundance density plot.
 
         Returns
         -------
         ipywidgets.widgets.widget_box.VBox
             A box that contains all the widgets in the GUI.
         """
+        #--------------Combine widget components--------------
         self.box_editor = ipw.HBox(
             [
                 ipw.VBox(self.input_items),
@@ -1303,6 +1316,10 @@ class CustomAbundanceWidget:
                 ),
             ]
         )
+
+        # Initialize the widget and plot colormap
+        self.plot_cmap = cmap
+        self.update_line_color()
         self.read_abundance()
         self.density_editor.read_density()
 
