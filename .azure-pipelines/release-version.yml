@@ -39,17 +39,17 @@ jobs:
       - bash: |
           cd $(tardis.dir)
           source activate tardis
-          echo $(python -c 'from setuptools_scm import version_from_scm; from setuptools_scm.version import guess_next_date_ver; release = version_from_scm("."); print(release.tag.public)')
-        displayName: 'Check latest TARDIS tag'
+          echo $(python .ci-helpers/get_current_version.py)
+        displayName: 'Check latest tag'
 
       - bash: |
           cd $(tardis.dir)
           source activate tardis
-          echo "##vso[task.setvariable variable=newtag]$(python -c 'from setuptools_scm import version_from_scm; from setuptools_scm.version import guess_next_date_ver; release = version_from_scm("."); print(guess_next_date_ver(release.tag.public))')"
-        displayName: 'Get new TARDIS tag'
+          echo "##vso[task.setvariable variable=newtag]$(python .ci-helpers/get_next_version.py)"
+        displayName: 'Get new tag'
 
       - bash: echo $(newtag)
-        displayName: 'Check new TARDIS tag'
+        displayName: 'Check new tag'
 
       - task: GitHubRelease@1
         inputs:
@@ -60,6 +60,6 @@ jobs:
           tagSource: 'userSpecifiedTag'
           tag: 'release-$(newtag)'
           title: 'TARDIS v$(newtag)'
-          releaseNotesSource: 'input'
+          releaseNotesSource: 'inline'
           releaseNotes: 'This release has been made automatically through our continous delivery pipeline. For a complete list of changes see [CHANGELOG.md](https://github.com/tardis-sn/tardis/blob/master/CHANGELOG.md).'
         displayName: 'Create GitHub Release'
