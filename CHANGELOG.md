@@ -1,5 +1,14 @@
 ## Change Log
 
+### release-2021.8.26 (2021/08/26 16:40 +00:00)
+- [#1789](https://github.com/tardis-sn/tardis/pull/1789) add explicit jupyter dependency (#1789) (@epassaro)
+- [#1787](https://github.com/tardis-sn/tardis/pull/1787) fix zenodo pipeline env (#1787) (@epassaro)
+- [#1786](https://github.com/tardis-sn/tardis/pull/1786) fix for release task (#1786) (@epassaro)
+- [#1703](https://github.com/tardis-sn/tardis/pull/1703) Adding Progress Bars (#1703) (@atharva-2001)
+- [#1775](https://github.com/tardis-sn/tardis/pull/1775) orchestrating continuous delivery pipeline (#1775) (@epassaro)
+- [#1778](https://github.com/tardis-sn/tardis/pull/1778) Fix hoverdata in plasma plots (#1778) (@atharva-2001)
+- [#1693](https://github.com/tardis-sn/tardis/pull/1693) Enabling virtual_packet_logging by default in the visualization folder (#1693) (@atharva-2001)
+
 ### release-2021.8.15.0 (2021/08/12 14:24 +00:00)
 - [#1770](https://github.com/tardis-sn/tardis/pull/1770) Rename cplots to convergence_plots (#1770) (@atharva-2001)
 - [#1772](https://github.com/tardis-sn/tardis/pull/1772) Reverse legend in Plasma Convergence Plots (#1772) (@atharva-2001)
