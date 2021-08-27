@@ -654,10 +654,9 @@ class CustomAbundanceWidget:
             self.fig.data[0].x = x
             width[0] = x_outer - x_inner
             self.fig.data[0].width = width
-    
+
     def update_line_color(self):
-        """Update line color in the plot according to colormap.
-        """
+        """Update line color in the plot according to colormap."""
         colorscale = transition_colors(self.no_of_elements, self.plot_cmap)
         for i in range(self.no_of_elements):
             self.fig.data[2 + i].line.color = colorscale[i]
@@ -1244,7 +1243,7 @@ class CustomAbundanceWidget:
         ipywidgets.widgets.widget_box.VBox
             A box that contains all the widgets in the GUI.
         """
-        #--------------Combine widget components--------------
+        # --------------Combine widget components--------------
         self.box_editor = ipw.HBox(
             [
                 ipw.VBox(self.input_items),
