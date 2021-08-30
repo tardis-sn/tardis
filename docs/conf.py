@@ -407,10 +407,10 @@ notebooks = ""
 for root, dirs, fnames in os.walk("io/"):
     for fname in fnames:
         if fname.endswith(".ipynb") and "checkpoint" not in fname:
-            notebooks += "\n* :doc:`" + root + "/" + fname[:-6] + "`"
+            notebooks += f"\n* :doc:`{root}/{fname[:-6]}`"
 
 title = "Tutorials\n*********\n"
-description = "\nThe following pages contain the TARDIS tutorials:\n"
+description = "The following pages contain the TARDIS tutorials:"
 
 with open("tutorials.rst", mode="wt", encoding="utf-8") as f:
-    f.write(title + description + notebooks)
+    f.write(f"{title}\n{description}\n{notebooks}")
