@@ -1,6 +1,7 @@
 import pytest
 
-from tardis.energy_input.util import SphericalVector, GXPhoton, GXPhotonStatus
+from tardis.energy_input.util import SphericalVector
+from tardis.energy_input.GXPhoton import GXPhoton, GXPhotonStatus
 
 
 @pytest.fixture(scope="function")

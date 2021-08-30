@@ -3,7 +3,8 @@ import copy
 from tqdm.auto import tqdm
 import pandas as pd
 
-from tardis.energy_input.util import SphericalVector, GXPhoton, GXPhotonStatus
+from tardis.energy_input.util import SphericalVector
+from tardis.energy_input.GXPhoton import GXPhoton, GXPhotonStatus
 from tardis.energy_input.gamma_ray_grid import (
     distance_trace,
     move_photon,
@@ -156,6 +157,7 @@ def initialize_photons(
                         secondary_photon_z,
                     )
                     secondary_photon.direction.r = secondary_photon_r
+                    # Plus 0.5 * pi to correct for astropy rotation frame
                     secondary_photon.direction.theta = (
                         secondary_photon_theta.value + 0.5 * np.pi
                     )

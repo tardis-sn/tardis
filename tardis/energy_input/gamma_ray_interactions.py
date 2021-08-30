@@ -3,16 +3,15 @@ import numpy as np
 from astropy.coordinates import cartesian_to_spherical
 
 from tardis.energy_input.util import (
-    GXPhoton,
-    GXPhotonStatus,
     kappa_calculation,
     euler_rodrigues,
     compton_theta_distribution,
     get_random_theta_photon,
     get_random_phi_photon,
-    normalize,
+    normalize_vector,
     get_perpendicular_vector,
 )
+from tardis.energy_input.GXPhoton import GXPhotonStatus
 
 
 def get_compton_angle(energy):
@@ -65,11 +64,11 @@ def compton_scatter(photon, compton_angle):
         Photon phi direction
     """
     # transform original direction vector to cartesian coordinates
-    original_direction = normalize(photon.direction.cartesian_coords)
+    original_direction = normalize_vector(photon.direction.cartesian_coords)
     # compute an arbitrary perpendicular vector to the original direction
     orthogonal_vector = get_perpendicular_vector(original_direction)
     # determine a random vector with compton_angle to the original direction
-    new_vector = normalize(
+    new_vector = normalize_vector(
         np.dot(
             euler_rodrigues(compton_angle, orthogonal_vector),
             original_direction,
@@ -79,7 +78,7 @@ def compton_scatter(photon, compton_angle):
     # draw a random angle from [0,2pi]
     phi = 2.0 * np.pi * np.random.random()
     # rotate the vector with compton_angle around the original direction
-    final_compton_scattered_vector = normalize(
+    final_compton_scattered_vector = normalize_vector(
         np.dot(euler_rodrigues(phi, original_direction), new_vector)
     )
     # transform the cartesian coordinates to spherical coordinates
@@ -88,7 +87,7 @@ def compton_scatter(photon, compton_angle):
         final_compton_scattered_vector[1],
         final_compton_scattered_vector[2],
     )
-
+    # Plus 0.5 * pi to correct for astropy rotation frame
     return theta_final.value + 0.5 * np.pi, phi_final.value
 
 
@@ -116,13 +115,8 @@ def pair_creation(photon):
     photon.direction.theta = direction_theta
     photon.direction.phi = direction_phi
 
-    backward_ray = GXPhoton(
-        copy.deepcopy(photon.location),
-        copy.deepcopy(photon.direction),
-        copy.deepcopy(photon.energy),
-        GXPhotonStatus.IN_PROCESS,
-        copy.deepcopy(photon.shell),
-    )
+    backward_ray = copy.deepcopy(photon)
+    backward_ray.status = GXPhotonStatus.IN_PROCESS
 
     backward_ray.direction.phi += np.pi
 

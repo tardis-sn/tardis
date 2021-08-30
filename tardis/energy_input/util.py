@@ -1,4 +1,3 @@
-from enum import IntEnum
 import astropy.units as u
 import tardis.constants as const
 import numpy as np
@@ -6,46 +5,8 @@ from astropy.coordinates import spherical_to_cartesian
 
 R_ELECTRON_SQUARED = const.a0.cgs * const.alpha.cgs ** 2.0
 KEV2ERG = (1000 * u.eV).to("erg").value
-ELECTRON_MASS_ENERGY_KEV = 511.0
+ELECTRON_MASS_ENERGY_KEV = (const.m_e * const.c ** 2.0).to("keV").value
 BOUNDARY_THRESHOLD = 1e-7
-
-
-class GXPhotonStatus(IntEnum):
-    BETA_DECAY = -1
-    COMPTON_SCATTER = 0
-    PHOTOABSORPTION = 1
-    PAIR_CREATION = 2
-    IN_PROCESS = 3
-    END = 4
-
-
-class GXPhoton(object):
-    """
-    Gamma ray or X ray object with location, direction, energy, time and optical depth
-
-    Attributes
-    ----------
-    location : SphericalVector object
-             GXPhoton position vector
-    direction : SphericalVector object
-             GXPhoton direction vector (unitary)
-    energy : float64
-             GXPhoton energy
-    status : InteractionType
-             GXPhoton status
-    shell : int64
-             GXPhoton shell location index
-    """
-
-    def __init__(self, location, direction, energy, status, shell):
-        self.location = location
-        self.direction = direction
-        self.energy = energy
-        self.status = status
-        self.shell = shell
-        self.time_created = 0
-        self.time_current = 0
-        self.tau = -np.log(np.random.random())
 
 
 class SphericalVector(object):
@@ -281,7 +242,7 @@ def convert_half_life_to_astropy_units(half_life_string):
     return half_life_with_unit.to(u.s)
 
 
-def normalize(vector):
+def normalize_vector(vector):
     """
     Normalizes a vector in cartesian coordinates
 
@@ -318,5 +279,5 @@ def get_perpendicular_vector(original_direction):
     # in astropy.coordinates.cartesian_to_spherical
     random_vector = spherical_to_cartesian(1, theta - 0.5 * np.pi, phi)
     perpendicular_vector = np.cross(original_direction, random_vector)
-    perpendicular_vector = normalize(perpendicular_vector)
+    perpendicular_vector = normalize_vector(perpendicular_vector)
     return perpendicular_vector

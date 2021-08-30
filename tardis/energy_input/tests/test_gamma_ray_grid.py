@@ -40,6 +40,7 @@ def test_move_photon(basic_gamma_ray):
     r, theta, phi = cartesian_to_spherical(x_new, y_new, z_new)
 
     expected_r = r.value
+    # Plus 0.5 * pi to correct for astropy rotation frame
     expected_theta = theta.value + 0.5 * np.pi
     expected_phi = phi.value
 

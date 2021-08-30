@@ -105,6 +105,7 @@ def move_photon(photon, distance):
 
     r, theta, phi = cartesian_to_spherical(x_new, y_new, z_new)
     photon.location.r = r.value
+    # Plus 0.5 * pi to correct for astropy rotation frame
     photon.location.theta = theta.value + 0.5 * np.pi
     photon.location.phi = phi.value
     return photon

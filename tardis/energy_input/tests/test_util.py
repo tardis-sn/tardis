@@ -10,7 +10,12 @@ from tardis import constants as const
 
 @pytest.mark.parametrize(
     ["energy", "expected"],
-    [(511.0, 1.0), (255.5, 0.5), (0.0, 0.0), (511.0e7, 1e7)],
+    [
+        (511.0, 1.0000021334560507),
+        (255.5, 0.5000010667280254),
+        (0.0, 0.0),
+        (511.0e7, 10000021.334560508),
+    ],
 )
 def test_kappa_calculation(energy, expected):
     """
@@ -77,7 +82,7 @@ def test_compton_theta_distribution():
 
 
 @pytest.mark.xfail(reason="To be implemented")
-def test_normalize():
+def test_normalize(vector):
     assert False
 
 
