@@ -56,16 +56,15 @@ class TestRunnerSimpleFormalInegral:
 
         if not generate_reference:
             return simulation.runner
-        else:
-            simulation.runner.hdf_properties = [
-                "j_blue_estimator",
-                "spectrum",
-                "spectrum_integrated",
-            ]
-            simulation.runner.to_hdf(
-                tardis_ref_data, "", self.name, overwrite=True
-            )
-            pytest.skip("Reference data was generated during this run.")
+        simulation.runner.hdf_properties = [
+            "j_blue_estimator",
+            "spectrum",
+            "spectrum_integrated",
+        ]
+        simulation.runner.to_hdf(
+            tardis_ref_data, "", self.name, overwrite=True
+        )
+        pytest.skip("Reference data was generated during this run.")
 
     @pytest.fixture(scope="class")
     def refdata(self, tardis_ref_data):

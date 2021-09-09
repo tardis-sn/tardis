@@ -202,6 +202,6 @@ def test_spectrum_section_config(tardis_config_verysimple):
     tardis_config_verysimple["spectrum"]["start"] = "2500 angstrom"
     tardis_config_verysimple["spectrum"]["stop"] = "500 angstrom"
     with pytest.raises(ValueError) as ve:
-        if not conf.spectrum.stop.value < conf.spectrum.start.value:
+        if conf.spectrum.stop.value >= conf.spectrum.start.value:
             raise ValueError("Start Value must be less than Stop Value")
     assert ve.type is ValueError

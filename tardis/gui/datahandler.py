@@ -356,19 +356,21 @@ class TreeModel(QtCore.QAbstractItemModel):
         # Append siblings to type nodes
         for node in self.typenodes:  # For every type node
             parent = node.get_parent()
-            sibsdict = {}
-            for i in range(parent.num_children()):
-                sibsdict[parent.get_child(i).get_data(0)] = parent.get_child(i)
+            sibsdict = {
+                parent.get_child(i).get_data(0): parent.get_child(i)
+                for i in range(parent.num_children())
+            }
 
             typesleaf = node.get_child(0)
             for i in range(typesleaf.num_columns()):
                 sibstrings = typesleaf.get_data(i).split("|_:_|")
 
                 typesleaf.set_data(i, sibstrings[0])
-                sibslist = []
-                for j in range(1, len(sibstrings)):
-                    if sibstrings[j] in sibsdict:
-                        sibslist.append(sibsdict[sibstrings[j]])
+                sibslist = [
+                    sibsdict[sibstrings[j]]
+                    for j in range(1, len(sibstrings))
+                    if sibstrings[j] in sibsdict
+                ]
 
                 typesleaf.siblings[sibstrings[0]] = sibslist
 
@@ -402,13 +404,12 @@ class TreeModel(QtCore.QAbstractItemModel):
         """
         children = [node.get_child(i) for i in range(node.num_children())]
         if len(children) > 1:
-            dictionary = {}
-            for nd in children:
-                if nd in self.disabledNodes:
-                    pass
-                else:
-                    dictionary[nd.get_data(0)] = self.dict_from_node(nd)
-            return dictionary
+            return {
+                nd.get_data(0): self.dict_from_node(nd)
+                for nd in children
+                if nd not in self.disabledNodes
+            }
+
         elif len(children) == 1:
             return children[0].get_data(0)
 
@@ -518,13 +519,18 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
     def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
         """Set the header data."""
         if orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
-            if self.iterate_header[0] == 1:
+            if (
+                self.iterate_header[0] != 1
+                and self.iterate_header[0] == 2
+                and self.index_info
+            ):
+                return self.headerdata[0][0] + str(self.index_info[section])
+            elif (
+                self.iterate_header[0] != 1
+                and self.iterate_header[0] == 2
+                or self.iterate_header[0] == 1
+            ):
                 return self.headerdata[0][0] + str(section + 1)
-            elif self.iterate_header[0] == 2:
-                if self.index_info:
-                    return self.headerdata[0][0] + str(self.index_info[section])
-                else:
-                    return self.headerdata[0][0] + str(section + 1)
             else:
                 return self.headerdata[0][section]
         elif (

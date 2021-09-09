@@ -79,16 +79,15 @@ def assemble_plasma(config, model, atom_data=None):
     )
 
     if atom_data is None:
-        if "atom_data" in config:
-            if os.path.isabs(config.atom_data):
-                atom_data_fname = config.atom_data
-            else:
-                atom_data_fname = os.path.join(
-                    config.config_dirname, config.atom_data
-                )
-        else:
+        if "atom_data" not in config:
             raise ValueError("No atom_data option found in the configuration.")
 
+        if os.path.isabs(config.atom_data):
+            atom_data_fname = config.atom_data
+        else:
+            atom_data_fname = os.path.join(
+                config.config_dirname, config.atom_data
+            )
         logger.info(f"Reading Atomic Data from {atom_data_fname}")
 
         try:
@@ -193,11 +192,11 @@ def assemble_plasma(config, model, atom_data=None):
             f"radiative_rates_type type unknown - {config.plasma.radiative_rates_type}"
         )
 
-    if config.plasma.excitation == "lte":
-        plasma_modules += lte_excitation_properties
-    elif config.plasma.excitation == "dilute-lte":
+    if config.plasma.excitation == "dilute-lte":
         plasma_modules += dilute_lte_excitation_properties
 
+    elif config.plasma.excitation == "lte":
+        plasma_modules += lte_excitation_properties
     if config.plasma.ionization == "lte":
         plasma_modules += lte_ionization_properties
     elif config.plasma.ionization == "nebular":
@@ -248,10 +247,8 @@ def assemble_plasma(config, model, atom_data=None):
 
     kwargs["helium_treatment"] = config.plasma.helium_treatment
 
-    plasma = BasePlasma(
+    return BasePlasma(
         plasma_properties=plasma_modules,
         property_kwargs=property_kwargs,
         **kwargs,
     )
-
-    return plasma

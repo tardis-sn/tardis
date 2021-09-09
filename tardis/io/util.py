@@ -240,21 +240,19 @@ class HDFWriterMixin(object):
                 "to overwrite it, set function parameter overwrite=True"
             )
 
-        else:
-            try:  # when path_or_buf is a str, the HDFStore should get created
-                buf = pd.HDFStore(
-                    path_or_buf, complevel=complevel, complib=complib
-                )
-            except TypeError as e:
-                if e.message == "Expected bytes, got HDFStore":
-                    # when path_or_buf is an HDFStore buffer instead
-                    logger.debug(
-                        "Expected bytes, got HDFStore. Changing path to HDF buffer"
-                    )
-                    buf = path_or_buf
-                else:
-                    raise e
+        try:  # when path_or_buf is a str, the HDFStore should get created
+            buf = pd.HDFStore(
+                path_or_buf, complevel=complevel, complib=complib
+            )
+        except TypeError as e:
+            if e.message != "Expected bytes, got HDFStore":
+                raise e
 
+            # when path_or_buf is an HDFStore buffer instead
+            logger.debug(
+                "Expected bytes, got HDFStore. Changing path to HDF buffer"
+            )
+            buf = path_or_buf
         if not buf.is_open:
             buf.open()
 
@@ -295,8 +293,7 @@ class HDFWriterMixin(object):
             buf.close()
 
     def get_properties(self):
-        data = {name: getattr(self, name) for name in self.full_hdf_properties}
-        return data
+        return {name: getattr(self, name) for name in self.full_hdf_properties}
 
     @property
     def full_hdf_properties(self):
@@ -399,10 +396,7 @@ def download_from_url(url, dst):
     """
 
     file_size = int(requests.head(url).headers["Content-Length"])
-    if os.path.exists(dst):
-        first_byte = os.path.getsize(dst)
-    else:
-        first_byte = 0
+    first_byte = os.path.getsize(dst) if os.path.exists(dst) else 0
     if first_byte >= file_size:
         return file_size
     header = {"Range": "bytes=%s-%s" % (first_byte, file_size)}

@@ -426,9 +426,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             if hasattr(self, "convergence_plots"):
                 self.convergence_plots.update()
             self._call_back()
-            if self.converged:
-                if self.convergence_strategy.stop_if_converged:
-                    break
+            if self.converged and self.convergence_strategy.stop_if_converged:
+                break
         # Last iteration
         self.store_plasma_state(
             self.iterations_executed,
@@ -503,27 +502,23 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             logger.info("Plasma stratification:")
 
             # Displaying the DataFrame only when the logging level is NOTSET, DEBUG or INFO
-            if logger.level <= logging.INFO:
-                if not logger.filters:
-                    display(
-                        plasma_state_log.iloc[::log_sampling].style.format(
-                            "{:.3g}"
-                        )
+            if logger.level <= logging.INFO and (
+                not logger.filters or logger.filters[0].log_level == 20
+            ):
+                display(
+                    plasma_state_log.iloc[::log_sampling].style.format(
+                        "{:.3g}"
                     )
-                elif logger.filters[0].log_level == 20:
-                    display(
-                        plasma_state_log.iloc[::log_sampling].style.format(
-                            "{:.3g}"
-                        )
-                    )
+                )
         else:
-            output_df = ""
             plasma_output = plasma_state_log.iloc[::log_sampling].to_string(
                 float_format=lambda x: "{:.3g}".format(x),
                 justify="center",
             )
-            for value in plasma_output.split("\n"):
-                output_df = output_df + "\t{}\n".format(value)
+            output_df = "".join(
+                "\t{}\n".format(value) for value in plasma_output.split("\n")
+            )
+
             logger.info("Plasma stratification:")
             logger.info(f"\n{output_df}")
 
@@ -619,11 +614,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # unit tests, and could be extended in all the from_config classmethods.
         if "model" in kwargs:
             model = kwargs["model"]
+        elif hasattr(config, "csvy_model"):
+            model = Radial1DModel.from_csvy(config)
         else:
-            if hasattr(config, "csvy_model"):
-                model = Radial1DModel.from_csvy(config)
-            else:
-                model = Radial1DModel.from_config(config)
+            model = Radial1DModel.from_config(config)
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]
         else:
@@ -650,11 +644,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             "t_inner_luminosities_colors",
             "export_convergence_plots",
         ]
-        convergence_plots_kwargs = {}
-        for item in set(convergence_plots_config_options).intersection(
-            kwargs.keys()
-        ):
-            convergence_plots_kwargs[item] = kwargs[item]
+        convergence_plots_kwargs = {
+            item: kwargs[item]
+            for item in set(convergence_plots_config_options).intersection(
+                kwargs.keys()
+            )
+        }
 
         luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(
             u.Hz, u.spectral()

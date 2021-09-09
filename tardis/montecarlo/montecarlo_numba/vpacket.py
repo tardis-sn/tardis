@@ -104,11 +104,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
             cur_line_id, v_packet.current_shell_id
         ]
 
-        if cur_line_id == len(numba_plasma.line_list_nu) - 1:
-            is_last_line = True
-        else:
-            is_last_line = False
-
+        is_last_line = cur_line_id == len(numba_plasma.line_list_nu) - 1
         distance_trace_line = calculate_distance_line(
             v_packet,
             comov_nu,

@@ -225,14 +225,12 @@ class TARDISHistory(object):
     def __init__(self, hdf5_fname, iterations=None):
         self.hdf5_fname = hdf5_fname
         if iterations is None:
-            iterations = []
             hdf_store = pd.HDFStore(self.hdf5_fname, "r")
-            for key in hdf_store.keys():
-                if key.split("/")[1] == "atom_data":
-                    continue
-                iterations.append(
-                    int(re.match(r"model(\d+)", key.split("/")[1]).groups()[0])
-                )
+            iterations = [
+                int(re.match(r"model(\d+)", key.split("/")[1]).groups()[0])
+                for key in hdf_store.keys()
+                if key.split("/")[1] != "atom_data"
+            ]
 
             self.iterations = np.sort(np.unique(iterations))
             hdf_store.close()
@@ -250,7 +248,6 @@ class TARDISHistory(object):
             hdf_store.close()
 
     def load_t_inner(self, iterations=None):
-        t_inners = []
         hdf_store = pd.HDFStore(self.hdf5_fname, "r")
 
         if iterations is None:
@@ -260,10 +257,11 @@ class TARDISHistory(object):
         else:
             iterations = self.iterations[iterations]
 
-        for iter in iterations:
-            t_inners.append(
-                hdf_store["model%03d/configuration" % iter].ix["t_inner"]
-            )
+        t_inners = [
+            hdf_store["model%03d/configuration" % iter].ix["t_inner"]
+            for iter in iterations
+        ]
+
         hdf_store.close()
 
         t_inners = np.array(t_inners)

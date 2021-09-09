@@ -92,9 +92,7 @@ def logging_state(log_level, tardis_config, specific_log_level):
             else specific_log_level
         )
 
-        logging_level = (
-            log_level if log_level else tardis_config["debug"]["log_level"]
-        )
+        logging_level = log_level or tardis_config["debug"]["log_level"]
 
         # Displays a message when both log_level & tardis["debug"]["log_level"] are specified
         if log_level and tardis_config["debug"]["log_level"]:
@@ -116,7 +114,7 @@ def logging_state(log_level, tardis_config, specific_log_level):
             specific_log_level = specific_log_level
 
     logging_level = logging_level.upper()
-    if not logging_level in LOGGING_LEVELS:
+    if logging_level not in LOGGING_LEVELS:
         raise ValueError(
             f"Passed Value for log_level = {logging_level} is Invalid. Must be one of the following {list(LOGGING_LEVELS.keys())}"
         )
@@ -160,8 +158,8 @@ def tardis_logger():
     -------
     list_for_loggers : list
     """
-    list_for_loggers = []
-    for name in logging.root.manager.loggerDict:
-        if not name.find("tardis"):
-            list_for_loggers.append(logging.getLogger(name))
-    return list_for_loggers
+    return [
+        logging.getLogger(name)
+        for name in logging.root.manager.loggerDict
+        if not name.find("tardis")
+    ]

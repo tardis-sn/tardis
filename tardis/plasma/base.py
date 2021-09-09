@@ -285,7 +285,7 @@ class BasePlasma(PlasmaWriterMixin):
             print_graph.node[str(node)]["label"] = node
             if hasattr(self.plasma_properties_dict[node], "latex_formula"):
                 formulae = self.plasma_properties_dict[node].latex_formula
-                for output in range(0, len(formulae)):
+                for output in range(len(formulae)):
                     formula = formulae[output]
                     label = formula.replace("\\", "\\\\")
                     print_graph.node[str(node)]["label"] += "\\n$"

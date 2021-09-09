@@ -208,10 +208,9 @@ def montecarlo_main_loop(
 
         if montecarlo_configuration.single_packet_seed != -1:
             seed = packet_seeds[montecarlo_configuration.single_packet_seed]
-            np.random.seed(seed)
         else:
             seed = packet_seeds[i]
-            np.random.seed(seed)
+        np.random.seed(seed)
         r_packet = RPacket(
             numba_model.r_inner[0],
             packet_collection.packets_input_mu[i],

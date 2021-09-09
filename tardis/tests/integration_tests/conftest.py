@@ -60,11 +60,10 @@ def pytest_runtest_makereport(item, call):
     # execute all other hooks to obtain the report object
     outcome = yield
     report = outcome.get_result()
-    if report.when == "call":
-        if "plot_object" in item.fixturenames:
-            plot_obj = item.funcargs["plot_object"]
-            plot_obj.upload(report)
-            report.extra = plot_obj.get_extras()
+    if report.when == "call" and "plot_object" in item.fixturenames:
+        plot_obj = item.funcargs["plot_object"]
+        plot_obj.upload(report)
+        report.extra = plot_obj.get_extras()
 
 
 @pytest.fixture(scope="function")
@@ -110,19 +109,14 @@ def data_path(request):
         )
 
     path = {
-        "config_dirpath": request.param,
-        "reference_path": ref_path,
-        "setup_name": hdf_filename[:-3],
-        # Temporary hack for providing atom data per individual setup.
-        # This url has all the atom data files hosted, for downloading.
-        #        'atom_data_url': integration_tests_config['atom_data']['atom_data_url']
+        'config_dirpath': request.param,
+        'reference_path': ref_path,
+        'setup_name': hdf_filename[:-3],
+        'atom_data_path': os.path.expandvars(
+            os.path.expanduser(integration_tests_config["atom_data_path"])
+        ),
     }
 
-    # For providing atom data per individual setup. Atom data can be fetched
-    # from a local directory or a remote url.
-    path["atom_data_path"] = os.path.expandvars(
-        os.path.expanduser(integration_tests_config["atom_data_path"])
-    )
 
     if request.config.getoption("--generate-reference") and not os.path.exists(
         path["reference_path"]
@@ -144,14 +138,13 @@ def reference(request, data_path):
     # generates new reference data.
     if request.config.getoption("--generate-reference"):
         return
-    else:
-        try:
-            reference = pd.HDFStore(data_path["reference_path"], "r")
-        except IOError:
-            raise IOError(
-                f'Reference file {data_path["reference_path"]} does not exist and is needed'
-                f" for the tests"
-            )
+    try:
+        reference = pd.HDFStore(data_path["reference_path"], "r")
+    except IOError:
+        raise IOError(
+            f'Reference file {data_path["reference_path"]} does not exist and is needed'
+            f" for the tests"
+        )
 
-        else:
-            return reference
+    else:
+        return reference

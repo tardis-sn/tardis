@@ -23,7 +23,7 @@ class BasePlotSaver(object):
         """
         self.request = request
         self._plots = list()
-        self.plot_html = list()
+        self.plot_html = []
         self.dokuwiki_url = dokuwiki_url
         self.assets_dirpath = assets_dirpath
 

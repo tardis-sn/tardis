@@ -282,11 +282,10 @@ class ConvergencePlots(object):
                 # all traces will have same data property
                 for trace in list(fig.data):
                     self.override_plot_parameters(trace, value)
+            elif type(value) == dict:
+                self.override_plot_parameters(fig[key], value)
             else:
-                if type(value) == dict:
-                    self.override_plot_parameters(fig[key], value)
-                else:
-                    fig[key] = value
+                fig[key] = value
 
     def build(self, display_plot=True):
         """
@@ -414,11 +413,14 @@ class ConvergencePlots(object):
 
             # data property for plasma plots needs to be
             # updated after the last iteration because new traces have been added
-            if hasattr(self, "plasma_plot_config") and last:
-                if "data" in self.plasma_plot_config:
-                    self.override_plot_parameters(
-                        self.plasma_plot, self.plasma_plot_config
-                    )
+            if (
+                hasattr(self, "plasma_plot_config")
+                and last
+                and "data" in self.plasma_plot_config
+            ):
+                self.override_plot_parameters(
+                    self.plasma_plot, self.plasma_plot_config
+                )
 
         self.current_iteration += 1
 

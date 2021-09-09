@@ -29,7 +29,7 @@ class TARDISSpectrum(HDFWriterMixin):
     def __init__(self, _frequency, luminosity):
 
         # Check for correct inputs
-        if not _frequency.shape[0] == luminosity.shape[0] + 1:
+        if _frequency.shape[0] != luminosity.shape[0] + 1:
             raise ValueError(
                 "shape of '_frequency' and 'luminosity' are not compatible"
                 f": '{_frequency.shape[0]}' and '{luminosity.shape[0]}'"

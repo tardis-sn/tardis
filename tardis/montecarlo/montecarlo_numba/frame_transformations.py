@@ -75,8 +75,7 @@ def calc_packet_energy(r_packet, distance_trace, time_explosion):
         (distance_trace + r_packet.mu * r_packet.r)
         / (time_explosion * C_SPEED_OF_LIGHT)
     )
-    energy = r_packet.energy * doppler_factor
-    return energy
+    return r_packet.energy * doppler_factor
 
 
 @njit(**njit_dict_no_parallel)

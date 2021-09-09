@@ -223,10 +223,9 @@ def cooling_rate_series2dataframe(cooling_rate_series, destination_level_idx):
     index = pd.MultiIndex.from_tuples(
         [("k", destination_level_idx, -1)], names=index_names
     )
-    cooling_rate_frame = pd.DataFrame(
+    return pd.DataFrame(
         cooling_rate_series.values[np.newaxis], index=index
     )
-    return cooling_rate_frame
 
 
 class IndexSetterMixin(object):
@@ -350,10 +349,9 @@ class FreeBoundEmissionCDF(ProcessingPlasmaProperty):
         alpha_sp_E = cumulative_integrate_array_by_blocks(
             alpha_sp_E, nu, photo_ion_block_references
         )
-        fb_emission_cdf = pd.DataFrame(
+        return pd.DataFrame(
             alpha_sp_E, index=photo_ion_cross_sections.index
         )
-        return fb_emission_cdf
 
 
 class PhotoIonRateCoeff(ProcessingPlasmaProperty):
@@ -377,18 +375,13 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
         t_rad,
         w,
     ):
-        # Used for initialization
-        if gamma_estimator is None:
-            gamma = self.calculate_from_dilute_bb(
+        return self.calculate_from_dilute_bb(
                 photo_ion_cross_sections,
                 photo_ion_block_references,
                 photo_ion_index,
                 t_rad,
                 w,
-            )
-        else:
-            gamma = gamma_estimator * photo_ion_norm_factor
-        return gamma
+            ) if gamma_estimator is None else gamma_estimator * photo_ion_norm_factor
 
     @staticmethod
     def calculate_from_dilute_bb(
@@ -498,8 +491,7 @@ class RawRecombTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
         p_recomb_internal = self.set_index(
             p_recomb_internal, photo_ion_idx, transition_type=0
         )
-        p_recomb = pd.concat([p_recomb_deactivation, p_recomb_internal])
-        return p_recomb
+        return pd.concat([p_recomb_deactivation, p_recomb_internal])
 
 
 class RawPhotoIonTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
@@ -643,8 +635,7 @@ class CollDeexcRateCoeff(ProcessingPlasmaProperty):
             level_upper_index
         ].values
 
-        coll_deexc_coeff = coll_exc_coeff * n_lower_prop / n_upper_prop
-        return coll_deexc_coeff
+        return coll_exc_coeff * n_lower_prop / n_upper_prop
 
 
 class RawCollisionTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
@@ -713,10 +704,9 @@ class RawCollisionTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
             names=list(yg_idx.columns) + ["transition_type"],
         )
         p_exc_cool = p_exc_cool.set_index(exc_cool_index)
-        p_coll = pd.concat(
+        return pd.concat(
             [p_deexc_deactivation, p_deexc_internal, p_exc_internal, p_exc_cool]
         )
-        return p_coll
 
 
 class RawTwoPhotonTransProbs(TransitionProbabilitiesProperty, IndexSetterMixin):
@@ -810,8 +800,7 @@ class TwoPhotonEmissionCDF(ProcessingPlasmaProperty):
         """
         ay = y * (1 - y) * (1 - (4 * y * (1 - y)) ** gamma)
         ay += alpha * (y * (1 - y)) ** beta * (4 * y * (1 - y)) ** gamma
-        j_nu = ay * y
-        return j_nu
+        return ay * y
 
 
 class AdiabaticCoolingRate(TransitionProbabilitiesProperty):
@@ -862,11 +851,10 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
     @staticmethod
     def _calculate_ff_cooling_factor(ion_number_density, electron_densities):
         ion_charge = ion_number_density.index.get_level_values(1).values
-        factor = (
+        return (
             electron_densities
             * ion_number_density.multiply(ion_charge ** 2, axis=0).sum()
         )
-        return factor
 
 
 class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
@@ -960,11 +948,9 @@ class LevelNumberDensityLTE(ProcessingPlasmaProperty):
         next_higher_ion_index = get_ion_multi_index(
             phi_ik.index, next_higher=True
         )
-        # TODO: Check that n_k is correct (and not n_k*)
-        lte_level_number_density = (
+        return (
             phi_ik * ion_number_density.loc[next_higher_ion_index].values
         ).multiply(electron_densities, axis=1)
-        return lte_level_number_density
 
 
 class PhotoIonBoltzmannFactor(ProcessingPlasmaProperty):
@@ -979,8 +965,7 @@ class PhotoIonBoltzmannFactor(ProcessingPlasmaProperty):
     def calculate(self, photo_ion_cross_sections, t_electrons):
         nu = photo_ion_cross_sections["nu"].values
 
-        boltzmann_factor = np.exp(-nu[np.newaxis].T / t_electrons * (H / K_B))
-        return boltzmann_factor
+        return np.exp(-nu[np.newaxis].T / t_electrons * (H / K_B))
 
 
 class CollIonRateCoeffSeaton(ProcessingPlasmaProperty):
@@ -1029,8 +1014,7 @@ class CollIonRateCoeffSeaton(ProcessingPlasmaProperty):
 
     @staticmethod
     def _calculate_u0s(nu, t_electrons):
-        u0s = nu[np.newaxis].T / t_electrons * (H / K_B)
-        return u0s
+        return nu[np.newaxis].T / t_electrons * (H / K_B)
 
 
 class CollRecombRateCoeff(ProcessingPlasmaProperty):

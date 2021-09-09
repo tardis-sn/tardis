@@ -340,22 +340,21 @@ class Radial1DModel(HDFWriterMixin):
 
     @v_boundary_inner.setter
     def v_boundary_inner(self, value):
-        if value is not None:
-            if value > 0 * u.km / u.s:
-                value = u.Quantity(value, self.v_boundary_inner.unit)
-                if value > self.v_boundary_outer:
-                    raise ValueError(
-                        "v_boundary_inner must not be higher than "
-                        "v_boundary_outer."
-                    )
-                if value > self.raw_velocity[-1]:
-                    raise ValueError(
-                        "v_boundary_inner is outside of " "the model range."
-                    )
-                if value < self.raw_velocity[0]:
-                    raise ValueError(
-                        "v_boundary_inner is lower than the lowest shell in the model."
-                    )
+        if value is not None and value > 0 * u.km / u.s:
+            value = u.Quantity(value, self.v_boundary_inner.unit)
+            if value > self.v_boundary_outer:
+                raise ValueError(
+                    "v_boundary_inner must not be higher than "
+                    "v_boundary_outer."
+                )
+            if value > self.raw_velocity[-1]:
+                raise ValueError(
+                    "v_boundary_inner is outside of " "the model range."
+                )
+            if value < self.raw_velocity[0]:
+                raise ValueError(
+                    "v_boundary_inner is lower than the lowest shell in the model."
+                )
         self._v_boundary_inner = value
         # Invalidate the cached cut-down velocity array
         self._velocity = None
@@ -370,49 +369,40 @@ class Radial1DModel(HDFWriterMixin):
 
     @v_boundary_outer.setter
     def v_boundary_outer(self, value):
-        if value is not None:
-            if value > 0 * u.km / u.s:
-                value = u.Quantity(value, self.v_boundary_outer.unit)
-                if value < self.v_boundary_inner:
-                    raise ValueError(
-                        "v_boundary_outer must not be smaller than "
-                        "v_boundary_inner."
-                    )
-                if value < self.raw_velocity[0]:
-                    raise ValueError(
-                        "v_boundary_outer is outside of " "the model range."
-                    )
-                if value > self.raw_velocity[-1]:
-                    raise ValueError(
-                        "v_boundary_outer is larger than the largest shell in the model."
-                    )
+        if value is not None and value > 0 * u.km / u.s:
+            value = u.Quantity(value, self.v_boundary_outer.unit)
+            if value < self.v_boundary_inner:
+                raise ValueError(
+                    "v_boundary_outer must not be smaller than "
+                    "v_boundary_inner."
+                )
+            if value < self.raw_velocity[0]:
+                raise ValueError(
+                    "v_boundary_outer is outside of " "the model range."
+                )
+            if value > self.raw_velocity[-1]:
+                raise ValueError(
+                    "v_boundary_outer is larger than the largest shell in the model."
+                )
         self._v_boundary_outer = value
         # Invalidate the cached cut-down velocity array
         self._velocity = None
 
     @property
     def v_boundary_inner_index(self):
-        if self.v_boundary_inner in self.raw_velocity:
-            v_inner_ind = np.argwhere(
+        return np.argwhere(
                 self.raw_velocity == self.v_boundary_inner
-            )[0][0]
-        else:
-            v_inner_ind = (
+            )[0][0] if self.v_boundary_inner in self.raw_velocity else (
                 np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
             )
-        return v_inner_ind
 
     @property
     def v_boundary_outer_index(self):
-        if self.v_boundary_outer in self.raw_velocity:
-            v_outer_ind = np.argwhere(
+        return np.argwhere(
                 self.raw_velocity == self.v_boundary_outer
-            )[0][0]
-        else:
-            v_outer_ind = np.searchsorted(
+            )[0][0] if self.v_boundary_outer in self.raw_velocity else np.searchsorted(
                 self.raw_velocity, self.v_boundary_outer
             )
-        return v_outer_ind
 
     #    @property
     #    def v_boundary_inner_index(self):
@@ -582,22 +572,15 @@ class Radial1DModel(HDFWriterMixin):
         )
 
         if hasattr(csvy_model_data, "columns"):
-            abund_names = set(
-                [
-                    name
-                    for name in csvy_model_data.columns
-                    if nucname.iselement(name) or nucname.isnuclide(name)
-                ]
-            )
+            abund_names = set(name for name in csvy_model_data.columns
+                            if nucname.iselement(name) or nucname.isnuclide(name))
             unsupported_columns = (
                 set(csvy_model_data.columns)
                 - abund_names
                 - CSVY_SUPPORTED_COLUMNS
             )
 
-            field_names = set(
-                [field["name"] for field in csvy_model_config.datatype.fields]
-            )
+            field_names = set(field["name"] for field in csvy_model_config.datatype.fields)
             assert (
                 set(csvy_model_data.columns) - field_names == set()
             ), "CSVY columns exist without field descriptions"

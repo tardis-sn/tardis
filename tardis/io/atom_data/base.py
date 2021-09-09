@@ -159,8 +159,8 @@ class AtomData(object):
             (default: None)
         """
 
-        dataframes = dict()
-        nonavailable = list()
+        dataframes = {}
+        nonavailable = []
 
         fname = resolve_atom_data_fname(fname)
 
@@ -295,7 +295,7 @@ class AtomData(object):
         for group in self.related_groups:
             check_list = [name for name in group if getattr(self, name) is None]
 
-            if len(check_list) != 0 and len(check_list) != len(group):
+            if len(check_list) not in [0, len(group)]:
                 raise AtomDataMissingError(
                     f'The following dataframes from the related group [{", ".join(group)}]'
                     f'were not given: {", ".join(check_list)}'
@@ -376,7 +376,7 @@ class AtomData(object):
 
         if (
             self.macro_atom_data_all is not None
-            and not line_interaction_type == "scatter"
+            and line_interaction_type != "scatter"
         ):
 
             self.macro_atom_data = self.macro_atom_data_all.loc[

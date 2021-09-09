@@ -55,11 +55,10 @@ TESTDATA = [
 @pytest.fixture(scope="function", params=TESTDATA)
 def formal_integral_model(request):
     r = request.param["r"]
-    model = NumbaModel(
+    return NumbaModel(
             r[:-1],
             r[1:],
             1/c.c.cgs.value)
-    return model
 
 @pytest.mark.parametrize(
         'p', [0.0, 0.5, 1.0]

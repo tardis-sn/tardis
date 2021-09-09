@@ -460,11 +460,9 @@ class MontecarloRunner(HDFWriterMixin):
             self.emitted_packet_nu > luminosity_nu_start
         ) & (self.emitted_packet_nu < luminosity_nu_end)
 
-        emitted_luminosity = self.emitted_packet_luminosity[
+        return self.emitted_packet_luminosity[
             luminosity_wavelength_filter
         ].sum()
-
-        return emitted_luminosity
 
     def calculate_reabsorbed_luminosity(
         self, luminosity_nu_start, luminosity_nu_end
@@ -485,11 +483,9 @@ class MontecarloRunner(HDFWriterMixin):
             self.reabsorbed_packet_nu > luminosity_nu_start
         ) & (self.reabsorbed_packet_nu < luminosity_nu_end)
 
-        reabsorbed_luminosity = self.reabsorbed_packet_luminosity[
+        return self.reabsorbed_packet_luminosity[
             luminosity_wavelength_filter
         ].sum()
-
-        return reabsorbed_luminosity
 
     def calculate_radiationfield_properties(self):
         """

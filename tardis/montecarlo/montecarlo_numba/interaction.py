@@ -100,8 +100,6 @@ def line_emission(r_packet, emission_line_id, time_explosion, numba_plasma):
     """
     r_packet.last_line_interaction_out_id = emission_line_id
 
-    if emission_line_id != r_packet.next_line_id:
-        pass
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )

@@ -38,5 +38,4 @@ def atomic_dataset(atomic_data_fname):
 
 @pytest.fixture
 def kurucz_atomic_data(atomic_dataset):
-    atomic_data = deepcopy(atomic_dataset)
-    return atomic_data
+    return deepcopy(atomic_dataset)

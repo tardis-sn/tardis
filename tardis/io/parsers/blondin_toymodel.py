@@ -89,23 +89,21 @@ def read_blondin_toymodel(fname):
         t0_string = T0_PATTERN.findall(fh.read())[0]
 
     t0 = parse_quantity(t0_string.replace("DAYS", "day"))
-    blondin_dict = {}
-    blondin_dict["model_density_time_0"] = str(t0)
-    blondin_dict["description"] = f"Converted {fname} to csvy format"
-    blondin_dict["tardis_model_config_version"] = "v1.0"
+    blondin_dict = {
+        'model_density_time_0': str(t0),
+        'description': f"Converted {fname} to csvy format",
+        'tardis_model_config_version': 'v1.0',
+    }
+
     blondin_dict_fields = [
         dict(
             name="velocity",
             unit="km/s",
             desc="velocities of shell outer bounderies.",
-        )
+        ),
+        dict(name="density", unit="g/cm^3", desc="mean density of shell."),
+        dict(name="t_electron", unit="K", desc="electron temperature."),
     ]
-    blondin_dict_fields.append(
-        dict(name="density", unit="g/cm^3", desc="mean density of shell.")
-    )
-    blondin_dict_fields.append(
-        dict(name="t_electron", unit="K", desc="electron temperature.")
-    )
 
     for abund in blondin_csv.columns[3:]:
         blondin_dict_fields.append(

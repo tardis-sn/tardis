@@ -8,8 +8,7 @@ from tardis.util.base import species_string_to_tuple
 
 @pytest.fixture(scope="class")
 def line_info_widget(simulation_verysimple):
-    line_info_widget = LineInfoWidget.from_simulation(simulation_verysimple)
-    return line_info_widget
+    return LineInfoWidget.from_simulation(simulation_verysimple)
 
 
 @pytest.mark.parametrize(
@@ -62,11 +61,11 @@ class TestLineInfoWidgetData:
         species_interactions_df = line_info_widget.get_species_interactions(
             wavelength_range, filter_mode
         )
-        if species_interactions_df.all(axis=None) == False:
-            allowed_species = None  # no species can be selected
-        else:
-            allowed_species = species_interactions_df.index
-        return allowed_species
+        return (
+            None
+            if species_interactions_df.all(axis=None) == False
+            else species_interactions_df.index
+        )
 
     @pytest.mark.parametrize("group_mode", ["exc", "de-exc", "both"])
     def test_get_last_line_counts(

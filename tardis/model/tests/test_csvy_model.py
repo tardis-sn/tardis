@@ -82,8 +82,7 @@ def csvy_model_test_abundances():
     """Returns Radial1DModel to use to test abundances dataframes"""
     csvypath = os.path.join(DATA_PATH, "csvy_model_to_test_abundances.yml")
     config = Configuration.from_yaml(csvypath)
-    csvy_model_test_abundances = Radial1DModel.from_csvy(config)
-    return csvy_model_test_abundances
+    return Radial1DModel.from_csvy(config)
 
 
 @pytest.fixture(scope="function")
@@ -172,7 +171,7 @@ def reference_decayed_abundance():
      In the reference_decayed_dataframe every row represents a specific element
      and every column represents a shell"""
     decay_index = pd.Index([1, 2, 26, 27, 28], name="atomic_number")
-    reference_decayed_abundance = pd.DataFrame(
+    return pd.DataFrame(
         [
             [0.0, 0.33, 0.3, 0.5, 0.4, 0.2],
             [0.98, 0.64, 0.6, 0.4, 0.55, 0.79],
@@ -203,7 +202,6 @@ def reference_decayed_abundance():
         ],
         index=decay_index,
     )
-    return reference_decayed_abundance
 
 
 def test_csvy_model_decay(

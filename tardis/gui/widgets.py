@@ -152,7 +152,7 @@ class MatplotlibWidget(FigureCanvas):
         """Change edgecolor of highlighted shell."""
         self.parent.tableview.selectRow(index)
         for i in range(len(self.parent.shells)):
-            if i != index and i != index + 1:
+            if i not in [index, index + 1]:
                 self.parent.shells[i].set_edgecolor("k")
             else:
                 self.parent.shells[i].set_edgecolor("w")
@@ -859,17 +859,12 @@ class ShellInfo(QtWidgets.QDialog):
             iterate_header=(2, 0),
             index_info=self.table2_data.index.values.tolist(),
         )
-        normalized_data = []
-        for item in self.table2_data.values:
-            normalized_data.append(
-                float(
+        normalized_data = [float(
                     item
                     / self.parent.model.plasma.number_density[
                         self.shell_index
                     ].ix[self.current_atom_index]
-                )
-            )
-
+                ) for item in self.table2_data.values]
         self.ionsdata.add_data(normalized_data)
         self.ionstable.setModel(self.ionsdata)
         self.sectionClicked = QtCore.Signal(int)
@@ -893,11 +888,11 @@ class ShellInfo(QtWidgets.QDialog):
             iterate_header=(2, 0),
             index_info=self.table3_data.index.values.tolist(),
         )
-        normalized_data = []
-        for item in self.table3_data.values.tolist():
-            normalized_data.append(
-                float(item / self.table2_data.ix[self.current_ion_index])
-            )
+        normalized_data = [
+            float(item / self.table2_data.ix[self.current_ion_index])
+            for item in self.table3_data.values.tolist()
+        ]
+
         self.levelsdata.add_data(normalized_data)
         self.levelstable.setModel(self.levelsdata)
         self.levelstable.setColumnWidth(0, 120)
@@ -1030,28 +1025,20 @@ class LineInfo(QtWidgets.QDialog):
             .groups
         )
         transitions_count = []
-        transitions_parsed = []
         for item in transitions.values():
-            c = 0
-            for ditem in transitions_with_duplicates.values():
-                c += ditem.count(item[0])
+            c = sum(ditem.count(item[0]) for ditem in transitions_with_duplicates.values())
             transitions_count.append(c)
-        s = 0
-        for item in transitions_count:
-            s += item
-        for index in range(len(transitions_count)):
-            transitions_count[index] /= float(s)
-        for key, value in transitions.items():
-            transitions_parsed.append(
-                "%d-%d (%.2f A)"
+        s = sum(transitions_count)
+        for item_ in transitions_count:
+            item_ /= float(s)
+        transitions_parsed = ["%d-%d (%.2f A)"
                 % (
                     key[0],
                     key[1],
                     self.parent.model.atom_data.lines.ix[value[0]][
                         "wavelength"
                     ],
-                )
-            )
+                ) for key, value in transitions.items()]
         return transitions_parsed, transitions_count
 
     def on_atom_clicked(self, index):

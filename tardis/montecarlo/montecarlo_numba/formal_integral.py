@@ -96,11 +96,7 @@ def numba_formal_integral(
             # initialize z intersections for p values
             size_z = populate_z(model, p, z, shell_id)  # check returns
             # initialize I_nu
-            if p <= R_ph:
-                I_nu[p_idx] = intensity_black_body(nu * z[0], iT)
-            else:
-                I_nu[p_idx] = 0
-
+            I_nu[p_idx] = intensity_black_body(nu * z[0], iT) if p <= R_ph else 0
             # find first contributing lines
             nu_start = nu * z[0]
             nu_end = nu * z[1]
@@ -286,9 +282,8 @@ class FormalIntegrator(object):
         def raise_or_return(message):
             if raises:
                 raise IntegrationError(message)
-            else:
-                warnings.warn(message)
-                return False
+            warnings.warn(message)
+            return False
 
         for obj in (self.model, self.plasma, self.runner):
             if obj is None:

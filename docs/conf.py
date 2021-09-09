@@ -157,12 +157,7 @@ nbsphinx_prolog = r"""
     </div>
 """
 
-if os.getenv("DISABLE_NBSPHINX") == "1":
-    nbsphinx_execute = "never"
-else:
-    nbsphinx_execute = "auto"
-
-
+nbsphinx_execute = "never" if os.getenv("DISABLE_NBSPHINX") == "1" else "auto"
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
@@ -383,8 +378,7 @@ try:
                      ".. code-block:: bibtex\n\n" + textwrap.indent(response.text, " "*4))
 
 except Exception as e:
-    warnings.warn("Failed to retrieve Zenodo record for TARDIS: "
-                  f"{str(e)}")
+    warnings.warn(f'Failed to retrieve Zenodo record for TARDIS: {e}')
 
     not_found_msg = """
                     Couldn"t retrieve the TARDIS software citation from Zenodo. Get it 

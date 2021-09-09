@@ -287,13 +287,9 @@ class ShellInfoWidget:
             [30, 70],
             changeable_col={
                 "index": -1,
-                # Ion values range from 0 to max atomic_num present in
-                # element count table
                 "other_names": [
                     f"Frac. Ab. (Ion={ion})"
-                    for ion in range(
-                        0, self.element_count_table.df.index.max() + 1
-                    )
+                    for ion in range(self.element_count_table.df.index.max() + 1)
                 ],
             },
         )
@@ -479,9 +475,7 @@ class ShellInfoWidget:
             "<b>Rad. Temp.</b> is <i>Radiative Temperature (in K)</i>"
         )
 
-        # Put text horizontally before shell info container
-        shell_info_widget = ipw.VBox([text, shell_info_tables_container])
-        return shell_info_widget
+        return ipw.VBox([text, shell_info_tables_container])
 
 
 def shell_info_from_simulation(sim_model):

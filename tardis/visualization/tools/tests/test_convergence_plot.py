@@ -79,7 +79,7 @@ def test_update_t_inner_luminosities_plot(convergence_plots):
     # check number of traces
     assert len(convergence_plots.t_inner_luminosities_plot.data) == 5
 
-    for index in range(0, 5):
+    for index in range(5):
         # check x and y values for all traces
         assert (
             len(convergence_plots.t_inner_luminosities_plot.data[index].x)
@@ -103,7 +103,7 @@ def test_update_plasma_plots(convergence_plots):
     """Test the state of plasma plots after updating."""
     n_iterations = convergence_plots.iterations
     expected_n_traces = 2 * n_iterations + 2
-    velocity = range(0, n_iterations) * u.m / u.s
+    velocity = range(n_iterations) * u.m / u.s
 
     convergence_plots.fetch_data(
         name="velocity", value=velocity, item_type="iterable"
@@ -131,8 +131,8 @@ def test_update_plasma_plots(convergence_plots):
 
     # traces are added alternatively
     # trace 0 and 1 and empty
-    assert convergence_plots.plasma_plot.data[0].x == None
-    assert convergence_plots.plasma_plot.data[1].x == None
+    assert convergence_plots.plasma_plot.data[0].x is None
+    assert convergence_plots.plasma_plot.data[1].x is None
 
     # check other traces
     for index in list(range(expected_n_traces))[::2][1:]:

@@ -66,15 +66,14 @@ def read_density_file(filename, filetype):
     invalid_volume_mask = (v_outer - v_inner) <= 0
     if invalid_volume_mask.sum() > 0:
         message = "\n".join(
-            [
-                f"cell {i:d}: v_inner {v_inner_i:s}, v_outer " f"{v_outer_i:s}"
-                for i, v_inner_i, v_outer_i in zip(
-                    np.arange(len(v_outer))[invalid_volume_mask],
-                    v_inner[invalid_volume_mask],
-                    v_outer[invalid_volume_mask],
-                )
-            ]
+            f"cell {i:d}: v_inner {v_inner_i:s}, v_outer " f"{v_outer_i:s}"
+            for i, v_inner_i, v_outer_i in zip(
+                np.arange(len(v_outer))[invalid_volume_mask],
+                v_inner[invalid_volume_mask],
+                v_outer[invalid_volume_mask],
+            )
         )
+
         raise ConfigurationError(
             "Invalid volume of following cell(s):\n" f"{message:s}"
         )
