@@ -325,6 +325,7 @@ def to_html_ext(path):
     """Convert extension in the file path to .html"""
     return os.path.splitext(path)[0] + ".html"
 
+
 def generate_tutorials_page(app):
     notebooks = ""
 
@@ -338,6 +339,7 @@ def generate_tutorials_page(app):
 
     with open("tutorials.rst", mode="wt", encoding="utf-8") as f:
         f.write(f"{title}\n{description}\n{notebooks}")
+
 
 def autodoc_skip_member(app, what, name, obj, skip, options):
     """Exclude specific functions/methods from the documentation"""
