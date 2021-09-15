@@ -739,7 +739,7 @@ class CustomAbundanceWidget:
 
         # Change abundances after adding new shell.
         if start_index != end_index:
-            self.data.abundance.insert(end_index - 1, "", 0)
+            self.data.abundance.insert(end_index - 1, "", self.data.abundance[max(start_index-1, 0)])
             self.data.abundance.drop(
                 self.data.abundance.iloc[:, start_index : end_index - 1],
                 1,
@@ -747,19 +747,19 @@ class CustomAbundanceWidget:
             )
         else:
             if start_index == 0:
-                self.data.abundance.insert(end_index, "new", 0)
+                self.data.abundance.insert(end_index, "new", self.data.abundance[min(end_index+1, self.no_of_shells-1)])
                 self.data.abundance.insert(
-                    end_index, "gap", 0
+                    end_index, "gap", self.data.abundance[min(end_index+1, self.no_of_shells-1)]
                 )  # Add a shell to fill the gap.
             else:
-                self.data.abundance.insert(end_index - 1, "new", 0)
+                self.data.abundance.insert(end_index - 1, "new", self.data.abundance[start_index-1])
                 if start_index == self.no_of_shells:
-                    self.data.abundance.insert(end_index - 1, "gap", 0)
+                    self.data.abundance.insert(end_index - 1, "gap", self.data.abundance[start_index-1])
                 else:
                     self.data.abundance.insert(
                         end_index - 1,
                         "gap",
-                        self.data.abundance.iloc[:, end_index],
+                        self.data.abundance[end_index],
                     )  # Add a shell to fill the gap with original abundances
 
         self.data.abundance.columns = range(self.no_of_shells)
