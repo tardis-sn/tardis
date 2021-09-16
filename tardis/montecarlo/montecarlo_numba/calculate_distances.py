@@ -98,6 +98,7 @@ def calculate_distance_line(
     if nu_diff >= 0:
         distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
     else:
+        print(r_packet.nu, comov_nu, nu_line, nu_diff)
         print("WARNING: nu difference is less than 0.0")
         raise MonteCarloException(
             "nu difference is less than 0.0; for more"

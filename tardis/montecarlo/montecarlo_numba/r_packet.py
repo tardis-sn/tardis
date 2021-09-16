@@ -44,7 +44,7 @@ class PacketStatus(IntEnum):
     IN_PROCESS = 0
     EMITTED = 1
     REABSORBED = 2
-
+    ADIABATIC_COOLING = 4
 
 rpacket_spec = [
     ("r", float64),
@@ -142,7 +142,11 @@ def trace_packet(
         r_packet.r, r_packet.mu, numba_model.time_explosion
     )
     comov_nu = r_packet.nu * doppler_factor
+    #print("comov_nu=",comov_nu)
+    #print("r_packet.nu=",r_packet.nu)
+    #print("Recalculating Continuum")
     continuum.calculate(comov_nu, r_packet.current_shell_id)
+    #print("Done Recalculating Continuum")
 
     (
         chi_bf,
@@ -241,9 +245,9 @@ def trace_packet(
         # I don't think this needs to be updated
         # since tau_event is already the result of the integral
         # from the initial line
-        distance_continuum = (tau_event - tau_trace_line_combined) / (
-            chi_continuum
-        )
+        #distance_continuum = (tau_event - tau_trace_line_combined) / (
+        #    chi_continuum
+        #)
 
     else:  # Executed when no break occurs in the for loop
         # We are beyond the line list now and the only next thing is to see

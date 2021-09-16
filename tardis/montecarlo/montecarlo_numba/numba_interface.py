@@ -50,6 +50,7 @@ numba_plasma_spec = [
     ("destination_level_id", int64[:]),
     ("transition_line_id", int64[:]),
     ("bf_threshold_list_nu", float64[:]),
+    ("p_fb_deactivation", float64[:, :]),
 ]
 
 
@@ -68,6 +69,7 @@ class NumbaPlasma(object):
         destination_level_id,
         transition_line_id,
         bf_threshold_list_nu,
+        p_fb_deactivation
     ):
         """
         Plasma for the Numba code
@@ -103,7 +105,7 @@ class NumbaPlasma(object):
         # Destination level is not needed and/or generated for downbranch
         self.destination_level_id = destination_level_id
         self.transition_line_id = transition_line_id
-
+        self.p_fb_deactivation = p_fb_deactivation
 
 def numba_plasma_initialize(plasma, line_interaction_type):
     """
@@ -117,6 +119,8 @@ def numba_plasma_initialize(plasma, line_interaction_type):
     electron_densities = plasma.electron_densities.values
     t_electrons = plasma.t_electrons
     line_list_nu = plasma.atomic_data.lines.nu.values
+    p_fb_deactivation = np.ascontiguousarray(
+            plasma.p_fb_deactivation.values.copy(), dtype=np.float64)
     tau_sobolev = np.ascontiguousarray(
         plasma.tau_sobolevs.values.copy(), dtype=np.float64
     )
@@ -172,6 +176,7 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         destination_level_id,
         transition_line_id,
         bf_threshold_list_nu,
+        p_fb_deactivation
     )
 
 
