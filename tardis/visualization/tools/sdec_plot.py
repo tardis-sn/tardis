@@ -1204,7 +1204,7 @@ class SDECPlotter:
             self.ax.plot(
                 observed_spectrum_wavelength,
                 observed_spectrum_flux,
-                linestyle="--",
+                "-k",
                 label="Observed Spectrum",
                 linewidth=1,
             )
@@ -1246,7 +1246,7 @@ class SDECPlotter:
             self.plot_wavelength,
             lower_level,
             upper_level,
-            color="black",
+            color="#4C4C4C",
             label="No interaction",
         )
 
@@ -1259,7 +1259,7 @@ class SDECPlotter:
             self.plot_wavelength,
             lower_level,
             upper_level,
-            color="grey",
+            color="#8F8F8F",
             label="Electron Scatter Only",
         )
 
@@ -1274,7 +1274,7 @@ class SDECPlotter:
                 self.plot_wavelength,
                 lower_level,
                 upper_level,
-                color="silver",
+                color="#C2C2C2",
                 label="Other elements",
             )
 
@@ -1604,6 +1604,7 @@ class SDECPlotter:
                 x=observed_spectrum_wavelength,
                 y=observed_spectrum_flux,
                 name="Observed Spectrum",
+                line={"color": "black", "width": 1.2},
             )
 
         # Plot photosphere
@@ -1669,7 +1670,7 @@ class SDECPlotter:
                 y=self.emission_luminosities_df.noint,
                 mode="none",
                 name="No interaction",
-                fillcolor="black",
+                fillcolor="#4C4C4C",
                 stackgroup="emission",
             )
         )
@@ -1680,7 +1681,7 @@ class SDECPlotter:
                 y=self.emission_luminosities_df.escatter,
                 mode="none",
                 name="Electron Scatter Only",
-                fillcolor="grey",
+                fillcolor="#8F8F8F",
                 stackgroup="emission",
             )
         )
@@ -1693,7 +1694,7 @@ class SDECPlotter:
                     y=self.emission_luminosities_df.other,
                     mode="none",
                     name="Other elements",
-                    fillcolor="silver",
+                    fillcolor="#C2C2C2",
                     stackgroup="emission",
                 )
             )
@@ -1744,7 +1745,7 @@ class SDECPlotter:
                     y=self.absorption_luminosities_df.other * -1,
                     mode="none",
                     name="Other elements",
-                    fillcolor="silver",
+                    fillcolor="#C2C2C2",
                     stackgroup="absorption",
                     showlegend=False,
                 )
