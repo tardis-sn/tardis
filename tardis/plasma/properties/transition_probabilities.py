@@ -9,6 +9,9 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.properties.continuum_processes import (
     get_ground_state_multi_index,
 )
+from tardis.montecarlo.montecarlo_numba.macro_atom import (
+    MacroAtomTransitionType,
+)
 
 __all__ = [
     "MarkovChainTransProbs",
@@ -326,6 +329,23 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
             "transition_type",
             level_idxs2transition_idx.loc[("k", "bf"), "transition_type"],
         )
+
+        # Check if there are two-photon decays
+        if "two-photon" in p_deactivation.index.get_level_values(1):
+            two_photon_index = p_deactivation[
+                p_deactivation.index.get_level_values(1) == "two-photon"
+            ].index
+            level_idxs2transition_idx_two_photon = pd.DataFrame(
+                [[-1, MacroAtomTransitionType.TWO_PHOTON.value]],
+                index=two_photon_index,
+                columns=level_idxs2transition_idx.columns,
+            )
+            level_idxs2transition_idx = pd.concat(
+                [
+                    level_idxs2transition_idx_two_photon,
+                    level_idxs2transition_idx,
+                ]
+            )
 
         # Prepare the deactivation channel probabilities for the continuum species
         deactivation_channel_probs = p_deactivation.copy()

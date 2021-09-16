@@ -393,6 +393,11 @@ class TwoPhotonData(ProcessingPlasmaProperty):
             },
             index=two_photon_data.index,
         )
+        if len(two_photon_data) != 1:
+            raise NotImplementedError(
+                "Currently only one two-photon decay is supported but there "
+                f"are {len(two_photon_data)} in the atomic data."
+            )
         return two_photon_data, two_photon_idx
 
 
