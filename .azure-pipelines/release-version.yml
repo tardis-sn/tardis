@@ -62,4 +62,5 @@ jobs:
           title: 'TARDIS v$(newtag)'
           releaseNotesSource: 'inline'
           releaseNotes: 'This release has been made automatically through our continous delivery pipeline. For a complete list of changes see [CHANGELOG.md](https://github.com/tardis-sn/tardis/blob/master/CHANGELOG.md).'
+          addChangeLog: false
         displayName: 'Create GitHub Release'
