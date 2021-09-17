@@ -652,7 +652,9 @@ class CustomAbundanceWidget:
             self.fig.data[0].width = width
 
     def update_bar_diagonal(self):
-        # Update bar diagonal (and shell no dropdown) when the range of shells changed.
+        """Update bar diagonal (and shell no dropdown) when the range 
+        of shells changed.
+        """
         if self.irs_shell_range.disabled:
             x = [self.fig.data[0].x[0]]
             width = [self.fig.data[0].width[0]]
