@@ -492,7 +492,7 @@ class CustomAbundanceWidget:
             continuous_update=False,
             layout=ipw.Layout(margin="5px 0 0 0"),
         )
-        self.irs_shell_range.observe(self.irs_shell_range_eventhandler)
+        self.irs_shell_range.observe(self.irs_shell_range_eventhandler, "value")
 
         self.btn_add_shell = ipw.Button(
             icon="plus-square",
@@ -650,6 +650,27 @@ class CustomAbundanceWidget:
             self.fig.data[0].x = x
             width[0] = x_outer - x_inner
             self.fig.data[0].width = width
+
+    def update_bar_diagonal(self):
+        # Update bar diagonal (and shell no dropdown) when the range of shells changed.
+        if self.irs_shell_range.disabled:
+            x = [self.fig.data[0].x[0]]
+            width = [self.fig.data[0].width[0]]
+            y = [1]
+        else:
+            self.shell_no = self.irs_shell_range.value[0]
+            (start_shell_no, end_shell_no) = self.irs_shell_range.value
+
+            x_inner = self.data.velocity[start_shell_no - 1].value
+            x_outer = self.data.velocity[end_shell_no].value
+            x = [self.fig.data[0].x[0], (x_outer + x_inner) / 2]
+            width = [self.fig.data[0].width[0], x_outer - x_inner]
+            y = [1, 1]
+
+        with self.fig.batch_update():
+            self.fig.data[0].x = x
+            self.fig.data[0].width = width
+            self.fig.data[0].y = y
 
     def overwrite_existing_shells(self, v_0, v_1):
         """Judge whether the existing shell(s) will be overwritten when
@@ -817,19 +838,19 @@ class CustomAbundanceWidget:
         obj : traitlets.utils.bunch.Bunch
             A dictionary holding the information about the change.
         """
+        if np.isclose(
+            self.data.abundance.iloc[:, self.shell_no - 1].sum(), 1
+        ):
+            self.norm_warning.layout.visibility = "hidden"
+        else:
+            self.norm_warning.layout.visibility = "visible"
+
         if self._trigger:
             item_index = obj.owner.index
             is_locked = self.checks[item_index]
 
             if is_locked:
                 self.bound_locked_sum_to_1(item_index)
-
-            if np.isclose(
-                self.data.abundance.iloc[:, self.shell_no - 1].sum(), 1
-            ):
-                self.norm_warning.layout.visibility = "hidden"
-            else:
-                self.norm_warning.layout.visibility = "visible"
 
             self.data.abundance.iloc[
                 item_index, self.shell_no - 1
@@ -1097,12 +1118,16 @@ class CustomAbundanceWidget:
         obj : ipywidgets.widgets.widget_button.Button
             The clicked button instance.
         """
+        self.abundance_note.layout.visibility = "hidden"
+
         self.rbs_multi_apply.unobserve(
             self.rbs_multi_apply_eventhandler, "value"
         )
         self.rbs_multi_apply.index = None
         self.rbs_multi_apply.observe(self.rbs_multi_apply_eventhandler, "value")
+
         self.irs_shell_range.disabled = True
+        self.update_bar_diagonal()
 
     def rbs_multi_apply_eventhandler(self, obj):
         """Switch to multi-shells editing mode. Triggered if the
@@ -1113,6 +1138,10 @@ class CustomAbundanceWidget:
         obj : ipywidgets.widgets.widget_button.Button
             The clicked button instance.
         """
+        self.abundance_note.layout.visibility = "visible"
+
+        self.shell_no = self.irs_shell_range.value[0]
+
         self.rbs_single_apply.unobserve(
             self.rbs_single_apply_eventhandler, "value"
         )
@@ -1122,6 +1151,8 @@ class CustomAbundanceWidget:
         )
         # self.irs_shell_range.value = [self.shell_no, self.shell_no]
         self.irs_shell_range.disabled = False
+        self.update_bar_diagonal()
+
 
     def irs_shell_range_eventhandler(self, obj):
         """Select the velocity range of new shell and highlight the range
@@ -1132,27 +1163,7 @@ class CustomAbundanceWidget:
         obj : ipywidgets.widgets.widget_button.Button
             The clicked button instance.
         """
-        x = self.fig.data[0].x
-        width = self.fig.data[0].width
-        range = self.fig.layout.xaxis.range
-
-        if self.irs_shell_range.disabled:
-            x = [x[0]]
-            width = [width[0]]
-            y = [1]
-        else:
-            (start_shell_no, end_shell_no) = self.irs_shell_range.value
-            x_inner = self.data.velocity[start_shell_no - 1].value
-            x_outer = self.data.velocity[end_shell_no].value
-            x = [x[0], (x_outer + x_inner) / 2]
-            width = [width[0], x_outer - x_inner]
-            y = [1, 1]
-
-        with self.fig.batch_update():
-            self.fig.data[0].x = x
-            self.fig.data[0].width = width
-            self.fig.data[0].y = y
-            self.fig.layout.xaxis.range = range
+        self.update_bar_diagonal()
 
     def generate_abundance_density_plot(self):
         """Generate abundance and density plot in different shells."""
@@ -1259,12 +1270,20 @@ class CustomAbundanceWidget:
         )
 
         help_note = ipw.HTML(
-            value='<p style="text-indent: 40px">* Select a checkbox to lock the '
-            "abundance of corresponding element. </p>"
-            '<p style="text-indent: 40px"> On clicking the "Normalize" button, '
-            "the locked abundance(s) will <b>not be normalized</b>. </p>",
+            value="<p style='text-indent: 40px'>* Select a checkbox "
+            "to lock the abundance of corresponding element. </p>"
+            "<p style='text-indent: 40px'> On clicking the 'Normalize' "
+            "button, the locked abundance(s) will <b>not be normalized</b>."
+            " </p>",
             indent=True,
         )
+
+        self.abundance_note = ipw.HTML(
+            description="(The following is the innermost abundances in "
+            "selected range.)",
+            layout=ipw.Layout(visibility="hidden"),
+            style={"description_width": "initial"},
+            )
 
         box_norm = ipw.HBox([self.btn_norm, self.norm_warning])
 
@@ -1272,7 +1291,7 @@ class CustomAbundanceWidget:
             [
                 ipw.Label(value="Apply abundance(s) to:"),
                 self.rbs_single_apply,
-                ipw.HBox([self.rbs_multi_apply, self.irs_shell_range]),
+                ipw.HBox([self.rbs_multi_apply, self.irs_shell_range, self.abundance_note]),
             ],
             layout=ipw.Layout(margin="0 0 15px 50px"),
         )
