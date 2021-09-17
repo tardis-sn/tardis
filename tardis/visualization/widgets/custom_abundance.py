@@ -312,8 +312,7 @@ class CustomYAML(yaml.YAMLObject):
         self.name = name
         self.model_density_time_0 = d_time_0
         self.model_isotope_time_0 = i_time_0
-        self.datatype = {}
-        self.datatype["fields"] = []
+        self.datatype = {'fields': []}
         self.v_inner_boundary = v_inner_boundary
         self.v_outer_boundary = v_outer_boundary
 
@@ -409,11 +408,7 @@ class CustomAbundanceWidget:
 
     @property
     def checked_list(self):  # A boolean list to store the value of checkboxes.
-        _checked_list = []
-        for check in self.checks:
-            _checked_list.append(check.value)
-
-        return _checked_list
+        return [check.value for check in self.checks]
 
     def create_widgets(self):
         """Create widget components in GUI and register callbacks for widgets."""
@@ -692,13 +687,10 @@ class CustomAbundanceWidget:
             else position_1
         )
 
-        if (index_1 - index_0 > 1) or (
+        return bool((index_1 - index_0 > 1) or (
             (index_1 < len(v_vals) and np.isclose(v_vals[index_1], v_1))
             or (index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0))
-        ):
-            return True
-        else:
-            return False
+        ))
 
     def on_btn_add_shell(self, obj):
         """Add new shell with given boundary velocities. Triggered if
@@ -755,22 +747,21 @@ class CustomAbundanceWidget:
                 1,
                 inplace=True,
             )
+        elif start_index == 0:
+            self.data.abundance.insert(end_index, "new", 0)
+            self.data.abundance.insert(
+                end_index, "gap", 0
+            )  # Add a shell to fill the gap.
         else:
-            if start_index == 0:
-                self.data.abundance.insert(end_index, "new", 0)
-                self.data.abundance.insert(
-                    end_index, "gap", 0
-                )  # Add a shell to fill the gap.
+            self.data.abundance.insert(end_index - 1, "new", 0)
+            if start_index == self.no_of_shells:
+                self.data.abundance.insert(end_index - 1, "gap", 0)
             else:
-                self.data.abundance.insert(end_index - 1, "new", 0)
-                if start_index == self.no_of_shells:
-                    self.data.abundance.insert(end_index - 1, "gap", 0)
-                else:
-                    self.data.abundance.insert(
-                        end_index - 1,
-                        "gap",
-                        self.data.abundance.iloc[:, end_index],
-                    )  # Add a shell to fill the gap with original abundances
+                self.data.abundance.insert(
+                    end_index - 1,
+                    "gap",
+                    self.data.abundance.iloc[:, end_index],
+                )  # Add a shell to fill the gap with original abundances
 
         self.data.abundance.columns = range(self.no_of_shells)
 
@@ -858,9 +849,9 @@ class CustomAbundanceWidget:
         obj : traitlets.utils.bunch.Bunch
             A dictionary holding the information about the change.
         """
-        item_index = obj.owner.index
-
         if obj.new == True:
+            item_index = obj.owner.index
+
             self.bound_locked_sum_to_1(item_index)
 
     def dpd_shell_no_eventhandler(self, obj):
@@ -873,16 +864,8 @@ class CustomAbundanceWidget:
             A dictionary holding the information about the change.
         """
         # Disable "previous" and "next" buttons when shell no comes to boundaries.
-        if obj.new == 1:
-            self.btn_prev.disabled = True
-        else:
-            self.btn_prev.disabled = False
-
-        if obj.new == self.no_of_shells:
-            self.btn_next.disabled = True
-        else:
-            self.btn_next.disabled = False
-
+        self.btn_prev.disabled = obj.new == 1
+        self.btn_next.disabled = obj.new == self.no_of_shells
         self.update_front_end()
 
     def on_btn_prev(self, obj):
@@ -1351,9 +1334,8 @@ class CustomAbundanceWidget:
             raise FileExistsError(
                 "The file already exists. Click the 'overwrite' checkbox to overwrite it."
             )
-        else:
-            self.write_yaml_portion(posix_path)
-            self.write_csv_portion(posix_path)
+        self.write_yaml_portion(posix_path)
+        self.write_csv_portion(posix_path)
 
     @error_view.capture(clear_output=True)
     def write_yaml_portion(self, path):
