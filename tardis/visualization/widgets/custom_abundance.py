@@ -654,7 +654,7 @@ class CustomAbundanceWidget:
             self.fig.data[0].width = width
 
     def update_bar_diagonal(self):
-        """Update bar diagonal (and shell no dropdown) when the range 
+        """Update bar diagonal (and shell no dropdown) when the range
         of shells changed.
         """
         if self.irs_shell_range.disabled:
@@ -665,7 +665,7 @@ class CustomAbundanceWidget:
             self.shell_no = self.irs_shell_range.value[0]
             self.btn_next.disabled = True
             self.btn_prev.disabled = True
-            
+
             (start_shell_no, end_shell_no) = self.irs_shell_range.value
             x_inner = self.data.velocity[start_shell_no - 1].value
             x_outer = self.data.velocity[end_shell_no].value
@@ -766,7 +766,9 @@ class CustomAbundanceWidget:
 
         # Change abundances after adding new shell.
         if start_index != end_index:
-            self.data.abundance.insert(end_index - 1, "", self.data.abundance[max(start_index-1, 0)])
+            self.data.abundance.insert(
+                end_index - 1, "", self.data.abundance[max(start_index - 1, 0)]
+            )
             self.data.abundance.drop(
                 self.data.abundance.iloc[:, start_index : end_index - 1],
                 1,
@@ -774,14 +776,30 @@ class CustomAbundanceWidget:
             )
         else:
             if start_index == 0:
-                self.data.abundance.insert(end_index, "new", self.data.abundance[min(end_index+1, self.no_of_shells-1)])
                 self.data.abundance.insert(
-                    end_index, "gap", self.data.abundance[min(end_index+1, self.no_of_shells-1)]
+                    end_index,
+                    "new",
+                    self.data.abundance[
+                        min(end_index + 1, self.no_of_shells - 1)
+                    ],
+                )
+                self.data.abundance.insert(
+                    end_index,
+                    "gap",
+                    self.data.abundance[
+                        min(end_index + 1, self.no_of_shells - 1)
+                    ],
                 )  # Add a shell to fill the gap.
             else:
-                self.data.abundance.insert(end_index - 1, "new", self.data.abundance[start_index-1])
+                self.data.abundance.insert(
+                    end_index - 1, "new", self.data.abundance[start_index - 1]
+                )
                 if start_index == self.no_of_shells:
-                    self.data.abundance.insert(end_index - 1, "gap", self.data.abundance[start_index-1])
+                    self.data.abundance.insert(
+                        end_index - 1,
+                        "gap",
+                        self.data.abundance[start_index - 1],
+                    )
                 else:
                     self.data.abundance.insert(
                         end_index - 1,
@@ -844,9 +862,7 @@ class CustomAbundanceWidget:
         obj : traitlets.utils.bunch.Bunch
             A dictionary holding the information about the change.
         """
-        if np.isclose(
-            self.data.abundance.iloc[:, self.shell_no - 1].sum(), 1
-        ):
+        if np.isclose(self.data.abundance.iloc[:, self.shell_no - 1].sum(), 1):
             self.norm_warning.layout.visibility = "hidden"
         else:
             self.norm_warning.layout.visibility = "visible"
@@ -1165,7 +1181,6 @@ class CustomAbundanceWidget:
         self.irs_shell_range.disabled = False
         self.update_bar_diagonal()
 
-
     def irs_shell_range_eventhandler(self, obj):
         """Select the velocity range of new shell and highlight the range
         in the plot. Triggered if the shell range slider is changed.
@@ -1295,7 +1310,7 @@ class CustomAbundanceWidget:
             "selected range.)",
             layout=ipw.Layout(visibility="hidden"),
             style={"description_width": "initial"},
-            )
+        )
 
         box_norm = ipw.HBox([self.btn_norm, self.norm_warning])
 
@@ -1303,7 +1318,13 @@ class CustomAbundanceWidget:
             [
                 ipw.Label(value="Apply abundance(s) to:"),
                 self.rbs_single_apply,
-                ipw.HBox([self.rbs_multi_apply, self.irs_shell_range, self.abundance_note]),
+                ipw.HBox(
+                    [
+                        self.rbs_multi_apply,
+                        self.irs_shell_range,
+                        self.abundance_note,
+                    ]
+                ),
             ],
             layout=ipw.Layout(margin="0 0 15px 50px"),
         )
@@ -1412,10 +1433,11 @@ class CustomAbundanceWidget:
         try:
             data = self.data.abundance.T
             data.columns = self.data.elements
-            first_row = pd.DataFrame(
-                [[0] * self.no_of_elements], columns=self.data.elements
-            )
-            data = pd.concat([first_row, data])
+            first_row = [0] * self.no_of_elements
+            data.loc[-1] = first_row
+            data.index += 1  # shifting index
+            data.sort_index(inplace=True)
+
             formatted_v = pd.Series(self.data.velocity.value).apply(
                 lambda x: "%.3e" % x
             )
