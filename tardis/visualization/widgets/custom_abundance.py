@@ -87,7 +87,7 @@ class CustomAbundanceWidgetData:
         """
         csvy_model_config, csvy_model_data = load_csvy(fpath)
         csvy_schema_file = os.path.join(
-            BASE_DIR, "../..", "io", "schemas", "csvy_model.yml"
+            BASE_DIR, "io", "schemas", "csvy_model.yml"
         )
         csvy_model_config = Configuration(
             validate_dict(csvy_model_config, schemapath=csvy_schema_file)
@@ -147,6 +147,7 @@ class CustomAbundanceWidgetData:
                 csvy_model_config.datatype.fields[density_field_index]["unit"]
             )
             density_0 = csvy_model_data["density"].values * density_unit
+            time_0 = csvy_model_config.model_density_time_0
 
         if hasattr(csvy_model_config, "abundance"):
             abundances_section = csvy_model_config.abundance
@@ -313,6 +314,7 @@ class CustomYAML(yaml.YAMLObject):
         self.name = name
         self.model_density_time_0 = d_time_0
         self.model_isotope_time_0 = i_time_0
+        self.tardis_model_config_version = "v1.0"
         self.datatype = {}
         self.datatype["fields"] = []
         self.v_inner_boundary = v_inner_boundary
@@ -661,8 +663,10 @@ class CustomAbundanceWidget:
             y = [1]
         else:
             self.shell_no = self.irs_shell_range.value[0]
+            self.btn_next.disabled = True
+            self.btn_prev.disabled = True
+            
             (start_shell_no, end_shell_no) = self.irs_shell_range.value
-
             x_inner = self.data.velocity[start_shell_no - 1].value
             x_outer = self.data.velocity[end_shell_no].value
             x = [self.fig.data[0].x[0], (x_outer + x_inner) / 2]
@@ -799,7 +803,7 @@ class CustomAbundanceWidget:
                 self.update_abundance_plot(i)
 
         self.dpd_shell_no.options = list(range(1, self.no_of_shells + 1))
-        self.shell_no = start_index + 1
+        self.update_bar_diagonal()
         self.update_front_end()
         self.irs_shell_range.max = self.no_of_shells
 
@@ -1128,6 +1132,9 @@ class CustomAbundanceWidget:
         self.rbs_multi_apply.index = None
         self.rbs_multi_apply.observe(self.rbs_multi_apply_eventhandler, "value")
 
+        self.dpd_shell_no.disabled = False
+        self.btn_next.disabled = False
+        self.btn_prev.disabled = False
         self.irs_shell_range.disabled = True
         self.update_bar_diagonal()
 
@@ -1152,6 +1159,9 @@ class CustomAbundanceWidget:
             self.rbs_single_apply_eventhandler, "value"
         )
         # self.irs_shell_range.value = [self.shell_no, self.shell_no]
+        self.dpd_shell_no.disabled = True
+        self.btn_next.disabled = True
+        self.btn_prev.disabled = True
         self.irs_shell_range.disabled = False
         self.update_bar_diagonal()
 
