@@ -862,11 +862,6 @@ class CustomAbundanceWidget:
         obj : traitlets.utils.bunch.Bunch
             A dictionary holding the information about the change.
         """
-        if np.isclose(self.data.abundance.iloc[:, self.shell_no - 1].sum(), 1):
-            self.norm_warning.layout.visibility = "hidden"
-        else:
-            self.norm_warning.layout.visibility = "visible"
-
         if self._trigger:
             item_index = obj.owner.index
             is_locked = self.checks[item_index]
@@ -882,6 +877,11 @@ class CustomAbundanceWidget:
                 self.update_abundance_plot(item_index)
             else:
                 self.apply_to_multiple_shells(item_index)
+
+        if np.isclose(self.data.abundance.iloc[:, self.shell_no - 1].sum(), 1):
+            self.norm_warning.layout.visibility = "hidden"
+        else:
+            self.norm_warning.layout.visibility = "visible"
 
     def check_eventhandler(self, obj):
         """Triggered if the checkbox is changed.
