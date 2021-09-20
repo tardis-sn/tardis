@@ -34,7 +34,7 @@ def macro_atom(activation_level_id, current_shell_id, numba_plasma):
     -------
     """
     current_transition_type = 0
-
+    #print('initial activation_level:', activation_level_id)
     while current_transition_type >= 0:
         probability = 0.0
         probability_event = np.random.random()
@@ -61,6 +61,12 @@ def macro_atom(activation_level_id, current_shell_id, numba_plasma):
                 break
 
         else:
+            #print("Block Start/End:", block_start, block_end)
+            #print("probability:", probability)
+            #print("probability_event:", probability_event)
+            #print("current_shell_id:", current_shell_id)
+            #print("transition_id:", transition_id)
+            #print("activation_level:", activation_level_id)
             raise MacroAtomError(
                 "MacroAtom ran out of the block. This should not happen as "
                 "the sum of probabilities is normalized to 1 and "

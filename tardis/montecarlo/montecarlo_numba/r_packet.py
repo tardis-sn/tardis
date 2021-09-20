@@ -142,11 +142,11 @@ def trace_packet(
         r_packet.r, r_packet.mu, numba_model.time_explosion
     )
     comov_nu = r_packet.nu * doppler_factor
-    #print("comov_nu=",comov_nu)
-    #print("r_packet.nu=",r_packet.nu)
-    #print("Recalculating Continuum")
+    ##print("comov_nu=",comov_nu)
+    ##print("r_packet.nu=",r_packet.nu)
+    ##print("Recalculating Continuum")
     continuum.calculate(comov_nu, r_packet.current_shell_id)
-    #print("Done Recalculating Continuum")
+    ##print("Done Recalculating Continuum")
 
     (
         chi_bf,
@@ -199,7 +199,7 @@ def trace_packet(
 
         # calculating the trace
         tau_trace_combined = tau_trace_line_combined + tau_trace_continuum
-    
+
         distance = min(distance_trace, distance_boundary, distance_continuum)
 
         if distance_trace != 0:
@@ -245,9 +245,9 @@ def trace_packet(
         # I don't think this needs to be updated
         # since tau_event is already the result of the integral
         # from the initial line
-        #distance_continuum = (tau_event - tau_trace_line_combined) / (
-        #    chi_continuum
-        #)
+        distance_continuum = (tau_event - tau_trace_line_combined) / (
+            chi_continuum
+        )
 
     else:  # Executed when no break occurs in the for loop
         # We are beyond the line list now and the only next thing is to see
@@ -258,7 +258,7 @@ def trace_packet(
         if distance_continuum < distance_boundary:
             distance = distance_continuum
             interaction_type = InteractionType.ESCATTERING
-            # print('scattering')
+            # #print('scattering')
         else:
             distance = distance_boundary
             interaction_type = InteractionType.BOUNDARY
