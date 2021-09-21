@@ -185,8 +185,8 @@ def montecarlo_main_loop(
     virt_packet_last_line_interaction_in_id = []
     virt_packet_last_line_interaction_out_id = []
 
-    for i in range(len(output_nus)):
-        #print(i, len(output_nus))
+    for i in prange(len(output_nus)):
+        
         if montecarlo_configuration.single_packet_seed != -1:
             seed = packet_seeds[montecarlo_configuration.single_packet_seed]
             np.random.seed(seed)
@@ -245,7 +245,6 @@ def montecarlo_main_loop(
                 continue
             v_packets_energy_hist[idx] += vpackets_energy[j]
 
-        #print("Finished Packet", i)
     if montecarlo_configuration.VPACKET_LOGGING:
         for vpacket_collection in vpacket_collections:
             vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
