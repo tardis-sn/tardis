@@ -326,7 +326,8 @@ class VPacketCollection(object):
 
 
 def create_continuum_class(plasma):
-    """called before mainloop"""
+    """Generates the Continuum Class definition
+    based on the given tardis plasma."""
 
     chi_continuum_calculator = plasma.chi_continuum_calculator
     nu_fb_sampler = plasma.nu_fb_sampler
