@@ -40,29 +40,25 @@ def scatter(r_packet, time_explosion):
  
     return comov_nu, inverse_new_doppler_factor
 
-# Maybe make the continuum selection a method of the continuum?
 @njit(**njit_dict_no_parallel)
 def continuum_event(r_packet, time_explosion, continuum, numba_plasma):
+    """
+    continuum event handler - activate the macroatom and run the handler
 
+    Parameters
+    ----------
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    time_explosion : float
+    numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
+    continuum : tardis.montecarlo.montecarlo_numba.numba_interface.Continuum
+    """
 
-    # Does this need to be re-calculated?
-    # continuum.calculate(comov_nu, r_packet.current_shell_id)
-
-    # Need to determine if a collisional process or not.  If not:
-
-    # This somehow determines the transition type and continuum id needed
-    # but does not sample new frequencies
-    # This reruns continuum.calculate
-
-    #doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu, time_explosion)
-    #comov_nu = r_packet.nu * doppler_factor
     old_doppler_factor = get_doppler_factor(
             r_packet.r, 
             r_packet.mu, 
             time_explosion
             )
 
-    #comov_nu = r_packet.nu * old_doppler_factor
     r_packet.mu = get_random_mu()
     inverse_doppler_factor = get_inverse_doppler_factor(
             r_packet.r, 
@@ -75,7 +71,6 @@ def continuum_event(r_packet, time_explosion, continuum, numba_plasma):
     destination_level_idx = continuum.determine_macro_activation_idx(
             r_packet.nu, r_packet.current_shell_id)
 
-    #print('destination_level_idx:', destination_level_idx)
     macro_atom_event(destination_level_idx, 
             r_packet, time_explosion,
             numba_plasma, continuum)
@@ -83,22 +78,25 @@ def continuum_event(r_packet, time_explosion, continuum, numba_plasma):
 @njit(**njit_dict_no_parallel)
 def macro_atom_event(destination_level_idx, 
     r_packet, time_explosion, numba_plasma, continuum):
+    """
+    Macroatom event handler - run the macroatom and handle the result
 
-    #try:
-    #print('in macro_atom_event, destination_level_idx:', destination_level_idx)
+    Parameters
+    ----------
+    destination_level_idx : int
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    time_explosion : float
+    numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
+    continuum : tardis.montecarlo.montecarlo_numba.numba_interface.Continuum
+    """
+    
     transition_id, transition_type = macro_atom(
                 destination_level_idx, 
                 r_packet.current_shell_id, 
                 numba_plasma
                 )
-    #except:
-    #    #print('destination_level', destination_level_idx)
-    #    #print('r_packet.nu', r_packet.nu)
-    #    raise Exception("Macroatom ran out of block")
 
-    # Then use this to get a transition id from the macroatom 
     if transition_type == MacroAtomTransitionType.FF_EMISSION: 
-        #print("FF EMISSION")
         free_free_emission(
                 r_packet, 
                 time_explosion, 
@@ -107,7 +105,6 @@ def macro_atom_event(destination_level_idx,
                 )
     
     elif transition_type == MacroAtomTransitionType.BF_EMISSION:
-        #print("BF EMISSION")
         bound_free_emission(
                 r_packet, 
                 time_explosion, 
@@ -116,22 +113,12 @@ def macro_atom_event(destination_level_idx,
                 transition_id
                 )
     elif transition_type == MacroAtomTransitionType.BF_COOLING:
-        #print("BF COOLING")
-        ##print(' before r_packet.nu=', r_packet.nu, r_packet.next_line_id, numba_plasma.line_list_nu[r_packet.next_line_id])
         bf_cooling(r_packet, time_explosion, numba_plasma, continuum)
-        ##print(' now r_packet.nu=', r_packet.nu)
     
     elif transition_type == MacroAtomTransitionType.ADIABATIC_COOLING:
-        #print("ADIABATIC")
-        adiabatic_cooling(
-                r_packet, 
-                time_explosion, 
-                numba_plasma, 
-                continuum
-                )
+        adiabatic_cooling(r_packet)
 
     elif transition_type == MacroAtomTransitionType.BB_EMISSION:
-        #print("LINE EMISSION")
         line_emission(
                 r_packet, 
                 transition_id,
@@ -139,24 +126,30 @@ def macro_atom_event(destination_level_idx,
                 numba_plasma
                 )
     else:
-        #print("OTHER CONTINUUM")
-        pass
+        raise Exception("No Interaction Found!")
 
 
 @njit(**njit_dict_no_parallel)
 def bf_cooling(r_packet, time_explosion, numba_plasma, continuum):
+    """
+    Bound-Free Cooling - Determine and run bf emission from cooling
 
-    fb_cooling_prob = numba_plasma.p_fb_deactivation[:, r_packet.current_shell_id]
-    ##print('fb_cooling_prob length=', len(fb_cooling_prob))
+    Parameters
+    ----------
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    time_explosion : float
+    numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
+    continuum : tardis.montecarlo.montecarlo_numba.numba_interface.Continuum
+    """
+    
+    fb_cooling_prob = numba_plasma.p_fb_deactivation[:, 
+            r_packet.current_shell_id]
     p = fb_cooling_prob[0]
     i = 0
     zrand = np.random.random()
-    ##print('zrand=',zrand)
-    ##print('sum=', fb_cooling_prob.sum())
-    while p <= zrand:
+    while p <= zrand: # Can't search-sorted this because it's not cumulative
         i += 1
         p += fb_cooling_prob[i]
-    ##print('Got continuum_idx=',i)
     continuum_idx = i
     bound_free_emission(
             r_packet,
@@ -167,18 +160,30 @@ def bf_cooling(r_packet, time_explosion, numba_plasma, continuum):
             )
 
 @njit(**njit_dict_no_parallel)
-def adiabatic_cooling(r_packet, time_explosion, numba_plasma, continuum):
+def adiabatic_cooling(r_packet):
+    """
+    Adiabatic cooling - equivalent to destruction of the packet
+
+    Parameters
+    ----------
+    r_packet: tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    """
 
     r_packet.status = PacketStatus.REABSORBED
-    # This should update the heating estimators by addiing the comoving energy
-    # Then go into a k-packet creation
-    pass
 
 @njit(**njit_dict_no_parallel)
 def get_current_line_id(nu, line_list):
-    '''
-    Get the next line id corresponding to a packet at frequency nu
-    '''
+    """
+    Get the line id corresponding to a frequency nu in a line list
+
+    Parameters
+    ----------
+    nu : float
+    line_list : np.ndarray
+    """
+
+    # Note: Since this reverses the array,
+    # it may be faster to just write our own reverse-binary-search
 
     reverse_line_list = line_list[::-1]
     number_of_lines = len(line_list)
@@ -188,7 +193,17 @@ def get_current_line_id(nu, line_list):
 
 @njit(**njit_dict_no_parallel)
 def free_free_emission(r_packet, time_explosion, numba_plasma, continuum):
-    ##print("Free Free emission")
+    """
+    Free-Free emission - set the frequency from electron-ion interaction
+
+    Parameters
+    ----------
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    time_explosion : float
+    numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
+    continuum : tardis.montecarlo.montecarlo_numba.numba_interface.Continuum
+    """
+ 
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
@@ -204,18 +219,21 @@ def free_free_emission(r_packet, time_explosion, numba_plasma, continuum):
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
-    ##print("End Free Free emission")
 
 @njit(**njit_dict_no_parallel)
 def bound_free_emission(r_packet, time_explosion, numba_plasma, continuum, continuum_id):
+    """
+    Bound-Free emission - set the frequency from photo-ionization
 
-    ##print("sampling bf")
-    ##print('r_packet id = ', r_packet.index)
-    #if not len(continuum.current_continua):
-    #    ##print("Error: No Current Continuum!")
-    #    return
-    ##print("BF emission")
-    ##print(" r_packet.nu", r_packet.nu)
+    Parameters
+    ----------
+    r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    time_explosion : float
+    numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
+    continuum : tardis.montecarlo.montecarlo_numba.numba_interface.Continuum
+    continuum_id : int
+    """
+ 
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
@@ -223,7 +241,6 @@ def bound_free_emission(r_packet, time_explosion, numba_plasma, continuum, conti
     comov_nu = continuum.sample_nu_free_bound(
             r_packet.current_shell_id, 
             continuum_id)
-    ##print('  Sampled nu_fb, got:', comov_nu)
     r_packet.nu = comov_nu * inverse_doppler_factor
     current_line_id = get_current_line_id(
             comov_nu, 
@@ -252,7 +269,7 @@ def thomson_scatter(r_packet, time_explosion):
     time_explosion : float
         time since explosion in seconds
     """
-    ##print("Thomson scatter")
+    
     old_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
@@ -269,8 +286,6 @@ def thomson_scatter(r_packet, time_explosion):
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
-
-    ##print("End Thomson scatter")
 
 @njit(**njit_dict_no_parallel)
 def line_scatter(r_packet, time_explosion, 
@@ -306,17 +321,8 @@ def line_scatter(r_packet, time_explosion,
         activation_level_id = numba_plasma.line2macro_level_upper[
             r_packet.next_line_id
         ]
-        #print('in line scatter, activation_level_id:', activation_level_id)
-        #print('in line scatter, r_packet.next_line_id:', r_packet.next_line_id)
         macro_atom_event(activation_level_id, r_packet, 
                 time_explosion, numba_plasma, continuum)
-        #emission_line_id, transition_type = macro_atom(
-        #    activation_level_id,
-        #    r_packet.current_shell_id,
-        #    numba_plasma
-        #)
-        #line_emission(r_packet, emission_line_id, time_explosion, numba_plasma)
-
 
 @njit(**njit_dict_no_parallel)
 def line_emission(r_packet, emission_line_id, time_explosion, 
@@ -331,7 +337,7 @@ def line_emission(r_packet, emission_line_id, time_explosion,
     time_explosion : float
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     """
-    ##print("BB emission")
+    
     r_packet.last_line_interaction_out_id = emission_line_id
 
     if emission_line_id != r_packet.next_line_id:
@@ -349,4 +355,3 @@ def line_emission(r_packet, emission_line_id, time_explosion,
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
-    ##print("end BB emission")
