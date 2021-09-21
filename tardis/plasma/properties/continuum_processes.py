@@ -1193,9 +1193,8 @@ class BoundFreeOpacityInterpolator(ProcessingPlasmaProperty):
                 Photoionization cross-sections of all bound-free continua for
                 which absorption is possible for frequency `nu`.
             """
-            #print("Running Interpolator")
+            
             current_continua = get_current_bound_free_continua(nu)
-            #print("len(current_continua)=",len(current_continua))
             chi_bfs = np.zeros(len(current_continua))
             x_sect_bfs = np.zeros(len(current_continua))
             for i, continuum_id in enumerate(current_continua):
@@ -1208,15 +1207,18 @@ class BoundFreeOpacityInterpolator(ProcessingPlasmaProperty):
                     nu, phot_nus[start:end], x_sect[start:end]
                 )
             chi_bf_contributions = chi_bfs.cumsum()
-            #print("Grabiing Total chi_bf")
+            
+            # If we are outside the range of frequencies
+            # for which we have photo-ionization cross sections
+            # we will have no local continuua and therefore
+            # no bound-free interactions can occur
+            # so we set the bound free opacity to zero
             if len(current_continua) == 0:
-                print("WARNING: current continua is empty!")
-                print("  nu=", nu)
                 chi_bf_tot = 0.0
             else:
                 chi_bf_tot = chi_bf_contributions[-1]
                 chi_bf_contributions /= chi_bf_tot
-            #print("Finished Interpolator")
+
             return (
                 chi_bf_tot,
                 chi_bf_contributions,
