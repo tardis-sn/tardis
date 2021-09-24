@@ -137,12 +137,15 @@ def montecarlo_main_loop(
     ----------
     packet_collection : PacketCollection
     numba_model : NumbaModel
+	numba_plasma : NumbaPlasma
     estimators : NumbaEstimators
     spectrum_frequency : astropy.units.Quantity
         frequency bins
     number_of_vpackets : int
         VPackets released per interaction
     packet_seeds : numpy.array
+	ContinuumObject : numba.experimental.jitclass.boxing.Continuum
+		Constructor method for local continuum jitclass
     """
     output_nus = np.empty_like(packet_collection.packets_output_nu)
     last_interaction_types = (
