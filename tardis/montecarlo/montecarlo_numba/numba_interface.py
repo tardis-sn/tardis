@@ -119,8 +119,6 @@ def numba_plasma_initialize(plasma, line_interaction_type):
     electron_densities = plasma.electron_densities.values
     t_electrons = plasma.t_electrons
     line_list_nu = plasma.atomic_data.lines.nu.values
-    p_fb_deactivation = np.ascontiguousarray(
-            plasma.p_fb_deactivation.values.copy(), dtype=np.float64)
     tau_sobolev = np.ascontiguousarray(
         plasma.tau_sobolevs.values.copy(), dtype=np.float64
     )
@@ -161,8 +159,11 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         bf_threshold_list_nu = plasma.nu_i.loc[
             plasma.level2continuum_idx.index
         ].values
+        p_fb_deactivation = np.ascontiguousarray(
+            plasma.p_fb_deactivation.values.copy(), dtype=np.float64)
     else:
         bf_threshold_list_nu = np.zeros(0, dtype=np.int64)
+        p_fb_deactivateion = np.zeros((0, 0), dtype=np.float64)
 
     return NumbaPlasma(
         electron_densities,
@@ -329,10 +330,16 @@ def create_continuum_class(plasma):
     """Generates the Continuum Class definition
     based on the given tardis plasma."""
 
-    chi_continuum_calculator = plasma.chi_continuum_calculator
-    nu_fb_sampler = plasma.nu_fb_sampler
-    nu_ff_sampler = plasma.nu_ff_sampler
-    get_macro_activation_idx = plasma.determine_continuum_macro_activation_idx
+    # Should make this bool dependent upon config
+    # For both clarity and maintainability
+    CONTINUUM_ENABLED = not plasma.continuum_interaction_species.empty
+
+    if CONTINUUM_ENABLED: # Could use a more explicit config
+        chi_continuum_calculator = plasma.chi_continuum_calculator
+        nu_fb_sampler = plasma.nu_fb_sampler
+        nu_ff_sampler = plasma.nu_ff_sampler
+        get_macro_activation_idx = plasma.determine_continuum_macro_activation_idx
+
     continuum_spec = [
             ("chi_bf_tot", float64),
             ("chi_bf_contributions", float64[:]),
@@ -351,31 +358,46 @@ def create_continuum_class(plasma):
             self.x_sect_bfs = np.empty(0, dtype=float64)
             self.chi_ff = 0.0
 
-        def calculate(self, nu, shell):
+        if CONTINUUM_ENABLED:
 
-            (
-            self.chi_bf_tot,
-            self.chi_bf_contributions,
-            self.current_continua,
-            self.x_sect_bfs,
-            self.chi_ff,
-            ) = chi_continuum_calculator(nu, shell)
+            def calculate(self, nu, shell):
 
-        def sample_nu_free_bound(self, shell, continuum_id):
+                (
+                self.chi_bf_tot,
+                self.chi_bf_contributions,
+                self.current_continua,
+                self.x_sect_bfs,
+                self.chi_ff,
+                ) = chi_continuum_calculator(nu, shell)
 
-            return nu_fb_sampler(shell, continuum_id)
+            def sample_nu_free_bound(self, shell, continuum_id):
 
-        def sample_nu_free_free(self, shell):
+                return nu_fb_sampler(shell, continuum_id)
 
-            return nu_ff_sampler(shell)
+            def sample_nu_free_free(self, shell):
 
-        def determine_macro_activation_idx(self, nu, shell):
+                return nu_ff_sampler(shell)
 
-            idx = get_macro_activation_idx(
-                    nu, self.chi_bf_tot, self.chi_ff, 
-                    self.chi_bf_contributions, self.current_continua
-                    )
-            return idx
+            def determine_macro_activation_idx(self, nu, shell):
+
+                idx = get_macro_activation_idx(
+                        nu, self.chi_bf_tot, self.chi_ff, 
+                        self.chi_bf_contributions, self.current_continua
+                        )
+                return idx
+        else:
+
+            def calculate(self, nu, shell): 
+                pass # requires matching call signature, should use python type annotation
+
+            def sample_nu_free_bound(self, shell, continuum_id):
+                return np.nan
+
+            def sample_nu_free_free(self, shell):
+                return np.nan
+
+            def determine_macro_activation_idx(self, nu, shell):
+                return np.nan
 
 
     @njit(**njit_dict_no_parallel)
