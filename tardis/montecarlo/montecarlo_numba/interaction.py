@@ -168,7 +168,7 @@ def adiabatic_cooling(r_packet):
     r_packet: tardis.montecarlo.montecarlo_numba.r_packet.RPacket
     """
 
-    r_packet.status = PacketStatus.REABSORBED
+    r_packet.status = PacketStatus.ADIABATIC_COOLING
 
 @njit(**njit_dict_no_parallel)
 def get_current_line_id(nu, line_list):
