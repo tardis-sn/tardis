@@ -123,7 +123,7 @@ def single_packet_loop(
             )
             #print("Done ESCATTERING")
         elif interaction_type == InteractionType.CONTINUUM_PROCESS:
-            print("CONTINUUM_PROCESS")
+            #print("CONTINUUM_PROCESS")
             r_packet.last_interaction_type = InteractionType.CONTINUUM_PROCESS
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
