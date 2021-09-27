@@ -142,12 +142,7 @@ def trace_packet(
         r_packet.r, r_packet.mu, numba_model.time_explosion
     )
     comov_nu = r_packet.nu * doppler_factor
-    ##print("comov_nu=",comov_nu)
-    ##print("r_packet.nu=",r_packet.nu)
-    ##print("Recalculating Continuum")
     continuum.calculate(comov_nu, r_packet.current_shell_id)
-    ##print("Done Recalculating Continuum")
-
     (
         chi_bf,
         chi_bf_contributions,
