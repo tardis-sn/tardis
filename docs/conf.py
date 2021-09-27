@@ -33,11 +33,14 @@ from importlib import import_module
 try:
     from sphinx_astropy.conf.v1 import *  # noqa
 except ImportError:
-    print("ERROR: the documentation requires the sphinx-astropy package to be installed")
+    print(
+        "ERROR: the documentation requires the sphinx-astropy package to be installed"
+    )
     sys.exit(1)
 
 # Get configuration information from setup.cfg
 from configparser import ConfigParser
+
 conf = ConfigParser()
 
 conf.read([os.path.join(os.path.dirname(__file__), "..", "setup.cfg")])
@@ -49,7 +52,7 @@ setup_cfg = dict(conf.items("metadata"))
 highlight_language = "none"
 
 # If your documentation needs a minimal Sphinx version, state it here.
-#needs_sphinx = "1.2"
+# needs_sphinx = "1.2"
 
 # To perform a Sphinx version check that needs to be more specific than
 # major.minor, call `check_sphinx_version("X.Y.Z")` here.
@@ -97,7 +100,12 @@ intersphinx_mapping = {
 
 apidoc_module_dir = "../tardis"
 apidoc_output_dir = "api"
-apidoc_excluded_paths = ["*tests*", "*setup_package*", "*conftest*", "*version*" ]
+apidoc_excluded_paths = [
+    "*tests*",
+    "*setup_package*",
+    "*conftest*",
+    "*version*",
+]
 apidoc_separate_modules = True
 
 ## https://github.com/phn/pytpm/issues/3#issuecomment-12133978
@@ -168,8 +176,7 @@ else:
 # This does not *have* to match the package name, but typically does
 project = setup_cfg["name"]
 author = setup_cfg["author"]
-copyright = "2013-{0}, {1}".format(
-    datetime.datetime.now().year, author)
+copyright = "2013-{0}, {1}".format(datetime.datetime.now().year, author)
 
 # The version info for the project you"re documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -179,7 +186,7 @@ import_module(setup_cfg["name"])
 package = sys.modules[setup_cfg["name"]]
 
 # The short X.Y version.
-version = "latest" # package.__version__.split("-", 1)[0]
+version = "latest"  # package.__version__.split("-", 1)[0]
 # The full version, including alpha/beta/rc tags.
 release = package.__version__
 
@@ -197,6 +204,7 @@ release = package.__version__
 # Add any paths that contain custom themes here, relative to this directory.
 # To use a different custom theme, add the directory containing the theme.
 import sphinx_rtd_theme
+
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -206,20 +214,20 @@ html_theme = "sphinx_rtd_theme"
 
 
 html_theme_options = {
-#    "logotext1": "tardis",  # white,  semi-bold
-#    "logotext2": "",  # orange, light
-#    "logotext3": ":docs"   # white,  light
-    }
+    #    "logotext1": "tardis",  # white,  semi-bold
+    #    "logotext2": "",  # orange, light
+    #    "logotext3": ":docs"   # white,  light
+}
 
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+# html_sidebars = {}
 html_static_path = ["_static"]
 templates_path = ["_templates"]
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-#html_logo = ""
+# html_logo = ""
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -228,11 +236,11 @@ html_favicon = "tardis_logo.ico"
 
 # If not "", a "Last updated on:" timestamp is inserted at every page bottom,
 # using the given strftime format.
-#html_last_updated_fmt = ""
+# html_last_updated_fmt = ""
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = project # "{0} v{1}".format(project, release)
+html_title = project  # "{0} v{1}".format(project, release)
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = project + "doc"
@@ -245,16 +253,18 @@ modindex_common_prefix = ["tardis."]
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
-latex_documents = [("index", project + ".tex", project + u" Documentation",
-                    author, "manual")]
+latex_documents = [
+    ("index", project + ".tex", project + " Documentation", author, "manual")
+]
 
 
 # -- Options for manual page output -------------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [("index", project.lower(), project + u" Documentation",
-              [author], 1)]
+man_pages = [
+    ("index", project.lower(), project + " Documentation", [author], 1)
+]
 
 
 # -- Options for the edit_on_github extension ---------------------------------
@@ -270,7 +280,9 @@ if setup_cfg.get("edit_on_github").lower() == "true":
     edit_on_github_doc_root = "docs"
 
 # -- Resolving issue number to links in changelog -----------------------------
-github_issues_url = "https://github.com/{0}/issues/".format(setup_cfg["github_project"])
+github_issues_url = "https://github.com/{0}/issues/".format(
+    setup_cfg["github_project"]
+)
 
 
 # -- Options for linkcheck output -------------------------------------------
@@ -308,7 +320,7 @@ linkcheck_anchors = False
 #     nitpick_ignore.append((dtype, six.u(target)))
 
 
-# -- Creating redirects -------------------------------------------------------
+# -- Creating redirects ------------------------------------------------------
 
 # One entry per redirect. List of tuples: (old_fpath, new_fpath)
 # Paths are relative to source dir i.e. "docs/" & must include file extension
@@ -326,7 +338,57 @@ def to_html_ext(path):
     return os.path.splitext(path)[0] + ".html"
 
 
+# -- Sphinx hook-ins ---------------------------------------------------------
+
+import re
+import pathlib
+import requests
+import textwrap
+import warnings
+
+
+def generate_ZENODO(app):
+    """Creating ZENODO.rst
+    Adapted from: https://astrodata.nyc/posts/2021-04-23-zenodo-sphinx/"""
+    CONCEPT_DOI = "592480"  # See: https://help.zenodo.org/#versioning
+    zenodo_path = pathlib.Path("ZENODO.rst")
+
+    try:
+        headers = {"accept": "application/x-bibtex"}
+        response = requests.get(
+            f"https://zenodo.org/api/records/{CONCEPT_DOI}", headers=headers
+        )
+        response.encoding = "utf-8"
+        citation = re.findall("@software{(.*)\,", response.text)
+        zenodo_record = (
+            f".. |ZENODO| replace:: {citation[0]}\n\n"
+            ".. code-block:: bibtex\n\n"
+            + textwrap.indent(response.text, " " * 4)
+        )
+
+    except Exception as e:
+        warnings.warn(
+            "Failed to retrieve Zenodo record for TARDIS: " f"{str(e)}"
+        )
+
+        not_found_msg = """
+                        Couldn"t retrieve the TARDIS software citation from Zenodo. Get it 
+                        directly from `this link <https://zenodo.org/record/{CONCEPT_DOI}>`_    .
+                        """
+
+        zenodo_record = (
+            ".. |ZENODO| replace:: <TARDIS SOFTWARE CITATION HERE> \n\n"
+            ".. warning:: \n\n" + textwrap.indent(not_found_msg, " " * 4)
+        )
+
+    with open(zenodo_path, "w") as f:
+        f.write(zenodo_record)
+
+    print(zenodo_record)
+
+
 def generate_tutorials_page(app):
+    """Create tutorials.rst"""
     notebooks = ""
 
     for root, dirs, fnames in os.walk("io/"):
@@ -370,46 +432,9 @@ def create_redirect_files(app, docname):
             with open(old_html_fpath, "w") as f:
                 f.write(new_content)
 
+
 def setup(app):
+    app.connect("builder-inited", generate_ZENODO)
     app.connect("builder-inited", generate_tutorials_page)
     app.connect("autodoc-skip-member", autodoc_skip_member)
     app.connect("build-finished", create_redirect_files)
-
-
-# -- Creating ZENODO.rst ------------------------------------------------------
-# Adapted from: https://astrodata.nyc/posts/2021-04-23-zenodo-sphinx/
-
-import re
-import pathlib
-import requests
-import textwrap
-import warnings
-
-CONCEPT_DOI = "592480"  # See: https://help.zenodo.org/#versioning
-zenodo_path = pathlib.Path("ZENODO.rst")
-
-try:
-    headers = {"accept": "application/x-bibtex"}
-    response = requests.get(f"https://zenodo.org/api/records/{CONCEPT_DOI}",
-                            headers=headers)
-    response.encoding = "utf-8"
-    citation = re.findall("@software{(.*)\,", response.text)
-    zenodo_record = (f".. |ZENODO| replace:: {citation[0]}\n\n"
-                     ".. code-block:: bibtex\n\n" + textwrap.indent(response.text, " "*4))
-
-except Exception as e:
-    warnings.warn("Failed to retrieve Zenodo record for TARDIS: "
-                  f"{str(e)}")
-
-    not_found_msg = """
-                    Couldn"t retrieve the TARDIS software citation from Zenodo. Get it 
-                    directly from `this link <https://zenodo.org/record/{CONCEPT_DOI}>`_    .
-                    """
-
-    zenodo_record = (".. |ZENODO| replace:: <TARDIS SOFTWARE CITATION HERE> \n\n"
-                     ".. warning:: \n\n" + textwrap.indent(not_found_msg, " "*4))
-
-with open(zenodo_path, "w") as f:
-    f.write(zenodo_record)
-
-print(zenodo_record)
