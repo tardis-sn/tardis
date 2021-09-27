@@ -121,9 +121,9 @@ def single_packet_loop(
             trace_vpacket_volley(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
-            ##print("Done ESCATTERING")
+            #print("Done ESCATTERING")
         elif interaction_type == InteractionType.CONTINUUM_PROCESS:
-            #print("CONTINUUM_PROCESS")
+            print("CONTINUUM_PROCESS")
             r_packet.last_interaction_type = InteractionType.CONTINUUM_PROCESS
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
@@ -135,7 +135,7 @@ def single_packet_loop(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
         else:
-            #print("OTHER")
+            print("OTHER")
             pass
 
 

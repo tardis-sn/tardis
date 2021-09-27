@@ -143,11 +143,14 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         line2macro_level_upper = (
             plasma.atomic_data.lines_upper2macro_reference_idx
         )
-        # macro_block_references = plasma.atomic_data.macro_atom_references[
-        #     "block_references"
-        # ].values
         # TODO: Fix setting of block references for non-continuum mode
-        macro_block_references = plasma.macro_block_references
+
+        if not plasma.continuum_interaction_species.empty:
+            macro_block_references = plasma.macro_block_references
+        else:
+            macro_block_references = plasma.atomic_data.macro_atom_references[
+                 "block_references"
+             ].values
         transition_type = plasma.macro_atom_data["transition_type"].values
 
         # Destination level is not needed and/or generated for downbranch
@@ -162,8 +165,8 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         p_fb_deactivation = np.ascontiguousarray(
             plasma.p_fb_deactivation.values.copy(), dtype=np.float64)
     else:
-        bf_threshold_list_nu = np.zeros(0, dtype=np.int64)
-        p_fb_deactivateion = np.zeros((0, 0), dtype=np.float64)
+        bf_threshold_list_nu = np.zeros(0, dtype=np.float64)
+        p_fb_deactivation = np.zeros((0, 0), dtype=np.float64)
 
     return NumbaPlasma(
         electron_densities,
@@ -335,11 +338,13 @@ def create_continuum_class(plasma):
     CONTINUUM_ENABLED = not plasma.continuum_interaction_species.empty
 
     if CONTINUUM_ENABLED: # Could use a more explicit config
+        print("RUNNING WITH CONTINUUM")
         chi_continuum_calculator = plasma.chi_continuum_calculator
         nu_fb_sampler = plasma.nu_fb_sampler
         nu_ff_sampler = plasma.nu_ff_sampler
         get_macro_activation_idx = plasma.determine_continuum_macro_activation_idx
-
+    else:
+        print("RUNNING WITHOUT CONTINUUM")
     continuum_spec = [
             ("chi_bf_tot", float64),
             ("chi_bf_contributions", float64[:]),
@@ -397,7 +402,7 @@ def create_continuum_class(plasma):
                 return np.nan
 
             def determine_macro_activation_idx(self, nu, shell):
-                return np.nan
+                return 0 # This needs to be an int, be careful as this won't crash
 
 
     @njit(**njit_dict_no_parallel)

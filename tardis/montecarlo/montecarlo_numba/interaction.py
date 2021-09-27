@@ -52,7 +52,6 @@ def continuum_event(r_packet, time_explosion, continuum, numba_plasma):
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     continuum : tardis.montecarlo.montecarlo_numba.numba_interface.Continuum
     """
-
     old_doppler_factor = get_doppler_factor(
             r_packet.r, 
             r_packet.mu, 
@@ -96,7 +95,7 @@ def macro_atom_event(destination_level_idx,
                 numba_plasma
                 )
 
-    if transition_type == MacroAtomTransitionType.FF_EMISSION: 
+    if transition_type == MacroAtomTransitionType.FF_EMISSION:
         free_free_emission(
                 r_packet, 
                 time_explosion, 
