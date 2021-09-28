@@ -2,6 +2,7 @@ import numpy as np
 import copy
 from tqdm.auto import tqdm
 import pandas as pd
+from scipy import interpolate
 
 from tardis.energy_input.util import SphericalVector
 from tardis.energy_input.GXPhoton import GXPhoton, GXPhotonStatus
@@ -40,6 +41,7 @@ def initialize_photons(
     number_of_shells,
     photons_per_shell,
     ejecta_volume,
+    shell_masses,
     inner_velocities,
     outer_velocities,
     decay_rad_db,
@@ -55,6 +57,8 @@ def initialize_photons(
         Number of photons in a shell
     ejecta_volume : numpy.array
         Volume per shell
+    shell_masses : numpy.array
+        Mass per shell
     inner_velocities : numpy.array
         Shell inner velocities
     outer_velocities : numpy.array
@@ -74,6 +78,12 @@ def initialize_photons(
     photons = []
     energy_df_rows = np.zeros(number_of_shells)
     energy_plot_df_rows = []
+
+    cumulative_mass = np.cumsum(shell_masses)
+    cumulative_mass /= np.max(cumulative_mass)
+
+    cumulative_mass = np.insert(cumulative_mass, 0, 0)
+    outer_velocities = np.insert(outer_velocities, 0, inner_velocities[0])
 
     for column in photons_per_shell:
         subtable = decay_rad_db.loc[column]
@@ -97,10 +107,15 @@ def initialize_photons(
                     status=GXPhotonStatus.IN_PROCESS,
                     shell=0,
                 )
-                z = np.random.random()
-                initial_radius = inner_velocities[shell] + z * (
-                    outer_velocities[shell] - inner_velocities[shell]
+
+                z = (
+                    cumulative_mass[shell]
+                    + (cumulative_mass[shell + 1] - cumulative_mass[shell])
+                    * np.random.random()
                 )
+
+                initial_radius = np.interp(z, cumulative_mass, outer_velocities)
+
                 location_theta = get_random_theta_photon()
                 location_phi = get_random_phi_photon()
                 primary_photon.location = SphericalVector(
@@ -240,6 +255,7 @@ def main_gamma_ray_loop(num_photons, model):
         number_of_shells,
         photons_per_shell,
         ejecta_volume,
+        shell_masses,
         inner_velocities,
         outer_velocities,
         decay_rad_db,
