@@ -95,7 +95,8 @@ def macro_atom_event(destination_level_idx,
                 numba_plasma
                 )
 
-    if transition_type == MacroAtomTransitionType.FF_EMISSION:
+    if (montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED and 
+            transition_type == MacroAtomTransitionType.FF_EMISSION):
         free_free_emission(
                 r_packet, 
                 time_explosion, 
@@ -103,7 +104,8 @@ def macro_atom_event(destination_level_idx,
                 continuum
                 )
     
-    elif transition_type == MacroAtomTransitionType.BF_EMISSION:
+    elif (montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED and 
+            transition_type == MacroAtomTransitionType.BF_EMISSION):
         bound_free_emission(
                 r_packet, 
                 time_explosion, 
@@ -111,10 +113,12 @@ def macro_atom_event(destination_level_idx,
                 continuum, 
                 transition_id
                 )
-    elif transition_type == MacroAtomTransitionType.BF_COOLING:
+    elif (montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED and 
+            transition_type == MacroAtomTransitionType.BF_COOLING):
         bf_cooling(r_packet, time_explosion, numba_plasma, continuum)
     
-    elif transition_type == MacroAtomTransitionType.ADIABATIC_COOLING:
+    elif (montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED and 
+            transition_type == MacroAtomTransitionType.ADIABATIC_COOLING):
         adiabatic_cooling(r_packet)
 
     elif transition_type == MacroAtomTransitionType.BB_EMISSION:
