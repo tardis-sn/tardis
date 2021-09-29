@@ -116,6 +116,7 @@ def numba_plasma_initialize(plasma, line_interaction_type):
     plasma : tardis.plasma.BasePlasma
     line_interaction_type : enum
     """
+
     electron_densities = plasma.electron_densities.values
     t_electrons = plasma.t_electrons
     line_list_nu = plasma.atomic_data.lines.nu.values
@@ -145,7 +146,7 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         )
         # TODO: Fix setting of block references for non-continuum mode
 
-        if not plasma.continuum_interaction_species.empty:
+        if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
             macro_block_references = plasma.macro_block_references
         else:
             macro_block_references = plasma.atomic_data.macro_atom_references[
@@ -158,7 +159,7 @@ def numba_plasma_initialize(plasma, line_interaction_type):
             "destination_level_idx"
         ].values
         transition_line_id = plasma.macro_atom_data["lines_idx"].values
-    if not plasma.continuum_interaction_species.empty:
+    if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
         bf_threshold_list_nu = plasma.nu_i.loc[
             plasma.level2continuum_idx.index
         ].values
@@ -335,7 +336,7 @@ def create_continuum_class(plasma):
 
     # Should make this bool dependent upon config
     # For both clarity and maintainability
-    CONTINUUM_ENABLED = not plasma.continuum_interaction_species.empty
+    CONTINUUM_ENABLED = montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
 
     if CONTINUUM_ENABLED: # Could use a more explicit config
         print("RUNNING WITH CONTINUUM")
