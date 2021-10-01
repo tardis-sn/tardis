@@ -710,8 +710,7 @@ class CustomAbundanceWidget:
         )
 
         if (index_1 - index_0 > 1) or (
-            (index_1 < len(v_vals) and np.isclose(v_vals[index_1], v_1))
-            or (index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0))
+            index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0)
         ):
             return True
         else:
@@ -743,6 +742,22 @@ class CustomAbundanceWidget:
             else int(position_1)
         )
 
+        if (
+            end_index < self.no_of_shells
+            and np.isclose(v_vals[start_index], v_start)
+            and np.isclose(v_vals[end_index], v_end)
+            and end_index - start_index == 1
+        ):
+            return
+
+        if start_index < self.no_of_shells and np.isclose(
+            v_vals[start_index], v_start
+        ):
+            new_shell_abundances = self.data.abundance[start_index]
+        else:
+            index = min(start_index - 1, self.no_of_shells - 1)
+            new_shell_abundances = self.data.abundance[max(index, 0)]
+
         # Delete the overwritten shell (abundances and velocities).
         if end_index < len(v_vals) and np.isclose(v_vals[end_index], v_end):
             # New shell will overwrite the original shell that ends at v_end.
@@ -766,9 +781,7 @@ class CustomAbundanceWidget:
 
         # Change abundances after adding new shell.
         if start_index != end_index:
-            self.data.abundance.insert(
-                end_index - 1, "", self.data.abundance[max(start_index - 1, 0)]
-            )
+            self.data.abundance.insert(start_index, "", new_shell_abundances)
             self.data.abundance.drop(
                 self.data.abundance.iloc[:, start_index : end_index - 1],
                 1,
@@ -776,36 +789,17 @@ class CustomAbundanceWidget:
             )
         else:
             if start_index == 0:
+                self.data.abundance.insert(0, "new", new_shell_abundances)
                 self.data.abundance.insert(
-                    end_index,
-                    "new",
-                    self.data.abundance[
-                        min(end_index + 1, self.no_of_shells - 1)
-                    ],
-                )
-                self.data.abundance.insert(
-                    end_index,
-                    "gap",
-                    self.data.abundance[
-                        min(end_index + 1, self.no_of_shells - 1)
-                    ],
+                    0, "gap", new_shell_abundances
                 )  # Add a shell to fill the gap.
             else:
                 self.data.abundance.insert(
-                    end_index - 1, "new", self.data.abundance[start_index - 1]
+                    start_index - 1, "new", new_shell_abundances
                 )
-                if start_index == self.no_of_shells:
-                    self.data.abundance.insert(
-                        end_index - 1,
-                        "gap",
-                        self.data.abundance[start_index - 1],
-                    )
-                else:
-                    self.data.abundance.insert(
-                        end_index - 1,
-                        "gap",
-                        self.data.abundance[end_index],
-                    )  # Add a shell to fill the gap with original abundances
+                self.data.abundance.insert(
+                    start_index - 1, "gap", new_shell_abundances
+                )  # Add a shell to fill the gap with original abundances
 
         self.data.abundance.columns = range(self.no_of_shells)
 
@@ -824,6 +818,7 @@ class CustomAbundanceWidget:
         self.update_bar_diagonal()
         self.update_front_end()
         self.irs_shell_range.max = self.no_of_shells
+        self.overwrite_warning.layout.visibility = "hidden"
 
     def tbs_scale_eventhandler(self, obj):
         """Switch the scale type of y axis between linear mode and log
