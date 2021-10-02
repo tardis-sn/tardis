@@ -1110,7 +1110,7 @@ class SDECPlotter:
             Option to plot an observed spectrum in the SDEC plot. If given, the first element
             should be the wavelength and the second element should be flux,
             i.e. (wavelength, flux). The assumed units for wavelength and flux are
-            angstroms and erg/(angstroms * s * /cm^2), respectively. Default value is None.
+            angstroms and erg/(angstroms * s * cm^2), respectively. Default value is None.
         show_modeled_spectrum : bool, optional
             Whether to show modeled spectrum in SDEC Plot. Default value is
             True
@@ -1506,7 +1506,7 @@ class SDECPlotter:
             Option to plot an observed spectrum in the SDEC plot. If given, the first element
             should be the wavelength and the second element should be flux,
             i.e. (wavelength, flux). The assumed units for wavelength and flux are
-            angstroms and erg/(angstroms * s * /cm^2), respectively. Default value is None.
+            angstroms and erg/(angstroms * s * cm^2), respectively. Default value is None.
         show_modeled_spectrum : bool, optional
             Whether to show modeled spectrum in SDEC Plot. Default value is
             True
