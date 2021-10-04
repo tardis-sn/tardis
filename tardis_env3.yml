@@ -22,7 +22,7 @@ dependencies:
 
   # I/O
   - pyyaml
-  - jsonschema
+  - jsonschema=3.2.0
   - pytables
   - h5py
   - pickle5  # Issue #1566
