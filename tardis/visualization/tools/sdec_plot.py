@@ -1082,7 +1082,6 @@ class SDECPlotter:
         packets_mode="virtual",
         packet_wvl_range=None,
         distance=None,
-        observed_spectrum=None,
         show_modeled_spectrum=True,
         ax=None,
         figsize=(12, 7),
@@ -1106,11 +1105,6 @@ class SDECPlotter:
         distance : astropy.Quantity or None, optional
             Distance used to calculate flux instead of luminosity in the plot.
             It should have a length unit like m, Mpc, etc. Default value is None
-        observed_spectrum : tuple or list of astropy.Quantity, optional
-            Option to plot an observed spectrum in the SDEC plot. If given, the first element
-            should be the wavelength and the second element should be flux,
-            i.e. (wavelength, flux). The assumed units for wavelength and flux are
-            angstroms and erg/(angstroms * s * cm^2), respectively. Default value is None.
         show_modeled_spectrum : bool, optional
             Whether to show modeled spectrum in SDEC Plot. Default value is
             True
@@ -1184,31 +1178,6 @@ class SDECPlotter:
                 linewidth=1,
             )
 
-        # Plot observed spectrum
-        if observed_spectrum:
-            if distance is None:
-                raise ValueError(
-                    """
-                    Distance must be specified if an observed_spectrum is given 
-                    so that the model spectrum can be converted into flux space correctly.
-                    """
-                )
-
-            observed_spectrum_wavelength = None
-            observed_spectrum_flux = None
-
-            # Convert to wavelength and luminosity units
-            observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
-            observed_spectrum_flux = observed_spectrum[1].to("erg/(s cm**2 AA)")
-
-            self.ax.plot(
-                observed_spectrum_wavelength,
-                observed_spectrum_flux,
-                "-k",
-                label="Observed Spectrum",
-                linewidth=1,
-            )
-
         # Plot photosphere
         self.ax.plot(
             self.plot_wavelength,
@@ -1246,7 +1215,7 @@ class SDECPlotter:
             self.plot_wavelength,
             lower_level,
             upper_level,
-            color="#4C4C4C",
+            color="black",
             label="No interaction",
         )
 
@@ -1259,7 +1228,7 @@ class SDECPlotter:
             self.plot_wavelength,
             lower_level,
             upper_level,
-            color="#8F8F8F",
+            color="grey",
             label="Electron Scatter Only",
         )
 
@@ -1274,7 +1243,7 @@ class SDECPlotter:
                 self.plot_wavelength,
                 lower_level,
                 upper_level,
-                color="#C2C2C2",
+                color="silver",
                 label="Other elements",
             )
 
@@ -1502,11 +1471,6 @@ class SDECPlotter:
         distance : astropy.Quantity or None, optional
             Distance used to calculate flux instead of luminosity in the plot.
             It should have a length unit like m, Mpc, etc. Default value is None
-        observed_spectrum : tuple or list of astropy.Quantity, optional
-            Option to plot an observed spectrum in the SDEC plot. If given, the first element
-            should be the wavelength and the second element should be flux,
-            i.e. (wavelength, flux). The assumed units for wavelength and flux are
-            angstroms and erg/(angstroms * s * cm^2), respectively. Default value is None.
         show_modeled_spectrum : bool, optional
             Whether to show modeled spectrum in SDEC Plot. Default value is
             True
@@ -1583,30 +1547,6 @@ class SDECPlotter:
                 )
             )
 
-        # Plot observed spectrum
-        if observed_spectrum:
-            if distance is None:
-                raise ValueError(
-                    """
-                    Distance must be specified if an observed_spectrum is given 
-                    so that the model spectrum can be converted into flux space correctly.
-                    """
-                )
-
-            observed_spectrum_wavelength = None
-            observed_spectrum_flux = None
-
-            # Convert to wavelength and luminosity units
-            observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
-            observed_spectrum_flux = observed_spectrum[1].to("erg/(s cm**2 AA)")
-
-            self.fig.add_scatter(
-                x=observed_spectrum_wavelength,
-                y=observed_spectrum_flux,
-                name="Observed Spectrum",
-                line={"color": "black", "width": 1.2},
-            )
-
         # Plot photosphere
         self.fig.add_trace(
             go.Scatter(
@@ -1670,7 +1610,7 @@ class SDECPlotter:
                 y=self.emission_luminosities_df.noint,
                 mode="none",
                 name="No interaction",
-                fillcolor="#4C4C4C",
+                fillcolor="black",
                 stackgroup="emission",
             )
         )
@@ -1681,7 +1621,7 @@ class SDECPlotter:
                 y=self.emission_luminosities_df.escatter,
                 mode="none",
                 name="Electron Scatter Only",
-                fillcolor="#8F8F8F",
+                fillcolor="grey",
                 stackgroup="emission",
             )
         )
@@ -1694,7 +1634,7 @@ class SDECPlotter:
                     y=self.emission_luminosities_df.other,
                     mode="none",
                     name="Other elements",
-                    fillcolor="#C2C2C2",
+                    fillcolor="silver",
                     stackgroup="emission",
                 )
             )
@@ -1745,7 +1685,7 @@ class SDECPlotter:
                     y=self.absorption_luminosities_df.other * -1,
                     mode="none",
                     name="Other elements",
-                    fillcolor="#C2C2C2",
+                    fillcolor="silver",
                     stackgroup="absorption",
                     showlegend=False,
                 )
