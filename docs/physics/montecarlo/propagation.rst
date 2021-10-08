@@ -6,7 +6,7 @@ Packet Propagation
 
 The bulk of a Monte Carlo Radiative Transfer calculation is spent on
 determining the propagation history of the different packets. After a packet is
-initialised (see :ref:`initialization`), it is launched and may then perform interactions with the
+initialized (see :ref:`initialization`), it is launched and may then perform interactions with the
 surrounding material. This occurs again in a probabilistic manner. The packet
 propagation is followed until it escapes through the outer boundary of the
 computational domain, at which point the packet contributes to the synthetic
@@ -23,7 +23,7 @@ straight trajectory.
 
 .. note::
     Since TARDIS is designed for systems for which the Newtonian limit may be
-    safely applied, no general relatistic effects which would force photons on
+    safely applied, no general relativistic effects which would force photons on
     curved trajectories are included.
 
 In spherical geometry, this propagation process may be illustrated by the
@@ -66,9 +66,9 @@ TARDIS simulates radiative transfer between an inner boundary (the photosphere) 
 :math:`r_\mathrm{outer\_boundary}`. Additionally, TARDIS divides the space between the inner and outer computational
 boundaries into cells -- radial shells for which the plasma state is (spatially) constant. In the animation, 6 cells 
 are shown, being divided by the light blue lines. The boundaries of the computational domain and of these cells are 
-computed during the simulation setup (refer back to :ref:`model`). As TARDIS is a time-independent code, meeaning
+computed during the simulation setup (refer back to :ref:`model`). As TARDIS is a time-independent code, meaning
 that it calculates the spectra at an instant in time (namely at the time :math:`t_\mathrm{explosion}`), the radii of
-the boundaries (both of the computational domain and of the cells) do not chage throughout the simulation.
+the boundaries (both of the computational domain and of the cells) do not change throughout the simulation.
 
 .. image::
     ../images/expansion_animation.gif
@@ -80,7 +80,7 @@ the boundaries (both of the computational domain and of the cells) do not chage 
 Reference Frames
 ================
 
-Because ejecta in the supernva is moving, TARDIS must take reference frames into account.
+Because ejecta in the supernova is moving, TARDIS must take reference frames into account.
 
 In TARDIS, two reference frames are of particular importance: the lab frame and the co-moving frame. In the lab 
 frame, the center of the supernova is at rest; for example, the animation above is shown in the lab frame.
@@ -168,7 +168,7 @@ packet is assigned a random value of optical depth :math:`\tau_\mathrm{interacti
 
 TARDIS considers two different radiation-matter interactions within the simulation: electron scattering and atomic
 line interactions. As packets propagate, they accumulate optical depth due to the possibility of going through either
-of these interations. Since the main focus of TARDIS is to calculate optical spectra,
+of these interactions. Since the main focus of TARDIS is to calculate optical spectra,
 electron-scatterings are treated in the elastic low-energy limit as classical
 Thomson scatterings. In this case, the electron scattering process is frequency-independent. As a consequence to the
 frequency independence, the rate at which a packet accumulates electron scattering optical depth depends only on the
