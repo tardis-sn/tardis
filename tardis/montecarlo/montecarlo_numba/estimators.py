@@ -1,4 +1,7 @@
+from math import exp
 from numba import njit
+
+from tardis.montecarlo.montecarlo_numba.numba_config import H, KB
 
 from tardis.montecarlo.montecarlo_numba import (
     njit_dict_no_parallel,
@@ -37,6 +40,66 @@ def set_estimators_full_relativity(
     numba_estimator.nu_bar_estimator[r_packet.current_shell_id] += (
         comov_energy * distance * comov_nu * doppler_factor
     )
+
+
+@njit(**njit_dict_no_parallel)
+def update_bound_free_estimators(
+    comov_nu,
+    comov_energy,
+    shell_id,
+    distance,
+    numba_estimator,
+    t_electron,
+    x_sect_bfs,
+    current_continua,
+    bf_threshold_list_nu,
+):
+    """
+    Update the estimators for bound-free processes.
+
+    Parameters
+    ----------
+    comov_nu : float
+    comov_energy : float
+    shell_id : int
+    distance : float
+    numba_estimator : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
+    t_electron : float
+        Electron temperature in the current cell.
+    x_sect_bfs : numpy.ndarray, dtype float
+        Photoionization cross-sections of all bound-free continua for
+        which absorption is possible for frequency `comov_nu`.
+    current_continua : numpy.ndarray, dtype int
+        Continuum ids for which absorption is possible for frequency `comov_nu`.
+    bf_threshold_list_nu : numpy.ndarray, dtype float
+        Threshold frequencies for photoionization sorted by decreasing frequency.
+    """
+    # TODO: Add full relativity mode
+    boltzmann_factor = exp(-(H * comov_nu) / (KB * t_electron))
+    for i, current_continuum in enumerate(current_continua):
+        photo_ion_rate_estimator_increment = (
+            comov_energy * distance * x_sect_bfs[i] / comov_nu
+        )
+        numba_estimator.photo_ion_estimator[
+            current_continuum, shell_id
+        ] += photo_ion_rate_estimator_increment
+        numba_estimator.stim_recomb_estimator[current_continuum, shell_id] += (
+            photo_ion_rate_estimator_increment * boltzmann_factor
+        )
+        numba_estimator.photo_ion_estimator_statistics[
+            current_continuum, shell_id
+        ] += 1
+
+        nu_th = bf_threshold_list_nu[current_continuum]
+        bf_heating_estimator_increment = (
+            comov_energy * distance * x_sect_bfs[i] * (1 - nu_th / comov_nu)
+        )
+        numba_estimator.bf_heating_estimator[
+            current_continuum, shell_id
+        ] += bf_heating_estimator_increment
+        numba_estimator.stim_recomb_cooling_estimator[
+            current_continuum, shell_id
+        ] += (bf_heating_estimator_increment * boltzmann_factor)
 
 
 @njit(**njit_dict_no_parallel)

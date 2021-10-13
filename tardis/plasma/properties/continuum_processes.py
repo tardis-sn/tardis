@@ -23,6 +23,7 @@ __all__ = [
     "StimRecombRateCoeffEstimator",
     "CorrPhotoIonRateCoeff",
     "BfHeatingRateCoeffEstimator",
+    "StimRecombCoolingRateCoeffEstimator",
     "SpontRecombCoolingRateCoeff",
     "RawRecombTransProbs",
     "RawPhotoIonTransProbs",
@@ -38,19 +39,34 @@ __all__ = [
     "FreeBoundEmissionCDF",
     "RawTwoPhotonTransProbs",
     "TwoPhotonEmissionCDF",
+    "TwoPhotonFrequencySampler",
     "CollIonRateCoeffSeaton",
     "CollRecombRateCoeff",
     "RawCollIonTransProbs",
+    "BoundFreeOpacityInterpolator",
+    "FreeFreeOpacity",
+    "ContinuumOpacityCalculator",
+    "FreeFreeFrequencySampler",
+    "FreeBoundFrequencySampler",
 ]
 
-
+N_A = const.N_A.cgs.value
 K_B = const.k_B.cgs.value
 C = const.c.cgs.value
 H = const.h.cgs.value
 A0 = const.a0.cgs.value
 M_E = const.m_e.cgs.value
+E = const.e.esu.value
 BETA_COLL = (H ** 4 / (8 * K_B * M_E ** 3 * np.pi ** 3)) ** 0.5
-
+F_K = (
+    16
+    / (3.0 * np.sqrt(3))
+    * np.sqrt((2 * np.pi) ** 3 * K_B / (H ** 2 * M_E ** 3))
+    * (E ** 2 / C) ** 3
+)  # See Eq. 19 in Sutherland, R. S. 1998, MNRAS, 300, 321
+FF_OPAC_CONST = (
+    (2 * np.pi / (3 * M_E * K_B)) ** 0.5 * 4 * E ** 6 / (3 * M_E * H * C)
+)  # See Eq. 6.1.8 in http://personal.psu.edu/rbc3/A534/lec6.pdf
 
 logger = logging.getLogger(__name__)
 
@@ -229,6 +245,35 @@ def cooling_rate_series2dataframe(cooling_rate_series, destination_level_idx):
     return cooling_rate_frame
 
 
+def bf_estimator_array2frame(bf_estimator_array, level2continuum_idx):
+    """
+    Transform a bound-free estimator array to a DataFrame.
+
+    This function transforms a bound-free estimator array with entries
+    sorted by frequency to a multi-indexed DataFrame sorted by level.
+
+    Parameters
+    ----------
+    bf_estimator_array : numpy.ndarray, dtype float
+        Array of bound-free estimators (e.g., for the stimulated recombination rate)
+        with entries sorted by the threshold frequency of the bound-free continuum.
+    level2continuum_idx : pandas.Series, dtype int
+        Maps a level MultiIndex (atomic_number, ion_number, level_number) to
+        the continuum_idx of the corresponding bound-free continuum (which are
+        sorted by decreasing frequency).
+
+    Returns
+    -------
+    pandas.DataFrame, dtype float
+        Bound-free estimators indexed by (atomic_number, ion_number, level_number).
+    """
+    bf_estimator_frame = pd.DataFrame(
+        bf_estimator_array, index=level2continuum_idx.index
+    ).sort_index()
+    bf_estimator_frame.columns.name = "Shell No."
+    return bf_estimator_frame
+
+
 class IndexSetterMixin(object):
     @staticmethod
     def set_index(p, photo_ion_idx, transition_type=0, reverse=True):
@@ -376,6 +421,7 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
         photo_ion_index,
         t_rad,
         w,
+        level2continuum_idx,
     ):
         # Used for initialization
         if gamma_estimator is None:
@@ -387,7 +433,11 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
                 w,
             )
         else:
-            gamma = gamma_estimator * photo_ion_norm_factor
+            gamma_estimator = bf_estimator_array2frame(
+                gamma_estimator, level2continuum_idx
+            )
+            gamma = gamma_estimator * photo_ion_norm_factor.value
+
         return gamma
 
     @staticmethod
@@ -434,6 +484,7 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
         phi_ik,
         t_electrons,
         boltzmann_factor_photo_ion,
+        level2continuum_idx,
     ):
         # Used for initialization
         if alpha_stim_estimator is None:
@@ -446,9 +497,12 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
                 t_electrons,
                 boltzmann_factor_photo_ion,
             )
-            alpha_stim *= phi_ik.loc[alpha_stim.index]
         else:
+            alpha_stim_estimator = bf_estimator_array2frame(
+                alpha_stim_estimator, level2continuum_idx
+            )
             alpha_stim = alpha_stim_estimator * photo_ion_norm_factor
+        alpha_stim *= phi_ik.loc[alpha_stim.index]
         return alpha_stim
 
     @staticmethod
@@ -544,7 +598,9 @@ class CorrPhotoIonRateCoeff(ProcessingPlasmaProperty):
         n_k_index = get_ion_multi_index(alpha_stim.index)
         n_k = ion_number_density.loc[n_k_index].values
         n_i = level_number_density.loc[alpha_stim.index].values
-        gamma_corr = gamma - alpha_stim * n_k * electron_densities / n_i
+        gamma_corr = gamma - (alpha_stim * n_k / n_i).multiply(
+            electron_densities
+        )
         num_neg_elements = (gamma_corr < 0).sum().sum()
         if num_neg_elements:
             raise PlasmaException("Negative values in CorrPhotoIonRateCoeff.")
@@ -584,6 +640,18 @@ class StimRecombRateCoeffEstimator(Input):
 
     outputs = ("alpha_stim_estimator",)
     latex_name = (r"\alpha^{\textrm{stim}}_\textrm{estim}",)
+
+
+class StimRecombCoolingRateCoeffEstimator(Input):
+    """
+    Attributes
+    ----------
+    stim_recomb_cooling_coeff_estimator : pandas.DataFrame, dtype float
+        Unnormalized MC estimator for the stimulated recombination cooling rate
+        coefficient.
+    """
+
+    outputs = ("stim_recomb_cooling_coeff_estimator",)
 
 
 class BfHeatingRateCoeffEstimator(Input):
@@ -843,9 +911,17 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
     ----------
     cool_rate_ff : pandas.DataFrame, dtype float
         The free-free cooling rate of the electron gas.
+    ff_cooling_factor : pandas.Series, dtype float
+        Pre-factor needed in the calculation of the free-free cooling rate and
+        the free-free opacity.
+
+    Notes
+    -----
+    This implementation uses a free-free Gaunt factor of one for all species
+    and ionization stages, which is an approximation.
     """
 
-    outputs = ("cool_rate_ff",)
+    outputs = ("cool_rate_ff", "ff_cooling_factor")
     transition_probabilities_outputs = ("cool_rate_ff",)
     latex_name = (r"C^{\textrm{ff}}",)
 
@@ -853,11 +929,11 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
         ff_cooling_factor = self._calculate_ff_cooling_factor(
             ion_number_density, electron_densities
         )
-        cool_rate_ff = 1.426e-27 * np.sqrt(t_electrons) * ff_cooling_factor
+        cool_rate_ff = F_K * np.sqrt(t_electrons) * ff_cooling_factor
         cool_rate_ff = cooling_rate_series2dataframe(
             cool_rate_ff, destination_level_idx="ff"
         )
-        return cool_rate_ff
+        return cool_rate_ff, ff_cooling_factor.values
 
     @staticmethod
     def _calculate_ff_cooling_factor(ion_number_density, electron_densities):
@@ -867,6 +943,125 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
             * ion_number_density.multiply(ion_charge ** 2, axis=0).sum()
         )
         return factor
+
+
+class FreeFreeOpacity(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    cool_rate_ff : pandas.DataFrame, dtype float
+        The free-free cooling rate of the electron gas.
+    ff_cooling_factor : pandas.Series, dtype float
+        Pre-factor needed in the calculation of the free-free opacity.
+    """
+
+    outputs = ("chi_ff_calculator",)
+
+    def calculate(self, t_electrons, ff_cooling_factor, electron_densities):
+        ff_opacity_factor = ff_cooling_factor / np.sqrt(t_electrons)
+
+        @njit(error_model="numpy", fastmath=True)
+        def chi_ff(nu, shell):
+            chi_ff = (
+                FF_OPAC_CONST
+                * ff_opacity_factor[shell]
+                / nu ** 3
+                * (1 - np.exp(-H * nu / (K_B * t_electrons[shell])))
+            )
+            return chi_ff
+
+        return chi_ff
+
+
+class FreeFreeFrequencySampler(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    nu_ff_sampler : float
+        Frequency of the free-free emission process
+
+    """
+
+    outputs = ("nu_ff_sampler",)
+
+    def calculate(self, t_electrons):
+        @njit(error_model="numpy", fastmath=True)
+        def nu_ff(shell):
+
+            T = t_electrons[shell]
+            zrand = np.random.random()
+            return -K_B * T / H * np.log(zrand)
+
+        return nu_ff
+
+
+class FreeBoundFrequencySampler(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    nu_fb_sampler : float
+        Frequency of the free-bounds emission process
+    """
+
+    outputs = ("nu_fb_sampler",)
+
+    def calculate(
+        self, photo_ion_cross_sections, fb_emission_cdf, level2continuum_idx
+    ):
+
+        phot_nus = photo_ion_cross_sections.nu.loc[level2continuum_idx.index]
+        photo_ion_block_references = np.pad(
+            phot_nus.groupby(level=[0, 1, 2], sort=False)
+            .count()
+            .values.cumsum(),
+            [1, 0],
+        )
+        phot_nus = phot_nus.values
+        emissivities = fb_emission_cdf.loc[level2continuum_idx.index].values
+
+        @njit(error_model="numpy", fastmath=True)
+        def nu_fb(shell, continuum_id):
+
+            start = photo_ion_block_references[continuum_id]
+            end = photo_ion_block_references[continuum_id + 1]
+            phot_nus_block = phot_nus[start:end]
+            em = emissivities[start:end, shell]
+
+            zrand = np.random.random()
+            idx = np.searchsorted(em, zrand, side="right")
+
+            return phot_nus_block[idx] - (em[idx] - zrand) / (
+                em[idx] - em[idx - 1]
+            ) * (phot_nus_block[idx] - phot_nus_block[idx - 1])
+
+        return nu_fb
+
+
+class TwoPhotonFrequencySampler(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    nu_two_photon_sampler : float
+        Frequency of the two-photon emission process
+    """
+
+    outputs = ("nu_two_photon_sampler",)
+
+    def calculate(self, two_photon_emission_cdf):
+
+        nus = two_photon_emission_cdf["nu"].values
+        em = two_photon_emission_cdf["cdf"].values
+
+        @njit(error_model="numpy", fastmath=True)
+        def nu_two_photon():
+            zrand = np.random.random()
+            idx = np.searchsorted(em, zrand, side="right")
+
+            return nus[idx] - (em[idx] - zrand) / (em[idx] - em[idx - 1]) * (
+                nus[idx] - nus[idx - 1]
+            )
+
+        return nu_two_photon
 
 
 class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
@@ -943,6 +1138,119 @@ class BoundFreeOpacity(ProcessingPlasmaProperty):
         if num_neg_elements:
             raise PlasmaException("Negative values in bound-free opacity.")
         return chi_bf
+
+
+class BoundFreeOpacityInterpolator(ProcessingPlasmaProperty):
+    outputs = ("chi_bf_interpolator",)
+
+    def calculate(
+        self,
+        chi_bf,
+        photo_ion_cross_sections,
+        get_current_bound_free_continua,
+        level2continuum_idx,
+    ):
+        # Sort everything by descending frequeny (i.e. continuum_id)
+        # TODO: Do we really gain much by sorting by continuum_id?
+        phot_nus = photo_ion_cross_sections.nu.loc[level2continuum_idx.index]
+        photo_ion_block_references = np.pad(
+            phot_nus.groupby(level=[0, 1, 2], sort=False)
+            .count()
+            .values.cumsum(),
+            [1, 0],
+        )
+        phot_nus = phot_nus.values
+        chi_bf = chi_bf.loc[level2continuum_idx.index].values
+        x_sect = photo_ion_cross_sections.x_sect.loc[
+            level2continuum_idx.index
+        ].values
+
+        @njit(error_model="numpy", fastmath=True)
+        def chi_bf_interpolator(nu, shell):
+            """
+            Interpolate the bound-free opacity.
+
+            This function interpolates the tabulated bound-free opacities
+            and cross-sections to new frequency values `nu`.
+
+            Parameters
+            ----------
+            nu : float, dtype float
+                Comoving frequency of the r-packet.
+            shell : int, dtype float
+                Current computational shell.
+
+            Returns
+            -------
+            chi_bf_tot : float
+                Total bound-free opacity at frequency `nu`.
+            chi_bf_contributions : numpy.ndarray, dtype float
+                Cumulative distribution function of the contributions of the
+                individual bound free continua to the total bound-free opacity.
+            current_continua : numpy.ndarray, dtype int
+                Continuum ids for which absorption is possible for frequency `nu`.
+            x_sect_bfs : numpy.ndarray, dtype float
+                Photoionization cross-sections of all bound-free continua for
+                which absorption is possible for frequency `nu`.
+            """
+            
+            current_continua = get_current_bound_free_continua(nu)
+            chi_bfs = np.zeros(len(current_continua))
+            x_sect_bfs = np.zeros(len(current_continua))
+            for i, continuum_id in enumerate(current_continua):
+                start = photo_ion_block_references[continuum_id]
+                end = photo_ion_block_references[continuum_id + 1]
+                chi_bfs[i] = np.interp(
+                    nu, phot_nus[start:end], chi_bf[start:end, shell]
+                )
+                x_sect_bfs[i] = np.interp(
+                    nu, phot_nus[start:end], x_sect[start:end]
+                )
+            chi_bf_contributions = chi_bfs.cumsum()
+            
+            # If we are outside the range of frequencies
+            # for which we have photo-ionization cross sections
+            # we will have no local continuua and therefore
+            # no bound-free interactions can occur
+            # so we set the bound free opacity to zero
+            if len(current_continua) == 0:
+                chi_bf_tot = 0.0
+            else:
+                chi_bf_tot = chi_bf_contributions[-1]
+                chi_bf_contributions /= chi_bf_tot
+
+            return (
+                chi_bf_tot,
+                chi_bf_contributions,
+                current_continua,
+                x_sect_bfs,
+            )
+
+        return chi_bf_interpolator
+
+
+class ContinuumOpacityCalculator(ProcessingPlasmaProperty):
+    outputs = ("chi_continuum_calculator",)
+
+    def calculate(self, chi_ff_calculator, chi_bf_interpolator):
+        @njit(error_model="numpy", fastmath=True)
+        def chi_continuum_calculator(nu, shell):
+            (
+                chi_bf_tot,
+                chi_bf_contributions,
+                current_continua,
+                x_sect_bfs,
+            ) = chi_bf_interpolator(nu, shell)
+            chi_ff = chi_ff_calculator(nu, shell)
+            return (
+                chi_bf_tot,
+                chi_bf_contributions,
+                current_continua,
+                x_sect_bfs,
+                chi_ff,
+            )
+
+        return chi_continuum_calculator
 
 
 class LevelNumberDensityLTE(ProcessingPlasmaProperty):

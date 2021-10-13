@@ -191,6 +191,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
 
+        mc_config_module.CONTINUUM_PROCESSES_ENABLED = (
+                not self.plasma.continuum_interaction_species.empty)
+
     def estimate_t_inner(
         self, input_t_inner, luminosity_requested, t_inner_update_exponent=-0.5
     ):
@@ -356,6 +359,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             update_properties.update(
                 t_inner=next_t_inner,
                 j_blue_estimator=self.runner.j_blue_estimator,
+            )
+        if "gamma_estimator" in self.plasma.outputs_dict:
+            update_properties.update(
+                gamma_estimator=self.runner.photo_ion_estimator,
+                alpha_stim_estimator=self.runner.stim_recomb_estimator,
+                bf_heating_coeff_estimator=self.runner.bf_heating_estimator,
+                stim_recomb_cooling_coeff_estimator=self.runner.stim_recomb_cooling_estimator,
             )
 
         self.plasma.update(**update_properties)

@@ -17,6 +17,7 @@ from tardis.montecarlo.montecarlo_numba.interaction import (
     InteractionType,
     thomson_scatter,
     line_scatter,
+    continuum_event,
 )
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     LineInteractionType,
@@ -37,7 +38,8 @@ from tardis.io.logger import montecarlo_tracking as mc_tracker
 # @log_decorator
 @njit
 def single_packet_loop(
-    r_packet, numba_model, numba_plasma, estimators, vpacket_collection
+    r_packet, numba_model, numba_plasma, estimators, vpacket_collection,
+    continuum
 ):
     """
     Parameters
@@ -75,11 +77,14 @@ def single_packet_loop(
         r_packet_track_distance = [0.0]
 
     while r_packet.status == PacketStatus.IN_PROCESS:
+        #print('TRACE PACKET')
         distance, interaction_type, delta_shell = trace_packet(
-            r_packet, numba_model, numba_plasma, estimators
+            r_packet, numba_model, numba_plasma,
+            estimators, continuum
         )
 
         if interaction_type == InteractionType.BOUNDARY:
+            #print("BOUNDARY")
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
             )
@@ -88,8 +93,8 @@ def single_packet_loop(
             )
 
         elif interaction_type == InteractionType.LINE:
+            #print("LINE")
             r_packet.last_interaction_type = 2
-
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
             )
@@ -98,12 +103,14 @@ def single_packet_loop(
                 numba_model.time_explosion,
                 line_interaction_type,
                 numba_plasma,
+                continuum,
             )
             trace_vpacket_volley(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
 
         elif interaction_type == InteractionType.ESCATTERING:
+            #print("ESCATTERING")
             r_packet.last_interaction_type = 1
 
             move_r_packet(
@@ -114,6 +121,24 @@ def single_packet_loop(
             trace_vpacket_volley(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
+            #print("Done ESCATTERING")
+        elif interaction_type == InteractionType.CONTINUUM_PROCESS:
+            #print("CONTINUUM_PROCESS")
+            r_packet.last_interaction_type = InteractionType.CONTINUUM_PROCESS
+            move_r_packet(
+                r_packet, distance, numba_model.time_explosion, estimators
+            )
+            continuum_event(r_packet, numba_model.time_explosion,
+                    continuum, numba_plasma)
+
+            trace_vpacket_volley(
+                r_packet, vpacket_collection, numba_model, numba_plasma
+            )
+        else:
+            print("OTHER")
+            pass
+
+
         if mc_tracker.DEBUG_MODE:
             r_packet_track_nu.append(r_packet.nu)
             r_packet_track_mu.append(r_packet.mu)

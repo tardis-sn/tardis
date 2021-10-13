@@ -360,8 +360,10 @@ class FormalIntegrator(object):
         model = self.model
         runner = self.runner
 
+        #macro_ref = self.atomic_data.macro_atom_references
         macro_ref = self.atomic_data.macro_atom_references
-        macro_data = self.atomic_data.macro_atom_data
+        #macro_data = self.atomic_data.macro_atom_data
+        macro_data = self.original_plasma.macro_atom_data
 
         no_lvls = len(self.atomic_data.levels)
         no_shells = len(model.w)

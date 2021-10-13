@@ -15,6 +15,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     numba_plasma_initialize,
     Estimators,
     configuration_initialize,
+    create_continuum_class
 )
 
 from tardis.montecarlo import (
@@ -58,11 +59,16 @@ def montecarlo_radial1d(
         runner.nu_bar_estimator,
         runner.j_blue_estimator,
         runner.Edotlu_estimator,
+        runner.photo_ion_estimator,
+        runner.stim_recomb_estimator,
+        runner.bf_heating_estimator,
+        runner.stim_recomb_cooling_estimator,
+        runner.photo_ion_estimator_statistics,
     )
     packet_seeds = montecarlo_configuration.packet_seeds
 
     number_of_vpackets = montecarlo_configuration.number_of_vpackets
-
+    ContinuumObject = create_continuum_class(plasma)
     (
         v_packets_energy_hist,
         last_interaction_type,
@@ -89,6 +95,7 @@ def montecarlo_radial1d(
         show_progress_bars=show_progress_bars,
         no_of_packets=no_of_packets,
         total_iterations=total_iterations,
+        ContinuumObject
     )
 
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
@@ -138,6 +145,7 @@ def montecarlo_main_loop(
     show_progress_bars,
     no_of_packets,
     total_iterations,
+    ContinuumObject
 ):
     """
     This is the main loop of the MonteCarlo routine that generates packets
@@ -147,12 +155,15 @@ def montecarlo_main_loop(
     ----------
     packet_collection : PacketCollection
     numba_model : NumbaModel
+	numba_plasma : NumbaPlasma
     estimators : NumbaEstimators
     spectrum_frequency : astropy.units.Quantity
         frequency bins
     number_of_vpackets : int
         VPackets released per interaction
     packet_seeds : numpy.array
+	ContinuumObject : numba.experimental.jitclass.boxing.Continuum
+		Constructor method for local continuum jitclass
     """
     output_nus = np.empty_like(packet_collection.packets_output_nu)
     last_interaction_types = (
@@ -206,6 +217,7 @@ def montecarlo_main_loop(
                     total_iterations=total_iterations,
                 )
 
+
         if montecarlo_configuration.single_packet_seed != -1:
             seed = packet_seeds[montecarlo_configuration.single_packet_seed]
             np.random.seed(seed)
@@ -220,10 +232,16 @@ def montecarlo_main_loop(
             seed,
             i,
         )
+        continuum = ContinuumObject()
         vpacket_collection = vpacket_collections[i]
 
         loop = single_packet_loop(
-            r_packet, numba_model, numba_plasma, estimators, vpacket_collection
+            r_packet,
+            numba_model,
+            numba_plasma,
+            estimators,
+            vpacket_collection,
+            continuum
         )
         # if loop and 'stop' in loop:
         #     raise MonteCarloException
@@ -313,7 +331,7 @@ def montecarlo_main_loop(
 
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
-
+    #print("Finished Main Loop")
     return (
         v_packets_energy_hist,
         last_interaction_types,

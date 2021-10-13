@@ -14,6 +14,7 @@ from tardis.montecarlo.montecarlo_numba.estimators import (
     set_estimators,
     set_estimators_full_relativity,
     update_line_estimators,
+    update_bound_free_estimators,
 )
 from tardis.montecarlo.montecarlo_numba.opacities import calculate_tau_electron
 from tardis.montecarlo.montecarlo_numba.calculate_distances import (
@@ -28,20 +29,22 @@ from tardis.montecarlo import montecarlo_configuration
 from tardis.montecarlo.montecarlo_numba.numba_config import (
     CLOSE_LINE_THRESHOLD,
     ENABLE_FULL_RELATIVITY,
+    SIGMA_THOMSON,
 )
 
 
 class InteractionType(IntEnum):
     BOUNDARY = 1
     LINE = 2
-    ESCATTERING = 3
+    ESCATTERING = 4
+    CONTINUUM_PROCESS = 8
 
 
 class PacketStatus(IntEnum):
     IN_PROCESS = 0
     EMITTED = 1
     REABSORBED = 2
-
+    ADIABATIC_COOLING = 4
 
 rpacket_spec = [
     ("r", float64),
@@ -91,7 +94,13 @@ class RPacket(object):
 
 
 @njit(**njit_dict_no_parallel)
-def trace_packet(r_packet, numba_model, numba_plasma, estimators):
+def trace_packet(
+        r_packet,
+        numba_model,
+        numba_plasma,
+        estimators,
+        continuum
+):
     """
     Traces the RPacket through the ejecta and stops when an interaction happens (heart of the calculation)
 
@@ -126,15 +135,30 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     cur_electron_density = numba_plasma.electron_density[
         r_packet.current_shell_id
     ]
-    distance_electron = calculate_distance_electron(
-        cur_electron_density, tau_event
-    )
+    chi_e = cur_electron_density * SIGMA_THOMSON
 
     # Calculating doppler factor
     doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, numba_model.time_explosion
     )
     comov_nu = r_packet.nu * doppler_factor
+    continuum.calculate(comov_nu, r_packet.current_shell_id)
+    (
+        chi_bf,
+        chi_bf_contributions,
+        current_continua,
+        x_sect_bfs,
+        chi_ff,
+    ) = (
+            continuum.chi_bf_tot, 
+            continuum.chi_bf_contributions, 
+            continuum.current_continua, 
+            continuum.x_sect_bfs, 
+            continuum.chi_ff
+    )
+
+    chi_continuum = chi_e + chi_bf + chi_ff
+    distance_continuum = tau_event / chi_continuum
 
     cur_line_id = start_line_id  # initializing varibale for Numba
     # - do not remove
@@ -165,32 +189,28 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
             numba_model.time_explosion,
         )
 
-        # calculating the tau electron of how far the trace has progressed
-        tau_trace_electron = calculate_tau_electron(
-            cur_electron_density, distance_trace
-        )
+        # calculating the tau continuum of how far the trace has progressed
+        tau_trace_continuum = chi_continuum * distance_trace
 
         # calculating the trace
-        tau_trace_combined = tau_trace_line_combined + tau_trace_electron
+        tau_trace_combined = tau_trace_line_combined + tau_trace_continuum
 
-        if (
-            (distance_boundary <= distance_trace)
-            and (distance_boundary <= distance_electron)
-        ) and distance_trace != 0.0:
-            interaction_type = InteractionType.BOUNDARY  # BOUNDARY
-            r_packet.next_line_id = cur_line_id
-            distance = distance_boundary
-            break
+        distance = min(distance_trace, distance_boundary, distance_continuum)
 
-        if (
-            (distance_electron < distance_trace)
-            and (distance_electron < distance_boundary)
-        ) and distance_trace != 0.0:
-            interaction_type = InteractionType.ESCATTERING
-            # print('scattering')
-            distance = distance_electron
-            r_packet.next_line_id = cur_line_id
-            break
+        if distance_trace != 0:
+
+            if distance == distance_boundary:
+                interaction_type = InteractionType.BOUNDARY  # BOUNDARY
+                r_packet.next_line_id = cur_line_id
+                break
+            elif distance == distance_continuum:
+                zrand = np.random.random()
+                if zrand < chi_e / chi_continuum:
+                    interaction_type = InteractionType.ESCATTERING
+                else:
+                    interaction_type = InteractionType.CONTINUUM_PROCESS
+                r_packet.next_line_id = cur_line_id
+                break
 
         # Updating the J_b_lu and E_dot_lu
         # This means we are still looking for line interaction and have not
@@ -215,10 +235,13 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
             distance = distance_trace
             break
 
-        # Recalculating distance_electron using tau_event -
+        # Recalculating distance_continuum using tau_event -
         # tau_trace_line_combined
-        distance_electron = calculate_distance_electron(
-            cur_electron_density, tau_event - tau_trace_line_combined
+        # I don't think this needs to be updated
+        # since tau_event is already the result of the integral
+        # from the initial line
+        distance_continuum = (tau_event - tau_trace_line_combined) / (
+            chi_continuum
         )
 
     else:  # Executed when no break occurs in the for loop
@@ -227,15 +250,26 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
         if cur_line_id == (len(numba_plasma.line_list_nu) - 1):
             # Treatment for last line
             cur_line_id += 1
-        if distance_electron < distance_boundary:
-            distance = distance_electron
+        if distance_continuum < distance_boundary:
+            distance = distance_continuum
             interaction_type = InteractionType.ESCATTERING
-            # print('scattering')
+            # #print('scattering')
         else:
             distance = distance_boundary
             interaction_type = InteractionType.BOUNDARY
 
     # r_packet.next_line_id = cur_line_id
+    update_bound_free_estimators(
+        comov_nu,
+        r_packet.energy * doppler_factor,
+        r_packet.current_shell_id,
+        distance,
+        estimators,
+        numba_plasma.t_electrons[r_packet.current_shell_id],
+        x_sect_bfs,
+        current_continua,
+        numba_plasma.bf_threshold_list_nu,
+    )
 
     return distance, interaction_type, delta_shell
 

@@ -256,13 +256,25 @@ def trace_vpacket_volley(
         v_packet_nu = r_packet.nu * doppler_factor_ratio
         v_packet_energy = r_packet.energy * weight * doppler_factor_ratio
 
+        # Make sure to set the next line id
+        # such that the nu difference is greater than
+        # zero when calculating the distance to the line
+        # to account for the new doppler factor
+        comov_nu = v_packet_nu * v_packet_doppler_factor
+        next_line_id = r_packet.next_line_id
+        while comov_nu < numba_plasma.line_list_nu[next_line_id]:
+            next_line_id += 1
+            if next_line_id >= len(numba_plasma.line_list_nu):
+                next_line_id = len(numba_plasma.line_list_nu)
+                print(comov_nu)
+                raise Exception("Error: Vpacket is below the line list!")
         v_packet = VPacket(
             r_packet.r,
             v_packet_mu,
             v_packet_nu,
             v_packet_energy,
             r_packet.current_shell_id,
-            r_packet.next_line_id,
+            next_line_id,
             i,
         )
 

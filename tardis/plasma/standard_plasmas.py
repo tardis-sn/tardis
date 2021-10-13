@@ -170,6 +170,7 @@ def assemble_plasma(config, model, atom_data=None):
         kwargs.update(
             gamma_estimator=None,
             bf_heating_coeff_estimator=None,
+            stim_recomb_cooling_coeff_estimator=None,
             alpha_stim_estimator=None,
             volume=model.volume,
             r_inner=model.r_inner,
@@ -214,7 +215,8 @@ def assemble_plasma(config, model, atom_data=None):
         plasma_modules += non_nlte_properties
 
     if config.plasma.line_interaction_type in ("downbranch", "macroatom"):
-        plasma_modules += macro_atom_properties
+        if not config.plasma.continuum_interaction.species:
+            plasma_modules += macro_atom_properties
 
     if "delta_treatment" in config.plasma:
         property_kwargs[RadiationFieldCorrection] = dict(
