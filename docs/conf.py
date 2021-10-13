@@ -326,6 +326,21 @@ def to_html_ext(path):
     return os.path.splitext(path)[0] + ".html"
 
 
+def generate_tutorials_page(app):
+    notebooks = ""
+
+    for root, dirs, fnames in os.walk("io/"):
+        for fname in fnames:
+            if fname.endswith(".ipynb") and "checkpoint" not in fname:
+                notebooks += f"\n* :doc:`{root}/{fname[:-6]}`"
+
+    title = "Tutorials\n*********\n"
+    description = "The following pages contain the TARDIS tutorials:"
+
+    with open("tutorials.rst", mode="wt", encoding="utf-8") as f:
+        f.write(f"{title}\n{description}\n{notebooks}")
+
+
 def autodoc_skip_member(app, what, name, obj, skip, options):
     """Exclude specific functions/methods from the documentation"""
     exclusions = ("yaml_constructors", "yaml_implicit_resolvers")
@@ -355,8 +370,8 @@ def create_redirect_files(app, docname):
             with open(old_html_fpath, "w") as f:
                 f.write(new_content)
 
-
 def setup(app):
+    app.connect("builder-inited", generate_tutorials_page)
     app.connect("autodoc-skip-member", autodoc_skip_member)
     app.connect("build-finished", create_redirect_files)
 

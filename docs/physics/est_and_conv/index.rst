@@ -10,13 +10,13 @@ interactions as well as the presence of extra energy from the light. Additionall
 both affect each other on different ways) frequently occur in physics. The solution is finding a steady-state for
 the plasma properties; that is, the actual plasma will be in a state such that the plasma state will not change as
 light propagates through it, because the effects of the light on the plasma and the effects of the plasma on the
-light have been "balenced out."
+light have been "balanced out."
 
 One of TARDIS's main goals is to determine this plasma state (as we need the actual plasma properties in order to
 get an accurate spectrum). This is done in an iterative process. After each :ref:`Monte Carlo iteration
 <montecarlo>` (which sends light through the supernova ejecta), TARDIS uses objects called estimators to determine
 how the propagating light affects the plasma state, after which the plasma state is updated (as will be demonstrated
-in the eatimators page linked below). We do this many times, and attempt to have the plasma state converge
+in the estimators page linked below). We do this many times, and attempt to have the plasma state converge
 to the steady-state we are looking for. In fact, all but the last Monte Carlo iteration is used for this purpose
 (after which TARDIS will have the needed plasma state for its last iteration which calculates the spectrum).
 

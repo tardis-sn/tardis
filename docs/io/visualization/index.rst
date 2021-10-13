@@ -27,4 +27,5 @@ Jupyter Notebooks, making data exploration much easier.
     :maxdepth: 2
 
     using_widgets
-    Generating Widgets in a Notebook <generating_widgets>
+    Generating Custom Abundance Widget <abundance_widget>
+    Generating Data Exploration Widgets <generating_widgets>

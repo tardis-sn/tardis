@@ -40,7 +40,7 @@ def resolve_atom_data_fname(fname):
     if atom_data_name in atom_repo_config:
         raise IOError(
             f"Atom Data {fname} not found in path or in TARDIS data repo - it is available as download:\n"
-            f"from tardis.io.atom_data import download_atom_data\n"
+            f"from tardis.io.atom_data.util import download_atom_data\n"
             f"download_atom_data('{atom_data_name}')"
         )
 

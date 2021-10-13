@@ -30,6 +30,7 @@ LOGGING_LEVELS = {
     "CRITICAL": logging.CRITICAL,
 }
 DEFAULT_LOG_LEVEL = "CRITICAL"
+DEFAULT_SPECIFIC_STATE = False
 
 
 class FilterLog(object):
@@ -106,14 +107,20 @@ def logging_state(log_level, tardis_config, specific_log_level):
             )
 
     else:
+        # Adds empty `debug` section for the YAML
+        tardis_config["debug"] = {}
+
         if log_level:
             logging_level = log_level
         else:
-            tardis_config["debug"] = {"log_level": DEFAULT_LOG_LEVEL}
+            tardis_config["debug"]["log_level"] = DEFAULT_LOG_LEVEL
             logging_level = tardis_config["debug"]["log_level"]
 
-        if specific_log_level:
-            specific_log_level = specific_log_level
+        if not specific_log_level:
+            tardis_config["debug"][
+                "specific_log_level"
+            ] = DEFAULT_SPECIFIC_STATE
+            specific_log_level = tardis_config["debug"]["specific_log_level"]
 
     logging_level = logging_level.upper()
     if not logging_level in LOGGING_LEVELS:
