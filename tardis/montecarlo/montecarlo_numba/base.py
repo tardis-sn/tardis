@@ -91,11 +91,11 @@ def montecarlo_radial1d(
         runner.spectrum_frequency.value,
         number_of_vpackets,
         packet_seeds,
+        ContinuumObject,
         iteration=iteration,
         show_progress_bars=show_progress_bars,
         no_of_packets=no_of_packets,
         total_iterations=total_iterations,
-        ContinuumObject
     )
 
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
@@ -141,11 +141,11 @@ def montecarlo_main_loop(
     spectrum_frequency,
     number_of_vpackets,
     packet_seeds,
+    ContinuumObject,
     iteration,
     show_progress_bars,
     no_of_packets,
     total_iterations,
-    ContinuumObject
 ):
     """
     This is the main loop of the MonteCarlo routine that generates packets
