@@ -1301,8 +1301,8 @@ class CustomAbundanceWidget:
         )
 
         self.abundance_note = ipw.HTML(
-            description="(The following is the innermost abundances in "
-            "selected range.)",
+            description="(The following abundances are for the innermost "
+            "shell in selected range.)",
             layout=ipw.Layout(visibility="hidden"),
             style={"description_width": "initial"},
         )
