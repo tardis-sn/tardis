@@ -1436,6 +1436,10 @@ class CustomAbundanceWidget:
             formatted_v = pd.Series(self.data.velocity.value).apply(
                 lambda x: "%.3e" % x
             )
+            # Make sure velocity is within the boundary.
+            formatted_v[0] = self.data.velocity.value[0]
+            formatted_v[-1] = self.data.velocity.value[-1]
+
             density = self.data.density
             data.insert(0, "velocity", formatted_v)
             data.insert(1, "density", density)
