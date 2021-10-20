@@ -252,7 +252,11 @@ def trace_packet(
             cur_line_id += 1
         if distance_continuum < distance_boundary:
             distance = distance_continuum
-            interaction_type = InteractionType.ESCATTERING
+            zrand = np.random.random()
+            if zrand < chi_e / chi_continuum:
+                interaction_type = InteractionType.ESCATTERING
+            else:
+                interaction_type = InteractionType.CONTINUUM_PROCESS
             # #print('scattering')
         else:
             distance = distance_boundary
