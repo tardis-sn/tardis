@@ -42,4 +42,4 @@ When you make edits in TARDIS documentation and submit a PR, we can only see the
 
 .. note::
     
-    On GitHub, built documentation files (including ``.ipynb`` files built by Sphinx) can be a maximum of 100 MB. You can check the file sizes after a documentation build in ``docs/_build/html``. Note that image output in notebooks built by Sphinx are by default in SVG format. For detailed images, these images can be very large. If file size becomes a problem, you will need to change the image format for that notebook (see :ref:`here <https://docs.gcp.databricks.com/notebooks/visualizations/matplotlib.html>`).
+    On GitHub, built documentation files (including ``.ipynb`` files built by Sphinx) can be a maximum of 100 MB. You can check the file sizes after a documentation build in ``docs/_build/html``. Note that image output in notebooks built by Sphinx are by default in SVG format. For detailed images, these images can be very large. If file size becomes a problem, you will need to change the image format for that notebook (see `here <https://docs.gcp.databricks.com/notebooks/visualizations/matplotlib.html>`_).
