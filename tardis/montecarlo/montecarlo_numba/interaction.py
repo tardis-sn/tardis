@@ -65,10 +65,12 @@ def continuum_event(r_packet, time_explosion, continuum, numba_plasma):
             time_explosion
             )
     comov_energy = r_packet.energy * old_doppler_factor
+    comov_nu = r_packet.nu * old_doppler_factor # make sure frequency should be updated
     r_packet.energy = comov_energy * inverse_doppler_factor
+    r_packet.nu = comov_nu * inverse_doppler_factor
 
     destination_level_idx = continuum.determine_macro_activation_idx(
-            r_packet.nu, r_packet.current_shell_id)
+            comov_nu, r_packet.current_shell_id)
 
     macro_atom_event(destination_level_idx, 
             r_packet, time_explosion,
@@ -216,7 +218,7 @@ def free_free_emission(r_packet, time_explosion, numba_plasma, continuum):
             comov_nu,
             numba_plasma.line_list_nu
             ) 
-    r_packet.next_line_id = current_line_id
+    r_packet.next_line_id = current_line_id 
     
     if montecarlo_configuration.full_relativity:
         r_packet.mu = angle_aberration_CMF_to_LF(
@@ -321,6 +323,8 @@ def line_scatter(r_packet, time_explosion,
             r_packet, r_packet.next_line_id, time_explosion, numba_plasma
         )
     else:  # includes both macro atom and downbranch - encoded in the transition probabilities
+        comov_nu = r_packet.nu * old_doppler_factor # Is this necessary?
+        r_packet.nu = comov_nu * inverse_new_doppler_factor 
         activation_level_id = numba_plasma.line2macro_level_upper[
             r_packet.next_line_id
         ]
