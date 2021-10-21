@@ -330,13 +330,6 @@ redirects = [
     ("using/gui/index.rst", "using/visualization/index.rst"),
 ]
 
-from shutil import copyfile
-
-
-def to_html_ext(path):
-    """Convert extension in the file path to .html"""
-    return os.path.splitext(path)[0] + ".html"
-
 
 # -- Sphinx hook-ins ---------------------------------------------------------
 
@@ -345,6 +338,7 @@ import pathlib
 import requests
 import textwrap
 import warnings
+from shutil import copyfile
 
 
 def generate_ZENODO(app):
@@ -408,6 +402,11 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
     exclusions = ("yaml_constructors", "yaml_implicit_resolvers")
     exclude = name in exclusions
     return skip or exclude
+
+
+def to_html_ext(path):
+    """Convert extension in the file path to .html"""
+    return os.path.splitext(path)[0] + ".html"
 
 
 def create_redirect_files(app, docname):
