@@ -30,7 +30,6 @@ class QDataFrame(pd.DataFrame):
     @units.setter
     def units(self, new_units):
 
-        print(new_units)
         if new_units is None:
             return
         for column in self.columns:
