@@ -284,7 +284,7 @@ def trace_vpacket_volley(
             i,
         )
 
-        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma, continuum.copy())
+        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma, continuum)
 
         v_packet.energy *= math.exp(-tau_vpacket)
 
