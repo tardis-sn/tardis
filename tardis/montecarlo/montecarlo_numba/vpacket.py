@@ -284,10 +284,7 @@ def trace_vpacket_volley(
             i,
         )
 
-        # WARNING: This is not thread safe, assumes vpacket loop is single threaded
-        # If one would want to eventually change this to multithreaded,
-        #  switch continuum to continuum.copy()
-        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma, continuum)
+        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma, continuum.copy())
 
         v_packet.energy *= math.exp(-tau_vpacket)
 
