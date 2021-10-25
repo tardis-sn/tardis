@@ -1,7 +1,7 @@
 .. _tardis-example:
 
 ****************************
-Tardis Example Configuration
+TARDIS Example Configuration
 ****************************
 
 The simple and fast TARDIS setup is provided by ``tardis_example.yml`` which
