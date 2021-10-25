@@ -352,8 +352,6 @@ def create_continuum_class(plasma):
             ("current_continua", int64[:]),
             ("x_sect_bfs", float64[:]),
             ("chi_ff", float64),
-            ("nu", float64),
-            ("shell", int64)
     ]
     @jitclass(continuum_spec)
     class Continuum(object):
@@ -365,8 +363,6 @@ def create_continuum_class(plasma):
             self.current_continua = np.empty(0, dtype=int64)
             self.x_sect_bfs = np.empty(0, dtype=float64)
             self.chi_ff = 0.0
-            self.nu = 0.0
-            self.shell = 0
 
         def copy(self):
                 
@@ -382,9 +378,6 @@ def create_continuum_class(plasma):
 
             def calculate(self, nu, shell):
 
-                if nu != self.nu or self.shell != shell:
-                    self.nu = nu
-                    self.shell = shell
                     (
                     self.chi_bf_tot,
                     self.chi_bf_contributions,
