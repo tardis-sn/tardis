@@ -1,6 +1,7 @@
 import numpy as np
 from numba import cuda
 
+
 #Credit for this computation is https://github.com/numba/numba/blob/3fd158f79a12ac5276bc5a72c2404464487c91f0/numba/np/arraymath.py#L3542
 @cuda.jit(device=True)
 def cuda_searchsorted_value_right(arr, val):
