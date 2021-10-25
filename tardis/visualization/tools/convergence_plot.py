@@ -56,7 +56,7 @@ class ConvergencePlots(object):
     t_inner_luminosities_colors : str or list, optional
         String defining cmap for luminosity and inner boundary temperature plot.
         The list can be a list of colors in rgb, hex or css-names format as well.
-    export_cplots : bool, default: False, optional
+    export_convergence_plots : bool, default: False, optional
         If True, plots are displayed again using the `notebook_connected` renderer. This helps
         to display the plots in the documentation or in platforms like nbviewer.
 
@@ -162,6 +162,7 @@ class ConvergencePlots(object):
             },
             height=450,
             legend_title_text="Iterations",
+            legend_traceorder="reversed",
             margin=dict(
                 l=10, r=135, b=25, t=25, pad=0
             ),  # reduce whitespace surrounding the plot and increase right indentation to align with the t_inner and luminosity plot
@@ -315,13 +316,13 @@ class ConvergencePlots(object):
         customdata = len(x) * [
             "<br>"
             + "Emitted Luminosity: "
-            + f'{self.value_data["Absorbed"][-1]:.4g}'
+            + f'{self.value_data["Emitted"][-1]:.4g}'
             + "<br>"
             + "Requested Luminosity: "
             + f'{self.value_data["Requested"][-1]:.4g}'
             + "<br>"
             + "Absorbed Luminosity: "
-            + f'{self.value_data["Requested"][-1]:.4g}'
+            + f'{self.value_data["Absorbed"][-1]:.4g}'
         ]
 
         # add a radiation temperature vs shell velocity trace to the plasma plot
@@ -390,13 +391,13 @@ class ConvergencePlots(object):
                 4
             ].hovertemplate = "<b>%{y:.2f}%</b> at X = %{x:,.0f}"
 
-    def update(self, export_cplots=False, last=False):
+    def update(self, export_convergence_plots=False, last=False):
         """
         Update the convergence plots every iteration.
 
         Parameters
         ----------
-        export_cplots : bool, default: False, optional
+        export_convergence_plots : bool, default: False, optional
             Displays the convergence plots again using plotly's `notebook_connected` renderer.
             This helps to display the plots in notebooks when shared on platforms like nbviewer.
             Please see https://plotly.com/python/renderers/ for more information.
@@ -423,7 +424,7 @@ class ConvergencePlots(object):
 
         # the display function expects a Widget, while
         # fig.show() returns None, which causes the TraitError.
-        if export_cplots:
+        if export_convergence_plots:
             with suppress(TraitError):
                 display(
                     widgets.VBox(
