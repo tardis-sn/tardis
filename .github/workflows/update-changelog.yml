@@ -1,7 +1,7 @@
 # For more information on how to use this template please refer to:
 # http://tardis-sn.github.io/tardis/development/continuous_integration.html
 
-name: update-changelog
+name: changelog
 
 on:
   push:
@@ -17,8 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0
+          repository: tardis-sn/tardis
           token: ${{ secrets.BOT_TOKEN }}
+          fetch-depth: 0
 
       - name: Install github-changes
         run: sudo npm install -g github-changes
