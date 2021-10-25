@@ -91,11 +91,11 @@ def montecarlo_radial1d(
         runner.spectrum_frequency.value,
         number_of_vpackets,
         packet_seeds,
+        ContinuumObject,
         iteration=iteration,
         show_progress_bars=show_progress_bars,
         no_of_packets=no_of_packets,
         total_iterations=total_iterations,
-        ContinuumObject
     )
 
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
@@ -106,29 +106,21 @@ def montecarlo_radial1d(
 
     if montecarlo_configuration.VPACKET_LOGGING and number_of_vpackets > 0:
         runner.virt_packet_nus = np.concatenate(
-            np.array(virt_packet_nus)
-        ).ravel()
+            virt_packet_nus).ravel()
         runner.virt_packet_energies = np.concatenate(
-            np.array(virt_packet_energies)
-        ).ravel()
+            virt_packet_energies).ravel()
         runner.virt_packet_initial_mus = np.concatenate(
-            np.array(virt_packet_initial_mus)
-        ).ravel()
+            virt_packet_initial_mus).ravel()
         runner.virt_packet_initial_rs = np.concatenate(
-            np.array(virt_packet_initial_rs)
-        ).ravel()
+            virt_packet_initial_rs).ravel()
         runner.virt_packet_last_interaction_in_nu = np.concatenate(
-            np.array(virt_packet_last_interaction_in_nu)
-        ).ravel()
+            virt_packet_last_interaction_in_nu).ravel()
         runner.virt_packet_last_interaction_type = np.concatenate(
-            np.array(virt_packet_last_interaction_type)
-        ).ravel()
+            virt_packet_last_interaction_type).ravel()
         runner.virt_packet_last_line_interaction_in_id = np.concatenate(
-            np.array(virt_packet_last_line_interaction_in_id)
-        ).ravel()
+            virt_packet_last_line_interaction_in_id).ravel()
         runner.virt_packet_last_line_interaction_out_id = np.concatenate(
-            np.array(virt_packet_last_line_interaction_out_id)
-        ).ravel()
+            virt_packet_last_line_interaction_out_id).ravel()
     update_iterations_pbar(1)
 
 
@@ -141,11 +133,11 @@ def montecarlo_main_loop(
     spectrum_frequency,
     number_of_vpackets,
     packet_seeds,
+    ContinuumObject,
     iteration,
     show_progress_bars,
     no_of_packets,
     total_iterations,
-    ContinuumObject
 ):
     """
     This is the main loop of the MonteCarlo routine that generates packets
