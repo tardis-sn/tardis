@@ -1,9 +1,14 @@
 
 import pandas as pd
+from astropy import units as u
 
 class QSeries(pd.Series):
 
     _metadata = ["unit"]
+
+    def __init__(self, *args, unit=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.unit = unit
 
     @property
     def _constructor(self):
@@ -12,6 +17,10 @@ class QSeries(pd.Series):
     @property
     def _constructor_expanddim(self):
         return QDataFrame
+
+    def to(self, unit):
+        transformed_values = self.values * self.unit.to(unit)
+        return QSeries(data=transformed_values, unit=unit)
 
 class QDataFrame(pd.DataFrame):
     # normal properties
@@ -70,3 +79,12 @@ class QDataFrame(pd.DataFrame):
         if hasattr(other, 'units'):
             result.units = other.units
         return result
+
+    def _repr_html_(self) -> str:
+        repr_html = super()._repr_html_()
+        for col_name, col_unit in self.units.items():
+            if col_unit is None:
+                continue
+            col_unit_latex = col_unit.to_string('latex')
+            repr_html = repr_html.replace(f'<th>{col_name}</th>', f'<th>{col_name} [ {col_unit_latex} ]</th>')
+        return repr_html
