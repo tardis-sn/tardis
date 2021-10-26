@@ -344,14 +344,6 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
             transition_probabilities, self.block_references
         )
 
-    def _new_normalize_transition_probabilities(self, transition_probabilites):
-        for i, start_id in enumerate(self.block_references[:-1]):
-            end_id = self.block_references[i + 1]
-            block = transition_probabilites[start_id:end_id]
-            transition_probabilites[start_id:end_id] *= 1 / ne.evaluate(
-                "sum(block, 0)"
-            )
-
     @staticmethod
     def _get_macro_atom_data(atomic_data):
         try:
