@@ -2,7 +2,6 @@ import logging
 
 import numpy as np
 import pandas as pd
-import numexpr as ne
 from astropy import units as u
 from tardis import constants as const
 from numba import jit, prange
@@ -89,7 +88,9 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
             metastability, lines_upper_level_index
         )
 
-        stimulated_emission_factor = 1 - ((g_lower * n_upper) / (g_upper * n_lower))
+        stimulated_emission_factor = 1 - (
+            (g_lower * n_upper) / (g_upper * n_lower)
+        )
         stimulated_emission_factor[n_lower == 0.0] = 0.0
         stimulated_emission_factor[
             np.isneginf(stimulated_emission_factor)
