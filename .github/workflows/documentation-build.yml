@@ -34,7 +34,7 @@ jobs:
 
       - name: Build Sphinx Documentation
         shell: bash -l {0}
-        run: cd docs/; make html
+        run: cd docs/; make html CORES=auto
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
