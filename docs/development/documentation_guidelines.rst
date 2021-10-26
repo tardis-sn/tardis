@@ -31,7 +31,7 @@ To build TARDIS documentation locally, use the following commands:
 
     - If you're working on a fresh local copy of the TARDIS repository, you might need to do ``python setup.py develop`` before executing these commands.
     - Use ``DISABLE_NBSPHINX=1 make html`` to disable notebook rendering (fast mode).
-    - Use ``make html CORES=<number of cores>`` to have the documentation build in parallel. Using ``make html CORES=auto`` uses all of your device's cores.
+    - Use ``make html CORES=<number of cores>`` to have the documentation build in parallel. Using ``make html CORES=auto`` instructs Sphinx to use all of your device's cores.
 
 After running this command, you can find the built docs (i.e. HTML webpages) in ``docs/_build/html``. Open the ``index.html`` in your browser to see how the documentation looks like with your edits. Navigate to page where you made changes or file that you added to check whether it looks as intended or not.
 
