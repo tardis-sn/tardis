@@ -29,7 +29,6 @@ H_CGS = 6.62606957e-27
 class IntegrationError(Exception):
     pass
 
-
 #Was parallel
 @cuda.jit
 def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N, L, pp, exp_tau, I_nu, z, shell_id):
