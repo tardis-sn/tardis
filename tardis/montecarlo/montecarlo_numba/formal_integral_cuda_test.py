@@ -139,21 +139,22 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
         size_z = populate_z_cuda(r_inner, r_outer, time_explosion, p, z_thread, shell_id_thread) # check returns #int64
         # initialize I_nu
         if p <= R_ph:
-            print("nu_idx", nu_idx)
-            print("I_nu_thread", I_nu_thread)
-            print("I_nu_thread[p_idx]:", I_nu_thread[p_idx])
-            print("nu:", nu)
-            print("z_thread", z_thread)
-            print("z_thread[0]:", z_thread[0])
-            print("iT:", iT, "\n")
+            #print("nu_idx", nu_idx)
+            #print("I_nu_thread", I_nu_thread)
+            #print("I_nu_thread[p_idx]:", I_nu_thread[p_idx])
+            #print("nu:", nu)
+            #print("type(nu)", type(nu))
+            #print("z_thread", z_thread)
+            #print("z_thread[0]:", z_thread[0])
+            #print("iT:", iT, "\n")
             I_nu_thread[p_idx] = intensity_black_body_cuda(nu * z_thread[0], iT)
         else:
             I_nu_thread[p_idx] = 0
-        print("After doing the if statment")
-        print("I_nu_thread[p_idx]:", I_nu_thread[p_idx])
-        print("nu:", nu)
-        print("z_thread[0]:", z_thread[0])
-        print("iT:", iT, "\n\n")
+        #print("After doing the if statment")
+        #print("I_nu_thread[p_idx]:", I_nu_thread[p_idx])
+        #print("nu:", nu)
+        #print("z_thread[0]:", z_thread[0])
+        #print("iT:", iT, "\n\n")
         # find first contributing lines
         nu_start = nu * z_thread[0]                                       #float64
         nu_end = nu * z_thread[1]                                         #float64
@@ -303,7 +304,7 @@ class NumbaFormalIntegrator(object):
                                           self.model.time_explosion,
                                           self.plasma.line_list_nu,
                                           iT, 
-                                          inu, 
+                                          inu.value,
                                           inu_size, 
                                           att_S_ul, 
                                           Jred_lu, 
