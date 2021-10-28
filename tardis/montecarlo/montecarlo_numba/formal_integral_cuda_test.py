@@ -90,7 +90,7 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
     #The grid must be composed in respect to length of inu_size
     #for nu_idx in prange(inu_size):
     nu_idx = cuda.grid(1)
-    
+    print(nu_idx)
     
     #I_nu = np.zeros(N, dtype=np.float64)                       #array(float64, 1d, C)
     #z = np.zeros(2 * size_shell, dtype=np.float64)             #array(float64, 1d, C)
@@ -129,7 +129,7 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
 
     nu = inu[nu_idx]                                           #float64
     
-    
+    print(f"From thread {nu_idx},N={N}")
     # now loop over discrete values along line
     for p_idx in range(1, N):
         escat_contrib = 0.0                                           #Literal[int](0)
@@ -187,7 +187,6 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
         #Then just do a searchsorted for each value, and then do size-line - that value. 
         
         # loop over all interactions 
-       
         for i in range(size_z - 1):
             escat_op = electron_density[int(shell_id_thread[i])] * SIGMA_THOMSON #float64
             nu_end = nu * z_thread[1+i]                                        #float64
@@ -222,7 +221,7 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
                 I_nu_thread[p_idx] *= (exp_tau[pexp_tau])
                
                 I_nu_thread[p_idx] += att_S_ul[patt_S_ul] 
-                """
+                
                 # // reset e-scattering opacity
                 escat_contrib = 0.0                                          #Should still be a float64
                 zstart = zend                                              #float64
@@ -248,10 +247,11 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
             pJblue_lu += direction
         I_nu_thread[p_idx] *= p #multiply by float64 at this index
     #cuda.atomic.add(L, nu_idx, 8 * M_PI * M_PI * trapezoid_integration_cuda(I_nu, R_max / N))
-    #L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration_cuda(I_nu, R_max / N)
-    """
+    L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration_cuda(I_nu_thread, R_max / N)
     
-    cuda.atomic.add(L, nu_idx, 5)
+    #L[nu_idx] += 5
+    #cuda.atomic.add(L, nu_idx, 5)
+    
 
 
 class NumbaFormalIntegrator(object):
