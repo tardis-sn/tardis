@@ -19,7 +19,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import \
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
 #NEW
-from tardis.montecarlo.montecarlo_numba.formal_integral_functions_cuda import cuda_searchsorted_value_right
+from tardis.montecarlo.montecarlo_numba.formal_integral_cuda_functions import cuda_searchsorted_value_right
 
 C_INV = 3.33564e-11
 M_PI = np.arccos(-1)
@@ -139,10 +139,21 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
         size_z = populate_z_cuda(r_inner, r_outer, time_explosion, p, z_thread, shell_id_thread) # check returns #int64
         # initialize I_nu
         if p <= R_ph:
+            print("nu_idx", nu_idx)
+            print("I_nu_thread", I_nu_thread)
+            print("I_nu_thread[p_idx]:", I_nu_thread[p_idx])
+            print("nu:", nu)
+            print("z_thread", z_thread)
+            print("z_thread[0]:", z_thread[0])
+            print("iT:", iT, "\n")
             I_nu_thread[p_idx] = intensity_black_body_cuda(nu * z_thread[0], iT)
         else:
             I_nu_thread[p_idx] = 0
-
+        print("After doing the if statment")
+        print("I_nu_thread[p_idx]:", I_nu_thread[p_idx])
+        print("nu:", nu)
+        print("z_thread[0]:", z_thread[0])
+        print("iT:", iT, "\n\n")
         # find first contributing lines
         nu_start = nu * z_thread[0]                                       #float64
         nu_end = nu * z_thread[1]                                         #float64
@@ -259,10 +270,11 @@ class NumbaFormalIntegrator(object):
         
         print("Debugging")
         print("-"*40)
-        print(iT)
+        print("iT", iT)
         print(type(iT))
-        print(Jred_lu.shape)
-        print(Jblue_lu.shape)
+        print("Jred_lu.shape", Jred_lu.shape)
+        print("Jblue_lu.shape", Jblue_lu.shape)
+        print("inu_size", inu_size)
         #print(iT.shape)
         # Initialize the output which is shared among threads
         L = np.zeros(inu_size, dtype=np.float64)                   #array(float64, 1d, C)
@@ -280,9 +292,10 @@ class NumbaFormalIntegrator(object):
         z = np.zeros((inu_size, 2 * size_shell), dtype=np.float64)             #array(float64, 1d, C)
         shell_id = np.zeros((inu_size, 2 * size_shell), dtype=np.int64)        #array(int64, 1d, C)
         
-        print(L)
+        print("L", L)
         THREADS_PER_BLOCK = 32
         blocks_per_grid = (inu_size // THREADS_PER_BLOCK) + 1
+        print("Blocks, threads", blocks_per_grid, THREADS_PER_BLOCK)
         
         numba_formal_integral_cuda[blocks_per_grid, THREADS_PER_BLOCK](
                                           self.model.r_inner,
