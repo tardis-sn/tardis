@@ -297,5 +297,10 @@ factor of .8, etc.
 
 CSVY Model Tutorial
 -------------------
+Here, the following sample CSVY Model is used: 
+.. literalinclude:: csvy_model/csvy_model_to_test_abundances.csvy
 
-Coming soon!
+Here is what a configuration file using this model would look like (this is built off the :ref:`tardis-example` ):
+.. literalinclude:: csvy_model/tardis_example_csvy_model.yml
+        :language: yaml
+One can then use the configuration file as one normally would! (See the :doc:`quickstart guide <../../quickstart/quickstart>` to use a configuration file)
