@@ -306,4 +306,4 @@ Here is what a configuration file using this model would look like (this is buil
 .. literalinclude:: csvy_models/tardis_example_csvy_model.yml
         :language: yaml
 
-One can then use the configuration file as one normally would! (See the :doc:`quickstart guide <../../quickstart/quickstart>` to see how to use a configuration file)
+One can then use the configuration file as one normally would! (For new users, see the :ref:`quickstart guide <../../quickstart/quickstart>` to see how to use a configuration file. See also the :ref:`Custom_TARDIS_Model_Tutorial`.)
