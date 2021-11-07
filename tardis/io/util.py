@@ -423,7 +423,7 @@ def download_from_url(url, dst):
     return file_size
 
 
-def config_iteratation(dictionary):
+def config_iteration(dictionary):
     log_string = ""
     for key, value in dictionary.items():
         log_string += f"{key}: {value}\n\t  "

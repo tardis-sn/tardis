@@ -15,7 +15,7 @@ from tardis.io.model_reader import (
 )
 from tardis.io.config_validator import validate_dict
 from tardis.io.config_reader import Configuration
-from tardis.io.util import HDFWriterMixin, config_iteratation
+from tardis.io.util import HDFWriterMixin, config_iteration
 from tardis.io.decay import IsotopeAbundances
 from tardis.model.density import HomologousDensity
 from pyne import nucname
@@ -545,7 +545,7 @@ class Radial1DModel(HDFWriterMixin):
             abundance, isotope_abundance = read_uniform_abundances(
                 abundances_section, no_of_shells
             )
-            log_string = config_iteratation(abundances_section)
+            log_string = config_iteration(abundances_section)
             logger.debug(f"Abundance of elements : \n\t  {log_string}")
 
         elif abundances_section.type == "file":

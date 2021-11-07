@@ -3,7 +3,7 @@ from astropy import units as u
 import logging
 
 from tardis.util.base import quantity_linspace
-from tardis.io.util import HDFWriterMixin, config_iteratation
+from tardis.io.util import HDFWriterMixin, config_iteration
 
 logger = logging.getLogger(__name__)
 
@@ -149,7 +149,7 @@ class HomologousDensity(HDFWriterMixin):
             time_0 = d_conf.get("time_0", time_explosion)
         else:
             raise ValueError(f"Unrecognized density type " f"'{d_conf.type}'")
-        log_string = config_iteratation(d_conf)
+        log_string = config_iteration(d_conf)
         logger.debug(f"Density config:\n\t  {log_string}")
         return cls(density_0, time_0)
 

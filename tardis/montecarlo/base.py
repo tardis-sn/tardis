@@ -12,7 +12,7 @@ from scipy.special import zeta
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
 from tardis.util.base import quantity_linspace
-from tardis.io.util import HDFWriterMixin, config_iteratation
+from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo import packet_source as source
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
 from tardis.montecarlo import montecarlo_configuration as mc_config_module

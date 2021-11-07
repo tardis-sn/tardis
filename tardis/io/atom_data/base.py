@@ -169,7 +169,7 @@ class AtomData(object):
                 try:
                     dataframes[name] = store[name]
                 except KeyError:
-                    logger.debug("Dataframe does not contain {name} column")
+                    logger.debug(f"Dataframe does not contain [{name}] column")
                     nonavailable.append(name)
 
             atom_data = cls(**dataframes)

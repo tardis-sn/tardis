@@ -10,7 +10,7 @@ from tardis import model
 from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
-from tardis.io.util import HDFWriterMixin, config_iteratation
+from tardis.io.util import HDFWriterMixin
 from tardis.io.config_reader import ConfigurationError
 from tardis.util.base import is_notebook
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
@@ -706,8 +706,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             logger.debug(
                 "Setting up the montecarlo runner with runner configuration"
             )
-            # log_string = config_iteratation(config.montecarlo)
-            # logger.debug(f"{log_string}")
             runner = MontecarloRunner.from_config(
                 config,
                 packet_source=packet_source,

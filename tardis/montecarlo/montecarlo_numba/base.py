@@ -78,7 +78,7 @@ def montecarlo_radial1d(
 
     logger.debug("Running the main loop for the simulation")
     logger.debug(
-        "This is a NJIT (Numba Just In Time) complied function,\n\tFor detailed logs about the montecarlo main loop, please configure the montecarlo numba logger\n"
+        "This is a NJIT (Numba Just In Time) complied function,\n\tFor detailed logs about the montecarlo main loop, please configure the montecarlo numba logger (Currently Work In Progress)\n"
     )
     (
         v_packets_energy_hist,
