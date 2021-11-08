@@ -22,20 +22,24 @@ Building documentation locally
 
 To build TARDIS documentation locally, use the following commands:
 
-.. code ::
+.. code::
 
     cd docs
     make html
 
-.. note :: 
+.. note:: 
 
     - If you're working on a fresh local copy of the TARDIS repository, you might need to do ``python setup.py develop`` before executing these commands.
     - Use ``DISABLE_NBSPHINX=1 make html`` to disable notebook rendering (fast mode).
 
-After running this command, you can find the built docs (i.e. HTML webpages) in ``docs/_build``. Open the ``index.html`` in your browser to see how the documentation looks like with your edits. Navigate to page where you made changes or file that you added to check whether it looks as intended or not.
+After running this command, you can find the built docs (i.e. HTML webpages) in ``docs/_build/html``. Open the ``index.html`` in your browser to see how the documentation looks like with your edits. Navigate to page where you made changes or file that you added to check whether it looks as intended or not.
 
 
 Sharing the built documentation in your PR
 ==========================================
 
 When you make edits in TARDIS documentation and submit a PR, we can only see the changes in source files in GitHub files diff, but not the built documentation (webpages). This is usually fine unless you have made changes in the way documentation pages are structured or anything that affects lot of files. In such cases, you should share the preview of documentation with your changes by building it online. The steps to do this are described :ref:`here <doc-preview>`. This will help us (the reviewers of your PR) to check how the documentation will look once your PR is merged.
+
+.. note::
+    
+    On GitHub, built documentation files (including ``.ipynb`` files built by Sphinx) can be a maximum of 100 MB. You can check the file sizes after a documentation build in ``docs/_build/html``. Note that image output in notebooks built by Sphinx are by default in SVG format. For detailed images, these images can be very large. If file size becomes a problem, you will need to change the image format for that notebook by placing ``%config InlineBackend.figure_formats='png2x'`` in a `hidden cell <https://nbsphinx.readthedocs.io/en/0.8.7/hidden-cells.html>`_ at the beginning of the notebook.
