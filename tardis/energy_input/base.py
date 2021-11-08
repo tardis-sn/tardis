@@ -397,4 +397,9 @@ def main_gamma_ray_loop(num_photons, model):
     # Energy is eV/s/cm^-3
     energy_df = pd.DataFrame(data=energy_df_rows, columns=["energy"])
 
-    return (energy_df, energy_plot_df, escape_energy)
+    return (
+        energy_df,
+        energy_plot_df,
+        escape_energy,
+        scaled_decay_rate_per_shell,
+    )
