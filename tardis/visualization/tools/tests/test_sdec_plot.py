@@ -1,5 +1,4 @@
 """Tests for SDEC Plots."""
-from numpy.lib.function_base import delete
 from tardis.base import run_tardis
 from tardis.io.config_reader import Configuration
 import pytest
@@ -8,9 +7,7 @@ import numpy as np
 from copy import deepcopy
 from tardis.visualization.tools.sdec_plot import SDECData, SDECPlotter
 import astropy.units as u
-from tempfile import NamedTemporaryFile
 import h5py
-import os
 
 
 @pytest.fixture(scope="module")
@@ -22,7 +19,7 @@ def config_verysimple(atomic_dataset):
 
 
 @pytest.fixture(scope="module")
-def simulation_simple( config_verysimple, atomic_dataset):
+def simulation_simple(config_verysimple, atomic_dataset):
     """Instantiate SDEC plotter using a simple simulation model."""
     # Setup simulation configuration using config_verysimple and
     # override properties in such a way to make the simulation run faster
@@ -41,12 +38,11 @@ def simulation_simple( config_verysimple, atomic_dataset):
     return sim
 
 
-
 class TestSDECPlotter:
     @pytest.fixture(scope="class")
     def plotter(self, simulation_simple):
         return SDECPlotter.from_simulation(simulation_simple)
-         
+
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
     @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA])
     @pytest.mark.parametrize("distance", [10 * u.Mpc, 50 * u.Mpc])
@@ -63,19 +59,19 @@ class TestSDECPlotter:
         nelements,
         species,
     ):
-        
+
         # each group is a different combination of arguments
         subgroup_name = request.node.callspec.id
         ref_data_path = ""
         # TODO: get refdata path
-        
+
         if request.config.getoption("--generate-reference"):
             plotter._parse_species_list(species)
             plotter._calculate_plotting_data(
                 packets_mode, packet_wvl_range, distance, nelements
             )
             # TODO: delete object at ref_data_path
-            
+
             with h5py.File("sdec_ref.h5", "a") as file:
                 group = file.create_group(subgroup_name)
                 group.attrs["packet_wvl_range"] = packet_wvl_range.cgs.value
@@ -85,7 +81,8 @@ class TestSDECPlotter:
                 group.attrs["species"] = species
 
                 group.create_dataset(
-                    "plot_frequency_bins", data=plotter.plot_frequency_bins.cgs.value
+                    "plot_frequency_bins",
+                    data=plotter.plot_frequency_bins.cgs.value,
                 )
                 group.create_dataset(
                     "plot_wavelength", data=plotter.plot_wavelength.cgs.value
@@ -110,33 +107,59 @@ class TestSDECPlotter:
                 group.create_dataset(
                     "species", data=plotter.species.astype(np.float64)
                 )
-                pytest.skip(f"SDEC test data saved at: {ref_data_path}", allow_module_level=True)
+                pytest.skip(
+                    f"SDEC test data saved at: {ref_data_path}",
+                    allow_module_level=True,
+                )
         else:
             # use the subgroup id to iterate over the hdf file
             plotter._parse_species_list(species)
             plotter._calculate_plotting_data(
                 packets_mode, packet_wvl_range, distance, nelements=nelements
             )
-            
+
             with h5py.File("sdec_ref.h5", "r") as file:
                 group = file[subgroup_name]
-            
-                np.testing.assert_allclose(plotter.plot_frequency_bins.cgs.value, group.get("plot_frequency_bins")[()])
-                np.testing.assert_allclose(plotter.plot_wavelength.cgs.value, group.get("plot_wavelength")[()])
-                np.testing.assert_allclose(plotter.plot_frequency.cgs.value, group.get("plot_frequency")[()])
-                np.testing.assert_allclose(plotter.modeled_spectrum_luminosity.cgs.value, group.get("modeled_spectrum_luminosity")[()])
-                
-                
-                np.testing.assert_allclose(plotter.packet_wvl_range_mask, group.get("packet_wvl_range_mask")[()])
-                np.testing.assert_allclose(plotter.absorption_species, group.get("absorption_species")[()])
-                np.testing.assert_allclose(plotter.emission_species, group.get("emission_species")[()])
-                np.testing.assert_allclose(plotter.species.astype(np.float64), group.get("species")[()])
-                
+
+                np.testing.assert_allclose(
+                    plotter.plot_frequency_bins.cgs.value,
+                    group.get("plot_frequency_bins")[()],
+                )
+                np.testing.assert_allclose(
+                    plotter.plot_wavelength.cgs.value,
+                    group.get("plot_wavelength")[()],
+                )
+                np.testing.assert_allclose(
+                    plotter.plot_frequency.cgs.value,
+                    group.get("plot_frequency")[()],
+                )
+                np.testing.assert_allclose(
+                    plotter.modeled_spectrum_luminosity.cgs.value,
+                    group.get("modeled_spectrum_luminosity")[()],
+                )
+
+                np.testing.assert_allclose(
+                    plotter.packet_wvl_range_mask,
+                    group.get("packet_wvl_range_mask")[()],
+                )
+                np.testing.assert_allclose(
+                    plotter.absorption_species,
+                    group.get("absorption_species")[()],
+                )
+                np.testing.assert_allclose(
+                    plotter.emission_species, group.get("emission_species")[()]
+                )
+                np.testing.assert_allclose(
+                    plotter.species.astype(np.float64), group.get("species")[()]
+                )
+
                 if isinstance(plotter.lum_to_flux, u.quantity.Quantity):
-                    assert plotter.lum_to_flux.cgs.value == group.get("lum_to_flux")[()]
+                    assert (
+                        plotter.lum_to_flux.cgs.value
+                        == group.get("lum_to_flux")[()]
+                    )
                 else:
                     assert plotter.lum_to_flux == group.get("lum_to_flux")[()]
-                
 
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
     @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA])
