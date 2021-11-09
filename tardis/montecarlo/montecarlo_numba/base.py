@@ -86,7 +86,7 @@ def montecarlo_radial1d(
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
-        tracked_rpacket,
+        rpacket_collections,
     ) = montecarlo_main_loop(
         packet_collection,
         numba_model,
@@ -137,7 +137,11 @@ def montecarlo_radial1d(
 
     # Condition for Checking if R Packet Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
-        tracked_df = create_tracked_rpacket_df(tracked_rpacket, iteration)
+        runner.rpacket_collections = rpacket_collections
+        tracked_df = create_tracked_rpacket_df(
+            rpacket_collections,
+            iteration,
+        )
 
         runner.rpacket_tracker = track_rpacket_dataframe(
             runner.rpacket_tracker, tracked_df
@@ -218,7 +222,9 @@ def montecarlo_main_loop(
     virt_packet_last_line_interaction_out_id = []
 
     # Configuring the Tracking for R_Packets
-    tracked_rpacket = RPacketTracker()
+    rpacket_collections = List()
+    for i in range(len(output_nus)):
+        rpacket_collections.append(RPacketTracker())
 
     for i in prange(len(output_nus)):
         if show_progress_bars:
@@ -245,7 +251,9 @@ def montecarlo_main_loop(
             seed,
             i,
         )
+
         vpacket_collection = vpacket_collections[i]
+        rpacket_collection = rpacket_collections[i]
 
         single_packet_loop(
             r_packet,
@@ -253,7 +261,7 @@ def montecarlo_main_loop(
             numba_plasma,
             estimators,
             vpacket_collection,
-            tracked_rpacket,
+            rpacket_collection,
         )
 
         output_nus[i] = r_packet.nu
@@ -340,7 +348,8 @@ def montecarlo_main_loop(
             )
 
     if montecarlo_configuration.RPACKET_TRACKING:
-        tracked_rpacket.finalize_array()
+        for i in range(len(rpacket_collections)):
+            rpacket_collections[i].finalize_array()
 
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
@@ -359,19 +368,30 @@ def montecarlo_main_loop(
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
-        tracked_rpacket,
+        rpacket_collections,
     )
 
 
-def create_tracked_rpacket_df(tracked_rpacket, iteration):
-    seed = tracked_rpacket.seed
-    index = tracked_rpacket.index
-    status = tracked_rpacket.status
-    r = tracked_rpacket.r
-    nu = tracked_rpacket.nu
-    mu = tracked_rpacket.mu
-    energy = tracked_rpacket.energy
-    shell_id = tracked_rpacket.shell_id
+def create_tracked_rpacket_df(rpacket_collections, iteration):
+    for i in range(len(rpacket_collections)):
+        if i == 0:
+            seed = rpacket_collections[0].seed
+            index = rpacket_collections[0].index
+            status = rpacket_collections[0].status
+            r = rpacket_collections[0].r
+            nu = rpacket_collections[0].nu
+            mu = rpacket_collections[0].mu
+            energy = rpacket_collections[0].energy
+            shell_id = rpacket_collections[0].shell_id
+
+        seed = [*seed, *rpacket_collections[i].seed]
+        index = [*index, *rpacket_collections[i].index]
+        status = [*status, *rpacket_collections[i].status]
+        r = [*r, *rpacket_collections[i].r]
+        nu = [*nu, *rpacket_collections[i].nu]
+        mu = [*mu, *rpacket_collections[i].mu]
+        energy = [*energy, *rpacket_collections[i].energy]
+        shell_id = [*shell_id, *rpacket_collections[i].shell_id]
 
     vals = [
         index,
@@ -397,6 +417,7 @@ def create_tracked_rpacket_df(tracked_rpacket, iteration):
     rpacket_tracked_df = pd.DataFrame(
         zip(*vals), columns=columns_name, dtype=object
     )
+
     rpacket_tracked_df["Iteration"] = iteration
     return rpacket_tracked_df
 

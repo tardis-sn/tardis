@@ -408,6 +408,7 @@ class RPacketTracker(object):
         self.nu = self.nu[: self.interact_id]
         self.mu = self.mu[: self.interact_id]
         self.energy = self.energy[: self.interact_id]
+        self.shell_id = self.shell_id[: self.interact_id]
 
 
 estimators_spec = [
