@@ -44,7 +44,7 @@ jobs:
 
       - name: Build documentation
         shell: bash -l {0}
-        run: cd docs/; make html
+        run: cd docs/; make html CORES=auto
 
       - name: Extract branch name
         shell: bash
