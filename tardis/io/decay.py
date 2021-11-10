@@ -6,10 +6,10 @@ from astropy import units as u
 class IsotopeAbundances(pd.DataFrame):
     """[summary]
 
-        Parameters
-        ----------
-        time_0 : astropy.units.Quantity
-            time where the given isotopes are defined
+    Parameters
+    ----------
+    time_0 : astropy.units.Quantity
+        time where the given isotopes are defined
     """
 
     _metadata = ["time_0"]
