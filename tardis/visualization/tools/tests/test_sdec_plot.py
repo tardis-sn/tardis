@@ -38,38 +38,70 @@ def simulation_simple(config_verysimple, atomic_dataset):
     return sim
 
 
-class TestSDECPlotter:
+class TestSDECPlotter(object):
+    @classmethod
+    @pytest.fixture(scope="class", autouse=True)
+    def setup(self, request):
+        cls = type(self)
+        cls.hdf_file = h5py.File("sdec_ref.h5", "a")
+        cls.save = False
+        cls.ref_data_path = ""
+        if request.config.getoption("--generate-reference"):
+            cls.save = True
+
     @pytest.fixture(scope="class")
     def plotter(self, simulation_simple):
         return SDECPlotter.from_simulation(simulation_simple)
+
+    @pytest.mark.parametrize("species", [["Si II", "Ca II", "C", "Fe I-V"]])
+    def test_parse_species_list(self, request, plotter, species):
+        plotter._parse_species_list(species)
+        subgroup_name = request.node.callspec.id
+        if self.save:
+            group = self.hdf_file.create_group(subgroup_name)
+            group.create_dataset(
+                "_full_species_list", data=plotter._full_species_list
+            )
+            group.create_dataset("_species_list", data=plotter._species_list)
+            group.create_dataset("_keep_colour", data=plotter._keep_colour)
+            # pytest skip this test?
+        else:
+            group = self.hdf_file[subgroup_name]
+            assert (
+                plotter._full_species_list
+                == group.get("_full_species_list").asstr()[()].tolist()
+            )
+            np.testing.assert_allclose(
+                np.asarray(plotter._species_list),
+                group.get("_species_list")[()],
+            )
+            np.testing.assert_allclose(
+                np.asarray(plotter._keep_colour), group.get("_keep_colour")[()]
+            )
 
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
     @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA])
     @pytest.mark.parametrize("distance", [10 * u.Mpc, 50 * u.Mpc])
     @pytest.mark.parametrize("nelements", [1, 3])
-    @pytest.mark.parametrize("species", [["Si II", "Ca II", "C", "Fe I-V"]])
     def test_calculate_plotting_data(
         self,
         request,
-        simulation_simple,
         plotter,
         packets_mode,
         packet_wvl_range,
         distance,
         nelements,
-        species,
     ):
+        plotter._calculate_plotting_data(
+            packets_mode, packet_wvl_range, distance, nelements
+        )
 
         # each group is a different combination of arguments
         subgroup_name = request.node.callspec.id
         ref_data_path = ""
         # TODO: get refdata path
 
-        if request.config.getoption("--generate-reference"):
-            plotter._parse_species_list(species)
-            plotter._calculate_plotting_data(
-                packets_mode, packet_wvl_range, distance, nelements
-            )
+        if self.save:
             # TODO: delete object at ref_data_path
 
             with h5py.File("sdec_ref.h5", "a") as file:
@@ -78,7 +110,6 @@ class TestSDECPlotter:
                 group.attrs["packets_mode"] = packets_mode
                 group.attrs["distance"] = distance.cgs.value
                 group.attrs["nelements"] = nelements
-                group.attrs["species"] = species
 
                 group.create_dataset(
                     "plot_frequency_bins",
@@ -107,17 +138,25 @@ class TestSDECPlotter:
                 group.create_dataset(
                     "species", data=plotter.species.astype(np.float64)
                 )
-                pytest.skip(
-                    f"SDEC test data saved at: {ref_data_path}",
-                    allow_module_level=True,
+
+                plotter.absorption_luminosities_df.to_hdf(
+                    file.filename,
+                    key=f"{subgroup_name}/absorption_luminosities_df",
                 )
+                plotter.emission_luminosities_df.to_hdf(
+                    file.filename,
+                    key=f"{subgroup_name}/emission_luminosities_df",
+                )
+                plotter.total_luminosities_df.to_hdf(
+                    file.filename, key=f"{subgroup_name}/total_luminosities_df"
+                )
+
+                # pytest.skip(
+                #     f"SDEC test data saved at: {ref_data_path}",
+                #     allow_module_level=True,
+                # )
         else:
             # use the subgroup id to iterate over the hdf file
-            plotter._parse_species_list(species)
-            plotter._calculate_plotting_data(
-                packets_mode, packet_wvl_range, distance, nelements=nelements
-            )
-
             with h5py.File("sdec_ref.h5", "r") as file:
                 group = file[subgroup_name]
 
@@ -160,6 +199,28 @@ class TestSDECPlotter:
                     )
                 else:
                     assert plotter.lum_to_flux == group.get("lum_to_flux")[()]
+
+                pd.testing.assert_frame_equal(
+                    plotter.absorption_luminosities_df,
+                    pd.read_hdf(
+                        file.filename,
+                        key=f"{subgroup_name}/absorption_luminosities_df",
+                    ),
+                )
+                pd.testing.assert_frame_equal(
+                    plotter.emission_luminosities_df,
+                    pd.read_hdf(
+                        file.filename,
+                        key=f"{subgroup_name}/emission_luminosities_df",
+                    ),
+                )
+                pd.testing.assert_frame_equal(
+                    plotter.total_luminosities_df,
+                    pd.read_hdf(
+                        file.filename,
+                        key=f"{subgroup_name}/total_luminosities_df",
+                    ),
+                )
 
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
     @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA])
