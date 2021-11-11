@@ -163,8 +163,24 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
 
     @staticmethod
     def get_zeta_values(zeta_data, ion_index, t_rad):
+        """
+        OLD VERSION:
         zeta_t_rad = zeta_data.columns.values.astype(np.float64)
         zeta_values = zeta_data.loc[ion_index].values.astype(np.float64)
+        """
+        # NEW VERSION:
+        ion_index_in_zeta = ion_index.isin(zeta_data.index) # returns a boolean array, False means an index has not been found in the zeta data file
+        if False not in ion_index_in_zeta:
+            zeta_values = zeta_data.loc[ion_index].values.astype(np.float64)
+            zeta_t_rad = zeta_data.columns.values.astype(np.float64)
+        else:
+            # the following two lines are not nice
+            dummy_zeta_val = 0.3
+            # the following temp_values have to be included as now I do not read the zeta_data file, obtaining the columns therefrom
+            temp_values = [2000.0,4000.0,6000.0,8000.0,10000.0,12000.0,14000.0,16000.0,18000.0,20000.0]
+            zeta_data_copy = pd.DataFrame(dummy_zeta_val,columns=temp_values,index=ion_index)
+            zeta_values = zeta_data_copy.values.astype(np.float64)
+            zeta_t_rad = zeta_data_copy.columns.values.astype(np.float64)
         zeta = interpolate.interp1d(
             zeta_t_rad, zeta_values, bounds_error=False, fill_value=np.nan
         )(t_rad)
