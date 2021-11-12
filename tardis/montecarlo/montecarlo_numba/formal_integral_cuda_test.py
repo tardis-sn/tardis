@@ -207,21 +207,21 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
             for _ in range(max(nu_end_idx-pline,0)):
                 
                 # calculate e-scattering optical depth to next resonance point
-                zend = time_explosion / C_INV * (1. - line_list_nu[pline] / nu) # check #float64
+                zend = time_explosion / C_INV * (1.0 - line_list_nu[pline] / nu) # check #float64
                 
                 if first == 1:
                     # first contribution to integration
                     # NOTE: this treatment of I_nu_b (given
                     #   by boundary conditions) is not in Lucy 1999;
                     #   should be re-examined carefully
-                    escat_contrib += (zend - zstart) * escat_op * (
-                        Jblue_lu[pJblue_lu] - I_nu_thread[p_idx]);
+                    escat_contrib += ((zend - zstart) * escat_op * (
+                        Jblue_lu[pJblue_lu] - I_nu_thread[p_idx]));
                     first = 0;                                             #Literal[int](0)
                 else:
                     # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
-                    #Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu]); #float64
-                    #escat_contrib += (zend - zstart) * escat_op * (
-                    #            Jkkp - I_nu_thread[p_idx])
+                    Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu]); #float64
+                    escat_contrib += ((zend - zstart) * escat_op * (
+                                Jkkp - I_nu_thread[p_idx]))
                     # this introduces the necessary ffset of one element between
                     # pJblue_lu and pJred_lu
                     pJred_lu += 1
@@ -245,7 +245,7 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
             # calculate e-scattering optical depth to grid cell boundary
 
             Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu]) #float64
-            zend = time_explosion / C_INV * (1. - nu_end / nu) # check #float64
+            zend = time_explosion / C_INV * (1.0 - nu_end / nu) # check #float64
             escat_contrib += (zend - zstart) * escat_op * (        
                         Jkkp - I_nu_thread[p_idx])                        #float64
             zstart = zend                                          #float64
@@ -279,6 +279,10 @@ class NumbaFormalIntegrator(object):
     def formal_integral(self, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N):
         '''simple wrapper for the numba implementation of the formal integral'''
         #Pass in all the needed elements of the model and plasma as individual arguments
+        
+        
+        #Add the prints as returns from the output, so then the returns can be accessed as well, can do direct 
+        #numpy comparisons
         
         print("Debugging")
         print("-"*40)
