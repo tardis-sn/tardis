@@ -4,7 +4,6 @@ import warnings
 import sys
 import numpy as np
 import pandas as pd
-import numexpr as ne
 
 from scipy import interpolate
 
