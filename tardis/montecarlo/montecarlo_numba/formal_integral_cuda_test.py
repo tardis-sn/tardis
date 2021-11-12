@@ -90,7 +90,9 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
     #The grid must be composed in respect to length of inu_size
     #for nu_idx in prange(inu_size):
     nu_idx = cuda.grid(1)
-    print(nu_idx)
+    if nu_idx >= inu_size:
+        return
+    #print(nu_idx)
     
     #I_nu = np.zeros(N, dtype=np.float64)                       #array(float64, 1d, C)
     #z = np.zeros(2 * size_shell, dtype=np.float64)             #array(float64, 1d, C)
@@ -129,13 +131,15 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
 
     nu = inu[nu_idx]                                           #float64
     
-    print(f"From thread {nu_idx},N={N}")
+    #print(f"From thread {nu_idx},N={N}")
     # now loop over discrete values along line
     for p_idx in range(1, N):
         escat_contrib = 0.0                                           #Literal[int](0)
         p = pp[p_idx]                                              #float64
 
         # initialize z intersections for p values
+        
+        #populate_z_cuda seems to match in results to it's njit counterpart through testing
         size_z = populate_z_cuda(r_inner, r_outer, time_explosion, p, z_thread, shell_id_thread) # check returns #int64
         # initialize I_nu
         if p <= R_ph:
@@ -146,7 +150,10 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
             #print("type(nu)", type(nu))
             #print("z_thread", z_thread)
             #print("z_thread[0]:", z_thread[0])
-            #print("iT:", iT, "\n")
+            #print("iT:", iT)
+            #print("type of iT", type(iT), "\n")
+            
+            #Seems to only vary by a rounding on the last digit, accuracy on last bit may vary
             I_nu_thread[p_idx] = intensity_black_body_cuda(nu * z_thread[0], iT)
         else:
             I_nu_thread[p_idx] = 0
@@ -158,6 +165,8 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
         # find first contributing lines
         nu_start = nu * z_thread[0]                                       #float64
         nu_end = nu * z_thread[1]                                         #float64
+        
+        #Tested thru notebook that I used to make function. Callers identical
         idx_nu_start = line_search_cuda(line_list_nu,       #int64
                                    nu_start, size_line)
         offset = shell_id_thread[0] * size_line                           #int64
@@ -189,8 +198,10 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
         # loop over all interactions 
         for i in range(size_z - 1):
             escat_op = electron_density[int(shell_id_thread[i])] * SIGMA_THOMSON #float64
-            nu_end = nu * z_thread[1+i]                                        #float64
-            nu_end_idx =  reverse_binary_search_cuda(line_list_nu, nu_end, 0, len(line_list_nu)-1)      #int64
+            nu_end = nu * z_thread[i + 1]#+1 is the offset as the original is from z[1:]  #float64
+            
+                #This one seems to make sense
+            nu_end_idx =  reverse_binary_search_cuda(line_list_nu, nu_end, 0, len(line_list_nu)-1)    #int64
             
             #You can just replace w/ nu_end = size_line - cuda_searchsorted(...)
             for _ in range(max(nu_end_idx-pline,0)):
@@ -214,7 +225,7 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
                     # this introduces the necessary ffset of one element between
                     # pJblue_lu and pJred_lu
                     pJred_lu += 1
-                #THIS CAUSES A CudaAPIError: [700] Call to cuMemcpyDtoH results in UNKNOWN_CUDA_ERROR
+                
                 I_nu_thread[p_idx] += escat_contrib
                 #cuda.atomic.add(I_nu_thread, p_idx, escat_contrib) #escat_contrib
                 # // Lucy 1999, Eq 26
@@ -246,7 +257,7 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
             pJred_lu += direction
             pJblue_lu += direction
         I_nu_thread[p_idx] *= p #multiply by float64 at this index
-    #cuda.atomic.add(L, nu_idx, 8 * M_PI * M_PI * trapezoid_integration_cuda(I_nu, R_max / N))
+    #cuda.atomic.add(L, nu_idx, 8 * M_PI * M_PI * trapezoid_integration_cuda(I_nu_thread, R_max / N))
     L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration_cuda(I_nu_thread, R_max / N)
     
     #L[nu_idx] += 5
@@ -276,6 +287,8 @@ class NumbaFormalIntegrator(object):
         print("Jred_lu.shape", Jred_lu.shape)
         print("Jblue_lu.shape", Jblue_lu.shape)
         print("inu_size", inu_size)
+        print("tau_sobolev.shape", tau_sobolev.shape)
+        print("N", N)
         #print(iT.shape)
         # Initialize the output which is shared among threads
         L = np.zeros(inu_size, dtype=np.float64)                   #array(float64, 1d, C)
@@ -287,12 +300,15 @@ class NumbaFormalIntegrator(object):
         exp_tau = np.zeros(size_tau, dtype=np.float64)             #array(float64, 1d, C)
         exp_tau = np.exp(-tau_sobolev.T.ravel()) # maybe make this 2D? #array(float64, 1d, C)
         #See why this self.model.r_outer is the wrong size
-        
+        print("pp.shape", pp.shape)
+        print("size_shell", size_shell)
+        print("self.model.r_outer", self.model.r_outer)
+        print("self.model.r_outer[size_shell - 1]", self.model.r_outer[size_shell - 1])
         pp[::] = np.arange(N).astype(np.float64) * self.model.r_outer[size_shell - 1] / (N-1)                 #array(float64, 1d, C)
         I_nu = np.zeros((inu_size, N), dtype=np.float64)                                 #array(float64, 1d, C)
         z = np.zeros((inu_size, 2 * size_shell), dtype=np.float64)             #array(float64, 1d, C)
         shell_id = np.zeros((inu_size, 2 * size_shell), dtype=np.int64)        #array(int64, 1d, C)
-        
+        print("First z of zs", z[0][0])
         print("L", L)
         THREADS_PER_BLOCK = 32
         blocks_per_grid = (inu_size // THREADS_PER_BLOCK) + 1
@@ -303,7 +319,7 @@ class NumbaFormalIntegrator(object):
                                           self.model.r_outer,
                                           self.model.time_explosion,
                                           self.plasma.line_list_nu,
-                                          iT, 
+                                          iT.value, #Testing to see if will fix blackbody problem
                                           inu.value,
                                           inu_size, 
                                           att_S_ul, 
@@ -318,6 +334,8 @@ class NumbaFormalIntegrator(object):
                                           I_nu, 
                                           z, 
                                           shell_id)
+        print("\n\n")
+        print("L:")
         print(L)
         return L
     
@@ -620,7 +638,7 @@ class FormalIntegrator(object):
         ##self.model.t_inner was changed to .value to try and resolve an error!
         self.generate_numba_objects()
         L = self.numba_integrator.formal_integral(
-                self.model.t_inner.value,
+                self.model.t_inner,
                 nu,
                 nu.shape[0],
                 att_S_ul,
