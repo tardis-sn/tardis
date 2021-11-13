@@ -171,7 +171,7 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
                                    nu_start, size_line)
         offset = shell_id_thread[0] * size_line                           #int64
         # start tracking accumulated e-scattering optical depth
-        zstart = time_explosion / C_INV * (1. - z_thread[0])        #float64
+        zstart = time_explosion / C_INV * (1.0 - z_thread[0])        #float64
         # Initialize "pointers"
         pline = int(idx_nu_start)                                  #int64
         pexp_tau = int(offset + idx_nu_start)                      #int64
@@ -216,7 +216,7 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
                     #   should be re-examined carefully
                     escat_contrib += ((zend - zstart) * escat_op * (
                         Jblue_lu[pJblue_lu] - I_nu_thread[p_idx]));
-                    first = 0;                                             #Literal[int](0)
+                    first = 0                                             #Literal[int](0)
                 else:
                     # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
                     Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu]); #float64
@@ -839,7 +839,7 @@ def intensity_black_body_cuda(nu, T):
     """
     if nu == 0:
         return np.nan  # to avoid ZeroDivisionError
-    beta_rad = 1 / (KB_CGS * float(T))
+    beta_rad = 1 / (KB_CGS * T)
     coefficient = 2 * H_CGS * C_INV * C_INV
     return coefficient * nu * nu * nu / (math.exp(H_CGS * nu * beta_rad) - 1)
 
