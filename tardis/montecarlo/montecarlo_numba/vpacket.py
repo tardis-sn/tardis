@@ -27,6 +27,7 @@ from tardis.montecarlo.montecarlo_numba.frame_transformations import (
 )
 
 from tardis.montecarlo.montecarlo_numba.opacities import calculate_tau_electron
+from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
 
 vpacket_spec = [
     ("r", float64),
@@ -63,7 +64,7 @@ class VPacket(object):
 
 
 @njit(**njit_dict_no_parallel)
-def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
+def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma, continuum):
     """
     Trace VPacket within one shell (relatively simple operation)
     """
@@ -81,16 +82,32 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
     cur_electron_density = numba_plasma.electron_density[
         v_packet.current_shell_id
     ]
-    tau_electron = calculate_tau_electron(
-        cur_electron_density, distance_boundary
-    )
-    tau_trace_combined = tau_electron
-
+    chi_e = cur_electron_density * SIGMA_THOMSON
+    
     # Calculating doppler factor
     doppler_factor = get_doppler_factor(
         v_packet.r, v_packet.mu, numba_model.time_explosion
     )
     comov_nu = v_packet.nu * doppler_factor
+    continuum.calculate(comov_nu, v_packet.current_shell_id)
+    (
+        chi_bf,
+        chi_bf_contributions,
+        current_continua,
+        x_sect_bfs,
+        chi_ff,
+    ) = (
+        continuum.chi_bf_tot,
+        continuum.chi_bf_contributions,
+        continuum.current_continua,
+        continuum.x_sect_bfs,
+        continuum.chi_ff
+    )
+
+    chi_continuum = chi_e + chi_bf + chi_ff
+
+    tau_continuum = chi_continuum * distance_boundary
+    tau_trace_combined = tau_continuum
     cur_line_id = start_line_id
 
     for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
@@ -104,10 +121,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
             cur_line_id, v_packet.current_shell_id
         ]
 
-        if cur_line_id == len(numba_plasma.line_list_nu) - 1:
-            is_last_line = True
-        else:
-            is_last_line = False
+        is_last_line = cur_line_id == len(numba_plasma.line_list_nu) - 1
 
         distance_trace_line = calculate_distance_line(
             v_packet,
@@ -131,7 +145,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
 
 
 @njit(**njit_dict_no_parallel)
-def trace_vpacket(v_packet, numba_model, numba_plasma):
+def trace_vpacket(v_packet, numba_model, numba_plasma, continuum):
     """
     Trace single vpacket.
     Parameters
@@ -151,7 +165,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
             tau_trace_combined_shell,
             distance_boundary,
             delta_shell,
-        ) = trace_vpacket_within_shell(v_packet, numba_model, numba_plasma)
+        ) = trace_vpacket_within_shell(v_packet, numba_model, numba_plasma, continuum)
         tau_trace_combined += tau_trace_combined_shell
 
         move_packet_across_shell_boundary(
@@ -187,7 +201,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
 
 @njit(**njit_dict_no_parallel)
 def trace_vpacket_volley(
-    r_packet, vpacket_collection, numba_model, numba_plasma
+    r_packet, vpacket_collection, numba_model, numba_plasma, continuum
 ):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many)
@@ -256,29 +270,21 @@ def trace_vpacket_volley(
         v_packet_nu = r_packet.nu * doppler_factor_ratio
         v_packet_energy = r_packet.energy * weight * doppler_factor_ratio
 
-        # Make sure to set the next line id
-        # such that the nu difference is greater than
-        # zero when calculating the distance to the line
-        # to account for the new doppler factor
-        comov_nu = v_packet_nu * v_packet_doppler_factor
-        next_line_id = r_packet.next_line_id
-        while comov_nu < numba_plasma.line_list_nu[next_line_id]:
-            next_line_id += 1
-            if next_line_id >= len(numba_plasma.line_list_nu):
-                next_line_id = len(numba_plasma.line_list_nu)
-                print(comov_nu)
-                raise Exception("Error: Vpacket is below the line list!")
+        # TODO: Make sure we have a new continuum object for each vpacket
+        #comov_nu = v_packet_nu * v_packet_doppler_factor
+        #continuum.calculate(comov_nu, r_packet.current_shell_id)
+
         v_packet = VPacket(
             r_packet.r,
             v_packet_mu,
             v_packet_nu,
             v_packet_energy,
             r_packet.current_shell_id,
-            next_line_id,
+            r_packet.next_line_id,
             i,
         )
 
-        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma)
+        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma, continuum)
 
         v_packet.energy *= math.exp(-tau_vpacket)
 

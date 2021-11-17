@@ -12,6 +12,7 @@ from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
 
 from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     get_inverse_doppler_factor,
+    get_doppler_factor
 )
 from tardis.montecarlo.montecarlo_numba.interaction import (
     InteractionType,
@@ -56,7 +57,6 @@ def single_packet_loop(
         This function does not return anything but changes the r_packet object
         and if virtual packets are requested - also updates the vpacket_collection
     """
-
     line_interaction_type = montecarlo_configuration.line_interaction_type
 
     if montecarlo_configuration.full_relativity:
@@ -65,8 +65,11 @@ def single_packet_loop(
         set_packet_props_partial_relativity(r_packet, numba_model)
     r_packet.initialize_line_id(numba_plasma, numba_model)
 
+    doppler_factor = get_doppler_factor(
+            r_packet.r, r_packet.mu, numba_model.time_explosion
+            )
     trace_vpacket_volley(
-        r_packet, vpacket_collection, numba_model, numba_plasma
+        r_packet, vpacket_collection, numba_model, numba_plasma, continuum
     )
 
     if mc_tracker.DEBUG_MODE:
@@ -106,7 +109,7 @@ def single_packet_loop(
                 continuum,
             )
             trace_vpacket_volley(
-                r_packet, vpacket_collection, numba_model, numba_plasma
+                r_packet, vpacket_collection, numba_model, numba_plasma, continuum
             )
 
         elif interaction_type == InteractionType.ESCATTERING:
@@ -119,7 +122,7 @@ def single_packet_loop(
             thomson_scatter(r_packet, numba_model.time_explosion)
 
             trace_vpacket_volley(
-                r_packet, vpacket_collection, numba_model, numba_plasma
+                r_packet, vpacket_collection, numba_model, numba_plasma, continuum
             )
             #print("Done ESCATTERING")
         elif interaction_type == InteractionType.CONTINUUM_PROCESS:
@@ -132,7 +135,7 @@ def single_packet_loop(
                     continuum, numba_plasma)
 
             trace_vpacket_volley(
-                r_packet, vpacket_collection, numba_model, numba_plasma
+                r_packet, vpacket_collection, numba_model, numba_plasma, continuum
             )
         else:
             print("OTHER")
@@ -154,7 +157,6 @@ def single_packet_loop(
             r_packet_track_interaction,
             r_packet_track_distance,
         )
-
     # check where else initialize line ID happens!
 
 

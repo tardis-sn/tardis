@@ -106,29 +106,21 @@ def montecarlo_radial1d(
 
     if montecarlo_configuration.VPACKET_LOGGING and number_of_vpackets > 0:
         runner.virt_packet_nus = np.concatenate(
-            np.array(virt_packet_nus)
-        ).ravel()
+            virt_packet_nus).ravel()
         runner.virt_packet_energies = np.concatenate(
-            np.array(virt_packet_energies)
-        ).ravel()
+            virt_packet_energies).ravel()
         runner.virt_packet_initial_mus = np.concatenate(
-            np.array(virt_packet_initial_mus)
-        ).ravel()
+            virt_packet_initial_mus).ravel()
         runner.virt_packet_initial_rs = np.concatenate(
-            np.array(virt_packet_initial_rs)
-        ).ravel()
+            virt_packet_initial_rs).ravel()
         runner.virt_packet_last_interaction_in_nu = np.concatenate(
-            np.array(virt_packet_last_interaction_in_nu)
-        ).ravel()
+            virt_packet_last_interaction_in_nu).ravel()
         runner.virt_packet_last_interaction_type = np.concatenate(
-            np.array(virt_packet_last_interaction_type)
-        ).ravel()
+            virt_packet_last_interaction_type).ravel()
         runner.virt_packet_last_line_interaction_in_id = np.concatenate(
-            np.array(virt_packet_last_line_interaction_in_id)
-        ).ravel()
+            virt_packet_last_line_interaction_in_id).ravel()
         runner.virt_packet_last_line_interaction_out_id = np.concatenate(
-            np.array(virt_packet_last_line_interaction_out_id)
-        ).ravel()
+            virt_packet_last_line_interaction_out_id).ravel()
     update_iterations_pbar(1)
 
 
