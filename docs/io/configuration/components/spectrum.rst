@@ -16,7 +16,7 @@ just an integer. Finally, the method option selects the final spectral synthesis
 * virtual: use the :ref:`virtual packet scheme <virtual_packets>` for spectral synthesis
 * integrated: use the :ref:`formal integral method <formal_integral>` of Lucy 1999
 
-The three methods can be specified when running the simulation (see the quickstart guide for an example of this).
+The three methods can be specified when running the simulation (see the :doc:`quickstart guide <../../../quickstart/quickstart>` for an example of this).
 
 The following example shows how to edit variables for the integrated method. 
 
@@ -31,7 +31,7 @@ The following example shows how to edit variables for the integrated method.
                         points: 2000
                         interpolate_shells: 100
 
-Since the default method is set to virtual, the following shows a different exampel for editing the virtual method parameters.
+Since the default method is set to virtual, the following shows a different example for editing the virtual method parameters.
 
 .. code-block:: yaml
 
@@ -45,7 +45,7 @@ Since the default method is set to virtual, the following shows a different exam
                         enable_biasing: True
                         virtual_packet_logging: True
 
-One can also change these parameters as they wish by reading in the configuration file and editing them before running the simulation (see the documentation on how to read configuration files).
+One can also change these parameters as they wish by reading in the configuration file and editing them before running the simulation (see :doc:`Reading a Configuration <../read_configuration>`).
 
 .. warning::
     Currently, the "integrated" mode only works with the downbranching line
