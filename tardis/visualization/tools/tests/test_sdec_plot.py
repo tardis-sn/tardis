@@ -244,50 +244,64 @@ class TestSDECPlotter(object):
     @pytest.mark.parametrize("show_modeled_spectrum", [True, False])
     def test_generate_plot_ply(
         self,
+        request,
         plotter,
         packets_mode,
         packet_wvl_range,
         distance,
         show_modeled_spectrum,
     ):
+        subgroup_name = request.node.callspec.id
+        
         fig = plotter.generate_plot_ply(
             packets_mode, packet_wvl_range, distance, show_modeled_spectrum
         )
+        
+        if self.save:
+            with h5py.File("sdec_ref.h5", "a") as file:
+                group = file.create_group(subgroup_name)
+                group.create_dataset("_species_name", data=plotter._species_name) 
+                group.create_dataset("_color_list", data=plotter._color_list) 
+                
+                fig_subgroup = group.create_group("fig_data")
+                for index, data in enumerate(fig.data):
+                    trace_group = fig_subgroup.create_group(str(index))
+                    if data.name:
+                        trace_group.attrs["name"] = data.name
+                    if data.stackgroup:
+                        trace_group.attrs["stackgroup"] = data.stackgroup
+                    trace_group.create_dataset("x", data = data.x)
+                    trace_group.create_dataset("y", data = data.y)
+        else:
+            group = self.hdf_file[subgroup_name]
+            # test output of the _make_colorbar_labels function
+            assert (
+                plotter._species_name
+                == group.get("_species_name").asstr()[()].tolist()
+            )
+            # test output of the _make_colorbar_colors function
+            np.testing.assert_allclose(
+                np.asarray(np.asarray(plotter._color_list)),
+                group.get("_color_list")[()],
+            )
+            
+            fig_subgroup = group.get("fig_data")
+            for index, data in enumerate(fig.data):
+                trace_group = fig_subgroup.get(str(index))
+                if data.name:
+                    assert data.name == trace_group.attrs["name"]
+                if data.stackgroup:
+                    assert data.stackgroup == trace_group.attrs["stackgroup"]
+                    
+                np.testing.assert_allclose(
+                    trace_group.get("x")[()],
+                    data.x
+                )
+                np.testing.assert_allclose(
+                    trace_group.get("y")[()],
+                    data.y
+                )
 
-        for trace in fig.data:
-            if trace.name == f"{packets_mode.capitalize()} Spectrum":
-                assert (trace.x == plotter.plot_wavelength.value).all()
-                assert (
-                    trace.y == plotter.modeled_spectrum_luminosity.value
-                ).all()
-
-            if trace.name == "Blackbody Photosphere":
-                assert (trace.x == plotter.plot_wavelength.value).all()
-                assert (trace.y == plotter.photosphere_luminosity.value).all()
-
-            if trace.name == "No interaction":
-                assert (
-                    trace.x == plotter.emission_luminosities_df.index.values
-                ).all()
-                assert (
-                    trace.y == plotter.emission_luminosities_df.noint.values
-                ).all()
-
-            if trace.name == "Electron Scatter Only":
-                assert (
-                    trace.x == plotter.emission_luminosities_df.index.values
-                ).all()
-                assert (
-                    trace.y == plotter.emission_luminosities_df.escatter.values
-                ).all()
-
-            if trace.name == "Other Elements":
-                assert (
-                    trace.x == plotter.emission_luminosities_df.index.values
-                ).all()
-                assert (
-                    trace.y == plotter.emission_luminosities_df.other.values
-                ).all()
 
     # TODO: Call generate_plot_mpl() with several PnCs of parameters and test
     # almost plotter's properties (esp. those saved by calculate_plotting_data)
