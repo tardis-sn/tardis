@@ -59,7 +59,7 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
     N : int64
     
     L : array(float64, 1d, C)
-    pp : array(float64, 1d, C)
+    pp : array(float64, 2d, C)
     exp_tau : array(float64, 1d, C)
     I_nu array(flaot64, 1d, C)
     z : array(float64, 1d, C)
@@ -106,6 +106,7 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
     I_nu_thread = I_nu[nu_idx]
     z_thread = z[nu_idx]
     shell_id_thread = shell_id[nu_idx]
+    pp_thread = pp[nu_idx]
     
     offset = 0                                                 #Literal[int](0)
     size_z = 0                                                 #Literal[int](0)
@@ -135,7 +136,7 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
     # now loop over discrete values along line
     for p_idx in range(1, N):
         escat_contrib = 0.0                                           #Literal[int](0)
-        p = pp[p_idx]                                              #float64
+        p = pp_thread[p_idx]                                              #float64
 
         # initialize z intersections for p values
         
@@ -309,6 +310,14 @@ class NumbaFormalIntegrator(object):
         print("self.model.r_outer", self.model.r_outer)
         print("self.model.r_outer[size_shell - 1]", self.model.r_outer[size_shell - 1])
         pp[::] = np.arange(N).astype(np.float64) * self.model.r_outer[size_shell - 1] / (N-1)                 #array(float64, 1d, C)
+        
+        
+        #This is done to make it so that pp is a 2d array of pp values, so that each thread will have it's own pp
+        #to index. The results stay the same. This also allows calculate_p_values to be used. 
+        pp = np.meshgrid(calculate_p_values(self.model.r_outer[size_shell - 1], N), 
+                         calculate_p_values(self.model.r_outer[size_shell - 1], N))
+        pp = pp[0]
+        
         I_nu = np.zeros((inu_size, N), dtype=np.float64)                                 #array(float64, 1d, C)
         z = np.zeros((inu_size, 2 * size_shell), dtype=np.float64)             #array(float64, 1d, C)
         shell_id = np.zeros((inu_size, 2 * size_shell), dtype=np.int64)        #array(int64, 1d, C)
@@ -844,14 +853,13 @@ def intensity_black_body_cuda(nu, T):
     return coefficient * nu * nu * nu / (math.exp(H_CGS * nu * beta_rad) - 1)
 
 #Was no parallel
-@cuda.jit(device=True)
-def calculate_p_values_cuda(i, R_max, N):
+
+def calculate_p_values(R_max, N):
     """
     This can probably be replaced with a simpler function
     
     Parameters
     ----------
-    i : float64
     R_max : float64
     N : int64
     
@@ -859,7 +867,6 @@ def calculate_p_values_cuda(i, R_max, N):
     -------
     float64
     """
-    #Rewrite to do index so no memory making. Takes the index of the value. 
-    #i * R_max / (N-1)
-    return i * R_max / (N-1)
-    #return np.arange(N).astype(np.float64) * R_max / (N-1)
+    
+    return np.arange(N).astype(np.float64) * R_max / (N - 1)
+    
