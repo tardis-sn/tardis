@@ -1,5 +1,13 @@
 import numpy as np
 import pandas as pd
+from nuclear.ejecta import Ejecta
+
+
+def decay_nuclides(shell_mass, initial_composition, epoch):
+    decay_model = Ejecta(shell_mass, initial_composition)
+
+    new_fractions = decay_model.decay(epoch)
+    return new_fractions
 
 
 def create_energy_cdf(energy, intensity):
@@ -20,9 +28,11 @@ def create_energy_cdf(energy, intensity):
         CDF where each index corresponds to the energy in
         the sorted array
     """
-    norm_intensity = intensity / np.sum(intensity)
-    cdf = np.cumsum(norm_intensity)
     energy.sort()
+    sorted_indices = np.argsort(energy)
+    sorted_intensity = intensity[sorted_indices]
+    norm_intensity = sorted_intensity / np.sum(sorted_intensity)
+    cdf = np.cumsum(norm_intensity)
 
     return energy, cdf
 

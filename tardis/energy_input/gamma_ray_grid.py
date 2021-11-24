@@ -3,6 +3,7 @@ from astropy.coordinates import cartesian_to_spherical
 import re
 from nuclear.io.nndc import get_decay_radiation_database, store_decay_radiation
 import pandas as pd
+import astropy.units as u
 
 from tardis.energy_input.util import (
     solve_quadratic_equation,
@@ -104,7 +105,7 @@ def move_photon(photon, distance):
     x_new = x_old + distance * x_dir
 
     r, theta, phi = cartesian_to_spherical(x_new, y_new, z_new)
-    photon.location.r = r.value
+    photon.location.r = r
     # Plus 0.5 * pi to correct for astropy rotation frame
     photon.location.theta = theta.value + 0.5 * np.pi
     photon.location.phi = phi.value
@@ -113,7 +114,7 @@ def move_photon(photon, distance):
 
 def compute_required_photons_per_shell(
     shell_masses,
-    raw_isotope_abundance,
+    isotope_abundance,
     number_of_photons,
 ):
     """Computes the number of photons required per shell
@@ -124,7 +125,7 @@ def compute_required_photons_per_shell(
     ----------
     shell_masses : ndarray
         Array of shell masses
-    raw_isotope_abundance : pandas DataFrame
+    isotope_abundance : pandas DataFrame
         Abundances of isotopes
     number_of_photons : int64
         Total number of simulation photons
@@ -140,11 +141,10 @@ def compute_required_photons_per_shell(
     norm_shell_masses = shell_masses / np.sum(shell_masses)
     abundance_dict = {}
     nuclide_mass_dict = {}
-    for (atom_number, atom_mass), row in raw_isotope_abundance.iterrows():
-        isotope_string = atomic_number2element_symbol(atom_number) + str(
-            atom_mass
-        )
-        store_decay_radiation(isotope_string, force_update=False)
+    for isotope_string, row in isotope_abundance.iterrows():
+        if isotope_string == "Fe56":
+            continue
+        store_decay_radiation(isotope_string, force_update=True)
         abundance_dict[isotope_string] = row * norm_shell_masses
         nuclide_mass_dict[isotope_string] = row * shell_masses
 
@@ -153,32 +153,32 @@ def compute_required_photons_per_shell(
 
     decay_rad_db, meta = get_decay_radiation_database()
 
-    activity_df = abundance_df.copy()
+    norm_activity_df = abundance_df.copy()
     decay_rate_per_shell_df = nuclide_mass_df.copy()
-    for column in activity_df:
+    for column in norm_activity_df:
         isotope_meta = meta.loc[column]
         half_life = isotope_meta.loc[
             isotope_meta["key"] == "Parent T1/2 value"
         ]["value"].values[0]
         half_life = convert_half_life_to_astropy_units(half_life)
-        atomic_mass = float(re.findall("\d+", column)[0])
-        activity_factor = np.log(2) / atomic_mass / half_life
-        activity_df[column] = activity_df[column] * activity_factor
+        decay_constant = np.log(2) / half_life
+        atomic_mass = float(re.findall("\d+", column)[0]) * u.u.to(
+            u.g / u.mol, equivalencies=u.molar_mass_amu()
+        )
+        print(atomic_mass)
+        norm_activity_df[column] = norm_activity_df[column] * decay_constant
 
         decay_rate_per_shell_df[column] = (
-            (np.log(2) / half_life)
-            * const.N_A
-            * (nuclide_mass_df[column] / (atomic_mass ** 2.0))
+            decay_constant * const.N_A * (nuclide_mass_df[column] / atomic_mass)
         )
 
-    total_activity = activity_df.to_numpy().sum()
+    total_activity = norm_activity_df.to_numpy().sum()
     decay_rate_per_shell = decay_rate_per_shell_df.to_numpy().sum(axis=1)
-    photon_per_shell_df = activity_df.copy()
+    photon_per_shell_df = norm_activity_df.copy()
 
     for column in photon_per_shell_df:
         photon_per_shell_df[column] = round(
             photon_per_shell_df[column] * number_of_photons / total_activity
         )
         photon_per_shell_df[column] = photon_per_shell_df[column].astype(int)
-
     return photon_per_shell_df, decay_rad_db, decay_rate_per_shell

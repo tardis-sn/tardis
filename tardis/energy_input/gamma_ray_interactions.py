@@ -10,6 +10,7 @@ from tardis.energy_input.util import (
     get_random_phi_photon,
     normalize_vector,
     get_perpendicular_vector,
+    ELECTRON_MASS_ENERGY_KEV,
 )
 from tardis.energy_input.GXPhoton import GXPhotonStatus
 
@@ -111,7 +112,7 @@ def pair_creation(photon):
     direction_theta = get_random_theta_photon()
     direction_phi = get_random_phi_photon()
 
-    photon.energy = 511.0
+    photon.energy = ELECTRON_MASS_ENERGY_KEV
     photon.direction.theta = direction_theta
     photon.direction.phi = direction_phi
 

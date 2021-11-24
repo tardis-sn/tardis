@@ -4,10 +4,10 @@ import astropy.units as u
 from tardis import constants as const
 from tardis.energy_input.util import kappa_calculation
 
-MASS_SI = 28.085 * const.m_p.to(u.g).value
-MASS_FE = 55.845 * const.m_p.to(u.g).value
-M_P = const.m_p.to(u.g).value
-SIGMA_T = const.sigma_T.cgs.value
+MASS_SI = 28.085 * const.m_p.to(u.g)
+MASS_FE = 55.845 * const.m_p.to(u.g)
+M_P = const.m_p.to(u.g)
+SIGMA_T = const.sigma_T.cgs
 
 # TODO: add units for completeness
 def compton_opacity_calculation(energy, ejecta_density):
@@ -75,7 +75,8 @@ def photoabsorption_opacity_calculation(
     """
     si_opacity = (
         1.16e-24
-        * (energy / 100.0) ** -3.13
+        * u.cm ** 2
+        * (energy / (100.0 * u.keV)) ** -3.13
         * ejecta_density
         / MASS_SI
         * (1.0 - iron_group_fraction)
@@ -83,7 +84,8 @@ def photoabsorption_opacity_calculation(
 
     fe_opacity = (
         25.7e-24
-        * (energy / 100.0) ** -3.0
+        * u.cm ** 2
+        * (energy / (100.0 * u.keV)) ** -3.0
         * ejecta_density
         / MASS_FE
         * (1.0 - iron_group_fraction)
@@ -125,11 +127,20 @@ def pair_creation_opacity_calculation(
 
     # Conditions prevent divide by zero
     # Ambwani & Sutherland (1988)
-    if energy > 1.022e3 and energy < 1.5e3:
-        opacity = multiplier * 1.0063 * (energy / 1.0e3 - 1.022) * 1.0e-27
-    elif energy >= 1.5e3:
+    if energy > 1.022 * u.MeV and energy < 1.5 * u.MeV:
         opacity = (
-            multiplier * (0.0481 + 0.301 * (energy / 1.0e3 - 1.5)) * 1.0e-27
+            multiplier
+            * 1.0063
+            * (energy / (1 * u.MeV) - 1.022)
+            * 1.0e-27
+            * u.cm ** 2
+        )
+    elif energy >= 1.5 * u.MeV:
+        opacity = (
+            multiplier
+            * (0.0481 + 0.301 * (energy / (1 * u.MeV) - 1.5))
+            * 1.0e-27
+            * u.cm ** 2
         )
     else:
         opacity = 0

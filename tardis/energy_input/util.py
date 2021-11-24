@@ -4,8 +4,7 @@ import numpy as np
 from astropy.coordinates import spherical_to_cartesian
 
 R_ELECTRON_SQUARED = const.a0.cgs * const.alpha.cgs ** 2.0
-KEV2ERG = (1000 * u.eV).to("erg").value
-ELECTRON_MASS_ENERGY_KEV = (const.m_e * const.c ** 2.0).to("keV").value
+ELECTRON_MASS_ENERGY_KEV = (const.m_e * const.c ** 2.0).to("keV")
 BOUNDARY_THRESHOLD = 1e-7
 
 
@@ -48,7 +47,7 @@ class SphericalVector(object):
         x, y, z = spherical_to_cartesian(
             self.r, self.theta - 0.5 * np.pi, self.phi
         )
-        return x.value, y.value, z.value
+        return x, y, z
 
 
 def kappa_calculation(energy):
