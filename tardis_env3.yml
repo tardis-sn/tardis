@@ -31,7 +31,7 @@ dependencies:
 
   # Widgets & Visualization
   - jupyter
-  - matplotlib
+  - matplotlib=3.4
   - ipywidgets
   - plotly
   - qgrid
