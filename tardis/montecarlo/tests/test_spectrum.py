@@ -2,7 +2,8 @@ import pytest
 import numpy as np
 import pandas as pd
 import os
-from astropy import units as u, constants as c
+from astropy import units as u
+from tardis import constants as c
 import astropy.tests.helper as test_helper
 from numpy.testing import assert_almost_equal
 from tardis.montecarlo.spectrum import (
