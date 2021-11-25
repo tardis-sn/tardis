@@ -1700,14 +1700,18 @@ class SDECPlotter:
             )
 
         # Contribution from each element
-        for species_counter, identifier in enumerate(self.species):
+        for (species_counter, identifier), species_name in zip(
+            enumerate(self.species), self._species_name
+        ):
             try:
                 self.fig.add_trace(
                     go.Scatter(
                         x=self.emission_luminosities_df.index,
                         y=self.emission_luminosities_df[identifier],
                         mode="none",
-                        name="none",
+                        name=species_name + " Emission",
+                        hovertemplate=f"<b>{species_name} Emission </b>"
+                        + "(%{x}, %{y})<extra></extra>",
                         fillcolor=self.to_rgb255_string(
                             self._color_list[species_counter]
                         ),
@@ -1751,7 +1755,9 @@ class SDECPlotter:
                 )
             )
 
-        for species_counter, identifier in enumerate(self.species):
+        for (species_counter, identifier), species_name in zip(
+            enumerate(self.species), self._species_name
+        ):
             try:
                 self.fig.add_trace(
                     go.Scatter(
@@ -1759,7 +1765,9 @@ class SDECPlotter:
                         # to plot absorption luminosities along negative y-axis
                         y=self.absorption_luminosities_df[identifier] * -1,
                         mode="none",
-                        name="none",
+                        name=species_name + " Absorption",
+                        hovertemplate=f"<b>{species_name} Absorption </b>"
+                        + "(%{x}, %{y})<extra></extra>",
                         fillcolor=self.to_rgb255_string(
                             self._color_list[species_counter]
                         ),
@@ -1829,6 +1837,7 @@ class SDECPlotter:
                 x=self.plot_wavelength[scatter_point_idx],
                 y=[0],
                 mode="markers",
+                name="Colorbar",
                 showlegend=False,
                 hoverinfo="skip",
                 marker=dict(color=[0], opacity=0, **coloraxis_options),
