@@ -10,6 +10,7 @@ from tardis.util.base import intensity_black_body
 import tardis.montecarlo.montecarlo_numba.formal_integral_cuda_test as formal_integral_cuda
 from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
 
+from tardis.montecarlo.montecarlo_numba.formal_integral_cuda_functions import cuda_searchsorted_value_right
 
 @pytest.mark.parametrize(
     ["nu", "T"],
@@ -20,11 +21,10 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
     ],
 )
 
-def test_intensity_black_body(nu, T):
+def test_intensity_black_body_cuda(nu, T):
     actual = np.zeros(3)
     black_body_caller[1, 3](nu, T, actual)
     
-    print(actual, type(actual))
     expected = intensity_black_body(nu, T)
     ntest.assert_almost_equal(actual, expected)
     
@@ -35,9 +35,9 @@ def black_body_caller(nu, T, actual):
     
 
 @pytest.mark.parametrize("N", (1e2, 1e3, 1e4, 1e5))
-def test_trapezoid_integration(N):
+def test_trapezoid_integration_cuda(N):
     actual = np.zeros(4)
-    #func = formal_integral_cuda.trapezoid_integration_cuda
+    
     h = 1.0
     N = int(N)
     data = np.random.random(N)
@@ -45,7 +45,18 @@ def test_trapezoid_integration(N):
     #actual = func(data, h)
     expected = np.trapz(data)
     trapezoid_integration_caller[1, 4](data, h, actual)
-    ntest.assert_almost_equal(actual, expected)
+    
+    N_loc = 0
+    if N == 1e2:
+        N_loc = 0
+    elif N == 1e3:
+        N_loc = 1
+    elif N == 1e4:
+        N_loc = 2
+    elif N == 1e5:
+        N_loc = 3
+    
+    ntest.assert_almost_equal(actual[N_loc], expected)
 
 
 @cuda.jit
@@ -81,7 +92,7 @@ def formal_integral_model(request):
 @pytest.mark.parametrize(
         'p', [0.0, 0.5, 1.0]
 )
-def test_calculate_z(formal_integral_model, p):
+def test_calculate_z_cuda(formal_integral_model, p):
     actual = np.zeros(3)
     inv_t = 1.0 / formal_integral_model.time_explosion
     size = len(formal_integral_model.r_outer)
@@ -102,7 +113,7 @@ def test_calculate_z(formal_integral_model, p):
             assert actual[p_loc] == 0
         else:
             desired = np.sqrt(r * r - p * p) * formal_integral_cuda.C_INV * inv_t
-            ntest.assert_almost_equal(actual, desired)
+            ntest.assert_almost_equal(actual[p_loc], desired)
 
 @cuda.jit
 def calculate_z_caller(r, p, inv_t, actual):
@@ -130,7 +141,7 @@ def test_populate_z_photosphere(formal_integral_model, p):
     oz = np.zeros_like(r_inner)
     oshell_id = np.zeros_like(oz, dtype=np.int64)
     print(dir(formal_integral_model))
-    populate_z_caller[1, 3](r_inner, r_outer, formal_integral_model.time_explosion, p, oz, oshell_id, actual)
+    populate_z_photosphere_caller[1, 3](r_inner, r_outer, formal_integral_model.time_explosion, p, oz, oshell_id, actual)
     #This is to find which p is being tested, so the assert statement will not crash as
     #actual is an array and needs to be indexed
     p_loc = 0
@@ -142,14 +153,14 @@ def test_populate_z_photosphere(formal_integral_model, p):
         p_loc = 2
     
     #N = func(formal_integral_model, p, oz, oshell_id)
-    assert actual[p_loc] == size
+    ntest.assert_almost_equal(actual[p_loc], size)
 
     ntest.assert_allclose(oshell_id, np.arange(0, size, 1))
 
     ntest.assert_allclose(oz, 1 - calculate_z(r_outer, p), atol=1e-5)
 
 @cuda.jit
-def populate_z_caller(r_inner, r_outer, time_explosion, p, oz, oshell_id, actual):
+def populate_z_photosphere_caller(r_inner, r_outer, time_explosion, p, oz, oshell_id, actual):
     x = cuda.grid(1)
     actual[x] = formal_integral_cuda.populate_z_cuda(r_inner,
                                                      r_outer,
@@ -207,7 +218,6 @@ def test_populate_z_shells(formal_integral_model, p):
                                   oshell_id, 
                                   actual)
 
-    #N = func(formal_integral_model, p, oz, oshell_id)
     #This is to find which p is being tested, so the assert statement will not crash as
     #actual is an array and needs to be indexed
     p_loc = 0
@@ -220,11 +230,15 @@ def test_populate_z_shells(formal_integral_model, p):
     elif p == 1:
         p_loc = 3
 
-    assert actual[p_loc] == expected_N
+    ntest.assert_almost_equal(actual[p_loc], expected_N)
 
     ntest.assert_allclose(oshell_id, expected_oshell_id)
 
     ntest.assert_allclose(oz, expected_oz, atol=1e-5)
+    
+    ntest.assert_almost_equal(oshell_id, expected_oshell_id)
+    
+    ntest.assert_almost_equal(oz, expected_oz)#THIS TEST FAILS
 
 
 @cuda.jit
@@ -236,6 +250,7 @@ def populate_z_shells_caller(r_inner, r_outer, time_explosion, p, oz, oshell_id,
                                                      p, 
                                                      oz, 
                                                      oshell_id)
+    
 
 @pytest.mark.parametrize(
     "N",
@@ -254,32 +269,128 @@ def test_calculate_p_values(N):
 
     actual[::] = func(r, N)
     ntest.assert_allclose(actual, expected)
+    ntest.assert_almost_equal(actual, expected)
 
 
+#Make test for every function call, even the convenience ones
+
+#Review this test with Jack!
+
+@pytest.mark.parametrize(
+    ["nu", "nu_insert"],
+    [
+        ([0, 1, 1, 2, 3, 4, 5, 6, 6, 7, 8 , 9 , 10], 0),
+        ([0, 1, 1, 2, 3, 4, 5, 6, 6, 7, 8 , 9 , 10], 1),
+        ([0, 1, 1, 2, 3, 4, 5, 6, 6, 7, 8 , 9 , 10], 5),
+        ([0, 1, 1, 2, 3, 4, 5, 6, 6, 7, 8 , 9 , 10], 6),
+        ([0, 1, 1, 2, 3, 4, 5, 6, 6, 7, 8 , 9 , 10], 7),
+        ([0, 1, 1, 2, 3, 4, 5, 6, 6, 7, 8 , 9 , 10], 10),
+        ([10, 9, 8, 7, 6, 6, 5, 4, 3, 2, 1, 1, 0], 4), #This test case will call the else statement
+    ],
+)
+def test_line_search_cuda(nu, nu_insert):
+    actual = np.zeros(7)
+    nu = np.asarray(nu)
+    imin = 0 #Lowest Index
+    imax = 12 #Highest index in the input array 
+    if nu_insert > nu[imin]:
+        expected = imin
+    elif nu_insert < nu[imax]:
+        expected = imax + 1
+    else:
+        expected = reverse_binary_search(nu, nu_insert, imin, imax)
+        expected = expected + 1
+    
+    line_search_cuda_caller[1, 7](nu, nu_insert, actual)
+    
+    nu_loc = 0
+    if nu_insert == 0:
+        nu_loc = 0
+    elif nu_insert == 1:
+        nu_loc = 1
+    elif nu_insert == 5:
+        nu_loc = 2
+    elif nu_insert == 6:
+        nu_loc = 3
+    elif nu_insert == 7:
+        nu_loc = 4
+    elif nu_insert == 10:
+        nu_loc = 5
+    elif nu_insert == 4:
+        nu_loc = 6
+    
+    ntest.assert_almost_equal(actual[nu_loc], expected)
+
+def reverse_binary_search(x, x_insert, imin, imax):
+    """
+    Look for a place to insert a value in an inversely sorted float array.
+
+    Inputs:
+        :x: (array) an inversely (largest to lowest) sorted float array
+        :x_insert: (value) a value to insert
+        :imin: (int) lower bound
+        :imax: (int) upper bound
+
+    Outputs:
+        index of the next boundary to the left
+    """
+    # ret_val = TARDIS_ERROR_OK # check
+    if (x_insert > x[imin]) or (x_insert < x[imax]):
+        raise BoundsError  # check
+    return len(x) - 1 - np.searchsorted(x[::-1], x_insert, side="right")
+
+@cuda.jit
+def line_search_cuda_caller(nu, nu_insert, actual):
+    x = cuda.grid(1)
+    actual[x] = formal_integral_cuda.line_search_cuda(nu, nu_insert, 13)
+    
 
 
+@pytest.mark.parametrize(
+    ["nu", "nu_insert"],
+    [
+        ([10, 9, 8, 7, 6, 6, 5, 4, 3, 2, 1, 1, 0], 0),
+        ([10, 9, 8, 7, 6, 6, 5, 4, 3, 2, 1, 1, 0], 1),
+        ([10, 9, 8, 7, 6, 6, 5, 4, 3, 2, 1, 1, 0], 5),
+        ([10, 9, 8, 7, 6, 6, 5, 4, 3, 2, 1, 1, 0], 6),
+        ([10, 9, 8, 7, 6, 6, 5, 4, 3, 2, 1, 1, 0], 7),
+        ([10, 9, 8, 7, 6, 6, 5, 4, 3, 2, 1, 1, 0], 10),
+        ([10, 9, 8, 7, 6, 6, 5, 4, 3, 2, 1, 1, 0], 4), #This test case will call the else statement
+    ],
+)
+def test_reverse_binary_search(nu, nu_insert):
+    actual = np.zeros(7)
+    
+    nu = np.asarray(nu)
+    if (nu_insert > nu[0]) or (nu_insert < nu[12]):
+        raise BoundsError  # check
+    expected =  len(nu) - 1 - np.searchsorted(nu[::-1], nu_insert, side="right")
+    
+    actual = np.zeros(7)
+    
+    cuda_searchsorted_value_right_caller[1, 7](nu, nu_insert, actual)
+    
+    nu_loc = 0
+    if nu_insert == 0:
+        nu_loc = 0
+    elif nu_insert == 1:
+        nu_loc = 1
+    elif nu_insert == 5:
+        nu_loc = 2
+    elif nu_insert == 6:
+        nu_loc = 3
+    elif nu_insert == 7:
+        nu_loc = 4
+    elif nu_insert == 10:
+        nu_loc = 5
+    elif nu_insert == 4:
+        nu_loc = 6
+    
+    ntest.assert_almost_equal(actual[nu_loc], expected)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+@cuda.jit
+def cuda_searchsorted_value_right_caller(nu, nu_insert, actual):
+    x = cuda.grid(1)
+    actual[x] = len(nu) - 1 - cuda_searchsorted_value_right(nu[::-1], nu_insert)
 
 

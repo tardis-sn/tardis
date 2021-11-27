@@ -69,6 +69,9 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
     Returns
     -------
     L : array(float64, 1d, C)
+    
+    
+    Check diff params, pass them to some index of I_nu to check if they are the same!
     """
     #See about using cuda to make arrays
     
@@ -140,7 +143,6 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
 
         # initialize z intersections for p values
         
-        #populate_z_cuda seems to match in results to it's njit counterpart through testing
         size_z = populate_z_cuda(r_inner, r_outer, time_explosion, p, z_thread, shell_id_thread) # check returns #int64
         # initialize I_nu
         if p <= R_ph:
@@ -226,12 +228,14 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
                     # this introduces the necessary ffset of one element between
                     # pJblue_lu and pJred_lu
                     pJred_lu += 1
-                
+                #cuda.atomic.add(I_nu_thread, p_idx, escat_contrib)
                 I_nu_thread[p_idx] += escat_contrib
                 #cuda.atomic.add(I_nu_thread, p_idx, escat_contrib) #escat_contrib
                 # // Lucy 1999, Eq 26
+                cuda.syncthreads()
                 I_nu_thread[p_idx] *= (exp_tau[pexp_tau])
-               
+                
+                #cuda.atomic.add(I_nu_thread, p_idx, att_S_ul[patt_S_ul])
                 I_nu_thread[p_idx] += att_S_ul[patt_S_ul] 
                 
                 # // reset e-scattering opacity
@@ -257,12 +261,11 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
             patt_S_ul += direction
             pJred_lu += direction
             pJblue_lu += direction
+        
         I_nu_thread[p_idx] *= p #multiply by float64 at this index
     #cuda.atomic.add(L, nu_idx, 8 * M_PI * M_PI * trapezoid_integration_cuda(I_nu_thread, R_max / N))
-    L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration_cuda(I_nu_thread, R_max / N)
     
-    #L[nu_idx] += 5
-    #cuda.atomic.add(L, nu_idx, 5)
+    L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration_cuda(I_nu_thread, R_max / N)
     
 
 
@@ -351,6 +354,7 @@ class NumbaFormalIntegrator(object):
         print("L:")
         print(L)
         return L
+        #return L, I_nu
     
 
 
