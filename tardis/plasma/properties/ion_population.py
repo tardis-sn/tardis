@@ -168,16 +168,16 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
         zeta_t_rad = zeta_data.columns.values.astype(np.float64)
         zeta_values = zeta_data.loc[ion_index].values.astype(np.float64)
         """
-        # NEW VERSION:
+        # SUGGESTION:
         ion_index_in_zeta = ion_index.isin(zeta_data.index) # returns a boolean array, False means an index has not been found in the zeta data file
-        if False not in ion_index_in_zeta:
+        if False not in ion_index_in_zeta: 
             zeta_values = zeta_data.loc[ion_index].values.astype(np.float64)
             zeta_t_rad = zeta_data.columns.values.astype(np.float64)
-        else:
-            # for now: hard-coded dummy value, may better be added as a config parameter
+        else: # now zeta data found in the file -> zeta_data is empty
+            # for now: hard-coded dummy value, may better be added as a config parameter (-> how?)
             dummy_zeta_val = 0.3
-            # the following temp_values have to be included as now I do not read the zeta_data file, obtaining the columns therefrom
-            temp_values = [2000.0,4000.0,6000.0,8000.0,10000.0,12000.0,14000.0,16000.0,18000.0,20000.0]
+            # for now, the following temp_values have to be included as zeta_data is empty -> is there a better solution?
+            temp_values = [2000.0,4000.0,6000.0,8000.0,10000.0,12000.0,14000.0,16000.0,18000.0,20000.0] 
             zeta_data_copy = pd.DataFrame(dummy_zeta_val,columns=temp_values,index=ion_index)
             zeta_values = zeta_data_copy.values.astype(np.float64)
             zeta_t_rad = zeta_data_copy.columns.values.astype(np.float64)
