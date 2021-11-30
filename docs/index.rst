@@ -78,39 +78,23 @@ Mission Statement
 
 .. toctree::
     :maxdepth: 2
-    :caption: Research with TARDIS
-    :hidden:
-
-    Overview <research/index>
-
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Team & Credits
-    :hidden:
-
-    team_and_governance/index
-    credits
-    Code of Conduct <CODE_OF_CONDUCT.md>
-    sponsors
-
-
-.. toctree::
-    :maxdepth: 2
     :caption: Contributing to TARDIS
     :hidden:
 
-    CONTRIBUTING.md
-    development/index
-    CHANGELOG.md
-    roadmap
+    contributing/CONTRIBUTING.md
+    contributing/development/index
+    contributing/CHANGELOG.md
+    contributing/roadmap
 
 
 .. toctree::
-    :caption: References
+    :caption: Other Resources
     :hidden:
-
-    zreferences
+    
+    resources/credits
+    resources/research_done_using_TARDIS/research_papers
+    resources/code_comparison/index
+    resources/zreferences
 
 
 .. toctree::
