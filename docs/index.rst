@@ -49,7 +49,7 @@ Mission Statement
     :hidden:
 
     installation
-    quickstart/quickstart
+    quickstart
     tutorials
     API <api/modules>
 
