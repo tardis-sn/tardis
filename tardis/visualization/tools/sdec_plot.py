@@ -1177,8 +1177,8 @@ class SDECPlotter:
         # Plot modeled spectrum
         if show_modeled_spectrum:
             self.ax.plot(
-                self.plot_wavelength,
-                self.modeled_spectrum_luminosity,
+                self.plot_wavelength.value,
+                self.modeled_spectrum_luminosity.value,
                 "--b",
                 label=f"{packets_mode.capitalize()} Spectrum",
                 linewidth=1,
@@ -1202,8 +1202,8 @@ class SDECPlotter:
             observed_spectrum_flux = observed_spectrum[1].to("erg/(s cm**2 AA)")
 
             self.ax.plot(
-                observed_spectrum_wavelength,
-                observed_spectrum_flux,
+                observed_spectrum_wavelength.value,
+                observed_spectrum_flux.value,
                 "-k",
                 label="Observed Spectrum",
                 linewidth=1,
@@ -1211,8 +1211,8 @@ class SDECPlotter:
 
         # Plot photosphere
         self.ax.plot(
-            self.plot_wavelength,
-            self.photosphere_luminosity,
+            self.plot_wavelength.value,
+            self.photosphere_luminosity.value,
             "--r",
             label="Blackbody Photosphere",
         )
@@ -1243,7 +1243,7 @@ class SDECPlotter:
         )
 
         self.ax.fill_between(
-            self.plot_wavelength,
+            self.plot_wavelength.value,
             lower_level,
             upper_level,
             color="#4C4C4C",
@@ -1256,7 +1256,7 @@ class SDECPlotter:
         )
 
         self.ax.fill_between(
-            self.plot_wavelength,
+            self.plot_wavelength.value,
             lower_level,
             upper_level,
             color="#8F8F8F",
@@ -1271,7 +1271,7 @@ class SDECPlotter:
             )
 
             self.ax.fill_between(
-                self.plot_wavelength,
+                self.plot_wavelength.value,
                 lower_level,
                 upper_level,
                 color="#C2C2C2",
@@ -1288,7 +1288,7 @@ class SDECPlotter:
                 )
 
                 self.ax.fill_between(
-                    self.plot_wavelength,
+                    self.plot_wavelength.value,
                     lower_level,
                     upper_level,
                     color=self._color_list[species_counter],
@@ -1328,7 +1328,7 @@ class SDECPlotter:
             )
 
             self.ax.fill_between(
-                self.plot_wavelength,
+                self.plot_wavelength.value,
                 upper_level,
                 lower_level,
                 color="silver",
@@ -1343,7 +1343,7 @@ class SDECPlotter:
                 )
 
                 self.ax.fill_between(
-                    self.plot_wavelength,
+                    self.plot_wavelength.value,
                     upper_level,
                     lower_level,
                     color=self._color_list[species_counter],
@@ -1572,8 +1572,8 @@ class SDECPlotter:
         if show_modeled_spectrum:
             self.fig.add_trace(
                 go.Scatter(
-                    x=self.plot_wavelength,
-                    y=self.modeled_spectrum_luminosity,
+                    x=self.plot_wavelength.value,
+                    y=self.modeled_spectrum_luminosity.value,
                     mode="lines",
                     line=dict(
                         color="blue",
@@ -1601,8 +1601,8 @@ class SDECPlotter:
             observed_spectrum_flux = observed_spectrum[1].to("erg/(s cm**2 AA)")
 
             self.fig.add_scatter(
-                x=observed_spectrum_wavelength,
-                y=observed_spectrum_flux,
+                x=observed_spectrum_wavelength.value,
+                y=observed_spectrum_flux.value,
                 name="Observed Spectrum",
                 line={"color": "black", "width": 1.2},
             )
@@ -1610,8 +1610,8 @@ class SDECPlotter:
         # Plot photosphere
         self.fig.add_trace(
             go.Scatter(
-                x=self.plot_wavelength,
-                y=self.photosphere_luminosity,
+                x=self.plot_wavelength.value,
+                y=self.photosphere_luminosity.value,
                 mode="lines",
                 line=dict(width=1.5, color="red", dash="dash"),
                 name="Blackbody Photosphere",
@@ -1826,7 +1826,7 @@ class SDECPlotter:
         scatter_point_idx = pu.get_mid_point_idx(self.plot_wavelength)
         self.fig.add_trace(
             go.Scatter(
-                x=self.plot_wavelength[scatter_point_idx],
+                x=[self.plot_wavelength[scatter_point_idx].value],
                 y=[0],
                 mode="markers",
                 showlegend=False,
