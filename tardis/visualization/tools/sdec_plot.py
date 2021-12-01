@@ -1580,6 +1580,8 @@ class SDECPlotter:
                         width=1,
                     ),
                     name=f"{packets_mode.capitalize()} Spectrum",
+                    hovertemplate="(%{x:.2f}, %{y:.3g})",
+                    hoverlabel=dict(namelength=-1),
                 )
             )
 
@@ -1605,6 +1607,8 @@ class SDECPlotter:
                 y=observed_spectrum_flux,
                 name="Observed Spectrum",
                 line={"color": "black", "width": 1.2},
+                hoverlabel=dict(namelength=-1),
+                hovertemplate="(%{x:.2f}, %{y:.3g})",
             )
 
         # Plot photosphere
@@ -1615,6 +1619,8 @@ class SDECPlotter:
                 mode="lines",
                 line=dict(width=1.5, color="red", dash="dash"),
                 name="Blackbody Photosphere",
+                hoverlabel=dict(namelength=-1),
+                hovertemplate="(%{x:.2f}, %{y:.3g})",
             )
         )
 
@@ -1672,6 +1678,7 @@ class SDECPlotter:
                 name="No interaction",
                 fillcolor="#4C4C4C",
                 stackgroup="emission",
+                hovertemplate="(%{x:.2f}, %{y:.3g})",
             )
         )
 
@@ -1683,6 +1690,8 @@ class SDECPlotter:
                 name="Electron Scatter Only",
                 fillcolor="#8F8F8F",
                 stackgroup="emission",
+                hoverlabel=dict(namelength=-1),
+                hovertemplate="(%{x:.2f}, %{y:.3g})",
             )
         )
 
@@ -1696,23 +1705,29 @@ class SDECPlotter:
                     name="Other elements",
                     fillcolor="#C2C2C2",
                     stackgroup="emission",
+                    hovertemplate="(%{x:.2f}, %{y:.3g})",
                 )
             )
 
         # Contribution from each element
-        for species_counter, identifier in enumerate(self.species):
+        for (species_counter, identifier), species_name in zip(
+            enumerate(self.species), self._species_name
+        ):
             try:
                 self.fig.add_trace(
                     go.Scatter(
                         x=self.emission_luminosities_df.index,
                         y=self.emission_luminosities_df[identifier],
                         mode="none",
-                        name="none",
+                        name=species_name + " Emission",
+                        hovertemplate=f"<b>{species_name} Emission </b>"
+                        + "(%{x:.2f}, %{y:.3g})<extra></extra>",
                         fillcolor=self.to_rgb255_string(
                             self._color_list[species_counter]
                         ),
                         stackgroup="emission",
                         showlegend=False,
+                        hoverlabel=dict(namelength=-1),
                     )
                 )
             except:
@@ -1748,10 +1763,13 @@ class SDECPlotter:
                     fillcolor="#C2C2C2",
                     stackgroup="absorption",
                     showlegend=False,
+                    hovertemplate="(%{x:.2f}, %{y:.3g})",
                 )
             )
 
-        for species_counter, identifier in enumerate(self.species):
+        for (species_counter, identifier), species_name in zip(
+            enumerate(self.species), self._species_name
+        ):
             try:
                 self.fig.add_trace(
                     go.Scatter(
@@ -1759,12 +1777,15 @@ class SDECPlotter:
                         # to plot absorption luminosities along negative y-axis
                         y=self.absorption_luminosities_df[identifier] * -1,
                         mode="none",
-                        name="none",
+                        name=species_name + " Absorption",
+                        hovertemplate=f"<b>{species_name} Absorption </b>"
+                        + "(%{x:.2f}, %{y:.3g})<extra></extra>",
                         fillcolor=self.to_rgb255_string(
                             self._color_list[species_counter]
                         ),
                         stackgroup="absorption",
                         showlegend=False,
+                        hoverlabel=dict(namelength=-1),
                     )
                 )
 
@@ -1829,6 +1850,7 @@ class SDECPlotter:
                 x=self.plot_wavelength[scatter_point_idx],
                 y=[0],
                 mode="markers",
+                name="Colorbar",
                 showlegend=False,
                 hoverinfo="skip",
                 marker=dict(color=[0], opacity=0, **coloraxis_options),
