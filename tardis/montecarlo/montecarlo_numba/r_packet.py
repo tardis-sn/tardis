@@ -28,10 +28,10 @@ from tardis.montecarlo.montecarlo_numba.frame_transformations import (
 from tardis.montecarlo import montecarlo_configuration
 from tardis.montecarlo.montecarlo_numba.numba_config import (
     CLOSE_LINE_THRESHOLD,
-    ENABLE_FULL_RELATIVITY,
     SIGMA_THOMSON,
 )
-
+from tardis.montecarlo.montecarlo_configuration import full_relativity
+ENABLE_FULL_RELATIVITY = full_relativity
 
 class InteractionType(IntEnum):
     BOUNDARY = 1
