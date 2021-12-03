@@ -2,7 +2,8 @@ import time
 import logging
 import numpy as np
 import pandas as pd
-from astropy import units as u, constants as const
+from astropy import units as u
+from tardis import constants as const
 from collections import OrderedDict
 from tardis import model
 
