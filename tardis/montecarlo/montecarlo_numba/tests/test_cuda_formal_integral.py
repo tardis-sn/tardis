@@ -65,8 +65,8 @@ def trapezoid_integration_caller(data, h, actual):
     actual[x] = formal_integral_cuda.trapezoid_integration_cuda(data, h)
     
 
-def calculate_z(r, p):
-    return np.sqrt(r * r - p * p)
+def calculate_z(r, p, inv_t):
+    return np.sqrt(r * r - p * p) * formal_integral_cuda.C_INV * inv_t
 
 TESTDATA = [
     {
@@ -112,7 +112,7 @@ def test_calculate_z_cuda(formal_integral_model, p):
         if p >= r:
             assert actual[p_loc] == 0
         else:
-            desired = np.sqrt(r * r - p * p) * formal_integral_cuda.C_INV * inv_t
+            desired = calculate_z(r, p, inv_t)
             ntest.assert_almost_equal(actual[p_loc], desired)
 
 @cuda.jit
@@ -157,7 +157,8 @@ def test_populate_z_photosphere(formal_integral_model, p):
 
     ntest.assert_allclose(oshell_id, np.arange(0, size, 1))
 
-    ntest.assert_allclose(oz, 1 - calculate_z(r_outer, p), atol=1e-5)
+    ntest.assert_allclose(oz, 1 - calculate_z(r_outer, p, 1/formal_integral_model.time_explosion), atol=1e-5)
+    
 
 @cuda.jit
 def populate_z_photosphere_caller(r_inner, r_outer, time_explosion, p, oz, oshell_id, actual):
@@ -174,17 +175,18 @@ def populate_z_photosphere_caller(r_inner, r_outer, time_explosion, p, oz, oshel
 def test_populate_z_shells(formal_integral_model, p):
     """
     Test the case where p > r[0]
+    
+    oz is redshift
     """
     actual = np.zeros(4)
     
-    integrator = formal_integral_cuda.FormalIntegrator(
-        formal_integral_model, None, None
-    )
     #func = formal_integral_cuda.populate_z_cuda
 
     size = len(formal_integral_model.r_inner)
     r_inner = formal_integral_model.r_inner
     r_outer = formal_integral_model.r_outer
+    
+    inv_t = 1/formal_integral_model.time_explosion
 
     p = r_inner[0] + (r_outer[-1] - r_inner[0]) * p
     idx = np.searchsorted(r_outer, p, side="right")
@@ -196,19 +198,20 @@ def test_populate_z_shells(formal_integral_model, p):
 
     expected_N = (offset) * 2
     expected_oz = np.zeros_like(oz)
-    expected_oshell_id = np.zeros_like(oshell_id)
+    expected_oshell_id = np.zeros_like(oshell_id).astype(np.float64)
 
     # Calculated way to determine which shells get hit
     expected_oshell_id[:expected_N] = (
         np.abs(np.arange(0.5, expected_N, 1) - offset) - 0.5 + idx
     )
-
+    
     expected_oz[0:offset] = 1 + calculate_z(
-        r_outer[np.arange(size, idx, -1) - 1], p
+        r_outer[np.arange(size, idx, -1) - 1], p, inv_t
     )
     expected_oz[offset:expected_N] = 1 - calculate_z(
-        r_outer[np.arange(idx, size, 1)], p
+        r_outer[np.arange(idx, size, 1)], p, inv_t
     )
+
     
     populate_z_shells_caller[1,4](r_inner, 
                                   r_outer, 
@@ -220,6 +223,8 @@ def test_populate_z_shells(formal_integral_model, p):
 
     #This is to find which p is being tested, so the assert statement will not crash as
     #actual is an array and needs to be indexed
+    
+    #Need to manually do the math here to see where the error is coming from!
     p_loc = 0
     if p == 1e-5:
         p_loc = 0
@@ -238,7 +243,7 @@ def test_populate_z_shells(formal_integral_model, p):
     
     ntest.assert_almost_equal(oshell_id, expected_oshell_id)
     
-    ntest.assert_almost_equal(oz, expected_oz)#THIS TEST FAILS
+    ntest.assert_almost_equal(oz, expected_oz)
 
 
 @cuda.jit
@@ -260,6 +265,7 @@ def populate_z_shells_caller(r_inner, r_outer, time_explosion, p, oz, oshell_id,
         10000,
     ],
 )
+
 def test_calculate_p_values(N):
     r = 1.0
     func = formal_integral_cuda.calculate_p_values
