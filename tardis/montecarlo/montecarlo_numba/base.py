@@ -1,4 +1,3 @@
-from numba import prange, njit, jit, objmode
 import logging
 import numpy as np
 import pandas as pd
@@ -27,8 +26,11 @@ from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
     single_packet_loop,
 )
 from tardis.montecarlo.montecarlo_numba import njit_dict
-from numba.typed import List
 from tardis.util.base import update_iterations_pbar, update_packet_pbar
+
+from numba import prange, njit, jit, objmode
+from numba.typed import List
+from itertools import chain
 
 
 def montecarlo_radial1d(
@@ -61,12 +63,6 @@ def montecarlo_radial1d(
         runner.j_blue_estimator,
         runner.Edotlu_estimator,
     )
-
-    # Configuring the Tracking for R_Packets
-    # if montecarlo_configuration.RPACKET_TRACKING:
-    #     tracked_rpacket = RPacketCollection()
-    # else:
-    #     tracked_rpacket = None
 
     packet_seeds = montecarlo_configuration.packet_seeds
 
@@ -137,12 +133,14 @@ def montecarlo_radial1d(
 
     # Condition for Checking if R Packet Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
+        # Creates a dataframe for a particular rpacket
         runner.rpacket_collections = rpacket_collections
         tracked_df = create_tracked_rpacket_df(
             rpacket_collections,
             iteration,
         )
 
+        # Appending the dataframe based on iterations
         runner.rpacket_tracker = track_rpacket_dataframe(
             runner.rpacket_tracker, tracked_df
         )
@@ -373,25 +371,40 @@ def montecarlo_main_loop(
 
 
 def create_tracked_rpacket_df(rpacket_collections, iteration):
-    for i in range(len(rpacket_collections)):
-        if i == 0:
-            seed = rpacket_collections[0].seed
-            index = rpacket_collections[0].index
-            status = rpacket_collections[0].status
-            r = rpacket_collections[0].r
-            nu = rpacket_collections[0].nu
-            mu = rpacket_collections[0].mu
-            energy = rpacket_collections[0].energy
-            shell_id = rpacket_collections[0].shell_id
+    """
+    Creates Dataframe for particular rpacket along with Iteration info
 
-        seed = [*seed, *rpacket_collections[i].seed]
-        index = [*index, *rpacket_collections[i].index]
-        status = [*status, *rpacket_collections[i].status]
-        r = [*r, *rpacket_collections[i].r]
-        nu = [*nu, *rpacket_collections[i].nu]
-        mu = [*mu, *rpacket_collections[i].mu]
-        energy = [*energy, *rpacket_collections[i].energy]
-        shell_id = [*shell_id, *rpacket_collections[i].shell_id]
+    Parameters
+    ----------
+    rpacket_collections : list (contains `numba.jitclass` instances)
+        A list of rpackets. Stores all the data for each interaction a particular rpacket undergoes as the simulation progresses.
+    iteration : int
+        Current Simulation 'Iteration' value
+
+    Returns
+    -------
+    rpacket_tracked_df : pd.DataFrame
+        A dataframe that is generated with all the properties of a single rpacket.
+    """
+
+    seed = rpacket_collections[0].seed
+    index = rpacket_collections[0].index
+    status = rpacket_collections[0].status
+    r = rpacket_collections[0].r
+    nu = rpacket_collections[0].nu
+    mu = rpacket_collections[0].mu
+    energy = rpacket_collections[0].energy
+    shell_id = rpacket_collections[0].shell_id
+
+    for i in range(1, len(rpacket_collections)):
+        seed = chain(seed, rpacket_collections[i].seed)
+        index = chain(index, rpacket_collections[i].index)
+        status = chain(status, rpacket_collections[i].status)
+        r = chain(r, rpacket_collections[i].r)
+        nu = chain(nu, rpacket_collections[i].nu)
+        mu = chain(mu, rpacket_collections[i].mu)
+        energy = chain(energy, rpacket_collections[i].energy)
+        shell_id = chain(shell_id, rpacket_collections[i].shell_id)
 
     vals = [
         index,
@@ -423,6 +436,22 @@ def create_tracked_rpacket_df(rpacket_collections, iteration):
 
 
 def track_rpacket_dataframe(tracked_rpacket_df, tracked_df):
+    """
+    Appending function for joining the pre-exisiting dataframe stored in `runner.rpacket_tracker` with the newly created dataframe with iteration information.
+    Helps create the final dataframe which has all the data stored with iteration for all the rpackets.
+
+    Parameter
+    ---------
+    tracked_rpacket_df : pd.DataFrame
+        The final DataFrame that is stores all the data for all the interactions for all the rpackets, iteration wise.
+    tracked_df : pd.DataFrame
+        Particular iteraction based DataFrame that stores the properties of a particular `rpacket` under consideration.
+
+    Returns
+    -------
+    tracked_rpacket_df : pd.DataFrame
+        Returns the Final DataFrame after appending the data of `tracked_df` into the pre-exisiting values.
+    """
     tracked_rpacket_df = tracked_rpacket_df.append(
         tracked_df, ignore_index=True
     )
