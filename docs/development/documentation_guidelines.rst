@@ -12,7 +12,7 @@ TARDIS uses the popular Python documentation generator `Sphinx <https://www.sphi
 Documenting the code you write
 ==============================
 
-When making or adding changes to the functionality of an aspect of TARDIS, an .rst file or notebook should be created to demonstrate how it works, and that page must then be included in the documentation. This is described in detail in the following sections.
+When making or adding changes to the functionality of an aspect of TARDIS, an ``.rst`` file or Jupyter notebook (``.ipynb`` file) should be created to demonstrate how it works, and that page must then be included in the documentation. This is described in detail in the following sections.
 
 
 RST Documentation
