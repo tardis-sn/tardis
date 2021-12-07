@@ -14,7 +14,6 @@ to the Astropy team for designing it.
     issues
     git_workflow
     documentation_guidelines
-    documentation_preview
     running_tests
     code_quality
     developer_faq
