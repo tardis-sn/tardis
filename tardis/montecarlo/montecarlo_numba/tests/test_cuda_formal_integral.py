@@ -5,12 +5,18 @@ from tardis import constants as c
 from copy import deepcopy
 import numpy.testing as ntest
 from numba import cuda
+from numba import njit
 
-from tardis.util.base import intensity_black_body
+
 import tardis.montecarlo.montecarlo_numba.formal_integral_cuda_test as formal_integral_cuda
+import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral_numba
 from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
+from tardis.montecarlo.montecarlo_numba.numba_interface import numba_plasma_initialize
 
 from tardis.montecarlo.montecarlo_numba.formal_integral_cuda_functions import cuda_searchsorted_value_right
+
+
+#All tests need to be changed to call the number version of the function as the expected result
 
 @pytest.mark.parametrize(
     ["nu", "T"],
@@ -25,7 +31,7 @@ def test_intensity_black_body_cuda(nu, T):
     actual = np.zeros(3)
     black_body_caller[1, 3](nu, T, actual)
     
-    expected = intensity_black_body(nu, T)
+    expected = formal_integral_numba.intensity_black_body(nu, T)
     ntest.assert_almost_equal(actual, expected)
     
 @cuda.jit
@@ -42,8 +48,8 @@ def test_trapezoid_integration_cuda(N):
     N = int(N)
     data = np.random.random(N)
 
-    #actual = func(data, h)
-    expected = np.trapz(data)
+    
+    expected = formal_integral_numba.trapezoid_integration(data, h)
     trapezoid_integration_caller[1, 4](data, h, actual)
     
     N_loc = 0
@@ -64,7 +70,7 @@ def trapezoid_integration_caller(data, h, actual):
     x = cuda.grid(1)
     actual[x] = formal_integral_cuda.trapezoid_integration_cuda(data, h)
     
-
+@njit(fastmath=True, error_model="numpy", parallel=False)
 def calculate_z(r, p, inv_t):
     return np.sqrt(r * r - p * p) * formal_integral_cuda.C_INV * inv_t
 
@@ -87,6 +93,14 @@ def formal_integral_model(request):
             r[1:],
             1/c.c.cgs.value)
     return model
+
+#NEEDS TO BE FIGURED OUT
+@pytest.fixture(scope="function", params=TESTDATA)
+def formal_integral_plasma(request):
+    r = request.param["r"]
+    plasma = numba_plasma_initialize()
+    return plasma
+        
 
 
 @pytest.mark.parametrize(
@@ -112,8 +126,8 @@ def test_calculate_z_cuda(formal_integral_model, p):
         if p >= r:
             assert actual[p_loc] == 0
         else:
-            desired = calculate_z(r, p, inv_t)
-            ntest.assert_almost_equal(actual[p_loc], desired)
+            expected = formal_integral_numba.calculate_z(r, p, inv_t)
+            ntest.assert_almost_equal(actual[p_loc], expected)
 
 @cuda.jit
 def calculate_z_caller(r, p, inv_t, actual):
@@ -132,7 +146,7 @@ def test_populate_z_photosphere(formal_integral_model, p):
     integrator = formal_integral_cuda.FormalIntegrator(
         formal_integral_model, None, None
     )
-    #func = formal_integral_cuda.populate_z_cuda
+    
     size = len(formal_integral_model.r_outer)
     r_inner = formal_integral_model.r_inner
     r_outer = formal_integral_model.r_outer
@@ -152,12 +166,15 @@ def test_populate_z_photosphere(formal_integral_model, p):
     elif p == 1.0:
         p_loc = 2
     
-    #N = func(formal_integral_model, p, oz, oshell_id)
+    expected_oz = np.zeros_like(r_outer)
+    expected_oshell_id = np.zeros_like(oshell_id).astype(np.float64)
+    formal_integral_numba.populate_z(formal_integral_model, p, expected_oz, expected_oshell_id)
+    
     ntest.assert_almost_equal(actual[p_loc], size)
 
-    ntest.assert_allclose(oshell_id, np.arange(0, size, 1))
-
-    ntest.assert_allclose(oz, 1 - calculate_z(r_outer, p, 1/formal_integral_model.time_explosion), atol=1e-5)
+    ntest.assert_allclose(oshell_id, expected_oshell_id)
+    
+    ntest.assert_allclose(oz, expected_oz, atol=1e-5)
     
 
 @cuda.jit
@@ -171,16 +188,15 @@ def populate_z_photosphere_caller(r_inner, r_outer, time_explosion, p, oz, oshel
                                                      oshell_id)
 
 
-@pytest.mark.parametrize("p", [1e-5, 0.5, 0.99, 1])
+@pytest.mark.parametrize("p", [1e-5, 1e-3, .1, 0.5, 0.99, 1])
 def test_populate_z_shells(formal_integral_model, p):
     """
     Test the case where p > r[0]
     
     oz is redshift
     """
-    actual = np.zeros(4)
+    actual = np.zeros(6)
     
-    #func = formal_integral_cuda.populate_z_cuda
 
     size = len(formal_integral_model.r_inner)
     r_inner = formal_integral_model.r_inner
@@ -201,17 +217,8 @@ def test_populate_z_shells(formal_integral_model, p):
     expected_oshell_id = np.zeros_like(oshell_id).astype(np.float64)
 
     # Calculated way to determine which shells get hit
-    expected_oshell_id[:expected_N] = (
-        np.abs(np.arange(0.5, expected_N, 1) - offset) - 0.5 + idx
-    )
+    formal_integral_numba.populate_z(formal_integral_model, p, expected_oz, expected_oshell_id)
     
-    expected_oz[0:offset] = 1 + calculate_z(
-        r_outer[np.arange(size, idx, -1) - 1], p, inv_t
-    )
-    expected_oz[offset:expected_N] = 1 - calculate_z(
-        r_outer[np.arange(idx, size, 1)], p, inv_t
-    )
-
     
     populate_z_shells_caller[1,4](r_inner, 
                                   r_outer, 
@@ -224,7 +231,6 @@ def test_populate_z_shells(formal_integral_model, p):
     #This is to find which p is being tested, so the assert statement will not crash as
     #actual is an array and needs to be indexed
     
-    #Need to manually do the math here to see where the error is coming from!
     p_loc = 0
     if p == 1e-5:
         p_loc = 0
@@ -267,20 +273,23 @@ def populate_z_shells_caller(r_inner, r_outer, time_explosion, p, oz, oshell_id,
 )
 
 def test_calculate_p_values(N):
+    #Compare to old calculate p_values
     r = 1.0
-    func = formal_integral_cuda.calculate_p_values
 
-    expected = r / (N - 1) * np.arange(0, N, dtype=np.float64)
+    expected = formal_integral_numba.calculate_p_values(r, N)
+    
     actual = np.zeros_like(expected, dtype=np.float64)
-
-    actual[::] = func(r, N)
+    actual[::] = formal_integral_cuda.calculate_p_values(r, N)
+    
     ntest.assert_allclose(actual, expected)
+    
     ntest.assert_almost_equal(actual, expected)
 
 
-#Make test for every function call, even the convenience ones
+#Choose some frequencies that exist within the line list
+#Nu is in the plasma
 
-#Review this test with Jack!
+#These ones below need to be testing based on the numba results!
 
 @pytest.mark.parametrize(
     ["nu", "nu_insert"],
@@ -294,9 +303,12 @@ def test_calculate_p_values(N):
         ([10, 9, 8, 7, 6, 6, 5, 4, 3, 2, 1, 1, 0], 4), #This test case will call the else statement
     ],
 )
-def test_line_search_cuda(nu, nu_insert):
+
+def test_line_search_cuda(nu, nu_insert, formal_integral_model):
     actual = np.zeros(7)
     nu = np.asarray(nu)
+    
+    func = formal_integral_numba.line_search
     imin = 0 #Lowest Index
     imax = 12 #Highest index in the input array 
     if nu_insert > nu[imin]:
@@ -326,17 +338,15 @@ def test_line_search_cuda(nu, nu_insert):
         nu_loc = 6
     
     ntest.assert_almost_equal(actual[nu_loc], expected)
-
+        
 def reverse_binary_search(x, x_insert, imin, imax):
     """
     Look for a place to insert a value in an inversely sorted float array.
-
     Inputs:
         :x: (array) an inversely (largest to lowest) sorted float array
         :x_insert: (value) a value to insert
         :imin: (int) lower bound
         :imax: (int) upper bound
-
     Outputs:
         index of the next boundary to the left
     """
@@ -364,12 +374,15 @@ def line_search_cuda_caller(nu, nu_insert, actual):
         ([10, 9, 8, 7, 6, 6, 5, 4, 3, 2, 1, 1, 0], 4), #This test case will call the else statement
     ],
 )
+
 def test_reverse_binary_search(nu, nu_insert):
     actual = np.zeros(7)
     
     nu = np.asarray(nu)
     if (nu_insert > nu[0]) or (nu_insert < nu[12]):
         raise BoundsError  # check
+    
+    #This should be numba version of it
     expected =  len(nu) - 1 - np.searchsorted(nu[::-1], nu_insert, side="right")
     
     actual = np.zeros(7)
@@ -400,3 +413,35 @@ def cuda_searchsorted_value_right_caller(nu, nu_insert, actual):
     actual[x] = len(nu) - 1 - cuda_searchsorted_value_right(nu[::-1], nu_insert)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+    
+    
+    
+    
