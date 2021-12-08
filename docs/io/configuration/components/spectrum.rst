@@ -8,9 +8,7 @@ Finally, the spectrum configuration tells TARDIS information needed for spectrum
 
 .. jsonschema:: schemas/spectrum.yml
 
-``start`` and ``end`` are given as values with units. If they are given in
-terms of frequency, then they will be converted into wavelengths. As such, if in terms of frequency, 
-``start`` should be set as the higher frequency and ``end`` should be set as the lower frequency. 
+``start`` and ``end`` are given as values with units.  
 ``num`` specifies the number of bins used to build the spectrum and must be given as an integer. 
 Finally, the method option selects the final spectral synthesis mode. Currently, there are three options:
  
