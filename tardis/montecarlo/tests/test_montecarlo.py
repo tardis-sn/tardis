@@ -852,7 +852,7 @@ def test_rpacket_tracking(index, seed, r, nu, mu, energy):
     # TearDown Montecarlo_Configuration.INITIAL_TRACKING_ARRAY_LENGTH
     mc.INITIAL_TRACKING_ARRAY_LENGTH = None
 
-    tracked_rpacket_properties.set_properties(test_rpacket)
+    tracked_rpacket_properties.track(test_rpacket)
     tracked_rpacket_properties.finalize_array()
 
     assert test_rpacket.index == tracked_rpacket_properties.index
@@ -861,4 +861,4 @@ def test_rpacket_tracking(index, seed, r, nu, mu, energy):
     assert test_rpacket.nu == tracked_rpacket_properties.nu
     assert test_rpacket.mu == tracked_rpacket_properties.mu
     assert test_rpacket.energy == tracked_rpacket_properties.energy
-    assert len(tracked_rpacket_properties.index) == 1 
+    assert tracked_rpacket_properties.interact_id == 1 
