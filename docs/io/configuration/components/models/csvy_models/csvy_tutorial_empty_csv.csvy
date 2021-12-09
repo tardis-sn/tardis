@@ -1,0 +1,24 @@
+---
+name: csvy_tutorial_empty_csv
+model_density_time_0: 1 day
+model_isotope_time_0: 0 day
+description: CSVY config file where all values are in the yaml section and none are in the csv section
+tardis_model_config_version: v1.0
+
+velocity:
+   start: 1.1e4 km/s
+   stop: 20000 km/s
+   num: 20
+density:
+   type: branch85_w7
+abundance: 
+   type: uniform
+   O: 0.19
+   Mg: 0.03
+   Si: 0.52
+   S: 0.19
+   Ar: 0.04
+   Ca: 0.02
+   Ni56: 0.01
+   
+---

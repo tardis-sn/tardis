@@ -1,0 +1,48 @@
+---
+name: csvy_tutorial_only_v_p
+model_density_time_0: 1 day
+model_isotope_time_0: 0 day
+description: CSVY config file that only includes the velocity and density per shell
+tardis_model_config_version: v1.0
+datatype:
+  fields:
+    -  name: velocity
+       unit: cm/s
+       desc: velocities of shell outer bounderies.
+    -  name: density
+       unit: g/cm^3
+       desc: density of shell.
+
+abundance: 
+   type: uniform
+   O: 0.19
+   Mg: 0.03
+   Si: 0.52
+   S: 0.19
+   Ar: 0.04
+   Ca: 0.02
+   Ni56: 0.01
+---
+velocity,density
+1.00e+08, 1.00000000e-05
+1.05e+08, 3.13040297e-06
+1.10e+08, 2.24289041e-06
+1.15e+08, 1.63154722e-06
+1.20e+08, 1.20337847e-06
+1.25e+08, 8.98906836e-07
+1.30e+08, 6.79353803e-07
+1.35e+08, 5.18986614e-07
+1.40e+08, 4.00450110e-07
+1.45e+08, 3.11862570e-07
+1.50e+08, 2.44975787e-07
+1.55e+08, 1.93989578e-07
+1.60e+08, 1.54775921e-07
+1.65e+08, 1.24363732e-07
+1.70e+08, 1.00592042e-07
+1.75e+08, 8.18735475e-08
+1.80e+08, 6.70314791e-08
+1.85e+08, 5.51857848e-08
+1.90e+08, 4.56728802e-08
+1.95e+08, 3.79885019e-08
+2.00e+08, 3.17466281e-08
+2.05e+08, 3.00000000e-08

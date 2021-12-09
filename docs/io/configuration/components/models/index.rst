@@ -298,4 +298,7 @@ factor of .8, etc.
 CSVY Model Tutorial
 -------------------
 
-Coming soon!
+.. toctree::
+    :maxdepth: 1
+    
+    csvy_models/csvy_model_tutorial
