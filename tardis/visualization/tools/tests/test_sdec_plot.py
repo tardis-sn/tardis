@@ -8,6 +8,8 @@ from copy import deepcopy
 from tardis.visualization.tools.sdec_plot import SDECData, SDECPlotter
 import astropy.units as u
 import h5py
+from matplotlib.collections import PolyCollection
+from matplotlib.lines import Line2D
 
 
 @pytest.fixture(scope="module")
@@ -228,15 +230,88 @@ class TestSDECPlotter(object):
     @pytest.mark.parametrize("show_modeled_spectrum", [True, False])
     def test_generate_plot_mpl(
         self,
+        request,
         plotter,
         packets_mode,
         packet_wvl_range,
         distance,
         show_modeled_spectrum,
     ):
-        plotter.generate_plot_mpl(
-            packets_mode, packet_wvl_range, distance, show_modeled_spectrum
+        subgroup_name = request.node.callspec.id + "mpl"  # TODO: better ids
+        fig = plotter.generate_plot_mpl(
+            packets_mode=packets_mode,
+            packet_wvl_range=packet_wvl_range,
+            distance=distance,
+            show_modeled_spectrum=show_modeled_spectrum,
         )
+
+        if self.save:
+            with h5py.File("sdec_ref.h5", "a") as file:
+                group = file.create_group(subgroup_name)
+                group.create_dataset(
+                    "_species_name", data=plotter._species_name
+                )
+                group.create_dataset("_color_list", data=plotter._color_list)
+
+                fig_subgroup = group.create_group("fig_data")
+                for index, data in enumerate(fig.get_children()):
+                    trace_group = fig_subgroup.create_group(str(index))
+                    if isinstance(
+                        data.get_label(), str
+                    ):  # TODO: better naming?
+                        trace_group.attrs["name"] = data.get_label()
+                    if isinstance(data, PolyCollection):
+                        for index, path in enumerate(data.get_paths()):
+                            trace_group.create_dataset(
+                                "path_PolyCollection_" + str(index),
+                                data=path.vertices,
+                            )
+                    if isinstance(data, Line2D):
+                        trace_group.create_dataset(
+                            "data_x", data=data.get_data()[0]
+                        )
+                        trace_group.create_dataset(
+                            "data_y", data=data.get_data()[1]
+                        )
+                        trace_group.create_dataset(
+                            "path_Line2D", data=data.get_path().vertices
+                        )
+        else:
+            group = self.hdf_file[subgroup_name]
+            # test output of the _make_colorbar_labels function
+            assert (
+                plotter._species_name
+                == group.get("_species_name").asstr()[()].tolist()
+            )
+            # test output of the _make_colorbar_colors function
+            np.testing.assert_allclose(
+                np.asarray(np.asarray(plotter._color_list)),
+                group.get("_color_list")[()],
+            )
+            fig_subgroup = group.get("fig_data")
+            for index, data in enumerate(fig.get_children()):
+                trace_group = fig_subgroup.get(str(index))
+                if isinstance(data.get_label(), str):
+                    assert trace_group.attrs["name"] == data.get_label()
+                if isinstance(data, PolyCollection):
+                    for index, path in enumerate(data.get_paths()):
+                        np.testing.assert_allclose(
+                            trace_group.get(
+                                "path_PolyCollection_" + str(index)
+                            )[()],
+                            path.vertices,
+                        )
+                if isinstance(data, Line2D):
+                    np.testing.assert_allclose(
+                        trace_group.get("data_x")[()], data.get_data()[0]
+                    )
+                    np.testing.assert_allclose(
+                        trace_group.get("data_y")[()], data.get_data()[1]
+                    )
+                    np.testing.assert_allclose(
+                        trace_group.get("path_Line2D")[()],
+                        data.get_path().vertices,
+                    )
 
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
     @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA])
@@ -251,18 +326,23 @@ class TestSDECPlotter(object):
         distance,
         show_modeled_spectrum,
     ):
-        subgroup_name = request.node.callspec.id
-        
+        subgroup_name = request.node.callspec.id + "ply"  # TODO
+
         fig = plotter.generate_plot_ply(
-            packets_mode, packet_wvl_range, distance, show_modeled_spectrum
+            packets_mode=packets_mode,
+            packet_wvl_range=packet_wvl_range,
+            distance=distance,
+            show_modeled_spectrum=show_modeled_spectrum,
         )
-        
+
         if self.save:
             with h5py.File("sdec_ref.h5", "a") as file:
                 group = file.create_group(subgroup_name)
-                group.create_dataset("_species_name", data=plotter._species_name) 
-                group.create_dataset("_color_list", data=plotter._color_list) 
-                
+                group.create_dataset(
+                    "_species_name", data=plotter._species_name
+                )
+                group.create_dataset("_color_list", data=plotter._color_list)
+
                 fig_subgroup = group.create_group("fig_data")
                 for index, data in enumerate(fig.data):
                     trace_group = fig_subgroup.create_group(str(index))
@@ -270,8 +350,8 @@ class TestSDECPlotter(object):
                         trace_group.attrs["name"] = data.name
                     if data.stackgroup:
                         trace_group.attrs["stackgroup"] = data.stackgroup
-                    trace_group.create_dataset("x", data = data.x)
-                    trace_group.create_dataset("y", data = data.y)
+                    trace_group.create_dataset("x", data=data.x)
+                    trace_group.create_dataset("y", data=data.y)
         else:
             group = self.hdf_file[subgroup_name]
             # test output of the _make_colorbar_labels function
@@ -284,7 +364,7 @@ class TestSDECPlotter(object):
                 np.asarray(np.asarray(plotter._color_list)),
                 group.get("_color_list")[()],
             )
-            
+
             fig_subgroup = group.get("fig_data")
             for index, data in enumerate(fig.data):
                 trace_group = fig_subgroup.get(str(index))
@@ -292,16 +372,9 @@ class TestSDECPlotter(object):
                     assert data.name == trace_group.attrs["name"]
                 if data.stackgroup:
                     assert data.stackgroup == trace_group.attrs["stackgroup"]
-                    
-                np.testing.assert_allclose(
-                    trace_group.get("x")[()],
-                    data.x
-                )
-                np.testing.assert_allclose(
-                    trace_group.get("y")[()],
-                    data.y
-                )
 
+                np.testing.assert_allclose(trace_group.get("x")[()], data.x)
+                np.testing.assert_allclose(trace_group.get("y")[()], data.y)
 
     # TODO: Call generate_plot_mpl() with several PnCs of parameters and test
     # almost plotter's properties (esp. those saved by calculate_plotting_data)
