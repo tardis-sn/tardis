@@ -12,6 +12,14 @@
 TARDIS Core Package Documentation
 ##################################
 
+|
+
+.. raw:: html
+
+    <p style="text-align:center"><a href="http://tardis-sn.github.io/"><span style="font-size:36px">Click here for the TARDIS collaboration website</span></a></p>
+
+|
+
 .. image:: graphics/tardis_banner.svg
 
 |
