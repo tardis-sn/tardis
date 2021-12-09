@@ -321,6 +321,33 @@ rpacket_collection_spec = [
 
 @jitclass(rpacket_collection_spec)
 class RPacketCollection(object):
+    """
+    Numba JITCLASS for storing the information for each interaction a RPacket instance undergoes.
+
+    Parameters
+    ----------
+        length : int
+            Length of the initial array that is instantiated
+        seed : int
+            Seed for each RPacket
+        index : int
+            Index position of each RPacket
+        status : int
+            Current status of the RPacket as per interactions
+        r : float
+            Radius of the shell where the RPacket is present
+        nu : float
+            Luminosity of the RPacket
+        mu : float
+            Cosine of the angle made by the direction of movement of the RPacket from its original direction
+        energy : float
+            Energy possessed by the RPacket at a particular shell
+        shell_id : int
+            Current Shell No in which the RPacket is present
+        interact_id : int
+            Internal counter for the interactions that a particular RPacket undergoes
+    """
+
     def __init__(self):
         self.length = montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
         self.seed = np.empty(self.length, dtype=np.int64)
