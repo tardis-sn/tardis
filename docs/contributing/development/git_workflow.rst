@@ -29,7 +29,7 @@ Preparation and Working with Git
 ================================
 
 In this document, we refer to the TARDIS ``master`` branch as the *trunk*. The first step is to setup up a python environment. We recommend using
-Anaconda for this purpose; refer to our :doc:`Installation guide <../installation>` which covers this topic.
+Anaconda for this purpose; refer to our :doc:`Installation guide <../../installation>` which covers this topic.
 
 .. _forking:
 

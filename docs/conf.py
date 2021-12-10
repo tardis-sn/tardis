@@ -63,7 +63,7 @@ highlight_language = "none"
 exclude_patterns.append("_templates")
 exclude_patterns.append("_build")
 exclude_patterns.append("**.ipynb_checkpoints")
-exclude_patterns.append("research/research_done_using_TARDIS/ads.ipynb")
+exclude_patterns.append("resources/research_done_using_TARDIS/ads.ipynb")
 
 # This is added to the end of RST files - a good place to put substitutions to
 # be used globally.
@@ -345,7 +345,7 @@ def generate_ZENODO(app):
     """Creating ZENODO.rst
     Adapted from: https://astrodata.nyc/posts/2021-04-23-zenodo-sphinx/"""
     CONCEPT_DOI = "592480"  # See: https://help.zenodo.org/#versioning
-    zenodo_path = pathlib.Path("ZENODO.rst")
+    zenodo_path = pathlib.Path("resources/ZENODO.rst")
 
     try:
         headers = {"accept": "application/x-bibtex"}
