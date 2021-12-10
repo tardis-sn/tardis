@@ -11,6 +11,7 @@ from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     PacketCollection,
     VPacketCollection,
+    RPacketCollection,
     NumbaModel,
     numba_plasma_initialize,
     Estimators,
@@ -77,6 +78,7 @@ def montecarlo_radial1d(
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
+        tracked_rpackets,
     ) = montecarlo_main_loop(
         packet_collection,
         numba_model,
@@ -123,6 +125,10 @@ def montecarlo_radial1d(
             np.array(virt_packet_last_line_interaction_out_id)
         ).ravel()
     update_iterations_pbar(1)
+
+    # Condition for Checking if RPacket Tracking is enabled
+    if montecarlo_configuration.RPACKET_TRACKING:
+        runner.rpacket_tracker = tracked_rpackets
 
 
 @njit(**njit_dict)
@@ -185,6 +191,11 @@ def montecarlo_main_loop(
             )
         )
 
+    # Configuring the Tracking for R_Packets
+    tracked_rpackets = List()
+    for i in range(len(output_nus)):
+        tracked_rpackets.append(RPacketCollection())
+
     # Arrays for vpacket logging
     virt_packet_nus = []
     virt_packet_energies = []
@@ -198,7 +209,7 @@ def montecarlo_main_loop(
     for i in prange(len(output_nus)):
         if show_progress_bars:
             with objmode:
-                update_amount  = 1
+                update_amount = 1
                 update_packet_pbar(
                     update_amount,
                     current_iteration=iteration,
@@ -221,12 +232,16 @@ def montecarlo_main_loop(
             i,
         )
         vpacket_collection = vpacket_collections[i]
+        rpacket_collection = tracked_rpackets[i]
 
-        loop = single_packet_loop(
-            r_packet, numba_model, numba_plasma, estimators, vpacket_collection
+        single_packet_loop(
+            r_packet,
+            numba_model,
+            numba_plasma,
+            estimators,
+            vpacket_collection,
+            rpacket_collection,
         )
-        # if loop and 'stop' in loop:
-        #     raise MonteCarloException
 
         output_nus[i] = r_packet.nu
         last_interaction_in_nus[i] = r_packet.last_interaction_in_nu
@@ -311,6 +326,10 @@ def montecarlo_main_loop(
                 )
             )
 
+    if montecarlo_configuration.RPACKET_TRACKING:
+        for rpacket_collection in tracked_rpackets:
+            rpacket_collection.finalize_array()
+
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
 
@@ -328,4 +347,5 @@ def montecarlo_main_loop(
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
+        tracked_rpackets,
     )
