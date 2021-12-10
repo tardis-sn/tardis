@@ -36,7 +36,7 @@ If you think your could be dealing with scenario B, then:
 .. note::
 
     - If you don't have enough privileges to run the pipelines, tag a TARDIS developer capable of doing so.
-    - If any of these two pipelines fail, please tag a TARDIS team member responsible for CI/CD.
+    - If any of these two pipelines fail, please tag a `TARDIS team member <https://tardis-sn.github.io/team/community_roles/>`_ responsible for CI/CD.
 
 If everything went well, the reference data will have been updated by the TARDIS bot and the commit
 message should include the pull request number that triggered the update.
