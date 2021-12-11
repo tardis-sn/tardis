@@ -55,6 +55,18 @@ class TestSDECPlotter(object):
     def plotter(self, simulation_simple):
         return SDECPlotter.from_simulation(simulation_simple)
 
+    @pytest.fixture(scope="class")
+    def observed_spectrum(self):
+        test_data = np.loadtxt(
+            "tardis/visualization/tools/tests/data/observed_spectrum_test_data.dat"
+        )
+        observed_spectrum_wavelength, observed_spectrum_flux = test_data.T
+        observed_spectrum_wavelength = observed_spectrum_wavelength * u.AA
+        observed_spectrum_flux = (
+            observed_spectrum_flux * u.erg / (u.s * u.cm ** 2 * u.AA)
+        )
+        return observed_spectrum_wavelength, observed_spectrum_flux
+
     @pytest.mark.parametrize("species", [["Si II", "Ca II", "C", "Fe I-V"]])
     def test_parse_species_list(self, request, plotter, species):
         plotter._parse_species_list(species)
@@ -225,8 +237,8 @@ class TestSDECPlotter(object):
                 )
 
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
-    @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA])
-    @pytest.mark.parametrize("distance", [10 * u.Mpc, 50 * u.Mpc])
+    @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA, None])
+    @pytest.mark.parametrize("distance", [10 * u.Mpc, None])
     @pytest.mark.parametrize("show_modeled_spectrum", [True, False])
     def test_generate_plot_mpl(
         self,
@@ -236,13 +248,16 @@ class TestSDECPlotter(object):
         packet_wvl_range,
         distance,
         show_modeled_spectrum,
+        observed_spectrum,
     ):
-        subgroup_name = request.node.callspec.id + "mpl"  # TODO: better ids
+        subgroup_name = "mpl" + request.node.callspec.id
+
         fig = plotter.generate_plot_mpl(
             packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
             distance=distance,
             show_modeled_spectrum=show_modeled_spectrum,
+            observed_spectrum=observed_spectrum if distance else None,
         )
 
         if self.save:
@@ -254,28 +269,29 @@ class TestSDECPlotter(object):
                 group.create_dataset("_color_list", data=plotter._color_list)
 
                 fig_subgroup = group.create_group("fig_data")
+
                 for index, data in enumerate(fig.get_children()):
                     trace_group = fig_subgroup.create_group(str(index))
-                    if isinstance(
-                        data.get_label(), str
-                    ):  # TODO: better naming?
+
+                    if isinstance(data.get_label(), str):
                         trace_group.attrs["name"] = data.get_label()
+
+                    # save artists which correspond to element contributions
                     if isinstance(data, PolyCollection):
                         for index, path in enumerate(data.get_paths()):
                             trace_group.create_dataset(
-                                "path_PolyCollection_" + str(index),
+                                "path" + str(index),
                                 data=path.vertices,
                             )
+                    # save line plots
                     if isinstance(data, Line2D):
                         trace_group.create_dataset(
-                            "data_x", data=data.get_data()[0]
+                            "data", data=data.get_xydata()
                         )
                         trace_group.create_dataset(
-                            "data_y", data=data.get_data()[1]
+                            "path", data=data.get_path().vertices
                         )
-                        trace_group.create_dataset(
-                            "path_Line2D", data=data.get_path().vertices
-                        )
+
         else:
             group = self.hdf_file[subgroup_name]
             # test output of the _make_colorbar_labels function
@@ -291,25 +307,24 @@ class TestSDECPlotter(object):
             fig_subgroup = group.get("fig_data")
             for index, data in enumerate(fig.get_children()):
                 trace_group = fig_subgroup.get(str(index))
+
                 if isinstance(data.get_label(), str):
                     assert trace_group.attrs["name"] == data.get_label()
+
+                # test element contributions
                 if isinstance(data, PolyCollection):
                     for index, path in enumerate(data.get_paths()):
                         np.testing.assert_allclose(
-                            trace_group.get(
-                                "path_PolyCollection_" + str(index)
-                            )[()],
+                            trace_group.get("path" + str(index))[()],
                             path.vertices,
                         )
+                # compare line plot data
                 if isinstance(data, Line2D):
                     np.testing.assert_allclose(
-                        trace_group.get("data_x")[()], data.get_data()[0]
+                        trace_group.get("data")[()], data.get_xydata()
                     )
                     np.testing.assert_allclose(
-                        trace_group.get("data_y")[()], data.get_data()[1]
-                    )
-                    np.testing.assert_allclose(
-                        trace_group.get("path_Line2D")[()],
+                        trace_group.get("path")[()],
                         data.get_path().vertices,
                     )
 
@@ -325,14 +340,16 @@ class TestSDECPlotter(object):
         packet_wvl_range,
         distance,
         show_modeled_spectrum,
+        observed_spectrum
     ):
-        subgroup_name = request.node.callspec.id + "ply"  # TODO
+        subgroup_name = "ply" + request.node.callspec.id
 
         fig = plotter.generate_plot_ply(
             packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
             distance=distance,
             show_modeled_spectrum=show_modeled_spectrum,
+            observed_spectrum=observed_spectrum if distance else None,
         )
 
         if self.save:
