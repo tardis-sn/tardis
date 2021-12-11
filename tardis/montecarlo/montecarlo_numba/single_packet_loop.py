@@ -51,7 +51,7 @@ def single_packet_loop(
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
     vpacket_collection : tardis.montecarlo.montecarlo_numba.numba_interface.VPacketCollection
-    tracked_rpacket_properties: tardis.montecarlo.montecarlo_numba.numba_interface.RPacketCollection
+    rpacket_collection : tardis.montecarlo.montecarlo_numba.numba_interface.RPacketCollection
 
     Returns
     -------
@@ -88,9 +88,6 @@ def single_packet_loop(
                 r_packet, delta_shell, len(numba_model.r_inner)
             )
 
-            if montecarlo_configuration.RPACKET_TRACKING:
-                rpacket_collection.track(r_packet)
-
         elif interaction_type == InteractionType.LINE:
             r_packet.last_interaction_type = 2
 
@@ -107,9 +104,6 @@ def single_packet_loop(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
 
-            if montecarlo_configuration.RPACKET_TRACKING:
-                rpacket_collection.track(r_packet)
-
         elif interaction_type == InteractionType.ESCATTERING:
             r_packet.last_interaction_type = 1
 
@@ -122,8 +116,8 @@ def single_packet_loop(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
 
-            if montecarlo_configuration.RPACKET_TRACKING:
-                rpacket_collection.track(r_packet)
+        if montecarlo_configuration.RPACKET_TRACKING:
+            rpacket_collection.track(r_packet)
 
     # check where else initialize line ID happens!
 

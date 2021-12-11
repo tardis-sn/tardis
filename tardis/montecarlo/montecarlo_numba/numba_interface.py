@@ -11,6 +11,7 @@ from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
 
+
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
 numba_model_spec = [
