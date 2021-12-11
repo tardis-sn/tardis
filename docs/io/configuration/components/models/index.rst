@@ -280,7 +280,7 @@ velocity of the photosphere -- i.e. the inner boundary of the computational doma
 Consequently, **none of the other information in the first row is used**. In our example, there are only two
 shells, and the first shell will have an inner boundary with a velocity of :math:`9000 \mathrm{ km/s}`, an outer boundary
 with a velocity of :math:`10500 \mathrm{ km/s}`, a density of :math:`2.0*10^{-10} \mathrm{ g/cm^3}`, a dilution
-factor of .8, etc.
+factor of .8, etc. For more examples of CSVY models and their usage, see the tutorial below. 
 
 .. note::
 
@@ -299,6 +299,6 @@ CSVY Model Tutorial
 -------------------
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
     
     csvy_models/csvy_model_tutorial

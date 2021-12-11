@@ -1,5 +1,5 @@
 ---
-name: csvy_tutorial
+name: csvy_tutorial_diff_v
 model_density_time_0: 1 day
 model_isotope_time_0: 0 day
 description: CSVY config file that has v_inner_boundary and v_outer_boundary not equal the velocities in the first and last shell

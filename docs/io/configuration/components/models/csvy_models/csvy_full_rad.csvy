@@ -1,5 +1,5 @@
 ---
-name: csvy_full
+name: csvy_full_rad
 model_density_time_0: 1 day
 model_isotope_time_0: 0 day
 description: Example csvy config file for TARDIS.
