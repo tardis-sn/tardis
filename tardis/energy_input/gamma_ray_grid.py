@@ -152,9 +152,9 @@ def compute_required_photons_per_shell(
 
     decay_rad_db, meta = get_decay_radiation_database()
 
-    norm_activity_df = abundance_df.copy()
-    total_activity_df = nuclide_mass_df.copy()
-    for column in norm_activity_df:
+    abundance_norm_activity_df = abundance_df.copy()
+    activity_df = nuclide_mass_df.copy()
+    for column in abundance_norm_activity_df:
         isotope_meta = meta.loc[column]
         half_life = isotope_meta.loc[
             isotope_meta["key"] == "Parent T1/2 value"
@@ -166,16 +166,20 @@ def compute_required_photons_per_shell(
         )
         number_of_nuclides = (nuclide_mass_df[column] / atomic_mass) * const.N_A
 
-        norm_activity_df[column] *= decay_constant
-        total_activity_df[column] = decay_constant * number_of_nuclides
+        abundance_norm_activity_df[column] *= (
+            decay_constant * number_of_nuclides
+        )
+        activity_df[column] = decay_constant * number_of_nuclides
 
-    norm_total_activity = norm_activity_df.to_numpy().sum()
-    activity_per_shell = total_activity_df.to_numpy().sum(axis=1)
-    decays_per_shell_df = norm_activity_df.copy()
+    abundance_norm_total_activity = abundance_norm_activity_df.to_numpy().sum()
+    activity_per_shell = activity_df.to_numpy().sum(axis=1)
+    decays_per_shell_df = abundance_norm_activity_df.copy()
 
     for column in decays_per_shell_df:
         decays_per_shell_df[column] = round(
-            decays_per_shell_df[column] * number_of_decays / norm_total_activity
+            decays_per_shell_df[column]
+            * number_of_decays
+            / abundance_norm_total_activity
         )
         decays_per_shell_df[column] = decays_per_shell_df[column].astype(int)
 

@@ -43,7 +43,7 @@ from astropy.coordinates import cartesian_to_spherical
 
 def initialize_photons(
     number_of_shells,
-    photons_per_shell,
+    decays_per_shell,
     ejecta_volume,
     shell_masses,
     inner_velocities,
@@ -57,8 +57,8 @@ def initialize_photons(
     ----------
     number_of_shells : int
         Number of shells in model
-    photons_per_shell : pandas.Dataframe
-        Number of photons in a shell
+    decays_per_shell : pandas.Dataframe
+        Number of decays in a shell
     ejecta_volume : numpy.array
         Volume per shell
     shell_masses : numpy.array
@@ -89,7 +89,7 @@ def initialize_photons(
     cumulative_mass = np.insert(cumulative_mass, 0, 0)
     outer_velocities = np.insert(outer_velocities, 0, inner_velocities[0])
 
-    for column in photons_per_shell:
+    for column in decays_per_shell:
         subtable = decay_rad_db.loc[column]
         (
             gamma_ray_probability,
@@ -103,9 +103,9 @@ def initialize_photons(
             subtable, "'e+'"
         )
         for shell in range(number_of_shells):
-            photons_per_shell[column].iloc[shell] *= scale_factor
+            decays_per_shell[column].iloc[shell] *= scale_factor
             required_photons_in_shell = int(
-                photons_per_shell[column].iloc[shell]
+                decays_per_shell[column].iloc[shell]
             )
             for _ in range(required_photons_in_shell):
                 # draw a random gamma-ray in shell
@@ -199,7 +199,7 @@ def initialize_photons(
                     )
                     photons.append(primary_photon)
 
-    return photons, energy_df_rows, energy_plot_df_rows, photons_per_shell
+    return photons, energy_df_rows, energy_plot_df_rows, decays_per_shell
 
 
 def main_gamma_ray_loop(num_photons, model):
@@ -272,7 +272,7 @@ def main_gamma_ray_loop(num_photons, model):
     new_abundances *= raw_isotope_abundance.values
 
     (
-        photons_per_shell,
+        decays_per_shell,
         decay_rad_db,
         decay_rate_per_shell,
     ) = compute_required_photons_per_shell(
@@ -291,7 +291,7 @@ def main_gamma_ray_loop(num_photons, model):
         scaled_photons_per_shell,
     ) = initialize_photons(
         number_of_shells,
-        photons_per_shell,
+        decays_per_shell,
         ejecta_volume,
         shell_masses,
         inner_velocities,
@@ -303,7 +303,7 @@ def main_gamma_ray_loop(num_photons, model):
     print(scaled_photons_per_shell)
 
     scaled_decay_rate_per_shell = (
-        decay_rate_per_shell / photons_per_shell.to_numpy().sum(axis=1)
+        decay_rate_per_shell / decays_per_shell.to_numpy().sum(axis=1)
     ) / u.s
 
     total_energy = 0
