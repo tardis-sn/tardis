@@ -115,7 +115,7 @@ def move_photon(photon, distance):
 def compute_required_photons_per_shell(
     shell_masses,
     isotope_abundance,
-    number_of_photons,
+    number_of_decays,
 ):
     """Computes the number of photons required per shell
     that sum to the total number of requested photons.
@@ -138,14 +138,13 @@ def compute_required_photons_per_shell(
         Database of decay radiation
     """
 
-    norm_shell_masses = shell_masses / np.sum(shell_masses)
     abundance_dict = {}
     nuclide_mass_dict = {}
     for isotope_string, row in isotope_abundance.iterrows():
         if isotope_string == "Fe56":
             continue
         store_decay_radiation(isotope_string, force_update=True)
-        abundance_dict[isotope_string] = row * norm_shell_masses
+        abundance_dict[isotope_string] = row
         nuclide_mass_dict[isotope_string] = row * shell_masses
 
     abundance_df = pd.DataFrame.from_dict(abundance_dict)
@@ -154,7 +153,7 @@ def compute_required_photons_per_shell(
     decay_rad_db, meta = get_decay_radiation_database()
 
     norm_activity_df = abundance_df.copy()
-    decay_rate_per_shell_df = nuclide_mass_df.copy()
+    total_activity_df = nuclide_mass_df.copy()
     for column in norm_activity_df:
         isotope_meta = meta.loc[column]
         half_life = isotope_meta.loc[
@@ -165,20 +164,19 @@ def compute_required_photons_per_shell(
         atomic_mass = float(re.findall("\d+", column)[0]) * u.u.to(
             u.g / u.mol, equivalencies=u.molar_mass_amu()
         )
-        print(atomic_mass)
-        norm_activity_df[column] = norm_activity_df[column] * decay_constant
+        number_of_nuclides = (nuclide_mass_df[column] / atomic_mass) * const.N_A
 
-        decay_rate_per_shell_df[column] = (
-            decay_constant * const.N_A * (nuclide_mass_df[column] / atomic_mass)
+        norm_activity_df[column] *= decay_constant
+        total_activity_df[column] = decay_constant * number_of_nuclides
+
+    norm_total_activity = norm_activity_df.to_numpy().sum()
+    activity_per_shell = total_activity_df.to_numpy().sum(axis=1)
+    decays_per_shell_df = norm_activity_df.copy()
+
+    for column in decays_per_shell_df:
+        decays_per_shell_df[column] = round(
+            decays_per_shell_df[column] * number_of_decays / norm_total_activity
         )
+        decays_per_shell_df[column] = decays_per_shell_df[column].astype(int)
 
-    total_activity = norm_activity_df.to_numpy().sum()
-    decay_rate_per_shell = decay_rate_per_shell_df.to_numpy().sum(axis=1)
-    photon_per_shell_df = norm_activity_df.copy()
-
-    for column in photon_per_shell_df:
-        photon_per_shell_df[column] = round(
-            photon_per_shell_df[column] * number_of_photons / total_activity
-        )
-        photon_per_shell_df[column] = photon_per_shell_df[column].astype(int)
-    return photon_per_shell_df, decay_rad_db, decay_rate_per_shell
+    return decays_per_shell_df, decay_rad_db, activity_per_shell

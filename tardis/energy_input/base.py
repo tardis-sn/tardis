@@ -91,9 +91,11 @@ def initialize_photons(
 
     for column in photons_per_shell:
         subtable = decay_rad_db.loc[column]
-        gamma_ray_probability, positron_probability = intensity_ratio(
-            subtable, "'gamma_rays' or type=='x_rays'", "'e+'"
-        )
+        (
+            gamma_ray_probability,
+            positron_probability,
+            scale_factor,
+        ) = intensity_ratio(subtable, "'gamma_rays' or type=='x_rays'", "'e+'")
         energy_sorted, energy_cdf = setup_input_energy(
             subtable, "'gamma_rays' or type=='x_rays'"
         )
@@ -101,7 +103,10 @@ def initialize_photons(
             subtable, "'e+'"
         )
         for shell in range(number_of_shells):
-            required_photons_in_shell = photons_per_shell[column].iloc[shell]
+            photons_per_shell[column].iloc[shell] *= scale_factor
+            required_photons_in_shell = int(
+                photons_per_shell[column].iloc[shell]
+            )
             for _ in range(required_photons_in_shell):
                 # draw a random gamma-ray in shell
                 primary_photon = GXPhoton(
@@ -144,14 +149,14 @@ def initialize_photons(
                         * u.keV
                     )
 
-                    # convert KeV to eV
+                    # convert KeV to eV / cm^3
                     energy_df_rows[shell] += (
                         energy_KeV.to(u.eV) / ejecta_volume[shell]
                     )
                     energy_plot_df_rows.append(
                         [
                             -1,
-                            energy_KeV * u.keV,
+                            energy_KeV,
                             initial_radius * u.cm / u.s,
                             primary_photon.location.theta,
                             0.0,
@@ -193,7 +198,7 @@ def initialize_photons(
                     )
                     photons.append(primary_photon)
 
-    return photons, energy_df_rows, energy_plot_df_rows
+    return photons, energy_df_rows, energy_plot_df_rows, photons_per_shell
 
 
 def main_gamma_ray_loop(num_photons, model):
@@ -270,23 +275,20 @@ def main_gamma_ray_loop(num_photons, model):
         decay_rad_db,
         decay_rate_per_shell,
     ) = compute_required_photons_per_shell(
-        shell_masses,
-        new_abundances,
-        num_photons,
-    )
-
-    scaled_decay_rate_per_shell = (
-        decay_rate_per_shell / photons_per_shell.to_numpy().sum(axis=1)
+        shell_masses, new_abundances, num_photons
     )
 
     # Taking iron group to be elements 21-30
     # Used as part of the approximations for photoabsorption and pair creation
     # Dependent on atomic data
-    iron_group_fraction_per_shell = raw_isotope_abundance.loc[(21,):(30,)].sum(
-        axis=0
-    )
+    iron_group_fraction_per_shell = model.abundance.loc[(21):(30)].sum(axis=0)
 
-    photons, energy_df_rows, energy_plot_df_rows = initialize_photons(
+    (
+        photons,
+        energy_df_rows,
+        energy_plot_df_rows,
+        scaled_photons_per_shell,
+    ) = initialize_photons(
         number_of_shells,
         photons_per_shell,
         ejecta_volume,
@@ -296,9 +298,22 @@ def main_gamma_ray_loop(num_photons, model):
         decay_rad_db,
     )
 
+    print("scaled phot per shell")
+    print(scaled_photons_per_shell)
+
+    scaled_decay_rate_per_shell = (
+        decay_rate_per_shell / photons_per_shell.to_numpy().sum(axis=1)
+    ) / u.s
+
     total_energy = 0
     for p in photons:
         total_energy += p.energy
+
+    print("=== Injected energy ===")
+    print(
+        (total_energy.to("erg") * scaled_decay_rate_per_shell)
+        + (energy_df_rows * scaled_decay_rate_per_shell * model.volume)
+    )
 
     print("=== Injected energy ===")
     print(
