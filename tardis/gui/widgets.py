@@ -1040,7 +1040,7 @@ class LineInfo(QtWidgets.QDialog):
         for key, value in transitions.items():
             transitions_parsed.append(
                 f"{key[0]}-{key[1]}"
-                f"{self.parent.model.atom_data.lines.ix[value[0]]["wavelength"]:.2f} A"
+                f"{self.parent.model.atom_data.lines.ix[value[0]]['wavelength']:.2f} A"
             )
         return transitions_parsed, transitions_count
 
