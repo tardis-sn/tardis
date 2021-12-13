@@ -818,7 +818,7 @@ class ShellInfo(QtWidgets.QDialog):
         self.parent = parent
         self.shell_index = index
         self.setGeometry(400, 150, 200, 400)
-        self.setWindowTitle(f"Shell {self.shell_index + 1} Abundances" )
+        self.setWindowTitle(f"Shell {self.shell_index + 1} Abundances")
         self.atomstable = QtWidgets.QTableView()
         self.ionstable = QtWidgets.QTableView()
         self.levelstable = QtWidgets.QTableView()
@@ -829,7 +829,7 @@ class ShellInfo(QtWidgets.QDialog):
 
         self.table1_data = self.parent.model.plasma.abundance[self.shell_index]
         self.atomsdata = self.createTable(
-            [["Z = "], [f"Count (Shell {self.shell_index + 1})" ]],
+            [["Z = "], [f"Count (Shell {self.shell_index + 1})"]],
             iterate_header=(2, 0),
             index_info=self.table1_data.index.values.tolist(),
         )
@@ -889,7 +889,7 @@ class ShellInfo(QtWidgets.QDialog):
             self.shell_index
         ].ix[self.current_atom_index, self.current_ion_index]
         self.levelsdata = self.createTable(
-            [["Level: "], [f"Count (Ion {self.current_ion_index})" ]],
+            [["Level: "], [f"Count (Ion {self.current_ion_index})"]],
             iterate_header=(2, 0),
             index_info=self.table3_data.index.values.tolist(),
         )
@@ -1006,7 +1006,7 @@ class LineInfo(QtWidgets.QDialog):
             / self.grouped_lines_in.wavelength.count().sum()
         ).values.tolist()
         for z, ion in self.ions_in:
-            self.header_list.append(f"Z = {z}: Ion {ion}" )
+            self.header_list.append(f"Z = {z}: Ion {ion}")
 
     def get_transition_table(self, lines, atom, ion):
         """Called by the two methods below to get transition table for
@@ -1040,7 +1040,7 @@ class LineInfo(QtWidgets.QDialog):
         for key, value in transitions.items():
             transitions_parsed.append(
                 f"{key[0]}-{key[1]}"
-                f"{self.parent.model.atom_data.lines.ix[value[0]]["wavelength"]:.2f} A"
+                f"{self.parent.model.atom_data.lines.ix[value[0]]['wavelength']:.2f} A"
             )
         return transitions_parsed, transitions_count
 
