@@ -192,13 +192,13 @@ class LastLineInteraction(object):
         def onpick(event):
             print("-" * 80)
             print(
-                "Line_in" 
-                 f"({len(event.ind)}/{self.current_no_packets})"\
-                 f":\n{self.last_line_list_in.ix[event.ind]}"
+                "Line_in"
+                f"({len(event.ind)}/{self.current_no_packets})"
+                f":\n{self.last_line_list_in.ix[event.ind]}"
             )
             print("\n\n")
             print(
-                "Line_out" 
+                "Line_out"
                 f"({len(event.ind)}/{self.current_no_packets})"
                 f":\n{self.last_line_list_in.ix[event.ind]}"
             )
@@ -275,7 +275,7 @@ class TARDISHistory(object):
             iterations = self.iterations[iterations]
 
         for iter in iterations:
-            current_iter = f"iter{iter:03d}" 
+            current_iter = f"iter{iter:03d}"
             t_rads_dict[current_iter] = hdf_store[f"model{iter:03d}/t_rads"]
 
         t_rads = pd.DataFrame(t_rads_dict)
@@ -313,7 +313,7 @@ class TARDISHistory(object):
             iterations = self.iterations[iterations]
 
         for iter in iterations:
-            current_iter = f"iter{iter:03d}" 
+            current_iter = f"iter{iter:03d}"
             level_populations_dict[current_iter] = hdf_store[
                 f"model{iter:03d}/level_populations"
             ]
@@ -420,7 +420,7 @@ class TARDISHistory(object):
         self.load_atom_data()
 
         hdf_store = pd.HDFStore(self.hdf5_fname, "r")
-        model_string = "model" + (f"{iteration:03d}" ) + "/%s"
+        model_string = "model" + (f"{iteration:03d}") + "/%s"
         last_line_interaction_in_id = hdf_store[
             model_string % "last_line_interaction_in_id"
         ].values
