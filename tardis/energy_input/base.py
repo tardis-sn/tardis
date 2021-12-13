@@ -190,6 +190,7 @@ def initialize_photons(
                     )
                     secondary_photon.direction.phi = secondary_photon_phi.value
 
+                    photons.append(secondary_photon)
                 else:
                     # Spawn a gamma ray emission with energy from gamma-ray list
                     primary_photon.energy = (
