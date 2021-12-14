@@ -29,7 +29,7 @@ class GXPhoton(object):
              GXPhoton shell location index
     """
 
-    def __init__(self, location, direction, energy, status, shell):
+    def __init__(self, location, direction, energy, status, shell, activity):
         self.location = location
         self.direction = direction
         self.energy = energy
@@ -38,3 +38,4 @@ class GXPhoton(object):
         self.time_created = 0
         self.time_current = 0
         self.tau = -np.log(np.random.random())
+        self.activity = activity

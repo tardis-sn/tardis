@@ -56,6 +56,7 @@ def initialize_photons(
     inner_velocities,
     outer_velocities,
     decay_rad_db,
+    scaled_activity_df,
 ):
     """Initializes photon properties
     and appends beta decay energy to output tables
@@ -124,6 +125,7 @@ def initialize_photons(
                     energy=1,
                     status=GXPhotonStatus.IN_PROCESS,
                     shell=0,
+                    activity=scaled_activity_df[column].iloc[shell],
                 )
 
                 z = (
@@ -157,7 +159,10 @@ def initialize_photons(
 
                     # convert KeV to eV / cm^3
                     energy_df_rows[shell] += (
-                        energy_KeV * 1000 / ejecta_volume[shell]
+                        energy_KeV
+                        * primary_photon.activity
+                        * 1000
+                        / ejecta_volume[shell]
                     )
                     energy_plot_df_rows.append(
                         [
@@ -201,7 +206,7 @@ def initialize_photons(
                     )
                     photons.append(primary_photon)
 
-    return photons, energy_df_rows, energy_plot_df_rows, scaled_decays_per_shell
+    return photons, energy_df_rows, energy_plot_df_rows
 
 
 def main_gamma_ray_loop(num_photons, model):
@@ -278,6 +283,7 @@ def main_gamma_ray_loop(num_photons, model):
         decays_per_shell,
         decay_rad_db,
         decay_rate_per_shell,
+        scaled_activity_df,
     ) = compute_required_photons_per_shell(
         shell_masses, new_abundances, num_photons
     )
@@ -287,12 +293,7 @@ def main_gamma_ray_loop(num_photons, model):
     # Dependent on atomic data
     iron_group_fraction_per_shell = model.abundance.loc[(21):(30)].sum(axis=0)
 
-    (
-        photons,
-        energy_df_rows,
-        energy_plot_df_rows,
-        scaled_photons_per_shell,
-    ) = initialize_photons(
+    (photons, energy_df_rows, energy_plot_df_rows,) = initialize_photons(
         number_of_shells,
         decays_per_shell,
         ejecta_volume,
@@ -300,28 +301,18 @@ def main_gamma_ray_loop(num_photons, model):
         inner_velocities,
         outer_velocities,
         decay_rad_db,
+        scaled_activity_df,
     )
-
-    print("scaled phot per shell")
-    print(scaled_photons_per_shell)
-
-    print("decay rate per shell")
-    print(decay_rate_per_shell)
-
-    print("decays per shell")
-    print(decays_per_shell)
 
     scaled_decay_rate_per_shell = (
         decay_rate_per_shell / decays_per_shell.to_numpy().sum(axis=1)
     )
 
-    total_energy = 0
+    total_energy = np.zeros(number_of_shells)
     for p in photons:
-        total_energy += p.energy
+        total_energy[p.shell] += p.energy * p.activity / ejecta_volume[p.shell]
 
-    injected = (
-        total_energy * KEV2ERG * scaled_decay_rate_per_shell / ejecta_volume
-    ) + (energy_df_rows * KEV2ERG * scaled_decay_rate_per_shell)
+    injected = (total_energy * KEV2ERG) + (energy_df_rows * KEV2ERG)
 
     print("=== Injected energy ===")
     print(injected)
@@ -399,9 +390,12 @@ def main_gamma_ray_loop(num_photons, model):
                     ejecta_energy_gained = photon.energy
 
                 # Save photons to dataframe rows
-                # convert KeV to eV / cm^3
+                # convert KeV to eV / s / cm^3
                 energy_df_rows[photon.shell] += (
-                    ejecta_energy_gained * 1000 / ejecta_volume[photon.shell]
+                    photon.activity
+                    * ejecta_energy_gained
+                    * 1000
+                    / ejecta_volume[photon.shell]
                 )
                 energy_plot_df_rows.append(
                     [
@@ -454,9 +448,6 @@ def main_gamma_ray_loop(num_photons, model):
             "energy_input_type",
         ],
     )
-
-    # Convert eV/cm^-3 to eV/s/cm^-3
-    energy_df_rows *= scaled_decay_rate_per_shell
 
     # Energy is eV/s/cm^-3
     energy_df = pd.DataFrame(data=energy_df_rows, columns=["energy"])

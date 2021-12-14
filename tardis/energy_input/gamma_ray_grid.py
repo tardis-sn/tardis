@@ -170,13 +170,20 @@ def compute_required_photons_per_shell(
     abundance_norm_total_activity = abundance_norm_activity_df.to_numpy().sum()
     activity_per_shell = activity_df.to_numpy().sum(axis=1)
     decays_per_shell_df = abundance_norm_activity_df.copy()
+    scaled_activity_df = activity_df.copy()
 
     for column in decays_per_shell_df:
-        decays_per_shell_df[column] = round(
+        scaled_decays_per_shell = (
             decays_per_shell_df[column]
             / abundance_norm_total_activity
             * number_of_decays
         )
-        decays_per_shell_df[column] = decays_per_shell_df[column].astype(int)
+        decays_per_shell_df[column] = round(scaled_decays_per_shell).astype(int)
+        scaled_activity_df[column] /= scaled_decays_per_shell
 
-    return decays_per_shell_df, decay_rad_db, activity_per_shell
+    return (
+        decays_per_shell_df,
+        decay_rad_db,
+        activity_per_shell,
+        scaled_activity_df,
+    )

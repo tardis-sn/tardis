@@ -107,7 +107,6 @@ def intensity_ratio(nuclear_data, source_1, source_2):
     intensity_2 = nuclear_data.query("type==" + source_2)["intensity"].values
     total_intensity = np.sum(intensity_1) + np.sum(intensity_2)
     scale_factor = total_intensity / 100
-    print("Scale factor: ", scale_factor)
     return (
         np.sum(intensity_1) / total_intensity,
         np.sum(intensity_2) / total_intensity,
