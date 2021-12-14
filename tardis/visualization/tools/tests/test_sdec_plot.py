@@ -30,9 +30,11 @@ def simulation_simple(config_verysimple, atomic_dataset):
     )
     return sim
 
+
 @pytest.fixture(scope="module")
 def sdec_ref_data_path(tardis_ref_path):
     return os.path.abspath(os.path.join(tardis_ref_path, "sdec_ref.h5"))
+
 
 class TestSDECPlotter(object):
     @classmethod
@@ -45,7 +47,7 @@ class TestSDECPlotter(object):
             cls.hdf_file = h5py.File(sdec_ref_data_path, "r")
         yield cls.hdf_file
         cls.hdf_file.close()
-    
+
     @pytest.fixture(scope="class")
     def plotter(self, simulation_simple):
         return SDECPlotter.from_simulation(simulation_simple)
@@ -66,7 +68,7 @@ class TestSDECPlotter(object):
     def test_parse_species_list(self, request, plotter, species):
         plotter._parse_species_list(species)
         subgroup_name = request.node.callspec.id
-        
+
         if request.config.getoption("--generate-reference"):
             group = self.hdf_file.create_group(subgroup_name)
             group.create_dataset(
@@ -139,7 +141,14 @@ class TestSDECPlotter(object):
                 "modeled_spectrum_luminosity",
                 data=plotter.modeled_spectrum_luminosity.cgs.value,
             )
-            group.create_dataset("lum_to_flux", data=plotter.lum_to_flux)
+
+            if isinstance(plotter.lum_to_flux, u.quantity.Quantity):
+                group.create_dataset(
+                    "lum_to_flux", data=plotter.lum_to_flux.cgs.value
+                )
+            else:
+                group.create_dataset("lum_to_flux", data=plotter.lum_to_flux)
+
             group.create_dataset(
                 "species", data=plotter.species.astype(np.float64)
             )
@@ -153,7 +162,8 @@ class TestSDECPlotter(object):
                 key=f"{subgroup_name}/emission_luminosities_df",
             )
             plotter.total_luminosities_df.to_hdf(
-                self.hdf_file.filename, key=f"{subgroup_name}/total_luminosities_df"
+                self.hdf_file.filename,
+                key=f"{subgroup_name}/total_luminosities_df",
             )
 
             # pytest.skip(
@@ -252,9 +262,7 @@ class TestSDECPlotter(object):
 
         if request.config.getoption("--generate-reference"):
             group = self.hdf_file.create_group(subgroup_name)
-            group.create_dataset(
-                "_species_name", data=plotter._species_name
-            )
+            group.create_dataset("_species_name", data=plotter._species_name)
             group.create_dataset("_color_list", data=plotter._color_list)
 
             fig_subgroup = group.create_group("fig_data")
@@ -274,9 +282,7 @@ class TestSDECPlotter(object):
                         )
                 # save line plots
                 if isinstance(data, Line2D):
-                    trace_group.create_dataset(
-                        "data", data=data.get_xydata()
-                    )
+                    trace_group.create_dataset("data", data=data.get_xydata())
                     trace_group.create_dataset(
                         "path", data=data.get_path().vertices
                     )
@@ -329,7 +335,7 @@ class TestSDECPlotter(object):
         packet_wvl_range,
         distance,
         show_modeled_spectrum,
-        observed_spectrum
+        observed_spectrum,
     ):
         subgroup_name = "ply" + request.node.callspec.id
 
@@ -343,9 +349,7 @@ class TestSDECPlotter(object):
 
         if request.config.getoption("--generate-reference"):
             group = self.hdf_file.create_group(subgroup_name)
-            group.create_dataset(
-                "_species_name", data=plotter._species_name
-            )
+            group.create_dataset("_species_name", data=plotter._species_name)
             group.create_dataset("_color_list", data=plotter._color_list)
 
             fig_subgroup = group.create_group("fig_data")
