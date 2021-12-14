@@ -1,7 +1,6 @@
 import astropy.units as u
 import tardis.constants as const
 import numpy as np
-from astropy.coordinates import spherical_to_cartesian
 
 R_ELECTRON_SQUARED = const.a0.cgs.value * const.alpha.cgs.value ** 2.0
 ELECTRON_MASS_ENERGY_KEV = (const.m_e * const.c ** 2.0).to("keV").value
@@ -44,12 +43,22 @@ class SphericalVector(object):
 
     @property
     def cartesian_coords(self):
-        # 0.5*np.pi subtracted because of the definition of theta
-        # in astropy.coordinates.cartesian_to_spherical
-        x, y, z = spherical_to_cartesian(
-            self.r, self.theta - 0.5 * np.pi, self.phi
-        )
+        x, y, z = spherical_to_cartesian(self.r, self.theta, self.phi)
         return x, y, z
+
+
+def spherical_to_cartesian(r, theta, phi):
+    x = r * np.cos(phi) * np.sin(theta)
+    y = r * np.sin(phi) * np.sin(theta)
+    z = r * np.cos(theta)
+    return x, y, z
+
+
+def cartesian_to_spherical(x, y, z):
+    r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
+    theta = np.arccos(z / r)
+    phi = np.arctan2(y, x)
+    return r, theta, phi
 
 
 def kappa_calculation(energy):
@@ -276,9 +285,7 @@ def get_perpendicular_vector(original_direction):
     theta = get_random_theta_photon()
     phi = get_random_phi_photon()
     # transform random angles to cartesian coordinates
-    # 0.5*np.pi subtracted because of the definition of theta
-    # in astropy.coordinates.cartesian_to_spherical
-    random_vector = spherical_to_cartesian(1, theta - 0.5 * np.pi, phi)
+    random_vector = spherical_to_cartesian(1, theta, phi)
     perpendicular_vector = np.cross(original_direction, random_vector)
     perpendicular_vector = normalize_vector(perpendicular_vector)
     return perpendicular_vector

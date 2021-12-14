@@ -31,6 +31,7 @@ from tardis.energy_input.gamma_ray_interactions import (
 from tardis.energy_input.util import (
     get_random_theta_photon,
     get_random_phi_photon,
+    cartesian_to_spherical,
     ELECTRON_MASS_ENERGY_KEV,
     BOUNDARY_THRESHOLD,
     KEV2ERG,
@@ -40,7 +41,6 @@ from tardis import constants as const
 from tardis.util.base import (
     atomic_number2element_symbol,
 )
-from astropy.coordinates import cartesian_to_spherical
 
 # Energy: keV, exported as eV for SF solver
 # distance: cm
@@ -190,11 +190,8 @@ def initialize_photons(
                         secondary_photon_z,
                     )
                     secondary_photon.direction.r = secondary_photon_r
-                    # Plus 0.5 * pi to correct for astropy rotation frame
-                    secondary_photon.direction.theta = (
-                        secondary_photon_theta.value + 0.5 * np.pi
-                    )
-                    secondary_photon.direction.phi = secondary_photon_phi.value
+                    secondary_photon.direction.theta = secondary_photon_theta
+                    secondary_photon.direction.phi = secondary_photon_phi
 
                     photons.append(secondary_photon)
                 else:

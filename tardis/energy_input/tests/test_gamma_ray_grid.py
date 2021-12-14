@@ -1,13 +1,13 @@
 import pytest
 import numpy.testing as npt
 import numpy as np
-from astropy.coordinates import cartesian_to_spherical
 
 from tardis.energy_input.gamma_ray_grid import (
     calculate_distance_radial,
     distance_trace,
     move_photon,
 )
+from tardis.energy_input.util import cartesian_to_spherical
 
 
 @pytest.mark.xfail(reason="To be implemented")
@@ -39,10 +39,9 @@ def test_move_photon(basic_gamma_ray):
 
     r, theta, phi = cartesian_to_spherical(x_new, y_new, z_new)
 
-    expected_r = r.value
-    # Plus 0.5 * pi to correct for astropy rotation frame
-    expected_theta = theta.value + 0.5 * np.pi
-    expected_phi = phi.value
+    expected_r = r
+    expected_theta = theta
+    expected_phi = phi
 
     actual = move_photon(photon, distance)
 

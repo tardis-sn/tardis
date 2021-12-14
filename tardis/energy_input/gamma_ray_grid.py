@@ -1,5 +1,4 @@
 import numpy as np
-from astropy.coordinates import cartesian_to_spherical
 import re
 from nuclear.io.nndc import get_decay_radiation_database, store_decay_radiation
 import pandas as pd
@@ -8,6 +7,7 @@ import astropy.units as u
 from tardis.energy_input.util import (
     solve_quadratic_equation,
     convert_half_life_to_astropy_units,
+    cartesian_to_spherical,
 )
 import tardis.constants as const
 
@@ -105,9 +105,8 @@ def move_photon(photon, distance):
 
     r, theta, phi = cartesian_to_spherical(x_new, y_new, z_new)
     photon.location.r = r
-    # Plus 0.5 * pi to correct for astropy rotation frame
-    photon.location.theta = theta.value + 0.5 * np.pi
-    photon.location.phi = phi.value
+    photon.location.theta = theta
+    photon.location.phi = phi
     return photon
 
 

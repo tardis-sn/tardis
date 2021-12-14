@@ -1,6 +1,5 @@
 import copy
 import numpy as np
-from astropy.coordinates import cartesian_to_spherical
 
 from tardis.energy_input.util import (
     kappa_calculation,
@@ -10,6 +9,7 @@ from tardis.energy_input.util import (
     get_random_phi_photon,
     normalize_vector,
     get_perpendicular_vector,
+    cartesian_to_spherical,
     ELECTRON_MASS_ENERGY_KEV,
 )
 from tardis.energy_input.GXPhoton import GXPhotonStatus
@@ -88,8 +88,7 @@ def compton_scatter(photon, compton_angle):
         final_compton_scattered_vector[1],
         final_compton_scattered_vector[2],
     )
-    # Plus 0.5 * pi to correct for astropy rotation frame
-    return theta_final.value + 0.5 * np.pi, phi_final.value
+    return theta_final, phi_final
 
 
 def pair_creation(photon):
