@@ -9,7 +9,6 @@ from tardis.energy_input.util import (
     solve_quadratic_equation,
     convert_half_life_to_astropy_units,
 )
-from tardis.util.base import atomic_number2element_symbol
 import tardis.constants as const
 
 

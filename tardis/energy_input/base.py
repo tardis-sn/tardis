@@ -33,12 +33,19 @@ from tardis.energy_input.util import (
     get_random_phi_photon,
     ELECTRON_MASS_ENERGY_KEV,
     BOUNDARY_THRESHOLD,
+    KEV2ERG,
+    C_CGS,
 )
 from tardis import constants as const
 from tardis.util.base import (
     atomic_number2element_symbol,
 )
 from astropy.coordinates import cartesian_to_spherical
+
+# Energy: keV, exported as eV for SF solver
+# distance: cm
+# mass: g
+# time: s
 
 
 def initialize_photons(
@@ -80,7 +87,7 @@ def initialize_photons(
         photon info
     """
     photons = []
-    energy_df_rows = np.zeros(number_of_shells) * u.eV / u.cm ** 3
+    energy_df_rows = np.zeros(number_of_shells)
     energy_plot_df_rows = []
 
     cumulative_mass = np.cumsum(shell_masses)
@@ -114,7 +121,7 @@ def initialize_photons(
                 primary_photon = GXPhoton(
                     location=0,
                     direction=0,
-                    energy=1 * u.keV,
+                    energy=1,
                     status=GXPhotonStatus.IN_PROCESS,
                     shell=0,
                 )
@@ -130,7 +137,7 @@ def initialize_photons(
                 location_theta = get_random_theta_photon()
                 location_phi = get_random_phi_photon()
                 primary_photon.location = SphericalVector(
-                    initial_radius * u.cm / u.s, location_theta, location_phi
+                    initial_radius, location_theta, location_phi
                 )
                 direction_theta = get_random_theta_photon()
                 direction_phi = get_random_phi_photon()
@@ -144,22 +151,19 @@ def initialize_photons(
                     photons.append(primary_photon)
 
                     # annihilation dumps energy into medium
-                    energy_KeV = (
-                        sample_energy_distribution(
-                            positron_energy_sorted, positron_energy_cdf
-                        )
-                        * u.keV
+                    energy_KeV = sample_energy_distribution(
+                        positron_energy_sorted, positron_energy_cdf
                     )
 
                     # convert KeV to eV / cm^3
                     energy_df_rows[shell] += (
-                        energy_KeV.to(u.eV) / ejecta_volume[shell]
+                        energy_KeV * 1000 / ejecta_volume[shell]
                     )
                     energy_plot_df_rows.append(
                         [
                             -1,
                             energy_KeV,
-                            initial_radius * u.cm / u.s,
+                            initial_radius,
                             primary_photon.location.theta,
                             0.0,
                             -1,
@@ -195,9 +199,8 @@ def initialize_photons(
                     photons.append(secondary_photon)
                 else:
                     # Spawn a gamma ray emission with energy from gamma-ray list
-                    primary_photon.energy = (
-                        sample_energy_distribution(energy_sorted, energy_cdf)
-                        * u.keV
+                    primary_photon.energy = sample_energy_distribution(
+                        energy_sorted, energy_cdf
                     )
                     photons.append(primary_photon)
 
@@ -236,11 +239,12 @@ def main_gamma_ray_loop(num_photons, model):
     escape_energy = []
 
     # Note the use of velocity as the radial coordinate
-    outer_velocities = model.v_outer
-    inner_velocities = model.v_inner
-    ejecta_density = model.density
-    ejecta_volume = model.volume
-    time_explosion = model.time_explosion.to("s")
+    # Enforce cgs
+    outer_velocities = model.v_outer.to("cm/s").value
+    inner_velocities = model.v_inner.to("cm/s").value
+    ejecta_density = model.density.to("g/cm^3").value
+    ejecta_volume = model.volume.to("cm^3").value
+    time_explosion = model.time_explosion.to("s").value
     number_of_shells = model.no_of_shells
     raw_isotope_abundance = model.raw_isotope_abundance
 
@@ -261,9 +265,9 @@ def main_gamma_ray_loop(num_photons, model):
             isotope_dict[isotope_string] = abundance
         new_abundance_rows.append(
             decay_nuclides(
-                mass.to("M_sun").value,
+                mass * u.g.to("M_sun"),
                 isotope_dict,
-                np.array([time_explosion.to("d").value]),
+                np.array([time_explosion * u.s.to("day")]),
             )
         )
 
@@ -312,15 +316,15 @@ def main_gamma_ray_loop(num_photons, model):
 
     scaled_decay_rate_per_shell = (
         decay_rate_per_shell / decays_per_shell.to_numpy().sum(axis=1)
-    ) / u.s
+    )
 
     total_energy = 0
     for p in photons:
         total_energy += p.energy
 
     injected = (
-        total_energy.to("erg") * scaled_decay_rate_per_shell / model.volume
-    ) + (energy_df_rows * scaled_decay_rate_per_shell)
+        total_energy * KEV2ERG * scaled_decay_rate_per_shell / ejecta_volume
+    ) + (energy_df_rows * KEV2ERG * scaled_decay_rate_per_shell)
 
     print("=== Injected energy ===")
     print(injected)
@@ -371,7 +375,7 @@ def main_gamma_ray_loop(num_photons, model):
                     outer_velocities, photon.location.r, side="left"
                 )
                 photon.time_current += (
-                    distance_interaction / const.c.cgs * time_explosion
+                    distance_interaction / C_CGS * time_explosion
                 )
 
                 if photon.status == GXPhotonStatus.COMPTON_SCATTER:
@@ -400,7 +404,7 @@ def main_gamma_ray_loop(num_photons, model):
                 # Save photons to dataframe rows
                 # convert KeV to eV / cm^3
                 energy_df_rows[photon.shell] += (
-                    ejecta_energy_gained.to(u.eV) / ejecta_volume[photon.shell]
+                    ejecta_energy_gained * 1000 / ejecta_volume[photon.shell]
                 )
                 energy_plot_df_rows.append(
                     [
@@ -426,7 +430,7 @@ def main_gamma_ray_loop(num_photons, model):
                     photon, distance_boundary * (1 + BOUNDARY_THRESHOLD)
                 )
                 photon.time_current += (
-                    distance_boundary / const.c.cgs * time_explosion
+                    distance_boundary / C_CGS * time_explosion
                 )
                 photon.shell = np.searchsorted(
                     outer_velocities, photon.location.r, side="left"

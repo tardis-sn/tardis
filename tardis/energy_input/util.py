@@ -3,9 +3,11 @@ import tardis.constants as const
 import numpy as np
 from astropy.coordinates import spherical_to_cartesian
 
-R_ELECTRON_SQUARED = const.a0.cgs * const.alpha.cgs ** 2.0
-ELECTRON_MASS_ENERGY_KEV = (const.m_e * const.c ** 2.0).to("keV")
+R_ELECTRON_SQUARED = const.a0.cgs.value * const.alpha.cgs.value ** 2.0
+ELECTRON_MASS_ENERGY_KEV = (const.m_e * const.c ** 2.0).to("keV").value
 BOUNDARY_THRESHOLD = 1e-7
+KEV2ERG = (1000 * u.eV).to("erg").value
+C_CGS = const.c.cgs.value
 
 
 class SphericalVector(object):
@@ -158,7 +160,7 @@ def klein_nishina(energy, theta_C):
     """
     kappa = kappa_calculation(energy)
     return (
-        R_ELECTRON_SQUARED.value
+        R_ELECTRON_SQUARED
         / 2
         * (1.0 + kappa * (1.0 - np.cos(theta_C))) ** -2.0
         * (
