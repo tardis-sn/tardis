@@ -89,7 +89,9 @@ def initialize_photons(
     cumulative_mass = np.insert(cumulative_mass, 0, 0)
     outer_velocities = np.insert(outer_velocities, 0, inner_velocities[0])
 
-    for column in decays_per_shell:
+    scaled_decays_per_shell = decays_per_shell.copy()
+
+    for column in scaled_decays_per_shell:
         subtable = decay_rad_db.loc[column]
         (
             gamma_ray_probability,
@@ -103,11 +105,11 @@ def initialize_photons(
             subtable, "'e+'"
         )
         for shell in range(number_of_shells):
-            decays_per_shell[column].iloc[shell] *= scale_factor
-            required_photons_in_shell = int(
-                decays_per_shell[column].iloc[shell]
+            scaled_decays_per_shell[column].iloc[shell] *= scale_factor
+            requested_decays_per_shell = int(
+                scaled_decays_per_shell[column].iloc[shell]
             )
-            for _ in range(required_photons_in_shell):
+            for _ in range(requested_decays_per_shell):
                 # draw a random gamma-ray in shell
                 primary_photon = GXPhoton(
                     location=0,
@@ -199,7 +201,7 @@ def initialize_photons(
                     )
                     photons.append(primary_photon)
 
-    return photons, energy_df_rows, energy_plot_df_rows, decays_per_shell
+    return photons, energy_df_rows, energy_plot_df_rows, scaled_decays_per_shell
 
 
 def main_gamma_ray_loop(num_photons, model):
@@ -302,6 +304,12 @@ def main_gamma_ray_loop(num_photons, model):
     print("scaled phot per shell")
     print(scaled_photons_per_shell)
 
+    print("decay rate per shell")
+    print(decay_rate_per_shell)
+
+    print("decays per shell")
+    print(decays_per_shell)
+
     scaled_decay_rate_per_shell = (
         decay_rate_per_shell / decays_per_shell.to_numpy().sum(axis=1)
     ) / u.s
@@ -310,17 +318,12 @@ def main_gamma_ray_loop(num_photons, model):
     for p in photons:
         total_energy += p.energy
 
-    print("=== Injected energy ===")
-    print(
-        (total_energy.to("erg") * scaled_decay_rate_per_shell)
-        + (energy_df_rows * scaled_decay_rate_per_shell * model.volume)
-    )
+    injected = (
+        total_energy.to("erg") * scaled_decay_rate_per_shell / model.volume
+    ) + (energy_df_rows * scaled_decay_rate_per_shell)
 
     print("=== Injected energy ===")
-    print(
-        (total_energy.to("erg") * scaled_decay_rate_per_shell / model.volume)
-        + (energy_df_rows * scaled_decay_rate_per_shell)
-    )
+    print(injected)
 
     i = 0
     for photon in tqdm(photons):
@@ -462,4 +465,5 @@ def main_gamma_ray_loop(num_photons, model):
         energy_plot_df,
         escape_energy,
         scaled_decay_rate_per_shell,
+        injected,
     )

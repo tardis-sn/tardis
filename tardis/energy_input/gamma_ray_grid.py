@@ -166,9 +166,7 @@ def compute_required_photons_per_shell(
         )
         number_of_nuclides = (nuclide_mass_df[column] / atomic_mass) * const.N_A
 
-        abundance_norm_activity_df[column] *= (
-            decay_constant * number_of_nuclides
-        )
+        abundance_norm_activity_df[column] *= decay_constant
         activity_df[column] = decay_constant * number_of_nuclides
 
     abundance_norm_total_activity = abundance_norm_activity_df.to_numpy().sum()
@@ -178,8 +176,8 @@ def compute_required_photons_per_shell(
     for column in decays_per_shell_df:
         decays_per_shell_df[column] = round(
             decays_per_shell_df[column]
-            * number_of_decays
             / abundance_norm_total_activity
+            * number_of_decays
         )
         decays_per_shell_df[column] = decays_per_shell_df[column].astype(int)
 
