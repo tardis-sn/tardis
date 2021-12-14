@@ -14,7 +14,21 @@ from matplotlib.lines import Line2D
 
 @pytest.fixture(scope="module")
 def simulation_simple(config_verysimple, atomic_dataset):
-    """Instantiate SDEC plotter using a simple simulation model."""
+    """
+    Instantiate SDEC plotter using a simple simulation model.
+
+    Parameters
+    ----------
+    config_verysimple : tardis.io.config_reader.Configuration
+        Configuration object for a very simple simulation.
+    atomic_dataset : str or tardis.atomic.AtomData
+        Atomic data.
+
+    Returns
+    -------
+    sim: tardis.simulation.base.Simulation
+        Simulation object.
+    """
     # Setup simulation configuration using config_verysimple and
     # override properties in such a way to make the simulation run faster
     config_verysimple.montecarlo.iterations = 3
@@ -33,13 +47,41 @@ def simulation_simple(config_verysimple, atomic_dataset):
 
 @pytest.fixture(scope="module")
 def sdec_ref_data_path(tardis_ref_path):
+    """
+    Return the path to the reference data for the SDEC plots.
+
+    Parameters
+    ----------
+    tardis_ref_path : str
+        Path to the reference data directory.
+
+    Returns
+    -------
+    str
+        Path to SDEC reference data.
+    """
     return os.path.abspath(os.path.join(tardis_ref_path, "sdec_ref.h5"))
 
 
-class TestSDECPlotter(object):
+class TestSDECPlotter:
+    """Test the SDECPlotter class."""
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def create_hdf_file(self, request, sdec_ref_data_path):
+        """
+        Create an HDF5 file object. 
+
+        Parameters
+        ----------
+        request : _pytest.fixtures.SubRequest
+        sdec_ref_data_path : str
+            Path to the reference data for the SDEC plots.
+
+        Yields
+        -------
+        h5py._hl.files.File
+            HDF5 file object.
+        """
         cls = type(self)
         if request.config.getoption("--generate-reference"):
             cls.hdf_file = h5py.File(sdec_ref_data_path, "w")
@@ -50,10 +92,29 @@ class TestSDECPlotter(object):
 
     @pytest.fixture(scope="class")
     def plotter(self, simulation_simple):
+        """
+        Create a SDECPlotter object.
+
+        Parameters
+        ----------
+        simulation_simple : tardis.simulation.base.Simulation
+            Simulation object.
+
+        Returns
+        -------
+        tardis.visualization.tools.sdec_plot.SDECPlotter
+        """
         return SDECPlotter.from_simulation(simulation_simple)
 
     @pytest.fixture(scope="class")
     def observed_spectrum(self):
+        """
+        Return the observed spectrum.
+
+        Returns
+        -------
+        Tuple of two astropy.units.quantity.Quantity values.
+        """
         test_data = np.loadtxt(
             "tardis/visualization/tools/tests/data/observed_spectrum_test_data.dat"
         )
@@ -65,7 +126,16 @@ class TestSDECPlotter(object):
         return observed_spectrum_wavelength, observed_spectrum_flux
 
     @pytest.mark.parametrize("species", [["Si II", "Ca II", "C", "Fe I-V"]])
-    def test_parse_species_list(self, request, plotter, species):
+    def test_parse_species_list(self, request, plotter, species):  
+        """
+        Test _parse_species_list method.
+
+        Parameters
+        ----------
+        request : _pytest.fixtures.SubRequest
+        plotter : tardis.visualization.tools.sdec_plot.SDECPlotter
+        species : list
+        """
         plotter._parse_species_list(species)
         subgroup_name = request.node.callspec.id
 
@@ -104,6 +174,18 @@ class TestSDECPlotter(object):
         distance,
         nelements,
     ):
+        """
+        Test _calculate_plotting_data method.
+
+        Parameters
+        ----------
+        request : _pytest.fixtures.SubRequest
+        plotter : tardis.visualization.tools.sdec_plot.SDECPlotter
+        packets_mode : str
+        packet_wvl_range : astropy.units.quantity.Quantity
+        distance : astropy.units.quantity.Quantity
+        nelements : int
+        """
         plotter._calculate_plotting_data(
             packets_mode, packet_wvl_range, distance, nelements
         )
@@ -250,6 +332,19 @@ class TestSDECPlotter(object):
         show_modeled_spectrum,
         observed_spectrum,
     ):
+        """
+        Test generate_plot_mpl method.
+
+        Parameters
+        ----------
+        request : _pytest.fixtures.SubRequest
+        plotter : tardis.visualization.tools.sdec_plot.SDECPlotter
+        packets_mode : str
+        packet_wvl_range : astropy.units.quantity.Quantity
+        distance : astropy.units.quantity.Quantity
+        show_modeled_spectrum : bool
+        observed_spectrum : tuple of two astropy.units.quantity.Quantity values
+        """
         subgroup_name = "mpl" + request.node.callspec.id
 
         fig = plotter.generate_plot_mpl(
@@ -337,6 +432,19 @@ class TestSDECPlotter(object):
         show_modeled_spectrum,
         observed_spectrum,
     ):
+        """
+        Test generate_plot_mpl method.
+
+        Parameters
+        ----------
+        request : _pytest.fixtures.SubRequest
+        plotter : tardis.visualization.tools.sdec_plot.SDECPlotter
+        packets_mode : str
+        packet_wvl_range : astropy.units.quantity.Quantity
+        distance : astropy.units.quantity.Quantity
+        show_modeled_spectrum : bool
+        observed_spectrum : tuple of two astropy.units.quantity.Quantity values
+        """
         subgroup_name = "ply" + request.node.callspec.id
 
         fig = plotter.generate_plot_ply(
@@ -384,8 +492,4 @@ class TestSDECPlotter(object):
 
                 np.testing.assert_allclose(trace_group.get("x")[()], data.x)
                 np.testing.assert_allclose(trace_group.get("y")[()], data.y)
-
-    # TODO: Call generate_plot_mpl() with several PnCs of parameters and test
-    # almost plotter's properties (esp. those saved by calculate_plotting_data)
-    # against saved test data for those combinations (need to figure out a good
-    # structure for saving test data for different PnCs)
+                
