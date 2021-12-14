@@ -322,6 +322,8 @@ class TestSDECPlotter:
     @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA, None])
     @pytest.mark.parametrize("distance", [10 * u.Mpc, None])
     @pytest.mark.parametrize("show_modeled_spectrum", [True, False])
+    @pytest.mark.parametrize("nelements", [1,3])
+    @pytest.mark.parametrize("species_list", [["Si II", "Ca II", "C", "Fe I-V"]])
     def test_generate_plot_mpl(
         self,
         request,
@@ -331,6 +333,8 @@ class TestSDECPlotter:
         distance,
         show_modeled_spectrum,
         observed_spectrum,
+        nelements,
+        species_list,
     ):
         """
         Test generate_plot_mpl method.
@@ -344,6 +348,8 @@ class TestSDECPlotter:
         distance : astropy.units.quantity.Quantity
         show_modeled_spectrum : bool
         observed_spectrum : tuple of two astropy.units.quantity.Quantity values
+        nelements : int
+        species_list : list of str
         """
         subgroup_name = "mpl" + request.node.callspec.id
 
@@ -353,6 +359,8 @@ class TestSDECPlotter:
             distance=distance,
             show_modeled_spectrum=show_modeled_spectrum,
             observed_spectrum=observed_spectrum if distance else None,
+            nelements=nelements,
+            species_list=species_list
         )
 
         if request.config.getoption("--generate-reference"):
@@ -422,6 +430,8 @@ class TestSDECPlotter:
     @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA])
     @pytest.mark.parametrize("distance", [10 * u.Mpc, 50 * u.Mpc])
     @pytest.mark.parametrize("show_modeled_spectrum", [True, False])
+    @pytest.mark.parametrize("nelements", [1,3])
+    @pytest.mark.parametrize("species_list", [["Si II", "Ca II", "C", "Fe I-V"]])
     def test_generate_plot_ply(
         self,
         request,
@@ -431,6 +441,8 @@ class TestSDECPlotter:
         distance,
         show_modeled_spectrum,
         observed_spectrum,
+        nelements,
+        species_list,
     ):
         """
         Test generate_plot_mpl method.
@@ -444,6 +456,8 @@ class TestSDECPlotter:
         distance : astropy.units.quantity.Quantity
         show_modeled_spectrum : bool
         observed_spectrum : tuple of two astropy.units.quantity.Quantity values
+        nelements : int
+        species_list : list of str
         """
         subgroup_name = "ply" + request.node.callspec.id
 
@@ -453,6 +467,8 @@ class TestSDECPlotter:
             distance=distance,
             show_modeled_spectrum=show_modeled_spectrum,
             observed_spectrum=observed_spectrum if distance else None,
+            nelements=nelements,
+            species_list=species_list
         )
 
         if request.config.getoption("--generate-reference"):
