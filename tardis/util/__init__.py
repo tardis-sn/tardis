@@ -1,3 +1,3 @@
 # Utilities for TARDIS
 
-from tardis.util.qdataframe import QDataFrame, QSeries
+from tardis.util.qdataframe.qdataframe import QDataFrame, QSeries
