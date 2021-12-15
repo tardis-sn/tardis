@@ -38,7 +38,7 @@ jobs:
           useMamba: true
 
       - bash: |
-          cd $(tardis.refdata) && git checkout b3c06ca86caa4a8ee58aff209b33835abaa0a8a4
+          cd $(refdata.dir) && git checkout b3c06ca86caa4a8ee58aff209b33835abaa0a8a4
           cd $(tardis.dir)
           source activate tardis
           pip install pytest-azurepipelines
