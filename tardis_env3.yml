@@ -24,7 +24,7 @@ dependencies:
   - pyyaml
   - jsonschema=3 # Issue #1807
   - pytables
-  - h5py
+  - h5py=3.2
   - pickle5  # Issue #1566
   - requests
   - tqdm
