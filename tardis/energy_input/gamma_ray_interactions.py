@@ -38,7 +38,7 @@ def get_compton_angle(energy):
     z = np.random.random()
 
     # get Compton scattering angle
-    compton_angle = np.interp(z, theta_angles, theta_distribution)
+    compton_angle = np.interp(z, theta_distribution, theta_angles)
     # Energy calculations
     new_energy = energy / (
         1.0 + kappa_calculation(energy) * (1.0 - np.cos(compton_angle))

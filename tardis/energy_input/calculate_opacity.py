@@ -87,7 +87,7 @@ def photoabsorption_opacity_calculation(
         * (energy / 100.0) ** -3.0
         * ejecta_density
         / MASS_FE
-        * (1.0 - iron_group_fraction)
+        * iron_group_fraction
     )
 
     return si_opacity + fe_opacity
