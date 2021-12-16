@@ -1,6 +1,7 @@
 import astropy.units as u
 import tardis.constants as const
 import numpy as np
+from numba import njit
 
 R_ELECTRON_SQUARED = (const.a0.cgs.value * const.alpha.cgs.value ** 2.0) ** 2.0
 ELECTRON_MASS_ENERGY_KEV = (const.m_e * const.c ** 2.0).to("keV").value
@@ -47,6 +48,7 @@ class SphericalVector(object):
         return x, y, z
 
 
+@njit
 def spherical_to_cartesian(r, theta, phi):
     x = r * np.cos(phi) * np.sin(theta)
     y = r * np.sin(phi) * np.sin(theta)
@@ -54,6 +56,7 @@ def spherical_to_cartesian(r, theta, phi):
     return x, y, z
 
 
+@njit
 def cartesian_to_spherical(x, y, z):
     r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
     theta = np.arccos(z / r)
@@ -61,6 +64,7 @@ def cartesian_to_spherical(x, y, z):
     return r, theta, phi
 
 
+@njit
 def kappa_calculation(energy):
     """
     Calculates kappa for various other calculations
@@ -79,6 +83,7 @@ def kappa_calculation(energy):
     return energy / ELECTRON_MASS_ENERGY_KEV
 
 
+@njit
 def euler_rodrigues(theta, direction):
     """
     Calculates the Euler-Rodrigues rotation matrix
@@ -116,6 +121,7 @@ def euler_rodrigues(theta, direction):
     )
 
 
+@njit
 def solve_quadratic_equation(x, y, z, x_dir, y_dir, z_dir, radius_velocity):
     """
     Solves the quadratic equation for the distance to the shell boundary
@@ -145,6 +151,7 @@ def solve_quadratic_equation(x, y, z, x_dir, y_dir, z_dir, radius_velocity):
     return solution_1, solution_2
 
 
+@njit
 def klein_nishina(energy, theta_C):
     """
     Calculates the Klein-Nishina equation
@@ -181,6 +188,7 @@ def klein_nishina(energy, theta_C):
     )
 
 
+@njit
 def compton_theta_distribution(energy, sample_resolution=100):
     """
     Calculates the cumulative distribution function of theta angles
@@ -205,6 +213,7 @@ def compton_theta_distribution(energy, sample_resolution=100):
     return theta_angles, norm_theta_distribution
 
 
+@njit
 def get_random_theta_photon():
     """Get a random theta direction between 0 and pi
     Returns
@@ -215,6 +224,7 @@ def get_random_theta_photon():
     return np.arccos(1.0 - 2.0 * np.random.random())
 
 
+@njit
 def get_random_phi_photon():
     """Get a random phi direction between 0 and 2 * pi
 
@@ -252,6 +262,7 @@ def convert_half_life_to_astropy_units(half_life_string):
     return half_life_with_unit.to(u.s)
 
 
+@njit
 def normalize_vector(vector):
     """
     Normalizes a vector in cartesian coordinates
@@ -269,6 +280,7 @@ def normalize_vector(vector):
     return vector / np.linalg.norm(vector)
 
 
+@njit
 def get_perpendicular_vector(original_direction):
     """
     Computes a vector which is perpendicular to the input vector

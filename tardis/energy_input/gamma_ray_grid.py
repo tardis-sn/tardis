@@ -3,6 +3,7 @@ import re
 from nuclear.io.nndc import get_decay_radiation_database, store_decay_radiation
 import pandas as pd
 import astropy.units as u
+from numba import njit
 
 from tardis.energy_input.util import (
     solve_quadratic_equation,

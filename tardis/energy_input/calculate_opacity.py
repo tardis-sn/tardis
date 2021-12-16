@@ -1,5 +1,6 @@
 import numpy as np
 import astropy.units as u
+from numba import njit
 
 from tardis import constants as const
 from tardis.energy_input.util import kappa_calculation
@@ -10,7 +11,8 @@ MASS_FE = 55.845 * const.m_p.to(u.g).value
 M_P = const.m_p.to(u.g).value
 SIGMA_T = const.sigma_T.cgs.value
 
-# TODO: add units for completeness
+
+@njit
 def compton_opacity_calculation(energy, ejecta_density):
     """Calculate the Compton scattering opacity for a given energy
     (Rybicki & Lightman, 1979)
@@ -54,6 +56,7 @@ def compton_opacity_calculation(energy, ejecta_density):
     return ejecta_density / (M_P * 2) * sigma_KN
 
 
+@njit
 def photoabsorption_opacity_calculation(
     energy, ejecta_density, iron_group_fraction
 ):
@@ -93,6 +96,7 @@ def photoabsorption_opacity_calculation(
     return si_opacity + fe_opacity
 
 
+@njit
 def pair_creation_opacity_calculation(
     energy, ejecta_density, iron_group_fraction
 ):

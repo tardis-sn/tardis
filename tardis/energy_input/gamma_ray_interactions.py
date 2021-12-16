@@ -1,5 +1,6 @@
 import copy
 import numpy as np
+from numba import njit
 
 from tardis.energy_input.util import (
     kappa_calculation,
@@ -15,6 +16,7 @@ from tardis.energy_input.util import (
 from tardis.energy_input.GXPhoton import GXPhotonStatus
 
 
+@njit
 def get_compton_angle(energy):
     """
     Computes the compton angle from the Klein-Nishina equation.
@@ -65,7 +67,9 @@ def compton_scatter(photon, compton_angle):
         Photon phi direction
     """
     # transform original direction vector to cartesian coordinates
-    original_direction = normalize_vector(photon.direction.cartesian_coords)
+    original_direction = normalize_vector(
+        np.array(photon.direction.cartesian_coords)
+    )
     # compute an arbitrary perpendicular vector to the original direction
     orthogonal_vector = get_perpendicular_vector(original_direction)
     # determine a random vector with compton_angle to the original direction
@@ -126,6 +130,7 @@ def pair_creation(photon):
     return photon, backward_ray
 
 
+@njit
 def scatter_type(compton_opacity, photoabsorption_opacity, total_opacity):
     """
     Determines the scattering type based on process opacities

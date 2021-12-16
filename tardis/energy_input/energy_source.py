@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from nuclear.ejecta import Ejecta
+from numba import njit
 
 
 def decay_nuclides(shell_mass, initial_composition, epoch):
@@ -10,6 +11,7 @@ def decay_nuclides(shell_mass, initial_composition, epoch):
     return new_fractions
 
 
+@njit
 def create_energy_cdf(energy, intensity):
     """Creates a CDF of given intensities
 
@@ -37,6 +39,7 @@ def create_energy_cdf(energy, intensity):
     return energy, cdf
 
 
+@njit
 def sample_energy_distribution(energy_sorted, cdf):
     """Randomly samples a CDF of energies
 
