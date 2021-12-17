@@ -467,5 +467,19 @@ def track_rpacket_dataframe(tracked_rpacket_df, tracked_df):
         "energy",
         "shell_id",
     ]
+    set_dtypes = {
+        "Iteration": np.int64,
+        "Packet Index": np.int64,
+        "Packet Seed": np.int64,
+        "Packet Status": np.int64,
+        "r": np.float64,
+        "nu": np.float64,
+        "mu": np.float64,
+        "energy": np.float64,
+        "shell_id": np.int64,
+    }
+
     tracked_rpacket_df = tracked_rpacket_df[columns_reorder]
+    tracked_rpacket_df = tracked_rpacket_df.astype(set_dtypes)
+
     return tracked_rpacket_df
