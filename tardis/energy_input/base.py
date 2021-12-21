@@ -32,6 +32,7 @@ from tardis.energy_input.util import (
     get_random_theta_photon,
     get_random_phi_photon,
     cartesian_to_spherical,
+    doppler_gamma,
     ELECTRON_MASS_ENERGY_KEV,
     BOUNDARY_THRESHOLD,
     KEV2ERG,
@@ -65,7 +66,7 @@ def initialize_photons(
     ----------
     number_of_shells : int
         Number of shells in model
-    decays_per_shell : pandas.Dataframe
+    decays_per_shell : pandas.DataFrame
         Number of decays in a shell
     ejecta_volume : numpy.array
         Volume per shell
@@ -75,8 +76,10 @@ def initialize_photons(
         Shell inner velocities
     outer_velocities : numpy.array
         Shell outer velocities
-    decay_rad_db : pandas.Dataframe
+    decay_rad_db : pandas.DataFrame
         Decay radiation database
+    scaled_activity_df : pandas.DataFrame
+        Activity scaled per shell per isotope
 
     Returns
     -------
@@ -209,13 +212,13 @@ def initialize_photons(
     return photons, energy_df_rows, energy_plot_df_rows
 
 
-def main_gamma_ray_loop(num_photons, model):
+def main_gamma_ray_loop(num_decays, model):
     """Main loop that determines the gamma ray propagation
 
     Parameters
     ----------
-    num_photons : int
-        Number of photons
+    num_decays : int
+        Number of decays requested
     model : tardis.Radial1DModel
         The tardis model to calculate gamma ray propagation through
 
@@ -237,6 +240,10 @@ def main_gamma_ray_loop(num_photons, model):
             2 = pair creation
     list
         Energy of escaping photons
+    numpy.ndarray
+        Scaled activity per shell
+    pandas.DataFrame
+        Energy injected into the model per shell
     """
     escape_energy = []
 
@@ -285,7 +292,7 @@ def main_gamma_ray_loop(num_photons, model):
         decay_rate_per_shell,
         scaled_activity_df,
     ) = compute_required_photons_per_shell(
-        shell_masses, new_abundances, num_photons
+        shell_masses, new_abundances, num_decays
     )
 
     # Taking iron group to be elements 21-30
@@ -339,7 +346,7 @@ def main_gamma_ray_loop(num_photons, model):
                 compton_opacity
                 + photoabsorption_opacity
                 + pair_creation_opacity
-            )
+            ) * doppler_gamma(photon.direction.vector, photon.location.r)
 
             (distance_interaction, distance_boundary,) = distance_trace(
                 photon,
@@ -373,6 +380,7 @@ def main_gamma_ray_loop(num_photons, model):
                         photon.energy,
                     ) = get_compton_angle(photon.energy)
                     (
+                        photon.energy,
                         photon.direction.theta,
                         photon.direction.phi,
                     ) = compton_scatter(photon, compton_angle)

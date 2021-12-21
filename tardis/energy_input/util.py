@@ -47,9 +47,29 @@ class SphericalVector(object):
         x, y, z = spherical_to_cartesian(self.r, self.theta, self.phi)
         return x, y, z
 
+    @property
+    def vector(self):
+        return np.array([self.r, self.theta, self.phi])
+
 
 @njit
 def spherical_to_cartesian(r, theta, phi):
+    """Converts spherical coordinates to Cartesian
+
+    Parameters
+    ----------
+    r : float64
+        Radius
+    theta : float64
+        Theta angle in radians
+    phi : float64
+        Phi angle in radians
+
+    Returns
+    -------
+    float64, float64, float64
+        x, y, z coordinates
+    """
     x = r * np.cos(phi) * np.sin(theta)
     y = r * np.sin(phi) * np.sin(theta)
     z = r * np.cos(theta)
@@ -58,10 +78,74 @@ def spherical_to_cartesian(r, theta, phi):
 
 @njit
 def cartesian_to_spherical(x, y, z):
+    """Converts Cartesian coordinates to spherical
+
+    Parameters
+    ----------
+    x : float64
+        x coordinate
+    y : float64
+        y coordinate
+    z : float64
+        z coordinate
+
+    Returns
+    -------
+    float64, float64, float64
+        r, theta, phi coordinates
+    """
     r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
     theta = np.arccos(z / r)
     phi = np.arctan2(y, x)
     return r, theta, phi
+
+
+@njit
+def doppler_gamma(direction_vector, ejecta_velocity):
+    """Doppler shift for photons in 3D
+
+    Parameters
+    ----------
+    direction_vector : numpy.ndarray
+        Array of r, theta, phi vector (length 3)
+    ejecta_velocity : float64
+        Velocity of the ejecta
+
+    Returns
+    -------
+    float64
+        Doppler factor
+    """
+    velocity_vector = np.array([ejecta_velocity, 0, 0])
+    return 1 - (np.dot(direction_vector, velocity_vector) / C_CGS)
+
+
+@njit
+def angle_aberration_gamma(direction_vector, ejecta_velocity):
+    """Angle aberration formula for photons in 3D
+
+    Parameters
+    ----------
+    direction_vector : numpy.ndarray
+        Array of r, theta, phi vector (length 3)
+    ejecta_velocity : float64
+        Velocity of the ejecta
+
+    Returns
+    -------
+    numpy.ndarray
+        New direction after aberration
+    """
+    velocity_list = [ejecta_velocity, 0, 0]
+    velocity_vector = np.array(velocity_list)
+    direction_dot_velocity = np.dot(direction_vector, velocity_vector)
+    gamma = 1 / np.sqrt(1.0 - (ejecta_velocity / C_CGS) ** 2)
+    factor_a = gamma * (1 - direction_dot_velocity / C_CGS)
+    factor_b = (
+        gamma - (gamma ** 2 * direction_dot_velocity / (gamma + 1) / C_CGS)
+    ) / C_CGS
+
+    return direction_vector - (velocity_vector * factor_b) / factor_a
 
 
 @njit
@@ -291,7 +375,8 @@ def get_perpendicular_vector(original_direction):
 
     Returns
     -------
-
+    numpy.ndarray
+        Perpendicular vector to the input
     """
     # draw random angles
     theta = get_random_theta_photon()

@@ -105,6 +105,8 @@ def intensity_ratio(nuclear_data, source_1, source_2):
         Fractional intensity of source_1
     float
         Fractional intensity of source_2
+    float
+        Number of decay products per decay
     """
     intensity_1 = nuclear_data.query("type==" + source_1)["intensity"].values
     intensity_2 = nuclear_data.query("type==" + source_2)["intensity"].values

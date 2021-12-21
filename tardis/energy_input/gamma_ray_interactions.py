@@ -1,8 +1,10 @@
 import copy
+from typing_extensions import final
 import numpy as np
 from numba import njit
 
 from tardis.energy_input.util import (
+    doppler_gamma,
     kappa_calculation,
     euler_rodrigues,
     compton_theta_distribution,
@@ -11,6 +13,7 @@ from tardis.energy_input.util import (
     normalize_vector,
     get_perpendicular_vector,
     cartesian_to_spherical,
+    angle_aberration_gamma,
     ELECTRON_MASS_ENERGY_KEV,
 )
 from tardis.energy_input.GXPhoton import GXPhotonStatus
@@ -62,6 +65,8 @@ def compton_scatter(photon, compton_angle):
     Returns
     -------
     float64
+        Photon energy
+    float64
         Photon theta direction
     float64
         Photon phi direction
@@ -70,29 +75,47 @@ def compton_scatter(photon, compton_angle):
     original_direction = normalize_vector(
         np.array(photon.direction.cartesian_coords)
     )
+
+    # get comoving frame direction
+    comov_direction = angle_aberration_gamma(
+        photon.direction.vector, photon.location.r
+    )
+
     # compute an arbitrary perpendicular vector to the original direction
     orthogonal_vector = get_perpendicular_vector(original_direction)
     # determine a random vector with compton_angle to the original direction
     new_vector = normalize_vector(
         np.dot(
             euler_rodrigues(compton_angle, orthogonal_vector),
-            original_direction,
+            comov_direction,
         )
+    )
+
+    comov_energy = photon.energy * doppler_gamma(
+        photon.direction.vector, photon.location.r
     )
 
     # draw a random angle from [0,2pi]
     phi = 2.0 * np.pi * np.random.random()
     # rotate the vector with compton_angle around the original direction
     final_compton_scattered_vector = normalize_vector(
-        np.dot(euler_rodrigues(phi, original_direction), new_vector)
+        np.dot(euler_rodrigues(phi, comov_direction), new_vector)
     )
     # transform the cartesian coordinates to spherical coordinates
-    r_final, theta_final, phi_final = cartesian_to_spherical(
-        final_compton_scattered_vector[0],
-        final_compton_scattered_vector[1],
-        final_compton_scattered_vector[2],
+    final_comov_direction = np.array(
+        cartesian_to_spherical(
+            final_compton_scattered_vector[0],
+            final_compton_scattered_vector[1],
+            final_compton_scattered_vector[2],
+        )
     )
-    return theta_final, phi_final
+
+    final_direction = angle_aberration_gamma(
+        final_comov_direction, photon.location.r
+    )
+
+    energy = comov_energy / doppler_gamma(final_direction, photon.location.r)
+    return energy, final_direction[1], final_direction[2]
 
 
 def pair_creation(photon):
@@ -112,12 +135,20 @@ def pair_creation(photon):
     GXPhoton
         backward photon
     """
+
     direction_theta = get_random_theta_photon()
     direction_phi = get_random_phi_photon()
 
-    photon.energy = ELECTRON_MASS_ENERGY_KEV
-    photon.direction.theta = direction_theta
-    photon.direction.phi = direction_phi
+    final_direction = angle_aberration_gamma(
+        np.array([photon.direction.r, direction_theta, direction_phi]),
+        photon.location.r,
+    )
+
+    photon.energy = ELECTRON_MASS_ENERGY_KEV / doppler_gamma(
+        final_direction, photon.location.r
+    )
+    photon.direction.theta = final_direction[1]
+    photon.direction.phi = final_direction[2]
 
     backward_ray = copy.deepcopy(photon)
     backward_ray.status = GXPhotonStatus.IN_PROCESS

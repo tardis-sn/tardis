@@ -108,6 +108,7 @@ def move_photon(photon, distance):
     photon.location.r = r
     photon.location.theta = theta
     photon.location.phi = phi
+
     return photon
 
 
@@ -126,15 +127,19 @@ def compute_required_photons_per_shell(
         Array of shell masses
     isotope_abundance : pandas DataFrame
         Abundances of isotopes
-    number_of_photons : int64
-        Total number of simulation photons
+    number_of_decays : int64
+        Total number of simulation decays
 
     Returns
     -------
-    pandas DataFrame
+    pandas.DataFrame
         Photons required per shell
-    pandas DataFrame
+    pandas.DataFrame
         Database of decay radiation
+    pandas.DataFrame
+        Activity per shell
+    pandas.DataFrame
+        Activity scaled by decays per shell
     """
 
     abundance_dict = {}
