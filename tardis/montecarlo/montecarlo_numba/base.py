@@ -135,15 +135,14 @@ def montecarlo_radial1d(
     if montecarlo_configuration.RPACKET_TRACKING:
         # Creates a dataframe for a particular rpacket
         runner.rpacket_collections = rpacket_collections
-        tracked_df = create_tracked_rpacket_df(
+        runner.track_dict_list = create_tracked_rpacket_df(
+            runner.track_dict_list,
             rpacket_collections,
             iteration,
         )
 
         # Appending the dataframe based on iterations
-        runner.rpacket_tracker = track_rpacket_dataframe(
-            runner.rpacket_tracker, tracked_df
-        )
+        runner.rpacket_tracker = track_rpacket_dataframe(runner.track_dict_list)
 
 
 @njit(**njit_dict)
@@ -370,7 +369,7 @@ def montecarlo_main_loop(
     )
 
 
-def create_tracked_rpacket_df(rpacket_collections, iteration):
+def create_tracked_rpacket_df(track_dict_list, rpacket_collections, iteration):
     """
     Creates Dataframe for particular rpacket along with Iteration info
 
@@ -387,36 +386,7 @@ def create_tracked_rpacket_df(rpacket_collections, iteration):
         A dataframe that is generated with all the properties of a single rpacket.
     """
 
-    seed = rpacket_collections[0].seed
-    index = rpacket_collections[0].index
-    status = rpacket_collections[0].status
-    r = rpacket_collections[0].r
-    nu = rpacket_collections[0].nu
-    mu = rpacket_collections[0].mu
-    energy = rpacket_collections[0].energy
-    shell_id = rpacket_collections[0].shell_id
-
-    for i in range(1, len(rpacket_collections)):
-        seed = chain(seed, rpacket_collections[i].seed)
-        index = chain(index, rpacket_collections[i].index)
-        status = chain(status, rpacket_collections[i].status)
-        r = chain(r, rpacket_collections[i].r)
-        nu = chain(nu, rpacket_collections[i].nu)
-        mu = chain(mu, rpacket_collections[i].mu)
-        energy = chain(energy, rpacket_collections[i].energy)
-        shell_id = chain(shell_id, rpacket_collections[i].shell_id)
-
-    vals = [
-        index,
-        seed,
-        status,
-        r,
-        nu,
-        mu,
-        energy,
-        shell_id,
-    ]
-    columns_name = [
+    key_list = [
         "Packet Index",
         "Packet Seed",
         "Packet Status",
@@ -427,15 +397,27 @@ def create_tracked_rpacket_df(rpacket_collections, iteration):
         "shell_id",
     ]
 
-    rpacket_tracked_df = pd.DataFrame(
-        zip(*vals), columns=columns_name, dtype=object
-    )
+    for i in range(len(rpacket_collections)):
+        for j in range(len(rpacket_collections[i].index)):
+            val_list = [
+                rpacket_collections[i].index[j],
+                rpacket_collections[i].seed[j],
+                rpacket_collections[i].status[j],
+                rpacket_collections[i].r[j],
+                rpacket_collections[i].nu[j],
+                rpacket_collections[i].mu[j],
+                rpacket_collections[i].energy[j],
+                rpacket_collections[i].shell_id[j],
+            ]
 
-    rpacket_tracked_df["Iteration"] = iteration
-    return rpacket_tracked_df
+            dict_track = {k: v for k, v in zip(key_list, val_list)}
+            dict_track["Iteration"] = iteration
+            track_dict_list.append(dict_track)
+
+    return track_dict_list
 
 
-def track_rpacket_dataframe(tracked_rpacket_df, tracked_df):
+def track_rpacket_dataframe(tracked_dict_list):
     """
     Appending function for joining the pre-exisiting dataframe stored in `runner.rpacket_tracker` with the newly created dataframe with iteration information.
     Helps create the final dataframe which has all the data stored with iteration for all the rpackets.
@@ -452,10 +434,7 @@ def track_rpacket_dataframe(tracked_rpacket_df, tracked_df):
     tracked_rpacket_df : pd.DataFrame
         Returns the Final DataFrame after appending the data of `tracked_df` into the pre-exisiting values.
     """
-    tracked_rpacket_df = tracked_rpacket_df.append(
-        tracked_df, ignore_index=True
-    )
-    tracked_rpacket_df = tracked_rpacket_df.convert_dtypes()
+    tracked_rpacket_df = pd.DataFrame.from_dict(tracked_dict_list)
     columns_reorder = [
         "Iteration",
         "Packet Index",
@@ -467,19 +446,5 @@ def track_rpacket_dataframe(tracked_rpacket_df, tracked_df):
         "energy",
         "shell_id",
     ]
-    set_dtypes = {
-        "Iteration": np.int64,
-        "Packet Index": np.int64,
-        "Packet Seed": np.int64,
-        "Packet Status": np.int64,
-        "r": np.float64,
-        "nu": np.float64,
-        "mu": np.float64,
-        "energy": np.float64,
-        "shell_id": np.int64,
-    }
-
     tracked_rpacket_df = tracked_rpacket_df[columns_reorder]
-    tracked_rpacket_df = tracked_rpacket_df.astype(set_dtypes)
-
     return tracked_rpacket_df

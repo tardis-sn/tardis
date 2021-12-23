@@ -151,8 +151,10 @@ class MontecarloRunner(HDFWriterMixin):
                     "shell_id",
                 ]
             )
+            self.track_dict_list = []
         else:
             self.rpacket_tracker = None
+            self.track_dict_list = None
 
         mc_config_module.RPACKET_TRACKING = track_rpacket
 
