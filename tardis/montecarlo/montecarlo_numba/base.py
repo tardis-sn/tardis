@@ -155,6 +155,8 @@ def montecarlo_main_loop(
     number_of_vpackets : int
         VPackets released per interaction
     packet_seeds : numpy.array
+    virtual_packet_logging : bool
+        Option to enable virtual packet logging.
     """
     output_nus = np.empty_like(packet_collection.packets_output_nu)
     last_interaction_types = (
