@@ -99,7 +99,7 @@ class Lines(BaseAtomicDataProperty):
     """
 
     # Would like for lines to just be the line_id values
-    outputs = ("lines", "nu", "f_lu", "wavelength_cm")
+    outputs = ("lines", "nu", "f_lu", "wavelength_cm", "wavelength")
 
     def _filter_atomic_property(self, lines, selected_atoms):
         # return lines[lines.atomic_number.isin(selected_atoms)]
@@ -107,7 +107,7 @@ class Lines(BaseAtomicDataProperty):
 
     def _set_index(self, lines):
         # lines.set_index('line_id', inplace=True)
-        return lines, lines["nu"], lines["f_lu"], lines["wavelength_cm"]
+        return lines, lines["nu"], lines["f_lu"], lines["wavelength_cm"], lines["wavelength"]
 
 
 class PhotoIonizationData(ProcessingPlasmaProperty):

@@ -261,8 +261,11 @@ class AtomData(object):
         self.ionization_data = ionization_data
         self.levels = levels
         #self.lines = lines
-        self.lines = QDataFrame(lines, units={'wavelength': u.Angstrom})
-
+        self.lines = QDataFrame(lines.copy(), 
+            units={
+                'wavelength': u.Angstrom, 'nu': u.Hz, 'A_ul':u.s**-1, 
+                'B_lu': u.Unit(1)/u.Unit('erg/(s*cm2*Hz*sr)')/u.s,  
+                'B_ul': u.Unit(1)/u.Unit('erg/(s*cm2*Hz*sr)')/u.s})
         # Rename these (drop "_all") when `prepare_atom_data` is removed!
         self.macro_atom_data_all = macro_atom_data
         self.macro_atom_references_all = macro_atom_references
@@ -348,7 +351,7 @@ class AtomData(object):
             )
         ]
 
-        self.lines.sort_values(by="wavelength", inplace=True)
+        self.lines = self.lines.sort_values(by="wavelength")
 
         self.lines_index = pd.Series(
             np.arange(len(self.lines), dtype=int),

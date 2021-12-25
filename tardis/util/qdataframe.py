@@ -1,5 +1,5 @@
-
 import pandas as pd
+import numpy as np
 from astropy import units as u
 
 class QSeries(pd.Series):
@@ -48,7 +48,7 @@ class QDataFrame(pd.DataFrame):
     @property
     def _constructor(self):
         return QDataFrame
-    
+
     @property
     def _constructor_sliced(self):
         return QSeries
@@ -60,7 +60,7 @@ class QDataFrame(pd.DataFrame):
         super().__finalize__(other, method=method, **kwargs)
         if hasattr(other, 'units'):
             self.units = other.units
-        
+
         # merge operation: using metadata of the left object
         if method == "merge":
             for name in self._metadata:
@@ -71,14 +71,6 @@ class QDataFrame(pd.DataFrame):
                 object.__setattr__(self, name, getattr(other.objs[0], name, None))
 
         return self
-
-    def __mul__(self, other):
-
-        result = super().__mul__(self, other)
-        result.units = self.units
-        if hasattr(other, 'units'):
-            result.units = other.units
-        return result
 
     def _repr_html_(self) -> str:
         repr_html = super()._repr_html_()

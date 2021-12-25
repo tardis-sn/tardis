@@ -153,10 +153,10 @@ class TauSobolev(ProcessingPlasmaProperty):
         stimulated_emission_factor,
         j_blues,
         f_lu,
-        wavelength_cm,
+        wavelength,
     ):
         f_lu = f_lu.values[np.newaxis].T
-        wavelength = wavelength_cm.values[np.newaxis].T
+        wavelength = wavelength.to(u.cm).values[np.newaxis].T
         n_lower = level_number_density.values.take(
             lines_lower_level_index, axis=0, mode="raise"
         )
