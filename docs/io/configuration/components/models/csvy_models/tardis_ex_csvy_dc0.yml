@@ -7,7 +7,7 @@ supernova:
 
 atom_data: kurucz_cd23_chianti_H_He.h5
 
-csvy_model: csvy_tutorial.csvy
+csvy_model: csvy_full_rad.csvy
 
 plasma:
   disable_electron_scattering: no
@@ -18,11 +18,11 @@ plasma:
 
 montecarlo:
   seed: 23111963
-  no_of_packets: 2.0e+4
-  iterations: 2
+  no_of_packets: 4.0e+4
+  iterations: 20
   nthreads: 1
 
-  last_no_of_packets: 2.0e+4
+  last_no_of_packets: 1.e+5
   no_of_virtual_packets: 10
 
   convergence_strategy:
