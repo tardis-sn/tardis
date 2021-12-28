@@ -108,8 +108,8 @@ Structure
 ---------
 
 When using the built-in structure functionality, the code requires two sections (``velocities`` and ``densities``) and a
-parameter ``no_of_shells``. ``no_of_shells`` is the requested number of shells for a model. The ``velocity`` section
-requires a ``type``. Currently, only ``linear`` is supported.
+parameter ``no_of_shells``. ``no_of_shells`` is the requested number of shells for a model. See
+`Shell Structure <../../../../physics/setup/model.ipynb#shell-structure>`_ for more information.
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/structure/specific
     :lift_description:
@@ -149,6 +149,8 @@ For example:
             density:
                 type: branch85_w7
 
+For more information, see `Branch85 W7 Density <../../../../physics/setup/model.ipynb#branch85-w7-density>`_.
+
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/exponential
     :lift_description:
 
@@ -165,14 +167,8 @@ For example:
                 rho_0: 1e-10 g/cm^3
                 v_0: 10000 km/s
 
-For more information, see:
+For more information, see `Exponential Density <../../../../physics/setup/model.ipynb#exponential-density>`_.
 
-.. toctree::
-    :maxdepth: 1
-    
-    densityexp/densityexp
-
-    
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/power_law
     :lift_description:
 
@@ -190,14 +186,8 @@ For example:
                 v_0: 10000 km/s
                 exponent: 3
 
-For more information, see:
+For more information, see `Power Law Density <../../../../physics/setup/model.ipynb#power-law-density>`_.
 
-.. toctree::
-    :maxdepth: 1
-    
-    densitypow/densitypow
-
-    
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/uniform
     :lift_description:
 
@@ -213,6 +203,9 @@ For example:
                 type: uniform
                 value: 1e-10 g/cm^3
     
+
+For more information, see `Uniform Density <../../../../physics/setup/model.ipynb#uniform-density>`_.
+
 Abundance
 ---------
 
@@ -236,13 +229,7 @@ For example:
             Ni56: 0.25
 
 
-For more information, see:
-
-.. toctree::
-    :maxdepth: 1
-    
-    abundanceuni/abundanceuni
-
+For more information, see `Abundance <../../../../physics/setup/model.ipynb#abundance>`_.
 
 .. _csvy-models:
 
