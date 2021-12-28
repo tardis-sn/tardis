@@ -5,7 +5,7 @@ Models
 ******
 
 TARDIS requires a model of the ejecta in order to run a simulation. A model typically includes information
-for the velocity shell structure, density, and abundances. **See** :ref:`model` **for more information on the
+for the velocity shell structure, density, and abundances. **See** :doc:`../../../../physics/setup/model` **for more information on the
 TARDIS model**. TARDIS offers two ways of specifying the model: either directly in the configuration YAML file
 or separately in a CSVY file. See `here <https://csvy.org/>`_ for an explanation of the CSVY file format.
 
@@ -133,7 +133,7 @@ Density
 -------
 
 In the ``densities`` section of the specific structure, the ``type`` parameter decides on the parameters.
-The physics of these density models is further discussed in :ref:`model`.
+The physics of these density models is further discussed in :doc:`../../../../physics/setup/model`.
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/branch85_w7
     :lift_description:
@@ -244,7 +244,7 @@ For more information, see:
     abundanceuni/abundanceuni
 
 
-.. _csvy-model:
+.. _csvy-models:
 
 CSVY Model
 ==========
@@ -276,7 +276,7 @@ description to go along with it. While the description is not necessary for any 
 is required for ``velocity``, ``density``, and ``t_rad``.
 
 Since the ``velocity`` column contains the outer shell velocity, the first entry in the velocity column is the
-velocity of the photosphere -- i.e. the inner boundary of the computational domain (see :ref:`model`).
+velocity of the photosphere -- i.e. the inner boundary of the computational domain (see :doc:`../../../../physics/setup/model`).
 Consequently, **none of the other information in the first row is used**. In our example, there are only two
 shells, and the first shell will have an inner boundary with a velocity of :math:`9000 \mathrm{ km/s}`, an outer boundary
 with a velocity of :math:`10500 \mathrm{ km/s}`, a density of :math:`2.0*10^{-10} \mathrm{ g/cm^3}`, a dilution
@@ -286,7 +286,7 @@ factor of .8, etc.
 
     None of the CSV columns are required. However, if ``velocity``, ``density``, or the abundances are missing,
     they must be specified in the YAML portion of the file. If ``t_rad`` or ``dilution_factor`` are missing,
-    they will be automatically calculated (see :ref:`model`).
+    they will be automatically calculated (see :doc:`../../../../physics/setup/model`).
 
 .. note::
 

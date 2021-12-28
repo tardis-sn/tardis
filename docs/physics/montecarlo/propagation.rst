@@ -52,7 +52,7 @@ Supernova Expansion
 ===================
 
 .. note::
-    This section is a summary of part of :ref:`model` which is included here for easy reference. For a complete
+    This section is a summary of part of :doc:`../setup/model` which is included here for easy reference. For a complete
     explanation, please refer back to that page.
 
 TARDIS models supernovae as expanding homologously, as shown in the animation below. This means that plasma at a
@@ -66,7 +66,7 @@ TARDIS simulates radiative transfer between an inner boundary (the photosphere) 
 :math:`r_\mathrm{outer\_boundary}`. Additionally, TARDIS divides the space between the inner and outer computational
 boundaries into cells -- radial shells for which the plasma state is (spatially) constant. In the animation, 6 cells 
 are shown, being divided by the light blue lines. The boundaries of the computational domain and of these cells are 
-computed during the simulation setup (refer back to :ref:`model`). As TARDIS is a time-independent code, meaning
+computed during the simulation setup (refer back to :doc:`../setup/model`). As TARDIS is a time-independent code, meaning
 that it calculates the spectra at an instant in time (namely at the time :math:`t_\mathrm{explosion}`), the radii of
 the boundaries (both of the computational domain and of the cells) do not change throughout the simulation.
 
