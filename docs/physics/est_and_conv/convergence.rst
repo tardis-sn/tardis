@@ -42,3 +42,4 @@ Custom Convergence
 ------------------
 
 blah
+As explained in :doc:`estimators.ipynb`, after each iteration the values for radiative temperature and dilution factor are updated by calling the ``advance_state`` method on a ``Simulation`` object. The goal of this is to eventually have the radiative temperature and dilution factor converge to a single value. 
