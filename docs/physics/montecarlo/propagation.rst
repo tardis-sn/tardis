@@ -62,8 +62,8 @@ which TARDIS is running (which is provided in the :ref:`model configuration <mod
 shown in the animation.
 
 TARDIS simulates radiative transfer between an inner boundary (the photosphere) with a radius
-:math:`r_\mathrm{inner\_boundary}`, and an outer boundary (the outer edge of the supernova ejecta) with a radius
-:math:`r_\mathrm{outer\_boundary}`. Additionally, TARDIS divides the space between the inner and outer computational
+:math:`r_\mathrm{boundary\_inner}`, and an outer boundary (the outer edge of the supernova ejecta) with a radius
+:math:`r_\mathrm{boundary\_outer}`. Additionally, TARDIS divides the space between the inner and outer computational
 boundaries into cells -- radial shells for which the plasma state is (spatially) constant. In the animation, 6 cells 
 are shown, being divided by the light blue lines. The boundaries of the computational domain and of these cells are 
 computed during the simulation setup (refer back to :doc:`../setup/model`). As TARDIS is a time-independent code, meaning
