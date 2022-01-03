@@ -23,6 +23,42 @@ from pyne import nucname
 logger = logging.getLogger(__name__)
 
 
+class ModelState:
+    def __init__(self, v_inner, v_outer, r_inner, r_outer):
+        self.state_df = pd.DataFrame(
+            {
+                "v_inner": v_inner,
+                "v_outer": v_outer,
+                "r_inner": r_inner,
+                "r_outer": r_outer
+            }
+        )
+        self.state_df_units = {
+            "v_inner": v_inner.unit,
+            "v_outer": v_outer.unit,
+            "r_inner": r_inner.unit,
+            "r_outer": r_outer.unit,
+        }
+
+    @property
+    def v_inner(self):
+        return self.state_df.v_inner.values * self.state_df_units["v_inner"]
+    
+    @property
+    def v_outer(self):
+        return self.state_df.v_outer.values * self.state_df_units["v_outer"]
+    
+    @property
+    def r_inner(self):
+        return self.state_df.r_inner.values * self.state_df_units["r_inner"]
+    
+    @property
+    def r_outer(self):
+        return self.state_df.r_outer.values *  self.state_df_units["r_outer"]
+    
+    
+
+
 class Radial1DModel(HDFWriterMixin):
     """
     An object that hold information about the individual shells.
@@ -109,7 +145,14 @@ class Radial1DModel(HDFWriterMixin):
         self._abundance = abundance
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
-
+        v_outer = self.velocity[1:]
+        v_inner = self.velocity[:-1]
+        self.model_state = ModelState(
+            v_inner=v_inner,
+            v_outer=v_outer,
+            r_inner=self.time_explosion * v_inner,
+            r_outer=self.time_explosion * v_outer,
+        )
         self.raw_abundance = self._abundance
         self.raw_isotope_abundance = isotope_abundance
 
@@ -262,11 +305,11 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def r_inner(self):
-        return self.time_explosion * self.v_inner
+        return self.model_state.r_inner
 
     @property
     def r_outer(self):
-        return self.time_explosion * self.v_outer
+        return self.model_state.r_outer
 
     @property
     def r_middle(self):
@@ -285,11 +328,11 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def v_inner(self):
-        return self.velocity[:-1]
+        return self.model_state.v_inner
 
     @property
     def v_outer(self):
-        return self.velocity[1:]
+        return self.model_state.v_outer
 
     @property
     def v_middle(self):
