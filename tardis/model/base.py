@@ -25,9 +25,10 @@ logger = logging.getLogger(__name__)
 
 class ModelState:
     def __init__(
-        self, v_inner, v_outer, r_inner, r_outer, time_explosion
+        self, v_inner, v_outer, r_inner, r_outer, time_explosion, density
     ):
         self.time_explosion = time_explosion
+        self.density = density
         self.geometry = pd.DataFrame(
             {
                 "v_inner": v_inner.value,
@@ -154,12 +155,18 @@ class Radial1DModel(HDFWriterMixin):
         self._electron_densities = electron_densities
         v_outer = self.velocity[1:]
         v_inner = self.velocity[:-1]
+        density = (
+            self.homologous_density.calculate_density_at_time_of_simulation(
+                self.time_explosion
+            )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
+        )
         self.model_state = ModelState(
             v_inner=v_inner,
             v_outer=v_outer,
             r_inner=self.time_explosion * v_inner,
             r_outer=self.time_explosion * v_outer,
             time_explosion=self.time_explosion,
+            density=density,
         )
         self.raw_abundance = self._abundance
         self.raw_isotope_abundance = isotope_abundance
@@ -348,14 +355,7 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def density(self):
-        density = (
-            self.homologous_density.calculate_density_at_time_of_simulation(
-                self.time_explosion
-            )
-        )
-        return density[
-            self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1
-        ]
+        return self.model_state.density
 
     @property
     def abundance(self):
