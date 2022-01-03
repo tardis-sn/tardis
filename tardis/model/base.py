@@ -24,39 +24,46 @@ logger = logging.getLogger(__name__)
 
 
 class ModelState:
-    def __init__(self, v_inner, v_outer, r_inner, r_outer):
+    def __init__(
+        self, v_inner, v_outer, r_inner, r_outer, time_explosion
+    ):
+        self.time_explosion = time_explosion
+        self.geometry = pd.DataFrame(
+            {
+                "v_inner": v_inner.value,
+                "r_inner": r_inner.value,
+            }
+        )
+        self.geometry_units = {
+            "v_inner": v_inner.unit,
+            "r_inner": r_inner.unit,
+        }
         self.state_df = pd.DataFrame(
             {
-                "v_inner": v_inner,
-                "v_outer": v_outer,
-                "r_inner": r_inner,
-                "r_outer": r_outer
+                "v_outer": v_outer.value,
+                "r_outer": r_outer.value,
             }
         )
         self.state_df_units = {
-            "v_inner": v_inner.unit,
             "v_outer": v_outer.unit,
-            "r_inner": r_inner.unit,
             "r_outer": r_outer.unit,
         }
 
     @property
     def v_inner(self):
-        return self.state_df.v_inner.values * self.state_df_units["v_inner"]
-    
+        return self.geometry.v_inner.values * self.geometry_units["v_inner"]
+
+    @property
+    def r_inner(self):
+        return self.geometry.r_inner.values * self.geometry_units["r_inner"]
+
     @property
     def v_outer(self):
         return self.state_df.v_outer.values * self.state_df_units["v_outer"]
-    
-    @property
-    def r_inner(self):
-        return self.state_df.r_inner.values * self.state_df_units["r_inner"]
-    
+
     @property
     def r_outer(self):
-        return self.state_df.r_outer.values *  self.state_df_units["r_outer"]
-    
-    
+        return self.state_df.r_outer.values * self.state_df_units["r_outer"]
 
 
 class Radial1DModel(HDFWriterMixin):
@@ -152,6 +159,7 @@ class Radial1DModel(HDFWriterMixin):
             v_outer=v_outer,
             r_inner=self.time_explosion * v_inner,
             r_outer=self.time_explosion * v_outer,
+            time_explosion=self.time_explosion,
         )
         self.raw_abundance = self._abundance
         self.raw_isotope_abundance = isotope_abundance
