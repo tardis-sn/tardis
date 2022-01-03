@@ -33,19 +33,13 @@ class ModelState:
             {
                 "v_inner": v_inner.value,
                 "r_inner": r_inner.value,
+                "v_outer": v_outer.value,
+                "r_outer": r_outer.value,
             }
         )
         self.geometry_units = {
             "v_inner": v_inner.unit,
             "r_inner": r_inner.unit,
-        }
-        self.state_df = pd.DataFrame(
-            {
-                "v_outer": v_outer.value,
-                "r_outer": r_outer.value,
-            }
-        )
-        self.state_df_units = {
             "v_outer": v_outer.unit,
             "r_outer": r_outer.unit,
         }
@@ -60,11 +54,11 @@ class ModelState:
 
     @property
     def v_outer(self):
-        return self.state_df.v_outer.values * self.state_df_units["v_outer"]
+        return self.geometry.v_outer.values * self.geometry_units["v_outer"]
 
     @property
     def r_outer(self):
-        return self.state_df.r_outer.values * self.state_df_units["r_outer"]
+        return self.geometry.r_outer.values * self.geometry_units["r_outer"]
 
 
 class Radial1DModel(HDFWriterMixin):
