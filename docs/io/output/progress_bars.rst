@@ -1,5 +1,5 @@
 *******************************
-Progrss Bars for Simulation Run
+Progress Bars for Simulation Run
 *******************************
 
 TARDIS displays progress bars by default to track the simulation's progress.
