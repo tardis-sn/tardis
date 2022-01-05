@@ -311,6 +311,66 @@ def test_model_decay(simple_isotope_abundance):
     )
 
 
+class TestModelState:
+    def setup(self):
+        filename = "tardis_configv1_verysimple.yml"
+        self.config = Configuration.from_yaml(data_path(filename))
+        self.model = Radial1DModel.from_config(self.config)
+
+    def test_geometry_velocities(self):
+        assert_almost_equal(
+            self.model.model_state.geometry.v_inner.values,
+            self.model.v_inner.value,
+        )
+        assert_almost_equal(
+            self.model.model_state.geometry.v_outer.values,
+            self.model.v_outer.value,
+        )
+
+    def test_geometry_radius(self):
+        assert_almost_equal(
+            self.model.model_state.geometry.r_inner.values,
+            self.model.r_inner.value,
+        )
+        assert_almost_equal(
+            self.model.model_state.geometry.r_outer.values,
+            self.model.r_outer.value,
+        )
+
+    def test_geometry_units(self):
+        assert (
+            self.model.model_state.geometry_units["v_inner"]
+            == self.model.v_inner.unit
+        )
+        assert (
+            self.model.model_state.geometry_units["v_outer"]
+            == self.model.v_outer.unit
+        )
+        assert (
+            self.model.model_state.geometry_units["r_inner"]
+            == self.model.r_inner.unit
+        )
+        assert (
+            self.model.model_state.geometry_units["r_outer"]
+            == self.model.r_outer.unit
+        )
+
+    def test_time_explosion(self):
+        assert (
+            self.model.model_state.time_explosion.unit
+            == self.model.time_explosion.unit
+        )
+        assert (
+            self.model.model_state.time_explosion == self.model.time_explosion
+        )
+
+    def test_density(self):
+        assert self.model.model_state.density.unit == self.model.density.unit
+        assert_almost_equal(
+            self.model.model_state.density.value, self.model.density.value
+        )
+
+
 ###
 # Save and Load
 ###
