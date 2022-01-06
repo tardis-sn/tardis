@@ -10,6 +10,26 @@ import astropy.units as u
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
 import tables
+import re
+
+
+def make_valid_name(testid):
+    """
+    Sanitize pytest IDs to make them valid HDF group names.
+
+    Parameters
+    ----------
+    testid : str
+        ID to sanitize.
+
+    Returns
+    -------
+    testid : str
+        Sanitized ID.
+    """
+    testid = testid.replace("-", "_")
+    testid = "_" + testid
+    return testid
 
 
 @pytest.fixture(scope="module")
@@ -67,7 +87,6 @@ def sdec_ref_data_path(tardis_ref_path):
 class TestSDECPlotter:
     """Test the SDECPlotter class."""
 
-    @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def create_hdf_file(self, request, sdec_ref_data_path):
         """
@@ -140,8 +159,7 @@ class TestSDECPlotter:
         species : list
         """
         plotter._parse_species_list(species)
-        subgroup_name = request.node.callspec.id
-
+        subgroup_name = make_valid_name(request.node.callspec.id)
         if request.config.getoption("--generate-reference"):
             group = self.hdf_file.create_group(
                 self.hdf_file.root,
@@ -156,7 +174,8 @@ class TestSDECPlotter:
             self.hdf_file.create_carray(
                 group, name="_keep_colour", obj=plotter._keep_colour
             )
-            # pytest skip this test?
+            pytest.skip("Reference data was generated during this run.")
+
         else:
             group = self.hdf_file.get_node("/" + subgroup_name)
 
@@ -207,8 +226,7 @@ class TestSDECPlotter:
         )
 
         # each group is a different combination of arguments
-        subgroup_name = request.node.callspec.id
-
+        subgroup_name = make_valid_name(request.node.callspec.id)
         if request.config.getoption("--generate-reference"):
             group = self.hdf_file.create_group(
                 self.hdf_file.root,
@@ -279,10 +297,8 @@ class TestSDECPlotter:
                 key=f"{subgroup_name}/total_luminosities_df",
             )
 
-            # pytest.skip(
-            #     f"SDEC test data saved at: {ref_data_path}",
-            #     allow_module_level=True,
-            # )
+            pytest.skip("Reference data was generated during this run.")
+
         else:
             # use the subgroup id to iterate over the hdf file
             group = self.hdf_file.get_node("/" + subgroup_name)
@@ -360,9 +376,9 @@ class TestSDECPlotter:
     @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA, None])
     @pytest.mark.parametrize("distance", [10 * u.Mpc, None])
     @pytest.mark.parametrize("show_modeled_spectrum", [True, False])
-    @pytest.mark.parametrize("nelements", [1, 3])
+    @pytest.mark.parametrize("nelements", [1, None])
     @pytest.mark.parametrize(
-        "species_list", [["Si II", "Ca II", "C", "Fe I-V"]]
+        "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
     )
     def test_generate_plot_mpl(
         self,
@@ -391,8 +407,7 @@ class TestSDECPlotter:
         nelements : int
         species_list : list of str
         """
-        subgroup_name = "mpl" + request.node.callspec.id
-
+        subgroup_name = make_valid_name("mpl" + request.node.callspec.id)
         fig = plotter.generate_plot_mpl(
             packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
@@ -423,8 +438,12 @@ class TestSDECPlotter:
             for index, data in enumerate(fig.get_children()):
                 trace_group = self.hdf_file.create_group(
                     fig_subgroup,
-                    name=str(index),
+                    name="_" + str(index),
                 )
+                if isinstance(data.get_label(), str):
+                    self.hdf_file.create_array(
+                        trace_group, name="label", obj=data.get_label().encode()
+                    )
 
                 # save artists which correspond to element contributions
                 if isinstance(data, PolyCollection):
@@ -444,6 +463,7 @@ class TestSDECPlotter:
                     self.hdf_file.create_carray(
                         trace_group, name="path", obj=data.get_path().vertices
                     )
+            pytest.skip("Reference data was generated during this run.")
 
         else:
             group = self.hdf_file.get_node("/" + subgroup_name)
@@ -462,7 +482,17 @@ class TestSDECPlotter:
 
             fig_subgroup = self.hdf_file.get_node(group, "fig_data")
             for index, data in enumerate(fig.get_children()):
-                trace_group = self.hdf_file.get_node(fig_subgroup, str(index))
+                trace_group = self.hdf_file.get_node(
+                    fig_subgroup, "_" + str(index)
+                )
+                if isinstance(data.get_label(), str):
+                    assert (
+                        data.get_label()
+                        == self.hdf_file.get_node(trace_group, "label")
+                        .read()
+                        .decode()
+                    )
+
                 # test element contributions
                 if isinstance(data, PolyCollection):
                     for index, path in enumerate(data.get_paths()):
@@ -484,12 +514,12 @@ class TestSDECPlotter:
                     )
 
     @pytest.mark.parametrize("packets_mode", ["virtual", "real"])
-    @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA])
-    @pytest.mark.parametrize("distance", [10 * u.Mpc, 50 * u.Mpc])
+    @pytest.mark.parametrize("packet_wvl_range", [[500, 9000] * u.AA, None])
+    @pytest.mark.parametrize("distance", [10 * u.Mpc, None])
     @pytest.mark.parametrize("show_modeled_spectrum", [True, False])
-    @pytest.mark.parametrize("nelements", [1, 3])
+    @pytest.mark.parametrize("nelements", [1, None])
     @pytest.mark.parametrize(
-        "species_list", [["Si II", "Ca II", "C", "Fe I-V"]]
+        "species_list", [["Si II", "Ca II", "C", "Fe I-V"], None]
     )
     def test_generate_plot_ply(
         self,
@@ -518,8 +548,7 @@ class TestSDECPlotter:
         nelements : int
         species_list : list of str
         """
-        subgroup_name = "ply" + request.node.callspec.id
-
+        subgroup_name = make_valid_name("ply" + request.node.callspec.id)
         fig = plotter.generate_plot_ply(
             packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
@@ -549,10 +578,20 @@ class TestSDECPlotter:
             for index, data in enumerate(fig.data):
                 trace_group = self.hdf_file.create_group(
                     fig_subgroup,
-                    name=str(index),
+                    name="_" + str(index),
                 )
-                # TODO: save and check trace stackgroup
-
+                if data.stackgroup:
+                    self.hdf_file.create_array(
+                        trace_group,
+                        name="stackgroup",
+                        obj=data.stackgroup.encode(),
+                    )
+                if data.name:
+                    self.hdf_file.create_array(
+                        trace_group,
+                        name="name",
+                        obj=data.name.encode(),
+                    )
                 self.hdf_file.create_carray(
                     trace_group,
                     name="x",
@@ -563,6 +602,8 @@ class TestSDECPlotter:
                     name="y",
                     obj=data.y,
                 )
+            pytest.skip("Reference data was generated during this run.")
+
         else:
             group = self.hdf_file.get_node("/", subgroup_name)
             # test output of the _make_colorbar_labels function
@@ -580,8 +621,23 @@ class TestSDECPlotter:
 
             fig_subgroup = self.hdf_file.get_node(group, "fig_data")
             for index, data in enumerate(fig.data):
-                trace_group = self.hdf_file.get_node(fig_subgroup, str(index))
-
+                trace_group = self.hdf_file.get_node(
+                    fig_subgroup, "_" + str(index)
+                )
+                if data.stackgroup:
+                    assert (
+                        data.stackgroup
+                        == self.hdf_file.get_node(trace_group, "stackgroup")
+                        .read()
+                        .decode()
+                    )
+                if data.name:
+                    assert (
+                        data.name
+                        == self.hdf_file.get_node(trace_group, "name")
+                        .read()
+                        .decode()
+                    )
                 np.testing.assert_allclose(
                     self.hdf_file.get_node(trace_group, "x"), data.x
                 )
