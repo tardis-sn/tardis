@@ -87,6 +87,7 @@ def montecarlo_radial1d(
         runner.spectrum_frequency.value,
         number_of_vpackets,
         packet_seeds,
+        montecarlo_configuration.VPACKET_LOGGING,
         iteration=iteration,
         show_progress_bars=show_progress_bars,
         no_of_packets=no_of_packets,
@@ -140,6 +141,7 @@ def montecarlo_main_loop(
     spectrum_frequency,
     number_of_vpackets,
     packet_seeds,
+    virtual_packet_logging,
     iteration,
     show_progress_bars,
     no_of_packets,
@@ -159,6 +161,8 @@ def montecarlo_main_loop(
     number_of_vpackets : int
         VPackets released per interaction
     packet_seeds : numpy.array
+    virtual_packet_logging : bool
+        Option to enable virtual packet logging.
     """
     output_nus = np.empty_like(packet_collection.packets_output_nu)
     last_interaction_types = (
@@ -277,7 +281,7 @@ def montecarlo_main_loop(
                 continue
             v_packets_energy_hist[idx] += vpackets_energy[j]
 
-    if montecarlo_configuration.VPACKET_LOGGING:
+    if virtual_packet_logging:
         for vpacket_collection in vpacket_collections:
             vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
             vpackets_energy = vpacket_collection.energies[
