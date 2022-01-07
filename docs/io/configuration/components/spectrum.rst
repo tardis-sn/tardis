@@ -10,11 +10,12 @@ Finally, the spectrum configuration tells TARDIS information needed for spectrum
 
 ``start`` and ``end`` are given as values with units.  
 ``num`` specifies the number of bins used to build the spectrum and must be given as an integer. 
-Finally, the method option selects the final spectral synthesis mode. Currently, there are three options:
+TARDIS produces the spectrum in three different methods. For more information on these methods, visit the
+pages below:
  
-* real: construct spectrum from the real packet population alone (see :doc:`Basic Spectrum Generation <../../../physics/spectrum/basic>`) 
-* virtual: use the :ref:`virtual packet scheme <virtual_packets>` for spectral synthesis
-* integrated: use the :ref:`formal integral method <formal_integral>` of Lucy 1999
+* real: :doc:`Basic Spectrum Generation <../../../physics/spectrum/basic>`
+* virtual: :ref:`Virtual Packet Scheme <virtual_packets>`
+* integrated: :ref:`Formal Integral Method <formal_integral>`
 
 The three methods can be specified when running the simulation (see the :doc:`quickstart guide <../../../quickstart/quickstart>` for an example of this).
 
