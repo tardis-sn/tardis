@@ -18,7 +18,6 @@ from tardis.montecarlo import montecarlo_configuration as mc_config_module
 
 from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
-    RPacketCollection,
     configuration_initialize,
 )
 from tardis.montecarlo.montecarlo_numba import numba_config
