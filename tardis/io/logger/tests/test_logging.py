@@ -7,17 +7,34 @@ from tardis.io.logger.logger import LOGGING_LEVELS
 from tardis import run_tardis
 
 
-def test_logging_simulation(atomic_data_fname, caplog):
+@pytest.fixture(scope="module")
+def config_verysimple(config_verysimple, atomic_data_fname):
+    """
+    Further simplify the `config_verysimple` fixture for testing logging.
+    """
+    config_verysimple.montecarlo.iterations = 2
+    config_verysimple.montecarlo.no_of_packets = 400
+    config_verysimple.montecarlo.last_no_of_packets = -1
+    config_verysimple.spectrum.num = 2000
+    config_verysimple.atom_data = atomic_data_fname
+    return config_verysimple
+
+
+@pytest.fixture(scope="module")
+def config_verysimple_logger(atomic_data_fname):
+    config = Configuration.from_yaml(
+        "tardis/io/tests/data/tardis_configv1_verysimple_logger.yml"
+    )
+    config["atom_data"] = atomic_data_fname
+    return config
+
+
+def test_logging_simulation(caplog, config_verysimple, atomic_data_fname):
     """
     Testing the logs for simulations runs
     """
-    config = Configuration.from_yaml(
-        "tardis/io/tests/data/tardis_configv1_verysimple.yml"
-    )
-    config["atom_data"] = atomic_data_fname
-
-    simulation = Simulation.from_config(config)
-
+    config_verysimple["atom_data"] = atomic_data_fname
+    simulation = Simulation.from_config(config_verysimple)
     simulation.run()
 
     for record in caplog.records:
@@ -47,16 +64,15 @@ class TestSimulationLogging:
     """
 
     def test_logging_config(
-        self, atomic_data_fname, caplog, log_level, specific_log_level
+        self,
+        caplog,
+        config_verysimple_logger,
+        log_level,
+        specific_log_level,
     ):
-        config = Configuration.from_yaml(
-            "tardis/io/tests/data/tardis_configv1_verysimple_logger.yml"
-        )
-        config["atom_data"] = atomic_data_fname
-
         caplog.clear()
         run_tardis(
-            config=config,
+            config=config_verysimple_logger,
             log_level=log_level,
             specific_log_level=specific_log_level,
         )
@@ -67,12 +83,13 @@ class TestSimulationLogging:
                 assert record.levelno >= LOGGING_LEVELS[log_level.upper()]
 
     def test_logging_config_yaml(
-        self, atomic_data_fname, caplog, log_level, specific_log_level
+        self,
+        caplog,
+        config_verysimple_logger,
+        log_level,
+        specific_log_level,
     ):
-        config = Configuration.from_yaml(
-            "tardis/io/tests/data/tardis_configv1_verysimple_logger.yml"
-        )
-        config["atom_data"] = atomic_data_fname
+        config = config_verysimple_logger
         config["debug"]["log_level"] = log_level
         config["debug"]["specific_log_level"] = specific_log_level
 
@@ -85,12 +102,14 @@ class TestSimulationLogging:
                 assert record.levelno >= LOGGING_LEVELS[log_level.upper()]
 
     def test_logging_both_specified(
-        self, atomic_data_fname, caplog, log_level, specific_log_level
+        self,
+        atomic_data_fname,
+        caplog,
+        config_verysimple_logger,
+        log_level,
+        specific_log_level,
     ):
-        config = Configuration.from_yaml(
-            "tardis/io/tests/data/tardis_configv1_verysimple_logger.yml"
-        )
-        config["atom_data"] = atomic_data_fname
+        config = config_verysimple_logger
         config["debug"]["log_level"] = log_level
         config["debug"]["specific_log_level"] = specific_log_level
 
