@@ -291,6 +291,11 @@ def thomson_scatter(r_packet, time_explosion):
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
+    temp_doppler_factor = get_doppler_factor(
+        r_packet.r, r_packet.mu, time_explosion
+    )
+    #print ((comov_nu-r_packet.nu*temp_doppler_factor)/comov_nu)
+
 
 @njit(**njit_dict_no_parallel)
 def line_scatter(r_packet, time_explosion, 
