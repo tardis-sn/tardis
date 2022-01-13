@@ -7,10 +7,11 @@ from tardis.montecarlo.montecarlo_numba import (
 )
 
 from tardis.montecarlo.montecarlo_numba.numba_config import (
-    C_SPEED_OF_LIGHT,
-    ENABLE_FULL_RELATIVITY,
+    C_SPEED_OF_LIGHT
 )
 
+from tardis.montecarlo.montecarlo_configuration import full_relativity
+ENABLE_FULL_RELATIVITY = full_relativity
 
 @njit(**njit_dict_no_parallel)
 def get_doppler_factor(r, mu, time_explosion):
@@ -87,7 +88,7 @@ def angle_aberration_CMF_to_LF(r_packet, time_explosion, mu):
     """
     ct = C_SPEED_OF_LIGHT * time_explosion
     beta = r_packet.r / (ct)
-    return (r_packet.mu + beta) / (1.0 + beta * mu)
+    return (mu + beta) / (1.0 + beta * mu)
 
 
 @njit(**njit_dict_no_parallel)

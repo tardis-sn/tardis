@@ -138,7 +138,7 @@ def single_packet_loop(
                 r_packet, vpacket_collection, numba_model, numba_plasma, continuum
             )
         else:
-            print("OTHER")
+            #print("OTHER")
             pass
 
 
