@@ -327,7 +327,7 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         fb_cooling_probs.insert(
             0,
             "transition_type",
-            level_idxs2transition_idx.loc[("k", "bf"), "transition_type"],
+            level_idxs2transition_idx.at[("k", "bf"), "transition_type"],
         )
 
         # Check if there are two-photon decays
@@ -350,7 +350,10 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         # Prepare the deactivation channel probabilities for the continuum species
         deactivation_channel_probs = p_deactivation.copy()
         deactivation_channel_probs = pd.concat(
-            [level_idxs2transition_idx, deactivation_channel_probs], axis=1
+            [
+                level_idxs2transition_idx.loc[deactivation_channel_probs.index],
+                deactivation_channel_probs
+            ], axis=1
         ).reindex(deactivation_channel_probs.index)
 
         deactivation_channel_probs = deactivation_channel_probs.drop(
