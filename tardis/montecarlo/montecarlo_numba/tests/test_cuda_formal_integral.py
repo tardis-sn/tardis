@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
 from tardis import constants as c
+from astropy import units as u
 
 from copy import deepcopy
 import numpy.testing as ntest
@@ -14,6 +15,32 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
 from tardis.montecarlo.montecarlo_numba.numba_interface import numba_plasma_initialize
 
 from tardis.montecarlo.montecarlo_numba.formal_integral_cuda_functions import cuda_searchsorted_value_right
+
+
+from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
+from tardis.montecarlo.montecarlo_numba.formal_integral_cuda_test import FormalIntegrator as cuda_FormalIntegrator
+
+from tardis.io.atom_data.util import download_atom_data
+from tardis import run_tardis
+from tardis.io.config_reader import Configuration
+from tardis.simulation import Simulation
+
+from tardis.montecarlo.montecarlo_numba.r_packet import (RPacket)
+from tardis.montecarlo.montecarlo_numba.numba_interface import (NumbaModel, 
+                                                                NumbaPlasma, 
+                                                                numba_plasma_initialize, 
+                                                                Estimators)
+
+from basic_types_Copy1 import (get_numba_model,
+                         get_r_packet,
+                         get_numba_plasma,
+                         get_estimator) #This file is in the same test directory for easy access right now. 
+
+from tardis.montecarlo import MontecarloRunner
+from tardis.model import Radial1DModel
+from tardis.plasma.standard_plasmas import assemble_plasma
+from tardis.io.util import HDFWriterMixin
+from tardis.io.config_reader import ConfigurationError
 
 
 #All tests need to be changed to call the number version of the function as the expected result
@@ -42,8 +69,14 @@ def black_body_caller(nu, T, actual):
     
 
 
-@pytest.mark.parametrize("N", (1e2, 1e3, 1e4, 1e5))
-def test_trapezoid_integration_cuda(N):
+@pytest.mark.parametrize(["N", "N_loc"], 
+                         [
+                             (1e2, 0), 
+                             (1e3, 1), 
+                             (1e4, 2), 
+                             (1e5, 3)
+                         ])
+def test_trapezoid_integration_cuda(N, N_loc):
     actual = np.zeros(4)
     
     h = 1.0
@@ -53,18 +86,7 @@ def test_trapezoid_integration_cuda(N):
     expected = formal_integral_numba.trapezoid_integration(data, h)
     trapezoid_integration_caller[1, 4](data, h, actual)
     
-    N_loc = 0
-    if N == 1e2:
-        N_loc = 0
-    elif N == 1e3:
-        N_loc = 1
-    elif N == 1e4:
-        N_loc = 2
-    elif N == 1e5:
-        N_loc = 3
-    
     ntest.assert_almost_equal(actual[N_loc], expected)
-
 
 @cuda.jit
 def trapezoid_integration_caller(data, h, actual):
@@ -99,29 +121,22 @@ def formal_integral_model(request):
 
 
 
-@pytest.mark.parametrize("p", [0.0, 0.5, 1.0])
-def test_calculate_z_cuda(formal_integral_model, p):
+@pytest.mark.parametrize(["p", "p_loc"], 
+                         [
+                             (0.0, 0), 
+                             (0.5, 1),
+                             (1.0, 2)
+                         ])
+def test_calculate_z_cuda(formal_integral_model, p, p_loc):
     actual = np.zeros(3)
     inv_t = 1.0 / formal_integral_model.time_explosion
     size = len(formal_integral_model.r_outer)
     r_outer = formal_integral_model.r_outer 
     for r in r_outer:
-        #This is to find which p is being tested, so the assert statement will not crash as
-        #actual is an array and needs to be indexed
-        p_loc = 0
-        if p == 0.0:
-            p_loc = 0
-        elif p == 0.5:
-            p_loc = 1
-        elif p == 1.0:
-            p_loc = 2
-        
         calculate_z_caller[1, 3](r, p, inv_t, actual)
-        if p >= r:
-            assert actual[p_loc] == 0
-        else:
-            expected = formal_integral_numba.calculate_z(r, p, inv_t)
-            ntest.assert_almost_equal(actual[p_loc], expected)
+        expected = formal_integral_numba.calculate_z(r, p, inv_t)
+        
+        ntest.assert_almost_equal(actual[p_loc], expected)
 
 @cuda.jit
 def calculate_z_caller(r, p, inv_t, actual):
@@ -130,128 +145,42 @@ def calculate_z_caller(r, p, inv_t, actual):
 
 
 
-@pytest.mark.parametrize("p", [0, 0.5, 1])
-def test_populate_z_photosphere(formal_integral_model, p):
-    """
-    Test the case where p < r[0]
-    That means we 'hit' all shells from inside to outside.
-    """
-    actual = np.zeros(3)
-    integrator = formal_integral_cuda.FormalIntegrator(
-        formal_integral_model, None, None
-    )
-    
-    size = len(formal_integral_model.r_outer)
-    r_inner = formal_integral_model.r_inner
-    r_outer = formal_integral_model.r_outer
-
-    p = r_inner[0] * p
-    oz = np.zeros_like(r_inner)
-    oshell_id = np.zeros_like(oz, dtype=np.int64)
-    print(dir(formal_integral_model))
-    populate_z_photosphere_caller[1, 3](r_inner, r_outer, formal_integral_model.time_explosion, p, oz, oshell_id, actual)
-    #This is to find which p is being tested, so the assert statement will not crash as
-    #actual is an array and needs to be indexed
-    p_loc = 0
-    if p == 0.0:
-        p_loc = 0
-    elif p == 0.5:
-        p_loc = 1
-    elif p == 1.0:
-        p_loc = 2
-    
-    expected_oz = np.zeros_like(r_outer)
-    expected_oshell_id = np.zeros_like(oshell_id).astype(np.float64)
-    formal_integral_numba.populate_z(formal_integral_model, p, expected_oz, expected_oshell_id)
-    
-    ntest.assert_almost_equal(actual[p_loc], size)
-
-    ntest.assert_allclose(oshell_id, expected_oshell_id)
-    
-    ntest.assert_allclose(oz, expected_oz, atol=1e-5)
-
-@cuda.jit
-def populate_z_photosphere_caller(r_inner, r_outer, time_explosion, p, oz, oshell_id, actual):
-    x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.populate_z_cuda(r_inner,
-                                                     r_outer,
-                                                     time_explosion,
-                                                     p, 
-                                                     oz, 
-                                                     oshell_id)
-
-
-
-@pytest.mark.parametrize("p", [1e-5, 1e-3, .1, 0.5, 0.99, 1])
-def test_populate_z_shells(formal_integral_model, p):
-    """
-    Test the case where p > r[0]
-    
-    oz is redshift
-    """
-    actual = np.zeros(6)
-    
+@pytest.mark.parametrize(["p", "p_loc"], 
+                         [
+                             (1e-5, 0), 
+                             (1e-3, 1), 
+                             (.1, 2), 
+                             (0.5, 3), 
+                             (0.99, 4), 
+                             (1, 5)
+                         ])
+def test_populate_z(formal_integral_model, p, p_loc):
     size = len(formal_integral_model.r_inner)
-    r_inner = formal_integral_model.r_inner
-    r_outer = formal_integral_model.r_outer
-    
-    inv_t = 1/formal_integral_model.time_explosion
-
-    p = r_inner[0] + (r_outer[-1] - r_inner[0]) * p
-    idx = np.searchsorted(r_outer, p, side="right")
-
     oz = np.zeros(size * 2)
     oshell_id = np.zeros_like(oz, dtype=np.int64)
-
-    offset = size - idx
-
-    expected_N = (offset) * 2
-    expected_oz = np.zeros_like(oz)
-    expected_oshell_id = np.zeros_like(oshell_id).astype(np.float64)
-
-    # Calculated way to determine which shells get hit
-    formal_integral_numba.populate_z(formal_integral_model, p, expected_oz, expected_oshell_id)
     
-    populate_z_shells_caller[1,4](r_inner, 
-                                  r_outer, 
-                                  formal_integral_model.time_explosion, 
-                                  p, 
-                                  oz, 
-                                  oshell_id, 
-                                  actual)
-
-    #This is to find which p is being tested, so the assert statement will not crash as
-    #actual is an array and needs to be indexed
+    expected = formal_integral_numba.populate_z(formal_integral_model, p, oz, oshell_id)
     
-    p_loc = 0
-    if p == 1e-5:
-        p_loc = 0
-    elif p == 0.5:
-        p_loc = 1
-    elif p == 0.99:
-        p_loc = 2
-    elif p == 1:
-        p_loc = 3
-
-    ntest.assert_almost_equal(actual[p_loc], expected_N)
-
-    ntest.assert_allclose(oshell_id, expected_oshell_id)
-
-    ntest.assert_allclose(oz, expected_oz, atol=1e-5)
+    actual = np.zeros(6) 
+    populate_z_caller[1, 6](formal_integral_model.r_inner, 
+                            formal_integral_model.r_outer,
+                            formal_integral_model.time_explosion,
+                            p,
+                            oz,
+                            oshell_id,
+                            actual)
     
-    ntest.assert_almost_equal(oshell_id, expected_oshell_id)
-    
-    ntest.assert_almost_equal(oz, expected_oz)
+    ntest.assert_almost_equal(expected, actual[p_loc])
 
 @cuda.jit
-def populate_z_shells_caller(r_inner, r_outer, time_explosion, p, oz, oshell_id, actual):
+def populate_z_caller(r_inner, r_outer, time_explosion, p, oz, oshell_id, actual):
     x = cuda.grid(1)
     actual[x] = formal_integral_cuda.populate_z_cuda(r_inner,
                                                      r_outer,
                                                      time_explosion,
                                                      p, 
                                                      oz, 
-                                                     oshell_id)
+                                                     oshell_id)    
 
 
 
@@ -264,7 +193,6 @@ def populate_z_shells_caller(r_inner, r_outer, time_explosion, p, oz, oshell_id,
     ],
 )
 def test_calculate_p_values(N):
-    #Compare to old calculate p_values
     r = 1.0
 
     expected = formal_integral_numba.calculate_p_values(r, N)
@@ -322,42 +250,13 @@ def cuda_searchsorted_value_right_caller(line_list_nu, nu_insert, actual):
     actual[x] = len(line_list_nu) - 1 - cuda_searchsorted_value_right(line_list_nu[::-1], nu_insert)
 
 
-    
-    
- 
-from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
-from tardis.montecarlo.montecarlo_numba.formal_integral_cuda_test import FormalIntegrator as cuda_FormalIntegrator
-
-from tardis.io.atom_data.util import download_atom_data
-from tardis import run_tardis
-from astropy import units as u
-from tardis.io.config_reader import Configuration
-from tardis.simulation import Simulation
-
-from tardis.montecarlo.montecarlo_numba.r_packet import (RPacket)
-from tardis.montecarlo.montecarlo_numba.numba_interface import (NumbaModel, 
-                                                                NumbaPlasma, 
-                                                                numba_plasma_initialize, 
-                                                                Estimators)
-
-from basic_types_Copy1 import (get_numba_model,
-                         get_r_packet,
-                         get_numba_plasma,
-                         get_estimator) #This file is in the same test directory for easy access right now. 
-
-from tardis.montecarlo import MontecarloRunner
-from tardis.model import Radial1DModel
-from tardis.plasma.standard_plasmas import assemble_plasma
-from tardis.io.util import HDFWriterMixin
-from tardis.io.config_reader import ConfigurationError
-
 
 #This test is a mess right now, I am just trying to see how to start it
 @pytest.mark.parametrize(
     ["no_of_packets", "iterations"],
     [
-        (40000, 1),
-    ],
+        (40000, 1)
+    ]
 )
 def test_full_formal_integral(no_of_packets, iterations):
     """
@@ -368,47 +267,37 @@ def test_full_formal_integral(no_of_packets, iterations):
     tardis_config = Configuration.from_yaml('tardis/montecarlo/montecarlo_numba/tests/tardis_example_verysimple.yml') 
     #current throws an error here.
     """
-    OSError: Atom Data tardis/montecarlo/montecarlo_numba/tests/kurucz_cd23_chianti_H_He.h5 is not found in current path or in TARDIS data repo. tardis/montecarlo/montecarlo_numba/tests/kurucz_cd23_chianti_H_He is also not a standard known TARDIS atom dataset.
+    OSError: Atom Data tardis/montecarlo/montecarlo_numba/tests/kurucz_cd23_chianti_H_He.h5 is not found in current path or in
+    TARDIS data repo. tardis/montecarlo/montecarlo_numba/tests/kurucz_cd23_chianti_H_He is also not a standard known TARDIS atom 
+    dataset.
 
-tardis/io/atom_data/util.py:48: OSError
+    tardis/io/atom_data/util.py:48: OSError
     """
     sim1 = Simulation.from_config(tardis_config)
     sim1.run()
     
     basic_estimator1 = get_estimator(sim1)
-    basic_estimator2 = get_estimator(sim1)
     
-    tau_sobolev_shape1 = basic_estimator1.Edotlu_estimator.shape
-    tau_sobolev_shape2 = basic_estimator2.Edotlu_estimator.shape
+    #tau_sobolev_shape1 = basic_estimator1.Edotlu_estimator.shape
     
     basic_runner1 = MontecarloRunner.from_config(tardis_config, None, False)
-    basic_runner2 = MontecarloRunner.from_config(tardis_config, None, False)
 
     basic_runner1._initialize_estimator_arrays(sim1.plasma.tau_sobolevs.shape)
-    basic_runner2._initialize_estimator_arrays(sim1.plasma.tau_sobolevs.shape)
 
     basic_runner1._initialize_geometry_arrays(sim1.model)
-    basic_runner2._initialize_geometry_arrays(sim1.model)
 
     basic_runner1._initialize_packets(sim1.model.t_inner.value, 
                                       no_of_packets, 
                                       iterations, 
                                       sim1.model.r_inner[0])
-    basic_runner2._initialize_packets(sim1.model.t_inner.value, 
-                                      no_of_packets, 
-                                      iterations, 
-                                      sim1.model.r_inner[0]) 
 
     basic_runner1.run(sim1.model, sim1.plasma, no_of_packets) #100000 is number of packets
-    basic_runner2.run(sim1.model, sim1.plasma, no_of_packets)
 
-    basic_plasma1 = get_numba_plasma(sim1)
-    basic_plasma2 = get_numba_plasma(sim1)
+    #basic_plasma1 = get_numba_plasma(sim1)
 
     formal_integrator_good = FormalIntegrator(sim1.model, sim1.plasma, basic_runner1)
 
-    formal_integrator_test = cuda_FormalIntegrator(sim1.model, sim1.plasma, basic_runner2)
-
+    formal_integrator_test = cuda_FormalIntegrator(sim1.model, sim1.plasma, basic_runner1)
 
     res_good = formal_integrator_good.make_source_function()
     att_S_ul_good = res_good[0].flatten(order="F")
@@ -420,7 +309,7 @@ tardis/io/atom_data/util.py:48: OSError
     Jred_lu_test = res_test[1].values.flatten(order="F")
     Jblue_lu_test = res_test[2].flatten(order="F")
 
-
+    
     formal_integrator_good.generate_numba_objects()
 
     formal_integrator_test.generate_numba_objects()
