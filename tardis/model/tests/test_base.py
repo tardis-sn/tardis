@@ -12,13 +12,13 @@ from tardis.io.decay import IsotopeAbundances
 def data_path(filename):
     return os.path.abspath(os.path.join("tardis/io/tests/data/", filename))
 
-
 class TestModelFromPaper1Config:
+    @pytest.fixture(scope="class", autouse=True)
     def setup(self):
         filename = "paper1_tardis_configv1.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
-        self.model = Radial1DModel.from_config(self.config)
-
+        type(self).config = Configuration.from_yaml(data_path(filename))
+        type(self).model = Radial1DModel.from_config(self.config)
+    
     def test_abundances(self):
         oxygen_abundance = self.config.model.abundances.O
         assert_array_almost_equal(
@@ -50,10 +50,11 @@ class TestModelFromPaper1Config:
 
 
 class TestModelFromASCIIDensity:
+    @pytest.fixture(scope="class", autouse=True)
     def setup(self):
         filename = "tardis_configv1_ascii_density.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
-        self.model = Radial1DModel.from_config(self.config)
+        type(self).config = Configuration.from_yaml(data_path(filename))
+        type(self).model = Radial1DModel.from_config(self.config)
 
     def test_velocities(self):
         assert self.model.v_inner.unit == u.Unit("cm/s")
@@ -67,10 +68,11 @@ class TestModelFromASCIIDensity:
 
 
 class TestModelFromArtisDensity:
+    @pytest.fixture(scope="class", autouse=True)
     def setup(self):
         filename = "tardis_configv1_artis_density.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
-        self.model = Radial1DModel.from_config(self.config)
+        type(self).config = Configuration.from_yaml(data_path(filename))
+        type(self).model = Radial1DModel.from_config(self.config)
 
     def test_velocities(self):
         assert self.model.v_inner.unit == u.Unit("cm/s")
@@ -84,13 +86,14 @@ class TestModelFromArtisDensity:
 
 
 class TestModelFromArtisDensityAbundances:
+    @pytest.fixture(scope="class", autouse=True)
     def setup(self):
         filename = "tardis_configv1_artis_density.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
+        type(self).config = Configuration.from_yaml(data_path(filename))
         self.config.model.abundances.type = "file"
         self.config.model.abundances.filename = "artis_abundances.dat"
         self.config.model.abundances.filetype = "artis"
-        self.model = Radial1DModel.from_config(self.config)
+        type(self).model = Radial1DModel.from_config(self.config)
 
     def test_velocities(self):
         assert self.model.v_inner.unit == u.Unit("cm/s")
@@ -103,13 +106,14 @@ class TestModelFromArtisDensityAbundances:
 
 
 class TestModelFromArtisDensityAbundancesVSlice:
+    @pytest.fixture(scope="class", autouse=True)
     def setup(self):
         filename = "tardis_configv1_artis_density_v_slice.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
+        type(self).config = Configuration.from_yaml(data_path(filename))
         self.config.model.abundances.type = "file"
         self.config.model.abundances.filename = "artis_abundances.dat"
         self.config.model.abundances.filetype = "artis"
-        self.model = Radial1DModel.from_config(self.config)
+        type(self).model = Radial1DModel.from_config(self.config)
 
     def test_velocities(self):
         assert self.model.v_inner.unit == u.Unit("cm/s")
@@ -120,10 +124,11 @@ class TestModelFromArtisDensityAbundancesVSlice:
 
 
 class TestModelFromUniformDensity:
+    @pytest.fixture(scope="class", autouse=True)
     def setup(self):
         filename = "tardis_configv1_uniform_density.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
-        self.model = Radial1DModel.from_config(self.config)
+        type(self).config = Configuration.from_yaml(data_path(filename))
+        type(self).model = Radial1DModel.from_config(self.config)
 
     def test_density(self):
         assert_array_almost_equal(
@@ -132,23 +137,25 @@ class TestModelFromUniformDensity:
 
 
 class TestModelFromInitialTinner:
+    @pytest.fixture(scope="class", autouse=True)
     def setup(self):
         filename = "tardis_configv1_uniform_density.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
+        type(self).config = Configuration.from_yaml(data_path(filename))
         self.config.plasma.initial_t_inner = 2508 * u.K
-        self.model = Radial1DModel.from_config(self.config)
+        type(self).model = Radial1DModel.from_config(self.config)
 
     def test_initial_temperature(self):
         assert_almost_equal(self.model.t_inner.value, 2508)
 
 
 class TestModelFromArtisDensityAbundancesAllAscii:
+    @pytest.fixture(scope="class", autouse=True)
     def setup(self):
         filename = "tardis_configv1_ascii_density_abund.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
+        type(self).config = Configuration.from_yaml(data_path(filename))
         self.config.model.structure.filename = "density.dat"
         self.config.model.abundances.filename = "abund.dat"
-        self.model = Radial1DModel.from_config(self.config)
+        type(self).model = Radial1DModel.from_config(self.config)
 
     def test_velocities(self):
         assert self.model.v_inner.unit == u.Unit("cm/s")
@@ -280,10 +287,8 @@ def simple_isotope_abundance():
     return IsotopeAbundances(abundance, index=index)
 
 
-def test_model_decay(simple_isotope_abundance):
-    filename = "tardis_configv1_verysimple.yml"
-    config = Configuration.from_yaml(data_path(filename))
-    model = Radial1DModel.from_config(config)
+def test_model_decay(simple_isotope_abundance, config_verysimple):
+    model = Radial1DModel.from_config(config_verysimple)
 
     model.raw_isotope_abundance = simple_isotope_abundance
     decayed = simple_isotope_abundance.decay(model.time_explosion).as_atoms()
