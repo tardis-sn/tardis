@@ -12,35 +12,13 @@ from numba import njit
 import tardis.montecarlo.montecarlo_numba.formal_integral_cuda_test as formal_integral_cuda
 import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral_numba
 from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
-from tardis.montecarlo.montecarlo_numba.numba_interface import numba_plasma_initialize
 
 from tardis.montecarlo.montecarlo_numba.formal_integral_cuda_functions import cuda_searchsorted_value_right
-
 
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
 from tardis.montecarlo.montecarlo_numba.formal_integral_cuda_test import FormalIntegrator as cuda_FormalIntegrator
 
-from tardis.io.atom_data.util import download_atom_data
-from tardis import run_tardis
-from tardis.io.config_reader import Configuration
-from tardis.simulation import Simulation
-
-from tardis.montecarlo.montecarlo_numba.r_packet import (RPacket)
-from tardis.montecarlo.montecarlo_numba.numba_interface import (NumbaModel, 
-                                                                NumbaPlasma, 
-                                                                numba_plasma_initialize, 
-                                                                Estimators)
-
-from basic_types_Copy1 import (get_numba_model,
-                         get_r_packet,
-                         get_numba_plasma,
-                         get_estimator) #This file is in the same test directory for easy access right now. 
-
 from tardis.montecarlo import MontecarloRunner
-from tardis.model import Radial1DModel
-from tardis.plasma.standard_plasmas import assemble_plasma
-from tardis.io.util import HDFWriterMixin
-from tardis.io.config_reader import ConfigurationError
 
 
 #All tests need to be changed to call the number version of the function as the expected result
@@ -157,9 +135,11 @@ def calculate_z_caller(r, p, inv_t, actual):
 def test_populate_z(formal_integral_model, p, p_loc):
     size = len(formal_integral_model.r_inner)
     oz = np.zeros(size * 2)
+    expected_oz = np.zeros(size * 2)
     oshell_id = np.zeros_like(oz, dtype=np.int64)
+    expected_oshell_id = np.zeros_like(oz, dtype=np.int64)
     
-    expected = formal_integral_numba.populate_z(formal_integral_model, p, oz, oshell_id)
+    expected = formal_integral_numba.populate_z(formal_integral_model, p, expected_oz, expected_oshell_id)
     
     actual = np.zeros(6) 
     populate_z_caller[1, 6](formal_integral_model.r_inner, 
@@ -170,7 +150,10 @@ def test_populate_z(formal_integral_model, p, p_loc):
                             oshell_id,
                             actual)
     
-    ntest.assert_almost_equal(expected, actual[p_loc])
+    ntest.assert_almost_equal(actual[p_loc], expected)
+    ntest.assert_allclose(oshell_id, expected_oshell_id)
+    ntest.assert_allclose(oz, expected_oz, atol=1e-5)
+    
 
 @cuda.jit
 def populate_z_caller(r_inner, r_outer, time_explosion, p, oz, oshell_id, actual):
@@ -201,7 +184,6 @@ def test_calculate_p_values(N):
     actual[::] = formal_integral_cuda.calculate_p_values(r, N)
     
     ntest.assert_allclose(actual, expected)
-    
     ntest.assert_almost_equal(actual, expected)
 
 
@@ -216,14 +198,14 @@ def test_line_search_cuda(nu_insert, verysimple_numba_plasma):
    
     expected[0] = formal_integral_numba.line_search(line_list_nu, nu_insert, len(line_list_nu))
     
-    line_search_cuda_caller[1, 1](line_list_nu, np.array([nu_insert]), actual)
+    line_search_cuda_caller[1, 1](line_list_nu, nu_insert, actual)
     
     ntest.assert_almost_equal(actual, expected)
 
 @cuda.jit
 def line_search_cuda_caller(line_list_nu, nu_insert, actual):
     x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.line_search_cuda(line_list_nu, nu_insert[x], len(line_list_nu))
+    actual[x] = formal_integral_cuda.line_search_cuda(line_list_nu, nu_insert, len(line_list_nu))
 
 
 
@@ -235,52 +217,37 @@ def test_reverse_binary_search(nu_insert, verysimple_numba_plasma):
     expected = np.zeros(1)
     line_list_nu = verysimple_numba_plasma.line_list_nu
     
-    if (nu_insert > line_list_nu[0]) or (nu_insert < line_list_nu[len(line_list_nu)-1]):
-        raise BoundsError
+    imin = 0
+    imax = len(line_list_nu)-1
     
-    expected[0] =  len(line_list_nu) - 1 - np.searchsorted(line_list_nu[::-1], nu_insert, side="right")
-
-    cuda_searchsorted_value_right_caller[1, 1](line_list_nu, nu_insert, actual)
+    expected[0] = formal_integral_numba.reverse_binary_search(line_list_nu, nu_insert, imin, imax)
+    cuda_searchsorted_value_right_caller[1, 1](line_list_nu, nu_insert, imin, imax, actual)
     
     ntest.assert_almost_equal(actual, expected)
 
 @cuda.jit
-def cuda_searchsorted_value_right_caller(line_list_nu, nu_insert, actual):
+def cuda_searchsorted_value_right_caller(line_list_nu, nu_insert, imin, imax, actual):
     x = cuda.grid(1)
-    actual[x] = len(line_list_nu) - 1 - cuda_searchsorted_value_right(line_list_nu[::-1], nu_insert)
+    actual[x] = formal_integral_cuda.reverse_binary_search_cuda(line_list_nu, nu_insert, imin, imax)
 
 
 
-#This test is a mess right now, I am just trying to see how to start it
+#no_of_packets and iterations match what is used by config_verysimple
 @pytest.mark.parametrize(
     ["no_of_packets", "iterations"],
     [
-        (40000, 1)
+        (200000, 5)
     ]
 )
-def test_full_formal_integral(no_of_packets, iterations):
+def test_full_formal_integral(no_of_packets, iterations, config_verysimple, simulation_verysimple):
     """
     This tests the full formal integral
     """
-    download_atom_data('kurucz_cd23_chianti_H_He')
-    #This file is a simple file, 1 iteration with only 40000 packets.
-    tardis_config = Configuration.from_yaml('tardis/montecarlo/montecarlo_numba/tests/tardis_example_verysimple.yml') 
-    #current throws an error here.
-    """
-    OSError: Atom Data tardis/montecarlo/montecarlo_numba/tests/kurucz_cd23_chianti_H_He.h5 is not found in current path or in
-    TARDIS data repo. tardis/montecarlo/montecarlo_numba/tests/kurucz_cd23_chianti_H_He is also not a standard known TARDIS atom 
-    dataset.
-
-    tardis/io/atom_data/util.py:48: OSError
-    """
-    sim1 = Simulation.from_config(tardis_config)
-    sim1.run()
     
-    basic_estimator1 = get_estimator(sim1)
+    sim1 = simulation_verysimple
+    sim1.run()    
     
-    #tau_sobolev_shape1 = basic_estimator1.Edotlu_estimator.shape
-    
-    basic_runner1 = MontecarloRunner.from_config(tardis_config, None, False)
+    basic_runner1 = MontecarloRunner.from_config(config_verysimple, None, False)
 
     basic_runner1._initialize_estimator_arrays(sim1.plasma.tau_sobolevs.shape)
 
@@ -293,55 +260,56 @@ def test_full_formal_integral(no_of_packets, iterations):
 
     basic_runner1.run(sim1.model, sim1.plasma, no_of_packets) #100000 is number of packets
 
-    #basic_plasma1 = get_numba_plasma(sim1)
+    formal_integrator_numba = FormalIntegrator(sim1.model, sim1.plasma, basic_runner1)
 
-    formal_integrator_good = FormalIntegrator(sim1.model, sim1.plasma, basic_runner1)
+    formal_integrator_cuda = cuda_FormalIntegrator(sim1.model, sim1.plasma, basic_runner1)
+    
+    formal_integrator_numba.calculate_spectrum(sim1.runner.spectrum.frequency, formal_integrator_numba.points)
+    
+    formal_integrator_cuda.calculate_spectrum(sim1.runner.spectrum.frequency, formal_integrator_cuda.points)
 
-    formal_integrator_test = cuda_FormalIntegrator(sim1.model, sim1.plasma, basic_runner1)
+    res_numba = formal_integrator_numba.make_source_function()
+    att_S_ul_numba = res_numba[0].flatten(order="F")
+    Jred_lu_numba = res_numba[1].values.flatten(order="F")
+    Jblue_lu_numba = res_numba[2].flatten(order="F")
 
-    res_good = formal_integrator_good.make_source_function()
-    att_S_ul_good = res_good[0].flatten(order="F")
-    Jred_lu_good = res_good[1].values.flatten(order="F")
-    Jblue_lu_good = res_good[2].flatten(order="F")
-
-    res_test = formal_integrator_test.make_source_function()
-    att_S_ul_test = res_test[0].flatten(order="F")
-    Jred_lu_test = res_test[1].values.flatten(order="F")
-    Jblue_lu_test = res_test[2].flatten(order="F")
+    res_cuda = formal_integrator_cuda.make_source_function()
+    att_S_ul_cuda = res_cuda[0].flatten(order="F")
+    Jred_lu_cuda = res_cuda[1].values.flatten(order="F")
+    Jblue_lu_cuda = res_cuda[2].flatten(order="F")
 
     
-    formal_integrator_good.generate_numba_objects()
+    formal_integrator_numba.generate_numba_objects()
 
-    formal_integrator_test.generate_numba_objects()
+    formal_integrator_cuda.generate_numba_objects()
+    
 
-
-
-    L_test = formal_integrator_test.numba_integrator.formal_integral(
-        formal_integrator_test.model.t_inner,
+    
+    L_cuda = formal_integrator_cuda.numba_integrator.formal_integral(
+        formal_integrator_cuda.model.t_inner,
         sim1.runner.spectrum.frequency,
         sim1.runner.spectrum.frequency.shape[0],
-        att_S_ul_test,
-        Jred_lu_test,
-        Jblue_lu_test,
-        formal_integrator_test.runner.tau_sobolevs_integ,
-        formal_integrator_test.runner.electron_densities_integ,
-        formal_integrator_test.points,
-    )
-
-    L_good_start = time.monotonic()
-    L_good = formal_integrator_good.numba_integrator.formal_integral(
-        formal_integrator_good.model.t_inner,
-        sim1.runner.spectrum.frequency,
-        sim1.runner.spectrum.frequency.shape[0],
-        att_S_ul_good,
-        Jred_lu_good,
-        Jblue_lu_good,
-        formal_integrator_good.runner.tau_sobolevs_integ,
-        formal_integrator_good.runner.electron_densities_integ,
-        formal_integrator_good.points,
+        att_S_ul_cuda,
+        Jred_lu_cuda,
+        Jblue_lu_cuda,
+        formal_integrator_cuda.runner.tau_sobolevs_integ,
+        formal_integrator_cuda.runner.electron_densities_integ,
+        formal_integrator_cuda.points,
     )
     
-    ntest.assert_almost_equal(L_test, L_good)
+    L_numba = formal_integrator_numba.numba_integrator.formal_integral(
+        formal_integrator_numba.model.t_inner,
+        sim1.runner.spectrum.frequency,
+        sim1.runner.spectrum.frequency.shape[0],
+        att_S_ul_numba,
+        Jred_lu_numba,
+        Jblue_lu_numba,
+        formal_integrator_numba.runner.tau_sobolevs_integ,
+        formal_integrator_numba.runner.electron_densities_integ,
+        formal_integrator_numba.points,
+    )
+    
+    ntest.assert_almost_equal(L_cuda, L_numba)
 
 
 
