@@ -329,16 +329,21 @@ def main_gamma_ray_loop(num_decays, model):
 
         while photon.status == GXPhotonStatus.IN_PROCESS:
 
+            # Calculate photon comoving energy for opacities
+            comoving_energy = photon.energy * doppler_gamma(
+                photon.direction.vector, photon.location.r
+            )
+
             compton_opacity = compton_opacity_calculation(
-                photon.energy, ejecta_density[photon.shell]
+                comoving_energy, ejecta_density[photon.shell]
             )
             photoabsorption_opacity = photoabsorption_opacity_calculation(
-                photon.energy,
+                comoving_energy,
                 ejecta_density[photon.shell],
                 iron_group_fraction_per_shell[photon.shell],
             )
             pair_creation_opacity = pair_creation_opacity_calculation(
-                photon.energy,
+                comoving_energy,
                 ejecta_density[photon.shell],
                 iron_group_fraction_per_shell[photon.shell],
             )
@@ -346,7 +351,7 @@ def main_gamma_ray_loop(num_decays, model):
                 compton_opacity
                 + photoabsorption_opacity
                 + pair_creation_opacity
-            ) * doppler_gamma(photon.direction.vector, photon.location.r)
+            )
 
             (distance_interaction, distance_boundary,) = distance_trace(
                 photon,
@@ -374,6 +379,7 @@ def main_gamma_ray_loop(num_decays, model):
                 )
 
                 if photon.status == GXPhotonStatus.COMPTON_SCATTER:
+                    # TODO Comoving energy?
                     (
                         compton_angle,
                         ejecta_energy_gained,
@@ -395,7 +401,10 @@ def main_gamma_ray_loop(num_decays, model):
                     photons.append(backward_photon)
 
                 if photon.status == GXPhotonStatus.PHOTOABSORPTION:
-                    ejecta_energy_gained = photon.energy
+                    # TODO Ejecta gains comoving energy, correct?
+                    ejecta_energy_gained = photon.energy * doppler_gamma(
+                        photon.direction.vector, photon.location.r
+                    )
 
                 # Save photons to dataframe rows
                 # convert KeV to eV / s / cm^3

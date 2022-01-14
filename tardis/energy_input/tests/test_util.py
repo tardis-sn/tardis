@@ -9,6 +9,54 @@ from tardis import constants as const
 
 
 @pytest.mark.parametrize(
+    ["r", "theta", "phi", "expected_x", "expected_y", "expected_z"],
+    [
+        (1, 0, 0, 0, 0, 1),
+        (1, np.pi, 0, 0, 0, -1),
+        (1, np.pi / 2, 0, 1, 0, 0),
+        (1, np.pi / 2, np.pi, -1, 0, 0),
+        (1, np.pi / 2, np.pi / 2, 0, 1, 0),
+    ],
+)
+def test_spherical_to_cartesian(
+    r, theta, phi, expected_x, expected_y, expected_z
+):
+    actual_x, actual_y, actual_z = util.spherical_to_cartesian(r, theta, phi)
+    npt.assert_almost_equal(actual_x, expected_x)
+    npt.assert_almost_equal(actual_y, expected_y)
+    npt.assert_almost_equal(actual_z, expected_z)
+
+
+@pytest.mark.parametrize(
+    ["expected_r", "expected_theta", "expected_phi", "x", "y", "z"],
+    [
+        (1, 0, 0, 0, 0, 1),
+        (1, np.pi, 0, 0, 0, -1),
+        (1, np.pi / 2, 0, 1, 0, 0),
+        (1, np.pi / 2, np.pi, -1, 0, 0),
+        (1, np.pi / 2, np.pi / 2, 0, 1, 0),
+    ],
+)
+def test_cartesian_to_spherical(
+    expected_r, expected_theta, expected_phi, x, y, z
+):
+    actual_r, actual_theta, actual_phi = util.cartesian_to_spherical(x, y, z)
+    npt.assert_almost_equal(actual_r, expected_r)
+    npt.assert_almost_equal(actual_theta, expected_theta)
+    npt.assert_almost_equal(actual_phi, expected_phi)
+
+
+@pytest.mark.xfail(reason="To be removed")
+def test_doppler_gamma():
+    assert False
+
+
+@pytest.mark.xfail(reason="To be removed")
+def test_angle_aberration_gamma():
+    assert False
+
+
+@pytest.mark.parametrize(
     ["energy", "expected"],
     [
         (511.0, 1.0000021334560507),
@@ -82,7 +130,7 @@ def test_compton_theta_distribution():
 
 
 @pytest.mark.xfail(reason="To be implemented")
-def test_normalize(vector):
+def test_normalize_vector():
     assert False
 
 

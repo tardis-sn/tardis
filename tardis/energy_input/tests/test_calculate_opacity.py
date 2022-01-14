@@ -29,9 +29,9 @@ def test_compton_opacity_calculation(energy, electron_number_density, expected):
 @pytest.mark.parametrize(
     ["ejecta_density", "energy", "iron_group_fraction", "expected"],
     [
-        (1.0, 511.0, 0.0, 0.002211700943616322),
+        (1.0, 511.0, 0.0, 0.0001497022737728184),
         (1e-2, 255.5, 0.5, 8.903267700390038e-05),
-        (1e-2, 255.5, 0.25, 0.00013354901550585057),
+        (1e-2, 255.5, 0.25, 5.1069068712110425e-05),
         (1e5, 511.0e7, 1.0, 0.0),
     ],
 )
