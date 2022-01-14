@@ -78,7 +78,7 @@ def montecarlo_radial1d(
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
-        tracked_rpackets_collection,
+        rpacket_trackers,
     ) = montecarlo_main_loop(
         packet_collection,
         numba_model,
@@ -129,7 +129,7 @@ def montecarlo_radial1d(
 
     # Condition for Checking if RPacket Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
-        runner.rpacket_tracker = tracked_rpackets_collection
+        runner.rpacket_tracker = rpacket_trackers
 
 
 @njit(**njit_dict)
@@ -196,9 +196,9 @@ def montecarlo_main_loop(
         )
 
     # Configuring the Tracking for R_Packets
-    tracked_rpackets_collection = List()
+    rpacket_trackers = List()
     for i in range(len(output_nus)):
-        tracked_rpackets_collection.append(RPacketTracker())
+        rpacket_trackers.append(RPacketTracker())
 
     # Arrays for vpacket logging
     virt_packet_nus = []
@@ -236,7 +236,7 @@ def montecarlo_main_loop(
             i,
         )
         vpacket_collection = vpacket_collections[i]
-        tracked_rpacket = tracked_rpackets_collection[i]
+        tracked_rpacket = rpacket_trackers[i]
 
         single_packet_loop(
             r_packet,
@@ -331,8 +331,8 @@ def montecarlo_main_loop(
             )
 
     if montecarlo_configuration.RPACKET_TRACKING:
-        for tracked_rpacket in tracked_rpackets_collection:
-            tracked_rpacket.finalize_array()
+        for rpacket_tracker in rpacket_trackers:
+            rpacket_tracker.finalize_array()
 
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
@@ -351,5 +351,5 @@ def montecarlo_main_loop(
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
-        tracked_rpackets_collection,
+        rpacket_trackers,
     )
