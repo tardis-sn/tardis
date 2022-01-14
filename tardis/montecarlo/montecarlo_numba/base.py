@@ -69,7 +69,7 @@ def montecarlo_radial1d(
 
     number_of_vpackets = montecarlo_configuration.number_of_vpackets
     ContinuumObject = create_continuum_class(plasma)
-    montecarlo_main_loop.recompile()
+    #montecarlo_main_loop.recompile()
     (
         v_packets_energy_hist,
         last_interaction_type,
