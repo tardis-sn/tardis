@@ -320,7 +320,7 @@ rpacket_collection_spec = [
 
 
 @jitclass(rpacket_collection_spec)
-class RPacketCollection(object):
+class RPacketTracker(object):
     """
     Numba JITCLASS for storing the information for each interaction a RPacket instance undergoes.
 
