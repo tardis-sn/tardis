@@ -264,9 +264,9 @@ def test_full_formal_integral(no_of_packets, iterations, config_verysimple, simu
 
     formal_integrator_cuda = cuda_FormalIntegrator(sim1.model, sim1.plasma, basic_runner1)
     
-    formal_integrator_numba.calculate_spectrum(sim1.runner.spectrum.frequency, formal_integrator_numba.points)
+    formal_integrator_numba.calculate_spectrum(sim1.runner.spectrum.frequency, points=formal_integrator_numba.points)
     
-    formal_integrator_cuda.calculate_spectrum(sim1.runner.spectrum.frequency, formal_integrator_cuda.points)
+    formal_integrator_cuda.calculate_spectrum(sim1.runner.spectrum.frequency, points=formal_integrator_cuda.points)
 
     res_numba = formal_integrator_numba.make_source_function()
     att_S_ul_numba = res_numba[0].flatten(order="F")
