@@ -264,10 +264,18 @@ def test_full_formal_integral(no_of_packets, iterations, config_verysimple, simu
 
     formal_integrator_cuda = cuda_FormalIntegrator(sim1.model, sim1.plasma, basic_runner1)
     
-    formal_integrator_numba.calculate_spectrum(sim1.runner.spectrum.frequency, points=formal_integrator_numba.points)
+    #formal_integrator_numba.calculate_spectrum(sim1.runner.spectrum.frequency, points=formal_integrator_numba.points)
     
-    formal_integrator_cuda.calculate_spectrum(sim1.runner.spectrum.frequency, points=formal_integrator_cuda.points)
-
+    #formal_integrator_cuda.calculate_spectrum(sim1.runner.spectrum.frequency, points=formal_integrator_cuda.points)
+    
+    
+    #This is the main purpose of doing calculate_spectrum, as it sets this property. 
+    #This was manually done for testing as well as speed, as calculate_spectrum will also
+    #call the formal integral. 
+    formal_integrator_numba.interpolate_shells = max(2 * formal_integrator_numba.model.no_of_shells, 80)
+    
+    formal_integrator_cuda.interpolate_shells = max(2 * formal_integrator_cuda.model.no_of_shells, 80)
+    
     res_numba = formal_integrator_numba.make_source_function()
     att_S_ul_numba = res_numba[0].flatten(order="F")
     Jred_lu_numba = res_numba[1].values.flatten(order="F")
