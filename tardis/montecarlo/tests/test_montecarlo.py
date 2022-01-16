@@ -53,8 +53,8 @@ import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
 import tardis.montecarlo.montecarlo_numba.utils as utils
 import tardis.montecarlo.montecarlo_configuration as mc
 from tardis import constants as const
-from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
-from tardis.montecarlo.montecarlo_numba.numba_interface import RPacketCollection
+from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators, RPacketTracker
+from tardis.montecarlo.montecarlo_numba.numba_interface import RPacketTracker
 from tardis.montecarlo.montecarlo_numba import macro_atom
 
 from tardis.montecarlo.montecarlo_numba.frame_transformations import (
@@ -839,7 +839,7 @@ def test_rpacket_tracking(index, seed, r, nu, mu, energy):
     # Setup Montecarlo_Configuration.INITIAL_TRACKING_ARRAY_LENGTH
     mc.INITIAL_TRACKING_ARRAY_LENGTH = 10
 
-    tracked_rpacket_properties = RPacketCollection()
+    tracked_rpacket_properties = RPacketTracker()
     test_rpacket = r_packet.RPacket(
         index=index,
         seed=seed,
