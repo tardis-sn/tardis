@@ -387,8 +387,6 @@ def create_tracked_rpacket_df(track_dict_list, rpacket_trackers, iteration):
     """
 
     key_list = [
-        "Packet Index",
-        "Packet Seed",
         "Packet Status",
         "r",
         "nu",
@@ -397,21 +395,23 @@ def create_tracked_rpacket_df(track_dict_list, rpacket_trackers, iteration):
         "shell_id",
     ]
 
-    for i in range(len(rpacket_trackers)):
-        for j in range(len(rpacket_trackers[i].index)):
+    for rpacket_tracker in rpacket_trackers:
+        for interaction in range(len(rpacket_tracker.index)):
             val_list = [
-                rpacket_trackers[i].index[j],
-                rpacket_trackers[i].seed[j],
-                rpacket_trackers[i].status[j],
-                rpacket_trackers[i].r[j],
-                rpacket_trackers[i].nu[j],
-                rpacket_trackers[i].mu[j],
-                rpacket_trackers[i].energy[j],
-                rpacket_trackers[i].shell_id[j],
+                rpacket_tracker.status[interaction],
+                rpacket_tracker.r[interaction],
+                rpacket_tracker.nu[interaction],
+                rpacket_tracker.mu[interaction],
+                rpacket_tracker.energy[interaction],
+                rpacket_tracker.shell_id[interaction],
             ]
 
             dict_track = {k: v for k, v in zip(key_list, val_list)}
+
+            dict_track["Packet Index"] = rpacket_tracker.index[interaction]
+            dict_track["Packet Seed"] = rpacket_tracker.seed[interaction]
             dict_track["Iteration"] = iteration
+
             track_dict_list.append(dict_track)
 
     return track_dict_list
