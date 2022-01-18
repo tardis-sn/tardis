@@ -138,11 +138,9 @@ def tardis_ref_data(tardis_ref_path, generate_reference):
         yield store
 
 
-@pytest.fixture
-def tardis_config_verysimple():
-    return yaml_load_config_file(
-        "tardis/io/tests/data/tardis_configv1_verysimple.yml"
-    )
+@pytest.fixture(params=["tardis_configv1_verysimple"])
+def tardis_config_verysimple(request):
+    return yaml_load_config_file(f"tardis/io/tests/data/{request.param}.yml")
 
 
 ###
