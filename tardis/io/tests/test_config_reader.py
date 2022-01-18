@@ -40,32 +40,32 @@ def test_convergence_section_parser():
     )
 
 
-def test_from_config_dict(tardis_config_verysimple):
+def test_from_config_dict(configuration_fixture):
     conf = Configuration.from_config_dict(
-        tardis_config_verysimple, validate=True, config_dirname="test"
+        configuration_fixture, validate=True, config_dirname="test"
     )
     assert conf.config_dirname == "test"
 
     assert_almost_equal(
         conf.spectrum.start.value,
-        tardis_config_verysimple["spectrum"]["start"].value,
+        configuration_fixture["spectrum"]["start"].value,
     )
 
     assert_almost_equal(
         conf.spectrum.stop.value,
-        tardis_config_verysimple["spectrum"]["stop"].value,
+        configuration_fixture["spectrum"]["stop"].value,
     )
 
-    tardis_config_verysimple["spectrum"]["start"] = "Invalid"
+    configuration_fixture["spectrum"]["start"] = "Invalid"
     with pytest.raises(ValidationError):
         conf = Configuration.from_config_dict(
-            tardis_config_verysimple, validate=True, config_dirname="test"
+            configuration_fixture, validate=True, config_dirname="test"
         )
 
 
-def test_config_hdf(hdf_file_path, tardis_config_verysimple):
+def test_config_hdf(hdf_file_path, configuration_fixture):
     expected = Configuration.from_config_dict(
-        tardis_config_verysimple, validate=True, config_dirname="test"
+        configuration_fixture, validate=True, config_dirname="test"
     )
     expected.to_hdf(hdf_file_path, overwrite=True)
     actual = pd.read_hdf(hdf_file_path, key="/simulation/config")
@@ -73,7 +73,7 @@ def test_config_hdf(hdf_file_path, tardis_config_verysimple):
     assert actual[0] == expected[0]
 
 
-def test_model_section_config(tardis_config_verysimple):
+def test_model_section_config(configuration_fixture):
     """
     Configuration Validation Test for Model Section of the Tardis Config YAML File
 
@@ -83,22 +83,22 @@ def test_model_section_config(tardis_config_verysimple):
 
     Parameter
     ---------
-        `tardis_config_verysimple` : YAML File
+        `configuration_fixture` : YAML File
 
     Result
     ------
         Assertion based on validation for specified values
     """
     conf = Configuration.from_config_dict(
-        tardis_config_verysimple, validate=True, config_dirname="test"
+        configuration_fixture, validate=True, config_dirname="test"
     )
 
     assert conf.model.structure.density.type == "branch85_w7"
 
-    tardis_config_verysimple["model"]["structure"]["velocity"][
+    configuration_fixture["model"]["structure"]["velocity"][
         "start"
     ] = "2.0e4 km/s"
-    tardis_config_verysimple["model"]["structure"]["velocity"][
+    configuration_fixture["model"]["structure"]["velocity"][
         "stop"
     ] = "1.1e4 km/s"
     with pytest.raises(ValueError) as ve:
@@ -110,7 +110,7 @@ def test_model_section_config(tardis_config_verysimple):
     assert ve.type is ValueError
 
 
-def test_supernova_section_config(tardis_config_verysimple):
+def test_supernova_section_config(configuration_fixture):
     """
     Configuration Validation Test for Supernova Section of the Tardis Config YAML File
 
@@ -120,20 +120,20 @@ def test_supernova_section_config(tardis_config_verysimple):
 
     Parameter
     ---------
-        `tardis_config_verysimple` : YAML File
+        `configuration_fixture` : YAML File
 
     Result
     ------
         Assertion based on validation for specified values
     """
     conf = Configuration.from_config_dict(
-        tardis_config_verysimple, validate=True, config_dirname="test"
+        configuration_fixture, validate=True, config_dirname="test"
     )
-    tardis_config_verysimple["supernova"]["time_explosion"] = "-10 day"
-    tardis_config_verysimple["supernova"][
+    configuration_fixture["supernova"]["time_explosion"] = "-10 day"
+    configuration_fixture["supernova"][
         "luminosity_wavelength_start"
     ] = "15 angstrom"
-    tardis_config_verysimple["supernova"][
+    configuration_fixture["supernova"][
         "luminosity_wavelength_end"
     ] = "0 angstrom"
     with pytest.raises(ValueError) as ve:
@@ -152,7 +152,7 @@ def test_supernova_section_config(tardis_config_verysimple):
     assert ve.type is ValueError
 
 
-def test_plasma_section_config(tardis_config_verysimple):
+def test_plasma_section_config(configuration_fixture):
     """
     Configuration Validation Test for Plasma Section of the Tardis Config YAML File
 
@@ -162,17 +162,17 @@ def test_plasma_section_config(tardis_config_verysimple):
 
     Parameter
     ---------
-        `tardis_config_verysimple` : YAML File
+        `configuration_fixture` : YAML File
 
     Result
     ------
         Assertion based on validation for specified values
     """
     conf = Configuration.from_config_dict(
-        tardis_config_verysimple, validate=True, config_dirname="test"
+        configuration_fixture, validate=True, config_dirname="test"
     )
-    tardis_config_verysimple["plasma"]["initial_t_inner"] = "-100 K"
-    tardis_config_verysimple["plasma"]["initial_t_rad"] = "-100 K"
+    configuration_fixture["plasma"]["initial_t_inner"] = "-100 K"
+    configuration_fixture["plasma"]["initial_t_rad"] = "-100 K"
     with pytest.raises(ValueError) as ve:
         if (conf.plasma.initial_t_inner.value >= -1) and (
             conf.plasma.initial_t_rad.value >= -1
@@ -181,7 +181,7 @@ def test_plasma_section_config(tardis_config_verysimple):
     assert ve.type is ValueError
 
 
-def test_spectrum_section_config(tardis_config_verysimple):
+def test_spectrum_section_config(configuration_fixture):
     """
     Configuration Validation Test for Plasma Section of the Tardis Config YAML File
 
@@ -190,17 +190,17 @@ def test_spectrum_section_config(tardis_config_verysimple):
 
     Parameter
     ---------
-        `tardis_config_verysimple` : YAML File
+        `configuration_fixture` : YAML File
 
     Result
     ------
         Assertion based on validation for specified values
     """
     conf = Configuration.from_config_dict(
-        tardis_config_verysimple, validate=True, config_dirname="test"
+        configuration_fixture, validate=True, config_dirname="test"
     )
-    tardis_config_verysimple["spectrum"]["start"] = "2500 angstrom"
-    tardis_config_verysimple["spectrum"]["stop"] = "500 angstrom"
+    configuration_fixture["spectrum"]["start"] = "2500 angstrom"
+    configuration_fixture["spectrum"]["stop"] = "500 angstrom"
     with pytest.raises(ValueError) as ve:
         if not conf.spectrum.stop.value < conf.spectrum.start.value:
             raise ValueError("Start Value must be less than Stop Value")

@@ -139,7 +139,7 @@ def tardis_ref_data(tardis_ref_path, generate_reference):
 
 
 @pytest.fixture(params=["tardis_configv1_verysimple"])
-def tardis_config_verysimple(request):
+def configuration_fixture(request):
     return yaml_load_config_file(f"tardis/io/tests/data/{request.param}.yml")
 
 
