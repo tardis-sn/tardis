@@ -73,14 +73,12 @@ class ArepoSnapshot:
         species_full = np.genfromtxt(speciesfile, skip_header=1, dtype=str).T[0]
         self.spec_ind = []
         for spec in self.species:
-            self.spec_ind.append(np.where(species_full == spec))
+            self.spec_ind.append(np.where(species_full == spec)[0][0])
+
         self.spec_ind = np.array(self.spec_ind)
 
         self.s = gadget_snap.gadget_snapshot(
-            filename,
-            hdf5=True,
-            quiet=True,
-            lazy_load=True,
+            filename, hdf5=True, quiet=True, lazy_load=True,
         )
 
         rz_yaw = np.array(
@@ -150,14 +148,13 @@ class ArepoSnapshot:
                 self.nucMapOnCartGrid(
                     self.s,
                     spec,
-                    i,
+                    self.spec_ind[i],
                     box=[boxsize, boxsize, boxsize],
                     res=resolution,
                     center=self.s.centerofmass(),
                     numthreads=numthreads,
                 )
             )
-
 
     def nucMapOnCartGrid(
         self,
@@ -269,11 +266,12 @@ class ArepoSnapshot:
         return self.pos, self.vel, self.rho, self.nuc_dict, self.time
 
 
-class Profile():
+class Profile:
     """
     Parent class of all Profiles. Contains general function,
     e.g. for plotting and export.
     """
+
     def __init__(self, pos, vel, rho, xnuc, time):
         """ 
         Parameters
@@ -292,7 +290,7 @@ class Profile():
             Time of the data
 
         """
-        
+
         self.pos = pos
         self.vel = vel
         self.rho = rho
@@ -300,7 +298,7 @@ class Profile():
         self.time = time
 
         self.species = list(self.xnuc.keys())
-        
+
         # Empty values to be filled with the create_profile function
         self.pos_prof_p = None
         self.pos_prof_n = None
@@ -330,7 +328,7 @@ class Profile():
         -----
         fig : matplotlib figure object
         """
-        
+
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=[9.8, 9.6])
 
         # Positive direction plots
@@ -381,7 +379,7 @@ class Profile():
 
         ax2.grid()
         ax2.set_ylabel("Profile (arb. unit)")
-        ax2.set_xlabel("Radial position (cm)") # TODO astropy unit support
+        ax2.set_xlabel("Radial position (cm)")  # TODO astropy unit support
         ax2.set_title("Profiles along the positive axis")
 
         # Some styling
@@ -397,11 +395,9 @@ class Profile():
         )
         if save is not None:
             plt.savefig(
-                save,
-                bbox_inches="tight",
-                dpi=dpi,
+                save, bbox_inches="tight", dpi=dpi,
             )
-        
+
         return fig
 
     def export(self, nshells, filename, direction="pos"):
@@ -440,7 +436,6 @@ class Profile():
         else:
             filename = "%s.csvy" % filename
 
-
         with open(filename, "w") as f:
             # WRITE HEADER
             f.write(
@@ -448,8 +443,12 @@ class Profile():
                     [
                         "---\n",
                         "name: csvy_full\n",
-                        "model_density_time_0: {:g} day\n".format(self.time / (3600 * 24)), # TODO astropy units
-                        "model_isotope_time_0: {:g} day\n".format(self.time / (3600 / 24)), # TODO astropy units
+                        "model_density_time_0: {:g} day\n".format(
+                            self.time / (3600 * 24)
+                        ),  # TODO astropy units
+                        "model_isotope_time_0: {:g} day\n".format(
+                            self.time / (3600 / 24)
+                        ),  # TODO astropy units
                         "description: Config file for TARDIS from Arepo snapshot.\n",
                         "tardis_model_config_version: v1.0\n",
                         "datatype:\n",
@@ -469,19 +468,13 @@ class Profile():
                     "".join(
                         [
                             "    -  name: %s\n" % spec.capitalize(),
-                            "       desc: fractional %s abundance.\n" % spec.capitalize(),
+                            "       desc: fractional %s abundance.\n"
+                            % spec.capitalize(),
                         ]
                     )
                 )
 
-            f.write(
-                "".join(
-                    [
-                        "\n",
-                        "---\n",
-                    ]
-                )
-            )
+            f.write("".join(["\n", "---\n",]))
 
             # WRITE DATA
             datastring = ["velocity,", "density,"]
@@ -509,13 +502,15 @@ class Profile():
 
             # Selcect nshells equally spaced indices
             if nshells > len(exp):
-                warnings.warn("nshells was grater then available resolution. Setting nshells to resolution")
+                warnings.warn(
+                    "nshells was grater then available resolution. Setting nshells to resolution"
+                )
                 nshells = len(exp)
-            inds = np.linspace(0, len(exp[0])-1, num=nshells, dtype=int)
+            inds = np.linspace(0, len(exp[0]) - 1, num=nshells, dtype=int)
 
             for i in inds:
                 f.write("\n")
-                for ii in range(len(exp)-1):
+                for ii in range(len(exp) - 1):
                     f.write("%g," % exp[ii][i])
                 f.write("%g" % exp[-1][i])
 
@@ -528,7 +523,14 @@ class LineProfile(Profile):
     Extends Profile.
     """
 
-    def create_profile(self, inner_radius=None, outer_radius=None, show_plot=True, save_plot=None, plot_dpi=600):
+    def create_profile(
+        self,
+        inner_radius=None,
+        outer_radius=None,
+        show_plot=True,
+        save_plot=None,
+        plot_dpi=600,
+    ):
         """ 
         Creates a profile along the x-axis without any averaging
 
@@ -552,7 +554,7 @@ class LineProfile(Profile):
 
         """
 
-        midpoint = int(np.ceil(len(self.rho)/2))
+        midpoint = int(np.ceil(len(self.rho) / 2))
 
         # Extract radialprofiles
         pos_p = np.sqrt(
@@ -572,7 +574,7 @@ class LineProfile(Profile):
             + self.vel[2, midpoint, midpoint:, midpoint] ** 2
         )
         vel_n = np.sqrt(
-             self.vel[0, midpoint, :midpoint, midpoint] ** 2
+            self.vel[0, midpoint, :midpoint, midpoint] ** 2
             + self.vel[1, midpoint, :midpoint, midpoint] ** 2
             + self.vel[2, midpoint, :midpoint, midpoint] ** 2
         )
@@ -594,7 +596,7 @@ class LineProfile(Profile):
             maxradius_p = max(self.pos_prof_p)
             maxradius_n = max(self.pos_prof_n)
         else:
-            maxradius_p = outer_radius 
+            maxradius_p = outer_radius
             maxradius_n = outer_radius
 
         if inner_radius is None:
@@ -604,8 +606,12 @@ class LineProfile(Profile):
             minradius_p = inner_radius
             minradius_n = inner_radius
 
-        mask_p = np.logical_and(self.pos_prof_p >= minradius_p, self.pos_prof_p <= maxradius_p)
-        mask_n = np.logical_and(self.pos_prof_n >= minradius_n, self.pos_prof_n <= maxradius_n)
+        mask_p = np.logical_and(
+            self.pos_prof_p >= minradius_p, self.pos_prof_p <= maxradius_p
+        )
+        mask_n = np.logical_and(
+            self.pos_prof_n >= minradius_n, self.pos_prof_n <= maxradius_n
+        )
 
         if not mask_p.any() or not mask_n.any():
             raise ValueError("No points left between inner and outer radius.")
@@ -626,10 +632,20 @@ class LineProfile(Profile):
 
         for spec in self.species:
             self.xnuc_prof_p[spec] = np.array(
-                [x for _, x in sorted(zip(pos_p, spec_p[spec]), key=lambda pair: pair[0])]
+                [
+                    x
+                    for _, x in sorted(
+                        zip(pos_p, spec_p[spec]), key=lambda pair: pair[0]
+                    )
+                ]
             )[mask_p]
             self.xnuc_prof_n[spec] = np.array(
-                [x for _, x in sorted(zip(pos_n, spec_n[spec]), key=lambda pair: pair[0])]
+                [
+                    x
+                    for _, x in sorted(
+                        zip(pos_n, spec_n[spec]), key=lambda pair: pair[0]
+                    )
+                ]
             )[mask_n]
 
         self.pos_prof_p = self.pos_prof_p[mask_p]
