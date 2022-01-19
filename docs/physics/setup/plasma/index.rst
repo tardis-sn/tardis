@@ -37,7 +37,8 @@ Every property has a `calculate` function that returns the values of its outputs
 
 The Plasma Graph
 ----------------
-If the necessary Python modules (`PyGraphviz <https://pygraphviz.github.io/>`_ and `dot2tex <https://dot2tex.readthedocs.io/en/latest/>`_) are available, TARDIS will automatically output a .tex file at the beginning of each run that can be compiled to produce a PDF image of the plasma module graph. The nodes on this graph are the names of plasma properties, e.g. `Levels`, `TauSobolev`, `IonNumberDensity`, along with a list of outputs from those properties and equations showing how they are calculated. These nodes are connected by arrows linking nodes with the sources of their inputs, and labelled with the name of the input/output linking the two properties, e.g. `levels`, :math:`\tau_{\textrm{sobolev}}`, :math:`n_{e}`.
+If the necessary Python modules (`PyGraphviz <https://pygraphviz.github.io/>`_ and `dot2tex <https://dot2tex.readthedocs.io/en/latest/>`_) are available, TARDIS will automatically output a .dot and a .tex file at the beginning of each run that can be compiled to produce a PDF image of the plasma module graph. The nodes on this graph are the names of plasma properties, e.g. `Levels`, `TauSobolev`, `IonNumberDensity`, along with a list of outputs from those properties and equations showing how they are calculated. These nodes are connected by edges linking nodes with the sources of their inputs. The .tex file contains the name of the input/output linking the two properties written in Latex, e.g. `levels`, :math:`\tau_{\textrm{sobolev}}`, :math:`n_{e}`. TARDIS can also display the graph within a notebook via the `display_graph()` function.
+
 
 Updating the Plasma
 -------------------

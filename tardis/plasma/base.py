@@ -3,6 +3,7 @@ import re
 import logging
 import tempfile
 import fileinput
+import sys
 
 import networkx as nx
 import pandas as pd
@@ -26,7 +27,8 @@ class BasePlasma(PlasmaWriterMixin):
             plasma_properties, property_kwargs, **kwargs
         )
         self._build_graph()
-        #        self.write_to_tex('Plasma_Graph')
+        self.write_to_dot("Plasma_Graph.dot")
+        self.write_to_tex("Plasma_Graph.tex")
         self.update(**kwargs)
 
     def __getattr__(self, item):
@@ -281,18 +283,33 @@ class BasePlasma(PlasmaWriterMixin):
             return
         print_graph = self.graph.copy()
         print_graph = self.remove_hidden_properties(print_graph)
+        edge_names = [e for e in print_graph.edges]
+
         for node in print_graph:
-            print_graph.node[str(node)]["label"] = node
-            if hasattr(self.plasma_properties_dict[node], "latex_formula"):
+            if hasattr(self.plasma_properties_dict[node], "latex_formula") and latex_label == True:
+                print_graph.nodes[str(node)]["label"] = f"\\\\textrm{{{node}: }}"
                 formulae = self.plasma_properties_dict[node].latex_formula
                 for output in range(0, len(formulae)):
                     formula = formulae[output]
                     label = formula.replace("\\", "\\\\")
-                    print_graph.node[str(node)]["label"] += "\\n$"
-                    print_graph.node[str(node)]["label"] += label
-                    print_graph.node[str(node)]["label"] += "$"
+                    print_graph.nodes[str(node)]["label"] += label
+            else:
+                print_graph.nodes[str(node)]["label"] = f"\\\\textrm{{{node}}}"
+
+        for edge in range(len(edge_names)):
+            label = print_graph.edges[edge_names[edge][0], edge_names[edge][1]]['label']
+            print_graph.edges[edge_names[edge][0], edge_names[edge][1]]['texlbl'] = label
+            print_graph.edges[edge_names[edge][0], edge_names[edge][1]]['label'] = "-"
+
 
         nx.drawing.nx_agraph.write_dot(print_graph, fname)
+
+        for line in fileinput.FileInput(fname, inplace=1):
+            line = line.replace(r'node [label="\N"]', r'node [texmode="math"]')
+            sys.stdout.write(line)
+            
+            
+        #self.dot_file = open(fname, "r")
 
     def write_to_tex(self, fname_graph):
         try:
@@ -307,10 +324,18 @@ class BasePlasma(PlasmaWriterMixin):
 
         self.write_to_dot(temp_fname)
 
-        dot_string = open(temp_fname).read()
+        #dot_string = open(temp_fname).read()
 
-        open(fname_graph, "w").write(dot2tex.dot2tex(dot_string, texmode="raw"))
+        #open(fname_graph, "w").write(dot2tex.dot2tex(dot_string, texmode="raw"))
 
+        
+        #dot_string = self.dot_file.read().replace("\\\\", "\\")
+        dot_string = open(temp_fname, "r").read().replace("\\\\","\\")
+        
+        texcode = dot2tex.dot2tex(dot_string, format='tikz', crop=True, valignmode = "dot")
+      
+        open(fname_graph, "w").write(texcode)
+        
         for line in fileinput.input(fname_graph, inplace=1):
             print(
                 line.replace(
@@ -322,6 +347,11 @@ class BasePlasma(PlasmaWriterMixin):
 
         for line in fileinput.input(fname_graph, inplace=1):
             print(line.replace(r"\enlargethispage{100cm}", ""), end="")
+            
+    def display_graph(self):
+        pos = nx.spring_layout(self.graph, k=0.75, iterations=15)
+        
+        nx.draw(self.graph, pos, with_labels=True)
 
     def remove_hidden_properties(self, print_graph):
         for item in self.plasma_properties_dict.values():
