@@ -9,14 +9,17 @@ simple_config_dict = {
     "a": {"b": {"param1": 1, "param2": [0, 1, 2 * u.km], "param3": 4.0 * u.km}}
 }
 
+
 def data_path(filename):
     data_dir = os.path.dirname(__file__)
     return os.path.join(data_dir, "data", filename)
+
 
 @pytest.fixture(scope="function")
 def config_ns():
     config_name_space = ConfigurationNameSpace(simple_config_dict)
     return config_name_space
+
 
 def test_simple_configuration_namespace(config_ns):
     assert config_ns.a.b.param1 == 1
