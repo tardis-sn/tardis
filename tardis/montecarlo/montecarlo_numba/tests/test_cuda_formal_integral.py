@@ -291,7 +291,7 @@ def test_full_formal_integral(no_of_packets, iterations, config_verysimple, simu
 
     formal_integrator_cuda.generate_numba_objects()
     
-
+    print("formal_integral_cuda points", formal_integrator_cuda.points)
     
     L_cuda = formal_integrator_cuda.numba_integrator.formal_integral(
         formal_integrator_cuda.model.t_inner,

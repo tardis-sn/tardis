@@ -94,6 +94,8 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
     #for nu_idx in prange(inu_size):
     nu_idx = cuda.grid(1)
     if nu_idx >= inu_size:
+        print("nu_idx", nu_idx) #If this line is not commented out, it doesn't give me a cuda error. I am extremely confused,
+        #but it now is able to run in the test, although it's very wrong.
         return
     #print(nu_idx)
     
@@ -218,11 +220,11 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
                     #   by boundary conditions) is not in Lucy 1999;
                     #   should be re-examined carefully
                     escat_contrib += ((zend - zstart) * escat_op * (
-                        Jblue_lu[pJblue_lu] - I_nu_thread[p_idx]));
+                        Jblue_lu[pJblue_lu] - I_nu_thread[p_idx]))
                     first = 0                                             #Literal[int](0)
                 else:
                     # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
-                    Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu]); #float64
+                    Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu]) #float64
                     escat_contrib += ((zend - zstart) * escat_op * (
                                 Jkkp - I_nu_thread[p_idx]))
                     # this introduces the necessary ffset of one element between
@@ -232,7 +234,7 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
                 I_nu_thread[p_idx] += escat_contrib
                 #cuda.atomic.add(I_nu_thread, p_idx, escat_contrib) #escat_contrib
                 # // Lucy 1999, Eq 26
-                cuda.syncthreads()
+                #cuda.syncthreads()
                 I_nu_thread[p_idx] *= (exp_tau[pexp_tau])
                 
                 #cuda.atomic.add(I_nu_thread, p_idx, att_S_ul[patt_S_ul])
@@ -288,15 +290,15 @@ class NumbaFormalIntegrator(object):
         #Add the prints as returns from the output, so then the returns can be accessed as well, can do direct 
         #numpy comparisons
         
-        print("Debugging")
-        print("-"*40)
-        print("iT", iT)
-        print(type(iT))
-        print("Jred_lu.shape", Jred_lu.shape)
-        print("Jblue_lu.shape", Jblue_lu.shape)
+        #print("Debugging")
+        #print("-"*40)
+        #print("iT", iT)
+        #print(type(iT))
+        #print("Jred_lu.shape", Jred_lu.shape)
+        #print("Jblue_lu.shape", Jblue_lu.shape)
         print("inu_size", inu_size)
-        print("tau_sobolev.shape", tau_sobolev.shape)
-        print("N", N)
+        #print("tau_sobolev.shape", tau_sobolev.shape)
+        #print("N", N)
         #print(iT.shape)
         # Initialize the output which is shared among threads
         L = np.zeros(inu_size, dtype=np.float64)                   #array(float64, 1d, C)
@@ -304,15 +306,15 @@ class NumbaFormalIntegrator(object):
         size_line, size_shell = tau_sobolev.shape                  #int64, int64
         size_tau = size_line * size_shell
         
-        pp = np.zeros(N, dtype=np.float64) # check                 #array(float64, 1d, C)
+        #pp = np.zeros(N, dtype=np.float64) # check                 #array(float64, 1d, C)
         exp_tau = np.zeros(size_tau, dtype=np.float64)             #array(float64, 1d, C)
         exp_tau = np.exp(-tau_sobolev.T.ravel()) # maybe make this 2D? #array(float64, 1d, C)
         #See why this self.model.r_outer is the wrong size
-        print("pp.shape", pp.shape)
-        print("size_shell", size_shell)
-        print("self.model.r_outer", self.model.r_outer)
-        print("self.model.r_outer[size_shell - 1]", self.model.r_outer[size_shell - 1])
-        pp[::] = np.arange(N).astype(np.float64) * self.model.r_outer[size_shell - 1] / (N-1)                 #array(float64, 1d, C)
+        #print("pp.shape", pp.shape)
+        #print("size_shell", size_shell)
+        #print("self.model.r_outer", self.model.r_outer)
+        #print("self.model.r_outer[size_shell - 1]", self.model.r_outer[size_shell - 1])
+        #pp[::] = np.arange(N).astype(np.float64) * self.model.r_outer[size_shell - 1] / (N-1)                 #array(float64, 1d, C)
         
         
         #This is done to make it so that pp is a 2d array of pp values, so that each thread will have it's own pp
@@ -324,7 +326,7 @@ class NumbaFormalIntegrator(object):
         I_nu = np.zeros((inu_size, N), dtype=np.float64)                                 #array(float64, 1d, C)
         z = np.zeros((inu_size, 2 * size_shell), dtype=np.float64)             #array(float64, 1d, C)
         shell_id = np.zeros((inu_size, 2 * size_shell), dtype=np.int64)        #array(int64, 1d, C)
-        print("First z of zs", z[0][0])
+        #print("First z of zs", z[0][0])
         print("L", L)
         THREADS_PER_BLOCK = 32
         blocks_per_grid = (inu_size // THREADS_PER_BLOCK) + 1
