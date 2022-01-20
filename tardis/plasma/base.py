@@ -3,7 +3,6 @@ import re
 import logging
 import tempfile
 import fileinput
-import sys
 
 import networkx as nx
 import pandas as pd
@@ -305,8 +304,7 @@ class BasePlasma(PlasmaWriterMixin):
         nx.drawing.nx_agraph.write_dot(print_graph, fname)
 
         for line in fileinput.FileInput(fname, inplace=1):
-            line = line.replace(r'node [label="\N"]', r'node [texmode="math"]')
-            sys.stdout.write(line)
+            print(line.replace(r'node [label="\N"]', r'node [texmode="math"]'), end="",)
             
             
         #self.dot_file = open(fname, "r")
@@ -347,6 +345,14 @@ class BasePlasma(PlasmaWriterMixin):
 
         for line in fileinput.input(fname_graph, inplace=1):
             print(line.replace(r"\enlargethispage{100cm}", ""), end="")
+            
+        for line in fileinput.input(fname_graph, inplace=1):
+            print(line.replace(r"\begin{tikzpicture}[>=latex',line join=bevel,]", 
+                               r"\begin{tikzpicture}[>=latex',line join=bevel,scale=2]",
+                              ),
+                  end="",
+                 )
+                      
             
     def display_graph(self):
         pos = nx.spring_layout(self.graph, k=0.75, iterations=15)
