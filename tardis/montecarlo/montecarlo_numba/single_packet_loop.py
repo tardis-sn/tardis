@@ -65,9 +65,6 @@ def single_packet_loop(
         set_packet_props_partial_relativity(r_packet, numba_model)
     r_packet.initialize_line_id(numba_plasma, numba_model)
 
-    doppler_factor = get_doppler_factor(
-            r_packet.r, r_packet.mu, numba_model.time_explosion
-            )
     trace_vpacket_volley(
         r_packet, vpacket_collection, numba_model, numba_plasma, continuum
     )

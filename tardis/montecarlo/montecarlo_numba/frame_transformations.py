@@ -6,19 +6,17 @@ from tardis.montecarlo.montecarlo_numba import (
     njit_dict_no_parallel,
 )
 
+from tardis.montecarlo.montecarlo_numba import numba_config as nc
 from tardis.montecarlo.montecarlo_numba.numba_config import (
     C_SPEED_OF_LIGHT
 )
-
-from tardis.montecarlo.montecarlo_configuration import full_relativity
-ENABLE_FULL_RELATIVITY = full_relativity
 
 @njit(**njit_dict_no_parallel)
 def get_doppler_factor(r, mu, time_explosion):
     inv_c = 1 / C_SPEED_OF_LIGHT
     inv_t = 1 / time_explosion
     beta = r * inv_t * inv_c
-    if not ENABLE_FULL_RELATIVITY:
+    if not nc.ENABLE_FULL_RELATIVITY:
         return get_doppler_factor_partial_relativity(mu, beta)
     else:
         return get_doppler_factor_full_relativity(mu, beta)
@@ -48,7 +46,7 @@ def get_inverse_doppler_factor(r, mu, time_explosion):
     inv_c = 1 / C_SPEED_OF_LIGHT
     inv_t = 1 / time_explosion
     beta = r * inv_t * inv_c
-    if not ENABLE_FULL_RELATIVITY:
+    if not nc.ENABLE_FULL_RELATIVITY:
         return get_inverse_doppler_factor_partial_relativity(mu, beta)
     else:
         return get_inverse_doppler_factor_full_relativity(mu, beta)

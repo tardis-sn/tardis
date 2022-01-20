@@ -26,12 +26,11 @@ from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     get_doppler_factor,
 )
 from tardis.montecarlo import montecarlo_configuration
+from tardis.montecarlo.montecarlo_numba import numba_config as nc
 from tardis.montecarlo.montecarlo_numba.numba_config import (
     CLOSE_LINE_THRESHOLD,
     SIGMA_THOMSON,
 )
-from tardis.montecarlo.montecarlo_configuration import full_relativity
-ENABLE_FULL_RELATIVITY = full_relativity
 
 class InteractionType(IntEnum):
     BOUNDARY = 1
@@ -308,7 +307,7 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
         comov_nu = r_packet.nu * doppler_factor
         comov_energy = r_packet.energy * doppler_factor
 
-        if not ENABLE_FULL_RELATIVITY:
+        if not nc.ENABLE_FULL_RELATIVITY:
             set_estimators(
                 r_packet, distance, numba_estimator, comov_nu, comov_energy
             )
