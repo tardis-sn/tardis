@@ -6,6 +6,7 @@ import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from scipy import stats
 
 
 class ArepoSnapshot:
@@ -78,7 +79,10 @@ class ArepoSnapshot:
         self.spec_ind = np.array(self.spec_ind)
 
         self.s = gadget_snap.gadget_snapshot(
-            filename, hdf5=True, quiet=True, lazy_load=True,
+            filename,
+            hdf5=True,
+            quiet=True,
+            lazy_load=True,
         )
 
         rz_yaw = np.array(
@@ -273,7 +277,7 @@ class Profile:
     """
 
     def __init__(self, pos, vel, rho, xnuc, time):
-        """ 
+        """
         Parameters
         -----
         pos : list of float
@@ -395,12 +399,82 @@ class Profile:
         )
         if save is not None:
             plt.savefig(
-                save, bbox_inches="tight", dpi=dpi,
+                save,
+                bbox_inches="tight",
+                dpi=dpi,
             )
 
         return fig
 
-    def export(self, nshells, filename, direction="pos"):
+    def rebin(self, nshells, statistic="mean"):
+        """
+        Rebins the data to nshells. Uses the scipy.stats.binned_statistic
+        to bin the data. The standard deviation of each bin can be obtained
+        by passing the statistics="std" keyword.
+
+        Parameters
+        -----
+        nshells : int
+            Number of bins of new data.
+        statistic : str
+            Scipy keyword for scipy.stats.binned_statistic. Default: mean
+
+        Returns
+        -----
+        self : Profile object
+
+        """
+
+        self.vel_prof_p, bins_p = stats.binned_statistic(
+            self.pos_prof_p,
+            self.vel_prof_p,
+            statistic=statistic,
+            bins=nshells,
+        )[:2]
+        self.vel_prof_n, bins_n = stats.binned_statistic(
+            self.pos_prof_n,
+            self.vel_prof_n,
+            statistic=statistic,
+            bins=nshells,
+        )[:2]
+
+        self.rho_prof_p = stats.binned_statistic(
+            self.pos_prof_p,
+            self.rho_prof_p,
+            statistic=statistic,
+            bins=nshells,
+        )[0]
+        self.rho_prof_n = stats.binned_statistic(
+            self.pos_prof_n,
+            self.rho_prof_n,
+            statistic=statistic,
+            bins=nshells,
+        )[0]
+
+        for spec in self.species:
+            self.xnuc_prof_p[spec] = stats.binned_statistic(
+                self.pos_prof_p,
+                self.xnuc_prof_p[spec],
+                statistic=statistic,
+                bins=nshells,
+            )[0]
+            self.xnuc_prof_n[spec] = stats.binned_statistic(
+                self.pos_prof_n,
+                self.xnuc_prof_n[spec],
+                statistic=statistic,
+                bins=nshells,
+            )[0]
+
+        self.pos_prof_p = np.array(
+            [(bins_p[i] + bins_p[i + 1]) / 2 for i in range(len(bins_p) - 1)]
+        )
+        self.pos_prof_n = np.array(
+            [(bins_n[i] + bins_n[i + 1]) / 2 for i in range(len(bins_n) - 1)]
+        )
+
+        return self
+
+    def export(self, nshells, filename, direction="pos", statistic="mean"):
         """
         Function to export a profile as csvy file. Either the
         positive or negative direction can be exported. Does
@@ -417,6 +491,9 @@ class Profile:
             Specifies if either the positive or negative
             direction is to be exported. Available
             options: ['pos', 'neg']. Default: pos
+        statistic : str
+            Scipy keyword for scipy.stats.binned_statistic. If
+            statistic=None, data is not rebinned. Default: "mean"
 
         Returns
         -----
@@ -474,7 +551,14 @@ class Profile:
                     )
                 )
 
-            f.write("".join(["\n", "---\n",]))
+            f.write(
+                "".join(
+                    [
+                        "\n",
+                        "---\n",
+                    ]
+                )
+            )
 
             # WRITE DATA
             datastring = ["velocity,", "density,"]
@@ -482,6 +566,10 @@ class Profile:
                 datastring.append("%s," % spec.capitalize())
             datastring.append("%s" % self.species[-1].capitalize())
             f.write("".join(datastring))
+
+            # Rebin data to nshells
+            if statistic is not None:
+                self.rebin(nshells, statistic=statistic)
 
             if direction == "pos":
                 exp = [
@@ -500,12 +588,6 @@ class Profile:
             else:
                 raise ValueError("Unrecognized option for keyword 'direction'")
 
-            # Selcect nshells equally spaced indices
-            if nshells > len(exp):
-                warnings.warn(
-                    "nshells was grater then available resolution. Setting nshells to resolution"
-                )
-                nshells = len(exp)
             inds = np.linspace(0, len(exp[0]) - 1, num=nshells, dtype=int)
 
             for i in inds:
@@ -515,6 +597,19 @@ class Profile:
                 f.write("%g" % exp[-1][i])
 
         return filename
+
+    def get_profiles():
+        """Returns all profiles for manual post_processing etc."""
+        return (
+            self.pos_prof_p,
+            self.pos_prof_n,
+            self.vel_prof_p,
+            self.vel_prof_n,
+            self.rho_prof_p,
+            self.rho_prof_n,
+            self.xnuc_prof_p,
+            self.xnuc_prof_n,
+        )
 
 
 class LineProfile(Profile):
@@ -531,8 +626,8 @@ class LineProfile(Profile):
         save_plot=None,
         plot_dpi=600,
     ):
-        """ 
-        Creates a profile along the x-axis without any averaging
+        """
+        Creates a profile along the x-axis
 
         Parameters
         -----
@@ -658,8 +753,437 @@ class LineProfile(Profile):
 
 
 class ConeProfile(Profile):
-    pass
+    """
+    Class for profiles extracted inside a cone around the x-axis.
+    Extends Profile.
+    """
+
+    def create_profile(
+        self,
+        opening_angle=20.0,
+        inner_radius=None,
+        outer_radius=None,
+        show_plot=True,
+        save_plot=None,
+        plot_dpi=600,
+    ):
+        """
+        Creates a profile along the x-axis without any averaging
+
+        Parameters
+        -----
+        opening_angle : float
+            Opening angle (in degrees) of the cone from which the
+            data is extracted. Refers to the total opening angle, not
+            the angle with respect to the x axis. Default: 20.0
+        inner_radius : float
+            Inner radius where the profiles will be cut off. Default: None
+        outer_radius : float
+            Outer radius where the profiles will be cut off. Default: None
+        show_plot : bool
+            Specifies if a plot is to be shown after the creation of the
+            profile. Default: True
+        save_plot : str
+            Location where the plot is being saved. Default: None
+        plot_dpi : int
+            Dpi of the saved plot. Default: 600
+
+        Returns
+        -----
+        profile : LineProfile object
+
+        """
+
+        # Convert Carthesian coordinates into cylindrical coordinates
+        # P(x,y,z) -> P(x,r,theta)
+        cyl = np.array(
+            [
+                self.pos[0],
+                np.sqrt(self.pos[1] ** 2 + self.pos[2] ** 2),
+                np.arctan(self.pos[2] / self.pos[1]),
+            ]
+        )
+
+        # Get maximum allowed r of points to still be in cone
+        dist = np.tan(opening_angle / 2) * np.abs(cyl[0])
+
+        # Create masks
+        cmask_p = np.logical_and(cyl[0] > 0, cyl[1] <= dist)
+        cmask_n = np.logical_and(cyl[0] < 0, cyl[1] <= dist)
+
+        # Apply mask to data
+        pos_p = np.sqrt(
+            (self.pos[0][cmask_p]) ** 2
+            + (self.pos[1][cmask_p]) ** 2
+            + (self.pos[2][cmask_p]) ** 2
+        )
+        pos_n = np.sqrt(
+            self.pos[0][cmask_n] ** 2
+            + self.pos[1][cmask_n] ** 2
+            + self.pos[2][cmask_n] ** 2
+        )
+
+        vel_p = np.sqrt(
+            self.vel[0][cmask_p] ** 2
+            + self.vel[1][cmask_p] ** 2
+            + self.vel[2][cmask_p] ** 2
+        )
+        vel_n = np.sqrt(
+            self.vel[0][cmask_n] ** 2
+            + self.vel[1][cmask_n] ** 2
+            + self.vel[2][cmask_n] ** 2
+        )
+
+        rho_p = self.rho[cmask_p]
+        rho_n = self.rho[cmask_n]
+
+        spec_p = {}
+        spec_n = {}
+
+        for spec in self.species:
+            spec_p[spec] = self.xnuc[spec][cmask_p]
+            spec_n[spec] = self.xnuc[spec][cmask_n]
+
+        self.pos_prof_p = np.sort(pos_p)
+        self.pos_prof_n = np.sort(pos_n)
+
+        if outer_radius is None:
+            maxradius_p = max(self.pos_prof_p)
+            maxradius_n = max(self.pos_prof_n)
+        else:
+            maxradius_p = outer_radius
+            maxradius_n = outer_radius
+
+        if inner_radius is None:
+            minradius_p = min(self.pos_prof_p)
+            minradius_n = min(self.pos_prof_n)
+        else:
+            minradius_p = inner_radius
+            minradius_n = inner_radius
+
+        mask_p = np.logical_and(
+            self.pos_prof_p >= minradius_p, self.pos_prof_p <= maxradius_p
+        )
+        mask_n = np.logical_and(
+            self.pos_prof_n >= minradius_n, self.pos_prof_n <= maxradius_n
+        )
+
+        if not mask_p.any() or not mask_n.any():
+            raise ValueError("No points left between inner and outer radius.")
+
+        self.rho_prof_p = np.array(
+            [x for _, x in sorted(zip(pos_p, rho_p), key=lambda pair: pair[0])]
+        )[mask_p]
+        self.rho_prof_n = np.array(
+            [x for _, x in sorted(zip(pos_n, rho_n), key=lambda pair: pair[0])]
+        )[mask_n]
+
+        self.vel_prof_p = np.array(
+            [x for _, x in sorted(zip(pos_p, vel_p), key=lambda pair: pair[0])]
+        )[mask_p]
+        self.vel_prof_n = np.array(
+            [x for _, x in sorted(zip(pos_n, vel_n), key=lambda pair: pair[0])]
+        )[mask_n]
+
+        for spec in self.species:
+            self.xnuc_prof_p[spec] = np.array(
+                [
+                    x
+                    for _, x in sorted(
+                        zip(pos_p, spec_p[spec]), key=lambda pair: pair[0]
+                    )
+                ]
+            )[mask_p]
+            self.xnuc_prof_n[spec] = np.array(
+                [
+                    x
+                    for _, x in sorted(
+                        zip(pos_n, spec_n[spec]), key=lambda pair: pair[0]
+                    )
+                ]
+            )[mask_n]
+
+        self.pos_prof_p = self.pos_prof_p[mask_p]
+        self.pos_prof_n = self.pos_prof_n[mask_n]
+
+        if show_plot:
+            self.plot_profile(save=save_plot, dpi=plot_dpi)
+
+        return self
 
 
 class FullProfile(Profile):
-    pass
+    """
+    Class for profiles extracted from the full snapshot,
+    i.e. angle averaged profiles.
+    Extends Profile.
+    """
+
+    def create_profile(
+        self,
+        inner_radius=None,
+        outer_radius=None,
+        show_plot=True,
+        save_plot=None,
+        plot_dpi=600,
+    ):
+        """
+        Creates a profile from the full snapshot. Positive and negative
+        direction are identical.
+
+        Parameters
+        -----
+        inner_radius : float
+            Inner radius where the profiles will be cut off. Default: None
+        outer_radius : float
+            Outer radius where the profiles will be cut off. Default: None
+        show_plot : bool
+            Specifies if a plot is to be shown after the creation of the
+            profile. Default: True
+        save_plot : str
+            Location where the plot is being saved. Default: None
+        plot_dpi : int
+            Dpi of the saved plot. Default: 600
+
+        Returns
+        -----
+        profile : LineProfile object
+
+        """
+
+        pos_p = np.sqrt(
+            (self.pos[0]) ** 2 + (self.pos[1]) ** 2 + (self.pos[2]) ** 2
+        ).flatten()
+        pos_n = np.sqrt(
+            self.pos[0] ** 2 + self.pos[1] ** 2 + self.pos[2] ** 2
+        ).flatten()
+
+        vel_p = np.sqrt(
+            self.vel[0] ** 2 + self.vel[1] ** 2 + self.vel[2] ** 2
+        ).flatten()
+        vel_n = np.sqrt(
+            self.vel[0] ** 2 + self.vel[1] ** 2 + self.vel[2] ** 2
+        ).flatten()
+
+        rho_p = self.rho.flatten()
+        rho_n = self.rho.flatten()
+
+        spec_p = {}
+        spec_n = {}
+
+        for spec in self.species:
+            spec_p[spec] = self.xnuc[spec].flatten()
+            spec_n[spec] = self.xnuc[spec].flatten()
+
+        self.pos_prof_p = np.sort(pos_p)
+        self.pos_prof_n = np.sort(pos_n)
+
+        if outer_radius is None:
+            maxradius_p = max(self.pos_prof_p)
+            maxradius_n = max(self.pos_prof_n)
+        else:
+            maxradius_p = outer_radius
+            maxradius_n = outer_radius
+
+        if inner_radius is None:
+            minradius_p = min(self.pos_prof_p)
+            minradius_n = min(self.pos_prof_n)
+        else:
+            minradius_p = inner_radius
+            minradius_n = inner_radius
+
+        mask_p = np.logical_and(
+            self.pos_prof_p >= minradius_p, self.pos_prof_p <= maxradius_p
+        )
+        mask_n = np.logical_and(
+            self.pos_prof_n >= minradius_n, self.pos_prof_n <= maxradius_n
+        )
+
+        if not mask_p.any() or not mask_n.any():
+            raise ValueError("No points left between inner and outer radius.")
+
+        self.rho_prof_p = np.array(
+            [x for _, x in sorted(zip(pos_p, rho_p), key=lambda pair: pair[0])]
+        )[mask_p]
+        self.rho_prof_n = np.array(
+            [x for _, x in sorted(zip(pos_n, rho_n), key=lambda pair: pair[0])]
+        )[mask_n]
+
+        self.vel_prof_p = np.array(
+            [x for _, x in sorted(zip(pos_p, vel_p), key=lambda pair: pair[0])]
+        )[mask_p]
+        self.vel_prof_n = np.array(
+            [x for _, x in sorted(zip(pos_n, vel_n), key=lambda pair: pair[0])]
+        )[mask_n]
+
+        for spec in self.species:
+            self.xnuc_prof_p[spec] = np.array(
+                [
+                    x
+                    for _, x in sorted(
+                        zip(pos_p, spec_p[spec]), key=lambda pair: pair[0]
+                    )
+                ]
+            )[mask_p]
+            self.xnuc_prof_n[spec] = np.array(
+                [
+                    x
+                    for _, x in sorted(
+                        zip(pos_n, spec_n[spec]), key=lambda pair: pair[0]
+                    )
+                ]
+            )[mask_n]
+
+        self.pos_prof_p = self.pos_prof_p[mask_p]
+        self.pos_prof_n = self.pos_prof_n[mask_n]
+
+        if show_plot:
+            self.plot_profile(save=save_plot, dpi=plot_dpi)
+
+        return self
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "snapshot",
+        help="Snapshot file for which to create velocity profile plot",
+    )
+    parser.add_argument(
+        "save",
+        help="Filename of exported .csvy file",
+    )
+    parser.add_argument(
+        "-a",
+        "--alpha",
+        help="Euler angle alpha for rotation of desired direction to x-axis. Default: 0",
+        type=float,
+        default=0.0,
+    )
+    parser.add_argument(
+        "-b",
+        "--beta",
+        help="Euler angle beta for rotation of desired direction to x-axis. Default: 0",
+        type=float,
+        default=0.0,
+    )
+    parser.add_argument(
+        "-g",
+        "--gamma",
+        help="Euler angle gamma for rotation of desired direction to x-axis. Default: 0",
+        type=float,
+        default=0.0,
+    )
+    parser.add_argument(
+        "-o",
+        "--opening_angle",
+        help="Opening angle of the cone from which profile is extracted. Default 20.0",
+        type=float,
+        default=20.0,
+    )
+    parser.add_argument(
+        "-n",
+        "--nshells",
+        help="Number of shells to create. Default: 10",
+        type=int,
+        default=10,
+    )
+    parser.add_argument(
+        "-x",
+        "--boxsize",
+        help="Size of the box (in cm) from which data is extracted. Default: 1e12",
+        type=float,
+        default=1e12,
+    )
+    parser.add_argument(
+        "-e",
+        "--elements",
+        help="List of species to be included. Default: ni56",
+        default="ni56",
+        nargs="+",
+    )
+    parser.add_argument(
+        "--eosspecies",
+        help="Species file including all the species used in the production of the composition file. Default: species55.txt",
+        default="species55.txt",
+    )
+    parser.add_argument(
+        "--outer_radius",
+        help="Outer radius to which to build profile.",
+        type=float,
+    )
+    parser.add_argument(
+        "--inner_radius",
+        help="Inner radius to which to build profile.",
+        type=float,
+    )
+    parser.add_argument(
+        "--profile",
+        help="How to build profile. Available options: [line, cone, full]. Default: cone",
+        default="cone",
+        choices=["line", "cone", "full"],
+    )
+    parser.add_argument(
+        "--resolution",
+        help="Resolution of Carthesian grid extracted from snapshot. Default: 512",
+        type=int,
+        default=512,
+    )
+    parser.add_argument(
+        "--numthreads",
+        help="Number of threads used in snapshot tree walk. Default: 4",
+        type=int,
+        default=4,
+    )
+    parser.add_argument("--save_plot", help="File name of saved plot.")
+    parser.add_argument(
+        "--dpi", help="Dpi of saved plot. Default: 600", type=int, default=600
+    )
+    parser.add_argument(
+        "--plot_rebinned", help="File name of plot after rebinning"
+    )
+
+    args = parser.parse_args()
+
+    snapshot = ArepoSnapshot(
+        args.snapshot,
+        args.elements,
+        args.eosspecies,
+        alpha=args.alpha,
+        beta=args.beta,
+        gamma=args.gamma,
+        boxsize=args.boxsize,
+        resolution=args.resolution,
+        numthreads=args.numthreads,
+    )
+
+    pos, vel, rho, xnuc, time = snapshot.get_grids()
+
+    if args.profile == "line":
+        profile = LineProfile(pos, vel, rho, xnuc, time)
+    elif args.profile == "cone":
+        profile = ConeProfile(pos, vel, rho, xnuc, time)
+    elif args.profile == "full":
+        profile = FullProfile(pos, vel, rho, xnuc, time)
+
+    if args.profile == "cone":
+        profile.create_profile(
+            opening_angle=args.opening_angle,
+            inner_radius=args.inner_radius,
+            outer_radius=args.outer_radius,
+            save_plot=args.save_plot,
+            plot_dpi=args.dpi,
+        )
+    else:
+        profile.create_profile(
+            inner_radius=args.inner_radius,
+            outer_radius=args.outer_radius,
+            save_plot=args.save_plot,
+            plot_dpi=args.dpi,
+        )
+
+    profile.export(args.nshells, args.save)
+
+    if args.plot_rebinned:
+        profile.plot_profile(save=args.plot_rebinned, dpi=args.dpi)
