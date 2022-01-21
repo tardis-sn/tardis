@@ -17,6 +17,7 @@ def data_path(filename):
 
 @pytest.fixture(scope="function")
 def config_ns():
+    """Return example instance of `ConfigurationNameSpace` class."""
     config_name_space = ConfigurationNameSpace(simple_config_dict)
     return config_name_space
 
