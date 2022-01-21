@@ -24,6 +24,26 @@ logger = logging.getLogger(__name__)
 
 
 class ModelState:
+    """
+    Store Model State Information.
+
+    Parameters
+    ----------
+    v_inner : astropy.units.quantity.Quantity
+    v_outer : astropy.units.quantity.Quantity
+    r_inner : astropy.units.quantity.Quantity
+    r_outer : astropy.units.quantity.Quantity
+    density : astropy.units.quantity.Quantity
+    time_explosion : astropy.units.quantity.Quantity
+
+    Attributes
+    ----------
+    geometry : pd.DataFrame
+        DataFrame storing `v_inner`, `v_outer`, `r_inner` and `r_outer`.
+    geometry_units : dict
+        Units of arrays stored in the `geometry` dataframe.
+    """
+
     def __init__(
         self, v_inner, v_outer, r_inner, r_outer, time_explosion, density
     ):
@@ -46,18 +66,22 @@ class ModelState:
 
     @property
     def v_inner(self):
+        """Inner boundary velocity."""
         return self.geometry.v_inner.values * self.geometry_units["v_inner"]
 
     @property
     def r_inner(self):
+        """Inner radius of model shells."""
         return self.geometry.r_inner.values * self.geometry_units["r_inner"]
 
     @property
     def v_outer(self):
+        """Outer boundary velocity."""
         return self.geometry.v_outer.values * self.geometry_units["v_outer"]
 
     @property
     def r_outer(self):
+        """Outer radius of model shells."""
         return self.geometry.r_outer.values * self.geometry_units["r_outer"]
 
 

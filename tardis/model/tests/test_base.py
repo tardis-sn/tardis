@@ -312,12 +312,15 @@ def test_model_decay(simple_isotope_abundance):
 
 
 class TestModelState:
+    """Test the ModelState class."""
     def setup(self):
+        """Initialize config and model."""
         filename = "tardis_configv1_verysimple.yml"
         self.config = Configuration.from_yaml(data_path(filename))
         self.model = Radial1DModel.from_config(self.config)
 
     def test_geometry_velocities(self):
+        """Test if model velocities and the velocities stored in the geometry dict are the same."""
         assert_almost_equal(
             self.model.model_state.geometry.v_inner.values,
             self.model.v_inner.value,
@@ -328,6 +331,7 @@ class TestModelState:
         )
 
     def test_geometry_radius(self):
+        """Test if model radii and the radii stored in the geometry dict are the same."""
         assert_almost_equal(
             self.model.model_state.geometry.r_inner.values,
             self.model.r_inner.value,
@@ -338,6 +342,7 @@ class TestModelState:
         )
 
     def test_geometry_units(self):
+        """Test the units stored in the geometry_units dict."""
         assert (
             self.model.model_state.geometry_units["v_inner"]
             == self.model.v_inner.unit
@@ -356,6 +361,7 @@ class TestModelState:
         )
 
     def test_time_explosion(self):
+        """Test if time_explosion stored in ModelState is the same as that stored in Model."""
         assert (
             self.model.model_state.time_explosion.unit
             == self.model.time_explosion.unit
@@ -365,6 +371,7 @@ class TestModelState:
         )
 
     def test_density(self):
+        """Test if density stored in ModelState is the same as that stored in Model."""
         assert self.model.model_state.density.unit == self.model.density.unit
         assert_almost_equal(
             self.model.model_state.density.value, self.model.density.value
