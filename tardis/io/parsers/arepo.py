@@ -25,7 +25,7 @@ class ArepoSnapshot:
         """
         Loads relevant data for conversion from Arepo snapshot to a
         csvy-model. Requires arepo-snap-util to be installed.
-        The snapshot is mapped onto a carthesian grid before further
+        The snapshot is mapped onto a Cartesian grid before further
         processing is done.
 
         Parameters
@@ -52,13 +52,13 @@ class ArepoSnapshot:
             Default: 0.0
         boxsize : float
             Size of the box (in cm) from which data is mapped
-            to a Carthesian grid. Only usable with snapshots.
+            to a Cartesian grid. Only usable with snapshots.
             Default: 1e12
         resolution : int
-            Resolution of the Carthesian grid. Only usable
+            Resolution of the Cartesian grid. Only usable
             with snapshots. Default: 512
         numthreads : int
-            Number of threads with which Carthesian mapping
+            Number of threads with which Cartesian mapping
             is done. Default: 4
         """
 
@@ -282,7 +282,7 @@ class Profile:
         -----
         pos : list of float
             Meshgrid of positions in center of mass frames in
-            Carthesian coordinates
+            Cartesian coordinates
         vel : list of float
             Meshgrid of velocities/ velocity vectors
         rho : list of float
@@ -794,7 +794,7 @@ class ConeProfile(Profile):
 
         """
 
-        # Convert Carthesian coordinates into cylindrical coordinates
+        # Convert Cartesian coordinates into cylindrical coordinates
         # P(x,y,z) -> P(x,r,theta)
         cyl = np.array(
             [
@@ -1126,7 +1126,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--resolution",
-        help="Resolution of Carthesian grid extracted from snapshot. Default: 512",
+        help="Resolution of Cartesian grid extracted from snapshot. Default: 512",
         type=int,
         default=512,
     )
