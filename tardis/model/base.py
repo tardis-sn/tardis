@@ -385,6 +385,9 @@ class Radial1DModel(HDFWriterMixin):
         return self.model_state.density
 
     def calculate_abundance(self):
+        """
+        Calculate model abundance.
+        """
         if not self.raw_isotope_abundance.empty:
             self._abundance = self.raw_isotope_abundance.decay(
                 self.time_explosion
