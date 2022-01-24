@@ -188,17 +188,6 @@ class Radial1DModel(HDFWriterMixin):
                 self.time_explosion
             )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
         )
-
-        # abundance calculation
-        if not self.raw_isotope_abundance.empty:
-            self._abundance = self.raw_isotope_abundance.decay(
-                self.time_explosion
-            ).merge(self.raw_abundance)
-        abundance = self._abundance.loc[
-            :, self.v_boundary_inner_index : self.v_boundary_outer_index - 1
-        ]
-        abundance.columns = range(len(abundance.columns))
-
         self.model_state = ModelState(
             v_inner=v_inner,
             v_outer=v_outer,
@@ -206,7 +195,7 @@ class Radial1DModel(HDFWriterMixin):
             r_outer=self.time_explosion * v_outer,
             time_explosion=self.time_explosion,
             density=density,
-            abundance=abundance,
+            abundance=self.calculate_abundance()
         )
 
         if t_inner is None:
@@ -395,8 +384,21 @@ class Radial1DModel(HDFWriterMixin):
     def density(self):
         return self.model_state.density
 
+    def calculate_abundance(self):
+        if not self.raw_isotope_abundance.empty:
+            self._abundance = self.raw_isotope_abundance.decay(
+                self.time_explosion
+            ).merge(self.raw_abundance)
+        abundance = self._abundance.loc[
+            :, self.v_boundary_inner_index : self.v_boundary_outer_index - 1
+        ]
+        abundance.columns = range(len(abundance.columns))
+        return abundance
+
     @property
     def abundance(self):
+        abundance = self.calculate_abundance()
+        self.model_state.abundance = abundance
         return self.model_state.abundance
 
     @property
