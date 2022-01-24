@@ -45,10 +45,18 @@ class ModelState:
     """
 
     def __init__(
-        self, v_inner, v_outer, r_inner, r_outer, time_explosion, density
+        self,
+        v_inner,
+        v_outer,
+        r_inner,
+        r_outer,
+        time_explosion,
+        density,
+        abundance,
     ):
         self.time_explosion = time_explosion
         self.density = density
+        self.abundance = abundance
         self.geometry = pd.DataFrame(
             {
                 "v_inner": v_inner.value,
@@ -171,6 +179,8 @@ class Radial1DModel(HDFWriterMixin):
         self._abundance = abundance
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
+        self.raw_abundance = self._abundance
+        self.raw_isotope_abundance = isotope_abundance
         v_outer = self.velocity[1:]
         v_inner = self.velocity[:-1]
         density = (
@@ -178,6 +188,17 @@ class Radial1DModel(HDFWriterMixin):
                 self.time_explosion
             )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
         )
+
+        # abundance calculation
+        if not self.raw_isotope_abundance.empty:
+            self._abundance = self.raw_isotope_abundance.decay(
+                self.time_explosion
+            ).merge(self.raw_abundance)
+        abundance = self._abundance.loc[
+            :, self.v_boundary_inner_index : self.v_boundary_outer_index - 1
+        ]
+        abundance.columns = range(len(abundance.columns))
+
         self.model_state = ModelState(
             v_inner=v_inner,
             v_outer=v_outer,
@@ -185,9 +206,8 @@ class Radial1DModel(HDFWriterMixin):
             r_outer=self.time_explosion * v_outer,
             time_explosion=self.time_explosion,
             density=density,
+            abundance=abundance,
         )
-        self.raw_abundance = self._abundance
-        self.raw_isotope_abundance = isotope_abundance
 
         if t_inner is None:
             if luminosity_requested is not None:
@@ -377,15 +397,7 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def abundance(self):
-        if not self.raw_isotope_abundance.empty:
-            self._abundance = self.raw_isotope_abundance.decay(
-                self.time_explosion
-            ).merge(self.raw_abundance)
-        abundance = self._abundance.loc[
-            :, self.v_boundary_inner_index : self.v_boundary_outer_index - 1
-        ]
-        abundance.columns = range(len(abundance.columns))
-        return abundance
+        return self.model_state.abundance
 
     @property
     def volume(self):
