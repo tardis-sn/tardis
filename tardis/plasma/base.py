@@ -6,6 +6,7 @@ import fileinput
 
 import networkx as nx
 import pandas as pd
+import numpy as np
 
 from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
 from tardis.plasma.properties.base import *
@@ -271,7 +272,18 @@ class BasePlasma(PlasmaWriterMixin):
         return descendants_ob
 
     def write_to_dot(self, fname, latex_label=True):
-        #        self._update_module_type_str()
+        """
+        This method takes the NetworkX Graph generated from the _build_graph method, 
+        converts it into a DOT code, and saves it to a file 
+        
+        Parameters
+        ----------
+        fname: str
+            the name of the file the graph will be saved to
+        
+        latex_label: boolean
+            enables/disables writing the LaTeX code for property equations and relations
+        """
 
         try:
             import pygraphviz
@@ -296,20 +308,33 @@ class BasePlasma(PlasmaWriterMixin):
                 print_graph.nodes[str(node)]["label"] = f"\\\\textrm{{{node}}}"
 
         for edge in range(len(edge_names)):
+            edge_length = np.random.uniform(1, 10)
+            
             label = print_graph.edges[edge_names[edge][0], edge_names[edge][1]]['label']
             print_graph.edges[edge_names[edge][0], edge_names[edge][1]]['texlbl'] = label
+            print_graph.edges[edge_names[edge][0], edge_names[edge][1]]['minlen'] = edge_length
             print_graph.edges[edge_names[edge][0], edge_names[edge][1]]['label'] = "-"
 
 
         nx.drawing.nx_agraph.write_dot(print_graph, fname)
 
         for line in fileinput.FileInput(fname, inplace=1):
-            print(line.replace(r'node [label="\N"]', r'node [texmode="math"]'), end="",)
-            
-            
-        #self.dot_file = open(fname, "r")
+            print(line.replace(r'node [label="\N"]', 
+                               'ratio="fill";\n\tsize="8.3,11.7!";\n\tmargin=0;\n\tnode [texmode="math"];\n\tedge[lblstyle="fill=white"]'),
+                  end="",
+                 )
 
     def write_to_tex(self, fname_graph):
+        """
+        This method reads in the .dot file generated from the write_to_dot method, 
+        converts it into LaTeX, and saves it to a file 
+        
+        Parameters
+        ----------
+        fname_graph: str
+            the name of the file the graph will be saved to
+      
+        """
         try:
             import dot2tex
         except:
@@ -322,15 +347,9 @@ class BasePlasma(PlasmaWriterMixin):
 
         self.write_to_dot(temp_fname)
 
-        #dot_string = open(temp_fname).read()
-
-        #open(fname_graph, "w").write(dot2tex.dot2tex(dot_string, texmode="raw"))
-
-        
-        #dot_string = self.dot_file.read().replace("\\\\", "\\")
         dot_string = open(temp_fname, "r").read().replace("\\\\","\\")
         
-        texcode = dot2tex.dot2tex(dot_string, format='tikz', crop=True, valignmode = "dot")
+        texcode = dot2tex.dot2tex(dot_string, format='tikz', crop=True, valignmode="dot")
       
         open(fname_graph, "w").write(texcode)
         
@@ -348,16 +367,10 @@ class BasePlasma(PlasmaWriterMixin):
             
         for line in fileinput.input(fname_graph, inplace=1):
             print(line.replace(r"\begin{tikzpicture}[>=latex',line join=bevel,]", 
-                               r"\begin{tikzpicture}[>=latex',line join=bevel,scale=2]",
+                               r"\begin{tikzpicture}[>=latex',line join=bevel,scale=0.5]",
                               ),
                   end="",
                  )
-                      
-            
-    def display_graph(self):
-        pos = nx.spring_layout(self.graph, k=0.75, iterations=15)
-        
-        nx.draw(self.graph, pos, with_labels=True)
 
     def remove_hidden_properties(self, print_graph):
         for item in self.plasma_properties_dict.values():
