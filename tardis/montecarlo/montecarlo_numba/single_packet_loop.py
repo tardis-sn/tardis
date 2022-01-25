@@ -3,10 +3,9 @@ import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,
-    trace_packet,
-    move_packet_across_shell_boundary,
-    move_r_packet,
 )
+from tardis.montecarlo.montecarlo_numba.r_packet_transport import trace_packet, \
+    move_r_packet, move_packet_across_shell_boundary
 
 from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
 

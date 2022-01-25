@@ -50,12 +50,13 @@ import numpy as np
 import pandas as pd
 import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
+import tardis.montecarlo.montecarlo_numba.r_packet_transport as r_packet_transport
 import tardis.montecarlo.montecarlo_numba.utils as utils
 import tardis.montecarlo.montecarlo_configuration as mc
 from tardis import constants as const
-from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators, RPacketTracker
+from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
 from tardis.montecarlo.montecarlo_numba.numba_interface import RPacketTracker
-from tardis.montecarlo.montecarlo_numba import macro_atom
+
 
 from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     get_doppler_factor,
@@ -70,9 +71,7 @@ pytestmark = pytest.mark.skip(reason="Port from C to numba")
 
 
 from numpy.testing import (
-    assert_equal,
     assert_almost_equal,
-    assert_array_equal,
     assert_allclose,
 )
 
@@ -445,7 +444,7 @@ def test_move_packet_across_shell_boundary_emitted(
     energy = 0.9
     packet = r_packet.RPacket(r, mu, nu, energy)
     packet.current_shell_id = current_shell_id
-    r_packet.move_packet_across_shell_boundary(
+    r_packet_transport.move_packet_across_shell_boundary(
         packet, delta_shell, no_of_shells
     )
     assert packet.status == r_packet.PacketStatus.EMITTED
@@ -464,7 +463,7 @@ def test_move_packet_across_shell_boundary_reabsorbed(
     energy = 0.9
     packet = r_packet.RPacket(r, mu, nu, energy)
     packet.current_shell_id = current_shell_id
-    r_packet.move_packet_across_shell_boundary(
+    r_packet_transport.move_packet_across_shell_boundary(
         packet, delta_shell, no_of_shells
     )
     assert packet.status == r_packet.PacketStatus.REABSORBED
@@ -483,7 +482,7 @@ def test_move_packet_across_shell_boundary_increment(
     energy = 0.9
     packet = r_packet.RPacket(r, mu, nu, energy)
     packet.current_shell_id = current_shell_id
-    r_packet.move_packet_across_shell_boundary(
+    r_packet_transport.move_packet_across_shell_boundary(
         packet, delta_shell, no_of_shells
     )
     assert packet.current_shell_id == current_shell_id + delta_shell
@@ -641,7 +640,7 @@ def test_move_packet(
     numba_estimator = Estimators(
         packet_params["j"], packet_params["nu_bar"], 0, 0
     )
-    r_packet.move_r_packet(
+    r_packet_transport.move_r_packet(
         packet, distance, time_explosion, numba_estimator
     )
 
@@ -809,7 +808,7 @@ def test_compute_distance2line_relativistic(
     distance = r_packet.calculate_distance_line(
         packet, comov_nu, nu_line, t_exp
     )
-    r_packet.move_r_packet(packet, distance, t_exp, numba_estimator)
+    r_packet_transport.move_r_packet(packet, distance, t_exp, numba_estimator)
 
     doppler_factor = get_doppler_factor(r, mu, t_exp)
     comov_nu = packet.nu * doppler_factor
