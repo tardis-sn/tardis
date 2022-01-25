@@ -168,11 +168,10 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
         ----------
 
         """
-        ion_index_in_zeta = (
-            ion_index.isin(zeta_data.index)
-            if hasattr(ion_index, "isin")
-            else ion_index in zeta_data.index
-        )
+        if len(zeta_data.index) > 0:
+            ion_index_in_zeta = ion_index.isin(zeta_data.index)       
+        else:
+            ion_index_in_zeta = [False for i in len(ion_index)]
         if False not in ion_index_in_zeta:
             zeta_values = zeta_data.loc[ion_index].values.astype(np.float64)
             zeta_t_rad = zeta_data.columns.values.astype(np.float64)
