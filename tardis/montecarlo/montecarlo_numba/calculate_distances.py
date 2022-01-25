@@ -14,6 +14,7 @@ from tardis.montecarlo.montecarlo_numba.numba_config import (
     CLOSE_LINE_THRESHOLD,
 )
 
+from tardis.montecarlo.montecarlo_numba.r_packet import print_r_packet_properties
 from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
 
 
@@ -98,7 +99,8 @@ def calculate_distance_line(
     if nu_diff >= 0:
         distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
     else:
-        print("WARNING: nu difference is less than 0.0")
+        print("WARNING: nu difference is less than 0.0 - packet information below.")
+        print_r_packet_properties(r_packet)
         raise MonteCarloException(
             "nu difference is less than 0.0; for more"
             " information, see print statement beforehand"
