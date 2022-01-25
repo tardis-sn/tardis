@@ -1,31 +1,27 @@
-import os
 import pytest
 import numpy as np
-import pandas as pd
+
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
 import tardis.montecarlo.montecarlo_numba.calculate_distances as calculate_distances
 import tardis.montecarlo.montecarlo_numba.frame_transformations as frame_transformations
 import tardis.montecarlo.montecarlo_numba.opacities as opacities
-import tardis.montecarlo.montecarlo_numba.r_packet_transport
+import tardis.montecarlo.montecarlo_numba.r_packet_transport as r_packet_transport
 from tardis.montecarlo.montecarlo_numba.estimators import (
-    set_estimators,
     update_line_estimators,
 )
 import tardis.montecarlo.montecarlo_numba.utils as utils
-import tardis.montecarlo.montecarlo_configuration as mc
+
 import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
 from tardis import constants as const
-from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
+
 import tardis.montecarlo.montecarlo_numba.numba_config as numba_config
-from tardis.montecarlo.montecarlo_numba import macro_atom
+
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 SIGMA_THOMSON = const.sigma_T.to("cm^2").value
 
 from numpy.testing import (
-    assert_equal,
     assert_almost_equal,
-    assert_array_equal,
     assert_allclose,
 )
 
@@ -266,7 +262,7 @@ def test_trace_packet(
 
     set_seed_fixture(1963)
     packet.initialize_line_id(verysimple_numba_plasma, verysimple_numba_model)
-    distance, interaction_type, delta_shell = tardis.montecarlo.montecarlo_numba.r_packet_transport.trace_packet(
+    distance, interaction_type, delta_shell = r_packet_transport.trace_packet(
         packet,
         verysimple_numba_model,
         verysimple_numba_plasma,
@@ -318,12 +314,12 @@ def test_move_r_packet(
     packet.r = packet_params["r"]
 
     numba_config.ENABLE_FULL_RELATIVITY = ENABLE_FULL_RELATIVITY
-    tardis.montecarlo.montecarlo_numba.r_packet_transport.move_r_packet.recompile()  # This must be done as move_r_packet was jitted with ENABLE_FULL_RELATIVITY
+    r_packet_transport.move_r_packet.recompile()  # This must be done as move_r_packet was jitted with ENABLE_FULL_RELATIVITY
     doppler_factor = frame_transformations.get_doppler_factor(
         packet.r, packet.mu, model.time_explosion
     )
 
-    tardis.montecarlo.montecarlo_numba.r_packet_transport.move_r_packet(packet, distance, model.time_explosion, estimators)
+    r_packet_transport.move_r_packet(packet, distance, model.time_explosion, estimators)
 
     assert_almost_equal(packet.mu, expected_params["mu"])
     assert_almost_equal(packet.r, expected_params["r"])
@@ -369,7 +365,7 @@ def test_move_packet_across_shell_boundary_emitted(
     packet, current_shell_id, delta_shell, no_of_shells
 ):
     packet.current_shell_id = current_shell_id
-    tardis.montecarlo.montecarlo_numba.r_packet_transport.move_packet_across_shell_boundary(
+    r_packet_transport.move_packet_across_shell_boundary(
         packet, delta_shell, no_of_shells
     )
     assert packet.status == r_packet.PacketStatus.EMITTED
@@ -383,7 +379,7 @@ def test_move_packet_across_shell_boundary_reabsorbed(
     packet, current_shell_id, delta_shell, no_of_shells
 ):
     packet.current_shell_id = current_shell_id
-    tardis.montecarlo.montecarlo_numba.r_packet_transport.move_packet_across_shell_boundary(
+    r_packet_transport.move_packet_across_shell_boundary(
         packet, delta_shell, no_of_shells
     )
     assert packet.status == r_packet.PacketStatus.REABSORBED
@@ -397,7 +393,7 @@ def test_move_packet_across_shell_boundary_increment(
     packet, current_shell_id, delta_shell, no_of_shells
 ):
     packet.current_shell_id = current_shell_id
-    tardis.montecarlo.montecarlo_numba.r_packet_transport.move_packet_across_shell_boundary(
+    r_packet_transport.move_packet_across_shell_boundary(
         packet, delta_shell, no_of_shells
     )
     assert packet.current_shell_id == current_shell_id + delta_shell
