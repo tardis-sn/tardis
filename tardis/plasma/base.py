@@ -271,7 +271,7 @@ class BasePlasma(PlasmaWriterMixin):
 
         return descendants_ob
 
-    def write_to_dot(self, fname, latex_label=True):
+    def write_to_dot(self, fname):
         """
         This method takes the NetworkX Graph generated from the _build_graph method, 
         converts it into a DOT code, and saves it to a file 
@@ -280,9 +280,6 @@ class BasePlasma(PlasmaWriterMixin):
         ----------
         fname: str
             the name of the file the graph will be saved to
-        
-        latex_label: boolean
-            enables/disables writing the LaTeX code for property equations and relations
         """
 
         try:
@@ -297,7 +294,7 @@ class BasePlasma(PlasmaWriterMixin):
         edge_names = [e for e in print_graph.edges]
 
         for node in print_graph:
-            if hasattr(self.plasma_properties_dict[node], "latex_formula") and latex_label == True:
+            if hasattr(self.plasma_properties_dict[node], "latex_formula"):
                 print_graph.nodes[str(node)]["label"] = f"\\\\textrm{{{node}: }}"
                 formulae = self.plasma_properties_dict[node].latex_formula
                 for output in range(0, len(formulae)):
@@ -320,7 +317,8 @@ class BasePlasma(PlasmaWriterMixin):
 
         for line in fileinput.FileInput(fname, inplace=1):
             print(line.replace(r'node [label="\N"]', 
-                               'ratio="fill";\n\tsize="8.3,11.7!";\n\tmargin=0;\n\tnode [texmode="math"];\n\tedge[lblstyle="fill=white"]'),
+                               'ratio="fill";\n\tsize="8.3,11.7!";\n\tmargin=0;' 
+                               '\n\tnode [texmode="math"];\n\tedge[lblstyle="fill=white"]'),
                   end="",
                  )
 
@@ -333,7 +331,6 @@ class BasePlasma(PlasmaWriterMixin):
         ----------
         fname_graph: str
             the name of the file the graph will be saved to
-      
         """
         try:
             import dot2tex
