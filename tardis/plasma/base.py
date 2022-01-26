@@ -271,17 +271,20 @@ class BasePlasma(PlasmaWriterMixin):
 
         return descendants_ob
 
-    def write_to_dot(self, fname):
+    def write_to_dot(self, fname, latex_label=True):
         """
-        This method takes the NetworkX Graph generated from the _build_graph method, 
-        converts it into a DOT code, and saves it to a file 
+        This method takes the NetworkX Graph generated from the _build_graph 
+        method, converts it into a DOT code, and saves it to a file 
         
         Parameters
         ----------
         fname: str
             the name of the file the graph will be saved to
+        latex_label: boolean
+            enables/disables writing LaTeX equations and 
+            edge labels into the file.
         """
-
+    
         try:
             import pygraphviz
         except:
@@ -292,40 +295,55 @@ class BasePlasma(PlasmaWriterMixin):
         print_graph = self.graph.copy()
         print_graph = self.remove_hidden_properties(print_graph)
         edge_names = [e for e in print_graph.edges]
-
+    
         for node in print_graph:
-            if hasattr(self.plasma_properties_dict[node], "latex_formula"):
-                print_graph.nodes[str(node)]["label"] = f"\\\\textrm{{{node}: }}"
-                formulae = self.plasma_properties_dict[node].latex_formula
-                for output in range(0, len(formulae)):
-                    formula = formulae[output]
-                    label = formula.replace("\\", "\\\\")
-                    print_graph.nodes[str(node)]["label"] += label
+            if latex_label:
+                if hasattr(self.plasma_properties_dict[node], "latex_formula"):
+                        print_graph.nodes[str(node)]["label"] = \
+                        f"\\\\textrm{{{node}: }}"
+                        node_list = self.plasma_properties_dict[node]
+                        formulae = node_list.latex_formula
+                        for output in range(0, len(formulae)):
+                            formula = formulae[output]
+                            label = formula.replace("\\", "\\\\")
+                            print_graph.nodes[str(node)]["label"] += label
+                else:
+                    print_graph.nodes[str(node)]["label"] = \
+                    f"\\\\textrm{{{node}}}"
             else:
-                print_graph.nodes[str(node)]["label"] = f"\\\\textrm{{{node}}}"
-
+                    print_graph.nodes[str(node)]["label"] = node
+    
         for edge in range(len(edge_names)):
-            edge_length = np.random.uniform(1, 10)
+            mask = [edge_names[edge][0], edge_names[edge][1]]
+            label = print_graph.edges[mask]['label']
+            print_graph.edges[mask]['label'] = "-"
+            if latex_label:
+                edge_length = np.random.uniform(1, 10)
+                
+                print_graph.edges[mask]['texlbl'] = label
+                print_graph.edges[mask]['minlen'] = edge_length
             
-            label = print_graph.edges[edge_names[edge][0], edge_names[edge][1]]['label']
-            print_graph.edges[edge_names[edge][0], edge_names[edge][1]]['texlbl'] = label
-            print_graph.edges[edge_names[edge][0], edge_names[edge][1]]['minlen'] = edge_length
-            print_graph.edges[edge_names[edge][0], edge_names[edge][1]]['label'] = "-"
-
-
         nx.drawing.nx_agraph.write_dot(print_graph, fname)
-
+    
         for line in fileinput.FileInput(fname, inplace=1):
-            print(line.replace(r'node [label="\N"]', 
-                               'ratio="fill";\n\tsize="8.3,11.7!";\n\tmargin=0;' 
-                               '\n\tnode [texmode="math"];\n\tedge[lblstyle="fill=white"]'),
-                  end="",
-                 )
-
+            if latex_label:
+                print(line.replace(r'node [label="\N"]', 
+                                   'ratio="fill";\n\tsize="8.3,11.7!";'
+                                   '\n\tmargin=0;'
+                                   '\n\tnode [texmode="math"];'
+                                   '\n\tedge[lblstyle="fill=white"]'),
+                      end="",)
+            else:
+                print(line.replace(r'node [label="\N"]', 
+                                   'ratio="fill";\n\tsize="8.3,11.7!";'
+                                   '\n\tnodesep=1.0;\n\tmargin=0'),
+                      end="",)                
+    
     def write_to_tex(self, fname_graph):
         """
-        This method reads in the .dot file generated from the write_to_dot method, 
-        converts it into LaTeX, and saves it to a file 
+        This method reads in the .dot file generated 
+        from the write_to_dot method, converts it into LaTeX, 
+        and saves it to a file 
         
         Parameters
         ----------
@@ -339,14 +357,15 @@ class BasePlasma(PlasmaWriterMixin):
                 "dot2tex missing. Plasma graph will not be " "generated."
             )
             return
-
+    
         temp_fname = tempfile.NamedTemporaryFile().name
-
+    
         self.write_to_dot(temp_fname)
-
-        dot_string = open(temp_fname, "r").read().replace("\\\\","\\")
+    
+        dot_string = open(temp_fname, "r").read().replace("\\\\", "\\")
         
-        texcode = dot2tex.dot2tex(dot_string, format='tikz', crop=True, valignmode="dot")
+        texcode = dot2tex.dot2tex(dot_string, format='tikz',
+                                  crop=True, valignmode="dot")
       
         open(fname_graph, "w").write(texcode)
         
@@ -358,17 +377,17 @@ class BasePlasma(PlasmaWriterMixin):
                 ),
                 end="",
             )
-
+    
         for line in fileinput.input(fname_graph, inplace=1):
             print(line.replace(r"\enlargethispage{100cm}", ""), end="")
             
         for line in fileinput.input(fname_graph, inplace=1):
-            print(line.replace(r"\begin{tikzpicture}[>=latex',line join=bevel,]", 
-                               r"\begin{tikzpicture}[>=latex',line join=bevel,scale=0.5]",
-                              ),
-                  end="",
-                 )
-
+            print(line.replace(r"\begin{tikzpicture}"
+                               r"[>=latex',line join=bevel,]", 
+                               r"\begin{tikzpicture}"
+                               r"[>=latex',line join=bevel,"
+                               r"scale=0.5]",), end="",)
+    
     def remove_hidden_properties(self, print_graph):
         for item in self.plasma_properties_dict.values():
             module = self.plasma_properties_dict[item.name].__class__
