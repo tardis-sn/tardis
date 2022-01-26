@@ -70,6 +70,14 @@ class RPacket(object):
 
 @njit(**njit_dict_no_paralel)
 def print_r_packet_properties(r_packet):
+    """
+    Print all packet information
+
+    Parameters
+    ----------
+    r_packet : RPacket
+        RPacket object
+    """
     print("-"*80)
     print("R-Packet information:")
     for r_packet_attribute_name, _ in rpacket_spec:
