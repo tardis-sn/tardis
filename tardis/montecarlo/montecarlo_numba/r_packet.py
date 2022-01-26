@@ -1,13 +1,13 @@
 from enum import IntEnum
 
 import numpy as np
-from numba import int64, float64
+from numba import int64, float64, njit
 from numba.experimental import jitclass
 
 from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     get_doppler_factor,
 )
-
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 
 class InteractionType(IntEnum):
     BOUNDARY = 1
@@ -68,7 +68,7 @@ class RPacket(object):
         self.next_line_id = next_line_id
 
 
-@njit(**njit_dict_no_paralel)
+@njit(**njit_dict_no_parallel)
 def print_r_packet_properties(r_packet):
     """
     Print all packet information
