@@ -52,11 +52,12 @@ class ModelState:
         r_outer,
         time_explosion,
         density,
-        abundance,
+        isotope_abundance,
     ):
         self.time_explosion = time_explosion
         self.density = density
-        self.abundance = abundance
+        self.isotope_abundance = isotope_abundance
+
         self.geometry = pd.DataFrame(
             {
                 "v_inner": v_inner.value,
@@ -188,6 +189,17 @@ class Radial1DModel(HDFWriterMixin):
                 self.time_explosion
             )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
         )
+
+        isotope_abundance = abundance
+        if not self.raw_isotope_abundance.empty:
+            isotope_abundance = self.raw_isotope_abundance.decay(
+                self.time_explosion
+            ).merge(self.raw_abundance)
+
+        isotope_abundance = isotope_abundance.loc[
+            :, self.v_boundary_inner_index : self.v_boundary_outer_index - 1
+        ]
+        isotope_abundance.columns = range(len(isotope_abundance.columns))
         self.model_state = ModelState(
             v_inner=v_inner,
             v_outer=v_outer,
@@ -195,7 +207,7 @@ class Radial1DModel(HDFWriterMixin):
             r_outer=self.time_explosion * v_outer,
             time_explosion=self.time_explosion,
             density=density,
-            abundance=self.calculate_abundance()
+            isotope_abundance=isotope_abundance
         )
 
         if t_inner is None:
