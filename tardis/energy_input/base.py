@@ -170,7 +170,10 @@ def initialize_photons(
                     energy_plot_df_rows.append(
                         [
                             -1,
-                            energy_KeV,
+                            energy_KeV
+                            * primary_photon.activity
+                            * 1000
+                            / ejecta_volume[shell],
                             initial_radius,
                             primary_photon.location.theta,
                             0.0,
@@ -379,7 +382,6 @@ def main_gamma_ray_loop(num_decays, model):
                 )
 
                 if photon.status == GXPhotonStatus.COMPTON_SCATTER:
-                    # TODO Comoving energy?
                     (
                         compton_angle,
                         ejecta_energy_gained,
@@ -402,9 +404,11 @@ def main_gamma_ray_loop(num_decays, model):
 
                 if photon.status == GXPhotonStatus.PHOTOABSORPTION:
                     # TODO Ejecta gains comoving energy, correct?
-                    ejecta_energy_gained = photon.energy * doppler_gamma(
-                        photon.direction.vector, photon.location.r
-                    )
+                    ejecta_energy_gained = photon.energy
+
+                ejecta_energy_gained *= doppler_gamma(
+                    photon.direction.vector, photon.location.r
+                )
 
                 # Save photons to dataframe rows
                 # convert KeV to eV / s / cm^3
@@ -417,7 +421,10 @@ def main_gamma_ray_loop(num_decays, model):
                 energy_plot_df_rows.append(
                     [
                         i,
-                        ejecta_energy_gained,
+                        photon.activity
+                        * ejecta_energy_gained
+                        * 1000
+                        / ejecta_volume[photon.shell],
                         photon.location.r,
                         photon.location.theta,
                         photon.time_current,
