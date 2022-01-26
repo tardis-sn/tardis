@@ -40,15 +40,17 @@ class BasePlasma(PlasmaWriterMixin):
     def __setattr__(self, key, value):
         if key != "module_dict" and key in self.outputs_dict:
             raise AttributeError(
-                "Plasma inputs can only be updated using " "the 'update' method"
+                "Plasma inputs can only be updated using " 
+                "the 'update' method"
             )
         else:
             super(BasePlasma, self).__setattr__(key, value)
 
     def __dir__(self):
         attrs = [item for item in self.__dict__ if not item.startswith("_")]
+        class_dict = self.__class__.__dict__
         attrs += [
-            item for item in self.__class__.__dict__ if not item.startswith("_")
+            item for item in class_dict if not item.startswith("_")
         ]
         attrs += self.outputs_dict.keys()
         return attrs
@@ -69,7 +71,7 @@ class BasePlasma(PlasmaWriterMixin):
         """
 
         self.graph = nx.DiGraph()
-        ## Adding all nodes
+        # Adding all nodes
         self.graph.add_nodes_from(
             [
                 (plasma_property.name, {})
@@ -124,8 +126,8 @@ class BasePlasma(PlasmaWriterMixin):
             of arguments that will be passed to the __init__ method of
             the respective plasma module.
         kwargs : dictionary
-            input values for input properties. For example, t_rad=[5000, 6000,],
-            j_blues=[..]
+            input values for input properties. For example, 
+            t_rad=[5000, 6000,], j_blues=[..]
         """
         if property_kwargs is None:
             property_kwargs = {}
@@ -266,7 +268,8 @@ class BasePlasma(PlasmaWriterMixin):
         descendants_ob.sort(key=lambda val: sort_order.index(val))
 
         logger.debug(
-            f'Updating modules in the following order: {"->".join(descendants_ob)}'
+            f'Updating modules in the following order:'
+            f'{"->".join(descendants_ob)}'
         )
 
         return descendants_ob
@@ -300,7 +303,7 @@ class BasePlasma(PlasmaWriterMixin):
             if latex_label:
                 if hasattr(self.plasma_properties_dict[node], "latex_formula"):
                         print_graph.nodes[str(node)]["label"] = \
-                        f"\\\\textrm{{{node}: }}"
+                            f"\\\\textrm{{{node}: }}"
                         node_list = self.plasma_properties_dict[node]
                         formulae = node_list.latex_formula
                         for output in range(0, len(formulae)):
@@ -309,7 +312,7 @@ class BasePlasma(PlasmaWriterMixin):
                             print_graph.nodes[str(node)]["label"] += label
                 else:
                     print_graph.nodes[str(node)]["label"] = \
-                    f"\\\\textrm{{{node}}}"
+                        f"\\\\textrm{{{node}}}"
             else:
                     print_graph.nodes[str(node)]["label"] = node
     
