@@ -70,16 +70,12 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
             current_phis = current_block[1:] / current_block[:-1]
             phis[start_id - i : end_id - i - 1] = current_phis
 
-        broadcast_ionization_energy = ionization_data[
-            partition_function.index
-        ].dropna()
+        broadcast_ionization_energy = ionization_data[partition_function.index].dropna()
         phi_index = broadcast_ionization_energy.index
         broadcast_ionization_energy = broadcast_ionization_energy.values
 
         phi_coefficient = (
-            2
-            * g_electron
-            * np.exp(np.outer(broadcast_ionization_energy, -beta_rad))
+            2 * g_electron * np.exp(np.outer(broadcast_ionization_energy, -beta_rad))
         )
 
         return pd.DataFrame(phis * phi_coefficient, index=phi_index)
@@ -168,8 +164,17 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
         ----------
 
         """
+        print("TEST PRINTOUT! zeta data:",zeta_data)
+        print("TEST PRINTOUT! ion_index:",ion_index)
+        try:
+            if len(ion_index) > 0:
+                print("TEST PRINTOUT! Ion index is multiindex")
+        except TypeError:
+            ion_index = pd.MultiIndex.from_tuples([(ion_index,i) for i in range(1,ion_index+1)],names=['atomic_number','ion_number'])
+            print("TEST PRINTOUT! New ion_index:",ion_index)
+        #print("New ion_index:",pd.MultiIndex.from_tuples([(ion_index,i) for i in range(1,ion_index+1)]))
         if len(zeta_data.index) > 0:
-            ion_index_in_zeta = ion_index.isin(zeta_data.index)       
+            ion_index_in_zeta = ion_index.isin(zeta_data.index)
         else:
             ion_index_in_zeta = [False for i in len(ion_index)]
         if False not in ion_index_in_zeta:
@@ -177,7 +182,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
             zeta_t_rad = zeta_data.columns.values.astype(np.float64)
         else:
             dummy_zeta_val = 1.0
-            zeta_t_rad = np.linspace(2000, 40000, 10, endpoint=True)
+            zeta_t_rad = np.linspace(2000, 40000, 20, endpoint=True)
             zeta_values = np.full(zeta_t_rad.shape, dummy_zeta_val).astype(np.float64)
         zeta = interpolate.interp1d(
             zeta_t_rad, zeta_values, bounds_error=False, fill_value=np.nan
@@ -237,9 +242,7 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
                 departure_coefficient = 1.0 / w
             else:
                 departure_coefficient = self.departure_coefficient
-            radiation_field_correction = -np.ones(
-                (len(ionization_data), len(beta_rad))
-            )
+            radiation_field_correction = -np.ones((len(ionization_data), len(beta_rad)))
             less_than_chi_0 = (ionization_data < self.chi_0).values
             factor_a = t_electrons / (departure_coefficient * w * t_rad)
             radiation_field_correction[~less_than_chi_0] = factor_a * np.exp(
@@ -258,8 +261,7 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
             )
         else:
             radiation_field_correction = (
-                np.ones((len(ionization_data), len(beta_rad)))
-                * self.delta_treatment
+                np.ones((len(ionization_data), len(beta_rad))) * self.delta_treatment
             )
         delta = pd.DataFrame(
             radiation_field_correction,
@@ -350,10 +352,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
             n_electron_iterations = 0
 
             while True:
-                (
-                    ion_number_density,
-                    self.block_ids,
-                ) = self.calculate_with_n_electron(
+                (ion_number_density, self.block_ids,) = self.calculate_with_n_electron(
                     phi,
                     partition_function,
                     number_density,
@@ -361,13 +360,9 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                     self.block_ids,
                     self.ion_zero_threshold,
                 )
-                ion_numbers = ion_number_density.index.get_level_values(
-                    1
-                ).values
+                ion_numbers = ion_number_density.index.get_level_values(1).values
                 ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
-                new_n_electron = (ion_number_density.values * ion_numbers).sum(
-                    axis=0
-                )
+                new_n_electron = (ion_number_density.values * ion_numbers).sum(axis=0)
                 if np.any(np.isnan(new_n_electron)):
                     raise PlasmaIonizationError(
                         'n_electron just turned "nan" -' " aborting"
@@ -434,26 +429,18 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
         self.block_ids = None
         self._electron_densities = electron_densities
 
-    def update_he_population(
-        self, helium_population, n_electron, number_density
-    ):
+    def update_he_population(self, helium_population, n_electron, number_density):
         helium_population_updated = helium_population.copy()
         he_one_population = helium_population_updated.loc[0].mul(n_electron)
-        he_three_population = helium_population_updated.loc[2].mul(
-            1.0 / n_electron
-        )
+        he_three_population = helium_population_updated.loc[2].mul(1.0 / n_electron)
         helium_population_updated.loc[0].update(he_one_population)
         helium_population_updated.loc[2].update(he_three_population)
         unnormalised = helium_population_updated.sum()
-        normalised = helium_population_updated.mul(
-            number_density.loc[2] / unnormalised
-        )
+        normalised = helium_population_updated.mul(number_density.loc[2] / unnormalised)
         helium_population_updated.update(normalised)
         return helium_population_updated
 
-    def calculate(
-        self, phi, partition_function, number_density, helium_population
-    ):
+    def calculate(self, phi, partition_function, number_density, helium_population):
         if self._electron_densities is None:
             n_e_convergence_threshold = 0.05
             n_electron = number_density.sum(axis=0)
@@ -479,16 +466,10 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                 ion_number_density.loc[2, 1].update(
                     helium_population_updated.loc[1].sum(axis=0)
                 )
-                ion_number_density.loc[2, 2].update(
-                    helium_population_updated.loc[2, 0]
-                )
-                ion_numbers = ion_number_density.index.get_level_values(
-                    1
-                ).values
+                ion_number_density.loc[2, 2].update(helium_population_updated.loc[2, 0])
+                ion_numbers = ion_number_density.index.get_level_values(1).values
                 ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
-                new_n_electron = (ion_number_density.values * ion_numbers).sum(
-                    axis=0
-                )
+                new_n_electron = (ion_number_density.values * ion_numbers).sum(axis=0)
                 if np.any(np.isnan(new_n_electron)):
                     raise PlasmaIonizationError(
                         'n_electron just turned "nan" -' " aborting"
@@ -528,9 +509,7 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
             ion_number_density.loc[2, 1].update(
                 helium_population_updated.loc[1].sum(axis=0)
             )
-            ion_number_density.loc[2, 2].update(
-                helium_population_updated.loc[2, 0]
-            )
+            ion_number_density.loc[2, 2].update(helium_population_updated.loc[2, 0])
         return ion_number_density, n_electron, helium_population_updated
 
 
