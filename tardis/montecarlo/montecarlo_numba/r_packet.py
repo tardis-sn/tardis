@@ -1,13 +1,13 @@
 from enum import IntEnum
 
 import numpy as np
-from numba import int64, float64
+from numba import int64, float64, njit, objmode
 from numba.experimental import jitclass
 
 from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     get_doppler_factor,
 )
-
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 
 class InteractionType(IntEnum):
     BOUNDARY = 1
@@ -68,3 +68,19 @@ class RPacket(object):
         self.next_line_id = next_line_id
 
 
+@njit(**njit_dict_no_parallel)
+def print_r_packet_properties(r_packet):
+    """
+    Print all packet information
+
+    Parameters
+    ----------
+    r_packet : RPacket
+        RPacket object
+    """
+    print("-"*80)
+    print("R-Packet information:")
+    with objmode:
+        for r_packet_attribute_name, _ in rpacket_spec:
+            print(r_packet_attribute_name, "=", str(getattr(r_packet, r_packet_attribute_name)))
+    print("-"*80)
