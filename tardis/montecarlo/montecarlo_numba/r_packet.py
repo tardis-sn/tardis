@@ -81,7 +81,5 @@ def print_r_packet_properties(r_packet):
     print("-"*80)
     print("R-Packet information:")
     for r_packet_attribute_name, _ in rpacket_spec:
-        print("{r_packet_attribute_name} = {r_packet_attribute}".format(
-            r_packet_attribute_name, getattr(r_packet, r_packet_attribute_name)
-        ))
+        print(r_packet_attribute_name, "=", str(getattr(r_packet, r_packet_attribute_name)))
     print("-"*80)
