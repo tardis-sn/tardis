@@ -4,7 +4,6 @@ from tqdm.auto import tqdm
 import pandas as pd
 import astropy.units as u
 
-from tardis.energy_input.util import SphericalVector
 from tardis.energy_input.GXPhoton import GXPhoton, GXPhotonStatus
 from tardis.energy_input.gamma_ray_grid import (
     distance_trace,
@@ -123,8 +122,11 @@ def initialize_photons(
             for _ in range(requested_decays_per_shell):
                 # draw a random gamma-ray in shell
                 primary_photon = GXPhoton(
-                    location=0,
-                    direction=0,
+                    location_r=0,
+                    location_theta=0,
+                    location_phi=0,
+                    direction_theta=0,
+                    direction_phi=0,
                     energy=1,
                     status=GXPhotonStatus.IN_PROCESS,
                     shell=0,
@@ -141,14 +143,15 @@ def initialize_photons(
 
                 location_theta = get_random_theta_photon()
                 location_phi = get_random_phi_photon()
-                primary_photon.location = SphericalVector(
-                    initial_radius, location_theta, location_phi
-                )
+                primary_photon.location_r = initial_radius
+                primary_photon.location_theta = location_theta
+                primary_photon.location_phi = location_phi
+
                 direction_theta = get_random_theta_photon()
                 direction_phi = get_random_phi_photon()
-                primary_photon.direction = SphericalVector(
-                    1.0, direction_theta, direction_phi
-                )
+                primary_photon.direction_theta = direction_theta
+                primary_photon.direction_phi = direction_phi
+
                 primary_photon.shell = shell
                 if gamma_ray_probability < np.random.random():
                     # positron: sets gamma-ray energy to 511keV
@@ -175,7 +178,7 @@ def initialize_photons(
                             * 1000
                             / ejecta_volume[shell],
                             initial_radius,
-                            primary_photon.location.theta,
+                            primary_photon.location_theta,
                             0.0,
                             -1,
                         ]
@@ -186,8 +189,7 @@ def initialize_photons(
                         primary_photon_x,
                         primary_photon_y,
                         primary_photon_z,
-                    ) = primary_photon.direction.cartesian_coords
-                    secondary_photon = copy.deepcopy(primary_photon)
+                    ) = primary_photon.location_cartesian_coords()
                     secondary_photon_x = -primary_photon_x
                     secondary_photon_y = -primary_photon_y
                     secondary_photon_z = -primary_photon_z
@@ -200,9 +202,19 @@ def initialize_photons(
                         secondary_photon_y,
                         secondary_photon_z,
                     )
-                    secondary_photon.direction.r = secondary_photon_r
-                    secondary_photon.direction.theta = secondary_photon_theta
-                    secondary_photon.direction.phi = secondary_photon_phi
+
+                    secondary_photon = GXPhoton(
+                        location_r=primary_photon.location_r,
+                        location_theta=primary_photon.location_theta,
+                        location_phi=primary_photon.location_phi,
+                        direction_theta=secondary_photon_theta,
+                        direction_phi=secondary_photon_phi,
+                        energy=primary_photon.energy,
+                        status=GXPhotonStatus.IN_PROCESS,
+                        shell=primary_photon.shell,
+                        activity=primary_photon.activity,
+                    )
+                    secondary_photon.tau = primary_photon.tau
 
                     photons.append(secondary_photon)
                 else:
@@ -334,7 +346,7 @@ def main_gamma_ray_loop(num_decays, model):
 
             # Calculate photon comoving energy for opacities
             comoving_energy = photon.energy * doppler_gamma(
-                photon.direction.vector, photon.location.r
+                photon.direction_vector(), photon.location_r
             )
 
             compton_opacity = compton_opacity_calculation(
@@ -375,7 +387,7 @@ def main_gamma_ray_loop(num_decays, model):
 
                 photon = move_photon(photon, distance_interaction)
                 photon.shell = np.searchsorted(
-                    outer_velocities, photon.location.r, side="left"
+                    outer_velocities, photon.location_r, side="left"
                 )
                 photon.time_current += (
                     distance_interaction / C_CGS * time_explosion
@@ -385,17 +397,23 @@ def main_gamma_ray_loop(num_decays, model):
                     (
                         compton_angle,
                         ejecta_energy_gained,
-                        photon.energy,
-                    ) = get_compton_angle(photon.energy)
+                        comoving_energy,
+                    ) = get_compton_angle(comoving_energy)
                     (
-                        photon.energy,
-                        photon.direction.theta,
-                        photon.direction.phi,
+                        photon.direction_theta,
+                        photon.direction_phi,
                     ) = compton_scatter(photon, compton_angle)
 
+                    # Transform the energy back to the lab frame
+                    photon.energy = comoving_energy / doppler_gamma(
+                        photon.direction_vector(), photon.location_r
+                    )
+
                 if photon.status == GXPhotonStatus.PAIR_CREATION:
-                    ejecta_energy_gained = photon.energy - (
-                        2.0 * ELECTRON_MASS_ENERGY_KEV
+                    ejecta_energy_gained = (
+                        photon.energy - (2.0 * ELECTRON_MASS_ENERGY_KEV)
+                    ) * doppler_gamma(
+                        photon.direction_vector(), photon.location_r
                     )
                     photon, backward_photon = pair_creation(photon)
 
@@ -404,11 +422,9 @@ def main_gamma_ray_loop(num_decays, model):
 
                 if photon.status == GXPhotonStatus.PHOTOABSORPTION:
                     # TODO Ejecta gains comoving energy, correct?
-                    ejecta_energy_gained = photon.energy
-
-                ejecta_energy_gained *= doppler_gamma(
-                    photon.direction.vector, photon.location.r
-                )
+                    ejecta_energy_gained = photon.energy * doppler_gamma(
+                        photon.direction_vector(), photon.location_r
+                    )
 
                 # Save photons to dataframe rows
                 # convert KeV to eV / s / cm^3
@@ -425,8 +441,8 @@ def main_gamma_ray_loop(num_decays, model):
                         * ejecta_energy_gained
                         * 1000
                         / ejecta_volume[photon.shell],
-                        photon.location.r,
-                        photon.location.theta,
+                        photon.location_r,
+                        photon.location_theta,
                         photon.time_current,
                         int(photon.status),
                     ]
@@ -448,7 +464,7 @@ def main_gamma_ray_loop(num_decays, model):
                     distance_boundary / C_CGS * time_explosion
                 )
                 photon.shell = np.searchsorted(
-                    outer_velocities, photon.location.r, side="left"
+                    outer_velocities, photon.location_r, side="left"
                 )
 
             if photon.shell > len(ejecta_density) - 1:

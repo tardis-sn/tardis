@@ -13,6 +13,7 @@ from tardis.energy_input.util import (
 import tardis.constants as const
 
 
+@njit
 def calculate_distance_radial(photon, r_inner, r_outer):
     """
     Calculates 3D distance to shell from gamma ray position
@@ -29,10 +30,10 @@ def calculate_distance_radial(photon, r_inner, r_outer):
 
     """
     # TODO: Maybe only calculate distances that are strictly needed instead of all four by default?
-    # determine cartesian location coordinates of gamma-ray object
-    x, y, z = photon.location.cartesian_coords
-    # determine cartesian direction coordinates of gamma-ray object
-    x_dir, y_dir, z_dir = photon.direction.cartesian_coords
+    # get cartesian location coordinates of gamma-ray object
+    x, y, z = photon.location_cartesian_coords()
+    # get cartesian direction coordinates of gamma-ray object
+    x_dir, y_dir, z_dir = photon.direction_cartesian_coords()
     # solve the quadratic distance equation for the inner and
     # outer shell boundaries
     inner_1, inner_2 = solve_quadratic_equation(
@@ -43,11 +44,12 @@ def calculate_distance_radial(photon, r_inner, r_outer):
     )
     distances = [inner_1, inner_2, outer_1, outer_2]
     # the correct distance is the shortest positive distance
-    distance = min(i for i in distances if i > 0.0)
+    distance_list = [i for i in distances if i > 0.0]
 
-    return distance
+    return min(distance_list)
 
 
+@njit
 def distance_trace(
     photon,
     inner_radii,
@@ -83,6 +85,7 @@ def distance_trace(
     return distance_interaction, distance_boundary
 
 
+@njit
 def move_photon(photon, distance):
     """
     Moves gamma ray a distance along its direction vector
@@ -97,17 +100,17 @@ def move_photon(photon, distance):
     photon : GXPhoton object
 
     """
-    x_old, y_old, z_old = photon.location.cartesian_coords
-    x_dir, y_dir, z_dir = photon.direction.cartesian_coords
+    x_old, y_old, z_old = photon.location_cartesian_coords()
+    x_dir, y_dir, z_dir = photon.direction_cartesian_coords()
 
     y_new = y_old + distance * y_dir
     z_new = z_old + distance * z_dir
     x_new = x_old + distance * x_dir
 
     r, theta, phi = cartesian_to_spherical(x_new, y_new, z_new)
-    photon.location.r = r
-    photon.location.theta = theta
-    photon.location.phi = phi
+    photon.location_r = r
+    photon.location_theta = theta
+    photon.location_phi = phi
 
     return photon
 

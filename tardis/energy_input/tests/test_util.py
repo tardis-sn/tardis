@@ -110,7 +110,7 @@ def test_klein_nishina(energy, theta_C):
     kappa = util.kappa_calculation(energy)
 
     expected = (
-        R_ELECTRON_SQUARED.value
+        R_ELECTRON_SQUARED
         / 2
         * (1.0 + kappa * (1.0 - np.cos(theta_C))) ** -2.0
         * (

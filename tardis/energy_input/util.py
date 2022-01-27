@@ -10,48 +10,6 @@ KEV2ERG = (1000 * u.eV).to("erg").value
 C_CGS = const.c.cgs.value
 
 
-class SphericalVector(object):
-    """
-    Direction object to hold spherical polar and Cartesian directions
-    Must be initialized with r, theta, phi
-
-    Attributes
-    ----------
-    r : float64
-        vector r position
-    theta : float64
-        vector mu position
-    phi : float64
-        vector phi position
-    mu : float64
-        calculated vector theta position
-    x : float64
-        calculated vector x position
-    y : float64
-        calculated vector y position
-    z : float64
-        calculated vector z position
-    """
-
-    def __init__(self, r, theta, phi=0.0):
-        self.r = r
-        self.theta = theta
-        self.phi = phi
-
-    @property
-    def mu(self):
-        return np.cos(self.theta)
-
-    @property
-    def cartesian_coords(self):
-        x, y, z = spherical_to_cartesian(self.r, self.theta, self.phi)
-        return x, y, z
-
-    @property
-    def vector(self):
-        return np.array([self.r, self.theta, self.phi])
-
-
 @njit
 def spherical_to_cartesian(r, theta, phi):
     """Converts spherical coordinates to Cartesian
@@ -136,16 +94,20 @@ def angle_aberration_gamma(direction_vector, ejecta_velocity):
     numpy.ndarray
         New direction after aberration
     """
-    velocity_list = [ejecta_velocity, 0, 0]
-    velocity_vector = np.array(velocity_list)
+    velocity_vector = np.array([ejecta_velocity, 0, 0])
     direction_dot_velocity = np.dot(direction_vector, velocity_vector)
+
     gamma = 1 / np.sqrt(1.0 - (ejecta_velocity / C_CGS) ** 2)
+
     factor_a = gamma * (1 - direction_dot_velocity / C_CGS)
+
     factor_b = (
         gamma - (gamma ** 2 * direction_dot_velocity / (gamma + 1) / C_CGS)
     ) / C_CGS
 
-    return direction_vector - (velocity_vector * factor_b) / factor_a
+    output_vector = direction_vector - (velocity_vector * factor_b) / factor_a
+
+    return np.array([1, output_vector[1], output_vector[2]])
 
 
 @njit
@@ -175,7 +137,9 @@ def euler_rodrigues(theta, direction):
     Parameters
     ----------
     theta : float
-    direction : SphericalVector object
+        angle of rotation in radians
+    direction : One dimensional Numpy array, dtype float
+        x, y, z direction vector
 
     Returns
     -------
@@ -183,10 +147,9 @@ def euler_rodrigues(theta, direction):
 
     """
     a = np.cos(theta / 2)
-    dir_x, dir_y, dir_z = direction
-    b = dir_x * np.sin(theta / 2)
-    c = dir_y * np.sin(theta / 2)
-    d = dir_z * np.sin(theta / 2)
+    b = direction[0] * np.sin(theta / 2)
+    c = direction[1] * np.sin(theta / 2)
+    d = direction[2] * np.sin(theta / 2)
 
     er11 = a ** 2.0 + b ** 2.0 - c ** 2.0 - d ** 2.0
     er12 = 2.0 * (b * c - a * d)
@@ -384,5 +347,4 @@ def get_perpendicular_vector(original_direction):
     # transform random angles to cartesian coordinates
     random_vector = spherical_to_cartesian(1, theta, phi)
     perpendicular_vector = np.cross(original_direction, random_vector)
-    perpendicular_vector = normalize_vector(perpendicular_vector)
-    return perpendicular_vector
+    return normalize_vector(perpendicular_vector)

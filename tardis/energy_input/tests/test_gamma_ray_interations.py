@@ -6,6 +6,7 @@ from tardis.energy_input.gamma_ray_interactions import (
     pair_creation,
     scatter_type,
 )
+from tardis.energy_input.util import ELECTRON_MASS_ENERGY_KEV
 
 from tardis.energy_input.GXPhoton import GXPhotonStatus
 
@@ -27,12 +28,12 @@ def test_pair_creation(basic_gamma_ray):
     ----------
     basic_gamma_ray : GammaRay object
     """
-    initial_mu = basic_gamma_ray.direction.mu
+    initial_mu = basic_gamma_ray.direction_theta
 
     pair_creation(basic_gamma_ray)
 
-    npt.assert_almost_equal(basic_gamma_ray.energy, 511.0)
-    assert basic_gamma_ray.direction.mu != initial_mu
+    npt.assert_almost_equal(basic_gamma_ray.energy, ELECTRON_MASS_ENERGY_KEV)
+    assert basic_gamma_ray.direction_theta != initial_mu
 
 
 @pytest.mark.parametrize(

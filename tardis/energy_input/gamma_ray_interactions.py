@@ -1,22 +1,19 @@
-import copy
-from typing_extensions import final
 import numpy as np
 from numba import njit
 
 from tardis.energy_input.util import (
-    doppler_gamma,
     kappa_calculation,
     euler_rodrigues,
     compton_theta_distribution,
     get_random_theta_photon,
     get_random_phi_photon,
-    normalize_vector,
     get_perpendicular_vector,
     cartesian_to_spherical,
     angle_aberration_gamma,
+    spherical_to_cartesian,
     ELECTRON_MASS_ENERGY_KEV,
 )
-from tardis.energy_input.GXPhoton import GXPhotonStatus
+from tardis.energy_input.GXPhoton import GXPhotonStatus, GXPhoton
 
 
 @njit
@@ -53,6 +50,7 @@ def get_compton_angle(energy):
     return compton_angle, lost_energy, new_energy
 
 
+@njit
 def compton_scatter(photon, compton_angle):
     """
     Changes the direction of the gamma-ray by the Compton scattering angle
@@ -65,44 +63,48 @@ def compton_scatter(photon, compton_angle):
     Returns
     -------
     float64
-        Photon energy
-    float64
         Photon theta direction
     float64
         Photon phi direction
     """
-    # transform original direction vector to cartesian coordinates
-    original_direction = normalize_vector(
-        np.array(photon.direction.cartesian_coords)
-    )
 
     # get comoving frame direction
-    comov_direction = angle_aberration_gamma(
-        photon.direction.vector, photon.location.r
+    abb_array = angle_aberration_gamma(
+        photon.direction_vector(), photon.location_r
+    )
+    comov_direction = np.array(
+        spherical_to_cartesian(1, abb_array[1], abb_array[2])
     )
 
-    # compute an arbitrary perpendicular vector to the original direction
-    orthogonal_vector = get_perpendicular_vector(original_direction)
-    # determine a random vector with compton_angle to the original direction
-    # TODO is this correctly the comoving frame direction? Or should this be rest frame?
-    new_vector = normalize_vector(
-        np.dot(
-            euler_rodrigues(compton_angle, orthogonal_vector),
-            comov_direction,
-        )
-    )
-
-    comoving_energy = photon.energy * doppler_gamma(
-        photon.direction.vector, photon.location.r
+    # compute an arbitrary perpendicular vector to the comoving direction
+    orthogonal_vector = get_perpendicular_vector(comov_direction)
+    # determine a random vector with compton_angle to the comoving direction
+    new_vector = np.dot(
+        euler_rodrigues(compton_angle, orthogonal_vector),
+        comov_direction,
     )
 
     # draw a random angle from [0,2pi]
     phi = 2.0 * np.pi * np.random.random()
-    # rotate the vector with compton_angle around the original direction
-    # TODO is this correctly the comoving frame direction? Or should this be rest frame?
-    final_compton_scattered_vector = normalize_vector(
-        np.dot(euler_rodrigues(phi, comov_direction), new_vector)
+    # rotate the vector with compton_angle around the comoving direction
+    final_compton_scattered_vector = np.dot(
+        euler_rodrigues(phi, comov_direction), new_vector
     )
+
+    norm_phi = np.dot(
+        final_compton_scattered_vector, final_compton_scattered_vector
+    )
+
+    norm_theta = np.dot(final_compton_scattered_vector, comov_direction)
+
+    assert (
+        np.abs(norm_phi - 1) < 1e-8
+    ), "Error, norm of Compton scatter vector is not 1!"
+
+    assert (
+        np.abs(norm_theta - np.cos(compton_angle)) < 1e-8
+    ), "Error, difference between new vector angle and Compton angle is more than 0!"
+
     # transform the cartesian coordinates to spherical coordinates
     final_comov_direction = np.array(
         cartesian_to_spherical(
@@ -114,14 +116,13 @@ def compton_scatter(photon, compton_angle):
 
     # Calculate the angle aberration of the final direction
     final_direction = angle_aberration_gamma(
-        final_comov_direction, photon.location.r
+        final_comov_direction, photon.location_r
     )
 
-    # Transform the energy back to the lab frame
-    energy = comoving_energy / doppler_gamma(final_direction, photon.location.r)
-    return energy, final_direction[1], final_direction[2]
+    return final_direction[1], final_direction[2]
 
 
+@njit
 def pair_creation(photon):
     """
     Randomly scatters the input gamma ray
@@ -145,25 +146,34 @@ def pair_creation(photon):
 
     # Calculate aberration of the random angle for the rest frame
     final_direction = angle_aberration_gamma(
-        np.array([photon.direction.r, direction_theta, direction_phi]),
-        photon.location.r,
+        np.array([1.0, direction_theta, direction_phi]),
+        photon.location_r,
     )
 
-    # TODO Is this correct? Scaling photon energy by the inverse doppler factor
-    photon.energy = ELECTRON_MASS_ENERGY_KEV / doppler_gamma(
-        final_direction, photon.location.r
-    )
-    photon.direction.theta = final_direction[1]
-    photon.direction.phi = final_direction[2]
+    photon.energy = ELECTRON_MASS_ENERGY_KEV
+    photon.direction_theta = final_direction[1]
+    photon.direction_phi = final_direction[2]
 
-    backward_ray = copy.deepcopy(photon)
-    backward_ray.status = GXPhotonStatus.IN_PROCESS
+    backward_ray = GXPhoton(
+        photon.location_r,
+        photon.location_theta,
+        photon.location_phi,
+        final_direction[1],
+        final_direction[2],
+        photon.energy,
+        GXPhotonStatus.IN_PROCESS,
+        photon.shell,
+        photon.activity,
+    )
 
     # TODO Is this correct? Should this have aberration
-    backward_ray.direction.phi += np.pi
+    backward_ray.direction_phi += np.pi
+    backward_ray.tau = photon.tau
+    backward_ray.time_created = photon.time_created
+    backward_ray.time_current = photon.time_current
 
-    if backward_ray.direction.phi > 2 * np.pi:
-        backward_ray.direction.phi -= 2 * np.pi
+    if backward_ray.direction_phi > 2 * np.pi:
+        backward_ray.direction_phi -= 2 * np.pi
 
     return photon, backward_ray
 

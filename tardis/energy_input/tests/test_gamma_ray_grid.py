@@ -30,8 +30,8 @@ def test_move_photon(basic_gamma_ray):
     photon = basic_gamma_ray
     distance = 1.0e15
 
-    x_old, y_old, z_old = photon.location.cartesian_coords
-    x_dir, y_dir, z_dir = photon.direction.cartesian_coords
+    x_old, y_old, z_old = photon.location_cartesian_coords()
+    x_dir, y_dir, z_dir = photon.direction_cartesian_coords()
 
     x_new = x_old + distance * x_dir
     y_new = y_old + distance * y_dir
@@ -45,9 +45,9 @@ def test_move_photon(basic_gamma_ray):
 
     actual = move_photon(photon, distance)
 
-    npt.assert_almost_equal(actual.location.r, expected_r)
-    npt.assert_almost_equal(actual.location.theta, expected_theta)
-    npt.assert_almost_equal(actual.location.phi, expected_phi)
+    npt.assert_almost_equal(actual.location_r, expected_r)
+    npt.assert_almost_equal(actual.location_theta, expected_theta)
+    npt.assert_almost_equal(actual.location_phi, expected_phi)
 
 
 @pytest.mark.xfail(reason="To be implemented")

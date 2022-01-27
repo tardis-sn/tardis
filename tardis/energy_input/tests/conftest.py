@@ -1,6 +1,5 @@
 import pytest
 
-from tardis.energy_input.util import SphericalVector
 from tardis.energy_input.GXPhoton import GXPhoton, GXPhotonStatus
 
 
@@ -13,9 +12,13 @@ def basic_gamma_ray():
     GXPhoton
     """
     return GXPhoton(
-        location=SphericalVector(1.0e15, 0.5),
-        direction=SphericalVector(1, 0.25),
+        location_r=1.0e15,
+        location_theta=0.5,
+        location_phi=0,
+        direction_theta=1,
+        direction_phi=0.25,
         energy=1000.0e3,
         status=GXPhotonStatus.IN_PROCESS,
         shell=1,
+        activity=0,
     )
