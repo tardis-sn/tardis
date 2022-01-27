@@ -1,7 +1,7 @@
 from enum import IntEnum
 
 import numpy as np
-from numba import int64, float64, njit
+from numba import int64, float64, njit, objmode
 from numba.experimental import jitclass
 
 from tardis.montecarlo.montecarlo_numba.frame_transformations import (
@@ -80,6 +80,7 @@ def print_r_packet_properties(r_packet):
     """
     print("-"*80)
     print("R-Packet information:")
-    for r_packet_attribute_name, _ in rpacket_spec:
-        print(r_packet_attribute_name, "=", str(getattr(r_packet, r_packet_attribute_name)))
+    with objmode:
+        for r_packet_attribute_name, _ in rpacket_spec:
+            print(r_packet_attribute_name, "=", str(getattr(r_packet, r_packet_attribute_name)))
     print("-"*80)
