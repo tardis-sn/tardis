@@ -348,10 +348,10 @@ class RPacketTracker(object):
             Internal counter for the interactions that a particular RPacket undergoes
     """
 
-    def __init__(self):
+    def __init__(self, seed, index):
         self.length = montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
-        self.seed = np.empty(self.length, dtype=np.int64)
-        self.index = np.empty(self.length, dtype=np.int64)
+        self.seed = seed
+        self.index = index
         self.status = np.empty(self.length, dtype=np.int64)
         self.r = np.empty(self.length, dtype=np.float64)
         self.nu = np.empty(self.length, dtype=np.float64)
