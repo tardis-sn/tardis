@@ -98,6 +98,7 @@ Here we aim to provide converters for the most commonly used file formats.
 
     converters/stella_to_tardis
     converters/cmfgen
+    converters/arepo_to_tardis
 
 Built-in Structure, Density, and Abundance
 ==========================================
