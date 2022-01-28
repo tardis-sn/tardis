@@ -35,9 +35,7 @@ jobs:
       - name: Push changes
         run: |
           git add CHANGELOG.md
-          git commit --amend --no-edit
-          GIT_TAG_MESSAGE=$(git tag -l --format='%(contents)' ${{ github.ref_name }})
-          git tag -d ${{ github.ref_name }}
-          git tag -a ${{ github.ref_name }} -m "$GIT_TAG_MESSAGE"
+          git commit -m "Post-release updates [auto]"
+          git tag -f ${{ github.ref_name }}
           git checkout master
           git push --tags --force
