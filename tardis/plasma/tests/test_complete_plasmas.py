@@ -157,6 +157,7 @@ class TestPlasma(object):
     @pytest.fixture(scope="class")
     def plasma(self, request, chianti_he_db_fpath, config, tardis_ref_data):
         config["atom_data"] = chianti_he_db_fpath
+        print("TEST PRINTOUT! Test config:",config)
         sim = Simulation.from_config(config)
         if request.config.getoption("--generate-reference"):
             sim.plasma.to_hdf(

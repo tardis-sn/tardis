@@ -137,7 +137,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
     def calculate(
         t_rad,
         w,
-        zeta_data,
+        filtered_zeta_data,
         t_electrons,
         delta,
         g_electron,
