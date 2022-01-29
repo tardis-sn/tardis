@@ -29,6 +29,7 @@ H_CGS = 6.62606957e-27
 class IntegrationError(Exception):
     pass
 
+#Was parallel
 @cuda.jit
 def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N, L, pp, exp_tau, I_nu, z, shell_id):
     """
@@ -42,10 +43,13 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
         self.model.r_outer
     time_explosion: float64
         self.model.time_explosion
+    
+    plasma : tardis.montecarlo.montecarlo_numba.NumbaPlasma
     line_list_nu : array(float64, 1d, A)
         self.plasma.line_list_nu
-    iT : np.float64
-    inu : np.float64
+    
+    iT : array(float64, 0d, C)
+    inu : array(float64, 1d, C)
     inu_size : int64
     att_S_ul : array(float64, 1d, C)
     Jred_lu : array(float64, 1d, C) 
@@ -53,31 +57,58 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
     tau_sobolev : array(float64, 2d, C)
     electron_density : array(float64, 1d, C)
     N : int64
-    L : array(float64, 1d, C)
-        This is where the results will be stored
-    pp : array(float64, 1d, C)
-    exp_tau : array(float64, 1d, C)
-    I_nu array(flaot64, 2d, C)
-    z : array(float64, 2d, C)
-    shell_id : array(int64, 2d, C)
-    """    
-    # todo: add all the original todos
     
+    L : array(float64, 1d, C)
+    pp : array(float64, 2d, C)
+    exp_tau : array(float64, 1d, C)
+    I_nu array(flaot64, 1d, C)
+    z : array(float64, 1d, C)
+    shell_id : array(int64, 1d, C)
+    nu_ends_zeros : array(int16, 1d, C)
+    
+    Returns
+    -------
+    L : array(float64, 1d, C)
+    
+    
+    Check diff params, pass them to some index of I_nu to check if they are the same!
+    """
+    #See about using cuda to make arrays
+    
+    
+    # todo: add all the original todos
+    #L = np.zeros(inu_size, dtype=np.float64)                   #array(float64, 1d, C)
     # global read-only values
     size_line, size_shell = tau_sobolev.shape                  #int64, int64
     size_tau = size_line * size_shell                          #int64
-    R_ph = r_inner[0] # make sure these are cgs                #float64
-    R_max = r_outer[size_shell - 1]                            #float64
+    R_ph = r_inner[0] # make sure these are cgs          #float64
+    R_max = r_outer[size_shell - 1]                      #float64
+    #pp = np.zeros(N, dtype=np.float64) # check                 #array(float64, 1d, C)
+    #exp_tau = np.zeros(size_tau, dtype=np.float64)             #array(float64, 1d, C)
+    #exp_tau = np.exp(-tau_sobolev.T.ravel()) # maybe make this 2D? #array(float64, 1d, C)
+    #pp[::] = calculate_p_values_cuda(R_max, N)                 #array(float64, 1d, C)
+    # done with instantiation
+    # now loop over wavelength in spectrum
     
+    #The grid must be composed in respect to length of inu_size
+    #for nu_idx in prange(inu_size):
     nu_idx = cuda.grid(1)
-    #Check to see if CUDA is out of bounds
     if nu_idx >= inu_size:
         return
     
-    #These all have their own version for each thread to stop race conditions
+    #I_nu = np.zeros(N, dtype=np.float64)                       #array(float64, 1d, C)
+    #z = np.zeros(2 * size_shell, dtype=np.float64)             #array(float64, 1d, C)
+    #shell_id = np.zeros(2 * size_shell, dtype=np.int64)        #array(int64, 1d, C)
+    
+    #These three are passed into the function, but aren't treated as atomic. That way each 
+    #thread will get their own version of them to modify, but it shouldn't affect the 
+    #main one that they all read from (I hope). 
+    
+    #z_thread fixes the z argument
     I_nu_thread = I_nu[nu_idx]
     z_thread = z[nu_idx]
     shell_id_thread = shell_id[nu_idx]
+    #pp_thread = pp[nu_idx] #Temp methodology
     
     offset = 0                                                 #Literal[int](0)
     size_z = 0                                                 #Literal[int](0)
@@ -100,22 +131,41 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
     pJblue_lu = 0                                              #Literal[int](0)
     pline = 0                                                  #Literal[int](0)
 
+
     nu = inu[nu_idx]                                           #float64
     
+    #print(f"From thread {nu_idx},N={N}")
     # now loop over discrete values along line
+    
     for p_idx in range(1, N):
         escat_contrib = 0.0                                           #Literal[int](0)
         p = pp[p_idx]                                              #float64
+        #db.set_trace()
 
         # initialize z intersections for p values
         
         size_z = populate_z_cuda(r_inner, r_outer, time_explosion, p, z_thread, shell_id_thread) # check returns #int64
         # initialize I_nu
         if p <= R_ph:
+            #print("nu_idx", nu_idx)
+            #print("I_nu_thread", I_nu_thread)
+            #print("I_nu_thread[p_idx]:", I_nu_thread[p_idx])
+            #print("nu:", nu)
+            #print("type(nu)", type(nu))
+            #print("z_thread", z_thread)
+            #print("z_thread[0]:", z_thread[0])
+            #print("iT:", iT)
+            #print("type of iT", type(iT), "\n")
+            
+            #Seems to only vary by a rounding on the last digit, accuracy on last bit may vary
             I_nu_thread[p_idx] = intensity_black_body_cuda(nu * z_thread[0], iT)
         else:
             I_nu_thread[p_idx] = 0
-        
+        #print("After doing the if statment")
+        #print("I_nu_thread[p_idx]:", I_nu_thread[p_idx])
+        #print("nu:", nu)
+        #print("z_thread[0]:", z_thread[0])
+        #print("iT:", iT, "\n\n")
         # find first contributing lines
         nu_start = nu * z_thread[0]                                       #float64
         nu_end = nu * z_thread[1]                                         #float64
@@ -136,12 +186,28 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
         # flag for first contribution to integration on current p-ray
         first = 1                                                  #Literal[int](1)
         
+        #nu_ends = nu * z[1:]                                       #array(float64, 1d, C)
+        #nu_ends = z[1:]
+        #for i in range(len(nu_ends)):
+        #    nu_ends[i] *= nu
+            
+        #nu_ends_idxs = size_line - np.searchsorted(                #int64
+        #        line_list_nu[::-1], 
+        #        nu_ends, 
+        #        side='right'
+        #)
+        #Can just do another version of nu_ends_idx = z[1:] and then make it a for loop to set them all = 0
+        #Then just do a searchsorted for each value, and then do size-line - that value. 
+        
         # loop over all interactions 
         for i in range(size_z - 1):
             escat_op = electron_density[int(shell_id_thread[i])] * SIGMA_THOMSON #float64
             nu_end = nu * z_thread[i + 1]#+1 is the offset as the original is from z[1:]  #float64
+            
+                #This one seems to make sense
             nu_end_idx =  line_search_cuda(line_list_nu, nu_end, len(line_list_nu))    #int64
             
+            #You can just replace w/ nu_end = size_line - cuda_searchsorted(...)
             for _ in range(max(nu_end_idx-pline,0)):
                 
                 # calculate e-scattering optical depth to next resonance point
@@ -163,9 +229,14 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
                     # this introduces the necessary ffset of one element between
                     # pJblue_lu and pJred_lu
                     pJred_lu += 1
+                #cuda.atomic.add(I_nu_thread, p_idx, escat_contrib)
                 I_nu_thread[p_idx] += escat_contrib
+                #cuda.atomic.add(I_nu_thread, p_idx, escat_contrib) #escat_contrib
                 # // Lucy 1999, Eq 26
+                #cuda.syncthreads()
                 I_nu_thread[p_idx] *= (exp_tau[pexp_tau])
+                
+                #cuda.atomic.add(I_nu_thread, p_idx, att_S_ul[patt_S_ul])
                 I_nu_thread[p_idx] += att_S_ul[patt_S_ul] 
                 
                 # // reset e-scattering opacity
@@ -191,18 +262,20 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
             patt_S_ul += direction
             pJred_lu += direction
             pJblue_lu += direction
-
+        #if p_idx == 9:
+        #    pdb.set_trace()
         I_nu_thread[p_idx] *= p #multiply by float64 at this index
+    #cuda.atomic.add(L, nu_idx, 8 * M_PI * M_PI * trapezoid_integration_cuda(I_nu_thread, R_max / N))
     
     L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration_cuda(I_nu_thread, R_max / N)
     
 
 
 class NumbaFormalIntegrator(object):
-    """
+    '''
     Helper class for performing the formal integral
     with numba.
-    """
+    '''
     def __init__(self, model, plasma, points=1000):
 
         self.model = model
@@ -210,26 +283,43 @@ class NumbaFormalIntegrator(object):
         self.points = points
     
     def formal_integral(self, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N):
-        """
-        Caller to the cuda implementation of the formal_integral.
-        """
-
+        '''simple wrapper for the numba implementation of the formal integral'''
+        #Pass in all the needed elements of the model and plasma as individual arguments
+        
+        
+        #Add the prints as returns from the output, so then the returns can be accessed as well, can do direct 
+        #numpy comparisons
+        
+        #print("Debugging")
+        #print("-"*40)
+        #print("iT", iT)
+        #print(type(iT))
+        #print("Jred_lu.shape", Jred_lu.shape)
+        #print("Jblue_lu.shape", Jblue_lu.shape)
         print("inu_size", inu_size)
-
+        #print("tau_sobolev.shape", tau_sobolev.shape)
+        #print("N", N)
+        #print(iT.shape)
         # Initialize the output which is shared among threads
         L = np.zeros(inu_size, dtype=np.float64)                   #array(float64, 1d, C)
         # global read-only values
         size_line, size_shell = tau_sobolev.shape                  #int64, int64
         size_tau = size_line * size_shell
         
-        
+        pp = np.zeros(N, dtype=np.float64) # check                 #array(float64, 1d, C)
         exp_tau = np.zeros(size_tau, dtype=np.float64)             #array(float64, 1d, C)
         exp_tau = np.exp(-tau_sobolev.T.ravel()) # maybe make this 2D? #array(float64, 1d, C)
-        
-        pp = np.zeros(N, dtype=np.float64) # check                 #array(float64, 1d, C)
         pp[::] = calculate_p_values(self.model.r_outer[size_shell - 1], N)                 #array(float64, 1d, C)
         
+        
+        #This is done to make it so that pp is a 2d array of pp values, so that each thread will have it's own pp
+        #to index. The results stay the same. This also allows calculate_p_values to be used. 
+        #pp = np.meshgrid(calculate_p_values(self.model.r_outer[size_shell - 1], N), 
+                         #calculate_p_values(self.model.r_outer[size_shell - 1], N))
+        #pp = pp[0]
+        
         I_nu = np.zeros((inu_size, N), dtype=np.float64)                                 #array(float64, 1d, C)
+        print("I_nu shape", I_nu.shape)
         z = np.zeros((inu_size, 2 * size_shell), dtype=np.float64)             #array(float64, 1d, C)
         shell_id = np.zeros((inu_size, 2 * size_shell), dtype=np.int64)        #array(int64, 1d, C)
         #print("First z of zs", z[0][0])
@@ -560,6 +650,7 @@ class FormalIntegrator(object):
         Jred_lu = res[1].values.flatten(order='F')
         Jblue_lu = res[2].flatten(order='F')
 
+        ##self.model.t_inner was changed to .value to try and resolve an error!
         self.generate_numba_objects()
         L = self.numba_integrator.formal_integral(
                 self.model.t_inner,
@@ -574,6 +665,7 @@ class FormalIntegrator(object):
                 )
         return np.array(L, np.float64)
 
+#Was no parallel
 @cuda.jit(device=True)
 def populate_z_cuda(r_inner, r_outer, time_explosion, p, oz, oshell_id):
     """
@@ -599,6 +691,7 @@ def populate_z_cuda(r_inner, r_outer, time_explosion, p, oz, oshell_id):
     int64
     """
     N = len(r_inner) # check
+    #print(N)
     inv_t = 1/time_explosion
     z = 0
     offset = N
@@ -690,14 +783,22 @@ def line_search_cuda(nu, nu_insert, number_of_lines):
         result = result + 1
     return result
 
+#Credit for this computation is https://github.com/numba/numba/blob/3fd158f79a12ac5276bc5a72c2404464487c91f0/numba/np/arraymath.py#L3542
 @cuda.jit(device=True)
 def reverse_binary_search_cuda(x, x_insert, imin, imax):
     """
-    Look for a place to insert a value in an inversely sorted float array.
+    Find indicies where elements should be inserted 
+    to maintain order in an inversely sorted float
+    array.
+
+    Find the indices into a sorted array a such that, 
+    if the corresponding elements in v were inserted 
+    before the indices on the right, the order of a 
+    would be preserved.
     
     Parameters
     ----------
-    x : np.ndarray([:], float64)
+    x : np.ndarray(np.float64, 1d, C)
     x_insert : float64
     imin : int
         Lower bound
@@ -706,26 +807,37 @@ def reverse_binary_search_cuda(x, x_insert, imin, imax):
         
     Returns
     -------
-    int
+    np.int64
+        Location of insertion
     """
     if (x_insert > x[imin]) or (x_insert < x[imax]):
         raise BoundsError  # check
-    return len(x) - 1 - cuda_searchsorted_value_right(x[::-1], x_insert)
+    arr = x[::-1]
+    n = len(arr)
+    lo = 0
+    hi = n
+    while hi > lo:
+        mid = (lo + hi) >> 1
+        if arr[mid] <= x_insert:
+            #mid is too low of an index, go higher
+            lo = mid + 1
+        else:
+            #mid is too high of an index, go down some
+            hi = mid
+
+    return len(x) - 1 - lo
 
 @cuda.jit(device=True)
 def trapezoid_integration_cuda(arr, dx):
     """
-    The trapezoidal integration of arr
-    with spacing dx
+    In the future, let's just replace
+    this with numba trapz since it is 
+    numba compatable.
     
     Parameters
     ----------
     arr : (array(float64, 1d, C)
     dx : np.float64
-    
-    Returns
-    -------
-    np.float64
     """
     
     result = arr[0] + arr[-1]
@@ -743,12 +855,12 @@ def intensity_black_body_cuda(nu, T):
     
     Parameters
     ----------
-    nu : np.float64
-    T : np.float64
+    nu : float64
+    T : float64
     
     Returns
     -------
-    np.float64
+    float64
     """
     if nu == 0:
         return np.nan  # to avoid ZeroDivisionError
@@ -758,13 +870,16 @@ def intensity_black_body_cuda(nu, T):
 
 def calculate_p_values(R_max, N):
     """
-    Calculates the P values for an array
-    of size N
+    This can probably be replaced with a simpler function
     
     Parameters
     ----------
-    R_max : np.float64
-    N : np.int64
+    R_max : float64
+    N : int64
+    
+    Returns
+    -------
+    float64
     """
     
     return np.arange(N).astype(np.float64) * R_max / (N - 1)

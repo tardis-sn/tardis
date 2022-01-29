@@ -9,14 +9,14 @@ from numba import cuda
 from numba import njit
 
 
-import tardis.montecarlo.montecarlo_numba.formal_integral_cuda_test as formal_integral_cuda
+import tardis.montecarlo.montecarlo_numba.formal_integral_cuda as formal_integral_cuda
 import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral_numba
 from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
 
 from tardis.montecarlo.montecarlo_numba.formal_integral_cuda_functions import cuda_searchsorted_value_right
 
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
-from tardis.montecarlo.montecarlo_numba.formal_integral_cuda_test import FormalIntegrator as cuda_FormalIntegrator
+from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import FormalIntegrator as cuda_FormalIntegrator
 
 from tardis.montecarlo import MontecarloRunner
 
@@ -36,6 +36,7 @@ def test_intensity_black_body_cuda(nu, T):
     black_body_caller[1, 3](nu, T, actual)
     
     expected = formal_integral_numba.intensity_black_body(nu, T)
+    
     ntest.assert_almost_equal(actual, expected)
     
 
@@ -44,7 +45,7 @@ def test_intensity_black_body_cuda(nu, T):
 def black_body_caller(nu, T, actual):
     x = cuda.grid(1)
     actual[x] = formal_integral_cuda.intensity_black_body_cuda(nu, T)
-    
+
 
 
 @pytest.mark.parametrize(["N", "N_loc"], 
@@ -150,8 +151,9 @@ def test_populate_z(formal_integral_model, p, p_loc):
                             oshell_id,
                             actual)
     
-    ntest.assert_almost_equal(actual[p_loc], expected)
-    ntest.assert_allclose(oshell_id, expected_oshell_id)
+    
+    ntest.assert_equal(actual[p_loc], expected)
+    ntest.assert_equal(oshell_id, expected_oshell_id)
     ntest.assert_allclose(oz, expected_oz, atol=1e-5)
     
 
@@ -184,7 +186,6 @@ def test_calculate_p_values(N):
     actual[::] = formal_integral_cuda.calculate_p_values(r, N)
     
     ntest.assert_allclose(actual, expected)
-    ntest.assert_almost_equal(actual, expected)
 
 
 
@@ -200,7 +201,7 @@ def test_line_search_cuda(nu_insert, verysimple_numba_plasma):
     
     line_search_cuda_caller[1, 1](line_list_nu, nu_insert, actual)
     
-    ntest.assert_almost_equal(actual, expected)
+    ntest.assert_equal(actual, expected)
 
 @cuda.jit
 def line_search_cuda_caller(line_list_nu, nu_insert, actual):
@@ -210,7 +211,7 @@ def line_search_cuda_caller(line_list_nu, nu_insert, actual):
 
 
 @pytest.mark.parametrize(
-    "nu_insert", np.linspace(3e+12, 3e+16, 10)
+    "nu_insert",[*np.linspace(3e12, 3e16, 10), 288786721666522.1]
 )
 def test_reverse_binary_search(nu_insert, verysimple_numba_plasma):
     actual = np.zeros(1)
@@ -221,12 +222,12 @@ def test_reverse_binary_search(nu_insert, verysimple_numba_plasma):
     imax = len(line_list_nu)-1
     
     expected[0] = formal_integral_numba.reverse_binary_search(line_list_nu, nu_insert, imin, imax)
-    cuda_searchsorted_value_right_caller[1, 1](line_list_nu, nu_insert, imin, imax, actual)
+    reverse_binary_search_cuda_caller[1, 1](line_list_nu, nu_insert, imin, imax, actual)
     
-    ntest.assert_almost_equal(actual, expected)
+    ntest.assert_equal(actual, expected)
 
 @cuda.jit
-def cuda_searchsorted_value_right_caller(line_list_nu, nu_insert, imin, imax, actual):
+def reverse_binary_search_cuda_caller(line_list_nu, nu_insert, imin, imax, actual):
     x = cuda.grid(1)
     actual[x] = formal_integral_cuda.reverse_binary_search_cuda(line_list_nu, nu_insert, imin, imax)
 
@@ -240,38 +241,16 @@ def cuda_searchsorted_value_right_caller(line_list_nu, nu_insert, imin, imax, ac
     ]
 )
 def test_full_formal_integral(no_of_packets, iterations, config_verysimple, simulation_verysimple):
-    """
-    This tests the full formal integral
-    """
-    
-    sim1 = simulation_verysimple
-    sim1.run()    
-    
-    basic_runner1 = MontecarloRunner.from_config(config_verysimple, None, False)
-
-    basic_runner1._initialize_estimator_arrays(sim1.plasma.tau_sobolevs.shape)
-
-    basic_runner1._initialize_geometry_arrays(sim1.model)
-
-    basic_runner1._initialize_packets(sim1.model.t_inner.value, 
-                                      no_of_packets, 
-                                      iterations, 
-                                      sim1.model.r_inner[0])
-
-    basic_runner1.run(sim1.model, sim1.plasma, no_of_packets) #100000 is number of packets
-
-    formal_integrator_numba = FormalIntegrator(sim1.model, sim1.plasma, basic_runner1)
-
-    formal_integrator_cuda = cuda_FormalIntegrator(sim1.model, sim1.plasma, basic_runner1)
-    
-    #formal_integrator_numba.calculate_spectrum(sim1.runner.spectrum.frequency, points=formal_integrator_numba.points)
-    
-    #formal_integrator_cuda.calculate_spectrum(sim1.runner.spectrum.frequency, points=formal_integrator_cuda.points)
     
     
-    #This is the main purpose of doing calculate_spectrum, as it sets this property. 
-    #This was manually done for testing as well as speed, as calculate_spectrum will also
-    #call the formal integral. 
+    sim = simulation_verysimple
+
+    formal_integrator_numba = FormalIntegrator(sim.model, sim.plasma,sim.runner)
+
+    formal_integrator_cuda = cuda_FormalIntegrator(sim.model, sim.plasma, sim.runner)
+    
+    #The function calculate_spectrum sets this property, but in order to test the CUDA. 
+    #version it is done manually, as well as to speed up the test. 
     formal_integrator_numba.interpolate_shells = max(2 * formal_integrator_numba.model.no_of_shells, 80)
     
     formal_integrator_cuda.interpolate_shells = max(2 * formal_integrator_cuda.model.no_of_shells, 80)
@@ -286,17 +265,14 @@ def test_full_formal_integral(no_of_packets, iterations, config_verysimple, simu
     Jred_lu_cuda = res_cuda[1].values.flatten(order="F")
     Jblue_lu_cuda = res_cuda[2].flatten(order="F")
 
-    
     formal_integrator_numba.generate_numba_objects()
 
     formal_integrator_cuda.generate_numba_objects()
     
-    print("formal_integral_cuda points", formal_integrator_cuda.points)
-    
     L_cuda = formal_integrator_cuda.numba_integrator.formal_integral(
         formal_integrator_cuda.model.t_inner,
-        sim1.runner.spectrum.frequency,
-        sim1.runner.spectrum.frequency.shape[0],
+        sim.runner.spectrum.frequency,
+        sim.runner.spectrum.frequency.shape[0],
         att_S_ul_cuda,
         Jred_lu_cuda,
         Jblue_lu_cuda,
@@ -307,8 +283,8 @@ def test_full_formal_integral(no_of_packets, iterations, config_verysimple, simu
     
     L_numba = formal_integrator_numba.numba_integrator.formal_integral(
         formal_integrator_numba.model.t_inner,
-        sim1.runner.spectrum.frequency,
-        sim1.runner.spectrum.frequency.shape[0],
+        sim.runner.spectrum.frequency,
+        sim.runner.spectrum.frequency.shape[0],
         att_S_ul_numba,
         Jred_lu_numba,
         Jblue_lu_numba,
@@ -317,17 +293,4 @@ def test_full_formal_integral(no_of_packets, iterations, config_verysimple, simu
         formal_integrator_numba.points,
     )
     
-    ntest.assert_almost_equal(L_cuda, L_numba)
-
-
-
-
-
-
-
-
-
-
-
-
-
+    ntest.assert_allclose(L_cuda, L_numba, rtol=1e-10)
