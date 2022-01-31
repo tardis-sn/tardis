@@ -347,7 +347,7 @@ class AtomData(object):
             )
         ]
 
-        self.lines.sort_values(by="wavelength", inplace=True)
+        self.lines.sort_values(by="nu", ascending=False, inplace=True)
 
         self.lines_index = pd.Series(
             np.arange(len(self.lines), dtype=int),
