@@ -138,6 +138,28 @@ class MontecarloRunner(HDFWriterMixin):
         self.virt_packet_initial_mus = np.ones(2) * -1.0
 
         if track_rpacket:
+            index = []
+            seed_val = []
+            status = []
+            r = []
+            nu = []
+            mu = []
+            energy = []
+            shell_id = []
+            iteration = []
+
+            self.position = 0
+            self.values = [
+                index,
+                seed_val,
+                status,
+                r,
+                nu,
+                mu,
+                energy,
+                shell_id,
+                iteration,
+            ]
             self.rpacket_tracker = pd.DataFrame(
                 columns=[
                     "Packet Index",
@@ -152,6 +174,7 @@ class MontecarloRunner(HDFWriterMixin):
             )
             self.track_dict_list = []
         else:
+            self.values = None
             self.rpacket_tracker = None
             self.track_dict_list = None
 
