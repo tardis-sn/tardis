@@ -11,6 +11,7 @@ from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     PacketCollection,
     VPacketCollection,
+    RPacketTracker,
     NumbaModel,
     numba_plasma_initialize,
     Estimators,
@@ -85,6 +86,7 @@ def montecarlo_radial1d(
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
+        rpacket_trackers,
     ) = montecarlo_main_loop(
         packet_collection,
         numba_model,
@@ -94,6 +96,7 @@ def montecarlo_radial1d(
         number_of_vpackets,
         packet_seeds,
         ContinuumObject,
+        montecarlo_configuration.VPACKET_LOGGING,
         iteration=iteration,
         show_progress_bars=show_progress_bars,
         no_of_packets=no_of_packets,
@@ -125,6 +128,10 @@ def montecarlo_radial1d(
             virt_packet_last_line_interaction_out_id).ravel()
     update_iterations_pbar(1)
 
+    # Condition for Checking if RPacket Tracking is enabled
+    if montecarlo_configuration.RPACKET_TRACKING:
+        runner.rpacket_tracker = rpacket_trackers
+
 
 @njit(**njit_dict)
 def montecarlo_main_loop(
@@ -136,6 +143,7 @@ def montecarlo_main_loop(
     number_of_vpackets,
     packet_seeds,
     ContinuumObject,
+    virtual_packet_logging,
     iteration,
     show_progress_bars,
     no_of_packets,
@@ -158,6 +166,8 @@ def montecarlo_main_loop(
     packet_seeds : numpy.array
 	ContinuumObject : numba.experimental.jitclass.boxing.Continuum
 		Constructor method for local continuum jitclass
+    virtual_packet_logging : bool
+        Option to enable virtual packet logging.
     """
     output_nus = np.empty_like(packet_collection.packets_output_nu)
     last_interaction_types = (
@@ -190,6 +200,11 @@ def montecarlo_main_loop(
             )
         )
 
+    # Configuring the Tracking for R_Packets
+    rpacket_trackers = List()
+    for i in range(len(output_nus)):
+        rpacket_trackers.append(RPacketTracker())
+
     # Arrays for vpacket logging
     virt_packet_nus = []
     virt_packet_energies = []
@@ -203,7 +218,7 @@ def montecarlo_main_loop(
     for i in prange(len(output_nus)):
         if show_progress_bars:
             with objmode:
-                update_amount  = 1
+                update_amount = 1
                 update_packet_pbar(
                     update_amount,
                     current_iteration=iteration,
@@ -228,17 +243,17 @@ def montecarlo_main_loop(
         )
         continuum = ContinuumObject()
         vpacket_collection = vpacket_collections[i]
+        rpacket_tracker = rpacket_trackers[i]
 
         loop = single_packet_loop(
             r_packet,
+            continuum,
             numba_model,
             numba_plasma,
             estimators,
             vpacket_collection,
-            continuum
+            rpacket_tracker
         )
-        # if loop and 'stop' in loop:
-        #     raise MonteCarloException
 
         output_nus[i] = r_packet.nu
         last_interaction_in_nus[i] = r_packet.last_interaction_in_nu
@@ -274,7 +289,7 @@ def montecarlo_main_loop(
                 continue
             v_packets_energy_hist[idx] += vpackets_energy[j]
 
-    if montecarlo_configuration.VPACKET_LOGGING:
+    if virtual_packet_logging:
         for vpacket_collection in vpacket_collections:
             vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
             vpackets_energy = vpacket_collection.energies[
@@ -323,6 +338,10 @@ def montecarlo_main_loop(
                 )
             )
 
+    if montecarlo_configuration.RPACKET_TRACKING:
+        for rpacket_tracker in rpacket_trackers:
+            rpacket_tracker.finalize_array()
+
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
     #print("Finished Main Loop")
@@ -340,4 +359,5 @@ def montecarlo_main_loop(
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
         virt_packet_last_line_interaction_out_id,
+        rpacket_trackers,
     )

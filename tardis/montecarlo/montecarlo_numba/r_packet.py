@@ -1,9 +1,7 @@
-import math
 from enum import IntEnum
 
 import numpy as np
-from numba import int64, float64, boolean
-from numba import njit
+from numba import int64, float64, njit, objmode
 from numba.experimental import jitclass
 
 from tardis.montecarlo.montecarlo_numba import (
@@ -31,6 +29,7 @@ from tardis.montecarlo.montecarlo_numba.numba_config import (
     CLOSE_LINE_THRESHOLD,
     SIGMA_THOMSON,
 )
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 
 class InteractionType(IntEnum):
     BOUNDARY = 1
@@ -325,28 +324,18 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
 
 
 @njit(**njit_dict_no_parallel)
-def move_packet_across_shell_boundary(packet, delta_shell, no_of_shells):
+def print_r_packet_properties(r_packet):
     """
-    Move packet across shell boundary - realizing if we are still in the simulation or have
-    moved out through the inner boundary or outer boundary and updating packet
-    status.
+    Print all packet information
 
     Parameters
     ----------
-    distance : float
-        distance to move to shell boundary
-
-    delta_shell : int
-        is +1 if moving outward or -1 if moving inward
-
-    no_of_shells : int
-        number of shells in TARDIS simulation
+    r_packet : RPacket
+        RPacket object
     """
-    next_shell_id = packet.current_shell_id + delta_shell
-
-    if next_shell_id >= no_of_shells:
-        packet.status = PacketStatus.EMITTED
-    elif next_shell_id < 0:
-        packet.status = PacketStatus.REABSORBED
-    else:
-        packet.current_shell_id = next_shell_id
+    print("-"*80)
+    print("R-Packet information:")
+    with objmode:
+        for r_packet_attribute_name, _ in rpacket_spec:
+            print(r_packet_attribute_name, "=", str(getattr(r_packet, r_packet_attribute_name)))
+    print("-"*80)

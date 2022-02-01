@@ -12,8 +12,9 @@ from tardis.montecarlo import (
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,
-    move_packet_across_shell_boundary,
 )
+from tardis.montecarlo.montecarlo_numba.r_packet_transport import \
+    move_packet_across_shell_boundary
 
 from tardis.montecarlo.montecarlo_numba.calculate_distances import (
     calculate_distance_boundary,

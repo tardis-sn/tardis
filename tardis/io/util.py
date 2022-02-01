@@ -13,7 +13,7 @@ import requests
 import yaml
 from tqdm.auto import tqdm
 
-from tardis import constants
+from tardis import constants as const
 from astropy import units as u
 
 from tardis import __path__ as TARDIS_PATH
@@ -49,12 +49,12 @@ def quantity_from_str(text):
     value_str, unit_str = text.split(None, 1)
     value = float(value_str)
     if unit_str.strip() == "log_lsun":
-        value = 10 ** (value + np.log10(constants.L_sun.cgs.value))
+        value = 10 ** (value + np.log10(const.L_sun.cgs.value))
         unit_str = "erg/s"
 
     unit = u.Unit(unit_str)
     if unit == u.L_sun:
-        return value * constants.L_sun
+        return value * const.L_sun
 
     return u.Quantity(value, unit_str)
 
@@ -405,7 +405,7 @@ def download_from_url(url, dst):
         first_byte = 0
     if first_byte >= file_size:
         return file_size
-    header = {"Range": "bytes=%s-%s" % (first_byte, file_size)}
+    header = {f"Range": "bytes={first_byte}-{file_size}"}
     pbar = tqdm(
         total=file_size,
         initial=first_byte,

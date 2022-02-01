@@ -3,6 +3,7 @@ import warnings
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+import scipy.sparse.linalg as linalg
 from scipy.interpolate import interp1d
 from astropy import units as u
 from tardis import constants as const
@@ -416,7 +417,7 @@ class FormalIntegrator(object):
                 inv_N = sp.identity(no_lvls) - Q
                 e_dot_u_vec = np.zeros(no_lvls)
                 e_dot_u_vec[e_dot_u_src_idx] = e_dot_u[shell].values
-                C_frame[shell] = sp.linalg.spsolve(inv_N.T, e_dot_u_vec)
+                C_frame[shell] = linalg.spsolve(inv_N.T, e_dot_u_vec)
 
         e_dot_u.index.names = [
             "atomic_number",

@@ -3,10 +3,9 @@ import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,
-    trace_packet,
-    move_packet_across_shell_boundary,
-    move_r_packet,
 )
+from tardis.montecarlo.montecarlo_numba.r_packet_transport import trace_packet, \
+    move_r_packet, move_packet_across_shell_boundary
 
 from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
 
@@ -33,15 +32,15 @@ from tardis import constants as const
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
-from tardis.io.logger.montecarlo_tracking import log_decorator
-from tardis.io.logger import montecarlo_tracking as mc_tracker
 
-# @log_decorator
 @njit
-def single_packet_loop(
-    r_packet, numba_model, numba_plasma, estimators, vpacket_collection,
-    continuum
-):
+def single_packet_loop(r_packet,
+    continuum,
+    numba_model,
+    numba_plasma,
+    estimators,
+    vpacket_collection,
+    rpacket_tracker):
     """
     Parameters
     ----------
@@ -50,6 +49,7 @@ def single_packet_loop(
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
     vpacket_collection : tardis.montecarlo.montecarlo_numba.numba_interface.VPacketCollection
+    rpacket_collection : tardis.montecarlo.montecarlo_numba.numba_interface.RPacketCollection
 
     Returns
     -------
@@ -69,12 +69,8 @@ def single_packet_loop(
         r_packet, vpacket_collection, numba_model, numba_plasma, continuum
     )
 
-    if mc_tracker.DEBUG_MODE:
-        r_packet_track_nu = [r_packet.nu]
-        r_packet_track_mu = [r_packet.mu]
-        r_packet_track_r = [r_packet.r]
-        r_packet_track_interaction = [InteractionType.BOUNDARY]
-        r_packet_track_distance = [0.0]
+    if montecarlo_configuration.RPACKET_TRACKING:
+        rpacket_tracker.track(r_packet)
 
     while r_packet.status == PacketStatus.IN_PROCESS:
         #print('TRACE PACKET')
@@ -137,24 +133,6 @@ def single_packet_loop(
         else:
             #print("OTHER")
             pass
-
-
-        if mc_tracker.DEBUG_MODE:
-            r_packet_track_nu.append(r_packet.nu)
-            r_packet_track_mu.append(r_packet.mu)
-            r_packet_track_r.append(r_packet.r)
-            r_packet_track_interaction.append(interaction_type)
-            r_packet_track_distance.append(distance)
-
-    if mc_tracker.DEBUG_MODE:
-        return (
-            r_packet_track_nu,
-            r_packet_track_mu,
-            r_packet_track_r,
-            r_packet_track_interaction,
-            r_packet_track_distance,
-        )
-    # check where else initialize line ID happens!
 
 
 @njit

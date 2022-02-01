@@ -1,5 +1,6 @@
 from pylab import *
-from astropy import units as u, constants as const
+from astropy import units as u
+from tardis import constants as const
 
 x, y = x, y = mgrid[1:1000, 1:1000]
 mu_in = x / 500.0 - 1

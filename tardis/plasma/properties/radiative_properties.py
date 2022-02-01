@@ -2,7 +2,6 @@ import logging
 
 import numpy as np
 import pandas as pd
-import numexpr as ne
 from astropy import units as u
 from tardis import constants as const
 from numba import jit, prange
@@ -90,8 +89,8 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
             metastability, lines_upper_level_index
         )
 
-        stimulated_emission_factor = ne.evaluate(
-            "1 - ((g_lower * n_upper) / " "(g_upper * n_lower))"
+        stimulated_emission_factor = 1 - (
+            (g_lower * n_upper) / (g_upper * n_lower)
         )
         stimulated_emission_factor[n_lower == 0.0] = 0.0
         stimulated_emission_factor[
@@ -346,14 +345,6 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
         macro_atom.normalize_transition_probabilities(
             transition_probabilities, self.block_references
         )
-
-    def _new_normalize_transition_probabilities(self, transition_probabilites):
-        for i, start_id in enumerate(self.block_references[:-1]):
-            end_id = self.block_references[i + 1]
-            block = transition_probabilites[start_id:end_id]
-            transition_probabilites[start_id:end_id] *= 1 / ne.evaluate(
-                "sum(block, 0)"
-            )
 
     @staticmethod
     def _get_macro_atom_data(atomic_data):
