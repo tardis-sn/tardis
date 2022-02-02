@@ -200,7 +200,9 @@ class Radial1DModel(HDFWriterMixin):
         raw_abundance = raw_abundance.set_index(
             [raw_abundance.index, "mass_number"]
         )
-        isotope_abundance = raw_abundance.append(self.raw_isotope_abundance)
+        isotope_abundance = raw_abundance.append(
+            self.raw_isotope_abundance.decay(self.time_explosion)
+        )
 
         self.model_state = ModelState(
             v_inner=v_inner,
