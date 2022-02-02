@@ -4,8 +4,8 @@ import numpy as np
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,
 )
-from tardis.montecarlo.montecarlo_numba.r_packet_transport import trace_packet, \
-    move_r_packet, move_packet_across_shell_boundary
+from tardis.montecarlo.montecarlo_numba.r_packet_transport import (trace_packet,
+    move_r_packet, move_packet_across_shell_boundary)
 
 from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
 
@@ -72,6 +72,7 @@ def single_packet_loop(r_packet,
     if montecarlo_configuration.RPACKET_TRACKING:
         rpacket_tracker.track(r_packet)
 
+    # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
         #print('TRACE PACKET')
         distance, interaction_type, delta_shell = trace_packet(

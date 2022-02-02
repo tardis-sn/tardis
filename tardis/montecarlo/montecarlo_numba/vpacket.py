@@ -90,25 +90,31 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma, continuum):
         v_packet.r, v_packet.mu, numba_model.time_explosion
     )
     comov_nu = v_packet.nu * doppler_factor
-    continuum.calculate(comov_nu, v_packet.current_shell_id)
-    (
-        chi_bf,
-        chi_bf_contributions,
-        current_continua,
-        x_sect_bfs,
-        chi_ff,
-    ) = (
-        continuum.chi_bf_tot,
-        continuum.chi_bf_contributions,
-        continuum.current_continua,
-        continuum.x_sect_bfs,
-        continuum.chi_ff
-    )
 
-    chi_continuum = chi_e + chi_bf + chi_ff
+    if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+        continuum.calculate(comov_nu, v_packet.current_shell_id)
+        (
+            chi_bf,
+            chi_bf_contributions,
+            current_continua,
+            x_sect_bfs,
+            chi_ff,
+        ) = (
+            continuum.chi_bf_tot,
+            continuum.chi_bf_contributions,
+            continuum.current_continua,
+            continuum.x_sect_bfs,
+            continuum.chi_ff
+        )
+
+        chi_continuum = chi_e + chi_bf + chi_ff
+    else:
+        chi_continuum = chi_e
 
     tau_continuum = chi_continuum * distance_boundary
     tau_trace_combined = tau_continuum
+    
+    
     cur_line_id = start_line_id
 
     for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):

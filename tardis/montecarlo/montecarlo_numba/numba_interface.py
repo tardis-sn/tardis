@@ -360,9 +360,9 @@ def create_continuum_class(plasma):
         def __init__(self):
 
             self.chi_bf_tot = 0.0
-            self.chi_bf_contributions = np.empty(0, dtype=float64)
-            self.current_continua = np.empty(0, dtype=int64)
-            self.x_sect_bfs = np.empty(0, dtype=float64)
+            self.chi_bf_contributions = np.empty(0, dtype=np.float64)
+            self.current_continua = np.empty(0, dtype=np.int64)
+            self.x_sect_bfs = np.empty(0, dtype=np.float64)
             self.chi_ff = 0.0
 
         def copy(self):
@@ -426,8 +426,8 @@ def create_continuum_class(plasma):
 
 
 
-base_estimators_spec = [
-rpacket_collection_spec = [
+
+rpacket_tracker_spec = [
     ("length", int64),
     ("seed", int64),
     ("index", int64),
@@ -440,8 +440,7 @@ rpacket_collection_spec = [
     ("interact_id", int64),
 ]
 
-
-@jitclass(rpacket_collection_spec)
+@jitclass(rpacket_tracker_spec)
 class RPacketTracker(object):
     """
     Numba JITCLASS for storing the information for each interaction a RPacket instance undergoes.
@@ -526,7 +525,7 @@ class RPacketTracker(object):
         self.shell_id = self.shell_id[: self.interact_id]
 
 
-estimators_spec = [
+base_estimators_spec = [
     ("j_estimator", float64[:]),
     ("nu_bar_estimator", float64[:]),
     ("j_blue_estimator", float64[:, :]),

@@ -193,14 +193,14 @@ def numba_formal_integral(
     return L
 
 
-integrator_spec = [
-    ("model", NumbaModel.class_type.instance_type),
-    ("plasma", NumbaPlasma.class_type.instance_type),
-    ("points", int64),
-]
+#integrator_spec = [
+#    ("model", NumbaModel.class_type.instance_type),
+#    ("plasma", NumbaPlasma.class_type.instance_type),
+#    ("points", int64),
+#]
 
 
-@jitclass(integrator_spec)
+#@jitclass(integrator_spec)
 class NumbaFormalIntegrator(object):
     """
     Helper class for performing the formal integral

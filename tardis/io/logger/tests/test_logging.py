@@ -5,7 +5,9 @@ from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
 from tardis.io.logger.logger import LOGGING_LEVELS
 from tardis import run_tardis
+import pytest
 
+pytestmark = pytest.mark.skip(reason='logging testing slow and disabled for now')
 
 def test_logging_simulation(atomic_data_fname, caplog):
     """

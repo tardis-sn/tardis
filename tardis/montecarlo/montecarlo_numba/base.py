@@ -40,7 +40,7 @@ def montecarlo_radial1d(
     show_progress_bars,
     runner,
 ):
-    montecarlo_main_loop.recompile()
+    #montecarlo_main_loop.recompile()
     packet_collection = PacketCollection(
         runner.input_r,
         runner.input_nu,

@@ -7,7 +7,6 @@ import tardis.montecarlo.montecarlo_numba.vpacket as vpacket
 import tardis.montecarlo.montecarlo_configuration as mc
 import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
 from tardis import constants as const
-from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
 from tardis.montecarlo.montecarlo_numba import macro_atom
 
 from tardis.montecarlo.montecarlo_numba.frame_transformations import (
@@ -31,6 +30,8 @@ def v_packet():
         index=0,
     )
 
+    
+    
 
 def v_packet_initialize_line_id(v_packet, numba_plasma, numba_model):
     inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
@@ -66,7 +67,7 @@ def test_trace_vpacket_within_shell(
 
 
 def test_trace_vpacket(
-    v_packet, verysimple_numba_model, verysimple_numba_plasma
+    v_packet, verysimple_numba_model, verysimple_numba_plasma, continuum
 ):
     # Set seed because of RNG in trace_vpacket
     np.random.seed(1)
@@ -77,7 +78,7 @@ def test_trace_vpacket(
     )
 
     tau_trace_combined = vpacket.trace_vpacket(
-        v_packet, verysimple_numba_model, verysimple_numba_plasma
+        v_packet, verysimple_numba_model, verysimple_numba_plasma, continuum
     )
 
     npt.assert_almost_equal(tau_trace_combined, 8164850.891288479)
