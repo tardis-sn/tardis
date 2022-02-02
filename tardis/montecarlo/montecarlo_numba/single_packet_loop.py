@@ -134,6 +134,8 @@ def single_packet_loop(r_packet,
         else:
             #print("OTHER")
             pass
+        if montecarlo_configuration.RPACKET_TRACKING:
+            rpacket_tracker.track(r_packet)
 
 
 @njit
