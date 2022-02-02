@@ -20,7 +20,7 @@ jobs:
           python-version: 3.x
 
       - name: Install Black
-        run: pip install black
+        run: pip install black==21.12b0
 
       - name: Run Black
         run: black --check tardis
