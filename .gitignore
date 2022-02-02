@@ -20,7 +20,7 @@ MANIFEST
 # Sphinx
 docs/api
 docs/_build
-docs/ZENODO.rst
+docs/resources/ZENODO.rst
 docs/tutorials.rst
 docs/io/configuration/components/models/converters/density_parse.csv
 docs/io/configuration/components/models/converters/abund_parse.csv

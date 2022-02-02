@@ -23,6 +23,68 @@ from pyne import nucname
 logger = logging.getLogger(__name__)
 
 
+class ModelState:
+    """
+    Store Model State Information.
+
+    Parameters
+    ----------
+    v_inner : astropy.units.quantity.Quantity
+    v_outer : astropy.units.quantity.Quantity
+    r_inner : astropy.units.quantity.Quantity
+    r_outer : astropy.units.quantity.Quantity
+    density : astropy.units.quantity.Quantity
+    time_explosion : astropy.units.quantity.Quantity
+
+    Attributes
+    ----------
+    geometry : pd.DataFrame
+        DataFrame storing `v_inner`, `v_outer`, `r_inner` and `r_outer`.
+    geometry_units : dict
+        Units of arrays stored in the `geometry` dataframe.
+    """
+
+    def __init__(
+        self, v_inner, v_outer, r_inner, r_outer, time_explosion, density
+    ):
+        self.time_explosion = time_explosion
+        self.density = density
+        self.geometry = pd.DataFrame(
+            {
+                "v_inner": v_inner.value,
+                "r_inner": r_inner.value,
+                "v_outer": v_outer.value,
+                "r_outer": r_outer.value,
+            }
+        )
+        self.geometry_units = {
+            "v_inner": v_inner.unit,
+            "r_inner": r_inner.unit,
+            "v_outer": v_outer.unit,
+            "r_outer": r_outer.unit,
+        }
+
+    @property
+    def v_inner(self):
+        """Inner boundary velocity."""
+        return self.geometry.v_inner.values * self.geometry_units["v_inner"]
+
+    @property
+    def r_inner(self):
+        """Inner radius of model shells."""
+        return self.geometry.r_inner.values * self.geometry_units["r_inner"]
+
+    @property
+    def v_outer(self):
+        """Outer boundary velocity."""
+        return self.geometry.v_outer.values * self.geometry_units["v_outer"]
+
+    @property
+    def r_outer(self):
+        """Outer radius of model shells."""
+        return self.geometry.r_outer.values * self.geometry_units["r_outer"]
+
+
 class Radial1DModel(HDFWriterMixin):
     """
     An object that hold information about the individual shells.
@@ -109,7 +171,21 @@ class Radial1DModel(HDFWriterMixin):
         self._abundance = abundance
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
-
+        v_outer = self.velocity[1:]
+        v_inner = self.velocity[:-1]
+        density = (
+            self.homologous_density.calculate_density_at_time_of_simulation(
+                self.time_explosion
+            )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
+        )
+        self.model_state = ModelState(
+            v_inner=v_inner,
+            v_outer=v_outer,
+            r_inner=self.time_explosion * v_inner,
+            r_outer=self.time_explosion * v_outer,
+            time_explosion=self.time_explosion,
+            density=density,
+        )
         self.raw_abundance = self._abundance
         self.raw_isotope_abundance = isotope_abundance
 
@@ -262,11 +338,11 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def r_inner(self):
-        return self.time_explosion * self.v_inner
+        return self.model_state.r_inner
 
     @property
     def r_outer(self):
-        return self.time_explosion * self.v_outer
+        return self.model_state.r_outer
 
     @property
     def r_middle(self):
@@ -285,11 +361,11 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def v_inner(self):
-        return self.velocity[:-1]
+        return self.model_state.v_inner
 
     @property
     def v_outer(self):
-        return self.velocity[1:]
+        return self.model_state.v_outer
 
     @property
     def v_middle(self):
@@ -297,14 +373,7 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def density(self):
-        density = (
-            self.homologous_density.calculate_density_at_time_of_simulation(
-                self.time_explosion
-            )
-        )
-        return density[
-            self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1
-        ]
+        return self.model_state.density
 
     @property
     def abundance(self):
@@ -606,10 +675,10 @@ class Radial1DModel(HDFWriterMixin):
             ), "CSVY field descriptions exist without corresponding csv data"
             if unsupported_columns != set():
                 logger.warning(
-                    "The following columns are specified in the csvy"
-                    "model file, but are IGNORED by TARDIS: %s"
-                    % (str(unsupported_columns))
-                )
+                "The following columns are "
+                "specified in the csvy model file,"
+                 f" but are IGNORED by TARDIS: {str(unsupported_columns)}"
+            )
 
         time_explosion = config.supernova.time_explosion.cgs
 

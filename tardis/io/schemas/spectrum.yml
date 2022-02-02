@@ -3,10 +3,13 @@ type: object
 properties:
   start:
     type: quantity
+    description: The lower limit of the spectrum to be generated. Values below this point will not be generated.
   stop:
     type: quantity
+    description: The upper limit of the spectrum to be generated. Values above this point will not be generated. 
   num:
     type: number
+    description: Number of bins used to build the spectrum
     multipleOf: 1.0
   method:
     type: string
@@ -46,7 +49,7 @@ properties:
       survival_probability:
         type: number
         default: 0.0
-        description: Probability for not terminating the packet path
+        description: Probability for not terminating the packet path between 0 and 1
       enable_biasing:
         type: boolean
         default: False
@@ -56,3 +59,7 @@ properties:
         type: boolean
         default: False
         description: If True, enable virtual packet logging output
+required:
+- start
+- stop
+- num

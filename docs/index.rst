@@ -18,9 +18,14 @@ TARDIS Core Package Documentation
 
 TARDIS is an open-source Monte Carlo radiative-transfer spectral synthesis code
 for 1D models of supernova ejecta. It is designed for rapid spectral modelling
-of supernovae. It is developed and maintained by a :ref:`multi-disciplinary team <team>`
+of supernovae. It is developed and maintained by a 
+`multi-disciplinary team <https://tardis-sn.github.io/team/community_roles/>`_
 including software engineers, computer scientists, statisticians,
 and astrophysicists.
+
+The tardis package is the core package provided by the TARDIS Project. To learn
+more about the complete project, other packages it provides, and the community
+behind it, please check the `project website <https://tardis-sn.github.io>`_.
 
 If you use this code for any publications or presentations please follow our
 citation guidelines in :ref:`tardiscredits`.
@@ -43,13 +48,12 @@ Mission Statement
     research and science reproducibility.*
 
 
-
 .. toctree::
     :maxdepth: 2
     :hidden:
 
     installation
-    quickstart/quickstart
+    quickstart
     tutorials
     API <api/modules>
 
@@ -78,39 +82,23 @@ Mission Statement
 
 .. toctree::
     :maxdepth: 2
-    :caption: Research with TARDIS
-    :hidden:
-
-    Overview <research/index>
-
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Team & Credits
-    :hidden:
-
-    team_and_governance/index
-    credits
-    Code of Conduct <CODE_OF_CONDUCT.md>
-    sponsors
-
-
-.. toctree::
-    :maxdepth: 2
     :caption: Contributing to TARDIS
     :hidden:
 
-    CONTRIBUTING.md
-    development/index
-    CHANGELOG.md
-    roadmap
+    contributing/CONTRIBUTING.md
+    contributing/development/index
+    contributing/CHANGELOG.md
+    contributing/roadmap
 
 
 .. toctree::
-    :caption: References
+    :caption: Other Resources
     :hidden:
-
-    zreferences
+    
+    resources/credits
+    resources/research_done_using_TARDIS/research_papers
+    resources/code_comparison/index
+    resources/zreferences
 
 
 .. toctree::
@@ -119,9 +107,3 @@ Mission Statement
     :hidden:
 
     outdated/index
-
-----
-News
-----
-
-.. include:: news.rst

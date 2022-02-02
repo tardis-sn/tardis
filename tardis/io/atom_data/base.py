@@ -102,7 +102,7 @@ class AtomData(object):
     macro_atom_references_all : pandas.DataFrame
     collision_data : pandas.DataFrame
     collision_data_temperatures : numpy.array
-    zeta_data : pandas.DataFrame
+    unfiltered_zeta_data : pandas.DataFrame
     synpp_refs : pandas.DataFrame
     symbol2atomic_number : OrderedDict
     atomic_number2symbol : OrderedDict
@@ -171,7 +171,7 @@ class AtomData(object):
                 except KeyError:
                     logger.debug("Dataframe does not contain NAME column")
                     nonavailable.append(name)
-
+            
             atom_data = cls(**dataframes)
 
             try:
@@ -266,7 +266,7 @@ class AtomData(object):
         self.macro_atom_data_all = macro_atom_data
         self.macro_atom_references_all = macro_atom_references
 
-        self.zeta_data = zeta_data
+        self.unfiltered_zeta_data = zeta_data
 
         self.collision_data = collision_data
         self.collision_data_temperatures = collision_data_temperatures

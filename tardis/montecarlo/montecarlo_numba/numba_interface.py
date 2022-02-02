@@ -266,6 +266,7 @@ class VPacketCollection(object):
             temp_last_interaction_type = np.empty(temp_length, dtype=np.int64)
             temp_last_interaction_in_id = np.empty(temp_length, dtype=np.int64)
             temp_last_interaction_out_id = np.empty(temp_length, dtype=np.int64)
+
             temp_nus[: self.length] = self.nus
             temp_energies[: self.length] = self.energies
             temp_initial_mus[: self.length] = self.initial_mus
@@ -302,6 +303,113 @@ class VPacketCollection(object):
         self.last_interaction_in_id[self.idx] = last_interaction_in_id
         self.last_interaction_out_id[self.idx] = last_interaction_out_id
         self.idx += 1
+
+
+rpacket_collection_spec = [
+    ("length", int64),
+    ("seed", int64[:]),
+    ("index", int64[:]),
+    ("status", int64[:]),
+    ("r", float64[:]),
+    ("nu", float64[:]),
+    ("mu", float64[:]),
+    ("energy", float64[:]),
+    ("shell_id", int64[:]),
+    ("interact_id", int64),
+]
+
+
+@jitclass(rpacket_collection_spec)
+class RPacketTracker(object):
+    """
+    Numba JITCLASS for storing the information for each interaction a RPacket instance undergoes.
+
+    Parameters
+    ----------
+        length : int
+            Length of the initial array that is instantiated
+        seed : int
+            Seed for each RPacket
+        index : int
+            Index position of each RPacket
+        status : int
+            Current status of the RPacket as per interactions
+        r : float
+            Radius of the shell where the RPacket is present
+        nu : float
+            Luminosity of the RPacket
+        mu : float
+            Cosine of the angle made by the direction of movement of the RPacket from its original direction
+        energy : float
+            Energy possessed by the RPacket at a particular shell
+        shell_id : int
+            Current Shell No in which the RPacket is present
+        interact_id : int
+            Internal counter for the interactions that a particular RPacket undergoes
+    """
+
+    def __init__(self):
+        self.length = montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
+        self.seed = np.empty(self.length, dtype=np.int64)
+        self.index = np.empty(self.length, dtype=np.int64)
+        self.status = np.empty(self.length, dtype=np.int64)
+        self.r = np.empty(self.length, dtype=np.float64)
+        self.nu = np.empty(self.length, dtype=np.float64)
+        self.mu = np.empty(self.length, dtype=np.float64)
+        self.energy = np.empty(self.length, dtype=np.float64)
+        self.shell_id = np.empty(self.length, dtype=np.int64)
+        self.interact_id = 0
+
+    def track(self, r_packet):
+        if self.interact_id >= self.length:
+            temp_length = self.length * 2
+            temp_index = np.empty(temp_length, dtype=np.int64)
+            temp_seed = np.empty(temp_length, dtype=np.int64)
+            temp_status = np.empty(temp_length, dtype=np.int64)
+            temp_r = np.empty(temp_length, dtype=np.float64)
+            temp_nu = np.empty(temp_length, dtype=np.float64)
+            temp_mu = np.empty(temp_length, dtype=np.float64)
+            temp_energy = np.empty(temp_length, dtype=np.float64)
+            temp_shell_id = np.empty(temp_length, dtype=np.int64)
+
+            temp_index[: self.length] = self.index
+            temp_seed[: self.length] = self.seed
+            temp_status[: self.length] = self.status
+            temp_r[: self.length] = self.r
+            temp_nu[: self.length] = self.nu
+            temp_mu[: self.length] = self.mu
+            temp_energy[: self.length] = self.energy
+            temp_shell_id[: self.length] = self.shell_id
+
+            self.index = temp_index
+            self.seed = temp_seed
+            self.status = temp_status
+            self.r = temp_r
+            self.nu = temp_nu
+            self.mu = temp_mu
+            self.energy = temp_energy
+            self.shell_id = temp_shell_id
+            self.length = temp_length
+
+        self.index[self.interact_id] = r_packet.index
+        self.seed[self.interact_id] = r_packet.seed
+        self.status[self.interact_id] = r_packet.status
+        self.r[self.interact_id] = r_packet.r
+        self.nu[self.interact_id] = r_packet.nu
+        self.mu[self.interact_id] = r_packet.mu
+        self.energy[self.interact_id] = r_packet.energy
+        self.shell_id[self.interact_id] = r_packet.current_shell_id
+        self.interact_id += 1
+
+    def finalize_array(self):
+        self.index = self.index[: self.interact_id]
+        self.seed = self.seed[: self.interact_id]
+        self.status = self.status[: self.interact_id]
+        self.r = self.r[: self.interact_id]
+        self.nu = self.nu[: self.interact_id]
+        self.mu = self.mu[: self.interact_id]
+        self.energy = self.energy[: self.interact_id]
+        self.shell_id = self.shell_id[: self.interact_id]
 
 
 estimators_spec = [

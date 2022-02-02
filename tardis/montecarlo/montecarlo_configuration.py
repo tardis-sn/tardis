@@ -11,5 +11,8 @@ disable_electron_scattering = False
 disable_line_scattering = False
 survival_probability = 0.0
 tau_russian = 10.0
+
+INITIAL_TRACKING_ARRAY_LENGTH = None
 LEGACY_MODE_ENABLED = False
 VPACKET_LOGGING = False
+RPACKET_TRACKING = False

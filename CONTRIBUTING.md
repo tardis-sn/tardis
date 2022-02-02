@@ -38,23 +38,23 @@ Please make sure that you provide all the necessary information requested by pro
 
 There is always a scope of improvement in documentation to add some missing information or to make it easier for reading. And here lies an opportunity for you, since you can edit the documentation page you want which is stored as a text file in [`docs`](https://github.com/tardis-sn/tardis/tree/master/docs) directory of TARDIS.
 
-After editing the file locally, build the docs as described in [these instructions](https://tardis-sn.github.io/tardis/development/documentation_guidelines.html#building-documentation-locally) and then you can submit your changes to us by making a patch as described in the next section.
+After editing the file locally, build the docs as described in [these instructions](https://tardis-sn.github.io/tardis/contributing/development/documentation_guidelines.html#building-documentation-locally) and then you can submit your changes to us by making a patch as described in the next section.
 
 ### Making a Patch
 
 If you have peeked in our codebase and realized how you can fix a problem or if you know how to add a new feature, well done! If not, don't worry - just pick an [easy](https://github.com/tardis-sn/tardis/labels/easy) or [good-first](https://github.com/tardis-sn/tardis/labels/good%20first%20issue) issue and get started to fix it.
 
-To contribute your code to TARDIS, you'll need to make a [pull request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests) from your fork of TARDIS repository. This development workflow using Git may look daunting at first, but it is not if you follow [this guide](https://tardis-sn.github.io/tardis/development/git_workflow.html#preparation-and-working-with-git) that we have prepared for you.
+To contribute your code to TARDIS, you'll need to make a [pull request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests) from your fork of TARDIS repository. This development workflow using Git may look daunting at first, but it is not if you follow [this guide](https://tardis-sn.github.io/tardis/contributing/development/git_workflow.html#preparation-and-working-with-git) that we have prepared for you.
 
 When you make a pull request, please provide all the necessary information requested by prompts in the pull request body. Also, make sure that the code you're submitting always accounts for the following three:
 
-- **Maintaining code quality:** Your code must follow the PEP8 style guide, should cover edge cases, etc. Check our [code quality guidelines](https://tardis-sn.github.io/tardis/development/code_quality.html) for more details.
-- **Documenting the code:** You must write docstrings in functions/classes, put a relevant example in TARDIS docs and make sure docs get built correctly. This is explained in detail in our [documentation guidelines](https://tardis-sn.github.io/tardis/development/documentation_guidelines.html).
-- **Testing the code:** There should be unit-tests for most of the functions/methods and they must pass our testing framework. To run test locally, you can follow [this guide](https://tardis-sn.github.io/tardis/development/running_tests.html).
+- **Maintaining code quality:** Your code must follow the PEP8 style guide, should cover edge cases, etc. Check our [code quality guidelines](https://tardis-sn.github.io/tardis/contributing/development/code_quality.html) for more details.
+- **Documenting the code:** You must write docstrings in functions/classes, put a relevant example in TARDIS docs and make sure docs get built correctly. This is explained in detail in our [documentation guidelines](https://tardis-sn.github.io/tardis/contributing/development/documentation_guidelines.html).
+- **Testing the code:** There should be unit-tests for most of the functions/methods and they must pass our testing framework. To run test locally, you can follow [this guide](https://tardis-sn.github.io/tardis/contributing/development/running_tests.html).
 
 ### Spreading the word of mouth
 
-If you find TARDIS helpful, you can share it with your peers, colleagues, and anyone who can benefit from TARDIS. If you've used TARDIS in your research, please make sure to cite us (https://tardis-sn.github.io/tardis/credits.html). By telling other people about how we helped you, you'll help us in turn, in extending our impact. And we would absolutely love it if you give us a shout-out on [twitter](https://twitter.com/tardis_sn/)!
+If you find TARDIS helpful, you can share it with your peers, colleagues, and anyone who can benefit from TARDIS. If you've used TARDIS in your research, please make sure to cite us (https://tardis-sn.github.io/tardis/resources/credits.html). By telling other people about how we helped you, you'll help us in turn, in extending our impact. And we would absolutely love it if you give us a shout-out on [twitter](https://twitter.com/tardis_sn/)!
 
 ## What if I need help?
 

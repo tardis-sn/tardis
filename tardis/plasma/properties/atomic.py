@@ -32,6 +32,7 @@ __all__ = [
     "LinesUpperLevelIndex",
     "AtomicMass",
     "IonizationData",
+    "FilteredZetaData",
     "ZetaData",
     "NLTEData",
     "PhotoIonizationData",
@@ -359,11 +360,17 @@ class ZetaData(BaseAtomicDataProperty):
         from the ionized state that go directly to the ground state.
     """
 
-    outputs = ("zeta_data",)
+    outputs = ("unfiltered_zeta_data",)
 
+<<<<<<< HEAD
     def _filter_atomic_property(self, zeta_data, ionization_data):
         return zeta_data
         #return zeta_data.reindex(ionization_data.index)
+=======
+    def _filter_atomic_property(self, zeta_data, selected_atoms):
+        return zeta_data
+        """
+>>>>>>> kilonova_zeta2
         zeta_data["atomic_number"] = zeta_data.index.codes[0] + 1
         zeta_data["ion_number"] = zeta_data.index.codes[1] + 1
         zeta_data = zeta_data[zeta_data.atomic_number.isin(selected_atoms)]
@@ -408,10 +415,12 @@ class ZetaData(BaseAtomicDataProperty):
             updated_dataframe["ion_number"] = np.array(updated_index[1])
             updated_dataframe.fillna(1.0, inplace=True)
             return updated_dataframe
+        """
 
     def _set_index(self, zeta_data):
-        return zeta_data.set_index(["atomic_number", "ion_number"])
+        return zeta_data.rename_axis(["atomic_number", "ion_number"])
 
+<<<<<<< HEAD
 class FilterZetaData(ProcessingPlasmaProperty):
     
     outputs = ("filtered_zeta_data")
@@ -419,6 +428,14 @@ class FilterZetaData(ProcessingPlasmaProperty):
     def calculate(self, zeta_data, ionization_data):
         return zeta_data.reindex(ionization_data.index)
 
+=======
+class FilteredZetaData(ProcessingPlasmaProperty):
+    
+    outputs = ("zeta_data",)
+    
+    def calculate(self, unfiltered_zeta_data, ionization_data):
+        return unfiltered_zeta_data.reindex(ionization_data.index)
+>>>>>>> kilonova_zeta2
 
 class NLTEData(ProcessingPlasmaProperty):
     """
