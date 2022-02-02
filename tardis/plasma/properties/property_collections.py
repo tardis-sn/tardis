@@ -42,7 +42,7 @@ macro_atom_properties = PlasmaPropertyCollection(
     [BetaSobolev, TransitionProbabilities]
 )
 nebular_ionization_properties = PlasmaPropertyCollection(
-    [PhiSahaNebular, ZetaData, BetaElectron, RadiationFieldCorrection]
+    [PhiSahaNebular, FilteredZetaData, ZetaData, BetaElectron, RadiationFieldCorrection]
 )
 dilute_lte_excitation_properties = PlasmaPropertyCollection(
     [LevelBoltzmannFactorDiluteLTE]
@@ -61,6 +61,7 @@ helium_nlte_properties = PlasmaPropertyCollection(
     [
         HeliumNLTE,
         RadiationFieldCorrection,
+        FilteredZetaData,
         ZetaData,
         BetaElectron,
         LevelNumberDensityHeNLTE,
