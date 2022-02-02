@@ -313,6 +313,7 @@ def test_model_decay(simple_isotope_abundance):
 
 class TestModelState:
     """Test the ModelState class."""
+
     def setup(self):
         """Initialize config and model."""
         filename = "tardis_configv1_verysimple.yml"

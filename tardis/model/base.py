@@ -93,6 +93,11 @@ class ModelState:
         """Outer radius of model shells."""
         return self.geometry.r_outer.values * self.geometry_units["r_outer"]
 
+    @property
+    def elemental_abundance(self):
+        """Elemental Abundance"""
+        return self.isotope_abundance.groupby(level=0).sum()
+
 
 class Radial1DModel(HDFWriterMixin):
     """
@@ -190,16 +195,13 @@ class Radial1DModel(HDFWriterMixin):
             )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
         )
 
-        isotope_abundance = abundance
-        if not self.raw_isotope_abundance.empty:
-            isotope_abundance = self.raw_isotope_abundance.decay(
-                self.time_explosion
-            ).merge(self.raw_abundance)
+        raw_abundance = self.raw_abundance.copy()
+        raw_abundance["mass_number"] = -1
+        raw_abundance = raw_abundance.set_index(
+            [raw_abundance.index, "mass_number"]
+        )
+        isotope_abundance = raw_abundance.append(self.raw_isotope_abundance)
 
-        isotope_abundance = isotope_abundance.loc[
-            :, self.v_boundary_inner_index : self.v_boundary_outer_index - 1
-        ]
-        isotope_abundance.columns = range(len(isotope_abundance.columns))
         self.model_state = ModelState(
             v_inner=v_inner,
             v_outer=v_outer,
@@ -207,7 +209,7 @@ class Radial1DModel(HDFWriterMixin):
             r_outer=self.time_explosion * v_outer,
             time_explosion=self.time_explosion,
             density=density,
-            isotope_abundance=isotope_abundance
+            isotope_abundance=isotope_abundance,
         )
 
         if t_inner is None:
@@ -704,10 +706,10 @@ class Radial1DModel(HDFWriterMixin):
             ), "CSVY field descriptions exist without corresponding csv data"
             if unsupported_columns != set():
                 logger.warning(
-                "The following columns are "
-                "specified in the csvy model file,"
-                 f" but are IGNORED by TARDIS: {str(unsupported_columns)}"
-            )
+                    "The following columns are "
+                    "specified in the csvy model file,"
+                    f" but are IGNORED by TARDIS: {str(unsupported_columns)}"
+                )
 
         time_explosion = config.supernova.time_explosion.cgs
 
