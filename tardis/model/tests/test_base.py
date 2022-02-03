@@ -378,6 +378,28 @@ class TestModelState:
             self.model.model_state.density.value, self.model.density.value
         )
 
+    def test_elemental_abundance(self):
+        """Test elemental abundances."""
+        pd.testing.assert_frame_equal(
+            self.model.model_state.elemental_abundance,
+            self.model.model_state.isotope_abundance.groupby(level=0).sum(),
+        )
+
+    def test_isotope_abundance(self):
+        """Test isotope abundances."""
+        raw_abundance = self.model.raw_abundance.copy()
+        raw_abundance["mass_number"] = -1
+        raw_abundance = raw_abundance.set_index(
+            [raw_abundance.index, "mass_number"]
+        )
+        expected_isotope_abundance = raw_abundance.append(
+            self.model.raw_isotope_abundance.decay(self.model.time_explosion)
+        )
+
+        pd.testing.assert_frame_equal(
+            self.model.model_state.isotope_abundance, expected_isotope_abundance
+        )
+
 
 ###
 # Save and Load
