@@ -41,7 +41,7 @@ def single_packet_loop(
     numba_plasma,
     estimators,
     vpacket_collection,
-    rpacket_collection,
+    tracked_rpacket,
 ):
     """
     Parameters
@@ -51,7 +51,7 @@ def single_packet_loop(
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
     vpacket_collection : tardis.montecarlo.montecarlo_numba.numba_interface.VPacketCollection
-    rpacket_collection : tardis.montecarlo.montecarlo_numba.numba_interface.RPacketCollection
+    tracked_rpacket : tardis.montecarlo.montecarlo_numba.numba_interface.RPacketCollection
 
     Returns
     -------
@@ -73,7 +73,7 @@ def single_packet_loop(
     )
 
     if montecarlo_configuration.RPACKET_TRACKING:
-        rpacket_collection.track(r_packet)
+        tracked_rpacket.track(r_packet)
 
     while r_packet.status == PacketStatus.IN_PROCESS:
         distance, interaction_type, delta_shell = trace_packet(
@@ -117,7 +117,7 @@ def single_packet_loop(
             )
 
         if montecarlo_configuration.RPACKET_TRACKING:
-            rpacket_collection.track(r_packet)
+            tracked_rpacket.track(r_packet)
 
     # check where else initialize line ID happens!
 

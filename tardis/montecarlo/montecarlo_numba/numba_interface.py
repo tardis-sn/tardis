@@ -305,7 +305,7 @@ class VPacketCollection(object):
         self.idx += 1
 
 
-rpacket_collection_spec = [
+rpacket_tracker_spec = [
     ("length", int64),
     ("seed", int64[:]),
     ("index", int64[:]),
@@ -319,7 +319,7 @@ rpacket_collection_spec = [
 ]
 
 
-@jitclass(rpacket_collection_spec)
+@jitclass(rpacket_tracker_spec)
 class RPacketTracker(object):
     """
     Numba JITCLASS for storing the information for each interaction a RPacket instance undergoes.

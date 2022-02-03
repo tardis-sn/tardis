@@ -375,7 +375,7 @@ def create_tracked_rpacket_df(track_dict_list, rpacket_trackers, iteration):
 
     Parameters
     ----------
-    rpacket_collections : list (contains `numba.jitclass` instances)
+    rpacket_trackers : list (contains `numba.jitclass` instances)
         A list of rpackets. Stores all the data for each interaction a particular rpacket undergoes as the simulation progresses.
     iteration : int
         Current Simulation 'Iteration' value
