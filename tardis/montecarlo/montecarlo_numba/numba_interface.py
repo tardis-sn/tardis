@@ -307,8 +307,8 @@ class VPacketCollection(object):
 
 rpacket_tracker_spec = [
     ("length", int64),
-    ("seed", int64[:]),
-    ("index", int64[:]),
+    ("seed", int64),
+    ("index", int64),
     ("status", int64[:]),
     ("r", float64[:]),
     ("nu", float64[:]),
@@ -350,8 +350,8 @@ class RPacketTracker(object):
 
     def __init__(self):
         self.length = montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
-        self.seed = np.empty(self.length, dtype=np.int64)
-        self.index = np.empty(self.length, dtype=np.int64)
+        self.seed = np.int64(0)
+        self.index = np.int64(0)
         self.status = np.empty(self.length, dtype=np.int64)
         self.r = np.empty(self.length, dtype=np.float64)
         self.nu = np.empty(self.length, dtype=np.float64)
@@ -363,8 +363,6 @@ class RPacketTracker(object):
     def track(self, r_packet):
         if self.interact_id >= self.length:
             temp_length = self.length * 2
-            temp_index = np.empty(temp_length, dtype=np.int64)
-            temp_seed = np.empty(temp_length, dtype=np.int64)
             temp_status = np.empty(temp_length, dtype=np.int64)
             temp_r = np.empty(temp_length, dtype=np.float64)
             temp_nu = np.empty(temp_length, dtype=np.float64)
@@ -372,8 +370,6 @@ class RPacketTracker(object):
             temp_energy = np.empty(temp_length, dtype=np.float64)
             temp_shell_id = np.empty(temp_length, dtype=np.int64)
 
-            temp_index[: self.length] = self.index
-            temp_seed[: self.length] = self.seed
             temp_status[: self.length] = self.status
             temp_r[: self.length] = self.r
             temp_nu[: self.length] = self.nu
@@ -381,8 +377,6 @@ class RPacketTracker(object):
             temp_energy[: self.length] = self.energy
             temp_shell_id[: self.length] = self.shell_id
 
-            self.index = temp_index
-            self.seed = temp_seed
             self.status = temp_status
             self.r = temp_r
             self.nu = temp_nu
@@ -391,8 +385,8 @@ class RPacketTracker(object):
             self.shell_id = temp_shell_id
             self.length = temp_length
 
-        self.index[self.interact_id] = r_packet.index
-        self.seed[self.interact_id] = r_packet.seed
+        self.index = r_packet.index
+        self.seed = r_packet.seed
         self.status[self.interact_id] = r_packet.status
         self.r[self.interact_id] = r_packet.r
         self.nu[self.interact_id] = r_packet.nu
@@ -402,8 +396,6 @@ class RPacketTracker(object):
         self.interact_id += 1
 
     def finalize_array(self):
-        self.index = self.index[: self.interact_id]
-        self.seed = self.seed[: self.interact_id]
         self.status = self.status[: self.interact_id]
         self.r = self.r[: self.interact_id]
         self.nu = self.nu[: self.interact_id]
