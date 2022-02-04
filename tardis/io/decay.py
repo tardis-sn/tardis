@@ -112,7 +112,7 @@ class IsotopeAbundances(pd.DataFrame):
             nuclear_symbol = f"{Z_to_elem(atomic_number)}{mass_number}"
             for i in range(len(self.columns)):
                 comp_dicts[i][nuclear_symbol] = abundances[i]
-        return [Inventory(comp_dict, "Kg") for comp_dict in comp_dicts]
+        return [Inventory(comp_dict, "kg") for comp_dict in comp_dicts]
 
     def decay(self, t):
         """
