@@ -29,11 +29,11 @@ H_CGS = 6.62606957e-27
 class IntegrationError(Exception):
     pass
 
-#Was parallel
 @cuda.jit
 def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N, L, pp, exp_tau, I_nu, z, shell_id):
     """
-    model, plasma, and estimator are the numba variants
+    The CUDA version of numba_formal_integral that can run
+    on a NVIDIA GPU.
     
     Parameters
     ----------
@@ -43,13 +43,10 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
         self.model.r_outer
     time_explosion: float64
         self.model.time_explosion
-    
-    plasma : tardis.montecarlo.montecarlo_numba.NumbaPlasma
     line_list_nu : array(float64, 1d, A)
         self.plasma.line_list_nu
-    
-    iT : array(float64, 0d, C)
-    inu : array(float64, 1d, C)
+    iT : np.float64
+    inu : np.float64
     inu_size : int64
     att_S_ul : array(float64, 1d, C)
     Jred_lu : array(float64, 1d, C) 
@@ -57,162 +54,96 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
     tau_sobolev : array(float64, 2d, C)
     electron_density : array(float64, 1d, C)
     N : int64
-    
     L : array(float64, 1d, C)
-    pp : array(float64, 2d, C)
+        This is where the results will be stored
+    pp : array(float64, 1d, C)
     exp_tau : array(float64, 1d, C)
-    I_nu array(flaot64, 1d, C)
-    z : array(float64, 1d, C)
-    shell_id : array(int64, 1d, C)
-    nu_ends_zeros : array(int16, 1d, C)
-    
-    Returns
-    -------
-    L : array(float64, 1d, C)
-    
-    
-    Check diff params, pass them to some index of I_nu to check if they are the same!
-    """
-    #See about using cuda to make arrays
-    
+    I_nu array(floatt64, 2d, C)
+    z : array(float64, 2d, C)
+    shell_id : array(int64, 2d, C)
+    """    
     
     # todo: add all the original todos
-    #L = np.zeros(inu_size, dtype=np.float64)                   #array(float64, 1d, C)
-    # global read-only values
-    size_line, size_shell = tau_sobolev.shape                  #int64, int64
-    size_tau = size_line * size_shell                          #int64
-    R_ph = r_inner[0] # make sure these are cgs          #float64
-    R_max = r_outer[size_shell - 1]                      #float64
-    #pp = np.zeros(N, dtype=np.float64) # check                 #array(float64, 1d, C)
-    #exp_tau = np.zeros(size_tau, dtype=np.float64)             #array(float64, 1d, C)
-    #exp_tau = np.exp(-tau_sobolev.T.ravel()) # maybe make this 2D? #array(float64, 1d, C)
-    #pp[::] = calculate_p_values_cuda(R_max, N)                 #array(float64, 1d, C)
-    # done with instantiation
-    # now loop over wavelength in spectrum
     
-    #The grid must be composed in respect to length of inu_size
-    #for nu_idx in prange(inu_size):
+    # global read-only values
+    size_line, size_shell = tau_sobolev.shape
+    size_tau = size_line * size_shell
+    R_ph = r_inner[0] # make sure these are cgs
+    R_max = r_outer[size_shell - 1]
+    
     nu_idx = cuda.grid(1)
+    #Check to see if CUDA is out of bounds
     if nu_idx >= inu_size:
         return
     
-    #I_nu = np.zeros(N, dtype=np.float64)                       #array(float64, 1d, C)
-    #z = np.zeros(2 * size_shell, dtype=np.float64)             #array(float64, 1d, C)
-    #shell_id = np.zeros(2 * size_shell, dtype=np.int64)        #array(int64, 1d, C)
-    
-    #These three are passed into the function, but aren't treated as atomic. That way each 
-    #thread will get their own version of them to modify, but it shouldn't affect the 
-    #main one that they all read from (I hope). 
-    
-    #z_thread fixes the z argument
+    #These all have their own version for each thread to avoid race conditions
     I_nu_thread = I_nu[nu_idx]
     z_thread = z[nu_idx]
     shell_id_thread = shell_id[nu_idx]
-    #pp_thread = pp[nu_idx] #Temp methodology
     
-    offset = 0                                                 #Literal[int](0)
-    size_z = 0                                                 #Literal[int](0)
-    idx_nu_start = 0                                           #Literal[int](0)
-    direction = 0                                              #Literal[int](0)
-    first = 0                                                  #Literal[int](0)
-    i = 0                                                      #Literal[int](0)
-    p = 0.0                                                    #float64
-    nu_start = 0.0                                             #float64
-    nu_end = 0.0                                               #float64
-    nu = 0.0                                                   #float64
-    zstart = 0.0                                               #float64
-    zend = 0.0                                                 #float64
-    escat_contrib = 0.0                                        #float64
-    escat_op = 0.0                                             #float64
-    Jkkp = 0.0                                                 #float64
-    pexp_tau = 0                                               #Literal[int](0)
-    patt_S_ul = 0                                              #Literal[int](0)
-    pJred_lu = 0                                               #Literal[int](0)
-    pJblue_lu = 0                                              #Literal[int](0)
-    pline = 0                                                  #Literal[int](0)
+    offset = 0
+    size_z = 0
+    idx_nu_start = 0
+    direction = 0
+    first = 0
+    i = 0
+    p = 0.0
+    nu_start = 0.0
+    nu_end = 0.0
+    nu = 0.0
+    zstart = 0.0
+    zend = 0.0
+    escat_contrib = 0.0
+    escat_op = 0.0
+    Jkkp = 0.0
+    pexp_tau = 0
+    patt_S_ul = 0
+    pJred_lu = 0
+    pJblue_lu = 0
+    pline = 0
 
-
-    nu = inu[nu_idx]                                           #float64
+    nu = inu[nu_idx]
     
-    #print(f"From thread {nu_idx},N={N}")
     # now loop over discrete values along line
-    
     for p_idx in range(1, N):
-        escat_contrib = 0.0                                           #Literal[int](0)
-        p = pp[p_idx]                                              #float64
-        #db.set_trace()
+        escat_contrib = 0.0 
+        p = pp[p_idx]
 
         # initialize z intersections for p values
-        
-        size_z = populate_z_cuda(r_inner, r_outer, time_explosion, p, z_thread, shell_id_thread) # check returns #int64
-        # initialize I_nu
+        size_z = populate_z_cuda(r_inner, r_outer, time_explosion, p, z_thread, shell_id_thread)
         if p <= R_ph:
-            #print("nu_idx", nu_idx)
-            #print("I_nu_thread", I_nu_thread)
-            #print("I_nu_thread[p_idx]:", I_nu_thread[p_idx])
-            #print("nu:", nu)
-            #print("type(nu)", type(nu))
-            #print("z_thread", z_thread)
-            #print("z_thread[0]:", z_thread[0])
-            #print("iT:", iT)
-            #print("type of iT", type(iT), "\n")
-            
-            #Seems to only vary by a rounding on the last digit, accuracy on last bit may vary
             I_nu_thread[p_idx] = intensity_black_body_cuda(nu * z_thread[0], iT)
         else:
             I_nu_thread[p_idx] = 0
-        #print("After doing the if statment")
-        #print("I_nu_thread[p_idx]:", I_nu_thread[p_idx])
-        #print("nu:", nu)
-        #print("z_thread[0]:", z_thread[0])
-        #print("iT:", iT, "\n\n")
-        # find first contributing lines
-        nu_start = nu * z_thread[0]                                       #float64
-        nu_end = nu * z_thread[1]                                         #float64
+        nu_start = nu * z_thread[0]
+        nu_end = nu * z_thread[1]
         
-        #Tested thru notebook that I used to make function. Callers identical
-        idx_nu_start = line_search_cuda(line_list_nu,       #int64
+        idx_nu_start = line_search_cuda(line_list_nu,
                                    nu_start, size_line)
-        offset = shell_id_thread[0] * size_line                           #int64
+        offset = shell_id_thread[0] * size_line
         # start tracking accumulated e-scattering optical depth
-        zstart = time_explosion / C_INV * (1.0 - z_thread[0])        #float64
+        zstart = time_explosion / C_INV * (1.0 - z_thread[0])
         # Initialize "pointers"
-        pline = int(idx_nu_start)                                  #int64
-        pexp_tau = int(offset + idx_nu_start)                      #int64
-        patt_S_ul = int(offset + idx_nu_start)                     #int64
-        pJred_lu = int(offset + idx_nu_start)                      #int64
-        pJblue_lu = int(offset + idx_nu_start)                     #int64
+        pline = int(idx_nu_start)
+        pexp_tau = int(offset + idx_nu_start)
+        patt_S_ul = int(offset + idx_nu_start)
+        pJred_lu = int(offset + idx_nu_start)
+        pJblue_lu = int(offset + idx_nu_start)
 
         # flag for first contribution to integration on current p-ray
-        first = 1                                                  #Literal[int](1)
-        
-        #nu_ends = nu * z[1:]                                       #array(float64, 1d, C)
-        #nu_ends = z[1:]
-        #for i in range(len(nu_ends)):
-        #    nu_ends[i] *= nu
-            
-        #nu_ends_idxs = size_line - np.searchsorted(                #int64
-        #        line_list_nu[::-1], 
-        #        nu_ends, 
-        #        side='right'
-        #)
-        #Can just do another version of nu_ends_idx = z[1:] and then make it a for loop to set them all = 0
-        #Then just do a searchsorted for each value, and then do size-line - that value. 
+        first = 1
         
         # loop over all interactions 
         for i in range(size_z - 1):
-            escat_op = electron_density[int(shell_id_thread[i])] * SIGMA_THOMSON #float64
-            nu_end = nu * z_thread[i + 1]#+1 is the offset as the original is from z[1:]  #float64
+            escat_op = electron_density[int(shell_id_thread[i])] * SIGMA_THOMSON
+            nu_end = nu * z_thread[i + 1]#+1 is the offset as the original is from z[1:]
             
-                #This one seems to make sense
-            nu_end_idx =  line_search_cuda(line_list_nu, nu_end, len(line_list_nu))    #int64
+            nu_end_idx =  line_search_cuda(line_list_nu, nu_end, len(line_list_nu))
             
-            #You can just replace w/ nu_end = size_line - cuda_searchsorted(...)
             for _ in range(max(nu_end_idx-pline,0)):
                 
                 # calculate e-scattering optical depth to next resonance point
-                zend = time_explosion / C_INV * (1.0 - line_list_nu[pline] / nu) # check #float64
-                #pdb.set_trace()
+                zend = time_explosion / C_INV * (1.0 - line_list_nu[pline] / nu)
                 if first == 1:
                     # first contribution to integration
                     # NOTE: this treatment of I_nu_b (given
@@ -220,28 +151,23 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
                     #   should be re-examined carefully
                     escat_contrib += ((zend - zstart) * escat_op * (
                         Jblue_lu[pJblue_lu] - I_nu_thread[p_idx]))
-                    first = 0                                             #Literal[int](0)
+                    first = 0
                 else:
                     # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
-                    Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu]) #float64
+                    Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
                     escat_contrib += ((zend - zstart) * escat_op * (
                                 Jkkp - I_nu_thread[p_idx]))
-                    # this introduces the necessary ffset of one element between
+                    # this introduces the necessary offset of one element between
                     # pJblue_lu and pJred_lu
                     pJred_lu += 1
-                #cuda.atomic.add(I_nu_thread, p_idx, escat_contrib)
                 I_nu_thread[p_idx] += escat_contrib
-                #cuda.atomic.add(I_nu_thread, p_idx, escat_contrib) #escat_contrib
                 # // Lucy 1999, Eq 26
-                #cuda.syncthreads()
                 I_nu_thread[p_idx] *= (exp_tau[pexp_tau])
-                
-                #cuda.atomic.add(I_nu_thread, p_idx, att_S_ul[patt_S_ul])
                 I_nu_thread[p_idx] += att_S_ul[patt_S_ul] 
                 
                 # // reset e-scattering opacity
-                escat_contrib = 0.0                                          #Should still be a float64
-                zstart = zend                                              #float64
+                escat_contrib = 0.0                                          
+                zstart = zend                                              
 
                 pline += 1
                 pexp_tau += 1
@@ -250,23 +176,20 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
 
             # calculate e-scattering optical depth to grid cell boundary
 
-            Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu]) #float64
-            zend = time_explosion / C_INV * (1.0 - nu_end / nu) # check #float64
+            Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
+            zend = time_explosion / C_INV * (1.0 - nu_end / nu)
             escat_contrib += (zend - zstart) * escat_op * (        
-                        Jkkp - I_nu_thread[p_idx])                        #float64
-            zstart = zend                                          #float64
+                        Jkkp - I_nu_thread[p_idx])
+            zstart = zend
 
             # advance pointers
-            direction = int((shell_id_thread[i+1] - shell_id_thread[i]) * size_line) #int64
+            direction = int((shell_id_thread[i+1] - shell_id_thread[i]) * size_line)
             pexp_tau += direction
             patt_S_ul += direction
             pJred_lu += direction
             pJblue_lu += direction
-        #if p_idx == 9:
-        #    pdb.set_trace()
-        I_nu_thread[p_idx] *= p #multiply by float64 at this index
-    #cuda.atomic.add(L, nu_idx, 8 * M_PI * M_PI * trapezoid_integration_cuda(I_nu_thread, R_max / N))
-    
+
+        I_nu_thread[p_idx] *= p 
     L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration_cuda(I_nu_thread, R_max / N)
     
 

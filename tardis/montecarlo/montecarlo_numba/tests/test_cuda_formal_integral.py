@@ -293,4 +293,4 @@ def test_full_formal_integral(no_of_packets, iterations, config_verysimple, simu
         formal_integrator_numba.points,
     )
     
-    ntest.assert_allclose(L_cuda, L_numba, rtol=1e-10)
+    ntest.assert_allclose(L_cuda, L_numba, rtol=1e-14)
