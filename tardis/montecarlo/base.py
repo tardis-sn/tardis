@@ -13,6 +13,7 @@ from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo import packet_source as source
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
+from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import FormalIntegrator as CudaFormalIntegrator
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
 
 
@@ -22,6 +23,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
 )
 from tardis.montecarlo.montecarlo_numba import numba_config
 from tardis.io.logger import montecarlo_logger as mc_logger
+#from GPUtils import getGPUs #This is a pip dependency
 
 import numpy as np
 
@@ -302,6 +304,11 @@ class MontecarloRunner(HDFWriterMixin):
 
         configuration_initialize(self, no_of_virtual_packets)
         montecarlo_radial1d(model, plasma, self)
+        #try: 
+        #    getGPUs()
+        #    self._integrator = CudaFormalIntegrator(model, plasma, self)
+        #except ValueError:
+        #    self._integrator = FormalIntegrator(model, plasma, self)
         self._integrator = FormalIntegrator(model, plasma, self)
         # montecarlo.montecarlo_radial1d(
         #    model, plasma, self,

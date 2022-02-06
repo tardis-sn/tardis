@@ -18,9 +18,6 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import \
 
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
-#NEW
-from tardis.montecarlo.montecarlo_numba.formal_integral_cuda_functions import cuda_searchsorted_value_right
-
 C_INV = 3.33564e-11
 M_PI = np.arccos(-1)
 KB_CGS = 1.3806488e-16
@@ -30,7 +27,7 @@ class IntegrationError(Exception):
     pass
 
 @cuda.jit
-def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N, L, pp, exp_tau, I_nu, z, shell_id):
+def cuda_formal_integral(r_inner, r_outer, time_explosion, line_list_nu, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N, L, pp, exp_tau, I_nu, z, shell_id):
     """
     The CUDA version of numba_formal_integral that can run
     on a NVIDIA GPU.
@@ -194,7 +191,7 @@ def numba_formal_integral_cuda(r_inner, r_outer, time_explosion, line_list_nu, i
     
 
 
-class NumbaFormalIntegrator(object):
+class CudaFormalIntegrator(object):
     '''
     Helper class for performing the formal integral
     with numba.
@@ -251,7 +248,7 @@ class NumbaFormalIntegrator(object):
         blocks_per_grid = (inu_size // THREADS_PER_BLOCK) + 1
         print("Blocks, threads", blocks_per_grid, THREADS_PER_BLOCK)
         
-        numba_formal_integral_cuda[blocks_per_grid, THREADS_PER_BLOCK](
+        cuda_formal_integral[blocks_per_grid, THREADS_PER_BLOCK](
                                           self.model.r_inner,
                                           self.model.r_outer,
                                           self.model.time_explosion,
@@ -312,7 +309,7 @@ class FormalIntegrator(object):
                 self.runner.line_interaction_type
         )
 
-        self.numba_integrator = NumbaFormalIntegrator(
+        self.numba_integrator = CudaFormalIntegrator(
                 self.numba_model, 
                 self.numba_plasma, 
                 self.points
