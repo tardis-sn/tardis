@@ -1,0 +1,25 @@
+name: pr-doc-preview-link
+
+on:
+  pull_request:
+    types:
+    - opened
+
+jobs:
+  comment:
+
+    if: github.repository_owner != 'tardis-sn' && (
+        contains(github.ref, 'doc') ||
+        contains(github.event.head_commit.message, '[build docs]') ||
+        contains(github.event.head_commit.message, '[build_docs]') ||
+        contains(github.event.head_commit.message, '[build doc]') ||
+        contains(github.event.head_commit.message, '[build_doc]'))
+
+    
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Github context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
