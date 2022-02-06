@@ -23,7 +23,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
 )
 from tardis.montecarlo.montecarlo_numba import numba_config
 from tardis.io.logger import montecarlo_logger as mc_logger
-#from GPUtils import getGPUs #This is a pip dependency
+#from GPUtil import getGPUs #This is a pip dependency
 
 import numpy as np
 
