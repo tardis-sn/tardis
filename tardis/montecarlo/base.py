@@ -23,7 +23,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
 )
 from tardis.montecarlo.montecarlo_numba import numba_config
 from tardis.io.logger import montecarlo_logger as mc_logger
-#from GPUtil import getGPUs #This is a pip dependency
+from GPUtil import getGPUs #This is a pip dependency
 
 import numpy as np
 
@@ -304,12 +304,12 @@ class MontecarloRunner(HDFWriterMixin):
 
         configuration_initialize(self, no_of_virtual_packets)
         montecarlo_radial1d(model, plasma, self)
-        #try: 
-        #    getGPUs()
-        #    self._integrator = CudaFormalIntegrator(model, plasma, self)
-        #except ValueError:
-        #    self._integrator = FormalIntegrator(model, plasma, self)
-        self._integrator = FormalIntegrator(model, plasma, self)
+        try: 
+            getGPUs()
+            self._integrator = CudaFormalIntegrator(model, plasma, self)
+        except ValueError:
+            self._integrator = FormalIntegrator(model, plasma, self)
+        #self._integrator = FormalIntegrator(model, plasma, self)
         # montecarlo.montecarlo_radial1d(
         #    model, plasma, self,
         #    virtual_packet_flag=no_of_virtual_packets,

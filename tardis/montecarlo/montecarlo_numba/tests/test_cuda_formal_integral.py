@@ -13,7 +13,6 @@ import tardis.montecarlo.montecarlo_numba.formal_integral_cuda as formal_integra
 import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral_numba
 from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
 
-from tardis.montecarlo.montecarlo_numba.formal_integral_cuda_functions import cuda_searchsorted_value_right
 
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
 from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import FormalIntegrator as cuda_FormalIntegrator
@@ -21,7 +20,7 @@ from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import FormalIntegr
 from tardis.montecarlo import MontecarloRunner
 
 
-#All tests need to be changed to call the number version of the function as the expected result
+#Test cases must also take into account use of a GPU to run. If there is no GPU then the test cases will fail. 
 
 @pytest.mark.parametrize(
     ["nu", "T"],
