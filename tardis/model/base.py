@@ -195,22 +195,6 @@ class Radial1DModel(HDFWriterMixin):
             )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
         )
 
-        raw_abundance = self.raw_abundance.copy()
-        raw_abundance["mass_number"] = -1
-        raw_abundance = raw_abundance.set_index(
-            [raw_abundance.index, "mass_number"]
-        )
-        if not self.raw_isotope_abundance.empty:
-            isotope_abundance = raw_abundance.append(
-                self.raw_isotope_abundance.decay(self.time_explosion)
-            )
-        else:
-            isotope_abundance = raw_abundance
-
-        isotope_abundance = isotope_abundance.iloc[
-            :, self.v_boundary_inner_index : self.v_boundary_outer_index
-        ]
-        isotope_abundance.columns = range(len(isotope_abundance.columns))
 
         self.model_state = ModelState(
             v_inner=v_inner,
@@ -219,7 +203,7 @@ class Radial1DModel(HDFWriterMixin):
             r_outer=self.time_explosion * v_outer,
             time_explosion=self.time_explosion,
             density=density,
-            isotope_abundance=isotope_abundance,
+            isotope_abundance=self.isotope_abundance,
         )
 
         if t_inner is None:
@@ -407,6 +391,32 @@ class Radial1DModel(HDFWriterMixin):
     @property
     def density(self):
         return self.model_state.density
+
+    @property
+    def isotope_abundance(self):
+        raw_abundance = self.raw_abundance.copy()
+        raw_abundance["mass_number"] = -1
+        raw_abundance = raw_abundance.set_index(
+            [raw_abundance.index, "mass_number"]
+        )
+
+        raw_abundance.columns = pd.RangeIndex(start=0, stop=len(raw_abundance.columns), step=1)
+
+        if not self.raw_isotope_abundance.empty:
+            self._abundance = raw_abundance.append(
+                self.raw_isotope_abundance.decay(self.time_explosion)
+            )
+            norm_factor = self._abundance.sum(axis=0)
+            self._abundance /= norm_factor
+        else:
+            self._abundance = raw_abundance
+
+        isotope_abundance = self._abundance.iloc[
+            :, self.v_boundary_inner_index : self.v_boundary_outer_index
+        ]
+
+        isotope_abundance.columns = range(len(isotope_abundance.columns))
+        return isotope_abundance
 
     @property
     def abundance(self):
