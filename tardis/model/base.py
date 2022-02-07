@@ -186,7 +186,7 @@ class Radial1DModel(HDFWriterMixin):
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
         self.raw_abundance = self._abundance
-        self.raw_isotope_abundance = isotope_abundance
+        self._raw_isotope_abundance = isotope_abundance
         v_outer = self.velocity[1:]
         v_inner = self.velocity[:-1]
         density = (
@@ -402,9 +402,9 @@ class Radial1DModel(HDFWriterMixin):
 
         raw_abundance.columns = pd.RangeIndex(start=0, stop=len(raw_abundance.columns), step=1)
 
-        if not self.raw_isotope_abundance.empty:
+        if not self._raw_isotope_abundance.empty:
             self._abundance = raw_abundance.append(
-                self.raw_isotope_abundance.decay(self.time_explosion)
+                self._raw_isotope_abundance.decay(self.time_explosion)
             )
             norm_factor = self._abundance.sum(axis=0)
             self._abundance /= norm_factor
@@ -417,6 +417,15 @@ class Radial1DModel(HDFWriterMixin):
 
         isotope_abundance.columns = range(len(isotope_abundance.columns))
         return isotope_abundance
+
+    @property
+    def raw_isotope_abundance(self):
+        return self._raw_isotope_abundance
+
+    @raw_isotope_abundance.setter
+    def raw_isotope_abundance(self, value):
+        self._raw_isotope_abundance = value
+        self.model_state.isotope_abundance = self.isotope_abundance
 
     @property
     def abundance(self):
