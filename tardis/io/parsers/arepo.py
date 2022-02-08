@@ -478,7 +478,7 @@ class Profile:
         """
         Function to export a profile as csvy file. Either the
         positive or negative direction can be exported. Does
-        not overwrite existing files, saves to *(<n>).csvy
+        not overwrite existing files, saves to <filename>_<number>.csvy
         file instead.
 
         Parameters
