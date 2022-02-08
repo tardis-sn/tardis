@@ -100,7 +100,12 @@ class Lines(BaseAtomicDataProperty):
 
     # Would like for lines to just be the line_id values
     outputs = ("lines", "nu", "f_lu", "wavelength_cm")
-
+    latex_name = (
+        r"\textrm{lines}",
+        r"\nu",
+        r"f_lu",
+        r"\lambda_{cm}",
+    )
     def _filter_atomic_property(self, lines, selected_atoms):
         # return lines[lines.atomic_number.isin(selected_atoms)]
         return lines
