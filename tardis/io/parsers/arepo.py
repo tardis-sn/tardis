@@ -474,11 +474,18 @@ class Profile:
 
         return self
 
-    def export(self, nshells, filename, direction="pos", statistic="mean"):
+    def export(
+        self,
+        nshells,
+        filename,
+        direction="pos",
+        statistic="mean",
+        overwrite=False
+    ):
         """
         Function to export a profile as csvy file. Either the
-        positive or negative direction can be exported. Does
-        not overwrite existing files, saves to <filename>_<number>.csvy
+        positive or negative direction can be exported. By default
+        does not overwrite existing files, saves to <filename>_<number>.csvy
         file instead.
 
         Parameters
@@ -494,6 +501,9 @@ class Profile:
         statistic : str
             Scipy keyword for scipy.stats.binned_statistic. If
             statistic=None, data is not rebinned. Default: "mean"
+        overwrite: bool
+            If true, will overwrite if a file of the same name exists.
+            By default False.
 
         Returns
         -------
@@ -505,7 +515,7 @@ class Profile:
         if filename.endswith(".csvy"):
             filename = filename.replace(".csvy", "")
 
-        if os.path.exists("%s.csvy" % filename):
+        if os.path.exists("%s.csvy" % filename) and not overwrite:
             i = 0
             while os.path.exists("%s_%s.csvy" % (filename, i)):
                 i += 1
