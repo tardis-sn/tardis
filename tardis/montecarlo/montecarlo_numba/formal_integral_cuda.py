@@ -194,7 +194,7 @@ def cuda_formal_integral(r_inner, r_outer, time_explosion, line_list_nu, iT, inu
 class CudaFormalIntegrator(object):
     '''
     Helper class for performing the formal integral
-    with numba.
+    with CUDA.
     '''
     def __init__(self, model, plasma, points=1000):
 
@@ -203,57 +203,32 @@ class CudaFormalIntegrator(object):
         self.points = points
     
     def formal_integral(self, iT, inu, inu_size, att_S_ul, Jred_lu, Jblue_lu, tau_sobolev, electron_density, N):
-        '''simple wrapper for the numba implementation of the formal integral'''
-        #Pass in all the needed elements of the model and plasma as individual arguments
+        '''simple wrapper for the CUDA implementation of the formal integral'''
         
-        
-        #Add the prints as returns from the output, so then the returns can be accessed as well, can do direct 
-        #numpy comparisons
-        
-        #print("Debugging")
-        #print("-"*40)
-        #print("iT", iT)
-        #print(type(iT))
-        #print("Jred_lu.shape", Jred_lu.shape)
-        #print("Jblue_lu.shape", Jblue_lu.shape)
-        print("inu_size", inu_size)
-        #print("tau_sobolev.shape", tau_sobolev.shape)
-        #print("N", N)
-        #print(iT.shape)
-        # Initialize the output which is shared among threads
-        L = np.zeros(inu_size, dtype=np.float64)                   #array(float64, 1d, C)
+        L = np.zeros(inu_size, dtype=np.float64)                             #array(float64, 1d, C)
         # global read-only values
-        size_line, size_shell = tau_sobolev.shape                  #int64, int64
-        size_tau = size_line * size_shell
+        size_line, size_shell = tau_sobolev.shape                            #int64, int64
+        size_tau = size_line * size_shell                                    #int64
         
-        pp = np.zeros(N, dtype=np.float64) # check                 #array(float64, 1d, C)
-        exp_tau = np.zeros(size_tau, dtype=np.float64)             #array(float64, 1d, C)
-        exp_tau = np.exp(-tau_sobolev.T.ravel()) # maybe make this 2D? #array(float64, 1d, C)
-        pp[::] = calculate_p_values(self.model.r_outer[size_shell - 1], N)                 #array(float64, 1d, C)
+        pp = np.zeros(N, dtype=np.float64)                                   #array(float64, 1d, C)
+        exp_tau = np.zeros(size_tau, dtype=np.float64)                       #array(float64, 1d, C)
+        exp_tau = np.exp(-tau_sobolev.T.ravel())                             #array(float64, 1d, C)
+        pp[::] = calculate_p_values(self.model.r_outer[size_shell - 1], N)   #array(float64, 1d, C)
         
         
-        #This is done to make it so that pp is a 2d array of pp values, so that each thread will have it's own pp
-        #to index. The results stay the same. This also allows calculate_p_values to be used. 
-        #pp = np.meshgrid(calculate_p_values(self.model.r_outer[size_shell - 1], N), 
-                         #calculate_p_values(self.model.r_outer[size_shell - 1], N))
-        #pp = pp[0]
-        
-        I_nu = np.zeros((inu_size, N), dtype=np.float64)                                 #array(float64, 1d, C)
-        print("I_nu shape", I_nu.shape)
-        z = np.zeros((inu_size, 2 * size_shell), dtype=np.float64)             #array(float64, 1d, C)
-        shell_id = np.zeros((inu_size, 2 * size_shell), dtype=np.int64)        #array(int64, 1d, C)
-        #print("First z of zs", z[0][0])
-        print("L", L)
+       
+        I_nu = np.zeros((inu_size, N), dtype=np.float64)                     #array(float64, 1d, C)
+        z = np.zeros((inu_size, 2 * size_shell), dtype=np.float64)           #array(float64, 1d, C)
+        shell_id = np.zeros((inu_size, 2 * size_shell), dtype=np.int64)      #array(int64, 1d, C)
         THREADS_PER_BLOCK = 32
         blocks_per_grid = (inu_size // THREADS_PER_BLOCK) + 1
-        print("Blocks, threads", blocks_per_grid, THREADS_PER_BLOCK)
         
         cuda_formal_integral[blocks_per_grid, THREADS_PER_BLOCK](
                                           self.model.r_inner,
                                           self.model.r_outer,
                                           self.model.time_explosion,
                                           self.plasma.line_list_nu,
-                                          iT.value, #Testing to see if will fix blackbody problem
+                                          iT.value, 
                                           inu.value,
                                           inu_size, 
                                           att_S_ul, 
@@ -268,11 +243,8 @@ class CudaFormalIntegrator(object):
                                           I_nu, 
                                           z, 
                                           shell_id)
-        print("\n\n")
-        print("L:")
-        print(L)
+
         return L
-        #return L, I_nu
     
 
 
@@ -293,9 +265,6 @@ class FormalIntegrator(object):
             self.atomic_data = plasma.atomic_data
             self.original_plasma = plasma
             
-    #CHANGED IMPORTANT
-    #self.runner.r_inner_i
-    #self.runner.r_outer_i
     def generate_numba_objects(self):
         '''instantiate the numba interface objects
         needed for computing the formal integral'''
@@ -560,7 +529,7 @@ class FormalIntegrator(object):
         return att_S_ul, Jredlu, Jbluelu, e_dot_u
 
     def formal_integral(self, nu, N):
-        '''Do the formal integral with the numba
+        '''Do the formal integral with the CUDA
         routines'''
         # TODO: get rid of storage later on
 
@@ -570,7 +539,6 @@ class FormalIntegrator(object):
         Jred_lu = res[1].values.flatten(order='F')
         Jblue_lu = res[2].flatten(order='F')
 
-        ##self.model.t_inner was changed to .value to try and resolve an error!
         self.generate_numba_objects()
         L = self.numba_integrator.formal_integral(
                 self.model.t_inner,
@@ -585,7 +553,6 @@ class FormalIntegrator(object):
                 )
         return np.array(L, np.float64)
 
-#Was no parallel
 @cuda.jit(device=True)
 def populate_z_cuda(r_inner, r_outer, time_explosion, p, oz, oshell_id):
     """
@@ -610,8 +577,7 @@ def populate_z_cuda(r_inner, r_outer, time_explosion, p, oz, oshell_id):
     -------
     int64
     """
-    N = len(r_inner) # check
-    #print(N)
+    N = len(r_inner) 
     inv_t = 1/time_explosion
     z = 0
     offset = N
@@ -635,7 +601,7 @@ def populate_z_cuda(r_inner, r_outer, time_explosion, p, oz, oshell_id):
             i_low = N - i - 1  # the far intersection with the shell
             i_up = N + i - 2 * offset  # the nearer intersection with the shell
 
-            # setting the arrays; check return them?
+            # setting the arrays
             oz[i_low] = 1 + z
             oshell_id[i_low] = i
             oz[i_up] = 1 - z
