@@ -7,6 +7,7 @@ from copy import deepcopy
 import numpy.testing as ntest
 from numba import cuda
 from numba import njit
+import GPUtil
 
 
 import tardis.montecarlo.montecarlo_numba.formal_integral_cuda as formal_integral_cuda
@@ -21,7 +22,15 @@ from tardis.montecarlo import MontecarloRunner
 
 
 #Test cases must also take into account use of a GPU to run. If there is no GPU then the test cases will fail. 
+GPUs_available = False
+try:
+    GPUtil.getGPUs()
+    GPUs_available = True
+    
+except ValueError:
+    pass
 
+@pytest.mark.skipif(not GPUs_available, reason="No GPU is available to test CUDA function")
 @pytest.mark.parametrize(
     ["nu", "T"],
     [
@@ -47,6 +56,7 @@ def black_body_caller(nu, T, actual):
 
 
 
+@pytest.mark.skipif(not GPUs_available, reason="No GPU is available to test CUDA function")
 @pytest.mark.parametrize(["N", "N_loc"], 
                          [
                              (1e2, 0), 
@@ -99,6 +109,7 @@ def formal_integral_model(request):
 
 
 
+@pytest.mark.skipif(not GPUs_available, reason="No GPU is available to test CUDA function")
 @pytest.mark.parametrize(["p", "p_loc"], 
                          [
                              (0.0, 0), 
@@ -123,6 +134,7 @@ def calculate_z_caller(r, p, inv_t, actual):
 
 
 
+@pytest.mark.skipif(not GPUs_available, reason="No GPU is available to test CUDA function")
 @pytest.mark.parametrize(["p", "p_loc"], 
                          [
                              (1e-5, 0), 
@@ -168,6 +180,7 @@ def populate_z_caller(r_inner, r_outer, time_explosion, p, oz, oshell_id, actual
 
 
 
+@pytest.mark.skipif(not GPUs_available, reason="No GPU is available to test CUDA function")
 @pytest.mark.parametrize(
     "N",
     [
@@ -188,6 +201,7 @@ def test_calculate_p_values(N):
 
 
 
+@pytest.mark.skipif(not GPUs_available, reason="No GPU is available to test CUDA function")
 @pytest.mark.parametrize(
     "nu_insert", np.linspace(3e+12, 3e+16, 10)
 )
@@ -209,6 +223,7 @@ def line_search_cuda_caller(line_list_nu, nu_insert, actual):
 
 
 
+@pytest.mark.skipif(not GPUs_available, reason="No GPU is available to test CUDA function")
 @pytest.mark.parametrize(
     "nu_insert",[*np.linspace(3e12, 3e16, 10), 288786721666522.1]
 )
@@ -233,6 +248,7 @@ def reverse_binary_search_cuda_caller(line_list_nu, nu_insert, imin, imax, actua
 
 
 #no_of_packets and iterations match what is used by config_verysimple
+@pytest.mark.skipif(not GPUs_available, reason="No GPU is available to test CUDA function")
 @pytest.mark.parametrize(
     ["no_of_packets", "iterations"],
     [
