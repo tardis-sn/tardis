@@ -1,8 +1,0 @@
-in t_inner:
-
-
-The temperature of the inner boundary is also updated throughout the simulation.
-
-FINISH THIS!!!! (mention lock cycles) (note about the exponent being negative)
-
-!!!!Mention J_blues in a note?!!!!
