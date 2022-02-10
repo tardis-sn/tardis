@@ -74,4 +74,3 @@ dependencies:
 
   - pip:
       - dot2tex  # conda-forge package requires python>=3.8
-      - GPUtil

@@ -7,7 +7,6 @@ from copy import deepcopy
 import numpy.testing as ntest
 from numba import cuda
 from numba import njit
-import GPUtil
 
 
 import tardis.montecarlo.montecarlo_numba.formal_integral_cuda as formal_integral_cuda
@@ -22,13 +21,7 @@ from tardis.montecarlo import MontecarloRunner
 
 
 #Test cases must also take into account use of a GPU to run. If there is no GPU then the test cases will fail. 
-GPUs_available = False
-try:
-    GPUtil.getGPUs()
-    GPUs_available = True
-    
-except ValueError:
-    pass
+GPUs_available = cuda.is_available()
 
 @pytest.mark.skipif(not GPUs_available, reason="No GPU is available to test CUDA function")
 @pytest.mark.parametrize(
