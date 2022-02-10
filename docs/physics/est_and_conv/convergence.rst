@@ -4,33 +4,51 @@
 Convergence
 ***********
 
-As explained in :doc:`estimators.ipynb`, after each iteration the values for radiative temperature and dilution factor are updated by calling the ``advance_state`` method on a ``Simulation`` object. The goal of this is to eventually have the radiative temperature and dilution factor converge to a single value so that the steady-state plasma state can be determined. To ensure that the simulation converges, TARDIS employs additional convergence strategies. Currently, only one convergence strategy is available: damped convergence. This will be described in the following sections.
+As explained in :doc:`estimators`, after each iteration the values for radiative temperature and dilution factor are updated by calling the ``advance_state`` method on a ``Simulation`` object. The goal of this is to eventually have the radiative temperature and dilution factor converge to a single value so that the steady-state plasma state can be determined. To ensure that the simulation converges, TARDIS employs additional convergence strategies. Currently, only one convergence strategy is available: damped convergence. This will be described in the following sections.
 
 
 T_rad and W
 -----------
 
-As discussed :doc:`here <estimators.ipynb>`, TARDIS uses estimators to calculate estimated radiative temperatures (:math:`T_\mathrm{rad}`) and dilution factors (:math:`W`) in each cell. While TARDIS can then update the plasma state using the estimated values, there is a good chance that these estimated values would “overshoot” the true value we want to converge to (for example, if the current value of the dilution factor in some cell the dilution factor is .4, and the true steady-state value TARDIS wants to find is .45, there is a good chance that the estimated value will be greater than .45). This could make the simulation take longer to converge or, at worst, make it so the simulation does not converge at all. To account for this, users can set (in the :ref:`convergence section <conv-config>` of the monte carlo configuration) a "damping constant" for both the radiative temperature (:math:`d_{T_\mathrm{rad}}`) and the dilution factor (:math:`d_W`). When ``advance_state`` is called, these quantities update as follows:
+As discussed :doc:`here <estimators>`, TARDIS uses estimators to calculate estimated radiative temperatures (:math:`T_\mathrm{rad}`) and dilution factors (:math:`W`) in each cell. While TARDIS can then update the plasma state using the estimated values, there is a good chance that these estimated values would “overshoot” the true value we want to converge to (for example, if the current value of the dilution factor in some cell the dilution factor is .4, and the true steady-state value TARDIS wants to find is .45, there is a good chance that the estimated value will be greater than .45). This could make the simulation take longer to converge or, at worst, make it so the simulation does not converge at all. To account for this, users can set (in the :ref:`convergence section <conv-config>` of the monte carlo configuration) a "damping constant" for both the radiative temperature (:math:`d_{T_\mathrm{rad}}`) and the dilution factor (:math:`d_W`). When ``advance_state`` is called, these quantities update as follows:
 
 .. math::
-    T_\mathrm{rad}_{updated} = T_\mathrm{rad}_{current} + d_{T_\mathrm{rad}}(T_\mathrm{rad}_{estimated}-T_\mathrm{rad}_{current})
+    T_\mathrm{rad\ updated} = T_\mathrm{rad\ current} + d_{T_\mathrm{rad}}(T_\mathrm{rad\ estimated}-T_\mathrm{rad\ current})
+    
+and
     
 .. math::
-    W_{updated} = W_{current} + d_W(W_{estimated}-W_{current})
+    W_{updated} = W_{current} + d_W(W_{estimated}-W_{current}).
 
-This means, for example, if the damping constant is .5, the updated value is halfway between the current value and the estimated value. If the damping constant is .7, the updated value is 70% of the way between the current value and the estimated value, and so on. If the damping constant is 1, then the updated value is exactly the estimated value, and if the damping constant is zero, the value stays the same throughout the simulation and is not updated.
+This means, for example, if the damping constant is .5, the updated value is halfway between the current value and the estimated value. If the damping constant is .7, the updated value is 70% of the way between the current value and the estimated value, and so on. **If the damping constant is 1, then the updated value is exactly the estimated value, and if the damping constant is zero, the value stays the same throughout the simulation and is not updated.**
 
 
 T_inner
 -------
 
+The temperature of the inner boundary, :math:`T_\mathrm{inner}`, plays a unique role in the simulation, as it is the primary determiner of the output luminosity. This is because the the luminosity of the inner boundary is proportional to :math:`T_\mathrm{inner}^4` (see :doc:`../montecarlo/initialization`). Thus, :math:`T_\mathrm{inner}` is updated throughout the simulation in order to match the output luminosity to the requested luminosity specified in the :doc:`supernova configuration <../../io/configuration/components/supernova>` between the bounds specified in the supernova configuration. However, there is not necessarily a quartic relationship between :math:`T_\mathrm{inner}` and the output luminosity, as changing :math:`T_\mathrm{inner}` also changes the frequency distribution of the initialized packets (once again see :doc:`../montecarlo/initialization`). This then affects the light-matter interactions, affecting which packets make it to the outer boundary, which also affects the output luminosity. Because of this, there is not an exact way to estimate :math:`T_\mathrm{inner}`. To do this estimation, we use
+
+.. math::
+    T_\mathrm{inner\ estimated} = T_\mathrm{inner\ current} * \left(\frac{L_\mathrm{output}}{L_\mathrm{requested}}\right)^{\mathrm{t\_inner\_update\_exponent}}
+    
+where :math:`L_\mathrm{output}` is the output luminosity calculated by adding up the luminosity of each packet (see :doc:`../spectrum/basic`) between the bounds specified in the :doc:`supernova configuration <../../io/configuration/components/supernova>`, :math:`L_\mathrm{requested}` is the luminosity requested also in the supernova configuration (requested between those bounds previously mentioned), and ``t_inner_update_exponent`` is provided by the user in the :ref:`convergence section <conv-config>` of the monte carlo configuration. Note that what we are doing is "correcting" the previous value of the inner temperature by a factor of :math:`\left(\frac{L_\mathrm{output}}{L_\mathrm{requested}}\right)^{\mathrm{t\_inner\_update\_exponent}}`. Note that if :math:`\frac{L_\mathrm{output}}{L_\mathrm{requested}}` is greater than 1, we want to lower :math:`T_\mathrm{inner}` as the output luminosity is too high, and vice versa if the ratio is less than 1. Thus ``t_inner_update_exponent`` should be negative. Naively one might set ``t_inner_update_exponent=-0.25``, however as a default TARDIS uses ``t_inner_update_exponent=-0.5`` as -0.25 may undershoot the correct :math:`T_\mathrm{inner}` because of its previously mentioned effects on the initial frequency distribution.
+
+After calculating the estimated :math:`T_\mathrm{inner}`, the quantity is updated using damped convergence with its own damping constant (once again set in the :ref:`convergence section <conv-config>` of the monte carlo configuration):
+
+.. math::
+    T_\mathrm{rad\ updated} = T_\mathrm{rad\ current} + d_{T_\mathrm{rad}}(T_\mathrm{rad\ estimated}-T_\mathrm{rad\ current}).
+
+Once again, If the damping constant is 1, then the updated value is exactly the estimated value, and if the damping constant is zero, the value stays the same throughout the simulation and is not updated.
+
+Additionally, because of the vast impact of :math:`T_\mathrm{inner}` on the simulation, one may want to update it less frequently -- i.e. allow :math:`W` and :math:`T_\mathrm{rad}` to reach a steady-state value for a particular :math:`T_\mathrm{inner}` before updating :math:`T_\mathrm{inner}`. To do this, in the :ref:`convergence section <conv-config>` of the monte carlo configuration we set ``lock_t_inner_cycles``, which is the number of iterations to wait before updating :math:`T_\mathrm{inner}`. It is set to 1 by default, meaning :math:`T_\mathrm{inner}` would be updated every iteration.
+
 
 Convergence Information
 -----------------------
 
-During the simulation, information about the how :math:`T_\mathrm{rad}`, :math:`W`, and :math:`T_\mathrm{inner}` are updated as well as a comparison of the total output luminosity and the requested luminosity are logged at the INFO level (see :doc:`../../io/optional/logging_configuration.ipynb`) to give users a better idea of how the convergence process is working.
+During the simulation, information about the how :math:`T_\mathrm{rad}`, :math:`W`, and :math:`T_\mathrm{inner}` are updated as well as a comparison of the total output luminosity and the requested luminosity are logged at the INFO level (see :doc:`../../io/optional/logging_configuration`) to give users a better idea of how the convergence process is working.
 
-In addition, TARDIS allows for the displaying of convergence plots, which allows users to visualize the convergence process for :math:`T_\mathrm{rad}`, :math:`W`, :math:`T_\mathrm{inner}`, and the total luminosity of the supernova being modeled. For more information, see :doc:`../../io/visualization/convergence_plot.ipynb`.
+In addition, TARDIS allows for the displaying of convergence plots, which allows users to visualize the convergence process for :math:`T_\mathrm{rad}`, :math:`W`, :math:`T_\mathrm{inner}`, and the total luminosity of the supernova being modeled. For more information, see :doc:`../../io/visualization/convergence_plot`.
 
 
 Convergence Criteria
