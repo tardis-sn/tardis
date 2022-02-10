@@ -480,7 +480,7 @@ class Profile:
         filename,
         direction="pos",
         statistic="mean",
-        overwrite=False
+        overwrite=False,
     ):
         """
         Function to export a profile as csvy file. Either the
