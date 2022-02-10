@@ -18,7 +18,7 @@ As discussed :doc:`here <estimators>`, TARDIS uses estimators to calculate estim
 and
     
 .. math::
-    W_{updated} = W_{current} + d_W(W_{estimated}-W_{current}).
+    W_\mathrm{updated} = W_\mathrm{current} + d_W(W_\mathrm{estimated}-W_\mathrm{current}).
 
 This means, for example, if the damping constant is .5, the updated value is halfway between the current value and the estimated value. If the damping constant is .7, the updated value is 70% of the way between the current value and the estimated value, and so on. **If the damping constant is 1, then the updated value is exactly the estimated value, and if the damping constant is zero, the value stays the same throughout the simulation and is not updated.**
 
@@ -60,7 +60,7 @@ For the simulation to be considered to have converged, for ``hold_iterations`` s
 
 .. note::
 
-    ``hold_iterations`` and ``fraction`` are universal quantities, i.e. they are each a single value that applies to :math:`T_\mathrm{rad}` and :math:`W`, and for ``hold_iterations`` also :math:`T_\mathrm{inner}`. ``threshold``, on the other hand, is supplied for each quantity seperately, so for instance you could require :math:`T_\mathrm{rad}` to change by less than 1%, :math:`W` to change by less than 3%, and :math:`T_\mathrm{inner}` to change by less than 5% for convergence to be reached.
+    ``hold_iterations`` and ``fraction`` are universal quantities, i.e. they are each a single value that applies to :math:`T_\mathrm{rad}` and :math:`W`, and for ``hold_iterations`` also :math:`T_\mathrm{inner}`. ``threshold``, on the other hand, is supplied for each quantity separately, so for instance you could require :math:`T_\mathrm{rad}` to change by less than 1%, :math:`W` to change by less than 3%, and :math:`T_\mathrm{inner}` to change by less than 5% for convergence to be reached.
     
 .. note::
 
@@ -70,4 +70,4 @@ For the simulation to be considered to have converged, for ``hold_iterations`` s
 Custom Convergence
 ------------------
 
-The custom convergence strategy option is not currently implimented in TARDIS.
+The custom convergence strategy option is not currently implemented in TARDIS.
