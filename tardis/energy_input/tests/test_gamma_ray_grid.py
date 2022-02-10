@@ -30,8 +30,8 @@ def test_move_photon(basic_gamma_ray):
     photon = basic_gamma_ray
     distance = 1.0e15
 
-    x_old, y_old, z_old = photon.location_cartesian_coords()
-    x_dir, y_dir, z_dir = photon.direction_cartesian_coords()
+    x_old, y_old, z_old = photon.get_location_cartesian_coords()
+    x_dir, y_dir, z_dir = photon.get_direction_cartesian_coords()
 
     x_new = x_old + distance * x_dir
     y_new = y_old + distance * y_dir

@@ -70,7 +70,7 @@ def compton_scatter(photon, compton_angle):
 
     # get comoving frame direction
     abb_array = angle_aberration_gamma(
-        photon.direction_vector(), photon.location_r
+        photon.get_direction_vector(), photon.location_r
     )
     comov_direction = np.array(
         spherical_to_cartesian(1, abb_array[1], abb_array[2])

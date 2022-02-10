@@ -75,7 +75,7 @@ class GXPhoton(object):
         self.tau = -np.log(np.random.random())
         self.activity = activity
 
-    def location_cartesian_coords(self):
+    def get_location_cartesian_coords(self):
         x = (
             self.location_r
             * np.cos(self.location_phi)
@@ -89,13 +89,13 @@ class GXPhoton(object):
         z = self.location_r * np.cos(self.location_theta)
         return x, y, z
 
-    def direction_cartesian_coords(self):
+    def get_direction_cartesian_coords(self):
         x = np.cos(self.direction_phi) * np.sin(self.direction_theta)
         y = np.sin(self.direction_phi) * np.sin(self.direction_theta)
         z = np.cos(self.direction_theta)
         return x, y, z
 
-    def direction_vector(self):
+    def get_direction_vector(self):
         return np.array(
             (self.direction_r, self.direction_theta, self.direction_phi)
         )

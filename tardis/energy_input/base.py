@@ -155,10 +155,18 @@ def initialize_photons(
                 primary_photon.shell = shell
                 if gamma_ray_probability < np.random.random():
                     # positron: sets gamma-ray energy to 511keV
-                    primary_photon.energy = ELECTRON_MASS_ENERGY_KEV
+                    # scaled to rest frame by doppler factor
+                    primary_photon.energy = (
+                        ELECTRON_MASS_ENERGY_KEV
+                        / doppler_gamma(
+                            primary_photon.get_direction_vector(),
+                            primary_photon.location_r,
+                        )
+                    )
                     photons.append(primary_photon)
 
-                    # annihilation dumps energy into medium
+                    # annihilation dumps comoving energy into medium
+                    # measured in the comoving frame
                     energy_KeV = sample_energy_distribution(
                         positron_energy_sorted, positron_energy_cdf
                     )
@@ -189,7 +197,7 @@ def initialize_photons(
                         primary_photon_x,
                         primary_photon_y,
                         primary_photon_z,
-                    ) = primary_photon.location_cartesian_coords()
+                    ) = primary_photon.get_location_cartesian_coords()
                     secondary_photon_x = -primary_photon_x
                     secondary_photon_y = -primary_photon_y
                     secondary_photon_z = -primary_photon_z
@@ -216,11 +224,24 @@ def initialize_photons(
                     )
                     secondary_photon.tau = primary_photon.tau
 
+                    # get secondary photon rest frame energy
+                    secondary_photon.energy = (
+                        ELECTRON_MASS_ENERGY_KEV
+                        / doppler_gamma(
+                            secondary_photon.get_direction_vector(),
+                            secondary_photon.location_r,
+                        )
+                    )
+
                     photons.append(secondary_photon)
                 else:
                     # Spawn a gamma ray emission with energy from gamma-ray list
+                    # energy transformed to rest frame
                     primary_photon.energy = sample_energy_distribution(
                         energy_sorted, energy_cdf
+                    ) / doppler_gamma(
+                        primary_photon.get_direction_vector(),
+                        primary_photon.location_r,
                     )
                     photons.append(primary_photon)
 
@@ -346,7 +367,7 @@ def main_gamma_ray_loop(num_decays, model):
 
             # Calculate photon comoving energy for opacities
             comoving_energy = photon.energy * doppler_gamma(
-                photon.direction_vector(), photon.location_r
+                photon.get_direction_vector(), photon.location_r
             )
 
             compton_opacity = compton_opacity_calculation(
@@ -393,27 +414,30 @@ def main_gamma_ray_loop(num_decays, model):
                     distance_interaction / C_CGS * time_explosion
                 )
 
+                # Calculate photon comoving energy at new location
+                comoving_energy = photon.energy * doppler_gamma(
+                    photon.get_direction_vector(), photon.location_r
+                )
+
                 if photon.status == GXPhotonStatus.COMPTON_SCATTER:
                     (
                         compton_angle,
                         ejecta_energy_gained,
-                        comoving_energy,
+                        new_comoving_energy,
                     ) = get_compton_angle(comoving_energy)
                     (
                         photon.direction_theta,
                         photon.direction_phi,
                     ) = compton_scatter(photon, compton_angle)
 
-                    # Transform the energy back to the lab frame
-                    photon.energy = comoving_energy / doppler_gamma(
-                        photon.direction_vector(), photon.location_r
+                    # Transform the energy back to the rest frame
+                    photon.energy = new_comoving_energy / doppler_gamma(
+                        photon.get_direction_vector(), photon.location_r
                     )
 
                 if photon.status == GXPhotonStatus.PAIR_CREATION:
-                    ejecta_energy_gained = (
-                        photon.energy - (2.0 * ELECTRON_MASS_ENERGY_KEV)
-                    ) * doppler_gamma(
-                        photon.direction_vector(), photon.location_r
+                    ejecta_energy_gained = photon.energy - (
+                        2.0 * ELECTRON_MASS_ENERGY_KEV
                     )
                     photon, backward_photon = pair_creation(photon)
 
@@ -421,10 +445,8 @@ def main_gamma_ray_loop(num_decays, model):
                     photons.append(backward_photon)
 
                 if photon.status == GXPhotonStatus.PHOTOABSORPTION:
-                    # TODO Ejecta gains comoving energy, correct?
-                    ejecta_energy_gained = photon.energy * doppler_gamma(
-                        photon.direction_vector(), photon.location_r
-                    )
+                    # Ejecta gains comoving energy
+                    ejecta_energy_gained = comoving_energy
 
                 # Save photons to dataframe rows
                 # convert KeV to eV / s / cm^3

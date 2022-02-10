@@ -31,9 +31,9 @@ def calculate_distance_radial(photon, r_inner, r_outer):
     """
     # TODO: Maybe only calculate distances that are strictly needed instead of all four by default?
     # get cartesian location coordinates of gamma-ray object
-    x, y, z = photon.location_cartesian_coords()
+    x, y, z = photon.get_location_cartesian_coords()
     # get cartesian direction coordinates of gamma-ray object
-    x_dir, y_dir, z_dir = photon.direction_cartesian_coords()
+    x_dir, y_dir, z_dir = photon.get_direction_cartesian_coords()
     # solve the quadratic distance equation for the inner and
     # outer shell boundaries
     inner_1, inner_2 = solve_quadratic_equation(
@@ -100,8 +100,8 @@ def move_photon(photon, distance):
     photon : GXPhoton object
 
     """
-    x_old, y_old, z_old = photon.location_cartesian_coords()
-    x_dir, y_dir, z_dir = photon.direction_cartesian_coords()
+    x_old, y_old, z_old = photon.get_location_cartesian_coords()
+    x_dir, y_dir, z_dir = photon.get_direction_cartesian_coords()
 
     y_new = y_old + distance * y_dir
     z_new = z_old + distance * z_dir
