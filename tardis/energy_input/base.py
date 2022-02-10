@@ -383,11 +383,13 @@ def main_gamma_ray_loop(num_decays, model):
                 ejecta_density[photon.shell],
                 iron_group_fraction_per_shell[photon.shell],
             )
+
+            # convert opacities back to rest frame
             total_opacity = (
                 compton_opacity
                 + photoabsorption_opacity
                 + pair_creation_opacity
-            )
+            ) / doppler_gamma(photon.get_direction_vector(), photon.location_r)
 
             (distance_interaction, distance_boundary,) = distance_trace(
                 photon,
