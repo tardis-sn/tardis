@@ -60,12 +60,13 @@ For the simulation to be considered to have converged, for ``hold_iterations`` s
 
 .. note::
 
-    ``hold_iterations`` and ``fraction`` are universal quantities, i.e. they are each a single value that applies to :math:`T_\mathrm{rad}` and :math:`W`, and for ``hold_iterations`` also :math:`T_\mathrm{inner}`. ``threshold``, on the other hand, is supplied for each quantity separately, so for instance you could require :math:`T_\mathrm{rad}` to change by less than 1%, :math:`W` to change by less than 3%, and :math:`T_\mathrm{inner}` to change by less than 5% for convergence to be reached.
-    
-.. note::
-
     To determine convergence, we compare the estimated value, **not** the updated value (which is related to the estimated value via the damping constant), with the previous value. If :math:`T_\mathrm{inner}` is locked (see the previous section), the estimated value will still be calculated so convergence can be checked as usual.
 
+
+.. note::
+
+    ``hold_iterations`` and ``fraction`` are universal quantities, i.e. they are each a single value that applies to :math:`T_\mathrm{rad}` and :math:`W`, and for ``hold_iterations`` also :math:`T_\mathrm{inner}`. ``threshold``, on the other hand, is supplied for each quantity separately, so for instance you could require :math:`T_\mathrm{rad}` to change by less than 1%, :math:`W` to change by less than 3%, and :math:`T_\mathrm{inner}` to change by less than 5% for convergence to be reached.
+    
 
 Custom Convergence
 ------------------
