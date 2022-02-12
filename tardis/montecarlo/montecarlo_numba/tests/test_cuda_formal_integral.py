@@ -15,7 +15,8 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
 
 
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
-from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import FormalIntegrator as cuda_FormalIntegrator
+from tardis.montecarlo.montecarlo_numba.formal_integral import NumbaFormalIntegrator
+#from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import FormalIntegrator as cuda_FormalIntegrator
 
 from tardis.montecarlo import MontecarloRunner
 
@@ -249,13 +250,11 @@ def reverse_binary_search_cuda_caller(line_list_nu, nu_insert, imin, imax, actua
     ]
 )
 def test_full_formal_integral(no_of_packets, iterations, config_verysimple, simulation_verysimple):
-    
-    
     sim = simulation_verysimple
 
     formal_integrator_numba = FormalIntegrator(sim.model, sim.plasma,sim.runner)
 
-    formal_integrator_cuda = cuda_FormalIntegrator(sim.model, sim.plasma, sim.runner)
+    formal_integrator_cuda = FormalIntegrator(sim.model, sim.plasma, sim.runner)
     
     #The function calculate_spectrum sets this property, but in order to test the CUDA. 
     #version it is done manually, as well as to speed up the test. 
@@ -274,10 +273,15 @@ def test_full_formal_integral(no_of_packets, iterations, config_verysimple, simu
     Jblue_lu_cuda = res_cuda[2].flatten(order="F")
 
     formal_integrator_numba.generate_numba_objects()
+    #This is to force the for formal_integrator_numba to use the numba version
+    #as it is automatically set to the CUDA version when there is a GPU available
+    formal_integrator_numba.integrator = NumbaFormalIntegrator(formal_integrator_numba.numba_model, 
+                                                               formal_integrator_numba.numba_plasma, 
+                                                               formal_integrator_numba.points)
 
     formal_integrator_cuda.generate_numba_objects()
     
-    L_cuda = formal_integrator_cuda.numba_integrator.formal_integral(
+    L_cuda = formal_integrator_cuda.integrator.formal_integral(
         formal_integrator_cuda.model.t_inner,
         sim.runner.spectrum.frequency,
         sim.runner.spectrum.frequency.shape[0],
@@ -289,7 +293,7 @@ def test_full_formal_integral(no_of_packets, iterations, config_verysimple, simu
         formal_integrator_cuda.points,
     )
     
-    L_numba = formal_integrator_numba.numba_integrator.formal_integral(
+    L_numba = formal_integrator_numba.integrator.formal_integral(
         formal_integrator_numba.model.t_inner,
         sim.runner.spectrum.frequency,
         sim.runner.spectrum.frequency.shape[0],
