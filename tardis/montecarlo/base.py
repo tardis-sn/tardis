@@ -5,7 +5,6 @@ import warnings
 from astropy import units as u
 from tardis import constants as const
 from numba import set_num_threads
-from numba.cuda import is_available
 
 from scipy.special import zeta
 from tardis.montecarlo.spectrum import TARDISSpectrum
@@ -13,11 +12,7 @@ from tardis.montecarlo.spectrum import TARDISSpectrum
 from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo import packet_source as source
-#if is_available():
-#    from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import FormalIntegrator
-#elif not is_available():
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
-    
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
 
 
