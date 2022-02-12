@@ -8,7 +8,6 @@ from astropy import units as u
 from tardis import constants as const
 from numba import njit, char, float64, int64, typeof, byte, prange
 from numba.experimental import jitclass
-import pdb
 
 from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
 from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel

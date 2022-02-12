@@ -16,7 +16,6 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
 
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
 from tardis.montecarlo.montecarlo_numba.formal_integral import NumbaFormalIntegrator
-#from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import FormalIntegrator as cuda_FormalIntegrator
 
 from tardis.montecarlo import MontecarloRunner
 

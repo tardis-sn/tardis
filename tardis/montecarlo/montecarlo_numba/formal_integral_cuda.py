@@ -1,22 +1,10 @@
 import sys
-import warnings
 import numpy as np
-import pandas as pd
-import scipy.sparse as sp
-from scipy.interpolate import interp1d
 from astropy import units as u
-from tardis import constants as const
-from numba import njit, char, float64, int64, typeof, byte, prange, cuda
-from numba.experimental import jitclass
-import pdb
+from numba import float64, int64, cuda
 import math
 
 from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
-from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
-from tardis.montecarlo.montecarlo_numba.numba_interface import \
-        (numba_plasma_initialize, NumbaModel, NumbaPlasma)
-
-from tardis.montecarlo.spectrum import TARDISSpectrum
 
 C_INV = 3.33564e-11
 M_PI = np.arccos(-1)
