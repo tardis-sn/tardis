@@ -270,7 +270,7 @@ class BasePlasma(PlasmaWriterMixin):
 
         return descendants_ob
 
-    def write_to_dot(self, fname, latex_label=True):
+    def write_to_dot(self, fname, args=None, latex_label=True):
         """
         This method takes the NetworkX Graph generated from the _build_graph
         method, converts it into a DOT code, and saves it to a file
@@ -279,6 +279,9 @@ class BasePlasma(PlasmaWriterMixin):
         ----------
         fname: str
             the name of the file the graph will be saved to
+        args: list
+            a list of optional settings for displaying the
+            graph written in DOT format
         latex_label: boolean
             enables/disables writing LaTeX equations and
             edge labels into the file.
@@ -316,11 +319,7 @@ class BasePlasma(PlasmaWriterMixin):
         for edge in print_graph.edges:
             label = print_graph.edges[edge]["label"]
             print_graph.edges[edge]["label"] = "-"
-            if latex_label:
-                edge_length = np.random.uniform(1, 10)
-
-                print_graph.edges[edge]["texlbl"] = label
-                print_graph.edges[edge]["minlen"] = edge_length
+            print_graph.edges[edge]["texlbl"] = label
 
         nx.drawing.nx_agraph.write_dot(print_graph, fname)
 
@@ -329,24 +328,31 @@ class BasePlasma(PlasmaWriterMixin):
                 print(
                     line.replace(
                         r'node [label="\N"]',
-                        'ratio="fill";\n\tsize="8.3,11.7!";'
-                        "\n\tmargin=0;"
-                        '\n\tnode [texmode="math"];'
-                        '\n\tedge[lblstyle="fill=white"]',
+                        r'node [texmode="math"]',
                     ),
                     end="",
                 )
             else:
                 print(
                     line.replace(
-                        r'node [label="\N"]',
-                        'ratio="fill";\n\tsize="8.3,11.7!";'
-                        "\n\tnodesep=1.0;\n\tmargin=0",
+                        r'node [label="\N"];',
+                        "",
                     ),
                     end="",
                 )
 
-    def write_to_tex(self, fname_graph, latex_label=True):
+        if args is not None:
+            with open(fname, "r") as file:
+                lines = file.readlines()
+
+            for newline in args:
+                lines.insert(1, f"\t{newline};\n")
+
+            with open(fname, "w") as f:
+                lines = "".join(lines)
+                f.write(lines)
+
+    def write_to_tex(self, fname_graph, args=None, latex_label=True):
         """
         This method takes the NetworkX Graph generated from the _build_graph
         method, converts it into a LaTeX friendly format,
@@ -356,6 +362,9 @@ class BasePlasma(PlasmaWriterMixin):
         ----------
         fname_graph: str
             the name of the file the graph will be saved to
+        args: list
+            a list of optional settings for displaying the
+            graph written in DOT format
         latex_label: boolean
             enables/disables writing LaTeX equations and
             edge labels into the file.
@@ -370,15 +379,17 @@ class BasePlasma(PlasmaWriterMixin):
 
         temp_fname = tempfile.NamedTemporaryFile().name
 
-        self.write_to_dot(temp_fname, latex_label=latex_label)
+        self.write_to_dot(temp_fname, args=args, latex_label=latex_label)
 
-        dot_string = open(temp_fname, "r").read().replace("\\\\", "\\")
+        with open(temp_fname, "r") as file:
+            dot_string = file.read().replace("\\\\", "\\")
 
         texcode = dot2tex.dot2tex(
             dot_string, format="tikz", crop=True, valignmode="dot"
         )
 
-        open(fname_graph, "w").write(texcode)
+        with open(fname_graph, "w") as file:
+            file.write(texcode)
 
         for line in fileinput.input(fname_graph, inplace=1):
             print(
