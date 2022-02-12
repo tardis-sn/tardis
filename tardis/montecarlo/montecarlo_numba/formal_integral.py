@@ -17,6 +17,8 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     NumbaModel,
     NumbaPlasma,
 )
+from numba import cuda
+from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import CudaFormalIntegrator
 
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
@@ -224,7 +226,9 @@ class NumbaFormalIntegrator(object):
         electron_density,
         N,
     ):
-        """simple wrapper for the numba implementation of the formal integral"""
+        """
+        Simple wrapper for the numba implementation of the formal integral
+        """
         return numba_formal_integral(
             self.model,
             self.plasma,
@@ -268,10 +272,14 @@ class FormalIntegrator(object):
         self.numba_plasma = numba_plasma_initialize(
             self.original_plasma, self.runner.line_interaction_type
         )
-
-        self.numba_integrator = NumbaFormalIntegrator(
-            self.numba_model, self.numba_plasma, self.points
-        )
+        if cuda.is_available():
+            self.integrator = CudaFormalIntegrator(
+                self.numba_model, self.numba_plasma, self.points
+            )
+        else:
+            self.integrator = NumbaFormalIntegrator(
+                self.numba_model, self.numba_plasma, self.points
+            )
 
     def check(self, raises=True):
         """
@@ -530,7 +538,7 @@ class FormalIntegrator(object):
         Jblue_lu = res[2].flatten(order="F")
 
         self.generate_numba_objects()
-        L = self.numba_integrator.formal_integral(
+        L = self.integrator.formal_integral(
             self.model.t_inner,
             nu,
             nu.shape[0],
