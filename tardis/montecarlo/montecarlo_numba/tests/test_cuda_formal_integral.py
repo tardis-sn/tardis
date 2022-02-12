@@ -173,7 +173,6 @@ def populate_z_caller(r_inner, r_outer, time_explosion, p, oz, oshell_id, actual
 
 
 
-@pytest.mark.skipif(not GPUs_available, reason="No GPU is available to test CUDA function")
 @pytest.mark.parametrize(
     "N",
     [
