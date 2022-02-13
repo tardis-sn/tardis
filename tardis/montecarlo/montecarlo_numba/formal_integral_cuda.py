@@ -238,8 +238,9 @@ class CudaFormalIntegrator(object):
         electron_density,
         N,
     ):
-        """simple wrapper for the CUDA implementation of the formal integral"""
-
+        """
+        Simple wrapper for the CUDA implementation of the formal integral
+        """
         L = np.zeros(inu_size, dtype=np.float64)  # array(float64, 1d, C)
         # global read-only values
         size_line, size_shell = tau_sobolev.shape  # int64, int64
