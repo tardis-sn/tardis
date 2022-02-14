@@ -5,8 +5,6 @@ import tempfile
 import fileinput
 
 import networkx as nx
-import pandas as pd
-import numpy as np
 
 from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
 from tardis.plasma.properties.base import *
