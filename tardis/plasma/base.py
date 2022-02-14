@@ -352,7 +352,7 @@ class BasePlasma(PlasmaWriterMixin):
                 lines = "".join(lines)
                 f.write(lines)
 
-    def write_to_tex(self, fname_graph, args=None, latex_label=True):
+    def write_to_tex(self, fname_graph, scale=0.5, args=None, latex_label=True):
         """
         This method takes the NetworkX Graph generated from the _build_graph
         method, converts it into a LaTeX friendly format,
@@ -365,6 +365,9 @@ class BasePlasma(PlasmaWriterMixin):
         args: list
             a list of optional settings for displaying the
             graph written in DOT format
+        scale: float
+            a scaling factor to expand/contract the generated
+            graph
         latex_label: boolean
             enables/disables writing LaTeX equations and
             edge labels into the file.
@@ -409,7 +412,7 @@ class BasePlasma(PlasmaWriterMixin):
                     r"\begin{tikzpicture}[>=latex',line join=bevel,]",
                     r"\begin{tikzpicture}"
                     r"[>=latex',line join=bevel,"
-                    r"scale=0.5]",
+                    fr"scale={scale}]",
                 ),
                 end="",
             )
