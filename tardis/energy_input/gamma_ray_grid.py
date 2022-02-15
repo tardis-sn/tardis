@@ -195,4 +195,5 @@ def compute_required_photons_per_shell(
         decay_rad_db,
         activity_per_shell,
         scaled_activity_df,
+        activity_df,
     )

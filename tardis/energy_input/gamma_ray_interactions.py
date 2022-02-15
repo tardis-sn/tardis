@@ -11,9 +11,12 @@ from tardis.energy_input.util import (
     cartesian_to_spherical,
     angle_aberration_gamma,
     spherical_to_cartesian,
+    doppler_gamma,
     ELECTRON_MASS_ENERGY_KEV,
+    H_CGS_KEV,
 )
 from tardis.energy_input.GXPhoton import GXPhotonStatus, GXPhoton
+from tardis.energy_input.GXPacket import GXPacketStatus
 
 
 @njit
@@ -176,6 +179,53 @@ def pair_creation(photon):
         backward_ray.direction_phi -= 2 * np.pi
 
     return photon, backward_ray
+
+
+@njit
+def pair_creation_packet(packet):
+    """
+    Pair creation randomly scatters the packet
+    or destroys it, based on the frequency
+
+    Parameters
+    ----------
+    packet : GXPacket
+        incoming packet
+
+    Returns
+    -------
+    GXPacket
+        outgoing packet
+    """
+
+    doppler = doppler_gamma(
+        packet.get_direction_vector(),
+        packet.location_r,
+    )
+
+    nu_cmf = packet.nu * doppler
+
+    probability_gamma = 2 * ELECTRON_MASS_ENERGY_KEV / (H_CGS_KEV * nu_cmf)
+
+    if np.random.random() > probability_gamma:
+        packet.status = GXPacketStatus.PHOTOABSORPTION
+        return packet
+
+    direction_theta = get_random_theta_photon()
+    direction_phi = get_random_phi_photon()
+
+    # Calculate aberration of the random angle for the rest frame
+    final_direction = angle_aberration_gamma(
+        np.array([1.0, direction_theta, direction_phi]),
+        packet.location_r,
+    )
+
+    packet.direction_theta = final_direction[1]
+    packet.direction_phi = final_direction[2]
+
+    packet.nu = ELECTRON_MASS_ENERGY_KEV / H_CGS_KEV / doppler
+
+    return packet
 
 
 @njit

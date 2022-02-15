@@ -8,6 +8,7 @@ ELECTRON_MASS_ENERGY_KEV = (const.m_e * const.c ** 2.0).to("keV").value
 BOUNDARY_THRESHOLD = 1e-7
 KEV2ERG = (1000 * u.eV).to("erg").value
 C_CGS = const.c.cgs.value
+H_CGS_KEV = const.h.to("keV s").value
 
 
 @njit
