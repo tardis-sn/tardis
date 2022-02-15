@@ -458,9 +458,8 @@ def reverse_binary_search_cuda(x, x_insert, imin, imax):
 @cuda.jit(device=True)
 def trapezoid_integration_cuda(arr, dx):
     """
-    In the future, let's just replace
-    this with numba trapz since it is
-    numba compatable.
+    Computes the approximation of the
+    trapezoidal integration of the array.
 
     Parameters
     ----------
@@ -500,7 +499,7 @@ def intensity_black_body_cuda(nu, T):
 
 def calculate_p_values(R_max, N):
     """
-    This can probably be replaced with a simpler function
+    Calculates the p values of N
 
     Parameters
     ----------
