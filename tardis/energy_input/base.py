@@ -389,7 +389,7 @@ def main_gamma_ray_loop(num_decays, model):
                 compton_opacity
                 + photoabsorption_opacity
                 + pair_creation_opacity
-            ) / doppler_gamma(photon.get_direction_vector(), photon.location_r)
+            ) * doppler_gamma(photon.get_direction_vector(), photon.location_r)
 
             (distance_interaction, distance_boundary,) = distance_trace(
                 photon,
