@@ -223,7 +223,12 @@ def pair_creation_packet(packet):
     packet.direction_theta = final_direction[1]
     packet.direction_phi = final_direction[2]
 
-    packet.nu = ELECTRON_MASS_ENERGY_KEV / H_CGS_KEV / doppler
+    new_doppler = doppler_gamma(
+        packet.get_direction_vector(),
+        packet.location_r,
+    )
+
+    packet.nu = ELECTRON_MASS_ENERGY_KEV / H_CGS_KEV / new_doppler
 
     return packet
 
