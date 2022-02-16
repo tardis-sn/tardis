@@ -151,25 +151,6 @@ def initialize_packets(
                 packet.activity = activity
 
                 if gamma_ray_probability < np.random.random():
-                    # positron: sets gamma-ray energy to 511keV
-                    # scaled to rest frame by doppler factor
-                    # TODO: DO WE NEED THIS ENERGY???
-                    packet.energy = ELECTRON_MASS_ENERGY_KEV / doppler_gamma(
-                        packet.get_direction_vector(),
-                        packet.location_r,
-                    )
-
-                    packet.nu = (
-                        ELECTRON_MASS_ENERGY_KEV
-                        / H_CGS_KEV
-                        / doppler_gamma(
-                            packet.get_direction_vector(),
-                            packet.location_r,
-                        )
-                    )
-
-                    packets.append(packet)
-
                     # annihilation dumps comoving energy into medium
                     # measured in the comoving frame
                     energy_KeV = sample_energy_distribution(
@@ -378,7 +359,7 @@ def main_gamma_ray_loop(num_decays, model):
         while packet.status == GXPacketStatus.IN_PROCESS:
 
             # Calculate packet comoving energy for opacities
-            comoving_energy = packet.energy * doppler_gamma(
+            comoving_energy = (H_CGS_KEV * packet.nu) * doppler_gamma(
                 packet.get_direction_vector(), packet.location_r
             )
 
@@ -533,7 +514,7 @@ def process_packet_path(packet):
         )
 
         # Transform the energy back to the rest frame
-        packet.energy = new_comoving_energy / doppler_gamma(
+        packet.energy = comoving_energy / doppler_gamma(
             packet.get_direction_vector(), packet.location_r
         )
 
@@ -543,6 +524,7 @@ def process_packet_path(packet):
 
     if packet.status == GXPacketStatus.PAIR_CREATION:
         packet = pair_creation_packet(packet)
+        ejecta_energy_gained = 0.0
 
     if packet.status == GXPacketStatus.PHOTOABSORPTION:
         # Ejecta gains comoving energy
