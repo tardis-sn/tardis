@@ -12,10 +12,6 @@ KB_CGS = 1.3806488e-16
 H_CGS = 6.62606957e-27
 
 
-class IntegrationError(Exception):
-    pass
-
-
 @cuda.jit
 def cuda_formal_integral(
     r_inner,
@@ -375,6 +371,10 @@ def calculate_z_cuda(r, p, inv_t):
 
 
 class BoundsError(IndexError):
+    """
+    Used to check bounds in reverse
+    binary search
+    """
     pass
 
 
