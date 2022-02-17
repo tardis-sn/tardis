@@ -619,7 +619,7 @@ def calculate_z(r, p, inv_t):
         return 0
 
 
-class BoundsError(ValueError):
+class BoundsError(IndexError):
     pass
 
 

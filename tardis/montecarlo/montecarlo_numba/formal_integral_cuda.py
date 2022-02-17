@@ -374,7 +374,7 @@ def calculate_z_cuda(r, p, inv_t):
         return 0.0
 
 
-class BoundsError(ValueError):
+class BoundsError(IndexError):
     pass
 
 
@@ -396,8 +396,6 @@ def line_search_cuda(nu, nu_insert, number_of_lines):
         If the key value is redder than
         the reddest line returns number_of_lines.
     """
-    # TODO: fix the TARDIS_ERROR_OK
-    # tardis_error_t ret_val = TARDIS_ERROR_OK # check
     imin = 0
     imax = number_of_lines - 1
     if nu_insert > nu[imin]:

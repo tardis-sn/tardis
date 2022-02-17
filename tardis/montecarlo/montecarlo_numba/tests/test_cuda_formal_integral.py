@@ -67,25 +67,29 @@ def black_body_caller(nu, T, actual):
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(
-    ["N", "N_loc"], [(1e2, 0), (1e3, 1), (1e4, 2), (1e5, 3)]
+    "N", (1e2, 1e3, 1e4, 1e5)
 )
-def test_trapezoid_integration_cuda(N, N_loc):
+def test_trapezoid_integration_cuda(N):
     """
     Initializes the test of the cuda version
     against the numba implementation of the
     trapezoid_integration to 15 decimals. This
     is done as both results have 15 digits of precision.
     """
-    actual = np.zeros(4)
+    actual = np.zeros(1)
 
     h = 1.0
     N = int(N)
+    np.random.seed(12)
     data = np.random.random(N)
 
     expected = formal_integral_numba.trapezoid_integration(data, h)
-    trapezoid_integration_caller[1, 4](data, h, actual)
-
-    ntest.assert_allclose(actual[N_loc], expected, rtol=1e-14)
+    trapezoid_integration_caller[1, 1](data, h, actual)
+    
+    #This is 1e-13, as more points are added to the integration
+    #there will be more floating point error due to the difference
+    #in how the trapezoid integration is called. 
+    ntest.assert_allclose(actual[0], expected, rtol=1e-13)
 
 
 @cuda.jit
@@ -188,7 +192,7 @@ def test_populate_z(formal_integral_model, p, p_loc):
 
     ntest.assert_equal(actual[p_loc], expected)
     ntest.assert_equal(oshell_id, expected_oshell_id)
-    ntest.assert_allclose(oz, expected_oz, atol=1e-5)
+    ntest.assert_allclose(oz, expected_oz, atol=1e-4)
 
 
 @cuda.jit
