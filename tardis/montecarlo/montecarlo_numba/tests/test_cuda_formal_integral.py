@@ -38,16 +38,26 @@ GPUs_available = cuda.is_available()
     ],
 )
 def test_intensity_black_body_cuda(nu, T):
+    """
+    Initializes the test of the cuda version
+    against the numba implementation of the
+    intensity_black_body to 15 decimals. This
+    is done as both results have 15 digits of precision.
+    """
     actual = np.zeros(3)
     black_body_caller[1, 3](nu, T, actual)
 
     expected = formal_integral_numba.intensity_black_body(nu, T)
 
-    ntest.assert_almost_equal(actual, expected)
+    ntest.assert_allclose(actual, expected, rtol=1e-14)
 
 
 @cuda.jit
 def black_body_caller(nu, T, actual):
+    """
+    This calls the CUDA function and fills out
+    the array
+    """
     x = cuda.grid(1)
     actual[x] = formal_integral_cuda.intensity_black_body_cuda(nu, T)
 
@@ -59,6 +69,12 @@ def black_body_caller(nu, T, actual):
     ["N", "N_loc"], [(1e2, 0), (1e3, 1), (1e4, 2), (1e5, 3)]
 )
 def test_trapezoid_integration_cuda(N, N_loc):
+    """
+    Initializes the test of the cuda version
+    against the numba implementation of the
+    trapezoid_integration to 15 decimals. This
+    is done as both results have 15 digits of precision.
+    """
     actual = np.zeros(4)
 
     h = 1.0
@@ -68,11 +84,15 @@ def test_trapezoid_integration_cuda(N, N_loc):
     expected = formal_integral_numba.trapezoid_integration(data, h)
     trapezoid_integration_caller[1, 4](data, h, actual)
 
-    ntest.assert_almost_equal(actual[N_loc], expected)
+    ntest.assert_allclose(actual[N_loc], expected, rtol=1e-14)
 
 
 @cuda.jit
 def trapezoid_integration_caller(data, h, actual):
+    """
+    This calls the CUDA function and fills out
+    the array
+    """
     x = cuda.grid(1)
     actual[x] = formal_integral_cuda.trapezoid_integration_cuda(data, h)
 
@@ -95,6 +115,9 @@ TESTDATA_model = [
 
 @pytest.fixture(scope="function", params=TESTDATA_model)
 def formal_integral_model(request):
+    """
+    This gets the Numba model to be used in later tests
+    """
     r = request.param["r"]
     model = NumbaModel(r[:-1], r[1:], 1 / c.c.cgs.value)
     return model
@@ -105,6 +128,12 @@ def formal_integral_model(request):
 )
 @pytest.mark.parametrize(["p", "p_loc"], [(0.0, 0), (0.5, 1), (1.0, 2)])
 def test_calculate_z_cuda(formal_integral_model, p, p_loc):
+    """
+    Initializes the test of the cuda version
+    against the numba implementation of the
+    calculate_z to 15 decimals. This is done as
+    both results have 15 digits of precision.
+    """
     actual = np.zeros(3)
     inv_t = 1.0 / formal_integral_model.time_explosion
     size = len(formal_integral_model.r_outer)
@@ -113,11 +142,15 @@ def test_calculate_z_cuda(formal_integral_model, p, p_loc):
         calculate_z_caller[1, 3](r, p, inv_t, actual)
         expected = formal_integral_numba.calculate_z(r, p, inv_t)
 
-        ntest.assert_almost_equal(actual[p_loc], expected)
+        ntest.assert_allclose(actual[p_loc], expected, rtol=1e-14)
 
 
 @cuda.jit
 def calculate_z_caller(r, p, inv_t, actual):
+    """
+    This calls the CUDA function and fills out
+    the array
+    """
     x = cuda.grid(1)
     actual[x] = formal_integral_cuda.calculate_z_cuda(r, p, inv_t)
 
@@ -130,6 +163,11 @@ def calculate_z_caller(r, p, inv_t, actual):
     [(1e-5, 0), (1e-3, 1), (0.1, 2), (0.5, 3), (0.99, 4), (1, 5)],
 )
 def test_populate_z(formal_integral_model, p, p_loc):
+    """
+    Initializes the test of the cuda version
+    against the numba implementation of the
+    populate_z
+    """
     size = len(formal_integral_model.r_inner)
     oz = np.zeros(size * 2)
     expected_oz = np.zeros(size * 2)
@@ -160,6 +198,10 @@ def test_populate_z(formal_integral_model, p, p_loc):
 def populate_z_caller(
     r_inner, r_outer, time_explosion, p, oz, oshell_id, actual
 ):
+    """
+    This calls the CUDA function and fills out
+    the array
+    """
     x = cuda.grid(1)
     actual[x] = formal_integral_cuda.populate_z_cuda(
         r_inner, r_outer, time_explosion, p, oz, oshell_id
@@ -175,6 +217,12 @@ def populate_z_caller(
     ],
 )
 def test_calculate_p_values(N):
+    """
+    Initializes the test of the cuda version
+    against the numba implementation of the
+    calculate_p_values to 15 decimals. This is done as
+    both results have 15 digits of precision.
+    """
     r = 1.0
 
     expected = formal_integral_numba.calculate_p_values(r, N)
@@ -182,7 +230,7 @@ def test_calculate_p_values(N):
     actual = np.zeros_like(expected, dtype=np.float64)
     actual[::] = formal_integral_cuda.calculate_p_values(r, N)
 
-    ntest.assert_allclose(actual, expected)
+    ntest.assert_allclose(actual, expected, rtol=1e-14)
 
 
 @pytest.mark.skipif(
@@ -205,6 +253,10 @@ def test_line_search_cuda(nu_insert, verysimple_numba_plasma):
 
 @cuda.jit
 def line_search_cuda_caller(line_list_nu, nu_insert, actual):
+    """
+    This calls the CUDA function and fills out
+    the array
+    """
     x = cuda.grid(1)
     actual[x] = formal_integral_cuda.line_search_cuda(
         line_list_nu, nu_insert, len(line_list_nu)
@@ -218,6 +270,12 @@ def line_search_cuda_caller(line_list_nu, nu_insert, actual):
     "nu_insert", [*np.linspace(3e12, 3e16, 10), 288786721666522.1]
 )
 def test_reverse_binary_search(nu_insert, verysimple_numba_plasma):
+    """
+    Initializes the test of the cuda version
+    against the numba implementation of the
+    reverse_binary_search. The one extra input not included
+    in np.linspace a low edge case for testing.
+    """
     actual = np.zeros(1)
     expected = np.zeros(1)
     line_list_nu = verysimple_numba_plasma.line_list_nu
@@ -239,6 +297,10 @@ def test_reverse_binary_search(nu_insert, verysimple_numba_plasma):
 def reverse_binary_search_cuda_caller(
     line_list_nu, nu_insert, imin, imax, actual
 ):
+    """
+    This calls the CUDA function and fills out
+    the array
+    """
     x = cuda.grid(1)
     actual[x] = formal_integral_cuda.reverse_binary_search_cuda(
         line_list_nu, nu_insert, imin, imax
@@ -253,6 +315,11 @@ def reverse_binary_search_cuda_caller(
 def test_full_formal_integral(
     no_of_packets, iterations, config_verysimple, simulation_verysimple
 ):
+    """
+    This function initializes both the cuda and numba formal_integrator,
+    and the runs them and compares results to the 15th decimal place.
+    This is done as both results have 15 digits of precision.
+    """
     sim = simulation_verysimple
 
     formal_integrator_numba = FormalIntegrator(
