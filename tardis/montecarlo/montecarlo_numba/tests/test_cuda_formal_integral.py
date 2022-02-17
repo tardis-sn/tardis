@@ -7,6 +7,7 @@ from copy import deepcopy
 import numpy.testing as ntest
 from numba import cuda
 from numba import njit
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 
 
 import tardis.montecarlo.montecarlo_numba.formal_integral_cuda as formal_integral_cuda
@@ -96,10 +97,6 @@ def trapezoid_integration_caller(data, h, actual):
     x = cuda.grid(1)
     actual[x] = formal_integral_cuda.trapezoid_integration_cuda(data, h)
 
-
-@njit(fastmath=True, error_model="numpy", parallel=False)
-def calculate_z(r, p, inv_t):
-    return np.sqrt(r * r - p * p) * formal_integral_cuda.C_INV * inv_t
 
 
 TESTDATA_model = [
@@ -238,6 +235,11 @@ def test_calculate_p_values(N):
 )
 @pytest.mark.parametrize("nu_insert", np.linspace(3e12, 3e16, 10))
 def test_line_search_cuda(nu_insert, verysimple_numba_plasma):
+    """
+    Initializes the test of the cuda version
+    against the numba implementation of the
+    line_search
+    """
     actual = np.zeros(1)
     expected = np.zeros(1)
     line_list_nu = verysimple_numba_plasma.line_list_nu
