@@ -54,6 +54,37 @@ def get_compton_angle(energy):
 
 
 @njit
+def get_compton_fraction(energy):
+    """
+    Computes the compton angle from the Klein-Nishina equation.
+
+    Parameters
+    ----------
+    energy : float
+        Photon energy
+
+    Returns
+    -------
+    compton_angle : float
+        Compton scattering angle
+    compton_fraction : float
+        Fraction of energy lost
+    """
+    theta_angles, theta_distribution = compton_theta_distribution(energy)
+
+    z = np.random.random()
+
+    # get Compton scattering angle
+    compton_angle = np.interp(z, theta_distribution, theta_angles)
+    # Energy calculations
+    fraction = 1 / (
+        1.0 + kappa_calculation(energy) * (1.0 - np.cos(compton_angle))
+    )
+
+    return compton_angle, fraction
+
+
+@njit
 def compton_scatter(photon, compton_angle):
     """
     Changes the direction of the gamma-ray by the Compton scattering angle

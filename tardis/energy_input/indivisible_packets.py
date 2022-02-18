@@ -27,7 +27,7 @@ from tardis.energy_input.gamma_ray_interactions import (
     scatter_type,
     compton_scatter,
     pair_creation_packet,
-    get_compton_angle,
+    get_compton_fraction,
 )
 from tardis.energy_input.util import (
     get_random_theta_photon,
@@ -477,6 +477,13 @@ def main_gamma_ray_loop(num_decays, model):
     # Energy is eV/s/cm^-3
     energy_df = pd.DataFrame(data=energy_df_rows, columns=["energy"])
 
+    final_energy = 0
+    for p in packets:
+        final_energy += p.energy * p.activity
+
+    print("Final energy to test for conservation")
+    print(final_energy)
+
     return (
         energy_df,
         energy_plot_df,
@@ -493,34 +500,35 @@ def process_packet_path(packet):
     )
 
     if packet.status == GXPacketStatus.COMPTON_SCATTER:
+        # Calculate packet comoving energy at new location
+        comoving_freq = packet.nu * doppler_gamma(
+            packet.get_direction_vector(), packet.location_r
+        )
+
+        comoving_freq_energy = comoving_freq * H_CGS_KEV
+
         (
             compton_angle,
-            ejecta_energy_gained,
-            new_comoving_energy,
-        ) = get_compton_angle(comoving_energy)
+            compton_fraction,
+        ) = get_compton_fraction(comoving_freq_energy)
+
+        # Packet is no longer a gamma-ray, destroy it
+        if np.random.random() < compton_fraction:
+            packet.status = GXPacketStatus.PHOTOABSORPTION
+        else:
+            ejecta_energy_gained = 0.0
+
         (
             packet.direction_theta,
             packet.direction_phi,
         ) = compton_scatter(packet, compton_angle)
 
-        # Get probability the packet remains a gamma-ray
-        gamma_probability = new_comoving_energy / comoving_energy
-
-        # Calculate rest frame frequency after scaling by the probability
+        # Calculate rest frame frequency after scaling by the fraction that remains
         packet.nu = (
-            packet.nu
-            * gamma_probability
+            comoving_freq
+            / compton_fraction
             / doppler_gamma(packet.get_direction_vector(), packet.location_r)
         )
-
-        # Transform the energy back to the rest frame
-        packet.energy = comoving_energy / doppler_gamma(
-            packet.get_direction_vector(), packet.location_r
-        )
-
-        # Packet is no longer a gamma-ray, destroy it
-        if np.random.random() > gamma_probability:
-            packet.status = GXPacketStatus.PHOTOABSORPTION
 
     if packet.status == GXPacketStatus.PAIR_CREATION:
         packet = pair_creation_packet(packet)
@@ -529,5 +537,10 @@ def process_packet_path(packet):
     if packet.status == GXPacketStatus.PHOTOABSORPTION:
         # Ejecta gains comoving energy
         ejecta_energy_gained = comoving_energy
+
+    # Transform the packet energy back to the rest frame
+    packet.energy = comoving_energy / doppler_gamma(
+        packet.get_direction_vector(), packet.location_r
+    )
 
     return packet, ejecta_energy_gained
