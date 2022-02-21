@@ -44,7 +44,7 @@ jobs:
           git add -A
           git config --local user.email "tardis.sn.bot@gmail.com"
           git config --local user.name "tardis-bot"
-          git commit -m "Automated update (PR $(pr.number))"
+          git commit -m "Automated Update (PR $(pr.number))"
         displayName: 'Commit new reference data'
 
       - bash: |
