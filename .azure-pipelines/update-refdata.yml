@@ -17,17 +17,13 @@ pr:
 
 variables:
   system.debug: false
-  commit.sha: '$(Build.SourceVersion)'
   pr.number: '$(System.PullRequest.PullRequestNumber)'
-  build.id: '$(Build.BuildId)'
-  job.id: '$(System.JobId)'
-  log.url: 'https://dev.azure.com/tardis-sn/TARDIS/_build/results?buildId=$(build.id)&view=logs&jobId=$(job.id)'
 
 pool:
   vmImage: 'ubuntu-latest'
 
 jobs:
-  - job: 'push'
+  - job: 'pull_request'
     steps:
       - template: templates/default.yml
         parameters:
