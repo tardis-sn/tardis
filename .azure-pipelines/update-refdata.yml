@@ -37,15 +37,14 @@ jobs:
           git checkout -B pr-$(pr.number)
         displayName: 'Set up new branch'
 
-      #- bash: |
-      #    cd $(tardis.dir)
-      #    source activate tardis
-      #    pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
-      #  displayName: 'Generate reference data on a new branch'
+      - bash: |
+          cd $(tardis.dir)
+          source activate tardis
+          pytest tardis --tardis-refdata=$(refdata.dir) --generate-reference
+        displayName: 'Generate reference data on a new branch'
 
       - bash: |
           cd $(refdata.dir)
-          touch hello-world.txt
           git add -A
           git config --local user.email "tardis.sn.bot@gmail.com"
           git config --local user.name "tardis-bot"
