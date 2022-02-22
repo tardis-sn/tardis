@@ -33,7 +33,6 @@ def test_montecarlo_main_loop(
     config_montecarlo_1e5_verysimple.plasma.line_interaction_type = 'macroatom'
     del config_montecarlo_1e5_verysimple["config_dirname"]
 
-    print(config_montecarlo_1e5_verysimple)
     sim = Simulation.from_config(config_montecarlo_1e5_verysimple, atom_data=atomic_data)
     sim.run()
 
