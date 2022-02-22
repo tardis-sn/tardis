@@ -45,7 +45,7 @@ jobs:
 
       - bash: |
           cd $(refdata.dir)
-          touch bar.txt
+          touch hello-world.txt
           git add -A
           git config --local user.email "tardis.sn.bot@gmail.com"
           git config --local user.name "tardis-bot"
