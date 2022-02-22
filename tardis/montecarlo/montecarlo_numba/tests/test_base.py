@@ -30,16 +30,15 @@ def test_montecarlo_main_loop(
     config_montecarlo_1e5_verysimple.montecarlo.last_no_of_packets = 1e5
     config_montecarlo_1e5_verysimple.montecarlo.no_of_virtual_packets = 0
     config_montecarlo_1e5_verysimple.montecarlo.iterations = 1
-    config_montecarlo_1e5_verysimple.montecarlo.single_packet_seed = 0
     config_montecarlo_1e5_verysimple.plasma.line_interaction_type = 'macroatom'
     del config_montecarlo_1e5_verysimple["config_dirname"]
 
+    print(config_montecarlo_1e5_verysimple)
     sim = Simulation.from_config(config_montecarlo_1e5_verysimple, atom_data=atomic_data)
     sim.run()
 
     compare_fname = os.path.join(tardis_ref_path, "montecarlo_1e5_compare_data.h5")
     if request.config.getoption("--generate-reference"):
-        print("WRITING TO HDF!")
         sim.to_hdf(compare_fname, overwrite=True)
         
     # Load compare data from refdata
