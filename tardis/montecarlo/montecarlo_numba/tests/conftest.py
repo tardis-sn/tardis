@@ -26,11 +26,9 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
     return sim
 
 
-@pytest.fixture(scope="package")
-def verysimple_continuum(nu_simulation_verysimple):
-    plasma = nu_simulation_verysimple
-    numba_plasma = numba_interface.numba_plasma_initialize(plasma, "macroatom")
-
+@pytest.fixture(scope="function")
+def verysimple_continuum(nb_simulation_verysimple):
+    plasma = nb_simulation_verysimple.plasma
     ContinuumClass = create_continuum_class(plasma)
 
     continuum = ContinuumClass()
