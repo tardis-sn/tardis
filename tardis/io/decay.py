@@ -50,7 +50,7 @@ class IsotopeAbundances(pd.DataFrame):
                 abundances.loc[cls.id_to_tuple(key), i] = value
 
         return cls(abundances)
-    
+
     @classmethod
     def from_inventories(cls, inventories):
         multi_index_tuples = set([])
@@ -95,7 +95,7 @@ class IsotopeAbundances(pd.DataFrame):
             for i in range(len(self.columns)):
                 comp_dicts[i][nuclear_symbol] = abundances[i]
         return [material.Material(comp_dict) for comp_dict in comp_dicts]
-    
+
     def to_inventories(self):
         """
         Convert DataFrame to a list of inventories interpreting the MultiIndex as
