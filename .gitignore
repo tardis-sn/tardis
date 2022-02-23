@@ -24,6 +24,8 @@ docs/resources/ZENODO.rst
 docs/tutorials.rst
 docs/io/configuration/components/models/converters/density_parse.csv
 docs/io/configuration/components/models/converters/abund_parse.csv
+docs/io/configuration/components/models/converters/rebinned_snapshot_converted_to_tardis.csvy
+docs/io/configuration/components/models/converters/snapshot_converted_to_tardis.csvy
 
 # Eclipse editor project files
 .project

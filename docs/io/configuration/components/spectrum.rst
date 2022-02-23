@@ -17,7 +17,7 @@ pages below:
 * virtual: :ref:`Virtual Packet Scheme <virtual_packets>`
 * integrated: :ref:`Formal Integral Method <formal_integral>`
 
-The three methods can be specified when plotting the spectrum (see the :doc:`quickstart guide <../../../quickstart/quickstart>` for an example of this).
+The three methods can be specified when plotting the spectrum (see the :doc:`quickstart guide <../../../quickstart>` for an example of this).
 
 The following example shows how to edit variables for the different methods. 
 

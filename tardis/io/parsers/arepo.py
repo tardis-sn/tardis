@@ -279,7 +279,7 @@ class Profile:
     def __init__(self, pos, vel, rho, xnuc, time):
         """
         Parameters
-        -----
+        ----------
         pos : list of float
             Meshgrid of positions in center of mass frames in
             Cartesian coordinates
@@ -321,7 +321,7 @@ class Profile:
         Plots profile, both in the positive and negative direction.
 
         Parameters
-        -----
+        ----------
         save : str
             Path under which the figure is to be saved. Default: None
         dpi : int
@@ -329,7 +329,7 @@ class Profile:
         **kwargs : keywords passable to matplotlib.pyplot.plot()
 
         Returns
-        -----
+        -------
         fig : matplotlib figure object
         """
 
@@ -413,14 +413,14 @@ class Profile:
         by passing the statistics="std" keyword.
 
         Parameters
-        -----
+        ----------
         nshells : int
             Number of bins of new data.
         statistic : str
             Scipy keyword for scipy.stats.binned_statistic. Default: mean
 
         Returns
-        -----
+        -------
         self : Profile object
 
         """
@@ -474,15 +474,22 @@ class Profile:
 
         return self
 
-    def export(self, nshells, filename, direction="pos", statistic="mean"):
+    def export(
+        self,
+        nshells,
+        filename,
+        direction="pos",
+        statistic="mean",
+        overwrite=False,
+    ):
         """
         Function to export a profile as csvy file. Either the
-        positive or negative direction can be exported. Does
-        not overwrite existing files, saves to *(<n>).csvy
+        positive or negative direction can be exported. By default
+        does not overwrite existing files, saves to <filename>_<number>.csvy
         file instead.
 
         Parameters
-        -----
+        ----------
         nshells : int
             Number of shells to be exported.
         filename : str
@@ -494,9 +501,12 @@ class Profile:
         statistic : str
             Scipy keyword for scipy.stats.binned_statistic. If
             statistic=None, data is not rebinned. Default: "mean"
+        overwrite: bool
+            If true, will overwrite if a file of the same name exists.
+            By default False.
 
         Returns
-        -----
+        -------
         filename : str
             Name of the actual saved file
         """
@@ -505,7 +515,7 @@ class Profile:
         if filename.endswith(".csvy"):
             filename = filename.replace(".csvy", "")
 
-        if os.path.exists("%s.csvy" % filename):
+        if os.path.exists("%s.csvy" % filename) and not overwrite:
             i = 0
             while os.path.exists("%s_%s.csvy" % (filename, i)):
                 i += 1
@@ -598,7 +608,7 @@ class Profile:
 
         return filename
 
-    def get_profiles():
+    def get_profiles(self):
         """Returns all profiles for manual post_processing etc."""
         return (
             self.pos_prof_p,
@@ -630,7 +640,7 @@ class LineProfile(Profile):
         Creates a profile along the x-axis
 
         Parameters
-        -----
+        ----------
         inner_radius : float
             Inner radius where the profiles will be cut off. Default: None
         outer_radius : float
@@ -644,7 +654,7 @@ class LineProfile(Profile):
             Dpi of the saved plot. Default: 600
 
         Returns
-        -----
+        -------
         profile : LineProfile object
 
         """
@@ -771,7 +781,7 @@ class ConeProfile(Profile):
         Creates a profile along the x-axis without any averaging
 
         Parameters
-        -----
+        ----------
         opening_angle : float
             Opening angle (in degrees) of the cone from which the
             data is extracted. Refers to the total opening angle, not
@@ -789,7 +799,7 @@ class ConeProfile(Profile):
             Dpi of the saved plot. Default: 600
 
         Returns
-        -----
+        -------
         profile : LineProfile object
 
         """
@@ -932,7 +942,7 @@ class FullProfile(Profile):
         direction are identical.
 
         Parameters
-        -----
+        ----------
         inner_radius : float
             Inner radius where the profiles will be cut off. Default: None
         outer_radius : float
@@ -946,7 +956,7 @@ class FullProfile(Profile):
             Dpi of the saved plot. Default: 600
 
         Returns
-        -----
+        -------
         profile : LineProfile object
 
         """
