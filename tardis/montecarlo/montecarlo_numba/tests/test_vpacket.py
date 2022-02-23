@@ -30,8 +30,6 @@ def v_packet():
         index=0,
     )
 
-    
-    
 
 def v_packet_initialize_line_id(v_packet, numba_plasma, numba_model):
     inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
@@ -46,7 +44,7 @@ def v_packet_initialize_line_id(v_packet, numba_plasma, numba_model):
 
 
 def test_trace_vpacket_within_shell(
-    v_packet, verysimple_numba_model, verysimple_numba_plasma
+    v_packet, verysimple_numba_model, verysimple_numba_plasma, verysimple_continuum
 ):
     # Give the vpacket a reasonable line ID
     v_packet_initialize_line_id(
@@ -58,7 +56,7 @@ def test_trace_vpacket_within_shell(
         distance_boundary,
         delta_shell,
     ) = vpacket.trace_vpacket_within_shell(
-        v_packet, verysimple_numba_model, verysimple_numba_plasma
+        v_packet, verysimple_numba_model, verysimple_numba_plasma, verysimple_continuum
     )
 
     npt.assert_almost_equal(tau_trace_combined, 8164850.891288479)
@@ -67,7 +65,7 @@ def test_trace_vpacket_within_shell(
 
 
 def test_trace_vpacket(
-    v_packet, verysimple_numba_model, verysimple_numba_plasma, continuum
+    v_packet, verysimple_numba_model, verysimple_numba_plasma, verysimple_continuum
 ):
     # Set seed because of RNG in trace_vpacket
     np.random.seed(1)
@@ -78,7 +76,7 @@ def test_trace_vpacket(
     )
 
     tau_trace_combined = vpacket.trace_vpacket(
-        v_packet, verysimple_numba_model, verysimple_numba_plasma, continuum
+        v_packet, verysimple_numba_model, verysimple_numba_plasma, verysimple_continuum
     )
 
     npt.assert_almost_equal(tau_trace_combined, 8164850.891288479)
@@ -98,6 +96,7 @@ def test_trace_vpacket_volley(
     verysimple_3vpacket_collection,
     verysimple_numba_model,
     verysimple_numba_plasma,
+    verysimple_continuum
 ):
     # Set seed because of RNG in trace_vpacket
     np.random.seed(1)
@@ -109,6 +108,7 @@ def test_trace_vpacket_volley(
         verysimple_3vpacket_collection,
         verysimple_numba_model,
         verysimple_numba_plasma,
+        verysimple_continuum
     )
 
 

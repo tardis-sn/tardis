@@ -170,7 +170,9 @@ def montecarlo_main_loop(
     virtual_packet_logging : bool
         Option to enable virtual packet logging.
     """
-    output_nus = np.empty_like(packet_collection.packets_output_nu)
+
+    print(packet_collection.packets_output_nu.shape)
+    output_nus = np.empty_like(packet_collection.packets_input_nu)
     last_interaction_types = (
         np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
     )
