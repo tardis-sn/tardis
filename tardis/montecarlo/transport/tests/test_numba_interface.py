@@ -1,5 +1,5 @@
 import pytest
-import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
+import tardis.montecarlo.transport.numba_interface as numba_interface
 import numpy.testing as npt
 import numpy as np
 

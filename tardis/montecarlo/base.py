@@ -12,15 +12,15 @@ from tardis.montecarlo.spectrum import TARDISSpectrum
 from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo import packet_source as source
-from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
+from tardis.montecarlo.transport.formal_integral import FormalIntegrator
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
 
 
-from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
-from tardis.montecarlo.montecarlo_numba.numba_interface import (
+from tardis.montecarlo.transport import montecarlo_radial1d
+from tardis.montecarlo.transport.numba_interface import (
     configuration_initialize,
 )
-from tardis.montecarlo.montecarlo_numba import numba_config
+from tardis.montecarlo.transport import numba_config
 from tardis.io.logger import montecarlo_tracking as mc_tracker
 
 import numpy as np

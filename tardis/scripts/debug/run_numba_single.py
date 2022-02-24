@@ -1,6 +1,6 @@
 from tardis import run_tardis
 import numpy as np
-from tardis.montecarlo.montecarlo_numba.base import montecarlo_main_loop
+from tardis.montecarlo.transport.base import montecarlo_main_loop
 import os
 import numba
 import sys

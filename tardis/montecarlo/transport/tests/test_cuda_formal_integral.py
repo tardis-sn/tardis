@@ -7,16 +7,16 @@ from copy import deepcopy
 import numpy.testing as ntest
 from numba import cuda
 from numba import njit
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+from tardis.montecarlo.transport import njit_dict_no_parallel
 
 
-import tardis.montecarlo.montecarlo_numba.formal_integral_cuda as formal_integral_cuda
-import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral_numba
-from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
+import tardis.montecarlo.transport.formal_integral_cuda as formal_integral_cuda
+import tardis.montecarlo.transport.formal_integral as formal_integral_numba
+from tardis.montecarlo.transport.numba_interface import NumbaModel
 
 
-from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
-from tardis.montecarlo.montecarlo_numba.formal_integral import (
+from tardis.montecarlo.transport.formal_integral import FormalIntegrator
+from tardis.montecarlo.transport.formal_integral import (
     NumbaFormalIntegrator,
 )
 

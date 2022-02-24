@@ -1,20 +1,20 @@
 import pytest
 import numpy as np
 
-import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
-import tardis.montecarlo.montecarlo_numba.calculate_distances as calculate_distances
-import tardis.montecarlo.montecarlo_numba.frame_transformations as frame_transformations
-import tardis.montecarlo.montecarlo_numba.opacities as opacities
-import tardis.montecarlo.montecarlo_numba.r_packet_transport as r_packet_transport
-from tardis.montecarlo.montecarlo_numba.estimators import (
+import tardis.montecarlo.transport.r_packet as r_packet
+import tardis.montecarlo.transport.calculate_distances as calculate_distances
+import tardis.montecarlo.transport.frame_transformations as frame_transformations
+import tardis.montecarlo.transport.opacities as opacities
+import tardis.montecarlo.transport.r_packet_transport as r_packet_transport
+from tardis.montecarlo.transport.estimators import (
     update_line_estimators,
 )
-import tardis.montecarlo.montecarlo_numba.utils as utils
+import tardis.montecarlo.transport.utils as utils
 
-import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
+import tardis.montecarlo.transport.numba_interface as numba_interface
 from tardis import constants as const
 
-import tardis.montecarlo.montecarlo_numba.numba_config as numba_config
+import tardis.montecarlo.transport.numba_config as numba_config
 
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value

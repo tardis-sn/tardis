@@ -11,15 +11,15 @@ from numba import njit, char, float64, int64, typeof, byte, prange
 from numba.experimental import jitclass
 import pdb
 
-from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
-from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
-from tardis.montecarlo.montecarlo_numba.numba_interface import (
+from tardis.montecarlo.transport.numba_config import SIGMA_THOMSON
+from tardis.montecarlo.transport import njit_dict, njit_dict_no_parallel
+from tardis.montecarlo.transport.numba_interface import (
     numba_plasma_initialize,
     NumbaModel,
     NumbaPlasma,
 )
 from numba import cuda
-from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import CudaFormalIntegrator
+from tardis.montecarlo.transport.formal_integral_cuda import CudaFormalIntegrator
 
 from tardis.montecarlo.spectrum import TARDISSpectrum
 

@@ -1,32 +1,32 @@
 from numba import njit
 import numpy as np
 
-from tardis.montecarlo.montecarlo_numba.r_packet import (
+from tardis.montecarlo.transport.r_packet import (
     PacketStatus,
 )
-from tardis.montecarlo.montecarlo_numba.r_packet_transport import (trace_packet,
-    move_r_packet, move_packet_across_shell_boundary)
+from tardis.montecarlo.transport.r_packet_transport import (trace_packet,
+                                                            move_r_packet, move_packet_across_shell_boundary)
 
-from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
+from tardis.montecarlo.transport.utils import MonteCarloException
 
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.montecarlo.transport.frame_transformations import (
     get_inverse_doppler_factor,
     get_doppler_factor
 )
-from tardis.montecarlo.montecarlo_numba.interaction import (
+from tardis.montecarlo.transport.interaction import (
     InteractionType,
     thomson_scatter,
     line_scatter,
     continuum_event,
 )
-from tardis.montecarlo.montecarlo_numba.numba_interface import (
+from tardis.montecarlo.transport.numba_interface import (
     LineInteractionType,
 )
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
 
-from tardis.montecarlo.montecarlo_numba.vpacket import trace_vpacket_volley
+from tardis.montecarlo.transport.vpacket import trace_vpacket_volley
 
 from tardis import constants as const
 
@@ -49,7 +49,7 @@ def single_packet_loop(r_packet,
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
     vpacket_collection : tardis.montecarlo.montecarlo_numba.numba_interface.VPacketCollection
-    rpacket_collection : tardis.montecarlo.montecarlo_numba.numba_interface.RPacketCollection
+    rpacket_collection : tardis.montecarlo.transport.numba_interface.RPacketCollection
 
     Returns
     -------

@@ -2,12 +2,12 @@ import math
 
 from numba import njit
 
-from tardis.montecarlo.montecarlo_numba import (
+from tardis.montecarlo.transport import (
     njit_dict_no_parallel,
 )
 
-from tardis.montecarlo.montecarlo_numba import numba_config as nc
-from tardis.montecarlo.montecarlo_numba.numba_config import (
+from tardis.montecarlo.transport import numba_config as nc
+from tardis.montecarlo.transport.numba_config import (
     C_SPEED_OF_LIGHT
 )
 

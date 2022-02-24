@@ -8,6 +8,6 @@ njit_dict_no_parallel = {
     "parallel": False,
 }
 
-from tardis.montecarlo.montecarlo_numba.r_packet import RPacket
-from tardis.montecarlo.montecarlo_numba.base import montecarlo_radial1d
-from tardis.montecarlo.montecarlo_numba.numba_interface import PacketCollection
+from tardis.montecarlo.transport.r_packet import RPacket
+from tardis.montecarlo.transport.base import montecarlo_radial1d
+from tardis.montecarlo.transport.numba_interface import PacketCollection

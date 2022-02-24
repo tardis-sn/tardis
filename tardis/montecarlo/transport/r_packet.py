@@ -4,14 +4,14 @@ import numpy as np
 from numba import int64, float64, njit, objmode
 from numba.experimental import jitclass
 
-from tardis.montecarlo.montecarlo_numba import (
+from tardis.montecarlo.transport import (
     njit_dict_no_parallel,
 )
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.montecarlo.transport.frame_transformations import (
     get_doppler_factor,
 )
-from tardis.montecarlo.montecarlo_numba import numba_config as nc
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+from tardis.montecarlo.transport import numba_config as nc
+from tardis.montecarlo.transport import njit_dict_no_parallel
 
 class InteractionType(IntEnum):
     BOUNDARY = 1

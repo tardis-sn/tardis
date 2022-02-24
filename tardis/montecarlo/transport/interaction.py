@@ -1,23 +1,23 @@
 from numba import njit
 import numpy as np
-from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
-from tardis.montecarlo.montecarlo_numba.numba_interface import (
+from tardis.montecarlo.transport import njit_dict, njit_dict_no_parallel
+from tardis.montecarlo.transport.numba_interface import (
     LineInteractionType,
 )
 
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.montecarlo.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
     angle_aberration_CMF_to_LF,
 )
-from tardis.montecarlo.montecarlo_numba.r_packet import (
+from tardis.montecarlo.transport.r_packet import (
     InteractionType, PacketStatus
 )
-from tardis.montecarlo.montecarlo_numba.utils import get_random_mu
-from tardis.montecarlo.montecarlo_numba.macro_atom import (
+from tardis.montecarlo.transport.utils import get_random_mu
+from tardis.montecarlo.transport.macro_atom import (
         macro_atom, MacroAtomTransitionType
 )
 
@@ -50,7 +50,7 @@ def continuum_event(r_packet, time_explosion, continuum, numba_plasma):
     r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
     time_explosion : float
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
-    continuum : tardis.montecarlo.montecarlo_numba.numba_interface.Continuum
+    continuum : tardis.montecarlo.transport.numba_interface.Continuum
     """
     old_doppler_factor = get_doppler_factor(
             r_packet.r, 
@@ -88,7 +88,7 @@ def macro_atom_event(destination_level_idx,
     r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
     time_explosion : float
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
-    continuum : tardis.montecarlo.montecarlo_numba.numba_interface.Continuum
+    continuum : tardis.montecarlo.transport.numba_interface.Continuum
     """
     
     transition_id, transition_type = macro_atom(
@@ -144,7 +144,7 @@ def bf_cooling(r_packet, time_explosion, numba_plasma, continuum):
     r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
     time_explosion : float
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
-    continuum : tardis.montecarlo.montecarlo_numba.numba_interface.Continuum
+    continuum : tardis.montecarlo.transport.numba_interface.Continuum
     """
     
     fb_cooling_prob = numba_plasma.p_fb_deactivation[:, 
@@ -206,7 +206,7 @@ def free_free_emission(r_packet, time_explosion, numba_plasma, continuum):
     r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
     time_explosion : float
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
-    continuum : tardis.montecarlo.montecarlo_numba.numba_interface.Continuum
+    continuum : tardis.montecarlo.transport.numba_interface.Continuum
     """
  
     inverse_doppler_factor = get_inverse_doppler_factor(
@@ -235,7 +235,7 @@ def bound_free_emission(r_packet, time_explosion, numba_plasma, continuum, conti
     r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
     time_explosion : float
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
-    continuum : tardis.montecarlo.montecarlo_numba.numba_interface.Continuum
+    continuum : tardis.montecarlo.transport.numba_interface.Continuum
     continuum_id : int
     """
  

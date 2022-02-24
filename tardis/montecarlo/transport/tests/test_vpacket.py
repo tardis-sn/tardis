@@ -2,15 +2,15 @@ import os
 import pytest
 import numpy as np
 import pandas as pd
-import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
-from tardis.montecarlo.montecarlo_numba.tests.conftest import verysimple_collection, verysimple_continuum
-import tardis.montecarlo.montecarlo_numba.vpacket as vpacket
+import tardis.montecarlo.transport.r_packet as r_packet
+from tardis.montecarlo.transport.tests.conftest import verysimple_collection, verysimple_continuum
+import tardis.montecarlo.transport.vpacket as vpacket
 import tardis.montecarlo.montecarlo_configuration as mc
-import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
+import tardis.montecarlo.transport.numba_interface as numba_interface
 from tardis import constants as const
-from tardis.montecarlo.montecarlo_numba import macro_atom
+from tardis.montecarlo.transport import macro_atom
 
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.montecarlo.transport.frame_transformations import (
     get_doppler_factor,
 )
 

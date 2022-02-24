@@ -47,6 +47,8 @@ def trace_packet_continuum(
         r_packet.r, r_packet.mu, numba_model.time_explosion
     )
     comov_nu = r_packet.nu * doppler_factor
+
+    if CONTINUUM:
     continuum.calculate(comov_nu, r_packet.current_shell_id)
     (
         chi_bf,
@@ -61,8 +63,10 @@ def trace_packet_continuum(
             continuum.x_sect_bfs, 
             continuum.chi_ff
     )
-
+    
     chi_continuum = chi_e + chi_bf + chi_ff
+    else:
+        chi_continuum = chi_e
     distance_continuum = tau_event / chi_continuum
 
     cur_line_id = start_line_id  # initializing varibale for Numba
@@ -98,8 +102,10 @@ def trace_packet_continuum(
         tau_trace_continuum = chi_continuum * distance_trace
 
         # calculating the trace
-        tau_trace_combined = tau_trace_line_combined + tau_trace_continuum
-
+        if CONTINUUM:
+            tau_trace_combined = tau_trace_line_combined + tau_trace_continuum
+        else:
+            tau_trace_combined = tau_trace_line_combined 
         distance = min(distance_trace, distance_boundary, distance_continuum)
 
         if distance_trace != 0:

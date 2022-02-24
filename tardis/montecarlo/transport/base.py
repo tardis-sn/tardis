@@ -2,13 +2,13 @@ from numba import prange, njit, jit, objmode
 import logging
 import numpy as np
 
-from tardis.montecarlo.montecarlo_numba.r_packet import (
+from tardis.montecarlo.transport.r_packet import (
     RPacket,
     PacketStatus,
 )
-from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
+from tardis.montecarlo.transport.utils import MonteCarloException
 
-from tardis.montecarlo.montecarlo_numba.numba_interface import (
+from tardis.montecarlo.transport.numba_interface import (
     PacketCollection,
     VPacketCollection,
     RPacketTracker,
@@ -23,10 +23,10 @@ from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
 
-from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
+from tardis.montecarlo.transport.single_packet_loop import (
     single_packet_loop,
 )
-from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.montecarlo.transport import njit_dict
 from numba.typed import List
 from tardis.util.base import update_iterations_pbar, update_packet_pbar
 

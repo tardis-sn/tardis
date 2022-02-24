@@ -1,5 +1,5 @@
 import pytest
-import tardis.montecarlo.montecarlo_numba.macro_atom as macro_atom
+import tardis.montecarlo.transport.macro_atom as macro_atom
 import numpy as np
 
 

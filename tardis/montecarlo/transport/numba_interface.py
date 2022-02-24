@@ -10,7 +10,7 @@ from tardis import constants as const
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+from tardis.montecarlo.transport import njit_dict_no_parallel
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 

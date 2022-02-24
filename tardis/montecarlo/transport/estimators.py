@@ -1,14 +1,14 @@
 from math import exp
 from numba import njit
 
-from tardis.montecarlo.montecarlo_numba import numba_config as nc
-from tardis.montecarlo.montecarlo_numba.numba_config import H, KB
+from tardis.montecarlo.transport import numba_config as nc
+from tardis.montecarlo.transport.numba_config import H, KB
 
-from tardis.montecarlo.montecarlo_numba import (
+from tardis.montecarlo.transport import (
     njit_dict_no_parallel,
 )
 
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.montecarlo.transport.frame_transformations import (
     calc_packet_energy,
     calc_packet_energy_full_relativity,
 )

@@ -4,7 +4,7 @@ from astropy import units as u
 from numba import float64, int64, cuda
 import math
 
-from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
+from tardis.montecarlo.transport.numba_config import SIGMA_THOMSON
 
 C_INV = 3.33564e-11
 M_PI = np.arccos(-1)

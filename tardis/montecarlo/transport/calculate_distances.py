@@ -2,20 +2,20 @@ import math
 
 from numba import njit
 
-from tardis.montecarlo.montecarlo_numba import (
+from tardis.montecarlo.transport import (
     njit_dict_no_parallel,
 )
 
-import tardis.montecarlo.montecarlo_numba.numba_config as nc
-from tardis.montecarlo.montecarlo_numba.numba_config import (
+import tardis.montecarlo.transport.numba_config as nc
+from tardis.montecarlo.transport.numba_config import (
     C_SPEED_OF_LIGHT,
     MISS_DISTANCE,
     SIGMA_THOMSON,
     CLOSE_LINE_THRESHOLD,
 )
 
-from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
-from tardis.montecarlo.montecarlo_numba.r_packet import print_r_packet_properties
+from tardis.montecarlo.transport.utils import MonteCarloException
+from tardis.montecarlo.transport.r_packet import print_r_packet_properties
 
 @njit(**njit_dict_no_parallel)
 def calculate_distance_boundary(r, mu, r_inner, r_outer):

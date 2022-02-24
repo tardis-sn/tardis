@@ -2,8 +2,8 @@ import pytest
 
 import numpy.testing as npt
 
-from tardis.montecarlo.montecarlo_numba import RPacket
-from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
+from tardis.montecarlo.transport import RPacket
+from tardis.montecarlo.transport.single_packet_loop import (
     single_packet_loop,
 )
 

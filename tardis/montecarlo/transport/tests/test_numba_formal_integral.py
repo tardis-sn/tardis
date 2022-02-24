@@ -6,8 +6,8 @@ from copy import deepcopy
 import numpy.testing as ntest
 
 from tardis.util.base import intensity_black_body
-import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral
-from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
+import tardis.montecarlo.transport.formal_integral as formal_integral
+from tardis.montecarlo.transport.numba_interface import NumbaModel
 
 @pytest.mark.parametrize(
     ["nu", "T"],

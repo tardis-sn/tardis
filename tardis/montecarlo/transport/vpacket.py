@@ -5,30 +5,30 @@ from numba import float64, int64, boolean
 from numba import njit, gdb
 from numba.experimental import jitclass
 
-from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
+from tardis.montecarlo.transport import njit_dict, njit_dict_no_parallel
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
 
-from tardis.montecarlo.montecarlo_numba.r_packet import (
+from tardis.montecarlo.transport.r_packet import (
     PacketStatus,
 )
-from tardis.montecarlo.montecarlo_numba.r_packet_transport import \
+from tardis.montecarlo.transport.r_packet_transport import \
     move_packet_across_shell_boundary
 
-from tardis.montecarlo.montecarlo_numba.calculate_distances import (
+from tardis.montecarlo.transport.calculate_distances import (
     calculate_distance_boundary,
     calculate_distance_line,
 )
 
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.montecarlo.transport.frame_transformations import (
     get_doppler_factor,
     angle_aberration_LF_to_CMF,
     angle_aberration_CMF_to_LF,
 )
 
-from tardis.montecarlo.montecarlo_numba.opacities import calculate_tau_electron
-from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
+from tardis.montecarlo.transport.opacities import calculate_tau_electron
+from tardis.montecarlo.transport.numba_config import SIGMA_THOMSON
 
 vpacket_spec = [
     ("r", float64),

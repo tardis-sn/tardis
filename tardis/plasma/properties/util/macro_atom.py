@@ -1,5 +1,5 @@
 from numba import njit
-from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.montecarlo.transport import njit_dict
 import numpy as np
 from tardis import constants as const
 

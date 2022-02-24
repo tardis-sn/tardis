@@ -5,12 +5,12 @@ import numpy as np
 from numba import njit
 
 from tardis.simulation import Simulation
-from tardis.montecarlo.montecarlo_numba import RPacket, PacketCollection
-from tardis.montecarlo.montecarlo_numba.numba_interface import (Estimators, 
-                        create_continuum_class)
+from tardis.montecarlo.transport import RPacket, PacketCollection
+from tardis.montecarlo.transport.numba_interface import (Estimators,
+                                                         create_continuum_class)
 
 
-from tardis.montecarlo.montecarlo_numba.numba_interface import (
+from tardis.montecarlo.transport.numba_interface import (
     numba_plasma_initialize,
     NumbaModel,
     Estimators,
