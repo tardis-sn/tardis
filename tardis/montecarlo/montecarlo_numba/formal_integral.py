@@ -195,14 +195,14 @@ def numba_formal_integral(
     return L
 
 
-integrator_spec = [
-    ("model", NumbaModel.class_type.instance_type),
-    ("plasma", NumbaPlasma.class_type.instance_type),
-    ("points", int64),
-]
+#integrator_spec = [
+#    ("model", NumbaModel.class_type.instance_type),
+#    ("plasma", NumbaPlasma.class_type.instance_type),
+#    ("points", int64),
+#]
 
 
-@jitclass(integrator_spec)
+#@jitclass(integrator_spec)
 class NumbaFormalIntegrator(object):
     """
     Helper class for performing the formal integral
@@ -383,8 +383,10 @@ class FormalIntegrator(object):
         model = self.model
         runner = self.runner
 
+        #macro_ref = self.atomic_data.macro_atom_references
         macro_ref = self.atomic_data.macro_atom_references
-        macro_data = self.atomic_data.macro_atom_data
+        #macro_data = self.atomic_data.macro_atom_data
+        macro_data = self.original_plasma.macro_atom_data
 
         no_lvls = len(self.atomic_data.levels)
         no_shells = len(model.w)

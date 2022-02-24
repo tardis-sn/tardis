@@ -6,11 +6,11 @@ from tardis.montecarlo.montecarlo_numba import (
     njit_dict_no_parallel,
 )
 
+import tardis.montecarlo.montecarlo_numba.numba_config as nc
 from tardis.montecarlo.montecarlo_numba.numba_config import (
     C_SPEED_OF_LIGHT,
     MISS_DISTANCE,
     SIGMA_THOMSON,
-    ENABLE_FULL_RELATIVITY,
     CLOSE_LINE_THRESHOLD,
 )
 
@@ -59,8 +59,6 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
     return distance, delta_shell
 
 
-# @log_decorator
-#'float64(RPacket, float64, int64, float64, float64)'
 @njit(**njit_dict_no_parallel)
 def calculate_distance_line(
     r_packet, comov_nu, is_last_line, nu_line, time_explosion
@@ -105,7 +103,7 @@ def calculate_distance_line(
             " information, see print statement beforehand"
         )
 
-    if ENABLE_FULL_RELATIVITY:
+    if nc.ENABLE_FULL_RELATIVITY:
         return calculate_distance_line_full_relativity(
             nu_line, nu, time_explosion, r_packet
         )

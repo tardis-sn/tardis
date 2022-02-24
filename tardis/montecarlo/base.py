@@ -164,6 +164,30 @@ class MontecarloRunner(HDFWriterMixin):
         self.Edotlu_estimator = np.zeros(tau_sobolev_shape)
         # TODO: this is the wrong attribute naming style.
 
+    def _initialize_continuum_estimator_arrays(self, gamma_shape):
+        """
+        Initialize the arrays for the MC estimators for continuum processes.
+
+        Parameters
+        ----------
+        gamma_shape : tuple
+            Shape of the array with the photoionization rate coefficients.
+        """
+        self.photo_ion_estimator = np.zeros(gamma_shape, dtype=np.float64)
+        self.stim_recomb_estimator = np.zeros(gamma_shape, dtype=np.float64)
+        self.stim_recomb_cooling_estimator = np.zeros(
+            gamma_shape, dtype=np.float64
+        )
+        self.bf_heating_estimator = np.zeros(gamma_shape, dtype=np.float64)
+
+        self.stim_recomb_cooling_estimator = np.zeros(
+            gamma_shape, dtype=np.float64
+        )
+
+        self.photo_ion_estimator_statistics = np.zeros(
+            gamma_shape, dtype=np.int64
+        )
+
     def _initialize_geometry_arrays(self, model):
         """
         Generate the cgs like geometry arrays for the montecarlo part
@@ -303,6 +327,13 @@ class MontecarloRunner(HDFWriterMixin):
 
         # Initializing estimator array
         self._initialize_estimator_arrays(plasma.tau_sobolevs.shape)
+
+        if not plasma.continuum_interaction_species.empty:
+            gamma_shape = plasma.gamma.shape
+        else:
+            gamma_shape = (0, 0)
+
+        self._initialize_continuum_estimator_arrays(gamma_shape)
 
         self._initialize_geometry_arrays(model)
 

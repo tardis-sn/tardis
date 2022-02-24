@@ -18,7 +18,7 @@ from tardis.montecarlo.montecarlo_numba.r_packet import InteractionType, \
 
 
 @njit(**njit_dict_no_parallel)
-def trace_packet(r_packet, numba_model, numba_plasma, estimators):
+def trace_packet(r_packet, numba_model, numba_plasma, estimators, continuum):
     """
     Traces the RPacket through the ejecta and stops when an interaction happens (heart of the calculation)
 
@@ -240,3 +240,7 @@ def move_packet_across_shell_boundary(packet, delta_shell, no_of_shells):
         packet.status = PacketStatus.REABSORBED
     else:
         packet.current_shell_id = next_shell_id
+
+
+
+

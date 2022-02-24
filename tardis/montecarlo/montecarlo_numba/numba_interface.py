@@ -1,6 +1,6 @@
 from enum import IntEnum
 
-from numba import float64, int64, boolean
+from numba import float64, int64, boolean, njit
 from numba.experimental import jitclass
 import numpy as np
 
@@ -10,7 +10,7 @@ from tardis import constants as const
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
-
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -40,6 +40,7 @@ class NumbaModel(object):
 
 numba_plasma_spec = [
     ("electron_density", float64[:]),
+    ("t_electrons", float64[:]),
     ("line_list_nu", float64[:]),
     ("tau_sobolev", float64[:, :]),
     ("transition_probabilities", float64[:, :]),
@@ -48,6 +49,8 @@ numba_plasma_spec = [
     ("transition_type", int64[:]),
     ("destination_level_id", int64[:]),
     ("transition_line_id", int64[:]),
+    ("bf_threshold_list_nu", float64[:]),
+    ("p_fb_deactivation", float64[:, :]),
 ]
 
 
@@ -56,6 +59,7 @@ class NumbaPlasma(object):
     def __init__(
         self,
         electron_density,
+        t_electrons,
         line_list_nu,
         tau_sobolev,
         transition_probabilities,
@@ -64,6 +68,8 @@ class NumbaPlasma(object):
         transition_type,
         destination_level_id,
         transition_line_id,
+        bf_threshold_list_nu,
+        p_fb_deactivation
     ):
         """
         Plasma for the Numba code
@@ -71,6 +77,7 @@ class NumbaPlasma(object):
         Parameters
         ----------
         electron_density : numpy.ndarray
+        t_electrons : numpy.ndarray
         line_list_nu : numpy.ndarray
         tau_sobolev : numpy.ndarray
         transition_probabilities : numpy.ndarray
@@ -79,11 +86,14 @@ class NumbaPlasma(object):
         transition_type : numpy.ndarray
         destination_level_id : numpy.ndarray
         transition_line_id : numpy.ndarray
+        bf_threshold_list_nu : numpy.ndarray
         """
 
         self.electron_density = electron_density
+        self.t_electrons = t_electrons
         self.line_list_nu = line_list_nu
         self.tau_sobolev = tau_sobolev
+        self.bf_threshold_list_nu = bf_threshold_list_nu
 
         #### Macro Atom transition probabilities
         self.transition_probabilities = transition_probabilities
@@ -95,7 +105,7 @@ class NumbaPlasma(object):
         # Destination level is not needed and/or generated for downbranch
         self.destination_level_id = destination_level_id
         self.transition_line_id = transition_line_id
-
+        self.p_fb_deactivation = p_fb_deactivation
 
 def numba_plasma_initialize(plasma, line_interaction_type):
     """
@@ -106,7 +116,9 @@ def numba_plasma_initialize(plasma, line_interaction_type):
     plasma : tardis.plasma.BasePlasma
     line_interaction_type : enum
     """
+
     electron_densities = plasma.electron_densities.values
+    t_electrons = plasma.t_electrons
     line_list_nu = plasma.atomic_data.lines.nu.values
     tau_sobolev = np.ascontiguousarray(
         plasma.tau_sobolevs.values.copy(), dtype=np.float64
@@ -132,23 +144,34 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         line2macro_level_upper = (
             plasma.atomic_data.lines_upper2macro_reference_idx
         )
-        macro_block_references = plasma.atomic_data.macro_atom_references[
-            "block_references"
-        ].values
-        transition_type = plasma.atomic_data.macro_atom_data[
-            "transition_type"
-        ].values
+        # TODO: Fix setting of block references for non-continuum mode
+
+        if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+            macro_block_references = plasma.macro_block_references
+        else:
+            macro_block_references = plasma.atomic_data.macro_atom_references[
+                 "block_references"
+             ].values
+        transition_type = plasma.macro_atom_data["transition_type"].values
 
         # Destination level is not needed and/or generated for downbranch
-        destination_level_id = plasma.atomic_data.macro_atom_data[
+        destination_level_id = plasma.macro_atom_data[
             "destination_level_idx"
         ].values
-        transition_line_id = plasma.atomic_data.macro_atom_data[
-            "lines_idx"
+        transition_line_id = plasma.macro_atom_data["lines_idx"].values
+    if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+        bf_threshold_list_nu = plasma.nu_i.loc[
+            plasma.level2continuum_idx.index
         ].values
+        p_fb_deactivation = np.ascontiguousarray(
+            plasma.p_fb_deactivation.values.copy(), dtype=np.float64)
+    else:
+        bf_threshold_list_nu = np.zeros(0, dtype=np.float64)
+        p_fb_deactivation = np.zeros((0, 0), dtype=np.float64)
 
     return NumbaPlasma(
         electron_densities,
+        t_electrons,
         line_list_nu,
         tau_sobolev,
         transition_probabilities,
@@ -157,6 +180,8 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         transition_type,
         destination_level_id,
         transition_line_id,
+        bf_threshold_list_nu,
+        p_fb_deactivation
     )
 
 
@@ -305,7 +330,104 @@ class VPacketCollection(object):
         self.idx += 1
 
 
-rpacket_collection_spec = [
+
+def create_continuum_class(plasma):
+    """Generates the Continuum Class definition
+    based on the given tardis plasma."""
+
+    # Should make this bool dependent upon config
+    # For both clarity and maintainability
+    CONTINUUM_ENABLED = montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
+
+    if CONTINUUM_ENABLED: # Could use a more explicit config
+        print("RUNNING WITH CONTINUUM")
+        chi_continuum_calculator = plasma.chi_continuum_calculator
+        nu_fb_sampler = plasma.nu_fb_sampler
+        nu_ff_sampler = plasma.nu_ff_sampler
+        get_macro_activation_idx = plasma.determine_continuum_macro_activation_idx
+    else:
+        print("RUNNING WITHOUT CONTINUUM")
+    continuum_spec = [
+            ("chi_bf_tot", float64),
+            ("chi_bf_contributions", float64[:]),
+            ("current_continua", int64[:]),
+            ("x_sect_bfs", float64[:]),
+            ("chi_ff", float64),
+    ]
+    @jitclass(continuum_spec)
+    class Continuum(object):
+
+        def __init__(self):
+
+            self.chi_bf_tot = 0.0
+            self.chi_bf_contributions = np.empty(0, dtype=np.float64)
+            self.current_continua = np.empty(0, dtype=np.int64)
+            self.x_sect_bfs = np.empty(0, dtype=np.float64)
+            self.chi_ff = 0.0
+
+        def copy(self):
+                
+            new_continuum = Continuum()
+            new_continuum.chi_bf_tot = self.chi_bf_tot
+            new_continuum.chi_bf_contributions = self.chi_bf_contributions
+            new_continuum.current_continua = self.current_continua
+            new_continuum.x_sect_bfs = self.x_sect_bfs
+            new_continuum.chi_ff = self.chi_ff
+            return new_continuum
+
+        if CONTINUUM_ENABLED:
+
+            def calculate(self, nu, shell):
+
+                    (
+                    self.chi_bf_tot,
+                    self.chi_bf_contributions,
+                    self.current_continua,
+                    self.x_sect_bfs,
+                    self.chi_ff,
+                    ) = chi_continuum_calculator(nu, shell)
+
+            def sample_nu_free_bound(self, shell, continuum_id):
+
+                return nu_fb_sampler(shell, continuum_id)
+
+            def sample_nu_free_free(self, shell):
+
+                return nu_ff_sampler(shell)
+
+            def determine_macro_activation_idx(self, nu, shell):
+
+                idx = get_macro_activation_idx(
+                        nu, self.chi_bf_tot, self.chi_ff, 
+                        self.chi_bf_contributions, self.current_continua
+                        )
+                return idx
+        else:
+
+            def calculate(self, nu, shell): 
+                pass # requires matching call signature, should use python type annotation
+
+            def sample_nu_free_bound(self, shell, continuum_id):
+                return np.nan
+
+            def sample_nu_free_free(self, shell):
+                return np.nan
+
+            def determine_macro_activation_idx(self, nu, shell):
+                return 0 # This needs to be an int, be careful as this won't crash
+
+
+    @njit(**njit_dict_no_parallel)
+    def continuum_constructor():
+        return Continuum()
+
+    return continuum_constructor
+
+
+
+
+
+rpacket_tracker_spec = [
     ("length", int64),
     ("seed", int64),
     ("index", int64),
@@ -318,8 +440,7 @@ rpacket_collection_spec = [
     ("interact_id", int64),
 ]
 
-
-@jitclass(rpacket_collection_spec)
+@jitclass(rpacket_tracker_spec)
 class RPacketTracker(object):
     """
     Numba JITCLASS for storing the information for each interaction a RPacket instance undergoes.
@@ -404,23 +525,46 @@ class RPacketTracker(object):
         self.shell_id = self.shell_id[: self.interact_id]
 
 
-estimators_spec = [
+base_estimators_spec = [
     ("j_estimator", float64[:]),
     ("nu_bar_estimator", float64[:]),
     ("j_blue_estimator", float64[:, :]),
     ("Edotlu_estimator", float64[:, :]),
 ]
 
+continuum_estimators_spec = [
+    ("photo_ion_estimator", float64[:, :]),
+    ("stim_recomb_estimator", float64[:, :]),
+    ("bf_heating_estimator", float64[:, :]),
+    ("stim_recomb_cooling_estimator", float64[:, :]),
+    ("photo_ion_estimator_statistics", int64[:, :]),
+]
 
-@jitclass(estimators_spec)
+
+
+@jitclass(base_estimators_spec + continuum_estimators_spec)
 class Estimators(object):
     def __init__(
-        self, j_estimator, nu_bar_estimator, j_blue_estimator, Edotlu_estimator
+        self,
+        j_estimator,
+        nu_bar_estimator,
+        j_blue_estimator,
+        Edotlu_estimator,
+        photo_ion_estimator,
+        stim_recomb_estimator,
+        bf_heating_estimator,
+        stim_recomb_cooling_estimator,
+        photo_ion_estimator_statistics,
     ):
         self.j_estimator = j_estimator
         self.nu_bar_estimator = nu_bar_estimator
         self.j_blue_estimator = j_blue_estimator
         self.Edotlu_estimator = Edotlu_estimator
+        self.photo_ion_estimator = photo_ion_estimator
+        self.stim_recomb_estimator = stim_recomb_estimator
+        self.bf_heating_estimator = bf_heating_estimator
+        self.stim_recomb_cooling_estimator = stim_recomb_cooling_estimator
+        self.photo_ion_estimator_statistics = photo_ion_estimator_statistics
 
 
 def configuration_initialize(runner, number_of_vpackets):
