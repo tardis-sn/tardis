@@ -6,6 +6,7 @@ import pytest
 
 import tardis
 from tardis.montecarlo.packet_source import BlackBodySimpleSource
+from tardis.montecarlo import montecarlo_configuration as mc
 
 
 @pytest.fixture
@@ -19,6 +20,7 @@ def packet_unit_test_fpath(tardis_ref_path):
 
 
 def test_bb_packet_sampling(request, tardis_ref_data, packet_unit_test_fpath):
+    mc.LEGACY_MODE_ENABLED = True
     bb = BlackBodySimpleSource(2508)
     rng = np.random.default_rng(seed=1963)
     # ref_df = pd.read_hdf('test_bb_sampling.h5')
