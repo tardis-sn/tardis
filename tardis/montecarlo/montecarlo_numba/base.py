@@ -30,6 +30,7 @@ from tardis.montecarlo.montecarlo_numba import njit_dict
 from numba.typed import List
 from tardis.util.base import update_iterations_pbar, update_packet_pbar
 
+#ContinuumObject = create_continuum_class(plasma)
 
 def montecarlo_radial1d(
     model,
@@ -41,6 +42,7 @@ def montecarlo_radial1d(
     runner,
 ):
     #montecarlo_main_loop.recompile()
+    #global ContinuumObject
     packet_collection = PacketCollection(
         runner.input_r,
         runner.input_nu,
@@ -71,8 +73,8 @@ def montecarlo_radial1d(
 
     number_of_vpackets = montecarlo_configuration.number_of_vpackets
     ContinuumObject = create_continuum_class(plasma)
-    #montecarlo_main_loop.recompile()
-    if iteration == 0: montecarlo_main_loop.recompile() # Make sure we update
+    
+    #if iteration == 0: montecarlo_main_loop.recompile() # Make sure we update
     (
         v_packets_energy_hist,
         last_interaction_type,
@@ -161,7 +163,7 @@ def montecarlo_main_loop(
 	numba_plasma : NumbaPlasma
     estimators : NumbaEstimators
     spectrum_frequency : astropy.units.Quantity
-        frequency bins
+        frequency binspas
     number_of_vpackets : int
         VPackets released per interaction
     packet_seeds : numpy.array
@@ -171,7 +173,6 @@ def montecarlo_main_loop(
         Option to enable virtual packet logging.
     """
 
-    print(packet_collection.packets_output_nu.shape)
     output_nus = np.empty_like(packet_collection.packets_input_nu)
     last_interaction_types = (
         np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1

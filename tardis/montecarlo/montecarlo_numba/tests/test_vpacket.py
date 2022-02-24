@@ -3,6 +3,7 @@ import pytest
 import numpy as np
 import pandas as pd
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
+from tardis.montecarlo.montecarlo_numba.tests.conftest import verysimple_collection, verysimple_continuum
 import tardis.montecarlo.montecarlo_numba.vpacket as vpacket
 import tardis.montecarlo.montecarlo_configuration as mc
 import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
@@ -126,8 +127,8 @@ def broken_packet():
 
 
 def test_trace_bad_vpacket(
-    broken_packet, verysimple_numba_model, verysimple_numba_plasma
+    broken_packet, verysimple_numba_model, verysimple_numba_plasma, verysimple_continuum
 ):
     vpacket.trace_vpacket(
-        broken_packet, verysimple_numba_model, verysimple_numba_plasma
+        broken_packet, verysimple_numba_model, verysimple_numba_plasma, verysimple_continuum
     )

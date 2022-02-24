@@ -46,6 +46,11 @@ def estimators():
         Edotlu_estimator=np.array(
             [[0.0, 0.0, 1.0], [0.0, 0.0, 1.0]], dtype=np.float64
         ),
+        photo_ion_estimator=np.empty((0, 0), dtype=np.float64),
+        stim_recomb_estimator=np.empty((0, 0), dtype=np.float64),
+        bf_heating_estimator=np.empty((0, 0), dtype=np.float64),
+        stim_recomb_cooling_estimator=np.empty((0, 0), dtype=np.float64),
+        photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64)
     )
 
 
@@ -257,6 +262,7 @@ def test_trace_packet(
     verysimple_numba_model,
     verysimple_numba_plasma,
     verysimple_estimators,
+    verysimple_continuum,
     set_seed_fixture,
 ):
 
@@ -267,6 +273,7 @@ def test_trace_packet(
         verysimple_numba_model,
         verysimple_numba_plasma,
         verysimple_estimators,
+        verysimple_continuum
     )
 
     assert delta_shell == 1
