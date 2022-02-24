@@ -247,7 +247,21 @@ class NumbaFormalIntegrator(object):
 
 class FormalIntegrator(object):
     """
-    Class containing the formal integrator
+    Class containing the formal integrator. 
+    
+    If there is a NVIDIA CUDA GPU available, 
+    the formal integral will automatically run 
+    on it. If multiple GPUs are available, it will 
+    choose the first one that it sees. You can 
+    read more about selecting different GPUs on 
+    Numba's CUDA documentation.
+    
+    Parameters
+    ----------
+    model : tardis.model.Radial1DModel
+    plasma : tardis.plasma.BasePlasma
+    runner : tardis.montecarlo.MontecarloRunner
+    points : int64
     """
 
     def __init__(self, model, plasma, runner, points=1000):
