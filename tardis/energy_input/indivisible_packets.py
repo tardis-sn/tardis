@@ -126,19 +126,26 @@ def initialize_packets(
             energy = ni56_lines.energy.to_numpy() * 1000
             intensity = ni56_lines.intensity.to_numpy()
             positron_energy = 0
+            mean_energy = (
+                ni56_lines.energy.to_numpy()
+                * 1000
+                * ni56_lines.intensity.to_numpy()
+            ).sum()
             scale_factor = intensity.sum()
 
         if column == "Co56":
             energy = co56_lines.energy.to_numpy() * 1000
             intensity = co56_lines.intensity.to_numpy()
             positron_energy = 0.63 * 1000 * 0.19
+            mean_energy = (
+                co56_lines.energy.to_numpy()
+                * 1000
+                * co56_lines.intensity.to_numpy()
+            ).sum()
             scale_factor = intensity.sum()
 
         for shell in range(number_of_shells):
-            requested_decays_per_shell = int(
-                scaled_decays_per_shell[column].iloc[shell]
-            )
-            for _ in range(requested_decays_per_shell):
+            for _ in range(scaled_decays_per_shell[column].iloc[shell]):
                 # draw a random gamma-ray in shell
                 packet = GXPacket(
                     location_r=0,
@@ -173,21 +180,16 @@ def initialize_packets(
 
                 packet.shell = shell
 
-                packet.activity = activity
-
                 # Add positron energy to the medium
                 # convert KeV to eV / cm^3
                 energy_df_rows[shell] += (
-                    positron_energy
-                    * packet.activity
-                    * 1000
-                    / ejecta_volume[shell],
+                    positron_energy * activity * 1000 / ejecta_volume[shell],
                 )
                 energy_plot_df_rows.append(
                     [
                         -1,
                         positron_energy
-                        * packet.activity
+                        * activity
                         * 1000
                         / ejecta_volume[shell],
                         initial_radius,
@@ -205,9 +207,9 @@ def initialize_packets(
                     print("No energy selected for this gamma ray!")
                     continue
 
-                packet.energy_cmf = cmf_energy
+                packet.energy_cmf = mean_energy * activity
 
-                packet.energy_rf = cmf_energy / doppler_gamma(
+                packet.energy_rf = packet.energy_cmf / doppler_gamma(
                     packet.get_direction_vector(),
                     packet.location_r,
                 )
@@ -319,8 +321,6 @@ def main_gamma_ray_loop(num_decays, model):
     print("Total expected energy")
     print(total_energy.sum())
 
-    print(decays_per_shell)
-
     # Taking iron group to be elements 21-30
     # Used as part of the approximations for photoabsorption and pair creation
     # Dependent on atomic data
@@ -340,7 +340,7 @@ def main_gamma_ray_loop(num_decays, model):
     total_cmf_energy = 0
 
     for p in packets:
-        total_cmf_energy += p.energy_cmf * p.activity
+        total_cmf_energy += p.energy_cmf
 
     energy_ratio = total_energy.sum() / total_cmf_energy
 
@@ -419,16 +419,12 @@ def main_gamma_ray_loop(num_decays, model):
                 # Save packets to dataframe rows
                 # convert KeV to eV / s / cm^3
                 energy_df_rows[packet.shell] += (
-                    packet.activity
-                    * ejecta_energy_gained
-                    * 1000
-                    / ejecta_volume[packet.shell]
+                    ejecta_energy_gained * 1000 / ejecta_volume[packet.shell]
                 )
                 energy_plot_df_rows.append(
                     [
                         i,
-                        packet.activity
-                        * ejecta_energy_gained
+                        ejecta_energy_gained
                         * 1000
                         / ejecta_volume[packet.shell],
                         packet.location_r,
@@ -493,7 +489,7 @@ def main_gamma_ray_loop(num_decays, model):
 
     final_energy = 0
     for p in packets:
-        final_energy += p.energy_rf * p.activity
+        final_energy += p.energy_rf
 
     print("Final energy to test for conservation")
     print(final_energy)
