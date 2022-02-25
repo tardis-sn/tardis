@@ -1,21 +1,19 @@
+from random import sample
 import numpy as np
 import copy
 from tqdm.auto import tqdm
 import pandas as pd
 import astropy.units as u
-import tardis.constants as const
 from numba import njit
 
 from tardis.energy_input.GXPacket import GXPacket, GXPacketStatus
 from tardis.energy_input.gamma_ray_grid import (
     distance_trace,
     move_photon,
-    compute_required_photons_per_shell,
+    compute_required_photons_per_shell_artis,
+    read_artis_lines,
 )
 from tardis.energy_input.energy_source import (
-    setup_input_energy,
-    sample_energy_distribution,
-    intensity_ratio,
     decay_nuclides,
 )
 from tardis.energy_input.calculate_opacity import (
@@ -49,14 +47,42 @@ from tardis.util.base import (
 # time: s
 
 
+@njit
+def sample_energy(energy, intensity):
+    """Samples energy from energy and intensity
+
+    Parameters
+    ----------
+    energy :  One-dimensional Numpy Array, dtype float
+        Array of energies
+    intensity :  One-dimensional Numpy Array, dtype float
+        Array of intensities
+
+    Returns
+    -------
+    dtype float
+        Energy
+    """
+    z = np.random.random()
+
+    average = (energy * intensity).sum()
+    total = 0
+    for (e, i) in zip(energy, intensity):
+        total += e * i / average
+        if z <= total:
+            return e
+
+    return False
+
+
 def initialize_packets(
     number_of_shells,
     decays_per_shell,
     ejecta_volume,
-    shell_masses,
     inner_velocities,
     outer_velocities,
-    decay_rad_db,
+    ni56_lines,
+    co56_lines,
     scaled_activity_df,
 ):
     """Initializes packet properties
@@ -70,8 +96,6 @@ def initialize_packets(
         Number of decays in a shell
     ejecta_volume : numpy.array
         Volume per shell
-    shell_masses : numpy.array
-        Mass per shell
     inner_velocities : numpy.array
         Shell inner velocities
     outer_velocities : numpy.array
@@ -97,21 +121,20 @@ def initialize_packets(
     scaled_decays_per_shell = decays_per_shell.copy()
 
     for column in scaled_decays_per_shell:
-        subtable = decay_rad_db.loc[column]
-        (
-            gamma_ray_probability,
-            positron_probability,
-            scale_factor,
-        ) = intensity_ratio(subtable, "'gamma_rays' or type=='x_rays'", "'e+'")
-        energy_sorted, energy_cdf = setup_input_energy(
-            subtable, "'gamma_rays' or type=='x_rays'"
-        )
-        positron_energy_sorted, positron_energy_cdf = setup_input_energy(
-            subtable, "'e+'"
-        )
+
+        if column == "Ni56":
+            energy = ni56_lines.energy.to_numpy() * 1000
+            intensity = ni56_lines.intensity.to_numpy()
+            positron_energy = 0
+            scale_factor = intensity.sum()
+
+        if column == "Co56":
+            energy = co56_lines.energy.to_numpy() * 1000
+            intensity = co56_lines.intensity.to_numpy()
+            positron_energy = 0.63 * 1000 * 0.19
+            scale_factor = intensity.sum()
 
         for shell in range(number_of_shells):
-            scaled_decays_per_shell[column].iloc[shell] *= scale_factor
             requested_decays_per_shell = int(
                 scaled_decays_per_shell[column].iloc[shell]
             )
@@ -123,10 +146,12 @@ def initialize_packets(
                     location_phi=0,
                     direction_theta=0,
                     direction_phi=0,
-                    energy=1,
+                    energy_rf=1,
+                    energy_cmf=1,
                     status=GXPacketStatus.IN_PROCESS,
                     shell=0,
-                    nu=0,
+                    nu_rf=0,
+                    nu_cmf=0,
                     activity=0,
                 )
 
@@ -150,54 +175,51 @@ def initialize_packets(
 
                 packet.activity = activity
 
-                if gamma_ray_probability < np.random.random():
-                    # annihilation dumps comoving energy into medium
-                    # measured in the comoving frame
-                    energy_KeV = sample_energy_distribution(
-                        positron_energy_sorted, positron_energy_cdf
-                    )
-
-                    # convert KeV to eV / cm^3
-                    energy_df_rows[shell] += (
-                        energy_KeV
+                # Add positron energy to the medium
+                # convert KeV to eV / cm^3
+                energy_df_rows[shell] += (
+                    positron_energy
+                    * packet.activity
+                    * 1000
+                    / ejecta_volume[shell],
+                )
+                energy_plot_df_rows.append(
+                    [
+                        -1,
+                        positron_energy
                         * packet.activity
                         * 1000
                         / ejecta_volume[shell],
-                    )
-                    energy_plot_df_rows.append(
-                        [
-                            -1,
-                            energy_KeV
-                            * packet.activity
-                            * 1000
-                            / ejecta_volume[shell],
-                            initial_radius,
-                            packet.location_theta,
-                            0.0,
-                            -1,
-                        ]
-                    )
-                else:
-                    # Spawn a gamma ray emission with energy from gamma-ray list
-                    # energy transformed to rest frame
-                    rf_energy = sample_energy_distribution(
-                        energy_sorted, energy_cdf
-                    )
-                    packet.energy = rf_energy / doppler_gamma(
-                        packet.get_direction_vector(),
-                        packet.location_r,
-                    )
+                        initial_radius,
+                        packet.location_theta,
+                        0.0,
+                        -1,
+                    ]
+                )
 
-                    packet.nu = (
-                        packet.energy
-                        / H_CGS_KEV
-                        / doppler_gamma(
-                            packet.get_direction_vector(),
-                            packet.location_r,
-                        )
-                    )
+                # Spawn a gamma ray emission with energy from gamma-ray list
+                # energy transformed to rest frame
+                cmf_energy = sample_energy(energy, intensity)
 
-                    packets.append(packet)
+                if not cmf_energy:
+                    print("No energy selected for this gamma ray!")
+                    continue
+
+                packet.energy_cmf = cmf_energy
+
+                packet.energy_rf = cmf_energy / doppler_gamma(
+                    packet.get_direction_vector(),
+                    packet.location_r,
+                )
+
+                packet.nu_cmf = cmf_energy / H_CGS_KEV
+
+                packet.nu_rf = packet.nu_cmf / doppler_gamma(
+                    packet.get_direction_vector(),
+                    packet.location_r,
+                )
+
+                packets.append(packet)
 
     return packets, energy_df_rows, energy_plot_df_rows
 
@@ -251,6 +273,7 @@ def main_gamma_ray_loop(num_decays, model):
 
     new_abundance_rows = []
 
+    # change to .decay() of raw_isotope_abundance
     for index, mass in enumerate(shell_masses):
         isotope_abundance = raw_isotope_abundance[index]
         isotope_dict = {}
@@ -278,42 +301,25 @@ def main_gamma_ray_loop(num_decays, model):
 
     (
         decays_per_shell,
-        decay_rad_db,
-        decay_rate_per_shell,
         scaled_activity_df,
         activity_df,
-    ) = compute_required_photons_per_shell(
+    ) = compute_required_photons_per_shell_artis(
         shell_masses, new_abundances, num_decays
     )
 
-    print("Total decay rate")
-    print(np.nansum(decay_rate_per_shell))
+    ni56_lines = read_artis_lines("ni56")
+    co56_lines = read_artis_lines("co56")
 
     total_energy = (
-        activity_df["Ni56"]
-        * (
-            decay_rad_db.query(
-                "isotope == 'Ni56' and (type=='gamma_rays' or type=='x_rays' or type=='e+')"
-            )["energy"]
-            * decay_rad_db.query(
-                "isotope == 'Ni56' and (type=='gamma_rays' or type=='x_rays' or type=='e+')"
-            )["intensity"]
-            / 100
-        ).sum()
-        + activity_df["Co56"]
-        * (
-            decay_rad_db.query(
-                "isotope == 'Co56' and (type=='gamma_rays' or type=='x_rays' or type=='e+')"
-            )["energy"]
-            * decay_rad_db.query(
-                "isotope == 'Co56' and (type=='gamma_rays' or type=='x_rays' or type=='e+')"
-            )["intensity"]
-            / 100
-        ).sum()
-    )
+        activity_df["Ni56"] * ni56_lines.energy * 1000 * ni56_lines.intensity
+    ).sum() + activity_df["Co56"] * (
+        co56_lines.energy * 1000 * co56_lines.intensity
+    ).sum()
 
     print("Total expected energy")
     print(total_energy.sum())
+
+    print(decays_per_shell)
 
     # Taking iron group to be elements 21-30
     # Used as part of the approximations for photoabsorption and pair creation
@@ -324,17 +330,17 @@ def main_gamma_ray_loop(num_decays, model):
         number_of_shells,
         decays_per_shell,
         ejecta_volume,
-        shell_masses,
         inner_velocities,
         outer_velocities,
-        decay_rad_db,
+        ni56_lines,
+        co56_lines,
         scaled_activity_df,
     )
 
     total_cmf_energy = 0
 
     for p in packets:
-        total_cmf_energy += p.energy * p.activity
+        total_cmf_energy += p.energy_cmf * p.activity
 
     energy_ratio = total_energy.sum() / total_cmf_energy
 
@@ -345,7 +351,8 @@ def main_gamma_ray_loop(num_decays, model):
     print(energy_ratio)
 
     for p in packets:
-        p.energy *= energy_ratio
+        p.energy_cmf *= energy_ratio
+        p.energy_rf *= energy_ratio
 
     for e in energy_df_rows:
         e *= energy_ratio
@@ -359,9 +366,7 @@ def main_gamma_ray_loop(num_decays, model):
         while packet.status == GXPacketStatus.IN_PROCESS:
 
             # Calculate packet comoving energy for opacities
-            comoving_energy = (H_CGS_KEV * packet.nu) * doppler_gamma(
-                packet.get_direction_vector(), packet.location_r
-            )
+            comoving_energy = H_CGS_KEV * packet.nu_cmf
 
             compton_opacity = compton_opacity_calculation(
                 comoving_energy, ejecta_density[packet.shell]
@@ -451,12 +456,21 @@ def main_gamma_ray_loop(num_decays, model):
                 packet.shell = np.searchsorted(
                     outer_velocities, packet.location_r, side="left"
                 )
+                packet.energy_cmf = packet.energy_rf * doppler_gamma(
+                    packet.get_direction_vector(),
+                    packet.location_r,
+                )
+                packet.nu_cmf = packet.nu_rf * doppler_gamma(
+                    packet.get_direction_vector(),
+                    packet.location_r,
+                )
 
             if packet.shell > len(ejecta_density) - 1:
-                escape_energy.append(packet.energy)
+                escape_energy.append(packet.energy_rf)
                 packet.status = GXPacketStatus.END
             elif packet.shell < 0:
-                packet.energy = 0.0
+                packet.energy_rf = 0.0
+                packet.energy_cmf = 0.0
                 packet.status = GXPacketStatus.END
 
         i += 1
@@ -479,7 +493,7 @@ def main_gamma_ray_loop(num_decays, model):
 
     final_energy = 0
     for p in packets:
-        final_energy += p.energy * p.activity
+        final_energy += p.energy_rf * p.activity
 
     print("Final energy to test for conservation")
     print(final_energy)
@@ -495,17 +509,17 @@ def main_gamma_ray_loop(num_decays, model):
 def process_packet_path(packet):
 
     # Calculate packet comoving energy at new location
-    comoving_energy = packet.energy * doppler_gamma(
+    packet.energy_cmf = packet.energy_rf * doppler_gamma(
         packet.get_direction_vector(), packet.location_r
     )
 
     if packet.status == GXPacketStatus.COMPTON_SCATTER:
         # Calculate packet comoving energy at new location
-        comoving_freq = packet.nu * doppler_gamma(
+        packet.nu_cmf = packet.nu_rf * doppler_gamma(
             packet.get_direction_vector(), packet.location_r
         )
 
-        comoving_freq_energy = comoving_freq * H_CGS_KEV
+        comoving_freq_energy = packet.nu_cmf * H_CGS_KEV
 
         (
             compton_angle,
@@ -524,8 +538,8 @@ def process_packet_path(packet):
         ) = compton_scatter(packet, compton_angle)
 
         # Calculate rest frame frequency after scaling by the fraction that remains
-        packet.nu = (
-            comoving_freq
+        packet.nu_rf = (
+            packet.nu_cmf
             / compton_fraction
             / doppler_gamma(packet.get_direction_vector(), packet.location_r)
         )
@@ -536,10 +550,10 @@ def process_packet_path(packet):
 
     if packet.status == GXPacketStatus.PHOTOABSORPTION:
         # Ejecta gains comoving energy
-        ejecta_energy_gained = comoving_energy
+        ejecta_energy_gained = packet.energy_cmf
 
     # Transform the packet energy back to the rest frame
-    packet.energy = comoving_energy / doppler_gamma(
+    packet.energy_rf = packet.energy_cmf / doppler_gamma(
         packet.get_direction_vector(), packet.location_r
     )
 

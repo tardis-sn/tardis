@@ -145,12 +145,13 @@ def compute_required_photons_per_shell(
         Activity scaled by decays per shell
     """
 
+    # TODO: Make function using artis data
     abundance_dict = {}
     nuclide_mass_dict = {}
     for isotope_string, row in isotope_abundance.iterrows():
         if isotope_string == "Fe56":
             continue
-        store_decay_radiation(isotope_string, force_update=True)
+        store_decay_radiation(isotope_string, force_update=False)
         abundance_dict[isotope_string] = row
         nuclide_mass_dict[isotope_string] = row * shell_masses
 
@@ -196,4 +197,95 @@ def compute_required_photons_per_shell(
         activity_per_shell,
         scaled_activity_df,
         activity_df,
+    )
+
+
+def compute_required_photons_per_shell_artis(
+    shell_masses,
+    isotope_abundance,
+    number_of_decays,
+):
+    """Computes the number of photons required per shell
+    that sum to the total number of requested photons.
+    Also stores/updates decay radiation in an HDF file.
+
+    Parameters
+    ----------
+    shell_masses : ndarray
+        Array of shell masses
+    isotope_abundance : pandas DataFrame
+        Abundances of isotopes
+    number_of_decays : int64
+        Total number of simulation decays
+
+    Returns
+    -------
+    pandas.DataFrame
+        Photons required per shell
+    pandas.DataFrame
+        Database of decay radiation
+    pandas.DataFrame
+        Activity per shell
+    pandas.DataFrame
+        Activity scaled by decays per shell
+    """
+
+    abundance_df = isotope_abundance.copy()
+    abundance_df.drop("Fe56", inplace=True)
+
+    nuclide_mass_df = isotope_abundance.copy() * shell_masses
+    nuclide_mass_df.drop("Fe56", inplace=True)
+
+    half_lives = {"Ni56": 6.6075 * u.d.to(u.s), "Co56": 77.233 * u.d.to(u.s)}
+
+    abundance_norm_activity_df = abundance_df.T.copy()
+    activity_df = abundance_df.T.copy()
+    for column in abundance_norm_activity_df:
+        half_life = half_lives[column]
+        decay_constant = np.log(2) / half_life
+        atomic_mass = float(re.findall("\d+", column)[0]) * u.u.to(
+            u.g / u.mol, equivalencies=u.molar_mass_amu()
+        )
+        number_of_nuclides = (
+            nuclide_mass_df.T[column] / atomic_mass
+        ) * const.N_A
+
+        abundance_norm_activity_df[column] *= decay_constant
+        activity_df[column] = decay_constant * number_of_nuclides
+
+    abundance_norm_total_activity = abundance_norm_activity_df.to_numpy().sum()
+    activity_per_shell = activity_df.to_numpy().sum(axis=1)
+    decays_per_shell_df = abundance_norm_activity_df.copy()
+    scaled_activity_df = activity_df.copy()
+
+    # TODO: change this to be activity based instead of abundance normalized activity
+    for column in decays_per_shell_df:
+        scaled_decays_per_shell = (
+            decays_per_shell_df[column]
+            / abundance_norm_total_activity
+            * number_of_decays
+        )
+        decays_per_shell_df[column] = round(scaled_decays_per_shell).astype(int)
+        scaled_activity_df[
+            column
+        ] /= number_of_decays  # scaled_decays_per_shell
+
+    print("Total decay rate")
+    print(np.nansum(activity_per_shell))
+    print(np.nansum(scaled_activity_df))
+    print(np.nansum(activity_per_shell) / np.nansum(scaled_activity_df))
+
+    return (
+        decays_per_shell_df,
+        scaled_activity_df,
+        activity_df,
+    )
+
+
+def read_artis_lines(isotope):
+    return pd.read_csv(
+        "/home/afullard/Downloads/tardisnuclear/" + isotope + ".txt",
+        names=["energy", "intensity"],
+        sep="  ",
+        index_col=False,
     )

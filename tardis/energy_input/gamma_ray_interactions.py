@@ -234,9 +234,11 @@ def pair_creation_packet(packet):
         packet.location_r,
     )
 
-    nu_cmf = packet.nu * doppler
+    packet.nu_cmf = packet.nu_rf * doppler
 
-    probability_gamma = 2 * ELECTRON_MASS_ENERGY_KEV / (H_CGS_KEV * nu_cmf)
+    probability_gamma = (
+        2 * ELECTRON_MASS_ENERGY_KEV / (H_CGS_KEV * packet.nu_cmf)
+    )
 
     if np.random.random() > probability_gamma:
         packet.status = GXPacketStatus.PHOTOABSORPTION
@@ -259,7 +261,7 @@ def pair_creation_packet(packet):
         packet.location_r,
     )
 
-    packet.nu = ELECTRON_MASS_ENERGY_KEV / H_CGS_KEV / new_doppler
+    packet.nu_rf = ELECTRON_MASS_ENERGY_KEV / H_CGS_KEV / new_doppler
 
     return packet
 

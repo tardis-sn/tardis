@@ -20,8 +20,10 @@ gxpacket_spec = [
     ("direction_r", int64),
     ("direction_theta", float64),
     ("direction_phi", float64),
-    ("energy", float64),
-    ("nu", float64),
+    ("energy_rf", float64),
+    ("energy_cmf", float64),
+    ("nu_rf", float64),
+    ("nu_cmf", float64),
     ("status", int64),
     ("shell", int64),
     ("time_created", float64),
@@ -48,8 +50,10 @@ class GXPacket(object):
         location_phi,
         direction_theta,
         direction_phi,
-        energy,
-        nu,
+        energy_rf,
+        energy_cmf,
+        nu_rf,
+        nu_cmf,
         status,
         shell,
         activity,
@@ -60,8 +64,10 @@ class GXPacket(object):
         self.direction_r = 1
         self.direction_theta = direction_theta
         self.direction_phi = direction_phi
-        self.energy = energy
-        self.nu = nu
+        self.energy_rf = energy_rf
+        self.energy_cmf = energy_cmf
+        self.nu_rf = nu_rf
+        self.nu_cmf = nu_cmf
         self.status = status
         self.shell = shell
         self.time_created = 0
