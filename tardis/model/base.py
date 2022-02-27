@@ -6,12 +6,12 @@ from astropy import units as u
 from tardis import constants
 
 from tardis.util.base import quantity_linspace
-from tardis.io.parsers.csvy import load_csvy
 from tardis.io.model_reader import (
     read_density_file,
     read_abundances_file,
     read_uniform_abundances,
     parse_csv_abundances,
+    load_csvy,
 )
 from tardis.io.config_validator import validate_dict
 from tardis.io.config_reader import Configuration
@@ -675,10 +675,10 @@ class Radial1DModel(HDFWriterMixin):
             ), "CSVY field descriptions exist without corresponding csv data"
             if unsupported_columns != set():
                 logger.warning(
-                "The following columns are "
-                "specified in the csvy model file,"
-                 f" but are IGNORED by TARDIS: {str(unsupported_columns)}"
-            )
+                    "The following columns are "
+                    "specified in the csvy model file,"
+                    f" but are IGNORED by TARDIS: {str(unsupported_columns)}"
+                )
 
         time_explosion = config.supernova.time_explosion.cgs
 
