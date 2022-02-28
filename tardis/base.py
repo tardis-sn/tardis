@@ -12,7 +12,7 @@ def run_tardis(
     packet_source=None,
     simulation_callbacks=[],
     virtual_packet_logging=False,
-    show_convergence_plots=True,
+    show_convergence_plots=False,
     log_level=None,
     specific_log_level=None,
     show_progress_bars=True,
@@ -51,7 +51,7 @@ def run_tardis(
         If True, only show the log messages from a particular log level, set by `log_level`.
         If False, the logger shows log messages belonging to the level set and all levels above it in severity.
         The default value None means that the `specific_log_level` specified in the configuration file will be used.
-    show_convergence_plots : bool, default: True, optional
+    show_convergence_plots : bool, default: False, optional
         Option to enable tardis convergence plots.
     show_progress_bars : bool, default: True, optional
         Option to enable the progress bar.
