@@ -1,3 +1,21 @@
+import numpy as np
+from numba import njit
+
+from tardis.montecarlo import montecarlo_configuration
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+from tardis.montecarlo.montecarlo_numba.calculate_distances import \
+    calculate_distance_boundary, calculate_distance_electron, \
+    calculate_distance_line
+from tardis.montecarlo.montecarlo_numba.estimators import \
+    update_line_estimators, set_estimators, set_estimators_full_relativity, update_bound_free_estimators
+from tardis.montecarlo.montecarlo_numba.frame_transformations import \
+    get_doppler_factor
+from tardis.montecarlo.montecarlo_numba.numba_config import \
+    ENABLE_FULL_RELATIVITY, SIGMA_THOMSON
+from tardis.montecarlo.montecarlo_numba.opacities import calculate_tau_electron
+from tardis.montecarlo.montecarlo_numba.r_packet import InteractionType, \
+    PacketStatus
+
 @njit(**njit_dict_no_parallel)
 def trace_packet_continuum(
         r_packet,
@@ -40,6 +58,7 @@ def trace_packet_continuum(
     cur_electron_density = numba_plasma.electron_density[
         r_packet.current_shell_id
     ]
+    
     chi_e = cur_electron_density * SIGMA_THOMSON
 
     # Calculating doppler factor
@@ -50,13 +69,11 @@ def trace_packet_continuum(
     continuum.calculate(comov_nu, r_packet.current_shell_id)
     (
         chi_bf,
-        chi_bf_contributions,
         current_continua,
         x_sect_bfs,
         chi_ff,
     ) = (
             continuum.chi_bf_tot, 
-            continuum.chi_bf_contributions, 
             continuum.current_continua, 
             continuum.x_sect_bfs, 
             continuum.chi_ff
@@ -102,6 +119,7 @@ def trace_packet_continuum(
 
         distance = min(distance_trace, distance_boundary, distance_continuum)
 
+        
         if distance_trace != 0:
 
             if distance == distance_boundary:
@@ -148,6 +166,7 @@ def trace_packet_continuum(
         distance_continuum = (tau_event - tau_trace_line_combined) / (
             chi_continuum
         )
+        #print("Distance Continuum:", distance_continuum)
 
     else:  # Executed when no break occurs in the for loop
         # We are beyond the line list now and the only next thing is to see
