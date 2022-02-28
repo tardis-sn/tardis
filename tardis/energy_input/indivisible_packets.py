@@ -9,7 +9,7 @@ from numba import njit
 from tardis.energy_input.GXPacket import GXPacket, GXPacketStatus
 from tardis.energy_input.gamma_ray_grid import (
     distance_trace,
-    move_photon,
+    move_packet,
     compute_required_photons_per_shell_artis,
     read_artis_lines,
 )
@@ -123,6 +123,7 @@ def initialize_packets(
     for column in scaled_decays_per_shell:
 
         if column == "Ni56":
+            # factor of 1000 for MeV -> keV
             energy = ni56_lines.energy.to_numpy() * 1000
             intensity = ni56_lines.intensity.to_numpy()
             positron_energy = 0
@@ -136,6 +137,7 @@ def initialize_packets(
         if column == "Co56":
             energy = co56_lines.energy.to_numpy() * 1000
             intensity = co56_lines.intensity.to_numpy()
+            # positron energy scaled by intensity
             positron_energy = 0.63 * 1000 * 0.19
             mean_energy = (
                 co56_lines.energy.to_numpy()
@@ -313,10 +315,11 @@ def main_gamma_ray_loop(num_decays, model):
     co56_lines = read_artis_lines("co56")
 
     total_energy = (
-        activity_df["Ni56"] * ni56_lines.energy * 1000 * ni56_lines.intensity
-    ).sum() + activity_df["Co56"] * (
-        co56_lines.energy * 1000 * co56_lines.intensity
-    ).sum()
+        activity_df["Ni56"]
+        * (ni56_lines.energy * 1000 * ni56_lines.intensity).sum()
+        + activity_df["Co56"]
+        * (co56_lines.energy * 1000 * co56_lines.intensity).sum()
+    )
 
     print("Total expected energy")
     print(total_energy.sum())
@@ -406,7 +409,7 @@ def main_gamma_ray_loop(num_decays, model):
                     total_opacity,
                 )
 
-                packet = move_photon(packet, distance_interaction)
+                packet = move_packet(packet, distance_interaction)
                 packet.shell = np.searchsorted(
                     outer_velocities, packet.location_r, side="left"
                 )
@@ -443,7 +446,7 @@ def main_gamma_ray_loop(num_decays, model):
             else:
                 packet.tau -= total_opacity * distance_boundary * time_explosion
                 # overshoot so that the gamma-ray is comfortably in the next shell
-                packet = move_photon(
+                packet = move_packet(
                     packet, distance_boundary * (1 + BOUNDARY_THRESHOLD)
                 )
                 packet.time_current += (
@@ -451,14 +454,6 @@ def main_gamma_ray_loop(num_decays, model):
                 )
                 packet.shell = np.searchsorted(
                     outer_velocities, packet.location_r, side="left"
-                )
-                packet.energy_cmf = packet.energy_rf * doppler_gamma(
-                    packet.get_direction_vector(),
-                    packet.location_r,
-                )
-                packet.nu_cmf = packet.nu_rf * doppler_gamma(
-                    packet.get_direction_vector(),
-                    packet.location_r,
                 )
 
             if packet.shell > len(ejecta_density) - 1:
@@ -504,17 +499,7 @@ def main_gamma_ray_loop(num_decays, model):
 @njit
 def process_packet_path(packet):
 
-    # Calculate packet comoving energy at new location
-    packet.energy_cmf = packet.energy_rf * doppler_gamma(
-        packet.get_direction_vector(), packet.location_r
-    )
-
     if packet.status == GXPacketStatus.COMPTON_SCATTER:
-        # Calculate packet comoving energy at new location
-        packet.nu_cmf = packet.nu_rf * doppler_gamma(
-            packet.get_direction_vector(), packet.location_r
-        )
-
         comoving_freq_energy = packet.nu_cmf * H_CGS_KEV
 
         (
@@ -528,17 +513,20 @@ def process_packet_path(packet):
         else:
             ejecta_energy_gained = 0.0
 
+        packet.nu_cmf = packet.nu_cmf / compton_fraction
+
         (
             packet.direction_theta,
             packet.direction_phi,
         ) = compton_scatter(packet, compton_angle)
 
         # Calculate rest frame frequency after scaling by the fraction that remains
-        packet.nu_rf = (
-            packet.nu_cmf
-            / compton_fraction
-            / doppler_gamma(packet.get_direction_vector(), packet.location_r)
+        doppler_factor = doppler_gamma(
+            packet.get_direction_vector(), packet.location_r
         )
+
+        packet.nu_rf = packet.nu_cmf / doppler_factor
+        packet.energy_rf = packet.energy_cmf / doppler_factor
 
     if packet.status == GXPacketStatus.PAIR_CREATION:
         packet = pair_creation_packet(packet)
@@ -547,10 +535,5 @@ def process_packet_path(packet):
     if packet.status == GXPacketStatus.PHOTOABSORPTION:
         # Ejecta gains comoving energy
         ejecta_energy_gained = packet.energy_cmf
-
-    # Transform the packet energy back to the rest frame
-    packet.energy_rf = packet.energy_cmf / doppler_gamma(
-        packet.get_direction_vector(), packet.location_r
-    )
 
     return packet, ejecta_energy_gained

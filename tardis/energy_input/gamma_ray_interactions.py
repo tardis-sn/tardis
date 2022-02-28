@@ -229,13 +229,6 @@ def pair_creation_packet(packet):
         outgoing packet
     """
 
-    doppler = doppler_gamma(
-        packet.get_direction_vector(),
-        packet.location_r,
-    )
-
-    packet.nu_cmf = packet.nu_rf * doppler
-
     probability_gamma = (
         2 * ELECTRON_MASS_ENERGY_KEV / (H_CGS_KEV * packet.nu_cmf)
     )
@@ -256,12 +249,14 @@ def pair_creation_packet(packet):
     packet.direction_theta = final_direction[1]
     packet.direction_phi = final_direction[2]
 
-    new_doppler = doppler_gamma(
+    doppler_factor = doppler_gamma(
         packet.get_direction_vector(),
         packet.location_r,
     )
 
-    packet.nu_rf = ELECTRON_MASS_ENERGY_KEV / H_CGS_KEV / new_doppler
+    packet.nu_cmf = ELECTRON_MASS_ENERGY_KEV / H_CGS_KEV
+    packet.nu_rf = packet.nu_cmf / doppler_factor
+    packet.energy_rf = packet.energy_cmf / doppler_factor
 
     return packet
 

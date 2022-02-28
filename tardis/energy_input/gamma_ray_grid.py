@@ -6,6 +6,7 @@ import astropy.units as u
 from numba import njit
 
 from tardis.energy_input.util import (
+    doppler_gamma,
     solve_quadratic_equation,
     convert_half_life_to_astropy_units,
     cartesian_to_spherical,
@@ -113,6 +114,43 @@ def move_photon(photon, distance):
     photon.location_phi = phi
 
     return photon
+
+
+@njit
+def move_packet(packet, distance):
+    """
+    Moves packet a distance along its direction vector
+
+    Parameters
+    ----------
+    packet : GXPacket object
+    distance : float
+
+    Returns
+    -------
+    packet : GXPacket object
+
+    """
+    x_old, y_old, z_old = packet.get_location_cartesian_coords()
+    x_dir, y_dir, z_dir = packet.get_direction_cartesian_coords()
+
+    y_new = y_old + distance * y_dir
+    z_new = z_old + distance * z_dir
+    x_new = x_old + distance * x_dir
+
+    r, theta, phi = cartesian_to_spherical(x_new, y_new, z_new)
+    packet.location_r = r
+    packet.location_theta = theta
+    packet.location_phi = phi
+
+    doppler_factor = doppler_gamma(
+        packet.get_direction_vector(), packet.location_r
+    )
+
+    packet.nu_cmf = packet.nu_rf * doppler_factor
+    packet.energy_cmf = packet.energy_rf * doppler_factor
+
+    return packet
 
 
 def compute_required_photons_per_shell(
@@ -254,9 +292,6 @@ def compute_required_photons_per_shell_artis(
         )
         activity_df[column] = decay_constant * number_of_nuclides
 
-    mass_fraction_norm_total_activity = (
-        mass_fraction_norm_activity_df.to_numpy().sum()
-    )
     total_activity = activity_df.to_numpy().sum()
     decays_per_shell_df = mass_fraction_norm_activity_df.copy()
     scaled_activity_df = activity_df.copy()
@@ -267,9 +302,9 @@ def compute_required_photons_per_shell_artis(
             activity_df[column] / total_activity * number_of_decays
         )
         decays_per_shell_df[column] = round(scaled_decays_per_shell).astype(int)
-        scaled_activity_df[
+        scaled_activity_df[column] /= decays_per_shell_df[
             column
-        ] /= number_of_decays  # scaled_decays_per_shell
+        ]  # scaled_decays_per_shell
 
     print("Total decay rate")
     print(decays_per_shell_df)
