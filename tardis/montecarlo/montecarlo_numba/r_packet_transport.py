@@ -66,6 +66,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators, continuum):
     cur_line_id = start_line_id  # initializing varibale for Numba
     # - do not remove
     last_line_id = len(numba_plasma.line_list_nu) - 1
+
     for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
 
         # Going through the lines
@@ -147,6 +148,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators, continuum):
         distance_electron = calculate_distance_electron(
             cur_electron_density, tau_event - tau_trace_line_combined
         )
+        #print("Distance electron:", distance_electron)
 
     else:  # Executed when no break occurs in the for loop
         # We are beyond the line list now and the only next thing is to see

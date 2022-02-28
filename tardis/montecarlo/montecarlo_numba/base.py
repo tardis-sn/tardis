@@ -30,6 +30,7 @@ from tardis.montecarlo.montecarlo_numba import njit_dict
 from numba.typed import List
 from tardis.util.base import update_iterations_pbar, update_packet_pbar
 
+import time
 #ContinuumObject = create_continuum_class(plasma)
 
 def montecarlo_radial1d(
@@ -43,6 +44,7 @@ def montecarlo_radial1d(
 ):
     #montecarlo_main_loop.recompile()
     #global ContinuumObject
+    
     packet_collection = PacketCollection(
         runner.input_r,
         runner.input_nu,
@@ -105,7 +107,7 @@ def montecarlo_radial1d(
         no_of_packets=no_of_packets,
         total_iterations=total_iterations,
     )
-
+    T0 = time.perf_counter()
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
     runner.last_interaction_type = last_interaction_type
     runner.last_interaction_in_nu = last_interaction_in_nu
@@ -130,7 +132,6 @@ def montecarlo_radial1d(
         runner.virt_packet_last_line_interaction_out_id = np.concatenate(
             virt_packet_last_line_interaction_out_id).ravel()
     update_iterations_pbar(1)
-
     # Condition for Checking if RPacket Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
         runner.rpacket_tracker = rpacket_trackers

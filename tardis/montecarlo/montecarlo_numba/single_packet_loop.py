@@ -6,6 +6,7 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
 )
 from tardis.montecarlo.montecarlo_numba.r_packet_transport import (trace_packet,
     move_r_packet, move_packet_across_shell_boundary)
+from tardis.montecarlo.montecarlo_numba.continuum.r_packet_transport_continuum import trace_packet_continuum
 
 from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
 
@@ -75,10 +76,16 @@ def single_packet_loop(r_packet,
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
         #print('TRACE PACKET')
-        distance, interaction_type, delta_shell = trace_packet(
-            r_packet, numba_model, numba_plasma,
-            estimators, continuum
-        )
+        if  not montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+            distance, interaction_type, delta_shell = trace_packet(
+                r_packet, numba_model, numba_plasma,
+                estimators, continuum
+            )
+        else:
+            distance, interaction_type, delta_shell = trace_packet_continuum(
+                r_packet, numba_model, numba_plasma,
+                estimators, continuum
+            )
 
         if interaction_type == InteractionType.BOUNDARY:
             #print("BOUNDARY")
@@ -120,7 +127,7 @@ def single_packet_loop(r_packet,
             )
             #print("Done ESCATTERING")
         elif interaction_type == InteractionType.CONTINUUM_PROCESS:
-            #print("CONTINUUM_PROCESS")
+            print("CONTINUUM_PROCESS")
             r_packet.last_interaction_type = InteractionType.CONTINUUM_PROCESS
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
