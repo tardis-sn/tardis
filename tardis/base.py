@@ -15,7 +15,7 @@ def run_tardis(
     show_convergence_plots=False,
     log_level=None,
     specific_log_level=None,
-    show_progress_bars=False,
+    show_progress_bars=True,
     **kwargs,
 ):
     """
@@ -53,7 +53,7 @@ def run_tardis(
         The default value None means that the `specific_log_level` specified in the configuration file will be used.
     show_convergence_plots : bool, default: False, optional
         Option to enable tardis convergence plots.
-    show_progress_bars : bool, default: False, optional
+    show_progress_bars : bool, default: True, optional
         Option to enable the progress bar.
     **kwargs : dict, optional
         Optional keyword arguments including those
