@@ -1,5 +1,3 @@
-.. _formal_integral:
-
 *****************************************
 Direct integration of the radiation field
 *****************************************
