@@ -17,6 +17,7 @@ from tardis.energy_input.util import (
 )
 from tardis.energy_input.GXPhoton import GXPhotonStatus, GXPhoton
 from tardis.energy_input.GXPacket import GXPacketStatus
+from tardis.energy_input.calculate_opacity import compton_opacity_partial
 
 
 @njit
@@ -82,6 +83,39 @@ def get_compton_fraction(energy):
     )
 
     return compton_angle, fraction
+
+
+@njit
+def get_compton_fraction_artis(energy):
+    energy_norm = kappa_calculation(energy)
+
+    fraction_max = 1.0 + 2.0 * energy_norm
+    fraction_min = 1.0
+
+    normalization = np.random.random() * compton_opacity_partial(
+        energy_norm, fraction_max
+    )
+
+    epsilon = 1.0e20
+    count = 0
+
+    while epsilon > 1.0e-4:
+        fraction_try = (fraction_max + fraction_min) / 2.0
+        sigma_try = compton_opacity_partial(energy_norm, fraction_try)
+
+        if sigma_try > normalization:
+            fraction_max = fraction_try
+            epsilon = (sigma_try - normalization) / normalization
+        else:
+            fraction_min = fraction_try
+            epsilon = (normalization - sigma_try) / normalization
+
+        count += 1
+        if count > 1000:
+            print("Error, failure to get a Compton fraction")
+            break
+
+    return fraction_try
 
 
 @njit

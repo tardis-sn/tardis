@@ -17,15 +17,16 @@ from tardis.energy_input.energy_source import (
     decay_nuclides,
 )
 from tardis.energy_input.calculate_opacity import (
-    compton_opacity_calculation,
+    compton_opacity_partial,
     photoabsorption_opacity_calculation,
     pair_creation_opacity_calculation,
+    SIGMA_T,
 )
 from tardis.energy_input.gamma_ray_interactions import (
     scatter_type,
     compton_scatter,
     pair_creation_packet,
-    get_compton_fraction,
+    get_compton_fraction_artis,
 )
 from tardis.energy_input.util import (
     get_random_theta_photon,
@@ -35,6 +36,7 @@ from tardis.energy_input.util import (
     BOUNDARY_THRESHOLD,
     C_CGS,
     H_CGS_KEV,
+    kappa_calculation,
 )
 from tardis import constants as const
 from tardis.util.base import (
@@ -132,7 +134,6 @@ def initialize_packets(
                 * 1000
                 * ni56_lines.intensity.to_numpy()
             ).sum()
-            scale_factor = intensity.sum()
 
         if column == "Co56":
             energy = co56_lines.energy.to_numpy() * 1000
@@ -144,7 +145,6 @@ def initialize_packets(
                 * 1000
                 * co56_lines.intensity.to_numpy()
             ).sum()
-            scale_factor = intensity.sum()
 
         for shell in range(number_of_shells):
             for _ in range(scaled_decays_per_shell[column].iloc[shell]):
@@ -198,6 +198,9 @@ def initialize_packets(
                         packet.location_theta,
                         0.0,
                         -1,
+                        0,
+                        0,
+                        0,
                     ]
                 )
 
@@ -228,7 +231,7 @@ def initialize_packets(
     return packets, energy_df_rows, energy_plot_df_rows
 
 
-def main_gamma_ray_loop(num_decays, model):
+def main_gamma_ray_loop(num_decays, model, plasma):
     """Main loop that determines the gamma ray propagation
 
     Parameters
@@ -237,6 +240,8 @@ def main_gamma_ray_loop(num_decays, model):
         Number of decays requested
     model : tardis.Radial1DModel
         The tardis model to calculate gamma ray propagation through
+    plasma : tardis.plasma.BasePlasma
+        The tardis plasma with calculated atomic number density
 
     Returns
     -------
@@ -276,6 +281,10 @@ def main_gamma_ray_loop(num_decays, model):
     shell_masses = ejecta_volume * ejecta_density
 
     new_abundance_rows = []
+
+    electron_number_density = (
+        plasma.number_density.mul(plasma.number_density.index, axis=0)
+    ).sum()
 
     # change to .decay() of raw_isotope_abundance
     for index, mass in enumerate(shell_masses):
@@ -322,7 +331,7 @@ def main_gamma_ray_loop(num_decays, model):
     )
 
     print("Total expected energy")
-    print(total_energy.sum())
+    print(total_energy.sum() * u.keV.to("erg"))
 
     # Taking iron group to be elements 21-30
     # Used as part of the approximations for photoabsorption and pair creation
@@ -341,9 +350,11 @@ def main_gamma_ray_loop(num_decays, model):
     )
 
     total_cmf_energy = 0
+    total_rf_energy = 0
 
     for p in packets:
         total_cmf_energy += p.energy_cmf
+        total_rf_energy += p.energy_rf
 
     energy_ratio = total_energy.sum() / total_cmf_energy
 
@@ -363,6 +374,9 @@ def main_gamma_ray_loop(num_decays, model):
     for row in energy_plot_df_rows:
         row[1] *= energy_ratio
 
+    print("Total RF energy")
+    print(total_rf_energy)
+
     i = 0
     for packet in tqdm(packets):
 
@@ -371,18 +385,42 @@ def main_gamma_ray_loop(num_decays, model):
             # Calculate packet comoving energy for opacities
             comoving_energy = H_CGS_KEV * packet.nu_cmf
 
-            compton_opacity = compton_opacity_calculation(
-                comoving_energy, ejecta_density[packet.shell]
+            doppler_factor = doppler_gamma(
+                packet.get_direction_vector(), packet.location_r
             )
-            photoabsorption_opacity = photoabsorption_opacity_calculation(
-                comoving_energy,
-                ejecta_density[packet.shell],
-                iron_group_fraction_per_shell[packet.shell],
+
+            kappa = kappa_calculation(comoving_energy)
+
+            # artis threshold for Thomson scattering
+            if kappa < 1e-2:
+                compton_opacity = (
+                    SIGMA_T
+                    * electron_number_density[packet.shell]
+                    * doppler_factor
+                )
+            else:
+                compton_opacity = (
+                    compton_opacity_partial(kappa, 1 + 2 * kappa)
+                    * electron_number_density[packet.shell]
+                    * doppler_factor
+                )
+
+            photoabsorption_opacity = (
+                photoabsorption_opacity_calculation(
+                    comoving_energy,
+                    ejecta_density[packet.shell],
+                    iron_group_fraction_per_shell[packet.shell],
+                )
+                * doppler_factor
             )
-            pair_creation_opacity = pair_creation_opacity_calculation(
-                comoving_energy,
-                ejecta_density[packet.shell],
-                iron_group_fraction_per_shell[packet.shell],
+
+            pair_creation_opacity = (
+                pair_creation_opacity_calculation(
+                    comoving_energy,
+                    ejecta_density[packet.shell],
+                    iron_group_fraction_per_shell[packet.shell],
+                )
+                * doppler_factor
             )
 
             # convert opacities to rest frame
@@ -390,7 +428,7 @@ def main_gamma_ray_loop(num_decays, model):
                 compton_opacity
                 + photoabsorption_opacity
                 + pair_creation_opacity
-            ) * doppler_gamma(packet.get_direction_vector(), packet.location_r)
+            )
 
             (distance_interaction, distance_boundary,) = distance_trace(
                 packet,
@@ -434,6 +472,9 @@ def main_gamma_ray_loop(num_decays, model):
                         packet.location_theta,
                         packet.time_current,
                         int(packet.status),
+                        compton_opacity,
+                        photoabsorption_opacity,
+                        total_opacity,
                     ]
                 )
 
@@ -476,6 +517,9 @@ def main_gamma_ray_loop(num_decays, model):
             "energy_input_theta",
             "energy_input_time",
             "energy_input_type",
+            "compton_opacity",
+            "photoabsorption_opacity",
+            "total_opacity",
         ],
     )
 
@@ -493,6 +537,9 @@ def main_gamma_ray_loop(num_decays, model):
         energy_df,
         energy_plot_df,
         escape_energy,
+        decays_per_shell,
+        scaled_activity_df,
+        activity_df,
     )
 
 
@@ -502,13 +549,18 @@ def process_packet_path(packet):
     if packet.status == GXPacketStatus.COMPTON_SCATTER:
         comoving_freq_energy = packet.nu_cmf * H_CGS_KEV
 
-        (
-            compton_angle,
-            compton_fraction,
-        ) = get_compton_fraction(comoving_freq_energy)
+        compton_fraction = get_compton_fraction_artis(comoving_freq_energy)
+
+        kappa = kappa_calculation(comoving_freq_energy)
+
+        compton_angle = 1.0 - (compton_fraction - 1.0) / kappa
+
+        # Basic check to see if Thomson scattering needs to be considered later
+        if kappa < 1e-2:
+            print("Thomson should happen")
 
         # Packet is no longer a gamma-ray, destroy it
-        if np.random.random() < compton_fraction:
+        if np.random.random() < 1.0 / compton_fraction:
             packet.status = GXPacketStatus.PHOTOABSORPTION
         else:
             ejecta_energy_gained = 0.0

@@ -275,9 +275,8 @@ def compute_required_photons_per_shell_artis(
 
     half_lives = {"Ni56": 6.6075 * u.d.to(u.s), "Co56": 77.233 * u.d.to(u.s)}
 
-    mass_fraction_norm_activity_df = mass_fraction_df.T.copy()
     activity_df = mass_fraction_df.T.copy()
-    for column in mass_fraction_norm_activity_df:
+    for column in activity_df:
         half_life = half_lives[column]
         decay_constant = np.log(2) / half_life
         atomic_mass = float(re.findall("\d+", column)[0]) * u.u.to(
@@ -287,16 +286,12 @@ def compute_required_photons_per_shell_artis(
             nuclide_mass_df.T[column] / atomic_mass
         ) * const.N_A
 
-        mass_fraction_norm_activity_df[column] *= (
-            decay_constant * number_of_nuclides
-        )
         activity_df[column] = decay_constant * number_of_nuclides
 
     total_activity = activity_df.to_numpy().sum()
-    decays_per_shell_df = mass_fraction_norm_activity_df.copy()
+    decays_per_shell_df = activity_df.copy()
     scaled_activity_df = activity_df.copy()
 
-    # TODO: change this to be activity based instead of mass_fraction normalized activity
     for column in decays_per_shell_df:
         scaled_decays_per_shell = (
             activity_df[column] / total_activity * number_of_decays
@@ -305,9 +300,6 @@ def compute_required_photons_per_shell_artis(
         scaled_activity_df[column] /= decays_per_shell_df[
             column
         ]  # scaled_decays_per_shell
-
-    print("Total decay rate")
-    print(decays_per_shell_df)
 
     return (
         decays_per_shell_df,

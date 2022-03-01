@@ -13,6 +13,36 @@ SIGMA_T = const.sigma_T.cgs.value
 
 
 @njit
+def compton_opacity_partial(energy, fraction):
+    """Partial Compton scattering opacity, from artis file
+    gamma.cc
+
+    Parameters
+    ----------
+    energy : np.float64
+        packet energy in terms of electron rest energy
+    fraction : np.float64
+        1 + 2 * packet energy
+
+    Returns
+    -------
+    np.float64
+        Compton scattering opacity
+    """
+    term_1 = (
+        ((energy ** 2.0) - (2.0 * energy) - 2.0)
+        * np.log(fraction)
+        / energy
+        / energy
+    )
+    term_2 = (((fraction ** 2.0) - 1.0) / (fraction ** 2.0)) / 2.0
+    term_3 = ((fraction - 1.0) / energy) * (
+        (1 / energy) + (2.0 / fraction) + (1.0 / (energy * fraction))
+    )
+    return 3.0 * SIGMA_T * (term_1 + term_2 + term_3) / (8 * energy)
+
+
+@njit
 def compton_opacity_calculation(energy, ejecta_density):
     """Calculate the Compton scattering opacity for a given energy
     (Rybicki & Lightman, 1979)
@@ -20,7 +50,7 @@ def compton_opacity_calculation(energy, ejecta_density):
     $
     \\rho / 2 p_m \\times 3/4 \\sigma_T ((1 + \kappa) / \kappa^3
     ((2\kappa(1 + \kappa)) / (1 + 2\kappa) - \ln(1 + 2\kappa) + 1/(2\kappa) \ln(1 + 2\kappa)
-    - (1 + 3\kappa)/(1 + 2\kappa) / (1 + 2\kappa)^2)
+    - (1 + 3\kappa) / (1 + 2\kappa)^2)
     $
 
     Parameters
@@ -52,7 +82,7 @@ def compton_opacity_calculation(energy, ejecta_density):
         )
     )
 
-    # TODO: use model electron density instead of density / 2 * proton mass
+    # use approximation
     return ejecta_density / (M_P * 2) * sigma_KN
 
 
