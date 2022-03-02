@@ -1,11 +1,11 @@
 import math
 
 import numpy as np
-from numba import float64, int64, boolean
-from numba import njit, gdb
+from numba import float64, int64
+from numba import njit
 from numba.experimental import jitclass
 
-from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
@@ -27,7 +27,6 @@ from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     angle_aberration_CMF_to_LF,
 )
 
-from tardis.montecarlo.montecarlo_numba.opacities import calculate_tau_electron
 from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
 
 vpacket_spec = [
@@ -65,7 +64,7 @@ class VPacket(object):
 
 
 @njit(**njit_dict_no_parallel)
-def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma, continuum):
+def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
     """
     Trace VPacket within one shell (relatively simple operation)
     """
@@ -91,25 +90,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma, continuum):
     )
     comov_nu = v_packet.nu * doppler_factor
 
-    if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
-        continuum.calculate(comov_nu, v_packet.current_shell_id)
-        (
-            chi_bf,
-            chi_bf_contributions,
-            current_continua,
-            x_sect_bfs,
-            chi_ff,
-        ) = (
-            continuum.chi_bf_tot,
-            continuum.chi_bf_contributions,
-            continuum.current_continua,
-            continuum.x_sect_bfs,
-            continuum.chi_ff
-        )
-
-        chi_continuum = chi_e + chi_bf + chi_ff
-    else:
-        chi_continuum = chi_e
+    chi_continuum = chi_e
 
     tau_continuum = chi_continuum * distance_boundary
     tau_trace_combined = tau_continuum
@@ -152,7 +133,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma, continuum):
 
 
 @njit(**njit_dict_no_parallel)
-def trace_vpacket(v_packet, numba_model, numba_plasma, continuum):
+def trace_vpacket(v_packet, numba_model, numba_plasma):
     """
     Trace single vpacket.
     Parameters
@@ -172,7 +153,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma, continuum):
             tau_trace_combined_shell,
             distance_boundary,
             delta_shell,
-        ) = trace_vpacket_within_shell(v_packet, numba_model, numba_plasma, continuum)
+        ) = trace_vpacket_within_shell(v_packet, numba_model, numba_plasma)
         tau_trace_combined += tau_trace_combined_shell
 
         move_packet_across_shell_boundary(
@@ -208,7 +189,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma, continuum):
 
 @njit(**njit_dict_no_parallel)
 def trace_vpacket_volley(
-    r_packet, vpacket_collection, numba_model, numba_plasma, continuum
+    r_packet, vpacket_collection, numba_model, numba_plasma
 ):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many)
@@ -291,7 +272,7 @@ def trace_vpacket_volley(
             i,
         )
 
-        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma, continuum)
+        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma)
 
         v_packet.energy *= math.exp(-tau_vpacket)
 

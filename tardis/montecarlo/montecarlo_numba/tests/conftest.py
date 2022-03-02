@@ -6,8 +6,7 @@ from numba import njit
 
 from tardis.simulation import Simulation
 from tardis.montecarlo.montecarlo_numba import RPacket, PacketCollection
-from tardis.montecarlo.montecarlo_numba.numba_interface import (Estimators, 
-                        create_continuum_class)
+from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
 
 
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
@@ -24,15 +23,6 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
     sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
     sim.iterate(10)
     return sim
-
-
-@pytest.fixture(scope="package")
-def verysimple_continuum(nb_simulation_verysimple):
-    plasma = nb_simulation_verysimple.plasma
-    ContinuumClass = create_continuum_class(plasma)
-
-    continuum = ContinuumClass()
-    return continuum
 
 
 @pytest.fixture(scope="package")
@@ -136,13 +126,6 @@ def packet(verysimple_packet_collection):
         seed=1963,
         index=0,
     )
-
-@pytest.fixture(scope='module') # maybe change later
-def continuum(nb_simulation_verysimple):
-    plasma = nb_simulation_verysimple.plasma
-    continuum_class = create_continuum_class(plasma)
-    continuum = continuum_class()
-    return continuum
 
 @pytest.fixture(scope="function")
 def static_packet():

@@ -1,6 +1,6 @@
 from enum import IntEnum
 
-from numba import float64, int64, boolean, njit
+from numba import float64, int64
 from numba.experimental import jitclass
 import numpy as np
 
@@ -10,7 +10,6 @@ from tardis import constants as const
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -51,6 +50,16 @@ numba_plasma_spec = [
     ("transition_line_id", int64[:]),
     ("bf_threshold_list_nu", float64[:]),
     ("p_fb_deactivation", float64[:, :]),
+    ("photo_ion_nu_threshold_mins", float64[:]),
+    ("photo_ion_nu_threshold_maxs", float64[:]),
+    ("photo_ion_block_references", int64[:]),
+    ("chi_bf", float64[:, :]),
+    ("x_sect", float64[:]),
+    ("phot_nus", float64[:]),
+    ("ff_opacity_factor", float64[:]),
+    ("emissivities", float64[:,:]),
+    ("photo_ion_activation_idx", int64[:]),
+    ("k_packet_idx", int64)
 ]
 
 
@@ -69,7 +78,17 @@ class NumbaPlasma(object):
         destination_level_id,
         transition_line_id,
         bf_threshold_list_nu,
-        p_fb_deactivation
+        p_fb_deactivation,
+        photo_ion_nu_threshold_mins,
+        photo_ion_nu_threshold_maxs,
+        photo_ion_block_references,
+        chi_bf,
+        x_sect,
+        phot_nus,
+        ff_opacity_factor,
+        emissivities,
+        photo_ion_activation_idx,
+        k_packet_idx
     ):
         """
         Plasma for the Numba code
@@ -106,6 +125,19 @@ class NumbaPlasma(object):
         self.destination_level_id = destination_level_id
         self.transition_line_id = transition_line_id
         self.p_fb_deactivation = p_fb_deactivation
+
+        # Continuum Opacity Data
+        self.photo_ion_nu_threshold_mins = photo_ion_nu_threshold_mins
+        self.photo_ion_nu_threshold_maxs = photo_ion_nu_threshold_maxs
+
+        self.photo_ion_block_references = photo_ion_block_references
+        self.chi_bf = chi_bf
+        self.x_sect = x_sect
+        self.phot_nus = phot_nus
+        self.ff_opacity_factor = ff_opacity_factor
+        self.emissivities = emissivities
+        self.photo_ion_activation_idx = photo_ion_activation_idx
+        self.k_packet_idx = k_packet_idx
 
 def numba_plasma_initialize(plasma, line_interaction_type):
     """
@@ -165,9 +197,44 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         ].values
         p_fb_deactivation = np.ascontiguousarray(
             plasma.p_fb_deactivation.values.copy(), dtype=np.float64)
+
+        phot_nus = plasma.photo_ion_cross_sections.nu.loc[
+            plasma.level2continuum_idx.index
+        ]
+        photo_ion_block_references = np.pad(
+            phot_nus.groupby(level=[0, 1, 2], sort=False)
+            .count()
+            .values.cumsum(),
+            [1, 0],
+        )
+        photo_ion_nu_threshold_mins = phot_nus.groupby(level=[0, 1, 2], sort=False).first().values
+        photo_ion_nu_threshold_maxs = phot_nus.groupby(level=[0, 1, 2], sort=False).last().values
+
+        chi_bf = plasma.chi_bf.loc[plasma.level2continuum_idx.index].values
+        x_sect = plasma.photo_ion_cross_sections.x_sect.loc[
+            plasma.level2continuum_idx.index
+        ].values
+
+        phot_nus = phot_nus.values
+        ff_opacity_factor = plasma.ff_cooling_factor/np.sqrt(t_electrons)
+        emissivities = plasma.fb_emission_cdf.loc[plasma.level2continuum_idx.index].values
+        photo_ion_activation_idx = plasma.photo_ion_idx.loc[
+            plasma.level2continuum_idx.index, "destination_level_idx"
+        ].values
+        k_packet_idx = np.int64(plasma.k_packet_idx)
     else:
         bf_threshold_list_nu = np.zeros(0, dtype=np.float64)
         p_fb_deactivation = np.zeros((0, 0), dtype=np.float64)
+        photo_ion_nu_threshold_mins = np.zeros(0, dtype=np.float64)
+        photo_ion_nu_threshold_maxs = np.zeros(0, dtype=np.float64)
+        photo_ion_block_references = np.zeros(0, dtype=np.int64)
+        chi_bf = np.zeros((0,0), dtype=np.float64)
+        x_sect = np.zeros(0, dtype=np.float64)
+        phot_nus = np.zeros(0, dtype=np.float64)
+        ff_opacity_factor = np.zeros(0, dtype=np.float64)
+        emissivities = np.zeros((0,0), dtype=np.float64)
+        photo_ion_activation_idx = np.zeros(0, dtype=np.int64)
+        k_packet_idx = np.int64(-1)
 
     return NumbaPlasma(
         electron_densities,
@@ -181,7 +248,17 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         destination_level_id,
         transition_line_id,
         bf_threshold_list_nu,
-        p_fb_deactivation
+        p_fb_deactivation,
+        photo_ion_nu_threshold_mins,
+        photo_ion_nu_threshold_maxs,
+        photo_ion_block_references,
+        chi_bf,
+        x_sect,
+        phot_nus,
+        ff_opacity_factor,
+        emissivities,
+        photo_ion_activation_idx,
+        k_packet_idx
     )
 
 
@@ -328,104 +405,6 @@ class VPacketCollection(object):
         self.last_interaction_in_id[self.idx] = last_interaction_in_id
         self.last_interaction_out_id[self.idx] = last_interaction_out_id
         self.idx += 1
-
-
-
-def create_continuum_class(plasma):
-    """Generates the Continuum Class definition
-    based on the given tardis plasma."""
-
-    # Should make this bool dependent upon config
-    # For both clarity and maintainability
-    CONTINUUM_ENABLED = montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
-
-    if CONTINUUM_ENABLED: # Could use a more explicit config
-        print("RUNNING WITH CONTINUUM")
-        chi_continuum_calculator = plasma.chi_continuum_calculator
-        nu_fb_sampler = plasma.nu_fb_sampler
-        nu_ff_sampler = plasma.nu_ff_sampler
-        get_macro_activation_idx = plasma.determine_continuum_macro_activation_idx
-    else:
-        print("RUNNING WITHOUT CONTINUUM")
-    continuum_spec = [
-            ("chi_bf_tot", float64),
-            ("chi_bf_contributions", float64[:]),
-            ("current_continua", int64[:]),
-            ("x_sect_bfs", float64[:]),
-            ("chi_ff", float64),
-    ]
-    @jitclass(continuum_spec)
-    class Continuum(object):
-
-        def __init__(self):
-
-            self.chi_bf_tot = 0.0
-            self.chi_bf_contributions = np.empty(0, dtype=np.float64)
-            self.current_continua = np.empty(0, dtype=np.int64)
-            self.x_sect_bfs = np.empty(0, dtype=np.float64)
-            self.chi_ff = 0.0
-
-        def copy(self):
-                
-            new_continuum = Continuum()
-            new_continuum.chi_bf_tot = self.chi_bf_tot
-            new_continuum.chi_bf_contributions = self.chi_bf_contributions
-            new_continuum.current_continua = self.current_continua
-            new_continuum.x_sect_bfs = self.x_sect_bfs
-            new_continuum.chi_ff = self.chi_ff
-            return new_continuum
-
-        if CONTINUUM_ENABLED:
-
-            def calculate(self, nu, shell):
-
-                    (
-                    self.chi_bf_tot,
-                    self.chi_bf_contributions,
-                    self.current_continua,
-                    self.x_sect_bfs,
-                    self.chi_ff,
-                    ) = chi_continuum_calculator(nu, shell)
-
-            def sample_nu_free_bound(self, shell, continuum_id):
-
-                return nu_fb_sampler(shell, continuum_id)
-
-            def sample_nu_free_free(self, shell):
-
-                return nu_ff_sampler(shell)
-
-            def determine_macro_activation_idx(self, nu, shell):
-
-                idx = get_macro_activation_idx(
-                        nu, self.chi_bf_tot, self.chi_ff, 
-                        self.chi_bf_contributions, self.current_continua
-                        )
-                return idx
-        else:
-
-            def calculate(self, nu, shell): 
-                pass # requires matching call signature, should use python type annotation
-
-            def sample_nu_free_bound(self, shell, continuum_id):
-                return np.nan
-
-            def sample_nu_free_free(self, shell):
-                return np.nan
-
-            def determine_macro_activation_idx(self, nu, shell):
-                return 0 # This needs to be an int, be careful as this won't crash
-
-
-    @njit(**njit_dict_no_parallel)
-    def continuum_constructor():
-        return Continuum()
-
-    return continuum_constructor
-
-
-
-
 
 rpacket_tracker_spec = [
     ("length", int64),

@@ -18,7 +18,7 @@ from tardis.montecarlo.montecarlo_numba.r_packet import InteractionType, \
 
 
 @njit(**njit_dict_no_parallel)
-def trace_packet(r_packet, numba_model, numba_plasma, estimators, continuum):
+def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     """
     Traces the RPacket through the ejecta and stops when an interaction happens (heart of the calculation)
 
@@ -66,11 +66,11 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators, continuum):
     cur_line_id = start_line_id  # initializing varibale for Numba
     # - do not remove
     last_line_id = len(numba_plasma.line_list_nu) - 1
+
     for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
 
         # Going through the lines
         nu_line = numba_plasma.line_list_nu[cur_line_id]
-        nu_line_last_interaction = numba_plasma.line_list_nu[cur_line_id - 1]
 
         # Getting the tau for the next line
         tau_trace_line = numba_plasma.tau_sobolev[
@@ -114,7 +114,6 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators, continuum):
             and (distance_electron < distance_boundary)
         ) and distance_trace != 0.0:
             interaction_type = InteractionType.ESCATTERING
-            # print('scattering')
             distance = distance_electron
             r_packet.next_line_id = cur_line_id
             break
@@ -157,12 +156,9 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators, continuum):
         if distance_electron < distance_boundary:
             distance = distance_electron
             interaction_type = InteractionType.ESCATTERING
-            # print('scattering')
         else:
             distance = distance_boundary
             interaction_type = InteractionType.BOUNDARY
-
-    # r_packet.next_line_id = cur_line_id
 
     return distance, interaction_type, delta_shell
 

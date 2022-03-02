@@ -32,8 +32,7 @@ def test_line_scatter(
     line_interaction_type,
     packet,
     verysimple_numba_model,
-    verysimple_numba_plasma,
-    verysimple_continuum
+    verysimple_numba_plasma
 ):
     init_mu = packet.mu
     init_nu = packet.nu
@@ -42,7 +41,7 @@ def test_line_scatter(
     time_explosion = verysimple_numba_model.time_explosion
 
     interaction.line_scatter(
-        packet, time_explosion, line_interaction_type, verysimple_numba_plasma, verysimple_continuum
+        packet, time_explosion, line_interaction_type, verysimple_numba_plasma
     )
 
     assert np.abs(packet.mu - init_mu) > 1e-7

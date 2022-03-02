@@ -96,11 +96,8 @@ def calculate_distance_line(
     if nu_diff >= 0:
         distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
     else:
-        print("WARNING: nu difference is less than 0.0; see packet information below")
-        print_r_packet_properties(r_packet)
         raise MonteCarloException(
-            "nu difference is less than 0.0; for more"
-            " information, see print statement beforehand"
+            "nu difference is less than 0.0"
         )
 
     if nc.ENABLE_FULL_RELATIVITY:

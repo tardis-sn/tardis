@@ -4,47 +4,6 @@ import numpy.testing as npt
 import numpy as np
 
 
-@pytest.mark.parametrize(
-       ["current_shell_id", "nu"],
-       [(0, 0.6), (1, 0.4)]
-       ) 
-def test_coninuum_opacities(
-    verysimple_continuum, current_shell_id, nu):
-
-    continuum = verysimple_continuum
-    continuum.calculate(nu, current_shell_id)
-    print(current_shell_id, nu)
-    print(continuum.chi_bf_tot)
-    print(continuum.chi_bf_contributions)
-    print(continuum.current_continuua)
-    print(continuum.x_sect_bfs)
-    print(continuum.chi_ff)
-
- 
-@pytest.mark.parametrize(
-       "current_shell_id",
-       [0, 1, 2]
-       ) 
-def test_continuum_free_free_sampler(
-        verysimple_continuum, current_shell_id):
-
-    continuum = verysimple_continuum
-    nu = continuum.sample_nu_free_free(current_shell_id)
-    print(nu)
-
-@pytest.mark.parametrize(
-       ["current_shell_id", "continuum_id"],
-       [(0, 0), (1, 0)]
-       ) 
-def test_coninuum_opacities(
-    verysimple_continuum, current_shell_id, continuum_id):
-
-    continuum = verysimple_continuum
-    nu = continuum.sample_nu_free_bound(current_shell_id, continuum_id)
-    print(nu)
-
-
-
 @pytest.mark.parametrize("input_params", ["scatter", "macroatom", "downbranch"])
 def test_numba_plasma_initialize(nb_simulation_verysimple, input_params):
     line_interaction_type = input_params
