@@ -404,7 +404,6 @@ def thomson_scatter(r_packet, time_explosion):
     temp_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
-    #print ((comov_nu-r_packet.nu*temp_doppler_factor)/comov_nu)
 
 
 @njit(**njit_dict_no_parallel)

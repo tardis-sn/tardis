@@ -64,8 +64,6 @@ def montecarlo_radial1d(
     packet_seeds = montecarlo_configuration.packet_seeds
 
     number_of_vpackets = montecarlo_configuration.number_of_vpackets
-    #print("Starting Main Loop")
-    #if iteration == 0: montecarlo_main_loop.recompile() # Make sure we update
     (
         v_packets_energy_hist,
         last_interaction_type,
@@ -122,7 +120,6 @@ def montecarlo_radial1d(
     # Condition for Checking if RPacket Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
         runner.rpacket_tracker = rpacket_trackers
-    print("Done with Montecarlo Radial 1D")
 
 
 @njit(**njit_dict)
@@ -158,7 +155,6 @@ def montecarlo_main_loop(
     virtual_packet_logging : bool
         Option to enable virtual packet logging.
     """
-    #print("Initialize main loop")
     output_nus = np.empty_like(packet_collection.packets_input_nu)
     last_interaction_types = (
         np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
@@ -193,8 +189,6 @@ def montecarlo_main_loop(
         )
         rpacket_trackers.append(RPacketTracker())
         
-    #local_continua = dict()
-
     # Arrays for vpacket logging
     virt_packet_nus = []
     virt_packet_energies = []

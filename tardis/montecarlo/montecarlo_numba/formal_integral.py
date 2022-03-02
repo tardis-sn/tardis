@@ -585,7 +585,6 @@ def populate_z(model, p, oz, oshell_id):
     # abbreviations
     r = model.r_outer
     N = len(model.r_inner)  # check
-    # print(N)
     inv_t = 1 / model.time_explosion
     z = 0
     offset = N

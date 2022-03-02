@@ -114,7 +114,6 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
             and (distance_electron < distance_boundary)
         ) and distance_trace != 0.0:
             interaction_type = InteractionType.ESCATTERING
-            # print('scattering')
             distance = distance_electron
             r_packet.next_line_id = cur_line_id
             break
@@ -147,7 +146,6 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
         distance_electron = calculate_distance_electron(
             cur_electron_density, tau_event - tau_trace_line_combined
         )
-        #print("Distance electron:", distance_electron)
 
     else:  # Executed when no break occurs in the for loop
         # We are beyond the line list now and the only next thing is to see
@@ -158,12 +156,9 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
         if distance_electron < distance_boundary:
             distance = distance_electron
             interaction_type = InteractionType.ESCATTERING
-            # print('scattering')
         else:
             distance = distance_boundary
             interaction_type = InteractionType.BOUNDARY
-
-    # r_packet.next_line_id = cur_line_id
 
     return distance, interaction_type, delta_shell
 

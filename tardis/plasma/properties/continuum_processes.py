@@ -1209,12 +1209,6 @@ class BoundFreeOpacityInterpolator(ProcessingPlasmaProperty):
                 chi_bfs[i] = (chi_bfs_continuum[nu_idx]*high_weight + chi_bfs_continuum[nu_idx-1]*low_weight)/interval
                 x_sect_bfs_continuum = x_sect[start:end]
                 x_sect_bfs[i] = (x_sect_bfs_continuum[nu_idx]*high_weight + x_sect_bfs_continuum[nu_idx-1]*low_weight)/interval
-                #chi_bfs[i] = np.interp(
-                #    nu, phot_nus[start:end], chi_bf[start:end, shell]
-                #)
-                #x_sect_bfs[i] = np.interp(
-                #    nu, phot_nus[start:end], x_sect[start:end]
-                #)
             chi_bf_contributions = chi_bfs.cumsum()
             
             # If we are outside the range of frequencies

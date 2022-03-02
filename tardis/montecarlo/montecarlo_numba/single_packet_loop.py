@@ -75,7 +75,6 @@ def single_packet_loop(r_packet,
 
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
-        #print('TRACE PACKET')
         # Compute continuum quantities
         # trace packet (takes opacities)
         doppler_factor = get_doppler_factor(
@@ -125,7 +124,6 @@ def single_packet_loop(r_packet,
         # If continuum processes: update continuum estimators
 
         if interaction_type == InteractionType.BOUNDARY:
-            #print("BOUNDARY")
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
             )
@@ -134,7 +132,6 @@ def single_packet_loop(r_packet,
             )
 
         elif interaction_type == InteractionType.LINE:
-            #print("LINE")
             r_packet.last_interaction_type = 2
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
@@ -151,7 +148,6 @@ def single_packet_loop(r_packet,
             )
 
         elif interaction_type == InteractionType.ESCATTERING:
-            #print("ESCATTERING")
             r_packet.last_interaction_type = 1
 
             move_r_packet(
@@ -162,10 +158,8 @@ def single_packet_loop(r_packet,
             trace_vpacket_volley(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
-            #print("Done ESCATTERING")
         elif (montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED and
          interaction_type == InteractionType.CONTINUUM_PROCESS):
-            #print("CONTINUUM_PROCESS")
             r_packet.last_interaction_type = InteractionType.CONTINUUM_PROCESS
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
@@ -178,7 +172,6 @@ def single_packet_loop(r_packet,
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
         else:
-            #print("OTHER")
             pass
         if montecarlo_configuration.RPACKET_TRACKING:
             rpacket_tracker.track(r_packet)

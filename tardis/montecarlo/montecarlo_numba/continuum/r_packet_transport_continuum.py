@@ -147,7 +147,6 @@ def trace_packet_continuum(
         distance_continuum = (tau_event - tau_trace_line_combined) / (
             chi_continuum
         )
-        #print("Distance Continuum:", distance_continuum)
 
     else:  # Executed when no break occurs in the for loop
         # We are beyond the line list now and the only next thing is to see
@@ -165,10 +164,8 @@ def trace_packet_continuum(
                     interaction_type = InteractionType.ESCATTERING
                 else:
                     interaction_type = InteractionType.CONTINUUM_PROCESS
-            # #print('scattering')
         else:
             distance = distance_boundary
             interaction_type = InteractionType.BOUNDARY
 
-    # r_packet.next_line_id = cur_line_id
     return distance, interaction_type, delta_shell
