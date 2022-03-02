@@ -51,6 +51,11 @@ def calculate_tau_electron(electron_density, distance):
     ----------
     electron_density : float
     distance : float
+
+    Returns
+    -------
+    tau_electron : float
+        tau for thomson scattering
     """
     return electron_density * SIGMA_THOMSON * distance
 
