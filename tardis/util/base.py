@@ -9,7 +9,7 @@ import pandas as pd
 import yaml
 from tardis import constants
 from astropy import units as u
-from pyne import nucname
+from radioactivedecay import Nuclide
 
 import tardis
 from tardis.io.util import get_internal_data_path
@@ -179,7 +179,7 @@ def calculate_luminosity(
     )
 
     flux_density = np.trapz(flux, wavelength) * (flux_unit * wavelength_unit)
-    luminosity = (flux_density * 4 * np.pi * distance ** 2).to("erg/s")
+    luminosity = (flux_density * 4 * np.pi * distance**2).to("erg/s")
 
     return luminosity.value, wavelength.min(), wavelength.max()
 
@@ -304,7 +304,7 @@ def intensity_black_body(nu, T):
         Returns the intensity of the black body
     """
     beta_rad = 1 / (k_B_cgs * T)
-    coefficient = 2 * h_cgs / c_cgs ** 2
+    coefficient = 2 * h_cgs / c_cgs**2
     intensity = ne.evaluate(
         "coefficient * nu**3 / " "(exp(h_cgs * nu * beta_rad) -1 )"
     )
@@ -545,7 +545,7 @@ def convert_abundances_format(fname, delimiter=r"\s+"):
     # Drop shell index column
     df.drop(df.columns[0], axis=1, inplace=True)
     # Assign header row
-    df.columns = [nucname.name(i) for i in range(1, df.shape[1] + 1)]
+    df.columns = [Nuclide(i).nuclide for i in range(1, df.shape[1] + 1)]
     return df
 
 
@@ -600,6 +600,8 @@ def is_notebook():
 
 
 if is_notebook():
+    import tqdm.notebook
+
     iterations_pbar = tqdm.notebook.tqdm(
         desc="Iterations:",
         bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",

@@ -6,7 +6,8 @@ import pandas as pd
 import ipywidgets as ipw
 import plotly.graph_objects as go
 from astropy import units as u
-from pyne import nucname
+from radioactivedecay import Nuclide, DEFAULTDATA
+from radioactivedecay.utils import Z_DICT, elem_to_Z
 from pathlib import Path
 
 import tardis
@@ -951,8 +952,11 @@ class CustomAbundanceWidget:
             return
 
         try:
-            if nucname.iselement(element_symbol_string) or nucname.isnuclide(
-                element_symbol_string
+            nuclides_hyphenless = np.char.replace(DEFAULTDATA.nuclides, "-", "")
+            if (
+                element_symbol_string in Z_DICT.values()
+                or element_symbol_string in DEFAULTDATA.nuclides
+                or element_symbol_string in nuclides_hyphenless
             ):
                 self.symb_warning.layout.visibility = "hidden"
                 self.btn_add_element.disabled = False
@@ -976,12 +980,13 @@ class CustomAbundanceWidget:
         """
         element_symbol_string = self.input_symb.value.capitalize()
 
-        if element_symbol_string in nucname.name_zz:
-            z = nucname.name_zz[element_symbol_string]
+        if element_symbol_string in Z_DICT.values():
+            z = elem_to_Z(element_symbol_string)
             self.data.abundance.loc[(z, ""), :] = 0
         else:
-            mass_no = nucname.anum(element_symbol_string)
-            z = nucname.znum(element_symbol_string)
+            nuc = Nuclide(element_symbol_string)
+            mass_no = nuc.A
+            z = nuc.Z
             self.data.abundance.loc[(z, mass_no), :] = 0
 
         self.data.abundance.sort_index(inplace=True)

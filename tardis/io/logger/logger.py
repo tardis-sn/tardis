@@ -1,11 +1,7 @@
 import logging
 import sys
-import warnings
-import pyne.data
 
 from tardis.io.logger.colored_logger import ColoredFormatter, formatter_message
-
-warnings.filterwarnings("ignore", category=pyne.utils.QAWarning)
 
 FORMAT = "[$BOLD%(name)-20s$RESET][%(levelname)-18s]  %(message)s ($BOLD%(filename)s$RESET:%(lineno)d)"
 COLOR_FORMAT = formatter_message(FORMAT, True)
