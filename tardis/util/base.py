@@ -600,8 +600,6 @@ def is_notebook():
 
 
 if is_notebook():
-    import tqdm.notebook
-
     iterations_pbar = tqdm.notebook.tqdm(
         desc="Iterations:",
         bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
