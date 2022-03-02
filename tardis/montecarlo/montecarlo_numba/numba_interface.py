@@ -1,6 +1,6 @@
 from enum import IntEnum
 
-from numba import float64, int64, boolean, njit
+from numba import float64, int64
 from numba.experimental import jitclass
 import numpy as np
 
