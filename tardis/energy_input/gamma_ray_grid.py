@@ -82,6 +82,7 @@ def distance_trace(
         outer_radii[photon.shell],
     )
 
+    # time explosion here gets us into the correct km/s units as opacity is 1/distance
     distance_interaction = photon.tau / total_opacity / time_explosion
     return distance_interaction, distance_boundary
 

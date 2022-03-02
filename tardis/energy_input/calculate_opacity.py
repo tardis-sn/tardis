@@ -43,7 +43,7 @@ def compton_opacity_partial(energy, fraction):
 
 
 @njit
-def compton_opacity_calculation(energy, ejecta_density):
+def compton_opacity_calculation(energy, electron_density):
     """Calculate the Compton scattering opacity for a given energy
     (Rybicki & Lightman, 1979)
 
@@ -83,7 +83,7 @@ def compton_opacity_calculation(energy, ejecta_density):
     )
 
     # use approximation
-    return ejecta_density / (M_P * 2) * sigma_KN
+    return electron_density * sigma_KN
 
 
 @njit

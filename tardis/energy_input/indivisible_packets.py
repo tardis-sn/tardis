@@ -17,7 +17,7 @@ from tardis.energy_input.energy_source import (
     decay_nuclides,
 )
 from tardis.energy_input.calculate_opacity import (
-    compton_opacity_partial,
+    compton_opacity_calculation,
     photoabsorption_opacity_calculation,
     pair_creation_opacity_calculation,
     SIGMA_T,
@@ -400,8 +400,9 @@ def main_gamma_ray_loop(num_decays, model, plasma):
                 )
             else:
                 compton_opacity = (
-                    compton_opacity_partial(kappa, 1 + 2 * kappa)
-                    * electron_number_density[packet.shell]
+                    compton_opacity_calculation(
+                        comoving_energy, electron_number_density[packet.shell]
+                    )
                     * doppler_factor
                 )
 
