@@ -1,13 +1,10 @@
-from numba import prange, njit, jit, objmode
-from numba.np.ufunc.parallel import _get_thread_id
-import logging
+from numba import prange, njit, objmode
 import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     RPacket,
     PacketStatus,
 )
-from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
 
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     PacketCollection,
@@ -16,7 +13,6 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     NumbaModel,
     numba_plasma_initialize,
     Estimators,
-    configuration_initialize,
 )
 
 from tardis.montecarlo import (
@@ -29,9 +25,6 @@ from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
 from tardis.montecarlo.montecarlo_numba import njit_dict
 from numba.typed import List
 from tardis.util.base import update_iterations_pbar, update_packet_pbar
-
-import time
-
 
 def montecarlo_radial1d(
     model,

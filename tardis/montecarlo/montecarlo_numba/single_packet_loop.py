@@ -1,14 +1,12 @@
 from numba import njit
-import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,
 )
-from tardis.montecarlo.montecarlo_numba.r_packet_transport import (trace_packet,
+from tardis.montecarlo.montecarlo_numba.r_packet_transport import (
     move_r_packet, move_packet_across_shell_boundary)
 from tardis.montecarlo.montecarlo_numba.continuum.r_packet_transport_continuum import trace_packet_continuum
 
-from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
 
 from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     get_inverse_doppler_factor,
@@ -19,9 +17,6 @@ from tardis.montecarlo.montecarlo_numba.interaction import (
     thomson_scatter,
     line_scatter,
     continuum_event,
-)
-from tardis.montecarlo.montecarlo_numba.numba_interface import (
-    LineInteractionType,
 )
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,

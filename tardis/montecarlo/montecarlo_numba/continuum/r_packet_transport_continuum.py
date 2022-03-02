@@ -4,17 +4,14 @@ from numba import njit
 from tardis.montecarlo import montecarlo_configuration
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.montecarlo.montecarlo_numba.calculate_distances import \
-    calculate_distance_boundary, calculate_distance_electron, \
+    calculate_distance_boundary, \
     calculate_distance_line
 from tardis.montecarlo.montecarlo_numba.estimators import \
-    update_line_estimators, set_estimators, set_estimators_full_relativity, update_bound_free_estimators
+    update_line_estimators
 from tardis.montecarlo.montecarlo_numba.frame_transformations import \
     get_doppler_factor
-from tardis.montecarlo.montecarlo_numba.numba_config import \
-    ENABLE_FULL_RELATIVITY, SIGMA_THOMSON
-from tardis.montecarlo.montecarlo_numba.opacities import calculate_tau_electron
-from tardis.montecarlo.montecarlo_numba.r_packet import InteractionType, \
-    PacketStatus
+
+from tardis.montecarlo.montecarlo_numba.r_packet import InteractionType
 
 @njit(**njit_dict_no_parallel)
 def trace_packet_continuum(
@@ -72,7 +69,6 @@ def trace_packet_continuum(
 
         # Going through the lines
         nu_line = numba_plasma.line_list_nu[cur_line_id]
-        nu_line_last_interaction = numba_plasma.line_list_nu[cur_line_id - 1]
 
         # Getting the tau for the next line
         tau_trace_line = numba_plasma.tau_sobolev[

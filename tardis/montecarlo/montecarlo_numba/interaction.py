@@ -14,7 +14,7 @@ from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     angle_aberration_CMF_to_LF,
 )
 from tardis.montecarlo.montecarlo_numba.r_packet import (
-    InteractionType, PacketStatus
+    PacketStatus
 )
 from tardis.montecarlo.montecarlo_numba.utils import get_random_mu
 from tardis.montecarlo.montecarlo_numba.macro_atom import (

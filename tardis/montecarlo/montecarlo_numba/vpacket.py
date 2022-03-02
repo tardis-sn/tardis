@@ -1,11 +1,11 @@
 import math
 
 import numpy as np
-from numba import float64, int64, boolean
-from numba import njit, gdb
+from numba import float64, int64
+from numba import njit
 from numba.experimental import jitclass
 
-from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
@@ -27,7 +27,6 @@ from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     angle_aberration_CMF_to_LF,
 )
 
-from tardis.montecarlo.montecarlo_numba.opacities import calculate_tau_electron
 from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
 
 vpacket_spec = [

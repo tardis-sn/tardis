@@ -71,7 +71,6 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
 
         # Going through the lines
         nu_line = numba_plasma.line_list_nu[cur_line_id]
-        nu_line_last_interaction = numba_plasma.line_list_nu[cur_line_id - 1]
 
         # Getting the tau for the next line
         tau_trace_line = numba_plasma.tau_sobolev[
