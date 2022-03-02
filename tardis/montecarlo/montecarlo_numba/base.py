@@ -1,4 +1,5 @@
 from numba import prange, njit, jit, objmode
+from numba.np.ufunc.parallel import _get_thread_id
 import logging
 import numpy as np
 
@@ -16,7 +17,6 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     numba_plasma_initialize,
     Estimators,
     configuration_initialize,
-    create_continuum_class
 )
 
 from tardis.montecarlo import (
@@ -31,7 +31,7 @@ from numba.typed import List
 from tardis.util.base import update_iterations_pbar, update_packet_pbar
 
 import time
-#ContinuumObject = create_continuum_class(plasma)
+
 
 def montecarlo_radial1d(
     model,
@@ -42,9 +42,6 @@ def montecarlo_radial1d(
     show_progress_bars,
     runner,
 ):
-    #montecarlo_main_loop.recompile()
-    #global ContinuumObject
-    
     packet_collection = PacketCollection(
         runner.input_r,
         runner.input_nu,
@@ -74,8 +71,7 @@ def montecarlo_radial1d(
     packet_seeds = montecarlo_configuration.packet_seeds
 
     number_of_vpackets = montecarlo_configuration.number_of_vpackets
-    ContinuumObject = create_continuum_class(plasma)
-    
+    #print("Starting Main Loop")
     #if iteration == 0: montecarlo_main_loop.recompile() # Make sure we update
     (
         v_packets_energy_hist,
@@ -100,14 +96,12 @@ def montecarlo_radial1d(
         runner.spectrum_frequency.value,
         number_of_vpackets,
         packet_seeds,
-        ContinuumObject,
         montecarlo_configuration.VPACKET_LOGGING,
         iteration=iteration,
         show_progress_bars=show_progress_bars,
         no_of_packets=no_of_packets,
         total_iterations=total_iterations,
     )
-    T0 = time.perf_counter()
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
     runner.last_interaction_type = last_interaction_type
     runner.last_interaction_in_nu = last_interaction_in_nu
@@ -135,6 +129,7 @@ def montecarlo_radial1d(
     # Condition for Checking if RPacket Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
         runner.rpacket_tracker = rpacket_trackers
+    print("Done with Montecarlo Radial 1D")
 
 
 @njit(**njit_dict)
@@ -146,7 +141,6 @@ def montecarlo_main_loop(
     spectrum_frequency,
     number_of_vpackets,
     packet_seeds,
-    ContinuumObject,
     virtual_packet_logging,
     iteration,
     show_progress_bars,
@@ -168,12 +162,10 @@ def montecarlo_main_loop(
     number_of_vpackets : int
         VPackets released per interaction
     packet_seeds : numpy.array
-	ContinuumObject : numba.experimental.jitclass.boxing.Continuum
-		Constructor method for local continuum jitclass
     virtual_packet_logging : bool
         Option to enable virtual packet logging.
     """
-
+    #print("Initialize main loop")
     output_nus = np.empty_like(packet_collection.packets_input_nu)
     last_interaction_types = (
         np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
@@ -193,6 +185,8 @@ def montecarlo_main_loop(
 
     # Pre-allocate a list of vpacket collections for later storage
     vpacket_collections = List()
+    # Configuring the Tracking for R_Packets
+    rpacket_trackers = List()
     for i in range(len(output_nus)):
         vpacket_collections.append(
             VPacketCollection(
@@ -204,11 +198,9 @@ def montecarlo_main_loop(
                 montecarlo_configuration.temporary_v_packet_bins,
             )
         )
-
-    # Configuring the Tracking for R_Packets
-    rpacket_trackers = List()
-    for i in range(len(output_nus)):
         rpacket_trackers.append(RPacketTracker())
+        
+    #local_continua = dict()
 
     # Arrays for vpacket logging
     virt_packet_nus = []
@@ -219,7 +211,6 @@ def montecarlo_main_loop(
     virt_packet_last_interaction_type = []
     virt_packet_last_line_interaction_in_id = []
     virt_packet_last_line_interaction_out_id = []
-
     for i in prange(len(output_nus)):
         if show_progress_bars:
             with objmode:
@@ -230,7 +221,6 @@ def montecarlo_main_loop(
                     no_of_packets=no_of_packets,
                     total_iterations=total_iterations,
                 )
-
 
         if montecarlo_configuration.single_packet_seed != -1:
             seed = packet_seeds[montecarlo_configuration.single_packet_seed]
@@ -246,13 +236,12 @@ def montecarlo_main_loop(
             seed,
             i,
         )
-        continuum = ContinuumObject()
+
         vpacket_collection = vpacket_collections[i]
         rpacket_tracker = rpacket_trackers[i]
 
         loop = single_packet_loop(
             r_packet,
-            continuum,
             numba_model,
             numba_plasma,
             estimators,
@@ -349,7 +338,6 @@ def montecarlo_main_loop(
 
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
-    #print("Finished Main Loop")
     return (
         v_packets_energy_hist,
         last_interaction_types,

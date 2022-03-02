@@ -51,6 +51,16 @@ numba_plasma_spec = [
     ("transition_line_id", int64[:]),
     ("bf_threshold_list_nu", float64[:]),
     ("p_fb_deactivation", float64[:, :]),
+    ("photo_ion_nu_threshold_mins", float64[:]),
+    ("photo_ion_nu_threshold_maxs", float64[:]),
+    ("photo_ion_block_references", int64[:]),
+    ("chi_bf", float64[:, :]),
+    ("x_sect", float64[:]),
+    ("phot_nus", float64[:]),
+    ("ff_opacity_factor", float64[:]),
+    ("emissivities", float64[:,:]),
+    ("photo_ion_activation_idx", int64[:]),
+    ("k_packet_idx", int64)
 ]
 
 
@@ -69,7 +79,17 @@ class NumbaPlasma(object):
         destination_level_id,
         transition_line_id,
         bf_threshold_list_nu,
-        p_fb_deactivation
+        p_fb_deactivation,
+        photo_ion_nu_threshold_mins,
+        photo_ion_nu_threshold_maxs,
+        photo_ion_block_references,
+        chi_bf,
+        x_sect,
+        phot_nus,
+        ff_opacity_factor,
+        emissivities,
+        photo_ion_activation_idx,
+        k_packet_idx
     ):
         """
         Plasma for the Numba code
@@ -106,6 +126,19 @@ class NumbaPlasma(object):
         self.destination_level_id = destination_level_id
         self.transition_line_id = transition_line_id
         self.p_fb_deactivation = p_fb_deactivation
+
+        # Continuum Opacity Data
+        self.photo_ion_nu_threshold_mins = photo_ion_nu_threshold_mins
+        self.photo_ion_nu_threshold_maxs = photo_ion_nu_threshold_maxs
+
+        self.photo_ion_block_references = photo_ion_block_references
+        self.chi_bf = chi_bf
+        self.x_sect = x_sect
+        self.phot_nus = phot_nus
+        self.ff_opacity_factor = ff_opacity_factor
+        self.emissivities = emissivities
+        self.photo_ion_activation_idx = photo_ion_activation_idx
+        self.k_packet_idx = k_packet_idx
 
 def numba_plasma_initialize(plasma, line_interaction_type):
     """
@@ -165,9 +198,44 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         ].values
         p_fb_deactivation = np.ascontiguousarray(
             plasma.p_fb_deactivation.values.copy(), dtype=np.float64)
+
+        phot_nus = plasma.photo_ion_cross_sections.nu.loc[
+            plasma.level2continuum_idx.index
+        ]
+        photo_ion_block_references = np.pad(
+            phot_nus.groupby(level=[0, 1, 2], sort=False)
+            .count()
+            .values.cumsum(),
+            [1, 0],
+        )
+        photo_ion_nu_threshold_mins = phot_nus.groupby(level=[0, 1, 2], sort=False).first().values
+        photo_ion_nu_threshold_maxs = phot_nus.groupby(level=[0, 1, 2], sort=False).last().values
+
+        chi_bf = plasma.chi_bf.loc[plasma.level2continuum_idx.index].values
+        x_sect = plasma.photo_ion_cross_sections.x_sect.loc[
+            plasma.level2continuum_idx.index
+        ].values
+
+        phot_nus = phot_nus.values
+        ff_opacity_factor = plasma.ff_cooling_factor/np.sqrt(t_electrons)
+        emissivities = plasma.fb_emission_cdf.loc[plasma.level2continuum_idx.index].values
+        photo_ion_activation_idx = plasma.photo_ion_idx.loc[
+            plasma.level2continuum_idx.index, "destination_level_idx"
+        ].values
+        k_packet_idx = np.int64(plasma.k_packet_idx)
     else:
         bf_threshold_list_nu = np.zeros(0, dtype=np.float64)
         p_fb_deactivation = np.zeros((0, 0), dtype=np.float64)
+        photo_ion_nu_threshold_mins = np.zeros(0, dtype=np.float64)
+        photo_ion_nu_threshold_maxs = np.zeros(0, dtype=np.float64)
+        photo_ion_block_references = np.zeros(0, dtype=np.int64)
+        chi_bf = np.zeros((0,0), dtype=np.float64)
+        x_sect = np.zeros(0, dtype=np.float64)
+        phot_nus = np.zeros(0, dtype=np.float64)
+        ff_opacity_factor = np.zeros(0, dtype=np.float64)
+        emissivities = np.zeros((0,0), dtype=np.float64)
+        photo_ion_activation_idx = np.zeros(0, dtype=np.int64)
+        k_packet_idx = np.int64(-1)
 
     return NumbaPlasma(
         electron_densities,
@@ -181,7 +249,17 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         destination_level_id,
         transition_line_id,
         bf_threshold_list_nu,
-        p_fb_deactivation
+        p_fb_deactivation,
+        photo_ion_nu_threshold_mins,
+        photo_ion_nu_threshold_maxs,
+        photo_ion_block_references,
+        chi_bf,
+        x_sect,
+        phot_nus,
+        ff_opacity_factor,
+        emissivities,
+        photo_ion_activation_idx,
+        k_packet_idx
     )
 
 
@@ -395,7 +473,7 @@ def create_continuum_class(plasma):
 
                 return nu_ff_sampler(shell)
 
-            def determine_macro_activation_idx(self, nu, shell):
+            def determine_macro_activation_idx(self, nu):
 
                 idx = get_macro_activation_idx(
                         nu, self.chi_bf_tot, self.chi_ff, 

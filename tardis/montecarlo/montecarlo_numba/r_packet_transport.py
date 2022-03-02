@@ -18,7 +18,7 @@ from tardis.montecarlo.montecarlo_numba.r_packet import InteractionType, \
 
 
 @njit(**njit_dict_no_parallel)
-def trace_packet(r_packet, numba_model, numba_plasma, estimators, continuum):
+def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     """
     Traces the RPacket through the ejecta and stops when an interaction happens (heart of the calculation)
 

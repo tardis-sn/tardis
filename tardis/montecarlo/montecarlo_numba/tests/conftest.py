@@ -27,15 +27,6 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
 
 
 @pytest.fixture(scope="package")
-def verysimple_continuum(nb_simulation_verysimple):
-    plasma = nb_simulation_verysimple.plasma
-    ContinuumClass = create_continuum_class(plasma)
-
-    continuum = ContinuumClass()
-    return continuum
-
-
-@pytest.fixture(scope="package")
 def verysimple_collection(nb_simulation_verysimple):
     runner = nb_simulation_verysimple.runner
     return PacketCollection(
