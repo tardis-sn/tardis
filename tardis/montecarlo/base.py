@@ -272,8 +272,8 @@ class MontecarloRunner(HDFWriterMixin):
             #This was changed from unpacking to specific attributes as compute
             #is not used in calculate_spectrum
             self._spectrum_integrated = self.integrator.calculate_spectrum(
-                self.spectrum_frequency[:-1], self.integrator_settings.points, 
-                self.integrator_settings.interpolate_shells,
+                self.spectrum_frequency[:-1], points=self.integrator_settings.points, 
+                interpolate_shells=self.integrator_settings.interpolate_shells,
             )
         return self._spectrum_integrated
 
@@ -663,7 +663,6 @@ class MontecarloRunner(HDFWriterMixin):
                 """An invalid option for compute was passed. The three
                 valid values are 'GPU', 'CPU', and 'Automatic'."""
             )
-            
         
         mc_config_module.disable_line_scattering = (
             config.plasma.disable_line_scattering
@@ -671,7 +670,7 @@ class MontecarloRunner(HDFWriterMixin):
 
         mc_config_module.INITIAL_TRACKING_ARRAY_LENGTH = (
             config.montecarlo.tracking.initial_array_length
-        )  
+        )
 
         return cls(
             seed=config.montecarlo.seed,
