@@ -5,6 +5,7 @@ import warnings
 from astropy import units as u
 from tardis import constants as const
 from numba import set_num_threads
+from numba import cuda
 
 from scipy.special import zeta
 from tardis.montecarlo.spectrum import TARDISSpectrum
@@ -101,6 +102,7 @@ class MontecarloRunner(HDFWriterMixin):
         logger_buffer=1,
         single_packet_seed=None,
         tracking_rpacket=False,
+        use_gpu=False,
     ):
 
         self.seed = seed
@@ -124,6 +126,7 @@ class MontecarloRunner(HDFWriterMixin):
         self.seed = seed
         self._integrator = None
         self._spectrum_integrated = None
+        self.use_gpu=use_gpu
 
         self.virt_logging = virtual_packet_logging
         self.virt_packet_last_interaction_type = np.ones(2) * -1
@@ -266,8 +269,11 @@ class MontecarloRunner(HDFWriterMixin):
     @property
     def spectrum_integrated(self):
         if self._spectrum_integrated is None:
+            #This was changed from unpacking to specific attributes as compute
+            #is not used in calculate_spectrum
             self._spectrum_integrated = self.integrator.calculate_spectrum(
-                self.spectrum_frequency[:-1], **self.integrator_settings
+                self.spectrum_frequency[:-1], self.integrator_settings.points, 
+                self.integrator_settings.interpolate_shells,
             )
         return self._spectrum_integrated
 
@@ -635,6 +641,30 @@ class MontecarloRunner(HDFWriterMixin):
             config.spectrum.start.to("Hz", u.spectral()),
             num=config.spectrum.num + 1,
         )
+        running_mode=config.spectrum.integrated.compute.upper()
+        
+        if running_mode == "GPU":
+            if cuda.is_available():
+                use_gpu = True
+            else:
+                raise ValueError(
+                    """The GPU option was selected for the formal_integral,
+                    but no CUDA GPU is available."""
+                )
+        elif running_mode == "AUTOMATIC":
+            if cuda.is_available():
+                use_gpu = True
+            else:
+                use_gpu = False
+        elif running_mode == "CPU":
+            use_gpu = False
+        else:
+            raise ValueError(
+                """An invalid option for compute was passed. The three
+                valid values are 'GPU', 'CPU', and 'Automatic'."""
+            )
+            
+        
         mc_config_module.disable_line_scattering = (
             config.plasma.disable_line_scattering
         )
@@ -642,6 +672,9 @@ class MontecarloRunner(HDFWriterMixin):
         mc_config_module.INITIAL_TRACKING_ARRAY_LENGTH = (
             config.montecarlo.tracking.initial_array_length
         )
+        
+        
+            
 
         return cls(
             seed=config.montecarlo.seed,
@@ -664,4 +697,5 @@ class MontecarloRunner(HDFWriterMixin):
                 | virtual_packet_logging
             ),
             tracking_rpacket=config.montecarlo.tracking.track_rpacket,
+            use_gpu=use_gpu,
         )

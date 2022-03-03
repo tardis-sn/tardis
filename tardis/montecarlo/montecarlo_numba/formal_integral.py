@@ -287,7 +287,7 @@ class FormalIntegrator(object):
         self.numba_plasma = numba_plasma_initialize(
             self.original_plasma, self.runner.line_interaction_type
         )
-        if cuda.is_available():
+        if self.runner.use_gpu:
             self.integrator = CudaFormalIntegrator(
                 self.numba_model, self.numba_plasma, self.points
             )
