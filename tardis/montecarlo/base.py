@@ -671,10 +671,7 @@ class MontecarloRunner(HDFWriterMixin):
 
         mc_config_module.INITIAL_TRACKING_ARRAY_LENGTH = (
             config.montecarlo.tracking.initial_array_length
-        )
-        
-        
-            
+        )  
 
         return cls(
             seed=config.montecarlo.seed,
