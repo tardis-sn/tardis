@@ -264,6 +264,7 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
+    
     """
 
     def calculate(
