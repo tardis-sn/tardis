@@ -128,10 +128,8 @@ class TableSummaryLabel:
         label_value : int
             Initial summary value of the table to be shown in label
 
-        Notes
-        -----
-        TableSummaryLabel can only be created for a table with two columns
-        (including index as 1st column) as of now
+        .. note:: TableSummaryLabel can only be created for a table with two
+        columns (including index as 1st column) as of now
         """
         if len(table_col_widths) != 2:
             raise NotImplementedError(
