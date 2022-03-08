@@ -264,7 +264,12 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    
+    non_continuum_trans_probs
+    level_absorption_probs
+    deactivation_channel_probs
+    transition_probabilities
+    macro_block_references
+    macro_atom_data
     """
 
     def calculate(
@@ -353,8 +358,9 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         deactivation_channel_probs = pd.concat(
             [
                 level_idxs2transition_idx.loc[deactivation_channel_probs.index],
-                deactivation_channel_probs
-            ], axis=1
+                deactivation_channel_probs,
+            ],
+            axis=1,
         ).reindex(deactivation_channel_probs.index)
 
         deactivation_channel_probs = deactivation_channel_probs.drop(
