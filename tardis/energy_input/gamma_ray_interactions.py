@@ -140,9 +140,7 @@ def compton_scatter(photon, compton_angle):
     abb_array = angle_aberration_gamma(
         photon.get_direction_vector(), photon.location_r
     )
-    comov_direction = np.array(
-        spherical_to_cartesian(1, abb_array[1], abb_array[2])
-    )
+    comov_direction = spherical_to_cartesian(1, abb_array[1], abb_array[2])
 
     # compute an arbitrary perpendicular vector to the comoving direction
     orthogonal_vector = get_perpendicular_vector(comov_direction)

@@ -82,7 +82,6 @@ def compton_opacity_calculation(energy, electron_density):
         )
     )
 
-    # use approximation
     return electron_density * sigma_KN
 
 

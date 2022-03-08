@@ -32,7 +32,7 @@ def spherical_to_cartesian(r, theta, phi):
     x = r * np.cos(phi) * np.sin(theta)
     y = r * np.sin(phi) * np.sin(theta)
     z = r * np.cos(theta)
-    return x, y, z
+    return np.array([x, y, z])
 
 
 @njit
@@ -282,6 +282,29 @@ def get_random_phi_photon():
         Random phi direction
     """
     return 2.0 * np.pi * np.random.random()
+
+
+@njit
+def get_random_theta_photon_array(n):
+    """Get a random theta direction between 0 and pi
+    Returns
+    -------
+    float
+        Random theta direction
+    """
+    return np.arccos(1.0 - 2.0 * np.random.random(n))
+
+
+@njit
+def get_random_phi_photon_array(n):
+    """Get a random phi direction between 0 and 2 * pi
+
+    Returns
+    -------
+    float
+        Random phi direction
+    """
+    return 2.0 * np.pi * np.random.random(n)
 
 
 def convert_half_life_to_astropy_units(half_life_string):

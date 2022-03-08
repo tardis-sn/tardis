@@ -26,13 +26,14 @@ from tardis.energy_input.gamma_ray_interactions import (
     scatter_type,
     compton_scatter,
     pair_creation_packet,
-    get_compton_fraction_artis,
+    get_compton_fraction,
 )
 from tardis.energy_input.util import (
     get_random_theta_photon,
     get_random_phi_photon,
+    get_random_theta_photon_array,
+    get_random_phi_photon_array,
     doppler_gamma,
-    ELECTRON_MASS_ENERGY_KEV,
     BOUNDARY_THRESHOLD,
     C_CGS,
     H_CGS_KEV,
@@ -147,40 +148,46 @@ def initialize_packets(
             ).sum()
 
         for shell in range(number_of_shells):
-            for _ in range(scaled_decays_per_shell[column].iloc[shell]):
+            activity = scaled_activity_df[column].iloc[shell]
+            energy_cmf = mean_energy * activity
+            packets_per_shell = scaled_decays_per_shell[column].iloc[shell]
+
+            z = np.random.random(packets_per_shell)
+
+            initial_radii = (
+                z * inner_velocities[shell] ** 3.0
+                + (1.0 - z) * outer_velocities[shell] ** 3.0
+            ) ** (1.0 / 3.0)
+
+            theta_locations = get_random_theta_photon_array(n=packets_per_shell)
+            phi_locations = get_random_phi_photon_array(n=packets_per_shell)
+
+            theta_directions = get_random_theta_photon_array(
+                n=packets_per_shell
+            )
+            phi_directions = get_random_phi_photon_array(n=packets_per_shell)
+
+            for i in range(packets_per_shell):
                 # draw a random gamma-ray in shell
                 packet = GXPacket(
-                    location_r=0,
-                    location_theta=0,
-                    location_phi=0,
-                    direction_theta=0,
-                    direction_phi=0,
+                    location_r=initial_radii[i],
+                    location_theta=theta_locations[i],
+                    location_phi=phi_locations[i],
+                    direction_theta=theta_directions[i],
+                    direction_phi=phi_directions[i],
                     energy_rf=1,
-                    energy_cmf=1,
+                    energy_cmf=energy_cmf,
                     status=GXPacketStatus.IN_PROCESS,
-                    shell=0,
+                    shell=shell,
                     nu_rf=0,
                     nu_cmf=0,
-                    activity=0,
+                    activity=activity,
                 )
 
-                z = np.random.random()
-
-                initial_radius = (
-                    z * inner_velocities[shell] ** 3.0
-                    + (1.0 - z) * outer_velocities[shell] ** 3.0
-                ) ** (1.0 / 3.0)
-
-                activity = scaled_activity_df[column].iloc[shell]
-
-                packet.location_r = initial_radius
-                packet.location_theta = get_random_theta_photon()
-                packet.location_phi = get_random_phi_photon()
-
-                packet.direction_theta = get_random_theta_photon()
-                packet.direction_phi = get_random_phi_photon()
-
-                packet.shell = shell
+                packet.energy_rf = packet.energy_cmf / doppler_gamma(
+                    packet.get_direction_vector(),
+                    packet.location_r,
+                )
 
                 # Add positron energy to the medium
                 # convert KeV to eV / cm^3
@@ -194,7 +201,7 @@ def initialize_packets(
                         * activity
                         * 1000
                         / ejecta_volume[shell],
-                        initial_radius,
+                        packet.location_r,
                         packet.location_theta,
                         0.0,
                         -1,
@@ -211,13 +218,6 @@ def initialize_packets(
                 if not cmf_energy:
                     print("No energy selected for this gamma ray!")
                     continue
-
-                packet.energy_cmf = mean_energy * activity
-
-                packet.energy_rf = packet.energy_cmf / doppler_gamma(
-                    packet.get_direction_vector(),
-                    packet.location_r,
-                )
 
                 packet.nu_cmf = cmf_energy / H_CGS_KEV
 
@@ -550,23 +550,23 @@ def process_packet_path(packet):
     if packet.status == GXPacketStatus.COMPTON_SCATTER:
         comoving_freq_energy = packet.nu_cmf * H_CGS_KEV
 
-        compton_fraction = get_compton_fraction_artis(comoving_freq_energy)
+        compton_angle, compton_fraction = get_compton_fraction(
+            comoving_freq_energy
+        )
 
         kappa = kappa_calculation(comoving_freq_energy)
-
-        compton_angle = 1.0 - (compton_fraction - 1.0) / kappa
 
         # Basic check to see if Thomson scattering needs to be considered later
         if kappa < 1e-2:
             print("Thomson should happen")
 
         # Packet is no longer a gamma-ray, destroy it
-        if np.random.random() < 1.0 / compton_fraction:
+        if np.random.random() < compton_fraction:
             packet.status = GXPacketStatus.PHOTOABSORPTION
         else:
             ejecta_energy_gained = 0.0
 
-        packet.nu_cmf = packet.nu_cmf / compton_fraction
+        packet.nu_cmf = packet.nu_cmf * compton_fraction
 
         (
             packet.direction_theta,

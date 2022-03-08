@@ -268,17 +268,25 @@ def compute_required_photons_per_shell_artis(
         Activity scaled by decays per shell
     """
 
-    mass_fraction_df = isotope_abundance.copy()
-    mass_fraction_df.drop("Fe56", inplace=True)
+    for isotope_string, row in isotope_abundance.iterrows():
+        if isotope_string == "Fe56":
+            continue
+        store_decay_radiation(isotope_string, force_update=False)
 
-    nuclide_mass_df = isotope_abundance.copy() * shell_masses
-    nuclide_mass_df.drop("Fe56", inplace=True)
+    unstable_isotope_abundance = isotope_abundance.drop("Fe56", inplace=False)
 
-    half_lives = {"Ni56": 6.6075 * u.d.to(u.s), "Co56": 77.233 * u.d.to(u.s)}
+    mass_fraction_df = unstable_isotope_abundance.copy()
+    nuclide_mass_df = unstable_isotope_abundance.copy() * shell_masses
+
+    decay_rad_db, meta = get_decay_radiation_database()
 
     activity_df = mass_fraction_df.T.copy()
     for column in activity_df:
-        half_life = half_lives[column]
+        isotope_meta = meta.loc[column]
+        half_life = isotope_meta.loc[
+            isotope_meta["key"] == "Parent T1/2 value"
+        ]["value"].values[0]
+        half_life = convert_half_life_to_astropy_units(half_life)
         decay_constant = np.log(2) / half_life
         atomic_mass = float(re.findall("\d+", column)[0]) * u.u.to(
             u.g / u.mol, equivalencies=u.molar_mass_amu()
