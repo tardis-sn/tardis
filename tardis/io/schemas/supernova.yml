@@ -19,7 +19,7 @@ properties:
   luminosity_wavelength_end:
     type: quantity
     default: inf angstrom
-    description: start of the integral needed for getting the luminosity right
+    description: end of the integral needed for getting the luminosity right
 required:
 - luminosity_requested
 - time_explosion

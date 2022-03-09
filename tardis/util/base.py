@@ -15,6 +15,7 @@ import tardis
 from tardis.io.util import get_internal_data_path
 from IPython import get_ipython, display
 import tqdm
+import tqdm.notebook
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value

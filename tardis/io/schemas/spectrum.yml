@@ -3,10 +3,13 @@ type: object
 properties:
   start:
     type: quantity
+    description: The lower limit of the spectrum to be generated. Values below this point will not be generated.
   stop:
     type: quantity
+    description: The upper limit of the spectrum to be generated. Values above this point will not be generated. 
   num:
     type: number
+    description: Number of bins used to build the spectrum
     multipleOf: 1.0
   method:
     type: string
@@ -33,6 +36,21 @@ properties:
             integral quantities are interpolated. For -1 no interpolation
             is used. The default is to use twice the number of computational
             shells but at least 80.
+      compute:
+          type: string
+          default: "CPU"
+          description: Which method the formal_integral will be computed with.
+            It defaults to the Numba version, but it can be run on NVIDIA Cuda
+            GPUs. GPU will make it only run on a NVIDIA Cuda GPU, so if one is 
+            not available it will raise an error. Automatic first tries to find
+            an acceptable GPU, and if none is found it will run on the CPU.
+          properties:
+            type:
+              enum:
+                - "CPU"
+                - "GPU"
+                - "Automatic"
+            
   virtual:
     type: object
     default: {}
@@ -46,7 +64,7 @@ properties:
       survival_probability:
         type: number
         default: 0.0
-        description: Probability for not terminating the packet path
+        description: Probability for not terminating the packet path between 0 and 1
       enable_biasing:
         type: boolean
         default: False
@@ -56,3 +74,7 @@ properties:
         type: boolean
         default: False
         description: If True, enable virtual packet logging output
+required:
+- start
+- stop
+- num

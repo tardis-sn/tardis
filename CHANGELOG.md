@@ -1,5 +1,34 @@
 ## Change Log
 
+### release-2021.10.31 (2021/10/27 19:00 +00:00)
+- [#1821](https://github.com/tardis-sn/tardis/pull/1821) remove numexpr  (#1821) (@wkerzendorf)
+- [#1788](https://github.com/tardis-sn/tardis/pull/1788) Add cmap option to specify the colormap of abundance plot (#1788) (@yuyizheng1112)
+- [#1801](https://github.com/tardis-sn/tardis/pull/1801) Cleaning up docs build (#1801) (@smithis7)
+- [#1808](https://github.com/tardis-sn/tardis/pull/1808) Fix importing scipy.sparse.linalg for binder (#1808) (@smithis7)
+- [#1816](https://github.com/tardis-sn/tardis/pull/1816) fix push job on update changelog workflow (#1816) (@epassaro)
+
+### release-2021.10.17 (2021/10/14 15:37 +00:00)
+- [#1811](https://github.com/tardis-sn/tardis/pull/1811) Fixing broken documentation build (#1811) (@smithis7)
+- [#1744](https://github.com/tardis-sn/tardis/pull/1744) Basic Spectrum Generation Interactive Documentation (#1744) (@smithis7)
+- [#1810](https://github.com/tardis-sn/tardis/pull/1810) Add option to add Observed Spectrum (2) (#1810) (@atharva-2001)
+
+### release-2021.10.1 (2021/10/06 13:38 +00:00)
+- [#1806](https://github.com/tardis-sn/tardis/pull/1806) Pin `jsonschema` to v3 (#1806) (@atharva-2001)
+- [#1761](https://github.com/tardis-sn/tardis/pull/1761) Revert "Add option to add Observed Spectrum (#1761)" (#1805) (@jamesgillanders)
+- [#1761](https://github.com/tardis-sn/tardis/pull/1761) Add option to add Observed Spectrum (#1761) (@atharva-2001)
+- [#1794](https://github.com/tardis-sn/tardis/pull/1794) Change virtual spectrum spawn range start value to 1 (#1794) (@atharva-2001)
+
+### release-2021.9.26 (2021/09/24 21:20 +00:00)
+- [#1757](https://github.com/tardis-sn/tardis/pull/1757) Auto-Generating Tutorials Page (#1757) (@smithis7)
+
+### release-2021.9.19 (2021/09/17 14:41 +00:00)
+- [#1784](https://github.com/tardis-sn/tardis/pull/1784) Restructure Custom Abundance Widget code (#1784) (@yuyizheng1112)
+- [#1763](https://github.com/tardis-sn/tardis/pull/1763) Making Changes to Several Tutorials (#1763) (@smithis7)
+
+### release-2021.9.12 (2021/09/09 11:18 +00:00)
+- [#1790](https://github.com/tardis-sn/tardis/pull/1790) disable changelog in release pipeline (#1790) (@epassaro)
+- [#1769](https://github.com/tardis-sn/tardis/pull/1769) Changed the way `specific_log_level` flag works in the Logging Configuration (#1769) (@DhruvSondhi)
+
 ### release-2021.8.26 (2021/08/26 16:40 +00:00)
 - [#1789](https://github.com/tardis-sn/tardis/pull/1789) add explicit jupyter dependency (#1789) (@epassaro)
 - [#1787](https://github.com/tardis-sn/tardis/pull/1787) fix zenodo pipeline env (#1787) (@epassaro)
@@ -296,7 +325,7 @@
 - [#1271](https://github.com/tardis-sn/tardis/pull/1271) Pin numpy to v1.19.0 (#1271) (@epassaro)
 - [#1266](https://github.com/tardis-sn/tardis/pull/1266) Move to Pandas 1.x (#1266) (@epassaro)
 - [#1244](https://github.com/tardis-sn/tardis/pull/1244) Explicitly pass number of vpackets to montecarlo_main_loop (#1244) (@arjunsavel)
-- [#1235](https://github.com/tardis-sn/tardis/pull/1235) test and fix for issue #1228 (#1235) (@jordi5)
+- [#1235](https://github.com/tardis-sn/tardis/pull/1235) test and fix for issue #1228 (#1235) (@ebjordi)
 
 ### v3.0.dev3497 (2020/08/07 15:26 +00:00)
 - [#1267](https://github.com/tardis-sn/tardis/pull/1267) Temporarily fetch refdata from GDrive (#1267) (@epassaro)
@@ -338,7 +367,7 @@
 ### v3.0.dev3463 (2020/06/19 22:51 +00:00)
 - [#1195](https://github.com/tardis-sn/tardis/pull/1195) Fix badges in README.rst (#1195) (@epassaro)
 - [#1193](https://github.com/tardis-sn/tardis/pull/1193) Unpin astropy version (#1193) (@epassaro)
-- [#1191](https://github.com/tardis-sn/tardis/pull/1191) Add note to tell users which OS are supported (issue #1125) (#1191) (@jordi5)
+- [#1191](https://github.com/tardis-sn/tardis/pull/1191) Add note to tell users which OS are supported (issue #1125) (#1191) (@ebjordi)
 - [#1158](https://github.com/tardis-sn/tardis/pull/1158) Make consistency edits to documentation (#1158) (@arjunsavel)
 
 ### v3.0.dev3459 (2020/06/12 18:01 +00:00)
@@ -367,7 +396,7 @@
 - [#1151](https://github.com/tardis-sn/tardis/pull/1151) Git ignored VSCode specific files (#1151) (@jaladh-singhal)
 - [#1149](https://github.com/tardis-sn/tardis/pull/1149) Made plot size larger in quickstart notebook (#1149) (@jaladh-singhal)
 - [#1147](https://github.com/tardis-sn/tardis/pull/1147) allow downloading of example file in quickstart (#1147) (@sashank27)
-- [#1105](https://github.com/tardis-sn/tardis/pull/1105) Add skip condition if QT_API is no set (issue #1101) (@jordi5)
+- [#1105](https://github.com/tardis-sn/tardis/pull/1105) Add skip condition if QT_API is no set (issue #1101) (@ebjordi)
 - [#1143](https://github.com/tardis-sn/tardis/pull/1143) Set manual trigger on file (compare refdata) (@epassaro)
 - [#1144](https://github.com/tardis-sn/tardis/pull/1144) add option to execute quickstart in build (#1144) (@sashank27)
 
@@ -378,7 +407,7 @@
 - [#1139](https://github.com/tardis-sn/tardis/pull/1139) Added more file types to git ignore (#1139) (@jaladh-singhal)
 - [#1134](https://github.com/tardis-sn/tardis/pull/1134) Update mailmap (@epassaro)
 - [#1135](https://github.com/tardis-sn/tardis/pull/1135) Running tests on MacOS-10.14 (@epassaro)
-- [#1068](https://github.com/tardis-sn/tardis/pull/1068) Migrate gui to PyQt5 (issue #988) (#1068) (@jordi5)
+- [#1068](https://github.com/tardis-sn/tardis/pull/1068) Migrate gui to PyQt5 (issue #988) (#1068) (@ebjordi)
 - [#1085](https://github.com/tardis-sn/tardis/pull/1085) Solves issue #680 for tardis.util.base (i.e. numpydocs format for doc strings.) (@Phantsure)
 - [#1055](https://github.com/tardis-sn/tardis/pull/1055) renamed capmanager class functions (#1055) (@not4win)
 - [#1048](https://github.com/tardis-sn/tardis/pull/1048) Re-activate TARDIS tests (#1048) (@epassaro)

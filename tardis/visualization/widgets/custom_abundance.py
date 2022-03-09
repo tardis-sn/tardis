@@ -30,7 +30,6 @@ from tardis.visualization.widgets.util import debounce
 
 BASE_DIR = tardis.__path__[0]
 YAML_DELIMITER = "---"
-COLORMAP = "jet"
 
 
 class CustomAbundanceWidgetData:
@@ -88,7 +87,7 @@ class CustomAbundanceWidgetData:
         """
         csvy_model_config, csvy_model_data = load_csvy(fpath)
         csvy_schema_file = os.path.join(
-            BASE_DIR, "../..", "io", "schemas", "csvy_model.yml"
+            BASE_DIR, "io", "schemas", "csvy_model.yml"
         )
         csvy_model_config = Configuration(
             validate_dict(csvy_model_config, schemapath=csvy_schema_file)
@@ -148,6 +147,7 @@ class CustomAbundanceWidgetData:
                 csvy_model_config.datatype.fields[density_field_index]["unit"]
             )
             density_0 = csvy_model_data["density"].values * density_unit
+            time_0 = csvy_model_config.model_density_time_0
 
         if hasattr(csvy_model_config, "abundance"):
             abundances_section = csvy_model_config.abundance
@@ -314,6 +314,7 @@ class CustomYAML(yaml.YAMLObject):
         self.name = name
         self.model_density_time_0 = d_time_0
         self.model_isotope_time_0 = i_time_0
+        self.tardis_model_config_version = "v1.0"
         self.datatype = {}
         self.datatype["fields"] = []
         self.v_inner_boundary = v_inner_boundary
@@ -363,6 +364,10 @@ class CustomAbundanceWidget:
     checked_list : list of bool
         A list of bool to record whether the checkbox is checked.
         The index of the bool corresponds to the index of checkbox.
+    fig : plotly.graph_objs._figurewidget.FigureWidget
+        The figure object of abundance density plot.
+    plot_cmap : str, default: "jet", optional
+        String defines the colormap used in abundance density plot.
     _trigger : bool
         If False, disable the callback when abundance input is changed.
     """
@@ -378,6 +383,7 @@ class CustomAbundanceWidget:
         widget_data : CustomAbundanceWidgetData
         """
         self.data = widget_data
+        self.fig = go.FigureWidget()
         self._trigger = True
 
         self.create_widgets()
@@ -493,7 +499,7 @@ class CustomAbundanceWidget:
             continuous_update=False,
             layout=ipw.Layout(margin="5px 0 0 0"),
         )
-        self.irs_shell_range.observe(self.irs_shell_range_eventhandler)
+        self.irs_shell_range.observe(self.irs_shell_range_eventhandler, "value")
 
         self.btn_add_shell = ipw.Button(
             icon="plus-square",
@@ -652,6 +658,37 @@ class CustomAbundanceWidget:
             width[0] = x_outer - x_inner
             self.fig.data[0].width = width
 
+    def update_bar_diagonal(self):
+        """Update bar diagonal (and shell no dropdown) when the range
+        of shells changed.
+        """
+        if self.irs_shell_range.disabled:
+            x = [self.fig.data[0].x[0]]
+            width = [self.fig.data[0].width[0]]
+            y = [1]
+        else:
+            self.shell_no = self.irs_shell_range.value[0]
+            self.btn_next.disabled = True
+            self.btn_prev.disabled = True
+
+            (start_shell_no, end_shell_no) = self.irs_shell_range.value
+            x_inner = self.data.velocity[start_shell_no - 1].value
+            x_outer = self.data.velocity[end_shell_no].value
+            x = [self.fig.data[0].x[0], (x_outer + x_inner) / 2]
+            width = [self.fig.data[0].width[0], x_outer - x_inner]
+            y = [1, 1]
+
+        with self.fig.batch_update():
+            self.fig.data[0].x = x
+            self.fig.data[0].width = width
+            self.fig.data[0].y = y
+
+    def update_line_color(self):
+        """Update line color in the plot according to colormap."""
+        colorscale = transition_colors(self.no_of_elements, self.plot_cmap)
+        for i in range(self.no_of_elements):
+            self.fig.data[2 + i].line.color = colorscale[i]
+
     def overwrite_existing_shells(self, v_0, v_1):
         """Judge whether the existing shell(s) will be overwritten when
         inserting a new shell within the entered velocity range.
@@ -684,8 +721,7 @@ class CustomAbundanceWidget:
         )
 
         if (index_1 - index_0 > 1) or (
-            (index_1 < len(v_vals) and np.isclose(v_vals[index_1], v_1))
-            or (index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0))
+            index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0)
         ):
             return True
         else:
@@ -717,6 +753,22 @@ class CustomAbundanceWidget:
             else int(position_1)
         )
 
+        if (
+            end_index < self.no_of_shells
+            and np.isclose(v_vals[start_index], v_start)
+            and np.isclose(v_vals[end_index], v_end)
+            and end_index - start_index == 1
+        ):
+            return
+
+        if start_index < self.no_of_shells and np.isclose(
+            v_vals[start_index], v_start
+        ):
+            new_shell_abundances = self.data.abundance[start_index]
+        else:
+            index = min(start_index - 1, self.no_of_shells - 1)
+            new_shell_abundances = self.data.abundance[max(index, 0)]
+
         # Delete the overwritten shell (abundances and velocities).
         if end_index < len(v_vals) and np.isclose(v_vals[end_index], v_end):
             # New shell will overwrite the original shell that ends at v_end.
@@ -740,7 +792,7 @@ class CustomAbundanceWidget:
 
         # Change abundances after adding new shell.
         if start_index != end_index:
-            self.data.abundance.insert(end_index - 1, "", 0)
+            self.data.abundance.insert(start_index, "", new_shell_abundances)
             self.data.abundance.drop(
                 self.data.abundance.iloc[:, start_index : end_index - 1],
                 1,
@@ -748,20 +800,17 @@ class CustomAbundanceWidget:
             )
         else:
             if start_index == 0:
-                self.data.abundance.insert(end_index, "new", 0)
+                self.data.abundance.insert(0, "new", new_shell_abundances)
                 self.data.abundance.insert(
-                    end_index, "gap", 0
+                    0, "gap", new_shell_abundances
                 )  # Add a shell to fill the gap.
             else:
-                self.data.abundance.insert(end_index - 1, "new", 0)
-                if start_index == self.no_of_shells:
-                    self.data.abundance.insert(end_index - 1, "gap", 0)
-                else:
-                    self.data.abundance.insert(
-                        end_index - 1,
-                        "gap",
-                        self.data.abundance.iloc[:, end_index],
-                    )  # Add a shell to fill the gap with original abundances
+                self.data.abundance.insert(
+                    start_index - 1, "new", new_shell_abundances
+                )
+                self.data.abundance.insert(
+                    start_index - 1, "gap", new_shell_abundances
+                )  # Add a shell to fill the gap with original abundances
 
         self.data.abundance.columns = range(self.no_of_shells)
 
@@ -777,9 +826,10 @@ class CustomAbundanceWidget:
                 self.update_abundance_plot(i)
 
         self.dpd_shell_no.options = list(range(1, self.no_of_shells + 1))
-        self.shell_no = start_index + 1
+        self.update_bar_diagonal()
         self.update_front_end()
         self.irs_shell_range.max = self.no_of_shells
+        self.overwrite_warning.layout.visibility = "hidden"
 
     def tbs_scale_eventhandler(self, obj):
         """Switch the scale type of y axis between linear mode and log
@@ -825,13 +875,6 @@ class CustomAbundanceWidget:
             if is_locked:
                 self.bound_locked_sum_to_1(item_index)
 
-            if np.isclose(
-                self.data.abundance.iloc[:, self.shell_no - 1].sum(), 1
-            ):
-                self.norm_warning.layout.visibility = "hidden"
-            else:
-                self.norm_warning.layout.visibility = "visible"
-
             self.data.abundance.iloc[
                 item_index, self.shell_no - 1
             ] = obj.owner.value
@@ -840,6 +883,11 @@ class CustomAbundanceWidget:
                 self.update_abundance_plot(item_index)
             else:
                 self.apply_to_multiple_shells(item_index)
+
+        if np.isclose(self.data.abundance.iloc[:, self.shell_no - 1].sum(), 1):
+            self.norm_warning.layout.visibility = "hidden"
+        else:
+            self.norm_warning.layout.visibility = "visible"
 
     def check_eventhandler(self, obj):
         """Triggered if the checkbox is changed.
@@ -1029,9 +1077,7 @@ class CustomAbundanceWidget:
             )
             self.fig.data = fig_data_lst[:-1]
 
-            colorscale = transition_colors(self.no_of_elements, COLORMAP)
-            for i in range(self.no_of_elements):
-                self.fig.data[2 + i].line.color = colorscale[i]
+            self.update_line_color()
 
         self.read_abundance()
 
@@ -1102,12 +1148,19 @@ class CustomAbundanceWidget:
         obj : ipywidgets.widgets.widget_button.Button
             The clicked button instance.
         """
+        self.abundance_note.layout.visibility = "hidden"
+
         self.rbs_multi_apply.unobserve(
             self.rbs_multi_apply_eventhandler, "value"
         )
         self.rbs_multi_apply.index = None
         self.rbs_multi_apply.observe(self.rbs_multi_apply_eventhandler, "value")
+
+        self.dpd_shell_no.disabled = False
+        self.btn_next.disabled = False
+        self.btn_prev.disabled = False
         self.irs_shell_range.disabled = True
+        self.update_bar_diagonal()
 
     def rbs_multi_apply_eventhandler(self, obj):
         """Switch to multi-shells editing mode. Triggered if the
@@ -1118,6 +1171,10 @@ class CustomAbundanceWidget:
         obj : ipywidgets.widgets.widget_button.Button
             The clicked button instance.
         """
+        self.abundance_note.layout.visibility = "visible"
+
+        self.shell_no = self.irs_shell_range.value[0]
+
         self.rbs_single_apply.unobserve(
             self.rbs_single_apply_eventhandler, "value"
         )
@@ -1126,7 +1183,11 @@ class CustomAbundanceWidget:
             self.rbs_single_apply_eventhandler, "value"
         )
         # self.irs_shell_range.value = [self.shell_no, self.shell_no]
+        self.dpd_shell_no.disabled = True
+        self.btn_next.disabled = True
+        self.btn_prev.disabled = True
         self.irs_shell_range.disabled = False
+        self.update_bar_diagonal()
 
     def irs_shell_range_eventhandler(self, obj):
         """Select the velocity range of new shell and highlight the range
@@ -1137,31 +1198,10 @@ class CustomAbundanceWidget:
         obj : ipywidgets.widgets.widget_button.Button
             The clicked button instance.
         """
-        x = self.fig.data[0].x
-        width = self.fig.data[0].width
-        range = self.fig.layout.xaxis.range
-
-        if self.irs_shell_range.disabled:
-            x = [x[0]]
-            width = [width[0]]
-            y = [1]
-        else:
-            (start_shell_no, end_shell_no) = self.irs_shell_range.value
-            x_inner = self.data.velocity[start_shell_no - 1].value
-            x_outer = self.data.velocity[end_shell_no].value
-            x = [x[0], (x_outer + x_inner) / 2]
-            width = [width[0], x_outer - x_inner]
-            y = [1, 1]
-
-        with self.fig.batch_update():
-            self.fig.data[0].x = x
-            self.fig.data[0].width = width
-            self.fig.data[0].y = y
-            self.fig.layout.xaxis.range = range
+        self.update_bar_diagonal()
 
     def generate_abundance_density_plot(self):
         """Generate abundance and density plot in different shells."""
-        self.fig = go.FigureWidget()
         title = "Abundance/Density vs Velocity"
         abundance = self.data.abundance
         velocity = self.data.velocity
@@ -1193,14 +1233,13 @@ class CustomAbundanceWidget:
             ),
         )
 
-        colorscale = transition_colors(self.no_of_elements, COLORMAP)
         for i in range(self.no_of_elements):
             self.fig.add_trace(
                 go.Scatter(
                     x=velocity,
                     y=np.append(abundance.iloc[i], abundance.iloc[i, -1]),
                     mode="lines+markers",
-                    line=dict(shape="hv", color=colorscale[i]),
+                    line=dict(shape="hv"),
                     name=self.data.elements[i],
                 ),
             )
@@ -1229,14 +1268,20 @@ class CustomAbundanceWidget:
             ),
         )
 
-    def display(self):
+    def display(self, cmap="jet"):
         """Display the GUI.
+
+        Parameters
+        ----------
+        cmap : str, default: "jet", optional
+            String defines the colormap used in abundance density plot.
 
         Returns
         -------
         ipywidgets.widgets.widget_box.VBox
             A box that contains all the widgets in the GUI.
         """
+        # --------------Combine widget components--------------
         self.box_editor = ipw.HBox(
             [
                 ipw.VBox(self.input_items),
@@ -1264,11 +1309,19 @@ class CustomAbundanceWidget:
         )
 
         help_note = ipw.HTML(
-            value='<p style="text-indent: 40px">* Select a checkbox to lock the '
-            "abundance of corresponding element. </p>"
-            '<p style="text-indent: 40px"> On clicking the "Normalize" button, '
-            "the locked abundance(s) will <b>not be normalized</b>. </p>",
+            value="<p style='text-indent: 40px'>* Select a checkbox "
+            "to lock the abundance of corresponding element. </p>"
+            "<p style='text-indent: 40px'> On clicking the 'Normalize' "
+            "button, the locked abundance(s) will <b>not be normalized</b>."
+            " </p>",
             indent=True,
+        )
+
+        self.abundance_note = ipw.HTML(
+            description="(The following abundances are for the innermost "
+            "shell in selected range.)",
+            layout=ipw.Layout(visibility="hidden"),
+            style={"description_width": "initial"},
         )
 
         box_norm = ipw.HBox([self.btn_norm, self.norm_warning])
@@ -1277,7 +1330,13 @@ class CustomAbundanceWidget:
             [
                 ipw.Label(value="Apply abundance(s) to:"),
                 self.rbs_single_apply,
-                ipw.HBox([self.rbs_multi_apply, self.irs_shell_range]),
+                ipw.HBox(
+                    [
+                        self.rbs_multi_apply,
+                        self.irs_shell_range,
+                        self.abundance_note,
+                    ]
+                ),
             ],
             layout=ipw.Layout(margin="0 0 15px 50px"),
         )
@@ -1308,6 +1367,10 @@ class CustomAbundanceWidget:
                 ),
             ]
         )
+
+        # Initialize the widget and plot colormap
+        self.plot_cmap = cmap
+        self.update_line_color()
         self.read_abundance()
         self.density_editor.read_density()
 
@@ -1386,13 +1449,18 @@ class CustomAbundanceWidget:
         try:
             data = self.data.abundance.T
             data.columns = self.data.elements
-            first_row = pd.DataFrame(
-                [[0] * self.no_of_elements], columns=self.data.elements
-            )
-            data = pd.concat([first_row, data])
+            first_row = [0] * self.no_of_elements
+            data.loc[-1] = first_row
+            data.index += 1  # shifting index
+            data.sort_index(inplace=True)
+
             formatted_v = pd.Series(self.data.velocity.value).apply(
                 lambda x: "%.3e" % x
             )
+            # Make sure velocity is within the boundary.
+            formatted_v[0] = self.data.velocity.value[0]
+            formatted_v[-1] = self.data.velocity.value[-1]
+
             density = self.data.density
             data.insert(0, "velocity", formatted_v)
             data.insert(1, "density", density)
@@ -1527,6 +1595,14 @@ class DensityEditor:
         )
         self.input_d_time_0.observe(self.input_d_time_0_eventhandler, "value")
 
+        self.input_d_time_0 = ipw.FloatText(
+            value=self.data.density_t_0.value,
+            description="Density time_0 (day): ",
+            style={"description_width": "initial"},
+            layout=ipw.Layout(margin="0 0 20px 0"),
+        )
+        self.input_d_time_0.observe(self.input_d_time_0_eventhandler, "value")
+
         self.dpd_dtype = ipw.Dropdown(
             options=["-", "uniform", "exponential", "power_law"],
             description="Density type: ",
@@ -1618,6 +1694,17 @@ class DensityEditor:
             )
 
             self.update_density_plot()
+
+    def input_d_time_0_eventhandler(self, obj):
+        """Update density time 0 data when the widget gets new input.
+
+        Parameters
+        ----------
+        obj : traitlets.utils.bunch.Bunch
+            A dictionary holding the information about the change.
+        """
+        new_value = obj.new
+        self.data.density_t_0 = new_value * self.data.density_t_0.unit
 
     def input_d_time_0_eventhandler(self, obj):
         """Update density time 0 data when the widget gets new input.

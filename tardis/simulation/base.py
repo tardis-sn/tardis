@@ -2,7 +2,8 @@ import time
 import logging
 import numpy as np
 import pandas as pd
-from astropy import units as u, constants as const
+from astropy import units as u
+from tardis import constants as const
 from collections import OrderedDict
 from tardis import model
 
@@ -191,6 +192,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
 
+        mc_config_module.CONTINUUM_PROCESSES_ENABLED = (
+                not self.plasma.continuum_interaction_species.empty)
+
     def estimate_t_inner(
         self, input_t_inner, luminosity_requested, t_inner_update_exponent=-0.5
     ):
@@ -357,6 +361,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 t_inner=next_t_inner,
                 j_blue_estimator=self.runner.j_blue_estimator,
             )
+        if "gamma_estimator" in self.plasma.outputs_dict:
+            update_properties.update(
+                gamma_estimator=self.runner.photo_ion_estimator,
+                alpha_stim_estimator=self.runner.stim_recomb_estimator,
+                bf_heating_coeff_estimator=self.runner.bf_heating_estimator,
+                stim_recomb_cooling_coeff_estimator=self.runner.stim_recomb_cooling_estimator,
+            )
 
         self.plasma.update(**update_properties)
 
@@ -364,7 +375,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     def iterate(self, no_of_packets, no_of_virtual_packets=0, last_run=False):
         logger.info(
-            f"Starting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
+            f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
         self.runner.run(
             self.model,
@@ -454,8 +465,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
 
         logger.info(
-            f"Simulation finished in {self.iterations_executed:d} iterations "
-            f"Simulation took {(time.time() - start_time):.2f} s\n"
+            f"\n\tSimulation finished in {self.iterations_executed:d} iterations "
+            f"\n\tSimulation took {(time.time() - start_time):.2f} s\n"
         )
         self._call_back()
 
@@ -500,7 +511,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         plasma_state_log.columns.name = "Shell No."
 
         if is_notebook():
-            logger.info("Plasma stratification:")
+            logger.info("\n\tPlasma stratification:")
 
             # Displaying the DataFrame only when the logging level is NOTSET, DEBUG or INFO
             if logger.level <= logging.INFO:
@@ -524,16 +535,16 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
             for value in plasma_output.split("\n"):
                 output_df = output_df + "\t{}\n".format(value)
-            logger.info("Plasma stratification:")
+            logger.info("\n\tPlasma stratification:")
             logger.info(f"\n{output_df}")
 
         logger.info(
-            f"Current t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
+            f"\n\tCurrent t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
         )
 
     def log_run_results(self, emitted_luminosity, absorbed_luminosity):
         logger.info(
-            f"Luminosity emitted   = {emitted_luminosity:.3e}\n"
+            f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
             f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
             f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
         )

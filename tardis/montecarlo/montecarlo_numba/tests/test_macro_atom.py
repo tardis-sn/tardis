@@ -19,5 +19,13 @@ def test_macro_atom(
     static_packet.initialize_line_id(
         verysimple_numba_plasma, verysimple_numba_model
     )
-    result = macro_atom.macro_atom(static_packet, verysimple_numba_plasma)
+    activation_level_id = verysimple_numba_plasma.line2macro_level_upper[
+        static_packet.next_line_id
+    ]
+    result, transition_type = macro_atom.macro_atom(
+        activation_level_id,
+        static_packet.current_shell_id,
+        verysimple_numba_plasma
+    )
     assert result == expected
+    assert transition_type == -1  # line transition
