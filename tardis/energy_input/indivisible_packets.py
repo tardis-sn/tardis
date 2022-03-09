@@ -231,7 +231,7 @@ def initialize_packets(
     return packets, energy_df_rows, energy_plot_df_rows
 
 
-def main_gamma_ray_loop(num_decays, model, plasma):
+def main_gamma_ray_loop(num_decays, model, plasma, grey_opacity=0.0):
     """Main loop that determines the gamma ray propagation
 
     Parameters
@@ -242,6 +242,8 @@ def main_gamma_ray_loop(num_decays, model, plasma):
         The tardis model to calculate gamma ray propagation through
     plasma : tardis.plasma.BasePlasma
         The tardis plasma with calculated atomic number density
+    grey_opacity : float
+        Grey photoabsorption opacity for gamma-rays in cm^2 g^-1
 
     Returns
     -------
@@ -424,12 +426,21 @@ def main_gamma_ray_loop(num_decays, model, plasma):
                 * doppler_factor
             )
 
+            if grey_opacity > 0:
+                compton_opacity = 0.0
+                pair_creation_opacity = 0.0
+                photoabsorption_opacity = (
+                    grey_opacity * ejecta_density[packet.shell]
+                )
+
             # convert opacities to rest frame
             total_opacity = (
                 compton_opacity
                 + photoabsorption_opacity
                 + pair_creation_opacity
             )
+
+            packet.tau = -np.log(np.random.random())
 
             (distance_interaction, distance_boundary,) = distance_trace(
                 packet,
@@ -438,9 +449,8 @@ def main_gamma_ray_loop(num_decays, model, plasma):
                 total_opacity,
                 time_explosion,
             )
-            if distance_interaction < distance_boundary:
 
-                packet.tau = -np.log(np.random.random())
+            if distance_interaction < distance_boundary:
 
                 packet.status = scatter_type(
                     compton_opacity,
@@ -486,7 +496,7 @@ def main_gamma_ray_loop(num_decays, model, plasma):
                     packet.status = GXPacketStatus.IN_PROCESS
 
             else:
-                packet.tau -= total_opacity * distance_boundary * time_explosion
+                # packet.tau -= total_opacity * distance_boundary * time_explosion
                 # overshoot so that the gamma-ray is comfortably in the next shell
                 packet = move_packet(
                     packet, distance_boundary * (1 + BOUNDARY_THRESHOLD)
