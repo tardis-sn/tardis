@@ -238,13 +238,13 @@ def compute_required_photons_per_shell(
     )
 
 
-def compute_required_photons_per_shell_artis(
+def compute_required_packets_per_shell(
     shell_masses,
     isotope_abundance,
-    number_of_decays,
+    number_of_packets,
 ):
-    """Computes the number of photons required per shell
-    that sum to the total number of requested photons.
+    """Computes the number of packets required per shell
+    that sum to the total number of requested packets.
     Also stores/updates decay radiation in an HDF file.
 
     Parameters
@@ -254,12 +254,12 @@ def compute_required_photons_per_shell_artis(
     isotope_abundance : pandas DataFrame
         Abundances of isotopes
     number_of_decays : int64
-        Total number of simulation decays
+        Total number of requested packets
 
     Returns
     -------
     pandas.DataFrame
-        Photons required per shell
+        Packets required per shell
     pandas.DataFrame
         Database of decay radiation
     pandas.DataFrame
@@ -303,7 +303,7 @@ def compute_required_photons_per_shell_artis(
 
     for column in decays_per_shell_df:
         scaled_decays_per_shell = (
-            activity_df[column] / total_activity * number_of_decays
+            activity_df[column] / total_activity * number_of_packets
         )
         decays_per_shell_df[column] = round(scaled_decays_per_shell).astype(int)
         scaled_activity_df[column] /= decays_per_shell_df[
