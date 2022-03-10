@@ -330,12 +330,6 @@ class AtomData(object):
 
         self.nlte_species = nlte_species
 
-        self.levels = self.levels[
-            self.levels.index.isin(
-                self.selected_atomic_numbers, level="atomic_number"
-            )
-        ]
-        
         self.levels_index = pd.Series(
             np.arange(len(self.levels), dtype=int), index=self.levels.index
         )

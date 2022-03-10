@@ -19,7 +19,9 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     NumbaPlasma,
 )
 from numba import cuda
-from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import CudaFormalIntegrator
+from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import (
+    CudaFormalIntegrator,
+)
 
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
@@ -261,6 +263,7 @@ class FormalIntegrator(object):
             )
             self.atomic_data = plasma.atomic_data
             self.original_plasma = plasma
+            self.levels_index = plasma.levels
 
     def generate_numba_objects(self):
         """instantiate the numba interface objects
@@ -372,7 +375,7 @@ class FormalIntegrator(object):
         macro_ref = self.atomic_data.macro_atom_references
         macro_data = self.atomic_data.macro_atom_data
 
-        no_lvls = len(self.atomic_data.levels)
+        no_lvls = len(self.levels_index)
         no_shells = len(model.w)
 
         if runner.line_interaction_type == "macroatom":
