@@ -1,16 +1,16 @@
 from random import sample
 import numpy as np
-import copy
 from tqdm.auto import tqdm
 import pandas as pd
 import astropy.units as u
-from numba import njit
+from numba import njit, prange
+from numba.typed import List
 
 from tardis.energy_input.GXPacket import GXPacket, GXPacketStatus
 from tardis.energy_input.gamma_ray_grid import (
     distance_trace,
     move_packet,
-    compute_required_photons_per_shell_artis,
+    compute_required_packets_per_shell,
     read_artis_lines,
 )
 from tardis.energy_input.energy_source import (
@@ -29,8 +29,6 @@ from tardis.energy_input.gamma_ray_interactions import (
     get_compton_fraction,
 )
 from tardis.energy_input.util import (
-    get_random_theta_photon,
-    get_random_phi_photon,
     get_random_theta_photon_array,
     get_random_phi_photon_array,
     doppler_gamma,
@@ -117,57 +115,71 @@ def initialize_packets(
     list
         packet info
     """
-    packets = []
+    packets = List()
     energy_df_rows = np.zeros(number_of_shells)
-    energy_plot_df_rows = []
+    # energy_plot_df_rows = []
 
     scaled_decays_per_shell = decays_per_shell.copy()
 
     for column in scaled_decays_per_shell:
+
+        activity = scaled_activity_df[column].to_numpy()
+        packets_per_shell = scaled_decays_per_shell[column].to_numpy()
 
         if column == "Ni56":
             # factor of 1000 for MeV -> keV
             energy = ni56_lines.energy.to_numpy() * 1000
             intensity = ni56_lines.intensity.to_numpy()
             positron_energy = 0
-            mean_energy = (
-                ni56_lines.energy.to_numpy()
-                * 1000
-                * ni56_lines.intensity.to_numpy()
-            ).sum()
 
         if column == "Co56":
             energy = co56_lines.energy.to_numpy() * 1000
             intensity = co56_lines.intensity.to_numpy()
             # positron energy scaled by intensity
             positron_energy = 0.63 * 1000 * 0.19
-            mean_energy = (
-                co56_lines.energy.to_numpy()
-                * 1000
-                * co56_lines.intensity.to_numpy()
-            ).sum()
+
+        mean_energy = (energy * intensity).sum()
+
+        total_packets_for_isotope = packets_per_shell.sum()
+        cmf_energy = np.zeros(total_packets_for_isotope)
+
+        for i, _ in enumerate(cmf_energy):
+            cmf_energy[i] = sample_energy(energy, intensity)
+
+            if not cmf_energy[i]:
+                print("No energy selected for this gamma ray!")
+                continue
 
         for shell in range(number_of_shells):
-            activity = scaled_activity_df[column].iloc[shell]
-            energy_cmf = mean_energy * activity
-            packets_per_shell = scaled_decays_per_shell[column].iloc[shell]
+            shell_activity = activity[shell]
+            energy_cmf = mean_energy * shell_activity
+            shell_packets = packets_per_shell[shell]
 
-            z = np.random.random(packets_per_shell)
+            # Add positron energy to the medium
+            # convert KeV to eV / cm^3
+            if shell_packets > 0:
+                energy_df_rows[shell] = (
+                    shell_packets
+                    * positron_energy
+                    * shell_activity
+                    * 1000
+                    / ejecta_volume[shell]
+                )
+
+            z = np.random.random(shell_packets)
 
             initial_radii = (
                 z * inner_velocities[shell] ** 3.0
                 + (1.0 - z) * outer_velocities[shell] ** 3.0
             ) ** (1.0 / 3.0)
 
-            theta_locations = get_random_theta_photon_array(n=packets_per_shell)
-            phi_locations = get_random_phi_photon_array(n=packets_per_shell)
+            theta_locations = get_random_theta_photon_array(n=shell_packets)
+            phi_locations = get_random_phi_photon_array(n=shell_packets)
 
-            theta_directions = get_random_theta_photon_array(
-                n=packets_per_shell
-            )
-            phi_directions = get_random_phi_photon_array(n=packets_per_shell)
+            theta_directions = get_random_theta_photon_array(n=shell_packets)
+            phi_directions = get_random_phi_photon_array(n=shell_packets)
 
-            for i in range(packets_per_shell):
+            for i in range(shell_packets):
                 # draw a random gamma-ray in shell
                 packet = GXPacket(
                     location_r=initial_radii[i],
@@ -181,7 +193,7 @@ def initialize_packets(
                     shell=shell,
                     nu_rf=0,
                     nu_cmf=0,
-                    activity=activity,
+                    activity=shell_activity,
                 )
 
                 packet.energy_rf = packet.energy_cmf / doppler_gamma(
@@ -189,11 +201,7 @@ def initialize_packets(
                     packet.location_r,
                 )
 
-                # Add positron energy to the medium
-                # convert KeV to eV / cm^3
-                energy_df_rows[shell] += (
-                    positron_energy * activity * 1000 / ejecta_volume[shell],
-                )
+                """
                 energy_plot_df_rows.append(
                     [
                         -1,
@@ -210,16 +218,8 @@ def initialize_packets(
                         0,
                     ]
                 )
-
-                # Spawn a gamma ray emission with energy from gamma-ray list
-                # energy transformed to rest frame
-                cmf_energy = sample_energy(energy, intensity)
-
-                if not cmf_energy:
-                    print("No energy selected for this gamma ray!")
-                    continue
-
-                packet.nu_cmf = cmf_energy / H_CGS_KEV
+    """
+                packet.nu_cmf = cmf_energy[i] / H_CGS_KEV
 
                 packet.nu_rf = packet.nu_cmf / doppler_gamma(
                     packet.get_direction_vector(),
@@ -228,7 +228,7 @@ def initialize_packets(
 
                 packets.append(packet)
 
-    return packets, energy_df_rows, energy_plot_df_rows
+    return packets, energy_df_rows  # , energy_plot_df_rows
 
 
 def main_gamma_ray_loop(num_decays, model, plasma, grey_opacity=0.0):
@@ -318,7 +318,7 @@ def main_gamma_ray_loop(num_decays, model, plasma, grey_opacity=0.0):
         decays_per_shell,
         scaled_activity_df,
         activity_df,
-    ) = compute_required_photons_per_shell_artis(
+    ) = compute_required_packets_per_shell(
         shell_masses, new_abundances, num_decays
     )
 
@@ -340,7 +340,8 @@ def main_gamma_ray_loop(num_decays, model, plasma, grey_opacity=0.0):
     # Dependent on atomic data
     iron_group_fraction_per_shell = model.abundance.loc[(21):(30)].sum(axis=0)
 
-    (packets, energy_df_rows, energy_plot_df_rows,) = initialize_packets(
+    print("Initializing packets")
+    packets, energy_df_rows = initialize_packets(
         number_of_shells,
         decays_per_shell,
         ejecta_volume,
@@ -373,14 +374,127 @@ def main_gamma_ray_loop(num_decays, model, plasma, grey_opacity=0.0):
     for e in energy_df_rows:
         e *= energy_ratio
 
-    for row in energy_plot_df_rows:
-        row[1] *= energy_ratio
+    # for row in energy_plot_df_rows:
+    #    row[1] *= energy_ratio
 
     print("Total RF energy")
     print(total_rf_energy)
 
-    i = 0
-    for packet in tqdm(packets):
+    energy_df_rows = gamma_packet_loop(
+        packets,
+        grey_opacity,
+        electron_number_density.to_numpy(),
+        ejecta_density,
+        ejecta_volume,
+        iron_group_fraction_per_shell.to_numpy(),
+        inner_velocities,
+        outer_velocities,
+        time_explosion,
+        energy_df_rows,
+    )
+
+    # DataFrame of energy information
+    energy_plot_df = pd.DataFrame(
+        data=[],
+        columns=[
+            "packet_index",
+            "energy_input",
+            "energy_input_r",
+            "energy_input_theta",
+            "energy_input_time",
+            "energy_input_type",
+            "compton_opacity",
+            "photoabsorption_opacity",
+            "total_opacity",
+        ],
+    )
+
+    # Energy is eV/s/cm^-3
+    energy_df = pd.DataFrame(data=energy_df_rows, columns=["energy"])
+
+    final_energy = 0
+    for p in packets:
+        final_energy += p.energy_rf
+
+    print("Final energy to test for conservation")
+    print(final_energy)
+
+    return (
+        energy_df,
+        energy_plot_df,
+        escape_energy,
+        decays_per_shell,
+        scaled_activity_df,
+        activity_df,
+    )
+
+
+@njit
+def process_packet_path(packet):
+
+    if packet.status == GXPacketStatus.COMPTON_SCATTER:
+        comoving_freq_energy = packet.nu_cmf * H_CGS_KEV
+
+        compton_angle, compton_fraction = get_compton_fraction(
+            comoving_freq_energy
+        )
+
+        kappa = kappa_calculation(comoving_freq_energy)
+
+        # Basic check to see if Thomson scattering needs to be considered later
+        if kappa < 1e-2:
+            print("Thomson should happen")
+
+        # Packet is no longer a gamma-ray, destroy it
+        if np.random.random() < compton_fraction:
+            packet.status = GXPacketStatus.PHOTOABSORPTION
+        else:
+            ejecta_energy_gained = 0.0
+
+        packet.nu_cmf = packet.nu_cmf * compton_fraction
+
+        (
+            packet.direction_theta,
+            packet.direction_phi,
+        ) = compton_scatter(packet, compton_angle)
+
+        # Calculate rest frame frequency after scaling by the fraction that remains
+        doppler_factor = doppler_gamma(
+            packet.get_direction_vector(), packet.location_r
+        )
+
+        packet.nu_rf = packet.nu_cmf / doppler_factor
+        packet.energy_rf = packet.energy_cmf / doppler_factor
+
+    if packet.status == GXPacketStatus.PAIR_CREATION:
+        packet = pair_creation_packet(packet)
+        ejecta_energy_gained = 0.0
+
+    if packet.status == GXPacketStatus.PHOTOABSORPTION:
+        # Ejecta gains comoving energy
+        ejecta_energy_gained = packet.energy_cmf
+
+    return packet, ejecta_energy_gained
+
+
+@njit(parallel=True)
+def gamma_packet_loop(
+    packets,
+    grey_opacity,
+    electron_number_density,
+    ejecta_density,
+    ejecta_volume,
+    iron_group_fraction_per_shell,
+    inner_velocities,
+    outer_velocities,
+    time_explosion,
+    energy_df_rows,
+):
+    packet_count = len(packets)
+    print("Entering gamma ray loop for " + str(packet_count) + " packets")
+
+    for i in prange(packet_count):
+        packet = packets[i]
 
         while packet.status == GXPacketStatus.IN_PROCESS:
 
@@ -473,6 +587,7 @@ def main_gamma_ray_loop(num_decays, model, plasma, grey_opacity=0.0):
                 energy_df_rows[packet.shell] += (
                     ejecta_energy_gained * 1000 / ejecta_volume[packet.shell]
                 )
+                """
                 energy_plot_df_rows.append(
                     [
                         i,
@@ -488,6 +603,7 @@ def main_gamma_ray_loop(num_decays, model, plasma, grey_opacity=0.0):
                         total_opacity,
                     ]
                 )
+                """
 
                 if packet.status == GXPacketStatus.PHOTOABSORPTION:
                     # Packet destroyed, go to the next packet
@@ -509,94 +625,11 @@ def main_gamma_ray_loop(num_decays, model, plasma, grey_opacity=0.0):
                 )
 
             if packet.shell > len(ejecta_density) - 1:
-                escape_energy.append(packet.energy_rf)
+                # escape_energy.append(packet.energy_rf)
                 packet.status = GXPacketStatus.END
             elif packet.shell < 0:
                 packet.energy_rf = 0.0
                 packet.energy_cmf = 0.0
                 packet.status = GXPacketStatus.END
 
-        i += 1
-
-    # DataFrame of energy information
-    energy_plot_df = pd.DataFrame(
-        data=energy_plot_df_rows,
-        columns=[
-            "packet_index",
-            "energy_input",
-            "energy_input_r",
-            "energy_input_theta",
-            "energy_input_time",
-            "energy_input_type",
-            "compton_opacity",
-            "photoabsorption_opacity",
-            "total_opacity",
-        ],
-    )
-
-    # Energy is eV/s/cm^-3
-    energy_df = pd.DataFrame(data=energy_df_rows, columns=["energy"])
-
-    final_energy = 0
-    for p in packets:
-        final_energy += p.energy_rf
-
-    print("Final energy to test for conservation")
-    print(final_energy)
-
-    return (
-        energy_df,
-        energy_plot_df,
-        escape_energy,
-        decays_per_shell,
-        scaled_activity_df,
-        activity_df,
-    )
-
-
-@njit
-def process_packet_path(packet):
-
-    if packet.status == GXPacketStatus.COMPTON_SCATTER:
-        comoving_freq_energy = packet.nu_cmf * H_CGS_KEV
-
-        compton_angle, compton_fraction = get_compton_fraction(
-            comoving_freq_energy
-        )
-
-        kappa = kappa_calculation(comoving_freq_energy)
-
-        # Basic check to see if Thomson scattering needs to be considered later
-        if kappa < 1e-2:
-            print("Thomson should happen")
-
-        # Packet is no longer a gamma-ray, destroy it
-        if np.random.random() < compton_fraction:
-            packet.status = GXPacketStatus.PHOTOABSORPTION
-        else:
-            ejecta_energy_gained = 0.0
-
-        packet.nu_cmf = packet.nu_cmf * compton_fraction
-
-        (
-            packet.direction_theta,
-            packet.direction_phi,
-        ) = compton_scatter(packet, compton_angle)
-
-        # Calculate rest frame frequency after scaling by the fraction that remains
-        doppler_factor = doppler_gamma(
-            packet.get_direction_vector(), packet.location_r
-        )
-
-        packet.nu_rf = packet.nu_cmf / doppler_factor
-        packet.energy_rf = packet.energy_cmf / doppler_factor
-
-    if packet.status == GXPacketStatus.PAIR_CREATION:
-        packet = pair_creation_packet(packet)
-        ejecta_energy_gained = 0.0
-
-    if packet.status == GXPacketStatus.PHOTOABSORPTION:
-        # Ejecta gains comoving energy
-        ejecta_energy_gained = packet.energy_cmf
-
-    return packet, ejecta_energy_gained
+    return energy_df_rows
