@@ -117,7 +117,6 @@ def initialize_packets(
     """
     packets = List()
     energy_df_rows = np.zeros(number_of_shells)
-    # energy_plot_df_rows = []
 
     scaled_decays_per_shell = decays_per_shell.copy()
 
@@ -200,9 +199,8 @@ def initialize_packets(
                     packet.get_direction_vector(),
                     packet.location_r,
                 )
-
                 """
-                energy_plot_df_rows.append(
+                energy_plot_df_rows[i] = 
                     [
                         -1,
                         positron_energy
@@ -217,8 +215,7 @@ def initialize_packets(
                         0,
                         0,
                     ]
-                )
-    """
+                """
                 packet.nu_cmf = cmf_energy[i] / H_CGS_KEV
 
                 packet.nu_rf = packet.nu_cmf / doppler_gamma(
@@ -352,6 +349,8 @@ def main_gamma_ray_loop(num_decays, model, plasma, grey_opacity=0.0):
         scaled_activity_df,
     )
 
+    energy_plot_df_rows = np.zeros((len(packets), 9))
+
     total_cmf_energy = 0
     total_rf_energy = 0
 
@@ -380,7 +379,7 @@ def main_gamma_ray_loop(num_decays, model, plasma, grey_opacity=0.0):
     print("Total RF energy")
     print(total_rf_energy)
 
-    energy_df_rows = gamma_packet_loop(
+    energy_df_rows, energy_plot_df_rows = gamma_packet_loop(
         packets,
         grey_opacity,
         electron_number_density.to_numpy(),
@@ -391,11 +390,12 @@ def main_gamma_ray_loop(num_decays, model, plasma, grey_opacity=0.0):
         outer_velocities,
         time_explosion,
         energy_df_rows,
+        energy_plot_df_rows,
     )
 
     # DataFrame of energy information
     energy_plot_df = pd.DataFrame(
-        data=[],
+        data=energy_plot_df_rows,
         columns=[
             "packet_index",
             "energy_input",
@@ -489,6 +489,7 @@ def gamma_packet_loop(
     outer_velocities,
     time_explosion,
     energy_df_rows,
+    energy_plot_df_rows,
 ):
     packet_count = len(packets)
     print("Entering gamma ray loop for " + str(packet_count) + " packets")
@@ -587,23 +588,18 @@ def gamma_packet_loop(
                 energy_df_rows[packet.shell] += (
                     ejecta_energy_gained * 1000 / ejecta_volume[packet.shell]
                 )
-                """
-                energy_plot_df_rows.append(
-                    [
-                        i,
-                        ejecta_energy_gained
-                        * 1000
-                        / ejecta_volume[packet.shell],
-                        packet.location_r,
-                        packet.location_theta,
-                        packet.time_current,
-                        int(packet.status),
-                        compton_opacity,
-                        photoabsorption_opacity,
-                        total_opacity,
-                    ]
-                )
-                """
+
+                energy_plot_df_rows[i] = [
+                    i,
+                    ejecta_energy_gained * 1000 / ejecta_volume[packet.shell],
+                    packet.location_r,
+                    packet.location_theta,
+                    packet.time_current,
+                    int(packet.status),
+                    compton_opacity,
+                    photoabsorption_opacity,
+                    total_opacity,
+                ]
 
                 if packet.status == GXPacketStatus.PHOTOABSORPTION:
                     # Packet destroyed, go to the next packet
@@ -632,4 +628,4 @@ def gamma_packet_loop(
                 packet.energy_cmf = 0.0
                 packet.status = GXPacketStatus.END
 
-    return energy_df_rows
+    return energy_df_rows, energy_plot_df_rows
