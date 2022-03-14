@@ -27,18 +27,6 @@ def set_estimators(r_packet, distance, numba_estimator, comov_nu, comov_energy):
 
 
 @njit(**njit_dict_no_parallel)
-def set_estimators_full_relativity(
-    r_packet, distance, numba_estimator, comov_nu, comov_energy, doppler_factor
-):
-    numba_estimator.j_estimator[r_packet.current_shell_id] += (
-        comov_energy * distance * doppler_factor
-    )
-    numba_estimator.nu_bar_estimator[r_packet.current_shell_id] += (
-        comov_energy * distance * comov_nu * doppler_factor
-    )
-
-
-@njit(**njit_dict_no_parallel)
 def update_bound_free_estimators(
     comov_nu,
     comov_energy,
