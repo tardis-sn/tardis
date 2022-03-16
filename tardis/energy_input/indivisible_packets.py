@@ -120,6 +120,9 @@ def initialize_packets(
 
     scaled_decays_per_shell = decays_per_shell.copy()
 
+    energy_plot_df_rows = np.zeros((decays_per_shell.sum(axis=0).sum(), 9))
+
+    j = 0
     for column in scaled_decays_per_shell:
 
         activity = scaled_activity_df[column].to_numpy()
@@ -199,23 +202,22 @@ def initialize_packets(
                     packet.get_direction_vector(),
                     packet.location_r,
                 )
-                """
-                energy_plot_df_rows[i] = 
-                    [
-                        -1,
-                        positron_energy
-                        * activity
-                        * 1000
-                        / ejecta_volume[shell],
-                        packet.location_r,
-                        packet.location_theta,
-                        0.0,
-                        -1,
-                        0,
-                        0,
-                        0,
-                    ]
-                """
+
+                energy_plot_df_rows[j] = [
+                    -1.0,
+                    positron_energy
+                    * shell_activity
+                    * 1000
+                    / ejecta_volume[shell],
+                    packet.location_r,
+                    packet.location_theta,
+                    0.0,
+                    -1.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                ]
+
                 packet.nu_cmf = cmf_energy[i] / H_CGS_KEV
 
                 packet.nu_rf = packet.nu_cmf / doppler_gamma(
@@ -225,7 +227,9 @@ def initialize_packets(
 
                 packets.append(packet)
 
-    return packets, energy_df_rows  # , energy_plot_df_rows
+                j += 1
+
+    return packets, energy_df_rows, energy_plot_df_rows
 
 
 def main_gamma_ray_loop(num_decays, model, plasma, grey_opacity=0.0):
@@ -338,7 +342,7 @@ def main_gamma_ray_loop(num_decays, model, plasma, grey_opacity=0.0):
     iron_group_fraction_per_shell = model.abundance.loc[(21):(30)].sum(axis=0)
 
     print("Initializing packets")
-    packets, energy_df_rows = initialize_packets(
+    packets, energy_df_rows, energy_plot_df_rows = initialize_packets(
         number_of_shells,
         decays_per_shell,
         ejecta_volume,
@@ -349,7 +353,7 @@ def main_gamma_ray_loop(num_decays, model, plasma, grey_opacity=0.0):
         scaled_activity_df,
     )
 
-    energy_plot_df_rows = np.zeros((len(packets), 9))
+    # energy_plot_df_rows = np.zeros((len(packets), 9))
 
     total_cmf_energy = 0
     total_rf_energy = 0
@@ -589,17 +593,22 @@ def gamma_packet_loop(
                     ejecta_energy_gained * 1000 / ejecta_volume[packet.shell]
                 )
 
-                energy_plot_df_rows[i] = [
-                    i,
-                    ejecta_energy_gained * 1000 / ejecta_volume[packet.shell],
-                    packet.location_r,
-                    packet.location_theta,
-                    packet.time_current,
-                    int(packet.status),
-                    compton_opacity,
-                    photoabsorption_opacity,
-                    total_opacity,
-                ]
+                energy_plot_df_rows[i] += np.array(
+                    [
+                        i,
+                        ejecta_energy_gained
+                        * 1000
+                        / ejecta_volume[packet.shell],
+                        packet.location_r,
+                        packet.location_theta,
+                        packet.time_current,
+                        int(packet.status),
+                        compton_opacity,
+                        photoabsorption_opacity,
+                        total_opacity,
+                    ],
+                    dtype=np.float64,
+                )
 
                 if packet.status == GXPacketStatus.PHOTOABSORPTION:
                     # Packet destroyed, go to the next packet
