@@ -74,3 +74,4 @@ dependencies:
 
   - pip:
       - dot2tex  # conda-forge package requires python>=3.8
+      - pytest-arraydiff #needs to be at least 0.5 or greater
