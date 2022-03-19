@@ -1,7 +1,6 @@
 import pytest
 import numpy as np
 from tardis import constants as c
-#from astropy import units as u
 
 from copy import deepcopy
 from numba import cuda
