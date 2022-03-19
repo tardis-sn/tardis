@@ -1,32 +1,18 @@
 import pytest
-import pytest_arraydiff
 import numpy as np
 from tardis import constants as c
-from astropy import units as u
+#from astropy import units as u
 
 from copy import deepcopy
-import numpy.testing as ntest
 from numba import cuda
-from numba import njit
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
-
 
 import tardis.montecarlo.montecarlo_numba.formal_integral_cuda as formal_integral_cuda
-import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral_numba
 from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
 
-
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
-from tardis.montecarlo.montecarlo_numba.formal_integral import (
-    NumbaFormalIntegrator,
-)
-
-from tardis.montecarlo import MontecarloRunner
-
 
 # Test cases must also take into account use of a GPU to run. If there is no GPU then the test cases will fail.
 GPUs_available = cuda.is_available()
-
 
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
@@ -73,7 +59,6 @@ def test_trapezoid_integration_cuda(N):
     Initializes the test of the cuda version
     against the previous version of itself.
     """
-    
     actual = np.zeros(1)
 
     h = 1.0
@@ -135,7 +120,6 @@ def test_calculate_z_cuda(formal_integral_model, p, p_loc):
         calculate_z_caller[1, 3](r, p, inv_t, actual)
         return actual
 
-
 @cuda.jit
 def calculate_z_caller(r, p, inv_t, actual):
     """
@@ -145,6 +129,7 @@ def calculate_z_caller(r, p, inv_t, actual):
     x = cuda.grid(1)
     actual[x] = formal_integral_cuda.calculate_z_cuda(r, p, inv_t)
 
+    
 
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
@@ -177,7 +162,6 @@ def test_populate_z(formal_integral_model, p, p_loc):
     big_actual = np.concatenate((actual, oshell_id, oz))
     return big_actual
 
-
 @cuda.jit
 def populate_z_caller(
     r_inner, r_outer, time_explosion, p, oz, oshell_id, actual
@@ -192,6 +176,7 @@ def populate_z_caller(
     )
 
 
+    
 @pytest.mark.parametrize(
     "N",
     [
@@ -214,6 +199,7 @@ def test_calculate_p_values(N):
     return actual
 
 
+
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
@@ -231,7 +217,6 @@ def test_line_search_cuda(nu_insert, verysimple_numba_plasma):
 
     return actual
 
-
 @cuda.jit
 def line_search_cuda_caller(line_list_nu, nu_insert, actual):
     """
@@ -244,6 +229,7 @@ def line_search_cuda_caller(line_list_nu, nu_insert, actual):
     )
 
 
+    
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
@@ -272,7 +258,6 @@ def test_reverse_binary_search(nu_insert, verysimple_numba_plasma):
 
     return actual
 
-
 @cuda.jit
 def reverse_binary_search_cuda_caller(
     line_list_nu, nu_insert, imin, imax, actual
@@ -287,6 +272,7 @@ def reverse_binary_search_cuda_caller(
     )
 
 
+    
 # no_of_packets and iterations match what is used by config_verysimple
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
@@ -302,10 +288,6 @@ def test_full_formal_integral(
     versions of itself.
     """
     sim = simulation_verysimple
-
-    formal_integrator_numba = FormalIntegrator(
-        sim.model, sim.plasma, sim.runner
-    )
 
     formal_integrator_cuda = FormalIntegrator(sim.model, sim.plasma, sim.runner)
 
