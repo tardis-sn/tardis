@@ -51,9 +51,9 @@ For each frequency in our list of frequencies, TARDIS calculates :math:`I_\nu(p)
 Calculating :math:`I_\nu(p)`
 ============================
 
-.. image:: ../images/formal_integral_2d_a.png
+.. image:: ../images/formal_integral_2d_above.png
 
-.. image:: ../images/formal_integral_2d_b.png
+.. image:: ../images/formal_integral_2d_below.png
 
 
 Current Limitations
