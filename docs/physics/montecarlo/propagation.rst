@@ -155,6 +155,7 @@ When a packet is moved into a new cell, as mentioned before, it is moved to the 
 boundary, the plasma properties are recalculated, and the propagation direction of the packet is updated (using
 :math:`\mu_f = \frac{l + r_i \mu_i}{r_f}`).
 
+.. _physical-interactions:
 
 Physical Interactions
 ---------------------

@@ -51,9 +51,92 @@ For each frequency in our list of frequencies, TARDIS calculates :math:`I_\nu(p)
 Calculating :math:`I_\nu(p)`
 ============================
 
+Setting Up
+----------
+
+We now calculate :math:`I_\nu(p)`, which is the frequency of the light with a **lab frame** (see :ref:`referenceframes`) frequency :math:`\nu` exiting a the supernova along a ray with impact parameter :math:`p`, as shown in the diagram below. Specifically, we are looking for the intensity of light with a frequency :math:`nu` traveling to the right on the right side of the ray. We start by discussing the case where :math:`p>r_\mathrm{boundary\_inner}` (where the ray does not intersect the photosphere). After, we will comment on what occurs when :math:`p<r_\mathrm{boundary\_inner}`.
+
 .. image:: ../images/formal_integral_2d_above.png
 
+Since every point on the ray has the same lab frame frequency, the co-moving frequency will vary along the ray. Specifically, at the point :math:`z_k`, we have
+
+.. math:: \nu_{\mathrm{co-moving},k}=(1-\beta_k \mu_k)\nu = \left( 1-\frac{r_k \cos(\theta)}{ct_\mathrm{explosion}}\right) \nu.
+
+But, :math:`\cos(\theta)=\frac{z_k}{r_k}`, so
+
+.. math:: \nu_{\mathrm{co-moving},k}= \left( 1-\frac{z_k}{ct_\mathrm{explosion}}\right) \nu.
+
+Notice that the co-moving frequency decreases as you move farther to the right, i.e. as the z-coordinate increases. With this, we can see where along the ray each line resonance occurs -- a line with a frequency :math:`\nu_\mathrm{line}` (which comes into resonance in the co-moving frame) will come into resonance at :math:`z=ct_\mathrm{explosion}(1-\frac{\nu_\mathrm{line}}{\nu})`. The highest line frequency that can resonate on our ray is :math:`\nu_\mathrm{max}=(1-\frac{z_\mathrm{min}}{ct_\mathrm{explosion}})\nu`, and the lowest line frequency that can resonate on our ray is :math:`\nu_\mathrm{max}=(1-\frac{z_\mathrm{max}}{ct_\mathrm{explosion}})\nu`, where :math:`z_\mathrm{max}=\sqrt{r_\mathrm{boundary\_outer}^2-p^2}` and by symmetry :math:`z_\mathrm{min}=-z_\mathrm{max}`. Every line between those frequenies will resonate on our ray -- the points at which each line resonates is shown on the diagram (though in reality there are far more resonances than are shown on the diagram). The line resonating at the point :math:`z_0` has the highest frequency of any line below :math:`\nu_\mathrm{max}`, and the line resonating at the point :math:`z_{N-1}` (the Nth line) has the highest frequency of any line above :math:`\nu_\mathrm{min}`. Finally, we denote the intensity along the ray directly to the left of a point :math:`z_k` as :math:`I_k^b` with "b" for blue, as it has a slightly higher ("bluer") frequency than the line resonating at :math:`z_k`. Similarly, we denote the intensity along the ray directly to the right of a point :math:`z_k` as :math:`I_k^r` with "r" for red, as it has a slightly lower ("redder") frequency than the line resonating at :math:`z_k`.
+
+Our goal is to find :math:`I_{N-1}^r`, as this is the light that will exit the supernova. We start with :math:`I_0^b=0` (as we assume no light is entering the supernova externally). We then increment the intensity along the ray. To do this, we will need the line source function.
+
+
+Constructing the Source Function
+--------------------------------
+
+Our problem is to determine the intensity that is added to the ray at a line resonance :math:`l\rightarrow u`. Much of this calculation will rely heavily on the logic in :doc:`../est_and_conv/estimators`.
+
+For a line transition :math:`i\rightarrow u`, the rate at which energy density resonates with the line transition is :math:`\frac{1}{\Delta t V} \sum \epsilon` where the sum is taken over all packets that pass through the sobolev point.
+
+This light then has a :math:`\left( 1- e^{-\tau_{iu}}\right)` probability of interacting with the line, so the rate at which energy density is absorbed into the transition :math:`i\rightarrow u` is the estimator
+
+.. math:: \dot{E}_{iu} = \frac{1}{\Delta t V} \left( 1- e^{-\tau_{iu}}\right) \sum \epsilon.
+
+Now, sum up these estimators for every level :math:`i` that can be excited to the level :math:`u` -- this will give us the rate at which energy density is added to the level :math:`u` from all line transitions that can be excited to :math:`u`:
+
+.. math:: \dot{E}_u = \sum_{i < u} \dot E_{iu}.
+
+Now, the amount of energy density that is then de-excited from :math:`u\rightarrow l` and thus be deposited into the ray's intensity at the resonance point of :math:`l\rightarrow u` is :math:`q_{ul}\dot{E}_u`, where :math:`q_{ul}` is the fraction of energy at the level :math:`u` which de-excites in the transition :math:`u\rightarrow l`. To turn this into an intensity (see :cite:`Lucy1999a`), we include a factor of :math:`\frac{\lambda_{ul} t_\mathrm{explosion}}{4 \pi}` where :math:`\lambda_{ul}` is the wavelength of the light released in the transition :math:`u\rightarrow l`. So, the intensity that is added to our ray at the resonance point of :math:`l\rightarrow u`, which we will label as :math:`\left( 1- e^{-\tau_{lu}}\right) S_{ul}`, is
+
+.. math:: \left( 1- e^{-\tau_{lu}}\right) S_{ul} = \frac{\lambda_{ul} t}{4 \pi} q_{ul}\dot E_u.
+
+Here, :math:`S_{ul}` is the source function -- interpret it as the intensity that is eligible to interact and end up on our ray (i.e. the source of the intensity that ends up on our ray). The actual intensity that ends up being added to the ray is the source function times the probability of the transition :math:`l\rightarrow u`, :math:`\left( 1- e^{-\tau_{lu}}\right)`.
+
+
+Incrementing the Intensity
+--------------------------
+
+With this, we can now show how the intensity along our ray is incremented. First, at the kth line resonance there is a :math:`e^{-\tau_{k}}` probability that light does not interact with the line. So, on the red side of the line we only have :math:`e^{-\tau_k}` times the intensity on the blue side. But, we also have an intensity :math:`(1- e^{-\tau_k}) S_k` that is added to the ray at the line resonance, so in total we have
+
+.. math:: I_k^r = I_k^b e^{-\tau_k} + \left( 1- e^{-\tau_k}\right) S_{k}.
+
+If there was no electron scattering, this would be it; we would have :math:`I^b_{k+1}=I^r_k` (the intensity on the left of a line would be the intensity on the right of the next line, since no interactions would take place). However, with electron scattering, this is not the case. In between lines, light has a probability of :math:`e^{-\Delta \tau_e}` of not scattering, where :math:`\Delta \tau_e=\sigma_{\mathrm{T}} n_e \Delta z` is the electron scattering optical depth (see :ref:`physical-interactions`). So, we would have :math:`I^b_{k+1}=I^r_ke^{-\Delta \tau_e}`. But, light can also scatter onto the ray. The intensity would be increased by the mean intensity between the two resonance points times the probability of light interacting (and thus ending up on the ray), :math:`1-e^{-\Delta \tau_e}`. For the intensity between :math:`z_k` and :math:`z_{k+1}` we use the average of the mean intensity to the right of :math:`z_k` and the mean intensity to the left of :math:`z_{k+1}`, :math:`\frac{1}{2}(J_k^r+J_{k+1}^b)`. Here, :math:`J^b_{k}` is calculated from the ``J_blue`` estimator for the kth line transition (see :doc:`../est_and_conv/estimators`), and then
+
+.. math:: J_k^r = J_k^b e^{-\tau_k} + \left( 1- e^{-\tau_k}\right) S_{k}
+
+for the same reasoning as before.
+
+This gives us
+
+.. math:: I_{k+1}^b = I_k^r e^{-\Delta \tau_e} + (1-e^{-\Delta \tau_e})*\frac{1}{2}(J_k^r+J_{k+1}^b).
+
+Note that here the mean intensity is acting as the source function. The final step, for computational ease, approximates :math:`e^{-\Delta \tau_e}\approx 1-\Delta \tau_e` since the resonance points will be so close together than :math:`\Delta \tau_e << 1`. Our final result is then
+
+.. math:: I_{k+1}^b = I_k^r + \Delta \tau_e \left[ \frac{1}{2}(J_k^r + J_{k+1}^b) - I_k^r  \right].
+
+
+**In summary**, when calculating :math:`I_\nu(p)` for some ray, we start with :math:`I_0^b=0` and then calculate :math:`I_0^r`, then :math:`I_1^b`, then :math:`I_1^r`, etc. via the relations
+
+.. math:: I_k^r = I_k^b e^{-\tau_k} + \left( 1- e^{-\tau_k}\right) S_{k}
+
+.. math:: I_{k+1}^b = I_k^r + \Delta \tau_e \left[ \frac{1}{2}(J_k^r + J_{k+1}^b) - I_k^r  \right]
+
+until we get to :math:`I_{N-1}^r`, which is then used as the value of :math:`I_\nu(p)` that goes into the integral :math:`L_\nu = 8\pi^2 \int_0^{r_\mathrm{boundary\_outer}} I_\nu(p) p dp`.
+
+.. note:: The values for the source function (and the quantities and estimators used to calculate it), :math:`\tau_k`, the mean intensity, and all other non-constant quantities are taken in the cell in which the line resonance takes place. However, to improve results, TARDIS breaks down the model into more cells than in the rest of the simulation and interpolates the values of these quantities. The number of shells TARDIS uses for this interpolation process is specified in the :doc:`spectrum configuration <../../io/configuration/components/spectrum>`.
+
+
+Rays Intersecting the Photosphere
+---------------------------------
+
+Since the photosphere is modeled as being optically thick, if a ray intersects the photosphere, anything that happens prior to the photosphere does not matter -- the photosphere absorbs all light that hits it. Because of this, to calculate :math:`I_\nu(p)` over a ray that starts by exiting the photosphere, as shown in the diagram below. In this case, we now have that the minimum z-coordinate is :math:`z_\mathrm{min}=\sqrt{r_\mathrm{boundary\_inner}^2-p^2}`, and we use this to determine the lowest possible resonant frequency on the ray and :math:`z_0` as before. Finally, since light along this ray is released from the photosphere, we have
+
+.. math:: I_0^b = B_\nu(T_\mathrm{inner})= \frac{2h}{c^2}\frac{\nu^3}{e^{h\nu/k_BT}-1}.
+
+which is the Planck function (see :doc:`../montecarlo/initialization`).
+
 .. image:: ../images/formal_integral_2d_below.png
+  :width: 700
 
 
 Current Limitations
