@@ -138,10 +138,6 @@ def yaml_load_file(filename, loader=yaml.Loader):
         return yaml.load(stream, Loader=loader)
 
 
-def yaml_load_config_file(filename):
-    return yaml_load_file(filename, YAMLLoader)
-
-
 def traverse_configs(base, other, func, *args):
     """
     Recursively traverse a base dict or list along with another one
