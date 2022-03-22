@@ -9,7 +9,7 @@ from astropy import units as u
 import tardis
 from tardis.io import config_validator
 from tardis.io.util import YAMLLoader, yaml_load_file, HDFWriterMixin
-from tardis.io.parsers.csvy import load_yaml_from_csvy
+from tardis.io.model_reader import load_yaml_from_csvy
 
 pp = pprint.PrettyPrinter(indent=4)
 

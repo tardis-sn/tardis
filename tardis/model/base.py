@@ -6,12 +6,12 @@ from astropy import units as u
 from tardis import constants
 
 from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
-from tardis.io.parsers.csvy import load_csvy
 from tardis.io.model_reader import (
     read_density_file,
     read_abundances_file,
     read_uniform_abundances,
     parse_csv_abundances,
+    load_csvy
 )
 from tardis.io.config_validator import validate_dict
 from tardis.io.config_reader import Configuration
