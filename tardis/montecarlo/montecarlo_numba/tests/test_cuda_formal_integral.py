@@ -375,7 +375,7 @@ def test_full_formal_integral(
         formal_integrator_cuda.runner.tau_sobolevs_integ,
         formal_integrator_cuda.runner.electron_densities_integ,
         formal_integrator_cuda.points,
-    )
+    )[0]
 
     L_numba = formal_integrator_numba.integrator.formal_integral(
         formal_integrator_numba.model.t_inner,
@@ -387,6 +387,6 @@ def test_full_formal_integral(
         formal_integrator_numba.runner.tau_sobolevs_integ,
         formal_integrator_numba.runner.electron_densities_integ,
         formal_integrator_numba.points,
-    )
+    )[0]
 
     ntest.assert_allclose(L_cuda, L_numba, rtol=1e-14)

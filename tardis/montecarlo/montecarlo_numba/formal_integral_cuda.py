@@ -282,8 +282,9 @@ class CudaFormalIntegrator(object):
             z,
             shell_id,
         )
+        
 
-        return L
+        return L, I_nu
 
 
 @cuda.jit(device=True)

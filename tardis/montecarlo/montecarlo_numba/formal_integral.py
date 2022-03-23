@@ -64,8 +64,10 @@ def numba_formal_integral(
     line_list_nu = plasma.line_list_nu
     # done with instantiation
     # now loop over wavelength in spectrum
+    I_nu_p = np.zeros((inu_size, N), dtype=np.float64)
     for nu_idx in prange(inu_size):
-        I_nu = np.zeros(N, dtype=np.float64)
+        #I_nu = np.zeros(N, dtype=np.float64)
+        I_nu = I_nu_p[nu_idx]
         z = np.zeros(2 * size_shell, dtype=np.float64)
         shell_id = np.zeros(2 * size_shell, dtype=np.int64)
         offset = 0
@@ -191,7 +193,7 @@ def numba_formal_integral(
             I_nu[p_idx] *= p
         L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max / N)
 
-    return L
+    return L, I_nu_p
 
 
 #integrator_spec = [
@@ -554,7 +556,7 @@ class FormalIntegrator(object):
         Jblue_lu = res[2].flatten(order="F")
 
         self.generate_numba_objects()
-        L = self.integrator.formal_integral(
+        L, I_nu_p = self.integrator.formal_integral(
             self.model.t_inner,
             nu,
             nu.shape[0],
@@ -565,6 +567,7 @@ class FormalIntegrator(object):
             self.runner.electron_densities_integ,
             N,
         )
+        self.runner.I_nu_p = I_nu_p
         return np.array(L, np.float64)
 
 
