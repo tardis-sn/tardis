@@ -567,7 +567,14 @@ class FormalIntegrator(object):
             self.runner.electron_densities_integ,
             N,
         )
+        R_max = self.runner.r_outer_i[-1]
+        ps = calculate_p_values(R_max, N)[None, :]
+        I_nu_p[:, 1:] /= ps[:, 1:]
         self.runner.I_nu_p = I_nu_p
+
+        I_nu = self.runner.I_nu_p*ps
+        L_test = np.array([8 * M_PI * M_PI * trapezoid_integration((I_nu)[i, :], R_max / N) for i in range(nu.shape[0])])
+        assert np.max(np.abs((L_test-L)/L)) < 1e-7, "Incorrect I_nu_p values, max relative difference:{}".format(np.max(np.abs((L_test-L)/L)))
         return np.array(L, np.float64)
 
 
