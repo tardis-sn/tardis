@@ -620,4 +620,4 @@ def load_csv_from_csvy(fname):
            csv data from csvy file
     """
     yaml_dict, data = load_csvy(fname)
-    return data        
+    return data

@@ -16,7 +16,7 @@ from tardis.io.model_reader import (
     read_uniform_abundances,
     read_cmfgen_density,
     read_cmfgen_composition,
-    load_csvy
+    load_csvy,
 )
 
 data_path = os.path.join(tardis.__path__[0], "io", "tests", "data")
