@@ -9,7 +9,8 @@ import pandas as pd
 import yaml
 from tardis import constants
 from astropy import units as u
-from radioactivedecay import Nuclide
+from radioactivedecay import Nuclide, DEFAULTDATA
+from radioactivedecay.utils import parse_nuclide, Z_DICT
 
 import tardis
 from tardis.io.util import get_internal_data_path
@@ -489,6 +490,33 @@ def reformat_element_symbol(element_string):
     """
 
     return element_string[0].upper() + element_string[1:].lower()
+
+
+def is_valid_nuclide_or_elem(input_nuclide):
+    """
+    Parses nuclide string into symbol - mass number format and returns
+    whether the nuclide is either contained in the decay dataset or is a
+    raw element string.
+
+    Parameters
+    ----------
+    input_nuclide : str or int
+        Nuclide name string or element string.
+
+    Returns
+    -------
+    bool
+        Bool indicating if the input nuclide is contained in the decay dataset
+        or is a valid element.
+    """
+
+    try:
+        parse_nuclide(input_nuclide, DEFAULTDATA.nuclides, "ICRP-107")
+        is_nuclide = True
+    except:
+        is_nuclide = True if input_nuclide in Z_DICT.values() else False
+
+    return is_nuclide
 
 
 def quantity_linspace(start, stop, num, **kwargs):

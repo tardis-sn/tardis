@@ -5,7 +5,7 @@ import numpy as np
 from numpy import recfromtxt, genfromtxt
 import pandas as pd
 from astropy import units as u
-from radioactivedecay import Nuclide, DEFAULTDATA
+from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
 
 import logging
@@ -13,7 +13,7 @@ import logging
 # Adding logging support
 logger = logging.getLogger(__name__)
 
-from tardis.util.base import parse_quantity
+from tardis.util.base import parse_quantity, is_valid_nuclide_or_elem
 
 
 class ConfigurationError(Exception):
@@ -500,16 +500,8 @@ def parse_csv_abundances(csvy_data):
     isotope_abundance : pandas.MultiIndex
     """
 
-    nuclides_hyphenless = np.char.replace(DEFAULTDATA.nuclides, "-", "")
-
     abundance_col_names = [
-        name
-        for name in csvy_data.columns
-        if (
-            name in Z_DICT.values()
-            or name in DEFAULTDATA.nuclides
-            or name in nuclides_hyphenless
-        )
+        name for name in csvy_data.columns if is_valid_nuclide_or_elem(name)
     ]
     df = csvy_data.loc[:, abundance_col_names]
 

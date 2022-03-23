@@ -6,12 +6,12 @@ import pandas as pd
 import ipywidgets as ipw
 import plotly.graph_objects as go
 from astropy import units as u
-from radioactivedecay import Nuclide, DEFAULTDATA
+from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
 from pathlib import Path
 
 import tardis
-from tardis.util.base import quantity_linspace
+from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
 from tardis.io.config_reader import Configuration
 from tardis.model import Radial1DModel
 from tardis.model.density import (
@@ -1000,12 +1000,7 @@ class CustomAbundanceWidget:
             return
 
         try:
-            nuclides_hyphenless = np.char.replace(DEFAULTDATA.nuclides, "-", "")
-            if (
-                element_symbol_string in Z_DICT.values()
-                or element_symbol_string in DEFAULTDATA.nuclides
-                or element_symbol_string in nuclides_hyphenless
-            ):
+            if is_valid_nuclide_or_elem(element_symbol_string):
                 self.symb_warning.layout.visibility = "hidden"
                 self.btn_add_element.disabled = False
                 return

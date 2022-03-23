@@ -5,7 +5,7 @@ import pandas as pd
 from astropy import units as u
 from tardis import constants
 
-from tardis.util.base import quantity_linspace
+from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
 from tardis.io.parsers.csvy import load_csvy
 from tardis.io.model_reader import (
     read_density_file,
@@ -18,8 +18,6 @@ from tardis.io.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
 from tardis.io.decay import IsotopeAbundances
 from tardis.model.density import HomologousDensity
-from radioactivedecay import DEFAULTDATA
-from radioactivedecay.utils import Z_DICT
 
 logger = logging.getLogger(__name__)
 
@@ -651,18 +649,12 @@ class Radial1DModel(HDFWriterMixin):
             validate_dict(csvy_model_config, schemapath=csvy_schema_file)
         )
 
-        nuclides_hyphenless = np.char.replace(DEFAULTDATA.nuclides, "-", "")
-
         if hasattr(csvy_model_data, "columns"):
             abund_names = set(
                 [
                     name
                     for name in csvy_model_data.columns
-                    if (
-                        name in Z_DICT.values()
-                        or name in DEFAULTDATA.nuclides
-                        or name in nuclides_hyphenless
-                    )
+                    if is_valid_nuclide_or_elem(name)
                 ]
             )
             unsupported_columns = (
@@ -682,10 +674,10 @@ class Radial1DModel(HDFWriterMixin):
             ), "CSVY field descriptions exist without corresponding csv data"
             if unsupported_columns != set():
                 logger.warning(
-                "The following columns are "
-                "specified in the csvy model file,"
-                 f" but are IGNORED by TARDIS: {str(unsupported_columns)}"
-            )
+                    "The following columns are "
+                    "specified in the csvy model file,"
+                    f" but are IGNORED by TARDIS: {str(unsupported_columns)}"
+                )
 
         time_explosion = config.supernova.time_explosion.cgs
 
