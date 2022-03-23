@@ -571,6 +571,7 @@ class FormalIntegrator(object):
         ps = calculate_p_values(R_max, N)[None, :]
         I_nu_p[:, 1:] /= ps[:, 1:]
         self.runner.I_nu_p = I_nu_p
+        self.runner.p_rays = ps
 
         I_nu = self.runner.I_nu_p*ps
         L_test = np.array([8 * M_PI * M_PI * trapezoid_integration((I_nu)[i, :], R_max / N) for i in range(nu.shape[0])])
