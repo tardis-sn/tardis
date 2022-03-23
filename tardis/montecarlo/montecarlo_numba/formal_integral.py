@@ -48,6 +48,13 @@ def numba_formal_integral(
 ):
     """
     model, plasma, and estimator are the numba variants
+    Returns 
+    -------
+    L : float64 array
+        integrated luminosities
+    I_nu_p : float64 2D array
+        intensities at each p-ray multiplied by p
+        frequency x p-ray grid
     """
     # todo: add all the original todos
     # Initialize the output which is shared among threads
@@ -66,7 +73,6 @@ def numba_formal_integral(
     # now loop over wavelength in spectrum
     I_nu_p = np.zeros((inu_size, N), dtype=np.float64)
     for nu_idx in prange(inu_size):
-        #I_nu = np.zeros(N, dtype=np.float64)
         I_nu = I_nu_p[nu_idx]
         z = np.zeros(2 * size_shell, dtype=np.float64)
         shell_id = np.zeros(2 * size_shell, dtype=np.int64)
