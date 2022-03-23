@@ -60,7 +60,7 @@ dependencies:
   - snakeviz
 
   # Test/Coverage
-  - pytest=7.0.1
+  - pytest=7.0.1 # Issue #1932
   - pytest-cov
   - pytest-html
   - python-dokuwiki
