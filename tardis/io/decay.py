@@ -45,7 +45,7 @@ class IsotopeAbundances(pd.DataFrame):
         )
 
         for i, inventory in enumerate(inventories):
-            for nuclide, abundance in inventory.mass_fractions():
+            for nuclide, abundance in inventory.masses("g").items():
                 abundances.loc[cls.id_to_tuple(nuclide), i] = abundance
 
         return cls(abundances)
@@ -71,7 +71,7 @@ class IsotopeAbundances(pd.DataFrame):
             nuclear_symbol = f"{Z_to_elem(atomic_number)}{mass_number}"
             for i in range(len(self.columns)):
                 comp_dicts[i][nuclear_symbol] = abundances[i]
-        return [Inventory(comp_dict, "kg") for comp_dict in comp_dicts]
+        return [Inventory(comp_dict, "g") for comp_dict in comp_dicts]
 
     def decay(self, t):
         """
@@ -93,9 +93,7 @@ class IsotopeAbundances(pd.DataFrame):
             u.Quantity(t, u.day).to(u.s).value - self.time_0.to(u.s).value
         )
         decayed_inventories = [item.decay(t_second) for item in inventories]
-        for i in range(len(inventories)):
-            inventories[i].update(decayed_inventories[i])
-        df = IsotopeAbundances.from_inventories(inventories)
+        df = IsotopeAbundances.from_inventories(decayed_inventories)
         df.sort_index(inplace=True)
         return df
 
