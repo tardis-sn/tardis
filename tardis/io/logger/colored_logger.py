@@ -6,6 +6,9 @@ Code for Custom Logger Classes (ColoredFormatter and ColorLogger) and its helper
 http://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
 """
 
+FORMAT = "[$BOLD{name:20s}$RESET][{levelname:18s}]  \n\t{message:s} ($BOLD{filename:s}$RESET:{lineno:d})"
+DEBUG_FORMAT = "[$BOLD{name:20s}$RESET][{levelname:18s}]  {message:s} ($BOLD{filename:s}$RESET:{lineno:d})"
+
 
 def formatter_message(message, use_color=True):
     """
@@ -28,8 +31,10 @@ class ColoredFormatter(logging.Formatter):
     Custom logger class for changing levels color
     """
 
-    def __init__(self, msg, use_color=True):
-        logging.Formatter.__init__(self, msg)
+    def __init__(self, use_color=True):
+        self.non_debug = formatter_message(FORMAT, True)
+        self.debug = formatter_message(DEBUG_FORMAT, True)
+        logging.Formatter.__init__(self, self.non_debug, style="{")
         self.use_color = use_color
 
     def format(self, record):
@@ -43,12 +48,19 @@ class ColoredFormatter(logging.Formatter):
             "CRITICAL": YELLOW,
             "ERROR": RED,
         }
+
         levelname = record.levelname
         if self.use_color and levelname in COLORS:
             levelname_color = (
                 COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ
             )
             record.levelname = levelname_color
+
+        if record.levelno == logging.DEBUG:
+            self._style._fmt = self.debug
+        else:
+            self._style._fmt = self.non_debug
+
         return logging.Formatter.format(self, record)
 
 
@@ -57,7 +69,6 @@ class ColoredLogger(logging.Logger):
     Custom logger class with multiple destinations
     """
 
-    FORMAT = "[$BOLD%(name)-20s$RESET][%(levelname)-18s]  %(message)s ($BOLD%(filename)s$RESET:%(lineno)d)"
     COLOR_FORMAT = formatter_message(FORMAT, True)
 
     def __init__(self, name):

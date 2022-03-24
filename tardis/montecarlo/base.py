@@ -5,6 +5,7 @@ import warnings
 from astropy import units as u
 from tardis import constants as const
 from numba import set_num_threads
+from numba import cuda
 
 from scipy.special import zeta
 from tardis.montecarlo.spectrum import TARDISSpectrum
@@ -101,6 +102,7 @@ class MontecarloRunner(HDFWriterMixin):
         logger_buffer=1,
         single_packet_seed=None,
         tracking_rpacket=False,
+        use_gpu=False,
     ):
 
         self.seed = seed
@@ -124,6 +126,7 @@ class MontecarloRunner(HDFWriterMixin):
         self.seed = seed
         self._integrator = None
         self._spectrum_integrated = None
+        self.use_gpu=use_gpu
 
         self.virt_logging = virtual_packet_logging
         self.virt_packet_last_interaction_type = np.ones(2) * -1
@@ -163,6 +166,30 @@ class MontecarloRunner(HDFWriterMixin):
         self.j_blue_estimator = np.zeros(tau_sobolev_shape)
         self.Edotlu_estimator = np.zeros(tau_sobolev_shape)
         # TODO: this is the wrong attribute naming style.
+
+    def _initialize_continuum_estimator_arrays(self, gamma_shape):
+        """
+        Initialize the arrays for the MC estimators for continuum processes.
+
+        Parameters
+        ----------
+        gamma_shape : tuple
+            Shape of the array with the photoionization rate coefficients.
+        """
+        self.photo_ion_estimator = np.zeros(gamma_shape, dtype=np.float64)
+        self.stim_recomb_estimator = np.zeros(gamma_shape, dtype=np.float64)
+        self.stim_recomb_cooling_estimator = np.zeros(
+            gamma_shape, dtype=np.float64
+        )
+        self.bf_heating_estimator = np.zeros(gamma_shape, dtype=np.float64)
+
+        self.stim_recomb_cooling_estimator = np.zeros(
+            gamma_shape, dtype=np.float64
+        )
+
+        self.photo_ion_estimator_statistics = np.zeros(
+            gamma_shape, dtype=np.int64
+        )
 
     def _initialize_geometry_arrays(self, model):
         """
@@ -242,8 +269,11 @@ class MontecarloRunner(HDFWriterMixin):
     @property
     def spectrum_integrated(self):
         if self._spectrum_integrated is None:
+            #This was changed from unpacking to specific attributes as compute
+            #is not used in calculate_spectrum
             self._spectrum_integrated = self.integrator.calculate_spectrum(
-                self.spectrum_frequency[:-1], **self.integrator_settings
+                self.spectrum_frequency[:-1], points=self.integrator_settings.points, 
+                interpolate_shells=self.integrator_settings.interpolate_shells,
             )
         return self._spectrum_integrated
 
@@ -303,6 +333,13 @@ class MontecarloRunner(HDFWriterMixin):
 
         # Initializing estimator array
         self._initialize_estimator_arrays(plasma.tau_sobolevs.shape)
+
+        if not plasma.continuum_interaction_species.empty:
+            gamma_shape = plasma.gamma.shape
+        else:
+            gamma_shape = (0, 0)
+
+        self._initialize_continuum_estimator_arrays(gamma_shape)
 
         self._initialize_geometry_arrays(model)
 
@@ -604,6 +641,29 @@ class MontecarloRunner(HDFWriterMixin):
             config.spectrum.start.to("Hz", u.spectral()),
             num=config.spectrum.num + 1,
         )
+        running_mode=config.spectrum.integrated.compute.upper()
+        
+        if running_mode == "GPU":
+            if cuda.is_available():
+                use_gpu = True
+            else:
+                raise ValueError(
+                    """The GPU option was selected for the formal_integral,
+                    but no CUDA GPU is available."""
+                )
+        elif running_mode == "AUTOMATIC":
+            if cuda.is_available():
+                use_gpu = True
+            else:
+                use_gpu = False
+        elif running_mode == "CPU":
+            use_gpu = False
+        else:
+            raise ValueError(
+                """An invalid option for compute was passed. The three
+                valid values are 'GPU', 'CPU', and 'Automatic'."""
+            )
+        
         mc_config_module.disable_line_scattering = (
             config.plasma.disable_line_scattering
         )
@@ -633,4 +693,5 @@ class MontecarloRunner(HDFWriterMixin):
                 | virtual_packet_logging
             ),
             tracking_rpacket=config.montecarlo.tracking.track_rpacket,
+            use_gpu=use_gpu,
         )

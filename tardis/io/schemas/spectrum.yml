@@ -36,6 +36,21 @@ properties:
             integral quantities are interpolated. For -1 no interpolation
             is used. The default is to use twice the number of computational
             shells but at least 80.
+      compute:
+          type: string
+          default: "CPU"
+          description: Which method the formal_integral will be computed with.
+            It defaults to the Numba version, but it can be run on NVIDIA Cuda
+            GPUs. GPU will make it only run on a NVIDIA Cuda GPU, so if one is 
+            not available it will raise an error. Automatic first tries to find
+            an acceptable GPU, and if none is found it will run on the CPU.
+          properties:
+            type:
+              enum:
+                - "CPU"
+                - "GPU"
+                - "Automatic"
+            
   virtual:
     type: object
     default: {}

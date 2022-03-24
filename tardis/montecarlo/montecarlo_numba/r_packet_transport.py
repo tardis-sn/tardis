@@ -3,18 +3,26 @@ from numba import njit
 
 from tardis.montecarlo import montecarlo_configuration
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
-from tardis.montecarlo.montecarlo_numba.calculate_distances import \
-    calculate_distance_boundary, calculate_distance_electron, \
-    calculate_distance_line
-from tardis.montecarlo.montecarlo_numba.estimators import \
-    update_line_estimators, set_estimators, set_estimators_full_relativity
-from tardis.montecarlo.montecarlo_numba.frame_transformations import \
-    get_doppler_factor
-from tardis.montecarlo.montecarlo_numba.numba_config import \
-    ENABLE_FULL_RELATIVITY
+from tardis.montecarlo.montecarlo_numba.calculate_distances import (
+    calculate_distance_boundary,
+    calculate_distance_electron,
+    calculate_distance_line,
+)
+from tardis.montecarlo.montecarlo_numba.estimators import (
+    update_line_estimators,
+    set_estimators,
+)
+from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+    get_doppler_factor,
+)
+from tardis.montecarlo.montecarlo_numba.numba_config import (
+    ENABLE_FULL_RELATIVITY,
+)
 from tardis.montecarlo.montecarlo_numba.opacities import calculate_tau_electron
-from tardis.montecarlo.montecarlo_numba.r_packet import InteractionType, \
-    PacketStatus
+from tardis.montecarlo.montecarlo_numba.r_packet import (
+    InteractionType,
+    PacketStatus,
+)
 
 
 @njit(**njit_dict_no_parallel)
@@ -66,11 +74,11 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     cur_line_id = start_line_id  # initializing varibale for Numba
     # - do not remove
     last_line_id = len(numba_plasma.line_list_nu) - 1
+
     for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
 
         # Going through the lines
         nu_line = numba_plasma.line_list_nu[cur_line_id]
-        nu_line_last_interaction = numba_plasma.line_list_nu[cur_line_id - 1]
 
         # Getting the tau for the next line
         tau_trace_line = numba_plasma.tau_sobolev[
@@ -114,7 +122,6 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
             and (distance_electron < distance_boundary)
         ) and distance_trace != 0.0:
             interaction_type = InteractionType.ESCATTERING
-            # print('scattering')
             distance = distance_electron
             r_packet.next_line_id = cur_line_id
             break
@@ -157,12 +164,9 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
         if distance_electron < distance_boundary:
             distance = distance_electron
             interaction_type = InteractionType.ESCATTERING
-            # print('scattering')
         else:
             distance = distance_boundary
             interaction_type = InteractionType.BOUNDARY
-
-    # r_packet.next_line_id = cur_line_id
 
     return distance, interaction_type, delta_shell
 
@@ -197,21 +201,13 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
         comov_nu = r_packet.nu * doppler_factor
         comov_energy = r_packet.energy * doppler_factor
 
-        if not ENABLE_FULL_RELATIVITY:
-            set_estimators(
-                r_packet, distance, numba_estimator, comov_nu, comov_energy
-            )
+        # Account for length contraction and angle aberration
+        if ENABLE_FULL_RELATIVITY:
+            distance *= doppler_factor
 
-        else:
-            distance = distance * doppler_factor
-            set_estimators_full_relativity(
-                r_packet,
-                distance,
-                numba_estimator,
-                comov_nu,
-                comov_energy,
-                doppler_factor,
-            )
+        set_estimators(
+            r_packet, distance, numba_estimator, comov_nu, comov_energy
+        )
 
 
 @njit(**njit_dict_no_parallel)

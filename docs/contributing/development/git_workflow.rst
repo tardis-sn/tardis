@@ -364,6 +364,8 @@ To make sure that your changes are still working on the new master, you want to
 *rebase* your branch on top of the evolved master.
 
 
+.. _rebase-on-trunk:
+
 Rebasing on trunk
 ^^^^^^^^^^^^^^^^^
 

@@ -46,6 +46,11 @@ def estimators():
         Edotlu_estimator=np.array(
             [[0.0, 0.0, 1.0], [0.0, 0.0, 1.0]], dtype=np.float64
         ),
+        photo_ion_estimator=np.empty((0, 0), dtype=np.float64),
+        stim_recomb_estimator=np.empty((0, 0), dtype=np.float64),
+        bf_heating_estimator=np.empty((0, 0), dtype=np.float64),
+        stim_recomb_cooling_estimator=np.empty((0, 0), dtype=np.float64),
+        photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64)
     )
 
 
@@ -249,9 +254,9 @@ def test_update_line_estimators(
     assert_allclose(estimators.j_blue_estimator, expected_j_blue)
     assert_allclose(estimators.Edotlu_estimator, expected_Edotlu)
 
-
-@pytest.mark.xfail(reason="Need to fix estimator differences across runs")
 # TODO set RNG consistently
+# TODO: update this test to use the correct trace_packet
+@pytest.mark.xfail(reason="Need to fix estimator differences across runs")
 def test_trace_packet(
     packet,
     verysimple_numba_model,

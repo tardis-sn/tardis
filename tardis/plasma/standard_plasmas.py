@@ -89,7 +89,7 @@ def assemble_plasma(config, model, atom_data=None):
         else:
             raise ValueError("No atom_data option found in the configuration.")
 
-        logger.info(f"Reading Atomic Data from {atom_data_fname}")
+        logger.info(f"\n\tReading Atomic Data from {atom_data_fname}")
 
         try:
             atom_data = AtomData.from_hdf(atom_data_fname)
@@ -170,6 +170,7 @@ def assemble_plasma(config, model, atom_data=None):
         kwargs.update(
             gamma_estimator=None,
             bf_heating_coeff_estimator=None,
+            stim_recomb_cooling_coeff_estimator=None,
             alpha_stim_estimator=None,
             volume=model.volume,
             r_inner=model.r_inner,
@@ -214,7 +215,8 @@ def assemble_plasma(config, model, atom_data=None):
         plasma_modules += non_nlte_properties
 
     if config.plasma.line_interaction_type in ("downbranch", "macroatom"):
-        plasma_modules += macro_atom_properties
+        if not config.plasma.continuum_interaction.species:
+            plasma_modules += macro_atom_properties
 
     if "delta_treatment" in config.plasma:
         property_kwargs[RadiationFieldCorrection] = dict(
