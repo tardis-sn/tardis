@@ -574,7 +574,7 @@ def convert_abundances_format(fname, delimiter=r"\s+"):
     # Drop shell index column
     df.drop(df.columns[0], axis=1, inplace=True)
     # Assign header row
-    df.columns = [Nuclide(i).nuclide for i in range(1, df.shape[1] + 1)]
+    df.columns = [Z_DICT[i] for i in range(1, df.shape[1] + 1)]
     return df
 
 
