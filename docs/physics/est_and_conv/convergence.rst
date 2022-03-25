@@ -40,7 +40,7 @@ where :math:`L_\mathrm{output}` is the output luminosity calculated by adding up
 After calculating the estimated :math:`T_\mathrm{inner}`, the quantity is updated using damped convergence with its own damping constant (once again set in the convergence configuration):
 
 .. math::
-    T_\mathrm{rad\ updated} = T_\mathrm{rad\ current} + d_{T_\mathrm{rad}}(T_\mathrm{rad\ estimated}-T_\mathrm{rad\ current}).
+    T_\mathrm{inner\ updated} = T_\mathrm{inner\ current} + d_{T_\mathrm{inner}}(T_\mathrm{inner\ estimated}-T_\mathrm{inner\ current}).
 
 Once again, If the damping constant is 1, then the updated value is exactly the estimated value, and if the damping constant is zero, the value stays the same throughout the simulation and is not updated.
 
