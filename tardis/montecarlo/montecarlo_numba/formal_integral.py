@@ -18,9 +18,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     NumbaModel,
     NumbaPlasma,
 )
-
 from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import CudaFormalIntegrator
-
 
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
