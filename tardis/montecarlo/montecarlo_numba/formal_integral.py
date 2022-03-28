@@ -274,6 +274,7 @@ class FormalIntegrator(object):
             )
             self.atomic_data = plasma.atomic_data
             self.original_plasma = plasma
+            self.levels_index = plasma.levels
 
     def generate_numba_objects(self):
         """instantiate the numba interface objects
@@ -387,7 +388,7 @@ class FormalIntegrator(object):
         #macro_data = self.atomic_data.macro_atom_data
         macro_data = self.original_plasma.macro_atom_data
 
-        no_lvls = len(self.atomic_data.levels)
+        no_lvls = len(self.levels_index)
         no_shells = len(model.w)
 
         if runner.line_interaction_type == "macroatom":

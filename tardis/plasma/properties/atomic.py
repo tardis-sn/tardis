@@ -72,8 +72,7 @@ class Levels(BaseAtomicDataProperty):
     )
 
     def _filter_atomic_property(self, levels, selected_atoms):
-        return levels
-        # return levels[levels.atomic_number.isin(selected_atoms)]
+        return levels[levels.index.isin(selected_atoms, level="atomic_number")]
 
     def _set_index(self, levels):
         # levels = levels.set_index(['atomic_number', 'ion_number',
