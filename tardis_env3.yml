@@ -58,6 +58,7 @@ dependencies:
   - nbsphinx
   - docutils=0.16  # Issue #1522
   - snakeviz
+  - Jinja2=3.0.3 # github.com/spatialaudio/nbsphinx/issues/641
 
   # Test/Coverage
   - pytest
