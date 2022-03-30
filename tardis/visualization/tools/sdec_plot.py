@@ -7,7 +7,7 @@ proposed by M. Kromer (see, for example, Kromer et al. 2013, figure 4).
 import numpy as np
 import pandas as pd
 import astropy.units as u
-import astropy.modeling.blackbody as abb
+import astropy.constants as const
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -21,6 +21,7 @@ from tardis.util.base import (
     species_tuple_to_string,
     roman_to_int,
     int_to_roman,
+    intensity_black_body,
 )
 from tardis.visualization import plot_util as pu
 
@@ -1065,12 +1066,14 @@ class SDECPlotter:
             of TARDIS simulation)
         """
         L_lambda_ph = (
-            abb.blackbody_lambda(
-                self.plot_wavelength,
+            intensity_black_body(
+                const.c.to("cm / s").value / self.plot_wavelength,
                 self.data[packets_mode].t_inner,
             )
+            * u.erg
+            / u.s
             * 4
-            * np.pi ** 2
+            * np.pi**2
             * self.data[packets_mode].r_inner[0] ** 2
             * u.sr
         ).to("erg / (AA s)")
