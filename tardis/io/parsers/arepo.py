@@ -232,7 +232,7 @@ class Profile:
 
         ax2.grid()
         ax2.set_ylabel("Profile (arb. unit)")
-        ax2.set_xlabel("Radial position (cm)")  # TODO astropy unit support
+        ax2.set_xlabel("Radial position (cm)")
         ax2.set_title("Profiles along the positive axis")
 
         # Some styling
@@ -499,17 +499,10 @@ class ConeProfile(Profile):
             Inner radius where the profiles will be cut off. Default: None
         outer_radius : float
             Outer radius where the profiles will be cut off. Default: None
-        show_plot : bool
-            Specifies if a plot is to be shown after the creation of the
-            profile. Default: True
-        save_plot : str
-            Location where the plot is being saved. Default: None
-        plot_dpi : int
-            Dpi of the saved plot. Default: 600
 
         Returns
         -------
-        profile : LineProfile object
+        profile : ConeProfile object
 
         """
 
@@ -625,9 +618,6 @@ class ConeProfile(Profile):
         self.pos_prof_p = self.pos_prof_p[mask_p]
         self.pos_prof_n = self.pos_prof_n[mask_n]
 
-        if show_plot:
-            self.plot_profile(save=save_plot, dpi=plot_dpi)
-
         return self
 
 
@@ -656,17 +646,10 @@ class FullProfile(Profile):
             Inner radius where the profiles will be cut off. Default: None
         outer_radius : float
             Outer radius where the profiles will be cut off. Default: None
-        show_plot : bool
-            Specifies if a plot is to be shown after the creation of the
-            profile. Default: True
-        save_plot : str
-            Location where the plot is being saved. Default: None
-        plot_dpi : int
-            Dpi of the saved plot. Default: 600
 
         Returns
         -------
-        profile : LineProfile object
+        profile : FullProfile object
 
         """
 
@@ -756,9 +739,6 @@ class FullProfile(Profile):
         self.pos_prof_p = self.pos_prof_p[mask_p]
         self.pos_prof_n = self.pos_prof_n[mask_n]
 
-        if show_plot:
-            self.plot_profile(save=save_plot, dpi=plot_dpi)
-
         return self
 
 
@@ -843,12 +823,9 @@ if __name__ == "__main__":
         default="cone",
         choices=["cone", "full"],
     )
-    parser.add_argument("--save_plot", help="File name of saved plot.")
+    parser.add_argument("--plot", help="File name of saved plot.")
     parser.add_argument(
         "--dpi", help="Dpi of saved plot. Default: 600", type=int, default=600
-    )
-    parser.add_argument(
-        "--plot_rebinned", help="File name of plot after rebinning"
     )
 
     args = parser.parse_args()
@@ -877,18 +854,14 @@ if __name__ == "__main__":
             opening_angle=args.opening_angle,
             inner_radius=args.inner_radius,
             outer_radius=args.outer_radius,
-            save_plot=args.save_plot,
-            plot_dpi=args.dpi,
         )
     else:
         profile.create_profile(
             inner_radius=args.inner_radius,
             outer_radius=args.outer_radius,
-            save_plot=args.save_plot,
-            plot_dpi=args.dpi,
         )
 
     profile.export(args.nshells, args.save)
 
-    if args.plot_rebinned:
-        profile.plot_profile(save=args.plot_rebinned, dpi=args.dpi)
+    if args.plot:
+        profile.plot_profile(save=args.plot, dpi=args.dpi)
