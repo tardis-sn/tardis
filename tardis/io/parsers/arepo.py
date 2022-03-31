@@ -18,9 +18,6 @@ class ArepoSnapshot:
         alpha=0.0,
         beta=0.0,
         gamma=0.0,
-        boxsize=1e12,
-        resolution=512,
-        numthreads=4,
     ):
         """
         Loads relevant data for conversion from Arepo snapshot to a
@@ -50,16 +47,6 @@ class ArepoSnapshot:
             Euler angle gamma for rotation of the desired line-
             of-sight to the x-axis. Only usable with snapshots.
             Default: 0.0
-        boxsize : float
-            Size of the box (in cm) from which data is mapped
-            to a Cartesian grid. Only usable with snapshots.
-            Default: 1e12
-        resolution : int
-            Resolution of the Cartesian grid. Only usable
-            with snapshots. Default: 512
-        numthreads : int
-            Number of threads with which Cartesian mapping
-            is done. Default: 4
         """
 
         try:
@@ -112,156 +99,18 @@ class ArepoSnapshot:
         self.s.rotateto(rotmat[0], dir2=rotmat[1], dir3=rotmat[2])
 
         self.time = self.s.time
-
-        self.pos = np.array(
-            self.s.mapOnCartGrid(
-                "pos",
-                box=[boxsize, boxsize, boxsize],
-                center=self.s.centerofmass(),
-                res=resolution,
-                numthreads=numthreads,
-            )
-        )
+        self.pos = np.array(self.s.data["pos"][: self.s.nparticlesall[0]])
+        self.pos = self.pos.T
+        # Update position to CoM frame
         for i in range(3):
             self.pos[i] -= self.s.centerofmass()[i]
-
-        self.rho = np.array(
-            self.s.mapOnCartGrid(
-                "rho",
-                box=[boxsize, boxsize, boxsize],
-                center=self.s.centerofmass(),
-                res=resolution,
-                numthreads=numthreads,
-            )
-        )
-
-        self.vel = np.array(
-            self.s.mapOnCartGrid(
-                "vel",
-                box=[boxsize, boxsize, boxsize],
-                center=self.s.centerofmass(),
-                res=resolution,
-                numthreads=numthreads,
-            )
-        )
-
+        self.rho = np.array(self.s.data["rho"])
+        self.vel = np.array(self.s.data["vel"][: self.s.nparticlesall[0]])
+        self.vel = self.vel.T
         self.nuc_dict = {}
 
         for i, spec in enumerate(self.species):
-            self.nuc_dict[spec] = np.array(
-                self.nucMapOnCartGrid(
-                    self.s,
-                    spec,
-                    self.spec_ind[i],
-                    box=[boxsize, boxsize, boxsize],
-                    res=resolution,
-                    center=self.s.centerofmass(),
-                    numthreads=numthreads,
-                )
-            )
-
-    def nucMapOnCartGrid(
-        self,
-        snapshot,
-        species,
-        ind,
-        box,
-        res=512,
-        numthreads=1,
-        value="xnuc",
-        center=False,
-        saveas=False,
-        use_only_cells=None,
-    ):
-        """
-        Helper funciton to extract nuclear composition from snapshots
-        """
-
-        try:
-            import pylab
-            import calcGrid
-        except ModuleNotFoundError:
-            raise ImportError(
-                "Please make sure you have arepo-snap-util installed if you want to directly import Arepo snapshots."
-            )
-        if type(center) == list:
-            center = pylab.array(center)
-        elif type(center) != np.ndarray:
-            center = snapshot.center
-
-        if type(box) == list:
-            box = pylab.array(box)
-        elif type(box) != np.ndarray:
-            box = np.array(
-                [snapshot.boxsize, snapshot.boxsize, snapshot.boxsize]
-            )
-
-        if type(res) == list:
-            res = pylab.array(res)
-        elif type(res) != np.ndarray:
-            res = np.array([res] * 3)
-
-        if use_only_cells is None:
-            use_only_cells = np.arange(snapshot.nparticlesall[0], dtype="int32")
-
-        pos = snapshot.pos[use_only_cells, :].astype("float64")
-        px = np.abs(pos[:, 0] - center[0])
-        py = np.abs(pos[:, 1] - center[1])
-        pz = np.abs(pos[:, 2] - center[2])
-
-        (pp,) = np.where(
-            (px < 0.5 * box[0]) & (py < 0.5 * box[1]) & (pz < 0.5 * box[2])
-        )
-        print("Selected %d of %d particles." % (pp.size, snapshot.npart))
-
-        posdata = pos[pp]
-        valdata = snapshot.data[value][use_only_cells, ind][pp].astype(
-            "float64"
-        )
-
-        if valdata.ndim == 1:
-            data = calcGrid.calcASlice(
-                posdata,
-                valdata,
-                nx=res[0],
-                ny=res[1],
-                nz=res[2],
-                boxx=box[0],
-                boxy=box[1],
-                boxz=box[2],
-                centerx=center[0],
-                centery=center[1],
-                centerz=center[2],
-                grid3D=True,
-                numthreads=numthreads,
-            )
-            grid = data["grid"]
-        else:
-            # We are going to generate ndim 3D grids and stack them together
-            # in a grid of shape (valdata.shape[1],res,res,res)
-            grid = []
-            for dim in range(valdata.shape[1]):
-                data = calcGrid.calcASlice(
-                    posdata,
-                    valdata[:, dim],
-                    nx=res[0],
-                    ny=res[1],
-                    nz=res[2],
-                    boxx=box[0],
-                    boxy=box[1],
-                    boxz=box[2],
-                    centerx=center[0],
-                    centery=center[1],
-                    centerz=center[2],
-                    grid3D=True,
-                    numthreads=numthreads,
-                )
-                grid.append(data["grid"])
-            grid = np.stack([subgrid for subgrid in grid])
-        if saveas:
-            grid.tofile(saveas)
-
-        return grid
+            self.nuc_dict[spec] = np.array(self.s.data["xnuc"][:, self.spec_ind[i]])
 
     def get_grids(self):
         """
@@ -993,18 +842,6 @@ if __name__ == "__main__":
         help="How to build profile. Available options: [cone, full]. Default: cone",
         default="cone",
         choices=["cone", "full"],
-    )
-    parser.add_argument(
-        "--resolution",
-        help="Resolution of Cartesian grid extracted from snapshot. Default: 512",
-        type=int,
-        default=512,
-    )
-    parser.add_argument(
-        "--numthreads",
-        help="Number of threads used in snapshot tree walk. Default: 4",
-        type=int,
-        default=4,
     )
     parser.add_argument("--save_plot", help="File name of saved plot.")
     parser.add_argument(
