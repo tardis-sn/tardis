@@ -622,146 +622,6 @@ class Profile:
         )
 
 
-class LineProfile(Profile):
-    """
-    Class for profiles extrected along a line, i.e. the x-axis.
-    Extends Profile.
-    """
-
-    def create_profile(
-        self,
-        inner_radius=None,
-        outer_radius=None,
-        show_plot=True,
-        save_plot=None,
-        plot_dpi=600,
-    ):
-        """
-        Creates a profile along the x-axis
-
-        Parameters
-        ----------
-        inner_radius : float
-            Inner radius where the profiles will be cut off. Default: None
-        outer_radius : float
-            Outer radius where the profiles will be cut off. Default: None
-        show_plot : bool
-            Specifies if a plot is to be shown after the creation of the
-            profile. Default: True
-        save_plot : str
-            Location where the plot is being saved. Default: None
-        plot_dpi : int
-            Dpi of the saved plot. Default: 600
-
-        Returns
-        -------
-        profile : LineProfile object
-
-        """
-
-        midpoint = int(np.ceil(len(self.rho) / 2))
-
-        # Extract radialprofiles
-        pos_p = np.sqrt(
-            (self.pos[0, midpoint, midpoint:, midpoint]) ** 2
-            + (self.pos[1, midpoint, midpoint:, midpoint]) ** 2
-            + (self.pos[2, midpoint, midpoint:, midpoint]) ** 2
-        )
-        pos_n = np.sqrt(
-            self.pos[0, midpoint, :midpoint, midpoint] ** 2
-            + self.pos[1, midpoint, :midpoint, midpoint] ** 2
-            + self.pos[2, midpoint, :midpoint, midpoint] ** 2
-        )
-
-        vel_p = np.sqrt(
-            self.vel[0, midpoint, midpoint:, midpoint] ** 2
-            + self.vel[1, midpoint, midpoint:, midpoint] ** 2
-            + self.vel[2, midpoint, midpoint:, midpoint] ** 2
-        )
-        vel_n = np.sqrt(
-            self.vel[0, midpoint, :midpoint, midpoint] ** 2
-            + self.vel[1, midpoint, :midpoint, midpoint] ** 2
-            + self.vel[2, midpoint, :midpoint, midpoint] ** 2
-        )
-
-        rho_p = self.rho[midpoint, midpoint:, midpoint]
-        rho_n = self.rho[midpoint, :midpoint, midpoint]
-
-        spec_p = {}
-        spec_n = {}
-
-        for spec in self.species:
-            spec_p[spec] = self.xnuc[spec][midpoint, midpoint:, midpoint]
-            spec_n[spec] = self.xnuc[spec][midpoint, :midpoint, midpoint]
-
-        self.pos_prof_p = np.sort(pos_p)
-        self.pos_prof_n = np.sort(pos_n)
-
-        if outer_radius is None:
-            maxradius_p = max(self.pos_prof_p)
-            maxradius_n = max(self.pos_prof_n)
-        else:
-            maxradius_p = outer_radius
-            maxradius_n = outer_radius
-
-        if inner_radius is None:
-            minradius_p = min(self.pos_prof_p)
-            minradius_n = min(self.pos_prof_n)
-        else:
-            minradius_p = inner_radius
-            minradius_n = inner_radius
-
-        mask_p = np.logical_and(
-            self.pos_prof_p >= minradius_p, self.pos_prof_p <= maxradius_p
-        )
-        mask_n = np.logical_and(
-            self.pos_prof_n >= minradius_n, self.pos_prof_n <= maxradius_n
-        )
-
-        if not mask_p.any() or not mask_n.any():
-            raise ValueError("No points left between inner and outer radius.")
-
-        self.rho_prof_p = np.array(
-            [x for _, x in sorted(zip(pos_p, rho_p), key=lambda pair: pair[0])]
-        )[mask_p]
-        self.rho_prof_n = np.array(
-            [x for _, x in sorted(zip(pos_n, rho_n), key=lambda pair: pair[0])]
-        )[mask_n]
-
-        self.vel_prof_p = np.array(
-            [x for _, x in sorted(zip(pos_p, vel_p), key=lambda pair: pair[0])]
-        )[mask_p]
-        self.vel_prof_n = np.array(
-            [x for _, x in sorted(zip(pos_n, vel_n), key=lambda pair: pair[0])]
-        )[mask_n]
-
-        for spec in self.species:
-            self.xnuc_prof_p[spec] = np.array(
-                [
-                    x
-                    for _, x in sorted(
-                        zip(pos_p, spec_p[spec]), key=lambda pair: pair[0]
-                    )
-                ]
-            )[mask_p]
-            self.xnuc_prof_n[spec] = np.array(
-                [
-                    x
-                    for _, x in sorted(
-                        zip(pos_n, spec_n[spec]), key=lambda pair: pair[0]
-                    )
-                ]
-            )[mask_n]
-
-        self.pos_prof_p = self.pos_prof_p[mask_p]
-        self.pos_prof_n = self.pos_prof_n[mask_n]
-
-        if show_plot:
-            self.plot_profile(save=save_plot, dpi=plot_dpi)
-
-        return self
-
-
 class ConeProfile(Profile):
     """
     Class for profiles extracted inside a cone around the x-axis.
@@ -1130,9 +990,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--profile",
-        help="How to build profile. Available options: [line, cone, full]. Default: cone",
+        help="How to build profile. Available options: [cone, full]. Default: cone",
         default="cone",
-        choices=["line", "cone", "full"],
+        choices=["cone", "full"],
     )
     parser.add_argument(
         "--resolution",
@@ -1170,9 +1030,7 @@ if __name__ == "__main__":
 
     pos, vel, rho, xnuc, time = snapshot.get_grids()
 
-    if args.profile == "line":
-        profile = LineProfile(pos, vel, rho, xnuc, time)
-    elif args.profile == "cone":
+    if args.profile == "cone":
         profile = ConeProfile(pos, vel, rho, xnuc, time)
     elif args.profile == "full":
         profile = FullProfile(pos, vel, rho, xnuc, time)
