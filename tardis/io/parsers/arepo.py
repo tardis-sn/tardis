@@ -110,7 +110,9 @@ class ArepoSnapshot:
         self.nuc_dict = {}
 
         for i, spec in enumerate(self.species):
-            self.nuc_dict[spec] = np.array(self.s.data["xnuc"][:, self.spec_ind[i]])
+            self.nuc_dict[spec] = np.array(
+                self.s.data["xnuc"][:, self.spec_ind[i]]
+            )
 
     def get_grids(self):
         """
@@ -233,7 +235,7 @@ class Profile:
         ax2.grid()
         ax2.set_ylabel("Profile (arb. unit)")
         ax2.set_xlabel("Radial position (cm)")
-        ax2.set_title("Profiles along the positive axis")
+        ax2.set_title("Profiles along the negative axis")
 
         # Some styling
         fig.tight_layout()
