@@ -10,6 +10,10 @@ from tardis.energy_input.util import (
     solve_quadratic_equation,
     convert_half_life_to_astropy_units,
     cartesian_to_spherical,
+    C_CGS,
+)
+from tardis.util.base import (
+    atomic_number2element_symbol,
 )
 import tardis.constants as const
 
@@ -56,7 +60,7 @@ def distance_trace(
     inner_radii,
     outer_radii,
     total_opacity,
-    time_explosion,
+    time,
 ):
     """
     Traces distance traveled by gamma ray and finds distance to
@@ -68,7 +72,7 @@ def distance_trace(
     inner_radii : One dimensional Numpy array, dtype float
     outer_radii : One dimensional Numpy array, dtype float
     total_opacity : float
-    time_explosion : float
+    time : float
 
     Returns
     -------
@@ -83,8 +87,10 @@ def distance_trace(
     )
 
     # time explosion here gets us into the correct km/s units as opacity is 1/distance
-    distance_interaction = photon.tau / total_opacity / time_explosion
-    return distance_interaction, distance_boundary
+    # NOT QUITE CORRECT TIME RIGHT NOW!
+    distance_interaction = photon.tau / total_opacity / time
+    distance_time = (time - photon.time_current) * C_CGS
+    return distance_interaction, distance_boundary, distance_time
 
 
 @njit
@@ -316,6 +322,48 @@ def compute_required_packets_per_shell(
         activity_df,
     )
 
+def mass_fraction_packets_per_shell(
+    shell_masses,
+    isotope_abundance,
+    number_of_packets,
+):
+
+    if "Fe56" in isotope_abundance.columns:
+        unstable_isotope_abundance = isotope_abundance.drop(columns="Fe56", inplace=False)
+    else:
+        unstable_isotope_abundance = isotope_abundance
+
+    mass_fraction_df = unstable_isotope_abundance.copy().multiply(shell_masses, axis='index')
+    total_mass_fraction_of_nuclides = mass_fraction_df.sum().sum()
+
+    for column in mass_fraction_df:
+        mass_fraction_df[column] = round((mass_fraction_df[column] / total_mass_fraction_of_nuclides) * number_of_packets).astype(int)
+
+    return mass_fraction_df
+
+
+def get_decay_database(
+    isotope_abundance,
+):
+    for column in isotope_abundance:
+        if column == "Fe56":
+            continue
+        store_decay_radiation(column, force_update=False)
+
+    decay_rad_db, meta = get_decay_radiation_database()
+
+    return decay_rad_db, meta
+
+def get_tau(meta, isotope_string):
+    isotope_meta = meta.loc[isotope_string]
+    half_life = isotope_meta.loc[
+        isotope_meta["key"] == "Parent T1/2 value"
+    ]["value"].values[0]
+    half_life = convert_half_life_to_astropy_units(half_life)
+    return half_life / np.log(2)
+
+def get_isotope_string(atom_number, atom_mass):
+    return atomic_number2element_symbol(atom_number) + str(atom_mass)
 
 def read_artis_lines(isotope):
     return pd.read_csv(

@@ -56,7 +56,7 @@ class GXPacket(object):
         nu_cmf,
         status,
         shell,
-        activity,
+        time_current
     ):
         self.location_r = location_r
         self.location_theta = location_theta
@@ -71,10 +71,9 @@ class GXPacket(object):
         self.status = status
         self.shell = shell
         self.time_created = 0
-        self.time_current = 0
+        self.time_current = time_current
         # TODO: rename to tau_event
         self.tau = -np.log(np.random.random())
-        self.activity = 0
 
     def get_location_cartesian_coords(self):
         x = (
