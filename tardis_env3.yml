@@ -11,7 +11,7 @@ dependencies:
   - numpy=1.19
   - scipy=1.5
   - pandas=1.0
-  - astropy>=4.1
+  - astropy=3
   - numba=0.53
   - numexpr
   - radioactivedecay>=0.4.12
