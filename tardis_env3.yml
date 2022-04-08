@@ -68,7 +68,7 @@ dependencies:
   - coverage
 
   # Code quality
-  - black=21.12b0
+  - black=22.3.0
 
   # Other
   - git-lfs
