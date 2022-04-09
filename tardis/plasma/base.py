@@ -317,7 +317,7 @@ class BasePlasma(PlasmaWriterMixin):
         for edge in print_graph.edges:
             label = print_graph.edges[edge]["label"]
             print_graph.edges[edge]["label"] = " "
-            if latex_label:
+            if latex_label is not None:
                 print_graph.edges[edge]["texlbl"] = label
 
         nx.drawing.nx_agraph.write_dot(print_graph, fname)
