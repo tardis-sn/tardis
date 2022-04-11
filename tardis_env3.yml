@@ -4,17 +4,17 @@ channels:
   - conda-forge
 
 dependencies:
-  - python=3.7
+  - python=3.8
   - setuptools
   - setuptools_scm
   - pip
   - numpy=1.19
   - scipy=1.5
-  - pandas=1.0
-  - astropy=3
+  - pandas=1.1
+  - astropy=4
   - numba=0.53
   - numexpr
-  - radioactivedecay>=0.4.12
+  - radioactivedecay=0.4
 
   # Plasma
   - networkx
@@ -25,19 +25,17 @@ dependencies:
   - jsonschema=3 # Issue #1807
   - pytables
   - h5py
-  - pickle5 # Issue #1566
   - requests
   - tqdm
 
   # Widgets & Visualization
-  - jupyter
-  - matplotlib
+  - notebook
+  - matplotlib-base
   - ipywidgets
   - plotly
   - qgrid
-  # - pyside2  # (Qt GUI) Issue #1652
 
-  # --- Not required for conda-forge package and Numba integration pipeline ---
+  # --- Not required for conda-forge package ---
 
   # tardis-sn/nuclear dependencies
   - beautifulsoup4
@@ -58,7 +56,8 @@ dependencies:
   - nbsphinx
   - docutils=0.16 # Issue #1522
   - snakeviz
-  - Jinja2=3.0.3 # github.com/spatialaudio/nbsphinx/issues/641
+  - Jinja2=3.0 # github.com/spatialaudio/nbsphinx/issues/641
+  - dot2tex
 
   # Test/Coverage
   - pytest
@@ -72,6 +71,3 @@ dependencies:
 
   # Other
   - git-lfs
-
-  - pip:
-      - dot2tex # conda-forge package requires python>=3.8
