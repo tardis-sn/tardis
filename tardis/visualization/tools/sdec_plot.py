@@ -7,7 +7,7 @@ proposed by M. Kromer (see, for example, Kromer et al. 2013, figure 4).
 import numpy as np
 import pandas as pd
 import astropy.units as u
-import astropy.modeling.blackbody as abb
+from astropy.modeling.models import BlackBody
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -1065,9 +1065,9 @@ class SDECPlotter:
             of TARDIS simulation)
         """
         L_lambda_ph = (
-            abb.blackbody_lambda(
-                self.plot_wavelength,
+            BlackBody(
                 self.data[packets_mode].t_inner,
+                scale=1.0 * u.erg / (u.cm ** 2 * u.AA * u.s * u.sr)
             )
             * 4
             * np.pi ** 2

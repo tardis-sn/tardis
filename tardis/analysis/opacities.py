@@ -4,7 +4,7 @@ import logging
 import numpy as np
 import astropy.units as units
 import astropy.constants as csts
-from astropy.modeling.blackbody import blackbody_nu
+from astropy.modeling.models import Blackbody
 
 logger = logging.getLogger(__name__)
 
@@ -375,7 +375,7 @@ class opacity_calculator(object):
             T = self.mdl.plasma.t_rad[i]
 
             tmp = (
-                blackbody_nu(self.nu_bins[:-1], T)
+                Blackbody(self.nu_bins[:-1], T)
                 * delta_nu
                 * self.kappa_tot[:, 0]
             ).sum()
