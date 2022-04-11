@@ -9,7 +9,8 @@ import pandas as pd
 import yaml
 from tardis import constants
 from astropy import units as u
-from pyne import nucname
+from radioactivedecay import Nuclide, DEFAULTDATA
+from radioactivedecay.utils import parse_nuclide, Z_DICT
 
 import tardis
 from tardis.io.util import get_internal_data_path
@@ -180,7 +181,7 @@ def calculate_luminosity(
     )
 
     flux_density = np.trapz(flux, wavelength) * (flux_unit * wavelength_unit)
-    luminosity = (flux_density * 4 * np.pi * distance ** 2).to("erg/s")
+    luminosity = (flux_density * 4 * np.pi * distance**2).to("erg/s")
 
     return luminosity.value, wavelength.min(), wavelength.max()
 
@@ -305,7 +306,7 @@ def intensity_black_body(nu, T):
         Returns the intensity of the black body
     """
     beta_rad = 1 / (k_B_cgs * T)
-    coefficient = 2 * h_cgs / c_cgs ** 2
+    coefficient = 2 * h_cgs / c_cgs**2
     intensity = ne.evaluate(
         "coefficient * nu**3 / " "(exp(h_cgs * nu * beta_rad) -1 )"
     )
@@ -491,6 +492,33 @@ def reformat_element_symbol(element_string):
     return element_string[0].upper() + element_string[1:].lower()
 
 
+def is_valid_nuclide_or_elem(input_nuclide):
+    """
+    Parses nuclide string into symbol - mass number format and returns
+    whether the nuclide is either contained in the decay dataset or is a
+    raw element string.
+
+    Parameters
+    ----------
+    input_nuclide : str or int
+        Nuclide name string or element string.
+
+    Returns
+    -------
+    bool
+        Bool indicating if the input nuclide is contained in the decay dataset
+        or is a valid element.
+    """
+
+    try:
+        parse_nuclide(input_nuclide, DEFAULTDATA.nuclides, "ICRP-107")
+        is_nuclide = True
+    except:
+        is_nuclide = True if input_nuclide in Z_DICT.values() else False
+
+    return is_nuclide
+
+
 def quantity_linspace(start, stop, num, **kwargs):
     """
     Essentially the same input parameters as linspace, but
@@ -546,7 +574,7 @@ def convert_abundances_format(fname, delimiter=r"\s+"):
     # Drop shell index column
     df.drop(df.columns[0], axis=1, inplace=True)
     # Assign header row
-    df.columns = [nucname.name(i) for i in range(1, df.shape[1] + 1)]
+    df.columns = [Z_DICT[i] for i in range(1, df.shape[1] + 1)]
     return df
 
 

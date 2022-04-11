@@ -5,7 +5,7 @@ import pandas as pd
 from astropy import units as u
 from tardis import constants
 
-from tardis.util.base import quantity_linspace
+from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
 from tardis.io.parsers.csvy import load_csvy
 from tardis.io.model_reader import (
     read_density_file,
@@ -18,7 +18,6 @@ from tardis.io.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
 from tardis.io.decay import IsotopeAbundances
 from tardis.model.density import HomologousDensity
-from pyne import nucname
 
 logger = logging.getLogger(__name__)
 
@@ -224,7 +223,7 @@ class Radial1DModel(HDFWriterMixin):
             self._dilution_factor = 0.5 * (
                 1
                 - np.sqrt(
-                    1 - (self.r_inner[0] ** 2 / self.r_middle ** 2).to(1).value
+                    1 - (self.r_inner[0] ** 2 / self.r_middle**2).to(1).value
                 )
             )
         else:
@@ -389,7 +388,7 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def volume(self):
-        return ((4.0 / 3) * np.pi * (self.r_outer ** 3 - self.r_inner ** 3)).cgs
+        return ((4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)).cgs
 
     @property
     def no_of_shells(self):
@@ -655,7 +654,7 @@ class Radial1DModel(HDFWriterMixin):
                 [
                     name
                     for name in csvy_model_data.columns
-                    if nucname.iselement(name) or nucname.isnuclide(name)
+                    if is_valid_nuclide_or_elem(name)
                 ]
             )
             unsupported_columns = (
@@ -675,10 +674,10 @@ class Radial1DModel(HDFWriterMixin):
             ), "CSVY field descriptions exist without corresponding csv data"
             if unsupported_columns != set():
                 logger.warning(
-                "The following columns are "
-                "specified in the csvy model file,"
-                 f" but are IGNORED by TARDIS: {str(unsupported_columns)}"
-            )
+                    "The following columns are "
+                    "specified in the csvy model file,"
+                    f" but are IGNORED by TARDIS: {str(unsupported_columns)}"
+                )
 
         time_explosion = config.supernova.time_explosion.cgs
 
