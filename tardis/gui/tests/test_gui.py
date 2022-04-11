@@ -1,4 +1,3 @@
-from PyQt5 import QtWidgets
 import os
 import pytest
 from tardis.io.config_reader import Configuration
@@ -6,6 +5,7 @@ from tardis.simulation import Simulation
 import astropy.units as u
 
 if "QT_API" in os.environ:
+    from PyQt5 import QtWidgets
     from tardis.gui.widgets import Tardis
     from tardis.gui.datahandler import SimpleTableModel
 
