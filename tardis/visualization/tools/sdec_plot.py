@@ -868,7 +868,7 @@ class SDECPlotter:
             self.data[packets_mode].packets_df["nus"][
                 self.packet_nu_range_mask
             ][mask_noint],
-            bins=self.plot_frequency_bins,
+            bins=self.plot_frequency_bins.value,
             weights=weights[mask_noint],
             density=False,
         )
@@ -901,7 +901,7 @@ class SDECPlotter:
             self.data[packets_mode].packets_df["nus"][
                 self.packet_nu_range_mask
             ][mask_escatter],
-            bins=self.plot_frequency_bins,
+            bins=self.plot_frequency_bins.value,
             weights=weights[mask_escatter],
             density=False,
         )
@@ -938,7 +938,7 @@ class SDECPlotter:
             # Histogram of specific species
             hist_el = np.histogram(
                 group["nus"],
-                bins=self.plot_frequency_bins,
+                bins=self.plot_frequency_bins.value,
                 weights=group["energies"]
                 / self.lum_to_flux
                 / self.data[packets_mode].time_of_simulation,
@@ -1026,7 +1026,7 @@ class SDECPlotter:
             # Histogram of specific species
             hist_el = np.histogram(
                 group["last_line_interaction_in_nu"],
-                bins=self.plot_frequency_bins,
+                bins=self.plot_frequency_bins.value,
                 weights=group["energies"]
                 / self.lum_to_flux
                 / self.data[packets_mode].time_of_simulation,
