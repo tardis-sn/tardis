@@ -14,7 +14,7 @@ dependencies:
   - astropy=4
   - numba=0.53
   - numexpr
-  - radioactivedecay=0.4
+  - radioactivedecay>=0.4.12
 
   # Plasma
   - networkx
