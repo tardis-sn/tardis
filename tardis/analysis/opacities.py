@@ -373,9 +373,10 @@ class opacity_calculator(object):
         for i in range(self.nshells):
             delta_nu = self.nu_bins[1:] - self.nu_bins[:-1]
             T = self.mdl.plasma.t_rad[i]
+            bb_nu = Blackbody(T)
 
             tmp = (
-                Blackbody(self.nu_bins[:-1], T)
+                bb_nu(self.nu_bins[:-1])                
                 * delta_nu
                 * self.kappa_tot[:, 0]
             ).sum()
