@@ -380,7 +380,7 @@ class opacity_calculator(object):
                 * delta_nu
                 * self.kappa_tot[:, 0]
             ).sum()
-            tmp /= (blackbody_nu(self.nu_bins[:-1], T) * delta_nu).sum()
+            tmp /= (bb_nu(self.nu_bins[:-1], T) * delta_nu).sum()
 
             kappa_planck_mean[i] = tmp
 
