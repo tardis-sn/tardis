@@ -69,8 +69,8 @@ properties:
     default: {}
     properties:
       track_rpacket:
-        type: boolean
-        default: false
+        type: number
+        default: 0
         description: Allows for Tracking the properties of the RPackets in Single Packet Loop
       initial_array_length:
         type: number

@@ -41,7 +41,8 @@ def single_packet_loop(r_packet,
     numba_plasma,
     estimators,
     vpacket_collection,
-    rpacket_tracker):
+    rpacket_tracker,
+    tracking):
     """
     Parameters
     ----------
@@ -70,7 +71,7 @@ def single_packet_loop(r_packet,
         r_packet, vpacket_collection, numba_model, numba_plasma
     )
 
-    if montecarlo_configuration.RPACKET_TRACKING:
+    if tracking:
         rpacket_tracker.track(r_packet)
 
     # this part of the code is temporary and will be better incorporated
@@ -173,7 +174,7 @@ def single_packet_loop(r_packet,
             )
         else:
             pass
-        if montecarlo_configuration.RPACKET_TRACKING:
+        if tracking:
             rpacket_tracker.track(r_packet)
 
 

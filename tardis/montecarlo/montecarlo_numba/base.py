@@ -227,13 +227,23 @@ def montecarlo_main_loop(
         vpacket_collection = vpacket_collections[i]
         rpacket_tracker = rpacket_trackers[i]
 
+        if montecarlo_configuration.RPACKET_TRACKING == 0:
+            tracking = False
+        elif montecarlo_configuration.RPACKET_TRACKING == no_of_packets:
+            tracking = True
+        elif montecarlo_configuration.RPACKET_TRACKING % no_of_packets == i:
+            tracking = True
+        else:
+            tracking = False
+        
         loop = single_packet_loop(
             r_packet,
             numba_model,
             numba_plasma,
             estimators,
             vpacket_collection,
-            rpacket_tracker
+            rpacket_tracker,
+            tracking
         )
 
         output_nus[i] = r_packet.nu
