@@ -60,7 +60,7 @@ def cartesian_to_spherical(x, y, z):
 
 
 @njit
-def doppler_gamma(direction_vector, ejecta_velocity):
+def doppler_gamma(direction_vector, position_vector, time):
     """Doppler shift for photons in 3D
 
     Parameters
@@ -75,12 +75,12 @@ def doppler_gamma(direction_vector, ejecta_velocity):
     float64
         Doppler factor
     """
-    velocity_vector = np.array([ejecta_velocity, 0, 0])
+    velocity_vector = position_vector / time
     return 1 - (np.dot(direction_vector, velocity_vector) / C_CGS)
 
 
 @njit
-def angle_aberration_gamma(direction_vector, ejecta_velocity):
+def angle_aberration_gamma(direction_vector, position_vector, time):
     """Angle aberration formula for photons in 3D
 
     Parameters
@@ -95,10 +95,10 @@ def angle_aberration_gamma(direction_vector, ejecta_velocity):
     numpy.ndarray
         New direction after aberration
     """
-    velocity_vector = np.array([ejecta_velocity, 0, 0])
+    velocity_vector = position_vector / time
     direction_dot_velocity = np.dot(direction_vector, velocity_vector)
 
-    gamma = 1 / np.sqrt(1.0 - (ejecta_velocity / C_CGS) ** 2)
+    gamma = 1 / np.sqrt(1.0 - (np.dot(velocity_vector, velocity_vector) / (C_CGS ** 2)))
 
     factor_a = gamma * (1 - direction_dot_velocity / C_CGS)
 
@@ -170,7 +170,7 @@ def euler_rodrigues(theta, direction):
 
 
 @njit
-def solve_quadratic_equation(x, y, z, x_dir, y_dir, z_dir, radius_velocity):
+def solve_quadratic_equation(x, y, z, x_dir, y_dir, z_dir, radius):
     """
     Solves the quadratic equation for the distance to the shell boundary
 
@@ -178,7 +178,7 @@ def solve_quadratic_equation(x, y, z, x_dir, y_dir, z_dir, radius_velocity):
     ----------
     x,y,z : float
     x_dir, y_dir, z_dir : float
-    radius_velocity : float
+    radius : float
 
     Returns
     -------
@@ -187,7 +187,7 @@ def solve_quadratic_equation(x, y, z, x_dir, y_dir, z_dir, radius_velocity):
 
     """
     b = 2.0 * (x * x_dir + y * y_dir + z * z_dir)
-    c = -(radius_velocity ** 2) + x ** 2 + y ** 2 + z ** 2
+    c = -(radius ** 2) + x ** 2 + y ** 2 + z ** 2
     root = b ** 2 - 4 * c
     solution_1 = -np.inf
     solution_2 = -np.inf
@@ -196,6 +196,7 @@ def solve_quadratic_equation(x, y, z, x_dir, y_dir, z_dir, radius_velocity):
         solution_2 = 0.5 * (-b - np.sqrt(root))
     elif root == 0:
         solution_1 = -0.5 * b
+
     return solution_1, solution_2
 
 

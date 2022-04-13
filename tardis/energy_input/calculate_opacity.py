@@ -10,6 +10,7 @@ MASS_SI = 28.085 * const.m_p.to(u.g).value
 MASS_FE = 55.845 * const.m_p.to(u.g).value
 M_P = const.m_p.to(u.g).value
 SIGMA_T = const.sigma_T.cgs.value
+FINE_STRUCTURE = const.alpha.value
 
 
 @njit
@@ -123,6 +124,15 @@ def photoabsorption_opacity_calculation(
     )
 
     return si_opacity + fe_opacity
+
+@njit
+def photoabsorption_opacity_calculation_kasen(energy, electron_number):
+
+    kappa = kappa_calculation(energy)
+
+    opacity = FINE_STRUCTURE ** 4.0 * 8.0 * np.sqrt(2) * kappa ** -3.5
+
+    return SIGMA_T * opacity * electron_number ** 5.0
 
 
 @njit

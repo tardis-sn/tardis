@@ -51,6 +51,13 @@ def calculate_distance_radial(photon, r_inner, r_outer):
     # the correct distance is the shortest positive distance
     distance_list = [i for i in distances if i > 0.0]
 
+    if not distance_list:
+        print(photon.location_r - r_inner)
+        print(photon.location_r - r_outer)
+        print( x, y, z, x_dir, y_dir, z_dir, r_inner, r_outer)
+        print(distances)
+        raise ValueError("No root found for distance calculation!")
+
     return min(distance_list)
 
 
@@ -60,7 +67,8 @@ def distance_trace(
     inner_radii,
     outer_radii,
     total_opacity,
-    time,
+    current_time,
+    next_time
 ):
     """
     Traces distance traveled by gamma ray and finds distance to
@@ -82,14 +90,12 @@ def distance_trace(
     """
     distance_boundary = calculate_distance_radial(
         photon,
-        inner_radii[photon.shell],
-        outer_radii[photon.shell],
+        inner_radii[photon.shell] * current_time,
+        outer_radii[photon.shell] * current_time,
     )
 
-    # time explosion here gets us into the correct km/s units as opacity is 1/distance
-    # NOT QUITE CORRECT TIME RIGHT NOW!
-    distance_interaction = photon.tau / total_opacity / time
-    distance_time = (time - photon.time_current) * C_CGS
+    distance_interaction = photon.tau / total_opacity
+    distance_time = (next_time - photon.time_current) * C_CGS
     return distance_interaction, distance_boundary, distance_time
 
 
@@ -151,7 +157,7 @@ def move_packet(packet, distance):
     packet.location_phi = phi
 
     doppler_factor = doppler_gamma(
-        packet.get_direction_vector(), packet.location_r
+        packet.get_direction_vector(), packet.get_position_vector(), packet.time_current
     )
 
     packet.nu_cmf = packet.nu_rf * doppler_factor

@@ -99,3 +99,8 @@ class GXPacket(object):
         return np.array(
             (self.direction_r, self.direction_theta, self.direction_phi)
         )
+
+    def get_position_vector(self):
+        return np.array(
+            (self.location_r, self.location_theta, self.location_phi)
+        )

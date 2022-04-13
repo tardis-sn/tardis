@@ -138,7 +138,7 @@ def compton_scatter(photon, compton_angle):
 
     # get comoving frame direction
     abb_array = angle_aberration_gamma(
-        photon.get_direction_vector(), photon.location_r
+        photon.get_direction_vector(), photon.get_position_vector(), photon.time_current
     )
     comov_direction = spherical_to_cartesian(1, abb_array[1], abb_array[2])
 
@@ -182,7 +182,7 @@ def compton_scatter(photon, compton_angle):
 
     # Calculate the angle aberration of the final direction
     final_direction = angle_aberration_gamma(
-        final_comov_direction, photon.location_r
+        final_comov_direction, photon.get_position_vector(), photon.time_current
     )
 
     return final_direction[1], final_direction[2]
@@ -213,7 +213,8 @@ def pair_creation(photon):
     # Calculate aberration of the random angle for the rest frame
     final_direction = angle_aberration_gamma(
         np.array([1.0, direction_theta, direction_phi]),
-        photon.location_r,
+        photon.get_position_vector(),
+        photon.time_current
     )
 
     photon.energy = ELECTRON_MASS_ENERGY_KEV
@@ -275,7 +276,8 @@ def pair_creation_packet(packet):
     # Calculate aberration of the random angle for the rest frame
     final_direction = angle_aberration_gamma(
         np.array([1.0, direction_theta, direction_phi]),
-        packet.location_r,
+        packet.get_position_vector(),
+        packet.time_current
     )
 
     packet.direction_theta = final_direction[1]
@@ -283,7 +285,8 @@ def pair_creation_packet(packet):
 
     doppler_factor = doppler_gamma(
         packet.get_direction_vector(),
-        packet.location_r,
+        packet.get_position_vector(),
+        packet.time_current
     )
 
     packet.nu_cmf = ELECTRON_MASS_ENERGY_KEV / H_CGS_KEV
