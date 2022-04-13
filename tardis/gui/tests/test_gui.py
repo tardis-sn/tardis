@@ -11,14 +11,6 @@ if "QT_API" in os.environ:
 
 
 @pytest.fixture(scope="module")
-def refdata(tardis_ref_data):
-    def get_ref_data(key):
-        return tardis_ref_data[os.path.join("test_simulation", key)]
-
-    return get_ref_data
-
-
-@pytest.fixture(scope="module")
 def config():
     return Configuration.from_yaml(
         "tardis/io/tests/data/tardis_configv1_verysimple.yml"

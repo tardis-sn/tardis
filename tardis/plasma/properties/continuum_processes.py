@@ -57,15 +57,15 @@ H = const.h.cgs.value
 A0 = const.a0.cgs.value
 M_E = const.m_e.cgs.value
 E = const.e.esu.value
-BETA_COLL = (H ** 4 / (8 * K_B * M_E ** 3 * np.pi ** 3)) ** 0.5
+BETA_COLL = (H**4 / (8 * K_B * M_E**3 * np.pi**3)) ** 0.5
 F_K = (
     16
     / (3.0 * np.sqrt(3))
-    * np.sqrt((2 * np.pi) ** 3 * K_B / (H ** 2 * M_E ** 3))
-    * (E ** 2 / C) ** 3
+    * np.sqrt((2 * np.pi) ** 3 * K_B / (H**2 * M_E**3))
+    * (E**2 / C) ** 3
 )  # See Eq. 19 in Sutherland, R. S. 1998, MNRAS, 300, 321
 FF_OPAC_CONST = (
-    (2 * np.pi / (3 * M_E * K_B)) ** 0.5 * 4 * E ** 6 / (3 * M_E * H * C)
+    (2 * np.pi / (3 * M_E * K_B)) ** 0.5 * 4 * E**6 / (3 * M_E * H * C)
 )  # See Eq. 6.1.8 in http://personal.psu.edu/rbc3/A534/lec6.pdf
 
 logger = logging.getLogger(__name__)
@@ -316,7 +316,7 @@ class SpontRecombRateCoeff(ProcessingPlasmaProperty):
         x_sect = photo_ion_cross_sections["x_sect"].values
         nu = photo_ion_cross_sections["nu"].values
 
-        alpha_sp = 8 * np.pi * x_sect * nu ** 2 / C ** 2
+        alpha_sp = 8 * np.pi * x_sect * nu**2 / C**2
         alpha_sp = alpha_sp[:, np.newaxis]
         alpha_sp = alpha_sp * boltzmann_factor_photo_ion
         alpha_sp = integrate_array_by_blocks(
@@ -351,7 +351,7 @@ class SpontRecombCoolingRateCoeff(ProcessingPlasmaProperty):
         x_sect = photo_ion_cross_sections["x_sect"].values
         nu = photo_ion_cross_sections["nu"].values
         factor = (1 - nu_i / photo_ion_cross_sections["nu"]).values
-        alpha_sp = (8 * np.pi * x_sect * factor * nu ** 3 / C ** 2) * H
+        alpha_sp = (8 * np.pi * x_sect * factor * nu**3 / C**2) * H
         alpha_sp = alpha_sp[:, np.newaxis]
         alpha_sp = alpha_sp * boltzmann_factor_photo_ion
         alpha_sp = integrate_array_by_blocks(
@@ -389,7 +389,7 @@ class FreeBoundEmissionCDF(ProcessingPlasmaProperty):
         nu = photo_ion_cross_sections["nu"].values
         # alpha_sp_E will be missing a lot of prefactors since we are only
         # interested in relative values here
-        alpha_sp_E = nu ** 3 * x_sect
+        alpha_sp_E = nu**3 * x_sect
         alpha_sp_E = alpha_sp_E[:, np.newaxis]
         alpha_sp_E = alpha_sp_E * boltzmann_factor_photo_ion
         alpha_sp_E = cumulative_integrate_array_by_blocks(
@@ -940,7 +940,7 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
         ion_charge = ion_number_density.index.get_level_values(1).values
         factor = (
             electron_densities
-            * ion_number_density.multiply(ion_charge ** 2, axis=0).sum()
+            * ion_number_density.multiply(ion_charge**2, axis=0).sum()
         )
         return factor
 
@@ -965,7 +965,7 @@ class FreeFreeOpacity(ProcessingPlasmaProperty):
             chi_ff = (
                 FF_OPAC_CONST
                 * ff_opacity_factor[shell]
-                / nu ** 3
+                / nu**3
                 * (1 - np.exp(-H * nu / (K_B * t_electrons[shell])))
             )
             return chi_ff
@@ -1193,7 +1193,7 @@ class BoundFreeOpacityInterpolator(ProcessingPlasmaProperty):
                 Photoionization cross-sections of all bound-free continua for
                 which absorption is possible for frequency `nu`.
             """
-            
+
             current_continua = get_current_bound_free_continua(nu)
             chi_bfs = np.zeros(len(current_continua))
             x_sect_bfs = np.zeros(len(current_continua))
@@ -1202,15 +1202,23 @@ class BoundFreeOpacityInterpolator(ProcessingPlasmaProperty):
                 end = photo_ion_block_references[continuum_id + 1]
                 phot_nus_continuum = phot_nus[start:end]
                 nu_idx = np.searchsorted(phot_nus_continuum, nu)
-                interval = phot_nus_continuum[nu_idx] - phot_nus_continuum[nu_idx-1]
-                high_weight = (nu - phot_nus_continuum[nu_idx-1])
-                low_weight = (phot_nus_continuum[nu_idx] - nu)
+                interval = (
+                    phot_nus_continuum[nu_idx] - phot_nus_continuum[nu_idx - 1]
+                )
+                high_weight = nu - phot_nus_continuum[nu_idx - 1]
+                low_weight = phot_nus_continuum[nu_idx] - nu
                 chi_bfs_continuum = chi_bf[start:end, shell]
-                chi_bfs[i] = (chi_bfs_continuum[nu_idx]*high_weight + chi_bfs_continuum[nu_idx-1]*low_weight)/interval
+                chi_bfs[i] = (
+                    chi_bfs_continuum[nu_idx] * high_weight
+                    + chi_bfs_continuum[nu_idx - 1] * low_weight
+                ) / interval
                 x_sect_bfs_continuum = x_sect[start:end]
-                x_sect_bfs[i] = (x_sect_bfs_continuum[nu_idx]*high_weight + x_sect_bfs_continuum[nu_idx-1]*low_weight)/interval
+                x_sect_bfs[i] = (
+                    x_sect_bfs_continuum[nu_idx] * high_weight
+                    + x_sect_bfs_continuum[nu_idx - 1] * low_weight
+                ) / interval
             chi_bf_contributions = chi_bfs.cumsum()
-            
+
             # If we are outside the range of frequencies
             # for which we have photo-ionization cross sections
             # we will have no local continuua and therefore

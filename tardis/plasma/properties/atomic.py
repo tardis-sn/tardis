@@ -177,9 +177,9 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     )
 
     def calculate(self, atomic_data, continuum_interaction_species):
-        #photoionization_data = atomic_data.photoionization_data.set_index(
+        # photoionization_data = atomic_data.photoionization_data.set_index(
         #    ["atomic_number", "ion_number", "level_number"]
-        #)
+        # )
         photoionization_data = atomic_data.photoionization_data
         mask_selected_species = photoionization_data.index.droplevel(
             "level_number"
@@ -754,7 +754,7 @@ class YgData(ProcessingPlasmaProperty):
         nu_lines = lines_filtered.nu.values
 
         yg = f_lu * (I_H / (H * nu_lines)) ** 2
-        coll_const = A0 ** 2 * np.pi * np.sqrt(8 * K_B / (np.pi * M_E))
+        coll_const = A0**2 * np.pi * np.sqrt(8 * K_B / (np.pi * M_E))
         yg = 14.5 * coll_const * t_electrons * yg[:, np.newaxis]
 
         u0 = nu_lines[np.newaxis].T / t_electrons * (H / K_B)

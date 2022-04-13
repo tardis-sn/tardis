@@ -9,11 +9,6 @@ from tardis.montecarlo.packet_source import BlackBodySimpleSource
 
 
 @pytest.fixture
-def data_path():
-    return os.path.join(tardis.__path__[0], "montecarlo", "tests", "data")
-
-
-@pytest.fixture
 def packet_unit_test_fpath(tardis_ref_path):
     return os.path.abspath(os.path.join(tardis_ref_path, "packet_unittest.h5"))
 

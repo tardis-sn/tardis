@@ -1070,7 +1070,7 @@ class SDECPlotter:
                 self.data[packets_mode].t_inner,
             )
             * 4
-            * np.pi ** 2
+            * np.pi**2
             * self.data[packets_mode].r_inner[0] ** 2
             * u.sr
         ).to("erg / (AA s)")

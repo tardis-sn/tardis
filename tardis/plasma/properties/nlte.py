@@ -119,7 +119,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
             level_boltzmann_factor.loc[2, 0]
             * (1.0 / (2 * g.loc[2, 1, 0]))
             * (1 / g_electron)
-            * (1 / (w ** 2.0))
+            * (1 / (w**2.0))
             * np.exp(ionization_data.loc[2, 1] * beta_rad)
         )
 
