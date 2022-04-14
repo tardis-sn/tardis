@@ -21,5 +21,6 @@ and incorporated back into the documentation in the future:
 
     init_trad_bug
     isotope_pd_subclass
+    hdf_writer
     integrator
     using_formal_integral

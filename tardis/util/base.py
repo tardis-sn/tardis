@@ -13,7 +13,8 @@ from pyne import nucname
 
 import tardis
 from tardis.io.util import get_internal_data_path
-from IPython import get_ipython
+from IPython import get_ipython, display
+import tqdm
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
@@ -219,6 +220,9 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
                 radial1d_mdl.plasma.tau_sobolevs[0].loc[value["line_id"]]
             )
         except KeyError:
+            logger.debug(
+                "Synpp Ref does not have valid KEY for ref_log_tau in Radial1D Model"
+            )
             pass
 
     relevant_synpp_refs = radial1d_mdl.atom_data.synpp_refs[
@@ -371,6 +375,9 @@ def species_string_to_tuple(species_string):
     try:
         ion_number = roman_to_int(ion_number_string)
     except ValueError:
+        logger.debug(
+            "Ion Number does not contain a Roman Numeral. Checking for integer value"
+        )
         try:
             ion_number = int(ion_number_string)
         except ValueError:
@@ -555,6 +562,9 @@ def is_notebook():
         # Trying to import the ZMQInteractiveShell for Jupyter based environments
         from ipykernel.zmqshell import ZMQInteractiveShell
     except NameError:
+        logger.debug(
+            "Cannot Import ipykernel.zmqshell. Not present inside Jupyter Environment"
+        )
         # If the class cannot be imported then we are automatically return False Value
         # Raised due to Name Error with the imported Class
         return False
@@ -563,6 +573,9 @@ def is_notebook():
         # Trying to import Interactive Terminal based IPython shell
         from IPython.core.interactiveshell import InteractiveShell
     except NameError:
+        logger.debug(
+            "Cannot Import IPython.core.interactiveshell. Not present in IPython shell"
+        )
         # If the class cannot be imported then we are automatically return False Value
         # Raised due to Name Error with the imported Class
         return False
@@ -571,6 +584,7 @@ def is_notebook():
         # Trying to get the value of the shell via the get_ipython() method
         shell = get_ipython()
     except NameError:
+        logger.debug("Cannot infer Shell Id")
         # Returns False if the shell name cannot be inferred correctly
         return False
 
@@ -583,3 +597,130 @@ def is_notebook():
     # All other shell instances are returned False
     else:
         return False
+
+
+if is_notebook():
+    iterations_pbar = tqdm.notebook.tqdm(
+        desc="Iterations:",
+        bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
+    )
+    iterations_pbar.container.close()
+    packet_pbar = tqdm.notebook.tqdm(
+        desc="Packets:   ",
+        postfix="0",
+        bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
+    )
+    packet_pbar.container.close()
+
+else:
+    iterations_pbar = tqdm.tqdm(
+        desc="Iterations:",
+        bar_format="{desc:<}{bar:80}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
+    )
+    packet_pbar = tqdm.tqdm(
+        desc="Packets:   ",
+        postfix="0",
+        bar_format="{desc:<}{bar:80}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
+    )
+
+
+def update_packet_pbar(i, current_iteration, no_of_packets, total_iterations):
+    """
+    Update progress bars as each packet is propagated.
+
+    Parameters
+    ----------
+    i : int
+        Amount by which the progress bar needs to be updated.
+    current_iteration : int
+        Current iteration number.
+    no_of_packets : int
+        Total number of packets in one iteration.
+    total_iterations : int
+        Total number of iterations.
+    """
+    if packet_pbar.postfix == "":
+        packet_pbar.postfix = "0"
+    bar_iteration = int(packet_pbar.postfix) - 1
+
+    # fix bar layout when run_tardis is called for the first time
+    if iterations_pbar.total == None:
+        fix_bar_layout(iterations_pbar, total_iterations=total_iterations)
+    if packet_pbar.total == None:
+        fix_bar_layout(packet_pbar, no_of_packets=no_of_packets)
+
+    # display and reset progress bar when run_tardis is called again
+    if iterations_pbar.n == total_iterations:
+        if type(iterations_pbar).__name__ == "tqdm_notebook":
+            iterations_pbar.container.close()
+        fix_bar_layout(iterations_pbar, total_iterations=total_iterations)
+
+    if bar_iteration > current_iteration:
+        packet_pbar.postfix = current_iteration
+        if type(packet_pbar).__name__ == "tqdm_notebook":
+            # stop displaying last container
+            packet_pbar.container.close()
+        fix_bar_layout(packet_pbar, no_of_packets=no_of_packets)
+
+    # reset progress bar with each iteration
+    if bar_iteration < current_iteration:
+        packet_pbar.reset(total=no_of_packets)
+        packet_pbar.postfix = str(current_iteration + 1)
+
+    packet_pbar.update(i)
+
+
+def update_iterations_pbar(i):
+    """
+    Update progress bar for each iteration.
+
+    Parameters
+    ----------
+    i : int
+        Amount by which the progress bar needs to be updated.
+    """
+    iterations_pbar.update(i)
+
+
+def fix_bar_layout(bar, no_of_packets=None, total_iterations=None):
+    """
+    Fix the layout of progress bars.
+
+    Parameters
+    ----------
+    bar : tqdm instance
+        Progress bar to change the layout of.
+    no_of_packets : int, optional
+        Number of packets to be propagated.
+    total_iterations : int, optional
+        Total number of iterations.
+    """
+    if type(bar).__name__ == "tqdm_notebook":
+        bar.container = bar.status_printer(
+            bar.fp,
+            bar.total,
+            bar.desc,
+            bar.ncols,
+        )
+        if no_of_packets is not None:
+            bar.reset(total=no_of_packets)
+        if total_iterations is not None:
+            bar.reset(total=total_iterations)
+
+        # change the amount of space the prefix string of the bar takes
+        # here, either packets or iterations
+        bar.container.children[0].layout.width = "6%"
+
+        # change the length of the bar
+        bar.container.children[1].layout.width = "60%"
+
+        # display the progress bar
+        display.display(bar.container)
+
+    else:
+        if no_of_packets is not None:
+            bar.reset(total=no_of_packets)
+        if total_iterations is not None:
+            bar.reset(total=total_iterations)
+        else:
+            pass

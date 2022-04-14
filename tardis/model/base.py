@@ -606,10 +606,10 @@ class Radial1DModel(HDFWriterMixin):
             ), "CSVY field descriptions exist without corresponding csv data"
             if unsupported_columns != set():
                 logger.warning(
-                    "The following columns are specified in the csvy"
-                    "model file, but are IGNORED by TARDIS: %s"
-                    % (str(unsupported_columns))
-                )
+                "The following columns are "
+                "specified in the csvy model file,"
+                 f" but are IGNORED by TARDIS: {str(unsupported_columns)}"
+            )
 
         time_explosion = config.supernova.time_explosion.cgs
 

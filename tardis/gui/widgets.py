@@ -818,7 +818,7 @@ class ShellInfo(QtWidgets.QDialog):
         self.parent = parent
         self.shell_index = index
         self.setGeometry(400, 150, 200, 400)
-        self.setWindowTitle("Shell %d Abundances" % (self.shell_index + 1))
+        self.setWindowTitle(f"Shell {self.shell_index + 1} Abundances" )
         self.atomstable = QtWidgets.QTableView()
         self.ionstable = QtWidgets.QTableView()
         self.levelstable = QtWidgets.QTableView()
@@ -829,7 +829,7 @@ class ShellInfo(QtWidgets.QDialog):
 
         self.table1_data = self.parent.model.plasma.abundance[self.shell_index]
         self.atomsdata = self.createTable(
-            [["Z = "], ["Count (Shell %d)" % (self.shell_index + 1)]],
+            [["Z = "], [f"Count (Shell {self.shell_index + 1})" ]],
             iterate_header=(2, 0),
             index_info=self.table1_data.index.values.tolist(),
         )
@@ -855,7 +855,7 @@ class ShellInfo(QtWidgets.QDialog):
             self.shell_index
         ].ix[self.current_atom_index]
         self.ionsdata = self.createTable(
-            [["Ion: "], ["Count (Z = %d)" % self.current_atom_index]],
+            [["Ion: "], [f"Count (Z = {self.current_atom_index})"]],
             iterate_header=(2, 0),
             index_info=self.table2_data.index.values.tolist(),
         )
@@ -889,7 +889,7 @@ class ShellInfo(QtWidgets.QDialog):
             self.shell_index
         ].ix[self.current_atom_index, self.current_ion_index]
         self.levelsdata = self.createTable(
-            [["Level: "], ["Count (Ion %d)" % self.current_ion_index]],
+            [["Level: "], [f"Count (Ion {self.current_ion_index})" ]],
             iterate_header=(2, 0),
             index_info=self.table3_data.index.values.tolist(),
         )
@@ -931,11 +931,7 @@ class LineInfo(QtWidgets.QDialog):
         self.parent = parent
         self.setGeometry(180 + len(self.parent.line_info) * 20, 150, 250, 400)
         self.setWindowTitle(
-            "Line Interaction: %.2f - %.2f (A) "
-            % (
-                wavelength_start,
-                wavelength_end,
-            )
+            f"Line Interaction: {wavelength_start:.2f} - {wavelength_end:.2f} (A) "
         )
         self.layout = QtWidgets.QVBoxLayout()
         packet_nu_line_interaction = analysis.LastLineInteraction.from_model(
@@ -1010,7 +1006,7 @@ class LineInfo(QtWidgets.QDialog):
             / self.grouped_lines_in.wavelength.count().sum()
         ).values.tolist()
         for z, ion in self.ions_in:
-            self.header_list.append("Z = %d: Ion %d" % (z, ion))
+            self.header_list.append(f"Z = {z}: Ion {ion}" )
 
     def get_transition_table(self, lines, atom, ion):
         """Called by the two methods below to get transition table for
@@ -1043,14 +1039,8 @@ class LineInfo(QtWidgets.QDialog):
             transitions_count[index] /= float(s)
         for key, value in transitions.items():
             transitions_parsed.append(
-                "%d-%d (%.2f A)"
-                % (
-                    key[0],
-                    key[1],
-                    self.parent.model.atom_data.lines.ix[value[0]][
-                        "wavelength"
-                    ],
-                )
+                f"{key[0]}-{key[1]}"
+                f"{self.parent.model.atom_data.lines.ix[value[0]]["wavelength"]:.2f} A"
             )
         return transitions_parsed, transitions_count
 
@@ -1225,7 +1215,7 @@ class LineInteractionTables(QtWidgets.QWidget):
         last_line_in_model = self.createTable(
             [
                 last_line_in_string,
-                ["Num. pkts %d" % current_last_line_in.wavelength.count()],
+                [f"Num. pkts {current_last_line_in.wavelength.count()}"],
             ]
         )
         last_line_in_model.add_data(last_line_count)

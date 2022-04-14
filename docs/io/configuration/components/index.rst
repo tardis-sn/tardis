@@ -38,3 +38,4 @@ in the base schema, and important information about the configuration is linked 
     models/index
     montecarlo
     spectrum
+    debug

@@ -17,11 +17,11 @@ from tardis.montecarlo import montecarlo_configuration as mc_config_module
 
 
 from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
-from tardis.montecarlo.montecarlo_numba import montecarlo_logger as mc_logger
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     configuration_initialize,
 )
 from tardis.montecarlo.montecarlo_numba import numba_config
+from tardis.io.logger import montecarlo_tracking as mc_tracker
 
 import numpy as np
 
@@ -60,12 +60,14 @@ class MontecarloRunner(HDFWriterMixin):
     ]
 
     vpacket_hdf_properties = [
+        "virt_packet_nus",
+        "virt_packet_energies",
+        "virt_packet_initial_rs",
+        "virt_packet_initial_mus",
         "virt_packet_last_interaction_in_nu",
         "virt_packet_last_interaction_type",
         "virt_packet_last_line_interaction_in_id",
         "virt_packet_last_line_interaction_out_id",
-        "virt_packet_nus",
-        "virt_packet_energies",
     ]
 
     hdf_name = "runner"
@@ -129,10 +131,12 @@ class MontecarloRunner(HDFWriterMixin):
         self.virt_packet_last_line_interaction_out_id = np.ones(2) * -1
         self.virt_packet_nus = np.ones(2) * -1.0
         self.virt_packet_energies = np.ones(2) * -1.0
+        self.virt_packet_initial_rs = np.ones(2) * -1.0
+        self.virt_packet_initial_mus = np.ones(2) * -1.0
 
         # set up logger based on config
-        mc_logger.DEBUG_MODE = debug_packets
-        mc_logger.BUFFER = logger_buffer
+        mc_tracker.DEBUG_MODE = debug_packets
+        mc_tracker.BUFFER = logger_buffer
 
         if self.spectrum_method == "integrated":
             self.optional_hdf_properties.append("spectrum_integrated")
@@ -264,6 +268,8 @@ class MontecarloRunner(HDFWriterMixin):
         nthreads=1,
         last_run=False,
         iteration=0,
+        total_iterations=0,
+        show_progress_bars=True,
     ):
         """
         Run the montecarlo calculation
@@ -276,6 +282,8 @@ class MontecarloRunner(HDFWriterMixin):
         no_of_virtual_packets : int
         nthreads : int
         last_run : bool
+        total_iterations : int
+            The total number of iterations in the simulation.
 
         Returns
         -------
@@ -297,7 +305,15 @@ class MontecarloRunner(HDFWriterMixin):
         )
 
         configuration_initialize(self, no_of_virtual_packets)
-        montecarlo_radial1d(model, plasma, self)
+        montecarlo_radial1d(
+            model,
+            plasma,
+            iteration,
+            no_of_packets,
+            total_iterations,
+            show_progress_bars,
+            self,
+        )
         self._integrator = FormalIntegrator(model, plasma, self)
         # montecarlo.montecarlo_radial1d(
         #    model, plasma, self,

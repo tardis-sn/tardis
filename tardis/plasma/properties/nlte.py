@@ -215,6 +215,9 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
                         )
                     except:
                         number_density = 0.0
+                        logger.debug(
+                            f"Number Density could not be calculated. Setting Number Density to {number_density}"
+                        )
                     output_file.write(number_density)
 
             helium_lines = lines[lines["atomic_number"] == 2]

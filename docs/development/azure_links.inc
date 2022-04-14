@@ -11,7 +11,5 @@
 .. _update it manually: https://docs.microsoft.com/en-us/azure/devops/repos/git/import-git-repository?view=azure-devops#what-if-my-source-repository-contains-git-lfs-objects
 .. _error 413: https://developercommunity.visualstudio.com/content/problem/867488/git-lfs-push-got-413-error.html
 
-.. |emdash| unicode:: U+02014
-
 .. vim: ft=rstS
 

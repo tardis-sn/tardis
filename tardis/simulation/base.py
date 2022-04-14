@@ -2,8 +2,10 @@ import time
 import logging
 import numpy as np
 import pandas as pd
-from astropy import units as u, constants as const
+from astropy import units as u
+from tardis import constants as const
 from collections import OrderedDict
+from tardis import model
 
 from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
@@ -12,6 +14,7 @@ from tardis.io.util import HDFWriterMixin
 from tardis.io.config_reader import ConfigurationError
 from tardis.util.base import is_notebook
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
+from tardis.visualization import ConvergencePlots
 from IPython.display import display
 
 # Adding logging support
@@ -97,6 +100,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     luminosity_nu_start : astropy.units.Quantity
     luminosity_nu_end : astropy.units.Quantity
     luminosity_requested : astropy.units.Quantity
+    convergence_plots_kwargs: dict
     nthreads : int
         The number of threads to run montecarlo with
 
@@ -129,6 +133,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         luminosity_requested,
         convergence_strategy,
         nthreads,
+        show_convergence_plots,
+        convergence_plots_kwargs,
+        show_progress_bars,
     ):
 
         super(Simulation, self).__init__(iterations, model.no_of_shells)
@@ -146,6 +153,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.luminosity_nu_end = luminosity_nu_end
         self.luminosity_requested = luminosity_requested
         self.nthreads = nthreads
+        self.show_progress_bars = show_progress_bars
+
         if convergence_strategy.type in ("damped"):
             self.convergence_strategy = convergence_strategy
             self.converged = False
@@ -161,6 +170,24 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 f"not damped or custom "
                 f"- input is {convergence_strategy.type}"
             )
+
+        if show_convergence_plots:
+            self.convergence_plots = ConvergencePlots(
+                iterations=self.iterations, **convergence_plots_kwargs
+            )
+
+            if "export_convergence_plots" in convergence_plots_kwargs:
+                if not isinstance(
+                    convergence_plots_kwargs["export_convergence_plots"], bool
+                ):
+                    raise TypeError(
+                        "Expected bool in export_convergence_plots argument"
+                    )
+                self.export_convergence_plots = convergence_plots_kwargs[
+                    "export_convergence_plots"
+                ]
+            else:
+                self.export_convergence_plots = False
 
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
@@ -289,6 +316,22 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         else:
             next_t_inner = self.model.t_inner
 
+        if hasattr(self, "convergence_plots"):
+            self.convergence_plots.fetch_data(
+                name="t_inner",
+                value=self.model.t_inner.value,
+                item_type="value",
+            )
+            self.convergence_plots.fetch_data(
+                name="t_rad", value=self.model.t_rad, item_type="iterable"
+            )
+            self.convergence_plots.fetch_data(
+                name="w", value=self.model.w, item_type="iterable"
+            )
+            self.convergence_plots.fetch_data(
+                name="velocity", value=self.model.velocity, item_type="iterable"
+            )
+
         self.log_plasma_state(
             self.model.t_rad,
             self.model.w,
@@ -322,7 +365,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     def iterate(self, no_of_packets, no_of_virtual_packets=0, last_run=False):
         logger.info(
-            f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
+            f"Starting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
         self.runner.run(
             self.model,
@@ -332,6 +375,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             nthreads=self.nthreads,
             last_run=last_run,
             iteration=self.iterations_executed,
+            total_iterations=self.iterations,
+            show_progress_bars=self.show_progress_bars,
         )
         output_energy = self.runner.output_energy
         if np.sum(output_energy < 0) == len(output_energy):
@@ -343,6 +388,23 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         reabsorbed_luminosity = self.runner.calculate_reabsorbed_luminosity(
             self.luminosity_nu_start, self.luminosity_nu_end
         )
+        if hasattr(self, "convergence_plots"):
+            self.convergence_plots.fetch_data(
+                name="Emitted",
+                value=emitted_luminosity.value,
+                item_type="value",
+            )
+            self.convergence_plots.fetch_data(
+                name="Absorbed",
+                value=reabsorbed_luminosity.value,
+                item_type="value",
+            )
+            self.convergence_plots.fetch_data(
+                name="Requested",
+                value=self.luminosity_requested.value,
+                item_type="value",
+            )
+
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)
         self.iterations_executed += 1
 
@@ -362,6 +424,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
             self.iterate(self.no_of_packets)
             self.converged = self.advance_state()
+            if hasattr(self, "convergence_plots"):
+                self.convergence_plots.update()
             self._call_back()
             if self.converged:
                 if self.convergence_strategy.stop_if_converged:
@@ -379,10 +443,20 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         self.reshape_plasma_state_store(self.iterations_executed)
+        if hasattr(self, "convergence_plots"):
+            self.convergence_plots.fetch_data(
+                name="t_inner",
+                value=self.model.t_inner.value,
+                item_type="value",
+            )
+            self.convergence_plots.update(
+                export_convergence_plots=self.export_convergence_plots,
+                last=True,
+            )
 
         logger.info(
-            f"\n\tSimulation finished in {self.iterations_executed:d} iterations "
-            f"\n\tSimulation took {(time.time() - start_time):.2f} s\n"
+            f"Simulation finished in {self.iterations_executed:d} iterations "
+            f"Simulation took {(time.time() - start_time):.2f} s\n"
         )
         self._call_back()
 
@@ -427,7 +501,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         plasma_state_log.columns.name = "Shell No."
 
         if is_notebook():
-            logger.info("\n\tPlasma stratification:")
+            logger.info("Plasma stratification:")
 
             # Displaying the DataFrame only when the logging level is NOTSET, DEBUG or INFO
             if logger.level <= logging.INFO:
@@ -451,16 +525,16 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
             for value in plasma_output.split("\n"):
                 output_df = output_df + "\t{}\n".format(value)
-            logger.info("\n\tPlasma stratification:")
+            logger.info("Plasma stratification:")
             logger.info(f"\n{output_df}")
 
         logger.info(
-            f"\n\tCurrent t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
+            f"Current t_inner = {t_inner:.3f}\n\tExpected t_inner for next iteration = {next_t_inner:.3f}\n"
         )
 
     def log_run_results(self, emitted_luminosity, absorbed_luminosity):
         logger.info(
-            f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
+            f"Luminosity emitted   = {emitted_luminosity:.3e}\n"
             f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
             f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
         )
@@ -513,11 +587,18 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             del self._callbacks[id]
             return True
         except KeyError:
+            logger.debug(f"Call Back was not found in {self._callbacks.keys()}")
             return False
 
     @classmethod
     def from_config(
-        cls, config, packet_source=None, virtual_packet_logging=False, **kwargs
+        cls,
+        config,
+        packet_source=None,
+        virtual_packet_logging=False,
+        show_convergence_plots=True,
+        show_progress_bars=True,
+        **kwargs,
     ):
         """
         Create a new Simulation instance from a Configuration object.
@@ -563,6 +644,19 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 virtual_packet_logging=virtual_packet_logging,
             )
 
+        convergence_plots_config_options = [
+            "plasma_plot_config",
+            "t_inner_luminosities_config",
+            "plasma_cmap",
+            "t_inner_luminosities_colors",
+            "export_convergence_plots",
+        ]
+        convergence_plots_kwargs = {}
+        for item in set(convergence_plots_config_options).intersection(
+            kwargs.keys()
+        ):
+            convergence_plots_kwargs[item] = kwargs[item]
+
         luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(
             u.Hz, u.spectral()
         )
@@ -586,6 +680,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             model=model,
             plasma=plasma,
             runner=runner,
+            show_convergence_plots=show_convergence_plots,
             no_of_packets=int(config.montecarlo.no_of_packets),
             no_of_virtual_packets=int(config.montecarlo.no_of_virtual_packets),
             luminosity_nu_start=luminosity_nu_start,
@@ -594,4 +689,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             luminosity_requested=config.supernova.luminosity_requested.cgs,
             convergence_strategy=config.montecarlo.convergence_strategy,
             nthreads=config.montecarlo.nthreads,
+            convergence_plots_kwargs=convergence_plots_kwargs,
+            show_progress_bars=show_progress_bars,
         )

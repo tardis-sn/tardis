@@ -1,5 +1,96 @@
 ## Change Log
 
+### release-2021.10.31 (2021/10/27 19:00 +00:00)
+- [#1821](https://github.com/tardis-sn/tardis/pull/1821) remove numexpr  (#1821) (@wkerzendorf)
+- [#1788](https://github.com/tardis-sn/tardis/pull/1788) Add cmap option to specify the colormap of abundance plot (#1788) (@yuyizheng1112)
+- [#1801](https://github.com/tardis-sn/tardis/pull/1801) Cleaning up docs build (#1801) (@smithis7)
+- [#1808](https://github.com/tardis-sn/tardis/pull/1808) Fix importing scipy.sparse.linalg for binder (#1808) (@smithis7)
+- [#1816](https://github.com/tardis-sn/tardis/pull/1816) fix push job on update changelog workflow (#1816) (@epassaro)
+
+### release-2021.10.17 (2021/10/14 15:37 +00:00)
+- [#1811](https://github.com/tardis-sn/tardis/pull/1811) Fixing broken documentation build (#1811) (@smithis7)
+- [#1744](https://github.com/tardis-sn/tardis/pull/1744) Basic Spectrum Generation Interactive Documentation (#1744) (@smithis7)
+- [#1810](https://github.com/tardis-sn/tardis/pull/1810) Add option to add Observed Spectrum (2) (#1810) (@atharva-2001)
+
+### release-2021.10.1 (2021/10/06 13:38 +00:00)
+- [#1806](https://github.com/tardis-sn/tardis/pull/1806) Pin `jsonschema` to v3 (#1806) (@atharva-2001)
+- [#1761](https://github.com/tardis-sn/tardis/pull/1761) Revert "Add option to add Observed Spectrum (#1761)" (#1805) (@jamesgillanders)
+- [#1761](https://github.com/tardis-sn/tardis/pull/1761) Add option to add Observed Spectrum (#1761) (@atharva-2001)
+- [#1794](https://github.com/tardis-sn/tardis/pull/1794) Change virtual spectrum spawn range start value to 1 (#1794) (@atharva-2001)
+
+### release-2021.9.26 (2021/09/24 21:20 +00:00)
+- [#1757](https://github.com/tardis-sn/tardis/pull/1757) Auto-Generating Tutorials Page (#1757) (@smithis7)
+
+### release-2021.9.19 (2021/09/17 14:41 +00:00)
+- [#1784](https://github.com/tardis-sn/tardis/pull/1784) Restructure Custom Abundance Widget code (#1784) (@yuyizheng1112)
+- [#1763](https://github.com/tardis-sn/tardis/pull/1763) Making Changes to Several Tutorials (#1763) (@smithis7)
+
+### release-2021.9.12 (2021/09/09 11:18 +00:00)
+- [#1790](https://github.com/tardis-sn/tardis/pull/1790) disable changelog in release pipeline (#1790) (@epassaro)
+- [#1769](https://github.com/tardis-sn/tardis/pull/1769) Changed the way `specific_log_level` flag works in the Logging Configuration (#1769) (@DhruvSondhi)
+
+### release-2021.8.26 (2021/08/26 16:40 +00:00)
+- [#1789](https://github.com/tardis-sn/tardis/pull/1789) add explicit jupyter dependency (#1789) (@epassaro)
+- [#1787](https://github.com/tardis-sn/tardis/pull/1787) fix zenodo pipeline env (#1787) (@epassaro)
+- [#1786](https://github.com/tardis-sn/tardis/pull/1786) fix for release task (#1786) (@epassaro)
+- [#1703](https://github.com/tardis-sn/tardis/pull/1703) Adding Progress Bars (#1703) (@atharva-2001)
+- [#1775](https://github.com/tardis-sn/tardis/pull/1775) orchestrating continuous delivery pipeline (#1775) (@epassaro)
+- [#1778](https://github.com/tardis-sn/tardis/pull/1778) Fix hoverdata in plasma plots (#1778) (@atharva-2001)
+- [#1693](https://github.com/tardis-sn/tardis/pull/1693) Enabling virtual_packet_logging by default in the visualization folder (#1693) (@atharva-2001)
+
+### release-2021.8.15.0 (2021/08/12 14:24 +00:00)
+- [#1770](https://github.com/tardis-sn/tardis/pull/1770) Rename cplots to convergence_plots (#1770) (@atharva-2001)
+- [#1772](https://github.com/tardis-sn/tardis/pull/1772) Reverse legend in Plasma Convergence Plots (#1772) (@atharva-2001)
+
+### release-2021.8.8.0 (2021/08/05 18:49 +00:00)
+- [#1768](https://github.com/tardis-sn/tardis/pull/1768) Renamed `specific` log flag to `specific_log_level`  (#1768) (@DhruvSondhi)
+- [#1721](https://github.com/tardis-sn/tardis/pull/1721) Restructure Model Configuration Documentation (#1721) (@smithis7)
+
+### release-2021.8.1.0 (2021/07/29 18:57 +00:00)
+- [#1753](https://github.com/tardis-sn/tardis/pull/1753) Adding Convergence Plots to the Documentation (#1753) (@atharva-2001)
+- [#1738](https://github.com/tardis-sn/tardis/pull/1738) TARDIS Grid (#1738) (@marxwillia)
+- [#1755](https://github.com/tardis-sn/tardis/pull/1755) changing note format (#1755) (@smithis7)
+- [#1740](https://github.com/tardis-sn/tardis/pull/1740) Renamed `montecarlo_logger.py` to `montecarlo_tracking.py` (#1740) (@DhruvSondhi)
+
+### release-2021.7.25.0 (2021/07/23 16:16 +00:00)
+- [#1697](https://github.com/tardis-sn/tardis/pull/1697) Interact Button in Documentation (#1697) (@smithis7)
+- [#1636](https://github.com/tardis-sn/tardis/pull/1636) Adding Convergence Plots (#1636) (@atharva-2001)
+- [#1723](https://github.com/tardis-sn/tardis/pull/1723) Edit docstring in `run_tardis` (#1723) (@atharva-2001)
+- [#1743](https://github.com/tardis-sn/tardis/pull/1743) Fix for Unresponsive Main Page due to Twitter Widget (#1743) (@atharva-2001)
+- [#1746](https://github.com/tardis-sn/tardis/pull/1746) Fix docs build [build docs] (#1746) (@smithis7)
+- [#1730](https://github.com/tardis-sn/tardis/pull/1730) Renamed log_state to log_level (#1730) (@DhruvSondhi)
+- [#1736](https://github.com/tardis-sn/tardis/pull/1736) Fixing Doc Build Warnings (#1736) (@smithis7)
+- [#1737](https://github.com/tardis-sn/tardis/pull/1737) Add Jaladh to mailmap (#1737) (@jaladh-singhal)
+- [#1739](https://github.com/tardis-sn/tardis/pull/1739) Fixed IPython Displaying the Plasma Stratification (Table) even when the Logger is turned Off (#1739) (@DhruvSondhi)
+- [#1742](https://github.com/tardis-sn/tardis/pull/1742) Reduce damping_constant under t_inner for tardis_example.yml (#1742) (@atharva-2001)
+
+### release-2021.7.18.0 (2021/07/16 14:41 +00:00)
+- [#1665](https://github.com/tardis-sn/tardis/pull/1665) Demonstrating the `nelements` and the `species_list` functionality in the SDEC plot notebook (@atharva-2001)
+- [#1727](https://github.com/tardis-sn/tardis/pull/1727) Fixing Quickstart Metadata (#1727) (@smithis7)
+- [#1726](https://github.com/tardis-sn/tardis/pull/1726) display "latest" in doc version (#1726) (@epassaro)
+- [#1716](https://github.com/tardis-sn/tardis/pull/1716) Small fixes to docs (#1716) (@smithis7)
+- [#1722](https://github.com/tardis-sn/tardis/pull/1722) Added missing import for IonNumberDensityHeNLTE (#1722) (@DhruvSondhi)
+- [#1714](https://github.com/tardis-sn/tardis/pull/1714) Removed Formatting from exisiting log messages (#1714) (@DhruvSondhi)
+
+### release-2021.7.14.0 (2021/07/14 15:39 +00:00)
+- [#1707](https://github.com/tardis-sn/tardis/pull/1707) Open in VSCode badge (#1707) (@wkerzendorf)
+- [#1713](https://github.com/tardis-sn/tardis/pull/1713) fix package data for conda-forge package (#1713) (@epassaro)
+- [#1711](https://github.com/tardis-sn/tardis/pull/1711) Changed the xlim and the ylabel in the quickstart notebook plot (#1711) (@Rodot-)
+
+### release-2021.7.12.0 (2021/07/12 20:05 +00:00)
+- [#1686](https://github.com/tardis-sn/tardis/pull/1686) fix pip install (#1686) (@epassaro)
+- [#1701](https://github.com/tardis-sn/tardis/pull/1701) Adding Logging Support for Caught Exceptions (#1701) (@DhruvSondhi)
+- [#1684](https://github.com/tardis-sn/tardis/pull/1684) Moved Simulation & Montecarlo Logging Frameworks to `tardis/io/logger` folder (#1684) (@DhruvSondhi)
+- [#1691](https://github.com/tardis-sn/tardis/pull/1691) Create profiling documentation directory (#1691) (@KevinCawley)
+
+### release-2021.7.11.0 (2021/07/09 17:07 +00:00)
+- [#1680](https://github.com/tardis-sn/tardis/pull/1680) Added docstring-coverage badge (#1680) (@epassaro)
+- [#1696](https://github.com/tardis-sn/tardis/pull/1696) Adding mu and r to virtual packet logging (#1696) (@smithis7)
+- [#1695](https://github.com/tardis-sn/tardis/pull/1695) Enabling spectrum plotting in the frequency domain (#1695) (@smithis7)
+
+### release-2021.7.5 (2021/07/05 14:32 +00:00)
+- [#1688](https://github.com/tardis-sn/tardis/pull/1688) final changes for release pipeline (#1688) (@epassaro)
+
 ### release-2021.7.2.dev1+g58e4e79d (2021/07/02 15:44 +00:00)
 - [#1683](https://github.com/tardis-sn/tardis/pull/1683) prepare release pipeline for CalVer (#1683) (@epassaro)
 
@@ -234,7 +325,7 @@
 - [#1271](https://github.com/tardis-sn/tardis/pull/1271) Pin numpy to v1.19.0 (#1271) (@epassaro)
 - [#1266](https://github.com/tardis-sn/tardis/pull/1266) Move to Pandas 1.x (#1266) (@epassaro)
 - [#1244](https://github.com/tardis-sn/tardis/pull/1244) Explicitly pass number of vpackets to montecarlo_main_loop (#1244) (@arjunsavel)
-- [#1235](https://github.com/tardis-sn/tardis/pull/1235) test and fix for issue #1228 (#1235) (@jordi5)
+- [#1235](https://github.com/tardis-sn/tardis/pull/1235) test and fix for issue #1228 (#1235) (@ebjordi)
 
 ### v3.0.dev3497 (2020/08/07 15:26 +00:00)
 - [#1267](https://github.com/tardis-sn/tardis/pull/1267) Temporarily fetch refdata from GDrive (#1267) (@epassaro)
@@ -276,7 +367,7 @@
 ### v3.0.dev3463 (2020/06/19 22:51 +00:00)
 - [#1195](https://github.com/tardis-sn/tardis/pull/1195) Fix badges in README.rst (#1195) (@epassaro)
 - [#1193](https://github.com/tardis-sn/tardis/pull/1193) Unpin astropy version (#1193) (@epassaro)
-- [#1191](https://github.com/tardis-sn/tardis/pull/1191) Add note to tell users which OS are supported (issue #1125) (#1191) (@jordi5)
+- [#1191](https://github.com/tardis-sn/tardis/pull/1191) Add note to tell users which OS are supported (issue #1125) (#1191) (@ebjordi)
 - [#1158](https://github.com/tardis-sn/tardis/pull/1158) Make consistency edits to documentation (#1158) (@arjunsavel)
 
 ### v3.0.dev3459 (2020/06/12 18:01 +00:00)
@@ -305,7 +396,7 @@
 - [#1151](https://github.com/tardis-sn/tardis/pull/1151) Git ignored VSCode specific files (#1151) (@jaladh-singhal)
 - [#1149](https://github.com/tardis-sn/tardis/pull/1149) Made plot size larger in quickstart notebook (#1149) (@jaladh-singhal)
 - [#1147](https://github.com/tardis-sn/tardis/pull/1147) allow downloading of example file in quickstart (#1147) (@sashank27)
-- [#1105](https://github.com/tardis-sn/tardis/pull/1105) Add skip condition if QT_API is no set (issue #1101) (@jordi5)
+- [#1105](https://github.com/tardis-sn/tardis/pull/1105) Add skip condition if QT_API is no set (issue #1101) (@ebjordi)
 - [#1143](https://github.com/tardis-sn/tardis/pull/1143) Set manual trigger on file (compare refdata) (@epassaro)
 - [#1144](https://github.com/tardis-sn/tardis/pull/1144) add option to execute quickstart in build (#1144) (@sashank27)
 
@@ -316,7 +407,7 @@
 - [#1139](https://github.com/tardis-sn/tardis/pull/1139) Added more file types to git ignore (#1139) (@jaladh-singhal)
 - [#1134](https://github.com/tardis-sn/tardis/pull/1134) Update mailmap (@epassaro)
 - [#1135](https://github.com/tardis-sn/tardis/pull/1135) Running tests on MacOS-10.14 (@epassaro)
-- [#1068](https://github.com/tardis-sn/tardis/pull/1068) Migrate gui to PyQt5 (issue #988) (#1068) (@jordi5)
+- [#1068](https://github.com/tardis-sn/tardis/pull/1068) Migrate gui to PyQt5 (issue #988) (#1068) (@ebjordi)
 - [#1085](https://github.com/tardis-sn/tardis/pull/1085) Solves issue #680 for tardis.util.base (i.e. numpydocs format for doc strings.) (@Phantsure)
 - [#1055](https://github.com/tardis-sn/tardis/pull/1055) renamed capmanager class functions (#1055) (@not4win)
 - [#1048](https://github.com/tardis-sn/tardis/pull/1048) Re-activate TARDIS tests (#1048) (@epassaro)

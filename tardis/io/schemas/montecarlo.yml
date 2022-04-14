@@ -39,7 +39,7 @@ properties:
     properties:
       start:
         type: quantity
-        default: 0 angstrom
+        default: 1 angstrom
       end:
         type: quantity
         default: inf angstrom

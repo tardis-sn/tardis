@@ -8,9 +8,6 @@ on:
     branches:
     - master
 
-  schedule:
-    - cron: '10 0 * * 0'
-
   workflow_dispatch:  # Manual trigger
 
 jobs:
@@ -37,7 +34,7 @@ jobs:
 
       - name: Build Sphinx Documentation
         shell: bash -l {0}
-        run: cd docs/; make html
+        run: cd docs/; make html CORES=auto
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3

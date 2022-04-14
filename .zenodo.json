@@ -113,6 +113,9 @@
       "name": "Barbosa, Talytha"
     },
     {
+      "name": "Sondhi, Dhruv"
+    },
+    {
       "name": "Patel, Maryam"
     },
     {
@@ -123,25 +126,28 @@
       "orcid": "0000-0002-8094-6108"
     },
     {
+      "name": "Arya, Atharva"
+    },
+    {
       "name": "O'Brien, Jack"
-    },
-    {
-      "name": "Sondhi, Dhruv"
-    },
-    {
-      "name": "Reinecke, Martin"
     },
     {
       "name": "Eweis, Youssef"
     },
     {
+      "name": "Reinecke, Martin"
+    },
+    {
       "name": "Bylund, Tomas"
+    },
+    {
+      "name": "Bentil, Laud"
     },
     {
       "name": "Savel, Arjun"
     },
     {
-      "name": "Bentil, Laud"
+      "name": "Yu, Jenny"
     },
     {
       "name": "Eguren, Jordi",
@@ -157,20 +163,11 @@
       "name": "Livneh, Ran"
     },
     {
-      "name": "Yu, Jenny"
-    },
-    {
-      "name": "Arya, Atharva"
-    },
-    {
       "name": "Rajagopalan, Srinath"
     },
     {
       "name": "Mishra, Sashank",
       "orcid": "0000-0001-8302-1584"
-    },
-    {
-      "name": "Floers, Andreas"
     },
     {
       "name": "Reichenbach, John"
@@ -179,37 +176,52 @@
       "name": "Jain, Rinkle"
     },
     {
+      "name": "Floers, Andreas"
+    },
+    {
       "name": "Brar, Antreev"
     },
     {
       "name": "Singh, Sourav"
     },
     {
-      "name": "Selsing, Jonatan"
-    },
-    {
       "name": "Talegaonkar, Chinmay"
-    },
-    {
-      "name": "Sofiatti, Caroline"
     },
     {
       "name": "Kowalski, Nathan"
     },
     {
-      "name": "Patra, Nilesh"
+      "name": "Selsing, Jonatan"
     },
     {
-      "name": "Gupta, Suyash"
+      "name": "Sofiatti, Caroline"
     },
     {
       "name": "Aggarwal, Yash"
     },
     {
-      "name": "Sandler, Morgan"
+      "name": "Sarafina, Nance"
     },
     {
-      "name": "Sarafina, Nance"
+      "name": "Patra, Nilesh"
+    },
+    {
+      "name": "Singh Rathore, Parikshit"
+    },
+    {
+      "name": "Patel, Pratik"
+    },
+    {
+      "name": "Sharma, Sampark"
+    },
+    {
+      "name": "Gupta, Suyash"
+    },
+    {
+      "name": "Wahi, Ujjwal"
+    },
+    {
+      "name": "Sandler, Morgan"
     },
     {
       "name": "Volodin, Dmitry"
@@ -218,31 +230,19 @@
       "name": "Dasgupta, Debajyoti"
     },
     {
-      "name": "Kolliboyina, Chaitanya"
-    },
-    {
-      "name": "Wahi, Ujjwal"
-    },
-    {
       "name": "Yap, Kevin"
     },
     {
       "name": "Kharkar, Atharwa"
     },
     {
-      "name": "Singh Rathore, Parikshit"
-    },
-    {
       "name": "Nayak U, Ashwin"
     },
     {
-      "name": "Patel, Pratik"
+      "name": "Kolliboyina, Chaitanya"
     },
     {
       "name": "Kumar, Atul"
-    },
-    {
-      "name": "Sharma, Sampark"
     }
   ]
 }

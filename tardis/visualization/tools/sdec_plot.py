@@ -1082,6 +1082,7 @@ class SDECPlotter:
         packets_mode="virtual",
         packet_wvl_range=None,
         distance=None,
+        observed_spectrum=None,
         show_modeled_spectrum=True,
         ax=None,
         figsize=(12, 7),
@@ -1105,6 +1106,11 @@ class SDECPlotter:
         distance : astropy.Quantity or None, optional
             Distance used to calculate flux instead of luminosity in the plot.
             It should have a length unit like m, Mpc, etc. Default value is None
+        observed_spectrum : tuple or list of astropy.Quantity, optional
+            Option to plot an observed spectrum in the SDEC plot. If given, the first element
+            should be the wavelength and the second element should be flux,
+            i.e. (wavelength, flux). The assumed units for wavelength and flux are
+            angstroms and erg/(angstroms * s * cm^2), respectively. Default value is None.
         show_modeled_spectrum : bool, optional
             Whether to show modeled spectrum in SDEC Plot. Default value is
             True
@@ -1171,17 +1177,42 @@ class SDECPlotter:
         # Plot modeled spectrum
         if show_modeled_spectrum:
             self.ax.plot(
-                self.plot_wavelength,
-                self.modeled_spectrum_luminosity,
+                self.plot_wavelength.value,
+                self.modeled_spectrum_luminosity.value,
                 "--b",
                 label=f"{packets_mode.capitalize()} Spectrum",
                 linewidth=1,
             )
 
+        # Plot observed spectrum
+        if observed_spectrum:
+            if distance is None:
+                raise ValueError(
+                    """
+                    Distance must be specified if an observed_spectrum is given 
+                    so that the model spectrum can be converted into flux space correctly.
+                    """
+                )
+
+            observed_spectrum_wavelength = None
+            observed_spectrum_flux = None
+
+            # Convert to wavelength and luminosity units
+            observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
+            observed_spectrum_flux = observed_spectrum[1].to("erg/(s cm**2 AA)")
+
+            self.ax.plot(
+                observed_spectrum_wavelength.value,
+                observed_spectrum_flux.value,
+                "-k",
+                label="Observed Spectrum",
+                linewidth=1,
+            )
+
         # Plot photosphere
         self.ax.plot(
-            self.plot_wavelength,
-            self.photosphere_luminosity,
+            self.plot_wavelength.value,
+            self.photosphere_luminosity.value,
             "--r",
             label="Blackbody Photosphere",
         )
@@ -1212,10 +1243,10 @@ class SDECPlotter:
         )
 
         self.ax.fill_between(
-            self.plot_wavelength,
+            self.plot_wavelength.value,
             lower_level,
             upper_level,
-            color="black",
+            color="#4C4C4C",
             label="No interaction",
         )
 
@@ -1225,10 +1256,10 @@ class SDECPlotter:
         )
 
         self.ax.fill_between(
-            self.plot_wavelength,
+            self.plot_wavelength.value,
             lower_level,
             upper_level,
-            color="grey",
+            color="#8F8F8F",
             label="Electron Scatter Only",
         )
 
@@ -1240,10 +1271,10 @@ class SDECPlotter:
             )
 
             self.ax.fill_between(
-                self.plot_wavelength,
+                self.plot_wavelength.value,
                 lower_level,
                 upper_level,
-                color="silver",
+                color="#C2C2C2",
                 label="Other elements",
             )
 
@@ -1257,7 +1288,7 @@ class SDECPlotter:
                 )
 
                 self.ax.fill_between(
-                    self.plot_wavelength,
+                    self.plot_wavelength.value,
                     lower_level,
                     upper_level,
                     color=self._color_list[species_counter],
@@ -1297,7 +1328,7 @@ class SDECPlotter:
             )
 
             self.ax.fill_between(
-                self.plot_wavelength,
+                self.plot_wavelength.value,
                 upper_level,
                 lower_level,
                 color="silver",
@@ -1312,7 +1343,7 @@ class SDECPlotter:
                 )
 
                 self.ax.fill_between(
-                    self.plot_wavelength,
+                    self.plot_wavelength.value,
                     upper_level,
                     lower_level,
                     color=self._color_list[species_counter],
@@ -1471,6 +1502,11 @@ class SDECPlotter:
         distance : astropy.Quantity or None, optional
             Distance used to calculate flux instead of luminosity in the plot.
             It should have a length unit like m, Mpc, etc. Default value is None
+        observed_spectrum : tuple or list of astropy.Quantity, optional
+            Option to plot an observed spectrum in the SDEC plot. If given, the first element
+            should be the wavelength and the second element should be flux,
+            i.e. (wavelength, flux). The assumed units for wavelength and flux are
+            angstroms and erg/(angstroms * s * cm^2), respectively. Default value is None.
         show_modeled_spectrum : bool, optional
             Whether to show modeled spectrum in SDEC Plot. Default value is
             True
@@ -1536,25 +1572,55 @@ class SDECPlotter:
         if show_modeled_spectrum:
             self.fig.add_trace(
                 go.Scatter(
-                    x=self.plot_wavelength,
-                    y=self.modeled_spectrum_luminosity,
+                    x=self.plot_wavelength.value,
+                    y=self.modeled_spectrum_luminosity.value,
                     mode="lines",
                     line=dict(
                         color="blue",
                         width=1,
                     ),
                     name=f"{packets_mode.capitalize()} Spectrum",
+                    hovertemplate="(%{x:.2f}, %{y:.3g})",
+                    hoverlabel=dict(namelength=-1),
                 )
+            )
+
+        # Plot observed spectrum
+        if observed_spectrum:
+            if distance is None:
+                raise ValueError(
+                    """
+                    Distance must be specified if an observed_spectrum is given 
+                    so that the model spectrum can be converted into flux space correctly.
+                    """
+                )
+
+            observed_spectrum_wavelength = None
+            observed_spectrum_flux = None
+
+            # Convert to wavelength and luminosity units
+            observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
+            observed_spectrum_flux = observed_spectrum[1].to("erg/(s cm**2 AA)")
+
+            self.fig.add_scatter(
+                x=observed_spectrum_wavelength.value,
+                y=observed_spectrum_flux.value,
+                name="Observed Spectrum",
+                line={"color": "black", "width": 1.2},
+                hoverlabel=dict(namelength=-1),
+                hovertemplate="(%{x:.2f}, %{y:.3g})",
             )
 
         # Plot photosphere
         self.fig.add_trace(
             go.Scatter(
-                x=self.plot_wavelength,
-                y=self.photosphere_luminosity,
+                x=self.plot_wavelength.value,
+                y=self.photosphere_luminosity.value,
                 mode="lines",
                 line=dict(width=1.5, color="red", dash="dash"),
                 name="Blackbody Photosphere",
+                hoverlabel=dict(namelength=-1),
+                hovertemplate="(%{x:.2f}, %{y:.3g})",
             )
         )
 
@@ -1610,8 +1676,9 @@ class SDECPlotter:
                 y=self.emission_luminosities_df.noint,
                 mode="none",
                 name="No interaction",
-                fillcolor="black",
+                fillcolor="#4C4C4C",
                 stackgroup="emission",
+                hovertemplate="(%{x:.2f}, %{y:.3g})",
             )
         )
 
@@ -1621,8 +1688,10 @@ class SDECPlotter:
                 y=self.emission_luminosities_df.escatter,
                 mode="none",
                 name="Electron Scatter Only",
-                fillcolor="grey",
+                fillcolor="#8F8F8F",
                 stackgroup="emission",
+                hoverlabel=dict(namelength=-1),
+                hovertemplate="(%{x:.2f}, %{y:.3g})",
             )
         )
 
@@ -1634,25 +1703,31 @@ class SDECPlotter:
                     y=self.emission_luminosities_df.other,
                     mode="none",
                     name="Other elements",
-                    fillcolor="silver",
+                    fillcolor="#C2C2C2",
                     stackgroup="emission",
+                    hovertemplate="(%{x:.2f}, %{y:.3g})",
                 )
             )
 
         # Contribution from each element
-        for species_counter, identifier in enumerate(self.species):
+        for (species_counter, identifier), species_name in zip(
+            enumerate(self.species), self._species_name
+        ):
             try:
                 self.fig.add_trace(
                     go.Scatter(
                         x=self.emission_luminosities_df.index,
                         y=self.emission_luminosities_df[identifier],
                         mode="none",
-                        name="none",
+                        name=species_name + " Emission",
+                        hovertemplate=f"<b>{species_name} Emission </b>"
+                        + "(%{x:.2f}, %{y:.3g})<extra></extra>",
                         fillcolor=self.to_rgb255_string(
                             self._color_list[species_counter]
                         ),
                         stackgroup="emission",
                         showlegend=False,
+                        hoverlabel=dict(namelength=-1),
                     )
                 )
             except:
@@ -1685,13 +1760,16 @@ class SDECPlotter:
                     y=self.absorption_luminosities_df.other * -1,
                     mode="none",
                     name="Other elements",
-                    fillcolor="silver",
+                    fillcolor="#C2C2C2",
                     stackgroup="absorption",
                     showlegend=False,
+                    hovertemplate="(%{x:.2f}, %{y:.3g})",
                 )
             )
 
-        for species_counter, identifier in enumerate(self.species):
+        for (species_counter, identifier), species_name in zip(
+            enumerate(self.species), self._species_name
+        ):
             try:
                 self.fig.add_trace(
                     go.Scatter(
@@ -1699,12 +1777,15 @@ class SDECPlotter:
                         # to plot absorption luminosities along negative y-axis
                         y=self.absorption_luminosities_df[identifier] * -1,
                         mode="none",
-                        name="none",
+                        name=species_name + " Absorption",
+                        hovertemplate=f"<b>{species_name} Absorption </b>"
+                        + "(%{x:.2f}, %{y:.3g})<extra></extra>",
                         fillcolor=self.to_rgb255_string(
                             self._color_list[species_counter]
                         ),
                         stackgroup="absorption",
                         showlegend=False,
+                        hoverlabel=dict(namelength=-1),
                     )
                 )
 
@@ -1766,9 +1847,10 @@ class SDECPlotter:
         scatter_point_idx = pu.get_mid_point_idx(self.plot_wavelength)
         self.fig.add_trace(
             go.Scatter(
-                x=self.plot_wavelength[scatter_point_idx],
+                x=[self.plot_wavelength[scatter_point_idx].value],
                 y=[0],
                 mode="markers",
+                name="Colorbar",
                 showlegend=False,
                 hoverinfo="skip",
                 marker=dict(color=[0], opacity=0, **coloraxis_options),
