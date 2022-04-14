@@ -138,7 +138,7 @@ def tardis_ref_data(tardis_ref_path, generate_reference):
         yield store
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def tardis_config_verysimple():
     return yaml_load_config_file(
         "tardis/io/tests/data/tardis_configv1_verysimple.yml"
@@ -163,6 +163,13 @@ def config_verysimple():
     config = Configuration.from_yaml(path)
     return config
 
+
+@pytest.fixture(scope="function")
+def config_montecarlo_1e5_verysimple():
+    filename = "tardis_configv1_verysimple.yml"
+    path = os.path.abspath(os.path.join("tardis/io/tests/data/", filename))
+    config = Configuration.from_yaml(path)
+    return config
 
 @pytest.fixture(scope="session")
 def simulation_verysimple(config_verysimple, atomic_dataset):

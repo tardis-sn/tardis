@@ -52,7 +52,7 @@ Supernova Expansion
 ===================
 
 .. note::
-    This section is a summary of part of :ref:`model` which is included here for easy reference. For a complete
+    This section is a summary of part of :doc:`../setup/model` which is included here for easy reference. For a complete
     explanation, please refer back to that page.
 
 TARDIS models supernovae as expanding homologously, as shown in the animation below. This means that plasma at a
@@ -62,11 +62,11 @@ which TARDIS is running (which is provided in the :ref:`model configuration <mod
 shown in the animation.
 
 TARDIS simulates radiative transfer between an inner boundary (the photosphere) with a radius
-:math:`r_\mathrm{inner\_boundary}`, and an outer boundary (the outer edge of the supernova ejecta) with a radius
-:math:`r_\mathrm{outer\_boundary}`. Additionally, TARDIS divides the space between the inner and outer computational
+:math:`r_\mathrm{boundary\_inner}`, and an outer boundary (the outer edge of the supernova ejecta) with a radius
+:math:`r_\mathrm{boundary\_outer}`. Additionally, TARDIS divides the space between the inner and outer computational
 boundaries into cells -- radial shells for which the plasma state is (spatially) constant. In the animation, 6 cells 
 are shown, being divided by the light blue lines. The boundaries of the computational domain and of these cells are 
-computed during the simulation setup (refer back to :ref:`model`). As TARDIS is a time-independent code, meaning
+computed during the simulation setup (refer back to :doc:`../setup/model`). As TARDIS is a time-independent code, meaning
 that it calculates the spectra at an instant in time (namely at the time :math:`t_\mathrm{explosion}`), the radii of
 the boundaries (both of the computational domain and of the cells) do not change throughout the simulation.
 
@@ -260,7 +260,9 @@ interaction with the corresponding atomic line transition. In both of these case
 interaction location, the interaction will be performed (as will be described in the next section), and the process
 of accumulating optical depth starts over. Finally, if the packet reaches the shell boundary before the optical depth
 value necessary for a physical interaction is achieved (as in case III), the packet will be moved to the next cell,
-the plasma properties will be updated, and the accumulation of optical depth will continue in the next cell.
+the plasma properties will be updated, and the accumulation of optical depth will **restart** in the next cell.
+
+.. note:: While it would make physical sense for the accumulation of optical depth to continue between cells until the packet eventually interacts, due do the exponential nature of optical depth and interaction probabilities, both continuing and restarting the accumulation of optical depth between cells can be mathematically shown to yield the same overall statistical results. Restarting the optical depth accumulation is computationally easier, and hence it is the method employed by TARDIS.
 
 Performing an Interaction
 -------------------------

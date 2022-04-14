@@ -14,7 +14,7 @@ dependencies:
   - astropy=3
   - numba=0.53
   - numexpr
-  - pyne=0.7=nomoab_openmc* # Issue #1537
+  - radioactivedecay>=0.4.12
 
   # Plasma
   - networkx
@@ -58,6 +58,7 @@ dependencies:
   - nbsphinx
   - docutils=0.16 # Issue #1522
   - snakeviz
+  - Jinja2=3.0.3 # github.com/spatialaudio/nbsphinx/issues/641
 
   # Test/Coverage
   - pytest
@@ -67,7 +68,7 @@ dependencies:
   - coverage
 
   # Code quality
-  - black
+  - black=21.12b0
 
   # Other
   - git-lfs

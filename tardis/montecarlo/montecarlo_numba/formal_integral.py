@@ -18,6 +18,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     NumbaModel,
     NumbaPlasma,
 )
+from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import CudaFormalIntegrator
 
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
@@ -193,14 +194,14 @@ def numba_formal_integral(
     return L
 
 
-integrator_spec = [
-    ("model", NumbaModel.class_type.instance_type),
-    ("plasma", NumbaPlasma.class_type.instance_type),
-    ("points", int64),
-]
+#integrator_spec = [
+#    ("model", NumbaModel.class_type.instance_type),
+#    ("plasma", NumbaPlasma.class_type.instance_type),
+#    ("points", int64),
+#]
 
 
-@jitclass(integrator_spec)
+#@jitclass(integrator_spec)
 class NumbaFormalIntegrator(object):
     """
     Helper class for performing the formal integral
@@ -225,7 +226,9 @@ class NumbaFormalIntegrator(object):
         electron_density,
         N,
     ):
-        """simple wrapper for the numba implementation of the formal integral"""
+        """
+        Simple wrapper for the numba implementation of the formal integral
+        """
         return numba_formal_integral(
             self.model,
             self.plasma,
@@ -243,7 +246,21 @@ class NumbaFormalIntegrator(object):
 
 class FormalIntegrator(object):
     """
-    Class containing the formal integrator
+    Class containing the formal integrator. 
+    
+    If there is a NVIDIA CUDA GPU available, 
+    the formal integral will automatically run 
+    on it. If multiple GPUs are available, it will 
+    choose the first one that it sees. You can 
+    read more about selecting different GPUs on 
+    Numba's CUDA documentation.
+    
+    Parameters
+    ----------
+    model : tardis.model.Radial1DModel
+    plasma : tardis.plasma.BasePlasma
+    runner : tardis.montecarlo.MontecarloRunner
+    points : int64
     """
 
     def __init__(self, model, plasma, runner, points=1000):
@@ -257,6 +274,7 @@ class FormalIntegrator(object):
             )
             self.atomic_data = plasma.atomic_data
             self.original_plasma = plasma
+            self.levels_index = plasma.levels
 
     def generate_numba_objects(self):
         """instantiate the numba interface objects
@@ -269,10 +287,14 @@ class FormalIntegrator(object):
         self.numba_plasma = numba_plasma_initialize(
             self.original_plasma, self.runner.line_interaction_type
         )
-
-        self.numba_integrator = NumbaFormalIntegrator(
-            self.numba_model, self.numba_plasma, self.points
-        )
+        if self.runner.use_gpu:
+            self.integrator = CudaFormalIntegrator(
+                self.numba_model, self.numba_plasma, self.points
+            )
+        else:
+            self.integrator = NumbaFormalIntegrator(
+                self.numba_model, self.numba_plasma, self.points
+            )
 
     def check(self, raises=True):
         """
@@ -361,10 +383,12 @@ class FormalIntegrator(object):
         model = self.model
         runner = self.runner
 
+        #macro_ref = self.atomic_data.macro_atom_references
         macro_ref = self.atomic_data.macro_atom_references
-        macro_data = self.atomic_data.macro_atom_data
+        #macro_data = self.atomic_data.macro_atom_data
+        macro_data = self.original_plasma.macro_atom_data
 
-        no_lvls = len(self.atomic_data.levels)
+        no_lvls = len(self.levels_index)
         no_shells = len(model.w)
 
         if runner.line_interaction_type == "macroatom":
@@ -531,7 +555,7 @@ class FormalIntegrator(object):
         Jblue_lu = res[2].flatten(order="F")
 
         self.generate_numba_objects()
-        L = self.numba_integrator.formal_integral(
+        L = self.integrator.formal_integral(
             self.model.t_inner,
             nu,
             nu.shape[0],
@@ -561,7 +585,6 @@ def populate_z(model, p, oz, oshell_id):
     # abbreviations
     r = model.r_outer
     N = len(model.r_inner)  # check
-    # print(N)
     inv_t = 1 / model.time_explosion
     z = 0
     offset = N
@@ -612,7 +635,7 @@ def calculate_z(r, p, inv_t):
         return 0
 
 
-class BoundsError(ValueError):
+class BoundsError(IndexError):
     pass
 
 

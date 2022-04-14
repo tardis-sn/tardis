@@ -1,21 +1,13 @@
 import logging
 import sys
-import warnings
-import pyne.data
 
 from tardis.io.logger.colored_logger import ColoredFormatter, formatter_message
 
-warnings.filterwarnings("ignore", category=pyne.utils.QAWarning)
-
-FORMAT = "[$BOLD%(name)-20s$RESET][%(levelname)-18s]  %(message)s ($BOLD%(filename)s$RESET:%(lineno)d)"
-COLOR_FORMAT = formatter_message(FORMAT, True)
-
 logging.captureWarnings(True)
 logger = logging.getLogger("tardis")
-logger.setLevel(logging.INFO)
 
 console_handler = logging.StreamHandler(sys.stdout)
-console_formatter = ColoredFormatter(COLOR_FORMAT)
+console_formatter = ColoredFormatter()
 console_handler.setFormatter(console_formatter)
 
 logger.addHandler(console_handler)
@@ -29,7 +21,7 @@ LOGGING_LEVELS = {
     "ERROR": logging.ERROR,
     "CRITICAL": logging.CRITICAL,
 }
-DEFAULT_LOG_LEVEL = "CRITICAL"
+DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_SPECIFIC_STATE = False
 
 

@@ -7,7 +7,6 @@ import tardis.montecarlo.montecarlo_numba.vpacket as vpacket
 import tardis.montecarlo.montecarlo_configuration as mc
 import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
 from tardis import constants as const
-from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
 from tardis.montecarlo.montecarlo_numba import macro_atom
 
 from tardis.montecarlo.montecarlo_numba.frame_transformations import (

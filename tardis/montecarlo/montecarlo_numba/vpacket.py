@@ -1,19 +1,20 @@
 import math
 
 import numpy as np
-from numba import float64, int64, boolean
-from numba import njit, gdb
+from numba import float64, int64
+from numba import njit
 from numba.experimental import jitclass
 
-from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,
-    move_packet_across_shell_boundary,
 )
+from tardis.montecarlo.montecarlo_numba.r_packet_transport import \
+    move_packet_across_shell_boundary
 
 from tardis.montecarlo.montecarlo_numba.calculate_distances import (
     calculate_distance_boundary,
@@ -26,7 +27,7 @@ from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     angle_aberration_CMF_to_LF,
 )
 
-from tardis.montecarlo.montecarlo_numba.opacities import calculate_tau_electron
+from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
 
 vpacket_spec = [
     ("r", float64),
@@ -81,16 +82,20 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
     cur_electron_density = numba_plasma.electron_density[
         v_packet.current_shell_id
     ]
-    tau_electron = calculate_tau_electron(
-        cur_electron_density, distance_boundary
-    )
-    tau_trace_combined = tau_electron
-
+    chi_e = cur_electron_density * SIGMA_THOMSON
+    
     # Calculating doppler factor
     doppler_factor = get_doppler_factor(
         v_packet.r, v_packet.mu, numba_model.time_explosion
     )
     comov_nu = v_packet.nu * doppler_factor
+
+    chi_continuum = chi_e
+
+    tau_continuum = chi_continuum * distance_boundary
+    tau_trace_combined = tau_continuum
+    
+    
     cur_line_id = start_line_id
 
     for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
@@ -104,10 +109,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
             cur_line_id, v_packet.current_shell_id
         ]
 
-        if cur_line_id == len(numba_plasma.line_list_nu) - 1:
-            is_last_line = True
-        else:
-            is_last_line = False
+        is_last_line = cur_line_id == len(numba_plasma.line_list_nu) - 1
 
         distance_trace_line = calculate_distance_line(
             v_packet,
@@ -255,6 +257,10 @@ def trace_vpacket_volley(
 
         v_packet_nu = r_packet.nu * doppler_factor_ratio
         v_packet_energy = r_packet.energy * weight * doppler_factor_ratio
+
+        # TODO: Make sure we have a new continuum object for each vpacket
+        #comov_nu = v_packet_nu * v_packet_doppler_factor
+        #continuum.calculate(comov_nu, r_packet.current_shell_id)
 
         v_packet = VPacket(
             r_packet.r,

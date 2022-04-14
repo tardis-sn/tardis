@@ -13,3 +13,5 @@ In addition to the widgets, TARDIS can output information in several other forms
     callback
     vpacket_logging
     progress_bars
+    rpacket_tracking
+    plasma_graph
