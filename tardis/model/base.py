@@ -422,7 +422,7 @@ class Radial1DModel(HDFWriterMixin):
                     )
                 if value < self.raw_velocity[0]:
                     raise ValueError(
-                        "v_boundary_inner is lower than the lowest shell in the model."
+                        f"v_boundary_inner {value} is lower than the lowest shell {self.raw_velocity[0]} in the model."
                     )
         self._v_boundary_inner = value
         # Invalidate the cached cut-down velocity array
