@@ -29,7 +29,7 @@ jobs:
         parameters:
           fetchRefdata: true
           refdataRepo: 'github'
-          useMamba: true
+          useMamba: false
 
       - bash: |
           cd $(refdata.dir)
