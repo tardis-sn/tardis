@@ -203,7 +203,7 @@ class MontecarloRunner(HDFWriterMixin):
         self.r_outer_cgs = model.r_outer.to("cm").value
         self.v_inner_cgs = model.v_inner.to("cm/s").value
 
-    def _initialize_packets(self, T, no_of_packets, iteration, radius):
+    def _initialize_packets(self, temperature, no_of_packets, iteration, radius):
         # the iteration is added each time to preserve randomness
         # across different simulations with the same temperature,
         # for example. We seed the random module instead of the numpy module
@@ -213,7 +213,7 @@ class MontecarloRunner(HDFWriterMixin):
         rng = np.random.default_rng(seed=seed)
         seeds = rng.choice(MAX_SEED_VAL, no_of_packets, replace=True)
         radii, nus, mus, energies = self.packet_source.create_packets(
-            T, no_of_packets, rng, radius
+            temperature, no_of_packets, rng, radius
         )
         mc_config_module.packet_seeds = seeds
         self.input_r = radii
