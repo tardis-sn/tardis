@@ -113,9 +113,9 @@ def sample_nu_free_free(numba_plasma, shell):
         Frequency of the free-free emission process
 
     """
-    T = numba_plasma.t_electrons[shell]
+    temperature = numba_plasma.t_electrons[shell]
     zrand = np.random.random()
-    return -K_B * T / H * np.log(zrand)
+    return -K_B * temperature / H * np.log(zrand)
 
 @njit(**njit_dict_no_parallel)
 def sample_nu_free_bound(numba_plasma, shell, continuum_id):
