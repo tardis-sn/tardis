@@ -1,0 +1,3 @@
+[submodule "tardis-setups"]
+	path = tardis-setups
+	url = https://github.com/nooreldeensalah/tardis-setups
