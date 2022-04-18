@@ -9,7 +9,7 @@ config = Configuration.from_yaml("docs/tardis_example.yml")
 # Enabled with only one packet and allowing to track
 config["montecarlo"]["no_of_packets"]=config["montecarlo"]["last_no_of_packets"]=1
 config["montecarlo"]["no_of_virtual_packets"]=0 
-config["montecarlo"]["iterations"]=2 
+config["montecarlo"]["iterations"]=1 
 config["montecarlo"]["tracking"]["track_rpacket"]=True
 
 # Running a simulation

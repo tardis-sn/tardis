@@ -226,7 +226,7 @@ def montecarlo_main_loop(
 
         vpacket_collection = vpacket_collections[i]
         rpacket_tracker = rpacket_trackers[i]
-        
+
         loop = single_packet_loop(
             r_packet,
             numba_model,
