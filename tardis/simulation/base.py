@@ -193,7 +193,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self._cb_next_id = 0
 
         mc_config_module.CONTINUUM_PROCESSES_ENABLED = (
-                not self.plasma.continuum_interaction_species.empty)
+            not self.plasma.continuum_interaction_species.empty
+        )
 
     def estimate_t_inner(
         self, input_t_inner, luminosity_requested, t_inner_update_exponent=-0.5
