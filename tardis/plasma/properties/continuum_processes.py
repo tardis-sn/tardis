@@ -1193,7 +1193,7 @@ class BoundFreeOpacityInterpolator(ProcessingPlasmaProperty):
                 Photoionization cross-sections of all bound-free continua for
                 which absorption is possible for frequency `nu`.
             """
-
+            
             current_continua = get_current_bound_free_continua(nu)
             chi_bfs = np.zeros(len(current_continua))
             x_sect_bfs = np.zeros(len(current_continua))
@@ -1202,23 +1202,15 @@ class BoundFreeOpacityInterpolator(ProcessingPlasmaProperty):
                 end = photo_ion_block_references[continuum_id + 1]
                 phot_nus_continuum = phot_nus[start:end]
                 nu_idx = np.searchsorted(phot_nus_continuum, nu)
-                interval = (
-                    phot_nus_continuum[nu_idx] - phot_nus_continuum[nu_idx - 1]
-                )
+                interval = phot_nus_continuum[nu_idx] - phot_nus_continuum[nu_idx-1]
                 high_weight = nu - phot_nus_continuum[nu_idx - 1]
                 low_weight = phot_nus_continuum[nu_idx] - nu
                 chi_bfs_continuum = chi_bf[start:end, shell]
-                chi_bfs[i] = (
-                    chi_bfs_continuum[nu_idx] * high_weight
-                    + chi_bfs_continuum[nu_idx - 1] * low_weight
-                ) / interval
+                chi_bfs[i] = (chi_bfs_continuum[nu_idx]*high_weight + chi_bfs_continuum[nu_idx-1]*low_weight)/interval
                 x_sect_bfs_continuum = x_sect[start:end]
-                x_sect_bfs[i] = (
-                    x_sect_bfs_continuum[nu_idx] * high_weight
-                    + x_sect_bfs_continuum[nu_idx - 1] * low_weight
-                ) / interval
+                x_sect_bfs[i] = (x_sect_bfs_continuum[nu_idx]*high_weight + x_sect_bfs_continuum[nu_idx-1]*low_weight)/interval
             chi_bf_contributions = chi_bfs.cumsum()
-
+            
             # If we are outside the range of frequencies
             # for which we have photo-ionization cross sections
             # we will have no local continuua and therefore

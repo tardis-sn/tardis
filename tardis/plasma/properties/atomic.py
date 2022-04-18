@@ -179,9 +179,9 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     )
 
     def calculate(self, atomic_data, continuum_interaction_species):
-        # photoionization_data = atomic_data.photoionization_data.set_index(
+        #photoionization_data = atomic_data.photoionization_data.set_index(
         #    ["atomic_number", "ion_number", "level_number"]
-        # )
+        #)
         photoionization_data = atomic_data.photoionization_data
         mask_selected_species = photoionization_data.index.droplevel(
             "level_number"
