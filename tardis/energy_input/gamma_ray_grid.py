@@ -56,6 +56,7 @@ def calculate_distance_radial(photon, r_inner, r_outer):
         print(photon.location_r - r_outer)
         print( x, y, z, x_dir, y_dir, z_dir, r_inner, r_outer)
         print(distances)
+        print(photon.shell)
         raise ValueError("No root found for distance calculation!")
 
     return min(distance_list)
@@ -329,23 +330,55 @@ def compute_required_packets_per_shell(
     )
 
 def mass_fraction_packets_per_shell(
-    shell_masses,
     isotope_abundance,
     number_of_packets,
 ):
 
     if "Fe56" in isotope_abundance.columns:
-        unstable_isotope_abundance = isotope_abundance.drop(columns="Fe56", inplace=False)
+        mass_fraction_df = isotope_abundance.drop(columns="Fe56", inplace=False)
     else:
-        unstable_isotope_abundance = isotope_abundance
+        mass_fraction_df = isotope_abundance
 
-    mass_fraction_df = unstable_isotope_abundance.copy().multiply(shell_masses, axis='index')
     total_mass_fraction_of_nuclides = mass_fraction_df.sum().sum()
 
     for column in mass_fraction_df:
-        mass_fraction_df[column] = round((mass_fraction_df[column] / total_mass_fraction_of_nuclides) * number_of_packets).astype(int)
+        #mass_fraction_df[column] = round((mass_fraction_df[column] / total_mass_fraction_of_nuclides) * number_of_packets).astype(int)
+        mass_fraction_df[column] = (mass_fraction_df[column] / total_mass_fraction_of_nuclides)
 
     return mass_fraction_df
+
+def activity_per_shell(
+    isotope_masses
+):
+    for isotope_string in isotope_masses:
+        if isotope_string == "Fe56":
+            isotope_masses.drop(columns="Fe56", inplace=True)
+            continue
+        #store_decay_radiation(isotope_string, force_update=False)
+
+    nuclide_mass_df = isotope_masses.copy()
+
+    decay_rad_db, meta = get_decay_radiation_database()
+
+    activity_df = nuclide_mass_df.copy()
+    for column in activity_df:
+        isotope_meta = meta.loc[column]
+        half_life = isotope_meta.loc[
+            isotope_meta["key"] == "Parent T1/2 value"
+        ]["value"].values[0]
+        half_life = convert_half_life_to_astropy_units(half_life)
+        decay_constant = np.log(2) / half_life
+        atomic_mass = float(re.findall("\d+", column)[0]) * u.u.to(
+            u.g / u.mol, equivalencies=u.molar_mass_amu()
+        )
+        number_of_nuclides = (
+            nuclide_mass_df[column] / atomic_mass
+        ) * const.N_A
+
+        activity_df[column] = decay_constant * number_of_nuclides
+
+    return activity_df, decay_rad_db, meta
+
 
 
 def get_decay_database(
@@ -359,6 +392,16 @@ def get_decay_database(
     decay_rad_db, meta = get_decay_radiation_database()
 
     return decay_rad_db, meta
+
+
+def get_isotope(model_df, packet_shell):
+    rng = np.random.default_rng()
+
+    row = model_df.iloc[[packet_shell]].values[0]
+
+    weighted_decay = rng.choice(np.arange(len(row)), p=row / np.sum(row))
+
+    return model_df.columns[weighted_decay]
 
 def get_tau(meta, isotope_string):
     isotope_meta = meta.loc[isotope_string]

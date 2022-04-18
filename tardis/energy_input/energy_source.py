@@ -10,6 +10,19 @@ def decay_nuclides(shell_mass, initial_composition, epoch):
     new_fractions = decay_model.decay(epoch)
     return new_fractions
 
+@njit
+def sample_mass(masses, inner_radius, outer_radius):
+
+    norm_mass = masses/ np.sum(masses)
+    cdf = np.cumsum(norm_mass)
+    shell = np.searchsorted(cdf, np.random.random())
+
+    z = np.random.random()
+    radius = (z * inner_radius[shell] ** 3.0
+                + (1.0 - z) * outer_radius[shell] ** 3.0
+            ) ** (1.0 / 3.0)
+
+    return radius, shell
 
 @njit
 def create_energy_cdf(energy, intensity):
