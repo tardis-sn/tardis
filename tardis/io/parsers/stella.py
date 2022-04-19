@@ -55,7 +55,7 @@ def convert_stella_to_csvy(fname, out_fname=None):
         stella_model["r_center"], stella_model["v_center"]
     )
     # velocity needed for future check against homology
-    velocity = v_interpolator(stella_model["r_outer"].values) * u.cm / u.s
+    #velocity = v_interpolator(stella_model["r_outer"].values) * u.cm / u.s
     homologous_velocity = (
         stella_model.r_outer.values * u.cm / (stella_meta["time_explosion"])
     )
@@ -77,11 +77,11 @@ def convert_stella_to_csvy(fname, out_fname=None):
         }
     )
 
-    csvy_table["velocity"] = homologous_velocity
+    csvy_table["velocity"] = homologous_velocity.to(u.km / u.s).value
     csvy_meta["datatype"]["fields"].append(
         {
             "name": "velocity",
-            "unit": "cm/s",
+            "unit": "km/s",
             "desc": "WARNING - THIS IS NOT THE STELLA VELOCITY but a homologous approximation given radius and t_explosion",
         }
     )
@@ -97,5 +97,7 @@ def convert_stella_to_csvy(fname, out_fname=None):
         out_fname = f"{fname}_stella2tardis.csvy"
 
     with open(out_fname, "w") as fh:
+        fh.write('---\n')
         yaml.dump(csvy_meta, fh)
+        fh.write('---\n')
         csvy_table.to_csv(fh, index=False)
