@@ -14,7 +14,7 @@ dependencies:
   - astropy=3
   - numba=0.53
   - numexpr
-  - pyne=0.7=nomoab_openmc*  # Issue #1537
+  - radioactivedecay>=0.4.12
 
   # Plasma
   - networkx
@@ -25,7 +25,7 @@ dependencies:
   - jsonschema=3 # Issue #1807
   - pytables
   - h5py
-  - pickle5  # Issue #1566
+  - pickle5 # Issue #1566
   - requests
   - tqdm
 
@@ -35,9 +35,9 @@ dependencies:
   - ipywidgets
   - plotly
   - qgrid
-# - pyside2  # (Qt GUI) Issue #1652
+  # - pyside2  # (Qt GUI) Issue #1652
 
-# --- Not required for conda-forge package and Numba integration pipeline ---
+  # --- Not required for conda-forge package and Numba integration pipeline ---
 
   # tardis-sn/nuclear dependencies
   - beautifulsoup4
@@ -56,7 +56,7 @@ dependencies:
   - nbconvert
   - nbformat
   - nbsphinx
-  - docutils=0.16  # Issue #1522
+  - docutils=0.16 # Issue #1522
   - snakeviz
   - Jinja2=3.0.3 # github.com/spatialaudio/nbsphinx/issues/641
 
@@ -74,4 +74,4 @@ dependencies:
   - git-lfs
 
   - pip:
-      - dot2tex  # conda-forge package requires python>=3.8
+      - dot2tex # conda-forge package requires python>=3.8

@@ -1,11 +1,7 @@
 import logging
 import sys
-import warnings
-import pyne.data
 
 from tardis.io.logger.colored_logger import ColoredFormatter, formatter_message
-
-warnings.filterwarnings("ignore", category=pyne.utils.QAWarning)
 
 logging.captureWarnings(True)
 logger = logging.getLogger("tardis")

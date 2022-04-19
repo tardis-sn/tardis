@@ -5,14 +5,15 @@ import numpy as np
 from numpy import recfromtxt, genfromtxt
 import pandas as pd
 from astropy import units as u
-from pyne import nucname
+from radioactivedecay import Nuclide
+from radioactivedecay.utils import Z_DICT, elem_to_Z
 
 import logging
 
 # Adding logging support
 logger = logging.getLogger(__name__)
 
-from tardis.util.base import parse_quantity
+from tardis.util.base import parse_quantity, is_valid_nuclide_or_elem
 
 
 class ConfigurationError(Exception):
@@ -165,14 +166,15 @@ def read_uniform_abundances(abundances_section, no_of_shells):
         if element_symbol_string == "type":
             continue
         try:
-            if element_symbol_string in nucname.name_zz:
-                z = nucname.name_zz[element_symbol_string]
+            if element_symbol_string in Z_DICT.values():
+                z = elem_to_Z(element_symbol_string)
                 abundance.loc[z] = float(
                     abundances_section[element_symbol_string]
                 )
             else:
-                mass_no = nucname.anum(element_symbol_string)
-                z = nucname.znum(element_symbol_string)
+                nuc = Nuclide(element_symbol_string)
+                mass_no = nuc.A
+                z = nuc.Z
                 isotope_abundance.loc[(z, mass_no), :] = float(
                     abundances_section[element_symbol_string]
                 )
@@ -469,12 +471,13 @@ def read_csv_isotope_abundances(
     )
 
     for element_symbol_string in df.index[skip_columns:]:
-        if element_symbol_string in nucname.name_zz:
-            z = nucname.name_zz[element_symbol_string]
+        if element_symbol_string in Z_DICT.values():
+            z = elem_to_Z(element_symbol_string)
             abundance.loc[z, :] = df.loc[element_symbol_string].tolist()
         else:
-            z = nucname.znum(element_symbol_string)
-            mass_no = nucname.anum(element_symbol_string)
+            nuc = Nuclide(element_symbol_string)
+            z = nuc.Z
+            mass_no = nuc.A
             isotope_abundance.loc[(z, mass_no), :] = df.loc[
                 element_symbol_string
             ].tolist()
@@ -498,9 +501,7 @@ def parse_csv_abundances(csvy_data):
     """
 
     abundance_col_names = [
-        name
-        for name in csvy_data.columns
-        if nucname.iselement(name) or nucname.isnuclide(name)
+        name for name in csvy_data.columns if is_valid_nuclide_or_elem(name)
     ]
     df = csvy_data.loc[:, abundance_col_names]
 
@@ -520,12 +521,13 @@ def parse_csv_abundances(csvy_data):
     )
 
     for element_symbol_string in df.index[0:]:
-        if element_symbol_string in nucname.name_zz:
-            z = nucname.name_zz[element_symbol_string]
+        if element_symbol_string in Z_DICT.values():
+            z = elem_to_Z(element_symbol_string)
             abundance.loc[z, :] = df.loc[element_symbol_string].tolist()
         else:
-            z = nucname.znum(element_symbol_string)
-            mass_no = nucname.anum(element_symbol_string)
+            nuc = Nuclide(element_symbol_string)
+            z = nuc.Z
+            mass_no = nuc.A
             isotope_abundance.loc[(z, mass_no), :] = df.loc[
                 element_symbol_string
             ].tolist()

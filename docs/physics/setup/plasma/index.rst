@@ -37,10 +37,12 @@ Every property has a `calculate` function that returns the values of its outputs
 
 The Plasma Graph
 ----------------
-If the necessary Python modules (`PyGraphviz <https://pygraphviz.github.io/>`_ and `dot2tex <https://dot2tex.readthedocs.io/en/latest/>`_) are available, TARDIS can output a .dot and a .tex file at the beginning of each run that can be compiled to produce a PDF image of the plasma module graph via the :code:`write_to_dot()` and :code:`write_to_tex()` functions, respectively. The nodes on this graph are the names of plasma properties, e.g. `Levels`, `TauSobolev`, `IonNumberDensity`, along with a list of outputs from those properties. These nodes are connected by edges linking them with the sources of their inputs. The .tex file contains the name of the input/output linking the properties (e.g. `levels`, :math:`\tau_{\textrm{sobolev}}`, :math:`n_{e}`), as well as the equations used to calculate them, written in LaTeX. Tutorial coming soon!
+If the necessary Python modules (`PyGraphviz <https://pygraphviz.github.io/>`_ and `dot2tex <https://dot2tex.readthedocs.io/en/latest/>`_) are available, TARDIS can output a .dot and a .tex file at the beginning of each run that can be compiled to produce a PDF image of the plasma module graph via the :code:`write_to_dot()` and :code:`write_to_tex()` functions, respectively. The nodes on this graph are the names of plasma properties, e.g. `Levels`, `TauSobolev`, `IonNumberDensity`, along with a list of outputs from those properties. These nodes are connected by edges linking them with the sources of their inputs. The .tex file contains the name of the input/output linking the properties (e.g. `levels`, :math:`\tau_{\textrm{sobolev}}`, :math:`n_{e}`), as well as the equations used to calculate them, written in LaTeX. See the tutorial below!
 
-.. note::
-    When building the graph, the length of each edge is randomized to minimize overlap between edge labels.
+.. toctree::
+    :maxdepth: 2
+
+    ../../../io/output/plasma_graph
 
 Updating the Plasma
 -------------------
