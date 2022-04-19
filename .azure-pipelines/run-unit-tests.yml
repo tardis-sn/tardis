@@ -35,7 +35,7 @@ jobs:
         parameters:
           fetchRefdata: true
           refdataRepo: 'azure'
-          useMamba: true
+          useMamba: false
 
       - bash: |
           cd $(tardis.dir)
