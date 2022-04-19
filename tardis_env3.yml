@@ -54,9 +54,7 @@ dependencies:
   - nbconvert
   - nbformat
   - nbsphinx
-  - docutils=0.16 # Issue #1522
   - snakeviz
-  - Jinja2=3.0 # github.com/spatialaudio/nbsphinx/issues/641
   - dot2tex
 
   # Test/Coverage
