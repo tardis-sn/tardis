@@ -282,7 +282,6 @@ class CudaFormalIntegrator(object):
             z,
             shell_id,
         )
-        
 
         return L, I_nu
 
@@ -376,6 +375,7 @@ class BoundsError(IndexError):
     Used to check bounds in reverse
     binary search
     """
+
     pass
 
 

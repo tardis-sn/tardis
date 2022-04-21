@@ -18,7 +18,9 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     NumbaModel,
     NumbaPlasma,
 )
-from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import CudaFormalIntegrator
+from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import (
+    CudaFormalIntegrator,
+)
 
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
@@ -48,7 +50,7 @@ def numba_formal_integral(
 ):
     """
     model, plasma, and estimator are the numba variants
-    Returns 
+    Returns
     -------
     L : float64 array
         integrated luminosities
@@ -202,14 +204,14 @@ def numba_formal_integral(
     return L, I_nu_p
 
 
-#integrator_spec = [
+# integrator_spec = [
 #    ("model", NumbaModel.class_type.instance_type),
 #    ("plasma", NumbaPlasma.class_type.instance_type),
 #    ("points", int64),
-#]
+# ]
 
 
-#@jitclass(integrator_spec)
+# @jitclass(integrator_spec)
 class NumbaFormalIntegrator(object):
     """
     Helper class for performing the formal integral
@@ -254,15 +256,15 @@ class NumbaFormalIntegrator(object):
 
 class FormalIntegrator(object):
     """
-    Class containing the formal integrator. 
-    
-    If there is a NVIDIA CUDA GPU available, 
-    the formal integral will automatically run 
-    on it. If multiple GPUs are available, it will 
-    choose the first one that it sees. You can 
-    read more about selecting different GPUs on 
+    Class containing the formal integrator.
+
+    If there is a NVIDIA CUDA GPU available,
+    the formal integral will automatically run
+    on it. If multiple GPUs are available, it will
+    choose the first one that it sees. You can
+    read more about selecting different GPUs on
     Numba's CUDA documentation.
-    
+
     Parameters
     ----------
     model : tardis.model.Radial1DModel
@@ -390,9 +392,9 @@ class FormalIntegrator(object):
         model = self.model
         runner = self.runner
 
-        #macro_ref = self.atomic_data.macro_atom_references
+        # macro_ref = self.atomic_data.macro_atom_references
         macro_ref = self.atomic_data.macro_atom_references
-        #macro_data = self.atomic_data.macro_atom_data
+        # macro_data = self.atomic_data.macro_atom_data
         macro_data = self.original_plasma.macro_atom_data
 
         no_lvls = len(self.atomic_data.levels)
@@ -579,9 +581,18 @@ class FormalIntegrator(object):
         self.runner.I_nu_p = I_nu_p
         self.runner.p_rays = ps
 
-        I_nu = self.runner.I_nu_p*ps
-        L_test = np.array([8 * M_PI * M_PI * trapezoid_integration((I_nu)[i, :], R_max / N) for i in range(nu.shape[0])])
-        assert np.max(np.abs((L_test-L)/L)) < 1e-7, "Incorrect I_nu_p values, max relative difference:{}".format(np.max(np.abs((L_test-L)/L)))
+        I_nu = self.runner.I_nu_p * ps
+        L_test = np.array(
+            [
+                8 * M_PI * M_PI * trapezoid_integration((I_nu)[i, :], R_max / N)
+                for i in range(nu.shape[0])
+            ]
+        )
+        assert (
+            np.max(np.abs((L_test - L) / L)) < 1e-7
+        ), "Incorrect I_nu_p values, max relative difference:{}".format(
+            np.max(np.abs((L_test - L) / L))
+        )
         return np.array(L, np.float64)
 
 
