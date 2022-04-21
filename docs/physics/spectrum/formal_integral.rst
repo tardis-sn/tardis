@@ -24,7 +24,7 @@ where :math:`L_\nu` is the luminosity density at a frequency :math:`\nu`, :math:
 
 We now must calculate :math:`L_{\nu z}`, starting with more symmetry considerations. The figures below show various rays of light (in black) coming out of the supernova at various values of :math:`p`, the impact parameter (defined as the distance from the x-axis, and can be seen as the value along the blue :math:`p`-axis). By symmetry, the intensity :math:`I_\nu` (luminosity density per unit area) along the ray will be identical anywhere on the blue circles shown (each of which has a constant impact parameter). Each circle has a circumference of :math:`2\pi p`. The luminosity density per unit distance on any given circle would then be :math:`I_\nu(p)\times 2\pi p` (specifically, we are integrating the constant intensity around the circumference of the circle). Finally, to get :math:`L_{\nu z}`, we must integrate :math:`I_\nu(p)\times 2\pi p` over every possible impact parameter, whose values range from zero to the outer radius of the supernova, :math:`r_\mathrm{boundary\_outer}`. So,
 
-.. math:: L_{\nu z} = \int_0^{r_\mathrm{boundary\_outer}} I_\nu(p)*2\pi p dp = 2\pi \int_0^{r_\mathrm{boundary\_outer}} I_\nu(p) p dp.
+.. math:: L_{\nu z} = \int_0^{r_\mathrm{boundary\_outer}} I_\nu(p)\times 2\pi p dp = 2\pi \int_0^{r_\mathrm{boundary\_outer}} I_\nu(p) p dp.
 
 Putting this all together, we get
 
