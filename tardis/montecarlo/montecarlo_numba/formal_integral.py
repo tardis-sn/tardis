@@ -588,11 +588,11 @@ class FormalIntegrator(object):
                 for i in range(nu.shape[0])
             ]
         )
+        error = np.max(np.abs((L_test - L) / L))
         assert (
-            np.max(np.abs((L_test - L) / L)) < 1e-7
-        ), "Incorrect I_nu_p values, max relative difference:{}".format(
-            np.max(np.abs((L_test - L) / L))
-        )
+            error < 1e-7
+        ), f"Incorrect I_nu_p values, max relative difference:{error}"
+
         return np.array(L, np.float64)
 
 
