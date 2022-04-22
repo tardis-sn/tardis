@@ -722,14 +722,16 @@ class YgData(ProcessingPlasmaProperty):
 
     def calculate(self, atomic_data, continuum_interaction_species):
         yg_data = atomic_data.yg_data
+        yg_meta = atomic_data.collisions_metadata
 
         mask_selected_species = yg_data.index.droplevel(
             ["level_number_lower", "level_number_upper"]
         ).isin(continuum_interaction_species)
         yg_data = yg_data[mask_selected_species]
 
-        t_yg = yg_data.columns.values.astype(float)
+        t_yg = yg_meta.temperatures
         yg_data.columns = t_yg
+
         approximate_yg_data = self.calculate_yg_van_regemorter(
             atomic_data, t_yg, continuum_interaction_species
         )
@@ -756,6 +758,7 @@ class YgData(ProcessingPlasmaProperty):
             },
             index=index,
         )
+        breakpoint()
         return yg_data, t_yg, index, delta_E, yg_idx
 
     @staticmethod
@@ -804,7 +807,7 @@ class YgData(ProcessingPlasmaProperty):
         yg = f_lu * (I_H / (H * nu_lines)) ** 2
         coll_const = A0**2 * np.pi * np.sqrt(8 * K_B / (np.pi * M_E))
         yg = 14.5 * coll_const * t_electrons * yg[:, np.newaxis]
-
+        breakpoint()
         u0 = nu_lines[np.newaxis].T / t_electrons * (H / K_B)
         gamma = 0.276 * np.exp(u0) * expn(1, u0)
         gamma[gamma < 0.2] = 0.2

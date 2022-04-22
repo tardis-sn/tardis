@@ -138,6 +138,7 @@ class AtomData(object):
         "photoionization_data",
         "yg_data",
         "two_photon_data",
+        "collisions_metadata"
     ]
 
     # List of tuples of the related dataframes.
@@ -227,6 +228,7 @@ class AtomData(object):
         photoionization_data=None,
         yg_data=None,
         two_photon_data=None,
+        collisions_metadata=None,
     ):
 
         self.prepared = False
@@ -276,6 +278,7 @@ class AtomData(object):
         self.photoionization_data = photoionization_data
 
         self.yg_data = yg_data
+        self.collisions_metadata = collisions_metadata
 
         self.two_photon_data = two_photon_data
 
