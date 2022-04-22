@@ -342,8 +342,7 @@ def mass_fraction_packets_per_shell(
     total_mass_fraction_of_nuclides = mass_fraction_df.sum().sum()
 
     for column in mass_fraction_df:
-        #mass_fraction_df[column] = round((mass_fraction_df[column] / total_mass_fraction_of_nuclides) * number_of_packets).astype(int)
-        mass_fraction_df[column] = (mass_fraction_df[column] / total_mass_fraction_of_nuclides)
+        mass_fraction_df[column] = round((mass_fraction_df[column] / total_mass_fraction_of_nuclides) * number_of_packets).astype(int)
 
     return mass_fraction_df
 

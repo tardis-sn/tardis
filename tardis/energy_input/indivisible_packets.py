@@ -23,7 +23,9 @@ from tardis.energy_input.gamma_ray_grid import (
 )
 from tardis.energy_input.energy_source import (
     decay_nuclides,
-    sample_mass
+    sample_mass,
+    ni56_chain_energy,
+    ni56_chain_energy_choice
 )
 from tardis.energy_input.calculate_opacity import (
     compton_opacity_calculation,
@@ -46,6 +48,7 @@ from tardis.energy_input.util import (
     C_CGS,
     H_CGS_KEV,
     kappa_calculation,
+    get_index
 )
 from tardis import constants as const
 
@@ -100,7 +103,8 @@ def initialize_packets_equal_time(
     ni56_lines,
     co56_lines,
     energy_df_rows,
-    effective_time
+    effective_time,
+    taus,
     ):
     base_packet_energy = total_energy.sum().sum() / packet_count
     packets = List()
@@ -117,7 +121,7 @@ def initialize_packets_equal_time(
     for i in tqdm(range(packet_count)):
         z = np.random.random()
         decay_time = z * times[0] + (1-z) * times[-1]
-        decay_time_index = np.searchsorted(times, decay_time) - 1
+        decay_time_index = get_index(decay_time, times)
         
         time_df = power_df.loc[effective_time[decay_time_index]]
 
@@ -146,10 +150,26 @@ def initialize_packets_equal_time(
             positron_fraction = positron_energy / (energy * intensity).sum()
 
         # average energy over time
-        average_energy = power_df[packet_isotope] * (energy * intensity).sum() / (decay_time - times[0])
+        average_energy = ni56_chain_energy_choice(
+            taus, 
+            times[0], 
+            times[-1], 
+            time_df[packet_isotope][packet_shell] / taus["Ni56"], 
+            ni56_lines, 
+            co56_lines,
+            packet_isotope
+            ) / (times[-1] - times[0])
 
         # energy in timestep
-        current_energy = time_df[packet_isotope].sum() * (energy * intensity).sum() * (decay_time - times[decay_time_index])
+        current_energy = ni56_chain_energy_choice(
+            taus, 
+            times[0], 
+            decay_time, 
+            time_df[packet_isotope][packet_shell] / taus["Ni56"], 
+            ni56_lines, 
+            co56_lines,
+            packet_isotope
+            ) / (decay_time - times[0])
 
         # scale energy by ratio of current time step energy to average energy over time
         packet_energy = base_packet_energy * current_energy / average_energy
@@ -271,18 +291,9 @@ def initialize_packets(
 
     packet_energy = input_energy_df.sum().sum() / decays_per_shell.sum().sum()
 
-    average_power = decays_per_shell.sum() / times[-1]
-
-    z = np.random.random()
-    decay_time = z * times[0] + (1 - z) * times[-1]
-    decay_time_index = np.searchsorted(times, decay_time, side="right") - 1
-
-    packet_energy *= decays_per_shell.loc[effective_times[decay_time_index]] / average_power
-
-    print(packet_energy)
-
     energy_plot_df_rows = np.zeros((decays_per_shell.sum(axis=0).sum(), 9))
     energy_plot_positron_rows = np.zeros((decays_per_shell.sum(axis=0).sum(), 4))
+
     j = 0
     for column in decays_per_shell:
 
@@ -334,8 +345,6 @@ def initialize_packets(
                     decay_time = sample_decay_time(column, taus)
                     if decay_time < times[-1]:
                         break
-
-                #dt = times[decay_time_index + 1] - times[decay_time_index]
 
                 energy_factor = 1.0
                 if decay_time < times[0]:
@@ -416,6 +425,150 @@ def initialize_packets(
     return packets, energy_df_rows, energy_plot_df_rows, energy_plot_positron_rows
 
 
+def urilight_initialize_packets(
+    decays_per_shell,
+    input_energy_df,
+    ni56_lines,
+    co56_lines,
+    inner_velocities,
+    outer_velocities,
+    times,
+    energy_df_rows,
+    effective_times,
+    taus
+):
+
+    packets = List()
+
+    number_of_packets = np.sum(decays_per_shell)
+
+    print("Total packets:", number_of_packets)
+
+    packet_energy = input_energy_df.sum().sum() / number_of_packets
+
+    print("Energy per packet", packet_energy)
+
+    ni56_energy = (ni56_lines.energy * ni56_lines.intensity).sum() 
+    co56_energy = (co56_lines.energy * co56_lines.intensity).sum()
+
+    ni56_fraction = ni56_energy / (ni56_energy + co56_energy)
+
+    energy_plot_df_rows = np.zeros((number_of_packets, 9))
+    energy_plot_positron_rows = np.zeros((number_of_packets, 4))
+
+    theta_locations = get_random_theta_photon_array(n=number_of_packets)
+    phi_locations = get_random_phi_photon_array(n=number_of_packets)
+
+    theta_directions = get_random_theta_photon_array(n=number_of_packets)
+    phi_directions = get_random_phi_photon_array(n=number_of_packets)
+
+    j = 0
+    for k, shell in tqdm(enumerate(decays_per_shell)):
+        z = np.random.random(shell)
+
+        initial_radii = (
+            z * inner_velocities[k] ** 3.0
+            + (1.0 - z) * outer_velocities[k] ** 3.0
+        ) ** (1.0 / 3.0)
+
+        for i in range(shell):    
+            decay_time = np.inf
+            while decay_time > times[-1]:
+                ni_or_co_random = np.random.random()
+
+                if ni_or_co_random > ni56_fraction:
+                    decay_type = "Co56"
+                    energy = co56_lines.energy.to_numpy() * 1000
+                    intensity = co56_lines.intensity.to_numpy()
+                    # positron energy scaled by intensity
+                    positron_energy = 0.63 * 1000 * 0.19
+                    positron_fraction = positron_energy / (energy * intensity).sum()
+                else:
+                    decay_type = "Ni56"
+                    energy = ni56_lines.energy.to_numpy() * 1000
+                    intensity = ni56_lines.intensity.to_numpy()
+                    positron_fraction = 0
+                
+                decay_time = sample_decay_time(decay_type, taus)
+
+            cmf_energy = sample_energy(energy, intensity)
+
+            energy_factor = 1.0
+            if decay_time < times[0]:
+                energy_factor = decay_time/times[0]
+                decay_time = times[0]
+
+            decay_time_index = get_index(decay_time, times)
+
+            energy_df_rows[k, decay_time_index] += (
+                positron_fraction
+                * packet_energy
+                * 1000
+                #/ shell_volume
+            )
+
+            # draw a random gamma-ray in shell
+            packet = GXPacket(
+                location_r=initial_radii[i] * effective_times[decay_time_index],
+                location_theta=theta_locations[j],
+                location_phi=phi_locations[j],
+                direction_theta=theta_directions[j],
+                direction_phi=phi_directions[j],
+                energy_rf=1,
+                energy_cmf=packet_energy * energy_factor,
+                status=GXPacketStatus.IN_PROCESS,
+                shell=k,
+                nu_rf=0,
+                nu_cmf=0,
+                time_current=decay_time
+            )
+
+            packet.energy_rf = packet.energy_cmf / doppler_gamma(
+                packet.get_direction_vector(),
+                packet.get_position_vector(),
+                packet.time_current
+            )
+
+            energy_plot_df_rows[j] = np.array(
+                [
+                    i,
+                    packet.energy_rf,
+                    packet.location_r,
+                    packet.location_theta,
+                    packet.time_current,
+                    int(packet.status),
+                    0,
+                    0,
+                    0,
+                ]
+            )
+
+            energy_plot_positron_rows[j] = [
+                j,
+                positron_fraction
+                * packet_energy
+                * 1000,
+                #/ shell_volume,
+                packet.location_r,
+                packet.time_current,
+            ]
+
+            packet.nu_cmf = cmf_energy / H_CGS_KEV
+
+            packet.nu_rf = packet.nu_cmf / doppler_gamma(
+                packet.get_direction_vector(),
+                packet.get_position_vector(),
+                packet.time_current
+            )
+
+            packets.append(packet)
+
+            j += 1
+
+    return packets, energy_df_rows, energy_plot_df_rows, energy_plot_positron_rows
+
+
+
 def main_gamma_ray_loop(num_decays, model, plasma, time_steps=10, time_end=80.0, grey_opacity=0.0):
     """Main loop that determines the gamma ray propagation
 
@@ -458,10 +611,9 @@ def main_gamma_ray_loop(num_decays, model, plasma, time_steps=10, time_end=80.0,
     # Enforce cgs
     outer_velocities = model.v_outer.to("cm/s").value
     inner_velocities = model.v_inner.to("cm/s").value
-    outer_radii = model.r_outer.to("cm").value
-    inner_radii = model.r_inner.to("cm").value
     ejecta_density = model.density.to("g/cm^3").value
     ejecta_volume = model.volume.to("cm^3").value
+    ejecta_velocity_volume = 4 * np.pi / 3 * (outer_velocities ** 3.0 - inner_velocities ** 3.0)
     time_explosion = model.time_explosion.to("s").value
     number_of_shells = model.no_of_shells
     raw_isotope_abundance = model.raw_isotope_abundance
@@ -487,67 +639,64 @@ def main_gamma_ray_loop(num_decays, model, plasma, time_steps=10, time_end=80.0,
         plasma.number_density.mul(plasma.number_density.index, axis=0)
     ).sum()
 
-    ejecta_density_time = np.zeros((len(ejecta_density), len(effective_time_array)))
-    electron_number_density_time = np.zeros((len(ejecta_density), len(effective_time_array)))
+    electron_number_density_time = np.zeros((len(ejecta_velocity_volume), len(effective_time_array)))
+    mass_density_time = np.zeros((len(ejecta_velocity_volume), len(effective_time_array)))
+    electron_number = (electron_number_density * ejecta_volume).to_numpy()
 
     for i, t in enumerate(effective_time_array):
-        ejecta_density_time[:, i] = ejecta_density * (t / effective_time_array[0]) ** -3.0
-        electron_number_density_time[:, i] = electron_number_density * (t / effective_time_array[0]) ** -3.0
+        mass_density_time[:, i] = shell_masses * (1.0 / ejecta_velocity_volume) / (t ** 3.0)
+        electron_number_density_time[:, i] = electron_number * (1.0 / ejecta_velocity_volume) / (t ** 3.0)
 
     energy_df_rows = np.zeros((number_of_shells, time_steps))
 
     decay_count_rows = []
 
+    """
     for time in effective_time_array:
         to_be_decayed = raw_isotope_abundance.copy()
         abundances_decayed = to_be_decayed.decay(time * u.s.to('d')).T
         dataframe_columns = [f"{rd.utils.Z_DICT[i[0]]}{i[1]}" for i in abundances_decayed.columns]
         abundances_decayed.columns = dataframe_columns
 
-        #decay_count_rows.append(mass_fraction_packets_per_shell(abundances_decayed.multiply(shell_masses, axis='index'), num_decays / time_steps))
-        activity_df, decay, meta = activity_per_shell(abundances_decayed.multiply(shell_masses, axis='index'))
-        decay_count_rows.append(activity_df)
+        decay_count_rows.append(mass_fraction_packets_per_shell(abundances_decayed.multiply(shell_masses, axis='index'), num_decays))
+        #activity_df, decay, meta = activity_per_shell(abundances_decayed.multiply(shell_masses, axis='index'))
+        #decay_count_rows.append(activity_df)
+    """
+    mass_ni56 = raw_isotope_abundance.loc[(28, 56)] * shell_masses
+    number_ni56 = mass_ni56 / 56 * const.N_A
+    total_number_ni56 = number_ni56.sum()
 
-    decayed_packet_count = pd.concat(decay_count_rows, keys=effective_time_array, names=["time", "shell"])
+    decayed_packet_count = np.zeros(len(number_ni56), dtype=np.int64)
 
-    decay_db, meta = get_decay_database(decayed_packet_count)
+    for i, shell in enumerate(number_ni56):
+        decayed_packet_count[i] = round(num_decays * shell / total_number_ni56)
 
-    taus = {}
+    #decayed_packet_count = pd.concat(decay_count_rows, keys=effective_time_array, names=["time", "shell"])
 
+    #decay_db, meta = get_decay_database(decayed_packet_count)
+
+    taus = {"Ni56": 6.075 * u.d.to('s') / np.log(2), "Co56": 77.233 * u.d.to('s') / np.log(2)}
+
+    """
     for column in decayed_packet_count.columns:
         if column == "Fe56":
             continue
         taus[column] = get_tau(meta, column).value
-
+    """
     # This will use the decay radiation database and be a more complex network eventually
 
     ni56_lines = read_artis_lines("ni56")
     co56_lines = read_artis_lines("co56")
 
-    number_ni56 = raw_isotope_abundance.loc[(28, 56)] * shell_masses / 56 * const.N_A
-
     # urilight chooses to have 0 as the baseline for this calculation
     # but time_start should also be valid
-    total_ni56 = -taus["Ni56"] * (np.exp(-time_end / taus["Ni56"]) - np.exp(-0 / taus["Ni56"]))
-    total_co56 = -taus["Co56"] * (np.exp(-time_end / taus["Co56"]) - np.exp(-0 / taus["Co56"]))
+    total_energy = ni56_chain_energy(taus, 0, time_end, number_ni56, ni56_lines, co56_lines)
 
-    total_energy = pd.DataFrame()
-    
-    total_energy["Ni56"] = number_ni56 * (
-            (ni56_lines.energy * 1000 * ni56_lines.intensity).sum()
-            / taus["Ni56"]
-            *
-            total_ni56
-    )
-
-    total_energy["Co56"] = number_ni56 * (
-            (co56_lines.energy * 1000 * co56_lines.intensity).sum()
-            / (taus["Ni56"] - taus["Co56"])
-            * (total_ni56 - total_co56)
-    )
-
-    print("Total expected energy")
+    print("Total gamma-ray energy")
     print(total_energy.sum().sum() * u.keV.to("erg"))
+
+    print("Total positron energy")
+    print(total_energy["Co56"].sum(axis=0) * 0.0337 * u.keV.to("erg"))
 
     # Taking iron group to be elements 21-30
     # Used as part of the approximations for photoabsorption and pair creation
@@ -571,7 +720,6 @@ def main_gamma_ray_loop(num_decays, model, plasma, time_steps=10, time_end=80.0,
         times,
         effective_time_array
     )
-    """
     packets, energy_df_rows, energy_plot_df_rows, energy_plot_positron_rows = initialize_packets_equal_time(
         num_decays, 
         total_energy, 
@@ -583,13 +731,31 @@ def main_gamma_ray_loop(num_decays, model, plasma, time_steps=10, time_end=80.0,
         ni56_lines, 
         co56_lines, 
         energy_df_rows,
-        effective_time_array
+        effective_time_array,
+        taus
+        )
+    """
+    
+    (packets, 
+    energy_df_rows, 
+    energy_plot_df_rows, 
+    energy_plot_positron_rows) = urilight_initialize_packets(
+        decayed_packet_count, 
+        total_energy, 
+        ni56_lines, 
+        co56_lines, 
+        inner_velocities, 
+        outer_velocities, 
+        times, 
+        energy_df_rows, 
+        effective_time_array, 
+        taus
         )
 
-    energy_plot_positron_rows[:, 1] /= dt_array[0]
+    print("Total positron energy from packets")
+    print((energy_df_rows).sum().sum() * u.eV.to("erg"))
 
-    print("Total positron energy")
-    print((energy_df_rows).sum(axis=0) * u.eV.to("erg"))
+    #energy_plot_positron_rows[:, 1] /= dt_array[0]
 
     total_cmf_energy = 0
     total_rf_energy = 0
@@ -605,17 +771,17 @@ def main_gamma_ray_loop(num_decays, model, plasma, time_steps=10, time_end=80.0,
 
     print("Energy ratio")
     print(energy_ratio)
+    """
+    for p in packets:
+        p.energy_cmf *= energy_ratio
+        p.energy_rf *= energy_ratio
 
-    #for p in packets:
-    #    p.energy_cmf *= energy_ratio
-    #    p.energy_rf *= energy_ratio
-
-    #for e in energy_df_rows:
-    #    e *= energy_ratio
-
-    # for row in energy_plot_df_rows:
-    #    row[1] *= energy_ratio
-
+    for e in energy_df_rows:
+        e *= energy_ratio
+    
+    for row in energy_plot_df_rows:
+        row[1] *= energy_ratio
+    """
     print("Total RF energy")
     print(total_rf_energy)
 
@@ -624,7 +790,7 @@ def main_gamma_ray_loop(num_decays, model, plasma, time_steps=10, time_end=80.0,
         packets,
         grey_opacity,
         electron_number_density_time,
-        ejecta_density_time,
+        mass_density_time,
         iron_group_fraction_per_shell.to_numpy(),
         inner_velocities,
         outer_velocities,
@@ -733,7 +899,7 @@ def gamma_packet_loop(
     packets,
     grey_opacity,
     electron_number_density_time,
-    ejecta_density_time,
+    mass_density_time,
     iron_group_fraction_per_shell,
     inner_velocities,
     outer_velocities,
@@ -743,16 +909,20 @@ def gamma_packet_loop(
     energy_df_rows,
     energy_plot_df_rows,
 ):
+    escaped_packets = 0
+    scattered_packets = 0
     packet_count = len(packets)
     print("Entering gamma ray loop for " + str(packet_count) + " packets")
 
     for i in prange(packet_count):
         packet = packets[i]
-        time_index = np.searchsorted(times, packet.time_current, side ="right") - 1
+        time_index = get_index(packet.time_current, times)
         
         if time_index < 0:
             print(packet.time_current, time_index)
             raise ValueError("Packet time index less than 0!")
+
+        scattered = False
 
         while packet.status == GXPacketStatus.IN_PROCESS:
             # Get delta-time value for this step
@@ -773,55 +943,42 @@ def gamma_packet_loop(
             if kappa < 1e-2:
                 compton_opacity = (
                     SIGMA_T
-                    * electron_number_density_time[packet.shell, time_index] 
-                    * doppler_factor
+                    * electron_number_density_time[packet.shell, time_index]
                 )
             else:
-                compton_opacity = (
-                    compton_opacity_calculation(
+                compton_opacity = compton_opacity_calculation(
                         comoving_energy, 
-                        electron_number_density_time[packet.shell, time_index] 
+                        electron_number_density_time[packet.shell, time_index]
                     )
-                    * doppler_factor
-                )
-
-            photoabsorption_opacity = (
-                photoabsorption_opacity_calculation(
+            """
+            photoabsorption_opacity = photoabsorption_opacity_calculation(
                     comoving_energy,
-                    ejecta_density_time[packet.shell, time_index],
+                    mass_density_time[packet.shell, time_index],
                     iron_group_fraction_per_shell[packet.shell],
                 )
-                * doppler_factor
-            )
-
-            #photoabsorption_opacity = (
-            #    photoabsorption_opacity_calculation_kasen(
-            #        comoving_energy,
-            #        electron_number[packet.shell] * (effective_time_array[time_index] / times[0]) ** -3
-            #    )
-            #    * doppler_factor
-            #)
-
-            pair_creation_opacity = (
-                pair_creation_opacity_calculation(
+            """
+            photoabsorption_opacity = photoabsorption_opacity_calculation_kasen(
                     comoving_energy,
-                    ejecta_density_time[packet.shell, time_index],
+                    electron_number_density_time[packet.shell, time_index]
+                )  
+
+            pair_creation_opacity =  pair_creation_opacity_calculation(
+                    comoving_energy,
+                    electron_number_density_time[packet.shell, time_index],
                     iron_group_fraction_per_shell[packet.shell],
                 )
-                * doppler_factor
-            )
 
             if grey_opacity > 0:
                 compton_opacity = 0.0
                 pair_creation_opacity = 0.0
-                photoabsorption_opacity = grey_opacity * ejecta_density_time[packet.shell, time_index]
+                photoabsorption_opacity = grey_opacity * electron_number_density_time[packet.shell, time_index]
             
             # convert opacities to rest frame
             total_opacity = (
                 compton_opacity
                 + photoabsorption_opacity
                 + pair_creation_opacity
-            )
+            ) * doppler_factor 
 
             packet.tau = -np.log(np.random.random())
             
@@ -849,11 +1006,7 @@ def gamma_packet_loop(
                     # Packet ran out of time
                     packet.status = GXPacketStatus.END
                 else:
-                    packet.shell = np.searchsorted(
-                        inner_velocities * effective_time_array[time_index], 
-                        packet.location_r, 
-                        side="right"
-                    )
+                    packet.shell = get_index(packet.location_r, inner_velocities * effective_time_array[time_index])
 
             elif distance == distance_interaction:
 
@@ -871,7 +1024,7 @@ def gamma_packet_loop(
                     ejecta_energy_gained * 1000 
                     #/ ejecta_volume[packet.shell] 
                 )
-                """
+                
                 energy_plot_df_rows[i] = np.array(
                     [
                         i,
@@ -888,12 +1041,13 @@ def gamma_packet_loop(
                         total_opacity,
                     ]
                 )
-                """
+                
                 if packet.status == GXPacketStatus.PHOTOABSORPTION:
                     # Packet destroyed, go to the next packet
                     break
                 else:
                     packet.status = GXPacketStatus.IN_PROCESS
+                    scattered = True
 
             else:
                 # packet.tau -= total_opacity * distance_boundary * time_explosion
@@ -910,12 +1064,18 @@ def gamma_packet_loop(
                 #        side="left"
                 #    ) - 1
 
-                if packet.shell > len(ejecta_density_time[:, 0]) - 1:
+                if packet.shell > len(mass_density_time[:, 0]) - 1:
                     # escape_energy.append(packet.energy_rf)
                     packet.status = GXPacketStatus.END
+                    escaped_packets += 1
+                    if scattered:
+                        scattered_packets += 1
                 elif packet.shell < 0:
                     packet.energy_rf = 0.0
                     packet.energy_cmf = 0.0
                     packet.status = GXPacketStatus.END
+
+    print("Escaped packets:", escaped_packets)
+    print("Scattered packets:", scattered_packets)
 
     return energy_df_rows, energy_plot_df_rows

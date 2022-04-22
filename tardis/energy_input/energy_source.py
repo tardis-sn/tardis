@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from nuclear.ejecta import Ejecta
 from numba import njit
-
+import radioactivedecay as rd
 
 def decay_nuclides(shell_mass, initial_composition, epoch):
     decay_model = Ejecta(shell_mass, initial_composition)
@@ -130,3 +130,67 @@ def intensity_ratio(nuclear_data, source_1, source_2):
         np.sum(intensity_2) / total_intensity,
         scale_factor,
     )
+
+def ni56_chain_energy(taus, time_start, time_end, number_ni56, ni56_lines, co56_lines):
+    total_ni56 = -taus["Ni56"] * (np.exp(-time_end / taus["Ni56"]) - np.exp(-time_start / taus["Ni56"]))
+    total_co56 = -taus["Co56"] * (np.exp(-time_end / taus["Co56"]) - np.exp(-time_start / taus["Co56"]))
+
+    total_energy = pd.DataFrame()
+    
+    total_energy["Ni56"] = number_ni56 * (
+            (ni56_lines.energy * 1000 * ni56_lines.intensity).sum()
+            / taus["Ni56"]
+            *
+            total_ni56
+    )
+
+    total_energy["Co56"] = number_ni56 * (
+            (co56_lines.energy * 1000 * co56_lines.intensity).sum()
+            / (taus["Ni56"] - taus["Co56"])
+            * (total_ni56 - total_co56)
+    )
+
+    return total_energy
+
+def ni56_chain_energy_choice(taus, time_start, time_end, number_ni56, ni56_lines, co56_lines, isotope):
+    total_ni56 = -taus["Ni56"] * (np.exp(-time_end / taus["Ni56"]) - np.exp(-time_start / taus["Ni56"]))
+    total_co56 = -taus["Co56"] * (np.exp(-time_end / taus["Co56"]) - np.exp(-time_start / taus["Co56"]))
+
+    if isotope == "Ni56":
+        total_energy = number_ni56 * (
+                (ni56_lines.energy * 1000 * ni56_lines.intensity).sum()
+                / taus["Ni56"]
+                *
+                total_ni56
+        )
+    else:
+        total_energy = number_ni56 * (
+                (co56_lines.energy * 1000 * co56_lines.intensity).sum()
+                / (taus["Ni56"] - taus["Co56"])
+                * (total_ni56 - total_co56)
+        )
+
+    return total_energy
+
+def get_all_isotopes(abundances):
+
+    progenitors = [f"{rd.utils.Z_DICT[i[0]]}-{i[1]}" for i in abundances.T.columns]
+
+    isotopes = set(progenitors)
+    check = True
+
+    while check == True:
+        progeny = set(isotopes)
+
+        for i in isotopes:
+            for p in rd.Nuclide(i).progeny():
+                if p != 'SF':
+                    progeny.add(p) 
+        
+        if progeny == isotopes:
+            check = False
+        else:
+            isotopes |= progeny
+
+    isotopes = [i.replace("-", "") for i in isotopes]
+    return isotopes

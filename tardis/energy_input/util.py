@@ -373,3 +373,18 @@ def get_perpendicular_vector(original_direction):
     random_vector = spherical_to_cartesian(1, theta, phi)
     perpendicular_vector = np.cross(original_direction, random_vector)
     return normalize_vector(perpendicular_vector)
+
+
+@njit
+def get_index(value, array):
+
+    if value <= array[0]:
+        return 0
+    elif value > array[-1]:
+        return len(array) - 1
+
+    i = 0
+    while value > array[i+1]:
+        i += 1
+
+    return i
