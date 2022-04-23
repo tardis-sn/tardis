@@ -461,7 +461,7 @@ class MontecarloRunner(HDFWriterMixin):
             np.histogram(
                 self.reabsorbed_packet_nu,
                 weights=self.reabsorbed_packet_luminosity,
-                bins=self.spectrum_frequency.value,
+                bins=self.spectrum_frequency,
             )[0],
             "erg / s",
         )
@@ -472,7 +472,7 @@ class MontecarloRunner(HDFWriterMixin):
             np.histogram(
                 self.emitted_packet_nu,
                 weights=self.emitted_packet_luminosity,
-                bins=self.spectrum_frequency.value,
+                bins=self.spectrum_frequency,
             )[0],
             "erg / s",
         )

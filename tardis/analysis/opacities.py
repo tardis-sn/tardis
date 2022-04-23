@@ -3,8 +3,8 @@ and optical depth information may be extracted from Tardis runs."""
 import logging
 import numpy as np
 import astropy.units as units
-import astropy.constants as csts
-from astropy.modeling.blackbody import blackbody_nu
+from tardis import constants as const
+from astropy.modeling.models import Blackbody
 
 logger = logging.getLogger(__name__)
 
@@ -320,7 +320,7 @@ class opacity_calculator(object):
                 tmp
                 * self.nu_bins[i]
                 / (self.nu_bins[i + 1] - self.nu_bins[i])
-                / (csts.c * self.t_exp)
+                / (const.c * self.t_exp)
             )
 
         return kappa_exp.to("1/cm")
@@ -339,7 +339,7 @@ class opacity_calculator(object):
         """
 
         try:
-            sigma_T = csts.sigma_T
+            sigma_T = const.sigma_T
         except AttributeError:
             logger.warning("using astropy < 1.1.1: setting sigma_T manually")
             sigma_T = 6.65245873e-29 * units.m ** 2
@@ -373,13 +373,14 @@ class opacity_calculator(object):
         for i in range(self.nshells):
             delta_nu = self.nu_bins[1:] - self.nu_bins[:-1]
             temperature = self.mdl.plasma.t_rad[i]
+            bb_nu = Blackbody(temperature)
 
             tmp = (
-                blackbody_nu(self.nu_bins[:-1], temperature)
+                bb_nu(self.nu_bins[:-1])                
                 * delta_nu
                 * self.kappa_tot[:, 0]
             ).sum()
-            tmp /= (blackbody_nu(self.nu_bins[:-1], temperature) * delta_nu).sum()
+            tmp /= (bb_nu(self.nu_bins[:-1], temperature) * delta_nu).sum()
 
             kappa_planck_mean[i] = tmp
 
