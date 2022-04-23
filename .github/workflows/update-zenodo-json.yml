@@ -14,6 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.repository_owner == 'tardis-sn' }}  # Do not run scheduled jobs on forks
 
+    defaults:
+      run:
+        shell: bash -l {0}
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -25,13 +29,14 @@ jobs:
         env:
           KEY_SECRET_JSON: ${{ secrets.ZENODO_KEY_SECRET_JSON }}
 
-      - name: Setup Python
-        uses: actions/setup-python@v2
+      - name: Setup environment
+        uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: 3.6
-
-      - name: Install Packages
-        run: pip install pandas==1.0.5 jupyter==1.0.0 jupyter-client==6.1.2 nbconvert==5.3.1 tornado==4.2 orcid
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
+            environment-file: spec-file.txt
+            activate-environment: tardis_zenodo
+            use-mamba: true
 
       - name: Run Notebook
         run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
@@ -69,9 +74,6 @@ jobs:
         run: |
           git config --global user.email "tardis.sn.bot@gmail.com"
           git config --global user.name "tardis-bot"
-
-      - name: Debug step
-        run: ls -a
 
       - name: Push Changes
         run: |
