@@ -173,31 +173,31 @@ class TestModelFromArtisDensityAbundancesAllAscii:
     def test_densities(self):
         assert_almost_equal(
             self.model.density[0].to(u.Unit("g/cm3")).value,
-            9.7656229e-11 / 13.0 ** 3,
+            9.7656229e-11 / 13.0**3,
         )
         assert_almost_equal(
             self.model.density[1].to(u.Unit("g/cm3")).value,
-            4.8170911e-11 / 13.0 ** 3,
+            4.8170911e-11 / 13.0**3,
         )
         assert_almost_equal(
             self.model.density[2].to(u.Unit("g/cm3")).value,
-            2.5600000e-11 / 13.0 ** 3,
+            2.5600000e-11 / 13.0**3,
         )
         assert_almost_equal(
             self.model.density[3].to(u.Unit("g/cm3")).value,
-            1.4450533e-11 / 13.0 ** 3,
+            1.4450533e-11 / 13.0**3,
         )
         assert_almost_equal(
             self.model.density[4].to(u.Unit("g/cm3")).value,
-            8.5733893e-11 / 13.0 ** 3,
+            8.5733893e-11 / 13.0**3,
         )
         assert_almost_equal(
             self.model.density[5].to(u.Unit("g/cm3")).value,
-            5.3037103e-11 / 13.0 ** 3,
+            5.3037103e-11 / 13.0**3,
         )
         assert_almost_equal(
             self.model.density[6].to(u.Unit("g/cm3")).value,
-            3.3999447e-11 / 13.0 ** 3,
+            3.3999447e-11 / 13.0**3,
         )
 
 
@@ -313,6 +313,7 @@ def test_model_decay(simple_isotope_abundance):
 
 class TestModelState:
     """Test the ModelState class."""
+
     def setup(self):
         """Initialize config and model."""
         filename = "tardis_configv1_verysimple.yml"
@@ -386,6 +387,7 @@ class TestModelState:
 @pytest.fixture(scope="module", autouse=True)
 def to_hdf_buffer(hdf_file_path, simulation_verysimple):
     simulation_verysimple.model.to_hdf(hdf_file_path, overwrite=True)
+
 
 model_scalar_attrs = ["t_inner"]
 

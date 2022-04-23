@@ -22,8 +22,6 @@ exclude = '''
     | buck-out
     | build
     | dist
-    | model         # temporary - to remove later
-    | montecarlo    # temporary
   )/
   | setup.py
   | docs/conf.py

@@ -88,7 +88,7 @@ class BasePacketSource(abc.ABC):
         """
         l_samples = l_samples
         l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64) ** -4)
-        l_coef = np.pi ** 4 / 90.0
+        l_coef = np.pi**4 / 90.0
 
         # For testing purposes
         if montecarlo_configuration.LEGACY_MODE_ENABLED:
