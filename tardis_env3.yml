@@ -39,7 +39,7 @@ dependencies:
   - plotly
   - qgrid
 
-  # --- Packages not required for conda-forge package ---
+  # --- Packages not required for conda-forge recipe ---
 
   # tardis-sn/nuclear dependencies
   - beautifulsoup4
