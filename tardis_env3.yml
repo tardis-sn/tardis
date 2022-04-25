@@ -4,6 +4,10 @@ channels:
   - conda-forge
 
 dependencies:
+
+  # WARNING: any change to this section must be applied to the conda-forge
+  # package recipe at https://github.com/conda-forge/tardis-sn-feedstock
+
   - python=3.8
   - setuptools
   - setuptools_scm
@@ -36,7 +40,7 @@ dependencies:
   - plotly
   - qgrid
 
-  # --- Not required for conda-forge package ---
+  # --- Packages not required for conda-forge recipe ---
 
   # tardis-sn/nuclear dependencies
   - beautifulsoup4
