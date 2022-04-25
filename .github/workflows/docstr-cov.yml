@@ -56,10 +56,10 @@ jobs:
         run: |
           git checkout $BASE
           echo "BASE_COV=$(docstr-coverage -p)" >> $GITHUB_ENV
-          echo "$BASE coverage is: $BASE_COV %"
 
       - name: Test ${{ github.event.pull_request.head.sha }} coverage
         run: |
+          echo "$BASE coverage was: $BASE_COV%"
           git checkout $HEAD
           docstr-coverage --fail-under=$BASE_COV
 
