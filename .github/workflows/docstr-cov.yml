@@ -89,6 +89,7 @@ jobs:
 
       - name: Post results
         run: |
+          echo "New coverage is: $NEW_COV%"
           curl -X POST $ENDPOINT/badges/docstr-cov \
           -H "authorization: token $TOKEN" \
           -d "{ \"schemaVersion\": 1, \"label\": \"docstr-cov\", \
