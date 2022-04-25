@@ -32,6 +32,7 @@ from tardis.energy_input.calculate_opacity import (
     photoabsorption_opacity_calculation,
     photoabsorption_opacity_calculation_kasen,
     pair_creation_opacity_calculation,
+    pair_creation_opacity_artis,
     SIGMA_T,
 )
 from tardis.energy_input.gamma_ray_interactions import (
@@ -432,6 +433,7 @@ def urilight_initialize_packets(
     co56_lines,
     inner_velocities,
     outer_velocities,
+    inv_volume_time,
     times,
     energy_df_rows,
     effective_times,
@@ -504,7 +506,7 @@ def urilight_initialize_packets(
                 positron_fraction
                 * packet_energy
                 * 1000
-                #/ shell_volume
+                #* inv_volume_time[k, decay_time_index]
             )
 
             # draw a random gamma-ray in shell
@@ -548,7 +550,7 @@ def urilight_initialize_packets(
                 positron_fraction
                 * packet_energy
                 * 1000,
-                #/ shell_volume,
+                #* inv_volume_time[packet.shell, decay_time_index],
                 packet.location_r,
                 packet.time_current,
             ]
@@ -642,10 +644,12 @@ def main_gamma_ray_loop(num_decays, model, plasma, time_steps=10, time_end=80.0,
     electron_number_density_time = np.zeros((len(ejecta_velocity_volume), len(effective_time_array)))
     mass_density_time = np.zeros((len(ejecta_velocity_volume), len(effective_time_array)))
     electron_number = (electron_number_density * ejecta_volume).to_numpy()
+    inv_volume_time =  np.zeros((len(ejecta_velocity_volume), len(effective_time_array)))
 
     for i, t in enumerate(effective_time_array):
-        mass_density_time[:, i] = shell_masses * (1.0 / ejecta_velocity_volume) / (t ** 3.0)
-        electron_number_density_time[:, i] = electron_number * (1.0 / ejecta_velocity_volume) / (t ** 3.0)
+        inv_volume_time[:, i] = (1.0 / ejecta_velocity_volume) / (t ** 3.0)
+        mass_density_time[:, i] = shell_masses * inv_volume_time[:, i]
+        electron_number_density_time[:, i] = electron_number * inv_volume_time[:, i]
 
     energy_df_rows = np.zeros((number_of_shells, time_steps))
 
@@ -745,7 +749,8 @@ def main_gamma_ray_loop(num_decays, model, plasma, time_steps=10, time_end=80.0,
         ni56_lines, 
         co56_lines, 
         inner_velocities, 
-        outer_velocities, 
+        outer_velocities,
+        inv_volume_time, 
         times, 
         energy_df_rows, 
         effective_time_array, 
@@ -791,6 +796,7 @@ def main_gamma_ray_loop(num_decays, model, plasma, time_steps=10, time_end=80.0,
         grey_opacity,
         electron_number_density_time,
         mass_density_time,
+        inv_volume_time,
         iron_group_fraction_per_shell.to_numpy(),
         inner_velocities,
         outer_velocities,
@@ -900,6 +906,7 @@ def gamma_packet_loop(
     grey_opacity,
     electron_number_density_time,
     mass_density_time,
+    inv_volume_time,
     iron_group_fraction_per_shell,
     inner_velocities,
     outer_velocities,
@@ -961,12 +968,21 @@ def gamma_packet_loop(
                     comoving_energy,
                     electron_number_density_time[packet.shell, time_index]
                 )  
-
+            """
             pair_creation_opacity =  pair_creation_opacity_calculation(
                     comoving_energy,
-                    electron_number_density_time[packet.shell, time_index],
+                    mass_density_time[packet.shell, time_index],
                     iron_group_fraction_per_shell[packet.shell],
                 )
+            """
+            pair_creation_opacity = pair_creation_opacity_artis(
+                    comoving_energy,
+                    mass_density_time[packet.shell, time_index],
+                    iron_group_fraction_per_shell[packet.shell],
+                )
+
+            pair_creation_opacity = 0
+            photoabsorption_opacity = 0
 
             if grey_opacity > 0:
                 compton_opacity = 0.0
@@ -1022,7 +1038,7 @@ def gamma_packet_loop(
                 # convert KeV to eV / s / cm^3
                 energy_df_rows[packet.shell, time_index] += (
                     ejecta_energy_gained * 1000 
-                    #/ ejecta_volume[packet.shell] 
+                    #* inv_volume_time[packet.shell, time_index]
                 )
                 
                 energy_plot_df_rows[i] = np.array(
@@ -1030,7 +1046,7 @@ def gamma_packet_loop(
                         i,
                         ejecta_energy_gained
                         * 1000
-                        #/ ejecta_volume[packet.shell] 
+                        #* inv_volume_time[packet.shell, time_index]
                         / dt,
                         packet.location_r,
                         packet.location_theta,
@@ -1050,19 +1066,7 @@ def gamma_packet_loop(
                     scattered = True
 
             else:
-                # packet.tau -= total_opacity * distance_boundary * time_explosion
-                # overshoot so that the gamma-ray is comfortably in the next shell
-                #packet = move_packet(
-                #    packet, distance# * (1 + BOUNDARY_THRESHOLD)
-                #)
-            
-                packet.shell += 1
-                
-                #= np.searchsorted(
-                #        outer_velocities * effective_time_array[time_index], 
-                #        packet.location_r,
-                #        side="left"
-                #    ) - 1
+                packet.shell += 1 #get_index(packet.location_r + 1e-8 * packet.location_r, inner_velocities * effective_time_array[time_index])
 
                 if packet.shell > len(mass_density_time[:, 0]) - 1:
                     # escape_energy.append(packet.energy_rf)

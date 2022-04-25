@@ -179,3 +179,29 @@ def pair_creation_opacity_calculation(
         opacity = 0
 
     return opacity
+
+@njit
+def pair_creation_opacity_artis(
+    energy, ejecta_density, iron_group_fraction
+):
+    M_H = 1.67352e-24
+
+    # Conditions prevent divide by zero
+    # Ambwani & Sutherland (1988)
+    if energy > 1022:
+        if energy > 1500:
+            opacity_si = (0.0481 + (0.301 * (energy - 1500))) * 196.0e-27
+            opacity_fe = (0.0481 + (0.301 * (energy - 1500))) * 784.0e-27
+        else:
+            opacity_si = 1.0063 * (energy - 1022) * 196.0e-27
+            opacity_fe = 1.0063 * (energy - 1022) * 784.0e-27
+
+        opacity_si *= ejecta_density / M_H / 28
+        opacity_fe *= ejecta_density / M_H / 56
+
+        opacity = (opacity_fe * iron_group_fraction) + (opacity_si * (1. - iron_group_fraction))
+    else:
+        opacity = 0
+    
+
+    return opacity
