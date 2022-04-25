@@ -9,11 +9,11 @@ name: docstr-cov
 on:
   push:
     branches:
-    - main
+    - master
 
   pull_request:
     branches:
-    - main
+    - master
 
 env:
   RANGE: 50..75
