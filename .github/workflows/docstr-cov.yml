@@ -1,8 +1,8 @@
-# Log in to jsonbin.org with yout GitHub account to get an API key and 
+# Log in to jsonbin.org with tardis-bot GitHub account to get an API key and 
 # store it as a repository secret.
 
 # Updated badge will be available at:
-# https://img.shields.io/endpoint?url=https://jsonbin.org/<username>/<repository>/badges/docstr-cov
+# https://img.shields.io/endpoint?url=https://jsonbin.org/tardis-bot/tardis/badges/docstr-cov
 
 name: docstr-cov
 
@@ -17,7 +17,7 @@ on:
 
 env:
   RANGE: 50..75
-  ENDPOINT: https://jsonbin.org/${{ github.repository_owner }}/${{ github.event.repository.name }}
+  ENDPOINT: https://jsonbin.org/tardis-bot/${{ github.event.repository.name }}
   TOKEN: ${{ secrets.JSONBIN_APIKEY }}
 
 jobs:
