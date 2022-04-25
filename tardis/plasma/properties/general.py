@@ -13,6 +13,7 @@ __all__ = [
     "BetaRadiation",
     "GElectron",
     "NumberDensity",
+    "IsotopeNumberDensity",
     "SelectedAtoms",
     "ElectronTemperature",
     "BetaElectron",
@@ -93,6 +94,28 @@ class NumberDensity(ProcessingPlasmaProperty):
     def calculate(atomic_mass, abundance, density):
         number_densities = abundance * density
         return number_densities.div(atomic_mass.loc[abundance.index], axis=0)
+
+
+class IsotopeNumberDensity(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    isotope_number_density : Pandas DataFrame, dtype float
+                     Indexed by atomic number, columns corresponding to zones
+    """
+
+    outputs = ("isotope_number_density",)
+    latex_name = ("N_{i}",)
+
+    @staticmethod
+    def calculate(isotope_mass, isotope_abundance, density):
+        number_densities = isotope_abundance * density
+        isotope_number_density_array = (
+            number_densities.to_numpy() / isotope_mass.to_numpy()
+        )
+        return pd.DataFrame(
+            isotope_number_density_array, index=isotope_abundance.index
+        )
 
 
 class SelectedAtoms(ProcessingPlasmaProperty):

@@ -538,6 +538,7 @@ class AtomicMass(ProcessingPlasmaProperty):
         else:
             return atomic_data.atom_data.loc[selected_atoms].mass
 
+
 class IsotopeMass(ProcessingPlasmaProperty):
     """
     Attributes
@@ -558,9 +559,17 @@ class IsotopeMass(ProcessingPlasmaProperty):
             for i in isotope_abundance.index:
                 element_name = rd.utils.Z_to_elem(i[0])
                 isotope_name = element_name + str(i[1])
-                
-                isotope_mass_dict[isotope_name] = rd.Nuclide(isotope_name).atomic_mass
-            return pd.DataFrame.from_dict(isotope_mass_dict, orient="index", columns=["mass"])
+
+                isotope_mass_dict[i] = rd.Nuclide(isotope_name).atomic_mass
+
+            isotope_mass_df = pd.DataFrame.from_dict(
+                isotope_mass_dict, orient="index", columns=["mass"]
+            )
+            isotope_mass_df.index = pd.MultiIndex.from_tuples(
+                isotope_mass_df.index
+            )
+            isotope_mass_df.index.names = ["atomic_number", "mass_number"]
+            return isotope_mass_df / const.N_A
 
 
 class IonizationData(BaseAtomicDataProperty):
