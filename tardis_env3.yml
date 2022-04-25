@@ -23,8 +23,9 @@ dependencies:
   # I/O
   - pyyaml
   - jsonschema=3 # Issue #1807
-  - pytables
+  - hdf5=1.10
   - h5py
+  - pytables
   - requests
   - tqdm
 
