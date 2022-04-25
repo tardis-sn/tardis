@@ -1,19 +1,30 @@
-name: docstr-coverage
+# Log in to jsonbin.org with yout GitHub account to get an API key and 
+# store it as a repository secret.
+
+# Updated badge will be available at:
+# https://img.shields.io/endpoint?url=https://jsonbin.org/<username>/<repository>/badges/docstr-cov
+
+name: docstr-cov
 
 on:
   push:
     branches:
-    - master
+    - main
 
   pull_request:
     branches:
-    - master
+    - main
+
+env:
+  RANGE: 50..75
+  ENDPOINT: https://jsonbin.org/${{ github.repository_owner }}/${{ github.event.repository.name }}
+  TOKEN: ${{ secrets.JSONBIN_APIKEY }}
 
 jobs:
   check:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' }}
     steps:
+
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -24,46 +35,63 @@ jobs:
           python-version: 3.x
 
       - name: Install docstr-coverage
-        run: pip install docstr-coverage
+        run: pip install docstr-coverage==2.2.0
 
+      - name: Get SHAs
+        run: |
+          if [[ ${{ github.event_name }} == 'push' ]]; then
+            echo "BASE=$(git rev-parse HEAD^)" >> $GITHUB_ENV
+            echo "HEAD=$(git rev-parse HEAD)" >> $GITHUB_ENV
+          elif [[ ${{ github.event_name }} == 'pull_request' ]]; then
+            echo "BASE=${{ github.event.pull_request.base.sha }}" >> $GITHUB_ENV
+            echo "HEAD=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+          
+          else
+            echo "Unexpected event trigger"
+            exit 1
+          fi
       - name: Get base coverage
         run: |
-          git checkout ${{ github.event.pull_request.base.sha }}
+          git checkout $BASE
           echo "BASE_COV=$(docstr-coverage -p)" >> $GITHUB_ENV
-
-      - name: Get head coverage
+      - name: Test head coverage
         run: |
-          git checkout ${{ github.event.pull_request.head.sha }}
+          git checkout $HEAD
           docstr-coverage --fail-under=$BASE_COV
-
       - name: Blame
-        if: ${{ failure() }}
         run: |
-          git diff --name-only $(git merge-base ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}) | xargs docstr-coverage --accept-empty
+          git diff --name-only $(git merge-base $BASE $HEAD) | \
+          xargs docstr-coverage --accept-empty
+        if: failure()
 
-  post:
-    runs-on: ubuntu-latest
-    if: github.repository_owner == 'tardis-sn' && github.event_name == 'push'
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
-
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-
-      - name: Install docstr-coverage
-        run: pip install docstr-coverage
-
-      - name: Get coverage (rounded)
+      - name: Get new coverage
         run: echo "NEW_COV=$(printf "%.f" $(docstr-coverage -p))" >> $GITHUB_ENV
+        if: always() && github.event_name == 'push'
 
-      # Using jsonbin.org with tardis-bot GitHub account
+      - name: Set label color
+        run: |
+          if [[ $NEW_COV -ge $(echo {${{ env.RANGE }}} | awk '{print $NF;}') ]]; then
+            echo "COLOR=green" >> $GITHUB_ENV
+          elif [[ $NEW_COV -lt $(echo {${{ env.RANGE }}} | awk '{print $1;}') ]]; then
+            echo "COLOR=red" >> $GITHUB_ENV
+          else
+            echo "COLOR=orange" >> $GITHUB_ENV
+          fi
+        if: always() && github.event_name == 'push'
+
       - name: Post results
         run: |
-          curl -X POST https://jsonbin.org/tardis-bot/badges/tardis/docstr-coverage -H 'authorization: token ${{ secrets.JSONBIN_APIKEY }}' -d "{ \"schemaVersion\": 1, \"label\": \"docstr-coverage\", \"message\": \"$NEW_COV%\", \"color\": \"orange\" }"
+          curl -X POST $ENDPOINT/badges/docstr-cov \
+          -H "authorization: token $TOKEN" \
+          -d "{ \"schemaVersion\": 1, \"label\": \"docstr-cov\", \
+                \"message\": \"$NEW_COV%\", \"color\": \"$COLOR\" }"
+        if: always() && github.event_name == 'push'
 
-      # Updated badge will be available at: https://img.shields.io/endpoint?url=https://jsonbin.org/tardis-bot/badges/tardis/docstr-coverage
-      # Could take some minutes!
+      - name: Set public endpoint
+        run: |
+          curl -X PUT $ENDPOINT/_perms -H "authorization: token $TOKEN"
+        if: always() && github.event_name == 'push'
+
+      - name: Show badge URL
+        run: echo "https://img.shields.io/endpoint?url=$ENDPOINT/badges/docstr-cov"
+        if: always() && github.event_name == 'push'
