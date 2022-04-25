@@ -15,7 +15,10 @@ from tardis.montecarlo.montecarlo_numba.numba_config import (
 )
 
 from tardis.montecarlo.montecarlo_numba.utils import MonteCarloException
-from tardis.montecarlo.montecarlo_numba.r_packet import print_r_packet_properties
+from tardis.montecarlo.montecarlo_numba.r_packet import (
+    print_r_packet_properties,
+)
+
 
 @njit(**njit_dict_no_parallel)
 def calculate_distance_boundary(r, mu, r_inner, r_outer):
@@ -96,9 +99,7 @@ def calculate_distance_line(
     if nu_diff >= 0:
         distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
     else:
-        raise MonteCarloException(
-            "nu difference is less than 0.0"
-        )
+        raise MonteCarloException("nu difference is less than 0.0")
 
     if nc.ENABLE_FULL_RELATIVITY:
         return calculate_distance_line_full_relativity(

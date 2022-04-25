@@ -4,13 +4,17 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,
 )
 from tardis.montecarlo.montecarlo_numba.r_packet_transport import (
-    move_r_packet, move_packet_across_shell_boundary)
-from tardis.montecarlo.montecarlo_numba.continuum.r_packet_transport_continuum import trace_packet_continuum
+    move_r_packet,
+    move_packet_across_shell_boundary,
+)
+from tardis.montecarlo.montecarlo_numba.continuum.r_packet_transport_continuum import (
+    trace_packet_continuum,
+)
 
 
 from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     get_inverse_doppler_factor,
-    get_doppler_factor
+    get_doppler_factor,
 )
 from tardis.montecarlo.montecarlo_numba.interaction import (
     InteractionType,
@@ -26,22 +30,25 @@ from tardis.montecarlo.montecarlo_numba.vpacket import trace_vpacket_volley
 
 from tardis import constants as const
 from tardis.montecarlo.montecarlo_numba.opacities import (
-    chi_continuum_calculator, chi_electron_calculator
+    chi_continuum_calculator,
+    chi_electron_calculator,
 )
 from tardis.montecarlo.montecarlo_numba.estimators import (
-    update_bound_free_estimators
+    update_bound_free_estimators,
 )
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
 
 @njit
-def single_packet_loop(r_packet,
+def single_packet_loop(
+    r_packet,
     numba_model,
     numba_plasma,
     estimators,
     vpacket_collection,
-    rpacket_tracker):
+    rpacket_tracker,
+):
     """
     Parameters
     ----------
@@ -92,15 +99,17 @@ def single_packet_loop(r_packet,
                 x_sect_bfs,
                 chi_ff,
             ) = chi_continuum_calculator(
-                numba_plasma, 
-                comov_nu, 
-                r_packet.current_shell_id
+                numba_plasma, comov_nu, r_packet.current_shell_id
             )
             chi_continuum = chi_e + chi_bf_tot + chi_ff
-            escat_prob = chi_e / chi_continuum # probability of e-scatter
+            escat_prob = chi_e / chi_continuum  # probability of e-scatter
             distance, interaction_type, delta_shell = trace_packet_continuum(
-                r_packet, numba_model, numba_plasma,
-                estimators, chi_continuum, escat_prob
+                r_packet,
+                numba_model,
+                numba_plasma,
+                estimators,
+                chi_continuum,
+                escat_prob,
             )
             update_bound_free_estimators(
                 comov_nu,
@@ -117,10 +126,14 @@ def single_packet_loop(r_packet,
             escat_prob = 1.0
             chi_continuum = chi_e
             distance, interaction_type, delta_shell = trace_packet_continuum(
-                r_packet, numba_model, numba_plasma,
-                estimators, chi_continuum, escat_prob
+                r_packet,
+                numba_model,
+                numba_plasma,
+                estimators,
+                chi_continuum,
+                escat_prob,
             )
-            
+
         # If continuum processes: update continuum estimators
 
         if interaction_type == InteractionType.BOUNDARY:
@@ -143,8 +156,7 @@ def single_packet_loop(r_packet,
                 numba_plasma,
             )
             trace_vpacket_volley(
-                r_packet, vpacket_collection, 
-                numba_model, numba_plasma
+                r_packet, vpacket_collection, numba_model, numba_plasma
             )
 
         elif interaction_type == InteractionType.ESCATTERING:
@@ -158,15 +170,23 @@ def single_packet_loop(r_packet,
             trace_vpacket_volley(
                 r_packet, vpacket_collection, numba_model, numba_plasma
             )
-        elif (montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED and
-         interaction_type == InteractionType.CONTINUUM_PROCESS):
+        elif (
+            montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
+            and interaction_type == InteractionType.CONTINUUM_PROCESS
+        ):
             r_packet.last_interaction_type = InteractionType.CONTINUUM_PROCESS
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
             )
-            continuum_event(r_packet, numba_model.time_explosion,
-                    numba_plasma, chi_bf_tot, chi_ff, chi_bf_contributions, 
-                    current_continua)
+            continuum_event(
+                r_packet,
+                numba_model.time_explosion,
+                numba_plasma,
+                chi_bf_tot,
+                chi_ff,
+                chi_bf_contributions,
+                current_continua,
+            )
 
             trace_vpacket_volley(
                 r_packet, vpacket_collection, numba_model, numba_plasma

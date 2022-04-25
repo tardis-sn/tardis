@@ -17,8 +17,8 @@ import sys
 
 from astropy import physical_constants, astronomical_constants
 
-physical_constants.set('codata2014')
-astronomical_constants.set('iau2012')
+physical_constants.set("codata2014")
+astronomical_constants.set("iau2012")
 
 # ----------------------------------------------------------------------------
 

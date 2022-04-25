@@ -410,7 +410,7 @@ class BasePlasma(PlasmaWriterMixin):
                     r"\begin{tikzpicture}[>=latex',line join=bevel,]",
                     r"\begin{tikzpicture}"
                     r"[>=latex',line join=bevel,"
-                    fr"scale={scale}]",
+                    rf"scale={scale}]",
                 ),
                 end="",
             )
