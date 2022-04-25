@@ -42,6 +42,7 @@ jobs:
           if [[ ${{ github.event_name }} == 'push' ]]; then
             echo "BASE=$(git rev-parse HEAD^)" >> $GITHUB_ENV
             echo "HEAD=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
           elif [[ ${{ github.event_name }} == 'pull_request' ]]; then
             echo "BASE=${{ github.event.pull_request.base.sha }}" >> $GITHUB_ENV
             echo "HEAD=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
@@ -50,14 +51,18 @@ jobs:
             echo "Unexpected event trigger"
             exit 1
           fi
-      - name: Get base coverage
+
+      - name: Get ${{ github.event.pull_request.base.sha }} coverage
         run: |
           git checkout $BASE
           echo "BASE_COV=$(docstr-coverage -p)" >> $GITHUB_ENV
-      - name: Test head coverage
+          echo "$BASE coverage is: $BASE_COV %"
+
+      - name: Test ${{ github.event.pull_request.head.sha }} coverage
         run: |
           git checkout $HEAD
           docstr-coverage --fail-under=$BASE_COV
+
       - name: Blame
         run: |
           git diff --name-only $(git merge-base $BASE $HEAD) | \
@@ -72,10 +77,13 @@ jobs:
         run: |
           if [[ $NEW_COV -ge $(echo {${{ env.RANGE }}} | awk '{print $NF;}') ]]; then
             echo "COLOR=green" >> $GITHUB_ENV
+
           elif [[ $NEW_COV -lt $(echo {${{ env.RANGE }}} | awk '{print $1;}') ]]; then
             echo "COLOR=red" >> $GITHUB_ENV
+
           else
             echo "COLOR=orange" >> $GITHUB_ENV
+
           fi
         if: always() && github.event_name == 'push'
 
