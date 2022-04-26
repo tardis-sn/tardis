@@ -13,8 +13,6 @@ on:
     branches:
     - '*'
 
-  workflow_dispatch:  # manual trigger
-
 concurrency:
   group: tests-${{ github.ref }}
   cancel-in-progress: true
