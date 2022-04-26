@@ -25,7 +25,7 @@ def test_macro_atom(
     result, transition_type = macro_atom.macro_atom(
         activation_level_id,
         static_packet.current_shell_id,
-        verysimple_numba_plasma
+        verysimple_numba_plasma,
     )
     assert result == expected
     assert transition_type == -1  # line transition

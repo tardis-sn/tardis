@@ -59,7 +59,7 @@ def verysimple_numba_model(nb_simulation_verysimple):
 @pytest.fixture(scope="package")
 def verysimple_estimators(nb_simulation_verysimple):
     runner = nb_simulation_verysimple.runner
-    
+
     return Estimators(
         runner.j_estimator,
         runner.nu_bar_estimator,
@@ -69,7 +69,7 @@ def verysimple_estimators(nb_simulation_verysimple):
         runner.stim_recomb_estimator,
         runner.bf_heating_estimator,
         runner.stim_recomb_cooling_estimator,
-        runner.photo_ion_estimator_statistics
+        runner.photo_ion_estimator_statistics,
     )
 
 
@@ -126,6 +126,7 @@ def packet(verysimple_packet_collection):
         seed=1963,
         index=0,
     )
+
 
 @pytest.fixture(scope="function")
 def static_packet():
