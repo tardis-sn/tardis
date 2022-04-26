@@ -162,8 +162,8 @@ class MatplotlibWidget(FigureCanvas):
         """Enable picking shells in the shell plot."""
         if mouseevent.xdata is None:
             return False, dict()
-        mouse_r2 = mouseevent.xdata**2 + mouseevent.ydata**2
-        if shell.r_inner**2 < mouse_r2 < shell.r_outer**2:
+        mouse_r2 = mouseevent.xdata ** 2 + mouseevent.ydata ** 2
+        if shell.r_inner ** 2 < mouse_r2 < shell.r_outer ** 2:
             return True, dict()
         return False, dict()
 

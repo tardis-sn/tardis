@@ -10,3 +10,4 @@ def runner():
     config = config_reader.Configuration.from_yaml(config_fname)
     runner = MontecarloRunner.from_config(config)
     return runner
+

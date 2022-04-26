@@ -6,7 +6,6 @@ from numba import njit
 from scipy.special import expn
 from scipy.interpolate import PchipInterpolator
 from collections import Counter as counter
-import radioactivedecay as rd
 from tardis import constants as const
 
 from tardis.plasma.properties.base import (
@@ -33,7 +32,6 @@ __all__ = [
     "LinesLowerLevelIndex",
     "LinesUpperLevelIndex",
     "AtomicMass",
-    "IsotopeMass",
     "IonizationData",
     "ZetaData",
     "NLTEData",
@@ -179,9 +177,9 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     )
 
     def calculate(self, atomic_data, continuum_interaction_species):
-        # photoionization_data = atomic_data.photoionization_data.set_index(
+        #photoionization_data = atomic_data.photoionization_data.set_index(
         #    ["atomic_number", "ion_number", "level_number"]
-        # )
+        #)
         photoionization_data = atomic_data.photoionization_data
         mask_selected_species = photoionization_data.index.droplevel(
             "level_number"
@@ -539,39 +537,6 @@ class AtomicMass(ProcessingPlasmaProperty):
             return atomic_data.atom_data.loc[selected_atoms].mass
 
 
-class IsotopeMass(ProcessingPlasmaProperty):
-    """
-    Attributes
-    ----------
-    isotope_mass : pandas.Series
-        Masses of the isotopes used. Indexed by isotope name e.g. 'Ni56'.
-    """
-
-    outputs = ("isotope_mass",)
-
-    def calculate(self, isotope_abundance):
-        if getattr(self, self.outputs[0]) is not None:
-            return (getattr(self, self.outputs[0]),)
-        else:
-            if isotope_abundance.empty:
-                return None
-            isotope_mass_dict = {}
-            for i in isotope_abundance.index:
-                element_name = rd.utils.Z_to_elem(i[0])
-                isotope_name = element_name + str(i[1])
-
-                isotope_mass_dict[i] = rd.Nuclide(isotope_name).atomic_mass
-
-            isotope_mass_df = pd.DataFrame.from_dict(
-                isotope_mass_dict, orient="index", columns=["mass"]
-            )
-            isotope_mass_df.index = pd.MultiIndex.from_tuples(
-                isotope_mass_df.index
-            )
-            isotope_mass_df.index.names = ["atomic_number", "mass_number"]
-            return isotope_mass_df / const.N_A
-
-
 class IonizationData(BaseAtomicDataProperty):
     """
     Attributes
@@ -789,7 +754,7 @@ class YgData(ProcessingPlasmaProperty):
         nu_lines = lines_filtered.nu.values
 
         yg = f_lu * (I_H / (H * nu_lines)) ** 2
-        coll_const = A0**2 * np.pi * np.sqrt(8 * K_B / (np.pi * M_E))
+        coll_const = A0 ** 2 * np.pi * np.sqrt(8 * K_B / (np.pi * M_E))
         yg = 14.5 * coll_const * t_electrons * yg[:, np.newaxis]
 
         u0 = nu_lines[np.newaxis].T / t_electrons * (H / K_B)

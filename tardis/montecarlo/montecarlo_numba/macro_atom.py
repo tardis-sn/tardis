@@ -67,7 +67,4 @@ def macro_atom(activation_level_id, current_shell_id, numba_plasma):
             )
 
     # current_transition_type = MacroAtomTransitionType(current_transition_type)
-    return (
-        numba_plasma.transition_line_id[transition_id],
-        current_transition_type,
-    )
+    return numba_plasma.transition_line_id[transition_id], current_transition_type

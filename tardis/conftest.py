@@ -171,7 +171,6 @@ def config_montecarlo_1e5_verysimple():
     config = Configuration.from_yaml(path)
     return config
 
-
 @pytest.fixture(scope="session")
 def simulation_verysimple(config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)

@@ -4,17 +4,14 @@ channels:
   - conda-forge
 
 dependencies:
-  # WARNING: any change to this section must be applied to the conda-forge
-  # package recipe at https://github.com/conda-forge/tardis-sn-feedstock
-
-  - python=3.8
+  - python=3.7
   - setuptools
   - setuptools_scm
   - pip
   - numpy=1.19
   - scipy=1.5
   - pandas=1.0
-  - astropy=5.0
+  - astropy=3
   - numba=0.53
   - numexpr
   - radioactivedecay>=0.4.12
@@ -26,20 +23,21 @@ dependencies:
   # I/O
   - pyyaml
   - jsonschema=3 # Issue #1807
-  - hdf5=1.10
-  - h5py
   - pytables
+  - h5py
+  - pickle5 # Issue #1566
   - requests
   - tqdm
 
   # Widgets & Visualization
-  - notebook
-  - matplotlib-base
+  - jupyter
+  - matplotlib
   - ipywidgets
   - plotly
   - qgrid
+  # - pyside2  # (Qt GUI) Issue #1652
 
-  # --- Packages not required for conda-forge recipe ---
+  # --- Not required for conda-forge package and Numba integration pipeline ---
 
   # tardis-sn/nuclear dependencies
   - beautifulsoup4
@@ -58,8 +56,9 @@ dependencies:
   - nbconvert
   - nbformat
   - nbsphinx
+  - docutils=0.16 # Issue #1522
   - snakeviz
-  - dot2tex
+  - Jinja2=3.0.3 # github.com/spatialaudio/nbsphinx/issues/641
 
   # Test/Coverage
   - pytest
@@ -69,7 +68,7 @@ dependencies:
   - coverage
 
   # Code quality
-  - black=22.3
+  - black=21.12b0
 
   # Other
   - git-lfs

@@ -28,7 +28,6 @@
 import os
 import sys
 import datetime
-import tardis  # FIXME: this import is required by astropy.constants
 from importlib import import_module
 
 try:

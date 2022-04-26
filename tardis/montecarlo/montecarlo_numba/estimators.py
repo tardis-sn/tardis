@@ -13,7 +13,6 @@ from tardis.montecarlo.montecarlo_numba.frame_transformations import (
     calc_packet_energy_full_relativity,
 )
 
-
 @njit(**njit_dict_no_parallel)
 def set_estimators(r_packet, distance, numba_estimator, comov_nu, comov_energy):
     """

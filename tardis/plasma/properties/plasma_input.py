@@ -5,7 +5,6 @@ __all__ = [
     "DilutionFactor",
     "AtomicData",
     "Abundance",
-    "IsotopeAbundance",
     "Density",
     "TimeExplosion",
     "JBlueEstimator",
@@ -61,17 +60,6 @@ class Abundance(Input):
     """
 
     outputs = ("abundance",)
-
-
-class IsotopeAbundance(Input):
-    """
-    Attributes
-    ----------
-    isotope_abundance : Numpy array, dtype float
-        Fractional abundance of isotopes
-    """
-
-    outputs = ("isotope_abundance",)
 
 
 class Density(ArrayInput):

@@ -6,7 +6,7 @@ from tardis import constants as const
 h_cgs = const.h.cgs.value
 c = const.c.to("cm/s").value
 kb = const.k_B.cgs.value
-inv_c2 = 1 / (c**2)
+inv_c2 = 1 / (c ** 2)
 
 
 @njit(**njit_dict)

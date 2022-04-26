@@ -50,7 +50,7 @@ def estimators():
         stim_recomb_estimator=np.empty((0, 0), dtype=np.float64),
         bf_heating_estimator=np.empty((0, 0), dtype=np.float64),
         stim_recomb_cooling_estimator=np.empty((0, 0), dtype=np.float64),
-        photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64),
+        photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64)
     )
 
 
@@ -254,7 +254,6 @@ def test_update_line_estimators(
     assert_allclose(estimators.j_blue_estimator, expected_j_blue)
     assert_allclose(estimators.Edotlu_estimator, expected_Edotlu)
 
-
 # TODO set RNG consistently
 # TODO: update this test to use the correct trace_packet
 @pytest.mark.xfail(reason="Need to fix estimator differences across runs")
@@ -325,9 +324,7 @@ def test_move_r_packet(
         packet.r, packet.mu, model.time_explosion
     )
 
-    r_packet_transport.move_r_packet(
-        packet, distance, model.time_explosion, estimators
-    )
+    r_packet_transport.move_r_packet(packet, distance, model.time_explosion, estimators)
 
     assert_almost_equal(packet.mu, expected_params["mu"])
     assert_almost_equal(packet.r, expected_params["r"])
@@ -405,3 +402,5 @@ def test_move_packet_across_shell_boundary_increment(
         packet, delta_shell, no_of_shells
     )
     assert packet.current_shell_id == current_shell_id + delta_shell
+
+

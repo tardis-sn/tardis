@@ -7,7 +7,7 @@ proposed by M. Kromer (see, for example, Kromer et al. 2013, figure 4).
 import numpy as np
 import pandas as pd
 import astropy.units as u
-from astropy.modeling.models import BlackBody
+import astropy.modeling.blackbody as abb
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -868,7 +868,7 @@ class SDECPlotter:
             self.data[packets_mode].packets_df["nus"][
                 self.packet_nu_range_mask
             ][mask_noint],
-            bins=self.plot_frequency_bins.value,
+            bins=self.plot_frequency_bins,
             weights=weights[mask_noint],
             density=False,
         )
@@ -901,7 +901,7 @@ class SDECPlotter:
             self.data[packets_mode].packets_df["nus"][
                 self.packet_nu_range_mask
             ][mask_escatter],
-            bins=self.plot_frequency_bins.value,
+            bins=self.plot_frequency_bins,
             weights=weights[mask_escatter],
             density=False,
         )
@@ -938,7 +938,7 @@ class SDECPlotter:
             # Histogram of specific species
             hist_el = np.histogram(
                 group["nus"],
-                bins=self.plot_frequency_bins.value,
+                bins=self.plot_frequency_bins,
                 weights=group["energies"]
                 / self.lum_to_flux
                 / self.data[packets_mode].time_of_simulation,
@@ -1026,7 +1026,7 @@ class SDECPlotter:
             # Histogram of specific species
             hist_el = np.histogram(
                 group["last_line_interaction_in_nu"],
-                bins=self.plot_frequency_bins.value,
+                bins=self.plot_frequency_bins,
                 weights=group["energies"]
                 / self.lum_to_flux
                 / self.data[packets_mode].time_of_simulation,
@@ -1064,15 +1064,13 @@ class SDECPlotter:
             Luminosity density lambda (or Flux) of photosphere (inner boundary
             of TARDIS simulation)
         """
-        bb_lam = BlackBody(
-            self.data[packets_mode].t_inner,
-            scale=1.0 * u.erg / (u.cm**2 * u.AA * u.s * u.sr),
-        )
-
         L_lambda_ph = (
-            bb_lam(self.plot_wavelength)
+            abb.blackbody_lambda(
+                self.plot_wavelength,
+                self.data[packets_mode].t_inner,
+            )
             * 4
-            * np.pi**2
+            * np.pi ** 2
             * self.data[packets_mode].r_inner[0] ** 2
             * u.sr
         ).to("erg / (AA s)")

@@ -7,8 +7,9 @@ from tardis.montecarlo.montecarlo_numba import (
 )
 
 from tardis.montecarlo.montecarlo_numba import numba_config as nc
-from tardis.montecarlo.montecarlo_numba.numba_config import C_SPEED_OF_LIGHT
-
+from tardis.montecarlo.montecarlo_numba.numba_config import (
+    C_SPEED_OF_LIGHT
+)
 
 @njit(**njit_dict_no_parallel)
 def get_doppler_factor(r, mu, time_explosion):

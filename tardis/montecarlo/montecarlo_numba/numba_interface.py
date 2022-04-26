@@ -57,9 +57,9 @@ numba_plasma_spec = [
     ("x_sect", float64[:]),
     ("phot_nus", float64[:]),
     ("ff_opacity_factor", float64[:]),
-    ("emissivities", float64[:, :]),
+    ("emissivities", float64[:,:]),
     ("photo_ion_activation_idx", int64[:]),
-    ("k_packet_idx", int64),
+    ("k_packet_idx", int64)
 ]
 
 
@@ -88,7 +88,7 @@ class NumbaPlasma(object):
         ff_opacity_factor,
         emissivities,
         photo_ion_activation_idx,
-        k_packet_idx,
+        k_packet_idx
     ):
         """
         Plasma for the Numba code
@@ -139,7 +139,6 @@ class NumbaPlasma(object):
         self.photo_ion_activation_idx = photo_ion_activation_idx
         self.k_packet_idx = k_packet_idx
 
-
 def numba_plasma_initialize(plasma, line_interaction_type):
     """
     Initialize the NumbaPlasma object and copy over the data over from TARDIS Plasma
@@ -183,8 +182,8 @@ def numba_plasma_initialize(plasma, line_interaction_type):
             macro_block_references = plasma.macro_block_references
         else:
             macro_block_references = plasma.atomic_data.macro_atom_references[
-                "block_references"
-            ].values
+                 "block_references"
+             ].values
         transition_type = plasma.macro_atom_data["transition_type"].values
 
         # Destination level is not needed and/or generated for downbranch
@@ -197,8 +196,7 @@ def numba_plasma_initialize(plasma, line_interaction_type):
             plasma.level2continuum_idx.index
         ].values
         p_fb_deactivation = np.ascontiguousarray(
-            plasma.p_fb_deactivation.values.copy(), dtype=np.float64
-        )
+            plasma.p_fb_deactivation.values.copy(), dtype=np.float64)
 
         phot_nus = plasma.photo_ion_cross_sections.nu.loc[
             plasma.level2continuum_idx.index
@@ -209,12 +207,8 @@ def numba_plasma_initialize(plasma, line_interaction_type):
             .values.cumsum(),
             [1, 0],
         )
-        photo_ion_nu_threshold_mins = (
-            phot_nus.groupby(level=[0, 1, 2], sort=False).first().values
-        )
-        photo_ion_nu_threshold_maxs = (
-            phot_nus.groupby(level=[0, 1, 2], sort=False).last().values
-        )
+        photo_ion_nu_threshold_mins = phot_nus.groupby(level=[0, 1, 2], sort=False).first().values
+        photo_ion_nu_threshold_maxs = phot_nus.groupby(level=[0, 1, 2], sort=False).last().values
 
         chi_bf = plasma.chi_bf.loc[plasma.level2continuum_idx.index].values
         x_sect = plasma.photo_ion_cross_sections.x_sect.loc[
@@ -222,10 +216,8 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         ].values
 
         phot_nus = phot_nus.values
-        ff_opacity_factor = plasma.ff_cooling_factor / np.sqrt(t_electrons)
-        emissivities = plasma.fb_emission_cdf.loc[
-            plasma.level2continuum_idx.index
-        ].values
+        ff_opacity_factor = plasma.ff_cooling_factor/np.sqrt(t_electrons)
+        emissivities = plasma.fb_emission_cdf.loc[plasma.level2continuum_idx.index].values
         photo_ion_activation_idx = plasma.photo_ion_idx.loc[
             plasma.level2continuum_idx.index, "destination_level_idx"
         ].values
@@ -236,11 +228,11 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         photo_ion_nu_threshold_mins = np.zeros(0, dtype=np.float64)
         photo_ion_nu_threshold_maxs = np.zeros(0, dtype=np.float64)
         photo_ion_block_references = np.zeros(0, dtype=np.int64)
-        chi_bf = np.zeros((0, 0), dtype=np.float64)
+        chi_bf = np.zeros((0,0), dtype=np.float64)
         x_sect = np.zeros(0, dtype=np.float64)
         phot_nus = np.zeros(0, dtype=np.float64)
         ff_opacity_factor = np.zeros(0, dtype=np.float64)
-        emissivities = np.zeros((0, 0), dtype=np.float64)
+        emissivities = np.zeros((0,0), dtype=np.float64)
         photo_ion_activation_idx = np.zeros(0, dtype=np.int64)
         k_packet_idx = np.int64(-1)
 
@@ -266,7 +258,7 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         ff_opacity_factor,
         emissivities,
         photo_ion_activation_idx,
-        k_packet_idx,
+        k_packet_idx
     )
 
 
@@ -414,7 +406,6 @@ class VPacketCollection(object):
         self.last_interaction_out_id[self.idx] = last_interaction_out_id
         self.idx += 1
 
-
 rpacket_tracker_spec = [
     ("length", int64),
     ("seed", int64),
@@ -427,7 +418,6 @@ rpacket_tracker_spec = [
     ("shell_id", int64[:]),
     ("interact_id", int64),
 ]
-
 
 @jitclass(rpacket_tracker_spec)
 class RPacketTracker(object):
@@ -528,6 +518,7 @@ continuum_estimators_spec = [
     ("stim_recomb_cooling_estimator", float64[:, :]),
     ("photo_ion_estimator_statistics", int64[:, :]),
 ]
+
 
 
 @jitclass(base_estimators_spec + continuum_estimators_spec)

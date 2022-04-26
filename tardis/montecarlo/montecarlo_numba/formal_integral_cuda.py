@@ -283,7 +283,7 @@ class CudaFormalIntegrator(object):
             shell_id,
         )
 
-        return L, I_nu
+        return L
 
 
 @cuda.jit(device=True)
@@ -375,7 +375,6 @@ class BoundsError(IndexError):
     Used to check bounds in reverse
     binary search
     """
-
     pass
 
 

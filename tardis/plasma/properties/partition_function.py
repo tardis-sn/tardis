@@ -208,7 +208,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 dtype=np.float64,
             )
             r_ul_matrix_reshaped = r_ul_matrix.reshape(
-                (number_of_levels**2, len(t_electrons))
+                (number_of_levels ** 2, len(t_electrons))
             )
             r_ul_matrix_reshaped[r_ul_index] = (
                 A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues_filtered
@@ -216,7 +216,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             r_ul_matrix_reshaped[r_ul_index] *= beta_sobolevs_filtered
             r_lu_matrix = np.zeros_like(r_ul_matrix)
             r_lu_matrix_reshaped = r_lu_matrix.reshape(
-                (number_of_levels**2, len(t_electrons))
+                (number_of_levels ** 2, len(t_electrons))
             )
             r_lu_matrix_reshaped[r_lu_index] = (
                 B_lus[np.newaxis].T * j_blues_filtered * beta_sobolevs_filtered

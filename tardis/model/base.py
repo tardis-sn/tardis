@@ -413,16 +413,16 @@ class Radial1DModel(HDFWriterMixin):
                 value = u.Quantity(value, self.v_boundary_inner.unit)
                 if value > self.v_boundary_outer:
                     raise ValueError(
-                        f"v_boundary_inner ({value}) must not be higher than "
-                        f"v_boundary_outer ({self.v_boundary_outer})."
+                        "v_boundary_inner must not be higher than "
+                        "v_boundary_outer."
                     )
                 if value > self.raw_velocity[-1]:
                     raise ValueError(
-                        f"v_boundary_inner ({value}) is outside of the model range ({self.raw_velocity[-1]})."
+                        "v_boundary_inner is outside of " "the model range."
                     )
                 if value < self.raw_velocity[0]:
                     raise ValueError(
-                        f"v_boundary_inner ({value}) is lower than the lowest shell ({self.raw_velocity[0]}) in the model."
+                        "v_boundary_inner is lower than the lowest shell in the model."
                     )
         self._v_boundary_inner = value
         # Invalidate the cached cut-down velocity array
@@ -443,15 +443,16 @@ class Radial1DModel(HDFWriterMixin):
                 value = u.Quantity(value, self.v_boundary_outer.unit)
                 if value < self.v_boundary_inner:
                     raise ValueError(
-                        f"v_boundary_outer ({value}) must not be smaller than v_boundary_inner ({self.v_boundary_inner})."
+                        "v_boundary_outer must not be smaller than "
+                        "v_boundary_inner."
                     )
                 if value < self.raw_velocity[0]:
                     raise ValueError(
-                        f"v_boundary_outer ({value}) is outside of the model range ({self.raw_velocity[0]})."
+                        "v_boundary_outer is outside of " "the model range."
                     )
                 if value > self.raw_velocity[-1]:
                     raise ValueError(
-                        f"v_boundary_outer ({value}) is larger than the largest shell in the model ({self.raw_velocity[-1]})."
+                        "v_boundary_outer is larger than the largest shell in the model."
                     )
         self._v_boundary_outer = value
         # Invalidate the cached cut-down velocity array

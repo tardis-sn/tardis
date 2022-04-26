@@ -66,7 +66,9 @@ def black_body_caller(nu, T, actual):
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
-@pytest.mark.parametrize("N", (1e2, 1e3, 1e4, 1e5))
+@pytest.mark.parametrize(
+    "N", (1e2, 1e3, 1e4, 1e5)
+)
 def test_trapezoid_integration_cuda(N):
     """
     Initializes the test of the cuda version
@@ -83,10 +85,10 @@ def test_trapezoid_integration_cuda(N):
 
     expected = formal_integral_numba.trapezoid_integration(data, h)
     trapezoid_integration_caller[1, 1](data, h, actual)
-
-    # This is 1e-13, as more points are added to the integration
-    # there will be more floating point error due to the difference
-    # in how the trapezoid integration is called.
+    
+    #This is 1e-13, as more points are added to the integration
+    #there will be more floating point error due to the difference
+    #in how the trapezoid integration is called. 
     ntest.assert_allclose(actual[0], expected, rtol=1e-13)
 
 
@@ -98,6 +100,7 @@ def trapezoid_integration_caller(data, h, actual):
     """
     x = cuda.grid(1)
     actual[x] = formal_integral_cuda.trapezoid_integration_cuda(data, h)
+
 
 
 TESTDATA_model = [
@@ -372,7 +375,7 @@ def test_full_formal_integral(
         formal_integrator_cuda.runner.tau_sobolevs_integ,
         formal_integrator_cuda.runner.electron_densities_integ,
         formal_integrator_cuda.points,
-    )[0]
+    )
 
     L_numba = formal_integrator_numba.integrator.formal_integral(
         formal_integrator_numba.model.t_inner,
@@ -384,6 +387,6 @@ def test_full_formal_integral(
         formal_integrator_numba.runner.tau_sobolevs_integ,
         formal_integrator_numba.runner.electron_densities_integ,
         formal_integrator_numba.points,
-    )[0]
+    )
 
     ntest.assert_allclose(L_cuda, L_numba, rtol=1e-14)

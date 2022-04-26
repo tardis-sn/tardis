@@ -7,8 +7,7 @@ from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
     single_packet_loop,
 )
 
-
-@pytest.mark.xfail(reason="Need to fix estimator differences across runs")
+@pytest.mark.xfail(reason='Need to fix estimator differences across runs')
 # TODO set RNG consistently
 def test_verysimple_single_packet_loop(
     verysimple_numba_model,

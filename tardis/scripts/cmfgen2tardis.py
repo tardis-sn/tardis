@@ -79,7 +79,7 @@ def convert_format(file_path):
                 abundances_df.loc[element_symbol] = abundances
 
         density_df = pd.DataFrame.from_records(
-            [velocity, temperature * 10**4, density, electron_density]
+            [velocity, temperature * 10 ** 4, density, electron_density]
         ).transpose()
         density_df.columns = [
             "velocity",

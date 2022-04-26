@@ -27,7 +27,7 @@ jobs:
         parameters:
           fetchRefdata: true
           refdataRepo: 'azure'
-          useMamba: false
+          useMamba: true
 
       # Test before relase, we do not want to release broken software!
       - bash: |
