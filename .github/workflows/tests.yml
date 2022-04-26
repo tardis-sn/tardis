@@ -1,0 +1,70 @@
+#  For more information about TARDIS pipelines, please refer to:
+#
+#    https://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+name: tests
+
+on:
+  push:
+    branches:
+    - master
+
+  pull_request:
+    branches:
+    - '*'
+
+  workflow_dispatch:  # manual trigger
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --cov=tardis --cov-report=xml --cov-report=html
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+jobs:
+
+  build:
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Clone tardis-sn/tardis-refdata
+        uses: actions/checkout@v2
+        with:
+          repository: tardis-sn/tardis-refdata
+          path: tardis-refdata
+          lfs: true
+
+      - name: Setup environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
+            environment-file: tardis_env3.yml
+            activate-environment: tardis
+            use-mamba: true
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Run unit tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }}
+
+      - name: Upload to codecov.io
+        run: bash <(curl -s https://codecov.io/bash)
+        if: runner.os == 'Linux'
