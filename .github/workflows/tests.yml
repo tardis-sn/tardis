@@ -7,7 +7,7 @@ name: tests
 on:
   push:
     branches:
-    - master
+    - '*'
 
   pull_request:
     branches:
@@ -62,7 +62,7 @@ jobs:
       - name: Install package
         run: pip install -e .
 
-      - name: Run unit tests
+      - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }}
 
       - name: Upload to codecov.io
