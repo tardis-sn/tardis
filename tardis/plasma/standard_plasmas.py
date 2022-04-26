@@ -27,6 +27,7 @@ from tardis.plasma.properties.property_collections import (
     continuum_interaction_inputs,
     adiabatic_cooling_properties,
     two_photon_properties,
+    isotope_properties,
 )
 from tardis.plasma.exceptions import PlasmaConfigError
 
@@ -247,6 +248,9 @@ def assemble_plasma(config, model, atom_data=None):
             property_kwargs[IonNumberDensity] = dict(
                 electron_densities=electron_densities
             )
+
+    if model.raw_isotope_abundance:
+        plasma_modules += isotope_properties
 
     kwargs["helium_treatment"] = config.plasma.helium_treatment
 
