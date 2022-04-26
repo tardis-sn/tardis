@@ -65,6 +65,5 @@ jobs:
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }}
 
-      - name: Upload to codecov.io
+      - name: Upload to Codecov
         run: bash <(curl -s https://codecov.io/bash)
-        if: runner.os == 'Linux'
