@@ -249,8 +249,9 @@ def assemble_plasma(config, model, atom_data=None):
                 electron_densities=electron_densities
             )
 
-    if model.raw_isotope_abundance:
+    if not model.raw_isotope_abundance.empty:
         plasma_modules += isotope_properties
+        kwargs.update(isotope_abundance=model.raw_isotope_abundance)
 
     kwargs["helium_treatment"] = config.plasma.helium_treatment
 

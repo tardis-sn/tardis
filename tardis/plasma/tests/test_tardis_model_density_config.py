@@ -32,8 +32,12 @@ def test_electron_densities(raw_plasma):
 
 
 def test_isotope_number_densities(raw_plasma):
-    assert_almost_equal(raw_plasma.isotope_number_density[0], 2.72e14)
-    assert_almost_equal(raw_plasma.isotope_number_density[1], 2.6e14)
+    assert_almost_equal(
+        raw_plasma.isotope_number_density.loc[(28, 56), 0], 9688803936.317898
+    )
+    assert_almost_equal(
+        raw_plasma.isotope_number_density.loc[(28, 58), 1], 13097656958.746628
+    )
 
 
 def test_t_rad(raw_plasma):
