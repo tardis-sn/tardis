@@ -36,7 +36,7 @@ jobs:
         parameters:
           fetchRefdata: true
           refdataRepo: 'github'
-          useMamba: true
+          useMamba: false
 
       - bash: |
           source activate tardis

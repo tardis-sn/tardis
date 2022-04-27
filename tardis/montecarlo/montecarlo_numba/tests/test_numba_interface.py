@@ -65,7 +65,7 @@ def test_VPacketCollection_set_properties(verysimple_3vpacket_collection):
 
     nus = [3.0e15, 0.0, 1e15, 1e5]
     energies = [0.4, 0.1, 0.6, 1e10]
-    initial_mus = [.1, 0, 1, .9]
+    initial_mus = [0.1, 0, 1, 0.9]
     initial_rs = [3e42, 4.5e45, 0, 9.0e40]
     last_interaction_in_nus = np.array(
         [3.0e15, 0.0, 1e15, 1e5], dtype=np.float64

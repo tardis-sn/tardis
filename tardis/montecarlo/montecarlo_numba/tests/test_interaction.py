@@ -32,7 +32,7 @@ def test_line_scatter(
     line_interaction_type,
     packet,
     verysimple_numba_model,
-    verysimple_numba_plasma
+    verysimple_numba_plasma,
 ):
     init_mu = packet.mu
     init_nu = packet.nu

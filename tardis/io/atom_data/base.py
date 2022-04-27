@@ -330,16 +330,6 @@ class AtomData(object):
 
         self.nlte_species = nlte_species
 
-        self.levels = self.levels[
-            self.levels.index.isin(
-                self.selected_atomic_numbers, level="atomic_number"
-            )
-        ]
-
-        self.levels_index = pd.Series(
-            np.arange(len(self.levels), dtype=int), index=self.levels.index
-        )
-
         # cutting levels_lines
         self.lines = self.lines[
             self.lines.index.isin(
@@ -358,20 +348,8 @@ class AtomData(object):
             "level_number_upper"
         )
 
-        self.lines_lower2level_idx = (
-            self.levels_index.loc[tmp_lines_lower2level_idx]
-            .astype(np.int64)
-            .values
-        )
-
         tmp_lines_upper2level_idx = self.lines.index.droplevel(
             "level_number_lower"
-        )
-
-        self.lines_upper2level_idx = (
-            self.levels_index.loc[tmp_lines_upper2level_idx]
-            .astype(np.int64)
-            .values
         )
 
         if (
