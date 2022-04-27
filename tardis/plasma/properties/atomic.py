@@ -573,7 +573,7 @@ class IsotopeMass(ProcessingPlasmaProperty):
                 element_name = rd.utils.Z_to_elem(Z)
                 isotope_name = element_name + str(A)
 
-                isotope_mass_dict[i] = rd.Nuclide(isotope_name).atomic_mass
+                isotope_mass_dict[(Z, A)] = rd.Nuclide(isotope_name).atomic_mass
 
             isotope_mass_df = pd.DataFrame.from_dict(
                 isotope_mass_dict, orient="index", columns=["mass"]
