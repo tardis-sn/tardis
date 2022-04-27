@@ -25,6 +25,9 @@ on:
     branches:
       - '*'
 
+env:
+  DEPLOY_BRANCH: gh-pages               #  deployed docs branch
+
 concurrency:
   group: build-docs-${{ github.ref }}
   cancel-in-progress: true
@@ -98,6 +101,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.BOT_TOKEN }}
+          publish_branch: ${{ env.DEPLOY_BRANCH }}
           publish_dir: ./docs/_build/html
           destination_dir: ${{ env.DEST_DIR }}
           user_name: 'TARDIS Bot'
@@ -114,6 +118,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.BOT_TOKEN }}
+          publish_branch: ${{ env.DEPLOY_BRANCH }}
           publish_dir: ./redirects
           keep_files: true
           user_name: 'TARDIS Bot'
