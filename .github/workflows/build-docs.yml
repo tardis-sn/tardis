@@ -23,7 +23,8 @@ on:
   workflow_dispatch:                    # manual trigger
 
 env:
-  DEPLOY_BRANCH: gh-pages               #  deployed docs branch
+  DEPLOY_BRANCH: gh-pages               # deployed docs branch
+  ROOT_REDIRECT: latest                 # https://tardis-sn.github.io/tardis/latest
 
 concurrency:
   group: build-docs-${{ github.ref }}
@@ -108,7 +109,7 @@ jobs:
         run: |
           mkdir redirects && cd redirects
           echo '<head>' >> index.html
-          echo '  <meta http-equiv="Refresh" content="0; url='/tardis/latest'"/>' >> index.html
+          echo '  <meta http-equiv="Refresh" content="0; url='/${{ github.event.repository.name }}/${{ env.ROOT_REDIRECT }}'"/>' >> index.html
           echo '</head>' >> index.html
 
       - name: Deploy redirect
@@ -145,7 +146,7 @@ jobs:
             
             [**Click here**](${{ env.URL }}) to see your results.
         env:
-          URL: https://tardis-sn.github.io/tardis/pull/${{ github.event.number }}/index.html
+          URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pull/${{ github.event.number }}/index.html
         if: success() && github.event_name == 'pull_request_target'
 
       - name: Post comment (failure)
@@ -164,5 +165,5 @@ jobs:
             
             [**Click here**](${{ env.URL }}) to see the build log.
         env:
-          URL: https://github.com/tardis-sn/tardis/actions/runs/${{ github.run_id }}?check_suite_focus=true
+          URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
         if: failure() && github.event_name == 'pull_request_target'
