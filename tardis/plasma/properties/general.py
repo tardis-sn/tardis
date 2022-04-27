@@ -99,7 +99,7 @@ class NumberDensity(ProcessingPlasmaProperty):
 class IsotopeNumberDensity(ProcessingPlasmaProperty):
     """
     Calculate the atom number density based on isotope mass.
-    
+
     Attributes
     ----------
     isotope_number_density : Pandas DataFrame, dtype float
