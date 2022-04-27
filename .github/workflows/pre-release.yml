@@ -116,17 +116,7 @@ jobs:
     needs: [spec, zenodo, changelog]
     runs-on: ubuntu-latest
     steps:
-      - name: Clone tardis-bot/tardis
-        uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          repository: tardis-bot/tardis
-
-      - name: Get current DATE
-        run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
-
-      - name: Set up a new branch
-        run: git checkout -B pre-release-$DATE
+      - uses: actions/checkout@v2
 
       - uses: actions/download-artifact@v3
         with:
@@ -139,10 +129,22 @@ jobs:
           cp /tmp/zenodo_json/.zenodo.json .
           cp /tmp/changelog/CHANGELOG.md .
 
-      - name: Push changes to fork
-        run: |
-          git config --local user.email "tardis.sn.bot@gmail.com"
-          git config --local user.name "tardis-bot"
-          git add -A
-          git commit -m "Update files prior to release"
-          git push -f
+      - name: Get current date
+        run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
+
+      - uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          committer: TARDIS Bot <tardis.sn.bot@gmail.com>
+          author: TARDIS Bot <tardis.sn.bot@gmail.com>
+          branch: pre-release-${{ env.DATE }}
+          push-to-fork: tardis-bot/tardis
+          title: Pre-release ${{ env.DATE }}
+          body: |
+            *\*beep\* \*bop\**
+            
+            Hi, human.
+
+            Merge this pull request to trigger a new TARDIS release.
+          labels: CI-CD, automated, priority - high :fire:,
+          reviewers: wkerzendorf, epassaro
