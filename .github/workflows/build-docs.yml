@@ -11,9 +11,6 @@ on:
       - master                          # default branch
       - docs/gah21-workflow
 
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'         # semantic versions only
-
   pull_request_target:                  # pull request build
     branches:
       - '*'
@@ -27,10 +24,6 @@ on:
   workflow_dispatch:                    # manual trigger
     branches:
       - '*'
-
-env:
-  DEPLOY_BRANCH: gh-pages               #  target branch to deploy _build/html
-  ROOT_REDIRECT: latest                 # `latest` or `stable`
 
 concurrency:
   group: build-docs-${{ github.ref }}
@@ -60,17 +53,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
         if: github.event_name == 'pull_request_target'
 
-      - name: Check branches
-        run: |
-          CHECK_DEPLOY=$(git ls-remote --heads origin refs/heads/${{ env.DEPLOY_BRANCH }})
-          echo "::set-output name=DEPLOY::$(! [[ -z $CHECK_DEPLOY ]] && echo 'true' || echo 'false')"
-
-          CHECK_STABLE=$(git ls-remote --heads origin refs/heads/stable)
-          echo "::set-output name=STABLE::$(! [[ -z $CHECK_STABLE ]] && echo 'true' || echo 'false')"
-
-          cat $GITHUB_ENV
-        id: check-branches
-
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -89,23 +71,12 @@ jobs:
       - name: Set destination directory
         run: |
           BRANCH=$(echo ${GITHUB_REF#refs/heads/})
-          TAG=$(echo ${GITHUB_REF#refs/tags/})
-
           if [[ $EVENT == push ]] || [[ $EVENT == workflow_dispatch ]]; then
-            if [[ -z $TAG ]] || [[ $TAG == $GITHUB_REF ]]; then
 
-              if [[ $BRANCH == $DEFAULT ]]; then
-                echo "DEST_DIR=latest" >> $GITHUB_ENV
-              else
-                echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
-              fi
-
-            elif [[ ! -z $TAG ]]; then
-               echo "DEST_DIR=tag/$TAG" >> $GITHUB_ENV
-
+            if [[ $BRANCH == $DEFAULT ]]; then
+              echo "DEST_DIR=latest" >> $GITHUB_ENV
             else
-              echo "Unexpected ref $GITHUB_REF"
-              exit 1
+              echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
             fi
 
           elif [[ $EVENT == pull_request_target ]]; then
@@ -126,44 +97,24 @@ jobs:
       - name: Deploy ${{ env.DEST_DIR }}
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: ${{ env.DEPLOY_BRANCH }}
+          github_token: ${{ secrets.BOT_TOKEN }}
           publish_dir: ./docs/_build/html
           destination_dir: ${{ env.DEST_DIR }}
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
+          user_name: 'TARDIS Bot'
+          user_email: 'tardis.sn.bot@gmail.com'
 
       - name: Redirect root
         run: |
           mkdir redirects && cd redirects
           echo '<head>' >> index.html
-          echo '  <meta http-equiv="Refresh" content="0; url='/${{ github.event.repository.name }}/${{ env.ROOT_REDIRECT }}'"/>' >> index.html
+          echo '  <meta http-equiv="Refresh" content="0; url='/tardis/latest'"/>' >> index.html
           echo '</head>' >> index.html
 
-      - name: Redirect stable
-        run: |
-          git fetch origin
-          git checkout ${{ env.DEPLOY_BRANCH }}
-
-          if [[ -d tag ]] && [[ ! -z $(ls -A tag) ]]; then
-            LAST_TAG=$(ls -d tag/*/ | sort -V | tail -n 1)
-            mv $LAST_TAG /tmp/stable
-
-            git checkout -
-            mv /tmp/stable redirects
-            ls -lR redirects
-
-          else
-            echo "No tags to deploy"
-
-          fi
-        if: steps.check-branches.outputs.DEPLOY == 'true' && steps.check-branches.outputs.STABLE == 'false'
-
-      - name: Deploy redirects
+      - name: Deploy redirect
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.BOT_TOKEN }}
           publish_dir: ./redirects
           keep_files: true
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
+          user_name: 'TARDIS Bot'
+          user_email: 'tardis.sn.bot@gmail.com'
