@@ -8,13 +8,11 @@ on:
 
   push:
     branches:
-      - master                          # default branch
-      - docs/gah21-workflow
-      - docs/test-gah21-workflow
+      - master
 
-  pull_request_target:                  # pull request build
+  pull_request_target:
     branches:
-      - '*'
+      - master
 
     types:
       - opened
@@ -23,8 +21,6 @@ on:
       - labeled                         # requires the `build-docs` label
 
   workflow_dispatch:                    # manual trigger
-    branches:
-      - '*'
 
 env:
   DEPLOY_BRANCH: gh-pages               #  deployed docs branch
