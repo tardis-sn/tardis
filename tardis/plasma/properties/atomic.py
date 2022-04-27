@@ -6,6 +6,7 @@ from numba import njit
 from scipy.special import expn
 from scipy.interpolate import PchipInterpolator
 from collections import Counter as counter
+import radioactivedecay as rd
 from tardis import constants as const
 
 from tardis.plasma.properties.base import (
@@ -32,6 +33,7 @@ __all__ = [
     "LinesLowerLevelIndex",
     "LinesUpperLevelIndex",
     "AtomicMass",
+    "IsotopeMass",
     "IonizationData",
     "ZetaData",
     "NLTEData",
@@ -535,6 +537,52 @@ class AtomicMass(ProcessingPlasmaProperty):
             return (getattr(self, self.outputs[0]),)
         else:
             return atomic_data.atom_data.loc[selected_atoms].mass
+
+
+class IsotopeMass(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    isotope_mass : pandas.Series
+        Masses of the isotopes used. Indexed by isotope name e.g. 'Ni56'.
+    """
+
+    outputs = ("isotope_mass",)
+
+    def calculate(self, isotope_abundance):
+        """
+        Determine mass of each isotope.
+
+        Parameters
+        ----------
+        isotope_abundance : pandas.DataFrame
+            Fractional abundance of isotopes.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Masses of the isotopes used. Indexed by isotope name e.g. 'Ni56'.
+        """
+        if getattr(self, self.outputs[0]) is not None:
+            return (getattr(self, self.outputs[0]),)
+        else:
+            if isotope_abundance.empty:
+                return None
+            isotope_mass_dict = {}
+            for Z, A in isotope_abundance.index:
+                element_name = rd.utils.Z_to_elem(Z)
+                isotope_name = element_name + str(A)
+
+                isotope_mass_dict[(Z, A)] = rd.Nuclide(isotope_name).atomic_mass
+
+            isotope_mass_df = pd.DataFrame.from_dict(
+                isotope_mass_dict, orient="index", columns=["mass"]
+            )
+            isotope_mass_df.index = pd.MultiIndex.from_tuples(
+                isotope_mass_df.index
+            )
+            isotope_mass_df.index.names = ["atomic_number", "mass_number"]
+            return isotope_mass_df / const.N_A
 
 
 class IonizationData(BaseAtomicDataProperty):
