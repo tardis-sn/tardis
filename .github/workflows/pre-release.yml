@@ -1,0 +1,76 @@
+#  For more information about TARDIS pipelines, please refer to:
+#
+#    https://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+name: pre-release
+
+on:
+  push:
+    branches:
+    - ci/pre-release-workflow
+
+  schedule:
+    - cron: '0 0 * * 0'
+
+  workflow_dispatch:  # manual trigger
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  zenodo:
+    runs-on: ubuntu-latest
+    # if: ${{ github.repository_owner == 'tardis-sn' }}  # do not run scheduled jobs on forks
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: tardis-sn/tardis_zenodo
+          token: ${{ secrets.BOT_TOKEN }}
+
+      - name: Dump Secret Key
+        run: echo "$KEY_SECRET_JSON" > key_secret.json
+        env:
+          KEY_SECRET_JSON: ${{ secrets.ZENODO_KEY_SECRET_JSON }}
+
+      - name: Setup environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
+            environment-file: spec-file.txt
+            activate-environment: tardis_zenodo
+            use-mamba: true
+
+      - name: Run Notebook
+        run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
+
+      - name: Run Notebook (allow errors)
+        run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000 --allow-errors
+        if: ${{ failure() }}
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: zenodo_json
+          path: .zenodo.json
+
+  changelog:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+          with:
+            repository: tardis-sn/tardis
+            token: ${{ secrets.BOT_TOKEN }}
+            fetch-depth: 0
+
+        - name: Install github-changes
+          run: sudo npm install -g github-changes
+
+        - name: Update changelog
+          run: github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md -k ${{ secrets.BOT_TOKEN }}
+
+        - uses: actions/upload-artifact@v2
+          with:
+            name: changelog
+            path: CHANGELOG.md
