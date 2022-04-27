@@ -19,6 +19,45 @@ defaults:
     shell: bash -l {0}
 
 jobs:
+  spec:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Clone tardis-sn/tardis-refdata
+        uses: actions/checkout@v2
+        with:
+          repository: tardis-sn/tardis-refdata
+          path: tardis-refdata
+          lfs: true
+
+      - name: Setup environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
+            environment-file: tardis_env3.yml
+            activate-environment: tardis
+            use-mamba: true
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Run tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }}
+
+      - name: Generate spec file
+        run: conda list --explicit > spec-${{ runner.os }}.txt
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: spec-${{ runner.os }}
+          path: spec-${{ runner.os }}.txt
+
   zenodo:
     runs-on: ubuntu-latest
     # if: ${{ github.repository_owner == 'tardis-sn' }}  # do not run scheduled jobs on forks
