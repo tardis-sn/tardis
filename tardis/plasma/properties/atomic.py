@@ -569,9 +569,9 @@ class IsotopeMass(ProcessingPlasmaProperty):
             if isotope_abundance.empty:
                 return None
             isotope_mass_dict = {}
-            for i in isotope_abundance.index:
-                element_name = rd.utils.Z_to_elem(i[0])
-                isotope_name = element_name + str(i[1])
+            for Z, A in isotope_abundance.index:
+                element_name = rd.utils.Z_to_elem(Z)
+                isotope_name = element_name + str(A)
 
                 isotope_mass_dict[i] = rd.Nuclide(isotope_name).atomic_mass
 
