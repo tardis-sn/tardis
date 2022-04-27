@@ -14,8 +14,8 @@ stars (*supernovae*).
 .. image:: https://codecov.io/gh/tardis-sn/tardis/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/tardis-sn/tardis
 
-.. image:: https://img.shields.io/endpoint?url=https://jsonbin.org/tardis-bot/badges/tardis/docstr-coverage
-    :target: https://github.com/tardis-sn/tardis/actions/workflows/docstr-coverage.yml?query=branch%3Amaster
+.. image:: https://img.shields.io/endpoint?url=https://jsonbin.org/tardis-bot/tardis/badges/docstr-cov
+    :target: https://github.com/tardis-sn/tardis/actions/workflows/docstr-cov.yml?query=branch%3Amaster
 
 .. image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.592480-blue
     :target: https://doi.org/10.5281/zenodo.592480
