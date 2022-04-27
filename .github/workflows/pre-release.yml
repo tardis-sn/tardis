@@ -146,5 +146,5 @@ jobs:
             Hi, human.
 
             Merge this pull request to trigger a new TARDIS release.
-          labels: CI-CD, automated, priority - high :fire:,
-          reviewers: wkerzendorf, epassaro
+          # labels: CI-CD, automated, priority - high :fire:,
+          # reviewers: wkerzendorf, epassaro
