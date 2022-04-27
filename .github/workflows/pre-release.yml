@@ -22,7 +22,7 @@ jobs:
   spec:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest] #, macos-latest]
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -122,6 +122,27 @@ jobs:
           token: ${{ secrets.BOT_TOKEN }}
           repository: tardis-bot/tardis
 
-      - uses: actions/download-artifact@v3
+      - name: Get current DATE
+        run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
 
-      - run: ls -R
+      - name: Set up a new branch
+        run: git checkout -B pre-release-$DATE
+
+      - uses: actions/download-artifact@v3
+        with:
+          path: /tmp
+
+      - name: Copy files to repository
+        run: |
+          mv /tmp/spec-Linux/spec-Linux.txt spec-linux-64.txt
+          mv /tmp/spec-macOS/spec-macOS.txt spec-osx-64.txt
+          cp /tmp/zenodo_json/.zenodo.json .
+          cp /tmp/changelog/CHANGELOG.md .
+
+      - name: Push changes to fork
+        run: |
+          git config --local user.email "tardis.sn.bot@gmail.com"
+          git config --local user.name "tardis-bot"
+          git add -A
+          git commit -m "Update files prior to release"
+          git push -f
