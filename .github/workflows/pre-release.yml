@@ -53,15 +53,13 @@ jobs:
       - name: Generate spec file
         run: conda list --explicit > spec-${{ runner.os }}.txt
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: spec-${{ runner.os }}
           path: spec-${{ runner.os }}.txt
 
   zenodo:
     runs-on: ubuntu-latest
-    # if: ${{ github.repository_owner == 'tardis-sn' }}  # do not run scheduled jobs on forks
-
     steps:
       - uses: actions/checkout@v2
         with:
@@ -89,27 +87,40 @@ jobs:
         run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000 --allow-errors
         if: ${{ failure() }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: zenodo_json
           path: .zenodo.json
 
   changelog:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-          with:
-            repository: tardis-sn/tardis
-            token: ${{ secrets.BOT_TOKEN }}
-            fetch-depth: 0
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: tardis-sn/tardis
+          token: ${{ secrets.BOT_TOKEN }}
+          fetch-depth: 0
 
-        - name: Install github-changes
-          run: sudo npm install -g github-changes
+      - name: Install github-changes
+        run: sudo npm install -g github-changes
 
-        - name: Update changelog
-          run: github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md -k ${{ secrets.BOT_TOKEN }}
+      - name: Update changelog
+        run: github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md -k ${{ secrets.BOT_TOKEN }}
 
-        - uses: actions/upload-artifact@v2
-          with:
-            name: changelog
-            path: CHANGELOG.md
+      - uses: actions/upload-artifact@v3
+        with:
+          name: changelog
+          path: CHANGELOG.md
+
+  pull_request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone tardis-bot/tardis
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          repository: tardis-bot/tardis
+
+      - uses: actions/download-artifact@v3
+
+      - run: ls -R
