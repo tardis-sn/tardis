@@ -13,6 +13,7 @@ from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
 # Test cases must also take into account use of a GPU to run. If there is no GPU then the test cases will fail.
 GPUs_available = cuda.is_available()
 
+
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
@@ -35,6 +36,7 @@ def test_intensity_black_body_cuda(nu, T):
 
     return actual
 
+
 @cuda.jit
 def black_body_caller(nu, T, actual):
     """
@@ -45,13 +47,10 @@ def black_body_caller(nu, T, actual):
     actual[x] = formal_integral_cuda.intensity_black_body_cuda(nu, T)
 
 
-
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
-@pytest.mark.parametrize(
-    "N", (1e2, 1e3, 1e4, 1e5)
-)
+@pytest.mark.parametrize("N", (1e2, 1e3, 1e4, 1e5))
 @pytest.mark.array_compare
 def test_trapezoid_integration_cuda(N):
     """
@@ -68,6 +67,7 @@ def test_trapezoid_integration_cuda(N):
     trapezoid_integration_caller[1, 1](data, h, actual)
     return actual
 
+
 @cuda.jit
 def trapezoid_integration_caller(data, h, actual):
     """
@@ -77,8 +77,6 @@ def trapezoid_integration_caller(data, h, actual):
     x = cuda.grid(1)
     actual[x] = formal_integral_cuda.trapezoid_integration_cuda(data, h)
 
-
-    
 
 TESTDATA_model = [
     {
@@ -119,6 +117,7 @@ def test_calculate_z_cuda(formal_integral_model, p, p_loc):
         calculate_z_caller[1, 3](r, p, inv_t, actual)
         return actual
 
+
 @cuda.jit
 def calculate_z_caller(r, p, inv_t, actual):
     """
@@ -128,7 +127,6 @@ def calculate_z_caller(r, p, inv_t, actual):
     x = cuda.grid(1)
     actual[x] = formal_integral_cuda.calculate_z_cuda(r, p, inv_t)
 
-    
 
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
@@ -157,9 +155,10 @@ def test_populate_z(formal_integral_model, p, p_loc):
         oshell_id,
         actual,
     )
-    
+
     big_actual = np.concatenate((actual, oshell_id, oz))
     return big_actual
+
 
 @cuda.jit
 def populate_z_caller(
@@ -175,7 +174,6 @@ def populate_z_caller(
     )
 
 
-    
 @pytest.mark.parametrize(
     "N",
     [
@@ -191,12 +189,11 @@ def test_calculate_p_values(N):
     against the previous version of itself.
     """
     r = 1.0
-    
+
     actual = np.zeros(N, dtype=np.float64)
     actual[::] = formal_integral_cuda.calculate_p_values(r, N)
 
     return actual
-
 
 
 @pytest.mark.skipif(
@@ -216,6 +213,7 @@ def test_line_search_cuda(nu_insert, verysimple_numba_plasma):
 
     return actual
 
+
 @cuda.jit
 def line_search_cuda_caller(line_list_nu, nu_insert, actual):
     """
@@ -228,7 +226,6 @@ def line_search_cuda_caller(line_list_nu, nu_insert, actual):
     )
 
 
-    
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
@@ -239,23 +236,23 @@ def line_search_cuda_caller(line_list_nu, nu_insert, actual):
 def test_reverse_binary_search(nu_insert, verysimple_numba_plasma):
     """
     Initializes the test of the cuda version
-    against the previous version of itself. 
+    against the previous version of itself.
     The one extra input not included
     in np.linspace a low edge case for testing.
     """
     actual = np.zeros(1)
-    #expected = np.zeros(1)
+    # expected = np.zeros(1)
     line_list_nu = verysimple_numba_plasma.line_list_nu
 
     imin = 0
     imax = len(line_list_nu) - 1
 
-    
     reverse_binary_search_cuda_caller[1, 1](
         line_list_nu, nu_insert, imin, imax, actual
     )
 
     return actual
+
 
 @cuda.jit
 def reverse_binary_search_cuda_caller(
@@ -271,7 +268,6 @@ def reverse_binary_search_cuda_caller(
     )
 
 
-    
 # no_of_packets and iterations match what is used by config_verysimple
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
@@ -283,7 +279,7 @@ def test_full_formal_integral(
 ):
     """
     This function initializes the cuda  formal_integrator,
-    and the runs them and compares the results to previous 
+    and the runs them and compares the results to previous
     versions of itself.
     """
     sim = simulation_verysimple
@@ -314,4 +310,3 @@ def test_full_formal_integral(
     )
 
     return L_cuda
-    
