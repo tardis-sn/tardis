@@ -12,7 +12,7 @@ on:
       - docs/gah21-workflow
 
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'         # semantic versions
+      - 'v[0-9]+.[0-9]+.[0-9]+'         # semantic versions only
 
   pull_request_target:                  # pull request build
     branches:
@@ -29,9 +29,6 @@ on:
       - '*'
 
 env:
-  PYTHON: 3.8
-  PKGS_FILE: tardis_env3.yml            # .txt (`pip`) or .yml (`conda`) file
-  BUILD_CMD: cd docs/ && make html
   DEPLOY_BRANCH: gh-pages               #  target branch to deploy _build/html
   ROOT_REDIRECT: latest                 # `latest` or `stable`
 
@@ -74,31 +71,20 @@ jobs:
           cat $GITHUB_ENV
         id: check-branches
 
-      - name: Setup Mambaforge
+      - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
         with:
             miniforge-variant: Mambaforge
             miniforge-version: latest
-            activate-environment: sphinx
-            python-version: ${{ env.PYTHON }}
+            environment-file: tardis_env3.yml
+            activate-environment: tardis
             use-mamba: true
 
-      - name: Install packages
-        run: |
-          if [[ ${{ env.PKGS_FILE }} == *.txt ]]; then
-            pip install -r ${{ env.PKGS_FILE }}
-
-          elif [[ ${{ env.PKGS_FILE }} == *.yml ]] || [[ ${{ env.PKGS_FILE }} == *.yaml ]]; then
-            mamba env update -n sphinx -f ${{ env.PKGS_FILE }}
-
-          else
-            echo "Unsupported file extension"
-            exit 1
-
-          fi
+      - name: Install package
+        run: pip install -e .
 
       - name: Build documentation
-        run: ${{ env.BUILD_CMD }}
+        run: cd docs/ && make html
 
       - name: Set destination directory
         run: |
