@@ -113,6 +113,7 @@ jobs:
           path: CHANGELOG.md
 
   pull_request:
+    needs: [spec, zenodo, changelog]
     runs-on: ubuntu-latest
     steps:
       - name: Clone tardis-bot/tardis
