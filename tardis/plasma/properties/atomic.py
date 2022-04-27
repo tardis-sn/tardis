@@ -550,6 +550,19 @@ class IsotopeMass(ProcessingPlasmaProperty):
     outputs = ("isotope_mass",)
 
     def calculate(self, isotope_abundance):
+        """
+        Determine mass of each isotope.
+
+        Parameters
+        ----------
+        isotope_abundance : pandas.DataFrame
+            Fractional abundance of isotopes.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Masses of the isotopes used. Indexed by isotope name e.g. 'Ni56'.
+        """
         if getattr(self, self.outputs[0]) is not None:
             return (getattr(self, self.outputs[0]),)
         else:
