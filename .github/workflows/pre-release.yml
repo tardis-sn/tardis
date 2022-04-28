@@ -19,44 +19,27 @@ defaults:
     shell: bash -l {0}
 
 jobs:
-  spec:
-    strategy:
-      matrix:
-        os: [ubuntu-latest] #, macos-latest]
-
-    runs-on: ${{ matrix.os }}
+  lock:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
-      - name: Clone tardis-sn/tardis-refdata
-        uses: actions/checkout@v2
+      - uses: actions/setup-python@v3
         with:
-          repository: tardis-sn/tardis-refdata
-          path: tardis-refdata
-          lfs: true
+          python-version: '3.x'
 
-      - name: Setup environment
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-            miniforge-variant: Mambaforge
-            miniforge-version: latest
-            environment-file: tardis_env3.yml
-            activate-environment: tardis
-            use-mamba: true
+      - name: Install conda-lock
+        run: pip install conda-lock==1.0.5
 
-      - name: Install package
-        run: pip install -e .
-
-      - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }}
-
-      - name: Generate spec file
-        run: conda list --explicit > spec-${{ runner.os }}.txt
+      - name: Generate lockfiles
+        run: |
+          conda-lock -f tardis_env3.yml -p osx-64 -p linux-64
+          conda lock render conda-lock.yml -k env
 
       - uses: actions/upload-artifact@v3
         with:
-          name: spec-${{ runner.os }}
-          path: spec-${{ runner.os }}.txt
+          name: lockfiles
+          path: '*.lock.yml'
 
   zenodo:
     runs-on: ubuntu-latest
@@ -113,7 +96,7 @@ jobs:
           path: CHANGELOG.md
 
   pull_request:
-    needs: [spec, zenodo, changelog]
+    needs: [lock, zenodo, changelog]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -124,8 +107,7 @@ jobs:
 
       - name: Copy files to repository
         run: |
-          mv /tmp/spec-Linux/spec-Linux.txt spec-linux-64.txt
-          mv /tmp/spec-macOS/spec-macOS.txt spec-osx-64.txt
+          mv /tmp/*.lock.yml .
           cp /tmp/zenodo_json/.zenodo.json .
           cp /tmp/changelog/CHANGELOG.md .
 
@@ -145,6 +127,6 @@ jobs:
             
             Hi, human.
 
-            Merge this pull request to trigger a new TARDIS release.
-          # labels: CI-CD, automated, priority - high :fire:,
+            I prepared everything for a new TARDIS release. If all checks pass, merge this pull request and I'll do the rest.
+          labels: automated, build-docs, CI-CD, priority - high :fire:,
           # reviewers: wkerzendorf, epassaro
