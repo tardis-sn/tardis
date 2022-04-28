@@ -5,10 +5,6 @@
 name: pre-release
 
 on:
-  push:
-    branches:
-    - ci/pre-release-workflow
-
   schedule:
     - cron: '0 0 * * 0'
 
@@ -132,6 +128,8 @@ jobs:
             
             Hi, human.
 
-            I prepared everything for a new TARDIS release. If all checks pass, merge this pull request and I'll do the rest.
+            I prepared everything for a new TARDIS release.
+            
+            If all checks pass, merge this pull request and I'll do the rest.
           labels: automated, build-docs, CI-CD, priority - high :fire:,
-          # reviewers: wkerzendorf, epassaro
+          reviewers: wkerzendorf, andrewfullard, epassaro
