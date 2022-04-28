@@ -8,9 +8,7 @@ REPO_URL="https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-r
 FILES=('atom_data/kurucz_cd23_chianti_H_He.h5'
        'atom_data/chianti_He.h5'
        'montecarlo_1e5_compare_data.h5'
-       'montecarlo_one_packet_compare_data.h5'
        'packet_unittest.h5'
-       'rpacket_tracking.h5'
        'sdec_ref.h5'
        'unit_test_data.h5')
 
