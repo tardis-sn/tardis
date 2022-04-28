@@ -24,12 +24,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-python@v3
+      - name: Setup environment
+        uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: '3.x'
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
+            auto-activate-base: true
+            activate-environment: ""
+            use-mamba: true
 
       - name: Install conda-lock
-        run: pip install conda-lock==1.0.5
+        run: mamba install -c conda-forge conda-lock=1.0.5
 
       - name: Generate lockfiles
         run: |
@@ -39,7 +44,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: lockfiles
-          path: '*.lock.yml'
+          path: '*.yml'
 
   zenodo:
     runs-on: ubuntu-latest
@@ -107,7 +112,7 @@ jobs:
 
       - name: Copy files to repository
         run: |
-          mv /tmp/*.lock.yml .
+          cp /tmp/lockfiles/*.yml .
           cp /tmp/zenodo_json/.zenodo.json .
           cp /tmp/changelog/CHANGELOG.md .
 
