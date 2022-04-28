@@ -122,6 +122,7 @@ jobs:
           author: TARDIS Bot <tardis.sn.bot@gmail.com>
           branch: pre-release-${{ env.DATE }}
           push-to-fork: tardis-bot/tardis
+          commit-message: Automated changes for pre-release ${{ env.DATE }}
           title: Pre-release ${{ env.DATE }}
           body: |
             *\*beep\* \*bop\**
