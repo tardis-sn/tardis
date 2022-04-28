@@ -35,7 +35,7 @@ jobs:
       - template: templates/default.yml
         parameters:
           fetchRefdata: true
-          refdataRepo: 'github'
+          refdataRepo: 'azure'
           useMamba: false
 
       - bash: |

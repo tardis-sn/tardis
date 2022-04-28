@@ -38,12 +38,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Clone tardis-sn/tardis-refdata
-        uses: actions/checkout@v2
-        with:
-          repository: tardis-sn/tardis-refdata
-          path: tardis-refdata
-          lfs: true
+      - name: Download reference data
+        run: bash .ci-helpers/download_reference_data.sh
 
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
