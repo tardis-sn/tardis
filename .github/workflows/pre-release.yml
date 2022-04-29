@@ -35,12 +35,15 @@ jobs:
       - name: Generate lockfiles
         run: |
           conda-lock -f tardis_env3.yml -p osx-64 -p linux-64
-          conda lock render conda-lock.yml -k env
+          conda lock render conda-lock.yml
 
       - uses: actions/upload-artifact@v3
         with:
           name: lockfiles
-          path: '*.yml'
+          path: |
+              conda-linux-64.lock
+              conda-osx-64.lock
+              conda-lock.yml
 
   zenodo:
     runs-on: ubuntu-latest
@@ -108,7 +111,9 @@ jobs:
 
       - name: Copy files to repository
         run: |
-          cp /tmp/lockfiles/*.yml .
+          cp /tmp/lockfiles/conda-linux-64.lock .
+          cp /tmp/lockfiles/conda-osx-64.lock .
+          cp /tmp/lockfiles/conda-lock.yml .
           cp /tmp/zenodo_json/.zenodo.json .
           cp /tmp/changelog/CHANGELOG.md .
 
@@ -128,7 +133,7 @@ jobs:
             *\*beep\* \*bop\**
             
             Hi, human.
-
+            
             I prepared everything for a new TARDIS release.
             
             If all **checks pass**, merge this pull request and I'll do the rest.
