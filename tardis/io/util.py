@@ -392,6 +392,17 @@ class PlasmaWriterMixin(HDFWriterMixin):
 
 
 def download_from_url(url, dst, src=None):
+    """Download files from a given URL
+
+    Parameters
+    ----------
+    url : str
+        URL to download from
+    dst : str
+        Destination folder for the downloaded file
+    src : list
+        List of URLs to use as mirrors 
+    """
 
     cached_file_path = download_file(url, sources=src, pkgname="tardis")
     shutil.move(cached_file_path, dst)
