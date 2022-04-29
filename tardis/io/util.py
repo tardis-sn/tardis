@@ -401,7 +401,7 @@ def download_from_url(url, dst, src=None):
     dst : str
         Destination folder for the downloaded file
     src : list
-        List of URLs to use as mirrors 
+        List of URLs to use as mirrors
     """
 
     cached_file_path = download_file(url, sources=src, pkgname="tardis")
