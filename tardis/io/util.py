@@ -2,6 +2,7 @@
 
 import os
 import re
+import shutil
 import logging
 
 import pandas as pd
@@ -9,13 +10,10 @@ import numpy as np
 import collections
 from collections import OrderedDict
 
-import requests
 import yaml
-from tqdm.auto import tqdm
 
 from tardis import constants as const
 from astropy import units as u
-
 from astropy.utils.data import download_file
 
 from tardis import __path__ as TARDIS_PATH
@@ -396,4 +394,4 @@ class PlasmaWriterMixin(HDFWriterMixin):
 def download_from_url(url, dst, src=None):
 
     cached_file_path = download_file(url, sources=src, pkgname="tardis")
-    
+    shutil.move(cached_file_path, dst)
