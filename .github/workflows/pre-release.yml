@@ -63,7 +63,7 @@ jobs:
         with:
             miniforge-variant: Mambaforge
             miniforge-version: latest
-            environment-file: spec-file.txt
+            environment-file: conda-linux-64.lock
             activate-environment: tardis_zenodo
             use-mamba: true
 
