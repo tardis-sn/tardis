@@ -38,7 +38,7 @@ steps:
   - ${{ if eq(parameters.useMamba, false) }}:
     - bash: |
         echo "##vso[task.setvariable variable=package.manager]conda"
-      displayName: 'Set environment variables'
+      displayName: 'Set package manager'
 
   - ${{ if eq(parameters.useMamba, true) }}:
     - bash: |
@@ -51,6 +51,7 @@ steps:
 
   - ${{ if and(eq(parameters.fetchRefdata, true), eq(parameters.refdataRepo, 'azure')) }}:
     - checkout: git://TARDIS/tardis-refdata
+      path: s/tardis-refdata
       lfs: true
       displayName: 'Fetch reference data (Azure)'
 

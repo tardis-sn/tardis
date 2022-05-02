@@ -19,10 +19,9 @@ pr:
     - '*'
 
 variables:
-  system.debug: false
-  results.url: 'http://opensupernova.org/~azuredevops/files/refdata-results'
   pr.number: '$(System.PullRequest.PullRequestNumber)'
   commit.sha: '$(Build.SourceVersion)'
+  results.url: 'http://opensupernova.org/~azuredevops/files/refdata-results'
   #ref1.hash: ''
   #ref2.hash: ''
 
@@ -35,7 +34,7 @@ jobs:
       - template: templates/default.yml
         parameters:
           fetchRefdata: true
-          refdataRepo: 'azure'
+          refdataRepo: 'azure'  # use 'github' to compare between custom ref hashes
           useMamba: false
 
       - bash: |
@@ -47,8 +46,13 @@ jobs:
           cd $(refdata.dir)
           git remote add upstream $(git remote get-url origin)
           git fetch upstream
-          git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
         displayName: 'Set upstream remote'
+
+      - ${{ if or(startsWith(variables['ref1.hash'], 'upstream/pr'), startsWith(variables['ref2.hash'], 'upstream/pr')) }}:
+        - bash: |
+            cd $(refdata.dir)
+            git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
+          displayName: 'Fetch pull requests'
 
       - bash: |
           cd $(tardis.dir)
