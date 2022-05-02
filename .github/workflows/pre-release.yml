@@ -79,28 +79,8 @@ jobs:
           name: zenodo_json
           path: .zenodo.json
 
-  changelog:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          repository: tardis-sn/tardis
-          token: ${{ secrets.BOT_TOKEN }}
-          fetch-depth: 0
-
-      - name: Install github-changes
-        run: sudo npm install -g github-changes
-
-      - name: Update changelog
-        run: github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md -k ${{ secrets.BOT_TOKEN }}
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: changelog
-          path: CHANGELOG.md
-
   pull_request:
-    needs: [lock, zenodo, changelog]
+    needs: [lock, zenodo]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -115,7 +95,6 @@ jobs:
           cp /tmp/lockfiles/conda-osx-64.lock .
           cp /tmp/lockfiles/conda-lock.yml .
           cp /tmp/zenodo_json/.zenodo.json .
-          cp /tmp/changelog/CHANGELOG.md .
 
       - name: Get current date
         run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
