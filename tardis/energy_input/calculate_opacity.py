@@ -126,13 +126,13 @@ def photoabsorption_opacity_calculation(
     return si_opacity + fe_opacity
 
 @njit
-def photoabsorption_opacity_calculation_kasen(energy, electron_number):
+def photoabsorption_opacity_calculation_kasen(energy, number_density, proton_count):
 
     kappa = kappa_calculation(energy)
 
     opacity = (FINE_STRUCTURE ** 4.0) * 8.0 * np.sqrt(2) * (kappa ** -3.5)
     # Note- this should actually be atom_number_density * (atom_proton_number ** 5)
-    return SIGMA_T * opacity * (electron_number / 28) * 28 ** 5
+    return SIGMA_T * opacity * np.sum((number_density / proton_count) * proton_count ** 5)
 
 
 @njit

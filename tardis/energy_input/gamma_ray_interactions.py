@@ -115,7 +115,36 @@ def get_compton_fraction_artis(energy):
             print("Error, failure to get a Compton fraction")
             break
 
-    return fraction_try
+    angle = np.arccos(1.0 - ((fraction_try - 1) / energy_norm))
+
+    return angle, fraction_try
+
+
+@njit 
+def get_compton_fraction_urilight(energy):
+    E0 = kappa_calculation(energy)
+    
+    x0=1.0/(1.0+2.0*E0)
+
+    accept=False
+    while not accept:
+
+        z = np.random.random(3)
+        alpha1=np.log(1./x0)
+        alpha2=(1.0-x0**2.0)/2.0
+        if (z[1] < alpha1/(alpha1+alpha2)):
+            x=x0**z[2]
+        else:
+            x=np.sqrt(x0**2.0+(1.0-x0**2.0)*z[2])
+
+        f=(1.0-x)/x/E0
+        sin2t=f*(2.0-f)
+        ge=1.0-x/(1+x**2.0)*sin2t
+        if (ge > z[3]): accept = True
+
+    cost=1.0-f
+
+    return np.arccos(cost), f
 
 
 @njit
@@ -277,7 +306,7 @@ def pair_creation_packet(packet):
     final_direction = angle_aberration_gamma(
         np.array([1.0, direction_theta, direction_phi]),
         packet.get_position_vector(),
-        packet.time_current
+        -1 * packet.time_current
     )
 
     packet.direction_theta = final_direction[1]
