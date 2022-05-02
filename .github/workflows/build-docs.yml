@@ -27,7 +27,7 @@ env:
   ROOT_REDIRECT: latest                 # https://tardis-sn.github.io/tardis/latest
 
 concurrency:
-  group: build-docs-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 defaults:
