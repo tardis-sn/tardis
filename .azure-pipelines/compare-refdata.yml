@@ -97,11 +97,10 @@ jobs:
 
       - bash: |
           ssh azuredevops@opensupernova.org "mkdir -p /home/azuredevops/public_html/files/refdata-results/$(subfolder)"
-          scp $(refdata.dir)/notebooks/ref_data_compare.html azuredevops@opensupernova.org:/home/azuredevops/public_html/files/refdata-results/$(pr.number)/$(commit.sha).html
+          scp $(refdata.dir)/notebooks/ref_data_compare.html azuredevops@opensupernova.org:/home/azuredevops/public_html/files/refdata-results/$(subfolder)/$(commit.sha).html
         displayName: 'Copy files to server'
         condition: succeededOrFailed()
 
-      # Run if the pipeline is triggered by a pull request.
       - ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
         - task: GitHubComment@0
           inputs:
