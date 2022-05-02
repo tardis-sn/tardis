@@ -116,5 +116,5 @@ jobs:
             I prepared everything for a new TARDIS release.
             
             If all **checks pass**, merge this pull request and I'll do the rest.
-          labels: automated, build-docs, CI-CD, priority - high :fire:,
+          labels: build-docs, CI-CD, priority - high :fire:,
           reviewers: wkerzendorf, andrewfullard, epassaro
