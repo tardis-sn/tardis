@@ -5,9 +5,8 @@
 name: post-release
 
 on:
-  pull_request:
-    branches:
-    - master
+  release:
+    types: [published]
 
   workflow_dispatch:  # manual trigger
 
@@ -71,20 +70,20 @@ jobs:
       - name: Get current date
         run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
 
-      #- uses: peter-evans/create-pull-request@v4
-      #  with:
-      #    token: ${{ secrets.BOT_TOKEN }}
-      #    committer: TARDIS Bot <tardis.sn.bot@gmail.com>
-      #    author: TARDIS Bot <tardis.sn.bot@gmail.com>
-      #    branch: post-release-${{ env.DATE }}
-      #    push-to-fork: tardis-bot/tardis
-      #    commit-message: Automated changes for post-release ${{ env.DATE }}
-      #    title: Post-release ${{ env.DATE }}
-      #    body: |
-      #      *\*beep\* \*bop\**
-      #      
-      #      Hi, human.
-      #      
-      #      These are the changes required after the latest TARDIS release.
-      #    labels: documentation,
-      #    reviewers: wkerzendorf, andrewfullard, epassaro
+      - uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          committer: TARDIS Bot <tardis.sn.bot@gmail.com>
+          author: TARDIS Bot <tardis.sn.bot@gmail.com>
+          branch: post-release-${{ env.DATE }}
+          push-to-fork: tardis-bot/tardis
+          commit-message: Automated changes for post-release ${{ env.DATE }}
+          title: Post-release ${{ env.DATE }}
+          body: |
+            *\*beep\* \*bop\**
+            
+            Hi, human.
+            
+            These are the changes required after the latest TARDIS release.
+          labels: documentation,
+          reviewers: wkerzendorf, andrewfullard, epassaro
