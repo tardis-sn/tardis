@@ -87,6 +87,21 @@ def get_compton_fraction(energy):
 
 @njit
 def get_compton_fraction_artis(energy):
+    """Gets the Compton scattering/absorption fraction
+    and angle following the scheme in ARTIS
+
+    Parameters
+    ----------
+    energy : float
+        Energy of the gamma-ray
+
+    Returns
+    -------
+    float
+        Scattering angle
+    float
+        Compton scattering fraction
+    """ 
     energy_norm = kappa_calculation(energy)
 
     fraction_max = 1.0 + 2.0 * energy_norm
@@ -122,6 +137,21 @@ def get_compton_fraction_artis(energy):
 
 @njit 
 def get_compton_fraction_urilight(energy):
+    """Gets the Compton scattering/absorption fraction
+    and angle following the scheme in Urilight
+
+    Parameters
+    ----------
+    energy : float
+        Energy of the gamma-ray
+
+    Returns
+    -------
+    float
+        Scattering angle
+    float
+        Compton scattering fraction
+    """    
     E0 = kappa_calculation(energy)
     
     x0=1.0/(1.0+2.0*E0)

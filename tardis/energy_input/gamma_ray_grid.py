@@ -81,7 +81,8 @@ def distance_trace(
     inner_radii : One dimensional Numpy array, dtype float
     outer_radii : One dimensional Numpy array, dtype float
     total_opacity : float
-    time : float
+    current_time : float
+    next_time : float
 
     Returns
     -------
@@ -333,7 +334,20 @@ def mass_fraction_packets_per_shell(
     isotope_abundance,
     number_of_packets,
 ):
+    """Calculates packets per shell by mass fraction
 
+    Parameters
+    ----------
+    isotope_abundance : DataFrame
+        Isotope abundance dataframe
+    number_of_packets : int
+        Number of packets
+
+    Returns
+    -------
+    DataFrame
+        Packets per shell by mass fraction
+    """    
     if "Fe56" in isotope_abundance.columns:
         mass_fraction_df = isotope_abundance.drop(columns="Fe56", inplace=False)
     else:
@@ -348,7 +362,23 @@ def mass_fraction_packets_per_shell(
 
 def activity_per_shell(
     isotope_masses
-):
+):  
+    """Calculate isotope activity per shell based on mass
+
+    Parameters
+    ----------
+    isotope_masses : DataFrame
+        DataFrame of simulation isotope masses per shell
+
+    Returns
+    -------
+    DataFrame
+        Activity per shell
+    DataFrame
+        Decay radiation database
+    DataFrame
+        Metadata for the decay radiation database
+    """    
     for isotope_string in isotope_masses:
         if isotope_string == "Fe56":
             isotope_masses.drop(columns="Fe56", inplace=True)
@@ -383,6 +413,21 @@ def activity_per_shell(
 def get_decay_database(
     isotope_abundance,
 ):
+    """Gets the decay radiation database for a set
+    of isotopes
+
+    Parameters
+    ----------
+    isotope_abundance : DataFrame
+        DataFrame of simulation isotope masses per shell
+
+    Returns
+    -------
+    DataFrame
+        Decay radiation database
+    DataFrame
+        Metadata for the decay radiation database
+    """    
     for column in isotope_abundance:
         if column == "Fe56":
             continue
@@ -394,6 +439,20 @@ def get_decay_database(
 
 
 def get_isotope(model_df, packet_shell):
+    """_summary_
+
+    Parameters
+    ----------
+    model_df : _type_
+        _description_
+    packet_shell : _type_
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """    
     rng = np.random.default_rng()
 
     row = model_df.iloc[[packet_shell]].values[0]
@@ -403,6 +462,20 @@ def get_isotope(model_df, packet_shell):
     return model_df.columns[weighted_decay]
 
 def get_tau(meta, isotope_string):
+    """Calculate the mean lifetime of an isotope
+
+    Parameters
+    ----------
+    meta : DataFrame
+        Isotope metadata
+    isotope_string : str
+        Isotope of interest
+
+    Returns
+    -------
+    float
+        Mean lifetime of isotope
+    """    
     isotope_meta = meta.loc[isotope_string]
     half_life = isotope_meta.loc[
         isotope_meta["key"] == "Parent T1/2 value"
@@ -411,9 +484,35 @@ def get_tau(meta, isotope_string):
     return half_life / np.log(2)
 
 def get_isotope_string(atom_number, atom_mass):
+    """Get the isotope string in the format e.g. Ni56
+
+    Parameters
+    ----------
+    atom_number : int
+        Atomic number
+    atom_mass : int
+        Atomic mass
+
+    Returns
+    -------
+    str
+        Isotope string in the format e.g. Ni56
+    """    
     return atomic_number2element_symbol(atom_number) + str(atom_mass)
 
 def read_artis_lines(isotope):
+    """Reads lines of ARTIS format
+
+    Parameters
+    ----------
+    isotope : string
+        Isotope to read e.g. Ni56
+
+    Returns
+    -------
+    pd.DataFrame
+        Energies and intensities of the isotope lines
+    """    
     return pd.read_csv(
         "~/Downloads/tardisnuclear/" + isotope + ".txt",
         names=["energy", "intensity"],

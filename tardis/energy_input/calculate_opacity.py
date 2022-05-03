@@ -127,7 +127,23 @@ def photoabsorption_opacity_calculation(
 
 @njit
 def photoabsorption_opacity_calculation_kasen(energy, number_density, proton_count):
+    """Calculates photoabsorption opacity for a given energy
+    Approximate treatment from Kasen et al. (2006)
 
+    Parameters
+    ----------
+    energy : float
+        Photon energy
+    number_density : float
+        The number density of the ejecta for each atom
+    proton_count : float
+        Number of protons for each atom in the ejecta
+
+    Returns
+    -------
+    float
+        Photoabsorption opacity
+    """
     kappa = kappa_calculation(energy)
 
     opacity = (FINE_STRUCTURE ** 4.0) * 8.0 * np.sqrt(2) * (kappa ** -3.5)
@@ -184,6 +200,24 @@ def pair_creation_opacity_calculation(
 def pair_creation_opacity_artis(
     energy, ejecta_density, iron_group_fraction
 ):
+    """Calculates pair creation opacity for a given energy
+    Approximate treatment from Ambwani & Sutherland (1988)
+    as implemented in ARTIS
+
+    Parameters
+    ----------
+    energy : float
+        Photon energy
+    ejecta_density : float
+        The density of the ejecta
+    iron_group_fraction : float
+        Fraction of iron group elements in the shell
+
+    Returns
+    -------
+    float
+        Pair creation opacity
+    """
     M_H = 1.67352e-24
 
     # Conditions prevent divide by zero

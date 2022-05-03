@@ -35,12 +35,8 @@ gxpacket_spec = [
 
 @jitclass(gxpacket_spec)
 class GXPacket(object):
-    """Indivisible gamma-ray packet
-
-    Parameters
-    ----------
-    object : _type_
-        _description_
+    """
+    Indivisible gamma-ray packet
     """
 
     def __init__(

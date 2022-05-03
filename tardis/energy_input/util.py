@@ -377,7 +377,21 @@ def get_perpendicular_vector(original_direction):
 
 @njit
 def get_index(value, array):
+    """Get the index that places a value
+    at array[i] < array <= vec[i+1]
 
+    Parameters
+    ----------
+    value : float
+        Value to locate
+    array : array
+        Array to search
+
+    Returns
+    -------
+    int
+        Index
+    """    
     if value <= array[0]:
         return 0
     elif value > array[-1]:
