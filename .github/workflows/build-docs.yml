@@ -67,7 +67,7 @@ jobs:
         run: pip install -e .
 
       - name: Build documentation
-        run: cd docs/ && make html
+        run: cd docs/ && make html CORES=auto
 
       - name: Set destination directory
         run: |
