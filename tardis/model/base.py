@@ -186,7 +186,8 @@ class Radial1DModel(HDFWriterMixin):
             density=density,
         )
         self.raw_abundance = self._abundance
-        self.raw_isotope_abundance = isotope_abundance
+        self.raw_isotope_abundance = isotope_abundance[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
+
 
         if t_inner is None:
             if luminosity_requested is not None:
