@@ -44,7 +44,7 @@ jobs:
       run: pip install git+https://github.com/citation-file-format/doi2cff
 
     - name: Update CITATION.cff
-      run: doi2cff update https://doi.org/10.5281/zenodo.592480
+      run: doi2cff update 10.5281/zenodo.592480
 
     - uses: actions/upload-artifact@v3
       with:
