@@ -64,7 +64,7 @@ jobs:
       - name: Copy files to repository
         run: |
           cp /tmp/changelog/CHANGELOG.md .
-          cp /tmp/citation/CITATION.md .
+          cp /tmp/citation/CITATION.cff .
 
       - name: Get current date
         run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
