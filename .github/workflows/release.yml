@@ -8,9 +8,12 @@ on:
   pull_request:
     types: [closed]
 
+  workflow_dispatch:  # manual trigger
+
 jobs:
   create:
-    if: startsWith(github.head_ref, 'pre-release-20') && github.event.pull_request.merged == true
+    if: github.event_name == 'workflow_dispatch' ||
+        (startsWith(github.head_ref, 'pre-release-20') && github.event.pull_request.merged == true)
 
     runs-on: ubuntu-latest
     steps:
