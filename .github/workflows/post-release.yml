@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
     - master
+pip install git+https://github.com/citation-file-format/doi2cff
 
   workflow_dispatch:  # manual trigger
 
@@ -35,21 +36,23 @@ jobs:
   citation:
     runs-on: ubuntu-latest
     steps:
-    - name: Setup Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.x'
+      - uses: actions/checkout@v2
 
-    - name: Install doi2cff
-      run: pip install git+https://github.com/citation-file-format/doi2cff
+      - name: Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
 
-    - name: Update CITATION.cff
-      run: doi2cff update 10.5281/zenodo.592480
+      - name: Install doi2cff
+        run: pip install git+https://github.com/citation-file-format/doi2cff
 
-    - uses: actions/upload-artifact@v3
-      with:
-        name: citation
-        path: CITATION.cff
+      - name: Update CITATION.cff
+        run: doi2cff update 10.5281/zenodo.592480
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: citation
+          path: CITATION.cff
 
   pull_request:
     needs: [changelog, citation]
