@@ -66,7 +66,7 @@ jobs:
 
       - uses: actions/cache@v2
         with:
-          path: ${{ matrix.prefix }}
+          path: /usr/share/miniconda3/envs/tardis
           key: conda-${{ matrix.label }}-${{ hashFiles('conda-linux-64.lock') }}-${{ env.CACHE_NUMBER }}
         id: cache
 
