@@ -108,14 +108,30 @@ jobs:
           base: master
           push-to-fork: tardis-bot/tardis
           commit-message: Automated changes for pre-release ${{ env.DATE }}
-          title: Pre-release ${{ env.DATE }}
+          title: '[ci skip] Pre-release ${{ env.DATE }}'
           body: |
             *\*beep\* \*bop\**
-            
+
             Hi, human.
-            
+
             I prepared everything for a new TARDIS release.
-            
-            If all **checks pass**, merge this pull request and I'll do the rest.
-          labels: build-docs, CI-CD, priority - high :fire:,
-          reviewers: wkerzendorf, andrewfullard, epassaro
+
+            <br>
+
+            > :warning: **WARNING:** 
+            >
+            > This pull request has been labeled as `automerge` and will be merged automatically after the checks are completed. **Do not merge manually if any check fails**.
+            >
+            > Instead, remove the `automerge` label and push your fixes to the [`pre-release-${{ env.DATE }}`](https://github.com/tardis-bot/tardis/tree/pre-release-${{ env.DATE }}) branch on [**tardis-bot/tardis**](https://github.com/tardis-bot/tardis).
+            >
+            > ```
+            > $ git remote add tardis-bot git@github.com:tardis-bot/tardis.git
+            > $ git fetch tardis-bot
+            > $ git checkout tardis-bot/pre-release-${{ env.DATE }}
+            > $ git add <file_1> <file_2> ...
+            > $ git commit -m "<your_commit_message>"
+            > $ git push tardis-bot HEAD:pre-release-${{ env.DATE }}
+            > ```
+            >
+            > Once all the checks pass, you can safely merge this pull request manually.
+          labels: automerge, build-docs
