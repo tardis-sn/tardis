@@ -1,3 +1,5 @@
+.. _spectra:
+
 *********************
 Radiation and Spectra
 *********************
@@ -17,6 +19,9 @@ Intensity
 
 Mean Intensity
 --------------
+
+Integrated Intensities
+----------------------
 
 
 Blackbody Spectra
