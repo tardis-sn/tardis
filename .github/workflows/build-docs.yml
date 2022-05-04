@@ -24,7 +24,8 @@ on:
 
 env:
   DEPLOY_BRANCH: gh-pages               # deployed docs branch
-  ROOT_REDIRECT: latest                 # https://tardis-sn.github.io/tardis/latest
+  ROOT_REDIRECT: latest                 # redirects to: https://tardis-sn.github.io/tardis/latest
+  CACHE_NUMBER: 0                       # increase to reset cache manually
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -59,9 +60,18 @@ jobs:
         with:
             miniforge-variant: Mambaforge
             miniforge-version: latest
-            environment-file: conda-linux-64.lock
             activate-environment: tardis
             use-mamba: true
+
+      - uses: actions/cache@v2
+        with:
+          path: ${{ matrix.prefix }}
+          key: conda-${{ matrix.label }}-${{ hashFiles('conda-linux-64.lock') }}-${{ env.CACHE_NUMBER }}
+        id: cache
+
+      - name: Update environment
+        run: mamba update -n tardis --file conda-linux-64.lock
+        if: steps.cache.outputs.cache-hit != 'true'
 
       - name: Install package
         run: pip install -e .
