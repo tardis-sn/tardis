@@ -23,6 +23,10 @@ env:
                 --cov=tardis --cov-report=xml --cov-report=html
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+defaults:
+  run:
+    shell: bash -l {0}
+
 jobs:
   build:
 
@@ -39,13 +43,7 @@ jobs:
           prefix: /Users/runner/miniconda3/envs/tardis
 
     name: ${{ matrix.label }}
-
-    defaults:
-      run:
-        shell: bash -l {0}
-
     runs-on: ${{ matrix.os }}
-
     steps:
       - uses: actions/checkout@v2
 
