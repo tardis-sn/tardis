@@ -9,6 +9,7 @@ on:
   push:
     branches:
       - master
+      - ci/build-with-lockfiles
 
   pull_request_target:
     branches:
