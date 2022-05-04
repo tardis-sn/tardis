@@ -27,7 +27,14 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        include:
+        - os: ubuntu-latest
+          label: linux-64
+
+        - os: macos-latest
+          label: osx-64
+
+    name: ${{ matrix.label }}
 
     defaults:
       run:
@@ -46,7 +53,7 @@ jobs:
         with:
             miniforge-variant: Mambaforge
             miniforge-version: latest
-            environment-file: tardis_env3.yml
+            environment-file: conda-${{ matrix.label }}.lock
             activate-environment: tardis
             use-mamba: true
 

@@ -59,7 +59,7 @@ jobs:
         with:
             miniforge-variant: Mambaforge
             miniforge-version: latest
-            environment-file: tardis_env3.yml
+            environment-file: conda-linux-64.lock
             activate-environment: tardis
             use-mamba: true
 
