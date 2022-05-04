@@ -13,15 +13,15 @@ on:
     branches:
     - '*'
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
-
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
   PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata
                 --cov=tardis --cov-report=xml --cov-report=html
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 defaults:
   run:
@@ -65,7 +65,7 @@ jobs:
         id: cache
 
       - name: Update environment
-        run: mamba update -n tardis -f conda-${{ matrix.label }}.lock
+        run: mamba update -n tardis --file conda-${{ matrix.label }}.lock
         if: steps.cache.outputs.cache-hit != 'true'
 
       - name: Install package
