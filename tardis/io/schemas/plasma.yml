@@ -110,7 +110,7 @@ properties:
   link_t_rad_t_electron:
     type: number
     default: 0.9
-    description: Value used for estimate of electron temperature from t_rad.
+    description: Value used for estimating the electron temperature from radiation temperature.
 required:
 - ionization
 - excitation
