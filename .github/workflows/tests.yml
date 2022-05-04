@@ -20,6 +20,7 @@ concurrency:
 env:
   PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata
                 --cov=tardis --cov-report=xml --cov-report=html
+                --arraydiff --arraydiff-reference-path=${{ github.workspace }}/tardis-refdata/arraydiff-data
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
 jobs:
