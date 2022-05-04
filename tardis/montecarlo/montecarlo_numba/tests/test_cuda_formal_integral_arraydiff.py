@@ -309,4 +309,4 @@ def test_full_formal_integral(
         formal_integrator_cuda.points,
     )
 
-    return L_cuda
+    return L_cuda[0]
