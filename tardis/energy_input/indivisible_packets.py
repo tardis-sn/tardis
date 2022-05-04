@@ -254,8 +254,8 @@ def initialize_packets(
             )
 
             packet.energy_rf = packet.energy_cmf / doppler_gamma(
-                packet.get_direction_vector(),
-                packet.get_position_vector(),
+                packet.get_direction_vector_cartesian(),
+                packet.get_position_vector_cartesian(),
                 packet.time_current,
             )
 
@@ -284,8 +284,8 @@ def initialize_packets(
             packet.nu_cmf = cmf_energy / H_CGS_KEV
 
             packet.nu_rf = packet.nu_cmf / doppler_gamma(
-                packet.get_direction_vector(),
-                packet.get_position_vector(),
+                packet.get_direction_vector_cartesian(),
+                packet.get_position_vector_cartesian(),
                 packet.time_current,
             )
 
@@ -704,8 +704,8 @@ def gamma_packet_loop(
             comoving_energy = H_CGS_KEV * packet.nu_cmf
 
             doppler_factor = doppler_gamma(
-                packet.get_direction_vector(),
-                packet.get_position_vector(),
+                packet.get_direction_vector_cartesian(),
+                packet.get_position_vector_cartesian(),
                 effective_time_array[time_index],
             )
 

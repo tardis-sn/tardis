@@ -100,3 +100,13 @@ class GXPacket(object):
         return np.array(
             (self.location_r, self.location_theta, self.location_phi)
         )
+
+    def get_direction_vector_cartesian(self):
+        return np.array(
+            (self.get_direction_cartesian_coords())
+        )
+
+    def get_position_vector_cartesian(self):
+        return np.array(
+            (self.get_location_cartesian_coords())
+        )

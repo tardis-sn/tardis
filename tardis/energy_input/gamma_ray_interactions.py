@@ -197,7 +197,7 @@ def compton_scatter(photon, compton_angle):
 
     # get comoving frame direction
     abb_array = angle_aberration_gamma(
-        photon.get_direction_vector(), photon.get_position_vector(), photon.time_current
+        photon.get_direction_vector_cartesian(), photon.get_position_vector_cartesian(), photon.time_current
     )
     comov_direction = spherical_to_cartesian(1, abb_array[1], abb_array[2])
 
@@ -230,18 +230,9 @@ def compton_scatter(photon, compton_angle):
         np.abs(norm_theta - np.cos(compton_angle)) < 1e-8
     ), "Error, difference between new vector angle and Compton angle is more than 0!"
 
-    # transform the cartesian coordinates to spherical coordinates
-    final_comov_direction = np.array(
-        cartesian_to_spherical(
-            final_compton_scattered_vector[0],
-            final_compton_scattered_vector[1],
-            final_compton_scattered_vector[2],
-        )
-    )
-
     # Calculate the angle aberration of the final direction
     final_direction = angle_aberration_gamma(
-        final_comov_direction, photon.get_position_vector(), photon.time_current
+        final_compton_scattered_vector, photon.get_position_vector_cartesian(), photon.time_current
     )
 
     return final_direction[1], final_direction[2]
@@ -269,10 +260,12 @@ def pair_creation(photon):
     direction_theta = get_random_theta_photon()
     direction_phi = get_random_phi_photon()
 
+    x, y, z = spherical_to_cartesian(1.0, direction_theta, direction_phi)
+
     # Calculate aberration of the random angle for the rest frame
     final_direction = angle_aberration_gamma(
-        np.array([1.0, direction_theta, direction_phi]),
-        photon.get_position_vector(),
+        np.array([x, y, z]),
+        photon.get_position_vector_cartesian(),
         photon.time_current
     )
 
@@ -332,10 +325,12 @@ def pair_creation_packet(packet):
     direction_theta = get_random_theta_photon()
     direction_phi = get_random_phi_photon()
 
+    x, y, z = spherical_to_cartesian(1.0, direction_theta, direction_phi)
+
     # Calculate aberration of the random angle for the rest frame
     final_direction = angle_aberration_gamma(
-        np.array([1.0, direction_theta, direction_phi]),
-        packet.get_position_vector(),
+        np.array([x, y, z]),
+        packet.get_position_vector_cartesian(),
         -1 * packet.time_current
     )
 
@@ -343,8 +338,8 @@ def pair_creation_packet(packet):
     packet.direction_phi = final_direction[2]
 
     doppler_factor = doppler_gamma(
-        packet.get_direction_vector(),
-        packet.get_position_vector(),
+        packet.get_direction_vector_cartesian(),
+        packet.get_position_vector_cartesian(),
         packet.time_current
     )
 

@@ -159,7 +159,7 @@ def move_packet(packet, distance):
     packet.location_phi = phi
 
     doppler_factor = doppler_gamma(
-        packet.get_direction_vector(), packet.get_position_vector(), packet.time_current
+        packet.get_direction_vector_cartesian(), packet.get_position_vector_cartesian(), packet.time_current
     )
 
     packet.nu_cmf = packet.nu_rf * doppler_factor
