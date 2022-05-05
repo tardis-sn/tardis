@@ -76,6 +76,7 @@ jobs:
           committer: TARDIS Bot <tardis.sn.bot@gmail.com>
           author: TARDIS Bot <tardis.sn.bot@gmail.com>
           branch: post-release-${{ env.DATE }}
+          base: master
           push-to-fork: tardis-bot/tardis
           commit-message: Automated changes for post-release ${{ env.DATE }}
           title: Post-release ${{ env.DATE }}
