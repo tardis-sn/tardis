@@ -758,7 +758,7 @@ class YgData(ProcessingPlasmaProperty):
             },
             index=index,
         )
-        breakpoint()
+
         return yg_data, t_yg, index, delta_E, yg_idx
 
     @staticmethod
@@ -807,7 +807,7 @@ class YgData(ProcessingPlasmaProperty):
         yg = f_lu * (I_H / (H * nu_lines)) ** 2
         coll_const = A0**2 * np.pi * np.sqrt(8 * K_B / (np.pi * M_E))
         yg = 14.5 * coll_const * t_electrons * yg[:, np.newaxis]
-        breakpoint()
+
         u0 = nu_lines[np.newaxis].T / t_electrons * (H / K_B)
         gamma = 0.276 * np.exp(u0) * expn(1, u0)
         gamma[gamma < 0.2] = 0.2
