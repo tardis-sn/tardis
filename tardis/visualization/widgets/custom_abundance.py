@@ -389,9 +389,7 @@ class CustomAbundanceWidget:
         self.create_widgets()
         self.generate_abundance_density_plot()
         self.density_editor = DensityEditor(
-            self.data,
-            self.fig,
-            self.dpd_shell_no,
+            self.data, self.fig, self.dpd_shell_no
         )
 
     @property
@@ -440,11 +438,7 @@ class CustomAbundanceWidget:
 
         self.checks = [
             ipw.Checkbox(
-                indent=False,
-                icon="lock",
-                layout=ipw.Layout(
-                    width="30px",
-                ),
+                indent=False, icon="lock", layout=ipw.Layout(width="30px")
             )
             for element in self.data.elements
         ]
@@ -505,18 +499,14 @@ class CustomAbundanceWidget:
             icon="plus-square",
             description="Add",
             disabled=True,
-            layout=ipw.Layout(
-                width="80px",
-            ),
+            layout=ipw.Layout(width="80px"),
         )
         self.btn_add_shell.on_click(self.on_btn_add_shell)
         self.input_v_start = ipw.FloatText(
             min=0,
             description="Add shell(s) with velocity range (km/s): ",
             style={"description_width": "initial"},
-            layout=ipw.Layout(
-                width="320px",
-            ),
+            layout=ipw.Layout(width="320px"),
         )
         self.input_v_end = ipw.FloatText(
             min=0,
@@ -531,9 +521,7 @@ class CustomAbundanceWidget:
             layout=ipw.Layout(visibility="hidden", margin="0 0 0 10px"),
         )
 
-        self.btn_output = ipw.Button(
-            description="Output CSVY File",
-        )
+        self.btn_output = ipw.Button(description="Output CSVY File")
         self.btn_output.on_click(self.on_btn_output)
 
         self.input_path = ipw.Text(
@@ -545,10 +533,7 @@ class CustomAbundanceWidget:
             style={"description_width": "initial"},
         )
 
-        self.ckb_overwrite = ipw.Checkbox(
-            description="overwrite",
-            indent=False,
-        )
+        self.ckb_overwrite = ipw.Checkbox(description="overwrite", indent=False)
 
         self.tbs_scale = ipw.ToggleButtons(
             options=["Linear", "Log"],
@@ -844,19 +829,12 @@ class CustomAbundanceWidget:
 
         if scale_mode == "Linear":
             self.fig.update_layout(
-                yaxis=dict(
-                    type="linear",
-                    range=[0, 1],
-                ),
+                yaxis=dict(type="linear", range=[0, 1]),
                 yaxis2=dict(type="linear"),
             )
         else:
             self.fig.update_layout(
-                yaxis=dict(
-                    type="log",
-                    range=[-8, 0],
-                ),
-                yaxis2=dict(type="log"),
+                yaxis=dict(type="log", range=[-8, 0]), yaxis2=dict(type="log")
             )
 
     def input_item_eventhandler(self, obj):
@@ -1209,9 +1187,7 @@ class CustomAbundanceWidget:
                 y=[1],
                 width=[velocity[1].value - velocity[0].value],
                 name="Selected shell",
-                marker=dict(
-                    color="rgb(253,205,172)",
-                ),
+                marker=dict(color="rgb(253,205,172)"),
                 hoverinfo="none",
             )
         )
@@ -1225,7 +1201,7 @@ class CustomAbundanceWidget:
                 yaxis="y2",
                 line=dict(color="black", shape="hv"),
                 marker_symbol="square",
-            ),
+            )
         )
 
         for i in range(self.no_of_elements):
@@ -1236,18 +1212,13 @@ class CustomAbundanceWidget:
                     mode="lines+markers",
                     line=dict(shape="hv"),
                     name=self.data.elements[i],
-                ),
+                )
             )
 
         self.fig.update_layout(
-            xaxis=dict(
-                title="Velocity (km/s)",
-                tickformat="f",
-            ),
+            xaxis=dict(title="Velocity (km/s)", tickformat="f"),
             yaxis=dict(
-                title="Fractional Abundance",
-                exponentformat="e",
-                range=[0, 1],
+                title="Fractional Abundance", exponentformat="e", range=[0, 1]
             ),
             yaxis2=dict(
                 title="Density (g/cm^3)",
@@ -1258,9 +1229,7 @@ class CustomAbundanceWidget:
             height=500,
             title=title,
             hovermode="closest",
-            legend=dict(
-                x=1.15,
-            ),
+            legend=dict(x=1.15),
         )
 
     def display(self, cmap="jet"):
@@ -1575,10 +1544,7 @@ class DensityEditor:
         callbacks for widgets.
         """
         self.input_d = ipw.FloatText(
-            description="Density",
-            layout=ipw.Layout(
-                width="230px",
-            ),
+            description="Density", layout=ipw.Layout(width="230px")
         )
         self.input_d.observe(self.input_d_eventhandler, "value")
 

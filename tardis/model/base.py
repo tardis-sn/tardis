@@ -11,7 +11,7 @@ from tardis.io.model_reader import (
     read_abundances_file,
     read_uniform_abundances,
     parse_csv_abundances,
-    load_csvy
+    load_csvy,
 )
 from tardis.io.config_validator import validate_dict
 from tardis.io.config_reader import Configuration
