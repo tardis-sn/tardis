@@ -34,7 +34,7 @@ jobs:
       - template: templates/default.yml
         parameters:
           fetchRefdata: true
-          refdataRepo: 'azure'  # use 'github' to compare between custom ref hashes
+          refdataRepo: 'azure'  # use 'github' when comparing between custom ref hashes
           useMamba: false
 
       - bash: |
