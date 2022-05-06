@@ -38,7 +38,7 @@ steps:
   - ${{ if eq(parameters.useMamba, false) }}:
     - bash: |
         echo "##vso[task.setvariable variable=package.manager]conda"
-      displayName: 'Set environment variables'
+      displayName: 'Set package manager'
 
   - ${{ if eq(parameters.useMamba, true) }}:
     - bash: |
@@ -50,9 +50,14 @@ steps:
     fetchDepth: ${{ parameters.fetchDepth }}
 
   - ${{ if and(eq(parameters.fetchRefdata, true), eq(parameters.refdataRepo, 'azure')) }}:
-    - checkout: git://TARDIS/tardis-refdata
-      lfs: true
-      displayName: 'Fetch reference data (Azure)'
+      # Azure Repos requires token auth for public repositories containing LFS objects (bug).
+      # Fetch reference data from Azure with a PAT until a fix arrives.
+      - bash: |
+          MY_PAT=$(refdata_token)
+          B64_PAT=$(printf ":$MY_PAT" | base64)
+          git -c http.extraHeader="Authorization: Basic ${B64_PAT}" clone https://tardis-sn@dev.azure.com/tardis-sn/TARDIS/_git/tardis-refdata $(refdata.dir)
+          cd $(refdata.dir); git -c http.extraHeader="Authorization: Basic ${B64_PAT}" lfs fetch --all
+        displayName: 'Fetch reference data repository'
 
   - ${{ if and(eq(parameters.fetchRefdata, true), eq(parameters.refdataRepo, 'github')) }}:
     - bash: |
