@@ -62,11 +62,11 @@ jobs:
         with:
           path: ${{ matrix.prefix }}
           key: conda-${{ matrix.label }}-${{ hashFiles('conda-${{ matrix.label }}.lock') }}-${{ env.CACHE_NUMBER }}
-        id: cache-env
+        id: cache-conda
 
       - name: Update environment
         run: mamba update -n tardis --file conda-${{ matrix.label }}.lock
-        if: steps.cache-env.outputs.cache-hit != 'true'
+        if: steps.cache-conda.outputs.cache-hit != 'true'
 
       - name: Install package
         run: pip install -e .
