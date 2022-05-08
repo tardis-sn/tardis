@@ -2,7 +2,7 @@
 #
 #    https://tardis-sn.github.io/tardis/development/continuous_integration.html
 
-name: build-docs
+name: docs
 
 on:
 
@@ -115,12 +115,13 @@ jobs:
           user_name: 'TARDIS Bot'
           user_email: 'tardis.sn.bot@gmail.com'
 
-      - name: Redirect root
+      - name: Create redirect
         run: |
           mkdir redirects && cd redirects
           echo '<head>' >> index.html
           echo '  <meta http-equiv="Refresh" content="0; url='/${{ github.event.repository.name }}/${{ env.ROOT_REDIRECT }}'"/>' >> index.html
           echo '</head>' >> index.html
+        if: github.event_name != 'pull_request_target'
 
       - name: Deploy redirect
         uses: peaceiris/actions-gh-pages@v3
@@ -131,6 +132,7 @@ jobs:
           keep_files: true
           user_name: 'TARDIS Bot'
           user_email: 'tardis.sn.bot@gmail.com'
+        if: github.event_name != 'pull_request_target'
 
       - name: Find comment
         uses: peter-evans/find-comment@v1
