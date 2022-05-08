@@ -616,17 +616,17 @@ package:
   version: '0.4'
 - category: main
   dependencies:
-    libgcc-ng: '>=7.5.0'
-    libstdcxx-ng: '>=7.5.0'
+    libgcc-ng: '>=10.3.0'
+    libstdcxx-ng: '>=10.3.0'
   hash:
-    md5: 83f1dc295c711bdbaf97e1f3bedf2f52
-    sha256: 3380878cabe580fa04c885b7ba7835b868c8140f58426838c679120c0a0c3216
+    md5: 450c7b0a63bf7b469b9b17668df4e4d8
+    sha256: a56494c36700cf0b3ac1abcc7d1412e10b1b273ceefd76cc8e22e2c1fbd2031b
   manager: conda
   name: snappy
   optional: false
   platform: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/snappy-1.1.8-he1b5a44_3.tar.bz2
-  version: 1.1.8
+  url: https://conda.anaconda.org/conda-forge/linux-64/snappy-1.1.9-hbd366e4_0.tar.bz2
+  version: 1.1.9
 - category: main
   dependencies:
     libgcc-ng: '>=9.3.0'
@@ -1115,14 +1115,14 @@ package:
     readline: '>=8.1,<9.0a0'
     zlib: '>=1.2.11,<1.3.0a0'
   hash:
-    md5: 987ea6cb07fd358ad52dd1c938367967
-    sha256: e71fbf79688ff50c288ba0ae2d7edcee34a78de10945297ca83c3ce86d64a61e
+    md5: a1448f0c31baec3946d2dcf09f905c9e
+    sha256: 5c1ccc6c076c3b9a6463e7784b934870142e2a630b504c5a1a4c9cbdb645884d
   manager: conda
   name: sqlite
   optional: false
   platform: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.38.3-h4ff8645_0.tar.bz2
-  version: 3.38.3
+  url: https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.38.5-h4ff8645_0.tar.bz2
+  version: 3.38.5
 - category: main
   dependencies:
     libgcc-ng: '>=9.3.0'
@@ -2090,17 +2090,17 @@ package:
   version: 2.0.5
 - category: main
   dependencies:
-    python: ''
+    python: '>=3.6'
     pytz: ''
   hash:
-    md5: 74136ed39bfea0832d338df1e58d013e
-    sha256: 1ebe67797d025c5322aa3b634a0472e5aa5cbd252ac8e9f8866953255a9be2a8
+    md5: 2ec70a4a964b696170d730466c668f60
+    sha256: 3fd4797031c5416ce232f8a7f4a8c6e29ad44d50c547963a127f64bd0c171c3b
   manager: conda
   name: babel
   optional: false
   platform: linux-64
-  url: https://conda.anaconda.org/conda-forge/noarch/babel-2.9.1-pyh44b312d_0.tar.bz2
-  version: 2.9.1
+  url: https://conda.anaconda.org/conda-forge/noarch/babel-2.10.1-pyhd8ed1ab_0.tar.bz2
+  version: 2.10.1
 - category: main
   dependencies:
     python: '>=3.6'
@@ -3313,14 +3313,14 @@ package:
     pip: ''
     python: '>=3.6'
   hash:
-    md5: 1c7e67341f3339c0e809fb64f9dfe9ca
-    sha256: a94ff7ed7dae2cf52f475acd7885f91f50c1607e6ee3d38186ba894a7a357b05
+    md5: 3e7b95a8fa94cec79224506310b59b01
+    sha256: f5c19af106586e103993c7a14616ac5587a1003354084b84cf3633f0df87a17e
   manager: conda
   name: pbr
   optional: false
   platform: linux-64
-  url: https://conda.anaconda.org/conda-forge/noarch/pbr-5.8.1-pyhd8ed1ab_0.tar.bz2
-  version: 5.8.1
+  url: https://conda.anaconda.org/conda-forge/noarch/pbr-5.9.0-pyhd8ed1ab_0.tar.bz2
+  version: 5.9.0
 - category: main
   dependencies:
     docutils: '>=0.8'
@@ -4127,14 +4127,14 @@ package:
 - category: main
   dependencies: {}
   hash:
-    md5: c451c3b02dea73d320d1395252fc006c
-    sha256: 27d6c8022ed151ee91097d88c74a8e6ae8822842cd15d10ef486b2a9fd8f6a1e
+    md5: 169cb4aae14ca89851deda1756b2ebf7
+    sha256: a78bc8dffcdc97ec8e633fefea92bd155eb35de5c148393ff23b8e01d0a9bd66
   manager: conda
   name: libcxx
   optional: false
   platform: osx-64
-  url: https://conda.anaconda.org/conda-forge/osx-64/libcxx-13.0.1-hc203e6f_0.tar.bz2
-  version: 13.0.1
+  url: https://conda.anaconda.org/conda-forge/osx-64/libcxx-14.0.3-hc203e6f_0.tar.bz2
+  version: 14.0.3
 - category: main
   dependencies: {}
   hash:
@@ -4522,16 +4522,16 @@ package:
   version: '8.1'
 - category: main
   dependencies:
-    libcxx: '>=10.0.1'
+    libcxx: '>=13.0.1'
   hash:
-    md5: 73b65b3935375b56deb96f6794ed721e
-    sha256: 7088dec29b220f45e99e92ccb6a2ef1d46fc8d43b642ae4c12a4b24af6148376
+    md5: 0a8d951ac6586f8ceafd9e193b2e4fd6
+    sha256: 89edaa69a87c33ba9883a19c5b181c9d1d58ace3291f1e7f8bab1cfef6beb7a6
   manager: conda
   name: snappy
   optional: false
   platform: osx-64
-  url: https://conda.anaconda.org/conda-forge/osx-64/snappy-1.1.8-hb1e8313_3.tar.bz2
-  version: 1.1.8
+  url: https://conda.anaconda.org/conda-forge/osx-64/snappy-1.1.9-h6e38e02_0.tar.bz2
+  version: 1.1.9
 - category: main
   dependencies:
     libzlib: '>=1.2.11,<1.3.0a0'
@@ -4740,14 +4740,14 @@ package:
     readline: '>=8.1,<9.0a0'
     zlib: '>=1.2.11,<1.3.0a0'
   hash:
-    md5: f309a6d4a78c13dfbf3eef123c230b1c
-    sha256: f1263418c0afe1bb4a45c9f3ffc6bebaaf934d40a8b4efb5e2999b5eb26fdf3a
+    md5: 258c39c5e2eff8b8b29d1a027e4e1b5a
+    sha256: 986a83679ada273eae01dd29e2ddae132e1fa16d8be29c91caad949dc52ea591
   manager: conda
   name: sqlite
   optional: false
   platform: osx-64
-  url: https://conda.anaconda.org/conda-forge/osx-64/sqlite-3.38.3-hd9f0692_0.tar.bz2
-  version: 3.38.3
+  url: https://conda.anaconda.org/conda-forge/osx-64/sqlite-3.38.5-hd9f0692_0.tar.bz2
+  version: 3.38.5
 - category: main
   dependencies:
     libcxx: '>=11.1.0'
@@ -5741,17 +5741,17 @@ package:
   version: 2.0.5
 - category: main
   dependencies:
-    python: ''
+    python: '>=3.6'
     pytz: ''
   hash:
-    md5: 74136ed39bfea0832d338df1e58d013e
-    sha256: 1ebe67797d025c5322aa3b634a0472e5aa5cbd252ac8e9f8866953255a9be2a8
+    md5: 2ec70a4a964b696170d730466c668f60
+    sha256: 3fd4797031c5416ce232f8a7f4a8c6e29ad44d50c547963a127f64bd0c171c3b
   manager: conda
   name: babel
   optional: false
   platform: osx-64
-  url: https://conda.anaconda.org/conda-forge/noarch/babel-2.9.1-pyh44b312d_0.tar.bz2
-  version: 2.9.1
+  url: https://conda.anaconda.org/conda-forge/noarch/babel-2.10.1-pyhd8ed1ab_0.tar.bz2
+  version: 2.10.1
 - category: main
   dependencies:
     python: '>=3.6'
@@ -6896,14 +6896,14 @@ package:
     pip: ''
     python: '>=3.6'
   hash:
-    md5: 1c7e67341f3339c0e809fb64f9dfe9ca
-    sha256: a94ff7ed7dae2cf52f475acd7885f91f50c1607e6ee3d38186ba894a7a357b05
+    md5: 3e7b95a8fa94cec79224506310b59b01
+    sha256: f5c19af106586e103993c7a14616ac5587a1003354084b84cf3633f0df87a17e
   manager: conda
   name: pbr
   optional: false
   platform: osx-64
-  url: https://conda.anaconda.org/conda-forge/noarch/pbr-5.8.1-pyhd8ed1ab_0.tar.bz2
-  version: 5.8.1
+  url: https://conda.anaconda.org/conda-forge/noarch/pbr-5.9.0-pyhd8ed1ab_0.tar.bz2
+  version: 5.9.0
 - category: main
   dependencies:
     docutils: '>=0.8'

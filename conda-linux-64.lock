@@ -51,7 +51,7 @@ https://conda.anaconda.org/conda-forge/linux-64/openssl-1.1.1o-h166bdaf_0.tar.bz
 https://conda.anaconda.org/conda-forge/linux-64/pcre-8.45-h9c3ff4c_0.tar.bz2#c05d1820a6d34ff07aaaab7a9b7eddaa
 https://conda.anaconda.org/conda-forge/linux-64/pixman-0.40.0-h36c2ea0_0.tar.bz2#660e72c82f2e75a6b3fe6a6e75c79f19
 https://conda.anaconda.org/conda-forge/linux-64/pthread-stubs-0.4-h36c2ea0_1001.tar.bz2#22dad4df6e8630e8dff2428f6f6a7036
-https://conda.anaconda.org/conda-forge/linux-64/snappy-1.1.8-he1b5a44_3.tar.bz2#83f1dc295c711bdbaf97e1f3bedf2f52
+https://conda.anaconda.org/conda-forge/linux-64/snappy-1.1.9-hbd366e4_0.tar.bz2#450c7b0a63bf7b469b9b17668df4e4d8
 https://conda.anaconda.org/conda-forge/linux-64/xorg-kbproto-1.0.7-h7f98852_1002.tar.bz2#4b230e8381279d76131116660f5a241a
 https://conda.anaconda.org/conda-forge/linux-64/xorg-libice-1.0.10-h7f98852_0.tar.bz2#d6b0b50b49eccfe0be0373be628be0f3
 https://conda.anaconda.org/conda-forge/linux-64/xorg-libxau-1.0.9-h7f98852_0.tar.bz2#bf6f803a544f26ebbdc3bfff272eb179
@@ -87,7 +87,7 @@ https://conda.anaconda.org/conda-forge/linux-64/libssh2-1.10.0-ha56f1ee_2.tar.bz
 https://conda.anaconda.org/conda-forge/linux-64/libtiff-4.3.0-h542a066_3.tar.bz2#1a0efb4dfd880b0376da8e1ba39fa838
 https://conda.anaconda.org/conda-forge/linux-64/libxml2-2.9.14-h22db469_0.tar.bz2#7d623237b73d93dd856b5dd0f5fedd6b
 https://conda.anaconda.org/conda-forge/linux-64/mpc-1.2.1-h9f54685_0.tar.bz2#c5d36085ed66e1c582d652fb921e99fb
-https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.38.3-h4ff8645_0.tar.bz2#987ea6cb07fd358ad52dd1c938367967
+https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.38.5-h4ff8645_0.tar.bz2#a1448f0c31baec3946d2dcf09f905c9e
 https://conda.anaconda.org/conda-forge/linux-64/xorg-libx11-1.7.2-h7f98852_0.tar.bz2#12a61e640b8894504326aadafccbb790
 https://conda.anaconda.org/conda-forge/linux-64/atk-1.0-2.36.0-h3371d22_4.tar.bz2#661e1ed5d92552785d9f8c781ce68685
 https://conda.anaconda.org/conda-forge/linux-64/brotli-1.0.9-h166bdaf_7.tar.bz2#3889dec08a472eb0f423e5609c76bde1
@@ -163,7 +163,7 @@ https://conda.anaconda.org/conda-forge/noarch/webencodings-0.5.1-py_1.tar.bz2#35
 https://conda.anaconda.org/conda-forge/noarch/wheel-0.37.1-pyhd8ed1ab_0.tar.bz2#1ca02aaf78d9c70d9a81a3bed5752022
 https://conda.anaconda.org/conda-forge/noarch/zipp-3.8.0-pyhd8ed1ab_0.tar.bz2#050b94cf4a8c760656e51d2d44e4632c
 https://conda.anaconda.org/conda-forge/noarch/asttokens-2.0.5-pyhd8ed1ab_0.tar.bz2#74badce16f060701fee55c39332f5253
-https://conda.anaconda.org/conda-forge/noarch/babel-2.9.1-pyh44b312d_0.tar.bz2#74136ed39bfea0832d338df1e58d013e
+https://conda.anaconda.org/conda-forge/noarch/babel-2.10.1-pyhd8ed1ab_0.tar.bz2#2ec70a4a964b696170d730466c668f60
 https://conda.anaconda.org/conda-forge/noarch/beautifulsoup4-4.11.1-pyha770c72_0.tar.bz2#eeec8814bd97b2681f708bb127478d7d
 https://conda.anaconda.org/conda-forge/noarch/cached-property-1.5.2-hd8ed1ab_1.tar.bz2#9b347a7ec10940d3f7941ff6c460b551
 https://conda.anaconda.org/conda-forge/linux-64/cairo-1.16.0-ha61ee94_1011.tar.bz2#0b53c7f7af13244374ef7226bac3f843
@@ -242,7 +242,7 @@ https://conda.anaconda.org/conda-forge/noarch/jupyterlab_pygments-0.2.2-pyhd8ed1
 https://conda.anaconda.org/conda-forge/linux-64/matplotlib-base-3.5.2-py38h826bfd8_0.tar.bz2#107af20136422bcabf9f1195f6262117
 https://conda.anaconda.org/conda-forge/noarch/nbformat-5.4.0-pyhd8ed1ab_0.tar.bz2#770f6659243e2c79a0b8488b0e463bd1
 https://conda.anaconda.org/conda-forge/linux-64/pango-1.50.7-hbd2fdc8_0.tar.bz2#1cff4bab8ed133d59b7c22fe7bf09263
-https://conda.anaconda.org/conda-forge/noarch/pbr-5.8.1-pyhd8ed1ab_0.tar.bz2#1c7e67341f3339c0e809fb64f9dfe9ca
+https://conda.anaconda.org/conda-forge/noarch/pbr-5.9.0-pyhd8ed1ab_0.tar.bz2#3e7b95a8fa94cec79224506310b59b01
 https://conda.anaconda.org/conda-forge/linux-64/pybtex-docutils-1.0.1-py38h578d9bd_1.tar.bz2#e4c979f2c8e56649f4a25fe6dae49a1e
 https://conda.anaconda.org/conda-forge/noarch/pyopenssl-22.0.0-pyhd8ed1ab_0.tar.bz2#1d7e241dfaf5475e893d4b824bb71b44
 https://conda.anaconda.org/conda-forge/linux-64/pytables-3.6.1-py38hc386592_3.tar.bz2#4ac8fd4ae49adc4b04c099e938cbf767
