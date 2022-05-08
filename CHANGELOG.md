@@ -1,5 +1,14 @@
 ## Change Log
 
+### release-2022.05.08 (2022/05/08 00:27 +00:00)
+- [#2016](https://github.com/tardis-sn/tardis/pull/2016) Automated changes for pre-release 2022.05.08 (#2016) (@tardis-bot)
+- [#1996](https://github.com/tardis-sn/tardis/pull/1996) Fixes for compare-refdata pipeline (#1996) (@epassaro)
+- [#2012](https://github.com/tardis-sn/tardis/pull/2012) Supply `base` input to the create pull request action (#2012) (@epassaro)
+- [#2007](https://github.com/tardis-sn/tardis/pull/2007) [fix] Use `pull_request_target` trigger in release workflow (#2007) (@epassaro)
+- [#2008](https://github.com/tardis-sn/tardis/pull/2008) Move link_t_rad_t_electron to config file (@sonachitchyan)
+- [#1957](https://github.com/tardis-sn/tardis/pull/1957) Revert "Removing Levels Index Variable Within Atomic Data Preperation (#1957)" (#2009) (@Rodot-)
+- [#2006](https://github.com/tardis-sn/tardis/pull/2006) Automated changes for post-release 2022.05.04 (#2006) (@tardis-bot)
+
 ### release-2022.05.04 (2022/05/04 16:35 +00:00)
 - [#2005](https://github.com/tardis-sn/tardis/pull/2005) Automated changes for pre-release 2022.05.04 (#2005) (@tardis-bot)
 - [#2003](https://github.com/tardis-sn/tardis/pull/2003) Fix for isotope abundance parsing (#2003) (@Rodot-)
@@ -554,8 +563,6 @@
 
 ### 3.0.dev3384 (2020/02/02 21:56 +00:00)
 - [#1021](https://github.com/tardis-sn/tardis/pull/1021) Set cron job, disable CI and PR (#1021) (@epassaro)
-
-### 3.0.dev3383 (2020/02/02 19:01 +00:00)
 - [#1015](https://github.com/tardis-sn/tardis/pull/1015) Set up release TARDIS version with Azure Pipelines (#1015) (@epassaro)
 - [#1020](https://github.com/tardis-sn/tardis/pull/1020) Update .mailmap (#1020) (@livnehra)
 - [#1018](https://github.com/tardis-sn/tardis/pull/1018) Updated .mailmap (#1018) (@epassaro)
