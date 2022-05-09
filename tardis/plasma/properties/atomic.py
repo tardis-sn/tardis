@@ -722,6 +722,8 @@ class YgData(ProcessingPlasmaProperty):
 
     def calculate(self, atomic_data, continuum_interaction_species):
         yg_data = atomic_data.yg_data
+        if yg_data is None:
+            raise ValueError("Tardis does not support continuum interactions for atomic data sources that do not contain yg_data")
 
         mask_selected_species = yg_data.index.droplevel(
             ["level_number_lower", "level_number_upper"]
