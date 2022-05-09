@@ -728,7 +728,8 @@ class YgData(ProcessingPlasmaProperty):
         ).isin(continuum_interaction_species)
         yg_data = yg_data[mask_selected_species]
 
-        t_yg = yg_data.columns.values.astype(float)
+        #t_yg = yg_data.columns.values.astype(float)
+        t_yg = atomic_data.collision_data_temperatures
         yg_data.columns = t_yg
         approximate_yg_data = self.calculate_yg_van_regemorter(
             atomic_data, t_yg, continuum_interaction_species
