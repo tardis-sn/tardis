@@ -179,7 +179,7 @@ def euler_rodrigues(theta, direction):
 
 
 @njit
-def solve_quadratic_equation(x, y, z, x_dir, y_dir, z_dir, radius):
+def solve_quadratic_equation(position, direction, radius):
     """
     Solves the quadratic equation for the distance to the shell boundary
 
@@ -195,16 +195,17 @@ def solve_quadratic_equation(x, y, z, x_dir, y_dir, z_dir, radius):
     solution_2 : float
 
     """
-    b = 2.0 * (x * x_dir + y * y_dir + z * z_dir)
-    c = -(radius ** 2) + x ** 2 + y ** 2 + z ** 2
-    root = b ** 2 - 4 * c
+    a = np.sum(direction**2)
+    b = 2.0 * np.sum(position * direction)
+    c = -(radius ** 2) + np.sum(position**2)
+    root = b ** 2 - 4 * a * c
     solution_1 = -np.inf
     solution_2 = -np.inf
     if root > 0.0:
-        solution_1 = 0.5 * (-b + np.sqrt(root))
-        solution_2 = 0.5 * (-b - np.sqrt(root))
+        solution_1 = (-b + np.sqrt(root)) / (2 * a)
+        solution_2 = (-b - np.sqrt(root)) / (2 * a)
     elif root == 0:
-        solution_1 = -0.5 * b
+        solution_1 = -b / (2 * a)
 
     return solution_1, solution_2
 

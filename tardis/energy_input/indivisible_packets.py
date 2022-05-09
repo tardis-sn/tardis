@@ -762,6 +762,7 @@ def gamma_packet_loop(
                 distance_interaction,
                 distance_boundary,
                 distance_time,
+                shell_change
             ) = distance_trace(
                 packet,
                 inner_velocities,
@@ -818,7 +819,7 @@ def gamma_packet_loop(
                         packet.get_location_r(),
                         0.0,
                         packet.time_current,
-                        int(packet.status),
+                        packet.shell,
                         compton_opacity,
                         photoabsorption_opacity,
                         pair_creation_opacity,
@@ -833,9 +834,7 @@ def gamma_packet_loop(
                     scattered = True
 
             else:
-                # This assumes outward radial motion at all times
-                # so it should change eventually
-                packet.shell += 1
+                packet.shell += shell_change
 
                 if packet.shell > len(mass_density_time[:, 0]) - 1:
                     # escape_energy.append(packet.energy_rf)

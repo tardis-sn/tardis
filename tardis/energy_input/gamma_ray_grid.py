@@ -35,31 +35,51 @@ def calculate_distance_radial(photon, r_inner, r_outer):
 
     """
     # TODO: Maybe only calculate distances that are strictly needed instead of all four by default?
-    # get cartesian location coordinates of gamma-ray object
-    x, y, z = photon.location[0], photon.location[1], photon.location[2]
-    # get cartesian direction coordinates of gamma-ray object
-    x_dir, y_dir, z_dir = photon.direction[0], photon.direction[1], photon.direction[2]
+
     # solve the quadratic distance equation for the inner and
     # outer shell boundaries
     inner_1, inner_2 = solve_quadratic_equation(
-        x, y, z, x_dir, y_dir, z_dir, r_inner
+        photon.location, photon.direction, r_inner
     )
     outer_1, outer_2 = solve_quadratic_equation(
-        x, y, z, x_dir, y_dir, z_dir, r_outer
+        photon.location, photon.direction, r_outer
     )
-    distances = [inner_1, inner_2, outer_1, outer_2]
+   
+    final_position_inner_1 = photon.location + photon.direction*inner_1
+    final_position_inner_2 = photon.location + photon.direction*inner_2
+    final_position_outer_1 = photon.location + photon.direction*outer_1
+    final_position_outer_2 = photon.location + photon.direction*outer_2
+
+    if np.dot(final_position_inner_1, photon.direction) > 0:
+        inner_1 = -1
+    if np.dot(final_position_inner_2, photon.direction) > 0:
+        inner_2 = -1
+    if np.dot(final_position_outer_1, photon.direction) < 0:
+        outer_1 = -1
+    if np.dot(final_position_outer_2, photon.direction) < 0:
+        outer_2 = -1
+
+    distances = np.array([inner_1, inner_2, outer_1, outer_2])
+
     # the correct distance is the shortest positive distance
-    distance_list = [i for i in distances if i > 0.0]
+    distance_list = [i for i in distances if i > 0]
 
     if not distance_list:
         print(photon.get_location_r() - r_inner)
         print(photon.get_location_r() - r_outer)
-        print( x, y, z, x_dir, y_dir, z_dir, r_inner, r_outer)
+        print(photon.get_location_r())
+        print(photon.location, photon.direction, r_inner, r_outer)
         print(distances)
         print(photon.shell)
         raise ValueError("No root found for distance calculation!")
 
-    return min(distance_list)
+    shortest = min(distance_list)
+    shell_change = 1
+
+    if shortest == (inner_1 or inner_2):
+        shell_change = -1
+
+    return shortest, shell_change
 
 
 @njit
@@ -88,9 +108,10 @@ def distance_trace(
     -------
     distance_interaction : float
     distance_boundary : float
-
+    distance_time : float
+    shell_change : int
     """
-    distance_boundary = calculate_distance_radial(
+    distance_boundary, shell_change = calculate_distance_radial(
         photon,
         inner_velocity[photon.shell] * current_time,
         outer_velocity[photon.shell] * current_time,
@@ -98,7 +119,7 @@ def distance_trace(
 
     distance_interaction = photon.tau / total_opacity
     distance_time = (next_time - photon.time_current) * C_CGS
-    return distance_interaction, distance_boundary, distance_time
+    return distance_interaction, distance_boundary, distance_time, shell_change
 
 
 @njit
