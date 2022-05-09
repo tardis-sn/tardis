@@ -723,14 +723,16 @@ class YgData(ProcessingPlasmaProperty):
     def calculate(self, atomic_data, continuum_interaction_species):
         yg_data = atomic_data.yg_data
         if yg_data is None:
-            raise ValueError("Tardis does not support continuum interactions for atomic data sources that do not contain yg_data")
+            raise ValueError(
+                "Tardis does not support continuum interactions for atomic data sources that do not contain yg_data"
+            )
 
         mask_selected_species = yg_data.index.droplevel(
             ["level_number_lower", "level_number_upper"]
         ).isin(continuum_interaction_species)
         yg_data = yg_data[mask_selected_species]
 
-        #t_yg = yg_data.columns.values.astype(float)
+        # t_yg = yg_data.columns.values.astype(float)
         t_yg = atomic_data.collision_data_temperatures
         yg_data.columns = t_yg
         approximate_yg_data = self.calculate_yg_van_regemorter(

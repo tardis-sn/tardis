@@ -173,18 +173,24 @@ class AtomData(object):
                     logger.debug(f"Dataframe does not contain {name} column")
                     nonavailable.append(name)
             # Checks for various collisional data from Carsus files
-            if 'collisions' in store:
+            if "collisions" in store:
                 try:
-                    dataframes['collision_data_temperatures'] = store['collisions_metadata'].temperatures
-                    if store['collisions_metadata'].dataset == 'cmfgen':
-                        dataframes['yg_data'] = store['collisions']
-                        dataframes['collision_data'] = "dummy value"
-                    elif store['collisions_metadata'].dataset == 'chianti':
-                        dataframes['collision_data'] = store['collisions']
+                    dataframes["collision_data_temperatures"] = store[
+                        "collisions_metadata"
+                    ].temperatures
+                    if store["collisions_metadata"].dataset == "cmfgen":
+                        dataframes["yg_data"] = store["collisions"]
+                        dataframes["collision_data"] = "dummy value"
+                    elif store["collisions_metadata"].dataset == "chianti":
+                        dataframes["collision_data"] = store["collisions"]
                     else:
-                        raise KeyError("Atomic Data Collisions Not a Valid Chanti or CMFGEN Carsus Data File")
+                        raise KeyError(
+                            "Atomic Data Collisions Not a Valid Chanti or CMFGEN Carsus Data File"
+                        )
                 except KeyError as e:
-                    logger.warn("Atomic Data is not a Valid Carsus Atomic Data File")
+                    logger.warn(
+                        "Atomic Data is not a Valid Carsus Atomic Data File"
+                    )
                     raise
             atom_data = cls(**dataframes)
 
