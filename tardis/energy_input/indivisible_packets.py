@@ -51,6 +51,7 @@ from tardis.energy_input.util import (
     H_CGS_KEV,
     kappa_calculation,
     get_index,
+    get_random_unit_vector
 )
 from tardis import constants as const
 
@@ -184,12 +185,6 @@ def initialize_packets(
     energy_plot_df_rows = np.zeros((number_of_packets, 9))
     energy_plot_positron_rows = np.zeros((number_of_packets, 4))
 
-    theta_locations = get_random_theta_photon_array(n=number_of_packets)
-    phi_locations = get_random_phi_photon_array(n=number_of_packets)
-
-    theta_directions = get_random_theta_photon_array(n=number_of_packets)
-    phi_directions = get_random_phi_photon_array(n=number_of_packets)
-
     j = 0
     for k, shell in tqdm(enumerate(decays_per_shell)):
         z = np.random.random(shell)
@@ -237,13 +232,12 @@ def initialize_packets(
                 # * inv_volume_time[k, decay_time_index]
             )
 
+            scaled_r = initial_radii[i] * effective_times[decay_time_index]
+
             # draw a random gamma-ray in shell
             packet = GXPacket(
-                location_r=initial_radii[i] * effective_times[decay_time_index],
-                location_theta=theta_locations[j],
-                location_phi=phi_locations[j],
-                direction_theta=theta_directions[j],
-                direction_phi=phi_directions[j],
+                location=scaled_r*get_random_unit_vector(),
+                direction=get_random_unit_vector(),
                 energy_rf=1,
                 energy_cmf=packet_energy * energy_factor,
                 status=GXPacketStatus.IN_PROCESS,
@@ -254,8 +248,8 @@ def initialize_packets(
             )
 
             packet.energy_rf = packet.energy_cmf / doppler_gamma(
-                packet.get_direction_vector_cartesian(),
-                packet.get_position_vector_cartesian(),
+                packet.direction,
+                packet.location,
                 packet.time_current,
             )
 
@@ -263,8 +257,8 @@ def initialize_packets(
                 [
                     i,
                     packet.energy_rf,
-                    packet.location_r,
-                    packet.location_theta,
+                    packet.get_location_r(),
+                    0,
                     packet.time_current,
                     int(packet.status),
                     0,
@@ -277,15 +271,15 @@ def initialize_packets(
                 j,
                 positron_fraction * packet_energy * 1000,
                 # * inv_volume_time[packet.shell, decay_time_index],
-                packet.location_r,
+                packet.get_location_r(),
                 packet.time_current,
             ]
 
             packet.nu_cmf = cmf_energy / H_CGS_KEV
 
             packet.nu_rf = packet.nu_cmf / doppler_gamma(
-                packet.get_direction_vector_cartesian(),
-                packet.get_position_vector_cartesian(),
+                packet.direction,
+                packet.location,
                 packet.time_current,
             )
 
@@ -593,14 +587,13 @@ def process_packet_path(packet):
             packet.nu_cmf = packet.nu_cmf / compton_fraction
 
             (
-                packet.direction_theta,
-                packet.direction_phi,
+                packet.direction
             ) = compton_scatter(packet, compton_angle)
 
             # Calculate rest frame frequency after scaling by the fraction that remains
             doppler_factor = doppler_gamma(
-                packet.get_direction_vector(),
-                packet.get_position_vector(),
+                packet.direction,
+                packet.location,
                 packet.time_current,
             )
 
@@ -704,8 +697,8 @@ def gamma_packet_loop(
             comoving_energy = H_CGS_KEV * packet.nu_cmf
 
             doppler_factor = doppler_gamma(
-                packet.get_direction_vector_cartesian(),
-                packet.get_position_vector_cartesian(),
+                packet.direction,
+                packet.location,
                 effective_time_array[time_index],
             )
 
@@ -794,7 +787,7 @@ def gamma_packet_loop(
                     packet.status = GXPacketStatus.END
                 else:
                     packet.shell = get_index(
-                        packet.location_r,
+                        packet.get_location_r(),
                         inner_velocities * effective_time_array[time_index],
                     )
 
@@ -822,8 +815,8 @@ def gamma_packet_loop(
                         ejecta_energy_gained * 1000
                         # * inv_volume_time[packet.shell, time_index]
                         / dt,
-                        packet.location_r,
-                        packet.location_theta,
+                        packet.get_location_r(),
+                        0.0,
                         packet.time_current,
                         int(packet.status),
                         compton_opacity,

@@ -14,12 +14,8 @@ class GXPacketStatus(IntEnum):
 
 
 gxpacket_spec = [
-    ("location_r", float64),
-    ("location_theta", float64),
-    ("location_phi", float64),
-    ("direction_r", int64),
-    ("direction_theta", float64),
-    ("direction_phi", float64),
+    ("location", float64[:]),
+    ("direction", float64[:]),
     ("energy_rf", float64),
     ("energy_cmf", float64),
     ("nu_rf", float64),
@@ -41,11 +37,8 @@ class GXPacket(object):
 
     def __init__(
         self,
-        location_r,
-        location_theta,
-        location_phi,
-        direction_theta,
-        direction_phi,
+        location,
+        direction,
         energy_rf,
         energy_cmf,
         nu_rf,
@@ -54,12 +47,8 @@ class GXPacket(object):
         shell,
         time_current
     ):
-        self.location_r = location_r
-        self.location_theta = location_theta
-        self.location_phi = location_phi
-        self.direction_r = 1
-        self.direction_theta = direction_theta
-        self.direction_phi = direction_phi
+        self.location = location
+        self.direction = direction
         self.energy_rf = energy_rf
         self.energy_cmf = energy_cmf
         self.nu_rf = nu_rf
@@ -71,42 +60,11 @@ class GXPacket(object):
         # TODO: rename to tau_event
         self.tau = -np.log(np.random.random())
 
-    def get_location_cartesian_coords(self):
-        x = (
-            self.location_r
-            * np.cos(self.location_phi)
-            * np.sin(self.location_theta)
-        )
-        y = (
-            self.location_r
-            * np.sin(self.location_phi)
-            * np.sin(self.location_theta)
-        )
-        z = self.location_r * np.cos(self.location_theta)
-        return x, y, z
+    def get_location(self):
+        return self.location[0], self.location[1], self.location[2]
 
-    def get_direction_cartesian_coords(self):
-        x = np.cos(self.direction_phi) * np.sin(self.direction_theta)
-        y = np.sin(self.direction_phi) * np.sin(self.direction_theta)
-        z = np.cos(self.direction_theta)
-        return x, y, z
+    def get_direction(self):
+        return self.direction[0], self.direction[1], self.direction[2]
 
-    def get_direction_vector(self):
-        return np.array(
-            (self.direction_r, self.direction_theta, self.direction_phi)
-        )
-
-    def get_position_vector(self):
-        return np.array(
-            (self.location_r, self.location_theta, self.location_phi)
-        )
-
-    def get_direction_vector_cartesian(self):
-        return np.array(
-            (self.get_direction_cartesian_coords())
-        )
-
-    def get_position_vector_cartesian(self):
-        return np.array(
-            (self.get_location_cartesian_coords())
-        )
+    def get_location_r(self):
+        return np.sqrt(self.location[0]**2. + self.location[1]**2. + self.location[2]**2.)

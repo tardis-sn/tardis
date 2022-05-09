@@ -58,6 +58,15 @@ def cartesian_to_spherical(x, y, z):
     phi = np.arctan2(y, x)
     return r, theta, phi
 
+@njit
+def get_random_unit_vector():
+
+    theta = get_random_theta_photon()
+    phi = get_random_phi_photon()
+
+    vector = spherical_to_cartesian(1, theta, phi)
+
+    return normalize_vector(vector)
 
 @njit
 def doppler_gamma(direction_vector, position_vector, time):
@@ -108,7 +117,7 @@ def angle_aberration_gamma(direction_vector, position_vector, time):
 
     output_vector = direction_vector - (velocity_vector * factor_b) / factor_a
 
-    return np.array([1, output_vector[1], output_vector[2]])
+    return normalize_vector(output_vector)
 
 
 @njit
@@ -366,11 +375,7 @@ def get_perpendicular_vector(original_direction):
     numpy.ndarray
         Perpendicular vector to the input
     """
-    # draw random angles
-    theta = get_random_theta_photon()
-    phi = get_random_phi_photon()
-    # transform random angles to cartesian coordinates
-    random_vector = spherical_to_cartesian(1, theta, phi)
+    random_vector = get_random_unit_vector()
     perpendicular_vector = np.cross(original_direction, random_vector)
     return normalize_vector(perpendicular_vector)
 

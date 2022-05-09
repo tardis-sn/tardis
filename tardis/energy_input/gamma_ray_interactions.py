@@ -2,6 +2,7 @@ import numpy as np
 from numba import njit
 
 from tardis.energy_input.util import (
+    get_random_unit_vector,
     kappa_calculation,
     euler_rodrigues,
     compton_theta_distribution,
@@ -196,10 +197,9 @@ def compton_scatter(photon, compton_angle):
     """
 
     # get comoving frame direction
-    abb_array = angle_aberration_gamma(
-        photon.get_direction_vector_cartesian(), photon.get_position_vector_cartesian(), photon.time_current
+    comov_direction = angle_aberration_gamma(
+        photon.direction, photon.location, photon.time_current
     )
-    comov_direction = spherical_to_cartesian(1, abb_array[1], abb_array[2])
 
     # compute an arbitrary perpendicular vector to the comoving direction
     orthogonal_vector = get_perpendicular_vector(comov_direction)
@@ -232,10 +232,10 @@ def compton_scatter(photon, compton_angle):
 
     # Calculate the angle aberration of the final direction
     final_direction = angle_aberration_gamma(
-        final_compton_scattered_vector, photon.get_position_vector_cartesian(), photon.time_current
+        final_compton_scattered_vector, photon.location, photon.time_current
     )
 
-    return final_direction[1], final_direction[2]
+    return final_direction
 
 
 @njit
@@ -322,24 +322,20 @@ def pair_creation_packet(packet):
         packet.status = GXPacketStatus.PHOTOABSORPTION
         return packet
 
-    direction_theta = get_random_theta_photon()
-    direction_phi = get_random_phi_photon()
-
-    x, y, z = spherical_to_cartesian(1.0, direction_theta, direction_phi)
+    new_direction = get_random_unit_vector()
 
     # Calculate aberration of the random angle for the rest frame
     final_direction = angle_aberration_gamma(
-        np.array([x, y, z]),
-        packet.get_position_vector_cartesian(),
+        new_direction,
+        packet.location,
         -1 * packet.time_current
     )
 
-    packet.direction_theta = final_direction[1]
-    packet.direction_phi = final_direction[2]
+    packet.direction = final_direction
 
     doppler_factor = doppler_gamma(
-        packet.get_direction_vector_cartesian(),
-        packet.get_position_vector_cartesian(),
+        packet.direction,
+        packet.location,
         packet.time_current
     )
 

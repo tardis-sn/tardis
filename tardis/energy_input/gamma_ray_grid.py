@@ -36,9 +36,9 @@ def calculate_distance_radial(photon, r_inner, r_outer):
     """
     # TODO: Maybe only calculate distances that are strictly needed instead of all four by default?
     # get cartesian location coordinates of gamma-ray object
-    x, y, z = photon.get_location_cartesian_coords()
+    x, y, z = photon.location[0], photon.location[1], photon.location[2]
     # get cartesian direction coordinates of gamma-ray object
-    x_dir, y_dir, z_dir = photon.get_direction_cartesian_coords()
+    x_dir, y_dir, z_dir = photon.direction[0], photon.direction[1], photon.direction[2]
     # solve the quadratic distance equation for the inner and
     # outer shell boundaries
     inner_1, inner_2 = solve_quadratic_equation(
@@ -52,8 +52,8 @@ def calculate_distance_radial(photon, r_inner, r_outer):
     distance_list = [i for i in distances if i > 0.0]
 
     if not distance_list:
-        print(photon.location_r - r_inner)
-        print(photon.location_r - r_outer)
+        print(photon.get_location_r() - r_inner)
+        print(photon.get_location_r() - r_outer)
         print( x, y, z, x_dir, y_dir, z_dir, r_inner, r_outer)
         print(distances)
         print(photon.shell)
@@ -65,8 +65,8 @@ def calculate_distance_radial(photon, r_inner, r_outer):
 @njit
 def distance_trace(
     photon,
-    inner_radii,
-    outer_radii,
+    inner_velocity,
+    outer_velocity,
     total_opacity,
     current_time,
     next_time
@@ -78,8 +78,8 @@ def distance_trace(
     Parameters
     ----------
     photon : GXPhoton object
-    inner_radii : One dimensional Numpy array, dtype float
-    outer_radii : One dimensional Numpy array, dtype float
+    inner_velocity : One dimensional Numpy array, dtype float
+    outer_velocity : One dimensional Numpy array, dtype float
     total_opacity : float
     current_time : float
     next_time : float
@@ -92,8 +92,8 @@ def distance_trace(
     """
     distance_boundary = calculate_distance_radial(
         photon,
-        inner_radii[photon.shell] * current_time,
-        outer_radii[photon.shell] * current_time,
+        inner_velocity[photon.shell] * current_time,
+        outer_velocity[photon.shell] * current_time,
     )
 
     distance_interaction = photon.tau / total_opacity
@@ -146,20 +146,15 @@ def move_packet(packet, distance):
     packet : GXPacket object
 
     """
-    x_old, y_old, z_old = packet.get_location_cartesian_coords()
-    x_dir, y_dir, z_dir = packet.get_direction_cartesian_coords()
+    location_old = packet.location
+    direction = packet.direction
 
-    y_new = y_old + distance * y_dir
-    z_new = z_old + distance * z_dir
-    x_new = x_old + distance * x_dir
+    location_new = location_old + distance * direction
 
-    r, theta, phi = cartesian_to_spherical(x_new, y_new, z_new)
-    packet.location_r = r
-    packet.location_theta = theta
-    packet.location_phi = phi
+    packet.location = location_new
 
     doppler_factor = doppler_gamma(
-        packet.get_direction_vector_cartesian(), packet.get_position_vector_cartesian(), packet.time_current
+        packet.direction, packet.location, packet.time_current
     )
 
     packet.nu_cmf = packet.nu_rf * doppler_factor
