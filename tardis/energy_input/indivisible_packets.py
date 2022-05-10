@@ -615,7 +615,7 @@ def process_packet_path(packet):
     return packet, ejecta_energy_gained
 
 
-@njit(parallel=True)
+@njit
 def gamma_packet_loop(
     packets,
     grey_opacity,
@@ -679,7 +679,7 @@ def gamma_packet_loop(
     packet_count = len(packets)
     print("Entering gamma ray loop for " + str(packet_count) + " packets")
 
-    for i in prange(packet_count):
+    for i in range(packet_count):
         packet = packets[i]
         time_index = get_index(packet.time_current, times)
 
