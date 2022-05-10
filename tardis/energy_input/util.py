@@ -185,8 +185,8 @@ def solve_quadratic_equation(position, direction, radius):
 
     Parameters
     ----------
-    x,y,z : float
-    x_dir, y_dir, z_dir : float
+    position : array
+    direction : array
     radius : float
 
     Returns
@@ -209,6 +209,38 @@ def solve_quadratic_equation(position, direction, radius):
 
     return solution_1, solution_2
 
+@njit
+def solve_quadratic_equation_expanding(position, direction, time, radius):
+    """
+    Solves the quadratic equation for the distance to an expanding shell boundary
+
+    Parameters
+    ----------
+    position : array
+    direction : array
+    time : float
+    radius : float
+
+    Returns
+    -------
+    solution_1 : float
+    solution_2 : float
+
+    """
+    light_distance = time * C_CGS
+    a = np.dot(direction, direction) - (radius / light_distance)**2.
+    b = 2. * (np.dot(position, direction) - radius**2. / light_distance)
+    c = np.dot(position, position) - radius**2.
+    root = b ** 2. - 4. * a * c
+    solution_1 = -np.inf
+    solution_2 = -np.inf
+    if root > 0.0:
+        solution_1 = (-b + np.sqrt(root)) / (2. * a)
+        solution_2 = (-b - np.sqrt(root)) / (2. * a)
+    elif root == 0:
+        solution_1 = -b / (2. * a)
+
+    return solution_1, solution_2
 
 @njit
 def klein_nishina(energy, theta_C):

@@ -34,7 +34,6 @@ def calculate_distance_radial(photon, r_inner, r_outer):
     distance : float
 
     """
-    # TODO: Maybe only calculate distances that are strictly needed instead of all four by default?
 
     # solve the quadratic distance equation for the inner and
     # outer shell boundaries

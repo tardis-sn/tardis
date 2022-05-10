@@ -14,25 +14,14 @@ from tardis.energy_input.gamma_ray_grid import (
     distance_trace,
     move_packet,
     read_artis_lines,
-    mass_fraction_packets_per_shell,
-    activity_per_shell,
-    get_decay_database,
-    get_tau,
-    get_isotope_string,
-    get_isotope,
 )
 from tardis.energy_input.energy_source import (
-    decay_nuclides,
-    sample_mass,
     ni56_chain_energy,
-    ni56_chain_energy_choice,
 )
 from tardis.energy_input.calculate_opacity import (
     compton_opacity_calculation,
     photoabsorption_opacity_calculation,
-    photoabsorption_opacity_calculation_kasen,
     pair_creation_opacity_calculation,
-    pair_creation_opacity_artis,
     SIGMA_T,
 )
 from tardis.energy_input.gamma_ray_interactions import (
@@ -40,11 +29,8 @@ from tardis.energy_input.gamma_ray_interactions import (
     scatter_type,
     compton_scatter,
     pair_creation_packet,
-    get_compton_fraction,
 )
 from tardis.energy_input.util import (
-    get_random_theta_photon_array,
-    get_random_phi_photon_array,
     doppler_gamma,
     BOUNDARY_THRESHOLD,
     C_CGS,
@@ -159,12 +145,12 @@ def initialize_packets(
     -------
     list
         List of GXPacket objects
-    list
-        List of main output dataframe rows
-    list
-        List of plotting output dataframe rows
-    list
-        List of positron output dataframe rows
+    array
+        Array of main output dataframe rows
+    array
+        Array of plotting output dataframe rows
+    array
+        Array of positron output dataframe rows
     """    
 
     packets = List()
@@ -296,7 +282,7 @@ def initialize_packets(
 
 
 def main_gamma_ray_loop(
-    num_decays, model, plasma, time_steps=10, time_end=80.0, grey_opacity=0.0
+    num_decays, model, plasma, time_steps=10, time_end=80.0, grey_opacity=-1
 ):
     """Main loop that determines the gamma ray propagation
 
@@ -313,7 +299,7 @@ def main_gamma_ray_loop(
     time_end : float
         End time of simulation in days
     grey_opacity : float
-        Grey photoabsorption opacity for gamma-rays in cm^2 g^-1
+        Grey photoabsorption opacity for gamma-rays in cm^2 g^-1, set to -1 to turn off
 
     Returns
     -------
@@ -338,8 +324,6 @@ def main_gamma_ray_loop(
     pandas.DataFrame
         Energy injected into the model per shell
     """
-    escape_energy = []
-
     # Enforce cgs
     outer_velocities = model.v_outer.to("cm/s").value
     inner_velocities = model.v_inner.to("cm/s").value
@@ -376,16 +360,16 @@ def main_gamma_ray_loop(
         [np.sqrt(times[i] * times[i + 1]) for i in range(time_steps)]
     )
 
+    # Use isotopic number density
     for atom_number in plasma.isotope_number_density.index.get_level_values(0):
         plasma.number_density.loc[
             atom_number
         ] = plasma.isotope_number_density.loc[atom_number].values
 
+    # Calculate electron number density
     electron_number_density = (
         plasma.number_density.mul(plasma.number_density.index, axis=0)
     ).sum()
-
-
     electron_number_density_time = np.zeros(
         (len(ejecta_velocity_volume), len(effective_time_array))
     )
@@ -397,6 +381,7 @@ def main_gamma_ray_loop(
         (len(ejecta_velocity_volume), len(effective_time_array))
     )
 
+    # Pre-calculate quantities as they change with time
     for i, t in enumerate(effective_time_array):
         inv_volume_time[:, i] = (1.0 / ejecta_velocity_volume) / (t**3.0)
         mass_density_time[:, i] = shell_masses * inv_volume_time[:, i]
@@ -406,6 +391,7 @@ def main_gamma_ray_loop(
 
     energy_df_rows = np.zeros((number_of_shells, time_steps))
 
+    # Calculate number of packets per shell based on the mass of Ni56
     mass_ni56 = raw_isotope_abundance.loc[(28, 56)] * shell_masses
     number_ni56 = mass_ni56 / 56 * const.N_A
     total_number_ni56 = number_ni56.sum()
@@ -466,8 +452,6 @@ def main_gamma_ray_loop(
     print("Total positron energy from packets")
     print((energy_df_rows).sum().sum() * u.eV.to("erg"))
 
-    # energy_plot_positron_rows[:, 1] /= dt_array[0]
-
     total_cmf_energy = 0
     total_rf_energy = 0
 
@@ -475,14 +459,16 @@ def main_gamma_ray_loop(
         total_cmf_energy += p.energy_cmf
         total_rf_energy += p.energy_rf
 
-    energy_ratio = total_energy.sum().sum() / total_cmf_energy
-
     print("Total CMF energy")
     print(total_cmf_energy)
 
+    # Below is the Artis compensation for their method of packet rejection
+    """
+    energy_ratio = total_energy.sum().sum() / total_cmf_energy
+
     print("Energy ratio")
     print(energy_ratio)
-    """
+    
     for p in packets:
         p.energy_cmf *= energy_ratio
         p.energy_rf *= energy_ratio
@@ -496,7 +482,7 @@ def main_gamma_ray_loop(
     print("Total RF energy")
     print(total_rf_energy)
 
-    # Need to update volume with time-step for deposition to be time-dependent
+    # Process packets
     energy_df_rows, energy_plot_df_rows = gamma_packet_loop(
         packets,
         grey_opacity,
@@ -549,6 +535,8 @@ def main_gamma_ray_loop(
 
     print("Final energy to test for conservation")
     print(final_energy)
+
+    escape_energy = []
 
     return (
         energy_df,
@@ -657,16 +645,16 @@ def gamma_packet_loop(
         Simulation delta-time steps
     effective_time_array : array float64
         Simulation middle time steps
-    energy_df_rows : list
+    energy_df_rows : array float64
         Energy output
-    energy_plot_df_rows : list
+    energy_plot_df_rows : array float64
         Energy output for plotting
 
     Returns
     -------
-    list
+    array float64
         Energy output
-    list
+    array float64
         Energy output for plotting
 
     Raises
@@ -693,55 +681,55 @@ def gamma_packet_loop(
             # Get delta-time value for this step
             dt = dt_array[time_index]
 
-            # Calculate packet comoving energy for opacities
-            comoving_energy = H_CGS_KEV * packet.nu_cmf
+            if grey_opacity < 0:
+                # Calculate packet comoving energy for opacities
+                comoving_energy = H_CGS_KEV * packet.nu_cmf
 
-            doppler_factor = doppler_gamma(
-                packet.direction,
-                packet.location,
-                effective_time_array[time_index],
-            )
-
-            kappa = kappa_calculation(comoving_energy)
-
-            # artis threshold for Thomson scattering
-            if kappa < 1e-2:
-                compton_opacity = (
-                    SIGMA_T
-                    * electron_number_density_time[packet.shell, time_index]
+                doppler_factor = doppler_gamma(
+                    packet.direction,
+                    packet.location,
+                    effective_time_array[time_index],
                 )
-            else:
-                compton_opacity = compton_opacity_calculation(
-                        comoving_energy,
-                        electron_number_density_time[packet.shell, time_index]
+
+                kappa = kappa_calculation(comoving_energy)
+
+                # artis threshold for Thomson scattering
+                if kappa < 1e-2:
+                    compton_opacity = (
+                        SIGMA_T
+                        * electron_number_density_time[packet.shell, time_index]
                     )
-            
-            photoabsorption_opacity = photoabsorption_opacity_calculation(
+                else:
+                    compton_opacity = compton_opacity_calculation(
+                            comoving_energy,
+                            electron_number_density_time[packet.shell, time_index]
+                        )
+                
+                photoabsorption_opacity = photoabsorption_opacity_calculation(
+                        comoving_energy,
+                        mass_density_time[packet.shell, time_index],
+                        iron_group_fraction_per_shell[packet.shell],
+                    )
+                """
+                photoabsorption_opacity = photoabsorption_opacity_calculation_kasen(
+                    comoving_energy,
+                    electron_number_density_time[packet.shell, time_index],
+                )
+                """
+                
+                pair_creation_opacity =  pair_creation_opacity_calculation(
+                        comoving_energy,
+                        mass_density_time[packet.shell, time_index],
+                        iron_group_fraction_per_shell[packet.shell],
+                    )
+                """
+                pair_creation_opacity = pair_creation_opacity_artis(
                     comoving_energy,
                     mass_density_time[packet.shell, time_index],
                     iron_group_fraction_per_shell[packet.shell],
                 )
-            """
-            photoabsorption_opacity = photoabsorption_opacity_calculation_kasen(
-                comoving_energy,
-                electron_number_density_time[packet.shell, time_index],
-            )
-            """
-            
-            pair_creation_opacity =  pair_creation_opacity_calculation(
-                    comoving_energy,
-                    mass_density_time[packet.shell, time_index],
-                    iron_group_fraction_per_shell[packet.shell],
-                )
-            """
-            pair_creation_opacity = pair_creation_opacity_artis(
-                comoving_energy,
-                mass_density_time[packet.shell, time_index],
-                iron_group_fraction_per_shell[packet.shell],
-            )
-            """
-
-            if grey_opacity > 0:
+                """
+            else:
                 compton_opacity = 0.0
                 pair_creation_opacity = 0.0
                 photoabsorption_opacity = (
