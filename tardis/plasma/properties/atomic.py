@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import pandas as pd
 from numba import njit
-from scipy.special import expn
+from scipy.special import exp1
 from scipy.interpolate import PchipInterpolator
 from collections import Counter as counter
 import radioactivedecay as rd
@@ -763,9 +763,9 @@ class YgData(ProcessingPlasmaProperty):
         )
         return yg_data, t_yg, index, delta_E, yg_idx
 
-    @staticmethod
+    @classmethod
     def calculate_yg_van_regemorter(
-        atomic_data, t_electrons, continuum_interaction_species
+        cls, atomic_data, t_electrons, continuum_interaction_species
     ):
         """
         Calculate collision strengths in the van Regemorter approximation.
@@ -811,12 +811,36 @@ class YgData(ProcessingPlasmaProperty):
         yg = 14.5 * coll_const * t_electrons * yg[:, np.newaxis]
 
         u0 = nu_lines[np.newaxis].T / t_electrons * (H / K_B)
-        gamma = 0.276 * np.exp(u0) * expn(1, u0)
+        gamma = 0.276 * cls.exp1_times_exp(u0)
         gamma[gamma < 0.2] = 0.2
         yg *= u0 * gamma / BETA_COLL
         yg = pd.DataFrame(yg, index=lines_filtered.index, columns=t_electrons)
 
         return yg
+
+    @staticmethod
+    def exp1_times_exp(x):
+        """
+        Product of the Exponential integral E1 and an exponential.
+
+        This function calculates the product of the Exponential integral E1
+        and an exponential in a way that also works for large values.
+
+        Parameters
+        ----------
+        x : array_like
+            Input values.
+
+        Returns
+        -------
+        array_like
+            Output array.
+        """
+        f = exp1(x) * np.exp(x)
+        # Use Laurent series for large values to avoid infinite exponential
+        mask = x > 500
+        f[mask] = (x**-1 - x**-2 + 2 * x**-3 - 6 * x**-4)[mask]
+        return f
 
 
 class YgInterpolator(ProcessingPlasmaProperty):
