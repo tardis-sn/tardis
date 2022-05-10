@@ -405,4 +405,4 @@ def download_from_url(url, dst, src=None):
     """
 
     cached_file_path = download_file(url, sources=src, pkgname="tardis")
-    shutil.move(cached_file_path, dst)
+    shutil.copy(cached_file_path, dst)
