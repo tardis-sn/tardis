@@ -107,17 +107,17 @@ def angle_aberration_gamma(direction_vector, position_vector, time):
     velocity_vector = position_vector / time
     direction_dot_velocity = np.dot(direction_vector, velocity_vector)
 
-    gamma = 1 / np.sqrt(1.0 - (np.dot(velocity_vector, velocity_vector) / (C_CGS ** 2)))
+    gamma = 1.0 / np.sqrt(1.0 - (np.dot(velocity_vector, velocity_vector) / (C_CGS ** 2.0)))
 
-    factor_a = gamma * (1 - direction_dot_velocity / C_CGS)
+    factor_a = gamma * (1.0 - direction_dot_velocity / C_CGS)
 
     factor_b = (
-        gamma - (gamma ** 2 * direction_dot_velocity / (gamma + 1) / C_CGS)
+        gamma - (gamma ** 2.0 * direction_dot_velocity / (gamma + 1.0) / C_CGS)
     ) / C_CGS
 
-    output_vector = direction_vector - (velocity_vector * factor_b) / factor_a
+    output_vector = (direction_vector - (velocity_vector * factor_b)) / factor_a
 
-    return normalize_vector(output_vector)
+    return output_vector
 
 
 @njit
