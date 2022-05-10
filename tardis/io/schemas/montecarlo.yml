@@ -64,6 +64,10 @@ properties:
     default: false
     description: Enables a more complete treatment of relativitic effects. This includes
       angle aberration as well as use of the fully general Doppler formula.
+  enable_nonhomologous_expansion:
+    type: boolean
+    default: false
+    description: Enables nonhomologous expansion. Treats shells as piece-wise homologous areas for velocity-radius dependence.
   tracking:
     type: object
     default: {}
