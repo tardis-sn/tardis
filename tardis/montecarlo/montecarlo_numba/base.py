@@ -26,8 +26,8 @@ from tardis.montecarlo import (
 from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
     single_packet_loop,
 )
-from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
-from numba.typed import List, Dict
+from tardis.montecarlo.montecarlo_numba import njit_dict
+from numba.typed import List
 from tardis.util.base import update_iterations_pbar, update_packet_pbar
 
 
