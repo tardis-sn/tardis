@@ -1,4 +1,9 @@
 from numba import prange, njit, objmode
+from numba.np.ufunc.parallel import (
+    _get_thread_id as get_thread_id,
+    get_num_threads,
+)
+
 import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
@@ -128,6 +133,20 @@ def montecarlo_radial1d(
     if montecarlo_configuration.RPACKET_TRACKING:
         runner.rpacket_tracker = rpacket_trackers
 
+@njit(**njit_dict_no_parallel)
+def Estimators_from_estimator(estimator):
+
+    return Estimators(
+        np.copy(estimator.j_estimator),
+        np.copy(estimator.nu_bar_estimator),
+        np.copy(estimator.j_blue_estimator),
+        np.copy(estimator.Edotlu_estimator),
+        np.copy(estimator.photo_ion_estimator),
+        np.copy(estimator.stim_recomb_estimator),
+        np.copy(estimator.bf_heating_estimator),
+        np.copy(estimator.stim_recomb_cooling_estimator),
+        np.copy(estimator.photo_ion_estimator_statistics),
+    )
 
 @njit(**njit_dict)
 def montecarlo_main_loop(
@@ -183,6 +202,7 @@ def montecarlo_main_loop(
     vpacket_collections = List()
     # Configuring the Tracking for R_Packets
     rpacket_trackers = List()
+
     for i in range(len(output_nus)):
         vpacket_collections.append(
             VPacketCollection(
@@ -196,6 +216,12 @@ def montecarlo_main_loop(
         )
         rpacket_trackers.append(RPacketTracker())
 
+    main_thread_id = get_thread_id()
+    estimator_trackers = List()
+    n_threads = get_num_threads()
+    for i in range(n_threads):  # betting get tid goes from 0 ot num threads
+        estimator_trackers.append(Estimators_from_estimator(estimators))
+
     # Arrays for vpacket logging
     virt_packet_nus = []
     virt_packet_energies = []
@@ -205,16 +231,25 @@ def montecarlo_main_loop(
     virt_packet_last_interaction_type = []
     virt_packet_last_line_interaction_in_id = []
     virt_packet_last_line_interaction_out_id = []
+
+    last_update = int(0)
+    highest_iteration = int(0)
+
     for i in prange(len(output_nus)):
         if show_progress_bars:
-            with objmode:
-                update_amount = 1
-                update_packet_pbar(
-                    update_amount,
-                    current_iteration=iteration,
-                    no_of_packets=no_of_packets,
-                    total_iterations=total_iterations,
-                )
+
+            if tid == main_thread_id:
+
+                with objmode:
+                    update_amount = 1 * n_threads
+                    update_packet_pbar(
+                        update_amount,
+                        current_iteration=iteration,
+                        no_of_packets=no_of_packets,
+                        total_iterations=total_iterations,
+                    )
+                last_update = highest_iteration
+
 
         if montecarlo_configuration.single_packet_seed != -1:
             seed = packet_seeds[montecarlo_configuration.single_packet_seed]
@@ -230,6 +265,9 @@ def montecarlo_main_loop(
             seed,
             i,
         )
+
+        local_estimators = estimator_trackers[tid]
+        # print("Made it to after estimators")
 
         vpacket_collection = vpacket_collections[i]
         rpacket_tracker = rpacket_trackers[i]
