@@ -229,6 +229,7 @@ def montecarlo_main_loop(
     virt_packet_last_line_interaction_in_id = []
     virt_packet_last_line_interaction_out_id = []
     for i in prange(len(output_nus)):
+        tid = get_thread_id()
         if show_progress_bars:
 
             if tid == main_thread_id:
