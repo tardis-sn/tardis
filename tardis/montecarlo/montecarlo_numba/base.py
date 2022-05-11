@@ -200,9 +200,11 @@ def montecarlo_main_loop(
             )
         )
         rpacket_trackers.append(RPacketTracker())
+
     main_thread_id = get_thread_id()
-    estimator_list = List()
     n_threads = get_num_threads()
+
+    estimator_list = List()
     for i in range(n_threads):  # betting get tid goes from 0 ot num threads
         estimator_list.append(
             Estimators(
@@ -227,8 +229,6 @@ def montecarlo_main_loop(
     virt_packet_last_line_interaction_in_id = []
     virt_packet_last_line_interaction_out_id = []
 
-    last_update = int(0)
-    highest_iteration = int(0)
     for i in prange(len(output_nus)):
         highest_iteration += 1
         tid = get_thread_id()
@@ -243,7 +243,6 @@ def montecarlo_main_loop(
                         no_of_packets=no_of_packets,
                         total_iterations=total_iterations,
                     )
-                last_update = highest_iteration
 
         if montecarlo_configuration.single_packet_seed != -1:
             seed = packet_seeds[montecarlo_configuration.single_packet_seed]
@@ -260,7 +259,6 @@ def montecarlo_main_loop(
             i,
         )
         local_estimators = estimator_list[tid]
-        # print("Made it to after estimators")
         vpacket_collection = vpacket_collections[i]
         rpacket_tracker = rpacket_trackers[i]
 
