@@ -9,7 +9,7 @@ def decay_nuclides(shell_mass, initial_composition, epoch):
 
     Parameters
     ----------
-    shell_mass : float64
+    shell_mass : float
         Mass of the shell in grams
     initial_composition : DataFrame
         Initial ejecta composition

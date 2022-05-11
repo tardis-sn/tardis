@@ -60,11 +60,11 @@ class GXPacket(object):
         # TODO: rename to tau_event
         self.tau = -np.log(np.random.random())
 
-    def get_location(self):
-        return self.location[0], self.location[1], self.location[2]
-
-    def get_direction(self):
-        return self.direction[0], self.direction[1], self.direction[2]
 
     def get_location_r(self):
+        """Calculate radius of the packet
+
+        Returns:
+            float: packet radius
+        """        
         return np.sqrt(self.location[0]**2. + self.location[1]**2. + self.location[2]**2.)

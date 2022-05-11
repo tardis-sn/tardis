@@ -453,29 +453,6 @@ def get_decay_database(
     return decay_rad_db, meta
 
 
-def get_isotope(model_df, packet_shell):
-    """_summary_
-
-    Parameters
-    ----------
-    model_df : _type_
-        _description_
-    packet_shell : _type_
-        _description_
-
-    Returns
-    -------
-    _type_
-        _description_
-    """    
-    rng = np.random.default_rng()
-
-    row = model_df.iloc[[packet_shell]].values[0]
-
-    weighted_decay = rng.choice(np.arange(len(row)), p=row / np.sum(row))
-
-    return model_df.columns[weighted_decay]
-
 def get_tau(meta, isotope_string):
     """Calculate the mean lifetime of an isotope
 

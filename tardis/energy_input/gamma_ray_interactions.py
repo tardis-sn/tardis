@@ -25,6 +25,7 @@ from tardis.energy_input.calculate_opacity import compton_opacity_partial
 def get_compton_angle(energy):
     """
     Computes the compton angle from the Klein-Nishina equation.
+    Computes the lost energy due to this angle
 
     Parameters
     ----------
@@ -59,6 +60,7 @@ def get_compton_angle(energy):
 def get_compton_fraction(energy):
     """
     Computes the compton angle from the Klein-Nishina equation.
+    Determines the probability of absorption from this angle.
 
     Parameters
     ----------

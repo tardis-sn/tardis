@@ -26,7 +26,7 @@ def spherical_to_cartesian(r, theta, phi):
 
     Returns
     -------
-    float64, float64, float64
+    array
         x, y, z coordinates
     """
     x = r * np.cos(phi) * np.sin(theta)
@@ -60,7 +60,11 @@ def cartesian_to_spherical(x, y, z):
 
 @njit
 def get_random_unit_vector():
+    """Generate a random unit vector
 
+    Returns:
+        array: random unit vector
+    """    
     theta = get_random_theta_photon()
     phi = get_random_phi_photon()
 
@@ -74,14 +78,13 @@ def doppler_gamma(direction_vector, position_vector, time):
 
     Parameters
     ----------
-    direction_vector : numpy.ndarray
-        Array of r, theta, phi vector (length 3)
-    ejecta_velocity : float64
-        Velocity of the ejecta
+    direction_vector : array
+    position_vector : array
+    time : float
 
     Returns
     -------
-    float64
+    float
         Doppler factor
     """
     velocity_vector = position_vector / time
@@ -94,14 +97,13 @@ def angle_aberration_gamma(direction_vector, position_vector, time):
 
     Parameters
     ----------
-    direction_vector : numpy.ndarray
-        Array of r, theta, phi vector (length 3)
-    ejecta_velocity : float64
-        Velocity of the ejecta
+    direction_vector : array
+    position_vector : array
+    time : float
 
     Returns
     -------
-    numpy.ndarray
+    array
         New direction after aberration
     """
     velocity_vector = position_vector / time
@@ -329,23 +331,23 @@ def get_random_phi_photon():
 
 @njit
 def get_random_theta_photon_array(n):
-    """Get a random theta direction between 0 and pi
+    """Get n random theta directions between 0 and pi
     Returns
     -------
     float
-        Random theta direction
+        n random theta directions
     """
     return np.arccos(1.0 - 2.0 * np.random.random(n))
 
 
 @njit
 def get_random_phi_photon_array(n):
-    """Get a random phi direction between 0 and 2 * pi
+    """Get n random phi directions between 0 and 2 * pi
 
     Returns
     -------
     float
-        Random phi direction
+        n random phi directions
     """
     return 2.0 * np.pi * np.random.random(n)
 
@@ -355,7 +357,7 @@ def convert_half_life_to_astropy_units(half_life_string):
 
     Parameters
     ----------
-    half_life_string : string
+    half_life_string : str
         Half-life as a string
 
     Returns
@@ -379,7 +381,7 @@ def convert_half_life_to_astropy_units(half_life_string):
 @njit
 def normalize_vector(vector):
     """
-    Normalizes a vector in cartesian coordinates
+    Normalizes a vector in Cartesian coordinates
 
     Parameters
     ----------
@@ -397,11 +399,11 @@ def normalize_vector(vector):
 @njit
 def get_perpendicular_vector(original_direction):
     """
-    Computes a vector which is perpendicular to the input vector
+    Computes a random vector which is perpendicular to the input vector
 
     Parameters
     ----------
-    original_direction : SphericalVector object
+    original_direction : array
 
     Returns
     -------

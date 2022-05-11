@@ -20,9 +20,9 @@ def compton_opacity_partial(energy, fraction):
 
     Parameters
     ----------
-    energy : np.float64
+    energy : float
         packet energy in terms of electron rest energy
-    fraction : np.float64
+    fraction : float
         1 + 2 * packet energy
 
     Returns
