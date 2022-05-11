@@ -1,13 +1,9 @@
-from bdb import effective
-from random import sample
-from time import time
 import numpy as np
 from tqdm.auto import tqdm
 import pandas as pd
 import astropy.units as u
-from numba import njit, prange
+from numba import njit
 from numba.typed import List
-import radioactivedecay as rd
 
 from tardis.energy_input.GXPacket import GXPacket, GXPacketStatus
 from tardis.energy_input.gamma_ray_grid import (
@@ -32,7 +28,6 @@ from tardis.energy_input.gamma_ray_interactions import (
 )
 from tardis.energy_input.util import (
     doppler_gamma,
-    BOUNDARY_THRESHOLD,
     C_CGS,
     H_CGS_KEV,
     kappa_calculation,
@@ -60,7 +55,7 @@ def sample_energy(energy, intensity):
 
     Returns
     -------
-    dtype float
+    float
         Energy
     """
     z = np.random.random()
@@ -168,7 +163,7 @@ def initialize_packets(
 
     ni56_fraction = ni56_energy / (ni56_energy + co56_energy)
 
-    energy_plot_df_rows = np.zeros((number_of_packets, 9))
+    energy_plot_df_rows = np.zeros((number_of_packets, 8))
     energy_plot_positron_rows = np.zeros((number_of_packets, 4))
 
     j = 0
@@ -244,7 +239,6 @@ def initialize_packets(
                     i,
                     packet.energy_rf,
                     packet.get_location_r(),
-                    0,
                     packet.time_current,
                     int(packet.status),
                     0,
@@ -282,7 +276,7 @@ def initialize_packets(
 
 
 def main_gamma_ray_loop(
-    num_decays, model, plasma, time_steps=10, time_end=80.0, grey_opacity=-1
+    num_decays, model, plasma, time_steps=10, time_end=80.0, grey_opacity=-1, spectrum_bins=500, time_space="log"
 ):
     """Main loop that determines the gamma ray propagation
 
@@ -300,29 +294,30 @@ def main_gamma_ray_loop(
         End time of simulation in days
     grey_opacity : float
         Grey photoabsorption opacity for gamma-rays in cm^2 g^-1, set to -1 to turn off
+    spectrum_bins : int
+        Number of energy bins for the gamma-ray spectrum
+    time_space : str
+        `'log'` for log-space time steps, otherwise time steps will be linear
 
     Returns
     -------
     pandas.DataFrame
-        Energy per mass per shell in units of eV/s/cm^-3
+        Energy per shell per time in units of eV/s/cm^-3
     pandas.DataFrame
         Columns:
         packet index,
         Energy input per packet,
         radius of deposition,
-        theta angle of deposition,
         time of deposition,
-        type of deposition where:
-            -1 = beta decay,
-            0 = Compton scatter,
-            1 = photoabsorption,
-            2 = pair creation
-    list
+        compton opacity,
+        photoabsorption opacity,
+        pair creation opacity
+    pandas.DataFrame
         Energy of escaping packets
     numpy.ndarray
-        Scaled activity per shell
+        Packets emitted per shell
     pandas.DataFrame
-        Energy injected into the model per shell
+        Energy from positrons
     """
     # Enforce cgs
     outer_velocities = model.v_outer.to("cm/s").value
@@ -345,15 +340,18 @@ def main_gamma_ray_loop(
         time_start < time_end
     ), "Error, simulation start time greater than end time!"
 
-    times = np.zeros(time_steps + 1)
+    if time_space == "log":
+        times = np.zeros(time_steps + 1)
 
-    # log time steps
-    for i in range(time_steps + 1):
-        times[i] = (
-            np.log(time_start)
-            + (np.log(time_end) - np.log(time_start)) / time_steps * i
-        )
-        times[i] = np.exp(times[i])
+        # log time steps
+        for i in range(time_steps + 1):
+            times[i] = (
+                np.log(time_start)
+                + (np.log(time_end) - np.log(time_start)) / time_steps * i
+            )
+            times[i] = np.exp(times[i])
+    else:
+        times = np.linspace(time_start, time_end, time_steps+1)
 
     dt_array = np.diff(times)
     effective_time_array = np.array(
@@ -482,8 +480,11 @@ def main_gamma_ray_loop(
     print("Total RF energy")
     print(total_rf_energy)
 
+    energy_bins = np.logspace(2, 4, spectrum_bins)
+    energy_out = np.zeros((len(energy_bins - 1), time_steps))
+
     # Process packets
-    energy_df_rows, energy_plot_df_rows = gamma_packet_loop(
+    energy_df_rows, energy_plot_df_rows, energy_out = gamma_packet_loop(
         packets,
         grey_opacity,
         electron_number_density_time,
@@ -495,8 +496,10 @@ def main_gamma_ray_loop(
         times,
         dt_array,
         effective_time_array,
+        energy_bins,
         energy_df_rows,
         energy_plot_df_rows,
+        energy_out
     )
 
     # DataFrame of energy information
@@ -506,7 +509,6 @@ def main_gamma_ray_loop(
             "packet_index",
             "energy_input",
             "energy_input_r",
-            "energy_input_theta",
             "energy_input_time",
             "energy_input_type",
             "compton_opacity",
@@ -536,7 +538,7 @@ def main_gamma_ray_loop(
     print("Final energy to test for conservation")
     print(final_energy)
 
-    escape_energy = []
+    escape_energy = pd.DataFrame(data=energy_out, columns=times[:-1], index=energy_bins)
 
     return (
         energy_df,
@@ -616,8 +618,10 @@ def gamma_packet_loop(
     times,
     dt_array,
     effective_time_array,
+    energy_bins,
     energy_df_rows,
     energy_plot_df_rows,
+    energy_out
 ):
     """Propagates packets through the simulation
 
@@ -645,10 +649,14 @@ def gamma_packet_loop(
         Simulation delta-time steps
     effective_time_array : array float64
         Simulation middle time steps
+    energy_bins : array float64
+        Bins for escaping gamma-rays
     energy_df_rows : array float64
         Energy output
     energy_plot_df_rows : array float64
         Energy output for plotting
+    energy_out : array float64
+        Escaped energy array
 
     Returns
     -------
@@ -656,6 +664,8 @@ def gamma_packet_loop(
         Energy output
     array float64
         Energy output for plotting
+    array float64
+        Escaped energy array
 
     Raises
     ------
@@ -805,7 +815,6 @@ def gamma_packet_loop(
                         # * inv_volume_time[packet.shell, time_index]
                         / dt,
                         packet.get_location_r(),
-                        0.0,
                         packet.time_current,
                         packet.shell,
                         compton_opacity,
@@ -825,7 +834,10 @@ def gamma_packet_loop(
                 packet.shell += shell_change
 
                 if packet.shell > len(mass_density_time[:, 0]) - 1:
-                    # escape_energy.append(packet.energy_rf)
+                    rest_energy = packet.nu_rf * H_CGS_KEV
+                    bin_index = get_index(rest_energy, energy_bins)
+                    bin_width = energy_bins[bin_index + 1] - energy_bins[bin_index]
+                    energy_out[bin_index, time_index] += rest_energy / (bin_width * dt)
                     packet.status = GXPacketStatus.END
                     escaped_packets += 1
                     if scattered:
@@ -838,4 +850,4 @@ def gamma_packet_loop(
     print("Escaped packets:", escaped_packets)
     print("Scattered packets:", scattered_packets)
 
-    return energy_df_rows, energy_plot_df_rows
+    return energy_df_rows, energy_plot_df_rows, energy_out
