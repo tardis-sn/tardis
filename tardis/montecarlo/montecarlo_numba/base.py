@@ -133,20 +133,6 @@ def montecarlo_radial1d(
     if montecarlo_configuration.RPACKET_TRACKING:
         runner.rpacket_tracker = rpacket_trackers
 
-@njit(**njit_dict_no_parallel)
-def Estimators_from_estimator(estimator):
-
-    return Estimators(
-        np.copy(estimator.j_estimator),
-        np.copy(estimator.nu_bar_estimator),
-        np.copy(estimator.j_blue_estimator),
-        np.copy(estimator.Edotlu_estimator),
-        np.copy(estimator.photo_ion_estimator),
-        np.copy(estimator.stim_recomb_estimator),
-        np.copy(estimator.bf_heating_estimator),
-        np.copy(estimator.stim_recomb_cooling_estimator),
-        np.copy(estimator.photo_ion_estimator_statistics),
-    )
 
 @njit(**njit_dict)
 def montecarlo_main_loop(
@@ -217,11 +203,22 @@ def montecarlo_main_loop(
         rpacket_trackers.append(RPacketTracker())
 
     main_thread_id = get_thread_id()
-    estimator_trackers = List()
+    estimator_list = List()
     n_threads = get_num_threads()
     for i in range(n_threads):  # betting get tid goes from 0 ot num threads
-        estimator_trackers.append(Estimators_from_estimator(estimators))
-
+        estimator_list.append(
+            Estimators(
+                np.copy(estimators.j_estimator),
+                np.copy(estimators.nu_bar_estimator),
+                np.copy(estimators.j_blue_estimator),
+                np.copy(estimators.Edotlu_estimator),
+                np.copy(estimators.photo_ion_estimator),
+                np.copy(estimators.stim_recomb_estimator),
+                np.copy(estimators.bf_heating_estimator),
+                np.copy(estimators.stim_recomb_cooling_estimator),
+                np.copy(estimators.photo_ion_estimator_statistics),
+            )
+        )
     # Arrays for vpacket logging
     virt_packet_nus = []
     virt_packet_energies = []
@@ -265,8 +262,7 @@ def montecarlo_main_loop(
             seed,
             i,
         )
-
-        local_estimators = estimator_trackers[tid]
+        local_estimators = estimator_list[tid]
         # print("Made it to after estimators")
 
         vpacket_collection = vpacket_collections[i]
@@ -314,6 +310,9 @@ def montecarlo_main_loop(
             ):
                 continue
             v_packets_energy_hist[idx] += vpackets_energy[j]
+
+    for sub_estimator in estimator_list:
+        estimators.increment(sub_estimator)
 
     if virtual_packet_logging:
         for vpacket_collection in vpacket_collections:
