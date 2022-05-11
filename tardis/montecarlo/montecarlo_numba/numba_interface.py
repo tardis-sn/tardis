@@ -554,6 +554,27 @@ class Estimators(object):
         self.stim_recomb_cooling_estimator = stim_recomb_cooling_estimator
         self.photo_ion_estimator_statistics = photo_ion_estimator_statistics
 
+    @staticmethod
+    def from_estimator(estimator):
+
+        return Estimators(np.copy(estimator.j_estimator), np.copy(estimator.nu_bar_estimator),
+                    np.copy(estimator.j_blue_estimator), np.copy(estimator.Edotlu_estimator),
+                    np.copy(estimator.photo_ion_estimator), np.copy(estimator.stim_recomb_estimator),
+                    np.copy(estimator.bf_heating_estimator), np.copy(estimator.stim_recomb_cooling_estimator),
+                    np.copy(estimator.photo_ion_estimator_statistics)
+                )
+
+    def increment(self, other):
+
+        self.j_estimator += other.j_estimator
+        self.nu_bar_estimator += other.nu_bar_estimator
+        self.j_blue_estimator += other.j_blue_estimator
+        self.Edotlu_estimator += other.Edotlu_estimator
+        self.photo_ion_estimator += other.photo_ion_estimator
+        self.stim_recomb_estimator += other.stim_recomb_estimator
+        self.bf_heating_estimator += other.bf_heating_estimator
+        self.stim_recomb_cooling_estimator += other.stim_recomb_cooling_estimator
+        self.photo_ion_estimator_statistics +=  other.photo_ion_estimator_statistics
 
 def configuration_initialize(runner, number_of_vpackets):
     if runner.line_interaction_type == "macroatom":
