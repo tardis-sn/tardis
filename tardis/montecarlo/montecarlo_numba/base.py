@@ -188,7 +188,6 @@ def montecarlo_main_loop(
     vpacket_collections = List()
     # Configuring the Tracking for R_Packets
     rpacket_trackers = List()
-
     for i in range(len(output_nus)):
         vpacket_collections.append(
             VPacketCollection(
@@ -206,7 +205,7 @@ def montecarlo_main_loop(
     n_threads = get_num_threads()
 
     estimator_list = List()
-    for i in range(n_threads):  # betting get tid goes from 0 ot num threads
+    for i in range(n_threads):  # betting get tid goes from 0 to num threads
         estimator_list.append(
             Estimators(
                 np.copy(estimators.j_estimator),
@@ -229,12 +228,10 @@ def montecarlo_main_loop(
     virt_packet_last_interaction_type = []
     virt_packet_last_line_interaction_in_id = []
     virt_packet_last_line_interaction_out_id = []
-
     for i in prange(len(output_nus)):
         if show_progress_bars:
 
             if tid == main_thread_id:
-
                 with objmode:
                     update_amount = 1 * n_threads
                     update_packet_pbar(
