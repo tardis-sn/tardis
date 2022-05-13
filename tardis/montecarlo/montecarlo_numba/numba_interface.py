@@ -25,7 +25,6 @@ numba_model_spec = [
 @jitclass(numba_model_spec)
 class NumbaModel(object):
     def __init__(self, r_inner, r_outer, v_inner, v_outer, time_explosion):
-        # how to have a function that has default value for an object, and then gets assigned value afterwards?
         """
         Model for the Numba mode
 
