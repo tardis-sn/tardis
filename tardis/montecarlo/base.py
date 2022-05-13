@@ -29,7 +29,7 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
-MAX_SEED_VAL = 2**32 - 1
+MAX_SEED_VAL = 2 ** 32 - 1
 
 # MAX_SEED_VAL must be multiple orders of magnitude larger than no_of_packets;
 # otherwise, each packet would not have its own seed. Here, we set the max
@@ -73,14 +73,14 @@ class MontecarloRunner(HDFWriterMixin):
 
     hdf_name = "runner"
     w_estimator_constant = (
-        (const.c**2 / (2 * const.h))
-        * (15 / np.pi**4)
+        (const.c ** 2 / (2 * const.h))
+        * (15 / np.pi ** 4)
         * (const.h / const.k_B) ** 4
         / (4 * np.pi)
     ).cgs.value
 
     t_rad_estimator_constant = (
-        (np.pi**4 / (15 * 24 * zeta(5, 1))) * (const.h / const.k_B)
+        (np.pi ** 4 / (15 * 24 * zeta(5, 1))) * (const.h / const.k_B)
     ).cgs.value
 
     def __init__(
@@ -203,7 +203,6 @@ class MontecarloRunner(HDFWriterMixin):
         self.r_outer_cgs = model.r_outer.to("cm").value
         self.v_inner_cgs = model.v_inner.to("cm/s").value
         self.v_outer_cgs = model.v_outer.to("cm/s").value
-
 
     def _initialize_packets(self, T, no_of_packets, iteration, radius):
         # the iteration is added each time to preserve randomness
@@ -563,7 +562,7 @@ class MontecarloRunner(HDFWriterMixin):
         w = self.j_estimator / (
             4
             * const.sigma_sb.cgs.value
-            * t_rad**4
+            * t_rad ** 4
             * self.time_of_simulation.value
             * self.volume.value
         )
@@ -587,7 +586,7 @@ class MontecarloRunner(HDFWriterMixin):
             * np.pi
             * const.sigma_sb.cgs
             * model.r_inner[0] ** 2
-            * model.t_inner**4
+            * model.t_inner ** 4
         ).to("erg/s")
 
     def calculate_time_of_simulation(self, model):

@@ -41,7 +41,6 @@ class NumbaModel(object):
         self.v_inner = v_inner
         self.v_outer = v_outer
         self.time_explosion = time_explosion
-        
 
 
 numba_plasma_spec = [
@@ -586,16 +585,12 @@ def configuration_initialize(runner, number_of_vpackets):
     montecarlo_configuration.full_relativity = runner.enable_full_relativity
     montecarlo_configuration.montecarlo_seed = runner.seed
     montecarlo_configuration.single_packet_seed = runner.single_packet_seed
-    montecarlo_configuration.v_packet_spawn_start_frequency = (
-        runner.virtual_spectrum_spawn_range.end.to(
-            u.Hz, equivalencies=u.spectral()
-        ).value
-    )
-    montecarlo_configuration.v_packet_spawn_end_frequency = (
-        runner.virtual_spectrum_spawn_range.start.to(
-            u.Hz, equivalencies=u.spectral()
-        ).value
-    )
+    montecarlo_configuration.v_packet_spawn_start_frequency = runner.virtual_spectrum_spawn_range.end.to(
+        u.Hz, equivalencies=u.spectral()
+    ).value
+    montecarlo_configuration.v_packet_spawn_end_frequency = runner.virtual_spectrum_spawn_range.start.to(
+        u.Hz, equivalencies=u.spectral()
+    ).value
     montecarlo_configuration.VPACKET_LOGGING = runner.virt_logging
 
 
