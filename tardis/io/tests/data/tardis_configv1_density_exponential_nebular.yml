@@ -10,19 +10,16 @@ model:
     structure:
         type: specific
 
-
         velocity:
-            start : 1.1e4 km/s
-            stop : 20000 km/s
+            start: 1.1e4 km/s
+            stop: 20000 km/s
             num: 20
-            
-            
+
         density:
-            type : exponential
+            type: exponential
             time_0: 20. second
             rho_0: 3.e2 g/cm^3
             v_0: 3000.  km/s
-            
 
     abundances:
         type: uniform
@@ -32,8 +29,7 @@ model:
         S: 0.09
         Ar: 0.04
         Ca: 0.03
-        Ni56: 0.4
-        Ni57: 0.1
+        Ni56: 0.5
 
 plasma:
     ionization: nebular
@@ -43,7 +39,7 @@ plasma:
 
 montecarlo:
     seed: 23111963
-    no_of_packets : 2.0e+5
+    no_of_packets: 2.0e+5
     iterations: 30
     last_no_of_packets: 5.0e+5
     no_of_virtual_packets: 5
