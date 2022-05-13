@@ -65,10 +65,7 @@ YAML_DELIMITER = "---"
 class CustomAbundanceCSVYWriter:
     """A class to write custom abundance csvy files."""
 
-    error_view = ipw.Output()
-
     @classmethod
-    @error_view.capture(clear_output=True)
     def to_csvy(cls, custom_abundnace_obj, path, overwrite):
         """Output CSVY file on the specified path.
 
@@ -88,12 +85,10 @@ class CustomAbundanceCSVYWriter:
                 "The file already exists. Click the 'overwrite' checkbox to overwrite it."
             )
         else:
-            print("Hey, I'm writing a file!")
             cls.write_yaml_portion(custom_abundnace_obj, posix_path)
             cls.write_csv_portion(custom_abundnace_obj, posix_path)
 
     @classmethod
-    @error_view.capture(clear_output=True)
     def write_yaml_portion(cls, custom_abundnace_obj, path):
         """Write the YAML portion of the output file.
 

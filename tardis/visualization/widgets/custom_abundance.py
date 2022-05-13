@@ -1079,7 +1079,7 @@ class CustomAbundanceWidget:
         path = self.input_path.value
         overwrite = self.ckb_overwrite.value
 
-        CustomAbundanceCSVYWriter.to_csvy(self, path, overwrite)
+        self.to_csvy(path, overwrite)
 
     def rbs_single_apply_eventhandler(self, obj):
         """Switch to single shell editing mode. Triggered if the
@@ -1393,6 +1393,19 @@ class CustomAbundanceWidget:
         widget_data = CustomAbundanceWidgetData.from_simulation(sim)
 
         return cls(widget_data)
+
+    @error_view.capture(clear_output=True)
+    def to_csvy(self, path, overwrite):
+        """Save the current abundance to a CSVY file.
+
+        Parameters
+        ----------
+        path : str
+            The path of the CSVY file.
+        overwrite : bool
+            Whether to overwrite the file if it already exists.
+        """
+        CustomAbundanceCSVYWriter.to_csvy(self, path, overwrite)
 
 
 class DensityEditor:
