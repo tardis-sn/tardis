@@ -202,6 +202,8 @@ class MontecarloRunner(HDFWriterMixin):
         self.r_inner_cgs = model.r_inner.to("cm").value
         self.r_outer_cgs = model.r_outer.to("cm").value
         self.v_inner_cgs = model.v_inner.to("cm/s").value
+        self.v_outer_cgs = model.v_outer.to("cm/s").value
+
 
     def _initialize_packets(self, T, no_of_packets, iteration, radius):
         # the iteration is added each time to preserve randomness
