@@ -7,9 +7,9 @@ import tardis.energy_input.calculate_opacity as calculate_opacity
 @pytest.mark.parametrize(
     ["electron_number_density", "energy", "expected"],
     [
-        (1.0, 511.0, 0.0856559215396578),
-        (1e-2, 255.5, 0.0011191738319133954),
-        (1e5, 511.0e7, 0.012909632812042571),
+        (1.0e11, 511.0, 2.865396624016367e-14),
+        (1e15, 255.5, 3.743906253489761e-10),
+        (1e5, 511.0e7, 4.318577913631238e-26),
     ],
 )
 def test_compton_opacity_calculation(energy, electron_number_density, expected):

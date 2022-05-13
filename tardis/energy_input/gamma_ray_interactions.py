@@ -16,7 +16,6 @@ from tardis.energy_input.util import (
     ELECTRON_MASS_ENERGY_KEV,
     H_CGS_KEV,
 )
-from tardis.energy_input.GXPhoton import GXPhotonStatus, GXPhoton
 from tardis.energy_input.GXPacket import GXPacketStatus
 from tardis.energy_input.calculate_opacity import compton_opacity_partial
 
@@ -241,65 +240,6 @@ def compton_scatter(photon, compton_angle):
 
 
 @njit
-def pair_creation(photon):
-    """
-    Randomly scatters the input gamma ray
-    Sets its energy to 511 KeV
-    Creates backwards photon
-
-    Parameters
-    ----------
-    photon : GXPhoton object
-
-    Returns
-    -------
-    GXPhoton
-        forward photon
-    GXPhoton
-        backward photon
-    """
-
-    direction_theta = get_random_theta_photon()
-    direction_phi = get_random_phi_photon()
-
-    x, y, z = spherical_to_cartesian(1.0, direction_theta, direction_phi)
-
-    # Calculate aberration of the random angle for the rest frame
-    final_direction = angle_aberration_gamma(
-        np.array([x, y, z]),
-        photon.get_position_vector_cartesian(),
-        photon.time_current
-    )
-
-    photon.energy = ELECTRON_MASS_ENERGY_KEV
-    photon.direction_theta = final_direction[1]
-    photon.direction_phi = final_direction[2]
-
-    backward_ray = GXPhoton(
-        photon.location_r,
-        photon.location_theta,
-        photon.location_phi,
-        final_direction[1],
-        final_direction[2],
-        photon.energy,
-        GXPhotonStatus.IN_PROCESS,
-        photon.shell,
-        photon.activity,
-    )
-
-    # TODO Is this correct? Should this have aberration
-    backward_ray.direction_phi += np.pi
-    backward_ray.tau = photon.tau
-    backward_ray.time_created = photon.time_created
-    backward_ray.time_current = photon.time_current
-
-    if backward_ray.direction_phi > 2 * np.pi:
-        backward_ray.direction_phi -= 2 * np.pi
-
-    return photon, backward_ray
-
-
-@njit
 def pair_creation_packet(packet):
     """
     Pair creation randomly scatters the packet
@@ -361,17 +301,17 @@ def scatter_type(compton_opacity, photoabsorption_opacity, total_opacity):
 
     Returns
     -------
-    status : GXPhotonStatus
+    status : GXPacketStatus
         Scattering process the photon encounters
 
     """
     z = np.random.random()
 
     if z <= (compton_opacity / total_opacity):
-        status = GXPhotonStatus.COMPTON_SCATTER
+        status = GXPacketStatus.COMPTON_SCATTER
     elif z <= (compton_opacity + photoabsorption_opacity) / total_opacity:
-        status = GXPhotonStatus.PHOTOABSORPTION
+        status = GXPacketStatus.PHOTOABSORPTION
     else:
-        status = GXPhotonStatus.PAIR_CREATION
+        status = GXPacketStatus.PAIR_CREATION
 
     return status

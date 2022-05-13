@@ -1,6 +1,8 @@
 import pytest
+import numpy as np
 
-from tardis.energy_input.GXPhoton import GXPhoton, GXPhotonStatus
+from tardis.energy_input.GXPacket import GXPacket, GXPacketStatus
+from tardis.energy_input.util import H_CGS_KEV
 
 
 @pytest.fixture(scope="function")
@@ -9,16 +11,16 @@ def basic_gamma_ray():
 
     Returns
     -------
-    GXPhoton
+    GXPacket
     """
-    return GXPhoton(
-        location_r=1.0e15,
-        location_theta=0.5,
-        location_phi=0,
-        direction_theta=1,
-        direction_phi=0.25,
-        energy=1000.0e3,
-        status=GXPhotonStatus.IN_PROCESS,
+    return GXPacket(
+        location=np.array([1.36375693e+13, 4.10589818e+14, 9.11718168e+14]),
+        direction=np.array([-0.97113853,  0.23134328, -0.05805379]),
+        energy_rf=1e52,
+        energy_cmf=1e52,
+        nu_rf=1000.0e3/H_CGS_KEV,
+        nu_cmf=1000.0e3/H_CGS_KEV,
+        status=GXPacketStatus.IN_PROCESS,
         shell=1,
-        activity=0,
+        time_current=1000
     )

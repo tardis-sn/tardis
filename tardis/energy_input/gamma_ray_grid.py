@@ -122,36 +122,6 @@ def distance_trace(
 
 
 @njit
-def move_photon(photon, distance):
-    """
-    Moves gamma ray a distance along its direction vector
-
-    Parameters
-    ----------
-    photon : GXPhoton object
-    distance : float
-
-    Returns
-    -------
-    photon : GXPhoton object
-
-    """
-    x_old, y_old, z_old = photon.get_location_cartesian_coords()
-    x_dir, y_dir, z_dir = photon.get_direction_cartesian_coords()
-
-    y_new = y_old + distance * y_dir
-    z_new = z_old + distance * z_dir
-    x_new = x_old + distance * x_dir
-
-    r, theta, phi = cartesian_to_spherical(x_new, y_new, z_new)
-    photon.location_r = r
-    photon.location_theta = theta
-    photon.location_phi = phi
-
-    return photon
-
-
-@njit
 def move_packet(packet, distance):
     """
     Moves packet a distance along its direction vector
