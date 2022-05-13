@@ -86,11 +86,6 @@ properties:
     type: number
     default: 1
     description: Provides option to not log every line.
-  single_packet_seed:
-    type:
-      - number
-    default: -1
-    description: If debug_packets is true, this is the seed for the only packet.
 
 required:
 - no_of_packets
