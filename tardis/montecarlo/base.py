@@ -100,7 +100,6 @@ class MontecarloRunner(HDFWriterMixin):
         packet_source=None,
         debug_packets=False,
         logger_buffer=1,
-        single_packet_seed=None,
         tracking_rpacket=False,
         use_gpu=False,
     ):
@@ -119,7 +118,6 @@ class MontecarloRunner(HDFWriterMixin):
         self.enable_full_relativity = enable_full_relativity
         numba_config.ENABLE_FULL_RELATIVITY = enable_full_relativity
         self.line_interaction_type = line_interaction_type
-        self.single_packet_seed = single_packet_seed
         self.integrator_settings = integrator_settings
         self.v_packet_settings = v_packet_settings
         self.spectrum_method = spectrum_method
@@ -689,7 +687,6 @@ class MontecarloRunner(HDFWriterMixin):
             packet_source=packet_source,
             debug_packets=config.montecarlo.debug_packets,
             logger_buffer=config.montecarlo.logger_buffer,
-            single_packet_seed=config.montecarlo.single_packet_seed,
             virtual_packet_logging=(
                 config.spectrum.virtual.virtual_packet_logging
                 | virtual_packet_logging
