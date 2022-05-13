@@ -66,12 +66,31 @@ class CustomAbundanceCSVYWriter:
     """A class to write custom abundance csvy files."""
 
     @classmethod
-    def to_csvy(cls, custom_abundnace_obj, path, overwrite):
+    def to_csvy(
+        cls,
+        d_time_0,
+        i_time_0,
+        velocity,
+        elements,
+        no_of_elements,
+        abundance,
+        density,
+        path,
+        overwrite,
+    ):
         """Output CSVY file on the specified path.
 
         Parameters
         ----------
-        custom_abundnace_obj : tardis.visualisation.widgets.CustomAbundanceWidget
+        d_time_0 : astropy.units.quantity.Quantity
+            Initial time for the density in the model.
+        velocity : astropy.units.quantity.Quantity
+        elements : list of str
+            A list of elements or isotopes' symbols.
+        no_of_elements : int
+            The number of elements in the model.
+        abundance : pd.DataFrame
+        density : astropy.units.quantity.Quantity
         path : str
             Output path.
         overwrite : bool
@@ -85,29 +104,40 @@ class CustomAbundanceCSVYWriter:
                 "The file already exists. Click the 'overwrite' checkbox to overwrite it."
             )
         else:
-            cls.write_yaml_portion(custom_abundnace_obj, posix_path)
-            cls.write_csv_portion(custom_abundnace_obj, posix_path)
+            cls.write_yaml_portion(
+                d_time_0, i_time_0, velocity, elements, posix_path
+            )
+            cls.write_csv_portion(
+                velocity,
+                elements,
+                no_of_elements,
+                abundance,
+                density,
+                posix_path,
+            )
 
     @classmethod
-    def write_yaml_portion(cls, custom_abundnace_obj, path):
+    def write_yaml_portion(cls, d_time_0, i_time_0, velocity, elements, path):
         """Write the YAML portion of the output file.
 
         Parameters
         ----------
-        custom_abundnace_obj : tardis.visualisation.widgets.CustomAbundanceWidget
+        d_time_0 : astropy.units.quantity.Quantity
+            Initial time for the density in the model.
+        velocity : astropy.units.quantity.Quantity
+        elements : list of str
+            A list of elements or isotopes' symbols.
         path : pathlib.PosixPath
         """
         name = path.name
-        d_time_0 = custom_abundnace_obj.data.density_t_0
-        i_time_0 = custom_abundnace_obj.input_i_time_0.value * u.day
         custom_yaml = CustomYAML(
             name,
             d_time_0,
             i_time_0,
-            custom_abundnace_obj.data.velocity[0],
-            custom_abundnace_obj.data.velocity[-1],
+            velocity[0],
+            velocity[-1],
         )
-        custom_yaml.create_fields_dict(custom_abundnace_obj.data.elements)
+        custom_yaml.create_fields_dict(elements)
 
         with path.open("w") as f:
             yaml_output = yaml.dump(custom_yaml, sort_keys=False)
@@ -120,30 +150,41 @@ class CustomAbundanceCSVYWriter:
             f.write(yaml_output)
 
     @classmethod
-    def write_csv_portion(cls, custom_abundnace_obj, path):
+    def write_csv_portion(
+        cls,
+        velocity,
+        elements,
+        no_of_elements,
+        abundance,
+        density,
+        path,
+    ):
         """Write the CSV portion of the output file.
 
         Parameters
-        ----------
-        custom_abundnace_obj : tardis.visualisation.widgets.CustomAbundanceWidget
+        -----------
+        velocity : astropy.units.quantity.Quantity
+        elements : list of str
+            A list of elements or isotopes' symbols.
+        no_of_elements : int
+            The number of elements in the model.
+        abundance : pd.DataFrame
+        density : astropy.units.quantity.Quantity
         path : pathlib.PosixPath
         """
         try:
-            data = custom_abundnace_obj.data.abundance.T
-            data.columns = custom_abundnace_obj.data.elements
-            first_row = [0] * custom_abundnace_obj.no_of_elements
+            data = abundance.T
+            data.columns = elements
+            first_row = [0] * no_of_elements
             data.loc[-1] = first_row
             data.index += 1  # shifting index
             data.sort_index(inplace=True)
 
-            formatted_v = pd.Series(
-                custom_abundnace_obj.data.velocity.value
-            ).apply(lambda x: "%.3e" % x)
+            formatted_v = pd.Series(velocity.value).apply(lambda x: "%.3e" % x)
             # Make sure velocity is within the boundary.
-            formatted_v[0] = custom_abundnace_obj.data.velocity.value[0]
-            formatted_v[-1] = custom_abundnace_obj.data.velocity.value[-1]
+            formatted_v[0] = velocity.value[0]
+            formatted_v[-1] = velocity.value[-1]
 
-            density = custom_abundnace_obj.data.density
             data.insert(0, "velocity", formatted_v)
             data.insert(1, "density", density)
 

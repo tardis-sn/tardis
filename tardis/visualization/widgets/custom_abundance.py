@@ -1405,7 +1405,26 @@ class CustomAbundanceWidget:
         overwrite : bool
             Whether to overwrite the file if it already exists.
         """
-        CustomAbundanceCSVYWriter.to_csvy(self, path, overwrite)
+
+        d_time_0 = self.data.density_t_0
+        i_time_0 = self.input_i_time_0.value * u.day
+        velocity = self.data.velocity
+        elements = self.data.elements
+        no_of_elements = self.no_of_elements
+        abundance = self.data.abundance
+        density = self.data.density
+
+        CustomAbundanceCSVYWriter.to_csvy(
+            d_time_0,
+            i_time_0,
+            velocity,
+            elements,
+            no_of_elements,
+            abundance,
+            density,
+            path,
+            overwrite,
+        )
 
 
 class DensityEditor:
