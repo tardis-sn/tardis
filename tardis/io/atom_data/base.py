@@ -168,7 +168,9 @@ class AtomData(object):
 
         with pd.HDFStore(fname, "r") as store:
             if "metadata" in store:
-                carsus_version = store["metadata"].loc[('format', 'version')].value
+                carsus_version = (
+                    store["metadata"].loc[("format", "version")].value
+                )
                 if carsus_version == "1.0":
                     if "collisions_data" in store:
                         try:
@@ -179,8 +181,13 @@ class AtomData(object):
                             if "cmfgen" in store["collisions_metadata"].dataset:
                                 dataframes["yg_data"] = store["collisions_data"]
                                 dataframes["collision_data"] = "dummy value"
-                            elif "chianti" in store["collisions_metadata"].dataset:
-                                dataframes["collision_data"] = store["collisions_data"]
+                            elif (
+                                "chianti"
+                                in store["collisions_metadata"].dataset
+                            ):
+                                dataframes["collision_data"] = store[
+                                    "collisions_data"
+                                ]
                             else:
                                 raise KeyError(
                                     "Atomic Data Collisions Not a Valid Chanti or CMFGEN Carsus Data File"
@@ -190,11 +197,12 @@ class AtomData(object):
                                 "Atomic Data is not a Valid Carsus Atomic Data File"
                             )
                             raise
-                    dataframes['levels'] = store['levels_data']
-                    dataframes['lines'] = store['lines_data']
+                    dataframes["levels"] = store["levels_data"]
+                    dataframes["lines"] = store["lines_data"]
                 else:
-                    raise ValueError(f"Current carsus version, {carsus_version}, is not supported.")
-            
+                    raise ValueError(
+                        f"Current carsus version, {carsus_version}, is not supported."
+                    )
 
             for name in cls.hdf_names:
                 try:
@@ -203,7 +211,7 @@ class AtomData(object):
                     logger.debug(f"Dataframe does not contain {name} column")
                     nonavailable.append(name)
             # Checks for various collisional data from Carsus files
-            
+
             atom_data = cls(**dataframes)
 
             try:
