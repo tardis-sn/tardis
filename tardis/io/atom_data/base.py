@@ -215,6 +215,10 @@ class AtomData(object):
 
             try:
                 atom_data.uuid1 = store.root._v_attrs["uuid1"]
+                if hasattr(atom_data.uuid, "decode"):
+                    atom_data.uuid1 = store.root._v_attrs["uuid1"].decode(
+                        "ascii"
+                    )
             except KeyError:
                 logger.debug(
                     "UUID not available for Atom Data. Setting value to None"
@@ -223,6 +227,8 @@ class AtomData(object):
 
             try:
                 atom_data.md5 = store.root._v_attrs["md5"]
+                if hasattr(atom_data.md5, "decode"):
+                    atom_data.md5 = store.root._v_attrs["md5"].decode("ascii")
             except KeyError:
                 logger.debug(
                     "MD5 not available for Atom Data. Setting value to None"
@@ -231,6 +237,10 @@ class AtomData(object):
 
             try:
                 atom_data.version = store.root._v_attrs["database_version"]
+                if hasattr(atom_data.version, "decode"):
+                    atom_data.version = store.root._v_attrs[
+                        "database_version"
+                    ].decode("ascii")
             except KeyError:
                 logger.debug(
                     "VERSION not available for Atom Data. Setting value to None"
