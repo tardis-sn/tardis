@@ -22,4 +22,3 @@ TARDIS is home to an incredibly diverse, multidiciplinary team. As such, we beli
 
 .. toctree::
     light_and_matter
-    spectra
