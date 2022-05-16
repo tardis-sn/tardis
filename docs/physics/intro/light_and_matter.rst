@@ -28,6 +28,10 @@ Light can then be classified by its frequency/wavelength on the electromagnetic 
 
     Image from https://imagine.gsfc.nasa.gov/science/toolbox/emspectrum1.html.
 
+.. note::
+    A common unit of wavelength used in astronomy is the Angstrom (:math:`\r{A}`), which is equal to :math:`10^{-10}` meters. Visible light consists of wavelengths between 4000 and 7000 Angstroms.
+
+
 Matter
 ======
 
