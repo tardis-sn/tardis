@@ -3,6 +3,8 @@ import tardis.constants as const
 import numpy as np
 from numba import njit
 
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+
 R_ELECTRON_SQUARED = (const.a0.cgs.value * const.alpha.cgs.value ** 2.0) ** 2.0
 ELECTRON_MASS_ENERGY_KEV = (const.m_e * const.c ** 2.0).to("keV").value
 BOUNDARY_THRESHOLD = 1e-7
@@ -11,7 +13,7 @@ C_CGS = const.c.cgs.value
 H_CGS_KEV = const.h.to("keV s").value
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def spherical_to_cartesian(r, theta, phi):
     """Converts spherical coordinates to Cartesian
 
@@ -35,30 +37,7 @@ def spherical_to_cartesian(r, theta, phi):
     return np.array([x, y, z])
 
 
-@njit
-def cartesian_to_spherical(x, y, z):
-    """Converts Cartesian coordinates to spherical
-
-    Parameters
-    ----------
-    x : float64
-        x coordinate
-    y : float64
-        y coordinate
-    z : float64
-        z coordinate
-
-    Returns
-    -------
-    float64, float64, float64
-        r, theta, phi coordinates
-    """
-    r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
-    theta = np.arccos(z / r)
-    phi = np.arctan2(y, x)
-    return r, theta, phi
-
-@njit
+@njit(**njit_dict_no_parallel)
 def get_random_unit_vector():
     """Generate a random unit vector
 
@@ -72,7 +51,7 @@ def get_random_unit_vector():
 
     return normalize_vector(vector)
 
-@njit
+@njit(**njit_dict_no_parallel)
 def doppler_gamma(direction_vector, position_vector, time):
     """Doppler shift for photons in 3D
 
@@ -91,7 +70,7 @@ def doppler_gamma(direction_vector, position_vector, time):
     return 1 - (np.dot(direction_vector, velocity_vector) / C_CGS)
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def angle_aberration_gamma(direction_vector, position_vector, time):
     """Angle aberration formula for photons in 3D
 
@@ -122,7 +101,7 @@ def angle_aberration_gamma(direction_vector, position_vector, time):
     return output_vector
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def kappa_calculation(energy):
     """
     Calculates kappa for various other calculations
@@ -141,7 +120,7 @@ def kappa_calculation(energy):
     return energy / ELECTRON_MASS_ENERGY_KEV
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def euler_rodrigues(theta, direction):
     """
     Calculates the Euler-Rodrigues rotation matrix
@@ -180,7 +159,7 @@ def euler_rodrigues(theta, direction):
     )
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def solve_quadratic_equation(position, direction, radius):
     """
     Solves the quadratic equation for the distance to the shell boundary
@@ -211,7 +190,7 @@ def solve_quadratic_equation(position, direction, radius):
 
     return solution_1, solution_2
 
-@njit
+@njit(**njit_dict_no_parallel)
 def solve_quadratic_equation_expanding(position, direction, time, radius):
     """
     Solves the quadratic equation for the distance to an expanding shell boundary
@@ -244,7 +223,7 @@ def solve_quadratic_equation_expanding(position, direction, time, radius):
 
     return solution_1, solution_2
 
-@njit
+@njit(**njit_dict_no_parallel)
 def klein_nishina(energy, theta_C):
     """
     Calculates the Klein-Nishina equation
@@ -281,7 +260,7 @@ def klein_nishina(energy, theta_C):
     )
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def compton_theta_distribution(energy, sample_resolution=100):
     """
     Calculates the cumulative distribution function of theta angles
@@ -306,7 +285,7 @@ def compton_theta_distribution(energy, sample_resolution=100):
     return theta_angles, norm_theta_distribution
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def get_random_theta_photon():
     """Get a random theta direction between 0 and pi
     Returns
@@ -317,7 +296,7 @@ def get_random_theta_photon():
     return np.arccos(1.0 - 2.0 * np.random.random())
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def get_random_phi_photon():
     """Get a random phi direction between 0 and 2 * pi
 
@@ -327,29 +306,6 @@ def get_random_phi_photon():
         Random phi direction
     """
     return 2.0 * np.pi * np.random.random()
-
-
-@njit
-def get_random_theta_photon_array(n):
-    """Get n random theta directions between 0 and pi
-    Returns
-    -------
-    float
-        n random theta directions
-    """
-    return np.arccos(1.0 - 2.0 * np.random.random(n))
-
-
-@njit
-def get_random_phi_photon_array(n):
-    """Get n random phi directions between 0 and 2 * pi
-
-    Returns
-    -------
-    float
-        n random phi directions
-    """
-    return 2.0 * np.pi * np.random.random(n)
 
 
 def convert_half_life_to_astropy_units(half_life_string):
@@ -378,7 +334,7 @@ def convert_half_life_to_astropy_units(half_life_string):
     return half_life_with_unit.to(u.s)
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def normalize_vector(vector):
     """
     Normalizes a vector in Cartesian coordinates
@@ -396,7 +352,7 @@ def normalize_vector(vector):
     return vector / np.linalg.norm(vector)
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def get_perpendicular_vector(original_direction):
     """
     Computes a random vector which is perpendicular to the input vector
@@ -415,7 +371,7 @@ def get_perpendicular_vector(original_direction):
     return normalize_vector(perpendicular_vector)
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def get_index(value, array):
     """Get the index that places a value
     at array[i] < array <= vec[i+1]

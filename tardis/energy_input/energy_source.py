@@ -1,8 +1,18 @@
 import numpy as np
 import pandas as pd
 from nuclear.ejecta import Ejecta
+from nuclear.io.nndc import get_decay_radiation_database, store_decay_radiation
 from numba import njit
 import radioactivedecay as rd
+
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+from tardis.util.base import (
+    atomic_number2element_symbol,
+)
+from tardis.energy_input.util import (
+    convert_half_life_to_astropy_units,
+)
+
 
 def decay_nuclides(shell_mass, initial_composition, epoch):
     """Decay model
@@ -26,7 +36,7 @@ def decay_nuclides(shell_mass, initial_composition, epoch):
     new_fractions = decay_model.decay(epoch)
     return new_fractions
 
-@njit
+@njit(**njit_dict_no_parallel)
 def sample_mass(masses, inner_radius, outer_radius):
     """Samples location weighted by mass
 
@@ -57,7 +67,7 @@ def sample_mass(masses, inner_radius, outer_radius):
 
     return radius, shell
 
-@njit
+@njit(**njit_dict_no_parallel)
 def create_energy_cdf(energy, intensity):
     """Creates a CDF of given intensities
 
@@ -85,7 +95,7 @@ def create_energy_cdf(energy, intensity):
     return energy, cdf
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def sample_energy_distribution(energy_sorted, cdf):
     """Randomly samples a CDF of energies
 
@@ -285,3 +295,90 @@ def get_all_isotopes(abundances):
 
     isotopes = [i.replace("-", "") for i in isotopes]
     return isotopes
+
+def get_decay_database(
+    isotope_abundance,
+):
+    """Gets the decay radiation database for a set
+    of isotopes
+
+    Parameters
+    ----------
+    isotope_abundance : DataFrame
+        DataFrame of simulation isotope masses per shell
+
+    Returns
+    -------
+    DataFrame
+        Decay radiation database
+    DataFrame
+        Metadata for the decay radiation database
+    """    
+    for column in isotope_abundance:
+        if column == "Fe56":
+            continue
+        store_decay_radiation(column, force_update=False)
+
+    decay_rad_db, meta = get_decay_radiation_database()
+
+    return decay_rad_db, meta
+
+
+def get_tau(meta, isotope_string):
+    """Calculate the mean lifetime of an isotope
+
+    Parameters
+    ----------
+    meta : DataFrame
+        Isotope metadata
+    isotope_string : str
+        Isotope of interest
+
+    Returns
+    -------
+    float
+        Mean lifetime of isotope
+    """    
+    isotope_meta = meta.loc[isotope_string]
+    half_life = isotope_meta.loc[
+        isotope_meta["key"] == "Parent T1/2 value"
+    ]["value"].values[0]
+    half_life = convert_half_life_to_astropy_units(half_life)
+    return half_life / np.log(2)
+
+def get_isotope_string(atom_number, atom_mass):
+    """Get the isotope string in the format e.g. Ni56
+
+    Parameters
+    ----------
+    atom_number : int
+        Atomic number
+    atom_mass : int
+        Atomic mass
+
+    Returns
+    -------
+    str
+        Isotope string in the format e.g. Ni56
+    """    
+    return atomic_number2element_symbol(atom_number) + str(atom_mass)
+
+def read_artis_lines(isotope):
+    """Reads lines of ARTIS format
+
+    Parameters
+    ----------
+    isotope : string
+        Isotope to read e.g. Ni56
+
+    Returns
+    -------
+    pd.DataFrame
+        Energies and intensities of the isotope lines
+    """    
+    return pd.read_csv(
+        "~/Downloads/tardisnuclear/" + isotope + ".txt",
+        names=["energy", "intensity"],
+        sep="  ",
+        index_col=False,
+    )

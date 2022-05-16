@@ -3,6 +3,7 @@ import astropy.units as u
 from numba import njit
 
 from tardis import constants as const
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.energy_input.util import kappa_calculation
 
 # Force cgs
@@ -13,7 +14,7 @@ SIGMA_T = const.sigma_T.cgs.value
 FINE_STRUCTURE = const.alpha.value
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def compton_opacity_partial(energy, fraction):
     """Partial Compton scattering opacity, from artis file
     gamma.cc
@@ -43,7 +44,7 @@ def compton_opacity_partial(energy, fraction):
     return 3.0 * SIGMA_T * (term_1 + term_2 + term_3) / (8 * energy)
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def compton_opacity_calculation(energy, electron_density):
     """Calculate the Compton scattering opacity for a given energy
     (Rybicki & Lightman, 1979)
@@ -86,7 +87,7 @@ def compton_opacity_calculation(energy, electron_density):
     return electron_density * sigma_KN
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def photoabsorption_opacity_calculation(
     energy, ejecta_density, iron_group_fraction
 ):
@@ -125,7 +126,7 @@ def photoabsorption_opacity_calculation(
 
     return si_opacity + fe_opacity
 
-@njit
+@njit(**njit_dict_no_parallel)
 def photoabsorption_opacity_calculation_kasen(energy, number_density, proton_count):
     """Calculates photoabsorption opacity for a given energy
     Approximate treatment from Kasen et al. (2006)
@@ -151,7 +152,7 @@ def photoabsorption_opacity_calculation_kasen(energy, number_density, proton_cou
     return SIGMA_T * opacity * np.sum((number_density / proton_count) * proton_count ** 5)
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def pair_creation_opacity_calculation(
     energy, ejecta_density, iron_group_fraction
 ):
@@ -196,7 +197,7 @@ def pair_creation_opacity_calculation(
 
     return opacity
 
-@njit
+@njit(**njit_dict_no_parallel)
 def pair_creation_opacity_artis(
     energy, ejecta_density, iron_group_fraction
 ):

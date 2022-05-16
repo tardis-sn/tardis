@@ -1,17 +1,14 @@
 import numpy as np
 from numba import njit
 
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.energy_input.util import (
     get_random_unit_vector,
     kappa_calculation,
     euler_rodrigues,
     compton_theta_distribution,
-    get_random_theta_photon,
-    get_random_phi_photon,
     get_perpendicular_vector,
-    cartesian_to_spherical,
     angle_aberration_gamma,
-    spherical_to_cartesian,
     doppler_gamma,
     ELECTRON_MASS_ENERGY_KEV,
     H_CGS_KEV,
@@ -20,7 +17,7 @@ from tardis.energy_input.GXPacket import GXPacketStatus
 from tardis.energy_input.calculate_opacity import compton_opacity_partial
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def get_compton_angle(energy):
     """
     Computes the compton angle from the Klein-Nishina equation.
@@ -55,7 +52,7 @@ def get_compton_angle(energy):
     return compton_angle, lost_energy, new_energy
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def get_compton_fraction(energy):
     """
     Computes the compton angle from the Klein-Nishina equation.
@@ -87,7 +84,7 @@ def get_compton_fraction(energy):
     return compton_angle, fraction
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def get_compton_fraction_artis(energy):
     """Gets the Compton scattering/absorption fraction
     and angle following the scheme in ARTIS
@@ -137,7 +134,7 @@ def get_compton_fraction_artis(energy):
     return angle, fraction_try
 
 
-@njit 
+@njit(**njit_dict_no_parallel)
 def get_compton_fraction_urilight(energy):
     """Gets the Compton scattering/absorption fraction
     and angle following the scheme in Urilight
@@ -179,7 +176,7 @@ def get_compton_fraction_urilight(energy):
     return np.arccos(cost), f
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def compton_scatter(photon, compton_angle):
     """
     Changes the direction of the gamma-ray by the Compton scattering angle
@@ -239,7 +236,7 @@ def compton_scatter(photon, compton_angle):
     return final_direction
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def pair_creation_packet(packet):
     """
     Pair creation randomly scatters the packet
@@ -288,7 +285,7 @@ def pair_creation_packet(packet):
     return packet
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def scatter_type(compton_opacity, photoabsorption_opacity, total_opacity):
     """
     Determines the scattering type based on process opacities

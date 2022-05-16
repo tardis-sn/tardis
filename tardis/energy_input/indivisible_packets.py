@@ -5,14 +5,15 @@ import astropy.units as u
 from numba import njit
 from numba.typed import List
 
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.energy_input.GXPacket import GXPacket, GXPacketStatus
 from tardis.energy_input.gamma_ray_grid import (
     distance_trace,
     move_packet,
-    read_artis_lines,
 )
 from tardis.energy_input.energy_source import (
     ni56_chain_energy,
+    read_artis_lines,
 )
 from tardis.energy_input.calculate_opacity import (
     compton_opacity_calculation,
@@ -42,7 +43,7 @@ from tardis import constants as const
 # time: s
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def sample_energy(energy, intensity):
     """Samples energy from energy and intensity
 
@@ -549,7 +550,7 @@ def main_gamma_ray_loop(
     )
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def process_packet_path(packet):
     """Move the packet through interactions
 
@@ -605,7 +606,7 @@ def process_packet_path(packet):
     return packet, ejecta_energy_gained
 
 
-@njit
+@njit(**njit_dict_no_parallel)
 def gamma_packet_loop(
     packets,
     grey_opacity,

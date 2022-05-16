@@ -27,25 +27,6 @@ def test_spherical_to_cartesian(
     npt.assert_almost_equal(actual_z, expected_z)
 
 
-@pytest.mark.parametrize(
-    ["expected_r", "expected_theta", "expected_phi", "x", "y", "z"],
-    [
-        (1, 0, 0, 0, 0, 1),
-        (1, np.pi, 0, 0, 0, -1),
-        (1, np.pi / 2, 0, 1, 0, 0),
-        (1, np.pi / 2, np.pi, -1, 0, 0),
-        (1, np.pi / 2, np.pi / 2, 0, 1, 0),
-    ],
-)
-def test_cartesian_to_spherical(
-    expected_r, expected_theta, expected_phi, x, y, z
-):
-    actual_r, actual_theta, actual_phi = util.cartesian_to_spherical(x, y, z)
-    npt.assert_almost_equal(actual_r, expected_r)
-    npt.assert_almost_equal(actual_theta, expected_theta)
-    npt.assert_almost_equal(actual_phi, expected_phi)
-
-
 @pytest.mark.xfail(reason="To be removed")
 def test_doppler_gamma():
     assert False
