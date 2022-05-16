@@ -30,11 +30,12 @@ def decay_nuclides(shell_mass, initial_composition, epoch):
     -------
     DataFrame
         New composition at time epoch
-    """    
+    """
     decay_model = Ejecta(shell_mass, initial_composition)
 
     new_fractions = decay_model.decay(epoch)
     return new_fractions
+
 
 @njit(**njit_dict_no_parallel)
 def sample_mass(masses, inner_radius, outer_radius):
@@ -55,17 +56,18 @@ def sample_mass(masses, inner_radius, outer_radius):
         Sampled radius
     int
         Sampled shell index
-    """    
+    """
     norm_mass = masses / np.sum(masses)
     cdf = np.cumsum(norm_mass)
     shell = np.searchsorted(cdf, np.random.random())
 
     z = np.random.random()
-    radius = (z * inner_radius[shell] ** 3.0
-                + (1.0 - z) * outer_radius[shell] ** 3.0
-            ) ** (1.0 / 3.0)
+    radius = (
+        z * inner_radius[shell] ** 3.0 + (1.0 - z) * outer_radius[shell] ** 3.0
+    ) ** (1.0 / 3.0)
 
     return radius, shell
+
 
 @njit(**njit_dict_no_parallel)
 def create_energy_cdf(energy, intensity):
@@ -174,7 +176,10 @@ def intensity_ratio(nuclear_data, source_1, source_2):
         scale_factor,
     )
 
-def ni56_chain_energy(taus, time_start, time_end, number_ni56, ni56_lines, co56_lines):
+
+def ni56_chain_energy(
+    taus, time_start, time_end, number_ni56, ni56_lines, co56_lines
+):
     """Calculate the energy from the Ni56 chain
 
     Parameters
@@ -196,28 +201,34 @@ def ni56_chain_energy(taus, time_start, time_end, number_ni56, ni56_lines, co56_
     -------
     float
         Total energy from Ni56 decay
-    """    
-    total_ni56 = -taus["Ni56"] * (np.exp(-time_end / taus["Ni56"]) - np.exp(-time_start / taus["Ni56"]))
-    total_co56 = -taus["Co56"] * (np.exp(-time_end / taus["Co56"]) - np.exp(-time_start / taus["Co56"]))
+    """
+    total_ni56 = -taus["Ni56"] * (
+        np.exp(-time_end / taus["Ni56"]) - np.exp(-time_start / taus["Ni56"])
+    )
+    total_co56 = -taus["Co56"] * (
+        np.exp(-time_end / taus["Co56"]) - np.exp(-time_start / taus["Co56"])
+    )
 
     total_energy = pd.DataFrame()
-    
+
     total_energy["Ni56"] = number_ni56 * (
-            (ni56_lines.energy * 1000 * ni56_lines.intensity).sum()
-            / taus["Ni56"]
-            *
-            total_ni56
+        (ni56_lines.energy * 1000 * ni56_lines.intensity).sum()
+        / taus["Ni56"]
+        * total_ni56
     )
 
     total_energy["Co56"] = number_ni56 * (
-            (co56_lines.energy * 1000 * co56_lines.intensity).sum()
-            / (taus["Ni56"] - taus["Co56"])
-            * (total_ni56 - total_co56)
+        (co56_lines.energy * 1000 * co56_lines.intensity).sum()
+        / (taus["Ni56"] - taus["Co56"])
+        * (total_ni56 - total_co56)
     )
 
     return total_energy
 
-def ni56_chain_energy_choice(taus, time_start, time_end, number_ni56, ni56_lines, co56_lines, isotope):
+
+def ni56_chain_energy_choice(
+    taus, time_start, time_end, number_ni56, ni56_lines, co56_lines, isotope
+):
     """Calculate the energy from the Ni56 or Co56 chain
 
     Parameters
@@ -241,28 +252,32 @@ def ni56_chain_energy_choice(taus, time_start, time_end, number_ni56, ni56_lines
     -------
     float
         Total energy from decay chain
-    """    
-    total_ni56 = -taus["Ni56"] * (np.exp(-time_end / taus["Ni56"]) - np.exp(-time_start / taus["Ni56"]))
-    total_co56 = -taus["Co56"] * (np.exp(-time_end / taus["Co56"]) - np.exp(-time_start / taus["Co56"]))
+    """
+    total_ni56 = -taus["Ni56"] * (
+        np.exp(-time_end / taus["Ni56"]) - np.exp(-time_start / taus["Ni56"])
+    )
+    total_co56 = -taus["Co56"] * (
+        np.exp(-time_end / taus["Co56"]) - np.exp(-time_start / taus["Co56"])
+    )
 
     if isotope == "Ni56":
         total_energy = number_ni56 * (
-                (ni56_lines.energy * 1000 * ni56_lines.intensity).sum()
-                / taus["Ni56"]
-                *
-                total_ni56
+            (ni56_lines.energy * 1000 * ni56_lines.intensity).sum()
+            / taus["Ni56"]
+            * total_ni56
         )
     else:
         total_energy = number_ni56 * (
-                (co56_lines.energy * 1000 * co56_lines.intensity).sum()
-                / (taus["Ni56"] - taus["Co56"])
-                * (total_ni56 - total_co56)
+            (co56_lines.energy * 1000 * co56_lines.intensity).sum()
+            / (taus["Ni56"] - taus["Co56"])
+            * (total_ni56 - total_co56)
         )
 
     return total_energy
 
+
 def get_all_isotopes(abundances):
-    """Get the possible isotopes present over time 
+    """Get the possible isotopes present over time
     for a given starting abundance
 
     Parameters
@@ -274,8 +289,10 @@ def get_all_isotopes(abundances):
     -------
     list
         List of isotope names
-    """    
-    progenitors = [f"{rd.utils.Z_DICT[i[0]]}-{i[1]}" for i in abundances.T.columns]
+    """
+    progenitors = [
+        f"{rd.utils.Z_DICT[i[0]]}-{i[1]}" for i in abundances.T.columns
+    ]
 
     isotopes = set(progenitors)
     check = True
@@ -285,9 +302,9 @@ def get_all_isotopes(abundances):
 
         for i in isotopes:
             for p in rd.Nuclide(i).progeny():
-                if p != 'SF':
-                    progeny.add(p) 
-        
+                if p != "SF":
+                    progeny.add(p)
+
         if progeny == isotopes:
             check = False
         else:
@@ -295,6 +312,7 @@ def get_all_isotopes(abundances):
 
     isotopes = [i.replace("-", "") for i in isotopes]
     return isotopes
+
 
 def get_decay_database(
     isotope_abundance,
@@ -313,7 +331,7 @@ def get_decay_database(
         Decay radiation database
     DataFrame
         Metadata for the decay radiation database
-    """    
+    """
     for column in isotope_abundance:
         if column == "Fe56":
             continue
@@ -338,13 +356,14 @@ def get_tau(meta, isotope_string):
     -------
     float
         Mean lifetime of isotope
-    """    
+    """
     isotope_meta = meta.loc[isotope_string]
-    half_life = isotope_meta.loc[
-        isotope_meta["key"] == "Parent T1/2 value"
-    ]["value"].values[0]
+    half_life = isotope_meta.loc[isotope_meta["key"] == "Parent T1/2 value"][
+        "value"
+    ].values[0]
     half_life = convert_half_life_to_astropy_units(half_life)
     return half_life / np.log(2)
+
 
 def get_isotope_string(atom_number, atom_mass):
     """Get the isotope string in the format e.g. Ni56
@@ -360,8 +379,9 @@ def get_isotope_string(atom_number, atom_mass):
     -------
     str
         Isotope string in the format e.g. Ni56
-    """    
+    """
     return atomic_number2element_symbol(atom_number) + str(atom_mass)
+
 
 def read_artis_lines(isotope):
     """Reads lines of ARTIS format
@@ -375,7 +395,7 @@ def read_artis_lines(isotope):
     -------
     pd.DataFrame
         Energies and intensities of the isotope lines
-    """    
+    """
     return pd.read_csv(
         "~/Downloads/tardisnuclear/" + isotope + ".txt",
         names=["energy", "intensity"],

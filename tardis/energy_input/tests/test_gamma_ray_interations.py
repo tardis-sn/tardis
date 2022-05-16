@@ -32,7 +32,9 @@ def test_pair_creation(basic_gamma_ray):
 
     pair_creation_packet(basic_gamma_ray)
 
-    npt.assert_almost_equal(basic_gamma_ray.nu_cmf, ELECTRON_MASS_ENERGY_KEV / H_CGS_KEV)
+    npt.assert_almost_equal(
+        basic_gamma_ray.nu_cmf, ELECTRON_MASS_ENERGY_KEV / H_CGS_KEV
+    )
     assert basic_gamma_ray.direction != initial_direction
 
 

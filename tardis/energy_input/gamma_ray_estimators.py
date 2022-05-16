@@ -52,7 +52,7 @@ def compton_emissivity_estimator(packet, distance):
         * SIGMA_T
         / frequency_factor
         / frequency_factor
-        * (frequency_factor + (1.0 / frequency_factor) + cmf_angle ** 2.0 - 1.0)
+        * (frequency_factor + (1.0 / frequency_factor) + cmf_angle**2.0 - 1.0)
     )
 
     doppler_factor = doppler_gamma(
@@ -63,7 +63,7 @@ def compton_emissivity_estimator(packet, distance):
         packet.energy_rf
         * partial_cross_section
         * distance
-        * doppler_factor ** 2.0
+        * doppler_factor**2.0
         / frequency_factor
     )
 

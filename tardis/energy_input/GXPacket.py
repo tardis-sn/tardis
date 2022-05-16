@@ -45,7 +45,7 @@ class GXPacket(object):
         nu_cmf,
         status,
         shell,
-        time_current
+        time_current,
     ):
         self.location = location
         self.direction = direction
@@ -60,11 +60,14 @@ class GXPacket(object):
         # TODO: rename to tau_event
         self.tau = -np.log(np.random.random())
 
-
     def get_location_r(self):
         """Calculate radius of the packet
 
         Returns:
             float: packet radius
-        """        
-        return np.sqrt(self.location[0]**2. + self.location[1]**2. + self.location[2]**2.)
+        """
+        return np.sqrt(
+            self.location[0] ** 2.0
+            + self.location[1] ** 2.0
+            + self.location[2] ** 2.0
+        )

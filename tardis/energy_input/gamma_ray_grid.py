@@ -34,11 +34,11 @@ def calculate_distance_radial(photon, r_inner, r_outer):
     outer_1, outer_2 = solve_quadratic_equation(
         photon.location, photon.direction, r_outer
     )
-   
-    final_position_inner_1 = photon.location + photon.direction*inner_1
-    final_position_inner_2 = photon.location + photon.direction*inner_2
-    final_position_outer_1 = photon.location + photon.direction*outer_1
-    final_position_outer_2 = photon.location + photon.direction*outer_2
+
+    final_position_inner_1 = photon.location + photon.direction * inner_1
+    final_position_inner_2 = photon.location + photon.direction * inner_2
+    final_position_outer_1 = photon.location + photon.direction * outer_1
+    final_position_outer_2 = photon.location + photon.direction * outer_2
 
     if np.dot(final_position_inner_1, photon.direction) > 0:
         inner_1 = -1
@@ -79,7 +79,7 @@ def distance_trace(
     outer_velocity,
     total_opacity,
     current_time,
-    next_time
+    next_time,
 ):
     """
     Traces distance traveled by gamma ray and finds distance to

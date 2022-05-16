@@ -100,7 +100,7 @@ def get_compton_fraction_artis(energy):
         Scattering angle
     float
         Compton scattering fraction
-    """ 
+    """
     energy_norm = kappa_calculation(energy)
 
     fraction_max = 1.0 + 2.0 * energy_norm
@@ -150,28 +150,29 @@ def get_compton_fraction_urilight(energy):
         Scattering angle
     float
         Compton scattering fraction
-    """    
+    """
     E0 = kappa_calculation(energy)
-    
-    x0=1.0/(1.0+2.0*E0)
 
-    accept=False
+    x0 = 1.0 / (1.0 + 2.0 * E0)
+
+    accept = False
     while not accept:
 
         z = np.random.random(3)
-        alpha1=np.log(1./x0)
-        alpha2=(1.0-x0**2.0)/2.0
-        if (z[1] < alpha1/(alpha1+alpha2)):
-            x=x0**z[2]
+        alpha1 = np.log(1.0 / x0)
+        alpha2 = (1.0 - x0**2.0) / 2.0
+        if z[1] < alpha1 / (alpha1 + alpha2):
+            x = x0 ** z[2]
         else:
-            x=np.sqrt(x0**2.0+(1.0-x0**2.0)*z[2])
+            x = np.sqrt(x0**2.0 + (1.0 - x0**2.0) * z[2])
 
-        f=(1.0-x)/x/E0
-        sin2t=f*(2.0-f)
-        ge=1.0-x/(1+x**2.0)*sin2t
-        if (ge > z[3]): accept = True
+        f = (1.0 - x) / x / E0
+        sin2t = f * (2.0 - f)
+        ge = 1.0 - x / (1 + x**2.0) * sin2t
+        if ge > z[3]:
+            accept = True
 
-    cost=1.0-f
+    cost = 1.0 - f
 
     return np.arccos(cost), f
 
@@ -265,17 +266,13 @@ def pair_creation_packet(packet):
 
     # Calculate aberration of the random angle for the rest frame
     final_direction = angle_aberration_gamma(
-        new_direction,
-        packet.location,
-        -1 * packet.time_current
+        new_direction, packet.location, -1 * packet.time_current
     )
 
     packet.direction = final_direction
 
     doppler_factor = doppler_gamma(
-        packet.direction,
-        packet.location,
-        packet.time_current
+        packet.direction, packet.location, packet.time_current
     )
 
     packet.nu_cmf = ELECTRON_MASS_ENERGY_KEV / H_CGS_KEV

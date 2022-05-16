@@ -5,8 +5,8 @@ from numba import njit
 
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 
-R_ELECTRON_SQUARED = (const.a0.cgs.value * const.alpha.cgs.value ** 2.0) ** 2.0
-ELECTRON_MASS_ENERGY_KEV = (const.m_e * const.c ** 2.0).to("keV").value
+R_ELECTRON_SQUARED = (const.a0.cgs.value * const.alpha.cgs.value**2.0) ** 2.0
+ELECTRON_MASS_ENERGY_KEV = (const.m_e * const.c**2.0).to("keV").value
 BOUNDARY_THRESHOLD = 1e-7
 KEV2ERG = (1000 * u.eV).to("erg").value
 C_CGS = const.c.cgs.value
@@ -43,13 +43,14 @@ def get_random_unit_vector():
 
     Returns:
         array: random unit vector
-    """    
+    """
     theta = get_random_theta_photon()
     phi = get_random_phi_photon()
 
     vector = spherical_to_cartesian(1, theta, phi)
 
     return normalize_vector(vector)
+
 
 @njit(**njit_dict_no_parallel)
 def doppler_gamma(direction_vector, position_vector, time):
@@ -88,12 +89,14 @@ def angle_aberration_gamma(direction_vector, position_vector, time):
     velocity_vector = position_vector / time
     direction_dot_velocity = np.dot(direction_vector, velocity_vector)
 
-    gamma = 1.0 / np.sqrt(1.0 - (np.dot(velocity_vector, velocity_vector) / (C_CGS ** 2.0)))
+    gamma = 1.0 / np.sqrt(
+        1.0 - (np.dot(velocity_vector, velocity_vector) / (C_CGS**2.0))
+    )
 
     factor_a = gamma * (1.0 - direction_dot_velocity / C_CGS)
 
     factor_b = (
-        gamma - (gamma ** 2.0 * direction_dot_velocity / (gamma + 1.0) / C_CGS)
+        gamma - (gamma**2.0 * direction_dot_velocity / (gamma + 1.0) / C_CGS)
     ) / C_CGS
 
     output_vector = (direction_vector - (velocity_vector * factor_b)) / factor_a
@@ -142,17 +145,17 @@ def euler_rodrigues(theta, direction):
     c = direction[1] * np.sin(theta / 2)
     d = direction[2] * np.sin(theta / 2)
 
-    er11 = a ** 2.0 + b ** 2.0 - c ** 2.0 - d ** 2.0
+    er11 = a**2.0 + b**2.0 - c**2.0 - d**2.0
     er12 = 2.0 * (b * c - a * d)
     er13 = 2.0 * (b * d + a * c)
 
     er21 = 2.0 * (b * c + a * d)
-    er22 = a ** 2.0 + c ** 2.0 - b ** 2.0 - d ** 2.0
+    er22 = a**2.0 + c**2.0 - b**2.0 - d**2.0
     er23 = 2.0 * (c * d - a * b)
 
     er31 = 2.0 * (b * d - a * c)
     er32 = 2.0 * (c * d + a * b)
-    er33 = a ** 2.0 + d ** 2.0 - b ** 2.0 - c ** 2.0
+    er33 = a**2.0 + d**2.0 - b**2.0 - c**2.0
 
     return np.array(
         [[er11, er12, er13], [er21, er22, er23], [er31, er32, er33]]
@@ -178,8 +181,8 @@ def solve_quadratic_equation(position, direction, radius):
     """
     a = np.sum(direction**2)
     b = 2.0 * np.sum(position * direction)
-    c = -(radius ** 2) + np.sum(position**2)
-    root = b ** 2 - 4 * a * c
+    c = -(radius**2) + np.sum(position**2)
+    root = b**2 - 4 * a * c
     solution_1 = -np.inf
     solution_2 = -np.inf
     if root > 0.0:
@@ -189,6 +192,7 @@ def solve_quadratic_equation(position, direction, radius):
         solution_1 = -b / (2 * a)
 
     return solution_1, solution_2
+
 
 @njit(**njit_dict_no_parallel)
 def solve_quadratic_equation_expanding(position, direction, time, radius):
@@ -209,19 +213,20 @@ def solve_quadratic_equation_expanding(position, direction, time, radius):
 
     """
     light_distance = time * C_CGS
-    a = np.dot(direction, direction) - (radius / light_distance)**2.
-    b = 2. * (np.dot(position, direction) - radius**2. / light_distance)
-    c = np.dot(position, position) - radius**2.
-    root = b ** 2. - 4. * a * c
+    a = np.dot(direction, direction) - (radius / light_distance) ** 2.0
+    b = 2.0 * (np.dot(position, direction) - radius**2.0 / light_distance)
+    c = np.dot(position, position) - radius**2.0
+    root = b**2.0 - 4.0 * a * c
     solution_1 = -np.inf
     solution_2 = -np.inf
     if root > 0.0:
-        solution_1 = (-b + np.sqrt(root)) / (2. * a)
-        solution_2 = (-b - np.sqrt(root)) / (2. * a)
+        solution_1 = (-b + np.sqrt(root)) / (2.0 * a)
+        solution_2 = (-b - np.sqrt(root)) / (2.0 * a)
     elif root == 0:
-        solution_1 = -b / (2. * a)
+        solution_1 = -b / (2.0 * a)
 
     return solution_1, solution_2
+
 
 @njit(**njit_dict_no_parallel)
 def klein_nishina(energy, theta_C):
@@ -254,7 +259,7 @@ def klein_nishina(energy, theta_C):
         * (
             1.0
             + np.cos(theta_C) ** 2.0
-            + (kappa ** 2.0 * (1.0 - np.cos(theta_C)) ** 2.0)
+            + (kappa**2.0 * (1.0 - np.cos(theta_C)) ** 2.0)
             / (1.0 + kappa * (1.0 - np.cos(theta_C)))
         )
     )
@@ -387,14 +392,14 @@ def get_index(value, array):
     -------
     int
         Index
-    """    
+    """
     if value <= array[0]:
         return 0
     elif value > array[-1]:
         return len(array) - 1
 
     i = 0
-    while value > array[i+1]:
+    while value > array[i + 1]:
         i += 1
 
     return i

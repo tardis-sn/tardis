@@ -14,13 +14,13 @@ def basic_gamma_ray():
     GXPacket
     """
     return GXPacket(
-        location=np.array([1.36375693e+13, 4.10589818e+14, 9.11718168e+14]),
-        direction=np.array([-0.97113853,  0.23134328, -0.05805379]),
+        location=np.array([1.36375693e13, 4.10589818e14, 9.11718168e14]),
+        direction=np.array([-0.97113853, 0.23134328, -0.05805379]),
         energy_rf=1e52,
         energy_cmf=1e52,
-        nu_rf=1000.0e3/H_CGS_KEV,
-        nu_cmf=1000.0e3/H_CGS_KEV,
+        nu_rf=1000.0e3 / H_CGS_KEV,
+        nu_cmf=1000.0e3 / H_CGS_KEV,
         status=GXPacketStatus.IN_PROCESS,
         shell=1,
-        time_current=1000
+        time_current=1000,
     )
