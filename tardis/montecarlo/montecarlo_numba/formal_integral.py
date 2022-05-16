@@ -49,6 +49,7 @@ def numba_formal_integral(
     """
     model, plasma, and estimator are the numba variants
     """
+    
     # todo: add all the original todos
     # Initialize the output which is shared among threads
     L = np.zeros(inu_size, dtype=np.float64)
