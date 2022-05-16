@@ -237,10 +237,6 @@ class AtomData(object):
 
             try:
                 atom_data.version = store.root._v_attrs["database_version"]
-                if hasattr(atom_data.version, "decode"):
-                    atom_data.version = store.root._v_attrs[
-                        "database_version"
-                    ].decode("ascii")
             except KeyError:
                 logger.debug(
                     "VERSION not available for Atom Data. Setting value to None"
