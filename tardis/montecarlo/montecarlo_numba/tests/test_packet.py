@@ -6,9 +6,7 @@ import tardis.montecarlo.montecarlo_numba.calculate_distances as calculate_dista
 import tardis.montecarlo.montecarlo_numba.frame_transformations as frame_transformations
 import tardis.montecarlo.montecarlo_numba.opacities as opacities
 import tardis.montecarlo.montecarlo_numba.r_packet_transport as r_packet_transport
-from tardis.montecarlo.montecarlo_numba.estimators import (
-    update_line_estimators,
-)
+from tardis.montecarlo.montecarlo_numba.estimators import update_line_estimators
 import tardis.montecarlo.montecarlo_numba.utils as utils
 
 import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
@@ -31,6 +29,8 @@ def model():
     return numba_interface.NumbaModel(
         r_inner=np.array([6.912e14, 8.64e14], dtype=np.float64),
         r_outer=np.array([8.64e14, 1.0368e15], dtype=np.float64),
+        v_inner=np.array([6.912e14, 8.64e14], dtype=np.float64),
+        v_outer=np.array([8.64e14, 1.0368e15], dtype=np.float64),
         time_explosion=5.2e7,
     )
 
@@ -224,10 +224,7 @@ def test_get_random_mu(set_seed_fixture):
             0,
             5.2e7,
             [[2.249675256109242, 0.0, 0.0], [0.0, 0.0, 0.0]],
-            [
-                [2.249675256109242 * 0.4, 0.0, 1.0],
-                [0.0, 0.0, 1.0],
-            ],
+            [[2.249675256109242 * 0.4, 0.0, 1.0], [0.0, 0.0, 1.0],],
         ),
         (
             1,

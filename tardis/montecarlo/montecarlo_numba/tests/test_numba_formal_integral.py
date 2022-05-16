@@ -11,12 +11,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
 
 
 @pytest.mark.parametrize(
-    ["nu", "T"],
-    [
-        (1e14, 1e4),
-        (0, 1),
-        (1, 1),
-    ],
+    ["nu", "T"], [(1e14, 1e4), (0, 1), (1, 1),],
 )
 def test_intensity_black_body(nu, T):
     func = formal_integral.intensity_black_body
@@ -44,12 +39,8 @@ def calculate_z(r, p):
 
 
 TESTDATA = [
-    {
-        "r": np.linspace(1, 2, 3, dtype=np.float64),
-    },
-    {
-        "r": np.linspace(0, 1, 3),
-    },
+    {"r": np.linspace(1, 2, 3, dtype=np.float64),},
+    {"r": np.linspace(0, 1, 3),},
     # {"r": np.linspace(1, 2, 10, dtype=np.float64)},
 ]
 
@@ -57,7 +48,7 @@ TESTDATA = [
 @pytest.fixture(scope="function", params=TESTDATA)
 def formal_integral_model(request):
     r = request.param["r"]
-    model = NumbaModel(r[:-1], r[1:], 1 / c.c.cgs.value)
+    model = NumbaModel(r[:-1], r[1:], r[:-1], r[1:], 1 / c.c.cgs.value)
     return model
 
 
@@ -152,12 +143,7 @@ def test_populate_z_shells(formal_integral_model, p):
 
 
 @pytest.mark.parametrize(
-    "N",
-    [
-        100,
-        1000,
-        10000,
-    ],
+    "N", [100, 1000, 10000,],
 )
 def test_calculate_p_values(N):
     r = 1.0
