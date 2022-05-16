@@ -130,7 +130,7 @@ def assemble_plasma(config, model, atom_data=None):
         atomic_data=atom_data,
         time_explosion=model.time_explosion,
         w=model.dilution_factor,
-        link_t_rad_t_electron=0.9,
+        link_t_rad_t_electron=config.plasma.link_t_rad_t_electron,
         continuum_interaction_species=continuum_interaction_species,
     )
 
@@ -251,7 +251,10 @@ def assemble_plasma(config, model, atom_data=None):
 
     if not model.raw_isotope_abundance.empty:
         plasma_modules += isotope_properties
-        kwargs.update(isotope_abundance=model.raw_isotope_abundance)
+        isotope_abundance = model.raw_isotope_abundance.loc[
+            :, model.v_boundary_inner_index : model.v_boundary_outer_index - 1
+        ]
+        kwargs.update(isotope_abundance=isotope_abundance)
 
     kwargs["helium_treatment"] = config.plasma.helium_treatment
 

@@ -27,7 +27,7 @@
     {
       "name": "Fl\u00f6rs, Andreas",
       "orcid": "0000-0003-2024-2819",
-      "affiliation": "Max-Planck-Institut f\u00fcr Astrophysik"
+      "affiliation": "GSI Helmholtz Centre for Heavy Ion Research"
     },
     {
       "name": "Camacho, Yssa",
@@ -102,21 +102,29 @@
       "name": "Cawley, Kevin"
     },
     {
-      "name": "Singhal, Jaladh",
-      "orcid": "0000-0002-8310-0829",
-      "affiliation": "Python Software Foundation (StarKit)"
-    },
-    {
       "name": "Smith, Isaac"
     },
     {
-      "name": "Barbosa, Talytha"
+      "name": "Singhal, Jaladh",
+      "orcid": "0000-0002-8310-0829"
+    },
+    {
+      "name": "Arya, Atharva"
     },
     {
       "name": "Sondhi, Dhruv"
     },
     {
+      "name": "Barbosa, Talytha"
+    },
+    {
+      "name": "Yu, Jenny"
+    },
+    {
       "name": "Patel, Maryam"
+    },
+    {
+      "name": "O'Brien, Jack"
     },
     {
       "name": "Varanasi, Kaushik"
@@ -126,28 +134,19 @@
       "orcid": "0000-0002-8094-6108"
     },
     {
-      "name": "Arya, Atharva"
-    },
-    {
-      "name": "O'Brien, Jack"
-    },
-    {
-      "name": "Eweis, Youssef"
+      "name": "Savel, Arjun"
     },
     {
       "name": "Reinecke, Martin"
+    },
+    {
+      "name": "Eweis, Youssef"
     },
     {
       "name": "Bylund, Tomas"
     },
     {
       "name": "Bentil, Laud"
-    },
-    {
-      "name": "Savel, Arjun"
-    },
-    {
-      "name": "Yu, Jenny"
     },
     {
       "name": "Eguren, Jordi",
@@ -157,13 +156,22 @@
       "name": "Alam, Arib"
     },
     {
+      "name": "Bartnik, Matthew"
+    },
+    {
       "name": "Magee, Mark"
+    },
+    {
+      "name": "Shields, Joshua"
     },
     {
       "name": "Livneh, Ran"
     },
     {
       "name": "Rajagopalan, Srinath"
+    },
+    {
+      "name": "Chitchyan, Sona"
     },
     {
       "name": "Mishra, Sashank",
@@ -185,28 +193,22 @@
       "name": "Singh, Sourav"
     },
     {
-      "name": "Talegaonkar, Chinmay"
-    },
-    {
-      "name": "Kowalski, Nathan"
-    },
-    {
       "name": "Selsing, Jonatan"
     },
     {
       "name": "Sofiatti, Caroline"
     },
     {
-      "name": "Aggarwal, Yash"
+      "name": "Talegaonkar, Chinmay"
     },
     {
-      "name": "Sarafina, Nance"
+      "name": "Bot, TARDIS"
     },
     {
-      "name": "Patra, Nilesh"
+      "name": "Kowalski, Nathan"
     },
     {
-      "name": "Singh Rathore, Parikshit"
+      "name": "Yap, Kevin"
     },
     {
       "name": "Patel, Pratik"
@@ -215,34 +217,61 @@
       "name": "Sharma, Sampark"
     },
     {
-      "name": "Gupta, Suyash"
+      "name": "Prasad, Shilpi"
     },
     {
-      "name": "Wahi, Ujjwal"
-    },
-    {
-      "name": "Sandler, Morgan"
-    },
-    {
-      "name": "Volodin, Dmitry"
+      "name": "Venkat, Shashank"
     },
     {
       "name": "Dasgupta, Debajyoti"
     },
     {
-      "name": "Yap, Kevin"
+      "name": "Zaheer, Musabbiha"
     },
     {
-      "name": "Kharkar, Atharwa"
+      "name": "Gupta, Suyash"
     },
     {
-      "name": "Nayak U, Ashwin"
+      "name": "Volodin, Dmitry"
+    },
+    {
+      "name": "Patra, Nilesh"
+    },
+    {
+      "name": "Singh Rathore, Parikshit"
+    },
+    {
+      "name": "Lemoine, Thom"
+    },
+    {
+      "name": "Sarafina, Nance"
     },
     {
       "name": "Kolliboyina, Chaitanya"
     },
     {
+      "name": "Sandler, Morgan"
+    },
+    {
+      "name": "Nayak U, Ashwin"
+    },
+    {
+      "name": "Aggarwal, Yash"
+    },
+    {
       "name": "Kumar, Atul"
+    },
+    {
+      "name": "Holas, Alexander"
+    },
+    {
+      "name": "Kharkar, Atharwa"
+    },
+    {
+      "name": "kumar, aman"
+    },
+    {
+      "name": "Wahi, Ujjwal"
     }
   ]
 }

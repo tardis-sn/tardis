@@ -1,0 +1,90 @@
+#  For more information about TARDIS pipelines, please refer to:
+#
+#    https://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+name: post-release
+
+on:
+  release:
+    types: [published]
+
+  workflow_dispatch:  # manual trigger
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: tardis-sn/tardis
+          token: ${{ secrets.BOT_TOKEN }}
+          fetch-depth: 0
+
+      - name: Install github-changes
+        run: sudo npm install -g github-changes
+
+      - name: Update changelog
+        run: github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md -k ${{ secrets.BOT_TOKEN }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: changelog
+          path: CHANGELOG.md
+
+  citation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
+      - name: Install doi2cff
+        run: pip install git+https://github.com/citation-file-format/doi2cff
+
+      - name: Update CITATION.cff
+        run: doi2cff update 10.5281/zenodo.592480
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: citation
+          path: CITATION.cff
+
+  pull_request:
+    needs: [changelog, citation]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v3
+        with:
+          path: /tmp
+
+      - name: Copy files to repository
+        run: |
+          cp /tmp/changelog/CHANGELOG.md .
+          cp /tmp/citation/CITATION.cff .
+
+      - name: Get current date
+        run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
+
+      - uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          committer: TARDIS Bot <tardis.sn.bot@gmail.com>
+          author: TARDIS Bot <tardis.sn.bot@gmail.com>
+          branch: post-release-${{ env.DATE }}
+          base: master
+          push-to-fork: tardis-bot/tardis
+          commit-message: Automated changes for post-release ${{ env.DATE }}
+          title: Post-release ${{ env.DATE }}
+          body: |
+            *\*beep\* \*bop\**
+            
+            Hi, human.
+            
+            These are the changes required after the latest TARDIS release.
+          labels: documentation,
+          reviewers: wkerzendorf, andrewfullard, epassaro
