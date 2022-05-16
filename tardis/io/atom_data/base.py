@@ -168,7 +168,7 @@ class AtomData(object):
 
         with pd.HDFStore(fname, "r") as store:
             if "metadata" in store:
-                carsus_version = store["metadata"].format.version
+                carsus_version = store["metadata"].loc[('format', 'version')].value
                 if carsus_version == "1.0":
                     if "collisions_data" in store:
                         try:
@@ -178,8 +178,9 @@ class AtomData(object):
                             ].temperatures
                             if "cmfgen" in store["collisions_metadata"].dataset:
                                 dataframes["yg_data"] = store["collisions_data"]
+                                dataframes["collision_data"] = "dummy value"
                             elif "chianti" in store["collisions_metadata"].dataset:
-                                pass
+                                dataframes["collision_data"] = store["collisions_data"]
                             else:
                                 raise KeyError(
                                     "Atomic Data Collisions Not a Valid Chanti or CMFGEN Carsus Data File"
