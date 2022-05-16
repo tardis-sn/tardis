@@ -13,28 +13,37 @@ on:
     branches:
     - '*'
 
+env:
+  CACHE_NUMBER: 0  # increase to reset cache manually
+  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata
+                --cov=tardis --cov-report=xml --cov-report=html
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
-env:
-  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata
-                --cov=tardis --cov-report=xml --cov-report=html
-  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+defaults:
+  run:
+    shell: bash -l {0}
 
 jobs:
   build:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        include:
 
-    defaults:
-      run:
-        shell: bash -l {0}
+        - os: ubuntu-latest
+          label: linux-64
+          prefix: /usr/share/miniconda3/envs/tardis
 
+        - os: macos-latest
+          label: osx-64
+          prefix: /Users/runner/miniconda3/envs/tardis
+
+    name: ${{ matrix.label }}
     runs-on: ${{ matrix.os }}
-
     steps:
       - uses: actions/checkout@v2
 
@@ -46,9 +55,18 @@ jobs:
         with:
             miniforge-variant: Mambaforge
             miniforge-version: latest
-            environment-file: tardis_env3.yml
             activate-environment: tardis
             use-mamba: true
+
+      - uses: actions/cache@v2
+        with:
+          path: ${{ matrix.prefix }}
+          key: conda-${{ matrix.label }}-${{ hashFiles('conda-${{ matrix.label }}.lock') }}-${{ env.CACHE_NUMBER }}
+        id: cache-conda
+
+      - name: Update environment
+        run: mamba update -n tardis --file conda-${{ matrix.label }}.lock
+        if: steps.cache-conda.outputs.cache-hit != 'true'
 
       - name: Install package
         run: pip install -e .
