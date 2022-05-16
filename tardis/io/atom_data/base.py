@@ -165,11 +165,20 @@ class AtomData(object):
         fname = resolve_atom_data_fname(fname)
 
         with pd.HDFStore(fname, "r") as store:
+
+            for name in cls.hdf_names:
+                try:
+                    dataframes[name] = store[name]
+                except KeyError:
+                    logger.debug(f"Dataframe does not contain {name} column")
+                    nonavailable.append(name)
+
             if "metadata" in store:
                 carsus_version = (
                     store["metadata"].loc[("format", "version")].value
                 )
                 if carsus_version == "1.0":
+                    # Checks for various collisional data from Carsus files
                     if "collisions_data" in store:
                         try:
 
@@ -201,14 +210,6 @@ class AtomData(object):
                     raise ValueError(
                         f"Current carsus version, {carsus_version}, is not supported."
                     )
-
-            for name in cls.hdf_names:
-                try:
-                    dataframes[name] = store[name]
-                except KeyError:
-                    logger.debug(f"Dataframe does not contain {name} column")
-                    nonavailable.append(name)
-            # Checks for various collisional data from Carsus files
 
             atom_data = cls(**dataframes)
 
