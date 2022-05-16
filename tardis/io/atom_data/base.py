@@ -2,6 +2,8 @@
 
 
 import logging
+from multiprocessing.sharedctypes import Value
+from matplotlib import collections
 import numpy as np
 import pandas as pd
 
@@ -165,6 +167,34 @@ class AtomData(object):
         fname = resolve_atom_data_fname(fname)
 
         with pd.HDFStore(fname, "r") as store:
+            if "metadata" in store:
+                carsus_version = store["metadata"].format.version
+                if carsus_version == "1.0":
+                    if "collisions_data" in store:
+                        try:
+
+                            dataframes["collision_data_temperatures"] = store[
+                                "collisions_metadata"
+                            ].temperatures
+                            if "cmfgen" in store["collisions_metadata"].dataset:
+                                dataframes["yg_data"] = store["collisions_data"]
+                            elif "chianti" in store["collisions_metadata"].dataset:
+                                pass
+                            else:
+                                raise KeyError(
+                                    "Atomic Data Collisions Not a Valid Chanti or CMFGEN Carsus Data File"
+                                )
+                        except KeyError as e:
+                            logger.warn(
+                                "Atomic Data is not a Valid Carsus Atomic Data File"
+                            )
+                            raise
+                    dataframes['levels'] = store['levels_data']
+                    dataframes['lines'] = store['lines_data']
+                else:
+                    raise ValueError(f"Current carsus version, {carsus_version}, is not supported.")
+            
+
             for name in cls.hdf_names:
                 try:
                     dataframes[name] = store[name]
@@ -172,29 +202,11 @@ class AtomData(object):
                     logger.debug(f"Dataframe does not contain {name} column")
                     nonavailable.append(name)
             # Checks for various collisional data from Carsus files
-            if "collisions" in store:
-                try:
-                    dataframes["collision_data_temperatures"] = store[
-                        "collisions_metadata"
-                    ].temperatures
-                    if store["collisions_metadata"].dataset == "cmfgen":
-                        dataframes["yg_data"] = store["collisions"]
-                        dataframes["collision_data"] = "dummy value"
-                    elif store["collisions_metadata"].dataset == "chianti":
-                        dataframes["collision_data"] = store["collisions"]
-                    else:
-                        raise KeyError(
-                            "Atomic Data Collisions Not a Valid Chanti or CMFGEN Carsus Data File"
-                        )
-                except KeyError as e:
-                    logger.warn(
-                        "Atomic Data is not a Valid Carsus Atomic Data File"
-                    )
-                    raise
+            
             atom_data = cls(**dataframes)
 
             try:
-                atom_data.uuid1 = store.root._v_attrs["uuid1"].decode("ascii")
+                atom_data.uuid1 = store.root._v_attrs["uuid1"]
             except KeyError:
                 logger.debug(
                     "UUID not available for Atom Data. Setting value to None"
@@ -202,7 +214,7 @@ class AtomData(object):
                 atom_data.uuid1 = None
 
             try:
-                atom_data.md5 = store.root._v_attrs["md5"].decode("ascii")
+                atom_data.md5 = store.root._v_attrs["md5"]
             except KeyError:
                 logger.debug(
                     "MD5 not available for Atom Data. Setting value to None"
