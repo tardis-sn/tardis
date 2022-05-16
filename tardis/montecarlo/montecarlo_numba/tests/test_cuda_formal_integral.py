@@ -31,7 +31,12 @@ GPUs_available = cuda.is_available()
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(
-    ["nu", "T"], [(1e14, 1e4), (0, 1), (1, 1),],
+    ["nu", "T"],
+    [
+        (1e14, 1e4),
+        (0, 1),
+        (1, 1),
+    ],
 )
 def test_intensity_black_body_cuda(nu, T):
     """
@@ -96,8 +101,12 @@ def trapezoid_integration_caller(data, h, actual):
 
 
 TESTDATA_model = [
-    {"r": np.linspace(1, 2, 3, dtype=np.float64),},
-    {"r": np.linspace(0, 1, 3),},
+    {
+        "r": np.linspace(1, 2, 3, dtype=np.float64),
+    },
+    {
+        "r": np.linspace(0, 1, 3),
+    },
     # {"r": np.linspace(1, 2, 10, dtype=np.float64)},
 ]
 
@@ -198,7 +207,12 @@ def populate_z_caller(
 
 
 @pytest.mark.parametrize(
-    "N", [100, 1000, 10000,],
+    "N",
+    [
+        100,
+        1000,
+        10000,
+    ],
 )
 def test_calculate_p_values(N):
     """

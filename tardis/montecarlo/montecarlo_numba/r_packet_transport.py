@@ -44,9 +44,10 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     r_inner = numba_model.r_inner[r_packet.current_shell_id]
     r_outer = numba_model.r_outer[r_packet.current_shell_id]
 
-    (distance_boundary, delta_shell,) = calculate_distance_boundary(
-        r_packet.r, r_packet.mu, r_inner, r_outer
-    )
+    (
+        distance_boundary,
+        delta_shell,
+    ) = calculate_distance_boundary(r_packet.r, r_packet.mu, r_inner, r_outer)
 
     # defining start for line interaction
     start_line_id = r_packet.next_line_id
