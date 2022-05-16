@@ -13,6 +13,7 @@ from tardis.montecarlo.montecarlo_numba.frame_transformations import (
 from tardis.montecarlo.montecarlo_numba import numba_config as nc
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 
+
 class InteractionType(IntEnum):
     BOUNDARY = 1
     LINE = 2
@@ -25,6 +26,7 @@ class PacketStatus(IntEnum):
     EMITTED = 1
     REABSORBED = 2
     ADIABATIC_COOLING = 4
+
 
 rpacket_spec = [
     ("r", float64),
@@ -41,6 +43,7 @@ rpacket_spec = [
     ("last_line_interaction_in_id", int64),
     ("last_line_interaction_out_id", int64),
 ]
+
 
 @jitclass(rpacket_spec)
 class RPacket(object):
@@ -72,8 +75,6 @@ class RPacket(object):
         self.next_line_id = next_line_id
 
 
-
-
 @njit(**njit_dict_no_parallel)
 def print_r_packet_properties(r_packet):
     """
@@ -88,5 +89,9 @@ def print_r_packet_properties(r_packet):
     print("R-Packet information:")
     with objmode:
         for r_packet_attribute_name, _ in rpacket_spec:
-            print(r_packet_attribute_name, "=", str(getattr(r_packet, r_packet_attribute_name)))
+            print(
+                r_packet_attribute_name,
+                "=",
+                str(getattr(r_packet, r_packet_attribute_name)),
+            )
     print("-" * 80)

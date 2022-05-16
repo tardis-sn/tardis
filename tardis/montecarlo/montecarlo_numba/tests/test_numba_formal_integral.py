@@ -9,6 +9,7 @@ from tardis.util.base import intensity_black_body
 import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral
 from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
 
+
 @pytest.mark.parametrize(
     ["nu", "T"],
     [
@@ -41,6 +42,7 @@ def test_trapezoid_integration(N):
 def calculate_z(r, p):
     return np.sqrt(r * r - p * p)
 
+
 TESTDATA = [
     {
         "r": np.linspace(1, 2, 3, dtype=np.float64),
@@ -48,28 +50,24 @@ TESTDATA = [
     {
         "r": np.linspace(0, 1, 3),
     },
-    #{"r": np.linspace(1, 2, 10, dtype=np.float64)},
+    # {"r": np.linspace(1, 2, 10, dtype=np.float64)},
 ]
 
 
 @pytest.fixture(scope="function", params=TESTDATA)
 def formal_integral_model(request):
     r = request.param["r"]
-    model = NumbaModel(
-            r[:-1],
-            r[1:],
-            1/c.c.cgs.value)
+    model = NumbaModel(r[:-1], r[1:], 1 / c.c.cgs.value)
     return model
 
-@pytest.mark.parametrize(
-        'p', [0.0, 0.5, 1.0]
-)
+
+@pytest.mark.parametrize("p", [0.0, 0.5, 1.0])
 def test_calculate_z(formal_integral_model, p):
-   
+
     func = formal_integral.calculate_z
     inv_t = 1.0 / formal_integral_model.time_explosion
     size = len(formal_integral_model.r_outer)
-    r_outer = formal_integral_model.r_outer 
+    r_outer = formal_integral_model.r_outer
     for r in r_outer:
 
         actual = func(r, p, inv_t)
