@@ -215,7 +215,7 @@ class AtomData(object):
 
             try:
                 atom_data.uuid1 = store.root._v_attrs["uuid1"]
-                if hasattr(atom_data.uuid, "decode"):
+                if hasattr(atom_data.uuid1, "decode"):
                     atom_data.uuid1 = store.root._v_attrs["uuid1"].decode(
                         "ascii"
                     )
