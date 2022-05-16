@@ -1,6 +1,7 @@
 from nuclear.ejecta import Ejecta
 from nuclear.io.nndc import get_decay_radiation_database, store_decay_radiation
 
+
 def decay_nuclides(shell_mass, initial_composition, epoch):
     """Decay model
 

@@ -287,7 +287,7 @@ def get_all_isotopes(abundances):
 
     isotopes = [i.replace("-", "") for i in isotopes]
     return isotopes
-    
+
 
 def get_tau(meta, isotope_string):
     """Calculate the mean lifetime of an isotope
