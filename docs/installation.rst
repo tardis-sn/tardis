@@ -5,16 +5,16 @@ Installation
 ************
 
 
-.. note::
+.. warning::
     
     - TARDIS is only supported on macOS and GNU/Linux. Windows users can run TARDIS 
       from our official Docker image (*coming soon*), `WSL <https://docs.microsoft.com/en-us/windows/wsl/>`_ 
       or a Virtual Machine.
 
     - TARDIS packages and dependencies are distributed only through the `conda <https://docs.conda.io/en/latest/>`_ 
-      package management system, and consequently requires a valid `Anaconda <https://docs.anaconda.com/anaconda/install/index.html>`_ 
-      or `Miniconda <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`_ installation
-      to work.
+      package management system, and thus requires having `Anaconda <https://docs.anaconda.com/anaconda/install/index.html>`_ 
+      or `Miniconda <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`_
+      installed on your system.
 
 
 Development version
