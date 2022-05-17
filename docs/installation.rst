@@ -12,7 +12,7 @@ Installation
       or a Virtual Machine.
 
     - TARDIS packages and dependencies are distributed only through the `conda <https://docs.conda.io/en/latest/>`_ 
-      package management system, and thus requires having `Anaconda <https://docs.anaconda.com/anaconda/install/index.html>`_ 
+      package management system, therefore requires having `Anaconda <https://docs.anaconda.com/anaconda/install/index.html>`_ 
       or `Miniconda <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`_
       installed on your system.
 
