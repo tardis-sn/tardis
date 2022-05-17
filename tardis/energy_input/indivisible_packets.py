@@ -190,7 +190,7 @@ def initialize_packets(
                     intensity = co56_lines[:, 1]
                     # positron energy scaled by intensity
                     positron_energy = 0.63 * 1000 * 0.19
-                    positron_fraction = positron_energy / np.sum(energy)
+                    positron_fraction = positron_energy / np.sum(energy * intensity)
                 else:
                     decay_type = "Ni56"
                     energy = ni56_lines[:, 0] * 1000
