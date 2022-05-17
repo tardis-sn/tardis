@@ -22,10 +22,8 @@ gxpacket_spec = [
     ("nu_cmf", float64),
     ("status", int64),
     ("shell", int64),
-    ("time_created", float64),
     ("time_current", float64),
     ("tau", float64),
-    ("activity", float64),
 ]
 
 
@@ -55,7 +53,6 @@ class GXPacket(object):
         self.nu_cmf = nu_cmf
         self.status = status
         self.shell = shell
-        self.time_created = 0
         self.time_current = time_current
         # TODO: rename to tau_event
         self.tau = -np.log(np.random.random())

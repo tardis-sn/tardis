@@ -71,7 +71,8 @@ def sample_energy(energy, intensity):
     return False
 
 
-def sample_decay_time(isotope, taus):
+@njit(**njit_dict_no_parallel)
+def sample_decay_time(isotope, ni56_tau, co56_tau):
     """Samples the decay time from the mean half-life
     of the isotopes (needs restructuring for more isotopes)
 
@@ -88,17 +89,18 @@ def sample_decay_time(isotope, taus):
         Decay time in seconds
     """
     if isotope == "Ni56":
-        decay_time = -taus["Ni56"] * np.log(np.random.random())
+        decay_time = -ni56_tau * np.log(np.random.random())
     else:
-        decay_time = -taus["Ni56"] * np.log(np.random.random()) - taus[
-            "Co56"
-        ] * np.log(np.random.random())
+        decay_time = -ni56_tau * np.log(np.random.random()) - co56_tau * np.log(
+            np.random.random()
+        )
     return decay_time
 
 
+@njit(**njit_dict_no_parallel)
 def initialize_packets(
     decays_per_shell,
-    input_energy_df,
+    input_energy,
     ni56_lines,
     co56_lines,
     inner_velocities,
@@ -107,7 +109,8 @@ def initialize_packets(
     times,
     energy_df_rows,
     effective_times,
-    taus,
+    ni56_tau,
+    co56_tau,
 ):
     """Initialize a list of GXPacket objects for the simulation
     to operate on.
@@ -116,11 +119,11 @@ def initialize_packets(
     ----------
     decays_per_shell : array int64
         Number of decays per simulation shell
-    input_energy_df : DataFrame
-        Input energy per shell
-    ni56_lines : DataFrame
+    input_energy : float64
+        Total input energy from decay
+    ni56_lines : array float64
         Lines and intensities for Ni56
-    co56_lines : DataFrame
+    co56_lines : array float64
         Lines and intensities for Co56
     inner_velocities : array float64
         Inner velocities of the shells
@@ -134,7 +137,7 @@ def initialize_packets(
         Setup list for energy DataFrame output
     effective_times : array float64
         Middle time of the time step
-    taus : dict
+    ni56_tau, co56_tau : float64
         Mean half-life for each isotope
 
     Returns
@@ -155,12 +158,12 @@ def initialize_packets(
 
     print("Total packets:", number_of_packets)
 
-    packet_energy = input_energy_df.sum().sum() / number_of_packets
+    packet_energy = input_energy / number_of_packets
 
     print("Energy per packet", packet_energy)
 
-    ni56_energy = (ni56_lines.energy * ni56_lines.intensity).sum()
-    co56_energy = (co56_lines.energy * co56_lines.intensity).sum()
+    ni56_energy = (ni56_lines[:, 0] * ni56_lines[:, 1]).sum()
+    co56_energy = (co56_lines[:, 0] * co56_lines[:, 1]).sum()
 
     ni56_fraction = ni56_energy / (ni56_energy + co56_energy)
 
@@ -168,7 +171,7 @@ def initialize_packets(
     energy_plot_positron_rows = np.zeros((number_of_packets, 4))
 
     j = 0
-    for k, shell in tqdm(enumerate(decays_per_shell)):
+    for k, shell in enumerate(decays_per_shell):
         z = np.random.random(shell)
 
         initial_radii = (
@@ -183,20 +186,18 @@ def initialize_packets(
 
                 if ni_or_co_random > ni56_fraction:
                     decay_type = "Co56"
-                    energy = co56_lines.energy.to_numpy() * 1000
-                    intensity = co56_lines.intensity.to_numpy()
+                    energy = co56_lines[:, 0] * 1000
+                    intensity = co56_lines[:, 1]
                     # positron energy scaled by intensity
                     positron_energy = 0.63 * 1000 * 0.19
-                    positron_fraction = (
-                        positron_energy / (energy * intensity).sum()
-                    )
+                    positron_fraction = positron_energy / np.sum(energy)
                 else:
                     decay_type = "Ni56"
-                    energy = ni56_lines.energy.to_numpy() * 1000
-                    intensity = ni56_lines.intensity.to_numpy()
+                    energy = ni56_lines[:, 0] * 1000
+                    intensity = ni56_lines[:, 1]
                     positron_fraction = 0
 
-                decay_time = sample_decay_time(decay_type, taus)
+                decay_time = sample_decay_time(decay_type, ni56_tau, co56_tau)
 
             cmf_energy = sample_energy(energy, intensity)
 
@@ -216,17 +217,21 @@ def initialize_packets(
 
             scaled_r = initial_radii[i] * effective_times[decay_time_index]
 
+            initial_location = scaled_r * get_random_unit_vector()
+            initial_direction = get_random_unit_vector()
+            initial_energy = packet_energy * energy_factor
+
             # draw a random gamma-ray in shell
             packet = GXPacket(
-                location=scaled_r * get_random_unit_vector(),
-                direction=get_random_unit_vector(),
-                energy_rf=1,
-                energy_cmf=packet_energy * energy_factor,
-                status=GXPacketStatus.IN_PROCESS,
-                shell=k,
-                nu_rf=0,
-                nu_cmf=0,
-                time_current=decay_time,
+                initial_location,
+                initial_direction,
+                1.0,
+                initial_energy,
+                0.0,
+                0.0,
+                GXPacketStatus.IN_PROCESS,
+                k,
+                decay_time,
             )
 
             packet.energy_rf = packet.energy_cmf / doppler_gamma(
@@ -443,16 +448,17 @@ def main_gamma_ray_loop(
         energy_plot_positron_rows,
     ) = initialize_packets(
         decayed_packet_count,
-        total_energy,
-        ni56_lines,
-        co56_lines,
+        total_energy.sum().sum(),
+        ni56_lines.to_numpy(),
+        co56_lines.to_numpy(),
         inner_velocities,
         outer_velocities,
         inv_volume_time,
         times,
         energy_df_rows,
         effective_time_array,
-        taus,
+        taus["Ni56"],
+        taus["Co56"],
     )
 
     print("Total positron energy from packets")
