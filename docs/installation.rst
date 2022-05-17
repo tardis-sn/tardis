@@ -4,84 +4,92 @@
 Installation
 ************
 
-Before installing TARDIS, please check its :ref:`requirements
-<requirements_label>`. We provide :ref:`instructions <anaconda_inst_label>` for installing TARDIS using 
-Anaconda. Once you have installed TARDIS, check out the "Input/Output" section (in sidebar) for instructions
-regarding how to perform simple TARDIS calculations.
-
-.. _requirements_label:
-
 
 .. note::
+    
+    - TARDIS is only supported on macOS and GNU/Linux. Windows users can run TARDIS 
+      from our official Docker image (*coming soon*), `WSL <https://docs.microsoft.com/en-us/windows/wsl/>`_ 
+      or a Virtual Machine.
 
-    - TARDIS is only compatible with Python >=3.6
-    - TARDIS only supports MacOS and Linux.
-    - We strongly recommend installing TARDIS within an Anaconda environment and to always use the latest GitHub development version.
+    - TARDIS packages and dependencies are distributed only through the `conda <https://docs.conda.io/en/latest/>`_ 
+      package management system, and consequently requires a valid `Anaconda <https://docs.anaconda.com/anaconda/install/index.html>`_ 
+      or `Miniconda <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`_ installation
+      to work.
 
 
-Requirements
-============
+Development version
+===================
 
-You can see a list of all the requirements of TARDIS in the `environment definition file <https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env3.yml>`_.
+We encourage users to use the latest TARDIS development version by reproducing the following steps.
 
-TARDIS is using Astropy's excellent installation helpers and thus uses similar
-instructions to Astropy.
+1. Download the latest dependency file for your platform (`linux` or `osx`) from our 
+   `releases page <https://github.com/tardis-sn/tardis/releases>`_ .
 
-.. _anaconda_inst_label:
+  ::
 
-Installing TARDIS with Anaconda
-===============================
+    $ wget -q https://github.com/tardis-sn/tardis/releases/latest/download/conda-{platform}-64.lock
 
-We highly recommend using the `Anaconda <https://www.anaconda.com/>`_ Python environment to install TARDIS (or
-any other scientific packages for that matter). Anaconda has the advantage of
-being an isolated environment that can be set to be the default one, but by no
-means will mess with your other environments. It will also work on computers
-where ``root``-rights are not available. Use these `instructions
-<http://docs.continuum.io/anaconda/install.html>`_ to install Anaconda on your
-machine. The next step is to create an environment for TARDIS that contains all
-of the necessary packages (this ensures that TARDIS requirements won't clash
-with any other Python installs on disc):
+2. Create and activate the `tardis` environment.
 
-First, download the `environment definition file <https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env3.yml>`_ from:
+  ::
+
+    $ conda create -n tardis --file conda-{platform}-64.lock
+    $ conda activate tardis
+
+3. a. Non-developers can install the package with latest changes from upstream.
+
+      ::
+
+        $ pip install git+https://github.com/tardis-sn/tardis.git
+
+   b. Instead, developers should :ref:`fork the repository <forking>`, configure
+      GitHub to `work with SSH <https://docs.github.com/en/authentication/connecting-to-github-with-ssh>`_,
+      set up the upstream remote, and install the package in development mode.
+
+      ::
+
+        $ git clone git@github.com:<username>/tardis.git
+        $ cd tardis
+        $ git remote add upstream git@github.com:tardis-sn/tardis.git
+        $ git fetch upstream
+        $ git checkout upstream/master
+        $ pip install -e .
+
+      .. note::
+
+        The complete developer guidelines can be found :ref:`here <developer_guidelines>`.
+
+
+4. Once finished working, deactivate your environment.
+
+  ::
+
+    $ conda deactivate
+
+You are ready! From now on, just activate the `tardis` environment before working with the 
+TARDIS package.
+
+
+Update an existing environment
+------------------------------
+
+To update an existing environment, download the latest environment file and run ``conda update``.
+
 ::
 
-    https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env3.yml
+    $ wget -q https://github.com/tardis-sn/tardis/releases/latest/download/conda-{platform}-64.lock
+    $ conda update -n tardis --file conda-{platform}-64.lock
 
-To create the environment, change to the directory that you downloaded the environment definition file and run:
+
+conda-forge package
+===================
+
+TARDIS is also distributed as a `conda-forge <https://conda-forge.org/>`_ package, though we still
+recommend using the latest development version for better reproducibility of scientific results.
+
+To use this package, just create a dedicated environment with the ``tardis-sn`` package from the
+``conda-forge`` channel.  
+
 ::
 
-    conda env create -f tardis_env3.yml
-
-Then to activate this environment simply do:
-::
-
-    source activate tardis
-
-or the new method:
-::
-
-    conda activate tardis
-
-and after you are done with TARDIS you can deactivate:
-::
-
-    conda deactivate
-
-One does not need to recreate the environment, but simply activate it every time
-TARDIS is used.
-
-For TARDIS development purposes please follow the steps :ref:`here <forking>`
-until the step to install TARDIS in the development mode
-``python setup.py develop``. Development guidelines for
-TARDIS can be found `here <https://tardis-sn.github.io/tardis/development/index.html>`_.
-
-To install TARDIS, it is recommended to first clone our repository and
-then install TARDIS, as follows:
-::
-
-    git clone https://github.com/tardis-sn/tardis.git
-    cd tardis
-    python setup.py install
-
-
-
+    $ conda create -n tardis-forge tardis-sn -c conda-forge
