@@ -174,10 +174,11 @@ class AtomData(object):
                     nonavailable.append(name)
 
             if "metadata" in store:
-                carsus_version = (
+                carsus_version_str = (
                     store["metadata"].loc[("format", "version")].value
                 )
-                if carsus_version == "1.0":
+                carsus_version = tuple(map(int, carsus_version_str.split(".")))
+                if carsus_version == (1, 0):
                     # Checks for various collisional data from Carsus files
                     if "collisions_data" in store:
                         try:
