@@ -12,9 +12,9 @@ Installation
       or a Virtual Machine.
 
     - TARDIS packages and dependencies are distributed only through the `conda <https://docs.conda.io/en/latest/>`_ 
-      package management system, therefore requires having `Anaconda <https://docs.anaconda.com/anaconda/install/index.html>`_ 
+      package management system, therefore installation requires `Anaconda <https://docs.anaconda.com/anaconda/install/index.html>`_ 
       or `Miniconda <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`_
-      installed on your system.
+      to be installed on your system.
 
 
 Development version
@@ -60,7 +60,7 @@ We encourage users to use the latest TARDIS development version by reproducing t
         The complete developer guidelines can be found :ref:`here <developer_guidelines>`.
 
 
-4. Once finished working, deactivate your environment.
+4. Once finished working, you can deactivate your environment.
 
   ::
 
