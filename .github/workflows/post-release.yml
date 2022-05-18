@@ -87,9 +87,14 @@ jobs:
           title: Post-release ${{ env.DATE }}
           body: |
             *\*beep\* \*bop\**
-            
+
             Hi, human.
-            
+
             These are the changes required after the latest TARDIS release.
+
+            > :warning: **Warning:** 
+            >
+            > The `post_release` workflow waits for a webhook and then updates `CITATION.cff`. \
+            If the file is not changed by this pull request, check the latest release on [Zenodo's website](https://zenodo.org/record/592480), close this pull request, and run the [run the workflow manually](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow) again.
           labels: documentation,
           reviewers: wkerzendorf, andrewfullard, epassaro
