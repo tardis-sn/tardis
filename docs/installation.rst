@@ -24,13 +24,13 @@ We encourage users to use the latest TARDIS development version by reproducing t
 
 1. Download the latest dependency file according to your operating system from our 
    `releases section <https://github.com/tardis-sn/tardis/releases>`_, or run
-   the following command, while replacing `{platform}` with `linux` or `osx` as appropriate.
+   the following command, while replacing ``{platform}`` with ``linux`` or ``osx`` as appropriate.
 
   ::
 
     $ wget -q https://github.com/tardis-sn/tardis/releases/latest/download/conda-{platform}-64.lock
 
-2. Create and activate the `tardis` environment.
+2. Create and activate the ``tardis`` environment.
 
   ::
 
@@ -68,7 +68,7 @@ We encourage users to use the latest TARDIS development version by reproducing t
 
     $ conda deactivate
 
-You are ready! From now on, just activate the `tardis` environment before working with the 
+You are ready! From now on, just activate the ``tardis`` environment before working with the 
 TARDIS package.
 
 
