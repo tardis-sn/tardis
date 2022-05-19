@@ -17,14 +17,14 @@ Installation
       to be installed on your system.
 
 
-Development version
-===================
+Installing with lockfiles
+=========================
 
-We encourage users to use the latest TARDIS development version by reproducing the following steps:
+We encourage all users to install TARDIS by following these steps.
 
-1. Download the latest dependency file according to your operating system from our 
+1. Download the latest lockfile file for your operating system from our 
    `releases section <https://github.com/tardis-sn/tardis/releases>`_, or run
-   the following command, while replacing ``{platform}`` with ``linux`` or ``osx`` as appropriate.
+   the following command while replacing ``{platform}`` with ``linux`` or ``osx`` as appropriate.
 
   ::
 
@@ -34,14 +34,21 @@ We encourage users to use the latest TARDIS development version by reproducing t
 
   ::
 
-    $ conda create -n tardis --file conda-{platform}-64.lock
+    $ conda create --name tardis --file conda-{platform}-64.lock
     $ conda activate tardis
 
-3. a. Non-developers can install the package with latest changes from upstream.
+3. a. Non-developers can install the latest release from `conda-forge <https://anaconda.org/conda-forge/tardis-sn>`_
+      with the ``--no-deps`` flag,
 
       ::
 
-        $ pip install git+https://github.com/tardis-sn/tardis.git
+        $ conda install tardis-sn --channel conda-forge --no-deps
+
+      or trying the most recent, unreleased changes from upstream.
+
+      ::
+
+        $ pip install git+https://github.com/tardis-sn/tardis.git@master
 
    b. Instead, developers should `fork the repository <https://github.com/tardis-sn/tardis/fork>`_, configure
       GitHub to `work with SSH keys <https://docs.github.com/en/authentication/connecting-to-github-with-ssh>`_,
@@ -75,23 +82,23 @@ TARDIS package.
 Update an existing environment
 ------------------------------
 
-To update an existing environment, download the latest environment file and run ``conda update``.
+Just download a new environment file and run ``conda update``.
 
 ::
 
-    $ wget -q https://github.com/tardis-sn/tardis/releases/latest/download/conda-{platform}-64.lock
-    $ conda update -n tardis --file conda-{platform}-64.lock
+    $ conda update --name tardis --file conda-{platform}-64.lock
 
 
 conda-forge package
 ===================
 
-TARDIS is also distributed as a `conda-forge <https://conda-forge.org/>`_ package, though we still
-recommend using the latest development version for better reproducibility of scientific results.
+It's also possible to install the TARDIS environment just by pulling the `conda-forge <https://conda-forge.org/>`_
+package to a dedicated environment.
 
-To use this package, just create a dedicated environment with the ``tardis-sn`` package from the
-``conda-forge`` channel.  
+.. warning::
+    
+    We do not recommend using this method.
 
 ::
 
-    $ conda create -n tardis-forge tardis-sn -c conda-forge
+    $ conda create --name tardis-forge tardis-sn --channel conda-forge
