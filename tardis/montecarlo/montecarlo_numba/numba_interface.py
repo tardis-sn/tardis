@@ -570,6 +570,7 @@ class Estimators(object):
             other.photo_ion_estimator_statistics
         )
 
+
 def configuration_initialize(runner, number_of_vpackets):
     if runner.line_interaction_type == "macroatom":
         montecarlo_configuration.line_interaction_type = (

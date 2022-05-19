@@ -242,7 +242,6 @@ def montecarlo_main_loop(
                         total_iterations=total_iterations,
                     )
 
-
         if montecarlo_configuration.single_packet_seed != -1:
             seed = packet_seeds[montecarlo_configuration.single_packet_seed]
             np.random.seed(seed)
