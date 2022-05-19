@@ -43,9 +43,10 @@ We encourage users to use the latest TARDIS development version by reproducing t
 
         $ pip install git+https://github.com/tardis-sn/tardis.git
 
-   b. Instead, developers should :ref:`fork the repository <forking>`, configure
-      GitHub to `work with SSH <https://docs.github.com/en/authentication/connecting-to-github-with-ssh>`_,
-      set up the upstream remote, and install the package in development mode.
+   b. Instead, developers should `fork the repository <https://github.com/tardis-sn/tardis/fork>`_, configure
+      GitHub to `work with SSH keys <https://docs.github.com/en/authentication/connecting-to-github-with-ssh>`_,
+      set up the `upstream remote <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/configuring-a-remote-for-a-fork>`_,
+      and install the package in development mode.
 
       ::
 
