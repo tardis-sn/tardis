@@ -2,12 +2,15 @@
 FROM condaforge/mambaforge
 LABEL MAINTAINER="tardis.supernova.code@gmail.com"
 
-COPY conda-linux-64.lock docs/tardis_example.yml /tmp/
-
+COPY conda-linux-64.lock /tmp
 RUN mamba create -n tardis --file /tmp/conda-linux-64.lock
-RUN /opt/conda/envs/tardis/bin/pip install git+https://github.com/tardis-sn/tardis
-RUN echo "conda activate tardis" >> /root/.bashrc
+RUN echo "conda activate tardis" >> /root/.bashrc \
+    && rm /tmp/conda-linux-64.lock
 
-WORKDIR /tmp
+COPY . /tmp/repo/tardis 
+RUN /opt/conda/envs/tardis/bin/pip install /tmp/repo/tardis
+
+RUN mkdir /data
+WORKDIR /data
 
 CMD ["/bin/bash"]
