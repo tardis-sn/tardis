@@ -22,8 +22,9 @@ Development version
 
 We encourage users to use the latest TARDIS development version by reproducing the following steps:
 
-1. Download the latest dependency file for your platform (`linux` or `osx`) from our 
-   `releases page <https://github.com/tardis-sn/tardis/releases>`_.
+1. Download the latest dependency file according to your operating system from our 
+   `releases section <https://github.com/tardis-sn/tardis/releases>`_, or run
+   the following command, while replacing `{platform}` with `linux` or `osx` as appropriate.
 
   ::
 
