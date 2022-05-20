@@ -57,6 +57,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     tau_trace_line_combined = 0.0
 
     # e scattering initialization
+
     cur_electron_density = numba_plasma.electron_density[
         r_packet.current_shell_id
     ]
