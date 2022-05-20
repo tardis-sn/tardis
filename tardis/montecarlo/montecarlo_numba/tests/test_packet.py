@@ -29,8 +29,8 @@ def model():
     return numba_interface.NumbaModel(
         r_inner=np.array([6.912e14, 8.64e14], dtype=np.float64),
         r_outer=np.array([8.64e14, 1.0368e15], dtype=np.float64),
-        v_inner=np.array([6.912e14, 8.64e14], dtype=np.float64),
-        v_outer=np.array([8.64e14, 1.0368e15], dtype=np.float64),
+        v_inner=np.array([-1, -1], dtype=np.float64),
+        v_outer=np.array([-1, -1], dtype=np.float64),
         time_explosion=5.2e7,
     )
 
