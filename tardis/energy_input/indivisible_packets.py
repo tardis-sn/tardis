@@ -19,6 +19,8 @@ from tardis.energy_input.calculate_opacity import (
     compton_opacity_calculation,
     photoabsorption_opacity_calculation,
     pair_creation_opacity_calculation,
+    photoabsorption_opacity_calculation_kasen,
+    pair_creation_opacity_artis,
     SIGMA_T,
 )
 from tardis.energy_input.gamma_ray_interactions import (
@@ -36,6 +38,7 @@ from tardis.energy_input.util import (
     get_random_unit_vector,
 )
 from tardis import constants as const
+from tardis.energy_input.gamma_ray_estimators import deposition_estimator_kasen
 
 # Energy: keV, exported as eV for SF solver
 # distance: cm
@@ -190,7 +193,9 @@ def initialize_packets(
                     intensity = co56_lines[:, 1]
                     # positron energy scaled by intensity
                     positron_energy = 0.63 * 1000 * 0.19
-                    positron_fraction = positron_energy / np.sum(energy * intensity)
+                    positron_fraction = positron_energy / np.sum(
+                        energy * intensity
+                    )
                 else:
                     decay_type = "Ni56"
                     energy = ni56_lines[:, 0] * 1000
@@ -290,6 +295,8 @@ def main_gamma_ray_loop(
     grey_opacity=-1,
     spectrum_bins=500,
     time_space="log",
+    photoabsorption_opacity="tardis",
+    pair_creation_opacity="tardis",
 ):
     """Main loop that determines the gamma ray propagation
 
@@ -311,6 +318,13 @@ def main_gamma_ray_loop(
         Number of energy bins for the gamma-ray spectrum
     time_space : str
         `'log'` for log-space time steps, otherwise time steps will be linear
+    photoabsorption_opacity : str
+        Set the photoabsorption opacity calculation.
+        Defaults to Ambwani & Sutherland (1988) approximation.
+        `'kasen'` uses the Kasen et al. 2006 method.
+    pair_creation_opacity : str
+        Set the pair creation opacity calculation. Defaults to Ambwani & Sutherland (1988) approximation.
+        `'artis'` uses the ARTIS implementation of the Ambwani & Sutherland (1988) approximation.
 
     Returns
     -------
@@ -331,6 +345,8 @@ def main_gamma_ray_loop(
         Packets emitted per shell
     pandas.DataFrame
         Energy from positrons
+    pandas.DataFrame
+        Estimated energy deposition in units of keV/s/cm^-3
     """
     # Enforce cgs
     outer_velocities = model.v_outer.to("cm/s").value
@@ -498,9 +514,16 @@ def main_gamma_ray_loop(
     energy_out = np.zeros((len(energy_bins - 1), time_steps))
 
     # Process packets
-    energy_df_rows, energy_plot_df_rows, energy_out = gamma_packet_loop(
+    (
+        energy_df_rows,
+        energy_plot_df_rows,
+        energy_out,
+        deposition_estimator,
+    ) = gamma_packet_loop(
         packets,
         grey_opacity,
+        photoabsorption_opacity,
+        pair_creation_opacity,
         electron_number_density_time,
         mass_density_time,
         inv_volume_time,
@@ -542,6 +565,11 @@ def main_gamma_ray_loop(
         ],
     )
 
+    # DataFrame of estimated deposition
+    energy_estimated_deposition = (
+        pd.DataFrame(data=deposition_estimator, columns=times[:-1]) / dt_array
+    )
+
     # Energy is eV/s/cm^-3
     energy_df = pd.DataFrame(data=energy_df_rows, columns=times[:-1]) / dt_array
 
@@ -562,6 +590,7 @@ def main_gamma_ray_loop(
         escape_energy,
         decayed_packet_count,
         energy_plot_positrons,
+        energy_estimated_deposition,
     )
 
 
@@ -592,7 +621,7 @@ def process_packet_path(packet):
         if np.random.random() < 1 / compton_fraction:
             packet.nu_cmf = packet.nu_cmf / compton_fraction
 
-            (packet.direction) = compton_scatter(packet, compton_angle)
+            packet.direction = compton_scatter(packet, compton_angle)
 
             # Calculate rest frame frequency after scaling by the fraction that remains
             doppler_factor = doppler_gamma(
@@ -623,6 +652,8 @@ def process_packet_path(packet):
 def gamma_packet_loop(
     packets,
     grey_opacity,
+    photoabsorption_opacity_type,
+    pair_creation_opacity_type,
     electron_number_density_time,
     mass_density_time,
     inv_volume_time,
@@ -691,6 +722,8 @@ def gamma_packet_loop(
     packet_count = len(packets)
     print("Entering gamma ray loop for " + str(packet_count) + " packets")
 
+    deposition_estimator = np.zeros_like(energy_df_rows)
+
     for i in range(packet_count):
         packet = packets[i]
         time_index = get_index(packet.time_current, times)
@@ -701,14 +734,15 @@ def gamma_packet_loop(
 
         scattered = False
 
+        initial_energy = H_CGS_KEV * packet.nu_cmf
+
         while packet.status == GXPacketStatus.IN_PROCESS:
             # Get delta-time value for this step
             dt = dt_array[time_index]
+            # Calculate packet comoving energy for opacities
+            comoving_energy = H_CGS_KEV * packet.nu_cmf
 
             if grey_opacity < 0:
-                # Calculate packet comoving energy for opacities
-                comoving_energy = H_CGS_KEV * packet.nu_cmf
-
                 doppler_factor = doppler_gamma(
                     packet.direction,
                     packet.location,
@@ -729,30 +763,33 @@ def gamma_packet_loop(
                         electron_number_density_time[packet.shell, time_index],
                     )
 
-                photoabsorption_opacity = photoabsorption_opacity_calculation(
-                    comoving_energy,
-                    mass_density_time[packet.shell, time_index],
-                    iron_group_fraction_per_shell[packet.shell],
-                )
-                """
-                photoabsorption_opacity = photoabsorption_opacity_calculation_kasen(
-                    comoving_energy,
-                    electron_number_density_time[packet.shell, time_index],
-                )
-                """
+                if photoabsorption_opacity_type == "kasen":
+                    # currently not functional, requires proton count and
+                    # electron count per isotope
+                    photoabsorption_opacity = 0
+                    # photoabsorption_opacity_calculation_kasen()
+                else:
+                    photoabsorption_opacity = (
+                        photoabsorption_opacity_calculation(
+                            comoving_energy,
+                            mass_density_time[packet.shell, time_index],
+                            iron_group_fraction_per_shell[packet.shell],
+                        )
+                    )
 
-                pair_creation_opacity = pair_creation_opacity_calculation(
-                    comoving_energy,
-                    mass_density_time[packet.shell, time_index],
-                    iron_group_fraction_per_shell[packet.shell],
-                )
-                """
-                pair_creation_opacity = pair_creation_opacity_artis(
-                    comoving_energy,
-                    mass_density_time[packet.shell, time_index],
-                    iron_group_fraction_per_shell[packet.shell],
-                )
-                """
+                if pair_creation_opacity_type == "artis":
+                    pair_creation_opacity = pair_creation_opacity_artis(
+                        comoving_energy,
+                        mass_density_time[packet.shell, time_index],
+                        iron_group_fraction_per_shell[packet.shell],
+                    )
+                else:
+                    pair_creation_opacity = pair_creation_opacity_calculation(
+                        comoving_energy,
+                        mass_density_time[packet.shell, time_index],
+                        iron_group_fraction_per_shell[packet.shell],
+                    )
+
             else:
                 compton_opacity = 0.0
                 pair_creation_opacity = 0.0
@@ -790,6 +827,17 @@ def gamma_packet_loop(
             packet.time_current += distance / C_CGS
 
             packet = move_packet(packet, distance)
+
+            deposition_estimator[packet.shell, time_index] += (
+                (comoving_energy * inv_volume_time[packet.shell, time_index])
+                * distance
+                * deposition_estimator_kasen(
+                    initial_energy,
+                    comoving_energy,
+                    mass_density_time[packet.shell, time_index],
+                    iron_group_fraction_per_shell[packet.shell],
+                )
+            )
 
             if distance == distance_time:
                 time_index += 1
@@ -867,4 +915,4 @@ def gamma_packet_loop(
     print("Escaped packets:", escaped_packets)
     print("Scattered packets:", scattered_packets)
 
-    return energy_df_rows, energy_plot_df_rows, energy_out
+    return energy_df_rows, energy_plot_df_rows, energy_out, deposition_estimator

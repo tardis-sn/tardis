@@ -1,14 +1,18 @@
 import numpy as np
+from numba import njit
 
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.energy_input.util import (
     angle_aberration_gamma,
     doppler_gamma,
     H_CGS_KEV,
     ELECTRON_MASS_ENERGY_KEV,
+    kappa_calculation,
 )
 from tardis.energy_input.calculate_opacity import (
-    pair_creation_opacity_calculation,
+    compton_opacity_calculation,
     SIGMA_T,
+    photoabsorption_opacity_calculation,
 )
 
 
@@ -96,3 +100,43 @@ def pair_creation_estimator(packet, pair_creation_opacity, distance):
     )
 
     return emissivity
+
+
+@njit(**njit_dict_no_parallel)
+def get_average_compton_fraction(energy):
+    def f(x, mu):
+        return 1.0 / (1.0 + x * (1.0 - mu))
+
+    def cross_section(x, mu):
+        return (
+            (3.0 * SIGMA_T)
+            / (16.0 * np.pi)
+            * f(x, mu) ** 2.0
+            * (f(x, mu) + 1.0 / f(x, mu) - (1.0 - mu**2))
+        )
+
+    x = kappa_calculation(energy)
+    mus = np.linspace(-1, 1, 100)
+    sum = 0
+
+    for mu in mus:
+        sum += cross_section(x, mu) * f(x, mu)
+
+    integral = 1.0 - 1.0 / (4.0 * np.pi) * 2.0 * np.pi * sum
+
+    return integral
+
+
+@njit(**njit_dict_no_parallel)
+def deposition_estimator_kasen(
+    initial_energy, energy, ejecta_density, iron_group_fraction
+):
+    energy_ratio = initial_energy / energy
+    return energy_ratio * (
+        1
+        / get_average_compton_fraction(energy)
+        * compton_opacity_calculation(energy, ejecta_density)
+        + photoabsorption_opacity_calculation(
+            energy, ejecta_density, iron_group_fraction
+        )
+    )

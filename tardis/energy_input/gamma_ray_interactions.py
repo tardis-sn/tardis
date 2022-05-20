@@ -174,7 +174,7 @@ def get_compton_fraction_urilight(energy):
 
     cost = 1.0 - f
 
-    return np.arccos(cost), f
+    return np.arccos(cost), x
 
 
 @njit(**njit_dict_no_parallel)
