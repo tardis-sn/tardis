@@ -13,4 +13,4 @@ RUN conda run -n tardis pip install /tmp/tardis \
     && mkdir /workdir
 
 ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "tardis", "/bin/bash", "-c"]
-CMD ["jupyter notebook --notebook-dir=/workdir --no-browser --ip='*' --allow-root"]
+CMD ["jupyter notebook --notebook-dir=/workdir --ip='*' --no-browser --allow-root"]
