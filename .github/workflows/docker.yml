@@ -6,10 +6,10 @@ name: docker
 
 on:
   push:
-    branches: [master, ci/create-dockerfile]
-
-  release:
-    types: [published]
+    branches:
+      - 'master'
+    tags:
+      - 'release-*'
 
 jobs:
   push:
@@ -24,13 +24,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-        if: false
 
       - name: Extract metadata
-        id: meta
         uses: docker/metadata-action@v4
         with:
-          images: my-docker-hub-namespace/my-docker-hub-repository
+          images: tardis-rt/tardis
+        id: meta
 
       - name: Build and push image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -38,9 +37,4 @@ jobs:
           context: .
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          push: false
-
-      - name: Debug
-        run: |
-          echo "${{ steps.meta.outputs.tags }}"
-          echo "${{ steps.meta.outputs.labels }}"
+          push: true
