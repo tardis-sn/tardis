@@ -20,9 +20,11 @@ Installation
 Installing with lockfiles
 =========================
 
-We encourage all users to install TARDIS by following these steps.
+Conda lockfiles are platform-specific dependency files that produce repeteable environments.
+These files are generated on every new release. We strongly recommend installing TARDIS using
+this method by following the steps described below.
 
-1. Download the latest lockfile file for your operating system from our 
+1. Download the latest lockfile for your operating system from our 
    `releases section <https://github.com/tardis-sn/tardis/releases>`_, or run
    the following command while replacing ``{platform}`` with ``linux`` or ``osx`` as appropriate.
 
@@ -37,8 +39,7 @@ We encourage all users to install TARDIS by following these steps.
     $ conda create --name tardis --file conda-{platform}-64.lock
     $ conda activate tardis
 
-3. a. Non-developers can install the latest release from `conda-forge <https://anaconda.org/conda-forge/tardis-sn>`_
-      with the ``--no-deps`` flag,
+3. a. Non-developers can install the latest release from ``conda-forge`` with the ``--no-deps`` flag,
 
       ::
 
@@ -78,11 +79,10 @@ We encourage all users to install TARDIS by following these steps.
 You are ready! From now on, just activate the ``tardis`` environment before working with the 
 TARDIS package.
 
-
 Update an existing environment
 ------------------------------
 
-Just download a new environment file and run ``conda update``.
+To update the environment after a new release, download the latest lockfile and run ``conda update``.
 
 ::
 
@@ -92,13 +92,12 @@ Just download a new environment file and run ``conda update``.
 conda-forge package
 ===================
 
-It's also possible to install the TARDIS environment just by pulling the `conda-forge <https://conda-forge.org/>`_
-package to a dedicated environment.
-
-.. warning::
-    
-    We do not recommend using this method.
+It's also possible to install TARDIS by pulling the `conda-forge package <https://anaconda.org/conda-forge/tardis-sn>`_
+into a clean environment. However, we still encourage using lockfiles to ensure
+reproducibility of scientific results.
 
 ::
 
     $ conda create --name tardis-forge tardis-sn --channel conda-forge
+
+
