@@ -7,8 +7,9 @@ RUN mamba create -n tardis --file /tmp/conda-linux-64.lock
 RUN echo "conda activate tardis" >> /root/.bashrc \
     && rm /tmp/conda-linux-64.lock
 
-COPY . /tmp/repo/tardis 
-RUN /opt/conda/envs/tardis/bin/pip install /tmp/repo/tardis
+COPY . /tmp/tardis 
+RUN /opt/conda/envs/tardis/bin/pip install /tmp/tardis \
+    && rm -rf /tmp/tardis
 
 RUN mkdir /data
 WORKDIR /data
