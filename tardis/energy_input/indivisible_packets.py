@@ -214,10 +214,7 @@ def initialize_packets(
             decay_time_index = get_index(decay_time, times)
 
             energy_df_rows[k, decay_time_index] += (
-                positron_fraction
-                * packet_energy
-                * 1000
-                # * inv_volume_time[k, decay_time_index]
+                positron_fraction * packet_energy * 1000
             )
 
             scaled_r = initial_radii[i] * effective_times[decay_time_index]
@@ -566,11 +563,13 @@ def main_gamma_ray_loop(
     )
 
     # DataFrame of estimated deposition
+    # Multiply dataframes by inv_volume_time array
+    # if per unit volume is needed
     energy_estimated_deposition = (
-        pd.DataFrame(data=deposition_estimator, columns=times[:-1]) / dt_array
-    )
+        pd.DataFrame(data=deposition_estimator, columns=times[:-1])
+    ) / dt_array
 
-    # Energy is eV/s/cm^-3
+    # Energy is eV/s
     energy_df = pd.DataFrame(data=energy_df_rows, columns=times[:-1]) / dt_array
 
     final_energy = 0
@@ -734,7 +733,7 @@ def gamma_packet_loop(
 
         scattered = False
 
-        initial_energy = H_CGS_KEV * packet.nu_cmf
+        initial_energy = packet.energy_cmf
 
         while packet.status == GXPacketStatus.IN_PROCESS:
             # Get delta-time value for this step
@@ -829,10 +828,10 @@ def gamma_packet_loop(
             packet = move_packet(packet, distance)
 
             deposition_estimator[packet.shell, time_index] += (
-                (comoving_energy * inv_volume_time[packet.shell, time_index])
+                (initial_energy * 1000)
                 * distance
+                * (packet.energy_cmf / initial_energy)
                 * deposition_estimator_kasen(
-                    initial_energy,
                     comoving_energy,
                     mass_density_time[packet.shell, time_index],
                     iron_group_fraction_per_shell[packet.shell],
@@ -864,9 +863,7 @@ def gamma_packet_loop(
                 # Save packets to dataframe rows
                 # convert KeV to eV / s / cm^3
                 energy_df_rows[packet.shell, time_index] += (
-                    ejecta_energy_gained
-                    * 1000
-                    # * inv_volume_time[packet.shell, time_index]
+                    ejecta_energy_gained * 1000
                 )
 
                 energy_plot_df_rows[i] = np.array(

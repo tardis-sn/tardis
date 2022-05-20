@@ -117,26 +117,23 @@ def get_average_compton_fraction(energy):
 
     x = kappa_calculation(energy)
     mus = np.linspace(-1, 1, 100)
+    dmu = mus[1] - mus[0]
     sum = 0
+    norm = 0
 
     for mu in mus:
-        sum += cross_section(x, mu) * f(x, mu)
+        sum += cross_section(x, mu) * f(x, mu) * dmu
+        norm += cross_section(x, mu) * dmu
 
-    integral = 1.0 - 1.0 / (4.0 * np.pi) * 2.0 * np.pi * sum
+    integral = 1.0 - sum / norm
 
-    return integral
+    return 1 - integral
 
 
 @njit(**njit_dict_no_parallel)
-def deposition_estimator_kasen(
-    initial_energy, energy, ejecta_density, iron_group_fraction
-):
-    energy_ratio = initial_energy / energy
-    return energy_ratio * (
-        1
-        / get_average_compton_fraction(energy)
-        * compton_opacity_calculation(energy, ejecta_density)
-        + photoabsorption_opacity_calculation(
-            energy, ejecta_density, iron_group_fraction
-        )
+def deposition_estimator_kasen(energy, ejecta_density, iron_group_fraction):
+    return get_average_compton_fraction(energy) * compton_opacity_calculation(
+        energy, ejecta_density
+    ) + photoabsorption_opacity_calculation(
+        energy, ejecta_density, iron_group_fraction
     )
