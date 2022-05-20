@@ -17,8 +17,8 @@ Installation
       to be installed on your system.
 
 
-Installing with lockfiles
-=========================
+Install with lockfiles
+======================
 
 Conda lockfiles are platform-specific dependency files that produce repeteable environments.
 These files are generated on every new release. We strongly recommend installing TARDIS using
@@ -79,18 +79,9 @@ this method by following the steps described below.
 You are ready! From now on, just activate the ``tardis`` environment before working with the 
 TARDIS package.
 
-Update an existing environment
-------------------------------
 
-To update the environment after a new release, download the latest lockfile and run ``conda update``.
-
-::
-
-    $ conda update --name tardis --file conda-{platform}-64.lock
-
-
-conda-forge package
-===================
+Install from package
+====================
 
 It's also possible to install TARDIS by pulling the `conda-forge package <https://anaconda.org/conda-forge/tardis-sn>`_
 into a clean environment. However, we still encourage using lockfiles to ensure
@@ -101,3 +92,11 @@ reproducibility of scientific results.
     $ conda create --name tardis-forge tardis-sn --channel conda-forge
 
 
+Environment update
+==================
+
+To update the environment after a new release, download the latest lockfile and run ``conda update``.
+
+::
+
+    $ conda update --name tardis --file conda-{platform}-64.lock
