@@ -121,10 +121,10 @@
       "name": "Yu, Jenny"
     },
     {
-      "name": "Patel, Maryam"
+      "name": "O'Brien, Jack"
     },
     {
-      "name": "O'Brien, Jack"
+      "name": "Patel, Maryam"
     },
     {
       "name": "Varanasi, Kaushik"
@@ -178,6 +178,9 @@
       "orcid": "0000-0001-8302-1584"
     },
     {
+      "name": "Bot, TARDIS"
+    },
+    {
       "name": "Reichenbach, John"
     },
     {
@@ -187,22 +190,19 @@
       "name": "Floers, Andreas"
     },
     {
-      "name": "Brar, Antreev"
+      "name": "Singh, Sourav"
     },
     {
-      "name": "Singh, Sourav"
+      "name": "Brar, Antreev"
     },
     {
       "name": "Selsing, Jonatan"
     },
     {
-      "name": "Sofiatti, Caroline"
-    },
-    {
       "name": "Talegaonkar, Chinmay"
     },
     {
-      "name": "Bot, TARDIS"
+      "name": "Sofiatti, Caroline"
     },
     {
       "name": "Kowalski, Nathan"
@@ -253,16 +253,16 @@
       "name": "Sandler, Morgan"
     },
     {
-      "name": "Nayak U, Ashwin"
+      "name": "Aggarwal, Yash"
     },
     {
-      "name": "Aggarwal, Yash"
+      "name": "Holas, Alexander"
     },
     {
       "name": "Kumar, Atul"
     },
     {
-      "name": "Holas, Alexander"
+      "name": "Wahi, Ujjwal"
     },
     {
       "name": "Kharkar, Atharwa"
@@ -271,7 +271,7 @@
       "name": "kumar, aman"
     },
     {
-      "name": "Wahi, Ujjwal"
+      "name": "Nayak U, Ashwin"
     }
   ]
 }
