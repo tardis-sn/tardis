@@ -2,7 +2,7 @@
 #
 #    https://tardis-sn.github.io/tardis/development/continuous_integration.html
 
-name: build-docs
+name: docs
 
 on:
 
@@ -23,8 +23,9 @@ on:
   workflow_dispatch:                    # manual trigger
 
 env:
+  CACHE_NUMBER: 0                       # increase to reset cache manually
   DEPLOY_BRANCH: gh-pages               # deployed docs branch
-  ROOT_REDIRECT: latest                 # https://tardis-sn.github.io/tardis/latest
+  ROOT_REDIRECT: latest                 # redirects to: https://tardis-sn.github.io/tardis/latest
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -59,9 +60,18 @@ jobs:
         with:
             miniforge-variant: Mambaforge
             miniforge-version: latest
-            environment-file: tardis_env3.yml
             activate-environment: tardis
             use-mamba: true
+
+      - uses: actions/cache@v2
+        with:
+          path: /usr/share/miniconda3/envs/tardis
+          key: conda-linux-64-${{ hashFiles('conda-linux-64.lock') }}-${{ env.CACHE_NUMBER }}
+        id: cache-conda
+
+      - name: Update environment
+        run: mamba update -n tardis --file conda-linux-64.lock
+        if: steps.cache-conda.outputs.cache-hit != 'true'
 
       - name: Install package
         run: pip install -e .
@@ -105,12 +115,13 @@ jobs:
           user_name: 'TARDIS Bot'
           user_email: 'tardis.sn.bot@gmail.com'
 
-      - name: Redirect root
+      - name: Create redirect
         run: |
           mkdir redirects && cd redirects
           echo '<head>' >> index.html
           echo '  <meta http-equiv="Refresh" content="0; url='/${{ github.event.repository.name }}/${{ env.ROOT_REDIRECT }}'"/>' >> index.html
           echo '</head>' >> index.html
+        if: github.event_name != 'pull_request_target'
 
       - name: Deploy redirect
         uses: peaceiris/actions-gh-pages@v3
@@ -121,6 +132,7 @@ jobs:
           keep_files: true
           user_name: 'TARDIS Bot'
           user_email: 'tardis.sn.bot@gmail.com'
+        if: github.event_name != 'pull_request_target'
 
       - name: Find comment
         uses: peter-evans/find-comment@v1
