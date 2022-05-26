@@ -36,6 +36,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Wait for Zenodo webhook
+        run: sleep 120
+
       - name: Setup Python
         uses: actions/setup-python@v3
         with:
@@ -45,7 +48,9 @@ jobs:
         run: pip install git+https://github.com/citation-file-format/doi2cff
 
       - name: Update CITATION.cff
-        run: doi2cff update 10.5281/zenodo.592480
+        run: |
+          rm CITATION.cff
+          doi2cff init 10.5281/zenodo.592480
 
       - uses: actions/upload-artifact@v3
         with:
@@ -82,9 +87,13 @@ jobs:
           title: Post-release ${{ env.DATE }}
           body: |
             *\*beep\* \*bop\**
-            
+
             Hi, human.
-            
+
             These are the changes required after the latest TARDIS release.
+
+            > :warning: **Warning:** 
+            >
+            > The `post_release` workflow waits for a webhook and then updates `CITATION.cff`. If the file is not modified by this pull request, please check the latest release on [Zenodo's website](https://zenodo.org/record/592480), close this pull request, and [manually run the workflow](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
           labels: documentation,
           reviewers: wkerzendorf, andrewfullard, epassaro
