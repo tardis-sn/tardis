@@ -186,6 +186,10 @@ The following BibTeX entries are needed for the references:
 *******
 License
 *******
+
+.. image:: https://img.shields.io/conda/l/conda-forge/tardis-sn
+    :target: https://github.com/tardis-sn/tardis/blob/master/licenses/LICENSE.rst
+
 .. image:: http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
     :target: http://www.astropy.org
 |
