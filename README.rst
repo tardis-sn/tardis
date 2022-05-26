@@ -27,7 +27,7 @@ stars (*supernovae*).
 .. image:: https://github.com/tardis-sn/tardis/actions/workflows/tests.yml/badge.svg
     :target: https://github.com/tardis-sn/tardis/actions/workflows/tests.yml
 
-.. image:: https://github.com/tardis-sn/tardis/actions/workflows/documentation-build.yml/badge.svg
+.. image:: https://github.com/tardis-sn/tardis/actions/workflows/build-docs.yml/badge.svg
     :target: https://tardis-sn.github.io/tardis/index.html
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
