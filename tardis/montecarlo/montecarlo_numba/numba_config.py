@@ -8,3 +8,4 @@ KB = const.k_B.cgs.value
 H = const.h.cgs.value
 
 ENABLE_FULL_RELATIVITY = False
+ENABLE_NONHOMOLOGOUS_EXPANSION = False
