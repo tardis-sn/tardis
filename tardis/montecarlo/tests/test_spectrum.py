@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import os
 from astropy import units as u
-from tardis import constants as c
+from tardis import constants as const
 import astropy.tests.helper as test_helper
 from numpy.testing import assert_almost_equal
 from tardis.montecarlo.spectrum import (
@@ -114,7 +114,7 @@ def test_f_nu_to_f_lambda(spectrum):
     expected = (
         spectrum.luminosity_density_nu
         * spectrum.frequency**2
-        / c.c.to("angstrom/s")
+        / const.c.to("angstrom/s")
     ).to("erg / (s angstrom)")
     print(expected)
     test_helper.assert_quantity_allclose(
@@ -123,7 +123,7 @@ def test_f_nu_to_f_lambda(spectrum):
     expected = (
         spectrum.luminosity_density_nu
         * spectrum.frequency**2
-        / c.c.to("angstrom/s")
+        / const.c.to("angstrom/s")
     ).to("erg / (s angstrom)")
     np.testing.assert_allclose(
         spectrum.luminosity_density_lambda.value, expected.value

@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from tardis import constants as c
+from tardis import constants as const
 
 from copy import deepcopy
 import numpy.testing as ntest
@@ -60,9 +60,9 @@ def formal_integral_model(request):
     model = NumbaModel(
         r[:-1],
         r[1:],
-        r[:-1] * c.c.cgs.value,
-        r[1:] * c.c.cgs.value,
-        1 / c.c.cgs.value,
+        r[:-1] * const.c.cgs.value,
+        r[1:] * const.c.cgs.value,
+        1 / const.c.cgs.value,
     )
     return model
 
