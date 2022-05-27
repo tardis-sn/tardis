@@ -72,4 +72,4 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. include:: ZENODO.rst
+.. include:: zenodo.rst
