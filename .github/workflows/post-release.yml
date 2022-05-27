@@ -57,6 +57,32 @@ jobs:
           name: citation
           path: CITATION.cff
 
+  credits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Wait for Zenodo webhook
+        run: sleep 120
+
+      - name: Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
+      - name: Install rst-include
+        run: pip install rst-include
+
+      - name: Update README.rst
+        run: python .ci-helpers/update_credits.py
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: readme
+          path: |
+            README.rst
+            docs/resources/credits.rst
+
   pull_request:
     needs: [changelog, citation]
     runs-on: ubuntu-latest
@@ -71,6 +97,8 @@ jobs:
         run: |
           cp /tmp/changelog/CHANGELOG.md .
           cp /tmp/citation/CITATION.cff .
+          cp /tmp/credits/README.rst .
+          cp /tmp/credits/docs/resources/credits.rst docs/resources/credits.rst
 
       - name: Get current date
         run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
