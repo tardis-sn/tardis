@@ -1,10 +1,13 @@
+"""Script for updating `credits.rst` and `README.rst` between releases,
+requires the `rst-include` package"""
+
 import pathlib
 import re
 import textwrap
 import warnings
 
 import requests
-from rst_include import rst_inc
+from rst_include import rst_include
 
 
 def generate_zenodo():
@@ -48,7 +51,27 @@ def generate_zenodo():
     print(zenodo_record)
 
 
-if __name__ == "__main__":
+def main():
     generate_zenodo()
-    rst_inc(source='docs/resources/credits_template.rst', target='docs/resources/credits.rst')
-    rst_inc(source='README_TEMPLATE.rst', target='README.rst')
+
+    rst_include.include(
+        source="docs/resources/credits_template.rst",
+        target="docs/resources/credits.rst",
+        quiet=False,
+        inplace=False,
+        source_encoding="utf-8",
+        target_encoding="utf-8",
+    )
+
+    rst_include.include(
+        source="README_TEMPLATE.rst",
+        target="README.rst",
+        quiet=False,
+        inplace=False,
+        source_encoding="utf-8",
+        target_encoding="utf-8",
+    )
+
+
+if __name__ == "__main__":
+    main()

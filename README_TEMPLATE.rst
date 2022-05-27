@@ -35,7 +35,7 @@ stars (*supernovae*).
 |
 
 
-.. include :: docs/resources/credits.rst
+.. include:: docs/resources/credits.rst
 
 
 *******
