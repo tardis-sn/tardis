@@ -122,5 +122,5 @@ jobs:
             > :warning: **Warning:** 
             >
             > The `post_release` workflow waits for a webhook and then updates `CITATION.cff`. If the file is not modified by this pull request, please check the latest release on [Zenodo's website](https://zenodo.org/record/592480), close this pull request, and [manually run the workflow](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
-          labels: documentation,
-          reviewers: wkerzendorf, andrewfullard, epassaro
+          labels: automerge, build-docs
+          reviewers: epassaro
