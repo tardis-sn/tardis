@@ -108,7 +108,7 @@ jobs:
           base: master
           push-to-fork: tardis-bot/tardis
           commit-message: Automated changes for pre-release ${{ env.DATE }}
-          title: '[ci skip] Pre-release ${{ env.DATE }}'
+          title: Pre-release ${{ env.DATE }}
           body: |
             *\*beep\* \*bop\**
 
