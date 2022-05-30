@@ -1,7 +1,7 @@
 # For more information on how to use this template please refer to:
 # http://tardis-sn.github.io/tardis/development/continuous_integration.html
 
-name: black
+name: codestyle
 
 on:
   push:
@@ -13,7 +13,7 @@ on:
     - '*'
 
 jobs:
-  check:
+  black:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -28,3 +28,20 @@ jobs:
 
       - name: Run Black
         run: black --check tardis
+
+  flake8:
+    if: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install Flake8
+        run: pip install flake8==4.0.1 pep8-naming==0.12.1
+
+      - name: Run Flake8
+        run: flake8 tardis
