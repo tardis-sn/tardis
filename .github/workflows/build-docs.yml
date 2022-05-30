@@ -36,7 +36,7 @@ defaults:
     shell: bash -l {0}
 
 jobs:
-  build:
+  build-docs:
 
     if: github.event_name == 'push' ||
         github.event_name == 'workflow_dispatch' ||
