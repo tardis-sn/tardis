@@ -136,3 +136,18 @@ jobs:
             > Once all the checks pass, you can safely merge this pull request manually.
           labels: automerge, build-docs
           reviewers: epassaro, tardis-bot
+        id: create-pr
+
+      - name: Approve pull request
+        uses: juliangruber/approve-pull-request-action@v1
+        with:
+          github-token: ${{ secrets.BOT_TOKEN }}
+          number: ${{ steps.create-pr.outputs.pull-request-number }}
+        if: steps.create-pr.outputs.pull-request-operation == 'created'
+
+      - name: Enable automerge
+        uses: peter-evans/enable-pull-request-automerge@v2
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          pull-request-number: ${{ github.event.number }}
+          merge-method: squash
