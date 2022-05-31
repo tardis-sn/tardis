@@ -135,4 +135,4 @@ jobs:
             >
             > Once all the checks pass, you can safely merge this pull request manually.
           labels: automerge, build-docs
-          reviewers: epassaro
+          reviewers: epassaro, tardis-bot
