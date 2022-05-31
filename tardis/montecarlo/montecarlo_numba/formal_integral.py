@@ -293,6 +293,8 @@ class FormalIntegrator(object):
         self.numba_model = NumbaModel(
             self.runner.r_inner_i,
             self.runner.r_outer_i,
+            self.runner.r_inner_i / self.model.time_explosion.to("s").value,
+            self.runner.r_outer_i / self.model.time_explosion.to("s").value,
             self.model.time_explosion.to("s").value,
         )
         self.numba_plasma = numba_plasma_initialize(

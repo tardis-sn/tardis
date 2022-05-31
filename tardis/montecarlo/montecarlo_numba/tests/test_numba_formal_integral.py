@@ -57,7 +57,13 @@ TESTDATA = [
 @pytest.fixture(scope="function", params=TESTDATA)
 def formal_integral_model(request):
     r = request.param["r"]
-    model = NumbaModel(r[:-1], r[1:], 1 / c.c.cgs.value)
+    model = NumbaModel(
+        r[:-1],
+        r[1:],
+        r[:-1] * c.c.cgs.value,
+        r[1:] * c.c.cgs.value,
+        1 / c.c.cgs.value,
+    )
     return model
 
 

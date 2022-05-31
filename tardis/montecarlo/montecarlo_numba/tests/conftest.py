@@ -52,6 +52,8 @@ def verysimple_numba_model(nb_simulation_verysimple):
     return NumbaModel(
         runner.r_inner_cgs,
         runner.r_outer_cgs,
+        runner.v_inner_cgs,
+        runner.v_outer_cgs,
         model.time_explosion.to("s").value,
     )
 

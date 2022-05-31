@@ -117,7 +117,13 @@ def formal_integral_model(request):
     This gets the Numba model to be used in later tests
     """
     r = request.param["r"]
-    model = NumbaModel(r[:-1], r[1:], 1 / c.c.cgs.value)
+    model = NumbaModel(
+        r[:-1],
+        r[1:],
+        r[:-1] * c.c.cgs.value,
+        r[1:] * c.c.cgs.value,
+        1 / c.c.cgs.value,
+    )
     return model
 
 

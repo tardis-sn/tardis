@@ -53,6 +53,8 @@ def montecarlo_radial1d(
     numba_model = NumbaModel(
         runner.r_inner_cgs,
         runner.r_outer_cgs,
+        runner.v_inner_cgs,
+        runner.v_outer_cgs,
         model.time_explosion.to("s").value,
     )
     numba_plasma = numba_plasma_initialize(plasma, runner.line_interaction_type)
