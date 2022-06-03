@@ -10,6 +10,7 @@ RUN conda run -n tardis pip install /tmp/repo \
     && echo "conda activate tardis" >> ~/.bashrc
 
 RUN mkdir /workdir
+COPY docs/quickstart.ipynb /workdir
 WORKDIR /workdir
 
 RUN conda clean --all \
