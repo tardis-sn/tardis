@@ -8,7 +8,8 @@ Installation
 .. warning::
     
     - TARDIS is only supported on macOS and GNU/Linux. Windows users can run TARDIS 
-      from our official Docker image (*coming soon*), `WSL <https://docs.microsoft.com/en-us/windows/wsl/>`_ 
+      from our official `Docker images <https://hub.docker.com/r/tardis-rt/tardis>`_, 
+      `WSL <https://docs.microsoft.com/en-us/windows/wsl/>`_
       or a Virtual Machine.
 
     - TARDIS packages and dependencies are distributed only through the `conda <https://docs.conda.io/en/latest/>`_ 
