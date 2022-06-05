@@ -84,7 +84,7 @@ jobs:
             docs/resources/credits.rst
 
   pull_request:
-    needs: [changelog, citation]
+    needs: [changelog, citation, credits]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
