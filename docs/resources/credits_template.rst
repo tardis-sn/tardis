@@ -4,6 +4,8 @@
 Credits & Publication Policies
 ******************************
 
+|DOI_BADGE|
+
 We provide TARDIS as a free, open-source tool. If you are using it, please
 adhere to a few policies and acknowledge the TARDIS Team.
 
@@ -18,7 +20,7 @@ following paragraph to the Acknowledgement section:
 .. parsed-literal::
 
     This research made use of \\textsc{tardis}, a community-developed software package for spectral
-    synthesis in supernovae \\citep{2014MNRAS.440..387K, |ZENODO|}. The
+    synthesis in supernovae \\citep{2014MNRAS.440..387K, |CITATION|}. The
     development of \\textsc{tardis} received support from GitHub, the Google Summer of Code
     initiative, and from ESA's Summer of Code in Space program. \\textsc{tardis} is a fiscally
     sponsored project of NumFOCUS. \\textsc{tardis} makes extensive use of Astropy and Pyne.
