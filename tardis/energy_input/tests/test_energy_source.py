@@ -31,14 +31,17 @@ def test_create_energy_cdf(energy, intensity, expected_cdf):
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_sample_energy_distribution():
+    """To test the energy distribution sample"""
     assert False
 
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_setup_input_energy():
+    """To test setting up the input energy"""
     assert False
 
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_intensity_ratio():
+    """To test the intensity ratio"""
     assert False

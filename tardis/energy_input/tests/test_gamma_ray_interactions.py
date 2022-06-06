@@ -14,11 +14,13 @@ from tardis.energy_input.GXPacket import GXPacketStatus
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_get_compton_angle():
+    """Test the Compton angle calculation"""
     assert False
 
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_compton_scatter():
+    """Test Compton scattering"""
     assert False
 
 
@@ -54,6 +56,16 @@ def test_pair_creation(basic_gamma_ray):
 def test_scatter_type(
     compton_opacity, photoabsorption_opacity, total_opacity, expected
 ):
+    """Test the scattering type
+
+    Parameters
+    ----------
+    compton_opacity : float
+    photoabsorption_opacity : float
+    total_opacity : float
+    expected : list
+        Expected parameters
+    """
     actual = scatter_type(
         compton_opacity, photoabsorption_opacity, total_opacity
     )

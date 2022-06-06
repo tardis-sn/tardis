@@ -1,10 +1,14 @@
+from random import random
 import pytest
 import astropy.units as u
 import numpy.testing as npt
 import numpy as np
 
 import tardis.energy_input.util as util
-from tardis.energy_input.util import R_ELECTRON_SQUARED
+from tardis.energy_input.util import (
+    R_ELECTRON_SQUARED,
+    get_perpendicular_vector,
+)
 from tardis import constants as const
 
 
@@ -29,11 +33,13 @@ def test_spherical_to_cartesian(
 
 @pytest.mark.xfail(reason="To be removed")
 def test_doppler_gamma():
+    """Test the doppler shift"""
     assert False
 
 
 @pytest.mark.xfail(reason="To be removed")
 def test_angle_aberration_gamma():
+    """Test the angle aberration equation"""
     assert False
 
 
@@ -60,11 +66,13 @@ def test_kappa_calculation(energy, expected):
 
 @pytest.mark.xfail(reason="To be removed")
 def test_euler_rodrigues():
+    """Test Euler-Rodrigues rotation"""
     assert False
 
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_solve_quadratic_equation():
+    """Test the quadratic solver"""
     assert False
 
 
@@ -105,16 +113,12 @@ def test_klein_nishina(energy, theta_C):
     npt.assert_almost_equal(actual, expected)
 
 
-@pytest.mark.xfail(reason="To be implemented")
-def test_compton_theta_distribution():
-    assert False
-
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_normalize_vector():
-    assert False
-
-
-@pytest.mark.xfail(reason="To be implemented")
 def test_get_perpendicular_vector():
-    assert False
+    """Test the perpendicular vector calculation"""
+    input_vector = np.array([0.3, 0.4, 0.5])
+
+    random_perpendicular_vector = get_perpendicular_vector(input_vector)
+
+    dot_product = np.dot(input_vector, random_perpendicular_vector)
+
+    npt.assert_almost_equal(dot_product, 0.0)

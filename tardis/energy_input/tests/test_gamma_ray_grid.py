@@ -11,11 +11,13 @@ from tardis.energy_input.gamma_ray_grid import (
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_calculate_distance_radial():
+    """Test the radial distance calculation"""
     assert False
 
 
 @pytest.mark.xfail(reason="To be implemented")
 def test_distance_trace():
+    """Test the distance trace"""
     assert False
 
 
@@ -34,8 +36,3 @@ def test_move_packet(basic_gamma_ray):
     actual = move_packet(packet, distance)
 
     npt.assert_almost_equal(actual.location, new)
-
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_compute_required_photons_per_shell():
-    assert False

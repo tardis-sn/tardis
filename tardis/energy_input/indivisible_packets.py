@@ -295,7 +295,7 @@ def main_gamma_ray_loop(
     photoabsorption_opacity="tardis",
     pair_creation_opacity="tardis",
     seed=1,
-    path_to_artis_lines=""
+    path_to_artis_lines="",
 ):
     """Main loop that determines the gamma ray propagation
 
