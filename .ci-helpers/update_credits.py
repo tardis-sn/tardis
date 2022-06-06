@@ -48,7 +48,7 @@ def generate_zenodo():
                         """
 
         zenodo_record = (
-            ".. |ZENODO| replace:: <TARDIS SOFTWARE SPECIFIC HERE> \n\n"
+            ".. |ZENODO| replace:: <TARDIS SOFTWARE CITATION HERE> \n\n"
             ".. warning:: \n\n" + textwrap.indent(not_found_msg, " " * 4)
         )
 
