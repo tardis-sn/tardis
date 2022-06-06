@@ -294,6 +294,8 @@ def main_gamma_ray_loop(
     time_space="log",
     photoabsorption_opacity="tardis",
     pair_creation_opacity="tardis",
+    seed=1,
+    path_to_artis_lines=""
 ):
     """Main loop that determines the gamma ray propagation
 
@@ -345,6 +347,9 @@ def main_gamma_ray_loop(
     pandas.DataFrame
         Estimated energy deposition in units of keV/s/cm^-3
     """
+    # Note: not best numpy practice, but works better in numba than the alternatives
+    np.random.seed(seed)
+
     # Enforce cgs
     outer_velocities = model.v_outer.to("cm/s").value
     inner_velocities = model.v_inner.to("cm/s").value
@@ -432,8 +437,8 @@ def main_gamma_ray_loop(
     }
 
     # This will use the decay radiation database and be a more complex network eventually
-    ni56_lines = read_artis_lines("ni56")
-    co56_lines = read_artis_lines("co56")
+    ni56_lines = read_artis_lines("ni56", path_to_artis_lines)
+    co56_lines = read_artis_lines("co56", path_to_artis_lines)
 
     # urilight chooses to have 0 as the baseline for this calculation
     # but time_start should also be valid

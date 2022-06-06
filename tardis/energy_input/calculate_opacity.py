@@ -1,5 +1,6 @@
 import numpy as np
 import astropy.units as u
+import radioactivedecay as rd
 from numba import njit
 
 from tardis import constants as const
@@ -7,9 +8,9 @@ from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.energy_input.util import kappa_calculation
 
 # Force cgs
-MASS_SI = 28.085 * const.m_p.to(u.g).value
-MASS_FE = 55.845 * const.m_p.to(u.g).value
 M_P = const.m_p.to(u.g).value
+MASS_SI = rd.Nuclide("Si-28").atomic_mass * M_P
+MASS_FE = rd.Nuclide("Fe-56").atomic_mass * M_P
 SIGMA_T = const.sigma_T.cgs.value
 FINE_STRUCTURE = const.alpha.value
 
@@ -93,6 +94,7 @@ def photoabsorption_opacity_calculation(
 ):
     """Calculates photoabsorption opacity for a given energy
     Approximate treatment from Ambwani & Sutherland (1988)
+    Magic numbers are from the approximate treatment
 
     Parameters
     ----------
@@ -225,8 +227,6 @@ def pair_creation_opacity_artis(energy, ejecta_density, iron_group_fraction):
     float
         Pair creation opacity
     """
-    M_H = 1.67352e-24
-
     # Conditions prevent divide by zero
     # Ambwani & Sutherland (1988)
     if energy > 1022:
@@ -237,8 +237,8 @@ def pair_creation_opacity_artis(energy, ejecta_density, iron_group_fraction):
             opacity_si = 1.0063 * (energy - 1022) * 196.0e-27
             opacity_fe = 1.0063 * (energy - 1022) * 784.0e-27
 
-        opacity_si *= ejecta_density / M_H / 28
-        opacity_fe *= ejecta_density / M_H / 56
+        opacity_si *= ejecta_density / M_P / 28
+        opacity_fe *= ejecta_density / M_P / 56
 
         opacity = (opacity_fe * iron_group_fraction) + (
             opacity_si * (1.0 - iron_group_fraction)

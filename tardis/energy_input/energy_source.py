@@ -144,6 +144,7 @@ def intensity_ratio(nuclear_data, source_1, source_2):
     intensity_1 = nuclear_data.query("type==" + source_1)["intensity"].values
     intensity_2 = nuclear_data.query("type==" + source_2)["intensity"].values
     total_intensity = np.sum(intensity_1) + np.sum(intensity_2)
+    # Factor of 100 is because intensities are in percent
     scale_factor = total_intensity / 100
     return (
         np.sum(intensity_1) / total_intensity,
@@ -330,7 +331,7 @@ def get_isotope_string(atom_number, atom_mass):
     return atomic_number2element_symbol(atom_number) + str(atom_mass)
 
 
-def read_artis_lines(isotope):
+def read_artis_lines(isotope, path_to_data):
     """Reads lines of ARTIS format
 
     Parameters
@@ -344,7 +345,7 @@ def read_artis_lines(isotope):
         Energies and intensities of the isotope lines
     """
     return pd.read_csv(
-        "~/Downloads/tardisnuclear/" + isotope + ".txt",
+        path_to_data + isotope + ".txt",
         names=["energy", "intensity"],
         sep="  ",
         index_col=False,
