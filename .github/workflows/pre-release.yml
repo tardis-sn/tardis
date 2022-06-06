@@ -135,7 +135,8 @@ jobs:
             >
             > Once all the checks pass, you can safely merge this pull request manually.
           labels: automerge, build-docs
-          reviewers: epassaro, tardis-bot
+          reviewers: tardis-bot
+          team-reviewers: tardis-infrastructure
         id: create-pr
 
       - name: Approve pull request
