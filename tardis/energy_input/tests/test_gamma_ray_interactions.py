@@ -1,4 +1,5 @@
 import pytest
+import numpy as np
 import numpy.testing as npt
 
 from tardis.energy_input.gamma_ray_interactions import (
@@ -28,14 +29,18 @@ def test_pair_creation(basic_gamma_ray):
     ----------
     basic_gamma_ray : GammaRay object
     """
+    np.random.seed(2)
+
     initial_direction = basic_gamma_ray.direction
+    basic_gamma_ray.nu_cmf = 2 * ELECTRON_MASS_ENERGY_KEV / H_CGS_KEV
 
     pair_creation_packet(basic_gamma_ray)
 
     npt.assert_almost_equal(
         basic_gamma_ray.nu_cmf, ELECTRON_MASS_ENERGY_KEV / H_CGS_KEV
     )
-    assert basic_gamma_ray.direction != initial_direction
+    for i, j in zip(initial_direction, basic_gamma_ray.direction):
+        assert i != j
 
 
 @pytest.mark.parametrize(
