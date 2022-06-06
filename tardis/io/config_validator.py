@@ -71,8 +71,15 @@ def validate_dict(
     handlers = {"file": _yaml_handler}
     resolver = RefResolver(schemaurl, schema, handlers=handlers)
     validated_dict = deepcopy(config_dict)
-    validator(
-        schema=schema, types={"quantity": (Quantity,)}, resolver=resolver
+    custom_type_checker = validator.TYPE_CHECKER.redefine(
+        "quantity", (Quantity,)
+    )
+    custom_validator = validators.extend(
+        validator, type_checker=custom_type_checker
+    )
+    custom_validator(
+        schema=schema,
+        resolver=resolver,
     ).validate(validated_dict)
     return validated_dict
 
