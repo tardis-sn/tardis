@@ -84,7 +84,7 @@ jobs:
           if [[ $EVENT == push ]] || [[ $EVENT == workflow_dispatch ]]; then
 
             if [[ $BRANCH == $DEFAULT ]]; then
-              echo "DEST_DIR='.'" >> $GITHUB_ENV
+              echo "DEST_DIR=" >> $GITHUB_ENV
             else
               echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
             fi
