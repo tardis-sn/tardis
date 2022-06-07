@@ -5,6 +5,7 @@ import pathlib
 import re
 import textwrap
 import warnings
+from datetime import date
 
 import requests
 from rst_include import rst_include
@@ -16,6 +17,7 @@ def generate_zenodo():
 
     CONCEPT_DOI = "592480"  # See: https://help.zenodo.org/#versioning
     zenodo_path = pathlib.Path("docs/resources/zenodo.rst")
+    year = date.today().year
 
     try:
         headers = {"accept": "application/x-bibtex"}
@@ -24,8 +26,13 @@ def generate_zenodo():
         )
         response.encoding = "utf-8"
         citation = re.findall("@software{(.*)\,", response.text)
+        specific_doi = citation[0].lstrip(f"kerzendorf_wolfgang_{year}_")
+        doi_org_url = f"https://doi.org/10.5281/zenodo.{specific_doi}"
+        doi_badge = f"https://img.shields.io/badge/DOI-10.5281/zenodo.{specific_doi}-blue"
         zenodo_record = (
-            f".. |ZENODO| replace:: {citation[0]}\n\n"
+            f".. |CITATION| replace:: {citation[0]}\n\n"
+            f".. |DOI_BADGE| image:: {doi_badge}\n"
+            f"                 :target: {doi_org_url}\n\n"
             ".. code-block:: bibtex\n\n"
             + textwrap.indent(response.text, " " * 4)
         )
