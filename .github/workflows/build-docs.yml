@@ -125,6 +125,7 @@ jobs:
           publish_branch: ${{ env.DEPLOY_BRANCH }}
           publish_dir: ./docs/_build/html
           destination_dir: ${{ env.DEST_DIR }}
+          keep_files: true
           force_orphan: ${{ env.CLEAN_BRANCH }}
           user_name: 'TARDIS Bot'
           user_email: 'tardis.sn.bot@gmail.com'
