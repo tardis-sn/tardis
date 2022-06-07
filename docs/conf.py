@@ -66,6 +66,7 @@ exclude_patterns.append("_build")
 exclude_patterns.append("**_template.rst")
 exclude_patterns.append("**.ipynb_checkpoints")
 exclude_patterns.append("resources/research_done_using_TARDIS/ads.ipynb")
+exclude_patterns.append("physics/energy_input/gammaray_deposition.ipynb")
 
 # This is added to the end of RST files - a good place to put substitutions to
 # be used globally.
@@ -336,6 +337,7 @@ redirects = [
 # -- Sphinx hook-ins ---------------------------------------------------------
 
 from shutil import copyfile
+
 
 def generate_tutorials_page(app):
     """Create tutorials.rst"""
