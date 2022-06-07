@@ -194,7 +194,7 @@ import_module(setup_cfg["name"])
 package = sys.modules[setup_cfg["name"]]
 
 # The short X.Y version.
-version = "latest"  # package.__version__.split("-", 1)[0]
+version = "master"  # package.__version__.split("-", 1)[0]
 # The full version, including alpha/beta/rc tags.
 release = package.__version__
 
