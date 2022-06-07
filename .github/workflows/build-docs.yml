@@ -25,7 +25,6 @@ on:
 env:
   CACHE_NUMBER: 0                       # increase to reset cache manually
   DEPLOY_BRANCH: gh-pages               # deployed docs branch
-  ROOT_REDIRECT: latest                 # redirects to: https://tardis-sn.github.io/tardis/latest
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -85,7 +84,7 @@ jobs:
           if [[ $EVENT == push ]] || [[ $EVENT == workflow_dispatch ]]; then
 
             if [[ $BRANCH == $DEFAULT ]]; then
-              echo "DEST_DIR=latest" >> $GITHUB_ENV
+              echo "DEST_DIR='.'" >> $GITHUB_ENV
             else
               echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
             fi
@@ -114,25 +113,6 @@ jobs:
           destination_dir: ${{ env.DEST_DIR }}
           user_name: 'TARDIS Bot'
           user_email: 'tardis.sn.bot@gmail.com'
-
-      - name: Create redirect
-        run: |
-          mkdir redirects && cd redirects
-          echo '<head>' >> index.html
-          echo '  <meta http-equiv="Refresh" content="0; url='/${{ github.event.repository.name }}/${{ env.ROOT_REDIRECT }}'"/>' >> index.html
-          echo '</head>' >> index.html
-        if: github.event_name != 'pull_request_target'
-
-      - name: Deploy redirect
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.BOT_TOKEN }}
-          publish_branch: ${{ env.DEPLOY_BRANCH }}
-          publish_dir: ./redirects
-          keep_files: true
-          user_name: 'TARDIS Bot'
-          user_email: 'tardis.sn.bot@gmail.com'
-        if: github.event_name != 'pull_request_target'
 
       - name: Find comment
         uses: peter-evans/find-comment@v1
