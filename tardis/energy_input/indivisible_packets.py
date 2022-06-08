@@ -12,7 +12,7 @@ from tardis.energy_input.gamma_ray_grid import (
     move_packet,
 )
 from tardis.energy_input.energy_source import (
-    ni56_chain_energy,
+    decay_chain_energy,
     read_artis_lines,
 )
 from tardis.energy_input.calculate_opacity import (
@@ -75,28 +75,25 @@ def sample_energy(energy, intensity):
 
 
 @njit(**njit_dict_no_parallel)
-def sample_decay_time(isotope, ni56_tau, co56_tau):
+def sample_decay_time(start_tau, end_tau=0.0):
     """Samples the decay time from the mean half-life
     of the isotopes (needs restructuring for more isotopes)
 
     Parameters
     ----------
-    isotope : string
-        Isotope as e.g. Ni56
-    taus : dict
-        Mean half-life for each isotope
+    start_tau : float64
+        Initial isotope mean half-life
+    end_tau : float64, optional
+        Ending mean half-life, by default 0 for single decays
 
     Returns
     -------
-    float
-        Decay time in seconds
+    float64
+        Sampled decay time
     """
-    if isotope == "Ni56":
-        decay_time = -ni56_tau * np.log(np.random.random())
-    else:
-        decay_time = -ni56_tau * np.log(np.random.random()) - co56_tau * np.log(
-            np.random.random()
-        )
+    decay_time = -start_tau * np.log(np.random.random()) - end_tau * np.log(
+        np.random.random()
+    )
     return decay_time
 
 
@@ -188,7 +185,6 @@ def initialize_packets(
                 ni_or_co_random = np.random.random()
 
                 if ni_or_co_random > ni56_fraction:
-                    decay_type = "Co56"
                     energy = co56_lines[:, 0] * 1000
                     intensity = co56_lines[:, 1]
                     # positron energy scaled by intensity
@@ -196,13 +192,12 @@ def initialize_packets(
                     positron_fraction = positron_energy / np.sum(
                         energy * intensity
                     )
+                    decay_time = sample_decay_time(ni56_tau, co56_tau)
                 else:
-                    decay_type = "Ni56"
                     energy = ni56_lines[:, 0] * 1000
                     intensity = ni56_lines[:, 1]
                     positron_fraction = 0
-
-                decay_time = sample_decay_time(decay_type, ni56_tau, co56_tau)
+                    decay_time = sample_decay_time(ni56_tau)
 
             cmf_energy = sample_energy(energy, intensity)
 
@@ -442,8 +437,16 @@ def main_gamma_ray_loop(
 
     # urilight chooses to have 0 as the baseline for this calculation
     # but time_start should also be valid
-    total_energy = ni56_chain_energy(
-        taus, 0, time_end, number_ni56, ni56_lines, co56_lines
+    total_energy = decay_chain_energy(
+        0,
+        time_end,
+        number_ni56,
+        taus["Ni56"],
+        taus["Co56"],
+        (ni56_lines.energy * 1000 * ni56_lines.intensity).sum(),
+        (co56_lines.energy * 1000 * co56_lines.intensity).sum(),
+        "Ni56",
+        "Co56",
     )
 
     print("Total gamma-ray energy")

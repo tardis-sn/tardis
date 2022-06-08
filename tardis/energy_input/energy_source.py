@@ -153,101 +153,59 @@ def intensity_ratio(nuclear_data, source_1, source_2):
     )
 
 
-def ni56_chain_energy(
-    taus, time_start, time_end, number_ni56, ni56_lines, co56_lines
+def decay_chain_energy(
+    time_start,
+    time_end,
+    number_start_isotope,
+    start_isotope_tau,
+    end_isotope_tau,
+    start_isotope_energy,
+    end_isotope_energy,
+    start_isotope_name,
+    end_isotope_name,
 ):
-    """Calculate the energy from the Ni56 chain
+    """Calculate the energy from an arbitrary decay chain
 
     Parameters
     ----------
-    taus : array float64
-        Mean half-life for each isotope
     time_start : float
         Start time in days
     time_end : float
         End time in days
-    number_ni56 : int
-        Number of Ni56 atoms at time_start
-    ni56_lines : DataFrame
-        Ni56 lines and intensities
-    co56_lines : DataFrame
-        Co56 lines and intensities
+    number_start_isotope : int
+        Number of initial isotope atoms at time_start
+    start_isotope_tau, end_isotope_tau : float64
+        Mean half-life for each isotope
+    start_isotope_energy : float64
+        Initial isotope total energy
+    end_isotope_energy : float64
+        Final isotope total energy
 
     Returns
     -------
-    float
-        Total energy from Ni56 decay
+    DataFrame
+        Total energy from decay for each isotope
     """
-    total_ni56 = -taus["Ni56"] * (
-        np.exp(-time_end / taus["Ni56"]) - np.exp(-time_start / taus["Ni56"])
+    total_start_isotope = -start_isotope_tau * (
+        np.exp(-time_end / start_isotope_tau)
+        - np.exp(-time_start / start_isotope_tau)
     )
-    total_co56 = -taus["Co56"] * (
-        np.exp(-time_end / taus["Co56"]) - np.exp(-time_start / taus["Co56"])
+    total_end_isotope = -end_isotope_tau * (
+        np.exp(-time_end / end_isotope_tau)
+        - np.exp(-time_start / end_isotope_tau)
     )
 
     total_energy = pd.DataFrame()
 
-    total_energy["Ni56"] = number_ni56 * (
-        (ni56_lines.energy * 1000 * ni56_lines.intensity).sum()
-        / taus["Ni56"]
-        * total_ni56
+    total_energy[start_isotope_name] = number_start_isotope * (
+        start_isotope_energy / start_isotope_tau * total_start_isotope
     )
 
-    total_energy["Co56"] = number_ni56 * (
-        (co56_lines.energy * 1000 * co56_lines.intensity).sum()
-        / (taus["Ni56"] - taus["Co56"])
-        * (total_ni56 - total_co56)
+    total_energy[end_isotope_name] = number_start_isotope * (
+        end_isotope_energy
+        / (start_isotope_tau - end_isotope_tau)
+        * (total_start_isotope - total_end_isotope)
     )
-
-    return total_energy
-
-
-def ni56_chain_energy_choice(
-    taus, time_start, time_end, number_ni56, ni56_lines, co56_lines, isotope
-):
-    """Calculate the energy from the Ni56 or Co56 chain
-
-    Parameters
-    ----------
-    taus : array float64
-        Mean half-life for each isotope
-    time_start : float
-        Start time in days
-    time_end : float
-        End time in days
-    number_ni56 : int
-        Number of Ni56 atoms at time_start
-    ni56_lines : DataFrame
-        Ni56 lines and intensities
-    co56_lines : DataFrame
-        Co56 lines and intensities
-    isotope : string
-        Isotope chain to calculate energy for
-
-    Returns
-    -------
-    float
-        Total energy from decay chain
-    """
-    total_ni56 = -taus["Ni56"] * (
-        np.exp(-time_end / taus["Ni56"]) - np.exp(-time_start / taus["Ni56"])
-    )
-    total_co56 = -taus["Co56"] * (
-        np.exp(-time_end / taus["Co56"]) - np.exp(-time_start / taus["Co56"])
-    )
-
-    if isotope == "Ni56":
-        total_energy = number_ni56 * (
-            (ni56_lines.energy * 1000 * ni56_lines.intensity).sum()
-            / taus["Ni56"]
-            * total_ni56
-        )
-    else:
-        total_energy = number_ni56 * (
-            (co56_lines.energy * 1000 * co56_lines.intensity).sum()
-            / (taus["Ni56"] - taus["Co56"])
-            * (total_ni56 - total_co56)
-        )
 
     return total_energy
 
