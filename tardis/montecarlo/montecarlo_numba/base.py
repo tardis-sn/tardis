@@ -291,7 +291,7 @@ def montecarlo_main_loop(
         v_packets_idx = np.floor(
             (vpackets_nu - spectrum_frequency[0]) / delta_nu
         ).astype(np.int64)
-        
+
         for j, idx in enumerate(v_packets_idx):
             if (vpackets_nu[j] < spectrum_frequency[0]) or (
                 vpackets_nu[j] > spectrum_frequency[-1]
