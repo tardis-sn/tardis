@@ -1,0 +1,76 @@
+name: tardis-jsonschema
+
+channels:
+  - conda-forge
+
+dependencies:
+
+  # WARNING: any change to this section must be applied to the conda-forge
+  # package recipe at https://github.com/conda-forge/tardis-sn-feedstock
+
+  - python=3.8
+  - setuptools
+  - setuptools_scm
+  - pip
+  - numpy=1.19
+  - scipy=1.5
+  - pandas=1.0
+  - astropy=5.0
+  - numba=0.53
+  - numexpr
+  - radioactivedecay>=0.4.12
+
+  # Plasma
+  - networkx
+  - pygraphviz
+
+  # I/O
+  - pyyaml
+  - jsonschema
+  - hdf5=1.10
+  - h5py
+  - pytables
+  - requests
+  - tqdm
+
+  # Widgets & Visualization
+  - notebook
+  - matplotlib-base
+  - ipywidgets
+  - plotly
+  - qgrid
+
+  # --- Packages not required for conda-forge recipe ---
+
+  # tardis-sn/nuclear dependencies
+  - beautifulsoup4
+  - lxml
+
+  # Documentation
+  - sphinx
+  - sphinx-astropy
+  - sphinx_bootstrap_theme
+  - sphinx-jsonschema
+  - sphinx_rtd_theme
+  - sphinxcontrib-apidoc
+  - sphinxcontrib-bibtex
+  - recommonmark
+  - numpydoc
+  - nbconvert
+  - nbformat
+  - nbsphinx
+  - snakeviz
+  - dot2tex
+
+  # Test/Coverage
+  - pytest
+  - pytest-cov
+  - pytest-html
+  - python-dokuwiki
+  - coverage
+
+  # Code quality
+  - black=22.3
+
+  # Other
+  - git-lfs
