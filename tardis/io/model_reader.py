@@ -7,6 +7,8 @@ import pandas as pd
 from astropy import units as u
 from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
+import h5py
+from tardis.montecarlo.base import MontecarloRunner
 
 import logging
 
@@ -533,3 +535,213 @@ def parse_csv_abundances(csvy_data):
             ].tolist()
 
     return abundance.index, abundance, isotope_abundance
+
+
+def runner_to_dict(runner):
+    """
+    Retrieves all the data from a runner object and returns a runner.
+
+    Parameters
+    ----------
+    runner : tardis.montecarlo.MontecarloRunner
+
+    Returns
+    -------
+    runner_dict : dict
+    integrator_settings : dict
+    v_packet_settings : dict
+    virtual_spectrum_spawn_range : dict
+    """
+
+    runner_dict = {
+        "Edotlu_estimator": runner.Edotlu_estimator,
+        "bf_heating_estimator": runner.bf_heating_estimator,
+        "disable_electron_scattering": runner.disable_electron_scattering,
+        "enable_full_relativity": runner.enable_full_relativity,
+        "enable_reflective_inner_boundary": runner.enable_reflective_inner_boundary,
+        "inner_boundary_albedo": runner.inner_boundary_albedo,
+        "input_energy": runner.input_energy,
+        "input_mu": runner.input_mu,
+        "input_nu": runner.input_nu,
+        "input_r": runner.input_r,
+        "j_blue_estimator": runner.j_blue_estimator,
+        "j_estimator": runner.j_estimator,
+        "last_interaction_in_nu": runner.last_interaction_in_nu,
+        "last_interaction_type": runner.last_interaction_type,
+        "last_line_interaction_in_id": runner.last_line_interaction_in_id,
+        "last_line_interaction_out_id": runner.last_line_interaction_out_id,
+        "last_line_interaction_shell_id": runner.last_line_interaction_shell_id,
+        "line_interaction_type": runner.line_interaction_type,
+        "nu_bar_estimator": runner.nu_bar_estimator,
+        "photo_ion_estimator": runner.photo_ion_estimator,
+        "photo_ion_estimator_statistics": runner.photo_ion_estimator_statistics,
+        "r_inner_cgs": runner.r_inner_cgs,
+        "r_outer_cgs": runner.r_outer_cgs,
+        "seed": runner.seed,
+        "single_packet_seed": runner.single_packet_seed,
+        "spectrum_frequency": runner.spectrum_frequency,
+        "spectrum_method": runner.spectrum_method,
+        "stim_recomb_cooling_estimator": runner.stim_recomb_cooling_estimator,
+        "stim_recomb_estimator": runner.stim_recomb_estimator,
+        "t_rad_estimator_constant": runner.t_rad_estimator_constant,
+        "time_of_simulation": runner.time_of_simulation,
+        "use_gpu": runner.use_gpu,
+        "v_inner_cgs": runner.v_inner_cgs,
+        "v_outer_cgs": runner.v_outer_cgs,
+        "virt_logging": runner.virt_logging,
+        "virt_packet_energies": runner.virt_packet_energies,
+        "virt_packet_initial_mus": runner.virt_packet_initial_mus,
+        "virt_packet_initial_rs": runner.virt_packet_initial_rs,
+        "virt_packet_last_interaction_in_nu": runner.virt_packet_last_interaction_in_nu,
+        "virt_packet_last_interaction_type": runner.virt_packet_last_interaction_type,
+        "virt_packet_last_line_interaction_in_id": runner.virt_packet_last_line_interaction_in_id,
+        "virt_packet_last_line_interaction_out_id": runner.virt_packet_last_line_interaction_out_id,
+        "virt_packet_nus": runner.virt_packet_nus,
+        "volume": runner.volume,
+    }
+
+    integrator_settings = runner.integrator_settings.items()
+    v_packet_settings = runner.v_packet_settings.items()
+    virtual_spectrum_spawn_range = runner.virtual_spectrum_spawn_range.items()
+
+    return (
+        runner_dict,
+        integrator_settings,
+        v_packet_settings,
+        virtual_spectrum_spawn_range,
+    )
+
+
+def store_runner_to_hdf(runner, fname):
+    """
+    Stores data from runner object into a hdf file.
+
+    Parameters
+    ----------
+    runner : tardis.montecarlo.MontecarloRunner
+    filename : str
+    """
+
+    with h5py.File(fname, "w") as f:
+        runner_group = f.create_group("runner")
+        (
+            runner_data,
+            integrator_settings,
+            v_packet_settings,
+            virtual_spectrum_spawn_range,
+        ) = runner_to_dict(runner)
+
+        for key, value in runner_data.items():
+            runner_group.create_dataset(key, data=value)
+
+        integrator_settings_group = runner_group.create_group(
+            "integrator_settings"
+        )
+        for key, value in integrator_settings:
+            integrator_settings_group.create_dataset(key, data=value)
+
+        v_packet_settings_group = runner_group.create_group("v_packet_settings")
+        for key, value in v_packet_settings:
+            v_packet_settings_group.create_dataset(key, data=value)
+
+        virtual_spectrum_spawn_range_group = runner_group.create_group(
+            "virtual_spectrum_spawn_range"
+        )
+        for key, value in virtual_spectrum_spawn_range:
+            virtual_spectrum_spawn_range_group.create_dataset(key, data=value)
+
+
+def runner_from_hdf(fname):
+    """
+    Creates a runner object using data stored in a hdf file.
+
+    Parameters
+    ----------
+    fname : str
+
+    Returns
+    -------
+    runner_dict : tardis.montecarlo.MontecarloRunner
+    """
+
+    d = {}
+
+    # Loading data from hdf file
+    with h5py.File("runner_data.hdf", "r") as f:
+        runner_group = f["runner"]
+        for key, value in runner_group.items():
+            if type(value) == h5py._hl.dataset.Dataset:
+                d[key] = value[()]
+            else:
+                data_inner = {}
+                for key_inner, value_inner in value.items():
+                    data_inner[key_inner] = value_inner[()]
+                d[key] = data_inner
+
+    # Creating a runner object and storing data
+    new_runner = MontecarloRunner(
+        seed=d["seed"],
+        spectrum_frequency=d["spectrum_frequency"],
+        virtual_spectrum_spawn_range=d["virtual_spectrum_spawn_range"],
+        disable_electron_scattering=d["disable_electron_scattering"],
+        enable_reflective_inner_boundary=d["enable_reflective_inner_boundary"],
+        enable_full_relativity=d["enable_full_relativity"],
+        inner_boundary_albedo=d["inner_boundary_albedo"],
+        line_interaction_type=d["line_interaction_type"],
+        integrator_settings=d["integrator_settings"],
+        v_packet_settings=d["v_packet_settings"],
+        spectrum_method=d["spectrum_method"],
+        virtual_packet_logging=d["virt_logging"],
+        single_packet_seed=d["single_packet_seed"],
+        use_gpu=d["use_gpu"],
+    )
+
+    new_runner.Edotlu_estimator = d["Edotlu_estimator"]
+    new_runner.bf_heating_estimator = d["bf_heating_estimator"]
+    new_runner.input_energy = d["input_energy"]
+    new_runner.input_mu = d["input_mu"]
+    new_runner.input_nu = d["input_nu"]
+    new_runner.input_r = d["input_r"]
+    new_runner.j_blue_estimator = d["j_blue_estimator"]
+    new_runner.j_estimator = d["j_estimator"]
+    new_runner.last_interaction_in_nu = d["last_interaction_in_nu"]
+    new_runner.last_interaction_type = d["last_interaction_type"]
+    new_runner.last_line_interaction_in_id = d["last_line_interaction_in_id"]
+    new_runner.last_line_interaction_out_id = d["last_line_interaction_out_id"]
+    new_runner.last_line_interaction_shell_id = d[
+        "last_line_interaction_shell_id"
+    ]
+    new_runner.nu_bar_estimator = d["nu_bar_estimator"]
+    new_runner.photo_ion_estimator = d["photo_ion_estimator"]
+    new_runner.photo_ion_estimator_statistics = d[
+        "photo_ion_estimator_statistics"
+    ]
+    new_runner.r_inner_cgs = d["r_inner_cgs"]
+    new_runner.r_outer_cgs = d["r_outer_cgs"]
+    new_runner.stim_recomb_cooling_estimator = d[
+        "stim_recomb_cooling_estimator"
+    ]
+    new_runner.stim_recomb_estimator = d["stim_recomb_estimator"]
+    new_runner.t_rad_estimator_constant = d["t_rad_estimator_constant"]
+    new_runner.time_of_simulation = d["time_of_simulation"]
+    new_runner.v_inner_cgs = d["v_inner_cgs"]
+    new_runner.v_outer_cgs = d["v_outer_cgs"]
+    new_runner.virt_packet_energies = d["virt_packet_energies"]
+    new_runner.virt_packet_initial_mus = d["virt_packet_initial_mus"]
+    new_runner.virt_packet_initial_rs = d["virt_packet_initial_rs"]
+    new_runner.virt_packet_last_interaction_in_nu = d[
+        "virt_packet_last_interaction_in_nu"
+    ]
+    new_runner.virt_packet_last_interaction_type = d[
+        "virt_packet_last_interaction_type"
+    ]
+    new_runner.virt_packet_last_line_interaction_in_id = d[
+        "virt_packet_last_line_interaction_in_id"
+    ]
+    new_runner.virt_packet_last_line_interaction_out_id = d[
+        "virt_packet_last_line_interaction_out_id"
+    ]
+    new_runner.virt_packet_nus = d["virt_packet_nus"]
+    new_runner.volume = d["volume"]
+
+    return new_runner
