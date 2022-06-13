@@ -76,8 +76,10 @@ this method by following the steps described below.
 
     $ conda deactivate
 
-You are ready! From now on, just activate the ``tardis`` environment before working with the 
-TARDIS package.
+From now on, just activate the ``tardis`` environment before working with the TARDIS package.
+
+You have successfully installed TARDIS! 🎉 Please refer to `Quickstart for TARDIS <quickstart.ipynb>`_ 
+to start running simulations.
 
 
 Install from package

@@ -127,7 +127,7 @@ mathjax2_config = {
 
 nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
-    "--InlineBackend.rc={'figure.dpi': 96}",
+    "--rc figure.dpi=96",
 ]
 
 nbsphinx_prolog = r"""
@@ -135,6 +135,12 @@ nbsphinx_prolog = r"""
 .. raw:: html
     
     <style>
+        /* strip stderr */
+        div.nboutput.container div.output_area.stderr {
+            background: #fdd;
+            display: none;
+        }
+
         .launch-btn {
             background-color: #2980B9;
             border: none;
@@ -164,7 +170,7 @@ nbsphinx_prolog = r"""
     </style>
     
     <div class="admonition note">
-    <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath={{ docname|e }}" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch interactive version</a></p>
+    <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath={{ docname|e }}" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
     </div>
 """
 
