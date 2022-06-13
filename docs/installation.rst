@@ -63,7 +63,7 @@ this method by following the steps described below.
         $ git remote add upstream git@github.com:tardis-sn/tardis.git
         $ git fetch upstream
         $ git checkout upstream/master
-        $ pip install -e .
+        $ python setup.py develop
 
       .. note::
 
