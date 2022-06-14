@@ -1,0 +1,101 @@
+#  For more information about TARDIS pipelines, please refer to:
+#
+#    https://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+name: update-refdata
+
+on:
+#  pull_request_target:
+#    branches:
+#      - master
+  pull_request:
+    branches:
+      - master  
+
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled                         # requires the `update-refdata` label
+
+  workflow_dispatch:                    # manual trigger
+
+env:
+  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --generate-reference
+  CACHE_NUMBER: 0                       # increase to reset cache manually
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  build:
+    if: github.event_name == 'workflow_dispatch' ||
+        (github.event_name == 'pull_request' &&
+        contains(github.event.pull_request.labels.*.name, 'update-refdata'))
+
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v2
+#        if: github.event_name != 'pull_request_target'
+#
+#      - name: Checkout pull/${{ github.event.number }}
+#        uses: actions/checkout@v2
+#        with:
+#          ref: ${{ github.event.pull_request.head.sha }}
+#        if: github.event_name == 'pull_request_target'
+
+      - uses: actions/checkout@v2
+        with:
+          repository: tardis-sn/tardis-refdata
+          lfs: false
+
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+        working-directory: tardis-refdata
+
+      - name: Restore LFS cache
+        uses: actions/cache@v2
+        id: lfs-cache
+        with:
+          path: tardis-refdata/.git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-refdata/.lfs-assets-id') }}-v${{ env.CACHE_NUMBER }}
+
+      - name: Pull LFS objects
+        run: git lfs pull
+        working-directory: tardis-refdata
+        if: steps.lfs-cache.outputs.cache-hit != 'true'
+      
+      - name: Checkout LFS repository
+        run: git lfs checkout
+        working-directory: tardis-refdata
+        if: steps.lfs-cache.outputs.cache-hit == 'true'
+
+      - name: Setup environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
+            activate-environment: tardis
+            use-mamba: true
+
+      - uses: actions/cache@v2
+        with:
+          path: /usr/share/miniconda3/envs/tardis
+          key: conda-linux-64-${{ hashFiles('conda-linux-64.lock') }}-v${{ env.CACHE_NUMBER }}
+        id: cache-conda
+
+      - name: Update environment
+        run: mamba update -n tardis --file conda-linux-64.lock
+        if: steps.cache-conda.outputs.cache-hit != 'true'
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Generate new reference data
+        run: pytest tardis ${{ env.PYTEST_FLAGS }}
