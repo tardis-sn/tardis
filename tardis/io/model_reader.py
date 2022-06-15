@@ -622,8 +622,8 @@ def store_runner_to_hdf(runner, fname):
     filename : str
     """
 
-    with h5py.File(fname, "w") as f:
-        runner_group = f.create_group("runner")
+    with h5py.File(fname, "a") as f:
+        runner_group = f.require_group("runner")
         (
             runner_data,
             integrator_settings,
