@@ -667,7 +667,7 @@ def runner_from_hdf(fname):
     d = {}
 
     # Loading data from hdf file
-    with h5py.File("runner_data.hdf", "r") as f:
+    with h5py.File(fname, "r") as f:
         runner_group = f["runner"]
         for key, value in runner_group.items():
             if type(value) == h5py._hl.dataset.Dataset:
