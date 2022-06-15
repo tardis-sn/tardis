@@ -63,8 +63,13 @@ highlight_language = "none"
 # directories to ignore when looking for source files.
 exclude_patterns.append("_templates")
 exclude_patterns.append("_build")
+exclude_patterns.append("**_template.rst")
 exclude_patterns.append("**.ipynb_checkpoints")
 exclude_patterns.append("resources/research_done_using_TARDIS/ads.ipynb")
+exclude_patterns.append("physics/energy_input/gammaray_deposition.ipynb")
+
+if os.getenv("DISABLE_PROFILING"):
+    exclude_patterns.append("contributing/development/profiling/**.ipynb")
 
 # This is added to the end of RST files - a good place to put substitutions to
 # be used globally.
@@ -125,7 +130,7 @@ mathjax2_config = {
 
 nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
-    "--InlineBackend.rc={'figure.dpi': 96}",
+    "--rc figure.dpi=96",
 ]
 
 nbsphinx_prolog = r"""
@@ -133,6 +138,12 @@ nbsphinx_prolog = r"""
 .. raw:: html
     
     <style>
+        /* strip stderr */
+        div.nboutput.container div.output_area.stderr {
+            background: #fdd;
+            display: none;
+        }
+
         .launch-btn {
             background-color: #2980B9;
             border: none;
@@ -162,7 +173,7 @@ nbsphinx_prolog = r"""
     </style>
     
     <div class="admonition note">
-    <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath={{ docname|e }}" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch interactive version</a></p>
+    <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath={{ docname|e }}" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
     </div>
 """
 
@@ -334,52 +345,7 @@ redirects = [
 
 # -- Sphinx hook-ins ---------------------------------------------------------
 
-import re
-import pathlib
-import requests
-import textwrap
-import warnings
 from shutil import copyfile
-
-
-def generate_ZENODO(app):
-    """Creating ZENODO.rst
-    Adapted from: https://astrodata.nyc/posts/2021-04-23-zenodo-sphinx/"""
-    CONCEPT_DOI = "592480"  # See: https://help.zenodo.org/#versioning
-    zenodo_path = pathlib.Path("resources/ZENODO.rst")
-
-    try:
-        headers = {"accept": "application/x-bibtex"}
-        response = requests.get(
-            f"https://zenodo.org/api/records/{CONCEPT_DOI}", headers=headers
-        )
-        response.encoding = "utf-8"
-        citation = re.findall("@software{(.*)\,", response.text)
-        zenodo_record = (
-            f".. |ZENODO| replace:: {citation[0]}\n\n"
-            ".. code-block:: bibtex\n\n"
-            + textwrap.indent(response.text, " " * 4)
-        )
-
-    except Exception as e:
-        warnings.warn(
-            "Failed to retrieve Zenodo record for TARDIS: " f"{str(e)}"
-        )
-
-        not_found_msg = """
-                        Couldn"t retrieve the TARDIS software citation from Zenodo. Get it 
-                        directly from `this link <https://zenodo.org/record/{CONCEPT_DOI}>`_    .
-                        """
-
-        zenodo_record = (
-            ".. |ZENODO| replace:: <TARDIS SOFTWARE CITATION HERE> \n\n"
-            ".. warning:: \n\n" + textwrap.indent(not_found_msg, " " * 4)
-        )
-
-    with open(zenodo_path, "w") as f:
-        f.write(zenodo_record)
-
-    print(zenodo_record)
 
 
 def generate_tutorials_page(app):
@@ -434,7 +400,6 @@ def create_redirect_files(app, docname):
 
 
 def setup(app):
-    app.connect("builder-inited", generate_ZENODO)
     app.connect("builder-inited", generate_tutorials_page)
     app.connect("autodoc-skip-member", autodoc_skip_member)
     app.connect("build-finished", create_redirect_files)

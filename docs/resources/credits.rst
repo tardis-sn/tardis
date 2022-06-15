@@ -24,7 +24,7 @@ following paragraph to the Acknowledgement section:
     sponsored project of NumFOCUS. \\textsc{tardis} makes extensive use of Astropy and Pyne.
 
 If you use any of the full relativity treatments or use TARDIS for modelling
-Type II supernovae, also add `Spectral modeling of type II supernovae. I. Dilution factors <https://ui.adsabs.harvard.edu/abs/2019A%26A...621A..29V>`_ 
+Type II supernovae, also add `Spectral modeling of type II supernovae. I. Dilution factors <https://ui.adsabs.harvard.edu/abs/2019A%26A...621A..29V>`_
 to the Acknowledgement.
 
 .. parsed-literal::
@@ -72,4 +72,98 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. include:: ZENODO.rst
+.. |ZENODO| replace:: kerzendorf_wolfgang_2022_6614338
+
+.. code-block:: bibtex
+
+    @software{kerzendorf_wolfgang_2022_6614338,
+      author       = {Kerzendorf, Wolfgang and
+                      Sim, Stuart and
+                      Vogl, Christian and
+                      Williamson, Marc and
+                      Pássaro, Ezequiel and
+                      Flörs, Andreas and
+                      Camacho, Yssa and
+                      Jančauskas, Vytautas and
+                      Harpole, Alice and
+                      Nöbauer, Ulrich and
+                      Lietzau, Stefan and
+                      Mishin, Mikhail and
+                      Tsamis, Fotis and
+                      Boyle, Aoife and
+                      Shingles, Luke and
+                      Gupta, Vaibhav and
+                      Desai, Karan and
+                      Klauser, Michael and
+                      Beaujean, Frederik and
+                      Suban-Loewen, Adam and
+                      Heringer, Epson and
+                      Barna, Barnabás and
+                      Gautam, Gaurav and
+                      Fullard, Andrew and
+                      Cawley, Kevin and
+                      Smith, Isaac and
+                      Singhal, Jaladh and
+                      Arya, Atharva and
+                      Sondhi, Dhruv and
+                      Barbosa, Talytha and
+                      Yu, Jenny and
+                      O'Brien, Jack and
+                      Patel, Maryam and
+                      Varanasi, Kaushik and
+                      Gillanders, James and
+                      Savel, Arjun and
+                      Eweis, Youssef and
+                      Reinecke, Martin and
+                      Bylund, Tomas and
+                      Bentil, Laud and
+                      Eguren, Jordi and
+                      Alam, Arib and
+                      Bartnik, Matthew and
+                      Magee, Mark and
+                      Chitchyan, Sona and
+                      Livneh, Ran and
+                      Shields, Joshua and
+                      Rajagopalan, Srinath and
+                      Mishra, Sashank and
+                      Jain, Rinkle and
+                      Reichenbach, John and
+                      Floers, Andreas and
+                      Brar, Antreev and
+                      Singh, Sourav and
+                      Kowalski, Nathan and
+                      Talegaonkar, Chinmay and
+                      Selsing, Jonatan and
+                      Sofiatti, Caroline and
+                      Sarafina, Nance and
+                      Martinez, Laureano and
+                      Yap, Kevin and
+                      Patel, Pratik and
+                      Patra, Nilesh and
+                      Volodin, Dmitry and
+                      Dasgupta, Debajyoti and
+                      Sharma, Sampark and
+                      Venkat, Shashank and
+                      Prasad, Shilpi and
+                      Singh Rathore, Parikshit and
+                      Zaheer, Musabbiha and
+                      Nayak U, Ashwin and
+                      Gupta, Suyash and
+                      Sandler, Morgan and
+                      Kharkar, Atharwa and
+                      Aggarwal, Yash and
+                      Holas, Alexander and
+                      Kumar, Atul and
+                      kumar, aman and
+                      Wahi, Ujjwal and
+                      Kolliboyina, Chaitanya and
+                      Lemoine, Thom},
+      title        = {tardis-sn/tardis: TARDIS v2022.06.05},
+      month        = jun,
+      year         = 2022,
+      publisher    = {Zenodo},
+      version      = {release-2022.06.05},
+      doi          = {10.5281/zenodo.6614338},
+      url          = {https://doi.org/10.5281/zenodo.6614338}
+    }
+

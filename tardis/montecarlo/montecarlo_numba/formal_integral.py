@@ -58,6 +58,7 @@ def numba_formal_integral(
         intensities at each p-ray multiplied by p
         frequency x p-ray grid
     """
+
     # todo: add all the original todos
     # Initialize the output which is shared among threads
     L = np.zeros(inu_size, dtype=np.float64)
@@ -292,6 +293,8 @@ class FormalIntegrator(object):
         self.numba_model = NumbaModel(
             self.runner.r_inner_i,
             self.runner.r_outer_i,
+            self.runner.r_inner_i / self.model.time_explosion.to("s").value,
+            self.runner.r_outer_i / self.model.time_explosion.to("s").value,
             self.model.time_explosion.to("s").value,
         )
         self.numba_plasma = numba_plasma_initialize(

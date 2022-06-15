@@ -1,5 +1,23 @@
 ## Change Log
 
+### release-2022.06.05 (2022/06/05 01:07 +00:00)
+- [#2043](https://github.com/tardis-sn/tardis/pull/2043) Pre-release 2022.06.05 (#2043) (@tardis-bot)
+- [#2039](https://github.com/tardis-sn/tardis/pull/2039) Check PEP8 on CI (#2039) (@epassaro)
+- [#2037](https://github.com/tardis-sn/tardis/pull/2037) Update README.rst in post-release (#2037) (@epassaro)
+- [#2024](https://github.com/tardis-sn/tardis/pull/2024) Added v_inner and v_outer, enable_nonhomologous_expansion for future use in nonhomologous expansion (#2024) (@sonachitchyan)
+- [#2038](https://github.com/tardis-sn/tardis/pull/2038) Fix bot aliases in .mailmap (#2038) (@epassaro)
+- [#2027](https://github.com/tardis-sn/tardis/pull/2027) Replace docstr-coverage with interrogate (#2027) (@epassaro)
+- [#2020](https://github.com/tardis-sn/tardis/pull/2020) Fixes for CITATION.cff (#2020) (@epassaro)
+- [#2033](https://github.com/tardis-sn/tardis/pull/2033) Merge all CI users on mailmap (#2033) (@epassaro)
+- [#2028](https://github.com/tardis-sn/tardis/pull/2028) Rebuild installation page (#2028) (@epassaro)
+- [#1921](https://github.com/tardis-sn/tardis/pull/1921) Formal integral documentation (#1921) (@smithis7)
+- [#2030](https://github.com/tardis-sn/tardis/pull/2030) Fix estimators parallel (#2030) (@Rodot-)
+- [#2019](https://github.com/tardis-sn/tardis/pull/2019) Added compatability to current version of carsus atomic data (#2019) (@Rodot-)
+- [#2011](https://github.com/tardis-sn/tardis/pull/2011) Build and cache conda environments with lockfiles (#2011) (@epassaro)
+- [#1991](https://github.com/tardis-sn/tardis/pull/1991) Re-write `download_from_url` using Astropy's `download_file` (#1991) (@epassaro)
+- [#1992](https://github.com/tardis-sn/tardis/pull/1992) Fix low temperature problem of Van Regemorter approximation (#1992) (@chvogl)
+- [#2018](https://github.com/tardis-sn/tardis/pull/2018) Automated changes for post-release 2022.05.08 (#2018) (@tardis-bot)
+
 ### release-2022.05.08 (2022/05/08 00:27 +00:00)
 - [#2016](https://github.com/tardis-sn/tardis/pull/2016) Automated changes for pre-release 2022.05.08 (#2016) (@tardis-bot)
 - [#1996](https://github.com/tardis-sn/tardis/pull/1996) Fixes for compare-refdata pipeline (#1996) (@epassaro)
@@ -219,8 +237,6 @@
 
 ### release-2021.7.5 (2021/07/05 14:32 +00:00)
 - [#1688](https://github.com/tardis-sn/tardis/pull/1688) final changes for release pipeline (#1688) (@epassaro)
-
-### release-2021.7.2.dev1+g58e4e79d (2021/07/02 15:44 +00:00)
 - [#1683](https://github.com/tardis-sn/tardis/pull/1683) prepare release pipeline for CalVer (#1683) (@epassaro)
 
 ### release-2021.07.01 (2021/07/01 23:05 +00:00)

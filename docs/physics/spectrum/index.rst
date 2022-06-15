@@ -17,4 +17,4 @@ below.
 .. toctree::
     basic
     virtualpackets
-    sourceintegration
+    formal_integral

@@ -27,78 +27,71 @@ stars (*supernovae*).
 .. image:: https://github.com/tardis-sn/tardis/actions/workflows/tests.yml/badge.svg
     :target: https://github.com/tardis-sn/tardis/actions/workflows/tests.yml
 
-.. image:: https://github.com/tardis-sn/tardis/actions/workflows/documentation-build.yml/badge.svg
+.. image:: https://github.com/tardis-sn/tardis/actions/workflows/build-docs.yml/badge.svg
     :target: https://tardis-sn.github.io/tardis/index.html
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
 |
 
+.. _tardiscredits:
+
 ******************************
 Credits & Publication Policies
 ******************************
 
-.. image:: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.592480-blue
-    :target: https://doi.org/10.5281/zenodo.592480
-|
-
 We provide TARDIS as a free, open-source tool. If you are using it, please
 adhere to a few policies and acknowledge the TARDIS Team.
-
 
 Publication Policies
 ====================
 
 If you use this code for any publications or presentations please acknowledge
 it.  Please cite `Kerzendorf & Sim 2014
-<http://adsabs.harvard.edu/abs/2014MNRAS.440..387K>`_  in the text.
+<http://adsabs.harvard.edu/abs/2014MNRAS.440..387K>`_  in the text and add the
+following paragraph to the Acknowledgement section:
 
-Please add this paragraph to the Acknowledgement:
+.. parsed-literal::
 
-.. code-block:: none
+    This research made use of \\textsc{tardis}, a community-developed software package for spectral
+    synthesis in supernovae \\citep{2014MNRAS.440..387K, |ZENODO|}. The
+    development of \\textsc{tardis} received support from GitHub, the Google Summer of Code
+    initiative, and from ESA's Summer of Code in Space program. \\textsc{tardis} is a fiscally
+    sponsored project of NumFOCUS. \\textsc{tardis} makes extensive use of Astropy and Pyne.
 
-    This research made use of \textsc{Tardis}, a community-developed software
-    package for spectral synthesis in supernovae
-    \citep{2014MNRAS.440..387K, kerzendorf_wolfgang_2019_2590539}.
-    The development of \textsc{Tardis} received support from the
-    Google Summer of Code initiative
-    and from ESA's Summer of Code in Space program. \textsc{Tardis} makes
-    extensive use of Astropy and PyNE.
+If you use any of the full relativity treatments or use TARDIS for modelling
+Type II supernovae, also add `Spectral modeling of type II supernovae. I. Dilution factors <https://ui.adsabs.harvard.edu/abs/2019A%26A...621A..29V>`_
+to the Acknowledgement.
 
-
-If you use any of the full relativity treatments or use TARDIS for
-modelling Type II supernovae you also add this citation to acknowledgement
-`Spectral modeling of type II supernovae. I. Dilution factors
-<https://ui.adsabs.harvard.edu/abs/2019A%26A...621A..29V>`_:
-
-.. code-block:: none
+.. parsed-literal::
 
     \citep{2019A&A...621A..29V}
 
 The following BibTeX entries are needed for the references:
 
-.. code-block:: none
+.. code-block:: bibtex
 
     @ARTICLE{2014MNRAS.440..387K,
-     author = {{Kerzendorf}, W.~E. and {Sim}, S.~A.},
-      title = "{A spectral synthesis code for rapid modelling of supernovae}",
-    journal = {\mnras},
+           author = {{Kerzendorf}, W.~E. and {Sim}, S.~A.},
+            title = "{A spectral synthesis code for rapid modelling of supernovae}",
+          journal = {\mnras},
     archivePrefix = "arXiv",
-     eprint = {1401.5469},
-    primaryClass = "astro-ph.SR",
-    keywords = {radiative transfer, methods: numerical, supernovae: general},
-       year = 2014,
-      month = may,
-     volume = 440,
-      pages = {387-404},
-        doi = {10.1093/mnras/stu055},
-     adsurl = {http://adsabs.harvard.edu/abs/2014MNRAS.440..387K},
-    adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+           eprint = {1401.5469},
+     primaryClass = "astro-ph.SR",
+         keywords = {radiative transfer, methods: numerical, supernovae: general},
+             year = 2014,
+            month = may,
+           volume = 440,
+            pages = {387-404},
+              doi = {10.1093/mnras/stu055},
+           adsurl = {http://adsabs.harvard.edu/abs/2014MNRAS.440..387K},
+          adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
+.. code-block:: bibtex
+
     @ARTICLE{2019A&A...621A..29V,
-           author = {{Vogl}, C. and {Sim}, S.~A. and {Noebauer}, U.~M. and
-             {Kerzendorf}, W.~E. and {Hillebrandt}, W.},
+           author = {{Vogl}, C. and {Sim}, S.~A. and {Noebauer}, U.~M. and {Kerzendorf}, W.~E. and {Hillebrandt}, W.},
             title = "{Spectral modeling of type II supernovae. I. Dilution factors}",
           journal = {\aap},
          keywords = {radiative transfer, methods: numerical, stars: distances, supernovae: general, supernovae: individual: SN1999em, Astrophysics - High Energy Astrophysical Phenomena, Astrophysics - Solar and Stellar Astrophysics},
@@ -115,8 +108,11 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
+.. |ZENODO| replace:: kerzendorf_wolfgang_2022_6614338
 
-    @software{kerzendorf_wolfgang_2020_3893940,
+.. code-block:: bibtex
+
+    @software{kerzendorf_wolfgang_2022_6614338,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -140,52 +136,80 @@ The following BibTeX entries are needed for the references:
                       Heringer, Epson and
                       Barna, Barnabás and
                       Gautam, Gaurav and
+                      Fullard, Andrew and
+                      Cawley, Kevin and
+                      Smith, Isaac and
+                      Singhal, Jaladh and
+                      Arya, Atharva and
+                      Sondhi, Dhruv and
                       Barbosa, Talytha and
+                      Yu, Jenny and
+                      O'Brien, Jack and
                       Patel, Maryam and
                       Varanasi, Kaushik and
+                      Gillanders, James and
+                      Savel, Arjun and
                       Eweis, Youssef and
                       Reinecke, Martin and
                       Bylund, Tomas and
                       Bentil, Laud and
                       Eguren, Jordi and
+                      Alam, Arib and
+                      Bartnik, Matthew and
+                      Magee, Mark and
+                      Chitchyan, Sona and
                       Livneh, Ran and
-                      Singhal, Jaladh and
-                      O'Brien, Jack and
+                      Shields, Joshua and
                       Rajagopalan, Srinath and
+                      Mishra, Sashank and
                       Jain, Rinkle and
                       Reichenbach, John and
-                      Mishra, Sashank and
+                      Floers, Andreas and
+                      Brar, Antreev and
                       Singh, Sourav and
-                      Sofiatti, Caroline and
-                      Selsing, Jonatan and
                       Kowalski, Nathan and
-                      Savel, Arjun and
                       Talegaonkar, Chinmay and
+                      Selsing, Jonatan and
+                      Sofiatti, Caroline and
+                      Sarafina, Nance and
+                      Martinez, Laureano and
+                      Yap, Kevin and
                       Patel, Pratik and
                       Patra, Nilesh and
-                      Nayak, Ashwin and
-                      Kumar, Atul and
-                      Sarafina, Nance and
-                      Gillanders, James and
-                      Sharma, Sampark and
-                      Wahi, Ujjwal and
+                      Volodin, Dmitry and
                       Dasgupta, Debajyoti and
-                      Magee, Mark and
-                      Yap, Kevin and
-                      Gupta, Suyash},
-      title        = {tardis-sn/tardis: TARDIS v3.0.dev3459},
+                      Sharma, Sampark and
+                      Venkat, Shashank and
+                      Prasad, Shilpi and
+                      Singh Rathore, Parikshit and
+                      Zaheer, Musabbiha and
+                      Nayak U, Ashwin and
+                      Gupta, Suyash and
+                      Sandler, Morgan and
+                      Kharkar, Atharwa and
+                      Aggarwal, Yash and
+                      Holas, Alexander and
+                      Kumar, Atul and
+                      kumar, aman and
+                      Wahi, Ujjwal and
+                      Kolliboyina, Chaitanya and
+                      Lemoine, Thom},
+      title        = {tardis-sn/tardis: TARDIS v2022.06.05},
       month        = jun,
-      year         = 2020,
+      year         = 2022,
       publisher    = {Zenodo},
-      version      = {v3.0.dev3459},
-      doi          = {10.5281/zenodo.3893940},
-      url          = {https://doi.org/10.5281/zenodo.3893940}
+      version      = {release-2022.06.05},
+      doi          = {10.5281/zenodo.6614338},
+      url          = {https://doi.org/10.5281/zenodo.6614338}
     }
-
 
 *******
 License
 *******
+
+.. image:: https://img.shields.io/conda/l/conda-forge/tardis-sn
+    :target: https://github.com/tardis-sn/tardis/blob/master/licenses/LICENSE.rst
+
 .. image:: http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
     :target: http://www.astropy.org
 |
@@ -195,3 +219,4 @@ the terms of the BSD 3-Clause license. This package is based upon
 the `Astropy package template <https://github.com/astropy/package-template>`_
 which is licensed under the BSD 3-clause license. See the licenses folder for
 more information.
+

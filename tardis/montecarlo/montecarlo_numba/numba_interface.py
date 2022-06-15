@@ -17,12 +17,14 @@ numba_model_spec = [
     ("r_inner", float64[:]),
     ("r_outer", float64[:]),
     ("time_explosion", float64),
+    ("v_inner", float64[:]),
+    ("v_outer", float64[:]),
 ]
 
 
 @jitclass(numba_model_spec)
 class NumbaModel(object):
-    def __init__(self, r_inner, r_outer, time_explosion):
+    def __init__(self, r_inner, r_outer, v_inner, v_outer, time_explosion):
         """
         Model for the Numba mode
 
@@ -30,10 +32,14 @@ class NumbaModel(object):
         ----------
         r_inner : numpy.ndarray
         r_outer : numpy.ndarray
+        v_inner : numpy.ndarray
+        v_outer : numpy.ndarray
         time_explosion : float
         """
         self.r_inner = r_inner
         self.r_outer = r_outer
+        self.v_inner = v_inner
+        self.v_outer = v_outer
         self.time_explosion = time_explosion
 
 
@@ -553,6 +559,22 @@ class Estimators(object):
         self.bf_heating_estimator = bf_heating_estimator
         self.stim_recomb_cooling_estimator = stim_recomb_cooling_estimator
         self.photo_ion_estimator_statistics = photo_ion_estimator_statistics
+
+    def increment(self, other):
+
+        self.j_estimator += other.j_estimator
+        self.nu_bar_estimator += other.nu_bar_estimator
+        self.j_blue_estimator += other.j_blue_estimator
+        self.Edotlu_estimator += other.Edotlu_estimator
+        self.photo_ion_estimator += other.photo_ion_estimator
+        self.stim_recomb_estimator += other.stim_recomb_estimator
+        self.bf_heating_estimator += other.bf_heating_estimator
+        self.stim_recomb_cooling_estimator += (
+            other.stim_recomb_cooling_estimator
+        )
+        self.photo_ion_estimator_statistics += (
+            other.photo_ion_estimator_statistics
+        )
 
 
 def configuration_initialize(runner, number_of_vpackets):

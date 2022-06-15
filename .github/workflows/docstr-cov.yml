@@ -16,6 +16,7 @@ on:
     - master
 
 env:
+  THRESHOLD: 0.05
   RANGE: 50..75
   ENDPOINT: https://jsonbin.org/tardis-bot/${{ github.event.repository.name }}
   TOKEN: ${{ secrets.JSONBIN_APIKEY }}
@@ -34,8 +35,8 @@ jobs:
         with:
           python-version: 3.x
 
-      - name: Install docstr-coverage
-        run: pip install docstr-coverage==2.2.0
+      - name: Install interrogate
+        run: pip install interrogate==1.5.0 parse==1.19.0
 
       - name: Get SHAs
         run: |
@@ -55,22 +56,20 @@ jobs:
       - name: Get ${{ github.event.pull_request.base.sha }} coverage
         run: |
           git checkout $BASE
-          echo "BASE_COV=$(docstr-coverage -p)" >> $GITHUB_ENV
+          echo "BASE_COV=$(interrogate tardis -c pyproject.toml | python .ci-helpers/get_min_docstr_cov.py)" >> $GITHUB_ENV
 
       - name: Test ${{ github.event.pull_request.head.sha }} coverage
         run: |
           echo "$BASE coverage was: $BASE_COV%"
           git checkout $HEAD
-          docstr-coverage --fail-under=$BASE_COV
+          interrogate tardis -c pyproject.toml --fail-under=$BASE_COV -v
 
       - name: Blame
-        run: |
-          git diff --name-only $(git merge-base $BASE $HEAD) | \
-          xargs docstr-coverage --accept-empty
+        run: git diff --name-only $(git merge-base $BASE $HEAD) -- 'tardis/**/*.py' | xargs -i interrogate {} -c pyproject.toml --fail-under=100 -v
         if: failure()
 
       - name: Get new coverage
-        run: echo "NEW_COV=$(printf "%.f" $(docstr-coverage -p))" >> $GITHUB_ENV
+        run: echo "NEW_COV=$(interrogate tardis -c pyproject.toml | python .ci-helpers/get_min_docstr_cov.py)" >> $GITHUB_ENV
         if: always() && github.event_name == 'push'
 
       - name: Set label color
