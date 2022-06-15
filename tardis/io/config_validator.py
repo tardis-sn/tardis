@@ -62,6 +62,10 @@ def _yaml_handler(path):
         return yaml.load(f, Loader=YAMLLoader)
 
 
+def is_Quantity(checker, instance):
+    return isinstance(instance, Quantity)
+
+
 def validate_dict(
     config_dict, schemapath=config_schema_file, validator=DefaultDraft4Validator
 ):
@@ -72,7 +76,7 @@ def validate_dict(
     resolver = RefResolver(schemaurl, schema, handlers=handlers)
     validated_dict = deepcopy(config_dict)
     custom_type_checker = validator.TYPE_CHECKER.redefine(
-        "quantity", (Quantity,)
+        "quantity", is_Quantity
     )
     custom_validator = validators.extend(
         validator, type_checker=custom_type_checker
