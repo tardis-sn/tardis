@@ -63,6 +63,22 @@ def _yaml_handler(path):
 
 
 def is_Quantity(checker, instance):
+    """
+    Check if the provided instance is of type astropy.units.quantity.Quantity
+
+    Parameters
+    ----------
+
+    checker:
+        Object of `TypeChecker`. Passed by jsonschema internally.
+
+    instance:
+        The instance to be checked.
+
+    Returns
+    ----------
+    bool: True if the instance is of type astropy.units.quantity.Quantity else False
+    """
     return isinstance(instance, Quantity)
 
 
