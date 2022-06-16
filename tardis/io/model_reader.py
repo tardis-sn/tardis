@@ -575,8 +575,8 @@ def runner_to_dict(runner):
         "nu_bar_estimator": runner.nu_bar_estimator,
         "photo_ion_estimator": runner.photo_ion_estimator,
         "photo_ion_estimator_statistics": runner.photo_ion_estimator_statistics,
-        "r_inner_cgs": runner.r_inner_cgs,
-        "r_outer_cgs": runner.r_outer_cgs,
+        "r_inner": runner.r_inner_cgs,
+        "r_outer": runner.r_outer_cgs,
         "seed": runner.seed,
         "single_packet_seed": runner.single_packet_seed,
         "spectrum_frequency_cgs": runner.spectrum_frequency,
@@ -586,8 +586,8 @@ def runner_to_dict(runner):
         "t_rad_estimator_constant": runner.t_rad_estimator_constant,
         "time_of_simulation_cgs": runner.time_of_simulation,
         "use_gpu": runner.use_gpu,
-        "v_inner_cgs": runner.v_inner_cgs,
-        "v_outer_cgs": runner.v_outer_cgs,
+        "v_inner": runner.v_inner_cgs,
+        "v_outer": runner.v_outer_cgs,
         "virt_logging": runner.virt_logging,
         "virt_packet_energies": runner.virt_packet_energies,
         "virt_packet_initial_mus": runner.virt_packet_initial_mus,
@@ -602,7 +602,7 @@ def runner_to_dict(runner):
 
     for key, value in runner_dict.items():
         if key.endswith("_cgs"):
-            value = value.cgs
+            runner_dict[key] = [value.cgs, value.unit.to_string()]
 
     integrator_settings = runner.integrator_settings.items()
     v_packet_settings = runner.v_packet_settings.items()
@@ -638,7 +638,11 @@ def store_runner_to_hdf(runner, fname):
         ) = runner_to_dict(runner)
 
         for key, value in runner_data.items():
-            runner_group.create_dataset(key, data=value)
+            if key.endswith("_cgs"):
+                runner_group.create_dataset(key, data=value[0])
+                runner_group.create_dataset(key+'_unit', data=value[1])
+            else:
+                runner_group.create_dataset(key, data=value)
 
         integrator_settings_group = runner_group.create_group(
             "integrator_settings"
@@ -676,18 +680,23 @@ def runner_from_hdf(fname):
     with h5py.File(fname, "r") as f:
         runner_group = f["runner"]
         for key, value in runner_group.items():
-            if type(value) == h5py._hl.dataset.Dataset:
-                d[key] = value[()]
-            else:
-                data_inner = {}
-                for key_inner, value_inner in value.items():
-                    data_inner[key_inner] = value_inner[()]
-                d[key] = data_inner
+            if not key.endswith("_unit"):
+                if type(value) == h5py._hl.dataset.Dataset:
+                    d[key] = value[()]
+                else:
+                    data_inner = {}
+                    for key_inner, value_inner in value.items():
+                        data_inner[key_inner] = value_inner[()]
+                    d[key] = data_inner
+
+        for key, value in runner_group.items():
+            if key.endswith("_unit"):
+                d[key[:-5]] = [d[key[:-5]], value[()]]
 
     # Converting cgs data to astropy quantities
     for key, value in d.items():
         if key.endswith("_cgs"):
-            d[key] = u.Quantity(value).cgs
+            d[key] = u.Quantity(value[0], unit=u.Unit(value[1].decode("utf-8")))
 
     # Creating a runner object and storing data
     new_runner = MontecarloRunner(
@@ -727,16 +736,16 @@ def runner_from_hdf(fname):
     new_runner.photo_ion_estimator_statistics = d[
         "photo_ion_estimator_statistics"
     ]
-    new_runner.r_inner_cgs = d["r_inner_cgs"]
-    new_runner.r_outer_cgs = d["r_outer_cgs"]
+    new_runner.r_inner_cgs = d["r_inner"]
+    new_runner.r_outer_cgs = d["r_outer"]
     new_runner.stim_recomb_cooling_estimator = d[
         "stim_recomb_cooling_estimator"
     ]
     new_runner.stim_recomb_estimator = d["stim_recomb_estimator"]
     new_runner.t_rad_estimator_constant = d["t_rad_estimator_constant"]
     new_runner.time_of_simulation = d["time_of_simulation_cgs"]
-    new_runner.v_inner_cgs = d["v_inner_cgs"]
-    new_runner.v_outer_cgs = d["v_outer_cgs"]
+    new_runner.v_inner_cgs = d["v_inner"]
+    new_runner.v_outer_cgs = d["v_outer"]
     new_runner.virt_packet_energies = d["virt_packet_energies"]
     new_runner.virt_packet_initial_mus = d["virt_packet_initial_mus"]
     new_runner.virt_packet_initial_rs = d["virt_packet_initial_rs"]
