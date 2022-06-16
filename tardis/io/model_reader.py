@@ -640,7 +640,7 @@ def store_runner_to_hdf(runner, fname):
         for key, value in runner_data.items():
             if key.endswith("_cgs"):
                 runner_group.create_dataset(key, data=value[0])
-                runner_group.create_dataset(key+'_unit', data=value[1])
+                runner_group.create_dataset(key + "_unit", data=value[1])
             else:
                 runner_group.create_dataset(key, data=value)
 
