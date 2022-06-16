@@ -563,7 +563,7 @@ def runner_to_dict(runner):
         "input_energy": runner.input_energy,
         "input_mu": runner.input_mu,
         "input_nu": runner.input_nu,
-        "input_r": runner.input_r,
+        "input_r_cgs": runner.input_r,
         "j_blue_estimator": runner.j_blue_estimator,
         "j_estimator": runner.j_estimator,
         "last_interaction_in_nu": runner.last_interaction_in_nu,
@@ -579,12 +579,12 @@ def runner_to_dict(runner):
         "r_outer_cgs": runner.r_outer_cgs,
         "seed": runner.seed,
         "single_packet_seed": runner.single_packet_seed,
-        "spectrum_frequency": runner.spectrum_frequency,
+        "spectrum_frequency_cgs": runner.spectrum_frequency,
         "spectrum_method": runner.spectrum_method,
         "stim_recomb_cooling_estimator": runner.stim_recomb_cooling_estimator,
         "stim_recomb_estimator": runner.stim_recomb_estimator,
         "t_rad_estimator_constant": runner.t_rad_estimator_constant,
-        "time_of_simulation": runner.time_of_simulation,
+        "time_of_simulation_cgs": runner.time_of_simulation,
         "use_gpu": runner.use_gpu,
         "v_inner_cgs": runner.v_inner_cgs,
         "v_outer_cgs": runner.v_outer_cgs,
@@ -597,8 +597,12 @@ def runner_to_dict(runner):
         "virt_packet_last_line_interaction_in_id": runner.virt_packet_last_line_interaction_in_id,
         "virt_packet_last_line_interaction_out_id": runner.virt_packet_last_line_interaction_out_id,
         "virt_packet_nus": runner.virt_packet_nus,
-        "volume": runner.volume,
+        "volume_cgs": runner.volume,
     }
+
+    for key, value in runner_dict.items():
+        if key.endswith("_cgs"):
+            value = value.cgs
 
     integrator_settings = runner.integrator_settings.items()
     v_packet_settings = runner.v_packet_settings.items()
@@ -678,10 +682,15 @@ def runner_from_hdf(fname):
                     data_inner[key_inner] = value_inner[()]
                 d[key] = data_inner
 
+    # Converting cgs data to astropy quantities
+    for key, value in d.items():
+        if key.endswith("_cgs"):
+            d[key] = u.Quantity(value).cgs
+
     # Creating a runner object and storing data
     new_runner = MontecarloRunner(
         seed=d["seed"],
-        spectrum_frequency=d["spectrum_frequency"],
+        spectrum_frequency=d["spectrum_frequency_cgs"],
         virtual_spectrum_spawn_range=d["virtual_spectrum_spawn_range"],
         disable_electron_scattering=d["disable_electron_scattering"],
         enable_reflective_inner_boundary=d["enable_reflective_inner_boundary"],
@@ -701,7 +710,7 @@ def runner_from_hdf(fname):
     new_runner.input_energy = d["input_energy"]
     new_runner.input_mu = d["input_mu"]
     new_runner.input_nu = d["input_nu"]
-    new_runner.input_r = d["input_r"]
+    new_runner.input_r = d["input_r_cgs"]
     new_runner.j_blue_estimator = d["j_blue_estimator"]
     new_runner.j_estimator = d["j_estimator"]
     new_runner.last_interaction_in_nu = d["last_interaction_in_nu"]
@@ -723,7 +732,7 @@ def runner_from_hdf(fname):
     ]
     new_runner.stim_recomb_estimator = d["stim_recomb_estimator"]
     new_runner.t_rad_estimator_constant = d["t_rad_estimator_constant"]
-    new_runner.time_of_simulation = d["time_of_simulation"]
+    new_runner.time_of_simulation = d["time_of_simulation_cgs"]
     new_runner.v_inner_cgs = d["v_inner_cgs"]
     new_runner.v_outer_cgs = d["v_outer_cgs"]
     new_runner.virt_packet_energies = d["virt_packet_energies"]
@@ -742,6 +751,6 @@ def runner_from_hdf(fname):
         "virt_packet_last_line_interaction_out_id"
     ]
     new_runner.virt_packet_nus = d["virt_packet_nus"]
-    new_runner.volume = d["volume"]
+    new_runner.volume = d["volume_cgs"]
 
     return new_runner
