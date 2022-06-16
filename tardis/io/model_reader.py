@@ -539,7 +539,7 @@ def parse_csv_abundances(csvy_data):
 
 def runner_to_dict(runner):
     """
-    Retrieves all the data from a runner object and returns a runner.
+    Retrieves all the data from a runner object and returns a dictionary.
 
     Parameters
     ----------
@@ -618,7 +618,7 @@ def runner_to_dict(runner):
 
 def store_runner_to_hdf(runner, fname):
     """
-    Stores data from runner object into a hdf file.
+    Stores data from MontecarloRunner object into a hdf file.
 
     Parameters
     ----------
@@ -663,7 +663,7 @@ def store_runner_to_hdf(runner, fname):
 
 def runner_from_hdf(fname):
     """
-    Creates a runner object using data stored in a hdf file.
+    Creates a MontecarloRunner object using data stored in a hdf file.
 
     Parameters
     ----------
@@ -671,7 +671,7 @@ def runner_from_hdf(fname):
 
     Returns
     -------
-    runner_dict : tardis.montecarlo.MontecarloRunner
+    new_runner : tardis.montecarlo.MontecarloRunner
     """
 
     d = {}
@@ -765,3 +765,133 @@ def runner_from_hdf(fname):
     new_runner.volume = d["volume_cgs"]
 
     return new_runner
+
+
+def model_to_dict(model):
+    """
+    Retrieves all the data from a Radial1DModel object and returns a dictionary.
+
+    Parameters
+    ----------
+    runner : tardis.model.Radial1DModel
+
+    Returns
+    -------
+    model_dict : dict
+    homologous_density : dict
+    isotope_abundance : dict
+    """
+    model_dict = {
+        "velocity_cgs": model.velocity,
+        "abundance": model.abundance,
+        "time_explosion_cgs": model.time_explosion,
+        "t_inner_cgs": model.t_inner,
+        "t_radiative_cgs": model.t_radiative,
+        "dilution_faction": model.dilution_factor,
+        "v_boundary_inner_cgs": model.v_boundary_inner,
+        "v_boundary_outer_cgs": model.v_boundary_outer,
+        "w": model.w,
+        "t_rad_cgs": model.t_rad,
+        "r_inner_cgs": model.r_inner,
+        "density_cgs": model.density,
+    }
+
+    for key, value in model_dict.items():
+        if key.endswith("_cgs"):
+            model_dict[key] = [value.cgs, value.unit.to_string()]
+
+    homologous_density = model.homologous_density.__dict__
+    isotope_abundance = model.raw_isotope_abundance.__dict__
+
+    return model_dict, homologous_density, isotope_abundance
+
+
+def store_model_to_hdf(model, fname):
+    """
+    Stores data from Radial1DModel object into a hdf file.
+
+    Parameters
+    ----------
+    model : tardis.model.Radial1DModel
+    filename : str
+    """
+    with h5py.File(fname, "a") as f:
+        model_group = f.require_group("model")
+        model_group.clear()
+
+        model_dict, homologous_density, isotope_abundance = model_to_dict(model)
+
+        for key, value in model_dict.items():
+            if key.endswith("_cgs"):
+                model_group.create_dataset(key, data=value[0])
+                model_group.create_dataset(key + "_unit", data=value[1])
+            else:
+                model_group.create_dataset(key, data=value)
+
+        homologous_density_group = model_group.create_group(
+            "homologous_density"
+        )
+        for key, value in homologous_density.items():
+            homologous_density_group.create_dataset(key, data=value)
+
+
+def model_from_hdf(fname):
+    """
+    Creates a Radial1DModel object using data stored in a hdf file.
+
+    Parameters
+    ----------
+    fname : str
+
+    Returns
+    -------
+    new_model : tardis.model.Radial1DModel
+    """
+
+    from tardis.model import Radial1DModel, HomologousDensity
+
+    d = {}
+
+    # Loading data from hdf file
+    with h5py.File(fname, "r") as f:
+        model_group = f["model"]
+        for key, value in model_group.items():
+            if not key.endswith("_unit"):
+                if type(value) == h5py._hl.dataset.Dataset:
+                    d[key] = value[()]
+                else:
+                    data_inner = {}
+                    for key_inner, value_inner in value.items():
+                        data_inner[key_inner] = value_inner[()]
+                    d[key] = data_inner
+
+        for key, value in model_group.items():
+            if key.endswith("_unit"):
+                d[key[:-5]] = [d[key[:-5]], value[()]]
+
+    # Converting cgs data to astropy quantities
+    for key, value in d.items():
+        if key.endswith("_cgs"):
+            d[key] = u.Quantity(value[0], unit=u.Unit(value[1].decode("utf-8")))
+
+    homologous_density = HomologousDensity(
+        d["homologous_density"]["density_0"], d["homologous_density"]["time_0"]
+    )
+
+    new_model = Radial1DModel(
+        velocity=d["velocity_cgs"],
+        homologous_density=homologous_density,
+        abundance=d["abundance"],
+        isotope_abundance=None,
+        time_explosion=d["time_explosion_cgs"],
+        t_inner=d["t_inner_cgs"],
+        t_radiative=d["t_radiative_cgs"],
+        dilution_factor=d["dilution_faction"],
+        v_boundary_inner=d["v_boundary_inner_cgs"],
+        v_boundary_outer=d["v_boundary_outer_cgs"],
+    )
+
+    new_model.t_rad = d["t_rad_cgs"]
+    new_model.w = d["w"]
+
+    return new_model
