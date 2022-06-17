@@ -198,12 +198,11 @@ def decay_chain_energy(
     total_energy = pd.DataFrame()
 
     total_energy[start_isotope_name] = number_start_isotope * (
-        start_isotope_energy / start_isotope_tau * total_start_isotope
+        (start_isotope_energy / start_isotope_tau) * total_start_isotope
     )
 
     total_energy[end_isotope_name] = number_start_isotope * (
-        end_isotope_energy
-        / (start_isotope_tau - end_isotope_tau)
+        (end_isotope_energy / (start_isotope_tau - end_isotope_tau))
         * (total_start_isotope - total_end_isotope)
     )
 
@@ -236,7 +235,10 @@ def get_all_isotopes(abundances):
 
         for i in isotopes:
             for p in rd.Nuclide(i).progeny():
-                if p != "SF":
+                if (
+                    p != "SF"
+                    and rd.Nuclide(p).half_life("readable") != "stable"
+                ):
                     progeny.add(p)
 
         if progeny == isotopes:
@@ -246,6 +248,37 @@ def get_all_isotopes(abundances):
 
     isotopes = [i.replace("-", "") for i in isotopes]
     return isotopes
+
+
+def get_progeny_for_isotopes(abundances):
+    """Produces a nested list of all direct radioactive progeny
+    of the input abundance.
+
+    Parameters
+    ----------
+    abundances : DataFrame
+        Current isotope abundances
+
+    Returns
+    -------
+    List
+        List of progeny lists indexed matching the abundance columns
+    """
+    progenitors = [
+        f"{rd.utils.Z_DICT[i[0]]}-{i[1]}" for i in abundances.T.columns
+    ]
+
+    progeny = []
+
+    for isotope in progenitors:
+        isotope_progeny = []
+        for p in rd.Nuclide(isotope).progeny():
+            if p != "SF" and rd.Nuclide(p).half_life("readable") != "stable":
+                isotope_progeny.append(p.replace("-", ""))
+
+        progeny.append(isotope_progeny)
+
+    return progeny
 
 
 def get_tau(meta, isotope_string):
