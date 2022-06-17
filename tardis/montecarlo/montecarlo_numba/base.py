@@ -244,12 +244,8 @@ def montecarlo_main_loop(
                         total_iterations=total_iterations,
                     )
 
-        if montecarlo_configuration.single_packet_seed != -1:
-            seed = packet_seeds[montecarlo_configuration.single_packet_seed]
-            np.random.seed(seed)
-        else:
-            seed = packet_seeds[i]
-            np.random.seed(seed)
+        seed = packet_seeds[i]
+        np.random.seed(seed)
         r_packet = RPacket(
             numba_model.r_inner[0],
             packet_collection.packets_input_mu[i],
@@ -295,9 +291,7 @@ def montecarlo_main_loop(
         v_packets_idx = np.floor(
             (vpackets_nu - spectrum_frequency[0]) / delta_nu
         ).astype(np.int64)
-        # if we're only in a single-packet mode
-        # if montecarlo_configuration.single_packet_seed == -1:
-        #    break
+
         for j, idx in enumerate(v_packets_idx):
             if (vpackets_nu[j] < spectrum_frequency[0]) or (
                 vpackets_nu[j] > spectrum_frequency[-1]
