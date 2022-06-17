@@ -3,7 +3,7 @@ from numba import njit
 
 from tardis.montecarlo import montecarlo_configuration
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
-from tardis.montecarlo.montecarlo_numba.calculate_distances import (
+from tardis.packet_transfer.calculate_distances import (
     calculate_distance_boundary,
     calculate_distance_electron,
     calculate_distance_line,
