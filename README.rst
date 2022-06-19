@@ -40,6 +40,8 @@ stars (*supernovae*).
 Credits & Publication Policies
 ******************************
 
+|DOI_BADGE|
+
 We provide TARDIS as a free, open-source tool. If you are using it, please
 adhere to a few policies and acknowledge the TARDIS Team.
 
@@ -54,7 +56,7 @@ following paragraph to the Acknowledgement section:
 .. parsed-literal::
 
     This research made use of \\textsc{tardis}, a community-developed software package for spectral
-    synthesis in supernovae \\citep{2014MNRAS.440..387K, |ZENODO|}. The
+    synthesis in supernovae \\citep{2014MNRAS.440..387K, |CITATION|}. The
     development of \\textsc{tardis} received support from GitHub, the Google Summer of Code
     initiative, and from ESA's Summer of Code in Space program. \\textsc{tardis} is a fiscally
     sponsored project of NumFOCUS. \\textsc{tardis} makes extensive use of Astropy and Pyne.
@@ -108,11 +110,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |ZENODO| replace:: kerzendorf_wolfgang_2022_6614338
+.. |CITATION| replace:: kerzendorf_wolfgang_2022_6662839
+
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.6662839-blue
+                 :target: https://doi.org/10.5281/zenodo.6662839
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_wolfgang_2022_6614338,
+    @software{kerzendorf_wolfgang_2022_6662839,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -141,8 +146,8 @@ The following BibTeX entries are needed for the references:
                       Smith, Isaac and
                       Singhal, Jaladh and
                       Arya, Atharva and
-                      Sondhi, Dhruv and
                       Barbosa, Talytha and
+                      Sondhi, Dhruv and
                       Yu, Jenny and
                       O'Brien, Jack and
                       Patel, Maryam and
@@ -157,50 +162,51 @@ The following BibTeX entries are needed for the references:
                       Alam, Arib and
                       Bartnik, Matthew and
                       Magee, Mark and
-                      Chitchyan, Sona and
-                      Livneh, Ran and
                       Shields, Joshua and
+                      Livneh, Ran and
+                      Chitchyan, Sona and
                       Rajagopalan, Srinath and
                       Mishra, Sashank and
-                      Jain, Rinkle and
-                      Reichenbach, John and
                       Floers, Andreas and
+                      Reichenbach, John and
+                      Jain, Rinkle and
                       Brar, Antreev and
                       Singh, Sourav and
+                      Sofiatti, Caroline and
                       Kowalski, Nathan and
                       Talegaonkar, Chinmay and
                       Selsing, Jonatan and
-                      Sofiatti, Caroline and
-                      Sarafina, Nance and
-                      Martinez, Laureano and
-                      Yap, Kevin and
-                      Patel, Pratik and
-                      Patra, Nilesh and
-                      Volodin, Dmitry and
-                      Dasgupta, Debajyoti and
-                      Sharma, Sampark and
-                      Venkat, Shashank and
-                      Prasad, Shilpi and
                       Singh Rathore, Parikshit and
+                      Prasad, Shilpi and
+                      Venkat, Shashank and
+                      Varma Buddaraju, Rohith and
+                      Patel, Pratik and
+                      Yap, Kevin and
+                      Patra, Nilesh and
+                      Sarafina, Nance and
                       Zaheer, Musabbiha and
-                      Nayak U, Ashwin and
-                      Gupta, Suyash and
                       Sandler, Morgan and
-                      Kharkar, Atharwa and
-                      Aggarwal, Yash and
-                      Holas, Alexander and
-                      Kumar, Atul and
-                      kumar, aman and
+                      Lemoine, Thom and
+                      Gupta, Suyash and
+                      Nayak U, Ashwin and
                       Wahi, Ujjwal and
+                      Aggarwal, Yash and
+                      kumar, aman and
+                      Sharma, Sampark and
+                      Volodin, Dmitry and
+                      Martinez, Laureano and
+                      Dasgupta, Debajyoti and
+                      Holas, Alexander and
+                      Kharkar, Atharwa and
                       Kolliboyina, Chaitanya and
-                      Lemoine, Thom},
-      title        = {tardis-sn/tardis: TARDIS v2022.06.05},
+                      Kumar, Atul},
+      title        = {tardis-sn/tardis: TARDIS v2022.06.19},
       month        = jun,
       year         = 2022,
       publisher    = {Zenodo},
-      version      = {release-2022.06.05},
-      doi          = {10.5281/zenodo.6614338},
-      url          = {https://doi.org/10.5281/zenodo.6614338}
+      version      = {release-2022.06.19},
+      doi          = {10.5281/zenodo.6662839},
+      url          = {https://doi.org/10.5281/zenodo.6662839}
     }
 
 *******

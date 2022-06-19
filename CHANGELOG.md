@@ -1,5 +1,19 @@
 ## Change Log
 
+### release-2022.06.19 (2022/06/19 02:25 +00:00)
+- [#2060](https://github.com/tardis-sn/tardis/pull/2060) Pre-release 2022.06.19 (#2060) (@tardis-bot)
+- [#2036](https://github.com/tardis-sn/tardis/pull/2036) Restructure code to remove the single_packet_seed field (#2036) (@rohithvarma3000)
+- [#2054](https://github.com/tardis-sn/tardis/pull/2054) Auto-merge fixes (#2054) (@epassaro)
+- [#2053](https://github.com/tardis-sn/tardis/pull/2053) Change developer installation command (#2053) (@epassaro)
+- [#2048](https://github.com/tardis-sn/tardis/pull/2048) Disable profiling page build on pull requests (#2048) (@epassaro)
+- [#2042](https://github.com/tardis-sn/tardis/pull/2042) Polish up Quickstart guide (#2042) (@epassaro)
+- [#2010](https://github.com/tardis-sn/tardis/pull/2010) Enable automerge on pre and post-release workflows (#2010) (@epassaro)
+- [#2046](https://github.com/tardis-sn/tardis/pull/2046) Stop redirecting docs page (#2046) (@epassaro)
+- [#2045](https://github.com/tardis-sn/tardis/pull/2045) Add DOI badge to credits section (#2045) (@epassaro)
+- [#2047](https://github.com/tardis-sn/tardis/pull/2047) Ignore gamma-ray deposition notebook for now (#2047) (@andrewfullard)
+- [#1698](https://github.com/tardis-sn/tardis/pull/1698) Gamma ray propagation (#1698) (@andrewfullard)
+- [#2044](https://github.com/tardis-sn/tardis/pull/2044) Post-release 2022.06.05 (#2044) (@tardis-bot)
+
 ### release-2022.06.05 (2022/06/05 01:07 +00:00)
 - [#2043](https://github.com/tardis-sn/tardis/pull/2043) Pre-release 2022.06.05 (#2043) (@tardis-bot)
 - [#2039](https://github.com/tardis-sn/tardis/pull/2039) Check PEP8 on CI (#2039) (@epassaro)
@@ -576,8 +590,6 @@
 - [#1027](https://github.com/tardis-sn/tardis/pull/1027) Added Mark Magee (#1027) (@MarkMageeAstro)
 - [#1024](https://github.com/tardis-sn/tardis/pull/1024) Add epassaro orcid (#1024) (@epassaro)
 - [#1022](https://github.com/tardis-sn/tardis/pull/1022) added Alice's orcid (#1022) (@harpolea)
-
-### 3.0.dev3384 (2020/02/02 21:56 +00:00)
 - [#1021](https://github.com/tardis-sn/tardis/pull/1021) Set cron job, disable CI and PR (#1021) (@epassaro)
 - [#1015](https://github.com/tardis-sn/tardis/pull/1015) Set up release TARDIS version with Azure Pipelines (#1015) (@epassaro)
 - [#1020](https://github.com/tardis-sn/tardis/pull/1020) Update .mailmap (#1020) (@livnehra)
