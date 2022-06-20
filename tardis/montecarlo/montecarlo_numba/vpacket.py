@@ -22,7 +22,7 @@ from tardis.transport.calculate_distances import (
     calculate_distance_line,
 )
 
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.transport.frame_transformations import (
     get_doppler_factor,
     angle_aberration_LF_to_CMF,
     angle_aberration_CMF_to_LF,

@@ -3,7 +3,7 @@ import numpy as np
 
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
 import tardis.transport.calculate_distances as calculate_distances
-import tardis.montecarlo.montecarlo_numba.frame_transformations as frame_transformations
+import tardis.transport.frame_transformations as frame_transformations
 import tardis.montecarlo.montecarlo_numba.opacities as opacities
 import tardis.transport.r_packet_transport as r_packet_transport
 from tardis.montecarlo.montecarlo_numba.estimators import update_line_estimators

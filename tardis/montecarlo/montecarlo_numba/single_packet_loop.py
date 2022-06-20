@@ -12,7 +12,7 @@ from tardis.montecarlo.montecarlo_numba.continuum.r_packet_transport_continuum i
 )
 
 
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.transport.frame_transformations import (
     get_inverse_doppler_factor,
     get_doppler_factor,
 )

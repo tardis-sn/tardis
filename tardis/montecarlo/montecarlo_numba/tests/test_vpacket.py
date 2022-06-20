@@ -9,7 +9,7 @@ import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
 from tardis import constants as const
 from tardis.montecarlo.montecarlo_numba import macro_atom
 
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.transport.frame_transformations import (
     get_doppler_factor,
 )
 
