@@ -579,7 +579,6 @@ def runner_to_dict(runner):
         "r_inner": runner.r_inner_cgs,
         "r_outer": runner.r_outer_cgs,
         "seed": runner.seed,
-        "single_packet_seed": runner.single_packet_seed,
         "spectrum_frequency_cgs": runner.spectrum_frequency,
         "spectrum_method": runner.spectrum_method,
         "stim_recomb_cooling_estimator": runner.stim_recomb_cooling_estimator,
@@ -599,6 +598,11 @@ def runner_to_dict(runner):
         "virt_packet_nus": runner.virt_packet_nus,
         "volume_cgs": runner.volume,
     }
+
+    try:
+        runner_dict["single_packet_seed"] = runner.single_packet_seed
+    except AttributeError:
+        runner_dict["single_packet_seed"] = None
 
     for key, value in runner_dict.items():
         if key.endswith("_cgs"):
