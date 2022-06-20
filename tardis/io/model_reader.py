@@ -913,7 +913,7 @@ def model_from_hdf(fname):
         time_explosion=d["time_explosion_cgs"],
         t_inner=d["t_inner_cgs"],
         t_radiative=d["t_radiative_cgs"],
-        dilution_factor=d["dilution_faction"],
+        dilution_factor=d["dilution_factor"],
         v_boundary_inner=d["v_boundary_inner_cgs"],
         v_boundary_outer=d["v_boundary_outer_cgs"],
     )
