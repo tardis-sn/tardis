@@ -4,6 +4,7 @@ import pandas as pd
 import astropy.units as u
 from numba import njit
 from numba.typed import List
+import radioactivedecay as rd
 
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.energy_input.GXPacket import GXPacket, GXPacketStatus
@@ -13,6 +14,8 @@ from tardis.energy_input.gamma_ray_grid import (
 )
 from tardis.energy_input.energy_source import (
     decay_chain_energy,
+    get_all_isotopes,
+    get_progeny_for_isotopes,
     read_artis_lines,
 )
 from tardis.energy_input.calculate_opacity import (
@@ -75,7 +78,9 @@ def sample_energy(energy, intensity):
 
 
 @njit(**njit_dict_no_parallel)
-def sample_decay_time(start_tau, end_tau=0.0):
+def sample_decay_time(
+    start_tau, end_tau=0.0, decay_time_min=0.0, decay_time_max=0.0
+):
     """Samples the decay time from the mean half-life
     of the isotopes (needs restructuring for more isotopes)
 
@@ -91,9 +96,11 @@ def sample_decay_time(start_tau, end_tau=0.0):
     float64
         Sampled decay time
     """
-    decay_time = -start_tau * np.log(np.random.random()) - end_tau * np.log(
-        np.random.random()
-    )
+    decay_time = decay_time_min
+    while (decay_time <= decay_time_min) or (decay_time >= decay_time_max):
+        decay_time = -start_tau * np.log(np.random.random()) - end_tau * np.log(
+            np.random.random()
+        )
     return decay_time
 
 
@@ -111,6 +118,7 @@ def initialize_packets(
     effective_times,
     ni56_tau,
     co56_tau,
+    decay_fraction,
 ):
     """Initialize a list of GXPacket objects for the simulation
     to operate on.
@@ -162,11 +170,6 @@ def initialize_packets(
 
     print("Energy per packet", packet_energy)
 
-    ni56_energy = (ni56_lines[:, 0] * ni56_lines[:, 1]).sum()
-    co56_energy = (co56_lines[:, 0] * co56_lines[:, 1]).sum()
-
-    ni56_fraction = ni56_energy / (ni56_energy + co56_energy)
-
     energy_plot_df_rows = np.zeros((number_of_packets, 8))
     energy_plot_positron_rows = np.zeros((number_of_packets, 4))
 
@@ -181,23 +184,27 @@ def initialize_packets(
 
         for i in range(shell):
             decay_time = np.inf
-            while decay_time > times[-1]:
-                ni_or_co_random = np.random.random()
+            ni_or_co_random = np.random.random()
 
-                if ni_or_co_random > ni56_fraction:
-                    energy = co56_lines[:, 0] * 1000
-                    intensity = co56_lines[:, 1]
-                    # positron energy scaled by intensity
-                    positron_energy = 0.63 * 1000 * 0.19
-                    positron_fraction = positron_energy / np.sum(
-                        energy * intensity
-                    )
-                    decay_time = sample_decay_time(ni56_tau, co56_tau)
-                else:
-                    energy = ni56_lines[:, 0] * 1000
-                    intensity = ni56_lines[:, 1]
-                    positron_fraction = 0
-                    decay_time = sample_decay_time(ni56_tau)
+            if ni_or_co_random > decay_fraction[k, 0]:
+                energy = co56_lines[:, 0] * 1000
+                intensity = co56_lines[:, 1]
+                # positron energy scaled by intensity
+                positron_energy = 0.63 * 1000 * 0.19
+                positron_fraction = positron_energy / np.sum(energy * intensity)
+                decay_time = sample_decay_time(
+                    ni56_tau,
+                    end_tau=co56_tau,
+                    decay_time_min=0,
+                    decay_time_max=times[-1],
+                )
+            else:
+                energy = ni56_lines[:, 0] * 1000
+                intensity = ni56_lines[:, 1]
+                positron_fraction = 0
+                decay_time = sample_decay_time(
+                    ni56_tau, decay_time_min=0, decay_time_max=times[-1]
+                )
 
             cmf_energy = sample_energy(energy, intensity)
 
@@ -394,13 +401,17 @@ def main_gamma_ray_loop(
     electron_number_density = (
         plasma.number_density.mul(plasma.number_density.index, axis=0)
     ).sum()
+
     electron_number_density_time = np.zeros(
         (len(ejecta_velocity_volume), len(effective_time_array))
     )
+
     mass_density_time = np.zeros(
         (len(ejecta_velocity_volume), len(effective_time_array))
     )
+
     electron_number = (electron_number_density * ejecta_volume).to_numpy()
+
     inv_volume_time = np.zeros(
         (len(ejecta_velocity_volume), len(effective_time_array))
     )
@@ -416,14 +427,23 @@ def main_gamma_ray_loop(
     energy_df_rows = np.zeros((number_of_shells, time_steps))
 
     # Calculate number of packets per shell based on the mass of Ni56
-    mass_ni56 = raw_isotope_abundance.loc[(28, 56)] * shell_masses
-    number_ni56 = mass_ni56 / 56 * const.N_A
+    total_number_isotopes = plasma.isotope_number_density * ejecta_volume
+    number_ni56 = total_number_isotopes.loc[(28, 56)]
     total_number_ni56 = number_ni56.sum()
 
     decayed_packet_count = np.zeros(len(number_ni56), dtype=np.int64)
 
     for i, shell in enumerate(number_ni56):
         decayed_packet_count[i] = round(num_decays * shell / total_number_ni56)
+
+    inventories = raw_isotope_abundance.to_inventories()
+
+    initial_isotopes = [
+        f"{rd.utils.Z_DICT[i[0]]}{i[1]}"
+        for i in raw_isotope_abundance.T.columns
+    ]
+
+    progeny = get_progeny_for_isotopes(raw_isotope_abundance)
 
     # hardcoded Ni and Co 56 mean half-lives
     taus = {
@@ -437,17 +457,33 @@ def main_gamma_ray_loop(
 
     # urilight chooses to have 0 as the baseline for this calculation
     # but time_start should also be valid
-    total_energy = decay_chain_energy(
-        0,
-        time_end,
-        number_ni56,
-        taus["Ni56"],
-        taus["Co56"],
-        (ni56_lines.energy * 1000 * ni56_lines.intensity).sum(),
-        (co56_lines.energy * 1000 * co56_lines.intensity).sum(),
-        "Ni56",
-        "Co56",
+    total_energy_list = []
+
+    for i, all_progeny in zip(initial_isotopes, progeny):
+        for p in all_progeny:
+            total_energy_list.append(
+                decay_chain_energy(
+                    0,
+                    time_end,
+                    number_ni56,
+                    taus[i],
+                    taus[p],
+                    (ni56_lines.energy * 1000 * ni56_lines.intensity).sum(),
+                    (co56_lines.energy * 1000 * co56_lines.intensity).sum(),
+                    i,
+                    p,
+                )
+            )
+
+    total_energy = pd.concat(total_energy_list)
+
+    energy_per_mass = total_energy.divide(
+        (raw_isotope_abundance * shell_masses).T.to_numpy(), axis=0
     )
+
+    energy_per_mass_norm = (
+        energy_per_mass / energy_per_mass.sum(axis=1).max()
+    ).cumsum(axis=1)
 
     print("Total gamma-ray energy")
     print(total_energy.sum().sum() * u.keV.to("erg"))
@@ -480,6 +516,7 @@ def main_gamma_ray_loop(
         effective_time_array,
         taus["Ni56"],
         taus["Co56"],
+        energy_per_mass_norm.to_numpy(),
     )
 
     print("Total positron energy from packets")
