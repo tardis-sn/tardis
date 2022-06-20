@@ -153,62 +153,6 @@ def intensity_ratio(nuclear_data, source_1, source_2):
     )
 
 
-def decay_chain_energy(
-    time_start,
-    time_end,
-    number_start_isotope,
-    start_isotope_tau,
-    end_isotope_tau,
-    start_isotope_energy,
-    end_isotope_energy,
-    start_isotope_name,
-    end_isotope_name,
-):
-    """Calculate the energy from an arbitrary decay chain
-
-    Parameters
-    ----------
-    time_start : float
-        Start time in days
-    time_end : float
-        End time in days
-    number_start_isotope : int
-        Number of initial isotope atoms at time_start
-    start_isotope_tau, end_isotope_tau : float64
-        Mean half-life for each isotope
-    start_isotope_energy : float64
-        Initial isotope total energy
-    end_isotope_energy : float64
-        Final isotope total energy
-
-    Returns
-    -------
-    DataFrame
-        Total energy from decay for each isotope
-    """
-    total_start_isotope = -start_isotope_tau * (
-        np.exp(-time_end / start_isotope_tau)
-        - np.exp(-time_start / start_isotope_tau)
-    )
-    total_end_isotope = -end_isotope_tau * (
-        np.exp(-time_end / end_isotope_tau)
-        - np.exp(-time_start / end_isotope_tau)
-    )
-
-    total_energy = pd.DataFrame()
-
-    total_energy[start_isotope_name] = number_start_isotope * (
-        (start_isotope_energy / start_isotope_tau) * total_start_isotope
-    )
-
-    total_energy[end_isotope_name] = number_start_isotope * (
-        (end_isotope_energy / (start_isotope_tau - end_isotope_tau))
-        * (total_start_isotope - total_end_isotope)
-    )
-
-    return total_energy
-
-
 def get_all_isotopes(abundances):
     """Get the possible isotopes present over time
     for a given starting abundance
@@ -248,37 +192,6 @@ def get_all_isotopes(abundances):
 
     isotopes = [i.replace("-", "") for i in isotopes]
     return isotopes
-
-
-def get_progeny_for_isotopes(abundances):
-    """Produces a nested list of all direct radioactive progeny
-    of the input abundance.
-
-    Parameters
-    ----------
-    abundances : DataFrame
-        Current isotope abundances
-
-    Returns
-    -------
-    List
-        List of progeny lists indexed matching the abundance columns
-    """
-    progenitors = [
-        f"{rd.utils.Z_DICT[i[0]]}-{i[1]}" for i in abundances.T.columns
-    ]
-
-    progeny = []
-
-    for isotope in progenitors:
-        isotope_progeny = []
-        for p in rd.Nuclide(isotope).progeny():
-            if p != "SF" and rd.Nuclide(p).half_life("readable") != "stable":
-                isotope_progeny.append(p.replace("-", ""))
-
-        progeny.append(isotope_progeny)
-
-    return progeny
 
 
 def get_tau(meta, isotope_string):

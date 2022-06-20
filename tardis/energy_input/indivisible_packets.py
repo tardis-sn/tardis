@@ -13,9 +13,7 @@ from tardis.energy_input.gamma_ray_grid import (
     move_packet,
 )
 from tardis.energy_input.energy_source import (
-    decay_chain_energy,
     get_all_isotopes,
-    get_progeny_for_isotopes,
     read_artis_lines,
 )
 from tardis.energy_input.calculate_opacity import (
@@ -426,24 +424,19 @@ def main_gamma_ray_loop(
 
     energy_df_rows = np.zeros((number_of_shells, time_steps))
 
-    # Calculate number of packets per shell based on the mass of Ni56
-    total_number_isotopes = plasma.isotope_number_density * ejecta_volume
-    number_ni56 = total_number_isotopes.loc[(28, 56)]
-    total_number_ni56 = number_ni56.sum()
+    # Calculate number of packets per shell based on the mass of isotopes
+    number_of_isotopes = plasma.isotope_number_density * ejecta_volume
+    total_number_isotopes = number_of_isotopes.sum().sum()
 
-    decayed_packet_count = np.zeros(len(number_ni56), dtype=np.int64)
+    decayed_packet_count = (
+        num_decays * number_of_isotopes / total_number_isotopes
+    ).round()
 
-    for i, shell in enumerate(number_ni56):
-        decayed_packet_count[i] = round(num_decays * shell / total_number_ni56)
+    decayed_packet_count_array = decayed_packet_count.sum().to_numpy(
+        dtype=np.int
+    )
 
     inventories = raw_isotope_abundance.to_inventories()
-
-    initial_isotopes = [
-        f"{rd.utils.Z_DICT[i[0]]}{i[1]}"
-        for i in raw_isotope_abundance.T.columns
-    ]
-
-    progeny = get_progeny_for_isotopes(raw_isotope_abundance)
 
     # hardcoded Ni and Co 56 mean half-lives
     taus = {
@@ -455,27 +448,28 @@ def main_gamma_ray_loop(
     ni56_lines = read_artis_lines("ni56", path_to_artis_lines)
     co56_lines = read_artis_lines("co56", path_to_artis_lines)
 
+    decay_energy = {
+        "Ni-56": (ni56_lines.energy * 1000 * ni56_lines.intensity).sum(),
+        "Co-56": (co56_lines.energy * 1000 * co56_lines.intensity).sum(),
+    }
+
     # urilight chooses to have 0 as the baseline for this calculation
-    # but time_start should also be valid
+    # but time_start may also be valid in which case decay time is time_end - time_start
     total_energy_list = []
 
-    for i, all_progeny in zip(initial_isotopes, progeny):
-        for p in all_progeny:
-            total_energy_list.append(
-                decay_chain_energy(
-                    0,
-                    time_end,
-                    number_ni56,
-                    taus[i],
-                    taus[p],
-                    (ni56_lines.energy * 1000 * ni56_lines.intensity).sum(),
-                    (co56_lines.energy * 1000 * co56_lines.intensity).sum(),
-                    i,
-                    p,
-                )
+    for shell, inv in enumerate(inventories):
+        decayed_energy = {}
+        total_decays = inv.cumulative_decays(time_end)
+        for nuclide in total_decays:
+            decayed_energy[nuclide] = (
+                total_decays[nuclide]
+                * decay_energy[nuclide]
+                * shell_masses[shell]
             )
 
-    total_energy = pd.concat(total_energy_list)
+        total_energy_list.append(decayed_energy)
+
+    total_energy = pd.DataFrame(total_energy_list)
 
     energy_per_mass = total_energy.divide(
         (raw_isotope_abundance * shell_masses).T.to_numpy(), axis=0
@@ -489,7 +483,7 @@ def main_gamma_ray_loop(
     print(total_energy.sum().sum() * u.keV.to("erg"))
 
     print("Total positron energy")
-    print(total_energy["Co56"].sum(axis=0) * 0.0337 * u.keV.to("erg"))
+    print(total_energy["Co-56"].sum(axis=0) * 0.0337 * u.keV.to("erg"))
 
     # Taking iron group to be elements 21-30
     # Used as part of the approximations for photoabsorption and pair creation
@@ -504,7 +498,7 @@ def main_gamma_ray_loop(
         energy_plot_df_rows,
         energy_plot_positron_rows,
     ) = initialize_packets(
-        decayed_packet_count,
+        decayed_packet_count_array,
         total_energy.sum().sum(),
         ni56_lines.to_numpy(),
         co56_lines.to_numpy(),
