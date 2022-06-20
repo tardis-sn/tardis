@@ -23,4 +23,3 @@ astronomical_constants.set("iau2012")
 # ----------------------------------------------------------------------------
 
 from tardis.base import run_tardis
-from tardis.io.util import yaml_load_config_file as yaml_load
