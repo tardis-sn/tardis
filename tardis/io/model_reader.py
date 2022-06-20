@@ -8,6 +8,7 @@ from astropy import units as u
 from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
 import h5py
+from tardis.io.config_reader import ConfigurationNameSpace
 from tardis.montecarlo.base import MontecarloRunner
 
 import logging
@@ -682,10 +683,17 @@ def runner_from_hdf(fname):
         for key, value in runner_group.items():
             if not key.endswith("_unit"):
                 if type(value) == h5py._hl.dataset.Dataset:
-                    d[key] = value[()]
+                    if isinstance(value[()], bytes):
+                        d[key] = value[()].decode("utf-8")
+                    else:
+                        d[key] = value[()]
                 else:
                     data_inner = {}
                     for key_inner, value_inner in value.items():
+                        if isinstance(value_inner[()], bytes):
+                            data_inner[key] = value_inner[()].decode("utf-8")
+                        else:
+                            data_inner[key] = value_inner[()]
                         data_inner[key_inner] = value_inner[()]
                     d[key] = data_inner
 
@@ -697,6 +705,18 @@ def runner_from_hdf(fname):
     for key, value in d.items():
         if key.endswith("_cgs"):
             d[key] = u.Quantity(value[0], unit=u.Unit(value[1].decode("utf-8")))
+
+    # Converting virtual spectrum spawn range values to astropy quantities
+    vssr = d['virtual_spectrum_spawn_range']
+    d['virtual_spectrum_spawn_range'] = {
+        'start': u.Quantity(vssr['start'], unit=u.Unit('Angstrom')),
+        'end': u.Quantity(vssr['end'], unit=u.Unit('Angstrom')),
+    }
+
+    # Converting dictionaries to ConfigurationNameSpace
+    d['integrator_settings'] = ConfigurationNameSpace(d['integrator_settings'])
+    d['v_packet_settings'] = ConfigurationNameSpace(d['v_packet_settings'])
+    d['virtual_spectrum_spawn_range'] = ConfigurationNameSpace(d['virtual_spectrum_spawn_range'])
 
     # Creating a runner object and storing data
     new_runner = MontecarloRunner(
@@ -787,7 +807,7 @@ def model_to_dict(model):
         "time_explosion_cgs": model.time_explosion,
         "t_inner_cgs": model.t_inner,
         "t_radiative_cgs": model.t_radiative,
-        "dilution_faction": model.dilution_factor,
+        "dilution_factor": model.dilution_factor,
         "v_boundary_inner_cgs": model.v_boundary_inner,
         "v_boundary_outer_cgs": model.v_boundary_outer,
         "w": model.w,
@@ -858,10 +878,17 @@ def model_from_hdf(fname):
         for key, value in model_group.items():
             if not key.endswith("_unit"):
                 if type(value) == h5py._hl.dataset.Dataset:
-                    d[key] = value[()]
+                    if isinstance(value[()], bytes):
+                        d[key] = value[()].decode("utf-8")
+                    else:
+                        d[key] = value[()]
                 else:
                     data_inner = {}
                     for key_inner, value_inner in value.items():
+                        if isinstance(value_inner[()], bytes):
+                            data_inner[key] = value_inner[()].decode("utf-8")
+                        else:
+                            data_inner[key] = value_inner[()]
                         data_inner[key_inner] = value_inner[()]
                     d[key] = data_inner
 
