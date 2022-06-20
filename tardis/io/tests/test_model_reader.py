@@ -15,6 +15,7 @@ from tardis.io.model_reader import (
     read_cmfgen_density,
     read_cmfgen_composition,
     model_to_dict,
+    runner_to_dict,
     store_model_to_hdf,
 )
 
@@ -198,7 +199,6 @@ def test_store_model_to_hdf(simulation_verysimple, tmp_path):
 
     # Check file contents
     with h5py.File(fname) as f:
-        print(f["model/abundance"])
         assert np.array_equal(f["model/velocity_cgs"], model.velocity.value)
         assert np.array_equal(f["model/abundance"], model.abundance)
         assert np.array_equal(
@@ -233,3 +233,40 @@ def test_store_model_to_hdf(simulation_verysimple, tmp_path):
             f["model/homologous_density/time_0"],
             model.homologous_density.time_0.value,
         )
+
+
+def test_runner_to_dict(simulation_verysimple):
+    runner = simulation_verysimple.runner
+    runner_data = runner.__dict__
+
+    (
+        runner_dict,
+        integrator_settings,
+        v_packet_settings,
+        virtual_spectrum_spawn_range,
+    ) = runner_to_dict(runner)
+
+    # Check runner dictionary
+    for key, value in runner_dict.items():
+        if isinstance(value, np.ndarray):
+            if key + "_cgs" in runner_data.keys():
+                assert np.array_equal(value, runner_data[key + "_cgs"])
+            else:
+                assert np.array_equal(value, runner_data[key])
+        elif isinstance(value, list):
+            assert np.array_equal(value[0], runner_data[key[:-4]].value)
+            assert value[1] == runner_data[key[:-4]].unit.to_string()
+        else:
+            assert value == runner_data[key]
+
+    # Check integrator settings
+    for key, value in integrator_settings:
+        assert value == runner.integrator_settings[key]
+
+    # Check v_packet settings
+    for key, value in v_packet_settings:
+        assert value == runner.v_packet_settings[key]
+
+    # Check virtual spectrum spawn range
+    for key, value in virtual_spectrum_spawn_range:
+        assert value.value == runner.virtual_spectrum_spawn_range[key].value

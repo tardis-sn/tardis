@@ -584,7 +584,6 @@ def runner_to_dict(runner):
         "spectrum_method": runner.spectrum_method,
         "stim_recomb_cooling_estimator": runner.stim_recomb_cooling_estimator,
         "stim_recomb_estimator": runner.stim_recomb_estimator,
-        "t_rad_estimator_constant": runner.t_rad_estimator_constant,
         "time_of_simulation_cgs": runner.time_of_simulation,
         "use_gpu": runner.use_gpu,
         "v_inner": runner.v_inner_cgs,
@@ -603,7 +602,7 @@ def runner_to_dict(runner):
 
     for key, value in runner_dict.items():
         if key.endswith("_cgs"):
-            runner_dict[key] = [value.cgs, value.unit.to_string()]
+            runner_dict[key] = [value.cgs.value, value.unit.to_string()]
 
     integrator_settings = runner.integrator_settings.items()
     v_packet_settings = runner.v_packet_settings.items()
@@ -764,7 +763,6 @@ def runner_from_hdf(fname):
         "stim_recomb_cooling_estimator"
     ]
     new_runner.stim_recomb_estimator = d["stim_recomb_estimator"]
-    new_runner.t_rad_estimator_constant = d["t_rad_estimator_constant"]
     new_runner.time_of_simulation = d["time_of_simulation_cgs"]
     new_runner.v_inner_cgs = d["v_inner"]
     new_runner.v_outer_cgs = d["v_outer"]
