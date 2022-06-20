@@ -707,16 +707,18 @@ def runner_from_hdf(fname):
             d[key] = u.Quantity(value[0], unit=u.Unit(value[1].decode("utf-8")))
 
     # Converting virtual spectrum spawn range values to astropy quantities
-    vssr = d['virtual_spectrum_spawn_range']
-    d['virtual_spectrum_spawn_range'] = {
-        'start': u.Quantity(vssr['start'], unit=u.Unit('Angstrom')),
-        'end': u.Quantity(vssr['end'], unit=u.Unit('Angstrom')),
+    vssr = d["virtual_spectrum_spawn_range"]
+    d["virtual_spectrum_spawn_range"] = {
+        "start": u.Quantity(vssr["start"], unit=u.Unit("Angstrom")),
+        "end": u.Quantity(vssr["end"], unit=u.Unit("Angstrom")),
     }
 
     # Converting dictionaries to ConfigurationNameSpace
-    d['integrator_settings'] = ConfigurationNameSpace(d['integrator_settings'])
-    d['v_packet_settings'] = ConfigurationNameSpace(d['v_packet_settings'])
-    d['virtual_spectrum_spawn_range'] = ConfigurationNameSpace(d['virtual_spectrum_spawn_range'])
+    d["integrator_settings"] = ConfigurationNameSpace(d["integrator_settings"])
+    d["v_packet_settings"] = ConfigurationNameSpace(d["v_packet_settings"])
+    d["virtual_spectrum_spawn_range"] = ConfigurationNameSpace(
+        d["virtual_spectrum_spawn_range"]
+    )
 
     # Creating a runner object and storing data
     new_runner = MontecarloRunner(
