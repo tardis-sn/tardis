@@ -818,7 +818,7 @@ def model_to_dict(model):
 
     for key, value in model_dict.items():
         if key.endswith("_cgs"):
-            model_dict[key] = [value.cgs, value.unit.to_string()]
+            model_dict[key] = [value.cgs.value, value.unit.to_string()]
 
     homologous_density = model.homologous_density.__dict__
     isotope_abundance = model.raw_isotope_abundance.__dict__

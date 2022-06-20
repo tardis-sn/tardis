@@ -3,6 +3,7 @@ import os
 from astropy import units as u
 import numpy as np
 import pytest
+import h5py
 
 import tardis
 from tardis.io.config_reader import Configuration
@@ -14,6 +15,7 @@ from tardis.io.model_reader import (
     read_cmfgen_density,
     read_cmfgen_composition,
     model_to_dict,
+    store_model_to_hdf,
 )
 
 data_path = os.path.join(tardis.__path__[0], "io", "tests", "data")
@@ -182,3 +184,50 @@ def test_model_to_dict(simulation_verysimple):
     assert np.array_equal(
         homologous_density["time_0"], model.homologous_density.time_0
     )
+
+
+def test_store_model_to_hdf(simulation_verysimple, tmp_path):
+    model = simulation_verysimple.model
+
+    fname = tmp_path / "model.h5"
+
+    # Store model object
+    store_model_to_hdf(model, fname)
+
+    # Check file contents
+    with h5py.File(fname) as f:
+        print(f["model/abundance"])
+        assert np.array_equal(f["model/velocity_cgs"], model.velocity.value)
+        assert np.array_equal(f["model/abundance"], model.abundance)
+        assert np.array_equal(
+            f["model/time_explosion_cgs"], model.time_explosion.value
+        )
+        assert np.array_equal(f["model/t_inner_cgs"], model.t_inner.value)
+        assert np.array_equal(
+            f["model/t_radiative_cgs"], model.t_radiative.value
+        )
+        assert np.array_equal(f["model/dilution_factor"], model.dilution_factor)
+        assert np.array_equal(
+            f["model/v_boundary_inner_cgs"], model.v_boundary_inner.value
+        )
+        assert np.array_equal(
+            f["model/v_boundary_outer_cgs"], model.v_boundary_outer.value
+        )
+        assert np.array_equal(f["model/w"], model.w)
+        assert np.array_equal(f["model/t_rad_cgs"], model.t_rad.value)
+        assert np.array_equal(f["model/r_inner_cgs"], model.r_inner.value)
+        assert np.array_equal(f["model/density_cgs"], model.density.value)
+
+        # Check homologous density
+        assert np.array_equal(
+            f["model/homologous_density/optional_hdf_properties"],
+            model.homologous_density.optional_hdf_properties,
+        )
+        assert np.array_equal(
+            f["model/homologous_density/density_0"],
+            model.homologous_density.density_0.value,
+        )
+        assert np.array_equal(
+            f["model/homologous_density/time_0"],
+            model.homologous_density.time_0.value,
+        )
