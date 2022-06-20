@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
-import tardis.packet_transfer.calculate_distances as calculate_distances
+import tardis.transport.calculate_distances as calculate_distances
 import tardis.montecarlo.montecarlo_numba.frame_transformations as frame_transformations
 import tardis.montecarlo.montecarlo_numba.opacities as opacities
 import tardis.montecarlo.montecarlo_numba.r_packet_transport as r_packet_transport
