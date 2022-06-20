@@ -134,43 +134,45 @@ def test_model_to_dict(simulation_verysimple):
     model_dict, homologous_density, isotope_abundance = model_to_dict(model)
 
     # Check model dictionary
-    assert np.array_equal(model_dict["velocity_cgs"][0], model.velocity)
+    assert np.array_equal(model_dict["velocity_cgs"][0], model.velocity.value)
     assert model_dict["velocity_cgs"][1] == model.velocity.unit.to_string()
     assert np.array_equal(model_dict["abundance"], model.abundance)
     assert np.array_equal(
-        model_dict["time_explosion_cgs"][0], model.time_explosion
+        model_dict["time_explosion_cgs"][0], model.time_explosion.value
     )
     assert (
         model_dict["time_explosion_cgs"][1]
         == model.time_explosion.unit.to_string()
     )
-    assert np.array_equal(model_dict["t_inner_cgs"][0], model.t_inner)
+    assert np.array_equal(model_dict["t_inner_cgs"][0], model.t_inner.value)
     assert model_dict["t_inner_cgs"][1] == model.t_inner.unit.to_string()
-    assert np.array_equal(model_dict["t_radiative_cgs"][0], model.t_radiative)
+    assert np.array_equal(
+        model_dict["t_radiative_cgs"][0], model.t_radiative.value
+    )
     assert (
         model_dict["t_radiative_cgs"][1] == model.t_radiative.unit.to_string()
     )
     assert np.array_equal(model_dict["dilution_factor"], model.dilution_factor)
     assert np.array_equal(
-        model_dict["v_boundary_inner_cgs"][0], model.v_boundary_inner
+        model_dict["v_boundary_inner_cgs"][0], model.v_boundary_inner.value
     )
     assert (
         model_dict["v_boundary_inner_cgs"][1]
         == model.v_boundary_inner.unit.to_string()
     )
     assert np.array_equal(
-        model_dict["v_boundary_outer_cgs"][0], model.v_boundary_outer
+        model_dict["v_boundary_outer_cgs"][0], model.v_boundary_outer.value
     )
     assert (
         model_dict["v_boundary_outer_cgs"][1]
         == model.v_boundary_outer.unit.to_string()
     )
     assert np.array_equal(model_dict["w"], model.w)
-    assert np.array_equal(model_dict["t_rad_cgs"][0], model.t_rad)
+    assert np.array_equal(model_dict["t_rad_cgs"][0], model.t_rad.value)
     assert model_dict["t_rad_cgs"][1] == model.t_rad.unit.to_string()
-    assert np.array_equal(model_dict["r_inner_cgs"][0], model.r_inner)
+    assert np.array_equal(model_dict["r_inner_cgs"][0], model.r_inner.value)
     assert model_dict["r_inner_cgs"][1] == model.r_inner.unit.to_string()
-    assert np.array_equal(model_dict["density_cgs"][0], model.density)
+    assert np.array_equal(model_dict["density_cgs"][0], model.density.value)
     assert model_dict["density_cgs"][1] == model.density.unit.to_string()
 
     # Check homologous density
