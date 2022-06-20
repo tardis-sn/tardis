@@ -3,7 +3,7 @@ from numba import njit
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,
 )
-from tardis.montecarlo.montecarlo_numba.r_packet_transport import (
+from tardis.transport.r_packet_transport import (
     move_r_packet,
     move_packet_across_shell_boundary,
 )
