@@ -28,7 +28,6 @@ montecarlo:
   no_of_virtual_packets: 0
   nthreads: 6
   seed: 23111963
-  single_packet_seed: 46
 plasma:
   disable_electron_scattering: false
   excitation: lte

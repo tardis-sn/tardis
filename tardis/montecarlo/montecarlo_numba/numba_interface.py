@@ -600,7 +600,6 @@ def configuration_initialize(runner, number_of_vpackets):
     montecarlo_configuration.temporary_v_packet_bins = number_of_vpackets
     montecarlo_configuration.full_relativity = runner.enable_full_relativity
     montecarlo_configuration.montecarlo_seed = runner.seed
-    montecarlo_configuration.single_packet_seed = runner.single_packet_seed
     montecarlo_configuration.v_packet_spawn_start_frequency = (
         runner.virtual_spectrum_spawn_range.end.to(
             u.Hz, equivalencies=u.spectral()
