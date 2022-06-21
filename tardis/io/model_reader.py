@@ -646,7 +646,8 @@ def store_runner_to_hdf(runner, fname):
                 runner_group.create_dataset(key, data=value[0])
                 runner_group.create_dataset(key + "_unit", data=value[1])
             else:
-                runner_group.create_dataset(key, data=value)
+                if value is not None:
+                    runner_group.create_dataset(key, data=value)
 
         integrator_settings_group = runner_group.create_group(
             "integrator_settings"
@@ -678,7 +679,7 @@ def runner_from_hdf(fname):
     new_runner : tardis.montecarlo.MontecarloRunner
     """
 
-    d = {}
+    d = {"single_packet_seed": None}
 
     # Loading data from hdf file
     with h5py.File(fname, "r") as f:

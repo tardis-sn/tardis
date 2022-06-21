@@ -17,6 +17,7 @@ from tardis.io.model_reader import (
     model_to_dict,
     runner_to_dict,
     store_model_to_hdf,
+    store_runner_to_hdf,
 )
 
 data_path = os.path.join(tardis.__path__[0], "io", "tests", "data")
@@ -248,7 +249,7 @@ def test_runner_to_dict(simulation_verysimple):
 
     # Check runner dictionary
     for key, value in runner_dict.items():
-        if key == 'single_packet_seed':
+        if key == "single_packet_seed":
             if value is None:
                 assert key not in runner_data.keys()
             else:
@@ -275,3 +276,148 @@ def test_runner_to_dict(simulation_verysimple):
     # Check virtual spectrum spawn range
     for key, value in virtual_spectrum_spawn_range:
         assert value.value == runner.virtual_spectrum_spawn_range[key].value
+
+
+def test_store_runner_to_hdf(simulation_verysimple, tmp_path):
+    runner = simulation_verysimple.runner
+    runner_data = runner.__dict__
+    fname = tmp_path / "runner.h5"
+    # s
+    # Store runner object
+    store_runner_to_hdf(runner, fname)
+    #
+    # Check file contents
+    with h5py.File(fname) as f:
+        assert np.array_equal(
+            f["runner/Edotlu_estimator"], runner_data["Edotlu_estimator"]
+        )
+        assert np.array_equal(
+            f["runner/bf_heating_estimator"],
+            runner_data["bf_heating_estimator"],
+        )
+        assert (
+            f["runner/enable_full_relativity"][()]
+            == runner_data["enable_full_relativity"]
+        )
+        assert (
+            f["runner/enable_reflective_inner_boundary"][()]
+            == runner_data["enable_reflective_inner_boundary"]
+        )
+        assert (
+            f["runner/inner_boundary_albedo"][()]
+            == runner_data["inner_boundary_albedo"]
+        )
+        assert np.array_equal(
+            f["runner/input_energy"], runner_data["input_energy"]
+        )
+        assert np.array_equal(f["runner/input_mu"], runner_data["input_mu"])
+        assert np.array_equal(f["runner/input_nu"], runner_data["input_nu"])
+        assert np.array_equal(
+            f["runner/input_r_cgs"], runner_data["input_r"].value
+        )
+        assert np.array_equal(
+            f["runner/j_blue_estimator"], runner_data["j_blue_estimator"]
+        )
+        assert np.array_equal(
+            f["runner/j_estimator"], runner_data["j_estimator"]
+        )
+        assert np.array_equal(
+            f["runner/last_interaction_in_nu"],
+            runner_data["last_interaction_in_nu"],
+        )
+        assert np.array_equal(
+            f["runner/last_interaction_type"],
+            runner_data["last_interaction_type"],
+        )
+        assert np.array_equal(
+            f["runner/last_line_interaction_in_id"],
+            runner_data["last_line_interaction_in_id"],
+        )
+        assert np.array_equal(
+            f["runner/last_line_interaction_out_id"],
+            runner_data["last_line_interaction_out_id"],
+        )
+        assert np.array_equal(
+            f["runner/last_line_interaction_shell_id"],
+            runner_data["last_line_interaction_shell_id"],
+        )
+        assert (
+            f["runner/line_interaction_type"][()].decode("utf-8")
+            == runner_data["line_interaction_type"]
+        )
+        assert np.array_equal(
+            f["runner/nu_bar_estimator"], runner_data["nu_bar_estimator"]
+        )
+        assert np.array_equal(
+            f["runner/photo_ion_estimator"], runner_data["photo_ion_estimator"]
+        )
+        assert np.array_equal(
+            f["runner/photo_ion_estimator_statistics"],
+            runner_data["photo_ion_estimator_statistics"],
+        )
+        assert np.array_equal(f["runner/r_inner"], runner_data["r_inner_cgs"])
+        assert np.array_equal(f["runner/r_outer"], runner_data["r_outer_cgs"])
+        assert f["runner/seed"][()] == runner_data["seed"]
+        assert np.array_equal(
+            f["runner/spectrum_frequency_cgs"],
+            runner_data["spectrum_frequency"].value,
+        )
+        assert (
+            f["runner/spectrum_method"][()].decode("utf-8")
+            == runner_data["spectrum_method"]
+        )
+        assert np.array_equal(
+            f["runner/stim_recomb_cooling_estimator"],
+            runner_data["stim_recomb_cooling_estimator"],
+        )
+        assert np.array_equal(
+            f["runner/stim_recomb_estimator"],
+            runner_data["stim_recomb_estimator"],
+        )
+        assert np.array_equal(
+            f["runner/time_of_simulation_cgs"],
+            runner_data["time_of_simulation"].value,
+        )
+        assert f["runner/use_gpu"][()] == runner_data["use_gpu"]
+        assert np.array_equal(f["runner/v_inner"], runner_data["v_inner_cgs"])
+        assert np.array_equal(f["runner/v_outer"], runner_data["v_outer_cgs"])
+        assert f["runner/virt_logging"][()] == runner_data["virt_logging"]
+        assert np.array_equal(
+            f["runner/virt_packet_energies"],
+            runner_data["virt_packet_energies"],
+        )
+        assert np.array_equal(
+            f["runner/virt_packet_initial_mus"],
+            runner_data["virt_packet_initial_mus"],
+        )
+        assert np.array_equal(
+            f["runner/virt_packet_initial_rs"],
+            runner_data["virt_packet_initial_rs"],
+        )
+        assert np.array_equal(
+            f["runner/virt_packet_last_interaction_in_nu"],
+            runner_data["virt_packet_last_interaction_in_nu"],
+        )
+        assert np.array_equal(
+            f["runner/virt_packet_last_interaction_type"],
+            runner_data["virt_packet_last_interaction_type"],
+        )
+        assert np.array_equal(
+            f["runner/virt_packet_last_line_interaction_in_id"],
+            runner_data["virt_packet_last_line_interaction_in_id"],
+        )
+        assert np.array_equal(
+            f["runner/virt_packet_last_line_interaction_out_id"],
+            runner_data["virt_packet_last_line_interaction_out_id"],
+        )
+        assert np.array_equal(
+            f["runner/virt_packet_nus"], runner_data["virt_packet_nus"]
+        )
+        assert np.array_equal(
+            f["runner/volume_cgs"], runner_data["volume"].value
+        )
+        if "runner/single_packet_seed" in f:
+            assert (
+                f["runner/single_packet_seed"][()]
+                == runner_data["single_packet_seed"]
+            )
