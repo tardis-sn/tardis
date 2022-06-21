@@ -8,7 +8,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
     angle_aberration_CMF_to_LF,

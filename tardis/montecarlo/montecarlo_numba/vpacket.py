@@ -13,7 +13,7 @@ from tardis.montecarlo import (
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,
 )
-from tardis.montecarlo.montecarlo_numba.r_packet_transport import (
+from tardis.transport.r_packet_transport import (
     move_packet_across_shell_boundary,
 )
 
@@ -22,7 +22,7 @@ from tardis.transport.calculate_distances import (
     calculate_distance_line,
 )
 
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.transport.frame_transformations import (
     get_doppler_factor,
     angle_aberration_LF_to_CMF,
     angle_aberration_CMF_to_LF,

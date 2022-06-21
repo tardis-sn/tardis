@@ -7,7 +7,7 @@ from numba.experimental import jitclass
 from tardis.montecarlo.montecarlo_numba import (
     njit_dict_no_parallel,
 )
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.transport.frame_transformations import (
     get_doppler_factor,
 )
 from tardis.montecarlo.montecarlo_numba import numba_config as nc
