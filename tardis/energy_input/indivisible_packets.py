@@ -114,8 +114,7 @@ def initialize_packets(
     times,
     energy_df_rows,
     effective_times,
-    ni56_tau,
-    co56_tau,
+    taus,
     decay_fraction,
 ):
     """Initialize a list of GXPacket objects for the simulation
@@ -143,7 +142,7 @@ def initialize_packets(
         Setup list for energy DataFrame output
     effective_times : array float64
         Middle time of the time step
-    ni56_tau, co56_tau : float64
+    taus, co56_tau : array float64
         Mean half-life for each isotope
 
     Returns
@@ -191,8 +190,8 @@ def initialize_packets(
                 positron_energy = 0.63 * 1000 * 0.19
                 positron_fraction = positron_energy / np.sum(energy * intensity)
                 decay_time = sample_decay_time(
-                    ni56_tau,
-                    end_tau=co56_tau,
+                    taus[1],
+                    end_tau=taus[0],
                     decay_time_min=0,
                     decay_time_max=times[-1],
                 )
@@ -201,7 +200,7 @@ def initialize_packets(
                 intensity = ni56_lines[:, 1]
                 positron_fraction = 0
                 decay_time = sample_decay_time(
-                    ni56_tau, decay_time_min=0, decay_time_max=times[-1]
+                    taus[1], decay_time_min=0, decay_time_max=times[-1]
                 )
 
             cmf_energy = sample_energy(energy, intensity)
@@ -437,12 +436,13 @@ def main_gamma_ray_loop(
     )
 
     inventories = raw_isotope_abundance.to_inventories()
+    all_isotope_names = get_all_isotopes(raw_isotope_abundance)
+    all_isotope_names.sort()
 
-    # hardcoded Ni and Co 56 mean half-lives
-    taus = {
-        "Ni56": 6.075 * u.d.to("s") / np.log(2),
-        "Co56": 77.233 * u.d.to("s") / np.log(2),
-    }
+    taus = np.zeros(len(all_isotope_names))
+
+    for i, isotope in enumerate(all_isotope_names):
+        taus[i] = rd.Nuclide(isotope).half_life() / np.log(2)
 
     # This will use the decay radiation database and be a more complex network eventually
     ni56_lines = read_artis_lines("ni56", path_to_artis_lines)
@@ -508,8 +508,7 @@ def main_gamma_ray_loop(
         times,
         energy_df_rows,
         effective_time_array,
-        taus["Ni56"],
-        taus["Co56"],
+        taus,
         energy_per_mass_norm.to_numpy(),
     )
 
