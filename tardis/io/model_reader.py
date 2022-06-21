@@ -686,7 +686,7 @@ def runner_from_hdf(fname):
         runner_group = f["runner"]
         for key, value in runner_group.items():
             if not key.endswith("_unit"):
-                if type(value) == h5py._hl.dataset.Dataset:
+                if isinstance(value, h5py.Dataset):
                     if isinstance(value[()], bytes):
                         d[key] = value[()].decode("utf-8")
                     else:
@@ -822,7 +822,7 @@ def model_to_dict(model):
     }
 
     for key, value in model_dict.items():
-        if key.endswith("_cgs"):
+        if hasattr(value, "unit"):
             model_dict[key] = [value.cgs.value, value.unit.to_string()]
 
     homologous_density = model.homologous_density.__dict__
