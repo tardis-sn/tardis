@@ -248,7 +248,12 @@ def test_runner_to_dict(simulation_verysimple):
 
     # Check runner dictionary
     for key, value in runner_dict.items():
-        if isinstance(value, np.ndarray):
+        if key == 'single_packet_seed':
+            if value is None:
+                assert key not in runner_data.keys()
+            else:
+                assert value == runner_data[key]
+        elif isinstance(value, np.ndarray):
             if key + "_cgs" in runner_data.keys():
                 assert np.array_equal(value, runner_data[key + "_cgs"])
             else:
