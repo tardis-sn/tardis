@@ -1,5 +1,9 @@
 # reading different model files
 
+from tardis.io.config_reader import ConfigurationNameSpace
+from tardis.montecarlo.base import MontecarloRunner
+from tardis.util.base import parse_quantity, is_valid_nuclide_or_elem
+
 import warnings
 import numpy as np
 from numpy import recfromtxt, genfromtxt
@@ -8,15 +12,11 @@ from astropy import units as u
 from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
 import h5py
-from tardis.io.config_reader import ConfigurationNameSpace
-from tardis.montecarlo.base import MontecarloRunner
 
 import logging
 
 # Adding logging support
 logger = logging.getLogger(__name__)
-
-from tardis.util.base import parse_quantity, is_valid_nuclide_or_elem
 
 
 class ConfigurationError(Exception):
