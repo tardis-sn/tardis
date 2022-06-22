@@ -608,9 +608,9 @@ def runner_to_dict(runner):
         if key.endswith("_cgs"):
             runner_dict[key] = [value.cgs.value, value.unit.to_string()]
 
-    integrator_settings = runner.integrator_settings.items()
-    v_packet_settings = runner.v_packet_settings.items()
-    virtual_spectrum_spawn_range = runner.virtual_spectrum_spawn_range.items()
+    integrator_settings = runner.integrator_settings
+    v_packet_settings = runner.v_packet_settings
+    virtual_spectrum_spawn_range = runner.virtual_spectrum_spawn_range
 
     return (
         runner_dict,
@@ -652,17 +652,17 @@ def store_runner_to_hdf(runner, fname):
         integrator_settings_group = runner_group.create_group(
             "integrator_settings"
         )
-        for key, value in integrator_settings:
+        for key, value in integrator_settings.items():
             integrator_settings_group.create_dataset(key, data=value)
 
         v_packet_settings_group = runner_group.create_group("v_packet_settings")
-        for key, value in v_packet_settings:
+        for key, value in v_packet_settings.items():
             v_packet_settings_group.create_dataset(key, data=value)
 
         virtual_spectrum_spawn_range_group = runner_group.create_group(
             "virtual_spectrum_spawn_range"
         )
-        for key, value in virtual_spectrum_spawn_range:
+        for key, value in virtual_spectrum_spawn_range.items():
             virtual_spectrum_spawn_range_group.create_dataset(key, data=value)
 
 

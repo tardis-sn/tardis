@@ -266,15 +266,15 @@ def test_runner_to_dict(simulation_verysimple):
             assert value == runner_data[key]
 
     # Check integrator settings
-    for key, value in integrator_settings:
+    for key, value in integrator_settings.items():
         assert value == runner.integrator_settings[key]
 
     # Check v_packet settings
-    for key, value in v_packet_settings:
+    for key, value in v_packet_settings.items():
         assert value == runner.v_packet_settings[key]
 
     # Check virtual spectrum spawn range
-    for key, value in virtual_spectrum_spawn_range:
+    for key, value in virtual_spectrum_spawn_range.items():
         assert value.value == runner.virtual_spectrum_spawn_range[key].value
 
 
