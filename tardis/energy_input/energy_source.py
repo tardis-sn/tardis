@@ -112,11 +112,10 @@ def setup_input_energy(nuclear_data, source):
         CDF where each index corresponds to the energy in
         the sorted array
     """
-    intensity = nuclear_data.query("type==" + source)["intensity"].values
-    energy = nuclear_data.query("type==" + source)["energy"].values
-    energy_sorted, cdf = create_energy_cdf(energy, intensity)
+    intensity = nuclear_data.query("type==" + source)["intensity"].to_numpy()
+    energy = nuclear_data.query("type==" + source)["energy"].to_numpy()
 
-    return energy_sorted, cdf
+    return energy, intensity
 
 
 def intensity_ratio(nuclear_data, source_1, source_2):
@@ -254,3 +253,11 @@ def read_artis_lines(isotope, path_to_data):
         sep="  ",
         index_col=False,
     )
+
+
+def get_nuclear_lines_database(
+    path="~/Downloads/tardisnuclear/decay_radiation.h5",
+):
+    decay_radiation_db = pd.read_hdf(path, "decay_radiation")
+    meta = pd.read_hdf(path, "metadata")
+    return decay_radiation_db, meta

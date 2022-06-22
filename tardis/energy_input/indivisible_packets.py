@@ -14,7 +14,9 @@ from tardis.energy_input.gamma_ray_grid import (
 )
 from tardis.energy_input.energy_source import (
     get_all_isotopes,
+    get_nuclear_lines_database,
     read_artis_lines,
+    setup_input_energy,
 )
 from tardis.energy_input.calculate_opacity import (
     compton_opacity_calculation,
@@ -184,8 +186,8 @@ def initialize_packets(
             ni_or_co_random = np.random.random()
 
             if ni_or_co_random > decay_fraction[k, 0]:
-                energy = co56_lines[:, 0] * 1000
-                intensity = co56_lines[:, 1]
+                energy = co56_lines[0, :]
+                intensity = co56_lines[1, :]
                 # positron energy scaled by intensity
                 positron_energy = 0.63 * 1000 * 0.19
                 positron_fraction = positron_energy / np.sum(energy * intensity)
@@ -196,8 +198,8 @@ def initialize_packets(
                     decay_time_max=times[-1],
                 )
             else:
-                energy = ni56_lines[:, 0] * 1000
-                intensity = ni56_lines[:, 1]
+                energy = ni56_lines[0, :]
+                intensity = ni56_lines[1, :]
                 positron_fraction = 0
                 decay_time = sample_decay_time(
                     taus[1], decay_time_min=0, decay_time_max=times[-1]
@@ -294,7 +296,7 @@ def main_gamma_ray_loop(
     photoabsorption_opacity="tardis",
     pair_creation_opacity="tardis",
     seed=1,
-    path_to_artis_lines="",
+    path_to_decay_data="",
 ):
     """Main loop that determines the gamma ray propagation
 
@@ -323,6 +325,10 @@ def main_gamma_ray_loop(
     pair_creation_opacity : str
         Set the pair creation opacity calculation. Defaults to Ambwani & Sutherland (1988) approximation.
         `'artis'` uses the ARTIS implementation of the Ambwani & Sutherland (1988) approximation.
+    seed : int
+        Sets the seed for the random number generator. Uses deprecated methods.
+    path_to_decay_data : str
+        The path to a decay radiation file from the `nuclear` package.
 
     Returns
     -------
@@ -439,19 +445,24 @@ def main_gamma_ray_loop(
     all_isotope_names = get_all_isotopes(raw_isotope_abundance)
     all_isotope_names.sort()
 
+    gamma_ray_lines, isotope_metadata = get_nuclear_lines_database(
+        path_to_decay_data
+    )
+
     taus = np.zeros(len(all_isotope_names))
+    gamma_ray_line_arrays = []
+    average_energies = []
 
     for i, isotope in enumerate(all_isotope_names):
         taus[i] = rd.Nuclide(isotope).half_life() / np.log(2)
+        energy, intensity = setup_input_energy(
+            gamma_ray_lines.loc[isotope], "'gamma_rays'"
+        )
+        gamma_ray_line_arrays.append(np.stack([energy, intensity / 100]))
+        average_energies.append(np.sum(energy * intensity / 100))
 
-    # This will use the decay radiation database and be a more complex network eventually
-    ni56_lines = read_artis_lines("ni56", path_to_artis_lines)
-    co56_lines = read_artis_lines("co56", path_to_artis_lines)
-
-    decay_energy = {
-        "Ni-56": (ni56_lines.energy * 1000 * ni56_lines.intensity).sum(),
-        "Co-56": (co56_lines.energy * 1000 * co56_lines.intensity).sum(),
-    }
+    gamma_ray_line_arrays = dict(zip(all_isotope_names, gamma_ray_line_arrays))
+    average_energies = dict(zip(all_isotope_names, average_energies))
 
     # urilight chooses to have 0 as the baseline for this calculation
     # but time_start may also be valid in which case decay time is time_end - time_start
@@ -463,7 +474,7 @@ def main_gamma_ray_loop(
         for nuclide in total_decays:
             decayed_energy[nuclide] = (
                 total_decays[nuclide]
-                * decay_energy[nuclide]
+                * average_energies[nuclide.replace("-", "")]
                 * shell_masses[shell]
             )
 
@@ -500,8 +511,8 @@ def main_gamma_ray_loop(
     ) = initialize_packets(
         decayed_packet_count_array,
         total_energy.sum().sum(),
-        ni56_lines.to_numpy(),
-        co56_lines.to_numpy(),
+        gamma_ray_line_arrays["Ni56"],
+        gamma_ray_line_arrays["Co56"],
         inner_velocities,
         outer_velocities,
         inv_volume_time,
