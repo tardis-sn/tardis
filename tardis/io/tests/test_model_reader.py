@@ -2,9 +2,12 @@ import os
 
 from astropy import units as u
 import numpy as np
+import numpy.testing as npt
 import pytest
+from jsonschema.exceptions import ValidationError
 
 import tardis
+from tardis.io.config_validator import validate_dict
 from tardis.io.config_reader import Configuration
 from tardis.io.model_reader import (
     read_artis_density,
@@ -13,6 +16,7 @@ from tardis.io.model_reader import (
     read_uniform_abundances,
     read_cmfgen_density,
     read_cmfgen_composition,
+    load_csvy,
 )
 
 data_path = os.path.join(tardis.__path__[0], "io", "tests", "data")
@@ -45,6 +49,21 @@ def isotope_uniform_abundance():
     )
     config = Configuration.from_yaml(config_path)
     return config.model.abundances
+
+
+@pytest.fixture
+def csvy_full_fname():
+    return os.path.join(data_path, "csvy_full.csvy")
+
+
+@pytest.fixture
+def csvy_nocsv_fname():
+    return os.path.join(data_path, "csvy_nocsv.csvy")
+
+
+@pytest.fixture
+def csvy_missing_fname():
+    return os.path.join(data_path, "csvy_missing.csvy")
 
 
 def test_simple_read_artis_density(artis_density_fname):
@@ -123,3 +142,33 @@ def test_simple_read_cmfgen_density(cmfgen_fname):
     )
     assert len(mean_density) == 9
     assert len(velocity) == len(mean_density) + 1
+
+
+def test_csvy_finds_csv_first_line(csvy_full_fname):
+    yaml_dict, csv = load_csvy(csvy_full_fname)
+    npt.assert_almost_equal(csv["velocity"][0], 10000)
+
+
+def test_csv_colnames_equiv_datatype_fields(csvy_full_fname):
+    yaml_dict, csv = load_csvy(csvy_full_fname)
+    datatype_names = [od["name"] for od in yaml_dict["datatype"]["fields"]]
+    for key in csv.columns:
+        assert key in datatype_names
+    for name in datatype_names:
+        assert name in csv.columns
+
+
+def test_csvy_nocsv_data_is_none(csvy_nocsv_fname):
+    yaml_dict, csv = load_csvy(csvy_nocsv_fname)
+    assert csv is None
+
+
+def test_missing_required_property(csvy_missing_fname):
+    yaml_dict, csv = load_csvy(csvy_missing_fname)
+    with pytest.raises(ValidationError):
+        vy = validate_dict(
+            yaml_dict,
+            schemapath=os.path.join(
+                tardis.__path__[0], "io", "schemas", "csvy_model.yml"
+            ),
+        )

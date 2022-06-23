@@ -19,10 +19,10 @@ from tardis.model.density import (
     calculate_exponential_density,
 )
 from tardis.io.config_validator import validate_dict
-from tardis.io.parsers.csvy import load_csvy
 from tardis.io.model_reader import (
     read_uniform_abundances,
     parse_csv_abundances,
+    load_csvy,
 )
 from tardis.util.base import atomic_number2element_symbol, quantity_linspace
 from tardis.visualization.tools.convergence_plot import transition_colors
