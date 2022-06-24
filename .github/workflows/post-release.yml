@@ -128,6 +128,9 @@ jobs:
           reviewers: wkerzendorf, andrewfullard, epassaro
         id: create-pr
 
+      - name: Wait for pull request
+        run: sleep 30
+
       - name: Approve pull request
         uses: juliangruber/approve-pull-request-action@v1
         with:
