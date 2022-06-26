@@ -176,14 +176,14 @@ https://conda.anaconda.org/conda-forge/osx-64/mypy_extensions-0.4.3-py38h50d1736
 https://conda.anaconda.org/conda-forge/noarch/packaging-21.3-pyhd8ed1ab_0.tar.bz2#71f1ab2de48613876becddd496371c85
 https://conda.anaconda.org/conda-forge/noarch/pexpect-4.8.0-pyh9f0ad1d_2.tar.bz2#5909e7b978141dd80d28dbf9de627827
 https://conda.anaconda.org/conda-forge/osx-64/pillow-9.1.1-py38h21af888_1.tar.bz2#e1562beab02a942625c17d3f707c7359
-https://conda.anaconda.org/conda-forge/noarch/plotly-5.8.2-pyhd8ed1ab_0.tar.bz2#472ba30423e87f945728c25c64b839e7
+https://conda.anaconda.org/conda-forge/noarch/plotly-5.9.0-pyhd8ed1ab_0.tar.bz2#00a668931d448ce0ce42d1b02005d636
 https://conda.anaconda.org/conda-forge/osx-64/pluggy-1.0.0-py38h50d1736_3.tar.bz2#49de2850464c426eec1959b97858ec58
 https://conda.anaconda.org/conda-forge/osx-64/psutil-5.9.1-py38h0dd4459_0.tar.bz2#0698ae064f896a157f6a2daecc44a8fb
 https://conda.anaconda.org/conda-forge/osx-64/pyrsistent-0.18.1-py38hed1de0f_1.tar.bz2#229c11f55782475285b8f507cad315d5
 https://conda.anaconda.org/conda-forge/osx-64/pysocks-1.7.1-py38h50d1736_5.tar.bz2#b417ade9775612d9a2520b12bbab2cb0
 https://conda.anaconda.org/conda-forge/noarch/python-dateutil-2.8.2-pyhd8ed1ab_0.tar.bz2#dd999d1cc9f79e67dbb855c8924c7984
 https://conda.anaconda.org/conda-forge/osx-64/pyyaml-6.0-py38hed1de0f_4.tar.bz2#827c0e27214cb208fa43fe4d6230546e
-https://conda.anaconda.org/conda-forge/osx-64/pyzmq-23.1.0-py38h34ba744_0.tar.bz2#d3561b807f85d228c122601e0cb7b490
+https://conda.anaconda.org/conda-forge/osx-64/pyzmq-23.2.0-py38h34ba744_0.tar.bz2#476687a45b3629b420519e106adc7349
 https://conda.anaconda.org/conda-forge/osx-64/setuptools-59.8.0-py38h50d1736_1.tar.bz2#c25b5974862472ee3e681a920ceaceb4
 https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.1.1-pyhd8ed1ab_0.tar.bz2#5d280406501e79dc7aa9c9ac31d25a80
 https://conda.anaconda.org/conda-forge/osx-64/tornado-6.1-py38hed1de0f_3.tar.bz2#00afaf227b168ff6435abfeb352c58d7
@@ -262,5 +262,5 @@ https://conda.anaconda.org/conda-forge/noarch/nbsphinx-0.8.9-pyhd8ed1ab_0.tar.bz
 https://conda.anaconda.org/conda-forge/noarch/notebook-6.4.12-pyha770c72_0.tar.bz2#77fc67c5bbea44fd41e8bbe2ac82d1ad
 https://conda.anaconda.org/conda-forge/noarch/sphinx-astropy-1.7.0-pyhd8ed1ab_0.tar.bz2#c31d4e8154011f5e412ccc241de3b359
 https://conda.anaconda.org/conda-forge/noarch/widgetsnbextension-3.6.1-pyha770c72_0.tar.bz2#03cd073d4dc0623b857bf9e175d0f736
-https://conda.anaconda.org/conda-forge/noarch/ipywidgets-7.7.0-pyhd8ed1ab_0.tar.bz2#a3d2ccd3d9f9fcb65765c22f500529b4
+https://conda.anaconda.org/conda-forge/noarch/ipywidgets-7.7.1-pyhd8ed1ab_0.tar.bz2#96ba78bf526df670bf9562d6100eb627
 https://conda.anaconda.org/conda-forge/noarch/qgrid-1.3.1-pyhd8ed1ab_3.tar.bz2#178df45ddd7ef5b1bd2b8600954c58f6

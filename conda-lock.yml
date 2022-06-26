@@ -2564,14 +2564,14 @@ package:
     python: '>=3.6'
     tenacity: '>=6.2.0'
   hash:
-    md5: 472ba30423e87f945728c25c64b839e7
-    sha256: e0f0ec24ca526a75ad59e9766610ffcdf8c9108ebaed4679f4f17ae8fdcc05b1
+    md5: 00a668931d448ce0ce42d1b02005d636
+    sha256: ea346b15d40584f7c75ec44e0cd80baa2f7081c74ed419560ad389c094231422
   manager: conda
   name: plotly
   optional: false
   platform: linux-64
-  url: https://conda.anaconda.org/conda-forge/noarch/plotly-5.8.2-pyhd8ed1ab_0.tar.bz2
-  version: 5.8.2
+  url: https://conda.anaconda.org/conda-forge/noarch/plotly-5.9.0-pyhd8ed1ab_0.tar.bz2
+  version: 5.9.0
 - category: main
   dependencies:
     python: '>=3.8,<3.9.0a0'
@@ -2663,14 +2663,14 @@ package:
     python_abi: 3.8.* *_cp38
     zeromq: '>=4.3.4,<4.4.0a0'
   hash:
-    md5: d7ef874221d1452dbd55b16811ead456
-    sha256: 8233e69980a10ab0f38df0539d3a9c8f2454cb3b38bc63cdd7743edf179eb354
+    md5: e9e40f8bcc4c654a914861f8778f279e
+    sha256: c756ccf7cc3e272aa6544a3e03f72865c79d1b1d9dab5c4e324f444a9b031e54
   manager: conda
   name: pyzmq
   optional: false
   platform: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/pyzmq-23.1.0-py38hfc09fa9_0.tar.bz2
-  version: 23.1.0
+  url: https://conda.anaconda.org/conda-forge/linux-64/pyzmq-23.2.0-py38hfc09fa9_0.tar.bz2
+  version: 23.2.0
 - category: main
   dependencies:
     python: '>=3.8,<3.9.0a0'
@@ -3959,14 +3959,14 @@ package:
     traitlets: '>=4.3.1,<6.0.0'
     widgetsnbextension: '>=3.6.0,<3.7.0'
   hash:
-    md5: a3d2ccd3d9f9fcb65765c22f500529b4
-    sha256: c51de31925a7d55cba8ed15756fe1844bc10d1b74e1a3b1462771611401d243e
+    md5: 96ba78bf526df670bf9562d6100eb627
+    sha256: 1202cb57cbf56c19854469ac28ba95018b567bbb7e243902542e944e6a01bbca
   manager: conda
   name: ipywidgets
   optional: false
   platform: linux-64
-  url: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-7.7.0-pyhd8ed1ab_0.tar.bz2
-  version: 7.7.0
+  url: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-7.7.1-pyhd8ed1ab_0.tar.bz2
+  version: 7.7.1
 - category: main
   dependencies:
     ipywidgets: '>=7.0.0'
@@ -6207,14 +6207,14 @@ package:
     python: '>=3.6'
     tenacity: '>=6.2.0'
   hash:
-    md5: 472ba30423e87f945728c25c64b839e7
-    sha256: e0f0ec24ca526a75ad59e9766610ffcdf8c9108ebaed4679f4f17ae8fdcc05b1
+    md5: 00a668931d448ce0ce42d1b02005d636
+    sha256: ea346b15d40584f7c75ec44e0cd80baa2f7081c74ed419560ad389c094231422
   manager: conda
   name: plotly
   optional: false
   platform: osx-64
-  url: https://conda.anaconda.org/conda-forge/noarch/plotly-5.8.2-pyhd8ed1ab_0.tar.bz2
-  version: 5.8.2
+  url: https://conda.anaconda.org/conda-forge/noarch/plotly-5.9.0-pyhd8ed1ab_0.tar.bz2
+  version: 5.9.0
 - category: main
   dependencies:
     python: '>=3.8,<3.9.0a0'
@@ -6302,14 +6302,14 @@ package:
     python_abi: 3.8.* *_cp38
     zeromq: '>=4.3.4,<4.4.0a0'
   hash:
-    md5: d3561b807f85d228c122601e0cb7b490
-    sha256: 78626706c83d601d6365abf1e3e92315ccda7ebaaeea3e9d0757313b25ef084d
+    md5: 476687a45b3629b420519e106adc7349
+    sha256: f00684e42982f71e28b92eda5785f3385eca3a544e5195877e0e09522f31bab4
   manager: conda
   name: pyzmq
   optional: false
   platform: osx-64
-  url: https://conda.anaconda.org/conda-forge/osx-64/pyzmq-23.1.0-py38h34ba744_0.tar.bz2
-  version: 23.1.0
+  url: https://conda.anaconda.org/conda-forge/osx-64/pyzmq-23.2.0-py38h34ba744_0.tar.bz2
+  version: 23.2.0
 - category: main
   dependencies:
     python: '>=3.8,<3.9.0a0'
@@ -7592,14 +7592,14 @@ package:
     traitlets: '>=4.3.1,<6.0.0'
     widgetsnbextension: '>=3.6.0,<3.7.0'
   hash:
-    md5: a3d2ccd3d9f9fcb65765c22f500529b4
-    sha256: c51de31925a7d55cba8ed15756fe1844bc10d1b74e1a3b1462771611401d243e
+    md5: 96ba78bf526df670bf9562d6100eb627
+    sha256: 1202cb57cbf56c19854469ac28ba95018b567bbb7e243902542e944e6a01bbca
   manager: conda
   name: ipywidgets
   optional: false
   platform: osx-64
-  url: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-7.7.0-pyhd8ed1ab_0.tar.bz2
-  version: 7.7.0
+  url: https://conda.anaconda.org/conda-forge/noarch/ipywidgets-7.7.1-pyhd8ed1ab_0.tar.bz2
+  version: 7.7.1
 - category: main
   dependencies:
     ipywidgets: '>=7.0.0'
