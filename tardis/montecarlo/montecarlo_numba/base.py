@@ -134,7 +134,21 @@ def montecarlo_radial1d(
     update_iterations_pbar(1)
     # Condition for Checking if RPacket Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
-        runner.rpacket_tracker = pd.DataFrame([{"index":i.index,"status":i.status,"r":i.r,"nu":i.nu,"mu":i.mu,"energy":i.energy,"shell_id":i.shell_id} for i in rpacket_trackers])
+        runner.rpacket_tracker = pd.DataFrame(
+            [
+                {
+                    "index": i.index,
+                    "status": i.status,
+                    "r": i.r,
+                    "nu": i.nu,
+                    "mu": i.mu,
+                    "energy": i.energy,
+                    "shell_id": i.shell_id,
+                }
+                for i in rpacket_trackers
+            ]
+        )
+
 
 @njit(**njit_dict)
 def montecarlo_main_loop(
@@ -354,7 +368,6 @@ def montecarlo_main_loop(
     if montecarlo_configuration.RPACKET_TRACKING:
         for rpacket_tracker in rpacket_trackers:
             rpacket_tracker.finalize_array()
-
 
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
