@@ -1,0 +1,73 @@
+name: tardis-carsus-compatibility-check
+
+on:
+  push:
+    branches:
+    - '*'
+
+  pull_request:
+    branches:
+    - '*'
+
+env:
+  XUVTOP: /tmp/chianti
+  CHIANTI_DL_URL: https://download.chiantidatabase.org
+  CHIANTI_DB_VER: CHIANTI_v9.0.1_database.tar.gz
+  NBCONVERT_CMD: jupyter nbconvert --execute --ExecutePreprocessor.timeout=600 --to html
+
+jobs:
+ carsus-build:
+    defaults:
+      run:
+        shell: bash -l {0}
+    runs-on: ubuntu-latest
+
+    steps:
+      # - uses: actions/checkout@v2
+      #   with:
+      #     fetch-depth: 0
+
+      - name: Clone tardis-sn/carsus
+        uses: actions/checkout@v2
+        with:
+          repository: tardis-sn/carsus
+          path: carsus/
+        
+      - uses: actions/cache@v2
+        with:
+          path: ${{ env.XUVTOP }}
+          key: ${{ runner.os }}-${{ env.CHIANTI_DB_VER }}
+        id: chianti-cache
+
+      - name: Download Chianti database
+        run: |
+            mkdir -p ${{ env.XUVTOP }}
+            wget -q ${{ env.CHIANTI_DL_URL }}/${{ env.CHIANTI_DB_VER }} -O ${{ env.XUVTOP }}/chianti.tar.gz
+            tar -zxf ${{ env.XUVTOP }}/chianti.tar.gz -C ${{ env.XUVTOP }}
+        if: steps.chianti-cache.outputs.cache-hit != 'true'
+      
+      - name: Setup environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
+            environment-file: carsus/carsus_env3.yml
+            activate-environment: carsus
+            use-mamba: true
+
+      - name: Install package
+        run: pip install -e carsus/
+
+      - name: Run notebooks
+        run: |
+          ${{ env.NBCONVERT_CMD }} carsus/docs/quickstart.ipynb
+        env:
+          CARSUS_REFDATA: ${{ github.workspace }}/carsus-refdata
+        
+      - name: upload atom data
+        uses: actions/upload-artifact@v2
+        with:
+          name: atom_data
+          path: docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
+    
+
