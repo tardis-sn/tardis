@@ -70,19 +70,27 @@ class ModelState:
         return self.geometry.v_inner.values * self.geometry_units["v_inner"]
 
     @property
-    def r_inner(self):
-        """Inner radius of model shells."""
-        return self.geometry.r_inner.values * self.geometry_units["r_inner"]
-
-    @property
     def v_outer(self):
         """Outer boundary velocity."""
         return self.geometry.v_outer.values * self.geometry_units["v_outer"]
 
     @property
+    def v_middle(self):
+        return 0.5 * self.v_inner + 0.5 * self.v_outer
+
+    @property
+    def r_inner(self):
+        """Inner radius of model shells."""
+        return self.geometry.r_inner.values * self.geometry_units["r_inner"]
+
+    @property
     def r_outer(self):
         """Outer radius of model shells."""
         return self.geometry.r_outer.values * self.geometry_units["r_outer"]
+
+    @property
+    def r_middle(self):
+        return 0.5 * self.r_inner + 0.5 * self.r_outer
 
     def to_numba_model(self):
         return NumbaModel(
