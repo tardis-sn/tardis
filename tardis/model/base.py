@@ -53,6 +53,8 @@ class ModelState:
         time_explosion,
         density,
         velocity,
+        t_inner,
+        luminosity_requested=None,
         v_boundary_inner=None,
         v_boundary_outer=None,
     ):
@@ -77,6 +79,28 @@ class ModelState:
         self.v_boundary_outer = v_boundary_outer
         self._v_boundary_inner = None
         self._v_boundary_outer = None
+
+        if t_inner is None:
+            if luminosity_requested is not None:
+                self.t_inner = (
+                    (
+                        luminosity_requested
+                        / (
+                            4
+                            * np.pi
+                            * self.r_inner[0] ** 2
+                            * constants.sigma_sb
+                        )
+                    )
+                    ** 0.25
+                ).to("K")
+            else:
+                raise ValueError(
+                    "Both t_inner and luminosity_requested cannot " "be None."
+                )
+        else:
+            self.t_inner = t_inner
+
 
     @property
     def v_inner(self):
@@ -199,7 +223,16 @@ class ModelState:
             self._velocity[-1] = self.v_boundary_outer
         return self._velocity
 
+
     def to_numba_model(self):
+        """
+        Produces a numba model using model state
+
+        Returns
+        -------
+        numba_model : tardis.montecarlo.montecarlo_numba.NumbaModel
+            Model for the Numba mode
+        """
         return NumbaModel(
             v_inner=self.v_inner.cgs.value,
             v_outer=self.v_outer.cgs.value,
