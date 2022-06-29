@@ -56,6 +56,7 @@ class ModelState:
         t_inner,
         luminosity_requested=None,
         t_radiative=None,
+        dilution_factor=None,
         v_boundary_inner=None,
         v_boundary_outer=None,
     ):
@@ -110,6 +111,16 @@ class ModelState:
             )
         else:
             self._t_radiative = t_radiative
+
+        if dilution_factor is None:
+            self._dilution_factor = 0.5 * (
+                1
+                - np.sqrt(
+                    1 - (self.r_inner[0] ** 2 / self.r_middle**2).to(1).value
+                )
+            )
+        else:
+            self._dilution_factor = dilution_factor
 
     @property
     def v_inner(self):
@@ -267,6 +278,39 @@ class ModelState:
     @property
     def no_of_shells(self):
         return len(self.velocity) - 1
+
+    @property
+    def w(self):
+        return self.dilution_factor
+
+    @w.setter
+    def w(self, value):
+        self.dilution_factor = value
+
+    @property
+    def dilution_factor(self):
+        if len(self._dilution_factor) == self.no_of_shells:
+            return self._dilution_factor
+
+        return self._dilution_factor[
+            self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1
+        ]
+
+    @dilution_factor.setter
+    def dilution_factor(self, value):
+        if len(value) == len(self._dilution_factor):
+            self._dilution_factor = value
+        elif len(value) == self.no_of_shells:
+            self._dilution_factor[
+                self.v_boundary_inner_index
+                + 1 : self.v_boundary_outer_index
+                + 1
+            ] = value
+        else:
+            raise ValueError(
+                "Trying to set dilution_factor for unmatching number"
+                "of shells."
+            )
 
     def to_numba_model(self):
         """
