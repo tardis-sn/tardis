@@ -35,6 +35,13 @@ class ModelState:
     r_outer : astropy.units.quantity.Quantity
     density : astropy.units.quantity.Quantity
     time_explosion : astropy.units.quantity.Quantity
+    velocity : np.ndarray
+    t_inner : astropy.units.quantity.Quantity
+    luminosity_requested : astropy.units.quantity.Quantity
+    t_radiative : astropy.units.quantity.Quantity
+    dilution_factor : astropy.units.quantity.Quantity
+    v_boundary_inner : astropy.units.quantity.Quantity
+    v_boundary_outer : astropy.units.quantity.Quantity
 
     Attributes
     ----------
