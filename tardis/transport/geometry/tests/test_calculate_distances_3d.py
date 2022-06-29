@@ -2,7 +2,7 @@ import pytest
 import numpy.testing as npt
 import numpy as np
 
-from tardis.transport.r_packet_transport_3d import (
+from tardis.transport.geometry.calculate_distances_3d import (
     calculate_distance_boundary_3d,
     distance_trace_gamma,
 )
