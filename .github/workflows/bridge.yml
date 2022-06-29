@@ -82,6 +82,6 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: atom_data
-          path: docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
+          path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
     
 
