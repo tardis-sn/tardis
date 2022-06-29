@@ -17,11 +17,14 @@ env:
   CMFGEN_DL_URL: http://kookaburra.phyast.pitt.edu/hillier/cmfgen_files
   CMFGEN_DB_VER: atomic_data_15nov16.tar.gz
 
-jobs:
- carsus-build:
-    defaults:
+
+defaults:
       run:
         shell: bash -l {0}
+
+
+jobs:
+  carsus-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -60,7 +63,7 @@ jobs:
             tar -zxf /tmp/atomic.tar.gz -C /tmp
         if: steps.cmfgen-cache.outputs.cache-hit != 'true'
 
-      - name: Setup environment
+      - name: Setup carsus environment
         uses: conda-incubator/setup-miniconda@v2
         with:
             miniforge-variant: Mambaforge
@@ -81,7 +84,49 @@ jobs:
       - name: upload atom data
         uses: actions/upload-artifact@v2
         with:
-          name: atom_data
+          name: atom-data
           path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
-    
+  
+  tardis-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: tardis-sn/tardis
+          path: tardis/
+
+      - name: Setup TARDIS environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
+            activate-environment: tardis
+            use-mamba: true
+
+      - uses: actions/cache@v2
+        with:
+          path: ${{ matrix.prefix }}
+          key: conda-${{ matrix.label }}-${{ hashFiles('conda-${{ matrix.label }}.lock') }}-${{ env.CACHE_NUMBER }}
+        id: cache-conda
+
+      - name: Update environment
+        run: mamba update -n tardis --file conda-${{ matrix.label }}.lock
+        if: steps.cache-conda.outputs.cache-hit != 'true'
+
+      - name: Install package
+        run: pip install -e .
+
+  generate-spectrum:
+    runs-on: ubuntu-latest
+    needs: [carsus-build, tardis-build]
+
+    steps: 
+      - uses: actions/download-artifact@v2
+        with:
+          name: atom-data
+          path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
+
+
+
+
 
