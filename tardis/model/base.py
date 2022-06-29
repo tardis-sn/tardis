@@ -122,6 +122,13 @@ class ModelState:
         else:
             self._dilution_factor = dilution_factor
 
+        self.radiation_field = pd.DataFrame(
+            {
+                "t_radiative": self.t_rad.value,
+                "dilution_factor": self.dilution_factor.value,
+            }
+        )
+
     @property
     def v_inner(self):
         """Inner boundary velocity."""
