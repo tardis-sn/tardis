@@ -8,11 +8,9 @@ from numba.typed import List
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.energy_input.GXPacket import GXPacket, GXPacketStatus
 from tardis.transport.geometry.calculate_distances_3d import (
-    distance_trace_gamma
+    distance_trace_gamma,
 )
-from tardis.transport.r_packet_transport_3d import (
-    move_packet_3d
-)
+from tardis.transport.r_packet_transport_3d import move_packet_3d
 from tardis.energy_input.energy_source import (
     ni56_chain_energy,
     read_artis_lines,

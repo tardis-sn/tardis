@@ -2,10 +2,7 @@ import numpy as np
 from numba import njit
 
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
-from tardis.energy_input.util import (
-    solve_quadratic_equation,
-    C_CGS
-)
+from tardis.energy_input.util import solve_quadratic_equation, C_CGS
 
 
 @njit(**njit_dict_no_parallel)
@@ -109,5 +106,3 @@ def distance_trace_gamma(
     distance_interaction = photon.tau / total_opacity
     distance_time = (next_time - photon.time_current) * C_CGS
     return distance_interaction, distance_boundary, distance_time, shell_change
-
-
