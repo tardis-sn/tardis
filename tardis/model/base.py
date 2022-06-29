@@ -55,6 +55,7 @@ class ModelState:
         velocity,
         t_inner,
         luminosity_requested=None,
+        t_radiative=None,
         v_boundary_inner=None,
         v_boundary_outer=None,
     ):
@@ -101,6 +102,14 @@ class ModelState:
         else:
             self.t_inner = t_inner
 
+        if t_radiative is None:
+            lambda_wien_inner = constants.b_wien / self.t_inner
+            self._t_radiative = constants.b_wien / (
+                lambda_wien_inner
+                * (1 + (self.v_middle - self.v_boundary_inner) / constants.c)
+            )
+        else:
+            self._t_radiative = t_radiative
 
     @property
     def v_inner(self):
@@ -223,6 +232,41 @@ class ModelState:
             self._velocity[-1] = self.v_boundary_outer
         return self._velocity
 
+    @property
+    def t_rad(self):
+        return self.t_radiative
+
+    @t_rad.setter
+    def t_rad(self, value):
+        self.t_radiative = value
+
+    @property
+    def t_radiative(self):
+        if len(self._t_radiative) == self.no_of_shells:
+            return self._t_radiative
+
+        return self._t_radiative[
+            self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1
+        ]
+
+    @t_radiative.setter
+    def t_radiative(self, value):
+        if len(value) == len(self._t_radiative):
+            self._t_radiative = value
+        elif len(value) == self.no_of_shells:
+            self._t_radiative[
+                self.v_boundary_inner_index
+                + 1 : self.v_boundary_outer_index
+                + 1
+            ] = value
+        else:
+            raise ValueError(
+                "Trying to set t_radiative for unmatching number" "of shells."
+            )
+
+    @property
+    def no_of_shells(self):
+        return len(self.velocity) - 1
 
     def to_numba_model(self):
         """
