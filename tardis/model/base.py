@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from astropy import units as u
 from tardis import constants
+from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
 
 from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
 from tardis.io.parsers.csvy import load_csvy
@@ -82,6 +83,15 @@ class ModelState:
     def r_outer(self):
         """Outer radius of model shells."""
         return self.geometry.r_outer.values * self.geometry_units["r_outer"]
+
+    def to_numba_model(self):
+        return NumbaModel(
+            v_inner= self.v_inner.cgs.value,
+            v_outer= self.v_outer.cgs.value,
+            r_inner= self.r_inner.cgs.value,
+            r_outer= self.r_outer.cgs.value,
+            time_explosion= self.time_explosion.cgs.value,
+        )
 
 
 class Radial1DModel(HDFWriterMixin):

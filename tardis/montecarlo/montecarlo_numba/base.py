@@ -50,13 +50,7 @@ def montecarlo_radial1d(
         runner._output_energy,
     )
 
-    numba_model = NumbaModel(
-        runner.r_inner_cgs,
-        runner.r_outer_cgs,
-        runner.v_inner_cgs,
-        runner.v_outer_cgs,
-        model.time_explosion.to("s").value,
-    )
+    numba_model = model.model_state.to_numba_model()
     numba_plasma = numba_plasma_initialize(plasma, runner.line_interaction_type)
     estimators = Estimators(
         runner.j_estimator,
