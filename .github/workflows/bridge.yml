@@ -14,6 +14,8 @@ env:
   CHIANTI_DL_URL: https://download.chiantidatabase.org
   CHIANTI_DB_VER: CHIANTI_v9.0.1_database.tar.gz
   NBCONVERT_CMD: jupyter nbconvert --execute --ExecutePreprocessor.timeout=600 --to html
+  CMFGEN_DL_URL: http://kookaburra.phyast.pitt.edu/hillier/cmfgen_files
+  CMFGEN_DB_VER: atomic_data_15nov16.tar.gz
 
 jobs:
  carsus-build:
@@ -57,7 +59,7 @@ jobs:
             wget -q -U "Mozilla/4.0" ${{ env.CMFGEN_DL_URL }}/${{ env.CMFGEN_DB_VER }} -O /tmp/atomic.tar.gz
             tar -zxf /tmp/atomic.tar.gz -C /tmp
         if: steps.cmfgen-cache.outputs.cache-hit != 'true'
-        
+
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
         with:
