@@ -137,15 +137,15 @@ def montecarlo_radial1d(
         runner.rpacket_tracker = pd.DataFrame(
             [
                 {
-                    "index": i.index,
-                    "status": i.status,
-                    "r": i.r,
-                    "nu": i.nu,
-                    "mu": i.mu,
-                    "energy": i.energy,
-                    "shell_id": i.shell_id,
+                    "index": tracker.index,
+                    "status": tracker.status,
+                    "r": tracker.r,
+                    "nu": tracker.nu,
+                    "mu": tracker.mu,
+                    "energy": tracker.energy,
+                    "shell_id": tracker.shell_id,
                 }
-                for i in rpacket_trackers
+                for tracker in rpacket_trackers
             ]
         )
 
