@@ -46,6 +46,18 @@ jobs:
             tar -zxf ${{ env.XUVTOP }}/chianti.tar.gz -C ${{ env.XUVTOP }}
         if: steps.chianti-cache.outputs.cache-hit != 'true'
       
+      - uses: actions/cache@v2
+        with:
+          path: /tmp/atomic
+          key: ${{ env.CMFGEN_DB_VER }}
+        id: cmfgen-cache
+
+      - name: Download CMFGEN database
+        run: |
+            wget -q -U "Mozilla/4.0" ${{ env.CMFGEN_DL_URL }}/${{ env.CMFGEN_DB_VER }} -O /tmp/atomic.tar.gz
+            tar -zxf /tmp/atomic.tar.gz -C /tmp
+        if: steps.cmfgen-cache.outputs.cache-hit != 'true'
+        
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
         with:
