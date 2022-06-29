@@ -45,7 +45,16 @@ class ModelState:
     """
 
     def __init__(
-        self, v_inner, v_outer, r_inner, r_outer, time_explosion, density
+        self,
+        v_inner,
+        v_outer,
+        r_inner,
+        r_outer,
+        time_explosion,
+        density,
+        velocity,
+        v_boundary_inner=None,
+        v_boundary_outer=None,
     ):
         self.time_explosion = time_explosion
         self.density = density
@@ -63,6 +72,11 @@ class ModelState:
             "v_outer": v_outer.unit,
             "r_outer": r_outer.unit,
         }
+        self.raw_velocity = velocity
+        self.v_boundary_inner = v_boundary_inner
+        self.v_boundary_outer = v_boundary_outer
+        self._v_boundary_inner = None
+        self._v_boundary_outer = None
 
     @property
     def v_inner(self):
@@ -92,13 +106,106 @@ class ModelState:
     def r_middle(self):
         return 0.5 * self.r_inner + 0.5 * self.r_outer
 
+    @property
+    def v_boundary_inner(self):
+        if self._v_boundary_inner is None:
+            return self.raw_velocity[0]
+        if self._v_boundary_inner < 0 * u.km / u.s:
+            return self.raw_velocity[0]
+        return self._v_boundary_inner
+
+    @v_boundary_inner.setter
+    def v_boundary_inner(self, value):
+        if value is not None:
+            if value > 0 * u.km / u.s:
+                value = u.Quantity(value, self.v_boundary_inner.unit)
+                if value > self.v_boundary_outer:
+                    raise ValueError(
+                        f"v_boundary_inner ({value}) must not be higher than "
+                        f"v_boundary_outer ({self.v_boundary_outer})."
+                    )
+                if value > self.raw_velocity[-1]:
+                    raise ValueError(
+                        f"v_boundary_inner ({value}) is outside of the model range ({self.raw_velocity[-1]})."
+                    )
+                if value < self.raw_velocity[0]:
+                    raise ValueError(
+                        f"v_boundary_inner ({value}) is lower than the lowest shell ({self.raw_velocity[0]}) in the model."
+                    )
+        self._v_boundary_inner = value
+        # Invalidate the cached cut-down velocity array
+        self._velocity = None
+
+    @property
+    def v_boundary_outer(self):
+        if self._v_boundary_outer is None:
+            return self.raw_velocity[-1]
+        if self._v_boundary_outer < 0 * u.km / u.s:
+            return self.raw_velocity[-1]
+        return self._v_boundary_outer
+
+    @v_boundary_outer.setter
+    def v_boundary_outer(self, value):
+        if value is not None:
+            if value > 0 * u.km / u.s:
+                value = u.Quantity(value, self.v_boundary_outer.unit)
+                if value < self.v_boundary_inner:
+                    raise ValueError(
+                        f"v_boundary_outer ({value}) must not be smaller than v_boundary_inner ({self.v_boundary_inner})."
+                    )
+                if value < self.raw_velocity[0]:
+                    raise ValueError(
+                        f"v_boundary_outer ({value}) is outside of the model range ({self.raw_velocity[0]})."
+                    )
+                if value > self.raw_velocity[-1]:
+                    raise ValueError(
+                        f"v_boundary_outer ({value}) is larger than the largest shell in the model ({self.raw_velocity[-1]})."
+                    )
+        self._v_boundary_outer = value
+        # Invalidate the cached cut-down velocity array
+        self._velocity = None
+
+    @property
+    def v_boundary_inner_index(self):
+        if self.v_boundary_inner in self.raw_velocity:
+            v_inner_ind = np.argwhere(
+                self.raw_velocity == self.v_boundary_inner
+            )[0][0]
+        else:
+            v_inner_ind = (
+                np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
+            )
+        return v_inner_ind
+
+    @property
+    def v_boundary_outer_index(self):
+        if self.v_boundary_outer in self.raw_velocity:
+            v_outer_ind = np.argwhere(
+                self.raw_velocity == self.v_boundary_outer
+            )[0][0]
+        else:
+            v_outer_ind = np.searchsorted(
+                self.raw_velocity, self.v_boundary_outer
+            )
+        return v_outer_ind
+
+    @property
+    def velocity(self):
+        if self._velocity is None:
+            self._velocity = self.raw_velocity[
+                self.v_boundary_inner_index : self.v_boundary_outer_index + 1
+            ]
+            self._velocity[0] = self.v_boundary_inner
+            self._velocity[-1] = self.v_boundary_outer
+        return self._velocity
+
     def to_numba_model(self):
         return NumbaModel(
-            v_inner= self.v_inner.cgs.value,
-            v_outer= self.v_outer.cgs.value,
-            r_inner= self.r_inner.cgs.value,
-            r_outer= self.r_outer.cgs.value,
-            time_explosion= self.time_explosion.cgs.value,
+            v_inner=self.v_inner.cgs.value,
+            v_outer=self.v_outer.cgs.value,
+            r_inner=self.r_inner.cgs.value,
+            r_outer=self.r_outer.cgs.value,
+            time_explosion=self.time_explosion.cgs.value,
         )
 
 
