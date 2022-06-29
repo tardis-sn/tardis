@@ -7,11 +7,11 @@ from numba.typed import List
 
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.energy_input.GXPacket import GXPacket, GXPacketStatus
-from tardis.transport.geometry.calculate_distances_pseudo_3D import (
+from tardis.transport.geometry.calculate_distances_3d import (
     distance_trace_gamma
 )
-from tardis.transport.r_packet_transport_pseudo_3D import(
-    move_packet_pseudo_3D
+from tardis.transport.r_packet_transport_3d import(
+    move_packet_3d
 )
 from tardis.energy_input.energy_source import (
     ni56_chain_energy,
@@ -832,7 +832,7 @@ def gamma_packet_loop(
 
             packet.time_current += distance / C_CGS
 
-            packet = move_packet_pseudo_3D(packet, distance)
+            packet = move_packet_3d(packet, distance)
 
             deposition_estimator[packet.shell, time_index] += (
                 (initial_energy * 1000)

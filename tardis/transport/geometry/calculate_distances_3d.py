@@ -9,7 +9,7 @@ from tardis.energy_input.util import (
 
 
 @njit(**njit_dict_no_parallel)
-def calculate_distance_boundary_pseudo_3D(photon, r_inner, r_outer):
+def calculate_distance_boundary_3d(photon, r_inner, r_outer):
     """
     Calculates 3D distance to shell from gamma ray position
 

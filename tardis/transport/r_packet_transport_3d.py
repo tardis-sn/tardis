@@ -8,7 +8,7 @@ from tardis.energy_input.util import (
 
 
 @njit(**njit_dict_no_parallel)
-def move_packet_pseudo_3D(packet, distance):
+def move_packet_3d(packet, distance):
     """
     Moves packet a distance along its direction vector
 

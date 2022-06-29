@@ -2,18 +2,18 @@ import pytest
 import numpy.testing as npt
 import numpy as np
 
-from tardis.transport.geometry.calculate_distances_pseudo_3D import (
-    calculate_distance_boundary_pseudo_3D,
+from tardis.transport.geometry.calculate_distances_3d import (
+    calculate_distance_boundary_3d,
     distance_trace_gamma,
 )
 
-from tardis.transport.r_packet_transport_pseudo_3D import (
-    move_packet_pseudo_3D
+from tardis.transport.r_packet_transport_3d import (
+    move_packet_3d
 )
 
 
 @pytest.mark.xfail(reason="To be implemented")
-def test_calculate_distance_boundary_pseudo_3D():
+def test_calculate_distance_boundary_3d():
     """Test the radial distance calculation"""
     assert False
 
@@ -24,7 +24,7 @@ def test_distance_trace_gamma():
     assert False
 
 
-def test_move_packet_pseudo_3D(basic_gamma_ray):
+def test_move_packet_3d(basic_gamma_ray):
     """
 
     Parameters
@@ -36,6 +36,6 @@ def test_move_packet_pseudo_3D(basic_gamma_ray):
 
     new = packet.location + distance * packet.direction
 
-    actual = move_packet_pseudo_3D(packet, distance)
+    actual = move_packet_3d(packet, distance)
 
     npt.assert_almost_equal(actual.location, new)
