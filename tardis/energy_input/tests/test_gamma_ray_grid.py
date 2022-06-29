@@ -2,10 +2,13 @@ import pytest
 import numpy.testing as npt
 import numpy as np
 
-from tardis.energy_input.gamma_ray_grid import (
-    calculate_distance_radial,
-    distance_trace,
-    move_packet,
+from tardis.transport.geometry.calculate_distances_3d import (
+    calculate_distance_boundary_3d,
+    distance_trace_gamma, 
+)
+
+from tardis.transport.r_packet_transport_3d import (
+    move_packet_3d,
 )
 
 
@@ -33,6 +36,6 @@ def test_move_packet(basic_gamma_ray):
 
     new = packet.location + distance * packet.direction
 
-    actual = move_packet(packet, distance)
+    actual = move_packet_3d(packet, distance)
 
     npt.assert_almost_equal(actual.location, new)

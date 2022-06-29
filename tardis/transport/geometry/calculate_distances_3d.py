@@ -3,14 +3,13 @@ from numba import njit
 
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.energy_input.util import (
-    doppler_gamma,
     solve_quadratic_equation,
-    C_CGS,
+    C_CGS
 )
 
 
 @njit(**njit_dict_no_parallel)
-def calculate_distance_radial(photon, r_inner, r_outer):
+def calculate_distance_boundary_3d(photon, r_inner, r_outer):
     """
     Calculates 3D distance to shell from gamma ray position
 
@@ -73,7 +72,7 @@ def calculate_distance_radial(photon, r_inner, r_outer):
 
 
 @njit(**njit_dict_no_parallel)
-def distance_trace(
+def distance_trace_gamma(
     photon,
     inner_velocity,
     outer_velocity,
@@ -112,33 +111,3 @@ def distance_trace(
     return distance_interaction, distance_boundary, distance_time, shell_change
 
 
-@njit(**njit_dict_no_parallel)
-def move_packet(packet, distance):
-    """
-    Moves packet a distance along its direction vector
-
-    Parameters
-    ----------
-    packet : GXPacket object
-    distance : float
-
-    Returns
-    -------
-    packet : GXPacket object
-
-    """
-    location_old = packet.location
-    direction = packet.direction
-
-    location_new = location_old + distance * direction
-
-    packet.location = location_new
-
-    doppler_factor = doppler_gamma(
-        packet.direction, packet.location, packet.time_current
-    )
-
-    packet.nu_cmf = packet.nu_rf * doppler_factor
-    packet.energy_cmf = packet.energy_rf * doppler_factor
-
-    return packet
