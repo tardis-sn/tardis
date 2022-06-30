@@ -88,7 +88,7 @@ jobs:
           path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
   
   tardis-build:
-    needs: carsus-build
+    # needs: carsus-build
     strategy: # TODO
         matrix:
           include:
@@ -101,7 +101,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           repository: tardis-sn/tardis
-          path: tardis/
+          # path: tardis/
 
       - name: Setup TARDIS environment
         uses: conda-incubator/setup-miniconda@v2
@@ -118,17 +118,19 @@ jobs:
         id: cache-conda
 
       - name: Update environment
-        run: mamba update -n tardis --file tardis/conda-${{ matrix.label }}.lock
+        run: mamba update -n tardis --file conda-${{ matrix.label }}.lock
         if: steps.cache-conda.outputs.cache-hit != 'true'
 
       - name: Install package
-        run: pip install -e tardis
+        # run: pip install -e tardis
+        run: pip install -e .
+        
       
-      - name: Download atom data
-        uses: actions/download-artifact@v2
-        with:
-          name: atom-data
-          path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
+      # - name: Download atom data
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: atom-data
+      #     path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
       
       - name: Run notebook to test spectrum
         run: |
@@ -137,7 +139,7 @@ jobs:
       - name: Upload spectrum notebook
         uses: actions/upload-artifact@v2
         with:
-          path: ./tardis/tests/test_spectrum.ipynb
+          path: tests/test_spectrum.ipynb
         
       
 
