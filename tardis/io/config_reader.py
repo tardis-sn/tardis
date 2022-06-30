@@ -9,7 +9,6 @@ from astropy import units as u
 import tardis
 from tardis.io import config_validator
 from tardis.io.util import YAMLLoader, yaml_load_file, HDFWriterMixin
-from tardis.io.model_reader import load_yaml_from_csvy
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -103,6 +102,8 @@ class ConfigurationNameSpace(dict):
         return cls(config_validator.validate_dict(config_dict))
 
     def __init__(self, value=None):
+        from tardis.io.model_reader import load_yaml_from_csvy
+        
         if value is None:
             pass
         elif isinstance(value, dict):
