@@ -133,6 +133,11 @@ jobs:
       - name: Run notebook to test spectrum
         run: |
             ${{ env.NBCONVERT_CMD }} tardis/tests/test_spectrum.ipynb
+      
+      - name: Upload spectrum notebook
+        uses: actions/upload-artifact@v2
+        with:
+          path: tardis/tests/test_spectrum.ipynb
         
       
 
