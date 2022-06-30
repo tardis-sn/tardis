@@ -29,12 +29,8 @@ class ModelState:
 
     Parameters
     ----------
-    v_inner : astropy.units.quantity.Quantity
-    v_outer : astropy.units.quantity.Quantity
-    r_inner : astropy.units.quantity.Quantity
-    r_outer : astropy.units.quantity.Quantity
-    density : astropy.units.quantity.Quantity
     time_explosion : astropy.units.quantity.Quantity
+    homologous_density : HomologousDensity
     velocity : np.ndarray
     t_inner : astropy.units.quantity.Quantity
     luminosity_requested : astropy.units.quantity.Quantity
@@ -53,12 +49,8 @@ class ModelState:
 
     def __init__(
         self,
-        v_inner,
-        v_outer,
-        r_inner,
-        r_outer,
         time_explosion,
-        density,
+        homologous_density,
         velocity,
         t_inner,
         luminosity_requested=None,
@@ -67,8 +59,12 @@ class ModelState:
         v_boundary_inner=None,
         v_boundary_outer=None,
     ):
+        v_outer = self.velocity[1:]
+        v_inner = self.velocity[:-1]
+        r_inner = time_explosion * v_inner
+        r_outer = time_explosion * v_outer
         self.time_explosion = time_explosion
-        self.density = density
+        self.homologous_density = homologous_density
         self.geometry = pd.DataFrame(
             {
                 "v_inner": v_inner.value,
@@ -88,6 +84,12 @@ class ModelState:
         self.v_boundary_outer = v_boundary_outer
         self._v_boundary_inner = None
         self._v_boundary_outer = None
+
+        self.density = (
+            self.homologous_density.calculate_density_at_time_of_simulation(
+                self.time_explosion
+            )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
+        )
 
         if t_inner is None:
             if luminosity_requested is not None:
@@ -341,6 +343,69 @@ class ModelState:
             r_inner=self.r_inner.cgs.value,
             r_outer=self.r_outer.cgs.value,
             time_explosion=self.time_explosion.cgs.value,
+        )
+
+    @classmethod
+    def from_config(cls, config):
+        time_explosion = config.supernova.time_explosion.cgs
+        temperature = None
+        structure = config.model.structure
+        if structure.type == "specific":
+
+            velocity = quantity_linspace(
+                structure.velocity.start,
+                structure.velocity.stop,
+                structure.velocity.num + 1,
+            ).cgs
+            homologous_density = HomologousDensity.from_config(config)
+        elif structure.type == "file":
+            if os.path.isabs(structure.filename):
+                structure_fname = structure.filename
+            else:
+                structure_fname = os.path.join(
+                    config.config_dirname, structure.filename
+                )
+
+            (
+                time_0,
+                velocity,
+                density_0,
+                electron_densities,
+                temperature,
+            ) = read_density_file(structure_fname, structure.filetype)
+            density_0 = density_0.insert(0, 0)
+            homologous_density = HomologousDensity(density_0, time_0)
+        else:
+            raise NotImplementedError
+
+        no_of_shells = len(velocity) - 1
+
+        if config.plasma.initial_t_inner < 0.0 * u.K:
+            luminosity_requested = config.supernova.luminosity_requested
+            t_inner = None
+        else:
+            luminosity_requested = None
+            t_inner = config.plasma.initial_t_inner
+
+        if temperature:
+            t_radiative = temperature
+        elif config.plasma.initial_t_rad > 0 * u.K:
+            t_radiative = (
+                np.ones(no_of_shells + 1) * config.plasma.initial_t_rad
+            )
+        else:
+            t_radiative = None
+
+        return cls(
+            time_explosion=time_explosion,
+            homologous_density=homologous_density,
+            velocity=velocity,
+            t_inner=t_inner,
+            luminosity_requested=luminosity_requested,
+            t_radiative=t_radiative,
+            dilution_factor=None,
+            v_boundary_inner=structure.get("v_inner_boundary", None),
+            v_boundary_outer=structure.get("v_outer_boundary", None),
         )
 
 

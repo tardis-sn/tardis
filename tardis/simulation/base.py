@@ -9,6 +9,7 @@ from tardis import model
 
 from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
+from tardis.model import ModelState
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
 from tardis.io.config_reader import ConfigurationError
@@ -123,6 +124,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self,
         iterations,
         model,
+        model_state,
         plasma,
         runner,
         no_of_packets,
@@ -154,6 +156,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.luminosity_requested = luminosity_requested
         self.nthreads = nthreads
         self.show_progress_bars = show_progress_bars
+        self.model_state = model_state
 
         if convergence_strategy.type in ("damped"):
             self.convergence_strategy = convergence_strategy
@@ -636,6 +639,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 model = Radial1DModel.from_csvy(config)
             else:
                 model = Radial1DModel.from_config(config)
+        if "model-state" in kwargs:
+            model_state = kwargs["model-state"]
+        else:
+            model_state = ModelState.from_config(config)
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]
         else:
@@ -689,6 +696,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         return cls(
             iterations=config.montecarlo.iterations,
             model=model,
+            model_state=model_state,
             plasma=plasma,
             runner=runner,
             show_convergence_plots=show_convergence_plots,
