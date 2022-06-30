@@ -103,7 +103,7 @@ class ConfigurationNameSpace(dict):
 
     def __init__(self, value=None):
         from tardis.io.model_reader import load_yaml_from_csvy
-        
+
         if value is None:
             pass
         elif isinstance(value, dict):
