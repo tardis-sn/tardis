@@ -88,6 +88,7 @@ jobs:
           path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
   
   tardis-build:
+    needs: carsus-build
     strategy: # TODO
         matrix:
           include:
@@ -122,16 +123,31 @@ jobs:
 
       - name: Install package
         run: pip install -e tardis
-
-  generate-spectrum:
-    runs-on: ubuntu-latest
-    needs: [carsus-build, tardis-build]
-
-    steps: 
-      - uses: actions/download-artifact@v2
+      
+      - name: Download atom data
+        uses: actions/download-artifact@v2
         with:
           name: atom-data
           path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
+      
+      - name: Run notebook to test spectrum
+        run: |
+            ${{ env.NBCONVERT_CMD }} tardis/tests/test_spectrum.ipynb
+        
+      
+
+  # generate-spectrum:
+  #   runs-on: ubuntu-latest
+  #   needs: [carsus-build, tardis-build]
+
+  #   steps: 
+  #     - uses: actions/download-artifact@v2
+  #       with:
+  #         name: atom-data
+  #         path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
+      
+      
+
 
 
 
