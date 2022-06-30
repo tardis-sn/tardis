@@ -121,7 +121,7 @@ jobs:
         if: steps.cache-conda.outputs.cache-hit != 'true'
 
       - name: Install package
-        run: pip install -e .
+        run: pip install -e tardis
 
   generate-spectrum:
     runs-on: ubuntu-latest
