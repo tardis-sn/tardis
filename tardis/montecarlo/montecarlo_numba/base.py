@@ -134,7 +134,8 @@ def montecarlo_radial1d(
     update_iterations_pbar(1)
     # Condition for Checking if RPacket Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
-        runner.rpacket_tracker = pd.DataFrame(
+        runner.rpacket_tracker = rpacket_trackers
+        runner.rpacket_tracker_df = pd.DataFrame(
             [
                 {
                     "index": tracker.index,
