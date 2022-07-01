@@ -59,8 +59,8 @@ class ModelState:
         v_boundary_inner=None,
         v_boundary_outer=None,
     ):
-        v_outer = self.velocity[1:]
-        v_inner = self.velocity[:-1]
+        v_outer = velocity[1:]
+        v_inner = velocity[:-1]
         r_inner = time_explosion * v_inner
         r_outer = time_explosion * v_outer
         self.time_explosion = time_explosion
@@ -79,11 +79,12 @@ class ModelState:
             "v_outer": v_outer.unit,
             "r_outer": r_outer.unit,
         }
+        self._velocity = None
         self.raw_velocity = velocity
-        self.v_boundary_inner = v_boundary_inner
-        self.v_boundary_outer = v_boundary_outer
         self._v_boundary_inner = None
         self._v_boundary_outer = None
+        self.v_boundary_inner = v_boundary_inner
+        self.v_boundary_outer = v_boundary_outer
 
         self.density = (
             self.homologous_density.calculate_density_at_time_of_simulation(
@@ -134,7 +135,7 @@ class ModelState:
         self.radiation_field = pd.DataFrame(
             {
                 "t_radiative": self.t_rad.value,
-                "dilution_factor": self.dilution_factor.value,
+                "dilution_factor": self.dilution_factor,
             }
         )
 
@@ -495,20 +496,23 @@ class Radial1DModel(HDFWriterMixin):
         self._abundance = abundance
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
-        v_outer = self.velocity[1:]
-        v_inner = self.velocity[:-1]
-        density = (
-            self.homologous_density.calculate_density_at_time_of_simulation(
-                self.time_explosion
-            )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
-        )
+        # v_outer = self.velocity[1:]
+        # v_inner = self.velocity[:-1]
+        # density = (
+        #     self.homologous_density.calculate_density_at_time_of_simulation(
+        #         self.time_explosion
+        #     )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
+        # )
         self.model_state = ModelState(
-            v_inner=v_inner,
-            v_outer=v_outer,
-            r_inner=self.time_explosion * v_inner,
-            r_outer=self.time_explosion * v_outer,
-            time_explosion=self.time_explosion,
-            density=density,
+            time_explosion=time_explosion,
+            homologous_density=homologous_density,
+            velocity=velocity,
+            t_inner=t_inner,
+            luminosity_requested=luminosity_requested,
+            t_radiative=t_radiative,
+            dilution_factor=dilution_factor,
+            v_boundary_inner=v_boundary_inner,
+            v_boundary_outer=v_boundary_outer,
         )
         self.raw_abundance = self._abundance
         self.raw_isotope_abundance = isotope_abundance
