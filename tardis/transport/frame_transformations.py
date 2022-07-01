@@ -14,7 +14,7 @@ from tardis.montecarlo.montecarlo_numba.numba_config import C_SPEED_OF_LIGHT
 def get_doppler_factor(v, mu, time_explosion):
     inv_c = 1 / C_SPEED_OF_LIGHT
     # inv_t = 1 / time_explosion
-    beta = v * inv_c # r * inv_t * inv_c
+    beta = v * inv_c  # r * inv_t * inv_c
     if not nc.ENABLE_FULL_RELATIVITY:
         return get_doppler_factor_partial_relativity(mu, beta)
     else:
@@ -44,7 +44,7 @@ def get_inverse_doppler_factor(v, mu, time_explosion):
     """
     inv_c = 1 / C_SPEED_OF_LIGHT
     # inv_t = 1 / time_explosion
-    beta = v * inv_c # r * inv_t * inv_c
+    beta = v * inv_c  # r * inv_t * inv_c
     if not nc.ENABLE_FULL_RELATIVITY:
         return get_inverse_doppler_factor_partial_relativity(mu, beta)
     else:

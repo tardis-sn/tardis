@@ -53,7 +53,7 @@ def trace_packet_continuum(
     doppler_factor = get_doppler_factor(
         v, r_packet.mu, numba_model.time_explosion
     )
-    
+
     comov_nu = r_packet.nu * doppler_factor
 
     distance_continuum = tau_event / chi_continuum

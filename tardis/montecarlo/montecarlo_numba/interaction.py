@@ -145,11 +145,9 @@ def sample_nu_free_bound(numba_plasma, shell, continuum_id):
 
 @njit(**njit_dict_no_parallel)
 def scatter(r_packet, time_explosion):
-    v = r_packet.r/time_explosion
+    v = r_packet.r / time_explosion
 
-    old_doppler_factor = get_doppler_factor(
-        v, r_packet.mu, time_explosion
-    )
+    old_doppler_factor = get_doppler_factor(v, r_packet.mu, time_explosion)
     comov_nu = r_packet.nu * old_doppler_factor
     comov_energy = r_packet.energy * old_doppler_factor
     r_packet.mu = get_random_mu()
@@ -182,10 +180,8 @@ def continuum_event(
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     continuum : tardis.montecarlo.montecarlo_numba.numba_interface.Continuum
     """
-    v = r_packet.r/time_explosion
-    old_doppler_factor = get_doppler_factor(
-        v, r_packet.mu, time_explosion
-    )
+    v = r_packet.r / time_explosion
+    old_doppler_factor = get_doppler_factor(v, r_packet.mu, time_explosion)
 
     r_packet.mu = get_random_mu()
     inverse_doppler_factor = get_inverse_doppler_factor(
@@ -331,7 +327,7 @@ def free_free_emission(r_packet, time_explosion, numba_plasma):
     time_explosion : float
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     """
-    v = r_packet.r/time_explosion
+    v = r_packet.r / time_explosion
     inverse_doppler_factor = get_inverse_doppler_factor(
         v, r_packet.mu, time_explosion
     )
@@ -358,7 +354,7 @@ def bound_free_emission(r_packet, time_explosion, numba_plasma, continuum_id):
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     continuum_id : int
     """
-    v = r_packet.r/time_explosion
+    v = r_packet.r / time_explosion
     inverse_doppler_factor = get_inverse_doppler_factor(
         v, r_packet.mu, time_explosion
     )
@@ -393,9 +389,7 @@ def thomson_scatter(r_packet, time_explosion):
     """
     v = r_packet.r / time_explosion
 
-    old_doppler_factor = get_doppler_factor(
-        v, r_packet.mu, time_explosion
-    )
+    old_doppler_factor = get_doppler_factor(v, r_packet.mu, time_explosion)
     comov_nu = r_packet.nu * old_doppler_factor
     comov_energy = r_packet.energy * old_doppler_factor
     r_packet.mu = get_random_mu()
@@ -409,9 +403,7 @@ def thomson_scatter(r_packet, time_explosion):
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
-    temp_doppler_factor = get_doppler_factor(
-        v, r_packet.mu, time_explosion
-    )
+    temp_doppler_factor = get_doppler_factor(v, r_packet.mu, time_explosion)
 
 
 @njit(**njit_dict_no_parallel)
@@ -428,9 +420,7 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
     """
     v = r_packet.r / time_explosion
 
-    old_doppler_factor = get_doppler_factor(
-        v, r_packet.mu, time_explosion
-    )
+    old_doppler_factor = get_doppler_factor(v, r_packet.mu, time_explosion)
     r_packet.mu = get_random_mu()
 
     inverse_new_doppler_factor = get_inverse_doppler_factor(
