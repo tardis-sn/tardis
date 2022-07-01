@@ -506,7 +506,7 @@ class Radial1DModel(HDFWriterMixin):
         self.model_state = ModelState(
             time_explosion=time_explosion,
             homologous_density=homologous_density,
-            velocity=velocity,
+            velocity=self.velocity,
             t_inner=t_inner,
             luminosity_requested=luminosity_requested,
             t_radiative=t_radiative,
