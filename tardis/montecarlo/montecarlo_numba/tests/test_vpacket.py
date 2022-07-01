@@ -33,8 +33,9 @@ def v_packet():
 
 def v_packet_initialize_line_id(v_packet, numba_plasma, numba_model):
     inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
+    v = v_packet.r / numba_model.time_explosion
     doppler_factor = get_doppler_factor(
-        v_packet.r, v_packet.mu, numba_model.time_explosion
+        v, v_packet.mu, numba_model.time_explosion
     )
     comov_nu = v_packet.nu * doppler_factor
     next_line_id = len(numba_plasma.line_list_nu) - np.searchsorted(

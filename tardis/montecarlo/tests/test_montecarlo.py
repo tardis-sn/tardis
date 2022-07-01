@@ -253,8 +253,9 @@ def test_get_doppler_factor(mu, r, inv_t_exp, expected):
 
     # Perform any other setups just before this, they can be additional calls
     # to other methods or introduction of some temporary variables
+    v = r / time_explosion
 
-    obtained = get_doppler_factor(r, mu, time_explosion)
+    obtained = get_doppler_factor(v, mu, time_explosion)
 
     # Perform required assertions
     assert_almost_equal(obtained, expected)
@@ -269,7 +270,8 @@ def test_unphysical_doppler_factor(mu, r, inv_t_exp):
     # Perform any other setups just before this, they can be additional calls
     # to other methods or introduction of some temporary variables
     with pytest.raises(r_packet.SuperluminalError):
-        obtained = get_doppler_factor(r, mu, time_explosion)
+        v = r / time_explosion
+        obtained = get_doppler_factor(v, mu, time_explosion)
 
 
 @pytest.mark.parametrize(
@@ -322,8 +324,8 @@ def test_get_doppler_factor_full_relativity(mu, r, inv_t_exp, expected):
 
     # Perform any other setups just before this, they can be additional calls
     # to other methods or introduction of some temporary variables
-
-    obtained = get_doppler_factor(r, mu, time_explosion)
+    v = r / time_explosion
+    obtained = get_doppler_factor(v, mu, time_explosion)
     mc.full_relativity = False
     # Perform required assertions
     assert_almost_equal(obtained, expected)
@@ -551,8 +553,9 @@ def test_compute_distance2line(packet_params, expected_params):
     # packet.last_line = packet_params['last_line']
 
     time_explosion = 5.2e7
+    v = packet.r / time_explosion
 
-    doppler_factor = get_doppler_factor(packet.r, packet.mu, time_explosion)
+    doppler_factor = get_doppler_factor(v, packet.mu, time_explosion)
     comov_nu = packet.nu * doppler_factor
 
     d_line = 0
@@ -620,8 +623,9 @@ def test_move_packet(packet_params, expected_params, full_relativity):
     packet.r = packet_params["r"]
     # model.full_relativity = full_relativity
     mc.full_relativity = full_relativity
+    v = packet.r / time_explosion
 
-    doppler_factor = get_doppler_factor(packet.r, packet.mu, time_explosion)
+    doppler_factor = get_doppler_factor(v, packet.mu, time_explosion)
     numba_estimator = Estimators(
         packet_params["j"], packet_params["nu_bar"], 0, 0
     )
@@ -732,7 +736,8 @@ def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
     )
     r_packet.angle_aberration_CMF_to_LF(packet, 1 / inv_t_exp, packet.mu)
 
-    doppler_factor = get_doppler_factor(r, mu, 1 / inv_t_exp)
+    v = r * inv_t_exp
+    doppler_factor = get_doppler_factor(v, mu, 1 / inv_t_exp)
     mc.full_relativity = False
 
     assert_almost_equal(doppler_factor * inverse_doppler_factor, 1.0)
@@ -785,15 +790,16 @@ def test_compute_distance2line_relativistic(
         runner.Edotlu_estimator,
     )
     mc.full_relativity = bool(full_relativity)
+    v = r / t_exp
 
-    doppler_factor = get_doppler_factor(r, mu, t_exp)
+    doppler_factor = get_doppler_factor(v, mu, t_exp)
     comov_nu = packet.nu * doppler_factor
     distance = r_packet.calculate_distance_line(
         packet, comov_nu, nu_line, t_exp
     )
     r_packet_transport.move_r_packet(packet, distance, t_exp, numba_estimator)
-
-    doppler_factor = get_doppler_factor(r, mu, t_exp)
+    v = r / t_exp
+    doppler_factor = get_doppler_factor(v, mu, t_exp)
     comov_nu = packet.nu * doppler_factor
     mc.full_relativity = False
 

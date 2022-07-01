@@ -105,9 +105,9 @@ def test_calculate_distance_line(
     is_last_line = packet_params["is_last_line"]
 
     time_explosion = model.time_explosion
-
+    v = static_packet.r / time_explosion
     doppler_factor = frame_transformations.get_doppler_factor(
-        static_packet.r, static_packet.mu, time_explosion
+        v, static_packet.mu, time_explosion
     )
     comov_nu = static_packet.nu * doppler_factor
 
@@ -159,11 +159,12 @@ def test_get_doppler_factor(mu, r, inv_t_exp, expected):
     # Set the params from test cases here
     # TODO: add relativity tests
     time_explosion = 1 / inv_t_exp
+    v = r * inv_t_exp
 
     # Perform any other setups just before this, they can be additional calls
     # to other methods or introduction of some temporary variables
 
-    obtained = frame_transformations.get_doppler_factor(r, mu, time_explosion)
+    obtained = frame_transformations.get_doppler_factor(v, mu, time_explosion)
 
     # Perform required assertions
     assert_almost_equal(obtained, expected)
@@ -184,9 +185,9 @@ def test_get_inverse_doppler_factor(mu, r, inv_t_exp, expected):
 
     # Perform any other setups just before this, they can be additional calls
     # to other methods or introduction of some temporary variables
-
+    v = r / time_explosion
     obtained = frame_transformations.get_inverse_doppler_factor(
-        r, mu, time_explosion
+        v, mu, time_explosion
     )
 
     # Perform required assertions
@@ -321,8 +322,9 @@ def test_move_r_packet(
 
     numba_config.ENABLE_FULL_RELATIVITY = ENABLE_FULL_RELATIVITY
     r_packet_transport.move_r_packet.recompile()  # This must be done as move_r_packet was jitted with ENABLE_FULL_RELATIVITY
+    v = packet.r / model.time_explosion
     doppler_factor = frame_transformations.get_doppler_factor(
-        packet.r, packet.mu, model.time_explosion
+        v, packet.mu, model.time_explosion
     )
 
     r_packet_transport.move_r_packet(
