@@ -496,13 +496,6 @@ class Radial1DModel(HDFWriterMixin):
         self._abundance = abundance
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
-        # v_outer = self.velocity[1:]
-        # v_inner = self.velocity[:-1]
-        # density = (
-        #     self.homologous_density.calculate_density_at_time_of_simulation(
-        #         self.time_explosion
-        #     )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
-        # )
         self.model_state = ModelState(
             time_explosion=time_explosion,
             homologous_density=homologous_density,
