@@ -49,9 +49,11 @@ def trace_packet_continuum(
     tau_trace_line_combined = 0.0
 
     # Calculating doppler factor
+    v = r_packet.r / numba_model.time_explosion
     doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, numba_model.time_explosion
+        v, r_packet.mu, numba_model.time_explosion
     )
+    
     comov_nu = r_packet.nu * doppler_factor
 
     distance_continuum = tau_event / chi_continuum

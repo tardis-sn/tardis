@@ -84,8 +84,9 @@ def single_packet_loop(
     while r_packet.status == PacketStatus.IN_PROCESS:
         # Compute continuum quantities
         # trace packet (takes opacities)
+        v = r_packet.r / numba_model.time_explosion
         doppler_factor = get_doppler_factor(
-            r_packet.r, r_packet.mu, numba_model.time_explosion
+            v, r_packet.mu, numba_model.time_explosion
         )
         comov_nu = r_packet.nu * doppler_factor
         chi_e = chi_electron_calculator(
@@ -199,8 +200,9 @@ def single_packet_loop(
 
 @njit
 def set_packet_props_partial_relativity(r_packet, numba_model):
+    v = r_packet.r / numba_model.time_explosion
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r,
+        v,
         r_packet.mu,
         numba_model.time_explosion,
     )
@@ -211,9 +213,10 @@ def set_packet_props_partial_relativity(r_packet, numba_model):
 @njit
 def set_packet_props_full_relativity(r_packet, numba_model):
     beta = (r_packet.r / numba_model.time_explosion) / C_SPEED_OF_LIGHT
+    v = r_packet.r / numba_model.time_explosion
 
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r,
+        v,
         r_packet.mu,
         numba_model.time_explosion,
     )

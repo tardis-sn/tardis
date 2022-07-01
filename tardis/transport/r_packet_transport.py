@@ -64,10 +64,10 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     distance_electron = calculate_distance_electron(
         cur_electron_density, tau_event
     )
-
+    v = r_packet.r / numba_model.time_explosion
     # Calculating doppler factor
     doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, numba_model.time_explosion
+        v, r_packet.mu, numba_model.time_explosion
     )
     comov_nu = r_packet.nu * doppler_factor
 
@@ -187,8 +187,8 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
     distance : float
         distance in cm
     """
-
-    doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu, time_explosion)
+    v = r_packet.r / time_explosion
+    doppler_factor = get_doppler_factor(v, r_packet.mu, time_explosion)
 
     r = r_packet.r
     if distance > 0.0:

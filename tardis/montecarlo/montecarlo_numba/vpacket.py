@@ -84,10 +84,10 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
         v_packet.current_shell_id
     ]
     chi_e = cur_electron_density * SIGMA_THOMSON
-
+    v = v_packet.r / numba_model.time_explosion
     # Calculating doppler factor
     doppler_factor = get_doppler_factor(
-        v_packet.r, v_packet.mu, numba_model.time_explosion
+        v, v_packet.mu, numba_model.time_explosion
     )
     comov_nu = v_packet.nu * doppler_factor
 
@@ -231,8 +231,9 @@ def trace_vpacket_volley(
         mu_min = 0.0
 
     mu_bin = (1.0 - mu_min) / no_of_vpackets
+    v_r = r_packet.r / numba_model.time_explosion
     r_packet_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, numba_model.time_explosion
+        v_r, r_packet.mu, numba_model.time_explosion
     )
     for i in range(no_of_vpackets):
         v_packet_mu = mu_min + i * mu_bin + np.random.random() * mu_bin
@@ -248,7 +249,7 @@ def trace_vpacket_volley(
                 r_packet, numba_model.time_explosion, v_packet_mu
             )
         v_packet_doppler_factor = get_doppler_factor(
-            r_packet.r, v_packet_mu, numba_model.time_explosion
+            v_r, v_packet_mu, numba_model.time_explosion
         )
 
         # transform between r_packet mu and v_packet_mu

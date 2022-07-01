@@ -145,15 +145,16 @@ def sample_nu_free_bound(numba_plasma, shell, continuum_id):
 
 @njit(**njit_dict_no_parallel)
 def scatter(r_packet, time_explosion):
+    v = r_packet.r/time_explosion
 
     old_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        v, r_packet.mu, time_explosion
     )
     comov_nu = r_packet.nu * old_doppler_factor
     comov_energy = r_packet.energy * old_doppler_factor
     r_packet.mu = get_random_mu()
     inverse_new_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        v, r_packet.mu, time_explosion
     )
 
     r_packet.energy = comov_energy * inverse_new_doppler_factor
@@ -181,13 +182,14 @@ def continuum_event(
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     continuum : tardis.montecarlo.montecarlo_numba.numba_interface.Continuum
     """
+    v = r_packet.r/time_explosion
     old_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        v, r_packet.mu, time_explosion
     )
 
     r_packet.mu = get_random_mu()
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        v, r_packet.mu, time_explosion
     )
     comov_energy = r_packet.energy * old_doppler_factor
     comov_nu = (
@@ -329,9 +331,9 @@ def free_free_emission(r_packet, time_explosion, numba_plasma):
     time_explosion : float
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     """
-
+    v = r_packet.r/time_explosion
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        v, r_packet.mu, time_explosion
     )
     comov_nu = sample_nu_free_free(numba_plasma, r_packet.current_shell_id)
     r_packet.nu = comov_nu * inverse_doppler_factor
@@ -356,9 +358,9 @@ def bound_free_emission(r_packet, time_explosion, numba_plasma, continuum_id):
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     continuum_id : int
     """
-
+    v = r_packet.r/time_explosion
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        v, r_packet.mu, time_explosion
     )
 
     comov_nu = sample_nu_free_bound(
@@ -389,15 +391,16 @@ def thomson_scatter(r_packet, time_explosion):
     time_explosion : float
         time since explosion in seconds
     """
+    v = r_packet.r / time_explosion
 
     old_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        v, r_packet.mu, time_explosion
     )
     comov_nu = r_packet.nu * old_doppler_factor
     comov_energy = r_packet.energy * old_doppler_factor
     r_packet.mu = get_random_mu()
     inverse_new_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        v, r_packet.mu, time_explosion
     )
 
     r_packet.nu = comov_nu * inverse_new_doppler_factor
@@ -407,7 +410,7 @@ def thomson_scatter(r_packet, time_explosion):
             r_packet, time_explosion, r_packet.mu
         )
     temp_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        v, r_packet.mu, time_explosion
     )
 
 
@@ -423,14 +426,15 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
     line_interaction_type : enum
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     """
+    v = r_packet.r / time_explosion
 
     old_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        v, r_packet.mu, time_explosion
     )
     r_packet.mu = get_random_mu()
 
     inverse_new_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        v, r_packet.mu, time_explosion
     )
 
     comov_energy = r_packet.energy * old_doppler_factor
@@ -468,8 +472,9 @@ def line_emission(r_packet, emission_line_id, time_explosion, numba_plasma):
 
     if emission_line_id != r_packet.next_line_id:
         pass
+    v = r_packet.r / time_explosion
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        v, r_packet.mu, time_explosion
     )
     r_packet.nu = (
         numba_plasma.line_list_nu[emission_line_id] * inverse_doppler_factor
