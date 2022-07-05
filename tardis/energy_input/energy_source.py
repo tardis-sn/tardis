@@ -189,7 +189,7 @@ def get_all_isotopes(abundances):
         else:
             isotopes |= progeny
 
-    isotopes = [i.replace("-", "") for i in isotopes]
+    isotopes = [i for i in isotopes]
     return isotopes
 
 

@@ -216,6 +216,8 @@ def initialize_packets(
     energy_df_rows,
     effective_times,
     taus,
+    parents,
+    average_positron_energies,
 ):
     """Initialize a list of GXPacket objects for the simulation
     to operate on.
@@ -260,7 +262,7 @@ def initialize_packets(
     packets = List()
 
     number_of_packets = decays_per_isotope.sum().sum()
-    decays_per_shell = decays_per_isotope.sum().values
+    decays_per_shell = decays_per_isotope.T.sum().values
 
     print("Total packets:", number_of_packets)
 
@@ -282,56 +284,62 @@ def initialize_packets(
 
         i = 0
         for isotope_name, count in isotope_packet_count.items():
-
             isotope_energy = gamma_ray_lines[isotope_name][0, :]
             isotope_intensity = gamma_ray_lines[isotope_name][1, :]
             isotope_positron_fraction = calculate_positron_fraction(
-                positron_energy, isotope_energy, isotope_intensity
-            )
-            tau_start = something2
-            tau_end = something3
-
-            packet, decay_time_index = initialize_packet_properties(
+                average_positron_energies[isotope_name],
                 isotope_energy,
                 isotope_intensity,
-                packet_energy,
-                k,
-                tau_start,
-                tau_end,
-                initial_radii[i],
-                times,
-                effective_times,
             )
+            tau_start = taus[isotope_name]
 
-            energy_df_rows[k, decay_time_index] += (
-                isotope_positron_fraction * packet_energy * 1000
-            )
+            if isotope_name in parents:
+                tau_end = taus[parents[isotope_name]]
+            else:
+                tau_end = 0
 
-            energy_plot_df_rows[packet_index] = np.array(
-                [
-                    i,
-                    packet.energy_rf,
+            for c in range(count):
+                packet, decay_time_index = initialize_packet_properties(
+                    isotope_energy,
+                    isotope_intensity,
+                    packet_energy,
+                    k,
+                    tau_start,
+                    tau_end,
+                    initial_radii[i],
+                    times,
+                    effective_times,
+                )
+
+                energy_df_rows[k, decay_time_index] += (
+                    isotope_positron_fraction * packet_energy * 1000
+                )
+
+                energy_plot_df_rows[packet_index] = np.array(
+                    [
+                        i,
+                        packet.energy_rf,
+                        packet.get_location_r(),
+                        packet.time_current,
+                        int(packet.status),
+                        0,
+                        0,
+                        0,
+                    ]
+                )
+
+                energy_plot_positron_rows[packet_index] = [
+                    packet_index,
+                    isotope_positron_fraction * packet_energy * 1000,
+                    # * inv_volume_time[packet.shell, decay_time_index],
                     packet.get_location_r(),
                     packet.time_current,
-                    int(packet.status),
-                    0,
-                    0,
-                    0,
                 ]
-            )
 
-            energy_plot_positron_rows[packet_index] = [
-                packet_index,
-                isotope_positron_fraction * packet_energy * 1000,
-                # * inv_volume_time[packet.shell, decay_time_index],
-                packet.get_location_r(),
-                packet.time_current,
-            ]
+                packets.append(packet)
 
-            packets.append(packet)
-
-            i += 1
-            packet_index += 1
+                i += 1
+                packet_index += 1
 
     return (
         packets,
@@ -498,27 +506,46 @@ def main_gamma_ray_loop(
         path_to_decay_data
     )
 
-    taus = np.zeros(len(all_isotope_names))
+    taus = {}
+    parents = {}
     gamma_ray_line_array_list = []
     average_energies_list = []
+    average_positron_energies_list = []
 
     for i, isotope in enumerate(all_isotope_names):
-        taus[i] = rd.Nuclide(isotope).half_life() / np.log(2)
+        nuclide = rd.Nuclide(isotope)
+        taus[isotope] = nuclide.half_life() / np.log(2)
+        child = nuclide.progeny()
+        if child is not None:
+            for c in child:
+                if rd.Nuclide(c).half_life("readable") != "stable":
+                    parents[c] = isotope
+
         energy, intensity = setup_input_energy(
-            gamma_ray_lines.loc[isotope], "'gamma_rays'"
+            gamma_ray_lines.loc[isotope.replace("-", "")], "'gamma_rays'"
         )
         gamma_ray_line_array_list.append(np.stack([energy, intensity / 100]))
         average_energies_list.append(np.sum(energy * intensity / 100))
+        positron_energy, positron_intensity = setup_input_energy(
+            gamma_ray_lines.loc[isotope.replace("-", "")], "'e+'"
+        )
+        average_positron_energies_list.append(
+            np.sum(positron_energy * positron_intensity / 100)
+        )
 
     # Construct Numba typed dicts
     gamma_ray_line_arrays = {}
     average_energies = {}
+    average_positron_energies = {}
 
     for iso, lines in zip(all_isotope_names, gamma_ray_line_array_list):
         gamma_ray_line_arrays[iso] = lines
 
-    for iso, energy in zip(all_isotope_names, average_energies_list):
+    for iso, energy, positron_energy in zip(
+        all_isotope_names, average_energies_list, average_positron_energies_list
+    ):
         average_energies[iso] = energy
+        average_positron_energies[iso] = positron_energy
 
     # urilight chooses to have 0 as the baseline for this calculation
     # but time_start may also be valid in which case decay time is time_end - time_start
@@ -530,7 +557,7 @@ def main_gamma_ray_loop(
         for nuclide in total_decays:
             decayed_energy[nuclide] = (
                 total_decays[nuclide]
-                * average_energies[nuclide.replace("-", "")]
+                * average_energies[nuclide]
                 * shell_masses[shell]
             )
 
@@ -550,10 +577,11 @@ def main_gamma_ray_loop(
         num_decays * number_of_isotopes / total_number_isotopes
     )
 
-    decayed_packet_count_array = decayed_packet_count.sum().to_numpy()
-
     packets_per_isotope = (
-        (energy_per_mass_norm * decayed_packet_count.T.values).round().fillna(0)
+        (energy_per_mass_norm * decayed_packet_count.T.values)
+        .round()
+        .fillna(0)
+        .astype(int)
     )
 
     print("Total gamma-ray energy")
@@ -585,6 +613,8 @@ def main_gamma_ray_loop(
         energy_df_rows,
         effective_time_array,
         taus,
+        parents,
+        average_positron_energies,
     )
 
     print("Total positron energy from packets")
