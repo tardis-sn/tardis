@@ -26,7 +26,6 @@ defaults:
 jobs:
   carsus-build:
     runs-on: ubuntu-latest
-
     steps:
       # - uses: actions/checkout@v2
       #   with:
@@ -89,14 +88,21 @@ jobs:
   
   tardis-build:
     needs: carsus-build
-    strategy: # TODO
-        matrix:
-          include:
-          - os: ubuntu-latest
-            label: linux-64
-            prefix: /usr/share/miniconda3/envs/tardis
+    strategy:
+      matrix:
+        include:
+        - os: ubuntu-latest
+          label: linux-64
+          prefix: /usr/share/miniconda3/envs/tardis
 
+    #     - os: macos-latest
+    #       label: osx-64
+    #       prefix: /Users/runner/miniconda3/envs/tardis
+          
+    # name: ${{ matrix.label }}
+    # runs-on: ${{ matrix.os }}
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -123,12 +129,14 @@ jobs:
       - name: Install package
         run: pip install -e .
         
-      
+      # only run this steop when carsus build is done
       - name: Download atom data
         uses: actions/download-artifact@v2
         with:
           name: atom-data
-          path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
+          # path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
+          path: kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
+          
       
       - name: Run notebook to test spectrum
         run: |
@@ -140,21 +148,6 @@ jobs:
           path: tardis/tests/test_spectrum.html
         
       
-
-  # generate-spectrum:
-  #   runs-on: ubuntu-latest
-  #   needs: [carsus-build, tardis-build]
-
-  #   steps: 
-  #     - uses: actions/download-artifact@v2
-  #       with:
-  #         name: atom-data
-  #         path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
-      
-      
-
-
-
 
 
 
