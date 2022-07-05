@@ -134,7 +134,7 @@ class ModelState:
 
         self.radiation_field = pd.DataFrame(
             {
-                "t_radiative": self.t_rad.value,
+                "temperature_radiative": self.t_radiative.value,
                 "dilution_factor": self.dilution_factor,
             }
         )
@@ -261,14 +261,6 @@ class ModelState:
         return self._velocity
 
     @property
-    def t_rad(self):
-        return self.t_radiative
-
-    @t_rad.setter
-    def t_rad(self, value):
-        self.t_radiative = value
-
-    @property
     def t_radiative(self):
         if len(self._t_radiative) == self.no_of_shells:
             return self._t_radiative
@@ -295,14 +287,6 @@ class ModelState:
     @property
     def no_of_shells(self):
         return len(self.velocity) - 1
-
-    @property
-    def w(self):
-        return self.dilution_factor
-
-    @w.setter
-    def w(self, value):
-        self.dilution_factor = value
 
     @property
     def dilution_factor(self):
