@@ -13,6 +13,7 @@ from tardis.model import ModelState
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
 from tardis.io.config_reader import ConfigurationError
+from tardis.io.model_reader import model_state_from_config
 from tardis.util.base import is_notebook
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
 from tardis.visualization import ConvergencePlots
@@ -642,7 +643,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if "model-state" in kwargs:
             model_state = kwargs["model-state"]
         else:
-            model_state = ModelState.from_config(config)
+            model_state = model_state_from_config(config)
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]
         else:

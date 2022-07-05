@@ -330,69 +330,6 @@ class ModelState:
             time_explosion=self.time_explosion.cgs.value,
         )
 
-    @classmethod
-    def from_config(cls, config):
-        time_explosion = config.supernova.time_explosion.cgs
-        temperature = None
-        structure = config.model.structure
-        if structure.type == "specific":
-            velocity = quantity_linspace(
-                structure.velocity.start,
-                structure.velocity.stop,
-                structure.velocity.num + 1,
-            ).cgs
-            homologous_density = HomologousDensity.from_config(config)
-        elif structure.type == "file":
-            if os.path.isabs(structure.filename):
-                structure_fname = structure.filename
-            else:
-                structure_fname = os.path.join(
-                    config.config_dirname, structure.filename
-                )
-
-            (
-                time_0,
-                velocity,
-                density_0,
-                electron_densities,
-                temperature,
-            ) = read_density_file(structure_fname, structure.filetype)
-            density_0 = density_0.insert(0, 0)
-            homologous_density = HomologousDensity(density_0, time_0)
-        else:
-            raise NotImplementedError
-
-        no_of_shells = len(velocity) - 1
-
-        if config.plasma.initial_t_inner < 0.0 * u.K:
-            luminosity_requested = config.supernova.luminosity_requested
-            t_inner = None
-        else:
-            luminosity_requested = None
-            t_inner = config.plasma.initial_t_inner
-
-        if temperature:
-            t_radiative = temperature
-        elif config.plasma.initial_t_rad > 0 * u.K:
-            t_radiative = (
-                np.ones(no_of_shells + 1) * config.plasma.initial_t_rad
-            )
-        else:
-            t_radiative = None
-
-        return cls(
-            time_explosion=time_explosion,
-            homologous_density=homologous_density,
-            velocity=velocity,
-            t_inner=t_inner,
-            luminosity_requested=luminosity_requested,
-            t_radiative=t_radiative,
-            dilution_factor=None,
-            v_boundary_inner=structure.get("v_inner_boundary", None),
-            v_boundary_outer=structure.get("v_outer_boundary", None),
-        )
-
-
 class Radial1DModel(HDFWriterMixin):
     """
     An object that hold information about the individual shells.
