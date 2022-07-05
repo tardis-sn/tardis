@@ -2,7 +2,11 @@
 
 from tardis.io.config_reader import ConfigurationNameSpace
 from tardis.montecarlo.base import MontecarloRunner
-from tardis.util.base import parse_quantity, is_valid_nuclide_or_elem, quantity_linspace
+from tardis.util.base import (
+    parse_quantity,
+    is_valid_nuclide_or_elem,
+    quantity_linspace,
+)
 
 import os
 import warnings
@@ -929,6 +933,7 @@ def model_from_hdf(fname):
 
     return new_model
 
+
 def model_state_from_config(config):
     """
     Creates a Model State object from a config object.
@@ -943,6 +948,7 @@ def model_state_from_config(config):
     """
     from tardis.model.density import HomologousDensity
     from tardis.model.base import ModelState
+
     time_explosion = config.supernova.time_explosion.cgs
     temperature = None
     structure = config.model.structure
@@ -985,9 +991,7 @@ def model_state_from_config(config):
     if temperature:
         t_radiative = temperature
     elif config.plasma.initial_t_rad > 0 * u.K:
-        t_radiative = (
-            np.ones(no_of_shells + 1) * config.plasma.initial_t_rad
-        )
+        t_radiative = np.ones(no_of_shells + 1) * config.plasma.initial_t_rad
     else:
         t_radiative = None
 

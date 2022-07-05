@@ -330,6 +330,7 @@ class ModelState:
             time_explosion=self.time_explosion.cgs.value,
         )
 
+
 class Radial1DModel(HDFWriterMixin):
     """
     An object that hold information about the individual shells.
