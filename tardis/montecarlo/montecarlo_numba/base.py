@@ -135,20 +135,19 @@ def montecarlo_radial1d(
     # Condition for Checking if RPacket Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
         runner.rpacket_tracker = rpacket_trackers
+        len_df = sum([len(tracker.r) for tracker in rpacket_trackers])
         runner.rpacket_tracker_df = pd.DataFrame(
-            [
-                {
-                    "index": tracker.index,
-                    "status": tracker.status,
-                    "r": tracker.r,
-                    "nu": tracker.nu,
-                    "mu": tracker.mu,
-                    "energy": tracker.energy,
-                    "shell_id": tracker.shell_id,
-                }
-                for tracker in rpacket_trackers
-            ]
+            columns=["index", "status", "r", "nu", "mu", "energy", "shell_id"],
+            index=np.arange(len_df),
         )
+        cur_index = 0
+        for rpacket_tracker in rpacket_trackers:
+            prev_index = cur_index
+            cur_index = prev_index + len(rpacket_tracker.r)
+            for column_name in runner.rpacket_tracker_df.columns:
+                runner.rpacket_tracker_df[column_name].iloc[
+                    prev_index:cur_index
+                ] = getattr(rpacket_tracker, column_name)
 
 
 @njit(**njit_dict)
