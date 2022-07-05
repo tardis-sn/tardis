@@ -59,8 +59,12 @@ class ModelState:
         v_boundary_inner=None,
         v_boundary_outer=None,
     ):
-        v_outer = velocity[1:]
-        v_inner = velocity[:-1]
+        self._v_boundary_inner = None
+        self._v_boundary_outer = None
+        self._velocity = None
+        self.raw_velocity = velocity
+        v_outer = self.velocity[1:]
+        v_inner = self.velocity[:-1]
         r_inner = time_explosion * v_inner
         r_outer = time_explosion * v_outer
         self.time_explosion = time_explosion
@@ -79,10 +83,7 @@ class ModelState:
             "v_outer": v_outer.unit,
             "r_outer": r_outer.unit,
         }
-        self._velocity = None
-        self.raw_velocity = velocity
-        self._v_boundary_inner = None
-        self._v_boundary_outer = None
+
         self.v_boundary_inner = v_boundary_inner
         self.v_boundary_outer = v_boundary_outer
 
