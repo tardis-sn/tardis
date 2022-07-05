@@ -63,12 +63,14 @@ class ModelState:
         self._v_boundary_outer = None
         self._velocity = None
         self.raw_velocity = velocity
+        self.v_boundary_inner = v_boundary_inner
+        self.v_boundary_outer = v_boundary_outer
+        self.time_explosion = time_explosion
+        self.homologous_density = homologous_density
         v_outer = self.velocity[1:]
         v_inner = self.velocity[:-1]
         r_inner = time_explosion * v_inner
         r_outer = time_explosion * v_outer
-        self.time_explosion = time_explosion
-        self.homologous_density = homologous_density
         self.geometry = pd.DataFrame(
             {
                 "v_inner": v_inner.value,
@@ -83,9 +85,6 @@ class ModelState:
             "v_outer": v_outer.unit,
             "r_outer": r_outer.unit,
         }
-
-        self.v_boundary_inner = v_boundary_inner
-        self.v_boundary_outer = v_boundary_outer
 
         self.density = (
             self.homologous_density.calculate_density_at_time_of_simulation(
@@ -353,7 +352,6 @@ class ModelState:
         temperature = None
         structure = config.model.structure
         if structure.type == "specific":
-
             velocity = quantity_linspace(
                 structure.velocity.start,
                 structure.velocity.stop,
@@ -500,7 +498,7 @@ class Radial1DModel(HDFWriterMixin):
         self.model_state = ModelState(
             time_explosion=time_explosion,
             homologous_density=homologous_density,
-            velocity=self.velocity,
+            velocity=velocity,
             t_inner=t_inner,
             luminosity_requested=luminosity_requested,
             t_radiative=t_radiative,
@@ -552,6 +550,13 @@ class Radial1DModel(HDFWriterMixin):
         else:
             # self.dilution_factor = dilution_factor[self.v_boundary_inner_index + 1:self.v_boundary_outer_index]
             self._dilution_factor = dilution_factor
+
+        # self.radiation_field = pd.DataFrame(
+        #     {
+        #         "t_radiative": self.t_rad.value,
+        #         "dilution_factor": self.dilution_factor,
+        #     }
+        # )
 
     @property
     def w(self):
