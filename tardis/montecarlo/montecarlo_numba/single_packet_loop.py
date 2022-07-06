@@ -196,6 +196,13 @@ def single_packet_loop(
 
 @njit
 def set_packet_props_partial_relativity(r_packet, numba_model):
+    """Sets properties of the packets given partial relativity
+
+    Parameters
+    ----------
+        r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+        numba_model : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
+    """
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r,
         r_packet.mu,
@@ -207,6 +214,13 @@ def set_packet_props_partial_relativity(r_packet, numba_model):
 
 @njit
 def set_packet_props_full_relativity(r_packet, numba_model):
+    """Sets properties of the packets given full relativity
+
+    Parameters
+    ----------
+        r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+        numba_model : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
+    """
     beta = (r_packet.r / numba_model.time_explosion) / C_SPEED_OF_LIGHT
 
     inverse_doppler_factor = get_inverse_doppler_factor(
