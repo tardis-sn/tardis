@@ -122,7 +122,7 @@ def single_packet_loop(
         else:
             escat_prob = 1.0
             chi_continuum = chi_e
-            distance, interaction_type, delta_shell = trace_packet_continuum(
+            distance, interaction_type, delta_shell = trace_packet(
                 r_packet,
                 numba_model,
                 numba_plasma,
