@@ -174,7 +174,6 @@ def trace_packet(
     return distance, interaction_type, delta_shell
 
 
-
 @njit(**njit_dict_no_parallel)
 def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
     """
