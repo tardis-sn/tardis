@@ -6,7 +6,7 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
 from tardis.transport.r_packet_transport import (
     move_r_packet,
     move_packet_across_shell_boundary,
-    trace_packet
+    trace_packet,
 )
 from tardis.montecarlo.montecarlo_numba.continuum.r_packet_transport_continuum import (
     trace_packet_continuum,
