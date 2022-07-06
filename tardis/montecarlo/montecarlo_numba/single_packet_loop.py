@@ -6,6 +6,7 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
 from tardis.transport.r_packet_transport import (
     move_r_packet,
     move_packet_across_shell_boundary,
+    trace_packet
 )
 from tardis.montecarlo.montecarlo_numba.continuum.r_packet_transport_continuum import (
     trace_packet_continuum,
@@ -103,7 +104,7 @@ def single_packet_loop(
             )
             chi_continuum = chi_e + chi_bf_tot + chi_ff
             escat_prob = chi_e / chi_continuum  # probability of e-scatter
-            distance, interaction_type, delta_shell = trace_packet_continuum(
+            distance, interaction_type, delta_shell = trace_packet(
                 r_packet,
                 numba_model,
                 numba_plasma,
