@@ -8,10 +8,6 @@ from tardis.transport.r_packet_transport import (
     move_packet_across_shell_boundary,
     trace_packet,
 )
-from tardis.montecarlo.montecarlo_numba.continuum.r_packet_transport_continuum import (
-    trace_packet_continuum,
-)
-
 
 from tardis.transport.frame_transformations import (
     get_inverse_doppler_factor,
