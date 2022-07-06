@@ -135,7 +135,7 @@ jobs:
         with:
           name: atom-data
           # path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
-          path: kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
+          # path: kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
           
       - name: Print path
         run: python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
