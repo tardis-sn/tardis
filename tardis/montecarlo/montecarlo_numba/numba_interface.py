@@ -21,6 +21,27 @@ numba_model_spec = [
     ("v_outer", float64[:]),
 ]
 
+geometry_grid_spherical_1d_spec = [
+    ("r_coord", float64[:]),
+    ("time_explosion", float64),
+    ("cell_width", float64),
+]
+
+geometry_grid_cartesian_2d_spec = [
+    ("x_coord", float64[:]),
+    ("y_coord", float64[:]),
+    ("time_explosion", float64),
+    ("cell_width", float64),
+]
+
+geometry_grid_cartesian_3d_spec = [
+    ("x_coord", float64[:]),
+    ("y_coord", float64[:]),
+    ("z_coord", float64[:]),
+    ("time_explosion", float64),
+    ("cell_width", float64),
+]
+
 
 @jitclass(numba_model_spec)
 class NumbaModel(object):
@@ -41,6 +62,76 @@ class NumbaModel(object):
         self.v_inner = v_inner
         self.v_outer = v_outer
         self.time_explosion = time_explosion
+
+
+@jitclass(geometry_grid_spherical_1d_spec)
+class GeometryGridSpherical1D(object):
+    def __init__(self, r_coord, time_explosion, cell_width):
+        """
+        1D spherical shell model
+
+        Parameters
+        ----------
+        r_coord : numpy.ndarray
+        time_explosion : float
+        cell_width : float
+
+        Notes
+        -----
+        r_coord refers to the inner radial boundary of the cells
+        """
+        self.r_coord = r_coord
+        self.time_explosion = time_explosion
+        self.cell_width = cell_width
+
+
+@jitclass(geometry_grid_cartesian_2d_spec)
+class GeometryGridCartesian2D(object):
+    def __init__(self, x_coord, y_coord, time_explosion, cell_width):
+        """
+        Model for the 2D Cartesian grid system
+
+        Parameters
+        ----------
+        x_coord : numpy.ndarray 
+        y_coord : numpy.ndarray
+        time_explosion : float
+        cell_width : float
+
+        Notes
+        -----
+        coords specify upper left coordinate of each cell
+        """
+        self.x_coord = x_coord
+        self.y_coord = y_coord
+        self.time_explosion = time_explosion
+        self.cell_width = cell_width
+
+
+@jitclass(geometry_grid_cartesian_3d_spec)
+class GeometryGridCartesian3D(object):
+    def __init__(self, x_coord, y_coord, z_coord, time_explosion, cell_width):
+        """
+        Model for the 3D Cartesian grid system
+
+        Parameters
+        ----------
+        x_coord : numpy.ndarray
+        y_coord : numpy.ndarray
+        z_coord : numpy.ndarray
+        time_explosion : float
+        cell_width : float
+
+        Notes
+        -----
+        coords specify upper left, out of the page coordinate of each cell
+        """
+        self.x_coord = x_coord
+        self.y_coord = y_coord
+        self.z_coord = z_coord
+        self.time_explosion = time_explosion
+        self.cell_width = cell_width
+
 
 
 numba_plasma_spec = [
