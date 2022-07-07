@@ -378,6 +378,69 @@ class TestModelState:
             self.model.model_state.density.value, self.model.density.value
         )
 
+    def test_v_boundary_inner(self):
+        assert (
+            self.model.model_state.v_boundary_inner.unit
+            == self.model.v_boundary_inner.unit
+        )
+        assert_almost_equal(
+            self.model.model_state.v_boundary_inner.value,
+            self.model.v_boundary_inner.value,
+        )
+
+    def test_v_boundary_outer(self):
+        assert (
+            self.model.model_state.v_boundary_outer.unit
+            == self.model.v_boundary_outer.unit
+        )
+        assert_almost_equal(
+            self.model.model_state.v_boundary_outer.value,
+            self.model.v_boundary_outer.value,
+        )
+
+    def test_homologous_density(self):
+        assert (
+            self.model.model_state.homologous_density
+            == self.model.homologous_density
+        )
+
+    def test_t_inner(self):
+        assert self.model.model_state.t_inner.unit == self.model.t_inner.unit
+        assert_almost_equal(
+            self.model.model_state.t_inner.value, self.model.t_inner.value
+        )
+
+    def test_t_radiative(self):
+        assert (
+            self.model.model_state.t_radiative.unit
+            == self.model.t_radiative.unit
+        )
+        assert_almost_equal(
+            self.model.model_state.t_radiative.value,
+            self.model.t_radiative.value,
+        )
+
+    def test_dilution_factor(self):
+        assert_almost_equal(
+            self.model.model_state.dilution_factor,
+            self.model.dilution_factor,
+        )
+
+    def test_v_boundary_inner_index(self):
+        assert_almost_equal(
+            self.model.model_state.v_boundary_inner_index,
+            self.model.v_boundary_inner_index,
+        )
+
+    def test_v_boundary_outer_index(self):
+        assert_almost_equal(
+            self.model.model_state.v_boundary_outer_index,
+            self.model.v_boundary_outer_index,
+        )
+
+    def test_no_of_shells(self):
+        assert self.model.model_state.no_of_shells == self.model.no_of_shells
+
 
 ###
 # Save and Load
