@@ -22,9 +22,9 @@ numba_model_spec = [
 ]
 
 geometry_grid_spherical_1d_spec = [
-    ("r_coord", float64[:]),
+    ("r_inner", float64[:]),
+    ("r_outer", float64[:]),
     ("time_explosion", float64),
-    ("cell_width", float64),
 ]
 
 geometry_grid_cartesian_2d_spec = [
@@ -66,23 +66,19 @@ class NumbaModel(object):
 
 @jitclass(geometry_grid_spherical_1d_spec)
 class GeometryGridSpherical1D(object):
-    def __init__(self, r_coord, time_explosion, cell_width):
+    def __init__(self, r_inner, r_outer, time_explosion):
         """
         1D spherical shell model
 
         Parameters
         ----------
-        r_coord : numpy.ndarray
+        r_inner : numpy.ndarray
+        r_outer : numpy.ndarray
         time_explosion : float
-        cell_width : float
-
-        Notes
-        -----
-        r_coord refers to the inner radial boundary of the cells
         """
-        self.r_coord = r_coord
+        self.r_inner = r_inner
+        self.r_outer = r_outer
         self.time_explosion = time_explosion
-        self.cell_width = cell_width
 
 
 @jitclass(geometry_grid_cartesian_2d_spec)
@@ -93,7 +89,7 @@ class GeometryGridCartesian2D(object):
 
         Parameters
         ----------
-        x_coord : numpy.ndarray 
+        x_coord : numpy.ndarray
         y_coord : numpy.ndarray
         time_explosion : float
         cell_width : float
@@ -131,7 +127,6 @@ class GeometryGridCartesian3D(object):
         self.z_coord = z_coord
         self.time_explosion = time_explosion
         self.cell_width = cell_width
-
 
 
 numba_plasma_spec = [
