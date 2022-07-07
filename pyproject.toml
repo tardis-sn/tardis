@@ -22,11 +22,29 @@ exclude = '''
     | buck-out
     | build
     | dist
-    | model         # temporary - to remove later
-    | montecarlo    # temporary
   )/
   | setup.py
   | docs/conf.py
   | _astropy_init.py
 )
 '''
+
+[tool.interrogate]
+color = true
+#exclude = ["setup.py", "docs", "build"]
+#fail-under = 90
+ignore-init-method = true
+ignore-init-module = true
+ignore-magic = true
+ignore-module = true
+ignore-nested-functions = false
+ignore-nested-classes = true
+ignore-private = true
+ignore-property-decorators = true
+#ignore-regex = ["^get$", "^mock_.*", ".*BaseClass.*"]
+ignore-semiprivate = true
+ignore-setters = true
+omit-covered-files = false
+quiet = false
+verbose = 0
+#whitelist-regex = []

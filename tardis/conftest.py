@@ -71,7 +71,7 @@ def pytest_configure(config):
 
 import pytest
 import pandas as pd
-from tardis.io.util import yaml_load_config_file
+from tardis.io.util import yaml_load_file, YAMLLoader
 from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
 
@@ -140,8 +140,8 @@ def tardis_ref_data(tardis_ref_path, generate_reference):
 
 @pytest.fixture(scope="function")
 def tardis_config_verysimple():
-    return yaml_load_config_file(
-        "tardis/io/tests/data/tardis_configv1_verysimple.yml"
+    return yaml_load_file(
+        "tardis/io/tests/data/tardis_configv1_verysimple.yml", YAMLLoader
     )
 
 
@@ -170,6 +170,7 @@ def config_montecarlo_1e5_verysimple():
     path = os.path.abspath(os.path.join("tardis/io/tests/data/", filename))
     config = Configuration.from_yaml(path)
     return config
+
 
 @pytest.fixture(scope="session")
 def simulation_verysimple(config_verysimple, atomic_dataset):

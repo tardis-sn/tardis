@@ -165,6 +165,7 @@ class AtomData(object):
         fname = resolve_atom_data_fname(fname)
 
         with pd.HDFStore(fname, "r") as store:
+
             for name in cls.hdf_names:
                 try:
                     dataframes[name] = store[name]
@@ -172,10 +173,53 @@ class AtomData(object):
                     logger.debug(f"Dataframe does not contain {name} column")
                     nonavailable.append(name)
 
+            if "metadata" in store:
+                carsus_version_str = (
+                    store["metadata"].loc[("format", "version")].value
+                )
+                carsus_version = tuple(map(int, carsus_version_str.split(".")))
+                if carsus_version == (1, 0):
+                    # Checks for various collisional data from Carsus files
+                    if "collisions_data" in store:
+                        try:
+
+                            dataframes["collision_data_temperatures"] = store[
+                                "collisions_metadata"
+                            ].temperatures
+                            if "cmfgen" in store["collisions_metadata"].dataset:
+                                dataframes["yg_data"] = store["collisions_data"]
+                                dataframes["collision_data"] = "dummy value"
+                            elif (
+                                "chianti"
+                                in store["collisions_metadata"].dataset
+                            ):
+                                dataframes["collision_data"] = store[
+                                    "collisions_data"
+                                ]
+                            else:
+                                raise KeyError(
+                                    "Atomic Data Collisions Not a Valid Chanti or CMFGEN Carsus Data File"
+                                )
+                        except KeyError as e:
+                            logger.warn(
+                                "Atomic Data is not a Valid Carsus Atomic Data File"
+                            )
+                            raise
+                    dataframes["levels"] = store["levels_data"]
+                    dataframes["lines"] = store["lines_data"]
+                else:
+                    raise ValueError(
+                        f"Current carsus version, {carsus_version}, is not supported."
+                    )
+
             atom_data = cls(**dataframes)
 
             try:
-                atom_data.uuid1 = store.root._v_attrs["uuid1"].decode("ascii")
+                atom_data.uuid1 = store.root._v_attrs["uuid1"]
+                if hasattr(atom_data.uuid1, "decode"):
+                    atom_data.uuid1 = store.root._v_attrs["uuid1"].decode(
+                        "ascii"
+                    )
             except KeyError:
                 logger.debug(
                     "UUID not available for Atom Data. Setting value to None"
@@ -183,7 +227,9 @@ class AtomData(object):
                 atom_data.uuid1 = None
 
             try:
-                atom_data.md5 = store.root._v_attrs["md5"].decode("ascii")
+                atom_data.md5 = store.root._v_attrs["md5"]
+                if hasattr(atom_data.md5, "decode"):
+                    atom_data.md5 = store.root._v_attrs["md5"].decode("ascii")
             except KeyError:
                 logger.debug(
                     "MD5 not available for Atom Data. Setting value to None"

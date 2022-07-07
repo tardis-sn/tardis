@@ -29,7 +29,7 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
-MAX_SEED_VAL = 2 ** 32 - 1
+MAX_SEED_VAL = 2**32 - 1
 
 # MAX_SEED_VAL must be multiple orders of magnitude larger than no_of_packets;
 # otherwise, each packet would not have its own seed. Here, we set the max
@@ -73,14 +73,14 @@ class MontecarloRunner(HDFWriterMixin):
 
     hdf_name = "runner"
     w_estimator_constant = (
-        (const.c ** 2 / (2 * const.h))
-        * (15 / np.pi ** 4)
+        (const.c**2 / (2 * const.h))
+        * (15 / np.pi**4)
         * (const.h / const.k_B) ** 4
         / (4 * np.pi)
     ).cgs.value
 
     t_rad_estimator_constant = (
-        (np.pi ** 4 / (15 * 24 * zeta(5, 1))) * (const.h / const.k_B)
+        (np.pi**4 / (15 * 24 * zeta(5, 1))) * (const.h / const.k_B)
     ).cgs.value
 
     def __init__(
@@ -100,7 +100,6 @@ class MontecarloRunner(HDFWriterMixin):
         packet_source=None,
         debug_packets=False,
         logger_buffer=1,
-        single_packet_seed=None,
         tracking_rpacket=False,
         use_gpu=False,
     ):
@@ -119,14 +118,13 @@ class MontecarloRunner(HDFWriterMixin):
         self.enable_full_relativity = enable_full_relativity
         numba_config.ENABLE_FULL_RELATIVITY = enable_full_relativity
         self.line_interaction_type = line_interaction_type
-        self.single_packet_seed = single_packet_seed
         self.integrator_settings = integrator_settings
         self.v_packet_settings = v_packet_settings
         self.spectrum_method = spectrum_method
         self.seed = seed
         self._integrator = None
         self._spectrum_integrated = None
-        self.use_gpu=use_gpu
+        self.use_gpu = use_gpu
 
         self.virt_logging = virtual_packet_logging
         self.virt_packet_last_interaction_type = np.ones(2) * -1
@@ -202,6 +200,7 @@ class MontecarloRunner(HDFWriterMixin):
         self.r_inner_cgs = model.r_inner.to("cm").value
         self.r_outer_cgs = model.r_outer.to("cm").value
         self.v_inner_cgs = model.v_inner.to("cm/s").value
+        self.v_outer_cgs = model.v_outer.to("cm/s").value
 
     def _initialize_packets(self, T, no_of_packets, iteration, radius):
         # the iteration is added each time to preserve randomness
@@ -269,10 +268,11 @@ class MontecarloRunner(HDFWriterMixin):
     @property
     def spectrum_integrated(self):
         if self._spectrum_integrated is None:
-            #This was changed from unpacking to specific attributes as compute
-            #is not used in calculate_spectrum
+            # This was changed from unpacking to specific attributes as compute
+            # is not used in calculate_spectrum
             self._spectrum_integrated = self.integrator.calculate_spectrum(
-                self.spectrum_frequency[:-1], points=self.integrator_settings.points, 
+                self.spectrum_frequency[:-1],
+                points=self.integrator_settings.points,
                 interpolate_shells=self.integrator_settings.interpolate_shells,
             )
         return self._spectrum_integrated
@@ -461,7 +461,7 @@ class MontecarloRunner(HDFWriterMixin):
             np.histogram(
                 self.reabsorbed_packet_nu,
                 weights=self.reabsorbed_packet_luminosity,
-                bins=self.spectrum_frequency.value,
+                bins=self.spectrum_frequency,
             )[0],
             "erg / s",
         )
@@ -472,7 +472,7 @@ class MontecarloRunner(HDFWriterMixin):
             np.histogram(
                 self.emitted_packet_nu,
                 weights=self.emitted_packet_luminosity,
-                bins=self.spectrum_frequency.value,
+                bins=self.spectrum_frequency,
             )[0],
             "erg / s",
         )
@@ -560,7 +560,7 @@ class MontecarloRunner(HDFWriterMixin):
         w = self.j_estimator / (
             4
             * const.sigma_sb.cgs.value
-            * t_rad ** 4
+            * t_rad**4
             * self.time_of_simulation.value
             * self.volume.value
         )
@@ -584,7 +584,7 @@ class MontecarloRunner(HDFWriterMixin):
             * np.pi
             * const.sigma_sb.cgs
             * model.r_inner[0] ** 2
-            * model.t_inner ** 4
+            * model.t_inner**4
         ).to("erg/s")
 
     def calculate_time_of_simulation(self, model):
@@ -641,8 +641,8 @@ class MontecarloRunner(HDFWriterMixin):
             config.spectrum.start.to("Hz", u.spectral()),
             num=config.spectrum.num + 1,
         )
-        running_mode=config.spectrum.integrated.compute.upper()
-        
+        running_mode = config.spectrum.integrated.compute.upper()
+
         if running_mode == "GPU":
             if cuda.is_available():
                 use_gpu = True
@@ -663,7 +663,7 @@ class MontecarloRunner(HDFWriterMixin):
                 """An invalid option for compute was passed. The three
                 valid values are 'GPU', 'CPU', and 'Automatic'."""
             )
-        
+
         mc_config_module.disable_line_scattering = (
             config.plasma.disable_line_scattering
         )
@@ -687,7 +687,6 @@ class MontecarloRunner(HDFWriterMixin):
             packet_source=packet_source,
             debug_packets=config.montecarlo.debug_packets,
             logger_buffer=config.montecarlo.logger_buffer,
-            single_packet_seed=config.montecarlo.single_packet_seed,
             virtual_packet_logging=(
                 config.spectrum.virtual.virtual_packet_logging
                 | virtual_packet_logging

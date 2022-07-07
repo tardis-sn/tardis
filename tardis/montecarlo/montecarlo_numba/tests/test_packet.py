@@ -2,13 +2,11 @@ import pytest
 import numpy as np
 
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
-import tardis.montecarlo.montecarlo_numba.calculate_distances as calculate_distances
-import tardis.montecarlo.montecarlo_numba.frame_transformations as frame_transformations
+import tardis.transport.geometry.calculate_distances as calculate_distances
+import tardis.transport.frame_transformations as frame_transformations
 import tardis.montecarlo.montecarlo_numba.opacities as opacities
-import tardis.montecarlo.montecarlo_numba.r_packet_transport as r_packet_transport
-from tardis.montecarlo.montecarlo_numba.estimators import (
-    update_line_estimators,
-)
+import tardis.transport.r_packet_transport as r_packet_transport
+from tardis.montecarlo.montecarlo_numba.estimators import update_line_estimators
 import tardis.montecarlo.montecarlo_numba.utils as utils
 
 import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
@@ -31,6 +29,8 @@ def model():
     return numba_interface.NumbaModel(
         r_inner=np.array([6.912e14, 8.64e14], dtype=np.float64),
         r_outer=np.array([8.64e14, 1.0368e15], dtype=np.float64),
+        v_inner=np.array([-1, -1], dtype=np.float64),
+        v_outer=np.array([-1, -1], dtype=np.float64),
         time_explosion=5.2e7,
     )
 
@@ -50,7 +50,7 @@ def estimators():
         stim_recomb_estimator=np.empty((0, 0), dtype=np.float64),
         bf_heating_estimator=np.empty((0, 0), dtype=np.float64),
         stim_recomb_cooling_estimator=np.empty((0, 0), dtype=np.float64),
-        photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64)
+        photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64),
     )
 
 
@@ -254,6 +254,7 @@ def test_update_line_estimators(
     assert_allclose(estimators.j_blue_estimator, expected_j_blue)
     assert_allclose(estimators.Edotlu_estimator, expected_Edotlu)
 
+
 # TODO set RNG consistently
 # TODO: update this test to use the correct trace_packet
 @pytest.mark.xfail(reason="Need to fix estimator differences across runs")
@@ -324,7 +325,9 @@ def test_move_r_packet(
         packet.r, packet.mu, model.time_explosion
     )
 
-    r_packet_transport.move_r_packet(packet, distance, model.time_explosion, estimators)
+    r_packet_transport.move_r_packet(
+        packet, distance, model.time_explosion, estimators
+    )
 
     assert_almost_equal(packet.mu, expected_params["mu"])
     assert_almost_equal(packet.r, expected_params["r"])
@@ -402,5 +405,3 @@ def test_move_packet_across_shell_boundary_increment(
         packet, delta_shell, no_of_shells
     )
     assert packet.current_shell_id == current_shell_id + delta_shell
-
-

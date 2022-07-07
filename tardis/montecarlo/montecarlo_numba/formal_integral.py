@@ -18,7 +18,9 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     NumbaModel,
     NumbaPlasma,
 )
-from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import CudaFormalIntegrator
+from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import (
+    CudaFormalIntegrator,
+)
 
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
@@ -48,7 +50,15 @@ def numba_formal_integral(
 ):
     """
     model, plasma, and estimator are the numba variants
+    Returns
+    -------
+    L : float64 array
+        integrated luminosities
+    I_nu_p : float64 2D array
+        intensities at each p-ray multiplied by p
+        frequency x p-ray grid
     """
+
     # todo: add all the original todos
     # Initialize the output which is shared among threads
     L = np.zeros(inu_size, dtype=np.float64)
@@ -64,8 +74,9 @@ def numba_formal_integral(
     line_list_nu = plasma.line_list_nu
     # done with instantiation
     # now loop over wavelength in spectrum
+    I_nu_p = np.zeros((inu_size, N), dtype=np.float64)
     for nu_idx in prange(inu_size):
-        I_nu = np.zeros(N, dtype=np.float64)
+        I_nu = I_nu_p[nu_idx]
         z = np.zeros(2 * size_shell, dtype=np.float64)
         shell_id = np.zeros(2 * size_shell, dtype=np.int64)
         offset = 0
@@ -191,17 +202,17 @@ def numba_formal_integral(
             I_nu[p_idx] *= p
         L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max / N)
 
-    return L
+    return L, I_nu_p
 
 
-#integrator_spec = [
+# integrator_spec = [
 #    ("model", NumbaModel.class_type.instance_type),
 #    ("plasma", NumbaPlasma.class_type.instance_type),
 #    ("points", int64),
-#]
+# ]
 
 
-#@jitclass(integrator_spec)
+# @jitclass(integrator_spec)
 class NumbaFormalIntegrator(object):
     """
     Helper class for performing the formal integral
@@ -246,15 +257,15 @@ class NumbaFormalIntegrator(object):
 
 class FormalIntegrator(object):
     """
-    Class containing the formal integrator. 
-    
-    If there is a NVIDIA CUDA GPU available, 
-    the formal integral will automatically run 
-    on it. If multiple GPUs are available, it will 
-    choose the first one that it sees. You can 
-    read more about selecting different GPUs on 
+    Class containing the formal integrator.
+
+    If there is a NVIDIA CUDA GPU available,
+    the formal integral will automatically run
+    on it. If multiple GPUs are available, it will
+    choose the first one that it sees. You can
+    read more about selecting different GPUs on
     Numba's CUDA documentation.
-    
+
     Parameters
     ----------
     model : tardis.model.Radial1DModel
@@ -282,6 +293,8 @@ class FormalIntegrator(object):
         self.numba_model = NumbaModel(
             self.runner.r_inner_i,
             self.runner.r_outer_i,
+            self.runner.r_inner_i / self.model.time_explosion.to("s").value,
+            self.runner.r_outer_i / self.model.time_explosion.to("s").value,
             self.model.time_explosion.to("s").value,
         )
         self.numba_plasma = numba_plasma_initialize(
@@ -383,9 +396,9 @@ class FormalIntegrator(object):
         model = self.model
         runner = self.runner
 
-        #macro_ref = self.atomic_data.macro_atom_references
+        # macro_ref = self.atomic_data.macro_atom_references
         macro_ref = self.atomic_data.macro_atom_references
-        #macro_data = self.atomic_data.macro_atom_data
+        # macro_data = self.atomic_data.macro_atom_data
         macro_data = self.original_plasma.macro_atom_data
 
         no_lvls = len(self.levels_index)
@@ -555,7 +568,7 @@ class FormalIntegrator(object):
         Jblue_lu = res[2].flatten(order="F")
 
         self.generate_numba_objects()
-        L = self.integrator.formal_integral(
+        L, I_nu_p = self.integrator.formal_integral(
             self.model.t_inner,
             nu,
             nu.shape[0],
@@ -566,6 +579,24 @@ class FormalIntegrator(object):
             self.runner.electron_densities_integ,
             N,
         )
+        R_max = self.runner.r_outer_i[-1]
+        ps = calculate_p_values(R_max, N)[None, :]
+        I_nu_p[:, 1:] /= ps[:, 1:]
+        self.runner.I_nu_p = I_nu_p
+        self.runner.p_rays = ps
+
+        I_nu = self.runner.I_nu_p * ps
+        L_test = np.array(
+            [
+                8 * M_PI * M_PI * trapezoid_integration((I_nu)[i, :], R_max / N)
+                for i in range(nu.shape[0])
+            ]
+        )
+        error = np.max(np.abs((L_test - L) / L))
+        assert (
+            error < 1e-7
+        ), f"Incorrect I_nu_p values, max relative difference:{error}"
+
         return np.array(L, np.float64)
 
 

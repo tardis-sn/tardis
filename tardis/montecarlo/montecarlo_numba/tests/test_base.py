@@ -14,6 +14,7 @@ from tardis.simulation import Simulation
 def test_montecarlo_radial1d():
     assert False
 
+
 def test_montecarlo_main_loop(
     config_montecarlo_1e5_verysimple,
     atomic_dataset,
@@ -21,7 +22,7 @@ def test_montecarlo_main_loop(
     tmpdir,
     set_seed_fixture,
     random_call_fixture,
-    request
+    request,
 ):
 
     montecarlo_configuration.LEGACY_MODE_ENABLED = True
@@ -30,16 +31,20 @@ def test_montecarlo_main_loop(
     config_montecarlo_1e5_verysimple.montecarlo.last_no_of_packets = 1e5
     config_montecarlo_1e5_verysimple.montecarlo.no_of_virtual_packets = 0
     config_montecarlo_1e5_verysimple.montecarlo.iterations = 1
-    config_montecarlo_1e5_verysimple.plasma.line_interaction_type = 'macroatom'
+    config_montecarlo_1e5_verysimple.plasma.line_interaction_type = "macroatom"
     del config_montecarlo_1e5_verysimple["config_dirname"]
 
-    sim = Simulation.from_config(config_montecarlo_1e5_verysimple, atom_data=atomic_data)
+    sim = Simulation.from_config(
+        config_montecarlo_1e5_verysimple, atom_data=atomic_data
+    )
     sim.run()
 
-    compare_fname = os.path.join(tardis_ref_path, "montecarlo_1e5_compare_data.h5")
+    compare_fname = os.path.join(
+        tardis_ref_path, "montecarlo_1e5_compare_data.h5"
+    )
     if request.config.getoption("--generate-reference"):
         sim.to_hdf(compare_fname, overwrite=True)
-        
+
     # Load compare data from refdata
     expected_nu = pd.read_hdf(
         compare_fname, key="/simulation/runner/output_nu"
@@ -53,7 +58,6 @@ def test_montecarlo_main_loop(
     expected_j_estimator = pd.read_hdf(
         compare_fname, key="/simulation/runner/j_estimator"
     ).values
-
 
     actual_energy = sim.runner.output_energy
     actual_nu = sim.runner.output_nu

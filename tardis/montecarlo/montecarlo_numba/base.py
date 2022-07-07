@@ -1,4 +1,9 @@
 from numba import prange, njit, objmode
+from numba.np.ufunc.parallel import (
+    _get_thread_id as get_thread_id,
+    get_num_threads,
+)
+
 import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
@@ -26,6 +31,7 @@ from tardis.montecarlo.montecarlo_numba import njit_dict
 from numba.typed import List
 from tardis.util.base import update_iterations_pbar, update_packet_pbar
 
+
 def montecarlo_radial1d(
     model,
     plasma,
@@ -47,6 +53,8 @@ def montecarlo_radial1d(
     numba_model = NumbaModel(
         runner.r_inner_cgs,
         runner.r_outer_cgs,
+        runner.v_inner_cgs,
+        runner.v_outer_cgs,
         model.time_explosion.to("s").value,
     )
     numba_plasma = numba_plasma_initialize(plasma, runner.line_interaction_type)
@@ -100,22 +108,28 @@ def montecarlo_radial1d(
     runner.last_line_interaction_out_id = last_line_interaction_out_id
 
     if montecarlo_configuration.VPACKET_LOGGING and number_of_vpackets > 0:
-        runner.virt_packet_nus = np.concatenate(
-            virt_packet_nus).ravel()
+        runner.virt_packet_nus = np.concatenate(virt_packet_nus).ravel()
         runner.virt_packet_energies = np.concatenate(
-            virt_packet_energies).ravel()
+            virt_packet_energies
+        ).ravel()
         runner.virt_packet_initial_mus = np.concatenate(
-            virt_packet_initial_mus).ravel()
+            virt_packet_initial_mus
+        ).ravel()
         runner.virt_packet_initial_rs = np.concatenate(
-            virt_packet_initial_rs).ravel()
+            virt_packet_initial_rs
+        ).ravel()
         runner.virt_packet_last_interaction_in_nu = np.concatenate(
-            virt_packet_last_interaction_in_nu).ravel()
+            virt_packet_last_interaction_in_nu
+        ).ravel()
         runner.virt_packet_last_interaction_type = np.concatenate(
-            virt_packet_last_interaction_type).ravel()
+            virt_packet_last_interaction_type
+        ).ravel()
         runner.virt_packet_last_line_interaction_in_id = np.concatenate(
-            virt_packet_last_line_interaction_in_id).ravel()
+            virt_packet_last_line_interaction_in_id
+        ).ravel()
         runner.virt_packet_last_line_interaction_out_id = np.concatenate(
-            virt_packet_last_line_interaction_out_id).ravel()
+            virt_packet_last_line_interaction_out_id
+        ).ravel()
     update_iterations_pbar(1)
     # Condition for Checking if RPacket Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
@@ -145,7 +159,7 @@ def montecarlo_main_loop(
     ----------
     packet_collection : PacketCollection
     numba_model : NumbaModel
-	numba_plasma : NumbaPlasma
+        numba_plasma : NumbaPlasma
     estimators : NumbaEstimators
     spectrum_frequency : astropy.units.Quantity
         frequency binspas
@@ -188,7 +202,25 @@ def montecarlo_main_loop(
             )
         )
         rpacket_trackers.append(RPacketTracker())
-        
+
+    main_thread_id = get_thread_id()
+    n_threads = get_num_threads()
+
+    estimator_list = List()
+    for i in range(n_threads):  # betting get tid goes from 0 to num threads
+        estimator_list.append(
+            Estimators(
+                np.copy(estimators.j_estimator),
+                np.copy(estimators.nu_bar_estimator),
+                np.copy(estimators.j_blue_estimator),
+                np.copy(estimators.Edotlu_estimator),
+                np.copy(estimators.photo_ion_estimator),
+                np.copy(estimators.stim_recomb_estimator),
+                np.copy(estimators.bf_heating_estimator),
+                np.copy(estimators.stim_recomb_cooling_estimator),
+                np.copy(estimators.photo_ion_estimator_statistics),
+            )
+        )
     # Arrays for vpacket logging
     virt_packet_nus = []
     virt_packet_energies = []
@@ -199,22 +231,21 @@ def montecarlo_main_loop(
     virt_packet_last_line_interaction_in_id = []
     virt_packet_last_line_interaction_out_id = []
     for i in prange(len(output_nus)):
+        tid = get_thread_id()
         if show_progress_bars:
-            with objmode:
-                update_amount = 1
-                update_packet_pbar(
-                    update_amount,
-                    current_iteration=iteration,
-                    no_of_packets=no_of_packets,
-                    total_iterations=total_iterations,
-                )
 
-        if montecarlo_configuration.single_packet_seed != -1:
-            seed = packet_seeds[montecarlo_configuration.single_packet_seed]
-            np.random.seed(seed)
-        else:
-            seed = packet_seeds[i]
-            np.random.seed(seed)
+            if tid == main_thread_id:
+                with objmode:
+                    update_amount = 1 * n_threads
+                    update_packet_pbar(
+                        update_amount,
+                        current_iteration=iteration,
+                        no_of_packets=no_of_packets,
+                        total_iterations=total_iterations,
+                    )
+
+        seed = packet_seeds[i]
+        np.random.seed(seed)
         r_packet = RPacket(
             numba_model.r_inner[0],
             packet_collection.packets_input_mu[i],
@@ -223,7 +254,7 @@ def montecarlo_main_loop(
             seed,
             i,
         )
-
+        local_estimators = estimator_list[tid]
         vpacket_collection = vpacket_collections[i]
         rpacket_tracker = rpacket_trackers[i]
 
@@ -233,7 +264,7 @@ def montecarlo_main_loop(
             numba_plasma,
             estimators,
             vpacket_collection,
-            rpacket_tracker
+            rpacket_tracker,
         )
 
         output_nus[i] = r_packet.nu
@@ -260,15 +291,16 @@ def montecarlo_main_loop(
         v_packets_idx = np.floor(
             (vpackets_nu - spectrum_frequency[0]) / delta_nu
         ).astype(np.int64)
-        # if we're only in a single-packet mode
-        # if montecarlo_configuration.single_packet_seed == -1:
-        #    break
+
         for j, idx in enumerate(v_packets_idx):
             if (vpackets_nu[j] < spectrum_frequency[0]) or (
                 vpackets_nu[j] > spectrum_frequency[-1]
             ):
                 continue
             v_packets_energy_hist[idx] += vpackets_energy[j]
+
+    for sub_estimator in estimator_list:
+        estimators.increment(sub_estimator)
 
     if virtual_packet_logging:
         for vpacket_collection in vpacket_collections:

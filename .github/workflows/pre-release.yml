@@ -1,0 +1,156 @@
+#  For more information about TARDIS pipelines, please refer to:
+#
+#    https://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+name: pre-release
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+
+  workflow_dispatch:  # manual trigger
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
+            auto-activate-base: true
+            activate-environment: ""
+            use-mamba: true
+
+      - name: Install conda-lock
+        run: mamba install -c conda-forge conda-lock=1.0.5
+
+      - name: Generate lockfiles
+        run: |
+          conda-lock -f tardis_env3.yml -p linux-64 -p osx-64
+          conda lock render conda-lock.yml
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: lockfiles
+          path: |
+              conda-linux-64.lock
+              conda-osx-64.lock
+              conda-lock.yml
+
+  zenodo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: tardis-sn/tardis_zenodo
+          token: ${{ secrets.BOT_TOKEN }}
+
+      - name: Dump Secret Key
+        run: echo "$KEY_SECRET_JSON" > key_secret.json
+        env:
+          KEY_SECRET_JSON: ${{ secrets.ZENODO_KEY_SECRET_JSON }}
+
+      - name: Setup environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
+            environment-file: conda-linux-64.lock
+            activate-environment: tardis_zenodo
+            use-mamba: true
+
+      - name: Run Notebook
+        run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
+
+      - name: Run Notebook (allow errors)
+        run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000 --allow-errors
+        if: failure()
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: zenodo_json
+          path: .zenodo.json
+
+  pull_request:
+    needs: [lock, zenodo]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v3
+        with:
+          path: /tmp
+
+      - name: Copy files to repository
+        run: |
+          cp /tmp/lockfiles/conda-linux-64.lock .
+          cp /tmp/lockfiles/conda-osx-64.lock .
+          cp /tmp/lockfiles/conda-lock.yml .
+          cp /tmp/zenodo_json/.zenodo.json .
+
+      - name: Get current date
+        run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
+
+      - uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          committer: TARDIS Bot <tardis.sn.bot@gmail.com>
+          author: TARDIS Bot <tardis.sn.bot@gmail.com>
+          branch: pre-release-${{ env.DATE }}
+          base: master
+          push-to-fork: tardis-bot/tardis
+          commit-message: Automated changes for pre-release ${{ env.DATE }}
+          title: Pre-release ${{ env.DATE }}
+          body: |
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            I prepared everything for a new TARDIS release.
+
+            <br>
+
+            > :warning: **WARNING:** 
+            >
+            > This pull request should be auto-merged. **Do not merge manually if any check fails**.
+            >
+            > Instead, disable auto-merge and push your fixes to the [`pre-release-${{ env.DATE }}`](https://github.com/tardis-bot/tardis/tree/pre-release-${{ env.DATE }}) branch on [**tardis-bot/tardis**](https://github.com/tardis-bot/tardis).
+            >
+            > ```
+            > $ git remote add tardis-bot git@github.com:tardis-bot/tardis.git
+            > $ git fetch tardis-bot
+            > $ git checkout tardis-bot/pre-release-${{ env.DATE }}
+            > $ git add <file_1> <file_2> ...
+            > $ git commit -m "<your_commit_message>"
+            > $ git push tardis-bot HEAD:pre-release-${{ env.DATE }}
+            > ```
+            >
+            > Once all the checks pass, you can safely merge this pull request manually.
+          labels: build-docs
+          reviewers: wkerzendorf, andrewfullard, epassaro
+        id: create-pr
+
+      - name: Wait for pull request
+        run: sleep 30
+
+      - name: Approve pull request
+        uses: juliangruber/approve-pull-request-action@v1
+        with:
+          github-token: ${{ secrets.PR_APPROVAL_TOKEN }}
+          number: ${{ steps.create-pr.outputs.pull-request-number }}
+        if: steps.create-pr.outputs.pull-request-operation == 'created'
+
+      - name: Enable automerge
+        uses: peter-evans/enable-pull-request-automerge@v2
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
+          merge-method: squash

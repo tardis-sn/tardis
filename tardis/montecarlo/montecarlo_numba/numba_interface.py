@@ -17,12 +17,14 @@ numba_model_spec = [
     ("r_inner", float64[:]),
     ("r_outer", float64[:]),
     ("time_explosion", float64),
+    ("v_inner", float64[:]),
+    ("v_outer", float64[:]),
 ]
 
 
 @jitclass(numba_model_spec)
 class NumbaModel(object):
-    def __init__(self, r_inner, r_outer, time_explosion):
+    def __init__(self, r_inner, r_outer, v_inner, v_outer, time_explosion):
         """
         Model for the Numba mode
 
@@ -30,10 +32,14 @@ class NumbaModel(object):
         ----------
         r_inner : numpy.ndarray
         r_outer : numpy.ndarray
+        v_inner : numpy.ndarray
+        v_outer : numpy.ndarray
         time_explosion : float
         """
         self.r_inner = r_inner
         self.r_outer = r_outer
+        self.v_inner = v_inner
+        self.v_outer = v_outer
         self.time_explosion = time_explosion
 
 
@@ -57,9 +63,9 @@ numba_plasma_spec = [
     ("x_sect", float64[:]),
     ("phot_nus", float64[:]),
     ("ff_opacity_factor", float64[:]),
-    ("emissivities", float64[:,:]),
+    ("emissivities", float64[:, :]),
     ("photo_ion_activation_idx", int64[:]),
-    ("k_packet_idx", int64)
+    ("k_packet_idx", int64),
 ]
 
 
@@ -88,7 +94,7 @@ class NumbaPlasma(object):
         ff_opacity_factor,
         emissivities,
         photo_ion_activation_idx,
-        k_packet_idx
+        k_packet_idx,
     ):
         """
         Plasma for the Numba code
@@ -139,6 +145,7 @@ class NumbaPlasma(object):
         self.photo_ion_activation_idx = photo_ion_activation_idx
         self.k_packet_idx = k_packet_idx
 
+
 def numba_plasma_initialize(plasma, line_interaction_type):
     """
     Initialize the NumbaPlasma object and copy over the data over from TARDIS Plasma
@@ -182,8 +189,8 @@ def numba_plasma_initialize(plasma, line_interaction_type):
             macro_block_references = plasma.macro_block_references
         else:
             macro_block_references = plasma.atomic_data.macro_atom_references[
-                 "block_references"
-             ].values
+                "block_references"
+            ].values
         transition_type = plasma.macro_atom_data["transition_type"].values
 
         # Destination level is not needed and/or generated for downbranch
@@ -196,7 +203,8 @@ def numba_plasma_initialize(plasma, line_interaction_type):
             plasma.level2continuum_idx.index
         ].values
         p_fb_deactivation = np.ascontiguousarray(
-            plasma.p_fb_deactivation.values.copy(), dtype=np.float64)
+            plasma.p_fb_deactivation.values.copy(), dtype=np.float64
+        )
 
         phot_nus = plasma.photo_ion_cross_sections.nu.loc[
             plasma.level2continuum_idx.index
@@ -207,8 +215,12 @@ def numba_plasma_initialize(plasma, line_interaction_type):
             .values.cumsum(),
             [1, 0],
         )
-        photo_ion_nu_threshold_mins = phot_nus.groupby(level=[0, 1, 2], sort=False).first().values
-        photo_ion_nu_threshold_maxs = phot_nus.groupby(level=[0, 1, 2], sort=False).last().values
+        photo_ion_nu_threshold_mins = (
+            phot_nus.groupby(level=[0, 1, 2], sort=False).first().values
+        )
+        photo_ion_nu_threshold_maxs = (
+            phot_nus.groupby(level=[0, 1, 2], sort=False).last().values
+        )
 
         chi_bf = plasma.chi_bf.loc[plasma.level2continuum_idx.index].values
         x_sect = plasma.photo_ion_cross_sections.x_sect.loc[
@@ -216,8 +228,10 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         ].values
 
         phot_nus = phot_nus.values
-        ff_opacity_factor = plasma.ff_cooling_factor/np.sqrt(t_electrons)
-        emissivities = plasma.fb_emission_cdf.loc[plasma.level2continuum_idx.index].values
+        ff_opacity_factor = plasma.ff_cooling_factor / np.sqrt(t_electrons)
+        emissivities = plasma.fb_emission_cdf.loc[
+            plasma.level2continuum_idx.index
+        ].values
         photo_ion_activation_idx = plasma.photo_ion_idx.loc[
             plasma.level2continuum_idx.index, "destination_level_idx"
         ].values
@@ -228,11 +242,11 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         photo_ion_nu_threshold_mins = np.zeros(0, dtype=np.float64)
         photo_ion_nu_threshold_maxs = np.zeros(0, dtype=np.float64)
         photo_ion_block_references = np.zeros(0, dtype=np.int64)
-        chi_bf = np.zeros((0,0), dtype=np.float64)
+        chi_bf = np.zeros((0, 0), dtype=np.float64)
         x_sect = np.zeros(0, dtype=np.float64)
         phot_nus = np.zeros(0, dtype=np.float64)
         ff_opacity_factor = np.zeros(0, dtype=np.float64)
-        emissivities = np.zeros((0,0), dtype=np.float64)
+        emissivities = np.zeros((0, 0), dtype=np.float64)
         photo_ion_activation_idx = np.zeros(0, dtype=np.int64)
         k_packet_idx = np.int64(-1)
 
@@ -258,7 +272,7 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         ff_opacity_factor,
         emissivities,
         photo_ion_activation_idx,
-        k_packet_idx
+        k_packet_idx,
     )
 
 
@@ -406,6 +420,7 @@ class VPacketCollection(object):
         self.last_interaction_out_id[self.idx] = last_interaction_out_id
         self.idx += 1
 
+
 rpacket_tracker_spec = [
     ("length", int64),
     ("seed", int64),
@@ -418,6 +433,7 @@ rpacket_tracker_spec = [
     ("shell_id", int64[:]),
     ("interact_id", int64),
 ]
+
 
 @jitclass(rpacket_tracker_spec)
 class RPacketTracker(object):
@@ -520,7 +536,6 @@ continuum_estimators_spec = [
 ]
 
 
-
 @jitclass(base_estimators_spec + continuum_estimators_spec)
 class Estimators(object):
     def __init__(
@@ -544,6 +559,22 @@ class Estimators(object):
         self.bf_heating_estimator = bf_heating_estimator
         self.stim_recomb_cooling_estimator = stim_recomb_cooling_estimator
         self.photo_ion_estimator_statistics = photo_ion_estimator_statistics
+
+    def increment(self, other):
+
+        self.j_estimator += other.j_estimator
+        self.nu_bar_estimator += other.nu_bar_estimator
+        self.j_blue_estimator += other.j_blue_estimator
+        self.Edotlu_estimator += other.Edotlu_estimator
+        self.photo_ion_estimator += other.photo_ion_estimator
+        self.stim_recomb_estimator += other.stim_recomb_estimator
+        self.bf_heating_estimator += other.bf_heating_estimator
+        self.stim_recomb_cooling_estimator += (
+            other.stim_recomb_cooling_estimator
+        )
+        self.photo_ion_estimator_statistics += (
+            other.photo_ion_estimator_statistics
+        )
 
 
 def configuration_initialize(runner, number_of_vpackets):
@@ -569,7 +600,6 @@ def configuration_initialize(runner, number_of_vpackets):
     montecarlo_configuration.temporary_v_packet_bins = number_of_vpackets
     montecarlo_configuration.full_relativity = runner.enable_full_relativity
     montecarlo_configuration.montecarlo_seed = runner.seed
-    montecarlo_configuration.single_packet_seed = runner.single_packet_seed
     montecarlo_configuration.v_packet_spawn_start_frequency = (
         runner.virtual_spectrum_spawn_range.end.to(
             u.Hz, equivalencies=u.spectral()

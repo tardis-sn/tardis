@@ -3,24 +3,21 @@ from numba import njit
 
 from tardis.montecarlo import montecarlo_configuration
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
-from tardis.montecarlo.montecarlo_numba.calculate_distances import \
-    calculate_distance_boundary, \
-    calculate_distance_line
-from tardis.montecarlo.montecarlo_numba.estimators import \
-    update_line_estimators
-from tardis.montecarlo.montecarlo_numba.frame_transformations import \
-    get_doppler_factor
+from tardis.transport.geometry.calculate_distances import (
+    calculate_distance_boundary,
+    calculate_distance_line,
+)
+from tardis.montecarlo.montecarlo_numba.estimators import update_line_estimators
+from tardis.transport.frame_transformations import (
+    get_doppler_factor,
+)
 
 from tardis.montecarlo.montecarlo_numba.r_packet import InteractionType
 
+
 @njit(**njit_dict_no_parallel)
 def trace_packet_continuum(
-        r_packet,
-        numba_model,
-        numba_plasma,
-        estimators,
-        chi_continuum,
-        escat_prob
+    r_packet, numba_model, numba_plasma, estimators, chi_continuum, escat_prob
 ):
     """
     Traces the RPacket through the ejecta and stops when an interaction happens (heart of the calculation)
@@ -42,11 +39,7 @@ def trace_packet_continuum(
     (
         distance_boundary,
         delta_shell,
-    ) = calculate_distance_boundary(r_packet.r, 
-        r_packet.mu, 
-        r_inner, 
-        r_outer
-    )
+    ) = calculate_distance_boundary(r_packet.r, r_packet.mu, r_inner, r_outer)
 
     # defining start for line interaction
     start_line_id = r_packet.next_line_id

@@ -12,18 +12,15 @@ __all__ = []
 # ----------------------------------------------------------------------------
 
 import sys
-import pyne.data
+
+# ----------------------------------------------------------------------------
+
+from astropy import physical_constants, astronomical_constants
+
+physical_constants.set("codata2014")
+astronomical_constants.set("iau2012")
 
 # ----------------------------------------------------------------------------
 
 from tardis.base import run_tardis
-from tardis.io.util import yaml_load_config_file as yaml_load
-
-
-# ----------------------------------------------------------------------------
-# pyne holds Python 3.7 on macOS, but refdata is pickled with protocol 5 (3.8.3)
-
-if sys.version_info < (3, 8, 3):
-    import pickle5
-
-    sys.modules["pickle"] = pickle5
+from tardis.io.util import yaml_load_file as yaml_load

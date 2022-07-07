@@ -37,8 +37,10 @@ class TARDISSpectrum(HDFWriterMixin):
         self._frequency = _frequency.to("Hz", u.spectral())
         self.luminosity = luminosity.to("erg / s")
 
-        l_nu_unit = u.def_unit('erg\ s^{-1}\ Hz^{-1}', u.Unit('erg/(s Hz)'))
-        l_lambda_unit = u.def_unit('erg\ s^{-1}\ \\AA^{-1}', u.Unit('erg/(s AA)'))
+        l_nu_unit = u.def_unit("erg\ s^{-1}\ Hz^{-1}", u.Unit("erg/(s Hz)"))
+        l_lambda_unit = u.def_unit(
+            "erg\ s^{-1}\ \\AA^{-1}", u.Unit("erg/(s AA)")
+        )
 
         self.frequency = self._frequency[:-1]
         self.delta_frequency = self._frequency[1] - self._frequency[0]
@@ -119,13 +121,17 @@ class TARDISSpectrum(HDFWriterMixin):
             `matplotlib documentation
             <https://matplotlib.org/stable/api/_as_gen/matplotlib.lines.Line2D.html#matplotlib.lines.Line2D>`_
             for a list of all possible arguments.
-        """        
+        """
         if ax is None:
             from matplotlib.pyplot import gca
 
             ax = gca()
         if mode == "wavelength":
-            ax.plot(self.wavelength.value, self.luminosity_density_lambda.value, **kwargs)
+            ax.plot(
+                self.wavelength.value,
+                self.luminosity_density_lambda.value,
+                **kwargs,
+            )
             ax.set_xlabel(
                 f"Wavelength [{self.wavelength.unit.to_string('latex_inline')}]"
             )
@@ -133,7 +139,9 @@ class TARDISSpectrum(HDFWriterMixin):
                 f"$L_\\lambda$ [{self.luminosity_density_lambda.unit.to_string('latex_inline')}]"
             )
         elif mode == "frequency":
-            ax.plot(self.frequency.value, self.luminosity_density_nu.value, **kwargs)
+            ax.plot(
+                self.frequency.value, self.luminosity_density_nu.value, **kwargs
+            )
             ax.set_xlabel(
                 f"Frequency [{self.frequency.unit.to_string('latex_inline')}]"
             )

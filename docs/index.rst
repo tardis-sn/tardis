@@ -78,6 +78,7 @@ Mission Statement
     physics/montecarlo/index
     physics/est_and_conv/index
     physics/spectrum/index
+    physics/energy_input/index
 
 
 .. toctree::

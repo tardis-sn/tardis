@@ -13,15 +13,16 @@ from tardis.montecarlo import (
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,
 )
-from tardis.montecarlo.montecarlo_numba.r_packet_transport import \
-    move_packet_across_shell_boundary
+from tardis.transport.r_packet_transport import (
+    move_packet_across_shell_boundary,
+)
 
-from tardis.montecarlo.montecarlo_numba.calculate_distances import (
+from tardis.transport.geometry.calculate_distances import (
     calculate_distance_boundary,
     calculate_distance_line,
 )
 
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.transport.frame_transformations import (
     get_doppler_factor,
     angle_aberration_LF_to_CMF,
     angle_aberration_CMF_to_LF,
@@ -83,7 +84,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
         v_packet.current_shell_id
     ]
     chi_e = cur_electron_density * SIGMA_THOMSON
-    
+
     # Calculating doppler factor
     doppler_factor = get_doppler_factor(
         v_packet.r, v_packet.mu, numba_model.time_explosion
@@ -94,8 +95,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
 
     tau_continuum = chi_continuum * distance_boundary
     tau_trace_combined = tau_continuum
-    
-    
+
     cur_line_id = start_line_id
 
     for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
@@ -259,8 +259,8 @@ def trace_vpacket_volley(
         v_packet_energy = r_packet.energy * weight * doppler_factor_ratio
 
         # TODO: Make sure we have a new continuum object for each vpacket
-        #comov_nu = v_packet_nu * v_packet_doppler_factor
-        #continuum.calculate(comov_nu, r_packet.current_shell_id)
+        # comov_nu = v_packet_nu * v_packet_doppler_factor
+        # continuum.calculate(comov_nu, r_packet.current_shell_id)
 
         v_packet = VPacket(
             r_packet.r,

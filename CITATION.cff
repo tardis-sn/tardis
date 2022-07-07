@@ -1,0 +1,207 @@
+# YAML 1.2
+# Metadata for citation of this software according to the CFF format (https://citation-file-format.github.io/)
+cff-version: 1.0.3
+message: If you use this software, please cite it using these metadata.
+# FIXME title as repository name might not be the best name, please make human readable
+title: 'tardis-sn/tardis: TARDIS v2022.06.19'
+doi: 10.5281/zenodo.6662839
+# FIXME splitting of full names is error prone, please check if given/family name are correct
+authors:
+- given-names: Wolfgang
+  family-names: Kerzendorf
+  affiliation: Michigan State University
+  orcid: https://orcid.org/0000-0002-0479-7235
+- given-names: Stuart
+  family-names: Sim
+  affiliation: Queen's University Belfast
+  orcid: https://orcid.org/0000-0002-9774-1192
+- given-names: Christian
+  family-names: Vogl
+  affiliation: Max-Planck-Institut für Astrophysik
+  orcid: https://orcid.org/0000-0002-7941-5692
+- given-names: Marc
+  family-names: Williamson
+  affiliation: New York University
+  orcid: https://orcid.org/0000-0003-2544-4516
+- given-names: Ezequiel
+  family-names: Pássaro
+  orcid: https://orcid.org/0000-0002-3707-1975
+- given-names: Andreas
+  family-names: Flörs
+  affiliation: GSI Helmholtz Centre for Heavy Ion Research
+  orcid: https://orcid.org/0000-0003-2024-2819
+- given-names: Yssa
+  family-names: Camacho
+  orcid: https://orcid.org/0000-0002-9830-3880
+- given-names: Vytautas
+  family-names: Jančauskas
+  orcid: https://orcid.org/0000-0002-6051-210X
+- given-names: Alice
+  family-names: Harpole
+  affiliation: Stony Brook University
+  orcid: https://orcid.org/0000-0002-1530-781X
+- given-names: Ulrich
+  family-names: Nöbauer
+  affiliation: Max-Planck-Institut für Astrophysik
+  orcid: https://orcid.org/0000-0002-2453-853X
+- given-names: Stefan
+  family-names: Lietzau
+  orcid: https://orcid.org/0000-0002-7131-3341
+- given-names: Mikhail
+  family-names: Mishin
+- given-names: Fotis
+  family-names: Tsamis
+  affiliation: National Observatory of Athens
+  orcid: https://orcid.org/0000-0003-4875-1623
+- given-names: Aoife
+  family-names: Boyle
+- given-names: Luke
+  family-names: Shingles
+- given-names: Vaibhav
+  family-names: Gupta
+- given-names: Karan
+  family-names: Desai
+- given-names: Michael
+  family-names: Klauser
+- given-names: Frederik
+  family-names: Beaujean
+  affiliation: Ludwig-Maximilians-Universität München Fakultät für Physik
+  orcid: https://orcid.org/0000-0001-9901-8785
+- given-names: Adam
+  family-names: Suban-Loewen
+- given-names: Epson
+  family-names: Heringer
+  affiliation: University of Toronto
+  orcid: https://orcid.org/0000-0002-1502-9127
+- given-names: Barnabás
+  family-names: Barna
+- given-names: Gaurav
+  family-names: Gautam
+- given-names: Andrew
+  family-names: Fullard
+  affiliation: Michigan State University
+  orcid: https://orcid.org/0000-0001-7343-1678
+- given-names: Kevin
+  family-names: Cawley
+- given-names: Isaac
+  family-names: Smith
+- given-names: Jaladh
+  family-names: Singhal
+  orcid: https://orcid.org/0000-0002-8310-0829
+- given-names: Atharva
+  family-names: Arya
+- given-names: Talytha
+  family-names: Barbosa
+- given-names: Dhruv
+  family-names: Sondhi
+- given-names: Jenny
+  family-names: Yu
+- given-names: Jack
+  family-names: O'Brien
+- given-names: Maryam
+  family-names: Patel
+- given-names: Kaushik
+  family-names: Varanasi
+- given-names: James
+  family-names: Gillanders
+  orcid: https://orcid.org/0000-0002-8094-6108
+- given-names: Arjun
+  family-names: Savel
+- given-names: Youssef
+  family-names: Eweis
+- given-names: Martin
+  family-names: Reinecke
+- given-names: Tomas
+  family-names: Bylund
+- given-names: Laud
+  family-names: Bentil
+- given-names: Jordi
+  family-names: Eguren
+  orcid: https://orcid.org/0000-0002-2328-8030
+- given-names: Arib
+  family-names: Alam
+- given-names: Matthew
+  family-names: Bartnik
+- given-names: Mark
+  family-names: Magee
+- given-names: Joshua
+  family-names: Shields
+- given-names: Ran
+  family-names: Livneh
+- given-names: Sona
+  family-names: Chitchyan
+- given-names: Srinath
+  family-names: Rajagopalan
+- given-names: Sashank
+  family-names: Mishra
+  orcid: https://orcid.org/0000-0001-8302-1584
+- given-names: Andreas
+  family-names: Floers
+- given-names: John
+  family-names: Reichenbach
+- given-names: Rinkle
+  family-names: Jain
+- given-names: Antreev
+  family-names: Brar
+- given-names: Sourav
+  family-names: Singh
+- given-names: Caroline
+  family-names: Sofiatti
+- given-names: Nathan
+  family-names: Kowalski
+- given-names: Chinmay
+  family-names: Talegaonkar
+- given-names: Jonatan
+  family-names: Selsing
+- given-names: Parikshit
+  family-names: Singh Rathore
+- given-names: Shilpi
+  family-names: Prasad
+- given-names: Shashank
+  family-names: Venkat
+- given-names: Rohith
+  family-names: Varma Buddaraju
+- given-names: Pratik
+  family-names: Patel
+- given-names: Kevin
+  family-names: Yap
+- given-names: Nilesh
+  family-names: Patra
+- given-names: Nance
+  family-names: Sarafina
+- given-names: Musabbiha
+  family-names: Zaheer
+- given-names: Morgan
+  family-names: Sandler
+- given-names: Thom
+  family-names: Lemoine
+- given-names: Suyash
+  family-names: Gupta
+- given-names: Ashwin
+  family-names: Nayak U
+- given-names: Ujjwal
+  family-names: Wahi
+- given-names: Yash
+  family-names: Aggarwal
+- given-names: aman
+  family-names: kumar
+- given-names: Sampark
+  family-names: Sharma
+- given-names: Dmitry
+  family-names: Volodin
+- given-names: Laureano
+  family-names: Martinez
+- given-names: Debajyoti
+  family-names: Dasgupta
+- given-names: Alexander
+  family-names: Holas
+- given-names: Atharwa
+  family-names: Kharkar
+- given-names: Chaitanya
+  family-names: Kolliboyina
+- given-names: Atul
+  family-names: Kumar
+version: release-2022.06.19
+date-released: 2022-06-19
+repository-code: https://github.com/tardis-sn/tardis
+license: other-open

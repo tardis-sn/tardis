@@ -4,6 +4,8 @@
 Credits & Publication Policies
 ******************************
 
+|DOI_BADGE|
+
 We provide TARDIS as a free, open-source tool. If you are using it, please
 adhere to a few policies and acknowledge the TARDIS Team.
 
@@ -18,13 +20,13 @@ following paragraph to the Acknowledgement section:
 .. parsed-literal::
 
     This research made use of \\textsc{tardis}, a community-developed software package for spectral
-    synthesis in supernovae \\citep{2014MNRAS.440..387K, |ZENODO|}. The
+    synthesis in supernovae \\citep{2014MNRAS.440..387K, |CITATION|}. The
     development of \\textsc{tardis} received support from GitHub, the Google Summer of Code
     initiative, and from ESA's Summer of Code in Space program. \\textsc{tardis} is a fiscally
     sponsored project of NumFOCUS. \\textsc{tardis} makes extensive use of Astropy and Pyne.
 
 If you use any of the full relativity treatments or use TARDIS for modelling
-Type II supernovae, also add `Spectral modeling of type II supernovae. I. Dilution factors <https://ui.adsabs.harvard.edu/abs/2019A%26A...621A..29V>`_ 
+Type II supernovae, also add `Spectral modeling of type II supernovae. I. Dilution factors <https://ui.adsabs.harvard.edu/abs/2019A%26A...621A..29V>`_
 to the Acknowledgement.
 
 .. parsed-literal::
@@ -72,4 +74,102 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. include:: ZENODO.rst
+.. |CITATION| replace:: kerzendorf_wolfgang_2022_6662839
+
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.6662839-blue
+                 :target: https://doi.org/10.5281/zenodo.6662839
+
+.. code-block:: bibtex
+
+    @software{kerzendorf_wolfgang_2022_6662839,
+      author       = {Kerzendorf, Wolfgang and
+                      Sim, Stuart and
+                      Vogl, Christian and
+                      Williamson, Marc and
+                      Pássaro, Ezequiel and
+                      Flörs, Andreas and
+                      Camacho, Yssa and
+                      Jančauskas, Vytautas and
+                      Harpole, Alice and
+                      Nöbauer, Ulrich and
+                      Lietzau, Stefan and
+                      Mishin, Mikhail and
+                      Tsamis, Fotis and
+                      Boyle, Aoife and
+                      Shingles, Luke and
+                      Gupta, Vaibhav and
+                      Desai, Karan and
+                      Klauser, Michael and
+                      Beaujean, Frederik and
+                      Suban-Loewen, Adam and
+                      Heringer, Epson and
+                      Barna, Barnabás and
+                      Gautam, Gaurav and
+                      Fullard, Andrew and
+                      Cawley, Kevin and
+                      Smith, Isaac and
+                      Singhal, Jaladh and
+                      Arya, Atharva and
+                      Barbosa, Talytha and
+                      Sondhi, Dhruv and
+                      Yu, Jenny and
+                      O'Brien, Jack and
+                      Patel, Maryam and
+                      Varanasi, Kaushik and
+                      Gillanders, James and
+                      Savel, Arjun and
+                      Eweis, Youssef and
+                      Reinecke, Martin and
+                      Bylund, Tomas and
+                      Bentil, Laud and
+                      Eguren, Jordi and
+                      Alam, Arib and
+                      Bartnik, Matthew and
+                      Magee, Mark and
+                      Shields, Joshua and
+                      Livneh, Ran and
+                      Chitchyan, Sona and
+                      Rajagopalan, Srinath and
+                      Mishra, Sashank and
+                      Floers, Andreas and
+                      Reichenbach, John and
+                      Jain, Rinkle and
+                      Brar, Antreev and
+                      Singh, Sourav and
+                      Sofiatti, Caroline and
+                      Kowalski, Nathan and
+                      Talegaonkar, Chinmay and
+                      Selsing, Jonatan and
+                      Singh Rathore, Parikshit and
+                      Prasad, Shilpi and
+                      Venkat, Shashank and
+                      Varma Buddaraju, Rohith and
+                      Patel, Pratik and
+                      Yap, Kevin and
+                      Patra, Nilesh and
+                      Sarafina, Nance and
+                      Zaheer, Musabbiha and
+                      Sandler, Morgan and
+                      Lemoine, Thom and
+                      Gupta, Suyash and
+                      Nayak U, Ashwin and
+                      Wahi, Ujjwal and
+                      Aggarwal, Yash and
+                      kumar, aman and
+                      Sharma, Sampark and
+                      Volodin, Dmitry and
+                      Martinez, Laureano and
+                      Dasgupta, Debajyoti and
+                      Holas, Alexander and
+                      Kharkar, Atharwa and
+                      Kolliboyina, Chaitanya and
+                      Kumar, Atul},
+      title        = {tardis-sn/tardis: TARDIS v2022.06.19},
+      month        = jun,
+      year         = 2022,
+      publisher    = {Zenodo},
+      version      = {release-2022.06.19},
+      doi          = {10.5281/zenodo.6662839},
+      url          = {https://doi.org/10.5281/zenodo.6662839}
+    }
+

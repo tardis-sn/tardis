@@ -8,17 +8,19 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
     angle_aberration_CMF_to_LF,
 )
 from tardis.montecarlo.montecarlo_numba.r_packet import (
-    InteractionType, PacketStatus
+    InteractionType,
+    PacketStatus,
 )
 from tardis.montecarlo.montecarlo_numba.utils import get_random_mu
 from tardis.montecarlo.montecarlo_numba.macro_atom import (
-        macro_atom, MacroAtomTransitionType
+    macro_atom,
+    MacroAtomTransitionType,
 )
 from tardis import constants as const
 
@@ -26,11 +28,10 @@ K_B = const.k_B.cgs.value
 H = const.h.cgs.value
 
 
-
 @njit(**njit_dict_no_parallel)
-def determine_bf_macro_activation_idx(numba_plasma,
-        nu, chi_bf_contributions, active_continua
-    ):
+def determine_bf_macro_activation_idx(
+    numba_plasma, nu, chi_bf_contributions, active_continua
+):
     """
     Determine the macro atom activation level after bound-free absorption.
 
@@ -52,7 +53,6 @@ def determine_bf_macro_activation_idx(numba_plasma,
     # Perform a MC experiment to determine the continuum for absorption
     index = np.searchsorted(chi_bf_contributions, np.random.random())
     continuum_id = active_continua[index]
-    
 
     # Perform a MC experiment to determine whether thermal or
     # ionization energy is created
@@ -61,15 +61,18 @@ def determine_bf_macro_activation_idx(numba_plasma,
     if (
         np.random.random() < fraction_ionization
     ):  # Create ionization energy (i-packet)
-        destination_level_idx = numba_plasma.photo_ion_activation_idx[continuum_id]
+        destination_level_idx = numba_plasma.photo_ion_activation_idx[
+            continuum_id
+        ]
     else:  # Create thermal energy (k-packet)
         destination_level_idx = numba_plasma.k_packet_idx
     return destination_level_idx
 
+
 @njit(**njit_dict_no_parallel)
-def determine_continuum_macro_activation_idx(numba_plasma,
-    nu, chi_bf, chi_ff, chi_bf_contributions, active_continua
-    ):
+def determine_continuum_macro_activation_idx(
+    numba_plasma, nu, chi_bf, chi_ff, chi_bf_contributions, active_continua
+):
     """
     Determine the macro atom activation level after a continuum absorption.
 
@@ -117,6 +120,7 @@ def sample_nu_free_free(numba_plasma, shell):
     zrand = np.random.random()
     return -K_B * T / H * np.log(zrand)
 
+
 @njit(**njit_dict_no_parallel)
 def sample_nu_free_bound(numba_plasma, shell, continuum_id):
     """
@@ -134,9 +138,10 @@ def sample_nu_free_bound(numba_plasma, shell, continuum_id):
     zrand = np.random.random()
     idx = np.searchsorted(em, zrand, side="right")
 
-    return phot_nus_block[idx] - (em[idx] - zrand) / (
-        em[idx] - em[idx - 1]
-    ) * (phot_nus_block[idx] - phot_nus_block[idx - 1])
+    return phot_nus_block[idx] - (em[idx] - zrand) / (em[idx] - em[idx - 1]) * (
+        phot_nus_block[idx] - phot_nus_block[idx - 1]
+    )
+
 
 @njit(**njit_dict_no_parallel)
 def scatter(r_packet, time_explosion):
@@ -152,12 +157,20 @@ def scatter(r_packet, time_explosion):
     )
 
     r_packet.energy = comov_energy * inverse_new_doppler_factor
- 
+
     return comov_nu, inverse_new_doppler_factor
 
+
 @njit(**njit_dict_no_parallel)
-def continuum_event(r_packet, time_explosion, numba_plasma, 
-    chi_bf_tot, chi_ff, chi_bf_contributions, current_continua):
+def continuum_event(
+    r_packet,
+    time_explosion,
+    numba_plasma,
+    chi_bf_tot,
+    chi_ff,
+    chi_bf_contributions,
+    current_continua,
+):
     """
     continuum event handler - activate the macroatom and run the handler
 
@@ -169,33 +182,38 @@ def continuum_event(r_packet, time_explosion, numba_plasma,
     continuum : tardis.montecarlo.montecarlo_numba.numba_interface.Continuum
     """
     old_doppler_factor = get_doppler_factor(
-            r_packet.r, 
-            r_packet.mu, 
-            time_explosion
-            )
+        r_packet.r, r_packet.mu, time_explosion
+    )
 
     r_packet.mu = get_random_mu()
     inverse_doppler_factor = get_inverse_doppler_factor(
-            r_packet.r, 
-            r_packet.mu, 
-            time_explosion
-            )
+        r_packet.r, r_packet.mu, time_explosion
+    )
     comov_energy = r_packet.energy * old_doppler_factor
-    comov_nu = r_packet.nu * old_doppler_factor # make sure frequency should be updated
+    comov_nu = (
+        r_packet.nu * old_doppler_factor
+    )  # make sure frequency should be updated
     r_packet.energy = comov_energy * inverse_doppler_factor
     r_packet.nu = comov_nu * inverse_doppler_factor
 
     destination_level_idx = determine_continuum_macro_activation_idx(
-            numba_plasma, comov_nu, chi_bf_tot, chi_ff, 
-            chi_bf_contributions, current_continua)
+        numba_plasma,
+        comov_nu,
+        chi_bf_tot,
+        chi_ff,
+        chi_bf_contributions,
+        current_continua,
+    )
 
-    macro_atom_event(destination_level_idx, 
-            r_packet, time_explosion,
-            numba_plasma)
+    macro_atom_event(
+        destination_level_idx, r_packet, time_explosion, numba_plasma
+    )
+
 
 @njit(**njit_dict_no_parallel)
-def macro_atom_event(destination_level_idx, 
-    r_packet, time_explosion, numba_plasma):
+def macro_atom_event(
+    destination_level_idx, r_packet, time_explosion, numba_plasma
+):
     """
     Macroatom event handler - run the macroatom and handle the result
 
@@ -206,44 +224,38 @@ def macro_atom_event(destination_level_idx,
     time_explosion : float
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     """
-    
-    transition_id, transition_type = macro_atom(
-                destination_level_idx, 
-                r_packet.current_shell_id, 
-                numba_plasma
-                )
 
-    if (montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED and 
-            transition_type == MacroAtomTransitionType.FF_EMISSION):
-        free_free_emission(
-                r_packet, 
-                time_explosion, 
-                numba_plasma
-                )
-    
-    elif (montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED and 
-            transition_type == MacroAtomTransitionType.BF_EMISSION):
+    transition_id, transition_type = macro_atom(
+        destination_level_idx, r_packet.current_shell_id, numba_plasma
+    )
+
+    if (
+        montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
+        and transition_type == MacroAtomTransitionType.FF_EMISSION
+    ):
+        free_free_emission(r_packet, time_explosion, numba_plasma)
+
+    elif (
+        montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
+        and transition_type == MacroAtomTransitionType.BF_EMISSION
+    ):
         bound_free_emission(
-                r_packet, 
-                time_explosion, 
-                numba_plasma, 
-                transition_id
-                )
-    elif (montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED and 
-            transition_type == MacroAtomTransitionType.BF_COOLING):
+            r_packet, time_explosion, numba_plasma, transition_id
+        )
+    elif (
+        montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
+        and transition_type == MacroAtomTransitionType.BF_COOLING
+    ):
         bf_cooling(r_packet, time_explosion, numba_plasma)
-    
-    elif (montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED and 
-            transition_type == MacroAtomTransitionType.ADIABATIC_COOLING):
+
+    elif (
+        montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
+        and transition_type == MacroAtomTransitionType.ADIABATIC_COOLING
+    ):
         adiabatic_cooling(r_packet)
 
     elif transition_type == MacroAtomTransitionType.BB_EMISSION:
-        line_emission(
-                r_packet, 
-                transition_id,
-                time_explosion,
-                numba_plasma
-                )
+        line_emission(r_packet, transition_id, time_explosion, numba_plasma)
     else:
         raise Exception("No Interaction Found!")
 
@@ -259,22 +271,19 @@ def bf_cooling(r_packet, time_explosion, numba_plasma):
     time_explosion : float
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     """
-    
-    fb_cooling_prob = numba_plasma.p_fb_deactivation[:, 
-            r_packet.current_shell_id]
+
+    fb_cooling_prob = numba_plasma.p_fb_deactivation[
+        :, r_packet.current_shell_id
+    ]
     p = fb_cooling_prob[0]
     i = 0
     zrand = np.random.random()
-    while p <= zrand: # Can't search-sorted this because it's not cumulative
+    while p <= zrand:  # Can't search-sorted this because it's not cumulative
         i += 1
         p += fb_cooling_prob[i]
     continuum_idx = i
-    bound_free_emission(
-            r_packet,
-            time_explosion,
-            numba_plasma,
-            continuum_idx
-            )
+    bound_free_emission(r_packet, time_explosion, numba_plasma, continuum_idx)
+
 
 @njit(**njit_dict_no_parallel)
 def adiabatic_cooling(r_packet):
@@ -287,6 +296,7 @@ def adiabatic_cooling(r_packet):
     """
 
     r_packet.status = PacketStatus.ADIABATIC_COOLING
+
 
 @njit(**njit_dict_no_parallel)
 def get_current_line_id(nu, line_list):
@@ -319,22 +329,20 @@ def free_free_emission(r_packet, time_explosion, numba_plasma):
     time_explosion : float
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     """
- 
+
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
     comov_nu = sample_nu_free_free(numba_plasma, r_packet.current_shell_id)
     r_packet.nu = comov_nu * inverse_doppler_factor
-    current_line_id = get_current_line_id(
-            comov_nu,
-            numba_plasma.line_list_nu
-            ) 
-    r_packet.next_line_id = current_line_id 
-    
+    current_line_id = get_current_line_id(comov_nu, numba_plasma.line_list_nu)
+    r_packet.next_line_id = current_line_id
+
     if montecarlo_configuration.full_relativity:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
+
 
 @njit(**njit_dict_no_parallel)
 def bound_free_emission(r_packet, time_explosion, numba_plasma, continuum_id):
@@ -348,19 +356,16 @@ def bound_free_emission(r_packet, time_explosion, numba_plasma, continuum_id):
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     continuum_id : int
     """
- 
+
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
 
-    comov_nu = sample_nu_free_bound(numba_plasma,
-            r_packet.current_shell_id, 
-            continuum_id)
+    comov_nu = sample_nu_free_bound(
+        numba_plasma, r_packet.current_shell_id, continuum_id
+    )
     r_packet.nu = comov_nu * inverse_doppler_factor
-    current_line_id = get_current_line_id(
-            comov_nu, 
-            numba_plasma.line_list_nu
-            )
+    current_line_id = get_current_line_id(comov_nu, numba_plasma.line_list_nu)
     r_packet.next_line_id = current_line_id
 
     if montecarlo_configuration.full_relativity:
@@ -384,7 +389,7 @@ def thomson_scatter(r_packet, time_explosion):
     time_explosion : float
         time since explosion in seconds
     """
-    
+
     old_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
@@ -407,8 +412,7 @@ def thomson_scatter(r_packet, time_explosion):
 
 
 @njit(**njit_dict_no_parallel)
-def line_scatter(r_packet, time_explosion, 
-        line_interaction_type, numba_plasma):
+def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
     """
     Line scatter function that handles the scattering itself, including new angle drawn, and calculating nu out using macro atom
 
@@ -437,17 +441,18 @@ def line_scatter(r_packet, time_explosion,
             r_packet, r_packet.next_line_id, time_explosion, numba_plasma
         )
     else:  # includes both macro atom and downbranch - encoded in the transition probabilities
-        comov_nu = r_packet.nu * old_doppler_factor # Is this necessary?
-        r_packet.nu = comov_nu * inverse_new_doppler_factor 
+        comov_nu = r_packet.nu * old_doppler_factor  # Is this necessary?
+        r_packet.nu = comov_nu * inverse_new_doppler_factor
         activation_level_id = numba_plasma.line2macro_level_upper[
             r_packet.next_line_id
         ]
-        macro_atom_event(activation_level_id, r_packet, 
-                time_explosion, numba_plasma)
+        macro_atom_event(
+            activation_level_id, r_packet, time_explosion, numba_plasma
+        )
+
 
 @njit(**njit_dict_no_parallel)
-def line_emission(r_packet, emission_line_id, time_explosion, 
-        numba_plasma):
+def line_emission(r_packet, emission_line_id, time_explosion, numba_plasma):
     """
     Sets the frequency of the RPacket properly given the emission channel
 
@@ -458,7 +463,7 @@ def line_emission(r_packet, emission_line_id, time_explosion,
     time_explosion : float
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     """
-    
+
     r_packet.last_line_interaction_out_id = emission_line_id
 
     if emission_line_id != r_packet.next_line_id:
