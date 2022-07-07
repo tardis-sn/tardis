@@ -66,7 +66,7 @@ def calculate_distance_radial(photon, r_inner, r_outer):
     shortest = min(distance_list)
     shell_change = 1
     
-    if (shortest == inner_1) or (shortest == inner_2):
+    if shortest == (inner_1 or inner_2):
         shell_change = -1
 
     return shortest, shell_change
