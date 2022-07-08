@@ -4,7 +4,7 @@ import pytest
 import numpy as np
 import os
 import json
-import requests
+from urllib import request
 
 
 DATA_PATH = os.path.join(tardis.__path__[0], "io", "tests", "data")
@@ -96,9 +96,8 @@ def get_full_csvy_model():
 @pytest.fixture
 def get_arepo_test_data():
     url = "https://github.com/AlexHls/tardis-refdata/raw/arepo-data/arepo_data/arepo_snapshot.json"
-    file = requests.get(url)
     filename = "arepo_snapshot.json"
-    open(filename , 'wb').write(file.content)
+    request.urlretrieve(url, filename)
     return filename
 
 
