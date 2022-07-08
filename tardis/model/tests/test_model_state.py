@@ -1,4 +1,5 @@
 import os
+from numpy import array_equal
 import pytest
 import pandas as pd
 from astropy import units as u
@@ -205,3 +206,16 @@ def test_ascii_reader_exponential_law():
     for i, mdens in enumerate(expected_densites):
         assert_almost_equal(model_state.density[i].value, mdens)
         assert model_state.density[i].unit == u.Unit(expected_unit)
+
+
+def test_model_state_to_numba_model():
+    filename = "tardis_configv1_ascii_density_abund.yml"
+    config = Configuration.from_yaml(data_path(filename))
+    model_state = model_state_from_config(config)
+    numba_model = model_state.to_numba_model()
+
+    assert array_equal(numba_model.v_inner, model_state.v_inner.cgs.value)
+    assert array_equal(numba_model.v_outer, model_state.v_outer.cgs.value)
+    assert array_equal(numba_model.r_inner, model_state.r_inner.cgs.value)
+    assert array_equal(numba_model.r_outer, model_state.r_outer.cgs.value)
+    assert numba_model.time_explosion == model_state.time_explosion.cgs.value
