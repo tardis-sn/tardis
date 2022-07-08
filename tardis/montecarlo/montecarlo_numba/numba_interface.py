@@ -66,7 +66,7 @@ class NumbaModel(object):
 
 @jitclass(geometry_grid_spherical_1d_spec)
 class GeometryGridSpherical1D(object):
-    def __init__(self, r_inner, r_outer, time_explosion):
+    def __init__(self, r_inner, r_outer):
         """
         1D spherical shell model
 
@@ -74,16 +74,14 @@ class GeometryGridSpherical1D(object):
         ----------
         r_inner : numpy.ndarray
         r_outer : numpy.ndarray
-        time_explosion : float
         """
         self.r_inner = r_inner
         self.r_outer = r_outer
-        self.time_explosion = time_explosion
 
 
 @jitclass(geometry_grid_cartesian_2d_spec)
 class GeometryGridCartesian2D(object):
-    def __init__(self, x_coord, y_coord, time_explosion, cell_width):
+    def __init__(self, x_coord, y_coord, cell_width):
         """
         Model for the 2D Cartesian grid system
 
@@ -91,7 +89,6 @@ class GeometryGridCartesian2D(object):
         ----------
         x_coord : numpy.ndarray
         y_coord : numpy.ndarray
-        time_explosion : float
         cell_width : float
 
         Notes
@@ -100,13 +97,12 @@ class GeometryGridCartesian2D(object):
         """
         self.x_coord = x_coord
         self.y_coord = y_coord
-        self.time_explosion = time_explosion
         self.cell_width = cell_width
 
 
 @jitclass(geometry_grid_cartesian_3d_spec)
 class GeometryGridCartesian3D(object):
-    def __init__(self, x_coord, y_coord, z_coord, time_explosion, cell_width):
+    def __init__(self, x_coord, y_coord, z_coord, cell_width):
         """
         Model for the 3D Cartesian grid system
 
@@ -115,7 +111,6 @@ class GeometryGridCartesian3D(object):
         x_coord : numpy.ndarray
         y_coord : numpy.ndarray
         z_coord : numpy.ndarray
-        time_explosion : float
         cell_width : float
 
         Notes
@@ -125,7 +120,6 @@ class GeometryGridCartesian3D(object):
         self.x_coord = x_coord
         self.y_coord = y_coord
         self.z_coord = z_coord
-        self.time_explosion = time_explosion
         self.cell_width = cell_width
 
 
