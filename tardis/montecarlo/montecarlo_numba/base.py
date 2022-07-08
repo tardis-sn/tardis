@@ -135,19 +135,31 @@ def montecarlo_radial1d(
     # Condition for Checking if RPacket Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
         runner.rpacket_tracker = rpacket_trackers
-        len_df = sum([len(tracker.r) for tracker in rpacket_trackers])
-        runner.rpacket_tracker_df = pd.DataFrame(
-            columns=["index", "status", "r", "nu", "mu", "energy", "shell_id"],
-            index=np.arange(len_df),
-        )
-        cur_index = 0
-        for rpacket_tracker in rpacket_trackers:
-            prev_index = cur_index
-            cur_index = prev_index + len(rpacket_tracker.r)
-            for column_name in runner.rpacket_tracker_df.columns:
-                runner.rpacket_tracker_df[column_name].iloc[
-                    prev_index:cur_index
-                ] = getattr(rpacket_tracker, column_name)
+        runner.rpacket_tracker_df = obj_list_to_dataframe(rpacket_trackers)
+
+
+def obj_list_to_dataframe(trackers_list):
+    rtracker_dict_list = []
+    index_array = []
+    for i in trackers_list:
+        for j in range(len(i.r)):
+            index_array.append(i.index)
+            rtracker_dict_list.append(
+                [
+                    i.status[j],
+                    i.r[j],
+                    i.nu[j],
+                    i.mu[j],
+                    i.energy[j],
+                    i.shell_id[j],
+                ]
+            )
+    index_array = [np.array(index_array), np.arange(len(index_array))]
+    return pd.DataFrame(
+        rtracker_dict_list,
+        index=index_array,
+        columns=["status", "r", "nu", "mu", "energy", "shell_id"],
+    )
 
 
 @njit(**njit_dict)
