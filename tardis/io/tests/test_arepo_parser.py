@@ -11,7 +11,7 @@ DATA_PATH = os.path.join(tardis.__path__[0], "io", "tests", "data")
 
 
 @pytest.fixture
-def get_cone_csvy_model():
+def get_cone_csvy_model(get_arepo_test_data):
     datafile = get_arepo_test_data()
     with open(datafile, "r") as json_file:
         data = json.loads(json.load(json_file))
@@ -54,7 +54,7 @@ def get_cone_csvy_model():
 
 
 @pytest.fixture
-def get_full_csvy_model():
+def get_full_csvy_model(get_arepo_test_data):
     datafile = get_arepo_test_data()
     with open(datafile, "r") as json_file:
         data = json.loads(json.load(json_file))
@@ -123,7 +123,6 @@ def get_full_reference_data():
 
 def test_cone_profile(get_cone_csvy_model, get_cone_reference_data):
     assert get_cone_csvy_model == get_cone_reference_data
-
 
 def test_full_profile(get_full_csvy_model, get_full_reference_data):
     assert get_full_csvy_model == get_full_reference_data
