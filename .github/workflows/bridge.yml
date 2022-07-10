@@ -138,7 +138,7 @@ jobs:
           # path: kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
           
       - name: Print path
-        run: python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
+        run: python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' unit_test_data.h5
         
 
       - name: Run notebook to test spectrum
