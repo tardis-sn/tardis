@@ -48,9 +48,9 @@ def test_rpacket_trackers_to_dataframe(simulation_rpacket_tracking_enabled):
         sum([len(tracker.r) for tracker in sim.runner.rpacket_tracker]),
         6,
     )
-    assert npt.assert_array_equal(
+    npt.assert_array_equal(
         sim.runner.rpacket_tracker_df.columns.values,
-        ["status", "r", "nu", "mu", "energy", "shell_id"],
+        np.array(["status", "r", "nu", "mu", "energy", "shell_id"]),
     )
 
     # check all data with rpacket_tracker
