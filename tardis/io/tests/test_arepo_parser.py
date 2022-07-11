@@ -49,7 +49,6 @@ def get_cone_csvy_model(tardis_ref_path):
 
     print(testfile)
     os.remove(testfile)
-    os.remove(datafile)
 
     return data
 
@@ -91,7 +90,6 @@ def get_full_csvy_model(tardis_ref_path):
         data = file.readlines()
 
     os.remove(testfile)
-    os.remove(datafile)
 
     return data
 
@@ -120,5 +118,5 @@ def test_cone_profile(get_cone_csvy_model, get_cone_reference_data):
     assert get_cone_csvy_model == get_cone_reference_data
 
 
-#def test_full_profile(get_full_csvy_model, get_full_reference_data):
-#    assert get_full_csvy_model == get_full_reference_data
+def test_full_profile(get_full_csvy_model, get_full_reference_data):
+    assert get_full_csvy_model == get_full_reference_data
