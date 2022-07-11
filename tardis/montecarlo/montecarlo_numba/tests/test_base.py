@@ -2,6 +2,7 @@ import pytest
 import pandas as pd
 import os
 import numpy.testing as npt
+import numpy as np
 from copy import deepcopy
 from tardis.base import run_tardis
 from pandas.testing import assert_frame_equal
@@ -10,7 +11,9 @@ from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
 from tardis.simulation import Simulation
-from tardis.montecarlo.montecarlo_numba.base import obj_list_to_dataframe
+from tardis.montecarlo.montecarlo_numba.base import (
+    rpacket_trackers_to_dataframe,
+)
 
 
 @pytest.fixture(scope="module")
@@ -36,12 +39,12 @@ def test_montecarlo_radial1d():
     assert False
 
 
-def test_obj_list_to_dataframe(simulation_rpacket_tracking_enabled):
+def test_rpacket_trackers_to_dataframe(simulation_rpacket_tracking_enabled):
     sim = simulation_rpacket_tracking_enabled
-    df_to_check = obj_list_to_dataframe(sim.runner.rpacket_tracker)
+    rtracker_df = rpacket_trackers_to_dataframe(sim.runner.rpacket_tracker)
 
     # check df shape and column names
-    assert df_to_check.shape == (
+    assert rtracker_df.shape == (
         sum([len(tracker.r) for tracker in sim.runner.rpacket_tracker]),
         6,
     )
@@ -51,20 +54,20 @@ def test_obj_list_to_dataframe(simulation_rpacket_tracking_enabled):
     )
 
     # check all data with rpacket_tracker
-    rtracker_list = []
-    for i in sim.runner.rpacket_tracker:
-        for j in range(len(i.r)):
-            rtracker_list.append(
+    expected_rtrackers = []
+    for rpacket in sim.runner.rpacket_tracker:
+        for rpacket_step_no in range(len(rpacket.r)):
+            expected_rtrackers.append(
                 [
-                    i.status[j],
-                    i.r[j],
-                    i.nu[j],
-                    i.mu[j],
-                    i.energy[j],
-                    i.shell_id[j],
+                    rpacket.status[rpacket_step_no],
+                    rpacket.r[rpacket_step_no],
+                    rpacket.nu[rpacket_step_no],
+                    rpacket.mu[rpacket_step_no],
+                    rpacket.energy[rpacket_step_no],
+                    rpacket.shell_id[rpacket_step_no],
                 ]
             )
-    npt.assert_array_equal(df_to_check.to_numpy(), rtracker_list)
+    npt.assert_array_equal(rtracker_df.to_numpy(), np.array(expected_rtrackers))
 
 
 def test_montecarlo_main_loop(
