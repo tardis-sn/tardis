@@ -74,6 +74,7 @@ Mission Statement
     :caption: Physics Walkthrough
     :hidden:
     
+    physics/intro/index
     physics/setup/index
     physics/montecarlo/index
     physics/est_and_conv/index
