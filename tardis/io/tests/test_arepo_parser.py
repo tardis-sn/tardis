@@ -10,46 +10,11 @@ DATA_PATH = os.path.join(tardis.__path__[0], "io", "tests", "data")
 
 
 @pytest.fixture
-def get_line_csvy_model():
-    with open(os.path.join(DATA_PATH, "arepo_snapshot.json"), "r") as json_file:
-        data = json.loads(json.load(json_file))
-
-    pos, vel, rho, nucs, time = (
-        data["pos"],
-        data["vel"],
-        data["rho"],
-        data["xnuc"],
-        data["time"],
+def get_cone_csvy_model(tardis_ref_path):
+    datafile = os.path.join(
+        tardis_ref_path, "arepo_data", "arepo_snapshot.json"
     )
-    pos = np.array(pos)
-    vel = np.array(vel)
-    rho = np.array(rho)
-
-    # The nuclear data should be in a dict where each element has its own entry (with the key being the element name)
-    xnuc = {
-        "ni56": np.array(nucs[0]),
-        "si28": np.array(nucs[1]),
-    }
-
-    profile = arepo.LineProfile(pos, vel, rho, xnuc, time)
-
-    profile.create_profile(inner_radius=1e11, outer_radius=2e11)
-
-    testfile = profile.export(
-        20, os.path.join(DATA_PATH, "arepo_parser_test.csvy")
-    )
-
-    with open(testfile, "r") as file:
-        data = file.readlines()
-
-    os.remove(testfile)
-
-    return data
-
-
-@pytest.fixture
-def get_cone_csvy_model():
-    with open(os.path.join(DATA_PATH, "arepo_snapshot.json"), "r") as json_file:
+    with open(datafile, "r") as json_file:
         data = json.loads(json.load(json_file))
 
     pos, vel, rho, nucs, time = (
@@ -89,8 +54,11 @@ def get_cone_csvy_model():
 
 
 @pytest.fixture
-def get_full_csvy_model():
-    with open(os.path.join(DATA_PATH, "arepo_snapshot.json"), "r") as json_file:
+def get_full_csvy_model(tardis_ref_path):
+    datafile = os.path.join(
+        tardis_ref_path, "arepo_data", "arepo_snapshot.json"
+    )
+    with open(datafile, "r") as json_file:
         data = json.loads(json.load(json_file))
 
     pos, vel, rho, nucs, time = (
@@ -127,16 +95,6 @@ def get_full_csvy_model():
 
 
 @pytest.fixture
-def get_line_reference_data():
-    with open(
-        os.path.join(DATA_PATH, "arepo_line_reference_model.csvy"), "r"
-    ) as file:
-        data = file.readlines()
-
-    return data
-
-
-@pytest.fixture
 def get_cone_reference_data():
     with open(
         os.path.join(DATA_PATH, "arepo_cone_reference_model.csvy"), "r"
@@ -154,10 +112,6 @@ def get_full_reference_data():
         data = file.readlines()
 
     return data
-
-
-def test_line_profile(get_line_csvy_model, get_line_reference_data):
-    assert get_line_csvy_model == get_line_reference_data
 
 
 def test_cone_profile(get_cone_csvy_model, get_cone_reference_data):
