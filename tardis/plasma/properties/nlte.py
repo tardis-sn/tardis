@@ -314,3 +314,140 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
         )
         helium_population.update(normalised)
         return helium_population
+
+class RateEquationSolver(ProcessingPlasmaProperty):
+    outputs = ("nlte_ion_population", "nlte_electron_densities")
+
+    def calculate(self, phi, number_density):
+        initial_electron_densities = number_density.sum(axis=0)
+        atomic_numbers = number_density.index
+        populations, index = self.initialize_populations_frame(
+            atomic_numbers, phi.columns
+        )
+        electron_densities = np.zeros(len(phi.columns))
+        for i, shell in enumerate(phi.columns):
+            solution_vector = self.prepare_solution_vector(
+                number_density[shell]
+            )
+            first_guess = self.prepare_first_guess(
+                number_density[shell], initial_electron_densities[shell]
+            )
+            solution = root(
+                self.population_objective_function,
+                first_guess,
+                args=(phi[shell], number_density[shell], solution_vector),
+                jac=True,
+            )
+            assert solution.success
+            electron_densities[i] = solution.x[-1]
+            populations[i] = solution.x[:-1]
+        populations[populations < 0] = 0
+
+        # TODO: check that number conservation still has high precision, if not, yell
+        index = pd.MultiIndex.from_arrays(
+            [index[:, 0], index[:, 1]], names=phi.index.names
+        )
+        populations = pd.DataFrame(
+            populations.T, index=index, columns=phi.columns
+        )
+        electron_densities = pd.Series(electron_densities, index=phi.columns)
+        return populations, electron_densities
+
+    def initialize_populations_frame(self, atomic_numbers, columns):
+        populations_frame_size = (atomic_numbers.values + 1).sum()
+        index = np.zeros((populations_frame_size, 2), dtype=np.int)
+        counter = 0
+        for atomic_number in atomic_numbers:
+            for i in range(atomic_number + 1):
+                index[counter] = (atomic_number, i)
+                counter += 1
+        solutions = np.empty(
+            (len(columns), populations_frame_size), dtype=np.float64
+        )
+        return solutions, index
+
+    def create_rate_equation_matrix(
+        self, phi, electron_density, number_density
+    ):
+        lte_rate_matrix_diag = []
+        last_row = []
+        atomic_numbers = number_density.index
+        for atomic_number in atomic_numbers:
+            phi_block = phi.loc[atomic_number]
+            lte_rate_matrix_block = self.lte_rate_matrix_block(
+                phi_block, electron_density
+            )
+            lte_rate_matrix_diag.append(lte_rate_matrix_block)
+            last_row.append(np.arange(0, atomic_number + 1))
+        lte_rate_matrix = block_diag(*lte_rate_matrix_diag, -1)
+        last_row_vector = np.hstack(last_row)
+        lte_rate_matrix[-1, :-1] = last_row_vector
+        return lte_rate_matrix
+
+    def lte_rate_matrix_block(self, phi_block, electron_density):
+        lte_rate_vector_block = np.hstack([-phi_block, 1.0])
+        lte_rate_matrix_block = np.diag(lte_rate_vector_block)
+        n_e_initial = np.ones(len(phi_block)) * electron_density
+        n_e_matrix = np.diag(n_e_initial, 1)
+        lte_rate_matrix_block += n_e_matrix
+        lte_rate_matrix_block[-1, :] = 1.0
+        return lte_rate_matrix_block
+
+    def solution_vector_block(self, atomic_number, number_density):
+        solution_vector = np.zeros(atomic_number + 1)
+        solution_vector[-1] = number_density
+        return solution_vector
+
+    def prepare_solution_vector(self, number_density):
+        atomic_numbers = number_density.index
+        solution_array = []
+        for atomic_number in atomic_numbers:
+            solution_array.append(
+                self.solution_vector_block(
+                    atomic_number, number_density.loc[atomic_number]
+                )
+            )
+        solution_vector = np.hstack(solution_array + [0])
+        return solution_vector
+
+    def population_objective_function(
+        self, populations, phi, number_density, solution_vector
+    ):
+        electron_density = populations[-1]
+        rate_matrix = self.create_rate_equation_matrix(
+            phi, electron_density, number_density
+        )
+        jacobian_matrix = self.jacobian_matrix(
+            populations, rate_matrix, number_density
+        )
+        return (
+            np.dot(rate_matrix, populations) - solution_vector,
+            jacobian_matrix,
+        )
+
+    def prepare_phi(self, phi):
+        phi[phi == 0.0] = 1.0e-10 * phi[phi > 0.0].min().min()
+        return phi
+
+    def prepare_first_guess(self, number_density, electron_density):
+        atomic_numbers = number_density.index
+        array_size = (number_density.index.values + 1).sum() + 1
+        first_guess = np.zeros(array_size)
+        index = 1
+        for atomic_number in atomic_numbers:
+            first_guess[index] = number_density.loc[atomic_number]
+            index += atomic_number + 1
+        first_guess[-1] = electron_density
+        return first_guess
+
+    def jacobian_matrix(self, populations, lte_rate_matrix, number_density):
+        atomic_numbers = number_density.index
+        index = atomic_numbers[0]
+        jacobian_matrix = lte_rate_matrix.copy()
+        jacobian_matrix[:-1, -1] = populations[1:]
+        jacobian_matrix[index, -1] = 0
+        for atomic_number in atomic_numbers[1:]:
+            index += 1 + atomic_number
+            jacobian_matrix[index, -1] = 0
+
+        return jacobian_matrix

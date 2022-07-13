@@ -1,4 +1,5 @@
 from tardis.plasma.properties import *
+from tardis.plasma.properties.nlte import RateEquationSolver
 
 
 class PlasmaPropertyCollection(list):
@@ -34,6 +35,7 @@ basic_properties = PlasmaPropertyCollection(
         StimulatedEmissionFactor,
         SelectedAtoms,
         ElectronTemperature,
+        RateEquationSolver,
     ]
 )
 lte_ionization_properties = PlasmaPropertyCollection([PhiSahaLTE])
