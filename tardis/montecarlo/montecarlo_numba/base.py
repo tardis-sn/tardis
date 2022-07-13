@@ -141,6 +141,14 @@ def montecarlo_radial1d(
 
 
 def rpacket_trackers_to_dataframe(rpacket_trackers):
+    """Generates a dataframe from the rpacket_trackers list of RPacketCollection Objects.
+
+    Args:
+        rpacket_trackers (numba.typed.typedlist.List): list of individual RPacketCollection class objects
+
+    Returns:
+        pandas.core.frame.DataFrame: Dataframe containing properties of RPackets
+    """
     rtracker_dict_list = []
     index_array = []
     step_array = []
