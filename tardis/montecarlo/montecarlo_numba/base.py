@@ -165,13 +165,23 @@ def rpacket_trackers_to_dataframe(rpacket_trackers):
                     rpacket.mu[rpacket_step_no],
                     rpacket.energy[rpacket_step_no],
                     rpacket.shell_id[rpacket_step_no],
+                    rpacket.interaction_type[rpacket_step_no],
                 ]
             )
     index_array = [np.array(index_array), np.array(step_array)]
     rpacket_df = pd.DataFrame(
         rtracker_dict_list,
         index=index_array,
-        columns=["status", "seed", "r", "nu", "mu", "energy", "shell_id"],
+        columns=[
+            "status",
+            "seed",
+            "r",
+            "nu",
+            "mu",
+            "energy",
+            "shell_id",
+            "interaction_type",
+        ],
     )
     rpacket_df.index.names = ["index", "step"]
     return rpacket_df
