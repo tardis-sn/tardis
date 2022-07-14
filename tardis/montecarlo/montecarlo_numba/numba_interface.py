@@ -431,6 +431,7 @@ rpacket_tracker_spec = [
     ("mu", float64[:]),
     ("energy", float64[:]),
     ("shell_id", int64[:]),
+    ("interaction_type", int64[:]),
     ("interact_id", int64),
 ]
 
@@ -460,6 +461,8 @@ class RPacketTracker(object):
             Energy possessed by the RPacket at a particular shell
         shell_id : int
             Current Shell No in which the RPacket is present
+        interaction_type: int
+            Type of interaction the rpacket undergoes
         interact_id : int
             Internal counter for the interactions that a particular RPacket undergoes
     """
@@ -474,6 +477,7 @@ class RPacketTracker(object):
         self.mu = np.empty(self.length, dtype=np.float64)
         self.energy = np.empty(self.length, dtype=np.float64)
         self.shell_id = np.empty(self.length, dtype=np.int64)
+        self.interaction_type = np.empty(self.length, dtype=np.int64)
         self.interact_id = 0
 
     def track(self, r_packet):
@@ -485,6 +489,7 @@ class RPacketTracker(object):
             temp_mu = np.empty(temp_length, dtype=np.float64)
             temp_energy = np.empty(temp_length, dtype=np.float64)
             temp_shell_id = np.empty(temp_length, dtype=np.int64)
+            temp_interaction_type = np.empty(temp_length, dtype=np.int64)
 
             temp_status[: self.length] = self.status
             temp_r[: self.length] = self.r
@@ -492,6 +497,7 @@ class RPacketTracker(object):
             temp_mu[: self.length] = self.mu
             temp_energy[: self.length] = self.energy
             temp_shell_id[: self.length] = self.shell_id
+            temp_interaction_type[: self.length] = self.interaction_type
 
             self.status = temp_status
             self.r = temp_r
@@ -499,6 +505,7 @@ class RPacketTracker(object):
             self.mu = temp_mu
             self.energy = temp_energy
             self.shell_id = temp_shell_id
+            self.interaction_type = temp_interaction_type
             self.length = temp_length
 
         self.index = r_packet.index
@@ -509,6 +516,7 @@ class RPacketTracker(object):
         self.mu[self.interact_id] = r_packet.mu
         self.energy[self.interact_id] = r_packet.energy
         self.shell_id[self.interact_id] = r_packet.current_shell_id
+        self.interaction_type[self.interact_id] = r_packet.last_interaction_type
         self.interact_id += 1
 
     def finalize_array(self):
@@ -518,6 +526,7 @@ class RPacketTracker(object):
         self.mu = self.mu[: self.interact_id]
         self.energy = self.energy[: self.interact_id]
         self.shell_id = self.shell_id[: self.interact_id]
+        self.interaction_type = self.interaction_type[: self.interact_id]
 
 
 base_estimators_spec = [
