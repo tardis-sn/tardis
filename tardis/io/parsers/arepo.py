@@ -740,6 +740,58 @@ class FullProfile(Profile):
         return self
 
 
+class CartesianProfile:
+    """
+    Class for 3D Cartesian profiles extracted from the full snapshot,
+    Only works if arepo-snap-utils are available.
+    """
+
+    def __init__(self, arepo_snapshot, species):
+        """
+        Parameters
+        ----------
+        arepo_snapshot : ArepoSnapshot
+            Arepo snapshot which will be mapped to 3D Grid
+        species : list of str
+            Names of the species to be exported. Have to be the
+            same as in the species-file of the Arepo simulation
+
+        """
+
+        try:
+            import gadget_snap
+        except ModuleNotFoundError:
+            raise ImportError(
+                "Please make sure you have arepo-snap-util installed if you want to use 3DProfile."
+            )
+
+        self.arepo_snapshot = arepo_snapshot
+        self.species = species
+
+    def create_profile(self, res, box=None, numthreads=1):
+        """
+        Creates a profile from the full snapshot. Maps all values to
+        a 3D Cartesian grid.
+
+        Parameters
+        ----------
+        res : int
+            Resolution of the Cartesian grid
+        box : list of float
+            Region of snapshot which will be mapped to 3D.
+            Default: None
+        numthreads : int
+            Number of threads used in mapping procedure.
+
+        Returns
+        -------
+        profile : 3DProfile object
+
+        """
+
+        return self
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
