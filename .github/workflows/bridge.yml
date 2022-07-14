@@ -138,11 +138,17 @@ jobs:
           # path: kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
 
       - name: Download reference data for simulation data
-        run: wget -q https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata/items?path=unit_test_data.h5&resolveLfs=true
+        run: wget -O unit_test_data_new.h5 https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata/items?path=unit_test_data.h5&resolveLfs=true
 
       - name: Print path
-        run: python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' unit_test_data.h5
-        
+        run: python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' unit_test_data_new.h5
+      
+      - name: Upload reference data as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: reference data
+          path: unit_test_data_new.h5
+
       - name: Print directory tree
         run: tree
 
