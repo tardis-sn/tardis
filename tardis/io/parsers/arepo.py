@@ -18,9 +18,6 @@ class ArepoSnapshot:
         alpha=0.0,
         beta=0.0,
         gamma=0.0,
-        boxsize=1e12,
-        resolution=512,
-        numthreads=4,
     ):
         """
         Loads relevant data for conversion from Arepo snapshot to a
@@ -50,16 +47,6 @@ class ArepoSnapshot:
             Euler angle gamma for rotation of the desired line-
             of-sight to the x-axis. Only usable with snapshots.
             Default: 0.0
-        boxsize : float
-            Size of the box (in cm) from which data is mapped
-            to a Cartesian grid. Only usable with snapshots.
-            Default: 1e12
-        resolution : int
-            Resolution of the Cartesian grid. Only usable
-            with snapshots. Default: 512
-        numthreads : int
-            Number of threads with which Cartesian mapping
-            is done. Default: 4
         """
 
         try:
@@ -112,156 +99,20 @@ class ArepoSnapshot:
         self.s.rotateto(rotmat[0], dir2=rotmat[1], dir3=rotmat[2])
 
         self.time = self.s.time
-
-        self.pos = np.array(
-            self.s.mapOnCartGrid(
-                "pos",
-                box=[boxsize, boxsize, boxsize],
-                center=self.s.centerofmass(),
-                res=resolution,
-                numthreads=numthreads,
-            )
-        )
+        self.pos = np.array(self.s.data["pos"][: self.s.nparticlesall[0]])
+        self.pos = self.pos.T
+        # Update position to CoM frame
         for i in range(3):
             self.pos[i] -= self.s.centerofmass()[i]
-
-        self.rho = np.array(
-            self.s.mapOnCartGrid(
-                "rho",
-                box=[boxsize, boxsize, boxsize],
-                center=self.s.centerofmass(),
-                res=resolution,
-                numthreads=numthreads,
-            )
-        )
-
-        self.vel = np.array(
-            self.s.mapOnCartGrid(
-                "vel",
-                box=[boxsize, boxsize, boxsize],
-                center=self.s.centerofmass(),
-                res=resolution,
-                numthreads=numthreads,
-            )
-        )
-
+        self.rho = np.array(self.s.data["rho"])
+        self.vel = np.array(self.s.data["vel"][: self.s.nparticlesall[0]])
+        self.vel = self.vel.T
         self.nuc_dict = {}
 
         for i, spec in enumerate(self.species):
             self.nuc_dict[spec] = np.array(
-                self.nucMapOnCartGrid(
-                    self.s,
-                    spec,
-                    self.spec_ind[i],
-                    box=[boxsize, boxsize, boxsize],
-                    res=resolution,
-                    center=self.s.centerofmass(),
-                    numthreads=numthreads,
-                )
+                self.s.data["xnuc"][:, self.spec_ind[i]]
             )
-
-    def nucMapOnCartGrid(
-        self,
-        snapshot,
-        species,
-        ind,
-        box,
-        res=512,
-        numthreads=1,
-        value="xnuc",
-        center=False,
-        saveas=False,
-        use_only_cells=None,
-    ):
-        """
-        Helper funciton to extract nuclear composition from snapshots
-        """
-
-        try:
-            import pylab
-            import calcGrid
-        except ModuleNotFoundError:
-            raise ImportError(
-                "Please make sure you have arepo-snap-util installed if you want to directly import Arepo snapshots."
-            )
-        if type(center) == list:
-            center = pylab.array(center)
-        elif type(center) != np.ndarray:
-            center = snapshot.center
-
-        if type(box) == list:
-            box = pylab.array(box)
-        elif type(box) != np.ndarray:
-            box = np.array(
-                [snapshot.boxsize, snapshot.boxsize, snapshot.boxsize]
-            )
-
-        if type(res) == list:
-            res = pylab.array(res)
-        elif type(res) != np.ndarray:
-            res = np.array([res] * 3)
-
-        if use_only_cells is None:
-            use_only_cells = np.arange(snapshot.nparticlesall[0], dtype="int32")
-
-        pos = snapshot.pos[use_only_cells, :].astype("float64")
-        px = np.abs(pos[:, 0] - center[0])
-        py = np.abs(pos[:, 1] - center[1])
-        pz = np.abs(pos[:, 2] - center[2])
-
-        (pp,) = np.where(
-            (px < 0.5 * box[0]) & (py < 0.5 * box[1]) & (pz < 0.5 * box[2])
-        )
-        print("Selected %d of %d particles." % (pp.size, snapshot.npart))
-
-        posdata = pos[pp]
-        valdata = snapshot.data[value][use_only_cells, ind][pp].astype(
-            "float64"
-        )
-
-        if valdata.ndim == 1:
-            data = calcGrid.calcASlice(
-                posdata,
-                valdata,
-                nx=res[0],
-                ny=res[1],
-                nz=res[2],
-                boxx=box[0],
-                boxy=box[1],
-                boxz=box[2],
-                centerx=center[0],
-                centery=center[1],
-                centerz=center[2],
-                grid3D=True,
-                numthreads=numthreads,
-            )
-            grid = data["grid"]
-        else:
-            # We are going to generate ndim 3D grids and stack them together
-            # in a grid of shape (valdata.shape[1],res,res,res)
-            grid = []
-            for dim in range(valdata.shape[1]):
-                data = calcGrid.calcASlice(
-                    posdata,
-                    valdata[:, dim],
-                    nx=res[0],
-                    ny=res[1],
-                    nz=res[2],
-                    boxx=box[0],
-                    boxy=box[1],
-                    boxz=box[2],
-                    centerx=center[0],
-                    centery=center[1],
-                    centerz=center[2],
-                    grid3D=True,
-                    numthreads=numthreads,
-                )
-                grid.append(data["grid"])
-            grid = np.stack([subgrid for subgrid in grid])
-        if saveas:
-            grid.tofile(saveas)
-
-        return grid
 
     def get_grids(self):
         """
@@ -383,8 +234,8 @@ class Profile:
 
         ax2.grid()
         ax2.set_ylabel("Profile (arb. unit)")
-        ax2.set_xlabel("Radial position (cm)")  # TODO astropy unit support
-        ax2.set_title("Profiles along the positive axis")
+        ax2.set_xlabel("Radial position (cm)")
+        ax2.set_title("Profiles along the negative axis")
 
         # Some styling
         fig.tight_layout()
@@ -622,146 +473,6 @@ class Profile:
         )
 
 
-class LineProfile(Profile):
-    """
-    Class for profiles extrected along a line, i.e. the x-axis.
-    Extends Profile.
-    """
-
-    def create_profile(
-        self,
-        inner_radius=None,
-        outer_radius=None,
-        show_plot=True,
-        save_plot=None,
-        plot_dpi=600,
-    ):
-        """
-        Creates a profile along the x-axis
-
-        Parameters
-        ----------
-        inner_radius : float
-            Inner radius where the profiles will be cut off. Default: None
-        outer_radius : float
-            Outer radius where the profiles will be cut off. Default: None
-        show_plot : bool
-            Specifies if a plot is to be shown after the creation of the
-            profile. Default: True
-        save_plot : str
-            Location where the plot is being saved. Default: None
-        plot_dpi : int
-            Dpi of the saved plot. Default: 600
-
-        Returns
-        -------
-        profile : LineProfile object
-
-        """
-
-        midpoint = int(np.ceil(len(self.rho) / 2))
-
-        # Extract radialprofiles
-        pos_p = np.sqrt(
-            (self.pos[0, midpoint, midpoint:, midpoint]) ** 2
-            + (self.pos[1, midpoint, midpoint:, midpoint]) ** 2
-            + (self.pos[2, midpoint, midpoint:, midpoint]) ** 2
-        )
-        pos_n = np.sqrt(
-            self.pos[0, midpoint, :midpoint, midpoint] ** 2
-            + self.pos[1, midpoint, :midpoint, midpoint] ** 2
-            + self.pos[2, midpoint, :midpoint, midpoint] ** 2
-        )
-
-        vel_p = np.sqrt(
-            self.vel[0, midpoint, midpoint:, midpoint] ** 2
-            + self.vel[1, midpoint, midpoint:, midpoint] ** 2
-            + self.vel[2, midpoint, midpoint:, midpoint] ** 2
-        )
-        vel_n = np.sqrt(
-            self.vel[0, midpoint, :midpoint, midpoint] ** 2
-            + self.vel[1, midpoint, :midpoint, midpoint] ** 2
-            + self.vel[2, midpoint, :midpoint, midpoint] ** 2
-        )
-
-        rho_p = self.rho[midpoint, midpoint:, midpoint]
-        rho_n = self.rho[midpoint, :midpoint, midpoint]
-
-        spec_p = {}
-        spec_n = {}
-
-        for spec in self.species:
-            spec_p[spec] = self.xnuc[spec][midpoint, midpoint:, midpoint]
-            spec_n[spec] = self.xnuc[spec][midpoint, :midpoint, midpoint]
-
-        self.pos_prof_p = np.sort(pos_p)
-        self.pos_prof_n = np.sort(pos_n)
-
-        if outer_radius is None:
-            maxradius_p = max(self.pos_prof_p)
-            maxradius_n = max(self.pos_prof_n)
-        else:
-            maxradius_p = outer_radius
-            maxradius_n = outer_radius
-
-        if inner_radius is None:
-            minradius_p = min(self.pos_prof_p)
-            minradius_n = min(self.pos_prof_n)
-        else:
-            minradius_p = inner_radius
-            minradius_n = inner_radius
-
-        mask_p = np.logical_and(
-            self.pos_prof_p >= minradius_p, self.pos_prof_p <= maxradius_p
-        )
-        mask_n = np.logical_and(
-            self.pos_prof_n >= minradius_n, self.pos_prof_n <= maxradius_n
-        )
-
-        if not mask_p.any() or not mask_n.any():
-            raise ValueError("No points left between inner and outer radius.")
-
-        self.rho_prof_p = np.array(
-            [x for _, x in sorted(zip(pos_p, rho_p), key=lambda pair: pair[0])]
-        )[mask_p]
-        self.rho_prof_n = np.array(
-            [x for _, x in sorted(zip(pos_n, rho_n), key=lambda pair: pair[0])]
-        )[mask_n]
-
-        self.vel_prof_p = np.array(
-            [x for _, x in sorted(zip(pos_p, vel_p), key=lambda pair: pair[0])]
-        )[mask_p]
-        self.vel_prof_n = np.array(
-            [x for _, x in sorted(zip(pos_n, vel_n), key=lambda pair: pair[0])]
-        )[mask_n]
-
-        for spec in self.species:
-            self.xnuc_prof_p[spec] = np.array(
-                [
-                    x
-                    for _, x in sorted(
-                        zip(pos_p, spec_p[spec]), key=lambda pair: pair[0]
-                    )
-                ]
-            )[mask_p]
-            self.xnuc_prof_n[spec] = np.array(
-                [
-                    x
-                    for _, x in sorted(
-                        zip(pos_n, spec_n[spec]), key=lambda pair: pair[0]
-                    )
-                ]
-            )[mask_n]
-
-        self.pos_prof_p = self.pos_prof_p[mask_p]
-        self.pos_prof_n = self.pos_prof_n[mask_n]
-
-        if show_plot:
-            self.plot_profile(save=save_plot, dpi=plot_dpi)
-
-        return self
-
-
 class ConeProfile(Profile):
     """
     Class for profiles extracted inside a cone around the x-axis.
@@ -790,17 +501,10 @@ class ConeProfile(Profile):
             Inner radius where the profiles will be cut off. Default: None
         outer_radius : float
             Outer radius where the profiles will be cut off. Default: None
-        show_plot : bool
-            Specifies if a plot is to be shown after the creation of the
-            profile. Default: True
-        save_plot : str
-            Location where the plot is being saved. Default: None
-        plot_dpi : int
-            Dpi of the saved plot. Default: 600
 
         Returns
         -------
-        profile : LineProfile object
+        profile : ConeProfile object
 
         """
 
@@ -916,9 +620,6 @@ class ConeProfile(Profile):
         self.pos_prof_p = self.pos_prof_p[mask_p]
         self.pos_prof_n = self.pos_prof_n[mask_n]
 
-        if show_plot:
-            self.plot_profile(save=save_plot, dpi=plot_dpi)
-
         return self
 
 
@@ -947,17 +648,10 @@ class FullProfile(Profile):
             Inner radius where the profiles will be cut off. Default: None
         outer_radius : float
             Outer radius where the profiles will be cut off. Default: None
-        show_plot : bool
-            Specifies if a plot is to be shown after the creation of the
-            profile. Default: True
-        save_plot : str
-            Location where the plot is being saved. Default: None
-        plot_dpi : int
-            Dpi of the saved plot. Default: 600
 
         Returns
         -------
-        profile : LineProfile object
+        profile : FullProfile object
 
         """
 
@@ -1047,9 +741,6 @@ class FullProfile(Profile):
         self.pos_prof_p = self.pos_prof_p[mask_p]
         self.pos_prof_n = self.pos_prof_n[mask_n]
 
-        if show_plot:
-            self.plot_profile(save=save_plot, dpi=plot_dpi)
-
         return self
 
 
@@ -1130,28 +821,13 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--profile",
-        help="How to build profile. Available options: [line, cone, full]. Default: cone",
+        help="How to build profile. Available options: [cone, full]. Default: cone",
         default="cone",
-        choices=["line", "cone", "full"],
+        choices=["cone", "full"],
     )
-    parser.add_argument(
-        "--resolution",
-        help="Resolution of Cartesian grid extracted from snapshot. Default: 512",
-        type=int,
-        default=512,
-    )
-    parser.add_argument(
-        "--numthreads",
-        help="Number of threads used in snapshot tree walk. Default: 4",
-        type=int,
-        default=4,
-    )
-    parser.add_argument("--save_plot", help="File name of saved plot.")
+    parser.add_argument("--plot", help="File name of saved plot.")
     parser.add_argument(
         "--dpi", help="Dpi of saved plot. Default: 600", type=int, default=600
-    )
-    parser.add_argument(
-        "--plot_rebinned", help="File name of plot after rebinning"
     )
 
     args = parser.parse_args()
@@ -1170,9 +846,7 @@ if __name__ == "__main__":
 
     pos, vel, rho, xnuc, time = snapshot.get_grids()
 
-    if args.profile == "line":
-        profile = LineProfile(pos, vel, rho, xnuc, time)
-    elif args.profile == "cone":
+    if args.profile == "cone":
         profile = ConeProfile(pos, vel, rho, xnuc, time)
     elif args.profile == "full":
         profile = FullProfile(pos, vel, rho, xnuc, time)
@@ -1182,18 +856,14 @@ if __name__ == "__main__":
             opening_angle=args.opening_angle,
             inner_radius=args.inner_radius,
             outer_radius=args.outer_radius,
-            save_plot=args.save_plot,
-            plot_dpi=args.dpi,
         )
     else:
         profile.create_profile(
             inner_radius=args.inner_radius,
             outer_radius=args.outer_radius,
-            save_plot=args.save_plot,
-            plot_dpi=args.dpi,
         )
 
     profile.export(args.nshells, args.save)
 
-    if args.plot_rebinned:
-        profile.plot_profile(save=args.plot_rebinned, dpi=args.dpi)
+    if args.plot:
+        profile.plot_profile(save=args.plot, dpi=args.dpi)
