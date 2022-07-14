@@ -1,11 +1,8 @@
 import os
-import sys
 import argparse
-import warnings
 
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 from scipy import stats
 
 
@@ -51,7 +48,6 @@ class ArepoSnapshot:
 
         try:
             import gadget_snap
-            import calcGrid
         except ModuleNotFoundError:
             raise ImportError(
                 "Please make sure you have arepo-snap-util installed if you want to directly import Arepo snapshots."
