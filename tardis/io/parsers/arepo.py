@@ -66,6 +66,7 @@ class ArepoSnapshot:
             hdf5=True,
             quiet=True,
             lazy_load=True,
+            loadonlytype=[0],
         )
 
         rz_yaw = np.array(
@@ -746,15 +747,12 @@ class CartesianProfile:
     Only works if arepo-snap-utils are available.
     """
 
-    def __init__(self, arepo_snapshot, species):
+    def __init__(self, arepo_snapshot):
         """
         Parameters
         ----------
         arepo_snapshot : ArepoSnapshot
             Arepo snapshot which will be mapped to 3D Grid
-        species : list of str
-            Names of the species to be exported. Have to be the
-            same as in the species-file of the Arepo simulation
 
         """
 
@@ -766,7 +764,6 @@ class CartesianProfile:
             )
 
         self.arepo_snapshot = arepo_snapshot
-        self.species = species
 
     def create_profile(self, res, box=None, numthreads=1):
         """
@@ -789,7 +786,149 @@ class CartesianProfile:
 
         """
 
+        print("Mapping velocities to 3D grid...")
+        self.pos_grid = self.arepo_snapshot.s.mapOnCartGrid(
+            "pos", res=res, box=box, numthreads=numthreads
+        )
+        print("Mapping densities to 3D grid...")
+        self.rho_grid = self.arepo_snapshot.s.mapOnCartGrid(
+            "rho", res=res, box=box, numthreads=numthreads
+        )
+        print("Mapping nuclear abundances to 3D grid...")
+        self.xnuc_grid = self.arepo_snapshot.s.mapOnCartGrid(
+            "xnuc", res=res, box=box, numthreads=numthreads
+        )
+
         return self
+
+    def export(
+        self,
+        filename,
+        species,
+        photosphere,
+        overwrite=False,
+    ):
+        """
+        Function to export a profile as csvy file. Either the
+        positive or negative direction can be exported. By default
+        does not overwrite existing files, saves to <filename>_<number>.csvy
+        file instead.
+
+        Parameters
+        ----------
+        nshells : int
+            Number of shells to be exported.
+        filename : str
+            Name of the exported file
+        species : list of str
+            Names of the species to be exported. Have to be the
+            same as in the species-file of the Arepo simulation
+        photosphere : float
+            Radius of the photosphere. All cells within this radius
+            will be considered 'dead cells' for the radiative transfer.
+        overwrite: bool
+            If true, will overwrite if a file of the same name exists.
+            By default False.
+
+        Returns
+        -------
+        filename : str
+            Name of the actual saved file
+        """
+
+        # Find a free filename
+        if filename.endswith(".csvy"):
+            filename = filename.replace(".csvy", "")
+
+        if os.path.exists("%s.csvy" % filename) and not overwrite:
+            i = 0
+            while os.path.exists("%s_%s.csvy" % (filename, i)):
+                i += 1
+            filename = "%s_%s.csvy" % (filename, i)
+        else:
+            filename = "%s.csvy" % filename
+
+        with open(filename, "w") as f:
+            # WRITE HEADER
+            f.write(
+                "".join(
+                    [
+                        "---\n",
+                        "name: csvy_full\n",
+                        "model_density_time_0: {:g} day\n".format(
+                            self.arepo_snapshot.time / (3600 * 24)
+                        ),
+                        "model_isotope_time_0: {:g} day\n".format(
+                            self.arepo_snapshot.time / (3600 / 24)
+                        ),
+                        "model_photosphere_radius: {:g} cm\n".format(
+                            photosphere
+                        ),
+                        "description: Config file for TARDIS from Arepo snapshot.\n",
+                        "tardis_model_config_version: v1.0\n",
+                        "datatype:\n",
+                        "  fields:\n",
+                        "    -  name: x_coord\n",
+                        "       unit: cm\n",
+                        "       desc: x-component of the coordinate grid.\n",
+                        "    -  name: y_coord\n",
+                        "       unit: cm\n",
+                        "       desc: y-component of the coordinate grid.\n",
+                        "    -  name: z_coord\n",
+                        "       unit: cm\n",
+                        "       desc: z-component of the coordinate grid.\n",
+                        "    -  name: density\n",
+                        "       unit: g/cm^3\n",
+                        "       desc: density of shell.\n",
+                    ]
+                )
+            )
+
+            for spec in species:
+                f.write(
+                    "".join(
+                        [
+                            "    -  name: %s\n" % spec.capitalize(),
+                            "       desc: fractional %s abundance.\n"
+                            % spec.capitalize(),
+                        ]
+                    )
+                )
+
+            f.write(
+                "".join(
+                    [
+                        "\n",
+                        "---\n",
+                    ]
+                )
+            )
+
+            # WRITE DATA
+            datastring = ["x_coord,", "y_coord,", "z_coord,", "density,"]
+            for spec in species[:-1]:
+                datastring.append("%s," % spec.capitalize())
+            datastring.append("%s" % species[-1].capitalize())
+            f.write("".join(datastring))
+
+            for iz in range(self.pos_grid.shape[-1]):
+                for iy in range(self.pos_grid.shape[-1]):
+                    for ix in range(self.pos_grid.shape[-1]):
+                        exp = [
+                            self.pos_grid[0, ix, iy, iz],
+                            self.pos_grid[1, ix, iy, iz],
+                            self.pos_grid[2, ix, iy, iz],
+                            self.rho_grid[ix, iy, iz],
+                        ]
+                        for spec, _ in enumerate(species):
+                            exp.append(self.xnuc_grid[spec, ix, iy, iz])
+                        # Write collected data
+                        f.write("\n")
+                        for i in range(len(exp) - 1):
+                            f.write("%g," % exp[i])
+                        f.write("%g" % exp[-1])
+
+        return filename
 
 
 if __name__ == "__main__":
@@ -834,7 +973,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-n",
         "--nshells",
-        help="Number of shells to create. Default: 10",
+        help="Number of shells to create. Also used as resolution for CartesianProfile. Default: 10",
         type=int,
         default=10,
     )
@@ -864,18 +1003,24 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--inner_radius",
-        help="Inner radius to which to build profile.",
+        help="Inner radius to which to build profile. Also used as phostospheric radis for CartesianProfile.",
         type=float,
     )
     parser.add_argument(
         "--profile",
-        help="How to build profile. Available options: [cone, full]. Default: cone",
+        help="How to build profile. Available options: [cone, full, 3d]. Default: cone",
         default="cone",
-        choices=["cone", "full"],
+        choices=["cone", "full", "3d"],
     )
     parser.add_argument("--plot", help="File name of saved plot.")
     parser.add_argument(
         "--dpi", help="Dpi of saved plot. Default: 600", type=int, default=600
+    )
+    parser.add_argument(
+        "--numthreads",
+        type=int,
+        help="Number of threads used for mapping to Carthesian grid. Default: 4",
+        default=4,
     )
 
     args = parser.parse_args()
@@ -887,31 +1032,41 @@ if __name__ == "__main__":
         alpha=args.alpha,
         beta=args.beta,
         gamma=args.gamma,
-        boxsize=args.boxsize,
-        resolution=args.resolution,
-        numthreads=args.numthreads,
     )
 
-    pos, vel, rho, xnuc, time = snapshot.get_grids()
-
-    if args.profile == "cone":
-        profile = ConeProfile(pos, vel, rho, xnuc, time)
-    elif args.profile == "full":
-        profile = FullProfile(pos, vel, rho, xnuc, time)
-
-    if args.profile == "cone":
+    if args.profile == "3d":
+        if args.inner_radius is None:
+            raise ValueError("Inner boundary radius missing")
+        profile = CartesianProfile(snapshot)
         profile.create_profile(
-            opening_angle=args.opening_angle,
-            inner_radius=args.inner_radius,
-            outer_radius=args.outer_radius,
+            args.nshells,
+            [args.boxsize, args.boxsize, args.boxsize],
+            args.numthreads,
         )
+
+        profile.export(args.save, args.elements, args.inner_radius)
+
     else:
-        profile.create_profile(
-            inner_radius=args.inner_radius,
-            outer_radius=args.outer_radius,
-        )
+        pos, vel, rho, xnuc, time = snapshot.get_grids()
 
-    profile.export(args.nshells, args.save)
+        if args.profile == "cone":
+            profile = ConeProfile(pos, vel, rho, xnuc, time)
+        elif args.profile == "full":
+            profile = FullProfile(pos, vel, rho, xnuc, time)
 
-    if args.plot:
-        profile.plot_profile(save=args.plot, dpi=args.dpi)
+        if args.profile == "cone":
+            profile.create_profile(
+                opening_angle=args.opening_angle,
+                inner_radius=args.inner_radius,
+                outer_radius=args.outer_radius,
+            )
+        else:
+            profile.create_profile(
+                inner_radius=args.inner_radius,
+                outer_radius=args.outer_radius,
+            )
+
+        profile.export(args.nshells, args.save)
+
+        if args.plot:
+            profile.plot_profile(save=args.plot, dpi=args.dpi)
