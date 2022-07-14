@@ -3,6 +3,8 @@ import os
 
 import numpy as np
 import pandas as pd
+from scipy.optimize import root
+from scipy.linalg import block_diag
 
 from tardis.plasma.properties.base import (
     PreviousIterationProperty,
@@ -15,6 +17,7 @@ __all__ = [
     "PreviousBetaSobolev",
     "HeliumNLTE",
     "HeliumNumericalNLTE",
+    "NLTEIndexHelper",
 ]
 
 logger = logging.getLogger(__name__)
@@ -318,9 +321,10 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
 class RateEquationSolver(ProcessingPlasmaProperty):
     outputs = ("nlte_ion_population", "nlte_electron_densities")
 
-    def calculate(self, phi, number_density):
+    def calculate(self, phi, number_density, rate_matrix_index):
         initial_electron_densities = number_density.sum(axis=0)
         atomic_numbers = number_density.index
+        last_row = self.prepare_last_row(atomic_numbers)
         populations, index = self.initialize_populations_frame(
             atomic_numbers, phi.columns
         )
@@ -335,7 +339,7 @@ class RateEquationSolver(ProcessingPlasmaProperty):
             solution = root(
                 self.population_objective_function,
                 first_guess,
-                args=(phi[shell], number_density[shell], solution_vector),
+                args=(phi[shell], number_density[shell], solution_vector, rate_matrix_index, last_row),
                 jac=True,
             )
             assert solution.success
@@ -367,22 +371,26 @@ class RateEquationSolver(ProcessingPlasmaProperty):
         return solutions, index
 
     def create_rate_equation_matrix(
-        self, phi, electron_density, number_density
+        self, phi, electron_density, number_density, rate_matrix_index, last_row
     ):
-        lte_rate_matrix_diag = []
-        last_row = []
+        rate_matrix = pd.DataFrame(0, columns=rate_matrix_index, index=rate_matrix_index)
+
         atomic_numbers = number_density.index
         for atomic_number in atomic_numbers:
+            ion_numbers = rate_matrix.loc[atomic_number].index.get_level_values(0)
             phi_block = phi.loc[atomic_number]
             lte_rate_matrix_block = self.lte_rate_matrix_block(
                 phi_block, electron_density
             )
-            lte_rate_matrix_diag.append(lte_rate_matrix_block)
-            last_row.append(np.arange(0, atomic_number + 1))
-        lte_rate_matrix = block_diag(*lte_rate_matrix_diag, -1)
-        last_row_vector = np.hstack(last_row)
-        lte_rate_matrix[-1, :-1] = last_row_vector
-        return lte_rate_matrix
+            rate_matrix.loc[(atomic_number, slice(None)), (atomic_number)] = lte_rate_matrix_block
+
+            nlte_ion_numbers = ion_numbers[rate_matrix.loc[atomic_number].index.get_level_values(1) == 'nlte_ion']
+            for ion_number in nlte_ion_numbers:
+                pass
+            #TODO: add stuff
+
+        rate_matrix.loc[('n_e', slice(None))] = last_row
+        return rate_matrix
 
     def lte_rate_matrix_block(self, phi_block, electron_density):
         lte_rate_vector_block = np.hstack([-phi_block, 1.0])
@@ -411,12 +419,12 @@ class RateEquationSolver(ProcessingPlasmaProperty):
         return solution_vector
 
     def population_objective_function(
-        self, populations, phi, number_density, solution_vector
+        self, populations, phi, number_density, solution_vector, rate_matrix_index, last_row
     ):
         electron_density = populations[-1]
         rate_matrix = self.create_rate_equation_matrix(
-            phi, electron_density, number_density
-        )
+            phi, electron_density, number_density, rate_matrix_index, last_row
+        ).values
         jacobian_matrix = self.jacobian_matrix(
             populations, rate_matrix, number_density
         )
@@ -451,3 +459,30 @@ class RateEquationSolver(ProcessingPlasmaProperty):
             jacobian_matrix[index, -1] = 0
 
         return jacobian_matrix
+
+    @staticmethod
+    def prepare_last_row(atomic_numbers):
+        last_row = []
+        for atomic_number in atomic_numbers:
+            last_row.append(np.arange(0.0, atomic_number + 1))
+        last_row = np.hstack([*last_row, -1])
+        return last_row
+
+
+class NLTEIndexHelper(ProcessingPlasmaProperty):
+    outputs = ("rate_matrix_index",)
+    def calculate(self, levels, continuum_interaction_species):
+        nlte_ionization_species = [(1,0)]
+        nlte_excitation_species = []
+        rate_matrix_index = pd.MultiIndex.from_tuples(list(self.calculate_rate_matrix_index(levels, nlte_ionization_species, nlte_excitation_species)), names=levels.names).drop_duplicates()
+        return rate_matrix_index
+    
+    def calculate_rate_matrix_index(self, levels, nlte_ionization_species, nlte_excitation_species):
+        for level in levels:
+            if level[:2] in nlte_ionization_species:
+                yield (*level[:2], 'nlte_ion')
+            elif (level[:2] not in nlte_ionization_species) and (level[:2] not in nlte_excitation_species):
+                yield (*level[:2], 'lte_ion')
+            else:
+                yield level
+        yield ("n_e", "n_e", "n_e")

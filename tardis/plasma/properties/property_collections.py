@@ -36,6 +36,7 @@ basic_properties = PlasmaPropertyCollection(
         SelectedAtoms,
         ElectronTemperature,
         RateEquationSolver,
+        NLTEIndexHelper,
     ]
 )
 lte_ionization_properties = PlasmaPropertyCollection([PhiSahaLTE])
