@@ -90,7 +90,7 @@ jobs:
           EVENT: ${{ github.event_name }}
 
       - name: Build documentation
-        run: cd docs/ && make html CORES=auto
+        run: cd docs/ && make html CORES=auto SPHINXOPTS="-W --keep-going"
 
       - name: Set destination directory
         run: |
