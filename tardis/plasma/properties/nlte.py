@@ -86,7 +86,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         helium_population.loc[0, 0] = 0.0
         # He II excited states
         he_two_population = level_boltzmann_factor.loc[2, 1].mul(
-            (g.loc[2, 1, 0] ** (-1.0))
+            (2 ** (-1.0))
         )
         helium_population.loc[1].update(he_two_population)
         # He II ground state
@@ -117,7 +117,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         """
         return (
             level_boltzmann_factor.loc[2, 0]
-            * (1.0 / (2 * g.loc[2, 1, 0]))
+            * (1.0 / (2 * 2))
             * (1 / g_electron)
             * (1 / (w**2.0))
             * np.exp(ionization_data.loc[2, 1] * beta_rad)
@@ -141,7 +141,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         zeta = PhiSahaNebular.get_zeta_values(zeta_data, 2, t_rad)[1]
         he_three_population = (
             2
-            * (float(g.loc[2, 2, 0]) / g.loc[2, 1, 0])
+            * (float(g.loc[2, 2, 0]) / 2)
             * g_electron
             * np.exp(-ionization_data.loc[2, 2] * beta_rad)
             * w
