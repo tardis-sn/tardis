@@ -18,7 +18,7 @@ When making or adding changes to the functionality of an aspect of TARDIS, an ``
 RST Documentation
 -----------------
 
-Documentation not featuring interactive code examples is written in Sphinx's reStructuredText (see `here <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_). Files written in reStructuredText have a ``.rst`` file extension, and are then built as HTML filed by Sphinx during the documentation build. Only the RST file, not the built HTML file, are committed to the repository. Documentation should be clear and concise. See :doc:`../../io/visualization/using_widgets` as a good example of an RST-generated page.
+Documentation not featuring interactive code examples is written in Sphinx's reStructuredText (see the `sphinx documentation <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_). Files written in reStructuredText have a ``.rst`` file extension, and are then built as HTML filed by Sphinx during the documentation build. Only the RST file, not the built HTML file, are committed to the repository. Documentation should be clear and concise. See :doc:`../../io/visualization/using_widgets` as a good example of an RST-generated page.
 
 
 IPYNB Documentation
@@ -64,7 +64,7 @@ To build TARDIS documentation locally, use the following commands:
 
 After running this command, you can find the built docs (i.e. HTML webpages) in ``docs/_build/html``. Open the ``index.html`` in your browser to see how the documentation looks like with your edits. Navigate to page where you made changes or file that you added to check whether it looks as intended or not.
 
-Additionally, check your terminal for warning messages during the documentation build (often caused by faulty hyperlinks or failing to include the page in the documentation). These should be repaired prior to merging your changes into the documentation.
+Additionally, check your terminal for warning messages during the documentation build (often caused by faulty hyperlinks or failing to include the page in the documentation). These should be repaired prior to merging your changes into the documentation. See below for troubleshooting tips.
 
 
 .. _doc-preview:
@@ -84,9 +84,9 @@ Troubleshooting Your Documentation
 
 It is important to keep your documentation free of warnings and errors, which can be found in the build logs (locally these will appear in your terminal, and for builds on GitHub see the last paragraph in the above section). On GitHub, these will give you a notification that your documentation build failed. Below are some pointers for resolving these issues:
 
-* Errors often are a result of notebooks being incompatable with your new code. Make sure notebooks are always updated to reflect your additions.
-* Warnings are often due to incorrect syntax in RST documentation regarding links, section headers, tables of contents, etc. Please see the `RST documentation <https://sublime-and-sphinx-guide.readthedocs.io/en/latest/index.html>`_ for instructions on proper syntax.
+* Errors often are a result of notebooks being incompatible with your new code. Make sure notebooks are always updated to reflect your additions.
+* Warnings are often due to incorrect syntax in RST documentation regarding links, section headers, tables of contents, etc. The `Sublime and Sphinx Guide <https://sublime-and-sphinx-guide.readthedocs.io/en/latest/index.html>`_ is a good resource for learning proper syntax.
 * Warnings can also be because docstrings are not consistent with the `numpy docstring format <https://numpydoc.readthedocs.io/en/latest/format.html>`_.
-* On GitHub, built documentation files (including ``.ipynb`` files built by Sphinx) can be a maximum of 100 MB. You can check the file sizes after a local documentation build in ``docs/_build/html``. Note that image output in notebooks built by Sphinx are by default in SVG format. For detailed images, these images can be very large. If file size becomes a problem, you will need to change the image format for that notebook by placing ``%config InlineBackend.figure_formats='png2x'`` in a `hidden cell <https://nbsphinx.readthedocs.io/en/0.8.7/hidden-cells.html>`_ at the beginning of the notebook.
+* On GitHub, built documentation files (including ``.ipynb`` files built by Sphinx) can be a maximum of 100 MB. You can check the file sizes after a local documentation build in ``docs/_build/html``. Note that image output in notebooks built by Sphinx is by default in SVG format. For detailed images, these images can be very large. If file size becomes a problem, you will need to change the image format for that notebook by placing ``%config InlineBackend.figure_formats='png2x'`` in a `hidden cell <https://nbsphinx.readthedocs.io/en/0.8.7/hidden-cells.html>`_ at the beginning of the notebook.
 
 Please reach out for help if you have difficulties resolving issues in your documentation.
