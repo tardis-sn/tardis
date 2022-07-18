@@ -105,7 +105,7 @@ intersphinx_mapping = {
 }
 
 apidoc_module_dir = "../tardis"
-apidoc_output_dir = "api"
+apidoc_output_dir = "develop/api"
 apidoc_excluded_paths = [
     "*tests*",
     "*setup_package*",
@@ -201,6 +201,8 @@ package = sys.modules[setup_cfg["name"]]
 version = "latest"  # package.__version__.split("-", 1)[0]
 # The full version, including alpha/beta/rc tags.
 release = package.__version__
+
+nbsphinx_allow_errors = True
 
 
 # -- Options for HTML output --------------------------------------------------

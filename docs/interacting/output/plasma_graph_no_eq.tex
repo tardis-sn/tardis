@@ -1,0 +1,168 @@
+\documentclass[class=minimal,border=20pt]{standalone}
+\usepackage[x11names, svgnames, rgb]{xcolor}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{snakes,arrows,shapes}
+\usepackage{amsmath}
+%
+%
+
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+\setlength\PreviewBorder{0pt}%
+
+%
+
+\begin{document}
+\pagestyle{empty}
+%
+%
+%
+
+
+% Start of code
+\begin{tikzpicture}[>=latex',line join=bevel,scale=0.5]
+%%
+\node (TRadiative) at (285.49bp,996.0bp) [draw,ellipse] {TRadiative};
+  \node (BetaRadiation) at (376.49bp,909.0bp) [draw,ellipse] {BetaRadiation};
+  \node (ElectronTemperature) at (110.49bp,909.0bp) [draw,ellipse] {ElectronTemperature};
+  \node (JBluesDiluteBlackBody) at (773.49bp,279.0bp) [draw,ellipse] {JBluesDiluteBlackBody};
+  \node (GElectron) at (323.49bp,768.0bp) [draw,ellipse] {GElectron};
+  \node (LevelBoltzmannFactorLTE) at (573.49bp,822.0bp) [draw,ellipse] {LevelBoltzmannFactorLTE};
+  \node (PhiSahaLTE) at (751.49bp,540.0bp) [draw,ellipse] {PhiSahaLTE};
+  \node (TauSobolev) at (1069.5bp,192.0bp) [draw,ellipse] {TauSobolev};
+  \node (TransitionProbabilities) at (1174.5bp,18.0bp) [draw,ellipse] {TransitionProbabilities};
+  \node (Abundance) at (674.49bp,1083.0bp) [draw,ellipse] {Abundance};
+  \node (NumberDensity) at (964.49bp,822.0bp) [draw,ellipse] {NumberDensity};
+  \node (SelectedAtoms) at (1107.5bp,996.0bp) [draw,ellipse] {SelectedAtoms};
+  \node (IonNumberDensity) at (833.49bp,453.0bp) [draw,ellipse] {IonNumberDensity};
+  \node (Levels) at (1394.5bp,909.0bp) [draw,ellipse] {Levels};
+  \node (Lines) at (1135.5bp,366.0bp) [draw,ellipse] {Lines};
+  \node (AtomicMass) at (929.49bp,909.0bp) [draw,ellipse] {AtomicMass};
+  \node (IonizationData) at (765.49bp,909.0bp) [draw,ellipse] {IonizationData};
+  \node (MacroAtomData) at (1249.5bp,909.0bp) [draw,ellipse] {MacroAtomData};
+  \node (Density) at (1061.5bp,909.0bp) [draw,ellipse] {Density};
+  \node (TimeExplosion) at (1069.5bp,279.0bp) [draw,ellipse] {TimeExplosion};
+  \node (BetaSobolev) at (1069.5bp,105.0bp) [draw,ellipse] {BetaSobolev};
+  \node (AtomicData) at (1329.5bp,996.0bp) [draw,ellipse] {AtomicData};
+  \node (StimulatedEmissionFactor) at (1300.5bp,279.0bp) [draw,ellipse] {StimulatedEmissionFactor};
+  \node (LevelNumberDensity) at (959.49bp,366.0bp) [draw,ellipse] {LevelNumberDensity};
+  \node (DilutionFactor) at (754.49bp,366.0bp) [draw,ellipse] {DilutionFactor};
+  \node (LinkTRadTElectron) at (106.49bp,996.0bp) [draw,ellipse] {LinkTRadTElectron};
+  \node (HeliumTreatment) at (847.49bp,1083.0bp) [draw,ellipse] {HeliumTreatment};
+  \node (ContinuumInteractionSpecies) at (1107.5bp,1083.0bp) [draw,ellipse] {ContinuumInteractionSpecies};
+  \node (LevelBoltzmannFactorNoNLTE) at (573.49bp,714.0bp) [draw,ellipse] {LevelBoltzmannFactorNoNLTE};
+  \node (PartitionFunction) at (871.49bp,627.0bp) [draw,ellipse] {PartitionFunction};
+  \draw [->] (TRadiative) ..controls (316.67bp,965.88bp) and (335.77bp,948.03bp)  .. (BetaRadiation);
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (337.99bp,948.8bp) node {$T_{\textrm{rad}}$};
+  \draw [->] (TRadiative) ..controls (226.75bp,966.47bp) and (184.45bp,945.92bp)  .. (ElectronTemperature);
+  \draw (210.99bp,948.8bp) node {$T_{\textrm{rad}}$};
+  \draw [->] (TRadiative) ..controls (263.82bp,961.68bp) and (250.49bp,935.22bp)  .. (250.49bp,910.0bp) .. controls (250.49bp,910.0bp) and (250.49bp,910.0bp)  .. (250.49bp,365.0bp) .. controls (250.49bp,324.04bp) and (503.59bp,298.94bp)  .. (JBluesDiluteBlackBody);
+  \draw (252.99bp,623.3bp) node {$T_{\textrm{rad}}$};
+  \draw [->] (BetaRadiation) ..controls (360.93bp,867.2bp) and (344.42bp,823.88bp)  .. (GElectron);
+  \draw (364.99bp,861.8bp) node {$\beta_{\textrm{rad}}$};
+  \draw [->] (BetaRadiation) ..controls (443.58bp,879.05bp) and (490.76bp,858.69bp)  .. (LevelBoltzmannFactorLTE);
+  \draw (488.99bp,861.8bp) node {$\beta_{\textrm{rad}}$};
+  \draw [->] (BetaRadiation) ..controls (388.78bp,874.06bp) and (396.49bp,847.1bp)  .. (396.49bp,823.0bp) .. controls (396.49bp,823.0bp) and (396.49bp,823.0bp)  .. (396.49bp,626.0bp) .. controls (396.49bp,569.11bp) and (571.07bp,550.21bp)  .. (PhiSahaLTE);
+  \draw (398.99bp,710.3bp) node {$\beta_{\textrm{rad}}$};
+  \draw [->] (JBluesDiluteBlackBody) ..controls (838.5bp,251.31bp) and (874.72bp,237.6bp)  .. (907.49bp,228.0bp) .. controls (939.99bp,218.48bp) and (976.85bp,210.32bp)  .. (TauSobolev);
+  \draw (909.99bp,231.8bp) node {$J$};
+  \draw [->] (JBluesDiluteBlackBody) ..controls (822.3bp,224.38bp) and (905.91bp,138.02bp)  .. (991.49bp,87.0bp) .. controls (1028.1bp,65.185bp) and (1072.9bp,48.4bp)  .. (TransitionProbabilities);
+  \draw (915.99bp,144.8bp) node {$J$};
+  \draw [->] (Abundance) ..controls (656.6bp,1028.4bp) and (635.01bp,941.29bp)  .. (677.49bp,891.0bp) .. controls (691.64bp,874.25bp) and (753.1bp,877.79bp)  .. (774.49bp,873.0bp) .. controls (818.95bp,863.04bp) and (868.73bp,849.86bp)  .. (NumberDensity);
+  \draw (655.99bp,948.8bp) node {abundance};
+  \draw [->] (Abundance) ..controls (728.36bp,1068.8bp) and (737.19bp,1066.8bp)  .. (745.49bp,1065.0bp) .. controls (845.98bp,1043.5bp) and (962.95bp,1022.2bp)  .. (SelectedAtoms);
+  \draw (905.99bp,1035.8bp) node {abundance};
+  \draw [->] (NumberDensity) ..controls (984.24bp,783.46bp) and (999.49bp,747.75bp)  .. (999.49bp,715.0bp) .. controls (999.49bp,715.0bp) and (999.49bp,715.0bp)  .. (999.49bp,539.0bp) .. controls (999.49bp,499.22bp) and (961.25bp,478.04bp)  .. (IonNumberDensity);
+  \draw (1001.99bp,623.3bp) node {$N_{i}$};
+  \draw [->] (SelectedAtoms) ..controls (1177.3bp,974.98bp) and (1204.8bp,967.1bp)  .. (1229.5bp,960.0bp) .. controls (1252.6bp,953.35bp) and (1258.4bp,951.64bp)  .. (1281.5bp,945.0bp) .. controls (1309.5bp,936.96bp) and (1316.7bp,935.69bp)  .. (1344.5bp,927.0bp) .. controls (1347.6bp,926.03bp) and (1350.8bp,925.0bp)  .. (Levels);
+  \draw (1283.99bp,948.8bp) node {selected-atoms};
+  \draw [->] (SelectedAtoms) ..controls (1124.8bp,961.17bp) and (1135.5bp,934.55bp)  .. (1135.5bp,910.0bp) .. controls (1135.5bp,910.0bp) and (1135.5bp,910.0bp)  .. (1135.5bp,452.0bp) .. controls (1135.5bp,432.75bp) and (1135.5bp,411.05bp)  .. (Lines);
+  \draw (1137.99bp,666.8bp) node {selected-atoms};
+  \draw [->] (SelectedAtoms) ..controls (1045.3bp,965.32bp) and (1001.8bp,944.53bp)  .. (AtomicMass);
+  \draw (1030.99bp,948.8bp) node {selected-atoms};
+  \draw [->] (SelectedAtoms) ..controls (1021.4bp,976.62bp) and (983.84bp,968.22bp)  .. (950.49bp,960.0bp) .. controls (907.53bp,949.41bp) and (859.27bp,936.33bp)  .. (IonizationData);
+  \draw (952.99bp,948.8bp) node {selected-atoms};
+  \draw [->] (SelectedAtoms) ..controls (1173.0bp,976.43bp) and (1189.6bp,969.25bp)  .. (1203.5bp,960.0bp) .. controls (1213.6bp,953.28bp) and (1222.9bp,943.92bp)  .. (MacroAtomData);
+  \draw (1222.99bp,948.8bp) node {selected-atoms};
+  \draw [->] (Density) ..controls (1028.6bp,879.2bp) and (1007.9bp,861.04bp)  .. (NumberDensity);
+  \draw (1020.99bp,861.8bp) node {$\rho$};
+  \draw [->] (TimeExplosion) ..controls (1069.5bp,249.16bp) and (1069.5bp,233.55bp)  .. (TauSobolev);
+  \draw (1071.99bp,231.8bp) node {$t_{\textrm{exp}}$};
+  \draw [->] (TauSobolev) ..controls (1111.9bp,162.98bp) and (1134.2bp,144.54bp)  .. (1147.5bp,123.0bp) .. controls (1162.1bp,99.413bp) and (1168.8bp,68.146bp)  .. (TransitionProbabilities);
+  \draw (1164.99bp,101.3bp) node {$\tau_{\textrm{sobolev}}$};
+  \draw [->] (TauSobolev) ..controls (1069.5bp,162.16bp) and (1069.5bp,146.55bp)  .. (BetaSobolev);
+  \draw (1071.99bp,144.8bp) node {$\tau_{\textrm{sobolev}}$};
+  \draw [->] (AtomicData) ..controls (1351.9bp,965.71bp) and (1365.1bp,948.45bp)  .. (Levels);
+  \draw (1367.99bp,948.8bp) node {atomic-data};
+  \draw [->] (AtomicData) ..controls (1417.1bp,973.07bp) and (1462.5bp,950.97bp)  .. (1462.5bp,910.0bp) .. controls (1462.5bp,910.0bp) and (1462.5bp,910.0bp)  .. (1462.5bp,669.5bp) .. controls (1462.5bp,513.31bp) and (1259.0bp,415.28bp)  .. (Lines);
+  \draw (1464.99bp,666.8bp) node {atomic-data};
+  \draw [->] (AtomicData) ..controls (1215.5bp,971.33bp) and (1102.8bp,947.78bp)  .. (1006.5bp,927.0bp) .. controls (1001.1bp,925.83bp) and (995.4bp,924.6bp)  .. (AtomicMass);
+  \draw (1158.99bp,948.8bp) node {atomic-data};
+  \draw [->] (AtomicData) ..controls (1249.1bp,984.18bp) and (1221.5bp,980.73bp)  .. (1196.5bp,978.0bp) .. controls (1108.7bp,968.4bp) and (1084.9bp,978.69bp)  .. (998.49bp,960.0bp) .. controls (978.71bp,955.72bp) and (975.08bp,950.09bp)  .. (955.49bp,945.0bp) .. controls (910.51bp,933.31bp) and (898.19bp,935.46bp)  .. (852.49bp,927.0bp) .. controls (846.23bp,925.84bp) and (839.73bp,924.61bp)  .. (IonizationData);
+  \draw (1000.99bp,948.8bp) node {atomic-data};
+  \draw [->] (AtomicData) ..controls (1439.4bp,981.18bp) and (1500.5bp,960.72bp)  .. (1500.5bp,910.0bp) .. controls (1500.5bp,910.0bp) and (1500.5bp,910.0bp)  .. (1500.5bp,104.0bp) .. controls (1500.5bp,58.995bp) and (1382.7bp,37.382bp)  .. (TransitionProbabilities);
+  \draw (1502.99bp,492.8bp) node {atomic-data};
+  \draw [->] (AtomicData) ..controls (1306.7bp,968.22bp) and (1295.7bp,955.72bp)  .. (1285.5bp,945.0bp) .. controls (1282.1bp,941.4bp) and (1278.4bp,937.67bp)  .. (MacroAtomData);
+  \draw (1300.99bp,948.8bp) node {atomic-data};
+  \draw [->] (Levels) ..controls (1412.9bp,874.65bp) and (1424.5bp,847.88bp)  .. (1424.5bp,823.0bp) .. controls (1424.5bp,823.0bp) and (1424.5bp,823.0bp)  .. (1424.5bp,669.5bp) .. controls (1424.5bp,591.21bp) and (1462.5bp,575.79bp)  .. (1462.5bp,497.5bp) .. controls (1462.5bp,497.5bp) and (1462.5bp,497.5bp)  .. (1462.5bp,278.0bp) .. controls (1462.5bp,213.37bp) and (1256.9bp,197.77bp)  .. (TauSobolev);
+  \draw (1462.99bp,536.3bp) node {$\textrm{levels}$};
+  \draw [->] (Levels) ..controls (1358.5bp,894.31bp) and (1351.3bp,892.29bp)  .. (1344.5bp,891.0bp) .. controls (1165.7bp,857.38bp) and (1116.7bp,889.47bp)  .. (935.49bp,873.0bp) .. controls (842.71bp,864.57bp) and (737.26bp,849.36bp)  .. (LevelBoltzmannFactorLTE);
+  \draw (937.99bp,861.8bp) node {$\textrm{levels}$};
+  \draw [->] (Levels) ..controls (1384.7bp,873.88bp) and (1378.5bp,846.88bp)  .. (1378.5bp,823.0bp) .. controls (1378.5bp,823.0bp) and (1378.5bp,823.0bp)  .. (1378.5bp,365.0bp) .. controls (1378.5bp,339.06bp) and (1358.5bp,317.62bp)  .. (StimulatedEmissionFactor);
+  \draw (1380.99bp,579.8bp) node {$\textrm{levels}$};
+  \draw [->] (Levels) ..controls (1304.4bp,876.72bp) and (1181.5bp,832.68bp)  .. (1181.5bp,823.0bp) .. controls (1181.5bp,823.0bp) and (1181.5bp,823.0bp)  .. (1181.5bp,669.5bp) .. controls (1181.5bp,543.51bp) and (1054.8bp,435.23bp)  .. (LevelNumberDensity);
+  \draw (1181.99bp,623.3bp) node {$\textrm{levels}$};
+  \draw [->] (Lines) ..controls (1096.8bp,353.16bp) and (1086.7bp,350.33bp)  .. (1077.5bp,348.0bp) .. controls (1040.0bp,338.56bp) and (1028.7bp,343.53bp)  .. (992.49bp,330.0bp) .. controls (979.63bp,325.19bp) and (978.41bp,319.63bp)  .. (965.49bp,315.0bp) .. controls (936.69bp,304.69bp) and (904.32bp,297.3bp)  .. (JBluesDiluteBlackBody);
+  \draw (994.99bp,318.8bp) node {$\nu$};
+  \draw [->] (Lines) ..controls (1063.1bp,343.74bp) and (991.29bp,319.43bp)  .. (976.49bp,297.0bp) .. controls (955.36bp,264.99bp) and (995.96bp,232.79bp)  .. (TauSobolev);
+  \draw (978.99bp,275.3bp) node {$\textrm{lines}$};
+  \draw [->] (Lines) ..controls (1185.6bp,339.19bp) and (1227.8bp,317.44bp)  .. (StimulatedEmissionFactor);
+  \draw (1229.99bp,318.8bp) node {$\textrm{lines}$};
+  \draw [->] (AtomicMass) ..controls (941.46bp,878.93bp) and (948.05bp,862.93bp)  .. (NumberDensity);
+  \draw (950.99bp,861.8bp) node {atomic-mass};
+  \draw [->] (IonizationData) ..controls (762.6bp,832.16bp) and (755.26bp,639.85bp)  .. (PhiSahaLTE);
+  \draw (760.99bp,710.3bp) node {ionization-data};
+  \draw [->] (DilutionFactor) ..controls (760.94bp,336.16bp) and (764.43bp,320.55bp)  .. (JBluesDiluteBlackBody);
+  \draw (766.99bp,318.8bp) node {$W$};
+  \draw [->] (LinkTRadTElectron) ..controls (107.85bp,966.16bp) and (108.58bp,950.55bp)  .. (ElectronTemperature);
+  \draw (111.99bp,948.8bp) node {$T_{\textrm{electron}}/T_{\textrm{rad}}$};
+  \draw [->] (GElectron) ..controls (322.92bp,711.74bp) and (328.64bp,619.8bp)  .. (382.49bp,576.0bp) .. controls (404.66bp,557.97bp) and (573.75bp,548.11bp)  .. (PhiSahaLTE);
+  \draw (334.99bp,666.8bp) node {$g_{\textrm{electron}}$};
+  \draw [->] (LevelBoltzmannFactorLTE) ..controls (573.49bp,787.38bp) and (573.49bp,761.88bp)  .. (LevelBoltzmannFactorNoNLTE);
+  \draw (575.99bp,764.3bp) node {$bf_{i,j,k}$};
+  \draw [->] (PhiSahaLTE) ..controls (779.82bp,509.63bp) and (796.59bp,492.25bp)  .. (IonNumberDensity);
+  \draw (798.99bp,492.8bp) node {$\Phi$};
+  \draw [->] (StimulatedEmissionFactor) ..controls (1216.7bp,247.16bp) and (1157.5bp,225.38bp)  .. (TauSobolev);
+  \draw (1200.99bp,231.8bp) node {stimulated-emission-factor};
+  \draw [->] (StimulatedEmissionFactor) ..controls (1270.7bp,216.83bp) and (1213.0bp,98.125bp)  .. (TransitionProbabilities);
+  \draw (1241.99bp,144.8bp) node {stimulated-emission-factor};
+  \draw [->] (LevelNumberDensity) ..controls (954.21bp,342.32bp) and (953.08bp,335.92bp)  .. (952.49bp,330.0bp) .. controls (949.44bp,299.22bp) and (949.53bp,289.52bp)  .. (961.49bp,261.0bp) .. controls (968.5bp,244.27bp) and (971.26bp,239.24bp)  .. (985.49bp,228.0bp) .. controls (994.98bp,220.5bp) and (1006.3bp,214.36bp)  .. (TauSobolev);
+  \draw (963.99bp,275.3bp) node {$N_{i,j,k}$};
+  \draw [->] (LevelNumberDensity) ..controls (955.19bp,336.95bp) and (956.07bp,323.36bp)  .. (964.49bp,315.0bp) .. controls (979.77bp,299.82bp) and (1136.1bp,299.27bp)  .. (1157.5bp,297.0bp) .. controls (1169.7bp,295.71bp) and (1182.4bp,294.29bp)  .. (StimulatedEmissionFactor);
+  \draw (966.99bp,318.8bp) node {$N_{i,j,k}$};
+  \draw [->] (PartitionFunction) ..controls (829.33bp,596.14bp) and (802.89bp,577.41bp)  .. (PhiSahaLTE);
+  \draw (820.99bp,579.8bp) node {$Z_{i,j}$};
+  \draw [->] (PartitionFunction) ..controls (896.04bp,580.91bp) and (925.46bp,523.22bp)  .. (941.49bp,471.0bp) .. controls (949.31bp,445.52bp) and (954.05bp,415.43bp)  .. (LevelNumberDensity);
+  \draw (936.99bp,492.8bp) node {$Z_{i,j}$};
+  \draw [->] (PartitionFunction) ..controls (861.11bp,579.0bp) and (847.43bp,517.11bp)  .. (IonNumberDensity);
+  \draw (857.99bp,536.3bp) node {$Z_{i,j}$};
+  \draw [->] (IonNumberDensity) ..controls (877.6bp,422.25bp) and (905.06bp,403.72bp)  .. (LevelNumberDensity);
+  \draw (905.99bp,405.8bp) node {$N_{i,j}$};
+  \draw [->] (BetaSobolev) ..controls (1105.7bp,74.726bp) and (1128.0bp,56.613bp)  .. (TransitionProbabilities);
+  \draw (1129.99bp,57.8bp) node {$\beta_{\textrm{sobolev}}$};
+  \draw [->] (LevelBoltzmannFactorNoNLTE) ..controls (397.94bp,695.78bp) and (336.86bp,687.08bp)  .. (326.49bp,678.0bp) .. controls (309.13bp,662.8bp) and (312.49bp,651.08bp)  .. (312.49bp,628.0bp) .. controls (312.49bp,628.0bp) and (312.49bp,628.0bp)  .. (312.49bp,452.0bp) .. controls (312.49bp,392.85bp) and (781.88bp,391.96bp)  .. (840.49bp,384.0bp) .. controls (850.18bp,382.68bp) and (860.32bp,381.28bp)  .. (LevelNumberDensity);
+  \draw (314.99bp,536.3bp) node {level-boltzmann-factor};
+  \draw [->] (LevelBoltzmannFactorNoNLTE) ..controls (681.21bp,682.27bp) and (758.61bp,660.2bp)  .. (PartitionFunction);
+  \draw (741.99bp,666.8bp) node {level-boltzmann-factor};
+%
+\end{tikzpicture}
+% End of code
+
+%
+\end{document}
+%
+
+

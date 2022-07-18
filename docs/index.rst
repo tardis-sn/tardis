@@ -55,19 +55,18 @@ Mission Statement
     installation
     quickstart
     tutorials
-    API <api/modules>
+    credits
+    Collaboration Website <https://tardis-sn.github.io/>
 
 
 .. toctree::
     :maxdepth: 3
-    :caption: Input/Output
+    :caption: Interacting with TARDIS
     :hidden:
     
-    io/configuration/index
-    io/optional/index
-    io/visualization/index
-    io/output/index
-    io/grid/TardisGridTutorial
+    interacting/input/index
+    interacting/output/index
+    interacting/visualization/index
 
 .. toctree::
     :maxdepth: 2
@@ -84,20 +83,20 @@ Mission Statement
 
 .. toctree::
     :maxdepth: 2
-    :caption: Contributing to TARDIS
+    :caption: TARDIS Development
     :hidden:
 
-    contributing/CONTRIBUTING.md
-    contributing/development/index
-    contributing/CHANGELOG.md
-    contributing/roadmap
+    development/contributing/index
+    development/tools/index
+    development/CHANGELOG.md
+    development/roadmap
 
 
 .. toctree::
-    :caption: Other Resources
+    :caption: References
     :hidden:
     
-    resources/credits
+    API <resources/api/modules>
     resources/research_done_using_TARDIS/research_papers
     resources/code_comparison/index
     resources/zreferences
