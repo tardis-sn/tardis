@@ -140,6 +140,9 @@ jobs:
       - name: Download reference data for simulation data
         run: wget -O unit_test_data_new.h5 https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata/items?path=unit_test_data.h5&resolveLfs=true
 
+      - name: Download reference data
+        run: bash .ci-helpers/download_reference_data.sh
+
       - name: Print path
         run: python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' unit_test_data_new.h5
       
@@ -147,7 +150,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: reference data
-          path: unit_test_data_new.h5
+          path: tardis-refdata/unit_test_data.h5
 
       - name: Print directory tree
         run: tree
