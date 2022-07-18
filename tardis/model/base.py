@@ -84,6 +84,26 @@ class ModelState:
         return self.geometry.r_outer.values * self.geometry_units["r_outer"]
 
 
+class Composition:
+    def __init__(self, density, abundance, atomic_mass, volume):
+        self.density = density
+        self.abundance = abundance
+        self.atomic_mass = atomic_mass
+        self.volume = volume
+
+    @property
+    def number(self):
+        return (self.mass).divide(self.atomic_mass, axis=0)
+
+    @property
+    def number_density(self):
+        return (self.abundance * self.density).divide(self.atomic_mass, axis=0)
+
+    @property
+    def mass(self):
+        return self.abundance * self.density * self.volume
+
+
 class Radial1DModel(HDFWriterMixin):
     """
     An object that hold information about the individual shells.
