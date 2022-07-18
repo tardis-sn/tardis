@@ -96,10 +96,10 @@ Mission Statement
     :caption: References
     :hidden:
     
-    API <resources/api/modules>
-    resources/research_done_using_TARDIS/research_papers
-    resources/code_comparison/index
-    resources/zreferences
+    API <references/api/modules>
+    references/research_done_using_TARDIS/research_papers
+    references/code_comparison/index
+    references/zreferences
 
 
 .. toctree::

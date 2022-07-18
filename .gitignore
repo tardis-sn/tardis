@@ -23,7 +23,7 @@ MANIFEST
 .ipynb_checkpoints
 
 # Sphinx
-docs/api
+docs/development/api
 docs/_build
 docs/tutorials.rst
 docs/io/configuration/components/models/converters/density_parse.csv
