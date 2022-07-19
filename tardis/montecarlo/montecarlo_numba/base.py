@@ -3,6 +3,7 @@ from numba.np.ufunc.parallel import (
     _get_thread_id as get_thread_id,
     get_num_threads,
 )
+import time
 
 import numpy as np
 import pandas as pd
@@ -10,6 +11,7 @@ import pandas as pd
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     RPacket,
     PacketStatus,
+    rpacket_trackers_to_dataframe,
 )
 
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
@@ -138,43 +140,6 @@ def montecarlo_radial1d(
         runner.rpacket_tracker_df = rpacket_trackers_to_dataframe(
             rpacket_trackers
         )
-
-
-def rpacket_trackers_to_dataframe(rpacket_trackers):
-    """Generates a dataframe from the rpacket_trackers list of RPacketCollection Objects.
-
-    Args:
-        rpacket_trackers (numba.typed.typedlist.List): list of individual RPacketCollection class objects
-
-    Returns:
-        pandas.core.frame.DataFrame: Dataframe containing properties of RPackets
-    """
-    rtracker_dict_list = []
-    index_array = []
-    step_array = []
-    for rpacket in rpacket_trackers:
-        for rpacket_step_no in range(len(rpacket.r)):
-            index_array.append(rpacket.index)
-            step_array.append(rpacket_step_no)
-            rtracker_dict_list.append(
-                [
-                    rpacket.status[rpacket_step_no],
-                    rpacket.seed,
-                    rpacket.r[rpacket_step_no],
-                    rpacket.nu[rpacket_step_no],
-                    rpacket.mu[rpacket_step_no],
-                    rpacket.energy[rpacket_step_no],
-                    rpacket.shell_id[rpacket_step_no],
-                ]
-            )
-    index_array = [np.array(index_array), np.array(step_array)]
-    rpacket_df = pd.DataFrame(
-        rtracker_dict_list,
-        index=index_array,
-        columns=["status", "seed", "r", "nu", "mu", "energy", "shell_id"],
-    )
-    rpacket_df.index.names = ["index", "step"]
-    return rpacket_df
 
 
 @njit(**njit_dict)

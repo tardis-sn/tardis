@@ -1,6 +1,7 @@
 from enum import IntEnum
 
 import numpy as np
+import pandas as pd
 from numba import int64, float64, njit, objmode
 from numba.experimental import jitclass
 
@@ -95,3 +96,44 @@ def print_r_packet_properties(r_packet):
                 str(getattr(r_packet, r_packet_attribute_name)),
             )
     print("-" * 80)
+
+
+def rpacket_trackers_to_dataframe(rpacket_trackers):
+    """Generates a dataframe from the rpacket_trackers list of RPacketCollection Objects.
+
+    Parameters
+    ----------
+    rpacket_trackers : numba.typed.typedlist.List
+        list of individual RPacketCollection class objects
+
+    Returns
+    -------
+    pandas.core.frame.DataFrame
+        Dataframe containing properties of RPackets
+    """
+    rtracker_dict_list = []
+    index_array = []
+    step_array = []
+    for rpacket in rpacket_trackers:
+        for rpacket_step_no in range(len(rpacket.r)):
+            index_array.append(rpacket.index)
+            step_array.append(rpacket_step_no)
+            rtracker_dict_list.append(
+                [
+                    rpacket.status[rpacket_step_no],
+                    rpacket.seed,
+                    rpacket.r[rpacket_step_no],
+                    rpacket.nu[rpacket_step_no],
+                    rpacket.mu[rpacket_step_no],
+                    rpacket.energy[rpacket_step_no],
+                    rpacket.shell_id[rpacket_step_no],
+                ]
+            )
+    index_array = [np.array(index_array), np.array(step_array)]
+    rpacket_df = pd.DataFrame(
+        rtracker_dict_list,
+        index=index_array,
+        columns=["status", "seed", "r", "nu", "mu", "energy", "shell_id"],
+    )
+    rpacket_df.index.names = ["index", "step"]
+    return rpacket_df
