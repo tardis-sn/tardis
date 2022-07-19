@@ -65,6 +65,7 @@ Mission Statement
     :hidden:
     
     interacting/input/index
+    interacting/model
     interacting/output/index
     interacting/visualization/index
 
@@ -78,7 +79,6 @@ Mission Statement
     physics/montecarlo/index
     physics/est_and_conv/index
     physics/spectrum/index
-    physics/energy_input/index
 
 
 .. toctree::
@@ -100,11 +100,3 @@ Mission Statement
     references/research_done_using_TARDIS/research_papers
     references/code_comparison/index
     references/zreferences
-
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Outdated
-    :hidden:
-
-    outdated/index
