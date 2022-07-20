@@ -11,7 +11,6 @@ import pandas as pd
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     RPacket,
     PacketStatus,
-    rpacket_trackers_to_dataframe,
 )
 
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
@@ -137,9 +136,6 @@ def montecarlo_radial1d(
     # Condition for Checking if RPacket Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
         runner.rpacket_tracker = rpacket_trackers
-        runner.rpacket_tracker_df = rpacket_trackers_to_dataframe(
-            rpacket_trackers
-        )
 
 
 @njit(**njit_dict)
