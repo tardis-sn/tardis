@@ -7,6 +7,8 @@ from numpy.testing import assert_almost_equal, assert_array_almost_equal
 from tardis.io.config_reader import Configuration
 from tardis.model import Radial1DModel
 from tardis.io.decay import IsotopeAbundances
+from tardis.model.base import Composition
+from tardis.simulation.base import Simulation
 
 
 def data_path(filename):
@@ -413,3 +415,31 @@ def test_hdf_model_nparray(hdf_file_path, simulation_verysimple, attr):
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
     assert_almost_equal(actual, expected.values)
+
+
+@pytest.fixture(scope="module")
+def composition_from_config(atomic_data_fname):
+    filename = "tardis_configv1_verysimple.yml"
+    config = Configuration.from_yaml(data_path(filename))
+    config["atom_data"] = atomic_data_fname
+
+    simulation = Simulation.from_config(config)
+    composition = Composition(
+        simulation.model.density,
+        simulation.model.abundance,
+        simulation.plasma.atomic_mass,
+    )
+    return composition
+
+
+def test_composition_number_density(composition_from_config):
+    comp = composition_from_config
+
+    pd.testing.assert_frame_equal(
+        comp.number_density,
+        (comp.abundance * comp.density).divide(comp.atomic_mass, axis=0),
+    )
+    assert_almost_equal(
+        comp.number_density.loc[8, 0],
+        (comp.density[0] * comp.abundance.loc[8, 0] / comp.atomic_mass.loc[8]).value,
+    )
