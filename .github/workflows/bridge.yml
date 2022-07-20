@@ -113,6 +113,11 @@ jobs:
           repository: atharva-2001/tardis-refdata
           ref: refdata_compare
           path: tardis-refdata
+          lfs: true
+        
+      - name: Fetch lfs objects
+        run: cd tardis-refdata
+             git lfs checkout 
 
       - name: Setup TARDIS environment
         uses: conda-incubator/setup-miniconda@v2
@@ -157,7 +162,7 @@ jobs:
         with:
           name: reference data
           path: tardis-refdata/unit_test_data.h5
-
+  
       - name: Print directory tree
         run: tree
 
