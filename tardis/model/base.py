@@ -85,23 +85,14 @@ class ModelState:
 
 
 class Composition:
-    def __init__(self, density, abundance, atomic_mass, volume):
+    def __init__(self, density, abundance, atomic_mass):
         self.density = density
         self.abundance = abundance
         self.atomic_mass = atomic_mass
-        self.volume = volume
-
-    @property
-    def number(self):
-        return (self.mass).divide(self.atomic_mass, axis=0)
 
     @property
     def number_density(self):
         return (self.abundance * self.density).divide(self.atomic_mass, axis=0)
-
-    @property
-    def mass(self):
-        return self.abundance * self.density * self.volume
 
 
 class Radial1DModel(HDFWriterMixin):
