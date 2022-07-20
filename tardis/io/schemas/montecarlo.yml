@@ -17,7 +17,7 @@ properties:
   no_of_packets:
     type: number
     multipleOf: 1.0
-    description: This gives the number of packets normally used in each iteration.
+    description: Used for all iterations except the last one, this feature gives the number of packets used in each iteration.
   iterations:
     type: number
     multipleOf: 1.0
