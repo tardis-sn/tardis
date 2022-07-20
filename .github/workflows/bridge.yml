@@ -116,7 +116,8 @@ jobs:
           lfs: true
         
       - name: Fetch lfs objects
-        run: cd tardis-refdata
+        run: |
+             cd tardis-refdata
              git lfs checkout 
 
       - name: Setup TARDIS environment
