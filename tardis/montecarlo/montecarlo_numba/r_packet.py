@@ -1,4 +1,5 @@
 from enum import IntEnum
+from operator import index
 
 import numpy as np
 import pandas as pd
@@ -113,6 +114,7 @@ def rpacket_trackers_to_dataframe(rpacket_trackers):
 
     """
     len_df = sum([len(tracker.r) for tracker in rpacket_trackers])
+    index_array = np.empty([2, len_df], dtype="int")
     df_dtypes = np.dtype(
         [
             ("status", np.int64),
@@ -133,4 +135,10 @@ def rpacket_trackers_to_dataframe(rpacket_trackers):
             rpacket_tracker_ndarray[column_name][
                 prev_index:cur_index
             ] = getattr(rpacket_tracker, column_name)
-    return pd.DataFrame(rpacket_tracker_ndarray)
+        index_array[0][prev_index:cur_index] = getattr(rpacket_tracker, "index")
+        index_array[1][prev_index:cur_index] = range(cur_index - prev_index)
+    return pd.DataFrame(
+        rpacket_tracker_ndarray,
+        index=pd.MultiIndex.from_arrays(index_array, names=["index", "step"]),
+        columns=df_dtypes.names,
+    )
