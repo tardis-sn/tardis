@@ -434,14 +434,15 @@ def composition_from_config(atomic_data_fname):
 
 def test_composition_number_density(composition_from_config):
     comp = composition_from_config
-
-    pd.testing.assert_frame_equal(
-        comp.number_density,
-        (comp.abundance * comp.density).divide(comp.atomic_mass, axis=0),
+    expected_dataframe = (comp.abundance * comp.density).divide(
+        comp.atomic_mass, axis=0
     )
+    expected_value = (
+        comp.density[0] * comp.abundance.loc[8, 0] / comp.atomic_mass.loc[8]
+    )
+
+    pd.testing.assert_frame_equal(comp.number_density, expected_dataframe)
     assert_almost_equal(
         comp.number_density.loc[8, 0],
-        (
-            comp.density[0] * comp.abundance.loc[8, 0] / comp.atomic_mass.loc[8]
-        ).value,
+        expected_value.value,
     )
