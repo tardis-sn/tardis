@@ -441,5 +441,7 @@ def test_composition_number_density(composition_from_config):
     )
     assert_almost_equal(
         comp.number_density.loc[8, 0],
-        (comp.density[0] * comp.abundance.loc[8, 0] / comp.atomic_mass.loc[8]).value,
+        (
+            comp.density[0] * comp.abundance.loc[8, 0] / comp.atomic_mass.loc[8]
+        ).value,
     )

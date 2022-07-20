@@ -85,6 +85,20 @@ class ModelState:
 
 
 class Composition:
+    """
+    Holds information about model composition
+
+    Parameters
+    ----------
+    density : astropy.units.quantity.Quantity
+    abundance : pd.DataFrame
+    atomic_mass : pandas.core.series.Series
+
+    Attributes
+    ----------
+    number_density : pd.DataFrame
+    """
+
     def __init__(self, density, abundance, atomic_mass):
         self.density = density
         self.abundance = abundance
