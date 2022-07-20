@@ -106,6 +106,7 @@ class Composition:
 
     @property
     def number_density(self):
+        """Number Density computed using the formula: (abundance * density) / atomic mass"""
         return (self.abundance * self.density).divide(self.atomic_mass, axis=0)
 
 
