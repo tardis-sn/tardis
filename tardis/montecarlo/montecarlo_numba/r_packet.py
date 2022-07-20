@@ -111,29 +111,25 @@ def rpacket_trackers_to_dataframe(rpacket_trackers):
     pandas.core.frame.DataFrame
         Dataframe containing properties of RPackets
     """
-    rtracker_dict_list = []
-    index_array = []
-    step_array = []
-    for rpacket in rpacket_trackers:
-        for rpacket_step_no in range(len(rpacket.r)):
-            index_array.append(rpacket.index)
-            step_array.append(rpacket_step_no)
-            rtracker_dict_list.append(
-                [
-                    rpacket.status[rpacket_step_no],
-                    rpacket.seed,
-                    rpacket.r[rpacket_step_no],
-                    rpacket.nu[rpacket_step_no],
-                    rpacket.mu[rpacket_step_no],
-                    rpacket.energy[rpacket_step_no],
-                    rpacket.shell_id[rpacket_step_no],
-                ]
-            )
-    index_array = [np.array(index_array), np.array(step_array)]
-    rpacket_df = pd.DataFrame(
-        rtracker_dict_list,
-        index=index_array,
-        columns=["status", "seed", "r", "nu", "mu", "energy", "shell_id"],
-    )
-    rpacket_df.index.names = ["index", "step"]
-    return rpacket_df
+        len_df = sum([len(tracker.r) for tracker in sim.runner.rpacket_tracker])
+    df_dtypes = np.dtype(
+    [
+        ("status", np.int64),
+        ("seed", np.int64),
+        ("r", np.float64),
+        ("nu", np.float64),
+        ("mu", np.float64),
+        ('energy', np.float64),
+        ('shell_id', np.int64),
+
+    ]
+)
+    rpacket_tracker_ndarray = np.empty(len_df, df_dtypes)
+    cur_index = 0
+    for rpacket_tracker in sim.runner.rpacket_tracker:
+        prev_index = cur_index
+        cur_index = prev_index + len(rpacket_tracker.r)
+        for j, column_name in enumerate(df_dtypes.fields.keys()):
+            rpacket_tracker_ndarray[column_name][prev_index:cur_index] = getattr(rpacket_tracker, column_name)
+    return pd.DataFrame(rpacket_tracker_ndarray)
+
