@@ -16,6 +16,12 @@ env:
   NBCONVERT_CMD: jupyter nbconvert --execute --ExecutePreprocessor.timeout=600 --to html
   CMFGEN_DL_URL: http://kookaburra.phyast.pitt.edu/hillier/cmfgen_files
   CMFGEN_DB_VER: atomic_data_15nov16.tar.gz
+  # original reference data
+  REF1_PATH: /home/runner/work/tardis/tardis-refdata/unit_test_data_org.h5
+  # generated reference data using the new atomic file 
+  REF2_PATH: /home/runner/work/tardis/tardis-refdata/unit_test_data.h5
+  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata 
+                --generate-reference
 
 
 defaults:
@@ -87,7 +93,7 @@ jobs:
           path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
   
   tardis-build:
-    # needs: carsus-build
+    needs: carsus-build
     strategy:
       matrix:
         include:
@@ -142,34 +148,34 @@ jobs:
         run: pip install -e .
         
       # only run this steop when carsus build is done
-      # - name: Download atom data
-      #   uses: actions/download-artifact@v2
-      #   with:
-      #     name: atom-data
-          # path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
+      - name: Download atom data
+        uses: actions/download-artifact@v2
+        with:
+          name: atom-data
+          path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
           # path: kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
-
-      - name: Download reference data for simulation data
-        run: wget -O unit_test_data_new.h5 https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata/items?path=unit_test_data.h5&resolveLfs=true
-
-      - name: Download reference data
-        run: bash .ci-helpers/download_reference_data.sh
-
-      - name: Print path
-        run: python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' unit_test_data_new.h5
+      
+      - name: Replace atomic data in reference data repository with the generated atomic data
+        run: cp tardis/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5 tardis-refdata/atom_data/kurucz_cd23_chianti_H_He.h5
+      
+      - name: Create copy of reference data for comparision
+        run: cp tardis-refdata/unit_test_data.h5 tardis-refdata/unit_test_data_org.h5 
       
       - name: Upload reference data as artifact
         uses: actions/upload-artifact@v2
         with:
           name: reference data
-          path: tardis-refdata/unit_test_data.h5
+          path: tardis-refdata/unit_test_data_org.h5
   
       - name: Print directory tree
         run: tree
 
+      - name: Run tests and generate new reference data
+        run:  pytest tardis ${{ env.PYTEST_FLAGS }}
+
       - name: Run notebook to test spectrum
         run: |
-            ${{ env.NBCONVERT_CMD }} --allow-errors tardis/tests/test_spectrum.ipynb
+            ${{ env.NBCONVERT_CMD }} --allow-errors "tardis-refdata/notebooks/ref_data_compare copy.ipynb"
       
       - name: Upload spectrum notebook
         uses: actions/upload-artifact@v2
