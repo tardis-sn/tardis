@@ -87,7 +87,7 @@ jobs:
           path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
   
   tardis-build:
-    needs: carsus-build
+    # needs: carsus-build
     strategy:
       matrix:
         include:
@@ -107,6 +107,12 @@ jobs:
       - uses: actions/checkout@v2
         with:
           repository: tardis-sn/tardis
+          
+      - uses: actions/checkout@v2
+        with:
+          repository: atharva-2001/tardis-refdata
+          ref: refdata_compare
+          path: tardis-refdata
 
       - name: Setup TARDIS environment
         uses: conda-incubator/setup-miniconda@v2
@@ -130,10 +136,10 @@ jobs:
         run: pip install -e .
         
       # only run this steop when carsus build is done
-      - name: Download atom data
-        uses: actions/download-artifact@v2
-        with:
-          name: atom-data
+      # - name: Download atom data
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: atom-data
           # path: carsus/docs/kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
           # path: kurucz_cd23_chianti_He_cmfgen_H_Si_I-II.h5
 
