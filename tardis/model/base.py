@@ -119,6 +119,26 @@ class Composition:
         return (self.abundance * self.density).divide(self.atomic_mass, axis=0)
 
 
+class Geometry:
+    """
+    Holds information about model geometry
+
+    Parameters
+    ----------
+    radius : astropy.units.quantity.Quantity
+    velocity : astropy.units.quantity.Quantity
+    """
+
+    def __init__(self, radius, velocity):
+        self.geometry_df = pd.DataFrame(
+            {"radius": radius, "velocity": velocity}
+        )
+        self.geometry_df.index.name = "cell"
+
+    def get_geometry(self):
+        return self.geometry_df
+
+
 class Radial1DModel(HDFWriterMixin):
     """
     An object that hold information about the individual shells.
