@@ -73,7 +73,9 @@ class GeometryGridSpherical1D(object):
         Parameters
         ----------
         r_inner : numpy.ndarray
+            inner radii of spherical shells
         r_outer : numpy.ndarray
+            outer radii of spherical shells
         """
         self.r_inner = r_inner
         self.r_outer = r_outer
@@ -88,12 +90,15 @@ class GeometryGridCartesian2D(object):
         Parameters
         ----------
         x_coord : numpy.ndarray
+            x coordinates of the left of the grid cells
         y_coord : numpy.ndarray
+            y coordinates of the bottom of the grid cells
         cell_width : float
+            side length of each square cell
 
         Notes
         -----
-        coords specify upper left coordinate of each cell
+        coords specify lower left coordinate of each cell, i.e. the
         """
         self.x_coord = x_coord
         self.y_coord = y_coord
@@ -109,9 +114,13 @@ class GeometryGridCartesian3D(object):
         Parameters
         ----------
         x_coord : numpy.ndarray
+            x coordinates of the left of the grid cells
         y_coord : numpy.ndarray
+            y coordinates of the top of the grid cells
         z_coord : numpy.ndarray
+            z coordinates of the front of the grid cells
         cell_width : float
+            side length of each cubic cell
 
         Notes
         -----
