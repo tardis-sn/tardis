@@ -123,6 +123,7 @@ def rpacket_trackers_to_dataframe(rpacket_trackers):
             ("mu", np.float64),
             ("energy", np.float64),
             ("shell_id", np.int64),
+            ("interaction_type", np.int64),
         ]
     )
     rpacket_tracker_ndarray = np.empty(len_df, df_dtypes)
