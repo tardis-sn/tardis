@@ -98,7 +98,7 @@ class GeometryGridCartesian2D(object):
 
         Notes
         -----
-        coords specify lower left coordinate of each cell, i.e. the
+        coords specify lower left coordinate of each cell, i.e. the least coordinate in each dimension
         """
         self.x_coord = x_coord
         self.y_coord = y_coord
@@ -116,15 +116,15 @@ class GeometryGridCartesian3D(object):
         x_coord : numpy.ndarray
             x coordinates of the left of the grid cells
         y_coord : numpy.ndarray
-            y coordinates of the top of the grid cells
+            y coordinates of the lower of the grid cells
         z_coord : numpy.ndarray
-            z coordinates of the front of the grid cells
+            z coordinates of the back of the grid cells
         cell_width : float
             side length of each cubic cell
 
         Notes
         -----
-        coords specify upper left, out of the page coordinate of each cell
+        coords specify lower left, into the page coordinate of each cell, i.e. the least coordinate in each dimension
         """
         self.x_coord = x_coord
         self.y_coord = y_coord
