@@ -40,8 +40,9 @@ jobs:
       - name: Clone tardis-sn/carsus
         uses: actions/checkout@v2
         with:
-          repository: tardis-sn/carsus
+          repository: atharva-2001/carsus
           path: carsus/
+          ref: arraydiff_unpin_version
         
       - uses: actions/cache@v2
         with:
