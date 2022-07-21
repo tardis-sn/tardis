@@ -1,5 +1,5 @@
 # For more information on how to use this template please refer to:
-# http://tardis-sn.github.io/tardis/development/continuous_integration.html
+# https://tardis-sn.github.io/tardis/contributing/development/continuous_integration.html
 
 parameters:
   - name: useMamba

@@ -62,7 +62,7 @@ def _yaml_handler(path):
         return yaml.load(f, Loader=YAMLLoader)
 
 
-def is_Quantity(checker, instance):
+def is_quantity(checker, instance):
     """
     Check if the provided instance is of type astropy.units.quantity.Quantity
 
@@ -92,7 +92,7 @@ def validate_dict(
     resolver = RefResolver(schemaurl, schema, handlers=handlers)
     validated_dict = deepcopy(config_dict)
     custom_type_checker = validator.TYPE_CHECKER.redefine(
-        "quantity", is_Quantity
+        "quantity", is_quantity
     )
     custom_validator = validators.extend(
         validator, type_checker=custom_type_checker
