@@ -352,6 +352,8 @@ When you are ready to ask for someone to review your code and consider a merge:
    pull request message.  This is still a good way to start a preliminary
    code review.
 
+The TARDIS documentation features interactive notebooks that run varius aspects of the code, as well as API documentation. To make sure that these notebooks remain up-to-date with the code, and that your docstrings are correctly incorporated into the API documentation, we ask that you build the documentation for your pull request following the instructions :ref:`here <doc-preview>`.
+
 .. _using-virtualenv:
 
 Making sure your Pull Request stays up-to-date
