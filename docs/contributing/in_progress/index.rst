@@ -28,19 +28,9 @@ New Physics
 Simulate Supernovae in the Nebular Phase
 ----------------------------------------
 
-* Currently TARDIS assumes an inner boundary approximation to the
-   photosphere.  New physics is required to handle the breakdown of the
-   photosphere at late times. This involves a detailed treatment of the
-   decay products of the radioactive isotopes in SN ejecta, as well as
-   their deposition in various processes such as Compton scattering,
-   photoabsorption and pair production.
-* Deposited energy needs to be thermalized by solving the Spencer-Fano
-   equations, resulting in fractions of the energy going into heating,
-   non-thermal excitation and non-thermal ionization.
-* At late times when the densities are low collisions become too
-   infrequent to quickly de-excite metastable energy levels. Forbidden
-   lines arising from these levels need to be included. Transitions between
-   levels have to include ion-electron collisions.
+* Currently TARDIS assumes an inner boundary approximation to the photosphere. New physics is required to handle the breakdown of the photosphere at late times. This involves a detailed treatment of the decay products of the radioactive isotopes in SN ejecta, as well as their deposition in various processes such as Compton scattering, photoabsorption and pair production.
+* Deposited energy needs to be thermalized by solving the Spencer-Fano equations, resulting in fractions of the energy going into heating, non-thermal excitation and non-thermal ionization.
+* At late times when the densities are low collisions become too infrequent to quickly de-excite metastable energy levels. Forbidden lines arising from these levels need to be included. Transitions between levels have to include ion-electron collisions.
 
 
 Simulate Type IIP Supernovae
