@@ -21,7 +21,7 @@ def yml_data():
     -------
     CustomAbundanceWidgetData
         CustomAbundanceWidgetData generated from a YAML
-    """    
+    """
     yml_path = os.path.join(
         tardis.__path__[0],
         "io",
@@ -41,7 +41,7 @@ def csvy_data():
     -------
     CustomAbundanceWidgetData
         CustomAbundanceWidgetData generated from a CSVY
-    """    
+    """
     csvy_path = os.path.join(
         tardis.__path__[0], "io", "tests", "data", "csvy_full.csvy"
     )
@@ -73,7 +73,7 @@ def sim_data(simulation_verysimple):
     -------
     CustomAbundanceWidgetData
         CustomAbundanceWidgetData generated from a simulation
-    """    
+    """
     return CustomAbundanceWidgetData.from_simulation(simulation_verysimple)
 
 
@@ -86,16 +86,15 @@ def caw(yml_data):
     -------
     CustomAbundanceWidget
         CustomAbundanceWidget generated from a YAML
-    """    
+    """
     caw = CustomAbundanceWidget(yml_data)
     caw.display()
     return caw
 
 
-class TestCustomAbundanceWidgetData: 
+class TestCustomAbundanceWidgetData:
     def test_get_symbols(self, yml_data):
-        """Tests the atomic symbols for the YAML CustomAbundanceWidgetData
-        """   
+        """Tests the atomic symbols for the YAML CustomAbundanceWidgetData"""
         symbols = yml_data.get_symbols()
         npt.assert_array_equal(symbols, ["O", "Mg", "Si", "S", "Ar", "Ca"])
 
@@ -107,7 +106,7 @@ class TestCustomAbundanceWidget:
         Parameters
         ----------
         caw : CustomAbundanceWidget
-        """        
+        """
         caw.update_input_item_value(0, 0.33333)
         assert caw.input_items[0].value == 0.333
 
@@ -117,7 +116,7 @@ class TestCustomAbundanceWidget:
         Parameters
         ----------
         caw : CustomAbundanceWidget
-        """        
+        """
         caw.data.abundance[0] = 0.2
         caw.read_abundance()
         for i in range(caw.no_of_elements):
@@ -129,7 +128,7 @@ class TestCustomAbundanceWidget:
         Parameters
         ----------
         caw : CustomAbundanceWidget
-        """        
+        """
         caw.data.abundance.iloc[0, :] = 0.2
         caw.update_abundance_plot(0)
 
@@ -188,7 +187,7 @@ class TestCustomAbundanceWidget:
         expected_x : list
         expected_y : list
         expected_width : list
-        """        
+        """
         if multishell_edit:
             caw.irs_shell_range.disabled = False  # update_bar_diagonal() will be called when status of irs_shell_range is changed
             caw.irs_shell_range.value = (1, 20)
@@ -244,7 +243,7 @@ class TestCustomAbundanceWidget:
         inputs : list
         locks : list
         expected : list
-        """        
+        """
         if multishell_edit:
             caw.rbs_multi_apply.index = 0
             for i, item in enumerate(caw.input_items):
@@ -278,8 +277,7 @@ class TestCustomAbundanceWidget:
 
 class TestCustomYAML:
     def test_create_fields_dict(self):
-        """Test creating fields in the YAML
-        """        
+        """Test creating fields in the YAML"""
         custom_yaml = CustomYAML("test", 0, 0, 0, 0)
         custom_yaml.create_fields_dict(["H", "He"])
         datatype_dict = {
