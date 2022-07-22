@@ -14,6 +14,14 @@ from tardis.visualization.widgets.custom_abundance import (
 
 @pytest.fixture(scope="module")
 def yml_data():
+    """Fixture to contain a CustomAbundanceWidgetData
+    instance generated from a YAML file tardis_configv1_verysimple.yml.
+
+    Returns
+    -------
+    CustomAbundanceWidgetData
+        CustomAbundanceWidgetData generated from a YAML
+    """    
     yml_path = os.path.join(
         tardis.__path__[0],
         "io",
@@ -26,6 +34,14 @@ def yml_data():
 
 @pytest.fixture(scope="module")
 def csvy_data():
+    """Fixture to contain a CustomAbundanceWidgetData
+    instance generated from a CSVY file csvy_full.csvy.
+
+    Returns
+    -------
+    CustomAbundanceWidgetData
+        CustomAbundanceWidgetData generated from a CSVY
+    """    
     csvy_path = os.path.join(
         tardis.__path__[0], "io", "tests", "data", "csvy_full.csvy"
     )
@@ -34,6 +50,14 @@ def csvy_data():
 
 @pytest.fixture(scope="module")
 def hdf_data(hdf_file_path, simulation_verysimple):
+    """Fixture to contain a CustomAbundanceWidgetData
+    instance generated from a HDF file.
+
+    Returns
+    -------
+    CustomAbundanceWidgetData
+        CustomAbundanceWidgetData generated from a HDF
+    """
     simulation_verysimple.to_hdf(
         hdf_file_path, overwrite=True
     )  # save sim at hdf_file_path
@@ -42,35 +66,70 @@ def hdf_data(hdf_file_path, simulation_verysimple):
 
 @pytest.fixture(scope="module")
 def sim_data(simulation_verysimple):
+    """Fixture to contain a CustomAbundanceWidgetData
+    instance generated from simulation data.
+
+    Returns
+    -------
+    CustomAbundanceWidgetData
+        CustomAbundanceWidgetData generated from a simulation
+    """    
     return CustomAbundanceWidgetData.from_simulation(simulation_verysimple)
 
 
-# # @pytest.fixture(scope="module", params=[yml_data, csvy_data, hdf_data, sim_data])
 @pytest.fixture(scope="module")
 def caw(yml_data):
+    """Fixture to contain a CustomAbundanceWidget
+    instance generated from a YAML file tardis_configv1_verysimple.yml.
+
+    Returns
+    -------
+    CustomAbundanceWidget
+        CustomAbundanceWidget generated from a YAML
+    """    
     caw = CustomAbundanceWidget(yml_data)
     caw.display()
     return caw
 
 
-class TestCustomAbundanceWidgetData:
+class TestCustomAbundanceWidgetData: 
     def test_get_symbols(self, yml_data):
+        """Tests the atomic symbols for the YAML CustomAbundanceWidgetData
+        """   
         symbols = yml_data.get_symbols()
         npt.assert_array_equal(symbols, ["O", "Mg", "Si", "S", "Ar", "Ca"])
 
 
 class TestCustomAbundanceWidget:
     def test_update_input_item_value(self, caw):
+        """Tests updating an input item value
+
+        Parameters
+        ----------
+        caw : CustomAbundanceWidget
+        """        
         caw.update_input_item_value(0, 0.33333)
         assert caw.input_items[0].value == 0.333
 
     def test_read_abundance(self, caw):
+        """Tests reading an abundance
+
+        Parameters
+        ----------
+        caw : CustomAbundanceWidget
+        """        
         caw.data.abundance[0] = 0.2
         caw.read_abundance()
         for i in range(caw.no_of_elements):
             assert caw.input_items[i].value == 0.2
 
     def test_update_abundance_plot(self, caw):
+        """Tests plotting an abundance array
+
+        Parameters
+        ----------
+        caw : CustomAbundanceWidget
+        """        
         caw.data.abundance.iloc[0, :] = 0.2
         caw.update_abundance_plot(0)
 
@@ -120,6 +179,16 @@ class TestCustomAbundanceWidget:
     def test_update_bar_diagonal(
         self, caw, multishell_edit, expected_x, expected_y, expected_width
     ):
+        """Tests updating the bar figure
+
+        Parameters
+        ----------
+        caw : CustomAbundanceWidget
+        multishell_edit : bool
+        expected_x : list
+        expected_y : list
+        expected_width : list
+        """        
         if multishell_edit:
             caw.irs_shell_range.disabled = False  # update_bar_diagonal() will be called when status of irs_shell_range is changed
             caw.irs_shell_range.value = (1, 20)
@@ -166,6 +235,16 @@ class TestCustomAbundanceWidget:
         ],
     )
     def test_on_btn_norm(self, caw, multishell_edit, inputs, locks, expected):
+        """Tests the normalisation button
+
+        Parameters
+        ----------
+        caw : CustomAbundanceWidget
+        multishell_edit : bool
+        inputs : list
+        locks : list
+        expected : list
+        """        
         if multishell_edit:
             caw.rbs_multi_apply.index = 0
             for i, item in enumerate(caw.input_items):
@@ -199,6 +278,8 @@ class TestCustomAbundanceWidget:
 
 class TestCustomYAML:
     def test_create_fields_dict(self):
+        """Test creating fields in the YAML
+        """        
         custom_yaml = CustomYAML("test", 0, 0, 0, 0)
         custom_yaml.create_fields_dict(["H", "He"])
         datatype_dict = {
