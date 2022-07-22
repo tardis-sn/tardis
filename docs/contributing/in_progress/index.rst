@@ -7,6 +7,13 @@ Features In-Progress
 This is a current status summary of ongoing development projects in the TARDIS collaboration. Brief summaries of the projects are listed below. Other projects and their descriptions can be found in the `Github Projects <https://github.com/tardis-sn/tardis/projects>`_ or the `TARDIS Enhancement Proposals (TEPS) repository <https://github.com/tardis-sn/tep>`_.
 
 
+Google Summer of Code (GSOC)
+============================
+
+Many new TARDIS developments are made through GSOC students. To learn more about potential GSOC projects, see the `GSOC ideas page <https://tardis-sn.github.io/gsoc/tardis-gsoc-ideas.html>`_.
+
+
+
 Restructure
 ===========
 
