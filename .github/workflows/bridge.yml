@@ -185,7 +185,7 @@ jobs:
       - name: Upload spectrum notebook
         uses: actions/upload-artifact@v2
         with:
-          path: tardis/tests/test_spectrum.html
+          path: "tardis-refdata/notebooks/ref_data_compare copy.html"
         
       
 
