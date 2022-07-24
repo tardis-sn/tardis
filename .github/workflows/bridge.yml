@@ -17,9 +17,9 @@ env:
   CMFGEN_DL_URL: http://kookaburra.phyast.pitt.edu/hillier/cmfgen_files
   CMFGEN_DB_VER: atomic_data_15nov16.tar.gz
   # original reference data
-  REF1_PATH: /home/runner/work/tardis/tardis-refdata/unit_test_data_org.h5
+  REF1_PATH: /home/runner/work/tardis/tardis/tardis-refdata/unit_test_data_org.h5
   # generated reference data using the new atomic file 
-  REF2_PATH: /home/runner/work/tardis/tardis-refdata/unit_test_data.h5
+  REF2_PATH: /home/runner/work/tardis/tardis/tardis-refdata/unit_test_data.h5
   PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata 
                 --generate-reference
 
