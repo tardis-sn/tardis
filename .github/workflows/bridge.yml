@@ -145,6 +145,9 @@ jobs:
         run: mamba update -n tardis --file conda-${{ matrix.label }}.lock
         if: steps.cache-conda.outputs.cache-hit != 'true'
 
+      - name: Install bokeh
+        run: mamba install bokeh=2.2 --channel conda-forge --no-update-deps --yes
+
       - name: Install package
         run: pip install -e .
         
