@@ -794,15 +794,15 @@ class CartesianProfile:
                 np.where(self.arepo_snapshot.s.rho > 1e-4)
             ].max()
         )
-        cellsize = boxsize / res
+        self.cellsize = boxsize / res
 
         # Generate coordinates of upper left corner of cells
         for k in range(res):
-            cellz = k * cellsize - 0.5 * boxsize
+            cellz = k * self.cellsize - 0.5 * boxsize
             for j in range(res):
-                celly = j * cellsize - 0.5 * boxsize
+                celly = j * self.cellsize - 0.5 * boxsize
                 for i in range(res):
-                    cellx = i * cellsize - 0.5 * boxsize
+                    cellx = i * self.cellsize - 0.5 * boxsize
                     self.pos_grid[i, j, k, 0] = cellx
                     self.pos_grid[i, j, k, 1] = celly
                     self.pos_grid[i, j, k, 2] = cellz
@@ -873,7 +873,7 @@ class CartesianProfile:
                 "".join(
                     [
                         "---\n",
-                        "name: csvy_full\n",
+                        "name: csvy_3d\n",
                         "model_density_time_0: {:g} day\n".format(
                             self.arepo_snapshot.time / (3600 * 24)
                         ),
@@ -883,6 +883,7 @@ class CartesianProfile:
                         "model_photosphere_radius: {:g} cm\n".format(
                             photosphere
                         ),
+                        "model_cellsize: {:g} cm\n".format(self.cellsize),
                         "description: Config file for TARDIS from Arepo snapshot.\n",
                         "tardis_model_config_version: v1.0\n",
                         "datatype:\n",
