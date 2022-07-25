@@ -417,23 +417,13 @@ def test_hdf_model_nparray(hdf_file_path, simulation_verysimple, attr):
     assert_almost_equal(actual, expected.values)
 
 
-@pytest.fixture(scope="module")
-def composition_from_config(atomic_data_fname):
-    filename = "tardis_configv1_verysimple.yml"
-    config = Configuration.from_yaml(data_path(filename))
-    config["atom_data"] = atomic_data_fname
-
-    simulation = Simulation.from_config(config)
-    composition = Composition(
-        simulation.model.density,
-        simulation.model.abundance,
-        simulation.plasma.atomic_mass,
+def test_composition_number_density(simulation_verysimple):
+    sim = simulation_verysimple
+    comp = Composition(
+        sim.model.density,
+        sim.model.abundance,
+        sim.plasma.atomic_mass,
     )
-    return composition
-
-
-def test_composition_number_density(composition_from_config):
-    comp = composition_from_config
     expected_dataframe = (comp.abundance * comp.density).divide(
         comp.atomic_mass, axis=0
     )
