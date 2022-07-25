@@ -7,7 +7,7 @@ import logging
 
 import pandas as pd
 import numpy as np
-import collections
+import collections.abc as collections_abc
 from collections import OrderedDict
 
 import yaml
@@ -155,11 +155,11 @@ def traverse_configs(base, other, func, *args):
     args :
         Arguments passed into `func`
     """
-    if isinstance(base, collections.Mapping):
+    if isinstance(base, collections_abc.Mapping):
         for k in base:
             traverse_configs(base[k], other[k], func, *args)
     elif (
-        isinstance(base, collections.Iterable)
+        isinstance(base, collections_abc.Iterable)
         and not isinstance(base, basestring)
         and not hasattr(base, "shape")
     ):
