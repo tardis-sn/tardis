@@ -424,11 +424,11 @@ def test_composition_number_density(simulation_verysimple):
         sim.model.abundance,
         sim.plasma.atomic_mass,
     )
-    expected_dataframe = (comp.abundance * comp.density).divide(
+    expected_dataframe = (comp.isotopic_mass_fraction * comp.density).divide(
         comp.atomic_mass, axis=0
     )
     expected_value = (
-        comp.density[0] * comp.abundance.loc[8, 0] / comp.atomic_mass.loc[8]
+        comp.density[0] * comp.isotopic_mass_fraction.loc[8, 0] / comp.atomic_mass.loc[8]
     )
 
     pd.testing.assert_frame_equal(comp.number_density, expected_dataframe)

@@ -91,7 +91,7 @@ class Composition:
     Parameters
     ----------
     density : astropy.units.quantity.Quantity
-    abundance : pd.DataFrame
+    isotopic_mass_fraction : pd.DataFrame
     atomic_mass : pandas.core.series.Series
 
     Attributes
@@ -99,15 +99,15 @@ class Composition:
     number_density : pd.DataFrame
     """
 
-    def __init__(self, density, abundance, atomic_mass):
+    def __init__(self, density, isotopic_mass_fraction, atomic_mass):
         self.density = density
-        self.abundance = abundance
+        self.isotopic_mass_fraction = isotopic_mass_fraction
         self.atomic_mass = atomic_mass
 
     @property
     def number_density(self):
-        """Number Density computed using the formula: (abundance * density) / atomic mass"""
-        return (self.abundance * self.density).divide(self.atomic_mass, axis=0)
+        """Number Density computed using the formula: (isotopic_mass_fraction * density) / atomic mass"""
+        return (self.isotopic_mass_fraction * self.density).divide(self.atomic_mass, axis=0)
 
 
 class Radial1DModel(HDFWriterMixin):
