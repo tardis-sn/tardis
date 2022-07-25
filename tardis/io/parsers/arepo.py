@@ -787,9 +787,26 @@ class CartesianProfile:
         """
 
         print("Mapping velocities to 3D grid...")
-        self.pos_grid = self.arepo_snapshot.s.mapOnCartGrid(
-            "pos", res=res, box=box, numthreads=numthreads
+        self.pos_grid = np.zeros((res, res, res, 3))
+        boxsize = (
+            2
+            * self.arepo_snapshot.s.r()[
+                np.where(self.arepo_snapshot.s.rho > 1e-4)
+            ].max()
         )
+        cellsize = boxsize / res
+
+        # Generate coordinates of upper left corner of cells
+        for k in range(res):
+            cellz = k * cellsize - 0.5 * boxsize
+            for j in range(res):
+                celly = j * cellsize - 0.5 * boxsize
+                for i in range(res):
+                    cellx = i * cellsize - 0.5 * boxsize
+                    self.pos_grid[i, j, k, 0] = cellx
+                    self.pos_grid[i, j, k, 1] = celly
+                    self.pos_grid[i, j, k, 2] = cellz
+
         print("Mapping densities to 3D grid...")
         self.rho_grid = self.arepo_snapshot.s.mapOnCartGrid(
             "rho", res=res, box=box, numthreads=numthreads
@@ -798,6 +815,8 @@ class CartesianProfile:
         self.xnuc_grid = self.arepo_snapshot.s.mapOnCartGrid(
             "xnuc", res=res, box=box, numthreads=numthreads
         )
+        # Ensure that all abundace values are positive
+        self.xnuc_grid = np.abs(self.xnuc_grid)
 
         return self
 
@@ -911,17 +930,20 @@ class CartesianProfile:
             datastring.append("%s" % species[-1].capitalize())
             f.write("".join(datastring))
 
-            for iz in range(self.pos_grid.shape[-1]):
-                for iy in range(self.pos_grid.shape[-1]):
-                    for ix in range(self.pos_grid.shape[-1]):
+            for iz in range(self.pos_grid.shape[2]):
+                for iy in range(self.pos_grid.shape[1]):
+                    for ix in range(self.pos_grid.shape[0]):
                         exp = [
-                            self.pos_grid[0, ix, iy, iz],
-                            self.pos_grid[1, ix, iy, iz],
-                            self.pos_grid[2, ix, iy, iz],
+                            self.pos_grid[ix, iy, iz, 0],
+                            self.pos_grid[ix, iy, iz, 1],
+                            self.pos_grid[ix, iy, iz, 2],
                             self.rho_grid[ix, iy, iz],
                         ]
+                        norm = 0
                         for spec, _ in enumerate(species):
-                            exp.append(self.xnuc_grid[spec, ix, iy, iz])
+                            norm += self.xnuc_grid[spec, ix, iy, iz]
+                        for spec, _ in enumerate(species):
+                            exp.append(self.xnuc_grid[spec, ix, iy, iz] / norm)
                         # Write collected data
                         f.write("\n")
                         for i in range(len(exp) - 1):
