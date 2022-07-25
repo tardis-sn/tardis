@@ -104,15 +104,6 @@ class Composition:
         self.abundance = abundance
         self.atomic_mass = atomic_mass
 
-        self.composition_df = pd.DataFrame({"density": self.density})
-        for i in self.abundance.index:
-            self.composition_df[f"Abundance_{i}"] = self.abundance.loc[i]
-        self.composition_df.index.name = "cell"
-
-    def get_composition(self):
-        "Composition DataFrame containing density and abundances for each cell"
-        return self.composition_df
-
     @property
     def number_density(self):
         """Number Density computed using the formula: (abundance * density) / atomic mass"""
