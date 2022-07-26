@@ -14,6 +14,8 @@ spectrum, the main product of a TARDIS calculation. The different spectral
 features are simply a combined product of the changes in the packet properties
 induced in the radiation-matter interactions.
 
+.. _spherical-domain:
+
 Propagation in a Spherical Domain
 =================================
 

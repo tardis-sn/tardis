@@ -1,3 +1,5 @@
+.. _estimators:
+
 ***********************
 Volume-Based Estimators
 ***********************
@@ -17,7 +19,7 @@ To account for the effects of the Monte Carlo packets on the ejecta, TARDIS uses
 
 .. math:: E=\frac{1}{V}\sum_i L_i\delta t_i=\frac{1}{V}\sum_i \frac{\varepsilon_i}{\Delta t}\delta t_i = \frac{1}{V\Delta t}\sum_i \varepsilon_i\delta t_i
 
-where we sum over every Monte Carlo packet in the shell. Note that we are interested in the energy density in the co-moving frame (i.e. the energy density "according to the plasma," see :doc:`reference frames <propagation.rst#reference-frames>`). Now, we note that the amount of time the Monte Carlo packet spends in a shell is :math:`\delta t = \frac{l_i}{c}` where :math:`l` is the distance that the packet travels through the shell. Thus, our estimator is
+where we sum over every Monte Carlo packet in the shell. Note that we are interested in the energy density in the co-moving frame (i.e. the energy density "according to the plasma," see :ref:`referenceframes`). Now, we note that the amount of time the Monte Carlo packet spends in a shell is :math:`\delta t = \frac{l_i}{c}` where :math:`l` is the distance that the packet travels through the shell. Thus, our estimator is
 
 .. math:: E=\frac{1}{V\Delta t}\sum_i \varepsilon_i\frac{l_i}{c} = \frac{1}{cV\Delta t}\sum_i \varepsilon_i l_i.
 
@@ -40,6 +42,8 @@ where once again the co-moving energy and frequency of each packet are taken at 
 These estimators will be used in the ??? step to help update the plasma state between iterations, as will be explained here???.
 
 
+.. _j-blue-estimator:
+
 J_blue
 ------
 
@@ -49,7 +53,7 @@ Another estimator, called the ``J_blue`` or :math:`J^b_{lu}` estimator, is unlik
 
 where :math:`dl_i` is the infinitesimal distance that the packet travels while it has a co-moving frequency between :math:`\nu_{lu}` and :math:`\nu_{lu}+d\nu` (here, therefore, we are summing over all packets in a shell that achieve a co-moving frequency of :math:`\nu_{lu}` and thus come into resonance with the line transition :math:`l\rightarrow u` within that shell).
 
-Now, say the packet with lab frequency :math:`\nu_\mathrm{lab}` has a co-moving frequency of :math:`\nu_{lu}` at a radius :math:`r_1` and propagation direction :math:`\mu_1`, and it has a co-moving frequency of :math:`\nu_{lu}+d\nu` at a radius :math:`r_2` and propagation direction :math:`\mu_2`. Then (see :doc:`reference frames <propagation.rst#reference-frames>`):
+Now, say the packet with lab frequency :math:`\nu_\mathrm{lab}` has a co-moving frequency of :math:`\nu_{lu}` at a radius :math:`r_1` and propagation direction :math:`\mu_1`, and it has a co-moving frequency of :math:`\nu_{lu}+d\nu` at a radius :math:`r_2` and propagation direction :math:`\mu_2`. Then (see :ref:`referenceframes`):
 
 .. math:: \nu_{lu}=\left(1-\frac{r_1\mu_1}{ct_\mathrm{explosion}}\right)\nu_\mathrm{lab}
 
@@ -61,7 +65,7 @@ But then subtracting, we get
 
 .. math:: d\nu = (r_2\mu_2-r_1\mu_1)\frac{\nu_\mathrm{lab}}{ct_\mathrm{explosion}}=dl*\frac{\nu_\mathrm{lab}}{ct_\mathrm{explosion}}
 
-(for the last equality, see :doc:`propagation in a spherical domain <propagation.rst#propagation-in-a-spherical-domain>`).
+(for the last equality, see :ref:`spherical-domain`).
 
 But now inputting this into the equation for :math:`J^b_{lu}` (using :math:`\frac{dl_i}{d\nu}=\frac{ct_\mathrm{explosion}}{\nu_\mathrm{lab,i}}`), we get
 
@@ -73,7 +77,7 @@ But now inputting this into the equation for :math:`J^b_{lu}` (using :math:`\fra
 Edotlu
 ------
 
-The final estimator we consider, like the ``J_blue`` estimator, is a line estimator, meaning it has a unique??? value for each atomic line in each shell.. It calculates the rate at which energy density interacts with a line transition :math:`l\rightarrow u`. The first step is to calculate the rate at which energy density resonates with some line in some shell. Each packet that comes into resonance with the transition :math:`l\rightarrow u` in a shell of volume :math:`V` contributes an energy density to that shell of :math:`\frac{\varepsilon}{V}` over a time :math:`\Delta t`, meaning the rate at which energy density resonates with the line is :math:`\sum_i \frac{\varepsilon_i}{\Delta t V} = \frac{1}{\Delta t V} \sum \varepsilon` where we are summing over all packets which come into resonance with the atomic line in some shell (as usual, this sum is done using the energies in the co-moving frame). Finally, this light then has a :math:`\left( 1- e^{-\tau_{lu}}\right)` probability of interacting with the line (where :math:`\tau_{lu}` is the Sobolev optical depth for the transition :math:`l\rightarrow u`, see :doc:`propagation.rst#physical-interactions`), so the rate at which energy density is absorbed into the transition :math:`l\rightarrow u`, called the ``Edotlu`` estimator, is
+The final estimator we consider, like the ``J_blue`` estimator, is a line estimator, meaning it has a unique??? value for each atomic line in each shell.. It calculates the rate at which energy density interacts with a line transition :math:`l\rightarrow u`. The first step is to calculate the rate at which energy density resonates with some line in some shell. Each packet that comes into resonance with the transition :math:`l\rightarrow u` in a shell of volume :math:`V` contributes an energy density to that shell of :math:`\frac{\varepsilon}{V}` over a time :math:`\Delta t`, meaning the rate at which energy density resonates with the line is :math:`\sum_i \frac{\varepsilon_i}{\Delta t V} = \frac{1}{\Delta t V} \sum \varepsilon` where we are summing over all packets which come into resonance with the atomic line in some shell (as usual, this sum is done using the energies in the co-moving frame). Finally, this light then has a :math:`\left( 1- e^{-\tau_{lu}}\right)` probability of interacting with the line (where :math:`\tau_{lu}` is the Sobolev optical depth for the transition :math:`l\rightarrow u`, see :ref:`physical-interactions`), so the rate at which energy density is absorbed into the transition :math:`l\rightarrow u`, called the ``Edotlu`` estimator, is
 
 .. math:: \dot{E}_{lu} = \frac{1}{\Delta t V} \left( 1- e^{-\tau_{lu}}\right) \sum_i \varepsilon_i.
 
@@ -85,6 +89,6 @@ Implementation
 
 As previously discussed, a major component of each Monte Carlo iteration is the packet propagation process. During the packet propagation process this step, the :math:`J` and :math:`\bar \nu` estimators are updates every time a packet is moved to the next event location. Specifically, every time a packet is moved, :math:`\varepsilon l` is added to the "running total" :math:`J` estimator in the shell where the packet is, and :math:`\varepsilon \nu l` is added to the "running total" :math:`\bar\nu` estimator in the shell where the packet is (where :math:`l` is the distance the packet is moved, and :math:`\varepsilon` and :math:`\nu` are respectively the packet's co-moving energy and frequency at the beginning of the packet's path). The factor of :math:`\frac{1}{4\pi V\Delta t}`, for computational ease, is not attached to the estimators but is included during any calculations using these estimators, see ???.
 
-Additionally, during the propagation process, every time a packet passes through a Sobolev point, meaning it reaches a co-moving frequency of :math:`nu_{lu}` for some transition :math:`l\rightarrow u` and thus comes in resonance with an atomic line, the :math:`J^b_{lu}` for that atomic transition in the shell it is in is incremented by :math:`\frac{\varepsilon}{\nu_\mathrm{lab}}`, where :math:`\varepsilon` is the packet's energy and :math:`\nu_\mathrm{lab}` is the packet's lab-frame frequency. As before, for computational ease, the factor :math:`\frac{ct_\mathrm{explosion}}{4\pi V \Delta t}` is included in any calculations using the estimator. Similarly, when a packet passes through a Sobolev point, the :math:`\dot{E}_{lu}` for that atomic transition in the shell it is in is incremented by :math:`\varepsilon`, and the term :math:`\frac{1}{\Delta t V} \left( 1- e^{-\tau_{lu}}\right)` is once again included in any calculations (specifically in the :ref:`formal integral <formal-integral>`).
+Additionally, during the propagation process, every time a packet passes through a Sobolev point, meaning it reaches a co-moving frequency of :math:`nu_{lu}` for some transition :math:`l\rightarrow u` and thus comes in resonance with an atomic line, the :math:`J^b_{lu}` for that atomic transition in the shell it is in is incremented by :math:`\frac{\varepsilon}{\nu_\mathrm{lab}}`, where :math:`\varepsilon` is the packet's energy and :math:`\nu_\mathrm{lab}` is the packet's lab-frame frequency. As before, for computational ease, the factor :math:`\frac{ct_\mathrm{explosion}}{4\pi V \Delta t}` is included in any calculations using the estimator. Similarly, when a packet passes through a Sobolev point, the :math:`\dot{E}_{lu}` for that atomic transition in the shell it is in is incremented by :math:`\varepsilon`, and the term :math:`\frac{1}{\Delta t V} \left( 1- e^{-\tau_{lu}}\right)` is once again included in any calculations (specifically in the :ref:`formal integral <formal_integral>`).
 
 .. note:: Since the ``J_blue`` and ``Edotlu`` estimators are updated every time a packet comes into resonance with an atomic line (not necessarily going through a line interaction), these estimators are equal to zero in some shell for a specific line if (and only if) no packet comes into resonance with that line within the shell.
