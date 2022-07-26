@@ -77,7 +77,7 @@ Mission Statement
     physics/intro/index
     physics/setup/index
     physics/montecarlo/index
-    physics/est_and_conv/index
+    physics/update_and_conv/update_and_conv
     physics/spectrum/index
     physics/energy_input/index
 

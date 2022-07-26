@@ -74,15 +74,9 @@ Our goal is to find :math:`I_{N-1}^r`, as this is the light that will exit the s
 Constructing the Source Function
 --------------------------------
 
-Our problem is to determine the intensity that is added to the ray at a line resonance :math:`l\rightarrow u` based on the Monte Carlo packets. Much of this calculation will rely heavily on the logic in :doc:`../est_and_conv/estimators`.
+Our problem is to determine the intensity that is added to the ray at a line resonance :math:`l\rightarrow u` based on the Monte Carlo packets.
 
-For a line transition :math:`i\rightarrow u`, a Monte Carlo packet carrying an energy :math:`\epsilon` carries that energy over a time :math:`\Delta t` (the time of simulation, see :doc:`../montecarlo/initialization` for more on how it is calculated and how it should be interpreted). And, if the packet is in a cell of volume :math:`V`, it contributes an energy density to that shell of :math:`\frac{\epsilon}{V}` over a time :math:`\Delta t`, and thus each packet represents energy density flowing at a rate of :math:`\frac{\epsilon}{\Delta t V}`. If we sum over every packet in a shell that comes into resonance with a line (i.e. that pass through a Sobolev point, see :ref:`propagation`), we will get the rate at which energy density resonates with the line. Thus, the rate at which energy density resonates with the line transition in a specific cell is :math:`\frac{1}{\Delta t V} \sum \epsilon` where the sum is taken over all packets that pass through the Sobolev point.
-
-This light then has a :math:`\left( 1- e^{-\tau_{iu}}\right)` probability of interacting with the line, so the rate at which energy density is absorbed into the transition :math:`i\rightarrow u` is the estimator
-
-.. math:: \dot{E}_{iu} = \frac{1}{\Delta t V} \left( 1- e^{-\tau_{iu}}\right) \sum \epsilon.
-
-This estimator is calculated similarly to the ``J_blue`` estimator, see :doc:`../est_and_conv/estimators`. Now, sum up these estimators for every level :math:`i` that can be excited to the level :math:`u` -- this will give us the rate at which energy density is added to the level :math:`u` from all line transitions that can be excited to :math:`u`:
+Consider another transition :math:`i\rightarrow u`. We know (see :ref:`edotlu`) that the rate at which energy density interacts with the transition is :math:`\dot{E}_{iu}`, i.e. the ``Edotlu`` estimator for the transition :math:`i\rightarrow u`. Now, sum up these estimators for every level :math:`i` that can be excited to the level :math:`u` -- this will give us the rate at which energy density is added to the level :math:`u` from all line transitions that can be excited to :math:`u`:
 
 .. math:: \dot{E}_u = \sum_{i < u} \dot E_{iu}.
 
