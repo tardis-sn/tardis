@@ -3,10 +3,8 @@ from numba.np.ufunc.parallel import (
     _get_thread_id as get_thread_id,
     get_num_threads,
 )
-import time
 
 import numpy as np
-import pandas as pd
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     RPacket,
