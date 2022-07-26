@@ -84,7 +84,7 @@ class ModelState:
         return self.geometry.r_outer.values * self.geometry_units["r_outer"]
 
 
-class Geometry:
+class Radial1DGeometry:
     """
     Holds information about model geometry
 
@@ -102,6 +102,27 @@ class Geometry:
 
     def get_geometry(self):
         return self.geometry_df
+
+    @property
+    def r_inner(self):
+        return self.geometry_df.radius[:-1].to_numpy() * u.cm
+
+    @property
+    def r_outer(self):
+        return self.geometry_df.radius[1:].to_numpy() * u.cm
+
+    @property
+    def v_inner(self):
+        return self.geometry_df.velocity[:-1].to_numpy() * u.cm / u.s
+
+    @property
+    def v_outer(self):
+        return self.geometry_df.velocity[1:].to_numpy() * u.cm / u.s
+
+    @property
+    def volume(self):
+        volume = (4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
+        return volume
 
 
 class Radial1DModel(HDFWriterMixin):
