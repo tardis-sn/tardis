@@ -107,7 +107,9 @@ class Composition:
     @property
     def number_density(self):
         """Number Density computed using the formula: (isotopic_mass_fraction * density) / atomic mass"""
-        return (self.isotopic_mass_fraction * self.density).divide(self.atomic_mass, axis=0)
+        return (self.isotopic_mass_fraction * self.density).divide(
+            self.atomic_mass, axis=0
+        )
 
 
 class Radial1DModel(HDFWriterMixin):

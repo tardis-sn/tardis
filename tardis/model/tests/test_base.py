@@ -381,6 +381,29 @@ class TestModelState:
         )
 
 
+def test_composition_number_density(simulation_verysimple):
+    sim = simulation_verysimple
+    comp = Composition(
+        sim.model.density,
+        sim.model.abundance,
+        sim.plasma.atomic_mass,
+    )
+    expected_dataframe = (comp.isotopic_mass_fraction * comp.density).divide(
+        comp.atomic_mass, axis=0
+    )
+    expected_value = (
+        comp.density[0]
+        * comp.isotopic_mass_fraction.loc[8, 0]
+        / comp.atomic_mass.loc[8]
+    )
+
+    pd.testing.assert_frame_equal(comp.number_density, expected_dataframe)
+    assert_almost_equal(
+        comp.number_density.loc[8, 0],
+        expected_value.value,
+    )
+
+
 ###
 # Save and Load
 ###
@@ -415,24 +438,3 @@ def test_hdf_model_nparray(hdf_file_path, simulation_verysimple, attr):
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
     assert_almost_equal(actual, expected.values)
-
-
-def test_composition_number_density(simulation_verysimple):
-    sim = simulation_verysimple
-    comp = Composition(
-        sim.model.density,
-        sim.model.abundance,
-        sim.plasma.atomic_mass,
-    )
-    expected_dataframe = (comp.isotopic_mass_fraction * comp.density).divide(
-        comp.atomic_mass, axis=0
-    )
-    expected_value = (
-        comp.density[0] * comp.isotopic_mass_fraction.loc[8, 0] / comp.atomic_mass.loc[8]
-    )
-
-    pd.testing.assert_frame_equal(comp.number_density, expected_dataframe)
-    assert_almost_equal(
-        comp.number_density.loc[8, 0],
-        expected_value.value,
-    )
