@@ -102,7 +102,12 @@ class Composition:
     def __init__(self, density, isotopic_mass_fraction, atomic_mass):
         self.density = density
         self.isotopic_mass_fraction = isotopic_mass_fraction
-        self.atomic_mass = atomic_mass
+        self._atomic_mass = atomic_mass
+        self.atomic_mass_unit = u.g
+
+    @property
+    def atomic_mass(self):
+        return self._atomic_mass.to_numpy() * self.atomic_mass_unit
 
     @property
     def number_density(self):
