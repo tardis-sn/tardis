@@ -394,7 +394,7 @@ def test_composition_number_density(simulation_verysimple):
     expected_value = (
         comp.density[0]
         * comp.isotopic_mass_fraction.loc[8, 0]
-        / comp.atomic_mass.loc[8]
+        / comp.atomic_mass[0]
     )
 
     pd.testing.assert_frame_equal(comp.number_density, expected_dataframe)
