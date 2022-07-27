@@ -91,12 +91,14 @@ class Composition:
     Parameters
     ----------
     density : astropy.units.quantity.Quantity
+        An array of densities for each shell.
     isotopic_mass_fraction : pd.DataFrame
     atomic_mass : pandas.core.series.Series
 
     Attributes
     ----------
     number_density : pd.DataFrame
+        Number density of each isotope in each shell.
     """
 
     def __init__(self, density, isotopic_mass_fraction, atomic_mass):
