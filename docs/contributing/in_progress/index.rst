@@ -19,13 +19,13 @@ Many new TARDIS developments are made through GSOC students. To learn more about
 Restructure
 ===========
 
-Restructuring TARDIS to be more modularized in order to facilitate the addition of new physics modules and improve maintainability. See https://github.com/orgs/tardis-sn/projects/5.
+Restructuring TARDIS to be more modularized in order to facilitate the addition of new physics modules and improve maintainability.
 
 
 New Physics
 ===========
 
-TARDIS is currently capable of simulating spherically symmetric type Ia and stripped envelope supernovae at a single point in time in the earlier stages of the explosion. To expand to more types of supernovae, such as type Ib, Ic, and IIP, and to model a larger variety of times after the explosion, new physics is necessary.
+TARDIS is currently capable of simulating spherically symmetric type Ia and stripped envelope supernovae at a single point in time in the earlier stages of the explosion. To expand to more types of supernovae, such as type Ib, Ic, and IIP, and to model a larger variety of times after the explosion, new physics capabilities are necessary.
 
 
 Simulate Supernovae in the Nebular Phase
@@ -49,8 +49,8 @@ Simulate Non-Homologous Expansion
 * Currently, TARDIS models supernovae as expanding homologously. This is not always the case in many types of supernovae, and much of the simulation needs to be modified in order to drop this assumption.
 
 
-Simulate Spherically Asymmetric Supernovae
-------------------------------------------
+Simulate Asymmetric Supernovae
+------------------------------
 
 * Currently, TARDIS assumes spherical symmetry in its calculations. A framework is being developed to allow for dropping this assumption and modeling 2D and 3D radiative transfer for spherically asymmetric supernovae.
 
