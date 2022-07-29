@@ -25,19 +25,28 @@ Restructuring TARDIS to be more modularized in order to facilitate the addition 
 New Physics
 ===========
 
+TARDIS is currently capable of simulating spherically symmetric type Ia and stripped envelope supernovae at a single point in time in the earlier stages of the explosion. To expand to more types of supernovae, such as type Ib, Ic, and IIP, and to model a larger variety of times after the explosion, new physics is necessary.
+
+
 Simulate Supernovae in the Nebular Phase
 ----------------------------------------
 
-* Currently TARDIS assumes an inner boundary approximation to the photosphere. New physics is required to handle the breakdown of the photosphere at late times. This involves a detailed treatment of the decay products of the radioactive isotopes in SN ejecta, as well as their deposition in various processes such as Compton scattering, photoabsorption and pair production.
+* Currently, TARDIS assumes an inner boundary approximation to the photosphere. New physics is required to handle the breakdown of the photosphere at late times. This involves a detailed treatment of the decay products of the radioactive isotopes in SN ejecta, as well as their deposition in various processes such as Compton scattering, photoabsorption and pair production.
 * Deposited energy needs to be thermalized by solving the Spencer-Fano equations, resulting in fractions of the energy going into heating, non-thermal excitation and non-thermal ionization.
 * At late times when the densities are low collisions become too infrequent to quickly de-excite metastable energy levels. Forbidden lines arising from these levels need to be included. Transitions between levels have to include ion-electron collisions.
 
 
-Simulate Type IIP Supernovae
-----------------------------
+Implement More Continuum Interactions
+-------------------------------------
 
-* TARDIS is currently capable of simulating type Ia and stripped envelope supernovae, but Type IIP require new physics.
-* NLTE ionization and excitation treatment of Hydrogen, relativistic effects, free-free and bound-free processes have all been implemented and are being integrated into the main TARDIS branch.
+* Currently, TARDIS considers Thomson electron scattering and line interactions when performing radiative transfer. In many cases, other continuum interactions have nontrivial effects of the propagation of light.
+* Treatment of bound-free and free-free processes have been developed and are being integrated into TARDIS.
+
+
+Simulate Non-Homologous Expansion
+---------------------------------
+
+* Currently, TARDIS models supernovae as expanding homologously. This is not always the case in many types of supernovae, and much of the simulation needs to be modified in order to drop this assumption.
 
 
 Simulate Spherically Asymmetric Supernovae
