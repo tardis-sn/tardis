@@ -86,7 +86,7 @@ class ModelState:
 
 class Radial1DGeometry:
     """
-    Holds information about model geometry
+    Holds information about model geometry for radial 1D models.
 
     Parameters
     ----------
