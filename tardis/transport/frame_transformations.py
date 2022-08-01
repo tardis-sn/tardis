@@ -48,7 +48,6 @@ def get_inverse_doppler_factor(r, mu, time_explosion):
     ----------
     r : float
     mu : float
-    time_explosion : float
     """
     inv_c = 1 / C_SPEED_OF_LIGHT
     inv_t = 1 / time_explosion
@@ -65,8 +64,7 @@ def get_inverse_doppler_factor_nonhom(v, mu):
 
     Parameters
     ----------
-    r : float
-    mu : float
+    v : float
     time_explosion : float
     """
     inv_c = 1 / C_SPEED_OF_LIGHT
