@@ -20,6 +20,15 @@ def get_doppler_factor(r, mu, time_explosion):
     else:
         return get_doppler_factor_full_relativity(mu, beta)
 
+@njit(**njit_dict_no_parallel)
+def get_doppler_factor_nonhom(v, mu):
+    inv_c = 1 / C_SPEED_OF_LIGHT
+    # inv_t = 1 / time_explosion
+    beta = v * inv_c
+    if not nc.ENABLE_FULL_RELATIVITY:
+        return get_doppler_factor_partial_relativity(mu, beta)
+    else:
+        return get_doppler_factor_full_relativity(mu, beta)
 
 @njit(**njit_dict_no_parallel)
 def get_doppler_factor_partial_relativity(mu, beta):
