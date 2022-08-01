@@ -381,27 +381,38 @@ class TestModelState:
         )
 
 
-def test_composition_number_density(simulation_verysimple):
+@pytest.mark.parametrize(
+    ("index", "expected"),
+    [
+        ((8, 0), 539428198),
+        ((8, 1), 409675383),
+        ((8, 2), 314387928),
+        ((12, 0), 56066111),
+        ((12, 1), 42580098),
+        ((12, 2), 32676283),
+        ((14, 0), 841032262),
+        ((14, 1), 638732300),
+        ((14, 2), 490167906),
+        ((16, 0), 269136275),
+        ((16, 1), 204398856),
+        ((16, 2), 156857199),
+        ((18, 0), 45482957),
+        ((18, 1), 34542591),
+        ((18, 2), 26508241),
+        ((20, 0), 34001569),
+        ((20, 1), 25822910),
+        ((20, 2), 19816693),
+    ],
+)
+def test_composition_number_density(simulation_verysimple, index, expected):
     sim = simulation_verysimple
     comp = Composition(
         sim.model.density,
         sim.model.abundance,
         sim.plasma.atomic_mass,
     )
-    expected_dataframe = (comp.isotopic_mass_fraction * comp.density).divide(
-        comp.atomic_mass, axis=0
-    )
-    expected_value = (
-        comp.density[0]
-        * comp.isotopic_mass_fraction.loc[8, 0]
-        / comp.atomic_mass[0]
-    )
 
-    pd.testing.assert_frame_equal(comp.number_density, expected_dataframe)
-    assert_almost_equal(
-        comp.number_density.loc[8, 0],
-        expected_value.value,
-    )
+    assert_almost_equal(comp.number_density.loc[index], expected, decimal=-2)
 
 
 ###
