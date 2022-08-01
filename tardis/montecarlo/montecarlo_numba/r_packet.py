@@ -109,7 +109,7 @@ def rpacket_trackers_to_dataframe(rpacket_trackers):
     Returns
     -------
     pandas.core.frame.DataFrame
-        Dataframe containing properties of RPackets as columns like status, seed, r, nu, mu, energy, shell_id
+        Dataframe containing properties of RPackets as columns like status, seed, r, nu, mu, energy, shell_id, interaction_type
 
     """
     len_df = sum([len(tracker.r) for tracker in rpacket_trackers])

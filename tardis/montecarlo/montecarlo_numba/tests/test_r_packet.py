@@ -54,7 +54,7 @@ def test_rpacket_trackers_to_dataframe(simulation_rpacket_tracking_enabled):
                 "shell_id",
                 "interaction_type",
             ]
-        )
+        ),
     )
 
     # check all data with rpacket_tracker
