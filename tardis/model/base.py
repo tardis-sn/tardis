@@ -96,7 +96,10 @@ class Radial1DGeometry:
 
     def __init__(self, radius, velocity):
         self.geometry_df = pd.DataFrame(
-            {"radius": radius, "velocity": velocity}
+            {
+                "radius": radius.cgs.value,
+                "velocity": velocity.cgs.value,
+            }
         )
         self.geometry_df.index.name = "cell"
 
