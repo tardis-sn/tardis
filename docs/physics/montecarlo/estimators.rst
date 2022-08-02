@@ -4,7 +4,7 @@
 Volume-Based Estimators
 ***********************
 
-Besides from just tracking the propagation of our packets, TARDIS also uses the Monte Carlo iteration is to determine certain useful information about the light traveling through the supernova (also called the radiation field). This information that will eventually be used to help :doc:`update the plasma state <../update_and_conv/update_and_conv>` as well as :doc:`generate different types of spectra <../spectrum/index>`. We determine this information through volume-based estimators. The concept was originally developed by :cite:`Lucy1999` and successively refined by :cite:`Lucy1999a`, :cite:`Lucy2002` and :cite:`Lucy2003`.
+Besides from just tracking the propagation of our packets, TARDIS also uses the Monte Carlo iteration is to determine useful information about the light traveling through the supernova (also called the radiation field). This information will eventually be used to help :doc:`update the plasma state <../update_and_conv/update_and_conv>` as well as :doc:`generate different types of spectra <../spectrum/index>`. We determine this information through volume-based estimators. The concept was originally developed by :cite:`Lucy1999` and successively refined by :cite:`Lucy1999a`, :cite:`Lucy2002` and :cite:`Lucy2003`.
 
 
 Theory
