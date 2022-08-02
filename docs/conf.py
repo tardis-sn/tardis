@@ -66,10 +66,6 @@ exclude_patterns.append("_build")
 exclude_patterns.append("**_template.rst")
 exclude_patterns.append("**.ipynb_checkpoints")
 exclude_patterns.append("resources/research_done_using_TARDIS/ads.ipynb")
-exclude_patterns.append("physics/energy_input/gammaray_deposition.ipynb")
-
-if os.getenv("DISABLE_PROFILING"):
-    exclude_patterns.append("contributing/development/profiling/**.ipynb")
 
 # This is added to the end of RST files - a good place to put substitutions to
 # be used globally.
