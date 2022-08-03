@@ -90,7 +90,7 @@ Mission Statement
     contributing/CONTRIBUTING.md
     contributing/development/index
     contributing/CHANGELOG.md
-    contributing/roadmap
+    contributing/in_progress/index
 
 
 .. toctree::
