@@ -10,7 +10,9 @@ from tardis.montecarlo import (
 )
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
+    get_doppler_factor_nonhom,
     get_inverse_doppler_factor,
+    get_inverse_doppler_factor_nonhom,
     angle_aberration_CMF_to_LF,
 )
 from tardis.montecarlo.montecarlo_numba.r_packet import (
@@ -22,6 +24,8 @@ from tardis.montecarlo.montecarlo_numba.macro_atom import (
     macro_atom,
     MacroAtomTransitionType,
 )
+from tardis.montecarlo.montecarlo_numba.nonhomologous_grid import velocity
+from tardis.montecarlo.montecarlo_numba.numba_config import ENABLE_NONHOMOLOGOUS_EXPANSION
 from tardis import constants as const
 
 K_B = const.k_B.cgs.value
@@ -149,6 +153,7 @@ def scatter(r_packet, time_explosion):
     old_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
+    
     comov_nu = r_packet.nu * old_doppler_factor
     comov_energy = r_packet.energy * old_doppler_factor
     r_packet.mu = get_random_mu()
@@ -170,6 +175,7 @@ def continuum_event(
     chi_ff,
     chi_bf_contributions,
     current_continua,
+    v,
 ):
     """
     continuum event handler - activate the macroatom and run the handler
@@ -184,11 +190,16 @@ def continuum_event(
     old_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
+    if ENABLE_NONHOMOLOGOUS_EXPANSION:
+        old_doppler_factor = get_doppler_factor_nonhom(v, r_packet.mu)
 
     r_packet.mu = get_random_mu()
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
+    if ENABLE_NONHOMOLOGOUS_EXPANSION:
+        inverse_doppler_factor = get_inverse_doppler_factor_nonhom(v, r_packet.mu)
+
     comov_energy = r_packet.energy * old_doppler_factor
     comov_nu = (
         r_packet.nu * old_doppler_factor
@@ -375,7 +386,7 @@ def bound_free_emission(r_packet, time_explosion, numba_plasma, continuum_id):
 
 
 @njit(**njit_dict_no_parallel)
-def thomson_scatter(r_packet, time_explosion):
+def thomson_scatter(r_packet, time_explosion, v):
     """
     Thomson scattering — no longer line scattering
     \n1) get the doppler factor at that position with the old angle
@@ -393,12 +404,16 @@ def thomson_scatter(r_packet, time_explosion):
     old_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
+    if ENABLE_NONHOMOLOGOUS_EXPANSION:
+        old_doppler_factor = get_doppler_factor_nonhom(v, r_packet.mu)
     comov_nu = r_packet.nu * old_doppler_factor
     comov_energy = r_packet.energy * old_doppler_factor
     r_packet.mu = get_random_mu()
     inverse_new_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
+    if ENABLE_NONHOMOLOGOUS_EXPANSION:
+        inverse_new_doppler_factor = get_inverse_doppler_factor_nonhom(v, r_packet.mu)
 
     r_packet.nu = comov_nu * inverse_new_doppler_factor
     r_packet.energy = comov_energy * inverse_new_doppler_factor
@@ -409,10 +424,11 @@ def thomson_scatter(r_packet, time_explosion):
     temp_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
+    
 
 
 @njit(**njit_dict_no_parallel)
-def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
+def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma, v):
     """
     Line scatter function that handles the scattering itself, including new angle drawn, and calculating nu out using macro atom
 
@@ -427,12 +443,15 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
     old_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
+    if ENABLE_NONHOMOLOGOUS_EXPANSION:
+        old_doppler_factor = get_doppler_factor_nonhom(v, r_packet.mu)
     r_packet.mu = get_random_mu()
 
     inverse_new_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
-
+    if ENABLE_NONHOMOLOGOUS_EXPANSION:
+        inverse_new_doppler_factor = get_inverse_doppler_factor_nonhom(v, r_packet.mu)
     comov_energy = r_packet.energy * old_doppler_factor
     r_packet.energy = comov_energy * inverse_new_doppler_factor
 

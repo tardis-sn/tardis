@@ -20,6 +20,7 @@ def get_doppler_factor(r, mu, time_explosion):
     else:
         return get_doppler_factor_full_relativity(mu, beta)
 
+
 @njit(**njit_dict_no_parallel)
 def get_doppler_factor_nonhom(v, mu):
     inv_c = 1 / C_SPEED_OF_LIGHT
@@ -28,6 +29,7 @@ def get_doppler_factor_nonhom(v, mu):
         return get_doppler_factor_partial_relativity(mu, beta)
     else:
         return get_doppler_factor_full_relativity(mu, beta)
+
 
 @njit(**njit_dict_no_parallel)
 def get_doppler_factor_partial_relativity(mu, beta):
@@ -48,6 +50,7 @@ def get_inverse_doppler_factor(r, mu, time_explosion):
     ----------
     r : float
     mu : float
+    time_explosion : float
     """
     inv_c = 1 / C_SPEED_OF_LIGHT
     inv_t = 1 / time_explosion
@@ -57,6 +60,7 @@ def get_inverse_doppler_factor(r, mu, time_explosion):
     else:
         return get_inverse_doppler_factor_full_relativity(mu, beta)
 
+
 @njit(**njit_dict_no_parallel)
 def get_inverse_doppler_factor_nonhom(v, mu):
     """
@@ -65,7 +69,7 @@ def get_inverse_doppler_factor_nonhom(v, mu):
     Parameters
     ----------
     v : float
-    time_explosion : float
+    mu : float
     """
     inv_c = 1 / C_SPEED_OF_LIGHT
     beta = v * inv_c
@@ -73,6 +77,8 @@ def get_inverse_doppler_factor_nonhom(v, mu):
         return get_inverse_doppler_factor_partial_relativity(mu, beta)
     else:
         return get_inverse_doppler_factor_full_relativity(mu, beta)
+        # doesn't work for now
+
 
 @njit(**njit_dict_no_parallel)
 def get_inverse_doppler_factor_partial_relativity(mu, beta):
