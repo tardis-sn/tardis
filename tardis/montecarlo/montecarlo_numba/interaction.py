@@ -144,24 +144,6 @@ def sample_nu_free_bound(numba_plasma, shell, continuum_id):
 
 
 @njit(**njit_dict_no_parallel)
-def scatter(r_packet, time_explosion):
-
-    old_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
-    )
-    comov_nu = r_packet.nu * old_doppler_factor
-    comov_energy = r_packet.energy * old_doppler_factor
-    r_packet.mu = get_random_mu()
-    inverse_new_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
-    )
-
-    r_packet.energy = comov_energy * inverse_new_doppler_factor
-
-    return comov_nu, inverse_new_doppler_factor
-
-
-@njit(**njit_dict_no_parallel)
 def continuum_event(
     r_packet,
     time_explosion,
