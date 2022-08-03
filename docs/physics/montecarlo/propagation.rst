@@ -6,13 +6,15 @@ Packet Propagation
 
 The bulk of a Monte Carlo Radiative Transfer calculation is spent on
 determining the propagation history of the different packets. After a packet is
-initialized (see :ref:`initialization`), it is launched and may then perform interactions with the
+initialized (see :doc:`initialization`), it is launched and may then perform interactions with the
 surrounding material. This occurs again in a probabilistic manner. The packet
 propagation is followed until it escapes through the outer boundary of the
 computational domain, at which point the packet contributes to the synthetic
 spectrum, the main product of a TARDIS calculation. The different spectral
 features are simply a combined product of the changes in the packet properties
 induced in the radiation-matter interactions.
+
+.. _spherical-domain:
 
 Propagation in a Spherical Domain
 =================================

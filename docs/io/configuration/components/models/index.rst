@@ -279,8 +279,8 @@ factor of .8, etc.
 .. note::
 
     ``t_rad`` and ``dilution_factor`` are the values of the temperature and dilution factor for the first
-    iteration, and will be updated in subsequent iterations (see :ref:`est_and_conv`). To prevent these
-    quantities from being changed, you must set the damping constant to zero in the :ref:`Damped Convergence
+    iteration, and will be updated in subsequent iterations (see :doc:`../../../../physics/update_and_conv/update_and_conv`).
+    To prevent these quantities from being changed, you must set the damping constant to zero in the :ref:`Damped Convergence
     Configuration <damped-config>` in the Monte Carlo section of the configuration file.
 
 CSVY Model Tutorial

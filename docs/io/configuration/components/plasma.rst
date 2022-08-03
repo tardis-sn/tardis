@@ -23,7 +23,7 @@ The radiative rates describe how to calculate the :math:`J_\textrm{blue}` needed
 :math:`J_\textrm{blue} = W \times \textrm{Blackbody}(T_\textrm{rad})`
  
 3) ``detailed`` in which the :math:`J_\textrm{blue}`
-are calculated using an estimator (this is described in :doc:`../../../physics/est_and_conv/estimators`).
+are calculated using an estimator (this is described in :doc:`../../../physics/montecarlo/estimators`).
  
 TARDIS currently supports three different kinds of line interaction: ``scatter`` --- a resonance scattering implementation,
 ``macroatom`` --- the most complex form of line interaction described in :ref:`macroatom` and ``downbranch`` a simplified
