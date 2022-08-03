@@ -95,37 +95,28 @@ class Radial1DGeometry:
     """
 
     def __init__(self, radius, velocity):
-        self.geometry_df = pd.DataFrame(
-            {
-                "radius": radius.cgs.value,
-                "velocity": velocity.cgs.value,
-            }
-        )
-        self.geometry_df.index.name = "cell"
-
-    def get_geometry(self):
-        return self.geometry_df
+        self.radius = radius.cgs
+        self.velocity = velocity.cgs
 
     @property
     def r_inner(self):
-        return self.geometry_df.radius[:-1].to_numpy() * u.cm
+        return self.radius[:-1]
 
     @property
     def r_outer(self):
-        return self.geometry_df.radius[1:].to_numpy() * u.cm
+        return self.radius[1:]
 
     @property
     def v_inner(self):
-        return self.geometry_df.velocity[:-1].to_numpy() * u.cm / u.s
+        return self.velocity[:-1]
 
     @property
     def v_outer(self):
-        return self.geometry_df.velocity[1:].to_numpy() * u.cm / u.s
+        return self.velocity[1:]
 
     @property
     def volume(self):
-        volume = (4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
-        return volume
+        return (4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
 
 
 class Radial1DModel(HDFWriterMixin):
