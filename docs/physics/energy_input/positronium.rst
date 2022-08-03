@@ -1,6 +1,6 @@
-**************************
+***********
 Positronium
-**************************
+***********
 
 Positronium (Ps) is the pairing of an electron and positron into a bound state analogous to a hydrogen atom (see `Wikipedia <https://en.wikipedia.org/wiki/Positronium>`_). This occurs when the relative motion between the positron and electron is small :cite:`Jauch1976` (:math:`\beta \rightarrow 0`, :math:`\beta=v/c`).
 
