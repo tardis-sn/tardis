@@ -39,11 +39,22 @@ def test_rpacket_trackers_to_dataframe(simulation_rpacket_tracking_enabled):
     # check df shape and column names
     assert rtracker_df.shape == (
         sum([len(tracker.r) for tracker in sim.runner.rpacket_tracker]),
-        7,
+        8,
     )
     npt.assert_array_equal(
         sim.runner.rpacket_tracker_df.columns.values,
-        np.array(["status", "seed", "r", "nu", "mu", "energy", "shell_id"]),
+        np.array(
+            [
+                "status",
+                "seed",
+                "r",
+                "nu",
+                "mu",
+                "energy",
+                "shell_id",
+                "interaction_type",
+            ]
+        ),
     )
 
     # check all data with rpacket_tracker
@@ -59,6 +70,7 @@ def test_rpacket_trackers_to_dataframe(simulation_rpacket_tracking_enabled):
                     rpacket.mu[rpacket_step_no],
                     rpacket.energy[rpacket_step_no],
                     rpacket.shell_id[rpacket_step_no],
+                    rpacket.interaction_type[rpacket_step_no],
                 ]
             )
     npt.assert_array_equal(rtracker_df.to_numpy(), np.array(expected_rtrackers))
