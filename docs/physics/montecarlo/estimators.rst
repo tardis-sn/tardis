@@ -10,8 +10,8 @@ Besides from just tracking the propagation of our packets, TARDIS also uses the 
 Theory
 ======
 
-j and nu_bar
-------------
+:math:`J` and :math:`\bar \nu` Estimators
+-----------------------------------------
 
 Ordinarily, TARDIS is not concerned about the physical amount of time a packet spends traveling through the ejecta. Instead, we consider the "time of simulation" :math:`\Delta t` which is chosen to be the amount of time in which the photosphere emits the ensemble of packets (see :doc:`Energy Packet Initialization <initialization>`). When looking at the estimators, a slightly different interpretation of the packets is necessary. Here, we view the packets as not carrying a discrete amount of energy :math:`\varepsilon` that is emitted in a time interval :math:`\Delta t`, but as being a flow of energy that carries an energy :math:`\varepsilon` over a time :math:`\Delta t` -- that is, each packet is carrying a luminosity (energy per unit time) of :math:`L = \frac{\varepsilon}{\Delta t}`. Now, we can say that if a packet spends a time :math:`\delta t` in the supernova's ejecta, it contributes an energy of :math:`L\delta t= \frac{\varepsilon}{\Delta t}\delta t` into the radiation energy of the ejecta.
 
@@ -44,8 +44,8 @@ These estimators will be used in the :doc:`../update_and_conv/update_and_conv` s
 
 .. _j-blue-estimator:
 
-j_blue
-------
+:math:`J^b_{lu}` Estimator
+--------------------------
 
 Another estimator, called the ``j_blue`` or :math:`J^b_{lu}` estimator, is unlike the two previous estimators discussed. Instead of storing the mean intensity over the entire spectrum, it stores the intensity at a specific frequency. More precisely, since frequency is a continuum, it stores the intensity per unit frequency. In each shell, we record the intensity per unit frequency at the blue end (higher frequency end; this is where the ":math:`b`" superscript in :math:`J^b_{lu}` comes from) of each line transition -- that is, if a line transition :math:`l\rightarrow u` (from the lower energy level :math:`l` to the upper energy level :math:`u`, hence the :math:`lu` in :math:`J^b_{lu}`) has a frequency :math:`\nu_{lu}`, the mean intensity between :math:`\nu_{lu}` and :math:`\nu_{lu}+d\nu` is :math:`J^b_{lu}d\nu`. **This means that the** :math:`J^b_{lu}` **estimator contains values for each atomic line in each shell**, and is hence called a *line estimator*. Now, using our previous :math:`J` estimator, we have
 
@@ -74,8 +74,8 @@ But now inputting this into the equation for :math:`J^b_{lu}` (using :math:`\fra
 
 .. _edotlu:
 
-Edotlu
-------
+:math:`\dot{E}_{lu}` Estimator
+------------------------------
 
 The final estimator we consider, like the ``j_blue`` estimator, is a line estimator, meaning it has contains values for each atomic line in each shell. It calculates the rate at which energy density interacts with a line transition :math:`l\rightarrow u`. The first step is to calculate the rate at which energy density resonates with some line in some shell. Each packet that comes into resonance with the transition :math:`l\rightarrow u` in a shell of volume :math:`V` contributes an energy density to that shell of :math:`\frac{\varepsilon}{V}` over a time :math:`\Delta t`, meaning the rate at which energy density resonates with the line is :math:`\sum_i \frac{\varepsilon_i}{\Delta t V} = \frac{1}{\Delta t V} \sum \varepsilon` where we are summing over all packets which come into resonance with the atomic line in some shell (as usual, this sum is done using the energies in the co-moving frame). Finally, this light then has a :math:`\left( 1- e^{-\tau_{lu}}\right)` probability of interacting with the line (where :math:`\tau_{lu}` is the Sobolev optical depth for the transition :math:`l\rightarrow u`, see :ref:`physical-interactions`), so the rate at which energy density is absorbed into the transition :math:`l\rightarrow u`, called the ``Edotlu`` estimator, is
 
