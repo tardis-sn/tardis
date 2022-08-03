@@ -280,10 +280,13 @@ def initialize_packets(
             shell, inner_velocities[k], outer_velocities[k]
         )
 
-        isotope_packet_count = decays_per_isotope.iloc[k]
+        isotope_packet_count_df = decays_per_isotope.iloc[k]
 
         i = 0
-        for isotope_name, count in isotope_packet_count.items():
+        for (
+            isotope_name,
+            isotope_packet_count,
+        ) in isotope_packet_count_df.items():
             isotope_energy = gamma_ray_lines[isotope_name][0, :]
             isotope_intensity = gamma_ray_lines[isotope_name][1, :]
             isotope_positron_fraction = calculate_positron_fraction(
@@ -298,7 +301,7 @@ def initialize_packets(
             else:
                 tau_end = 0
 
-            for c in range(count):
+            for c in range(isotope_packet_count):
                 packet, decay_time_index = initialize_packet_properties(
                     isotope_energy,
                     isotope_intensity,
