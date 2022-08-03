@@ -105,7 +105,7 @@ class Composition:
         self.density = density
         self.isotopic_mass_fraction = isotopic_mass_fraction
         self.atomic_mass_unit = u.g
-        self.atomic_mass = atomic_mass.to_numpy().to(self.atomic_mass_unit)
+        self.atomic_mass = atomic_mass.to_numpy() * self.atomic_mass_unit
 
     @property
     def number_density(self):
