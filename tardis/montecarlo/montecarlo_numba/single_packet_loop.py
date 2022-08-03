@@ -1,5 +1,6 @@
 from numba import njit
 from tardis.montecarlo.montecarlo_numba.nonhomologous_grid import velocity
+from tardis.montecarlo.montecarlo_numba.numba_config import ENABLE_NONHOMOLOGOUS_EXPANSION
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,
@@ -11,6 +12,7 @@ from tardis.transport.r_packet_transport import (
 )
 
 from tardis.transport.frame_transformations import (
+    get_doppler_factor_nonhom,
     get_inverse_doppler_factor,
     get_doppler_factor,
 )
@@ -85,6 +87,9 @@ def single_packet_loop(
         doppler_factor = get_doppler_factor(
             r_packet.r, r_packet.mu, numba_model.time_explosion
         )
+        if ENABLE_NONHOMOLOGOUS_EXPANSION:
+            v = velocity(r_packet, numba_model)
+            doppler_factor = get_doppler_factor_nonhom(v, r_packet.mu)
         comov_nu = r_packet.nu * doppler_factor
         chi_e = chi_electron_calculator(
             numba_plasma, comov_nu, r_packet.current_shell_id

@@ -9,7 +9,9 @@ from tardis.montecarlo.montecarlo_numba import (
 )
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
+    get_doppler_factor_nonhom,
 )
+from tardis.montecarlo.montecarlo_numba.nonhomologous_grid import velocity
 from tardis.montecarlo.montecarlo_numba import numba_config as nc
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 
@@ -66,6 +68,9 @@ class RPacket(object):
         doppler_factor = get_doppler_factor(
             self.r, self.mu, numba_model.time_explosion
         )
+        if nc.ENABLE_NONHOMOLOGOUS_EXPANSION:
+            v = velocity(self, numba_model)
+            doppler_factor = get_doppler_factor_nonhom(v, self.mu)
         comov_nu = self.nu * doppler_factor
         next_line_id = len(numba_plasma.line_list_nu) - np.searchsorted(
             inverse_line_list_nu, comov_nu
