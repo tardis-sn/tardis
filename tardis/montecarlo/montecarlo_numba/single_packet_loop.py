@@ -1,4 +1,5 @@
 from numba import njit
+from tardis.montecarlo.montecarlo_numba.nonhomologous_grid import velocity
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,
@@ -146,11 +147,13 @@ def single_packet_loop(
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
             )
+            v = velocity(r_packet, numba_model)
             line_scatter(
                 r_packet,
                 numba_model.time_explosion,
                 line_interaction_type,
                 numba_plasma,
+                v
             )
             trace_vpacket_volley(
                 r_packet, vpacket_collection, numba_model, numba_plasma
@@ -162,7 +165,8 @@ def single_packet_loop(
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
             )
-            thomson_scatter(r_packet, numba_model.time_explosion)
+            v = velocity(r_packet, numba_model)
+            thomson_scatter(r_packet, numba_model.time_explosion, v)
 
             trace_vpacket_volley(
                 r_packet, vpacket_collection, numba_model, numba_plasma
@@ -175,6 +179,7 @@ def single_packet_loop(
             move_r_packet(
                 r_packet, distance, numba_model.time_explosion, estimators
             )
+            v = velocity(r_packet, numba_model)
             continuum_event(
                 r_packet,
                 numba_model.time_explosion,
@@ -183,6 +188,7 @@ def single_packet_loop(
                 chi_ff,
                 chi_bf_contributions,
                 current_continua,
+                v
             )
 
             trace_vpacket_volley(
