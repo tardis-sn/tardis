@@ -217,13 +217,13 @@ def continuum_event(
     )
 
     macro_atom_event(
-        destination_level_idx, r_packet, time_explosion, numba_plasma
+        destination_level_idx, r_packet, time_explosion, numba_plasma, v
     )
 
 
 @njit(**njit_dict_no_parallel)
 def macro_atom_event(
-    destination_level_idx, r_packet, time_explosion, numba_plasma
+    destination_level_idx, r_packet, time_explosion, numba_plasma, v
 ):
     """
     Macroatom event handler - run the macroatom and handle the result
@@ -244,20 +244,20 @@ def macro_atom_event(
         montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
         and transition_type == MacroAtomTransitionType.FF_EMISSION
     ):
-        free_free_emission(r_packet, time_explosion, numba_plasma)
+        free_free_emission(r_packet, time_explosion, numba_plasma, v)
 
     elif (
         montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
         and transition_type == MacroAtomTransitionType.BF_EMISSION
     ):
         bound_free_emission(
-            r_packet, time_explosion, numba_plasma, transition_id
+            r_packet, time_explosion, numba_plasma, transition_id, v
         )
     elif (
         montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
         and transition_type == MacroAtomTransitionType.BF_COOLING
     ):
-        bf_cooling(r_packet, time_explosion, numba_plasma)
+        bf_cooling(r_packet, time_explosion, numba_plasma, v)
 
     elif (
         montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
@@ -266,13 +266,13 @@ def macro_atom_event(
         adiabatic_cooling(r_packet)
 
     elif transition_type == MacroAtomTransitionType.BB_EMISSION:
-        line_emission(r_packet, transition_id, time_explosion, numba_plasma)
+        line_emission(r_packet, transition_id, time_explosion, numba_plasma, v)
     else:
         raise Exception("No Interaction Found!")
 
 
 @njit(**njit_dict_no_parallel)
-def bf_cooling(r_packet, time_explosion, numba_plasma):
+def bf_cooling(r_packet, time_explosion, numba_plasma, v):
     """
     Bound-Free Cooling - Determine and run bf emission from cooling
 
@@ -293,7 +293,7 @@ def bf_cooling(r_packet, time_explosion, numba_plasma):
         i += 1
         p += fb_cooling_prob[i]
     continuum_idx = i
-    bound_free_emission(r_packet, time_explosion, numba_plasma, continuum_idx)
+    bound_free_emission(r_packet, time_explosion, numba_plasma, continuum_idx, v)
 
 
 @njit(**njit_dict_no_parallel)
@@ -330,7 +330,7 @@ def get_current_line_id(nu, line_list):
 
 
 @njit(**njit_dict_no_parallel)
-def free_free_emission(r_packet, time_explosion, numba_plasma):
+def free_free_emission(r_packet, time_explosion, numba_plasma, v):
     """
     Free-Free emission - set the frequency from electron-ion interaction
 
@@ -344,6 +344,8 @@ def free_free_emission(r_packet, time_explosion, numba_plasma):
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
+    if ENABLE_NONHOMOLOGOUS_EXPANSION:
+        inverse_doppler_factor = get_inverse_doppler_factor_nonhom(v, r_packet.mu)
     comov_nu = sample_nu_free_free(numba_plasma, r_packet.current_shell_id)
     r_packet.nu = comov_nu * inverse_doppler_factor
     current_line_id = get_current_line_id(comov_nu, numba_plasma.line_list_nu)
@@ -356,7 +358,7 @@ def free_free_emission(r_packet, time_explosion, numba_plasma):
 
 
 @njit(**njit_dict_no_parallel)
-def bound_free_emission(r_packet, time_explosion, numba_plasma, continuum_id):
+def bound_free_emission(r_packet, time_explosion, numba_plasma, continuum_id, v):
     """
     Bound-Free emission - set the frequency from photo-ionization
 
@@ -371,6 +373,8 @@ def bound_free_emission(r_packet, time_explosion, numba_plasma, continuum_id):
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
+    if ENABLE_NONHOMOLOGOUS_EXPANSION:
+        inverse_doppler_factor = get_inverse_doppler_factor_nonhom(v, r_packet.mu)
 
     comov_nu = sample_nu_free_bound(
         numba_plasma, r_packet.current_shell_id, continuum_id
@@ -457,7 +461,7 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma, 
 
     if line_interaction_type == LineInteractionType.SCATTER:
         line_emission(
-            r_packet, r_packet.next_line_id, time_explosion, numba_plasma
+            r_packet, r_packet.next_line_id, time_explosion, numba_plasma, v
         )
     else:  # includes both macro atom and downbranch - encoded in the transition probabilities
         comov_nu = r_packet.nu * old_doppler_factor  # Is this necessary?
@@ -466,12 +470,12 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma, 
             r_packet.next_line_id
         ]
         macro_atom_event(
-            activation_level_id, r_packet, time_explosion, numba_plasma
+            activation_level_id, r_packet, time_explosion, numba_plasma, v
         )
 
 
 @njit(**njit_dict_no_parallel)
-def line_emission(r_packet, emission_line_id, time_explosion, numba_plasma):
+def line_emission(r_packet, emission_line_id, time_explosion, numba_plasma, v):
     """
     Sets the frequency of the RPacket properly given the emission channel
 
@@ -490,6 +494,8 @@ def line_emission(r_packet, emission_line_id, time_explosion, numba_plasma):
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
+    if ENABLE_NONHOMOLOGOUS_EXPANSION:
+        inverse_doppler_factor = get_inverse_doppler_factor_nonhom(v, r_packet.mu)
     r_packet.nu = (
         numba_plasma.line_list_nu[emission_line_id] * inverse_doppler_factor
     )
