@@ -165,12 +165,14 @@ Physical Interactions
 As a packet propagates through the computational domain, physical radiation-matter interactions can trigger changes
 in the packet properties. The probability that a photon/packet will interact with matter is characterized by its
 optical depth :math:`\tau`; the probability that a packet will have interacted after going through an optical depth
-:math:`\Delta \tau` is :math:`1-e^{-\Delta \tau}`. To model this (see :ref:`Random Sampling <randomsampling>`), the
+:math:`\Delta \tau` is :math:`1-e^{-\Delta \tau}` (see :ref:`opacity` for more). To model this
+(see :ref:`Random Sampling <randomsampling>`), the
 packet is assigned a random value of optical depth :math:`\tau_\mathrm{interaction} = -\log z` (for another random
 :math:`z` between 0 and 1), and upon reaching that optical depth, the packet will interact.
 
 TARDIS considers two different radiation-matter interactions within the simulation: electron scattering and atomic
-line interactions. As packets propagate, they accumulate optical depth due to the possibility of going through either
+line interactions (see :ref:`light_and_matter` for a basic introduction to these interactions). As packets propagate,
+they accumulate optical depth due to the possibility of going through either
 of these interactions. Since the main focus of TARDIS is to calculate optical spectra,
 electron-scatterings are treated in the elastic low-energy limit as classical
 Thomson scatterings. In this case, the electron scattering process is frequency-independent. As a consequence to the
