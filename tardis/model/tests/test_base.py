@@ -404,7 +404,9 @@ class TestModelState:
         ((20, 2), 19816693),
     ],
 )
-def test_composition_number_density(simulation_verysimple, index, expected):
+def test_composition_elemental_number_density(
+    simulation_verysimple, index, expected
+):
     sim = simulation_verysimple
     comp = Composition(
         sim.model.density,
@@ -412,7 +414,9 @@ def test_composition_number_density(simulation_verysimple, index, expected):
         sim.plasma.atomic_mass,
     )
 
-    assert_almost_equal(comp.number_density.loc[index], expected, decimal=-2)
+    assert_almost_equal(
+        comp.elemental_number_density.loc[index], expected, decimal=-2
+    )
 
 
 ###
