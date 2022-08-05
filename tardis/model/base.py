@@ -101,9 +101,9 @@ class Composition:
         Number density of each isotope in each shell.
     """
 
-    def __init__(self, density, isotopic_mass_fraction, atomic_mass):
+    def __init__(self, density, elemental_mass_fraction, atomic_mass):
         self.density = density
-        self.isotopic_mass_fraction = isotopic_mass_fraction
+        self.elemental_mass_fraction = elemental_mass_fraction
         self.atomic_mass_unit = u.g
         self.atomic_mass = atomic_mass.to_numpy() * self.atomic_mass_unit
 
