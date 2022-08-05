@@ -94,25 +94,11 @@ class Radial1DGeometry:
     velocity : astropy.units.quantity.Quantity
     """
 
-    def __init__(self, radius, velocity):
-        self.radius = radius.cgs
-        self.velocity = velocity.cgs
-
-    @property
-    def r_inner(self):
-        return self.radius[:-1]
-
-    @property
-    def r_outer(self):
-        return self.radius[1:]
-
-    @property
-    def v_inner(self):
-        return self.velocity[:-1]
-
-    @property
-    def v_outer(self):
-        return self.velocity[1:]
+    def __init__(self, r_inner, r_outer, v_inner, v_outer):
+        self.r_inner = r_inner
+        self.r_outer = r_outer
+        self.v_inner = v_inner
+        self.v_outer = v_outer
 
     @property
     def volume(self):
