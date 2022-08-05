@@ -5,7 +5,7 @@ from astropy import units as u
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from tardis.io.config_reader import Configuration
-from tardis.model import Radial1DModel
+from tardis.model import Radial1DModel, Radial1DGeometry
 from tardis.io.decay import IsotopeAbundances
 
 
@@ -377,6 +377,26 @@ class TestModelState:
         assert_almost_equal(
             self.model.model_state.density.value, self.model.density.value
         )
+
+
+@pytest.mark.parametrize(
+    ("index", "expected"),
+    [
+        (0, 1.00977478e45),
+        (10, 1.98154804e45),
+        (19, 3.13361319e45),
+    ],
+)
+def test_radial_1D_geometry_volume(simulation_verysimple, index, expected):
+    sim = simulation_verysimple
+    model = sim.model
+    geometry = Radial1DGeometry(
+        model.r_inner, model.r_outer, model.v_inner, model.v_outer
+    )
+    volume = geometry.volume
+
+    assert volume.unit == u.Unit("cm3")
+    assert_almost_equal(volume[index].value, expected, decimal=-40)
 
 
 ###
