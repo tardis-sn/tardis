@@ -62,6 +62,26 @@ def _yaml_handler(path):
         return yaml.load(f, Loader=YAMLLoader)
 
 
+def is_quantity(checker, instance):
+    """
+    Check if the provided instance is of type astropy.units.quantity.Quantity
+
+    Parameters
+    ----------
+
+    checker:
+        Object of `TypeChecker`. Passed by jsonschema internally.
+
+    instance:
+        The instance to be checked.
+
+    Returns
+    -------
+    bool: True if the instance is of type astropy.units.quantity.Quantity else False
+    """
+    return isinstance(instance, Quantity)
+
+
 def validate_dict(
     config_dict, schemapath=config_schema_file, validator=DefaultDraft4Validator
 ):
@@ -71,8 +91,15 @@ def validate_dict(
     handlers = {"file": _yaml_handler}
     resolver = RefResolver(schemaurl, schema, handlers=handlers)
     validated_dict = deepcopy(config_dict)
-    validator(
-        schema=schema, types={"quantity": (Quantity,)}, resolver=resolver
+    custom_type_checker = validator.TYPE_CHECKER.redefine(
+        "quantity", is_quantity
+    )
+    custom_validator = validators.extend(
+        validator, type_checker=custom_type_checker
+    )
+    custom_validator(
+        schema=schema,
+        resolver=resolver,
     ).validate(validated_dict)
     return validated_dict
 

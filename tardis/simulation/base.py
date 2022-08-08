@@ -16,6 +16,9 @@ from tardis.util.base import is_notebook
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
 from tardis.visualization import ConvergencePlots
 from IPython.display import display
+from tardis.montecarlo.montecarlo_numba.r_packet import (
+    rpacket_trackers_to_dataframe,
+)
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -463,6 +466,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.convergence_plots.update(
                 export_convergence_plots=self.export_convergence_plots,
                 last=True,
+            )
+
+        if self.runner.rpacket_tracker:
+            self.runner.rpacket_tracker_df = rpacket_trackers_to_dataframe(
+                self.runner.rpacket_tracker
             )
 
         logger.info(

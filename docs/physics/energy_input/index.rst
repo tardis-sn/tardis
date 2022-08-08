@@ -1,6 +1,7 @@
 ***************************
-Gamma Ray Energy Deposition
+Energy Deposition
 ***************************
 
 .. toctree::
     gammaray_deposition
+    positronium

@@ -20,7 +20,7 @@ Installation
 Install with lockfiles
 ======================
 
-Conda lockfiles are platform-specific dependency files that produce repeteable environments.
+Conda lockfiles are platform-specific dependency files that produce repeatable environments.
 These files are generated on every new release. We strongly recommend installing TARDIS using
 this method by following the steps described below.
 
@@ -63,7 +63,7 @@ this method by following the steps described below.
         $ git remote add upstream git@github.com:tardis-sn/tardis.git
         $ git fetch upstream
         $ git checkout upstream/master
-        $ pip install -e .
+        $ python setup.py develop
 
       .. note::
 
@@ -76,8 +76,10 @@ this method by following the steps described below.
 
     $ conda deactivate
 
-You are ready! From now on, just activate the ``tardis`` environment before working with the 
-TARDIS package.
+From now on, just activate the ``tardis`` environment before working with the TARDIS package.
+
+You have successfully installed TARDIS! 🎉 Please refer to `Quickstart for TARDIS <quickstart.ipynb>`_ 
+to start running simulations.
 
 
 Install from package
@@ -100,3 +102,11 @@ To update the environment after a new release, download the latest lockfile and 
 ::
 
     $ conda update --name tardis --file conda-{platform}-64.lock
+
+.. note::
+
+  If you have installed the tardis package in development mode, you should *ideally* update your environment whenever you pull latest tardis code because the new code added might be using updated (or new) dependencies. If you don't do that and your tardis installation seems broken, you can check if your environment requires update by comparing it against the latest environment file:
+
+  ::
+
+      $ conda compare --name tardis tardis_env3.yml

@@ -8,7 +8,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
     angle_aberration_CMF_to_LF,
@@ -141,24 +141,6 @@ def sample_nu_free_bound(numba_plasma, shell, continuum_id):
     return phot_nus_block[idx] - (em[idx] - zrand) / (em[idx] - em[idx - 1]) * (
         phot_nus_block[idx] - phot_nus_block[idx - 1]
     )
-
-
-@njit(**njit_dict_no_parallel)
-def scatter(r_packet, time_explosion):
-
-    old_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
-    )
-    comov_nu = r_packet.nu * old_doppler_factor
-    comov_energy = r_packet.energy * old_doppler_factor
-    r_packet.mu = get_random_mu()
-    inverse_new_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
-    )
-
-    r_packet.energy = comov_energy * inverse_new_doppler_factor
-
-    return comov_nu, inverse_new_doppler_factor
 
 
 @njit(**njit_dict_no_parallel)

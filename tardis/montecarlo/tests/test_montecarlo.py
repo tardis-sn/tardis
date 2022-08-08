@@ -50,7 +50,7 @@ import numpy as np
 import pandas as pd
 import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
-import tardis.montecarlo.montecarlo_numba.r_packet_transport as r_packet_transport
+import tardis.transport.r_packet_transport as r_packet_transport
 import tardis.montecarlo.montecarlo_numba.utils as utils
 import tardis.montecarlo.montecarlo_configuration as mc
 from tardis import constants as const
@@ -58,7 +58,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
 from tardis.montecarlo.montecarlo_numba.numba_interface import RPacketTracker
 
 
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.transport.frame_transformations import (
     get_doppler_factor,
     angle_aberration_LF_to_CMF,
     angle_aberration_CMF_to_LF,

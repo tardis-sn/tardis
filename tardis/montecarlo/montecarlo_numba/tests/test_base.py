@@ -3,6 +3,8 @@ import pandas as pd
 import os
 import numpy.testing as npt
 from copy import deepcopy
+from tardis.base import run_tardis
+from pandas.testing import assert_frame_equal
 
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,

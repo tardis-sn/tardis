@@ -3,16 +3,13 @@ from numba import njit
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,
 )
-from tardis.montecarlo.montecarlo_numba.r_packet_transport import (
+from tardis.transport.r_packet_transport import (
     move_r_packet,
     move_packet_across_shell_boundary,
-)
-from tardis.montecarlo.montecarlo_numba.continuum.r_packet_transport_continuum import (
-    trace_packet_continuum,
+    trace_packet,
 )
 
-
-from tardis.montecarlo.montecarlo_numba.frame_transformations import (
+from tardis.transport.frame_transformations import (
     get_inverse_doppler_factor,
     get_doppler_factor,
 )
@@ -103,7 +100,7 @@ def single_packet_loop(
             )
             chi_continuum = chi_e + chi_bf_tot + chi_ff
             escat_prob = chi_e / chi_continuum  # probability of e-scatter
-            distance, interaction_type, delta_shell = trace_packet_continuum(
+            distance, interaction_type, delta_shell = trace_packet(
                 r_packet,
                 numba_model,
                 numba_plasma,
@@ -125,7 +122,7 @@ def single_packet_loop(
         else:
             escat_prob = 1.0
             chi_continuum = chi_e
-            distance, interaction_type, delta_shell = trace_packet_continuum(
+            distance, interaction_type, delta_shell = trace_packet(
                 r_packet,
                 numba_model,
                 numba_plasma,
@@ -199,6 +196,13 @@ def single_packet_loop(
 
 @njit
 def set_packet_props_partial_relativity(r_packet, numba_model):
+    """Sets properties of the packets given partial relativity
+
+    Parameters
+    ----------
+        r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+        numba_model : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
+    """
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r,
         r_packet.mu,
@@ -210,6 +214,13 @@ def set_packet_props_partial_relativity(r_packet, numba_model):
 
 @njit
 def set_packet_props_full_relativity(r_packet, numba_model):
+    """Sets properties of the packets given full relativity
+
+    Parameters
+    ----------
+        r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+        numba_model : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
+    """
     beta = (r_packet.r / numba_model.time_explosion) / C_SPEED_OF_LIGHT
 
     inverse_doppler_factor = get_inverse_doppler_factor(

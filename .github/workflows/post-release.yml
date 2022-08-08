@@ -1,6 +1,6 @@
 #  For more information about TARDIS pipelines, please refer to:
 #
-#    https://tardis-sn.github.io/tardis/development/continuous_integration.html
+#    https://tardis-sn.github.io/tardis/contributing/development/continuous_integration.html
 
 name: post-release
 
@@ -121,16 +121,20 @@ jobs:
 
             > :warning: **Warning:** 
             >
-            > The `post_release` workflow waits for a webhook and then updates `CITATION.cff`. If the file is not modified by this pull request, please check the latest release on [Zenodo's website](https://zenodo.org/record/592480), close this pull request, and [manually run the workflow](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
-          labels: automerge, build-docs
-          reviewers: tardis-bot
-          team-reviewers: tardis-infrastructure
+            > The `post_release` workflow waits for a webhook and then updates the citation files. If the file is not modified by this pull request, please check the latest release on [Zenodo's website](https://zenodo.org/record/592480), close this pull request, and [manually run the workflow](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
+            >
+            > This pull request should be auto-merged.
+          labels: build-docs
+          reviewers: wkerzendorf, andrewfullard, epassaro
         id: create-pr
+
+      - name: Wait for pull request
+        run: sleep 30
 
       - name: Approve pull request
         uses: juliangruber/approve-pull-request-action@v1
         with:
-          github-token: ${{ secrets.BOT_TOKEN }}
+          github-token: ${{ secrets.PR_APPROVAL_TOKEN }}
           number: ${{ steps.create-pr.outputs.pull-request-number }}
         if: steps.create-pr.outputs.pull-request-operation == 'created'
 

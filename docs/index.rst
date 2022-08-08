@@ -74,9 +74,10 @@ Mission Statement
     :caption: Physics Walkthrough
     :hidden:
     
+    physics/intro/index
     physics/setup/index
     physics/montecarlo/index
-    physics/est_and_conv/index
+    physics/update_and_conv/update_and_conv
     physics/spectrum/index
     physics/energy_input/index
 
@@ -89,7 +90,7 @@ Mission Statement
     contributing/CONTRIBUTING.md
     contributing/development/index
     contributing/CHANGELOG.md
-    contributing/roadmap
+    contributing/in_progress/index
 
 
 .. toctree::

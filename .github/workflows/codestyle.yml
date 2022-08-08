@@ -1,6 +1,6 @@
 #  For more information about TARDIS pipelines, please refer to:
 #
-#    https://tardis-sn.github.io/tardis/development/continuous_integration.html
+#    https://tardis-sn.github.io/tardis/contributing/development/continuous_integration.html
 
 name: codestyle
 
