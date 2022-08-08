@@ -9,6 +9,7 @@ from tardis.util.base import (
 )
 from tardis.energy_input.util import (
     convert_half_life_to_astropy_units,
+    ELECTRON_MASS_ENERGY_KEV,
 )
 
 
@@ -261,3 +262,33 @@ def get_nuclear_lines_database(
     decay_radiation_db = pd.read_hdf(path, "decay_radiation")
     meta = pd.read_hdf(path, "metadata")
     return decay_radiation_db, meta
+
+
+def positronium_continuum():
+    """Produces a continuum of positronium decay energy
+    using the function defined by Ore and Powell 1949
+    and adapted by Leung 2022 to be in terms of electron
+    rest mass energy
+
+    Returns
+    -------
+    energy
+        An array of photon energies in keV
+    intensity
+        An array of intensities between 0 and 1
+    """
+
+    energy = np.linspace(1, ELECTRON_MASS_ENERGY_KEV, num=100, endpoint=False)
+
+    x = energy / ELECTRON_MASS_ENERGY_KEV
+
+    one_minus_x = 1 - x
+
+    term_1 = (x * one_minus_x) / (2 - x) ** 2
+    term_2 = (2 * one_minus_x**2) / (2 - x) ** 3 * np.log(one_minus_x)
+    term_3 = (2 - x) / x
+    term_4 = (2 * one_minus_x) / x**2 * np.log(one_minus_x)
+
+    intensity = 2 * (term_1 - term_2 + term_3 + term_4)
+
+    return energy, intensity / np.max(intensity)
