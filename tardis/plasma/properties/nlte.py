@@ -379,18 +379,22 @@ class RateEquationSolver(ProcessingPlasmaProperty):
         for atomic_number in atomic_numbers:
             ion_numbers = rate_matrix.loc[atomic_number].index.get_level_values(0)
             phi_block = phi.loc[atomic_number]
-            lte_rate_matrix_block = self.lte_rate_matrix_block(
+            rate_matrix_block = self.lte_rate_matrix_block(
                 phi_block, electron_density
             )
-            rate_matrix.loc[(atomic_number, slice(None)), (atomic_number)] = lte_rate_matrix_block
+            
 
             nlte_ion_numbers = ion_numbers[rate_matrix.loc[atomic_number].index.get_level_values(1) == 'nlte_ion']
             for ion_number in nlte_ion_numbers:
-                pass
+                rate_matrix_block = self.set_nlte_ion_rate(rate_matrix_block, atomic_number, ion_number)
+            rate_matrix.loc[(atomic_number, slice(None)), (atomic_number)] = rate_matrix_block
             #TODO: add stuff
 
         rate_matrix.loc[('n_e', slice(None))] = last_row
         return rate_matrix
+    
+    def set_nlte_ion_rate(self, rate_matrix_block, atomic_number, ion_number):
+        return rate_matrix_block
 
     def lte_rate_matrix_block(self, phi_block, electron_density):
         lte_rate_vector_block = np.hstack([-phi_block, 1.0])
