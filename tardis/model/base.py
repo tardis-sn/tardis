@@ -90,8 +90,10 @@ class Radial1DGeometry:
 
     Parameters
     ----------
-    radius : astropy.units.quantity.Quantity
-    velocity : astropy.units.quantity.Quantity
+    r_inner : astropy.units.quantity.Quantity
+    r_outer : astropy.units.quantity.Quantity
+    v_inner : astropy.units.quantity.Quantity
+    v_outer : astropy.units.quantity.Quantity
     """
 
     def __init__(self, r_inner, r_outer, v_inner, v_outer):
