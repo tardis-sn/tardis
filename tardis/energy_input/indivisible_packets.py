@@ -82,15 +82,15 @@ def sample_energy(energy, intensity):
 def sample_decay_time(
     start_tau, end_tau=0.0, decay_time_min=0.0, decay_time_max=0.0
 ):
-    """Samples the decay time from the mean half-life
+    """Samples the decay time from the mean lifetime
     of the isotopes (needs restructuring for more isotopes)
 
     Parameters
     ----------
     start_tau : float64
-        Initial isotope mean half-life
+        Initial isotope mean lifetime
     end_tau : float64, optional
-        Ending mean half-life, by default 0 for single decays
+        Ending mean lifetime, by default 0 for single decays
 
     Returns
     -------
@@ -244,8 +244,8 @@ def initialize_packets(
         Setup list for energy DataFrame output
     effective_times : array float64
         Middle time of the time step
-    taus, co56_tau : array float64
-        Mean half-life for each isotope
+    taus : array float64
+        Mean lifetime for each isotope
 
     Returns
     -------
