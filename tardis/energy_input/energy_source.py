@@ -256,7 +256,7 @@ def read_artis_lines(isotope, path_to_data):
 
 
 def get_nuclear_lines_database(
-    path="~/Downloads/tardisnuclear/decay_radiation.h5",
+    path,
 ):
     decay_radiation_db = pd.read_hdf(path, "decay_radiation")
     meta = pd.read_hdf(path, "metadata")

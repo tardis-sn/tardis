@@ -364,7 +364,7 @@ def main_gamma_ray_loop(
     photoabsorption_opacity="tardis",
     pair_creation_opacity="tardis",
     seed=1,
-    path_to_decay_data="",
+    path_to_decay_data="~/Downloads/tardisnuclear/decay_radiation.h5",
 ):
     """Main loop that determines the gamma ray propagation
 
