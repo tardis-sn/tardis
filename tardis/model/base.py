@@ -105,8 +105,8 @@ class Radial1DGeometry:
     @property
     def volume(self):
         return (4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
-        
-        
+
+
 class Composition:
     """
     Holds information about model composition
