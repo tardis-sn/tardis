@@ -35,6 +35,10 @@ Simulate Supernovae in the Nebular Phase
 * Deposited energy needs to be thermalized by solving the Spencer-Fano equations, resulting in fractions of the energy going into heating, non-thermal excitation and non-thermal ionization.
 * At late times when the densities are low collisions become too infrequent to quickly de-excite metastable energy levels. Forbidden lines arising from these levels need to be included. Transitions between levels have to include ion-electron collisions.
 
+.. toctree::
+    nebular_phase/gammaray_deposition
+    nebular_phase/positronium
+
 
 Implement More Continuum Interactions
 -------------------------------------
