@@ -6,7 +6,7 @@ Monte Carlo Iteration
 
 After setting up the simulation, TARDIS runs the simulation using the ``.run()`` method. This runs several Monte
 Carlo iterations (which will be described in the links below), corresponding to the number of iterations specified
-in the :ref:`Monte Carlo Configuration <montecarlo-config>`. As will be decribed in :ref:`est_and_conv` and
+in the :ref:`Monte Carlo Configuration <montecarlo-config>`. As will be decribed in :doc:`../update_and_conv/update_and_conv` and
 :ref:`spectrum`, most of these iterations will eventually be used to calculate the steady-state plasma properties,
 with the last iteration being used to determine the spectrum.
 
@@ -24,3 +24,4 @@ can also be found in various papers by L. Lucy and in the main TARDIS publicatio
     initialization
     propagation
     lineinteraction
+    estimators

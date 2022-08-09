@@ -50,6 +50,7 @@ def numba_formal_integral(
 ):
     """
     model, plasma, and estimator are the numba variants
+
     Returns
     -------
     L : float64 array

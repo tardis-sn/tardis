@@ -1,6 +1,7 @@
 from enum import IntEnum
 
 import numpy as np
+import pandas as pd
 from numba import int64, float64, njit, objmode
 from numba.experimental import jitclass
 
@@ -95,3 +96,49 @@ def print_r_packet_properties(r_packet):
                 str(getattr(r_packet, r_packet_attribute_name)),
             )
     print("-" * 80)
+
+
+def rpacket_trackers_to_dataframe(rpacket_trackers):
+    """Generates a dataframe from the rpacket_trackers list of RPacketCollection Objects.
+
+    Parameters
+    ----------
+    rpacket_trackers : numba.typed.typedlist.List
+        list of individual RPacketCollection class objects
+
+    Returns
+    -------
+    pandas.core.frame.DataFrame
+        Dataframe containing properties of RPackets as columns like status, seed, r, nu, mu, energy, shell_id, interaction_type
+
+    """
+    len_df = sum([len(tracker.r) for tracker in rpacket_trackers])
+    index_array = np.empty([2, len_df], dtype="int")
+    df_dtypes = np.dtype(
+        [
+            ("status", np.int64),
+            ("seed", np.int64),
+            ("r", np.float64),
+            ("nu", np.float64),
+            ("mu", np.float64),
+            ("energy", np.float64),
+            ("shell_id", np.int64),
+            ("interaction_type", np.int64),
+        ]
+    )
+    rpacket_tracker_ndarray = np.empty(len_df, df_dtypes)
+    cur_index = 0
+    for rpacket_tracker in rpacket_trackers:
+        prev_index = cur_index
+        cur_index = prev_index + len(rpacket_tracker.r)
+        for j, column_name in enumerate(df_dtypes.fields.keys()):
+            rpacket_tracker_ndarray[column_name][
+                prev_index:cur_index
+            ] = getattr(rpacket_tracker, column_name)
+        index_array[0][prev_index:cur_index] = getattr(rpacket_tracker, "index")
+        index_array[1][prev_index:cur_index] = range(cur_index - prev_index)
+    return pd.DataFrame(
+        rpacket_tracker_ndarray,
+        index=pd.MultiIndex.from_arrays(index_array, names=["index", "step"]),
+        columns=df_dtypes.names,
+    )
