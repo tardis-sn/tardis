@@ -147,7 +147,40 @@ def initialize_packet_properties(
     times,
     effective_times,
 ):
+    """Initialize the properties of an individual packet
 
+    Parameters
+    ----------
+    isotope_energy : numpy array
+        _description_
+    isotope_intensity : numpy array
+        _description_
+    positronium_energy : numpy array
+        _description_
+    positronium_intensity : numpy array
+        _description_
+    positronium_fraction : float
+        _description_
+    packet_energy : float
+        _description_
+    k : int
+        _description_
+    tau_start : float
+        _description_
+    tau_end : float
+        _description_
+    initial_radius : float
+        _description_
+    times : numpy array
+        _description_
+    effective_times : numpy array
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
     decay_time = np.inf
 
     decay_time = sample_decay_time(
@@ -214,6 +247,23 @@ def initialize_packet_properties(
 def calculate_positron_fraction(
     positron_energy, isotope_energy, isotope_intensity
 ):
+    """Calculate the fraction of energy that an isotope
+    releases as positron kinetic energy
+
+    Parameters
+    ----------
+    positron_energy : float
+        Average kinetic energy of positrons from decay
+    isotope_energy : numpy array
+        Photon energies released by the isotope
+    isotope_intensity : numpy array
+        Intensity of photon energy release
+
+    Returns
+    -------
+    float
+        Fraction of energy released as positron kinetic energy
+    """
     return positron_energy / np.sum(isotope_energy * isotope_intensity)
 
 

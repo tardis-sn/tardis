@@ -259,6 +259,20 @@ def read_artis_lines(isotope, path_to_data):
 def get_nuclear_lines_database(
     path,
 ):
+    """Load the nuclear decay line data set
+
+    Parameters
+    ----------
+    path : str
+        Path to the data set HDF file
+
+    Returns
+    -------
+    pandas DataFrame
+        The decay radiation lines
+    pandas DataFrame
+        Meta information
+    """
     decay_radiation_db = pd.read_hdf(path, "decay_radiation")
     meta = pd.read_hdf(path, "metadata")
     return decay_radiation_db, meta
