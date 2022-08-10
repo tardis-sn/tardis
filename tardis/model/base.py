@@ -84,6 +84,67 @@ class ModelState:
         return self.geometry.r_outer.values * self.geometry_units["r_outer"]
 
 
+class Radial1DGeometry:
+    """
+    Holds information about model geometry for radial 1D models.
+
+    Parameters
+    ----------
+    r_inner : astropy.units.quantity.Quantity
+    r_outer : astropy.units.quantity.Quantity
+    v_inner : astropy.units.quantity.Quantity
+    v_outer : astropy.units.quantity.Quantity
+    """
+
+    def __init__(self, r_inner, r_outer, v_inner, v_outer):
+        self.r_inner = r_inner
+        self.r_outer = r_outer
+        self.v_inner = v_inner
+        self.v_outer = v_outer
+
+    @property
+    def volume(self):
+        return (4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
+
+
+class Composition:
+    """
+    Holds information about model composition
+
+    Parameters
+    ----------
+    density : astropy.units.quantity.Quantity
+        An array of densities for each shell.
+    isotopic_mass_fraction : pd.DataFrame
+    atomic_mass : pandas.core.series.Series
+    atomic_mass_unit: astropy.units.Unit
+
+    Attributes
+    ----------
+    number_density : pd.DataFrame
+        Number density of each isotope in each shell.
+    """
+
+    def __init__(
+        self,
+        density,
+        elemental_mass_fraction,
+        atomic_mass,
+        atomic_mass_unit=u.g,
+    ):
+        self.density = density
+        self.elemental_mass_fraction = elemental_mass_fraction
+        self.atomic_mass_unit = atomic_mass_unit
+        self.atomic_mass = atomic_mass
+
+    @property
+    def elemental_number_density(self):
+        """Elemental Number Density computed using the formula: (elemental_mass_fraction * density) / atomic mass"""
+        return (self.elemental_mass_fraction * self.density).divide(
+            self.atomic_mass, axis=0
+        )
+
+
 class Radial1DModel(HDFWriterMixin):
     """
     An object that hold information about the individual shells.
