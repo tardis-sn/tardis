@@ -84,6 +84,29 @@ class ModelState:
         return self.geometry.r_outer.values * self.geometry_units["r_outer"]
 
 
+class Radial1DGeometry:
+    """
+    Holds information about model geometry for radial 1D models.
+
+    Parameters
+    ----------
+    r_inner : astropy.units.quantity.Quantity
+    r_outer : astropy.units.quantity.Quantity
+    v_inner : astropy.units.quantity.Quantity
+    v_outer : astropy.units.quantity.Quantity
+    """
+
+    def __init__(self, r_inner, r_outer, v_inner, v_outer):
+        self.r_inner = r_inner
+        self.r_outer = r_outer
+        self.v_inner = v_inner
+        self.v_outer = v_outer
+
+    @property
+    def volume(self):
+        return (4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
+
+
 class Composition:
     """
     Holds information about model composition
