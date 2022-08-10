@@ -145,6 +145,40 @@ class Composition:
         )
 
 
+class ModelState_Experimental:
+    """
+    Holds information about model geometry for radial 1D models.
+
+    Parameters
+    ----------
+    composition : tardis.model.Composition
+    geometry : tardis.model.Radial1DGeometry
+    time_explosion : astropy.units.quantity.Quantity
+
+    Attributes
+    ----------
+    mass : pd.DataFrame
+    number : pd.DataFrame
+    """
+
+    def __init__(self, composition, geometry, time_explosion):
+        self.time_explosion = time_explosion
+        self.composition = composition
+        self.geometry = geometry
+
+    @property
+    def mass(self):
+        return (
+            self.composition.elemental_mass_fraction
+            * self.composition.density
+            * self.geometry.volume
+        )
+
+    @property
+    def number(self):
+        return (self.mass).divide(self.composition.atomic_mass, axis=0)
+
+
 class Radial1DModel(HDFWriterMixin):
     """
     An object that hold information about the individual shells.
