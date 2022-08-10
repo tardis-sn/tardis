@@ -5,9 +5,13 @@ from astropy import units as u
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from tardis.io.config_reader import Configuration
-from tardis.model import Radial1DModel, Radial1DGeometry
+from tardis.model import (
+    Radial1DModel,
+    Radial1DGeometry,
+    Composition,
+    ModelState_Experimental,
+)
 from tardis.io.decay import IsotopeAbundances
-from tardis.model.base import Composition
 from tardis.simulation.base import Simulation
 
 
@@ -381,6 +385,36 @@ class TestModelState:
         )
 
 
+@pytest.fixture
+def simple_radial_1D_geometry(simulation_verysimple):
+    sim = simulation_verysimple
+    return Radial1DGeometry(
+        sim.model.r_inner,
+        sim.model.r_outer,
+        sim.model.v_inner,
+        sim.model.v_outer,
+    )
+
+
+@pytest.fixture
+def simple_composition(simulation_verysimple):
+    sim = simulation_verysimple
+    return Composition(
+        sim.model.density, sim.model.abundance, sim.plasma.atomic_mass
+    )
+
+
+@pytest.fixture
+def simple_model_state(
+    simulation_verysimple, simple_radial_1D_geometry, simple_composition
+):
+    return ModelState_Experimental(
+        simple_composition,
+        simple_radial_1D_geometry,
+        simulation_verysimple.model.time_explosion,
+    )
+
+
 @pytest.mark.parametrize(
     ("index", "expected"),
     [
@@ -389,12 +423,8 @@ class TestModelState:
         (19, 3.13361319e45),
     ],
 )
-def test_radial_1D_geometry_volume(simulation_verysimple, index, expected):
-    sim = simulation_verysimple
-    model = sim.model
-    geometry = Radial1DGeometry(
-        model.r_inner, model.r_outer, model.v_inner, model.v_outer
-    )
+def test_radial_1D_geometry_volume(simple_radial_1D_geometry, index, expected):
+    geometry = simple_radial_1D_geometry
     volume = geometry.volume
 
     assert volume.unit == u.Unit("cm3")
@@ -425,18 +455,41 @@ def test_radial_1D_geometry_volume(simulation_verysimple, index, expected):
     ],
 )
 def test_composition_elemental_number_density(
-    simulation_verysimple, index, expected
+    simple_composition, index, expected
 ):
-    sim = simulation_verysimple
-    comp = Composition(
-        sim.model.density,
-        sim.model.abundance,
-        sim.plasma.atomic_mass,
-    )
+    comp = simple_composition
 
     assert_almost_equal(
         comp.elemental_number_density.loc[index], expected, decimal=-2
     )
+
+
+@pytest.mark.parametrize(
+    ("index", "expected"),
+    [
+        ((8, 0), 1.4471412e31),
+        ((16, 10), 2.6820129e30),
+        ((20, 19), 1.3464444e29),
+    ],
+)
+def test_model_state_mass(simple_model_state, index, expected):
+    model_state = simple_model_state
+
+    assert_almost_equal((model_state.mass).loc[index], expected, decimal=-27)
+
+
+@pytest.mark.parametrize(
+    ("index", "expected"),
+    [
+        ((8, 0), 5.4470099e53),
+        ((16, 10), 5.0367073e52),
+        ((20, 19), 2.0231745e51),
+    ],
+)
+def test_model_state_number(simple_model_state, index, expected):
+    model_state = simple_model_state
+
+    assert_almost_equal((model_state.number).loc[index], expected, decimal=-47)
 
 
 ###
