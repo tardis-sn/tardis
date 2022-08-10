@@ -16,6 +16,7 @@ from tardis.energy_input.gamma_ray_grid import (
 from tardis.energy_input.energy_source import (
     get_all_isotopes,
     get_nuclear_lines_database,
+    positronium_continuum,
     read_artis_lines,
     setup_input_energy,
 )
@@ -135,6 +136,9 @@ def initial_packet_radius(packet_count, inner_velocity, outer_velocity):
 def initialize_packet_properties(
     isotope_energy,
     isotope_intensity,
+    positronium_energy,
+    positronium_intensity,
+    positronium_fraction,
     packet_energy,
     k,
     tau_start,
@@ -156,6 +160,14 @@ def initialize_packet_properties(
     decay_time_index = get_index(decay_time, times)
 
     cmf_energy = sample_energy(isotope_energy, isotope_intensity)
+
+    z = np.random.random()
+    if z < positronium_fraction:
+        z = np.random.random()
+        if cmf_energy == 511 and z > 0.25:
+            cmf_energy = sample_energy(
+                positronium_energy, positronium_intensity
+            )
 
     energy_factor = 1.0
     if decay_time < times[0]:
@@ -209,6 +221,7 @@ def initialize_packets(
     decays_per_isotope,
     input_energy,
     gamma_ray_lines,
+    positronium_fraction,
     inner_velocities,
     outer_velocities,
     inv_volume_time,
@@ -273,6 +286,8 @@ def initialize_packets(
     energy_plot_df_rows = np.zeros((number_of_packets, 8))
     energy_plot_positron_rows = np.zeros((number_of_packets, 4))
 
+    positronium_energy, positronium_intensity = positronium_continuum()
+
     packet_index = 0
     for k, shell in enumerate(decays_per_shell):
 
@@ -305,6 +320,9 @@ def initialize_packets(
                 packet, decay_time_index = initialize_packet_properties(
                     isotope_energy,
                     isotope_intensity,
+                    positronium_energy,
+                    positronium_intensity,
+                    positronium_fraction,
                     packet_energy,
                     k,
                     tau_start,
@@ -365,6 +383,7 @@ def main_gamma_ray_loop(
     pair_creation_opacity="tardis",
     seed=1,
     path_to_decay_data="~/Downloads/tardisnuclear/decay_radiation.h5",
+    positronium_fraction=0.0,
 ):
     """Main loop that determines the gamma ray propagation
 
@@ -609,6 +628,7 @@ def main_gamma_ray_loop(
         packets_per_isotope,
         total_energy.sum().sum(),
         gamma_ray_line_arrays,
+        positronium_fraction,
         inner_velocities,
         outer_velocities,
         inv_volume_time,
