@@ -4,8 +4,11 @@ import numpy as np
 import pandas as pd
 from astropy import units as u
 from tardis import constants
+import radioactivedecay as rd
+from radioactivedecay.utils import Z_DICT
 
 from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
+from tardis.io.atom_data import AtomData
 from tardis.io.parsers.csvy import load_csvy
 from tardis.io.model_reader import (
     read_density_file,
@@ -20,6 +23,127 @@ from tardis.io.decay import IsotopeAbundances
 from tardis.model.density import HomologousDensity
 
 logger = logging.getLogger(__name__)
+
+STABLE_ISOTOPE_MASS_NUMBER = {
+    "H": 1,
+    "He": 4,
+    "Li": 7,
+    "Be": 9,
+    "B": 11,
+    "C": 12,
+    "N": 14,
+    "O": 16,
+    "F": 19,
+    "Ne": 20,
+    "Na": 23,
+    "Mg": 24,
+    "Al": 27,
+    "Si": 28,
+    "P": 31,
+    "S": 32,
+    "Cl": 35,
+    "Ar": 40,
+    "K": 39,
+    "Ca": 40,
+    "Sc": 45,
+    "Ti": 48,
+    "V": 51,
+    "Cr": 52,
+    "Mn": 55,
+    "Fe": 56,
+    "Co": 59,
+    "Ni": 58,
+    "Cu": 63,
+    "Zn": 64,
+    "Ga": 69,
+    "Ge": 74,
+    "As": 75,
+    "Se": 80,
+    "Br": 79,
+    "Kr": 84,
+    "Rb": 85,
+    "Sr": 88,
+    "Y": 89,
+    "Zr": 90,
+    "Nb": 93,
+    "Mo": 98,
+    "Tc": 97,
+    "Ru": 102,
+    "Rh": 103,
+    "Pd": 106,
+    "Ag": 107,
+    "Cd": 114,
+    "In": 115,
+    "Sn": 120,
+    "Sb": 121,
+    "Te": 130,
+    "I": 127,
+    "Xe": 132,
+    "Cs": 133,
+    "Ba": 138,
+    "La": 139,
+    "Ce": 140,
+    "Pr": 141,
+    "Nd": 142,
+    "Pm": 145,
+    "Sm": 152,
+    "Eu": 153,
+    "Gd": 158,
+    "Tb": 159,
+    "Dy": 164,
+    "Ho": 165,
+    "Er": 166,
+    "Tm": 169,
+    "Yb": 174,
+    "Lu": 175,
+    "Hf": 180,
+    "Ta": 181,
+    "W": 184,
+    "Re": 187,
+    "Os": 192,
+    "Ir": 193,
+    "Pt": 195,
+    "Au": 197,
+    "Hg": 202,
+    "Tl": 205,
+    "Pb": 208,
+    "Bi": 209,
+    "Po": 209,
+    "At": 210,
+    "Rn": 222,
+    "Fr": 223,
+    "Ra": 226,
+    "Ac": 227,
+    "Th": 232,
+    "Pa": 231,
+    "U": 238,
+    "Np": 237,
+    "Pu": 244,
+    "Am": 243,
+    "Cm": 247,
+    "Bk": 247,
+    "Cf": 251,
+    "Es": 252,
+    "Fm": 257,
+    "Md": 258,
+    "No": 259,
+    "Lr": 262,
+    "Rf": 261,
+    "Db": 262,
+    "Sg": 266,
+    "Bh": 264,
+    "Hs": 269,
+    "Mt": 278,
+    "Ds": 281,
+    "Rg": 272,
+    "Cn": 285,
+    "Nh": 286,
+    "Fl": 289,
+    "Mc": 289,
+    "Lv": 293,
+    "Ts": 294,
+    "Og": 294,
+}
 
 
 class ModelState:
@@ -248,6 +372,7 @@ class Radial1DModel(HDFWriterMixin):
         isotope_abundance,
         time_explosion,
         t_inner,
+        atomic_mass,
         luminosity_requested=None,
         t_radiative=None,
         dilution_factor=None,
@@ -271,6 +396,22 @@ class Radial1DModel(HDFWriterMixin):
             self.homologous_density.calculate_density_at_time_of_simulation(
                 self.time_explosion
             )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
+        )
+        composition = Composition(
+            density=density,
+            elemental_mass_fraction=abundance,
+            atomic_mass=atomic_mass,
+        )
+        geometry = Radial1DGeometry(
+            r_inner=self.time_explosion * v_inner,
+            r_outer=self.time_explosion * v_outer,
+            v_inner=v_inner,
+            v_outer=v_outer,
+        )
+        self.model_state_experimental = ModelState_Experimental(
+            composition=composition,
+            geometry=geometry,
+            time_explosion=self.time_explosion,
         )
         self.model_state = ModelState(
             v_inner=v_inner,
@@ -432,11 +573,11 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def r_inner(self):
-        return self.model_state.r_inner
+        return self.model_state_experimental.geometry.r_inner
 
     @property
     def r_outer(self):
-        return self.model_state.r_outer
+        return self.model_state_experimental.geometry.r_outer
 
     @property
     def r_middle(self):
@@ -455,11 +596,11 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def v_inner(self):
-        return self.model_state.v_inner
+        return self.model_state_experimental.geometry.v_inner
 
     @property
     def v_outer(self):
-        return self.model_state.v_outer
+        return self.model_state_experimental.geometry.v_outer
 
     @property
     def v_middle(self):
@@ -467,7 +608,7 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def density(self):
-        return self.model_state.density
+        return self.model_state_experimental.composition.density
 
     @property
     def abundance(self):
@@ -694,6 +835,21 @@ class Radial1DModel(HDFWriterMixin):
 
         isotope_abundance = IsotopeAbundances(isotope_abundance)
 
+        _abundance = abundance
+        if not isotope_abundance.empty:
+            _abundance = isotope_abundance.decay(
+                time_explosion
+            ).merge(abundance)
+        print(_abundance)
+
+        atomic_numbers = _abundance.index.to_list()
+
+        atomic_mass = {}
+        for z in atomic_numbers:
+            nuclide = rd.Nuclide(Z_DICT[z] + str(STABLE_ISOTOPE_MASS_NUMBER[Z_DICT[z]]))
+            print(nuclide)
+            atomic_mass[nuclide.Z] = nuclide.atomic_mass 
+
         return cls(
             velocity=velocity,
             homologous_density=homologous_density,
@@ -702,6 +858,7 @@ class Radial1DModel(HDFWriterMixin):
             time_explosion=time_explosion,
             t_radiative=t_radiative,
             t_inner=t_inner,
+            atomic_mass=atomic_mass,
             luminosity_requested=luminosity_requested,
             dilution_factor=None,
             v_boundary_inner=structure.get("v_inner_boundary", None),
@@ -907,6 +1064,21 @@ class Radial1DModel(HDFWriterMixin):
         )
         # isotope_abundance.time_0 = csvy_model_config.model_isotope_time_0
 
+        _abundance = abundance
+        if not isotope_abundance.empty:
+            _abundance = isotope_abundance.decay(
+                time_explosion
+            ).merge(abundance)
+        print(_abundance)
+
+        atomic_numbers = _abundance.index.to_list()
+
+        atomic_mass = {}
+        for z in atomic_numbers:
+            nuclide = rd.Nuclide(Z_DICT[z] + str(STABLE_ISOTOPE_MASS_NUMBER[Z_DICT[z]]))
+            print(nuclide)
+            atomic_mass[nuclide.Z] = nuclide.atomic_mass 
+
         return cls(
             velocity=velocity,
             homologous_density=homologous_density,
@@ -915,6 +1087,7 @@ class Radial1DModel(HDFWriterMixin):
             time_explosion=time_explosion,
             t_radiative=t_radiative,
             t_inner=t_inner,
+            atomic_mass=atomic_mass,
             luminosity_requested=luminosity_requested,
             dilution_factor=dilution_factor,
             v_boundary_inner=v_boundary_inner,
