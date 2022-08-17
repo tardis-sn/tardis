@@ -408,18 +408,10 @@ class Radial1DModel(HDFWriterMixin):
             v_inner=v_inner,
             v_outer=v_outer,
         )
-        self.model_state_experimental = ModelState_Experimental(
+        self.model_state = ModelState_Experimental(
             composition=composition,
             geometry=geometry,
             time_explosion=self.time_explosion,
-        )
-        self.model_state = ModelState(
-            v_inner=v_inner,
-            v_outer=v_outer,
-            r_inner=self.time_explosion * v_inner,
-            r_outer=self.time_explosion * v_outer,
-            time_explosion=self.time_explosion,
-            density=density,
         )
         self.raw_abundance = self._abundance
         self.raw_isotope_abundance = isotope_abundance
@@ -573,11 +565,11 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def r_inner(self):
-        return self.model_state_experimental.geometry.r_inner
+        return self.model_state.geometry.r_inner
 
     @property
     def r_outer(self):
-        return self.model_state_experimental.geometry.r_outer
+        return self.model_state.geometry.r_outer
 
     @property
     def r_middle(self):
@@ -596,11 +588,11 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def v_inner(self):
-        return self.model_state_experimental.geometry.v_inner
+        return self.model_state.geometry.v_inner
 
     @property
     def v_outer(self):
-        return self.model_state_experimental.geometry.v_outer
+        return self.model_state.geometry.v_outer
 
     @property
     def v_middle(self):
@@ -608,7 +600,7 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def density(self):
-        return self.model_state_experimental.composition.density
+        return self.model_state.composition.density
 
     @property
     def abundance(self):
@@ -837,18 +829,20 @@ class Radial1DModel(HDFWriterMixin):
 
         _abundance = abundance
         if not isotope_abundance.empty:
-            _abundance = isotope_abundance.decay(
-                time_explosion
-            ).merge(abundance)
+            _abundance = isotope_abundance.decay(time_explosion).merge(
+                abundance
+            )
         print(_abundance)
 
         atomic_numbers = _abundance.index.to_list()
 
         atomic_mass = {}
         for z in atomic_numbers:
-            nuclide = rd.Nuclide(Z_DICT[z] + str(STABLE_ISOTOPE_MASS_NUMBER[Z_DICT[z]]))
+            nuclide = rd.Nuclide(
+                Z_DICT[z] + str(STABLE_ISOTOPE_MASS_NUMBER[Z_DICT[z]])
+            )
             print(nuclide)
-            atomic_mass[nuclide.Z] = nuclide.atomic_mass 
+            atomic_mass[nuclide.Z] = nuclide.atomic_mass
 
         return cls(
             velocity=velocity,
@@ -1066,18 +1060,20 @@ class Radial1DModel(HDFWriterMixin):
 
         _abundance = abundance
         if not isotope_abundance.empty:
-            _abundance = isotope_abundance.decay(
-                time_explosion
-            ).merge(abundance)
+            _abundance = isotope_abundance.decay(time_explosion).merge(
+                abundance
+            )
         print(_abundance)
 
         atomic_numbers = _abundance.index.to_list()
 
         atomic_mass = {}
         for z in atomic_numbers:
-            nuclide = rd.Nuclide(Z_DICT[z] + str(STABLE_ISOTOPE_MASS_NUMBER[Z_DICT[z]]))
+            nuclide = rd.Nuclide(
+                Z_DICT[z] + str(STABLE_ISOTOPE_MASS_NUMBER[Z_DICT[z]])
+            )
             print(nuclide)
-            atomic_mass[nuclide.Z] = nuclide.atomic_mass 
+            atomic_mass[nuclide.Z] = nuclide.atomic_mass
 
         return cls(
             velocity=velocity,
