@@ -832,7 +832,6 @@ class Radial1DModel(HDFWriterMixin):
             _abundance = isotope_abundance.decay(time_explosion).merge(
                 abundance
             )
-        print(_abundance)
 
         atomic_numbers = _abundance.index.to_list()
 
@@ -841,7 +840,6 @@ class Radial1DModel(HDFWriterMixin):
             nuclide = rd.Nuclide(
                 Z_DICT[z] + str(STABLE_ISOTOPE_MASS_NUMBER[Z_DICT[z]])
             )
-            print(nuclide)
             atomic_mass[nuclide.Z] = nuclide.atomic_mass
 
         return cls(
@@ -1063,7 +1061,6 @@ class Radial1DModel(HDFWriterMixin):
             _abundance = isotope_abundance.decay(time_explosion).merge(
                 abundance
             )
-        print(_abundance)
 
         atomic_numbers = _abundance.index.to_list()
 
@@ -1072,7 +1069,6 @@ class Radial1DModel(HDFWriterMixin):
             nuclide = rd.Nuclide(
                 Z_DICT[z] + str(STABLE_ISOTOPE_MASS_NUMBER[Z_DICT[z]])
             )
-            print(nuclide)
             atomic_mass[nuclide.Z] = nuclide.atomic_mass
 
         return cls(
