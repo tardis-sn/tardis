@@ -8,7 +8,22 @@ import random
 
 
 class RPacketPlotter:
+    """
+    Plotting interface for the plotting Montecarlo packets. It creates an animated plot using plotly for the
+    trajectories of the real packets as they travel through the ejecta starting from the photosphere.
+    """
+
     def __init__(self, sim, no_of_packets):
+        """
+        Initializes the RPacket Plotter using the simulation object generated using the run_tardis function.
+
+        Parameters
+        ----------
+        sim : tardis.simulation.Simulation
+            simulation object generated using the run_tardis function.
+        no_of_packets : int
+            number of packets to be used for plotting.
+        """
         self.no_of_packets = no_of_packets
         self.sim = sim
         self.interaction_from_num = {
@@ -25,6 +40,20 @@ class RPacketPlotter:
 
     @classmethod
     def from_simulation(cls, sim, no_of_packets=15):
+        """
+        Creates an instance of RPacketPlotter from a TARDIS simulation object.
+
+        Parameters
+        ----------
+        sim : tardis.simulation.Simulation
+            TARDIS Simulation object generated using run_tardis function.
+        no_of_packets : int
+            number of packets to be used for plotting.
+
+        Returns
+        -------
+        SDECPlotter
+        """
         if hasattr(sim.runner, "rpacket_tracker_df"):
             if len(sim.runner.rpacket_tracker) >= no_of_packets:
                 return cls(sim, no_of_packets)
@@ -43,16 +72,38 @@ class RPacketPlotter:
             )
 
     def generate_plot(self):
+        """
+        Creates an animated plotly plot showing the Montecarlo packets' trajectories.
+
+        Returns
+        -------
+        plotly.graph_objs._figure.Figure
+            plot containing the packets, photosphere and the shells.
+        """
+
         self.fig = go.Figure()
         v_shells = self.sim.model.velocity.to_value(u.km / u.s)
-        xs, ys, ints = self.get_coordinates_multiple_packets(
+        (
+            rpacket_x,
+            rpacket_y,
+            rpacket_interactions,
+        ) = self.get_coordinates_multiple_packets(
             self.sim.runner.rpacket_tracker_df.loc[0 : (self.no_of_packets)],
         )
-        xs, ys, ints, max_size = self.get_equal_array_size(xs, ys, ints)
+        (
+            rpacket_x,
+            rpacket_y,
+            rpacket_interactions,
+            rpacket_array_max_size,
+        ) = self.get_equal_array_size(
+            rpacket_x, rpacket_y, rpacket_interactions
+        )
         # Set axes properties
         self.fig.update_xaxes(
+            scaleanchor="y",
+            scaleratio=1,
             range=[-1.1 * v_shells[-1], 1.1 * v_shells[-1]],
-            title="VELOCITY (KM/S)",
+            title="Velocity (km/s)",
             exponentformat="none",
             linecolor="#555",
             gridcolor="#fafafa",
@@ -60,7 +111,7 @@ class RPacketPlotter:
         )
         self.fig.update_yaxes(
             range=[-1.1 * v_shells[-1], 1.1 * v_shells[-1]],
-            title="VELOCITY (KM/S)",
+            title="Velocity (km/s)",
             exponentformat="none",
             linecolor="#555",
             gridcolor="#fafafa",
@@ -68,32 +119,31 @@ class RPacketPlotter:
         )
 
         # adding the shells and photosphere
-        shell_shapes = {}
-        for i in range(len(self.sim.model.radius.value)):
-            if i == 0:
+        for shell_no in range(len(self.sim.model.radius.value)):
+            if shell_no == 0:
                 # photosphere
                 self.fig.add_shape(
                     type="circle",
                     xref="x",
                     yref="y",
-                    x0=-1 * v_shells[i],
-                    y0=-1 * v_shells[i],
-                    x1=v_shells[i],
-                    y1=v_shells[i],
+                    x0=-1 * v_shells[shell_no],
+                    y0=-1 * v_shells[shell_no],
+                    x1=v_shells[shell_no],
+                    y1=v_shells[shell_no],
                     line_color="black",
                     fillcolor="darkgrey",
                     opacity=1,
                 )
-            elif i == (len(self.sim.model.radius.value) - 1):
+            elif shell_no == (len(self.sim.model.radius.value) - 1):
                 # outermost shell
                 self.fig.add_shape(
                     type="circle",
                     xref="x",
                     yref="y",
-                    x0=-1 * v_shells[i],
-                    y0=-1 * v_shells[i],
-                    x1=v_shells[i],
-                    y1=v_shells[i],
+                    x0=-1 * v_shells[shell_no],
+                    y0=-1 * v_shells[shell_no],
+                    x1=v_shells[shell_no],
+                    y1=v_shells[shell_no],
                     line_color="black",
                     opacity=1,
                 )
@@ -103,40 +153,46 @@ class RPacketPlotter:
                     type="circle",
                     xref="x",
                     yref="y",
-                    x0=-1 * v_shells[i],
-                    y0=-1 * v_shells[i],
-                    x1=v_shells[i],
-                    y1=v_shells[i],
+                    x0=-1 * v_shells[shell_no],
+                    y0=-1 * v_shells[shell_no],
+                    x1=v_shells[shell_no],
+                    y1=v_shells[shell_no],
                     line_color="black",
                     opacity=0.1,
                 )
 
         # Adding packet trajectory
 
-        for i in range(len(xs)):
+        for packet_no in range(len(rpacket_x)):
             self.fig.add_trace(
                 go.Scatter(
-                    x=xs[i],
-                    y=ys[i],
+                    x=rpacket_x[packet_no],
+                    y=rpacket_y[packet_no],
                     mode="markers+lines",
-                    name="Packet " + str(i + 1),
+                    name="Packet " + str(packet_no + 1),
                     showlegend=False,
                     hovertemplate="<b>X</b>: %{x}"
                     + "<br><b>Y</b>: %{y}<br>"
                     + "<b>Last Interaction: %{text}</b>",
                     text=[
-                        self.interaction_from_num.get(ints[i][j])
-                        for j in range(len(xs[i]))
+                        self.interaction_from_num.get(
+                            rpacket_interactions[packet_no][step_no]
+                        )
+                        for step_no in range(len(rpacket_x[packet_no]))
                     ],
                     line=dict(color="darkslategrey"),
                     marker=dict(
                         opacity=[
-                            self.interaction_opacity_from_num.get(ints[i][j])
-                            for j in range(len(xs[i]))
+                            self.interaction_opacity_from_num.get(
+                                rpacket_interactions[packet_no][step_no]
+                            )
+                            for step_no in range(len(rpacket_x[packet_no]))
                         ],
                         color=[
-                            self.interaction_color_from_num.get(ints[i][j])
-                            for j in range(len(xs[i]))
+                            self.interaction_color_from_num.get(
+                                rpacket_interactions[packet_no][step_no]
+                            )
+                            for step_no in range(len(rpacket_x[packet_no]))
                         ],
                     ),
                 )
@@ -176,21 +232,25 @@ class RPacketPlotter:
 
         self.fig.update_layout(
             width=900,
-            height=900,
+            height=700,
             title="Packet Trajectories",
             title_font_color="#444",
             updatemenus=[
                 dict(
                     type="buttons",
-                    pad=dict(t=750),
+                    y=-0.1,
                     buttons=[dict(label="Play", method="animate", args=[None])],
                 )
             ],
         )
 
         self.fig.frames = [
-            go.Frame(data=self.get_frames(frame, xs, ys, ints))
-            for frame in range(max_size + 1)
+            go.Frame(
+                data=self.get_frames(
+                    frame, rpacket_x, rpacket_y, rpacket_interactions
+                )
+            )
+            for frame in range(rpacket_array_max_size + 1)
         ]
         return self.fig
 
@@ -227,50 +287,54 @@ class RPacketPlotter:
         list
             types of interactions occuring at different points
         """
-        xs, ys, theta, ints = [], [], [], []
+        rpacket_x, rpacket_y, theta, rpacket_interactions = [], [], [], []
 
-        for i in range(len(r_track)):
-            if i == 0:
+        for step_no in range(len(r_track)):
+            if step_no == 0:
                 theta.append(theta_initial)
             else:
-                if r_track[i] < r_track[i - 1]:
+                if r_track[step_no] < r_track[step_no - 1]:
                     theta.append(
                         theta[-1]
                         - math.pi
                         + math.asin(
-                            r_track[i - 1]
-                            * math.sin(math.acos(mu_track[i - 1]))
-                            / r_track[i]
+                            r_track[step_no - 1]
+                            * math.sin(math.acos(mu_track[step_no - 1]))
+                            / r_track[step_no]
                         )
-                        + math.acos(mu_track[i - 1])
+                        + math.acos(mu_track[step_no - 1])
                     )
                 else:
                     theta.append(
                         theta[-1]
                         + math.asin(
                             -1
-                            * r_track[i - 1]
-                            * math.sin(math.acos(mu_track[i - 1]))
-                            / r_track[i]
+                            * r_track[step_no - 1]
+                            * math.sin(math.acos(mu_track[step_no - 1]))
+                            / r_track[step_no]
                         )
-                        + math.acos(mu_track[i - 1])
+                        + math.acos(mu_track[step_no - 1])
                     )
 
-        xs = (np.array(r_track)) * np.cos(np.array(theta)) * 1e-5 / time
-        ys = (np.array(r_track)) * np.sin(np.array(theta)) * 1e-5 / time
+        rpacket_x = (np.array(r_track)) * np.cos(np.array(theta)) * 1e-5 / time
+        rpacket_y = (np.array(r_track)) * np.sin(np.array(theta)) * 1e-5 / time
 
-        for i in range(len(r_track)):
-            if i == 0 or i == len(r_track) - 1:
-                ints.append(0)
+        for step_no in range(len(r_track)):
+            if step_no == 0 or step_no == len(r_track) - 1:
+                rpacket_interactions.append(0)
             else:
-                s0 = (ys[i] - ys[i - 1]) / (xs[i] - xs[i - 1])
-                s1 = (ys[i + 1] - ys[i]) / (xs[i + 1] - xs[i])
-                if math.isclose(s0, s1, rel_tol=1e-11):
-                    ints.append(0)
+                current_slope = (
+                    rpacket_y[step_no] - rpacket_y[step_no - 1]
+                ) / (rpacket_x[step_no] - rpacket_x[step_no - 1])
+                next_slope = (rpacket_y[step_no + 1] - rpacket_y[step_no]) / (
+                    rpacket_x[step_no + 1] - rpacket_x[step_no]
+                )
+                if math.isclose(current_slope, next_slope, rel_tol=1e-11):
+                    rpacket_interactions.append(0)
                 else:
-                    ints.append(last_interaction_type[i])
+                    rpacket_interactions.append(last_interaction_type[step_no])
 
-        return xs, ys, ints
+        return rpacket_x, rpacket_y, rpacket_interactions
 
     def get_coordinates_multiple_packets(self, r_packet_tracker):
         """
@@ -288,35 +352,39 @@ class RPacketPlotter:
         """
 
         thetas = np.linspace(0, 2 * math.pi, self.no_of_packets + 1)
-        x = []
-        y = []
-        inters = []
-        for i in range(self.no_of_packets):
-            xs, ys, ints = self.get_coordinates_with_theta_init(
-                r_packet_tracker.loc[i]["r"],
-                r_packet_tracker.loc[i]["mu"],
+        rpackets_x = []
+        rpackets_y = []
+        rpackets_interactions = []
+        for packet_no in range(self.no_of_packets):
+            (
+                rpacket_x,
+                rpacket_y,
+                rpacket_interactions,
+            ) = self.get_coordinates_with_theta_init(
+                r_packet_tracker.loc[packet_no]["r"],
+                r_packet_tracker.loc[packet_no]["mu"],
                 self.sim.model.time_explosion.value,
-                r_packet_tracker.loc[i]["interaction_type"],
-                thetas[i],
+                r_packet_tracker.loc[packet_no]["interaction_type"],
+                thetas[packet_no],
             )
-            x.append(xs)
-            y.append(ys)
-            inters.append(ints)
+            rpackets_x.append(rpacket_x)
+            rpackets_y.append(rpacket_y)
+            rpackets_interactions.append(rpacket_interactions)
         return (
-            np.array(x, dtype="object"),
-            np.array(y, dtype="object"),
-            np.array(inters, dtype="object"),
+            np.array(rpackets_x, dtype="object"),
+            np.array(rpackets_y, dtype="object"),
+            np.array(rpackets_interactions, dtype="object"),
         )
 
-    def get_equal_array_size(self, xs, ys, interactions):
+    def get_equal_array_size(self, rpacket_x, rpacket_y, interactions):
         """
         creates the coordinate arrays of different packets of same size. This is done for generating frames in animation.
 
         Parameters
         ----------
-        xs : numpy.ndarray
+        rpacket_x : numpy.ndarray
             x coordinates of packets
-        ys : numpy.ndarray
+        rpacket_y : numpy.ndarray
             y coordinates of packets
         interactions : numpy.ndarray
             interaction types of packets
@@ -333,23 +401,36 @@ class RPacketPlotter:
             size of the biggest array among different packets
 
         """
-        max_size = max(list(map(len, xs)))
-        for i in range(len(xs)):
-            xs[i] = np.append(
-                xs[i], xs[i][-1] * np.ones([max_size - len(xs[i])])
+        rpacket_arraystep_nomax_size = max(list(map(len, rpacket_x)))
+        for packet_no in range(len(rpacket_x)):
+            rpacket_x[packet_no] = np.append(
+                rpacket_x[packet_no],
+                rpacket_x[packet_no][-1]
+                * np.ones(
+                    [rpacket_arraystep_nomax_size - len(rpacket_x[packet_no])]
+                ),
             )
-            ys[i] = np.append(
-                ys[i], ys[i][-1] * np.ones([max_size - len(ys[i])])
+            rpacket_y[packet_no] = np.append(
+                rpacket_y[packet_no],
+                rpacket_y[packet_no][-1]
+                * np.ones(
+                    [rpacket_arraystep_nomax_size - len(rpacket_y[packet_no])]
+                ),
             )
-            interactions[i] = np.append(
-                interactions[i],
-                interactions[i][-1]
-                * np.ones([max_size - len(interactions[i])]),
+            interactions[packet_no] = np.append(
+                interactions[packet_no],
+                interactions[packet_no][-1]
+                * np.ones(
+                    [
+                        rpacket_arraystep_nomax_size
+                        - len(interactions[packet_no])
+                    ]
+                ),
             )
-        return xs, ys, interactions, max_size
+        return rpacket_x, rpacket_y, interactions, rpacket_arraystep_nomax_size
 
     # creating frames for animation
-    def get_frames(self, frame, xs, ys, interactions):
+    def get_frames(self, frame, rpacket_x, rpacket_y, interactions):
         """
         Creates individual frames containing the go.Scatter objects for the animation.
 
@@ -357,9 +438,9 @@ class RPacketPlotter:
         ----------
         frame : int
             current frame number
-        xs : numpy.ndarray
+        rpacket_x : numpy.ndarray
             x coordinates array
-        ys : numpy.ndarray
+        rpacket_y : numpy.ndarray
             y coordinates array
         interactions : numpy.ndarray
             interactions array
@@ -370,34 +451,36 @@ class RPacketPlotter:
             list of go.Scatter objects for a particular frame number.
         """
         frames = []
-        for i in range(len(xs)):
+        for packet_no in range(len(rpacket_x)):
             frames.append(
                 go.Scatter(
-                    x=xs[i].tolist()[0:frame],
-                    y=ys[i].tolist()[0:frame],
+                    x=rpacket_x[packet_no].tolist()[0:frame],
+                    y=rpacket_y[packet_no].tolist()[0:frame],
                     mode="markers+lines",
-                    name="Packet " + str(i + 1),
+                    name="Packet " + str(packet_no + 1),
                     showlegend=False,
                     hovertemplate="<b>X</b>: %{x}"
                     + "<br><b>Y</b>: %{y}<br>"
                     + "<b>Last Interaction: %{text}</b>",
                     text=[
-                        self.interaction_from_num.get(interactions[i][j])
-                        for j in range(len(xs[i]))
+                        self.interaction_from_num.get(
+                            interactions[packet_no][step_no]
+                        )
+                        for step_no in range(len(rpacket_x[packet_no]))
                     ],
                     line=dict(color="darkslategrey"),
                     marker=dict(
                         opacity=[
                             self.interaction_opacity_from_num.get(
-                                interactions[i][j]
+                                interactions[packet_no][step_no]
                             )
-                            for j in range(len(xs[i]))
+                            for step_no in range(len(rpacket_x[packet_no]))
                         ],
                         color=[
                             self.interaction_color_from_num.get(
-                                interactions[i][j]
+                                interactions[packet_no][step_no]
                             )
-                            for j in range(len(xs[i]))
+                            for step_no in range(len(rpacket_x[packet_no]))
                         ],
                     ),
                 )
