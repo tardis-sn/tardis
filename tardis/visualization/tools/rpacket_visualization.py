@@ -231,7 +231,7 @@ class RPacketPlotter:
         self.fig.layout.paper_bgcolor = "#fafafa"
 
         self.fig.update_layout(
-            width=900,
+            width=890,
             height=700,
             title="Packet Trajectories",
             title_font_color="#444",
