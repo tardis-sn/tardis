@@ -372,7 +372,6 @@ class Radial1DModel(HDFWriterMixin):
         isotope_abundance,
         time_explosion,
         t_inner,
-        atomic_mass,
         luminosity_requested=None,
         t_radiative=None,
         dilution_factor=None,
@@ -397,9 +396,20 @@ class Radial1DModel(HDFWriterMixin):
                 self.time_explosion
             )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
         )
+        self.raw_abundance = self._abundance
+        self.raw_isotope_abundance = isotope_abundance
+
+        atomic_numbers = abundance.index.to_list()
+        atomic_mass = {}
+        for z in atomic_numbers:
+            nuclide = rd.Nuclide(
+                Z_DICT[z] + str(STABLE_ISOTOPE_MASS_NUMBER[Z_DICT[z]])
+            )
+            atomic_mass[nuclide.Z] = nuclide.atomic_mass
+
         composition = Composition(
             density=density,
-            elemental_mass_fraction=abundance,
+            elemental_mass_fraction=self.abundance,
             atomic_mass=atomic_mass,
         )
         geometry = Radial1DGeometry(
@@ -413,8 +423,6 @@ class Radial1DModel(HDFWriterMixin):
             geometry=geometry,
             time_explosion=self.time_explosion,
         )
-        self.raw_abundance = self._abundance
-        self.raw_isotope_abundance = isotope_abundance
 
         if t_inner is None:
             if luminosity_requested is not None:
@@ -827,21 +835,6 @@ class Radial1DModel(HDFWriterMixin):
 
         isotope_abundance = IsotopeAbundances(isotope_abundance)
 
-        _abundance = abundance
-        if not isotope_abundance.empty:
-            _abundance = isotope_abundance.decay(time_explosion).merge(
-                abundance
-            )
-
-        atomic_numbers = _abundance.index.to_list()
-
-        atomic_mass = {}
-        for z in atomic_numbers:
-            nuclide = rd.Nuclide(
-                Z_DICT[z] + str(STABLE_ISOTOPE_MASS_NUMBER[Z_DICT[z]])
-            )
-            atomic_mass[nuclide.Z] = nuclide.atomic_mass
-
         return cls(
             velocity=velocity,
             homologous_density=homologous_density,
@@ -850,7 +843,6 @@ class Radial1DModel(HDFWriterMixin):
             time_explosion=time_explosion,
             t_radiative=t_radiative,
             t_inner=t_inner,
-            atomic_mass=atomic_mass,
             luminosity_requested=luminosity_requested,
             dilution_factor=None,
             v_boundary_inner=structure.get("v_inner_boundary", None),
@@ -1056,21 +1048,6 @@ class Radial1DModel(HDFWriterMixin):
         )
         # isotope_abundance.time_0 = csvy_model_config.model_isotope_time_0
 
-        _abundance = abundance
-        if not isotope_abundance.empty:
-            _abundance = isotope_abundance.decay(time_explosion).merge(
-                abundance
-            )
-
-        atomic_numbers = _abundance.index.to_list()
-
-        atomic_mass = {}
-        for z in atomic_numbers:
-            nuclide = rd.Nuclide(
-                Z_DICT[z] + str(STABLE_ISOTOPE_MASS_NUMBER[Z_DICT[z]])
-            )
-            atomic_mass[nuclide.Z] = nuclide.atomic_mass
-
         return cls(
             velocity=velocity,
             homologous_density=homologous_density,
@@ -1079,7 +1056,6 @@ class Radial1DModel(HDFWriterMixin):
             time_explosion=time_explosion,
             t_radiative=t_radiative,
             t_inner=t_inner,
-            atomic_mass=atomic_mass,
             luminosity_requested=luminosity_requested,
             dilution_factor=dilution_factor,
             v_boundary_inner=v_boundary_inner,
