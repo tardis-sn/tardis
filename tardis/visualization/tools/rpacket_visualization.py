@@ -29,7 +29,7 @@ class RPacketPlotter:
         self.interaction_from_num = {
             0: "No Interaction",
             1: "EScattering",
-            2: "Line",
+            2: "Line Interaction",
         }
         self.interaction_color_from_num = {
             0: "darkslategrey",
