@@ -507,11 +507,10 @@ class RateEquationSolver(ProcessingPlasmaProperty):
         #     if rate_matrix_index[i][2] == 'nlte_ion':
         #         jacobian_matrix[i, -1] *= radiative_recombination_rate_coeff[i]
         #         jacobian_matrix[i, -1] -= coll_ion_coeff[i] *  populations[i]
-        jacobian_matrix[index, -1] = 0
         for i in range(index):
             if rate_matrix_index[i][2] == 'nlte_ion':
                 jacobian_matrix[i, -1] = self.deriv_matrix_block(radiative_recombination_rate_coeff.loc[(1,)], coll_ion_coeff.loc[(1,)], populations[:index+1])[i]
-                1/0
+        jacobian_matrix[index, -1] = 0
         for atomic_number in atomic_numbers[1:]:
             for i in range(index+1, index+atomic_number+2):
                 if rate_matrix_index[i][2] == 'nlte_ion':
