@@ -86,6 +86,9 @@ def roots(a, b, c, d, e, threshold):
     -----------
     a, b, c, d, e: coefficients of the equations ax^4 + bx^3 + cx^2 + dx + e = 0, float
     threshold: lower needed limit on roots, float
+    Returns
+    -----------
+    roots: real positive roots of ax^4 + bx^3 + cx^2 + dx + e = 0
 
     """
     delta = (
@@ -125,16 +128,8 @@ def roots(a, b, c, d, e, threshold):
     )
     p = (8 * a * c - 3 * b**2) / (8 * a**2)
     q = (b**3 - 4 * a * b * c + 8 * a**2 * d) / (8 * a**3)
-    # print("delta: ", delta)
-    # print("P: ", P)
-    # print("R: ", R)
-    # print("delta0: ", delta_0)
-    # print("D: ", D)
-    # print("p: ", p)
-    # print("q: ", q)
-    # print("delta1: ", delta_1)
     x_1, x_2, x_3, x_4 = None, None, None, None
-    if delta < 0:  # do care
+    if delta < 0:
 
         Q = ((delta_1 + np.sqrt(delta_1**2 - 4 * delta_0**3)) / 2) ** (
             1 / 3
@@ -159,9 +154,8 @@ def roots(a, b, c, d, e, threshold):
             )
             x_1 = None
             x_2 = None
-        # print("two distinct real roots")
     elif delta > 0:
-        if P < 0 and D < 0:  # do care
+        if P < 0 and D < 0:
             phi = np.arccos(delta_1 / (2 * np.sqrt(delta_0**3)))
             S = (
                 np.sqrt(
@@ -182,12 +176,10 @@ def roots(a, b, c, d, e, threshold):
             x_4 = (
                 -b / (4 * a) - S - 1 / 2 * np.sqrt(-4 * S**2 - 2 * p + q / S)
             )
-            # print("four distinct real roots")
-        elif P > 0 and D > 0:  # do not care
+        elif P > 0 and D > 0:
             pass
-            # print("all complex")
     else:
-        if P < 0 and D < 0 and delta_0 != 0:  # do care
+        if P < 0 and D < 0 and delta_0 != 0:
             phi = np.arccos(delta_1 / (2 * np.sqrt(delta_0**3)))
             S = (
                 np.sqrt(
@@ -208,8 +200,7 @@ def roots(a, b, c, d, e, threshold):
             x_4 = (
                 -b / (4 * a) - S - 1 / 2 * np.sqrt(-4 * S**2 - 2 * p + q / S)
             )
-            # print("one real double root and two real simple roots")
-        elif (D > 0) or (P > 0 and (D != 0 or R != 0)):  # do care
+        elif (D > 0) or (P > 0 and (D != 0 or R != 0)):
             phi = np.arccos(delta_1 / (2 * np.sqrt(delta_0**3)))
             S = (
                 np.sqrt(
@@ -240,9 +231,7 @@ def roots(a, b, c, d, e, threshold):
                     - S
                     - 1 / 2 * np.sqrt(-4 * S**2 - 2 * p + q / S)
                 )
-            # print("one real double root and two complex")
-        elif delta_0 == 0 and D != 0:  # do care
-            # print("one triple real root and one simple real root")
+        elif delta_0 == 0 and D != 0:
             phi = np.arccos(delta_1 / (2 * np.sqrt(delta_0**3)))
             S = (
                 np.sqrt(
@@ -265,7 +254,6 @@ def roots(a, b, c, d, e, threshold):
             )
         elif D == 0:
             if P < 0:
-                # print("two double real roots") #do care
                 phi = np.arccos(delta_1 / (2 * np.sqrt(delta_0**3)))
                 S = (
                     np.sqrt(
@@ -296,9 +284,7 @@ def roots(a, b, c, d, e, threshold):
                 )
             elif P > 0 and R == 0:
                 pass
-                # print("all complex") #don't care
             elif delta_0 == 0:
-                # print("all four equal to: ", -b/(4*a)) #do care
                 x_1 = -b / (4 * a)
     roots = []
     if x_1 != None:
