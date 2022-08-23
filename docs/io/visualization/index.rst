@@ -14,6 +14,7 @@ diagnostic visualizations.
 
     sdec_plot
     convergence_plot
+    montecarlo_packet_visualization
 
 
 TARDIS Widgets (Graphical User Interfaces)
