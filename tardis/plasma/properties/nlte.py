@@ -364,7 +364,7 @@ class RateEquationSolver(ProcessingPlasmaProperty):
             assert solution.success
             electron_densities[i] = solution.x[-1]
             populations[i] = solution.x[:-1]
-        populations[populations < 0] = 0
+        populations[populations < 0] = 0.0
 
         # TODO: check that number conservation still has high precision, if not, yell
         index = pd.MultiIndex.from_arrays(
@@ -416,24 +416,12 @@ class RateEquationSolver(ProcessingPlasmaProperty):
     
     def set_nlte_ion_rate(self, rate_matrix_block, atomic_number, ion_number, radiative_recombination_rate, photo_ion_rates, coll_ion_rates):
         ion_rates = photo_ion_rates + coll_ion_rates
-        # diag = np.hstack([-ion_rates, np.zeros(1)])
-        ion_rate_matrix = self.ion_matrix(ion_rates)
-        # ion_rate_matrix[-1,:] = 1
-        # offdiag = radiative_recombination_rate
-        # diag = np.hstack([np.zeros(1), -radiative_recombination_rate])
-        recomb_rate_matrix = self.recomb_matrix(radiative_recombination_rate)
-        rate_matrix_block = ion_rate_matrix + recomb_rate_matrix
-        rate_matrix_block[-1, :] = 1.0
-        # 1/0
-        # if atomic_number == ion_number:
-        #     rate_matrix_block[ion_number, :] = 1.0 
-        # elif ion_number == 0:
-        #     rate_matrix_block[ion_number, 0] = -ion_rates.loc[(ion_number,)]
-        #     rate_matrix_block[ion_number, 1] = radiative_recombination_rate.loc[(ion_number,)]
-        # else:
-        #     rate_matrix_block[ion_number, ion_number-1] = -ion_rates.loc[(ion_number-1,)]
-        #     rate_matrix_block[ion_number, ion_number] = -radiative_recombination_rate.loc[(ion_number-1,)]-ion_rates.loc[(ion_number,)] 
-        #     rate_matrix_block[ion_number, ion_number+1] = radiative_recombination_rate.loc[(ion_number,)]
+        if atomic_number == ion_number:
+            rate_matrix_block[ion_number, :] = 1.0
+        else:
+            ion_rate_matrix = self.ion_matrix(ion_rates)
+            recomb_rate_matrix = self.recomb_matrix(radiative_recombination_rate)
+            rate_matrix_block[ion_number] = (ion_rate_matrix + recomb_rate_matrix)[ion_number]
         return rate_matrix_block
 
     def lte_rate_matrix_block(self, phi_block, electron_density):
@@ -497,27 +485,16 @@ class RateEquationSolver(ProcessingPlasmaProperty):
         index = atomic_numbers[0]
         jacobian_matrix = rate_matrix.copy()
         jacobian_matrix[:-1, -1] = populations[1:]
-        # 1/0
-        # for atomic_number in atomic_numbers[1:]:
-        #     ion_numbers = rate_matrix.loc[atomic_number].index.get_level_values(0)
-        #     nlte_ion_numbers = ion_numbers[rate_matrix.loc[atomic_number].index.get_level_values(1) == 'nlte_ion']
-        #     jacobian_matrix[, -1] *= radiative_recombination_rate_coeff
-        #TODO: issue with indexing
-        # for i in range(len(jacobian_matrix)):
-        #     if rate_matrix_index[i][2] == 'nlte_ion':
-        #         jacobian_matrix[i, -1] *= radiative_recombination_rate_coeff[i]
-        #         jacobian_matrix[i, -1] -= coll_ion_coeff[i] *  populations[i]
-        for i in range(index):
+        for i in range(index+1):
             if rate_matrix_index[i][2] == 'nlte_ion':
                 jacobian_matrix[i, -1] = self.deriv_matrix_block(radiative_recombination_rate_coeff.loc[(1,)], coll_ion_coeff.loc[(1,)], populations[:index+1])[i]
-        jacobian_matrix[index, -1] = 0
+        jacobian_matrix[index, -1] = 0.0
         for atomic_number in atomic_numbers[1:]:
             for i in range(index+1, index+atomic_number+2):
                 if rate_matrix_index[i][2] == 'nlte_ion':
-                    jacobian_matrix[i + index - 1, -1] = self.deriv_matrix_block(radiative_recombination_rate_coeff.loc[(atomic_number,)], coll_ion_coeff, populations[index+1:index+atomic_number+2])[i]
+                    jacobian_matrix[i, -1] = self.deriv_matrix_block(radiative_recombination_rate_coeff.loc[(atomic_number,)], coll_ion_coeff, populations[index+1:index+atomic_number+2])[i]
             index += 1 + atomic_number
             jacobian_matrix[index, -1] = 0
-        # 1/0
         
         return jacobian_matrix
 
