@@ -37,6 +37,36 @@ class RPacketPlotter:
             2: "#FF3300",
         }
         self.interaction_opacity_from_num = {0: 0, 1: 1, 2: 1}
+        self.theme_colors = dict(
+            light=dict(
+                linecolor="#555",
+                gridcolor="#fafafa",
+                zerolinecolor="#fafafa",
+                color="#000",
+                photosphere_line_color="black",
+                photosphere_fillcolor="darkgrey",
+                shells_line_color="black",
+                packet_line_color="darkslategrey",
+                plot_bgcolor="#fafafa",
+                paper_bgcolor="#fafafa",
+                title_font_color="#444",
+                legendgrouptitle_color="#444",
+            ),
+            dark=dict(
+                linecolor="#050505",
+                gridcolor="#111",
+                zerolinecolor="#111",
+                color="#fafafa",
+                photosphere_line_color="#222",
+                photosphere_fillcolor="#222",
+                shells_line_color="#555",
+                packet_line_color="#888",
+                plot_bgcolor="#000",
+                paper_bgcolor="#000",
+                title_font_color="#ccc",
+                legendgrouptitle_color="#ccc",
+            ),
+        )
 
     @classmethod
     def from_simulation(cls, sim, no_of_packets=15):
@@ -71,9 +101,14 @@ class RPacketPlotter:
                 """
             )
 
-    def generate_plot(self):
+    def generate_plot(self, theme="light"):
         """
         Creates an animated plotly plot showing the Montecarlo packets' trajectories.
+
+        Parameters
+        ----------
+        theme : str, optional
+            theme for the plot, by default "light"
 
         Returns
         -------
@@ -105,17 +140,19 @@ class RPacketPlotter:
             range=[-1.1 * v_shells[-1], 1.1 * v_shells[-1]],
             title="Velocity (km/s)",
             exponentformat="none",
-            linecolor="#555",
-            gridcolor="#fafafa",
-            zerolinecolor="#fafafa",
+            color=self.theme_colors[theme]["color"],
+            linecolor=self.theme_colors[theme]["linecolor"],
+            gridcolor=self.theme_colors[theme]["gridcolor"],
+            zerolinecolor=self.theme_colors[theme]["zerolinecolor"],
         )
         self.fig.update_yaxes(
             range=[-1.1 * v_shells[-1], 1.1 * v_shells[-1]],
             title="Velocity (km/s)",
             exponentformat="none",
-            linecolor="#555",
-            gridcolor="#fafafa",
-            zerolinecolor="#fafafa",
+            color=self.theme_colors[theme]["color"],
+            linecolor=self.theme_colors[theme]["linecolor"],
+            gridcolor=self.theme_colors[theme]["gridcolor"],
+            zerolinecolor=self.theme_colors[theme]["zerolinecolor"],
         )
 
         # adding the shells and photosphere
@@ -130,8 +167,10 @@ class RPacketPlotter:
                     y0=-1 * v_shells[shell_no],
                     x1=v_shells[shell_no],
                     y1=v_shells[shell_no],
-                    line_color="black",
-                    fillcolor="darkgrey",
+                    line_color=self.theme_colors[theme][
+                        "photosphere_line_color"
+                    ],
+                    fillcolor=self.theme_colors[theme]["photosphere_fillcolor"],
                     opacity=1,
                 )
             elif shell_no == (len(self.sim.model.radius.value) - 1):
@@ -144,7 +183,7 @@ class RPacketPlotter:
                     y0=-1 * v_shells[shell_no],
                     x1=v_shells[shell_no],
                     y1=v_shells[shell_no],
-                    line_color="black",
+                    line_color=self.theme_colors[theme]["shells_line_color"],
                     opacity=1,
                 )
             else:
@@ -157,7 +196,7 @@ class RPacketPlotter:
                     y0=-1 * v_shells[shell_no],
                     x1=v_shells[shell_no],
                     y1=v_shells[shell_no],
-                    line_color="black",
+                    line_color=self.theme_colors[theme]["shells_line_color"],
                     opacity=0.1,
                 )
 
@@ -180,7 +219,9 @@ class RPacketPlotter:
                         )
                         for step_no in range(len(rpacket_x[packet_no]))
                     ],
-                    line=dict(color="darkslategrey"),
+                    line=dict(
+                        color=self.theme_colors[theme]["packet_line_color"]
+                    ),
                     marker=dict(
                         opacity=[
                             self.interaction_opacity_from_num.get(
@@ -206,7 +247,10 @@ class RPacketPlotter:
                 legendgroup="a",
                 opacity=1,
                 legendgrouptitle=dict(
-                    font=dict(color="#444"), text="Interaction Type:"
+                    font=dict(
+                        color=self.theme_colors[theme]["legendgrouptitle_color"]
+                    ),
+                    text="Interaction Type:",
                 ),
                 mode="lines+markers",
                 name="Escattering",
@@ -227,14 +271,16 @@ class RPacketPlotter:
         )
 
         # Set figure size
-        self.fig.layout.plot_bgcolor = "#fafafa"
-        self.fig.layout.paper_bgcolor = "#fafafa"
+        self.fig.layout.plot_bgcolor = self.theme_colors[theme]["plot_bgcolor"]
+        self.fig.layout.paper_bgcolor = self.theme_colors[theme][
+            "paper_bgcolor"
+        ]
 
         self.fig.update_layout(
             width=890,
             height=700,
             title="Packet Trajectories",
-            title_font_color="#444",
+            title_font_color=self.theme_colors[theme]["title_font_color"],
             updatemenus=[
                 dict(
                     type="buttons",
@@ -247,7 +293,7 @@ class RPacketPlotter:
         self.fig.frames = [
             go.Frame(
                 data=self.get_frames(
-                    frame, rpacket_x, rpacket_y, rpacket_interactions
+                    frame, rpacket_x, rpacket_y, rpacket_interactions, theme
                 )
             )
             for frame in range(rpacket_array_max_size + 1)
@@ -430,7 +476,7 @@ class RPacketPlotter:
         return rpacket_x, rpacket_y, interactions, rpacket_arraystep_nomax_size
 
     # creating frames for animation
-    def get_frames(self, frame, rpacket_x, rpacket_y, interactions):
+    def get_frames(self, frame, rpacket_x, rpacket_y, interactions, theme):
         """
         Creates individual frames containing the go.Scatter objects for the animation.
 
@@ -444,6 +490,8 @@ class RPacketPlotter:
             y coordinates array
         interactions : numpy.ndarray
             interactions array
+        theme : str
+            theme for the plot
 
         Returns
         -------
@@ -468,7 +516,9 @@ class RPacketPlotter:
                         )
                         for step_no in range(len(rpacket_x[packet_no]))
                     ],
-                    line=dict(color="darkslategrey"),
+                    line=dict(
+                        color=self.theme_colors[theme]["packet_line_color"]
+                    ),
                     marker=dict(
                         opacity=[
                             self.interaction_opacity_from_num.get(
