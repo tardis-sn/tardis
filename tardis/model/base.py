@@ -399,13 +399,38 @@ class Radial1DModel(HDFWriterMixin):
         self.raw_abundance = self._abundance
         self.raw_isotope_abundance = isotope_abundance
 
-        atomic_numbers = abundance.index.to_list()
-        atomic_mass = {}
-        for z in atomic_numbers:
+        mass = {}
+        stable_atomic_numbers = self.raw_abundance.index.to_list()
+        for z in stable_atomic_numbers:
             nuclide = rd.Nuclide(
                 Z_DICT[z] + str(STABLE_ISOTOPE_MASS_NUMBER[Z_DICT[z]])
             )
-            atomic_mass[nuclide.Z] = nuclide.atomic_mass
+            mass[nuclide.Z] = [
+                nuclide.atomic_mass
+                for i in range(self.raw_abundance.columns.size)
+            ]
+        stable_isotope_mass = pd.DataFrame(mass).T
+
+        isotope_mass = {}
+        for atomic_number, i in self.raw_isotope_abundance.decay(
+            self.time_explosion
+        ).groupby(level=0):
+            i = i.loc[atomic_number]
+            for column in i:
+                mass = {}
+                shell_abundances = i[column]
+                isotopic_masses = [
+                    rd.Nuclide(Z_DICT[atomic_number] + str(i)).atomic_mass
+                    for i in shell_abundances.index.to_numpy()
+                ]
+                mass[atomic_number] = (shell_abundances * isotopic_masses).sum()
+                mass[atomic_number] /= shell_abundances.sum()
+                if isotope_mass.get(column) is None:
+                    isotope_mass[column] = {}
+                isotope_mass[column][atomic_number] = mass[atomic_number]
+        isotope_mass = pd.DataFrame(isotope_mass)
+
+        atomic_mass = pd.concat([stable_isotope_mass, isotope_mass])
 
         composition = Composition(
             density=density,
