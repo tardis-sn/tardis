@@ -58,7 +58,7 @@ def tau_sobolev_factor(r_packet, numba_model, numba_plasma):
 
 
 @njit(**njit_dict_no_parallel)
-def roots(a, b, c, d, e, threshold):
+def quartic_roots(a, b, c, d, e, threshold):
     """
     Solves ax^4 + bx^3 + cx^2 + dx + e = 0, for the real roots greater than the threshold returns (x - threshold).
     Uses: https://en.wikipedia.org/wiki/Quartic_function#General_formula_for_roots
