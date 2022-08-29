@@ -49,9 +49,8 @@ def tau_sobolev_factor(r_packet, numba_model, numba_plasma):
     """
     shell_id = r_packet.current_shell_id
 
-    v = velocity(r_packet, numba_model)
+    v, dvdr = velocity(r_packet, numba_model)
     r = r_packet.r
-    dvdr = dv_dr(r_packet, numba_model)
     mu = r_packet.mu
     factor = 1.0 / ((1 - mu * mu) * v / r + mu * mu * dvdr)
     return factor
