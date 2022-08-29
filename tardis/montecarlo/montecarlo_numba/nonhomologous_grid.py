@@ -9,7 +9,7 @@ from tardis.montecarlo.montecarlo_numba import (
 @njit(**njit_dict_no_parallel)
 def velocity(r_packet, numba_model):
     """
-    Velocity at radius r
+    Velocity at radius r and dv/dr of current shell
 
     Parameters
     ----------
@@ -19,6 +19,7 @@ def velocity(r_packet, numba_model):
     Returns
     -----------
     v: float, current velocity
+    frac: float, dv/dr for current shell
     """
     shell_id = r_packet.current_shell_id
     v_inner = numba_model.v_inner[shell_id]
@@ -27,29 +28,8 @@ def velocity(r_packet, numba_model):
     r_outer = numba_model.r_outer[shell_id]
     r = r_packet.r
     frac = (v_outer - v_inner) / (r_outer - r_inner)
-    return v_inner + frac * (r - r_inner)
+    return v_inner + frac * (r - r_inner), frac
 
-
-@njit(**njit_dict_no_parallel)
-def dv_dr(r_packet, numba_model):
-    """
-    dv/dr for the current shell
-
-    Parameters
-    ----------
-    r_packet: RPacket
-    numba_model: NumbaModel
-
-    Returns
-    -----------
-    dvdr: float, dv/dr of the current shell
-    """
-    shell_id = r_packet.current_shell_id
-    v_inner = numba_model.v_inner[shell_id]
-    v_outer = numba_model.v_outer[shell_id]
-    r_inner = numba_model.r_inner[shell_id]
-    r_outer = numba_model.r_outer[shell_id]
-    return (v_outer - v_inner) / (r_outer - r_inner)
 
 
 @njit(**njit_dict_no_parallel)
