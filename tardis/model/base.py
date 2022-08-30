@@ -24,127 +24,6 @@ from tardis.model.density import HomologousDensity
 
 logger = logging.getLogger(__name__)
 
-STABLE_ISOTOPE_MASS_NUMBER = {
-    "H": 1,
-    "He": 4,
-    "Li": 7,
-    "Be": 9,
-    "B": 11,
-    "C": 12,
-    "N": 14,
-    "O": 16,
-    "F": 19,
-    "Ne": 20,
-    "Na": 23,
-    "Mg": 24,
-    "Al": 27,
-    "Si": 28,
-    "P": 31,
-    "S": 32,
-    "Cl": 35,
-    "Ar": 40,
-    "K": 39,
-    "Ca": 40,
-    "Sc": 45,
-    "Ti": 48,
-    "V": 51,
-    "Cr": 52,
-    "Mn": 55,
-    "Fe": 56,
-    "Co": 59,
-    "Ni": 58,
-    "Cu": 63,
-    "Zn": 64,
-    "Ga": 69,
-    "Ge": 74,
-    "As": 75,
-    "Se": 80,
-    "Br": 79,
-    "Kr": 84,
-    "Rb": 85,
-    "Sr": 88,
-    "Y": 89,
-    "Zr": 90,
-    "Nb": 93,
-    "Mo": 98,
-    "Tc": 97,
-    "Ru": 102,
-    "Rh": 103,
-    "Pd": 106,
-    "Ag": 107,
-    "Cd": 114,
-    "In": 115,
-    "Sn": 120,
-    "Sb": 121,
-    "Te": 130,
-    "I": 127,
-    "Xe": 132,
-    "Cs": 133,
-    "Ba": 138,
-    "La": 139,
-    "Ce": 140,
-    "Pr": 141,
-    "Nd": 142,
-    "Pm": 145,
-    "Sm": 152,
-    "Eu": 153,
-    "Gd": 158,
-    "Tb": 159,
-    "Dy": 164,
-    "Ho": 165,
-    "Er": 166,
-    "Tm": 169,
-    "Yb": 174,
-    "Lu": 175,
-    "Hf": 180,
-    "Ta": 181,
-    "W": 184,
-    "Re": 187,
-    "Os": 192,
-    "Ir": 193,
-    "Pt": 195,
-    "Au": 197,
-    "Hg": 202,
-    "Tl": 205,
-    "Pb": 208,
-    "Bi": 209,
-    "Po": 209,
-    "At": 210,
-    "Rn": 222,
-    "Fr": 223,
-    "Ra": 226,
-    "Ac": 227,
-    "Th": 232,
-    "Pa": 231,
-    "U": 238,
-    "Np": 237,
-    "Pu": 244,
-    "Am": 243,
-    "Cm": 247,
-    "Bk": 247,
-    "Cf": 251,
-    "Es": 252,
-    "Fm": 257,
-    "Md": 258,
-    "No": 259,
-    "Lr": 262,
-    "Rf": 261,
-    "Db": 262,
-    "Sg": 266,
-    "Bh": 264,
-    "Hs": 269,
-    "Mt": 278,
-    "Ds": 281,
-    "Rg": 272,
-    "Cn": 285,
-    "Nh": 286,
-    "Fl": 289,
-    "Mc": 289,
-    "Lv": 293,
-    "Ts": 294,
-    "Og": 294,
-}
-
 
 class ModelState:
     """
@@ -264,6 +143,10 @@ class Composition:
     @property
     def elemental_number_density(self):
         """Elemental Number Density computed using the formula: (elemental_mass_fraction * density) / atomic mass"""
+        if self.atomic_mass is None:
+            raise AttributeError(
+                "ModelState was not provided elemental masses."
+            )
         return (self.elemental_mass_fraction * self.density).divide(
             self.atomic_mass, axis=0
         )
@@ -300,6 +183,10 @@ class ModelState_Experimental:
 
     @property
     def number(self):
+        if self.composition.atomic_mass is None:
+            raise AttributeError(
+                "ModelState was not provided elemental masses."
+            )
         return (self.mass).divide(self.composition.atomic_mass, axis=0)
 
 
@@ -372,6 +259,7 @@ class Radial1DModel(HDFWriterMixin):
         isotope_abundance,
         time_explosion,
         t_inner,
+        elemental_mass,
         luminosity_requested=None,
         t_radiative=None,
         dilution_factor=None,
@@ -399,38 +287,39 @@ class Radial1DModel(HDFWriterMixin):
         self.raw_abundance = self._abundance
         self.raw_isotope_abundance = isotope_abundance
 
-        mass = {}
-        stable_atomic_numbers = self.raw_abundance.index.to_list()
-        for z in stable_atomic_numbers:
-            nuclide = rd.Nuclide(
-                Z_DICT[z] + str(STABLE_ISOTOPE_MASS_NUMBER[Z_DICT[z]])
-            )
-            mass[nuclide.Z] = [
-                nuclide.atomic_mass
-                for i in range(self.raw_abundance.columns.size)
-            ]
-        stable_isotope_mass = pd.DataFrame(mass).T
-
-        isotope_mass = {}
-        for atomic_number, i in self.raw_isotope_abundance.decay(
-            self.time_explosion
-        ).groupby(level=0):
-            i = i.loc[atomic_number]
-            for column in i:
-                mass = {}
-                shell_abundances = i[column]
-                isotopic_masses = [
-                    rd.Nuclide(Z_DICT[atomic_number] + str(i)).atomic_mass
-                    for i in shell_abundances.index.to_numpy()
+        atomic_mass = None
+        if elemental_mass is not None:
+            mass = {}
+            stable_atomic_numbers = self.raw_abundance.index.to_list()
+            for z in stable_atomic_numbers:
+                mass[z] = [
+                    elemental_mass[z] * u.g.to(u.u)
+                    for i in range(self.raw_abundance.columns.size)
                 ]
-                mass[atomic_number] = (shell_abundances * isotopic_masses).sum()
-                mass[atomic_number] /= shell_abundances.sum()
-                if isotope_mass.get(column) is None:
-                    isotope_mass[column] = {}
-                isotope_mass[column][atomic_number] = mass[atomic_number]
-        isotope_mass = pd.DataFrame(isotope_mass)
+            stable_isotope_mass = pd.DataFrame(mass).T
 
-        atomic_mass = pd.concat([stable_isotope_mass, isotope_mass])
+            isotope_mass = {}
+            for atomic_number, i in self.raw_isotope_abundance.decay(
+                self.time_explosion
+            ).groupby(level=0):
+                i = i.loc[atomic_number]
+                for column in i:
+                    mass = {}
+                    shell_abundances = i[column]
+                    isotopic_masses = [
+                        rd.Nuclide(Z_DICT[atomic_number] + str(i)).atomic_mass
+                        for i in shell_abundances.index.to_numpy()
+                    ]
+                    mass[atomic_number] = (
+                        shell_abundances * isotopic_masses
+                    ).sum()
+                    mass[atomic_number] /= shell_abundances.sum()
+                    if isotope_mass.get(column) is None:
+                        isotope_mass[column] = {}
+                    isotope_mass[column][atomic_number] = mass[atomic_number]
+            isotope_mass = pd.DataFrame(isotope_mass)
+
+            atomic_mass = pd.concat([stable_isotope_mass, isotope_mass])
 
         composition = Composition(
             density=density,
@@ -763,7 +652,7 @@ class Radial1DModel(HDFWriterMixin):
     #        return self.raw_velocity.searchsorted(self.v_boundary_outer) + 1
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls, config, atom_data=None):
         """
         Create a new Radial1DModel instance from a Configuration object.
 
@@ -860,6 +749,10 @@ class Radial1DModel(HDFWriterMixin):
 
         isotope_abundance = IsotopeAbundances(isotope_abundance)
 
+        elemental_mass = None
+        if atom_data is not None:
+            elemental_mass = atom_data.atom_data.mass
+
         return cls(
             velocity=velocity,
             homologous_density=homologous_density,
@@ -868,6 +761,7 @@ class Radial1DModel(HDFWriterMixin):
             time_explosion=time_explosion,
             t_radiative=t_radiative,
             t_inner=t_inner,
+            elemental_mass=elemental_mass,
             luminosity_requested=luminosity_requested,
             dilution_factor=None,
             v_boundary_inner=structure.get("v_inner_boundary", None),
@@ -876,7 +770,7 @@ class Radial1DModel(HDFWriterMixin):
         )
 
     @classmethod
-    def from_csvy(cls, config):
+    def from_csvy(cls, config, atom_data=None):
         """
         Create a new Radial1DModel instance from a Configuration object.
 
@@ -1073,6 +967,10 @@ class Radial1DModel(HDFWriterMixin):
         )
         # isotope_abundance.time_0 = csvy_model_config.model_isotope_time_0
 
+        elemental_mass = None
+        if atom_data is not None:
+            elemental_mass = atom_data.atom_data.mass
+
         return cls(
             velocity=velocity,
             homologous_density=homologous_density,
@@ -1081,6 +979,7 @@ class Radial1DModel(HDFWriterMixin):
             time_explosion=time_explosion,
             t_radiative=t_radiative,
             t_inner=t_inner,
+            elemental_mass=elemental_mass,
             luminosity_requested=luminosity_requested,
             dilution_factor=dilution_factor,
             v_boundary_inner=v_boundary_inner,
