@@ -293,7 +293,7 @@ class Radial1DModel(HDFWriterMixin):
             stable_atomic_numbers = self.raw_abundance.index.to_list()
             for z in stable_atomic_numbers:
                 mass[z] = [
-                    elemental_mass[z] * u.g.to(u.u)
+                    elemental_mass[z]
                     for i in range(self.raw_abundance.columns.size)
                 ]
             stable_isotope_mass = pd.DataFrame(mass).T
@@ -314,6 +314,7 @@ class Radial1DModel(HDFWriterMixin):
                         shell_abundances * isotopic_masses
                     ).sum()
                     mass[atomic_number] /= shell_abundances.sum()
+                    mass[atomic_number] = mass[atomic_number] * u.u.to(u.g)
                     if isotope_mass.get(column) is None:
                         isotope_mass[column] = {}
                     isotope_mass[column][atomic_number] = mass[atomic_number]
