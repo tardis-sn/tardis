@@ -5,6 +5,7 @@ import math
 import pandas as pd
 import numpy as np
 import random
+import logging
 
 
 class RPacketPlotter:
@@ -28,7 +29,7 @@ class RPacketPlotter:
         self.sim = sim
         self.interaction_from_num = {
             0: "No Interaction",
-            1: "EScattering",
+            1: "e-Scattering",
             2: "Line Interaction",
         }
         self.interaction_color_from_num = {
@@ -82,17 +83,19 @@ class RPacketPlotter:
 
         Returns
         -------
-        SDECPlotter
+        RPacketPlotter
         """
+        logger = logging.getLogger(__name__)
         if hasattr(sim.runner, "rpacket_tracker_df"):
-            if len(sim.runner.rpacket_tracker) >= no_of_packets:
+            if sim.last_no_of_packets >= no_of_packets:
                 return cls(sim, no_of_packets)
             else:
-                raise ValueError(
+                logger.warning(
                     """
-                    no_of_packets specified are more than the actual no of packets in the model.
-                    """
+                no_of_packets specified are more than the actual no of packets in the model. Using all packets in the model.
+                """
                 )
+                return cls(sim, sim.last_no_of_packets)
         else:
             raise NameError(
                 """
@@ -197,7 +200,7 @@ class RPacketPlotter:
                     x1=v_shells[shell_no],
                     y1=v_shells[shell_no],
                     line_color=self.theme_colors[theme]["shells_line_color"],
-                    opacity=0.1,
+                    opacity=0.2,
                 )
 
         # Adding packet trajectory
@@ -253,7 +256,7 @@ class RPacketPlotter:
                     text="Interaction Type:",
                 ),
                 mode="lines+markers",
-                name="Escattering",
+                name="e-scattering",
                 hoverlabel=dict(font=dict(color="#222")),
                 marker=dict(color="#3366FF"),
             )
@@ -265,7 +268,7 @@ class RPacketPlotter:
                 legendgroup="a",
                 opacity=1,
                 mode="lines+markers",
-                name="Line",
+                name="Line Interaction",
                 marker=dict(color="#FF3300"),
             )
         )
