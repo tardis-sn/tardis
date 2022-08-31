@@ -119,13 +119,15 @@ class Composition:
     density : astropy.units.quantity.Quantity
         An array of densities for each shell.
     isotopic_mass_fraction : pd.DataFrame
-    atomic_mass : pandas.core.series.Series
+    atomic_mass : pd.DataFrame
     atomic_mass_unit: astropy.units.Unit
 
     Attributes
     ----------
-    number_density : pd.DataFrame
-        Number density of each isotope in each shell.
+    atomic_mass : pd.DataFrame
+        Atomic mass of elements calculated for each shell.
+    elemental_number_density : pd.DataFrame
+        Number density of each element in each shell.
     """
 
     def __init__(
@@ -184,6 +186,8 @@ class ModelState_Experimental:
 
     @property
     def mass(self):
+        """Mass calculated using the formula:
+        mass_fraction * density * volume"""
         return (
             self.composition.elemental_mass_fraction
             * self.composition.density
@@ -192,6 +196,8 @@ class ModelState_Experimental:
 
     @property
     def number(self):
+        """Number calculated using the formula:
+        mass / atomic_mass"""
         if self.composition.atomic_mass is None:
             raise AttributeError(
                 "ModelState was not provided elemental masses."
@@ -215,6 +221,7 @@ class Radial1DModel(HDFWriterMixin):
     time_explosion : astropy.units.Quantity
         Time since explosion
     t_inner : astropy.units.Quantity
+    elemental_mass: pd.Series
     luminosity_requested : astropy.units.quantity.Quantity
     t_radiative : astropy.units.Quantity
         Radiative temperature for the shells
@@ -669,6 +676,7 @@ class Radial1DModel(HDFWriterMixin):
         Parameters
         ----------
         config : tardis.io.config_reader.Configuration
+        atom_data : tardis.io.AtomData
 
         Returns
         -------
@@ -787,6 +795,7 @@ class Radial1DModel(HDFWriterMixin):
         Parameters
         ----------
         config : tardis.io.config_reader.Configuration
+        atom_data : tardis.io.AtomData
 
         Returns
         -------
