@@ -138,7 +138,16 @@ class Composition:
         self.density = density
         self.elemental_mass_fraction = elemental_mass_fraction
         self.atomic_mass_unit = atomic_mass_unit
-        self.atomic_mass = atomic_mass
+        self._atomic_mass = atomic_mass
+
+    @property
+    def atomic_mass(self):
+        """Atomic mass of elements in each shell"""
+        if self._atomic_mass is None:
+            raise AttributeError(
+                "ModelState was not provided elemental masses."
+            )
+        return self.atomic_mass
 
     @property
     def elemental_number_density(self):
