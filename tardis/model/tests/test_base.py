@@ -388,6 +388,61 @@ def test_model_state_number(simulation_verysimple, index, expected):
     assert_almost_equal((model_state.number).loc[index], expected, decimal=-47)
 
 
+@pytest.fixture
+def non_uniform_model_state(atomic_dataset):
+    filename = "tardis_configv1_isotope_iabund.yml"
+    config = Configuration.from_yaml(data_path(filename))
+    atom_data = atomic_dataset
+    model = Radial1DModel.from_config(config, atom_data=atom_data)
+    return model.model_state
+
+
+@pytest.mark.parametrize(
+    ("index", "expected"),
+    [
+        ((1, 0), 1.67378172e-24),
+        ((28, 0), 9.51707707e-23),
+        ((28, 1), 9.54725917e-23),
+    ],
+)
+def test_radial_1d_model_atomic_mass(non_uniform_model_state, index, expected):
+    atomic_mass = non_uniform_model_state.composition.atomic_mass
+
+    assert_almost_equal(
+        atomic_mass.loc[index],
+        expected,
+        decimal=30,
+    )
+
+
+class TestModelStateFromNonUniformAbundances:
+    @pytest.fixture
+    def model_state(self, non_uniform_model_state):
+        return non_uniform_model_state
+
+    def test_atomic_mass(self, model_state):
+        atomic_mass = model_state.composition.atomic_mass
+        assert_almost_equal(atomic_mass.loc[(1, 0)], 1.67378172e-24, decimal=30)
+        assert_almost_equal(
+            atomic_mass.loc[(28, 0)], 9.51707707e-23, decimal=30
+        )
+        assert_almost_equal(
+            atomic_mass.loc[(28, 1)], 9.54725917e-23, decimal=30
+        )
+
+    def test_elemental_number_density(self, model_state):
+        number = model_state.composition.elemental_number_density
+        assert_almost_equal(number.loc[(1, 0)], 0)
+        assert_almost_equal(number.loc[(28, 0)], 10825427.035, decimal=2)
+        assert_almost_equal(number.loc[(28, 1)], 1640838.763, decimal=2)
+
+    def test_number(self, model_state):
+        number = model_state.number
+        assert_almost_equal(number.loc[(1, 0)], 0)
+        assert_almost_equal(number.loc[(28, 0)], 1.53753476e53, decimal=-47)
+        assert_almost_equal(number.loc[(28, 1)], 4.16462779e52, decimal=-47)
+
+
 ###
 # Save and Load
 ###
