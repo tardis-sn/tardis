@@ -120,7 +120,11 @@ class RPacketPlotter:
         """
 
         self.fig = go.Figure()
+
+        # getting velocity of different shells
         v_shells = self.sim.model.velocity.to_value(u.km / u.s)
+
+        # getting coordinates and interactions of all packets
         (
             rpacket_x,
             rpacket_y,
@@ -128,6 +132,8 @@ class RPacketPlotter:
         ) = self.get_coordinates_multiple_packets(
             self.sim.runner.rpacket_tracker_df.loc[0 : (self.no_of_packets)],
         )
+
+        # making the coordinate arrays of all packets equal
         (
             rpacket_x,
             rpacket_y,
@@ -338,9 +344,13 @@ class RPacketPlotter:
         """
         rpacket_x, rpacket_y, theta, rpacket_interactions = [], [], [], []
 
+        # getting thetas at different steps of the packet movement
+
         for step_no in range(len(r_track)):
+            # for the first step the packet is at photosphere, so theta will be equal to the intial angle we are launching the packet from
             if step_no == 0:
                 theta.append(theta_initial)
+            # for further steps we calculate thetas with the formula derived in the documentation
             else:
                 if r_track[step_no] < r_track[step_no - 1]:
                     theta.append(
@@ -365,19 +375,27 @@ class RPacketPlotter:
                         + math.acos(mu_track[step_no - 1])
                     )
 
+        # converting the thetas into x and y coordinates using radius as radius*cos(theta) and radius*sin(theta) respectively
         rpacket_x = (np.array(r_track)) * np.cos(np.array(theta)) * 1e-5 / time
         rpacket_y = (np.array(r_track)) * np.sin(np.array(theta)) * 1e-5 / time
 
+        # adding interactions at different steps
+        # using the change of slope of the trajectory line at different steps, we determine if an interactions happened or not.
+
         for step_no in range(len(r_track)):
+            # when packet is at its starting and ending point in its trajectory, we consider it as no interaction
             if step_no == 0 or step_no == len(r_track) - 1:
                 rpacket_interactions.append(0)
             else:
+                # current slope is the slope of line from previous position of the packet to the current position
                 current_slope = (
                     rpacket_y[step_no] - rpacket_y[step_no - 1]
                 ) / (rpacket_x[step_no] - rpacket_x[step_no - 1])
+                # next slope is the slope of line from current position of the packet to the next position
                 next_slope = (rpacket_y[step_no + 1] - rpacket_y[step_no]) / (
                     rpacket_x[step_no + 1] - rpacket_x[step_no]
                 )
+                # here if the slope changes significantly we say, its an interaction
                 if math.isclose(current_slope, next_slope, rel_tol=1e-11):
                     rpacket_interactions.append(0)
                 else:
@@ -400,10 +418,12 @@ class RPacketPlotter:
             array of array containing x coordinates, y coordinates and the interactions for multiple packets
         """
 
+        # for plotting packets at equal intervals throught the circle, we choose thetas distributed uniformly
         thetas = np.linspace(0, 2 * math.pi, self.no_of_packets + 1)
         rpackets_x = []
         rpackets_y = []
         rpackets_interactions = []
+        # getting coordinates and interaction arrays for all packets
         for packet_no in range(self.no_of_packets):
             (
                 rpacket_x,
@@ -450,20 +470,20 @@ class RPacketPlotter:
             size of the biggest array among different packets
 
         """
-        rpacket_arraystep_nomax_size = max(list(map(len, rpacket_x)))
+        rpacket_step_no_array_max_size = max(list(map(len, rpacket_x)))
         for packet_no in range(len(rpacket_x)):
             rpacket_x[packet_no] = np.append(
                 rpacket_x[packet_no],
                 rpacket_x[packet_no][-1]
                 * np.ones(
-                    [rpacket_arraystep_nomax_size - len(rpacket_x[packet_no])]
+                    [rpacket_step_no_array_max_size - len(rpacket_x[packet_no])]
                 ),
             )
             rpacket_y[packet_no] = np.append(
                 rpacket_y[packet_no],
                 rpacket_y[packet_no][-1]
                 * np.ones(
-                    [rpacket_arraystep_nomax_size - len(rpacket_y[packet_no])]
+                    [rpacket_step_no_array_max_size - len(rpacket_y[packet_no])]
                 ),
             )
             interactions[packet_no] = np.append(
@@ -471,12 +491,17 @@ class RPacketPlotter:
                 interactions[packet_no][-1]
                 * np.ones(
                     [
-                        rpacket_arraystep_nomax_size
+                        rpacket_step_no_array_max_size
                         - len(interactions[packet_no])
                     ]
                 ),
             )
-        return rpacket_x, rpacket_y, interactions, rpacket_arraystep_nomax_size
+        return (
+            rpacket_x,
+            rpacket_y,
+            interactions,
+            rpacket_step_no_array_max_size,
+        )
 
     # creating frames for animation
     def get_frames(self, frame, rpacket_x, rpacket_y, interactions, theme):
