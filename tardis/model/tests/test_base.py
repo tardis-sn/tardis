@@ -5,14 +5,8 @@ from astropy import units as u
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from tardis.io.config_reader import Configuration
-from tardis.model import (
-    Radial1DModel,
-    Radial1DGeometry,
-    Composition,
-    ModelState_Experimental,
-)
+from tardis.model import Radial1DModel
 from tardis.io.decay import IsotopeAbundances
-from tardis.simulation.base import Simulation
 
 
 def data_path(filename):
