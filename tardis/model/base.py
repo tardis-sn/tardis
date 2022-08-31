@@ -147,7 +147,7 @@ class Composition:
             raise AttributeError(
                 "ModelState was not provided elemental masses."
             )
-        return self.atomic_mass
+        return self._atomic_mass
 
     @property
     def elemental_number_density(self):
