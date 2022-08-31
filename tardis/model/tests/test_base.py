@@ -317,36 +317,6 @@ def test_model_decay(simple_isotope_abundance):
     )
 
 
-@pytest.fixture
-def simple_radial_1D_geometry(simulation_verysimple):
-    sim = simulation_verysimple
-    return Radial1DGeometry(
-        sim.model.r_inner,
-        sim.model.r_outer,
-        sim.model.v_inner,
-        sim.model.v_outer,
-    )
-
-
-@pytest.fixture
-def simple_composition(simulation_verysimple):
-    sim = simulation_verysimple
-    return Composition(
-        sim.model.density, sim.model.abundance, sim.plasma.atomic_mass
-    )
-
-
-@pytest.fixture
-def simple_model_state(
-    simulation_verysimple, simple_radial_1D_geometry, simple_composition
-):
-    return ModelState_Experimental(
-        simple_composition,
-        simple_radial_1D_geometry,
-        simulation_verysimple.model.time_explosion,
-    )
-
-
 @pytest.mark.parametrize(
     ("index", "expected"),
     [
@@ -355,8 +325,8 @@ def simple_model_state(
         (19, 3.13361319e45),
     ],
 )
-def test_radial_1D_geometry_volume(simple_radial_1D_geometry, index, expected):
-    geometry = simple_radial_1D_geometry
+def test_radial_1D_geometry_volume(simulation_verysimple, index, expected):
+    geometry = simulation_verysimple.model.model_state.geometry
     volume = geometry.volume
 
     assert volume.unit == u.Unit("cm3")
@@ -387,9 +357,9 @@ def test_radial_1D_geometry_volume(simple_radial_1D_geometry, index, expected):
     ],
 )
 def test_composition_elemental_number_density(
-    simple_composition, index, expected
+    simulation_verysimple, index, expected
 ):
-    comp = simple_composition
+    comp = simulation_verysimple.model.model_state.composition
 
     assert_almost_equal(
         comp.elemental_number_density.loc[index], expected, decimal=-2
@@ -404,8 +374,8 @@ def test_composition_elemental_number_density(
         ((20, 19), 1.3464444e29),
     ],
 )
-def test_model_state_mass(simple_model_state, index, expected):
-    model_state = simple_model_state
+def test_model_state_mass(simulation_verysimple, index, expected):
+    model_state = simulation_verysimple.model.model_state
 
     assert_almost_equal((model_state.mass).loc[index], expected, decimal=-27)
 
@@ -418,8 +388,8 @@ def test_model_state_mass(simple_model_state, index, expected):
         ((20, 19), 2.0231745e51),
     ],
 )
-def test_model_state_number(simple_model_state, index, expected):
-    model_state = simple_model_state
+def test_model_state_number(simulation_verysimple, index, expected):
+    model_state = simulation_verysimple.model.model_state
 
     assert_almost_equal((model_state.number).loc[index], expected, decimal=-47)
 
