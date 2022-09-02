@@ -52,6 +52,13 @@ class RPacketPlotter:
                 paper_bgcolor="#fafafa",
                 title_font_color="#444",
                 legendgrouptitle_color="#444",
+                button_bgcolor="#fafafa",
+                button_font_color="#2A3F5F",
+                slider_font_color="#2A3F5F",
+                bordercolor="#BEC8D9",
+                slider_bgcolor="#F8FAFC",
+                slider_activebgcolor="#DBDDE0",
+                slider_currentvalue_color="#2A3F5F",
             ),
             dark=dict(
                 linecolor="#050505",
@@ -66,6 +73,13 @@ class RPacketPlotter:
                 paper_bgcolor="#000",
                 title_font_color="#ccc",
                 legendgrouptitle_color="#ccc",
+                button_bgcolor="#282828",
+                button_font_color="#888",
+                slider_font_color="#888",
+                bordercolor="black",
+                slider_bgcolor="#888",
+                slider_activebgcolor="#fafafa",
+                slider_currentvalue_color="#fff",
             ),
         )
 
@@ -293,20 +307,96 @@ class RPacketPlotter:
             updatemenus=[
                 dict(
                     type="buttons",
-                    y=-0.1,
-                    buttons=[dict(label="Play", method="animate", args=[None])],
+                    xanchor="right",
+                    x=0.1,
+                    y=0,
+                    yanchor="top",
+                    direction="left",
+                    pad={"r": 10, "t": 87},
+                    showactive=False,
+                    bgcolor=self.theme_colors[theme]["button_bgcolor"],
+                    bordercolor=self.theme_colors[theme]["bordercolor"],
+                    font={
+                        "color": self.theme_colors[theme]["button_font_color"]
+                    },
+                    buttons=[
+                        {
+                            "args": [
+                                None,
+                                {
+                                    "frame": {"duration": 500, "redraw": False},
+                                    "fromcurrent": True,
+                                    "transition": {
+                                        "duration": 300,
+                                        "easing": "quadratic-in-out",
+                                    },
+                                },
+                            ],
+                            "label": "Play",
+                            "method": "animate",
+                        },
+                        {
+                            "args": [
+                                [None],
+                                {
+                                    "frame": {"duration": 0, "redraw": False},
+                                    "mode": "immediate",
+                                    "transition": {"duration": 0},
+                                },
+                            ],
+                            "label": "Pause",
+                            "method": "animate",
+                        },
+                    ],
                 )
             ],
         )
 
+        # adding frames
         self.fig.frames = [
             go.Frame(
                 data=self.get_frames(
                     frame, rpacket_x, rpacket_y, rpacket_interactions, theme
-                )
+                ),
+                name=frame,
             )
             for frame in range(rpacket_array_max_size + 1)
         ]
+
+        # adding timeline slider
+        self.fig.layout.sliders = [
+            {
+                "active": 0,
+                "activebgcolor": self.theme_colors[theme][
+                    "slider_activebgcolor"
+                ],
+                "bgcolor": self.theme_colors[theme]["slider_bgcolor"],
+                "bordercolor": self.theme_colors[theme]["bordercolor"],
+                "yanchor": "top",
+                "xanchor": "left",
+                "currentvalue": {
+                    "font": {
+                        "size": 20,
+                        "color": self.theme_colors[theme][
+                            "slider_currentvalue_color"
+                        ],
+                    },
+                    "prefix": "Step:",
+                    "visible": True,
+                    "xanchor": "right",
+                },
+                "font": {
+                    "color": self.theme_colors[theme]["slider_font_color"]
+                },
+                "transition": {"duration": 300, "easing": "cubic-in-out"},
+                "pad": {"b": 10, "t": 50},
+                "len": 0.9,
+                "x": 0.1,
+                "y": 0,
+                "steps": self.get_slider_steps(rpacket_array_max_size),
+            }
+        ]
+
         return self.fig
 
     def get_coordinates_with_theta_init(
@@ -396,7 +486,7 @@ class RPacketPlotter:
                     rpacket_x[step_no + 1] - rpacket_x[step_no]
                 )
                 # here if the slope changes significantly we say, its an interaction
-                if math.isclose(current_slope, next_slope, rel_tol=1e-11):
+                if math.isclose(current_slope, next_slope, rel_tol=1e-10):
                     rpacket_interactions.append(0)
                 else:
                     rpacket_interactions.append(last_interaction_type[step_no])
@@ -564,3 +654,38 @@ class RPacketPlotter:
                 )
             )
         return frames
+
+    # creating steps for the timeline slider
+    def get_slider_steps(self, rpacket_max_array_size):
+        """
+        Generates different steps in the timeline slider for different frames in the animated plot.
+
+        Parameters
+        ----------
+        rpacket_max_array_size : int
+            maximum size of coordinate array among all the packets.
+
+        Returns
+        -------
+        list
+            list of dictionaries of different steps for different frames.
+        """
+
+        slider_steps = []
+        for step_no in range(rpacket_max_array_size):
+            slider_steps.append(
+                {
+                    "args": [
+                        [step_no],
+                        {
+                            "frame": {"duration": 300, "redraw": False},
+                            "mode": "immediate",
+                            "transition": {"duration": 300},
+                        },
+                    ],
+                    "label": step_no,
+                    "method": "animate",
+                }
+            )
+
+        return slider_steps
