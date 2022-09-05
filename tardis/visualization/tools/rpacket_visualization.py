@@ -1,11 +1,10 @@
+import math
+import logging
+import pandas as pd
+import numpy as np
 import astropy.units as u
 import plotly.express as px
 import plotly.graph_objects as go
-import math
-import pandas as pd
-import numpy as np
-import random
-import logging
 
 
 class RPacketPlotter:
@@ -27,17 +26,11 @@ class RPacketPlotter:
         """
         self.no_of_packets = no_of_packets
         self.sim = sim
-        self.interaction_from_num = {
-            0: "No Interaction",
-            1: "e-Scattering",
-            2: "Line Interaction",
-        }
-        self.interaction_color_from_num = {
-            0: "darkslategrey",
-            1: "#3366FF",
-            2: "#FF3300",
-        }
-        self.interaction_opacity_from_num = {0: 0, 1: 1, 2: 1}
+        self.interaction_from_num = [
+            {"text": "No Interaction", "color": "darkslategrey", "opacity": 0},
+            {"text": "e-Scattering", "color": "#3366FF", "opacity": 1},
+            {"text": "Line Interaction", "color": "#FF3300", "opacity": 1},
+        ]
         self.theme_colors = dict(
             light=dict(
                 linecolor="#555",
@@ -59,6 +52,7 @@ class RPacketPlotter:
                 slider_bgcolor="#F8FAFC",
                 slider_activebgcolor="#DBDDE0",
                 slider_currentvalue_color="#2A3F5F",
+                font_color="#000",
             ),
             dark=dict(
                 linecolor="#050505",
@@ -80,6 +74,7 @@ class RPacketPlotter:
                 slider_bgcolor="#888",
                 slider_activebgcolor="#fafafa",
                 slider_currentvalue_color="#fff",
+                font_color="#fafafa",
             ),
         )
 
@@ -111,11 +106,9 @@ class RPacketPlotter:
                 )
                 return cls(sim, sim.last_no_of_packets)
         else:
-            raise NameError(
-                """
-                There is no attribute named rpacket_tracker. Try enabling the 
-                rpacket tracking in the configuration.
-                """
+            raise AttributeError(
+                """ There is no attribute named rpacket_tracker in the simulation object passed. Try enabling the 
+                rpacket tracking in the configuration. To enable rpacket tracking see: https://tardis-sn.github.io/tardis/io/output/rpacket_tracking.html#How-to-Setup-the-Tracking-for-the-RPackets?"""
             )
 
     def generate_plot(self, theme="light"):
@@ -237,9 +230,9 @@ class RPacketPlotter:
                     + "<br><b>Y</b>: %{y}<br>"
                     + "<b>Last Interaction: %{text}</b>",
                     text=[
-                        self.interaction_from_num.get(
-                            rpacket_interactions[packet_no][step_no]
-                        )
+                        self.interaction_from_num[
+                            int(rpacket_interactions[packet_no][step_no])
+                        ]["text"]
                         for step_no in range(len(rpacket_x[packet_no]))
                     ],
                     line=dict(
@@ -247,15 +240,15 @@ class RPacketPlotter:
                     ),
                     marker=dict(
                         opacity=[
-                            self.interaction_opacity_from_num.get(
-                                rpacket_interactions[packet_no][step_no]
-                            )
+                            self.interaction_from_num[
+                                int(rpacket_interactions[packet_no][step_no])
+                            ]["opacity"]
                             for step_no in range(len(rpacket_x[packet_no]))
                         ],
                         color=[
-                            self.interaction_color_from_num.get(
-                                rpacket_interactions[packet_no][step_no]
-                            )
+                            self.interaction_from_num[
+                                int(rpacket_interactions[packet_no][step_no])
+                            ]["color"]
                             for step_no in range(len(rpacket_x[packet_no]))
                         ],
                     ),
@@ -304,6 +297,7 @@ class RPacketPlotter:
             height=700,
             title="Packet Trajectories",
             title_font_color=self.theme_colors[theme]["title_font_color"],
+            font_color=self.theme_colors[theme]["font_color"],
             updatemenus=[
                 dict(
                     type="buttons",
@@ -376,7 +370,6 @@ class RPacketPlotter:
                 "xanchor": "left",
                 "currentvalue": {
                     "font": {
-                        "size": 20,
                         "color": self.theme_colors[theme][
                             "slider_currentvalue_color"
                         ],
@@ -561,7 +554,9 @@ class RPacketPlotter:
 
         """
         rpacket_step_no_array_max_size = max(list(map(len, rpacket_x)))
+
         for packet_no in range(len(rpacket_x)):
+            # making all coordinate arrays of size `rpacket_step_no_array_max_size` by repeating the last element across the remaining length of array
             rpacket_x[packet_no] = np.append(
                 rpacket_x[packet_no],
                 rpacket_x[packet_no][-1]
@@ -629,9 +624,9 @@ class RPacketPlotter:
                     + "<br><b>Y</b>: %{y}<br>"
                     + "<b>Last Interaction: %{text}</b>",
                     text=[
-                        self.interaction_from_num.get(
-                            interactions[packet_no][step_no]
-                        )
+                        self.interaction_from_num[
+                            int(interactions[packet_no][step_no])
+                        ]["text"]
                         for step_no in range(len(rpacket_x[packet_no]))
                     ],
                     line=dict(
@@ -639,15 +634,15 @@ class RPacketPlotter:
                     ),
                     marker=dict(
                         opacity=[
-                            self.interaction_opacity_from_num.get(
-                                interactions[packet_no][step_no]
-                            )
+                            self.interaction_from_num[
+                                int(interactions[packet_no][step_no])
+                            ]["opacity"]
                             for step_no in range(len(rpacket_x[packet_no]))
                         ],
                         color=[
-                            self.interaction_color_from_num.get(
-                                interactions[packet_no][step_no]
-                            )
+                            self.interaction_from_num[
+                                int(interactions[packet_no][step_no])
+                            ]["color"]
                             for step_no in range(len(rpacket_x[packet_no]))
                         ],
                     ),
