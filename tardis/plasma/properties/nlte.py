@@ -424,7 +424,7 @@ class RateEquationSolver(ProcessingPlasmaProperty):
         else:
             ion_rate_matrix = self.ion_matrix(ion_rates)
             recomb_rate_matrix = self.recomb_matrix(recomb_rate)
-            rate_matrix_block[ion_number] = (ion_rate_matrix + recomb_rate_matrix)[ion_number]
+            rate_matrix_block[ion_number, :] = (ion_rate_matrix + recomb_rate_matrix)[ion_number, :]
         return rate_matrix_block
 
     def lte_rate_matrix_block(self, phi_block, electron_density):
@@ -495,7 +495,7 @@ class RateEquationSolver(ProcessingPlasmaProperty):
         for atomic_number in atomic_numbers[1:]:
             for i in range(index+1, index+atomic_number+2):
                 if rate_matrix_index[i][2] == 'nlte_ion':
-                    jacobian_matrix[i, -1] = self.deriv_matrix_block(radiative_recombination_rate_coeff.loc[(atomic_number,)], coll_ion_coeff.loc[(atomic_number, )], populations[index+1:index+atomic_number+2], coll_recomb_coefficient.loc[(atomic_number,)], populations[-1])[i]
+                    jacobian_matrix[i, -1] = self.deriv_matrix_block(radiative_recombination_rate_coeff.loc[(atomic_number,)], coll_ion_coeff.loc[(atomic_number, )], populations[index+1:index+atomic_number+2], coll_recomb_coefficient.loc[(atomic_number,)], populations[-1])[i - atomic_number]
             index += 1 + atomic_number
             jacobian_matrix[index, -1] = 0
         
