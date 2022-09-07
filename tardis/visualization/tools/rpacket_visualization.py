@@ -390,7 +390,7 @@ class RPacketPlotter:
             }
         ]
 
-        return self.fig
+        self.fig.show(renderer="notebook_connected")
 
     def get_coordinates_with_theta_init(
         self,
@@ -588,7 +588,6 @@ class RPacketPlotter:
             rpacket_step_no_array_max_size,
         )
 
-    # creating frames for animation
     def get_frames(self, frame, rpacket_x, rpacket_y, interactions, theme):
         """
         Creates individual frames containing the go.Scatter objects for the animation.
@@ -612,7 +611,9 @@ class RPacketPlotter:
             list of go.Scatter objects for a particular frame number.
         """
         frames = []
+
         for packet_no in range(len(rpacket_x)):
+            # adding a scatter object containing the trajectory of a packet upto a particular frame number
             frames.append(
                 go.Scatter(
                     x=rpacket_x[packet_no].tolist()[0:frame],
@@ -650,7 +651,6 @@ class RPacketPlotter:
             )
         return frames
 
-    # creating steps for the timeline slider
     def get_slider_steps(self, rpacket_max_array_size):
         """
         Generates different steps in the timeline slider for different frames in the animated plot.
