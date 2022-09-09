@@ -390,7 +390,7 @@ class RPacketPlotter:
             }
         ]
 
-        self.fig.show(renderer="notebook_connected")
+        return self.fig
 
     def get_coordinates_with_theta_init(
         self,
