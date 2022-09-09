@@ -293,8 +293,8 @@ class RPacketPlotter:
         ]
 
         self.fig.update_layout(
-            width=820,
-            height=680,
+            width=890,
+            height=700,
             title="Packet Trajectories",
             title_font_color=self.theme_colors[theme]["title_font_color"],
             font_color=self.theme_colors[theme]["font_color"],
