@@ -34,6 +34,11 @@ class Radial1DGeometry:
     r_outer : astropy.units.quantity.Quantity
     v_inner : astropy.units.quantity.Quantity
     v_outer : astropy.units.quantity.Quantity
+
+    Attributes
+    ----------
+    volume : astropy.units.quantity.Quantity
+        Volume in each shell
     """
 
     def __init__(self, r_inner, r_outer, v_inner, v_outer):
@@ -44,6 +49,7 @@ class Radial1DGeometry:
 
     @property
     def volume(self):
+        """Volume in shell computed from r_outer and r_inner"""
         return (4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
 
 
