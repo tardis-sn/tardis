@@ -10,7 +10,7 @@ from radioactivedecay.utils import Z_DICT
 from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
 from tardis.io.parsers.csvy import load_csvy
 from tardis.io.model_reader import (
-    read_density_file, 
+    read_density_file,
     read_abundances_file,
     read_uniform_abundances,
     parse_csv_abundances,
