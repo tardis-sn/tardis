@@ -7,7 +7,7 @@ from tardis.montecarlo.montecarlo_numba import (
 
 
 @njit(**njit_dict_no_parallel)
-def velocity(r_packet, numba_model):
+def velocity_dvdr(r_packet, numba_model):
     """
     Velocity at radius r and dv/dr of current shell
 
@@ -50,7 +50,7 @@ def tau_sobolev_factor(r_packet, numba_model, numba_plasma):
     """
     shell_id = r_packet.current_shell_id
 
-    v, dvdr = velocity(r_packet, numba_model)
+    v, dvdr = velocity_dvdr(r_packet, numba_model)
     r = r_packet.r
     mu = r_packet.mu
     factor = 1.0 / ((1 - mu * mu) * v / r + mu * mu * dvdr)
