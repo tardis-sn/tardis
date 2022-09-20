@@ -129,7 +129,7 @@ def assemble_plasma(config, model, atom_data=None):
         density=model.density,
         atomic_data=atom_data,
         time_explosion=model.time_explosion,
-        w=model.dilution_factor,
+        w=1.0, #model.dilution_factor,
         link_t_rad_t_electron=config.plasma.link_t_rad_t_electron,
         continuum_interaction_species=continuum_interaction_species,
     )

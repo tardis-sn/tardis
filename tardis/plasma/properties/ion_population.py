@@ -331,7 +331,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
 
     def calculate(self, phi, partition_function, number_density):
         if self._electron_densities is None:
-            n_e_convergence_threshold = 0.05
+            n_e_convergence_threshold = 0.0005
             n_electron = number_density.sum(axis=0)
             n_electron_iterations = 0
 
