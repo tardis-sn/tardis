@@ -513,22 +513,19 @@ class RateEquationSolver(ProcessingPlasmaProperty):
 
     def recomb_matrix(self, recomb_rate, atomic_number):
         offdiag = np.zeros(atomic_number)
-        index = 0
-        for rec_rate in recomb_rate:
-            offdiag[index] = rec_rate
-            index += 1
+        index = recomb_rate.index
+        for i in index:
+            offdiag[i] = recomb_rate[i]
 
         # offdiag = recomb_rate
         diag = np.hstack([np.zeros(1), -offdiag])
-        # 1/0
         return np.diag(diag) + np.diag(offdiag, k=1)
 
     def ion_matrix(self, ion_rate, atomic_number):
         offdiag = np.zeros(atomic_number)
-        index = 0
-        for i_rate in ion_rate:
-            offdiag[index] = i_rate
-            index += 1
+        index = ion_rate.index
+        for i in index:
+            offdiag[i] = ion_rate[i]
         diag = np.hstack([-offdiag, np.zeros(1)])
         return np.diag(diag) + np.diag(offdiag, k=-1)
     
@@ -572,7 +569,7 @@ class RateEquationSolver(ProcessingPlasmaProperty):
 class NLTEIndexHelper(ProcessingPlasmaProperty):
     outputs = ("rate_matrix_index",)
     def calculate(self, levels, continuum_interaction_species):
-        nlte_ionization_species = [(2,0)]
+        nlte_ionization_species = [(22,1)]
         nlte_excitation_species = []
         rate_matrix_index = pd.MultiIndex.from_tuples(list(self.calculate_rate_matrix_index(levels, nlte_ionization_species, nlte_excitation_species)), names=levels.names).drop_duplicates()
         return rate_matrix_index
