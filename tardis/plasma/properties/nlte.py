@@ -337,7 +337,7 @@ class RateEquationSolver(ProcessingPlasmaProperty):
             , index=levels)
 
         # TODO: Only do this for the species marked NLTE
-        nlte_ion_indexer = rate_matrix_index[rate_matrix_index.get_level_values(2).get_loc('nlte_ion')]
+        # nlte_ion_indexer = rate_matrix_index[rate_matrix_index.get_level_values(2).get_loc('nlte_ion')]
         # nlte_ion_species = nlte_ion_indexer.get_level_values(0)
         # alpha_sp = alpha_sp.copy() * 0.0
         # photo_ion_rates, radiative_recombination_rate_coeff, coll_ion_coefficient, coll_recomb_coefficient = self.prepare_ion_recomb_rates_nlte_ion(rate_matrix_index, level_population_fraction.loc[(nlte_ion_species,)], gamma.loc[(nlte_ion_species,)], alpha_sp.loc[(nlte_ion_species,)], alpha_stim.loc[(nlte_ion_species,)], coll_ion_coeff.loc[(nlte_ion_species,)], coll_recomb_coeff.loc[(nlte_ion_species,)])
@@ -414,14 +414,16 @@ class RateEquationSolver(ProcessingPlasmaProperty):
             
 
             nlte_ion_numbers = ion_numbers[rate_matrix.loc[atomic_number].index.get_level_values(1) == 'nlte_ion']
+            lte_ion_numbers = ion_numbers[rate_matrix.loc[atomic_number].index.get_level_values(1) == 'lte_ion']
+            nlte_exc_ion_numbers = list(set([ion_number for ion_number in ion_numbers if ion_number not in lte_ion_numbers and ion_number not in nlte_ion_numbers]))
             # self.create_nlte_excitation_block(2, 0, rate_matrix)
             for ion_number in nlte_ion_numbers:
                 rate_matrix_block = self.set_nlte_ion_rate(rate_matrix_block, atomic_number, ion_number, radiative_recombination_rate.loc[(atomic_number,)], photo_ion_rates.loc[(atomic_number,)], coll_ion_rate.loc[(atomic_number, )], coll_recomb_rate.loc[(atomic_number, )])
             rate_matrix.loc[(atomic_number, slice(None)), (atomic_number)] = rate_matrix_block
             #TODO: add stuff
+        1/0
 
         rate_matrix.loc[('n_e', slice(None))] = last_row
-        # 1/0
         return rate_matrix
     
     def set_nlte_ion_rate(self, rate_matrix_block, atomic_number, ion_number, radiative_recombination_rate, photo_ion_rates, coll_ion_rate, coll_recomb_rate):
@@ -569,8 +571,8 @@ class RateEquationSolver(ProcessingPlasmaProperty):
 class NLTEIndexHelper(ProcessingPlasmaProperty):
     outputs = ("rate_matrix_index",)
     def calculate(self, levels, continuum_interaction_species):
-        nlte_ionization_species = [(22,1)]
-        nlte_excitation_species = []
+        nlte_ionization_species = []
+        nlte_excitation_species = [(1,0)]
         rate_matrix_index = pd.MultiIndex.from_tuples(list(self.calculate_rate_matrix_index(levels, nlte_ionization_species, nlte_excitation_species)), names=levels.names).drop_duplicates()
         return rate_matrix_index
     
