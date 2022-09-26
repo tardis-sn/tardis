@@ -88,6 +88,7 @@ Mission Statement
 
     contributing/CONTRIBUTING.md
     contributing/development/index
+    contributing/tools/index
     contributing/CHANGELOG.md
     contributing/in_progress/index
 
@@ -100,11 +101,3 @@ Mission Statement
     resources/research_done_using_TARDIS/research_papers
     resources/code_comparison/index
     resources/zreferences
-
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Outdated
-    :hidden:
-
-    outdated/index
