@@ -30,9 +30,9 @@ def simulation_simple(config_verysimple, atomic_dataset):
     # Setup simulation configuration using config_verysimple and
     # override properties in such a way to make the simulation run faster
     config_verysimple.montecarlo.iterations = 3
-    config_verysimple.montecarlo.no_of_packets = 50
+    config_verysimple.montecarlo.no_of_packets = 100
     config_verysimple.montecarlo.last_no_of_packets = -1
-    config_verysimple.montecarlo.no_of_virtual_packets = 1
+    config_verysimple.montecarlo.no_of_virtual_packets = 3
     # enabling rpacket tracking
     config_verysimple.montecarlo.tracking.track_rpacket = True
 
@@ -122,7 +122,6 @@ class TestRPacketPlotter:
 
         thetas = np.linspace(0, 2 * math.pi, no_of_packets + 1)
 
-        # checking coordinates of every packet
         for rpacket in range(no_of_packets):
             single_packet_df = sim.runner.rpacket_tracker_df.loc[rpacket]
             (
@@ -177,10 +176,8 @@ class TestRPacketPlotter:
 
         expected_max_array_size = max(list(map(len, multiple_packet_x)))
 
-        # checking the calculated max_array_size value
         assert expected_max_array_size == max_array_size
 
-        # checking the final array for all packets
         for rpacket in range(no_of_packets):
             expected_rpacket_x = np.append(
                 multiple_packet_x[rpacket],
@@ -249,7 +246,6 @@ class TestRPacketPlotter:
             multiple_packet_x, multiple_packet_y, multiple_packet_interaction
         )
 
-        # checking data inside all frames
         for frame in range(rpacket_array_max_size + 1):
             frames = rpacket_plotter.get_frames(
                 frame, rpackets_x, rpackets_y, rpackets_interactions, theme
@@ -259,7 +255,7 @@ class TestRPacketPlotter:
                 expected_x = rpackets_x[index].tolist()[0:frame]
                 expected_y = rpackets_y[index].tolist()[0:frame]
                 npt.assert_allclose(expected_x, packet_frame.x)
-                npt.assert_allclose(expected_y, packet_frame.y)
+                npt.assert_allclose(expected_x, packet_frame.y)
 
     @pytest.mark.parametrize("max_step_size", [10, 30, 50])
     def test_get_slider_steps(self, simulation_simple, max_step_size):
@@ -267,8 +263,8 @@ class TestRPacketPlotter:
         rpacket_plotter = RPacketPlotter.from_simulation(sim)
         slider_steps = rpacket_plotter.get_slider_steps(max_step_size)
         for index, step in enumerate(slider_steps):
-            assert step["args"][0][0] == index
-            assert step["label"] == index
+            assert step.args[0] == index
+            assert step.label == index
 
     @pytest.mark.parametrize("no_of_packets", [2, 5, 10])
     @pytest.mark.parametrize("theme", ["light", "dark"])
@@ -322,9 +318,9 @@ class TestRPacketPlotter:
         for packet_no in range(no_of_packets):
             packet = fig.data[packet_no]
             assert packet.name == "Packet " + str(packet_no + 1)
-            npt.assert_allclose(packet.x, rpackets_x[packet_no])
-            npt.assert_allclose(packet.y, rpackets_y[packet_no])
-            assert list(packet.marker.color) == [
+            assert packet.x == rpackets_x
+            assert packet.y == rpackets_y
+            assert packet.marker.color == [
                 rpacket_plotter.interaction_from_num[
                     int(rpackets_interactions[packet_no][step_no])
                 ]["color"]
