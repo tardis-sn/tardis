@@ -122,6 +122,7 @@ class TestRPacketPlotter:
 
         thetas = np.linspace(0, 2 * math.pi, no_of_packets + 1)
 
+        # checking coordinates of every packet
         for rpacket in range(no_of_packets):
             single_packet_df = sim.runner.rpacket_tracker_df.loc[rpacket]
             (
@@ -176,8 +177,10 @@ class TestRPacketPlotter:
 
         expected_max_array_size = max(list(map(len, multiple_packet_x)))
 
+        # checking the calculated max_array_size value
         assert expected_max_array_size == max_array_size
 
+        # checking the final array for all packets
         for rpacket in range(no_of_packets):
             expected_rpacket_x = np.append(
                 multiple_packet_x[rpacket],
@@ -246,6 +249,7 @@ class TestRPacketPlotter:
             multiple_packet_x, multiple_packet_y, multiple_packet_interaction
         )
 
+        # checking data inside all frames
         for frame in range(rpacket_array_max_size + 1):
             frames = rpacket_plotter.get_frames(
                 frame, rpackets_x, rpackets_y, rpackets_interactions, theme
@@ -255,7 +259,7 @@ class TestRPacketPlotter:
                 expected_x = rpackets_x[index].tolist()[0:frame]
                 expected_y = rpackets_y[index].tolist()[0:frame]
                 npt.assert_allclose(expected_x, packet_frame.x)
-                npt.assert_allclose(expected_x, packet_frame.y)
+                npt.assert_allclose(expected_y, packet_frame.y)
 
     @pytest.mark.parametrize("max_step_size", [10, 30, 50])
     def test_get_slider_steps(self, simulation_simple, max_step_size):
