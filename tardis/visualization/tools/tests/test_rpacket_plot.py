@@ -29,9 +29,9 @@ def simulation_simple(config_verysimple, atomic_dataset):
     """
     # Setup simulation configuration using config_verysimple and
     # override properties in such a way to make the simulation run faster
-    config_verysimple.montecarlo.iterations = 1
+    config_verysimple.montecarlo.iterations = 3
     config_verysimple.montecarlo.no_of_packets = 50
-    config_verysimple.montecarlo.last_no_of_packets = 50
+    config_verysimple.montecarlo.last_no_of_packets = -1
     config_verysimple.montecarlo.no_of_virtual_packets = 1
     # enabling rpacket tracking
     config_verysimple.montecarlo.tracking.track_rpacket = True
