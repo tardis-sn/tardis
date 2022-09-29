@@ -318,10 +318,26 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
         helium_population.update(normalised)
         return helium_population
 
+
 class RateEquationSolver(ProcessingPlasmaProperty):
     outputs = ("nlte_ion_population", "nlte_electron_densities")
 
-    def calculate(self, ion_number_density, phi, number_density, rate_matrix_index, partition_function, level_boltzmann_factor, levels, gamma, alpha_sp, alpha_stim, coll_ion_coeff, coll_recomb_coeff, electron_densities):
+    def calculate(
+        self,
+        ion_number_density,
+        phi,
+        number_density,
+        rate_matrix_index,
+        partition_function,
+        level_boltzmann_factor,
+        levels,
+        gamma,
+        alpha_sp,
+        alpha_stim,
+        coll_ion_coeff,
+        coll_recomb_coeff,
+        electron_densities,
+    ):
         ### TODO: Move this to level population >>>
         # TODO: Only need this for NLTE ionization species
         indexer = pd.Series(
@@ -329,12 +345,11 @@ class RateEquationSolver(ProcessingPlasmaProperty):
             index=partition_function.index,
         )
         _ion2level_idx = indexer.loc[levels.droplevel(2)].values
-        partition_function_broadcast = partition_function.values[
-            _ion2level_idx
-        ]
+        partition_function_broadcast = partition_function.values[_ion2level_idx]
         level_population_fraction = pd.DataFrame(
-            level_boltzmann_factor.values / partition_function_broadcast
-            , index=levels)
+            level_boltzmann_factor.values / partition_function_broadcast,
+            index=levels,
+        )
 
         # TODO: Only do this for the species marked NLTE
         # nlte_ion_indexer = rate_matrix_index[rate_matrix_index.get_level_values(2).get_loc('nlte_ion')]
@@ -342,17 +357,32 @@ class RateEquationSolver(ProcessingPlasmaProperty):
         # alpha_sp = alpha_sp.copy() * 0.0
         # photo_ion_rates, radiative_recombination_rate_coeff, coll_ion_coefficient, coll_recomb_coefficient = self.prepare_ion_recomb_rates_nlte_ion(rate_matrix_index, level_population_fraction.loc[(nlte_ion_species,)], gamma.loc[(nlte_ion_species,)], alpha_sp.loc[(nlte_ion_species,)], alpha_stim.loc[(nlte_ion_species,)], coll_ion_coeff.loc[(nlte_ion_species,)], coll_recomb_coeff.loc[(nlte_ion_species,)])
         ### <<<
-        photo_ion_rates = (level_population_fraction.loc[gamma.index] * gamma).groupby(level=(0,1)).sum()
-        radiative_recombination_rate_coeff = (alpha_sp.groupby(level=[0,1]).sum() + alpha_stim.groupby(level=[0,1]).sum())
-        coll_ion_coefficient = (level_population_fraction.loc[coll_ion_coeff.index] * coll_ion_coeff).groupby(level=(0,1)).sum()
-        coll_recomb_coefficient = (coll_recomb_coeff).groupby(level=(0,1)).sum()
+        photo_ion_rates = (
+            (level_population_fraction.loc[gamma.index] * gamma)
+            .groupby(level=(0, 1))
+            .sum()
+        )
+        radiative_recombination_rate_coeff = (
+            alpha_sp.groupby(level=[0, 1]).sum()
+            + alpha_stim.groupby(level=[0, 1]).sum()
+        )
+        coll_ion_coefficient = (
+            (
+                level_population_fraction.loc[coll_ion_coeff.index]
+                * coll_ion_coeff
+            )
+            .groupby(level=(0, 1))
+            .sum()
+        )
+        coll_recomb_coefficient = (
+            (coll_recomb_coeff).groupby(level=(0, 1)).sum()
+        )
         initial_electron_densities = number_density.sum(axis=0)
         atomic_numbers = number_density.index
         last_row = self.prepare_last_row(atomic_numbers)
         populations, index = self.initialize_populations_frame(
             atomic_numbers, phi.columns
         )
-        electron_densities_lte = electron_densities
         electron_densities = np.zeros(len(phi.columns))
         for i, shell in enumerate(phi.columns):
             solution_vector = self.prepare_solution_vector(
@@ -364,11 +394,21 @@ class RateEquationSolver(ProcessingPlasmaProperty):
             solution = root(
                 self.population_objective_function,
                 first_guess,
-                args=(phi[shell], number_density[shell], solution_vector, rate_matrix_index, last_row, radiative_recombination_rate_coeff[shell], photo_ion_rates[shell], coll_ion_coefficient[shell], coll_recomb_coefficient[shell]),
+                args=(
+                    phi[shell],
+                    number_density[shell],
+                    solution_vector,
+                    rate_matrix_index,
+                    last_row,
+                    radiative_recombination_rate_coeff[shell],
+                    photo_ion_rates[shell],
+                    coll_ion_coefficient[shell],
+                    coll_recomb_coefficient[shell],
+                ),
                 jac=True,
             )
             assert solution.success
-            1/0
+            1 / 0
             electron_densities[i] = solution.x[-1]
             populations[i] = solution.x[:-1]
         populations[populations < 0] = 0.0
@@ -385,6 +425,7 @@ class RateEquationSolver(ProcessingPlasmaProperty):
         return populations, electron_densities
 
     def initialize_populations_frame(self, atomic_numbers, columns):
+        #needs to be changed for nlte_exc
         populations_frame_size = (atomic_numbers.values + 1).sum()
         index = np.zeros((populations_frame_size, 2), dtype=np.int)
         counter = 0
@@ -398,35 +439,103 @@ class RateEquationSolver(ProcessingPlasmaProperty):
         return solutions, index
 
     def create_rate_equation_matrix(
-        self, phi, electron_density, number_density, rate_matrix_index, last_row, radiative_recombination_rate_coeff, photo_ion_rates, coll_ion_coefficient, coll_recomb_coefficient
+        self,
+        phi,
+        electron_density,
+        number_density,
+        rate_matrix_index,
+        last_row,
+        radiative_recombination_rate_coeff,
+        photo_ion_rates,
+        coll_ion_coefficient,
+        coll_recomb_coefficient,
     ):
-        rate_matrix = pd.DataFrame(0, columns=rate_matrix_index, index=rate_matrix_index)
-        radiative_recombination_rate = radiative_recombination_rate_coeff * electron_density
+        rate_matrix = pd.DataFrame(
+            0.0, columns=rate_matrix_index, index=rate_matrix_index
+        )
+        radiative_recombination_rate = (
+            radiative_recombination_rate_coeff * electron_density
+        )
         coll_ion_rate = coll_ion_coefficient * electron_density
         coll_recomb_rate = coll_recomb_coefficient * electron_density**2
         atomic_numbers = number_density.index
         for atomic_number in atomic_numbers:
-            ion_numbers = rate_matrix.loc[atomic_number].index.get_level_values(0)
+            ion_numbers = rate_matrix.loc[atomic_number].index.get_level_values(
+                0
+            )
             phi_block = phi.loc[atomic_number]
             rate_matrix_block = self.lte_rate_matrix_block(
                 phi_block, electron_density
             )
-            
 
-            nlte_ion_numbers = ion_numbers[rate_matrix.loc[atomic_number].index.get_level_values(1) == 'nlte_ion']
-            lte_ion_numbers = ion_numbers[rate_matrix.loc[atomic_number].index.get_level_values(1) == 'lte_ion']
-            nlte_exc_ion_numbers = list(set([ion_number for ion_number in ion_numbers if ion_number not in lte_ion_numbers and ion_number not in nlte_ion_numbers]))
+            nlte_ion_numbers = ion_numbers[
+                rate_matrix.loc[atomic_number].index.get_level_values(1)
+                == "nlte_ion"
+            ]
+            lte_ion_numbers = ion_numbers[
+                rate_matrix.loc[atomic_number].index.get_level_values(1)
+                == "lte_ion"
+            ]
+            nlte_exc_ion_numbers = list(
+                set(
+                    [
+                        ion_number
+                        for ion_number in ion_numbers
+                        if ion_number not in lte_ion_numbers
+                        and ion_number not in nlte_ion_numbers
+                    ]
+                )
+            )
             # self.create_nlte_excitation_block(2, 0, rate_matrix)
             for ion_number in nlte_ion_numbers:
-                rate_matrix_block = self.set_nlte_ion_rate(rate_matrix_block, atomic_number, ion_number, radiative_recombination_rate.loc[(atomic_number,)], photo_ion_rates.loc[(atomic_number,)], coll_ion_rate.loc[(atomic_number, )], coll_recomb_rate.loc[(atomic_number, )])
-            rate_matrix.loc[(atomic_number, slice(None)), (atomic_number)] = rate_matrix_block
-            #TODO: add stuff
-        1/0
+                rate_matrix_block = self.set_nlte_ion_rate(
+                    rate_matrix_block,
+                    atomic_number,
+                    ion_number,
+                    radiative_recombination_rate.loc[(atomic_number,)],
+                    photo_ion_rates.loc[(atomic_number,)],
+                    coll_ion_rate.loc[(atomic_number,)],
+                    coll_recomb_rate.loc[(atomic_number,)],
+                )
+            # rate_matrix.loc[(atomic_number, slice(None)), (atomic_number)] = rate_matrix_block
+            # TODO: add stuff
+            for j in range(atomic_number + 1):
+                if j in nlte_exc_ion_numbers:
+                    continue
+                for i in range(atomic_number + 1):
+                    if i in nlte_exc_ion_numbers:
+                        continue
+                    rate_matrix.loc[
+                        (atomic_number, j), (atomic_number, i)
+                    ] = rate_matrix_block[j, i]
+            for nlte_exc_ion_number in nlte_exc_ion_numbers:
+                rate_matrix.loc[
+                    (atomic_number, nlte_exc_ion_number),
+                    (atomic_number, nlte_exc_ion_number),
+                ] = self.create_nlte_excitation_block(
+                    atomic_number,
+                    nlte_exc_ion_number,
+                    rate_matrix,
+                    coll_ion_coefficient,
+                    coll_recomb_coefficient,
+                )
+                1 / 0
 
-        rate_matrix.loc[('n_e', slice(None))] = last_row
+        1 / 0
+
+        rate_matrix.loc[("n_e", slice(None))] = last_row
         return rate_matrix
-    
-    def set_nlte_ion_rate(self, rate_matrix_block, atomic_number, ion_number, radiative_recombination_rate, photo_ion_rates, coll_ion_rate, coll_recomb_rate):
+
+    def set_nlte_ion_rate(
+        self,
+        rate_matrix_block,
+        atomic_number,
+        ion_number,
+        radiative_recombination_rate,
+        photo_ion_rates,
+        coll_ion_rate,
+        coll_recomb_rate,
+    ):
         ion_rates = photo_ion_rates + coll_ion_rate
         recomb_rate = radiative_recombination_rate + coll_recomb_rate
         if atomic_number == ion_number:
@@ -435,7 +544,9 @@ class RateEquationSolver(ProcessingPlasmaProperty):
             ion_rate_matrix = self.ion_matrix(ion_rates, atomic_number)
             recomb_rate_matrix = self.recomb_matrix(recomb_rate, atomic_number)
             # 1/0
-            rate_matrix_block[ion_number, :] = (ion_rate_matrix + recomb_rate_matrix)[ion_number, :]
+            rate_matrix_block[ion_number, :] = (
+                ion_rate_matrix + recomb_rate_matrix
+            )[ion_number, :]
         return rate_matrix_block
 
     def lte_rate_matrix_block(self, phi_block, electron_density):
@@ -465,14 +576,38 @@ class RateEquationSolver(ProcessingPlasmaProperty):
         return solution_vector
 
     def population_objective_function(
-        self, populations, phi, number_density, solution_vector, rate_matrix_index, last_row, radiative_recombination_rate_coeff, photo_ion_rates, coll_ion_coefficient, coll_recomb_coefficient
+        self,
+        populations,
+        phi,
+        number_density,
+        solution_vector,
+        rate_matrix_index,
+        last_row,
+        radiative_recombination_rate_coeff,
+        photo_ion_rates,
+        coll_ion_coefficient,
+        coll_recomb_coefficient,
     ):
         electron_density = populations[-1]
         rate_matrix = self.create_rate_equation_matrix(
-            phi, electron_density, number_density, rate_matrix_index, last_row, radiative_recombination_rate_coeff, photo_ion_rates, coll_ion_coefficient, coll_recomb_coefficient
+            phi,
+            electron_density,
+            number_density,
+            rate_matrix_index,
+            last_row,
+            radiative_recombination_rate_coeff,
+            photo_ion_rates,
+            coll_ion_coefficient,
+            coll_recomb_coefficient,
         ).values
         jacobian_matrix = self.jacobian_matrix(
-            populations, rate_matrix, rate_matrix_index, number_density, radiative_recombination_rate_coeff, coll_ion_coefficient, coll_recomb_coefficient
+            populations,
+            rate_matrix,
+            rate_matrix_index,
+            number_density,
+            radiative_recombination_rate_coeff,
+            coll_ion_coefficient,
+            coll_recomb_coefficient,
         )
         # 1/0
         return (
@@ -485,6 +620,7 @@ class RateEquationSolver(ProcessingPlasmaProperty):
         return phi
 
     def prepare_first_guess(self, number_density, electron_density):
+        #TODO needs to be changed for exc
         atomic_numbers = number_density.index
         array_size = (number_density.index.values + 1).sum() + 1
         first_guess = np.zeros(array_size)
@@ -495,19 +631,44 @@ class RateEquationSolver(ProcessingPlasmaProperty):
         first_guess[-1] = electron_density
         return first_guess
 
-    def jacobian_matrix(self, populations, rate_matrix, rate_matrix_index, number_density, radiative_recombination_rate_coeff, coll_ion_coefficient, coll_recomb_coefficient):
+    def jacobian_matrix(
+        self,
+        populations,
+        rate_matrix,
+        rate_matrix_index,
+        number_density,
+        radiative_recombination_rate_coeff,
+        coll_ion_coefficient,
+        coll_recomb_coefficient,
+    ):
         atomic_numbers = number_density.index
         index = atomic_numbers[0]
         jacobian_matrix = rate_matrix.copy()
         jacobian_matrix[:-1, -1] = populations[1:]
-        for i in range(index+1):
-            if rate_matrix_index[i][2] == 'nlte_ion':
-                jacobian_matrix[i, -1] = self.deriv_matrix_block(index, radiative_recombination_rate_coeff.loc[(index,)], coll_ion_coefficient.loc[(index,)], populations[:index+1], coll_recomb_coefficient.loc[(index,)], populations[-1])[i]
+        for i in range(index + 1):
+            if rate_matrix_index[i][2] == "nlte_ion":
+                jacobian_matrix[i, -1] = self.deriv_matrix_block(
+                    index,
+                    radiative_recombination_rate_coeff.loc[(index,)],
+                    coll_ion_coefficient.loc[(index,)],
+                    populations[: index + 1],
+                    coll_recomb_coefficient.loc[(index,)],
+                    populations[-1],
+                )[i]
         jacobian_matrix[index, -1] = 0.0
         for atomic_number in atomic_numbers[1:]:
-            for i in range(index+1, index+atomic_number+2):
-                if rate_matrix_index[i][2] == 'nlte_ion':
-                    jacobian_matrix[i, -1] = self.deriv_matrix_block(atomic_number, radiative_recombination_rate_coeff.loc[(atomic_number,)], coll_ion_coefficient.loc[(atomic_number, )], populations[index+1:index+atomic_number+2], coll_recomb_coefficient.loc[(atomic_number,)], populations[-1])[i - atomic_number]
+            for i in range(index + 1, index + atomic_number + 2):
+                if rate_matrix_index[i][2] == "nlte_ion":
+                    jacobian_matrix[i, -1] = self.deriv_matrix_block(
+                        atomic_number,
+                        radiative_recombination_rate_coeff.loc[
+                            (atomic_number,)
+                        ],
+                        coll_ion_coefficient.loc[(atomic_number,)],
+                        populations[index + 1 : index + atomic_number + 2],
+                        coll_recomb_coefficient.loc[(atomic_number,)],
+                        populations[-1],
+                    )[i - atomic_number]
             index += 1 + atomic_number
             jacobian_matrix[index, -1] = 0
         # 1/0
@@ -530,34 +691,96 @@ class RateEquationSolver(ProcessingPlasmaProperty):
             offdiag[i] = ion_rate[i]
         diag = np.hstack([-offdiag, np.zeros(1)])
         return np.diag(diag) + np.diag(offdiag, k=-1)
-    
-    def deriv_matrix_block(self, atomic_number, radiative_recombination_rate_coeff, coll_ion_coefficient, populations, coll_recomb_coefficient, electron_density):
-        radiative_rate_coeff_matrix = self.recomb_matrix(radiative_recombination_rate_coeff, atomic_number)
-        coll_recomb_matrix = self.recomb_matrix(coll_recomb_coefficient, atomic_number) * electron_density * 2
-        coll_ion_coeff_matrix = self.ion_matrix(coll_ion_coefficient, atomic_number)
-        deriv_matrix = radiative_rate_coeff_matrix + coll_ion_coeff_matrix + coll_recomb_matrix
+
+    def deriv_matrix_block(
+        self,
+        atomic_number,
+        radiative_recombination_rate_coeff,
+        coll_ion_coefficient,
+        populations,
+        coll_recomb_coefficient,
+        electron_density,
+    ):
+        radiative_rate_coeff_matrix = self.recomb_matrix(
+            radiative_recombination_rate_coeff, atomic_number
+        )
+        coll_recomb_matrix = (
+            self.recomb_matrix(coll_recomb_coefficient, atomic_number)
+            * electron_density
+            * 2
+        )
+        coll_ion_coeff_matrix = self.ion_matrix(
+            coll_ion_coefficient, atomic_number
+        )
+        deriv_matrix = (
+            radiative_rate_coeff_matrix
+            + coll_ion_coeff_matrix
+            + coll_recomb_matrix
+        )
         deriv_matrix[-1, :] = 0.0
         # 1/0
         return np.dot(deriv_matrix, populations)
 
-    def prepare_ion_recomb_rates_nlte_ion(self, rate_matrix_index, level_population_fraction, gamma, alpha_sp, alpha_stim, coll_ion_coeff, coll_recomb_coeff):
-        
-        
-        # 1/0
-        photo_ion_rate = (level_population_fraction.loc[gamma.index] * gamma).groupby(level=(0,1)).sum()
-        radiative_recombination_rate_coeff = (alpha_sp.groupby(level=[0,1]).sum() + alpha_stim.groupby(level=[0,1]).sum())
-        coll_ion_coefficient = (level_population_fraction.loc[coll_ion_coeff.index] * coll_ion_coeff).groupby(level=(0,1)).sum()
-        coll_recomb_coefficient = (coll_recomb_coeff).groupby(level=(0,1)).sum()
-        return photo_ion_rate, radiative_recombination_rate_coeff, coll_ion_coefficient, coll_recomb_coefficient
+    def prepare_ion_recomb_rates_nlte_ion(
+        self,
+        rate_matrix_index,
+        level_population_fraction,
+        gamma,
+        alpha_sp,
+        alpha_stim,
+        coll_ion_coeff,
+        coll_recomb_coeff,
+    ):
 
-    def create_nlte_excitation_block(self, atomic_number, ion_number, rate_matrix, coll_ion_coeff, coll_recomb_coeff):
-        nlte_excitation_block_index_size = rate_matrix.loc[(atomic_number, ion_number)].index.get_level_values(0)
-        nlte_excitation_block_index = pd.MultiIndex.from_arrays([nlte_excitation_block_index_size])
-        nlte_excitation_block = pd.DataFrame(0, columns=nlte_excitation_block_index, index=nlte_excitation_block_index)
         # 1/0
-        return nlte_excitation_block
-    
-    
+        photo_ion_rate = (
+            (level_population_fraction.loc[gamma.index] * gamma)
+            .groupby(level=(0, 1))
+            .sum()
+        )
+        radiative_recombination_rate_coeff = (
+            alpha_sp.groupby(level=[0, 1]).sum()
+            + alpha_stim.groupby(level=[0, 1]).sum()
+        )
+        coll_ion_coefficient = (
+            (
+                level_population_fraction.loc[coll_ion_coeff.index]
+                * coll_ion_coeff
+            )
+            .groupby(level=(0, 1))
+            .sum()
+        )
+        coll_recomb_coefficient = (
+            (coll_recomb_coeff).groupby(level=(0, 1)).sum()
+        )
+        return (
+            photo_ion_rate,
+            radiative_recombination_rate_coeff,
+            coll_ion_coefficient,
+            coll_recomb_coefficient,
+        )
+
+    def create_nlte_excitation_block(
+        self,
+        atomic_number,
+        ion_number,
+        rate_matrix,
+        coll_ion_coeff,
+        coll_recomb_coeff,
+    ):
+        nlte_excitation_block_index_size = rate_matrix.loc[
+            (atomic_number, ion_number)
+        ].index.get_level_values(0)
+        nlte_excitation_block_index = pd.MultiIndex.from_arrays(
+            [nlte_excitation_block_index_size]
+        )
+        nlte_excitation_block = pd.DataFrame(
+            10.0,
+            columns=nlte_excitation_block_index,
+            index=nlte_excitation_block_index,
+        )
+        # 1/0
+        return nlte_excitation_block.values
 
     @staticmethod
     def prepare_last_row(atomic_numbers):
@@ -570,18 +793,30 @@ class RateEquationSolver(ProcessingPlasmaProperty):
 
 class NLTEIndexHelper(ProcessingPlasmaProperty):
     outputs = ("rate_matrix_index",)
+
     def calculate(self, levels, continuum_interaction_species):
-        nlte_ionization_species = []
-        nlte_excitation_species = [(1,0)]
-        rate_matrix_index = pd.MultiIndex.from_tuples(list(self.calculate_rate_matrix_index(levels, nlte_ionization_species, nlte_excitation_species)), names=levels.names).drop_duplicates()
+        nlte_ionization_species = [(2, 1)]
+        nlte_excitation_species = [(2, 0)]
+        rate_matrix_index = pd.MultiIndex.from_tuples(
+            list(
+                self.calculate_rate_matrix_index(
+                    levels, nlte_ionization_species, nlte_excitation_species
+                )
+            ),
+            names=levels.names,
+        ).drop_duplicates()
         return rate_matrix_index
-    
-    def calculate_rate_matrix_index(self, levels, nlte_ionization_species, nlte_excitation_species):
+
+    def calculate_rate_matrix_index(
+        self, levels, nlte_ionization_species, nlte_excitation_species
+    ):
         for level in levels:
             if level[:2] in nlte_ionization_species:
-                yield (*level[:2], 'nlte_ion')
-            elif (level[:2] not in nlte_ionization_species) and (level[:2] not in nlte_excitation_species):
-                yield (*level[:2], 'lte_ion')
+                yield (*level[:2], "nlte_ion")
+            elif (level[:2] not in nlte_ionization_species) and (
+                level[:2] not in nlte_excitation_species
+            ):
+                yield (*level[:2], "lte_ion")
             else:
                 yield level
         yield ("n_e", "n_e", "n_e")
