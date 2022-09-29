@@ -50,6 +50,3 @@ class PreviousBetaSobolev(PreviousIterationProperty):
             columns=kwargs["abundance"].columns,
         )
         self._set_initial_value(initial_value)
-
-
-

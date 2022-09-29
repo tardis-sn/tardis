@@ -17,7 +17,6 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 
-
 class HeliumNLTE(ProcessingPlasmaProperty):
     outputs = ("helium_population",)
 
