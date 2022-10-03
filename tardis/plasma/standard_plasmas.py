@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 
 from tardis.io.atom_data import AtomData
+from tardis.plasma.properties.rate_matrix_index import NLTEIndexHelper
 from tardis.util.base import species_string_to_tuple
 from tardis.plasma import BasePlasma
 from tardis.plasma.properties.base import TransitionProbabilitiesProperty
@@ -143,6 +144,16 @@ def assemble_plasma(config, model, atom_data=None):
                 "Continuum interactions require line_interaction_type "
                 "macroatom (instead of {}).".format(line_interaction_type)
             )
+        
+        if config.plasma.nlte_ionization_species:
+            nlte_ionization_species = config.plasma.nlte_ionization_species
+            for species in nlte_ionization_species:
+                if not (species in config.plasma.continuum_interaction.species):
+                    raise PlasmaConfigError("Nlte ionization species {} not in continuum species.".format(species))
+            property_kwargs[NLTEIndexHelper] = {
+                "nlte_ionization_species": nlte_ionization_species
+            }
+
 
         plasma_modules += continuum_interaction_properties
         plasma_modules += continuum_interaction_inputs
@@ -237,7 +248,7 @@ def assemble_plasma(config, model, atom_data=None):
             )
     else:
         plasma_modules += helium_lte_properties
-
+    
     if model._electron_densities:
         electron_densities = pd.Series(model._electron_densities.cgs.value)
         if config.plasma.helium_treatment == "numerical-nlte":
