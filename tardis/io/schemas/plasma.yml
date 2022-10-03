@@ -114,7 +114,15 @@ properties:
   nlte_ionization_species:
     type: array
     default: []
-    description: List of species treated with nlte ionization. For example, if we want to treat neutral hydrogen with nlte ionization, we need to write [(1, 0)], i.e. [(atomic_number, ion_number)].
+    description: List of species treated with nlte ionization. For example, 
+      if we want to treat neutral hydrogen with nlte ionization, we need to write [(1, 0)], i.e. 
+      [(atomic_number, ion_number)].
+  nlte_excitation_species:
+    type: array
+    default: []
+    description: List of species treated with nlte excitation. For example, 
+      if we want to treat neutral hydrogen with nlte excitation, we need to write [(1, 0)], i.e. 
+      [(atomic_number, ion_number)].
 required:
 - ionization
 - excitation
