@@ -111,6 +111,10 @@ properties:
     type: number
     default: 0.9
     description: Value used for estimating the electron temperature from radiation temperature.
+  nlte_ionization_species:
+    type: array
+    default: []
+    description: List of species treated with nlte ionization. For example, if we want to treat neutral hydrogen with nlte ionization, we need to write [(1, 0)], i.e. [(atomic_number, ion_number)].
 required:
 - ionization
 - excitation
