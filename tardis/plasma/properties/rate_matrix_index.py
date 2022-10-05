@@ -9,13 +9,18 @@ __all__ = [
 class NLTEIndexHelper(ProcessingPlasmaProperty):
     outputs = ("rate_matrix_index",)
 
-    def calculate(self, levels, continuum_interaction_species):
-        nlte_ionization_species = [] #done from config
+    def __init__(self, plasma_parent, nlte_ionization_species=0):
+        super().__init__(plasma_parent)
+        self.nlte_ionization_species = nlte_ionization_species
+
+
+    def calculate(self, levels, nlte_ionization_species):
         nlte_excitation_species = [] #done from config
+        1/0
         rate_matrix_index = pd.MultiIndex.from_tuples(
             list(
                 self.calculate_rate_matrix_index(
-                    levels, nlte_ionization_species, nlte_excitation_species
+                    levels, self.nlte_ionization_species, nlte_excitation_species
                 )
             ),
             names=levels.names,

@@ -29,6 +29,7 @@ from tardis.plasma.properties.property_collections import (
     adiabatic_cooling_properties,
     two_photon_properties,
     isotope_properties,
+    nlte_properties_new,
 )
 from tardis.plasma.exceptions import PlasmaConfigError
 
@@ -133,6 +134,7 @@ def assemble_plasma(config, model, atom_data=None):
         w=model.dilution_factor,
         link_t_rad_t_electron=config.plasma.link_t_rad_t_electron,
         continuum_interaction_species=continuum_interaction_species,
+        nlte_ionization_species = None
     )
 
     plasma_modules = basic_inputs + basic_properties
@@ -144,15 +146,7 @@ def assemble_plasma(config, model, atom_data=None):
                 "Continuum interactions require line_interaction_type "
                 "macroatom (instead of {}).".format(line_interaction_type)
             )
-        
-        if config.plasma.nlte_ionization_species:
-            nlte_ionization_species = config.plasma.nlte_ionization_species
-            for species in nlte_ionization_species:
-                if not (species in config.plasma.continuum_interaction.species):
-                    raise PlasmaConfigError("Nlte ionization species {} not in continuum species.".format(species))
-            property_kwargs[NLTEIndexHelper] = {
-                "nlte_ionization_species": nlte_ionization_species
-            }
+
 
 
         plasma_modules += continuum_interaction_properties
@@ -178,6 +172,15 @@ def assemble_plasma(config, model, atom_data=None):
         property_kwargs[MarkovChainTransProbsCollector] = {
             "inputs": transition_probabilities_outputs
         }
+        if config.plasma.nlte_ionization_species:
+            nlte_ionization_species = config.plasma.nlte_ionization_species
+            for species in nlte_ionization_species:
+                if not (species in config.plasma.continuum_interaction.species):
+                    raise PlasmaConfigError(f"NLTE ionization species {species} not in continuum species.")
+            property_kwargs[NLTEIndexHelper] = {
+                "nlte_ionization_species": nlte_ionization_species
+            }
+            plasma_modules += nlte_properties_new
 
         kwargs.update(
             gamma_estimator=None,
