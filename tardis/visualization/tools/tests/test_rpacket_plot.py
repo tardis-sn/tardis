@@ -267,8 +267,8 @@ class TestRPacketPlotter:
         rpacket_plotter = RPacketPlotter.from_simulation(sim)
         slider_steps = rpacket_plotter.get_slider_steps(max_step_size)
         for index, step in enumerate(slider_steps):
-            assert step.args[0] == index
-            assert step.label == index
+            assert step["args"][0][0] == index
+            assert step["label"] == index
 
     @pytest.mark.parametrize("no_of_packets", [2, 5, 10])
     @pytest.mark.parametrize("theme", ["light", "dark"])
@@ -322,9 +322,9 @@ class TestRPacketPlotter:
         for packet_no in range(no_of_packets):
             packet = fig.data[packet_no]
             assert packet.name == "Packet " + str(packet_no + 1)
-            assert packet.x == rpackets_x
-            assert packet.y == rpackets_y
-            assert packet.marker.color == [
+            npt.assert_allclose(packet.x, rpackets_x[packet_no])
+            npt.assert_allclose(packet.y, rpackets_y[packet_no])
+            assert list(packet.marker.color) == [
                 rpacket_plotter.interaction_from_num[
                     int(rpackets_interactions[packet_no][step_no])
                 ]["color"]
