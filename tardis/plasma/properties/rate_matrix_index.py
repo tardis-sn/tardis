@@ -1,10 +1,10 @@
-
 import pandas as pd
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 __all__ = [
     "NLTEIndexHelper",
 ]
+
 
 class NLTEIndexHelper(ProcessingPlasmaProperty):
     outputs = ("rate_matrix_index",)
@@ -13,13 +13,14 @@ class NLTEIndexHelper(ProcessingPlasmaProperty):
         super().__init__(plasma_parent)
         self.nlte_ionization_species = nlte_ionization_species
 
-
     def calculate(self, levels, nlte_ionization_species):
-        nlte_excitation_species = [] #not yet implemented
+        nlte_excitation_species = []  # not yet implemented
         rate_matrix_index = pd.MultiIndex.from_tuples(
             list(
                 self.calculate_rate_matrix_index(
-                    levels, self.nlte_ionization_species, nlte_excitation_species
+                    levels,
+                    self.nlte_ionization_species,
+                    nlte_excitation_species,
                 )
             ),
             names=levels.names,
