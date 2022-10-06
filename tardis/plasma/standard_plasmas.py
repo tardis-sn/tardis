@@ -124,6 +124,10 @@ def assemble_plasma(config, model, atom_data=None):
             "belong to atoms that have been specified "
             "in the configuration."
         )
+    
+    nlte_ionization_species = [ species_string_to_tuple(s)
+        for s in config.plasma.nlte_ionization_species
+    ]
 
     kwargs = dict(
         t_rad=model.t_radiative,
@@ -134,7 +138,7 @@ def assemble_plasma(config, model, atom_data=None):
         w=model.dilution_factor,
         link_t_rad_t_electron=config.plasma.link_t_rad_t_electron,
         continuum_interaction_species=continuum_interaction_species,
-        nlte_ionization_species = None
+        nlte_ionization_species = nlte_ionization_species,
     )
 
     plasma_modules = basic_inputs + basic_properties

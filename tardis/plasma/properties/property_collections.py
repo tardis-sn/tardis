@@ -16,7 +16,7 @@ basic_inputs = PlasmaPropertyCollection(
         LinkTRadTElectron,
         HeliumTreatment,
         ContinuumInteractionSpecies,
-        NLTEIonizationSpecies
+        NLTEIonizationSpecies,
     ]
 )
 basic_properties = PlasmaPropertyCollection(

@@ -15,8 +15,7 @@ class NLTEIndexHelper(ProcessingPlasmaProperty):
 
 
     def calculate(self, levels, nlte_ionization_species):
-        nlte_excitation_species = [] #done from config
-        1/0
+        nlte_excitation_species = [] #not yet implemented
         rate_matrix_index = pd.MultiIndex.from_tuples(
             list(
                 self.calculate_rate_matrix_index(
