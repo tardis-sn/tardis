@@ -112,7 +112,7 @@ class TestPlasma(object):
     j_blues_properties = ["j_blues", "j_blues_norm_factor", "j_blue_estimator"]
     input_properties = ["volume", "r_inner"]
     helium_nlte_properties = ["helium_population", "helium_population_updated"]
-    
+
     nlte_properties_new = ["nlte_ionization_species"]
 
     combined_properties = (
