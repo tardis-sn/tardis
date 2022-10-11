@@ -641,6 +641,9 @@ def main_gamma_ray_loop(
         (raw_isotope_abundance * shell_masses).T.to_numpy(), axis=0
     )
 
+    # Time averaged energy per mass for constant packet count
+    average_energy_per_mass = energy_per_mass / (time_end - time_start)
+
     energy_per_mass_norm = (
         energy_per_mass / energy_per_mass.sum(axis=1).max()
     )  # .cumsum(axis=1)
