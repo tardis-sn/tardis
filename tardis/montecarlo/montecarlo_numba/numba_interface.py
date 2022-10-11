@@ -13,6 +13,32 @@ from tardis.montecarlo import (
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
+numba_geometry_spec = [
+    ("r_inner", float64[:]),
+    ("r_outer", float64[:]),
+    ("v_inner", float64[:]),
+    ("v_outer", float64[:]),
+]
+
+
+@jitclass(numba_geometry_spec)
+class NumbaRadial1DGeometry(object):
+    def __init__(self, r_inner, r_outer, v_inner, v_outer):
+        """Geometry for the Numba mode
+
+        Parameters
+        ----------
+        r_inner : numpy.ndarray
+        r_outer : numpy.ndarray
+        v_inner : numpy.ndarray
+        v_outer : numpy.ndarray
+        """
+        self.r_inner = r_inner
+        self.r_outer = r_outer
+        self.v_inner = v_inner
+        self.v_outer = v_outer
+
+
 numba_model_spec = [
     ("r_inner", float64[:]),
     ("r_outer", float64[:]),
