@@ -41,6 +41,7 @@ C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 def single_packet_loop(
     r_packet,
     numba_model,
+    numba_radial_1d_geometry,
     numba_plasma,
     estimators,
     vpacket_collection,
@@ -50,7 +51,7 @@ def single_packet_loop(
     Parameters
     ----------
     r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
-    numba_model : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
+    numba_radial_1d_geometry : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaRadial1DGeometry
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
     vpacket_collection : tardis.montecarlo.montecarlo_numba.numba_interface.VPacketCollection
@@ -65,10 +66,10 @@ def single_packet_loop(
     line_interaction_type = montecarlo_configuration.line_interaction_type
 
     if montecarlo_configuration.full_relativity:
-        set_packet_props_full_relativity(r_packet, numba_model)
+        set_packet_props_full_relativity(r_packet, numba_radial_1d_geometry)
     else:
-        set_packet_props_partial_relativity(r_packet, numba_model)
-    r_packet.initialize_line_id(numba_plasma, numba_model)
+        set_packet_props_partial_relativity(r_packet, numba_radial_1d_geometry)
+    r_packet.initialize_line_id(numba_plasma, numba_radial_1d_geometry)
 
     trace_vpacket_volley(
         r_packet, vpacket_collection, numba_model, numba_plasma
@@ -138,7 +139,7 @@ def single_packet_loop(
                 r_packet, distance, numba_model.time_explosion, estimators
             )
             move_packet_across_shell_boundary(
-                r_packet, delta_shell, len(numba_model.r_inner)
+                r_packet, delta_shell, len(numba_radial_1d_geometry.r_inner)
             )
 
         elif interaction_type == InteractionType.LINE:
