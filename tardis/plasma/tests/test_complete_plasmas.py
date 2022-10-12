@@ -38,9 +38,6 @@ nlte = [
     {"nlte": {"species": ["He I"], "classical_nebular": True}},
     {"nlte": {"species": ["He I"]}},
 ]
-nlte_ionization_species = [
-    {"nlte_ionization_species": ["He I"]},
-]
 
 initial_t_inner = [{"initial_t_inner": "10000 K"}]
 
@@ -61,7 +58,6 @@ config_list = (
     + initial_t_inner
     + initial_t_rad
     + helium_treatment
-    + nlte_ionization_species
 )
 
 
@@ -117,8 +113,6 @@ class TestPlasma(object):
     input_properties = ["volume", "r_inner"]
     helium_nlte_properties = ["helium_population", "helium_population_updated"]
 
-    nlte_properties_new = ["nlte_ionization_species"]
-
     combined_properties = (
         general_properties
         + partiton_properties
@@ -129,7 +123,6 @@ class TestPlasma(object):
         + j_blues_properties
         + input_properties
         + helium_nlte_properties
-        + nlte_properties_new
     )
 
     scalars_properties = ["time_explosion", "link_t_rad_t_electron"]
