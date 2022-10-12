@@ -38,6 +38,9 @@ nlte = [
     {"nlte": {"species": ["He I"], "classical_nebular": True}},
     {"nlte": {"species": ["He I"]}},
 ]
+nlte_ionization_species = [
+    {"nlte_ionization_species": ["He I"]},
+]
 
 initial_t_inner = [{"initial_t_inner": "10000 K"}]
 
@@ -58,6 +61,7 @@ config_list = (
     + initial_t_inner
     + initial_t_rad
     + helium_treatment
+    + nlte_ionization_species
 )
 
 
