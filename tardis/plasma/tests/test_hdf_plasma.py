@@ -71,7 +71,7 @@ def test_hdf_levels(hdf_file_path, simulation_verysimple):
     pdt.assert_almost_equal(pd.DataFrame(actual), expected)
 
 
-scalars_list = ["time_explosion", "link_t_rad_t_electron"]
+scalars_list = ["time_explosion", "link_t_rad_t_electron", "nlte_ionization_species"]
 
 
 @pytest.mark.parametrize("attr", scalars_list)
