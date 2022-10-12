@@ -66,10 +66,10 @@ def single_packet_loop(
     line_interaction_type = montecarlo_configuration.line_interaction_type
 
     if montecarlo_configuration.full_relativity:
-        set_packet_props_full_relativity(r_packet, numba_radial_1d_geometry)
+        set_packet_props_full_relativity(r_packet, numba_model)
     else:
-        set_packet_props_partial_relativity(r_packet, numba_radial_1d_geometry)
-    r_packet.initialize_line_id(numba_plasma, numba_radial_1d_geometry)
+        set_packet_props_partial_relativity(r_packet, numba_model)
+    r_packet.initialize_line_id(numba_plasma, numba_model)
 
     trace_vpacket_volley(
         r_packet, vpacket_collection, numba_model, numba_plasma

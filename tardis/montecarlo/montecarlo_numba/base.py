@@ -57,6 +57,13 @@ def montecarlo_radial1d(
         geometry.v_inner.cgs.value,
         geometry.v_outer.cgs.value,
     )
+    numba_model = NumbaModel(
+        geometry.r_inner.cgs.value,
+        geometry.r_outer.cgs.value,
+        geometry.v_inner.cgs.value,
+        geometry.v_outer.cgs.value,
+        model.model_state.time_explosion.cgs.value,
+    )
     numba_plasma = numba_plasma_initialize(plasma, runner.line_interaction_type)
     estimators = Estimators(
         runner.j_estimator,
@@ -89,6 +96,7 @@ def montecarlo_radial1d(
         rpacket_trackers,
     ) = montecarlo_main_loop(
         packet_collection,
+        numba_model,
         numba_radial_1d_geometry,
         numba_plasma,
         estimators,
@@ -139,6 +147,7 @@ def montecarlo_radial1d(
 @njit(**njit_dict)
 def montecarlo_main_loop(
     packet_collection,
+    numba_model,
     numba_radial_1d_geometry,
     numba_plasma,
     estimators,
@@ -260,6 +269,7 @@ def montecarlo_main_loop(
 
         loop = single_packet_loop(
             r_packet,
+            numba_model,
             numba_radial_1d_geometry,
             numba_plasma,
             estimators,
