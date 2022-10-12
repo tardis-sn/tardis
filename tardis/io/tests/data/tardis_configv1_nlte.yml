@@ -31,7 +31,8 @@ plasma:
     radiative_rates_type: dilute-blackbody
     line_interaction_type: macroatom
     continuum_interaction:
-      - H I
+      species:
+        - H I
     nlte_ionization_species: [H I]
 
 montecarlo:
