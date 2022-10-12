@@ -199,12 +199,20 @@ def test_plasma_nlte_section_config(tardis_config_verysimple_nlte):
     conf = Configuration.from_config_dict(
         tardis_config_verysimple_nlte, validate=True, config_dirname="test"
     )
-    tardis_config_verysimple_nlte["plasma"]["continuum_interaction"] = ["H I", "He I"]
+    tardis_config_verysimple_nlte["plasma"]["continuum_interaction"] = [
+        "H I",
+        "He I",
+    ]
     tardis_config_verysimple_nlte["plasma"]["nlte_ionization_species"] = ["H I"]
     with pytest.raises(ValueError) as ve:
-        nlte_ionization_species = tardis_config_verysimple_nlte.plasma.nlte_ionization_species
+        nlte_ionization_species = (
+            tardis_config_verysimple_nlte.plasma.nlte_ionization_species
+        )
         for species in nlte_ionization_species:
-            if (not (species in tardis_config_verysimple_nlte.plasma.continuum_interaction.species)):
+            if not (
+                species
+                in tardis_config_verysimple_nlte.plasma.continuum_interaction.species
+            ):
                 raise ValueError("Nlte ionization species not in continuum.")
     assert ve.type is ValueError
 
