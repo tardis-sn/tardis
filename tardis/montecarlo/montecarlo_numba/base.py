@@ -167,6 +167,7 @@ def montecarlo_main_loop(
     Parameters
     ----------
     packet_collection : PacketCollection
+    numba_model: NumbaModel
     numba_radial_1d_geometry : NumbaRadial1DGeometry
     numba_plasma : NumbaPlasma
     estimators : NumbaEstimators

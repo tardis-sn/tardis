@@ -51,6 +51,7 @@ def single_packet_loop(
     Parameters
     ----------
     r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    numba_model: tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
     numba_radial_1d_geometry : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaRadial1DGeometry
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
