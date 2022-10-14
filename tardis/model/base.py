@@ -6,6 +6,9 @@ from astropy import units as u
 from tardis import constants
 import radioactivedecay as rd
 from radioactivedecay.utils import Z_DICT
+from tardis.montecarlo.montecarlo_numba.numba_interface import (
+    NumbaRadial1DGeometry,
+)
 
 from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
 from tardis.io.parsers.csvy import load_csvy
@@ -51,6 +54,15 @@ class Radial1DGeometry:
     def volume(self):
         """Volume in shell computed from r_outer and r_inner"""
         return (4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
+
+    def to_numba(self):
+        """Returns a new NumbaRadial1DGeometry object"""
+        return NumbaRadial1DGeometry(
+            self.r_inner.cgs.value,
+            self.r_outer.cgs.value,
+            self.v_inner.cgs.value,
+            self.v_outer.cgs.value,
+        )
 
 
 class Composition:
