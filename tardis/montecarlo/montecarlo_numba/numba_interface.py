@@ -25,7 +25,7 @@ numba_geometry_spec = [
 class NumbaRadial1DGeometry(object):
     def __init__(self, r_inner, r_outer, v_inner, v_outer):
         """
-        Model for the Numba mode
+        Radial 1D Geometry for the Numba mode
 
         Parameters
         ----------
