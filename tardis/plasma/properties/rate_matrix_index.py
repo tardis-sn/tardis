@@ -28,12 +28,12 @@ class NLTEIndexHelper(ProcessingPlasmaProperty):
         return rate_matrix_index
 
     def calculate_rate_matrix_index(
-        self, levels, nlte_ionization_species, nlte_excitation_species
+        self, levels, nlte_excitation_species=[]
     ):
         for level in levels:
-            if level[:2] in nlte_ionization_species:
+            if level[:2] in self.nlte_ionization_species:
                 yield (*level[:2], "nlte_ion")
-            elif (level[:2] not in nlte_ionization_species) and (
+            elif (level[:2] not in self.nlte_ionization_species) and (
                 level[:2] not in nlte_excitation_species
             ):
                 yield (*level[:2], "lte_ion")
