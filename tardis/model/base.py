@@ -56,7 +56,14 @@ class Radial1DGeometry:
         return (4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
 
     def to_numba(self):
-        """Returns a new NumbaRadial1DGeometry object"""
+        """
+        Returns a new NumbaRadial1DGeometry object
+
+        Returns
+        -------
+        NumbaRadial1DGeometry
+            Numba version of Radial1DGeometry
+        """
         return NumbaRadial1DGeometry(
             self.r_inner.cgs.value,
             self.r_outer.cgs.value,
