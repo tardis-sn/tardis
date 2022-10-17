@@ -62,7 +62,7 @@ class Radial1DGeometry:
         Returns
         -------
         NumbaRadial1DGeometry
-            Numba version of Radial1DGeometry
+            Numba version of Radial1DGeometry with properties in cgs units
         """
         return NumbaRadial1DGeometry(
             self.r_inner.cgs.value,
