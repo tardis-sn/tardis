@@ -29,7 +29,7 @@ from tardis.plasma.properties.property_collections import (
     adiabatic_cooling_properties,
     two_photon_properties,
     isotope_properties,
-    nlte_properties_new,
+    nlte_solver_properties,
 )
 from tardis.plasma.exceptions import PlasmaConfigError
 
@@ -185,7 +185,7 @@ def assemble_plasma(config, model, atom_data=None):
             property_kwargs[NLTEIndexHelper] = {
                 "nlte_ionization_species": nlte_ionization_species
             }
-            plasma_modules += nlte_properties_new
+            plasma_modules += nlte_solver_properties
 
         kwargs.update(
             gamma_estimator=None,
