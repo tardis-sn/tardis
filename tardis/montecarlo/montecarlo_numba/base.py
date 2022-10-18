@@ -49,13 +49,9 @@ def montecarlo_radial1d(
         runner._output_nu,
         runner._output_energy,
     )
-
+    numba_radial_1d_geometry = model.model_state.geometry.to_numba()
     numba_model = NumbaModel(
-        runner.r_inner_cgs,
-        runner.r_outer_cgs,
-        runner.v_inner_cgs,
-        runner.v_outer_cgs,
-        model.time_explosion.to("s").value,
+        model.model_state.time_explosion.cgs.value,
     )
     numba_plasma = numba_plasma_initialize(plasma, runner.line_interaction_type)
     estimators = Estimators(
