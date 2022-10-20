@@ -27,6 +27,7 @@ from tardis.energy_input.calculate_opacity import (
     photoabsorption_opacity_calculation_kasen,
     pair_creation_opacity_artis,
     SIGMA_T,
+    M_P,
 )
 from tardis.energy_input.gamma_ray_interactions import (
     get_compton_fraction_artis,
@@ -51,196 +52,60 @@ from tardis.energy_input.gamma_ray_estimators import deposition_estimator_kasen
 # time: s
 
 
-@njit(**njit_dict_no_parallel)
-def sample_energy(energy, intensity):
-    """Samples energy from energy and intensity
-
-    Parameters
-    ----------
-    energy :  One-dimensional Numpy Array, dtype float
-        Array of energies
-    intensity :  One-dimensional Numpy Array, dtype float
-        Array of intensities
-
-    Returns
-    -------
-    float
-        Energy
-    """
-    z = np.random.random()
-
-    average = (energy * intensity).sum()
-    total = 0
-    for (e, i) in zip(energy, intensity):
-        total += e * i / average
-        if z <= total:
-            return e
-
-    return False
-
-
-@njit(**njit_dict_no_parallel)
-def sample_decay_time(
-    start_tau, end_tau=0.0, decay_time_min=0.0, decay_time_max=0.0
-):
-    """Samples the decay time from the mean lifetime
-    of the isotopes (needs restructuring for more isotopes)
-
-    Parameters
-    ----------
-    start_tau : float64
-        Initial isotope mean lifetime
-    end_tau : float64, optional
-        Ending mean lifetime, by default 0 for single decays
-
-    Returns
-    -------
-    float64
-        Sampled decay time
-    """
-    decay_time = decay_time_min
-    while (decay_time <= decay_time_min) or (decay_time >= decay_time_max):
-        decay_time = -start_tau * np.log(np.random.random()) - end_tau * np.log(
-            np.random.random()
-        )
-    return decay_time
-
-
-@njit(**njit_dict_no_parallel)
-def initial_packet_radius(packet_count, inner_velocity, outer_velocity):
-    """Initialize the random radii of packets in a shell
-
-    Parameters
-    ----------
-    packet_count : int
-        Number of packets in the shell
-    inner_velocity : float
-        Inner velocity of the shell
-    outer_velocity : float
-        Outer velocity of the shell
-
-    Returns
-    -------
-    array
-        Array of length packet_count of random locations in the shell
-    """
-    z = np.random.random(packet_count)
-    initial_radii = (
-        z * inner_velocity**3.0 + (1.0 - z) * outer_velocity**3.0
-    ) ** (1.0 / 3.0)
-
-    return initial_radii
-
-
-@njit(**njit_dict_no_parallel)
-def initialize_packet_properties(
-    isotope_energy,
-    isotope_intensity,
-    positronium_energy,
-    positronium_intensity,
-    positronium_fraction,
-    packet_energy,
-    k,
-    tau_start,
+def get_chain_decay_power_per_ejectamass(
+    inventory,
+    time,
+    time_start,
+    average_energies,
+    average_positron_energies,
     tau_end,
-    initial_radius,
-    times,
-    effective_times,
 ):
-    """Initialize the properties of an individual packet
+    # total decay power per mass [erg/s/g] for a given decaypath
+    # only decays at the end of the chain contributed from the initial abundance of the top of the chain are counted
+    # (these can be can be same for a chain of length one)
 
-    Parameters
-    ----------
-    isotope_energy : numpy array
-        _description_
-    isotope_intensity : numpy array
-        _description_
-    positronium_energy : numpy array
-        _description_
-    positronium_intensity : numpy array
-        _description_
-    positronium_fraction : float
-        _description_
-    packet_energy : float
-        _description_
-    k : int
-        _description_
-    tau_start : float
-        _description_
-    tau_end : float
-        _description_
-    initial_radius : float
-        _description_
-    times : numpy array
-        _description_
-    effective_times : numpy array
-        _description_
+    # need to find a way to connect inventory_start with inventory_end to obtain start and end of chains
+    # hopefully can just do it all at once
 
-    Returns
-    -------
-    _type_
-        _description_
-    """
-    decay_time = np.inf
+    # start_isotope is e.g. Ni56 while end_isotope would be e.g. Fe56
+    inventory_end = inventory.decay(time - time_start)
+    # contribution to the end nuclide abundance from the top of chain (could be a length-one chain Z,A_top = Z,A_end
+    # so contribution would be from init abundance only)
 
-    decay_time = sample_decay_time(
-        tau_start,
-        end_tau=tau_end,
-        decay_time_min=0,
-        decay_time_max=times[-1],
-    )
+    decaypower = []
+    progeny = inventory.progeny()
 
-    decay_time_index = get_index(decay_time, times)
+    for start_isotope in progeny:
+        # ignore branching probs for now
+        end_isotope = progeny[start_isotope][0]
 
-    cmf_energy = sample_energy(isotope_energy, isotope_intensity)
+        if rd.Nuclide(end_isotope).half_life("readable") == "stable":
+            end_isotope = start_isotope
 
-    z = np.random.random()
-    if z < positronium_fraction:
-        z = np.random.random()
-        if cmf_energy == 511 and z > 0.25:
-            cmf_energy = sample_energy(
-                positronium_energy, positronium_intensity
-            )
+        # i.e. need to get end_isotope(s) by finding out which ones have no progeny left
+        # this should be the total number of "end chain" isotopes after (time - time_start)
+        endnucabund = inventory_end.mass_fractions()[end_isotope]
 
-    energy_factor = 1.0
-    if decay_time < times[0]:
-        energy_factor = decay_time / times[0]
-        decay_time = times[0]
+        # this is the total decay energy from gamma-rays and positrons for the end of chain isotope
+        # endecay = get_decaypath_lastnucdecayenergy(decaypathindex)
+        endecay = (
+            average_energies[end_isotope]
+            + average_positron_energies[end_isotope]
+        )
 
-    scaled_r = initial_radius * effective_times[decay_time_index]
+        print("Decay energy, abundance, tau")
+        print(endecay)
+        print(endnucabund)
+        print(tau_end)
 
-    initial_location = scaled_r * get_random_unit_vector()
-    initial_direction = get_random_unit_vector()
-    initial_energy = packet_energy * energy_factor
+        decaypower.append(
+            endecay
+            * endnucabund
+            / tau_end
+            / (rd.Nuclide(start_isotope).atomic_mass * M_P)
+        )
 
-    # draw a random gamma-ray in shell
-    packet = GXPacket(
-        initial_location,
-        initial_direction,
-        1.0,
-        initial_energy,
-        0.0,
-        0.0,
-        GXPacketStatus.IN_PROCESS,
-        k,
-        decay_time,
-    )
-
-    packet.energy_rf = packet.energy_cmf / doppler_gamma(
-        packet.direction,
-        packet.location,
-        packet.time_current,
-    )
-
-    packet.nu_cmf = cmf_energy / H_CGS_KEV
-
-    packet.nu_rf = packet.nu_cmf / doppler_gamma(
-        packet.direction,
-        packet.location,
-        packet.time_current,
-    )
-
-    return packet, decay_time_index
+    return decaypower
 
 
 @njit(**njit_dict_no_parallel)
@@ -269,7 +134,7 @@ def calculate_positron_fraction(
 
 def initialize_packets(
     decays_per_isotope,
-    input_energy,
+    packet_energy,
     gamma_ray_lines,
     positronium_fraction,
     inner_velocities,
@@ -281,6 +146,8 @@ def initialize_packets(
     taus,
     parents,
     average_positron_energies,
+    inventories,
+    average_power_per_mass,
 ):
     """Initialize a list of GXPacket objects for the simulation
     to operate on.
@@ -326,12 +193,6 @@ def initialize_packets(
 
     number_of_packets = decays_per_isotope.sum().sum()
     decays_per_shell = decays_per_isotope.T.sum().values
-
-    print("Total packets:", number_of_packets)
-
-    packet_energy = input_energy / number_of_packets
-
-    print("Energy per packet", packet_energy)
 
     energy_plot_df_rows = np.zeros((number_of_packets, 8))
     energy_plot_positron_rows = np.zeros((number_of_packets, 4))
@@ -380,6 +241,8 @@ def initialize_packets(
                     initial_radii[i],
                     times,
                     effective_times,
+                    inventories[i],
+                    average_power_per_mass,
                 )
 
                 energy_df_rows[k, decay_time_index] += (
@@ -642,7 +505,7 @@ def main_gamma_ray_loop(
     )
 
     # Time averaged energy per mass for constant packet count
-    average_energy_per_mass = energy_per_mass / (time_end - time_start)
+    average_power_per_mass = energy_per_mass / (time_end - time_start)
 
     energy_per_mass_norm = (
         energy_per_mass / energy_per_mass.sum(axis=1).max()
@@ -659,6 +522,8 @@ def main_gamma_ray_loop(
         .astype(int)
     )
 
+    print(average_power_per_mass.loc[0].sum())
+
     print("Total gamma-ray energy")
     print(total_energy.sum().sum() * u.keV.to("erg"))
 
@@ -670,6 +535,13 @@ def main_gamma_ray_loop(
     # Dependent on atomic data
     iron_group_fraction_per_shell = model.abundance.loc[(21):(30)].sum(axis=0)
 
+    number_of_packets = packets_per_isotope.sum().sum()
+    print("Total packets:", number_of_packets)
+
+    packet_energy = total_energy.sum().sum() / number_of_packets
+
+    print("Energy per packet", packet_energy)
+
     # Need to update volume for positron deposition to be time-dependent
     print("Initializing packets")
     (
@@ -679,7 +551,7 @@ def main_gamma_ray_loop(
         energy_plot_positron_rows,
     ) = initialize_packets(
         packets_per_isotope,
-        total_energy.sum().sum(),
+        packet_energy,
         gamma_ray_line_arrays,
         positronium_fraction,
         inner_velocities,
@@ -691,6 +563,8 @@ def main_gamma_ray_loop(
         taus,
         parents,
         average_positron_energies,
+        inventories,
+        average_power_per_mass,
     )
 
     print("Total positron energy from packets")
@@ -864,271 +738,3 @@ def process_packet_path(packet):
         ejecta_energy_gained = packet.energy_cmf
 
     return packet, ejecta_energy_gained
-
-
-@njit(**njit_dict_no_parallel)
-def gamma_packet_loop(
-    packets,
-    grey_opacity,
-    photoabsorption_opacity_type,
-    pair_creation_opacity_type,
-    electron_number_density_time,
-    mass_density_time,
-    inv_volume_time,
-    iron_group_fraction_per_shell,
-    inner_velocities,
-    outer_velocities,
-    times,
-    dt_array,
-    effective_time_array,
-    energy_bins,
-    energy_df_rows,
-    energy_plot_df_rows,
-    energy_out,
-):
-    """Propagates packets through the simulation
-
-    Parameters
-    ----------
-    packets : list
-        List of GXPacket objects
-    grey_opacity : float
-        Grey opacity value in cm^2/g
-    electron_number_density_time : array float64
-        Electron number densities with time
-    mass_density_time : array float64
-        Mass densities with time
-    inv_volume_time : array float64
-        Inverse volumes with time
-    iron_group_fraction_per_shell : array float64
-        Iron group fraction per shell
-    inner_velocities : array float64
-        Inner velocities of the shells
-    outer_velocities : array float64
-        Inner velocities of the shells
-    times : array float64
-        Simulation time steps
-    dt_array : array float64
-        Simulation delta-time steps
-    effective_time_array : array float64
-        Simulation middle time steps
-    energy_bins : array float64
-        Bins for escaping gamma-rays
-    energy_df_rows : array float64
-        Energy output
-    energy_plot_df_rows : array float64
-        Energy output for plotting
-    energy_out : array float64
-        Escaped energy array
-
-    Returns
-    -------
-    array float64
-        Energy output
-    array float64
-        Energy output for plotting
-    array float64
-        Escaped energy array
-
-    Raises
-    ------
-    ValueError
-        Packet time index less than zero
-    """
-    escaped_packets = 0
-    scattered_packets = 0
-    packet_count = len(packets)
-    print("Entering gamma ray loop for " + str(packet_count) + " packets")
-
-    deposition_estimator = np.zeros_like(energy_df_rows)
-
-    for i in range(packet_count):
-        packet = packets[i]
-        time_index = get_index(packet.time_current, times)
-
-        if time_index < 0:
-            print(packet.time_current, time_index)
-            raise ValueError("Packet time index less than 0!")
-
-        scattered = False
-
-        initial_energy = packet.energy_cmf
-
-        while packet.status == GXPacketStatus.IN_PROCESS:
-            # Get delta-time value for this step
-            dt = dt_array[time_index]
-            # Calculate packet comoving energy for opacities
-            comoving_energy = H_CGS_KEV * packet.nu_cmf
-
-            if grey_opacity < 0:
-                doppler_factor = doppler_gamma(
-                    packet.direction,
-                    packet.location,
-                    effective_time_array[time_index],
-                )
-
-                kappa = kappa_calculation(comoving_energy)
-
-                # artis threshold for Thomson scattering
-                if kappa < 1e-2:
-                    compton_opacity = (
-                        SIGMA_T
-                        * electron_number_density_time[packet.shell, time_index]
-                    )
-                else:
-                    compton_opacity = compton_opacity_calculation(
-                        comoving_energy,
-                        electron_number_density_time[packet.shell, time_index],
-                    )
-
-                if photoabsorption_opacity_type == "kasen":
-                    # currently not functional, requires proton count and
-                    # electron count per isotope
-                    photoabsorption_opacity = 0
-                    # photoabsorption_opacity_calculation_kasen()
-                else:
-                    photoabsorption_opacity = (
-                        photoabsorption_opacity_calculation(
-                            comoving_energy,
-                            mass_density_time[packet.shell, time_index],
-                            iron_group_fraction_per_shell[packet.shell],
-                        )
-                    )
-
-                if pair_creation_opacity_type == "artis":
-                    pair_creation_opacity = pair_creation_opacity_artis(
-                        comoving_energy,
-                        mass_density_time[packet.shell, time_index],
-                        iron_group_fraction_per_shell[packet.shell],
-                    )
-                else:
-                    pair_creation_opacity = pair_creation_opacity_calculation(
-                        comoving_energy,
-                        mass_density_time[packet.shell, time_index],
-                        iron_group_fraction_per_shell[packet.shell],
-                    )
-
-            else:
-                compton_opacity = 0.0
-                pair_creation_opacity = 0.0
-                photoabsorption_opacity = (
-                    grey_opacity * mass_density_time[packet.shell, time_index]
-                )
-
-            # convert opacities to rest frame
-            total_opacity = (
-                compton_opacity
-                + photoabsorption_opacity
-                + pair_creation_opacity
-            ) * doppler_factor
-
-            packet.tau = -np.log(np.random.random())
-
-            (
-                distance_interaction,
-                distance_boundary,
-                distance_time,
-                shell_change,
-            ) = distance_trace(
-                packet,
-                inner_velocities,
-                outer_velocities,
-                total_opacity,
-                effective_time_array[time_index],
-                times[time_index + 1],
-            )
-
-            distance = min(
-                distance_interaction, distance_boundary, distance_time
-            )
-
-            packet.time_current += distance / C_CGS
-
-            packet = move_packet(packet, distance)
-
-            deposition_estimator[packet.shell, time_index] += (
-                (initial_energy * 1000)
-                * distance
-                * (packet.energy_cmf / initial_energy)
-                * deposition_estimator_kasen(
-                    comoving_energy,
-                    mass_density_time[packet.shell, time_index],
-                    iron_group_fraction_per_shell[packet.shell],
-                )
-            )
-
-            if distance == distance_time:
-                time_index += 1
-
-                if time_index > len(effective_time_array) - 1:
-                    # Packet ran out of time
-                    packet.status = GXPacketStatus.END
-                else:
-                    packet.shell = get_index(
-                        packet.get_location_r(),
-                        inner_velocities * effective_time_array[time_index],
-                    )
-
-            elif distance == distance_interaction:
-
-                packet.status = scatter_type(
-                    compton_opacity,
-                    photoabsorption_opacity,
-                    total_opacity,
-                )
-
-                packet, ejecta_energy_gained = process_packet_path(packet)
-
-                # Save packets to dataframe rows
-                # convert KeV to eV / s / cm^3
-                energy_df_rows[packet.shell, time_index] += (
-                    ejecta_energy_gained * 1000
-                )
-
-                energy_plot_df_rows[i] = np.array(
-                    [
-                        i,
-                        ejecta_energy_gained * 1000
-                        # * inv_volume_time[packet.shell, time_index]
-                        / dt,
-                        packet.get_location_r(),
-                        packet.time_current,
-                        packet.shell,
-                        compton_opacity,
-                        photoabsorption_opacity,
-                        pair_creation_opacity,
-                    ]
-                )
-
-                if packet.status == GXPacketStatus.PHOTOABSORPTION:
-                    # Packet destroyed, go to the next packet
-                    break
-                else:
-                    packet.status = GXPacketStatus.IN_PROCESS
-                    scattered = True
-
-            else:
-                packet.shell += shell_change
-
-                if packet.shell > len(mass_density_time[:, 0]) - 1:
-                    rest_energy = packet.nu_rf * H_CGS_KEV
-                    bin_index = get_index(rest_energy, energy_bins)
-                    bin_width = (
-                        energy_bins[bin_index + 1] - energy_bins[bin_index]
-                    )
-                    energy_out[bin_index, time_index] += rest_energy / (
-                        bin_width * dt
-                    )
-                    packet.status = GXPacketStatus.END
-                    escaped_packets += 1
-                    if scattered:
-                        scattered_packets += 1
-                elif packet.shell < 0:
-                    packet.energy_rf = 0.0
-                    packet.energy_cmf = 0.0
-                    packet.status = GXPacketStatus.END
-
-    print("Escaped packets:", escaped_packets)
-    print("Scattered packets:", scattered_packets)
-
-    return energy_df_rows, energy_plot_df_rows, energy_out, deposition_estimator
