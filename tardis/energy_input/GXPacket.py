@@ -3,6 +3,14 @@ import numpy as np
 from numba import int64, float64
 from numba.experimental import jitclass
 
+from tardis.energy_input.samplers import sample_decay_time, sample_energy
+from tardis.energy_input.util import (
+    get_index,
+    get_random_unit_vector,
+    doppler_factor_3d,
+    H_CGS_KEV,
+)
+
 
 class GXPacketStatus(IntEnum):
     BETA_DECAY = -1
@@ -187,7 +195,7 @@ def initialize_packet_properties(
         decay_time,
     )
 
-    packet.energy_rf = packet.energy_cmf / doppler_gamma(
+    packet.energy_rf = packet.energy_cmf / doppler_factor_3d(
         packet.direction,
         packet.location,
         packet.time_current,
@@ -195,7 +203,7 @@ def initialize_packet_properties(
 
     packet.nu_cmf = cmf_energy / H_CGS_KEV
 
-    packet.nu_rf = packet.nu_cmf / doppler_gamma(
+    packet.nu_rf = packet.nu_cmf / doppler_factor_3d(
         packet.direction,
         packet.location,
         packet.time_current,

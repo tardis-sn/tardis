@@ -1,18 +1,13 @@
 import numpy as np
-from tqdm.auto import tqdm
 import pandas as pd
 import astropy.units as u
 from numba import njit
-from numba.core import types
-from numba.typed import List, Dict
+from numba.typed import List
 import radioactivedecay as rd
 
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
-from tardis.energy_input.GXPacket import GXPacket, GXPacketStatus
-from tardis.energy_input.gamma_ray_grid import (
-    distance_trace,
-    move_packet,
-)
+from tardis.montecarlo.montecarlo_numba.opacities import M_P
+
 from tardis.energy_input.energy_source import (
     get_all_isotopes,
     get_nuclear_lines_database,
@@ -20,31 +15,9 @@ from tardis.energy_input.energy_source import (
     read_artis_lines,
     setup_input_energy,
 )
-from tardis.energy_input.calculate_opacity import (
-    compton_opacity_calculation,
-    photoabsorption_opacity_calculation,
-    pair_creation_opacity_calculation,
-    photoabsorption_opacity_calculation_kasen,
-    pair_creation_opacity_artis,
-    SIGMA_T,
-    M_P,
-)
-from tardis.energy_input.gamma_ray_interactions import (
-    get_compton_fraction_artis,
-    scatter_type,
-    compton_scatter,
-    pair_creation_packet,
-)
-from tardis.energy_input.util import (
-    doppler_gamma,
-    C_CGS,
-    H_CGS_KEV,
-    kappa_calculation,
-    get_index,
-    get_random_unit_vector,
-)
-from tardis import constants as const
-from tardis.energy_input.gamma_ray_estimators import deposition_estimator_kasen
+from tardis.energy_input.samplers import initial_packet_radius
+from tardis.energy_input.GXPacket import initialize_packet_properties
+from tardis.energy_input.gamma_packet_loop import gamma_packet_loop
 
 # Energy: keV, exported as eV for SF solver
 # distance: cm
@@ -684,57 +657,3 @@ def main_gamma_ray_loop(
         energy_plot_positrons,
         energy_estimated_deposition,
     )
-
-
-@njit(**njit_dict_no_parallel)
-def process_packet_path(packet):
-    """Move the packet through interactions
-
-    Parameters
-    ----------
-    packet : GXPacket
-        Packet for processing
-
-    Returns
-    -------
-    GXPacket
-        Packet after processing
-    float
-        Energy injected into the ejecta
-    """
-    if packet.status == GXPacketStatus.COMPTON_SCATTER:
-        comoving_freq_energy = packet.nu_cmf * H_CGS_KEV
-
-        compton_angle, compton_fraction = get_compton_fraction_artis(
-            comoving_freq_energy
-        )
-
-        # Packet is no longer a gamma-ray, destroy it
-        if np.random.random() < 1 / compton_fraction:
-            packet.nu_cmf = packet.nu_cmf / compton_fraction
-
-            packet.direction = compton_scatter(packet, compton_angle)
-
-            # Calculate rest frame frequency after scaling by the fraction that remains
-            doppler_factor = doppler_gamma(
-                packet.direction,
-                packet.location,
-                packet.time_current,
-            )
-
-            packet.nu_rf = packet.nu_cmf / doppler_factor
-            packet.energy_rf = packet.energy_cmf / doppler_factor
-
-            ejecta_energy_gained = 0.0
-        else:
-            packet.status = GXPacketStatus.PHOTOABSORPTION
-
-    if packet.status == GXPacketStatus.PAIR_CREATION:
-        packet = pair_creation_packet(packet)
-        ejecta_energy_gained = 0.0
-
-    if packet.status == GXPacketStatus.PHOTOABSORPTION:
-        # Ejecta gains comoving energy
-        ejecta_energy_gained = packet.energy_cmf
-
-    return packet, ejecta_energy_gained

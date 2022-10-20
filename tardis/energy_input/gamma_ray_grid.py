@@ -3,7 +3,7 @@ from numba import njit
 
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.energy_input.util import (
-    doppler_gamma,
+    doppler_factor_3d,
     solve_quadratic_equation,
     C_CGS,
 )
@@ -134,7 +134,7 @@ def move_packet(packet, distance):
 
     packet.location = location_new
 
-    doppler_factor = doppler_gamma(
+    doppler_factor = doppler_factor_3d(
         packet.direction, packet.location, packet.time_current
     )
 

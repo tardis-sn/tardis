@@ -1,3 +1,36 @@
+import numpy as np
+from numba import njit
+
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+from tardis.montecarlo.montecarlo_numba.opacities import (
+    compton_opacity_calculation,
+    photoabsorption_opacity_calculation,
+    pair_creation_opacity_calculation,
+    photoabsorption_opacity_calculation_kasen,
+    pair_creation_opacity_artis,
+    SIGMA_T,
+)
+from tardis.energy_input.gamma_ray_grid import (
+    distance_trace,
+    move_packet,
+)
+from tardis.energy_input.util import (
+    doppler_factor_3d,
+    C_CGS,
+    H_CGS_KEV,
+    kappa_calculation,
+    get_index,
+)
+from tardis.energy_input.GXPacket import GXPacketStatus
+from tardis.energy_input.gamma_ray_interactions import (
+    get_compton_fraction_artis,
+    scatter_type,
+    compton_scatter,
+    pair_creation_packet,
+)
+from tardis.energy_input.gamma_ray_estimators import deposition_estimator_kasen
+
+
 @njit(**njit_dict_no_parallel)
 def gamma_packet_loop(
     packets,
@@ -93,7 +126,7 @@ def gamma_packet_loop(
             comoving_energy = H_CGS_KEV * packet.nu_cmf
 
             if grey_opacity < 0:
-                doppler_factor = doppler_gamma(
+                doppler_factor = doppler_factor_3d(
                     packet.direction,
                     packet.location,
                     effective_time_array[time_index],
@@ -264,3 +297,57 @@ def gamma_packet_loop(
     print("Scattered packets:", scattered_packets)
 
     return energy_df_rows, energy_plot_df_rows, energy_out, deposition_estimator
+
+
+@njit(**njit_dict_no_parallel)
+def process_packet_path(packet):
+    """Move the packet through interactions
+
+    Parameters
+    ----------
+    packet : GXPacket
+        Packet for processing
+
+    Returns
+    -------
+    GXPacket
+        Packet after processing
+    float
+        Energy injected into the ejecta
+    """
+    if packet.status == GXPacketStatus.COMPTON_SCATTER:
+        comoving_freq_energy = packet.nu_cmf * H_CGS_KEV
+
+        compton_angle, compton_fraction = get_compton_fraction_artis(
+            comoving_freq_energy
+        )
+
+        # Packet is no longer a gamma-ray, destroy it
+        if np.random.random() < 1 / compton_fraction:
+            packet.nu_cmf = packet.nu_cmf / compton_fraction
+
+            packet.direction = compton_scatter(packet, compton_angle)
+
+            # Calculate rest frame frequency after scaling by the fraction that remains
+            doppler_factor = doppler_factor_3d(
+                packet.direction,
+                packet.location,
+                packet.time_current,
+            )
+
+            packet.nu_rf = packet.nu_cmf / doppler_factor
+            packet.energy_rf = packet.energy_cmf / doppler_factor
+
+            ejecta_energy_gained = 0.0
+        else:
+            packet.status = GXPacketStatus.PHOTOABSORPTION
+
+    if packet.status == GXPacketStatus.PAIR_CREATION:
+        packet = pair_creation_packet(packet)
+        ejecta_energy_gained = 0.0
+
+    if packet.status == GXPacketStatus.PHOTOABSORPTION:
+        # Ejecta gains comoving energy
+        ejecta_energy_gained = packet.energy_cmf
+
+    return packet, ejecta_energy_gained
