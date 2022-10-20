@@ -85,6 +85,7 @@ def montecarlo_radial1d(
         rpacket_trackers,
     ) = montecarlo_main_loop(
         packet_collection,
+        numba_radial_1d_geometry,
         numba_model,
         numba_plasma,
         estimators,
@@ -135,6 +136,7 @@ def montecarlo_radial1d(
 @njit(**njit_dict)
 def montecarlo_main_loop(
     packet_collection,
+    numba_radial_1d_geometry,
     numba_model,
     numba_plasma,
     estimators,
@@ -154,6 +156,7 @@ def montecarlo_main_loop(
     Parameters
     ----------
     packet_collection : PacketCollection
+    numba_radial_1d_geometry : NumbaRadial1DGeometry
     numba_model : NumbaModel
     numba_plasma : NumbaPlasma
     estimators : NumbaEstimators
@@ -243,7 +246,7 @@ def montecarlo_main_loop(
         seed = packet_seeds[i]
         np.random.seed(seed)
         r_packet = RPacket(
-            numba_model.r_inner[0],
+            numba_radial_1d_geometry.r_inner[0],
             packet_collection.packets_input_mu[i],
             packet_collection.packets_input_nu[i],
             packet_collection.packets_input_energy[i],
@@ -256,6 +259,7 @@ def montecarlo_main_loop(
 
         loop = single_packet_loop(
             r_packet,
+            numba_radial_1d_geometry,
             numba_model,
             numba_plasma,
             estimators,

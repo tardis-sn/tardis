@@ -40,6 +40,7 @@ C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 @njit
 def single_packet_loop(
     r_packet,
+    numba_radial_1d_geometry,
     numba_model,
     numba_plasma,
     estimators,
@@ -50,6 +51,7 @@ def single_packet_loop(
     Parameters
     ----------
     r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    numba_radial_1d_geometry : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaRadial1DGeometry
     numba_model : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
@@ -71,7 +73,11 @@ def single_packet_loop(
     r_packet.initialize_line_id(numba_plasma, numba_model)
 
     trace_vpacket_volley(
-        r_packet, vpacket_collection, numba_model, numba_plasma
+        r_packet,
+        vpacket_collection,
+        numba_radial_1d_geometry,
+        numba_model,
+        numba_plasma,
     )
 
     if montecarlo_configuration.RPACKET_TRACKING:
@@ -102,6 +108,7 @@ def single_packet_loop(
             escat_prob = chi_e / chi_continuum  # probability of e-scatter
             distance, interaction_type, delta_shell = trace_packet(
                 r_packet,
+                numba_radial_1d_geometry,
                 numba_model,
                 numba_plasma,
                 estimators,
@@ -124,6 +131,7 @@ def single_packet_loop(
             chi_continuum = chi_e
             distance, interaction_type, delta_shell = trace_packet(
                 r_packet,
+                numba_radial_1d_geometry,
                 numba_model,
                 numba_plasma,
                 estimators,
@@ -138,7 +146,7 @@ def single_packet_loop(
                 r_packet, distance, numba_model.time_explosion, estimators
             )
             move_packet_across_shell_boundary(
-                r_packet, delta_shell, len(numba_model.r_inner)
+                r_packet, delta_shell, len(numba_radial_1d_geometry.r_inner)
             )
 
         elif interaction_type == InteractionType.LINE:
@@ -153,7 +161,11 @@ def single_packet_loop(
                 numba_plasma,
             )
             trace_vpacket_volley(
-                r_packet, vpacket_collection, numba_model, numba_plasma
+                r_packet,
+                vpacket_collection,
+                numba_radial_1d_geometry,
+                numba_model,
+                numba_plasma,
             )
 
         elif interaction_type == InteractionType.ESCATTERING:
@@ -165,7 +177,11 @@ def single_packet_loop(
             thomson_scatter(r_packet, numba_model.time_explosion)
 
             trace_vpacket_volley(
-                r_packet, vpacket_collection, numba_model, numba_plasma
+                r_packet,
+                vpacket_collection,
+                numba_radial_1d_geometry,
+                numba_model,
+                numba_plasma,
             )
         elif (
             montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
@@ -186,7 +202,11 @@ def single_packet_loop(
             )
 
             trace_vpacket_volley(
-                r_packet, vpacket_collection, numba_model, numba_plasma
+                r_packet,
+                vpacket_collection,
+                numba_radial_1d_geometry,
+                numba_model,
+                numba_plasma,
             )
         else:
             pass
