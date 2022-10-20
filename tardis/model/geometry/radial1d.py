@@ -1,6 +1,7 @@
 from numba import float64
 from numba.experimental import jitclass
 import numpy as np
+from astropy import units as u
 
 
 class Radial1DGeometry:
@@ -41,10 +42,10 @@ class Radial1DGeometry:
             Numba version of Radial1DGeometry with properties in cgs units
         """
         return NumbaRadial1DGeometry(
-            self.r_inner.cgs.value,
-            self.r_outer.cgs.value,
-            self.v_inner.cgs.value,
-            self.v_outer.cgs.value,
+            self.r_inner.to(u.cm).value,
+            self.r_outer.to(u.cm).value,
+            self.v_inner.to(u.cm / u.s).value,
+            self.v_outer.to(u.cm / u.s).value,
         )
 
 
