@@ -93,7 +93,9 @@ def test_calculate_z(formal_integral_geometry, formal_integral_model, p):
 
 
 @pytest.mark.parametrize("p", [0, 0.5, 1])
-def test_populate_z_photosphere(formal_integral_geometry, formal_integral_model, p):
+def test_populate_z_photosphere(
+    formal_integral_geometry, formal_integral_model, p
+):
     """
     Test the case where p < r[0]
     That means we 'hit' all shells from inside to outside.

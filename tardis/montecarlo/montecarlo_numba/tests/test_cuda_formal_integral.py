@@ -142,7 +142,9 @@ def formal_integral_model():
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(["p", "p_loc"], [(0.0, 0), (0.5, 1), (1.0, 2)])
-def test_calculate_z_cuda(formal_integral_geometry, formal_integral_model, p, p_loc):
+def test_calculate_z_cuda(
+    formal_integral_geometry, formal_integral_model, p, p_loc
+):
     """
     Initializes the test of the cuda version
     against the numba implementation of the
@@ -190,7 +192,11 @@ def test_populate_z(formal_integral_geometry, formal_integral_model, p, p_loc):
     expected_oshell_id = np.zeros_like(oz, dtype=np.int64)
 
     expected = formal_integral_numba.populate_z(
-        formal_integral_geometry, formal_integral_model, p, expected_oz, expected_oshell_id
+        formal_integral_geometry,
+        formal_integral_model,
+        p,
+        expected_oz,
+        expected_oshell_id,
     )
 
     actual = np.zeros(6)
