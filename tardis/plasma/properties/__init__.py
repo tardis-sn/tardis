@@ -10,3 +10,4 @@ from tardis.plasma.properties.j_blues import *
 from tardis.plasma.properties.continuum_processes import *
 from tardis.plasma.properties.transition_probabilities import *
 from tardis.plasma.properties.helium_nlte import *
+from tardis.plasma.properties.rate_matrix_index import *
