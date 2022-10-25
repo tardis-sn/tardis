@@ -19,7 +19,6 @@ class NLTEIndexHelper(ProcessingPlasmaProperty):
             list(
                 self.calculate_rate_matrix_index(
                     levels,
-                    self.nlte_ionization_species,
                     nlte_excitation_species,
                 )
             ),

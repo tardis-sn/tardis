@@ -4,14 +4,17 @@ import numpy as np
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 __all__ = [
-    "NLTERateEquationMatrix",
+    "NLTERateEquationSolver",
 ]
 
 
-class NLTERateEquationMatrix(ProcessingPlasmaProperty):
-    outputs = ("rate_equation_matrix",)
+class NLTERateEquationSolver(ProcessingPlasmaProperty):
+    outputs = ("ion_number_density_nlte", "n_e")
+    def calculate(self, *args, **kwargs):
+        return super().calculate(*args, **kwargs)
 
-    def calculate(
+
+    def calculate_rate_matrix(
         self,
         phi,
         electron_density,
@@ -23,6 +26,7 @@ class NLTERateEquationMatrix(ProcessingPlasmaProperty):
         coll_ion_coefficient,
         coll_recomb_coefficient,
     ):
+        1/0
         rate_matrix = pd.DataFrame(
             0.0, columns=rate_matrix_index, index=rate_matrix_index
         )
