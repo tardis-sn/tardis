@@ -2,8 +2,8 @@
 FROM condaforge/mambaforge
 LABEL MAINTAINER="tardis.supernova.code@gmail.com"
 
-ENV REPO_DIR=/tmp/tardis
-COPY . $REPO_DIR
+ARG REPO_DIR=/tmp/tardis
+COPY . $REPO_DIR 
 
 WORKDIR $REPO_DIR
 RUN mamba create -n tardis --file conda-linux-64.lock
@@ -15,13 +15,10 @@ RUN conda clean --all \
         && rm -rf /var/lib/apt/lists/* \
         && rm -rf /tmp/*
 
-COPY ./docker/scripts/jupyter-server.sh /usr/local/bin
-RUN chmod +x /usr/local/bin/jupyter-server.sh
-
-COPY ./docker/scripts/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
+COPY ./docker/scripts/* /usr/bin
+RUN chmod +x /usr/bin/entrypoint
+RUN chmod +x /usr/bin/jupyter-server
 WORKDIR /workspace
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/entrypoint"]
 CMD ["/bin/bash"]
