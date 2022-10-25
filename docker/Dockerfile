@@ -15,6 +15,13 @@ RUN conda clean --all \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/*
 
+COPY ./docker/scripts/jupyter-server.sh /usr/local/bin
+RUN chmod +x /usr/local/bin/jupyter-server.sh
+
+COPY ./docker/scripts/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 WORKDIR /workspace
-ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "tardis"]
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/bin/bash"]
