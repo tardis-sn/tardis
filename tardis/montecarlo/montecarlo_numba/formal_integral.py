@@ -295,8 +295,12 @@ class FormalIntegrator(object):
     def generate_numba_objects(self):
         """instantiate the numba interface objects
         needed for computing the formal integral"""
-        self.numba_radial_1d_geometry = (
-            self.model.model_state.geometry.to_numba()
+        from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+        self.numba_radial_1d_geometry = NumbaRadial1DGeometry(
+            self.runner.r_inner_i,
+            self.runner.r_outer_i,
+            self.runner.r_inner_i / self.model.time_explosion.to("s").value,
+            self.runner.r_outer_i / self.model.time_explosion.to("s").value,
         )
         self.numba_model = NumbaModel(
             self.model.time_explosion.cgs.value,
