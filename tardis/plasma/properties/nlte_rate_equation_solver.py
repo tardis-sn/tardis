@@ -21,15 +21,16 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         level_boltzmann_factor,
         phi,
         rate_matrix_index,
+        number_density,
         ):
 
         photo_ion_rate, rad_recomb_rate_coeff, coll_ion_coefficient, coll_recomb_coefficient = self.prepare_ion_recomb_rates_nlte_ion(gamma, alpha_sp,     alpha_stim, coll_ion_coeff, coll_recomb_coeff, partition_function, levels, level_boltzmann_factor)
         
         #>>>TODO:initial electron density should be included in the initial guess, added in a future PR
-        initial_electron_density = np.zeros(len(phi.columns))
+        initial_electron_density = number_density.sum(axis=0)
         #<<<
         rate_matrix = self.calculate_rate_matrix(phi[0], initial_electron_density[0], rate_matrix_index, photo_ion_rate[0], rad_recomb_rate_coeff[0], coll_ion_coefficient[0], coll_recomb_coefficient[0])
-        return None
+        return -1, -1
 
 
     def calculate_rate_matrix(
