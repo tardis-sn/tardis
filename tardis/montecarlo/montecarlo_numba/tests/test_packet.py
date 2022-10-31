@@ -10,6 +10,7 @@ from tardis.montecarlo.montecarlo_numba.estimators import update_line_estimators
 import tardis.montecarlo.montecarlo_numba.utils as utils
 
 import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis import constants as const
 
 import tardis.montecarlo.montecarlo_numba.numba_config as numba_config
@@ -25,12 +26,18 @@ from numpy.testing import (
 
 
 @pytest.fixture(scope="function")
-def model():
-    return numba_interface.NumbaModel(
+def geometry():
+    return NumbaRadial1DGeometry(
         r_inner=np.array([6.912e14, 8.64e14], dtype=np.float64),
         r_outer=np.array([8.64e14, 1.0368e15], dtype=np.float64),
         v_inner=np.array([-1, -1], dtype=np.float64),
         v_outer=np.array([-1, -1], dtype=np.float64),
+    )
+
+
+@pytest.fixture(scope="function")
+def model():
+    return numba_interface.NumbaModel(
         time_explosion=5.2e7,
     )
 
@@ -62,12 +69,12 @@ def estimators():
         ({"mu": -0.3, "r": 7.5e14}, {"d_boundary": 709376919351035.9}),
     ],
 )
-def test_calculate_distance_boundary(packet_params, expected_params, model):
+def test_calculate_distance_boundary(packet_params, expected_params, geometry):
     mu = packet_params["mu"]
     r = packet_params["r"]
 
     d_boundary = calculate_distances.calculate_distance_boundary(
-        r, mu, model.r_inner[0], model.r_outer[0]
+        r, mu, geometry.r_inner[0], geometry.r_outer[0]
     )
 
     # Accuracy to within 0.1cm

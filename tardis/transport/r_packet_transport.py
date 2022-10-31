@@ -27,7 +27,13 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
 
 @njit(**njit_dict_no_parallel)
 def trace_packet(
-    r_packet, numba_model, numba_plasma, estimators, chi_continuum, escat_prob
+    r_packet,
+    numba_radial_1d_geometry,
+    numba_model,
+    numba_plasma,
+    estimators,
+    chi_continuum,
+    escat_prob,
 ):
     """
     Traces the RPacket through the ejecta and stops when an interaction happens (heart of the calculation)
@@ -35,6 +41,7 @@ def trace_packet(
     Parameters
     ----------
     r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
+    numba_radial_1d_geometry : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaRadial1DGeometry
     numba_model : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
     numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
@@ -43,8 +50,8 @@ def trace_packet(
     -------
     """
 
-    r_inner = numba_model.r_inner[r_packet.current_shell_id]
-    r_outer = numba_model.r_outer[r_packet.current_shell_id]
+    r_inner = numba_radial_1d_geometry.r_inner[r_packet.current_shell_id]
+    r_outer = numba_radial_1d_geometry.r_outer[r_packet.current_shell_id]
 
     (
         distance_boundary,

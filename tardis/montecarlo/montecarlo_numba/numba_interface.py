@@ -13,33 +13,22 @@ from tardis.montecarlo import (
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
+
 numba_model_spec = [
-    ("r_inner", float64[:]),
-    ("r_outer", float64[:]),
     ("time_explosion", float64),
-    ("v_inner", float64[:]),
-    ("v_outer", float64[:]),
 ]
 
 
 @jitclass(numba_model_spec)
 class NumbaModel(object):
-    def __init__(self, r_inner, r_outer, v_inner, v_outer, time_explosion):
+    def __init__(self, time_explosion):
         """
         Model for the Numba mode
 
         Parameters
         ----------
-        r_inner : numpy.ndarray
-        r_outer : numpy.ndarray
-        v_inner : numpy.ndarray
-        v_outer : numpy.ndarray
         time_explosion : float
         """
-        self.r_inner = r_inner
-        self.r_outer = r_outer
-        self.v_inner = v_inner
-        self.v_outer = v_outer
         self.time_explosion = time_explosion
 
 

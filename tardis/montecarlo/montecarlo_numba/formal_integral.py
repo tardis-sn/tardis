@@ -36,6 +36,7 @@ class IntegrationError(Exception):
 
 @njit(**njit_dict)
 def numba_formal_integral(
+    geometry,
     model,
     plasma,
     iT,
@@ -66,8 +67,8 @@ def numba_formal_integral(
     # global read-only values
     size_line, size_shell = tau_sobolev.shape
     size_tau = size_line * size_shell
-    R_ph = model.r_inner[0]  # make sure these are cgs
-    R_max = model.r_outer[size_shell - 1]
+    R_ph = geometry.r_inner[0]  # make sure these are cgs
+    R_max = geometry.r_outer[size_shell - 1]
     pp = np.zeros(N, dtype=np.float64)  # check
     exp_tau = np.zeros(size_tau, dtype=np.float64)
     exp_tau = np.exp(-tau_sobolev.T.ravel())  # maybe make this 2D?
@@ -108,7 +109,9 @@ def numba_formal_integral(
             p = pp[p_idx]
 
             # initialize z intersections for p values
-            size_z = populate_z(model, p, z, shell_id)  # check returns
+            size_z = populate_z(
+                geometry, model, p, z, shell_id
+            )  # check returns
             # initialize I_nu
             if p <= R_ph:
                 I_nu[p_idx] = intensity_black_body(nu * z[0], iT)
@@ -220,8 +223,8 @@ class NumbaFormalIntegrator(object):
     with numba.
     """
 
-    def __init__(self, model, plasma, points=1000):
-
+    def __init__(self, geometry, model, plasma, points=1000):
+        self.geometry = geometry
         self.model = model
         self.plasma = plasma
         self.points = points
@@ -242,6 +245,7 @@ class NumbaFormalIntegrator(object):
         Simple wrapper for the numba implementation of the formal integral
         """
         return numba_formal_integral(
+            self.geometry,
             self.model,
             self.plasma,
             iT,
@@ -291,23 +295,33 @@ class FormalIntegrator(object):
     def generate_numba_objects(self):
         """instantiate the numba interface objects
         needed for computing the formal integral"""
-        self.numba_model = NumbaModel(
+        from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+
+        self.numba_radial_1d_geometry = NumbaRadial1DGeometry(
             self.runner.r_inner_i,
             self.runner.r_outer_i,
             self.runner.r_inner_i / self.model.time_explosion.to("s").value,
             self.runner.r_outer_i / self.model.time_explosion.to("s").value,
-            self.model.time_explosion.to("s").value,
+        )
+        self.numba_model = NumbaModel(
+            self.model.time_explosion.cgs.value,
         )
         self.numba_plasma = numba_plasma_initialize(
             self.original_plasma, self.runner.line_interaction_type
         )
         if self.runner.use_gpu:
             self.integrator = CudaFormalIntegrator(
-                self.numba_model, self.numba_plasma, self.points
+                self.numba_radial_1d_geometry,
+                self.numba_model,
+                self.numba_plasma,
+                self.points,
             )
         else:
             self.integrator = NumbaFormalIntegrator(
-                self.numba_model, self.numba_plasma, self.points
+                self.numba_radial_1d_geometry,
+                self.numba_model,
+                self.numba_plasma,
+                self.points,
             )
 
     def check(self, raises=True):
@@ -602,7 +616,7 @@ class FormalIntegrator(object):
 
 
 @njit(**njit_dict_no_parallel)
-def populate_z(model, p, oz, oshell_id):
+def populate_z(geometry, model, p, oz, oshell_id):
     """Calculate p line intersections
 
     This function calculates the intersection points of the p-line with
@@ -615,13 +629,13 @@ def populate_z(model, p, oz, oshell_id):
         :oshell_id: (int64) will be set with the corresponding shell_ids
     """
     # abbreviations
-    r = model.r_outer
-    N = len(model.r_inner)  # check
+    r = geometry.r_outer
+    N = len(geometry.r_inner)  # check
     inv_t = 1 / model.time_explosion
     z = 0
     offset = N
 
-    if p <= model.r_inner[0]:
+    if p <= geometry.r_inner[0]:
         # intersect the photosphere
         for i in range(N):
             oz[i] = 1 - calculate_z(r[i], p, inv_t)
