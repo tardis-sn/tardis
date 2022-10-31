@@ -262,6 +262,8 @@ class Radial1DModel(HDFWriterMixin):
         isotope_mass_fraction = self.raw_isotope_abundance.decay(13).add(
             raw_abundance, fill_value=0
         )
+        norm_factor = isotope_mass_fraction.sum(axis=0)
+        isotope_mass_fraction /= norm_factor
 
         atomic_mass = None
         if elemental_mass is not None:
