@@ -76,14 +76,18 @@ class Composition:
     def __init__(
         self,
         density,
-        elemental_mass_fraction,
+        isotope_mass_fraction,
         atomic_mass,
         atomic_mass_unit=u.g,
     ):
         self.density = density
-        self.elemental_mass_fraction = elemental_mass_fraction
+        self.isotope_mass_fraction = isotope_mass_fraction
         self.atomic_mass_unit = atomic_mass_unit
         self._atomic_mass = atomic_mass
+
+    @property
+    def elemental_mass_fraction(self):
+        return self.isotope_mass_fraction.as_atoms()
 
     @property
     def atomic_mass(self):
@@ -246,6 +250,19 @@ class Radial1DModel(HDFWriterMixin):
         self.raw_abundance = self._abundance
         self.raw_isotope_abundance = isotope_abundance
 
+        multi_index_tuples = []
+        for atomic_number in self.raw_abundance.index:
+            multi_index_tuples.append((atomic_number, -1))
+        multi_index = pd.MultiIndex.from_tuples(
+            multi_index_tuples, names=["atomic_number", "mass_number"]
+        )
+
+        raw_abundance = self.raw_abundance.set_index(multi_index)
+
+        isotope_mass_fraction = self.raw_isotope_abundance.decay(13).add(
+            raw_abundance, fill_value=0
+        )
+
         atomic_mass = None
         if elemental_mass is not None:
             mass = {}
@@ -283,7 +300,7 @@ class Radial1DModel(HDFWriterMixin):
 
         composition = Composition(
             density=density,
-            elemental_mass_fraction=self.abundance,
+            isotope_mass_fraction=isotope_mass_fraction,
             atomic_mass=atomic_mass,
         )
         geometry = Radial1DGeometry(
