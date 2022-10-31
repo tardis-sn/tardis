@@ -1,3 +1,4 @@
+import stat
 import pandas as pd
 import numpy as np
 
@@ -24,17 +25,16 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         number_density,
         ):
 
-        photo_ion_rate, rad_recomb_rate_coeff, coll_ion_coefficient, coll_recomb_coefficient = self.prepare_ion_recomb_rates_nlte_ion(gamma, alpha_sp,     alpha_stim, coll_ion_coeff, coll_recomb_coeff, partition_function, levels, level_boltzmann_factor)
+        photo_ion_rate, rad_recomb_rate_coeff, coll_ion_coefficient, coll_recomb_coefficient = NLTERateEquationSolver.prepare_ion_recomb_rates_nlte_ion(gamma, alpha_sp,     alpha_stim, coll_ion_coeff, coll_recomb_coeff, partition_function, levels, level_boltzmann_factor)
         
         #>>>TODO:initial electron density should be included in the initial guess, added in a future PR
         initial_electron_density = number_density.sum(axis=0)
         #<<<
-        rate_matrix = self.calculate_rate_matrix(phi[0], initial_electron_density[0], rate_matrix_index, photo_ion_rate[0], rad_recomb_rate_coeff[0], coll_ion_coefficient[0], coll_recomb_coefficient[0])
+        rate_matrix = NLTERateEquationSolver.calculate_rate_matrix(phi[0], initial_electron_density[0], rate_matrix_index, photo_ion_rate[0], rad_recomb_rate_coeff[0], coll_ion_coefficient[0], coll_recomb_coefficient[0])
         return -1, -1
 
-
+    @staticmethod
     def calculate_rate_matrix(
-        self,
         phi_shell,
         electron_density,
         rate_matrix_index,
@@ -53,7 +53,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         for atomic_number in atomic_numbers:
             ion_numbers = rate_matrix.loc[atomic_number].index.get_level_values(0)
             phi_block = phi_shell.loc[atomic_number]
-            rate_matrix_block = self.lte_rate_matrix_block(phi_block, electron_density)
+            rate_matrix_block = NLTERateEquationSolver.lte_rate_matrix_block(phi_block, electron_density)
 
             nlte_ion_numbers = ion_numbers[
                 rate_matrix.loc[atomic_number].index.get_level_values(1) == "nlte_ion"
@@ -62,7 +62,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
                 rate_matrix.loc[atomic_number].index.get_level_values(1) == "lte_ion"
             ]
             for ion_number in nlte_ion_numbers:
-                rate_matrix_block = self.set_nlte_ion_rate(
+                rate_matrix_block = NLTERateEquationSolver.set_nlte_ion_rate(
                     rate_matrix_block,
                     atomic_number,
                     ion_number,
@@ -75,13 +75,12 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
                 (atomic_number, slice(None)), (atomic_number)
             ] = rate_matrix_block
         
-        last_row = self.prepare_last_row(atomic_numbers)
+        last_row = NLTERateEquationSolver.prepare_last_row(atomic_numbers)
         rate_matrix.loc[("n_e", slice(None))] = last_row
         return rate_matrix
 
-
+    @staticmethod
     def set_nlte_ion_rate(
-        self,
         rate_matrix_block,
         atomic_number,
         ion_number,
@@ -95,15 +94,16 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         if atomic_number == ion_number:
             rate_matrix_block[ion_number, :] = 1.0
         else:
-            ion_rate_matrix = self.ion_matrix(ion_rates, atomic_number)
-            recomb_rate_matrix = self.recomb_matrix(recomb_rate, atomic_number)
+            ion_rate_matrix = NLTERateEquationSolver.ion_matrix(ion_rates, atomic_number)
+            recomb_rate_matrix = NLTERateEquationSolver.recomb_matrix(recomb_rate, atomic_number)
             rate_matrix_block[ion_number, :] = (ion_rate_matrix + recomb_rate_matrix)[
                 ion_number, :
             ]
         return rate_matrix_block
 
 
-    def lte_rate_matrix_block(self, phi_block, electron_density):
+    @staticmethod
+    def lte_rate_matrix_block(phi_block, electron_density):
         lte_rate_vector_block = -1.0 * np.hstack([*phi_block.values, -1.0])
         lte_rate_matrix_block = np.diag(lte_rate_vector_block)
         n_e_initial = np.ones(len(phi_block)) * electron_density
@@ -113,25 +113,26 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         return lte_rate_matrix_block
 
 
-    def prepare_phi(self, phi):
+    @staticmethod
+    def prepare_phi(phi):
         phi[phi == 0.0] = 1.0e-10 * phi[phi > 0.0].min().min()
         return phi
 
-
-    def recomb_matrix(self, recomb_rate, atomic_number):
+    @staticmethod
+    def recomb_matrix(recomb_rate, atomic_number):
         offdiag = np.zeros(atomic_number)
         index = recomb_rate.index
         for i in index:
-            offdiag[i] = recomb_rate[i]
+            offdiag[i] = recomb_rate.loc[i]
         diag = np.hstack([np.zeros(1), -offdiag])
         return np.diag(diag) + np.diag(offdiag, k=1)
 
-
-    def ion_matrix(self, ion_rate, atomic_number):
+    @staticmethod
+    def ion_matrix(ion_rate, atomic_number):
         offdiag = np.zeros(atomic_number)
         index = ion_rate.index
         for i in index:
-            offdiag[i] = ion_rate[i]
+            offdiag[i] = ion_rate.loc[i]
         diag = np.hstack([-offdiag, np.zeros(1)])
         return np.diag(diag) + np.diag(offdiag, k=-1)
 
