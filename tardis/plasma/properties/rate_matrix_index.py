@@ -27,7 +27,9 @@ class NLTEIndexHelper(ProcessingPlasmaProperty):
         ).drop_duplicates()
         return rate_matrix_index
 
-    def calculate_rate_matrix_index(self, levels, nlte_ionization_species, nlte_excitation_species=[]):
+    def calculate_rate_matrix_index(
+        self, levels, nlte_ionization_species, nlte_excitation_species=[]
+    ):
         for level in levels:
             if level[:2] in nlte_ionization_species:
                 yield (*level[:2], "nlte_ion")
