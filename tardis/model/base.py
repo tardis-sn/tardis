@@ -18,10 +18,12 @@ from tardis.io.model_reader import (
 from tardis.io.config_validator import validate_dict
 from tardis.io.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
-from tardis.io.decay import IsotopeAbundances
 from tardis.model.density import HomologousDensity
 from tardis.model.geometry.radial1d import Radial1DGeometry
-from tardis.model.composition.composition import Composition
+from tardis.model.composition.composition import (
+    Composition,
+    IsotopeMassFraction,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -628,7 +630,7 @@ class Radial1DModel(HDFWriterMixin):
             abundance /= norm_factor
             isotope_abundance /= norm_factor
 
-        isotope_abundance = IsotopeAbundances(isotope_abundance)
+        isotope_abundance = IsotopeMassFraction(isotope_abundance)
 
         elemental_mass = None
         if atom_data is not None:
@@ -844,7 +846,7 @@ class Radial1DModel(HDFWriterMixin):
             isotope_abundance /= norm_factor
 
         # isotope_abundance = IsotopeAbundances(isotope_abundance)
-        isotope_abundance = IsotopeAbundances(
+        isotope_abundance = IsotopeMassFraction(
             isotope_abundance, time_0=csvy_model_config.model_isotope_time_0
         )
         # isotope_abundance.time_0 = csvy_model_config.model_isotope_time_0

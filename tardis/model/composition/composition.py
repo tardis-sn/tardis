@@ -40,14 +40,18 @@ class Composition:
     def atomic_mass(self):
         """Atomic mass of elements in each shell"""
         if self._atomic_mass is None:
-            raise AttributeError("ModelState was not provided elemental masses.")
+            raise AttributeError(
+                "ModelState was not provided elemental masses."
+            )
         return self._atomic_mass
 
     @property
     def elemental_number_density(self):
         """Elemental Number Density computed using the formula: (elemental_mass_fraction * density) / atomic mass"""
         if self.atomic_mass is None:
-            raise AttributeError("ModelState was not provided elemental masses.")
+            raise AttributeError(
+                "ModelState was not provided elemental masses."
+            )
         return (self.elemental_mass_fraction * self.density).divide(
             self.atomic_mass, axis=0
         )
@@ -138,7 +142,9 @@ class IsotopeMassFraction(pd.DataFrame):
         """
 
         inventories = self.to_inventories()
-        t_second = u.Quantity(t, u.day).to(u.s).value - self.time_0.to(u.s).value
+        t_second = (
+            u.Quantity(t, u.day).to(u.s).value - self.time_0.to(u.s).value
+        )
         decayed_inventories = [item.decay(t_second) for item in inventories]
         df = IsotopeMassFraction.from_inventories(decayed_inventories)
         df.sort_index(inplace=True)
