@@ -6,7 +6,7 @@ from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from tardis.io.config_reader import Configuration
 from tardis.model import Radial1DModel
-from tardis.io.decay import IsotopeAbundances
+from tardis.model.composition.composition import IsotopeMassFraction
 
 
 def data_path(filename):
@@ -277,7 +277,7 @@ def simple_isotope_abundance():
         [(6, 14), (12, 28)], names=["atomic_number", "mass_number"]
     )
     abundance = [[0.2] * 20] * 2
-    return IsotopeAbundances(abundance, index=index)
+    return IsotopeMassFraction(abundance, index=index)
 
 
 def test_model_decay(simple_isotope_abundance):
