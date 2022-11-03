@@ -67,7 +67,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         coll_ion_coefficient,
         coll_recomb_coefficient,
     ):
-        """_summary_
+        """
 
         Parameters
         ----------
