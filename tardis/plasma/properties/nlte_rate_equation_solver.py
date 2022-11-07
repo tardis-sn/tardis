@@ -154,8 +154,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
                 (atomic_number, slice(None)), (atomic_number)
             ] = rate_matrix_block
 
-        last_row = NLTERateEquationSolver.prepare_last_row(atomic_numbers)
-        rate_matrix.loc[("n_e", slice(None))] = last_row
+        charge_conservation_row = NLTERateEquationSolver.prepare_charge_conservation_row(atomic_numbers)
+        rate_matrix.loc[("n_e", slice(None))] = charge_conservation_row
         return rate_matrix
 
     @staticmethod
@@ -283,14 +283,14 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         return np.diag(diag) + np.diag(offdiag, k=-1)
 
     @staticmethod
-    def prepare_last_row(atomic_numbers):
+    def prepare_charge_conservation_row(atomic_numbers):
         """Prepares the last row of the rate_matrix. This row corresponds to the charge density equation."""
-        last_row = []
+        charge_conservation_row = []
         for atomic_number in atomic_numbers:
-            last_row.append(np.arange(0.0, atomic_number + 1))
-        last_row = np.hstack([*last_row, -1])
+            charge_conservation_row.append(np.arange(0.0, atomic_number + 1))
+        charge_conservation_row = np.hstack([*charge_conservation_row, -1])
         # TODO needs to be modified for use in nlte_excitation
-        return last_row
+        return charge_conservation_row
 
     @staticmethod
     def prepare_ion_recomb_rates_nlte_ion(
