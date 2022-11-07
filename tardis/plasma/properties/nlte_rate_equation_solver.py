@@ -310,7 +310,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             np.arange(partition_function.shape[0]),
             index=partition_function.index,
         )
-        _ion2level_idx = indexer.loc[levels.droplevel(2)].values
+        _ion2level_idx = indexer.loc[levels.droplevel("level_number")].values
         partition_function_broadcast = partition_function.values[_ion2level_idx]
         level_population_fraction = pd.DataFrame(
             level_boltzmann_factor.values / partition_function_broadcast,
@@ -318,12 +318,11 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         )
         photo_ion_rate = (
             (level_population_fraction.loc[gamma.index] * gamma)
-            .groupby(level=(0, 1))
+            .groupby(level=("atomic_number", "ion_number"))
             .sum()
         )
         rad_recomb_rate_coeff = (
-            alpha_sp.groupby(level=[0, 1]).sum()
-            + alpha_stim.groupby(level=[0, 1]).sum()
+            (alpha_sp + alpha_stim).groupby(level=["atomic_number", "ion_number"]).sum()
         )
         coll_ion_coefficient = (
             (
@@ -334,7 +333,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             .sum()
         )
         coll_recomb_coefficient = (
-            (coll_recomb_coeff).groupby(level=(0, 1)).sum()
+            (coll_recomb_coeff).groupby(level=("atomic_number", "ion_number")).sum()
         )
         return (
             photo_ion_rate,
