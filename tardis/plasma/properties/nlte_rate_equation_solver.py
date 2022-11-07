@@ -66,7 +66,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         # >>>TODO:initial electron density should be included in the initial guess, added in a future PR
         initial_electron_density = number_density.sum(axis=0)
         # <<<
-        rate_matrix = NLTERateEquationSolver.calculate_rate_matrix(
+        rate_matrix = self.calculate_rate_matrix(
             phi[0],
             initial_electron_density[0],
             rate_matrix_index,
@@ -182,9 +182,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Rad. recomb. rate for current atomic number
         photo_ion_rates : DataFrame
             Photo ion. rate for current atomic number
-        coll_ion_rate : _type_
+        coll_ion_rate : DataFrame
             Coll. ion. rate for current atomic number
-        coll_recomb_rate : _type_
+        coll_recomb_rate : DataFrame
             Coll. recomb. rate for current atomic number
 
         Returns
