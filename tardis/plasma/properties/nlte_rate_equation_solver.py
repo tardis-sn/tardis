@@ -197,15 +197,15 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         ion_coefficients = total_photo_ion_coefficients + total_coll_ion_coefficients
         recomb_coefficients = total_rad_recomb_coefficients + total_coll_recomb_coefficients
         if atomic_number != ion_number:
-            ion_coeff_matrix = NLTERateEquationSolver.ion_matrix(
-                ion_coefficients, atomic_number
+            ion_coeff_matrix_ion_row = NLTERateEquationSolver.ion_matrix(
+                ion_coefficients, atomic_number, ion_number
             )
-            recomb_coeff_matrix = NLTERateEquationSolver.recomb_matrix(
-                recomb_coefficients, atomic_number
+            recomb_coeff_matrix_ion_row = NLTERateEquationSolver.recomb_matrix(
+                recomb_coefficients, atomic_number, ion_number
             )
             rate_matrix_block[ion_number, :] = (
-                ion_coeff_matrix + recomb_coeff_matrix
-            )[ion_number, :]
+                ion_coeff_matrix_ion_row + recomb_coeff_matrix_ion_row
+            )
         return rate_matrix_block
 
     @staticmethod
@@ -241,7 +241,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         return phi
 
     @staticmethod
-    def recomb_matrix(recomb_coefficients, atomic_number):
+    def recomb_matrix(recomb_coefficients, atomic_number, ion_number):
         """Constructs a recombination rate matrix from the recombination rates.
 
         Parameters
@@ -250,6 +250,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Recombination coefficients.
         atomic_number : int64
             Current atomic number. Used for the dimension of a square matrix.
+        ion_number : int64
+            Current ion number. Used for returning the correct row.
 
         Returns
         -------
@@ -260,10 +262,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         for i in index:
             offdiag[i] = recomb_coefficients.loc[i]
         diag = np.hstack([np.zeros(1), -offdiag])
-        return np.diag(diag) + np.diag(offdiag, k=1)
+        return (np.diag(diag) + np.diag(offdiag, k=1))[ion_number, :]
 
     @staticmethod
-    def ion_matrix(ion_coefficients, atomic_number):
+    def ion_matrix(ion_coefficients, atomic_number, ion_number):
         """Constructs an ionization rate matrix from the ionization rates.
 
         Parameters
@@ -272,6 +274,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Recombination coefficients.
         atomic_number : int64
             Current atomic number. Used for the dimension of a square matrix.
+        ion_number : int64
+            Current ion number. Used for returning the correct row.
 
         Returns
         -------
@@ -282,7 +286,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         for i in index:
             offdiag[i] = ion_coefficients.loc[i]
         diag = np.hstack([-offdiag, np.zeros(1)])
-        return np.diag(diag) + np.diag(offdiag, k=-1)
+        return (np.diag(diag) + np.diag(offdiag, k=-1))[ion_number, :]
 
     @staticmethod
     def prepare_charge_conservation_row(atomic_numbers):
