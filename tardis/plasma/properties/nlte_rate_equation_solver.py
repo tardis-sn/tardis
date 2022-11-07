@@ -26,6 +26,27 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         rate_matrix_index,
         number_density,
     ):
+        """Calculates ion number densities and electron densities using NLTE ionization.
+
+        Parameters
+        ----------
+        gamma : DataFrame
+        alpha_sp : DataFrame
+        alpha_stim : DataFrame
+        coll_ion_coeff : DataFrame
+        coll_recomb_coeff : DataFrame
+        partition_function : DataFrame
+        levels : MultiIndex
+        level_boltzmann_factor : DataFrame
+        phi : DataFrame
+        rate_matrix_index : MultiIndex
+        number_density : DataFrame
+
+        Returns
+        -------
+        ion_number_densities_nlte: DataFrame
+        electron_densities_nlte: Series
+        """
 
         (
             photo_ion_rate,
@@ -55,7 +76,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             coll_ion_coefficient[0],
             coll_recomb_coefficient[0],
         )
-        return -1, -1
+        return -1, -1 #function still empty, that's why return statement is arbitrary at this point
 
     @staticmethod
     def calculate_rate_matrix(
@@ -211,11 +232,27 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
     @staticmethod
     def prepare_phi(phi):
+        """
+        Makes sure that phi does not have any 0 entries.
+        """
         phi[phi == 0.0] = 1.0e-10 * phi[phi > 0.0].min().min()
         return phi
 
     @staticmethod
     def recomb_matrix(recomb_rate, atomic_number):
+        """Constructs a recombination rate matrix from the recombination rates.
+
+        Parameters
+        ----------
+        recomb_rate : DataFrame
+            Recombination rates.
+        atomic_number : int64
+            Current atomic number. Used for the dimension of a square matrix.
+
+        Returns
+        -------
+        numpy.ndarray
+        """
         offdiag = np.zeros(atomic_number)
         index = recomb_rate.index
         for i in index:
@@ -225,6 +262,19 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
     @staticmethod
     def ion_matrix(ion_rate, atomic_number):
+        """Constructs an ionization rate matrix from the ionization rates.
+
+        Parameters
+        ----------
+        recomb_rate : DataFrame
+            Recombination rates.
+        atomic_number : int64
+            Current atomic number. Used for the dimension of a square matrix.
+
+        Returns
+        -------
+        numpy.ndarray
+        """
         offdiag = np.zeros(atomic_number)
         index = ion_rate.index
         for i in index:
@@ -234,6 +284,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
     @staticmethod
     def prepare_last_row(atomic_numbers):
+        """Prepares the last row of the rate_matrix. This row corresponds to the charge density equation.
+        """
         last_row = []
         for atomic_number in atomic_numbers:
             last_row.append(np.arange(0.0, atomic_number + 1))
@@ -252,6 +304,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         levels,
         level_boltzmann_factor,
     ):
+        """
+        Prepares the ionization and recombination rates/coefficients by grouping them for ion numbers.
+        """
         indexer = pd.Series(
             np.arange(partition_function.shape[0]),
             index=partition_function.index,
