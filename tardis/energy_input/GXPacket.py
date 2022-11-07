@@ -94,7 +94,7 @@ def initialize_packet_properties(
     effective_times,
     inventory,
     average_power_per_mass,
-    uniform_packet_energies=False,
+    uniform_packet_energies=True,
 ):
     """Initialize the properties of an individual packet
 

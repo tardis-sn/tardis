@@ -33,6 +33,8 @@ def setup_input_energy(nuclear_data, source):
     intensity = nuclear_data.query("type==" + source)["intensity"].to_numpy()
     energy = nuclear_data.query("type==" + source)["energy"].to_numpy()
 
+    intensity = [i / 100 if i > 1 else i for i in intensity]
+
     return energy, intensity
 
 
@@ -187,12 +189,9 @@ def get_nuclear_lines_database(
     -------
     pandas DataFrame
         The decay radiation lines
-    pandas DataFrame
-        Meta information
     """
     decay_radiation_db = pd.read_hdf(path, "decay_radiation")
-    meta = pd.read_hdf(path, "metadata")
-    return decay_radiation_db, meta
+    return decay_radiation_db
 
 
 def positronium_continuum():

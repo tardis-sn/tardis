@@ -25,6 +25,10 @@ from tardis.energy_input.gamma_packet_loop import gamma_packet_loop
 # time: s
 
 
+def get_nuclide_atomic_number(nuclide):
+    return rd.Nuclide(nuclide).Z
+
+
 def get_chain_decay_power_per_ejectamass(
     inventory,
     time,
@@ -214,7 +218,7 @@ def initialize_packets(
                     initial_radii[i],
                     times,
                     effective_times,
-                    inventories[i],
+                    inventories[k],
                     average_power_per_mass,
                 )
 
@@ -338,7 +342,9 @@ def main_gamma_ray_loop(
     )
     time_explosion = model.time_explosion.to("s").value
     number_of_shells = model.no_of_shells
-    raw_isotope_abundance = model.raw_isotope_abundance
+    raw_isotope_abundance = model.raw_isotope_abundance.sort_values(
+        by=["atomic_number", "mass_number"], ascending=False
+    )
 
     shell_masses = ejecta_volume * ejecta_density
 
@@ -369,9 +375,11 @@ def main_gamma_ray_loop(
 
     # Use isotopic number density
     for atom_number in plasma.isotope_number_density.index.get_level_values(0):
-        plasma.number_density.loc[
-            atom_number
-        ] = plasma.isotope_number_density.loc[atom_number].values
+        values = plasma.isotope_number_density.loc[atom_number].values
+        if values.shape[1] > 1:
+            plasma.number_density.loc[atom_number] = np.sum(values, axis=0)
+        else:
+            plasma.number_density.loc[atom_number] = values
 
     # Calculate electron number density
     electron_number_density = (
@@ -410,9 +418,7 @@ def main_gamma_ray_loop(
     all_isotope_names = get_all_isotopes(raw_isotope_abundance)
     all_isotope_names.sort()
 
-    gamma_ray_lines, isotope_metadata = get_nuclear_lines_database(
-        path_to_decay_data
-    )
+    gamma_ray_lines = get_nuclear_lines_database(path_to_decay_data)
 
     taus = {}
     parents = {}
@@ -432,13 +438,13 @@ def main_gamma_ray_loop(
         energy, intensity = setup_input_energy(
             gamma_ray_lines.loc[isotope.replace("-", "")], "'gamma_rays'"
         )
-        gamma_ray_line_array_list.append(np.stack([energy, intensity / 100]))
-        average_energies_list.append(np.sum(energy * intensity / 100))
+        gamma_ray_line_array_list.append(np.stack([energy, intensity]))
+        average_energies_list.append(np.sum(energy * intensity))
         positron_energy, positron_intensity = setup_input_energy(
             gamma_ray_lines.loc[isotope.replace("-", "")], "'e+'"
         )
         average_positron_energies_list.append(
-            np.sum(positron_energy * positron_intensity / 100)
+            np.sum(positron_energy * positron_intensity)
         )
 
     # Construct Numba typed dicts
@@ -463,18 +469,40 @@ def main_gamma_ray_loop(
         decayed_energy = {}
         total_decays = inv.cumulative_decays(time_end)
         for nuclide in total_decays:
-            decayed_energy[nuclide] = (
-                total_decays[nuclide]
-                * average_energies[nuclide]
-                * shell_masses[shell]
-            )
+            if nuclide in parents and nuclide != "Co-56" and nuclide != "Co-57":
+                parent = parents[nuclide]
+                if parent in parents:
+                    parent = parents[parent]
+                decayed_energy[parent] += (
+                    total_decays[nuclide]
+                    * average_energies[nuclide]
+                    * shell_masses[shell]
+                )
+            else:
+                decayed_energy[nuclide] = (
+                    total_decays[nuclide]
+                    * average_energies[nuclide]
+                    * shell_masses[shell]
+                )
 
         total_energy_list.append(decayed_energy)
 
     total_energy = pd.DataFrame(total_energy_list)
 
+    total_energy_columns = total_energy.columns.to_list()
+
+    total_energy = total_energy[
+        sorted(
+            total_energy_columns, key=get_nuclide_atomic_number, reverse=True
+        )
+    ]
+
+    print(total_energy)
+    print((raw_isotope_abundance * shell_masses).T)
+
     energy_per_mass = total_energy.divide(
-        (raw_isotope_abundance * shell_masses).T.to_numpy(), axis=0
+        (raw_isotope_abundance * shell_masses).T.to_numpy(),
+        axis=0,
     )
 
     # Time averaged energy per mass for constant packet count
@@ -573,7 +601,7 @@ def main_gamma_ray_loop(
     print("Total RF energy")
     print(total_rf_energy)
 
-    energy_bins = np.logspace(2, 4, spectrum_bins)
+    energy_bins = np.logspace(2, 3.5, spectrum_bins)
     energy_out = np.zeros((len(energy_bins - 1), time_steps))
 
     # Process packets
