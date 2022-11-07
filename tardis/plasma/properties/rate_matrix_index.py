@@ -14,6 +14,19 @@ class NLTEIndexHelper(ProcessingPlasmaProperty):
         self.nlte_ionization_species = nlte_ionization_species
 
     def calculate(self, levels, nlte_ionization_species):
+        """Generates rate_matrix_index using levels and changing the last index(level) to "lte_ion" if that ion_number is treated in LTE, "nlte_ion" for NLTE ionizatin and keeps the levels for the rest.
+
+        Parameters
+        ----------
+        levels : MultiIndex
+            (Atomic number, Ion number, Level)
+        nlte_ionization_species : list
+            List of tuples for (atomic number, ion number) which are treated in NLTE ionization.
+
+        Returns
+        -------
+        MultiIndex
+        """
         nlte_excitation_species = []  # not yet implemented
         rate_matrix_index = pd.MultiIndex.from_tuples(
             list(

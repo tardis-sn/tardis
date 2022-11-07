@@ -76,7 +76,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             coll_ion_coefficient[0],
             coll_recomb_coefficient[0],
         )
-        return -1, -1 #function still empty, that's why return statement is arbitrary at this point
+        return (
+            -1,
+            -1,
+        )  # function still empty, that's why return statement is arbitrary at this point
 
     @staticmethod
     def calculate_rate_matrix(
@@ -284,8 +287,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
     @staticmethod
     def prepare_last_row(atomic_numbers):
-        """Prepares the last row of the rate_matrix. This row corresponds to the charge density equation.
-        """
+        """Prepares the last row of the rate_matrix. This row corresponds to the charge density equation."""
         last_row = []
         for atomic_number in atomic_numbers:
             last_row.append(np.arange(0.0, atomic_number + 1))
