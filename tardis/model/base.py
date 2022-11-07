@@ -6,6 +6,7 @@ from astropy import units as u
 from tardis import constants
 import radioactivedecay as rd
 from radioactivedecay.utils import Z_DICT
+from tardis.model.geometry.radial1d import Radial1DGeometry
 
 from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
 from tardis.io.parsers.csvy import load_csvy
@@ -22,35 +23,6 @@ from tardis.io.decay import IsotopeAbundances
 from tardis.model.density import HomologousDensity
 
 logger = logging.getLogger(__name__)
-
-
-class Radial1DGeometry:
-    """
-    Holds information about model geometry for radial 1D models.
-
-    Parameters
-    ----------
-    r_inner : astropy.units.quantity.Quantity
-    r_outer : astropy.units.quantity.Quantity
-    v_inner : astropy.units.quantity.Quantity
-    v_outer : astropy.units.quantity.Quantity
-
-    Attributes
-    ----------
-    volume : astropy.units.quantity.Quantity
-        Volume in each shell
-    """
-
-    def __init__(self, r_inner, r_outer, v_inner, v_outer):
-        self.r_inner = r_inner
-        self.r_outer = r_outer
-        self.v_inner = v_inner
-        self.v_outer = v_outer
-
-    @property
-    def volume(self):
-        """Volume in shell computed from r_outer and r_inner"""
-        return (4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
 
 
 class Composition:
@@ -113,7 +85,7 @@ class ModelState:
     Parameters
     ----------
     composition : tardis.model.Composition
-    geometry : tardis.model.Radial1DGeometry
+    geometry : tardis.model.geometry.radial1d.Radial1DGeometry
     time_explosion : astropy.units.quantity.Quantity
 
     Attributes

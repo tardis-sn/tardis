@@ -8,6 +8,7 @@ import numpy.testing as ntest
 from tardis.util.base import intensity_black_body
 import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral
 from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 
 
 @pytest.mark.parametrize(
@@ -55,25 +56,32 @@ TESTDATA = [
 
 
 @pytest.fixture(scope="function", params=TESTDATA)
-def formal_integral_model(request):
+def formal_integral_geometry(request):
     r = request.param["r"]
-    model = NumbaModel(
+    geometry = NumbaRadial1DGeometry(
         r[:-1],
         r[1:],
         r[:-1] * c.c.cgs.value,
         r[1:] * c.c.cgs.value,
+    )
+    return geometry
+
+
+@pytest.fixture(scope="function")
+def formal_integral_model():
+    model = NumbaModel(
         1 / c.c.cgs.value,
     )
     return model
 
 
 @pytest.mark.parametrize("p", [0.0, 0.5, 1.0])
-def test_calculate_z(formal_integral_model, p):
+def test_calculate_z(formal_integral_geometry, formal_integral_model, p):
 
     func = formal_integral.calculate_z
     inv_t = 1.0 / formal_integral_model.time_explosion
-    size = len(formal_integral_model.r_outer)
-    r_outer = formal_integral_model.r_outer
+    size = len(formal_integral_geometry.r_outer)
+    r_outer = formal_integral_geometry.r_outer
     for r in r_outer:
 
         actual = func(r, p, inv_t)
@@ -85,7 +93,9 @@ def test_calculate_z(formal_integral_model, p):
 
 
 @pytest.mark.parametrize("p", [0, 0.5, 1])
-def test_populate_z_photosphere(formal_integral_model, p):
+def test_populate_z_photosphere(
+    formal_integral_geometry, formal_integral_model, p
+):
     """
     Test the case where p < r[0]
     That means we 'hit' all shells from inside to outside.
@@ -94,15 +104,15 @@ def test_populate_z_photosphere(formal_integral_model, p):
         formal_integral_model, None, None
     )
     func = formal_integral.populate_z
-    size = len(formal_integral_model.r_outer)
-    r_inner = formal_integral_model.r_inner
-    r_outer = formal_integral_model.r_outer
+    size = len(formal_integral_geometry.r_outer)
+    r_inner = formal_integral_geometry.r_inner
+    r_outer = formal_integral_geometry.r_outer
 
     p = r_inner[0] * p
     oz = np.zeros_like(r_inner)
     oshell_id = np.zeros_like(oz, dtype=np.int64)
 
-    N = func(formal_integral_model, p, oz, oshell_id)
+    N = func(formal_integral_geometry, formal_integral_model, p, oz, oshell_id)
     assert N == size
 
     ntest.assert_allclose(oshell_id, np.arange(0, size, 1))
@@ -111,7 +121,7 @@ def test_populate_z_photosphere(formal_integral_model, p):
 
 
 @pytest.mark.parametrize("p", [1e-5, 0.5, 0.99, 1])
-def test_populate_z_shells(formal_integral_model, p):
+def test_populate_z_shells(formal_integral_geometry, formal_integral_model, p):
     """
     Test the case where p > r[0]
     """
@@ -120,9 +130,9 @@ def test_populate_z_shells(formal_integral_model, p):
     )
     func = formal_integral.populate_z
 
-    size = len(formal_integral_model.r_inner)
-    r_inner = formal_integral_model.r_inner
-    r_outer = formal_integral_model.r_outer
+    size = len(formal_integral_geometry.r_inner)
+    r_inner = formal_integral_geometry.r_inner
+    r_outer = formal_integral_geometry.r_outer
 
     p = r_inner[0] + (r_outer[-1] - r_inner[0]) * p
     idx = np.searchsorted(r_outer, p, side="right")
@@ -148,7 +158,7 @@ def test_populate_z_shells(formal_integral_model, p):
         r_outer[np.arange(idx, size, 1)], p
     )
 
-    N = func(formal_integral_model, p, oz, oshell_id)
+    N = func(formal_integral_geometry, formal_integral_model, p, oz, oshell_id)
 
     assert N == expected_N
 

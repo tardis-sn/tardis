@@ -65,12 +65,14 @@ class VPacket(object):
 
 
 @njit(**njit_dict_no_parallel)
-def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
+def trace_vpacket_within_shell(
+    v_packet, numba_radial_1d_geometry, numba_model, numba_plasma
+):
     """
     Trace VPacket within one shell (relatively simple operation)
     """
-    r_inner = numba_model.r_inner[v_packet.current_shell_id]
-    r_outer = numba_model.r_outer[v_packet.current_shell_id]
+    r_inner = numba_radial_1d_geometry.r_inner[v_packet.current_shell_id]
+    r_outer = numba_radial_1d_geometry.r_outer[v_packet.current_shell_id]
 
     distance_boundary, delta_shell = calculate_distance_boundary(
         v_packet.r, v_packet.mu, r_inner, r_outer
@@ -133,7 +135,9 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
 
 
 @njit(**njit_dict_no_parallel)
-def trace_vpacket(v_packet, numba_model, numba_plasma):
+def trace_vpacket(
+    v_packet, numba_radial_1d_geometry, numba_model, numba_plasma
+):
     """
     Trace single vpacket.
     Parameters
@@ -153,11 +157,13 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
             tau_trace_combined_shell,
             distance_boundary,
             delta_shell,
-        ) = trace_vpacket_within_shell(v_packet, numba_model, numba_plasma)
+        ) = trace_vpacket_within_shell(
+            v_packet, numba_radial_1d_geometry, numba_model, numba_plasma
+        )
         tau_trace_combined += tau_trace_combined_shell
 
         move_packet_across_shell_boundary(
-            v_packet, delta_shell, len(numba_model.r_inner)
+            v_packet, delta_shell, len(numba_radial_1d_geometry.r_inner)
         )
 
         if tau_trace_combined > montecarlo_configuration.tau_russian:
@@ -189,7 +195,11 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
 
 @njit(**njit_dict_no_parallel)
 def trace_vpacket_volley(
-    r_packet, vpacket_collection, numba_model, numba_plasma
+    r_packet,
+    vpacket_collection,
+    numba_radial_1d_geometry,
+    numba_model,
+    numba_plasma,
 ):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many)
@@ -200,6 +210,8 @@ def trace_vpacket_volley(
     r_packet : [type]
         [description]
     vpacket_collection : [type]
+        [description]
+    numba_radial_1d_geometry : [type]
         [description]
     numba_model : [type]
         [description]
@@ -218,8 +230,10 @@ def trace_vpacket_volley(
         return
 
     ### TODO theoretical check for r_packet nu within vpackets bins - is done somewhere else I think
-    if r_packet.r > numba_model.r_inner[0]:  # not on inner_boundary
-        r_inner_over_r = numba_model.r_inner[0] / r_packet.r
+    if (
+        r_packet.r > numba_radial_1d_geometry.r_inner[0]
+    ):  # not on inner_boundary
+        r_inner_over_r = numba_radial_1d_geometry.r_inner[0] / r_packet.r
         mu_min = -math.sqrt(1 - r_inner_over_r * r_inner_over_r)
         v_packet_on_inner_boundary = False
         if montecarlo_configuration.full_relativity:
@@ -272,7 +286,9 @@ def trace_vpacket_volley(
             i,
         )
 
-        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma)
+        tau_vpacket = trace_vpacket(
+            v_packet, numba_radial_1d_geometry, numba_model, numba_plasma
+        )
 
         v_packet.energy *= math.exp(-tau_vpacket)
 
