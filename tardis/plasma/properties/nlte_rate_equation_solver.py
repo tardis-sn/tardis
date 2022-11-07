@@ -121,7 +121,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         coll_ion_rates = coll_ion_coefficient * electron_density
         coll_recomb_rates = coll_recomb_coefficient * electron_density**2
         atomic_numbers = (
-            rate_matrix_index.get_level_values(0).unique()[:-1].values
+            rate_matrix_index.get_level_values(0).unique().drop("n_e")
         )  # dropping the n_e index
         for atomic_number in atomic_numbers:
             ion_numbers = rate_matrix.loc[atomic_number].index.get_level_values(
