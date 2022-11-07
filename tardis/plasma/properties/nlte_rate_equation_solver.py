@@ -107,7 +107,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         coll_ion_coefficient : DataFrame
             Collisionional ionization coefficients(should get multiplied by electron density)
         coll_recomb_coefficient : DataFrame
-            Collisionional recombination coefficients(should get multiplied by electron density^2)
+            Collisional recombination coefficients (should get multiplied by electron density^2)
 
         Returns
         -------
