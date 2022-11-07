@@ -117,9 +117,15 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         rate_matrix = pd.DataFrame(
             0.0, columns=rate_matrix_index, index=rate_matrix_index
         )
-        total_rad_recomb_coefficients = total_rad_recomb_coefficients * electron_density
-        total_coll_ion_coefficients = total_coll_ion_coefficients * electron_density
-        total_coll_recomb_coefficients = total_coll_recomb_coefficients * electron_density**2
+        total_rad_recomb_coefficients = (
+            total_rad_recomb_coefficients * electron_density
+        )
+        total_coll_ion_coefficients = (
+            total_coll_ion_coefficients * electron_density
+        )
+        total_coll_recomb_coefficients = (
+            total_coll_recomb_coefficients * electron_density**2
+        )
         atomic_numbers = (
             rate_matrix_index.get_level_values(0).unique().drop("n_e")
         )  # dropping the n_e index
@@ -141,7 +147,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
                 rate_matrix.loc[atomic_number].index.get_level_values(1)
                 == "lte_ion"
             ]
-            #<<<
+            # <<<
             for ion_number in nlte_ion_numbers:
                 rate_matrix_block = NLTERateEquationSolver.set_nlte_ion_rate(
                     rate_matrix_block,
@@ -156,7 +162,11 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
                 (atomic_number, slice(None)), (atomic_number)
             ] = rate_matrix_block
 
-        charge_conservation_row = NLTERateEquationSolver.prepare_charge_conservation_row(atomic_numbers)
+        charge_conservation_row = (
+            NLTERateEquationSolver.prepare_charge_conservation_row(
+                atomic_numbers
+            )
+        )
         rate_matrix.loc[("n_e", slice(None))] = charge_conservation_row
         return rate_matrix
 
@@ -194,8 +204,12 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         numpy.array
             Rate matrix block with a changed row for NLTE ionization treatment
         """
-        ion_coefficients = total_photo_ion_coefficients + total_coll_ion_coefficients
-        recomb_coefficients = total_rad_recomb_coefficients + total_coll_recomb_coefficients
+        ion_coefficients = (
+            total_photo_ion_coefficients + total_coll_ion_coefficients
+        )
+        recomb_coefficients = (
+            total_rad_recomb_coefficients + total_coll_recomb_coefficients
+        )
         if atomic_number != ion_number:
             ion_coeff_matrix_ion_row = NLTERateEquationSolver.ion_matrix(
                 ion_coefficients, atomic_number, ion_number
@@ -328,7 +342,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             .sum()
         )
         total_rad_recomb_coefficients = (
-            (alpha_sp + alpha_stim).groupby(level=["atomic_number", "ion_number"]).sum()
+            (alpha_sp + alpha_stim)
+            .groupby(level=["atomic_number", "ion_number"])
+            .sum()
         )
         total_coll_ion_coefficients = (
             (
@@ -339,7 +355,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             .sum()
         )
         total_coll_recomb_coefficients = (
-            (coll_recomb_coeff).groupby(level=("atomic_number", "ion_number")).sum()
+            (coll_recomb_coeff)
+            .groupby(level=("atomic_number", "ion_number"))
+            .sum()
         )
         return (
             total_photo_ion_coefficients,
