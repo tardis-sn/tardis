@@ -6,6 +6,9 @@ from tardis.plasma.properties import NLTERateEquationSolver
 
 
 def test_rate_matrix():
+    """
+    Using a simple case of nlte_ion for HI and HeII, checks if the calculate_rate_matrix generates the correct data.
+    """
 
     simple_index_nlte_ion = pd.MultiIndex.from_tuples(
         [(1, 0), (2, 1)], names=("atomic_number", "ion_number")
