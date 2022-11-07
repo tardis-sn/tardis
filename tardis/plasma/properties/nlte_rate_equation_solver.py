@@ -194,9 +194,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         """
         ion_rates = photo_ion_rates + coll_ion_rate
         recomb_rate = radiative_recombination_rate + coll_recomb_rate
-        if atomic_number == ion_number:
-            rate_matrix_block[ion_number, :] = 1.0
-        else:
+        if atomic_number != ion_number:
             ion_rate_matrix = NLTERateEquationSolver.ion_matrix(
                 ion_rates, atomic_number
             )
