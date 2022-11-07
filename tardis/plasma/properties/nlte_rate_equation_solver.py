@@ -48,11 +48,11 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         """
 
         (
-            photo_ion_rate,
-            rad_recomb_rate_coeff,
-            coll_ion_coefficient,
-            coll_recomb_coefficient,
-        ) = NLTERateEquationSolver.prepare_ion_recomb_rates_nlte_ion(
+            total_photo_ion_coefficients,
+            total_rad_recomb_coefficients,
+            total_coll_ion_coefficients,
+            total_coll_recomb_coefficients,
+        ) = self.prepare_ion_recomb_coefficients_nlte_ion(
             gamma,
             alpha_sp,
             alpha_stim,
@@ -70,10 +70,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             phi[0],
             initial_electron_density[0],
             rate_matrix_index,
-            photo_ion_rate[0],
-            rad_recomb_rate_coeff[0],
-            coll_ion_coefficient[0],
-            coll_recomb_coefficient[0],
+            total_photo_ion_coefficients[0],
+            total_rad_recomb_coefficients[0],
+            total_coll_ion_coefficients[0],
+            total_coll_recomb_coefficients[0],
         )
         return (
             -1,
@@ -85,10 +85,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         phi_shell,
         electron_density,
         rate_matrix_index,
-        photo_ion_rate,
-        rad_recomb_rate_coeff,
-        coll_ion_coefficient,
-        coll_recomb_coefficient,
+        total_photo_ion_coefficients,
+        total_rad_recomb_coefficients,
+        total_coll_ion_coefficients,
+        total_coll_recomb_coefficients,
     ):
         """
 
@@ -100,13 +100,13 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Guess for electron density in the current shell
         rate_matrix_index : MultiIndex
             Index used for constructing the rate matrix
-        photo_ion_rate : DataFrame
-            Photo ionization rates
-        rad_recomb_rate_coeff : DataFrame
+        total_photo_ion_coefficients : DataFrame
+            Photo ionization coefficients
+        total_rad_recomb_coefficients : DataFrame
             Radiative recombination coefficients(should get multiplied by electron density)
-        coll_ion_coefficient : DataFrame
+        total_coll_ion_coefficients : DataFrame
             Collisionional ionization coefficients(should get multiplied by electron density)
-        coll_recomb_coefficient : DataFrame
+        total_coll_recomb_coefficients : DataFrame
             Collisional recombination coefficients (should get multiplied by electron density^2)
 
         Returns
@@ -117,9 +117,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         rate_matrix = pd.DataFrame(
             0.0, columns=rate_matrix_index, index=rate_matrix_index
         )
-        rad_recomb_rates = rad_recomb_rate_coeff * electron_density
-        coll_ion_rates = coll_ion_coefficient * electron_density
-        coll_recomb_rates = coll_recomb_coefficient * electron_density**2
+        total_rad_recomb_coefficients = total_rad_recomb_coefficients * electron_density
+        total_coll_ion_coefficients = total_coll_ion_coefficients * electron_density
+        total_coll_recomb_coefficients = total_coll_recomb_coefficients * electron_density**2
         atomic_numbers = (
             rate_matrix_index.get_level_values(0).unique().drop("n_e")
         )  # dropping the n_e index
@@ -136,19 +136,21 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
                 rate_matrix.loc[atomic_number].index.get_level_values(1)
                 == "nlte_ion"
             ]
+            # >>> lte_ion_numbers is for future use in NLTE excitation treatment
             lte_ion_numbers = ion_numbers[
                 rate_matrix.loc[atomic_number].index.get_level_values(1)
                 == "lte_ion"
             ]
+            #<<<
             for ion_number in nlte_ion_numbers:
                 rate_matrix_block = NLTERateEquationSolver.set_nlte_ion_rate(
                     rate_matrix_block,
                     atomic_number,
                     ion_number,
-                    rad_recomb_rates.loc[(atomic_number,)],
-                    photo_ion_rate.loc[(atomic_number,)],
-                    coll_ion_rates.loc[(atomic_number,)],
-                    coll_recomb_rates.loc[(atomic_number,)],
+                    total_rad_recomb_coefficients.loc[(atomic_number,)],
+                    total_photo_ion_coefficients.loc[(atomic_number,)],
+                    total_coll_ion_coefficients.loc[(atomic_number,)],
+                    total_coll_recomb_coefficients.loc[(atomic_number,)],
                 )
             rate_matrix.loc[
                 (atomic_number, slice(None)), (atomic_number)
@@ -163,10 +165,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         rate_matrix_block,
         atomic_number,
         ion_number,
-        radiative_recombination_rate,
-        photo_ion_rates,
-        coll_ion_rate,
-        coll_recomb_rate,
+        total_rad_recomb_coefficients,
+        total_photo_ion_coefficients,
+        total_coll_ion_coefficients,
+        total_coll_recomb_coefficients,
     ):
         """Calculates the row for the species treated in NLTE ionization
 
@@ -178,31 +180,31 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Current atomic number
         ion_number : int
             Current ion number
-        radiative_recombination_rate : DataFrame
-            Rad. recomb. rate for current atomic number
-        photo_ion_rates : DataFrame
-            Photo ion. rate for current atomic number
-        coll_ion_rate : DataFrame
-            Coll. ion. rate for current atomic number
-        coll_recomb_rate : DataFrame
-            Coll. recomb. rate for current atomic number
+        total_rad_recomb_coefficients : DataFrame
+            Rad. recomb. coefficients for current atomic number
+        total_photo_ion_coefficients : DataFrame
+            Photo ion. coefficients for current atomic number
+        total_coll_ion_coefficients : DataFrame
+            Coll. ion. coefficients for current atomic number
+        total_coll_recomb_coefficients : DataFrame
+            Coll. recomb. coefficients for current atomic number
 
         Returns
         -------
         numpy.array
             Rate matrix block with a changed row for NLTE ionization treatment
         """
-        ion_rates = photo_ion_rates + coll_ion_rate
-        recomb_rate = radiative_recombination_rate + coll_recomb_rate
+        ion_coefficients = total_photo_ion_coefficients + total_coll_ion_coefficients
+        recomb_coefficients = total_rad_recomb_coefficients + total_coll_recomb_coefficients
         if atomic_number != ion_number:
-            ion_rate_matrix = NLTERateEquationSolver.ion_matrix(
-                ion_rates, atomic_number
+            ion_coeff_matrix = NLTERateEquationSolver.ion_matrix(
+                ion_coefficients, atomic_number
             )
-            recomb_rate_matrix = NLTERateEquationSolver.recomb_matrix(
-                recomb_rate, atomic_number
+            recomb_coeff_matrix = NLTERateEquationSolver.recomb_matrix(
+                recomb_coefficients, atomic_number
             )
             rate_matrix_block[ion_number, :] = (
-                ion_rate_matrix + recomb_rate_matrix
+                ion_coeff_matrix + recomb_coeff_matrix
             )[ion_number, :]
         return rate_matrix_block
 
@@ -239,13 +241,13 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         return phi
 
     @staticmethod
-    def recomb_matrix(recomb_rate, atomic_number):
+    def recomb_matrix(recomb_coefficients, atomic_number):
         """Constructs a recombination rate matrix from the recombination rates.
 
         Parameters
         ----------
-        recomb_rate : DataFrame
-            Recombination rates.
+        recomb_coefficients : DataFrame
+            Recombination coefficients.
         atomic_number : int64
             Current atomic number. Used for the dimension of a square matrix.
 
@@ -254,20 +256,20 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         numpy.ndarray
         """
         offdiag = np.zeros(atomic_number)
-        index = recomb_rate.index
+        index = recomb_coefficients.index
         for i in index:
-            offdiag[i] = recomb_rate.loc[i]
+            offdiag[i] = recomb_coefficients.loc[i]
         diag = np.hstack([np.zeros(1), -offdiag])
         return np.diag(diag) + np.diag(offdiag, k=1)
 
     @staticmethod
-    def ion_matrix(ion_rate, atomic_number):
+    def ion_matrix(ion_coefficients, atomic_number):
         """Constructs an ionization rate matrix from the ionization rates.
 
         Parameters
         ----------
-        recomb_rate : DataFrame
-            Recombination rates.
+        ion_coefficients : DataFrame
+            Recombination coefficients.
         atomic_number : int64
             Current atomic number. Used for the dimension of a square matrix.
 
@@ -276,9 +278,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         numpy.ndarray
         """
         offdiag = np.zeros(atomic_number)
-        index = ion_rate.index
+        index = ion_coefficients.index
         for i in index:
-            offdiag[i] = ion_rate.loc[i]
+            offdiag[i] = ion_coefficients.loc[i]
         diag = np.hstack([-offdiag, np.zeros(1)])
         return np.diag(diag) + np.diag(offdiag, k=-1)
 
@@ -293,7 +295,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         return charge_conservation_row
 
     @staticmethod
-    def prepare_ion_recomb_rates_nlte_ion(
+    def prepare_ion_recomb_coefficients_nlte_ion(
         gamma,
         alpha_sp,
         alpha_stim,
@@ -304,7 +306,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         level_boltzmann_factor,
     ):
         """
-        Prepares the ionization and recombination rates/coefficients by grouping them for ion numbers.
+        Prepares the ionization and recombination coefficients by grouping them for ion numbers.
         """
         indexer = pd.Series(
             np.arange(partition_function.shape[0]),
@@ -316,15 +318,15 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             level_boltzmann_factor.values / partition_function_broadcast,
             index=levels,
         )
-        photo_ion_rate = (
+        total_photo_ion_coefficients = (
             (level_population_fraction.loc[gamma.index] * gamma)
             .groupby(level=("atomic_number", "ion_number"))
             .sum()
         )
-        rad_recomb_rate_coeff = (
+        total_rad_recomb_coefficients = (
             (alpha_sp + alpha_stim).groupby(level=["atomic_number", "ion_number"]).sum()
         )
-        coll_ion_coefficient = (
+        total_coll_ion_coefficients = (
             (
                 level_population_fraction.loc[coll_ion_coeff.index]
                 * coll_ion_coeff
@@ -332,12 +334,12 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             .groupby(level=(0, 1))
             .sum()
         )
-        coll_recomb_coefficient = (
+        total_coll_recomb_coefficients = (
             (coll_recomb_coeff).groupby(level=("atomic_number", "ion_number")).sum()
         )
         return (
-            photo_ion_rate,
-            rad_recomb_rate_coeff,
-            coll_ion_coefficient,
-            coll_recomb_coefficient,
+            total_photo_ion_coefficients,
+            total_rad_recomb_coefficients,
+            total_coll_ion_coefficients,
+            total_coll_recomb_coefficients,
         )
