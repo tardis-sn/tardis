@@ -8,7 +8,7 @@ dependencies:
   # WARNING: any change to this section must be applied to the conda-forge
   # package recipe at https://github.com/conda-forge/tardis-sn-feedstock
 
-  - python =3.8
+  - python=3.8
   - setuptools
   - setuptools_scm<7
   - pip
