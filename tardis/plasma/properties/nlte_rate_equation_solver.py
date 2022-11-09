@@ -92,11 +92,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             total_coll_ion_coefficients[0],
             total_coll_recomb_coefficients[0],
         )
-        return (
-            -1,
-            -1,
-        )  # function still empty, that's why return statement is arbitrary at this point
-
+        
+        raise NotImplementedError("NLTE ionization hasn't been fully implemented yet!") 
+        
     @staticmethod
     def calculate_rate_matrix(
         phi_shell,
