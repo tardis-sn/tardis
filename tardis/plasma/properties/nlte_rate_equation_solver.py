@@ -144,11 +144,11 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             total_coll_recomb_coefficients * electron_density**2
         )
         atomic_numbers = (
-            rate_matrix_index.get_level_values(0).unique().drop("n_e")
+            rate_matrix_index.get_level_values("atomic_number").unique().drop("n_e")
         )  # dropping the n_e index
         for atomic_number in atomic_numbers:
             ion_numbers = rate_matrix.loc[atomic_number].index.get_level_values(
-                0
+                "ion_number"
             )
             phi_block = phi_shell.loc[atomic_number]
             rate_matrix_block = NLTERateEquationSolver.lte_rate_matrix_block(
@@ -156,12 +156,12 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             )
 
             nlte_ion_numbers = ion_numbers[
-                rate_matrix.loc[atomic_number].index.get_level_values(1)
+                rate_matrix.loc[atomic_number].index.get_level_values("level_number")
                 == "nlte_ion"
             ]
             # >>> lte_ion_numbers is for future use in NLTE excitation treatment
             lte_ion_numbers = ion_numbers[
-                rate_matrix.loc[atomic_number].index.get_level_values(1)
+                rate_matrix.loc[atomic_number].index.get_level_values("level_number")
                 == "lte_ion"
             ]
             # <<<
