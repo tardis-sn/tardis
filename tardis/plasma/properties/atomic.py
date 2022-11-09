@@ -626,13 +626,18 @@ class ZetaData(BaseAtomicDataProperty):
     outputs = ("zeta_data",)
 
     def _filter_atomic_property(self, zeta_data, selected_atoms):
+        #import pdb; pdb.set_trace()
         zeta_data["atomic_number"] = zeta_data.index.codes[0] + 1
         zeta_data["ion_number"] = zeta_data.index.codes[1] + 1
         zeta_data = zeta_data[zeta_data.atomic_number.isin(selected_atoms)]
         zeta_data_check = counter(zeta_data.atomic_number.values)
         keys = np.array(list(zeta_data_check.keys()))
         values = np.array(zeta_data_check.values())
-        if np.alltrue(keys + 1 == values):
+        #if not keys:
+            #keys = np.array(selected_atoms.values())
+            #values = np.array(selected_atoms.values())
+        #import pdb; pdb.set_trace()
+        if np.alltrue(keys + 1 == values) and keys:
             return zeta_data
         else:
             #            raise IncompleteAtomicData('zeta data')
@@ -669,6 +674,7 @@ class ZetaData(BaseAtomicDataProperty):
             updated_dataframe["atomic_number"] = np.array(updated_index[0])
             updated_dataframe["ion_number"] = np.array(updated_index[1])
             updated_dataframe.fillna(1.0, inplace=True)
+            import pdb; pdb.set_trace()
             return updated_dataframe
 
     def _set_index(self, zeta_data):
