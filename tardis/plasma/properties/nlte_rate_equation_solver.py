@@ -94,7 +94,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         )
         
         raise NotImplementedError("NLTE ionization hasn't been fully implemented yet!") 
-        
+
     @staticmethod
     def calculate_rate_matrix(
         phi_shell,
@@ -399,7 +399,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
                 level_population_fraction.loc[coll_ion_coeff.index]
                 * coll_ion_coeff
             )
-            .groupby(level=(0, 1))
+            .groupby(level=("atomic_number", "ion_number"))
             .sum()
         )
         total_coll_recomb_coefficients = (
