@@ -25,7 +25,7 @@ def test_rate_matrix():
             (2, 2, "lte_ion"),
             ("n_e", "n_e", "n_e"),
         ],
-        names=('atomic_number', 'ion_number', 'level_number')
+        names=("atomic_number", "ion_number", "level_number"),
     )
 
     simple_photo_ion_rates = [0.03464792, 0.68099508]

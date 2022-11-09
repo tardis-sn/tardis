@@ -92,8 +92,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             total_coll_ion_coefficients[0],
             total_coll_recomb_coefficients[0],
         )
-        
-        raise NotImplementedError("NLTE ionization hasn't been fully implemented yet!") 
+
+        raise NotImplementedError(
+            "NLTE ionization hasn't been fully implemented yet!"
+        )
 
     @staticmethod
     def calculate_rate_matrix(
@@ -142,7 +144,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             total_coll_recomb_coefficients * electron_density**2
         )
         atomic_numbers = (
-            rate_matrix_index.get_level_values("atomic_number").unique().drop("n_e")
+            rate_matrix_index.get_level_values("atomic_number")
+            .unique()
+            .drop("n_e")
         )  # dropping the n_e index
         for atomic_number in atomic_numbers:
             ion_numbers = rate_matrix.loc[atomic_number].index.get_level_values(
@@ -154,12 +158,16 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             )
 
             nlte_ion_numbers = ion_numbers[
-                rate_matrix.loc[atomic_number].index.get_level_values("level_number")
+                rate_matrix.loc[atomic_number].index.get_level_values(
+                    "level_number"
+                )
                 == "nlte_ion"
             ]
             # >>> lte_ion_numbers is for future use in NLTE excitation treatment
             lte_ion_numbers = ion_numbers[
-                rate_matrix.loc[atomic_number].index.get_level_values("level_number")
+                rate_matrix.loc[atomic_number].index.get_level_values(
+                    "level_number"
+                )
                 == "lte_ion"
             ]
             # <<<
@@ -319,7 +327,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
     @staticmethod
     def prepare_charge_conservation_row(atomic_numbers):
-        """Prepares the last row of the rate_matrix. This row corresponds to the charge 
+        """Prepares the last row of the rate_matrix. This row corresponds to the charge
         density equation."""
         charge_conservation_row = []
         for atomic_number in atomic_numbers:
