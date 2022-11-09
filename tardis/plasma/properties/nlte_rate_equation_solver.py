@@ -30,21 +30,38 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         Parameters
         ----------
         gamma : DataFrame
+            The rate coefficient for radiative ionization.
         alpha_sp : DataFrame
+            The rate coefficient for spontaneous recombination.
         alpha_stim : DataFrame
+            The rate coefficient for stimulated recombination.
         coll_ion_coeff : DataFrame
+            The rate coefficient for collisional ionization in the Seaton
+            approximation.
         coll_recomb_coeff : DataFrame
+            The rate coefficient for collisional recombination.
         partition_function : DataFrame
+            General partition function. Indexed by atomic number, ion number.
         levels : MultiIndex
+            (atomic_number, ion_number, level_number)
+            Index of filtered atomic data.
         level_boltzmann_factor : DataFrame
+            General Boltzmann factor.
         phi : DataFrame
+            Saha Factors.
         rate_matrix_index : MultiIndex
+            (atomic_number, ion_number, level/treatment type)
+            If ion is treated in LTE ionization, 3rd index is "lte_ion",
+            if treated in NLTE ionization, 3rd index is "nlte_ion".
         number_density : DataFrame
+            Number density in each shell for each species.
 
         Returns
         -------
         ion_number_densities_nlte: DataFrame
+            Number density with NLTE ionization treatment.
         electron_densities_nlte: Series
+            Electron density with NLTE ionizaion treatment.
         """
 
         (
@@ -105,14 +122,14 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         total_rad_recomb_coefficients : DataFrame
             Radiative recombination coefficients(should get multiplied by electron density)
         total_coll_ion_coefficients : DataFrame
-            Collisionional ionization coefficients(should get multiplied by electron density)
+            Collisional ionization coefficients(should get multiplied by electron density)
         total_coll_recomb_coefficients : DataFrame
             Collisional recombination coefficients (should get multiplied by electron density^2)
 
         Returns
         -------
         DataFrame
-            Rate matrix used for nlte solver.
+            Rate matrix used for NLTE solver.
         """
         rate_matrix = pd.DataFrame(
             0.0, columns=rate_matrix_index, index=rate_matrix_index
@@ -304,7 +321,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
     @staticmethod
     def prepare_charge_conservation_row(atomic_numbers):
-        """Prepares the last row of the rate_matrix. This row corresponds to the charge density equation."""
+        """Prepares the last row of the rate_matrix. This row corresponds to the charge 
+        density equation."""
         charge_conservation_row = []
         for atomic_number in atomic_numbers:
             charge_conservation_row.append(np.arange(0.0, atomic_number + 1))
@@ -324,7 +342,39 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         level_boltzmann_factor,
     ):
         """
-        Prepares the ionization and recombination coefficients by grouping them for ion numbers.
+        Prepares the ionization and recombination coefficients by grouping them for
+        ion numbers.
+
+        Parameters
+        ----------
+        gamma : DataFrame
+            The rate coefficient for radiative ionization.
+        alpha_sp : DataFrame
+            The rate coefficient for spontaneous recombination.
+        alpha_stim : DataFrame
+            The rate coefficient for stimulated recombination.
+        coll_ion_coeff : DataFrame
+            The rate coefficient for collisional ionization in the Seaton
+            approximation.
+        coll_recomb_coeff : DataFrame
+            The rate coefficient for collisional recombination.
+        partition_function : DataFrame
+            General partition function. Indexed by atomic number, ion number.
+        levels : MultiIndex
+            (atomic_number, ion_number, level_number)
+            Index of filtered atomic data.
+        level_boltzmann_factor : DataFrame
+            General Boltzmann factor.
+        Returns
+        -------
+        total_photo_ion_coefficients:
+            Photoinization coefficients grouped by atomic number and ion number.
+        total_rad_recomb_coefficients:
+            Radiative recombination coefficients grouped by atomic number and ion number.
+        total_coll_ion_coefficients:
+            Collisional ionization coefficients grouped by atomic number and ion number.
+        total_coll_recomb_coefficients:
+            Collisional recombination coefficients grouped by atomic number and ion number.
         """
         indexer = pd.Series(
             np.arange(partition_function.shape[0]),
