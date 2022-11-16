@@ -15,7 +15,7 @@ class NLTEIndexHelper(ProcessingPlasmaProperty):
 
     def calculate(self, levels, nlte_ionization_species):
         """Generates rate_matrix_index using levels and changing the last index(level) to
-        "lte_ion" if that ion_number is treated in LTE, "nlte_ion" for NLTE ionizatin and
+        "lte_ion" if that ion_number is treated in LTE or nebular, "nlte_ion" for NLTE ionization and
         keeps the levels for the rest.
 
         Parameters
