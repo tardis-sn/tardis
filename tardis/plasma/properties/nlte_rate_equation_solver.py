@@ -331,7 +331,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         density equation."""
         charge_conservation_row = []
         for atomic_number in atomic_numbers:
-            charge_conservation_row.append(np.arange(0.0, atomic_number + 1))
+            charge_conservation_row.append(np.arange(0, atomic_number + 1))
         charge_conservation_row = np.hstack([*charge_conservation_row, -1])
         # TODO needs to be modified for use in nlte_excitation
         return charge_conservation_row
