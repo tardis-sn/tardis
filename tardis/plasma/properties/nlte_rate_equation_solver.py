@@ -421,3 +421,61 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             total_coll_ion_coefficients,
             total_coll_recomb_coefficients,
         )
+    
+    def jacobian_matrix(
+    self,
+    populations,
+    rate_matrix,
+    rate_matrix_index,
+    total_rad_recomb_coefficients,
+    total_coll_ion_coefficients,
+    total_coll_recomb_coefficients,
+):
+        atomic_numbers = rate_matrix_index.get_level_values("atomic_number").unique().drop("n_e")
+        index = 0
+        jacobian_matrix = rate_matrix.copy()
+        jacobian_matrix[:-1, -1] = populations[1:]
+        for atomic_number in atomic_numbers:
+            for i in range(index, index + atomic_number):
+                if rate_matrix_index[i][2] == "nlte_ion":
+                    jacobian_matrix[i, -1] = self.deriv_matrix_block(
+                        atomic_number,
+                        total_rad_recomb_coefficients.loc[
+                            (atomic_number,)
+                        ],
+                        total_coll_ion_coefficients.loc[(atomic_number,)],
+                        total_coll_recomb_coefficients.loc[(atomic_number,)],
+                        populations[index : index + atomic_number + 1],
+                        populations[-1],
+                    )[i - index]
+            index += atomic_number + 1
+            jacobian_matrix[index-1, -1] = 0
+        return jacobian_matrix
+
+def deriv_matrix_block(
+        self,
+        atomic_number,
+        total_rad_recomb_coefficients,
+        total_coll_ion_coefficients,
+        total_coll_recomb_coefficients,
+        current_ion_number_densities,
+        current_electron_density,
+    ):
+        radiative_rate_coeff_matrix = self.recomb_matrix(
+            total_rad_recomb_coefficients, atomic_number
+        )
+        coll_recomb_matrix = (
+            self.recomb_matrix(total_coll_recomb_coefficients, atomic_number)
+            * current_electron_density
+            * 2
+        )
+        coll_ion_coeff_matrix = self.ion_matrix(
+            total_coll_ion_coefficients, atomic_number
+        )
+        deriv_matrix = (
+            radiative_rate_coeff_matrix
+            + coll_ion_coeff_matrix
+            + coll_recomb_matrix
+        )
+        deriv_matrix[-1, :] = 0.0
+        return np.dot(deriv_matrix, current_ion_number_densities)
