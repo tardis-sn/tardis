@@ -106,7 +106,12 @@ class MontecarloRunner(HDFWriterMixin):
 
         self.seed = seed
         if packet_source is None:
-            self.packet_source = source.BlackBodySimpleSource(seed)
+            if not enable_full_relativity:
+                self.packet_source = source.BlackBodySimpleSource(seed)
+            else:
+                self.packet_source = source.BlackBodySimpleSourceRelativistic(
+                    seed
+                )
         else:
             self.packet_source = packet_source
         # inject different packets
@@ -202,7 +207,9 @@ class MontecarloRunner(HDFWriterMixin):
         self.v_inner_cgs = model.v_inner.to("cm/s").value
         self.v_outer_cgs = model.v_outer.to("cm/s").value
 
-    def _initialize_packets(self, T, no_of_packets, iteration, radius):
+    def _initialize_packets(
+        self, T, no_of_packets, iteration, radius, time_explosion
+    ):
         # the iteration is added each time to preserve randomness
         # across different simulations with the same temperature,
         # for example. We seed the random module instead of the numpy module
@@ -211,9 +218,15 @@ class MontecarloRunner(HDFWriterMixin):
         seed = self.seed + iteration
         rng = np.random.default_rng(seed=seed)
         seeds = rng.choice(MAX_SEED_VAL, no_of_packets, replace=True)
-        radii, nus, mus, energies = self.packet_source.create_packets(
-            T, no_of_packets, rng, radius
-        )
+        if not self.enable_full_relativity:
+            radii, nus, mus, energies = self.packet_source.create_packets(
+                T, no_of_packets, rng, radius
+            )
+        else:
+            radii, nus, mus, energies = self.packet_source.create_packets(
+                T, no_of_packets, rng, radius, time_explosion
+            )
+
         mc_config_module.packet_seeds = seeds
         self.input_r = radii
         self.input_nu = nus
@@ -344,7 +357,11 @@ class MontecarloRunner(HDFWriterMixin):
         self._initialize_geometry_arrays(model)
 
         self._initialize_packets(
-            model.t_inner.value, no_of_packets, iteration, model.r_inner[0]
+            model.t_inner.value,
+            no_of_packets,
+            iteration,
+            model.r_inner[0],
+            model.time_explosion,
         )
 
         configuration_initialize(self, no_of_virtual_packets)
