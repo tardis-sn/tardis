@@ -1,5 +1,9 @@
 ## Change Log
 
+### release-2022.11.21 (2022/11/21 15:15 +00:00)
+- [#2160](https://github.com/tardis-sn/tardis/pull/2160) Pre-release 2022.11.20 (#2160) (@tardis-bot)
+- [#2156](https://github.com/tardis-sn/tardis/pull/2156) Post-release 2022.11.17 (#2156) (@tardis-bot)
+
 ### release-2022.11.17 (2022/11/17 18:45 +00:00)
 - [#2155](https://github.com/tardis-sn/tardis/pull/2155) Pre-release 2022.11.17 (#2155) (@tardis-bot)
 - [#2152](https://github.com/tardis-sn/tardis/pull/2152) Set specific qgrid feedstock version (#2152) (@andrewfullard)
@@ -634,8 +638,6 @@
 - [#1032](https://github.com/tardis-sn/tardis/pull/1032) Add Mark Magee to .mailmap (#1032) (@epassaro)
 - [#1025](https://github.com/tardis-sn/tardis/pull/1025) Add `compilers` to environment YAML file (#1025) (@epassaro)
 - [#1026](https://github.com/tardis-sn/tardis/pull/1026) Minor changes (#1026) (@epassaro)
-
-### 3.0.dev3396 (2020/02/07 15:00 +00:00)
 - [#1027](https://github.com/tardis-sn/tardis/pull/1027) Added Mark Magee (#1027) (@MarkMageeAstro)
 - [#1024](https://github.com/tardis-sn/tardis/pull/1024) Add epassaro orcid (#1024) (@epassaro)
 - [#1022](https://github.com/tardis-sn/tardis/pull/1022) added Alice's orcid (#1022) (@harpolea)
