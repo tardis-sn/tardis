@@ -7,6 +7,13 @@ from tardis.plasma.properties import NLTERateEquationSolver
 
 @pytest.fixture
 def simple_index_nlte_ion():
+    """Simple fixture for nlte_ion treatment for H I and He II.
+
+    Returns
+    -------
+    MultiIndex
+        MultiIndex for HI and HeII.
+    """
     return pd.MultiIndex.from_tuples(
         [(1, 0), (2, 1)], names=("atomic_number", "ion_number")
     )
@@ -14,6 +21,13 @@ def simple_index_nlte_ion():
 
 @pytest.fixture
 def simple_index_lte_ion():
+    """Simple fixture for lte_ion treatment for H II and He I and He III.
+
+    Returns
+    -------
+    MultiIndex
+        MultiIndex for H II and He I and He III.
+    """
     return pd.MultiIndex.from_tuples(
         [(1, 1), (2, 1), (2, 2)], names=("atomic_number", "ion_number")
     )
@@ -21,6 +35,13 @@ def simple_index_lte_ion():
 
 @pytest.fixture
 def simple_rate_matrix_index():
+    """Simple rate_matrix_index for NTLE ionization treatment of H I and He II.
+
+    Returns
+    -------
+    MultiIndex
+        (atomic_number, ion_number, treatment)
+    """
     return pd.MultiIndex.from_tuples(
         [
             (1, 0, "nlte_ion"),
@@ -36,6 +57,13 @@ def simple_rate_matrix_index():
 
 @pytest.fixture
 def simple_total_photo_ion_coefficients(simple_index_nlte_ion):
+    """Simple coefficients for photoionization of H I and He II.
+
+    Returns
+    -------
+    DataFrame
+        Photoionization coefficients for H I and He II.
+    """
     simple_photo_ion_coefficients = [0.03464792, 0.68099508]
     return pd.DataFrame(
         simple_photo_ion_coefficients, index=simple_index_nlte_ion
@@ -44,6 +72,13 @@ def simple_total_photo_ion_coefficients(simple_index_nlte_ion):
 
 @pytest.fixture
 def simple_total_rad_recomb_coefficients(simple_index_nlte_ion):
+    """Simple coefficients for radiative recombination of H I and He II.
+
+    Returns
+    -------
+    DataFrame
+        Radiative recombination coefficients for H I and He II.
+    """
     simple_rad_recomb_coefficients = [0.43303813, 0.66140309]
     return pd.DataFrame(
         simple_rad_recomb_coefficients, index=simple_index_nlte_ion
@@ -52,6 +87,13 @@ def simple_total_rad_recomb_coefficients(simple_index_nlte_ion):
 
 @pytest.fixture
 def simple_total_col_ion_coefficients(simple_index_nlte_ion):
+    """Simple coefficients for collisional ionization of H I and He II.
+
+    Returns
+    -------
+    DataFrame
+        Collisional ionization coefficients for H I and He II.
+    """
     simple_col_ion_coefficients = [0.19351674, 0.69214007]
     return pd.DataFrame(
         simple_col_ion_coefficients, index=simple_index_nlte_ion
@@ -60,6 +102,13 @@ def simple_total_col_ion_coefficients(simple_index_nlte_ion):
 
 @pytest.fixture
 def simple_total_col_recomb_coefficients(simple_index_nlte_ion):
+    """Simple coefficients for collisional recombination of H I and He II.
+
+    Returns
+    -------
+    DataFrame
+        Collisional recombination coefficients for H I and He II.
+    """
     simple_col_recomb_coefficients = [0.06402515, 0.29785023]
     return pd.DataFrame(
         simple_col_recomb_coefficients, index=simple_index_nlte_ion
@@ -68,12 +117,16 @@ def simple_total_col_recomb_coefficients(simple_index_nlte_ion):
 
 @pytest.fixture
 def simple_phi(simple_index_lte_ion):
+    """Simple Saha factors for H II, He I and He III.
+    """
     simple_phi = [0.18936306, 0.15726292, 0.79851244]
     return pd.DataFrame(simple_phi, index=simple_index_lte_ion)
 
 
 @pytest.fixture
 def simple_electron_density():
+    """Simple electron density.
+    """
     return 0.2219604493076
 
 
@@ -122,6 +175,10 @@ def test_jacobian_matrix(
     simple_total_col_ion_coefficients,
     simple_total_col_recomb_coefficients,
 ):
+    """
+    Using a simple case of nlte_ion for HI and HeII, 
+    checks if the jacobian_matrix generates the correct data.
+    """
 
     initial_guess = [
         0.7192433675307516,
