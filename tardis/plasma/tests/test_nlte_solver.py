@@ -117,16 +117,14 @@ def simple_total_col_recomb_coefficients(simple_index_nlte_ion):
 
 @pytest.fixture
 def simple_phi(simple_index_lte_ion):
-    """Simple Saha factors for H II, He I and He III.
-    """
+    """Simple Saha factors for H II, He I and He III."""
     simple_phi = [0.18936306, 0.15726292, 0.79851244]
     return pd.DataFrame(simple_phi, index=simple_index_lte_ion)
 
 
 @pytest.fixture
 def simple_electron_density():
-    """Simple electron density.
-    """
+    """Simple electron density."""
     return 0.2219604493076
 
 
@@ -176,7 +174,7 @@ def test_jacobian_matrix(
     simple_total_col_recomb_coefficients,
 ):
     """
-    Using a simple case of nlte_ion for HI and HeII, 
+    Using a simple case of nlte_ion for HI and HeII,
     checks if the jacobian_matrix generates the correct data.
     """
 
