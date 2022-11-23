@@ -374,7 +374,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         Returns
         -------
         total_photo_ion_coefficients
-            Photoinoization coefficients grouped by atomic number and ion number.
+            Photoionization coefficients grouped by atomic number and ion number.
         total_rad_recomb_coefficients
             Radiative recombination coefficients grouped by atomic number and ion number.
         total_coll_ion_coefficients
