@@ -103,7 +103,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             total_coll_ion_coefficients[0],
             total_coll_recomb_coefficients[0],
         )
-        #TODO: change the jacobian and rate matrix to use shell id and get coefficients from the attribute of the class.
+        # TODO: change the jacobian and rate matrix to use shell id and get coefficients from the attribute of the class.
 
         raise NotImplementedError(
             "NLTE ionization hasn't been fully implemented yet!"
