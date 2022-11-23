@@ -466,6 +466,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         numpy.array
             Jacobian matrix used for NLTE ionization solver
         """
+        # TODO: for future use, can be vectorized.
         atomic_numbers = (
             rate_matrix_index.get_level_values("atomic_number")
             .unique()

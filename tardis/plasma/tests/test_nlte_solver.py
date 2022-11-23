@@ -5,18 +5,23 @@ from numpy.testing import assert_almost_equal
 from tardis.plasma.properties import NLTERateEquationSolver
 
 
-def test_rate_matrix():
-    """
-    Using a simple case of nlte_ion for HI and HeII, checks if the calculate_rate_matrix generates the correct data.
-    """
-
-    simple_index_nlte_ion = pd.MultiIndex.from_tuples(
+@pytest.fixture
+def simple_index_nlte_ion():
+    return pd.MultiIndex.from_tuples(
         [(1, 0), (2, 1)], names=("atomic_number", "ion_number")
     )
-    simple_index_lte_ion = pd.MultiIndex.from_tuples(
+
+
+@pytest.fixture
+def simple_index_lte_ion():
+    return pd.MultiIndex.from_tuples(
         [(1, 1), (2, 1), (2, 2)], names=("atomic_number", "ion_number")
     )
-    simple_rate_matrix_index = pd.MultiIndex.from_tuples(
+
+
+@pytest.fixture
+def simple_rate_matrix_index():
+    return pd.MultiIndex.from_tuples(
         [
             (1, 0, "nlte_ion"),
             (1, 1, "lte_ion"),
@@ -28,36 +33,71 @@ def test_rate_matrix():
         names=("atomic_number", "ion_number", "level_number"),
     )
 
-    simple_photo_ion_rates = [0.03464792, 0.68099508]
-    simple_rad_recomb_coeff = [0.43303813, 0.66140309]
-    simple_col_ion_coeff = [0.19351674, 0.69214007]
-    simple_col_recomb_coeff = [0.06402515, 0.29785023]
+
+@pytest.fixture
+def simple_total_photo_ion_coefficients(simple_index_nlte_ion):
+    simple_photo_ion_coefficients = [0.03464792, 0.68099508]
+    return pd.DataFrame(
+        simple_photo_ion_coefficients, index=simple_index_nlte_ion
+    )
+
+
+@pytest.fixture
+def simple_total_rad_recomb_coefficients(simple_index_nlte_ion):
+    simple_rad_recomb_coefficients = [0.43303813, 0.66140309]
+    return pd.DataFrame(
+        simple_rad_recomb_coefficients, index=simple_index_nlte_ion
+    )
+
+
+@pytest.fixture
+def simple_total_col_ion_coefficients(simple_index_nlte_ion):
+    simple_col_ion_coefficients = [0.19351674, 0.69214007]
+    return pd.DataFrame(
+        simple_col_ion_coefficients, index=simple_index_nlte_ion
+    )
+
+
+@pytest.fixture
+def simple_total_col_recomb_coefficients(simple_index_nlte_ion):
+    simple_col_recomb_coefficients = [0.06402515, 0.29785023]
+    return pd.DataFrame(
+        simple_col_recomb_coefficients, index=simple_index_nlte_ion
+    )
+
+
+@pytest.fixture
+def simple_phi(simple_index_lte_ion):
     simple_phi = [0.18936306, 0.15726292, 0.79851244]
+    return pd.DataFrame(simple_phi, index=simple_index_lte_ion)
 
-    simple_photo_ion_rates = pd.DataFrame(
-        simple_photo_ion_rates, index=simple_index_nlte_ion
-    )
-    simple_rad_recomb_coeff = pd.DataFrame(
-        simple_rad_recomb_coeff, index=simple_index_nlte_ion
-    )
-    simple_col_ion_coeff = pd.DataFrame(
-        simple_col_ion_coeff, index=simple_index_nlte_ion
-    )
-    simple_col_recomb_coeff = pd.DataFrame(
-        simple_col_recomb_coeff, index=simple_index_nlte_ion
-    )
-    simple_phi = pd.DataFrame(simple_phi, index=simple_index_lte_ion)
 
-    simple_electron_density = 0.2219604493076
+@pytest.fixture
+def simple_electron_density():
+    return 0.2219604493076
+
+
+def test_rate_matrix(
+    simple_phi,
+    simple_electron_density,
+    simple_rate_matrix_index,
+    simple_total_photo_ion_coefficients,
+    simple_total_rad_recomb_coefficients,
+    simple_total_col_ion_coefficients,
+    simple_total_col_recomb_coefficients,
+):
+    """
+    Using a simple case of nlte_ion for HI and HeII, checks if the calculate_rate_matrix generates the correct data.
+    """
 
     actual_rate_matrix = NLTERateEquationSolver.calculate_rate_matrix(
         simple_phi,
         simple_electron_density,
         simple_rate_matrix_index,
-        simple_photo_ion_rates,
-        simple_rad_recomb_coeff,
-        simple_col_ion_coeff,
-        simple_col_recomb_coeff,
+        simple_total_photo_ion_coefficients,
+        simple_total_rad_recomb_coefficients,
+        simple_total_col_ion_coefficients,
+        simple_total_col_recomb_coefficients,
     )
     desired_rate_matrix = [
         [-0.077601, 0.099272, 0.000000, 0.000000, 0.000000, 0.0],
@@ -73,46 +113,15 @@ def test_rate_matrix():
     )
 
 
-def test_jacobian_matrix():
-    simple_index_nlte_ion = pd.MultiIndex.from_tuples(
-        [(1, 0), (2, 1)], names=("atomic_number", "ion_number")
-    )
-    simple_index_lte_ion = pd.MultiIndex.from_tuples(
-        [(1, 1), (2, 1), (2, 2)], names=("atomic_number", "ion_number")
-    )
-    simple_rate_matrix_index = pd.MultiIndex.from_tuples(
-        [
-            (1, 0, "nlte_ion"),
-            (1, 1, "lte_ion"),
-            (2, 0, "lte_ion"),
-            (2, 1, "nlte_ion"),
-            (2, 2, "lte_ion"),
-            ("n_e", "n_e", "n_e"),
-        ],
-        names=("atomic_number", "ion_number", "level_number"),
-    )
-
-    simple_photo_ion_rates = [0.03464792, 0.68099508]
-    simple_rad_recomb_coeff = [0.43303813, 0.66140309]
-    simple_col_ion_coeff = [0.19351674, 0.69214007]
-    simple_col_recomb_coeff = [0.06402515, 0.29785023]
-    simple_phi = [0.18936306, 0.15726292, 0.79851244]
-
-    simple_photo_ion_rates = pd.DataFrame(
-        simple_photo_ion_rates, index=simple_index_nlte_ion
-    )
-    simple_rad_recomb_coeff = pd.DataFrame(
-        simple_rad_recomb_coeff, index=simple_index_nlte_ion
-    )
-    simple_col_ion_coeff = pd.DataFrame(
-        simple_col_ion_coeff, index=simple_index_nlte_ion
-    )
-    simple_col_recomb_coeff = pd.DataFrame(
-        simple_col_recomb_coeff, index=simple_index_nlte_ion
-    )
-    simple_phi = pd.DataFrame(simple_phi, index=simple_index_lte_ion)
-
-    simple_electron_density = 0.2219604493076
+def test_jacobian_matrix(
+    simple_phi,
+    simple_electron_density,
+    simple_rate_matrix_index,
+    simple_total_photo_ion_coefficients,
+    simple_total_rad_recomb_coefficients,
+    simple_total_col_ion_coefficients,
+    simple_total_col_recomb_coefficients,
+):
 
     initial_guess = [
         0.7192433675307516,
@@ -126,19 +135,19 @@ def test_jacobian_matrix():
         simple_phi,
         simple_electron_density,
         simple_rate_matrix_index,
-        simple_photo_ion_rates,
-        simple_rad_recomb_coeff,
-        simple_col_ion_coeff,
-        simple_col_recomb_coeff,
+        simple_total_photo_ion_coefficients,
+        simple_total_rad_recomb_coefficients,
+        simple_total_col_ion_coefficients,
+        simple_total_col_recomb_coefficients,
     )
 
     actual_jacobian_matrix = NLTERateEquationSolver.jacobian_matrix(
         initial_guess,
         simple_rate_matrix,
         simple_rate_matrix_index,
-        simple_rad_recomb_coeff,
-        simple_col_ion_coeff,
-        simple_col_recomb_coeff,
+        simple_total_rad_recomb_coefficients,
+        simple_total_col_ion_coefficients,
+        simple_total_col_recomb_coefficients,
     )
 
     desired_jacobian_matrix = [
