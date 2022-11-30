@@ -99,8 +99,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             total_coll_recomb_coefficients[0],
         )
         initial_guess = self.prepare_first_guess(
-            atomic_numbers,
-            number_density[0], initial_electron_density[0]
+            atomic_numbers, number_density[0], initial_electron_density[0]
         )
         jacobian_matrix = self.jacobian_matrix(
             atomic_numbers,
@@ -548,7 +547,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         deriv_matrix[-1, :] = 0.0
         return np.dot(deriv_matrix, current_ion_number_densities)
 
-    def prepare_first_guess(self, atomic_numbers, number_density, electron_density):
+    def prepare_first_guess(
+        self, atomic_numbers, number_density, electron_density
+    ):
         # TODO needs to be changed for excitation
         array_size = (number_density.index.values + 1).sum() + 1
         first_guess = np.zeros(array_size)
