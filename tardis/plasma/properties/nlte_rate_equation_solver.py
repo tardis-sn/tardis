@@ -50,18 +50,18 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         phi : DataFrame
             Saha Factors.
         rate_matrix_index : MultiIndex
-            (atomic_number, ion_number, level/treatment type)
-            If ion is treated in LTE ionization, 3rd index is "lte_ion",
+            (atomic_number, ion_number, treatment type)
+            If ion is treated in LTE or nebular ionization, 3rd index is "lte_ion",
             if treated in NLTE ionization, 3rd index is "nlte_ion".
         number_density : DataFrame
             Number density in each shell for each species.
 
         Returns
         -------
-        ion_number_densities_nlte: DataFrame
+        ion_number_densities_nlte : DataFrame
             Number density with NLTE ionization treatment.
-        electron_densities_nlte: Series
-            Electron density with NLTE ionizaion treatment.
+        electron_densities_nlte : Series
+            Electron density with NLTE ionization treatment.
         """
 
         (
@@ -140,9 +140,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         total_photo_ion_coefficients : DataFrame
             Photo ionization coefficients
         total_rad_recomb_coefficients : DataFrame
-            Radiative recombination coefficients(should get multiplied by electron density)
+            Radiative recombination coefficients (should get multiplied by electron density)
         total_coll_ion_coefficients : DataFrame
-            Collisional ionization coefficients(should get multiplied by electron density)
+            Collisional ionization coefficients (should get multiplied by electron density)
         total_coll_recomb_coefficients : DataFrame
             Collisional recombination coefficients (should get multiplied by electron density^2)
 
@@ -163,6 +163,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         total_coll_recomb_coefficients = (
             total_coll_recomb_coefficients * electron_density**2
         )
+
         for atomic_number in atomic_numbers:
             ion_numbers = rate_matrix.loc[atomic_number].index.get_level_values(
                 "ion_number"
@@ -346,7 +347,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         density equation."""
         charge_conservation_row = []
         for atomic_number in atomic_numbers:
-            charge_conservation_row.append(np.arange(0.0, atomic_number + 1))
+            charge_conservation_row.append(np.arange(0, atomic_number + 1))
         charge_conservation_row = np.hstack([*charge_conservation_row, -1])
         # TODO needs to be modified for use in nlte_excitation
         return charge_conservation_row
@@ -388,13 +389,13 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             General Boltzmann factor.
         Returns
         -------
-        total_photo_ion_coefficients:
-            Photoinization coefficients grouped by atomic number and ion number.
-        total_rad_recomb_coefficients:
+        total_photo_ion_coefficients
+            Photoionization coefficients grouped by atomic number and ion number.
+        total_rad_recomb_coefficients
             Radiative recombination coefficients grouped by atomic number and ion number.
-        total_coll_ion_coefficients:
+        total_coll_ion_coefficients
             Collisional ionization coefficients grouped by atomic number and ion number.
-        total_coll_recomb_coefficients:
+        total_coll_recomb_coefficients
             Collisional recombination coefficients grouped by atomic number and ion number.
         """
         indexer = pd.Series(
