@@ -83,7 +83,13 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         # >>>TODO:initial electron density should be included in the initial guess, added in a future PR
         initial_electron_density = number_density.sum(axis=0)
         # <<<
+        atomic_numbers = (
+            rate_matrix_index.get_level_values("atomic_number")
+            .unique()
+            .drop("n_e")
+        )  # dropping the n_e index
         rate_matrix = self.calculate_rate_matrix(
+            atomic_numbers,
             phi[0],
             initial_electron_density[0],
             rate_matrix_index,
@@ -93,9 +99,11 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             total_coll_recomb_coefficients[0],
         )
         initial_guess = self.prepare_first_guess(
+            atomic_numbers,
             number_density[0], initial_electron_density[0]
         )
         jacobian_matrix = self.jacobian_matrix(
+            atomic_numbers,
             initial_guess,
             rate_matrix,
             rate_matrix_index,
@@ -111,6 +119,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
     @staticmethod
     def calculate_rate_matrix(
+        atomic_numbers,
         phi_shell,
         electron_density,
         rate_matrix_index,
@@ -155,11 +164,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         total_coll_recomb_coefficients = (
             total_coll_recomb_coefficients * electron_density**2
         )
-        atomic_numbers = (
-            rate_matrix_index.get_level_values("atomic_number")
-            .unique()
-            .drop("n_e")
-        )  # dropping the n_e index
         for atomic_number in atomic_numbers:
             ion_numbers = rate_matrix.loc[atomic_number].index.get_level_values(
                 "ion_number"
@@ -436,6 +440,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
     @staticmethod
     def jacobian_matrix(
+        atomic_numbers,
         populations,
         rate_matrix,
         rate_matrix_index,
@@ -468,11 +473,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Jacobian matrix used for NLTE ionization solver
         """
         # TODO: for future use, can be vectorized.
-        atomic_numbers = (
-            rate_matrix_index.get_level_values("atomic_number")
-            .unique()
-            .drop("n_e")
-        )
         index = 0
         jacobian_matrix = rate_matrix.copy().values
         jacobian_matrix[:-1, -1] = populations[1:]
@@ -548,9 +548,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         deriv_matrix[-1, :] = 0.0
         return np.dot(deriv_matrix, current_ion_number_densities)
 
-    def prepare_first_guess(self, number_density, electron_density):
+    def prepare_first_guess(self, atomic_numbers, number_density, electron_density):
         # TODO needs to be changed for excitation
-        atomic_numbers = number_density.index
         array_size = (number_density.index.values + 1).sum() + 1
         first_guess = np.zeros(array_size)
         index = 1
