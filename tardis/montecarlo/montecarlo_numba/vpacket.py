@@ -28,7 +28,10 @@ from tardis.transport.frame_transformations import (
     angle_aberration_CMF_to_LF,
 )
 
-from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
+from tardis.montecarlo.montecarlo_numba.numba_config import (
+    SIGMA_THOMSON,
+    C_SPEED_OF_LIGHT,
+)
 
 vpacket_spec = [
     ("r", float64),
@@ -244,6 +247,11 @@ def trace_vpacket_volley(
         v_packet_on_inner_boundary = True
         mu_min = 0.0
 
+        if montecarlo_configuration.full_relativity:
+            inv_c = 1 / C_SPEED_OF_LIGHT
+            inv_t = 1 / numba_model.time_explosion
+            beta_inner = numba_radial_1d_geometry.r_inner[0] * inv_t * inv_c
+
     mu_bin = (1.0 - mu_min) / no_of_vpackets
     r_packet_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, numba_model.time_explosion
@@ -252,7 +260,16 @@ def trace_vpacket_volley(
         v_packet_mu = mu_min + i * mu_bin + np.random.random() * mu_bin
 
         if v_packet_on_inner_boundary:  # The weights are described in K&S 2014
-            weight = 2 * v_packet_mu / no_of_vpackets
+            if not montecarlo_configuration.full_relativity:
+                weight = 2 * v_packet_mu / no_of_vpackets
+            else:
+                weight = (
+                    2
+                    * (v_packet_mu + beta_inner)
+                    / (2 * beta_inner + 1)
+                    / no_of_vpackets
+                )
+
         else:
             weight = (1 - mu_min) / (2 * no_of_vpackets)
 
