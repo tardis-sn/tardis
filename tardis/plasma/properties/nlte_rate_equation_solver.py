@@ -87,7 +87,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             rate_matrix_index.get_level_values("atomic_number")
             .unique()
             .drop("n_e")
-        )  # dropping the n_e index
+        )  # dropping the n_e index, as rate_matrix_index's first index is (atomic_numbers, "n_e")
         rate_matrix = self.calculate_rate_matrix(
             atomic_numbers,
             phi[0],
