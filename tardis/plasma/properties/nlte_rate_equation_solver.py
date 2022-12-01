@@ -544,7 +544,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             + coll_ion_coeff_matrix
             + coll_recomb_matrix
         )
-        deriv_matrix[-1, :] = 0.0
         return np.dot(deriv_matrix, current_ion_number_densities)
 
     def prepare_first_guess(

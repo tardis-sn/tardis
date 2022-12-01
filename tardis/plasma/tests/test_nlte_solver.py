@@ -140,8 +140,9 @@ def test_rate_matrix(
     """
     Using a simple case of nlte_ion for HI and HeII, checks if the calculate_rate_matrix generates the correct data.
     """
-
+    atomic_numbers = [1, 2]
     actual_rate_matrix = NLTERateEquationSolver.calculate_rate_matrix(
+        atomic_numbers,
         simple_phi,
         simple_electron_density,
         simple_rate_matrix_index,
@@ -177,6 +178,7 @@ def test_jacobian_matrix(
     Using a simple case of nlte_ion for HI and HeII,
     checks if the jacobian_matrix generates the correct data.
     """
+    atomic_numbers = [1, 2]
 
     initial_guess = [
         0.7192433675307516,
@@ -187,6 +189,7 @@ def test_jacobian_matrix(
         simple_electron_density,
     ]
     simple_rate_matrix = NLTERateEquationSolver.calculate_rate_matrix(
+        atomic_numbers,
         simple_phi,
         simple_electron_density,
         simple_rate_matrix_index,
@@ -197,6 +200,7 @@ def test_jacobian_matrix(
     )
 
     actual_jacobian_matrix = NLTERateEquationSolver.jacobian_matrix(
+        atomic_numbers,
         initial_guess,
         simple_rate_matrix,
         simple_rate_matrix_index,
@@ -206,10 +210,10 @@ def test_jacobian_matrix(
     )
 
     desired_jacobian_matrix = [
-        [-0.07760098, 0.09927163, 0.0, 0.0, 0.0, 0.0],
+        [-0.07760098, 0.09927163, 0.0, 0.0, 0.0, 0.23467404],
         [1.0, 1.0, 0.0, 0.0, 0.0, 0.0],
         [0.0, 0.0, -0.15726292, 0.22196045, 0.0, 0.04022076],
-        [0.0, 0.0, 0.0, -0.8346228, 0.16147935, 0.0],
+        [0.0, 0.0, 0.0, -0.8346228, 0.16147935, 0.20061248],
         [0.0, 0.0, 1.0, 1.0, 1.0, 0.0],
         [0.0, 1.0, 0.0, 1.0, 2.0, -1.0],
     ]
