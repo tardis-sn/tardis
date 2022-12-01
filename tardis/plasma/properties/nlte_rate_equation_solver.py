@@ -491,7 +491,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
                         i - index
                     ]
             index += atomic_number + 1
-            jacobian_matrix[index - 1, -1] = 0
+            jacobian_matrix[index - 1, -1] = 0  # number conservation row
         return jacobian_matrix
 
     @staticmethod
