@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from scipy.optimize import root
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
@@ -81,7 +82,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         )
 
         # >>>TODO:initial electron density should be included in the initial guess, added in a future PR
-        initial_electron_density = number_density.sum(axis=0)
+        initial_electron_densities = number_density.sum(axis=0)
         # <<<
         atomic_numbers = (
             rate_matrix_index.get_level_values("atomic_number")
@@ -91,25 +92,37 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         rate_matrix = self.calculate_rate_matrix(
             atomic_numbers,
             phi[0],
-            initial_electron_density[0],
+            initial_electron_densities[0],
             rate_matrix_index,
             total_photo_ion_coefficients[0],
             total_rad_recomb_coefficients[0],
             total_coll_ion_coefficients[0],
             total_coll_recomb_coefficients[0],
         )
-        initial_guess = self.prepare_first_guess(
-            atomic_numbers, number_density[0], initial_electron_density[0]
-        )
-        jacobian_matrix = self.jacobian_matrix(
-            atomic_numbers,
-            initial_guess,
-            rate_matrix,
-            rate_matrix_index,
-            total_rad_recomb_coefficients[0],
-            total_coll_ion_coefficients[0],
-            total_coll_recomb_coefficients[0],
-        )
+
+        for i, shell in enumerate(phi.columns):
+            solution_vector = self.prepare_solution_vector(
+                number_density[shell]
+            )
+            first_guess = self.prepare_first_guess(
+                atomic_numbers, number_density[shell], initial_electron_densities[shell]
+            )
+            solution = root(
+                self.population_objective_function,
+                first_guess,
+                args=(
+                    atomic_numbers,
+                    phi[shell],
+                    solution_vector,
+                    rate_matrix_index,
+                    total_photo_ion_coefficients[shell],
+                    total_rad_recomb_coefficients[shell],
+                    total_coll_ion_coefficients[shell],
+                    total_coll_recomb_coefficients[shell],
+                ),
+                jac=True,
+            )
+            assert solution.success
         # TODO: change the jacobian and rate matrix to use shell id and get coefficients from the attribute of the class.
 
         raise NotImplementedError(
