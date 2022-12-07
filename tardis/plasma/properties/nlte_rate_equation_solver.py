@@ -89,17 +89,12 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             .unique()
             .drop("n_e")
         )  # dropping the n_e index, as rate_matrix_index's first index is (atomic_numbers, "n_e")
-        rate_matrix = self.calculate_rate_matrix(
-            atomic_numbers,
-            phi[0],
-            initial_electron_densities[0],
-            rate_matrix_index,
-            total_photo_ion_coefficients[0],
-            total_rad_recomb_coefficients[0],
-            total_coll_ion_coefficients[0],
-            total_coll_recomb_coefficients[0],
+
+        index = rate_matrix_index.droplevel("level_number").drop("n_e")
+        ion_number_density_nlte = pd.DataFrame(
+            0.0, index=index, columns=phi.columns
         )
-        
+        electron_densities_nlte = pd.Series(0.0, index=phi.columns)
 
         for i, shell in enumerate(phi.columns):
             solution_vector = self.prepare_solution_vector(
@@ -126,11 +121,11 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
                 jac=True,
             )
             assert solution.success
+            ion_number_density_nlte[i] = solution.x[:-1]
+            electron_densities_nlte[i] = solution.x[-1]
         # TODO: change the jacobian and rate matrix to use shell id and get coefficients from the attribute of the class.
-
-        raise NotImplementedError(
-            "NLTE ionization hasn't been fully implemented yet!"
-        )
+        1 / 0
+        return ion_number_density_nlte, electron_densities_nlte
 
     @staticmethod
     def calculate_rate_matrix(
