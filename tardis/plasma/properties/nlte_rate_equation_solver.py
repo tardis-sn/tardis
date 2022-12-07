@@ -83,7 +83,13 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         # >>>TODO:initial electron density should be included in the initial guess, added in a future PR
         initial_electron_density = number_density.sum(axis=0)
         # <<<
+        atomic_numbers = (
+            rate_matrix_index.get_level_values("atomic_number")
+            .unique()
+            .drop("n_e")
+        )  # dropping the n_e index, as rate_matrix_index's first index is (atomic_numbers, "n_e")
         rate_matrix = self.calculate_rate_matrix(
+            atomic_numbers,
             phi[0],
             initial_electron_density[0],
             rate_matrix_index,
@@ -92,6 +98,19 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             total_coll_ion_coefficients[0],
             total_coll_recomb_coefficients[0],
         )
+        initial_guess = self.prepare_first_guess(
+            atomic_numbers, number_density[0], initial_electron_density[0]
+        )
+        jacobian_matrix = self.jacobian_matrix(
+            atomic_numbers,
+            initial_guess,
+            rate_matrix,
+            rate_matrix_index,
+            total_rad_recomb_coefficients[0],
+            total_coll_ion_coefficients[0],
+            total_coll_recomb_coefficients[0],
+        )
+        # TODO: change the jacobian and rate matrix to use shell id and get coefficients from the attribute of the class.
 
         raise NotImplementedError(
             "NLTE ionization hasn't been fully implemented yet!"
@@ -99,6 +118,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
     @staticmethod
     def calculate_rate_matrix(
+        atomic_numbers,
         phi_shell,
         electron_density,
         rate_matrix_index,
@@ -143,11 +163,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         total_coll_recomb_coefficients = (
             total_coll_recomb_coefficients * electron_density**2
         )
-        atomic_numbers = (
-            rate_matrix_index.get_level_values("atomic_number")
-            .unique()
-            .drop("n_e")
-        )  # dropping the n_e index, because 1st index of rate_matrix_index is (atomic_numbers, "n_e").
         for atomic_number in atomic_numbers:
             ion_numbers = rate_matrix.loc[atomic_number].index.get_level_values(
                 "ion_number"
@@ -421,3 +436,125 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             total_coll_ion_coefficients,
             total_coll_recomb_coefficients,
         )
+
+    @staticmethod
+    def jacobian_matrix(
+        atomic_numbers,
+        populations,
+        rate_matrix,
+        rate_matrix_index,
+        total_rad_recomb_coefficients,
+        total_coll_ion_coefficients,
+        total_coll_recomb_coefficients,
+    ):
+        """Creates the jacobian matrix used for NLTE ionization solver
+
+        Parameters
+        ----------
+        populations : numpy.array
+            Ion populations, electron density
+        rate_matrix : DataFrame
+            Rate matrix used for NLTE solver.
+        rate_matrix_index : MultiIndex
+            (atomic_number, ion_number, treatment type)
+            If ion is treated in LTE or nebular ionization, 3rd index is "lte_ion",
+            if treated in NLTE ionization, 3rd index is "nlte_ion".
+        total_rad_recomb_coefficients : DataFrame
+            Radiative recombination coefficients grouped by atomic number and ion number.
+        total_coll_ion_coefficients : DataFrame
+            Collisional ionization coefficients(should get multiplied by electron density).
+        total_coll_recomb_coefficients : DataFrame
+            Collisional recombination coefficients(should get multiplied by electron density).
+
+        Returns
+        -------
+        numpy.array
+            Jacobian matrix used for NLTE ionization solver
+        """
+        # TODO: for future use, can be vectorized.
+        index = 0
+        jacobian_matrix = rate_matrix.copy().values
+        jacobian_matrix[:-1, -1] = populations[1:]
+        for atomic_number in atomic_numbers:
+            for i in range(index, index + atomic_number):
+                if rate_matrix_index[i][2] == "nlte_ion":
+                    jacobian_matrix[
+                        i, -1
+                    ] = NLTERateEquationSolver.deriv_matrix_block(
+                        atomic_number,
+                        total_rad_recomb_coefficients.loc[(atomic_number,)],
+                        total_coll_ion_coefficients.loc[(atomic_number,)],
+                        total_coll_recomb_coefficients.loc[(atomic_number,)],
+                        populations[index : index + atomic_number + 1],
+                        populations[-1],
+                    )[
+                        i - index
+                    ]
+            index += atomic_number + 1
+            jacobian_matrix[index - 1, -1] = 0  # number conservation row
+        return jacobian_matrix
+
+    @staticmethod
+    def deriv_matrix_block(
+        atomic_number,
+        total_rad_recomb_coefficients,
+        total_coll_ion_coefficients,
+        total_coll_recomb_coefficients,
+        current_ion_number_densities,
+        current_electron_density,
+    ):
+        """Calculates the dot product of the derivative of rate matrix and ion number densities+electron density column.
+
+        Parameters
+        ----------
+        atomic_number : int64
+            Current atomic number
+        total_rad_recomb_coefficients : DataFrame
+            Radiative recombination coefficients grouped by atomic number and ion number.
+        total_coll_ion_coefficients : DataFrame
+            Collisional ionization coefficients.
+        total_coll_recomb_coefficients : DataFrame
+            Collisional recombination coefficients.
+        current_ion_number_densities : numpy.array
+            Current ion number densities for the current atomic number.
+        current_electron_density : float64
+            Current electron density
+
+        Returns
+        -------
+        numpy.array
+            Returns the part of the last column of the jacobian matrix, corresponding to atomic number.
+        """
+        ion_numbers = np.arange(0, atomic_number)
+        radiative_rate_coeff_matrix = NLTERateEquationSolver.recomb_matrix(
+            total_rad_recomb_coefficients, atomic_number, ion_numbers
+        )
+        coll_recomb_matrix = (
+            NLTERateEquationSolver.recomb_matrix(
+                total_coll_recomb_coefficients, atomic_number, ion_numbers
+            )
+            * current_electron_density
+            * 2
+        )
+        coll_ion_coeff_matrix = NLTERateEquationSolver.ion_matrix(
+            total_coll_ion_coefficients, atomic_number, ion_numbers
+        )
+        deriv_matrix = (
+            radiative_rate_coeff_matrix
+            + coll_ion_coeff_matrix
+            + coll_recomb_matrix
+        )
+        return np.dot(deriv_matrix, current_ion_number_densities)
+
+    def prepare_first_guess(
+        self, atomic_numbers, number_density, electron_density
+    ):
+        # TODO needs to be changed for excitation
+        array_size = (number_density.index.values + 1).sum() + 1
+        first_guess = np.zeros(array_size)
+        index = 1
+        for atomic_number in atomic_numbers:
+            first_guess[index] = number_density.loc[atomic_number]
+            index += atomic_number + 1
+        first_guess[-1] = electron_density
+        return first_guess
