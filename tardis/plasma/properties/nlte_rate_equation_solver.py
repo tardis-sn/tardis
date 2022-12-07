@@ -571,3 +571,41 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             index += atomic_number + 1
         first_guess[-1] = electron_density
         return first_guess
+
+    def population_objective_function(
+            self,
+            populations,
+            atomic_numbers,
+            phi,
+            solution_vector,
+            rate_matrix_index,
+            total_photo_ion_coefficients,
+            total_rad_recomb_coefficients,
+            total_coll_ion_coefficients,
+            total_coll_recomb_coefficients,
+        ):
+            electron_density = populations[-1]
+            rate_matrix = self.calculate_rate_matrix(
+                atomic_numbers,
+                phi,
+                electron_density,
+                rate_matrix_index,
+                total_photo_ion_coefficients,
+                total_rad_recomb_coefficients,
+                total_coll_ion_coefficients,
+                total_coll_recomb_coefficients,
+            )
+            jacobian_matrix = self.jacobian_matrix(
+                atomic_numbers,
+                populations,
+                rate_matrix,
+                rate_matrix_index,
+                total_rad_recomb_coefficients,
+                total_coll_ion_coefficients,
+                total_coll_recomb_coefficients,
+            )
+            # 1/0
+            return (
+                np.dot(rate_matrix.values, populations) - solution_vector,
+                jacobian_matrix,
+            )
