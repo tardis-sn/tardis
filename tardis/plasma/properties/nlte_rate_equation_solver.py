@@ -99,13 +99,16 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             total_coll_ion_coefficients[0],
             total_coll_recomb_coefficients[0],
         )
+        
 
         for i, shell in enumerate(phi.columns):
             solution_vector = self.prepare_solution_vector(
                 number_density[shell]
             )
             first_guess = self.prepare_first_guess(
-                atomic_numbers, number_density[shell], initial_electron_densities[shell]
+                atomic_numbers,
+                number_density[shell],
+                initial_electron_densities[shell],
             )
             solution = root(
                 self.population_objective_function,
@@ -573,39 +576,55 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         return first_guess
 
     def population_objective_function(
-            self,
-            populations,
+        self,
+        populations,
+        atomic_numbers,
+        phi,
+        solution_vector,
+        rate_matrix_index,
+        total_photo_ion_coefficients,
+        total_rad_recomb_coefficients,
+        total_coll_ion_coefficients,
+        total_coll_recomb_coefficients,
+    ):
+        electron_density = populations[-1]
+        rate_matrix = self.calculate_rate_matrix(
             atomic_numbers,
             phi,
-            solution_vector,
+            electron_density,
             rate_matrix_index,
             total_photo_ion_coefficients,
             total_rad_recomb_coefficients,
             total_coll_ion_coefficients,
             total_coll_recomb_coefficients,
-        ):
-            electron_density = populations[-1]
-            rate_matrix = self.calculate_rate_matrix(
-                atomic_numbers,
-                phi,
-                electron_density,
-                rate_matrix_index,
-                total_photo_ion_coefficients,
-                total_rad_recomb_coefficients,
-                total_coll_ion_coefficients,
-                total_coll_recomb_coefficients,
+        )
+        jacobian_matrix = self.jacobian_matrix(
+            atomic_numbers,
+            populations,
+            rate_matrix,
+            rate_matrix_index,
+            total_rad_recomb_coefficients,
+            total_coll_ion_coefficients,
+            total_coll_recomb_coefficients,
+        )
+        return (
+            np.dot(rate_matrix.values, populations) - solution_vector,
+            jacobian_matrix,
+        )
+
+    def solution_vector_block(self, atomic_number, number_density):
+        solution_vector = np.zeros(atomic_number + 1)
+        solution_vector[-1] = number_density
+        return solution_vector
+
+    def prepare_solution_vector(self, number_density):
+        atomic_numbers = number_density.index
+        solution_array = []
+        for atomic_number in atomic_numbers:
+            solution_array.append(
+                self.solution_vector_block(
+                    atomic_number, number_density.loc[atomic_number]
+                )
             )
-            jacobian_matrix = self.jacobian_matrix(
-                atomic_numbers,
-                populations,
-                rate_matrix,
-                rate_matrix_index,
-                total_rad_recomb_coefficients,
-                total_coll_ion_coefficients,
-                total_coll_recomb_coefficients,
-            )
-            # 1/0
-            return (
-                np.dot(rate_matrix.values, populations) - solution_vector,
-                jacobian_matrix,
-            )
+        solution_vector = np.hstack(solution_array + [0])
+        return solution_vector
