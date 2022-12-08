@@ -226,8 +226,6 @@ def test_jacobian_matrix(
     assert_almost_equal(actual_jacobian_matrix, desired_jacobian_matrix)
 
 
-
-
 @pytest.fixture(scope="session")
 def nlte_atomic_data_fname(tardis_ref_path):
     atomic_data_fname = os.path.join(
@@ -243,6 +241,7 @@ def nlte_atomic_data_fname(tardis_ref_path):
 
     return atomic_data_fname
 
+
 @pytest.fixture(scope="session")
 def nlte_atomic_dataset(nlte_atomic_data_fname):
     nlte_atomic_data = AtomData.from_hdf(nlte_atomic_data_fname)
@@ -253,10 +252,13 @@ def nlte_atomic_dataset(nlte_atomic_data_fname):
     #     )
     # else:
     return nlte_atomic_data
+
+
 @pytest.fixture
 def nlte_atom_data(nlte_atomic_dataset):
     return nlte_atomic_dataset.atom_data
-    
+
+
 data_path = os.path.join("tardis", "io", "tests", "data")
 
 
@@ -273,14 +275,13 @@ def nlte_raw_model(tardis_model_nlte):
 
 @pytest.fixture
 def nlte_raw_plasma(tardis_model_nlte, nlte_raw_model, nlte_atom_data):
-    plasma = assemble_plasma(
-        tardis_model_nlte, nlte_raw_model, nlte_atom_data
-    )
+    plasma = assemble_plasma(tardis_model_nlte, nlte_raw_model, nlte_atom_data)
     plasma.update(w=1.0)
     return plasma
 
+
 def test_critical_case(nlte_raw_plasma):
-    assert_almost_equal(nlte_raw_plasma.ion_number_density, nlte_raw_plasma.ion_number_density_nlte)
-
-
-
+    assert_almost_equal(
+        nlte_raw_plasma.ion_number_density,
+        nlte_raw_plasma.ion_number_density_nlte,
+    )
