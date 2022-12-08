@@ -4,7 +4,7 @@ supernova:
     luminosity_requested: 2.8e9 solLum
     time_explosion: 13 day
 
-atom_data: kurucz_atom_pure_simple.h5
+atom_data: TestNLTE_He_Ti.h5
 
 model:
     structure:
@@ -17,13 +17,9 @@ model:
             type: branch85_w7
     abundances:
         type: uniform
-        H: 0.1
-        O: 0.09
-        Mg: 0.03
-        Si: 0.52
-        S: 0.19
-        Ar: 0.04
-        Ca: 0.03
+        H: 0.8
+        He: 0.15
+        Ti: 0.05
 
 plasma:
     ionization: lte
@@ -33,7 +29,9 @@ plasma:
     continuum_interaction:
       species:
         - H I
-    nlte_ionization_species: [H I]
+        - He II
+        - Ti I
+    nlte_ionization_species: [H I, He II, Ti I]
 
 montecarlo:
     seed: 23111963
