@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_wolfgang_2022_7331855
+.. |CITATION| replace:: kerzendorf_wolfgang_2022_7428821
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7331855-blue
-                 :target: https://doi.org/10.5281/zenodo.7331855
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7428821-blue
+                 :target: https://doi.org/10.5281/zenodo.7428821
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_wolfgang_2022_7331855,
+    @software{kerzendorf_wolfgang_2022_7428821,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -120,9 +120,9 @@ The following BibTeX entries are needed for the references:
                       Savel, Arjun and
                       Reinecke, Martin and
                       Eweis, Youssef and
+                      Chitchyan, Sona and
                       Bylund, Tomas and
                       Bentil, Laud and
-                      Chitchyan, Sona and
                       Eguren, Jordi and
                       Alam, Arib and
                       Bartnik, Matthew and
@@ -133,9 +133,9 @@ The following BibTeX entries are needed for the references:
                       Kambham, Satwik and
                       Mishra, Sashank and
                       Rajagopalan, Srinath and
-                      Jain, Rinkle and
                       Reichenbach, John and
                       Floers, Andreas and
+                      Jain, Rinkle and
                       Holas, Alexander and
                       Bhakar, Jayant and
                       Brar, Antreev and
@@ -166,12 +166,12 @@ The following BibTeX entries are needed for the references:
                       Kolliboyina, Chaitanya and
                       Nayak U, Ashwin and
                       Kharkar, Atharwa},
-      title        = {tardis-sn/tardis: TARDIS v2022.11.17},
-      month        = nov,
+      title        = {tardis-sn/tardis: TARDIS v2022.12.12},
+      month        = dec,
       year         = 2022,
       publisher    = {Zenodo},
-      version      = {release-2022.11.17},
-      doi          = {10.5281/zenodo.7331855},
-      url          = {https://doi.org/10.5281/zenodo.7331855}
+      version      = {release-2022.12.12},
+      doi          = {10.5281/zenodo.7428821},
+      url          = {https://doi.org/10.5281/zenodo.7428821}
     }
 
