@@ -972,14 +972,14 @@ package:
     snappy: '>=1.1.9,<2.0a0'
     zstd: '>=1.5.2,<1.6.0a0'
   hash:
-    md5: 9fc20ab886b80d1029b828ef7ee79a35
-    sha256: 4c3a0242aa1771839bd0e8fa2916fcf8be713d383da71106e662b3e2d99d0b46
+    md5: bcf0664a2dbbbb86cbd4c1e6ff10ddd6
+    sha256: cc2b8e83ac6bf26413141900b187d5d6d6bd89581247c5ddf880740d12e7073b
   manager: conda
   name: blosc
   optional: false
   platform: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/blosc-1.21.2-hafa529b_0.conda
-  version: 1.21.2
+  url: https://conda.anaconda.org/conda-forge/linux-64/blosc-1.21.3-hafa529b_0.conda
+  version: 1.21.3
 - category: main
   dependencies:
     libbrotlidec: 1.0.9 h166bdaf_8
@@ -1136,17 +1136,17 @@ package:
     libgcc-ng: '>=12'
     libstdcxx-ng: '>=12'
     libwebp-base: '>=1.2.4,<2.0a0'
-    libzlib: '>=1.2.12,<1.3.0a0'
-    xz: '>=5.2.6,<5.3.0a0'
+    libzlib: '>=1.2.13,<1.3.0a0'
+    xz: '>=5.2.6,<6.0a0'
     zstd: '>=1.5.2,<1.6.0a0'
   hash:
-    md5: 901791f0ec7cddc8714e76e273013a91
-    sha256: 19f29fcaab2e6b97cb1991a5a703b5951e981dc8a093945f20382288b29a4668
+    md5: e712a63a21f9db647982971dc121cdcf
+    sha256: f81d38e7458c6ba2fcf93bef4ed2c12c2977e89ca9a7f936ce53a3338a88352f
   manager: conda
   name: libtiff
   optional: false
   platform: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/libtiff-4.4.0-h55922b4_4.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/linux-64/libtiff-4.4.0-h82bc61c_5.conda
   version: 4.4.0
 - category: main
   dependencies:
@@ -1550,7 +1550,7 @@ package:
     libgcc-ng: '>=12'
     libglib: '>=2.72.1,<3.0a0'
     libpng: '>=1.6.38,<1.7.0a0'
-    libtiff: '>=4.4.0,<5.0a0'
+    libtiff: '>=4.4.0,<4.5.0a0'
     libzlib: '>=1.2.12,<1.3.0a0'
     zlib: '>=1.2.12,<1.3.0a0'
   hash:
@@ -1684,7 +1684,7 @@ package:
   dependencies:
     jpeg: '>=9e,<10a'
     libgcc-ng: '>=12'
-    libtiff: '>=4.4.0,<5.0a0'
+    libtiff: '>=4.4.0,<4.5.0a0'
   hash:
     md5: dcc588839de1445d90995a0a2c4f3a39
     sha256: cbadb4150850941bf0518ba948effbbdd89b2c28dfdfed54eae196037e015b43
@@ -1717,7 +1717,7 @@ package:
     jpeg: '>=9e,<10a'
     libgcc-ng: '>=12'
     libpng: '>=1.6.37,<1.7.0a0'
-    libtiff: '>=4.4.0,<5.0a0'
+    libtiff: '>=4.4.0,<4.5.0a0'
     libwebp-base: '>=1.2.4,<2.0a0'
   hash:
     md5: 802e43f480122a85ae6a34c1909f8f98
@@ -1754,14 +1754,14 @@ package:
     python: '>=3.8,<3.9.0a0'
     python_abi: 3.8.* *_cp38
   hash:
-    md5: c4e74a9c08d0eb2357755d3d5f748cf6
-    sha256: 8b13ed79100bc65f263d1d8c247a01ecbe8f1b108e75a610301eee464e3e0c17
+    md5: f95c2a5ae39b0869fd9eff91538fe65b
+    sha256: ce15f30c7cb91630ef23f5c355978392a5c51cef016fa0ab35caa12f8645b25d
   manager: conda
   name: lxml
   optional: false
   platform: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/lxml-4.9.1-py38ha9ef780_1.tar.bz2
-  version: 4.9.1
+  url: https://conda.anaconda.org/conda-forge/linux-64/lxml-4.9.2-py38h215a2d7_0.conda
+  version: 4.9.2
 - category: main
   dependencies:
     libgcc-ng: '>=12'
@@ -1871,7 +1871,7 @@ package:
     libgcc-ng: '>=12'
     libpng: '>=1.6.37,<1.7.0a0'
     libstdcxx-ng: '>=12'
-    libtiff: '>=4.4.0,<5.0a0'
+    libtiff: '>=4.4.0,<4.5.0a0'
     libzlib: '>=1.2.12,<1.3.0a0'
   hash:
     md5: a11b4df9271a8d7917686725aa04c8f2
@@ -2382,14 +2382,14 @@ package:
   dependencies:
     python: '>=3.7'
   hash:
-    md5: 202405f939ee9271e641922de27e2c5a
-    sha256: ad1b029878c74cadd8d85c3635f6d483f680d8e0ed291bf1516ac4598efa835f
+    md5: 96a8c913bcd01dd9ab7360290aeb4c42
+    sha256: db45ac7c39fbc710ae0c178ac43eee642811f408be7778d1d5c4156618310cbe
   manager: conda
   name: traitlets
   optional: false
   platform: linux-64
-  url: https://conda.anaconda.org/conda-forge/noarch/traitlets-5.7.0-pyhd8ed1ab_0.conda
-  version: 5.7.0
+  url: https://conda.anaconda.org/conda-forge/noarch/traitlets-5.7.1-pyhd8ed1ab_0.conda
+  version: 5.7.1
 - category: main
   dependencies:
     libgcc-ng: '>=12'
@@ -2657,13 +2657,13 @@ package:
     python: '>=3.8,<3.9.0a0'
     python_abi: 3.8.* *_cp38
   hash:
-    md5: 2276b1f4d1ede3f5f14cc7e4ae6f9a33
-    sha256: a53a8f4e39b4163e073f1e78915085cc0a41333e8824b273fb9a213586609af1
+    md5: 3ac112151c6b6cfe457e976de41af0c5
+    sha256: c6a14421ca72212ef14208eefe4a53c1ecc4280f1afa303773fe42a0da3e91fb
   manager: conda
   name: cffi
   optional: false
   platform: linux-64
-  url: https://conda.anaconda.org/conda-forge/linux-64/cffi-1.15.1-py38h4a40e3a_2.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/linux-64/cffi-1.15.1-py38h4a40e3a_3.conda
   version: 1.15.1
 - category: main
   dependencies:
@@ -2842,7 +2842,7 @@ package:
     jpeg: '>=9e,<10a'
     libgcc-ng: '>=10.3.0'
     libpng: '>=1.6.37,<1.7.0a0'
-    libtiff: '>=4.3.0,<5.0a0'
+    libtiff: '>=4.3.0,<4.5.0a0'
     libwebp: ''
     libwebp-base: '>=1.2.2,<2.0a0'
     libzlib: '>=1.2.11,<1.3.0a0'
@@ -2937,7 +2937,7 @@ package:
     jpeg: '>=9e,<10a'
     lcms2: '>=2.12,<3.0a0'
     libgcc-ng: '>=12'
-    libtiff: '>=4.4.0,<5.0a0'
+    libtiff: '>=4.4.0,<4.5.0a0'
     libwebp-base: '>=1.2.4,<2.0a0'
     libxcb: '>=1.13,<1.14.0a0'
     libzlib: '>=1.2.13,<1.3.0a0'
@@ -3989,16 +3989,16 @@ package:
   version: 0.7.1
 - category: main
   dependencies:
-    python: '>=3.6'
+    python: '>=3.7'
     sphinx: '>=2'
   hash:
-    md5: e2aad70b71152072c47d33a198bdb789
-    sha256: 71a03cd9f376ec1e815676cda332fe7f76042674985c68fd802d4e2bdd52f738
+    md5: 423cbdbaeaf6f7f7ba556b38cacd7c60
+    sha256: 5250c39f9eb42b67d41e7b3ad7aa814ffddee7215047cd9410edbd6d4a407db5
   manager: conda
   name: sphinx-automodapi
   optional: false
   platform: linux-64
-  url: https://conda.anaconda.org/conda-forge/noarch/sphinx-automodapi-0.14.1-pyhd8ed1ab_1.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/noarch/sphinx-automodapi-0.14.1-pyhb6b8b6f_2.conda
   version: 0.14.1
 - category: main
   dependencies:
@@ -4038,13 +4038,13 @@ package:
     python: '>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*'
     sphinx: '>=1.6,<6'
   hash:
-    md5: 2471715dba64124de7a42093e550ec6c
-    sha256: 2034c089b787220060b694aedbb07ca90109c97c835513f8407668577f76995e
+    md5: a8d25c9077767faf05148421a04874f6
+    sha256: 05336b16250a43671a32f59afb227c42015c2a5156b6d3830e181543182582a3
   manager: conda
   name: sphinx_rtd_theme
   optional: false
   platform: linux-64
-  url: https://conda.anaconda.org/conda-forge/noarch/sphinx_rtd_theme-1.1.1-pyhd8ed1ab_0.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/noarch/sphinx_rtd_theme-1.1.1-pyha770c72_1.conda
   version: 1.1.1
 - category: main
   dependencies:
@@ -4675,13 +4675,13 @@ package:
   dependencies:
     llvm-openmp: '>=8.0.0'
   hash:
-    md5: 11835360754e5caca43cfaa3a81dfca5
-    sha256: 5d259b0e7992f064036f6cda6e22ba7eeee507b8edbcf262cd967f2e5389ef94
+    md5: f7602714b2be91be36f00fb75c45cb14
+    sha256: 78173905004e7d13501db619391b113f3b96f2c78ba3ed0273152d1340d6a818
   manager: conda
   name: libgfortran5
   optional: false
   platform: osx-64
-  url: https://conda.anaconda.org/conda-forge/osx-64/libgfortran5-11.3.0-h082f757_26.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/osx-64/libgfortran5-11.3.0-h082f757_27.conda
   version: 11.3.0
 - category: main
   dependencies:
@@ -4916,13 +4916,13 @@ package:
   dependencies:
     libgfortran5: ''
   hash:
-    md5: ac9c1a84323edab6c3ff9d3e586ab3cc
-    sha256: 9d16c9935383992cd52c99492bbc254132edef9b775cee848ec5a52d8b314209
+    md5: 7d25335e67256924aa04de681e68e807
+    sha256: 834f1547a41fe53a23563b7702eb83b7156129a88460b5de701e8e019f7933a1
   manager: conda
   name: libgfortran
   optional: false
   platform: osx-64
-  url: https://conda.anaconda.org/conda-forge/osx-64/libgfortran-5.0.0-9_5_0_h97931a8_26.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/osx-64/libgfortran-5.0.0-11_3_0_h97931a8_27.conda
   version: 5.0.0
 - category: main
   dependencies:
@@ -4988,20 +4988,20 @@ package:
   dependencies:
     jpeg: '>=9e,<10a'
     lerc: '>=4.0.0,<5.0a0'
-    libcxx: '>=14.0.4'
+    libcxx: '>=14.0.6'
     libdeflate: '>=1.14,<1.15.0a0'
     libwebp-base: '>=1.2.4,<2.0a0'
-    libzlib: '>=1.2.12,<1.3.0a0'
-    xz: '>=5.2.6,<5.3.0a0'
+    libzlib: '>=1.2.13,<1.3.0a0'
+    xz: '>=5.2.6,<6.0a0'
     zstd: '>=1.5.2,<1.6.0a0'
   hash:
-    md5: 09195c43a896fe98b82dcebfa1d6eab1
-    sha256: 4f3fd26f59d97920120817e84605a4f1d9a17940babeb562a8e81b742c6270c9
+    md5: 551fc78ba147767ea5905d0746e2fbb5
+    sha256: 7ccfb5aba44657875ff18d27654d84a5c7f6daf8cd840b5524359c7926b02e7a
   manager: conda
   name: libtiff
   optional: false
   platform: osx-64
-  url: https://conda.anaconda.org/conda-forge/osx-64/libtiff-4.4.0-hdb44e8a_4.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/osx-64/libtiff-4.4.0-h6268bbc_5.conda
   version: 4.4.0
 - category: main
   dependencies:
@@ -5391,7 +5391,7 @@ package:
     jpeg: '>=9e,<10a'
     libglib: '>=2.72.1,<3.0a0'
     libpng: '>=1.6.38,<1.7.0a0'
-    libtiff: '>=4.4.0,<5.0a0'
+    libtiff: '>=4.4.0,<4.5.0a0'
     libzlib: '>=1.2.12,<1.3.0a0'
     zlib: '>=1.2.12,<1.3.0a0'
   hash:
@@ -5520,7 +5520,7 @@ package:
 - category: main
   dependencies:
     jpeg: '>=9e,<10a'
-    libtiff: '>=4.4.0,<5.0a0'
+    libtiff: '>=4.4.0,<4.5.0a0'
   hash:
     md5: e56c432e9a78c63692fa6bd076a15713
     sha256: c9cc9f806ae1cdc40597d2415b8ffe9448db434f109133938968b371f16580b8
@@ -5565,7 +5565,7 @@ package:
     giflib: '>=5.2.1,<5.3.0a0'
     jpeg: '>=9e,<10a'
     libpng: '>=1.6.37,<1.7.0a0'
-    libtiff: '>=4.4.0,<5.0a0'
+    libtiff: '>=4.4.0,<4.5.0a0'
     libwebp-base: '>=1.2.4,<2.0a0'
   hash:
     md5: d3b5a56369701e6a11bf300ba3394391
@@ -5707,7 +5707,7 @@ package:
   dependencies:
     libcxx: '>=13.0.1'
     libpng: '>=1.6.37,<1.7.0a0'
-    libtiff: '>=4.4.0,<5.0a0'
+    libtiff: '>=4.4.0,<4.5.0a0'
     libzlib: '>=1.2.12,<1.3.0a0'
   hash:
     md5: be533cc782981a0ec5eed28aa618470a
@@ -6213,14 +6213,14 @@ package:
   dependencies:
     python: '>=3.7'
   hash:
-    md5: 202405f939ee9271e641922de27e2c5a
-    sha256: ad1b029878c74cadd8d85c3635f6d483f680d8e0ed291bf1516ac4598efa835f
+    md5: 96a8c913bcd01dd9ab7360290aeb4c42
+    sha256: db45ac7c39fbc710ae0c178ac43eee642811f408be7778d1d5c4156618310cbe
   manager: conda
   name: traitlets
   optional: false
   platform: osx-64
-  url: https://conda.anaconda.org/conda-forge/noarch/traitlets-5.7.0-pyhd8ed1ab_0.conda
-  version: 5.7.0
+  url: https://conda.anaconda.org/conda-forge/noarch/traitlets-5.7.1-pyhd8ed1ab_0.conda
+  version: 5.7.1
 - category: main
   dependencies:
     python: '>=3.8,<3.9.0a0'
@@ -6450,13 +6450,13 @@ package:
     python: '>=3.8,<3.9.0a0'
     python_abi: 3.8.* *_cp38
   hash:
-    md5: afd6952109c766c7a64ea430ec61268d
-    sha256: d783a69275737dc4b1312926913251773f5aa649990c628e4e0986e22da77783
+    md5: a2b3ae2a1fd2aea0b4433d9e7fff8cf3
+    sha256: 1eec0cc45697e3c15b0c8b5063ed5f07c3bee1f1cdb98bac91184f44c1d5685a
   manager: conda
   name: cffi
   optional: false
   platform: osx-64
-  url: https://conda.anaconda.org/conda-forge/osx-64/cffi-1.15.1-py38hb368cf1_2.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/osx-64/cffi-1.15.1-py38hb368cf1_3.conda
   version: 1.15.1
 - category: main
   dependencies:
@@ -6645,7 +6645,7 @@ package:
     jpeg: '>=9e,<10a'
     libiconv: '>=1.16,<2.0.0a0'
     libpng: '>=1.6.37,<1.7.0a0'
-    libtiff: '>=4.3.0,<5.0a0'
+    libtiff: '>=4.3.0,<4.5.0a0'
     libwebp: ''
     libwebp-base: '>=1.2.2,<2.0a0'
     libzlib: '>=1.2.11,<1.3.0a0'
@@ -6667,14 +6667,14 @@ package:
     python: '>=3.8,<3.9.0a0'
     python_abi: 3.8.* *_cp38
   hash:
-    md5: fb6c1222378c847f458fd9114a365411
-    sha256: 09a0f4c7ac1b74a1155d5b4023d2bc7530c1083bf9e59ef12a4ab11363d51b36
+    md5: 2a6356ee2f82b9dc3faf8ffb22f1703f
+    sha256: 66732661195e4ec69afc37e338b4b392d9e8fb918de83048e01b8968169311a2
   manager: conda
   name: lxml
   optional: false
   platform: osx-64
-  url: https://conda.anaconda.org/conda-forge/osx-64/lxml-4.9.1-py38h64add32_1.tar.bz2
-  version: 4.9.1
+  url: https://conda.anaconda.org/conda-forge/osx-64/lxml-4.9.2-py38h64add32_0.conda
+  version: 4.9.2
 - category: main
   dependencies:
     python: '>=3.6'
@@ -6719,7 +6719,7 @@ package:
     freetype: '>=2.12.1,<3.0a0'
     jpeg: '>=9e,<10a'
     lcms2: '>=2.12,<3.0a0'
-    libtiff: '>=4.4.0,<5.0a0'
+    libtiff: '>=4.4.0,<4.5.0a0'
     libwebp-base: '>=1.2.4,<2.0a0'
     libxcb: '>=1.13,<1.14.0a0'
     libzlib: '>=1.2.13,<1.3.0a0'
@@ -7845,16 +7845,16 @@ package:
   version: 0.7.1
 - category: main
   dependencies:
-    python: '>=3.6'
+    python: '>=3.7'
     sphinx: '>=2'
   hash:
-    md5: e2aad70b71152072c47d33a198bdb789
-    sha256: 71a03cd9f376ec1e815676cda332fe7f76042674985c68fd802d4e2bdd52f738
+    md5: 423cbdbaeaf6f7f7ba556b38cacd7c60
+    sha256: 5250c39f9eb42b67d41e7b3ad7aa814ffddee7215047cd9410edbd6d4a407db5
   manager: conda
   name: sphinx-automodapi
   optional: false
   platform: osx-64
-  url: https://conda.anaconda.org/conda-forge/noarch/sphinx-automodapi-0.14.1-pyhd8ed1ab_1.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/noarch/sphinx-automodapi-0.14.1-pyhb6b8b6f_2.conda
   version: 0.14.1
 - category: main
   dependencies:
@@ -7894,13 +7894,13 @@ package:
     python: '>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*'
     sphinx: '>=1.6,<6'
   hash:
-    md5: 2471715dba64124de7a42093e550ec6c
-    sha256: 2034c089b787220060b694aedbb07ca90109c97c835513f8407668577f76995e
+    md5: a8d25c9077767faf05148421a04874f6
+    sha256: 05336b16250a43671a32f59afb227c42015c2a5156b6d3830e181543182582a3
   manager: conda
   name: sphinx_rtd_theme
   optional: false
   platform: osx-64
-  url: https://conda.anaconda.org/conda-forge/noarch/sphinx_rtd_theme-1.1.1-pyhd8ed1ab_0.tar.bz2
+  url: https://conda.anaconda.org/conda-forge/noarch/sphinx_rtd_theme-1.1.1-pyha770c72_1.conda
   version: 1.1.1
 - category: main
   dependencies:
