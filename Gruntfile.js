@@ -1,3 +1,4 @@
+
 module.exports = function (grunt) {
     var fs = require('fs');
     var path = require('path');
@@ -328,3 +329,4 @@ module.exports = function (grunt) {
     //Clear modules and themes asset build
     grunt.registerTask('clear', ['clean:build']);
 };
+
