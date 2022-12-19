@@ -1,73 +1,51 @@
-# Compiled files
-*.py[cod]
-*.a
-*.o
-*.so
-__pycache__
+/.idea/
+/www/upload/
+/www/asset/
+/var/cache/
+/var/log/
+!/var/log/index.html
+/node_modules
+
+/usr/theme/*
+!/usr/theme/default/
+!/usr/theme/pi/
+/usr/theme/guil
+
+/*.php
+/www/sitmap.xml
+/www/apple-app-site-association
+
+/var/config/custom/*.*
 
 
-# Ignore .c files by default to avoid including generated code. If you want to
-# add a non-generated .c extension, use `git add -f filename.c`.
-*.c
+/usr/module/*
+!/usr/module/article
+!/usr/module/comment
+!/usr/module/demo
+!/usr/module/message
+!/usr/module/saml
+!/usr/module/search
+!/usr/module/sitemap
+!/usr/module/page
+!/usr/module/system
+!/usr/module/tag
+!/usr/module/user
+!/usr/module/widget
+!/usr/module/uclient
 
-# Other generated files
-*/version.py
-*/cython_version.py
-htmlcov
-.coverage
-MANIFEST
-.ipynb_checkpoints
 
-# Sphinx
-docs/api
-docs/_build
-docs/tutorials.rst
-docs/io/configuration/components/models/converters/density_parse.csv
-docs/io/configuration/components/models/converters/abund_parse.csv
-docs/io/output/plasma_graph_default.tex
-docs/io/output/plasma_graph_scaled.tex
-docs/io/output/plasma_graph_no_eq.tex
-docs/io/output/plasma_graph_with_args.tex
+var/config/module.meta.php
+www/robots-https.txt
+www/robots.txt
+www/sitemap.xml
+www/pi.txt
 
-# Eclipse editor project files
-.project
-.pydevproject
-.settings
+usr/custom/module/portfolio/
+www/git.php
+www/assets.php
+assets.php
+git.php
+/.htaccess
+/.htpasswd
 
-# Pycharm editor project files
-.idea
-
-# Floobits project files
-.floo
-.flooignore
-
-# Visual Studio Code project files
-.vscode
-
-# Packages/installer info
-*.egg
-*.egg-info
-dist
-build
-eggs
-.eggs
-parts
-bin
-var
-sdist
-develop-eggs
-.installed.cfg
-distribute-*.tar.gz
-
-# Other
-.cache
-.tox
-.*.sw[op]
-*~
-.project
-.pydevproject
-.settings
-pip-wheel-metadata/
-
-# Mac OSX
-.DS_Store
+/usr/custom/module/user/config/form.register.php
