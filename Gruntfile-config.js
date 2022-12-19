@@ -1,4 +1,7 @@
-module.exports = {
+
+modu
+
+.exports = {
   /* 
    * Which modules will be handler by grunt
    * Array list or string 'all'
