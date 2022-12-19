@@ -1,3 +1,4 @@
+
 module.exports = {
   /* 
    * Which modules will be handler by grunt
@@ -12,3 +13,4 @@ module.exports = {
 
   //exclude: '!**/sym/**'  // for exclude some huge directory ? for speed up watcher startup before watching event
 };
+
