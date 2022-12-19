@@ -1,3 +1,4 @@
+
 <?php
 $finder = Symfony\CS\Finder\DefaultFinder::create()
     ->exclude('doc')
