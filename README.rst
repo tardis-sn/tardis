@@ -110,14 +110,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_wolfgang_2022_7428821
+.. |CITATION| replace:: kerzendorf_wolfgang_2022_7484173
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7428821-blue
-                 :target: https://doi.org/10.5281/zenodo.7428821
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7484173-blue
+                 :target: https://doi.org/10.5281/zenodo.7484173
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_wolfgang_2022_7428821,
+    @software{kerzendorf_wolfgang_2022_7484173,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -165,50 +165,50 @@ The following BibTeX entries are needed for the references:
                       Varma Buddaraju, Rohith and
                       Magee, Mark and
                       Shields, Joshua and
-                      Livneh, Ran and
                       Kambham, Satwik and
+                      Livneh, Ran and
                       Mishra, Sashank and
                       Rajagopalan, Srinath and
                       Reichenbach, John and
-                      Floers, Andreas and
                       Jain, Rinkle and
-                      Holas, Alexander and
+                      Floers, Andreas and
                       Bhakar, Jayant and
                       Brar, Antreev and
                       Singh, Sourav and
-                      Kowalski, Nathan and
-                      Kumar, Aman and
+                      Holas, Alexander and
+                      Selsing, Jonatan and
                       Talegaonkar, Chinmay and
                       Sofiatti, Caroline and
-                      Selsing, Jonatan and
-                      Venkat, Shashank and
-                      Patra, Nilesh and
+                      Kumar, Aman and
+                      Kowalski, Nathan and
                       Patel, Pratik and
-                      Volodin, Dmitry and
+                      Gupta, Suyash and
+                      Sharma, Sampark and
+                      Aggarwal, Yash and
+                      Prasad, Shilpi and
+                      Dasgupta, Debajyoti and
+                      Lemoine, Thom and
+                      Zaheer, Musabbiha and
+                      Wahi, Ujjwal and
+                      Patra, Nilesh and
                       Singh Rathore, Parikshit and
                       Yap, Kevin and
-                      Sarafina, Nance and
-                      Zaheer, Musabbiha and
-                      Sandler, Morgan and
-                      Gupta, Suyash and
-                      Prasad, Shilpi and
-                      Kumar, Atul and
-                      Lemoine, Thom and
-                      Wahi, Ujjwal and
-                      Aggarwal, Yash and
-                      Sharma, Sampark and
-                      Dasgupta, Debajyoti and
                       Martinez, Laureano and
+                      Sarafina, Nance and
+                      Venkat, Shashank and
                       Kolliboyina, Chaitanya and
-                      Nayak U, Ashwin and
-                      Kharkar, Atharwa},
-      title        = {tardis-sn/tardis: TARDIS v2022.12.12},
+                      Volodin, Dmitry and
+                      Sandler, Morgan and
+                      Kumar, Atul and
+                      Kharkar, Atharwa and
+                      Nayak U, Ashwin},
+      title        = {tardis-sn/tardis: TARDIS v2022.12.26},
       month        = dec,
       year         = 2022,
       publisher    = {Zenodo},
-      version      = {release-2022.12.12},
-      doi          = {10.5281/zenodo.7428821},
-      url          = {https://doi.org/10.5281/zenodo.7428821}
+      version      = {release-2022.12.26},
+      doi          = {10.5281/zenodo.7484173},
+      url          = {https://doi.org/10.5281/zenodo.7484173}
     }
 
 *******
