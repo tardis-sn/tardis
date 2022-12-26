@@ -1,5 +1,10 @@
 ## Change Log
 
+### release-2022.12.26 (2022/12/26 14:51 +00:00)
+- [#2180](https://github.com/tardis-sn/tardis/pull/2180) Pre-release 2022.12.25 (#2180) (@tardis-bot)
+- [#2170](https://github.com/tardis-sn/tardis/pull/2170) Add missing __init__.py files to transport and geometry subpackages (#2170) (@epassaro)
+- [#2173](https://github.com/tardis-sn/tardis/pull/2173) Post-release 2022.12.12 (#2173) (@tardis-bot)
+
 ### release-2022.12.12 (2022/12/12 15:02 +00:00)
 - [#2172](https://github.com/tardis-sn/tardis/pull/2172) Pre-release 2022.12.11 (#2172) (@tardis-bot)
 - [#2150](https://github.com/tardis-sn/tardis/pull/2150) Kilonova missing zeta (#2150) (@gleck97)
@@ -312,8 +317,6 @@
 ### release-2021.7.5 (2021/07/05 14:32 +00:00)
 - [#1688](https://github.com/tardis-sn/tardis/pull/1688) final changes for release pipeline (#1688) (@epassaro)
 - [#1683](https://github.com/tardis-sn/tardis/pull/1683) prepare release pipeline for CalVer (#1683) (@epassaro)
-
-### release-2021.07.01 (2021/07/01 23:05 +00:00)
 - [#1674](https://github.com/tardis-sn/tardis/pull/1674) APE 17 migration (#1674) (@epassaro)
 - [#1658](https://github.com/tardis-sn/tardis/pull/1658) add refdata repo selection in template (#1658) (@epassaro)
 - [#1682](https://github.com/tardis-sn/tardis/pull/1682) Opacities script with proper credit (#1682) (@andrewfullard)
