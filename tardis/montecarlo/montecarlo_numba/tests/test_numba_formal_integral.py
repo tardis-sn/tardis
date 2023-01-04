@@ -12,18 +12,18 @@ from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 
 
 @pytest.mark.parametrize(
-    ["nu", "T"],
+    ["nu", "temperature"],
     [
         (1e14, 1e4),
         (0, 1),
         (1, 1),
     ],
 )
-def test_intensity_black_body(nu, T):
+def test_intensity_black_body(nu, temperature):
     func = formal_integral.intensity_black_body
-    actual = func(nu, T)
+    actual = func(nu, temperature)
     print(actual, type(actual))
-    expected = intensity_black_body(nu, T)
+    expected = intensity_black_body(nu, temperature)
     ntest.assert_almost_equal(actual, expected)
 
 

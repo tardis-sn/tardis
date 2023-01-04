@@ -53,7 +53,7 @@ class BasePacketSource(abc.ABC):
         return np.ones(no_of_packets) / no_of_packets
 
     @staticmethod
-    def create_blackbody_packet_nus(T, no_of_packets, rng, l_samples=1000):
+    def create_blackbody_packet_nus(temperature, no_of_packets, rng, l_samples=1000):
         """
         Create packet :math:`\\nu` distributed using the algorithm described in
         Bjorkman & Wood 2001 (page 4) which references
@@ -76,8 +76,7 @@ class BasePacketSource(abc.ABC):
 
         Parameters
         ----------
-        T : float
-            temperature
+        temperature : float
         no_of_packets : int
         l_samples : int
             number of l_samples needed in the algorithm
@@ -100,7 +99,7 @@ class BasePacketSource(abc.ABC):
         xis_prod = np.prod(xis[1:], 0)
         x = ne.evaluate("-log(xis_prod)/l")
 
-        return x * (const.k_B.cgs.value * T) / const.h.cgs.value
+        return x * (const.k_B.cgs.value * temperature) / const.h.cgs.value
 
 
 class BlackBodySimpleSource(BasePacketSource):
@@ -109,13 +108,12 @@ class BlackBodySimpleSource(BasePacketSource):
     part.
     """
 
-    def create_packets(self, T, no_of_packets, rng, radius):
+    def create_packets(self, temperature, no_of_packets, rng, radius):
         """Generate black-body packet properties as arrays
 
         Parameters
         ----------
-        T : float64
-            Temperature
+        temperature : float64
         no_of_packets : int
             Number of packets
         rng : numpy random number generator
@@ -134,7 +132,7 @@ class BlackBodySimpleSource(BasePacketSource):
             Packet energies
         """
         radii = np.ones(no_of_packets) * radius
-        nus = self.create_blackbody_packet_nus(T, no_of_packets, rng)
+        nus = self.create_blackbody_packet_nus(temperature, no_of_packets, rng)
         mus = self.create_zero_limb_darkening_packet_mus(no_of_packets, rng)
         energies = self.create_uniform_packet_energies(no_of_packets, rng)
 
@@ -142,13 +140,12 @@ class BlackBodySimpleSource(BasePacketSource):
 
 
 class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
-    def create_packets(self, T, no_of_packets, rng, radius, time_explosion):
+    def create_packets(self, temperature, no_of_packets, rng, radius, time_explosion):
         """Generate relativistic black-body packet properties as arrays
 
         Parameters
         ----------
-        T : float64
-            Temperature
+        temperature : float64
         no_of_packets : int
             Number of packets
         rng : numpy random number generator
@@ -169,7 +166,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
             Packet energies
         """
         self.beta = ((radius / time_explosion) / const.c).to("")
-        return super().create_packets(T, no_of_packets, rng, radius)
+        return super().create_packets(temperature, no_of_packets, rng, radius)
 
     def create_zero_limb_darkening_packet_mus(self, no_of_packets, rng):
         """
