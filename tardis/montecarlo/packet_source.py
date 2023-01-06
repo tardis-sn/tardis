@@ -77,6 +77,7 @@ class BasePacketSource(abc.ABC):
         Parameters
         ----------
         temperature : float
+            Temperature.
         no_of_packets : int
         l_samples : int
             number of l_samples needed in the algorithm
