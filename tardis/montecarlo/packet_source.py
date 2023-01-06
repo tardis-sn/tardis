@@ -77,6 +77,7 @@ class BasePacketSource(abc.ABC):
         Parameters
         ----------
         temperature : float
+            Absolute Temperature.
         no_of_packets : int
         l_samples : int
             number of l_samples needed in the algorithm
@@ -146,6 +147,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
         Parameters
         ----------
         temperature : float64
+            Absolute Temperature
         no_of_packets : int
             Number of packets
         rng : numpy random number generator

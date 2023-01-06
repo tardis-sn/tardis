@@ -477,13 +477,14 @@ def trapezoid_integration_cuda(arr, dx):
 @cuda.jit(device=True)
 def intensity_black_body_cuda(nu, temperature):
     """
-    Get the black body intensity at frequency nu
-    and temperature
+    Read black body intensity.
 
     Parameters
     ----------
     nu : float64
+        frequency
     temperature : float64
+        Temperature
 
     Returns
     -------

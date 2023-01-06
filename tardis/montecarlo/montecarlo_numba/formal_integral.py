@@ -744,8 +744,20 @@ def trapezoid_integration(array, h):
 
 @njit(**njit_dict_no_parallel)
 def intensity_black_body(nu, temperature):
-    """Get the black body intensity at frequency nu
-    and temperature """
+    """
+    Read black body intensity.
+
+    Parameters
+    ----------
+    nu : float64
+        frequency
+    temperature : float64
+        Temperature
+
+    Returns
+    -------
+    float64
+    """
     if nu == 0:
         return np.nan  # to avoid ZeroDivisionError
     beta_rad = 1 / (KB_CGS * temperature)
