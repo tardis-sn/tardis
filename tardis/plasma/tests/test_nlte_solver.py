@@ -9,6 +9,7 @@ from tardis.io.config_reader import Configuration
 from tardis.model.base import Radial1DModel
 from tardis.plasma.properties import NLTERateEquationSolver
 from tardis.io.atom_data.base import AtomData
+from tardis.plasma.properties.ion_population import IonNumberDensity
 from tardis.plasma.standard_plasmas import assemble_plasma
 
 
@@ -295,10 +296,13 @@ def test_critical_case(nlte_raw_plasma):
     ion_number_density_nlte = nlte_raw_plasma.ion_number_density_nlte.values
     ion_number_density_nlte[ion_number_density_nlte < 1e-10] = 0.0
 
-    ion_number_density = nlte_raw_plasma.ion_number_density.values
-    ion_number_density[ion_number_density < 1e-10] = 0.0 #getting rid of small numbers.
+    ind = IonNumberDensity(nlte_raw_plasma)
+    ion_number_density_lte  = ind.calculate(nlte_raw_plasma.thermal_phi_lte, nlte_raw_plasma.partition_function, nlte_raw_plasma.number_density)[0]
+
+    ion_number_density_lte = ion_number_density_lte.values
+    ion_number_density_lte[ion_number_density_lte < 1e-10] = 0.0 #getting rid of small numbers.
     assert_allclose(
-        ion_number_density,
+        ion_number_density_lte,
         ion_number_density_nlte,
-        rtol=1e-2 * ion_number_density.max(),
+        rtol=1e-2 * ion_number_density_lte.max(),
     )
