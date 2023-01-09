@@ -17,6 +17,7 @@ FILES=('atom_data/kurucz_cd23_chianti_H_He.h5'
 
 mkdir -p $REF_PATH/atom_data
 mkdir -p $REF_PATH/arepo_data
+mkdir -p $REF_PATH/nlte_atom_data
 
 for FILE in "${FILES[@]}"
 do
