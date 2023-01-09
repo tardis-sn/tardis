@@ -124,7 +124,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             ion_number_density_nlte[i] = solution.x[:-1]
             electron_densities_nlte[i] = solution.x[-1]
         # TODO: change the jacobian and rate matrix to use shell id and get coefficients from the attribute of the class.
-        # 1 / 0
         return ion_number_density_nlte, electron_densities_nlte
 
     @staticmethod
@@ -560,6 +559,22 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
     def prepare_first_guess(
         self, atomic_numbers, number_density, electron_density
     ):
+        """Constructs a first guess for ion number densities and electron density, where all species are fully once ionized.
+
+        Parameters
+        ----------
+        atomic_numbers : numpy.array
+            All atomic numbers present in the plasma.
+        number_density : DataFrame
+            Number density of present species.
+        electron_density : float
+            Current value of electron density.
+
+        Returns
+        -------
+        numpy.array
+            Guess for ion number densities and electron density.
+        """
         # TODO needs to be changed for excitation
         array_size = (number_density.index.values + 1).sum() + 1
         first_guess = np.zeros(array_size)
@@ -582,6 +597,36 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         total_coll_ion_coefficients,
         total_coll_recomb_coefficients,
     ):
+        """Main set of equations for the NLTE ionization solver. A*x - B = 0, where x is the populations,
+        A is the matrix of rates and B is the solution vector.
+
+        Parameters
+        ----------
+        populations : numpy.array
+            Current values of ion number densities and electron density.
+        atomic_numbers : numpy.array
+            All atomic numbers present in the plasma.
+        phi :DataFrame
+            Saha Factors of the current shell.
+        solution_vector : numpy.array
+            Solution vector for the set of equations.
+        rate_matrix_index : MultiIndex
+            (atomic_number, ion_number, treatment type)
+            If ion is treated in LTE or nebular ionization, 3rd index is "lte_ion",
+            if treated in NLTE ionization, 3rd index is "nlte_ion".
+        total_photo_ion_coefficients : DataFrame
+            Photo ion. coefficients for current atomic number
+        total_rad_recomb_coefficients : DataFrame
+            Rad. recomb. coefficients for current atomic number
+        total_coll_ion_coefficients : DataFrame
+            Coll. ion. coefficients for current atomic number
+        total_coll_recomb_coefficients : DataFrame
+            Coll. recomb. coefficients for current atomic number
+        Returns
+        -------
+        _type_
+            _description_
+        """
         electron_density = populations[-1]
         rate_matrix = self.calculate_rate_matrix(
             atomic_numbers,
@@ -608,11 +653,38 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         )
 
     def solution_vector_block(self, atomic_number, number_density):
+        """Block of the solution vector corresponding to the current atomic number. (0, 0, ..., number_density). Length is equal to atomic_number+1.
+
+        Parameters
+        ----------
+        atomic_number : int
+            Current atomic number.
+        number_density : float
+            Number density of the current atomic number.
+
+        Returns
+        -------
+        numpy.array
+            Block of the solution vector corresponding to the current atomic number.
+        """
         solution_vector = np.zeros(atomic_number + 1)
         solution_vector[-1] = number_density
         return solution_vector
 
     def prepare_solution_vector(self, number_density):
+        """Constructs the solution vector for the NLTE ionization solver set of equations by combining 
+        all solution verctor blocks.
+
+        Parameters
+        ----------
+        number_density : DataFrame
+            Number densities of all present species.
+
+        Returns
+        -------
+        numpy.array
+            Solution vector for the NLTE ionization solver.
+        """
         atomic_numbers = number_density.index
         solution_array = []
         for atomic_number in atomic_numbers:
