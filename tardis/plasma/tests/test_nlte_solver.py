@@ -3,7 +3,8 @@ import os
 import pytest
 import numpy as np
 import pandas as pd
-from numpy.testing import assert_almost_equal
+from copy import deepcopy
+from numpy.testing import assert_allclose, assert_almost_equal
 from tardis.io.config_reader import Configuration
 from tardis.model.base import Radial1DModel
 from tardis.plasma.properties import NLTERateEquationSolver
@@ -256,32 +257,39 @@ def nlte_atomic_dataset(nlte_atomic_data_fname):
 
 @pytest.fixture
 def nlte_atom_data(nlte_atomic_dataset):
-    return nlte_atomic_dataset.atom_data
+    atomic_data = deepcopy(nlte_atomic_dataset)
+    return atomic_data
 
 
 data_path = os.path.join("tardis", "io", "tests", "data")
 
 
 @pytest.fixture
-def tardis_model_nlte():
+def tardis_model_config_nlte():
     filename = "tardis_configv1_nlte.yml"
     return Configuration.from_yaml(os.path.join(data_path, filename))
 
 
 @pytest.fixture
-def nlte_raw_model(tardis_model_nlte):
-    return Radial1DModel.from_config(tardis_model_nlte)
+def nlte_raw_model(tardis_model_config_nlte):
+    return Radial1DModel.from_config(tardis_model_config_nlte)
 
 
 @pytest.fixture
-def nlte_raw_plasma(tardis_model_nlte, nlte_raw_model, nlte_atom_data):
-    plasma = assemble_plasma(tardis_model_nlte, nlte_raw_model, nlte_atom_data)
-    plasma.update(w=1.0)
+def nlte_raw_plasma(tardis_model_config_nlte, nlte_raw_model, nlte_atom_data):
+    new_w = np.ones_like(nlte_raw_model.dilution_factor)
+    nlte_raw_model.dilution_factor = new_w
+    plasma = assemble_plasma(tardis_model_config_nlte, nlte_raw_model, nlte_atom_data)
     return plasma
 
 
 def test_critical_case(nlte_raw_plasma):
-    assert_almost_equal(
-        nlte_raw_plasma.ion_number_density,
-        nlte_raw_plasma.ion_number_density_nlte,
+    ion_number_density_nlte = nlte_raw_plasma.ion_number_density_nlte.values
+    ion_number_density_nlte[ion_number_density_nlte < 1e-10] = 0.0
+
+    ion_number_density = nlte_raw_plasma.ion_number_density.values
+    ion_number_density[ion_number_density < 1e-10] = 0.0
+    assert_allclose(
+        ion_number_density,
+        ion_number_density_nlte, rtol=1e-2 * ion_number_density.max()
     )

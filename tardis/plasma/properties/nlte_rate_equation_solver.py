@@ -124,7 +124,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             ion_number_density_nlte[i] = solution.x[:-1]
             electron_densities_nlte[i] = solution.x[-1]
         # TODO: change the jacobian and rate matrix to use shell id and get coefficients from the attribute of the class.
-        1 / 0
+        # 1 / 0
         return ion_number_density_nlte, electron_densities_nlte
 
     @staticmethod
