@@ -279,7 +279,9 @@ def nlte_raw_model(tardis_model_config_nlte):
 def nlte_raw_plasma(tardis_model_config_nlte, nlte_raw_model, nlte_atom_data):
     new_w = np.ones_like(nlte_raw_model.dilution_factor)
     nlte_raw_model.dilution_factor = new_w
-    plasma = assemble_plasma(tardis_model_config_nlte, nlte_raw_model, nlte_atom_data)
+    plasma = assemble_plasma(
+        tardis_model_config_nlte, nlte_raw_model, nlte_atom_data
+    )
     return plasma
 
 
@@ -291,5 +293,6 @@ def test_critical_case(nlte_raw_plasma):
     ion_number_density[ion_number_density < 1e-10] = 0.0
     assert_allclose(
         ion_number_density,
-        ion_number_density_nlte, rtol=1e-2 * ion_number_density.max()
+        ion_number_density_nlte,
+        rtol=1e-2 * ion_number_density.max(),
     )
