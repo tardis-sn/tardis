@@ -229,6 +229,9 @@ def test_jacobian_matrix(
 
 @pytest.fixture(scope="session")
 def nlte_atomic_data_fname(tardis_ref_path):
+    """
+    File name for the atomic data file used in NTLE ionization solver tests.
+    """
     atomic_data_fname = os.path.join(
         tardis_ref_path, "nlte_atom_data", "TestNLTE_He_Ti.h5"
     )
@@ -245,18 +248,16 @@ def nlte_atomic_data_fname(tardis_ref_path):
 
 @pytest.fixture(scope="session")
 def nlte_atomic_dataset(nlte_atomic_data_fname):
+    """
+    Atomic dataset used for NLTE ionization solver tests.
+    """
     nlte_atomic_data = AtomData.from_hdf(nlte_atomic_data_fname)
-
-    # if atomic_data.md5 != DEFAULT_ATOM_DATA_UUID:
-    #     pytest.skip(
-    #         f'Need default Kurucz atomic dataset (md5="{DEFAULT_ATOM_DATA_UUID}")'
-    #     )
-    # else:
     return nlte_atomic_data
 
 
 @pytest.fixture
 def nlte_atom_data(nlte_atomic_dataset):
+
     atomic_data = deepcopy(nlte_atomic_dataset)
     return atomic_data
 
@@ -277,6 +278,9 @@ def nlte_raw_model(tardis_model_config_nlte):
 
 @pytest.fixture
 def nlte_raw_plasma(tardis_model_config_nlte, nlte_raw_model, nlte_atom_data):
+    """
+    Plasma assembled with dilution factors set to 1.0.
+    """
     new_w = np.ones_like(nlte_raw_model.dilution_factor)
     nlte_raw_model.dilution_factor = new_w
     plasma = assemble_plasma(
@@ -286,11 +290,13 @@ def nlte_raw_plasma(tardis_model_config_nlte, nlte_raw_model, nlte_atom_data):
 
 
 def test_critical_case(nlte_raw_plasma):
+    """Compares the LTE solution with NLTE solution at a critical value of w=1.0.
+    """
     ion_number_density_nlte = nlte_raw_plasma.ion_number_density_nlte.values
     ion_number_density_nlte[ion_number_density_nlte < 1e-10] = 0.0
 
     ion_number_density = nlte_raw_plasma.ion_number_density.values
-    ion_number_density[ion_number_density < 1e-10] = 0.0
+    ion_number_density[ion_number_density < 1e-10] = 0.0 #getting rid of small numbers.
     assert_allclose(
         ion_number_density,
         ion_number_density_nlte,
