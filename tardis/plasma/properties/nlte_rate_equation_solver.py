@@ -672,7 +672,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         return solution_vector
 
     def prepare_solution_vector(self, number_density):
-        """Constructs the solution vector for the NLTE ionization solver set of equations by combining 
+        """Constructs the solution vector for the NLTE ionization solver set of equations by combining
         all solution verctor blocks.
 
         Parameters
