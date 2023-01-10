@@ -17,9 +17,17 @@ FILES=('atom_data/kurucz_cd23_chianti_H_He.h5'
 mkdir -p $REF_PATH/atom_data
 mkdir -p $REF_PATH/arepo_data
 
-for FILE in "${FILES[@]}"
-do
-    wget -q "$REPO_URL/items?path=$FILE&resolveLfs=true" -O $REF_PATH/$FILE
-done
+if [ -z "$1" ]
+then
+    echo "Downloading all files."
+    for FILE in "${FILES[@]}"
+    do
+        wget -q "$REPO_URL/items?path=$FILE&resolveLfs=true" -O $REF_PATH/$FILE
+    done
+      
+else
+    echo "Downloading: $1"
+    wget -q "$REPO_URL/items?path=$1&resolveLfs=true" -O $REF_PATH/$1
+fi
 
 exit 0
