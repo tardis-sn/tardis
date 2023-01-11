@@ -110,14 +110,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_wolfgang_2022_7484173
+.. |CITATION| replace:: kerzendorf_wolfgang_2023_7525913
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7484173-blue
-                 :target: https://doi.org/10.5281/zenodo.7484173
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7525913-blue
+                 :target: https://doi.org/10.5281/zenodo.7525913
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_wolfgang_2022_7484173,
+    @software{kerzendorf_wolfgang_2023_7525913,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -154,8 +154,8 @@ The following BibTeX entries are needed for the references:
                       Varanasi, Kaushik and
                       Gillanders, James and
                       Savel, Arjun and
-                      Reinecke, Martin and
                       Eweis, Youssef and
+                      Reinecke, Martin and
                       Chitchyan, Sona and
                       Bylund, Tomas and
                       Bentil, Laud and
@@ -202,13 +202,13 @@ The following BibTeX entries are needed for the references:
                       Kumar, Atul and
                       Kharkar, Atharwa and
                       Nayak U, Ashwin},
-      title        = {tardis-sn/tardis: TARDIS v2022.12.26},
-      month        = dec,
-      year         = 2022,
+      title        = {tardis-sn/tardis: TARDIS v2023.01.11},
+      month        = jan,
+      year         = 2023,
       publisher    = {Zenodo},
-      version      = {release-2022.12.26},
-      doi          = {10.5281/zenodo.7484173},
-      url          = {https://doi.org/10.5281/zenodo.7484173}
+      version      = {release-2023.01.11},
+      doi          = {10.5281/zenodo.7525913},
+      url          = {https://doi.org/10.5281/zenodo.7525913}
     }
 
 *******
