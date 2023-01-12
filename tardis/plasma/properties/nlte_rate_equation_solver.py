@@ -656,7 +656,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         )
 
     def solution_vector_block(self, atomic_number, number_density):
-        """Block of the solution vector corresponding to the current atomic number. (0, 0, ..., number_density). Length is equal to atomic_number+1.
+        """Block of the solution vector for the current atomic number. 
+        
+        Block for the solution vector has the form (0, 0, ..., 0, number_density). 
+        Length is equal to atomic_number+1.
 
         Parameters
         ----------
