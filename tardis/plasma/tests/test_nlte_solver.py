@@ -256,8 +256,6 @@ def nlte_atomic_dataset(nlte_atomic_data_fname):
     return nlte_atomic_data
 
 
-
-
 data_path = os.path.join("tardis", "io", "tests", "data")
 
 
@@ -273,7 +271,9 @@ def nlte_raw_model(tardis_model_config_nlte):
 
 
 @pytest.fixture
-def nlte_raw_plasma(tardis_model_config_nlte, nlte_raw_model, nlte_atomic_dataset):
+def nlte_raw_plasma(
+    tardis_model_config_nlte, nlte_raw_model, nlte_atomic_dataset
+):
     """
     Plasma assembled with dilution factors set to 1.0.
     """
