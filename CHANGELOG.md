@@ -1,5 +1,25 @@
 ## Change Log
 
+### release-2023.01.11 (2023/01/11 16:25 +00:00)
+- [#2186](https://github.com/tardis-sn/tardis/pull/2186) Pre-release 2023.01.08 (#2186) (@tardis-bot)
+- [#2182](https://github.com/tardis-sn/tardis/pull/2182) Post-release 2022.12.26 (#2182) (@tardis-bot)
+
+### release-2022.12.26 (2022/12/26 14:51 +00:00)
+- [#2180](https://github.com/tardis-sn/tardis/pull/2180) Pre-release 2022.12.25 (#2180) (@tardis-bot)
+- [#2170](https://github.com/tardis-sn/tardis/pull/2170) Add missing __init__.py files to transport and geometry subpackages (#2170) (@epassaro)
+- [#2173](https://github.com/tardis-sn/tardis/pull/2173) Post-release 2022.12.12 (#2173) (@tardis-bot)
+
+### release-2022.12.12 (2022/12/12 15:02 +00:00)
+- [#2172](https://github.com/tardis-sn/tardis/pull/2172) Pre-release 2022.12.11 (#2172) (@tardis-bot)
+- [#2150](https://github.com/tardis-sn/tardis/pull/2150) Kilonova missing zeta (#2150) (@gleck97)
+- [#2158](https://github.com/tardis-sn/tardis/pull/2158) NLTE jacobian matrix (#2158) (@sonachitchyan)
+- [#2154](https://github.com/tardis-sn/tardis/pull/2154) Fixing typos for nlte ion (#2154) (@sonachitchyan)
+- [#2159](https://github.com/tardis-sn/tardis/pull/2159) Fix relativistic packet initialization (#2159) (@chvogl)
+
+### release-2022.11.21 (2022/11/21 15:15 +00:00)
+- [#2160](https://github.com/tardis-sn/tardis/pull/2160) Pre-release 2022.11.20 (#2160) (@tardis-bot)
+- [#2156](https://github.com/tardis-sn/tardis/pull/2156) Post-release 2022.11.17 (#2156) (@tardis-bot)
+
 ### release-2022.11.17 (2022/11/17 18:45 +00:00)
 - [#2155](https://github.com/tardis-sn/tardis/pull/2155) Pre-release 2022.11.17 (#2155) (@tardis-bot)
 - [#2152](https://github.com/tardis-sn/tardis/pull/2152) Set specific qgrid feedstock version (#2152) (@andrewfullard)
@@ -297,12 +317,8 @@
 - [#1680](https://github.com/tardis-sn/tardis/pull/1680) Added docstring-coverage badge (#1680) (@epassaro)
 - [#1696](https://github.com/tardis-sn/tardis/pull/1696) Adding mu and r to virtual packet logging (#1696) (@smithis7)
 - [#1695](https://github.com/tardis-sn/tardis/pull/1695) Enabling spectrum plotting in the frequency domain (#1695) (@smithis7)
-
-### release-2021.7.5 (2021/07/05 14:32 +00:00)
 - [#1688](https://github.com/tardis-sn/tardis/pull/1688) final changes for release pipeline (#1688) (@epassaro)
 - [#1683](https://github.com/tardis-sn/tardis/pull/1683) prepare release pipeline for CalVer (#1683) (@epassaro)
-
-### release-2021.07.01 (2021/07/01 23:05 +00:00)
 - [#1674](https://github.com/tardis-sn/tardis/pull/1674) APE 17 migration (#1674) (@epassaro)
 - [#1658](https://github.com/tardis-sn/tardis/pull/1658) add refdata repo selection in template (#1658) (@epassaro)
 - [#1682](https://github.com/tardis-sn/tardis/pull/1682) Opacities script with proper credit (#1682) (@andrewfullard)
@@ -634,8 +650,6 @@
 - [#1032](https://github.com/tardis-sn/tardis/pull/1032) Add Mark Magee to .mailmap (#1032) (@epassaro)
 - [#1025](https://github.com/tardis-sn/tardis/pull/1025) Add `compilers` to environment YAML file (#1025) (@epassaro)
 - [#1026](https://github.com/tardis-sn/tardis/pull/1026) Minor changes (#1026) (@epassaro)
-
-### 3.0.dev3396 (2020/02/07 15:00 +00:00)
 - [#1027](https://github.com/tardis-sn/tardis/pull/1027) Added Mark Magee (#1027) (@MarkMageeAstro)
 - [#1024](https://github.com/tardis-sn/tardis/pull/1024) Add epassaro orcid (#1024) (@epassaro)
 - [#1022](https://github.com/tardis-sn/tardis/pull/1022) added Alice's orcid (#1022) (@harpolea)

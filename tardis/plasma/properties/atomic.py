@@ -632,7 +632,7 @@ class ZetaData(BaseAtomicDataProperty):
         zeta_data_check = counter(zeta_data.atomic_number.values)
         keys = np.array(list(zeta_data_check.keys()))
         values = np.array(zeta_data_check.values())
-        if np.alltrue(keys + 1 == values):
+        if np.alltrue(keys + 1 == values) and keys:
             return zeta_data
         else:
             #            raise IncompleteAtomicData('zeta data')

@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_wolfgang_2022_7331855
+.. |CITATION| replace:: kerzendorf_wolfgang_2023_7525913
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7331855-blue
-                 :target: https://doi.org/10.5281/zenodo.7331855
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7525913-blue
+                 :target: https://doi.org/10.5281/zenodo.7525913
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_wolfgang_2022_7331855,
+    @software{kerzendorf_wolfgang_2023_7525913,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -118,60 +118,60 @@ The following BibTeX entries are needed for the references:
                       Varanasi, Kaushik and
                       Gillanders, James and
                       Savel, Arjun and
-                      Reinecke, Martin and
                       Eweis, Youssef and
+                      Reinecke, Martin and
+                      Chitchyan, Sona and
                       Bylund, Tomas and
                       Bentil, Laud and
-                      Chitchyan, Sona and
                       Eguren, Jordi and
                       Alam, Arib and
                       Bartnik, Matthew and
                       Varma Buddaraju, Rohith and
                       Magee, Mark and
                       Shields, Joshua and
-                      Livneh, Ran and
                       Kambham, Satwik and
+                      Livneh, Ran and
                       Mishra, Sashank and
                       Rajagopalan, Srinath and
-                      Jain, Rinkle and
                       Reichenbach, John and
+                      Jain, Rinkle and
                       Floers, Andreas and
-                      Holas, Alexander and
                       Bhakar, Jayant and
                       Brar, Antreev and
                       Singh, Sourav and
-                      Kowalski, Nathan and
-                      Kumar, Aman and
+                      Holas, Alexander and
+                      Selsing, Jonatan and
                       Talegaonkar, Chinmay and
                       Sofiatti, Caroline and
-                      Selsing, Jonatan and
-                      Venkat, Shashank and
-                      Patra, Nilesh and
+                      Kumar, Aman and
+                      Kowalski, Nathan and
                       Patel, Pratik and
-                      Volodin, Dmitry and
+                      Gupta, Suyash and
+                      Sharma, Sampark and
+                      Aggarwal, Yash and
+                      Prasad, Shilpi and
+                      Dasgupta, Debajyoti and
+                      Lemoine, Thom and
+                      Zaheer, Musabbiha and
+                      Wahi, Ujjwal and
+                      Patra, Nilesh and
                       Singh Rathore, Parikshit and
                       Yap, Kevin and
-                      Sarafina, Nance and
-                      Zaheer, Musabbiha and
-                      Sandler, Morgan and
-                      Gupta, Suyash and
-                      Prasad, Shilpi and
-                      Kumar, Atul and
-                      Lemoine, Thom and
-                      Wahi, Ujjwal and
-                      Aggarwal, Yash and
-                      Sharma, Sampark and
-                      Dasgupta, Debajyoti and
                       Martinez, Laureano and
+                      Sarafina, Nance and
+                      Venkat, Shashank and
                       Kolliboyina, Chaitanya and
-                      Nayak U, Ashwin and
-                      Kharkar, Atharwa},
-      title        = {tardis-sn/tardis: TARDIS v2022.11.17},
-      month        = nov,
-      year         = 2022,
+                      Volodin, Dmitry and
+                      Sandler, Morgan and
+                      Kumar, Atul and
+                      Kharkar, Atharwa and
+                      Nayak U, Ashwin},
+      title        = {tardis-sn/tardis: TARDIS v2023.01.11},
+      month        = jan,
+      year         = 2023,
       publisher    = {Zenodo},
-      version      = {release-2022.11.17},
-      doi          = {10.5281/zenodo.7331855},
-      url          = {https://doi.org/10.5281/zenodo.7331855}
+      version      = {release-2023.01.11},
+      doi          = {10.5281/zenodo.7525913},
+      url          = {https://doi.org/10.5281/zenodo.7525913}
     }
 

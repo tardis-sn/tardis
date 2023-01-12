@@ -3,8 +3,8 @@
 cff-version: 1.0.3
 message: If you use this software, please cite it using these metadata.
 # FIXME title as repository name might not be the best name, please make human readable
-title: 'tardis-sn/tardis: TARDIS v2022.11.17'
-doi: 10.5281/zenodo.7331855
+title: 'tardis-sn/tardis: TARDIS v2023.01.11'
+doi: 10.5281/zenodo.7525913
 # FIXME splitting of full names is error prone, please check if given/family name are correct
 authors:
 - given-names: Wolfgang
@@ -107,16 +107,16 @@ authors:
   orcid: https://orcid.org/0000-0002-8094-6108
 - given-names: Arjun
   family-names: Savel
-- given-names: Martin
-  family-names: Reinecke
 - given-names: Youssef
   family-names: Eweis
+- given-names: Martin
+  family-names: Reinecke
+- given-names: Sona
+  family-names: Chitchyan
 - given-names: Tomas
   family-names: Bylund
 - given-names: Laud
   family-names: Bentil
-- given-names: Sona
-  family-names: Chitchyan
 - given-names: Jordi
   family-names: Eguren
   orcid: https://orcid.org/0000-0002-2328-8030
@@ -130,82 +130,82 @@ authors:
   family-names: Magee
 - given-names: Joshua
   family-names: Shields
-- given-names: Ran
-  family-names: Livneh
 - given-names: Satwik
   family-names: Kambham
+- given-names: Ran
+  family-names: Livneh
 - given-names: Sashank
   family-names: Mishra
   orcid: https://orcid.org/0000-0001-8302-1584
 - given-names: Srinath
   family-names: Rajagopalan
-- given-names: Rinkle
-  family-names: Jain
 - given-names: John
   family-names: Reichenbach
+- given-names: Rinkle
+  family-names: Jain
 - given-names: Andreas
   family-names: Floers
-- given-names: Alexander
-  family-names: Holas
 - given-names: Jayant
   family-names: Bhakar
 - given-names: Antreev
   family-names: Brar
 - given-names: Sourav
   family-names: Singh
-- given-names: Nathan
-  family-names: Kowalski
-- given-names: Aman
-  family-names: Kumar
+- given-names: Alexander
+  family-names: Holas
+- given-names: Jonatan
+  family-names: Selsing
 - given-names: Chinmay
   family-names: Talegaonkar
 - given-names: Caroline
   family-names: Sofiatti
-- given-names: Jonatan
-  family-names: Selsing
-- given-names: Shashank
-  family-names: Venkat
-- given-names: Nilesh
-  family-names: Patra
+- given-names: Aman
+  family-names: Kumar
+- given-names: Nathan
+  family-names: Kowalski
 - given-names: Pratik
   family-names: Patel
-- given-names: Dmitry
-  family-names: Volodin
+- given-names: Suyash
+  family-names: Gupta
+- given-names: Sampark
+  family-names: Sharma
+- given-names: Yash
+  family-names: Aggarwal
+- given-names: Shilpi
+  family-names: Prasad
+- given-names: Debajyoti
+  family-names: Dasgupta
+- given-names: Thom
+  family-names: Lemoine
+- given-names: Musabbiha
+  family-names: Zaheer
+- given-names: Ujjwal
+  family-names: Wahi
+- given-names: Nilesh
+  family-names: Patra
 - given-names: Parikshit
   family-names: Singh Rathore
 - given-names: Kevin
   family-names: Yap
-- given-names: Nance
-  family-names: Sarafina
-- given-names: Musabbiha
-  family-names: Zaheer
-- given-names: Morgan
-  family-names: Sandler
-- given-names: Suyash
-  family-names: Gupta
-- given-names: Shilpi
-  family-names: Prasad
-- given-names: Atul
-  family-names: Kumar
-- given-names: Thom
-  family-names: Lemoine
-- given-names: Ujjwal
-  family-names: Wahi
-- given-names: Yash
-  family-names: Aggarwal
-- given-names: Sampark
-  family-names: Sharma
-- given-names: Debajyoti
-  family-names: Dasgupta
 - given-names: Laureano
   family-names: Martinez
+- given-names: Nance
+  family-names: Sarafina
+- given-names: Shashank
+  family-names: Venkat
 - given-names: Chaitanya
   family-names: Kolliboyina
-- given-names: Ashwin
-  family-names: Nayak U
+- given-names: Dmitry
+  family-names: Volodin
+- given-names: Morgan
+  family-names: Sandler
+- given-names: Atul
+  family-names: Kumar
 - given-names: Atharwa
   family-names: Kharkar
-version: release-2022.11.17
-date-released: 2022-11-17
+- given-names: Ashwin
+  family-names: Nayak U
+version: release-2023.01.11
+date-released: 2023-01-11
 repository-code: https://github.com/tardis-sn/tardis
 license: other-open
