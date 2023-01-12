@@ -597,10 +597,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         total_coll_ion_coefficients,
         total_coll_recomb_coefficients,
     ):
-        """Main set of equations for the NLTE ionization solver. 
-        
-        To solve the statistical equilibrium equations, we need to find the root 
-        of the objective function A*x - B, where x are the populations, 
+        """Main set of equations for the NLTE ionization solver.
+
+        To solve the statistical equilibrium equations, we need to find the root
+        of the objective function A*x - B, where x are the populations,
         A is the matrix of rates, and B is the solution vector.
 
         Parameters
@@ -656,9 +656,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         )
 
     def solution_vector_block(self, atomic_number, number_density):
-        """Block of the solution vector for the current atomic number. 
-        
-        Block for the solution vector has the form (0, 0, ..., 0, number_density). 
+        """Block of the solution vector for the current atomic number.
+
+        Block for the solution vector has the form (0, 0, ..., 0, number_density).
         Length is equal to atomic_number+1.
 
         Parameters
