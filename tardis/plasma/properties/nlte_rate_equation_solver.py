@@ -624,8 +624,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Coll. recomb. coefficients for current atomic number
         Returns
         -------
-        _type_
-            _description_
+        (numpy.array, numpy.array)
+            Returns the objective function and jacobian of the rate matrix in a tuple.
         """
         electron_density = populations[-1]
         rate_matrix = self.calculate_rate_matrix(
