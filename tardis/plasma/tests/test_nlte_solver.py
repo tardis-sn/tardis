@@ -256,11 +256,6 @@ def nlte_atomic_dataset(nlte_atomic_data_fname):
     return nlte_atomic_data
 
 
-@pytest.fixture
-def nlte_atom_data(nlte_atomic_dataset):
-
-    atomic_data = deepcopy(nlte_atomic_dataset)
-    return atomic_data
 
 
 data_path = os.path.join("tardis", "io", "tests", "data")
@@ -278,14 +273,14 @@ def nlte_raw_model(tardis_model_config_nlte):
 
 
 @pytest.fixture
-def nlte_raw_plasma(tardis_model_config_nlte, nlte_raw_model, nlte_atom_data):
+def nlte_raw_plasma(tardis_model_config_nlte, nlte_raw_model, nlte_atomic_dataset):
     """
     Plasma assembled with dilution factors set to 1.0.
     """
     new_w = np.ones_like(nlte_raw_model.dilution_factor)
     nlte_raw_model.dilution_factor = new_w
     plasma = assemble_plasma(
-        tardis_model_config_nlte, nlte_raw_model, nlte_atom_data
+        tardis_model_config_nlte, nlte_raw_model, nlte_atomic_dataset
     )
     return plasma
 
@@ -309,5 +304,5 @@ def test_critical_case(nlte_raw_plasma):
     assert_allclose(
         ion_number_density_lte,
         ion_number_density_nlte,
-        rtol=1e-2 * ion_number_density_lte.max(),
+        rtol=1e-2,
     )
