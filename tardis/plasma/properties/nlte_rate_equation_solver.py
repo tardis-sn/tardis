@@ -96,7 +96,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         )
         electron_densities_nlte = pd.Series(0.0, index=phi.columns)
 
-        for i, shell in enumerate(phi.columns):
+        for shell in phi.columns:
             solution_vector = self.prepare_solution_vector(
                 number_density[shell]
             )
@@ -121,8 +121,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
                 jac=True,
             )
             assert solution.success
-            ion_number_density_nlte[i] = solution.x[:-1]
-            electron_densities_nlte[i] = solution.x[-1]
+            ion_number_density_nlte[shell] = solution.x[:-1]
+            electron_densities_nlte[shell] = solution.x[-1]
         # TODO: change the jacobian and rate matrix to use shell id and get coefficients from the attribute of the class.
         return ion_number_density_nlte, electron_densities_nlte
 
