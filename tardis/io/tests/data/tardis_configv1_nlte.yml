@@ -50,7 +50,7 @@ montecarlo:
   seed: 23111963
   no_of_packets: 100000
   iterations: 1
-  nthreads: 24
+  nthreads: 1
 
   last_no_of_packets: 1000
   no_of_virtual_packets: 0
