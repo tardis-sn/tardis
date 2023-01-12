@@ -25,7 +25,6 @@ model:
     H: 0.9
     He: 0.099
     Ti: 1e-3
-#     Fe: 1e-3
 
 plasma:
   disable_electron_scattering: no
