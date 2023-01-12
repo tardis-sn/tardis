@@ -597,8 +597,11 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         total_coll_ion_coefficients,
         total_coll_recomb_coefficients,
     ):
-        """Main set of equations for the NLTE ionization solver. A*x - B = 0, where x is the populations,
-        A is the matrix of rates and B is the solution vector.
+        """Main set of equations for the NLTE ionization solver. 
+        
+        To solve the statistical equilibrium equations, we need to find the root 
+        of the objective function A*x - B, where x are the populations, 
+        A is the matrix of rates, and B is the solution vector.
 
         Parameters
         ----------
