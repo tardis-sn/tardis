@@ -286,7 +286,7 @@ def nlte_raw_plasma(
 
 
 def test_critical_case(nlte_raw_plasma):
-    """Compares the LTE solution with NLTE solution at a critical value of w=1.0."""
+    """Check that the LTE and NLTE solution agree for w=1.0."""
     ion_number_density_nlte = nlte_raw_plasma.ion_number_density_nlte.values
     ion_number_density_nlte[ion_number_density_nlte < 1e-10] = 0.0
 
