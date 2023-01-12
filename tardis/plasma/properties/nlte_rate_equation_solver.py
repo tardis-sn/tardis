@@ -559,7 +559,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
     def prepare_first_guess(
         self, atomic_numbers, number_density, electron_density
     ):
-        """Constructs a first guess for ion number densities and electron density, where all species are fully once ionized.
+        """Constructs a first guess for ion number densities and electron density, where all species are singly ionized.
 
         Parameters
         ----------
