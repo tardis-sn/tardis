@@ -256,6 +256,13 @@ def nlte_atomic_dataset(nlte_atomic_data_fname):
     return nlte_atomic_data
 
 
+@pytest.fixture
+def nlte_atom_data(nlte_atomic_dataset):
+
+    atomic_data = deepcopy(nlte_atomic_dataset)
+    return atomic_data
+
+
 data_path = os.path.join("tardis", "io", "tests", "data")
 
 
@@ -271,8 +278,8 @@ def nlte_raw_model(tardis_model_config_nlte):
 
 
 @pytest.fixture
-def nlte_raw_plasma(
-    tardis_model_config_nlte, nlte_raw_model, nlte_atomic_dataset
+def nlte_raw_plasma_w1(
+    tardis_model_config_nlte, nlte_raw_model, nlte_atom_data
 ):
     """
     Plasma assembled with dilution factors set to 1.0.
@@ -280,21 +287,73 @@ def nlte_raw_plasma(
     new_w = np.ones_like(nlte_raw_model.dilution_factor)
     nlte_raw_model.dilution_factor = new_w
     plasma = assemble_plasma(
-        tardis_model_config_nlte, nlte_raw_model, nlte_atomic_dataset
+        tardis_model_config_nlte, nlte_raw_model, nlte_atom_data
     )
     return plasma
 
 
-def test_critical_case(nlte_raw_plasma):
+@pytest.fixture
+def nlte_raw_plasma_w0(
+    tardis_model_config_nlte, nlte_raw_model, nlte_atom_data
+):
+    """
+    Plasma assembled with dilution factors set to 0.0.
+    """
+    new_w = np.zeros_like(nlte_raw_model.dilution_factor)
+    nlte_raw_model.dilution_factor = new_w
+    plasma = assemble_plasma(
+        tardis_model_config_nlte, nlte_raw_model, nlte_atom_data
+    )
+    return plasma
+
+
+def test_critical_case_w1(nlte_raw_plasma_w1):
     """Check that the LTE and NLTE solution agree for w=1.0."""
-    ion_number_density_nlte = nlte_raw_plasma.ion_number_density_nlte.values
+    ion_number_density_nlte = nlte_raw_plasma_w1.ion_number_density_nlte.values
     ion_number_density_nlte[ion_number_density_nlte < 1e-10] = 0.0
 
-    ind = IonNumberDensity(nlte_raw_plasma)
+    ind = IonNumberDensity(nlte_raw_plasma_w1)
     ion_number_density_lte = ind.calculate(
-        nlte_raw_plasma.thermal_phi_lte,
-        nlte_raw_plasma.partition_function,
-        nlte_raw_plasma.number_density,
+        nlte_raw_plasma_w1.thermal_phi_lte,
+        nlte_raw_plasma_w1.partition_function,
+        nlte_raw_plasma_w1.number_density,
+    )[0]
+
+    ion_number_density_lte = ion_number_density_lte.values
+    ion_number_density_lte[
+        ion_number_density_lte < 1e-10
+    ] = 0.0  # getting rid of small numbers.
+    assert_allclose(
+        ion_number_density_lte,
+        ion_number_density_nlte,
+        rtol=1e-2,
+    )
+
+
+def test_critical_case_w0(nlte_raw_plasma_w0):
+    """Check that the LTE and NLTE solution agree for w=0.0."""
+    nlte_solver = NLTERateEquationSolver(nlte_raw_plasma_w0)
+    ion_number_density_nlte = nlte_solver.calculate(
+        nlte_raw_plasma_w0.gamma,
+        0.0,
+        nlte_raw_plasma_w0.alpha_stim,
+        nlte_raw_plasma_w0.coll_ion_coeff,
+        nlte_raw_plasma_w0.coll_recomb_coeff,
+        nlte_raw_plasma_w0.partition_function,
+        nlte_raw_plasma_w0.levels,
+        nlte_raw_plasma_w0.level_boltzmann_factor,
+        nlte_raw_plasma_w0.phi,
+        nlte_raw_plasma_w0.rate_matrix_index,
+        nlte_raw_plasma_w0.number_density,
+    )[0]
+    ion_number_density_nlte = ion_number_density_nlte.values
+    ion_number_density_nlte[ion_number_density_nlte < 1e-10] = 0.0
+
+    ind = IonNumberDensity(nlte_raw_plasma_w0)
+    ion_number_density_lte = ind.calculate(
+        nlte_raw_plasma_w0.thermal_phi_lte,
+        nlte_raw_plasma_w0.partition_function,
+        nlte_raw_plasma_w0.number_density,
     )[0]
 
     ion_number_density_lte = ion_number_density_lte.values
