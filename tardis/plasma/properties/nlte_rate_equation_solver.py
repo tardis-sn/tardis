@@ -243,7 +243,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         total_photo_ion_coefficients : pandas.DataFrame
             Photo ionization coefficients for current atomic number
         total_coll_ion_coefficients : pandas.DataFrame
-            Coll. ion. coefficients for current atomic number
+            Collisional ionization coefficients for current atomic number
         total_coll_recomb_coefficients : pandas.DataFrame
             Collisional recombination coefficients for current atomic number
 
