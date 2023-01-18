@@ -335,7 +335,7 @@ def test_critical_case_w0(nlte_raw_plasma_w0):
     nlte_solver = NLTERateEquationSolver(nlte_raw_plasma_w0)
     ion_number_density_nlte = nlte_solver.calculate(
         nlte_raw_plasma_w0.gamma,
-        0.0,
+        0.0,  # to test collisions only, we set the radiative recombination rate to 0
         nlte_raw_plasma_w0.alpha_stim,
         nlte_raw_plasma_w0.coll_ion_coeff,
         nlte_raw_plasma_w0.coll_recomb_coeff,
