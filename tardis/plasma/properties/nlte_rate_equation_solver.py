@@ -613,7 +613,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Saha Factors of the current shell.
         solution_vector : numpy.array
             Solution vector for the set of equations.
-        rate_matrix_index : MultiIndex
+        rate_matrix_index : pandas.MultiIndex
             (atomic_number, ion_number, treatment type)
             If ion is treated in LTE or nebular ionization, 3rd index is "lte_ion",
             if treated in NLTE ionization, 3rd index is "nlte_ion".
