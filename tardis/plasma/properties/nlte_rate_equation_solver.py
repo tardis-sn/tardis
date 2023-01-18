@@ -81,9 +81,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             level_boltzmann_factor,
         )
 
-        # >>>TODO:initial electron density should be included in the initial guess, added in a future PR
         initial_electron_densities = number_density.sum(axis=0)
-        # <<<
         atomic_numbers = (
             rate_matrix_index.get_level_values("atomic_number")
             .unique()
