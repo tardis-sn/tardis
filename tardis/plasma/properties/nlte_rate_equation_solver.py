@@ -241,11 +241,11 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         total_rad_recomb_coefficients : pandas.DataFrame
             Rad. recomb. coefficients for current atomic number
         total_photo_ion_coefficients : pandas.DataFrame
-            Photo ion. coefficients for current atomic number
+            Photo ionization coefficients for current atomic number
         total_coll_ion_coefficients : pandas.DataFrame
             Coll. ion. coefficients for current atomic number
         total_coll_recomb_coefficients : pandas.DataFrame
-            Coll. recomb. coefficients for current atomic number
+            Collisional recombination coefficients for current atomic number
 
         Returns
         -------
@@ -620,9 +620,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         total_photo_ion_coefficients : pandas.DataFrame
             Photo ion. coefficients for current atomic number
         total_rad_recomb_coefficients : pandas.DataFrame
-            Rad. recomb. coefficients for current atomic number
+            Radiative recombination coefficients for current atomic number
         total_coll_ion_coefficients : pandas.DataFrame
-            Coll. ion. coefficients for current atomic number
+            Collisional ionization coefficients for current atomic number
         total_coll_recomb_coefficients : pandas.DataFrame
             Coll. recomb. coefficients for current atomic number
         Returns
