@@ -30,10 +30,10 @@ def setup_input_energy(nuclear_data, source):
         CDF where each index corresponds to the energy in
         the sorted array
     """
-    intensity = nuclear_data.query("type==" + source)["intensity"].to_numpy()
-    energy = nuclear_data.query("type==" + source)["energy"].to_numpy()
+    intensity = nuclear_data[nuclear_data.Radiation == source]["Rad Intensity"]
+    energy = nuclear_data[nuclear_data.Radiation == source]["Rad Energy"]
 
-    intensity = [i / 100 if i > 1 else i for i in intensity]
+    intensity /= 100  # = [i / 100 if i > 1 else i for i in intensity]
 
     return energy, intensity
 
@@ -190,7 +190,7 @@ def get_nuclear_lines_database(
     pandas DataFrame
         The decay radiation lines
     """
-    decay_radiation_db = pd.read_hdf(path, "decay_radiation")
+    decay_radiation_db = pd.read_hdf(path, "decay_data")
     return decay_radiation_db
 
 

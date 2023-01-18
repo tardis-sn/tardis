@@ -412,7 +412,7 @@ def main_gamma_ray_loop(
 
     # Calculate number of packets per shell based on the mass of isotopes
     number_of_isotopes = plasma.isotope_number_density * ejecta_volume
-    total_number_isotopes = number_of_isotopes.sum().sum()
+    total_number_isotopes = number_of_isotopes.sum(axis=1)
 
     inventories = raw_isotope_abundance.to_inventories()
     all_isotope_names = get_all_isotopes(raw_isotope_abundance)
@@ -436,12 +436,18 @@ def main_gamma_ray_loop(
                     parents[c] = isotope
 
         energy, intensity = setup_input_energy(
-            gamma_ray_lines.loc[isotope.replace("-", "")], "'gamma_rays'"
+            gamma_ray_lines[
+                gamma_ray_lines.Isotope == isotope.replace("-", "")
+            ],
+            "g",
         )
         gamma_ray_line_array_list.append(np.stack([energy, intensity]))
         average_energies_list.append(np.sum(energy * intensity))
         positron_energy, positron_intensity = setup_input_energy(
-            gamma_ray_lines.loc[isotope.replace("-", "")], "'e+'"
+            gamma_ray_lines[
+                gamma_ray_lines.Isotope == isotope.replace("-", "")
+            ],
+            "bp",
         )
         average_positron_energies_list.append(
             np.sum(positron_energy * positron_intensity)
@@ -497,9 +503,6 @@ def main_gamma_ray_loop(
         )
     ]
 
-    print(total_energy)
-    print((raw_isotope_abundance * shell_masses).T)
-
     energy_per_mass = total_energy.divide(
         (raw_isotope_abundance * shell_masses).T.to_numpy(),
         axis=0,
@@ -508,12 +511,12 @@ def main_gamma_ray_loop(
     # Time averaged energy per mass for constant packet count
     average_power_per_mass = energy_per_mass / (time_end - time_start)
 
-    energy_per_mass_norm = (
-        energy_per_mass / energy_per_mass.sum(axis=1).max()
+    energy_per_mass_norm = energy_per_mass.divide(
+        energy_per_mass.sum(axis=1), axis=0
     )  # .cumsum(axis=1)
 
-    decayed_packet_count = (
-        num_decays * number_of_isotopes / total_number_isotopes
+    decayed_packet_count = num_decays * number_of_isotopes.divide(
+        total_number_isotopes, axis=0
     )
 
     packets_per_isotope = (
@@ -522,8 +525,6 @@ def main_gamma_ray_loop(
         .fillna(0)
         .astype(int)
     )
-
-    print(average_power_per_mass.loc[0].sum())
 
     print("Total gamma-ray energy")
     print(total_energy.sum().sum() * u.keV.to("erg"))
@@ -601,7 +602,7 @@ def main_gamma_ray_loop(
     print("Total RF energy")
     print(total_rf_energy)
 
-    energy_bins = np.logspace(2, 3.5, spectrum_bins)
+    energy_bins = np.logspace(2, 3.8, spectrum_bins)
     energy_out = np.zeros((len(energy_bins - 1), time_steps))
 
     # Process packets
