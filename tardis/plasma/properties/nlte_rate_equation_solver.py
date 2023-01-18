@@ -145,7 +145,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Saha Factors in the current shell
         electron_density : float
             Guess for electron density in the current shell
-        rate_matrix_index : MultiIndex
+        rate_matrix_index : pandas.MultiIndex
             Index used for constructing the rate matrix
         total_photo_ion_coefficients : pandas.DataFrame
             Photo ionization coefficients
