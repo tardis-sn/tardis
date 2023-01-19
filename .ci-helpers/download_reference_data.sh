@@ -26,7 +26,6 @@ then
     done
       
 else
-    echo "Downloading: $1"
     wget -q "$REPO_URL/items?path=$1&resolveLfs=true" -O $REF_PATH/$1
 fi
 
