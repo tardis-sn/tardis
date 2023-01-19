@@ -5,7 +5,7 @@
 # other information are set in the setup.cfg file.
 
 import os
-import sys
+import sy
 
 from setuptools import setup
 
