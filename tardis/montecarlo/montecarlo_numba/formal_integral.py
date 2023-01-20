@@ -745,7 +745,7 @@ def trapezoid_integration(array, h):
 @njit(**njit_dict_no_parallel)
 def intensity_black_body(nu, temperature):
     """
-    Read black body intensity.
+    Calculate the blackbody intensity.
 
     Parameters
     ----------

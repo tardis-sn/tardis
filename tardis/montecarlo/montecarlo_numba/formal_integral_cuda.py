@@ -477,7 +477,7 @@ def trapezoid_integration_cuda(arr, dx):
 @cuda.jit(device=True)
 def intensity_black_body_cuda(nu, temperature):
     """
-    Read black body intensity.
+    Calculate the blackbody intensity.
 
     Parameters
     ----------
