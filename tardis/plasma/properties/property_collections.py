@@ -17,6 +17,7 @@ basic_inputs = PlasmaPropertyCollection(
         HeliumTreatment,
         ContinuumInteractionSpecies,
         NLTEIonizationSpecies,
+        NLTEExcitationSpecies,
     ]
 )
 basic_properties = PlasmaPropertyCollection(
