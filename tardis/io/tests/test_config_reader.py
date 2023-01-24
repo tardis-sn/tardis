@@ -220,6 +220,7 @@ def test_plasma_nlte_section_config(tardis_config_verysimple_nlte):
                 raise ValueError("Nlte ionization species not in continuum.")
     assert ve.type is ValueError
 
+
 def test_plasma_nlte_exc_section_config(tardis_config_verysimple_nlte):
     """
     Configuration Validation Test for Plasma Section of the Tardis Config YAML File.
@@ -258,6 +259,7 @@ def test_plasma_nlte_exc_section_config(tardis_config_verysimple_nlte):
             ):
                 raise ValueError("Nlte excitation species not in continuum.")
     assert ve.type is ValueError
+
 
 def test_spectrum_section_config(tardis_config_verysimple):
     """

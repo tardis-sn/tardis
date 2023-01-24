@@ -133,7 +133,6 @@ def assemble_plasma(config, model, atom_data=None):
         species_string_to_tuple(s)
         for s in config.plasma.nlte_excitation_species
     ]
-    
 
     kwargs = dict(
         t_rad=model.t_radiative,
@@ -181,20 +180,27 @@ def assemble_plasma(config, model, atom_data=None):
         property_kwargs[MarkovChainTransProbsCollector] = {
             "inputs": transition_probabilities_outputs
         }
-        if config.plasma.nlte_ionization_species or config.plasma.nlte_excitation_species:
+        if (
+            config.plasma.nlte_ionization_species
+            or config.plasma.nlte_excitation_species
+        ):
             nlte_ionization_species = []
             nlte_excitation_species = []
             if config.plasma.nlte_ionization_species:
                 nlte_ionization_species = config.plasma.nlte_ionization_species
                 for species in nlte_ionization_species:
-                    if not (species in config.plasma.continuum_interaction.species):
+                    if not (
+                        species in config.plasma.continuum_interaction.species
+                    ):
                         raise PlasmaConfigError(
                             f"NLTE ionization species {species} not in continuum species."
                         )
             if config.plasma.nlte_excitation_species:
                 nlte_excitation_species = config.plasma.nlte_excitation_species
                 for species in nlte_excitation_species:
-                    if not (species in config.plasma.continuum_interaction.species):
+                    if not (
+                        species in config.plasma.continuum_interaction.species
+                    ):
                         raise PlasmaConfigError(
                             f"NLTE excitation species {species} not in continuum species."
                         )
