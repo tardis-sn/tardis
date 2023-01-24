@@ -190,7 +190,7 @@ def test_plasma_nlte_section_config(tardis_config_verysimple_nlte):
 
     Parameter
     ---------
-        `tardis_config_verysimple` : YAML File
+        `tardis_config_verysimple_nlte` : YAML File
 
     Result
     ------
@@ -230,7 +230,7 @@ def test_plasma_nlte_exc_section_config(tardis_config_verysimple_nlte):
 
     Parameter
     ---------
-        `tardis_config_verysimple` : YAML File
+        `tardis_config_verysimple_nlte` : YAML File
 
     Result
     ------
