@@ -57,40 +57,30 @@ class BasePacketSource(abc.ABC):
         temperature, no_of_packets, rng, l_samples=1000
     ):
         """
-                Create packet :math:`\\nu` distributed using the algorithm described in
-                Bjorkman & Wood 2001 (page 4) which references
-                Carter & Cashwell 1975:
-                First, generate a uniform random number, :math:`\\xi_0 \\in [0, 1]` and
-                determine the minimum value of
-                :math:`l, l_{\\rm min}`, that satisfies the condition
-
-                .. math::
-                    \\sum_{i=1}^{l} i^{-4} \\ge {{\\pi^4}\\over{90}} m_0 \\;.
-
-                Next obtain four additional uniform random numbers (in the range 0
-                to 1) :math:`\\xi_1, \\xi_2, \\xi_3, {\\rm and } \\xi_4`.
-                Finally, the packet frequency is given by
-
-                .. math::
-                    x = -\\ln{(\\xi_1\\xi_2\\xi_3\\xi_4)}/l_{\\rm min}\\;.
-
-                where :math:`x=h\\nu/kT`
-
-                Parameters
-                ----------
-                temperature : float
-        <<<<<<< HEAD
-                    Absolute Temperature.
-        =======
-                    Temperature.
-        >>>>>>> 0dd73af4228a30060c775173df83bcdf9544d858
-                no_of_packets : int
-                l_samples : int
-                    number of l_samples needed in the algorithm
-
-                Returns
-                -------
-                    array of frequencies: numpy.ndarray
+        Create packet :math:`\\nu` distributed using the algorithm described in
+        Bjorkman & Wood 2001 (page 4) which references
+        Carter & Cashwell 1975:
+        First, generate a uniform random number, :math:`\\xi_0 \\in [0, 1]` and
+        determine the minimum value of
+        :math:`l, l_{\\rm min}`, that satisfies the condition
+        .. math::
+            \\sum_{i=1}^{l} i^{-4} \\ge {{\\pi^4}\\over{90}} m_0 \\;.
+        Next obtain four additional uniform random numbers (in the range 0
+        to 1) :math:`\\xi_1, \\xi_2, \\xi_3, {\\rm and } \\xi_4`.
+        Finally, the packet frequency is given by
+        .. math::
+            x = -\\ln{(\\xi_1\\xi_2\\xi_3\\xi_4)}/l_{\\rm min}\\;.
+        where :math:`x=h\\nu/kT`
+        Parameters
+        ----------
+        temperature : float
+            Absolute Temperature.
+        no_of_packets : int
+        l_samples : int
+            number of l_samples needed in the algorithm
+        Returns
+        -------
+            array of frequencies: numpy.ndarray
         """
         l_samples = l_samples
         l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64) ** -4)
