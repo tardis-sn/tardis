@@ -57,7 +57,6 @@ class BasePacketSource(abc.ABC):
         temperature, no_of_packets, rng, l_samples=1000
     ):
         """
-<<<<<<< HEAD
         Create packet :math:`\\nu` distributed using the algorithm described in
         Bjorkman & Wood 2001 (page 4) which references
         Carter & Cashwell 1975:
