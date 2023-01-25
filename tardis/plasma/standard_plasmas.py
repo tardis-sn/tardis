@@ -184,8 +184,6 @@ def assemble_plasma(config, model, atom_data=None):
             config.plasma.nlte_ionization_species
             or config.plasma.nlte_excitation_species
         ):
-            nlte_ionization_species = []
-            nlte_excitation_species = []
             if config.plasma.nlte_ionization_species:
                 nlte_ionization_species = config.plasma.nlte_ionization_species
                 for species in nlte_ionization_species:
