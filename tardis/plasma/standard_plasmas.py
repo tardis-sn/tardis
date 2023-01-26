@@ -203,8 +203,8 @@ def assemble_plasma(config, model, atom_data=None):
                             f"NLTE excitation species {species} not in continuum species."
                         )
             property_kwargs[NLTEIndexHelper] = {
-                "nlte_ionization_species": nlte_ionization_species,
-                "nlte_excitation_species": nlte_excitation_species,
+                "nlte_ionization_species": config.plasma.nlte_ionization_species,
+                "nlte_excitation_species": config.plasma.nlte_excitation_species,
             }
             plasma_modules += nlte_solver_properties
 

@@ -228,8 +228,6 @@ def test_jacobian_matrix(
     assert_almost_equal(actual_jacobian_matrix, desired_jacobian_matrix)
 
 
-
-
 @pytest.fixture
 def nlte_raw_plasma_w1(
     tardis_model_config_nlte, nlte_raw_model, nlte_atom_data

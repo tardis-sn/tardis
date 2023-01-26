@@ -183,7 +183,11 @@ def test_plasma_section_config(tardis_config_verysimple):
     assert ve.type is ValueError
 
 
-def test_plasma_nlte_section_config(tardis_config_verysimple_nlte, nlte_raw_model, nlte_atom_data,):
+def test_plasma_nlte_section_config(
+    tardis_config_verysimple_nlte,
+    nlte_raw_model,
+    nlte_atom_data,
+):
     """
     Configuration Validation Test for Plasma Section of the Tardis Config YAML File.
 
@@ -207,11 +211,15 @@ def test_plasma_nlte_section_config(tardis_config_verysimple_nlte, nlte_raw_mode
     ]
     tardis_config_verysimple_nlte["plasma"]["nlte_ionization_species"] = ["H I"]
     with pytest.raises(PlasmaConfigError) as ve:
-        plasma = assemble_plasma(tardis_config_verysimple_nlte, nlte_raw_model, nlte_atom_data)
+        plasma = assemble_plasma(
+            tardis_config_verysimple_nlte, nlte_raw_model, nlte_atom_data
+        )
     assert ve.type is PlasmaConfigError
 
 
-def test_plasma_nlte_exc_section_config(tardis_config_verysimple_nlte, nlte_raw_model, nlte_atom_data):
+def test_plasma_nlte_exc_section_config(
+    tardis_config_verysimple_nlte, nlte_raw_model, nlte_atom_data
+):
     """
     Configuration Validation Test for Plasma Section of the Tardis Config YAML File.
 
@@ -233,7 +241,9 @@ def test_plasma_nlte_exc_section_config(tardis_config_verysimple_nlte, nlte_raw_
     ]
     tardis_config_verysimple_nlte["plasma"]["nlte_excitation_species"] = ["H I"]
     with pytest.raises(PlasmaConfigError) as ve:
-        plasma = assemble_plasma(tardis_config_verysimple_nlte, nlte_raw_model, nlte_atom_data)
+        plasma = assemble_plasma(
+            tardis_config_verysimple_nlte, nlte_raw_model, nlte_atom_data
+        )
     assert ve.type is PlasmaConfigError
 
 

@@ -44,7 +44,7 @@ def kurucz_atomic_data(atomic_dataset):
     return atomic_data
 
 
-@pytest.fixture#(scope="session")
+@pytest.fixture  # (scope="session")
 def nlte_atomic_data_fname(tardis_ref_path):
     """
     File name for the atomic data file used in NTLE ionization solver tests.
@@ -63,7 +63,7 @@ def nlte_atomic_data_fname(tardis_ref_path):
     return atomic_data_fname
 
 
-@pytest.fixture#(scope="session")
+@pytest.fixture  # (scope="session")
 def nlte_atomic_dataset(nlte_atomic_data_fname):
     """
     Atomic dataset used for NLTE ionization solver tests.
@@ -72,7 +72,7 @@ def nlte_atomic_dataset(nlte_atomic_data_fname):
     return nlte_atomic_data
 
 
-@pytest.fixture#(scope="session")
+@pytest.fixture  # (scope="session")
 def nlte_atom_data(nlte_atomic_dataset):
 
     atomic_data = deepcopy(nlte_atomic_dataset)
@@ -82,12 +82,12 @@ def nlte_atom_data(nlte_atomic_dataset):
 data_path = os.path.join("tardis", "io", "tests", "data")
 
 
-@pytest.fixture#(scope="session")
+@pytest.fixture  # (scope="session")
 def tardis_model_config_nlte():
     filename = "tardis_configv1_nlte.yml"
     return Configuration.from_yaml(os.path.join(data_path, filename))
 
 
-@pytest.fixture#(scope="session")
+@pytest.fixture  # (scope="session")
 def nlte_raw_model(tardis_model_config_nlte):
     return Radial1DModel.from_config(tardis_model_config_nlte)
