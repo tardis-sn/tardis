@@ -8,6 +8,8 @@ from jsonschema.exceptions import ValidationError
 
 from tardis.io import config_reader
 from tardis.io.config_reader import Configuration
+from tardis.plasma.exceptions import PlasmaConfigError
+from tardis.plasma.standard_plasmas import assemble_plasma
 
 
 def data_path(filename):
@@ -181,7 +183,7 @@ def test_plasma_section_config(tardis_config_verysimple):
     assert ve.type is ValueError
 
 
-def test_plasma_nlte_section_config(tardis_config_verysimple_nlte):
+def test_plasma_nlte_section_config(tardis_config_verysimple_nlte, nlte_raw_model, nlte_atom_data,):
     """
     Configuration Validation Test for Plasma Section of the Tardis Config YAML File.
 
@@ -191,37 +193,25 @@ def test_plasma_nlte_section_config(tardis_config_verysimple_nlte):
     Parameter
     ---------
         `tardis_config_verysimple_nlte` : YAML File
+        `nlte_raw_model` : A simple model
+        `nlte_atom_data` : An example atomic dataset
 
     Result
     ------
         Assertion based on validation for specified values
     """
-    conf = Configuration.from_config_dict(
-        tardis_config_verysimple_nlte, validate=True, config_dirname="test"
-    )
     tardis_config_verysimple_nlte["plasma"]["continuum_interaction"][
         "species"
     ] = [
         "He I",
     ]
     tardis_config_verysimple_nlte["plasma"]["nlte_ionization_species"] = ["H I"]
-    with pytest.raises(ValueError) as ve:
-        nlte_ionization_species = tardis_config_verysimple_nlte["plasma"][
-            "nlte_ionization_species"
-        ]
-
-        for species in nlte_ionization_species:
-            if not (
-                species
-                in tardis_config_verysimple_nlte["plasma"][
-                    "continuum_interaction"
-                ]["species"]
-            ):
-                raise ValueError("Nlte ionization species not in continuum.")
-    assert ve.type is ValueError
+    with pytest.raises(PlasmaConfigError) as ve:
+        plasma = assemble_plasma(tardis_config_verysimple_nlte, nlte_raw_model, nlte_atom_data)
+    assert ve.type is PlasmaConfigError
 
 
-def test_plasma_nlte_exc_section_config(tardis_config_verysimple_nlte):
+def test_plasma_nlte_exc_section_config(tardis_config_verysimple_nlte, nlte_raw_model, nlte_atom_data):
     """
     Configuration Validation Test for Plasma Section of the Tardis Config YAML File.
 
@@ -236,29 +226,15 @@ def test_plasma_nlte_exc_section_config(tardis_config_verysimple_nlte):
     ------
         Assertion based on validation for specified values
     """
-    conf = Configuration.from_config_dict(
-        tardis_config_verysimple_nlte, validate=True, config_dirname="test"
-    )
     tardis_config_verysimple_nlte["plasma"]["continuum_interaction"][
         "species"
     ] = [
         "He I",
     ]
     tardis_config_verysimple_nlte["plasma"]["nlte_excitation_species"] = ["H I"]
-    with pytest.raises(ValueError) as ve:
-        nlte_excitation_species = tardis_config_verysimple_nlte["plasma"][
-            "nlte_excitation_species"
-        ]
-
-        for species in nlte_excitation_species:
-            if not (
-                species
-                in tardis_config_verysimple_nlte["plasma"][
-                    "continuum_interaction"
-                ]["species"]
-            ):
-                raise ValueError("Nlte excitation species not in continuum.")
-    assert ve.type is ValueError
+    with pytest.raises(PlasmaConfigError) as ve:
+        plasma = assemble_plasma(tardis_config_verysimple_nlte, nlte_raw_model, nlte_atom_data)
+    assert ve.type is PlasmaConfigError
 
 
 def test_spectrum_section_config(tardis_config_verysimple):
