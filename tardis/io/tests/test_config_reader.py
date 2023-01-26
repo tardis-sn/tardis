@@ -210,11 +210,9 @@ def test_plasma_nlte_section_config(
         "He I",
     ]
     tardis_config_verysimple_nlte["plasma"]["nlte_ionization_species"] = ["H I"]
+    config = Configuration.from_config_dict(tardis_config_verysimple_nlte)
     with pytest.raises(PlasmaConfigError) as ve:
-        plasma = assemble_plasma(
-            tardis_config_verysimple_nlte, nlte_raw_model, nlte_atom_data
-        )
-    assert ve.type is PlasmaConfigError
+        assemble_plasma(config, nlte_raw_model, nlte_atom_data)
 
 
 def test_plasma_nlte_exc_section_config(
@@ -240,11 +238,9 @@ def test_plasma_nlte_exc_section_config(
         "He I",
     ]
     tardis_config_verysimple_nlte["plasma"]["nlte_excitation_species"] = ["H I"]
-    with pytest.raises(PlasmaConfigError) as ve:
-        plasma = assemble_plasma(
-            tardis_config_verysimple_nlte, nlte_raw_model, nlte_atom_data
-        )
-    assert ve.type is PlasmaConfigError
+    config = Configuration.from_config_dict(tardis_config_verysimple_nlte)
+    with pytest.raises(PlasmaConfigError):
+        plasma = assemble_plasma(config, nlte_raw_model, nlte_atom_data)
 
 
 def test_spectrum_section_config(tardis_config_verysimple):
