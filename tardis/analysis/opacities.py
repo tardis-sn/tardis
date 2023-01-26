@@ -372,13 +372,13 @@ class opacity_calculator(object):
 
         for i in range(self.nshells):
             delta_nu = self.nu_bins[1:] - self.nu_bins[:-1]
-            T = self.mdl.plasma.t_rad[i]
-            bb_nu = Blackbody(T)
+            temperature = self.mdl.plasma.t_rad[i]
+            bb_nu = Blackbody(temperature)
 
             tmp = (
                 bb_nu(self.nu_bins[:-1]) * delta_nu * self.kappa_tot[:, 0]
             ).sum()
-            tmp /= (bb_nu(self.nu_bins[:-1], T) * delta_nu).sum()
+            tmp /= (bb_nu(self.nu_bins[:-1], temperature) * delta_nu).sum()
 
             kappa_planck_mean[i] = tmp
 
