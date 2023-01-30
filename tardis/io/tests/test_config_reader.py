@@ -227,6 +227,8 @@ def test_plasma_nlte_exc_section_config(
     Parameter
     ---------
         `tardis_config_verysimple_nlte` : YAML File
+        `nlte_raw_model` : A simple model
+        `nlte_atom_data` : An example atomic dataset
 
     Result
     ------
