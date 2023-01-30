@@ -208,7 +208,7 @@ class MontecarloRunner(HDFWriterMixin):
         self.v_outer_cgs = model.v_outer.to("cm/s").value
 
     def _initialize_packets(
-        self, T, no_of_packets, iteration, radius, time_explosion
+        self, temperature, no_of_packets, iteration, radius, time_explosion
     ):
         # the iteration is added each time to preserve randomness
         # across different simulations with the same temperature,
@@ -220,11 +220,11 @@ class MontecarloRunner(HDFWriterMixin):
         seeds = rng.choice(MAX_SEED_VAL, no_of_packets, replace=True)
         if not self.enable_full_relativity:
             radii, nus, mus, energies = self.packet_source.create_packets(
-                T, no_of_packets, rng, radius
+                temperature, no_of_packets, rng, radius
             )
         else:
             radii, nus, mus, energies = self.packet_source.create_packets(
-                T, no_of_packets, rng, radius, time_explosion
+                temperature, no_of_packets, rng, radius, time_explosion
             )
 
         mc_config_module.packet_seeds = seeds
