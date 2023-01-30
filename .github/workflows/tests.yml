@@ -52,6 +52,7 @@ jobs:
         with:
           repository: tardis-sn/tardis-refdata
           path: tardis-refdata
+          lfs: false
 
       - name: Create LFS file list
         run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
