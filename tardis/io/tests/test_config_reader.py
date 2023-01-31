@@ -148,7 +148,7 @@ def test_supernova_section_config(tardis_config_verysimple):
         )
 
 
-@pytest.mark.parametrize("key", ['initial_t_inner', 'initial_t_rad'])
+@pytest.mark.parametrize("key", ["initial_t_inner", "initial_t_rad"])
 def test_plasma_section_config(key, tardis_config_verysimple):
     """
     Configuration Validation Test for Plasma Section of the Tardis Config YAML File
