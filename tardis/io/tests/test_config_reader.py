@@ -148,7 +148,8 @@ def test_supernova_section_config(tardis_config_verysimple):
         )
 
 
-def test_plasma_section_config(tardis_config_verysimple):
+@pytest.mark.parametrize("key", ['initial_t_inner', 'initial_t_rad'])
+def test_plasma_section_config(key, tardis_config_verysimple):
     """
     Configuration Validation Test for Plasma Section of the Tardis Config YAML File
 
@@ -164,14 +165,7 @@ def test_plasma_section_config(tardis_config_verysimple):
     ------
         Assertion based on validation for specified values
     """
-    tardis_config_verysimple["plasma"]["initial_t_inner"] = Quantity("-100 K")
-    with pytest.raises(ValueError):
-        conf = Configuration.from_config_dict(
-            tardis_config_verysimple, validate=True, config_dirname="test"
-        )
-
-    tardis_config_verysimple["plasma"]["initial_t_inner"] = Quantity("100 K")
-    tardis_config_verysimple["plasma"]["initial_t_rad"] = Quantity("-100 K")
+    tardis_config_verysimple["plasma"][key] = Quantity("-100 K")
     with pytest.raises(ValueError):
         conf = Configuration.from_config_dict(
             tardis_config_verysimple, validate=True, config_dirname="test"
