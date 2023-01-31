@@ -9,11 +9,19 @@ __all__ = [
 class NLTEIndexHelper(ProcessingPlasmaProperty):
     outputs = ("rate_matrix_index",)
 
-    def __init__(self, plasma_parent, nlte_ionization_species=0):
+    def __init__(
+        self,
+        plasma_parent,
+        nlte_ionization_species=0,
+        nlte_excitation_species=0,
+    ):
         super().__init__(plasma_parent)
         self.nlte_ionization_species = nlte_ionization_species
+        self.nlte_excitation_species = nlte_excitation_species
 
-    def calculate(self, levels, nlte_ionization_species):
+    def calculate(
+        self, levels, nlte_ionization_species, nlte_excitation_species
+    ):
         """Generates rate_matrix_index using levels and changing the last index(level) to
         "lte_ion" if that ion_number is treated in LTE or nebular, "nlte_ion" for NLTE ionization and
         keeps the levels for the rest.
