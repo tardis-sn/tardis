@@ -99,6 +99,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
                 number_density[shell]
             )
             first_guess = self.prepare_first_guess(
+                rate_matrix_index,
                 atomic_numbers,
                 number_density[shell],
                 initial_electron_densities[shell],
@@ -555,7 +556,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         return np.dot(deriv_matrix, current_ion_number_densities)
 
     def prepare_first_guess(
-        self, atomic_numbers, number_density, electron_density
+        self, rate_matrix_index, atomic_numbers, number_density, electron_density
     ):
         """Constructs a first guess for ion number densities and electron density, where all species are singly ionized.
 
@@ -573,13 +574,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         numpy.array
             Guess for ion number densities and electron density.
         """
-        # TODO needs to be changed for excitation
-        array_size = (number_density.index.values + 1).sum() + 1
-        first_guess = np.zeros(array_size)
-        index = 1
+        first_guess = pd.Series(0.0, index=rate_matrix_index)
         for atomic_number in atomic_numbers:
-            first_guess[index] = number_density.loc[atomic_number]
-            index += atomic_number + 1
+            first_guess.loc[(atomic_number, 1)][0] = number_density.loc[atomic_number]
+        first_guess = first_guess.values
         first_guess[-1] = electron_density
         return first_guess
 
