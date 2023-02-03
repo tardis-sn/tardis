@@ -48,7 +48,7 @@ adhere to a few policies and acknowledge the TARDIS Team.
 Publication Policies
 ====================
 
-If you use this code for any publications or presentations please acknowledge
+If you use this code for any publications or presentations, please acknowledge
 it.  Please cite `Kerzendorf & Sim 2014
 <http://adsabs.harvard.edu/abs/2014MNRAS.440..387K>`_  in the text and add the
 following paragraph to the Acknowledgement section:
@@ -61,7 +61,7 @@ following paragraph to the Acknowledgement section:
     initiative, and from ESA's Summer of Code in Space program. \\textsc{tardis} is a fiscally
     sponsored project of NumFOCUS. \\textsc{tardis} makes extensive use of Astropy and Pyne.
 
-If you use any of the full relativity treatments or use TARDIS for modelling
+If you use any of the full relativity treatments or use TARDIS for modeling
 Type II supernovae, also add `Spectral modeling of type II supernovae. I. Dilution factors <https://ui.adsabs.harvard.edu/abs/2019A%26A...621A..29V>`_
 to the Acknowledgement.
 
