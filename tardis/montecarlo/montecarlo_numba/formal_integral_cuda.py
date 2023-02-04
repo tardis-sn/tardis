@@ -475,15 +475,16 @@ def trapezoid_integration_cuda(arr, dx):
 
 
 @cuda.jit(device=True)
-def intensity_black_body_cuda(nu, T):
+def intensity_black_body_cuda(nu, temperature):
     """
-    Get the black body intensity at frequency nu
-    and temperature T
+    Calculate the blackbody intensity.
 
     Parameters
     ----------
     nu : float64
-    T : float64
+        frequency
+    temperature : float64
+        Temperature
 
     Returns
     -------
@@ -491,7 +492,7 @@ def intensity_black_body_cuda(nu, T):
     """
     if nu == 0:
         return np.nan  # to avoid ZeroDivisionError
-    beta_rad = 1 / (KB_CGS * T)
+    beta_rad = 1 / (KB_CGS * temperature)
     coefficient = 2 * H_CGS * C_INV * C_INV
     return coefficient * nu * nu * nu / (math.exp(H_CGS * nu * beta_rad) - 1)
 

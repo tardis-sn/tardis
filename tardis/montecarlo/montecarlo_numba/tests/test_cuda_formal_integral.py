@@ -32,14 +32,14 @@ GPUs_available = cuda.is_available()
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(
-    ["nu", "T"],
+    ["nu", "temperature"],
     [
         (1e14, 1e4),
         (0, 1),
         (1, 1),
     ],
 )
-def test_intensity_black_body_cuda(nu, T):
+def test_intensity_black_body_cuda(nu, temperature):
     """
     Initializes the test of the cuda version
     against the numba implementation of the
@@ -47,21 +47,21 @@ def test_intensity_black_body_cuda(nu, T):
     is done as both results have 15 digits of precision.
     """
     actual = np.zeros(3)
-    black_body_caller[1, 3](nu, T, actual)
+    black_body_caller[1, 3](nu, temperature, actual)
 
-    expected = formal_integral_numba.intensity_black_body(nu, T)
+    expected = formal_integral_numba.intensity_black_body(nu, temperature)
 
     ntest.assert_allclose(actual, expected, rtol=1e-14)
 
 
 @cuda.jit
-def black_body_caller(nu, T, actual):
+def black_body_caller(nu, temperature, actual):
     """
     This calls the CUDA function and fills out
     the array
     """
     x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.intensity_black_body_cuda(nu, T)
+    actual[x] = formal_integral_cuda.intensity_black_body_cuda(nu, temperature)
 
 
 @pytest.mark.skipif(
