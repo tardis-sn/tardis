@@ -1,3 +1,7 @@
+"""
+Handling the properties of the plasma.
+"""
+
 from tardis.plasma.properties.atomic import *
 from tardis.plasma.properties.general import *
 from tardis.plasma.properties.ion_population import *
