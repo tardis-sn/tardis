@@ -31,7 +31,8 @@
     },
     {
       "name": "Camacho, Yssa",
-      "orcid": "0000-0002-9830-3880"
+      "orcid": "0000-0002-9830-3880",
+      "affiliation": "Rutgers The State University of New Jersey"
     },
     {
       "name": "Jan\u010dauskas, Vytautas",
@@ -112,10 +113,10 @@
       "name": "Arya, Atharva"
     },
     {
-      "name": "Barbosa, Talytha"
+      "name": "Sondhi, Dhruv"
     },
     {
-      "name": "Sondhi, Dhruv"
+      "name": "Barbosa, Talytha"
     },
     {
       "name": "Yu, Jenny"
@@ -134,16 +135,16 @@
       "orcid": "0000-0002-8094-6108"
     },
     {
-      "name": "Savel, Arjun"
+      "name": "Chitchyan, Sona"
     },
     {
-      "name": "Eweis, Youssef"
+      "name": "Savel, Arjun"
     },
     {
       "name": "Reinecke, Martin"
     },
     {
-      "name": "Chitchyan, Sona"
+      "name": "Eweis, Youssef"
     },
     {
       "name": "Bylund, Tomas"
@@ -162,10 +163,10 @@
       "name": "Bartnik, Matthew"
     },
     {
-      "name": "Varma Buddaraju, Rohith"
+      "name": "Magee, Mark"
     },
     {
-      "name": "Magee, Mark"
+      "name": "Varma Buddaraju, Rohith"
     },
     {
       "name": "Shields, Joshua"
@@ -177,20 +178,26 @@
       "name": "Livneh, Ran"
     },
     {
-      "name": "Mishra, Sashank",
-      "orcid": "0000-0001-8302-1584"
+      "name": "Rajagopalan, Srinath"
     },
     {
-      "name": "Rajagopalan, Srinath"
+      "name": "Mishra, Sashank",
+      "orcid": "0000-0001-8302-1584"
     },
     {
       "name": "Reichenbach, John"
     },
     {
+      "name": "Floers, Andreas"
+    },
+    {
       "name": "Jain, Rinkle"
     },
     {
-      "name": "Floers, Andreas"
+      "name": "Holas, Alexander"
+    },
+    {
+      "name": "Singh, Sourav"
     },
     {
       "name": "Bhakar, Jayant"
@@ -199,88 +206,85 @@
       "name": "Brar, Antreev"
     },
     {
-      "name": "Singh, Sourav"
-    },
-    {
-      "name": "Holas, Alexander"
-    },
-    {
       "name": "Selsing, Jonatan"
-    },
-    {
-      "name": "Talegaonkar, Chinmay"
-    },
-    {
-      "name": "Sofiatti, Caroline"
     },
     {
       "name": "Kumar, Aman"
     },
     {
+      "name": "Talegaonkar, Chinmay"
+    },
+    {
       "name": "Kowalski, Nathan"
     },
     {
-      "name": "Patel, Pratik"
-    },
-    {
-      "name": "Gupta, Suyash"
-    },
-    {
-      "name": "Sharma, Sampark"
-    },
-    {
-      "name": "Aggarwal, Yash"
+      "name": "Sofiatti, Caroline"
     },
     {
       "name": "Prasad, Shilpi"
     },
     {
-      "name": "Dasgupta, Debajyoti"
-    },
-    {
-      "name": "Lemoine, Thom"
-    },
-    {
-      "name": "Zaheer, Musabbiha"
-    },
-    {
-      "name": "Wahi, Ujjwal"
-    },
-    {
-      "name": "Patra, Nilesh"
+      "name": "Venkat, Shashank"
     },
     {
       "name": "Singh Rathore, Parikshit"
     },
     {
+      "name": "Sharma, Sampark"
+    },
+    {
+      "name": "Patel, Pratik"
+    },
+    {
       "name": "Yap, Kevin"
     },
     {
-      "name": "Martinez, Laureano"
+      "name": "Patra, Nilesh"
     },
     {
       "name": "Sarafina, Nance"
     },
     {
-      "name": "Venkat, Shashank"
-    },
-    {
-      "name": "Kolliboyina, Chaitanya"
-    },
-    {
-      "name": "Volodin, Dmitry"
+      "name": "Zaheer, Musabbiha"
     },
     {
       "name": "Sandler, Morgan"
     },
     {
-      "name": "Kumar, Atul"
+      "name": "Lemoine, Thom"
+    },
+    {
+      "name": "Gupta, Suyash"
+    },
+    {
+      "name": "Wahi, Ujjwal"
+    },
+    {
+      "name": "Aggarwal, Yash"
+    },
+    {
+      "name": "Volodin, Dmitry"
+    },
+    {
+      "name": "Dasgupta, Debajyoti"
+    },
+    {
+      "name": "PATIDAR, ABHISHEK"
+    },
+    {
+      "name": "Martinez, Laureano"
+    },
+    {
+      "name": "Kolliboyina, Chaitanya"
     },
     {
       "name": "Kharkar, Atharwa"
     },
     {
       "name": "Nayak U, Ashwin"
+    },
+    {
+      "name": "Kumar, Atul"
     }
   ]
 }
