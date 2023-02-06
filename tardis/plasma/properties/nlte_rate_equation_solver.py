@@ -426,7 +426,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             .groupby(level=("atomic_number", "ion_number"))
             .sum()
         )
-        
 
         total_rad_recomb_coefficients = (
             (alpha_sp + alpha_stim)
@@ -459,19 +458,19 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             )
 
             total_coll_ion_coefficients_with_levels = (
-            (
-                level_population_fraction.loc[coll_ion_coeff.index]
-                * coll_ion_coeff
-            )
-            .groupby(level=("atomic_number", "ion_number", "level_number"))
-            .sum()
+                (
+                    level_population_fraction.loc[coll_ion_coeff.index]
+                    * coll_ion_coeff
+                )
+                .groupby(level=("atomic_number", "ion_number", "level_number"))
+                .sum()
             )
             total_coll_recomb_coefficients_with_levels = (
-            (coll_recomb_coeff)
-            .groupby(level=("atomic_number", "ion_number", "level_number"))
-            .sum()
+                (coll_recomb_coeff)
+                .groupby(level=("atomic_number", "ion_number", "level_number"))
+                .sum()
             )
-            
+
             total_photo_ion_coefficients = (
                 NLTERateEquationSolver.prepare_coefficient_matrices_excitation(
                     rate_matrix_index,
@@ -500,7 +499,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
                     total_coll_recomb_coefficients_with_levels,
                 )
             )
-        
+
         return (
             total_photo_ion_coefficients,
             total_rad_recomb_coefficients,
