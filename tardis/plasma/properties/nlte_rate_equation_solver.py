@@ -25,6 +25,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         phi,
         rate_matrix_index,
         number_density,
+        nlte_excitation_species,
     ):
         """Calculates ion number densities and electron densities using NLTE ionization.
 
@@ -79,6 +80,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             partition_function,
             levels,
             level_boltzmann_factor,
+            nlte_excitation_species,
+            rate_matrix_index,
         )
 
         initial_electron_densities = number_density.sum(axis=0)
@@ -370,6 +373,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         partition_function,
         levels,
         level_boltzmann_factor,
+        nlte_excitation_species,
+        rate_matrix_index,
     ):
         """
         Prepares the ionization and recombination coefficients by grouping them for
@@ -421,6 +426,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             .groupby(level=("atomic_number", "ion_number"))
             .sum()
         )
+        
+
         total_rad_recomb_coefficients = (
             (alpha_sp + alpha_stim)
             .groupby(level=["atomic_number", "ion_number"])
@@ -439,6 +446,61 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             .groupby(level=("atomic_number", "ion_number"))
             .sum()
         )
+        if len(nlte_excitation_species) != 0:
+            total_photo_ion_coefficients_with_levels = (
+                (level_population_fraction.loc[gamma.index] * gamma)
+                .groupby(level=("atomic_number", "ion_number", "level_number"))
+                .sum()
+            )
+            total_rad_recomb_coefficients_with_levels = (
+                (alpha_sp + alpha_stim)
+                .groupby(level=("atomic_number", "ion_number", "level_number"))
+                .sum()
+            )
+
+            total_coll_ion_coefficients_with_levels = (
+            (
+                level_population_fraction.loc[coll_ion_coeff.index]
+                * coll_ion_coeff
+            )
+            .groupby(level=("atomic_number", "ion_number", "level_number"))
+            .sum()
+            )
+            total_coll_recomb_coefficients_with_levels = (
+            (coll_recomb_coeff)
+            .groupby(level=("atomic_number", "ion_number", "level_number"))
+            .sum()
+            )
+            
+            total_photo_ion_coefficients = (
+                NLTERateEquationSolver.prepare_coefficient_matrices_excitation(
+                    rate_matrix_index,
+                    total_photo_ion_coefficients,
+                    total_photo_ion_coefficients_with_levels,
+                )
+            )
+            total_rad_recomb_coefficients = (
+                NLTERateEquationSolver.prepare_coefficient_matrices_excitation(
+                    rate_matrix_index,
+                    total_rad_recomb_coefficients,
+                    total_rad_recomb_coefficients_with_levels,
+                )
+            )
+            total_coll_ion_coefficients = (
+                NLTERateEquationSolver.prepare_coefficient_matrices_excitation(
+                    rate_matrix_index,
+                    total_coll_ion_coefficients,
+                    total_coll_ion_coefficients_with_levels,
+                )
+            )
+            total_coll_recomb_coefficients = (
+                NLTERateEquationSolver.prepare_coefficient_matrices_excitation(
+                    rate_matrix_index,
+                    total_coll_recomb_coefficients,
+                    total_coll_recomb_coefficients_with_levels,
+                )
+            )
+        
         return (
             total_photo_ion_coefficients,
             total_rad_recomb_coefficients,
@@ -703,3 +765,45 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             )
         solution_vector = np.hstack(solution_array + [0])
         return solution_vector
+
+    @staticmethod
+    def prepare_coefficient_matrices_excitation(
+        rate_matrix_index,
+        coeff_matrix_without_exc,
+        coeff_matrix_with_exc,
+    ):
+        coeff_array = np.zeros(
+            (rate_matrix_index.size, coeff_matrix_without_exc.shape[1])
+        )
+        size = 0
+        for i in range(rate_matrix_index.size):
+            if rate_matrix_index[i][2] != "lte_ion":
+                size += 1
+        size -= 1
+        coeff_array = np.zeros((size, coeff_matrix_without_exc.shape[1]))
+        index = []
+        row = 0
+        for i in range(rate_matrix_index.size):
+            if rate_matrix_index[i][2] == "nlte_ion":
+                coeff_array[row] = coeff_matrix_without_exc.loc[
+                    rate_matrix_index[i][:-1]
+                ]
+                index.append(rate_matrix_index[i])
+            elif (
+                rate_matrix_index[i][2] == "lte_ion"
+                or rate_matrix_index[i][2] == "n_e"
+            ):
+                continue
+            else:
+                coeff_array[row] = coeff_matrix_with_exc.loc[
+                    rate_matrix_index[i]
+                ]
+                index.append(rate_matrix_index[i])
+            row += 1
+        index = pd.MultiIndex.from_tuples(
+            index, names=["atomic_number", "ion_number", "level_number"]
+        )
+        coeff_matrix = pd.DataFrame(
+            coeff_array, columns=coeff_matrix_without_exc.columns, index=index
+        )
+        return coeff_matrix
