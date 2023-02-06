@@ -1,5 +1,15 @@
 ## Change Log
 
+### release-2023.02.06 (2023/02/06 15:00 +00:00)
+- [#2205](https://github.com/tardis-sn/tardis/pull/2205) Pre-release 2023.02.05 (#2205) (@tardis-bot)
+- [#2200](https://github.com/tardis-sn/tardis/pull/2200) Fix config reader tests (#2200) (@chvogl)
+- [#2195](https://github.com/tardis-sn/tardis/pull/2195) Reading nlte_excitation_species from config (#2195) (@sonachitchyan)
+- [#2198](https://github.com/tardis-sn/tardis/pull/2198) Fixing test_store_runner_to_hdf (#2198) (@sonachitchyan)
+- [#2185](https://github.com/tardis-sn/tardis/pull/2185) Rename T variables to temperature  (#2185) (@1e9abhi1e10)
+- [#2171](https://github.com/tardis-sn/tardis/pull/2171) Adding nlte solver (#2171) (@sonachitchyan)
+- [#2187](https://github.com/tardis-sn/tardis/pull/2187) Downloading nlte_atom_data in ref data (#2187) (@sonachitchyan)
+- [#2188](https://github.com/tardis-sn/tardis/pull/2188) Post-release 2023.01.11 (#2188) (@tardis-bot)
+
 ### release-2023.01.11 (2023/01/11 16:25 +00:00)
 - [#2186](https://github.com/tardis-sn/tardis/pull/2186) Pre-release 2023.01.08 (#2186) (@tardis-bot)
 - [#2182](https://github.com/tardis-sn/tardis/pull/2182) Post-release 2022.12.26 (#2182) (@tardis-bot)
@@ -312,8 +322,6 @@
 - [#1701](https://github.com/tardis-sn/tardis/pull/1701) Adding Logging Support for Caught Exceptions (#1701) (@DhruvSondhi)
 - [#1684](https://github.com/tardis-sn/tardis/pull/1684) Moved Simulation & Montecarlo Logging Frameworks to `tardis/io/logger` folder (#1684) (@DhruvSondhi)
 - [#1691](https://github.com/tardis-sn/tardis/pull/1691) Create profiling documentation directory (#1691) (@KevinCawley)
-
-### release-2021.7.11.0 (2021/07/09 17:07 +00:00)
 - [#1680](https://github.com/tardis-sn/tardis/pull/1680) Added docstring-coverage badge (#1680) (@epassaro)
 - [#1696](https://github.com/tardis-sn/tardis/pull/1696) Adding mu and r to virtual packet logging (#1696) (@smithis7)
 - [#1695](https://github.com/tardis-sn/tardis/pull/1695) Enabling spectrum plotting in the frequency domain (#1695) (@smithis7)
