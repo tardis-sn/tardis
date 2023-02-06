@@ -3,8 +3,8 @@
 cff-version: 1.0.3
 message: If you use this software, please cite it using these metadata.
 # FIXME title as repository name might not be the best name, please make human readable
-title: 'tardis-sn/tardis: TARDIS v2023.01.11'
-doi: 10.5281/zenodo.7525913
+title: 'tardis-sn/tardis: TARDIS v2023.02.06'
+doi: 10.5281/zenodo.7612458
 # FIXME splitting of full names is error prone, please check if given/family name are correct
 authors:
 - given-names: Wolfgang
@@ -32,6 +32,7 @@ authors:
   orcid: https://orcid.org/0000-0003-2024-2819
 - given-names: Yssa
   family-names: Camacho
+  affiliation: Rutgers The State University of New Jersey
   orcid: https://orcid.org/0000-0002-9830-3880
 - given-names: Vytautas
   family-names: Jančauskas
@@ -90,10 +91,10 @@ authors:
   orcid: https://orcid.org/0000-0002-8310-0829
 - given-names: Atharva
   family-names: Arya
-- given-names: Talytha
-  family-names: Barbosa
 - given-names: Dhruv
   family-names: Sondhi
+- given-names: Talytha
+  family-names: Barbosa
 - given-names: Jenny
   family-names: Yu
 - given-names: Jack
@@ -105,14 +106,14 @@ authors:
 - given-names: James
   family-names: Gillanders
   orcid: https://orcid.org/0000-0002-8094-6108
-- given-names: Arjun
-  family-names: Savel
-- given-names: Youssef
-  family-names: Eweis
-- given-names: Martin
-  family-names: Reinecke
 - given-names: Sona
   family-names: Chitchyan
+- given-names: Arjun
+  family-names: Savel
+- given-names: Martin
+  family-names: Reinecke
+- given-names: Youssef
+  family-names: Eweis
 - given-names: Tomas
   family-names: Bylund
 - given-names: Laud
@@ -124,88 +125,90 @@ authors:
   family-names: Alam
 - given-names: Matthew
   family-names: Bartnik
-- given-names: Rohith
-  family-names: Varma Buddaraju
 - given-names: Mark
   family-names: Magee
+- given-names: Rohith
+  family-names: Varma Buddaraju
 - given-names: Joshua
   family-names: Shields
 - given-names: Satwik
   family-names: Kambham
 - given-names: Ran
   family-names: Livneh
+- given-names: Srinath
+  family-names: Rajagopalan
 - given-names: Sashank
   family-names: Mishra
   orcid: https://orcid.org/0000-0001-8302-1584
-- given-names: Srinath
-  family-names: Rajagopalan
 - given-names: John
   family-names: Reichenbach
-- given-names: Rinkle
-  family-names: Jain
 - given-names: Andreas
   family-names: Floers
+- given-names: Rinkle
+  family-names: Jain
+- given-names: Alexander
+  family-names: Holas
+- given-names: Sourav
+  family-names: Singh
 - given-names: Jayant
   family-names: Bhakar
 - given-names: Antreev
   family-names: Brar
-- given-names: Sourav
-  family-names: Singh
-- given-names: Alexander
-  family-names: Holas
 - given-names: Jonatan
   family-names: Selsing
-- given-names: Chinmay
-  family-names: Talegaonkar
-- given-names: Caroline
-  family-names: Sofiatti
 - given-names: Aman
   family-names: Kumar
+- given-names: Chinmay
+  family-names: Talegaonkar
 - given-names: Nathan
   family-names: Kowalski
-- given-names: Pratik
-  family-names: Patel
-- given-names: Suyash
-  family-names: Gupta
-- given-names: Sampark
-  family-names: Sharma
-- given-names: Yash
-  family-names: Aggarwal
+- given-names: Caroline
+  family-names: Sofiatti
 - given-names: Shilpi
   family-names: Prasad
-- given-names: Debajyoti
-  family-names: Dasgupta
-- given-names: Thom
-  family-names: Lemoine
-- given-names: Musabbiha
-  family-names: Zaheer
-- given-names: Ujjwal
-  family-names: Wahi
-- given-names: Nilesh
-  family-names: Patra
-- given-names: Parikshit
-  family-names: Singh Rathore
-- given-names: Kevin
-  family-names: Yap
-- given-names: Laureano
-  family-names: Martinez
-- given-names: Nance
-  family-names: Sarafina
 - given-names: Shashank
   family-names: Venkat
-- given-names: Chaitanya
-  family-names: Kolliboyina
-- given-names: Dmitry
-  family-names: Volodin
+- given-names: Parikshit
+  family-names: Singh Rathore
+- given-names: Sampark
+  family-names: Sharma
+- given-names: Pratik
+  family-names: Patel
+- given-names: Kevin
+  family-names: Yap
+- given-names: Nilesh
+  family-names: Patra
+- given-names: Nance
+  family-names: Sarafina
+- given-names: Musabbiha
+  family-names: Zaheer
 - given-names: Morgan
   family-names: Sandler
-- given-names: Atul
-  family-names: Kumar
+- given-names: Thom
+  family-names: Lemoine
+- given-names: Suyash
+  family-names: Gupta
+- given-names: Ujjwal
+  family-names: Wahi
+- given-names: Yash
+  family-names: Aggarwal
+- given-names: Dmitry
+  family-names: Volodin
+- given-names: Debajyoti
+  family-names: Dasgupta
+- given-names: ABHISHEK
+  family-names: PATIDAR
+- given-names: Laureano
+  family-names: Martinez
+- given-names: Chaitanya
+  family-names: Kolliboyina
 - given-names: Atharwa
   family-names: Kharkar
 - given-names: Ashwin
   family-names: Nayak U
-version: release-2023.01.11
-date-released: 2023-01-11
+- given-names: Atul
+  family-names: Kumar
+version: release-2023.02.06
+date-released: 2023-02-06
 repository-code: https://github.com/tardis-sn/tardis
 license: other-open
