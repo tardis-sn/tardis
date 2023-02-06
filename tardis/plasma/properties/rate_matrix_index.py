@@ -37,7 +37,7 @@ class NLTEIndexHelper(ProcessingPlasmaProperty):
         -------
         MultiIndex
         """
-        # nlte_excitation_species = []  # not yet implemented
+        nlte_excitation_species = []  # not yet implemented
         rate_matrix_index = pd.MultiIndex.from_tuples(
             list(
                 self.calculate_rate_matrix_index(
