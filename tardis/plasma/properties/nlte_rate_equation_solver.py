@@ -26,6 +26,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         rate_matrix_index,
         number_density,
         nlte_excitation_species,
+        atomic_data, t_electrons, j_blues, beta_sobolev,
     ):
         """Calculates ion number densities and electron densities using NLTE ionization.
 
@@ -806,3 +807,65 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             coeff_array, columns=coeff_matrix_without_exc.columns, index=index
         )
         return coeff_matrix
+    
+
+    def main_nlte_calculation_bound_bound(
+        self,
+        atomic_data,
+        t_electrons,
+        j_blues,
+        beta_sobolev,
+        nlte_excitation_species,
+    ):
+        nlte_data = atomic_data.nlte_data
+        for species in nlte_excitation_species:
+            number_of_levels = atomic_data.levels.energy.loc[species].count()
+            lnl = nlte_data.lines_level_number_lower[species]
+            lnu = nlte_data.lines_level_number_upper[species]
+            (lines_index,) = nlte_data.lines_idx[species]
+
+            try:
+                j_blues_filtered = j_blues.iloc[lines_index]
+            except AttributeError:
+                j_blues_filtered = j_blues
+            try:
+                beta_sobolev_filtered = beta_sobolev.iloc[lines_index]
+            except AttributeError:
+                beta_sobolev_filtered = beta_sobolev
+            A_uls = nlte_data.A_uls[species]
+            B_uls = nlte_data.B_uls[species]
+            B_lus = nlte_data.B_lus[species]
+            r_lu_index = lnu * number_of_levels + lnl
+            r_ul_index = lnl * number_of_levels + lnu
+            r_ul_matrix = np.zeros(
+                (number_of_levels, number_of_levels, len(t_electrons)),
+                dtype=np.float64,
+            )
+            r_ul_matrix_reshaped = r_ul_matrix.reshape(
+                (number_of_levels**2, len(t_electrons))
+            )
+            r_ul_matrix_reshaped[r_ul_index] = (
+                A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues_filtered
+            )
+            r_ul_matrix_reshaped[r_ul_index] *= beta_sobolev_filtered
+            r_lu_matrix = np.zeros_like(r_ul_matrix)
+            r_lu_matrix_reshaped = r_lu_matrix.reshape(
+                (number_of_levels**2, len(t_electrons))
+            )
+            r_lu_matrix_reshaped[r_lu_index] = (
+                B_lus[np.newaxis].T * j_blues_filtered * beta_sobolev_filtered
+            )
+
+            rates_matrix = r_lu_matrix + r_ul_matrix
+            return rates_matrix
+        
+        # def collision_matrix(
+        #         self,
+        #         general_level_boltzmann_factor,
+        #         g,
+        #         nlte_excitation_species,
+        # ):
+            
+
+
+
