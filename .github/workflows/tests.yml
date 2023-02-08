@@ -68,6 +68,7 @@ jobs:
       - name: Git LFS Pull
         run: git lfs pull
         working-directory: tardis-refdata
+        if: steps.lfs-cache.outputs.cache-hit != 'true'
 
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
@@ -91,7 +92,7 @@ jobs:
         run: pip install -e .
 
       - name: Run tests
-        run: pytest tardis -x ${{ env.PYTEST_FLAGS }}
+        run: pytest tardis ${{ env.PYTEST_FLAGS }}
 
       - name: Upload to Codecov
         run: bash <(curl -s https://codecov.io/bash)
