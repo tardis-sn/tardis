@@ -6,7 +6,7 @@ from astropy import units as u
 from tardis import constants as const
 from collections import OrderedDict
 from tardis import model
-
+from tardis.simulation.convergence_plot import ConvergencePlot
 from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
@@ -28,7 +28,6 @@ class PlasmaStateStorerMixin(object):
     """Mixin class to provide the capability to the simulation object of
     storing plasma information and the inner boundary temperature during each
     MC iteration.
-
     Currently, storage for the dilution factor, the radiation temperature and
     the electron density in each cell is provided. Additionally, the
     temperature at the inner boundary is saved.
@@ -46,7 +45,6 @@ class PlasmaStateStorerMixin(object):
     def store_plasma_state(self, i, w, t_rad, electron_densities, t_inner):
         """Store current plasma information and inner boundary temperature
         used in iterated i.
-
         Parameters
         ----------
         i : int
@@ -68,7 +66,6 @@ class PlasmaStateStorerMixin(object):
     def reshape_plasma_state_store(self, executed_iterations):
         """Reshapes the storage arrays in case convergence was reached before
         all specified iterations were executed.
-
         Parameters
         ----------
         executed_iterations : int
@@ -87,30 +84,6 @@ class PlasmaStateStorerMixin(object):
 
 
 class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
-    """A composite object containing all the required information for a
-    simulation.
-
-    Parameters
-    ----------
-    converged : bool
-    iterations : int
-    model : tardis.model.Radial1DModel
-    plasma : tardis.plasma.BasePlasma
-    runner : tardis.montecarlo.MontecarloRunner
-    no_of_packets : int
-    last_no_of_packets : int
-    no_of_virtual_packets : int
-    luminosity_nu_start : astropy.units.Quantity
-    luminosity_nu_end : astropy.units.Quantity
-    luminosity_requested : astropy.units.Quantity
-    convergence_plots_kwargs: dict
-    nthreads : int
-        The number of threads to run montecarlo with
-
-        .. note:: TARDIS must be built with OpenMP support in order for ``nthreads`` to have effect.
-
-    """
-
     hdf_properties = [
         "model",
         "plasma",
@@ -212,71 +185,64 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         return input_t_inner * luminosity_ratios**t_inner_update_exponent
 
-    @staticmethod
-    def damped_converge(value, estimated_value, damping_factor):
-        # FIXME: Should convergence strategy have its own class containing this
-        # as a method
-        return value + damping_factor * (estimated_value - value)
+    # @staticmethod
+    # def damped_converge(value, estimated_value, damping_factor):
+    #     return value + damping_factor * (estimated_value - value)
 
-    def _get_convergence_status(
-        self, t_rad, w, t_inner, estimated_t_rad, estimated_w, estimated_t_inner
-    ):
-        # FIXME: Move the convergence checking in its own class.
-        no_of_shells = self.model.no_of_shells
+    # def _get_convergence_status(
+    #     self, t_rad, w, t_inner, estimated_t_rad, estimated_w, estimated_t_inner
+    # ):
+    #     no_of_shells = self.model.no_of_shells
 
-        convergence_t_rad = (
-            abs(t_rad - estimated_t_rad) / estimated_t_rad
-        ).value
-        convergence_w = abs(w - estimated_w) / estimated_w
-        convergence_t_inner = (
-            abs(t_inner - estimated_t_inner) / estimated_t_inner
-        ).value
+    #     convergence_t_rad = (
+    #         abs(t_rad - estimated_t_rad) / estimated_t_rad
+    #     ).value
+    #     convergence_w = abs(w - estimated_w) / estimated_w
+    #     convergence_t_inner = (
+    #         abs(t_inner - estimated_t_inner) / estimated_t_inner
+    #     ).value
 
-        fraction_t_rad_converged = (
-            np.count_nonzero(
-                convergence_t_rad < self.convergence_strategy.t_rad.threshold
-            )
-            / no_of_shells
-        )
+    #     fraction_t_rad_converged = (
+    #         np.count_nonzero(
+    #             convergence_t_rad < self.convergence_strategy.t_rad.threshold
+    #         )
+    #         / no_of_shells
+    #     )
 
-        t_rad_converged = (
-            fraction_t_rad_converged > self.convergence_strategy.fraction
-        )
+    #     t_rad_converged = (
+    #         fraction_t_rad_converged > self.convergence_strategy.fraction
+    #     )
 
-        fraction_w_converged = (
-            np.count_nonzero(
-                convergence_w < self.convergence_strategy.w.threshold
-            )
-            / no_of_shells
-        )
+    #     fraction_w_converged = (
+    #         np.count_nonzero(
+    #             convergence_w < self.convergence_strategy.w.threshold
+    #         )
+    #         / no_of_shells
+    #     )
 
-        w_converged = fraction_w_converged > self.convergence_strategy.fraction
+    #     w_converged = fraction_w_converged > self.convergence_strategy.fraction
 
-        t_inner_converged = (
-            convergence_t_inner < self.convergence_strategy.t_inner.threshold
-        )
+    #     t_inner_converged = (
+    #         convergence_t_inner < self.convergence_strategy.t_inner.threshold
+    #     )
 
-        if np.all([t_rad_converged, w_converged, t_inner_converged]):
-            hold_iterations = self.convergence_strategy.hold_iterations
-            self.consecutive_converges_count += 1
-            logger.info(
-                f"Iteration converged {self.consecutive_converges_count:d}/{(hold_iterations + 1):d} consecutive "
-                f"times."
-            )
-            # If an iteration has converged, require hold_iterations more
-            # iterations to converge before we conclude that the Simulation
-            # is converged.
-            return self.consecutive_converges_count == hold_iterations + 1
-        else:
-            self.consecutive_converges_count = 0
-            return False
+    #     if np.all([t_rad_converged, w_converged, t_inner_converged]):
+    #         hold_iterations = self.convergence_strategy.hold_iterations
+    #         self.consecutive_converges_count += 1
+    #         logger.info(
+    #             f"Iteration converged {self.consecutive_converges_count:d}/{(hold_iterations + 1):d} consecutive "
+    #             f"times."
+    #         )
+    #         return self.consecutive_converges_count == hold_iterations + 1
+    #     else:
+    #         self.consecutive_converges_count = 0
+    #         return False
 
     def advance_state(self):
         """
         Advances the state of the model and the plasma for the next
         iteration of the simulation. Returns True if the convergence criteria
         are met, else False.
-
         Returns
         -------
             converged : bool
@@ -291,7 +257,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             t_inner_update_exponent=self.convergence_strategy.t_inner_update_exponent,
         )
 
-        converged = self._get_convergence_status(
+        converged = ConvergencePlot._get_convergence_status(
+            self,
             self.model.t_rad,
             self.model.w,
             self.model.t_inner,
@@ -302,12 +269,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         # calculate_next_plasma_state equivalent
         # FIXME: Should convergence strategy have its own class?
-        next_t_rad = self.damped_converge(
+        next_t_rad = ConvergencePlot.damped_converge(
+            self,
             self.model.t_rad,
             estimated_t_rad,
             self.convergence_strategy.t_rad.damping_constant,
         )
-        next_w = self.damped_converge(
+        next_w = ConvergencePlot.damped_converge(
+            self,
             self.model.w,
             estimated_w,
             self.convergence_strategy.w.damping_constant,
@@ -315,7 +284,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if (
             self.iterations_executed + 1
         ) % self.convergence_strategy.lock_t_inner_cycles == 0:
-            next_t_inner = self.damped_converge(
+            next_t_inner = ConvergencePlot.damped_converge(
+                self,
                 self.model.t_inner,
                 estimated_t_inner,
                 self.convergence_strategy.t_inner.damping_constant,
@@ -491,7 +461,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     ):
         """
         Logging the change of the plasma state
-
         Parameters
         ----------
         t_rad : astropy.units.Quanity
@@ -504,7 +473,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             next_w
         log_sampling : int
             the n-th shells to be plotted
-
         Returns
         -------
         """
@@ -566,10 +534,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         Add a function which will be called
         after every iteration.
-
         The cb_func signature must look like:
         cb_func(simulation, extra_arg1, ...)
-
         Parameters
         ----------
         cb_func : callable
@@ -577,7 +543,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         arg1 :
             The first additional arguments passed to the callable function
         ...
-
         Returns
         -------
         : int
@@ -592,12 +557,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         Remove the callback with a specific ID (which was returned by
         add_callback)
-
         Parameters
         ----------
         id : int
             The callback ID
-
         Returns
         -------
         : True if the callback was successfully removed.
@@ -621,16 +584,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     ):
         """
         Create a new Simulation instance from a Configuration object.
-
         Parameters
         ----------
         config : tardis.io.config_reader.Configuration
-
         **kwargs
             Allow overriding some structures, such as model, plasma, atomic data
             and the runner, instead of creating them from the configuration
             object.
-
         Returns
         -------
         Simulation
