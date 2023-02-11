@@ -990,9 +990,9 @@ class FreeFreeFrequencySampler(ProcessingPlasmaProperty):
         @njit(error_model="numpy", fastmath=True)
         def nu_ff(shell):
 
-            T = t_electrons[shell]
+            temperature = t_electrons[shell]
             zrand = np.random.random()
-            return -K_B * T / H * np.log(zrand)
+            return -K_B * temperature / H * np.log(zrand)
 
         return nu_ff
 
