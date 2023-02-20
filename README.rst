@@ -110,14 +110,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_wolfgang_2023_7612458
+.. |CITATION| replace:: kerzendorf_wolfgang_2023_7657469
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7612458-blue
-                 :target: https://doi.org/10.5281/zenodo.7612458
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7657469-blue
+                 :target: https://doi.org/10.5281/zenodo.7657469
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_wolfgang_2023_7612458,
+    @software{kerzendorf_wolfgang_2023_7657469,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -146,10 +146,10 @@ The following BibTeX entries are needed for the references:
                       Cawley, Kevin and
                       Singhal, Jaladh and
                       Arya, Atharva and
-                      Sondhi, Dhruv and
                       Barbosa, Talytha and
-                      Yu, Jenny and
                       O'Brien, Jack and
+                      Sondhi, Dhruv and
+                      Yu, Jenny and
                       Patel, Maryam and
                       Varanasi, Kaushik and
                       Gillanders, James and
@@ -162,20 +162,20 @@ The following BibTeX entries are needed for the references:
                       Eguren, Jordi and
                       Alam, Arib and
                       Bartnik, Matthew and
-                      Magee, Mark and
                       Varma Buddaraju, Rohith and
-                      Shields, Joshua and
+                      Magee, Mark and
                       Kambham, Satwik and
+                      Shields, Joshua and
                       Livneh, Ran and
-                      Rajagopalan, Srinath and
                       Mishra, Sashank and
+                      Rajagopalan, Srinath and
                       Reichenbach, John and
-                      Floers, Andreas and
                       Jain, Rinkle and
-                      Holas, Alexander and
+                      Floers, Andreas and
                       Singh, Sourav and
-                      Bhakar, Jayant and
+                      Holas, Alexander and
                       Brar, Antreev and
+                      Bhakar, Jayant and
                       Selsing, Jonatan and
                       Kumar, Aman and
                       Talegaonkar, Chinmay and
@@ -184,8 +184,8 @@ The following BibTeX entries are needed for the references:
                       Prasad, Shilpi and
                       Venkat, Shashank and
                       Singh Rathore, Parikshit and
-                      Sharma, Sampark and
                       Patel, Pratik and
+                      Volodin, Dmitry and
                       Yap, Kevin and
                       Patra, Nilesh and
                       Sarafina, Nance and
@@ -193,23 +193,23 @@ The following BibTeX entries are needed for the references:
                       Sandler, Morgan and
                       Lemoine, Thom and
                       Gupta, Suyash and
+                      Kharkar, Atharwa and
                       Wahi, Ujjwal and
                       Aggarwal, Yash and
-                      Volodin, Dmitry and
+                      Sharma, Sampark and
                       Dasgupta, Debajyoti and
                       PATIDAR, ABHISHEK and
                       Martinez, Laureano and
                       Kolliboyina, Chaitanya and
-                      Kharkar, Atharwa and
                       Nayak U, Ashwin and
                       Kumar, Atul},
-      title        = {tardis-sn/tardis: TARDIS v2023.02.06},
+      title        = {tardis-sn/tardis: TARDIS v2023.02.2},
       month        = feb,
       year         = 2023,
       publisher    = {Zenodo},
-      version      = {release-2023.02.06},
-      doi          = {10.5281/zenodo.7612458},
-      url          = {https://doi.org/10.5281/zenodo.7612458}
+      version      = {release-2023.02.2},
+      doi          = {10.5281/zenodo.7657469},
+      url          = {https://doi.org/10.5281/zenodo.7657469}
     }
 
 *******

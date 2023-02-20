@@ -1,5 +1,14 @@
 ## Change Log
 
+### release-2023.02.2 (2023/02/20 15:04 +00:00)
+- [#2211](https://github.com/tardis-sn/tardis/pull/2211) Pre-release 2023.02.19 (#2211) (@tardis-bot)
+- [#2210](https://github.com/tardis-sn/tardis/pull/2210) Post-release 2023.02.16 (#2210) (@tardis-bot)
+
+### release-2023.02.16 (2023/02/16 14:18 +00:00)
+- [#2208](https://github.com/tardis-sn/tardis/pull/2208) Pre-release 2023.02.12 (#2208) (@tardis-bot)
+- [#2190](https://github.com/tardis-sn/tardis/pull/2190) Add version tag to simulation objects (#2190) (@kimsina)
+- [#2206](https://github.com/tardis-sn/tardis/pull/2206) Post-release 2023.02.06 (#2206) (@tardis-bot)
+
 ### release-2023.02.06 (2023/02/06 15:00 +00:00)
 - [#2205](https://github.com/tardis-sn/tardis/pull/2205) Pre-release 2023.02.05 (#2205) (@tardis-bot)
 - [#2200](https://github.com/tardis-sn/tardis/pull/2200) Fix config reader tests (#2200) (@chvogl)
@@ -311,13 +320,9 @@
 - [#1716](https://github.com/tardis-sn/tardis/pull/1716) Small fixes to docs (#1716) (@smithis7)
 - [#1722](https://github.com/tardis-sn/tardis/pull/1722) Added missing import for IonNumberDensityHeNLTE (#1722) (@DhruvSondhi)
 - [#1714](https://github.com/tardis-sn/tardis/pull/1714) Removed Formatting from exisiting log messages (#1714) (@DhruvSondhi)
-
-### release-2021.7.14.0 (2021/07/14 15:39 +00:00)
 - [#1707](https://github.com/tardis-sn/tardis/pull/1707) Open in VSCode badge (#1707) (@wkerzendorf)
 - [#1713](https://github.com/tardis-sn/tardis/pull/1713) fix package data for conda-forge package (#1713) (@epassaro)
 - [#1711](https://github.com/tardis-sn/tardis/pull/1711) Changed the xlim and the ylabel in the quickstart notebook plot (#1711) (@Rodot-)
-
-### release-2021.7.12.0 (2021/07/12 20:05 +00:00)
 - [#1686](https://github.com/tardis-sn/tardis/pull/1686) fix pip install (#1686) (@epassaro)
 - [#1701](https://github.com/tardis-sn/tardis/pull/1701) Adding Logging Support for Caught Exceptions (#1701) (@DhruvSondhi)
 - [#1684](https://github.com/tardis-sn/tardis/pull/1684) Moved Simulation & Montecarlo Logging Frameworks to `tardis/io/logger` folder (#1684) (@DhruvSondhi)
