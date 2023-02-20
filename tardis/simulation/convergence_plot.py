@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 class ConvergencePlot:
     @staticmethod
-    def damped_converge(value, estimated_value, damping_factor):
+    def damped_converge(self,value, estimated_value, damping_factor):
         return value + damping_factor * (estimated_value - value)
 
     def _get_convergence_status(
