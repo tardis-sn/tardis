@@ -1,8 +1,10 @@
 import pandas as pd
 import numpy as np
 from scipy.optimize import root
+from tardis.io.atom_data.base import NLTEData
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
+from tardis.plasma.properties.nlte_excitation_data import NLTEExcitationData
 
 __all__ = [
     "NLTERateEquationSolver",
@@ -26,8 +28,27 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         rate_matrix_index,
         number_density,
         nlte_excitation_species,
-        atomic_data, t_electrons, j_blues, beta_sobolev,
+        atomic_data,
+        t_electrons,
+        j_blues,
+        beta_sobolev,
+        coll_exc_coeff,
+        coll_deexc_coeff,
     ):
+        self.calculate_coll_exc_coefficients(
+            coll_exc_coeff,
+            coll_deexc_coeff,
+            nlte_excitation_species,
+        )
+        nlte_data = NLTEExcitationData(atomic_data, nlte_excitation_species)
+        self.main_nlte_calculation_bound_bound(
+            atomic_data,
+            t_electrons,
+            j_blues,
+            beta_sobolev,
+            nlte_excitation_species[0],
+            nlte_data,
+        )
         """Calculates ion number densities and electron densities using NLTE ionization.
 
         Parameters
@@ -807,7 +828,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             coeff_array, columns=coeff_matrix_without_exc.columns, index=index
         )
         return coeff_matrix
-    
 
     def main_nlte_calculation_bound_bound(
         self,
@@ -815,57 +835,108 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         t_electrons,
         j_blues,
         beta_sobolev,
+        excitation_species,
+        nlte_data,
+    ):
+        """Generates the part of the rate matrix needed for species treated in NLTE excitation.
+
+        Parameters
+        ----------
+        atomic_data : _type_
+            _description_
+        t_electrons : _type_
+            _description_
+        j_blues : _type_
+            _description_
+        beta_sobolev : _type_
+            _description_
+        nlte_excitation_species : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+        """
+
+        number_of_levels = atomic_data.levels.energy.loc[
+            excitation_species
+        ].count()
+        lnl = nlte_data.lines_level_number_lower[excitation_species]
+        lnu = nlte_data.lines_level_number_upper[excitation_species]
+        (lines_index,) = nlte_data.lines_idx[excitation_species]
+        # 1/0
+
+        try:
+            j_blues_filtered = j_blues.iloc[lines_index]
+        except AttributeError:
+            j_blues_filtered = j_blues
+        try:
+            beta_sobolev_filtered = beta_sobolev.iloc[lines_index]
+        except AttributeError:
+            beta_sobolev_filtered = beta_sobolev
+        A_uls = nlte_data.A_uls[excitation_species]
+        B_uls = nlte_data.B_uls[excitation_species]
+        B_lus = nlte_data.B_lus[excitation_species]
+        r_lu_index = lnu * number_of_levels + lnl
+        r_ul_index = lnl * number_of_levels + lnu
+        r_ul_matrix = np.zeros(
+            (number_of_levels, number_of_levels, len(t_electrons)),
+            dtype=np.float64,
+        )
+        r_ul_matrix_reshaped = r_ul_matrix.reshape(
+            (number_of_levels**2, len(t_electrons))
+        )
+        r_ul_matrix_reshaped[r_ul_index] = (
+            A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues_filtered
+        )
+        r_ul_matrix_reshaped[r_ul_index] *= beta_sobolev_filtered
+        r_lu_matrix = np.zeros_like(r_ul_matrix)
+        r_lu_matrix_reshaped = r_lu_matrix.reshape(
+            (number_of_levels**2, len(t_electrons))
+        )
+        r_lu_matrix_reshaped[r_lu_index] = (
+            B_lus[np.newaxis].T * j_blues_filtered * beta_sobolev_filtered
+        )
+
+        rates_matrix_bound_bound = r_lu_matrix + r_ul_matrix
+        for i in range(number_of_levels):
+            rates_matrix_bound_bound[i, i] = -rates_matrix_bound_bound[
+                :, i
+            ].sum(axis=0)
+        rates_matrix_bound_bound[0, :, :] = 1.0
+        return rates_matrix_bound_bound
+
+        # TODO: make the method for bound collision matrix based on the https://github.com/tardis-sn/tardis/blob/e9d5a432ca27906c3a7ec59cb65621b414842d22/tardis/plasma/properties/continuum_processes.py#L702
+
+        # TODO: line 235 after returning the rates for bound bound
+
+        # TODO: for tests, do the same thing as for the ionization solver, but only H for excitation treatment
+        # TODO: beta sobolev needs to be recalculated for each iteration, because it depends on numberdensity
+
+    def calculate_coll_exc_coefficients(
+        self,
+        coll_exc_coeff,
+        coll_deexc_coeff,
         nlte_excitation_species,
     ):
-        nlte_data = atomic_data.nlte_data
+        initial_index = pd.MultiIndex.from_tuples(
+            [] * 4, names=coll_exc_coeff.index.names
+        )
+        filtered_coll_exc_coefficients = pd.DataFrame(
+            columns=coll_exc_coeff.columns, index=initial_index
+        )
+        filtered_coll_deexc_coefficients = pd.DataFrame(
+            columns=coll_exc_coeff.columns, index=initial_index
+        )
         for species in nlte_excitation_species:
-            number_of_levels = atomic_data.levels.energy.loc[species].count()
-            lnl = nlte_data.lines_level_number_lower[species]
-            lnu = nlte_data.lines_level_number_upper[species]
-            (lines_index,) = nlte_data.lines_idx[species]
-
-            try:
-                j_blues_filtered = j_blues.iloc[lines_index]
-            except AttributeError:
-                j_blues_filtered = j_blues
-            try:
-                beta_sobolev_filtered = beta_sobolev.iloc[lines_index]
-            except AttributeError:
-                beta_sobolev_filtered = beta_sobolev
-            A_uls = nlte_data.A_uls[species]
-            B_uls = nlte_data.B_uls[species]
-            B_lus = nlte_data.B_lus[species]
-            r_lu_index = lnu * number_of_levels + lnl
-            r_ul_index = lnl * number_of_levels + lnu
-            r_ul_matrix = np.zeros(
-                (number_of_levels, number_of_levels, len(t_electrons)),
-                dtype=np.float64,
+            subset_exc = coll_exc_coeff.loc[[species[0], species[1]]]
+            subset_deexc = coll_deexc_coeff.loc[[species[0], species[1]]]
+            filtered_coll_exc_coefficients = pd.concat(
+                [filtered_coll_exc_coefficients, subset_exc]
             )
-            r_ul_matrix_reshaped = r_ul_matrix.reshape(
-                (number_of_levels**2, len(t_electrons))
-            )
-            r_ul_matrix_reshaped[r_ul_index] = (
-                A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues_filtered
-            )
-            r_ul_matrix_reshaped[r_ul_index] *= beta_sobolev_filtered
-            r_lu_matrix = np.zeros_like(r_ul_matrix)
-            r_lu_matrix_reshaped = r_lu_matrix.reshape(
-                (number_of_levels**2, len(t_electrons))
-            )
-            r_lu_matrix_reshaped[r_lu_index] = (
-                B_lus[np.newaxis].T * j_blues_filtered * beta_sobolev_filtered
+            filtered_coll_deexc_coefficients = pd.concat(
+                [filtered_coll_deexc_coefficients, subset_deexc]
             )
 
-            rates_matrix = r_lu_matrix + r_ul_matrix
-            return rates_matrix
-        
-        # def collision_matrix(
-        #         self,
-        #         general_level_boltzmann_factor,
-        #         g,
-        #         nlte_excitation_species,
-        # ):
-            
-
-
-
+        return filtered_coll_exc_coefficients, filtered_coll_deexc_coefficients
