@@ -3,8 +3,8 @@
 cff-version: 1.0.3
 message: If you use this software, please cite it using these metadata.
 # FIXME title as repository name might not be the best name, please make human readable
-title: 'tardis-sn/tardis: TARDIS v2023.02.16'
-doi: 10.5281/zenodo.7646631
+title: 'tardis-sn/tardis: TARDIS v2023.02.2'
+doi: 10.5281/zenodo.7657469
 # FIXME splitting of full names is error prone, please check if given/family name are correct
 authors:
 - given-names: Wolfgang
@@ -208,7 +208,7 @@ authors:
   family-names: Nayak U
 - given-names: Atul
   family-names: Kumar
-version: release-2023.02.16
-date-released: 2023-02-16
+version: release-2023.02.2
+date-released: 2023-02-20
 repository-code: https://github.com/tardis-sn/tardis
 license: other-open
