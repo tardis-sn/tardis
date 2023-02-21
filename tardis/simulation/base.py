@@ -247,13 +247,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # calculate_next_plasma_state equivalent
         # FIXME: Should convergence strategy have its own class?
         next_t_rad = ConvergencePlot.damped_converge(
-            self,
             self.model.t_rad,
             estimated_t_rad,
             self.convergence_strategy.t_rad.damping_constant,
         )
         next_w = ConvergencePlot.damped_converge(
-            self,
             self.model.w,
             estimated_w,
             self.convergence_strategy.w.damping_constant,
@@ -262,7 +260,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.iterations_executed + 1
         ) % self.convergence_strategy.lock_t_inner_cycles == 0:
             next_t_inner = ConvergencePlot.damped_converge(
-                self,
                 self.model.t_inner,
                 estimated_t_inner,
                 self.convergence_strategy.t_inner.damping_constant,
