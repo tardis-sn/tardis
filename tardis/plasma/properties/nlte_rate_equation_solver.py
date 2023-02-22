@@ -28,27 +28,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         rate_matrix_index,
         number_density,
         nlte_excitation_species,
-        atomic_data,
-        t_electrons,
-        j_blues,
-        beta_sobolev,
-        coll_exc_coeff,
-        coll_deexc_coeff,
     ):
-        self.calculate_coll_exc_coefficients(
-            coll_exc_coeff,
-            coll_deexc_coeff,
-            nlte_excitation_species,
-        )
-        nlte_data = NLTEExcitationData(atomic_data, nlte_excitation_species)
-        self.main_nlte_calculation_bound_bound(
-            atomic_data,
-            t_electrons,
-            j_blues,
-            beta_sobolev,
-            nlte_excitation_species[0],
-            nlte_data,
-        )
         """Calculates ion number densities and electron densities using NLTE ionization.
 
         Parameters
@@ -88,6 +68,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Electron density with NLTE ionization treatment.
         """
 
+        #nlte_data = NLTEExcitationData(atomic_data, nlte_excitation_species) - will be used in a future PR
         (
             total_photo_ion_coefficients,
             total_rad_recomb_coefficients,
@@ -838,25 +819,27 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         excitation_species,
         nlte_data,
     ):
-        """Generates the part of the rate matrix needed for species treated in NLTE excitation.
+        """Calculates a matrix with bound-bound rates for NLTE excitation treatment.
 
         Parameters
         ----------
-        atomic_data : _type_
-            _description_
-        t_electrons : _type_
-            _description_
-        j_blues : _type_
-            _description_
-        beta_sobolev : _type_
-            _description_
-        nlte_excitation_species : _type_
-            _description_
+        atomic_data : Object
+            Atomic data from the atomic datafile.
+        t_electrons :  Numpy Array, dtype float
+            Electron temperatures.
+        j_blues : Pandas DataFrame, dtype float
+            J_blue values as calculated in LTE.
+        beta_sobolev : Numpy Array, dtype float
+            Sobolev escape probability
+        excitation_species : tuple
+            Species treated in NLTE excitation.
+        nlte_data : NLTEExcitationData
+            Data relevant to NLTE exciation species.
 
         Returns
         -------
-        _type_
-            _description_
+        numpy.array
+            Matrix with excitation-deexcitation rates(should be added to NLTE rate matrix for excitation treatment).
         """
 
         number_of_levels = atomic_data.levels.energy.loc[
@@ -865,7 +848,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         lnl = nlte_data.lines_level_number_lower[excitation_species]
         lnu = nlte_data.lines_level_number_upper[excitation_species]
         (lines_index,) = nlte_data.lines_idx[excitation_species]
-        # 1/0
 
         try:
             j_blues_filtered = j_blues.iloc[lines_index]
@@ -907,10 +889,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         rates_matrix_bound_bound[0, :, :] = 1.0
         return rates_matrix_bound_bound
 
-        # TODO: make the method for bound collision matrix based on the https://github.com/tardis-sn/tardis/blob/e9d5a432ca27906c3a7ec59cb65621b414842d22/tardis/plasma/properties/continuum_processes.py#L702
-
-        # TODO: line 235 after returning the rates for bound bound
-
         # TODO: for tests, do the same thing as for the ionization solver, but only H for excitation treatment
         # TODO: beta sobolev needs to be recalculated for each iteration, because it depends on numberdensity
 
@@ -919,7 +897,23 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         coll_exc_coeff,
         coll_deexc_coeff,
         nlte_excitation_species,
-    ):
+    ):  
+        """Calculates collision coefficients used for NLTE excitation treatment.
+
+        Parameters
+        ----------
+        coll_exc_coeff : pandas.DataFrame, dtype float
+            Rate coefficient for collisional excitation.
+        coll_deexc_coeff : pandas.DataFrame, dtype float
+            Rate coefficient for collisional deexcitation.
+        nlte_excitation_species : list
+            List of tuples for (atomic number, ion number) which are treated in NLTE excitation.
+
+        Returns
+        -------
+        pandas.DataFrame, dtype float
+            Returns two dataframes, for collision excitation and deexcitation coefficients.
+        """
         initial_index = pd.MultiIndex.from_tuples(
             [] * 4, names=coll_exc_coeff.index.names
         )
