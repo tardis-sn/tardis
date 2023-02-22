@@ -68,7 +68,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Electron density with NLTE ionization treatment.
         """
 
-        #nlte_data = NLTEExcitationData(atomic_data, nlte_excitation_species) - will be used in a future PR
+        # nlte_data = NLTEExcitationData(atomic_data, nlte_excitation_species) - will be used in a future PR
         (
             total_photo_ion_coefficients,
             total_rad_recomb_coefficients,
@@ -897,7 +897,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         coll_exc_coeff,
         coll_deexc_coeff,
         nlte_excitation_species,
-    ):  
+    ):
         """Calculates collision coefficients used for NLTE excitation treatment.
 
         Parameters
