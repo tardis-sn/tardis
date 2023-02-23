@@ -36,6 +36,12 @@ class NLTEExcitationData(object):
             nlte_excitation_species
         ] = self.lines.level_number_upper.values[lines_idx].astype(int)
 
-        self.A_uls[nlte_excitation_species] = self.atom_data_lines.A_ul.values[lines_idx]
-        self.B_uls[nlte_excitation_species] = self.atom_data_lines.B_ul.values[lines_idx]
-        self.B_lus[nlte_excitation_species] = self.atom_data_lines.B_lu.values[lines_idx]
+        self.A_uls[nlte_excitation_species] = self.atom_data_lines.A_ul.values[
+            lines_idx
+        ]
+        self.B_uls[nlte_excitation_species] = self.atom_data_lines.B_ul.values[
+            lines_idx
+        ]
+        self.B_lus[nlte_excitation_species] = self.atom_data_lines.B_lu.values[
+            lines_idx
+        ]
