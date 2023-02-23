@@ -812,7 +812,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
     @staticmethod
     def main_nlte_calculation_bound_bound(
-        atomic_data,
+        atomic_data_levels,
         t_electrons,
         j_blues,
         beta_sobolev,
@@ -842,7 +842,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Matrix with excitation-deexcitation rates(should be added to NLTE rate matrix for excitation treatment).
         """
 
-        number_of_levels = atomic_data.levels.energy.loc[
+        number_of_levels = atomic_data_levels.energy.loc[
             excitation_species
         ].count()
         lnl = nlte_data.lines_level_number_lower[excitation_species]
