@@ -817,7 +817,7 @@ class SDECPlotter:
         luminosities_df : pd.DataFrame
             Dataframe containing luminosities contributed by no interaction,
             only e-scattering and emission with each element present
-        elements_present: np.array
+        emission_species_present: np.array
             Atomic numbers of the elements with which packets of specified
             wavelength range interacted
         """
