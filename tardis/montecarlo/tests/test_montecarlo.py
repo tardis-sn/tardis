@@ -44,10 +44,8 @@ Please follow this design procedure while adding a new test:
 """
 
 
-import os
 import pytest
 import numpy as np
-import pandas as pd
 import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
 import tardis.transport.r_packet_transport as r_packet_transport
@@ -74,61 +72,6 @@ from numpy.testing import (
     assert_almost_equal,
     assert_allclose,
 )
-
-from tardis import __path__ as path
-
-
-@pytest.fixture(scope="module")
-def continuum_compare_data_fname():
-    fname = "continuum_compare_data.hdf"
-    return os.path.join(path[0], "montecarlo", "tests", "data", fname)
-
-
-@pytest.fixture(scope="module")
-def continuum_compare_data(continuum_compare_data_fname, request):
-    compare_data = pd.HDFStore(continuum_compare_data_fname, mode="r")
-
-    def fin():
-        compare_data.close()
-
-    request.addfinalizer(fin)
-
-    return compare_data
-
-
-@pytest.fixture(scope="function")
-def expected_ff_emissivity(continuum_compare_data):
-    emissivities = continuum_compare_data["ff_emissivity"]
-
-    def ff_emissivity(t_electron):
-        emissivity = emissivities[t_electron]
-        nu_bins = emissivity["nu_bins"].values
-        emissivity_value = emissivity["emissivity"].dropna().values
-
-        return nu_bins, emissivity_value
-
-    return ff_emissivity
-
-
-@pytest.fixture(scope="module")
-def ion_edges():
-    return [
-        {
-            "nu": [4.0e14, 4.1e14, 4.2e14, 4.3e14],
-            "x_sect": [1.0, 0.9, 0.8, 0.7],
-            "no_of_points": 4,
-        },
-        {
-            "nu": [3.0e14, 3.1e14, 3.2e14, 3.3e14, 3.4e14],
-            "x_sect": [1.0, 0.9, 0.8, 0.7, 0.6],
-            "no_of_points": 5,
-        },
-        {
-            "nu": [2.8e14, 3.0e14, 3.2e14, 3.4e14],
-            "x_sect": [2.0, 1.8, 1.6, 1.4],
-            "no_of_points": 4,
-        },
-    ]
 
 
 """
