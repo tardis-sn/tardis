@@ -34,7 +34,7 @@ def config(base_config, request):
     return base_config
 
 
-class TestTransportSimpleFormalInegral:
+class TestTransportSimpleFormalIntegral:
     """
     Very simple run with the formal integral spectral synthesis method
     """
