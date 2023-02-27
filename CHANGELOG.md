@@ -1,5 +1,11 @@
 ## Change Log
 
+### release-2023.02.27 (2023/02/27 13:53 +00:00)
+- [#2222](https://github.com/tardis-sn/tardis/pull/2222) Pre-release 2023.02.26 (#2222) (@tardis-bot)
+- [#2214](https://github.com/tardis-sn/tardis/pull/2214) Correct the description of 'no_of_packets' in Monte Carlo Configuration (#2214) (@1e9abhi1e10)
+- [#2213](https://github.com/tardis-sn/tardis/pull/2213) Post-release 2023.02.20 (#2213) (@tardis-bot)
+- [#2194](https://github.com/tardis-sn/tardis/pull/2194) Cache LFS objects in the tests workflow (#2194) (@atharva-2001)
+
 ### release-2023.02.2 (2023/02/20 15:04 +00:00)
 - [#2211](https://github.com/tardis-sn/tardis/pull/2211) Pre-release 2023.02.19 (#2211) (@tardis-bot)
 - [#2210](https://github.com/tardis-sn/tardis/pull/2210) Post-release 2023.02.16 (#2210) (@tardis-bot)
@@ -312,8 +318,6 @@
 - [#1737](https://github.com/tardis-sn/tardis/pull/1737) Add Jaladh to mailmap (#1737) (@jaladh-singhal)
 - [#1739](https://github.com/tardis-sn/tardis/pull/1739) Fixed IPython Displaying the Plasma Stratification (Table) even when the Logger is turned Off (#1739) (@DhruvSondhi)
 - [#1742](https://github.com/tardis-sn/tardis/pull/1742) Reduce damping_constant under t_inner for tardis_example.yml (#1742) (@atharva-2001)
-
-### release-2021.7.18.0 (2021/07/16 14:41 +00:00)
 - [#1665](https://github.com/tardis-sn/tardis/pull/1665) Demonstrating the `nelements` and the `species_list` functionality in the SDEC plot notebook (@atharva-2001)
 - [#1727](https://github.com/tardis-sn/tardis/pull/1727) Fixing Quickstart Metadata (#1727) (@smithis7)
 - [#1726](https://github.com/tardis-sn/tardis/pull/1726) display "latest" in doc version (#1726) (@epassaro)
