@@ -1,3 +1,10 @@
+"""
+Store and calculate the properties of the plasma.
+
+Each plasma object has an array of properties which are then used to calculate plasma parameter values.
+Every property has a calculate function that returns the values of its outputs.
+"""
+
 from tardis.plasma.properties.atomic import *
 from tardis.plasma.properties.general import *
 from tardis.plasma.properties.ion_population import *
