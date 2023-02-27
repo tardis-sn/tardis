@@ -1,1 +1,3 @@
-# Utilities for TARDIS
+"""
+Utilities for TARDIS.
+"""
