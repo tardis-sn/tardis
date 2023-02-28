@@ -25,6 +25,150 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
 logger = logging.getLogger(__name__)
 
 
+class ConvergenceStrategy(object):
+    def __init__(self, config, model):
+        """
+        Create a new ConvergenceStrategy instance from a Configuration object and Model object.
+
+        Parameters
+        ----------
+        config : tardis.io.config_reader.Configuration
+        model: tardis.model.Radial1DModel
+        """
+        self.config = config.montecarlo.convergence_strategy
+        self.model = model
+        self._converged = (
+            False  # Whether the convergence has truly converged or not
+        )
+        self._consecutive_converges_count = (
+            0  # Counts the number of consecutive converges
+        )
+
+    @property
+    def converged(self):
+        return self._converged
+
+    def convergence_step(
+        self,
+        estimated_t_rad,
+        estimated_w,
+        estimated_t_inner,
+        iterations_executed,
+    ):
+        """
+        Performs a single convergence step
+
+        Parameters
+        ----------
+        estimated_t_rad : astropy.units.Quantity
+            The estimated value of t_rad
+        estimated_w : np.ndarray
+            The estimated value of w
+        estimated_t_inner : astropy.units.Quantity
+            The estimated value of t_inner
+        iterations_executed : int
+            Number of iterations elapsed in the simulation (to decide if t_inner should be updated)
+        """
+        # Compute convergence status
+        self._converged = self._get_convergence_status(
+            estimated_t_rad, estimated_w, estimated_t_inner
+        )
+
+        # Get new values
+        if self.config.type in ("damped"):
+            next_t_rad = self.damped_converge(
+                self.model.t_rad,
+                estimated_t_rad,
+                self.config.t_rad.damping_constant,
+            )
+            next_w = self.damped_converge(
+                self.model.w, estimated_w, self.config.w.damping_constant
+            )
+            if (iterations_executed + 1) % self.config.lock_t_inner_cycles == 0:
+                next_t_inner = self.damped_converge(
+                    self.model.t_inner,
+                    estimated_t_inner,
+                    self.config.t_inner.damping_constant,
+                )
+            else:
+                next_t_inner = self.model.t_inner
+        elif self.config.type in ("custom"):
+            raise NotImplementedError(
+                "Convergence strategy type is custom; "
+                "you need to implement your specific treatment!"
+            )
+        else:
+            raise ValueError(
+                f"Convergence strategy type is "
+                f"not damped or custom "
+                f"- input is {self.config.type}"
+            )
+
+        return next_t_rad, next_w, next_t_inner
+
+    @staticmethod
+    def damped_converge(value, estimated_value, damping_factor):
+        return value + damping_factor * (estimated_value - value)
+
+    def _get_convergence_status(
+        self, estimated_t_rad, estimated_w, estimated_t_inner
+    ):
+        """
+        Returns whether the convergence has truly converged or not
+
+        Parameters
+        ----------
+        estimated_t_rad : astropy.units.Quantity
+            The estimated value of t_rad
+        estimated_w : np.ndarray
+            The estimated value of w
+        estimated_t_inner : astropy.units.Quantity
+            The estimated value of t_inner
+        """
+        no_of_shells = self.model.no_of_shells
+
+        t_rad, w, t_inner = self.model.t_rad, self.model.w, self.model.t_inner
+
+        convergence_t_rad = (
+            abs(t_rad - estimated_t_rad) / estimated_t_rad
+        ).value
+        convergence_w = abs(w - estimated_w) / estimated_w
+        convergence_t_inner = (
+            abs(t_inner - estimated_t_inner) / estimated_t_inner
+        ).value
+
+        fraction_t_rad_converged = (
+            np.count_nonzero(convergence_t_rad < self.config.t_rad.threshold)
+            / no_of_shells
+        )
+
+        t_rad_converged = fraction_t_rad_converged > self.config.fraction
+
+        fraction_w_converged = (
+            np.count_nonzero(convergence_w < self.config.w.threshold)
+            / no_of_shells
+        )
+
+        w_converged = fraction_w_converged > self.config.fraction
+
+        t_inner_converged = convergence_t_inner < self.config.t_inner.threshold
+
+        if np.all([t_rad_converged, w_converged, t_inner_converged]):
+            hold_iterations = self.config.hold_iterations
+            self._consecutive_converges_count += 1
+            logger.info(
+                f"Iteration converged {self._consecutive_converges_count:d}/{(hold_iterations + 1):d} consecutive "
+                f"times."
+            )
+            # If an iteration has converged, require hold_iterations more
+            # iterations to converge before we conclude that the Simulation
+            # is converged.
+            return self._consecutive_converges_count == hold_iterations + 1
+        else:
+            self._consecutive_converges_count = 0
+            return False
+
+
 class PlasmaStateStorerMixin(object):
     """Mixin class to provide the capability to the simulation object of
     storing plasma information and the inner boundary temperature during each
@@ -93,7 +237,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     Parameters
     ----------
-    converged : bool
     iterations : int
     model : tardis.model.Radial1DModel
     plasma : tardis.plasma.BasePlasma
@@ -105,6 +248,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     luminosity_nu_end : astropy.units.Quantity
     luminosity_requested : astropy.units.Quantity
     convergence_plots_kwargs: dict
+    convergence_strategy: ConvergenceStrategy
     nthreads : int
         The number of threads to run montecarlo with
     version: str
@@ -146,7 +290,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         super(Simulation, self).__init__(iterations, model.no_of_shells)
 
-        self.converged = False
         self.iterations = iterations
         self.iterations_executed = 0
         self.model = model
@@ -161,22 +304,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.nthreads = nthreads
         self.show_progress_bars = show_progress_bars
         self.version = tardis.__version__
-
-        if convergence_strategy.type in ("damped"):
-            self.convergence_strategy = convergence_strategy
-            self.converged = False
-            self.consecutive_converges_count = 0
-        elif convergence_strategy.type in ("custom"):
-            raise NotImplementedError(
-                "Convergence strategy type is custom; "
-                "you need to implement your specific treatment!"
-            )
-        else:
-            raise ValueError(
-                f"Convergence strategy type is "
-                f"not damped or custom "
-                f"- input is {convergence_strategy.type}"
-            )
+        self.convergence_strategy = convergence_strategy
 
         if show_convergence_plots:
             self.convergence_plots = ConvergencePlots(
@@ -216,74 +344,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         return input_t_inner * luminosity_ratios**t_inner_update_exponent
 
-    @staticmethod
-    def damped_converge(value, estimated_value, damping_factor):
-        # FIXME: Should convergence strategy have its own class containing this
-        # as a method
-        return value + damping_factor * (estimated_value - value)
-
-    def _get_convergence_status(
-        self, t_rad, w, t_inner, estimated_t_rad, estimated_w, estimated_t_inner
-    ):
-        # FIXME: Move the convergence checking in its own class.
-        no_of_shells = self.model.no_of_shells
-
-        convergence_t_rad = (
-            abs(t_rad - estimated_t_rad) / estimated_t_rad
-        ).value
-        convergence_w = abs(w - estimated_w) / estimated_w
-        convergence_t_inner = (
-            abs(t_inner - estimated_t_inner) / estimated_t_inner
-        ).value
-
-        fraction_t_rad_converged = (
-            np.count_nonzero(
-                convergence_t_rad < self.convergence_strategy.t_rad.threshold
-            )
-            / no_of_shells
-        )
-
-        t_rad_converged = (
-            fraction_t_rad_converged > self.convergence_strategy.fraction
-        )
-
-        fraction_w_converged = (
-            np.count_nonzero(
-                convergence_w < self.convergence_strategy.w.threshold
-            )
-            / no_of_shells
-        )
-
-        w_converged = fraction_w_converged > self.convergence_strategy.fraction
-
-        t_inner_converged = (
-            convergence_t_inner < self.convergence_strategy.t_inner.threshold
-        )
-
-        if np.all([t_rad_converged, w_converged, t_inner_converged]):
-            hold_iterations = self.convergence_strategy.hold_iterations
-            self.consecutive_converges_count += 1
-            logger.info(
-                f"Iteration converged {self.consecutive_converges_count:d}/{(hold_iterations + 1):d} consecutive "
-                f"times."
-            )
-            # If an iteration has converged, require hold_iterations more
-            # iterations to converge before we conclude that the Simulation
-            # is converged.
-            return self.consecutive_converges_count == hold_iterations + 1
-        else:
-            self.consecutive_converges_count = 0
-            return False
-
     def advance_state(self):
         """
         Advances the state of the model and the plasma for the next
-        iteration of the simulation. Returns True if the convergence criteria
-        are met, else False.
-
-        Returns
-        -------
-            converged : bool
+        iteration of the simulation.
         """
         (
             estimated_t_rad,
@@ -292,40 +356,20 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         estimated_t_inner = self.estimate_t_inner(
             self.model.t_inner,
             self.luminosity_requested,
-            t_inner_update_exponent=self.convergence_strategy.t_inner_update_exponent,
+            t_inner_update_exponent=self.convergence_strategy.config.t_inner_update_exponent,
         )
 
-        converged = self._get_convergence_status(
-            self.model.t_rad,
-            self.model.w,
-            self.model.t_inner,
+        # Perform convergence step
+        (
+            next_t_rad,
+            next_w,
+            next_t_inner,
+        ) = self.convergence_strategy.convergence_step(
             estimated_t_rad,
             estimated_w,
             estimated_t_inner,
+            self.iterations_executed,
         )
-
-        # calculate_next_plasma_state equivalent
-        # FIXME: Should convergence strategy have its own class?
-        next_t_rad = self.damped_converge(
-            self.model.t_rad,
-            estimated_t_rad,
-            self.convergence_strategy.t_rad.damping_constant,
-        )
-        next_w = self.damped_converge(
-            self.model.w,
-            estimated_w,
-            self.convergence_strategy.w.damping_constant,
-        )
-        if (
-            self.iterations_executed + 1
-        ) % self.convergence_strategy.lock_t_inner_cycles == 0:
-            next_t_inner = self.damped_converge(
-                self.model.t_inner,
-                estimated_t_inner,
-                self.convergence_strategy.t_inner.damping_constant,
-            )
-        else:
-            next_t_inner = self.model.t_inner
 
         if hasattr(self, "convergence_plots"):
             self.convergence_plots.fetch_data(
@@ -378,8 +422,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
 
         self.plasma.update(**update_properties)
-
-        return converged
 
     def iterate(self, no_of_packets, no_of_virtual_packets=0, last_run=False):
         logger.info(
@@ -441,12 +483,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.model.t_inner,
             )
             self.iterate(self.no_of_packets)
-            self.converged = self.advance_state()
+            self.advance_state()
             if hasattr(self, "convergence_plots"):
                 self.convergence_plots.update()
             self._call_back()
-            if self.converged:
-                if self.convergence_strategy.stop_if_converged:
+            if self.convergence_strategy.converged:
+                if self.convergence_strategy.config.stop_if_converged:
                     break
         # Last iteration
         self.store_plasma_state(
@@ -671,6 +713,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 virtual_packet_logging=virtual_packet_logging,
             )
 
+        if "convergence_strategy" in kwargs:
+            convergence_strategy = kwargs["convergence_strategy"]
+        else:
+            convergence_strategy = ConvergenceStrategy(config, model)
+
         convergence_plots_config_options = [
             "plasma_plot_config",
             "t_inner_luminosities_config",
@@ -714,7 +761,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             luminosity_nu_end=luminosity_nu_end,
             last_no_of_packets=last_no_of_packets,
             luminosity_requested=config.supernova.luminosity_requested.cgs,
-            convergence_strategy=config.montecarlo.convergence_strategy,
+            convergence_strategy=convergence_strategy,
             nthreads=config.montecarlo.nthreads,
             convergence_plots_kwargs=convergence_plots_kwargs,
             show_progress_bars=show_progress_bars,
