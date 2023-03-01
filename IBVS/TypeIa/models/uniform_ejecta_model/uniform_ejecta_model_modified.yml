@@ -1,0 +1,66 @@
+tardis_config_version: v1.0
+
+atom_data: kurucz_cd23_chianti_H_He.h5
+supernova:
+  luminosity_requested: 9.44 log_lsun
+  time_explosion: 6.61252100e+00 day
+
+model:
+  structure:
+    type: specific
+    velocity:
+      start: 14703.889723673949 km/s
+      stop: 20000 km/s
+      num: 20
+    density:
+      type : power_law
+      exponent: -6.01812790e+00
+      rho_0: 354046844110.103 g/cm^3
+      v_0: 1.0 km/s
+      time_0: 10.40 day
+  abundances:
+    type: uniform
+    C: 2.85877562e-05
+    O: 0.553373247
+    Mg: 0.000183891572
+    Si: 0.215987434
+    S: 0.0862838319
+    Ca: 0.00616006924
+    Ti: 1.21700543e-05
+    Cr: 0.000454422276
+    Fe: 0.0601105029
+    Ni56: 0.0774058432
+
+
+plasma:
+  initial_t_inner: 1.10304034e+04 K
+  disable_electron_scattering: no
+  ionization: nebular
+  excitation: dilute-lte
+  radiative_rates_type: dilute-blackbody
+  line_interaction_type: macroatom
+
+montecarlo:
+  seed: 23111963
+  no_of_packets: 5.0e+4
+  iterations: 30
+  nthreads: 4
+  last_no_of_packets: 1.e+5
+  no_of_virtual_packets: 0
+
+  convergence_strategy:
+    type: damped
+    damping_constant: 0.5
+    threshold: 0.05
+    fraction: 0.8
+
+    t_inner:
+        damping_constant: 0.5
+
+spectrum:
+  start: 3400 angstrom
+  stop: 7600 angstrom
+  num: 500
+  integrated:
+      interpolate_shells: 80
+      compute: Automatic
