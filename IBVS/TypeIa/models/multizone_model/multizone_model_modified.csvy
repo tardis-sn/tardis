@@ -4,7 +4,7 @@ model_density_time_0: 2 day
 model_isotope_time_0: 2 day
 description: Example csvy config file for TARDIS.
 tardis_model_config_version: v1.0
-v_inner_boundary: 2628773297.667657 cm / s
+v_inner_boundary: 2631936869.357371 cm / s
 datatype:
   fields:
     -  name: velocity

@@ -12,7 +12,7 @@ from functools import partial
 
 CFG_FILE = "uniform_ejecta_model.yml"
 TARGET_W = 0.5
-NUM_ITERATIONS = 15
+NUM_ITERATIONS = 20
 
 
 def get_simulation_error(cfg_file, v_inner):

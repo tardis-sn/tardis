@@ -9,7 +9,7 @@ model:
   structure:
     type: specific
     velocity:
-      start: 14703.889723673949 km/s
+      start: 15089.769192206793 km/s
       stop: 20000 km/s
       num: 20
     density:

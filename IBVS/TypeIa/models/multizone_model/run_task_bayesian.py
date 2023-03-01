@@ -13,7 +13,7 @@ from functools import partial
 CFG_FILE = "multizone_model.yml"
 MODEL_FILE = "multizone_model.csvy"
 TARGET_W = 0.5
-NUM_ITERATIONS = 15
+NUM_ITERATIONS = 20
 
 
 def get_simulation_error(cfg_file, v_inner):

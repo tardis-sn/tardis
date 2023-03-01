@@ -27,6 +27,7 @@ def run_search(low_v, high_v, step_size, cfg_file):
 
 
 if __name__ == "__main__":
+    total_iterations = 0
     # Download the atomic data
     download_atom_data("kurucz_cd23_chianti_H_He")
 
@@ -69,11 +70,21 @@ if __name__ == "__main__":
         best_e = np.inf
         best_idx = -1
         for i, w in enumerate(w_inner):
+            total_iterations += 1  # Increment iterations
             error = (w - TARGET_W) ** 2
             if error < BEST_ERROR:  # Update global solution
                 BEST_ERROR = error
                 BEST_W = w
                 BEST_VELOCITY = inner_velocities[i]
+
+            # Terminate early if error within range
+            if BEST_ERROR < 1e-4:
+                print("######## FINAL RESULTS ##############")
+                print(f"Total Iterations: {total_iterations}")
+                print(f"Minimum squared error: {BEST_ERROR}")
+                print(f"Best W: {BEST_W}")
+                print(f"Best Inner Velocity: {BEST_VELOCITY}")
+                exit()
 
             if error < best_e:
                 best_e = error
@@ -86,6 +97,7 @@ if __name__ == "__main__":
             high_v = inner_velocities[best_idx + 1]
 
     print("######## FINAL RESULTS ##############")
+    print(f"Total Iterations: {total_iterations}")
     print(f"Minimum squared error: {BEST_ERROR}")
     print(f"Best W: {BEST_W}")
     print(f"Best Inner Velocity: {BEST_VELOCITY}")
