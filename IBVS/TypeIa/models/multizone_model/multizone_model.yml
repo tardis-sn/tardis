@@ -9,7 +9,7 @@ supernova:
 
 atom_data: kurucz_cd23_chianti_H_He.h5
 
-csvy_model: /Users/archil/Documents/tardis/IBVS/TypeIa/models/multizone_model/multizone_model.csvy
+csvy_model: /Users/ansh/Documents/tardis/IBVS/TypeIa/models/multizone_model/multizone_model.csvy
 
 plasma:
   disable_electron_scattering: no
