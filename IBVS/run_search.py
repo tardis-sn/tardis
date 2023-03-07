@@ -1,9 +1,13 @@
 from tardis.io.atom_data.util import download_atom_data
 from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
+from tardis.io.atom_data.atom_web_download import get_atomic_repo_config
+from tardis.io.config_internal import get_data_dir
+from tardis import run_tardis
 from astropy import units
 import numpy as np
 import argparse
+import os
 
 
 def run_simulation(cfg_file, v_inner, **sim_kwargs):
@@ -34,6 +38,9 @@ def run_simulation(cfg_file, v_inner, **sim_kwargs):
         )
 
     # Run simulation
+    atomic_data_name = get_atomic_repo_config()["default"]
+    atom_data_path = os.path.join(get_data_dir(), f"{atomic_data_name}.h5")
+    sim = run_tardis(cfg, atom_data=atom_data_path)
     sim = Simulation.from_config(cfg, **sim_kwargs)
     sim.run()
 
