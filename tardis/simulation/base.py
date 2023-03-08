@@ -212,7 +212,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         estimated_t_inner = self.estimate_t_inner(
             self.model.t_inner,
             self.luminosity_requested,
-            t_inner_update_exponent=self.convergence_strategy.config.t_inner_update_exponent,
+            t_inner_update_exponent=self.convergence_strategy.t_inner_update_exponent,
         )
 
         # Perform convergence step
@@ -344,7 +344,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.convergence_plots.update()
             self._call_back()
             if self.convergence_strategy.converged:
-                if self.convergence_strategy.config.stop_if_converged:
+                if self.convergence_strategy.stop_if_converged:
                     break
         # Last iteration
         self.store_plasma_state(

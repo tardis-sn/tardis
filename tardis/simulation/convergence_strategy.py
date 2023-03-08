@@ -16,7 +16,9 @@ class ConvergenceStrategy(object):
         config : tardis.io.config_reader.Configuration
         model: tardis.model.Radial1DModel
         """
-        self.config = config.montecarlo.convergence_strategy
+        # Open up the convergence_strategy dict in the config
+        for key, value in config.montecarlo.convergence_strategy.items():
+            setattr(self, key, value)
         self.model = model
         self._converged = (
             False  # Whether the convergence has truly converged or not
@@ -56,24 +58,24 @@ class ConvergenceStrategy(object):
         )
 
         # Get new values
-        if self.config.type in ("damped"):
+        if self.type in ("damped"):
             next_t_rad = self.damped_converge(
                 self.model.t_rad,
                 estimated_t_rad,
-                self.config.t_rad.damping_constant,
+                self.t_rad.damping_constant,
             )
             next_w = self.damped_converge(
-                self.model.w, estimated_w, self.config.w.damping_constant
+                self.model.w, estimated_w, self.w.damping_constant
             )
-            if (iterations_executed + 1) % self.config.lock_t_inner_cycles == 0:
+            if (iterations_executed + 1) % self.lock_t_inner_cycles == 0:
                 next_t_inner = self.damped_converge(
                     self.model.t_inner,
                     estimated_t_inner,
-                    self.config.t_inner.damping_constant,
+                    self.t_inner.damping_constant,
                 )
             else:
                 next_t_inner = self.model.t_inner
-        elif self.config.type in ("custom"):
+        elif self.type in ("custom"):
             raise NotImplementedError(
                 "Convergence strategy type is custom; "
                 "you need to implement your specific treatment!"
@@ -82,7 +84,7 @@ class ConvergenceStrategy(object):
             raise ValueError(
                 f"Convergence strategy type is "
                 f"not damped or custom "
-                f"- input is {self.config.type}"
+                f"- input is {self.type}"
             )
 
         return next_t_rad, next_w, next_t_inner
@@ -119,23 +121,22 @@ class ConvergenceStrategy(object):
         ).value
 
         fraction_t_rad_converged = (
-            np.count_nonzero(convergence_t_rad < self.config.t_rad.threshold)
+            np.count_nonzero(convergence_t_rad < self.t_rad.threshold)
             / no_of_shells
         )
 
-        t_rad_converged = fraction_t_rad_converged > self.config.fraction
+        t_rad_converged = fraction_t_rad_converged > self.fraction
 
         fraction_w_converged = (
-            np.count_nonzero(convergence_w < self.config.w.threshold)
-            / no_of_shells
+            np.count_nonzero(convergence_w < self.w.threshold) / no_of_shells
         )
 
-        w_converged = fraction_w_converged > self.config.fraction
+        w_converged = fraction_w_converged > self.fraction
 
-        t_inner_converged = convergence_t_inner < self.config.t_inner.threshold
+        t_inner_converged = convergence_t_inner < self.t_inner.threshold
 
         if np.all([t_rad_converged, w_converged, t_inner_converged]):
-            hold_iterations = self.config.hold_iterations
+            hold_iterations = self.hold_iterations
             self._consecutive_converges_count += 1
             logger.info(
                 f"Iteration converged {self._consecutive_converges_count:d}/{(hold_iterations + 1):d} consecutive "
