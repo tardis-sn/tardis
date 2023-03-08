@@ -204,6 +204,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         Advances the state of the model and the plasma for the next
         iteration of the simulation.
+        Also updates the convergence status (bool) in self.convergence_strategy.converged
         """
         (
             estimated_t_rad,
