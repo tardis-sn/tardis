@@ -3,9 +3,11 @@
     "project": "tardis",
     "project_url": "https://github.com/tardis-sn/tardis",
     "repo": "https://github.com/tardis-sn/tardis.git",
+    "branches": ["master"], // for git
     "matrix": {
         "numpy": [],
-	"astropy": [],
-	"Cython": []
-    }
+        "astropy": [],
+        "Cython": []
+    },
+    "environment_type": "conda"
 }
