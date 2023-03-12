@@ -113,13 +113,13 @@
       "name": "Arya, Atharva"
     },
     {
+      "name": "Sondhi, Dhruv"
+    },
+    {
       "name": "O'Brien, Jack"
     },
     {
       "name": "Barbosa, Talytha"
-    },
-    {
-      "name": "Sondhi, Dhruv"
     },
     {
       "name": "Yu, Jenny"
@@ -157,32 +157,35 @@
       "orcid": "0000-0002-2328-8030"
     },
     {
-      "name": "Bartnik, Matthew"
-    },
-    {
       "name": "Alam, Arib"
     },
     {
-      "name": "Varma Buddaraju, Rohith"
+      "name": "Bartnik, Matthew"
     },
     {
       "name": "Magee, Mark"
     },
     {
-      "name": "Shields, Joshua"
+      "name": "Varma Buddaraju, Rohith"
     },
     {
-      "name": "Livneh, Ran"
+      "name": "Shields, Joshua"
     },
     {
       "name": "Kambham, Satwik"
     },
     {
-      "name": "Rajagopalan, Srinath"
+      "name": "Livneh, Ran"
     },
     {
       "name": "Mishra, Sashank",
       "orcid": "0000-0001-8302-1584"
+    },
+    {
+      "name": "Rajagopalan, Srinath"
+    },
+    {
+      "name": "Floers, Andreas"
     },
     {
       "name": "Jain, Rinkle"
@@ -191,22 +194,16 @@
       "name": "Reichenbach, John"
     },
     {
-      "name": "Floers, Andreas"
-    },
-    {
-      "name": "Brar, Antreev"
-    },
-    {
-      "name": "Holas, Alexander"
+      "name": "Singh, Sourav"
     },
     {
       "name": "Bhakar, Jayant"
     },
     {
-      "name": "Singh, Sourav"
+      "name": "Holas, Alexander"
     },
     {
-      "name": "Selsing, Jonatan"
+      "name": "Brar, Antreev"
     },
     {
       "name": "Kumar, Aman"
@@ -221,31 +218,37 @@
       "name": "Sofiatti, Caroline"
     },
     {
+      "name": "Selsing, Jonatan"
+    },
+    {
       "name": "Venkat, Shashank"
     },
     {
       "name": "Sharma, Sampark"
     },
     {
-      "name": "Patra, Nilesh"
-    },
-    {
-      "name": "Patel, Pratik"
-    },
-    {
       "name": "Singh Rathore, Parikshit"
     },
     {
-      "name": "Yap, Kevin"
+      "name": "Sarafina, Nance"
     },
     {
-      "name": "Sarafina, Nance"
+      "name": "Volodin, Dmitry"
+    },
+    {
+      "name": "Patra, Nilesh"
+    },
+    {
+      "name": "Yap, Kevin"
     },
     {
       "name": "Zaheer, Musabbiha"
     },
     {
       "name": "Sandler, Morgan"
+    },
+    {
+      "name": "Truong, Le"
     },
     {
       "name": "Martinez, Laureano"
@@ -269,7 +272,7 @@
       "name": "Aggarwal, Yash"
     },
     {
-      "name": "Volodin, Dmitry"
+      "name": "Patel, Pratik"
     },
     {
       "name": "Dasgupta, Debajyoti"
