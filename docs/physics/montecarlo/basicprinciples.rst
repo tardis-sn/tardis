@@ -26,7 +26,7 @@ emitted spectrum (see :ref:`spectrum`).
 Random Sampling Basics
 ======================
 
-During both the initialization of these photons and their propagation through the ejecta are modeled through
+Both the initialization of these photons and their propagation through the ejecta are modeled through
 probabilistic processes. This involves assigning probabilities to the occurrence of certain events or properties.
 For example, during isotropic scattering, finding a photon scattering into any given direction is equally likely.
 During the Monte Carlo simulation, assignments
