@@ -206,7 +206,6 @@ def montecarlo_main_loop(
     main_thread_id = get_thread_id()
     n_threads = get_num_threads()
 
-    # Create a list of Estimators, one for each thread
     estimator_list = List()
     for i in range(n_threads):  # betting get tid goes from 0 to num threads
         # Note that get_thread_id() returns values from 0 to n_threads-1,
