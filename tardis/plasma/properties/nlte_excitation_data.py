@@ -6,7 +6,18 @@ logger = logging.getLogger(__name__)
 
 
 class NLTEExcitationData(object):
+    """Data needed for NLTE excitation treatment.
+    """
     def __init__(self, atom_data_lines, nlte_excitation_species):
+        """Initializes the NLTEExcitationData object.
+
+        Parameters
+        ----------
+        atom_data_lines : pandas.DataFrame
+            Information on lines in the atomic data.
+        nlte_excitation_species : list
+            List of species treated in NLTE excitation.
+        """
         self.atom_data_lines = atom_data_lines
         self.lines = atom_data_lines.reset_index()
         self.nlte_excitation_species = nlte_excitation_species
@@ -16,6 +27,8 @@ class NLTEExcitationData(object):
             self._init_indices()
 
     def _init_indices(self):
+        """Initializes A_ul and B_ul, B_lu coefficients.
+        """
         self.lines_idx = {}
         self.lines_level_number_lower = {}
         self.lines_level_number_upper = {}
