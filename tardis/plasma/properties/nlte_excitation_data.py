@@ -6,8 +6,8 @@ logger = logging.getLogger(__name__)
 
 
 class NLTEExcitationData(object):
-    """Data needed for NLTE excitation treatment.
-    """
+    """Data needed for NLTE excitation treatment."""
+
     def __init__(self, atom_data_lines, nlte_excitation_species):
         """Initializes the NLTEExcitationData object.
 
@@ -27,8 +27,7 @@ class NLTEExcitationData(object):
             self._init_indices()
 
     def _init_indices(self):
-        """Initializes A_ul and B_ul, B_lu coefficients.
-        """
+        """Initializes A_ul and B_ul, B_lu coefficients."""
         self.lines_idx = {}
         self.lines_level_number_lower = {}
         self.lines_level_number_upper = {}
