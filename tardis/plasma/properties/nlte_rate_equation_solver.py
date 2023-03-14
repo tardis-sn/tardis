@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from scipy.optimize import root
-from tardis.io.atom_data.base import NLTEData
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.properties.nlte_excitation_data import NLTEExcitationData
