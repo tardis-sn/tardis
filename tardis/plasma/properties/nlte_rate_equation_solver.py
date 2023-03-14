@@ -887,10 +887,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             rates_matrix_bound_bound[i, i] = -rates_matrix_bound_bound[
                 :, i
             ].sum(axis=0)
-        rates_matrix_bound_bound[0, :, :] = 1.0
         return rates_matrix_bound_bound
 
-        # TODO: for tests, do the same thing as for the ionization solver, but only H for excitation treatment
         # TODO: beta sobolev needs to be recalculated for each iteration, because it depends on numberdensity
 
     def calculate_coll_exc_coefficients(
