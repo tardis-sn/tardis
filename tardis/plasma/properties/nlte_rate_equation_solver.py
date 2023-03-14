@@ -58,6 +58,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             if treated in NLTE ionization, 3rd index is "nlte_ion".
         number_density : pandas.DataFrame
             Number density in each shell for each species.
+        nlte_excitation_species : list
+            List of species treated in NLTE excitation.
 
         Returns
         -------
