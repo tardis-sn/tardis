@@ -31,6 +31,10 @@ class ConvergenceStrategy(object):
     def converged(self):
         return self._converged
 
+    @property
+    def should_stop(self):
+        return self.stop_if_converged and self._converged
+
     def convergence_step(
         self,
         estimated_t_rad,

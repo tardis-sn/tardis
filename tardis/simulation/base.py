@@ -344,9 +344,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             if hasattr(self, "convergence_plots"):
                 self.convergence_plots.update()
             self._call_back()
-            if self.convergence_strategy.converged:
-                if self.convergence_strategy.stop_if_converged:
-                    break
+            if self.convergence_strategy.should_stop:
+                break
         # Last iteration
         self.store_plasma_state(
             self.iterations_executed,
