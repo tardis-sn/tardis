@@ -21,3 +21,11 @@ def test_absolute_path_atom_data(atom_data_fname_absolute):
     )
     with pytest.raises(IOError):
         resolve_atom_data_fname(non_existent_fpath)
+
+
+def test_relative_atom_data_fname(tardis_ref_data):
+    fname = "kurucz_cd23_chianti_H_He.h5"
+    assert resolve_atom_data_fname(fname) == tardis_ref_data
+
+    with pytest.raises(IOError):
+        resolve_atom_data_fname("test_file.h5")
