@@ -25,14 +25,15 @@ def resolve_atom_data_fname(fname):
         resolved fpath
     """
 
-    if os.path.exists(fname):
-        return fname
+    if os.path.isabs(fname):
+        if os.path.exists(fname):
+            return fname
+        else:
+            logger.info(f"\n\tAtom data not found in {fname}")
 
     fpath = os.path.join(os.path.join(get_data_dir(), fname))
     if os.path.exists(fpath):
-        logger.info(
-            f"\n\tAtom Data {fname} not found in local path.\n\tExists in TARDIS Data repo {fpath}"
-        )
+        logger.info(f"\n\tExists in TARDIS Data repo {fpath}")
         return fpath
 
     atom_data_name = fname.replace(".h5", "")
