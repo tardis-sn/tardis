@@ -4,6 +4,9 @@ import numpy as np
 import pandas as pd
 from astropy import units as u
 from tardis import constants
+import radioactivedecay as rd
+from radioactivedecay.utils import Z_DICT
+from tardis.model.geometry.radial1d import Radial1DGeometry
 
 from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
 from tardis.io.parsers.csvy import load_csvy
@@ -22,91 +25,6 @@ from tardis.model.density import HomologousDensity
 logger = logging.getLogger(__name__)
 
 
-class ModelState:
-    """
-    Store Model State Information.
-
-    Parameters
-    ----------
-    v_inner : astropy.units.quantity.Quantity
-    v_outer : astropy.units.quantity.Quantity
-    r_inner : astropy.units.quantity.Quantity
-    r_outer : astropy.units.quantity.Quantity
-    density : astropy.units.quantity.Quantity
-    time_explosion : astropy.units.quantity.Quantity
-
-    Attributes
-    ----------
-    geometry : pd.DataFrame
-        DataFrame storing `v_inner`, `v_outer`, `r_inner` and `r_outer`.
-    geometry_units : dict
-        Units of arrays stored in the `geometry` dataframe.
-    """
-
-    def __init__(
-        self, v_inner, v_outer, r_inner, r_outer, time_explosion, density
-    ):
-        self.time_explosion = time_explosion
-        self.density = density
-        self.geometry = pd.DataFrame(
-            {
-                "v_inner": v_inner.value,
-                "r_inner": r_inner.value,
-                "v_outer": v_outer.value,
-                "r_outer": r_outer.value,
-            }
-        )
-        self.geometry_units = {
-            "v_inner": v_inner.unit,
-            "r_inner": r_inner.unit,
-            "v_outer": v_outer.unit,
-            "r_outer": r_outer.unit,
-        }
-
-    @property
-    def v_inner(self):
-        """Inner boundary velocity."""
-        return self.geometry.v_inner.values * self.geometry_units["v_inner"]
-
-    @property
-    def r_inner(self):
-        """Inner radius of model shells."""
-        return self.geometry.r_inner.values * self.geometry_units["r_inner"]
-
-    @property
-    def v_outer(self):
-        """Outer boundary velocity."""
-        return self.geometry.v_outer.values * self.geometry_units["v_outer"]
-
-    @property
-    def r_outer(self):
-        """Outer radius of model shells."""
-        return self.geometry.r_outer.values * self.geometry_units["r_outer"]
-
-
-class Radial1DGeometry:
-    """
-    Holds information about model geometry for radial 1D models.
-
-    Parameters
-    ----------
-    r_inner : astropy.units.quantity.Quantity
-    r_outer : astropy.units.quantity.Quantity
-    v_inner : astropy.units.quantity.Quantity
-    v_outer : astropy.units.quantity.Quantity
-    """
-
-    def __init__(self, r_inner, r_outer, v_inner, v_outer):
-        self.r_inner = r_inner
-        self.r_outer = r_outer
-        self.v_inner = v_inner
-        self.v_outer = v_outer
-
-    @property
-    def volume(self):
-        return (4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
-
-
 class Composition:
     """
     Holds information about model composition
@@ -116,13 +34,15 @@ class Composition:
     density : astropy.units.quantity.Quantity
         An array of densities for each shell.
     isotopic_mass_fraction : pd.DataFrame
-    atomic_mass : pandas.core.series.Series
+    atomic_mass : pd.DataFrame
     atomic_mass_unit: astropy.units.Unit
 
     Attributes
     ----------
-    number_density : pd.DataFrame
-        Number density of each isotope in each shell.
+    atomic_mass : pd.DataFrame
+        Atomic mass of elements calculated for each shell.
+    elemental_number_density : pd.DataFrame
+        Number density of each element in each shell.
     """
 
     def __init__(
@@ -135,14 +55,69 @@ class Composition:
         self.density = density
         self.elemental_mass_fraction = elemental_mass_fraction
         self.atomic_mass_unit = atomic_mass_unit
-        self.atomic_mass = atomic_mass
+        self._atomic_mass = atomic_mass
+
+    @property
+    def atomic_mass(self):
+        """Atomic mass of elements in each shell"""
+        if self._atomic_mass is None:
+            raise AttributeError(
+                "ModelState was not provided elemental masses."
+            )
+        return self._atomic_mass
 
     @property
     def elemental_number_density(self):
         """Elemental Number Density computed using the formula: (elemental_mass_fraction * density) / atomic mass"""
+        if self.atomic_mass is None:
+            raise AttributeError(
+                "ModelState was not provided elemental masses."
+            )
         return (self.elemental_mass_fraction * self.density).divide(
             self.atomic_mass, axis=0
         )
+
+
+class ModelState:
+    """
+    Holds information about model geometry for radial 1D models.
+
+    Parameters
+    ----------
+    composition : tardis.model.Composition
+    geometry : tardis.model.geometry.radial1d.Radial1DGeometry
+    time_explosion : astropy.units.quantity.Quantity
+
+    Attributes
+    ----------
+    mass : pd.DataFrame
+    number : pd.DataFrame
+    """
+
+    def __init__(self, composition, geometry, time_explosion):
+        self.time_explosion = time_explosion
+        self.composition = composition
+        self.geometry = geometry
+
+    @property
+    def mass(self):
+        """Mass calculated using the formula:
+        mass_fraction * density * volume"""
+        return (
+            self.composition.elemental_mass_fraction
+            * self.composition.density
+            * self.geometry.volume
+        )
+
+    @property
+    def number(self):
+        """Number calculated using the formula:
+        mass / atomic_mass"""
+        if self.composition.atomic_mass is None:
+            raise AttributeError(
+                "ModelState was not provided elemental masses."
+            )
+        return (self.mass).divide(self.composition.atomic_mass, axis=0)
 
 
 class Radial1DModel(HDFWriterMixin):
@@ -161,6 +136,7 @@ class Radial1DModel(HDFWriterMixin):
     time_explosion : astropy.units.Quantity
         Time since explosion
     t_inner : astropy.units.Quantity
+    elemental_mass: pd.Series
     luminosity_requested : astropy.units.quantity.Quantity
     t_radiative : astropy.units.Quantity
         Radiative temperature for the shells
@@ -214,6 +190,7 @@ class Radial1DModel(HDFWriterMixin):
         isotope_abundance,
         time_explosion,
         t_inner,
+        elemental_mass,
         luminosity_requested=None,
         t_radiative=None,
         dilution_factor=None,
@@ -238,16 +215,60 @@ class Radial1DModel(HDFWriterMixin):
                 self.time_explosion
             )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
         )
-        self.model_state = ModelState(
-            v_inner=v_inner,
-            v_outer=v_outer,
-            r_inner=self.time_explosion * v_inner,
-            r_outer=self.time_explosion * v_outer,
-            time_explosion=self.time_explosion,
-            density=density,
-        )
         self.raw_abundance = self._abundance
         self.raw_isotope_abundance = isotope_abundance
+
+        atomic_mass = None
+        if elemental_mass is not None:
+            mass = {}
+            stable_atomic_numbers = self.raw_abundance.index.to_list()
+            for z in stable_atomic_numbers:
+                mass[z] = [
+                    elemental_mass[z]
+                    for i in range(self.raw_abundance.columns.size)
+                ]
+            stable_isotope_mass = pd.DataFrame(mass).T
+
+            isotope_mass = {}
+            for atomic_number, i in self.raw_isotope_abundance.decay(
+                self.time_explosion
+            ).groupby(level=0):
+                i = i.loc[atomic_number]
+                for column in i:
+                    mass = {}
+                    shell_abundances = i[column]
+                    isotopic_masses = [
+                        rd.Nuclide(Z_DICT[atomic_number] + str(i)).atomic_mass
+                        for i in shell_abundances.index.to_numpy()
+                    ]
+                    mass[atomic_number] = (
+                        shell_abundances * isotopic_masses
+                    ).sum()
+                    mass[atomic_number] /= shell_abundances.sum()
+                    mass[atomic_number] = mass[atomic_number] * u.u.to(u.g)
+                    if isotope_mass.get(column) is None:
+                        isotope_mass[column] = {}
+                    isotope_mass[column][atomic_number] = mass[atomic_number]
+            isotope_mass = pd.DataFrame(isotope_mass)
+
+            atomic_mass = pd.concat([stable_isotope_mass, isotope_mass])
+
+        composition = Composition(
+            density=density,
+            elemental_mass_fraction=self.abundance,
+            atomic_mass=atomic_mass,
+        )
+        geometry = Radial1DGeometry(
+            r_inner=self.time_explosion * v_inner,
+            r_outer=self.time_explosion * v_outer,
+            v_inner=v_inner,
+            v_outer=v_outer,
+        )
+        self.model_state = ModelState(
+            composition=composition,
+            geometry=geometry,
+            time_explosion=self.time_explosion,
+        )
 
         if t_inner is None:
             if luminosity_requested is not None:
@@ -398,11 +419,11 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def r_inner(self):
-        return self.model_state.r_inner
+        return self.model_state.geometry.r_inner
 
     @property
     def r_outer(self):
-        return self.model_state.r_outer
+        return self.model_state.geometry.r_outer
 
     @property
     def r_middle(self):
@@ -421,11 +442,11 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def v_inner(self):
-        return self.model_state.v_inner
+        return self.model_state.geometry.v_inner
 
     @property
     def v_outer(self):
-        return self.model_state.v_outer
+        return self.model_state.geometry.v_outer
 
     @property
     def v_middle(self):
@@ -433,7 +454,7 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def density(self):
-        return self.model_state.density
+        return self.model_state.composition.density
 
     @property
     def abundance(self):
@@ -563,13 +584,14 @@ class Radial1DModel(HDFWriterMixin):
     #        return self.raw_velocity.searchsorted(self.v_boundary_outer) + 1
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls, config, atom_data=None):
         """
         Create a new Radial1DModel instance from a Configuration object.
 
         Parameters
         ----------
         config : tardis.io.config_reader.Configuration
+        atom_data : tardis.io.AtomData
 
         Returns
         -------
@@ -660,6 +682,10 @@ class Radial1DModel(HDFWriterMixin):
 
         isotope_abundance = IsotopeAbundances(isotope_abundance)
 
+        elemental_mass = None
+        if atom_data is not None:
+            elemental_mass = atom_data.atom_data.mass
+
         return cls(
             velocity=velocity,
             homologous_density=homologous_density,
@@ -668,6 +694,7 @@ class Radial1DModel(HDFWriterMixin):
             time_explosion=time_explosion,
             t_radiative=t_radiative,
             t_inner=t_inner,
+            elemental_mass=elemental_mass,
             luminosity_requested=luminosity_requested,
             dilution_factor=None,
             v_boundary_inner=structure.get("v_inner_boundary", None),
@@ -676,13 +703,14 @@ class Radial1DModel(HDFWriterMixin):
         )
 
     @classmethod
-    def from_csvy(cls, config):
+    def from_csvy(cls, config, atom_data=None):
         """
         Create a new Radial1DModel instance from a Configuration object.
 
         Parameters
         ----------
         config : tardis.io.config_reader.Configuration
+        atom_data : tardis.io.AtomData
 
         Returns
         -------
@@ -873,6 +901,10 @@ class Radial1DModel(HDFWriterMixin):
         )
         # isotope_abundance.time_0 = csvy_model_config.model_isotope_time_0
 
+        elemental_mass = None
+        if atom_data is not None:
+            elemental_mass = atom_data.atom_data.mass
+
         return cls(
             velocity=velocity,
             homologous_density=homologous_density,
@@ -881,6 +913,7 @@ class Radial1DModel(HDFWriterMixin):
             time_explosion=time_explosion,
             t_radiative=t_radiative,
             t_inner=t_inner,
+            elemental_mass=elemental_mass,
             luminosity_requested=luminosity_requested,
             dilution_factor=dilution_factor,
             v_boundary_inner=v_boundary_inner,

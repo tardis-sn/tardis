@@ -357,7 +357,9 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         deactivation_channel_probs = p_deactivation.copy()
         deactivation_channel_probs = pd.concat(
             [
-                level_idxs2transition_idx.loc[deactivation_channel_probs.index],
+                level_idxs2transition_idx.reindex(
+                    deactivation_channel_probs.index
+                ),
                 deactivation_channel_probs,
             ],
             axis=1,

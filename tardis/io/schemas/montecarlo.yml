@@ -17,7 +17,7 @@ properties:
   no_of_packets:
     type: number
     multipleOf: 1.0
-    description: Seed for the random number generator
+    description: The number of packets used in each iteration.
   iterations:
     type: number
     multipleOf: 1.0

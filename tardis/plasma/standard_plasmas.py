@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 
 from tardis.io.atom_data import AtomData
+from tardis.plasma.properties.rate_matrix_index import NLTEIndexHelper
 from tardis.util.base import species_string_to_tuple
 from tardis.plasma import BasePlasma
 from tardis.plasma.properties.base import TransitionProbabilitiesProperty
@@ -28,6 +29,7 @@ from tardis.plasma.properties.property_collections import (
     adiabatic_cooling_properties,
     two_photon_properties,
     isotope_properties,
+    nlte_solver_properties,
 )
 from tardis.plasma.exceptions import PlasmaConfigError
 
@@ -123,6 +125,15 @@ def assemble_plasma(config, model, atom_data=None):
             "in the configuration."
         )
 
+    nlte_ionization_species = [
+        species_string_to_tuple(s)
+        for s in config.plasma.nlte_ionization_species
+    ]
+    nlte_excitation_species = [
+        species_string_to_tuple(s)
+        for s in config.plasma.nlte_excitation_species
+    ]
+
     kwargs = dict(
         t_rad=model.t_radiative,
         abundance=model.abundance,
@@ -132,6 +143,8 @@ def assemble_plasma(config, model, atom_data=None):
         w=model.dilution_factor,
         link_t_rad_t_electron=config.plasma.link_t_rad_t_electron,
         continuum_interaction_species=continuum_interaction_species,
+        nlte_ionization_species=nlte_ionization_species,
+        nlte_excitation_species=nlte_excitation_species,
     )
 
     plasma_modules = basic_inputs + basic_properties
@@ -167,6 +180,33 @@ def assemble_plasma(config, model, atom_data=None):
         property_kwargs[MarkovChainTransProbsCollector] = {
             "inputs": transition_probabilities_outputs
         }
+        if (
+            config.plasma.nlte_ionization_species
+            or config.plasma.nlte_excitation_species
+        ):
+            if config.plasma.nlte_ionization_species:
+                nlte_ionization_species = config.plasma.nlte_ionization_species
+                for species in nlte_ionization_species:
+                    if not (
+                        species in config.plasma.continuum_interaction.species
+                    ):
+                        raise PlasmaConfigError(
+                            f"NLTE ionization species {species} not in continuum species."
+                        )
+            if config.plasma.nlte_excitation_species:
+                nlte_excitation_species = config.plasma.nlte_excitation_species
+                for species in nlte_excitation_species:
+                    if not (
+                        species in config.plasma.continuum_interaction.species
+                    ):
+                        raise PlasmaConfigError(
+                            f"NLTE excitation species {species} not in continuum species."
+                        )
+            property_kwargs[NLTEIndexHelper] = {
+                "nlte_ionization_species": config.plasma.nlte_ionization_species,
+                "nlte_excitation_species": config.plasma.nlte_excitation_species,
+            }
+            plasma_modules += nlte_solver_properties
 
         kwargs.update(
             gamma_estimator=None,

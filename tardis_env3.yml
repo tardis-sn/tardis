@@ -10,7 +10,7 @@ dependencies:
 
   - python=3.8
   - setuptools
-  - setuptools_scm
+  - setuptools_scm<7
   - pip
   - numpy=1.19
   - scipy=1.5
@@ -38,7 +38,7 @@ dependencies:
   - matplotlib-base
   - ipywidgets
   - plotly
-  - qgrid
+  - qgrid=1.3.1=pyhd8ed1ab_4 # qgrid-feedstock/issues/18
 
   # --- Packages not required for conda-forge recipe ---
 

@@ -2,6 +2,7 @@ import time
 import logging
 import numpy as np
 import pandas as pd
+import tardis
 from astropy import units as u
 from tardis import constants as const
 from collections import OrderedDict
@@ -106,6 +107,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     convergence_plots_kwargs: dict
     nthreads : int
         The number of threads to run montecarlo with
+    version: str
+        The TARDIS version in use when instantiating the simulation object
 
         .. note:: TARDIS must be built with OpenMP support in order for ``nthreads`` to have effect.
 
@@ -157,6 +160,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.luminosity_requested = luminosity_requested
         self.nthreads = nthreads
         self.show_progress_bars = show_progress_bars
+        self.version = tardis.__version__
 
         if convergence_strategy.type in ("damped"):
             self.convergence_strategy = convergence_strategy
@@ -641,9 +645,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             model = kwargs["model"]
         else:
             if hasattr(config, "csvy_model"):
-                model = Radial1DModel.from_csvy(config)
+                model = Radial1DModel.from_csvy(
+                    config, atom_data=kwargs.get("atom_data", None)
+                )
             else:
-                model = Radial1DModel.from_config(config)
+                model = Radial1DModel.from_config(
+                    config, atom_data=kwargs.get("atom_data", None)
+                )
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]
         else:

@@ -15,6 +15,8 @@ __all__ = [
     "TInner",
     "Volume",
     "ContinuumInteractionSpecies",
+    "NLTEIonizationSpecies",
+    "NLTEExcitationSpecies",
 ]
 
 
@@ -148,3 +150,13 @@ class ContinuumInteractionSpecies(Input):
     """
 
     outputs = ("continuum_interaction_species",)
+
+
+class NLTEIonizationSpecies(Input):
+
+    outputs = ("nlte_ionization_species",)
+
+
+class NLTEExcitationSpecies(Input):
+
+    outputs = ("nlte_excitation_species",)
