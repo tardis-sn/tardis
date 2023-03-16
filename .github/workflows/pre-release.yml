@@ -135,7 +135,7 @@ jobs:
             >
             > Once all the checks pass, you can safely merge this pull request manually.
           labels: automated, build-docs
-          reviewers: tardis-sn/tardis-infrastructure
+          team-reviewers: tardis-sn/tardis-infrastructure
         id: create-pr
 
       - name: Wait for pull request
