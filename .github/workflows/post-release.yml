@@ -131,10 +131,16 @@ jobs:
       - name: Wait for pull request
         run: sleep 30
 
-      - name: Approve pull request
+      - name: Approve pull request (I)
         run: gh pr review ${{ steps.create-pr.outputs.pull-request-number }} --approve
         env:
           GITHUB_TOKEN: ${{ secrets.INFRASTRUCTURE_COORDINATOR_TOKEN }}
+        if: steps.create-pr.outputs.pull-request-operation == 'created'
+
+      - name: Approve pull request (II)
+        run: gh pr review ${{ steps.create-pr.outputs.pull-request-number }} --approve
+        env:
+          GITHUB_TOKEN: ${{ secrets.CORE_COORDINATOR_TOKEN }}
         if: steps.create-pr.outputs.pull-request-operation == 'created'
 
       - name: Enable automerge
@@ -143,3 +149,4 @@ jobs:
           token: ${{ secrets.INFRASTRUCTURE_COORDINATOR_TOKEN }}
           pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
           merge-method: squash
+        if: steps.create-pr.outputs.pull-request-operation == 'created'
