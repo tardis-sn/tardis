@@ -6,6 +6,8 @@ from tardis import run_tardis
 class Benchmarkruntardis:
     """Class to benchmark the run_tardis function.
     """
+    timeout = 200
+    
     def setup(self):
         filename = "tardis_configv1_verysimple.yml"
         dir_path = os.path.dirname(os.path.realpath(__file__))
