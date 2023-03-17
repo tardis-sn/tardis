@@ -1,8 +1,9 @@
 {
     "version": 1,
     "project": "tardis",
-    "project_url": "https://github.com/tardis-sn/tardis",
+    "project_url": "https://tardis-sn.github.io/tardis",
     "repo": "https://github.com/tardis-sn/tardis.git",
+    "show_commit_url": "https://github.com/tardis-sn/tardis/commit",
     "branches": ["master"], // for git
     "matrix": {
         "numpy": [],
