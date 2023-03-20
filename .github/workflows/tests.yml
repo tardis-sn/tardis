@@ -2,7 +2,7 @@
 #
 #    https://tardis-sn.github.io/tardis/development/continuous_integration.html
 
-name: tests
+name: tests-modified-benchmark-temp
 
 on:
   push:
@@ -27,6 +27,10 @@ defaults:
   run:
     shell: bash -l {0}
 
+permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment 
+
 jobs:
   build:
 
@@ -47,33 +51,33 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Clone tardis-sn/tardis-refdata
-        uses: actions/checkout@v2
-        with:
-          repository: tardis-sn/tardis-refdata
-          path: tardis-refdata
-          lfs: false
+      # - name: Clone tardis-sn/tardis-refdata
+      #   uses: actions/checkout@v2
+      #   with:
+      #     repository: tardis-sn/tardis-refdata
+      #     path: tardis-refdata
+      #     lfs: false
 
-      - name: Create LFS file list
-        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
-        working-directory: tardis-refdata
+      # - name: Create LFS file list
+      #   run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+      #   working-directory: tardis-refdata
 
-      - name: Restore LFS cache
-        uses: actions/cache@v2
-        id: lfs-cache
-        with:
-          path: tardis-refdata/.git/lfs
-          key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-refdata/.lfs-assets-id') }}-v1
+      # - name: Restore LFS cache
+      #   uses: actions/cache@v2
+      #   id: lfs-cache
+      #   with:
+      #     path: tardis-refdata/.git/lfs
+      #     key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-refdata/.lfs-assets-id') }}-v1
 
-      - name: Git LFS Pull
-        run: git lfs pull
-        working-directory: tardis-refdata
-        if: steps.lfs-cache.outputs.cache-hit != 'true'
+      # - name: Git LFS Pull
+      #   run: git lfs pull
+      #   working-directory: tardis-refdata
+      #   if: steps.lfs-cache.outputs.cache-hit != 'true'
       
-      - name: Git LFS Checkout
-        run: git lfs checkout
-        working-directory: tardis-refdata
-        if: steps.lfs-cache.outputs.cache-hit == 'true'
+      # - name: Git LFS Checkout
+      #   run: git lfs checkout
+      #   working-directory: tardis-refdata
+      #   if: steps.lfs-cache.outputs.cache-hit == 'true'
 
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
@@ -95,9 +99,39 @@ jobs:
 
       - name: Install package
         run: pip install -e .
+      
+      - run: wget https://github.com/tardis-sn/tardis-refdata/raw/master/atom_data/kurucz_cd23_chianti_H_He.h5
+        working-directory: asv/benchmarks
 
-      - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }}
+      # - name: Run tests
+      #   run: pytest tardis ${{ env.PYTEST_FLAGS }}
+      - name: Install asv
+        run: pip install asv
+      
+      - run: asv machine --yes
+        working-directory: asv
+      
+      - name: Run benchmarks
+        run: asv run --verbose
+        working-directory: asv
+      
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: asv-benchmark-results-ubuntu-latest
+          path: asv/results
+     
+      - run: asv publish
+        working-directory: asv
+
+      - uses: actions/configure-pages@v1
+      - uses: actions/upload-pages-artifact@v1
+        with:
+          path: asv/html
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
 
       - name: Upload to Codecov
         run: bash <(curl -s https://codecov.io/bash)
