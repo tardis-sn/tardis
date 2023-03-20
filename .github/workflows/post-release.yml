@@ -125,7 +125,7 @@ jobs:
             >
             > This pull request should be auto-merged.
           labels: automated, build-docs
-          team-reviewers: tardis-sn/tardis-infrastructure
+          team-reviewers: tardis-infrastructure
         id: create-pr
 
       - name: Wait for pull request
