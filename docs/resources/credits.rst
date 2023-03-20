@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_wolfgang_2023_7681486
+.. |CITATION| replace:: kerzendorf_wolfgang_2023_7753535
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7681486-blue
-                 :target: https://doi.org/10.5281/zenodo.7681486
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7753535-blue
+                 :target: https://doi.org/10.5281/zenodo.7753535
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_wolfgang_2023_7681486,
+    @software{kerzendorf_wolfgang_2023_7753535,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -119,61 +119,64 @@ The following BibTeX entries are needed for the references:
                       Gillanders, James and
                       Chitchyan, Sona and
                       Savel, Arjun and
-                      Eweis, Youssef and
                       Reinecke, Martin and
+                      Eweis, Youssef and
                       Bylund, Tomas and
                       Bentil, Laud and
                       Eguren, Jordi and
-                      Bartnik, Matthew and
                       Alam, Arib and
-                      Varma Buddaraju, Rohith and
+                      Bartnik, Matthew and
                       Magee, Mark and
+                      Varma Buddaraju, Rohith and
+                      Kambham, Satwik and
                       Shields, Joshua and
                       Livneh, Ran and
-                      Kambham, Satwik and
-                      Rajagopalan, Srinath and
                       Mishra, Sashank and
-                      Jain, Rinkle and
+                      Rajagopalan, Srinath and
                       Reichenbach, John and
+                      Jain, Rinkle and
                       Floers, Andreas and
                       Brar, Antreev and
+                      Singh, Sourav and
                       Holas, Alexander and
                       Bhakar, Jayant and
-                      Singh, Sourav and
+                      Kowalski, Nathan and
                       Selsing, Jonatan and
                       Kumar, Aman and
-                      Kowalski, Nathan and
-                      Talegaonkar, Chinmay and
                       Sofiatti, Caroline and
+                      Talegaonkar, Chinmay and
+                      Singh, Shreyas and
+                      Singh Rathore, Parikshit and
+                      Prasad, Shilpi and
                       Venkat, Shashank and
                       Sharma, Sampark and
-                      Patra, Nilesh and
                       Patel, Pratik and
-                      Singh Rathore, Parikshit and
                       Yap, Kevin and
+                      Patra, Nilesh and
                       Sarafina, Nance and
                       Zaheer, Musabbiha and
                       Sandler, Morgan and
-                      Martinez, Laureano and
+                      Truong, Le and
                       Gupta, Suyash and
-                      Prasad, Shilpi and
-                      Patidar, Abhishek and
+                      Nayak U, Ashwin and
                       Lemoine, Thom and
                       Wahi, Ujjwal and
                       Aggarwal, Yash and
+                      Gupta, Harshul and
                       Volodin, Dmitry and
-                      Dasgupta, Debajyoti and
                       PATIDAR, ABHISHEK and
-                      Nayak U, Ashwin and
+                      Dasgupta, Debajyoti and
+                      Patidar, Abhishek and
                       Kharkar, Atharwa and
+                      Kumar, Atul and
                       Kolliboyina, Chaitanya and
-                      Kumar, Atul},
-      title        = {tardis-sn/tardis: TARDIS v2023.02.27},
-      month        = feb,
+                      Martinez, Laureano},
+      title        = {tardis-sn/tardis: TARDIS v2023.03.20},
+      month        = mar,
       year         = 2023,
       publisher    = {Zenodo},
-      version      = {release-2023.02.27},
-      doi          = {10.5281/zenodo.7681486},
-      url          = {https://doi.org/10.5281/zenodo.7681486}
+      version      = {release-2023.03.20},
+      doi          = {10.5281/zenodo.7753535},
+      url          = {https://doi.org/10.5281/zenodo.7753535}
     }
 
