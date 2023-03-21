@@ -70,6 +70,7 @@ class ArepoSnapshot:
             hdf5=True,
             quiet=True,
             lazy_load=True,
+            loadonlytype=[0],
         )
 
         rz_yaw = np.array(
@@ -99,14 +100,14 @@ class ArepoSnapshot:
         self.s.rotateto(rotmat[0], dir2=rotmat[1], dir3=rotmat[2])
 
         self.time = self.s.time
-        self.pos = np.array(self.s.data["pos"][: self.s.nparticlesall[0]])
+        self.pos = np.array(self.s.data["pos"])
         self.pos = self.pos.T
         # Update position to CoM frame
         for i in range(3):
             self.pos[i] -= self.s.centerofmass()[i]
         self.rho = np.array(self.s.data["rho"])
         self.mass = np.array(self.s.data["mass"])
-        self.vel = np.array(self.s.data["vel"][: self.s.nparticlesall[0]])
+        self.vel = np.array(self.s.data["vel"])
         self.vel = self.vel.T
         self.nuc_dict = {}
 
@@ -222,7 +223,7 @@ class Profile:
         ax1.set_ylabel("Profile (arb. unit)")
         ax1.set_title("Profiles along the positive axis")
 
-        # Positive direction plots
+        # Negative direction plots
         ax2.plot(
             self.pos_prof_n,
             self.rho_prof_n / max(self.rho_prof_n),
@@ -307,17 +308,39 @@ class Profile:
                 statistic=statistic,
                 bins=nshells,
             )[0]
-            / self.mass_prof_p
-        )
-        self.rho_prof_n = (
-            stats.binned_statistic(
-                self.pos_prof_n * self.mass_prof_n,
-                self.rho_prof_n,
+            / stats.binned_statistic(
+                self.pos_prof_p,
+                self.mass_prof_p,
                 statistic=statistic,
                 bins=nshells,
             )[0]
-            / self.mass_prof_n
         )
+        self.rho_prof_n = (
+            stats.binned_statistic(
+                self.pos_prof_n,
+                self.rho_prof_n * self.mass_prof_n,
+                statistic=statistic,
+                bins=nshells,
+            )[0]
+            / stats.binned_statistic(
+                self.pos_prof_n,
+                self.mass_prof_n,
+                statistic=statistic,
+                bins=nshells,
+            )[0]
+        )
+        self.mass_prof_p = stats.binned_statistic(
+            self.pos_prof_p,
+            self.mass_prof_p,
+            statistic=statistic,
+            bins=nshells,
+        )[0]
+        self.mass_prof_n = stats.binned_statistic(
+            self.pos_prof_n,
+            self.mass_prof_n,
+            statistic=statistic,
+            bins=nshells,
+        )[0]
 
         for spec in self.species:
             self.xnuc_prof_p[spec] = stats.binned_statistic(
@@ -485,6 +508,8 @@ class Profile:
             self.vel_prof_n,
             self.rho_prof_p,
             self.rho_prof_n,
+            self.mass_prof_p,
+            self.mass_prof_n,
             self.xnuc_prof_p,
             self.xnuc_prof_n,
         )
@@ -881,12 +906,12 @@ if __name__ == "__main__":
         numthreads=args.numthreads,
     )
 
-    pos, vel, rho, xnuc, time = snapshot.get_grids()
+    pos, vel, rho, mass, xnuc, time = snapshot.get_grids()
 
     if args.profile == "cone":
-        profile = ConeProfile(pos, vel, rho, xnuc, time)
+        profile = ConeProfile(pos, vel, rho, xnuc, time, mass=mass)
     elif args.profile == "full":
-        profile = FullProfile(pos, vel, rho, xnuc, time)
+        profile = FullProfile(pos, vel, rho, xnuc, time, mass=mass)
 
     if args.profile == "cone":
         profile.create_profile(
