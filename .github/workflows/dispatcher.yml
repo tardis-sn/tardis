@@ -17,5 +17,5 @@ jobs:
           repository: tardis-sn/tardis
           issue-type: pull-request
           permission: triage
-          reaction_token: ${{ secrets.BOT_TOKEN }}
+          reaction-token: ${{ secrets.BOT_TOKEN }}
           allow-edits: true
