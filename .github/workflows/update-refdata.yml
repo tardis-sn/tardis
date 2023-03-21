@@ -5,20 +5,8 @@
 name: update-refdata
 
 on:
-#  pull_request_target:
-#    branches:
-#      - master
-  pull_request:
-    branches:
-      - master  
-
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - labeled                         # requires the `update-refdata` label
-
-  workflow_dispatch:                    # manual trigger
+  repository_dispatch:
+    types: [update-refdata]
 
 env:
   PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --generate-reference
