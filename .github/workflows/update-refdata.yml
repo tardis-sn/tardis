@@ -99,3 +99,49 @@ jobs:
 
             These are the changes made by https://github.com/tardis-sn/tardis/pull/${{ github.event.client_payload.pull_request.number }}, please be careful before merging this pull request.
         id: create-pr
+
+      - name: Find comment
+        uses: peter-evans/find-comment@v2
+        id: fc
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body-includes: Hi, human.
+        if: always()
+
+      - name: Post comment (success)
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token:  ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            The **`${{ github.workflow }}`** workflow has **succeeded** :heavy_check_mark:
+
+            [**Click here**](${{ env.URL }}) to see your results.
+        env:
+          URL: https://github.com/tardis-sn/tardis-refdata/pull/${{ github.event.client_payload.pull_request.number }}
+        if: success()
+
+      - name: Post comment (failure)
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token:  ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ github.event.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            The **`${{ github.workflow }}`** workflow has **failed** :x:
+
+            [**Click here**](${{ env.URL }}) to see the build log.
+        env:
+          URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
+        if: failure()
