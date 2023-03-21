@@ -51,7 +51,7 @@ def pytest_configure(config):
         packagename = os.path.basename(os.path.dirname(__file__))
         TESTED_VERSIONS[packagename] = __version__
 
-    # Option to gnore the `--generate-reference` flag
+    # Create marker to ignore the `--generate-reference` flag
     config.addinivalue_line(
         "markers",
         "ignore_generate: mark test to not generate new reference data",
