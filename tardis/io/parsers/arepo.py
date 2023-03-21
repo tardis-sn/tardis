@@ -105,6 +105,7 @@ class ArepoSnapshot:
         for i in range(3):
             self.pos[i] -= self.s.centerofmass()[i]
         self.rho = np.array(self.s.data["rho"])
+        self.mass = np.array(self.s.data["mass"])
         self.vel = np.array(self.s.data["vel"][: self.s.nparticlesall[0]])
         self.vel = self.vel.T
         self.nuc_dict = {}
@@ -118,7 +119,7 @@ class ArepoSnapshot:
         """
         Returns all relevant data to create Profile objects
         """
-        return self.pos, self.vel, self.rho, self.nuc_dict, self.time
+        return self.pos, self.vel, self.rho, self.mass, self.nuc_dict, self.time
 
 
 class Profile:
@@ -127,7 +128,7 @@ class Profile:
     e.g. for plotting and export.
     """
 
-    def __init__(self, pos, vel, rho, xnuc, time):
+    def __init__(self, pos, vel, rho, xnuc, time, mass=None):
         """
         Parameters
         ----------
@@ -143,6 +144,9 @@ class Profile:
             meshgrids of the relevant species.
         time : float
             Time of the data
+        mass : list of float
+            Meshgrid of masses (optional). If no masses are provided,
+            densities will not be mass averaged. Default: None
 
         """
 
@@ -151,6 +155,10 @@ class Profile:
         self.rho = rho
         self.xnuc = xnuc
         self.time = time
+        if mass is not None:
+            self.mass = mass
+        else:
+            self.mass = np.ones_like(self.rho)
 
         self.species = list(self.xnuc.keys())
 
@@ -163,6 +171,9 @@ class Profile:
 
         self.rho_prof_p = None
         self.rho_prof_n = None
+
+        self.mass_prof_p = None
+        self.mass_prof_n = None
 
         self.xnuc_prof_p = {}
         self.xnuc_prof_n = {}
@@ -289,18 +300,24 @@ class Profile:
             bins=nshells,
         )[:2]
 
-        self.rho_prof_p = stats.binned_statistic(
-            self.pos_prof_p,
-            self.rho_prof_p,
-            statistic=statistic,
-            bins=nshells,
-        )[0]
-        self.rho_prof_n = stats.binned_statistic(
-            self.pos_prof_n,
-            self.rho_prof_n,
-            statistic=statistic,
-            bins=nshells,
-        )[0]
+        self.rho_prof_p = (
+            stats.binned_statistic(
+                self.pos_prof_p,
+                self.rho_prof_p * self.mass_prof_p,
+                statistic=statistic,
+                bins=nshells,
+            )[0]
+            / self.mass_prof_p
+        )
+        self.rho_prof_n = (
+            stats.binned_statistic(
+                self.pos_prof_n * self.mass_prof_n,
+                self.rho_prof_n,
+                statistic=statistic,
+                bins=nshells,
+            )[0]
+            / self.mass_prof_n
+        )
 
         for spec in self.species:
             self.xnuc_prof_p[spec] = stats.binned_statistic(
@@ -551,6 +568,9 @@ class ConeProfile(Profile):
         rho_p = self.rho[cmask_p]
         rho_n = self.rho[cmask_n]
 
+        mass_p = self.mass[cmask_p]
+        mass_n = self.mass[cmask_n]
+
         spec_p = {}
         spec_n = {}
 
@@ -590,6 +610,13 @@ class ConeProfile(Profile):
         )[mask_p]
         self.rho_prof_n = np.array(
             [x for _, x in sorted(zip(pos_n, rho_n), key=lambda pair: pair[0])]
+        )[mask_n]
+
+        self.mass_prof_p = np.array(
+            [x for _, x in sorted(zip(pos_p, mass_p), key=lambda pair: pair[0])]
+        )[mask_p]
+        self.mass_prof_n = np.array(
+            [x for _, x in sorted(zip(pos_n, mass_n), key=lambda pair: pair[0])]
         )[mask_n]
 
         self.vel_prof_p = np.array(
@@ -672,6 +699,9 @@ class FullProfile(Profile):
         rho_p = self.rho.flatten()
         rho_n = self.rho.flatten()
 
+        mass_p = self.mass.flatten()
+        mass_n = self.mass.flatten()
+
         spec_p = {}
         spec_n = {}
 
@@ -711,6 +741,13 @@ class FullProfile(Profile):
         )[mask_p]
         self.rho_prof_n = np.array(
             [x for _, x in sorted(zip(pos_n, rho_n), key=lambda pair: pair[0])]
+        )[mask_n]
+
+        self.mass_prof_p = np.array(
+            [x for _, x in sorted(zip(pos_p, mass_p), key=lambda pair: pair[0])]
+        )[mask_p]
+        self.mass_prof_n = np.array(
+            [x for _, x in sorted(zip(pos_n, mass_n), key=lambda pair: pair[0])]
         )[mask_n]
 
         self.vel_prof_p = np.array(
