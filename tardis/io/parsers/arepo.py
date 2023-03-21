@@ -290,16 +290,28 @@ class Profile:
 
         self.vel_prof_p, bins_p = stats.binned_statistic(
             self.pos_prof_p,
-            self.vel_prof_p,
+            self.vel_prof_p * self.mass_prof_p,
             statistic=statistic,
             bins=nshells,
         )[:2]
+        self.vel_prof_p /= stats.binned_statistic(
+            self.pos_prof_p,
+            self.mass_prof_p,
+            statistic=statistic,
+            bins=nshells,
+        )[0]
         self.vel_prof_n, bins_n = stats.binned_statistic(
             self.pos_prof_n,
-            self.vel_prof_n,
+            self.vel_prof_n * self.mass_prof_n,
             statistic=statistic,
             bins=nshells,
         )[:2]
+        self.vel_prof_n /= stats.binned_statistic(
+            self.pos_prof_n,
+            self.mass_prof_n,
+            statistic=statistic,
+            bins=nshells,
+        )[0]
 
         self.rho_prof_p = (
             stats.binned_statistic(
@@ -329,6 +341,37 @@ class Profile:
                 bins=nshells,
             )[0]
         )
+
+        for spec in self.species:
+            self.xnuc_prof_p[spec] = (
+                stats.binned_statistic(
+                    self.pos_prof_p,
+                    self.xnuc_prof_p[spec] * self.mass_prof_p,
+                    statistic=statistic,
+                    bins=nshells,
+                )[0]
+                / stats.binned_statistic(
+                    self.pos_prof_p,
+                    self.mass_prof_p,
+                    statistic=statistic,
+                    bins=nshells,
+                )[0]
+            )
+            self.xnuc_prof_n[spec] = (
+                stats.binned_statistic(
+                    self.pos_prof_n,
+                    self.xnuc_prof_n[spec] * self.mass_prof_n,
+                    statistic=statistic,
+                    bins=nshells,
+                )[0]
+                / stats.binned_statistic(
+                    self.pos_prof_n,
+                    self.mass_prof_n,
+                    statistic=statistic,
+                    bins=nshells,
+                )[0]
+            )
+
         self.mass_prof_p = stats.binned_statistic(
             self.pos_prof_p,
             self.mass_prof_p,
@@ -341,20 +384,6 @@ class Profile:
             statistic=statistic,
             bins=nshells,
         )[0]
-
-        for spec in self.species:
-            self.xnuc_prof_p[spec] = stats.binned_statistic(
-                self.pos_prof_p,
-                self.xnuc_prof_p[spec],
-                statistic=statistic,
-                bins=nshells,
-            )[0]
-            self.xnuc_prof_n[spec] = stats.binned_statistic(
-                self.pos_prof_n,
-                self.xnuc_prof_n[spec],
-                statistic=statistic,
-                bins=nshells,
-            )[0]
 
         self.pos_prof_p = np.array(
             [(bins_p[i] + bins_p[i + 1]) / 2 for i in range(len(bins_p) - 1)]
