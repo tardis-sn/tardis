@@ -12,9 +12,10 @@ jobs:
         with:
           token: ${{ secrets.BOT_TOKEN }}
           commands: |
+            compare-refdata
             update-refdata
           repository: tardis-sn/tardis
           issue-type: pull-request
           permission: triage
-          allow-edits: true
           reaction_token: ${{ secrets.BOT_TOKEN }}
+          allow-edits: true
