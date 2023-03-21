@@ -113,9 +113,11 @@ def get_full_reference_data():
 
     return data
 
+
 @pytest.mark.ignore_generate
 def test_cone_profile(get_cone_csvy_model, get_cone_reference_data):
     assert get_cone_csvy_model == get_cone_reference_data
+
 
 @pytest.mark.ignore_generate
 def test_full_profile(get_full_csvy_model, get_full_reference_data):
