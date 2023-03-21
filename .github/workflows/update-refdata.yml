@@ -6,7 +6,7 @@ name: update-refdata
 
 on:
   repository_dispatch:
-    types: [update-refdata]
+    types: [update-refdata-command]
 
 env:
   PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --generate-reference

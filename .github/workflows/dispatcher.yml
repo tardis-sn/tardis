@@ -8,9 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Slash Command Dispatcher
-        uses: peter-evans/slash-command-dispatch@v2
+        uses: peter-evans/slash-command-dispatch@v3
         with:
           token: ${{ secrets.BOT_TOKEN }}
           commands: |
             update-refdata
           repository: tardis-sn/tardis
+          issue-type: pull-request
+          permission: triage
+          allow-edits: true
+          reaction_token: ${{ secrets.BOT_TOKEN }}
