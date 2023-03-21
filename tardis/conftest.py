@@ -51,6 +51,8 @@ def pytest_configure(config):
         packagename = os.path.basename(os.path.dirname(__file__))
         TESTED_VERSIONS[packagename] = __version__
 
+    # Option to gnore the `--generate-reference` flag
+    config.addinivalue_line("markers", "ignore_generate: mark test to not generate new reference data")
 
 # Uncomment the last two lines in this block to treat all DeprecationWarnings as
 # exceptions. For Astropy v2.0 or later, there are 2 additional keywords,
@@ -98,6 +100,13 @@ def pytest_addoption(parser):
         default=False,
         help="Run integration tests with less packets.",
     )
+
+def pytest_collection_modifyitems(config, items):
+    if config.getoption("--generate-reference"):
+        skip_generate = pytest.mark.skip(reason="???")
+        for item in items:
+            if "ignore_generate" in item.keywords:
+                item.add_marker(skip_generate)
 
 
 # -------------------------------------------------------------------------
