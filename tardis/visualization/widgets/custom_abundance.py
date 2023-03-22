@@ -1291,7 +1291,9 @@ class CustomAbundanceWidget:
             self.box_editor = ipw.HBox(
                 [
                     ipw.VBox(self.input_items),
-                    ipw.VBox(self.checks, layout=ipw.Layout(margin="0 0 0 10px")),
+                    ipw.VBox(
+                        self.checks, layout=ipw.Layout(margin="0 0 0 10px")
+                    ),
                 ]
             )
 
