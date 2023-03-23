@@ -80,6 +80,9 @@ jobs:
       - name: Generate new reference data
         run: pytest tardis ${{ env.PYTEST_FLAGS }}
 
+      - name: Remove unwanted files
+        run: rm .lfs-assets-id
+
       - name: Create pull request
         uses: peter-evans/create-pull-request@v4
         with:
