@@ -456,9 +456,10 @@ class RPacketPlotter:
             types of interactions occuring at different points
         """
         rpacket_x, rpacket_y, theta, rpacket_interactions = [], [], [], []
-    
-        v_shells = self.sim.model.velocity.to_value(u.km / u.s)
+        
+        # getting thetas at different steps of the packet movement
         for step_no in range(len(r_track)):
+            # for the first step the packet is at photosphere, so theta will be equal to the intial angle we are launching the packet from
             if step_no == 0:
                 theta.append(theta_initial)
             # for further steps we calculate thetas with the formula derived in the documentation
