@@ -1,4 +1,5 @@
 import math
+import copy
 import logging
 import pandas as pd
 import numpy as np
@@ -6,13 +7,12 @@ import astropy.units as u
 import plotly.express as px
 import plotly.graph_objects as go
 
-
 class RPacketPlotter:
     """
     Plotting interface for the plotting Montecarlo packets. It creates an animated plot using plotly for the
     trajectories of the real packets as they travel through the ejecta starting from the photosphere.
     """
-
+   
     def __init__(self, sim, no_of_packets):
         """
         Initializes the RPacket Plotter using the simulation object generated using the run_tardis function.
@@ -34,8 +34,8 @@ class RPacketPlotter:
         self.theme_colors = dict(
             light=dict(
                 linecolor="#555",
-                gridcolor="#fafafa",
-                zerolinecolor="#fafafa",
+                gridcolor="#e6e6e6",
+                zerolinecolor="#e6e6e6",
                 color="#000",
                 photosphere_line_color="black",
                 photosphere_fillcolor="darkgrey",
@@ -56,8 +56,8 @@ class RPacketPlotter:
             ),
             dark=dict(
                 linecolor="#050505",
-                gridcolor="#111",
-                zerolinecolor="#111",
+                gridcolor="#262626",
+                zerolinecolor="#262626",
                 color="#fafafa",
                 photosphere_line_color="#222",
                 photosphere_fillcolor="#222",
@@ -111,7 +111,7 @@ class RPacketPlotter:
                 rpacket tracking in the configuration. To enable rpacket tracking see: https://tardis-sn.github.io/tardis/io/output/rpacket_tracking.html#How-to-Setup-the-Tracking-for-the-RPackets?"""
             )
 
-    def generate_plot(self, theme="light"):
+    def generate_plot(self, theme="light", grid_on = False, photosphere_scale = 0.9):
         """
         Creates an animated plotly plot showing the Montecarlo packets' trajectories.
 
@@ -139,7 +139,7 @@ class RPacketPlotter:
         ) = self.get_coordinates_multiple_packets(
             self.sim.runner.rpacket_tracker_df.loc[0 : (self.no_of_packets)],
         )
-
+        
         # making the coordinate arrays of all packets equal
         (
             rpacket_x,
@@ -149,26 +149,41 @@ class RPacketPlotter:
         ) = self.get_equal_array_size(
             rpacket_x, rpacket_y, rpacket_interactions
         )
+        
+        # getting the scaled points of all packets
+        (
+            scaled_x,
+            scaled_y,        
+        ) = self.get_scaled_arrays(
+            rpacket_x, rpacket_y, photosphere_scale, v_shells[0]
+        )
+        
+        
         # Set axes properties
+        neg_shell_range = -1.1 * v_shells[-1] + ((1 - photosphere_scale) * v_shells[0])
+        pos_shell_range =  1.1 * v_shells[-1] - ((1 - photosphere_scale) * v_shells[0])
+        
         self.fig.update_xaxes(
             scaleanchor="y",
             scaleratio=1,
-            range=[-1.1 * v_shells[-1], 1.1 * v_shells[-1]],
+            range=[neg_shell_range, pos_shell_range],
             title="Velocity (km/s)",
             exponentformat="none",
             color=self.theme_colors[theme]["color"],
             linecolor=self.theme_colors[theme]["linecolor"],
             gridcolor=self.theme_colors[theme]["gridcolor"],
             zerolinecolor=self.theme_colors[theme]["zerolinecolor"],
+            tickangle = 0
         )
         self.fig.update_yaxes(
-            range=[-1.1 * v_shells[-1], 1.1 * v_shells[-1]],
+            range=[neg_shell_range, pos_shell_range],
             title="Velocity (km/s)",
             exponentformat="none",
             color=self.theme_colors[theme]["color"],
             linecolor=self.theme_colors[theme]["linecolor"],
             gridcolor=self.theme_colors[theme]["gridcolor"],
             zerolinecolor=self.theme_colors[theme]["zerolinecolor"],
+            tickangle = 0
         )
 
         # adding the shells and photosphere
@@ -179,10 +194,10 @@ class RPacketPlotter:
                     type="circle",
                     xref="x",
                     yref="y",
-                    x0=-1 * v_shells[shell_no],
-                    y0=-1 * v_shells[shell_no],
-                    x1=v_shells[shell_no],
-                    y1=v_shells[shell_no],
+                    x0=-1 * v_shells[shell_no] * photosphere_scale,
+                    y0=-1 * v_shells[shell_no] * photosphere_scale,
+                    x1= 1 * v_shells[shell_no] * photosphere_scale,
+                    y1= 1 * v_shells[shell_no] * photosphere_scale,
                     line_color=self.theme_colors[theme][
                         "photosphere_line_color"
                     ],
@@ -195,10 +210,10 @@ class RPacketPlotter:
                     type="circle",
                     xref="x",
                     yref="y",
-                    x0=-1 * v_shells[shell_no],
-                    y0=-1 * v_shells[shell_no],
-                    x1=v_shells[shell_no],
-                    y1=v_shells[shell_no],
+                    x0=-1 * v_shells[shell_no] + (1 - photosphere_scale) * v_shells[0],
+                    y0=-1 * v_shells[shell_no] + (1 - photosphere_scale) * v_shells[0],
+                    x1= 1 * v_shells[shell_no] - (1 - photosphere_scale) * v_shells[0],
+                    y1= 1 * v_shells[shell_no] - (1 - photosphere_scale) * v_shells[0],
                     line_color=self.theme_colors[theme]["shells_line_color"],
                     opacity=1,
                 )
@@ -208,27 +223,28 @@ class RPacketPlotter:
                     type="circle",
                     xref="x",
                     yref="y",
-                    x0=-1 * v_shells[shell_no],
-                    y0=-1 * v_shells[shell_no],
-                    x1=v_shells[shell_no],
-                    y1=v_shells[shell_no],
+                    x0=-1 * v_shells[shell_no] + (1 - photosphere_scale) * v_shells[0],
+                    y0=-1 * v_shells[shell_no] + (1 - photosphere_scale) * v_shells[0],
+                    x1= 1 * v_shells[shell_no] - (1 - photosphere_scale) * v_shells[0],
+                    y1= 1 * v_shells[shell_no] - (1 - photosphere_scale) * v_shells[0],
                     line_color=self.theme_colors[theme]["shells_line_color"],
                     opacity=0.2,
                 )
 
+    
         # Adding packet trajectory
-
         for packet_no in range(len(rpacket_x)):
             self.fig.add_trace(
                 go.Scatter(
-                    x=rpacket_x[packet_no],
-                    y=rpacket_y[packet_no],
+                    x= scaled_x[packet_no],
+                    y= scaled_y[packet_no],
                     mode="markers+lines",
+                    customdata=np.stack((rpacket_x[packet_no], rpacket_y[packet_no]), axis=-1),
                     name="Packet " + str(packet_no + 1),
                     showlegend=False,
-                    hovertemplate="<b>X</b>: %{x}"
-                    + "<br><b>Y</b>: %{y}<br>"
-                    + "<b>Last Interaction: %{text}</b>",
+                    hovertemplate="<b>X</b>: %{customdata[0]}" +
+                              "<br><b>Y</b>: %{customdata[1]}</br>" +
+                                  "<b>Last Interaction: %{text}</b>",
                     text=[
                         self.interaction_from_num[
                             int(rpacket_interactions[packet_no][step_no])
@@ -291,10 +307,23 @@ class RPacketPlotter:
         self.fig.layout.paper_bgcolor = self.theme_colors[theme][
             "paper_bgcolor"
         ]
-
+        #Configure the now-scaled axes
+        tickval_array, ticktext_array  = self._get_tickvals_and_ticktext(photosphere_scale, v_shells[0], pos_shell_range)
         self.fig.update_layout(
             width=820,
             height=680,
+            xaxis = dict(
+                tickmode = 'array',
+                tickvals = tickval_array,
+                ticktext = ticktext_array,
+                showgrid = grid_on
+            ),
+            yaxis = dict(
+                tickmode = 'array',
+                tickvals = tickval_array,
+                ticktext = ticktext_array,
+                showgrid = grid_on
+            ),
             title="Packet Trajectories",
             title_font_color=self.theme_colors[theme]["title_font_color"],
             font_color=self.theme_colors[theme]["font_color"],
@@ -345,18 +374,18 @@ class RPacketPlotter:
                 )
             ],
         )
-
+       
         # adding frames
         self.fig.frames = [
             go.Frame(
                 data=self.get_frames(
-                    frame, rpacket_x, rpacket_y, rpacket_interactions, theme
+                    frame, rpacket_x, rpacket_y, scaled_x, scaled_y, rpacket_interactions, theme
                 ),
                 name=frame,
             )
             for frame in range(rpacket_array_max_size + 1)
         ]
-
+        
         # adding timeline slider
         self.fig.layout.sliders = [
             {
@@ -392,6 +421,7 @@ class RPacketPlotter:
 
         return self.fig
 
+    
     def get_coordinates_with_theta_init(
         self,
         r_track,
@@ -426,11 +456,9 @@ class RPacketPlotter:
             types of interactions occuring at different points
         """
         rpacket_x, rpacket_y, theta, rpacket_interactions = [], [], [], []
-
-        # getting thetas at different steps of the packet movement
-
+    
+        v_shells = self.sim.model.velocity.to_value(u.km / u.s)
         for step_no in range(len(r_track)):
-            # for the first step the packet is at photosphere, so theta will be equal to the intial angle we are launching the packet from
             if step_no == 0:
                 theta.append(theta_initial)
             # for further steps we calculate thetas with the formula derived in the documentation
@@ -461,7 +489,7 @@ class RPacketPlotter:
         # converting the thetas into x and y coordinates using radius as radius*cos(theta) and radius*sin(theta) respectively
         rpacket_x = (np.array(r_track)) * np.cos(np.array(theta)) * 1e-5 / time
         rpacket_y = (np.array(r_track)) * np.sin(np.array(theta)) * 1e-5 / time
-
+        
         # adding interactions at different steps
         # using the change of slope of the trajectory line at different steps, we determine if an interactions happened or not.
 
@@ -486,6 +514,7 @@ class RPacketPlotter:
 
         return rpacket_x, rpacket_y, rpacket_interactions
 
+    
     def get_coordinates_multiple_packets(self, r_packet_tracker):
         """
         Generates an array of array containing x and y coordinates of multiple packets
@@ -528,6 +557,7 @@ class RPacketPlotter:
             np.array(rpackets_interactions, dtype="object"),
         )
 
+    
     def get_equal_array_size(self, rpacket_x, rpacket_y, interactions):
         """
         creates the coordinate arrays of different packets of same size. This is done for generating frames in animation.
@@ -587,8 +617,53 @@ class RPacketPlotter:
             interactions,
             rpacket_step_no_array_max_size,
         )
+    
+    
+    def get_scaled_arrays(self, rpacket_x, rpacket_y, photosphere_scale, photosphere_radius):
+        '''
+        Scales all points to fit with photosphere's new dimensions.
+        
+        Parameters
+        ----------
+        rpacket_x : numpy.ndarray
+            x coordinates array
+        rpacket_y : numpy.ndarray
+            y coordinates array
+        photosphere_scale: float
+            scale for photosphere
+        photosphere_radius: float
+            v_shells[0], first circle's radius
+            
+        Returns
+        -------
+        numpy.ndarray
+            scaled x coordinate array
+        numpy.ndarray
+            scaled y coordinate array
+            
+        '''
+        #TODO: optimize memory usage here, if you remove copy remember to remove import
+        scaled_x = copy.deepcopy(rpacket_x)
+        scaled_y = copy.deepcopy(rpacket_y)
+        
+        for i in range(len(rpacket_x)):
+            for j in range (len(rpacket_x[i])):
+                temp_x = abs(rpacket_x[i][j])
+                temp_y = abs(rpacket_y[i][j])
+                temp_r = np.sqrt(temp_x**2 + temp_y**2)
+                
+                sign_x = (rpacket_x[i][j] > 0) * 1.0 + (rpacket_x[i][j] < 0) * -1.0 
+                sign_y = (rpacket_y[i][j] > 0) * 1.0 + (rpacket_y[i][j] < 0) * -1.0 
+                
+                scaled_x[i][j] = temp_x/temp_r * (temp_r - (1 - photosphere_scale) * photosphere_radius)
+                scaled_y[i][j] = temp_y/temp_r * (temp_r - (1 - photosphere_scale) * photosphere_radius)
+                scaled_x[i][j] *= sign_x
+                scaled_y[i][j] *= sign_y
+    
+        return scaled_x, scaled_y
 
-    def get_frames(self, frame, rpacket_x, rpacket_y, interactions, theme):
+    
+    def get_frames(self, frame, rpacket_x, rpacket_y, scaled_x, scaled_y, interactions, theme):
         """
         Creates individual frames containing the go.Scatter objects for the animation.
 
@@ -611,19 +686,21 @@ class RPacketPlotter:
             list of go.Scatter objects for a particular frame number.
         """
         frames = []
-
+    
         for packet_no in range(len(rpacket_x)):
+            
             # adding a scatter object containing the trajectory of a packet upto a particular frame number
             frames.append(
                 go.Scatter(
-                    x=rpacket_x[packet_no].tolist()[0:frame],
-                    y=rpacket_y[packet_no].tolist()[0:frame],
+                    x=scaled_x[packet_no].tolist()[0:frame],
+                    y=scaled_y[packet_no].tolist()[0:frame],
                     mode="markers+lines",
                     name="Packet " + str(packet_no + 1),
                     showlegend=False,
-                    hovertemplate="<b>X</b>: %{x}"
-                    + "<br><b>Y</b>: %{y}<br>"
-                    + "<b>Last Interaction: %{text}</b>",
+                    customdata = np.stack((rpacket_x[packet_no].tolist()[0:frame], rpacket_y[packet_no].tolist()[0:frame]), axis=-1),
+                    hovertemplate="<b>X</b>: %{customdata[0]}" +
+                              "<br><b>Y</b>: %{customdata[1]}</br>" +
+                                  "<b>Last Interaction: %{text}</b>",
                     text=[
                         self.interaction_from_num[
                             int(interactions[packet_no][step_no])
@@ -650,7 +727,75 @@ class RPacketPlotter:
                 )
             )
         return frames
+    
+    
+    def _get_tickvals_and_ticktext(self, scale, photosphere_radius, max_range):
+        '''
+        Generated the modified annotations for the axes numbers.
+        
+        Parameters
+        ----------
+        scale : float
+            number used to scale photosphere (photosphere_scale)
+        photosphere_radius: float
+            radius of smallest shell (v_shells[0])
+        max_range: float
+            where the edges of the graph will be
+            
+        Returns
+        -------
+        list (int)
+            list of new tick_vals (Where ticks' positions should be)
+        list (str)
+            list of new tick_text (What's written on each corresponding tick_val)
+        '''
+        
+        tickvals = [0]
+        ticktext = []
+        dtick  = 2500
+        ntick  = int((photosphere_radius + 1250) // 2500)
+        
+        
+        #Configuring ticks' positions
+        for i in range(1, ntick+1):
+            tickvals.append( 1 * dtick * i * scale)
+            tickvals.append(-1 * dtick * i * scale)
+        for i in range (1, ntick+3):
+            tickvals.append(-1 * dtick * (i + ntick) + (1 - scale) * photosphere_radius)
+            tickvals.append( 1 * dtick * (i + ntick) - (1 - scale) * photosphere_radius)
+        
+        tickvals.sort()
 
+       
+        #Adding ticktext from -ntick*2 - 2 till 0, 0, then 0 till +ntick*2 + 2
+        for i in range(2*ntick + 2, ntick, -1):
+            if (i % 4 == 0):
+                ticktext.append(str(-1 * dtick * i))
+            else:
+                ticktext.append(' ')
+        for i in range(ntick, 0, -1):
+            if (i == ntick):
+                ticktext.append(str(-1 * dtick * i))
+            else:
+                ticktext.append(' ')
+                
+        ticktext.append('0')
+        
+        for i in range(1, ntick, 1):
+            if (i == ntick):
+                ticktext.append(str( 1 * dtick * i))
+            else:
+                ticktext.append(' ')
+        for i in range(ntick, 2*ntick+3, 1):
+             if (i % 4 == 0):
+                ticktext.append(str( 1 * dtick * i))
+             else:
+                ticktext.append(' ')
+                
+                
+        return tickvals, ticktext
+        
+        
     def get_slider_steps(self, rpacket_max_array_size):
         """
         Generates different steps in the timeline slider for different frames in the animated plot.
