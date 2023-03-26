@@ -46,7 +46,7 @@ class GrotrianDiagram:
                 font_color="#fafafa",
             ),
         )
-        #There's only 8 colors here. I don't know how high ionization numbers can get (?)
+        #TODO: There's only 8 colors here. I don't know how high ionization numbers can get (?)
         self.line_colors = ["#003865", "#005499", "#0071cc","#008dff",
                             "#33a4ff", "#66baff", "#99d1ff", "#007A9B"]
         
@@ -64,9 +64,9 @@ class GrotrianDiagram:
             The list of different ions from that atom to plot. 
         theme : str, optional
             theme for the plot, by default "light". Could be "dark".
-        grid_on : Bool
+        grid_on : bool, optional
             Whether to show grid or not.
-        separate_subplots : Bool
+        separate_subplots : bool, optional
             Whether to separate each ion graph in its own subplot or not.
 
         Returns
@@ -75,6 +75,7 @@ class GrotrianDiagram:
             Figure containing the required plots.
         """
         #TODO: Handle errors when ionic number is too high for element. Or maybe just let pandas do it?
+        #Also maybe handle errors when any of atomic_number or ions is a float
         #TODO: Make legend for subplots align with each using legend_tracegroupgap.
         
         if(separate_subplots):
@@ -171,9 +172,9 @@ class GrotrianDiagram:
         ----------
         plasma: tardis.simulation.Simulation.Plasma
         atomic_number : int
-            The atomic number of the atom whose fractions are to be plotted. [Not implemented yet.]
-        ions : list of int, optional
-            The list of different ions from that atom to plot. [Not implemented yet.]
+            The atomic number of the atom whose fractions are to be plotted.
+        ions : list of int
+            The list of different ions from that atom to plot. 
         shells_no : int
             Number of velocities to plot against.
         
