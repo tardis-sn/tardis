@@ -215,10 +215,10 @@ class MontecarloTransport(HDFWriterMixin):
                 temperature, no_of_packets, radius, time_explosion
             )
 
-        self.input_r = radii
-        self.input_nu = nus
+        self.input_r = radii.to(u.cm)
+        self.input_nu = nus.to(u.Hz).value
         self.input_mu = mus
-        self.input_energy = energies
+        self.input_energy = energies.to(u.erg).value
 
         self._output_nu = np.ones(no_of_packets, dtype=np.float64) * -99.0
         self._output_energy = np.ones(no_of_packets, dtype=np.float64) * -99.0
@@ -340,7 +340,7 @@ class MontecarloTransport(HDFWriterMixin):
         self._initialize_geometry_arrays(model)
 
         self._initialize_packets(
-            model.t_inner.value,
+            model.t_inner,
             no_of_packets,
             iteration,
             model.r_inner[0],
