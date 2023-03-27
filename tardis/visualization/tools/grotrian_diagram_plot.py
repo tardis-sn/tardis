@@ -46,7 +46,7 @@ class GrotrianDiagram:
                 font_color="#fafafa",
             ),
         )
-        #There's only 8 colors here. I don't know how high ionization numbers can get (?)
+        #TODO: There's only 8 colors here. I don't know how high ionization numbers can get (?)
         self.line_colors = ["#003865", "#005499", "#0071cc","#008dff",
                             "#33a4ff", "#66baff", "#99d1ff", "#007A9B"]
         
@@ -83,7 +83,7 @@ class GrotrianDiagram:
         #TODO: Make legend for subplots align with each using legend_tracegroupgap. --update: won't work, alignment is difficult
         #      Make function return list of figures instead, each will have its own legend.
         #TODO: Add an option to have multiple elements in the same sublot, configure the list and the code accordingly
-        
+
 
         self.fig = make_subplots(rows=len(atoms_and_ions_list), cols=1)
         self.fig.update_layout(hovermode='x')
