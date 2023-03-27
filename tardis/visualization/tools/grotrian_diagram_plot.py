@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-
+from tardis.util.base import element_symbol2atomic_number
 class GrotrianDiagram:
     """
     Prospective plotting interface for GSOC's 2023 idea: Grotrian Diagram plotting. This is the first objective,
@@ -51,54 +51,59 @@ class GrotrianDiagram:
                             "#33a4ff", "#66baff", "#99d1ff", "#007A9B"]
         
         
-    def generate_plot(self, atomic_number=14, ions=[0, 1],
-                      theme="light", grid_on=False, separate_subplots=True):
+    def generate_plot(self, atoms_and_ions_list=[("Si",[0, 1])],
+                      theme="light", grid_on=False):
         """
         Creates the plot of silicon fractions against velocity.
 
         Parameters
         ----------
-        atomic_number : int, optional
-            The atomic number of the atom whose fractions are to be plotted. [TODO: make it a list, and return list of figures]
-        ions : list of int, optional
-            The list of different ions from that atom to plot. 
+        atoms_and_ions_list : List of pairs (optional)
+            first : str
+                The name of the atom whose ions are to be plotted
+            second : list of int
+                The list of different ions from that atom to plot. 
         theme : str, optional
             theme for the plot, by default "light". Could be "dark".
-        grid_on : Bool
+        grid_on : bool, optional
             Whether to show grid or not.
-        separate_subplots : Bool
-            Whether to separate each ion graph in its own subplot or not.
+       
 
         Returns
         -------
         plotly.graph_objs._figure.Figure
             Figure containing the required plots.
+            
+        Note:
+        -----
+        For each item in the dictionary above, there will be a different subplot
+        
         """
         #TODO: Handle errors when ionic number is too high for element. Or maybe just let pandas do it?
-        #TODO: Make legend for subplots align with each using legend_tracegroupgap.
+        #TODO: Make legend for subplots align with each using legend_tracegroupgap. --update: won't work, alignment is difficult
+        #      Make function return list of figures instead, each will have its own legend.
+        #TODO: Add an option to have multiple elements in the same sublot, configure the list and the code accordingly
         
-        if(separate_subplots):
-            self.fig = make_subplots(rows=len(ions), cols=1)
-        else:
-            self.fig = make_subplots(rows=1, cols=1)
-            self.fig.update_layout(hovermode='x')
+
+        self.fig = make_subplots(rows=len(atoms_and_ions_list), cols=1)
+        self.fig.update_layout(hovermode='x')
             
-        #To make sure we're not plotting a single line multiple times
-        ions = np.unique(ions).tolist()
         
         #Get x-axis values
         v_shells = self.model.velocity.to_value(u.km / u.s)
 
-        #Get y-axis values
-        fractions = self.get_fractions(self.plasma, atomic_number, ions, len(v_shells))
-        
+        if (grid_on):
+            zerolinecolor = self.theme_colors[theme]["gridcolor"]
+        else:
+            zerolinecolor = self.theme_colors[theme]["zerolinecolor"]
+            
         self.fig.update_xaxes(
             title="Velocity (km/s)",
             exponentformat="none",
             color=self.theme_colors[theme]["color"],
             linecolor=self.theme_colors[theme]["linecolor"],
             gridcolor=self.theme_colors[theme]["gridcolor"],
-            zerolinecolor=self.theme_colors[theme]["zerolinecolor"],
+            zerolinecolor=zerolinecolor,
             tickangle = 0,
             showgrid=grid_on,
         )
@@ -109,7 +114,7 @@ class GrotrianDiagram:
             color=self.theme_colors[theme]["color"],
             linecolor=self.theme_colors[theme]["linecolor"],
             gridcolor=self.theme_colors[theme]["gridcolor"],
-            zerolinecolor=self.theme_colors[theme]["zerolinecolor"],
+            zerolinecolor=zerolinecolor,
             tickformat='.3e',
             tickangle=0,
             showgrid=grid_on,
@@ -120,7 +125,7 @@ class GrotrianDiagram:
         
         self.fig.update_layout(
             width=984,
-            height=408 * (1 + separate_subplots*(len(ions) - 1)),
+            height=408 * len(atoms_and_ions_list),
             title=dict(
                 text='<b>Ionized elements fractions vs. Velocity</b>',
                 x=0.5,
@@ -131,33 +136,40 @@ class GrotrianDiagram:
                 )
             ),
             legend=dict(
-                title_text='<b>(Z, C)</b>',
+                title_text='<b>(Atom, Charge Number)</b>',
                 font=dict(
                     size=16,  
                 ),
-                tracegroupgap=10 + 408*separate_subplots,
             ),
             font_color=self.theme_colors[theme]["font_color"],         
         )
         
-        for fraction_no in range(len(fractions)):
-            self.fig.add_trace(
-                    go.Scatter(
-                        x=v_shells[:-1],
-                        y=fractions[fraction_no],
-                        name="(" + str(atomic_number)+", " +
-                                            str(ions[fraction_no]) + ")",
-                        mode="markers+lines",
-                        showlegend=True,
-                        hovertemplate="<b>Velocity</b>: %{x}" +
-                                          "<br><b>Fraction</b>: %{y}</br>",
-                        line=dict(
-                            color=self.line_colors[fraction_no],
+        #We'll use the "index" variable to keep track of which subplot we're on
+        index = 0
+        for atom, ions in atoms_and_ions_list:
+            atomic_number = element_symbol2atomic_number(atom)
+            #Get y-axis values
+            fractions = self.get_fractions(self.plasma, atomic_number, ions, len(v_shells))
+            for fraction_no in range(len(fractions)):
+                self.fig.add_trace(
+                        go.Scatter(
+                            x=v_shells[:-1],
+                            y=fractions[fraction_no],
+                            name="<b>(" + atom +", Charge: " +
+                                                str(ions[fraction_no]) + ")</b>",
+                            mode="markers+lines",
+                            showlegend=True,
+                            hovertemplate="<b>Velocity</b>: %{x}" +
+                                              "<br><b>Fraction</b>: %{y}</br>",
+                            line=dict(
+                                color=self.line_colors[fraction_no],
+                            ),
                         ),
-                    ),
-                    col=1,
-                    row=separate_subplots * fraction_no +1, 
-            )
+                        col=1,
+                        row=index + 1, 
+                )
+                
+            index += 1
    
         return self.fig
     
@@ -171,9 +183,9 @@ class GrotrianDiagram:
         ----------
         plasma: tardis.simulation.Simulation.Plasma
         atomic_number : int
-            The atomic number of the atom whose fractions are to be plotted. [Not implemented yet.]
-        ions : list of int, optional
-            The list of different ions from that atom to plot. [Not implemented yet.]
+            The atomic number of the atom whose fractions are to be plotted.
+        ions : list of int
+            The list of different ions from that atom to plot.
         shells_no : int
             Number of velocities to plot against.
         
