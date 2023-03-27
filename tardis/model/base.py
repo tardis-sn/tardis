@@ -680,7 +680,7 @@ class Radial1DModel(HDFWriterMixin):
             abundance /= norm_factor
             isotope_abundance /= norm_factor
 
-        isotope_abundance = IsotopeAbundances(isotope_abundance)
+        isotope_abundance = IsotopeAbundances(isotope_abundance,time_0=0)
 
         elemental_mass = None
         if atom_data is not None:

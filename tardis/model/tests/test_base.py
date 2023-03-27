@@ -272,12 +272,12 @@ def test_ascii_reader_exponential_law():
 
 
 @pytest.fixture
-def simple_isotope_abundance():
+def simple_isotope_abundance(x=0):
     index = pd.MultiIndex.from_tuples(
         [(6, 14), (12, 28)], names=["atomic_number", "mass_number"]
     )
     abundance = [[0.2] * 20] * 2
-    return IsotopeAbundances(abundance, index=index)
+    return IsotopeAbundances(abundance, index=index, time_0=x)
 
 
 def test_model_decay(simple_isotope_abundance):

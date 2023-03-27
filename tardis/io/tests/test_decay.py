@@ -6,11 +6,11 @@ from numpy.testing import assert_almost_equal
 
 
 @pytest.fixture
-def simple_abundance_model():
+def simple_abundance_model(x=0):
     index = pd.MultiIndex.from_tuples(
         [(28, 56)], names=["atomic_number", "mass_number"]
     )
-    return IsotopeAbundances([[1.0, 1.0]], index=index)
+    return IsotopeAbundances([[1.0, 1.0]], index=index, time_0=x)
 
 
 def test_simple_decay(simple_abundance_model):
