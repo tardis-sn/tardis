@@ -42,14 +42,19 @@ jobs:
           label: linux-64
           prefix: /usr/share/miniconda3/envs/tardis
 
-        - os: macos-latest
-          label: osx-64
-          prefix: /Users/runner/miniconda3/envs/tardis
+        # - os: macos-latest
+        #   label: osx-64
+        #   prefix: /Users/runner/miniconda3/envs/tardis
 
     name: ${{ matrix.label }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          repository: atharva-2001/tardis
+          ref: benchmark_simulation
+      
+      - run: tree  ../ -L 4
 
       # - name: Clone tardis-sn/tardis-refdata
       #   uses: actions/checkout@v2
@@ -101,7 +106,7 @@ jobs:
         run: pip install -e .
       
       - run: wget https://github.com/tardis-sn/tardis-refdata/raw/master/atom_data/kurucz_cd23_chianti_H_He.h5
-        working-directory: asv/benchmarks
+        working-directory: asv/data
 
       # - name: Run tests
       #   run: pytest tardis ${{ env.PYTEST_FLAGS }}
@@ -109,29 +114,34 @@ jobs:
         run: pip install asv
       
       - run: asv machine --yes
-        working-directory: asv
       
       - name: Run benchmarks
-        run: asv run --verbose
-        working-directory: asv
+        run: asv run --verbose -e 
       
       - uses: actions/upload-artifact@v2
         if: always()
         with:
           name: asv-benchmark-results-ubuntu-latest
-          path: asv/results
+          path: .asv/results
      
       - run: asv publish
-        working-directory: asv
 
       - uses: actions/configure-pages@v1
       - uses: actions/upload-pages-artifact@v1
         with:
-          path: asv/html
+          path: .asv/html
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+      # - name: Deploy to GitHub Pages
+      #   id: deployment
+      #   uses: actions/deploy-pages@v1
+      #  - name: Deploy asv
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          publish_dir: .asv/html
+          destination_dir: asv
+          user_name: 'TARDIS Bot'
+          user_email: 'tardis.sn.bot@gmail.com'
 
       - name: Upload to Codecov
         run: bash <(curl -s https://codecov.io/bash)
