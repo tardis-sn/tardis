@@ -49,7 +49,7 @@ class BasePacketSource(abc.ABC):
 
         Returns
         -------
-            energies for packets : numpy.ndarray
+            energies for packets : numpy.ndarray in Quantity units
         """
         return (np.ones(no_of_packets) / no_of_packets).to(u.erg)
 
@@ -74,14 +74,14 @@ class BasePacketSource(abc.ABC):
         where :math:`x=h\\nu/kT`
         Parameters
         ----------
-        temperature : astropy.Quantity
+        temperature : astropy.units.quantity.Quantity
             Absolute Temperature.
         no_of_packets : int
         l_samples : int
             number of l_samples needed in the algorithm
         Returns
         -------
-            array of frequencies: numpy.ndarray
+            array of frequencies: numpy.ndarray in Quantity units
         """
         l_samples = l_samples
         l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64) ** -4)
@@ -111,11 +111,11 @@ class BlackBodySimpleSource(BasePacketSource):
 
         Parameters
         ----------
-        temperature : astropy.Quantity
+        temperature : astropy.units.quantity.Quantity
         no_of_packets : int
             Number of packets
         rng : numpy random number generator
-        radius : astropy.Quantity
+        radius : astropy.units.quantity.Quantity
             Initial packet radius
 
         Returns
