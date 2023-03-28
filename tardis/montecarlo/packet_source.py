@@ -73,8 +73,8 @@ class BasePacketSource(abc.ABC):
         where :math:`x=h\\nu/kT`
         Parameters
         ----------
-        temperature : float
-            Absolute Temperature.
+        temperature : astropy.units.quantity.Quantity
+            Temperature.
         no_of_packets : int
         l_samples : int
             number of l_samples needed in the algorithm
@@ -96,7 +96,7 @@ class BasePacketSource(abc.ABC):
         xis_prod = np.prod(xis[1:], 0)
         x = ne.evaluate("-log(xis_prod)/l")
 
-        return x * (const.k_B.cgs.value * temperature) / const.h.cgs.value
+        return x * (const.k_B.cgs.value * temperature.to('K')) / const.h.cgs.value
 
 
 class BlackBodySimpleSource(BasePacketSource):
@@ -110,11 +110,11 @@ class BlackBodySimpleSource(BasePacketSource):
 
         Parameters
         ----------
-        temperature : float64
+        temperature : astropy.units.quantity.Quantity
         no_of_packets : int
             Number of packets
         rng : numpy random number generator
-        radius : float64
+        radius : astropy.units.quantity.Quantity
             Initial packet radius
 
         Returns

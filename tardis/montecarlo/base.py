@@ -357,10 +357,10 @@ class MontecarloRunner(HDFWriterMixin):
         self._initialize_geometry_arrays(model)
 
         self._initialize_packets(
-            model.t_inner.value,
+            model.t_inner,
             no_of_packets,
             iteration,
-            model.r_inner[0],
+            model.r_inner,
             model.time_explosion,
         )
 
