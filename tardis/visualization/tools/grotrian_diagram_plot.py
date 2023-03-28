@@ -46,9 +46,6 @@ class GrotrianDiagram:
                 font_color="#fafafa",
             ),
         )
-        #TODO: There's only 8 colors here. I don't know how high ionization numbers can get (?)
-        self.line_colors = ["#003865", "#005499", "#0071cc","#008dff",
-                            "#33a4ff", "#66baff", "#99d1ff", "#007A9B"]
         
         
     def generate_plot(self, atoms_and_ions_list=[("Si",[0, 1])],
@@ -153,8 +150,8 @@ class GrotrianDiagram:
             for fraction_no in range(len(fractions)):
                 self.fig.add_trace(
                         go.Scatter(
-                            x=v_shells[:-1],
-                            y=fractions[fraction_no],
+                            x=v_shells,
+                            y=fractions[fraction_no] + [fractions[fraction_no][-1]],
                             name="<b>(" + atom +", Charge: " +
                                                 str(ions[fraction_no]) + ")</b>",
                             mode="markers+lines",
@@ -162,7 +159,7 @@ class GrotrianDiagram:
                             hovertemplate="<b>Velocity</b>: %{x}" +
                                               "<br><b>Fraction</b>: %{y}</br>",
                             line=dict(
-                                color=self.line_colors[fraction_no],
+                                shape="hv",
                             ),
                         ),
                         col=1,
@@ -204,11 +201,11 @@ class GrotrianDiagram:
             fractions_temp.append([])
             for ion in ions:
                 fractions_temp[shell].append(plasma.ion_number_density[shell][atomic_number][ion]/total)
-        
+            
         #Transpose list to go from
         #| ion0_shell0 | ion1_shell0 |             | ion0_shell0 | ion0_shell1 |
         #| ion0_shell1 | ion1_shell1 | etc. to --> | ion1_shell0 | ion1_shell1 | etc.
         
         fractions = np.asarray(fractions_temp).T.tolist()
-
+        
         return fractions
