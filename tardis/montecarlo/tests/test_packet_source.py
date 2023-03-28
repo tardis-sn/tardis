@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 
 import tardis
+from astropy import units as u
 from tardis.montecarlo.packet_source import BlackBodySimpleSource
 
 
@@ -30,9 +31,9 @@ def test_bb_packet_sampling(request, tardis_ref_data, packet_unit_test_fpath):
         pytest.skip("Reference data was generated during this run.")
 
     ref_df = tardis_ref_data["/packet_unittest/blackbody"]
-    nus = bb.create_blackbody_packet_nus(10000, 100, rng)
+    nus = bb.create_blackbody_packet_nus(10000 * u.K, 100, rng)
     mus = bb.create_zero_limb_darkening_packet_mus(100, rng)
     unif_energies = bb.create_uniform_packet_energies(100, rng)
-    assert np.all(np.isclose(nus, ref_df["nus"]))
+    assert np.all(np.isclose(nus.value, ref_df["nus"]))
     assert np.all(np.isclose(mus, ref_df["mus"]))
-    assert np.all(np.isclose(unif_energies, ref_df["energies"]))
+    assert np.all(np.isclose(unif_energies.value, ref_df["energies"]))

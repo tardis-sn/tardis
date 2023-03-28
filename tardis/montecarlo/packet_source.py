@@ -3,6 +3,7 @@ import abc
 import numpy as np
 import numexpr as ne
 from tardis import constants as const
+from astropy import units as u
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
@@ -50,7 +51,7 @@ class BasePacketSource(abc.ABC):
         -------
             energies for packets : numpy.ndarray
         """
-        return np.ones(no_of_packets) / no_of_packets
+        return (np.ones(no_of_packets) / no_of_packets).to(u.erg)
 
     @staticmethod
     def create_blackbody_packet_nus(
@@ -73,7 +74,7 @@ class BasePacketSource(abc.ABC):
         where :math:`x=h\\nu/kT`
         Parameters
         ----------
-        temperature : float
+        temperature : astropy.Quantity
             Absolute Temperature.
         no_of_packets : int
         l_samples : int
@@ -96,7 +97,7 @@ class BasePacketSource(abc.ABC):
         xis_prod = np.prod(xis[1:], 0)
         x = ne.evaluate("-log(xis_prod)/l")
 
-        return x * (const.k_B.cgs.value * temperature) / const.h.cgs.value
+        return (x * (const.k_B.cgs.value * temperature.to(u.K)) / const.h.cgs.value).to(u.Hz)
 
 
 class BlackBodySimpleSource(BasePacketSource):
@@ -110,25 +111,25 @@ class BlackBodySimpleSource(BasePacketSource):
 
         Parameters
         ----------
-        temperature : float64
+        temperature : astropy.Quantity
         no_of_packets : int
             Number of packets
         rng : numpy random number generator
-        radius : float64
+        radius : astropy.Quantity
             Initial packet radius
 
         Returns
         -------
-        array
+        Quantity array
             Packet radii
-        array
+        Quantity array
             Packet frequencies
-        array
+        Quantity array
             Packet directions
-        array
+        Quantity array
             Packet energies
         """
-        radii = np.ones(no_of_packets) * radius
+        radii = np.ones(no_of_packets) * radius.to(u.cm)
         nus = self.create_blackbody_packet_nus(temperature, no_of_packets, rng)
         mus = self.create_zero_limb_darkening_packet_mus(no_of_packets, rng)
         energies = self.create_uniform_packet_energies(no_of_packets, rng)
