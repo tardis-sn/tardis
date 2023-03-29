@@ -129,7 +129,7 @@ class BlackBodySimpleSource(BasePacketSource):
         Quantity array
             Packet energies
         """
-        radii = np.ones(no_of_packets) * (radius.to(u.cm))
+        radii = np.ones(no_of_packets) * radius
         nus = self.create_blackbody_packet_nus(temperature, no_of_packets, rng)
         mus = self.create_zero_limb_darkening_packet_mus(no_of_packets, rng)
         energies = self.create_uniform_packet_energies(no_of_packets, rng)
