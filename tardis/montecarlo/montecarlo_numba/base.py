@@ -29,7 +29,11 @@ from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
 )
 from tardis.montecarlo.montecarlo_numba import njit_dict
 from numba.typed import List
-from tardis.util.base import update_iterations_pbar, update_packet_pbar
+from tardis.util.base import (
+    update_iterations_pbar,
+    update_packet_pbar,
+    refresh_packet_pbar,
+)
 
 
 def montecarlo_radial1d(
@@ -128,6 +132,7 @@ def montecarlo_radial1d(
             virt_packet_last_line_interaction_out_id
         ).ravel()
     update_iterations_pbar(1)
+    refresh_packet_pbar()
     # Condition for Checking if RPacket Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
         runner.rpacket_tracker = rpacket_trackers

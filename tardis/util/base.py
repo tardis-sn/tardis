@@ -699,6 +699,14 @@ def update_packet_pbar(i, current_iteration, no_of_packets, total_iterations):
     packet_pbar.update(i)
 
 
+def refresh_packet_pbar():
+    """
+    Refresh packet progress bar after each iteration.
+
+    """
+    packet_pbar.refresh()
+
+
 def update_iterations_pbar(i):
     """
     Update progress bar for each iteration.
