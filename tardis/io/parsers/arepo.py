@@ -375,13 +375,13 @@ class Profile:
         self.mass_prof_p = stats.binned_statistic(
             self.pos_prof_p,
             self.mass_prof_p,
-            statistic=statistic,
+            statistic="sum",
             bins=nshells,
         )[0]
         self.mass_prof_n = stats.binned_statistic(
             self.pos_prof_n,
             self.mass_prof_n,
-            statistic=statistic,
+            statistic="sum",
             bins=nshells,
         )[0]
 
