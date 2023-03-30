@@ -847,13 +847,13 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         number_of_shells : int
             Number of shells.
         j_blues : Pandas DataFrame, dtype float
-            J_blue values as calculated in LTE.
-        beta_sobolev : Numpy Array, dtype float
+            Mean intensities in the blue wings of the line transitions.
+        beta_sobolev : numpy.array, dtype float
             Sobolev escape probability
         excitation_species : tuple
             Species treated in NLTE excitation.
         nlte_data : NLTEExcitationData
-            Data relevant to NLTE exciation species.
+            Data relevant to NLTE excitation species.
 
         Returns
         -------
