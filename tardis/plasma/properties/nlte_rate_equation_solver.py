@@ -859,6 +859,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         -------
         numpy.array (number of levels, number of levels)
             Matrix with excitation-deexcitation rates(should be added to NLTE rate matrix for excitation treatment).
+            NOTE: only works with ONE ion number treated in NLTE excitation AT ONCE.
         """
         number_of_levels = atomic_data_levels.energy.loc[
             excitation_species
