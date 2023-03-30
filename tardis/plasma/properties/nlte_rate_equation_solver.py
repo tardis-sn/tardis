@@ -781,17 +781,19 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
         Parameters
         ----------
-        rate_matrix_index : _type_
-            _description_
-        coeff_matrix_without_exc : _type_
-            _description_
-        coeff_matrix_with_exc : _type_
-            _description_
+        rate_matrix_index : MultiIndex
+            (atomic_number, ion_number, treatment type)
+            If ion is treated in LTE or nebular ionization, 3rd index is "lte_ion",
+            if treated in NLTE ionization, 3rd index is "nlte_ion".
+        coeff_matrix_without_exc : pandas.DataFrame
+            Dataframe of rates summed over ion numbers.
+        coeff_matrix_with_exc : pandas.DataFrame
+            Dataframe of rates without summing over the ion number.
 
         Returns
         -------
-        _type_
-            _description_
+        pandas.DataFrame
+            Returns a combines dataframe of coefficients, with NLTE excitation treatment taken into account.
         """
         coeff_array = np.zeros(
             (rate_matrix_index.size, coeff_matrix_without_exc.shape[1])
