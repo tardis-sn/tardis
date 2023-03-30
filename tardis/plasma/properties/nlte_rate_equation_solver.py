@@ -816,7 +816,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
     @staticmethod
     def prepare_bound_bound_rate_matrix(
         atomic_data_levels,
-        t_electrons,
+        number_of_shells,
         j_blues,
         beta_sobolev,
         excitation_species,
@@ -828,8 +828,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         ----------
         atomic_data : Object
             Atomic data from the atomic datafile.
-        t_electrons :  Numpy Array, dtype float
-            Electron temperatures.
+        number_of_shells : int
+            Number of shells.
         j_blues : Pandas DataFrame, dtype float
             J_blue values as calculated in LTE.
         beta_sobolev : Numpy Array, dtype float
@@ -866,11 +866,11 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         r_lu_index = lnu * number_of_levels + lnl
         r_ul_index = lnl * number_of_levels + lnu
         r_ul_matrix = np.zeros(
-            (number_of_levels, number_of_levels, len(t_electrons)),
+            (number_of_levels, number_of_levels, number_of_shells),
             dtype=np.float64,
         )
         r_ul_matrix_reshaped = r_ul_matrix.reshape(
-            (number_of_levels**2, len(t_electrons))
+            (number_of_levels**2, number_of_shells)
         )
         r_ul_matrix_reshaped[r_ul_index] = (
             A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues_filtered
@@ -878,7 +878,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         r_ul_matrix_reshaped[r_ul_index] *= beta_sobolev_filtered
         r_lu_matrix = np.zeros_like(r_ul_matrix)
         r_lu_matrix_reshaped = r_lu_matrix.reshape(
-            (number_of_levels**2, len(t_electrons))
+            (number_of_levels**2, number_of_shells)
         )
         r_lu_matrix_reshaped[r_lu_index] = (
             B_lus[np.newaxis].T * j_blues_filtered * beta_sobolev_filtered
