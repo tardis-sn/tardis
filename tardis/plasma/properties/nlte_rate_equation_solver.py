@@ -774,7 +774,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         Returns
         -------
         pandas.DataFrame
-            Returns a combines dataframe of coefficients, with NLTE excitation treatment taken into account.
+            Returns a combined dataframe of coefficients, with NLTE excitation treatment taken into account.
         """
         coeff_array = np.zeros(
             (rate_matrix_index.size, coeff_matrix_without_exc.shape[1])
