@@ -831,7 +831,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         t_electrons :  Numpy Array, dtype float
             Electron temperatures.
         j_blues : Pandas DataFrame, dtype float
-            J_blue values as calculated in LTE.
+            Mean intensities in the blue wings of the line transitions.
         beta_sobolev : numpy.array, dtype float
             Sobolev escape probability
         excitation_species : tuple
