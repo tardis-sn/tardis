@@ -27,6 +27,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         rate_matrix_index,
         number_density,
         nlte_excitation_species,
+        atomic_data,
     ):
         """Calculates ion number densities and electron densities using NLTE ionization.
 
@@ -69,7 +70,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Electron density with NLTE ionization treatment.
         """
 
-        # nlte_data = NLTEExcitationData(atomic_data, nlte_excitation_species) - will be used in a future PR
+        # nlte_data = NLTEExcitationData(atomic_data.lines, nlte_excitation_species) - will be used in a future PR
         (
             total_photo_ion_coefficients,
             total_rad_recomb_coefficients,
