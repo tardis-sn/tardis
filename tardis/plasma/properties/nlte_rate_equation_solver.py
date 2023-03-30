@@ -841,7 +841,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
         Returns
         -------
-        numpy.array
+        numpy.array (number of levels, number of levels)
             Matrix with excitation-deexcitation rates(should be added to NLTE rate matrix for excitation treatment).
         """
 
