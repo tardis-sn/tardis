@@ -832,7 +832,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Electron temperatures.
         j_blues : Pandas DataFrame, dtype float
             J_blue values as calculated in LTE.
-        beta_sobolev : Numpy Array, dtype float
+        beta_sobolev : numpy.array, dtype float
             Sobolev escape probability
         excitation_species : tuple
             Species treated in NLTE excitation.
