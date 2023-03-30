@@ -777,6 +777,22 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         coeff_matrix_without_exc,
         coeff_matrix_with_exc,
     ):
+        """Generates a combined DataFrame of coefficients
+
+        Parameters
+        ----------
+        rate_matrix_index : _type_
+            _description_
+        coeff_matrix_without_exc : _type_
+            _description_
+        coeff_matrix_with_exc : _type_
+            _description_
+
+        Returns
+        -------
+        _type_
+            _description_
+        """
         coeff_array = np.zeros(
             (rate_matrix_index.size, coeff_matrix_without_exc.shape[1])
         )
@@ -844,7 +860,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         numpy.array (number of levels, number of levels)
             Matrix with excitation-deexcitation rates(should be added to NLTE rate matrix for excitation treatment).
         """
-
         number_of_levels = atomic_data_levels.energy.loc[
             excitation_species
         ].count()

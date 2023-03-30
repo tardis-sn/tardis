@@ -15,7 +15,7 @@ def test_main_nlte_calculation_bound_bound(
     """
     Using a simple case of nlte_ion for HI and HeII, checks if the calculate_rate_matrix generates the correct data.
     """
-    simple_excitation_species = (1, 0)
+    simple_excitation_species = [(1, 0)]
     copy_atomic_dataset = nlte_atomic_dataset
     copy_atomic_dataset.levels = nlte_atomic_dataset.levels[
         nlte_atomic_dataset.levels.index.get_level_values("level_number") < 5
@@ -30,7 +30,7 @@ def test_main_nlte_calculation_bound_bound(
     simple_nlte_data = NLTEExcitationData(
         copy_atomic_dataset.lines, simple_excitation_species
     )
-    simple_t_electrons = [0.5646738847]
+    simple_number_of_shells = 1
     simple_j_blues = pd.DataFrame(
         0.5, index=copy_atomic_dataset.lines.index, columns=["0"]
     )
@@ -40,12 +40,12 @@ def test_main_nlte_calculation_bound_bound(
     )
 
     actual_rate_matrix = (
-        NLTERateEquationSolver.main_nlte_calculation_bound_bound(
+        NLTERateEquationSolver.prepare_bound_bound_rate_matrix(
             copy_atomic_dataset.levels,
-            simple_t_electrons,
+            simple_number_of_shells,
             simple_j_blues,
             simple_beta_sobolev,
-            simple_excitation_species,
+            simple_excitation_species[0],
             simple_nlte_data,
         )
     )
