@@ -451,30 +451,11 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             .sum()
         )
         if len(nlte_excitation_species) != 0:
-            total_photo_ion_coefficients_with_levels = (
-                (level_population_fraction.loc[gamma.index] * gamma)
-                .groupby(level=("atomic_number", "ion_number", "level_number"))
-                .sum()
-            )
-            total_rad_recomb_coefficients_with_levels = (
-                (alpha_sp + alpha_stim)
-                .groupby(level=("atomic_number", "ion_number", "level_number"))
-                .sum()
-            )
+            total_photo_ion_coefficients_with_levels = gamma
+            total_rad_recomb_coefficients_with_levels = alpha_sp + alpha_stim
 
-            total_coll_ion_coefficients_with_levels = (
-                (
-                    level_population_fraction.loc[coll_ion_coeff.index]
-                    * coll_ion_coeff
-                )
-                .groupby(level=("atomic_number", "ion_number", "level_number"))
-                .sum()
-            )
-            total_coll_recomb_coefficients_with_levels = (
-                (coll_recomb_coeff)
-                .groupby(level=("atomic_number", "ion_number", "level_number"))
-                .sum()
-            )
+            total_coll_ion_coefficients_with_levels = coll_ion_coeff
+            total_coll_recomb_coefficients_with_levels = coll_recomb_coeff
 
             total_photo_ion_coefficients = (
                 NLTERateEquationSolver.prepare_coefficient_matrices_excitation(
@@ -649,7 +630,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             first_guess.loc[(atomic_number, 1)][0] = number_density.loc[
                 atomic_number
             ]
-        #TODO: After the first iteration, the new guess can be the old solution.
+        # TODO: After the first iteration, the new guess can be the old solution.
         first_guess = first_guess.values
         first_guess[-1] = electron_density
         return first_guess

@@ -39,15 +39,13 @@ def test_main_nlte_calculation_bound_bound(
         0.8, index=copy_atomic_dataset.lines.index, columns=["0"]
     )
 
-    actual_rate_matrix = (
-        NLTERateEquationSolver.prepare_bound_bound_rate_matrix(
-            copy_atomic_dataset.levels,
-            simple_number_of_shells,
-            simple_j_blues,
-            simple_beta_sobolev,
-            simple_excitation_species[0],
-            simple_nlte_data,
-        )
+    actual_rate_matrix = NLTERateEquationSolver.prepare_bound_bound_rate_matrix(
+        copy_atomic_dataset.levels,
+        simple_number_of_shells,
+        simple_j_blues,
+        simple_beta_sobolev,
+        simple_excitation_species[0],
+        simple_nlte_data,
     )
     desired_rate_matrix = [
         [
