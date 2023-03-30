@@ -814,7 +814,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         return coeff_matrix
 
     @staticmethod
-    def main_nlte_calculation_bound_bound(
+    def prepare_bound_bound_rate_matrix(
         atomic_data_levels,
         t_electrons,
         j_blues,
