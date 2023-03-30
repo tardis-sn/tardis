@@ -837,7 +837,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         excitation_species : tuple
             Species treated in NLTE excitation.
         nlte_data : NLTEExcitationData
-            Data relevant to NLTE exciation species.
+            Data relevant to NLTE excitation species.
 
         Returns
         -------
