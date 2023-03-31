@@ -1,11 +1,8 @@
 import os
-import sys
 import argparse
-import warnings
 
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 from scipy import stats
 
 
@@ -165,11 +162,14 @@ class Profile:
         self.vel_prof_p = None
         self.vel_prof_n = None
 
-        self.rho_prof_p = None
-        self.rho_prof_n = None
+        self.vol_prof_p = None
+        self.vol_prof_n = None
 
         self.mass_prof_p = None
         self.mass_prof_n = None
+
+        self.rho_prof_p = None
+        self.rho_prof_n = None
 
         self.xnuc_prof_p = {}
         self.xnuc_prof_n = {}
@@ -306,35 +306,6 @@ class Profile:
             bins=nshells,
         )[0]
 
-        self.rho_prof_p = (
-            stats.binned_statistic(
-                self.pos_prof_p,
-                self.rho_prof_p * self.mass_prof_p,
-                statistic="mean",
-                bins=nshells,
-            )[0]
-            / stats.binned_statistic(
-                self.pos_prof_p,
-                self.mass_prof_p,
-                statistic="mean",
-                bins=nshells,
-            )[0]
-        )
-        self.rho_prof_n = (
-            stats.binned_statistic(
-                self.pos_prof_n,
-                self.rho_prof_n * self.mass_prof_n,
-                statistic="mean",
-                bins=nshells,
-            )[0]
-            / stats.binned_statistic(
-                self.pos_prof_n,
-                self.mass_prof_n,
-                statistic="mean",
-                bins=nshells,
-            )[0]
-        )
-
         for spec in self.species:
             self.xnuc_prof_p[spec] = (
                 stats.binned_statistic(
@@ -365,6 +336,19 @@ class Profile:
                 )[0]
             )
 
+        self.vol_prof_p = np.array(
+            [
+                4 / 3 * np.pi * (bins_p[i + 1] ** 3 - bins_p[i] ** 3)
+                for i in range(len(bins_p) - 1)
+            ]
+        )
+        self.vol_prof_n = np.array(
+            [
+                4 / 3 * np.pi * (bins_n[i + 1] ** 3 - bins_n[i] ** 3)
+                for i in range(len(bins_n) - 1)
+            ]
+        )
+
         self.mass_prof_p = stats.binned_statistic(
             self.pos_prof_p,
             self.mass_prof_p,
@@ -377,6 +361,9 @@ class Profile:
             statistic="sum",
             bins=nshells,
         )[0]
+
+        self.rho_prof_p = self.mass_prof_p / self.vol_prof_p
+        self.rho_prof_n = self.mass_prof_n / self.vol_prof_n
 
         self.pos_prof_p = np.array(
             [(bins_p[i] + bins_p[i + 1]) / 2 for i in range(len(bins_p) - 1)]
@@ -612,11 +599,14 @@ class ConeProfile(Profile):
             + self.vel[2][cmask_n] ** 2
         )
 
-        rho_p = self.rho[cmask_p]
-        rho_n = self.rho[cmask_n]
+        vol_p = self.vol[cmask_p]
+        vol_n = self.vol[cmask_n]
 
         mass_p = self.mass[cmask_p]
         mass_n = self.mass[cmask_n]
+
+        rho_p = self.rho[cmask_p]
+        rho_n = self.rho[cmask_n]
 
         spec_p = {}
         spec_n = {}
@@ -652,11 +642,11 @@ class ConeProfile(Profile):
         if not mask_p.any() or not mask_n.any():
             raise ValueError("No points left between inner and outer radius.")
 
-        self.rho_prof_p = np.array(
-            [x for _, x in sorted(zip(pos_p, rho_p), key=lambda pair: pair[0])]
+        self.vol_prof_p = np.array(
+            [x for _, x in sorted(zip(pos_p, vol_p), key=lambda pair: pair[0])]
         )[mask_p]
-        self.rho_prof_n = np.array(
-            [x for _, x in sorted(zip(pos_n, rho_n), key=lambda pair: pair[0])]
+        self.vol_prof_n = np.array(
+            [x for _, x in sorted(zip(pos_n, vol_n), key=lambda pair: pair[0])]
         )[mask_n]
 
         self.mass_prof_p = np.array(
@@ -664,6 +654,13 @@ class ConeProfile(Profile):
         )[mask_p]
         self.mass_prof_n = np.array(
             [x for _, x in sorted(zip(pos_n, mass_n), key=lambda pair: pair[0])]
+        )[mask_n]
+
+        self.rho_prof_p = np.array(
+            [x for _, x in sorted(zip(pos_p, rho_p), key=lambda pair: pair[0])]
+        )[mask_p]
+        self.rho_prof_n = np.array(
+            [x for _, x in sorted(zip(pos_n, rho_n), key=lambda pair: pair[0])]
         )[mask_n]
 
         self.vel_prof_p = np.array(
@@ -743,11 +740,14 @@ class FullProfile(Profile):
             self.vel[0] ** 2 + self.vel[1] ** 2 + self.vel[2] ** 2
         ).flatten()
 
-        rho_p = self.rho.flatten()
-        rho_n = self.rho.flatten()
+        vol_p = self.vol.flatten()
+        vol_n = self.vol.flatten()
 
         mass_p = self.mass.flatten()
         mass_n = self.mass.flatten()
+
+        rho_p = self.rho.flatten()
+        rho_n = self.rho.flatten()
 
         spec_p = {}
         spec_n = {}
@@ -783,11 +783,11 @@ class FullProfile(Profile):
         if not mask_p.any() or not mask_n.any():
             raise ValueError("No points left between inner and outer radius.")
 
-        self.rho_prof_p = np.array(
-            [x for _, x in sorted(zip(pos_p, rho_p), key=lambda pair: pair[0])]
+        self.vol_prof_p = np.array(
+            [x for _, x in sorted(zip(pos_p, vol_p), key=lambda pair: pair[0])]
         )[mask_p]
-        self.rho_prof_n = np.array(
-            [x for _, x in sorted(zip(pos_n, rho_n), key=lambda pair: pair[0])]
+        self.vol_prof_n = np.array(
+            [x for _, x in sorted(zip(pos_n, vol_n), key=lambda pair: pair[0])]
         )[mask_n]
 
         self.mass_prof_p = np.array(
@@ -795,6 +795,13 @@ class FullProfile(Profile):
         )[mask_p]
         self.mass_prof_n = np.array(
             [x for _, x in sorted(zip(pos_n, mass_n), key=lambda pair: pair[0])]
+        )[mask_n]
+
+        self.rho_prof_p = np.array(
+            [x for _, x in sorted(zip(pos_p, rho_p), key=lambda pair: pair[0])]
+        )[mask_p]
+        self.rho_prof_n = np.array(
+            [x for _, x in sorted(zip(pos_n, rho_n), key=lambda pair: pair[0])]
         )[mask_n]
 
         self.vel_prof_p = np.array(
