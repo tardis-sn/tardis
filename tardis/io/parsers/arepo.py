@@ -264,7 +264,7 @@ class Profile:
 
         return fig
 
-    def rebin(self, nshells, statistic="mean"):
+    def rebin(self, nshells):
         """
         Rebins the data to nshells. Uses the scipy.stats.binned_statistic
         to bin the data. The standard deviation of each bin can be obtained
@@ -274,8 +274,6 @@ class Profile:
         ----------
         nshells : int
             Number of bins of new data.
-        statistic : str
-            Scipy keyword for scipy.stats.binned_statistic. Default: mean
 
         Returns
         -------
@@ -286,25 +284,25 @@ class Profile:
         self.vel_prof_p, bins_p = stats.binned_statistic(
             self.pos_prof_p,
             self.vel_prof_p * self.mass_prof_p,
-            statistic=statistic,
+            statistic="mean",
             bins=nshells,
         )[:2]
         self.vel_prof_p /= stats.binned_statistic(
             self.pos_prof_p,
             self.mass_prof_p,
-            statistic=statistic,
+            statistic="mean",
             bins=nshells,
         )[0]
         self.vel_prof_n, bins_n = stats.binned_statistic(
             self.pos_prof_n,
             self.vel_prof_n * self.mass_prof_n,
-            statistic=statistic,
+            statistic="mean",
             bins=nshells,
         )[:2]
         self.vel_prof_n /= stats.binned_statistic(
             self.pos_prof_n,
             self.mass_prof_n,
-            statistic=statistic,
+            statistic="mean",
             bins=nshells,
         )[0]
 
@@ -312,13 +310,13 @@ class Profile:
             stats.binned_statistic(
                 self.pos_prof_p,
                 self.rho_prof_p * self.mass_prof_p,
-                statistic=statistic,
+                statistic="mean",
                 bins=nshells,
             )[0]
             / stats.binned_statistic(
                 self.pos_prof_p,
                 self.mass_prof_p,
-                statistic=statistic,
+                statistic="mean",
                 bins=nshells,
             )[0]
         )
@@ -326,13 +324,13 @@ class Profile:
             stats.binned_statistic(
                 self.pos_prof_n,
                 self.rho_prof_n * self.mass_prof_n,
-                statistic=statistic,
+                statistic="mean",
                 bins=nshells,
             )[0]
             / stats.binned_statistic(
                 self.pos_prof_n,
                 self.mass_prof_n,
-                statistic=statistic,
+                statistic="mean",
                 bins=nshells,
             )[0]
         )
@@ -342,13 +340,13 @@ class Profile:
                 stats.binned_statistic(
                     self.pos_prof_p,
                     self.xnuc_prof_p[spec] * self.mass_prof_p,
-                    statistic=statistic,
+                    statistic="mean",
                     bins=nshells,
                 )[0]
                 / stats.binned_statistic(
                     self.pos_prof_p,
                     self.mass_prof_p,
-                    statistic=statistic,
+                    statistic="mean",
                     bins=nshells,
                 )[0]
             )
@@ -356,13 +354,13 @@ class Profile:
                 stats.binned_statistic(
                     self.pos_prof_n,
                     self.xnuc_prof_n[spec] * self.mass_prof_n,
-                    statistic=statistic,
+                    statistic="mean",
                     bins=nshells,
                 )[0]
                 / stats.binned_statistic(
                     self.pos_prof_n,
                     self.mass_prof_n,
-                    statistic=statistic,
+                    statistic="mean",
                     bins=nshells,
                 )[0]
             )
