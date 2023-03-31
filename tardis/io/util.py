@@ -411,7 +411,9 @@ def download_from_url(url, dst, checksum, src=None, retries=3):
 
     elif checksum != new_checksum and retries > 0:
         retries -= 1
-        logger.warning(f"Incorrect checksum, retrying... ({retries+1} attempts remaining)")
+        logger.warning(
+            f"Incorrect checksum, retrying... ({retries+1} attempts remaining)"
+        )
         download_from_url(url, dst, checksum, src, retries)
 
     else:
