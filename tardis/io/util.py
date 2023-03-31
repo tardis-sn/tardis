@@ -1,24 +1,22 @@
 # Utility functions for the IO part of TARDIS
 
+import collections.abc as collections_abc
+import hashlib
+import logging
 import os
 import re
 import shutil
-import hashlib
-import logging
+from collections import OrderedDict
 from functools import lru_cache
 
-import pandas as pd
 import numpy as np
-import collections.abc as collections_abc
-from collections import OrderedDict
-
+import pandas as pd
 import yaml
-
-from tardis import constants as const
 from astropy import units as u
 from astropy.utils.data import download_file
 
 from tardis import __path__ as TARDIS_PATH
+from tardis import constants as const
 
 logger = logging.getLogger(__name__)
 
