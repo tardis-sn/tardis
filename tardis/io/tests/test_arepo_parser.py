@@ -74,6 +74,7 @@ def get_full_csvy_model(tardis_ref_path):
     pos = np.array(pos)
     vel = np.array(vel)
     rho = np.array(rho)
+    mass = np.array(mass)
 
     # The nuclear data should be in a dict where each element has its own entry (with the key being the element name)
     xnuc = {
