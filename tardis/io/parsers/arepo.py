@@ -51,7 +51,6 @@ class ArepoSnapshot:
 
         try:
             import gadget_snap
-            import calcGrid
         except ModuleNotFoundError:
             raise ImportError(
                 "Please make sure you have arepo-snap-util installed if you want to directly import Arepo snapshots."
@@ -129,7 +128,7 @@ class Profile:
     e.g. for plotting and export.
     """
 
-    def __init__(self, pos, vel, rho, xnuc, time, mass=None):
+    def __init__(self, pos, vel, rho, xnuc, time, mass):
         """
         Parameters
         ----------
@@ -146,8 +145,7 @@ class Profile:
         time : float
             Time of the data
         mass : list of float
-            Meshgrid of masses (optional). If no masses are provided,
-            densities will not be mass averaged. Default: None
+            Meshgrid of masses (optional).
 
         """
 
@@ -156,11 +154,8 @@ class Profile:
         self.rho = rho
         self.xnuc = xnuc
         self.time = time
-        if mass is not None:
-            self.mass = mass
-        else:
-            self.mass = np.ones_like(self.rho)
-
+        self.mass = mass
+        self.vol = self.mass / self.rho
         self.species = list(self.xnuc.keys())
 
         # Empty values to be filled with the create_profile function
