@@ -41,10 +41,11 @@ def download_atom_data(atomic_data_name=None):
 
     if atomic_data_name not in atomic_repo:
         raise ValueError(f"Atomic Data name {atomic_data_name} not known")
-
+    
     dst_dir = os.path.join(get_data_dir(), f"{atomic_data_name}.h5")
     src_url = atomic_repo[atomic_data_name]["url"]
-    mirrors = atomic_repo[atomic_data_name]["mirrors"]
+    mirrors = tuple(atomic_repo[atomic_data_name]["mirrors"])
+    checksum = atomic_repo[atomic_data_name]["md5"]
 
     logger.info(f"Downloading atomic data from {src_url} to {dst_dir}")
-    download_from_url(src_url, dst_dir, mirrors)
+    download_from_url(src_url, dst_dir, checksum, mirrors)
