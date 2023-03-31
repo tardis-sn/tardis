@@ -125,7 +125,7 @@ class Profile:
     e.g. for plotting and export.
     """
 
-    def __init__(self, pos, vel, rho, xnuc, time, mass):
+    def __init__(self, pos, vel, rho, mass, xnuc, time):
         """
         Parameters
         ----------
@@ -136,13 +136,13 @@ class Profile:
             Meshgrid of velocities/ velocity vectors
         rho : list of float
             Meshgrid of density
+        mass : list of float
+            Meshgrid of masses.
         xnuc : dict
             Dictonary containing all the nuclear fraction
             meshgrids of the relevant species.
         time : float
             Time of the data
-        mass : list of float
-            Meshgrid of masses (optional).
 
         """
 
@@ -379,7 +379,6 @@ class Profile:
         nshells,
         filename,
         direction="pos",
-        statistic="mean",
         overwrite=False,
     ):
         """
@@ -398,9 +397,6 @@ class Profile:
             Specifies if either the positive or negative
             direction is to be exported. Available
             options: ['pos', 'neg']. Default: pos
-        statistic : str
-            Scipy keyword for scipy.stats.binned_statistic. If
-            statistic=None, data is not rebinned. Default: "mean"
         overwrite: bool
             If true, will overwrite if a file of the same name exists.
             By default False.
@@ -478,8 +474,7 @@ class Profile:
             f.write("".join(datastring))
 
             # Rebin data to nshells
-            if statistic is not None:
-                self.rebin(nshells, statistic=statistic)
+            self.rebin(nshells)
 
             if direction == "pos":
                 exp = [
