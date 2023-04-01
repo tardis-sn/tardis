@@ -54,7 +54,7 @@ class IonDensityWidget:
 
         self.element_dropdown = ipw.Dropdown(
             options=self.atomic_symbols,
-            value="Si",
+            value=si_symbol,
             description="Selected Element",
             index=si_index,
         )
