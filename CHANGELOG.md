@@ -1,5 +1,9 @@
 ## Change Log
 
+### release-2023.03.26 (2023/03/26 05:55 +00:00)
+- [#2256](https://github.com/tardis-sn/tardis/pull/2256) Pre-release 2023.03.26 (#2256) (@tardis-bot)
+- [#2248](https://github.com/tardis-sn/tardis/pull/2248) Post-release 2023.03.20 (#2248) (@tardis-bot)
+
 ### release-2023.03.20 (2023/03/20 16:39 +00:00)
 - [#2247](https://github.com/tardis-sn/tardis/pull/2247) Pre-release 2023.03.20 (#2247) (@tardis-bot)
 - [#2246](https://github.com/tardis-sn/tardis/pull/2246) Fix team reviewers on workflows (#2246) (@epassaro)
@@ -310,8 +314,6 @@
 ### release-2021.8.8.0 (2021/08/05 18:49 +00:00)
 - [#1768](https://github.com/tardis-sn/tardis/pull/1768) Renamed `specific` log flag to `specific_log_level`  (#1768) (@DhruvSondhi)
 - [#1721](https://github.com/tardis-sn/tardis/pull/1721) Restructure Model Configuration Documentation (#1721) (@smithis7)
-
-### release-2021.8.1.0 (2021/07/29 18:57 +00:00)
 - [#1753](https://github.com/tardis-sn/tardis/pull/1753) Adding Convergence Plots to the Documentation (#1753) (@atharva-2001)
 - [#1738](https://github.com/tardis-sn/tardis/pull/1738) TARDIS Grid (#1738) (@marxwillia)
 - [#1755](https://github.com/tardis-sn/tardis/pull/1755) changing note format (#1755) (@smithis7)
