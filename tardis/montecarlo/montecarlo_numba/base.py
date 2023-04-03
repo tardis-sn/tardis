@@ -207,11 +207,14 @@ def montecarlo_main_loop(
         )
         rpacket_trackers.append(RPacketTracker())
 
+    # Get the ID of the main thread and the number of threads
     main_thread_id = get_thread_id()
     n_threads = get_num_threads()
 
     estimator_list = List()
     for i in range(n_threads):  # betting get tid goes from 0 to num threads
+        # Note that get_thread_id() returns values from 0 to n_threads-1,
+        # so we iterate from 0 to n_threads-1 to create the estimator_list
         estimator_list.append(
             Estimators(
                 np.copy(estimators.j_estimator),
