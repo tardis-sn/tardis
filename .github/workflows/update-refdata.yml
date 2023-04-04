@@ -82,6 +82,7 @@ jobs:
 
       - name: Remove unwanted files
         run: rm .lfs-assets-id
+        working-directory: tardis-refdata
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v4
