@@ -17,7 +17,7 @@ REFDATA_PATH="$GITHUB_WORKSPACE/tardis-refdata"
 mkdir -p "$REFDATA_PATH/arepo_data"
 mkdir -p "$REFDATA_PATH/atom_data"
 
-if [[ -z $REFDATA_SHA ]]; then
+if [[ -z "$REFDATA_SHA" ]]; then
     VERSION="master"
     TYPE="branch"
 
