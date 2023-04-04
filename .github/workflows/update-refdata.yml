@@ -135,7 +135,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v2
         with:
           token:  ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.number }}
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
           body: |
