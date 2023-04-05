@@ -84,10 +84,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             partition_function,
             levels,
             level_boltzmann_factor,
-            nlte_excitation_species,
-            rate_matrix_index,
         )
-
+        #TODO: call prepare_ion_recomb_coefficients_nlte_exc if there are NLTE excitation 
+        # species and then call prepare_bound_bound_rate_matrix
         initial_electron_densities = number_density.sum(axis=0)
         atomic_numbers = (
             rate_matrix_index.get_level_values("atomic_number")
@@ -377,8 +376,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         partition_function,
         levels,
         level_boltzmann_factor,
-        nlte_excitation_species,
-        rate_matrix_index,
     ):
         """
         Prepares the ionization and recombination coefficients by grouping them for
@@ -449,42 +446,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             .groupby(level=("atomic_number", "ion_number"))
             .sum()
         )
-        if len(nlte_excitation_species) != 0:
-            total_photo_ion_coefficients_with_levels = gamma
-            total_rad_recomb_coefficients_with_levels = alpha_sp + alpha_stim
-
-            total_coll_ion_coefficients_with_levels = coll_ion_coeff
-            total_coll_recomb_coefficients_with_levels = coll_recomb_coeff
-
-            total_photo_ion_coefficients = (
-                NLTERateEquationSolver.prepare_coefficient_matrices_excitation(
-                    rate_matrix_index,
-                    total_photo_ion_coefficients,
-                    total_photo_ion_coefficients_with_levels,
-                )
-            )
-            total_rad_recomb_coefficients = (
-                NLTERateEquationSolver.prepare_coefficient_matrices_excitation(
-                    rate_matrix_index,
-                    total_rad_recomb_coefficients,
-                    total_rad_recomb_coefficients_with_levels,
-                )
-            )
-            total_coll_ion_coefficients = (
-                NLTERateEquationSolver.prepare_coefficient_matrices_excitation(
-                    rate_matrix_index,
-                    total_coll_ion_coefficients,
-                    total_coll_ion_coefficients_with_levels,
-                )
-            )
-            total_coll_recomb_coefficients = (
-                NLTERateEquationSolver.prepare_coefficient_matrices_excitation(
-                    rate_matrix_index,
-                    total_coll_recomb_coefficients,
-                    total_coll_recomb_coefficients_with_levels,
-                )
-            )
-
         return (
             total_photo_ion_coefficients,
             total_rad_recomb_coefficients,
@@ -933,3 +894,19 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             )
 
         return filtered_coll_exc_coefficients, filtered_coll_deexc_coefficients
+
+    @staticmethod
+    def prepare_ion_recomb_coefficients_nlte_exc(
+        gamma, alpha_sp, alpha_stim, coll_ion_coeff, coll_recomb_coeff
+    ):
+        total_photo_ion_coefficients_with_levels = gamma
+        total_rad_recomb_coefficients_with_levels = alpha_sp + alpha_stim
+
+        total_coll_ion_coefficients_with_levels = coll_ion_coeff
+        total_coll_recomb_coefficients_with_levels = coll_recomb_coeff
+        return (
+            total_photo_ion_coefficients_with_levels,
+            total_rad_recomb_coefficients_with_levels,
+            total_coll_ion_coefficients_with_levels,
+            total_coll_recomb_coefficients_with_levels,
+        )
