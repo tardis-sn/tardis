@@ -7,7 +7,10 @@ from numpy.testing import assert_almost_equal
 from jsonschema.exceptions import ValidationError
 
 from tardis.io import config_reader
+from astropy.units import Quantity
 from tardis.io.config_reader import Configuration
+from tardis.plasma.exceptions import PlasmaConfigError
+from tardis.plasma.standard_plasmas import assemble_plasma
 
 
 def data_path(filename):
@@ -97,17 +100,15 @@ def test_model_section_config(tardis_config_verysimple):
 
     tardis_config_verysimple["model"]["structure"]["velocity"][
         "start"
-    ] = "2.0e4 km/s"
+    ] = Quantity("2.0e4 km/s")
     tardis_config_verysimple["model"]["structure"]["velocity"][
         "stop"
-    ] = "1.1e4 km/s"
-    with pytest.raises(ValueError) as ve:
-        if (
-            conf.model.structure.velocity.start
-            < conf.model.structure.velocity.stop
-        ):
-            raise ValueError("Stop Value must be greater than Start Value")
-    assert ve.type is ValueError
+    ] = Quantity("1.1e4 km/s")
+
+    with pytest.raises(ValueError):
+        conf = Configuration.from_config_dict(
+            tardis_config_verysimple, validate=True, config_dirname="test"
+        )
 
 
 def test_supernova_section_config(tardis_config_verysimple):
@@ -126,33 +127,29 @@ def test_supernova_section_config(tardis_config_verysimple):
     ------
         Assertion based on validation for specified values
     """
-    conf = Configuration.from_config_dict(
-        tardis_config_verysimple, validate=True, config_dirname="test"
+    tardis_config_verysimple["supernova"]["time_explosion"] = Quantity(
+        "-10 day"
     )
-    tardis_config_verysimple["supernova"]["time_explosion"] = "-10 day"
+    with pytest.raises(ValueError):
+        conf = Configuration.from_config_dict(
+            tardis_config_verysimple, validate=True, config_dirname="test"
+        )
+
+    tardis_config_verysimple["supernova"]["time_explosion"] = Quantity("10 day")
     tardis_config_verysimple["supernova"][
         "luminosity_wavelength_start"
-    ] = "15 angstrom"
+    ] = Quantity("15 angstrom")
     tardis_config_verysimple["supernova"][
         "luminosity_wavelength_end"
-    ] = "0 angstrom"
-    with pytest.raises(ValueError) as ve:
-        if conf.supernova.time_explosion.value > 0:
-            raise ValueError("Time of Explosion cannot be negative")
-    assert ve.type is ValueError
-
-    with pytest.raises(ValueError) as ve:
-        if (
-            conf.supernova.luminosity_wavelength_start.value
-            < conf.supernova.luminosity_wavelength_end.value
-        ):
-            raise ValueError(
-                "End Limit must be greater than Start Limit for Luminosity"
-            )
-    assert ve.type is ValueError
+    ] = Quantity("0 angstrom")
+    with pytest.raises(ValueError):
+        conf = Configuration.from_config_dict(
+            tardis_config_verysimple, validate=True, config_dirname="test"
+        )
 
 
-def test_plasma_section_config(tardis_config_verysimple):
+@pytest.mark.parametrize("key", ["initial_t_inner", "initial_t_rad"])
+def test_plasma_section_config(key, tardis_config_verysimple):
     """
     Configuration Validation Test for Plasma Section of the Tardis Config YAML File
 
@@ -168,20 +165,18 @@ def test_plasma_section_config(tardis_config_verysimple):
     ------
         Assertion based on validation for specified values
     """
-    conf = Configuration.from_config_dict(
-        tardis_config_verysimple, validate=True, config_dirname="test"
-    )
-    tardis_config_verysimple["plasma"]["initial_t_inner"] = "-100 K"
-    tardis_config_verysimple["plasma"]["initial_t_rad"] = "-100 K"
-    with pytest.raises(ValueError) as ve:
-        if (conf.plasma.initial_t_inner.value >= -1) and (
-            conf.plasma.initial_t_rad.value >= -1
-        ):
-            raise ValueError("Initial Temperatures are Invalid")
-    assert ve.type is ValueError
+    tardis_config_verysimple["plasma"][key] = Quantity("-100 K")
+    with pytest.raises(ValueError):
+        conf = Configuration.from_config_dict(
+            tardis_config_verysimple, validate=True, config_dirname="test"
+        )
 
 
-def test_plasma_nlte_section_config(tardis_config_verysimple_nlte):
+def test_plasma_nlte_section_config(
+    tardis_config_verysimple_nlte,
+    nlte_raw_model,
+    nlte_atom_data,
+):
     """
     Configuration Validation Test for Plasma Section of the Tardis Config YAML File.
 
@@ -190,35 +185,53 @@ def test_plasma_nlte_section_config(tardis_config_verysimple_nlte):
 
     Parameter
     ---------
-        `tardis_config_verysimple` : YAML File
+        `tardis_config_verysimple_nlte` : YAML File
+        `nlte_raw_model` : A simple model
+        `nlte_atom_data` : An example atomic dataset
 
     Result
     ------
         Assertion based on validation for specified values
     """
-    conf = Configuration.from_config_dict(
-        tardis_config_verysimple_nlte, validate=True, config_dirname="test"
-    )
     tardis_config_verysimple_nlte["plasma"]["continuum_interaction"][
         "species"
     ] = [
         "He I",
     ]
     tardis_config_verysimple_nlte["plasma"]["nlte_ionization_species"] = ["H I"]
-    with pytest.raises(ValueError) as ve:
-        nlte_ionization_species = tardis_config_verysimple_nlte["plasma"][
-            "nlte_ionization_species"
-        ]
+    config = Configuration.from_config_dict(tardis_config_verysimple_nlte)
+    with pytest.raises(PlasmaConfigError) as ve:
+        assemble_plasma(config, nlte_raw_model, nlte_atom_data)
 
-        for species in nlte_ionization_species:
-            if not (
-                species
-                in tardis_config_verysimple_nlte["plasma"][
-                    "continuum_interaction"
-                ]["species"]
-            ):
-                raise ValueError("Nlte ionization species not in continuum.")
-    assert ve.type is ValueError
+
+def test_plasma_nlte_exc_section_config(
+    tardis_config_verysimple_nlte, nlte_raw_model, nlte_atom_data
+):
+    """
+    Configuration Validation Test for Plasma Section of the Tardis Config YAML File.
+
+    Validates:
+        nlte_excitation_species: should be included in continuum_interaction
+
+    Parameter
+    ---------
+        `tardis_config_verysimple_nlte` : YAML File
+        `nlte_raw_model` : A simple model
+        `nlte_atom_data` : An example atomic dataset
+
+    Result
+    ------
+        Assertion based on validation for specified values
+    """
+    tardis_config_verysimple_nlte["plasma"]["continuum_interaction"][
+        "species"
+    ] = [
+        "He I",
+    ]
+    tardis_config_verysimple_nlte["plasma"]["nlte_excitation_species"] = ["H I"]
+    config = Configuration.from_config_dict(tardis_config_verysimple_nlte)
+    with pytest.raises(PlasmaConfigError):
+        plasma = assemble_plasma(config, nlte_raw_model, nlte_atom_data)
 
 
 def test_spectrum_section_config(tardis_config_verysimple):
@@ -236,12 +249,9 @@ def test_spectrum_section_config(tardis_config_verysimple):
     ------
         Assertion based on validation for specified values
     """
-    conf = Configuration.from_config_dict(
-        tardis_config_verysimple, validate=True, config_dirname="test"
-    )
-    tardis_config_verysimple["spectrum"]["start"] = "2500 angstrom"
-    tardis_config_verysimple["spectrum"]["stop"] = "500 angstrom"
-    with pytest.raises(ValueError) as ve:
-        if not conf.spectrum.stop.value < conf.spectrum.start.value:
-            raise ValueError("Start Value must be less than Stop Value")
-    assert ve.type is ValueError
+    tardis_config_verysimple["spectrum"]["start"] = Quantity("2500 angstrom")
+    tardis_config_verysimple["spectrum"]["stop"] = Quantity("500 angstrom")
+    with pytest.raises(ValueError):
+        conf = Configuration.from_config_dict(
+            tardis_config_verysimple, validate=True, config_dirname="test"
+        )

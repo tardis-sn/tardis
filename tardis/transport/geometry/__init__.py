@@ -1,1 +1,3 @@
- 
+"""
+Calculating distances.
+"""

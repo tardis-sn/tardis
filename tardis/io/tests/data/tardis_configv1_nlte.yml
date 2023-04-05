@@ -1,54 +1,70 @@
 tardis_config_version: v1.0
 
 supernova:
-    luminosity_requested: 2.8e9 solLum
-    time_explosion: 13 day
+  luminosity_requested: 9.05 log_lsun
+  time_explosion: 16 day
 
-atom_data: kurucz_atom_pure_simple.h5
+atom_data: TestNLTE_Ti.h5
 
 model:
-    structure:
-        type: specific
-        velocity:
-            start: 1.1e4 km/s
-            stop: 2.0e4 km/s
-            num: 20
-        density:
-            type: branch85_w7
-    abundances:
-        type: uniform
-        H: 0.1
-        O: 0.09
-        Mg: 0.03
-        Si: 0.52
-        S: 0.19
-        Ar: 0.04
-        Ca: 0.03
+  structure:
+    type: specific
+    velocity:
+      start: 6395 km/s
+      stop: 12500 km/s
+      num: 5
+    density:
+      type : power_law
+      time_0: 16.0 day
+      rho_0: 1.948e-14 g/cm^3
+      v_0: 8000 km/s
+      exponent: -10
+
+  abundances:
+    type: uniform
+    H: 0.9
+    He: 0.099
+    Ti: 1e-3
 
 plasma:
-    ionization: lte
-    excitation: lte
-    radiative_rates_type: dilute-blackbody
-    line_interaction_type: macroatom
-    continuum_interaction:
-      species:
-        - H I
-    nlte_ionization_species: [H I]
+  disable_electron_scattering: no
+  ionization: lte
+  excitation: lte
+  radiative_rates_type: dilute-blackbody
+  line_interaction_type: macroatom
+  initial_t_inner: 12000 K
+  link_t_rad_t_electron: 1.0
+  nlte_ionization_species: [H I, He II, Ti II]
+  
+  continuum_interaction:
+    species:
+      - H I
+      - Ti II
+      - He II
+
+    enable_adiabatic_cooling: True
+
+
 
 montecarlo:
-    seed: 23111963
-    no_of_packets : 2.0e+5
-    iterations: 5
-    last_no_of_packets: 5.0e+5
-    no_of_virtual_packets: 5
-    convergence_strategy:
-        type: damped
-        damping_constant: 0.5
-        threshold: 0.05
-        lock_t_inner_cycles: 1
-        t_inner_update_exponent: -0.5
+  seed: 23111963
+  no_of_packets: 100000
+  iterations: 1
+  nthreads: 1
+
+  last_no_of_packets: 1000
+  no_of_virtual_packets: 0
+
+  convergence_strategy:
+    type: damped
+    damping_constant: 0.5
+    threshold: 0.05
+    fraction: 0.8
+    hold_iterations: 3
 
 spectrum:
-    start: 500 angstrom
-    stop: 20000 angstrom
-    num: 10000
+  start: 250 angstrom
+  stop: 10000 angstrom
+  num: 10000
+  method: integrated
+  compute: Automatic
