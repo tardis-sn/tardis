@@ -85,7 +85,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             levels,
             level_boltzmann_factor,
         )
-        #TODO: call prepare_ion_recomb_coefficients_nlte_exc if there are NLTE excitation 
+        # TODO: call prepare_ion_recomb_coefficients_nlte_exc if there are NLTE excitation
         # species and then call prepare_bound_bound_rate_matrix
         initial_electron_densities = number_density.sum(axis=0)
         atomic_numbers = (
