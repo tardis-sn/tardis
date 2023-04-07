@@ -32,9 +32,9 @@ plasma:
 
 montecarlo:
     seed: 23111963
-    no_of_packets : 2.0e+10
+    no_of_packets : 2.0e+2
     iterations: 10
-    last_no_of_packets: 5.0e+7
+    last_no_of_packets: 5.0e+1
     no_of_virtual_packets: 15
     convergence_strategy:
         type: damped

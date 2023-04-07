@@ -37,6 +37,7 @@ jobs:
         with:
           repository: atharva-2001/tardis
           ref: benchmark_simulation
+          fetch-depth: 10
 
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
