@@ -35,7 +35,7 @@ montecarlo:
     no_of_packets : 2.0e+2
     iterations: 10
     last_no_of_packets: 5.0e+1
-    no_of_virtual_packets: 15
+    no_of_virtual_packets: 1
     convergence_strategy:
         type: damped
         damping_constant: 0.5
