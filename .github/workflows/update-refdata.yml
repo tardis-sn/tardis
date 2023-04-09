@@ -82,6 +82,7 @@ jobs:
 
       - name: Remove unwanted files
         run: rm .lfs-assets-id
+        working-directory: tardis-refdata
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v4
@@ -134,7 +135,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v2
         with:
           token:  ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.number }}
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
           body: |
