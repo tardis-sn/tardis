@@ -1,5 +1,12 @@
 ## Change Log
 
+### release-2023.04.09 (2023/04/09 00:44 +00:00)
+- [#2274](https://github.com/tardis-sn/tardis/pull/2274) Pre-release 2023.04.09 (#2274) (@tardis-bot)
+- [#2249](https://github.com/tardis-sn/tardis/pull/2249) Port update reference data pipeline to GitHub Actions (#2249) (@epassaro)
+- [#2233](https://github.com/tardis-sn/tardis/pull/2233) Added documentation for parallel fixes for estimators (#2233) (@1e9abhi1e10)
+- [#2250](https://github.com/tardis-sn/tardis/pull/2250) Arepo mass average fix (#2250) (@AlexHls)
+- [#2257](https://github.com/tardis-sn/tardis/pull/2257) Post-release 2023.03.26 (#2257) (@tardis-bot)
+
 ### release-2023.03.26 (2023/03/26 05:55 +00:00)
 - [#2256](https://github.com/tardis-sn/tardis/pull/2256) Pre-release 2023.03.26 (#2256) (@tardis-bot)
 - [#2248](https://github.com/tardis-sn/tardis/pull/2248) Post-release 2023.03.20 (#2248) (@tardis-bot)
@@ -310,8 +317,6 @@
 ### release-2021.8.15.0 (2021/08/12 14:24 +00:00)
 - [#1770](https://github.com/tardis-sn/tardis/pull/1770) Rename cplots to convergence_plots (#1770) (@atharva-2001)
 - [#1772](https://github.com/tardis-sn/tardis/pull/1772) Reverse legend in Plasma Convergence Plots (#1772) (@atharva-2001)
-
-### release-2021.8.8.0 (2021/08/05 18:49 +00:00)
 - [#1768](https://github.com/tardis-sn/tardis/pull/1768) Renamed `specific` log flag to `specific_log_level`  (#1768) (@DhruvSondhi)
 - [#1721](https://github.com/tardis-sn/tardis/pull/1721) Restructure Model Configuration Documentation (#1721) (@smithis7)
 - [#1753](https://github.com/tardis-sn/tardis/pull/1753) Adding Convergence Plots to the Documentation (#1753) (@atharva-2001)
