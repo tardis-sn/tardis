@@ -1,16 +1,16 @@
 import pytest
 import pandas as pd
-
+from astropy import units as u
 from tardis.io.decay import IsotopeAbundances
 from numpy.testing import assert_almost_equal
 
 
 @pytest.fixture
-def simple_abundance_model(x=0):
+def simple_abundance_model():
     index = pd.MultiIndex.from_tuples(
         [(28, 56)], names=["atomic_number", "mass_number"]
     )
-    return IsotopeAbundances([[1.0, 1.0]], index=index, time_0=x)
+    return IsotopeAbundances([[1.0, 1.0]], index=index, time_0=0*u.s)
 
 
 def test_simple_decay(simple_abundance_model):

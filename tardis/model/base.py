@@ -584,7 +584,7 @@ class Radial1DModel(HDFWriterMixin):
     #        return self.raw_velocity.searchsorted(self.v_boundary_outer) + 1
 
     @classmethod
-    def from_config(cls, config, atom_data=None, x=0):
+    def from_config(cls, config, atom_data=None):
         """
         Create a new Radial1DModel instance from a Configuration object.
 
@@ -680,7 +680,7 @@ class Radial1DModel(HDFWriterMixin):
             abundance /= norm_factor
             isotope_abundance /= norm_factor
 
-        isotope_abundance = IsotopeAbundances(isotope_abundance,time_0=x)
+        isotope_abundance = IsotopeAbundances(isotope_abundance,time_0=0*u.s)
 
         elemental_mass = None
         if atom_data is not None:
