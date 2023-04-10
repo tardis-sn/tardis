@@ -9,7 +9,7 @@ from tardis.plasma.properties.nlte_rate_equation_solver import (
 from tardis.plasma.properties.nlte_excitation_data import NLTEExcitationData
 
 
-def test_main_nlte_calculation_bound_bound(
+def test_prepare_bound_bound_rate_matrix(
     nlte_atomic_dataset,
 ):
     """
@@ -35,17 +35,30 @@ def test_main_nlte_calculation_bound_bound(
         0.5, index=copy_atomic_dataset.lines.index, columns=["0"]
     )
 
+    
+    (lines_index,
+    number_of_levels,
+    r_ul_index,
+    r_ul_matrix,
+    r_lu_index,
+    r_lu_matrix)   = NLTERateEquationSolver.prepare_r_uls_rlus(
+            copy_atomic_dataset.levels,
+            simple_number_of_shells,
+            simple_j_blues,
+            simple_excitation_species[0],
+            simple_nlte_data,
+        )
     simple_beta_sobolev = pd.DataFrame(
         0.8, index=copy_atomic_dataset.lines.index, columns=["0"]
     )
-
     actual_rate_matrix = NLTERateEquationSolver.prepare_bound_bound_rate_matrix(
-        copy_atomic_dataset.levels,
-        simple_number_of_shells,
-        simple_j_blues,
+        number_of_levels,
+        lines_index,
+        r_ul_index,
+        r_ul_matrix,
+        r_lu_index,
+        r_lu_matrix,
         simple_beta_sobolev,
-        simple_excitation_species[0],
-        simple_nlte_data,
     )
     desired_rate_matrix = [
         [
@@ -86,7 +99,7 @@ def test_main_nlte_calculation_bound_bound(
     ]
 
     assert_almost_equal(
-        desired_rate_matrix / np.array(actual_rate_matrix),
-        np.ones_like(desired_rate_matrix),
+        desired_rate_matrix - np.array(actual_rate_matrix),
+        np.zeros_like(desired_rate_matrix),
         decimal=6,
     )

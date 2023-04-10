@@ -774,25 +774,75 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
     @staticmethod
     def prepare_bound_bound_rate_matrix(
-        atomic_data_levels,
-        number_of_shells,
-        j_blues,
+        number_of_levels,
+        lines_index,
+        r_ul_index,
+        r_ul_matrix,
+        r_lu_index,
+        r_lu_matrix,
         beta_sobolev,
-        excitation_species,
-        nlte_data,
     ):
         """Calculates a matrix with bound-bound rates for NLTE excitation treatment.
 
         Parameters
         ----------
-        atomic_data : Object
-            Atomic data from the atomic datafile.
+        number_of_levels : int
+            Number of levels for the specified species.
+        lines_index : numpy.array
+            Index of lines in nlte_data.
+        r_ul_index : numpy.array
+            Index used for r_ul matrix
+        r_ul_matrix_reshaped : numpy.array
+            Matrix with the rates(upper to lower transition) of bound-bound interaction(DOES NOT INCLUDE THE BETA SOBOLEVS)
+        r_lu_index : numpy.array
+            Index used for r_lu matrix
+        r_lu_matrix_reshaped : numpy.array
+            Matrix with the rates(lower to upper transition) of bound-bound interaction(DOES NOT INCLUDE THE BETA SOBOLEVS)
+        beta_sobolev : Pandas DataFrame
+            Beta Sobolev factors.
+        Returns
+        -------
+        numpy.array (number of levels, number of levels)
+            Matrix with excitation-deexcitation rates(should be added to NLTE rate matrix for excitation treatment).
+            NOTE: only works with ONE ion number treated in NLTE excitation AT ONCE.
+        """
+        number_of_shells = beta_sobolev.shape[1]
+        try:
+            beta_sobolev_filtered = beta_sobolev.iloc[lines_index]
+        except AttributeError:
+            beta_sobolev_filtered = beta_sobolev
+        r_ul_matrix_reshaped = r_ul_matrix.reshape(
+            (number_of_levels**2, number_of_shells)
+        )
+        r_lu_matrix_reshaped = r_lu_matrix.reshape(
+            (number_of_levels**2, number_of_shells)
+        )
+        r_ul_matrix_reshaped[r_ul_index] *= beta_sobolev_filtered
+        r_lu_matrix_reshaped[r_lu_index] *= beta_sobolev_filtered
+        rates_matrix_bound_bound = r_lu_matrix + r_lu_matrix
+        for i in range(number_of_levels):
+            rates_matrix_bound_bound[i, i] = -rates_matrix_bound_bound[
+                :, i
+            ].sum(axis=0)
+        return rates_matrix_bound_bound
+
+    def prepare_r_uls_rlus(
+        atomic_data_levels,
+        number_of_shells,
+        j_blues,
+        excitation_species,
+        nlte_data,
+    ):
+        """Calculates part of rate matrices for bound bound interactions.
+
+        Parameters
+        ----------
+        atomic_data_levels : pandas.DataFrame
+            Atomic data levels from the atomic datafile.
         number_of_shells : int
             Number of shells.
         j_blues : Pandas DataFrame, dtype float
             Mean intensities in the blue wings of the line transitions.
-        beta_sobolev : numpy.array, dtype float
-            Sobolev escape probability
         excitation_species : tuple
             Species treated in NLTE excitation.
         nlte_data : NLTEExcitationData
@@ -800,9 +850,18 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
         Returns
         -------
-        numpy.array (number of levels, number of levels)
-            Matrix with excitation-deexcitation rates(should be added to NLTE rate matrix for excitation treatment).
-            NOTE: only works with ONE ion number treated in NLTE excitation AT ONCE.
+        lines_index : numpy.array
+            Index of lines in nlte_data.
+        number_of_levels : int
+            Number of levels for the specified species.
+        r_ul_index : numpy.array
+            Index used for r_ul matrix
+        r_ul_matrix_reshaped : numpy.array
+            Matrix with the rates(upper to lower transition) of bound-bound interaction(DOES NOT INCLUDE THE BETA SOBOLEVS)
+        r_lu_index : numpy.array
+            Index used for r_lu matrix
+        r_lu_matrix_reshaped : numpy.array
+            Matrix with the rates(lower to upper transition) of bound-bound interaction(DOES NOT INCLUDE THE BETA SOBOLEVS)
         """
         number_of_levels = atomic_data_levels.energy.loc[
             excitation_species
@@ -815,10 +874,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             j_blues_filtered = j_blues.iloc[lines_index]
         except AttributeError:
             j_blues_filtered = j_blues
-        try:
-            beta_sobolev_filtered = beta_sobolev.iloc[lines_index]
-        except AttributeError:
-            beta_sobolev_filtered = beta_sobolev
         A_uls = nlte_data.A_uls[excitation_species]
         B_uls = nlte_data.B_uls[excitation_species]
         B_lus = nlte_data.B_lus[excitation_species]
@@ -834,22 +889,21 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         r_ul_matrix_reshaped[r_ul_index] = (
             A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues_filtered
         )
-        r_ul_matrix_reshaped[r_ul_index] *= beta_sobolev_filtered
         r_lu_matrix = np.zeros_like(r_ul_matrix)
         r_lu_matrix_reshaped = r_lu_matrix.reshape(
             (number_of_levels**2, number_of_shells)
         )
         r_lu_matrix_reshaped[r_lu_index] = (
-            B_lus[np.newaxis].T * j_blues_filtered * beta_sobolev_filtered
+            B_lus[np.newaxis].T * j_blues_filtered
         )
-
-        rates_matrix_bound_bound = r_lu_matrix + r_ul_matrix
-        for i in range(number_of_levels):
-            rates_matrix_bound_bound[i, i] = -rates_matrix_bound_bound[
-                :, i
-            ].sum(axis=0)
-        return rates_matrix_bound_bound
-
+        return (
+            lines_index,
+            number_of_levels,
+            r_ul_index,
+            r_ul_matrix,
+            r_lu_index,
+            r_lu_matrix,
+        )
         # TODO: beta sobolev needs to be recalculated for each iteration, because it depends on numberdensity
 
     def calculate_coll_exc_coefficients(
