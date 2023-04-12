@@ -35,19 +35,20 @@ def test_prepare_bound_bound_rate_matrix(
         0.5, index=copy_atomic_dataset.lines.index, columns=["0"]
     )
 
-    
-    (lines_index,
-    number_of_levels,
-    r_ul_index,
-    r_ul_matrix,
-    r_lu_index,
-    r_lu_matrix)   = NLTERateEquationSolver.prepare_r_uls_rlus(
-            copy_atomic_dataset.levels,
-            simple_number_of_shells,
-            simple_j_blues,
-            simple_excitation_species[0],
-            simple_nlte_data,
-        )
+    (
+        lines_index,
+        number_of_levels,
+        r_ul_index,
+        r_ul_matrix,
+        r_lu_index,
+        r_lu_matrix,
+    ) = NLTERateEquationSolver.prepare_r_uls_rlus(
+        copy_atomic_dataset.levels,
+        simple_number_of_shells,
+        simple_j_blues,
+        simple_excitation_species[0],
+        simple_nlte_data,
+    )
     simple_beta_sobolev = pd.DataFrame(
         0.8, index=copy_atomic_dataset.lines.index, columns=["0"]
     )
@@ -100,6 +101,7 @@ def test_prepare_bound_bound_rate_matrix(
     breakpoint()
 
     assert_allclose(
-        desired_rate_matrix, np.array(actual_rate_matrix),
+        desired_rate_matrix,
+        np.array(actual_rate_matrix),
         rtol=1e-6,
     )
