@@ -789,7 +789,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Atomic data from the atomic datafile.
         number_of_shells : int
             Number of shells.
-        j_blues : Pandas DataFrame, dtype float
+        j_blues : pandas.DataFrame, dtype float
             Mean intensities in the blue wings of the line transitions.
         beta_sobolev : numpy.array, dtype float
             Sobolev escape probability
