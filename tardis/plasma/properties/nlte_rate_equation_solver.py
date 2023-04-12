@@ -844,4 +844,4 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             r_lu_index,
             r_lu_matrix,
         )
-        # TODO: beta sobolev needs to be recalculated for each iteration, because it depends on numberdensity
+        # TODO: beta sobolev needs to be recalculated for each iteration, because it depends on number density
