@@ -573,6 +573,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
         Parameters
         ----------
+        rate_matrix_index : pandas.MultiIndex
+            (atomic_number, ion_number, treatment type)
         atomic_numbers : numpy.array
             All atomic numbers present in the plasma.
         number_density : pandas.DataFrame
