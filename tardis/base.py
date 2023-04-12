@@ -1,4 +1,6 @@
-# Functions that are important for the general usage of TARDIS.
+"""
+Functions that are important for the general usage of TARDIS.
+"""
 
 import logging
 

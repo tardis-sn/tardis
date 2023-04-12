@@ -1,4 +1,6 @@
-# codes to for analyse the model.
+"""
+Code to analyse the model.
+"""
 
 import re
 import os

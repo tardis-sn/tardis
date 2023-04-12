@@ -1,0 +1,151 @@
+#  For more information about TARDIS pipelines, please refer to:
+#
+#    https://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+name: update-refdata
+
+on:
+  repository_dispatch:
+    types: [update-refdata-command]
+
+env:
+  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --generate-reference
+  CACHE_NUMBER: 1  # increase to reset cache manually
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  pr-open:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout pull/${{ github.event.client_payload.pull_request.number }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.client_payload.pull_request.head.sha }}
+
+      - uses: actions/checkout@v3
+        with:
+          repository: tardis-sn/tardis-refdata
+          path: tardis-refdata
+          lfs: false
+
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+        working-directory: tardis-refdata
+
+      - name: Restore LFS cache
+        uses: actions/cache@v3
+        id: lfs-cache
+        with:
+          path: tardis-refdata/.git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-refdata/.lfs-assets-id') }}-v${{ env.CACHE_NUMBER }}
+
+      - name: Pull LFS objects
+        run: git lfs pull
+        working-directory: tardis-refdata
+        if: steps.lfs-cache.outputs.cache-hit != 'true'
+      
+      - name: Checkout LFS repository
+        run: git lfs checkout
+        working-directory: tardis-refdata
+        if: steps.lfs-cache.outputs.cache-hit == 'true'
+
+      - name: Setup environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
+            activate-environment: tardis
+            use-mamba: true
+
+      - uses: actions/cache@v3
+        with:
+          path: /usr/share/miniconda3/envs/tardis
+          key: conda-linux-64-${{ hashFiles('conda-linux-64.lock') }}-v${{ env.CACHE_NUMBER }}
+        id: cache-conda
+
+      - name: Update environment
+        run: mamba update -n tardis --file conda-linux-64.lock
+        if: steps.cache-conda.outputs.cache-hit != 'true'
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: Generate new reference data
+        run: pytest tardis ${{ env.PYTEST_FLAGS }}
+
+      - name: Remove unwanted files
+        run: rm .lfs-assets-id
+        working-directory: tardis-refdata
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          path: tardis-refdata
+          token: ${{ secrets.BOT_TOKEN }}
+          committer: TARDIS Bot <tardis.sn.bot@gmail.com>
+          author: TARDIS Bot <tardis.sn.bot@gmail.com>
+          branch: pr-${{ github.event.client_payload.pull_request.number }}
+          base: master
+          push-to-fork: tardis-bot/tardis-refdata
+          commit-message: Automated update (tardis pr-${{ github.event.client_payload.pull_request.number }})
+          title: Automated update (tardis pr-${{ github.event.client_payload.pull_request.number }})
+          body: |
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            These are the changes made by https://github.com/tardis-sn/tardis/pull/${{ github.event.client_payload.pull_request.number }}, please be careful before merging this pull request.
+        id: create-pr
+
+      - name: Find comment
+        uses: peter-evans/find-comment@v2
+        id: fc
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body-includes: Hi, human.
+        if: always()
+
+      - name: Post comment (success)
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token:  ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            The **`${{ github.workflow }}`** workflow has **succeeded** :heavy_check_mark:
+
+            [**Click here**](${{ env.URL }}) to see your results.
+        env:
+          URL: https://github.com/tardis-sn/tardis-refdata/pull/${{ github.event.client_payload.pull_request.number }}
+        if: success()
+
+      - name: Post comment (failure)
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token:  ${{ secrets.BOT_TOKEN }}
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            The **`${{ github.workflow }}`** workflow has **failed** :x:
+
+            [**Click here**](${{ env.URL }}) to see the build log.
+        env:
+          URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
+        if: failure()

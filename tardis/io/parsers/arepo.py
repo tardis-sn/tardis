@@ -1,11 +1,8 @@
 import os
-import sys
 import argparse
-import warnings
 
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 from scipy import stats
 
 
@@ -51,7 +48,6 @@ class ArepoSnapshot:
 
         try:
             import gadget_snap
-            import calcGrid
         except ModuleNotFoundError:
             raise ImportError(
                 "Please make sure you have arepo-snap-util installed if you want to directly import Arepo snapshots."
@@ -70,6 +66,7 @@ class ArepoSnapshot:
             hdf5=True,
             quiet=True,
             lazy_load=True,
+            loadonlytype=[0],
         )
 
         rz_yaw = np.array(
@@ -99,13 +96,14 @@ class ArepoSnapshot:
         self.s.rotateto(rotmat[0], dir2=rotmat[1], dir3=rotmat[2])
 
         self.time = self.s.time
-        self.pos = np.array(self.s.data["pos"][: self.s.nparticlesall[0]])
+        self.pos = np.array(self.s.data["pos"])
         self.pos = self.pos.T
         # Update position to CoM frame
         for i in range(3):
             self.pos[i] -= self.s.centerofmass()[i]
         self.rho = np.array(self.s.data["rho"])
-        self.vel = np.array(self.s.data["vel"][: self.s.nparticlesall[0]])
+        self.mass = np.array(self.s.data["mass"])
+        self.vel = np.array(self.s.data["vel"])
         self.vel = self.vel.T
         self.nuc_dict = {}
 
@@ -118,7 +116,7 @@ class ArepoSnapshot:
         """
         Returns all relevant data to create Profile objects
         """
-        return self.pos, self.vel, self.rho, self.nuc_dict, self.time
+        return self.pos, self.vel, self.rho, self.mass, self.nuc_dict, self.time
 
 
 class Profile:
@@ -127,7 +125,7 @@ class Profile:
     e.g. for plotting and export.
     """
 
-    def __init__(self, pos, vel, rho, xnuc, time):
+    def __init__(self, pos, vel, rho, mass, xnuc, time):
         """
         Parameters
         ----------
@@ -138,6 +136,8 @@ class Profile:
             Meshgrid of velocities/ velocity vectors
         rho : list of float
             Meshgrid of density
+        mass : list of float
+            Meshgrid of masses.
         xnuc : dict
             Dictonary containing all the nuclear fraction
             meshgrids of the relevant species.
@@ -151,7 +151,8 @@ class Profile:
         self.rho = rho
         self.xnuc = xnuc
         self.time = time
-
+        self.mass = mass
+        self.vol = self.mass / self.rho
         self.species = list(self.xnuc.keys())
 
         # Empty values to be filled with the create_profile function
@@ -160,6 +161,12 @@ class Profile:
 
         self.vel_prof_p = None
         self.vel_prof_n = None
+
+        self.vol_prof_p = None
+        self.vol_prof_n = None
+
+        self.mass_prof_p = None
+        self.mass_prof_n = None
 
         self.rho_prof_p = None
         self.rho_prof_n = None
@@ -211,7 +218,7 @@ class Profile:
         ax1.set_ylabel("Profile (arb. unit)")
         ax1.set_title("Profiles along the positive axis")
 
-        # Positive direction plots
+        # Negative direction plots
         ax2.plot(
             self.pos_prof_n,
             self.rho_prof_n / max(self.rho_prof_n),
@@ -257,7 +264,7 @@ class Profile:
 
         return fig
 
-    def rebin(self, nshells, statistic="mean"):
+    def rebin(self, nshells):
         """
         Rebins the data to nshells. Uses the scipy.stats.binned_statistic
         to bin the data. The standard deviation of each bin can be obtained
@@ -267,8 +274,6 @@ class Profile:
         ----------
         nshells : int
             Number of bins of new data.
-        statistic : str
-            Scipy keyword for scipy.stats.binned_statistic. Default: mean
 
         Returns
         -------
@@ -278,43 +283,87 @@ class Profile:
 
         self.vel_prof_p, bins_p = stats.binned_statistic(
             self.pos_prof_p,
-            self.vel_prof_p,
-            statistic=statistic,
+            self.vel_prof_p * self.mass_prof_p,
+            statistic="mean",
             bins=nshells,
         )[:2]
-        self.vel_prof_n, bins_n = stats.binned_statistic(
-            self.pos_prof_n,
-            self.vel_prof_n,
-            statistic=statistic,
-            bins=nshells,
-        )[:2]
-
-        self.rho_prof_p = stats.binned_statistic(
+        self.vel_prof_p /= stats.binned_statistic(
             self.pos_prof_p,
-            self.rho_prof_p,
-            statistic=statistic,
+            self.mass_prof_p,
+            statistic="mean",
             bins=nshells,
         )[0]
-        self.rho_prof_n = stats.binned_statistic(
+        self.vel_prof_n, bins_n = stats.binned_statistic(
             self.pos_prof_n,
-            self.rho_prof_n,
-            statistic=statistic,
+            self.vel_prof_n * self.mass_prof_n,
+            statistic="mean",
+            bins=nshells,
+        )[:2]
+        self.vel_prof_n /= stats.binned_statistic(
+            self.pos_prof_n,
+            self.mass_prof_n,
+            statistic="mean",
             bins=nshells,
         )[0]
 
         for spec in self.species:
-            self.xnuc_prof_p[spec] = stats.binned_statistic(
-                self.pos_prof_p,
-                self.xnuc_prof_p[spec],
-                statistic=statistic,
-                bins=nshells,
-            )[0]
-            self.xnuc_prof_n[spec] = stats.binned_statistic(
-                self.pos_prof_n,
-                self.xnuc_prof_n[spec],
-                statistic=statistic,
-                bins=nshells,
-            )[0]
+            self.xnuc_prof_p[spec] = (
+                stats.binned_statistic(
+                    self.pos_prof_p,
+                    self.xnuc_prof_p[spec] * self.mass_prof_p,
+                    statistic="mean",
+                    bins=nshells,
+                )[0]
+                / stats.binned_statistic(
+                    self.pos_prof_p,
+                    self.mass_prof_p,
+                    statistic="mean",
+                    bins=nshells,
+                )[0]
+            )
+            self.xnuc_prof_n[spec] = (
+                stats.binned_statistic(
+                    self.pos_prof_n,
+                    self.xnuc_prof_n[spec] * self.mass_prof_n,
+                    statistic="mean",
+                    bins=nshells,
+                )[0]
+                / stats.binned_statistic(
+                    self.pos_prof_n,
+                    self.mass_prof_n,
+                    statistic="mean",
+                    bins=nshells,
+                )[0]
+            )
+
+        self.vol_prof_p = np.array(
+            [
+                4 / 3 * np.pi * (bins_p[i + 1] ** 3 - bins_p[i] ** 3)
+                for i in range(len(bins_p) - 1)
+            ]
+        )
+        self.vol_prof_n = np.array(
+            [
+                4 / 3 * np.pi * (bins_n[i + 1] ** 3 - bins_n[i] ** 3)
+                for i in range(len(bins_n) - 1)
+            ]
+        )
+
+        self.mass_prof_p = stats.binned_statistic(
+            self.pos_prof_p,
+            self.mass_prof_p,
+            statistic="sum",
+            bins=nshells,
+        )[0]
+        self.mass_prof_n = stats.binned_statistic(
+            self.pos_prof_n,
+            self.mass_prof_n,
+            statistic="sum",
+            bins=nshells,
+        )[0]
+
+        self.rho_prof_p = self.mass_prof_p / self.vol_prof_p
+        self.rho_prof_n = self.mass_prof_n / self.vol_prof_n
 
         self.pos_prof_p = np.array(
             [(bins_p[i] + bins_p[i + 1]) / 2 for i in range(len(bins_p) - 1)]
@@ -330,7 +379,6 @@ class Profile:
         nshells,
         filename,
         direction="pos",
-        statistic="mean",
         overwrite=False,
     ):
         """
@@ -349,9 +397,6 @@ class Profile:
             Specifies if either the positive or negative
             direction is to be exported. Available
             options: ['pos', 'neg']. Default: pos
-        statistic : str
-            Scipy keyword for scipy.stats.binned_statistic. If
-            statistic=None, data is not rebinned. Default: "mean"
         overwrite: bool
             If true, will overwrite if a file of the same name exists.
             By default False.
@@ -429,8 +474,7 @@ class Profile:
             f.write("".join(datastring))
 
             # Rebin data to nshells
-            if statistic is not None:
-                self.rebin(nshells, statistic=statistic)
+            self.rebin(nshells)
 
             if direction == "pos":
                 exp = [
@@ -468,6 +512,8 @@ class Profile:
             self.vel_prof_n,
             self.rho_prof_p,
             self.rho_prof_n,
+            self.mass_prof_p,
+            self.mass_prof_n,
             self.xnuc_prof_p,
             self.xnuc_prof_n,
         )
@@ -548,6 +594,12 @@ class ConeProfile(Profile):
             + self.vel[2][cmask_n] ** 2
         )
 
+        vol_p = self.vol[cmask_p]
+        vol_n = self.vol[cmask_n]
+
+        mass_p = self.mass[cmask_p]
+        mass_n = self.mass[cmask_n]
+
         rho_p = self.rho[cmask_p]
         rho_n = self.rho[cmask_n]
 
@@ -584,6 +636,20 @@ class ConeProfile(Profile):
 
         if not mask_p.any() or not mask_n.any():
             raise ValueError("No points left between inner and outer radius.")
+
+        self.vol_prof_p = np.array(
+            [x for _, x in sorted(zip(pos_p, vol_p), key=lambda pair: pair[0])]
+        )[mask_p]
+        self.vol_prof_n = np.array(
+            [x for _, x in sorted(zip(pos_n, vol_n), key=lambda pair: pair[0])]
+        )[mask_n]
+
+        self.mass_prof_p = np.array(
+            [x for _, x in sorted(zip(pos_p, mass_p), key=lambda pair: pair[0])]
+        )[mask_p]
+        self.mass_prof_n = np.array(
+            [x for _, x in sorted(zip(pos_n, mass_n), key=lambda pair: pair[0])]
+        )[mask_n]
 
         self.rho_prof_p = np.array(
             [x for _, x in sorted(zip(pos_p, rho_p), key=lambda pair: pair[0])]
@@ -669,6 +735,12 @@ class FullProfile(Profile):
             self.vel[0] ** 2 + self.vel[1] ** 2 + self.vel[2] ** 2
         ).flatten()
 
+        vol_p = self.vol.flatten()
+        vol_n = self.vol.flatten()
+
+        mass_p = self.mass.flatten()
+        mass_n = self.mass.flatten()
+
         rho_p = self.rho.flatten()
         rho_n = self.rho.flatten()
 
@@ -705,6 +777,20 @@ class FullProfile(Profile):
 
         if not mask_p.any() or not mask_n.any():
             raise ValueError("No points left between inner and outer radius.")
+
+        self.vol_prof_p = np.array(
+            [x for _, x in sorted(zip(pos_p, vol_p), key=lambda pair: pair[0])]
+        )[mask_p]
+        self.vol_prof_n = np.array(
+            [x for _, x in sorted(zip(pos_n, vol_n), key=lambda pair: pair[0])]
+        )[mask_n]
+
+        self.mass_prof_p = np.array(
+            [x for _, x in sorted(zip(pos_p, mass_p), key=lambda pair: pair[0])]
+        )[mask_p]
+        self.mass_prof_n = np.array(
+            [x for _, x in sorted(zip(pos_n, mass_n), key=lambda pair: pair[0])]
+        )[mask_n]
 
         self.rho_prof_p = np.array(
             [x for _, x in sorted(zip(pos_p, rho_p), key=lambda pair: pair[0])]
@@ -844,12 +930,12 @@ if __name__ == "__main__":
         numthreads=args.numthreads,
     )
 
-    pos, vel, rho, xnuc, time = snapshot.get_grids()
+    pos, vel, rho, mass, xnuc, time = snapshot.get_grids()
 
     if args.profile == "cone":
-        profile = ConeProfile(pos, vel, rho, xnuc, time)
+        profile = ConeProfile(pos, vel, rho, xnuc, time, mass=mass)
     elif args.profile == "full":
-        profile = FullProfile(pos, vel, rho, xnuc, time)
+        profile = FullProfile(pos, vel, rho, xnuc, time, mass=mass)
 
     if args.profile == "cone":
         profile.create_profile(

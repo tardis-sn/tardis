@@ -341,10 +341,16 @@ def test_store_runner_to_hdf(simulation_verysimple, tmp_path):
             f["runner/last_line_interaction_shell_id"],
             runner_data["last_line_interaction_shell_id"],
         )
-        assert (
-            f["runner/line_interaction_type"][()].decode("utf-8")
-            == runner_data["line_interaction_type"]
-        )
+        if hasattr(f["runner/line_interaction_type"][()], "decode"):
+            assert (
+                f["runner/line_interaction_type"][()].decode("utf-8")
+                == runner_data["line_interaction_type"]
+            )
+        else:
+            assert np.array_equal(
+                f["runner/line_interaction_type"][()],
+                runner_data["line_interaction_type"],
+            )
         assert np.array_equal(
             f["runner/nu_bar_estimator"], runner_data["nu_bar_estimator"]
         )
@@ -362,10 +368,16 @@ def test_store_runner_to_hdf(simulation_verysimple, tmp_path):
             f["runner/spectrum_frequency_cgs"],
             runner_data["spectrum_frequency"].value,
         )
-        assert (
-            f["runner/spectrum_method"][()].decode("utf-8")
-            == runner_data["spectrum_method"]
-        )
+        if hasattr(f["runner/spectrum_method"][()], "decode"):
+            assert (
+                f["runner/spectrum_method"][()].decode("utf-8")
+                == runner_data["spectrum_method"]
+            )
+        else:
+            assert np.array_equal(
+                f["runner/spectrum_method"][()],
+                runner_data["spectrum_method"],
+            )
         assert np.array_equal(
             f["runner/stim_recomb_cooling_estimator"],
             runner_data["stim_recomb_cooling_estimator"],

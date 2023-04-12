@@ -28,7 +28,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install setuptools_scm
-        run: pip install setuptools_scm
+        run: pip install 'setuptools_scm<7'
 
       - name: Show current version
         run: python .ci-helpers/get_current_version.py

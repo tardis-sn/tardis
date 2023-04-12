@@ -6,6 +6,7 @@ from astropy import units as u
 from tardis import constants
 import radioactivedecay as rd
 from radioactivedecay.utils import Z_DICT
+from tardis.model.geometry.radial1d import Radial1DGeometry
 
 from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
 from tardis.io.parsers.csvy import load_csvy
@@ -22,91 +23,6 @@ from tardis.io.decay import IsotopeAbundances
 from tardis.model.density import HomologousDensity
 
 logger = logging.getLogger(__name__)
-
-
-class ModelState:
-    """
-    Store Model State Information.
-
-    Parameters
-    ----------
-    v_inner : astropy.units.quantity.Quantity
-    v_outer : astropy.units.quantity.Quantity
-    r_inner : astropy.units.quantity.Quantity
-    r_outer : astropy.units.quantity.Quantity
-    density : astropy.units.quantity.Quantity
-    time_explosion : astropy.units.quantity.Quantity
-
-    Attributes
-    ----------
-    geometry : pd.DataFrame
-        DataFrame storing `v_inner`, `v_outer`, `r_inner` and `r_outer`.
-    geometry_units : dict
-        Units of arrays stored in the `geometry` dataframe.
-    """
-
-    def __init__(
-        self, v_inner, v_outer, r_inner, r_outer, time_explosion, density
-    ):
-        self.time_explosion = time_explosion
-        self.density = density
-        self.geometry = pd.DataFrame(
-            {
-                "v_inner": v_inner.value,
-                "r_inner": r_inner.value,
-                "v_outer": v_outer.value,
-                "r_outer": r_outer.value,
-            }
-        )
-        self.geometry_units = {
-            "v_inner": v_inner.unit,
-            "r_inner": r_inner.unit,
-            "v_outer": v_outer.unit,
-            "r_outer": r_outer.unit,
-        }
-
-    @property
-    def v_inner(self):
-        """Inner boundary velocity."""
-        return self.geometry.v_inner.values * self.geometry_units["v_inner"]
-
-    @property
-    def r_inner(self):
-        """Inner radius of model shells."""
-        return self.geometry.r_inner.values * self.geometry_units["r_inner"]
-
-    @property
-    def v_outer(self):
-        """Outer boundary velocity."""
-        return self.geometry.v_outer.values * self.geometry_units["v_outer"]
-
-    @property
-    def r_outer(self):
-        """Outer radius of model shells."""
-        return self.geometry.r_outer.values * self.geometry_units["r_outer"]
-
-
-class Radial1DGeometry:
-    """
-    Holds information about model geometry for radial 1D models.
-
-    Parameters
-    ----------
-    r_inner : astropy.units.quantity.Quantity
-    r_outer : astropy.units.quantity.Quantity
-    v_inner : astropy.units.quantity.Quantity
-    v_outer : astropy.units.quantity.Quantity
-    """
-
-    def __init__(self, r_inner, r_outer, v_inner, v_outer):
-        self.r_inner = r_inner
-        self.r_outer = r_outer
-        self.v_inner = v_inner
-        self.v_outer = v_outer
-
-    @property
-    def volume(self):
-        return (4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
 
 
 class Composition:
@@ -162,14 +78,14 @@ class Composition:
         )
 
 
-class ModelState_Experimental:
+class ModelState:
     """
     Holds information about model geometry for radial 1D models.
 
     Parameters
     ----------
     composition : tardis.model.Composition
-    geometry : tardis.model.Radial1DGeometry
+    geometry : tardis.model.geometry.radial1d.Radial1DGeometry
     time_explosion : astropy.units.quantity.Quantity
 
     Attributes
@@ -348,7 +264,7 @@ class Radial1DModel(HDFWriterMixin):
             v_inner=v_inner,
             v_outer=v_outer,
         )
-        self.model_state = ModelState_Experimental(
+        self.model_state = ModelState(
             composition=composition,
             geometry=geometry,
             time_explosion=self.time_explosion,

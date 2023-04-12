@@ -14,8 +14,11 @@ release = scm_version[0:3]
 iso_date = date(*release).isoformat()
 iso_date = iso_date.replace("-",".")
 
-version = f"{iso_date}.{str(build)}"
-version = version.rstrip(".0") if version.endswith(".0") else version
+if build > 0:
+    version = f"{iso_date}.{str(build)}"
+
+else:
+    version = iso_date
 
 print(version)
 
