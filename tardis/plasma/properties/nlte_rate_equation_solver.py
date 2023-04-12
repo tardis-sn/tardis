@@ -713,66 +713,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         return solution_vector
 
     @staticmethod
-    def prepare_coefficient_matrices_excitation(
-        rate_matrix_index,
-        coeff_matrix_without_exc,
-        coeff_matrix_with_exc,
-    ):
-        """Generates a combined DataFrame of coefficients
-
-        Parameters
-        ----------
-        rate_matrix_index : MultiIndex
-            (atomic_number, ion_number, treatment type)
-            If ion is treated in LTE or nebular ionization, 3rd index is "lte_ion",
-            if treated in NLTE ionization, 3rd index is "nlte_ion".
-        coeff_matrix_without_exc : pandas.DataFrame
-            Dataframe of rates summed over ion numbers.
-        coeff_matrix_with_exc : pandas.DataFrame
-            Dataframe of rates without summing over the ion number.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Returns a combined dataframe of coefficients, with NLTE excitation treatment taken into account.
-        """
-        coeffs_array = np.zeros(
-            (rate_matrix_index.size, coeff_matrix_without_exc.shape[1])
-        )
-        size = 0
-        for i in range(rate_matrix_index.size):
-            if rate_matrix_index[i][2] != "lte_ion":
-                size += 1
-        size -= 1
-        coeff_array = np.zeros((size, coeff_matrix_without_exc.shape[1]))
-        index = []
-        row = 0
-        for i in range(rate_matrix_index.size):
-            if rate_matrix_index[i][2] == "nlte_ion":
-                coeff_array[row] = coeff_matrix_without_exc.loc[
-                    rate_matrix_index[i][:-1]
-                ]
-                index.append(rate_matrix_index[i])
-            elif (
-                rate_matrix_index[i][2] == "lte_ion"
-                or rate_matrix_index[i][2] == "n_e"
-            ):
-                continue
-            else:
-                coeff_array[row] = coeff_matrix_with_exc.loc[
-                    rate_matrix_index[i]
-                ]
-                index.append(rate_matrix_index[i])
-            row += 1
-        index = pd.MultiIndex.from_tuples(
-            index, names=["atomic_number", "ion_number", "level_number"]
-        )
-        coeff_matrix = pd.DataFrame(
-            coeff_array, columns=coeff_matrix_without_exc.columns, index=index
-        )
-        return coeff_matrix
-
-    @staticmethod
     def prepare_bound_bound_rate_matrix(
         number_of_levels,
         lines_index,
