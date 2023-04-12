@@ -843,7 +843,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Atomic data levels from the atomic datafile.
         number_of_shells : int
             Number of shells.
-        j_blues : Pandas DataFrame, dtype float
+        j_blues : pandas.DataFrame, dtype float
             Mean intensities in the blue wings of the line transitions.
         excitation_species : tuple
             Species treated in NLTE excitation.
