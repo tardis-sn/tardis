@@ -951,19 +951,3 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             )
 
         return filtered_coll_exc_coefficients, filtered_coll_deexc_coefficients
-
-    @staticmethod
-    def prepare_ion_recomb_coefficients_nlte_exc(
-        gamma, alpha_sp, alpha_stim, coll_ion_coeff, coll_recomb_coeff
-    ):
-        total_photo_ion_coefficients_with_levels = gamma
-        total_rad_recomb_coefficients_with_levels = alpha_sp + alpha_stim
-
-        total_coll_ion_coefficients_with_levels = coll_ion_coeff
-        total_coll_recomb_coefficients_with_levels = coll_recomb_coeff
-        return (
-            total_photo_ion_coefficients_with_levels,
-            total_rad_recomb_coefficients_with_levels,
-            total_coll_ion_coefficients_with_levels,
-            total_coll_recomb_coefficients_with_levels,
-        )
