@@ -31,9 +31,13 @@ def test_prepare_bound_bound_rate_matrix(
         copy_atomic_dataset.lines, simple_excitation_species
     )
     simple_number_of_shells = 1
-    simple_j_blues_matrix = np.linspace(0.1, 1., copy_atomic_dataset.lines.index.size)
+    simple_j_blues_matrix = np.linspace(
+        0.1, 1.0, copy_atomic_dataset.lines.index.size
+    )
     simple_j_blues = pd.DataFrame(
-        simple_j_blues_matrix, index=copy_atomic_dataset.lines.index, columns=["0"]
+        simple_j_blues_matrix,
+        index=copy_atomic_dataset.lines.index,
+        columns=["0"],
     )
 
     (
@@ -50,9 +54,13 @@ def test_prepare_bound_bound_rate_matrix(
         simple_excitation_species[0],
         simple_nlte_data,
     )
-    simple_beta_sobolev_matrix = np.linspace(2.5, 4.7, copy_atomic_dataset.lines.index.size)
+    simple_beta_sobolev_matrix = np.linspace(
+        2.5, 4.7, copy_atomic_dataset.lines.index.size
+    )
     simple_beta_sobolev = pd.DataFrame(
-        simple_beta_sobolev_matrix, index=copy_atomic_dataset.lines.index, columns=["0"]
+        simple_beta_sobolev_matrix,
+        index=copy_atomic_dataset.lines.index,
+        columns=["0"],
     )
     actual_rate_matrix = NLTERateEquationSolver.prepare_bound_bound_rate_matrix(
         number_of_levels,
@@ -65,39 +73,39 @@ def test_prepare_bound_bound_rate_matrix(
     )
     desired_rate_matrix = [
         [
-            [-4.41229578e+10],
-            [1.09803977e+10],
-            [8.87031593e+08],
-            [1.83520728e+08],
-            [5.71742068e+07],
+            [-4.41229578e10],
+            [1.09803977e10],
+            [8.87031593e08],
+            [1.83520728e08],
+            [5.71742068e07],
         ],
         [
-            [3.54409576e+10],
-            [-3.64473689e+11],
-            [1.32571818e+11],
-            [1.04228424e+10],
-            [2.27047121e+09],
+            [3.54409576e10],
+            [-3.64473689e11],
+            [1.32571818e11],
+            [1.04228424e10],
+            [2.27047121e09],
         ],
         [
-            [5.71505717e+09],
-            [2.97836962e+11],
-            [-1.41199954e+12],
-            [6.39719360e+11],
-            [5.08905487e+10],
+            [5.71505717e09],
+            [2.97836962e11],
+            [-1.41199954e12],
+            [6.39719360e11],
+            [5.08905487e10],
         ],
         [
-            [2.00818482e+09],
-            [4.15382182e+10],
-            [1.13720607e+12],
-            [-3.74593514e+12],
-            [1.98120242e+12],
+            [2.00818482e09],
+            [4.15382182e10],
+            [1.13720607e12],
+            [-3.74593514e12],
+            [1.98120242e12],
         ],
         [
-            [9.58758249e+08],
-            [1.41181112e+10],
-            [1.41334621e+11],
-            [3.09560941e+12],
-            [-2.03442061e+12],
+            [9.58758249e08],
+            [1.41181112e10],
+            [1.41334621e11],
+            [3.09560941e12],
+            [-2.03442061e12],
         ],
     ]
     assert_allclose(
