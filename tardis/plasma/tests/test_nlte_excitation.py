@@ -31,8 +31,9 @@ def test_prepare_bound_bound_rate_matrix(
         copy_atomic_dataset.lines, simple_excitation_species
     )
     simple_number_of_shells = 1
+    simple_j_blues_matrix = np.linspace(0.1, 1., copy_atomic_dataset.lines.index.size)
     simple_j_blues = pd.DataFrame(
-        0.5, index=copy_atomic_dataset.lines.index, columns=["0"]
+        simple_j_blues_matrix, index=copy_atomic_dataset.lines.index, columns=["0"]
     )
 
     (
@@ -49,8 +50,9 @@ def test_prepare_bound_bound_rate_matrix(
         simple_excitation_species[0],
         simple_nlte_data,
     )
+    simple_beta_sobolev_matrix = np.linspace(2.5, 4.7, copy_atomic_dataset.lines.index.size)
     simple_beta_sobolev = pd.DataFrame(
-        0.8, index=copy_atomic_dataset.lines.index, columns=["0"]
+        simple_beta_sobolev_matrix, index=copy_atomic_dataset.lines.index, columns=["0"]
     )
     actual_rate_matrix = NLTERateEquationSolver.prepare_bound_bound_rate_matrix(
         number_of_levels,
@@ -63,42 +65,41 @@ def test_prepare_bound_bound_rate_matrix(
     )
     desired_rate_matrix = [
         [
-            [-4.22105726e09],
-            [1.22518171e09],
-            [1.05118978e08],
-            [2.20562167e07],
-            [6.85522197e06],
+            [-4.41229578e+10],
+            [1.09803977e+10],
+            [8.87031593e+08],
+            [1.83520728e+08],
+            [5.71742068e+07],
         ],
         [
-            [3.39792096e09],
-            [-3.46604468e10],
-            [1.25856407e10],
-            [9.80445669e08],
-            [2.10361778e08],
+            [3.54409576e+10],
+            [-3.64473689e+11],
+            [1.32571818e+11],
+            [1.04228424e+10],
+            [2.27047121e+09],
         ],
         [
-            [5.44879921e08],
-            [2.82383118e10],
-            [-1.31698271e11],
-            [5.96565953e10],
-            [4.66884472e09],
+            [5.71505717e+09],
+            [2.97836962e+11],
+            [-1.41199954e+12],
+            [6.39719360e+11],
+            [5.08905487e+10],
         ],
         [
-            [1.89343842e08],
-            [3.89484475e09],
-            [1.06043389e11],
-            [-3.43063731e11],
-            [1.80741125e11],
+            [2.00818482e+09],
+            [4.15382182e+10],
+            [1.13720607e+12],
+            [-3.74593514e+12],
+            [1.98120242e+12],
         ],
         [
-            [8.89125366e07],
-            [1.30210860e09],
-            [1.29641220e10],
-            [2.82404633e11],
-            [-1.85627187e11],
+            [9.58758249e+08],
+            [1.41181112e+10],
+            [1.41334621e+11],
+            [3.09560941e+12],
+            [-2.03442061e+12],
         ],
     ]
-
     assert_allclose(
         desired_rate_matrix,
         np.array(actual_rate_matrix),
