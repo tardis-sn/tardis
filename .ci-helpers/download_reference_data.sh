@@ -2,8 +2,13 @@
 
 set -e
 
-REF_PATH="$GITHUB_WORKSPACE/tardis-refdata"
 REPO_URL="https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata"
+
+if [ -z "$GITHUB_WORKSPACE" ]; then
+    REF_PATH="./tardis-refdata"
+else
+    REF_PATH="$GITHUB_WORKSPACE/tardis-refdata"
+fi 
 
 FILES=('atom_data/kurucz_cd23_chianti_H_He.h5'
        'atom_data/chianti_He.h5'
