@@ -98,7 +98,6 @@ def test_prepare_bound_bound_rate_matrix(
             [-1.85627187e11],
         ],
     ]
-    breakpoint()
 
     assert_allclose(
         desired_rate_matrix,
