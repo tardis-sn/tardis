@@ -736,7 +736,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         pandas.DataFrame
             Returns a combined dataframe of coefficients, with NLTE excitation treatment taken into account.
         """
-        coeff_array = np.zeros(
+        coeffs_array = np.zeros(
             (rate_matrix_index.size, coeff_matrix_without_exc.shape[1])
         )
         size = 0
@@ -819,11 +819,13 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         )
         r_ul_matrix_reshaped[r_ul_index] *= beta_sobolev_filtered
         r_lu_matrix_reshaped[r_lu_index] *= beta_sobolev_filtered
-        rates_matrix_bound_bound = r_lu_matrix + r_lu_matrix
+        rates_matrix_bound_bound = r_ul_matrix + r_lu_matrix
+        # breakpoint()
         for i in range(number_of_levels):
             rates_matrix_bound_bound[i, i] = -rates_matrix_bound_bound[
                 :, i
             ].sum(axis=0)
+        # breakpoint()
         return rates_matrix_bound_bound
 
     def prepare_r_uls_rlus(
@@ -896,6 +898,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         r_lu_matrix_reshaped[r_lu_index] = (
             B_lus[np.newaxis].T * j_blues_filtered
         )
+        # breakpoint()
         return (
             lines_index,
             number_of_levels,

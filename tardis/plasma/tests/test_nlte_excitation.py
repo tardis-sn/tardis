@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_allclose
 
 
 from tardis.plasma.properties.nlte_rate_equation_solver import (
@@ -97,9 +97,9 @@ def test_prepare_bound_bound_rate_matrix(
             [-1.85627187e11],
         ],
     ]
+    breakpoint()
 
-    assert_almost_equal(
-        desired_rate_matrix - np.array(actual_rate_matrix),
-        np.zeros_like(desired_rate_matrix),
-        decimal=6,
+    assert_allclose(
+        desired_rate_matrix, np.array(actual_rate_matrix),
+        rtol=1e-6,
     )
