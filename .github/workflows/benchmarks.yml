@@ -39,29 +39,33 @@ jobs:
           ref: benchmark_simulation
           # fetch-depth: 10
 
-      - name: Setup environment
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-            miniforge-variant: Mambaforge
-            miniforge-version: latest
-            activate-environment: tardis
-            use-mamba: true
+      # - name: Setup environment
+      #   uses: conda-incubator/setup-miniconda@v2
+      #   with:
+      #       miniforge-variant: Mambaforge
+      #       miniforge-version: latest
+      #       activate-environment: tardis
+      #       use-mamba: true
 
-      - uses: actions/cache@v2
-        with:
-          path: ${{ matrix.prefix }}
-          key: conda-${{ matrix.label }}-${{ hashFiles('conda-${{ matrix.label }}.lock') }}-${{ env.CACHE_NUMBER }}
-        id: cache-conda
+      # - uses: actions/cache@v2
+      #   with:
+      #     path: ${{ matrix.prefix }}
+      #     key: conda-${{ matrix.label }}-${{ hashFiles('conda-${{ matrix.label }}.lock') }}-${{ env.CACHE_NUMBER }}
+      #   id: cache-conda
 
-      - name: Update environment
-        run: mamba update -n tardis --file conda-${{ matrix.label }}.lock
-        if: steps.cache-conda.outputs.cache-hit != 'true'
+      # - name: Update environment
+      #   run: mamba update -n tardis --file conda-${{ matrix.label }}.lock
+      #   if: steps.cache-conda.outputs.cache-hit != 'true'
 
-      - name: Install package
-        run: pip install -e .
+      # - name: Install package
+      #   run: pip install -e .
       
-      - run: wget https://github.com/tardis-sn/tardis-refdata/raw/master/atom_data/kurucz_cd23_chianti_H_He.h5
-        working-directory: asv/data
+      - run: wget https://raw.githubusercontent.com/tardis-sn/tardis/83cd1f13088e95e087c97370af04bda6cf9956b7/.ci-helpers/download_reference_data.sh
+        # working-directory: asv/data
+
+      - run: bash .ci-helpers/download_reference_data.sh atom_data/kurucz_cd23_chianti_H_He.h5
+      
+      - run: mv tardis-refdata/atom-data/kurucz_cd23_chianti_H_He.h5 asv/data/
       
       - name: Install asv
         run: pip install asv
@@ -69,14 +73,14 @@ jobs:
       - run: asv machine --yes
 
       - name: Run benchmarks for last 10 commits if not PR
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
         run: |
           git log -n 10  --pretty=format:"%H" >> tag_commits.txt
           asv run HASHFILE:tag_commits.txt -e
           asv publish
       
       - name: Push results to repo
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
         continue-on-error: true
         uses: cpina/github-action-push-to-another-repository@main
         env:
@@ -89,7 +93,7 @@ jobs:
           target-branch: gh-pages
       
       - name: Compare HEAD with master if PR
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         run: |
           asv continuous --split --show-stderr master 'HEAD'  | tee asv-output.log  
           if grep -q Traceback asv-output.log; then
