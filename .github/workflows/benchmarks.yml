@@ -97,9 +97,19 @@ jobs:
       - name: Compare HEAD with master if PR
         if: github.event_name == 'pull_request'
         run: |
-          asv continuous --split --show-stderr master 'HEAD'  | tee asv-output.log  
-          if grep -q Traceback asv-output.log; then
-          echo "Some benchmarks have errors!"
+          asv continuous --show-stderr ${{ github.event.pull_request.base.sha }} ${GITHUB_SHA}  | tee asv-output.log  
+          if grep -q Traceback asv-output.log; then 
+            echo "Some benchmarks have errors!"
+          fi
+      
+      - name: Post comment
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token:  ${{ secrets.API_TOKEN_GITHUB }}
+          issue-number: ${{ github.event.pull_request.number }}
+          # edit-mode: replace
+          body-file: asv-output.log  
       
 
 
