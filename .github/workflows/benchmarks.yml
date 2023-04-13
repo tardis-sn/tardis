@@ -106,7 +106,7 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@v2
         with:
-          token:  ${{ secrets.DEPLOY_PAT_TEMP }}
+          token:  ${{ secrets.BOT_TOKEN}}
           issue-number: ${{ github.event.pull_request.number }}
           # edit-mode: replace
           body-file: asv-output.log  
