@@ -74,7 +74,7 @@ jobs:
         if: github.event_name == 'pull_request'
         continue-on-error: true # TODO: step failed sporadically while testing
         run: |
-          asv continuous --show-stderr ${{ github.event.pull_request.base.sha }} ${GITHUB_SHA}  | tee asv-output.log  
+          asv continuous --show-stderr ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}  | tee asv-output.log  
           if grep -q Traceback asv-output.log; then 
             echo "Some benchmarks have errors!"
           fi
