@@ -74,10 +74,10 @@ jobs:
       
       - run: asv machine --yes
 
-      - name: Run benchmarks for last 10 commits if not PR
-        if: github.event_name != 'pull_request'
+      - name: Run benchmarks for last 5 commits if not PR
+        # if: github.event_name != 'pull_request'
         run: |
-          git log -n 10  --pretty=format:"%H" >> tag_commits.txt
+          git log -n 5  --pretty=format:"%H" >> tag_commits.txt
           asv run HASHFILE:tag_commits.txt -e
           asv publish
       
