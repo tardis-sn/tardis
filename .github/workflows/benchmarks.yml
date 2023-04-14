@@ -58,7 +58,7 @@ jobs:
       - run: asv publish
       
       - name: Push results to repo
-        if: github.event_name != 'pull_request'
+        # if: github.event_name != 'pull_request'
         continue-on-error: true
         uses: cpina/github-action-push-to-another-repository@main
         env:
@@ -68,7 +68,8 @@ jobs:
           destination-github-username: atharva-2001
           destination-repository-name: tardis-benchmark-test-results
           user-email: aryaatharva18@gmail.com
-          target-branch: gh-pages
+          target-branch: main
+          target-directory: .asv
       
       - name: Compare HEAD with master if PR
         if: github.event_name == 'pull_request'
