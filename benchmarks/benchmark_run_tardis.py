@@ -17,4 +17,4 @@ class Benchmarkruntardis:
         self.config = config
     
     def time_run_tardis(self):
-        sim = run_tardis(self.config)
+        sim = run_tardis(self.config, log_level="ERROR", show_progress_bars=False)
