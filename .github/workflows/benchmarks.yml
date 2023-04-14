@@ -67,7 +67,7 @@ jobs:
 
       - run: tree  ./tardis-refdata -L 2   
       
-      - run: mv ./tardis-refdata/atom_data/kurucz_cd23_chianti_H_He.h5 asv/data/
+      - run: mv ./tardis-refdata/atom_data/kurucz_cd23_chianti_H_He.h5  benchmarks/data/
       
       - name: Install asv
         run: pip install asv
