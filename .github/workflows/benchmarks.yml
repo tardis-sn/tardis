@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           repository: atharva-2001/tardis
-          ref: benchmark_simulation
+          ref: benchmark_base
           # fetch-depth: 10
 
       # - name: Setup environment
