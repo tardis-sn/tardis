@@ -30,7 +30,7 @@ jobs:
         # - os: macos-latest
         #   label: osx-64
         #   prefix: /Users/runner/miniconda3/envs/tardis
-        
+
     name: ${{ matrix.label }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -54,7 +54,8 @@ jobs:
           git log -n 5  --pretty=format:"%H" >> tag_commits.txt
           asv machine --yes
           asv run HASHFILE:tag_commits.txt -e
-          asv publish
+          
+      - run: asv publish
       
       - name: Push results to repo
         if: github.event_name != 'pull_request'
