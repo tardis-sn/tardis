@@ -10,16 +10,11 @@ defaults:
   run:
     shell: bash -l {0}
 
-# permissions:
-#       pages: write      # to deploy to Pages
-#       id-token: write   # to verify the deployment 
-
 jobs:
   build:
     strategy:
       matrix:
         include:
-
         - os: ubuntu-latest
           label: linux-64
           prefix: /usr/share/miniconda3/envs/tardis
@@ -88,7 +83,7 @@ jobs:
         with:
           token:  ${{ secrets.BOT_TOKEN}}
           issue-number: ${{ github.event.pull_request.number }}
-          body-file: asv-output.log  
+          body-file: asv-output.log
         
       - name: Save results artifact
         uses: actions/upload-artifact@v3
