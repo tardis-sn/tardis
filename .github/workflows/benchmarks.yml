@@ -2,6 +2,7 @@ name: benchmarks
 
 on:
   pull_request:
+    types: [labeled, synchronize]
   push:
     branches:
       - master
@@ -25,7 +26,7 @@ jobs:
 
     name: ${{ matrix.label }}
     runs-on: ${{ matrix.os }}
-    # if: contains(github.event.label.name, 'benchmark')
+    if: "!contains(github.event.head_commit.message, 'bench')"
     steps:
       - uses: actions/checkout@v2
         with:
@@ -46,7 +47,11 @@ jobs:
         run: |
           git log -n 5  --pretty=format:"%H" >> tag_commits.txt
           asv machine --yes
-          asv run HASHFILE:tag_commits.txt -e
+          asv run HASHFILE:tag_commits.txt -e | tee asv-output.log  
+          if grep -q Traceback asv-output.log; then 
+            echo "Some benchmarks have errors!"
+            exit 1
+          fi
           
       - name: Generate Graphs and HTML
         run: asv publish
@@ -54,7 +59,7 @@ jobs:
       - name: Delete env files
         run: rm -r .asv/env
       
-      - name: Push results to repo
+      - name: Push results to results repository
         # if: github.event_name != 'pull_request'
         continue-on-error: true
         uses: cpina/github-action-push-to-another-repository@main
@@ -75,15 +80,39 @@ jobs:
           asv continuous --show-stderr ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}  | tee asv-output.log  
           if grep -q Traceback asv-output.log; then 
             echo "Some benchmarks have errors!"
+            exit 1
           fi
       
+      - name: Output logs for comment
+        id: asv_logs
+        run: |
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "text<<$EOF" >> $GITHUB_OUTPUT
+          echo "$(cat asv-output.log)" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
       - name: Post comment
         if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@v2
         with:
           token:  ${{ secrets.BOT_TOKEN}}
           issue-number: ${{ github.event.pull_request.number }}
-          body-file: asv-output.log
+          body: |
+            *\*beep\* \*bop\**
+            Hi human, 
+            I ran benchmarks as you asked comparing master (${{ github.event.pull_request.base.sha }}) and the latest commit (${{ github.event.pull_request.head.sha }}). 
+            Here are the logs produced by ASV.
+            Results can also be downloaded as artifacts [**here**](${{ env.URL }}). 
+            <details>
+
+              ```
+              ${{join(steps.asv_logs.outputs.*, '\n')}}
+              ${{ steps.asv_logs.outputs.LOGS }}
+              ```
+            </details>
+        env:
+          URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
+      
         
       - name: Save results artifact
         uses: actions/upload-artifact@v3
