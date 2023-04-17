@@ -1,13 +1,10 @@
 name: benchmarks
 
 on:
+  pull_request:
   push:
     branches:
-    - '*'
-
-  pull_request:
-    branches:
-    - '*'
+      - master
 
 defaults:
   run:
@@ -33,6 +30,7 @@ jobs:
 
     name: ${{ matrix.label }}
     runs-on: ${{ matrix.os }}
+    # if: contains(github.event.label.name, 'benchmark')
     steps:
       - uses: actions/checkout@v2
         with:
@@ -55,7 +53,11 @@ jobs:
           asv machine --yes
           asv run HASHFILE:tag_commits.txt -e
           
-      - run: asv publish
+      - name: Generate Graphs and HTML
+        run: asv publish
+
+      - name: Delete env files
+        run: rm -r .asv/env
       
       - name: Push results to repo
         # if: github.event_name != 'pull_request'
@@ -87,4 +89,11 @@ jobs:
           token:  ${{ secrets.BOT_TOKEN}}
           issue-number: ${{ github.event.pull_request.number }}
           body-file: asv-output.log  
+        
+      - name: Save results artifact
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: asv-benchmark-results-${{ runner.os }}
+          path: .asv/results
       
