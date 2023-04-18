@@ -63,7 +63,7 @@ jobs:
         continue-on-error: true
         uses: cpina/github-action-push-to-another-repository@main
         env:
-          API_TOKEN_GITHUB: ${{ secrets.DEPLOY_PAT_TEMP}}
+          API_TOKEN_GITHUB: ${{ secrets.BOT_TOKEN}}
         with:
           source-directory: .asv
           destination-github-username: atharva-2001
