@@ -1,11 +1,17 @@
 name: benchmarks
 
 on:
-  pull_request:
-    types: [labeled, synchronize]
   push:
     branches:
       - master
+  pull_request_target:
+    branches:
+      - master
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled # run-benchmarks label required
 
 defaults:
   run:
@@ -19,14 +25,14 @@ jobs:
         - os: ubuntu-latest
           label: linux-64
           prefix: /usr/share/miniconda3/envs/tardis
-
         # - os: macos-latest
         #   label: osx-64
         #   prefix: /Users/runner/miniconda3/envs/tardis
-
     name: ${{ matrix.label }}
     runs-on: ${{ matrix.os }}
-    if: "!contains(github.event.head_commit.message, 'bench')"
+    if: github.event_name == 'push' ||
+        github.event_name == 'workflow_dispatch' || 
+        contains(github.event.pull_request.labels.*.name, 'run-benchmarks')
     steps:
       - uses: actions/checkout@v2
         with:
@@ -42,13 +48,13 @@ jobs:
         run: pip install asv
       
       - name: Run benchmarks for last 5 commits if not PR
-        # if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request_target'
         run: |
           git log -n 5  --pretty=format:"%H" >> tag_commits.txt
           asv machine --yes
-          asv run HASHFILE:tag_commits.txt -e | tee asv-output.log  
-          if grep -q Traceback asv-output.log; then 
-            echo "Some benchmarks have errors!"
+          asv run HASHFILE:tag_commits.txt | tee asv-output.log  
+          if grep -q failed asv-output.log; then 
+            echo "Some benchmarks have failed!"
             exit 1
           fi
           
@@ -59,7 +65,7 @@ jobs:
         run: rm -r .asv/env
       
       - name: Push results to results repository
-        # if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request_target'
         continue-on-error: true
         uses: cpina/github-action-push-to-another-repository@main
         env:
@@ -73,7 +79,7 @@ jobs:
           target-directory: .asv
       
       - name: Compare HEAD with master if PR
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_target'
         continue-on-error: true # TODO: step failed sporadically while testing
         run: |
           asv continuous --show-stderr ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}  | tee asv-output.log  
