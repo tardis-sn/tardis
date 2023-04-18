@@ -90,32 +90,25 @@ jobs:
           echo "$(cat asv-output.log)" >> $GITHUB_OUTPUT
           echo "$EOF" >> $GITHUB_OUTPUT
 
-      - name: Write comment
-        uses: actions/github-script@v6
+      - name: Post comment
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v2
         with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `
-              *\*beep\* \*bop\**
-              Hi human, 
-              I ran benchmarks as you asked comparing master (${{ github.event.pull_request.base.sha }}) and the latest commit (${{ github.event.pull_request.head.sha }}). 
-              Here are the logs produced by ASV.
-              Results can also be downloaded as artifacts [**here**](${{ env.URL }}). 
-              
-              <details>
-              <pre>
-              <code>
+          token:  ${{ secrets.BOT_TOKEN}}
+          issue-number: ${{ github.event.pull_request.number }} 
+          body: |
+            *\*beep\* \*bop\**
+            Hi human, 
+            I ran benchmarks as you asked comparing master (${{ github.event.pull_request.base.sha }}) and the latest commit (${{ github.event.pull_request.head.sha }}). 
+            Here are the logs produced by ASV.
+            Results can also be downloaded as artifacts [**here**](${{ env.URL }}). 
+            <details>
+
+              ```
               ${{join(steps.asv_logs.outputs.*, '\n')}}
               ${{ steps.asv_logs.outputs.LOGS }}
-              </code>
-              </pre>
-              </details>
-                
-                `
-              })
+              ```
+            </details>
         env:
           URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
       
