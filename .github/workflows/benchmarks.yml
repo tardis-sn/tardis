@@ -36,8 +36,8 @@ jobs:
       - name: Download Atom Data
         run: |
           REPO_URL="https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata"
-          wget -q "$REPO_URL/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&resolveLfs=true" -O benchmarks/data/kurucz_cd23_chianti_H_He.h5
-        
+          wget -q "$REPO_URL/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&versionType=branch&version=master&resolveLfs=true" -O benchmarks/data/kurucz_cd23_chianti_H_He.h5
+
       - name: Install asv
         run: pip install asv
       
