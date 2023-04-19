@@ -733,7 +733,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Index of lines in nlte_data.
         r_ul_index : numpy.array
             Index used for r_ul matrix
-        r_ul_matrix_reshaped : numpy.array
+        r_ul_matrix : numpy.array
             Matrix with the rates(upper to lower transition) of bound-bound interaction(DOES NOT INCLUDE THE BETA SOBOLEVS)
         r_lu_index : numpy.array
             Index used for r_lu matrix
