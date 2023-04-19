@@ -37,8 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          repository: atharva-2001/tardis
-          ref: master
+          fetch-depth: 0
 
       - name: Download Atom Data
         run: |
