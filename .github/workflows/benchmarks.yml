@@ -62,9 +62,6 @@ jobs:
       - name: Generate Graphs and HTML
         if: github.event_name != 'pull_request'
         run: asv publish
-
-      - name: Delete env files
-        run: rm -r .asv/env
       
       - name: Push results to results repository
         if: github.event_name != 'pull_request'
@@ -120,6 +117,8 @@ jobs:
         env:
           URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
       
+      - name: Delete env files
+        run: rm -r .asv/env
         
       - name: Save results artifact
         uses: actions/upload-artifact@v3
