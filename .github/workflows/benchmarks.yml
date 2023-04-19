@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           repository: atharva-2001/tardis
-          ref: benchmark_base
+          ref: master
 
       - name: Download Atom Data
         run: |
