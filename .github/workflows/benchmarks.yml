@@ -19,20 +19,21 @@ defaults:
 
 jobs:
   build:
+    if: github.event_name == 'push' ||
+        github.event_name == 'workflow_dispatch' || 
+        contains(github.event.pull_request.labels.*.name, 'run-benchmarks')
     strategy:
       matrix:
         include:
         - os: ubuntu-latest
           label: linux-64
           prefix: /usr/share/miniconda3/envs/tardis
-        # - os: macos-latest
-        #   label: osx-64
-        #   prefix: /Users/runner/miniconda3/envs/tardis
+        - os: macos-latest
+          label: osx-64
+          prefix: /Users/runner/miniconda3/envs/tardis
+
     name: ${{ matrix.label }}
     runs-on: ${{ matrix.os }}
-    if: github.event_name == 'push' ||
-        github.event_name == 'workflow_dispatch' || 
-        contains(github.event.pull_request.labels.*.name, 'run-benchmarks')
     steps:
       - uses: actions/checkout@v2
         with:
@@ -59,6 +60,7 @@ jobs:
           fi
           
       - name: Generate Graphs and HTML
+        if: github.event_name != 'pull_request'
         run: asv publish
 
       - name: Delete env files
