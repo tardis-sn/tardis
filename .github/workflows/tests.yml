@@ -46,34 +46,37 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      # - name: Clone tardis-sn/tardis-refdata
+      #   uses: actions/checkout@v2
+      #   with:
+      #     repository: tardis-sn/tardis-refdata
+      #     path: tardis-refdata
+      #     lfs: false
 
-      - name: Clone tardis-sn/tardis-refdata
-        uses: actions/checkout@v2
-        with:
-          repository: tardis-sn/tardis-refdata
-          path: tardis-refdata
-          lfs: false
+      # - name: Create LFS file list
+      #   run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+      #   working-directory: tardis-refdata
 
-      - name: Create LFS file list
-        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
-        working-directory: tardis-refdata
+      # - name: Restore LFS cache
+      #   uses: actions/cache@v2
+      #   id: lfs-cache
+      #   with:
+      #     path: tardis-refdata/.git/lfs
+      #     key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-refdata/.lfs-assets-id') }}-v1
 
-      - name: Restore LFS cache
-        uses: actions/cache@v2
-        id: lfs-cache
-        with:
-          path: tardis-refdata/.git/lfs
-          key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-refdata/.lfs-assets-id') }}-v1
-
-      - name: Git LFS Pull
-        run: git lfs pull
-        working-directory: tardis-refdata
-        if: steps.lfs-cache.outputs.cache-hit != 'true'
+      # - name: Git LFS Pull
+      #   run: git lfs pull
+      #   working-directory: tardis-refdata
+      #   if: steps.lfs-cache.outputs.cache-hit != 'true'
       
-      - name: Git LFS Checkout
-        run: git lfs checkout
-        working-directory: tardis-refdata
-        if: steps.lfs-cache.outputs.cache-hit == 'true'
+      # - name: Git LFS Checkout
+      #   run: git lfs checkout
+      #   working-directory: tardis-refdata
+      #   if: steps.lfs-cache.outputs.cache-hit == 'true'
 
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
