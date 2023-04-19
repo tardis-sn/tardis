@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-  pull_request_target:
+  pull_request:
     branches:
       - master
     types:
@@ -48,7 +48,7 @@ jobs:
         run: pip install asv
       
       - name: Run benchmarks for last 5 commits if not PR
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
         run: |
           git log -n 5  --pretty=format:"%H" >> tag_commits.txt
           asv machine --yes
@@ -65,7 +65,7 @@ jobs:
         run: rm -r .asv/env
       
       - name: Push results to results repository
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
         continue-on-error: true
         uses: cpina/github-action-push-to-another-repository@main
         env:
@@ -79,7 +79,7 @@ jobs:
           target-directory: .asv
       
       - name: Compare HEAD with master if PR
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         continue-on-error: true # TODO: step failed sporadically while testing
         run: |
           asv continuous --show-stderr ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}  | tee asv-output.log  
