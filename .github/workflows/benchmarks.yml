@@ -58,7 +58,7 @@ jobs:
         continue-on-error: true
         uses: cpina/github-action-push-to-another-repository@main
         env:
-          API_TOKEN_GITHUB: ${{ secrets.BOT_TOKEN}}
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB}}
         with:
           source-directory: .asv
           destination-github-username: atharva-2001
@@ -89,7 +89,7 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@v2
         with:
-          token:  ${{ secrets.BOT_TOKEN}}
+          token:  ${{ secrets.API_TOKEN_GITHUB}}
           issue-number: ${{ github.event.pull_request.number }} 
           body: |
             *\*beep\* \*bop\**
@@ -114,6 +114,6 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: asv-benchmark-results-${{ runner.os }}
+          name: asv-benchmark-results
           path: .asv/results
       
