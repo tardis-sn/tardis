@@ -6,7 +6,12 @@ from numba import njit
 
 from tardis.simulation import Simulation
 from tardis.montecarlo.montecarlo_numba import RPacket, PacketCollection
-from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
+from tardis.montecarlo.montecarlo_numba.numba_interface import (
+    Estimators,
+    GeometryGridCartesian2D,
+    GeometryGridSpherical1D,
+    GeometryGridCartesian3D,
+)
 
 
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
@@ -56,6 +61,37 @@ def verysimple_numba_model(nb_simulation_verysimple):
     return NumbaModel(
         model.time_explosion.to("s").value,
     )
+
+
+@pytest.fixture(scope="package")
+def verysimple_geometry_grid_spherical_1d(nb_simulation_verysimple):
+    runner = nb_simulation_verysimple.runner
+    model = nb_simulation_verysimple.model
+    return GeometryGridSpherical1D(
+        runner.r_inner_cgs,
+        runner.r_outer_cgs,
+    )
+
+
+@pytest.fixture(scope="package")
+def verysimple_geometry_grid_cartesian_2d(two_d_grid_verysimple):
+
+    width = 1.0
+    x_list = np.arange(-10, 10, width, dtype=np.float64)
+    y_list = np.arange(-10, 10, width, dtype=np.float64)
+
+    return GeometryGridCartesian2D(x_list, y_list, width)
+
+
+@pytest.fixture(scope="package")
+def verysimple_geometry_grid_cartesian_3d(nb_simulation_verysimple):
+
+    width = 1.0
+    x_list = np.arange(-10, 10, width, dtype=np.float64)
+    y_list = np.arange(-10, 10, width, dtype=np.float64)
+    z_list = np.arange(-10, 10, width, dtype=np.float64)
+
+    return GeometryGridCartesian3D(x_list, y_list, z_list, width)
 
 
 @pytest.fixture(scope="package")

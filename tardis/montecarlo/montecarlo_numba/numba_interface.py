@@ -18,6 +18,27 @@ numba_model_spec = [
     ("time_explosion", float64),
 ]
 
+geometry_grid_spherical_1d_spec = [
+    ("r_inner", float64[:]),
+    ("r_outer", float64[:]),
+    ("time_explosion", float64),
+]
+
+geometry_grid_cartesian_2d_spec = [
+    ("x_coord", float64[:]),
+    ("y_coord", float64[:]),
+    ("time_explosion", float64),
+    ("cell_width", float64),
+]
+
+geometry_grid_cartesian_3d_spec = [
+    ("x_coord", float64[:]),
+    ("y_coord", float64[:]),
+    ("z_coord", float64[:]),
+    ("time_explosion", float64),
+    ("cell_width", float64),
+]
+
 
 @jitclass(numba_model_spec)
 class NumbaModel(object):
@@ -30,6 +51,74 @@ class NumbaModel(object):
         time_explosion : float
         """
         self.time_explosion = time_explosion
+
+
+@jitclass(geometry_grid_spherical_1d_spec)
+class GeometryGridSpherical1D(object):
+    def __init__(self, r_inner, r_outer):
+        """
+        1D spherical shell model
+
+        Parameters
+        ----------
+        r_inner : numpy.ndarray
+            inner radii of spherical shells
+        r_outer : numpy.ndarray
+            outer radii of spherical shells
+        """
+        self.r_inner = r_inner
+        self.r_outer = r_outer
+
+
+@jitclass(geometry_grid_cartesian_2d_spec)
+class GeometryGridCartesian2D(object):
+    def __init__(self, x_coord, y_coord, cell_width):
+        """
+        Model for the 2D Cartesian grid system
+
+        Parameters
+        ----------
+        x_coord : numpy.ndarray
+            x coordinates of the left of the grid cells
+        y_coord : numpy.ndarray
+            y coordinates of the bottom of the grid cells
+        cell_width : float
+            side length of each square cell
+
+        Notes
+        -----
+        coords specify lower left coordinate of each cell, i.e. the least coordinate in each dimension
+        """
+        self.x_coord = x_coord
+        self.y_coord = y_coord
+        self.cell_width = cell_width
+
+
+@jitclass(geometry_grid_cartesian_3d_spec)
+class GeometryGridCartesian3D(object):
+    def __init__(self, x_coord, y_coord, z_coord, cell_width):
+        """
+        Model for the 3D Cartesian grid system
+
+        Parameters
+        ----------
+        x_coord : numpy.ndarray
+            x coordinates of the left of the grid cells
+        y_coord : numpy.ndarray
+            y coordinates of the lower of the grid cells
+        z_coord : numpy.ndarray
+            z coordinates of the back of the grid cells
+        cell_width : float
+            side length of each cubic cell
+
+        Notes
+        -----
+        coords specify lower left, into the page coordinate of each cell, i.e. the least coordinate in each dimension
+        """
+        self.x_coord = x_coord
+        self.y_coord = y_coord
+        self.z_coord = z_coord
+        self.cell_width = cell_width
 
 
 numba_plasma_spec = [
