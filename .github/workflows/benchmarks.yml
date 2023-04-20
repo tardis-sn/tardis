@@ -22,18 +22,7 @@ jobs:
     if: github.event_name == 'push' ||
         github.event_name == 'workflow_dispatch' || 
         contains(github.event.pull_request.labels.*.name, 'run-benchmarks')
-    strategy:
-      matrix:
-        include:
-        - os: ubuntu-latest
-          label: linux-64
-          prefix: /usr/share/miniconda3/envs/tardis
-        - os: macos-latest
-          label: osx-64
-          prefix: /Users/runner/miniconda3/envs/tardis
-
-    name: ${{ matrix.label }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
