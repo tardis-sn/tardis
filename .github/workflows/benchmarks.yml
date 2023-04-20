@@ -61,9 +61,9 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.BOT_TOKEN}}
         with:
           source-directory: .asv
-          destination-github-username: atharva-2001
-          destination-repository-name: tardis-benchmark-test-results
-          user-email: aryaatharva18@gmail.com
+          destination-github-username: tardis-sn
+          destination-repository-name: tardis-benchmarks
+          user-email: tardis.sn.bot@gmail.com
           target-branch: main
           target-directory: .asv
       
