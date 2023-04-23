@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_wolfgang_2023_7832336
+.. |CITATION| replace:: kerzendorf_wolfgang_2023_7855824
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7832336-blue
-                 :target: https://doi.org/10.5281/zenodo.7832336
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7855824-blue
+                 :target: https://doi.org/10.5281/zenodo.7855824
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_wolfgang_2023_7832336,
+    @software{kerzendorf_wolfgang_2023_7855824,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -119,64 +119,65 @@ The following BibTeX entries are needed for the references:
                       Gillanders, James and
                       Chitchyan, Sona and
                       Savel, Arjun and
-                      Eweis, Youssef and
                       Reinecke, Martin and
+                      Eweis, Youssef and
                       Bylund, Tomas and
                       Bentil, Laud and
                       Eguren, Jordi and
-                      Alam, Arib and
                       Bartnik, Matthew and
+                      Alam, Arib and
                       Varma Buddaraju, Rohith and
                       Magee, Mark and
-                      Shields, Joshua and
-                      Kambham, Satwik and
                       Livneh, Ran and
-                      Mishra, Sashank and
+                      Kambham, Satwik and
+                      Shields, Joshua and
                       Rajagopalan, Srinath and
-                      Jain, Rinkle and
+                      Mishra, Sashank and
                       Reichenbach, John and
                       Floers, Andreas and
-                      Singh, Sourav and
-                      Brar, Antreev and
+                      Jain, Rinkle and
                       Holas, Alexander and
+                      Singh, Sourav and
                       Bhakar, Jayant and
-                      Kowalski, Nathan and
-                      Kumar, Aman and
+                      Brar, Antreev and
                       Sofiatti, Caroline and
+                      Kumar, Aman and
+                      Chaumal, Aarya and
                       Patidar, Abhishek and
+                      Kowalski, Nathan and
                       Selsing, Jonatan and
                       Talegaonkar, Chinmay and
-                      Prasad, Shilpi and
                       Venkat, Shashank and
-                      Sharma, Sampark and
-                      Patra, Nilesh and
-                      Patel, Pratik and
-                      Singh Rathore, Parikshit and
-                      Yap, Kevin and
                       Sarafina, Nance and
+                      Patel, Pratik and
+                      Gupta, Harshul and
+                      Singh Rathore, Parikshit and
+                      Patra, Nilesh and
+                      Yap, Kevin and
                       Zaheer, Musabbiha and
                       Sandler, Morgan and
                       Truong, Le and
+                      Martinez, Laureano and
                       Singh, Shreyas and
-                      Kumar, Atul and
+                      Prasad, Shilpi and
+                      Kharkar, Atharwa and
                       Gupta, Suyash and
                       Lemoine, Thom and
                       Wahi, Ujjwal and
                       Aggarwal, Yash and
-                      Gupta, Harshul and
+                      Sharma, Sampark and
                       Volodin, Dmitry and
                       PATIDAR, ABHISHEK and
                       Dasgupta, Debajyoti and
                       Nayak U, Ashwin and
-                      Kharkar, Atharwa and
                       Kolliboyina, Chaitanya and
-                      Martinez, Laureano},
-      title        = {tardis-sn/tardis: TARDIS v2023.04.16},
+                      Kumar, Atul},
+      title        = {tardis-sn/tardis: TARDIS v2023.04.23},
       month        = apr,
       year         = 2023,
       publisher    = {Zenodo},
-      version      = {release-2023.04.16},
-      doi          = {10.5281/zenodo.7832336},
-      url          = {https://doi.org/10.5281/zenodo.7832336}
+      version      = {release-2023.04.23},
+      doi          = {10.5281/zenodo.7855824},
+      url          = {https://doi.org/10.5281/zenodo.7855824}
     }
 
