@@ -2,7 +2,7 @@
 from copy import deepcopy
 
 import pytest
-
+from tardis.tests.test_util import monkeysession
 from tardis import run_tardis
 from tardis.visualization.tools.convergence_plot import (
     ConvergencePlots,
