@@ -76,7 +76,9 @@ jobs:
         if: steps.lfs-cache.outputs.cache-hit == 'true'
       
       - name: Save LFS cache if not found
-        if: ${{ steps.lfs-cache.outputs.cache-hit != 'true'  && always() || 'false' }}
+        # uses fake ternary 
+        # for reference: https://github.com/orgs/community/discussions/26738#discussioncomment-3253176
+        if: ${{ steps.lfs-cache.outputs.cache-hit != 'true'  && always() || false }}
         uses: actions/cache/save@v3
         id: lfs-cache-save
         with:
