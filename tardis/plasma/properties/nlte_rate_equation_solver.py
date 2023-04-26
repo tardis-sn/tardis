@@ -769,7 +769,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         return rates_matrix_bound_bound
 
     def prepare_r_uls_r_lus(
-        atomic_data_levels,
+        number_of_levels,
         number_of_shells,
         j_blues,
         excitation_species,
@@ -779,8 +779,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
         Parameters
         ----------
-        atomic_data_levels : pandas.DataFrame
-            Atomic data levels from the atomic datafile.
+        number_of_levels : int
+            Number of levels for the NLTE excitation species.
         number_of_shells : int
             Number of shells.
         j_blues : pandas.DataFrame, dtype float
@@ -805,9 +805,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         r_lu_matrix_reshaped : numpy.array
             Matrix with the rates(lower to upper transition) of bound-bound interaction(DOES NOT INCLUDE THE BETA SOBOLEVS)
         """
-        number_of_levels = atomic_data_levels.energy.loc[
-            excitation_species
-        ].count()
+        # number_of_levels = atomic_data_levels.energy.loc[
+        #     excitation_species
+        # ].count() do this in the solver
         lnl = nlte_data.lines_level_number_lower[excitation_species]
         lnu = nlte_data.lines_level_number_upper[excitation_species]
         (lines_index,) = nlte_data.lines_idx[excitation_species]
