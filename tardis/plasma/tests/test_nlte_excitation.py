@@ -13,7 +13,7 @@ def test_prepare_bound_bound_rate_matrix(
     nlte_atomic_dataset,
 ):
     """
-    Using a simple case of nlte_ion for HI and HeII, checks if the calculate_rate_matrix generates the correct data.
+    Using a simple case of nlte_exc for HI, checks if prepare_bound_bound_rate_matrix generates the correct data.
     """
     simple_excitation_species = [(1, 0)]
     copy_atomic_dataset = nlte_atomic_dataset
