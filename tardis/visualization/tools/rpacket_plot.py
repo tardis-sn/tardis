@@ -7,12 +7,13 @@ import astropy.units as u
 import plotly.express as px
 import plotly.graph_objects as go
 
+
 class RPacketPlotter:
     """
     Plotting interface for the plotting Montecarlo packets. It creates an animated plot using plotly for the
     trajectories of the real packets as they travel through the ejecta starting from the photosphere.
     """
-   
+
     def __init__(self, sim, no_of_packets):
         """
         Initializes the RPacket Plotter using the simulation object generated using the run_tardis function.
@@ -35,7 +36,7 @@ class RPacketPlotter:
             light=dict(
                 linecolor="#555",
                 gridcolor="#e6e6e6",
-                zerolinecolor="#e6e6e6",
+                zerolinecolor="#fafafa",
                 color="#000",
                 photosphere_line_color="black",
                 photosphere_fillcolor="darkgrey",
@@ -57,7 +58,7 @@ class RPacketPlotter:
             dark=dict(
                 linecolor="#050505",
                 gridcolor="#262626",
-                zerolinecolor="#262626",
+                zerolinecolor="#000",
                 color="#fafafa",
                 photosphere_line_color="#222",
                 photosphere_fillcolor="#222",
@@ -111,7 +112,7 @@ class RPacketPlotter:
                 rpacket tracking in the configuration. To enable rpacket tracking see: https://tardis-sn.github.io/tardis/io/output/rpacket_tracking.html#How-to-Setup-the-Tracking-for-the-RPackets?"""
             )
 
-    def generate_plot(self, theme="light", grid_on = False, photosphere_scale = 0.9):
+    def generate_plot(self, theme="light", grid_on=False, photosphere_scale=0.9):
         """
         Creates an animated plotly plot showing the Montecarlo packets' trajectories.
 
@@ -139,7 +140,7 @@ class RPacketPlotter:
         ) = self.get_coordinates_multiple_packets(
             self.sim.runner.rpacket_tracker_df.loc[0 : (self.no_of_packets)],
         )
-        
+
         # making the coordinate arrays of all packets equal
         (
             rpacket_x,
@@ -163,6 +164,11 @@ class RPacketPlotter:
         neg_shell_range = -1.1 * v_shells[-1] + ((1 - photosphere_scale) * v_shells[0])
         pos_shell_range =  1.1 * v_shells[-1] - ((1 - photosphere_scale) * v_shells[0])
         
+        if (grid_on):
+            zerolinecolor = self.theme_colors[theme]["gridcolor"]
+        else:
+            zerolinecolor = self.theme_colors[theme]["zerolinecolor"]
+            
         self.fig.update_xaxes(
             scaleanchor="y",
             scaleratio=1,
@@ -172,7 +178,7 @@ class RPacketPlotter:
             color=self.theme_colors[theme]["color"],
             linecolor=self.theme_colors[theme]["linecolor"],
             gridcolor=self.theme_colors[theme]["gridcolor"],
-            zerolinecolor=self.theme_colors[theme]["zerolinecolor"],
+            zerolinecolor=zerolinecolor,
             tickangle = 0
         )
         self.fig.update_yaxes(
@@ -182,7 +188,7 @@ class RPacketPlotter:
             color=self.theme_colors[theme]["color"],
             linecolor=self.theme_colors[theme]["linecolor"],
             gridcolor=self.theme_colors[theme]["gridcolor"],
-            zerolinecolor=self.theme_colors[theme]["zerolinecolor"],
+            zerolinecolor=zerolinecolor,
             tickangle = 0
         )
 
@@ -231,13 +237,13 @@ class RPacketPlotter:
                     opacity=0.2,
                 )
 
-    
         # Adding packet trajectory
+        
         for packet_no in range(len(rpacket_x)):
             self.fig.add_trace(
                 go.Scatter(
-                    x= scaled_x[packet_no],
-                    y= scaled_y[packet_no],
+                    x=scaled_x[packet_no],
+                    y=scaled_y[packet_no],
                     mode="markers+lines",
                     customdata=np.stack((rpacket_x[packet_no], rpacket_y[packet_no]), axis=-1),
                     name="Packet " + str(packet_no + 1),
@@ -374,7 +380,7 @@ class RPacketPlotter:
                 )
             ],
         )
-       
+
         # adding frames
         self.fig.frames = [
             go.Frame(
@@ -385,7 +391,7 @@ class RPacketPlotter:
             )
             for frame in range(rpacket_array_max_size + 1)
         ]
-        
+
         # adding timeline slider
         self.fig.layout.sliders = [
             {
@@ -421,7 +427,6 @@ class RPacketPlotter:
 
         return self.fig
 
-    
     def get_coordinates_with_theta_init(
         self,
         r_track,
@@ -456,8 +461,9 @@ class RPacketPlotter:
             types of interactions occuring at different points
         """
         rpacket_x, rpacket_y, theta, rpacket_interactions = [], [], [], []
-        
+
         # getting thetas at different steps of the packet movement
+        
         for step_no in range(len(r_track)):
             # for the first step the packet is at photosphere, so theta will be equal to the intial angle we are launching the packet from
             if step_no == 0:
@@ -490,7 +496,7 @@ class RPacketPlotter:
         # converting the thetas into x and y coordinates using radius as radius*cos(theta) and radius*sin(theta) respectively
         rpacket_x = (np.array(r_track)) * np.cos(np.array(theta)) * 1e-5 / time
         rpacket_y = (np.array(r_track)) * np.sin(np.array(theta)) * 1e-5 / time
-        
+
         # adding interactions at different steps
         # using the change of slope of the trajectory line at different steps, we determine if an interactions happened or not.
 
@@ -515,7 +521,6 @@ class RPacketPlotter:
 
         return rpacket_x, rpacket_y, rpacket_interactions
 
-    
     def get_coordinates_multiple_packets(self, r_packet_tracker):
         """
         Generates an array of array containing x and y coordinates of multiple packets
@@ -558,7 +563,6 @@ class RPacketPlotter:
             np.array(rpackets_interactions, dtype="object"),
         )
 
-    
     def get_equal_array_size(self, rpacket_x, rpacket_y, interactions):
         """
         creates the coordinate arrays of different packets of same size. This is done for generating frames in animation.
@@ -687,9 +691,8 @@ class RPacketPlotter:
             list of go.Scatter objects for a particular frame number.
         """
         frames = []
-    
+
         for packet_no in range(len(rpacket_x)):
-            
             # adding a scatter object containing the trajectory of a packet upto a particular frame number
             frames.append(
                 go.Scatter(
@@ -698,7 +701,7 @@ class RPacketPlotter:
                     mode="markers+lines",
                     name="Packet " + str(packet_no + 1),
                     showlegend=False,
-                    customdata = np.stack((rpacket_x[packet_no].tolist()[0:frame], rpacket_y[packet_no].tolist()[0:frame]), axis=-1),
+                    customdata=np.stack((rpacket_x[packet_no].tolist()[0:frame], rpacket_y[packet_no].tolist()[0:frame]), axis=-1),
                     hovertemplate="<b>X</b>: %{customdata[0]}" +
                               "<br><b>Y</b>: %{customdata[1]}</br>" +
                                   "<b>Last Interaction: %{text}</b>",
