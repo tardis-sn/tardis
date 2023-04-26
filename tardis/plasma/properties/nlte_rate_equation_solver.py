@@ -768,7 +768,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             ].sum(axis=0)
         return rates_matrix_bound_bound
 
-    def prepare_r_uls_rlus(
+    def prepare_r_uls_r_lus(
         atomic_data_levels,
         number_of_shells,
         j_blues,
