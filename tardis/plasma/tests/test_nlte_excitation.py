@@ -110,7 +110,7 @@ def test_prepare_bound_bound_rate_matrix(
             [-2.03442061e12],
         ],
     ]
-    # if this test fails the first thing to check is if the reshape in the 
+    # if this test fails the first thing to check is if the reshape in the
     # methods made a view or a copy. If it's a copy rewrite the function.
     assert_allclose(
         desired_rate_matrix,
