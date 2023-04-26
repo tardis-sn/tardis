@@ -39,7 +39,9 @@ def test_prepare_bound_bound_rate_matrix(
         index=copy_atomic_dataset.lines.index,
         columns=["0"],
     )
-
+    simple_number_of_levels = copy_atomic_dataset.levels.energy.loc[
+            simple_excitation_species[0]
+        ].count()
     (
         lines_index,
         number_of_levels,
@@ -47,8 +49,8 @@ def test_prepare_bound_bound_rate_matrix(
         r_ul_matrix,
         r_lu_index,
         r_lu_matrix,
-    ) = NLTERateEquationSolver.prepare_r_uls_rlus(
-        copy_atomic_dataset.levels,
+    ) = NLTERateEquationSolver.prepare_r_uls_r_lus(
+        simple_number_of_levels,
         simple_number_of_shells,
         simple_j_blues,
         simple_excitation_species[0],

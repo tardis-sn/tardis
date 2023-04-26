@@ -735,10 +735,12 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Index used for r_ul matrix
         r_ul_matrix : numpy.array
             Matrix with the rates(upper to lower transition) of bound-bound interaction(DOES NOT INCLUDE THE BETA SOBOLEVS)
+            (number_of_levels, number_of_levels, number_of_shells)
         r_lu_index : numpy.array
             Index used for r_lu matrix
-        r_lu_matrix_reshaped : numpy.array
+        r_lu_matrix : numpy.array
             Matrix with the rates(lower to upper transition) of bound-bound interaction(DOES NOT INCLUDE THE BETA SOBOLEVS)
+            (number_of_levels, number_of_levels, number_of_shells)
         beta_sobolev : Pandas DataFrame
             Beta Sobolev factors.
         Returns
