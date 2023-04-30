@@ -110,14 +110,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_wolfgang_2023_7855824
+.. |CITATION| replace:: kerzendorf_wolfgang_2023_7881540
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7855824-blue
-                 :target: https://doi.org/10.5281/zenodo.7855824
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7881540-blue
+                 :target: https://doi.org/10.5281/zenodo.7881540
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_wolfgang_2023_7855824,
+    @software{kerzendorf_wolfgang_2023_7881540,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -164,8 +164,8 @@ The following BibTeX entries are needed for the references:
                       Alam, Arib and
                       Varma Buddaraju, Rohith and
                       Magee, Mark and
-                      Livneh, Ran and
                       Kambham, Satwik and
+                      Livneh, Ran and
                       Shields, Joshua and
                       Rajagopalan, Srinath and
                       Mishra, Sashank and
@@ -208,13 +208,13 @@ The following BibTeX entries are needed for the references:
                       Nayak U, Ashwin and
                       Kolliboyina, Chaitanya and
                       Kumar, Atul},
-      title        = {tardis-sn/tardis: TARDIS v2023.04.23},
+      title        = {tardis-sn/tardis: TARDIS v2023.04.30},
       month        = apr,
       year         = 2023,
       publisher    = {Zenodo},
-      version      = {release-2023.04.23},
-      doi          = {10.5281/zenodo.7855824},
-      url          = {https://doi.org/10.5281/zenodo.7855824}
+      version      = {release-2023.04.30},
+      doi          = {10.5281/zenodo.7881540},
+      url          = {https://doi.org/10.5281/zenodo.7881540}
     }
 
 *******
