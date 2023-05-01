@@ -24,7 +24,7 @@ jobs:
         contains(github.event.pull_request.labels.*.name, 'run-benchmarks')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -58,7 +58,7 @@ jobs:
         continue-on-error: true
         uses: cpina/github-action-push-to-another-repository@main
         env:
-          API_TOKEN_GITHUB: ${{ secrets.BOT_TOKEN}}
+          API_TOKEN_GITHUB: ${{ secrets.BOT_TOKEN }}
         with:
           source-directory: .asv
           destination-github-username: tardis-sn
@@ -71,19 +71,26 @@ jobs:
         if: github.event_name == 'pull_request'
         continue-on-error: true # TODO: step failed sporadically while testing
         run: |
-          asv continuous ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}  | tee asv-output.log  
+          asv continuous ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}  | tee asv-cont-output.log  
           if grep -q failed asv-output.log; then 
             echo "Some benchmarks have errors!"
             exit 1
           fi
       
-      - name: Output logs for comment
-        id: asv_logs
-        run: |
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "text<<$EOF" >> $GITHUB_OUTPUT
-          echo "$(cat asv-output.log)" >> $GITHUB_OUTPUT
-          echo "$EOF" >> $GITHUB_OUTPUT
+      - run: asv compare ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | tee asv-compare-output.log  
+      - run: asv compare ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} --only-changed | tee asv-compare-changed-output.log  
+      
+      - name: asv output 1
+        id: asv_pr_vs_master
+        uses: juliangruber/read-file-action@v1.0.0
+        with:
+          path: asv-compare-output.log
+
+      - name: asv output 2
+        id: asv_pr_vs_master_changed
+        uses: juliangruber/read-file-action@v1.0.0
+        with:
+          path: asv-compare-changed-output.log 
 
       - name: Find Comment
         if: github.event_name == 'pull_request'
@@ -98,7 +105,7 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@v2
         with:
-          token:  ${{ secrets.BOT_TOKEN}}
+          token:  ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }} 
           comment-id: ${{ steps.fc.outputs.comment-id }}
           body: |
@@ -107,12 +114,22 @@ jobs:
             I ran benchmarks as you asked comparing master (${{ github.event.pull_request.base.sha }}) and the latest commit (${{ github.event.pull_request.head.sha }}). 
             Here are the logs produced by ASV.
             Results can also be downloaded as artifacts [**here**](${{ env.URL }}). 
+            Significantly changed benchmarks:
             <details>
 
+              ```diff
+              ${{ steps.asv_pr_vs_master_changed.outputs.content }}
               ```
-              ${{join(steps.asv_logs.outputs.*, '\n')}}
-              ${{ steps.asv_logs.outputs.LOGS }}
+
+            </details>
+            
+            All benchmarks:
+            <details>
+
+              ```diff
+              ${{ steps.asv_pr_vs_master.outputs.content }}
               ```
+              
             </details>
         env:
           URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
@@ -125,5 +142,10 @@ jobs:
         if: always()
         with:
           name: asv-benchmark-results-${{ runner.os }}
-          path: .asv/results
+          path: |
+            .asv/results
+            asv-cont-output.log  
+            asv-compare-output.log
+            asv-compare-changed-output.log 
+
       
