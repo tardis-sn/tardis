@@ -74,3 +74,5 @@ dependencies:
 
   # Other
   - git-lfs
+  - pip: # see https://github.com/h5py/h5py/issues/1880
+    - h5py
