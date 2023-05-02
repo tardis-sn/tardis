@@ -9,7 +9,7 @@ class Benchmarkruntardis:
     timeout = 200
     
     def setup(self):
-        filename = "tardis_configv1_verysimple.yml"
+        filename = "tardis_configv1_benchmark.yml"
         dir_path = os.path.dirname(os.path.realpath(__file__))
         path = os.path.join(dir_path, "data", filename)
         config = Configuration.from_yaml(path)
