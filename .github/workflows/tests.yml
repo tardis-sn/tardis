@@ -29,7 +29,7 @@ defaults:
 
 jobs:
   build:
-
+    if: github.repository_owner == 'tardis-sn'
     strategy:
       matrix:
         include:
@@ -59,7 +59,7 @@ jobs:
         working-directory: tardis-refdata
 
       - name: Restore LFS cache
-        uses: actions/cache@v2
+        uses: actions/cache/restore@v3
         id: lfs-cache
         with:
           path: tardis-refdata/.git/lfs
@@ -74,6 +74,16 @@ jobs:
         run: git lfs checkout
         working-directory: tardis-refdata
         if: steps.lfs-cache.outputs.cache-hit == 'true'
+      
+      - name: Save LFS cache if not found
+        # uses fake ternary 
+        # for reference: https://github.com/orgs/community/discussions/26738#discussioncomment-3253176
+        if: ${{ steps.lfs-cache.outputs.cache-hit != 'true'  && always() || false }}
+        uses: actions/cache/save@v3
+        id: lfs-cache-save
+        with:
+          path: tardis-refdata/.git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-refdata/.lfs-assets-id') }}-v1
 
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
