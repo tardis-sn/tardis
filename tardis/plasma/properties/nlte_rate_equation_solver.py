@@ -742,7 +742,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         r_lu_matrix : numpy.array
             Matrix with the rates(lower to upper transition) of bound-bound interaction(DOES NOT INCLUDE THE BETA SOBOLEVS)
             (number_of_levels, number_of_levels, number_of_shells)
-        beta_sobolev : Pandas DataFrame
+        beta_sobolev : pandas.DataFrame
             Beta Sobolev factors.
         Returns
         -------
