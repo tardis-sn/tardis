@@ -842,7 +842,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         )
         return (
             lines_index,
-            number_of_levels,
             r_ul_index,
             r_ul_matrix,
             r_lu_index,

@@ -44,7 +44,6 @@ def test_prepare_bound_bound_rate_matrix(
     ].count()
     (
         lines_index,
-        number_of_levels,
         r_ul_index,
         r_ul_matrix,
         r_lu_index,
@@ -65,7 +64,7 @@ def test_prepare_bound_bound_rate_matrix(
         columns=["0"],
     )
     actual_rate_matrix = NLTERateEquationSolver.prepare_bound_bound_rate_matrix(
-        number_of_levels,
+        simple_number_of_levels,
         lines_index,
         r_ul_index,
         r_ul_matrix,
