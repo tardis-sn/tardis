@@ -61,9 +61,9 @@ Or, to run tests for a particular file or directory
     > pytest tardis/path/to/test_file_or_directory --tardis-refdata=/path/to/tardis-refdata/
 
 .. warning::
-    The (`tests workflow <https://github.com/tardis-sn/tardis/blob/master/.github/workflows/tests.yml>`_) runs on 
-    (`pull requests <https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request>`_) and on 
-    (`push <https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push>`_) events.
+    The `tests workflow <https://github.com/tardis-sn/tardis/blob/master/.github/workflows/tests.yml>`_ runs on 
+    `pull requests <https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request>`_ and on 
+    `push <https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push>`_ events.
     To prevent leaking LFS quota, tests have been disabled on forks.
     If, by any chance, you need to run tests on your fork, make sure to run the tests workflow on master branch first.
     The LFS cache generated in the master branch should be available in all child branches. 
