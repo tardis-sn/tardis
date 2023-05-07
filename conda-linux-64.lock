@@ -48,7 +48,7 @@ https://conda.anaconda.org/conda-forge/linux-64/libzlib-1.2.13-h166bdaf_4.tar.bz
 https://conda.anaconda.org/conda-forge/linux-64/lz4-c-1.9.4-hcb278e6_0.conda#318b08df404f9c9be5712aaa5a6f0bb0
 https://conda.anaconda.org/conda-forge/linux-64/lzo-2.10-h516909a_1000.tar.bz2#bb14fcb13341b81d5eb386423b9d2bac
 https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.3-h27087fc_1.tar.bz2#4acfc691e64342b9dae57cf2adc63238
-https://conda.anaconda.org/conda-forge/linux-64/openssl-3.1.0-hd590300_2.conda#bf5eccefb2189cb3c9a1bf8051c6e588
+https://conda.anaconda.org/conda-forge/linux-64/openssl-3.1.0-hd590300_3.conda#8f24d371ed9efb3f0b0de383fb81d51c
 https://conda.anaconda.org/conda-forge/linux-64/pcre-8.45-h9c3ff4c_0.tar.bz2#c05d1820a6d34ff07aaaab7a9b7eddaa
 https://conda.anaconda.org/conda-forge/linux-64/pixman-0.40.0-h36c2ea0_0.tar.bz2#660e72c82f2e75a6b3fe6a6e75c79f19
 https://conda.anaconda.org/conda-forge/linux-64/pthread-stubs-0.4-h36c2ea0_1001.tar.bz2#22dad4df6e8630e8dff2428f6f6a7036
@@ -101,7 +101,7 @@ https://conda.anaconda.org/conda-forge/noarch/_ipython_minor_entry_point-8.7.0-h
 https://conda.anaconda.org/conda-forge/noarch/alabaster-0.7.13-pyhd8ed1ab_0.conda#06006184e203b61d3525f90de394471e
 https://conda.anaconda.org/conda-forge/noarch/astropy-sphinx-theme-1.1-py_0.tar.bz2#1190bec6b78aaf8e602e8fc829ce7b3f
 https://conda.anaconda.org/conda-forge/linux-64/atk-1.0-2.38.0-hd4edc92_1.tar.bz2#6c72ec3e660a51736913ef6ea68c454b
-https://conda.anaconda.org/conda-forge/noarch/attrs-22.2.0-pyh71513ae_0.conda#8b76db7818a4e401ed4486c4c1635cd9
+https://conda.anaconda.org/conda-forge/noarch/attrs-23.1.0-pyh71513ae_0.conda#96dc713c727993c72605686c322a9fc8
 https://conda.anaconda.org/conda-forge/noarch/backcall-0.2.0-pyh9f0ad1d_0.tar.bz2#6006a6d08a3fa99268a2681c7fb55213
 https://conda.anaconda.org/conda-forge/noarch/backports-1.0-pyhd8ed1ab_3.conda#54ca2e08b3220c148a1d8329c2678e02
 https://conda.anaconda.org/conda-forge/linux-64/brotli-1.0.9-h166bdaf_8.tar.bz2#2ff08978892a3e8b954397c461f18418
@@ -209,7 +209,7 @@ https://conda.anaconda.org/conda-forge/linux-64/cairo-1.16.0-h35add3b_1015.conda
 https://conda.anaconda.org/conda-forge/linux-64/cffi-1.15.1-py38h4a40e3a_3.conda#3ac112151c6b6cfe457e976de41af0c5
 https://conda.anaconda.org/conda-forge/noarch/comm-0.1.3-pyhd8ed1ab_0.conda#168ae0f82cdf7505048e81054c7354e4
 https://conda.anaconda.org/conda-forge/noarch/commonmark-0.9.1-py_0.tar.bz2#6aa0173c14befcd577ded130cf6f22f5
-https://conda.anaconda.org/conda-forge/linux-64/coverage-7.2.4-py38h01eb140_0.conda#d54ea7d922a3ff4426d8a8dd360db0cd
+https://conda.anaconda.org/conda-forge/linux-64/coverage-7.2.5-py38h01eb140_0.conda#be3912e9b5334a0e3329183467015785
 https://conda.anaconda.org/conda-forge/noarch/dot2tex-2.11.3-pyhd8ed1ab_0.tar.bz2#fb28e38d17dee34abc13cf6ad916534a
 https://conda.anaconda.org/conda-forge/linux-64/fonttools-4.39.3-py38h1de0b5d_0.conda#34449fe6e3949956fac2236c9a9a3d3b
 https://conda.anaconda.org/conda-forge/linux-64/h5py-2.10.0-nompi_py38h513d04c_102.tar.bz2#3a7ee7bcd339e2264d00d240141fdef6
@@ -276,8 +276,8 @@ https://conda.anaconda.org/conda-forge/noarch/nbformat-5.8.0-pyhd8ed1ab_0.conda#
 https://conda.anaconda.org/conda-forge/noarch/prompt_toolkit-3.0.38-hd8ed1ab_0.conda#45b74f64d8808eda7e6f6e6b1d641fd2
 https://conda.anaconda.org/conda-forge/noarch/pytest-html-3.2.0-pyhd8ed1ab_1.tar.bz2#d5c7a941dfbceaab4b172a56d7918eb0
 https://conda.anaconda.org/conda-forge/noarch/urllib3-1.26.15-pyhd8ed1ab_0.conda#27db656619a55d727eaf5a6ece3d2fd6
-https://conda.anaconda.org/conda-forge/linux-64/graphviz-8.0.4-h28d9a01_0.conda#47444395361c6a6273bf00356fa15c8b
-https://conda.anaconda.org/conda-forge/noarch/ipython-8.12.1-pyh41d4057_0.conda#826be76b9be2b24301404a3ceca94c09
+https://conda.anaconda.org/conda-forge/linux-64/graphviz-8.0.5-h28d9a01_0.conda#597e2d0e1c6bc2e4457714ff479fe142
+https://conda.anaconda.org/conda-forge/noarch/ipython-8.12.2-pyh41d4057_0.conda#acebfd89278ecac2a67b60b657e00d5c
 https://conda.anaconda.org/conda-forge/noarch/nbclient-0.7.4-pyhd8ed1ab_0.conda#f7aa15f77d29b11caa1df1eb15383c59
 https://conda.anaconda.org/conda-forge/noarch/requests-2.29.0-pyhd8ed1ab_0.conda#5fa992d972fbccfc069161805122cb8d
 https://conda.anaconda.org/conda-forge/noarch/ipykernel-6.22.0-pyh210e3f2_0.conda#1b463a5f4b7c83f509f6a1168a6ef554
@@ -297,7 +297,7 @@ https://conda.anaconda.org/conda-forge/noarch/nbconvert-7.3.1-pyhd8ed1ab_0.conda
 https://conda.anaconda.org/conda-forge/noarch/notebook-shim-0.2.3-pyhd8ed1ab_0.conda#67e0fe74c156267d9159e9133df7fd37
 https://conda.anaconda.org/conda-forge/noarch/sphinx-astropy-1.7.0-pyhd8ed1ab_0.tar.bz2#c31d4e8154011f5e412ccc241de3b359
 https://conda.anaconda.org/conda-forge/noarch/sphinx_rtd_theme-1.2.0-pyha770c72_0.conda#55f8f3f0fa3fd6b7522f4133fac8ee59
-https://conda.anaconda.org/conda-forge/noarch/nbclassic-0.5.6-pyhb4ecaf3_1.conda#6904c9f1e9604888daec187b0dd0d7d9
+https://conda.anaconda.org/conda-forge/noarch/nbclassic-1.0.0-pyhb4ecaf3_1.conda#a0be31e9bd84d6eae87cdbf74c56b90b
 https://conda.anaconda.org/conda-forge/noarch/nbsphinx-0.9.1-pyhd8ed1ab_0.conda#a0b8b3d9eb22da29279a90883dcd5962
 https://conda.anaconda.org/conda-forge/noarch/notebook-6.5.4-pyha770c72_0.conda#ec4ce3ce0a55ce21b6f5b86049b97af9
 https://conda.anaconda.org/conda-forge/noarch/widgetsnbextension-3.6.4-pyhd8ed1ab_0.conda#39f955095a360b5cb5e15ada01eb62a5
