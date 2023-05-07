@@ -76,7 +76,7 @@ jobs:
         run: pip install -e .
 
       - name: Build documentation
-        run: cd docs/ && make html CORES=auto
+        run: cd docs/ && make html CORES=auto SPHINXOPTS="-W --keep-going"
 
       - name: Set destination directory
         run: |
