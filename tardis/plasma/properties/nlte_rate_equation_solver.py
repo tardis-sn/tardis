@@ -70,10 +70,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Electron density with NLTE ionization treatment.
         """
 
-        nlte_data = NLTEExcitationData(
-            atomic_data.lines, nlte_excitation_species
-        )  # - will be used in a future PR
-        1 / 0
+        # nlte_data = NLTEExcitationData(
+        #     atomic_data.lines, nlte_excitation_species
+        # )  # - will be used in a future PR
+        # 1 / 0
 
         (
             total_photo_ion_coefficients,
@@ -127,7 +127,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
                     total_rad_recomb_coefficients[shell],
                     total_coll_ion_coefficients[shell],
                     total_coll_recomb_coefficients[shell],
-                    excitation_stuff[shell],
                 ),
                 jac=True,
             )
@@ -615,7 +614,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         total_rad_recomb_coefficients,
         total_coll_ion_coefficients,
         total_coll_recomb_coefficients,
-        excitation_stuff,
     ):
         """Main set of equations for the NLTE ionization solver.
 
