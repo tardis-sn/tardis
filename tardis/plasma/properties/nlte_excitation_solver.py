@@ -1,11 +1,51 @@
 import numpy as np
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
+from tardis.plasma.properties.nlte_excitation_data import NLTEExcitationData
+
 
 class NLTEExcitationSolver(ProcessingPlasmaProperty):
-    def calculate(self, atomic_data, ):
-        return 0
-    
+    def calculate(
+        self,
+        atomic_data,
+        j_blues,
+        beta_sobolev,
+        nlte_excitation_species,
+        gamma,
+        alpha_sp,
+        alpha_stim,
+        coll_ion_coeff,
+        coll_recomb_coeff,
+        coll_exc_coeff,
+        coll_deexc_coeff,
+        electron_density,
+    ):
+        nlte_data = NLTEExcitationData(
+            atomic_data.lines, nlte_excitation_species
+        )
+        rate_matrix_blocks = dict.fromkeys(nlte_excitation_species)
+        for species in nlte_excitation_species:
+            number_of_levels = atomic_data.levels.energy.loc[species].count()
+            (
+                lines_index,
+                r_ul_index,
+                r_ul_matrix,
+                r_lu_index,
+                r_lu_matrix,
+            ) = self.prepare_r_uls_r_lus(
+                number_of_levels, 1, j_blues, species, nlte_data
+            )
+            bound_rate_matrix = self.prepare_bound_bound_rate_matrix(
+                number_of_levels,
+                lines_index,
+                r_ul_index,
+                r_ul_matrix,
+                r_lu_index,
+                r_lu_matrix,
+                beta_sobolev,
+            )
+            
+
     @staticmethod
     def prepare_bound_bound_rate_matrix(
         number_of_levels,
@@ -143,7 +183,12 @@ class NLTEExcitationSolver(ProcessingPlasmaProperty):
         )
         # TODO: beta sobolev needs to be recalculated for each iteration, because it depends on number density
 
-
-    def calculate_rate_matrix_nlte_exc(self, number_of_levels, nlte_data, j_blues, nlte_excitation_species, ):
-        1/0
+    def calculate_rate_matrix_nlte_exc(
+        self,
+        number_of_levels,
+        nlte_data,
+        j_blues,
+        nlte_excitation_species,
+    ):
+        1 / 0
         return 0

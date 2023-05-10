@@ -70,8 +70,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Electron density with NLTE ionization treatment.
         """
 
-        nlte_data = NLTEExcitationData(atomic_data.lines, nlte_excitation_species)# - will be used in a future PR
-        1/0
+        nlte_data = NLTEExcitationData(
+            atomic_data.lines, nlte_excitation_species
+        )  # - will be used in a future PR
+        1 / 0
 
         (
             total_photo_ion_coefficients,
@@ -650,7 +652,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         """
         electron_density = populations[-1]
 
-        #TODO: here, the beta sobolevs are updated
+        # TODO: here, the beta sobolevs are updated
         if nlte_excitation_species:
             rate_matrix_exc_part = self.calculate_rate_matrix_nlte_exc()
         rate_matrix = self.calculate_rate_matrix(
@@ -723,4 +725,3 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             )
         solution_vector = np.hstack(solution_array + [0])
         return solution_vector
-    
