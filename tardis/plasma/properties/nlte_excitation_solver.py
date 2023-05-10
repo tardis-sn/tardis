@@ -44,10 +44,21 @@ class NLTEExcitationSolver(ProcessingPlasmaProperty):
                 r_lu_matrix,
                 beta_sobolev,
             )
-            ionization_coefficients = gamma.loc[species] + coll_ion_coeff.loc[species] * electron_density
-            recombination_coefficients = (alpha_sp.loc[species] + alpha_stim.loc[species]) * electron_density + coll_recomb_coeff.loc[species] * electron_density**2
-            excitation_coefficients = coll_exc_coeff.loc[species] * electron_density
-            deexcitation_coefficients = coll_deexc_coeff.loc[species] * electron_density
+            ionization_coefficients = (
+                gamma.loc[species]
+                + coll_ion_coeff.loc[species] * electron_density
+            )
+            recombination_coefficients = (
+                alpha_sp.loc[species] + alpha_stim.loc[species]
+            ) * electron_density + coll_recomb_coeff.loc[
+                species
+            ] * electron_density**2
+            excitation_coefficients = (
+                coll_exc_coeff.loc[species] * electron_density
+            )
+            deexcitation_coefficients = (
+                coll_deexc_coeff.loc[species] * electron_density
+            )
 
     @staticmethod
     def prepare_bound_bound_rate_matrix(

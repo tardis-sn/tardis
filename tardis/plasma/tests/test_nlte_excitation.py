@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from numpy.testing import assert_allclose
+from tardis.plasma.properties.nlte_excitation_solver import NLTEExcitationSolver
 
 
 from tardis.plasma.properties.nlte_rate_equation_solver import (
@@ -48,7 +49,7 @@ def test_prepare_bound_bound_rate_matrix(
         r_ul_matrix,
         r_lu_index,
         r_lu_matrix,
-    ) = NLTERateEquationSolver.prepare_r_uls_r_lus(
+    ) = NLTEExcitationSolver.prepare_r_uls_r_lus(
         simple_number_of_levels,
         simple_number_of_shells,
         simple_j_blues,
@@ -63,7 +64,7 @@ def test_prepare_bound_bound_rate_matrix(
         index=copy_atomic_dataset.lines.index,
         columns=["0"],
     )
-    actual_rate_matrix = NLTERateEquationSolver.prepare_bound_bound_rate_matrix(
+    actual_rate_matrix = NLTEExcitationSolver.prepare_bound_bound_rate_matrix(
         simple_number_of_levels,
         lines_index,
         r_ul_index,
