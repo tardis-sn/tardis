@@ -88,6 +88,7 @@
         "req": {
             // "numpy": [],
             //  "six": ["", null],  // test with and without six installed
+             "pip":[""],
              "pip+h5py": [""]
         },
         // "env": {"ENV_VAR_1": ["val1", "val2"]},
