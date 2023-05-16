@@ -40,11 +40,6 @@ jobs:
       - name: Install asv
         run: pip install asv==0.4.*
 
-      - name: Install h5py 
-        # Installation of h5py caused troubles which can be fixed via installing it via pip
-        # https://github.com/h5py/h5py/issues/1880
-        run: pip install h5py
-
       - name: Accpet all asv questions
         run: asv machine --yes
       
