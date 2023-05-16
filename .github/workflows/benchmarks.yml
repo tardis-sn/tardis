@@ -11,7 +11,7 @@ on:
       - opened
       - reopened
       - synchronize
-      - labeled # run-benchmarks label required
+      - labeled # benchmarks label required
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -25,7 +25,7 @@ jobs:
   build:
     if: github.event_name == 'push' ||
         github.event_name == 'workflow_dispatch' || 
-        contains(github.event.pull_request.labels.*.name, 'run-benchmarks')
+        contains(github.event.pull_request.labels.*.name, 'benchmarks')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
