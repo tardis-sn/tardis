@@ -38,7 +38,7 @@ jobs:
           wget -q "$REPO_URL/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&versionType=branch&version=master&resolveLfs=true" -O benchmarks/data/kurucz_cd23_chianti_H_He.h5
 
       - name: Install asv
-        run: pip install asv
+        run: pip install asv==0.4.*
 
       - name: Install h5py 
         # Installation of h5py caused troubles which can be fixed via installing it via pip
