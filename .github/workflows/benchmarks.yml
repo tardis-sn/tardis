@@ -76,7 +76,7 @@ jobs:
         continue-on-error: true # TODO: step failed sporadically while testing
         run: |
           asv continuous ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}  | tee asv-cont-output.log  
-          if grep -q failed asv-cont-output; then 
+          if grep -q failed asv-cont-output.log; then 
             echo "Some benchmarks have errors!"
             exit 1
           fi
