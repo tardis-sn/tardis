@@ -1,5 +1,9 @@
 ## Change Log
 
+### release-2023.05.21 (2023/05/21 00:53 +00:00)
+- [#2296](https://github.com/tardis-sn/tardis/pull/2296) Pre-release 2023.05.21 (#2296) (@tardis-bot)
+- [#2295](https://github.com/tardis-sn/tardis/pull/2295) Post-release 2023.05.15 (#2295) (@tardis-bot)
+
 ### release-2023.05.15 (2023/05/15 14:10 +00:00)
 - [#2294](https://github.com/tardis-sn/tardis/pull/2294) Pre-release 2023.05.14 (#2294) (@tardis-bot)
 - [#2290](https://github.com/tardis-sn/tardis/pull/2290) Post-release 2023.05.07 (#2290) (@tardis-bot)
@@ -319,8 +323,6 @@
 - [#1761](https://github.com/tardis-sn/tardis/pull/1761) Revert "Add option to add Observed Spectrum (#1761)" (#1805) (@jamesgillanders)
 - [#1761](https://github.com/tardis-sn/tardis/pull/1761) Add option to add Observed Spectrum (#1761) (@atharva-2001)
 - [#1794](https://github.com/tardis-sn/tardis/pull/1794) Change virtual spectrum spawn range start value to 1 (#1794) (@atharva-2001)
-
-### release-2021.9.26 (2021/09/24 21:20 +00:00)
 - [#1757](https://github.com/tardis-sn/tardis/pull/1757) Auto-Generating Tutorials Page (#1757) (@smithis7)
 - [#1784](https://github.com/tardis-sn/tardis/pull/1784) Restructure Custom Abundance Widget code (#1784) (@yuyizheng1112)
 - [#1763](https://github.com/tardis-sn/tardis/pull/1763) Making Changes to Several Tutorials (#1763) (@smithis7)
