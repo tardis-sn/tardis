@@ -9,3 +9,4 @@ from tardis.visualization.widgets.shell_info import (
 from tardis.visualization.widgets.line_info import LineInfoWidget
 from tardis.visualization.widgets.custom_abundance import CustomAbundanceWidget
 from tardis.visualization.tools.sdec_plot import SDECPlotter
+from tardis.visualization.tools.interaction_radius_plot import InteractionRadiusPlotter
