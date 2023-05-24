@@ -296,6 +296,7 @@ def test_critical_case_w0(nlte_raw_plasma_w0):
         nlte_raw_plasma_w0.phi,
         nlte_raw_plasma_w0.rate_matrix_index,
         nlte_raw_plasma_w0.number_density,
+        nlte_raw_plasma_w0.nlte_excitation_species,
     )[0]
     ion_number_density_nlte = ion_number_density_nlte.values
     ion_number_density_nlte[ion_number_density_nlte < 1e-10] = 0.0

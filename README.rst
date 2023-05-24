@@ -110,14 +110,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_wolfgang_2023_7881540
+.. |CITATION| replace:: kerzendorf_wolfgang_2023_7953900
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7881540-blue
-                 :target: https://doi.org/10.5281/zenodo.7881540
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7953900-blue
+                 :target: https://doi.org/10.5281/zenodo.7953900
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_wolfgang_2023_7881540,
+    @software{kerzendorf_wolfgang_2023_7953900,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -160,61 +160,61 @@ The following BibTeX entries are needed for the references:
                       Bylund, Tomas and
                       Bentil, Laud and
                       Eguren, Jordi and
-                      Bartnik, Matthew and
                       Alam, Arib and
+                      Bartnik, Matthew and
                       Varma Buddaraju, Rohith and
                       Magee, Mark and
-                      Kambham, Satwik and
                       Livneh, Ran and
+                      Kambham, Satwik and
                       Shields, Joshua and
-                      Rajagopalan, Srinath and
                       Mishra, Sashank and
+                      Rajagopalan, Srinath and
                       Reichenbach, John and
                       Floers, Andreas and
                       Jain, Rinkle and
-                      Holas, Alexander and
-                      Singh, Sourav and
                       Bhakar, Jayant and
+                      Singh, Sourav and
+                      Holas, Alexander and
                       Brar, Antreev and
-                      Sofiatti, Caroline and
                       Kumar, Aman and
+                      Singh, Shreyas and
                       Chaumal, Aarya and
                       Patidar, Abhishek and
-                      Kowalski, Nathan and
+                      Sofiatti, Caroline and
                       Selsing, Jonatan and
+                      Kowalski, Nathan and
                       Talegaonkar, Chinmay and
                       Venkat, Shashank and
                       Sarafina, Nance and
+                      Sharma, Sampark and
                       Patel, Pratik and
-                      Gupta, Harshul and
                       Singh Rathore, Parikshit and
                       Patra, Nilesh and
-                      Yap, Kevin and
+                      Gupta, Harshul and
                       Zaheer, Musabbiha and
                       Sandler, Morgan and
                       Truong, Le and
-                      Martinez, Laureano and
-                      Singh, Shreyas and
+                      Yap, Kevin and
                       Prasad, Shilpi and
                       Kharkar, Atharwa and
                       Gupta, Suyash and
                       Lemoine, Thom and
                       Wahi, Ujjwal and
                       Aggarwal, Yash and
-                      Sharma, Sampark and
                       Volodin, Dmitry and
-                      PATIDAR, ABHISHEK and
                       Dasgupta, Debajyoti and
-                      Nayak U, Ashwin and
+                      PATIDAR, ABHISHEK and
+                      Martinez, Laureano and
                       Kolliboyina, Chaitanya and
+                      Nayak U, Ashwin and
                       Kumar, Atul},
-      title        = {tardis-sn/tardis: TARDIS v2023.04.30},
-      month        = apr,
+      title        = {tardis-sn/tardis: TARDIS v2023.05.21},
+      month        = may,
       year         = 2023,
       publisher    = {Zenodo},
-      version      = {release-2023.04.30},
-      doi          = {10.5281/zenodo.7881540},
-      url          = {https://doi.org/10.5281/zenodo.7881540}
+      version      = {release-2023.05.21},
+      doi          = {10.5281/zenodo.7953900},
+      url          = {https://doi.org/10.5281/zenodo.7953900}
     }
 
 *******
