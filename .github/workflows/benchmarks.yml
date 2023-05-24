@@ -31,8 +31,15 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      
+      - name: Restore Atom Data
+        uses: actions/cache
+        id: atom-data-cache
+        with:
+          path: benchmarks/data/kurucz_cd23_chianti_H_He.h5
 
       - name: Download Atom Data
+        if: steps.atom-data-cache.outputs.cache-hit != 'true'
         run: |
           REPO_URL="https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata"
           wget -q "$REPO_URL/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&versionType=branch&version=master&resolveLfs=true" -O benchmarks/data/kurucz_cd23_chianti_H_He.h5
