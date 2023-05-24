@@ -33,16 +33,23 @@ jobs:
           fetch-depth: 0
       
       - name: Restore Atom Data
-        uses: actions/cache
-        id: atom-data-cache
+        uses: actions/cache/restore@v3
+        id: atom-data-restore
         with:
           path: benchmarks/data/kurucz_cd23_chianti_H_He.h5
 
       - name: Download Atom Data
-        if: steps.atom-data-cache.outputs.cache-hit != 'true'
+        if: steps.atom-data-restore.outputs.cache-hit != 'true'
         run: |
           REPO_URL="https://dev.azure.com/tardis-sn/TARDIS/_apis/git/repositories/tardis-refdata"
           wget -q "$REPO_URL/items?path=atom_data/kurucz_cd23_chianti_H_He.h5&versionType=branch&version=master&resolveLfs=true" -O benchmarks/data/kurucz_cd23_chianti_H_He.h5
+
+      - name: Save Atom Data
+        uses: actions/cache/save@v3
+        if: ${{ steps.atom-data-restore.cache-hit != 'true'  && always() || false }}
+        id: atom-data-cache-save
+        with:
+          path: benchmarks/data/kurucz_cd23_chianti_H_He.h5
 
       - name: Install asv
         run: pip install asv==0.5.*
