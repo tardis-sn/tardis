@@ -37,6 +37,7 @@ jobs:
         id: atom-data-restore
         with:
           path: benchmarks/data/kurucz_cd23_chianti_H_He.h5
+          key: atom-data
 
       - name: Download Atom Data
         if: steps.atom-data-restore.outputs.cache-hit != 'true'
@@ -50,6 +51,7 @@ jobs:
         id: atom-data-cache-save
         with:
           path: benchmarks/data/kurucz_cd23_chianti_H_He.h5
+          key: atom-data
 
       - name: Install asv
         run: pip install asv==0.5.*
