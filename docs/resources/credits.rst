@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_wolfgang_2023_7953900
+.. |CITATION| replace:: kerzendorf_wolfgang_2023_7978284
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7953900-blue
-                 :target: https://doi.org/10.5281/zenodo.7953900
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.7978284-blue
+                 :target: https://doi.org/10.5281/zenodo.7978284
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_wolfgang_2023_7953900,
+    @software{kerzendorf_wolfgang_2023_7978284,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -129,30 +129,29 @@ The following BibTeX entries are needed for the references:
                       Varma Buddaraju, Rohith and
                       Magee, Mark and
                       Livneh, Ran and
-                      Kambham, Satwik and
                       Shields, Joshua and
+                      Kambham, Satwik and
                       Mishra, Sashank and
                       Rajagopalan, Srinath and
                       Reichenbach, John and
-                      Floers, Andreas and
                       Jain, Rinkle and
-                      Bhakar, Jayant and
+                      Floers, Andreas and
                       Singh, Sourav and
-                      Holas, Alexander and
+                      Bhakar, Jayant and
                       Brar, Antreev and
-                      Kumar, Aman and
                       Singh, Shreyas and
-                      Chaumal, Aarya and
+                      Holas, Alexander and
                       Patidar, Abhishek and
+                      Chaumal, Aarya and
+                      Kumar, Aman and
                       Sofiatti, Caroline and
                       Selsing, Jonatan and
-                      Kowalski, Nathan and
                       Talegaonkar, Chinmay and
-                      Venkat, Shashank and
-                      Sarafina, Nance and
+                      Kowalski, Nathan and
                       Sharma, Sampark and
-                      Patel, Pratik and
+                      Sarafina, Nance and
                       Singh Rathore, Parikshit and
+                      Volodin, Dmitry and
                       Patra, Nilesh and
                       Gupta, Harshul and
                       Zaheer, Musabbiha and
@@ -160,24 +159,25 @@ The following BibTeX entries are needed for the references:
                       Truong, Le and
                       Yap, Kevin and
                       Prasad, Shilpi and
-                      Kharkar, Atharwa and
+                      Venkat, Shashank and
+                      Kumar, Atul and
                       Gupta, Suyash and
                       Lemoine, Thom and
                       Wahi, Ujjwal and
                       Aggarwal, Yash and
-                      Volodin, Dmitry and
+                      Patel, Pratik and
                       Dasgupta, Debajyoti and
                       PATIDAR, ABHISHEK and
                       Martinez, Laureano and
                       Kolliboyina, Chaitanya and
                       Nayak U, Ashwin and
-                      Kumar, Atul},
-      title        = {tardis-sn/tardis: TARDIS v2023.05.21},
+                      Kharkar, Atharwa},
+      title        = {tardis-sn/tardis: TARDIS v2023.05.28},
       month        = may,
       year         = 2023,
       publisher    = {Zenodo},
-      version      = {release-2023.05.21},
-      doi          = {10.5281/zenodo.7953900},
-      url          = {https://doi.org/10.5281/zenodo.7953900}
+      version      = {release-2023.05.28},
+      doi          = {10.5281/zenodo.7978284},
+      url          = {https://doi.org/10.5281/zenodo.7978284}
     }
 

@@ -1,5 +1,10 @@
 ## Change Log
 
+### release-2023.05.28 (2023/05/28 00:51 +00:00)
+- [#2299](https://github.com/tardis-sn/tardis/pull/2299) Pre-release 2023.05.28 (#2299) (@tardis-bot)
+- [#2298](https://github.com/tardis-sn/tardis/pull/2298) Bump hdf5 to v1.12 (#2298) (@epassaro)
+- [#2297](https://github.com/tardis-sn/tardis/pull/2297) Post-release 2023.05.21 (#2297) (@tardis-bot)
+
 ### release-2023.05.21 (2023/05/21 00:53 +00:00)
 - [#2296](https://github.com/tardis-sn/tardis/pull/2296) Pre-release 2023.05.21 (#2296) (@tardis-bot)
 - [#2295](https://github.com/tardis-sn/tardis/pull/2295) Post-release 2023.05.15 (#2295) (@tardis-bot)
@@ -317,8 +322,6 @@
 - [#1811](https://github.com/tardis-sn/tardis/pull/1811) Fixing broken documentation build (#1811) (@smithis7)
 - [#1744](https://github.com/tardis-sn/tardis/pull/1744) Basic Spectrum Generation Interactive Documentation (#1744) (@smithis7)
 - [#1810](https://github.com/tardis-sn/tardis/pull/1810) Add option to add Observed Spectrum (2) (#1810) (@atharva-2001)
-
-### release-2021.10.1 (2021/10/06 13:38 +00:00)
 - [#1806](https://github.com/tardis-sn/tardis/pull/1806) Pin `jsonschema` to v3 (#1806) (@atharva-2001)
 - [#1761](https://github.com/tardis-sn/tardis/pull/1761) Revert "Add option to add Observed Spectrum (#1761)" (#1805) (@jamesgillanders)
 - [#1761](https://github.com/tardis-sn/tardis/pull/1761) Add option to add Observed Spectrum (#1761) (@atharva-2001)

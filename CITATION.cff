@@ -3,8 +3,8 @@
 cff-version: 1.0.3
 message: If you use this software, please cite it using these metadata.
 # FIXME title as repository name might not be the best name, please make human readable
-title: 'tardis-sn/tardis: TARDIS v2023.05.21'
-doi: 10.5281/zenodo.7953900
+title: 'tardis-sn/tardis: TARDIS v2023.05.28'
+doi: 10.5281/zenodo.7978284
 # FIXME splitting of full names is error prone, please check if given/family name are correct
 authors:
 - given-names: Wolfgang
@@ -131,10 +131,10 @@ authors:
   family-names: Magee
 - given-names: Ran
   family-names: Livneh
-- given-names: Satwik
-  family-names: Kambham
 - given-names: Joshua
   family-names: Shields
+- given-names: Satwik
+  family-names: Kambham
 - given-names: Sashank
   family-names: Mishra
   orcid: https://orcid.org/0000-0001-8302-1584
@@ -142,44 +142,42 @@ authors:
   family-names: Rajagopalan
 - given-names: John
   family-names: Reichenbach
-- given-names: Andreas
-  family-names: Floers
 - given-names: Rinkle
   family-names: Jain
+- given-names: Andreas
+  family-names: Floers
+- given-names: Sourav
+  family-names: Singh
 - given-names: Jayant
   family-names: Bhakar
-- given-names: Sourav
+- given-names: Antreev
+  family-names: Brar
+- given-names: Shreyas
   family-names: Singh
 - given-names: Alexander
   family-names: Holas
-- given-names: Antreev
-  family-names: Brar
-- given-names: Aman
-  family-names: Kumar
-- given-names: Shreyas
-  family-names: Singh
-- given-names: Aarya
-  family-names: Chaumal
 - given-names: Abhishek
   family-names: Patidar
+- given-names: Aarya
+  family-names: Chaumal
+- given-names: Aman
+  family-names: Kumar
 - given-names: Caroline
   family-names: Sofiatti
 - given-names: Jonatan
   family-names: Selsing
-- given-names: Nathan
-  family-names: Kowalski
 - given-names: Chinmay
   family-names: Talegaonkar
-- given-names: Shashank
-  family-names: Venkat
-- given-names: Nance
-  family-names: Sarafina
+- given-names: Nathan
+  family-names: Kowalski
 - given-names: Sampark
   family-names: Sharma
-- given-names: Pratik
-  family-names: Patel
+- given-names: Nance
+  family-names: Sarafina
 - given-names: Parikshit
   family-names: Singh Rathore
+- given-names: Dmitry
+  family-names: Volodin
 - given-names: Nilesh
   family-names: Patra
 - given-names: Harshul
@@ -194,8 +192,10 @@ authors:
   family-names: Yap
 - given-names: Shilpi
   family-names: Prasad
-- given-names: Atharwa
-  family-names: Kharkar
+- given-names: Shashank
+  family-names: Venkat
+- given-names: Atul
+  family-names: Kumar
 - given-names: Suyash
   family-names: Gupta
 - given-names: Thom
@@ -204,8 +204,8 @@ authors:
   family-names: Wahi
 - given-names: Yash
   family-names: Aggarwal
-- given-names: Dmitry
-  family-names: Volodin
+- given-names: Pratik
+  family-names: Patel
 - given-names: Debajyoti
   family-names: Dasgupta
 - given-names: ABHISHEK
@@ -216,9 +216,9 @@ authors:
   family-names: Kolliboyina
 - given-names: Ashwin
   family-names: Nayak U
-- given-names: Atul
-  family-names: Kumar
-version: release-2023.05.21
-date-released: 2023-05-21
+- given-names: Atharwa
+  family-names: Kharkar
+version: release-2023.05.28
+date-released: 2023-05-28
 repository-code: https://github.com/tardis-sn/tardis
 license: other-open
