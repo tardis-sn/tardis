@@ -277,7 +277,7 @@ def simple_isotope_abundance():
         [(6, 14), (12, 28)], names=["atomic_number", "mass_number"]
     )
     abundance = [[0.2] * 20] * 2
-    return IsotopeAbundances(abundance, index=index)
+    return IsotopeAbundances(abundance, index=index, time_0=0*u.s)
 
 
 def test_model_decay(simple_isotope_abundance):

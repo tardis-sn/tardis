@@ -9,11 +9,10 @@ class IsotopeAbundances(pd.DataFrame):
     _metadata = ["time_0"]
 
     def __init__(self, *args, **kwargs):
-        if "time_0" in kwargs:
-            time_0 = kwargs["time_0"]
-            kwargs.pop("time_0")
-        else:
-            time_0 = 0 * u.d
+        if "time_0" not in kwargs:
+            raise ValueError("The 'time_0' parameter must be specified when creating an instance of IsotopeAbundance.")
+        time_0 = kwargs["time_0"]
+        kwargs.pop("time_0")
         super(IsotopeAbundances, self).__init__(*args, **kwargs)
         self.time_0 = time_0
 
