@@ -15,6 +15,8 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * 0' # run at midnight every Sunday
+  issue_comment:                                     
+    types: [created]
 
 
 env:
@@ -38,7 +40,9 @@ defaults:
 
 jobs:
   build:
-    if: github.repository_owner == 'tardis-sn'
+    if: github.repository_owner == 'tardis-sn' && 
+      (github.event_name == 'issue_comment' && 
+      contains(github.event.comment.body, '/test compare reference'))
     strategy:
       matrix:
         include:
@@ -56,6 +60,12 @@ jobs:
     outputs:
       step-ref-check-trig: ${{ steps.ref-equal-check.outcome }} # success or failure of refdata comparison
     steps:
+      - name: Check if need to compare
+        if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || 
+            (github.event_name == 'issue_comment' && 
+            contains(github.event.comment.body, '/test compare reference')) }}
+        run: echo "COMPARE=true" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v2
 
       - name: Clone tardis-sn/tardis-refdata
@@ -118,31 +128,31 @@ jobs:
         run: pip install -e .
 
       - name: Run tests
-        if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
+        if: env.COMPARE != 'true'
         run: pytest tardis ${{ env.PYTEST_FLAGS }}
       
       - name: Download refdata_compare notebook
-        if: ${{ !(github.event_name == 'push' || github.event_name == 'schedule') }}
+        if: env.COMPARE == 'true'
         run: wget https://raw.githubusercontent.com/tardis-sn/tardis-refdata/master/notebooks/ref_data_compare_from_paths.ipynb
       
       - name: Generate reference data for comparison
-        if: ${{ !(github.event_name == 'push' || github.event_name == 'schedule') }}
+        if: env.COMPARE == 'true'
         run: pytest tardis ${{ env.PYTEST_FLAGS_COMPARE }}
       
       - name: Compare Reference Data
-        if: ${{ !(github.event_name == 'push' || github.event_name == 'schedule') }}
+        if: env.COMPARE == 'true'
         run: |
             jupyter nbconvert ${{ env.NBCONVERT_FLAGS }} ref_data_compare_from_paths.ipynb
       
       - name: Upload comparison notebook
-        if: ${{ !(github.event_name == 'push' || github.event_name == 'schedule') }}
+        if: env.COMPARE == 'true'
         uses: actions/upload-artifact@v2
         with:
           name: Comparison Notebook
           path: ref_data_compare_from_paths.html
       
       - name: Check if reference data are equal
-        if: ${{ !(github.event_name == 'push' || github.event_name == 'schedule') }}
+        if: env.COMPARE == 'true'
         id: ref-equal-check
         # continue-on-error: true
         run: if [ "$(cat ../refdata_compare_result)" == "REFDATA COMPARISON FAILED" ]; then exit 1; fi
