@@ -12,12 +12,21 @@ on:
   pull_request:
     branches:
     - '*'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 0' # run at midnight every Sunday
+
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
   PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata
                 --cov=tardis --cov-report=xml --cov-report=html
+  PYTEST_FLAGS_COMPARE: --tardis-refdata=${{ github.workspace }}/tardis-refdata-gen --generate-reference
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  # original reference data
+  REF1_PATH: ${{ github.workspace }}/tardis-refdata/unit_test_data.h5
+  # generated reference data using the latest commit
+  REF2_PATH: ${{ github.workspace }}/tardis-refdata-gen/unit_test_data.h5
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -44,6 +53,8 @@ jobs:
 
     name: ${{ matrix.label }}
     runs-on: ${{ matrix.os }}
+    outputs:
+      step-ref-check-trig: ${{ steps.ref-equal-check.outcome }} # success or failure of refdata comparison
     steps:
       - uses: actions/checkout@v2
 
@@ -107,7 +118,41 @@ jobs:
         run: pip install -e .
 
       - name: Run tests
+        if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
         run: pytest tardis ${{ env.PYTEST_FLAGS }}
+      
+      - name: Download refdata_compare notebook
+        if: ${{ !(github.event_name == 'push' || github.event_name == 'schedule') }}
+        run: wget https://raw.githubusercontent.com/tardis-sn/tardis-refdata/master/notebooks/ref_data_compare_from_paths.ipynb
+      
+      - name: Generate reference data for comparison
+        if: ${{ !(github.event_name == 'push' || github.event_name == 'schedule') }}
+        run: pytest tardis ${{ env.PYTEST_FLAGS_COMPARE }}
+      
+      - name: Compare Reference Data
+        if: ${{ !(github.event_name == 'push' || github.event_name == 'schedule') }}
+        run: |
+            jupyter nbconvert ${{ env.NBCONVERT_FLAGS }} ref_data_compare_from_paths.ipynb
+      
+      - name: Upload comparison notebook
+        if: ${{ !(github.event_name == 'push' || github.event_name == 'schedule') }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: Comparison Notebook
+          path: ref_data_compare_from_paths.html
+      
+      - name: Check if reference data are equal
+        if: ${{ !(github.event_name == 'push' || github.event_name == 'schedule') }}
+        id: ref-equal-check
+        # continue-on-error: true
+        run: if [ "$(cat ../refdata_compare_result)" == "REFDATA COMPARISON FAILED" ]; then exit 1; fi
 
       - name: Upload to Codecov
         run: bash <(curl -s https://codecov.io/bash)
+      
+  refdata-check:
+    runs-on: ubuntu-latest
+    needs: build
+    if: needs.build.outputs.ref-check-trig == 'failure' && github.repository_owner == 'tardis-sn'
+    steps:
+      - run: exit 1
