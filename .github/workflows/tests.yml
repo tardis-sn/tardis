@@ -44,9 +44,10 @@ jobs:
       (github.event_name == 'push' ||
       github.event_name == 'pull_request' ||
       github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'schedule' ||
-      (github.event_name == 'issue_comment' && 
-      contains(github.event.comment.body, '/test compare reference')))
+      github.event_name == 'schedule')
+      # (github.event_name == 'issue_comment' && 
+      # contains(github.event.comment.body, '/test compare reference'))
+      
     strategy:
       matrix:
         include:
