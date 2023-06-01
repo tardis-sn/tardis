@@ -289,6 +289,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             estimated_t_rad,
             estimated_w,
         ) = self.runner.calculate_radiationfield_properties()
+        estimated_v_inner = self.model.v_inner[1]
         estimated_t_inner = self.estimate_t_inner(
             self.model.t_inner,
             self.luminosity_requested,
