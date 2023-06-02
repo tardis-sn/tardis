@@ -311,72 +311,136 @@ def test_model_decay(simple_isotope_abundance):
     )
 
 
-class TestModelState:
-    """Test the ModelState class."""
+@pytest.mark.parametrize(
+    ("index", "expected"),
+    [
+        (0, 1.00977478e45),
+        (10, 1.98154804e45),
+        (19, 3.13361319e45),
+    ],
+)
+def test_radial_1D_geometry_volume(simulation_verysimple, index, expected):
+    geometry = simulation_verysimple.model.model_state.geometry
+    volume = geometry.volume
 
-    def setup(self):
-        """Initialize config and model."""
-        filename = "tardis_configv1_verysimple.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
-        self.model = Radial1DModel.from_config(self.config)
+    assert volume.unit == u.Unit("cm3")
+    assert_almost_equal(volume[index].value, expected, decimal=-40)
 
-    def test_geometry_velocities(self):
-        """Test if model velocities and the velocities stored in the geometry dict are the same."""
+
+@pytest.mark.parametrize(
+    ("index", "expected"),
+    [
+        ((8, 0), 539428198),
+        ((8, 1), 409675383),
+        ((8, 2), 314387928),
+        ((12, 0), 56066111),
+        ((12, 1), 42580098),
+        ((12, 2), 32676283),
+        ((14, 0), 841032262),
+        ((14, 1), 638732300),
+        ((14, 2), 490167906),
+        ((16, 0), 269136275),
+        ((16, 1), 204398856),
+        ((16, 2), 156857199),
+        ((18, 0), 45482957),
+        ((18, 1), 34542591),
+        ((18, 2), 26508241),
+        ((20, 0), 34001569),
+        ((20, 1), 25822910),
+        ((20, 2), 19816693),
+    ],
+)
+def test_composition_elemental_number_density(
+    simulation_verysimple, index, expected
+):
+    comp = simulation_verysimple.model.model_state.composition
+
+    assert_almost_equal(
+        comp.elemental_number_density.loc[index], expected, decimal=-2
+    )
+
+
+@pytest.mark.parametrize(
+    ("index", "expected"),
+    [
+        ((8, 0), 1.4471412e31),
+        ((16, 10), 2.6820129e30),
+        ((20, 19), 1.3464444e29),
+    ],
+)
+def test_model_state_mass(simulation_verysimple, index, expected):
+    model_state = simulation_verysimple.model.model_state
+
+    assert_almost_equal((model_state.mass).loc[index], expected, decimal=-27)
+
+
+@pytest.mark.parametrize(
+    ("index", "expected"),
+    [
+        ((8, 0), 5.4470099e53),
+        ((16, 10), 5.0367073e52),
+        ((20, 19), 2.0231745e51),
+    ],
+)
+def test_model_state_number(simulation_verysimple, index, expected):
+    model_state = simulation_verysimple.model.model_state
+
+    assert_almost_equal((model_state.number).loc[index], expected, decimal=-47)
+
+
+@pytest.fixture
+def non_uniform_model_state(atomic_dataset):
+    filename = "tardis_configv1_isotope_iabund.yml"
+    config = Configuration.from_yaml(data_path(filename))
+    atom_data = atomic_dataset
+    model = Radial1DModel.from_config(config, atom_data=atom_data)
+    return model.model_state
+
+
+@pytest.mark.parametrize(
+    ("index", "expected"),
+    [
+        ((1, 0), 1.67378172e-24),
+        ((28, 0), 9.51707707e-23),
+        ((28, 1), 9.54725917e-23),
+    ],
+)
+def test_radial_1d_model_atomic_mass(non_uniform_model_state, index, expected):
+    atomic_mass = non_uniform_model_state.composition.atomic_mass
+
+    assert_almost_equal(
+        atomic_mass.loc[index],
+        expected,
+        decimal=30,
+    )
+
+
+class TestModelStateFromNonUniformAbundances:
+    @pytest.fixture
+    def model_state(self, non_uniform_model_state):
+        return non_uniform_model_state
+
+    def test_atomic_mass(self, model_state):
+        atomic_mass = model_state.composition.atomic_mass
+        assert_almost_equal(atomic_mass.loc[(1, 0)], 1.67378172e-24, decimal=30)
         assert_almost_equal(
-            self.model.model_state.geometry.v_inner.values,
-            self.model.v_inner.value,
+            atomic_mass.loc[(28, 0)], 9.51707707e-23, decimal=30
         )
         assert_almost_equal(
-            self.model.model_state.geometry.v_outer.values,
-            self.model.v_outer.value,
+            atomic_mass.loc[(28, 1)], 9.54725917e-23, decimal=30
         )
 
-    def test_geometry_radius(self):
-        """Test if model radii and the radii stored in the geometry dict are the same."""
-        assert_almost_equal(
-            self.model.model_state.geometry.r_inner.values,
-            self.model.r_inner.value,
-        )
-        assert_almost_equal(
-            self.model.model_state.geometry.r_outer.values,
-            self.model.r_outer.value,
-        )
+    def test_elemental_number_density(self, model_state):
+        number = model_state.composition.elemental_number_density
+        assert_almost_equal(number.loc[(1, 0)], 0)
+        assert_almost_equal(number.loc[(28, 0)], 10825427.035, decimal=2)
+        assert_almost_equal(number.loc[(28, 1)], 1640838.763, decimal=2)
 
-    def test_geometry_units(self):
-        """Test the units stored in the geometry_units dict."""
-        assert (
-            self.model.model_state.geometry_units["v_inner"]
-            == self.model.v_inner.unit
-        )
-        assert (
-            self.model.model_state.geometry_units["v_outer"]
-            == self.model.v_outer.unit
-        )
-        assert (
-            self.model.model_state.geometry_units["r_inner"]
-            == self.model.r_inner.unit
-        )
-        assert (
-            self.model.model_state.geometry_units["r_outer"]
-            == self.model.r_outer.unit
-        )
-
-    def test_time_explosion(self):
-        """Test if time_explosion stored in ModelState is the same as that stored in Model."""
-        assert (
-            self.model.model_state.time_explosion.unit
-            == self.model.time_explosion.unit
-        )
-        assert (
-            self.model.model_state.time_explosion == self.model.time_explosion
-        )
-
-    def test_density(self):
-        """Test if density stored in ModelState is the same as that stored in Model."""
-        assert self.model.model_state.density.unit == self.model.density.unit
-        assert_almost_equal(
-            self.model.model_state.density.value, self.model.density.value
-        )
+    def test_number(self, model_state):
+        number = model_state.number
+        assert_almost_equal(number.loc[(1, 0)], 0)
+        assert_almost_equal(number.loc[(28, 0)], 1.53753476e53, decimal=-47)
+        assert_almost_equal(number.loc[(28, 1)], 4.16462779e52, decimal=-47)
 
 
 ###

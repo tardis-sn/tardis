@@ -12,12 +12,13 @@ successful and elegant tool particularly for radiative transfer problems in supe
 
 Monte Carlo Radiative Transfer methods track a sufficiently large number of photons (light particles) as they
 propagate through the supernova ejecta. The initial properties of these photons are randomly (in a probabilistic
-sense) assigned in accordance with the macroscopic properties of the radiation field (see :ref:`initialization`)
+sense) assigned in accordance with the macroscopic properties of the radiation field (see :doc:`initialization`)
 and in a similar manner the decisions about when, where and how the photons interact with the surrounding material
 are made (see :ref:`Propagation <propagation>`). Given a large enough sample, these photons behave as a microcosom
 of all of the light traveling through the ejecta -- that is, based on the behavior of these photons, we can draw
-conclusions about the propagation of light through the ejecta as a whole. This is eventually used to determine the
-actual steady-state plasma properties (see :ref:`est_and_conv`) and the emitted spectrum (see :ref:`spectrum`).
+conclusions about the propagation of light through the ejecta as a whole (see :ref:`estimators`). This is eventually
+used to determine the actual steady-state plasma properties (see :doc:`../update_and_conv/update_and_conv`) and the
+emitted spectrum (see :ref:`spectrum`).
 
 
 .. _randomsampling:

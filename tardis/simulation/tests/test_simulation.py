@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import pandas.util.testing as pdt
 import astropy.units as u
+import tardis
 
 
 @pytest.fixture(scope="module")
@@ -156,3 +157,8 @@ def test_plasma_state_storer_reshape(
 
 #     assert_quantity_allclose(
 #             t_rad, simulation_compare_data['test1/t_rad'] * u.Unit('K'), atol=0.0 * u.Unit('K'))
+
+
+def test_version_tag(simulation_without_loop):
+    simulation = simulation_without_loop
+    assert simulation.version == tardis.__version__

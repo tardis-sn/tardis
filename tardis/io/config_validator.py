@@ -76,7 +76,7 @@ def is_quantity(checker, instance):
         The instance to be checked.
 
     Returns
-    ----------
+    -------
     bool: True if the instance is of type astropy.units.quantity.Quantity else False
     """
     return isinstance(instance, Quantity)

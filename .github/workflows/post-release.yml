@@ -124,23 +124,29 @@ jobs:
             > The `post_release` workflow waits for a webhook and then updates the citation files. If the file is not modified by this pull request, please check the latest release on [Zenodo's website](https://zenodo.org/record/592480), close this pull request, and [manually run the workflow](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
             >
             > This pull request should be auto-merged.
-          labels: build-docs
-          reviewers: wkerzendorf, andrewfullard, epassaro
+          labels: automated, build-docs
+          team-reviewers: tardis-infrastructure
         id: create-pr
 
       - name: Wait for pull request
         run: sleep 30
 
-      - name: Approve pull request
-        uses: juliangruber/approve-pull-request-action@v1
-        with:
-          github-token: ${{ secrets.PR_APPROVAL_TOKEN }}
-          number: ${{ steps.create-pr.outputs.pull-request-number }}
+      - name: Approve pull request (I)
+        run: gh pr review ${{ steps.create-pr.outputs.pull-request-number }} --approve
+        env:
+          GITHUB_TOKEN: ${{ secrets.INFRASTRUCTURE_COORDINATOR_TOKEN }}
+        if: steps.create-pr.outputs.pull-request-operation == 'created'
+
+      - name: Approve pull request (II)
+        run: gh pr review ${{ steps.create-pr.outputs.pull-request-number }} --approve
+        env:
+          GITHUB_TOKEN: ${{ secrets.CORE_COORDINATOR_TOKEN }}
         if: steps.create-pr.outputs.pull-request-operation == 'created'
 
       - name: Enable automerge
         uses: peter-evans/enable-pull-request-automerge@v2
         with:
-          token: ${{ secrets.BOT_TOKEN }}
+          token: ${{ secrets.INFRASTRUCTURE_COORDINATOR_TOKEN }}
           pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
           merge-method: squash
+        if: steps.create-pr.outputs.pull-request-operation == 'created'

@@ -77,9 +77,8 @@ Mission Statement
     physics/intro/index
     physics/setup/index
     physics/montecarlo/index
-    physics/est_and_conv/index
+    physics/update_and_conv/update_and_conv
     physics/spectrum/index
-    physics/energy_input/index
 
 
 .. toctree::
@@ -89,8 +88,9 @@ Mission Statement
 
     contributing/CONTRIBUTING.md
     contributing/development/index
+    contributing/tools/index
     contributing/CHANGELOG.md
-    contributing/roadmap
+    contributing/in_progress/index
 
 
 .. toctree::
@@ -101,11 +101,3 @@ Mission Statement
     resources/research_done_using_TARDIS/research_papers
     resources/code_comparison/index
     resources/zreferences
-
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Outdated
-    :hidden:
-
-    outdated/index

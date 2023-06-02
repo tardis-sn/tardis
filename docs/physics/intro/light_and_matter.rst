@@ -70,7 +70,7 @@ Excitation (bound-bound interactions)
 
 The first type of light-matter interaction occurs when a photon carrying some energy :math:`E` is absorbed by an electron bound to an atom at an energy level :math:`l` with energy :math:`E_l`, and the electron "jumps" to a higher energy level :math:`u` with energy :math:`E_u` (:math:`l` meaning "lower" and :math:`u` meaning "upper"), as in the diagram below. We say that the electron is **excited** from the lower to higher energy level, and that it goes through a **transition** :math:`l\rightarrow u`. For this to happen, the photon has to have an energy equal to the difference between the two energy levels involved. That is, for an electron to be excited from :math:`l` to :math:`u`, it will gain an energy :math:`E_u-E_l` and thus the photon exciting the electron must have an energy :math:`E_u-E_l` and therefore a frequency :math:`\frac{E_u-E_l}{h}`.
 
-An electron in a higher energy level :math:`u` can also de-excite to a lower energy level :math:`l`, *releasing* a photon of energy :math:`E_u-E_l` and frequency :math:`\frac{E_u-E_l}{h}` (this would be notated as :math:`u\rightarrow l`. Note that if an electron is excited :math:`l\rightarrow u`, it need not de-excite back to the energy level :math:`l` where it began. It could de-excite to any level with a lower energy than :math:`E_u`.
+An electron in a higher energy level :math:`u` can also de-excite to a lower energy level :math:`l`, *releasing* a photon of energy :math:`E_u-E_l` and frequency :math:`\frac{E_u-E_l}{h}` (this would be notated as :math:`u\rightarrow l`). Note that if an electron is excited :math:`l\rightarrow u`, it need not de-excite back to the energy level :math:`l` where it began. It could de-excite to any level with a lower energy than :math:`E_u`.
 
 .. figure:: images/excitation.png
 
@@ -107,6 +107,8 @@ The final type of interaction is electron scattering. This is when a photon coll
     Image from https://en.wikipedia.org/w/index.php?title=File%3ACompton-scattering.svg.
 
 
+.. _opacity:
+
 Opacity and Optical Depth
 =========================
 
@@ -114,10 +116,10 @@ Consider the following experiment -- you fill a clear glass of water completely,
 
 This is described by the Beer-Lambert law, which says that the intensity :math:`I` of light (related to how bright the light is -- more on this soon) after traveling a distance :math:`d` through some material is related to the initial intensity :math:`I_0` of the light before traveling through the material by
 
-.. math:: \frac{I}{I_0} = e^{-\kappa d}
+.. math:: \frac{I}{I_0} = e^{-\alpha d}
 
-where :math:`\kappa` is called the **opacity**. Note that for our purposes, the intensity at some frequency is proportional to the number of photons at that frequency, so :math:`\frac{I}{I_0}` is the fraction of photons who enter the material who do not interact and thus make it out the other side. Note that the opacity can and typically does depend on the frequency of light, which is why we frequently interpret Beer-Lambert's law as applying to a specific frequency.
+where :math:`\alpha` is called the **opacity**. Note that for our purposes, the intensity at some frequency is proportional to the number of photons at that frequency, so :math:`\frac{I}{I_0}` is the fraction of photons who enter the material who do not interact and thus make it out the other side. Note that the opacity can and typically does depend on the frequency of light, which is why we frequently interpret Beer-Lambert's law as applying to a specific frequency.
 
-We can interpret this in the following way: prior to traveling a distance :math:`d`, a photon will have had a :math:`e^{-\kappa d}` probability of *not* interacting with matter (and thus a :math:`1-e^{-\kappa d}` probability of having gone through an interaction). As you would expect, the larger the distance, the more likely it is that a photon interacts prior to traveling that distance, since it would have "more opportunities" to interact. Additionally, a higher :math:`\kappa` means a photon has a higher likelihood of interacting. So, more dense materials, for example, have a higher :math:`\kappa` since there is more matter for the light to interact with. Because :math:`\kappa` must take into account all three types of light-matter interactions, many of which depend on the frequency of light, it can be very difficult to calculate -- this is one of TARDIS's main tasks.
+We can interpret this in the following way: prior to traveling a distance :math:`d`, a photon will have had a :math:`e^{-\alpha d}` probability of *not* interacting with matter (and thus a :math:`1-e^{-\alpha d}` probability of having gone through an interaction). As you would expect, the larger the distance, the more likely it is that a photon interacts prior to traveling that distance, since it would have "more opportunities" to interact. Additionally, a higher :math:`\alpha` means a photon has a higher likelihood of interacting. So, more dense materials, for example, have a higher :math:`\alpha` since there is more matter for the light to interact with. Because :math:`\alpha` must take into account all three types of light-matter interactions, many of which depend on the frequency of light, it can be very difficult to calculate -- this is one of TARDIS's main tasks.
 
-Finally, the term :math:`\kappa d` has a special name: the **optical depth** :math:`\tau`. It is a dimensionless quantity that gives information about how likely it is for a photon to have gone through an interaction. Specifically, there is a :math:`1-e^{-1}\approx 63.2\%` of a photon interacting prior to traveling an optical depth of 1. The actual distance required to travel and optical depth of 1 depends on :math:`\kappa` and thus the material and the frequency of the light.
+Finally, the term :math:`\alpha d` has a special name: the **optical depth** :math:`\tau`. It is a dimensionless quantity that gives information about how likely it is for a photon to have gone through an interaction. Specifically, there is a :math:`1-e^{-1}\approx 63.2\%` of a photon interacting prior to traveling an optical depth of 1. The actual distance required to travel and optical depth of 1 depends on :math:`\alpha` and thus the material and the frequency of the light.

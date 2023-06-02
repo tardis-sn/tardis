@@ -46,14 +46,14 @@ def verysimple_numba_plasma(nb_simulation_verysimple):
 
 
 @pytest.fixture(scope="package")
+def verysimple_numba_radial_1d_geometry(nb_simulation_verysimple):
+    return nb_simulation_verysimple.model.model_state.geometry.to_numba()
+
+
+@pytest.fixture(scope="package")
 def verysimple_numba_model(nb_simulation_verysimple):
-    runner = nb_simulation_verysimple.runner
     model = nb_simulation_verysimple.model
     return NumbaModel(
-        runner.r_inner_cgs,
-        runner.r_outer_cgs,
-        runner.v_inner_cgs,
-        runner.v_outer_cgs,
         model.time_explosion.to("s").value,
     )
 

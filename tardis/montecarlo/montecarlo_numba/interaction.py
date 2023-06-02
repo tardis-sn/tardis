@@ -116,9 +116,9 @@ def sample_nu_free_free(numba_plasma, shell):
         Frequency of the free-free emission process
 
     """
-    T = numba_plasma.t_electrons[shell]
+    temperature = numba_plasma.t_electrons[shell]
     zrand = np.random.random()
-    return -K_B * T / H * np.log(zrand)
+    return -K_B * temperature / H * np.log(zrand)
 
 
 @njit(**njit_dict_no_parallel)
@@ -141,24 +141,6 @@ def sample_nu_free_bound(numba_plasma, shell, continuum_id):
     return phot_nus_block[idx] - (em[idx] - zrand) / (em[idx] - em[idx - 1]) * (
         phot_nus_block[idx] - phot_nus_block[idx - 1]
     )
-
-
-@njit(**njit_dict_no_parallel)
-def scatter(r_packet, time_explosion):
-
-    old_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
-    )
-    comov_nu = r_packet.nu * old_doppler_factor
-    comov_energy = r_packet.energy * old_doppler_factor
-    r_packet.mu = get_random_mu()
-    inverse_new_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
-    )
-
-    r_packet.energy = comov_energy * inverse_new_doppler_factor
-
-    return comov_nu, inverse_new_doppler_factor
 
 
 @njit(**njit_dict_no_parallel)
