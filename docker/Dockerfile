@@ -15,7 +15,7 @@ RUN conda clean --all \
         && rm -rf /var/lib/apt/lists/* \
         && rm -rf /tmp/*
 
-COPY ./docker/scripts/* /usr/bin
+COPY ./docker/scripts/* /usr/bin/
 RUN chmod +x /usr/bin/entrypoint
 RUN chmod +x /usr/bin/jupyter-server
 WORKDIR /workspace
