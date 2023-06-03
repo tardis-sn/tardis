@@ -21,11 +21,18 @@ class Radial1DGeometry:
         Volume in each shell
     """
 
-    def __init__(self, r_inner, r_outer, v_inner, v_outer):
-        self.r_inner = r_inner
-        self.r_outer = r_outer
+    def __init__(self, v_inner, v_outer, time_explosion):
         self.v_inner = v_inner
         self.v_outer = v_outer
+        self.time_explosion = time_explosion
+        
+    @property
+    def r_inner(self):
+        return self.time_explosion * self.v_inner
+
+    @property
+    def r_outer(self):
+        return self.time_explosion * self.v_outer
 
     @property
     def volume(self):

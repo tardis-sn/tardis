@@ -289,7 +289,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             estimated_t_rad,
             estimated_w,
         ) = self.runner.calculate_radiationfield_properties()
-        estimated_v_inner = self.model.v_inner[1]
+        #doubt make estimate_v_boundary_inner()
+        estimated_v_boundary_inner = self.estimate_v_boundary_inner(model.v_boundary_inner, )
         estimated_t_inner = self.estimate_t_inner(
             self.model.t_inner,
             self.luminosity_requested,
@@ -307,6 +308,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         # calculate_next_plasma_state equivalent
         # FIXME: Should convergence strategy have its own class?
+        
+        #doubt make damped convergence and convergence_strategy (if not then next_v_boundary_inner = estimated_v_boundary_inner)
+        next_v_boundary_inner = self.damped_converge(self.model.v_boundary_inner, estimated_v_boundary_inner, self.convergence_strategy.v_boundary_inner.damping_constant)
         next_t_rad = self.damped_converge(
             self.model.t_rad,
             estimated_t_rad,
@@ -352,6 +356,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             next_w,
             next_t_inner,
         )
+        self.model.v_boundary_inner = next_v_boundary_inner
         self.model.t_rad = next_t_rad
         self.model.w = next_w
         self.model.t_inner = next_t_inner
@@ -472,7 +477,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 export_convergence_plots=self.export_convergence_plots,
                 last=True,
             )
-
+        #check rpacket_tracker
         if self.runner.rpacket_tracker:
             self.runner.rpacket_tracker_df = rpacket_trackers_to_dataframe(
                 self.runner.rpacket_tracker

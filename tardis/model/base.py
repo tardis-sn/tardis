@@ -52,27 +52,33 @@ class Composition:
         atomic_mass,
         atomic_mass_unit=u.g,
     ):
+        print("constructor of class Composition starts")
         self.density = density
         self.elemental_mass_fraction = elemental_mass_fraction
         self.atomic_mass_unit = atomic_mass_unit
         self._atomic_mass = atomic_mass
+        print("constructor of class Composition ends")
 
     @property
     def atomic_mass(self):
         """Atomic mass of elements in each shell"""
+        print("atomic_mass property of class Composition starts")
         if self._atomic_mass is None:
             raise AttributeError(
                 "ModelState was not provided elemental masses."
             )
+        print("atomic_mass property of class Composition ends and return a value")
         return self._atomic_mass
 
     @property
     def elemental_number_density(self):
         """Elemental Number Density computed using the formula: (elemental_mass_fraction * density) / atomic mass"""
+        print("elemental_number_density property of class Composition starts")
         if self.atomic_mass is None:
             raise AttributeError(
                 "ModelState was not provided elemental masses."
             )
+        print("elemental_number_density1 property of class Composition ends and return a value")
         return (self.elemental_mass_fraction * self.density).divide(
             self.atomic_mass, axis=0
         )
@@ -95,14 +101,18 @@ class ModelState:
     """
 
     def __init__(self, composition, geometry, time_explosion):
+        print("constructor of class ModelState starts")
         self.time_explosion = time_explosion
         self.composition = composition
         self.geometry = geometry
+        print("constructor of class ModelState end")
 
     @property
     def mass(self):
         """Mass calculated using the formula:
         mass_fraction * density * volume"""
+        print("mass property of class ModelState starts")
+        print("mass property of class ModelState ends")
         return (
             self.composition.elemental_mass_fraction
             * self.composition.density
@@ -113,10 +123,12 @@ class ModelState:
     def number(self):
         """Number calculated using the formula:
         mass / atomic_mass"""
+        print("number property of class ModelState starts")
         if self.composition.atomic_mass is None:
             raise AttributeError(
                 "ModelState was not provided elemental masses."
             )
+        print("number property of class ModelState ends")
         return (self.mass).divide(self.composition.atomic_mass, axis=0)
 
 
@@ -198,6 +210,7 @@ class Radial1DModel(HDFWriterMixin):
         v_boundary_outer=None,
         electron_densities=None,
     ):
+        print("constructor of class Radial1DModel starts")
         self._v_boundary_inner = None
         self._v_boundary_outer = None
         self._velocity = None
@@ -215,7 +228,9 @@ class Radial1DModel(HDFWriterMixin):
                 self.time_explosion
             )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
         )
+        #doubt self._abundance = self.raw_isotope_abundace().merge(raw_abundance) why does it happen in property abundance afterwards and not in constructor itself?
         self.raw_abundance = self._abundance
+        #doubt what is raw_isotope_abundance?
         self.raw_isotope_abundance = isotope_abundance
 
         atomic_mass = None
@@ -259,10 +274,9 @@ class Radial1DModel(HDFWriterMixin):
             atomic_mass=atomic_mass,
         )
         geometry = Radial1DGeometry(
-            r_inner=self.time_explosion * v_inner,
-            r_outer=self.time_explosion * v_outer,
             v_inner=v_inner,
             v_outer=v_outer,
+            time_explosion=self.time_explosion,
         )
         self.model_state = ModelState(
             composition=composition,
@@ -311,25 +325,31 @@ class Radial1DModel(HDFWriterMixin):
         else:
             # self.dilution_factor = dilution_factor[self.v_boundary_inner_index + 1:self.v_boundary_outer_index]
             self._dilution_factor = dilution_factor
+        print("constructor of class Radial1DModel ends")
 
     @property
     def w(self):
+        print("property w of class Radial1Dmodel")
         return self.dilution_factor
 
     @w.setter
     def w(self, value):
+        print("w.setter of class Radial1Dmodel")
         self.dilution_factor = value
 
     @property
     def t_rad(self):
+        print("property t_rad of class Radial1Dmodel")
         return self.t_radiative
 
     @t_rad.setter
     def t_rad(self, value):
+        print("t_rad.setter of class Radial1Dmodel")
         self.t_radiative = value
 
     @property
     def dilution_factor(self):
+        print("property dilution_factor of class Radial1Dmodel start")
         if len(self._dilution_factor) == self.no_of_shells:
             return self._dilution_factor
 
@@ -341,13 +361,14 @@ class Radial1DModel(HDFWriterMixin):
         #            v_outer_ind = np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
         #        else:
         #            v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
-
+        print("property dilution_factor of class Radial1Dmodel ends")
         return self._dilution_factor[
             self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1
         ]
 
     @dilution_factor.setter
     def dilution_factor(self, value):
+        print("dilution_factor.setter of class Radial1Dmodel start")
         if len(value) == len(self._dilution_factor):
             self._dilution_factor = value
         elif len(value) == self.no_of_shells:
@@ -370,9 +391,11 @@ class Radial1DModel(HDFWriterMixin):
                 "Trying to set dilution_factor for unmatching number"
                 "of shells."
             )
+        print("dilution_factor.setter of class Radial1Dmodel ends")
 
     @property
     def t_radiative(self):
+        print("property t_radiative of class Radial1Dmodel ends")
         if len(self._t_radiative) == self.no_of_shells:
             return self._t_radiative
 
@@ -384,13 +407,14 @@ class Radial1DModel(HDFWriterMixin):
         #            v_outer_ind = np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
         #        else:
         #            v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
-
+        print("property t_radiative of class Radial1Dmodel ends")
         return self._t_radiative[
             self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1
         ]
 
     @t_radiative.setter
     def t_radiative(self, value):
+        print("t_radiative.setter of class Radial1Dmodel starts")
         if len(value) == len(self._t_radiative):
             self._t_radiative = value
         elif len(value) == self.no_of_shells:
@@ -412,53 +436,81 @@ class Radial1DModel(HDFWriterMixin):
             raise ValueError(
                 "Trying to set t_radiative for unmatching number" "of shells."
             )
+        print("t_radiative.setter of class Radial1Dmodel ends")
 
     @property
     def radius(self):
+        print("property radius of class Radial1Dmodel")
         return self.time_explosion * self.velocity
-
+    
+    #doubt would it be better if this was "return self.time_explosion * self.v_inner"
     @property
     def r_inner(self):
-        return self.model_state.geometry.r_inner
+        print("property r_inner of class Radial1Dmodel")
+        return self.time_explosion * self.v_inner
+        #return self.model_state.geometry.r_inner
 
     @property
     def r_outer(self):
-        return self.model_state.geometry.r_outer
+        print("property r_outer of class Radial1Dmodel")
+        return self.time_explosion * self.v_outer
+        #return self.model_state.geometry.r_outer
 
     @property
     def r_middle(self):
+        print("property r_middle of class Radial1Dmodel")
         return 0.5 * self.r_inner + 0.5 * self.r_outer
-
+    
+    #doubt velocity property is being autoset whenever v_boundary_inner/outer is being set
     @property
     def velocity(self):
-
+        print("property velocity of class Radial1Dmodel starts")
+        #doubt why is this being updated lazily instead of updating when boundary changes (this might lead to inconsistent behaviour)
         if self._velocity is None:
             self._velocity = self.raw_velocity[
                 self.v_boundary_inner_index : self.v_boundary_outer_index + 1
             ]
             self._velocity[0] = self.v_boundary_inner
             self._velocity[-1] = self.v_boundary_outer
+            
+        print("property velocity of class Radial1Dmodel ends")
         return self._velocity
-
+    
+    #doubt why are we returning the original v_inner and not the changed v_inner (after we update the inner boundary)
     @property
     def v_inner(self):
+        print("property v_inner of class Radial1Dmodel")
+        self.model_state.geometry.v_inner = self.velocity[:-1]
         return self.model_state.geometry.v_inner
 
     @property
     def v_outer(self):
+        print("property v_outer of class Radial1Dmodel")
+        self.model_state.geometry.v_outer = self.velocity[1:]
         return self.model_state.geometry.v_outer
 
     @property
     def v_middle(self):
+        print("property v_middle of class Radial1Dmodel")
         return 0.5 * self.v_inner + 0.5 * self.v_outer
 
+    #doubt this also not getting updated 
     @property
     def density(self):
-        return self.model_state.composition.density
+        print("property density of class Radial1Dmodel")
+        raw_density = self.model_state.composition.density
+        if len(raw_density) == self.no_of_shells:
+            return raw_density
+        return raw_density[
+            self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1
+        ]
+        #return self.model_state.composition.density
 
     @property
     def abundance(self):
+        print("property abundance of class Radial1Dmodel starts")
         if not self.raw_isotope_abundance.empty:
+            #doubt is _abundance same as raw_abundance(+isotopes)?
             self._abundance = self.raw_isotope_abundance.decay(
                 self.time_explosion
             ).merge(self.raw_abundance)
@@ -466,30 +518,38 @@ class Radial1DModel(HDFWriterMixin):
             :, self.v_boundary_inner_index : self.v_boundary_outer_index - 1
         ]
         abundance.columns = range(len(abundance.columns))
+        
+        print("property abundance of class Radial1Dmodel ends")
         return abundance
 
     @property
     def volume(self):
+        print("property volume of class Radial1Dmodel")
         return ((4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)).cgs
 
     @property
     def no_of_shells(self):
+        print("property no_of_shells of class Radial1Dmodel")
         return len(self.velocity) - 1
 
     @property
     def no_of_raw_shells(self):
+        print("property no_of_raw_shells of class Radial1Dmodel")
         return len(self.raw_velocity) - 1
 
     @property
     def v_boundary_inner(self):
+        print("property v_boundary_inner of class Radial1Dmodel starts")
         if self._v_boundary_inner is None:
             return self.raw_velocity[0]
         if self._v_boundary_inner < 0 * u.km / u.s:
             return self.raw_velocity[0]
+        print("property v_boundary_inner of class Radial1Dmodel ends")
         return self._v_boundary_inner
 
     @v_boundary_inner.setter
     def v_boundary_inner(self, value):
+        print("v_boundary_inner.setter of class Radial1Dmodel starts")
         if value is not None:
             if value > 0 * u.km / u.s:
                 value = u.Quantity(value, self.v_boundary_inner.unit)
@@ -509,17 +569,21 @@ class Radial1DModel(HDFWriterMixin):
         self._v_boundary_inner = value
         # Invalidate the cached cut-down velocity array
         self._velocity = None
+        print("v_boundary_inner.setter of class Radial1Dmodel ends")
 
     @property
     def v_boundary_outer(self):
+        print("property v_boundary_outer of class Radial1Dmodel starts")
         if self._v_boundary_outer is None:
             return self.raw_velocity[-1]
         if self._v_boundary_outer < 0 * u.km / u.s:
             return self.raw_velocity[-1]
+        print("property v_boundary_outer of class Radial1Dmodel ends")
         return self._v_boundary_outer
 
     @v_boundary_outer.setter
     def v_boundary_outer(self, value):
+        print("v_boundary_outer.setter of class Radial1Dmodel starts")
         if value is not None:
             if value > 0 * u.km / u.s:
                 value = u.Quantity(value, self.v_boundary_outer.unit)
@@ -538,9 +602,11 @@ class Radial1DModel(HDFWriterMixin):
         self._v_boundary_outer = value
         # Invalidate the cached cut-down velocity array
         self._velocity = None
+        print("v_boundary_outer.setter of class Radial1Dmodel ends")
 
     @property
     def v_boundary_inner_index(self):
+        print("property v_boundary_inner_index of class Radial1Dmodel starts")
         if self.v_boundary_inner in self.raw_velocity:
             v_inner_ind = np.argwhere(
                 self.raw_velocity == self.v_boundary_inner
@@ -549,10 +615,12 @@ class Radial1DModel(HDFWriterMixin):
             v_inner_ind = (
                 np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
             )
+        print("property v_boundary_inner_index of class Radial1Dmodel ends")
         return v_inner_ind
 
     @property
     def v_boundary_outer_index(self):
+        print("property v_boundary_outer_index of class Radial1Dmodel starts")
         if self.v_boundary_outer in self.raw_velocity:
             v_outer_ind = np.argwhere(
                 self.raw_velocity == self.v_boundary_outer
@@ -561,6 +629,7 @@ class Radial1DModel(HDFWriterMixin):
             v_outer_ind = np.searchsorted(
                 self.raw_velocity, self.v_boundary_outer
             )
+        print("property v_boundary_outer_index of class Radial1Dmodel ends")
         return v_outer_ind
 
     #    @property
@@ -597,6 +666,7 @@ class Radial1DModel(HDFWriterMixin):
         -------
         Radial1DModel
         """
+        print("classmethod from_config of Radial1DModel starts")
         time_explosion = config.supernova.time_explosion.cgs
 
         structure = config.model.structure
@@ -686,6 +756,7 @@ class Radial1DModel(HDFWriterMixin):
         if atom_data is not None:
             elemental_mass = atom_data.atom_data.mass
 
+        print("classmethod from_config of Radial1DModel ends")
         return cls(
             velocity=velocity,
             homologous_density=homologous_density,
@@ -716,6 +787,7 @@ class Radial1DModel(HDFWriterMixin):
         -------
         Radial1DModel
         """
+        print("classmethod from_csvy of Radial1DModel starts")
         CSVY_SUPPORTED_COLUMNS = {
             "velocity",
             "density",
@@ -905,6 +977,7 @@ class Radial1DModel(HDFWriterMixin):
         if atom_data is not None:
             elemental_mass = atom_data.atom_data.mass
 
+        print("classmethod from_csvy of Radial1DModel ends")
         return cls(
             velocity=velocity,
             homologous_density=homologous_density,
