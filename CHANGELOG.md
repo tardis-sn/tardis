@@ -1,5 +1,10 @@
 ## Change Log
 
+### release-2023.06.04 (2023/06/04 00:53 +00:00)
+- [#2306](https://github.com/tardis-sn/tardis/pull/2306) Pre-release 2023.06.04 (#2306) (@tardis-bot)
+- [#2302](https://github.com/tardis-sn/tardis/pull/2302) Disable HDF5 file locking on documentation workflow (#2302) (@epassaro)
+- [#2300](https://github.com/tardis-sn/tardis/pull/2300) Post-release 2023.05.28 (#2300) (@tardis-bot)
+
 ### release-2023.05.28 (2023/05/28 00:51 +00:00)
 - [#2299](https://github.com/tardis-sn/tardis/pull/2299) Pre-release 2023.05.28 (#2299) (@tardis-bot)
 - [#2298](https://github.com/tardis-sn/tardis/pull/2298) Bump hdf5 to v1.12 (#2298) (@epassaro)
@@ -112,7 +117,7 @@
 - [#2132](https://github.com/tardis-sn/tardis/pull/2132) Adding rate matrix index (#2132) (@sonachitchyan)
 - [#2130](https://github.com/tardis-sn/tardis/pull/2130) moved helium nlte to a seperate file `helium_nlte.py` (#2130) (@sonachitchyan)
 - [#2124](https://github.com/tardis-sn/tardis/pull/2124) Cleaning model state (#2124) (@satwik-kambham)
-- [#2096](https://github.com/tardis-sn/tardis/pull/2096) Small bug fix for He NLTE. (#2096) (@aoife-boyle)
+- [#2096](https://github.com/tardis-sn/tardis/pull/2096) Small bug fix for He NLTE. (#2096) (aoife-boyle)
 - [#1923](https://github.com/tardis-sn/tardis/pull/1923) Fixing latex_label Parameter within write_to_tex function (#1923) (@bartnikm)
 - [#2095](https://github.com/tardis-sn/tardis/pull/2095) Removing outdated documentation and creating developer tools section (#2095) (@smithis7)
 - [#2099](https://github.com/tardis-sn/tardis/pull/2099) Arbitrary isotope decay handling and positronium (#2099) (@andrewfullard)
@@ -317,8 +322,6 @@
 - [#1801](https://github.com/tardis-sn/tardis/pull/1801) Cleaning up docs build (#1801) (@smithis7)
 - [#1808](https://github.com/tardis-sn/tardis/pull/1808) Fix importing scipy.sparse.linalg for binder (#1808) (@smithis7)
 - [#1816](https://github.com/tardis-sn/tardis/pull/1816) fix push job on update changelog workflow (#1816) (@epassaro)
-
-### release-2021.10.17 (2021/10/14 15:37 +00:00)
 - [#1811](https://github.com/tardis-sn/tardis/pull/1811) Fixing broken documentation build (#1811) (@smithis7)
 - [#1744](https://github.com/tardis-sn/tardis/pull/1744) Basic Spectrum Generation Interactive Documentation (#1744) (@smithis7)
 - [#1810](https://github.com/tardis-sn/tardis/pull/1810) Add option to add Observed Spectrum (2) (#1810) (@atharva-2001)
