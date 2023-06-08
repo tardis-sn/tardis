@@ -71,7 +71,7 @@ class MontecarloTransport(HDFWriterMixin):
         "virt_packet_last_line_interaction_out_id",
     ]
 
-    hdf_name = "runner"
+    hdf_name = "montecarlo_transport"
     w_estimator_constant = (
         (const.c**2 / (2 * const.h))
         * (15 / np.pi**4)
