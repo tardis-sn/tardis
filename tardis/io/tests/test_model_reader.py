@@ -393,6 +393,7 @@ def test_store_runner_to_hdf(simulation_verysimple, tmp_path):
         assert f["runner/use_gpu"][()] == runner_data["use_gpu"]
         assert np.array_equal(f["runner/v_inner"], runner_data["v_inner_cgs"])
         assert np.array_equal(f["runner/v_outer"], runner_data["v_outer_cgs"])
+        assert f["runner/nthreads"][()] == runner_data["nthreads"]
         assert f["runner/virt_logging"][()] == runner_data["virt_logging"]
         assert np.array_equal(
             f["runner/virt_packet_energies"],

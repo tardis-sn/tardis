@@ -8,6 +8,7 @@ from numba import set_num_threads
 from numba import cuda
 
 from scipy.special import zeta
+import tardis
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
 from tardis.util.base import quantity_linspace
@@ -31,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 MAX_SEED_VAL = 2**32 - 1
 
+
 # MAX_SEED_VAL must be multiple orders of magnitude larger than no_of_packets;
 # otherwise, each packet would not have its own seed. Here, we set the max
 # seed val to the maximum allowed by numpy.
@@ -39,6 +41,8 @@ class MontecarloRunner(HDFWriterMixin):
     """
     This class is designed as an interface between the Python part and the
     montecarlo C-part
+
+    note:: TARDIS must be built with OpenMP support in order for ``nthreads`` to have effect.
     """
 
     hdf_properties = [
@@ -97,13 +101,13 @@ class MontecarloRunner(HDFWriterMixin):
         v_packet_settings,
         spectrum_method,
         virtual_packet_logging,
+        nthreads,
         packet_source=None,
         debug_packets=False,
         logger_buffer=1,
         tracking_rpacket=False,
         use_gpu=False,
     ):
-
         self.seed = seed
         if packet_source is None:
             if not enable_full_relativity:
@@ -143,6 +147,9 @@ class MontecarloRunner(HDFWriterMixin):
 
         # Setting up the Tracking array for storing all the RPacketTracker instances
         self.rpacket_tracker = None
+
+        # Set number of threads
+        self.nthreads = nthreads
 
         # set up logger based on config
         mc_tracker.DEBUG_MODE = debug_packets
@@ -314,7 +321,6 @@ class MontecarloRunner(HDFWriterMixin):
         plasma,
         no_of_packets,
         no_of_virtual_packets=0,
-        nthreads=1,
         last_run=False,
         iteration=0,
         total_iterations=0,
@@ -329,7 +335,6 @@ class MontecarloRunner(HDFWriterMixin):
         plasma : tardis.plasma.BasePlasma
         no_of_packets : int
         no_of_virtual_packets : int
-        nthreads : int
         last_run : bool
         total_iterations : int
             The total number of iterations in the simulation.
@@ -339,7 +344,7 @@ class MontecarloRunner(HDFWriterMixin):
         None
         """
 
-        set_num_threads(nthreads)
+        set_num_threads(self.nthreads)
 
         self.time_of_simulation = self.calculate_time_of_simulation(model)
         self.volume = model.volume
@@ -378,7 +383,7 @@ class MontecarloRunner(HDFWriterMixin):
         # montecarlo.montecarlo_radial1d(
         #    model, plasma, self,
         #    virtual_packet_flag=no_of_virtual_packets,
-        #    nthreads=nthreads,
+        #    nthreads=self.nthreads,
         #    last_run=last_run)
 
     def legacy_return(self):
@@ -708,6 +713,7 @@ class MontecarloRunner(HDFWriterMixin):
                 config.spectrum.virtual.virtual_packet_logging
                 | virtual_packet_logging
             ),
+            nthreads=config.montecarlo.nthreads,
             tracking_rpacket=config.montecarlo.tracking.track_rpacket,
             use_gpu=use_gpu,
         )
