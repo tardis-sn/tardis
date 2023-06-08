@@ -244,12 +244,12 @@ class TestCustomAbundanceWidget:
         locks : list
         expected : list
         """
+        for i, item in enumerate(caw.input_items):
+            item.value = inputs[i]
+            caw.checks[i].value = locks[i]
+
         if multishell_edit:
             caw.rbs_multi_apply.index = 0
-            for i, item in enumerate(caw.input_items):
-                item.value = inputs[i]
-                caw.checks[i].value = locks[i]
-
             caw.on_btn_norm(None)
 
             for i, item in enumerate(caw.input_items):
@@ -265,10 +265,6 @@ class TestCustomAbundanceWidget:
                 unique_v = float("{:.3g}".format(list(unique_v)[0]))
                 assert unique_v == v
         else:
-            for i, item in enumerate(caw.input_items):
-                item.value = inputs[i]
-                caw.checks[i].value = locks[i]
-
             caw.on_btn_norm(None)
 
             for i, item in enumerate(caw.input_items):

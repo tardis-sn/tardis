@@ -22,7 +22,7 @@ class IsotopeAbundances(pd.DataFrame):
         return IsotopeAbundances
 
     def _update_inventory(self):
-        self.comp_dicts = [dict() for i in range(len(self.columns))]
+        self.comp_dicts = [{} for _ in range(len(self.columns))]
         for (atomic_number, mass_number), abundances in self.iterrows():
             nuclear_symbol = f"{Z_to_elem(atomic_number)}{mass_number}"
             for i in range(len(self.columns)):
@@ -66,7 +66,7 @@ class IsotopeAbundances(pd.DataFrame):
             list of radioactivedecay Inventories
         """
 
-        comp_dicts = [dict() for i in range(len(self.columns))]
+        comp_dicts = [{} for _ in range(len(self.columns))]
         for (atomic_number, mass_number), abundances in self.iterrows():
             nuclear_symbol = f"{Z_to_elem(atomic_number)}{mass_number}"
             for i in range(len(self.columns)):

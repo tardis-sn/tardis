@@ -16,8 +16,7 @@ from tardis.tests.integration_tests.plot_helpers import (
 
 
 def pytest_configure(config):
-    integration_tests_configpath = config.getvalue("integration-tests")
-    if integration_tests_configpath:
+    if integration_tests_configpath := config.getvalue("integration-tests"):
         integration_tests_configpath = os.path.expandvars(
             os.path.expanduser(integration_tests_configpath)
         )
@@ -140,18 +139,15 @@ def reference(request, data_path):
     Assumed that ``data_path['reference_path']`` is a valid HDF file
     containing the reference dath for a particular setup.
     """
-    # Reference data need not be loaded and provided if current test run itself
-    # generates new reference data.
     if request.config.getoption("--generate-reference"):
         return
-    else:
-        try:
-            reference = pd.HDFStore(data_path["reference_path"], "r")
-        except IOError:
-            raise IOError(
-                f'Reference file {data_path["reference_path"]} does not exist and is needed'
-                f" for the tests"
-            )
+    try:
+        reference = pd.HDFStore(data_path["reference_path"], "r")
+    except IOError:
+        raise IOError(
+            f'Reference file {data_path["reference_path"]} does not exist and is needed'
+            f" for the tests"
+        )
 
-        else:
-            return reference
+    else:
+        return reference

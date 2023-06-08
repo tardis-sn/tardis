@@ -364,10 +364,7 @@ def calculate_z_cuda(r, p, inv_t):
     -------
     float64
     """
-    if r > p:
-        return math.sqrt(r * r - p * p) * C_INV * inv_t
-    else:
-        return 0.0
+    return math.sqrt(r * r - p * p) * C_INV * inv_t if r > p else 0.0
 
 
 class BoundsError(IndexError):

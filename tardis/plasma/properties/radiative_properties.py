@@ -298,10 +298,9 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
     def calculate_transition_probabilities(
         self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor
     ):
-        transition_probabilities = self.prepare_transition_probabilities(
+        return self.prepare_transition_probabilities(
             macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor
         )
-        return transition_probabilities
 
     def initialize_macro_atom_transition_type_filters(
         self, atomic_data, macro_atom_data

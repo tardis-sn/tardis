@@ -66,7 +66,7 @@ def idfn(fixture_value):
     This function creates a string from a dictionary.
     We use it to obtain a readable name for the config fixture.
     """
-    return str("-".join([f"{k}:{v}" for k, v in fixture_value.items()]))
+    return "-".join([f"{k}:{v}" for k, v in fixture_value.items()])
 
 
 class TestPlasma(object):
@@ -169,10 +169,7 @@ class TestPlasma(object):
     def test_plasma_properties(self, plasma, tardis_ref_data, config, attr):
         if hasattr(plasma, attr):
             actual = getattr(plasma, attr)
-            if actual.ndim == 1:
-                actual = pd.Series(actual)
-            else:
-                actual = pd.DataFrame(actual)
+            actual = pd.Series(actual) if actual.ndim == 1 else pd.DataFrame(actual)
             key = os.path.join(config.plasma.save_path, "plasma", attr)
             expected = tardis_ref_data[key]
             pdt.assert_almost_equal(actual, expected)

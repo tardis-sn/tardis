@@ -47,7 +47,7 @@ class TestRunnerSimpleFormalInegral:
     ):
         config.atom_data = atomic_data_fname
 
-        self.name = self._name + f"_{config.plasma.line_interaction_type:s}"
+        self.name = f"{self._name}_{config.plasma.line_interaction_type:s}"
         if config.spectrum.integrated.interpolate_shells > 0:
             self.name += "_interp"
 
@@ -56,16 +56,15 @@ class TestRunnerSimpleFormalInegral:
 
         if not generate_reference:
             return simulation.runner
-        else:
-            simulation.runner.hdf_properties = [
-                "j_blue_estimator",
-                "spectrum",
-                "spectrum_integrated",
-            ]
-            simulation.runner.to_hdf(
-                tardis_ref_data, "", self.name, overwrite=True
-            )
-            pytest.skip("Reference data was generated during this run.")
+        simulation.runner.hdf_properties = [
+            "j_blue_estimator",
+            "spectrum",
+            "spectrum_integrated",
+        ]
+        simulation.runner.to_hdf(
+            tardis_ref_data, "", self.name, overwrite=True
+        )
+        pytest.skip("Reference data was generated during this run.")
 
     @pytest.fixture(scope="class")
     def refdata(self, tardis_ref_data):

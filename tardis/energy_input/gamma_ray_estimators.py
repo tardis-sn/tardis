@@ -95,11 +95,9 @@ def pair_creation_estimator(packet, pair_creation_opacity, distance):
         2 * ELECTRON_MASS_ENERGY_KEV / (H_CGS_KEV * packet.nu_cmf)
     )
 
-    emissivity = (
+    return (
         pair_creation_opacity * normalized_energy * packet.energy_rf * distance
     )
-
-    return emissivity
 
 
 @njit(**njit_dict_no_parallel)

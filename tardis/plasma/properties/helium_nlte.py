@@ -101,7 +101,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         Calculates the He III level population values.
         """
         zeta = PhiSahaNebular.get_zeta_values(zeta_data, 2, t_rad)[1]
-        he_three_population = (
+        return (
             2
             * (float(g.loc[2, 2, 0]) / g.loc[2, 1, 0])
             * g_electron
@@ -110,7 +110,6 @@ class HeliumNLTE(ProcessingPlasmaProperty):
             * (delta.loc[2, 2] * zeta + w * (1.0 - zeta))
             * (t_electrons / t_rad) ** 0.5
         )
-        return he_three_population
 
 
 class HeliumNumericalNLTE(ProcessingPlasmaProperty):

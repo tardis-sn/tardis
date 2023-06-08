@@ -116,7 +116,7 @@ class ConfigurationNameSpace(dict):
                 "Cannot specify both model and csvy_model in main config file."
             )
         if hasattr(self, "csvy_model"):
-            model = dict()
+            model = {}
             csvy_model_path = os.path.join(self.config_dirname, self.csvy_model)
             csvy_yml = load_yaml_from_csvy(csvy_model_path)
             if "v_inner_boundary" in csvy_yml:
@@ -167,10 +167,11 @@ class ConfigurationNameSpace(dict):
         if len(config_item_path) == 1:
             config_item = config_item_path[0]
 
-            if config_item.startswith("item"):
-                return self[config_item_path[0]]
-            else:
-                return self[config_item]
+            return (
+                self[config_item]
+                if config_item.startswith("item")
+                else self[config_item]
+            )
         elif len(config_item_path) == 2 and config_item_path[1].startswith(
             "item"
         ):
@@ -350,17 +351,17 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 ):
                     rho_0 = model_section["structure"]["density"]["rho_0"]
                     v_0 = model_section["structure"]["density"]["v_0"]
-                    if not rho_0.value > 0:
+                    if rho_0.value <= 0:
                         raise ValueError(
                             f"Density Specified is Invalid, {rho_0}"
                         )
-                    if not v_0.value > 0:
+                    if v_0.value <= 0:
                         raise ValueError(
                             f"Velocity Specified is Invalid, {v_0}"
                         )
                     if "time_0" in model_section["structure"]["density"].keys():
                         time_0 = model_section["structure"]["density"]["time_0"]
-                        if not time_0.value > 0:
+                        if time_0.value <= 0:
                             raise ValueError(
                                 f"Time Specified is Invalid, {time_0}"
                             )
@@ -369,29 +370,29 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 ):
                     rho_0 = model_section["structure"]["density"]["rho_0"]
                     v_0 = model_section["structure"]["density"]["v_0"]
-                    if not rho_0.value > 0:
+                    if rho_0.value <= 0:
                         raise ValueError(
                             f"Density Specified is Invalid, {rho_0}"
                         )
-                    if not v_0.value > 0:
+                    if v_0.value <= 0:
                         raise ValueError(
                             f"Velocity Specified is Invalid, {v_0}"
                         )
                     if "time_0" in model_section["structure"]["density"].keys():
                         time_0 = model_section["structure"]["density"]["time_0"]
-                        if not time_0.value > 0:
+                        if time_0.value <= 0:
                             raise ValueError(
                                 f"Time Specified is Invalid, {time_0}"
                             )
                 elif model_section["structure"]["density"]["type"] == "uniform":
                     value = model_section["structure"]["density"]["value"]
-                    if not value.value > 0:
+                    if value.value <= 0:
                         raise ValueError(
                             f"Density Value Specified is Invalid, {value}"
                         )
                     if "time_0" in model_section["structure"]["density"].keys():
                         time_0 = model_section["structure"]["density"]["time_0"]
-                        if not time_0.value > 0:
+                        if time_0.value <= 0:
                             raise ValueError(
                                 f"Time Specified is Invalid, {time_0}"
                             )
@@ -406,7 +407,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
             luminosity_wavelength_end = supernova_section[
                 "luminosity_wavelength_end"
             ]
-            if not time_explosion.value > 0:
+            if time_explosion.value <= 0:
                 raise ValueError(
                     f"Time Of Explosion is Invalid, {time_explosion}"
                 )
@@ -425,11 +426,11 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
 
             initial_t_inner = plasma_section["initial_t_inner"]
             initial_t_rad = plasma_section["initial_t_rad"]
-            if not initial_t_inner.value >= -1:
+            if initial_t_inner.value < -1:
                 raise ValueError(
                     f"Initial Temperature of Inner Boundary Black Body is Invalid, {initial_t_inner}"
                 )
-            if not initial_t_rad.value >= -1:
+            if initial_t_rad.value < -1:
                 raise ValueError(
                     f"Initial Radiative Temperature is Invalid, {initial_t_inner}"
                 )

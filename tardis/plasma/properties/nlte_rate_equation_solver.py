@@ -358,9 +358,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
     def prepare_charge_conservation_row(atomic_numbers):
         """Prepares the last row of the rate_matrix. This row corresponds to the charge
         density equation."""
-        charge_conservation_row = []
-        for atomic_number in atomic_numbers:
-            charge_conservation_row.append(np.arange(0, atomic_number + 1))
+        charge_conservation_row = [
+            np.arange(0, atomic_number + 1) for atomic_number in atomic_numbers
+        ]
         charge_conservation_row = np.hstack([*charge_conservation_row, -1])
         # TODO needs to be modified for use in nlte_excitation
         return charge_conservation_row
@@ -703,15 +703,13 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             Solution vector for the NLTE ionization solver.
         """
         atomic_numbers = number_density.index
-        solution_array = []
-        for atomic_number in atomic_numbers:
-            solution_array.append(
-                self.solution_vector_block(
-                    atomic_number, number_density.loc[atomic_number]
-                )
+        solution_array = [
+            self.solution_vector_block(
+                atomic_number, number_density.loc[atomic_number]
             )
-        solution_vector = np.hstack(solution_array + [0])
-        return solution_vector
+            for atomic_number in atomic_numbers
+        ]
+        return np.hstack(solution_array + [0])
 
     @staticmethod
     def prepare_bound_bound_rate_matrix(
@@ -770,13 +768,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             ].sum(axis=0)
         return rates_matrix_bound_bound
 
-    def prepare_r_uls_r_lus(
-        number_of_levels,
-        number_of_shells,
-        j_blues,
-        excitation_species,
-        nlte_data,
-    ):
+    def prepare_r_uls_r_lus(self, number_of_shells, j_blues, excitation_species, nlte_data):
         """Calculates part of rate matrices for bound bound interactions.
 
         Parameters
@@ -821,22 +813,15 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         A_uls = nlte_data.A_uls[excitation_species]
         B_uls = nlte_data.B_uls[excitation_species]
         B_lus = nlte_data.B_lus[excitation_species]
-        r_lu_index = lnu * number_of_levels + lnl
-        r_ul_index = lnl * number_of_levels + lnu
-        r_ul_matrix = np.zeros(
-            (number_of_levels, number_of_levels, number_of_shells),
-            dtype=np.float64,
-        )
-        r_ul_matrix_reshaped = r_ul_matrix.reshape(
-            (number_of_levels**2, number_of_shells)
-        )
+        r_lu_index = lnu * self + lnl
+        r_ul_index = lnl * self + lnu
+        r_ul_matrix = np.zeros((self, self, number_of_shells), dtype=np.float64)
+        r_ul_matrix_reshaped = r_ul_matrix.reshape((self**2, number_of_shells))
         r_ul_matrix_reshaped[r_ul_index] = (
             A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues_filtered
         )
         r_lu_matrix = np.zeros_like(r_ul_matrix)
-        r_lu_matrix_reshaped = r_lu_matrix.reshape(
-            (number_of_levels**2, number_of_shells)
-        )
+        r_lu_matrix_reshaped = r_lu_matrix.reshape((self**2, number_of_shells))
         r_lu_matrix_reshaped[r_lu_index] = (
             B_lus[np.newaxis].T * j_blues_filtered
         )

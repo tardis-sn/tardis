@@ -547,7 +547,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 justify="center",
             )
             for value in plasma_output.split("\n"):
-                output_df = output_df + "\t{}\n".format(value)
+                output_df = output_df + f"\t{value}\n"
             logger.info("\n\tPlasma stratification:")
             logger.info(f"\n{output_df}")
 
@@ -643,15 +643,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # unit tests, and could be extended in all the from_config classmethods.
         if "model" in kwargs:
             model = kwargs["model"]
+        elif hasattr(config, "csvy_model"):
+            model = Radial1DModel.from_csvy(
+                config, atom_data=kwargs.get("atom_data", None)
+            )
         else:
-            if hasattr(config, "csvy_model"):
-                model = Radial1DModel.from_csvy(
-                    config, atom_data=kwargs.get("atom_data", None)
-                )
-            else:
-                model = Radial1DModel.from_config(
-                    config, atom_data=kwargs.get("atom_data", None)
-                )
+            model = Radial1DModel.from_config(
+                config, atom_data=kwargs.get("atom_data", None)
+            )
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]
         else:
@@ -678,12 +677,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             "t_inner_luminosities_colors",
             "export_convergence_plots",
         ]
-        convergence_plots_kwargs = {}
-        for item in set(convergence_plots_config_options).intersection(
-            kwargs.keys()
-        ):
-            convergence_plots_kwargs[item] = kwargs[item]
-
+        convergence_plots_kwargs = {
+            item: kwargs[item]
+            for item in set(convergence_plots_config_options).intersection(
+                kwargs.keys()
+            )
+        }
         luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(
             u.Hz, u.spectral()
         )

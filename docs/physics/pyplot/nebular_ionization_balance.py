@@ -68,9 +68,8 @@ for ion_number in [0, 1, 2, 3]:
     ax1.plot(
         current_ion_density.index,
         current_ion_density.values,
-        "%s-" % ion_colors[ion_number],
-        label="Si %s W=1.0"
-        % tardis.util.base.int_to_roman(ion_number + 1).upper(),
+        f"{ion_colors[ion_number]}-",
+        label=f"Si {tardis.util.base.int_to_roman(ion_number + 1).upper()} W=1.0",
     )
 
 
@@ -114,9 +113,8 @@ for ion_number in [0, 1, 2, 3]:
     ax1.plot(
         current_ion_density.index,
         current_ion_density.values,
-        "%s--" % ion_colors[ion_number],
-        label="Si %s W=0.5"
-        % tardis.util.base.int_to_roman(ion_number + 1).upper(),
+        f"{ion_colors[ion_number]}--",
+        label=f"Si {tardis.util.base.int_to_roman(ion_number + 1).upper()} W=0.5",
     )
 
 for t_rad in t_rads[::5]:

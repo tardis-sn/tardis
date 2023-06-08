@@ -38,11 +38,7 @@ def show(model):
     Finally the eventloop is started using IPython functions (which start them
     consistently) if they were imported. Otherwise it is started explicitly.
     """
-    if importFailed:
-        app = QtWidgets.QApplication([])
-    else:
-        app = get_app_qt5()
-
+    app = QtWidgets.QApplication([]) if importFailed else get_app_qt5()
     tablemodel = SimpleTableModel
     win = Tardis(tablemodel)
     win.show_model(model)

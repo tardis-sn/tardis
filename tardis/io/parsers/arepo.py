@@ -56,9 +56,9 @@ class ArepoSnapshot:
         self.species = species
         species_full = np.genfromtxt(speciesfile, skip_header=1, dtype=str).T[0]
         self.spec_ind = []
-        for spec in self.species:
-            self.spec_ind.append(np.where(species_full == spec)[0][0])
-
+        self.spec_ind.extend(
+            np.where(species_full == spec)[0][0] for spec in self.species
+        )
         self.spec_ind = np.array(self.spec_ind)
 
         self.s = gadget_snap.gadget_snapshot(
@@ -411,13 +411,13 @@ class Profile:
         if filename.endswith(".csvy"):
             filename = filename.replace(".csvy", "")
 
-        if os.path.exists("%s.csvy" % filename) and not overwrite:
+        if os.path.exists(f"{filename}.csvy") and not overwrite:
             i = 0
-            while os.path.exists("%s_%s.csvy" % (filename, i)):
+            while os.path.exists(f"{filename}_{i}.csvy"):
                 i += 1
-            filename = "%s_%s.csvy" % (filename, i)
+            filename = f"{filename}_{i}.csvy"
         else:
-            filename = "%s.csvy" % filename
+            filename = f"{filename}.csvy"
 
         with open(filename, "w") as f:
             # WRITE HEADER
@@ -468,9 +468,8 @@ class Profile:
 
             # WRITE DATA
             datastring = ["velocity,", "density,"]
-            for spec in self.species[:-1]:
-                datastring.append("%s," % spec.capitalize())
-            datastring.append("%s" % self.species[-1].capitalize())
+            datastring.extend(f"{spec.capitalize()}," for spec in self.species[:-1])
+            datastring.append(f"{self.species[-1].capitalize()}")
             f.write("".join(datastring))
 
             # Rebin data to nshells
@@ -481,15 +480,13 @@ class Profile:
                     self.vel_prof_p,
                     self.rho_prof_p,
                 ]
-                for spec in self.xnuc_prof_p:
-                    exp.append(self.xnuc_prof_p[spec])
+                exp.extend(self.xnuc_prof_p[spec] for spec in self.xnuc_prof_p)
             elif direction == "neg":
                 exp = [
                     self.vel_prof_n,
                     self.rho_prof_n,
                 ]
-                for spec in self.xnuc_prof_n:
-                    exp.append(self.xnuc_prof_n[spec])
+                exp.extend(self.xnuc_prof_n[spec] for spec in self.xnuc_prof_n)
             else:
                 raise ValueError("Unrecognized option for keyword 'direction'")
 

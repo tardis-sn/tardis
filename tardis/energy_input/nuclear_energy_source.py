@@ -21,8 +21,7 @@ def decay_nuclides(shell_mass, initial_composition, epoch):
     """
     decay_model = Ejecta(shell_mass, initial_composition)
 
-    new_fractions = decay_model.decay(epoch)
-    return new_fractions
+    return decay_model.decay(epoch)
 
 
 def get_decay_database(

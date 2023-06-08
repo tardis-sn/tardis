@@ -173,12 +173,7 @@ nbsphinx_prolog = r"""
     </div>
 """
 
-if os.getenv("DISABLE_NBSPHINX") == "1":
-    nbsphinx_execute = "never"
-else:
-    nbsphinx_execute = "auto"
-
-
+nbsphinx_execute = "never" if os.getenv("DISABLE_NBSPHINX") == "1" else "auto"
 # -- Project information ------------------------------------------------------
 
 # This does not *have* to match the package name, but typically does
@@ -251,7 +246,7 @@ html_favicon = "tardis_logo.ico"
 html_title = project  # "{0} v{1}".format(project, release)
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = project + "doc"
+htmlhelp_basename = f"{project}doc"
 
 # Prefixes that are ignored for sorting the Python module index
 modindex_common_prefix = ["tardis."]
@@ -262,7 +257,7 @@ modindex_common_prefix = ["tardis."]
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ("index", project + ".tex", project + " Documentation", author, "manual")
+    ("index", f"{project}.tex", f"{project} Documentation", author, "manual")
 ]
 
 
@@ -271,7 +266,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ("index", project.lower(), project + " Documentation", [author], 1)
+    ("index", project.lower(), f"{project} Documentation", [author], 1)
 ]
 
 
@@ -369,7 +364,7 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
 
 def to_html_ext(path):
     """Convert extension in the file path to .html"""
-    return os.path.splitext(path)[0] + ".html"
+    return f"{os.path.splitext(path)[0]}.html"
 
 
 def create_redirect_files(app, docname):

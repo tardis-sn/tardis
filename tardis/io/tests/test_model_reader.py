@@ -255,8 +255,8 @@ def test_runner_to_dict(simulation_verysimple):
             else:
                 assert value == runner_data[key]
         elif isinstance(value, np.ndarray):
-            if key + "_cgs" in runner_data.keys():
-                assert np.array_equal(value, runner_data[key + "_cgs"])
+            if f"{key}_cgs" in runner_data.keys():
+                assert np.array_equal(value, runner_data[f"{key}_cgs"])
             else:
                 assert np.array_equal(value, runner_data[key])
         elif isinstance(value, list):

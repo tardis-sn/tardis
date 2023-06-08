@@ -28,10 +28,6 @@ atom_data.prepare_atom_data([14], "scatter")
 """Initializing the NebularPlasma class using the from_abundance class method.
 This classmethod is normally only needed to test individual plasma classes
 Usually the plasma class just gets the number densities from the model class"""
-assert True, (
-    "This script needs a proper rewrite and should use the new"
-    '"assemble_plasma" function.'
-)
 # TODO: Uncomment and fix the next line
 # lte_plasma = assemble_plasma({'Si':1.0}, 1e-14*u.g/u.cm**3, atom_data, 10*u.day)
 lte_plasma = None
@@ -70,9 +66,8 @@ for ion_number in [0, 1, 2, 3]:
     ax1.plot(
         current_ion_density.index,
         current_ion_density.values,
-        "%s-" % ion_colors[ion_number],
-        label="Si %s W=1.0"
-        % tardis.util.base.int_to_roman(ion_number + 1).upper(),
+        f"{ion_colors[ion_number]}-",
+        label=f"Si {tardis.util.base.int_to_roman(ion_number + 1).upper()} W=1.0",
     )
 
 

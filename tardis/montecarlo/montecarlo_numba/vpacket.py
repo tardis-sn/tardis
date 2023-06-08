@@ -103,7 +103,7 @@ def trace_vpacket_within_shell(
 
     cur_line_id = start_line_id
 
-    for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
+    for cur_line_id in range(cur_line_id, len(numba_plasma.line_list_nu)):
         # if tau_trace_combined > 10: ### FIXME ?????
         #    break
 

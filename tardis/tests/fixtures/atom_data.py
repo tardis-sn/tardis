@@ -40,8 +40,7 @@ def atomic_dataset(atomic_data_fname):
 
 @pytest.fixture
 def kurucz_atomic_data(atomic_dataset):
-    atomic_data = deepcopy(atomic_dataset)
-    return atomic_data
+    return deepcopy(atomic_dataset)
 
 
 @pytest.fixture  # (scope="session")
@@ -68,15 +67,13 @@ def nlte_atomic_dataset(nlte_atomic_data_fname):
     """
     Atomic dataset used for NLTE ionization solver tests.
     """
-    nlte_atomic_data = AtomData.from_hdf(nlte_atomic_data_fname)
-    return nlte_atomic_data
+    return AtomData.from_hdf(nlte_atomic_data_fname)
 
 
 @pytest.fixture  # (scope="session")
 def nlte_atom_data(nlte_atomic_dataset):
 
-    atomic_data = deepcopy(nlte_atomic_dataset)
-    return atomic_data
+    return deepcopy(nlte_atomic_dataset)
 
 
 data_path = os.path.join("tardis", "io", "tests", "data")

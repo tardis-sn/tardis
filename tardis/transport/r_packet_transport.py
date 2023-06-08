@@ -73,7 +73,7 @@ def trace_packet(
     cur_line_id = start_line_id  # initializing varibale for Numba
     # - do not remove
     last_line_id = len(numba_plasma.line_list_nu) - 1
-    for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
+    for cur_line_id in range(cur_line_id, len(numba_plasma.line_list_nu)):
 
         # Going through the lines
         nu_line = numba_plasma.line_list_nu[cur_line_id]

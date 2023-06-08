@@ -78,8 +78,7 @@ class SpMatrixSeriesConverterMixin(object):
             idx2reduced_idx.loc[q_indices[1]].values,
         )
         max_idx = idx2reduced_idx.max() + 1
-        matrix = sp.coo_matrix((series, q_indices), shape=(max_idx, max_idx))
-        return matrix
+        return sp.coo_matrix((series, q_indices), shape=(max_idx, max_idx))
 
     @staticmethod
     def matrix2series(matrix, idx2reduced_idx, names=None):
@@ -163,10 +162,7 @@ class NonContinuumTransProbsMask(ProcessingPlasmaProperty):
         continuum_trans_probs_mask = atomic_data.macro_atom_data.set_index(
             ["atomic_number", "ion_number"]
         ).index.isin(continuum_interaction_species)
-        non_continuum_trans_probs_mask = np.logical_not(
-            continuum_trans_probs_mask
-        )
-        return non_continuum_trans_probs_mask
+        return np.logical_not(continuum_trans_probs_mask)
 
 
 class MarkovChainTransProbsCollector(ProcessingPlasmaProperty):

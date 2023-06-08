@@ -131,8 +131,8 @@ def test_update_plasma_plots(convergence_plots):
 
     # traces are added alternatively
     # trace 0 and 1 and empty
-    assert convergence_plots.plasma_plot.data[0].x == None
-    assert convergence_plots.plasma_plot.data[1].x == None
+    assert convergence_plots.plasma_plot.data[0].x is None
+    assert convergence_plots.plasma_plot.data[1].x is None
 
     # check other traces
     for index in list(range(expected_n_traces))[::2][1:]:

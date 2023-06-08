@@ -58,21 +58,19 @@ TESTDATA = [
 @pytest.fixture(scope="function", params=TESTDATA)
 def formal_integral_geometry(request):
     r = request.param["r"]
-    geometry = NumbaRadial1DGeometry(
+    return NumbaRadial1DGeometry(
         r[:-1],
         r[1:],
         r[:-1] * c.c.cgs.value,
         r[1:] * c.c.cgs.value,
     )
-    return geometry
 
 
 @pytest.fixture(scope="function")
 def formal_integral_model():
-    model = NumbaModel(
+    return NumbaModel(
         1 / c.c.cgs.value,
     )
-    return model
 
 
 @pytest.mark.parametrize("p", [0.0, 0.5, 1.0])
@@ -151,7 +149,7 @@ def test_populate_z_shells(formal_integral_geometry, formal_integral_model, p):
         np.abs(np.arange(0.5, expected_N, 1) - offset) - 0.5 + idx
     )
 
-    expected_oz[0:offset] = 1 + calculate_z(
+    expected_oz[:offset] = 1 + calculate_z(
         r_outer[np.arange(size, idx, -1) - 1], p
     )
     expected_oz[offset:expected_N] = 1 - calculate_z(

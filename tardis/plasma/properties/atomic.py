@@ -381,10 +381,7 @@ class TwoPhotonData(ProcessingPlasmaProperty):
         ).isin(continuum_interaction_species)
         if not mask_selected_species.sum():
             raise IncompleteAtomicData(
-                "two photon transition data for the requested "
-                "continuum_interactions species: {}".format(
-                    continuum_interaction_species.values.tolist()
-                )
+                f"two photon transition data for the requested continuum_interactions species: {continuum_interaction_species.values.tolist()}"
             )
         two_photon_data = two_photon_data[mask_selected_species]
         index_lower = two_photon_data.index.droplevel("level_number_upper")
@@ -464,10 +461,7 @@ class LevelIdxs2LineIdx(HiddenPlasmaProperty):
             ],
             names=["source_level_idx", "destination_level_idx"],
         )
-        level_idxs2line_idx = pd.Series(
-            np.arange(len(index)), index=index, name="lines_idx"
-        )
-        return level_idxs2line_idx
+        return pd.Series(np.arange(len(index)), index=index, name="lines_idx")
 
 
 class LevelIdxs2TransitionIdx(HiddenPlasmaProperty):
@@ -509,17 +503,13 @@ class LevelIdxs2TransitionIdx(HiddenPlasmaProperty):
             },
             index=index_cooling,
         )
-        level_idxs2transition_idx = pd.concat(
+        return pd.concat(
             [
                 level_idxs2continuum_idx,
                 level_idxs2line_idx,
                 level_idxs2cooling_idx,
             ]
         )
-
-        # TODO: Add two-photon processes
-
-        return level_idxs2transition_idx
 
 
 class AtomicMass(ProcessingPlasmaProperty):
@@ -565,24 +555,23 @@ class IsotopeMass(ProcessingPlasmaProperty):
         """
         if getattr(self, self.outputs[0]) is not None:
             return (getattr(self, self.outputs[0]),)
-        else:
-            if isotope_abundance.empty:
-                return None
-            isotope_mass_dict = {}
-            for Z, A in isotope_abundance.index:
-                element_name = rd.utils.Z_to_elem(Z)
-                isotope_name = element_name + str(A)
+        if isotope_abundance.empty:
+            return None
+        isotope_mass_dict = {}
+        for Z, A in isotope_abundance.index:
+            element_name = rd.utils.Z_to_elem(Z)
+            isotope_name = element_name + str(A)
 
-                isotope_mass_dict[(Z, A)] = rd.Nuclide(isotope_name).atomic_mass
+            isotope_mass_dict[(Z, A)] = rd.Nuclide(isotope_name).atomic_mass
 
-            isotope_mass_df = pd.DataFrame.from_dict(
-                isotope_mass_dict, orient="index", columns=["mass"]
-            )
-            isotope_mass_df.index = pd.MultiIndex.from_tuples(
-                isotope_mass_df.index
-            )
-            isotope_mass_df.index.names = ["atomic_number", "mass_number"]
-            return isotope_mass_df / const.N_A
+        isotope_mass_df = pd.DataFrame.from_dict(
+            isotope_mass_dict, orient="index", columns=["mass"]
+        )
+        isotope_mass_df.index = pd.MultiIndex.from_tuples(
+            isotope_mass_df.index
+        )
+        isotope_mass_df.index.names = ["atomic_number", "mass_number"]
+        return isotope_mass_df / const.N_A
 
 
 class IonizationData(BaseAtomicDataProperty):
@@ -634,42 +623,41 @@ class ZetaData(BaseAtomicDataProperty):
         values = np.array(zeta_data_check.values())
         if np.alltrue(keys + 1 == values) and keys:
             return zeta_data
-        else:
-            #            raise IncompleteAtomicData('zeta data')
-            # This currently replaces missing zeta data with 1, which is necessary with
-            # the present atomic data. Will replace with the error above when I have
-            # complete atomic data.
-            missing_ions = []
-            updated_index = []
-            for atom in selected_atoms:
-                for ion in range(1, atom + 2):
-                    if (atom, ion) not in zeta_data.index:
-                        missing_ions.append((atom, ion))
-                    updated_index.append([atom, ion])
-            logger.warn(
-                f"Zeta_data missing - replaced with 1s. Missing ions: {missing_ions}"
-            )
-            updated_index = np.array(updated_index)
-            updated_dataframe = pd.DataFrame(
-                index=pd.MultiIndex.from_arrays(
-                    updated_index.transpose().astype(int)
-                ),
-                columns=zeta_data.columns,
-            )
-            for value in range(len(zeta_data)):
-                updated_dataframe.loc[
-                    zeta_data.atomic_number.values[value],
-                    zeta_data.ion_number.values[value],
-                ] = zeta_data.loc[
-                    zeta_data.atomic_number.values[value],
-                    zeta_data.ion_number.values[value],
-                ]
-            updated_dataframe = updated_dataframe.astype(float)
-            updated_index = pd.DataFrame(updated_index)
-            updated_dataframe["atomic_number"] = np.array(updated_index[0])
-            updated_dataframe["ion_number"] = np.array(updated_index[1])
-            updated_dataframe.fillna(1.0, inplace=True)
-            return updated_dataframe
+        #            raise IncompleteAtomicData('zeta data')
+        # This currently replaces missing zeta data with 1, which is necessary with
+        # the present atomic data. Will replace with the error above when I have
+        # complete atomic data.
+        missing_ions = []
+        updated_index = []
+        for atom in selected_atoms:
+            for ion in range(1, atom + 2):
+                if (atom, ion) not in zeta_data.index:
+                    missing_ions.append((atom, ion))
+                updated_index.append([atom, ion])
+        logger.warn(
+            f"Zeta_data missing - replaced with 1s. Missing ions: {missing_ions}"
+        )
+        updated_index = np.array(updated_index)
+        updated_dataframe = pd.DataFrame(
+            index=pd.MultiIndex.from_arrays(
+                updated_index.transpose().astype(int)
+            ),
+            columns=zeta_data.columns,
+        )
+        for value in range(len(zeta_data)):
+            updated_dataframe.loc[
+                zeta_data.atomic_number.values[value],
+                zeta_data.ion_number.values[value],
+            ] = zeta_data.loc[
+                zeta_data.atomic_number.values[value],
+                zeta_data.ion_number.values[value],
+            ]
+        updated_dataframe = updated_dataframe.astype(float)
+        updated_index = pd.DataFrame(updated_index)
+        updated_dataframe["atomic_number"] = np.array(updated_index[0])
+        updated_dataframe["ion_number"] = np.array(updated_index[1])
+        updated_dataframe.fillna(1.0, inplace=True)
+        return updated_dataframe
 
     def _set_index(self, zeta_data):
         return zeta_data.set_index(["atomic_number", "ion_number"])
@@ -856,5 +844,4 @@ class YgInterpolator(ProcessingPlasmaProperty):
     latex_name = ("\\frac{Y_ij}{g_i}_{\\textrm{interp}}",)
 
     def calculate(self, yg_data, t_yg):
-        yg_interp = PchipInterpolator(t_yg, yg_data, axis=1, extrapolate=True)
-        return yg_interp
+        return PchipInterpolator(t_yg, yg_data, axis=1, extrapolate=True)

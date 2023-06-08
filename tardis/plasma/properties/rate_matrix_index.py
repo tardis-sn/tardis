@@ -38,7 +38,7 @@ class NLTEIndexHelper(ProcessingPlasmaProperty):
         MultiIndex
         """
         nlte_excitation_species = []  # not yet implemented
-        rate_matrix_index = pd.MultiIndex.from_tuples(
+        return pd.MultiIndex.from_tuples(
             list(
                 self.calculate_rate_matrix_index(
                     levels,
@@ -48,7 +48,6 @@ class NLTEIndexHelper(ProcessingPlasmaProperty):
             ),
             names=levels.names,
         ).drop_duplicates()
-        return rate_matrix_index
 
     def calculate_rate_matrix_index(
         self, levels, nlte_ionization_species, nlte_excitation_species=[]
@@ -56,9 +55,7 @@ class NLTEIndexHelper(ProcessingPlasmaProperty):
         for level in levels:
             if level[:2] in nlte_ionization_species:
                 yield (*level[:2], "nlte_ion")
-            elif (level[:2] not in nlte_ionization_species) and (
-                level[:2] not in nlte_excitation_species
-            ):
+            elif level[:2] not in nlte_excitation_species:
                 yield (*level[:2], "lte_ion")
             else:
                 yield level

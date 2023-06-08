@@ -208,8 +208,6 @@ def single_packet_loop(
                 numba_model,
                 numba_plasma,
             )
-        else:
-            pass
         if montecarlo_configuration.RPACKET_TRACKING:
             rpacket_tracker.track(r_packet)
 

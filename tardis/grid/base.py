@@ -108,8 +108,7 @@ class tardisGrid:
         model : tardis.model.base.Radial1DModel
         """
         rowconfig = self.grid_row_to_config(row_index)
-        model = Radial1DModel.from_config(rowconfig)
-        return model
+        return Radial1DModel.from_config(rowconfig)
 
     def run_sim_from_grid(self, row_index, **tardiskwargs):
         """
@@ -127,8 +126,7 @@ class tardisGrid:
             Completed TARDIS simulation object.
         """
         tardis_config = self.grid_row_to_config(row_index)
-        sim = tardis.run_tardis(tardis_config, **tardiskwargs)
-        return sim
+        return tardis.run_tardis(tardis_config, **tardiskwargs)
 
     def save_grid(self, filename):
         """

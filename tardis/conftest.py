@@ -125,10 +125,7 @@ def pytest_collection_modifyitems(config, items):
 @pytest.fixture(scope="session")
 def generate_reference(request):
     option = request.config.getoption("--generate-reference")
-    if option is None:
-        return False
-    else:
-        return option
+    return False if option is None else option
 
 
 @pytest.fixture(scope="session")
@@ -145,10 +142,7 @@ from tardis.tests.fixtures.atom_data import *
 
 @pytest.yield_fixture(scope="session")
 def tardis_ref_data(tardis_ref_path, generate_reference):
-    if generate_reference:
-        mode = "w"
-    else:
-        mode = "r"
+    mode = "w" if generate_reference else "r"
     with pd.HDFStore(
         os.path.join(tardis_ref_path, "unit_test_data.h5"), mode=mode
     ) as store:
@@ -184,16 +178,14 @@ def hdf_file_path(tmpdir_factory):
 def config_verysimple():
     filename = "tardis_configv1_verysimple.yml"
     path = os.path.abspath(os.path.join("tardis/io/tests/data/", filename))
-    config = Configuration.from_yaml(path)
-    return config
+    return Configuration.from_yaml(path)
 
 
 @pytest.fixture(scope="function")
 def config_montecarlo_1e5_verysimple():
     filename = "tardis_configv1_verysimple.yml"
     path = os.path.abspath(os.path.join("tardis/io/tests/data/", filename))
-    config = Configuration.from_yaml(path)
-    return config
+    return Configuration.from_yaml(path)
 
 
 @pytest.fixture(scope="session")

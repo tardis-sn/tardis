@@ -79,8 +79,7 @@ def get_current_bound_free_continua(numba_plasma, nu):
     """
     nu_mins = numba_plasma.photo_ion_nu_threshold_mins
     nu_maxs = numba_plasma.photo_ion_nu_threshold_maxs
-    current_continua = np.where(np.logical_and(nu >= nu_mins, nu <= nu_maxs))[0]
-    return current_continua
+    return np.where(np.logical_and(nu >= nu_mins, nu <= nu_maxs))[0]
 
 
 @njit(**njit_dict_no_parallel)
@@ -172,13 +171,12 @@ def chi_ff_calculator(numba_plasma, nu, shell):
         chi_ff : float64
             Free Free opacity
     """
-    chi_ff = (
+    return (
         FF_OPAC_CONST
         * numba_plasma.ff_opacity_factor[shell]
         / nu**3
         * (1 - np.exp(-H * nu / (K_B * numba_plasma.t_electrons[shell])))
     )
-    return chi_ff
 
 
 @njit(**njit_dict_no_parallel)

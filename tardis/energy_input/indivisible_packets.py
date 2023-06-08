@@ -99,7 +99,7 @@ def sample_decay_time(
         Sampled decay time
     """
     decay_time = decay_time_min
-    while (decay_time <= decay_time_min) or (decay_time >= decay_time_max):
+    while decay_time <= decay_time or decay_time >= decay_time_max:
         decay_time = -start_tau * np.log(np.random.random()) - end_tau * np.log(
             np.random.random()
         )
@@ -125,11 +125,9 @@ def initial_packet_radius(packet_count, inner_velocity, outer_velocity):
         Array of length packet_count of random locations in the shell
     """
     z = np.random.random(packet_count)
-    initial_radii = (
-        z * inner_velocity**3.0 + (1.0 - z) * outer_velocity**3.0
-    ) ** (1.0 / 3.0)
-
-    return initial_radii
+    return (z * inner_velocity**3.0 + (1.0 - z) * outer_velocity**3.0) ** (
+        1.0 / 3.0
+    )
 
 
 @njit(**njit_dict_no_parallel)
@@ -361,12 +359,8 @@ def initialize_packets(
             )
             tau_start = taus[isotope_name]
 
-            if isotope_name in parents:
-                tau_end = taus[parents[isotope_name]]
-            else:
-                tau_end = 0
-
-            for c in range(isotope_packet_count):
+            tau_end = taus[parents[isotope_name]] if isotope_name in parents else 0
+            for _ in range(isotope_packet_count):
                 packet, decay_time_index = initialize_packet_properties(
                     isotope_energy,
                     isotope_intensity,

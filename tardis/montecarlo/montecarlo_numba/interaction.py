@@ -58,15 +58,11 @@ def determine_bf_macro_activation_idx(
     # ionization energy is created
     nu_threshold = numba_plasma.photo_ion_nu_threshold_mins[continuum_id]
     fraction_ionization = nu_threshold / nu
-    if (
-        np.random.random() < fraction_ionization
-    ):  # Create ionization energy (i-packet)
-        destination_level_idx = numba_plasma.photo_ion_activation_idx[
-            continuum_id
-        ]
-    else:  # Create thermal energy (k-packet)
-        destination_level_idx = numba_plasma.k_packet_idx
-    return destination_level_idx
+    return (
+        numba_plasma.photo_ion_activation_idx[continuum_id]
+        if (np.random.random() < fraction_ionization)
+        else numba_plasma.k_packet_idx
+    )
 
 
 @njit(**njit_dict_no_parallel)
@@ -96,15 +92,13 @@ def determine_continuum_macro_activation_idx(
         Macro atom activation idx.
     """
     fraction_bf = chi_bf / (chi_bf + chi_ff)
-    # TODO: In principle, we can also decide here whether a Thomson
-    # scattering event happens and need one less RNG call.
-    if np.random.random() < fraction_bf:  # Bound-free absorption
-        destination_level_idx = determine_bf_macro_activation_idx(
+    return (
+        determine_bf_macro_activation_idx(
             numba_plasma, nu, chi_bf_contributions, active_continua
         )
-    else:  # Free-free absorption (i.e. k-packet creation)
-        destination_level_idx = numba_plasma.k_packet_idx
-    return destination_level_idx
+        if np.random.random() < fraction_bf
+        else numba_plasma.k_packet_idx
+    )
 
 
 @njit(**njit_dict_no_parallel)
@@ -296,8 +290,7 @@ def get_current_line_id(nu, line_list):
 
     reverse_line_list = line_list[::-1]
     number_of_lines = len(line_list)
-    line_id = number_of_lines - np.searchsorted(reverse_line_list, nu)
-    return line_id
+    return number_of_lines - np.searchsorted(reverse_line_list, nu)
 
 
 @njit(**njit_dict_no_parallel)
@@ -448,8 +441,6 @@ def line_emission(r_packet, emission_line_id, time_explosion, numba_plasma):
 
     r_packet.last_line_interaction_out_id = emission_line_id
 
-    if emission_line_id != r_packet.next_line_id:
-        pass
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )

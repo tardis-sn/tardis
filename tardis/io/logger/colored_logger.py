@@ -14,10 +14,10 @@ def formatter_message(message, use_color=True):
     """
     Helper Function used for Coloring Log Output
     """
-    # These are the sequences need to get colored ouput
-    RESET_SEQ = "\033[0m"
-    BOLD_SEQ = "\033[1m"
     if use_color:
+        # These are the sequences need to get colored ouput
+        RESET_SEQ = "\033[0m"
+        BOLD_SEQ = "\033[1m"
         message = message.replace("$RESET", RESET_SEQ).replace(
             "$BOLD", BOLD_SEQ
         )
@@ -38,8 +38,6 @@ class ColoredFormatter(logging.Formatter):
         self.use_color = use_color
 
     def format(self, record):
-        COLOR_SEQ = "\033[1;%dm"
-        RESET_SEQ = "\033[0m"
         BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
         COLORS = {
             "WARNING": YELLOW,
@@ -51,6 +49,8 @@ class ColoredFormatter(logging.Formatter):
 
         levelname = record.levelname
         if self.use_color and levelname in COLORS:
+            COLOR_SEQ = "\033[1;%dm"
+            RESET_SEQ = "\033[0m"
             levelname_color = (
                 COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ
             )

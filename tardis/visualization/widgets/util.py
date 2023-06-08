@@ -50,7 +50,7 @@ def create_table_widget(
         "minVisibleRows": 2,
     }
     if table_options:
-        grid_options.update(table_options)
+        grid_options |= table_options
 
     column_options = {
         "minWidth": None,
@@ -82,12 +82,10 @@ def create_table_widget(
     # We also need to define widths for different names of changeable column
     if changeable_col:
         if {"index", "other_names"}.issubset(set(changeable_col.keys())):
-            column_widths_definitions.update(
-                {
-                    col_name: {"width": col_widths[changeable_col["index"]]}
-                    for col_name in changeable_col["other_names"]
-                }
-            )
+            column_widths_definitions |= {
+                col_name: {"width": col_widths[changeable_col["index"]]}
+                for col_name in changeable_col["other_names"]
+            }
         else:
             raise ValueError(
                 "Changeable column dictionary does not contain "

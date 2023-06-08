@@ -229,12 +229,9 @@ def compton_scatter(photon, compton_angle):
         np.abs(norm_theta - np.cos(compton_angle)) < 1e-8
     ), "Error, difference between new vector angle and Compton angle is more than 0!"
 
-    # Calculate the angle aberration of the final direction
-    final_direction = angle_aberration_gamma(
+    return angle_aberration_gamma(
         final_compton_scattered_vector, photon.location, photon.time_current
     )
-
-    return final_direction
 
 
 @njit(**njit_dict_no_parallel)
@@ -302,10 +299,8 @@ def scatter_type(compton_opacity, photoabsorption_opacity, total_opacity):
     z = np.random.random()
 
     if z <= (compton_opacity / total_opacity):
-        status = GXPacketStatus.COMPTON_SCATTER
+        return GXPacketStatus.COMPTON_SCATTER
     elif z <= (compton_opacity + photoabsorption_opacity) / total_opacity:
-        status = GXPacketStatus.PHOTOABSORPTION
+        return GXPacketStatus.PHOTOABSORPTION
     else:
-        status = GXPacketStatus.PAIR_CREATION
-
-    return status
+        return GXPacketStatus.PAIR_CREATION

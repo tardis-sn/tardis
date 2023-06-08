@@ -50,8 +50,7 @@ def tau_sobolev_factor(r_packet, numba_model):
     v, dvdr = velocity_dvdr(r_packet, numba_model)
     r = r_packet.r
     mu = r_packet.mu
-    factor = 1.0 / ((1 - mu * mu) * v / r + mu * mu * dvdr)
-    return factor
+    return 1.0 / ((1 - mu * mu) * v / r + mu * mu * dvdr)
 
 
 # @njit(**njit_dict_no_parallel)
@@ -71,6 +70,4 @@ def quartic_roots(a, b, c, d, e, threshold):
     """
     roots = np.roots((a, b, c, d, e))
     roots = [root for root in roots if isinstance(root, float)]
-    roots = [root for root in roots if root > threshold]
-
-    return roots
+    return [root for root in roots if root > threshold]

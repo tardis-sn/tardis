@@ -53,24 +53,22 @@ class JBluesDetailed(ProcessingPlasmaProperty):
     def calculate(
         self, lines, nu, t_rad, w, j_blues_norm_factor, j_blue_estimator
     ):
-        # Used for initialization
         if len(j_blue_estimator) == 0:
             return JBluesDiluteBlackBody.calculate(lines, nu, t_rad, w)
-        else:
-            j_blues = pd.DataFrame(
-                j_blue_estimator * j_blues_norm_factor.value,
-                index=lines.index,
-                columns=np.arange(len(t_rad)),
-            )
+        j_blues = pd.DataFrame(
+            j_blue_estimator * j_blues_norm_factor.value,
+            index=lines.index,
+            columns=np.arange(len(t_rad)),
+        )
 
-            for i in range(len(t_rad)):
-                zero_j_blues = j_blues[i] == 0.0
-                j_blues[i][
-                    zero_j_blues
-                ] = self.w_epsilon * intensity_black_body(
-                    nu[zero_j_blues].values, t_rad[i]
-                )
-            return j_blues
+        for i in range(len(t_rad)):
+            zero_j_blues = j_blues[i] == 0.0
+            j_blues[i][
+                zero_j_blues
+            ] = self.w_epsilon * intensity_black_body(
+                nu[zero_j_blues].values, t_rad[i]
+            )
+        return j_blues
 
 
 class JBluesNormFactor(ProcessingPlasmaProperty):

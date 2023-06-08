@@ -435,14 +435,14 @@ class ShellInfoWidget:
         ipywidgets.Box
             Shell info widget containing all component widgets
         """
-        # CSS properties of the layout of shell info tables container
-        tables_container_layout = dict(
-            display="flex",
-            align_items="flex-start",
-            justify_content="space-between",
+        tables_container_layout = (
+            dict(
+                display="flex",
+                align_items="flex-start",
+                justify_content="space-between",
+            )
+            | layout_kwargs
         )
-        tables_container_layout.update(layout_kwargs)
-
         # Setting tables' widths
         self.shells_table.layout.width = shells_table_width
         self.element_count_table.layout.width = element_count_table_width
@@ -479,9 +479,7 @@ class ShellInfoWidget:
             "<b>Rad. Temp.</b> is <i>Radiative Temperature (in K)</i>"
         )
 
-        # Put text horizontally before shell info container
-        shell_info_widget = ipw.VBox([text, shell_info_tables_container])
-        return shell_info_widget
+        return ipw.VBox([text, shell_info_tables_container])
 
 
 def shell_info_from_simulation(sim_model):

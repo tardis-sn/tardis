@@ -153,13 +153,12 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
             g_electron, beta_rad, partition_function, ionization_data
         )
         zeta = PhiSahaNebular.get_zeta_values(zeta_data, phi_lte.index, t_rad)
-        phis = (
+        return (
             phi_lte
             * w
             * ((zeta * delta) + w * (1 - zeta))
             * (t_electrons / t_rad) ** 0.5
         )
-        return phis
 
     @staticmethod
     def get_zeta_values(zeta_data, ion_index, t_rad):
@@ -247,12 +246,11 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
                 np.ones((len(ionization_data), len(beta_rad)))
                 * self.delta_treatment
             )
-        delta = pd.DataFrame(
+        return pd.DataFrame(
             radiation_field_correction,
             columns=np.arange(len(t_rad)),
             index=ionization_data.index,
         )
-        return delta
 
 
 class IonNumberDensity(ProcessingPlasmaProperty):

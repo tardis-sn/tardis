@@ -99,9 +99,7 @@ def angle_aberration_gamma(direction_vector, position_vector, time):
         gamma - (gamma**2.0 * direction_dot_velocity / (gamma + 1.0) / C_CGS)
     ) / C_CGS
 
-    output_vector = (direction_vector - (velocity_vector * factor_b)) / factor_a
-
-    return output_vector
+    return (direction_vector - (velocity_vector * factor_b)) / factor_a
 
 
 @njit(**njit_dict_no_parallel)

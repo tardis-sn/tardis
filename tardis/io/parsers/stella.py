@@ -17,5 +17,5 @@ def read_stella_data(filename):
     )
 
     # drop last row of data
-    data = data.iloc[0:-1]
+    data = data.iloc[:-1]
     return data

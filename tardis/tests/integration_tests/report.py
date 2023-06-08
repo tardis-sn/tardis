@@ -74,8 +74,6 @@ class DokuReport(HTMLReport):
                 )
             except (TypeError, gaierror, dokuwiki.DokuWikiError) as e:
                 raise e
-                self.doku_conn = None
-                self.dokuwiki_url = ""
             else:
                 self.dokuwiki_url = dokuwiki_details["url"]
         else:
@@ -148,10 +146,7 @@ class DokuReport(HTMLReport):
     def _wiki_overview_entry(self):
         """Makes an entry of current test run on overview page of dokuwiki."""
         if self.errors == 0:
-            if self.failed + self.xpassed == 0:
-                status = "Passed"
-            else:
-                status = "Failed"
+            status = "Passed" if self.failed + self.xpassed == 0 else "Failed"
         else:
             status = "Errored"
 
@@ -212,7 +207,7 @@ class DokuReport(HTMLReport):
             except (gaierror, TypeError):
                 uploaded_report = ""
 
-            if len(uploaded_report) > 0:
+            if uploaded_report:
                 terminalreporter.write_sep(
                     "-", "Successfully uploaded report to Dokuwiki"
                 )
@@ -224,8 +219,7 @@ class DokuReport(HTMLReport):
                 terminalreporter.write_sep(
                     "-", "Connection not established, upload failed."
                 )
-        else:
-            if os.path.exists(self.logfile):
-                super(DokuReport, self).pytest_terminal_summary(
-                    terminalreporter
-                )
+        elif os.path.exists(self.logfile):
+            super(DokuReport, self).pytest_terminal_summary(
+                terminalreporter
+            )

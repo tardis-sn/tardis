@@ -171,8 +171,7 @@ def calculate_power_law_density(velocities, velocity_0, rho_0, exponent):
     densities : astropy.Quantity
 
     """
-    densities = rho_0 * np.power((velocities / velocity_0), exponent)
-    return densities
+    return rho_0 * np.power((velocities / velocity_0), exponent)
 
 
 def calculate_exponential_density(velocities, velocity_0, rho_0):
@@ -194,8 +193,7 @@ def calculate_exponential_density(velocities, velocity_0, rho_0):
     densities : astropy.Quantity
 
     """
-    densities = rho_0 * np.exp(-(velocities / velocity_0))
-    return densities
+    return rho_0 * np.exp(-(velocities / velocity_0))
 
 
 def calculate_density_after_time(densities, time_0, time_explosion):

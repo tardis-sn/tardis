@@ -95,7 +95,7 @@ class BasePlasma(PlasmaWriterMixin):
                 try:
                     position = self.outputs_dict[input].outputs.index(input)
                     label = self.outputs_dict[input].latex_name[position]
-                    label = "$" + label + "$"
+                    label = f"${label}$"
                     label = label.replace("\\", "\\\\")
                 except:
                     label = input.replace("_", "-")
@@ -435,7 +435,7 @@ class BasePlasma(PlasmaWriterMixin):
                                 label = self.outputs_dict[input].latex_name[
                                     position
                                 ]
-                                label = "$" + label + "$"
+                                label = f"${label}$"
                                 label = label.replace("\\", "\\\\")
                             except:
                                 label = input.replace("_", "-")

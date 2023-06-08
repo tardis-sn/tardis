@@ -174,7 +174,7 @@ def get_all_isotopes(abundances):
     isotopes = set(progenitors)
     check = True
 
-    while check == True:
+    while check:
         progeny = set(isotopes)
 
         for i in isotopes:
@@ -190,8 +190,7 @@ def get_all_isotopes(abundances):
         else:
             isotopes |= progeny
 
-    isotopes = [i for i in isotopes]
-    return isotopes
+    return list(isotopes)
 
 
 def get_tau(meta, isotope_string):

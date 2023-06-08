@@ -113,11 +113,7 @@ def numba_formal_integral(
                 geometry, model, p, z, shell_id
             )  # check returns
             # initialize I_nu
-            if p <= R_ph:
-                I_nu[p_idx] = intensity_black_body(nu * z[0], iT)
-            else:
-                I_nu[p_idx] = 0
-
+            I_nu[p_idx] = intensity_black_body(nu * z[0], iT) if p <= R_ph else 0
             # find first contributing lines
             nu_start = nu * z[0]
             nu_end = nu * z[1]
@@ -337,9 +333,8 @@ class FormalIntegrator(object):
         def raise_or_return(message):
             if raises:
                 raise IntegrationError(message)
-            else:
-                warnings.warn(message)
-                return False
+            warnings.warn(message)
+            return False
 
         for obj in (self.model, self.plasma, self.runner):
             if obj is None:
@@ -349,7 +344,7 @@ class FormalIntegrator(object):
                     "FormalIntegrator."
                 )
 
-        if not self.runner.line_interaction_type in ["downbranch", "macroatom"]:
+        if self.runner.line_interaction_type not in ["downbranch", "macroatom"]:
             return raise_or_return(
                 "The FormalIntegrator currently only works for "
                 'line_interaction_type == "downbranch"'
@@ -413,13 +408,11 @@ class FormalIntegrator(object):
 
         # macro_ref = self.atomic_data.macro_atom_references
         macro_ref = self.atomic_data.macro_atom_references
-        # macro_data = self.atomic_data.macro_atom_data
-        macro_data = self.original_plasma.macro_atom_data
-
         no_lvls = len(self.levels_index)
-        no_shells = len(model.w)
-
         if runner.line_interaction_type == "macroatom":
+            # macro_data = self.atomic_data.macro_atom_data
+            macro_data = self.original_plasma.macro_atom_data
+
             internal_jump_mask = (macro_data.transition_type >= 0).values
             ma_int_data = macro_data[internal_jump_mask]
             internal = self.original_plasma.transition_probabilities[
@@ -453,13 +446,15 @@ class FormalIntegrator(object):
         )
         e_dot_lu = pd.DataFrame(Edotlu, index=upper_level_index)
         e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
-        e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
-
         if runner.line_interaction_type == "macroatom":
+            no_shells = len(model.w)
+
             C_frame = pd.DataFrame(
                 columns=np.arange(no_shells), index=macro_ref.index
             )
             q_indices = (source_level_idx, destination_level_idx)
+            e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
+
             for shell in range(no_shells):
                 Q = sp.coo_matrix(
                     (internal[shell], q_indices), shape=(no_lvls, no_lvls)

@@ -92,7 +92,7 @@ if args.packet_log_file:
 tardis_config = config_reader.Configuration.from_yaml(args.config_fname)
 simulation = Simulation.from_config(tardis_config)
 
-print("Saving the {} spectrum.".format(tardis_config.spectrum.method))
+print(f"Saving the {tardis_config.spectrum.method} spectrum.")
 
 # Believe it or not, that is a fancy switch-case statement. We need
 # functions so that only one spectrum is accessed so we can catch

@@ -2,7 +2,6 @@ import logging
 from functools import wraps
 
 DEBUG_MODE = False
-LOG_FILE = False
 BUFFER = 1
 ticker = 1
 
@@ -10,7 +9,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.handlers = []
 
-if LOG_FILE:
+if LOG_FILE := False:
     logger.propagate = False
     console_handler = logging.FileHandler(LOG_FILE)
 else:

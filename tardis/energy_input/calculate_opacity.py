@@ -196,15 +196,11 @@ def pair_creation_opacity_calculation(
     # Conditions prevent divide by zero
     # Ambwani & Sutherland (1988)
     if energy > 1022 and energy < 1500:
-        opacity = multiplier * 1.0063 * (energy / 1000 - 1.022) * 1.0e-27
+        return multiplier * 1.0063 * (energy / 1000 - 1.022) * 1.0e-27
     elif energy >= 1500:
-        opacity = (
-            multiplier * (0.0481 + 0.301 * (energy / 1000 - 1.5)) * 1.0e-27
-        )
+        return multiplier * (0.0481 + 0.301 * (energy / 1000 - 1.5)) * 1.0e-27
     else:
-        opacity = 0
-
-    return opacity
+        return 0
 
 
 @njit(**njit_dict_no_parallel)
@@ -240,10 +236,8 @@ def pair_creation_opacity_artis(energy, ejecta_density, iron_group_fraction):
         opacity_si *= ejecta_density / M_P / 28
         opacity_fe *= ejecta_density / M_P / 56
 
-        opacity = (opacity_fe * iron_group_fraction) + (
+        return (opacity_fe * iron_group_fraction) + (
             opacity_si * (1.0 - iron_group_fraction)
         )
     else:
-        opacity = 0
-
-    return opacity
+        return 0

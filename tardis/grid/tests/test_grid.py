@@ -26,8 +26,8 @@ def test_grid():
     # Check that grid attribute has the right shape
     assert g.grid.shape == df.shape
     ax_len = 1
-    for key in axesdict:
-        ax_len *= len(axesdict[key])
+    for value in axesdict.values():
+        ax_len *= len(value)
     assert g2.grid.shape[0] == ax_len
 
     newconf = g.grid_row_to_config(row_index=0)

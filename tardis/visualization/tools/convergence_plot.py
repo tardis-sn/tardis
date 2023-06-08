@@ -199,7 +199,7 @@ class ConvergencePlots(object):
             self.luminosities, self.t_inner_luminosities_colors[1:4]
         ):
             fig.add_scatter(
-                name=luminosity + "<br>Luminosity",
+                name=f"{luminosity}<br>Luminosity",
                 mode="lines",
                 row=2,
                 col=1,
@@ -282,11 +282,10 @@ class ConvergencePlots(object):
                 # all traces will have same data property
                 for trace in list(fig.data):
                     self.override_plot_parameters(trace, value)
+            elif type(value) == dict:
+                self.override_plot_parameters(fig[key], value)
             else:
-                if type(value) == dict:
-                    self.override_plot_parameters(fig[key], value)
-                else:
-                    fig[key] = value
+                fig[key] = value
 
     def build(self, display_plot=True):
         """

@@ -53,10 +53,7 @@ def quantity_from_str(text):
         unit_str = "erg/s"
 
     unit = u.Unit(unit_str)
-    if unit == u.L_sun:
-        return value * const.L_sun
-
-    return u.Quantity(value, unit_str)
+    return value * const.L_sun if unit == u.L_sun else u.Quantity(value, unit_str)
 
 
 class MockRegexPattern(object):
@@ -236,21 +233,19 @@ class HDFWriterMixin(object):
                 "to overwrite it, set function parameter overwrite=True"
             )
 
-        else:
-            try:  # when path_or_buf is a str, the HDFStore should get created
-                buf = pd.HDFStore(
-                    path_or_buf, complevel=complevel, complib=complib
-                )
-            except TypeError as e:
-                if e.message == "Expected bytes, got HDFStore":
-                    # when path_or_buf is an HDFStore buffer instead
-                    logger.debug(
-                        "Expected bytes, got HDFStore. Changing path to HDF buffer"
-                    )
-                    buf = path_or_buf
-                else:
-                    raise e
+        try:  # when path_or_buf is a str, the HDFStore should get created
+            buf = pd.HDFStore(
+                path_or_buf, complevel=complevel, complib=complib
+            )
+        except TypeError as e:
+            if e.message != "Expected bytes, got HDFStore":
+                raise e
 
+            # when path_or_buf is an HDFStore buffer instead
+            logger.debug(
+                "Expected bytes, got HDFStore. Changing path to HDF buffer"
+            )
+            buf = path_or_buf
         if not buf.is_open:
             buf.open()
 
@@ -291,8 +286,7 @@ class HDFWriterMixin(object):
             buf.close()
 
     def get_properties(self):
-        data = {name: getattr(self, name) for name in self.full_hdf_properties}
-        return data
+        return {name: getattr(self, name) for name in self.full_hdf_properties}
 
     @property
     def full_hdf_properties(self):
@@ -409,7 +403,7 @@ def download_from_url(url, dst, checksum, src=None, retries=3):
     if checksum == new_checksum:
         shutil.copy(cached_file_path, dst)
 
-    elif checksum != new_checksum and retries > 0:
+    elif retries > 0:
         retries -= 1
         logger.warning(
             f"Incorrect checksum, retrying... ({retries+1} attempts remaining)"

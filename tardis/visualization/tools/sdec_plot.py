@@ -464,81 +464,78 @@ class SDECPlotter:
 
         """
 
-        if species_list is not None:
-            # check if there are any digits in the species list. If there are, then exit.
-            # species_list should only contain species in the Roman numeral
-            # format, e.g. Si II, and each ion must contain a space
-            if any(char.isdigit() for char in " ".join(species_list)) == True:
-                raise ValueError(
-                    "All species must be in Roman numeral form, e.g. Si II"
-                )
-            else:
-                full_species_list = []
-                for species in species_list:
+        if species_list is None:
+            self._species_list = None
+
+        elif any(char.isdigit() for char in " ".join(species_list)):
+            raise ValueError(
+                "All species must be in Roman numeral form, e.g. Si II"
+            )
+        else:
+            full_species_list = []
+            for species in species_list:
                     # check if a hyphen is present. If it is, then it indicates a
                     # range of ions. Add each ion in that range to the list as a new entry
-                    if "-" in species:
-                        # split the string on spaces. First thing in the list is then the element
-                        element = species.split(" ")[0]
-                        # Next thing is the ion range
-                        # convert the requested ions into numerals
-                        first_ion_numeral = roman_to_int(
-                            species.split(" ")[-1].split("-")[0]
-                        )
-                        second_ion_numeral = roman_to_int(
-                            species.split(" ")[-1].split("-")[-1]
-                        )
+                if "-" in species:
+                    # split the string on spaces. First thing in the list is then the element
+                    element = species.split(" ")[0]
+                    # Next thing is the ion range
+                    # convert the requested ions into numerals
+                    first_ion_numeral = roman_to_int(
+                        species.split(" ")[-1].split("-")[0]
+                    )
+                    second_ion_numeral = roman_to_int(
+                        species.split(" ")[-1].split("-")[-1]
+                    )
                         # add each ion between the two requested into the species list
+                    full_species_list.extend(
+                        f"{element} {int_to_roman(ion_number)}"
                         for ion_number in np.arange(
                             first_ion_numeral, second_ion_numeral + 1
-                        ):
-                            full_species_list.append(
-                                f"{element} {int_to_roman(ion_number)}"
-                            )
-                    else:
-                        # Otherwise it's either an element or ion so just add to the list
-                        full_species_list.append(species)
-
-                # full_species_list is now a list containing each individual species requested
-                # e.g. it parses species_list = [Si I - V] into species_list = [Si I, Si II, Si III, Si IV, Si V]
-                self._full_species_list = full_species_list
-                requested_species_ids = []
-                keep_colour = []
-
-                # go through each of the requested species. Check whether it is
-                # an element or ion (ions have spaces). If it is an element,
-                # add all possible ions to the ions list. Otherwise just add
-                # the requested ion
-                for species in full_species_list:
-                    if " " in species:
-                        requested_species_ids.append(
-                            [
-                                species_string_to_tuple(species)[0] * 100
-                                + species_string_to_tuple(species)[1]
-                            ]
                         )
-                    else:
-                        atomic_number = element_symbol2atomic_number(species)
-                        requested_species_ids.append(
-                            [
-                                atomic_number * 100 + ion_number
-                                for ion_number in np.arange(atomic_number)
-                            ]
-                        )
-                        # add the atomic number to a list so you know that this element should
-                        # have all species in the same colour, i.e. it was requested like
-                        # species_list = [Si]
-                        keep_colour.append(atomic_number)
-                requested_species_ids = [
-                    species_id
-                    for temp_list in requested_species_ids
-                    for species_id in temp_list
-                ]
+                    )
+                else:
+                    # Otherwise it's either an element or ion so just add to the list
+                    full_species_list.append(species)
 
-                self._species_list = requested_species_ids
-                self._keep_colour = keep_colour
-        else:
-            self._species_list = None
+            # full_species_list is now a list containing each individual species requested
+            # e.g. it parses species_list = [Si I - V] into species_list = [Si I, Si II, Si III, Si IV, Si V]
+            self._full_species_list = full_species_list
+            requested_species_ids = []
+            keep_colour = []
+
+            # go through each of the requested species. Check whether it is
+            # an element or ion (ions have spaces). If it is an element,
+            # add all possible ions to the ions list. Otherwise just add
+            # the requested ion
+            for species in full_species_list:
+                if " " in species:
+                    requested_species_ids.append(
+                        [
+                            species_string_to_tuple(species)[0] * 100
+                            + species_string_to_tuple(species)[1]
+                        ]
+                    )
+                else:
+                    atomic_number = element_symbol2atomic_number(species)
+                    requested_species_ids.append(
+                        [
+                            atomic_number * 100 + ion_number
+                            for ion_number in np.arange(atomic_number)
+                        ]
+                    )
+                    # add the atomic number to a list so you know that this element should
+                    # have all species in the same colour, i.e. it was requested like
+                    # species_list = [Si]
+                    keep_colour.append(atomic_number)
+            requested_species_ids = [
+                species_id
+                for temp_list in requested_species_ids
+                for species_id in temp_list
+            ]
+
+            self._species_list = requested_species_ids
+            self._keep_colour = keep_colour
 
     def _calculate_plotting_data(
         self, packets_mode, packet_wvl_range, distance, nelements
@@ -631,15 +628,14 @@ class SDECPlotter:
         # Calculate the area term to convert luminosity to flux
         if distance is None:
             self.lum_to_flux = 1  # so that this term will have no effect
+        elif distance <= 0:
+            raise ValueError(
+                "distance passed must be greater than 0. If you intended "
+                "to plot luminosities instead of flux, set distance=None "
+                "or don't specify distance parameter in the function call."
+            )
         else:
-            if distance <= 0:
-                raise ValueError(
-                    "distance passed must be greater than 0. If you intended "
-                    "to plot luminosities instead of flux, set distance=None "
-                    "or don't specify distance parameter in the function call."
-                )
-            else:
-                self.lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
+            self.lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
 
         # Calculate luminosities to be shown in plot
         (
@@ -694,9 +690,8 @@ class SDECPlotter:
             # Repeat this for the emission and absorption dfs
             # This will require creating a temporary list that includes 'noint' and 'escatter'
             # packets, because you don't want them dropped or included in 'other'
-            temp = [species for species in self._species_list]
-            temp.append("noint")
-            temp.append("escatter")
+            temp = list(self._species_list)
+            temp.extend(("noint", "escatter"))
             mask = np.in1d(
                 np.array(list(self.emission_luminosities_df.keys())), temp
             )
@@ -718,7 +713,7 @@ class SDECPlotter:
                 axis=1,
             )
 
-            temp = [species for species in self._species_list]
+            temp = list(self._species_list)
             mask = np.in1d(
                 np.array(list(self.absorption_luminosities_df.keys())), temp
             )
@@ -1159,11 +1154,7 @@ class SDECPlotter:
             nelements=nelements,
         )
 
-        if ax is None:
-            self.ax = plt.figure(figsize=figsize).add_subplot(111)
-        else:
-            self.ax = ax
-
+        self.ax = plt.figure(figsize=figsize).add_subplot(111) if ax is None else ax
         # Get the labels in the color bar. This determines the number of unique colors
         self._make_colorbar_labels()
         # Set colormap to be used in elements of emission and absorption plots
@@ -1444,25 +1435,17 @@ class SDECPlotter:
                 # Get the ion number and atomic number for each species
                 ion_number = identifier % 100
                 atomic_number = (identifier - ion_number) / 100
-                if previous_atomic_number == 0:
-                    # If this is the first species being plotted, then take note of the atomic number
-                    # don't update the colour index
+                if (
+                    previous_atomic_number != 0
+                    and previous_atomic_number in self._keep_colour
+                    and previous_atomic_number == atomic_number
+                    or previous_atomic_number == 0
+                ):
                     color_counter = color_counter
-                    previous_atomic_number = atomic_number
-                elif previous_atomic_number in self._keep_colour:
-                    # If the atomic number is in the list of elements that should all be plotted in the same colour
-                    # then don't update the colour index if this element has been plotted already
-                    if previous_atomic_number == atomic_number:
-                        color_counter = color_counter
-                        previous_atomic_number = atomic_number
-                    else:
-                        # Otherwise, increase the colour counter by one, because this is a new element
-                        color_counter = color_counter + 1
-                        previous_atomic_number = atomic_number
                 else:
-                    # If this is just a normal species that was requested then increment the colour index
+                    # Otherwise, increase the colour counter by one, because this is a new element
                     color_counter = color_counter + 1
-                    previous_atomic_number = atomic_number
+                previous_atomic_number = atomic_number
                 # Calculate the colour of this species
                 color = self.cmap(color_counter / len(self._species_name))
 
@@ -1554,11 +1537,7 @@ class SDECPlotter:
             nelements=nelements,
         )
 
-        if fig is None:
-            self.fig = go.Figure()
-        else:
-            self.fig = fig
-
+        self.fig = go.Figure() if fig is None else fig
         # Get the labels in the color bar. This determines the number of unique colors
         self._make_colorbar_labels()
         # Set colormap to be used in elements of emission and absorption plots
@@ -1665,7 +1644,7 @@ class SDECPlotter:
             RGB string of format rgb(r,g,b) where r,g,b are integers between
             0 and 255 (both inclusive)
         """
-        color_tuple_255 = tuple([int(x * 255) for x in color_tuple[:3]])
+        color_tuple_255 = tuple(int(x * 255) for x in color_tuple[:3])
         return f"rgb{color_tuple_255}"
 
     def _plot_emission_ply(self):
@@ -1822,13 +1801,12 @@ class SDECPlotter:
             color = self.to_rgb255_string(
                 self.cmap(colorscale_bins[species_counter])
             )
-            categorical_colorscale.append(
-                (colorscale_bins[species_counter], color)
+            categorical_colorscale.extend(
+                (
+                    (colorscale_bins[species_counter], color),
+                    (colorscale_bins[species_counter + 1], color),
+                )
             )
-            categorical_colorscale.append(
-                (colorscale_bins[species_counter + 1], color)
-            )
-
         coloraxis_options = dict(
             colorscale=categorical_colorscale,
             showscale=True,

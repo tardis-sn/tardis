@@ -78,7 +78,7 @@ class TestIntegration(object):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, request, reference, data_path):
+    def setup(cls, request, reference, data_path):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
@@ -87,16 +87,14 @@ class TestIntegration(object):
         capmanager = request.config.pluginmanager.getplugin("capturemanager")
 
         # The last component in dirpath can be extracted as name of setup.
-        self.name = data_path["setup_name"]
+        cls.name = data_path["setup_name"]
 
-        self.config_file = os.path.join(
-            data_path["config_dirpath"], "config.yml"
-        )
+        cls.config_file = os.path.join(data_path["config_dirpath"], "config.yml")
 
         # A quick hack to use atom data per setup. Atom data is ingested from
         # local HDF or downloaded and cached from a url, depending on data_path
         # keys.
-        atom_data_name = yaml.load(open(self.config_file), Loader=yaml.CLoader)[
+        atom_data_name = yaml.load(open(cls.config_file), Loader=yaml.CLoader)[
             "atom_data"
         ]
 
@@ -106,7 +104,7 @@ class TestIntegration(object):
         )
 
         # Load atom data file separately, pass it for forming tardis config.
-        self.atom_data = AtomData.from_hdf(atom_data_filepath)
+        cls.atom_data = AtomData.from_hdf(atom_data_filepath)
 
         # Check whether the atom data file in current run and the atom data
         # file used in obtaining the reference data are same.
@@ -115,7 +113,7 @@ class TestIntegration(object):
         # assert self.atom_data.uuid1 == kurucz_data_file_uuid1
 
         # Create a Configuration through yaml file and atom data.
-        tardis_config = Configuration.from_yaml(self.config_file)
+        tardis_config = Configuration.from_yaml(cls.config_file)
 
         # Check whether current run is with less packets.
         if request.config.getoption("--less-packets"):
@@ -130,40 +128,36 @@ class TestIntegration(object):
             ]
 
         # We now do a run with prepared config and get the simulation object.
-        self.result = Simulation.from_config(
-            tardis_config, atom_data=self.atom_data
-        )
+        cls.result = Simulation.from_config(tardis_config, atom_data=cls.atom_data)
         capmanager.suspend_global_capture(True)
 
         # If current test run is just for collecting reference data, store the
         # output model to HDF file, save it at specified path. Skip all tests.
         # Else simply perform the run and move further for performing
         # assertions.
-        self.result.run()
+        cls.result.run()
         if request.config.getoption("--generate-reference"):
-            ref_data_path = os.path.join(
-                data_path["reference_path"], f"{self.name}.h5"
-            )
+            ref_data_path = os.path.join(data_path["reference_path"], f"{cls.name}.h5")
             if os.path.exists(ref_data_path):
                 pytest.skip(
                     f"Reference data {ref_data_path} does exist and tests will not "
                     f"proceed generating new data"
                 )
-            self.result.to_hdf(file_path=ref_data_path)
+            cls.result.to_hdf(file_path=ref_data_path)
             pytest.skip(
                 f'Reference data saved at {data_path["reference_path"]}'
             )
         capmanager.resume_global_capture()
 
         # Get the reference data through the fixture.
-        self.reference = reference
+        cls.reference = reference
 
     def test_model_quantities(self, model_quantities):
         reference_quantity_name, tardis_quantity_name = model_quantities
         if reference_quantity_name not in self.reference:
             pytest.skip(f"{reference_quantity_name} not calculated in this run")
         reference_quantity = self.reference[reference_quantity_name]
-        tardis_quantity = eval("self.result." + tardis_quantity_name)
+        tardis_quantity = eval(f"self.result.{tardis_quantity_name}")
         assert_allclose(tardis_quantity, reference_quantity)
 
     def plot_t_rad(self):

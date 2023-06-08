@@ -37,8 +37,7 @@ def spectrum(request):
         request.param["nu"],
         request.param["lum"],
     )
-    distance = request.param["distance"]
-    if distance:
+    if distance := request.param["distance"]:
         data.distance = distance
     return data
 

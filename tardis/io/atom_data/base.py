@@ -159,8 +159,8 @@ class AtomData(object):
             (default: None)
         """
 
-        dataframes = dict()
-        nonavailable = list()
+        dataframes = {}
+        nonavailable = []
 
         fname = resolve_atom_data_fname(fname)
 
@@ -178,40 +178,39 @@ class AtomData(object):
                     store["metadata"].loc[("format", "version")].value
                 )
                 carsus_version = tuple(map(int, carsus_version_str.split(".")))
-                if carsus_version == (1, 0):
-                    # Checks for various collisional data from Carsus files
-                    if "collisions_data" in store:
-                        try:
-
-                            dataframes["collision_data_temperatures"] = store[
-                                "collisions_metadata"
-                            ].temperatures
-                            if "cmfgen" in store["collisions_metadata"].dataset:
-                                dataframes["yg_data"] = store["collisions_data"]
-                                dataframes["collision_data"] = "dummy value"
-                            elif (
-                                "chianti"
-                                in store["collisions_metadata"].dataset
-                            ):
-                                dataframes["collision_data"] = store[
-                                    "collisions_data"
-                                ]
-                            else:
-                                raise KeyError(
-                                    "Atomic Data Collisions Not a Valid Chanti or CMFGEN Carsus Data File"
-                                )
-                        except KeyError as e:
-                            logger.warn(
-                                "Atomic Data is not a Valid Carsus Atomic Data File"
-                            )
-                            raise
-                    dataframes["levels"] = store["levels_data"]
-                    dataframes["lines"] = store["lines_data"]
-                else:
+                if carsus_version != (1, 0):
                     raise ValueError(
                         f"Current carsus version, {carsus_version}, is not supported."
                     )
 
+                # Checks for various collisional data from Carsus files
+                if "collisions_data" in store:
+                    try:
+
+                        dataframes["collision_data_temperatures"] = store[
+                            "collisions_metadata"
+                        ].temperatures
+                        if "cmfgen" in store["collisions_metadata"].dataset:
+                            dataframes["yg_data"] = store["collisions_data"]
+                            dataframes["collision_data"] = "dummy value"
+                        elif (
+                            "chianti"
+                            in store["collisions_metadata"].dataset
+                        ):
+                            dataframes["collision_data"] = store[
+                                "collisions_data"
+                            ]
+                        else:
+                            raise KeyError(
+                                "Atomic Data Collisions Not a Valid Chanti or CMFGEN Carsus Data File"
+                            )
+                    except KeyError as e:
+                        logger.warn(
+                            "Atomic Data is not a Valid Carsus Atomic Data File"
+                        )
+                        raise
+                dataframes["levels"] = store["levels_data"]
+                dataframes["lines"] = store["lines_data"]
             atom_data = cls(**dataframes)
 
             try:
@@ -341,7 +340,7 @@ class AtomData(object):
         for group in self.related_groups:
             check_list = [name for name in group if getattr(self, name) is None]
 
-            if len(check_list) != 0 and len(check_list) != len(group):
+            if len(check_list) not in [0, len(group)]:
                 raise AtomDataMissingError(
                     f'The following dataframes from the related group [{", ".join(group)}]'
                     f'were not given: {", ".join(check_list)}'
@@ -416,7 +415,7 @@ class AtomData(object):
 
         if (
             self.macro_atom_data_all is not None
-            and not line_interaction_type == "scatter"
+            and line_interaction_type != "scatter"
         ):
 
             self.macro_atom_data = self.macro_atom_data_all.loc[

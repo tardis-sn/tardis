@@ -90,11 +90,7 @@ def print_r_packet_properties(r_packet):
     print("R-Packet information:")
     with objmode:
         for r_packet_attribute_name, _ in rpacket_spec:
-            print(
-                r_packet_attribute_name,
-                "=",
-                str(getattr(r_packet, r_packet_attribute_name)),
-            )
+            print(r_packet_attribute_name, "=", getattr(r_packet, r_packet_attribute_name))
     print("-" * 80)
 
 
@@ -112,7 +108,7 @@ def rpacket_trackers_to_dataframe(rpacket_trackers):
         Dataframe containing properties of RPackets as columns like status, seed, r, nu, mu, energy, shell_id, interaction_type
 
     """
-    len_df = sum([len(tracker.r) for tracker in rpacket_trackers])
+    len_df = sum(len(tracker.r) for tracker in rpacket_trackers)
     index_array = np.empty([2, len_df], dtype="int")
     df_dtypes = np.dtype(
         [
@@ -131,7 +127,7 @@ def rpacket_trackers_to_dataframe(rpacket_trackers):
     for rpacket_tracker in rpacket_trackers:
         prev_index = cur_index
         cur_index = prev_index + len(rpacket_tracker.r)
-        for j, column_name in enumerate(df_dtypes.fields.keys()):
+        for column_name in df_dtypes.fields.keys():
             rpacket_tracker_ndarray[column_name][
                 prev_index:cur_index
             ] = getattr(rpacket_tracker, column_name)

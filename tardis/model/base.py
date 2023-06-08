@@ -220,13 +220,14 @@ class Radial1DModel(HDFWriterMixin):
 
         atomic_mass = None
         if elemental_mass is not None:
-            mass = {}
             stable_atomic_numbers = self.raw_abundance.index.to_list()
-            for z in stable_atomic_numbers:
-                mass[z] = [
+            mass = {
+                z: [
                     elemental_mass[z]
-                    for i in range(self.raw_abundance.columns.size)
+                    for _ in range(self.raw_abundance.columns.size)
                 ]
+                for z in stable_atomic_numbers
+            }
             stable_isotope_mass = pd.DataFrame(mass).T
 
             isotope_mass = {}
@@ -541,27 +542,19 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def v_boundary_inner_index(self):
-        if self.v_boundary_inner in self.raw_velocity:
-            v_inner_ind = np.argwhere(
-                self.raw_velocity == self.v_boundary_inner
-            )[0][0]
-        else:
-            v_inner_ind = (
-                np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
-            )
-        return v_inner_ind
+        return (
+            np.argwhere(self.raw_velocity == self.v_boundary_inner)[0][0]
+            if self.v_boundary_inner in self.raw_velocity
+            else (np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1)
+        )
 
     @property
     def v_boundary_outer_index(self):
-        if self.v_boundary_outer in self.raw_velocity:
-            v_outer_ind = np.argwhere(
-                self.raw_velocity == self.v_boundary_outer
-            )[0][0]
-        else:
-            v_outer_ind = np.searchsorted(
-                self.raw_velocity, self.v_boundary_outer
-            )
-        return v_outer_ind
+        return (
+            np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
+            if self.v_boundary_outer in self.raw_velocity
+            else np.searchsorted(self.raw_velocity, self.v_boundary_outer)
+        )
 
     #    @property
     #    def v_boundary_inner_index(self):
@@ -682,10 +675,7 @@ class Radial1DModel(HDFWriterMixin):
 
         isotope_abundance = IsotopeAbundances(isotope_abundance)
 
-        elemental_mass = None
-        if atom_data is not None:
-            elemental_mass = atom_data.atom_data.mass
-
+        elemental_mass = atom_data.atom_data.mass if atom_data is not None else None
         return cls(
             velocity=velocity,
             homologous_density=homologous_density,

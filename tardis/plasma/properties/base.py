@@ -102,19 +102,19 @@ class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
 
         :return:
         """
-        if not self.frozen:
-            if len(self.outputs) == 1:
-                setattr(
-                    self,
-                    self.outputs[0],
-                    self.calculate(*self._get_input_values()),
-                )
-            else:
-                new_values = self.calculate(*self._get_input_values())
-                for i, output in enumerate(self.outputs):
-                    setattr(self, output, new_values[i])
+        if self.frozen:
+            logger.info(f"{self.name} has been frozen!")
+
+        elif len(self.outputs) == 1:
+            setattr(
+                self,
+                self.outputs[0],
+                self.calculate(*self._get_input_values()),
+            )
         else:
-            logger.info("{} has been frozen!".format(self.name))
+            new_values = self.calculate(*self._get_input_values())
+            for i, output in enumerate(self.outputs):
+                setattr(self, output, new_values[i])
 
     @abstractmethod
     def calculate(self, *args, **kwargs):
@@ -174,13 +174,12 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
 
         if getattr(self, self.outputs[0]) is not None:
             return getattr(self, self.outputs[0])
-        else:
-            raw_atomic_property = getattr(atomic_data, self.outputs[0])
-            return self._set_index(
-                self._filter_atomic_property(
-                    raw_atomic_property, selected_atoms
-                )
+        raw_atomic_property = getattr(atomic_data, self.outputs[0])
+        return self._set_index(
+            self._filter_atomic_property(
+                raw_atomic_property, selected_atoms
             )
+        )
 
 
 class Input(BasePlasmaProperty):

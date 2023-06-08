@@ -58,12 +58,11 @@ def simulation_simple(config_verysimple, atomic_dataset):
     config_verysimple.montecarlo.no_of_virtual_packets = 1
     config_verysimple.spectrum.num = 2000
     atomic_data = deepcopy(atomic_dataset)
-    sim = run_tardis(
+    return run_tardis(
         config_verysimple,
         atom_data=atomic_data,
         show_convergence_plots=False,
     )
-    return sim
 
 
 @pytest.fixture(scope="module")
@@ -436,10 +435,7 @@ class TestSDECPlotter:
             )
 
             for index, data in enumerate(fig.get_children()):
-                trace_group = self.hdf_file.create_group(
-                    fig_subgroup,
-                    name="_" + str(index),
-                )
+                trace_group = self.hdf_file.create_group(fig_subgroup, name=f"_{str(index)}")
                 if isinstance(data.get_label(), str):
                     self.hdf_file.create_array(
                         trace_group, name="label", obj=data.get_label().encode()
@@ -450,7 +446,7 @@ class TestSDECPlotter:
                     for index, path in enumerate(data.get_paths()):
                         self.hdf_file.create_carray(
                             trace_group,
-                            name="path" + str(index),
+                            name=f"path{str(index)}",
                             obj=path.vertices,
                         )
                 # save line plots
@@ -482,9 +478,7 @@ class TestSDECPlotter:
 
             fig_subgroup = self.hdf_file.get_node(group, "fig_data")
             for index, data in enumerate(fig.get_children()):
-                trace_group = self.hdf_file.get_node(
-                    fig_subgroup, "_" + str(index)
-                )
+                trace_group = self.hdf_file.get_node(fig_subgroup, f"_{str(index)}")
                 if isinstance(data.get_label(), str):
                     assert (
                         data.get_label()
@@ -499,7 +493,7 @@ class TestSDECPlotter:
                         np.testing.assert_allclose(
                             path.vertices,
                             self.hdf_file.get_node(
-                                trace_group, "path" + str(index)
+                                trace_group, f"path{str(index)}"
                             ),
                         )
                 # compare line plot data
@@ -576,10 +570,7 @@ class TestSDECPlotter:
                 name="fig_data",
             )
             for index, data in enumerate(fig.data):
-                trace_group = self.hdf_file.create_group(
-                    fig_subgroup,
-                    name="_" + str(index),
-                )
+                trace_group = self.hdf_file.create_group(fig_subgroup, name=f"_{str(index)}")
                 if data.stackgroup:
                     self.hdf_file.create_array(
                         trace_group,
@@ -621,9 +612,7 @@ class TestSDECPlotter:
 
             fig_subgroup = self.hdf_file.get_node(group, "fig_data")
             for index, data in enumerate(fig.data):
-                trace_group = self.hdf_file.get_node(
-                    fig_subgroup, "_" + str(index)
-                )
+                trace_group = self.hdf_file.get_node(fig_subgroup, f"_{str(index)}")
                 if data.stackgroup:
                     assert (
                         data.stackgroup

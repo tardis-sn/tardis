@@ -22,8 +22,8 @@ class BasePlotSaver(object):
         assets_dirpath : str
         """
         self.request = request
-        self._plots = list()
-        self.plot_html = list()
+        self._plots = []
+        self.plot_html = []
         self.dokuwiki_url = dokuwiki_url
         self.assets_dirpath = assets_dirpath
 

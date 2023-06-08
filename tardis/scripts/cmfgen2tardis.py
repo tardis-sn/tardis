@@ -11,20 +11,21 @@ from tardis.io.atom_data import AtomData
 
 
 def get_atomic_number(element):
-    index = -1
-    for atomic_no, row in atomic_dataset.atom_data.iterrows():
-        if element in row["name"]:
-            index = atomic_no
-            break
-    return index
+    return next(
+        (
+            atomic_no
+            for atomic_no, row in atomic_dataset.atom_data.iterrows()
+            if element in row["name"]
+        ),
+        -1,
+    )
 
 
 def extract_file_block(f):
     qty = []
 
     for line in f:
-        items = line.split()
-        if items:
+        if items := line.split():
             qty.extend(np.array(items).astype(np.float64))
         else:
             break

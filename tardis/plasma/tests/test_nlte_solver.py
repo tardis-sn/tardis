@@ -237,10 +237,9 @@ def nlte_raw_plasma_w1(
     """
     new_w = np.ones_like(nlte_raw_model.dilution_factor)
     nlte_raw_model.dilution_factor = new_w
-    plasma = assemble_plasma(
+    return assemble_plasma(
         tardis_model_config_nlte, nlte_raw_model, nlte_atom_data
     )
-    return plasma
 
 
 @pytest.fixture
@@ -252,10 +251,9 @@ def nlte_raw_plasma_w0(
     """
     new_w = np.zeros_like(nlte_raw_model.dilution_factor)
     nlte_raw_model.dilution_factor = new_w
-    plasma = assemble_plasma(
+    return assemble_plasma(
         tardis_model_config_nlte, nlte_raw_model, nlte_atom_data
     )
-    return plasma
 
 
 def test_critical_case_w1(nlte_raw_plasma_w1):

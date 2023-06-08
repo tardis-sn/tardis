@@ -64,11 +64,7 @@ def calculate_distance_radial(photon, r_inner, r_outer):
         raise ValueError("No root found for distance calculation!")
 
     shortest = min(distance_list)
-    shell_change = 1
-
-    if shortest == (inner_1 or inner_2):
-        shell_change = -1
-
+    shell_change = -1 if shortest == (inner_1 or inner_2) else 1
     return shortest, shell_change
 
 

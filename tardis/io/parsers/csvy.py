@@ -40,7 +40,7 @@ def load_csvy(fname):
         try:
             data = pd.read_csv(fname, skiprows=yaml_end_ind + 1)
         except pd.errors.EmptyDataError as e:
-            logger.debug(f"Could not Read CSV. Setting Dataframe to None")
+            logger.debug("Could not Read CSV. Setting Dataframe to None")
             data = None
 
     return yaml_dict, data

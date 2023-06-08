@@ -42,13 +42,12 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
     def calculate(excitation_energy, g, beta_rad, levels):
         exponential = np.exp(np.outer(excitation_energy.values, -beta_rad))
         level_boltzmann_factor_array = g.values[np.newaxis].T * exponential
-        level_boltzmann_factor = pd.DataFrame(
+        return pd.DataFrame(
             level_boltzmann_factor_array,
             index=levels,
             columns=np.arange(len(beta_rad)),
             dtype=np.float64,
         )
-        return level_boltzmann_factor
 
 
 class ThermalLevelBoltzmannFactorLTE(LevelBoltzmannFactorLTE):
@@ -146,7 +145,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             nlte_conf.coronal_approximation and not nlte_conf.classical_nebular
         ):
             return LevelBoltzmannFactorNLTECoronal
-        elif nlte_conf.coronal_approximation and nlte_conf.classical_nebular:
+        elif nlte_conf.coronal_approximation:
             raise PlasmaConfigError(
                 "Both coronal approximation and classical nebular specified in the config."
             )
@@ -196,7 +195,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             except AttributeError:
                 beta_sobolevs_filtered = beta_sobolevs
                 logger.debug(
-                    f"Beta Sobolevs Filtered Value could not be calculated. Using beta_sobolevs_filtered = {beta_sobolevs}"
+                    f"Beta Sobolevs Filtered Value could not be calculated. Using beta_sobolevs_filtered = {beta_sobolevs_filtered}"
                 )
             A_uls = nlte_data.A_uls[species]
             B_uls = nlte_data.B_uls[species]
@@ -221,16 +220,17 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             r_lu_matrix_reshaped[r_lu_index] = (
                 B_lus[np.newaxis].T * j_blues_filtered * beta_sobolevs_filtered
             )
-            if atomic_data.collision_data is None:
+            if (
+                atomic_data.collision_data is not None
+                and previous_electron_densities is None
+                or atomic_data.collision_data is None
+            ):
                 collision_matrix = np.zeros_like(r_ul_matrix)
             else:
-                if previous_electron_densities is None:
-                    collision_matrix = np.zeros_like(r_ul_matrix)
-                else:
-                    collision_matrix = (
-                        nlte_data.get_collision_matrix(species, t_electrons)
-                        * previous_electron_densities.values
-                    )
+                collision_matrix = (
+                    nlte_data.get_collision_matrix(species, t_electrons)
+                    * previous_electron_densities.values
+                )
             rates_matrix = r_lu_matrix + r_ul_matrix + collision_matrix
             for i in range(number_of_levels):
                 rates_matrix[i, i] = -rates_matrix[:, i].sum(axis=0)
@@ -330,11 +330,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         """
         Full NLTE calculation without approximations.
         """
-        if previous_beta_sobolev is None:
-            beta_sobolevs = 1.0
-        else:
-            beta_sobolevs = previous_beta_sobolev
-
+        beta_sobolevs = 1.0 if previous_beta_sobolev is None else previous_beta_sobolev
         general_level_boltzmann_factor = self._main_nlte_calculation(
             atomic_data,
             nlte_data,
