@@ -1,7 +1,7 @@
 # reading different model files
 
 from tardis.io.config_reader import ConfigurationNameSpace
-from tardis.montecarlo.base import MontecarloRunner
+from tardis.montecarlo.base import MontecarloTransport
 from tardis.util.base import parse_quantity, is_valid_nuclide_or_elem
 
 import warnings
@@ -725,7 +725,7 @@ def runner_from_hdf(fname):
     )
 
     # Creating a runner object and storing data
-    new_runner = MontecarloRunner(
+    new_runner = MontecarloTransport(
         seed=d["seed"],
         spectrum_frequency=d["spectrum_frequency_cgs"],
         virtual_spectrum_spawn_range=d["virtual_spectrum_spawn_range"],
