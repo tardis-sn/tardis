@@ -8,7 +8,7 @@ from tardis import constants as const
 from collections import OrderedDict
 from tardis import model
 
-from tardis.montecarlo import MontecarloRunner
+from tardis.montecarlo.base import MontecarloTransport
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
@@ -665,7 +665,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 )
             runner = kwargs["runner"]
         else:
-            runner = MontecarloRunner.from_config(
+            runner = MontecarloTransport.from_config(
                 config,
                 packet_source=packet_source,
                 virtual_packet_logging=virtual_packet_logging,
