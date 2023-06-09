@@ -513,11 +513,7 @@ class MontecarloTransport(HDFWriterMixin):
             self.emitted_packet_nu > luminosity_nu_start
         ) & (self.emitted_packet_nu < luminosity_nu_end)
 
-        emitted_luminosity = self.emitted_packet_luminosity[
-            luminosity_wavelength_filter
-        ].sum()
-
-        return emitted_luminosity
+        return self.emitted_packet_luminosity[luminosity_wavelength_filter].sum()
 
     def calculate_reabsorbed_luminosity(
         self, luminosity_nu_start, luminosity_nu_end
@@ -536,11 +532,9 @@ class MontecarloTransport(HDFWriterMixin):
             self.reabsorbed_packet_nu > luminosity_nu_start
         ) & (self.reabsorbed_packet_nu < luminosity_nu_end)
 
-        reabsorbed_luminosity = self.reabsorbed_packet_luminosity[
+        return self.reabsorbed_packet_luminosity[
             luminosity_wavelength_filter
         ].sum()
-
-        return reabsorbed_luminosity
 
     def calculate_radiationfield_properties(self):
         """
@@ -652,10 +646,7 @@ class MontecarloTransport(HDFWriterMixin):
                     but no CUDA GPU is available."""
                 )
         elif running_mode == "AUTOMATIC":
-            if cuda.is_available():
-                use_gpu = True
-            else:
-                use_gpu = False
+            use_gpu = bool(cuda.is_available())
         elif running_mode == "CPU":
             use_gpu = False
         else:

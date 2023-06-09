@@ -523,7 +523,7 @@ def parse_csv_abundances(csvy_data):
         columns=np.arange(df.shape[1]), index=isotope_index, dtype=np.float64
     )
 
-    for element_symbol_string in df.index[0:]:
+    for element_symbol_string in df.index[:]:
         if element_symbol_string in Z_DICT.values():
             z = elem_to_Z(element_symbol_string)
             abundance.loc[z, :] = df.loc[element_symbol_string].tolist()
@@ -645,9 +645,8 @@ def store_runner_to_hdf(runner, fname):
             if key.endswith("_cgs"):
                 runner_group.create_dataset(key, data=value[0])
                 runner_group.create_dataset(key + "_unit", data=value[1])
-            else:
-                if value is not None:
-                    runner_group.create_dataset(key, data=value)
+            elif value is not None:
+                runner_group.create_dataset(key, data=value)
 
         integrator_settings_group = runner_group.create_group(
             "integrator_settings"
