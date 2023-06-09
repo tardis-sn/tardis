@@ -101,7 +101,7 @@ class MontecarloRunner(HDFWriterMixin):
         v_packet_settings,
         spectrum_method,
         virtual_packet_logging,
-        nthreads,
+        nthreads=1,
         packet_source=None,
         debug_packets=False,
         logger_buffer=1,
