@@ -32,7 +32,6 @@ logger = logging.getLogger(__name__)
 
 MAX_SEED_VAL = 2**32 - 1
 
-
 # MAX_SEED_VAL must be multiple orders of magnitude larger than no_of_packets;
 # otherwise, each packet would not have its own seed. Here, we set the max
 # seed val to the maximum allowed by numpy.
