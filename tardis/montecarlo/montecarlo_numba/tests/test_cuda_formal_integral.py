@@ -349,10 +349,12 @@ def test_full_formal_integral(
     sim = simulation_verysimple
 
     formal_integrator_numba = FormalIntegrator(
-        sim.model, sim.plasma, sim.runner
+        sim.model, sim.plasma, sim.transport
     )
 
-    formal_integrator_cuda = FormalIntegrator(sim.model, sim.plasma, sim.runner)
+    formal_integrator_cuda = FormalIntegrator(
+        sim.model, sim.plasma, sim.transport
+    )
 
     # The function calculate_spectrum sets this property, but in order to test the CUDA.
     # version it is done manually, as well as to speed up the test.
@@ -388,25 +390,25 @@ def test_full_formal_integral(
 
     L_cuda = formal_integrator_cuda.integrator.formal_integral(
         formal_integrator_cuda.model.t_inner,
-        sim.runner.spectrum.frequency,
-        sim.runner.spectrum.frequency.shape[0],
+        sim.transport.spectrum.frequency,
+        sim.transport.spectrum.frequency.shape[0],
         att_S_ul_cuda,
         Jred_lu_cuda,
         Jblue_lu_cuda,
-        formal_integrator_cuda.runner.tau_sobolevs_integ,
-        formal_integrator_cuda.runner.electron_densities_integ,
+        formal_integrator_cuda.transport.tau_sobolevs_integ,
+        formal_integrator_cuda.transport.electron_densities_integ,
         formal_integrator_cuda.points,
     )[0]
 
     L_numba = formal_integrator_numba.integrator.formal_integral(
         formal_integrator_numba.model.t_inner,
-        sim.runner.spectrum.frequency,
-        sim.runner.spectrum.frequency.shape[0],
+        sim.transport.spectrum.frequency,
+        sim.transport.spectrum.frequency.shape[0],
         att_S_ul_numba,
         Jred_lu_numba,
         Jblue_lu_numba,
-        formal_integrator_numba.runner.tau_sobolevs_integ,
-        formal_integrator_numba.runner.electron_densities_integ,
+        formal_integrator_numba.transport.tau_sobolevs_integ,
+        formal_integrator_numba.transport.electron_densities_integ,
         formal_integrator_numba.points,
     )[0]
 

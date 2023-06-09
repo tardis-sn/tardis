@@ -15,11 +15,11 @@ class LastLineInteraction(object):
     @classmethod
     def from_model(cls, model, packet_filter_mode="packet_out_nu"):
         return cls(
-            model.runner.last_line_interaction_in_id,
-            model.runner.last_line_interaction_out_id,
-            model.runner.last_line_interaction_shell_id,
-            model.runner.output_nu,
-            model.runner.last_interaction_in_nu,
+            model.transport.last_line_interaction_in_id,
+            model.transport.last_line_interaction_out_id,
+            model.transport.last_line_interaction_shell_id,
+            model.transport.output_nu,
+            model.transport.last_interaction_in_nu,
             model.plasma.atomic_data.lines,
             packet_filter_mode,
         )

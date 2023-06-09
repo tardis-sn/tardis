@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 
 MAX_SEED_VAL = 2**32 - 1
 
+
 # MAX_SEED_VAL must be multiple orders of magnitude larger than no_of_packets;
 # otherwise, each packet would not have its own seed. Here, we set the max
 # seed val to the maximum allowed by numpy.
@@ -71,7 +72,7 @@ class MontecarloTransport(HDFWriterMixin):
         "virt_packet_last_line_interaction_out_id",
     ]
 
-    hdf_name = "montecarlo_transport"
+    hdf_name = "transport"
     w_estimator_constant = (
         (const.c**2 / (2 * const.h))
         * (15 / np.pi**4)
@@ -103,7 +104,6 @@ class MontecarloTransport(HDFWriterMixin):
         tracking_rpacket=False,
         use_gpu=False,
     ):
-
         self.seed = seed
         if packet_source is None:
             if not enable_full_relativity:
@@ -265,7 +265,7 @@ class MontecarloTransport(HDFWriterMixin):
     def spectrum_virtual(self):
         if np.all(self.montecarlo_virtual_luminosity == 0):
             warnings.warn(
-                "MontecarloRunner.spectrum_virtual"
+                "MontecarloTransport.spectrum_virtual"
                 "is zero. Please run the montecarlo simulation with"
                 "no_of_virtual_packets > 0",
                 UserWarning,
@@ -291,7 +291,7 @@ class MontecarloTransport(HDFWriterMixin):
     def integrator(self):
         if self._integrator is None:
             warnings.warn(
-                "MontecarloRunner.integrator: "
+                "MontecarloTransport.integrator: "
                 "The FormalIntegrator is not yet available."
                 "Please run the montecarlo simulation at least once.",
                 UserWarning,
@@ -407,7 +407,7 @@ class MontecarloTransport(HDFWriterMixin):
             return u.Quantity(self.virt_packet_nus, u.Hz)
         except AttributeError:
             warnings.warn(
-                "MontecarloRunner.virtual_packet_nu:"
+                "MontecarloTransport.virtual_packet_nu:"
                 "Set 'virtual_packet_logging: True' in the configuration file"
                 "to access this property"
                 "It should be added under 'virtual' property of 'spectrum' property",
@@ -421,7 +421,7 @@ class MontecarloTransport(HDFWriterMixin):
             return u.Quantity(self.virt_packet_energies, u.erg)
         except AttributeError:
             warnings.warn(
-                "MontecarloRunner.virtual_packet_energy:"
+                "MontecarloTransport.virtual_packet_energy:"
                 "Set 'virtual_packet_logging: True' in the configuration file"
                 "to access this property"
                 "It should be added under 'virtual' property of 'spectrum' property",
@@ -435,7 +435,7 @@ class MontecarloTransport(HDFWriterMixin):
             return self.virtual_packet_energy / self.time_of_simulation
         except TypeError:
             warnings.warn(
-                "MontecarloRunner.virtual_packet_luminosity:"
+                "MontecarloTransport.virtual_packet_luminosity:"
                 "Set 'virtual_packet_logging: True' in the configuration file"
                 "to access this property"
                 "It should be added under 'virtual' property of 'spectrum' property",
@@ -614,14 +614,14 @@ class MontecarloTransport(HDFWriterMixin):
         cls, config, packet_source=None, virtual_packet_logging=False
     ):
         """
-        Create a new MontecarloRunner instance from a Configuration object.
+        Create a new MontecarloTransport instance from a Configuration object.
         Parameters
         ----------
         config : tardis.io.config_reader.Configuration
         virtual_packet_logging : bool
         Returns
         -------
-        MontecarloRunner
+        MontecarloTransport
         """
         if config.plasma.disable_electron_scattering:
             logger.warn(

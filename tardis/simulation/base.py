@@ -36,7 +36,6 @@ class PlasmaStateStorerMixin(object):
     """
 
     def __init__(self, iterations, no_of_shells):
-
         self.iterations_w = np.zeros((iterations, no_of_shells))
         self.iterations_t_rad = np.zeros((iterations, no_of_shells)) * u.K
         self.iterations_electron_densities = np.zeros(
@@ -97,7 +96,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     iterations : int
     model : tardis.model.Radial1DModel
     plasma : tardis.plasma.BasePlasma
-    montecarlo_transport : tardis.montecarlo.MontecarloRunner
+    transport : tardis.montecarlo.MontecarloTransport
     no_of_packets : int
     last_no_of_packets : int
     no_of_virtual_packets : int
@@ -117,7 +116,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     hdf_properties = [
         "model",
         "plasma",
-        "montecarlo_transport",
+        "transport",
         "iterations_w",
         "iterations_t_rad",
         "iterations_electron_densities",
@@ -130,7 +129,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         iterations,
         model,
         plasma,
-        montecarlo_transport,
+        transport,
         no_of_packets,
         no_of_virtual_packets,
         luminosity_nu_start,
@@ -143,7 +142,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         convergence_plots_kwargs,
         show_progress_bars,
     ):
-
         super(Simulation, self).__init__(iterations, model.no_of_shells)
 
         self.converged = False
@@ -151,7 +149,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.iterations_executed = 0
         self.model = model
         self.plasma = plasma
-        self.montecarlo_transport = montecarlo_transport
+        self.transport = transport
         self.no_of_packets = no_of_packets
         self.last_no_of_packets = last_no_of_packets
         self.no_of_virtual_packets = no_of_virtual_packets
@@ -206,7 +204,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     def estimate_t_inner(
         self, input_t_inner, luminosity_requested, t_inner_update_exponent=-0.5
     ):
-        emitted_luminosity = self.montecarlo_transport.calculate_emitted_luminosity(
+        emitted_luminosity = self.transport.calculate_emitted_luminosity(
             self.luminosity_nu_start, self.luminosity_nu_end
         )
 
@@ -288,7 +286,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         (
             estimated_t_rad,
             estimated_w,
-        ) = self.montecarlo_transport.calculate_radiationfield_properties()
+        ) = self.transport.calculate_radiationfield_properties()
         estimated_t_inner = self.estimate_t_inner(
             self.model.t_inner,
             self.luminosity_requested,
@@ -367,14 +365,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if "j_blue_estimator" in self.plasma.outputs_dict:
             update_properties.update(
                 t_inner=next_t_inner,
-                j_blue_estimator=self.montecarlo_transport.j_blue_estimator,
+                j_blue_estimator=self.transport.j_blue_estimator,
             )
         if "gamma_estimator" in self.plasma.outputs_dict:
             update_properties.update(
-                gamma_estimator=self.montecarlo_transport.photo_ion_estimator,
-                alpha_stim_estimator=self.montecarlo_transport.stim_recomb_estimator,
-                bf_heating_coeff_estimator=self.montecarlo_transport.bf_heating_estimator,
-                stim_recomb_cooling_coeff_estimator=self.montecarlo_transport.stim_recomb_cooling_estimator,
+                gamma_estimator=self.transport.photo_ion_estimator,
+                alpha_stim_estimator=self.transport.stim_recomb_estimator,
+                bf_heating_coeff_estimator=self.transport.bf_heating_estimator,
+                stim_recomb_cooling_coeff_estimator=self.transport.stim_recomb_cooling_estimator,
             )
 
         self.plasma.update(**update_properties)
@@ -385,7 +383,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         logger.info(
             f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
-        self.montecarlo_transport.run(
+        self.transport.run(
             self.model,
             self.plasma,
             no_of_packets,
@@ -396,14 +394,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             total_iterations=self.iterations,
             show_progress_bars=self.show_progress_bars,
         )
-        output_energy = self.montecarlo_transport.output_energy
+        output_energy = self.transport.output_energy
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-        emitted_luminosity = self.montecarlo_transport.calculate_emitted_luminosity(
+        emitted_luminosity = self.transport.calculate_emitted_luminosity(
             self.luminosity_nu_start, self.luminosity_nu_end
         )
-        reabsorbed_luminosity = self.montecarlo_transport.calculate_reabsorbed_luminosity(
+        reabsorbed_luminosity = self.transport.calculate_reabsorbed_luminosity(
             self.luminosity_nu_start, self.luminosity_nu_end
         )
         if hasattr(self, "convergence_plots"):
@@ -472,9 +470,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 last=True,
             )
 
-        if self.montecarlo_transport.rpacket_tracker:
-            self.montecarlo_transport.rpacket_tracker_df = rpacket_trackers_to_dataframe(
-                self.montecarlo_transport.rpacket_tracker
+        if self.transport.rpacket_tracker:
+            self.transport.rpacket_tracker_df = rpacket_trackers_to_dataframe(
+                self.transport.rpacket_tracker
             )
 
         logger.info(
@@ -632,7 +630,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         **kwargs
             Allow overriding some structures, such as model, plasma, atomic data
-            and the montecarlo_transport, instead of creating them from the configuration
+            and the transport, instead of creating them from the configuration
             object.
 
         Returns
@@ -658,14 +656,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             plasma = assemble_plasma(
                 config, model, atom_data=kwargs.get("atom_data", None)
             )
-        if "montecarlo_transport" in kwargs:
+        if "transport" in kwargs:
             if packet_source is not None:
                 raise ConfigurationError(
-                    "Cannot specify packet_source and montecarlo_transport at the same time."
+                    "Cannot specify packet_source and transport at the same time."
                 )
-            montecarlo_transport = kwargs["montecarlo_transport"]
+            transport = kwargs["transport"]
         else:
-            montecarlo_transport = MontecarloTransport.from_config(
+            transport = MontecarloTransport.from_config(
                 config,
                 packet_source=packet_source,
                 virtual_packet_logging=virtual_packet_logging,
@@ -706,7 +704,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             iterations=config.montecarlo.iterations,
             model=model,
             plasma=plasma,
-            montecarlo_transport=montecarlo_transport,
+            transport=transport,
             show_convergence_plots=show_convergence_plots,
             no_of_packets=int(config.montecarlo.no_of_packets),
             no_of_virtual_packets=int(config.montecarlo.no_of_virtual_packets),
