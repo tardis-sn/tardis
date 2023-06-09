@@ -379,10 +379,6 @@ class MontecarloRunner(HDFWriterMixin):
             self,
         )
         self._integrator = FormalIntegrator(model, plasma, self)
-        # montecarlo.montecarlo_radial1d(
-        #    model, plasma, self,
-        #    virtual_packet_flag=no_of_virtual_packets,
-        #    last_run=last_run)
 
     def legacy_return(self):
         return (
