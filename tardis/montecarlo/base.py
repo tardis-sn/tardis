@@ -382,7 +382,6 @@ class MontecarloRunner(HDFWriterMixin):
         # montecarlo.montecarlo_radial1d(
         #    model, plasma, self,
         #    virtual_packet_flag=no_of_virtual_packets,
-        #    nthreads=self.nthreads,
         #    last_run=last_run)
 
     def legacy_return(self):
