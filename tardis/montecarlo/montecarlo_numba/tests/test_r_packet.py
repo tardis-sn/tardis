@@ -24,12 +24,11 @@ def simulation_rpacket_tracking_enabled(config_verysimple, atomic_dataset):
     config_verysimple.montecarlo.tracking.track_rpacket = True
     config_verysimple.spectrum.num = 2000
     atomic_data = deepcopy(atomic_dataset)
-    sim = run_tardis(
+    return run_tardis(
         config_verysimple,
         atom_data=atomic_data,
         show_convergence_plots=False,
     )
-    return sim
 
 
 def test_rpacket_trackers_to_dataframe(simulation_rpacket_tracking_enabled):
@@ -38,7 +37,7 @@ def test_rpacket_trackers_to_dataframe(simulation_rpacket_tracking_enabled):
 
     # check df shape and column names
     assert rtracker_df.shape == (
-        sum([len(tracker.r) for tracker in sim.transport.rpacket_tracker]),
+        sum(len(tracker.r) for tracker in sim.transport.rpacket_tracker),
         8,
     )
     npt.assert_array_equal(
@@ -60,17 +59,17 @@ def test_rpacket_trackers_to_dataframe(simulation_rpacket_tracking_enabled):
     # check all data with rpacket_tracker
     expected_rtrackers = []
     for rpacket in sim.transport.rpacket_tracker:
-        for rpacket_step_no in range(len(rpacket.r)):
-            expected_rtrackers.append(
-                [
-                    rpacket.status[rpacket_step_no],
-                    rpacket.seed,
-                    rpacket.r[rpacket_step_no],
-                    rpacket.nu[rpacket_step_no],
-                    rpacket.mu[rpacket_step_no],
-                    rpacket.energy[rpacket_step_no],
-                    rpacket.shell_id[rpacket_step_no],
-                    rpacket.interaction_type[rpacket_step_no],
-                ]
-            )
+        expected_rtrackers.extend(
+            [
+                rpacket.status[rpacket_step_no],
+                rpacket.seed,
+                rpacket.r[rpacket_step_no],
+                rpacket.nu[rpacket_step_no],
+                rpacket.mu[rpacket_step_no],
+                rpacket.energy[rpacket_step_no],
+                rpacket.shell_id[rpacket_step_no],
+                rpacket.interaction_type[rpacket_step_no],
+            ]
+            for rpacket_step_no in range(len(rpacket.r))
+        )
     npt.assert_array_equal(rtracker_df.to_numpy(), np.array(expected_rtrackers))

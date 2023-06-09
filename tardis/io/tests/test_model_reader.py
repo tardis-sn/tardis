@@ -255,8 +255,8 @@ def test_transport_to_dict(simulation_verysimple):
             else:
                 assert value == transport_data[key]
         elif isinstance(value, np.ndarray):
-            if key + "_cgs" in transport_data.keys():
-                assert np.array_equal(value, transport_data[key + "_cgs"])
+            if f"{key}_cgs" in transport_data.keys():
+                assert np.array_equal(value, transport_data[f"{key}_cgs"])
             else:
                 assert np.array_equal(value, transport_data[key])
         elif isinstance(value, list):

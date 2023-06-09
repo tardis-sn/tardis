@@ -43,30 +43,29 @@ def simulation_one_loop(
 
     if not generate_reference:
         return simulation
-    else:
-        simulation.hdf_properties = [
-            "iterations_w",
-            "iterations_t_rad",
-            "iterations_electron_densities",
-            "iterations_t_inner",
-        ]
-        simulation.model.hdf_properties = ["t_radiative", "dilution_factor"]
-        simulation.transport.hdf_properties = [
-            "j_estimator",
-            "nu_bar_estimator",
-            "output_nu",
-            "output_energy",
-        ]
-        simulation.to_hdf(
-            tardis_ref_data, "", "test_simulation", overwrite=True
-        )
-        simulation.model.to_hdf(
-            tardis_ref_data, "", "test_simulation", overwrite=True
-        )
-        simulation.transport.to_hdf(
-            tardis_ref_data, "", "test_simulation", overwrite=True
-        )
-        pytest.skip("Reference data was generated during this run.")
+    simulation.hdf_properties = [
+        "iterations_w",
+        "iterations_t_rad",
+        "iterations_electron_densities",
+        "iterations_t_inner",
+    ]
+    simulation.model.hdf_properties = ["t_radiative", "dilution_factor"]
+    simulation.transport.hdf_properties = [
+        "j_estimator",
+        "nu_bar_estimator",
+        "output_nu",
+        "output_energy",
+    ]
+    simulation.to_hdf(
+        tardis_ref_data, "", "test_simulation", overwrite=True
+    )
+    simulation.model.to_hdf(
+        tardis_ref_data, "", "test_simulation", overwrite=True
+    )
+    simulation.transport.to_hdf(
+        tardis_ref_data, "", "test_simulation", overwrite=True
+    )
+    pytest.skip("Reference data was generated during this run.")
 
 
 @pytest.mark.parametrize(

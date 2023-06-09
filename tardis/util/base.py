@@ -225,8 +225,6 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
             logger.debug(
                 "Synpp Ref does not have valid KEY for ref_log_tau in Radial1D Model"
             )
-            pass
-
     relevant_synpp_refs = radial1d_mdl.atom_data.synpp_refs[
         radial1d_mdl.atom_data.synpp_refs["ref_log_tau"] > -50
     ]
@@ -307,10 +305,9 @@ def intensity_black_body(nu, temperature):
     """
     beta_rad = 1 / (k_B_cgs * temperature)
     coefficient = 2 * h_cgs / c_cgs**2
-    intensity = ne.evaluate(
+    return ne.evaluate(
         "coefficient * nu**3 / " "(exp(h_cgs * nu * beta_rad) -1 )"
     )
-    return intensity
 
 
 def species_tuple_to_string(species_tuple, roman_numerals=True):
@@ -332,11 +329,10 @@ def species_tuple_to_string(species_tuple, roman_numerals=True):
     """
     atomic_number, ion_number = species_tuple
     element_symbol = ATOMIC_NUMBER2SYMBOL[atomic_number]
-    if roman_numerals:
-        roman_ion_number = int_to_roman(ion_number + 1)
-        return f"{str(element_symbol)} {roman_ion_number}"
-    else:
+    if not roman_numerals:
         return f"{element_symbol} {ion_number:d}"
+    roman_ion_number = int_to_roman(ion_number + 1)
+    return f"{str(element_symbol)} {roman_ion_number}"
 
 
 def species_string_to_tuple(species_string):
@@ -514,7 +510,7 @@ def is_valid_nuclide_or_elem(input_nuclide):
         parse_nuclide(input_nuclide, DEFAULTDATA.nuclides, "ICRP-107")
         is_nuclide = True
     except:
-        is_nuclide = True if input_nuclide in Z_DICT.values() else False
+        is_nuclide = input_nuclide in Z_DICT.values()
 
     return is_nuclide
 
@@ -618,14 +614,7 @@ def is_notebook():
         return False
 
     # Checking if the shell instance is Jupyter based & if True, returning True
-    if isinstance(shell, ZMQInteractiveShell):
-        return True
-    # Checking if the shell instance is Terminal IPython based & if True, returning False
-    elif isinstance(shell, InteractiveShell):
-        return False
-    # All other shell instances are returned False
-    else:
-        return False
+    return isinstance(shell, ZMQInteractiveShell)
 
 
 if is_notebook():
@@ -673,9 +662,9 @@ def update_packet_pbar(i, current_iteration, no_of_packets, total_iterations):
     bar_iteration = int(packet_pbar.postfix) - 1
 
     # fix bar layout when run_tardis is called for the first time
-    if iterations_pbar.total == None:
+    if iterations_pbar.total is None:
         fix_bar_layout(iterations_pbar, total_iterations=total_iterations)
-    if packet_pbar.total == None:
+    if packet_pbar.total is None:
         fix_bar_layout(packet_pbar, no_of_packets=no_of_packets)
 
     # display and reset progress bar when run_tardis is called again
@@ -759,5 +748,3 @@ def fix_bar_layout(bar, no_of_packets=None, total_iterations=None):
             bar.reset(total=no_of_packets)
         if total_iterations is not None:
             bar.reset(total=total_iterations)
-        else:
-            pass

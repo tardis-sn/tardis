@@ -46,16 +46,15 @@ class TestTransportSimple:
 
         if not generate_reference:
             return simulation.transport
-        else:
-            simulation.transport.hdf_properties = [
-                "j_blue_estimator",
-                "spectrum",
-                "spectrum_virtual",
-            ]
-            simulation.transport.to_hdf(
-                tardis_ref_data, "", self.name, overwrite=True
-            )
-            pytest.skip("Reference data was generated during this run.")
+        simulation.transport.hdf_properties = [
+            "j_blue_estimator",
+            "spectrum",
+            "spectrum_virtual",
+        ]
+        simulation.transport.to_hdf(
+            tardis_ref_data, "", self.name, overwrite=True
+        )
+        pytest.skip("Reference data was generated during this run.")
 
     @pytest.fixture(scope="class")
     def refdata(self, tardis_ref_data):

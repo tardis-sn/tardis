@@ -8,5 +8,4 @@ from tardis.montecarlo.base import MontecarloTransport
 def transport():
     config_fname = "tardis/io/tests/data/tardis_configv1_verysimply.yml"
     config = config_reader.Configuration.from_yaml(config_fname)
-    transport = MontecarloTransport.from_config(config)
-    return transport
+    return MontecarloTransport.from_config(config)

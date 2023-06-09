@@ -223,13 +223,11 @@ class TARDISHistory(object):
         if iterations is None:
             iterations = []
             hdf_store = pd.HDFStore(self.hdf5_fname, "r")
-            for key in hdf_store.keys():
-                if key.split("/")[1] == "atom_data":
-                    continue
-                iterations.append(
-                    int(re.match(r"model(\d+)", key.split("/")[1]).groups()[0])
-                )
-
+            iterations.extend(
+                int(re.match(r"model(\d+)", key.split("/")[1]).groups()[0])
+                for key in hdf_store.keys()
+                if key.split("/")[1] != "atom_data"
+            )
             self.iterations = np.sort(np.unique(iterations))
             hdf_store.close()
         else:
@@ -246,7 +244,6 @@ class TARDISHistory(object):
             hdf_store.close()
 
     def load_t_inner(self, iterations=None):
-        t_inners = []
         hdf_store = pd.HDFStore(self.hdf5_fname, "r")
 
         if iterations is None:
@@ -256,14 +253,13 @@ class TARDISHistory(object):
         else:
             iterations = self.iterations[iterations]
 
-        for iter in iterations:
-            t_inners.append(
-                hdf_store[f"model{iter:03d}/configuration"].ix["t_inner"]
-            )
+        t_inners = [
+            hdf_store[f"model{iter:03d}/configuration"].ix["t_inner"]
+            for iter in iterations
+        ]
         hdf_store.close()
 
-        t_inners = np.array(t_inners)
-        return t_inners
+        return np.array(t_inners)
 
     def load_t_rads(self, iterations=None):
         t_rads_dict = {}
@@ -422,7 +418,7 @@ class TARDISHistory(object):
         self.load_atom_data()
 
         hdf_store = pd.HDFStore(self.hdf5_fname, "r")
-        model_string = "model" + (f"{iteration:03d}") + "/%s"
+        model_string = f"model{iteration:03d}/%s"
         last_line_interaction_in_id = hdf_store[
             model_string % "last_line_interaction_in_id"
         ].values
