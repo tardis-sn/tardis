@@ -156,6 +156,7 @@ class MontecarloTransport(HDFWriterMixin):
     def _initialize_estimator_arrays(self, tau_sobolev_shape):
         """
         Initialize the output arrays of the montecarlo simulation.
+
         Parameters
         ----------
         tau_sobolev_shape : tuple
