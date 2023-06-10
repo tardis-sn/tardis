@@ -26,6 +26,7 @@ def test_montecarlo_main_loop(
     random_call_fixture,
     request,
 ):
+
     montecarlo_configuration.LEGACY_MODE_ENABLED = True
     # Setup model config from verysimple
     atomic_data = deepcopy(atomic_dataset)

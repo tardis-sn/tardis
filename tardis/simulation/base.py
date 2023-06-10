@@ -36,6 +36,7 @@ class PlasmaStateStorerMixin(object):
     """
 
     def __init__(self, iterations, no_of_shells):
+
         self.iterations_w = np.zeros((iterations, no_of_shells))
         self.iterations_t_rad = np.zeros((iterations, no_of_shells)) * u.K
         self.iterations_electron_densities = np.zeros(
@@ -142,6 +143,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         convergence_plots_kwargs,
         show_progress_bars,
     ):
+
         super(Simulation, self).__init__(iterations, model.no_of_shells)
 
         self.converged = False

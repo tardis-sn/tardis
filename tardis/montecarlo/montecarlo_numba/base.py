@@ -242,6 +242,7 @@ def montecarlo_main_loop(
     for i in prange(len(output_nus)):
         tid = get_thread_id()
         if show_progress_bars:
+
             if tid == main_thread_id:
                 with objmode:
                     update_amount = 1 * n_threads

@@ -31,7 +31,6 @@ logger = logging.getLogger(__name__)
 
 MAX_SEED_VAL = 2**32 - 1
 
-
 # MAX_SEED_VAL must be multiple orders of magnitude larger than no_of_packets;
 # otherwise, each packet would not have its own seed. Here, we set the max
 # seed val to the maximum allowed by numpy.
@@ -104,6 +103,7 @@ class MontecarloTransport(HDFWriterMixin):
         tracking_rpacket=False,
         use_gpu=False,
     ):
+
         self.seed = seed
         if packet_source is None:
             if not enable_full_relativity:
@@ -173,6 +173,7 @@ class MontecarloTransport(HDFWriterMixin):
     def _initialize_continuum_estimator_arrays(self, gamma_shape):
         """
         Initialize the arrays for the MC estimators for continuum processes.
+
         Parameters
         ----------
         gamma_shape : tuple
@@ -196,6 +197,7 @@ class MontecarloTransport(HDFWriterMixin):
     def _initialize_geometry_arrays(self, model):
         """
         Generate the cgs like geometry arrays for the montecarlo part
+
         Parameters
         ----------
         model : model.Radial1DModel
@@ -320,6 +322,7 @@ class MontecarloTransport(HDFWriterMixin):
     ):
         """
         Run the montecarlo calculation
+
         Parameters
         ----------
         model : tardis.model.Radial1DModel
@@ -330,6 +333,7 @@ class MontecarloTransport(HDFWriterMixin):
         last_run : bool
         total_iterations : int
             The total number of iterations in the simulation.
+
         Returns
         -------
         None
@@ -502,10 +506,12 @@ class MontecarloTransport(HDFWriterMixin):
     ):
         """
         Calculate emitted luminosity.
+
         Parameters
         ----------
         luminosity_nu_start : astropy.units.Quantity
         luminosity_nu_end : astropy.units.Quantity
+
         Returns
         -------
         astropy.units.Quantity
@@ -525,10 +531,12 @@ class MontecarloTransport(HDFWriterMixin):
     ):
         """
         Calculate reabsorbed luminosity.
+
         Parameters
         ----------
         luminosity_nu_start : astropy.units.Quantity
         luminosity_nu_end : astropy.units.Quantity
+
         Returns
         -------
         astropy.units.Quantity
@@ -549,10 +557,12 @@ class MontecarloTransport(HDFWriterMixin):
         `\\bar{nu}_\\textrm{estimator}` and :math:`\\J_\\textrm{estimator}`
         calculated in the montecarlo simulation.
         The details of the calculation can be found in the documentation.
+
         Parameters
         ----------
         nubar_estimator : np.ndarray (float)
         j_estimator : np.ndarray (float)
+
         Returns
         -------
         t_rad : astropy.units.Quantity (float)
@@ -577,9 +587,11 @@ class MontecarloTransport(HDFWriterMixin):
     def calculate_luminosity_inner(self, model):
         """
         Calculate inner luminosity.
+
         Parameters
         ----------
         model : model.Radial1DModel
+
         Returns
         -------
         astropy.units.Quantity
@@ -595,9 +607,11 @@ class MontecarloTransport(HDFWriterMixin):
     def calculate_time_of_simulation(self, model):
         """
         Calculate time of montecarlo simulation.
+
         Parameters
         ----------
         model : model.Radial1DModel
+
         Returns
         -------
         float
@@ -616,10 +630,12 @@ class MontecarloTransport(HDFWriterMixin):
     ):
         """
         Create a new MontecarloTransport instance from a Configuration object.
+
         Parameters
         ----------
         config : tardis.io.config_reader.Configuration
         virtual_packet_logging : bool
+
         Returns
         -------
         MontecarloTransport

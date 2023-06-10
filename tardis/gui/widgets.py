@@ -406,6 +406,7 @@ class ConfigEditor(QtWidgets.QWidget):
 
                 elif isinstance(dict2[key], list):
                     if isinstance(dict2[key][1], list):
+
                         # options = dict2[key][1] #This is passed by reference.
                         # So copy the list manually.
                         options = [

@@ -229,6 +229,7 @@ class TestIntegration(object):
         )
 
     def plot_spectrum(self):
+
         # `ldl_` prefixed variables associated with `luminosity_density_lambda`.
         # Axes of subplot are extracted, if we wish to make multiple plots
         # for different spectrum quantities all in one figure.

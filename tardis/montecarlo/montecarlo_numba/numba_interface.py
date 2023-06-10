@@ -559,6 +559,7 @@ class Estimators(object):
         self.photo_ion_estimator_statistics = photo_ion_estimator_statistics
 
     def increment(self, other):
+
         self.j_estimator += other.j_estimator
         self.nu_bar_estimator += other.nu_bar_estimator
         self.j_blue_estimator += other.j_blue_estimator

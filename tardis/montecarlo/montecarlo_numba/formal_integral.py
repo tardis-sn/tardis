@@ -144,6 +144,7 @@ def numba_formal_integral(
                 nu_end = nu_ends[i]
                 nu_end_idx = nu_ends_idxs[i]
                 for _ in range(max(nu_end_idx - pline, 0)):
+
                     # calculate e-scattering optical depth to next resonance point
                     zend = (
                         model.time_explosion
@@ -279,6 +280,7 @@ class FormalIntegrator(object):
     """
 
     def __init__(self, model, plasma, transport, points=1000):
+
         self.model = model
         self.transport = transport
         self.points = points
