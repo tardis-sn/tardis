@@ -39,6 +39,10 @@ class MontecarloRunner(HDFWriterMixin):
     """
     This class is designed as an interface between the Python part and the
     montecarlo C-part
+
+    Parameters
+    ----------
+
     """
 
     hdf_properties = [
