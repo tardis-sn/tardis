@@ -16,28 +16,28 @@ pytestmarker = [pytest.mark.no_cover, pytest.mark.integration]
 
 quantity_comparison = [
     (
-        "/simulation/runner/last_line_interaction_in_id",
-        "runner.last_line_interaction_in_id",
+        "/simulation/transport/last_line_interaction_in_id",
+        "transport.last_line_interaction_in_id",
     ),
     (
-        "/simulation/runner/last_line_interaction_out_id",
-        "runner.last_line_interaction_out_id",
+        "/simulation/transport/last_line_interaction_out_id",
+        "transport.last_line_interaction_out_id",
     ),
     (
-        "/simulation/runner/last_line_interaction_shell_id",
-        "runner.last_line_interaction_shell_id",
+        "/simulation/transport/last_line_interaction_shell_id",
+        "transport.last_line_interaction_shell_id",
     ),
     ("/simulation/plasma/j_blues", "plasma.j_blues"),
     ("/simulation/plasma/j_blue_estimator", "plasma.j_blue_estimator"),
     (
-        "/simulation/runner/packet_luminosity",
-        "runner.packet_luminosity.cgs.value",
+        "/simulation/transport/packet_luminosity",
+        "transport.packet_luminosity.cgs.value",
     ),
     (
-        "/simulation/runner/montecarlo_virtual_luminosity",
-        "runner.montecarlo_virtual_luminosity.cgs.value",
+        "/simulation/transport/montecarlo_virtual_luminosity",
+        "transport.montecarlo_virtual_luminosity.cgs.value",
     ),
-    ("/simulation/runner/output_nu", "runner.output_nu.cgs.value"),
+    ("/simulation/transport/output_nu", "transport.output_nu.cgs.value"),
     ("/simulation/plasma/ion_number_density", "plasma.ion_number_density"),
     ("/simulation/plasma/level_number_density", "plasma.level_number_density"),
     ("/simulation/plasma/electron_densities", "plasma.electron_densities"),
@@ -48,8 +48,8 @@ quantity_comparison = [
     ),
     ("/simulation/model/t_radiative", "model.t_radiative.cgs.value"),
     ("/simulation/model/w", "model.w"),
-    ("/simulation/runner/j_estimator", "runner.j_estimator"),
-    ("/simulation/runner/nu_bar_estimator", "runner.nu_bar_estimator"),
+    ("/simulation/transport/j_estimator", "transport.j_estimator"),
+    ("/simulation/transport/nu_bar_estimator", "transport.nu_bar_estimator"),
     (
         "/simulation/plasma/j_blues_norm_factor",
         "plasma.j_blues_norm_factor.cgs.value",
@@ -210,20 +210,22 @@ class TestIntegration(object):
         plot_object.add(self.plot_spectrum(), f"{self.name}_spectrum")
 
         assert_allclose(
-            self.reference["/simulation/runner/spectrum/luminosity_density_nu"],
-            self.result.runner.spectrum.luminosity_density_nu.cgs.value,
+            self.reference[
+                "/simulation/transport/spectrum/luminosity_density_nu"
+            ],
+            self.result.transport.spectrum.luminosity_density_nu.cgs.value,
         )
 
         assert_allclose(
-            self.reference["/simulation/runner/spectrum/wavelength"],
-            self.result.runner.spectrum.wavelength.cgs.value,
+            self.reference["/simulation/transport/spectrum/wavelength"],
+            self.result.transport.spectrum.wavelength.cgs.value,
         )
 
         assert_allclose(
             self.reference[
-                "/simulation/runner/spectrum/luminosity_density_lambda"
+                "/simulation/transport/spectrum/luminosity_density_lambda"
             ],
-            self.result.runner.spectrum.luminosity_density_lambda.cgs.value,
+            self.result.transport.spectrum.luminosity_density_lambda.cgs.value,
         )
 
     def plot_spectrum(self):
@@ -237,29 +239,29 @@ class TestIntegration(object):
 
         spectrum_ax.set_ylabel("Flux [cgs]")
         deviation = 1 - (
-            self.result.runner.spectrum.luminosity_density_lambda.cgs.value
+            self.result.transport.spectrum.luminosity_density_lambda.cgs.value
             / self.reference[
-                "/simulation/runner/spectrum/luminosity_density_lambda"
+                "/simulation/transport/spectrum/luminosity_density_lambda"
             ]
         )
 
         spectrum_ax.plot(
-            self.reference["/simulation/runner/spectrum/wavelength"],
+            self.reference["/simulation/transport/spectrum/wavelength"],
             self.reference[
-                "/simulation/runner/spectrum/luminosity_density_lambda"
+                "/simulation/transport/spectrum/luminosity_density_lambda"
             ],
             color="black",
         )
 
         spectrum_ax.plot(
-            self.reference["/simulation/runner/spectrum/wavelength"],
-            self.result.runner.spectrum.luminosity_density_lambda.cgs.value,
+            self.reference["/simulation/transport/spectrum/wavelength"],
+            self.result.transport.spectrum.luminosity_density_lambda.cgs.value,
             color="red",
         )
         spectrum_ax.set_xticks([])
         deviation_ax = plt.subplot(gs[1])
         deviation_ax.plot(
-            self.reference["/simulation/runner/spectrum/wavelength"],
+            self.reference["/simulation/transport/spectrum/wavelength"],
             deviation,
             color="black",
         )

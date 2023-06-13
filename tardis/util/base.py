@@ -241,10 +241,10 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
         )
 
     yaml_reference["output"]["min_wl"] = float(
-        radial1d_mdl.runner.spectrum.wavelength.to("angstrom").value.min()
+        radial1d_mdl.transport.spectrum.wavelength.to("angstrom").value.min()
     )
     yaml_reference["output"]["max_wl"] = float(
-        radial1d_mdl.runner.spectrum.wavelength.to("angstrom").value.max()
+        radial1d_mdl.transport.spectrum.wavelength.to("angstrom").value.max()
     )
 
     # raise Exception("there's a problem here with units what units does synpp expect?")

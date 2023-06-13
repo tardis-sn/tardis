@@ -779,10 +779,10 @@ def test_compute_distance2line_relativistic(
     packet = r_packet.RPacket(r=r, nu=nu, mu=mu, energy=0.9)
     # packet.nu_line = nu_line
     numba_estimator = Estimators(
-        runner.j_estimator,
-        runner.nu_bar_estimator,
-        runner.j_blue_estimator,
-        runner.Edotlu_estimator,
+        transport.j_estimator,
+        transport.nu_bar_estimator,
+        transport.j_blue_estimator,
+        transport.Edotlu_estimator,
     )
     mc.full_relativity = bool(full_relativity)
 
