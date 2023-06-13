@@ -43,31 +43,33 @@ def montecarlo_radial1d(
     no_of_packets,
     total_iterations,
     show_progress_bars,
-    runner,
+    transport,
 ):
     packet_collection = PacketCollection(
-        runner.input_r,
-        runner.input_nu,
-        runner.input_mu,
-        runner.input_energy,
-        runner._output_nu,
-        runner._output_energy,
+        transport.input_r,
+        transport.input_nu,
+        transport.input_mu,
+        transport.input_energy,
+        transport._output_nu,
+        transport._output_energy,
     )
     numba_radial_1d_geometry = model.model_state.geometry.to_numba()
     numba_model = NumbaModel(
         model.model_state.time_explosion.to("s").value,
     )
-    numba_plasma = numba_plasma_initialize(plasma, runner.line_interaction_type)
+    numba_plasma = numba_plasma_initialize(
+        plasma, transport.line_interaction_type
+    )
     estimators = Estimators(
-        runner.j_estimator,
-        runner.nu_bar_estimator,
-        runner.j_blue_estimator,
-        runner.Edotlu_estimator,
-        runner.photo_ion_estimator,
-        runner.stim_recomb_estimator,
-        runner.bf_heating_estimator,
-        runner.stim_recomb_cooling_estimator,
-        runner.photo_ion_estimator_statistics,
+        transport.j_estimator,
+        transport.nu_bar_estimator,
+        transport.j_blue_estimator,
+        transport.Edotlu_estimator,
+        transport.photo_ion_estimator,
+        transport.stim_recomb_estimator,
+        transport.bf_heating_estimator,
+        transport.stim_recomb_cooling_estimator,
+        transport.photo_ion_estimator_statistics,
     )
     packet_seeds = montecarlo_configuration.packet_seeds
 
@@ -93,7 +95,7 @@ def montecarlo_radial1d(
         numba_model,
         numba_plasma,
         estimators,
-        runner.spectrum_frequency.value,
+        transport.spectrum_frequency.value,
         number_of_vpackets,
         packet_seeds,
         montecarlo_configuration.VPACKET_LOGGING,
@@ -102,40 +104,40 @@ def montecarlo_radial1d(
         no_of_packets=no_of_packets,
         total_iterations=total_iterations,
     )
-    runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
-    runner.last_interaction_type = last_interaction_type
-    runner.last_interaction_in_nu = last_interaction_in_nu
-    runner.last_line_interaction_in_id = last_line_interaction_in_id
-    runner.last_line_interaction_out_id = last_line_interaction_out_id
+    transport._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
+    transport.last_interaction_type = last_interaction_type
+    transport.last_interaction_in_nu = last_interaction_in_nu
+    transport.last_line_interaction_in_id = last_line_interaction_in_id
+    transport.last_line_interaction_out_id = last_line_interaction_out_id
 
     if montecarlo_configuration.VPACKET_LOGGING and number_of_vpackets > 0:
-        runner.virt_packet_nus = np.concatenate(virt_packet_nus).ravel()
-        runner.virt_packet_energies = np.concatenate(
+        transport.virt_packet_nus = np.concatenate(virt_packet_nus).ravel()
+        transport.virt_packet_energies = np.concatenate(
             virt_packet_energies
         ).ravel()
-        runner.virt_packet_initial_mus = np.concatenate(
+        transport.virt_packet_initial_mus = np.concatenate(
             virt_packet_initial_mus
         ).ravel()
-        runner.virt_packet_initial_rs = np.concatenate(
+        transport.virt_packet_initial_rs = np.concatenate(
             virt_packet_initial_rs
         ).ravel()
-        runner.virt_packet_last_interaction_in_nu = np.concatenate(
+        transport.virt_packet_last_interaction_in_nu = np.concatenate(
             virt_packet_last_interaction_in_nu
         ).ravel()
-        runner.virt_packet_last_interaction_type = np.concatenate(
+        transport.virt_packet_last_interaction_type = np.concatenate(
             virt_packet_last_interaction_type
         ).ravel()
-        runner.virt_packet_last_line_interaction_in_id = np.concatenate(
+        transport.virt_packet_last_line_interaction_in_id = np.concatenate(
             virt_packet_last_line_interaction_in_id
         ).ravel()
-        runner.virt_packet_last_line_interaction_out_id = np.concatenate(
+        transport.virt_packet_last_line_interaction_out_id = np.concatenate(
             virt_packet_last_line_interaction_out_id
         ).ravel()
     update_iterations_pbar(1)
     refresh_packet_pbar()
     # Condition for Checking if RPacket Tracking is enabled
     if montecarlo_configuration.RPACKET_TRACKING:
-        runner.rpacket_tracker = rpacket_trackers
+        transport.rpacket_tracker = rpacket_trackers
 
 
 @njit(**njit_dict)

@@ -12,12 +12,12 @@ from numpy.testing import assert_almost_equal
 
 @pytest.fixture(scope="module", autouse=True)
 def to_hdf_buffer(hdf_file_path, simulation_verysimple):
-    simulation_verysimple.runner.to_hdf(
-        hdf_file_path, name="runner", overwrite=True
+    simulation_verysimple.transport.to_hdf(
+        hdf_file_path, name="transport", overwrite=True
     )
 
 
-runner_properties = [
+transport_properties = [
     "output_nu",
     "output_energy",
     "nu_bar_estimator",
@@ -32,11 +32,11 @@ runner_properties = [
 ]
 
 
-@pytest.mark.parametrize("attr", runner_properties)
-def test_hdf_runner(hdf_file_path, simulation_verysimple, attr):
-    actual = getattr(simulation_verysimple.runner, attr)
+@pytest.mark.parametrize("attr", transport_properties)
+def test_hdf_transport(hdf_file_path, simulation_verysimple, attr):
+    actual = getattr(simulation_verysimple.transport, attr)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
-    path = os.path.join("runner", attr)
+    path = os.path.join("transport", attr)
     expected = pd.read_hdf(hdf_file_path, path)
     assert_almost_equal(actual, expected.values)

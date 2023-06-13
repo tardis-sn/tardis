@@ -51,7 +51,7 @@ def simulation_one_loop(
             "iterations_t_inner",
         ]
         simulation.model.hdf_properties = ["t_radiative", "dilution_factor"]
-        simulation.runner.hdf_properties = [
+        simulation.transport.hdf_properties = [
             "j_estimator",
             "nu_bar_estimator",
             "output_nu",
@@ -63,7 +63,7 @@ def simulation_one_loop(
         simulation.model.to_hdf(
             tardis_ref_data, "", "test_simulation", overwrite=True
         )
-        simulation.runner.to_hdf(
+        simulation.transport.to_hdf(
             tardis_ref_data, "", "test_simulation", overwrite=True
         )
         pytest.skip("Reference data was generated during this run.")
@@ -82,7 +82,7 @@ def simulation_one_loop(
 )
 def test_plasma_estimates(simulation_one_loop, refdata, name):
     try:
-        actual = getattr(simulation_one_loop.runner, name)
+        actual = getattr(simulation_one_loop.transport, name)
     except AttributeError:
         actual = getattr(simulation_one_loop.model, name)
 

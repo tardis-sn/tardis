@@ -130,12 +130,12 @@ class LineInfoWidget:
                 filter_mode: LastLineInteraction.from_model(sim, filter_mode)
                 for filter_mode in cls.FILTER_MODES
             },
-            spectrum_wavelength=sim.runner.spectrum.wavelength,
-            spectrum_luminosity_density_lambda=sim.runner.spectrum.luminosity_density_lambda.to(
+            spectrum_wavelength=sim.transport.spectrum.wavelength,
+            spectrum_luminosity_density_lambda=sim.transport.spectrum.luminosity_density_lambda.to(
                 "erg/(s AA)"
             ),
-            virt_spectrum_wavelength=sim.runner.spectrum_virtual.wavelength,
-            virt_spectrum_luminosity_density_lambda=sim.runner.spectrum_virtual.luminosity_density_lambda.to(
+            virt_spectrum_wavelength=sim.transport.spectrum_virtual.wavelength,
+            virt_spectrum_luminosity_density_lambda=sim.transport.spectrum_virtual.luminosity_density_lambda.to(
                 "erg/(s AA)"
             ),
         )

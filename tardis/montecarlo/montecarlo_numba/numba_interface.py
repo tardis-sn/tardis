@@ -575,16 +575,16 @@ class Estimators(object):
         )
 
 
-def configuration_initialize(runner, number_of_vpackets):
-    if runner.line_interaction_type == "macroatom":
+def configuration_initialize(transport, number_of_vpackets):
+    if transport.line_interaction_type == "macroatom":
         montecarlo_configuration.line_interaction_type = (
             LineInteractionType.MACROATOM
         )
-    elif runner.line_interaction_type == "downbranch":
+    elif transport.line_interaction_type == "downbranch":
         montecarlo_configuration.line_interaction_type = (
             LineInteractionType.DOWNBRANCH
         )
-    elif runner.line_interaction_type == "scatter":
+    elif transport.line_interaction_type == "scatter":
         montecarlo_configuration.line_interaction_type = (
             LineInteractionType.SCATTER
         )
@@ -592,23 +592,23 @@ def configuration_initialize(runner, number_of_vpackets):
         raise ValueError(
             f'Line interaction type must be one of "macroatom",'
             f'"downbranch", or "scatter" but is '
-            f"{runner.line_interaction_type}"
+            f"{transport.line_interaction_type}"
         )
     montecarlo_configuration.number_of_vpackets = number_of_vpackets
     montecarlo_configuration.temporary_v_packet_bins = number_of_vpackets
-    montecarlo_configuration.full_relativity = runner.enable_full_relativity
-    montecarlo_configuration.montecarlo_seed = runner.seed
+    montecarlo_configuration.full_relativity = transport.enable_full_relativity
+    montecarlo_configuration.montecarlo_seed = transport.seed
     montecarlo_configuration.v_packet_spawn_start_frequency = (
-        runner.virtual_spectrum_spawn_range.end.to(
+        transport.virtual_spectrum_spawn_range.end.to(
             u.Hz, equivalencies=u.spectral()
         ).value
     )
     montecarlo_configuration.v_packet_spawn_end_frequency = (
-        runner.virtual_spectrum_spawn_range.start.to(
+        transport.virtual_spectrum_spawn_range.start.to(
             u.Hz, equivalencies=u.spectral()
         ).value
     )
-    montecarlo_configuration.VPACKET_LOGGING = runner.virt_logging
+    montecarlo_configuration.VPACKET_LOGGING = transport.virt_logging
 
 
 # class TrackRPacket(object):

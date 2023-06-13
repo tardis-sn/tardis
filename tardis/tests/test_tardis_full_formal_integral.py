@@ -34,15 +34,15 @@ def config(base_config, request):
     return base_config
 
 
-class TestRunnerSimpleFormalInegral:
+class TestTransportSimpleFormalInegral:
     """
     Very simple run with the formal integral spectral synthesis method
     """
 
-    _name = "test_runner_simple_integral"
+    _name = "test_transport_simple_integral"
 
     @pytest.fixture(scope="class")
-    def runner(
+    def transport(
         self, config, atomic_data_fname, tardis_ref_data, generate_reference
     ):
         config.atom_data = atomic_data_fname
@@ -55,14 +55,14 @@ class TestRunnerSimpleFormalInegral:
         simulation.run()
 
         if not generate_reference:
-            return simulation.runner
+            return simulation.transport
         else:
-            simulation.runner.hdf_properties = [
+            simulation.transport.hdf_properties = [
                 "j_blue_estimator",
                 "spectrum",
                 "spectrum_integrated",
             ]
-            simulation.runner.to_hdf(
+            simulation.transport.to_hdf(
                 tardis_ref_data, "", self.name, overwrite=True
             )
             pytest.skip("Reference data was generated during this run.")
@@ -74,17 +74,17 @@ class TestRunnerSimpleFormalInegral:
 
         return get_ref_data
 
-    def test_j_blue_estimators(self, runner, refdata):
+    def test_j_blue_estimators(self, transport, refdata):
         j_blue_estimator = refdata("j_blue_estimator").values
 
-        npt.assert_allclose(runner.j_blue_estimator, j_blue_estimator)
+        npt.assert_allclose(transport.j_blue_estimator, j_blue_estimator)
 
-    def test_spectrum(self, runner, refdata):
+    def test_spectrum(self, transport, refdata):
         luminosity = u.Quantity(refdata("spectrum/luminosity"), "erg /s")
 
-        assert_quantity_allclose(runner.spectrum.luminosity, luminosity)
+        assert_quantity_allclose(transport.spectrum.luminosity, luminosity)
 
-    def test_spectrum_integrated(self, runner, refdata):
+    def test_spectrum_integrated(self, transport, refdata):
         luminosity = u.Quantity(
             refdata("spectrum_integrated/luminosity"), "erg /s"
         )
@@ -92,8 +92,8 @@ class TestRunnerSimpleFormalInegral:
         print(
             "actual, desired: ",
             luminosity,
-            runner.spectrum_integrated.luminosity,
+            transport.spectrum_integrated.luminosity,
         )
         assert_quantity_allclose(
-            runner.spectrum_integrated.luminosity, luminosity
+            transport.spectrum_integrated.luminosity, luminosity
         )
