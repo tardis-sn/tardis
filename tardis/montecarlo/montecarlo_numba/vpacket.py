@@ -1,6 +1,7 @@
 import math
 
 import numpy as np
+from tardis.montecarlo.montecarlo_numba.opacities import chi_continuum_calculator
 from numba import float64, int64
 from numba import njit
 from numba.experimental import jitclass
@@ -94,9 +95,17 @@ def trace_vpacket_within_shell(
     doppler_factor = get_doppler_factor(
         v_packet.r, v_packet.mu, numba_model.time_explosion
     )
+
     comov_nu = v_packet.nu * doppler_factor
 
-    chi_continuum = chi_e
+    if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+        chi_bf_tot, chi_bf_contributions, current_continua, x_sect_bfs, chi_ff, = chi_continuum_calculator(
+            numba_plasma, comov_nu, v_packet.current_shell_id
+        )
+        chi_continuum = chi_e + chi_bf_tot + chi_ff
+        
+    else:
+        chi_continuum = chi_e 
 
     tau_continuum = chi_continuum * distance_boundary
     tau_trace_combined = tau_continuum
