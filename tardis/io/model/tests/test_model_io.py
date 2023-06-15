@@ -11,7 +11,7 @@ def test_read_stella_model():
     """
     fname = "tardis/io/model/tests/data/stella_model.dat"
     model = read_stella_model(fname)
-    assert model.header["t_max"].value == 0.0
-    assert model.header["zones"] == 100
-    assert model.header["inner_boundary_mass"].value == 1.0e33
-    assert model.header["total_mass"].value == 1.0e33
+    assert model.metadata["t_max"].value == 0.0
+    assert model.metadata["zones"] == 100
+    assert model.metadata["inner_boundary_mass"].value == 1.0e33
+    assert model.metadata["total_mass"].value == 1.0e33

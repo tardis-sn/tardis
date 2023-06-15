@@ -7,7 +7,7 @@ import dataclasses
 
 @dataclasses.dataclass
 class STELLAModel:
-    header: dict
+    metadata: dict
     data: pd.DataFrame
 
 
