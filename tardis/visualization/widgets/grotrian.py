@@ -256,32 +256,32 @@ class GrotrianWidget:
         ]
 
         # Compute the standardized log number of electrons for transition line thickness and offset
-        excit_log_num_electrons_range = np.log10(
-            np.max(excit_lines.num_electrons)
-            / np.min(excit_lines.num_electrons)
-        )
-        excit_lines["standard_log_num_electrons"] = 0
-        if excit_log_num_electrons_range > 0:
-            excit_lines.standard_log_num_electrons = (
-                np.log10(
-                    excit_lines.num_electrons
-                    / np.min(excit_lines.num_electrons)
+        max_log_num_electrons = np.log10(
+            np.max(
+                np.concatenate(
+                    (excit_lines.num_electrons, deexcit_lines.num_electrons)
                 )
-                / excit_log_num_electrons_range
             )
-
-        deexcit_log_num_electrons_range = np.log10(
-            np.max(deexcit_lines.num_electrons)
-            / np.min(deexcit_lines.num_electrons)
         )
-        deexcit_lines["standard_log_num_electrons"] = 0
-        if deexcit_log_num_electrons_range > 0:
-            deexcit_lines.standard_log_num_electrons = (
-                np.log10(
-                    deexcit_lines.num_electrons
-                    / np.min(deexcit_lines.num_electrons)
+        min_log_num_electrons = np.log10(
+            np.min(
+                np.concatenate(
+                    (excit_lines.num_electrons, deexcit_lines.num_electrons)
                 )
-            ) / deexcit_log_num_electrons_range
+            )
+        )
+        log_num_electrons_range = max_log_num_electrons - min_log_num_electrons
+
+        excit_lines["standard_log_num_electrons"] = 0
+        deexcit_lines["standard_log_num_electrons"] = 0
+
+        if log_num_electrons_range > 0:
+            excit_lines.standard_log_num_electrons = (
+                np.log10(excit_lines.num_electrons) - min_log_num_electrons
+            ) / log_num_electrons_range
+            deexcit_lines.standard_log_num_electrons = (
+                np.log10(deexcit_lines.num_electrons) - min_log_num_electrons
+            ) / log_num_electrons_range
 
         self.excit_lines = excit_lines
         self.deexcit_lines = deexcit_lines
