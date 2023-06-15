@@ -96,7 +96,6 @@ Here we aim to provide converters for the most commonly used file formats.
 .. toctree::
     :maxdepth: 2
 
-    converters/stella_to_tardis
     converters/cmfgen
     converters/arepo_to_tardis
 
