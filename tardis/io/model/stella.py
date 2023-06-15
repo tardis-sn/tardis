@@ -4,17 +4,22 @@ from astropy import units as u
 from pathlib import Path
 import dataclasses
 
+
 @dataclasses.dataclass
-class STELLAModel():
-    header : dict
-    data : pd.DataFrame
+class STELLAModel:
+    header: dict
+    data: pd.DataFrame
+
 
 HEADER_RE_STR = [
-        ("\s+days post max Lbol\s+(\d+\.\d*)", 't_max'),
-        ("\s+zones\s+(\d+)", 'zones'),
-        ("\s+inner boundary mass\s+(\d+\.\d+E[+-]\d+)\s+\d+\.\d+E[+-]\d+", 'inner_boundary_mass'),
-        ("\s+total mass\s+(\d+\.\d+E[+-]\d+)\s+\d+\.\d+E[+-]\d+", 'total_mass'),
-    ]
+    ("\s+days post max Lbol\s+(\d+\.\d*)", "t_max"),
+    ("\s+zones\s+(\d+)", "zones"),
+    (
+        "\s+inner boundary mass\s+(\d+\.\d+E[+-]\d+)\s+\d+\.\d+E[+-]\d+",
+        "inner_boundary_mass",
+    ),
+    ("\s+total mass\s+(\d+\.\d+E[+-]\d+)\s+\d+\.\d+E[+-]\d+", "total_mass"),
+]
 
 
 def read_stella_model(fname):
@@ -29,7 +34,7 @@ def read_stella_model(fname):
     Returns
     -------
     model : STELLAModel
-    
+
     """
     header_re = [re.compile(re_str[0]) for re_str in HEADER_RE_STR]
     header = {}
@@ -39,10 +44,12 @@ def read_stella_model(fname):
             header[HEADER_RE_STR[i][1]] = header_re_match.group(1)
             if i == len(header_re) - 1:
                 break
-        header['t_max'] = float(header['t_max']) * u.day
-        header['zones'] = int(header['zones'])
-        header['inner_boundary_mass'] = float(header['inner_boundary_mass']) * u.g
-        header['total_mass'] = float(header['total_mass']) * u.g
+        header["t_max"] = float(header["t_max"]) * u.day
+        header["zones"] = int(header["zones"])
+        header["inner_boundary_mass"] = (
+            float(header["inner_boundary_mass"]) * u.g
+        )
+        header["total_mass"] = float(header["total_mass"]) * u.g
 
     data = pd.read_csv(fname, delim_whitespace=True, skiprows=7)
     return STELLAModel(header, data)
