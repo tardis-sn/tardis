@@ -322,7 +322,7 @@ class GrotrianWidget:
 
         self.level_mapping = raw_level_data.merged_level_number
 
-        self.merged_max_levels = self.level_data.index.max()
+        self.merged_max_energy_level = self.level_data.energy.max()
 
     def display(self):
         ### Create figure and set metadata
@@ -331,7 +331,7 @@ class GrotrianWidget:
         fig.update_layout(
             title=f"Grotrian Diagram for {self.atomic_name} {int_to_roman(self.ion_number)}",
             title_x=0.5,
-            yaxis_title="Energy Level (eV)",
+            yaxis_title="Level Number",
             plot_bgcolor="white",
             autosize=False,
             width=700,
@@ -358,9 +358,9 @@ class GrotrianWidget:
             fig.add_trace(
                 go.Scatter(
                     x=[0, 1],
-                    y=[level_info.energy, level_info.energy],
+                    y=[level_number, level_number],
                     mode="lines+text",
-                    hovertemplate="Energy: %{y:.1f}eV<br>"
+                    hovertemplate=f"Energy: {level_info.energy:.1f} eV<br>"
                     + f"Population: {level_info.population:.2f}"
                     + "<extra></extra>",
                     line=dict(color="black", width=level_width),
@@ -369,9 +369,9 @@ class GrotrianWidget:
             )
 
             fig.add_annotation(
-                x=1.05,
-                y=level_info.energy,
-                text=f"n={level_number}",
+                x=1.1,
+                y=level_number,
+                text=f"{level_info.energy:.1f} eV",
                 showarrow=False,
             )
 
@@ -392,7 +392,9 @@ class GrotrianWidget:
                 self.level_data.loc[upper].energy,
             )
 
-            x_end = (upper - lower) / (self.merged_max_levels - lower)
+            x_end = (energy_upper - energy_lower) / (
+                self.merged_max_energy_level - energy_lower
+            )
 
             color = matplotlib.colors.rgb2hex(
                 self.cmap(
@@ -404,9 +406,9 @@ class GrotrianWidget:
             # Add arrowhead
             fig.add_annotation(
                 x=x_end,
-                y=energy_upper,  # Start of arrow
+                y=upper,  # Start of arrow
                 ax=0,
-                ay=energy_lower,  # End of arrow
+                ay=lower,  # End of arrow
                 xref="x",
                 yref="y",
                 axref="x",
@@ -434,7 +436,9 @@ class GrotrianWidget:
                 self.level_data.loc[upper].energy,
             )
 
-            x_end = (upper - lower) / (self.merged_max_levels - lower)
+            x_end = (energy_upper - energy_lower) / (
+                self.merged_max_energy_level - energy_lower
+            )
 
             color = matplotlib.colors.rgb2hex(
                 self.cmap(
@@ -446,9 +450,9 @@ class GrotrianWidget:
             # Add arrowhead
             fig.add_annotation(
                 x=x_end,
-                y=energy_lower,  # Start of arrow
+                y=lower,  # Start of arrow
                 ax=0,
-                ay=energy_upper,  # End of arrow
+                ay=upper,  # End of arrow
                 xref="x",
                 yref="y",
                 axref="x",
