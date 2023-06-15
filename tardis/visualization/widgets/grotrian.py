@@ -256,18 +256,24 @@ class GrotrianWidget:
         # Compute the standardized log number of electrons for transition line thickness and offset
         excit_log_num_electrons_range = np.log10(
             np.max(excit_lines.num_electrons)
-        ) - np.log10(np.min(excit_lines.num_electrons))
+            / np.min(excit_lines.num_electrons)
+        )
         excit_lines["standard_log_num_electrons"] = (
-            np.log10(excit_lines.num_electrons)
-            - np.log10(np.min(excit_lines.num_electrons))
-        ) / excit_log_num_electrons_range
+            np.log10(
+                excit_lines.num_electrons / np.min(excit_lines.num_electrons)
+            )
+            / excit_log_num_electrons_range
+        )
 
         deexcit_log_num_electrons_range = np.log10(
             np.max(deexcit_lines.num_electrons)
-        ) - np.log10(np.min(deexcit_lines.num_electrons))
+            / np.min(deexcit_lines.num_electrons)
+        )
         deexcit_lines["standard_log_num_electrons"] = (
-            np.log10(deexcit_lines.num_electrons)
-            - np.log10(np.min(deexcit_lines.num_electrons))
+            np.log10(
+                deexcit_lines.num_electrons
+                / np.min(deexcit_lines.num_electrons)
+            )
         ) / deexcit_log_num_electrons_range
 
         self.excit_lines = excit_lines
@@ -383,7 +389,7 @@ class GrotrianWidget:
                 line_info.merged_level_number_lower,
                 line_info.merged_level_number_upper,
             )
-            wavelength, num_electrons = (
+            wavelength, standard_log_num_electrons = (
                 line_info.wavelength,
                 line_info.standard_log_num_electrons,
             )
@@ -417,7 +423,8 @@ class GrotrianWidget:
                 arrowcolor=color,
                 arrowhead=2,  # Arrow style
                 arrowsize=1,
-                arrowwidth=num_electrons * self.transition_width_scale
+                arrowwidth=standard_log_num_electrons
+                * self.transition_width_scale
                 + self.transition_width_offset,  # Adjust width accordingly
             )
 
@@ -427,7 +434,7 @@ class GrotrianWidget:
                 line_info.merged_level_number_lower,
                 line_info.merged_level_number_upper,
             )
-            wavelength, num_electrons = (
+            wavelength, standard_log_num_electrons = (
                 line_info.wavelength,
                 line_info.standard_log_num_electrons,
             )
@@ -461,7 +468,8 @@ class GrotrianWidget:
                 arrowcolor=color,
                 arrowhead=2,  # Arrow style
                 arrowsize=1,  # Make the arrowhead 2 times bigger
-                arrowwidth=num_electrons * self.transition_width_scale
+                arrowwidth=standard_log_num_electrons
+                * self.transition_width_scale
                 + self.transition_width_offset,  # Adjust width accordingly
             )
 
