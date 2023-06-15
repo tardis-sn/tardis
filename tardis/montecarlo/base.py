@@ -40,8 +40,6 @@ class MontecarloTransport(HDFWriterMixin):
     """
     This class is designed as an interface between the Python part and the
     montecarlo C-part
-
-    note:: TARDIS must be built with OpenMP support in order for ``nthreads`` to have effect.
     """
 
     hdf_properties = [
