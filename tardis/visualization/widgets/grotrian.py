@@ -89,8 +89,8 @@ class GrotrianWidget:
         self.colorscale = colorscale
         self.cmap = plt.get_cmap(self.colorscale)
 
-        self.compute_level_data()
-        self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "compute_transitions()" explicitly
+        self._compute_level_data()
+        self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "_compute_transitions()" explicitly
 
         # TODO: Revisit later
         self.level_width_scale, self.level_width_offset = 3, 1
@@ -108,15 +108,15 @@ class GrotrianWidget:
             .lines.loc[self.atomic_number, self.ion_number]
             .wavelength.max()
         )
-        self.compute_transitions()
+        self._compute_transitions()
 
     def set_min_plot_wavelength(self, value):
         self.min_wavelength = value
-        self.compute_transitions()
+        self._compute_transitions()
 
     def set_max_plot_wavelength(self, value):
         self.max_wavelength = value
-        self.compute_transitions()
+        self._compute_transitions()
 
     @property
     def max_levels(self):
@@ -138,8 +138,8 @@ class GrotrianWidget:
     def atomic_number(self, value):
         self._atomic_number = value
         # TODO: Handle this better
-        self.compute_level_data()
-        self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "compute_transitions()" explicitly
+        self._compute_level_data()
+        self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "_compute_transitions()" explicitly
 
     @property
     def ion_number(self):
@@ -149,8 +149,8 @@ class GrotrianWidget:
     def ion_number(self, value):
         self._ion_number = value
         # TODO: Handle this better
-        self.compute_level_data()
-        self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "compute_transitions()" explicitly
+        self._compute_level_data()
+        self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "_compute_transitions()" explicitly
 
     @property
     def atomic_name(self):
@@ -160,7 +160,7 @@ class GrotrianWidget:
     def atomic_symbol(self):
         return self.atom_data.loc[self.atomic_number]["symbol"]
 
-    def compute_transitions(self):
+    def _compute_transitions(self):
         # Get relevant lines for current simulation
         self.line_interaction_analysis[
             self.filter_mode
@@ -287,7 +287,7 @@ class GrotrianWidget:
         self.excit_lines = excit_lines
         self.deexcit_lines = deexcit_lines
 
-    def compute_level_data(self):
+    def _compute_level_data(self):
         ### Get energy levels and convert to eV
         raw_energy_levels = self.level_energy_data.loc[
             self.atomic_number, self.ion_number
@@ -338,26 +338,9 @@ class GrotrianWidget:
 
         self.merged_max_energy_level = self.level_data.energy.max()
 
-    def display(self):
-        ### Create figure and set metadata
-        fig = go.FigureWidget()
-
-        fig.update_layout(
-            title=f"Grotrian Diagram for {self.atomic_name} {int_to_roman(self.ion_number + 1)}",
-            title_x=0.5,
-            yaxis_title="Level Number",
-            plot_bgcolor="white",
-            autosize=False,
-            width=700,
-            height=700,
-            xaxis=dict(showticklabels=False, showgrid=False),
-            yaxis=dict(showgrid=False, range=[0, None]),
-            showlegend=False,
-        )
-
-        ### Create energy level platforms in the figure
+    def _draw_energy_levels(self):
         # Create energy tick for ground state separately
-        fig.add_annotation(
+        self.fig.add_annotation(
             x=1.1,
             y=0,
             text=f"{0:.1f} eV",
@@ -384,7 +367,8 @@ class GrotrianWidget:
                 level_info.standard_log_population * self.level_width_scale
                 + self.level_width_offset
             )
-            fig.add_trace(
+            # Add the horizontal line
+            self.fig.add_trace(
                 go.Scatter(
                     x=[0, 1],
                     y=[level_number, level_number],
@@ -397,17 +381,19 @@ class GrotrianWidget:
                 )
             )
 
-            fig.add_annotation(
+            # Add label for energy
+            self.fig.add_annotation(
                 x=1.1,
                 y=level_number,
                 text=f"{level_info.energy:.1f} eV",
                 showarrow=False,
             )
 
-        ### Create transition lines
+    def _draw_transitions(self, is_excitation):
+        lines = self.excit_lines if is_excitation else self.deexcit_lines
         wavelength_range = np.log10(self.max_wavelength / self.min_wavelength)
         # Plot excitation transitions
-        for _, line_info in self.excit_lines.iterrows():
+        for _, line_info in lines.iterrows():
             lower, upper = (
                 line_info.merged_level_number_lower,
                 line_info.merged_level_number_upper,
@@ -421,10 +407,12 @@ class GrotrianWidget:
                 self.level_data.loc[upper].energy,
             )
 
+            # Get the end x-coordinate (proportional to energy difference between levels)
             x_end = (energy_upper - energy_lower) / (
                 self.merged_max_energy_level - energy_lower
             )
 
+            # Get the end arrow color (proportional to log wavelength)
             color = matplotlib.colors.rgb2hex(
                 self.cmap(
                     (np.log10(wavelength / self.min_wavelength))
@@ -432,10 +420,11 @@ class GrotrianWidget:
                 )[:3]
             )
 
-            fig.add_trace(
+            # Draw arrow
+            self.fig.add_trace(
                 go.Scatter(
                     x=[0, x_end],
-                    y=[lower, upper],
+                    y=[lower, upper] if is_excitation else [upper, lower],
                     marker=dict(
                         size=self.arrowhead_size,
                         color=color,
@@ -451,55 +440,35 @@ class GrotrianWidget:
                 )
             )
 
-        # Plot deexcitation transitions
-        for _, line_info in self.deexcit_lines.iterrows():
-            lower, upper = (
-                line_info.merged_level_number_lower,
-                line_info.merged_level_number_upper,
-            )
-            wavelength, standard_log_num_electrons = (
-                line_info.wavelength,
-                line_info.standard_log_num_electrons,
-            )
-            energy_lower, energy_upper = (
-                self.level_data.loc[lower].energy,
-                self.level_data.loc[upper].energy,
-            )
+    def display(self):
+        ### Create figure and set metadata
+        self.fig = go.FigureWidget()
 
-            x_end = (energy_upper - energy_lower) / (
-                self.merged_max_energy_level - energy_lower
-            )
+        # Update fig layout
+        self.fig.update_layout(
+            title=f"Grotrian Diagram for {self.atomic_name} {int_to_roman(self.ion_number + 1)}",
+            title_x=0.5,
+            yaxis_title="Level Number",
+            plot_bgcolor="white",
+            autosize=False,
+            width=700,
+            height=700,
+            xaxis=dict(showticklabels=False, showgrid=False),
+            yaxis=dict(showgrid=False, range=[0, None]),
+            showlegend=False,
+        )
 
-            color = matplotlib.colors.rgb2hex(
-                self.cmap(
-                    (np.log10(wavelength / self.min_wavelength))
-                    / wavelength_range
-                )[:3]
-            )
+        ### Create energy level platforms in the figure
+        self._draw_energy_levels()
 
-            fig.add_trace(
-                go.Scatter(
-                    x=[0, x_end],
-                    y=[upper, lower],
-                    marker=dict(
-                        size=self.arrowhead_size,
-                        color=color,
-                        symbol="arrow-bar-up",
-                        angleref="previous",
-                    ),
-                    line=dict(
-                        color=color,
-                        width=standard_log_num_electrons
-                        * self.transition_width_scale
-                        + self.transition_width_offset,
-                    ),
-                )
-            )
+        ### Create transition lines
+        self._draw_transitions(is_excitation=True)
+        self._draw_transitions(is_excitation=False)
 
         # Add a dummy Scatter trace to display colorbar
         tickvalues = np.geomspace(self.min_wavelength, self.max_wavelength, 5)
         ticktext = [f"{val:.1e}" for val in tickvalues]
-        fig.add_trace(
+        self.fig.add_trace(
             go.Scatter(
                 x=[None],
                 y=[None],
@@ -522,4 +491,4 @@ class GrotrianWidget:
             )
         )
 
-        return fig
+        return self.fig
