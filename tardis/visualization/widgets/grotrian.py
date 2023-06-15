@@ -340,7 +340,7 @@ class GrotrianWidget:
         fig = go.FigureWidget()
 
         fig.update_layout(
-            title=f"Grotrian Diagram for {self.atomic_name} {int_to_roman(self.ion_number)}",
+            title=f"Grotrian Diagram for {self.atomic_name} {int_to_roman(self.ion_number + 1)}",
             title_x=0.5,
             yaxis_title="Level Number",
             plot_bgcolor="white",
