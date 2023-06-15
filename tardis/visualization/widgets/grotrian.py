@@ -387,7 +387,7 @@ class GrotrianWidget:
                     y=[level_number, level_number],
                     mode="lines+text",
                     hovertemplate=f"Energy: {level_info.energy:.1f} eV<br>"
-                    + f"Population: {level_info.population:.2f}"
+                    + f"Population: {level_info.population:.2e}"
                     + "<extra></extra>",
                     line=dict(color="black", width=level_width),
                     showlegend=False,
