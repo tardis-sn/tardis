@@ -353,12 +353,19 @@ class GrotrianWidget:
         )
 
         ### Create energy level platforms in the figure
-        self.level_data["centered_log_population"] = np.log10(
-            self.level_data.population
-        ) - np.log10(np.min(self.level_data.population))
+        standard_log_population_range = np.log10(
+            np.max(self.level_data.population)
+            / np.min(self.level_data.population)
+        )
+        self.level_data["standard_log_population"] = (
+            np.log10(
+                self.level_data.population / np.min(self.level_data.population)
+            )
+            / standard_log_population_range
+        )
         for level_number, level_info in self.level_data.iterrows():
             level_width = (
-                level_info.centered_log_population * self.level_width_scale
+                level_info.standard_log_population * self.level_width_scale
                 + self.level_width_offset
             )
             fig.add_trace(
