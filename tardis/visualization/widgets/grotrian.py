@@ -95,6 +95,7 @@ class GrotrianWidget:
         # TODO: Revisit later
         self.level_width_scale, self.level_width_offset = 3, 1
         self.transition_width_scale, self.transition_width_offset = 2, 1
+        self.arrowhead_size = 9
 
     def reset_selected_plot_wavelength_range(self):
         self.min_wavelength = (
@@ -431,23 +432,23 @@ class GrotrianWidget:
                 )[:3]
             )
 
-            # Add arrowhead
-            fig.add_annotation(
-                x=x_end,
-                y=upper,  # Start of arrow
-                ax=0,
-                ay=lower,  # End of arrow
-                xref="x",
-                yref="y",
-                axref="x",
-                ayref="y",
-                showarrow=True,
-                arrowcolor=color,
-                arrowhead=2,  # Arrow style
-                arrowsize=1,
-                arrowwidth=standard_log_num_electrons
-                * self.transition_width_scale
-                + self.transition_width_offset,  # Adjust width accordingly
+            fig.add_trace(
+                go.Scatter(
+                    x=[0, x_end],
+                    y=[lower, upper],
+                    marker=dict(
+                        size=self.arrowhead_size,
+                        color=color,
+                        symbol="arrow-bar-up",
+                        angleref="previous",
+                    ),
+                    line=dict(
+                        color=color,
+                        width=standard_log_num_electrons
+                        * self.transition_width_scale
+                        + self.transition_width_offset,
+                    ),
+                )
             )
 
         # Plot deexcitation transitions
@@ -476,23 +477,23 @@ class GrotrianWidget:
                 )[:3]
             )
 
-            # Add arrowhead
-            fig.add_annotation(
-                x=x_end,
-                y=lower,  # Start of arrow
-                ax=0,
-                ay=upper,  # End of arrow
-                xref="x",
-                yref="y",
-                axref="x",
-                ayref="y",
-                showarrow=True,
-                arrowcolor=color,
-                arrowhead=2,  # Arrow style
-                arrowsize=1,  # Make the arrowhead 2 times bigger
-                arrowwidth=standard_log_num_electrons
-                * self.transition_width_scale
-                + self.transition_width_offset,  # Adjust width accordingly
+            fig.add_trace(
+                go.Scatter(
+                    x=[0, x_end],
+                    y=[upper, lower],
+                    marker=dict(
+                        size=self.arrowhead_size,
+                        color=color,
+                        symbol="arrow-bar-up",
+                        angleref="previous",
+                    ),
+                    line=dict(
+                        color=color,
+                        width=standard_log_num_electrons
+                        * self.transition_width_scale
+                        + self.transition_width_offset,
+                    ),
+                )
             )
 
         # Add a dummy Scatter trace to display colorbar
