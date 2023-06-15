@@ -370,9 +370,9 @@ class GrotrianWidget:
             # Add the horizontal line
             self.fig.add_trace(
                 go.Scatter(
-                    x=[0, 1],
-                    y=[level_number, level_number],
-                    mode="lines+text",
+                    x=np.linspace(-0.05, 1.05, 10),
+                    y=level_number * np.ones(10),
+                    mode="lines",
                     hovertemplate=f"Energy: {level_info.energy:.1f} eV<br>"
                     + f"Population: {level_info.population:.2e}"
                     + "<extra></extra>",
@@ -383,7 +383,7 @@ class GrotrianWidget:
 
             # Add label for energy
             self.fig.add_annotation(
-                x=1.1,
+                x=1.15,
                 y=level_number,
                 text=f"{level_info.energy:.1f} eV",
                 showarrow=False,
@@ -425,6 +425,9 @@ class GrotrianWidget:
                 go.Scatter(
                     x=[0, x_end],
                     y=[lower, upper] if is_excitation else [upper, lower],
+                    hovertemplate=f"Count: {line_info.num_electrons:.1f}<br>"
+                    + f"Wavelength: {wavelength:.2e} {ANGSTROM_SYMBOL}"
+                    + "<extra></extra>",
                     marker=dict(
                         size=self.arrowhead_size,
                         color=color,
