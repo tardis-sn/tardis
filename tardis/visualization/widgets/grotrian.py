@@ -258,23 +258,28 @@ class GrotrianWidget:
             np.max(excit_lines.num_electrons)
             / np.min(excit_lines.num_electrons)
         )
-        excit_lines["standard_log_num_electrons"] = (
-            np.log10(
-                excit_lines.num_electrons / np.min(excit_lines.num_electrons)
+        excit_lines["standard_log_num_electrons"] = 0
+        if excit_log_num_electrons_range > 0:
+            excit_lines.standard_log_num_electrons = (
+                np.log10(
+                    excit_lines.num_electrons
+                    / np.min(excit_lines.num_electrons)
+                )
+                / excit_log_num_electrons_range
             )
-            / excit_log_num_electrons_range
-        )
 
         deexcit_log_num_electrons_range = np.log10(
             np.max(deexcit_lines.num_electrons)
             / np.min(deexcit_lines.num_electrons)
         )
-        deexcit_lines["standard_log_num_electrons"] = (
-            np.log10(
-                deexcit_lines.num_electrons
-                / np.min(deexcit_lines.num_electrons)
-            )
-        ) / deexcit_log_num_electrons_range
+        deexcit_lines["standard_log_num_electrons"] = 0
+        if deexcit_log_num_electrons_range > 0:
+            deexcit_lines.standard_log_num_electrons = (
+                np.log10(
+                    deexcit_lines.num_electrons
+                    / np.min(deexcit_lines.num_electrons)
+                )
+            ) / deexcit_log_num_electrons_range
 
         self.excit_lines = excit_lines
         self.deexcit_lines = deexcit_lines
@@ -357,12 +362,15 @@ class GrotrianWidget:
             np.max(self.level_data.population)
             / np.min(self.level_data.population)
         )
-        self.level_data["standard_log_population"] = (
-            np.log10(
-                self.level_data.population / np.min(self.level_data.population)
+        self.level_data["standard_log_population"] = 0
+        if standard_log_population_range > 0:
+            self.level_data.standard_log_population = (
+                np.log10(
+                    self.level_data.population
+                    / np.min(self.level_data.population)
+                )
+                / standard_log_population_range
             )
-            / standard_log_population_range
-        )
         for level_number, level_info in self.level_data.iterrows():
             level_width = (
                 level_info.standard_log_population * self.level_width_scale
