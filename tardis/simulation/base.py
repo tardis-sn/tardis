@@ -36,7 +36,6 @@ class PlasmaStateStorerMixin(object):
     """
 
     def __init__(self, iterations, no_of_shells):
-
         self.iterations_w = np.zeros((iterations, no_of_shells))
         self.iterations_t_rad = np.zeros((iterations, no_of_shells)) * u.K
         self.iterations_electron_densities = np.zeros(
@@ -105,13 +104,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     luminosity_nu_end : astropy.units.Quantity
     luminosity_requested : astropy.units.Quantity
     convergence_plots_kwargs: dict
-    nthreads : int
-        The number of threads to run montecarlo with
-    version: str
-        The TARDIS version in use when instantiating the simulation object
-
-        .. note:: TARDIS must be built with OpenMP support in order for ``nthreads`` to have effect.
-
     """
 
     hdf_properties = [
@@ -138,12 +130,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         last_no_of_packets,
         luminosity_requested,
         convergence_strategy,
-        nthreads,
         show_convergence_plots,
         convergence_plots_kwargs,
         show_progress_bars,
     ):
-
         super(Simulation, self).__init__(iterations, model.no_of_shells)
 
         self.converged = False
@@ -158,7 +148,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.luminosity_nu_start = luminosity_nu_start
         self.luminosity_nu_end = luminosity_nu_end
         self.luminosity_requested = luminosity_requested
-        self.nthreads = nthreads
         self.show_progress_bars = show_progress_bars
         self.version = tardis.__version__
 
@@ -390,7 +379,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma,
             no_of_packets,
             no_of_virtual_packets=no_of_virtual_packets,
-            nthreads=self.nthreads,
             last_run=last_run,
             iteration=self.iterations_executed,
             total_iterations=self.iterations,
@@ -715,7 +703,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             last_no_of_packets=last_no_of_packets,
             luminosity_requested=config.supernova.luminosity_requested.cgs,
             convergence_strategy=config.montecarlo.convergence_strategy,
-            nthreads=config.montecarlo.nthreads,
             convergence_plots_kwargs=convergence_plots_kwargs,
             show_progress_bars=show_progress_bars,
         )

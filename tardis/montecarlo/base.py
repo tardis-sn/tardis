@@ -8,6 +8,7 @@ from numba import set_num_threads
 from numba import cuda
 
 from scipy.special import zeta
+import tardis
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
 from tardis.util.base import quantity_linspace
@@ -97,13 +98,13 @@ class MontecarloTransport(HDFWriterMixin):
         v_packet_settings,
         spectrum_method,
         virtual_packet_logging,
+        nthreads=1,
         packet_source=None,
         debug_packets=False,
         logger_buffer=1,
         tracking_rpacket=False,
         use_gpu=False,
     ):
-
         self.seed = seed
         if packet_source is None:
             if not enable_full_relativity:
@@ -143,6 +144,9 @@ class MontecarloTransport(HDFWriterMixin):
 
         # Setting up the Tracking array for storing all the RPacketTracker instances
         self.rpacket_tracker = None
+
+        # Set number of threads
+        self.nthreads = nthreads
 
         # set up logger based on config
         mc_tracker.DEBUG_MODE = debug_packets
@@ -314,7 +318,6 @@ class MontecarloTransport(HDFWriterMixin):
         plasma,
         no_of_packets,
         no_of_virtual_packets=0,
-        nthreads=1,
         last_run=False,
         iteration=0,
         total_iterations=0,
@@ -329,7 +332,6 @@ class MontecarloTransport(HDFWriterMixin):
         plasma : tardis.plasma.BasePlasma
         no_of_packets : int
         no_of_virtual_packets : int
-        nthreads : int
         last_run : bool
         total_iterations : int
             The total number of iterations in the simulation.
@@ -339,7 +341,7 @@ class MontecarloTransport(HDFWriterMixin):
         None
         """
 
-        set_num_threads(nthreads)
+        set_num_threads(self.nthreads)
 
         self.time_of_simulation = self.calculate_time_of_simulation(model)
         self.volume = model.volume
@@ -375,11 +377,6 @@ class MontecarloTransport(HDFWriterMixin):
             self,
         )
         self._integrator = FormalIntegrator(model, plasma, self)
-        # montecarlo.montecarlo_radial1d(
-        #    model, plasma, self,
-        #    virtual_packet_flag=no_of_virtual_packets,
-        #    nthreads=nthreads,
-        #    last_run=last_run)
 
     def legacy_return(self):
         return (
@@ -708,6 +705,7 @@ class MontecarloTransport(HDFWriterMixin):
                 config.spectrum.virtual.virtual_packet_logging
                 | virtual_packet_logging
             ),
+            nthreads=config.montecarlo.nthreads,
             tracking_rpacket=config.montecarlo.tracking.track_rpacket,
             use_gpu=use_gpu,
         )
