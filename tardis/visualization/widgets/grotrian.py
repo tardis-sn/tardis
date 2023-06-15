@@ -347,17 +347,21 @@ class GrotrianWidget:
             autosize=False,
             width=700,
             height=700,
-            xaxis=dict(
-                showticklabels=False,
-                showgrid=False,
-            ),  # Hide x-axis labels
-            yaxis=dict(
-                showgrid=False,
-            ),  # Adjust y-axis range accordingly,
+            xaxis=dict(showticklabels=False, showgrid=False),
+            yaxis=dict(showgrid=False, range=[0, None]),
             showlegend=False,
         )
 
         ### Create energy level platforms in the figure
+        # Create energy tick for ground state separately
+        fig.add_annotation(
+            x=1.1,
+            y=0,
+            text=f"{0:.1f} eV",
+            showarrow=False,
+        )
+
+        # Standardize the level populations to display the widths correctly
         standard_log_population_range = np.log10(
             np.max(self.level_data.population)
             / np.min(self.level_data.population)
@@ -371,6 +375,7 @@ class GrotrianWidget:
                 )
                 / standard_log_population_range
             )
+        # Create the energy levels from level data
         for level_number, level_info in self.level_data.iterrows():
             level_width = (
                 level_info.standard_log_population * self.level_width_scale
