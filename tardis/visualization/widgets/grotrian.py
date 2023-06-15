@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from astropy import units as u
 import ipywidgets as ipw
 
+ANGSTROM_SYMBOL = "\u212B"
+
 
 class GrotrianWidget:
     FILTER_MODES = ("packet_out_nu", "packet_in_nu")
@@ -507,7 +509,7 @@ class GrotrianWidget:
                     cmin=np.log10(self.min_wavelength),
                     cmax=np.log10(self.max_wavelength),
                     colorbar=dict(
-                        title=f"Wavelength ({u.Angstrom})",
+                        title=f"Wavelength ({ANGSTROM_SYMBOL})",
                         thickness=5,
                         tickvals=np.log10(tickvalues),
                         ticktext=ticktext,
