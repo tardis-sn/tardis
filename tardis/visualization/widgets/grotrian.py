@@ -87,14 +87,6 @@ class GrotrianWidget:
         self.colorscale = colorscale
         self.cmap = plt.get_cmap(self.colorscale)
 
-        # Wavelength range based on ion (TODO: Make setter/getter)
-        self.min_wavelength = self.line_interaction_analysis[
-            self.filter_mode
-        ].lines.wavelength.min()
-        self.max_wavelength = self.line_interaction_analysis[
-            self.filter_mode
-        ].lines.wavelength.max()
-
         self.compute_level_data()
 
         self.compute_transitions()
@@ -253,6 +245,21 @@ class GrotrianWidget:
         self.excit_lines = excit_lines
         self.deexcit_lines = deexcit_lines
 
+        # Wavelength range based on ion (TODO: Make setter/getter)
+        self.min_wavelength = (
+            self.line_interaction_analysis[self.filter_mode]
+            .lines.loc[self.atomic_number, self.ion_number]
+            .wavelength.min()
+        )
+        self.max_wavelength = (
+            self.line_interaction_analysis[self.filter_mode]
+            .lines.loc[self.atomic_number, self.ion_number]
+            .wavelength.max()
+        )
+
+        print(self.min_wavelength)
+        print(self.max_wavelength)
+
     def compute_level_data(self):
         ### Get energy levels and convert to eV
         raw_energy_levels = self.level_energy_data.loc[
@@ -356,7 +363,7 @@ class GrotrianWidget:
             )
 
         ### Create transition lines
-        wavelength_range = np.log(self.max_wavelength / self.min_wavelength)
+        wavelength_range = np.log10(self.max_wavelength / self.min_wavelength)
         # Plot excitation transitions
         for _, line_info in self.excit_lines.iterrows():
             lower, upper = (
