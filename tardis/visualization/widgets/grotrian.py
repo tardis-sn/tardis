@@ -88,12 +88,32 @@ class GrotrianWidget:
         self.cmap = plt.get_cmap(self.colorscale)
 
         self.compute_level_data()
-
-        self.compute_transitions()
+        self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "compute_transitions()" explicitly
 
         # TODO: Revisit later
         self.level_width_scale, self.level_width_offset = 3, 1
         self.transition_width_scale, self.transition_width_offset = 2, 1
+
+    def reset_selected_plot_wavelength_range(self):
+        self.min_wavelength = (
+            self.line_interaction_analysis[self.filter_mode]
+            .lines.loc[self.atomic_number, self.ion_number]
+            .wavelength.min()
+        )
+        self.max_wavelength = (
+            self.line_interaction_analysis[self.filter_mode]
+            .lines.loc[self.atomic_number, self.ion_number]
+            .wavelength.max()
+        )
+        self.compute_transitions()
+
+    def set_min_plot_wavelength(self, value):
+        self.min_wavelength = value
+        self.compute_transitions()
+
+    def set_max_plot_wavelength(self, value):
+        self.max_wavelength = value
+        self.compute_transitions()
 
     @property
     def max_levels(self):
@@ -115,8 +135,8 @@ class GrotrianWidget:
     def atomic_number(self, value):
         self._atomic_number = value
         # TODO: Handle this better
-        self.compute_transitions()
         self.compute_level_data()
+        self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "compute_transitions()" explicitly
 
     @property
     def ion_number(self):
@@ -126,8 +146,8 @@ class GrotrianWidget:
     def ion_number(self, value):
         self._ion_number = value
         # TODO: Handle this better
-        self.compute_transitions()
         self.compute_level_data()
+        self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "compute_transitions()" explicitly
 
     @property
     def atomic_name(self):
@@ -171,12 +191,10 @@ class GrotrianWidget:
 
         # Filter transitions to only include transitions upto the self.max_levels
         excit_lines = excit_lines.loc[
-            (excit_lines.level_number_lower <= self.max_levels)
-            & (excit_lines.level_number_upper <= self.max_levels)
+            excit_lines.level_number_upper <= self.max_levels
         ]
         deexcit_lines = deexcit_lines.loc[
-            (deexcit_lines.level_number_lower <= self.max_levels)
-            & (deexcit_lines.level_number_upper <= self.max_levels)
+            deexcit_lines.level_number_upper <= self.max_levels
         ]
 
         # Map the levels to merged levels
@@ -225,6 +243,16 @@ class GrotrianWidget:
             != deexcit_lines.merged_level_number_upper
         ]
 
+        # Remove the rows outside the wavelength range for the plot
+        excit_lines = excit_lines.loc[
+            (excit_lines.wavelength >= self.min_wavelength)
+            & (excit_lines.wavelength <= self.max_wavelength)
+        ]
+        deexcit_lines = deexcit_lines.loc[
+            (deexcit_lines.wavelength >= self.min_wavelength)
+            & (deexcit_lines.wavelength <= self.max_wavelength)
+        ]
+
         # Compute the standardized log number of electrons for transition line thickness and offset
         excit_log_num_electrons_range = np.log10(
             np.max(excit_lines.num_electrons)
@@ -244,21 +272,6 @@ class GrotrianWidget:
 
         self.excit_lines = excit_lines
         self.deexcit_lines = deexcit_lines
-
-        # Wavelength range based on ion (TODO: Make setter/getter)
-        self.min_wavelength = (
-            self.line_interaction_analysis[self.filter_mode]
-            .lines.loc[self.atomic_number, self.ion_number]
-            .wavelength.min()
-        )
-        self.max_wavelength = (
-            self.line_interaction_analysis[self.filter_mode]
-            .lines.loc[self.atomic_number, self.ion_number]
-            .wavelength.max()
-        )
-
-        print(self.min_wavelength)
-        print(self.max_wavelength)
 
     def compute_level_data(self):
         ### Get energy levels and convert to eV
