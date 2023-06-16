@@ -42,7 +42,7 @@ class GrotrianWidget:
         level_energy_data,
         level_population_data,
         line_interaction_analysis,
-        colorscale="plasma",
+        colorscale="rainbow",
     ):
         # Set data members
         self.atom_data = atom_data
