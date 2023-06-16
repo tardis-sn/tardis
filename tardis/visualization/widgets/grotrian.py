@@ -98,16 +98,8 @@ class GrotrianWidget:
         self.arrowhead_size = 9
 
     def reset_selected_plot_wavelength_range(self):
-        self.min_wavelength = (
-            self.line_interaction_analysis[self.filter_mode]
-            .lines.loc[self.atomic_number, self.ion_number]
-            .wavelength.min()
-        )
-        self.max_wavelength = (
-            self.line_interaction_analysis[self.filter_mode]
-            .lines.loc[self.atomic_number, self.ion_number]
-            .wavelength.max()
-        )
+        self.min_wavelength = None
+        self.max_wavelength = None
         self._compute_transitions()
 
     def set_min_plot_wavelength(self, value):
@@ -245,6 +237,20 @@ class GrotrianWidget:
             deexcit_lines.merged_level_number_lower
             != deexcit_lines.merged_level_number_upper
         ]
+
+        # Compute default wavelengths if not set by user
+        if self.min_wavelength is None:  # Compute default wavelength
+            self.min_wavelength = np.min(
+                np.concatenate(
+                    (excit_lines.wavelength, deexcit_lines.wavelength)
+                )
+            )
+        if self.max_wavelength is None:  # Compute default wavelength
+            self.max_wavelength = np.max(
+                np.concatenate(
+                    (excit_lines.wavelength, deexcit_lines.wavelength)
+                )
+            )
 
         # Remove the rows outside the wavelength range for the plot
         excit_lines = excit_lines.loc[
