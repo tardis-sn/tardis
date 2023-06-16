@@ -17,10 +17,10 @@ class BasePacketSource(abc.ABC):
     def __init__(self, seed):
         self.base_seed = seed
         self.seed_offset = 0
-        self.reseed(seed)
+        self._reseed(seed)
         np.random.seed(seed)
 
-    def reseed(self, seed):
+    def _reseed(self, seed):
         self.rng = np.random.default_rng(seed=seed)
 
     def create_packet_seeds(self, no_of_packets):
@@ -31,7 +31,7 @@ class BasePacketSource(abc.ABC):
         # because we call random.sample, which references a different internal
         # state than in the numpy.random module.
         self.seed_offset += 1
-        self.reseed(self.base_seed + self.seed_offset)
+        self._reseed(self.base_seed + self.seed_offset)
         return seeds
 
     @abc.abstractmethod
