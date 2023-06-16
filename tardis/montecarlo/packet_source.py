@@ -9,16 +9,36 @@ from tardis.montecarlo import (
 
 
 class BasePacketSource(abc.ABC):
+    # MAX_SEED_VAL must be multiple orders of magnitude larger than no_of_packets;
+    # otherwise, each packet would not have its own seed. Here, we set the max
+    # seed val to the maximum allowed by numpy.
+    MAX_SEED_VAL = 2**32 - 1
+
     def __init__(self, seed):
-        self.seed = seed
+        self.base_seed = seed
+        self.seed_offset = 0
+        self.reseed(seed)
         np.random.seed(seed)
+
+    def reseed(self, seed):
+        self.rng = np.random.default_rng(seed=seed)
+
+    def create_packet_seeds(self, no_of_packets):
+        seeds = self.rng.choice(self.MAX_SEED_VAL, no_of_packets, replace=True)
+        # the iteration is added each time to preserve randomness
+        # across different simulations with the same temperature,
+        # for example. We seed the random module instead of the numpy module
+        # because we call random.sample, which references a different internal
+        # state than in the numpy.random module.
+        self.seed_offset += 1
+        self.reseed(self.base_seed + self.seed_offset)
+        return seeds
 
     @abc.abstractmethod
     def create_packets(self, seed=None, **kwargs):
         pass
 
-    @staticmethod
-    def create_zero_limb_darkening_packet_mus(no_of_packets, rng):
+    def create_zero_limb_darkening_packet_mus(self, no_of_packets):
         """
         Create zero-limb-darkening packet :math:`\mu` distributed
         according to :math:`\\mu=\\sqrt{z}, z \isin [0, 1]`
@@ -33,10 +53,9 @@ class BasePacketSource(abc.ABC):
         if montecarlo_configuration.LEGACY_MODE_ENABLED:
             return np.sqrt(np.random.random(no_of_packets))
         else:
-            return np.sqrt(rng.random(no_of_packets))
+            return np.sqrt(self.rng.random(no_of_packets))
 
-    @staticmethod
-    def create_uniform_packet_energies(no_of_packets, rng):
+    def create_uniform_packet_energies(self, no_of_packets):
         """
         Uniformly distribute energy in arbitrary units where the ensemble of
         packets has energy of 1.
@@ -52,9 +71,8 @@ class BasePacketSource(abc.ABC):
         """
         return np.ones(no_of_packets) / no_of_packets
 
-    @staticmethod
     def create_blackbody_packet_nus(
-        temperature, no_of_packets, rng, l_samples=1000
+        self, temperature, no_of_packets, l_samples=1000
     ):
         """
         Create packet :math:`\\nu` distributed using the algorithm described in
@@ -90,7 +108,7 @@ class BasePacketSource(abc.ABC):
         if montecarlo_configuration.LEGACY_MODE_ENABLED:
             xis = np.random.random((5, no_of_packets))
         else:
-            xis = rng.random((5, no_of_packets))
+            xis = self.rng.random((5, no_of_packets))
 
         l = l_array.searchsorted(xis[0] * l_coef) + 1.0
         xis_prod = np.prod(xis[1:], 0)
@@ -105,7 +123,7 @@ class BlackBodySimpleSource(BasePacketSource):
     part.
     """
 
-    def create_packets(self, temperature, no_of_packets, rng, radius):
+    def create_packets(self, temperature, no_of_packets, radius):
         """Generate black-body packet properties as arrays
 
         Parameters
@@ -113,7 +131,6 @@ class BlackBodySimpleSource(BasePacketSource):
         temperature : float64
         no_of_packets : int
             Number of packets
-        rng : numpy random number generator
         radius : float64
             Initial packet radius
 
@@ -129,16 +146,16 @@ class BlackBodySimpleSource(BasePacketSource):
             Packet energies
         """
         radii = np.ones(no_of_packets) * radius
-        nus = self.create_blackbody_packet_nus(temperature, no_of_packets, rng)
-        mus = self.create_zero_limb_darkening_packet_mus(no_of_packets, rng)
-        energies = self.create_uniform_packet_energies(no_of_packets, rng)
+        nus = self.create_blackbody_packet_nus(temperature, no_of_packets)
+        mus = self.create_zero_limb_darkening_packet_mus(no_of_packets)
+        energies = self.create_uniform_packet_energies(no_of_packets)
 
         return radii, nus, mus, energies
 
 
 class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
     def create_packets(
-        self, temperature, no_of_packets, rng, radius, time_explosion
+        self, temperature, no_of_packets, radius, time_explosion
     ):
         """Generate relativistic black-body packet properties as arrays
 
@@ -148,7 +165,6 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
             Absolute Temperature
         no_of_packets : int
             Number of packets
-        rng : numpy random number generator
         radius : float64
             Initial packet radius
         time_explosion: float64
@@ -166,9 +182,9 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
             Packet energies
         """
         self.beta = ((radius / time_explosion) / const.c).to("")
-        return super().create_packets(temperature, no_of_packets, rng, radius)
+        return super().create_packets(temperature, no_of_packets, radius)
 
-    def create_zero_limb_darkening_packet_mus(self, no_of_packets, rng):
+    def create_zero_limb_darkening_packet_mus(self, no_of_packets):
         """
         Create zero-limb-darkening packet :math:`\mu^\prime` distributed
         according to :math:`\\mu^\\prime=2 \\frac{\\mu^\\prime + \\beta}{2 \\beta + 1}`.
@@ -180,11 +196,11 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
         no_of_packets : int
             number of packets to be created
         """
-        z = rng.random(no_of_packets)
+        z = self.rng.random(no_of_packets)
         beta = self.beta
         return -beta + np.sqrt(beta**2 + 2 * beta * z + z)
 
-    def create_uniform_packet_energies(self, no_of_packets, rng):
+    def create_uniform_packet_energies(self, no_of_packets):
         """
         Uniformly distribute energy in arbitrary units where the ensemble of
         packets has energy of 1 multiplied by relativistic correction factors.

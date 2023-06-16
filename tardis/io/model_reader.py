@@ -578,7 +578,7 @@ def transport_to_dict(transport):
         "photo_ion_estimator_statistics": transport.photo_ion_estimator_statistics,
         "r_inner": transport.r_inner_cgs,
         "r_outer": transport.r_outer_cgs,
-        "seed": transport.seed,
+        "packet_source": transport.packet_source,
         "spectrum_frequency_cgs": transport.spectrum_frequency,
         "spectrum_method": transport.spectrum_method,
         "stim_recomb_cooling_estimator": transport.stim_recomb_cooling_estimator,
@@ -728,7 +728,6 @@ def transport_from_hdf(fname):
 
     # Creating a transport object and storing data
     new_transport = MontecarloTransport(
-        seed=d["seed"],
         spectrum_frequency=d["spectrum_frequency_cgs"],
         virtual_spectrum_spawn_range=d["virtual_spectrum_spawn_range"],
         disable_electron_scattering=d["disable_electron_scattering"],
@@ -739,6 +738,7 @@ def transport_from_hdf(fname):
         integrator_settings=d["integrator_settings"],
         v_packet_settings=d["v_packet_settings"],
         spectrum_method=d["spectrum_method"],
+        packet_source=d["packet_source"],
         virtual_packet_logging=d["virt_logging"],
         single_packet_seed=d["single_packet_seed"],
         use_gpu=d["use_gpu"],

@@ -29,11 +29,6 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
-MAX_SEED_VAL = 2**32 - 1
-
-# MAX_SEED_VAL must be multiple orders of magnitude larger than no_of_packets;
-# otherwise, each packet would not have its own seed. Here, we set the max
-# seed val to the maximum allowed by numpy.
 # TODO: refactor this into more parts
 class MontecarloTransport(HDFWriterMixin):
     """
@@ -85,7 +80,6 @@ class MontecarloTransport(HDFWriterMixin):
 
     def __init__(
         self,
-        seed,
         spectrum_frequency,
         virtual_spectrum_spawn_range,
         disable_electron_scattering,
@@ -97,23 +91,12 @@ class MontecarloTransport(HDFWriterMixin):
         v_packet_settings,
         spectrum_method,
         virtual_packet_logging,
-        packet_source=None,
+        packet_source,
         debug_packets=False,
         logger_buffer=1,
         tracking_rpacket=False,
         use_gpu=False,
     ):
-
-        self.seed = seed
-        if packet_source is None:
-            if not enable_full_relativity:
-                self.packet_source = source.BlackBodySimpleSource(seed)
-            else:
-                self.packet_source = source.BlackBodySimpleSourceRelativistic(
-                    seed
-                )
-        else:
-            self.packet_source = packet_source
         # inject different packets
         self.disable_electron_scattering = disable_electron_scattering
         self.spectrum_frequency = spectrum_frequency
@@ -126,7 +109,6 @@ class MontecarloTransport(HDFWriterMixin):
         self.integrator_settings = integrator_settings
         self.v_packet_settings = v_packet_settings
         self.spectrum_method = spectrum_method
-        self.seed = seed
         self._integrator = None
         self._spectrum_integrated = None
         self.use_gpu = use_gpu
@@ -140,6 +122,8 @@ class MontecarloTransport(HDFWriterMixin):
         self.virt_packet_energies = np.ones(2) * -1.0
         self.virt_packet_initial_rs = np.ones(2) * -1.0
         self.virt_packet_initial_mus = np.ones(2) * -1.0
+
+        self.packet_source = packet_source
 
         # Setting up the Tracking array for storing all the RPacketTracker instances
         self.rpacket_tracker = None
@@ -210,24 +194,18 @@ class MontecarloTransport(HDFWriterMixin):
     def _initialize_packets(
         self, temperature, no_of_packets, iteration, radius, time_explosion
     ):
-        # the iteration is added each time to preserve randomness
-        # across different simulations with the same temperature,
-        # for example. We seed the random module instead of the numpy module
-        # because we call random.sample, which references a different internal
-        # state than in the numpy.random module.
-        seed = self.seed + iteration
-        rng = np.random.default_rng(seed=seed)
-        seeds = rng.choice(MAX_SEED_VAL, no_of_packets, replace=True)
         if not self.enable_full_relativity:
             radii, nus, mus, energies = self.packet_source.create_packets(
-                temperature, no_of_packets, rng, radius
+                temperature, no_of_packets, radius
             )
         else:
             radii, nus, mus, energies = self.packet_source.create_packets(
-                temperature, no_of_packets, rng, radius, time_explosion
+                temperature, no_of_packets, radius, time_explosion
             )
 
-        mc_config_module.packet_seeds = seeds
+        mc_config_module.packet_seeds = self.packet_source.create_packet_seeds(
+            no_of_packets
+        )
         self.input_r = radii
         self.input_nu = nus
         self.input_mu = mus
@@ -689,8 +667,17 @@ class MontecarloTransport(HDFWriterMixin):
             config.montecarlo.tracking.initial_array_length
         )
 
+        if packet_source is None:
+            if not config.montecarlo.enable_full_relativity:
+                packet_source = source.BlackBodySimpleSource(
+                    config.montecarlo.seed
+                )
+            else:
+                packet_source = source.BlackBodySimpleSourceRelativistic(
+                    config.montecarlo.seed
+                )
+
         return cls(
-            seed=config.montecarlo.seed,
             spectrum_frequency=spectrum_frequency,
             virtual_spectrum_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
             enable_reflective_inner_boundary=config.montecarlo.enable_reflective_inner_boundary,

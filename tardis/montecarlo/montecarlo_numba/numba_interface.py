@@ -559,7 +559,6 @@ class Estimators(object):
         self.photo_ion_estimator_statistics = photo_ion_estimator_statistics
 
     def increment(self, other):
-
         self.j_estimator += other.j_estimator
         self.nu_bar_estimator += other.nu_bar_estimator
         self.j_blue_estimator += other.j_blue_estimator
@@ -597,7 +596,7 @@ def configuration_initialize(transport, number_of_vpackets):
     montecarlo_configuration.number_of_vpackets = number_of_vpackets
     montecarlo_configuration.temporary_v_packet_bins = number_of_vpackets
     montecarlo_configuration.full_relativity = transport.enable_full_relativity
-    montecarlo_configuration.montecarlo_seed = transport.seed
+    montecarlo_configuration.montecarlo_seed = transport.packet_source.base_seed
     montecarlo_configuration.v_packet_spawn_start_frequency = (
         transport.virtual_spectrum_spawn_range.end.to(
             u.Hz, equivalencies=u.spectral()

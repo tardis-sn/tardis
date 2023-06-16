@@ -372,7 +372,9 @@ def test_store_transport_to_hdf(simulation_verysimple, tmp_path):
         assert np.array_equal(
             f["transport/r_outer"], transport_data["r_outer_cgs"]
         )
-        assert f["transport/seed"][()] == transport_data["seed"]
+        assert (
+            f["transport/packet_source"][()] == transport_data["packet_source"]
+        )
         assert np.array_equal(
             f["transport/spectrum_frequency_cgs"],
             transport_data["spectrum_frequency"].value,
