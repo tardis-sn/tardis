@@ -199,6 +199,13 @@ class MontecarloTransport(HDFWriterMixin):
     def _initialize_packets(
         self, temperature, no_of_packets, iteration, radius, time_explosion
     ):
+        # the iteration (passed as seed_offset) is added each time to preserve randomness
+        # across different simulations with the same temperature,
+        # for example.
+        mc_config_module.packet_seeds = self.packet_source.create_packet_seeds(
+            no_of_packets, iteration
+        )
+
         if not self.enable_full_relativity:
             radii, nus, mus, energies = self.packet_source.create_packets(
                 temperature, no_of_packets, radius
@@ -208,9 +215,6 @@ class MontecarloTransport(HDFWriterMixin):
                 temperature, no_of_packets, radius, time_explosion
             )
 
-        mc_config_module.packet_seeds = self.packet_source.create_packet_seeds(
-            no_of_packets
-        )
         self.input_r = radii
         self.input_nu = nus
         self.input_mu = mus

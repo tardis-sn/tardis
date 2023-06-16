@@ -16,22 +16,19 @@ class BasePacketSource(abc.ABC):
 
     def __init__(self, seed):
         self.base_seed = seed
-        self.seed_offset = 0
-        self._reseed(seed)
-        np.random.seed(seed)
+        np.random.seed(self.base_seed)
 
     def _reseed(self, seed):
         self.rng = np.random.default_rng(seed=seed)
 
-    def create_packet_seeds(self, no_of_packets):
-        seeds = self.rng.choice(self.MAX_SEED_VAL, no_of_packets, replace=True)
-        # the iteration is added each time to preserve randomness
+    def create_packet_seeds(self, no_of_packets, seed_offset):
+        # the iteration (passed as seed_offset) is added each time to preserve randomness
         # across different simulations with the same temperature,
         # for example. We seed the random module instead of the numpy module
         # because we call random.sample, which references a different internal
         # state than in the numpy.random module.
-        self.seed_offset += 1
-        self._reseed(self.base_seed + self.seed_offset)
+        self._reseed(self.base_seed + seed_offset)
+        seeds = self.rng.choice(self.MAX_SEED_VAL, no_of_packets, replace=True)
         return seeds
 
     @abc.abstractmethod
