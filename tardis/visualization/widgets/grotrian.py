@@ -273,14 +273,14 @@ class GrotrianWidget:
         )
         log_num_electrons_range = max_log_num_electrons - min_log_num_electrons
 
-        excit_lines["standard_log_num_electrons"] = 0
-        deexcit_lines["standard_log_num_electrons"] = 0
+        excit_lines["std_log_num_electrons"] = 0
+        deexcit_lines["std_log_num_electrons"] = 0
 
         if log_num_electrons_range > 0:
-            excit_lines.standard_log_num_electrons = (
+            excit_lines.std_log_num_electrons = (
                 np.log10(excit_lines.num_electrons) - min_log_num_electrons
             ) / log_num_electrons_range
-            deexcit_lines.standard_log_num_electrons = (
+            deexcit_lines.std_log_num_electrons = (
                 np.log10(deexcit_lines.num_electrons) - min_log_num_electrons
             ) / log_num_electrons_range
 
@@ -335,18 +335,18 @@ class GrotrianWidget:
         )  # Add the populations of merged levels
 
         # Standardize the level populations to display the widths correctly
-        standard_log_population_range = np.log10(
+        std_log_population_range = np.log10(
             np.max(self.level_data.population)
             / np.min(self.level_data.population)
         )
-        self.level_data["standard_log_population"] = 0
-        if standard_log_population_range > 0:
-            self.level_data.standard_log_population = (
+        self.level_data["std_log_population"] = 0
+        if std_log_population_range > 0:
+            self.level_data.std_log_population = (
                 np.log10(
                     self.level_data.population
                     / np.min(self.level_data.population)
                 )
-                / standard_log_population_range
+                / std_log_population_range
             )
 
         # Create a mapping from original levels to merged levels
@@ -364,7 +364,7 @@ class GrotrianWidget:
         # Create the energy levels from level data
         for level_number, level_info in self.level_data.iterrows():
             level_width = (
-                level_info.standard_log_population * self.level_width_scale
+                level_info.std_log_population * self.level_width_scale
                 + self.level_width_offset
             )
             # Add the horizontal line
@@ -389,6 +389,65 @@ class GrotrianWidget:
                 showarrow=False,
             )
 
+        ### Create width scale
+        # Space the populations (log) and corresponding widths (linear) equally
+        min_population_idx = np.argmin(self.level_data.population)
+        max_population_idx = np.argmax(self.level_data.population)
+
+        min_population = self.level_data.iloc[min_population_idx].population
+        max_population = self.level_data.iloc[max_population_idx].population
+
+        min_width = (
+            self.level_data.iloc[min_population_idx].std_log_population
+            * self.level_width_scale
+            + self.level_width_offset
+        )
+        max_width = (
+            self.level_data.iloc[max_population_idx].std_log_population
+            * self.level_width_scale
+            + self.level_width_offset
+        )
+
+        scale_granularity = 10
+        population_ticks = np.geomspace(
+            min_population, max_population, scale_granularity
+        )
+        width_ticks = np.linspace(min_width, max_width, scale_granularity)
+        x_positions = np.linspace(0, 1, scale_granularity)
+
+        # Draw the scale lines
+        for population, width, x_pos in zip(
+            population_ticks, width_ticks, x_positions
+        ):
+            self.fig.add_shape(
+                type="line",
+                line_width=width,
+                x0=x_pos,
+                x1=x_pos + 0.05,
+                y0=-0.1,
+                y1=-0.1,
+                xref="paper",
+                yref="paper",
+            )
+            self.fig.add_annotation(
+                x=x_pos,
+                y=-0.21,
+                text=f"{population:.1e}",
+                textangle=90,
+                showarrow=False,
+                xref="paper",
+                yref="paper",
+            )
+        # Add title of the width bar
+        self.fig.add_annotation(
+            x=0.5,
+            y=-0.25,
+            text="Level Populations",
+            showarrow=False,
+            xref="paper",
+            yref="paper",
+        )
+
     def _draw_transitions(self, is_excitation):
         lines = self.excit_lines if is_excitation else self.deexcit_lines
         wavelength_range = np.log10(self.max_wavelength / self.min_wavelength)
@@ -398,9 +457,9 @@ class GrotrianWidget:
                 line_info.merged_level_number_lower,
                 line_info.merged_level_number_upper,
             )
-            wavelength, standard_log_num_electrons = (
+            wavelength, std_log_num_electrons = (
                 line_info.wavelength,
-                line_info.standard_log_num_electrons,
+                line_info.std_log_num_electrons,
             )
             energy_lower, energy_upper = (
                 self.level_data.loc[lower].energy,
@@ -437,7 +496,7 @@ class GrotrianWidget:
                     ),
                     line=dict(
                         color=color,
-                        width=standard_log_num_electrons
+                        width=std_log_num_electrons
                         * self.transition_width_scale
                         + self.transition_width_offset,
                     ),
@@ -457,8 +516,9 @@ class GrotrianWidget:
             autosize=False,
             width=700,
             height=700,
-            xaxis=dict(showticklabels=False, showgrid=False),
+            xaxis=dict(showticklabels=False, showgrid=False, automargin=True),
             yaxis=dict(showgrid=False, range=[0, None]),
+            margin=dict(t=50, r=200, b=150),
             showlegend=False,
         )
 
@@ -470,8 +530,8 @@ class GrotrianWidget:
         self._draw_transitions(is_excitation=False)
 
         # Add a dummy Scatter trace to display colorbar
-        tickvalues = np.geomspace(self.min_wavelength, self.max_wavelength, 5)
-        ticktext = [f"{val:.1e}" for val in tickvalues]
+        tickvals = np.geomspace(self.min_wavelength, self.max_wavelength, 5)
+        ticktext = [f"{val:.1e}" for val in tickvals]
         self.fig.add_trace(
             go.Scatter(
                 x=[None],
@@ -483,12 +543,13 @@ class GrotrianWidget:
                     cmin=np.log10(self.min_wavelength),
                     cmax=np.log10(self.max_wavelength),
                     colorbar=dict(
-                        title=f"Wavelength ({ANGSTROM_SYMBOL})",
+                        title=dict(
+                            text=f"Wavelength ({ANGSTROM_SYMBOL})", font_size=12
+                        ),
                         thickness=5,
-                        tickvals=np.log10(tickvalues),
+                        tickvals=np.log10(tickvals),
                         ticktext=ticktext,
                         outlinewidth=0,
-                        x=1.2,
                     ),
                 ),
                 hoverinfo="none",
