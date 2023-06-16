@@ -587,6 +587,7 @@ def transport_to_dict(transport):
         "use_gpu": transport.use_gpu,
         "v_inner": transport.v_inner_cgs,
         "v_outer": transport.v_outer_cgs,
+        "nthreads": transport.nthreads,
         "virt_logging": transport.virt_logging,
         "virt_packet_energies": transport.virt_packet_energies,
         "virt_packet_initial_mus": transport.virt_packet_initial_mus,
@@ -732,6 +733,7 @@ def transport_from_hdf(fname):
         v_packet_settings=d["v_packet_settings"],
         spectrum_method=d["spectrum_method"],
         packet_source=d["packet_source"],
+        nthreads=d["nthreads"],
         virtual_packet_logging=d["virt_logging"],
         use_gpu=d["use_gpu"],
     )

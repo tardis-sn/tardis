@@ -403,6 +403,7 @@ def test_store_transport_to_hdf(simulation_verysimple, tmp_path):
         assert np.array_equal(
             f["transport/v_outer"], transport_data["v_outer_cgs"]
         )
+        assert f["transport/nthreads"][()] == transport_data["nthreads"]
         assert f["transport/virt_logging"][()] == transport_data["virt_logging"]
         assert np.array_equal(
             f["transport/virt_packet_energies"],
