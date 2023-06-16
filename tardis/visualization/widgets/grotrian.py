@@ -287,12 +287,12 @@ class GrotrianWidget:
         ### Get energy levels and convert to eV
         raw_energy_levels = self.level_energy_data.loc[
             self.atomic_number, self.ion_number
-        ].loc[1 : self.max_levels]
+        ].loc[0 : self.max_levels]
 
         ### Get level populations
         raw_level_populations = self.level_population_data.loc[
             self.atomic_number, self.ion_number
-        ].loc[1 : self.max_levels]
+        ].loc[0 : self.max_levels]
 
         # Average out the level populations across all zones (TODO: might include an option to select the zone number later)
         raw_level_populations = raw_level_populations.mean(axis=1)
@@ -315,7 +315,7 @@ class GrotrianWidget:
         raw_level_data["merged_level_number"] = (
             (raw_level_data["energy"] + 1).pct_change().abs()
             > self.level_diff_threshold
-        ).cumsum() + 1
+        ).cumsum()
 
         # Group data with new level numbers
         self.level_data = (
@@ -332,15 +332,17 @@ class GrotrianWidget:
 
         # Standardize the level populations to display the widths correctly
         std_log_population_range = np.log10(
-            np.max(self.level_data.population)
-            / np.min(self.level_data.population)
+            self.level_data.population.max()
+            / self.level_data.population[self.level_data.population > 0].min()
         )
         self.level_data["std_log_population"] = 0
         if std_log_population_range > 0:
             self.level_data.std_log_population = (
                 np.log10(
                     self.level_data.population
-                    / np.min(self.level_data.population)
+                    / self.level_data.population[
+                        self.level_data.population > 0
+                    ].min()
                 )
                 / std_log_population_range
             )
@@ -349,20 +351,8 @@ class GrotrianWidget:
         self.level_mapping = raw_level_data.merged_level_number
 
     def _draw_energy_levels(self):
-        # Create energy tick for ground state separately
-        self.fig.add_annotation(
-            x=1.1,
-            y=0,
-            text=f"{0:.1f} eV",
-            showarrow=False,
-        )
-
         # Create the energy levels from level data
         for level_number, level_info in self.level_data.iterrows():
-            level_width = (
-                level_info.std_log_population * self.level_width_scale
-                + self.level_width_offset
-            )
             # Add the horizontal line
             self.fig.add_trace(
                 go.Scatter(
@@ -372,7 +362,14 @@ class GrotrianWidget:
                     hovertemplate=f"Energy: {level_info.energy:.1f} eV<br>"
                     + f"Population: {level_info.population:.2e}"
                     + "<extra></extra>",
-                    line=dict(color="black", width=level_width),
+                    line=dict(
+                        color="black",
+                        width=level_info.std_log_population
+                        * self.level_width_scale
+                        + self.level_width_offset,
+                    )
+                    if level_info.population > 0
+                    else dict(color="grey", dash="dash"),
                     showlegend=False,
                 )
             )
@@ -387,19 +384,21 @@ class GrotrianWidget:
 
         ### Create width scale
         # Space the populations (log) and corresponding widths (linear) equally
-        min_population_idx = np.argmin(self.level_data.population)
-        max_population_idx = np.argmax(self.level_data.population)
+        min_population_idx = self.level_data.population[
+            self.level_data.population > 0
+        ].idxmin()
+        max_population_idx = self.level_data.population.idxmax()
 
-        min_population = self.level_data.iloc[min_population_idx].population
-        max_population = self.level_data.iloc[max_population_idx].population
+        min_population = self.level_data.population[min_population_idx]
+        max_population = self.level_data.population[max_population_idx]
 
         min_width = (
-            self.level_data.iloc[min_population_idx].std_log_population
+            self.level_data.std_log_population[min_population_idx]
             * self.level_width_scale
             + self.level_width_offset
         )
         max_width = (
-            self.level_data.iloc[max_population_idx].std_log_population
+            self.level_data.std_log_population[max_population_idx]
             * self.level_width_scale
             + self.level_width_offset
         )
