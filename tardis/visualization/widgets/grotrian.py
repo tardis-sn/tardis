@@ -334,19 +334,6 @@ class GrotrianWidget:
             )
         )  # Add the populations of merged levels
 
-        self.level_mapping = raw_level_data.merged_level_number
-
-        self.merged_max_energy_level = self.level_data.energy.max()
-
-    def _draw_energy_levels(self):
-        # Create energy tick for ground state separately
-        self.fig.add_annotation(
-            x=1.1,
-            y=0,
-            text=f"{0:.1f} eV",
-            showarrow=False,
-        )
-
         # Standardize the level populations to display the widths correctly
         standard_log_population_range = np.log10(
             np.max(self.level_data.population)
@@ -361,6 +348,19 @@ class GrotrianWidget:
                 )
                 / standard_log_population_range
             )
+
+        # Create a mapping from original levels to merged levels
+        self.level_mapping = raw_level_data.merged_level_number
+
+    def _draw_energy_levels(self):
+        # Create energy tick for ground state separately
+        self.fig.add_annotation(
+            x=1.1,
+            y=0,
+            text=f"{0:.1f} eV",
+            showarrow=False,
+        )
+
         # Create the energy levels from level data
         for level_number, level_info in self.level_data.iterrows():
             level_width = (
@@ -408,8 +408,9 @@ class GrotrianWidget:
             )
 
             # Get the end x-coordinate (proportional to energy difference between levels)
+            merged_max_energy_level = self.level_data.energy.max()
             x_end = (energy_upper - energy_lower) / (
-                self.merged_max_energy_level - energy_lower
+                merged_max_energy_level - energy_lower
             )
 
             # Get the end arrow color (proportional to log wavelength)
