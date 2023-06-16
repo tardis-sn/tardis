@@ -249,12 +249,7 @@ def test_transport_to_dict(simulation_verysimple):
 
     # Check transport dictionary
     for key, value in transport_dict.items():
-        if key == "single_packet_seed":
-            if value is None:
-                assert key not in transport_data.keys()
-            else:
-                assert value == transport_data[key]
-        elif isinstance(value, np.ndarray):
+        if isinstance(value, np.ndarray):
             if key + "_cgs" in transport_data.keys():
                 assert np.array_equal(value, transport_data[key + "_cgs"])
             else:
@@ -443,8 +438,3 @@ def test_store_transport_to_hdf(simulation_verysimple, tmp_path):
         assert np.array_equal(
             f["transport/volume_cgs"], transport_data["volume"].value
         )
-        if "transport/single_packet_seed" in f:
-            assert (
-                f["transport/single_packet_seed"][()]
-                == transport_data["single_packet_seed"]
-            )

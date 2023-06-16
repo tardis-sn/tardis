@@ -599,11 +599,6 @@ def transport_to_dict(transport):
         "volume_cgs": transport.volume,
     }
 
-    try:
-        transport_dict["single_packet_seed"] = transport.single_packet_seed
-    except AttributeError:
-        transport_dict["single_packet_seed"] = None
-
     for key, value in transport_dict.items():
         if key.endswith("_cgs"):
             transport_dict[key] = [value.cgs.value, value.unit.to_string()]
@@ -681,8 +676,6 @@ def transport_from_hdf(fname):
     new_transport : tardis.montecarlo.MontecarloTransport
     """
 
-    d = {"single_packet_seed": None}
-
     # Loading data from hdf file
     with h5py.File(fname, "r") as f:
         transport_group = f["transport"]
@@ -740,7 +733,6 @@ def transport_from_hdf(fname):
         spectrum_method=d["spectrum_method"],
         packet_source=d["packet_source"],
         virtual_packet_logging=d["virt_logging"],
-        single_packet_seed=d["single_packet_seed"],
         use_gpu=d["use_gpu"],
     )
 
