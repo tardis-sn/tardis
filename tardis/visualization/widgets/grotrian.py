@@ -126,9 +126,9 @@ class GrotrianWidget:
     def atomic_number(self):
         return self._atomic_number
 
-    @atomic_number.setter
-    def atomic_number(self, value):
-        self._atomic_number = value
+    def set_ion(self, atomic_number, ion_number):
+        self._atomic_number = atomic_number
+        self._ion_number = ion_number
         # TODO: Handle this better
         self._compute_level_data()
         self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "_compute_transitions()" explicitly
@@ -136,13 +136,6 @@ class GrotrianWidget:
     @property
     def ion_number(self):
         return self._ion_number
-
-    @ion_number.setter
-    def ion_number(self, value):
-        self._ion_number = value
-        # TODO: Handle this better
-        self._compute_level_data()
-        self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "_compute_transitions()" explicitly
 
     @property
     def atomic_name(self):
@@ -154,12 +147,9 @@ class GrotrianWidget:
 
     def _compute_transitions(self):
         # Get relevant lines for current simulation
-        self.line_interaction_analysis[
-            self.filter_mode
-        ].atomic_number = self.atomic_number
-        self.line_interaction_analysis[
-            self.filter_mode
-        ].ion_number = self.ion_number
+        self.line_interaction_analysis[self.filter_mode].set_ion(
+            self.atomic_number, self.ion_number
+        )
 
         # Get the excitation/de-excitation transitions from LastLineInteraction object
         excit_lines = (
