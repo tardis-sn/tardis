@@ -485,7 +485,7 @@ class GrotrianWidget:
                 go.Scatter(
                     x=[0, x_end],
                     y=[lower, upper] if is_excitation else [upper, lower],
-                    hovertemplate=f"Count: {line_info.num_electrons:.1f}<br>"
+                    hovertemplate=f"Count: {int(line_info.num_electrons)}<br>"
                     + f"Wavelength: {wavelength:.2e} {ANGSTROM_SYMBOL}"
                     + "<extra></extra>",
                     marker=dict(
