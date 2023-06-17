@@ -23,9 +23,7 @@ def packet_unit_test_fpath(tardis_ref_path):
 
 def test_bb_packet_sampling(request, tardis_ref_data, packet_unit_test_fpath):
     montecarlo_configuration.LEGACY_MODE_ENABLED = True
-    bb = BlackBodySimpleSource(1963)
-    if montecarlo_configuration.LEGACY_MODE_ENABLED:
-        np.random.seed(2508)
+    bb = BlackBodySimpleSource(1963, secondary_seed=2508)
     # ref_df = pd.read_hdf('test_bb_sampling.h5')
     if request.config.getoption("--generate-reference"):
         ref_bb = pd.read_hdf(packet_unit_test_fpath, key="/blackbody")
