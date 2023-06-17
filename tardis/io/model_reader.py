@@ -2,6 +2,10 @@
 
 from tardis.io.config_reader import ConfigurationNameSpace
 from tardis.montecarlo.base import MontecarloTransport
+from tardis.montecarlo.packet_source import (
+    BlackBodySimpleSource,
+    BlackBodySimpleSourceRelativistic,
+)
 from tardis.util.base import parse_quantity, is_valid_nuclide_or_elem
 
 import warnings
@@ -578,7 +582,7 @@ def transport_to_dict(transport):
         "photo_ion_estimator_statistics": transport.photo_ion_estimator_statistics,
         "r_inner": transport.r_inner_cgs,
         "r_outer": transport.r_outer_cgs,
-        "packet_source": transport.packet_source,
+        "packet_source_base_seed": transport.packet_source.base_seed,
         "spectrum_frequency_cgs": transport.spectrum_frequency,
         "spectrum_method": transport.spectrum_method,
         "stim_recomb_cooling_estimator": transport.stim_recomb_cooling_estimator,
@@ -677,6 +681,8 @@ def transport_from_hdf(fname):
     new_transport : tardis.montecarlo.MontecarloTransport
     """
 
+    d = {}
+
     # Loading data from hdf file
     with h5py.File(fname, "r") as f:
         transport_group = f["transport"]
@@ -705,6 +711,14 @@ def transport_from_hdf(fname):
     for key, value in d.items():
         if key.endswith("_cgs"):
             d[key] = u.Quantity(value[0], unit=u.Unit(value[1].decode("utf-8")))
+
+    # Using packet source seed to packet source
+    if not d["enable_full_relativity"]:
+        d["packet_source"] = BlackBodySimpleSource(d["packet_source_base_seed"])
+    else:
+        d["packet_source"] = BlackBodySimpleSourceRelativistic(
+            d["packet_source_base_seed"]
+        )
 
     # Converting virtual spectrum spawn range values to astropy quantities
     vssr = d["virtual_spectrum_spawn_range"]

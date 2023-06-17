@@ -257,6 +257,8 @@ def test_transport_to_dict(simulation_verysimple):
         elif isinstance(value, list):
             assert np.array_equal(value[0], transport_data[key[:-4]].value)
             assert value[1] == transport_data[key[:-4]].unit.to_string()
+        elif key == "packet_source_base_seed":  # Check packet source base seed
+            assert value == transport_data["packet_source"].base_seed
         else:
             assert value == transport_data[key]
 
@@ -368,7 +370,8 @@ def test_store_transport_to_hdf(simulation_verysimple, tmp_path):
             f["transport/r_outer"], transport_data["r_outer_cgs"]
         )
         assert (
-            f["transport/packet_source"][()] == transport_data["packet_source"]
+            f["transport/packet_source_base_seed"][()]
+            == transport_data["packet_source"].base_seed
         )
         assert np.array_equal(
             f["transport/spectrum_frequency_cgs"],
