@@ -364,8 +364,6 @@ to generate a new reference data with it. These two reference data files are com
 `this notebook <https://github.com/tardis-sn/tardis-refdata/blob/master/notebooks/ref_data_compare_from_paths.ipynb>`_.
 The workflow has a ``workflow_dispatch`` event so that it can be triggered manually, but is also 
 triggered every week due to the "save-atomic-files" workflow. 
-The bridge fails currently there is a discrepancy between 
-the reference data generated using the old and the new Carsus file.
 
 
 The Save Atomic Files Workflow
