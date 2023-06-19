@@ -14,13 +14,13 @@ class BasePacketSource(abc.ABC):
     # seed val to the maximum allowed by numpy.
     MAX_SEED_VAL = 2**32 - 1
 
-    def __init__(self, seed, secondary_seed=None):
+    def __init__(self, seed, legacy_second_seed=None):
         self.base_seed = seed
         if (
             montecarlo_configuration.LEGACY_MODE_ENABLED
-            and secondary_seed is not None
+            and legacy_second_seed is not None
         ):
-            np.random.seed(secondary_seed)
+            np.random.seed(legacy_second_seed)
         else:
             np.random.seed(self.base_seed)
 
