@@ -117,12 +117,11 @@ jobs:
           path: asv-compare-changed-output.log 
 
       - name: Find Comment
-        if: github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request'
         uses: peter-evans/find-comment@v1
         id: fc
         with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: 'tardis-bot'
+          issue-number: ${{ github.event.number }}
           body-includes: I ran benchmarks as you asked
 
       - name: Post comment
@@ -130,8 +129,9 @@ jobs:
         uses: peter-evans/create-or-update-comment@v2
         with:
           token:  ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }} 
+          issue-number: ${{ github.event.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
           body: |
             *\*beep\* \*bop\**
             Hi human, 
