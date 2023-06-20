@@ -2,6 +2,10 @@
 
 from tardis.io.config_reader import ConfigurationNameSpace
 from tardis.montecarlo.base import MontecarloTransport
+from tardis.montecarlo.packet_source import (
+    BlackBodySimpleSource,
+    BlackBodySimpleSourceRelativistic,
+)
 from tardis.util.base import parse_quantity, is_valid_nuclide_or_elem
 
 import warnings
@@ -578,7 +582,7 @@ def transport_to_dict(transport):
         "photo_ion_estimator_statistics": transport.photo_ion_estimator_statistics,
         "r_inner": transport.r_inner_cgs,
         "r_outer": transport.r_outer_cgs,
-        "seed": transport.seed,
+        "packet_source_base_seed": transport.packet_source.base_seed,
         "spectrum_frequency_cgs": transport.spectrum_frequency,
         "spectrum_method": transport.spectrum_method,
         "stim_recomb_cooling_estimator": transport.stim_recomb_cooling_estimator,
@@ -599,11 +603,6 @@ def transport_to_dict(transport):
         "virt_packet_nus": transport.virt_packet_nus,
         "volume_cgs": transport.volume,
     }
-
-    try:
-        transport_dict["single_packet_seed"] = transport.single_packet_seed
-    except AttributeError:
-        transport_dict["single_packet_seed"] = None
 
     for key, value in transport_dict.items():
         if key.endswith("_cgs"):
@@ -682,7 +681,7 @@ def transport_from_hdf(fname):
     new_transport : tardis.montecarlo.MontecarloTransport
     """
 
-    d = {"single_packet_seed": None}
+    d = {}
 
     # Loading data from hdf file
     with h5py.File(fname, "r") as f:
@@ -713,6 +712,14 @@ def transport_from_hdf(fname):
         if key.endswith("_cgs"):
             d[key] = u.Quantity(value[0], unit=u.Unit(value[1].decode("utf-8")))
 
+    # Using packet source seed to packet source
+    if not d["enable_full_relativity"]:
+        d["packet_source"] = BlackBodySimpleSource(d["packet_source_base_seed"])
+    else:
+        d["packet_source"] = BlackBodySimpleSourceRelativistic(
+            d["packet_source_base_seed"]
+        )
+
     # Converting virtual spectrum spawn range values to astropy quantities
     vssr = d["virtual_spectrum_spawn_range"]
     d["virtual_spectrum_spawn_range"] = {
@@ -729,7 +736,6 @@ def transport_from_hdf(fname):
 
     # Creating a transport object and storing data
     new_transport = MontecarloTransport(
-        seed=d["seed"],
         spectrum_frequency=d["spectrum_frequency_cgs"],
         virtual_spectrum_spawn_range=d["virtual_spectrum_spawn_range"],
         disable_electron_scattering=d["disable_electron_scattering"],
@@ -740,9 +746,9 @@ def transport_from_hdf(fname):
         integrator_settings=d["integrator_settings"],
         v_packet_settings=d["v_packet_settings"],
         spectrum_method=d["spectrum_method"],
+        packet_source=d["packet_source"],
         nthreads=d["nthreads"],
         virtual_packet_logging=d["virt_logging"],
-        single_packet_seed=d["single_packet_seed"],
         use_gpu=d["use_gpu"],
     )
 
