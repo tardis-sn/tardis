@@ -14,8 +14,8 @@ class BasePacketSource(abc.ABC):
     # seed val to the maximum allowed by numpy.
     MAX_SEED_VAL = 2**32 - 1
 
-    def __init__(self, seed, legacy_second_seed=None):
-        self.base_seed = seed
+    def __init__(self, base_seed, legacy_second_seed=None):
+        self.base_seed = base_seed
         if (
             montecarlo_configuration.LEGACY_MODE_ENABLED
             and legacy_second_seed is not None
@@ -38,7 +38,7 @@ class BasePacketSource(abc.ABC):
         return seeds
 
     @abc.abstractmethod
-    def create_packets(self, seed=None, **kwargs):
+    def create_packets(self, **kwargs):
         pass
 
     def create_zero_limb_darkening_packet_mus(self, no_of_packets):
