@@ -17,6 +17,12 @@ class GrotrianWidget:
 
     @classmethod
     def from_simulation(cls, sim, **kwargs):
+        """
+        Creates a GrotrianWidget object from a Simulation object
+
+        Args:
+            sim (tardis.simulation.Simulation): TARDIS simulation object
+        """
         atom_data = sim.plasma.atomic_data.atom_data
         level_energy_data = pd.Series(
             sim.plasma.atomic_data.levels.energy
@@ -44,6 +50,15 @@ class GrotrianWidget:
         line_interaction_analysis,
         colorscale="rainbow",
     ):
+        """
+        Args:
+            atom_data (pandas.DataFrame): Mapping from atomic number to symbol and name
+            level_energy_data (pandas.Series): Level energies (in eV) indexed by (atomic_number, ion_number, level_number)
+            level_population_data (pandas.DataFrame): Level populations indexed by (atomic_number, ion_number, level_number)
+                and each column representing the supernova shell
+            line_interaction_analysis (tardis.analysis.LastLineInteraction): LastLineInteraction object with the appropriate filters
+            colorscale (str, optional): Colorscale for the wavelength info. Defaults to "rainbow".
+        """
         # Set data members
         self.atom_data = atom_data
         self.level_energy_data = level_energy_data
@@ -146,6 +161,9 @@ class GrotrianWidget:
         return self.atom_data.loc[self.atomic_number]["symbol"]
 
     def _compute_transitions(self):
+        """
+        Computes the excitation/de-excitation line transition data for the arrows in the widget
+        """
         # Get relevant lines for current simulation
         self.line_interaction_analysis[self.filter_mode].set_ion(
             self.atomic_number, self.ion_number
@@ -284,6 +302,9 @@ class GrotrianWidget:
         self.deexcit_lines = deexcit_lines
 
     def _compute_level_data(self):
+        """
+        Cleans the level population data for the horizontal platforms in the widget
+        """
         ### Get energy levels and convert to eV
         raw_energy_levels = self.level_energy_data.loc[
             self.atomic_number, self.ion_number
@@ -351,6 +372,9 @@ class GrotrianWidget:
         self.level_mapping = raw_level_data.merged_level_number
 
     def _draw_energy_levels(self):
+        """
+        Draws the horizontal energy levels on the widget
+        """
         # Create the energy levels from level data
         for level_number, level_info in self.level_data.iterrows():
             # Add the horizontal line
@@ -444,6 +468,9 @@ class GrotrianWidget:
         )
 
     def _draw_transitions(self, is_excitation):
+        """
+        Draws the transition arrows on the widget
+        """
         lines = self.excit_lines if is_excitation else self.deexcit_lines
         wavelength_range = np.log10(self.max_wavelength / self.min_wavelength)
         # Plot excitation transitions
@@ -499,6 +526,9 @@ class GrotrianWidget:
             )
 
     def display(self):
+        """
+        Parent function to draw the widget (calls other draw methods independently)
+        """
         ### Create figure and set metadata
         self.fig = go.FigureWidget()
 
@@ -506,13 +536,12 @@ class GrotrianWidget:
         self.fig.update_layout(
             title=f"Grotrian Diagram for {self.atomic_name} {int_to_roman(self.ion_number + 1)}",
             title_x=0.5,
-            yaxis_title="Level Number",
             plot_bgcolor="white",
             autosize=False,
             width=700,
             height=700,
             xaxis=dict(showticklabels=False, showgrid=False, automargin=True),
-            yaxis=dict(showgrid=False, range=[0, None]),
+            yaxis=dict(title="Level Number", showgrid=False, range=[0, None]),
             margin=dict(t=50, r=200, b=150),
             showlegend=False,
         )
