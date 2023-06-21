@@ -44,8 +44,10 @@ Please follow this design procedure while adding a new test:
 """
 
 
+import os
 import pytest
 import numpy as np
+import pandas as pd
 import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
 import tardis.transport.r_packet_transport as r_packet_transport
@@ -72,6 +74,26 @@ from numpy.testing import (
     assert_almost_equal,
     assert_allclose,
 )
+
+from tardis import __path__ as path
+
+
+@pytest.fixture(scope="module")
+def continuum_compare_data_fname():
+    fname = "continuum_compare_data.hdf"
+    return os.path.join(path[0], "montecarlo", "tests", "data", fname)
+
+
+@pytest.fixture(scope="module")
+def continuum_compare_data(continuum_compare_data_fname, request):
+    compare_data = pd.HDFStore(continuum_compare_data_fname, mode="r")
+
+    def fin():
+        compare_data.close()
+
+    request.addfinalizer(fin)
+
+    return compare_data
 
 
 """
