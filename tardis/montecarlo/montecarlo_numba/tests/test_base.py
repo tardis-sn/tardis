@@ -26,7 +26,6 @@ def test_montecarlo_main_loop(
     random_call_fixture,
     request,
 ):
-
     montecarlo_configuration.LEGACY_MODE_ENABLED = True
     # Setup model config from verysimple
     atomic_data = deepcopy(atomic_dataset)
@@ -39,7 +38,8 @@ def test_montecarlo_main_loop(
     sim = Simulation.from_config(
         config_montecarlo_1e5_verysimple, atom_data=atomic_data
     )
-    sim.run()
+    sim.run_convergence()
+    sim.run_final()
 
     compare_fname = os.path.join(
         tardis_ref_path, "montecarlo_1e5_compare_data.h5"

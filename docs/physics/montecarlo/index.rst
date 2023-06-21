@@ -4,11 +4,11 @@
 Monte Carlo Iteration
 *********************
 
-After setting up the simulation, TARDIS runs the simulation using the ``.run()`` method. This runs several Monte
-Carlo iterations (which will be described in the links below), corresponding to the number of iterations specified
+After setting up the simulation, TARDIS runs the simulation using the ``.run_convergence()`` method. This runs several Monte
+Carlo iterations (which will be described in the links below), corresponding to one less than the number of iterations specified
 in the :ref:`Monte Carlo Configuration <montecarlo-config>`. As will be decribed in :doc:`../update_and_conv/update_and_conv` and
-:ref:`spectrum`, most of these iterations will eventually be used to calculate the steady-state plasma properties,
-with the last iteration being used to determine the spectrum.
+:ref:`spectrum`, these iterations will eventually be used to calculate the steady-state plasma properties.
+TARDIS runs the last iteration of the simulation using the ``.run_final()`` method to determine the spectrum.
 
 The following pages provide a very basic introduction to Monte Carlo radiative
 transfer techniques as they are used in TARDIS. All the information listed here

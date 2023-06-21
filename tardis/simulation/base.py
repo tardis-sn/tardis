@@ -370,7 +370,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         return converged
 
-    def iterate(self, no_of_packets, no_of_virtual_packets=0, last_run=False):
+    def iterate(self, no_of_packets, no_of_virtual_packets=0):
         logger.info(
             f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
@@ -379,7 +379,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma,
             no_of_packets,
             no_of_virtual_packets=no_of_virtual_packets,
-            last_run=last_run,
             iteration=self.iterations_executed,
             total_iterations=self.iterations,
             show_progress_bars=self.show_progress_bars,
@@ -414,7 +413,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.log_run_results(emitted_luminosity, reabsorbed_luminosity)
         self.iterations_executed += 1
 
-    def run(self):
+    def run_convergence(self):
         """
         run the simulation
         """
@@ -436,7 +435,16 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             if self.converged:
                 if self.convergence_strategy.stop_if_converged:
                     break
-        # Last iteration
+
+        logger.info(
+            f"\n\tSimulation finished in {self.iterations_executed:d} iterations "
+            f"\n\tSimulation took {(time.time() - start_time):.2f} s\n"
+        )
+
+    def run_final(self):
+        """
+        run the last iteration of the simulation
+        """
         self.store_plasma_state(
             self.iterations_executed,
             self.model.w,
@@ -444,9 +452,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.electron_densities,
             self.model.t_inner,
         )
-        self.iterate(
-            self.last_no_of_packets, self.no_of_virtual_packets, last_run=True
-        )
+        self.iterate(self.last_no_of_packets, self.no_of_virtual_packets)
 
         self.reshape_plasma_state_store(self.iterations_executed)
         if hasattr(self, "convergence_plots"):
@@ -465,10 +471,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 self.transport.rpacket_tracker
             )
 
-        logger.info(
-            f"\n\tSimulation finished in {self.iterations_executed:d} iterations "
-            f"\n\tSimulation took {(time.time() - start_time):.2f} s\n"
-        )
         self._call_back()
 
     def log_plasma_state(

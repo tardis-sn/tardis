@@ -112,6 +112,7 @@ def run_tardis(
     for cb in simulation_callbacks:
         simulation.add_callback(*cb)
 
-    simulation.run()
+    simulation.run_convergence()
+    simulation.run_final()
 
     return simulation

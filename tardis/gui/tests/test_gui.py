@@ -27,7 +27,8 @@ def simulation_one_loop(
     config.montecarlo.last_no_of_packets = int(4e4)
 
     simulation = Simulation.from_config(config)
-    simulation.run()
+    simulation.run_convergence()
+    simulation.run_final()
 
     return simulation
 
