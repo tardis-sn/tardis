@@ -26,19 +26,6 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
 
 
 @pytest.fixture(scope="package")
-def verysimple_collection(nb_simulation_verysimple):
-    transport = nb_simulation_verysimple.transport
-    return PacketCollection(
-        transport.input_r,
-        transport.input_nu,
-        transport.input_mu,
-        transport.input_energy,
-        transport._output_nu,
-        transport._output_energy,
-    )
-
-
-@pytest.fixture(scope="package")
 def verysimple_numba_plasma(nb_simulation_verysimple):
     return numba_plasma_initialize(
         nb_simulation_verysimple.plasma, line_interaction_type="macroatom"

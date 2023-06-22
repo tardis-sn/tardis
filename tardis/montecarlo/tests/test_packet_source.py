@@ -4,16 +4,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import tardis
 from tardis.montecarlo.packet_source import BlackBodySimpleSource
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
-
-
-@pytest.fixture
-def data_path():
-    return os.path.join(tardis.__path__[0], "montecarlo", "tests", "data")
 
 
 @pytest.fixture
