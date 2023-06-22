@@ -114,10 +114,14 @@ if args.profile:
     import cProfile
 
     cProfile.runctx(
-        "simulation.run()", locals(), globals(), filename=args.profiler_log_file
+        "simulation.run_convergence()\nsimulation.run_final()",
+        locals(),
+        globals(),
+        filename=args.profiler_log_file,
     )
 
 else:
-    simulation.run()
+    simulation.run_convergence()
+    simulation.run_final()
 
 get_spectrum().to_ascii(args.spectrum_fname)

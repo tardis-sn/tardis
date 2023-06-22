@@ -301,7 +301,6 @@ class MontecarloTransport(HDFWriterMixin):
         plasma,
         no_of_packets,
         no_of_virtual_packets=0,
-        last_run=False,
         iteration=0,
         total_iterations=0,
         show_progress_bars=True,
@@ -315,7 +314,6 @@ class MontecarloTransport(HDFWriterMixin):
         plasma : tardis.plasma.BasePlasma
         no_of_packets : int
         no_of_virtual_packets : int
-        last_run : bool
         total_iterations : int
             The total number of iterations in the simulation.
 

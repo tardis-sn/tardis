@@ -42,7 +42,8 @@ class TestTransportSimple:
         config["atom_data"] = atomic_data_fname
 
         simulation = Simulation.from_config(config)
-        simulation.run()
+        simulation.run_convergence()
+        simulation.run_final()
 
         if not generate_reference:
             return simulation.transport

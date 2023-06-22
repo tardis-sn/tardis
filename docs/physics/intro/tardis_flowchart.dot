@@ -9,7 +9,7 @@ digraph {
     subgraph cluster1 {
         style = rounded
 		margin = .25
-		label=<<br/><br/><i>&lt;Simulation object&gt;.run()</i><br/> >;
+		label=<<br/><br/><i>&lt;Simulation object&gt;.run_convergence()</i><br/> >;
 		mc_iteration -> adv_state
         adv_state -> mc_iteration
 	}

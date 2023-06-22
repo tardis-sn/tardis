@@ -139,7 +139,8 @@ class TestIntegration(object):
         # output model to HDF file, save it at specified path. Skip all tests.
         # Else simply perform the run and move further for performing
         # assertions.
-        self.result.run()
+        self.result.run_convergence()
+        self.result.run_final()
         if request.config.getoption("--generate-reference"):
             ref_data_path = os.path.join(
                 data_path["reference_path"], f"{self.name}.h5"
@@ -229,7 +230,6 @@ class TestIntegration(object):
         )
 
     def plot_spectrum(self):
-
         # `ldl_` prefixed variables associated with `luminosity_density_lambda`.
         # Axes of subplot are extracted, if we wish to make multiple plots
         # for different spectrum quantities all in one figure.
