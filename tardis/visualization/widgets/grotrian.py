@@ -383,7 +383,7 @@ class GrotrianWidget:
                     x=np.linspace(-0.05, 1.05, 10),
                     y=level_number * np.ones(10),
                     mode="lines",
-                    hovertemplate=f"Energy: {level_info.energy:.1f} eV<br>"
+                    hovertemplate=f"Energy: {level_info.energy:.2e} eV<br>"
                     + f"Population: {level_info.population:.2e}"
                     + "<extra></extra>",
                     line=dict(
@@ -400,9 +400,9 @@ class GrotrianWidget:
 
             # Add label for energy
             self.fig.add_annotation(
-                x=1.15,
+                x=1.2,
                 y=level_number,
-                text=f"{level_info.energy:.1f} eV",
+                text=f"{level_info.energy:.2e} eV",
                 showarrow=False,
             )
 
