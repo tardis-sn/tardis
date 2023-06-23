@@ -21,7 +21,8 @@ jobs:
   build:
     strategy:
       matrix:
-        variant: [Miniforge3, Mambaforge]
+        pkgman: [conda, mamba]
+        os: [ubuntu-latest, macos-latest]
         include:
         - os: ubuntu-latest
           platform: linux-64
@@ -29,7 +30,7 @@ jobs:
         - os: macos-latest
           platform: osx-64
 
-    name: ${{ matrix.platform }} (${{ matrix.variant }})
+    name: ${{ matrix.platform }} (${{ matrix.pkgman }})
     runs-on: ${{ matrix.os }}
     steps:
       - name: Download lockfile
@@ -38,11 +39,11 @@ jobs:
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
         with:
-            miniforge-variant: ${{ matrix.variant }}
+            miniforge-variant: Mambaforge
             miniforge-version: latest
             environment-file: conda-${{ matrix.platform }}.lock
             activate-environment: tardis
             use-mamba: true
 
       - name: Install conda-forge package
-        run: conda install tardis-sn -c conda-forge
+        run: ${{ matrix.pkgman }} install tardis-sn -c conda-forge
