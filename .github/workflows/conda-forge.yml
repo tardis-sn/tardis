@@ -10,7 +10,7 @@ on:
 
   workflow_dispatch:  # manual trigger
 
-  pull_request:       # remove before merge!
+  pull_request:       # remove this trigger before merging!
     branches: [master]
 
 defaults:
@@ -20,9 +20,11 @@ defaults:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         pkgman: [conda, mamba]
         os: [ubuntu-latest, macos-latest]
+
         include:
         - os: ubuntu-latest
           platform: linux-64
@@ -30,8 +32,8 @@ jobs:
         - os: macos-latest
           platform: osx-64
 
-    name: ${{ matrix.platform }} (${{ matrix.pkgman }})
     runs-on: ${{ matrix.os }}
+    name: ${{ matrix.platform }} (${{ matrix.pkgman }})
     steps:
       - name: Download lockfile
         run: wget -q https://github.com/tardis-sn/tardis/releases/latest/download/conda-${{ matrix.platform }}.lock
