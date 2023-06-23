@@ -1,0 +1,48 @@
+#  For more information about TARDIS pipelines, please refer to:
+#
+#    https://tardis-sn.github.io/tardis/contributing/development/continuous_integration.html
+
+name: conda-forge
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'
+
+  workflow_dispatch:  # manual trigger
+
+  pull_request:       # remove before merge!
+    branches: [master]
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        variant: [Miniconda3, Mambaforge]
+        include:
+        - os: ubuntu-latest
+          platform: linux-64
+
+        - os: macos-latest
+          platform: osx-64
+
+    name: ${{ matrix.platform }} (${{ matrix.variant }})
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Download lockfile
+        run: wget -q https://github.com/tardis-sn/tardis/releases/latest/download/conda-${{ matrix.platform }}.lock
+
+      - name: Setup environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+            miniforge-variant: ${{ matrix.variant }}
+            miniforge-version: latest
+            environment-file: conda-${{ matrix.platform }}.lock
+            activate-environment: tardis
+            use-mamba: true
+
+      - name: Install conda-forge package
+        run: conda install tardis-sn -c conda-forge
