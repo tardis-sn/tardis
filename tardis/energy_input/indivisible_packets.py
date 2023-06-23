@@ -575,8 +575,9 @@ def main_gamma_ray_loop(
     all_isotope_names.sort()
 
     gamma_ray_lines, isotope_metadata = get_nuclear_lines_database(
-        path_to_decay_data
-    )
+        path_to_decay_data)
+    #gamma_ray_lines = get_nuclear_lines_database(
+    #path_to_decay_data)
 
     taus = {}
     parents = {}

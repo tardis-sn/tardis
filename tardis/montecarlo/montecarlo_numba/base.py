@@ -1,6 +1,6 @@
 from numba import prange, njit, objmode
 from numba.np.ufunc.parallel import (
-    _get_thread_id as get_thread_id,
+    get_thread_id as get_thread_id,
     get_num_threads,
 )
 
