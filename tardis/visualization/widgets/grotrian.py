@@ -99,6 +99,7 @@ class GrotrianWidget:
         # Selected Species (TODO: Make setter/getter)
         self._atomic_number = 2
         self._ion_number = 0
+        self._shell = None
 
         # Define colors for the transitions based on wavelengths
         self.colorscale = colorscale
@@ -159,6 +160,10 @@ class GrotrianWidget:
     @property
     def atomic_symbol(self):
         return self.atom_data.loc[self.atomic_number]["symbol"]
+
+    @property
+    def shell(self):
+        return self._shell
 
     def _compute_transitions(self):
         """
@@ -315,8 +320,11 @@ class GrotrianWidget:
             self.atomic_number, self.ion_number
         ].loc[0 : self.max_levels]
 
-        # Average out the level populations across all zones (TODO: might include an option to select the zone number later)
-        raw_level_populations = raw_level_populations.mean(axis=1)
+        # Average out the level populations across all zones, if zone not selected
+        if self.shell is None:
+            raw_level_populations = raw_level_populations.mean(axis=1)
+        else:
+            raw_level_populations = raw_level_populations[self.shell]
 
         raw_level_populations = pd.Series(
             raw_level_populations, name="population"
