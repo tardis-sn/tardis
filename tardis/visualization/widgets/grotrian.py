@@ -406,16 +406,18 @@ class GrotrianWidget:
                     if level_info.population > 0
                     else dict(color="grey", dash="dash"),
                     showlegend=False,
-                )
+                ),
+                row=1,
+                col=1,
             )
 
             # Add label for energy
             self.fig.add_annotation(
-                x=self.x_max + 0.2,
+                x=self.x_max + 0.25,
                 y=level_number,
                 text=f"{level_info.energy:.1e} eV",
                 showarrow=False,
-                xref="paper",
+                xref="x1",
             )
 
         ### Create width scale
@@ -453,29 +455,42 @@ class GrotrianWidget:
             self.fig.add_shape(
                 type="line",
                 line_width=width,
-                x0=self.x_max + 0.25,
-                x1=self.x_max + 0.3,
+                x0=0.1,
+                x1=0.3,
                 y0=y_pos,
                 y1=y_pos,
-                xref="paper",
-                yref="paper",
+                xref="x2",
+                yref="y2",
             )
             self.fig.add_annotation(
-                x=self.x_max + 0.45,
+                x=0.5,
                 y=y_pos,
                 text=f"{population:.1e}",
                 showarrow=False,
-                xref="paper",
-                yref="paper",
+                xref="x2",
+                yref="y2",
             )
         # Add title of the width bar
         self.fig.add_annotation(
-            x=self.x_max + 0.45,
+            x=0.4,
             y=-0.05,
-            text="Level Populations",
+            text="Populations",
             showarrow=False,
-            xref="paper",
-            yref="paper",
+            xref="x2",
+            yref="y2",
+        )
+
+        # Add separator
+        self.fig.add_shape(
+            type="line",
+            line=dict(color="grey", dash="dash"),
+            line_width=0.5,
+            x0=0.7,
+            x1=0.7,
+            y0=0,
+            y1=1,
+            xref="x2",
+            yref="y2",
         )
 
     def _draw_transitions(self, is_excitation):
@@ -535,15 +550,105 @@ class GrotrianWidget:
                         * self.transition_width_scale
                         + self.transition_width_offset,
                     ),
+                ),
+                row=1,
+                col=1,
+            )
+
+    def _draw_transition_width_scale(self):
+        ##### TODO: Correct Draw the arrow width scale lines
+        max_num_electrons = np.max(
+            np.concatenate(
+                (
+                    self.excit_lines.num_electrons,
+                    self.deexcit_lines.num_electrons,
                 )
             )
+        )
+        min_num_electrons = np.min(
+            np.concatenate(
+                (
+                    self.excit_lines.num_electrons,
+                    self.deexcit_lines.num_electrons,
+                )
+            )
+        )
+
+        max_log_num_electrons = np.max(
+            np.concatenate(
+                (
+                    self.excit_lines.std_log_num_electrons,
+                    self.deexcit_lines.std_log_num_electrons,
+                )
+            )
+        )
+        min_log_num_electrons = np.min(
+            np.concatenate(
+                (
+                    self.excit_lines.std_log_num_electrons,
+                    self.deexcit_lines.std_log_num_electrons,
+                )
+            )
+        )
+
+        min_width = (
+            min_log_num_electrons * self.transition_width_scale
+            + self.transition_width_offset
+        )
+        max_width = (
+            max_log_num_electrons * self.transition_width_scale
+            + self.transition_width_offset
+        )
+
+        scale_granularity = 10
+        num_electrons_ticks = np.geomspace(
+            min_num_electrons, max_num_electrons, scale_granularity
+        )
+        width_ticks = np.linspace(min_width, max_width, scale_granularity)
+        y_positions = np.linspace(0, 1, scale_granularity)
+        for num_electrons, width, y_pos in zip(
+            num_electrons_ticks, width_ticks, y_positions
+        ):
+            self.fig.add_shape(
+                type="line",
+                line_width=width,
+                x0=0.75,
+                x1=0.95,
+                y0=y_pos,
+                y1=y_pos,
+                xref="x2",
+                yref="y2",
+            )
+            self.fig.add_annotation(
+                x=1.15,
+                y=y_pos,
+                text=f"{num_electrons:.1e}",
+                showarrow=False,
+                xref="x2",
+                yref="y2",
+            )
+        # Add title of the width bar
+        self.fig.add_annotation(
+            x=0.95,
+            y=-0.05,
+            text="#Packets",
+            showarrow=False,
+            xref="x2",
+            yref="y2",
+        )
 
     def display(self):
         """
         Parent function to draw the widget (calls other draw methods independently)
         """
         ### Create figure and set metadata
-        self.fig = go.FigureWidget()
+        self.fig = make_subplots(
+            rows=1,
+            cols=2,
+            column_width=[0.6, 0.4],
+            specs=[[{}, {}]],
+            horizontal_spacing=0.0,
+        )
 
         # Update fig layout
         self.fig.update_layout(
@@ -553,11 +658,13 @@ class GrotrianWidget:
             autosize=False,
             width=700,
             height=700,
-            xaxis=dict(showticklabels=True, showgrid=False, automargin=True),
+            xaxis=dict(showticklabels=False, showgrid=False, automargin=True),
             yaxis=dict(title="Level Number", showgrid=False, range=[0, None]),
-            margin=dict(t=50, r=200, b=150),
+            margin=dict(),
             showlegend=False,
         )
+        self.fig.update_yaxes(showticklabels=False, row=1, col=2)
+        self.fig.update_xaxes(showticklabels=False, row=1, col=2)
 
         ### Create energy level platforms in the figure
         self._draw_energy_levels()
@@ -565,32 +672,41 @@ class GrotrianWidget:
         ### Create transition lines
         self._draw_transitions(is_excitation=True)
         self._draw_transitions(is_excitation=False)
+        self._draw_transition_width_scale()
+
+        self.fig.add_trace(
+            go.Scatter(x=[0, 1], y=[1, 1], mode="none", hoverinfo="none"),
+            row=1,
+            col=2,
+        )
 
         # Add a dummy Scatter trace to display colorbar
-        # tickvals = np.geomspace(self.min_wavelength, self.max_wavelength, 5)
-        # ticktext = [f"{val:.1e}" for val in tickvals]
-        # self.fig.add_trace(
-        #     go.Scatter(
-        #         x=[None],
-        #         y=[None],
-        #         mode="markers",
-        #         marker=dict(
-        #             colorscale=self.colorscale,
-        #             showscale=True,
-        #             cmin=np.log10(self.min_wavelength),
-        #             cmax=np.log10(self.max_wavelength),
-        #             colorbar=dict(
-        #                 title=dict(
-        #                     text=f"Wavelength ({ANGSTROM_SYMBOL})", font_size=12
-        #                 ),
-        #                 thickness=5,
-        #                 tickvals=np.log10(tickvals),
-        #                 ticktext=ticktext,
-        #                 outlinewidth=0,
-        #             ),
-        #         ),
-        #         hoverinfo="none",
-        #     )
-        # )
+        tickvals = np.geomspace(self.min_wavelength, self.max_wavelength, 5)
+        ticktext = [f"{val:.1e}" for val in tickvals]
+        self.fig.add_trace(
+            go.Scatter(
+                x=[None],
+                y=[None],
+                mode="markers",
+                marker=dict(
+                    colorscale=self.colorscale,
+                    showscale=True,
+                    cmin=np.log10(self.min_wavelength),
+                    cmax=np.log10(self.max_wavelength),
+                    colorbar=dict(
+                        title=dict(
+                            text=f"Wavelength ({ANGSTROM_SYMBOL})", font_size=12
+                        ),
+                        thickness=5,
+                        tickvals=np.log10(tickvals),
+                        ticktext=ticktext,
+                        outlinewidth=0,
+                    ),
+                ),
+                hoverinfo="none",
+            ),
+            row=1,
+            col=2,
+        )
 
         return self.fig
