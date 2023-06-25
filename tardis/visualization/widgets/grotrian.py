@@ -343,7 +343,7 @@ class GrotrianWidget:
 
         ### Merge the levels if energy difference is too less
         # Get new level numbers
-        # TODO: Find a better way to find close levels
+        # TODO: Find a better way to find close levels (less than 0.03 diff in y-coord)
         raw_level_data["merged_level_number"] = (
             (raw_level_data["energy"] + 1).pct_change().abs()
             > self.level_diff_threshold
@@ -671,7 +671,7 @@ class GrotrianWidget:
             cols=2,
             column_width=[0.6, 0.4],
             specs=[[{}, {}]],
-            horizontal_spacing=0.0,
+            horizontal_spacing=0.05,
         )
 
         # Update fig layout
@@ -708,7 +708,7 @@ class GrotrianWidget:
         self._draw_transition_width_scale()
 
         # Add a dummy Scatter trace to display colorbar
-        tickvals = np.geomspace(self.min_wavelength, self.max_wavelength, 5)
+        tickvals = np.geomspace(self.min_wavelength, self.max_wavelength, 10)
         ticktext = [f"{val:.1e}" for val in tickvals]
         self.fig.add_trace(
             go.Scatter(
