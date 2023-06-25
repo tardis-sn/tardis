@@ -386,13 +386,31 @@ class GrotrianWidget:
         """
         Draws the horizontal energy levels on the widget
         """
+        y_offset = 0.1  # To offset the energies on the y-axis so as to accomodate energy levele 0 at y=0
+        min_log_energy = np.log10(
+            self.level_data.energy[self.level_data.energy > 0].min()
+        )
+        max_log_energy = np.log10(
+            self.level_data.energy[self.level_data.energy > 0].max()
+        )
+        log_energy_range = max_log_energy - min_log_energy
+
+        # Store y-coordinate of levels in the plot (will come in handy for transition arrows as well)
+        self.level_data["y_coord"] = (
+            np.log10(self.level_data.energy) - min_log_energy
+        ) / log_energy_range + y_offset
+        # Set y-coordinate of energy level 0 as 0
+        self.level_data.y_coord.mask(
+            self.level_data.energy == 0, 0, inplace=True
+        )
+
         # Create the energy levels from level data
         for level_number, level_info in self.level_data.iterrows():
             # Add the horizontal line
             self.fig.add_trace(
                 go.Scatter(
                     x=np.linspace(self.x_min - 0.05, self.x_max + 0.05, 10),
-                    y=level_number * np.ones(10),
+                    y=level_info.y_coord * np.ones(10),
                     mode="lines",
                     hovertemplate=f"Energy: {level_info.energy:.2e} eV<br>"
                     + f"Population: {level_info.population:.2e}"
@@ -413,9 +431,9 @@ class GrotrianWidget:
 
             # Add label for energy
             self.fig.add_annotation(
-                x=self.x_max + 0.25,
-                y=level_number,
-                text=f"{level_info.energy:.1e} eV",
+                x=self.x_max + 0.15,
+                y=level_info.y_coord,
+                text=f"n={level_number}",
                 showarrow=False,
                 xref="x1",
             )
@@ -522,6 +540,10 @@ class GrotrianWidget:
                 / (merged_max_energy_level - energy_lower)
             )
 
+            # Get the appropriate y-coordinate (computed in _draw_energy_levels)
+            y_lower = self.level_data.loc[lower].y_coord
+            y_upper = self.level_data.loc[upper].y_coord
+
             # Get the end arrow color (proportional to log wavelength)
             color = matplotlib.colors.rgb2hex(
                 self.cmap(
@@ -534,7 +556,9 @@ class GrotrianWidget:
             self.fig.add_trace(
                 go.Scatter(
                     x=[self.x_min, x_end],
-                    y=[lower, upper] if is_excitation else [upper, lower],
+                    y=[y_lower, y_upper]
+                    if is_excitation
+                    else [y_upper, y_lower],
                     hovertemplate=f"Count: {int(line_info.num_electrons)}<br>"
                     + f"Wavelength: {wavelength:.2e} {ANGSTROM_SYMBOL}"
                     + "<extra></extra>",
@@ -659,7 +683,7 @@ class GrotrianWidget:
             width=700,
             height=700,
             xaxis=dict(showticklabels=False, showgrid=False, automargin=True),
-            yaxis=dict(title="Level Number", showgrid=False, range=[0, None]),
+            yaxis=dict(title="Energy (eV)", showgrid=False, range=[0, None]),
             margin=dict(),
             showlegend=False,
         )
@@ -669,16 +693,19 @@ class GrotrianWidget:
         ### Create energy level platforms in the figure
         self._draw_energy_levels()
 
+        # Update y-ticks to reflect actual energy instead of log energies
+        self.fig.update_yaxes(
+            tickmode="array",
+            tickvals=self.level_data.y_coord,
+            ticktext=[f"{energy:.2e}" for energy in self.level_data.energy],
+            row=1,
+            col=1,
+        )
+
         ### Create transition lines
         self._draw_transitions(is_excitation=True)
         self._draw_transitions(is_excitation=False)
         self._draw_transition_width_scale()
-
-        self.fig.add_trace(
-            go.Scatter(x=[0, 1], y=[1, 1], mode="none", hoverinfo="none"),
-            row=1,
-            col=2,
-        )
 
         # Add a dummy Scatter trace to display colorbar
         tickvals = np.geomspace(self.min_wavelength, self.max_wavelength, 5)
