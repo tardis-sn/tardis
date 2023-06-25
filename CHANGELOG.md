@@ -1,5 +1,14 @@
 ## Change Log
 
+### release-2023.06.25 (2023/06/25 16:43 +00:00)
+- [#2339](https://github.com/tardis-sn/tardis/pull/2339) Pre-release 2023.06.25 (#2339) (@tardis-bot)
+- [#2337](https://github.com/tardis-sn/tardis/pull/2337) Seperate the last iteration from Simulation.run() (#2337) (@xansh)
+- [#2219](https://github.com/tardis-sn/tardis/pull/2219) Remove dead (unused) fixtures (#2219) (@xansh)
+- [#2336](https://github.com/tardis-sn/tardis/pull/2336) Fix doc failure after restructuring packet source seed (#2336) (@xansh)
+- [#2329](https://github.com/tardis-sn/tardis/pull/2329) Move packet seeds logic into PacketSource instead of MontecarloTransport (#2329) (@xansh)
+- [#2326](https://github.com/tardis-sn/tardis/pull/2326) Track bf and ff opacities with vpackets (#2326) (@ymatsumu)
+- [#2334](https://github.com/tardis-sn/tardis/pull/2334) Post-release 2023.06.18 (#2334) (@tardis-bot)
+
 ### release-2023.06.18 (2023/06/18 00:48 +00:00)
 - [#2333](https://github.com/tardis-sn/tardis/pull/2333) Pre-release 2023.06.18 (#2333) (@tardis-bot)
 - [#2311](https://github.com/tardis-sn/tardis/pull/2311) Make nthreads a property of MontecarloRunner instead of Simulation class (#2311) (@xansh)
@@ -322,8 +331,6 @@
 - [#1799](https://github.com/tardis-sn/tardis/pull/1799) Bug fixes and Improvements in Custom Abundance Widget (#1799) (@yuyizheng1112)
 - [#1803](https://github.com/tardis-sn/tardis/pull/1803) Option to make docs build in parallel (#1803) (@smithis7)
 - [#1817](https://github.com/tardis-sn/tardis/pull/1817) Fixing SDEC docs page (#1817) (@smithis7)
-
-### release-2021.11.7 (2021/10/31 23:43 +00:00)
 - [#1821](https://github.com/tardis-sn/tardis/pull/1821) remove numexpr  (#1821) (@wkerzendorf)
 - [#1788](https://github.com/tardis-sn/tardis/pull/1788) Add cmap option to specify the colormap of abundance plot (#1788) (@yuyizheng1112)
 - [#1801](https://github.com/tardis-sn/tardis/pull/1801) Cleaning up docs build (#1801) (@smithis7)
