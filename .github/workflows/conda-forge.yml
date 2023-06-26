@@ -46,3 +46,28 @@ jobs:
 
       - name: Install conda-forge package
         run: ${{ matrix.pkgman }} install tardis-sn -c conda-forge
+
+  notify:
+    if: ${{ always() }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send custom JSON data to Slack workflow
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "conda-forge package installation: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "conda-forge package installation: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
