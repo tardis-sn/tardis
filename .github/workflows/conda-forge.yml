@@ -10,6 +10,9 @@ on:
 
   workflow_dispatch:  # manual trigger
 
+  pull_request:
+    branches: [master]
+
 defaults:
   run:
     shell: bash -l {0}
