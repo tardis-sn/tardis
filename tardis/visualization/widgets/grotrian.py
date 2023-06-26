@@ -687,17 +687,23 @@ class GrotrianWidget:
             margin=dict(),
             showlegend=False,
         )
-        self.fig.update_yaxes(showticklabels=False, row=1, col=2)
-        self.fig.update_xaxes(showticklabels=False, row=1, col=2)
+        self.fig.update_yaxes(
+            showticklabels=False, fixedrange=True, row=1, col=2
+        )
+        self.fig.update_xaxes(
+            showticklabels=False, fixedrange=True, row=1, col=2
+        )
 
         ### Create energy level platforms in the figure
         self._draw_energy_levels()
 
         # Update y-ticks to reflect actual energy instead of log energies
+        self.fig.update_xaxes(fixedrange=True, row=1, col=1)
         self.fig.update_yaxes(
             tickmode="array",
             tickvals=self.level_data.y_coord,
             ticktext=[f"{energy:.2e}" for energy in self.level_data.energy],
+            fixedrange=True,
             row=1,
             col=1,
         )
