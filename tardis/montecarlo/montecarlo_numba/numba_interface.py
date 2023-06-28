@@ -421,7 +421,7 @@ rpacket_tracker_spec = [
     ("energy", float64[:]),
     ("shell_id", int64[:]),
     ("interaction_type", int64[:]),
-    ("interact_id", int64),
+    ("num_interactions", int64),
 ]
 
 
@@ -452,7 +452,7 @@ class RPacketTracker(object):
             Current Shell No in which the RPacket is present
         interaction_type: int
             Type of interaction the rpacket undergoes
-        interact_id : int
+        num_interactions : int
             Internal counter for the interactions that a particular RPacket undergoes
     """
 
@@ -467,10 +467,10 @@ class RPacketTracker(object):
         self.energy = np.empty(self.length, dtype=np.float64)
         self.shell_id = np.empty(self.length, dtype=np.int64)
         self.interaction_type = np.empty(self.length, dtype=np.int64)
-        self.interact_id = 0
+        self.num_interactions = 0
 
     def track(self, r_packet):
-        if self.interact_id >= self.length:
+        if self.num_interactions >= self.length:
             temp_length = self.length * 2
             temp_status = np.empty(temp_length, dtype=np.int64)
             temp_r = np.empty(temp_length, dtype=np.float64)
@@ -499,23 +499,25 @@ class RPacketTracker(object):
 
         self.index = r_packet.index
         self.seed = r_packet.seed
-        self.status[self.interact_id] = r_packet.status
-        self.r[self.interact_id] = r_packet.r
-        self.nu[self.interact_id] = r_packet.nu
-        self.mu[self.interact_id] = r_packet.mu
-        self.energy[self.interact_id] = r_packet.energy
-        self.shell_id[self.interact_id] = r_packet.current_shell_id
-        self.interaction_type[self.interact_id] = r_packet.last_interaction_type
-        self.interact_id += 1
+        self.status[self.num_interactions] = r_packet.status
+        self.r[self.num_interactions] = r_packet.r
+        self.nu[self.num_interactions] = r_packet.nu
+        self.mu[self.num_interactions] = r_packet.mu
+        self.energy[self.num_interactions] = r_packet.energy
+        self.shell_id[self.num_interactions] = r_packet.current_shell_id
+        self.interaction_type[
+            self.num_interactions
+        ] = r_packet.last_interaction_type
+        self.num_interactions += 1
 
     def finalize_array(self):
-        self.status = self.status[: self.interact_id]
-        self.r = self.r[: self.interact_id]
-        self.nu = self.nu[: self.interact_id]
-        self.mu = self.mu[: self.interact_id]
-        self.energy = self.energy[: self.interact_id]
-        self.shell_id = self.shell_id[: self.interact_id]
-        self.interaction_type = self.interaction_type[: self.interact_id]
+        self.status = self.status[: self.num_interactions]
+        self.r = self.r[: self.num_interactions]
+        self.nu = self.nu[: self.num_interactions]
+        self.mu = self.mu[: self.num_interactions]
+        self.energy = self.energy[: self.num_interactions]
+        self.shell_id = self.shell_id[: self.num_interactions]
+        self.interaction_type = self.interaction_type[: self.num_interactions]
 
 
 base_estimators_spec = [
