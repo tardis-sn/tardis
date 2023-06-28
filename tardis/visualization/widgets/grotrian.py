@@ -426,7 +426,7 @@ class GrotrianWidget:
                     showlegend=False,
                 ),
                 row=1,
-                col=1,
+                col=2,
             )
 
             # Add label for energy
@@ -435,7 +435,7 @@ class GrotrianWidget:
                 y=level_info.y_coord,
                 text=f"n={level_number}",
                 showarrow=False,
-                xref="x1",
+                xref="x2",
             )
 
         ### Create width scale
@@ -477,16 +477,16 @@ class GrotrianWidget:
                 x1=0.3,
                 y0=y_pos,
                 y1=y_pos,
-                xref="x2",
-                yref="y2",
+                xref="x1",
+                yref="y1",
             )
             self.fig.add_annotation(
                 x=0.5,
                 y=y_pos,
                 text=f"{population:.1e}",
                 showarrow=False,
-                xref="x2",
-                yref="y2",
+                xref="x1",
+                yref="y1",
             )
         # Add title of the width bar
         self.fig.add_annotation(
@@ -494,8 +494,8 @@ class GrotrianWidget:
             y=-0.05,
             text="Populations",
             showarrow=False,
-            xref="x2",
-            yref="y2",
+            xref="x1",
+            yref="y1",
         )
 
         # Add separator
@@ -507,8 +507,8 @@ class GrotrianWidget:
             x1=0.7,
             y0=0,
             y1=1,
-            xref="x2",
-            yref="y2",
+            xref="x1",
+            yref="y1",
         )
 
     def _draw_transitions(self, is_excitation):
@@ -576,7 +576,7 @@ class GrotrianWidget:
                     ),
                 ),
                 row=1,
-                col=1,
+                col=2,
             )
 
     def _draw_transition_width_scale(self):
@@ -640,16 +640,16 @@ class GrotrianWidget:
                 x1=0.95,
                 y0=y_pos,
                 y1=y_pos,
-                xref="x2",
-                yref="y2",
+                xref="x1",
+                yref="y1",
             )
             self.fig.add_annotation(
                 x=1.15,
                 y=y_pos,
                 text=f"{num_electrons:.1e}",
                 showarrow=False,
-                xref="x2",
-                yref="y2",
+                xref="x1",
+                yref="y1",
             )
         # Add title of the width bar
         self.fig.add_annotation(
@@ -657,8 +657,8 @@ class GrotrianWidget:
             y=-0.05,
             text="#Packets",
             showarrow=False,
-            xref="x2",
-            yref="y2",
+            xref="x1",
+            yref="y1",
         )
 
     def display(self):
@@ -669,9 +669,9 @@ class GrotrianWidget:
         self.fig = make_subplots(
             rows=1,
             cols=2,
-            column_width=[0.6, 0.4],
+            column_width=[0.4, 0.6],
             specs=[[{}, {}]],
-            horizontal_spacing=0.05,
+            horizontal_spacing=0.15,
         )
 
         # Update fig layout
@@ -688,24 +688,24 @@ class GrotrianWidget:
             showlegend=False,
         )
         self.fig.update_yaxes(
-            showticklabels=False, fixedrange=True, row=1, col=2
+            showticklabels=False, fixedrange=True, row=1, col=1
         )
         self.fig.update_xaxes(
-            showticklabels=False, fixedrange=True, row=1, col=2
+            showticklabels=False, fixedrange=True, row=1, col=1
         )
 
         ### Create energy level platforms in the figure
         self._draw_energy_levels()
 
         # Update y-ticks to reflect actual energy instead of log energies
-        self.fig.update_xaxes(fixedrange=True, row=1, col=1)
+        self.fig.update_xaxes(fixedrange=True, row=1, col=2)
         self.fig.update_yaxes(
             tickmode="array",
             tickvals=self.level_data.y_coord,
             ticktext=[f"{energy:.2e}" for energy in self.level_data.energy],
             fixedrange=True,
             row=1,
-            col=1,
+            col=2,
         )
 
         ### Create transition lines
