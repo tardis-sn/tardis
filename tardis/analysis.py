@@ -16,8 +16,9 @@ class LastLineInteraction(object):
     def from_model(cls, model, packet_filter_mode="packet_out_nu"):
         return cls(
             model.transport.last_line_interaction_in_id,
+            model.transport.last_line_interaction_in_shell_id,
             model.transport.last_line_interaction_out_id,
-            model.transport.last_line_interaction_shell_id,
+            model.transport.last_line_interaction_out_shell_id,
             model.transport.output_nu,
             model.transport.last_interaction_in_nu,
             model.plasma.atomic_data.lines,
@@ -27,8 +28,9 @@ class LastLineInteraction(object):
     def __init__(
         self,
         last_line_interaction_in_id,
+        last_line_interaction_in_shell_id,
         last_line_interaction_out_id,
-        last_line_interaction_shell_id,
+        last_line_interaction_out_shell_id,
         output_nu,
         input_nu,
         lines,
@@ -38,10 +40,13 @@ class LastLineInteraction(object):
         # TODO mask out packets which do not escape to observer?
         mask = last_line_interaction_out_id != -1
         self.last_line_interaction_in_id = last_line_interaction_in_id[mask]
+        self.last_line_interaction_in_shell_id = (
+            last_line_interaction_in_shell_id[mask]
+        )
         self.last_line_interaction_out_id = last_line_interaction_out_id[mask]
-        self.last_line_interaction_shell_id = last_line_interaction_shell_id[
-            mask
-        ]
+        self.last_line_interaction_out_shell_id = (
+            last_line_interaction_out_shell_id[mask]
+        )
         self.last_line_interaction_out_angstrom = u.Quantity(
             output_nu[mask], "Hz"
         ).to(u.Angstrom, equivalencies=u.spectral())
@@ -98,9 +103,13 @@ class LastLineInteraction(object):
         self._ion_number = value
         self.update_last_interaction_filter()
 
-    def set_ion(self, atomic_number, ion_number):
-        self._atomic_number = atomic_number
-        self._ion_number = ion_number
+    @property
+    def shell(self):
+        return self._shell
+
+    @shell.setter
+    def shell(self, value):
+        self._shell = value
         self.update_last_interaction_filter()
 
     def update_last_interaction_filter(self):
@@ -109,10 +118,20 @@ class LastLineInteraction(object):
                 self.last_line_interaction_out_angstrom > self.wavelength_start
             ) & (self.last_line_interaction_out_angstrom < self.wavelength_end)
 
+            if self.shell is not None:
+                packet_filter = packet_filter & (
+                    self.last_line_interaction_out_shell_id == self.shell
+                )
+
         elif self.packet_filter_mode == "packet_in_nu":
             packet_filter = (
                 self.last_line_interaction_in_angstrom > self.wavelength_start
             ) & (self.last_line_interaction_in_angstrom < self.wavelength_end)
+
+            if self.shell is not None:
+                packet_filter = packet_filter & (
+                    self.last_line_interaction_in_shell_id == self.shell
+                )
 
         elif self.packet_filter_mode == "line_in_nu":
             line_in_nu = self.lines.wavelength.iloc[
@@ -122,15 +141,15 @@ class LastLineInteraction(object):
                 line_in_nu > self.wavelength_start.to(u.angstrom).value
             ) & (line_in_nu < self.wavelength_end.to(u.angstrom).value)
 
+            if self.shell is not None:
+                packet_filter = packet_filter & (
+                    self.last_line_interaction_in_shell_id == self.shell
+                )
+
         else:
             raise ValueError(
                 "Invalid value of packet_filter_mode. The only values "
                 "allowed are: packet_out_nu, packet_in_nu, line_in_nu"
-            )
-
-        if self.shell is not None:
-            packet_filter = packet_filter & (
-                self.last_line_interaction_shell_id == self.shell
             )
 
         self.last_line_in = self.lines.iloc[
@@ -437,11 +456,14 @@ class TARDISHistory(object):
         last_line_interaction_in_id = hdf_store[
             model_string % "last_line_interaction_in_id"
         ].values
+        last_line_interaction_in_shell_id = hdf_store[
+            model_string % "last_line_interaction_in_shell_id"
+        ].values
         last_line_interaction_out_id = hdf_store[
             model_string % "last_line_interaction_out_id"
         ].values
-        last_line_interaction_shell_id = hdf_store[
-            model_string % "last_line_interaction_shell_id"
+        last_line_interaction_out_shell_id = hdf_store[
+            model_string % "last_line_interaction_out_shell_id"
         ].values
         try:
             montecarlo_nu = hdf_store[
@@ -452,8 +474,9 @@ class TARDISHistory(object):
         hdf_store.close()
         return LastLineInteraction(
             last_line_interaction_in_id,
+            last_line_interaction_in_shell_id,
             last_line_interaction_out_id,
-            last_line_interaction_shell_id,
+            last_line_interaction_out_shell_id,
             montecarlo_nu,
             self.lines,
         )

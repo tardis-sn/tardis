@@ -309,8 +309,9 @@ vpacket_collection_spec = [
     ("last_interaction_in_nu", float64[:]),
     ("last_interaction_type", int64[:]),
     ("last_interaction_in_id", int64[:]),
+    ("last_interaction_in_shell_id", int64[:]),
     ("last_interaction_out_id", int64[:]),
-    ("last_interaction_shell_id", int64[:]),
+    ("last_interaction_out_shell_id", int64[:]),
 ]
 
 
@@ -342,10 +343,13 @@ class VPacketCollection(object):
         self.last_interaction_in_id = -1 * np.ones(
             temporary_v_packet_bins, dtype=np.int64
         )
+        self.last_interaction_in_shell_id = -1 * np.ones(
+            temporary_v_packet_bins, dtype=np.int64
+        )
         self.last_interaction_out_id = -1 * np.ones(
             temporary_v_packet_bins, dtype=np.int64
         )
-        self.last_interaction_shell_id = -1 * np.ones(
+        self.last_interaction_out_shell_id = -1 * np.ones(
             temporary_v_packet_bins, dtype=np.int64
         )
         self.idx = 0
@@ -361,8 +365,9 @@ class VPacketCollection(object):
         last_interaction_in_nu,
         last_interaction_type,
         last_interaction_in_id,
+        last_interaction_in_shell_id,
         last_interaction_out_id,
-        last_interaction_shell_id,
+        last_interaction_out_shell_id,
     ):
         if self.idx >= self.length:
             temp_length = self.length * 2 + self.number_of_vpackets
@@ -375,8 +380,11 @@ class VPacketCollection(object):
             )
             temp_last_interaction_type = np.empty(temp_length, dtype=np.int64)
             temp_last_interaction_in_id = np.empty(temp_length, dtype=np.int64)
+            temp_last_interaction_in_shell_id = np.empty(
+                temp_length, dtype=np.int64
+            )
             temp_last_interaction_out_id = np.empty(temp_length, dtype=np.int64)
-            temp_last_interaction_shell_id = np.empty(
+            temp_last_interaction_out_shell_id = np.empty(
                 temp_length, dtype=np.int64
             )
 
@@ -393,12 +401,15 @@ class VPacketCollection(object):
             temp_last_interaction_in_id[
                 : self.length
             ] = self.last_interaction_in_id
+            temp_last_interaction_in_shell_id[
+                : self.length
+            ] = self.last_interaction_in_shell_id
             temp_last_interaction_out_id[
                 : self.length
             ] = self.last_interaction_out_id
-            temp_last_interaction_shell_id[
+            temp_last_interaction_out_shell_id[
                 : self.length
-            ] = self.last_interaction_shell_id
+            ] = self.last_interaction_out_shell_id
 
             self.nus = temp_nus
             self.energies = temp_energies
@@ -407,8 +418,13 @@ class VPacketCollection(object):
             self.last_interaction_in_nu = temp_last_interaction_in_nu
             self.last_interaction_type = temp_last_interaction_type
             self.last_interaction_in_id = temp_last_interaction_in_id
+            self.last_interaction_in_shell_id = (
+                temp_last_interaction_in_shell_id
+            )
             self.last_interaction_out_id = temp_last_interaction_out_id
-            self.last_interaction_shell_id = temp_last_interaction_shell_id
+            self.last_interaction_out_shell_id = (
+                temp_last_interaction_out_shell_id
+            )
             self.length = temp_length
 
         self.nus[self.idx] = nu
@@ -418,8 +434,13 @@ class VPacketCollection(object):
         self.last_interaction_in_nu[self.idx] = last_interaction_in_nu
         self.last_interaction_type[self.idx] = last_interaction_type
         self.last_interaction_in_id[self.idx] = last_interaction_in_id
+        self.last_interaction_in_shell_id[
+            self.idx
+        ] = last_interaction_in_shell_id
         self.last_interaction_out_id[self.idx] = last_interaction_out_id
-        self.last_interaction_shell_id[self.idx] = last_interaction_shell_id
+        self.last_interaction_out_shell_id[
+            self.idx
+        ] = last_interaction_out_shell_id
         self.idx += 1
 
 

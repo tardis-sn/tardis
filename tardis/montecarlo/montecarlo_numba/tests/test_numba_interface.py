@@ -71,8 +71,9 @@ def test_VPacketCollection_set_properties(verysimple_3vpacket_collection):
     )
     last_interaction_types = np.array([1, 1, 3, 2], dtype=np.int64)
     last_interaction_in_ids = np.array([100, 0, 1, 1000], dtype=np.int64)
+    last_interaction_in_shell_ids = np.array([-1, 0, 4, 5], dtype=np.int64)
     last_interaction_out_ids = np.array([1201, 123, 545, 1232], dtype=np.int64)
-    last_interaction_shell_ids = np.array([2, -1, 6, 0], dtype=np.int64)
+    last_interaction_out_shell_ids = np.array([2, -1, 6, 0], dtype=np.int64)
 
     for (
         nu,
@@ -82,8 +83,9 @@ def test_VPacketCollection_set_properties(verysimple_3vpacket_collection):
         last_interaction_in_nu,
         last_interaction_type,
         last_interaction_in_id,
+        last_interaction_in_shell_id,
         last_interaction_out_id,
-        last_interaction_shell_id,
+        last_interaction_out_shell_id,
     ) in zip(
         nus,
         energies,
@@ -92,8 +94,9 @@ def test_VPacketCollection_set_properties(verysimple_3vpacket_collection):
         last_interaction_in_nus,
         last_interaction_types,
         last_interaction_in_ids,
+        last_interaction_in_shell_ids,
         last_interaction_out_ids,
-        last_interaction_shell_ids,
+        last_interaction_out_shell_ids,
     ):
         verysimple_3vpacket_collection.set_properties(
             nu,
@@ -103,8 +106,9 @@ def test_VPacketCollection_set_properties(verysimple_3vpacket_collection):
             last_interaction_in_nu,
             last_interaction_type,
             last_interaction_in_id,
+            last_interaction_in_shell_id,
             last_interaction_out_id,
-            last_interaction_shell_id,
+            last_interaction_out_shell_id,
         )
 
     npt.assert_array_equal(
@@ -150,15 +154,21 @@ def test_VPacketCollection_set_properties(verysimple_3vpacket_collection):
         last_interaction_in_ids,
     )
     npt.assert_array_equal(
+        verysimple_3vpacket_collection.last_interaction_in_shell_id[
+            : verysimple_3vpacket_collection.idx
+        ],
+        last_interaction_in_shell_ids,
+    )
+    npt.assert_array_equal(
         verysimple_3vpacket_collection.last_interaction_out_id[
             : verysimple_3vpacket_collection.idx
         ],
         last_interaction_out_ids,
     )
     npt.assert_array_equal(
-        verysimple_3vpacket_collection.last_interaction_shell_id[
+        verysimple_3vpacket_collection.last_interaction_out_shell_id[
             : verysimple_3vpacket_collection.idx
         ],
-        last_interaction_shell_ids,
+        last_interaction_out_shell_ids,
     )
     assert verysimple_3vpacket_collection.length == 9

@@ -20,12 +20,16 @@ quantity_comparison = [
         "transport.last_line_interaction_in_id",
     ),
     (
+        "/simulation/transport/last_line_interaction_in_shell_id",
+        "transport.last_line_interaction_in_shell_id",
+    ),
+    (
         "/simulation/transport/last_line_interaction_out_id",
         "transport.last_line_interaction_out_id",
     ),
     (
-        "/simulation/transport/last_line_interaction_shell_id",
-        "transport.last_line_interaction_shell_id",
+        "/simulation/transport/last_line_interaction_out_shell_id",
+        "transport.last_line_interaction_out_shell_id",
     ),
     ("/simulation/plasma/j_blues", "plasma.j_blues"),
     ("/simulation/plasma/j_blue_estimator", "plasma.j_blue_estimator"),
