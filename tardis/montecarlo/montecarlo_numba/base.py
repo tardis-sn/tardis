@@ -79,9 +79,8 @@ def montecarlo_radial1d(
         last_interaction_type,
         last_interaction_in_nu,
         last_line_interaction_in_id,
-        last_line_interaction_in_shell_id,
         last_line_interaction_out_id,
-        last_line_interaction_out_shell_id,
+        last_line_interaction_shell_id,
         virt_packet_nus,
         virt_packet_energies,
         virt_packet_initial_mus,
@@ -89,9 +88,8 @@ def montecarlo_radial1d(
         virt_packet_last_interaction_in_nu,
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
-        virt_packet_last_line_interaction_in_shell_id,
         virt_packet_last_line_interaction_out_id,
-        virt_packet_last_line_interaction_out_shell_id,
+        virt_packet_last_line_interaction_shell_id,
         rpacket_trackers,
     ) = montecarlo_main_loop(
         packet_collection,
@@ -112,13 +110,8 @@ def montecarlo_radial1d(
     transport.last_interaction_type = last_interaction_type
     transport.last_interaction_in_nu = last_interaction_in_nu
     transport.last_line_interaction_in_id = last_line_interaction_in_id
-    transport.last_line_interaction_in_shell_id = (
-        last_line_interaction_in_shell_id
-    )
     transport.last_line_interaction_out_id = last_line_interaction_out_id
-    transport.last_line_interaction_out_shell_id = (
-        last_line_interaction_out_shell_id
-    )
+    transport.last_line_interaction_shell_id = last_line_interaction_shell_id
 
     if montecarlo_configuration.VPACKET_LOGGING and number_of_vpackets > 0:
         transport.virt_packet_nus = np.concatenate(virt_packet_nus).ravel()
@@ -140,19 +133,12 @@ def montecarlo_radial1d(
         transport.virt_packet_last_line_interaction_in_id = np.concatenate(
             virt_packet_last_line_interaction_in_id
         ).ravel()
-        transport.virt_packet_last_line_interaction_in_shell_id = (
-            np.concatenate(
-                virt_packet_last_line_interaction_in_shell_id
-            ).ravel()
-        )
         transport.virt_packet_last_line_interaction_out_id = np.concatenate(
             virt_packet_last_line_interaction_out_id
         ).ravel()
-        transport.virt_packet_last_line_interaction_out_shell_id = (
-            np.concatenate(
-                virt_packet_last_line_interaction_out_shell_id
-            ).ravel()
-        )
+        transport.virt_packet_last_line_interaction_shell_id = np.concatenate(
+            virt_packet_last_line_interaction_shell_id
+        ).ravel()
     update_iterations_pbar(1)
     refresh_packet_pbar()
     # Condition for Checking if RPacket Tracking is enabled
@@ -205,13 +191,10 @@ def montecarlo_main_loop(
     last_line_interaction_in_ids = (
         np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
     )
-    last_line_interaction_in_shell_ids = (
-        np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
-    )
     last_line_interaction_out_ids = (
         np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
     )
-    last_line_interaction_out_shell_ids = (
+    last_line_interaction_shell_ids = (
         np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
     )
 
@@ -264,9 +247,8 @@ def montecarlo_main_loop(
     virt_packet_last_interaction_in_nu = []
     virt_packet_last_interaction_type = []
     virt_packet_last_line_interaction_in_id = []
-    virt_packet_last_line_interaction_in_shell_id = []
     virt_packet_last_line_interaction_out_id = []
-    virt_packet_last_line_interaction_out_shell_id = []
+    virt_packet_last_line_interaction_shell_id = []
     for i in prange(len(output_nus)):
         tid = get_thread_id()
         if show_progress_bars:
@@ -307,13 +289,10 @@ def montecarlo_main_loop(
         output_nus[i] = r_packet.nu
         last_interaction_in_nus[i] = r_packet.last_interaction_in_nu
         last_line_interaction_in_ids[i] = r_packet.last_line_interaction_in_id
-        last_line_interaction_in_shell_ids[
-            i
-        ] = r_packet.last_line_interaction_in_shell_id
         last_line_interaction_out_ids[i] = r_packet.last_line_interaction_out_id
-        last_line_interaction_out_shell_ids[
+        last_line_interaction_shell_ids[
             i
-        ] = r_packet.last_line_interaction_out_shell_id
+        ] = r_packet.last_line_interaction_shell_id
 
         if r_packet.status == PacketStatus.REABSORBED:
             output_energies[i] = -r_packet.energy
@@ -386,13 +365,6 @@ def montecarlo_main_loop(
                     ]
                 )
             )
-            virt_packet_last_line_interaction_in_shell_id.append(
-                np.ascontiguousarray(
-                    vpacket_collection.last_interaction_in_shell_id[
-                        : vpacket_collection.idx
-                    ]
-                )
-            )
             virt_packet_last_line_interaction_out_id.append(
                 np.ascontiguousarray(
                     vpacket_collection.last_interaction_out_id[
@@ -400,9 +372,9 @@ def montecarlo_main_loop(
                     ]
                 )
             )
-            virt_packet_last_line_interaction_out_shell_id.append(
+            virt_packet_last_line_interaction_shell_id.append(
                 np.ascontiguousarray(
-                    vpacket_collection.last_interaction_out_shell_id[
+                    vpacket_collection.last_interaction_shell_id[
                         : vpacket_collection.idx
                     ]
                 )
@@ -419,9 +391,8 @@ def montecarlo_main_loop(
         last_interaction_types,
         last_interaction_in_nus,
         last_line_interaction_in_ids,
-        last_line_interaction_in_shell_ids,
         last_line_interaction_out_ids,
-        last_line_interaction_out_shell_ids,
+        last_line_interaction_shell_ids,
         virt_packet_nus,
         virt_packet_energies,
         virt_packet_initial_mus,
@@ -429,8 +400,7 @@ def montecarlo_main_loop(
         virt_packet_last_interaction_in_nu,
         virt_packet_last_interaction_type,
         virt_packet_last_line_interaction_in_id,
-        virt_packet_last_line_interaction_in_shell_id,
         virt_packet_last_line_interaction_out_id,
-        virt_packet_last_line_interaction_out_shell_id,
+        virt_packet_last_line_interaction_shell_id,
         rpacket_trackers,
     )

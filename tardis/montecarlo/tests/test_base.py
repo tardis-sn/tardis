@@ -26,9 +26,8 @@ transport_properties = [
     "last_interaction_in_nu",
     "last_interaction_type",
     "last_line_interaction_in_id",
-    "last_line_interaction_in_shell_id",
     "last_line_interaction_out_id",
-    "last_line_interaction_out_shell_id",
+    "last_line_interaction_shell_id",
     "packet_luminosity",
 ]
 

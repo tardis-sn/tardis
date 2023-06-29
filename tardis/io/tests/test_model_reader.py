@@ -335,16 +335,12 @@ def test_store_transport_to_hdf(simulation_verysimple, tmp_path):
             transport_data["last_line_interaction_in_id"],
         )
         assert np.array_equal(
-            f["transport/last_line_interaction_in_shell_id"],
-            transport_data["last_line_interaction_in_shell_id"],
-        )
-        assert np.array_equal(
             f["transport/last_line_interaction_out_id"],
             transport_data["last_line_interaction_out_id"],
         )
         assert np.array_equal(
-            f["transport/last_line_interaction_out_shell_id"],
-            transport_data["last_line_interaction_out_shell_id"],
+            f["transport/last_line_interaction_shell_id"],
+            transport_data["last_line_interaction_shell_id"],
         )
         if hasattr(f["transport/line_interaction_type"][()], "decode"):
             assert (
@@ -437,16 +433,12 @@ def test_store_transport_to_hdf(simulation_verysimple, tmp_path):
             transport_data["virt_packet_last_line_interaction_in_id"],
         )
         assert np.array_equal(
-            f["transport/virt_packet_last_line_interaction_in_shell_id"],
-            transport_data["virt_packet_last_line_interaction_in_shell_id"],
-        )
-        assert np.array_equal(
             f["transport/virt_packet_last_line_interaction_out_id"],
             transport_data["virt_packet_last_line_interaction_out_id"],
         )
         assert np.array_equal(
-            f["transport/virt_packet_last_line_interaction_out_shell_id"],
-            transport_data["virt_packet_last_line_interaction_out_shell_id"],
+            f["transport/virt_packet_last_line_interaction_shell_id"],
+            transport_data["virt_packet_last_line_interaction_shell_id"],
         )
         assert np.array_equal(
             f["transport/virt_packet_nus"], transport_data["virt_packet_nus"]
