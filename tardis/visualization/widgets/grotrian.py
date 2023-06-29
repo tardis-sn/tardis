@@ -758,7 +758,7 @@ class GrotrianWidget:
 
         # Update fig layout
         self.fig.update_layout(
-            title=f"Grotrian Diagram for {self.atomic_name} {int_to_roman(self.ion_number + 1)}",
+            title=f"Grotrian Diagram for {self.atomic_name} {int_to_roman(self.ion_number + 1)} (Shell: {self.shell if self.shell is not None else 'All'})",
             title_x=0.5,
             plot_bgcolor="white",
             autosize=False,
