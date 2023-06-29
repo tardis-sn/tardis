@@ -242,6 +242,12 @@ class GrotrianWidget:
     def shell(self):
         return self._shell
 
+    @shell.setter
+    def shell(self, value):
+        self._shell = value
+        self._compute_level_data()
+        self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "_compute_transitions()" explicitly
+
     def _compute_transitions(self):
         """
         Computes the excitation/de-excitation line transition data for the arrows in the widget
@@ -250,6 +256,7 @@ class GrotrianWidget:
         self.line_interaction_analysis[self.filter_mode].set_ion(
             self.atomic_number, self.ion_number
         )
+        self.line_interaction_analysis[self.filter_mode].shell = self.shell
 
         ### Get the excitation/de-excitation transitions from LastLineInteraction object
         excit_lines = (

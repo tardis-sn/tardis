@@ -103,6 +103,11 @@ class LastLineInteraction(object):
         self._ion_number = value
         self.update_last_interaction_filter()
 
+    def set_ion(self, atomic_number, ion_number):
+        self._atomic_number = atomic_number
+        self._ion_number = ion_number
+        self.update_last_interaction_filter()
+
     @property
     def shell(self):
         return self._shell
