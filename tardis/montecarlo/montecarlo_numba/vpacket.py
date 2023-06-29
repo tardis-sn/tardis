@@ -333,7 +333,6 @@ def trace_vpacket_volley(
             r_packet.last_interaction_in_nu,
             r_packet.last_interaction_type,
             r_packet.last_line_interaction_in_id,
-            r_packet.last_line_interaction_in_shell_id,
             r_packet.last_line_interaction_out_id,
-            r_packet.last_line_interaction_out_shell_id,
+            r_packet.last_line_interaction_shell_id,
         )

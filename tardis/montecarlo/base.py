@@ -46,9 +46,8 @@ class MontecarloTransport(HDFWriterMixin):
         "last_interaction_in_nu",
         "last_interaction_type",
         "last_line_interaction_in_id",
-        "last_line_interaction_in_shell_id",
         "last_line_interaction_out_id",
-        "last_line_interaction_out_shell_id",
+        "last_line_interaction_shell_id",
         "packet_luminosity",
         "spectrum",
         "spectrum_virtual",
@@ -65,9 +64,8 @@ class MontecarloTransport(HDFWriterMixin):
         "virt_packet_last_interaction_in_nu",
         "virt_packet_last_interaction_type",
         "virt_packet_last_line_interaction_in_id",
-        "virt_packet_last_line_interaction_in_shell_id",
         "virt_packet_last_line_interaction_out_id",
-        "virt_packet_last_line_interaction_out_shell_id",
+        "virt_packet_last_line_interaction_shell_id",
     ]
 
     hdf_name = "transport"
@@ -122,9 +120,8 @@ class MontecarloTransport(HDFWriterMixin):
         self.virt_packet_last_interaction_type = np.ones(2) * -1
         self.virt_packet_last_interaction_in_nu = np.ones(2) * -1.0
         self.virt_packet_last_line_interaction_in_id = np.ones(2) * -1
-        self.virt_packet_last_line_interaction_in_shell_id = np.ones(2) * -1
         self.virt_packet_last_line_interaction_out_id = np.ones(2) * -1
-        self.virt_packet_last_line_interaction_out_shell_id = np.ones(2) * -1
+        self.virt_packet_last_line_interaction_shell_id = np.ones(2) * -1
         self.virt_packet_nus = np.ones(2) * -1.0
         self.virt_packet_energies = np.ones(2) * -1.0
         self.virt_packet_initial_rs = np.ones(2) * -1.0
@@ -231,13 +228,10 @@ class MontecarloTransport(HDFWriterMixin):
         self.last_line_interaction_in_id = -1 * np.ones(
             no_of_packets, dtype=np.int64
         )
-        self.last_line_interaction_in_shell_id = -1 * np.ones(
-            no_of_packets, dtype=np.int64
-        )
         self.last_line_interaction_out_id = -1 * np.ones(
             no_of_packets, dtype=np.int64
         )
-        self.last_line_interaction_out_shell_id = -1 * np.ones(
+        self.last_line_interaction_shell_id = -1 * np.ones(
             no_of_packets, dtype=np.int64
         )
         self.last_interaction_type = -1 * np.ones(no_of_packets, dtype=np.int64)
