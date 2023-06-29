@@ -42,7 +42,9 @@ rpacket_spec = [
     ("last_interaction_type", int64),
     ("last_interaction_in_nu", float64),
     ("last_line_interaction_in_id", int64),
+    ("last_line_interaction_in_shell_id", int64),
     ("last_line_interaction_out_id", int64),
+    ("last_line_interaction_out_shell_id", int64),
 ]
 
 
@@ -60,7 +62,9 @@ class RPacket(object):
         self.last_interaction_type = -1
         self.last_interaction_in_nu = 0.0
         self.last_line_interaction_in_id = -1
+        self.last_line_interaction_in_shell_id = -1
         self.last_line_interaction_out_id = -1
+        self.last_line_interaction_out_shell_id = -1
 
     def initialize_line_id(self, numba_plasma, numba_model):
         inverse_line_list_nu = numba_plasma.line_list_nu[::-1]

@@ -574,8 +574,9 @@ def transport_to_dict(transport):
         "last_interaction_in_nu": transport.last_interaction_in_nu,
         "last_interaction_type": transport.last_interaction_type,
         "last_line_interaction_in_id": transport.last_line_interaction_in_id,
+        "last_line_interaction_in_shell_id": transport.last_line_interaction_in_shell_id,
         "last_line_interaction_out_id": transport.last_line_interaction_out_id,
-        "last_line_interaction_shell_id": transport.last_line_interaction_shell_id,
+        "last_line_interaction_out_shell_id": transport.last_line_interaction_out_shell_id,
         "line_interaction_type": transport.line_interaction_type,
         "nu_bar_estimator": transport.nu_bar_estimator,
         "photo_ion_estimator": transport.photo_ion_estimator,
@@ -599,7 +600,9 @@ def transport_to_dict(transport):
         "virt_packet_last_interaction_in_nu": transport.virt_packet_last_interaction_in_nu,
         "virt_packet_last_interaction_type": transport.virt_packet_last_interaction_type,
         "virt_packet_last_line_interaction_in_id": transport.virt_packet_last_line_interaction_in_id,
+        "virt_packet_last_line_interaction_in_shell_id": transport.virt_packet_last_line_interaction_in_shell_id,
         "virt_packet_last_line_interaction_out_id": transport.virt_packet_last_line_interaction_out_id,
+        "virt_packet_last_line_interaction_out_shell_id": transport.virt_packet_last_line_interaction_out_shell_id,
         "virt_packet_nus": transport.virt_packet_nus,
         "volume_cgs": transport.volume,
     }
@@ -763,11 +766,14 @@ def transport_from_hdf(fname):
     new_transport.last_interaction_in_nu = d["last_interaction_in_nu"]
     new_transport.last_interaction_type = d["last_interaction_type"]
     new_transport.last_line_interaction_in_id = d["last_line_interaction_in_id"]
+    new_transport.last_line_interaction_in_shell_id = d[
+        "last_line_interaction_in_shell_id"
+    ]
     new_transport.last_line_interaction_out_id = d[
         "last_line_interaction_out_id"
     ]
-    new_transport.last_line_interaction_shell_id = d[
-        "last_line_interaction_shell_id"
+    new_transport.last_line_interaction_out_shell_id = d[
+        "last_line_interaction_out_shell_id"
     ]
     new_transport.nu_bar_estimator = d["nu_bar_estimator"]
     new_transport.photo_ion_estimator = d["photo_ion_estimator"]
@@ -795,8 +801,14 @@ def transport_from_hdf(fname):
     new_transport.virt_packet_last_line_interaction_in_id = d[
         "virt_packet_last_line_interaction_in_id"
     ]
+    new_transport.virt_packet_last_line_interaction_in_shell_id = d[
+        "virt_packet_last_line_interaction_in_shell_id"
+    ]
     new_transport.virt_packet_last_line_interaction_out_id = d[
         "virt_packet_last_line_interaction_out_id"
+    ]
+    new_transport.virt_packet_last_line_interaction_out_shell_id = d[
+        "virt_packet_last_line_interaction_out_shell_id"
     ]
     new_transport.virt_packet_nus = d["virt_packet_nus"]
     new_transport.volume = d["volume_cgs"]
