@@ -37,19 +37,19 @@ def read_stella_model(fname):
 
     """
     header_re = [re.compile(re_str[0]) for re_str in HEADER_RE_STR]
-    header = {}
+    metadata = {}
     with open(fname) as fh:
         for i, line in enumerate(fh):
             header_re_match = header_re[i].match(line)
-            header[HEADER_RE_STR[i][1]] = header_re_match.group(1)
+            metadata[HEADER_RE_STR[i][1]] = header_re_match.group(1)
             if i == len(header_re) - 1:
                 break
-        header["t_max"] = float(header["t_max"]) * u.day
-        header["zones"] = int(header["zones"])
-        header["inner_boundary_mass"] = (
-            float(header["inner_boundary_mass"]) * u.g
+        metadata["t_max"] = float(metadata["t_max"]) * u.day
+        metadata["zones"] = int(metadata["zones"])
+        metadata["inner_boundary_mass"] = (
+            float(metadata["inner_boundary_mass"]) * u.g
         )
-        header["total_mass"] = float(header["total_mass"]) * u.g
+        metadata["total_mass"] = float(metadata["total_mass"]) * u.g
 
     data = pd.read_csv(fname, delim_whitespace=True, skiprows=7)
-    return STELLAModel(header, data)
+    return STELLAModel(metadata, data)
