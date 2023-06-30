@@ -21,6 +21,7 @@ HEADER_RE_STR = [
     ("\s+total mass\s+(\d+\.\d+E[+-]\d+)\s+\d+\.\d+E[+-]\d+", "total_mass"),
 ]
 
+DATA_START_ROW = 7
 
 def read_stella_model(fname):
     """
@@ -51,5 +52,5 @@ def read_stella_model(fname):
         )
         metadata["total_mass"] = float(metadata["total_mass"]) * u.g
 
-    data = pd.read_csv(fname, delim_whitespace=True, skiprows=7)
+    data = pd.read_csv(fname, delim_whitespace=True, skiprows=DATA_START_ROW)
     return STELLAModel(metadata, data)
