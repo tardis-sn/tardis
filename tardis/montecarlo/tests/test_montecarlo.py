@@ -843,4 +843,4 @@ def test_rpacket_tracking(index, seed, r, nu, mu, energy):
     assert test_rpacket.nu == tracked_rpacket_properties.nu
     assert test_rpacket.mu == tracked_rpacket_properties.mu
     assert test_rpacket.energy == tracked_rpacket_properties.energy
-    assert tracked_rpacket_properties.interact_id == 1
+    assert tracked_rpacket_properties.num_interactions == 1
