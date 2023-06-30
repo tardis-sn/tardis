@@ -437,6 +437,10 @@ def test_store_transport_to_hdf(simulation_verysimple, tmp_path):
             transport_data["virt_packet_last_line_interaction_out_id"],
         )
         assert np.array_equal(
+            f["transport/virt_packet_last_line_interaction_shell_id"],
+            transport_data["virt_packet_last_line_interaction_shell_id"],
+        )
+        assert np.array_equal(
             f["transport/virt_packet_nus"], transport_data["virt_packet_nus"]
         )
         assert np.array_equal(

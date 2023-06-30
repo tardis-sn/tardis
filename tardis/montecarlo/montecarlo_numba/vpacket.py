@@ -242,7 +242,6 @@ def trace_vpacket_volley(
     if (r_packet.nu < vpacket_collection.v_packet_spawn_start_frequency) or (
         r_packet.nu > vpacket_collection.v_packet_spawn_end_frequency
     ):
-
         return
 
     no_of_vpackets = vpacket_collection.number_of_vpackets
@@ -335,4 +334,5 @@ def trace_vpacket_volley(
             r_packet.last_interaction_type,
             r_packet.last_line_interaction_in_id,
             r_packet.last_line_interaction_out_id,
+            r_packet.last_line_interaction_shell_id,
         )

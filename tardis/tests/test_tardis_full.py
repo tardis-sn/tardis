@@ -100,6 +100,7 @@ class TestTransportSimple:
                 ("virt_packet_last_interaction_type", virt_type),
                 ("virt_packet_last_line_interaction_in_id", virt_type),
                 ("virt_packet_last_line_interaction_out_id", virt_type),
+                ("virt_packet_last_line_interaction_shell_id", virt_type),
                 ("virt_packet_last_interaction_in_nu", virt_type),
                 ("virt_packet_nus", virt_type),
                 ("virt_packet_energies", virt_type),

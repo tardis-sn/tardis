@@ -74,7 +74,6 @@ def trace_packet(
     # - do not remove
     last_line_id = len(numba_plasma.line_list_nu) - 1
     for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
-
         # Going through the lines
         nu_line = numba_plasma.line_list_nu[cur_line_id]
 
@@ -107,7 +106,6 @@ def trace_packet(
         distance = min(distance_trace, distance_boundary, distance_continuum)
 
         if distance_trace != 0:
-
             if distance == distance_boundary:
                 interaction_type = InteractionType.BOUNDARY  # BOUNDARY
                 r_packet.next_line_id = cur_line_id
@@ -143,6 +141,7 @@ def trace_packet(
             interaction_type = InteractionType.LINE  # Line
             r_packet.last_interaction_in_nu = r_packet.nu
             r_packet.last_line_interaction_in_id = cur_line_id
+            r_packet.last_line_interaction_shell_id = r_packet.current_shell_id
             r_packet.next_line_id = cur_line_id
             distance = distance_trace
             break

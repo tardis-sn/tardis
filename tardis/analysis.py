@@ -54,6 +54,7 @@ class LastLineInteraction(object):
         self._wavelength_end = np.inf * u.angstrom
         self._atomic_number = None
         self._ion_number = None
+        self._shell = None
         self.packet_filter_mode = packet_filter_mode
         self.update_last_interaction_filter()
 
@@ -97,6 +98,15 @@ class LastLineInteraction(object):
         self._ion_number = value
         self.update_last_interaction_filter()
 
+    @property
+    def shell(self):
+        return self._shell
+
+    @shell.setter
+    def shell(self, value):
+        self._shell = value
+        self.update_last_interaction_filter()
+
     def update_last_interaction_filter(self):
         if self.packet_filter_mode == "packet_out_nu":
             packet_filter = (
@@ -120,6 +130,11 @@ class LastLineInteraction(object):
             raise ValueError(
                 "Invalid value of packet_filter_mode. The only values "
                 "allowed are: packet_out_nu, packet_in_nu, line_in_nu"
+            )
+
+        if self.shell is not None:
+            packet_filter = packet_filter & (
+                self.last_line_interaction_shell_id == self.shell
             )
 
         self.last_line_in = self.lines.iloc[

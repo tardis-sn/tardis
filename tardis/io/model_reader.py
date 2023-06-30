@@ -600,6 +600,7 @@ def transport_to_dict(transport):
         "virt_packet_last_interaction_type": transport.virt_packet_last_interaction_type,
         "virt_packet_last_line_interaction_in_id": transport.virt_packet_last_line_interaction_in_id,
         "virt_packet_last_line_interaction_out_id": transport.virt_packet_last_line_interaction_out_id,
+        "virt_packet_last_line_interaction_shell_id": transport.virt_packet_last_line_interaction_shell_id,
         "virt_packet_nus": transport.virt_packet_nus,
         "volume_cgs": transport.volume,
     }
@@ -797,6 +798,9 @@ def transport_from_hdf(fname):
     ]
     new_transport.virt_packet_last_line_interaction_out_id = d[
         "virt_packet_last_line_interaction_out_id"
+    ]
+    new_transport.virt_packet_last_line_interaction_shell_id = d[
+        "virt_packet_last_line_interaction_shell_id"
     ]
     new_transport.virt_packet_nus = d["virt_packet_nus"]
     new_transport.volume = d["volume_cgs"]

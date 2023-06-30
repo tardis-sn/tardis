@@ -65,6 +65,7 @@ class MontecarloTransport(HDFWriterMixin):
         "virt_packet_last_interaction_type",
         "virt_packet_last_line_interaction_in_id",
         "virt_packet_last_line_interaction_out_id",
+        "virt_packet_last_line_interaction_shell_id",
     ]
 
     hdf_name = "transport"
@@ -120,6 +121,7 @@ class MontecarloTransport(HDFWriterMixin):
         self.virt_packet_last_interaction_in_nu = np.ones(2) * -1.0
         self.virt_packet_last_line_interaction_in_id = np.ones(2) * -1
         self.virt_packet_last_line_interaction_out_id = np.ones(2) * -1
+        self.virt_packet_last_line_interaction_shell_id = np.ones(2) * -1
         self.virt_packet_nus = np.ones(2) * -1.0
         self.virt_packet_energies = np.ones(2) * -1.0
         self.virt_packet_initial_rs = np.ones(2) * -1.0

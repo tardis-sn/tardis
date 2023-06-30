@@ -52,3 +52,8 @@ After running the simulation, the following information can be retrieved:
       - | If the last interaction was a line interaction, the
         | line_interaction_out_id for that interaction 
         | (see :doc:`physical_quantities`)
+    * - ``transport.virt_packet_last_line_interaction_shell_id``
+      - Numpy array
+      - | If the last interaction was a line interaction, the
+        | line_interaction_shell_id for that interaction 
+        | (see :doc:`physical_quantities`)
