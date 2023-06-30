@@ -160,7 +160,7 @@ class GrotrianWidget:
             description="Filter Mode:",
         )
 
-        # Selected Species (TODO: Make setter/getter)
+        # Selected Species
         self._atomic_number = 2
         self._ion_number = 0
         self._shell = None
@@ -246,7 +246,7 @@ class GrotrianWidget:
     def shell(self, value):
         self._shell = value
         self._compute_level_data()
-        self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "_compute_transitions()" explicitly
+        self._compute_transitions()
 
     def _compute_transitions(self):
         """
