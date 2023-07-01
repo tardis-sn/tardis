@@ -132,26 +132,21 @@ class BlackBodySimpleSource(BasePacketSource):
     def create_packets(self, temperature, no_of_packets, radius):
         """Generate black-body packet properties as arrays
 
-                Parameters
-                ----------
-                temperature : astropy.Quantity
-                    Absolute Temperature
-                no_of_packets : int
-                    Number of packets
-        <<<<<<< HEAD
-                radius : float64
-        =======
-                rng : numpy random number generator
-                radius : astropy.Quantity
-        >>>>>>> a0ca0e139 (Add units to create_packets)
-                    Initial packet radius
+        Parameters
+        ----------
+        temperature : astropy.Quantity
+            Absolute Temperature
+        no_of_packets : int
+            Number of packets
+        radius : astropy.Quantity
+            Initial packet radius
 
-                Returns
-                -------
-                astropy.Quantity : Packet radii
-                astropy.Quantity : Packet frequencies
-                astropy.Quantity : Packet directions
-                astropy.Quantity : Packet energies
+        Returns
+        -------
+        astropy.Quantity : Packet radii
+        astropy.Quantity : Packet frequencies
+        astropy.Quantity : Packet directions
+        astropy.Quantity : Packet energies
         """
         radii = np.ones(no_of_packets) * radius
         nus = self.create_blackbody_packet_nus(temperature, no_of_packets)

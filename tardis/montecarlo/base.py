@@ -199,6 +199,23 @@ class MontecarloTransport(HDFWriterMixin):
     def _initialize_packets(
         self, temperature, no_of_packets, iteration, radius, time_explosion
     ):
+        """
+        Initialize packets for the current iteration by invoking the packet_source object,
+        and initializing the tracker metrics for these packets
+
+        Parameters
+        ----------
+        temperature : astropy.Quantity
+            Absolute Temperature
+        no_of_packets : int
+            Number of real packets
+        iteration : int
+            Index of the current iteration
+        radius : astropy.Quantity
+            Initial packet radius
+        time_explosion: astropy.Quantity
+            Time elapsed since explosion
+        """
         # the iteration (passed as seed_offset) is added each time to preserve randomness
         # across different simulations with the same temperature,
         # for example.
