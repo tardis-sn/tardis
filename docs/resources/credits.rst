@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_wolfgang_2023_8079686
+.. |CITATION| replace:: kerzendorf_wolfgang_2023_8104987
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.8079686-blue
-                 :target: https://doi.org/10.5281/zenodo.8079686
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.8104987-blue
+                 :target: https://doi.org/10.5281/zenodo.8104987
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_wolfgang_2023_8079686,
+    @software{kerzendorf_wolfgang_2023_8104987,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -110,9 +110,9 @@ The following BibTeX entries are needed for the references:
                       Cawley, Kevin and
                       Singhal, Jaladh and
                       Arya, Atharva and
-                      O'Brien, Jack and
-                      Barbosa, Talytha and
                       Sondhi, Dhruv and
+                      Barbosa, Talytha and
+                      O'Brien, Jack and
                       Yu, Jenny and
                       Patel, Maryam and
                       Varanasi, Kaushik and
@@ -130,31 +130,32 @@ The following BibTeX entries are needed for the references:
                       Kumar, Ansh and
                       Magee, Mark and
                       Shields, Joshua and
-                      Livneh, Ran and
                       Kambham, Satwik and
-                      Mishra, Sashank and
+                      Livneh, Ran and
                       Rajagopalan, Srinath and
+                      Mishra, Sashank and
                       Reichenbach, John and
-                      Jain, Rinkle and
                       Rathi, Shikha and
                       Floers, Andreas and
+                      Jain, Rinkle and
+                      Brar, Antreev and
+                      Daksh, Ayushi and
+                      Singh, Shreyas and
                       Holas, Alexander and
                       Singh, Sourav and
-                      Chaumal, Aarya and
-                      Singh, Shreyas and
-                      Brar, Antreev and
-                      Bhakar, Jayant and
                       Actions, GitHub and
-                      Selsing, Jonatan and
-                      Sofiatti, Caroline and
+                      Chaumal, Aarya and
+                      Bhakar, Jayant and
+                      Patidar, Abhishek and
                       Kumar, Aman and
+                      Sofiatti, Caroline and
                       Kowalski, Nathan and
                       Talegaonkar, Chinmay and
-                      Patidar, Abhishek and
+                      Selsing, Jonatan and
                       Venkat, Shashank and
                       Sarafina, Nance and
+                      Sharma, Sampark and
                       Patel, Pratik and
-                      Volodin, Dmitry and
                       Singh Rathore, Parikshit and
                       Patra, Nilesh and
                       Gupta, Harshul and
@@ -164,24 +165,24 @@ The following BibTeX entries are needed for the references:
                       Yap, Kevin and
                       Gupta, Suyash and
                       Prasad, Shilpi and
-                      Kumar, Atul and
+                      Nayak U, Ashwin and
                       Lemoine, Thom and
                       Wahi, Ujjwal and
                       Aggarwal, Yash and
                       Matsumura, Yuki and
-                      Sharma, Sampark and
+                      Volodin, Dmitry and
                       Dasgupta, Debajyoti and
                       PATIDAR, ABHISHEK and
                       Truong, Le and
-                      Nayak U, Ashwin and
+                      Kumar, Atul and
                       Kharkar, Atharwa and
                       Kolliboyina, Chaitanya},
-      title        = {tardis-sn/tardis: TARDIS v2023.06.25},
-      month        = jun,
+      title        = {tardis-sn/tardis: TARDIS v2023.07.02},
+      month        = jul,
       year         = 2023,
       publisher    = {Zenodo},
-      version      = {release-2023.06.25},
-      doi          = {10.5281/zenodo.8079686},
-      url          = {https://doi.org/10.5281/zenodo.8079686}
+      version      = {release-2023.07.02},
+      doi          = {10.5281/zenodo.8104987},
+      url          = {https://doi.org/10.5281/zenodo.8104987}
     }
 
