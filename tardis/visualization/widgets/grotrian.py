@@ -479,11 +479,12 @@ class GrotrianWidget:
 
             # Add label for energy
             self.fig.add_annotation(
-                x=self.x_max + 0.15,
+                x=self.x_max + 0.1,
                 y=level_info.y_coord,
                 text=f"n={level_number}",
                 showarrow=False,
                 xref="x2",
+                yref="y2",
             )
 
     def _draw_population_width_scale(self):
@@ -527,14 +528,14 @@ class GrotrianWidget:
                 type="line",
                 line_width=width,
                 x0=0.1,
-                x1=0.3,
+                x1=0.2,
                 y0=y_pos,
                 y1=y_pos,
                 xref="x1",
                 yref="y1",
             )
             self.fig.add_annotation(
-                x=0.5,
+                x=0.35,
                 y=y_pos,
                 text=f"{population:.1e}",
                 showarrow=False,
@@ -543,8 +544,8 @@ class GrotrianWidget:
             )
         # Add title of the width bar
         self.fig.add_annotation(
-            x=0.4,
-            y=-0.05,
+            x=0.28,
+            y=-0.08,
             text="Populations",
             showarrow=False,
             xref="x1",
@@ -683,15 +684,15 @@ class GrotrianWidget:
             self.fig.add_shape(
                 type="line",
                 line_width=width,
-                x0=0.75,
-                x1=0.95,
+                x0=0.65,
+                x1=0.75,
                 y0=y_pos,
                 y1=y_pos,
                 xref="x1",
                 yref="y1",
             )
             self.fig.add_annotation(
-                x=1.15,
+                x=0.9,
                 y=y_pos,
                 text=f"{num_electrons:.1e}",
                 showarrow=False,
@@ -700,8 +701,8 @@ class GrotrianWidget:
             )
         # Add title of the width bar
         self.fig.add_annotation(
-            x=0.95,
-            y=-0.05,
+            x=0.83,
+            y=-0.08,
             text="#Packets",
             showarrow=False,
             xref="x1",
@@ -729,7 +730,7 @@ class GrotrianWidget:
                     cmax=self.wavelength_color_transform(self.max_wavelength),
                     colorbar=dict(
                         title=dict(
-                            text=f"Wavelength ({ANGSTROM_SYMBOL})", font_size=12
+                            text=f"Wavelength ({ANGSTROM_SYMBOL})<br>&nbsp;", font_size=12
                         ),
                         thickness=5,
                         tickvals=self.wavelength_color_transform(tickvals),
@@ -751,9 +752,9 @@ class GrotrianWidget:
         self.fig = make_subplots(
             rows=1,
             cols=2,
-            column_width=[0.4, 0.6],
+            column_width=[0.3, 0.7],
             specs=[[{}, {}]],
-            horizontal_spacing=0.12,
+            horizontal_spacing=0.14,
         )
 
         # Update fig layout
@@ -786,7 +787,7 @@ class GrotrianWidget:
         )
         # Update y-ticks to reflect actual energy values
         self.fig.update_yaxes(
-            title=dict(text="Energy (eV)", standoff=1),
+            title=dict(text="Energy (eV)", standoff=5),
             range=[0, None],
             tickmode="array",
             tickvals=self.level_data.y_coord,
@@ -801,8 +802,8 @@ class GrotrianWidget:
             type="line",
             line=dict(color="grey", dash="dash"),
             line_width=0.5,
-            x0=0.7,
-            x1=0.7,
+            x0=0.55,
+            x1=0.55,
             y0=0,
             y1=1,
             xref="x1",
