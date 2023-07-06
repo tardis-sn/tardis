@@ -64,6 +64,7 @@ Mission Statement
     :hidden:
     
     io/configuration/index
+    io/model/index
     io/optional/index
     io/visualization/index
     io/output/index
