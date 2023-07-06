@@ -191,15 +191,24 @@ class GrotrianWidget:
         self.x_min, self.x_max = 0, 1
 
     def reset_selected_plot_wavelength_range(self):
+        """
+        Resets the wavelength range of the selected plot
+        """
         self.min_wavelength = None
         self.max_wavelength = None
         self._compute_transitions()
 
     def set_min_plot_wavelength(self, value):
+        """
+        Sets the minimum wavelength value for the plot
+        """
         self.min_wavelength = value
         self._compute_transitions()
 
     def set_max_plot_wavelength(self, value):
+        """
+        Sets the maximum wavelength value for the plot
+        """
         self.max_wavelength = value
         self._compute_transitions()
 
@@ -220,6 +229,9 @@ class GrotrianWidget:
         return self._atomic_number
 
     def set_ion(self, atomic_number, ion_number):
+        """
+        Sets the atomic number and ion number
+        """
         self._atomic_number = atomic_number
         self._ion_number = ion_number
         # TODO: Handle this better
