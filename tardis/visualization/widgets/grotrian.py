@@ -78,7 +78,7 @@ def standardize(
 class GrotrianWidget:
     FILTER_MODES = ("packet_out_nu", "packet_in_nu")
     FILTER_MODES_DESC = ("Emitted Wavelength", "Absorbed Wavelength")
-    Y_SCALE_OPTION = {"Linear" : (lambda x: x), "Log" : np.log}
+    Y_SCALE_OPTION = {"Linear": (lambda x: x), "Log": np.log}
 
     @classmethod
     def from_simulation(cls, sim, **kwargs):
@@ -170,8 +170,9 @@ class GrotrianWidget:
         self.level_width_scale, self.level_width_offset = 3, 1
         self.level_width_transform = np.log  # Scale of the level widths
         self.population_spacer = np.geomspace  # To space width bar counts
+        ### Scale of the y-axis
         self._y_scale = "Linear"
-        self._y_coord_transform = self.Y_SCALE_OPTION[self._y_scale]  # Scale of the y-axis
+        self._y_coord_transform = self.Y_SCALE_OPTION[self._y_scale]
 
         ### Define default parameters for visual elements related to transitions
         self.transition_width_scale, self.transition_width_offset = 2, 1
@@ -753,7 +754,8 @@ class GrotrianWidget:
                     cmax=self.wavelength_color_transform(self.max_wavelength),
                     colorbar=dict(
                         title=dict(
-                            text=f"Wavelength ({ANGSTROM_SYMBOL})<br>&nbsp;", font_size=12
+                            text=f"Wavelength ({ANGSTROM_SYMBOL})<br>&nbsp;",
+                            font_size=12,
                         ),
                         thickness=5,
                         tickvals=self.wavelength_color_transform(tickvals),
