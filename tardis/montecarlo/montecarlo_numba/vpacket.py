@@ -115,6 +115,9 @@ def trace_vpacket_within_shell(
     else:
         chi_continuum = chi_e
 
+    if montecarlo_configuration.full_relativity:
+        chi_continuum *= doppler_factor
+
     tau_continuum = chi_continuum * distance_boundary
     tau_trace_combined = tau_continuum
 

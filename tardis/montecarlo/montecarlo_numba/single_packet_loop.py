@@ -105,7 +105,10 @@ def single_packet_loop(
                 numba_plasma, comov_nu, r_packet.current_shell_id
             )
             chi_continuum = chi_e + chi_bf_tot + chi_ff
+
             escat_prob = chi_e / chi_continuum  # probability of e-scatter
+            if montecarlo_configuration.full_relativity:
+                chi_continuum *= doppler_factor
             distance, interaction_type, delta_shell = trace_packet(
                 r_packet,
                 numba_radial_1d_geometry,
@@ -129,6 +132,8 @@ def single_packet_loop(
         else:
             escat_prob = 1.0
             chi_continuum = chi_e
+            if montecarlo_configuration.full_relativity:
+                chi_continuum *= doppler_factor
             distance, interaction_type, delta_shell = trace_packet(
                 r_packet,
                 numba_radial_1d_geometry,
