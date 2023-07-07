@@ -78,6 +78,7 @@ def standardize(
 class GrotrianWidget:
     FILTER_MODES = ("packet_out_nu", "packet_in_nu")
     FILTER_MODES_DESC = ("Emitted Wavelength", "Absorbed Wavelength")
+    Y_SCALE_OPTION = {"Linear" : (lambda x: x), "Log" : np.log}
 
     @classmethod
     def from_simulation(cls, sim, **kwargs):
@@ -169,7 +170,8 @@ class GrotrianWidget:
         self.level_width_scale, self.level_width_offset = 3, 1
         self.level_width_transform = np.log  # Scale of the level widths
         self.population_spacer = np.geomspace  # To space width bar counts
-        self.y_coord_transform = lambda x: x  # Scale of the y-axis
+        self._y_scale = "Linear"
+        self._y_coord_transform = self.Y_SCALE_OPTION[self._y_scale]  # Scale of the y-axis
 
         ### Define default parameters for visual elements related to transitions
         self.transition_width_scale, self.transition_width_offset = 2, 1
@@ -259,6 +261,15 @@ class GrotrianWidget:
         self._shell = value
         self._compute_level_data()
         self._compute_transitions()
+
+    @property
+    def y_scale(self):
+        return self._y_scale
+
+    @y_scale.setter
+    def y_scale(self, value):
+        self._y_scale = value
+        self._y_coord_transform = self.Y_SCALE_OPTION[self._y_scale]
 
     def _compute_transitions(self):
         """
@@ -459,7 +470,7 @@ class GrotrianWidget:
         # Transform energies and standardize result to get y-coordinate in range [0, 1] ###
         self.level_data["y_coord"] = standardize(
             self.level_data.energy,
-            transform=self.y_coord_transform,
+            transform=self._y_coord_transform,
             zero_undefined=True,
             offset=0.1,
         )
