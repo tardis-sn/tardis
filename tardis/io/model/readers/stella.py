@@ -48,13 +48,14 @@ def read_stella_model(fname):
                 header_re_match = header_re[i].match(line)
 
                 metadata[HEADER_RE_STR[i][1]] = header_re_match.group(1)
-            if line.strip().startswith("mass of cell"):
-                column_names_raw = re.split(r"\s{3,}", line.strip())
-                break
-        else:
-            raise ValueError(
-                '"mass of cell" is required in the Stella input file to infer columns'
-            )
+            elif i + 1 == DATA_START_ROW:
+                if "mass of cell" in line:
+                    column_names_raw = re.split(r"\s{3,}", line.strip())
+                    break
+                else:
+                    raise ValueError(
+                        '"mass of cell" is required in the Stella input file to infer columns'
+                    )
 
         metadata["t_max"] = float(metadata["t_max"]) * u.day
         metadata["zones"] = int(metadata["zones"])
@@ -74,7 +75,7 @@ def read_stella_model(fname):
     data = pd.read_csv(
         fname,
         delim_whitespace=True,
-        skiprows=DATA_START_ROW,
+        skiprows=DATA_START_ROW + 1,
         header=None,
         index_col=0,
     )
