@@ -1,5 +1,12 @@
 ## Change Log
 
+### release-2023.07.09 (2023/07/09 16:30 +00:00)
+- [#2350](https://github.com/tardis-sn/tardis/pull/2350) Pre-release 2023.07.09 (#2350) (@tardis-bot)
+- [#2347](https://github.com/tardis-sn/tardis/pull/2347) Fix frame transformations of continuum opacity (#2347) (@chvogl)
+- [#2139](https://github.com/tardis-sn/tardis/pull/2139) Gamma ray refactor (#2139) (@andrewfullard)
+- [#2327](https://github.com/tardis-sn/tardis/pull/2327) Refactor Model Reader on the Stella example (#2327) (@wkerzendorf)
+- [#2346](https://github.com/tardis-sn/tardis/pull/2346) Post-release 2023.07.02 (#2346) (@tardis-bot)
+
 ### release-2023.07.02 (2023/07/02 00:49 +00:00)
 - [#2345](https://github.com/tardis-sn/tardis/pull/2345) Pre-release 2023.07.02 (#2345) (@tardis-bot)
 - [#2344](https://github.com/tardis-sn/tardis/pull/2344) Make MontecarloTransport and montecarlo_numba track the last line interaction shell ids for real and virtual packets (#2344) (@AyushiDaksh)
@@ -337,8 +344,6 @@
 
 ### release-2021.11.28 (2021/11/25 17:29 +00:00)
 - [#1825](https://github.com/tardis-sn/tardis/pull/1825) changed all files to import constants from only tardis (#1825) (@shilpiprd)
-
-### release-2021.11.21 (2021/11/14 23:43 +00:00)
 - [#1799](https://github.com/tardis-sn/tardis/pull/1799) Bug fixes and Improvements in Custom Abundance Widget (#1799) (@yuyizheng1112)
 - [#1803](https://github.com/tardis-sn/tardis/pull/1803) Option to make docs build in parallel (#1803) (@smithis7)
 - [#1817](https://github.com/tardis-sn/tardis/pull/1817) Fixing SDEC docs page (#1817) (@smithis7)
