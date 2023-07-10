@@ -102,7 +102,8 @@ class BasePacketSource(abc.ABC):
             number of l_samples needed in the algorithm
         Returns
         -------
-            astropy.Quantity : Quantity array of frequencies in Hz
+            astropy.Quantity
+                Quantity array of frequencies in Hz
         """
         l_samples = l_samples
         l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64) ** -4)
@@ -175,10 +176,14 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
 
         Returns
         -------
-        astropy.Quantity : Packet radii
-        astropy.Quantity : Packet frequencies
-        astropy.Quantity : Packet directions
-        astropy.Quantity : Packet energies
+        astropy.Quantity
+            Packet radii
+        astropy.Quantity
+            Packet frequencies
+        astropy.Quantity
+            Packet directions
+        astropy.Quantity
+            Packet energies
         """
         self.beta = ((radius / time_explosion) / const.c).to("")
         return super().create_packets(temperature, no_of_packets, radius)
