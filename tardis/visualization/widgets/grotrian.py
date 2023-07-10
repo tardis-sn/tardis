@@ -137,7 +137,6 @@ class GrotrianWidget:
         level_energy_data,
         level_population_data,
         line_interaction_analysis,
-        colorscale="rainbow",
     ):
         """Constructor for the GrotrianWidget class
 
@@ -152,14 +151,12 @@ class GrotrianWidget:
             and each column representing the supernova shell
         line_interaction_analysis : tardis.analysis.LastLineInteraction
             LastLineInteraction object with the appropriate filters
-        colorscale : str, optional
-            Colorscale for the wavelength info. Default value is "rainbow".
         """
         # Set data members
-        self.atom_data = atom_data
-        self.level_energy_data = level_energy_data
-        self.level_population_data = level_population_data
-        self.line_interaction_analysis = line_interaction_analysis
+        self._atom_data = atom_data
+        self._level_energy_data = level_energy_data
+        self._level_population_data = level_population_data
+        self._line_interaction_analysis = line_interaction_analysis
 
         # Selector for max level threshold
         self.max_level_selector = ipw.BoundedIntText(
@@ -199,23 +196,24 @@ class GrotrianWidget:
 
         ### Define default parameters for visual elements related to energy levels
         self.level_width_scale, self.level_width_offset = 3, 1
-        self.level_width_transform = np.log  # Scale of the level widths
-        self.population_spacer = np.geomspace  # To space width bar counts
+        self._level_width_transform = np.log  # Scale of the level widths
+        self._population_spacer = np.geomspace  # To space width bar counts
         ### Scale of the y-axis
         self._y_scale = "Linear"
         self._y_coord_transform = self.Y_SCALE_OPTION[self._y_scale]
 
         ### Define default parameters for visual elements related to transitions
         self.transition_width_scale, self.transition_width_offset = 2, 1
-        self.transition_width_transform = np.log  # Scale of the arrow widths
-        self.transition_count_spacer = np.geomspace  # To space width bar counts
+        self._transition_width_transform = np.log  # Scale of the arrow widths
+        self._transition_count_spacer = (
+            np.geomspace
+        )  # To space width bar counts
         self.arrowhead_size = 9
 
         ### Define default parameters for visual elements related to wavelengths
-        self.colorscale = colorscale
-        self.cmap = plt.get_cmap(self.colorscale)
-        self.wavelength_color_transform = np.log  # Scale of wavelength color
-        self.wavelength_spacer = np.geomspace  # To space colorbar wavelengths
+        self.cmapname = "rainbow"
+        self._wavelength_color_transform = np.log  # Scale of wavelength color
+        self._wavelength_spacer = np.geomspace  # To space colorbar wavelengths
 
         ### Compute dataframes for level energies and transitions
         self._compute_level_data()
@@ -278,11 +276,11 @@ class GrotrianWidget:
 
     @property
     def atomic_name(self):
-        return self.atom_data.loc[self.atomic_number]["name"]
+        return self._atom_data.loc[self.atomic_number]["name"]
 
     @property
     def atomic_symbol(self):
-        return self.atom_data.loc[self.atomic_number]["symbol"]
+        return self._atom_data.loc[self.atomic_number]["symbol"]
 
     @property
     def shell(self):
@@ -308,14 +306,14 @@ class GrotrianWidget:
         Computes the excitation/de-excitation line transition data for the arrows in the widget
         """
         # Get relevant lines for current simulation
-        self.line_interaction_analysis[self.filter_mode].set_ion(
+        self._line_interaction_analysis[self.filter_mode].set_ion(
             self.atomic_number, self.ion_number
         )
-        self.line_interaction_analysis[self.filter_mode].shell = self.shell
+        self._line_interaction_analysis[self.filter_mode].shell = self.shell
 
         ### Get the excitation/de-excitation transitions from LastLineInteraction object
         excite_lines = (
-            self.line_interaction_analysis[self.filter_mode]
+            self._line_interaction_analysis[self.filter_mode]
             .last_line_in.reset_index()
             .groupby(["level_number_lower", "level_number_upper"])
             .agg(
@@ -326,7 +324,7 @@ class GrotrianWidget:
         )
 
         deexcite_lines = (
-            self.line_interaction_analysis[self.filter_mode]
+            self._line_interaction_analysis[self.filter_mode]
             .last_line_out.reset_index()
             .groupby(["level_number_lower", "level_number_upper"])
             .agg(
@@ -419,7 +417,7 @@ class GrotrianWidget:
             np.concatenate(
                 (excite_lines.num_electrons, deexcite_lines.num_electrons)
             ),
-            transform=self.transition_width_transform,
+            transform=self._transition_width_transform,
         )
         excite_lines[
             "transition_width_coefficient"
@@ -436,12 +434,12 @@ class GrotrianWidget:
         Computes the level population data for the horizontal platforms in the widget
         """
         ### Get energy levels and convert to eV
-        raw_energy_levels = self.level_energy_data.loc[
+        raw_energy_levels = self._level_energy_data.loc[
             self.atomic_number, self.ion_number
         ].loc[0 : self.max_levels]
 
         ### Get level populations
-        raw_level_populations = self.level_population_data.loc[
+        raw_level_populations = self._level_population_data.loc[
             self.atomic_number, self.ion_number
         ].loc[0 : self.max_levels]
 
@@ -487,7 +485,7 @@ class GrotrianWidget:
         ### Standardize the level populations to get width coefficient of levels
         self.level_data["level_width_coefficient"] = standardize(
             self.level_data.population,
-            transform=self.level_width_transform,
+            transform=self._level_width_transform,
             zero_undefined=True,
             zero_undefined_offset=1e-3,
         )
@@ -569,7 +567,7 @@ class GrotrianWidget:
 
         ### Space the populations (log) and corresponding widths (linear) equally
         scale_granularity = 10  # Number of scale ticks to display
-        population_ticks = self.population_spacer(
+        population_ticks = self._population_spacer(
             min_population, max_population, scale_granularity
         )
         width_ticks = np.linspace(min_width, max_width, scale_granularity)
@@ -614,10 +612,13 @@ class GrotrianWidget:
         lines = self.excite_lines if is_excitation else self.deexcite_lines
         lines["color_coefficient"] = standardize(
             lines.wavelength,
-            transform=self.wavelength_color_transform,
+            transform=self._wavelength_color_transform,
             min_value=self.min_wavelength,
             max_value=self.max_wavelength,
         )
+
+        self._cmap = plt.get_cmap(self.cmapname)  # Float to color map
+
         ### Plot excitation transitions
         for _, line_info in lines.iterrows():
             lower, upper = (
@@ -647,7 +648,7 @@ class GrotrianWidget:
 
             # Get the end arrow color (proportional to log wavelength)
             color_coef = line_info.color_coefficient
-            color = matplotlib.colors.rgb2hex(self.cmap(color_coef)[:3])
+            color = matplotlib.colors.rgb2hex(self._cmap(color_coef)[:3])
 
             # Draw arrow
             self.fig.add_trace(
@@ -726,7 +727,7 @@ class GrotrianWidget:
 
         ### Space the num_electrons (log) and corresponding widths (linear) equally
         scale_granularity = 10
-        num_electrons_ticks = self.transition_count_spacer(
+        num_electrons_ticks = self._transition_count_spacer(
             min_num_electrons, max_num_electrons, scale_granularity
         )
         width_ticks = np.linspace(min_width, max_width, scale_granularity)
@@ -769,7 +770,7 @@ class GrotrianWidget:
         Displays the transition wavelength colorbar
         """
         # Add a dummy Scatter trace to display colorbar
-        tickvals = self.wavelength_spacer(
+        tickvals = self._wavelength_spacer(
             self.min_wavelength, self.max_wavelength, 10
         )
         ticktext = [f"{val:.1e}" for val in tickvals]
@@ -779,17 +780,17 @@ class GrotrianWidget:
                 y=[None],
                 mode="markers",
                 marker=dict(
-                    colorscale=self.colorscale,
+                    colorscale=self.cmapname,
                     showscale=True,
-                    cmin=self.wavelength_color_transform(self.min_wavelength),
-                    cmax=self.wavelength_color_transform(self.max_wavelength),
+                    cmin=self._wavelength_color_transform(self.min_wavelength),
+                    cmax=self._wavelength_color_transform(self.max_wavelength),
                     colorbar=dict(
                         title=dict(
                             text=f"Wavelength ({ANGSTROM_SYMBOL})<br>&nbsp;",
                             font_size=12,
                         ),
                         thickness=5,
-                        tickvals=self.wavelength_color_transform(tickvals),
+                        tickvals=self._wavelength_color_transform(tickvals),
                         ticktext=ticktext,
                         outlinewidth=0,
                     ),
