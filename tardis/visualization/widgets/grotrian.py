@@ -190,8 +190,8 @@ class GrotrianWidget:
         )
 
         # Selected Species
-        self._atomic_number = 2
-        self._ion_number = 0
+        self._atomic_number = None
+        self._ion_number = None
         self._shell = None
 
         ### Define default parameters for visual elements related to energy levels
@@ -214,10 +214,6 @@ class GrotrianWidget:
         self.cmapname = "rainbow"
         self._wavelength_color_transform = np.log  # Scale of wavelength color
         self._wavelength_spacer = np.geomspace  # To space colorbar wavelengths
-
-        ### Compute dataframes for level energies and transitions
-        self._compute_level_data()
-        self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "_compute_transitions()" explicitly
 
         # Coordinate end points of levels
         self.x_min, self.x_max = 0, 1
@@ -258,6 +254,8 @@ class GrotrianWidget:
 
     @property
     def atomic_number(self):
+        if self._atomic_number is None:
+            raise ValueError("Atomic number is not set")
         return self._atomic_number
 
     def set_ion(self, atomic_number, ion_number):
@@ -272,6 +270,8 @@ class GrotrianWidget:
 
     @property
     def ion_number(self):
+        if self._ion_number is None:
+            raise ValueError("Ion number is not set")
         return self._ion_number
 
     @property
