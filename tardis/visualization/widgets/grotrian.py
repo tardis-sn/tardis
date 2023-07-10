@@ -1,3 +1,8 @@
+"""
+Grotrian Diagram Widget for TARDIS simulation models.
+
+This widget displays a Grotrian Diagram of the last line interactions of the simulation packets
+"""
 from tardis.analysis import LastLineInteraction
 from tardis.util.base import int_to_roman
 import plotly.graph_objects as go
@@ -18,25 +23,37 @@ def standardize(
     min_value=None,
     max_value=None,
     zero_undefined=False,
-    offset=0,
+    zero_undefined_offset=0,
 ):
     """
     Utility function to standardize displayed values like wavelengths, num_packets, levels populations to the range [0, 1]
     This helps in computing visual elements like widths, colors, etc.
 
-    Args:
-        values (pandas.Series): The data to standardize
-        transform (function, optional): Transformations like np.log, np.exp, etc. to apply on the data. Defaults to identity
-        min_value (float, optional): The lower bound of the range
-        max_value (float, optional): The upper bound of the range
-        zero_undefined (bool): When applying transformations (like log) where output of 0 is undefined, set this to True
-        offset (int, optional): Defaults to 0. This is useful for log transformation because log(0) is -inf.
-            Hence, log(0) gives while the other values start at `offset` (this output interval is [0, 1+offset])
+    Parameters
+    ----------
+    values : pandas.Series
+        The data to standardize
+    transform : function, optional
+        Transformations like np.log, np.exp, etc. to apply on the data. Defaults to identity
+    min_value : float, optional
+        The lower bound of the range
+    max_value : float, optional
+        The upper bound of the range
+    zero_undefined : bool, optional
+        When applying transformations (like log) where output of 0 is undefined, set this to True
+        Default value is False
+    zero_undefined_offset : int, optional
+        This is useful for log transformation because log(0) is -inf.
+        Hence, value=0 gives y=0 while the
+        output for other values start at `zero_undefined_offset` (y = log(value) + zero_undefined_offset)
+        Default value is 0
 
-    Returns:
-        pandas.Series: Values after standardization
+    Returns
+    -------
+    pandas.Series
+        Values after standardization
     """
-    if zero_undefined and offset == 0:
+    if zero_undefined and zero_undefined_offset == 0:
         raise ValueError(
             "If zero of the transformation is undefined, then provide an offset greater than 0"
         )
@@ -56,23 +73,24 @@ def standardize(
     # Apply transformation if given
     transformed_min_value = transform(min_value)
     transformed_max_value = transform(max_value)
-    output_values = transform(values)
+    transformed_values = transform(values)
 
     # Compute range
     value_range = transformed_max_value - transformed_min_value
 
     # Apply standardization
     if value_range > 0:
-        output_values = (
-            output_values - transformed_min_value
-        ) / value_range + offset
+        transformed_values = (
+            transformed_values - transformed_min_value
+        ) / value_range
         if zero_undefined:
-            output_values.mask(values == 0, 0, inplace=True)
+            transformed_values = transformed_values + zero_undefined_offset
+            transformed_values.mask(values == 0, 0, inplace=True)
     else:
         # If only single value present in table, then place it at 0
-        output_values = 0 * values
+        transformed_values = 0 * values
 
-    return output_values
+    return transformed_values
 
 
 class GrotrianWidget:
@@ -82,11 +100,17 @@ class GrotrianWidget:
 
     @classmethod
     def from_simulation(cls, sim, **kwargs):
-        """
-        Creates a GrotrianWidget object from a Simulation object
+        """Creates a GrotrianWidget object from a Simulation object
 
-        Args:
-            sim (tardis.simulation.Simulation): TARDIS simulation object
+        Parameters
+        ----------
+        sim : tardis.simulation.Simulation
+            TARDIS simulation object
+
+        Returns
+        -------
+        tardis.visualization.widgets.grotrian.GrotrianWidget
+            GrotrianWidget object
         """
         atom_data = sim.plasma.atomic_data.atom_data
         level_energy_data = pd.Series(
@@ -115,14 +139,21 @@ class GrotrianWidget:
         line_interaction_analysis,
         colorscale="rainbow",
     ):
-        """
-        Args:
-            atom_data (pandas.DataFrame): Mapping from atomic number to symbol and name
-            level_energy_data (pandas.Series): Level energies (in eV) indexed by (atomic_number, ion_number, level_number)
-            level_population_data (pandas.DataFrame): Level populations indexed by (atomic_number, ion_number, level_number)
-                and each column representing the supernova shell
-            line_interaction_analysis (tardis.analysis.LastLineInteraction): LastLineInteraction object with the appropriate filters
-            colorscale (str, optional): Colorscale for the wavelength info. Defaults to "rainbow".
+        """Constructor for the GrotrianWidget class
+
+        Parameters
+        ----------
+        atom_data : pandas.DataFrame
+            Mapping from atomic number to symbol and name
+        level_energy_data : pandas.Series
+            Level energies (in eV) indexed by (atomic_number, ion_number, level_number)
+        level_population_data : pandas.DataFrame
+            Level populations indexed by (atomic_number, ion_number, level_number)
+            and each column representing the supernova shell
+        line_interaction_analysis : tardis.analysis.LastLineInteraction
+            LastLineInteraction object with the appropriate filters
+        colorscale : str, optional
+            Colorscale for the wavelength info. Default value is "rainbow".
         """
         # Set data members
         self.atom_data = atom_data
@@ -283,7 +314,7 @@ class GrotrianWidget:
         self.line_interaction_analysis[self.filter_mode].shell = self.shell
 
         ### Get the excitation/de-excitation transitions from LastLineInteraction object
-        excit_lines = (
+        excite_lines = (
             self.line_interaction_analysis[self.filter_mode]
             .last_line_in.reset_index()
             .groupby(["level_number_lower", "level_number_upper"])
@@ -294,7 +325,7 @@ class GrotrianWidget:
             .reset_index()
         )
 
-        deexcit_lines = (
+        deexcite_lines = (
             self.line_interaction_analysis[self.filter_mode]
             .last_line_out.reset_index()
             .groupby(["level_number_lower", "level_number_upper"])
@@ -306,30 +337,30 @@ class GrotrianWidget:
         )
 
         ### Filter transitions to only include transitions upto the self.max_levels
-        excit_lines = excit_lines.loc[
-            excit_lines.level_number_upper <= self.max_levels
+        excite_lines = excite_lines.loc[
+            excite_lines.level_number_upper <= self.max_levels
         ]
-        deexcit_lines = deexcit_lines.loc[
-            deexcit_lines.level_number_upper <= self.max_levels
+        deexcite_lines = deexcite_lines.loc[
+            deexcite_lines.level_number_upper <= self.max_levels
         ]
 
         ### Map the levels to merged levels
-        excit_lines[
+        excite_lines[
             "merged_level_number_lower"
-        ] = excit_lines.level_number_lower.map(self.level_mapping)
-        excit_lines[
+        ] = excite_lines.level_number_lower.map(self.level_mapping)
+        excite_lines[
             "merged_level_number_upper"
-        ] = excit_lines.level_number_upper.map(self.level_mapping)
-        deexcit_lines[
+        ] = excite_lines.level_number_upper.map(self.level_mapping)
+        deexcite_lines[
             "merged_level_number_lower"
-        ] = deexcit_lines.level_number_lower.map(self.level_mapping)
-        deexcit_lines[
+        ] = deexcite_lines.level_number_lower.map(self.level_mapping)
+        deexcite_lines[
             "merged_level_number_upper"
-        ] = deexcit_lines.level_number_upper.map(self.level_mapping)
+        ] = deexcite_lines.level_number_upper.map(self.level_mapping)
 
         ### Group by level pairs
-        excit_lines = (
-            excit_lines.groupby(
+        excite_lines = (
+            excite_lines.groupby(
                 ["merged_level_number_lower", "merged_level_number_upper"]
             )
             .agg(
@@ -338,8 +369,8 @@ class GrotrianWidget:
             )
             .reset_index()
         )
-        deexcit_lines = (
-            deexcit_lines.groupby(
+        deexcite_lines = (
+            deexcite_lines.groupby(
                 ["merged_level_number_lower", "merged_level_number_upper"]
             )
             .agg(
@@ -350,59 +381,59 @@ class GrotrianWidget:
         )
 
         ### Remove the rows where start and end (merged) level is the same
-        excit_lines = excit_lines.loc[
-            excit_lines.merged_level_number_lower
-            != excit_lines.merged_level_number_upper
+        excite_lines = excite_lines.loc[
+            excite_lines.merged_level_number_lower
+            != excite_lines.merged_level_number_upper
         ]
-        deexcit_lines = deexcit_lines.loc[
-            deexcit_lines.merged_level_number_lower
-            != deexcit_lines.merged_level_number_upper
+        deexcite_lines = deexcite_lines.loc[
+            deexcite_lines.merged_level_number_lower
+            != deexcite_lines.merged_level_number_upper
         ]
 
         ### Compute default wavelengths if not set by user
         if self.min_wavelength is None:  # Compute default wavelength
             self.min_wavelength = np.min(
                 np.concatenate(
-                    (excit_lines.wavelength, deexcit_lines.wavelength)
+                    (excite_lines.wavelength, deexcite_lines.wavelength)
                 )
             )
         if self.max_wavelength is None:  # Compute default wavelength
             self.max_wavelength = np.max(
                 np.concatenate(
-                    (excit_lines.wavelength, deexcit_lines.wavelength)
+                    (excite_lines.wavelength, deexcite_lines.wavelength)
                 )
             )
 
         ### Remove the rows outside the wavelength range for the plot
-        excit_lines = excit_lines.loc[
-            (excit_lines.wavelength >= self.min_wavelength)
-            & (excit_lines.wavelength <= self.max_wavelength)
+        excite_lines = excite_lines.loc[
+            (excite_lines.wavelength >= self.min_wavelength)
+            & (excite_lines.wavelength <= self.max_wavelength)
         ]
-        deexcit_lines = deexcit_lines.loc[
-            (deexcit_lines.wavelength >= self.min_wavelength)
-            & (deexcit_lines.wavelength <= self.max_wavelength)
+        deexcite_lines = deexcite_lines.loc[
+            (deexcite_lines.wavelength >= self.min_wavelength)
+            & (deexcite_lines.wavelength <= self.max_wavelength)
         ]
 
         ### Compute the standardized log number of electrons for arrow line width ###
         transition_width_coefficient = standardize(
             np.concatenate(
-                (excit_lines.num_electrons, deexcit_lines.num_electrons)
+                (excite_lines.num_electrons, deexcite_lines.num_electrons)
             ),
             transform=self.transition_width_transform,
         )
-        excit_lines[
+        excite_lines[
             "transition_width_coefficient"
-        ] = transition_width_coefficient[: len(excit_lines)]
-        deexcit_lines[
+        ] = transition_width_coefficient[: len(excite_lines)]
+        deexcite_lines[
             "transition_width_coefficient"
-        ] = transition_width_coefficient[len(excit_lines) :]
+        ] = transition_width_coefficient[len(excite_lines) :]
 
-        self.excit_lines = excit_lines
-        self.deexcit_lines = deexcit_lines
+        self.excite_lines = excite_lines
+        self.deexcite_lines = deexcite_lines
 
     def _compute_level_data(self):
         """
-        Cleans the level population data for the horizontal platforms in the widget
+        Computes the level population data for the horizontal platforms in the widget
         """
         ### Get energy levels and convert to eV
         raw_energy_levels = self.level_energy_data.loc[
@@ -432,7 +463,7 @@ class GrotrianWidget:
             right_index=True,
         )
 
-        ### Merge the levels if energy difference is too less
+        ### Merge the levels if energy difference is less than threshold
         # Get new level numbers
         # TODO: Find a better way to find close levels (less than 0.03 diff in y-coord)
         raw_level_data["merged_level_number"] = (
@@ -458,7 +489,7 @@ class GrotrianWidget:
             self.level_data.population,
             transform=self.level_width_transform,
             zero_undefined=True,
-            offset=1e-3,
+            zero_undefined_offset=1e-3,
         )
 
         ### Create a mapping from original levels to merged levels
@@ -473,7 +504,7 @@ class GrotrianWidget:
             self.level_data.energy,
             transform=self._y_coord_transform,
             zero_undefined=True,
-            offset=0.1,
+            zero_undefined_offset=0.1,
         )
 
         ### Create the energy levels from level data ###
@@ -580,7 +611,7 @@ class GrotrianWidget:
         """
         Draws the transition arrows on the widget
         """
-        lines = self.excit_lines if is_excitation else self.deexcit_lines
+        lines = self.excite_lines if is_excitation else self.deexcite_lines
         lines["color_coefficient"] = standardize(
             lines.wavelength,
             transform=self.wavelength_color_transform,
@@ -653,16 +684,16 @@ class GrotrianWidget:
         max_num_electrons = np.max(
             np.concatenate(
                 (
-                    self.excit_lines.num_electrons,
-                    self.deexcit_lines.num_electrons,
+                    self.excite_lines.num_electrons,
+                    self.deexcite_lines.num_electrons,
                 )
             )
         )
         min_num_electrons = np.min(
             np.concatenate(
                 (
-                    self.excit_lines.num_electrons,
-                    self.deexcit_lines.num_electrons,
+                    self.excite_lines.num_electrons,
+                    self.deexcite_lines.num_electrons,
                 )
             )
         )
@@ -670,16 +701,16 @@ class GrotrianWidget:
         max_width_coefficient = np.max(
             np.concatenate(
                 (
-                    self.excit_lines.transition_width_coefficient,
-                    self.deexcit_lines.transition_width_coefficient,
+                    self.excite_lines.transition_width_coefficient,
+                    self.deexcite_lines.transition_width_coefficient,
                 )
             )
         )
         min_width_coefficient = np.min(
             np.concatenate(
                 (
-                    self.excit_lines.transition_width_coefficient,
-                    self.deexcit_lines.transition_width_coefficient,
+                    self.excite_lines.transition_width_coefficient,
+                    self.deexcite_lines.transition_width_coefficient,
                 )
             )
         )
@@ -784,7 +815,10 @@ class GrotrianWidget:
 
         # Update fig layout
         self.fig.update_layout(
-            title=f"Grotrian Diagram for {self.atomic_name} {int_to_roman(self.ion_number + 1)} (Shell: {self.shell if self.shell is not None else 'All'})",
+            title=(
+                f"Grotrian Diagram for {self.atomic_name} {int_to_roman(self.ion_number + 1)} "
+                f"(Shell: {self.shell if self.shell is not None else 'All'})"
+            ),
             title_x=0.5,
             plot_bgcolor="white",
             autosize=False,
