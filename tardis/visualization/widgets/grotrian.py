@@ -159,8 +159,7 @@ class GrotrianWidget:
         """
         atom_data = sim.plasma.atomic_data.atom_data
         level_energy_data = pd.Series(
-            sim.plasma.atomic_data.levels.energy
-            / (u.electronvolt.to("J") * 1e7),
+            sim.plasma.atomic_data.levels.energy * u.erg.to(u.electronvolt),
             name="energy",
         )
         level_population_data = sim.plasma.level_number_density
