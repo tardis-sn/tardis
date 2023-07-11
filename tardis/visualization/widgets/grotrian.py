@@ -94,6 +94,51 @@ def standardize(
 
 
 class GrotrianWidget:
+    """Class for the Grotrian Diagram
+
+    Parameters
+    ----------
+    atom_data : pandas.DataFrame
+        Mapping from atomic number to symbol and name
+    level_energy_data : pandas.Series
+        Level energies (in eV) indexed by (atomic_number, ion_number, level_number)
+    level_population_data : pandas.DataFrame
+        Level populations indexed by (atomic_number, ion_number, level_number)
+        and each column representing the supernova shell
+    line_interaction_analysis : tardis.analysis.LastLineInteraction
+        LastLineInteraction object with the appropriate filters
+
+    Configurable Attributes
+    -----------------------
+    atomic_number : int
+        Atomic number of the ion for which the diagram is plotted
+        Note: User should set the atomic_number and ion_number together using set_ion function.
+    ion_number : int
+        Ion number of the ion for which the diagram is plotted
+        Note: User should set the atomic_number and ion_number together using set_ion function.
+    shell : int or None
+        The supernova shell to filter on.
+        If None, the level populations are averaged across all shells,
+        and all last line interaction are considered
+        Default value is None
+    y_scale : {"Log", "Linear"}
+        The scale to plot the energy levels on the y-axis
+    cmapname : str
+        The name of the colormap used to denote wavelengths. Default value is "rainbow"
+    level_width_scale : float
+        The multiplier to convert standardized level populations to level widths
+        Default value is 3
+    level_width_offset : float
+        The offset for level widths (to add to the scaled standardized level populations)
+        Default value is 1
+    transition_width_scale : float
+        The multiplier to convert standardized packet count to transition widths
+        Default value is 2
+    transition_width_offset : float
+        The offset for transition widths (to add to the scaled standardized packet counts)
+        Default value is 1
+    """
+
     FILTER_MODES = ("packet_out_nu", "packet_in_nu")
     FILTER_MODES_DESC = ("Emitted Wavelength", "Absorbed Wavelength")
     Y_SCALE_OPTION = {"Linear": (lambda x: x), "Log": np.log}
@@ -138,20 +183,6 @@ class GrotrianWidget:
         level_population_data,
         line_interaction_analysis,
     ):
-        """Constructor for the GrotrianWidget class
-
-        Parameters
-        ----------
-        atom_data : pandas.DataFrame
-            Mapping from atomic number to symbol and name
-        level_energy_data : pandas.Series
-            Level energies (in eV) indexed by (atomic_number, ion_number, level_number)
-        level_population_data : pandas.DataFrame
-            Level populations indexed by (atomic_number, ion_number, level_number)
-            and each column representing the supernova shell
-        line_interaction_analysis : tardis.analysis.LastLineInteraction
-            LastLineInteraction object with the appropriate filters
-        """
         # Set data members
         self._atom_data = atom_data
         self._level_energy_data = level_energy_data
