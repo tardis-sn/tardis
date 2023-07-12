@@ -294,8 +294,10 @@ class GrotrianWidget:
         """
         self._atomic_number = atomic_number
         self._ion_number = ion_number
-        # TODO: Handle this better
         self._compute_level_data()
+        print(
+            "Changing the ion will reset custom wavelength ranges, if any were set"
+        )
         self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "_compute_transitions()" explicitly
 
     @property
