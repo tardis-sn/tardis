@@ -261,3 +261,30 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
         # Thus, we can absorb the factor gamma in the packet energies, which is
         # more convenient.
         return energies * static_inner_boundary2cmf_factor / gamma
+
+
+class EnergyDepositionSource(BasePacketSource):
+    @classmethod
+    def from_model(cls, model, *args, **kwargs):
+        # TODO: Get gamma ray information here or get from params
+        return cls(*args, **kwargs)
+
+    def __init__(self, *args, **kwargs):
+        # TODO: Pass the energy_df and other things from gamma ray code here
+        return super().__init__(*args, **kwargs)
+
+    def create_packet_radii(self, *args, **kwargs):
+        # TODO
+        pass
+
+    def create_packet_nus(self, *args, **kwargs):
+        # TODO
+        pass
+
+    def create_packet_mus(self, *args, **kwargs):
+        # TODO
+        pass
+
+    def create_packet_energies(self, *args, **kwargs):
+        # TODO
+        pass
