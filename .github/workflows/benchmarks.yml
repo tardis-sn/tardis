@@ -56,7 +56,7 @@ jobs:
 
       - name: Save Atom Data
         uses: actions/cache/save@v3
-        if: ${{ steps.atom-data-restore.cache-hit != 'true'  && always() || false }}
+        if: ${{ steps.atom-data-restore.outputs.cache-hit != 'true'  && always() || false }}
         id: atom-data-cache-save
         with:
           path: benchmarks/data/kurucz_cd23_chianti_H_He.h5
