@@ -121,6 +121,16 @@ class GrotrianWidget:
         If None, the level populations are averaged across all shells,
         and all last line interaction are considered
         Default value is None
+    max_levels : int
+        The maximum number of levels to plot. Default value is 10
+    level_diff_threshold : float
+        The percentage threshold under which levels are merged
+    min_wavelength : float
+        The minimum wavelength allowed for the transitions
+    max_wavelength : float
+        The maximum wavelength allowed for the transitions
+    filter_mode : {"packet_out_nu", "packet_in_nu"}
+        The type of wavelength to apply wavelength range filter on
     y_scale : {"Log", "Linear"}
         The scale to plot the energy levels on the y-axis
     cmapname : str
@@ -188,36 +198,16 @@ class GrotrianWidget:
         self._level_population_data = level_population_data
         self._line_interaction_analysis = line_interaction_analysis
 
-        # Selector for max level threshold
-        self.max_level_selector = ipw.BoundedIntText(
-            value=10,
-            min=1,
-            max=40,
-            step=1,
-            description="Max Levels:",
-        )
+        # Max number of levels to display
+        self._max_levels = 10
 
         # Energy difference threshold below which levels are merged
-        self.level_diff_threshold_selector = ipw.FloatLogSlider(
-            value=0.01,
-            base=10,
-            min=-5,  # max exponent of base
-            max=-1,  # min exponent of base
-            step=0.1,  # exponent step
-            description="Min Energy Diff",
-        )
+        self._level_diff_threshold = 0.01
 
-        # Toggle button for filter mode
-        self.filter_mode_buttons = ipw.ToggleButtons(
-            options={
-                label: value
-                for label, value in zip(
-                    self.FILTER_MODES_DESC, self.FILTER_MODES
-                )
-            },
-            value=self.FILTER_MODES[0],
-            description="Filter Mode:",
-        )
+        # Filter mode for the wavelength range
+        self._min_wavelength = None
+        self._max_wavelength = None
+        self._filter_mode = self.FILTER_MODES[0]
 
         # Selected Species
         self._atomic_number = None
@@ -248,39 +238,62 @@ class GrotrianWidget:
         # Coordinate end points of levels
         self.x_min, self.x_max = 0, 1
 
+    @property
+    def min_wavelength(self):
+        return self._min_wavelength
+
+    @min_wavelength.setter
+    def min_wavelength(self, value):
+        self._min_wavelength = value
+        self._compute_transitions()
+
+    @property
+    def max_wavelength(self):
+        return self._max_wavelength
+
+    @max_wavelength.setter
+    def max_wavelength(self, value):
+        self._max_wavelength = value
+        self._compute_transitions()
+
     def reset_selected_plot_wavelength_range(self):
         """
         Resets the wavelength range of the selected plot
         """
         self.min_wavelength = None
         self.max_wavelength = None
-        self._compute_transitions()
-
-    def set_min_plot_wavelength(self, value):
-        """
-        Sets the minimum wavelength value for the plot
-        """
-        self.min_wavelength = value
-        self._compute_transitions()
-
-    def set_max_plot_wavelength(self, value):
-        """
-        Sets the maximum wavelength value for the plot
-        """
-        self.max_wavelength = value
-        self._compute_transitions()
 
     @property
     def max_levels(self):
-        return self.max_level_selector.value
+        return self._max_levels
+
+    @max_levels.setter
+    def max_levels(self, value):
+        assert type(value) is int
+        self._max_levels = value
+        self._compute_level_data()
+        self._compute_transitions()
 
     @property
     def level_diff_threshold(self):
-        return self.level_diff_threshold_selector.value
+        return self._level_diff_threshold
+
+    @level_diff_threshold.setter
+    def level_diff_threshold(self, value):
+        assert 0 >= value and value < 1
+        self._level_diff_threshold = value
+        self._compute_level_data()
+        self._compute_transitions()
 
     @property
     def filter_mode(self):
-        return self.filter_mode_buttons.value
+        return self._filter_mode
+
+    @filter_mode.setter
+    def filter_mode(self, value):
+        assert value in self.FILTER_MODES
+        self._filter_mode = value
+        self._compute_transitions()
 
     @property
     def atomic_number(self):
@@ -292,12 +305,16 @@ class GrotrianWidget:
         """
         Sets the atomic number and ion number
         """
+        assert type(atomic_number) is int and type(ion_number) is int
+
         self._atomic_number = atomic_number
         self._ion_number = ion_number
         self._compute_level_data()
         print(
             "Changing the ion will reset custom wavelength ranges, if any were set"
         )
+
+        # Reset any custom wavelengths if user changes ion
         self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "_compute_transitions()" explicitly
 
     @property
@@ -320,6 +337,7 @@ class GrotrianWidget:
 
     @shell.setter
     def shell(self, value):
+        assert value is None or type(value) is int
         self._shell = value
         self._compute_level_data()
         self._compute_transitions()
@@ -330,6 +348,7 @@ class GrotrianWidget:
 
     @y_scale.setter
     def y_scale(self, value):
+        assert value in self.Y_SCALE_OPTION
         self._y_scale = value
         self._y_coord_transform = self.Y_SCALE_OPTION[self._y_scale]
 
@@ -422,13 +441,13 @@ class GrotrianWidget:
 
         ### Compute default wavelengths if not set by user
         if self.min_wavelength is None:  # Compute default wavelength
-            self.min_wavelength = np.min(
+            self._min_wavelength = np.min(
                 np.concatenate(
                     (excite_lines.wavelength, deexcite_lines.wavelength)
                 )
             )
         if self.max_wavelength is None:  # Compute default wavelength
-            self.max_wavelength = np.max(
+            self._max_wavelength = np.max(
                 np.concatenate(
                     (excite_lines.wavelength, deexcite_lines.wavelength)
                 )
