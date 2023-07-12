@@ -693,7 +693,7 @@ class GrotrianWidget:
                     marker=dict(
                         size=self.arrowhead_size,
                         color=color,
-                        symbol="arrow-bar-up",
+                        symbol="arrow-up",
                         angleref="previous",
                     ),
                     line=dict(
