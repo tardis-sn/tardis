@@ -2,7 +2,8 @@ from tardis.model.geometry import Cartesian3DGeometry
 
 # packet sources need an origin
 
-class Cartesian3DModel(HDFWriterMixin):
+
+class Cartesian3DModelSolver(HDFWriterMixin):
     """
     An object that hold information about the individual shells.
 
@@ -66,90 +67,30 @@ class Cartesian3DModel(HDFWriterMixin):
 
     def __init__(
         self,
-        velocity,
-        homologous_density,
-        abundance,
-        isotope_abundance,
+        model_state,
+        # velocity,
+        # homologous_density,           # should go into modelstate
+        # abundance,                    # should go into composition
+        # isotope_abundance,            # should go into composition
         time_explosion,
-        t_inner,
-        elemental_mass,
-        luminosity_requested=None,
-        t_radiative=None,
-        dilution_factor=None,
-        v_boundary_inner=None,
-        v_boundary_outer=None,
-        electron_densities=None,
+        # t_inner,
+        # elemental_mass,               # should go into composition
+        # luminosity_requested=None,    # should go into radiation field
+        # t_radiative=None,             # should go into radiation field
+        # dilution_factor=None,         # should go into radiation field
+        # v_boundary_inner=None,
+        # v_boundary_outer=None,
+        # electron_densities=None,      # should go into plasma
     ):
-        self._v_boundary_inner = None
-        self._v_boundary_outer = None
-        self._velocity = None
-        self.raw_velocity = velocity
-        self.v_boundary_inner = v_boundary_inner
-        self.v_boundary_outer = v_boundary_outer
-        self.homologous_density = homologous_density
-        self._abundance = abundance
-        self.time_explosion = time_explosion
-        self._electron_densities = electron_densities
-        v_outer = self.velocity[1:]
-        v_inner = self.velocity[:-1]
-        density = (
-            self.homologous_density.calculate_density_at_time_of_simulation(
-                self.time_explosion
-            )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
-        )
-        self.raw_abundance = self._abundance
-        self.raw_isotope_abundance = isotope_abundance
+        self.initial_model_state = model_state
 
-        atomic_mass = None
-        if elemental_mass is not None:
-            mass = {}
-            stable_atomic_numbers = self.raw_abundance.index.to_list()
-            for z in stable_atomic_numbers:
-                mass[z] = [
-                    elemental_mass[z]
-                    for i in range(self.raw_abundance.columns.size)
-                ]
-            stable_isotope_mass = pd.DataFrame(mass).T
+    def evolve(self, time_explosion):
+        # TODO: this method is overloaded by users to return the modelstate
 
-            isotope_mass = {}
-            for atomic_number, i in self.raw_isotope_abundance.decay(
-                self.time_explosion
-            ).groupby(level=0):
-                i = i.loc[atomic_number]
-                for column in i:
-                    mass = {}
-                    shell_abundances = i[column]
-                    isotopic_masses = [
-                        rd.Nuclide(Z_DICT[atomic_number] + str(i)).atomic_mass
-                        for i in shell_abundances.index.to_numpy()
-                    ]
-                    mass[atomic_number] = (
-                        shell_abundances * isotopic_masses
-                    ).sum()
-                    mass[atomic_number] /= shell_abundances.sum()
-                    mass[atomic_number] = mass[atomic_number] * u.u.to(u.g)
-                    if isotope_mass.get(column) is None:
-                        isotope_mass[column] = {}
-                    isotope_mass[column][atomic_number] = mass[atomic_number]
-            isotope_mass = pd.DataFrame(isotope_mass)
-
-            atomic_mass = pd.concat([stable_isotope_mass, isotope_mass])
-
-        composition = Composition(
-            density=density,
-            elemental_mass_fraction=self.abundance,
-            atomic_mass=atomic_mass,
-        )
-        geometry = Cartesian3DGeometry(
-            r_inner=self.time_explosion * v_inner, #construct radii assuming homology and map velocity in 3D
-            r_outer=self.time_explosion * v_outer,
-            v_inner=v_inner,
-            v_outer=v_outer,
-        )
         self.model_state = ModelState(
             composition=composition,
             geometry=geometry,
-            time_explosion=self.time_explosion,
+            time_explosion=time_explosion,
         )
 
         if t_inner is None:
@@ -160,7 +101,8 @@ class Cartesian3DModel(HDFWriterMixin):
                         / (
                             4
                             * np.pi
-                            * self.r_inner[0] ** 2 #does not make sense! need to define inner boundary velocity/radius instead
+                            * self.r_inner[0]
+                            ** 2  # does not make sense! need to define inner boundary velocity/radius instead
                             * constants.sigma_sb
                         )
                     )
@@ -230,21 +172,6 @@ class Cartesian3DModel(HDFWriterMixin):
     def dilution_factor(self, value):
         if len(value) == len(self._dilution_factor):
             self._dilution_factor = value
-        elif len(value) == self.no_of_cells:
-            #            if self.v_boundary_inner in self.raw_velocity:
-            #                v_inner_ind = np.argwhere(self.raw_velocity == self.v_boundary_inner)[0][0]
-            #            else:
-            #                v_inner_ind = np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
-            #            if self.v_boundary_outer in self.raw_velocity:
-            #                v_outer_ind = np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
-            #            else:
-            #                v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
-            #            assert v_outer_ind - v_inner_ind == self.no_of_shells, "trad shape different from number of shells"
-            self._dilution_factor[
-                self.v_boundary_inner_index
-                + 1 : self.v_boundary_outer_index
-                + 1
-            ] = value
         else:
             raise ValueError(
                 "Trying to set dilution_factor for unmatching number"
@@ -256,38 +183,10 @@ class Cartesian3DModel(HDFWriterMixin):
         if len(self._t_radiative) == self.no_of_cells:
             return self._t_radiative
 
-        #        if self.v_boundary_inner in self.raw_velocity:
-        #            v_inner_ind = np.argwhere(self.raw_velocity == self.v_boundary_inner)[0][0]
-        #        else:
-        #            v_inner_ind = np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
-        #        if self.v_boundary_outer in self.raw_velocity:
-        #            v_outer_ind = np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
-        #        else:
-        #            v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
-
-        return self._t_radiative[
-            self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1
-        ]
-
     @t_radiative.setter
     def t_radiative(self, value):
         if len(value) == len(self._t_radiative):
             self._t_radiative = value
-        elif len(value) == self.no_of_cells:
-            #            if self.v_boundary_inner in self.raw_velocity:
-            #                v_inner_ind = np.argwhere(self.raw_velocity == self.v_boundary_inner)[0][0]
-            #            else:
-            #                v_inner_ind = np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
-            #            if self.v_boundary_outer in self.raw_velocity:
-            #                v_outer_ind = np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
-            #            else:
-            #                v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
-            #            assert v_outer_ind - v_inner_ind == self.no_of_shells, "trad shape different from number of shells"
-            self._t_radiative[
-                self.v_boundary_inner_index
-                + 1 : self.v_boundary_outer_index
-                + 1
-            ] = value
         else:
             raise ValueError(
                 "Trying to set t_radiative for unmatching number" "of shells."
@@ -311,14 +210,7 @@ class Cartesian3DModel(HDFWriterMixin):
 
     @property
     def velocity(self):
-
-        if self._velocity is None:
-            self._velocity = self.raw_velocity[
-                self.v_boundary_inner_index : self.v_boundary_outer_index + 1
-            ]
-            self._velocity[0] = self.v_boundary_inner
-            self._velocity[-1] = self.v_boundary_outer
-        return self._velocity
+        raise NotImplementedError
 
     @property
     def v_inner(self):
@@ -356,234 +248,124 @@ class Cartesian3DModel(HDFWriterMixin):
     def no_of_cells(self):
         return len(self.velocity) - 1
 
-    @property
-    def no_of_raw_shells(self):
-        return len(self.raw_velocity) - 1
-
-    @property
-    def v_boundary_inner(self):
-        if self._v_boundary_inner is None:
-            return self.raw_velocity[0]
-        if self._v_boundary_inner < 0 * u.km / u.s:
-            return self.raw_velocity[0]
-        return self._v_boundary_inner
-
-    @v_boundary_inner.setter
-    def v_boundary_inner(self, value):
-        if value is not None:
-            if value > 0 * u.km / u.s:
-                value = u.Quantity(value, self.v_boundary_inner.unit)
-                if value > self.v_boundary_outer:
-                    raise ValueError(
-                        f"v_boundary_inner ({value}) must not be higher than "
-                        f"v_boundary_outer ({self.v_boundary_outer})."
-                    )
-                if value > self.raw_velocity[-1]:
-                    raise ValueError(
-                        f"v_boundary_inner ({value}) is outside of the model range ({self.raw_velocity[-1]})."
-                    )
-                if value < self.raw_velocity[0]:
-                    raise ValueError(
-                        f"v_boundary_inner ({value}) is lower than the lowest shell ({self.raw_velocity[0]}) in the model."
-                    )
-        self._v_boundary_inner = value
-        # Invalidate the cached cut-down velocity array
-        self._velocity = None
-
-    @property
-    def v_boundary_outer(self):
-        if self._v_boundary_outer is None:
-            return self.raw_velocity[-1]
-        if self._v_boundary_outer < 0 * u.km / u.s:
-            return self.raw_velocity[-1]
-        return self._v_boundary_outer
-
-    @v_boundary_outer.setter
-    def v_boundary_outer(self, value):
-        if value is not None:
-            if value > 0 * u.km / u.s:
-                value = u.Quantity(value, self.v_boundary_outer.unit)
-                if value < self.v_boundary_inner:
-                    raise ValueError(
-                        f"v_boundary_outer ({value}) must not be smaller than v_boundary_inner ({self.v_boundary_inner})."
-                    )
-                if value < self.raw_velocity[0]:
-                    raise ValueError(
-                        f"v_boundary_outer ({value}) is outside of the model range ({self.raw_velocity[0]})."
-                    )
-                if value > self.raw_velocity[-1]:
-                    raise ValueError(
-                        f"v_boundary_outer ({value}) is larger than the largest shell in the model ({self.raw_velocity[-1]})."
-                    )
-        self._v_boundary_outer = value
-        # Invalidate the cached cut-down velocity array
-        self._velocity = None
-
-    # doesn't work in 3D cartesian
-    @property
-    def v_boundary_inner_index(self):
-        if self.v_boundary_inner in self.raw_velocity:
-            v_inner_ind = np.argwhere(
-                self.raw_velocity == self.v_boundary_inner
-            )[0][0]
-        else:
-            v_inner_ind = (
-                np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
-            )
-        return v_inner_ind
-
-    @property
-    def v_boundary_outer_index(self):
-        if self.v_boundary_outer in self.raw_velocity:
-            v_outer_ind = np.argwhere(
-                self.raw_velocity == self.v_boundary_outer
-            )[0][0]
-        else:
-            v_outer_ind = np.searchsorted(
-                self.raw_velocity, self.v_boundary_outer
-            )
-        return v_outer_ind
-
-    #    @property
-    #    def v_boundary_inner_index(self):
-    #        if self.v_boundary_inner <= self.raw_velocity[0]:
-    #            return 0
-    #        else:
-    #            idx = max(0,
-    #                      self.raw_velocity.searchsorted(self.v_boundary_inner) - 1)
-    #            # check for zero volume of designated first cell
-    #            if np.isclose(self.v_boundary_inner, self.raw_velocity[idx + 1],
-    #                          atol=1e-8 * u.km / u.s) and (self.v_boundary_inner <=
-    #                                                           self.raw_velocity[idx + 1]):
-    #                idx += 1
-    #            return idx
-    #
-    #    @property
-    #    def v_boundary_outer_index(self):
-    #        if self.v_boundary_outer >= self.raw_velocity[-1]:
-    #            return None
-    #        return self.raw_velocity.searchsorted(self.v_boundary_outer) + 1
-
 
 # this has to do a lot of work!
-    @classmethod
-    def from_config(cls, config, atom_data=None):
-        """
-        Create a new Radial1DModel instance from a Configuration object.
+# @classmethod
+def from_config(cls, config, atom_data=None):
+    """
+    Create a new Radial1DModel instance from a Configuration object.
 
-        Parameters
-        ----------
-        config : tardis.io.config_reader.Configuration
-        atom_data : tardis.io.AtomData
+    Parameters
+    ----------
+    config : tardis.io.config_reader.Configuration
+    atom_data : tardis.io.AtomData
 
-        Returns
-        -------
-        Radial1DModel
-        """
-        time_explosion = config.supernova.time_explosion.cgs
+    Returns
+    -------
+    Radial1DModel
+    """
+    time_explosion = config.supernova.time_explosion.cgs
 
-        structure = config.model.structure
-        electron_densities = None
-        temperature = None
-        if structure.type == "specific":
-            velocity = quantity_linspace(
-                structure.velocity.start,
-                structure.velocity.stop,
-                structure.velocity.num + 1,
-            ).cgs
-            homologous_density = HomologousDensity.from_config(config)
-        elif structure.type == "file":
-            if os.path.isabs(structure.filename):
-                structure_fname = structure.filename
-            else:
-                structure_fname = os.path.join(
-                    config.config_dirname, structure.filename
-                )
-
-            (
-                time_0,
-                velocity,
-                density_0,
-                electron_densities,
-                temperature,
-            ) = read_density_file(structure_fname, structure.filetype)
-            density_0 = density_0.insert(0, 0)
-            homologous_density = HomologousDensity(density_0, time_0)
+    structure = config.model.structure
+    electron_densities = None
+    temperature = None
+    if structure.type == "specific":
+        velocity = quantity_linspace(
+            structure.velocity.start,
+            structure.velocity.stop,
+            structure.velocity.num + 1,
+        ).cgs
+        homologous_density = HomologousDensity.from_config(config)
+    elif structure.type == "file":
+        if os.path.isabs(structure.filename):
+            structure_fname = structure.filename
         else:
-            raise NotImplementedError
-        # Note: This is the number of shells *without* taking in mind the
-        #       v boundaries.
-        no_of_shells = len(velocity) - 1
-
-        if temperature:
-            t_radiative = temperature
-        elif config.plasma.initial_t_rad > 0 * u.K:
-            t_radiative = (
-                np.ones(no_of_shells + 1) * config.plasma.initial_t_rad
-            )
-        else:
-            t_radiative = None
-
-        if config.plasma.initial_t_inner < 0.0 * u.K:
-            luminosity_requested = config.supernova.luminosity_requested
-            t_inner = None
-        else:
-            luminosity_requested = None
-            t_inner = config.plasma.initial_t_inner
-
-        abundances_section = config.model.abundances
-        isotope_abundance = pd.DataFrame()
-
-        if abundances_section.type == "uniform":
-            abundance, isotope_abundance = read_uniform_abundances(
-                abundances_section, no_of_shells
+            structure_fname = os.path.join(
+                config.config_dirname, structure.filename
             )
 
-        elif abundances_section.type == "file":
-            if os.path.isabs(abundances_section.filename):
-                abundances_fname = abundances_section.filename
-            else:
-                abundances_fname = os.path.join(
-                    config.config_dirname, abundances_section.filename
-                )
+        (
+            time_0,
+            velocity,
+            density_0,
+            electron_densities,
+            temperature,
+        ) = read_density_file(structure_fname, structure.filetype)
+        density_0 = density_0.insert(0, 0)
+        homologous_density = HomologousDensity(density_0, time_0)
+    else:
+        raise NotImplementedError
+    # Note: This is the number of shells *without* taking in mind the
+    #       v boundaries.
+    no_of_shells = len(velocity) - 1
 
-            index, abundance, isotope_abundance = read_abundances_file(
-                abundances_fname, abundances_section.filetype
-            )
+    if temperature:
+        t_radiative = temperature
+    elif config.plasma.initial_t_rad > 0 * u.K:
+        t_radiative = np.ones(no_of_shells + 1) * config.plasma.initial_t_rad
+    else:
+        t_radiative = None
 
-        abundance = abundance.replace(np.nan, 0.0)
-        abundance = abundance[abundance.sum(axis=1) > 0]
+    if config.plasma.initial_t_inner < 0.0 * u.K:
+        luminosity_requested = config.supernova.luminosity_requested
+        t_inner = None
+    else:
+        luminosity_requested = None
+        t_inner = config.plasma.initial_t_inner
 
-        norm_factor = abundance.sum(axis=0) + isotope_abundance.sum(axis=0)
+    abundances_section = config.model.abundances
+    isotope_abundance = pd.DataFrame()
 
-        if np.any(np.abs(norm_factor - 1) > 1e-12):
-            logger.warning(
-                "Abundances have not been normalized to 1." " - normalizing"
-            )
-            abundance /= norm_factor
-            isotope_abundance /= norm_factor
-
-        isotope_abundance = IsotopeAbundances(isotope_abundance)
-
-        elemental_mass = None
-        if atom_data is not None:
-            elemental_mass = atom_data.atom_data.mass
-
-        return cls(
-            velocity=velocity,
-            homologous_density=homologous_density,
-            abundance=abundance,
-            isotope_abundance=isotope_abundance,
-            time_explosion=time_explosion,
-            t_radiative=t_radiative,
-            t_inner=t_inner,
-            elemental_mass=elemental_mass,
-            luminosity_requested=luminosity_requested,
-            dilution_factor=None,
-            v_boundary_inner=structure.get("v_inner_boundary", None),
-            v_boundary_outer=structure.get("v_outer_boundary", None),
-            electron_densities=electron_densities,
+    if abundances_section.type == "uniform":
+        abundance, isotope_abundance = read_uniform_abundances(
+            abundances_section, no_of_shells
         )
+
+    elif abundances_section.type == "file":
+        if os.path.isabs(abundances_section.filename):
+            abundances_fname = abundances_section.filename
+        else:
+            abundances_fname = os.path.join(
+                config.config_dirname, abundances_section.filename
+            )
+
+        index, abundance, isotope_abundance = read_abundances_file(
+            abundances_fname, abundances_section.filetype
+        )
+
+    abundance = abundance.replace(np.nan, 0.0)
+    abundance = abundance[abundance.sum(axis=1) > 0]
+
+    norm_factor = abundance.sum(axis=0) + isotope_abundance.sum(axis=0)
+
+    if np.any(np.abs(norm_factor - 1) > 1e-12):
+        logger.warning(
+            "Abundances have not been normalized to 1." " - normalizing"
+        )
+        abundance /= norm_factor
+        isotope_abundance /= norm_factor
+
+    isotope_abundance = IsotopeAbundances(isotope_abundance)
+
+    elemental_mass = None
+    if atom_data is not None:
+        elemental_mass = atom_data.atom_data.mass
+
+    return cls(
+        velocity=velocity,
+        homologous_density=homologous_density,
+        abundance=abundance,
+        isotope_abundance=isotope_abundance,
+        time_explosion=time_explosion,
+        t_radiative=t_radiative,
+        t_inner=t_inner,
+        elemental_mass=elemental_mass,
+        luminosity_requested=luminosity_requested,
+        dilution_factor=None,
+        v_boundary_inner=structure.get("v_inner_boundary", None),
+        v_boundary_outer=structure.get("v_outer_boundary", None),
+        electron_densities=electron_densities,
+    )
 
     @classmethod
     def from_csvy(cls, config, atom_data=None):

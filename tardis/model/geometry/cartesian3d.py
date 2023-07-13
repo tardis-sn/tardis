@@ -4,46 +4,48 @@ import numpy as np
 from astropy import units as u
 
 
-v_x = np.linspace(-1,1, 10)*1000
-v_y = np.linspace(-1,1, 10)*1000
-v_z = np.linspace(-1,1, 10)*1000
+v_x = np.linspace(-1, 1, 10) * 1000
+v_y = np.linspace(-1, 1, 10) * 1000
+v_z = np.linspace(-1, 1, 10) * 1000
 
-r = np.dstack(np.meshgrid(v_x,v_y,v_z)).reshape(-1,3)
-
+r = np.dstack(np.meshgrid(v_x, v_y, v_z)).reshape(-1, 3)
 
 
 def cell_map(current_cell, direction):
-    '''direction is 3-vector (delta_x, delta_y, delta_z)'''
-    new_cell = current_cell + direction[2] + 10*direction[1] + 100 * direction[0]
+    """direction is 3-vector (delta_x, delta_y, delta_z)"""
+    new_cell = (
+        current_cell + direction[2] + 10 * direction[1] + 100 * direction[0]
+    )
 
 
 class Cartesian3DGeometry:
     """
-    Holds information about model geometry for Cartesian 3D models.
+     Holds information about model geometry for Cartesian 3D models.
 
-   Parameters
-    ----------
-    r_inner : astropy.units.quantity.Quantity [left back lower] [-x, -y, -z]
-    r_outer : astropy.units.quantity.Quantity [right forward upper] [x, y, z]
-    v_inner : astropy.units.quantity.Quantity
-    v_outer : astropy.units.quantity.Quantity
+    Parameters
+     ----------
+     r_inner : astropy.units.quantity.Quantity [left back lower] [-x, -y, -z]
+     r_outer : astropy.units.quantity.Quantity [right forward upper] [x, y, z]
+     v_inner : astropy.units.quantity.Quantity
+     v_outer : astropy.units.quantity.Quantity
 
-    Attributes
-    ----------
-    volume : astropy.units.quantity.Quantity
-        Volume in each shell
+     Attributes
+     ----------
+     volume : astropy.units.quantity.Quantity
+         Volume in each shell
     """
 
-    def __init__(self, r_inner, r_outer, v_inner, v_outer):
+    def __init__(self, r_inner, r_outer, v_inner, v_outer, shape):
         self.r_inner = r_inner
         self.r_outer = r_outer
         self.v_inner = v_inner
         self.v_outer = v_outer
+        self.shape = shape
 
     @property
     def volume(self):
         """Volume in cell"""
-        return np.prod(r_outer-r_inner, axis=1)
+        return np.prod(r_outer - r_inner, axis=1)
 
     def to_numba(self):
         """
