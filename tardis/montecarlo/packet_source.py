@@ -264,12 +264,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
 
 
 class EnergyDepositionSource(BasePacketSource):
-    @classmethod
-    def from_model(cls, model, *args, **kwargs):
-        # TODO: Get gamma ray information here or get from params
-        return cls(*args, **kwargs)
-
-    def __init__(self, *args, **kwargs):
+    def __init__(self, gamma_ray_df, *args, **kwargs):
         # TODO: Pass the energy_df and other things from gamma ray code here
         return super().__init__(*args, **kwargs)
 
@@ -281,9 +276,22 @@ class EnergyDepositionSource(BasePacketSource):
         # TODO
         pass
 
-    def create_packet_mus(self, *args, **kwargs):
-        # TODO
-        pass
+    def create_packet_mus(self, no_of_packets):
+        """
+        Create zero-limb-darkening packet :math:`\mu` distributed
+        according to :math:`\\mu=\\sqrt{z}, z \isin [0, 1]`
+
+        Parameters
+        ----------
+        no_of_packets : int
+            number of packets to be created
+        """
+
+        # For testing purposes
+        if montecarlo_configuration.LEGACY_MODE_ENABLED:
+            return np.sqrt(np.random.random(no_of_packets))
+        else:
+            return np.sqrt(self.rng.random(no_of_packets))
 
     def create_packet_energies(self, *args, **kwargs):
         # TODO
