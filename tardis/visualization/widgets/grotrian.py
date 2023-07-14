@@ -122,17 +122,21 @@ class GrotrianWidget:
         and all last line interaction are considered
         Default value is None
     max_levels : int
-        The maximum number of levels to plot. Default value is 10
+        The maximum number of levels to plot.
+        Default value is 10
     level_diff_threshold : float
         The percentage threshold under which levels are merged
+        Default value is 1% (0.01)
     min_wavelength : float
         The minimum wavelength allowed for the transitions
     max_wavelength : float
         The maximum wavelength allowed for the transitions
     filter_mode : {"packet_out_nu", "packet_in_nu"}
         The type of wavelength to apply wavelength range filter on
+        Default value is packet_out_nu
     y_scale : {"Log", "Linear"}
         The scale to plot the energy levels on the y-axis
+        Default value is Linear
     cmapname : str
         The name of the colormap used to denote wavelengths. Default value is "rainbow"
     level_width_scale : float
@@ -385,7 +389,7 @@ class GrotrianWidget:
             .reset_index()
         )
 
-        ### Filter transitions to only include transitions upto the self.max_levels
+        ### Filter transitions to only include transitions up to the self.max_levels
         excite_lines = excite_lines.loc[
             excite_lines.level_number_upper <= self.max_levels
         ]
@@ -463,7 +467,7 @@ class GrotrianWidget:
             & (deexcite_lines.wavelength <= self.max_wavelength)
         ]
 
-        ### Compute the standardized log number of electrons for arrow line width ###
+        ### Compute the standardized log number of electrons for arrow line width
         transition_width_coefficient = standardize(
             np.concatenate(
                 (excite_lines.num_electrons, deexcite_lines.num_electrons)
@@ -548,7 +552,7 @@ class GrotrianWidget:
         """
         Draws the horizontal energy levels on the widget
         """
-        # Transform energies and standardize result to get y-coordinate in range [0, 1] ###
+        # Transform energies and standardize result to get y-coordinate in range [0, 1]
         self.level_data["y_coord"] = standardize(
             self.level_data.energy,
             transform=self._y_coord_transform,
@@ -556,7 +560,7 @@ class GrotrianWidget:
             zero_undefined_offset=0.1,
         )
 
-        ### Create the energy levels from level data ###
+        ### Create the energy levels from level data
         for level_number, level_info in self.level_data.iterrows():
             # Add the horizontal line
             self.fig.add_trace(
@@ -595,7 +599,7 @@ class GrotrianWidget:
         """
         Displays the level population width reference bar
         """
-        ### Create width scale ###
+        ### Create width scale
         ### Find lower and upper bounds of populations and corresponding widths
         min_population_idx = self.level_data.population[
             self.level_data.population > 0
