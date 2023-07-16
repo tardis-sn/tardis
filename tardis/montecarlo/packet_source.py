@@ -9,12 +9,23 @@ from tardis.montecarlo import (
 
 
 class BasePacketSource(abc.ABC):
+    """
+    Abstract base packet source
+
+    Parameters
+    ----------
+    base_seed : int
+        Base Seed for random number generator
+    legacy_secondary_seed : int
+        Secondary seed for global numpy rng (Deprecated: Legacy reasons only)
+    """
+
     # MAX_SEED_VAL must be multiple orders of magnitude larger than no_of_packets;
     # otherwise, each packet would not have its own seed. Here, we set the max
     # seed val to the maximum allowed by numpy.
     MAX_SEED_VAL = 2**32 - 1
 
-    def __init__(self, base_seed, legacy_second_seed=None):
+    def __init__(self, base_seed=None, legacy_second_seed=None):
         self.base_seed = base_seed
         if (
             montecarlo_configuration.LEGACY_MODE_ENABLED
@@ -28,7 +39,6 @@ class BasePacketSource(abc.ABC):
         self.rng = np.random.default_rng(seed=seed)
 
     def create_packet_seeds(self, no_of_packets, seed_offset):
-        # TODO: Decide how to integrate this
         # the iteration (passed as seed_offset) is added each time to preserve randomness
         # across different simulations with the same temperature,
         # for example. We seed the random module instead of the numpy module
@@ -92,18 +102,47 @@ class BlackBodySimpleSource(BasePacketSource):
         Initial packet radius
     temperature : float
         Absolute Temperature.
+    base_seed : int
+        Base Seed for random number generator
+    legacy_secondary_seed : int
+        Secondary seed for global numpy rng (Deprecated: Legacy reasons only)
     """
 
     @classmethod
     def from_model(cls, model, *args, **kwargs):
         return cls(model.r_inner[0], model.t_inner.value, *args, **kwargs)
 
-    def __init__(self, radius, temperature, *args, **kwargs):
+    def __init__(self, radius=None, temperature=None, **kwargs):
         self.radius = radius
         self.temperature = temperature
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
+
+    def set_state_from_model(self, model):
+        """
+        Set state of packet source (correct state should be ensured before creating packets)
+        """
+        self.radius = model.r_inner[0]
+        self.temperature = model.t_inner.value
+
+    def create_packets(self, no_of_packets, *args, **kwargs):
+        if self.radius is None or self.temperature is None:
+            raise ValueError("Black body Radius or Temperature isn't set")
+        return super().create_packets(no_of_packets, *args, **kwargs)
 
     def create_packet_radii(self, no_of_packets):
+        """
+        Create packet radii
+
+        Parameters
+        ----------
+        no_of_packets : int
+            number of packets to be created
+
+        Returns
+        -------
+        Radii for packets
+            numpy.ndarray
+        """
         return np.ones(no_of_packets) * self.radius
 
     def create_packet_nus(self, no_of_packets, l_samples=1000):
@@ -122,14 +161,17 @@ class BlackBodySimpleSource(BasePacketSource):
         .. math::
             x = -\\ln{(\\xi_1\\xi_2\\xi_3\\xi_4)}/l_{\\rm min}\\;.
         where :math:`x=h\\nu/kT`
+
         Parameters
         ----------
         no_of_packets : int
         l_samples : int
             number of l_samples needed in the algorithm
+
         Returns
         -------
-            array of frequencies: numpy.ndarray
+        array of frequencies
+            numpy.ndarray
         """
         l_samples = l_samples
         l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64) ** -4)
@@ -156,6 +198,11 @@ class BlackBodySimpleSource(BasePacketSource):
         ----------
         no_of_packets : int
             number of packets to be created
+
+        Returns
+        -------
+        Directions for packets
+            numpy.ndarray
         """
 
         # For testing purposes
@@ -176,12 +223,31 @@ class BlackBodySimpleSource(BasePacketSource):
 
         Returns
         -------
-            energies for packets : numpy.ndarray
+        energies for packets
+            numpy.ndarray
         """
         return np.ones(no_of_packets) / no_of_packets
 
 
 class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
+    """
+    Simple packet source that generates Blackbody packets for the Montecarlo
+    part.
+
+    Parameters
+    ----------
+    time_explosion : float 64
+        Time elapsed since explosion
+    radius : float64
+        Initial packet radius
+    temperature : float
+        Absolute Temperature.
+    base_seed : int
+        Base Seed for random number generator
+    legacy_secondary_seed : int
+        Secondary seed for global numpy rng (Deprecated: Legacy reasons only)
+    """
+
     @classmethod
     def from_model(cls, model, *args, **kwargs):
         return cls(
@@ -192,19 +258,24 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
             **kwargs,
         )
 
-    def __init__(self, time_explosion, *args, **kwargs):
+    def __init__(self, time_explosion=None, **kwargs):
         self.time_explosion = time_explosion
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
 
-    def create_packets(self, no_of_packets, time_explosion):
+    def set_state_from_model(self, model):
+        """
+        Set state of packet source (correct state should be ensured before creating packets)
+        """
+        self.time_explosion = model.time_explosion
+        super().set_state_from_model(model)
+
+    def create_packets(self, no_of_packets):
         """Generate relativistic black-body packet properties as arrays
 
         Parameters
         ----------
         no_of_packets : int
             Number of packets
-        time_explosion: float64
-            Time elapsed since explosion
 
         Returns
         -------
@@ -217,6 +288,8 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
         array
             Packet energies
         """
+        if self.radius is None or self.time_explosion is None:
+            raise ValueError("Black body Radius or Time of Explosion isn't set")
         self.beta = ((self.radius / self.time_explosion) / const.c).to("")
         return super().create_packets(no_of_packets)
 
@@ -231,6 +304,11 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
         ----------
         no_of_packets : int
             number of packets to be created
+
+        Returns
+        -------
+        array of frequencies
+            numpy.ndarray
         """
         z = self.rng.random(no_of_packets)
         beta = self.beta
@@ -248,7 +326,8 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
 
         Returns
         -------
-            energies for packets : numpy.ndarray
+        energies for packets
+            numpy.ndarray
         """
         beta = self.beta
         gamma = 1.0 / np.sqrt(1 - beta**2)
