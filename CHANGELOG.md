@@ -1,5 +1,10 @@
 ## Change Log
 
+### release-2023.07.16 (2023/07/16 19:15 +00:00)
+- [#2356](https://github.com/tardis-sn/tardis/pull/2356) Pre-release 2023.07.16 (#2356) (@tardis-bot)
+- [#2355](https://github.com/tardis-sn/tardis/pull/2355) Fixed spelling mistake in Wien's displacement law (#2355) (@afloers)
+- [#2351](https://github.com/tardis-sn/tardis/pull/2351) Post-release 2023.07.09 (#2351) (@tardis-bot)
+
 ### release-2023.07.09 (2023/07/09 16:30 +00:00)
 - [#2350](https://github.com/tardis-sn/tardis/pull/2350) Pre-release 2023.07.09 (#2350) (@tardis-bot)
 - [#2347](https://github.com/tardis-sn/tardis/pull/2347) Fix frame transformations of continuum opacity (#2347) (@chvogl)
@@ -341,8 +346,6 @@
 ### release-2021.12.5 (2021/12/02 19:14 +00:00)
 - [#1832](https://github.com/tardis-sn/tardis/pull/1832) Convert quantities to arrays when plotting in SDEC plot (#1832) (@atharva-2001)
 - [#1830](https://github.com/tardis-sn/tardis/pull/1830) Name plotly traces in SDEC plot (#1830) (@atharva-2001)
-
-### release-2021.11.28 (2021/11/25 17:29 +00:00)
 - [#1825](https://github.com/tardis-sn/tardis/pull/1825) changed all files to import constants from only tardis (#1825) (@shilpiprd)
 - [#1799](https://github.com/tardis-sn/tardis/pull/1799) Bug fixes and Improvements in Custom Abundance Widget (#1799) (@yuyizheng1112)
 - [#1803](https://github.com/tardis-sn/tardis/pull/1803) Option to make docs build in parallel (#1803) (@smithis7)

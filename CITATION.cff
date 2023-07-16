@@ -3,8 +3,8 @@
 cff-version: 1.0.3
 message: If you use this software, please cite it using these metadata.
 # FIXME title as repository name might not be the best name, please make human readable
-title: 'tardis-sn/tardis: TARDIS v2023.07.09'
-doi: 10.5281/zenodo.8128141
+title: 'tardis-sn/tardis: TARDIS v2023.07.16'
+doi: 10.5281/zenodo.8152569
 # FIXME splitting of full names is error prone, please check if given/family name are correct
 authors:
 - given-names: Wolfgang
@@ -106,6 +106,8 @@ authors:
 - given-names: James
   family-names: Gillanders
   orcid: https://orcid.org/0000-0002-8094-6108
+- given-names: Shikha
+  family-names: Rathi
 - given-names: Sona
   family-names: Chitchyan
 - given-names: Arjun
@@ -123,10 +125,10 @@ authors:
 - given-names: Jordi
   family-names: Eguren
   orcid: https://orcid.org/0000-0002-2328-8030
-- given-names: Arib
-  family-names: Alam
 - given-names: Matthew
   family-names: Bartnik
+- given-names: Arib
+  family-names: Alam
 - given-names: Mark
   family-names: Magee
 - given-names: Ansh
@@ -144,14 +146,14 @@ authors:
 - given-names: Sashank
   family-names: Mishra
   orcid: https://orcid.org/0000-0001-8302-1584
-- given-names: Shikha
-  family-names: Rathi
+- given-names: GitHub
+  family-names: Actions
+- given-names: Rinkle
+  family-names: Jain
 - given-names: Andreas
   family-names: Floers
 - given-names: John
   family-names: Reichenbach
-- given-names: Rinkle
-  family-names: Jain
 - given-names: Alexander
   family-names: Holas
 - given-names: Sourav
@@ -166,8 +168,6 @@ authors:
   family-names: Bhakar
 - given-names: Ayushi
   family-names: Daksh
-- given-names: GitHub
-  family-names: Actions
 - given-names: Nathan
   family-names: Kowalski
 - given-names: Caroline
@@ -230,7 +230,7 @@ authors:
   family-names: Nayak U
 - given-names: Chaitanya
   family-names: Kolliboyina
-version: release-2023.07.09
-date-released: 2023-07-09
+version: release-2023.07.16
+date-released: 2023-07-16
 repository-code: https://github.com/tardis-sn/tardis
 license: other-open
