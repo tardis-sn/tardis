@@ -77,6 +77,10 @@ class Composition:
             self.atomic_mass, axis=0
         )
 
+    @property
+    def isotope_mass_fraction(self):
+        return self.elemental_mass_fraction
+
 
 class ModelState:
     """
