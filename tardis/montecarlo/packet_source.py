@@ -2,6 +2,7 @@ import abc
 
 import numpy as np
 import numexpr as ne
+import scipy
 from tardis import constants as const
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
@@ -47,6 +48,10 @@ class BasePacketSource(abc.ABC):
         self._reseed(self.base_seed + seed_offset)
         seeds = self.rng.choice(self.MAX_SEED_VAL, no_of_packets, replace=True)
         return seeds
+
+    @abc.abstractmethod
+    def set_state_from_model(self, model):
+        pass
 
     @abc.abstractmethod
     def create_packet_radii(self, no_of_packets, *args, **kwargs):
@@ -343,13 +348,41 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
 
 
 class EnergyDepositionSource(BasePacketSource):
-    def __init__(self, gamma_ray_df, *args, **kwargs):
-        # TODO: Pass the energy_df and other things from gamma ray code here
-        return super().__init__(*args, **kwargs)
+    def __init__(self, energy_df, **kwargs):
+        self.energy_df = energy_df
+        return super().__init__(**kwargs)
 
-    def create_packet_radii(self, *args, **kwargs):
-        # TODO
-        pass
+    def set_state_from_model(self, model):
+        """
+        Set state of packet source (correct state should be ensured before creating packets)
+        """
+        self._shell_radii = model.radius
+        # Pick the column with the time closest to time_explosion
+        self._energy_per_shell = self.energy_df.iloc[
+            :, np.abs(self.energy_df.columns - model.time_explosion).argmin()
+        ]
+
+    def create_packet_radii(self, no_of_packets):
+        # Standardize energies and apply softmax to get shell probabilities
+        std_energy_per_shell = (
+            self._energy_per_shell - np.mean(self._energy_per_shell)
+        ) / np.std(self._energy_per_shell)
+        shell_prob = scipy.special.softmax(std_energy_per_shell)
+
+        num_shells = len(shell_prob)
+
+        # Sample shell for each packet according to the above probabilities
+        packet_shells = self.rng.choice(
+            num_shells, size=no_of_packets, p=shell_prob
+        )
+
+        # Sample radius assuming a uniform distribution within each shell
+        packet_radii = self.rng.uniform(
+            low=self._shell_radii[packet_shells],
+            high=self._shell_radii[packet_shells + 1],
+        )
+
+        return packet_radii * self._shell_radii.unit
 
     def create_packet_nus(self, *args, **kwargs):
         # TODO
