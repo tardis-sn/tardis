@@ -49,7 +49,7 @@ from tardis.plasma.properties import (
 logger = logging.getLogger(__name__)
 
 
-def assemble_plasma(config, model_state, radiation_field atom_data=None):
+def assemble_plasma(config, model_state, radiation_field, atom_data=None):
     """
     Create a BasePlasma instance from a Configuration object
     and a Radial1DModel.
