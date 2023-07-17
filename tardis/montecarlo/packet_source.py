@@ -178,7 +178,6 @@ class BlackBodySimpleSource(BasePacketSource):
         array of frequencies
             numpy.ndarray
         """
-        l_samples = l_samples
         l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64) ** -4)
         l_coef = np.pi**4 / 90.0
 
@@ -348,32 +347,33 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
 
 
 class EnergyDepositionSource(BasePacketSource):
-    def __init__(self, energy_df, **kwargs):
+    def __init__(self, energy_df, temperature=None, **kwargs):
         self.energy_df = energy_df
+        self.temperature = temperature
         return super().__init__(**kwargs)
 
     def set_state_from_model(self, model):
         """
         Set state of packet source (correct state should be ensured before creating packets)
         """
+        self.temperature = model.t_inner.value
         self._shell_radii = model.radius
         # Pick the column with the time closest to time_explosion
-        self._energy_per_shell = self.energy_df.iloc[
+        energy_per_shell = self.energy_df.iloc[
             :, np.abs(self.energy_df.columns - model.time_explosion).argmin()
         ]
-
-    def create_packet_radii(self, no_of_packets):
         # Standardize energies and apply softmax to get shell probabilities
         std_energy_per_shell = (
-            self._energy_per_shell - np.mean(self._energy_per_shell)
-        ) / np.std(self._energy_per_shell)
-        shell_prob = scipy.special.softmax(std_energy_per_shell)
+            energy_per_shell - np.mean(energy_per_shell)
+        ) / np.std(energy_per_shell)
+        self._shell_prob = scipy.special.softmax(std_energy_per_shell)
 
-        num_shells = len(shell_prob)
+    def create_packet_radii(self, no_of_packets):
+        num_shells = len(self._shell_prob)
 
         # Sample shell for each packet according to the above probabilities
         packet_shells = self.rng.choice(
-            num_shells, size=no_of_packets, p=shell_prob
+            num_shells, size=no_of_packets, p=self._shell_prob
         )
 
         # Sample radius assuming a uniform distribution within each shell
@@ -384,9 +384,19 @@ class EnergyDepositionSource(BasePacketSource):
 
         return packet_radii * self._shell_radii.unit
 
-    def create_packet_nus(self, *args, **kwargs):
-        # TODO
-        pass
+    def create_packet_nus(self, no_of_packets):
+        # TODO: Currently this is just a placeholder for a more accurate function
+        l_samples = 1000
+        l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64) ** -4)
+        l_coef = np.pi**4 / 90.0
+
+        xis = self.rng.random((5, no_of_packets))
+
+        l = l_array.searchsorted(xis[0] * l_coef) + 1.0
+        xis_prod = np.prod(xis[1:], 0)
+        x = ne.evaluate("-log(xis_prod)/l")
+
+        return x * (const.k_B.cgs.value * self.temperature) / const.h.cgs.value
 
     def create_packet_mus(self, no_of_packets):
         """
@@ -398,13 +408,8 @@ class EnergyDepositionSource(BasePacketSource):
         no_of_packets : int
             number of packets to be created
         """
+        return np.sqrt(self.rng.random(no_of_packets))
 
-        # For testing purposes
-        if montecarlo_configuration.LEGACY_MODE_ENABLED:
-            return np.sqrt(np.random.random(no_of_packets))
-        else:
-            return np.sqrt(self.rng.random(no_of_packets))
-
-    def create_packet_energies(self, *args, **kwargs):
-        # TODO
-        pass
+    def create_packet_energies(self, no_of_packets):
+        # TODO: Currently this is just a placeholder for a more complex function
+        return np.ones(no_of_packets) / no_of_packets
