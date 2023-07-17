@@ -9,8 +9,8 @@ class HomologousDensityState(HDFWriterMixin):
 
     Parameters
     ----------
-    density_0 : astropy.units.Quantity
-    time_0 : astropy.units.Quantity
+    density : astropy.units.Quantity
+    time : astropy.units.Quantity
 
     """
 
