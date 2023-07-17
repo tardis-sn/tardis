@@ -2,7 +2,6 @@ import abc
 
 import numpy as np
 import numexpr as ne
-import scipy
 from tardis import constants as const
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
@@ -362,11 +361,8 @@ class EnergyDepositionSource(BasePacketSource):
         energy_per_shell = self.energy_df.iloc[
             :, np.abs(self.energy_df.columns - model.time_explosion).argmin()
         ]
-        # Standardize energies and apply softmax to get shell probabilities
-        std_energy_per_shell = (
-            energy_per_shell - np.mean(energy_per_shell)
-        ) / np.std(energy_per_shell)
-        self._shell_prob = scipy.special.softmax(std_energy_per_shell)
+        # Normalize to get shell probabilities
+        self._shell_prob = energy_per_shell / np.sum(energy_per_shell)
 
     def create_packet_radii(self, no_of_packets):
         num_shells = len(self._shell_prob)
