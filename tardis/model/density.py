@@ -24,7 +24,7 @@ class HomologousDensityState(HDFWriterMixin):
 
         new_density = self.density * (current_time / self.time) ** -3
         new_time = current_time
-        return HomologousDensityState(new_density, current_time)
+        return HomologousDensityState(new_density, new_time)
 
 class HomologousDensity(HDFWriterMixin):
     """A class that holds an initial density and time
