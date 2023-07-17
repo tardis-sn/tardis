@@ -33,7 +33,7 @@ class Composition:
     ----------
     density : astropy.units.quantity.Quantity
         An array of densities for each shell.
-    isotopic_mass_fraction : pd.DataFrame
+    elemental_mass_fraction : pd.DataFrame
     atomic_mass : pd.DataFrame
     atomic_mass_unit: astropy.units.Unit
 
