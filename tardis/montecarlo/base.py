@@ -185,7 +185,7 @@ class MontecarloTransport(HDFWriterMixin):
             gamma_shape, dtype=np.int64
         )
 
-    def _initialize_geometry_arrays(self, model):
+    def _initialize_geometry_arrays(self, model_state):
         """
         Generate the cgs like geometry arrays for the montecarlo part
 
@@ -193,10 +193,11 @@ class MontecarloTransport(HDFWriterMixin):
         ----------
         model : model.Radial1DModel
         """
-        self.r_inner_cgs = model.r_inner.to("cm").value
-        self.r_outer_cgs = model.r_outer.to("cm").value
-        self.v_inner_cgs = model.v_inner.to("cm/s").value
-        self.v_outer_cgs = model.v_outer.to("cm/s").value
+        geometry = model_state.geometry
+        self.r_inner_cgs = geometry.r_inner.to("cm").value
+        self.r_outer_cgs = geometry.r_outer.to("cm").value
+        self.v_inner_cgs = geometry.v_inner.to("cm/s").value
+        self.v_outer_cgs = geometry.v_outer.to("cm/s").value
 
     def _initialize_packets(
         self, temperature, no_of_packets, iteration, radius, time_explosion
@@ -299,8 +300,9 @@ class MontecarloTransport(HDFWriterMixin):
 
     def run(
         self,
-        model,
+        model_state,
         plasma,
+        radiation_field,
         no_of_packets,
         no_of_virtual_packets=0,
         iteration=0,
@@ -326,8 +328,10 @@ class MontecarloTransport(HDFWriterMixin):
 
         set_num_threads(self.nthreads)
 
-        self.time_of_simulation = self.calculate_time_of_simulation(model)
-        self.volume = model.volume
+        self.time_of_simulation = self.calculate_time_of_simulation(
+            model_state, radiation_field
+        )
+        self.volume = model_state.geometry.volume
 
         # Initializing estimator array
         self._initialize_estimator_arrays(plasma.tau_sobolevs.shape)
@@ -339,19 +343,19 @@ class MontecarloTransport(HDFWriterMixin):
 
         self._initialize_continuum_estimator_arrays(gamma_shape)
 
-        self._initialize_geometry_arrays(model)
+        self._initialize_geometry_arrays(model_state)
 
         self._initialize_packets(
-            model.t_inner.value,
+            radiation_field.t_inner.value,
             no_of_packets,
             iteration,
-            model.r_inner[0],
-            model.time_explosion,
+            model_state.geometry.r_inner[0],
+            model_state.time_explosion,
         )
 
-        configuration_initialize(self, no_of_virtual_packets)
+        configuration_initialize(self, no_of_virtual_packets)  # TODO
         montecarlo_radial1d(
-            model,
+            model_state,
             plasma,
             iteration,
             no_of_packets,
@@ -359,7 +363,7 @@ class MontecarloTransport(HDFWriterMixin):
             show_progress_bars,
             self,
         )
-        self._integrator = FormalIntegrator(model, plasma, self)
+        self._integrator = FormalIntegrator(model_state, plasma, self)  # TODO
 
     def legacy_return(self):
         return (
@@ -564,13 +568,13 @@ class MontecarloTransport(HDFWriterMixin):
 
         return t_rad * u.K, w
 
-    def calculate_luminosity_inner(self, model):
+    def calculate_luminosity_inner(self, model_state, radiation_field):
         """
         Calculate inner luminosity.
 
         Parameters
         ----------
-        model : model.Radial1DModel
+        model_state : ModelState
 
         Returns
         -------
@@ -580,23 +584,27 @@ class MontecarloTransport(HDFWriterMixin):
             4
             * np.pi
             * const.sigma_sb.cgs
-            * model.r_inner[0] ** 2
-            * model.t_inner**4
+            * model_state.geometry.r_inner[0] ** 2
+            * radiation_field.t_inner**4
         ).to("erg/s")
 
-    def calculate_time_of_simulation(self, model):
+    def calculate_time_of_simulation(self, model_state, radiation_field):
         """
         Calculate time of montecarlo simulation.
 
         Parameters
         ----------
-        model : model.Radial1DModel
+        model_state : ModelState
 
         Returns
         -------
         float
         """
-        return 1.0 * u.erg / self.calculate_luminosity_inner(model)
+        return (
+            1.0
+            * u.erg
+            / self.calculate_luminosity_inner(model_state, radiation_field)
+        )
 
     def calculate_f_nu(self, frequency):
         pass

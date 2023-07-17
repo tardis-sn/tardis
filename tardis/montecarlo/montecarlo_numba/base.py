@@ -37,7 +37,7 @@ from tardis.util.base import (
 
 
 def montecarlo_radial1d(
-    model,
+    model_state,
     plasma,
     iteration,
     no_of_packets,
@@ -53,9 +53,9 @@ def montecarlo_radial1d(
         transport._output_nu,
         transport._output_energy,
     )
-    numba_radial_1d_geometry = model.model_state.geometry.to_numba()
+    numba_radial_1d_geometry = model_state.geometry.to_numba()
     numba_model = NumbaModel(
-        model.model_state.time_explosion.to("s").value,
+        model_state.time_explosion.to("s").value,
     )
     numba_plasma = numba_plasma_initialize(
         plasma, transport.line_interaction_type

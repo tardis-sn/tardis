@@ -32,6 +32,10 @@ class Radial1DGeometry:
         """Volume in shell computed from r_outer and r_inner"""
         return (4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
 
+    @property
+    def shape(self):
+        return self.r_inner.shape
+
     def to_numba(self):
         """
         Returns a new NumbaRadial1DGeometry object
