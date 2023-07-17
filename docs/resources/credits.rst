@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_wolfgang_2023_8128141
+.. |CITATION| replace:: kerzendorf_wolfgang_2023_8152569
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.8128141-blue
-                 :target: https://doi.org/10.5281/zenodo.8128141
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.8152569-blue
+                 :target: https://doi.org/10.5281/zenodo.8152569
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_wolfgang_2023_8128141,
+    @software{kerzendorf_wolfgang_2023_8152569,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -117,6 +117,7 @@ The following BibTeX entries are needed for the references:
                       Patel, Maryam and
                       Varanasi, Kaushik and
                       Gillanders, James and
+                      Rathi, Shikha and
                       Chitchyan, Sona and
                       Savel, Arjun and
                       Reinecke, Martin and
@@ -125,8 +126,8 @@ The following BibTeX entries are needed for the references:
                       Bentil, Laud and
                       Black, William and
                       Eguren, Jordi and
-                      Alam, Arib and
                       Bartnik, Matthew and
+                      Alam, Arib and
                       Magee, Mark and
                       Kumar, Ansh and
                       Varma Buddaraju, Rohith and
@@ -135,10 +136,10 @@ The following BibTeX entries are needed for the references:
                       Kambham, Satwik and
                       Rajagopalan, Srinath and
                       Mishra, Sashank and
-                      Rathi, Shikha and
+                      Actions, GitHub and
+                      Jain, Rinkle and
                       Floers, Andreas and
                       Reichenbach, John and
-                      Jain, Rinkle and
                       Holas, Alexander and
                       Singh, Sourav and
                       Chaumal, Aarya and
@@ -146,7 +147,6 @@ The following BibTeX entries are needed for the references:
                       Brar, Antreev and
                       Bhakar, Jayant and
                       Daksh, Ayushi and
-                      Actions, GitHub and
                       Kowalski, Nathan and
                       Sofiatti, Caroline and
                       Kumar, Aman and
@@ -178,12 +178,12 @@ The following BibTeX entries are needed for the references:
                       Kharkar, Atharwa and
                       Nayak U, Ashwin and
                       Kolliboyina, Chaitanya},
-      title        = {tardis-sn/tardis: TARDIS v2023.07.09},
+      title        = {tardis-sn/tardis: TARDIS v2023.07.16},
       month        = jul,
       year         = 2023,
       publisher    = {Zenodo},
-      version      = {release-2023.07.09},
-      doi          = {10.5281/zenodo.8128141},
-      url          = {https://doi.org/10.5281/zenodo.8128141}
+      version      = {release-2023.07.16},
+      doi          = {10.5281/zenodo.8152569},
+      url          = {https://doi.org/10.5281/zenodo.8152569}
     }
 
