@@ -262,7 +262,7 @@ def initialize_packets(
 
 def main_gamma_ray_loop(
     num_decays,
-    model,
+    model_state,
     plasma,
     time_steps=10,
     time_end=80.0,
@@ -281,7 +281,7 @@ def main_gamma_ray_loop(
     ----------
     num_decays : int
         Number of decays requested
-    model : tardis.Radial1DModel
+    model_state : tardis.model.ModelState
         The tardis model to calculate gamma ray propagation through
     plasma : tardis.plasma.BasePlasma
         The tardis plasma with calculated atomic number density
@@ -333,16 +333,16 @@ def main_gamma_ray_loop(
     np.random.seed(seed)
 
     # Enforce cgs
-    outer_velocities = model.v_outer.to("cm/s").value
-    inner_velocities = model.v_inner.to("cm/s").value
-    ejecta_density = model.density.to("g/cm^3").value
-    ejecta_volume = model.volume.to("cm^3").value
+    outer_velocities = model_state.geometry.v_outer.to("cm/s").value
+    inner_velocities = model_state.geometry.v_inner.to("cm/s").value
+    ejecta_density = model_state.composition.density.to("g/cm^3").value
+    ejecta_volume = model_state.geometry.volume.to("cm^3").value
     ejecta_velocity_volume = (
         4 * np.pi / 3 * (outer_velocities**3.0 - inner_velocities**3.0)
     )
-    time_explosion = model.time_explosion.to("s").value
-    number_of_shells = model.no_of_shells
-    raw_isotope_abundance = model.raw_isotope_abundance.sort_values(
+    time_explosion = model_state.time_explosion.to("s").value
+    number_of_shells = len(model_state.geometry.v_inner)
+    raw_isotope_abundance = model_state.composition.isotope_mass_fraction.sort_values(
         by=["atomic_number", "mass_number"], ascending=False
     )
 
@@ -535,7 +535,7 @@ def main_gamma_ray_loop(
     # Taking iron group to be elements 21-30
     # Used as part of the approximations for photoabsorption and pair creation
     # Dependent on atomic data
-    iron_group_fraction_per_shell = model.abundance.loc[(21):(30)].sum(axis=0)
+    iron_group_fraction_per_shell = model_state.composition.elemental_mass_fraction.loc[(21):(30)].sum(axis=0)
 
     number_of_packets = packets_per_isotope.sum().sum()
     print("Total packets:", number_of_packets)

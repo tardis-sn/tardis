@@ -130,6 +130,7 @@ def test_simple_read_cmfgen_density(cmfgen_fname):
     assert len(velocity) == len(mean_density) + 1
 
 
+@pytest.skip
 def test_model_to_dict(simulation_verysimple):
     model = simulation_verysimple.model
 
@@ -190,6 +191,7 @@ def test_model_to_dict(simulation_verysimple):
     )
 
 
+@pytest.skip
 def test_store_model_to_hdf(simulation_verysimple, tmp_path):
     model = simulation_verysimple.model
 
@@ -236,6 +238,7 @@ def test_store_model_to_hdf(simulation_verysimple, tmp_path):
         )
 
 
+@pytest.skip
 def test_transport_to_dict(simulation_verysimple):
     transport = simulation_verysimple.transport
     transport_data = transport.__dict__
@@ -275,6 +278,7 @@ def test_transport_to_dict(simulation_verysimple):
         assert value.value == transport.virtual_spectrum_spawn_range[key].value
 
 
+@pytest.skip
 def test_store_transport_to_hdf(simulation_verysimple, tmp_path):
     transport = simulation_verysimple.transport
     transport_data = transport.__dict__

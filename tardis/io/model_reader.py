@@ -542,6 +542,7 @@ def parse_csv_abundances(csvy_data):
     return abundance.index, abundance, isotope_abundance
 
 
+@deprecated
 def transport_to_dict(transport):
     """
     Retrieves all the data from a transport object and returns a dictionary.
@@ -621,6 +622,7 @@ def transport_to_dict(transport):
     )
 
 
+@deprecated
 def store_transport_to_hdf(transport, fname):
     """
     Stores data from MontecarloTransport object into a hdf file.
@@ -669,6 +671,7 @@ def store_transport_to_hdf(transport, fname):
             virtual_spectrum_spawn_range_group.create_dataset(key, data=value)
 
 
+@deprecated
 def transport_from_hdf(fname):
     """
     Creates a MontecarloTransport object using data stored in a hdf file.
@@ -808,6 +811,7 @@ def transport_from_hdf(fname):
     return new_transport
 
 
+@deprecated
 def model_to_dict(model):
     """
     Retrieves all the data from a Radial1DModel object and returns a dictionary.
@@ -846,7 +850,7 @@ def model_to_dict(model):
 
     return model_dict, homologous_density, isotope_abundance
 
-
+@deprecated
 def store_model_to_hdf(model, fname):
     """
     Stores data from Radial1DModel object into a hdf file.
@@ -876,6 +880,7 @@ def store_model_to_hdf(model, fname):
             homologous_density_group.create_dataset(key, data=value)
 
 
+@deprecated
 def model_from_hdf(fname):
     """
     Creates a Radial1DModel object using data stored in a hdf file.

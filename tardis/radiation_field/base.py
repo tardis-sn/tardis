@@ -1,6 +1,7 @@
 import numpy as np
 
 from tardis.montecarlo.packet_source import BasePacketSource
+from tardis.montecarlo.montecarlo_numba.numba_interface import OpacityState
 
 
 class RadiationField:
@@ -12,7 +13,7 @@ class RadiationField:
         Radiative temperature in each shell
     w : numpy.ndarray
         Dilution Factors in each shell
-    opacities : Opacites
+    opacities : OpacityState
         Opacity container object
     source_function : SourceFunction
         Source function for radiative transfer, for example a packet_source
@@ -35,7 +36,7 @@ class MonteCarloRadiationFieldState:
         Radiative temperature in each shell
     w : numpy.ndarray
         Dilution Factors in each shell
-    opacities : Opacites
+    opacities : OpacityState
         Opacity container object
     packet_source : SourceFunction
         Source function for radiative transfer, for example a packet_source
@@ -45,7 +46,7 @@ class MonteCarloRadiationFieldState:
         self,
         t_rad: np.ndarray,
         w: np.ndarray,
-        opacities,
+        opacities: OpacityState,
         packet_source: BasePacketSource,
     ):
 

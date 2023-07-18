@@ -191,7 +191,7 @@ class MontecarloTransport(HDFWriterMixin):
 
         Parameters
         ----------
-        model : model.Radial1DModel
+        model : tardis.model.ModelState
         """
         geometry = model_state.geometry
         self.r_inner_cgs = geometry.r_inner.to("cm").value
@@ -314,8 +314,9 @@ class MontecarloTransport(HDFWriterMixin):
 
         Parameters
         ----------
-        model : tardis.model.Radial1DModel
+        model_state : tardis.model.ModelState
         plasma : tardis.plasma.BasePlasma
+        radiation_field : tardis.radiation_field.MonteCarloRadiationFieldState
         no_of_packets : int
         no_of_virtual_packets : int
         total_iterations : int
@@ -346,7 +347,7 @@ class MontecarloTransport(HDFWriterMixin):
         self._initialize_geometry_arrays(model_state)
 
         self._initialize_packets(
-            radiation_field.t_inner.value,
+            radiation_field.source_function.t_inner.value,
             no_of_packets,
             iteration,
             model_state.geometry.r_inner[0],
@@ -363,7 +364,7 @@ class MontecarloTransport(HDFWriterMixin):
             show_progress_bars,
             self,
         )
-        self._integrator = FormalIntegrator(model_state, plasma, self)  # TODO
+        self._integrator = FormalIntegrator(model_state, radiation_field.source_function.t_inner, plasma, self)  # TODO
 
     def legacy_return(self):
         return (
