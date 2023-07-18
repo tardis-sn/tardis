@@ -296,7 +296,15 @@ class GrotrianWidget:
     @filter_mode.setter
     def filter_mode(self, value):
         assert value in self.FILTER_MODES
+
+        # Set the atomic_number and ion_number in the appropriate analysis object
+        self._line_interaction_analysis[value].set_ion(
+            self.atomic_number, self.ion_number
+        )
+        self._line_interaction_analysis[value].shell = self.shell
+
         self._filter_mode = value
+
         self._compute_transitions()
 
     @property
@@ -310,6 +318,16 @@ class GrotrianWidget:
         Sets the atomic number and ion number
         """
         assert type(atomic_number) is int and type(ion_number) is int
+        if (atomic_number, ion_number) not in self._level_energy_data.index or (
+            atomic_number,
+            ion_number,
+        ) not in self._level_population_data.index:
+            raise ValueError(
+                "The (atomic_number, ion_number) pair doesn't exist in model"
+            )
+        self._line_interaction_analysis[self.filter_mode].set_ion(
+            atomic_number, ion_number
+        )
 
         self._atomic_number = atomic_number
         self._ion_number = ion_number
@@ -342,6 +360,7 @@ class GrotrianWidget:
     @shell.setter
     def shell(self, value):
         assert value is None or type(value) is int
+        self._line_interaction_analysis[self.filter_mode].shell = value
         self._shell = value
         self._compute_level_data()
         self._compute_transitions()
@@ -360,12 +379,6 @@ class GrotrianWidget:
         """
         Computes the excitation/de-excitation line transition data for the arrows in the widget
         """
-        # Get relevant lines for current simulation
-        self._line_interaction_analysis[self.filter_mode].set_ion(
-            self.atomic_number, self.ion_number
-        )
-        self._line_interaction_analysis[self.filter_mode].shell = self.shell
-
         ### Get the excitation/de-excitation transitions from LastLineInteraction object
         excite_lines = (
             self._line_interaction_analysis[self.filter_mode]
