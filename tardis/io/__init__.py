@@ -3,7 +3,7 @@ A collection of subpackages and submodules to handle input and output data.
 """
 
 # readin model_data
-from tardis.io.model_reader import (
+from tardis.io.model.model_reader import (
     read_simple_ascii_density,
     read_simple_ascii_abundances,
     read_density_file,

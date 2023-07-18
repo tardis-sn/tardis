@@ -7,7 +7,7 @@ import h5py
 
 import tardis
 from tardis.io.config_reader import Configuration
-from tardis.io.model_reader import (
+from tardis.io.model.model_reader import (
     read_artis_density,
     read_simple_ascii_abundances,
     read_csv_composition,

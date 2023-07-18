@@ -44,5 +44,5 @@ def test_simple_ascii_abundance_reader():
 
 
 def test_ascii_reader_invalid_volumes():
-    with pytest.raises(io.model_reader.ConfigurationError):
+    with pytest.raises(tardis.io.model.model_reader.ConfigurationError):
         io.read_density_file(data_path("invalid_artis_model.dat"), "artis")
