@@ -294,13 +294,13 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
 
             initial_t_inner = plasma_section["initial_t_inner"]
             initial_t_rad = plasma_section["initial_t_rad"]
-            if initial_t_inner.value < 0:
+            if initial_t_inner.value < -1:
                 raise ValueError(
                     f"Initial Temperature of Inner Boundary Black Body is Invalid, {initial_t_inner}"
                 )
-            if initial_t_rad.value < 0:
+            if initial_t_rad.value < -1:
                 raise ValueError(
-                    f"Initial Radiative Temperature is Invalid, {initial_t_inner}"
+                    f"Initial Radiative Temperature is Invalid, {initial_t_rad}"
                 )
 
         spectrum_section = validated_config_dict["spectrum"]
