@@ -262,7 +262,6 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         if "csvy_model" in validated_config_dict.keys():
             pass
         elif "model" in validated_config_dict.keys():
-
             model_section = validated_config_dict["model"]
             Configuration.validate_model_section(model_section)
             # SuperNova Section Validation
@@ -304,12 +303,16 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 )
 
         spectrum_section = validated_config_dict["spectrum"]
-        Configuration.validate_spectrum_section(spectrum_section, montecarlo_section["enable_full_relativity"])    
+        Configuration.validate_spectrum_section(
+            spectrum_section, montecarlo_section["enable_full_relativity"]
+        )
 
         return cls(validated_config_dict)
-    
+
     @staticmethod
-    def validate_spectrum_section(spectrum_section, enable_full_relativity=False):
+    def validate_spectrum_section(
+        spectrum_section, enable_full_relativity=False
+    ):
         """
         Validate the spectrum section dictionary
 
@@ -318,7 +321,6 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         spectrum_section : dict
         """
         # Spectrum Section Validation
-        
 
         start = spectrum_section["start"]
         stop = spectrum_section["stop"]
@@ -328,10 +330,8 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 f"Start : {start} \n"
                 f"Stop : {stop}"
             )
-        
-        spectrum_integrated = (
-            spectrum_section["method"] == "integrated"
-        )
+
+        spectrum_integrated = spectrum_section["method"] == "integrated"
         if enable_full_relativity and spectrum_integrated:
             raise NotImplementedError(
                 "The spectrum method is set to 'integrated' and "
@@ -339,15 +339,15 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 "The FormalIntegrator is not yet implemented for the full "
                 "relativity mode. "
             )
-        
+
     @staticmethod
     def validate_model_section(model_section):
         """
         Parse the model section dictionary
-        
+
         Parameters
         ----------
-        
+
         model_section : dict
         """
 
@@ -361,12 +361,8 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                     f"Stop Velocity = {stop_velocity}"
                 )
         elif model_section["structure"]["type"] == "file":
-            v_inner_boundary = model_section["structure"][
-                "v_inner_boundary"
-            ]
-            v_outer_boundary = model_section["structure"][
-                "v_outer_boundary"
-            ]
+            v_inner_boundary = model_section["structure"]["v_inner_boundary"]
+            v_outer_boundary = model_section["structure"]["v_outer_boundary"]
             if v_outer_boundary.value < v_inner_boundary.value:
                 raise ValueError(
                     "Outer Boundary Velocity Cannot Be Less than Inner Boundary Velocity. \n"
@@ -374,45 +370,28 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                     f"Outer Boundary Velocity = {v_outer_boundary}"
                 )
         if "density" in model_section["structure"].keys():
-            if (
-                model_section["structure"]["density"]["type"]
-                == "exponential"
-            ):
+            if model_section["structure"]["density"]["type"] == "exponential":
                 rho_0 = model_section["structure"]["density"]["rho_0"]
                 v_0 = model_section["structure"]["density"]["v_0"]
                 if rho_0.value <= 0:
-                    raise ValueError(
-                        f"Density Specified is Invalid, {rho_0}"
-                    )
+                    raise ValueError(f"Density Specified is Invalid, {rho_0}")
                 if v_0.value <= 0:
-                    raise ValueError(
-                        f"Velocity Specified is Invalid, {v_0}"
-                    )
+                    raise ValueError(f"Velocity Specified is Invalid, {v_0}")
                 if "time_0" in model_section["structure"]["density"].keys():
                     time_0 = model_section["structure"]["density"]["time_0"]
                     if time_0.value <= 0:
-                        raise ValueError(
-                            f"Time Specified is Invalid, {time_0}"
-                        )
-            elif (
-                model_section["structure"]["density"]["type"] == "power_law"
-            ):
+                        raise ValueError(f"Time Specified is Invalid, {time_0}")
+            elif model_section["structure"]["density"]["type"] == "power_law":
                 rho_0 = model_section["structure"]["density"]["rho_0"]
                 v_0 = model_section["structure"]["density"]["v_0"]
                 if rho_0.value <= 0:
-                    raise ValueError(
-                        f"Density Specified is Invalid, {rho_0}"
-                    )
+                    raise ValueError(f"Density Specified is Invalid, {rho_0}")
                 if v_0.value <= 0:
-                    raise ValueError(
-                        f"Velocity Specified is Invalid, {v_0}"
-                    )
+                    raise ValueError(f"Velocity Specified is Invalid, {v_0}")
                 if "time_0" in model_section["structure"]["density"].keys():
                     time_0 = model_section["structure"]["density"]["time_0"]
                     if time_0.value <= 0:
-                        raise ValueError(
-                            f"Time Specified is Invalid, {time_0}"
-                        )
+                        raise ValueError(f"Time Specified is Invalid, {time_0}")
             elif model_section["structure"]["density"]["type"] == "uniform":
                 density = model_section["structure"]["density"]["value"]
                 if density.value <= 0:
@@ -422,9 +401,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 if "time_0" in model_section["structure"]["density"].keys():
                     time_0 = model_section["structure"]["density"]["time_0"]
                     if time_0.value <= 0:
-                        raise ValueError(
-                            f"Time Specified is Invalid, {time_0}"
-                        )
+                        raise ValueError(f"Time Specified is Invalid, {time_0}")
 
     @staticmethod
     def validate_montecarlo_section(montecarlo_section):
@@ -453,8 +430,6 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 'convergence_strategy is not "damped" ' 'or "custom"'
             )
 
-
-    
     @staticmethod
     def parse_convergence_section(convergence_section_dict):
         """
@@ -482,7 +457,6 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                         ] = convergence_section_dict[param]
 
         return convergence_section_dict
-        
 
     def __init__(self, config_dict):
         super(Configuration, self).__init__(config_dict)
