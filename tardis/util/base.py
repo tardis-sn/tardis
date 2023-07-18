@@ -17,6 +17,8 @@ from tardis.io.util import get_internal_data_path
 from IPython import get_ipython, display
 import tqdm
 import tqdm.notebook
+import functools
+import warnings
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
@@ -761,3 +763,19 @@ def fix_bar_layout(bar, no_of_packets=None, total_iterations=None):
             bar.reset(total=total_iterations)
         else:
             pass
+
+def deprecated(func):
+    """
+    A decorator to add a deprecation warning to a function that is no longer used
+
+    Parameters
+    ----------
+    
+    func : function
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        warnings.warn("This function is deprecated.", DeprecationWarning)
+        return func(*args, **kwargs)
+
+    return wrapper
