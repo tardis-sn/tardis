@@ -21,14 +21,14 @@ class MacroAtomTransitionType(IntEnum):
 
 
 @njit(**njit_dict_no_parallel)
-def macro_atom(activation_level_id, current_shell_id, numba_plasma):
+def macro_atom(activation_level_id, current_shell_id, opacity_state):
     """
     Parameters
     ----------
     activation_level_id : int
         Activation level idx of the macro atom.
     current_shell_id : int
-    numba_plasma : tardis.montecarlo.numba_interface.numba_plasma.NumbaPlasma
+    opacity_state : tardis.montecarlo.numba_interface.opacity_state.OpacityState
 
     Returns
     -------
@@ -38,23 +38,25 @@ def macro_atom(activation_level_id, current_shell_id, numba_plasma):
         probability = 0.0
         probability_event = np.random.random()
 
-        block_start = numba_plasma.macro_block_references[activation_level_id]
-        block_end = numba_plasma.macro_block_references[activation_level_id + 1]
+        block_start = opacity_state.macro_block_references[activation_level_id]
+        block_end = opacity_state.macro_block_references[
+            activation_level_id + 1
+        ]
 
         # looping through the transition probabilities
         for transition_id in range(block_start, block_end):
 
-            transition_probability = numba_plasma.transition_probabilities[
+            transition_probability = opacity_state.transition_probabilities[
                 transition_id, current_shell_id
             ]
 
             probability += transition_probability
 
             if probability > probability_event:
-                activation_level_id = numba_plasma.destination_level_id[
+                activation_level_id = opacity_state.destination_level_id[
                     transition_id
                 ]
-                current_transition_type = numba_plasma.transition_type[
+                current_transition_type = opacity_state.transition_type[
                     transition_id
                 ]
                 break
@@ -68,6 +70,6 @@ def macro_atom(activation_level_id, current_shell_id, numba_plasma):
 
     # current_transition_type = MacroAtomTransitionType(current_transition_type)
     return (
-        numba_plasma.transition_line_id[transition_id],
+        opacity_state.transition_line_id[transition_id],
         current_transition_type,
     )

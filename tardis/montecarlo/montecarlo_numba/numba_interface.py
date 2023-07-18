@@ -32,7 +32,7 @@ class NumbaModel(object):
         self.time_explosion = time_explosion
 
 
-numba_plasma_spec = [
+opacity_state_spec = [
     ("electron_density", float64[:]),
     ("t_electrons", float64[:]),
     ("line_list_nu", float64[:]),
@@ -58,8 +58,8 @@ numba_plasma_spec = [
 ]
 
 
-@jitclass(numba_plasma_spec)
-class NumbaPlasma(object):
+@jitclass(opacity_state_spec)
+class OpacityState(object):
     def __init__(
         self,
         electron_density,
@@ -135,9 +135,9 @@ class NumbaPlasma(object):
         self.k_packet_idx = k_packet_idx
 
 
-def numba_plasma_initialize(plasma, line_interaction_type):
+def opacity_state_initialize(plasma, line_interaction_type):
     """
-    Initialize the NumbaPlasma object and copy over the data over from TARDIS Plasma
+    Initialize the OpacityState object and copy over the data over from TARDIS Plasma
 
     Parameters
     ----------
@@ -239,7 +239,7 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         photo_ion_activation_idx = np.zeros(0, dtype=np.int64)
         k_packet_idx = np.int64(-1)
 
-    return NumbaPlasma(
+    return OpacityState(
         electron_densities,
         t_electrons,
         line_list_nu,
