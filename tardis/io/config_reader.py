@@ -406,7 +406,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
     @staticmethod
     def validate_montecarlo_section(montecarlo_section):
         """
-        Parse the montecarlo section dictionary
+        Validate the montecarlo section dictionary
 
         Parameters
         ----------
