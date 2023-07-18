@@ -297,7 +297,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 raise ValueError(
                     f"Initial Temperature of Inner Boundary Black Body is Invalid, {initial_t_inner}"
                 )
-            if initial_t_rad.value < 0:
+            if initial_t_rad.value < -1:
                 raise ValueError(
                     f"Initial Radiative Temperature is Invalid, {initial_t_rad}"
                 )
