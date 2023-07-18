@@ -28,7 +28,7 @@ def trace_packet(
     r_packet,
     numba_radial_1d_geometry,
     numba_model,
-    numba_plasma,
+    opacity_state,
     estimators,
     chi_continuum,
     escat_prob,
@@ -41,7 +41,7 @@ def trace_packet(
     r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
     numba_radial_1d_geometry : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaRadial1DGeometry
     numba_model : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
-    numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
+    opacity_state : tardis.montecarlo.montecarlo_numba.numba_interface.OpacityState
     estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
 
     Returns
@@ -72,13 +72,13 @@ def trace_packet(
     distance_continuum = tau_event / chi_continuum
     cur_line_id = start_line_id  # initializing varibale for Numba
     # - do not remove
-    last_line_id = len(numba_plasma.line_list_nu) - 1
-    for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
+    last_line_id = len(opacity_state.line_list_nu) - 1
+    for cur_line_id in range(start_line_id, len(opacity_state.line_list_nu)):
         # Going through the lines
-        nu_line = numba_plasma.line_list_nu[cur_line_id]
+        nu_line = opacity_state.line_list_nu[cur_line_id]
 
         # Getting the tau for the next line
-        tau_trace_line = numba_plasma.tau_sobolev[
+        tau_trace_line = opacity_state.tau_sobolev[
             cur_line_id, r_packet.current_shell_id
         ]
 
@@ -158,7 +158,7 @@ def trace_packet(
     else:  # Executed when no break occurs in the for loop
         # We are beyond the line list now and the only next thing is to see
         # if we are interacting with the boundary or electron scattering
-        if cur_line_id == (len(numba_plasma.line_list_nu) - 1):
+        if cur_line_id == (len(opacity_state.line_list_nu) - 1):
             # Treatment for last line
             cur_line_id += 1
         if distance_continuum < distance_boundary:

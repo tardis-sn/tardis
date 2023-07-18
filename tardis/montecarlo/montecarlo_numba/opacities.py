@@ -30,13 +30,13 @@ FF_OPAC_CONST = (
 
 
 @njit(**njit_dict_no_parallel)
-def chi_electron_calculator(numba_plasma, nu, shell):
+def chi_electron_calculator(opacity_state, nu, shell):
     """
     Calculate chi for Thomson scattering
 
     Parameters
     ----------
-    numba_plasma : NumbaPlasma
+    opacity_state : OpacityState
     nu : float
         Comoving frequency of the r-packet.
     shell : int
@@ -47,7 +47,7 @@ def chi_electron_calculator(numba_plasma, nu, shell):
     numpy.ndarray, dtype int
         Continuum ids for which absorption is possible for frequency `nu`.
     """
-    return numba_plasma.electron_density[shell] * SIGMA_THOMSON
+    return opacity_state.electron_density[shell] * SIGMA_THOMSON
 
 
 @njit(**njit_dict_no_parallel)
@@ -69,13 +69,13 @@ def calculate_tau_electron(electron_density, distance):
 
 
 @njit(**njit_dict_no_parallel)
-def get_current_bound_free_continua(numba_plasma, nu):
+def get_current_bound_free_continua(opacity_state, nu):
     """
     Determine bound-free continua for which absorption is possible.
 
     Parameters
     ----------
-    numba_plasma : NumbaPlasma
+    opacity_state : OpacityState
     nu : float
         Comoving frequency of the r-packet.
 
@@ -84,14 +84,14 @@ def get_current_bound_free_continua(numba_plasma, nu):
     numpy.ndarray, dtype int
         Continuum ids for which absorption is possible for frequency `nu`.
     """
-    nu_mins = numba_plasma.photo_ion_nu_threshold_mins
-    nu_maxs = numba_plasma.photo_ion_nu_threshold_maxs
+    nu_mins = opacity_state.photo_ion_nu_threshold_mins
+    nu_maxs = opacity_state.photo_ion_nu_threshold_maxs
     current_continua = np.where(np.logical_and(nu >= nu_mins, nu <= nu_maxs))[0]
     return current_continua
 
 
 @njit(**njit_dict_no_parallel)
-def chi_bf_interpolator(numba_plasma, nu, shell):
+def chi_bf_interpolator(opacity_state, nu, shell):
     """
     Interpolate the bound-free opacity.
 
@@ -100,7 +100,7 @@ def chi_bf_interpolator(numba_plasma, nu, shell):
 
     Parameters
     ----------
-    numba_plasma : NumbaPlasma
+    opacity_state : OpacityState
     nu : float, dtype float
         Comoving frequency of the r-packet.
     shell : int, dtype float
@@ -120,23 +120,23 @@ def chi_bf_interpolator(numba_plasma, nu, shell):
         which absorption is possible for frequency `nu`.
     """
 
-    current_continua = get_current_bound_free_continua(numba_plasma, nu)
+    current_continua = get_current_bound_free_continua(opacity_state, nu)
     chi_bfs = np.zeros(len(current_continua))
     x_sect_bfs = np.zeros(len(current_continua))
     for i, continuum_id in enumerate(current_continua):
-        start = numba_plasma.photo_ion_block_references[continuum_id]
-        end = numba_plasma.photo_ion_block_references[continuum_id + 1]
-        phot_nus_continuum = numba_plasma.phot_nus[start:end]
+        start = opacity_state.photo_ion_block_references[continuum_id]
+        end = opacity_state.photo_ion_block_references[continuum_id + 1]
+        phot_nus_continuum = opacity_state.phot_nus[start:end]
         nu_idx = np.searchsorted(phot_nus_continuum, nu)
         interval = phot_nus_continuum[nu_idx] - phot_nus_continuum[nu_idx - 1]
         high_weight = nu - phot_nus_continuum[nu_idx - 1]
         low_weight = phot_nus_continuum[nu_idx] - nu
-        chi_bfs_continuum = numba_plasma.chi_bf[start:end, shell]
+        chi_bfs_continuum = opacity_state.chi_bf[start:end, shell]
         chi_bfs[i] = (
             chi_bfs_continuum[nu_idx] * high_weight
             + chi_bfs_continuum[nu_idx - 1] * low_weight
         ) / interval
-        x_sect_bfs_continuum = numba_plasma.x_sect[start:end]
+        x_sect_bfs_continuum = opacity_state.x_sect[start:end]
         x_sect_bfs[i] = (
             x_sect_bfs_continuum[nu_idx] * high_weight
             + x_sect_bfs_continuum[nu_idx - 1] * low_weight
@@ -164,11 +164,11 @@ def chi_bf_interpolator(numba_plasma, nu, shell):
 
 
 @njit(**njit_dict_no_parallel)
-def chi_ff_calculator(numba_plasma, nu, shell):
+def chi_ff_calculator(opacity_state, nu, shell):
     """
     Attributes
     ----------
-    numba_plasma : NumbaPlasma
+    opacity_state : OpacityState
     nu : float64
         Comoving frequency of the r_packet
     shell : int64
@@ -181,19 +181,19 @@ def chi_ff_calculator(numba_plasma, nu, shell):
     """
     chi_ff = (
         FF_OPAC_CONST
-        * numba_plasma.ff_opacity_factor[shell]
+        * opacity_state.ff_opacity_factor[shell]
         / nu**3
-        * (1 - np.exp(-H * nu / (K_B * numba_plasma.t_electrons[shell])))
+        * (1 - np.exp(-H * nu / (K_B * opacity_state.t_electrons[shell])))
     )
     return chi_ff
 
 
 @njit(**njit_dict_no_parallel)
-def chi_continuum_calculator(numba_plasma, nu, shell):
+def chi_continuum_calculator(opacity_state, nu, shell):
     """
     Attributes
     ----------
-    numba_plasma : NumbaPlasma
+    opacity_state : OpacityState
     nu : float64
         Comoving frequency of the r_packet
     shell : int64
@@ -220,8 +220,8 @@ def chi_continuum_calculator(numba_plasma, nu, shell):
         chi_bf_contributions,
         current_continua,
         x_sect_bfs,
-    ) = chi_bf_interpolator(numba_plasma, nu, shell)
-    chi_ff = chi_ff_calculator(numba_plasma, nu, shell)
+    ) = chi_bf_interpolator(opacity_state, nu, shell)
+    chi_ff = chi_ff_calculator(opacity_state, nu, shell)
     return (
         chi_bf_tot,
         chi_bf_contributions,

@@ -14,9 +14,9 @@ import pdb
 from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
 from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
-    numba_plasma_initialize,
+    opacity_state_initialize,
     NumbaModel,
-    NumbaPlasma,
+    OpacityState,
 )
 from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import (
     CudaFormalIntegrator,
@@ -211,7 +211,7 @@ def numba_formal_integral(
 
 # integrator_spec = [
 #    ("model", NumbaModel.class_type.instance_type),
-#    ("plasma", NumbaPlasma.class_type.instance_type),
+#    ("plasma", OpacityState.class_type.instance_type),
 #    ("points", int64),
 # ]
 
@@ -285,7 +285,7 @@ class FormalIntegrator(object):
         self.transport = transport
         self.points = points
         if plasma:
-            self.plasma = numba_plasma_initialize(
+            self.plasma = opacity_state_initialize(
                 plasma, transport.line_interaction_type
             )
             self.atomic_data = plasma.atomic_data
@@ -306,21 +306,21 @@ class FormalIntegrator(object):
         self.numba_model = NumbaModel(
             self.model.time_explosion.cgs.value,
         )
-        self.numba_plasma = numba_plasma_initialize(
+        self.opacity_state = opacity_state_initialize(
             self.original_plasma, self.transport.line_interaction_type
         )
         if self.transport.use_gpu:
             self.integrator = CudaFormalIntegrator(
                 self.numba_radial_1d_geometry,
                 self.numba_model,
-                self.numba_plasma,
+                self.opacity_state,
                 self.points,
             )
         else:
             self.integrator = NumbaFormalIntegrator(
                 self.numba_radial_1d_geometry,
                 self.numba_model,
-                self.numba_plasma,
+                self.opacity_state,
                 self.points,
             )
 

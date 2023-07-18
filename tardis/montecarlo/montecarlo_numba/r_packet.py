@@ -64,16 +64,16 @@ class RPacket(object):
         self.last_line_interaction_out_id = -1
         self.last_line_interaction_shell_id = -1
 
-    def initialize_line_id(self, numba_plasma, numba_model):
-        inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
+    def initialize_line_id(self, opacity_state, numba_model):
+        inverse_line_list_nu = opacity_state.line_list_nu[::-1]
         doppler_factor = get_doppler_factor(
             self.r, self.mu, numba_model.time_explosion
         )
         comov_nu = self.nu * doppler_factor
-        next_line_id = len(numba_plasma.line_list_nu) - np.searchsorted(
+        next_line_id = len(opacity_state.line_list_nu) - np.searchsorted(
             inverse_line_list_nu, comov_nu
         )
-        if next_line_id == len(numba_plasma.line_list_nu):
+        if next_line_id == len(opacity_state.line_list_nu):
             next_line_id -= 1
         self.next_line_id = next_line_id
 

@@ -258,7 +258,7 @@ def test_calculate_p_values(N):
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize("nu_insert", np.linspace(3e12, 3e16, 10))
-def test_line_search_cuda(nu_insert, verysimple_numba_plasma):
+def test_line_search_cuda(nu_insert, verysimple_opacity_state):
     """
     Initializes the test of the cuda version
     against the numba implementation of the
@@ -266,7 +266,7 @@ def test_line_search_cuda(nu_insert, verysimple_numba_plasma):
     """
     actual = np.zeros(1)
     expected = np.zeros(1)
-    line_list_nu = verysimple_numba_plasma.line_list_nu
+    line_list_nu = verysimple_opacity_state.line_list_nu
 
     expected[0] = formal_integral_numba.line_search(
         line_list_nu, nu_insert, len(line_list_nu)
@@ -295,7 +295,7 @@ def line_search_cuda_caller(line_list_nu, nu_insert, actual):
 @pytest.mark.parametrize(
     "nu_insert", [*np.linspace(3e12, 3e16, 10), 288786721666522.1]
 )
-def test_reverse_binary_search(nu_insert, verysimple_numba_plasma):
+def test_reverse_binary_search(nu_insert, verysimple_opacity_state):
     """
     Initializes the test of the cuda version
     against the numba implementation of the
@@ -304,7 +304,7 @@ def test_reverse_binary_search(nu_insert, verysimple_numba_plasma):
     """
     actual = np.zeros(1)
     expected = np.zeros(1)
-    line_list_nu = verysimple_numba_plasma.line_list_nu
+    line_list_nu = verysimple_opacity_state.line_list_nu
 
     imin = 0
     imax = len(line_list_nu) - 1
@@ -382,7 +382,7 @@ def test_full_formal_integral(
     formal_integrator_numba.integrator = NumbaFormalIntegrator(
         formal_integrator_numba.numba_radial_1d_geometry,
         formal_integrator_numba.numba_model,
-        formal_integrator_numba.numba_plasma,
+        formal_integrator_numba.opacity_state,
         formal_integrator_numba.points,
     )
 
