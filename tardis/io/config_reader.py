@@ -257,14 +257,14 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         validated_config_dict["config_dirname"] = config_dirname
 
         montecarlo_section = validated_config_dict["montecarlo"]
-        Configuration.parse_montecarlo_section(montecarlo_section)
+        Configuration.validate_montecarlo_section(montecarlo_section)
 
         if "csvy_model" in validated_config_dict.keys():
             pass
         elif "model" in validated_config_dict.keys():
 
             model_section = validated_config_dict["model"]
-            Configuration.parse_model_section(model_section)
+            Configuration.validate_model_section(model_section)
             # SuperNova Section Validation
             supernova_section = validated_config_dict["supernova"]
 
@@ -294,31 +294,54 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
 
             initial_t_inner = plasma_section["initial_t_inner"]
             initial_t_rad = plasma_section["initial_t_rad"]
-            if not initial_t_inner.value >= -1:
+            if initial_t_inner.value < 0:
                 raise ValueError(
                     f"Initial Temperature of Inner Boundary Black Body is Invalid, {initial_t_inner}"
                 )
-            if not initial_t_rad.value >= -1:
+            if initial_t_rad.value < 0:
                 raise ValueError(
                     f"Initial Radiative Temperature is Invalid, {initial_t_inner}"
                 )
 
-            # Spectrum Section Validation
-            spectrum_section = validated_config_dict["spectrum"]
-
-            start = spectrum_section["start"]
-            stop = spectrum_section["stop"]
-            if start.value > stop.value:
-                raise ValueError(
-                    "Start Value of Spectrum Cannot be Greater than Stop Value. \n"
-                    f"Start : {start} \n"
-                    f"Stop : {stop}"
-                )
+        spectrum_section = validated_config_dict["spectrum"]
+        Configuration.validate_spectrum_section(spectrum_section, montecarlo_section["enable_full_relativity"])    
 
         return cls(validated_config_dict)
     
     @staticmethod
-    def parse_model_section(model_section):
+    def validate_spectrum_section(spectrum_section, enable_full_relativity=False):
+        """
+        Validate the spectrum section dictionary
+
+        Parameters
+        ----------
+        spectrum_section : dict
+        """
+        # Spectrum Section Validation
+        
+
+        start = spectrum_section["start"]
+        stop = spectrum_section["stop"]
+        if start.value > stop.value:
+            raise ValueError(
+                "Start Value of Spectrum Cannot be Greater than Stop Value. \n"
+                f"Start : {start} \n"
+                f"Stop : {stop}"
+            )
+        
+        spectrum_integrated = (
+            spectrum_section["method"] == "integrated"
+        )
+        if enable_full_relativity and spectrum_integrated:
+            raise NotImplementedError(
+                "The spectrum method is set to 'integrated' and "
+                "enable_full_relativity to 'True'.\n"
+                "The FormalIntegrator is not yet implemented for the full "
+                "relativity mode. "
+            )
+        
+    @staticmethod
+    def validate_model_section(model_section):
         """
         Parse the model section dictionary
         
@@ -327,8 +350,6 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         
         model_section : dict
         """
-
-        # Model Section Validation
         
 
         if model_section["structure"]["type"] == "specific":
@@ -407,7 +428,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                         )
 
     @staticmethod
-    def parse_montecarlo_section(montecarlo_section):
+    def validate_montecarlo_section(montecarlo_section):
         """
         Parse the montecarlo section dictionary
 
@@ -433,17 +454,6 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 'convergence_strategy is not "damped" ' 'or "custom"'
             )
 
-        enable_full_relativity = montecarlo_section["enable_full_relativity"]
-        spectrum_integrated = (
-            validated_config_dict["spectrum"]["method"] == "integrated"
-        )
-        if enable_full_relativity and spectrum_integrated:
-            raise NotImplementedError(
-                "The spectrum method is set to 'integrated' and "
-                "enable_full_relativity to 'True'.\n"
-                "The FormalIntegrator is not yet implemented for the full "
-                "relativity mode. "
-            )
 
     
     @staticmethod
