@@ -6,7 +6,7 @@ from tardis.montecarlo.packet_source import (
     BlackBodySimpleSource,
     BlackBodySimpleSourceRelativistic,
 )
-from tardis.util.base import parse_quantity, is_valid_nuclide_or_elem
+from tardis.util.base import parse_quantity, is_valid_nuclide_or_elem, deprecated
 
 import warnings
 import numpy as np
