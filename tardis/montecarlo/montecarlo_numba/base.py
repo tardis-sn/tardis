@@ -16,7 +16,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     VPacketCollection,
     RPacketTracker,
     NumbaModel,
-    numba_plasma_initialize,
+    opacity_state_initialize,
     Estimators,
 )
 
@@ -57,7 +57,7 @@ def montecarlo_radial1d(
     numba_model = NumbaModel(
         model.model_state.time_explosion.to("s").value,
     )
-    numba_plasma = numba_plasma_initialize(
+    opacity_state = opacity_state_initialize(
         plasma, transport.line_interaction_type
     )
     estimators = Estimators(
@@ -95,7 +95,7 @@ def montecarlo_radial1d(
         packet_collection,
         numba_radial_1d_geometry,
         numba_model,
-        numba_plasma,
+        opacity_state,
         estimators,
         transport.spectrum_frequency.value,
         number_of_vpackets,
@@ -151,7 +151,7 @@ def montecarlo_main_loop(
     packet_collection,
     numba_radial_1d_geometry,
     numba_model,
-    numba_plasma,
+    opacity_state,
     estimators,
     spectrum_frequency,
     number_of_vpackets,
@@ -171,7 +171,7 @@ def montecarlo_main_loop(
     packet_collection : PacketCollection
     numba_radial_1d_geometry : NumbaRadial1DGeometry
     numba_model : NumbaModel
-    numba_plasma : NumbaPlasma
+    opacity_state : OpacityState
     estimators : NumbaEstimators
     spectrum_frequency : astropy.units.Quantity
         frequency binspas
@@ -280,7 +280,7 @@ def montecarlo_main_loop(
             r_packet,
             numba_radial_1d_geometry,
             numba_model,
-            numba_plasma,
+            opacity_state,
             estimators,
             vpacket_collection,
             rpacket_tracker,

@@ -5,10 +5,10 @@ import numpy as np
 
 
 @pytest.mark.parametrize("input_params", ["scatter", "macroatom", "downbranch"])
-def test_numba_plasma_initialize(nb_simulation_verysimple, input_params):
+def test_opacity_state_initialize(nb_simulation_verysimple, input_params):
     line_interaction_type = input_params
     plasma = nb_simulation_verysimple.plasma
-    actual = numba_interface.numba_plasma_initialize(
+    actual = numba_interface.opacity_state_initialize(
         plasma, line_interaction_type
     )
 

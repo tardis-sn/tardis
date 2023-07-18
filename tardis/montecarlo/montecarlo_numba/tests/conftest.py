@@ -10,7 +10,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
 
 
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
-    numba_plasma_initialize,
+    opacity_state_initialize,
     NumbaModel,
     Estimators,
     VPacketCollection,
@@ -26,8 +26,8 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
 
 
 @pytest.fixture(scope="package")
-def verysimple_numba_plasma(nb_simulation_verysimple):
-    return numba_plasma_initialize(
+def verysimple_opacity_state(nb_simulation_verysimple):
+    return opacity_state_initialize(
         nb_simulation_verysimple.plasma, line_interaction_type="macroatom"
     )
 
