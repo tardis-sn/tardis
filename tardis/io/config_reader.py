@@ -350,7 +350,6 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         
         model_section : dict
         """
-        
 
         if model_section["structure"]["type"] == "specific":
             start_velocity = model_section["structure"]["velocity"]["start"]
