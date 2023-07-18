@@ -764,15 +764,17 @@ def fix_bar_layout(bar, no_of_packets=None, total_iterations=None):
         else:
             pass
 
+
 def deprecated(func):
     """
     A decorator to add a deprecation warning to a function that is no longer used
 
     Parameters
     ----------
-    
+
     func : function
     """
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         warnings.warn("This function is deprecated.", DeprecationWarning)
