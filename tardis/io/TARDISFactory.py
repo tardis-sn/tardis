@@ -1,4 +1,4 @@
-from tardis.io.config_reader import Configuration, q
+from tardis.io.config_reader import Configuration
 from tardis.model.base import ModelState, Composition
 from tardis.model.geometry.radial1d import Radial1DGeometry
 from tardis.radiation_field.source_functions.base import PhotosphericBlackBody1D
