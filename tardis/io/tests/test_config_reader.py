@@ -30,7 +30,7 @@ def test_convergence_section_parser():
         "t_rad": {"damping_constant": 1.0},
     }
 
-    parsed_convergence_section = config_reader.parse_convergence_section(
+    parsed_convergence_section = config_reader.Configuration.parse_convergence_section(
         test_convergence_section
     )
 
