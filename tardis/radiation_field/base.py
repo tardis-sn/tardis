@@ -44,13 +44,15 @@ class MonteCarloRadiationFieldState:
 
     def __init__(
         self,
-        t_rad: np.ndarray,
-        w: np.ndarray,
+        t_radiative: np.ndarray,
+        dilution_factor: np.ndarray,
         opacities: OpacityState,
         packet_source: BasePacketSource,
     ):
 
-        self.t_rad = t_rad
-        self.w = w
+        self.t_radiative = t_radiative
+        self.dilution_factor = dilution_factor
+        self.t_rad = self.t_radiative
+        self.w = self.dilution_factor
         self.opacities = opacities
         self.source_function = packet_source
