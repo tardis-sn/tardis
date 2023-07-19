@@ -4,6 +4,21 @@ from astropy import units as u
 from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
 
+class HomologousDensityState(HDFWriterMixin):
+    """A class that holds an initial density and time
+
+    Parameters
+    ----------
+    density : astropy.units.Quantity
+    time : astropy.units.Quantity
+
+    """
+
+    hdf_properties = ["density", "time"]
+
+    def __init__(self, density, time):
+        self.density = density
+        self.time = time
 
 class HomologousDensity(HDFWriterMixin):
     """A class that holds an initial density and time
@@ -147,7 +162,6 @@ class HomologousDensity(HDFWriterMixin):
         else:
             raise ValueError(f"Unrecognized density type " f"'{d_conf.type}'")
         return cls(density_0, time_0)
-
 
 
 def calculate_power_law_density(velocities, velocity_0, rho_0, exponent):
