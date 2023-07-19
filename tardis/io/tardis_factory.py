@@ -24,7 +24,7 @@ from tardis.simulation.base import Simulation
 from tardis.plasma.standard_plasmas import assemble_plasma
 logger = logging.getLogger(__name__)
 
-def requires(attr):
+def requires_single(attr):
 
     def decorator(func):
 
@@ -34,7 +34,20 @@ def requires(attr):
             else:
                 exec(f'self.to_{attr}()')
             return func(self, *args, **kwargs)
+        
+        _wrapper.__doc__ = func.__doc__
         return _wrapper
+    
+    return decorator
+
+def requires(*attrs):
+
+    def decorator(func):
+
+        new_func = func
+        for attr in attrs:
+            new_func = requires_single(attr)(new_func)
+        return new_func
     
     return decorator
 
@@ -43,8 +56,6 @@ class TARDISFactory(Configuration):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.density_parsers = {}
 
     def to_velocity(self):
 
@@ -85,8 +96,7 @@ class TARDISFactory(Configuration):
         self.power_law = HomologousDensityState(density_0, time_0)
         return self.power_law
         
-    @requires('no_of_shells')
-    @requires('velocity')
+    @requires('velocity', 'no_of_shells')
     def to_uniform(self):
 
         density_0 = self.model.structure.density.value.to("g cm^-3") * np.ones(self.no_of_shells)
@@ -176,16 +186,10 @@ class TARDISFactory(Configuration):
             show_progress_bars=show_progress_bars,
         )
 
+    @requires('geometry', 'composition', 'time_explosion')
     def to_model_state(self, atom_data=None):
-        
-        self.csvy_flag = False
-        if hasattr(self, 'csvy_model'):
-            self.csvy_flag = True
 
-        time_explosion = self.supernova.time_explosion.cgs
-        geometry = self.to_geometry()
-        composition = self.to_composition()
-        model_state = ModelState(composition, geometry, time_explosion)
+        model_state = ModelState(self.composition, self.geometry, self.time_explosion)
         return model_state
         
 
@@ -193,12 +197,8 @@ class TARDISFactory(Configuration):
 
         pass
 
+    @requires('density')
     def to_composition(self):
-
-        if self.csvy_flag:
-            density = self.to_density_csvy()
-        else:
-            density = self.to_density()
 
         elemental_mass_fraction = None
         atomic_mass = None
@@ -237,7 +237,8 @@ class TARDISFactory(Configuration):
 
             atomic_mass = pd.concat([stable_isotope_mass, isotope_mass])
 
-        return Composition(density, elemental_mass_fraction, atomic_mass, atomic_mass_unit=u.g)
+        self.composition =  Composition(self.density, elemental_mass_fraction, atomic_mass, atomic_mass_unit=u.g)
+        return self.composition
 
     def to_radiation_field(self):
 
@@ -270,7 +271,6 @@ class TARDISFactory(Configuration):
         return packet_source
         
     def to_density(self):
-
         """
         Create a new HomologousDensityState instance from a Configuration object.
 
@@ -293,8 +293,7 @@ class TARDISFactory(Configuration):
         self.time_explosion = self.supernova.time_explosion.cgs
         return self.time_explosion
 
-    @requires('time_explosion')
-    @requires('velocity')
+    @requires('velocity', 'time_explosion')
     def to_geometry(self):
                 
         v_outer = self.velocity[1:]
