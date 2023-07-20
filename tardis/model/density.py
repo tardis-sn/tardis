@@ -4,6 +4,7 @@ from astropy import units as u
 from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
 
+
 class HomologousDensityState(HDFWriterMixin):
     """A class that holds an initial density and time
 
@@ -19,6 +20,7 @@ class HomologousDensityState(HDFWriterMixin):
     def __init__(self, density, time):
         self.density = density
         self.time = time
+
 
 class HomologousDensity(HDFWriterMixin):
     """A class that holds an initial density and time
