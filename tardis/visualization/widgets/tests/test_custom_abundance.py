@@ -33,51 +33,6 @@ def yml_data():
 
 
 @pytest.fixture(scope="module")
-def csvy_data():
-    """Fixture to contain a CustomAbundanceWidgetData
-    instance generated from a CSVY file csvy_full.csvy.
-
-    Returns
-    -------
-    CustomAbundanceWidgetData
-        CustomAbundanceWidgetData generated from a CSVY
-    """
-    csvy_path = os.path.join(
-        tardis.__path__[0], "io", "tests", "data", "csvy_full.csvy"
-    )
-    return CustomAbundanceWidgetData.from_csvy(csvy_path)
-
-
-@pytest.fixture(scope="module")
-def hdf_data(hdf_file_path, simulation_verysimple):
-    """Fixture to contain a CustomAbundanceWidgetData
-    instance generated from a HDF file.
-
-    Returns
-    -------
-    CustomAbundanceWidgetData
-        CustomAbundanceWidgetData generated from a HDF
-    """
-    simulation_verysimple.to_hdf(
-        hdf_file_path, overwrite=True
-    )  # save sim at hdf_file_path
-    return CustomAbundanceWidgetData.from_hdf(hdf_file_path)
-
-
-@pytest.fixture(scope="module")
-def sim_data(simulation_verysimple):
-    """Fixture to contain a CustomAbundanceWidgetData
-    instance generated from simulation data.
-
-    Returns
-    -------
-    CustomAbundanceWidgetData
-        CustomAbundanceWidgetData generated from a simulation
-    """
-    return CustomAbundanceWidgetData.from_simulation(simulation_verysimple)
-
-
-@pytest.fixture(scope="module")
 def caw(yml_data):
     """Fixture to contain a CustomAbundanceWidget
     instance generated from a YAML file tardis_configv1_verysimple.yml.

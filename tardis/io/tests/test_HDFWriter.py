@@ -156,8 +156,8 @@ def test_snake_case():
     assert MockHDF.convert_to_snake_case("BasePlasma") == "base_plasma"
     assert MockHDF.convert_to_snake_case("LTEPlasma") == "lte_plasma"
     assert (
-        MockHDF.convert_to_snake_case("MonteCarloRunner")
-        == "monte_carlo_runner"
+        MockHDF.convert_to_snake_case("MontecarloTransport")
+        == "montecarlo_transport"
     )
     assert (
         MockHDF.convert_to_snake_case("homologous_density")

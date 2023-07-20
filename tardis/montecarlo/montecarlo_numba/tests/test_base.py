@@ -26,7 +26,6 @@ def test_montecarlo_main_loop(
     random_call_fixture,
     request,
 ):
-
     montecarlo_configuration.LEGACY_MODE_ENABLED = True
     # Setup model config from verysimple
     atomic_data = deepcopy(atomic_dataset)
@@ -39,7 +38,8 @@ def test_montecarlo_main_loop(
     sim = Simulation.from_config(
         config_montecarlo_1e5_verysimple, atom_data=atomic_data
     )
-    sim.run()
+    sim.run_convergence()
+    sim.run_final()
 
     compare_fname = os.path.join(
         tardis_ref_path, "montecarlo_1e5_compare_data.h5"
@@ -49,22 +49,22 @@ def test_montecarlo_main_loop(
 
     # Load compare data from refdata
     expected_nu = pd.read_hdf(
-        compare_fname, key="/simulation/runner/output_nu"
+        compare_fname, key="/simulation/transport/output_nu"
     ).values
     expected_energy = pd.read_hdf(
-        compare_fname, key="/simulation/runner/output_energy"
+        compare_fname, key="/simulation/transport/output_energy"
     ).values
     expected_nu_bar_estimator = pd.read_hdf(
-        compare_fname, key="/simulation/runner/nu_bar_estimator"
+        compare_fname, key="/simulation/transport/nu_bar_estimator"
     ).values
     expected_j_estimator = pd.read_hdf(
-        compare_fname, key="/simulation/runner/j_estimator"
+        compare_fname, key="/simulation/transport/j_estimator"
     ).values
 
-    actual_energy = sim.runner.output_energy
-    actual_nu = sim.runner.output_nu
-    actual_nu_bar_estimator = sim.runner.nu_bar_estimator
-    actual_j_estimator = sim.runner.j_estimator
+    actual_energy = sim.transport.output_energy
+    actual_nu = sim.transport.output_nu
+    actual_nu_bar_estimator = sim.transport.nu_bar_estimator
+    actual_j_estimator = sim.transport.j_estimator
 
     # Compare
     npt.assert_allclose(

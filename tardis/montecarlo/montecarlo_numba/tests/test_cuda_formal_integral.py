@@ -21,7 +21,7 @@ from tardis.montecarlo.montecarlo_numba.formal_integral import (
     NumbaFormalIntegrator,
 )
 
-from tardis.montecarlo import MontecarloRunner
+from tardis.montecarlo.base import MontecarloTransport
 
 
 # Test cases must also take into account use of a GPU to run. If there is no GPU then the test cases will fail.
@@ -258,7 +258,7 @@ def test_calculate_p_values(N):
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize("nu_insert", np.linspace(3e12, 3e16, 10))
-def test_line_search_cuda(nu_insert, verysimple_numba_plasma):
+def test_line_search_cuda(nu_insert, verysimple_opacity_state):
     """
     Initializes the test of the cuda version
     against the numba implementation of the
@@ -266,7 +266,7 @@ def test_line_search_cuda(nu_insert, verysimple_numba_plasma):
     """
     actual = np.zeros(1)
     expected = np.zeros(1)
-    line_list_nu = verysimple_numba_plasma.line_list_nu
+    line_list_nu = verysimple_opacity_state.line_list_nu
 
     expected[0] = formal_integral_numba.line_search(
         line_list_nu, nu_insert, len(line_list_nu)
@@ -295,7 +295,7 @@ def line_search_cuda_caller(line_list_nu, nu_insert, actual):
 @pytest.mark.parametrize(
     "nu_insert", [*np.linspace(3e12, 3e16, 10), 288786721666522.1]
 )
-def test_reverse_binary_search(nu_insert, verysimple_numba_plasma):
+def test_reverse_binary_search(nu_insert, verysimple_opacity_state):
     """
     Initializes the test of the cuda version
     against the numba implementation of the
@@ -304,7 +304,7 @@ def test_reverse_binary_search(nu_insert, verysimple_numba_plasma):
     """
     actual = np.zeros(1)
     expected = np.zeros(1)
-    line_list_nu = verysimple_numba_plasma.line_list_nu
+    line_list_nu = verysimple_opacity_state.line_list_nu
 
     imin = 0
     imax = len(line_list_nu) - 1
@@ -349,10 +349,12 @@ def test_full_formal_integral(
     sim = simulation_verysimple
 
     formal_integrator_numba = FormalIntegrator(
-        sim.model, sim.plasma, sim.runner
+        sim.model, sim.plasma, sim.transport
     )
 
-    formal_integrator_cuda = FormalIntegrator(sim.model, sim.plasma, sim.runner)
+    formal_integrator_cuda = FormalIntegrator(
+        sim.model, sim.plasma, sim.transport
+    )
 
     # The function calculate_spectrum sets this property, but in order to test the CUDA.
     # version it is done manually, as well as to speed up the test.
@@ -380,7 +382,7 @@ def test_full_formal_integral(
     formal_integrator_numba.integrator = NumbaFormalIntegrator(
         formal_integrator_numba.numba_radial_1d_geometry,
         formal_integrator_numba.numba_model,
-        formal_integrator_numba.numba_plasma,
+        formal_integrator_numba.opacity_state,
         formal_integrator_numba.points,
     )
 
@@ -388,25 +390,25 @@ def test_full_formal_integral(
 
     L_cuda = formal_integrator_cuda.integrator.formal_integral(
         formal_integrator_cuda.model.t_inner,
-        sim.runner.spectrum.frequency,
-        sim.runner.spectrum.frequency.shape[0],
+        sim.transport.spectrum.frequency,
+        sim.transport.spectrum.frequency.shape[0],
         att_S_ul_cuda,
         Jred_lu_cuda,
         Jblue_lu_cuda,
-        formal_integrator_cuda.runner.tau_sobolevs_integ,
-        formal_integrator_cuda.runner.electron_densities_integ,
+        formal_integrator_cuda.transport.tau_sobolevs_integ,
+        formal_integrator_cuda.transport.electron_densities_integ,
         formal_integrator_cuda.points,
     )[0]
 
     L_numba = formal_integrator_numba.integrator.formal_integral(
         formal_integrator_numba.model.t_inner,
-        sim.runner.spectrum.frequency,
-        sim.runner.spectrum.frequency.shape[0],
+        sim.transport.spectrum.frequency,
+        sim.transport.spectrum.frequency.shape[0],
         att_S_ul_numba,
         Jred_lu_numba,
         Jblue_lu_numba,
-        formal_integrator_numba.runner.tau_sobolevs_integ,
-        formal_integrator_numba.runner.electron_densities_integ,
+        formal_integrator_numba.transport.tau_sobolevs_integ,
+        formal_integrator_numba.transport.electron_densities_integ,
         formal_integrator_numba.points,
     )[0]
 

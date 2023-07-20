@@ -32,16 +32,16 @@ def test_line_scatter(
     line_interaction_type,
     packet,
     verysimple_numba_model,
-    verysimple_numba_plasma,
+    verysimple_opacity_state,
 ):
     init_mu = packet.mu
     init_nu = packet.nu
     init_energy = packet.energy
-    packet.initialize_line_id(verysimple_numba_plasma, verysimple_numba_model)
+    packet.initialize_line_id(verysimple_opacity_state, verysimple_numba_model)
     time_explosion = verysimple_numba_model.time_explosion
 
     interaction.line_scatter(
-        packet, time_explosion, line_interaction_type, verysimple_numba_plasma
+        packet, time_explosion, line_interaction_type, verysimple_opacity_state
     )
 
     assert np.abs(packet.mu - init_mu) > 1e-7
@@ -82,19 +82,19 @@ def test_line_scatter(
 def test_line_emission(
     packet,
     verysimple_numba_model,
-    verysimple_numba_plasma,
+    verysimple_opacity_state,
     test_packet,
     expected,
 ):
     emission_line_id = test_packet["emission_line_id"]
     packet.mu = test_packet["mu"]
     packet.energy = test_packet["energy"]
-    packet.initialize_line_id(verysimple_numba_plasma, verysimple_numba_model)
+    packet.initialize_line_id(verysimple_opacity_state, verysimple_numba_model)
 
     time_explosion = verysimple_numba_model.time_explosion
 
     interaction.line_emission(
-        packet, emission_line_id, time_explosion, verysimple_numba_plasma
+        packet, emission_line_id, time_explosion, verysimple_opacity_state
     )
 
     assert packet.next_line_id == emission_line_id + 1

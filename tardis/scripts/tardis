@@ -11,14 +11,14 @@ from tardis.simulation import Simulation
 def get_virtual_spectrum():
     # Catch warning when acessing invalid spectrum_virtual
     with warnings.catch_warnings(record=True) as w:
-        spectrum = simulation.runner.spectrum_virtual
+        spectrum = simulation.transport.spectrum_virtual
 
         if len(w) > 0 and w[-1]._category_name == "UserWarning":
             warnings.warn(
                 "Virtual spectrum is not available, using the "
                 "real packet spectrum instead."
             )
-            spectrum = simulation.runner.spectrum
+            spectrum = simulation.transport.spectrum
     return spectrum
 
 
@@ -99,9 +99,9 @@ print("Saving the {} spectrum.".format(tardis_config.spectrum.method))
 # the warning properly
 
 get_spectrum = {
-    "real": lambda: simulation.runner.spectrum,
+    "real": lambda: simulation.transport.spectrum,
     "virtual": get_virtual_spectrum,
-    "integrated": lambda: simulation.runner.spectrum_integrated,
+    "integrated": lambda: simulation.transport.spectrum_integrated,
 }[tardis_config.spectrum.method]
 
 if args.gdb:
@@ -114,10 +114,14 @@ if args.profile:
     import cProfile
 
     cProfile.runctx(
-        "simulation.run()", locals(), globals(), filename=args.profiler_log_file
+        "simulation.run_convergence()\nsimulation.run_final()",
+        locals(),
+        globals(),
+        filename=args.profiler_log_file,
     )
 
 else:
-    simulation.run()
+    simulation.run_convergence()
+    simulation.run_final()
 
 get_spectrum().to_ascii(args.spectrum_fname)

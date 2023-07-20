@@ -10,7 +10,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
 
 
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
-    numba_plasma_initialize,
+    opacity_state_initialize,
     NumbaModel,
     Estimators,
     VPacketCollection,
@@ -26,21 +26,8 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
 
 
 @pytest.fixture(scope="package")
-def verysimple_collection(nb_simulation_verysimple):
-    runner = nb_simulation_verysimple.runner
-    return PacketCollection(
-        runner.input_r,
-        runner.input_nu,
-        runner.input_mu,
-        runner.input_energy,
-        runner._output_nu,
-        runner._output_energy,
-    )
-
-
-@pytest.fixture(scope="package")
-def verysimple_numba_plasma(nb_simulation_verysimple):
-    return numba_plasma_initialize(
+def verysimple_opacity_state(nb_simulation_verysimple):
+    return opacity_state_initialize(
         nb_simulation_verysimple.plasma, line_interaction_type="macroatom"
     )
 
@@ -60,25 +47,25 @@ def verysimple_numba_model(nb_simulation_verysimple):
 
 @pytest.fixture(scope="package")
 def verysimple_estimators(nb_simulation_verysimple):
-    runner = nb_simulation_verysimple.runner
+    transport = nb_simulation_verysimple.transport
 
     return Estimators(
-        runner.j_estimator,
-        runner.nu_bar_estimator,
-        runner.j_blue_estimator,
-        runner.Edotlu_estimator,
-        runner.photo_ion_estimator,
-        runner.stim_recomb_estimator,
-        runner.bf_heating_estimator,
-        runner.stim_recomb_cooling_estimator,
-        runner.photo_ion_estimator_statistics,
+        transport.j_estimator,
+        transport.nu_bar_estimator,
+        transport.j_blue_estimator,
+        transport.Edotlu_estimator,
+        transport.photo_ion_estimator,
+        transport.stim_recomb_estimator,
+        transport.bf_heating_estimator,
+        transport.stim_recomb_cooling_estimator,
+        transport.photo_ion_estimator_statistics,
     )
 
 
 @pytest.fixture(scope="package")
 def verysimple_vpacket_collection(nb_simulation_verysimple):
     spectrum_frequency = (
-        nb_simulation_verysimple.runner.spectrum_frequency.value
+        nb_simulation_verysimple.transport.spectrum_frequency.value
     )
     return VPacketCollection(
         rpacket_index=0,
@@ -93,7 +80,7 @@ def verysimple_vpacket_collection(nb_simulation_verysimple):
 @pytest.fixture(scope="package")
 def verysimple_3vpacket_collection(nb_simulation_verysimple):
     spectrum_frequency = (
-        nb_simulation_verysimple.runner.spectrum_frequency.value
+        nb_simulation_verysimple.transport.spectrum_frequency.value
     )
     return VPacketCollection(
         rpacket_index=0,
@@ -107,14 +94,14 @@ def verysimple_3vpacket_collection(nb_simulation_verysimple):
 
 @pytest.fixture(scope="package")
 def verysimple_packet_collection(nb_simulation_verysimple):
-    runner = nb_simulation_verysimple.runner
+    transport = nb_simulation_verysimple.transport
     return PacketCollection(
-        runner.input_r,
-        runner.input_nu,
-        runner.input_mu,
-        runner.input_energy,
-        runner._output_nu,
-        runner._output_energy,
+        transport.input_r,
+        transport.input_nu,
+        transport.input_mu,
+        transport.input_energy,
+        transport._output_nu,
+        transport._output_energy,
     )
 
 

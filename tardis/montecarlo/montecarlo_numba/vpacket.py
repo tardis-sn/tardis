@@ -1,6 +1,9 @@
 import math
 
 import numpy as np
+from tardis.montecarlo.montecarlo_numba.opacities import (
+    chi_continuum_calculator,
+)
 from numba import float64, int64
 from numba import njit
 from numba.experimental import jitclass
@@ -69,7 +72,7 @@ class VPacket(object):
 
 @njit(**njit_dict_no_parallel)
 def trace_vpacket_within_shell(
-    v_packet, numba_radial_1d_geometry, numba_model, numba_plasma
+    v_packet, numba_radial_1d_geometry, numba_model, opacity_state
 ):
     """
     Trace VPacket within one shell (relatively simple operation)
@@ -85,7 +88,7 @@ def trace_vpacket_within_shell(
 
     # e scattering initialization
 
-    cur_electron_density = numba_plasma.electron_density[
+    cur_electron_density = opacity_state.electron_density[
         v_packet.current_shell_id
     ]
     chi_e = cur_electron_density * SIGMA_THOMSON
@@ -94,27 +97,44 @@ def trace_vpacket_within_shell(
     doppler_factor = get_doppler_factor(
         v_packet.r, v_packet.mu, numba_model.time_explosion
     )
+
     comov_nu = v_packet.nu * doppler_factor
 
-    chi_continuum = chi_e
+    if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+        (
+            chi_bf_tot,
+            chi_bf_contributions,
+            current_continua,
+            x_sect_bfs,
+            chi_ff,
+        ) = chi_continuum_calculator(
+            opacity_state, comov_nu, v_packet.current_shell_id
+        )
+        chi_continuum = chi_e + chi_bf_tot + chi_ff
+
+    else:
+        chi_continuum = chi_e
+
+    if montecarlo_configuration.full_relativity:
+        chi_continuum *= doppler_factor
 
     tau_continuum = chi_continuum * distance_boundary
     tau_trace_combined = tau_continuum
 
     cur_line_id = start_line_id
 
-    for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
+    for cur_line_id in range(start_line_id, len(opacity_state.line_list_nu)):
         # if tau_trace_combined > 10: ### FIXME ?????
         #    break
 
-        nu_line = numba_plasma.line_list_nu[cur_line_id]
+        nu_line = opacity_state.line_list_nu[cur_line_id]
         # TODO: Check if this is what the C code does
 
-        tau_trace_line = numba_plasma.tau_sobolev[
+        tau_trace_line = opacity_state.tau_sobolev[
             cur_line_id, v_packet.current_shell_id
         ]
 
-        is_last_line = cur_line_id == len(numba_plasma.line_list_nu) - 1
+        is_last_line = cur_line_id == len(opacity_state.line_list_nu) - 1
 
         distance_trace_line = calculate_distance_line(
             v_packet,
@@ -130,7 +150,7 @@ def trace_vpacket_within_shell(
         tau_trace_combined += tau_trace_line
 
     else:
-        if cur_line_id == (len(numba_plasma.line_list_nu) - 1):
+        if cur_line_id == (len(opacity_state.line_list_nu) - 1):
             cur_line_id += 1
     v_packet.next_line_id = cur_line_id
 
@@ -139,7 +159,7 @@ def trace_vpacket_within_shell(
 
 @njit(**njit_dict_no_parallel)
 def trace_vpacket(
-    v_packet, numba_radial_1d_geometry, numba_model, numba_plasma
+    v_packet, numba_radial_1d_geometry, numba_model, opacity_state
 ):
     """
     Trace single vpacket.
@@ -147,7 +167,7 @@ def trace_vpacket(
     ----------
     v_packet
     numba_model
-    numba_plasma
+    opacity_state
 
     Returns
     -------
@@ -161,7 +181,7 @@ def trace_vpacket(
             distance_boundary,
             delta_shell,
         ) = trace_vpacket_within_shell(
-            v_packet, numba_radial_1d_geometry, numba_model, numba_plasma
+            v_packet, numba_radial_1d_geometry, numba_model, opacity_state
         )
         tau_trace_combined += tau_trace_combined_shell
 
@@ -202,7 +222,7 @@ def trace_vpacket_volley(
     vpacket_collection,
     numba_radial_1d_geometry,
     numba_model,
-    numba_plasma,
+    opacity_state,
 ):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many)
@@ -218,14 +238,13 @@ def trace_vpacket_volley(
         [description]
     numba_model : [type]
         [description]
-    numba_plasma : [type]
+    opacity_state : [type]
         [description]
     """
 
     if (r_packet.nu < vpacket_collection.v_packet_spawn_start_frequency) or (
         r_packet.nu > vpacket_collection.v_packet_spawn_end_frequency
     ):
-
         return
 
     no_of_vpackets = vpacket_collection.number_of_vpackets
@@ -304,7 +323,7 @@ def trace_vpacket_volley(
         )
 
         tau_vpacket = trace_vpacket(
-            v_packet, numba_radial_1d_geometry, numba_model, numba_plasma
+            v_packet, numba_radial_1d_geometry, numba_model, opacity_state
         )
 
         v_packet.energy *= math.exp(-tau_vpacket)
@@ -318,4 +337,5 @@ def trace_vpacket_volley(
             r_packet.last_interaction_type,
             r_packet.last_line_interaction_in_id,
             r_packet.last_line_interaction_out_id,
+            r_packet.last_line_interaction_shell_id,
         )

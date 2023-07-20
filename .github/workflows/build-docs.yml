@@ -25,6 +25,7 @@ on:
 env:
   CACHE_NUMBER: 0                       # increase to reset cache manually
   DEPLOY_BRANCH: gh-pages               # deployed docs branch
+  HDF5_USE_FILE_LOCKING: 'FALSE'        # disable file locking
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -76,7 +77,7 @@ jobs:
         run: pip install -e .
 
       - name: Build documentation
-        run: cd docs/ && make html CORES=auto
+        run: cd docs/ && make html NCORES=auto
 
       - name: Set destination directory
         run: |

@@ -42,7 +42,7 @@ def single_packet_loop(
     r_packet,
     numba_radial_1d_geometry,
     numba_model,
-    numba_plasma,
+    opacity_state,
     estimators,
     vpacket_collection,
     rpacket_tracker,
@@ -53,7 +53,7 @@ def single_packet_loop(
     r_packet : tardis.montecarlo.montecarlo_numba.r_packet.RPacket
     numba_radial_1d_geometry : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaRadial1DGeometry
     numba_model : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
-    numba_plasma : tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
+    opacity_state : tardis.montecarlo.montecarlo_numba.numba_interface.OpacityState
     estimators : tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
     vpacket_collection : tardis.montecarlo.montecarlo_numba.numba_interface.VPacketCollection
     rpacket_collection : tardis.montecarlo.montecarlo_numba.numba_interface.RPacketCollection
@@ -70,14 +70,14 @@ def single_packet_loop(
         set_packet_props_full_relativity(r_packet, numba_model)
     else:
         set_packet_props_partial_relativity(r_packet, numba_model)
-    r_packet.initialize_line_id(numba_plasma, numba_model)
+    r_packet.initialize_line_id(opacity_state, numba_model)
 
     trace_vpacket_volley(
         r_packet,
         vpacket_collection,
         numba_radial_1d_geometry,
         numba_model,
-        numba_plasma,
+        opacity_state,
     )
 
     if montecarlo_configuration.RPACKET_TRACKING:
@@ -92,7 +92,7 @@ def single_packet_loop(
         )
         comov_nu = r_packet.nu * doppler_factor
         chi_e = chi_electron_calculator(
-            numba_plasma, comov_nu, r_packet.current_shell_id
+            opacity_state, comov_nu, r_packet.current_shell_id
         )
         if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
             (
@@ -102,15 +102,18 @@ def single_packet_loop(
                 x_sect_bfs,
                 chi_ff,
             ) = chi_continuum_calculator(
-                numba_plasma, comov_nu, r_packet.current_shell_id
+                opacity_state, comov_nu, r_packet.current_shell_id
             )
             chi_continuum = chi_e + chi_bf_tot + chi_ff
+
             escat_prob = chi_e / chi_continuum  # probability of e-scatter
+            if montecarlo_configuration.full_relativity:
+                chi_continuum *= doppler_factor
             distance, interaction_type, delta_shell = trace_packet(
                 r_packet,
                 numba_radial_1d_geometry,
                 numba_model,
-                numba_plasma,
+                opacity_state,
                 estimators,
                 chi_continuum,
                 escat_prob,
@@ -121,19 +124,21 @@ def single_packet_loop(
                 r_packet.current_shell_id,
                 distance,
                 estimators,
-                numba_plasma.t_electrons[r_packet.current_shell_id],
+                opacity_state.t_electrons[r_packet.current_shell_id],
                 x_sect_bfs,
                 current_continua,
-                numba_plasma.bf_threshold_list_nu,
+                opacity_state.bf_threshold_list_nu,
             )
         else:
             escat_prob = 1.0
             chi_continuum = chi_e
+            if montecarlo_configuration.full_relativity:
+                chi_continuum *= doppler_factor
             distance, interaction_type, delta_shell = trace_packet(
                 r_packet,
                 numba_radial_1d_geometry,
                 numba_model,
-                numba_plasma,
+                opacity_state,
                 estimators,
                 chi_continuum,
                 escat_prob,
@@ -158,14 +163,14 @@ def single_packet_loop(
                 r_packet,
                 numba_model.time_explosion,
                 line_interaction_type,
-                numba_plasma,
+                opacity_state,
             )
             trace_vpacket_volley(
                 r_packet,
                 vpacket_collection,
                 numba_radial_1d_geometry,
                 numba_model,
-                numba_plasma,
+                opacity_state,
             )
 
         elif interaction_type == InteractionType.ESCATTERING:
@@ -181,7 +186,7 @@ def single_packet_loop(
                 vpacket_collection,
                 numba_radial_1d_geometry,
                 numba_model,
-                numba_plasma,
+                opacity_state,
             )
         elif (
             montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
@@ -194,7 +199,7 @@ def single_packet_loop(
             continuum_event(
                 r_packet,
                 numba_model.time_explosion,
-                numba_plasma,
+                opacity_state,
                 chi_bf_tot,
                 chi_ff,
                 chi_bf_contributions,
@@ -206,7 +211,7 @@ def single_packet_loop(
                 vpacket_collection,
                 numba_radial_1d_geometry,
                 numba_model,
-                numba_plasma,
+                opacity_state,
             )
         else:
             pass

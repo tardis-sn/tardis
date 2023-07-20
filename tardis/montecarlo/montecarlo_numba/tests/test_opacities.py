@@ -1,7 +1,7 @@
 import pytest
 import numpy.testing as npt
 
-import tardis.energy_input.calculate_opacity as calculate_opacity
+import tardis.montecarlo.montecarlo_numba.opacities as calculate_opacity
 
 
 @pytest.mark.parametrize(

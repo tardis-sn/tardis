@@ -39,7 +39,8 @@ def simulation_one_loop(
     config.montecarlo.last_no_of_packets = int(4e4)
 
     simulation = Simulation.from_config(config)
-    simulation.run()
+    simulation.run_convergence()
+    simulation.run_final()
 
     if not generate_reference:
         return simulation
@@ -51,7 +52,7 @@ def simulation_one_loop(
             "iterations_t_inner",
         ]
         simulation.model.hdf_properties = ["t_radiative", "dilution_factor"]
-        simulation.runner.hdf_properties = [
+        simulation.transport.hdf_properties = [
             "j_estimator",
             "nu_bar_estimator",
             "output_nu",
@@ -63,7 +64,7 @@ def simulation_one_loop(
         simulation.model.to_hdf(
             tardis_ref_data, "", "test_simulation", overwrite=True
         )
-        simulation.runner.to_hdf(
+        simulation.transport.to_hdf(
             tardis_ref_data, "", "test_simulation", overwrite=True
         )
         pytest.skip("Reference data was generated during this run.")
@@ -82,7 +83,7 @@ def simulation_one_loop(
 )
 def test_plasma_estimates(simulation_one_loop, refdata, name):
     try:
-        actual = getattr(simulation_one_loop.runner, name)
+        actual = getattr(simulation_one_loop.transport, name)
     except AttributeError:
         actual = getattr(simulation_one_loop.model, name)
 
@@ -113,7 +114,6 @@ def test_plasma_state_iterations(simulation_one_loop, refdata, name):
 
 @pytest.fixture(scope="module")
 def simulation_without_loop(atomic_data_fname, config):
-
     config.atom_data = atomic_data_fname
     config.montecarlo.iterations = 2
     return Simulation.from_config(config)
@@ -122,7 +122,6 @@ def simulation_without_loop(atomic_data_fname, config):
 def test_plasma_state_storer_store(
     atomic_data_fname, config, simulation_without_loop
 ):
-
     simulation = simulation_without_loop
 
     w_test = np.linspace(0, 1, 20)
@@ -145,7 +144,6 @@ def test_plasma_state_storer_store(
 def test_plasma_state_storer_reshape(
     atomic_data_fname, config, simulation_without_loop
 ):
-
     simulation = simulation_without_loop
     simulation.reshape_plasma_state_store(0)
 

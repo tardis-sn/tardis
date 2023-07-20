@@ -2,14 +2,14 @@ digraph {
     compound = true
     graph [nodesep=4, ranksep=1]
     config [label=<<B>Configuration</B><br/><br/> <i>&lt;Configuration object&gt;=Configuration.from_yaml(...)</i><br/> <i>&lt;Configuration object&gt;=Configuration.from_config_dict(...)</i>>, shape=oval]
-    setup_sim [label=<<B><u>Setting up the Simulation</u></B> <br/><br/> <i>&lt;Simulation object&gt;=Simulation.from_config(...)</i> <br/><br/> - Creates and calculates model <br/> - Creates and calculates plasma <br/> - Initializes Monte Carlo runner>, shape=rectangle]
+    setup_sim [label=<<B><u>Setting up the Simulation</u></B> <br/><br/> <i>&lt;Simulation object&gt;=Simulation.from_config(...)</i> <br/><br/> - Creates and calculates model <br/> - Creates and calculates plasma <br/> - Initializes Monte Carlo transport>, shape=rectangle]
     mc_iteration [label=<<B><u>Monte Carlo Iteration</u></B> <br/><br/> <i>&lt;Simulation object&gt;.iterate(...)</i><br/> <br/> - Initializes packets <br/> - Propagates packets <br/> - Calculates estimators>, shape=rectangle]
     adv_state [label=<<B><u>Updating Plasma and Convergence</u></B> <br/><br/> <i>&lt;Simulation object&gt;.advance_state()</i> <br/><br/> - Estimates and updates t_rad, w, and t_inner in model <br/> - Updates plasma <br/> - Checks for convergence>, shape=rectangle]
     spec_gen [label=<<B><u>Spectrum Generation</u></B> <br/><br/> <i>From final Monte Carlo iteration</i> <br/><br/> - Basic spectrum generation <br/> - Virtual packets <br/> - Formal integral>, shape=rectangle]
     subgraph cluster1 {
         style = rounded
 		margin = .25
-		label=<<br/><br/><i>&lt;Simulation object&gt;.run()</i><br/> >;
+		label=<<br/><br/><i>&lt;Simulation object&gt;.run_convergence()</i><br/> >;
 		mc_iteration -> adv_state
         adv_state -> mc_iteration
 	}

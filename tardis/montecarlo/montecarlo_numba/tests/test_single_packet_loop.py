@@ -13,7 +13,7 @@ from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
 def test_verysimple_single_packet_loop(
     verysimple_numba_radial_1d_geometry,
     verysimple_numba_model,
-    verysimple_numba_plasma,
+    verysimple_opacity_state,
     verysimple_estimators,
     verysimple_vpacket_collection,
     verysimple_packet_collection,
@@ -22,7 +22,7 @@ def test_verysimple_single_packet_loop(
     packet_collection = verysimple_packet_collection
     vpacket_collection = verysimple_vpacket_collection
     numba_model = verysimple_numba_model
-    numba_plasma = verysimple_numba_plasma
+    opacity_state = verysimple_opacity_state
     numba_estimators = verysimple_estimators
 
     i = 0
@@ -37,7 +37,7 @@ def test_verysimple_single_packet_loop(
         r_packet,
         numba_radial_1d_geometry,
         numba_model,
-        numba_plasma,
+        opacity_state,
         numba_estimators,
         vpacket_collection,
     )

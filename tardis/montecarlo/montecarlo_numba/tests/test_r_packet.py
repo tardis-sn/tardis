@@ -34,15 +34,15 @@ def simulation_rpacket_tracking_enabled(config_verysimple, atomic_dataset):
 
 def test_rpacket_trackers_to_dataframe(simulation_rpacket_tracking_enabled):
     sim = simulation_rpacket_tracking_enabled
-    rtracker_df = rpacket_trackers_to_dataframe(sim.runner.rpacket_tracker)
+    rtracker_df = rpacket_trackers_to_dataframe(sim.transport.rpacket_tracker)
 
     # check df shape and column names
     assert rtracker_df.shape == (
-        sum([len(tracker.r) for tracker in sim.runner.rpacket_tracker]),
+        sum([len(tracker.r) for tracker in sim.transport.rpacket_tracker]),
         8,
     )
     npt.assert_array_equal(
-        sim.runner.rpacket_tracker_df.columns.values,
+        sim.transport.rpacket_tracker_df.columns.values,
         np.array(
             [
                 "status",
@@ -59,7 +59,7 @@ def test_rpacket_trackers_to_dataframe(simulation_rpacket_tracking_enabled):
 
     # check all data with rpacket_tracker
     expected_rtrackers = []
-    for rpacket in sim.runner.rpacket_tracker:
+    for rpacket in sim.transport.rpacket_tracker:
         for rpacket_step_no in range(len(rpacket.r)):
             expected_rtrackers.append(
                 [
