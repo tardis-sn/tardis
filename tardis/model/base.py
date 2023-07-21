@@ -21,7 +21,10 @@ from tardis.io.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
 from tardis.io.decay import IsotopeAbundances
 from tardis.model.density import HomologousDensity
-from tardis.montecarlo.packet_source import BlackBodySimpleSource, convert_config_to_blackbody_packetsource
+from tardis.montecarlo.packet_source import (
+    BlackBodySimpleSource,
+    convert_config_to_blackbody_packetsource,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -271,10 +274,14 @@ class Radial1DModel(HDFWriterMixin):
             time_explosion=self.time_explosion,
         )
 
-        self.blackbody_packet_source = BlackBodySimpleSource(self.r_inner[0], t_inner)
+        self.blackbody_packet_source = BlackBodySimpleSource(
+            self.r_inner[0], t_inner
+        )
         if t_inner is None:
             if luminosity_requested is not None:
-                self.blackbody_packet_source.set_temperature_from_luminosity(luminosity_requested)
+                self.blackbody_packet_source.set_temperature_from_luminosity(
+                    luminosity_requested
+                )
             else:
                 raise ValueError(
                     "Both t_inner and luminosity_requested cannot " "be None."
@@ -283,7 +290,9 @@ class Radial1DModel(HDFWriterMixin):
             self.blackbody_packet_source.temperature = t_inner
 
         if t_radiative is None:
-            lambda_wien_inner = constants.b_wien / self.blackbody_packet_source.temperature
+            lambda_wien_inner = (
+                constants.b_wien / self.blackbody_packet_source.temperature
+            )
             self._t_radiative = constants.b_wien / (
                 lambda_wien_inner
                 * (1 + (self.v_middle - self.v_boundary_inner) / constants.c)
@@ -322,6 +331,10 @@ class Radial1DModel(HDFWriterMixin):
     @property
     def t_inner(self):
         return self.blackbody_packet_source.temperature
+
+    @t_inner.setter
+    def t_inner(self, value):
+        self.blackbody_packet_source.temperature = value
 
     @property
     def dilution_factor(self):
@@ -426,7 +439,6 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def velocity(self):
-
         if self._velocity is None:
             self._velocity = self.raw_velocity[
                 self.v_boundary_inner_index : self.v_boundary_outer_index + 1

@@ -342,7 +342,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
         self.model.t_rad = next_t_rad
         self.model.w = next_w
-        self.model.t_inner = next_t_inner
+        self.model.blackbody_packet_source.temperature = next_t_inner
 
         # model.calculate_j_blues() equivalent
         # model.update_plasmas() equivalent
