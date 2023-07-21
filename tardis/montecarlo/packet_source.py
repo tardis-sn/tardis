@@ -7,6 +7,8 @@ from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
 
+from astropy import units as u
+
 
 class BasePacketSource(abc.ABC):
     """
@@ -230,6 +232,21 @@ class BlackBodySimpleSource(BasePacketSource):
             numpy.ndarray
         """
         return np.ones(no_of_packets) / no_of_packets
+
+    def set_temperature_from_luminosity(self, luminosity: u.Quantity):
+        """
+        Set blackbody packet source temperature from luminosity
+
+        Parameters
+        ----------
+
+        luminosity : u.Quantity
+
+        """
+        self.temperature = (
+            (luminosity / (4 * np.pi * self.radius**2 * const.sigma_sb))
+            ** 0.25
+        ).to("K")
 
 
 class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
