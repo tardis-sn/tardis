@@ -198,9 +198,7 @@ class MontecarloTransport(HDFWriterMixin):
         self.v_inner_cgs = model.v_inner.to("cm/s").value
         self.v_outer_cgs = model.v_outer.to("cm/s").value
 
-    def _initialize_packets(
-        self, temperature, no_of_packets, iteration, radius, time_explosion
-    ):
+    def _initialize_packets(self, model, no_of_packets, iteration):
         # the iteration (passed as seed_offset) is added each time to preserve randomness
         # across different simulations with the same temperature,
         # for example.
@@ -208,14 +206,13 @@ class MontecarloTransport(HDFWriterMixin):
             no_of_packets, iteration
         )
 
-        if not self.enable_full_relativity:
-            radii, nus, mus, energies = self.packet_source.create_packets(
-                temperature, no_of_packets, radius
-            )
-        else:
-            radii, nus, mus, energies = self.packet_source.create_packets(
-                temperature, no_of_packets, radius, time_explosion
-            )
+        # Set latest state of packet source
+        self.packet_source.set_state_from_model(model)
+
+        # Create packets
+        radii, nus, mus, energies = self.packet_source.create_packets(
+            no_of_packets
+        )
 
         self.input_r = radii
         self.input_nu = nus
@@ -342,11 +339,9 @@ class MontecarloTransport(HDFWriterMixin):
         self._initialize_geometry_arrays(model)
 
         self._initialize_packets(
-            model.t_inner.value,
+            model,
             no_of_packets,
             iteration,
-            model.r_inner[0],
-            model.time_explosion,
         )
 
         configuration_initialize(self, no_of_virtual_packets)
@@ -672,11 +667,11 @@ class MontecarloTransport(HDFWriterMixin):
         if packet_source is None:
             if not config.montecarlo.enable_full_relativity:
                 packet_source = source.BlackBodySimpleSource(
-                    config.montecarlo.seed
+                    base_seed=config.montecarlo.seed
                 )
             else:
                 packet_source = source.BlackBodySimpleSourceRelativistic(
-                    config.montecarlo.seed
+                    base_seed=config.montecarlo.seed
                 )
 
         return cls(

@@ -21,6 +21,7 @@ from tardis.io.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
 from tardis.io.decay import IsotopeAbundances
 from tardis.model.density import HomologousDensity
+from tardis.montecarlo.packet_source import BlackBodySimpleSource
 
 from tardis.radiation_field.base import convert_config_to_radiationfield_state
 
@@ -272,29 +273,25 @@ class Radial1DModel(HDFWriterMixin):
             time_explosion=self.time_explosion,
         )
 
+        self.blackbody_packet_source = BlackBodySimpleSource(
+            self.r_inner[0], t_inner
+        )
         if t_inner is None:
             if luminosity_requested is not None:
-                self.t_inner = (
-                    (
-                        luminosity_requested
-                        / (
-                            4
-                            * np.pi
-                            * self.r_inner[0] ** 2
-                            * constants.sigma_sb
-                        )
-                    )
-                    ** 0.25
-                ).to("K")
+                self.blackbody_packet_source.set_temperature_from_luminosity(
+                    luminosity_requested
+                )
             else:
                 raise ValueError(
                     "Both t_inner and luminosity_requested cannot " "be None."
                 )
         else:
-            self.t_inner = t_inner
+            self.blackbody_packet_source.temperature = t_inner
 
         if t_radiative is None:
-            lambda_wien_inner = constants.b_wien / self.t_inner
+            lambda_wien_inner = (
+                constants.b_wien / self.blackbody_packet_source.temperature
+            )
             self._t_radiative = constants.b_wien / (
                 lambda_wien_inner
                 * (1 + (self.v_middle - self.v_boundary_inner) / constants.c)
@@ -329,6 +326,14 @@ class Radial1DModel(HDFWriterMixin):
     @t_rad.setter
     def t_rad(self, value):
         self.t_radiative = value
+
+    @property
+    def t_inner(self):
+        return self.blackbody_packet_source.temperature
+
+    @t_inner.setter
+    def t_inner(self, value):
+        self.blackbody_packet_source.temperature = value
 
     @property
     def dilution_factor(self):
@@ -635,6 +640,8 @@ class Radial1DModel(HDFWriterMixin):
         radiation_field_state = convert_config_to_radiationfield_state(
             config, no_of_shells, temperature
         )
+
+        #### Here starts the packetsource section
 
         if config.plasma.initial_t_inner < 0.0 * u.K:
             luminosity_requested = config.supernova.luminosity_requested
