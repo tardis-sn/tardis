@@ -21,6 +21,7 @@ from tardis.io.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
 from tardis.io.decay import IsotopeAbundances
 from tardis.model.density import HomologousDensity
+from tardis.montecarlo.packet_source import BlackBodySimpleSource, convert_config_to_blackbody_packetsource
 
 logger = logging.getLogger(__name__)
 
@@ -641,12 +642,7 @@ class Radial1DModel(HDFWriterMixin):
         else:
             t_radiative = None
 
-        if config.plasma.initial_t_inner < 0.0 * u.K:
-            luminosity_requested = config.supernova.luminosity_requested
-            t_inner = None
-        else:
-            luminosity_requested = None
-            t_inner = config.plasma.initial_t_inner
+        blackbody_packetsource, luminosity_requested = convert_config_to_blackbody_packetsource(config)
 
         abundances_section = config.model.abundances
         isotope_abundance = pd.DataFrame()
@@ -693,7 +689,7 @@ class Radial1DModel(HDFWriterMixin):
             isotope_abundance=isotope_abundance,
             time_explosion=time_explosion,
             t_radiative=t_radiative,
-            t_inner=t_inner,
+            t_inner=blackbody_packetsource.temperature,
             elemental_mass=elemental_mass,
             luminosity_requested=luminosity_requested,
             dilution_factor=None,

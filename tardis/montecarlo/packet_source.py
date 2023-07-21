@@ -7,6 +7,8 @@ from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
 
+from astropy import units as u
+
 
 class BasePacketSource(abc.ABC):
     """
@@ -343,3 +345,13 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
         # Thus, we can absorb the factor gamma in the packet energies, which is
         # more convenient.
         return energies * static_inner_boundary2cmf_factor / gamma
+
+def convert_config_to_blackbody_packetsource(config):
+    if config.plasma.initial_t_inner < 0.0 * u.K:
+        luminosity_requested = config.supernova.luminosity_requested
+        t_inner = None
+    else:
+        luminosity_requested = None
+        t_inner = config.plasma.initial_t_inner
+    radius = None
+    return BlackBodySimpleSource(radius, t_inner), luminosity_requested
