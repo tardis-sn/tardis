@@ -233,7 +233,16 @@ class BlackBodySimpleSource(BasePacketSource):
         """
         return np.ones(no_of_packets) / no_of_packets
 
-    def set_temperature_from_luminosity(self, luminosity):
+    def set_temperature_from_luminosity(self, luminosity: u.Quantity):
+        """
+        Set blackbody packet source temperature from luminosity
+
+        Parameters
+        ----------
+
+        luminosity : u.Quantity
+
+        """
         self.temperature = (
             (luminosity / (4 * np.pi * self.radius**2 * const.sigma_sb))
             ** 0.25
@@ -351,14 +360,3 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
         # Thus, we can absorb the factor gamma in the packet energies, which is
         # more convenient.
         return energies * static_inner_boundary2cmf_factor / gamma
-
-
-def convert_config_to_blackbody_packetsource(config):
-    if config.plasma.initial_t_inner < 0.0 * u.K:
-        luminosity_requested = config.supernova.luminosity_requested
-        t_inner = None
-    else:
-        luminosity_requested = None
-        t_inner = config.plasma.initial_t_inner
-    radius = None
-    return BlackBodySimpleSource(radius, t_inner), luminosity_requested

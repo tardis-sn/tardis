@@ -21,10 +21,7 @@ from tardis.io.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
 from tardis.io.decay import IsotopeAbundances
 from tardis.model.density import HomologousDensity
-from tardis.montecarlo.packet_source import (
-    BlackBodySimpleSource,
-    convert_config_to_blackbody_packetsource,
-)
+from tardis.montecarlo.packet_source import BlackBodySimpleSource
 
 logger = logging.getLogger(__name__)
 
