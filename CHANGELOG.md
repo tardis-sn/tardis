@@ -1,5 +1,16 @@
 ## Change Log
 
+### release-2023.07.23 (2023/07/23 14:47 +00:00)
+- [#2368](https://github.com/tardis-sn/tardis/pull/2368) Pre-release 2023.07.23 (#2368) (@tardis-bot)
+- [#2367](https://github.com/tardis-sn/tardis/pull/2367) integrate new packetsource (#2367) (@wkerzendorf)
+- [#2366](https://github.com/tardis-sn/tardis/pull/2366) New packet source (extending 2352) (#2366) (@wkerzendorf)
+- [#2354](https://github.com/tardis-sn/tardis/pull/2354) removed duplicate entry of afloers (#2354) (@afloers)
+- [#2360](https://github.com/tardis-sn/tardis/pull/2360) restructure configuration object (#2360) (@wkerzendorf)
+- [#2361](https://github.com/tardis-sn/tardis/pull/2361) add deprecated decorator (#2361) (@wkerzendorf)
+- [#2359](https://github.com/tardis-sn/tardis/pull/2359) Rename NumbaPlasma to OpacityState (#2359) (@andrewfullard)
+- [#2313](https://github.com/tardis-sn/tardis/pull/2313) Grotrian Diagram Plot Appearance (#2313) (@AyushiDaksh)
+- [#2357](https://github.com/tardis-sn/tardis/pull/2357) Post-release 2023.07.16 (#2357) (@tardis-bot)
+
 ### release-2023.07.16 (2023/07/16 19:15 +00:00)
 - [#2356](https://github.com/tardis-sn/tardis/pull/2356) Pre-release 2023.07.16 (#2356) (@tardis-bot)
 - [#2355](https://github.com/tardis-sn/tardis/pull/2355) Fixed spelling mistake in Wien's displacement law (#2355) (@afloers)
@@ -342,8 +353,6 @@
 - [#1748](https://github.com/tardis-sn/tardis/pull/1748) Tracking RPacket Properties in Montecarlo Single Packet Loop Function (#1748) (@DhruvSondhi)
 - [#1706](https://github.com/tardis-sn/tardis/pull/1706) Changed to fstring (#1706) (@svenkat19)
 - [#1833](https://github.com/tardis-sn/tardis/pull/1833) Editing instructions for contributing to the documentation (#1833) (@smithis7)
-
-### release-2021.12.5 (2021/12/02 19:14 +00:00)
 - [#1832](https://github.com/tardis-sn/tardis/pull/1832) Convert quantities to arrays when plotting in SDEC plot (#1832) (@atharva-2001)
 - [#1830](https://github.com/tardis-sn/tardis/pull/1830) Name plotly traces in SDEC plot (#1830) (@atharva-2001)
 - [#1825](https://github.com/tardis-sn/tardis/pull/1825) changed all files to import constants from only tardis (#1825) (@shilpiprd)
