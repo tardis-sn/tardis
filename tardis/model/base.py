@@ -288,8 +288,6 @@ class Radial1DModel(HDFWriterMixin):
         else:
             self.blackbody_packet_source.temperature = t_inner
 
-
-
         if t_radiative is None:
             lambda_wien_inner = (
                 constants.b_wien / self.blackbody_packet_source.temperature
@@ -299,7 +297,11 @@ class Radial1DModel(HDFWriterMixin):
                 * (1 + (self.v_middle - self.v_boundary_inner) / constants.c)
             )
         elif len(t_radiative) != self.no_of_shells:
-            t_radiative = t_radiative[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
+            t_radiative = t_radiative[
+                self.v_boundary_inner_index
+                + 1 : self.v_boundary_outer_index
+                + 1
+            ]
         else:
             assert len(t_radiative) == self.no_of_shells
 
@@ -311,10 +313,16 @@ class Radial1DModel(HDFWriterMixin):
                 )
             )
         elif len(dilution_factor) != self.no_of_shells:
-            dilution_factor = dilution_factor[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
+            dilution_factor = dilution_factor[
+                self.v_boundary_inner_index
+                + 1 : self.v_boundary_outer_index
+                + 1
+            ]
             assert len(dilution_factor) == self.no_of_shells
 
-        self.radiation_field = RadiationField(t_radiative, dilution_factor, None, None)
+        self.radiation_field = RadiationField(
+            t_radiative, dilution_factor, None, None
+        )
 
     @property
     def w(self):
@@ -343,7 +351,7 @@ class Radial1DModel(HDFWriterMixin):
     @property
     def dilution_factor(self):
         return self.radiation_field.dilution_factor
-    
+
     @dilution_factor.setter
     def dilution_factor(self, value):
         if len(value) == self.no_of_shells:

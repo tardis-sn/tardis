@@ -25,12 +25,12 @@ class RadiationField:
         t_radiative: u.Quantity,
         dilution_factor: np.ndarray,
         opacities: OpacityState,
-        source_function: BasePacketSource
+        packet_source: BasePacketSource
     ):
         self.t_radiative = t_radiative
         self.dilution_factor = dilution_factor
         self.opacities = opacities
-        self.source_function = source_function
+        self.packet_source = packet_source
 
 
 class MonteCarloRadiationFieldState:
@@ -59,4 +59,4 @@ class MonteCarloRadiationFieldState:
         self.dilution_factor = dilution_factor
         self.t_rad = self.t_radiative
         self.opacities = opacities
-        self.source_function = packet_source
+        self.packet_source = packet_source
