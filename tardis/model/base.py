@@ -23,7 +23,7 @@ from tardis.io.decay import IsotopeAbundances
 from tardis.model.density import HomologousDensity
 from tardis.montecarlo.packet_source import BlackBodySimpleSource
 
-from tardis.radiation_field.base import convert_config_to_radiationfield_state
+from tardis.radiation_field.base import RadiationField
 
 logger = logging.getLogger(__name__)
 
@@ -288,17 +288,19 @@ class Radial1DModel(HDFWriterMixin):
         else:
             self.blackbody_packet_source.temperature = t_inner
 
+
+
         if t_radiative is None:
             lambda_wien_inner = (
                 constants.b_wien / self.blackbody_packet_source.temperature
             )
-            self._t_radiative = constants.b_wien / (
+            t_radiative = constants.b_wien / (
                 lambda_wien_inner
                 * (1 + (self.v_middle - self.v_boundary_inner) / constants.c)
             )
-        else:
-            # self._t_radiative = t_radiative[self.v_boundary_inner_index + 1:self.v_boundary_outer_index]
-            self._t_radiative = t_radiative
+        
+
+        
 
         if dilution_factor is None:
             self._dilution_factor = 0.5 * (
@@ -307,9 +309,8 @@ class Radial1DModel(HDFWriterMixin):
                     1 - (self.r_inner[0] ** 2 / self.r_middle**2).to(1).value
                 )
             )
-        else:
-            # self.dilution_factor = dilution_factor[self.v_boundary_inner_index + 1:self.v_boundary_outer_index]
-            self._dilution_factor = dilution_factor
+
+        self.radiation_field = RadiationField(t_radiative, dilution_factor, None, None)
 
     @property
     def w(self):
@@ -348,7 +349,7 @@ class Radial1DModel(HDFWriterMixin):
         #            v_outer_ind = np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
         #        else:
         #            v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
-
+        1/0
         return self._dilution_factor[
             self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1
         ]
@@ -391,10 +392,8 @@ class Radial1DModel(HDFWriterMixin):
         #            v_outer_ind = np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
         #        else:
         #            v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
-
-        return self._t_radiative[
-            self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1
-        ]
+        else:
+            raise ValueError('t_radiative shape different from number of shells')
 
     @t_radiative.setter
     def t_radiative(self, value):
@@ -637,9 +636,15 @@ class Radial1DModel(HDFWriterMixin):
         # Note: This is the number of shells *without* taking in mind the
         #       v boundaries.
         no_of_shells = len(velocity) - 1
-        radiation_field_state = convert_config_to_radiationfield_state(
-            config, no_of_shells, temperature
-        )
+
+        if temperature:
+            t_radiative = temperature
+        elif config.plasma.initial_t_rad > 0 * u.K:
+            t_radiative = (
+                np.ones(no_of_shells + 1) * config.plasma.initial_t_rad
+            )
+        else:
+            t_radiative = None
 
         #### Here starts the packetsource section
 
@@ -694,7 +699,7 @@ class Radial1DModel(HDFWriterMixin):
             abundance=abundance,
             isotope_abundance=isotope_abundance,
             time_explosion=time_explosion,
-            t_radiative=radiation_field_state.t_radiative,
+            t_radiative=t_radiative,
             t_inner=t_inner,
             elemental_mass=elemental_mass,
             luminosity_requested=luminosity_requested,
@@ -703,8 +708,6 @@ class Radial1DModel(HDFWriterMixin):
             v_boundary_outer=structure.get("v_outer_boundary", None),
             electron_densities=electron_densities,
         )
-
-    ####################### FROM CSVY ##############
 
     @classmethod
     def from_csvy(cls, config, atom_data=None):
