@@ -516,26 +516,6 @@ class Radial1DModel(HDFWriterMixin):
             )
         return v_outer_ind
 
-    #    @property
-    #    def v_boundary_inner_index(self):
-    #        if self.v_boundary_inner <= self.raw_velocity[0]:
-    #            return 0
-    #        else:
-    #            idx = max(0,
-    #                      self.raw_velocity.searchsorted(self.v_boundary_inner) - 1)
-    #            # check for zero volume of designated first cell
-    #            if np.isclose(self.v_boundary_inner, self.raw_velocity[idx + 1],
-    #                          atol=1e-8 * u.km / u.s) and (self.v_boundary_inner <=
-    #                                                           self.raw_velocity[idx + 1]):
-    #                idx += 1
-    #            return idx
-    #
-    #    @property
-    #    def v_boundary_outer_index(self):
-    #        if self.v_boundary_outer >= self.raw_velocity[-1]:
-    #            return None
-    #        return self.raw_velocity.searchsorted(self.v_boundary_outer) + 1
-
     @classmethod
     def from_config(cls, config, atom_data=None):
         """
