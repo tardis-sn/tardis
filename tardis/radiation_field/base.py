@@ -25,7 +25,7 @@ class RadiationField:
         t_radiative: u.Quantity,
         dilution_factor: np.ndarray,
         opacities: OpacityState,
-        packet_source: BasePacketSource
+        packet_source: BasePacketSource,
     ):
         self.t_radiative = t_radiative
         self.dilution_factor = dilution_factor
