@@ -23,7 +23,7 @@ from tardis.io.decay import IsotopeAbundances
 from tardis.model.density import HomologousDensity
 from tardis.montecarlo.packet_source import BlackBodySimpleSource
 
-from tardis.radiation_field.base import RadiationField
+from tardis.radiation_field.base import MonteCarloRadiationFieldState
 
 logger = logging.getLogger(__name__)
 
@@ -320,7 +320,7 @@ class Radial1DModel(HDFWriterMixin):
             ]
             assert len(dilution_factor) == self.no_of_shells
 
-        self.radiation_field = RadiationField(
+        self.radiation_field = MonteCarloRadiationFieldState(
             t_radiative, dilution_factor, None, None
         )
 
