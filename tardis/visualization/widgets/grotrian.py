@@ -93,7 +93,7 @@ def standardize(
     return transformed_values
 
 
-class GrotrianWidget:
+class GrotrianPlot:
     """Class for the Grotrian Diagram
 
     Parameters
@@ -159,7 +159,7 @@ class GrotrianWidget:
 
     @classmethod
     def from_simulation(cls, sim, **kwargs):
-        """Creates a GrotrianWidget object from a Simulation object
+        """Creates a GrotrianPlot object from a Simulation object
 
         Parameters
         ----------
@@ -168,8 +168,8 @@ class GrotrianWidget:
 
         Returns
         -------
-        tardis.visualization.widgets.grotrian.GrotrianWidget
-            GrotrianWidget object
+        tardis.visualization.widgets.grotrian.GrotrianPlot
+            GrotrianPlot object
         """
         atom_data = sim.plasma.atomic_data.atom_data
         level_energy_data = pd.Series(
@@ -874,12 +874,14 @@ class GrotrianWidget:
         Parent function to draw the widget (calls other draw methods independently)
         """
         ### Create figure and set metadata
-        self.fig = make_subplots(
-            rows=1,
-            cols=2,
-            column_width=[0.3, 0.7],
-            specs=[[{}, {}]],
-            horizontal_spacing=0.14,
+        self.fig = go.FigureWidget(
+            make_subplots(
+                rows=1,
+                cols=2,
+                column_width=[0.3, 0.7],
+                specs=[[{}, {}]],
+                horizontal_spacing=0.14,
+            )
         )
 
         # Update fig layout
@@ -945,3 +947,33 @@ class GrotrianWidget:
         self._draw_transition_color_scale()
 
         return self.fig
+
+
+class GrotrianWidget:
+    @classmethod
+    def from_simulation(cls, sim, **kwargs):
+        plot = GrotrianPlot.from_simulation(sim, **kwargs)
+        return cls(plot, **kwargs)
+
+    def __init__(self, plot, **kwargs):
+        self.plot = plot
+
+        self.max_level_selector = ipw.BoundedIntText(
+            value=plot.max_levels,
+            min=1,
+            max=40,
+            step=1,
+            description="Max Levels:",
+        )
+        self.max_level_selector.observe(
+            self._max_level_selector_handler, names="value"
+        )
+
+    def _max_level_selector_handler(self, change):
+        self.plot.max_levels = change["new"]
+        self.display()
+
+    def display(self):
+        fig = self.plot.display()
+        widget_fig = ipw.VBox([self.max_level_selector, fig])
+        return widget_fig
