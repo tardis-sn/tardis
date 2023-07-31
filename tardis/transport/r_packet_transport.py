@@ -2,7 +2,10 @@ import numpy as np
 from numba import njit
 
 from tardis.montecarlo import montecarlo_configuration
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+from tardis.montecarlo.montecarlo_numba import (
+    njit_dict_no_parallel,
+    nonhomologous_grid,
+)
 from tardis.transport.geometry.calculate_distances import (
     calculate_distance_boundary,
     calculate_distance_electron,
@@ -81,6 +84,12 @@ def trace_packet(
         tau_trace_line = opacity_state.tau_sobolev[
             cur_line_id, r_packet.current_shell_id
         ]
+
+        # Check if non_homologous_expansion is enabled
+        if montecarlo_configuration.enable_nonhomologous_expansion:
+            # update the tau_sobolev for non-homologous expansion
+            update_factor = nonhomologous_grid.tau_sobolev_factor(r_packet, numba_model)/numba_model.time_explosion 
+            tau_trace_line = tau_trace_line * update_factor
 
         # Adding it to the tau_trace_line_combined
         tau_trace_line_combined += tau_trace_line
