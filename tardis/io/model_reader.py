@@ -51,7 +51,7 @@ def read_density_file(filename, filetype):
         "artis": read_artis_density,
         "simple_ascii": read_simple_ascii_density,
         "cmfgen_model": read_cmfgen_density,
-        "nonHomologous": read_csv_nonhomologous_density,
+        "non_homologous": read_csv_nonhomologous_density,
     }
 
     electron_densities = None
