@@ -7,6 +7,7 @@ from tardis.montecarlo.montecarlo_numba import (
 )
 
 from tardis.montecarlo.montecarlo_numba import numba_config as nc
+from tardis.montecarlo.montecarlo_numba.nonhomologous_grid import velocity_dvdr
 from tardis.montecarlo.montecarlo_numba.numba_config import C_SPEED_OF_LIGHT
 
 
@@ -29,6 +30,23 @@ def get_doppler_factor_partial_relativity(mu, beta):
 @njit(**njit_dict_no_parallel)
 def get_doppler_factor_full_relativity(mu, beta):
     return (1.0 - mu * beta) / math.sqrt(1 - beta * beta)
+
+@njit(**njit_dict_no_parallel)
+def get_doppler_factor_nonhomologous(v, mu):
+    """
+    Calculate the doppler factor(nonhomologous expansion)
+
+    Parameters
+    ----------
+    v : float
+    mu : float
+    """
+    inv_c = 1 / C_SPEED_OF_LIGHT
+    beta = v * inv_c
+    if not nc.ENABLE_FULL_RELATIVITY:
+        return get_doppler_factor_partial_relativity(mu, beta)
+    else:
+        return get_doppler_factor_full_relativity(mu, beta)
 
 
 @njit(**njit_dict_no_parallel)
@@ -59,6 +77,23 @@ def get_inverse_doppler_factor_partial_relativity(mu, beta):
 @njit(**njit_dict_no_parallel)
 def get_inverse_doppler_factor_full_relativity(mu, beta):
     return (1.0 + mu * beta) / math.sqrt(1 - beta * beta)
+
+@njit(**njit_dict_no_parallel)
+def get_inverse_doppler_factor_nonhomologous(v, mu):
+    """
+    Calculate the inverse doppler factor(nonhomologous expansion)
+
+    Parameters
+    ----------
+    v : float
+    mu : float
+    """
+    inv_c = 1 / C_SPEED_OF_LIGHT
+    beta = v * inv_c
+    if not nc.ENABLE_FULL_RELATIVITY:
+        return get_inverse_doppler_factor_partial_relativity(mu, beta)
+    else:
+        return get_inverse_doppler_factor_full_relativity(mu, beta)
 
 
 @njit(**njit_dict_no_parallel)
