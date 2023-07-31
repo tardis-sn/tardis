@@ -51,6 +51,7 @@ def read_density_file(filename, filetype):
         "artis": read_artis_density,
         "simple_ascii": read_simple_ascii_density,
         "cmfgen_model": read_cmfgen_density,
+        "nonHomologous": read_csv_density
     }
 
     electron_densities = None
@@ -230,6 +231,42 @@ def read_simple_ascii_density(fname):
     mean_density = (data["density"] * u.Unit("g/cm^3"))[1:]
 
     return time_of_model, velocity, mean_density
+
+
+def read_csv_density(fname):
+    """
+    For non-homologous expansion. The same format as read_simple_ascii_density, but assumes "radius" is in the file.
+    #index velocity [km/s] density [g/cm^3]
+
+    
+    Parameters
+    ----------
+    fname : str
+        filename or path with filename
+
+    Returns
+    -------
+    time_of_model : astropy.units.Quantity
+        time at which the model is valid
+    data : pandas.DataFrame
+        data frame containing index, velocity (in km/s) and density
+    """
+
+    with open(fname) as fh:
+        time_of_model_string = fh.readline().strip()
+        time_of_model = parse_quantity(time_of_model_string)
+
+    data = recfromtxt(
+        fname,
+        skip_header=1,
+        names=("index", "radius", "velocity", "density"),
+        dtype=(int, float, float, float),
+    )
+    radius = (data["radius"] * u.km).to("cm")
+    velocity = (data["velocity"] * u.km / u.s).to("cm/s")
+    mean_density = (data["density"] * u.Unit("g/cm^3"))[1:]
+
+    return time_of_model, radius, velocity, mean_density
 
 
 def read_artis_density(fname):

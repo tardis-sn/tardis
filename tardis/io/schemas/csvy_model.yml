@@ -39,7 +39,26 @@ properties:
     type: quantity
     description: velocity of the outer boundary of the last shell
 
+  r_inner_boundary:
+    type: quantity
+    description: radius of the inner boundary
+
+  r_outer_boundary:
+    type: quantity
+    description: radius of the outer boundary of the last shell
+
   velocity:
+    type: object
+    properties:
+      start:
+        type: quantity
+      stop:
+        type: quantity
+      num:
+        type: number
+        multipleOf: 1.0
+    
+  radius:
     type: object
     properties:
       start:
