@@ -88,7 +88,10 @@ def trace_packet(
         # Check if non_homologous_expansion is enabled
         if montecarlo_configuration.enable_nonhomologous_expansion:
             # update the tau_sobolev for non-homologous expansion
-            update_factor = nonhomologous_grid.tau_sobolev_factor(r_packet, numba_model)/numba_model.time_explosion 
+            update_factor = (
+                nonhomologous_grid.tau_sobolev_factor(r_packet, numba_model)
+                / numba_model.time_explosion
+            )
             tau_trace_line = tau_trace_line * update_factor
 
         # Adding it to the tau_trace_line_combined
