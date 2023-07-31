@@ -966,14 +966,46 @@ class GrotrianWidget:
             description="Max Levels:",
         )
         self.max_level_selector.observe(
-            self._max_level_selector_handler, names="value"
+            lambda change: self._change_handler("max_levels", change["new"]),
+            names="value",
         )
 
-    def _max_level_selector_handler(self, change):
-        self.plot.max_levels = change["new"]
-        self.display()
+        self.y_scale_selector = ipw.RadioButtons(
+            options=["Log", "Linear"],
+            value=plot.y_scale,
+            description="Y-Scale",
+        )
+        self.y_scale_selector.observe(
+            lambda change: self._change_handler("y_scale", change["new"]),
+            names="value",
+        )
+
+    def _change_handler(self, attribute, value):
+        """
+        Generic function to update attributes of GrotrianPlot object
+
+        Parameters
+        ----------
+        attribute : str
+            The name of the attribute of the GrotrianPlot object
+        value :
+            The new value of the attribute
+        """
+        index = self.fig.children.index(self.plot.fig)
+        setattr(self.plot, attribute, value)  # Set the value of the attribute
+
+        # Set the updated plot in the figure
+        children_list = list(self.fig.children)
+        children_list[index] = self.plot.display()
+        self.fig.children = tuple(children_list)
 
     def display(self):
         fig = self.plot.display()
-        widget_fig = ipw.VBox([self.max_level_selector, fig])
-        return widget_fig
+        self.fig = ipw.VBox(
+            [
+                ipw.HBox([self.y_scale_selector, self.max_level_selector]),
+                ipw.HBox([self.max_level_selector]),
+                fig,
+            ]
+        )
+        return self.fig
