@@ -51,7 +51,7 @@ def read_density_file(filename, filetype):
         "artis": read_artis_density,
         "simple_ascii": read_simple_ascii_density,
         "cmfgen_model": read_cmfgen_density,
-        "nonHomologous": read_csv_density,
+        "nonHomologous": read_csv_nonhomologous_density,
     }
 
     electron_densities = None
@@ -233,7 +233,7 @@ def read_simple_ascii_density(fname):
     return time_of_model, velocity, mean_density
 
 
-def read_csv_density(fname):
+def read_csv_nonhomologous_density(fname):
     """
     For non-homologous expansion. The same format as read_simple_ascii_density, but assumes "radius" is in the file.
     #index velocity [km/s] density [g/cm^3]
