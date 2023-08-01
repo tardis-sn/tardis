@@ -177,6 +177,19 @@ def test_get_doppler_factor(mu, r, inv_t_exp, expected):
 
 
 @pytest.mark.parametrize(
+    ["v", "mu", "expected"],
+    [
+        (1.4e7, 0.3, 0.999859903),
+        (0.0, -0.3, 1.0),
+        (1 / 2.6e7, 0, 1.0),
+    ],
+)
+def test_get_doppler_factor_nonhomologous(v, mu, expected):
+    obtained = frame_transformations.get_doppler_factor_nonhomologous(v, mu)
+    assert_almost_equal(obtained, expected)
+
+
+@pytest.mark.parametrize(
     ["mu", "r", "inv_t_exp", "expected"],
     [
         (0.3, 7.5e14, 1 / 5.2e7, 1 / 0.9998556693818854),
@@ -197,6 +210,21 @@ def test_get_inverse_doppler_factor(mu, r, inv_t_exp, expected):
     )
 
     # Perform required assertions
+    assert_almost_equal(obtained, expected)
+
+
+@pytest.mark.parametrize(
+    ["v", "mu", "expected"],
+    [
+        (1.4e7, 0.3, 1 / 0.999859903),
+        (0.0, -0.3, 1.0),
+        (1 / 2.6e7, 0, 1.0),
+    ],
+)
+def test_get_inverse_doppler_factor_nonhomologous(v, mu, expected):
+    obtained = frame_transformations.get_inverse_doppler_factor_nonhomologous(
+        v, mu
+    )
     assert_almost_equal(obtained, expected)
 
 

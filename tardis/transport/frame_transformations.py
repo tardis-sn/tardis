@@ -31,6 +31,7 @@ def get_doppler_factor_partial_relativity(mu, beta):
 def get_doppler_factor_full_relativity(mu, beta):
     return (1.0 - mu * beta) / math.sqrt(1 - beta * beta)
 
+
 @njit(**njit_dict_no_parallel)
 def get_doppler_factor_nonhomologous(v, mu):
     """
@@ -77,6 +78,7 @@ def get_inverse_doppler_factor_partial_relativity(mu, beta):
 @njit(**njit_dict_no_parallel)
 def get_inverse_doppler_factor_full_relativity(mu, beta):
     return (1.0 + mu * beta) / math.sqrt(1 - beta * beta)
+
 
 @njit(**njit_dict_no_parallel)
 def get_inverse_doppler_factor_nonhomologous(v, mu):
