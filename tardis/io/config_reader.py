@@ -125,7 +125,7 @@ class ConfigurationNameSpace(dict):
             if "v_outeior_boundary" in csvy_yml:
                 model["v_outer_boundary"] = csvy_yml["v_outer_boundary"]
 
-            if NONHOMOLOGOUS_EXPANSION_ENABLED and (
+            if NONHOMOLOGOUS_EXPANSION_ENABLED is True and (
                 "r_inner_boundary" not in csvy_yml
                 or "r_outer_boundary" not in csvy_yml
             ):
