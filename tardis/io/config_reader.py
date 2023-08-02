@@ -122,7 +122,7 @@ class ConfigurationNameSpace(dict):
             csvy_yml = load_yaml_from_csvy(csvy_model_path)
             if "v_inner_boundary" in csvy_yml:
                 model["v_inner_boundary"] = csvy_yml["v_inner_boundary"]
-            if "v_outeior_boundary" in csvy_yml:
+            if "v_outer_boundary" in csvy_yml:
                 model["v_outer_boundary"] = csvy_yml["v_outer_boundary"]
 
             if NONHOMOLOGOUS_EXPANSION_ENABLED is True and (
@@ -322,7 +322,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         if enable_full_relativity and spectrum_integrated:
             raise NotImplementedError(
                 "The spectrum method is set to 'integrated' and "
-                "enable_full_relativity to 'True'.\n"
+                "enable_full_rela tivity to 'True'.\n"
                 "The FormalIntegrator is not yet implemented for the full "
                 "relativity mode. "
             )
