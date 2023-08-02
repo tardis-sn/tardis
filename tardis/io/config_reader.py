@@ -121,8 +121,12 @@ class ConfigurationNameSpace(dict):
             csvy_yml = load_yaml_from_csvy(csvy_model_path)
             if "v_inner_boundary" in csvy_yml:
                 model["v_inner_boundary"] = csvy_yml["v_inner_boundary"]
-            if "v_outer_boundary" in csvy_yml:
+            if "v_outeior_boundary" in csvy_yml:
                 model["v_outer_boundary"] = csvy_yml["v_outer_boundary"]
+            if "r_inner_boundary" in csvy_yml:
+                model["r_inner_boundary"] = csvy_yml["r_inner_boundary"]
+            if "r_outer_boundary" in csvy_yml:
+                model["r_outer_boundary"] = csvy_yml["r_outer_boundary"]
 
             self.__setitem__("model", model)
             for key in self.model:
