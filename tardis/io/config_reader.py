@@ -130,7 +130,7 @@ class ConfigurationNameSpace(dict):
                 or "r_outer_boundary" not in csvy_yml
             ):
                 raise ValueError(
-                    "r_inner_boundary and r_outer_boundary not in csvy_model file."
+                    "r_inner_boundary and/or r_outer_boundary not in csvy_model file."
                 )
             if "r_inner_boundary" in csvy_yml:
                 model["r_inner_boundary"] = csvy_yml["r_inner_boundary"]
