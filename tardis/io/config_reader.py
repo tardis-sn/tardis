@@ -316,6 +316,9 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
             )
 
         enable_full_relativity = montecarlo_section["enable_full_relativity"]
+        enable_non_homologous_expansion = montecarlo_section[
+            "enable_non_homologous_expansion"
+        ]
         spectrum_integrated = (
             validated_config_dict["spectrum"]["method"] == "integrated"
         )
@@ -330,84 +333,166 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         if "csvy_model" in validated_config_dict.keys():
             pass
         elif "model" in validated_config_dict.keys():
-
-            # Model Section Validation
             model_section = validated_config_dict["model"]
 
-            if model_section["structure"]["type"] == "specific":
-                start_velocity = model_section["structure"]["velocity"]["start"]
-                stop_velocity = model_section["structure"]["velocity"]["stop"]
-                if stop_velocity.value < start_velocity.value:
+            # Model Selection Validation for non-homologous expansion
+            if enable_non_homologous_expansion:
+                if "radius" not in model_section["structure"].keys():
+                    raise ValueError("Radius is not in yaml file.")
+
+                if model_section["structure"]["type"] == "specific":
+                    start_radius = model_section["structure"]["radius"]["start"]
+                    stop_radius = model_section["structure"]["radius"]["stop"]
+                    if stop_radius.value < start_radius.value:
+                        raise ValueError(
+                            "Stop Radius Cannot Be Less than Start Radius. \n"
+                            f"Start Radius = {start_radius} \n"
+                            f"Stop Radius = {stop_radius}"
+                        )
+                elif model_section["structure"]["type"] == "file":
+                    r_inner_boundary = model_section["structure"][
+                        "r_inner_boundary"
+                    ]
+                    r_outer_boundary = model_section["structure"][
+                        "r_outer_boundary"
+                    ]
+                    if r_outer_boundary.value < r_inner_boundary.value:
+                        raise ValueError(
+                            "Outer Boundary Radius Cannot Be Less than Inner Boundary Radius. \n"
+                            f"Inner Boundary Radius = {r_inner_boundary} \n"
+                            f"Outer Boundary Velocity = {r_outer_boundary}"
+                        )
+                if "density" in model_section["structure"].keys():
+                    if (
+                        model_section["structure"]["density"]["type"]
+                        == "exponential"
+                    ):
+                        rho_0 = model_section["structure"]["density"]["rho_0"]
+                        v_0 = model_section["structure"]["density"]["v_0"]
+                        if not rho_0.value > 0:
+                            raise ValueError(
+                                f"Density Specified is Invalid, {rho_0}"
+                            )
+                        if not v_0.value > 0:
+                            raise ValueError(
+                                f"Velocity Specified is Invalid, {v_0}"
+                            )
+                    elif (
+                        model_section["structure"]["density"]["type"]
+                        == "power_law"
+                    ):
+                        rho_0 = model_section["structure"]["density"]["rho_0"]
+                        r_0 = model_section["structure"]["density"]["r_0"]
+                        if not rho_0.value > 0:
+                            raise ValueError(
+                                f"Density Specified is Invalid, {rho_0}"
+                            )
+                        if not r_0.value > 0:
+                            raise ValueError(
+                                f"Radius Specified is Invalid, {r_0}"
+                            )
+
+            # Model Selection Validation for homologous expansion
+            else:
+                if model_section["structure"]["type"] == "specific":
+                    start_velocity = model_section["structure"]["velocity"][
+                        "start"
+                    ]
+                    stop_velocity = model_section["structure"]["velocity"][
+                        "stop"
+                    ]
+                    if stop_velocity.value < start_velocity.value:
+                        raise ValueError(
+                            "Stop Velocity Cannot Be Less than Start Velocity. \n"
+                            f"Start Velocity = {start_velocity} \n"
+                            f"Stop Velocity = {stop_velocity}"
+                        )
+                elif model_section["structure"]["type"] == "file":
+                    v_inner_boundary = model_section["structure"][
+                        "v_inner_boundary"
+                    ]
+                    v_outer_boundary = model_section["structure"][
+                        "v_outer_boundary"
+                    ]
+                    if v_outer_boundary.value < v_inner_boundary.value:
+                        raise ValueError(
+                            "Outer Boundary Velocity Cannot Be Less than Inner Boundary Velocity. \n"
+                            f"Inner Boundary Velocity = {v_inner_boundary} \n"
+                            f"Outer Boundary Velocity = {v_outer_boundary}"
+                        )
+                if "density" in model_section["structure"].keys():
+                    if (
+                        model_section["structure"]["density"]["type"]
+                        == "exponential"
+                    ):
+                        rho_0 = model_section["structure"]["density"]["rho_0"]
+                        v_0 = model_section["structure"]["density"]["v_0"]
+                        if not rho_0.value > 0:
+                            raise ValueError(
+                                f"Density Specified is Invalid, {rho_0}"
+                            )
+                        if not v_0.value > 0:
+                            raise ValueError(
+                                f"Velocity Specified is Invalid, {v_0}"
+                            )
+                        if (
+                            "time_0"
+                            in model_section["structure"]["density"].keys()
+                        ):
+                            time_0 = model_section["structure"]["density"][
+                                "time_0"
+                            ]
+                            if not time_0.value > 0:
+                                raise ValueError(
+                                    f"Time Specified is Invalid, {time_0}"
+                                )
+                    elif (
+                        model_section["structure"]["density"]["type"]
+                        == "power_law"
+                    ):
+                        rho_0 = model_section["structure"]["density"]["rho_0"]
+                        v_0 = model_section["structure"]["density"]["v_0"]
+                        if not rho_0.value > 0:
+                            raise ValueError(
+                                f"Density Specified is Invalid, {rho_0}"
+                            )
+                        if not v_0.value > 0:
+                            raise ValueError(
+                                f"Velocity Specified is Invalid, {v_0}"
+                            )
+
+            # Model Selection Validation for homologous /non-homologous expansion
+            if (
+                "density" in model_section["structure"].keys()
+                and model_section["structure"]["density"]["type"]
+                == "exponential"
+            ):
+                if "time_0" in model_section["structure"]["density"].keys():
+                    time_0 = model_section["structure"]["density"]["time_0"]
+                    if not time_0.value > 0:
+                        raise ValueError(f"Time Specified is Invalid, {time_0}")
+            elif (
+                "density" in model_section["structure"].keys()
+                and model_section["structure"]["density"]["type"] == "power_law"
+            ):
+                if "time_0" in model_section["structure"]["density"].keys():
+                    time_0 = model_section["structure"]["density"]["time_0"]
+                    if not time_0.value > 0:
+                        raise ValueError(f"Time Specified is Invalid, {time_0}")
+
+            elif (
+                "density" in model_section["structure"].keys()
+                and model_section["structure"]["density"]["type"] == "uniform"
+            ):
+                value = model_section["structure"]["density"]["value"]
+                if not value.value > 0:
                     raise ValueError(
-                        "Stop Velocity Cannot Be Less than Start Velocity. \n"
-                        f"Start Velocity = {start_velocity} \n"
-                        f"Stop Velocity = {stop_velocity}"
+                        f"Density Value Specified is Invalid, {value}"
                     )
-            elif model_section["structure"]["type"] == "file":
-                v_inner_boundary = model_section["structure"][
-                    "v_inner_boundary"
-                ]
-                v_outer_boundary = model_section["structure"][
-                    "v_outer_boundary"
-                ]
-                if v_outer_boundary.value < v_inner_boundary.value:
-                    raise ValueError(
-                        "Outer Boundary Velocity Cannot Be Less than Inner Boundary Velocity. \n"
-                        f"Inner Boundary Velocity = {v_inner_boundary} \n"
-                        f"Outer Boundary Velocity = {v_outer_boundary}"
-                    )
-            if "density" in model_section["structure"].keys():
-                if (
-                    model_section["structure"]["density"]["type"]
-                    == "exponential"
-                ):
-                    rho_0 = model_section["structure"]["density"]["rho_0"]
-                    v_0 = model_section["structure"]["density"]["v_0"]
-                    if not rho_0.value > 0:
-                        raise ValueError(
-                            f"Density Specified is Invalid, {rho_0}"
-                        )
-                    if not v_0.value > 0:
-                        raise ValueError(
-                            f"Velocity Specified is Invalid, {v_0}"
-                        )
-                    if "time_0" in model_section["structure"]["density"].keys():
-                        time_0 = model_section["structure"]["density"]["time_0"]
-                        if not time_0.value > 0:
-                            raise ValueError(
-                                f"Time Specified is Invalid, {time_0}"
-                            )
-                elif (
-                    model_section["structure"]["density"]["type"] == "power_law"
-                ):
-                    rho_0 = model_section["structure"]["density"]["rho_0"]
-                    v_0 = model_section["structure"]["density"]["v_0"]
-                    if not rho_0.value > 0:
-                        raise ValueError(
-                            f"Density Specified is Invalid, {rho_0}"
-                        )
-                    if not v_0.value > 0:
-                        raise ValueError(
-                            f"Velocity Specified is Invalid, {v_0}"
-                        )
-                    if "time_0" in model_section["structure"]["density"].keys():
-                        time_0 = model_section["structure"]["density"]["time_0"]
-                        if not time_0.value > 0:
-                            raise ValueError(
-                                f"Time Specified is Invalid, {time_0}"
-                            )
-                elif model_section["structure"]["density"]["type"] == "uniform":
-                    value = model_section["structure"]["density"]["value"]
-                    if not value.value > 0:
-                        raise ValueError(
-                            f"Density Value Specified is Invalid, {value}"
-                        )
-                    if "time_0" in model_section["structure"]["density"].keys():
-                        time_0 = model_section["structure"]["density"]["time_0"]
-                        if not time_0.value > 0:
-                            raise ValueError(
-                                f"Time Specified is Invalid, {time_0}"
-                            )
+                if "time_0" in model_section["structure"]["density"].keys():
+                    time_0 = model_section["structure"]["density"]["time_0"]
+                    if not time_0.value > 0:
+                        raise ValueError(f"Time Specified is Invalid, {time_0}")
 
             # SuperNova Section Validation
             supernova_section = validated_config_dict["supernova"]
