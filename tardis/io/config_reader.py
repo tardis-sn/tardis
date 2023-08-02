@@ -10,6 +10,7 @@ import tardis
 from tardis.io import config_validator
 from tardis.io.util import YAMLLoader, yaml_load_file, HDFWriterMixin
 from tardis.io.parsers.csvy import load_yaml_from_csvy
+from tardis.montecarlo import montecarlo_configuration
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -123,6 +124,14 @@ class ConfigurationNameSpace(dict):
                 model["v_inner_boundary"] = csvy_yml["v_inner_boundary"]
             if "v_outeior_boundary" in csvy_yml:
                 model["v_outer_boundary"] = csvy_yml["v_outer_boundary"]
+
+            if NONHOMOLOGOUS_EXPANSION_ENABLED and (
+                "r_inner_boundary" not in csvy_yml
+                or "r_outer_boundary" not in csvy_yml
+            ):
+                raise ValueError(
+                    "r_inner_boundary and r_outer_boundary not in csvy_model file."
+                )
             if "r_inner_boundary" in csvy_yml:
                 model["r_inner_boundary"] = csvy_yml["r_inner_boundary"]
             if "r_outer_boundary" in csvy_yml:
