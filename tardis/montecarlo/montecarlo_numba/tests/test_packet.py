@@ -175,6 +175,30 @@ def test_get_doppler_factor(mu, r, inv_t_exp, expected):
     # Perform required assertions
     assert_almost_equal(obtained, expected)
 
+@pytest.mark.parametrize(
+    ["mu", "beta", "expected"],
+    [
+        (0.3, 0.2, 0.94),
+        (-0.3, 0, 1.0),
+        (0, 0.8, 1.0),
+    ],
+)
+def test_get_doppler_factor_partial_relativity(mu, beta, expected):
+    obtained = frame_transformations.get_doppler_factor_partial_relativity(mu, beta)
+    assert_almost_equal(obtained, expected)
+
+@pytest.mark.parametrize(
+    ["mu", "beta", "expected"],
+    [
+        (0.3, 0.2, 0.95938348),
+        (-0.3, 0, 1.0),
+        (0, 0.8, 1.6666667),
+    ],
+)
+def test_get_doppler_factor_full_relativity(mu, beta, expected):
+    obtained = frame_transformations.get_doppler_factor_full_relativity(mu, beta)
+    assert_almost_equal(obtained, expected)
+
 
 @pytest.mark.parametrize(
     ["mu", "r", "inv_t_exp", "expected"],
