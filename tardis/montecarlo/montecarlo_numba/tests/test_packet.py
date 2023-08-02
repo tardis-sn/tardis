@@ -268,17 +268,17 @@ def test_update_line_estimators(
 def test_trace_packet(
     packet,
     verysimple_numba_model,
-    verysimple_numba_plasma,
+    verysimple_opacity_state,
     verysimple_estimators,
     set_seed_fixture,
 ):
 
     set_seed_fixture(1963)
-    packet.initialize_line_id(verysimple_numba_plasma, verysimple_numba_model)
+    packet.initialize_line_id(verysimple_opacity_state, verysimple_numba_model)
     distance, interaction_type, delta_shell = r_packet_transport.trace_packet(
         packet,
         verysimple_numba_model,
-        verysimple_numba_plasma,
+        verysimple_opacity_state,
         verysimple_estimators,
     )
 
