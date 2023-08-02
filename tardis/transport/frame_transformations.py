@@ -41,6 +41,11 @@ def get_doppler_factor_nonhomologous(v, mu):
     ----------
     v : float
     mu : float
+
+    Returns
+    -------
+    float
+        Doppler factor for velocity v at angle mu
     """
     inv_c = 1 / C_SPEED_OF_LIGHT
     beta = v * inv_c
@@ -89,6 +94,11 @@ def get_inverse_doppler_factor_nonhomologous(v, mu):
     ----------
     v : float
     mu : float
+
+    Returns
+    -------
+    float
+        Inverse doppler factor for velocity v at angle mu
     """
     inv_c = 1 / C_SPEED_OF_LIGHT
     beta = v * inv_c
