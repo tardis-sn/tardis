@@ -4,6 +4,7 @@ Grotrian Diagram Widget for TARDIS simulation models.
 This widget displays a Grotrian Diagram of the last line interactions of the simulation packets
 """
 from tardis.analysis import LastLineInteraction
+from tardis.util.base import species_tuple_to_string, species_string_to_tuple
 from tardis.util.base import int_to_roman
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -958,6 +959,32 @@ class GrotrianWidget:
     def __init__(self, plot, **kwargs):
         self.plot = plot
 
+        species_list = self._get_species()
+        self.ion_selector = ipw.Dropdown(
+            options=species_list,
+            index=0,
+            description="Ion",
+        )
+        self.plot.set_ion(*species_string_to_tuple(self.ion_selector.value))
+        self.ion_selector.observe(
+            self._ion_change_handler,
+            names="value",
+        )
+
+        shell_list = ["All"] + [
+            str(i) for i in range(1, 21)
+        ]  # len(sim.model.v_inner)
+        self.shell_selector = ipw.Dropdown(
+            options=shell_list,
+            index=0,
+            description="Shell",
+        )
+
+        self.shell_selector.observe(
+            lambda change: self._change_handler("shell", change["new"]),
+            names="value",
+        )
+
         self.max_level_selector = ipw.BoundedIntText(
             value=plot.max_levels,
             min=1,
@@ -970,15 +997,30 @@ class GrotrianWidget:
             names="value",
         )
 
-        self.y_scale_selector = ipw.RadioButtons(
-            options=["Log", "Linear"],
-            value=plot.y_scale,
+        self.y_scale_selector = ipw.ToggleButtons(
+            options=["Linear", "Log"],
+            index=0,
             description="Y-Scale",
+            layout=ipw.Layout(width="auto"),
+            style={"button_width": "100px"},
         )
         self.y_scale_selector.observe(
             lambda change: self._change_handler("y_scale", change["new"]),
             names="value",
         )
+
+    def _get_species(self):
+        line_interaction_analysis = self.plot._line_interaction_analysis
+        selected_species_group = line_interaction_analysis[
+            self.plot.filter_mode
+        ].last_line_in.groupby(["atomic_number", "ion_number"])
+
+        if selected_species_group.groups:
+            selected_species_symbols = [
+                species_tuple_to_string(item)
+                for item in selected_species_group.groups.keys()
+            ]
+        return selected_species_symbols
 
     def _change_handler(self, attribute, value):
         """
@@ -999,12 +1041,36 @@ class GrotrianWidget:
         children_list[index] = self.plot.display()
         self.fig.children = tuple(children_list)
 
+    def _ion_change_handler(self, change):
+        """
+        Function to update ion of GrotrianPlot object
+
+        Parameters
+        ----------
+        change : dict
+            Change information of the event
+        """
+        atomic_number, ion_number = species_string_to_tuple(change["new"])
+        index = self.fig.children.index(self.plot.fig)
+        self.plot.set_ion(atomic_number, ion_number)
+
+        # Set the updated plot in the figure
+        children_list = list(self.fig.children)
+        children_list[index] = self.plot.display()
+        self.fig.children = tuple(children_list)
+
     def display(self):
         fig = self.plot.display()
         self.fig = ipw.VBox(
             [
-                ipw.HBox([self.y_scale_selector, self.max_level_selector]),
-                ipw.HBox([self.max_level_selector]),
+                ipw.HBox(
+                    [
+                        self.ion_selector,
+                        self.shell_selector,
+                        self.max_level_selector,
+                    ]
+                ),
+                ipw.HBox([self.y_scale_selector]),
                 fig,
             ]
         )
