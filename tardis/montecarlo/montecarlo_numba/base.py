@@ -265,7 +265,7 @@ def montecarlo_main_loop(
         seed = packet_seeds[i]
         np.random.seed(seed)
         r_packet = RPacket(
-            numba_radial_1d_geometry.r_inner[0],
+            packet_collection.packets_input_radius[i],
             packet_collection.packets_input_mu[i],
             packet_collection.packets_input_nu[i],
             packet_collection.packets_input_energy[i],
