@@ -250,9 +250,9 @@ def test_get_inverse_doppler_factor_partial_relativity(mu, beta, expected):
 @pytest.mark.parametrize(
     ["mu", "beta", "expected"],
     [
-        (0.3, 0.2, 1 / 0.95938348),
+        (0.3, 0.2, 1.0818579),
         (-0.3, 0, 1.0),
-        (0, 0.8, 1 / 1.6666667),
+        (0, 0.8, 1.6666667),
     ],
 )
 def test_get_inverse_doppler_factor_full_relativity(mu, beta, expected):
