@@ -7,6 +7,7 @@ from numpy.testing import (
     assert_almost_equal,
 )
 
+
 @pytest.mark.parametrize(
     ["mu", "r", "inv_t_exp", "expected"],
     [

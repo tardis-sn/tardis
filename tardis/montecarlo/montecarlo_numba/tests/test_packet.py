@@ -154,8 +154,6 @@ def test_calculate_tau_electron(electron_density, distance):
     assert_almost_equal(actual, expected)
 
 
-
-
 def test_get_random_mu(set_seed_fixture):
     """
     Ensure that different calls results
