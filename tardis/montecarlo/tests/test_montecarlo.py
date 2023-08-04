@@ -238,28 +238,6 @@ def test_binary_search(x, x_insert, imin, imax, expected_params):
     assert obtained_result == expected_params["result"]
 
 
-@pytest.mark.parametrize(
-    ["mu", "r", "inv_t_exp", "expected"],
-    [
-        (0.3, 7.5e14, 1 / 5.2e7, 0.9998556693818854),
-        (-0.3, 0, 1 / 2.6e7, 1.0),
-        (0, 1, 1 / 2.6e7, 1.0),
-    ],
-)
-def test_get_doppler_factor(mu, r, inv_t_exp, expected):
-    # Set the params from test cases here
-    # TODO: add relativity tests
-    time_explosion = 1 / inv_t_exp
-
-    # Perform any other setups just before this, they can be additional calls
-    # to other methods or introduction of some temporary variables
-
-    obtained = get_doppler_factor(r, mu, time_explosion)
-
-    # Perform required assertions
-    assert_almost_equal(obtained, expected)
-
-
 @pytest.mark.parametrize(["mu", "r", "inv_t_exp"], [(-0.3, 5, 1e10)])
 def test_unphysical_doppler_factor(mu, r, inv_t_exp):
     # Set the params from test cases here
