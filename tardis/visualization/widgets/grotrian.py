@@ -95,7 +95,8 @@ def standardize(
 
 
 class GrotrianPlot:
-    """Class for the Grotrian Diagram
+    """
+    Class for the Grotrian Diagram
 
     Parameters
     ----------
@@ -160,7 +161,8 @@ class GrotrianPlot:
 
     @classmethod
     def from_simulation(cls, sim, **kwargs):
-        """Creates a GrotrianPlot object from a Simulation object
+        """
+        Creates a GrotrianPlot object from a Simulation object
 
         Parameters
         ----------
@@ -872,7 +874,7 @@ class GrotrianPlot:
 
     def display(self):
         """
-        Parent function to draw the widget (calls other draw methods independently)
+        Function to draw the plot and the reference scales (calls other draw methods independently)
         """
         ### Create figure and set metadata
         self.fig = go.FigureWidget(
@@ -951,9 +953,21 @@ class GrotrianPlot:
 
 
 class GrotrianWidget:
+    """
+    A wrapper class for the Grotrian Diagram, containing the Grotrian Plot and the IpyWidgets
+
+    Parameters
+    ----------
+    plot : tardis.visualization.widgets.grotrian.GrotrianPlot
+        GrotrianPlot object
+    num_shells : int
+        Number of shells in the sim.model.v_inner
+    """
+
     @classmethod
     def from_simulation(cls, sim, **kwargs):
-        """Creates a GrotrianWidget object from a Simulation object
+        """
+        Creates a GrotrianWidget object from a Simulation object
 
         Parameters
         ----------
@@ -984,7 +998,7 @@ class GrotrianWidget:
             self._ion_change_handler,
             names="value",
         )
-        self.ion_selector.observe(self._wavelength_setter, names="value")
+        self.ion_selector.observe(self._wavelength_resetter, names="value")
 
         shell_list = ["All"] + [str(i) for i in range(1, num_shells + 1)]
         self.shell_selector = ipw.Dropdown(
@@ -998,7 +1012,7 @@ class GrotrianWidget:
             ),
             names="value",
         )
-        self.shell_selector.observe(self._wavelength_setter, names="value")
+        self.shell_selector.observe(self._wavelength_resetter, names="value")
 
         self.max_level_selector = ipw.BoundedIntText(
             value=plot.max_levels,
@@ -1011,7 +1025,9 @@ class GrotrianWidget:
             lambda change: self._change_handler("max_levels", change["new"]),
             names="value",
         )
-        self.max_level_selector.observe(self._wavelength_setter, names="value")
+        self.max_level_selector.observe(
+            self._wavelength_resetter, names="value"
+        )
 
         self.y_scale_selector = ipw.ToggleButtons(
             options=["Linear", "Log"],
@@ -1040,6 +1056,9 @@ class GrotrianWidget:
         )
 
     def _get_species(self):
+        """
+        Computes the ions list for the ion dropdown of the plot
+        """
         line_interaction_analysis = self.plot._line_interaction_analysis
         selected_species_group = line_interaction_analysis[
             self.plot.filter_mode
@@ -1090,6 +1109,14 @@ class GrotrianWidget:
         self.fig.children = tuple(children_list)
 
     def _wavelength_change_handler(self, change):
+        """
+        Function to update the wavelength range of GrotrianPlot object
+
+        Parameters
+        ----------
+        change : dict
+            Change information of the event
+        """
         min_wavelength, max_wavelength = change["new"]
         index = self.fig.children.index(self.plot.fig)
         setattr(self.plot, "min_wavelength", min_wavelength)
@@ -1100,7 +1127,10 @@ class GrotrianWidget:
         children_list[index] = self.plot.display()
         self.fig.children = tuple(children_list)
 
-    def _wavelength_setter(self, change):
+    def _wavelength_resetter(self, change):
+        """
+        Resets the range of the wavelength slider whenever the ion, level or shell changes
+        """
         self.wavelength_range_selector.min = self.plot.min_wavelength
         self.wavelength_range_selector.max = self.plot.max_wavelength
         self.wavelength_range_selector.value = [
@@ -1109,6 +1139,9 @@ class GrotrianWidget:
         ]
 
     def display(self):
+        """
+        Function to render the Grotrian Widget containing the plot and IpyWidgets together
+        """
         fig = self.plot.display()
         self.fig = ipw.VBox(
             [
