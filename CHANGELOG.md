@@ -1,5 +1,11 @@
 ## Change Log
 
+### release-2023.08.06 (2023/08/06 00:43 +00:00)
+- [#2383](https://github.com/tardis-sn/tardis/pull/2383) Pre-release 2023.08.06 (#2383) (@tardis-bot)
+- [#2382](https://github.com/tardis-sn/tardis/pull/2382) Remove outdated docstring from test_montecarlo.py (#2382) (@chvogl)
+- [#2376](https://github.com/tardis-sn/tardis/pull/2376) Add init.py to energy input module (#2376) (@andrewfullard)
+- [#2373](https://github.com/tardis-sn/tardis/pull/2373) Post-release 2023.07.30 (#2373) (@tardis-bot)
+
 ### release-2023.07.30 (2023/07/30 00:47 +00:00)
 - [#2372](https://github.com/tardis-sn/tardis/pull/2372) Pre-release 2023.07.30 (#2372) (@tardis-bot)
 - [#2365](https://github.com/tardis-sn/tardis/pull/2365) integrate radiation field (#2365) (@wkerzendorf)
@@ -348,8 +354,6 @@
 
 ### release-2022.1.9 (2022/01/06 15:59 +00:00)
 - [#1846](https://github.com/tardis-sn/tardis/pull/1846) Fix Virtual Packet Logging Bug (#1846) (@atharva-2001)
-
-### release-2021.12.19 (2021/12/13 18:38 +00:00)
 - [#1834](https://github.com/tardis-sn/tardis/pull/1834) Adding Luminosity Integral Explanation to Supernova Configuration (#1834) (@bartnikm)
 - [#1842](https://github.com/tardis-sn/tardis/pull/1842) Fixed fstring issue from mixing quotes and reformatted files from fstring PR with black (#1842) (@Rodot-)
 - [#1841](https://github.com/tardis-sn/tardis/pull/1841) Fixed the Failing Documentation for Tracking `RPacket` Feature  (#1841) (@DhruvSondhi)
