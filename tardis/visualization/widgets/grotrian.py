@@ -287,7 +287,7 @@ class GrotrianPlot:
         assert type(value) is int
         self._max_levels = value
         self._compute_level_data()
-        self._compute_transitions()
+        self.reset_selected_plot_wavelength_range()  # calls _compute_transitions() as well
 
     @property
     def level_diff_threshold(self):
@@ -343,9 +343,6 @@ class GrotrianPlot:
         self._atomic_number = atomic_number
         self._ion_number = ion_number
         self._compute_level_data()
-        print(
-            "Changing the ion will reset custom wavelength ranges, if any were set"
-        )
 
         # Reset any custom wavelengths if user changes ion
         self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "_compute_transitions()" explicitly
@@ -1033,6 +1030,10 @@ class GrotrianWidget:
             ),
             names="value",
         )
+        self.shell_selector.observe(
+            self._wavelength_resetter,
+            names="value",
+        )
 
         self.max_level_selector = ipw.BoundedIntText(
             value=plot.max_levels,
@@ -1043,6 +1044,10 @@ class GrotrianWidget:
         )
         self.max_level_selector.observe(
             lambda change: self._change_handler("max_levels", change["new"]),
+            names="value",
+        )
+        self.max_level_selector.observe(
+            self._wavelength_resetter,
             names="value",
         )
 
@@ -1064,7 +1069,7 @@ class GrotrianWidget:
             max=self.plot.max_wavelength,
             step=0.1,
             description="Wavelength",
-            layout={"width": "500px", "border": "none"},
+            layout=ipw.Layout(width="605px"),
             readout_format=".1e",
         )
         self.wavelength_range_selector.observe(
@@ -1149,17 +1154,23 @@ class GrotrianWidget:
         """
         Resets the range of the wavelength slider whenever the ion, level or shell changes
         """
-        if (
-            self.plot.min_wavelength is None
-            or self.plot.max_wavelength is None
-            or self.plot.min_wavelength >= self.plot.max_wavelength
-        ):
-            self.wavelength_range_selector.disabled = True
+        min_wavelength = self.plot.min_wavelength
+        max_wavelength = self.plot.max_wavelength
+
+        if min_wavelength is None or max_wavelength is None:
+            self.wavelength_range_selector.layout.visibility = "hidden"
             return
 
-        self.wavelength_range_selector.disabled = False
-        self.wavelength_range_selector.min = self.plot.min_wavelength
-        self.wavelength_range_selector.max = self.plot.max_wavelength
+        elif min_wavelength == max_wavelength:
+            self.wavelength_range_selector.layout.visibility = "visible"
+            self.wavelength_range_selector.disabled = True
+        else:
+            self.wavelength_range_selector.layout.visibility = "visible"
+            self.wavelength_range_selector.disabled = False
+
+        self.wavelength_range_selector.min = 0.0
+        self.wavelength_range_selector.max = max_wavelength
+        self.wavelength_range_selector.min = min_wavelength
         self.wavelength_range_selector.value = [
             self.wavelength_range_selector.min,
             self.wavelength_range_selector.max,
