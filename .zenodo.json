@@ -113,13 +113,13 @@
       "name": "Arya, Atharva"
     },
     {
-      "name": "Barbosa, Talytha"
-    },
-    {
       "name": "Sondhi, Dhruv"
     },
     {
       "name": "O'Brien, Jack"
+    },
+    {
+      "name": "Barbosa, Talytha"
     },
     {
       "name": "Yu, Jenny"
@@ -153,23 +153,20 @@
       "name": "Bylund, Tomas"
     },
     {
-      "name": "Bentil, Laud"
+      "name": "Black, William"
     },
     {
-      "name": "Black, William"
+      "name": "Bentil, Laud"
     },
     {
       "name": "Eguren, Jordi",
       "orcid": "0000-0002-2328-8030"
     },
     {
-      "name": "Bartnik, Matthew"
-    },
-    {
       "name": "Alam, Arib"
     },
     {
-      "name": "Magee, Mark"
+      "name": "Bartnik, Matthew"
     },
     {
       "name": "Kumar, Ansh"
@@ -181,26 +178,41 @@
       "name": "Shields, Joshua"
     },
     {
+      "name": "Magee, Mark"
+    },
+    {
       "name": "Livneh, Ran"
     },
     {
       "name": "Kambham, Satwik"
     },
     {
+      "name": "Mishra, Sashank",
+      "orcid": "0000-0001-8302-1584"
+    },
+    {
       "name": "Rajagopalan, Srinath"
     },
     {
-      "name": "Mishra, Sashank",
-      "orcid": "0000-0001-8302-1584"
+      "name": "Daksh, Ayushi"
     },
     {
       "name": "Actions, GitHub"
     },
     {
+      "name": "Reichenbach, John"
+    },
+    {
       "name": "Jain, Rinkle"
     },
     {
-      "name": "Reichenbach, John"
+      "name": "Floers, Andreas"
+    },
+    {
+      "name": "Singh, Shreyas"
+    },
+    {
+      "name": "Chaumal, Aarya"
     },
     {
       "name": "Holas, Alexander"
@@ -209,37 +221,28 @@
       "name": "Singh, Sourav"
     },
     {
-      "name": "Chaumal, Aarya"
-    },
-    {
-      "name": "Singh, Shreyas"
+      "name": "Bhakar, Jayant"
     },
     {
       "name": "Brar, Antreev"
     },
     {
-      "name": "Bhakar, Jayant"
-    },
-    {
-      "name": "Daksh, Ayushi"
+      "name": "Selsing, Jonatan"
     },
     {
       "name": "Kowalski, Nathan"
     },
     {
-      "name": "Sofiatti, Caroline"
-    },
-    {
       "name": "Kumar, Aman"
     },
     {
-      "name": "Talegaonkar, Chinmay"
-    },
-    {
-      "name": "Selsing, Jonatan"
-    },
-    {
       "name": "Patidar, Abhishek"
+    },
+    {
+      "name": "Sofiatti, Caroline"
+    },
+    {
+      "name": "Talegaonkar, Chinmay"
     },
     {
       "name": "Sharma, Sampark"
@@ -270,6 +273,9 @@
     },
     {
       "name": "Yap, Kevin"
+    },
+    {
+      "name": "Lu, Jing"
     },
     {
       "name": "Prasad, Shilpi"

@@ -424,7 +424,7 @@ class ConvergencePlots(object):
 
         # the display function expects a Widget, while
         # fig.show() returns None, which causes the TraitError.
-        if export_convergence_plots:
+        if export_convergence_plots and (self.plasma_plot is not None):
             with suppress(TraitError):
                 display(
                     widgets.VBox(
