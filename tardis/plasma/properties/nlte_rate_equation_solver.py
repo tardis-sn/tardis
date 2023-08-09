@@ -27,6 +27,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         rate_matrix_index,
         number_density,
         nlte_excitation_species,
+        coll_exc_coeff,
+        coll_deexc_coeff,
     ):
         """Calculates ion number densities and electron densities using NLTE ionization.
 
@@ -848,3 +850,49 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             r_lu_matrix,
         )
         # TODO: beta sobolev needs to be recalculated for each iteration, because it depends on number density
+
+    @staticmethod
+    def create_coll_exc_deexc_matrix(
+        coll_exc_coefficient, coll_deexc_coefficient
+    ):
+        """Generates a coefficient matrix from collisional excitation/deexcitation coefficients.
+
+        Needs to be multiplied by electron density.
+        Parameters
+        ----------
+        coll_exc_coefficient : pandas.DataFrame
+            DataFrame of collisional excitation coefficients for current (atomic number, ion_number)
+        coll_deexc_coefficient : pandas.DataFrame
+            DataFrame of collisional deexcitation coefficients for (atomic number, ion_number)
+
+        Returns
+        -------
+        coeff_matrix : np.array (number of levels, number of levels)
+        Square matrix constructed by collisional exc./deexc. coefficients.
+        """
+        size = (
+            coll_exc_coefficient.index.get_level_values("level_number_lower")
+            .unique()
+            .size
+        )
+        diagonal_exc = np.zeros(size + 1)
+        deexc_coeff = (
+            coll_deexc_coefficient.swaplevel()
+        )  # brings level_number_upper to first index
+        diagonal_deexc = np.zeros(size + 1)
+        for i in range(size):
+            diagonal_exc[i] = coll_exc_coefficient.loc[i].sum()
+            diagonal_deexc[i + 1] = deexc_coeff.loc[i + 1].sum()
+        exc_matrix = np.zeros((size + 1, size + 1))
+        deexc_matrix = np.zeros((size + 1, size + 1))
+        for i in range(size + 1):
+            for j in range(size + 1):
+                if i == j:
+                    exc_matrix[i, j] = -diagonal_exc[i]
+                    deexc_matrix[i, j] = -diagonal_deexc[i]
+                elif i > j:
+                    exc_matrix[i, j] = coll_exc_coefficient.loc[j, i]
+                elif i < j:
+                    deexc_matrix[i, j] = deexc_coeff.loc[j, i]
+        coeff_matrix = exc_matrix + deexc_matrix
+        return coeff_matrix
