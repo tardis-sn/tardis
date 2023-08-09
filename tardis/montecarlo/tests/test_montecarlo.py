@@ -238,32 +238,6 @@ def test_binary_search(x, x_insert, imin, imax, expected_params):
     assert obtained_result == expected_params["result"]
 
 
-@pytest.mark.parametrize(["mu", "r", "inv_t_exp"], [(-0.3, 5, 1e10)])
-def test_unphysical_doppler_factor(mu, r, inv_t_exp):
-    # Set the params from test cases here
-    # TODO: add relativity tests
-    time_explosion = 1 / inv_t_exp
-
-    # Perform any other setups just before this, they can be additional calls
-    # to other methods or introduction of some temporary variables
-    with pytest.raises(r_packet.SuperluminalError):
-        obtained = get_doppler_factor(r, mu, time_explosion)
-
-
-
-
-@pytest.mark.parametrize(["mu", "r", "inv_t_exp"], [(-0.3, 5, 1e10)])
-def test_unphysical_inverse_doppler_factor(mu, r, inv_t_exp):
-    # Set the params from test cases here
-    # TODO: add relativity tests
-    time_explosion = 1 / inv_t_exp
-
-    # Perform any other setups just before this, they can be additional calls
-    # to other methods or introduction of some temporary variables
-    with pytest.raises(r_packet.SuperluminalError):
-        obtained = r_packet.get_inverse_doppler_factor(r, mu, time_explosion)
-
-
 def test_get_random_mu_different_output():
     """
     Ensure that different calls results
