@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
 
 
@@ -116,3 +117,24 @@ def test_prepare_bound_bound_rate_matrix(
         np.array(actual_rate_matrix),
         rtol=1e-6,
     )
+
+
+def test_coll_exc_deexc_matrix():
+    """
+    Checks the NLTERateEquationSolver.create_coll_exc_deexc_matrix for simple values of species with 3 levels.
+    """
+    index = pd.MultiIndex.from_tuples(
+        [(0, 1), (0, 2), (1, 2)],
+        names=["level_number_lower", "level_number_upper"],
+    )
+    exc_values = [1, -2, 3]
+    exc_coeff = pd.DataFrame(exc_values, index=index)
+    deexc_values = [4, 9, 10]
+    deexc_coeff = pd.DataFrame(deexc_values, index=index)
+    obtained_coeff_matrix = NLTERateEquationSolver.create_coll_exc_deexc_matrix(
+        exc_coeff, deexc_coeff
+    )
+    desired_coeff_matrix = np.array(
+        [[1.0, 4.0, 9.0], [1.0, -7.0, 10.0], [-2.0, 3.0, -19.0]]
+    )
+    assert_allclose(obtained_coeff_matrix, desired_coeff_matrix)
