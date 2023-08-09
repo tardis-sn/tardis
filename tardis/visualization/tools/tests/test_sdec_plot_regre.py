@@ -11,8 +11,10 @@ from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
 import tables
 import re
+import pathlib
 
 pytest_plugins = "regressions"
+
 
 def make_valid_name(testid):
     """
@@ -31,6 +33,12 @@ def make_valid_name(testid):
     testid = testid.replace("-", "_")
     testid = "_" + testid
     return testid
+
+
+@pytest.fixture(scope="session")
+def tardis_ref_path(tardis_ref_path):
+    refpath = pathlib.Path(tardis_ref_path)
+    return refpath
 
 
 @pytest.fixture(scope="module")
@@ -132,26 +140,58 @@ class TestSDECPlotter:
     def test_plotter_full_species_list(
         self, plotter_species_list, data_regression, tardis_ref_path
     ):
+        fullpath = pathlib.Path.joinpath(tardis_ref_path, "_full_species_list")
         data_regression.check(
             plotter_species_list._full_species_list,
-            fullpath=tardis_ref_path + "/" + "_full_species_list",
+            fullpath=fullpath,
         )
 
     def test_plotter_species_list(
         self, plotter_species_list, num_regression, tardis_ref_path
     ):
+        fullpath = pathlib.Path.joinpath(tardis_ref_path, "_species_list")
         species_lst_dict = {
             "species_lst": plotter_species_list._species_list,
-            # "_keep_colour": plotter_species_list._keep_colour
         }
         num_regression.check(
             species_lst_dict,
-            fullpath=tardis_ref_path + "/" +"_species_list",
+            fullpath=fullpath,
         )
 
-    # @pytest.fixture(params=[["Si II", "Ca II", "C", "Fe I-V"]])
-    # def plotter_species_list(self, request, plotter):
-    #     plotter_calculate_plotting_data = deepcopy(plotter)
-    #     plotter_calculate_plotting_data._calculate_plotting_data(request.param)
-    #     yield plotter_calculate_plotting_data
+    test_cases = {
+        "packets_mode": ["virtual", "real"],
+        "packet_wvl_range": [[500, 9000] * u.AA, None],
+        "distance": [10 * u.Mpc, None],
+        "show_modeled_spectrum": [True, False],
+        "nelements": [1, None],
+        "species_list": [["Si II", "Ca II", "C", "Fe I-V"], None],
+    }
+
+    def make_cases(test_cases):
+        cases = map(dict, zip(*[[(key,v) for v in value] for key,value in test_cases.items()]))
+        return cases
     
+    @pytest.fixture(params=make_cases(test_cases))
+    def plotter_generate_plot_mpl(self, plotter, request, observed_spectrum):
+        plotter_copy = deepcopy(plotter)
+        fig = plotter_copy.generate_plot_mpl(
+            packets_mode=request.param["packets_mode"],
+            packet_wvl_range=request.param["packet_wvl_range"],
+            distance=request.param["distance"],
+            show_modeled_spectrum=request.param["show_modeled_spectrum"],
+            observed_spectrum=observed_spectrum if request.param["distance"] else None,
+            nelements=request.param["nelements"],
+            species_list=request.param["species_list"],
+        )
+        yield (fig, plotter_copy)
+    
+
+    def test_plotter_full_species_list(
+        self, plotter_generate_plot_mpl, data_regression, tardis_ref_path, request
+    ):
+        fig, plotter = plotter_generate_plot_mpl
+        fullpath = pathlib.Path.joinpath(tardis_ref_path, "_species_name"+request.node.callspec.id)
+        data_regression.check(
+            plotter._species_name,
+            fullpath=fullpath,
+        )
