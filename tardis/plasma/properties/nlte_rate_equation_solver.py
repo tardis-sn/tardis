@@ -27,8 +27,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         rate_matrix_index,
         number_density,
         nlte_excitation_species,
-        coll_exc_coeff,
-        coll_deexc_coeff,
     ):
         """Calculates ion number densities and electron densities using NLTE ionization.
 
