@@ -133,7 +133,7 @@ def test_simple_read_cmfgen_density(cmfgen_fname):
 def test_model_to_dict(simulation_verysimple):
     model = simulation_verysimple.model
 
-    model_dict, homologous_density, isotope_abundance = model_to_dict(model)
+    model_dict, isotope_abundance = model_to_dict(model)
 
     # Check model dictionary
     assert np.array_equal(model_dict["velocity_cgs"][0], model.velocity.value)
@@ -177,18 +177,6 @@ def test_model_to_dict(simulation_verysimple):
     assert np.array_equal(model_dict["density_cgs"][0], model.density.value)
     assert model_dict["density_cgs"][1] == model.density.unit.to_string()
 
-    # Check homologous density
-    assert np.array_equal(
-        homologous_density["optional_hdf_properties"],
-        model.homologous_density.optional_hdf_properties,
-    )
-    assert np.array_equal(
-        homologous_density["density_0"], model.homologous_density.density_0
-    )
-    assert np.array_equal(
-        homologous_density["time_0"], model.homologous_density.time_0
-    )
-
 
 def test_store_model_to_hdf(simulation_verysimple, tmp_path):
     model = simulation_verysimple.model
@@ -220,21 +208,6 @@ def test_store_model_to_hdf(simulation_verysimple, tmp_path):
         assert np.array_equal(f["model/t_rad_cgs"], model.t_rad.value)
         assert np.array_equal(f["model/r_inner_cgs"], model.r_inner.value)
         assert np.array_equal(f["model/density_cgs"], model.density.value)
-
-        # Check homologous density
-        assert np.array_equal(
-            f["model/homologous_density/optional_hdf_properties"],
-            model.homologous_density.optional_hdf_properties,
-        )
-        assert np.array_equal(
-            f["model/homologous_density/density_0"],
-            model.homologous_density.density_0.value,
-        )
-        assert np.array_equal(
-            f["model/homologous_density/time_0"],
-            model.homologous_density.time_0.value,
-        )
-
 
 def test_transport_to_dict(simulation_verysimple):
     transport = simulation_verysimple.transport

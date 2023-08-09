@@ -180,7 +180,7 @@ class Radial1DModel(HDFWriterMixin):
         "t_radiative",
         "v_inner",
         "v_outer",
-        "homologous_density",
+        "density",
         "r_inner",
     ]
     hdf_name = "model"
@@ -188,7 +188,7 @@ class Radial1DModel(HDFWriterMixin):
     def __init__(
         self,
         velocity,
-        homologous_density,
+        density,
         abundance,
         isotope_abundance,
         time_explosion,
@@ -207,17 +207,18 @@ class Radial1DModel(HDFWriterMixin):
         self.raw_velocity = velocity
         self.v_boundary_inner = v_boundary_inner
         self.v_boundary_outer = v_boundary_outer
-        self.homologous_density = homologous_density
         self._abundance = abundance
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
         v_outer = self.velocity[1:]
         v_inner = self.velocity[:-1]
-        density = (
-            self.homologous_density.calculate_density_at_time_of_simulation(
-                self.time_explosion
-            )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
-        )
+        if len(density) != len(self.velocity) - 1:
+            density = density[
+                self.v_boundary_inner_index
+                + 1 : self.v_boundary_outer_index
+                + 1
+            ]
+
         self.raw_abundance = self._abundance
         self.raw_isotope_abundance = isotope_abundance
 
@@ -550,6 +551,7 @@ class Radial1DModel(HDFWriterMixin):
                 structure.velocity.num + 1,
             ).cgs
             homologous_density = HomologousDensity.from_config(config)
+
         elif structure.type == "file":
             if os.path.isabs(structure.filename):
                 structure_fname = structure.filename
@@ -569,6 +571,11 @@ class Radial1DModel(HDFWriterMixin):
             homologous_density = HomologousDensity(density_0, time_0)
         else:
             raise NotImplementedError
+
+        density = homologous_density.calculate_density_at_time_of_simulation(
+            time_explosion
+        )
+
         # Note: This is the number of shells *without* taking in mind the
         #       v boundaries.
         no_of_shells = len(velocity) - 1
@@ -631,7 +638,7 @@ class Radial1DModel(HDFWriterMixin):
 
         return cls(
             velocity=velocity,
-            homologous_density=homologous_density,
+            density=density,
             abundance=abundance,
             isotope_abundance=isotope_abundance,
             time_explosion=time_explosion,
@@ -771,7 +778,10 @@ class Radial1DModel(HDFWriterMixin):
             density_0 = density_0.to("g/cm^3")[1:]
             density_0 = density_0.insert(0, 0)
             homologous_density = HomologousDensity(density_0, time_0)
-
+        
+        density = homologous_density.calculate_density_at_time_of_simulation(
+            time_explosion
+        )
         no_of_shells = len(velocity) - 1
 
         # TODO -- implement t_radiative
@@ -850,7 +860,7 @@ class Radial1DModel(HDFWriterMixin):
 
         return cls(
             velocity=velocity,
-            homologous_density=homologous_density,
+            density=density,
             abundance=abundance,
             isotope_abundance=isotope_abundance,
             time_explosion=time_explosion,
