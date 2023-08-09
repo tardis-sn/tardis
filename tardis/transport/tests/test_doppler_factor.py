@@ -69,7 +69,6 @@ def test_get_doppler_factor_full_relativity(mu, beta, expected):
 )
 def test_get_inverse_doppler_factor(mu, r, inv_t_exp, expected):
     # Set the params from test cases here
-    # TODO: add relativity tests
     time_explosion = 1 / inv_t_exp
 
     # Perform any other setups just before this, they can be additional calls
