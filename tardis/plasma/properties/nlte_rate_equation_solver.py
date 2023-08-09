@@ -855,7 +855,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
     ):
         """Generates a coefficient matrix from collisional excitation/deexcitation coefficients.
 
-        Needs to be multiplied by electron density.
+        Needs to be multiplied by electron density when added to the overall rate_matrix.
         Parameters
         ----------
         coll_exc_coefficient : pandas.DataFrame
