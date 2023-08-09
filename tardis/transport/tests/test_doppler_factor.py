@@ -18,6 +18,20 @@ from numpy.testing import (
     ],
 )
 def test_get_doppler_factor(mu, r, inv_t_exp, expected):
+    """
+    Checks the get_doppler_factor function.
+
+    Parameters
+    ----------
+    mu : float
+        Angle of movement of the packet.
+    r : float
+        Radius of the position of the packet.
+    inv_t_exp : float
+        Inverse of t_explosion.
+    expected : float
+        Expected value of the doppler factor.
+    """
     # Set the params from test cases here
     time_explosion = 1 / inv_t_exp
 
@@ -39,6 +53,18 @@ def test_get_doppler_factor(mu, r, inv_t_exp, expected):
     ],
 )
 def test_get_doppler_factor_partial_relativity(mu, beta, expected):
+    """
+    Checks the get_doppler_factor_partial_relativity.
+
+    Parameters
+    ----------
+    mu : float
+        Angle of movement of the packet.
+    beta : float
+        Velocity over speed of light for the packet.
+    expected : float
+        Expected value of the doppler factor.
+    """
     obtained = frame_transformations.get_doppler_factor_partial_relativity(
         mu, beta
     )
@@ -54,6 +80,18 @@ def test_get_doppler_factor_partial_relativity(mu, beta, expected):
     ],
 )
 def test_get_doppler_factor_full_relativity(mu, beta, expected):
+    """
+    Checks the get_doppler_factor_full_relativity.
+
+    Parameters
+    ----------
+    mu : float
+        Angle of movement of the packet.
+    beta : float
+        Velocity over speed of light for the packet.
+    expected : float
+        Expected value of the doppler factor.
+    """
     obtained = frame_transformations.get_doppler_factor_full_relativity(
         mu, beta
     )
@@ -69,6 +107,20 @@ def test_get_doppler_factor_full_relativity(mu, beta, expected):
     ],
 )
 def test_get_inverse_doppler_factor(mu, r, inv_t_exp, expected):
+    """
+    Checks the get_inverse_doppler_factor function.
+
+    Parameters
+    ----------
+    mu : float
+        Angle of movement of the packet.
+    r : float
+        Radius of the position of the packet.
+    inv_t_exp : float
+        Inverse of t_explosion.
+    expected : float
+        Expected value of the inverse doppler factor.
+    """
     # Set the params from test cases here
     time_explosion = 1 / inv_t_exp
 
@@ -92,6 +144,18 @@ def test_get_inverse_doppler_factor(mu, r, inv_t_exp, expected):
     ],
 )
 def test_get_inverse_doppler_factor_partial_relativity(mu, beta, expected):
+    """
+    Checks the get_inverse_doppler_factor_partial_relativity function.
+
+    Parameters
+    ----------
+    mu : float
+        Angle of movement of the packet.
+    beta : float
+        Velocity over speed of light for the packet.
+    expected : float
+        Expected value of the inverse doppler factor.
+    """
     obtained = (
         frame_transformations.get_inverse_doppler_factor_partial_relativity(
             mu, beta
@@ -109,6 +173,18 @@ def test_get_inverse_doppler_factor_partial_relativity(mu, beta, expected):
     ],
 )
 def test_get_inverse_doppler_factor_full_relativity(mu, beta, expected):
+    """
+    Checks the get_inverse_doppler_factor_full_relativity function.
+
+    Parameters
+    ----------
+    mu : float
+        Angle of movement of the packet.
+    beta : float
+        Velocity over speed of light for the packet.
+    expected : float
+        Expected value of the inverse doppler factor.
+    """
     obtained = frame_transformations.get_inverse_doppler_factor_full_relativity(
         mu, beta
     )
