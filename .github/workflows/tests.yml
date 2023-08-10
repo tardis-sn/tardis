@@ -64,11 +64,25 @@ jobs:
         with:
           path: tardis-refdata/.git/lfs
           key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-refdata/.lfs-assets-id') }}-v1
+      
+      - name: Check size of LFS objects
+        working-directory: tardis-refdata
+        id: size-check
+        run: |
+          FILESIZE=$(du -sm .git/lfs | rev | cut -c 9- | rev)
+          OUTPUT=1
+          if [ "$FILESIZE" -lt 0 ]; then OUTPUT=0; fi
+          echo "size_check=$OUTPUT" >> "$GITHUB_OUTPUT"
+      
+      - name: Get size
+        env:
+          check: ${{ steps.size-check.outputs.size_check }}
+        run: echo "Output of size check script is $check"
 
       - name: Git LFS Pull
         run: git lfs pull
         working-directory: tardis-refdata
-        if: steps.lfs-cache.outputs.cache-hit != 'true'
+        if: steps.lfs-cache.outputs.cache-hit != 'true' || steps.size-check.output.size_check == 0
       
       - name: Git LFS Checkout
         run: git lfs checkout
