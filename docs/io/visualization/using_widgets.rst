@@ -178,4 +178,37 @@ There are also several other options in the modebar which we have not explained
 you remember to click back on the **Box Select** option for making selections on
 spectrum.
 
+Energy Level Widget
+################
+
+This widget lets you visualize the last line interactions
+
+.. image:: ../images/energy_level_widget_demo.gif
+    :alt: Demo of Energy Level Widget
+
+By selecting an ion on the widget, you can see its energy level diagram based
+on the last line interactions in the simulation.
+
+The y-axis of the plot represent energies and the horizontal levels represent the
+different energy levels. The width of these platform represent the level populations
+in those levels.
+
+The arrows represent the line interaction, with the upward arrows
+represent excitation and vice versa. The width of the arrows represents the number
+of packets which underwent that interaction, while the color of the arrows represent
+the wavelength of the transition.
+
+Setting Other Options
+-----------------
+You can select the range of the wavelength to filter the transitions on
+using the slider. You can also select the supernova shell by which to filter
+the last line interactions and the level populations. If no shell is selected,
+then all the last line interactions are plotted and the level populations are
+averaged across shells. You can also set the max levels to show on the plot.
+
+Lastly, you can also set the scale of the y-axis: Linear or Log.
+
+.. image:: ../images/energy_level_widget_options.gif
+    :alt: Demo of using options
+
 .. Toggle legend
