@@ -36,8 +36,11 @@ def make_valid_name(testid):
 
 
 @pytest.fixture(scope="session")
-def tardis_ref_path(tardis_ref_path):
+def sdec_ref_path(tardis_ref_path):
     refpath = pathlib.Path(tardis_ref_path)
+    refpath = pathlib.Path.joinpath(
+            refpath, "sdec"
+        )
     return refpath
 
 
@@ -73,24 +76,6 @@ def simulation_simple(config_verysimple, atomic_dataset):
         show_convergence_plots=False,
     )
     return sim
-
-
-@pytest.fixture(scope="module")
-def sdec_ref_data_path(tardis_ref_path):
-    """
-    Return the path to the reference data for the SDEC plots.
-
-    Parameters
-    ----------
-    tardis_ref_path : str
-        Path to the reference data directory.
-
-    Returns
-    -------
-    str
-        Path to SDEC reference data.
-    """
-    return os.path.abspath(os.path.join(tardis_ref_path, "sdec_ref.h5"))
 
 
 class TestSDECPlotter:
@@ -138,18 +123,18 @@ class TestSDECPlotter:
         yield plotter_species_lst_obj
 
     def test_plotter_full_species_list(
-        self, plotter_species_list, data_regression, tardis_ref_path
+        self, plotter_species_list, data_regression, sdec_ref_path
     ):
-        fullpath = pathlib.Path.joinpath(tardis_ref_path, "_full_species_list")
+        fullpath = pathlib.Path.joinpath(sdec_ref_path, "_full_species_list")
         data_regression.check(
             plotter_species_list._full_species_list,
             fullpath=fullpath,
         )
 
     def test_plotter_species_list(
-        self, plotter_species_list, num_regression, tardis_ref_path
+        self, plotter_species_list, num_regression, sdec_ref_path
     ):
-        fullpath = pathlib.Path.joinpath(tardis_ref_path, "_species_list")
+        fullpath = pathlib.Path.joinpath(sdec_ref_path, "_species_list")
         species_lst_dict = {
             "species_lst": plotter_species_list._species_list,
         }
@@ -168,9 +153,17 @@ class TestSDECPlotter:
     }
 
     def make_cases(test_cases):
-        cases = map(dict, zip(*[[(key,v) for v in value] for key,value in test_cases.items()]))
+        cases = map(
+            dict,
+            zip(
+                *[
+                    [(key, v) for v in value]
+                    for key, value in test_cases.items()
+                ]
+            ),
+        )
         return cases
-    
+
     @pytest.fixture(params=make_cases(test_cases))
     def plotter_generate_plot_mpl(self, plotter, request, observed_spectrum):
         plotter_copy = deepcopy(plotter)
@@ -179,19 +172,58 @@ class TestSDECPlotter:
             packet_wvl_range=request.param["packet_wvl_range"],
             distance=request.param["distance"],
             show_modeled_spectrum=request.param["show_modeled_spectrum"],
-            observed_spectrum=observed_spectrum if request.param["distance"] else None,
+            observed_spectrum=observed_spectrum
+            if request.param["distance"]
+            else None,
             nelements=request.param["nelements"],
             species_list=request.param["species_list"],
         )
         yield (fig, plotter_copy)
-    
 
     def test_plotter_full_species_list(
-        self, plotter_generate_plot_mpl, data_regression, tardis_ref_path, request
+        self,
+        plotter_generate_plot_mpl,
+        data_regression,
+        sdec_ref_path,
+        request,
     ):
         fig, plotter = plotter_generate_plot_mpl
-        fullpath = pathlib.Path.joinpath(tardis_ref_path, "_species_name"+request.node.callspec.id)
+        fullpath = pathlib.Path.joinpath(
+            sdec_ref_path, "_species_name" + request.node.callspec.id
+        )
         data_regression.check(
             plotter._species_name,
+            fullpath=fullpath,
+        )
+
+    def test_plotter_absorption_luminosities_df(
+        self,
+        plotter_generate_plot_mpl,
+        dataframe_regression,
+        sdec_ref_path,
+        request,
+    ):
+        fig, plotter = plotter_generate_plot_mpl
+        fullpath = pathlib.Path.joinpath(
+            sdec_ref_path,
+            "absorption_luminosities_df" + request.node.callspec.id,
+        )
+        dataframe_regression.check(
+            plotter.absorption_luminosities_df, fullpath=fullpath
+        )
+
+    def test_plotter_species(
+        self,
+        plotter_generate_plot_mpl,
+        num_regression,
+        sdec_ref_path,
+        request,
+    ):
+        fig, plotter = plotter_generate_plot_mpl
+        fullpath = pathlib.Path.joinpath(
+            sdec_ref_path, "species" + request.node.callspec.id
+        )
+        num_regression.check(
+            {"plotter.species": plotter.species.astype(np.float64)},
             fullpath=fullpath,
         )
