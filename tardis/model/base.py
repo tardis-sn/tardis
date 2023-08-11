@@ -182,6 +182,7 @@ class Radial1DModel(HDFWriterMixin):
         "v_outer",
         "density",
         "r_inner",
+        "time_explosion"
     ]
     hdf_name = "model"
 
