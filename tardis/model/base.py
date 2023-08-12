@@ -20,7 +20,12 @@ from tardis.io.config_validator import validate_dict
 from tardis.io.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
 from tardis.io.decay import IsotopeAbundances
-from tardis.model.density import HomologousDensity, parse_config_v1_density
+
+from tardis.io.model.density import (
+    parse_config_v1_density,
+    parse_csvy_density,
+    calculate_density_after_time,
+)
 from tardis.montecarlo.packet_source import BlackBodySimpleSource
 
 from tardis.radiation_field.base import MonteCarloRadiationFieldState
@@ -134,7 +139,6 @@ class Radial1DModel(HDFWriterMixin):
         boundaries
 
         .. note:: To access the entire, "uncut", velocity array, use `raw_velocity`
-    homologous_density : HomologousDensity
     abundance : pd.DataFrame
     time_explosion : astropy.units.Quantity
         Time since explosion
@@ -182,7 +186,7 @@ class Radial1DModel(HDFWriterMixin):
         "v_outer",
         "density",
         "r_inner",
-        "time_explosion"
+        "time_explosion",
     ]
     hdf_name = "model"
 
@@ -552,7 +556,6 @@ class Radial1DModel(HDFWriterMixin):
                 structure.velocity.num + 1,
             ).cgs
             density = parse_config_v1_density(config)
-            
 
         elif structure.type == "file":
             if os.path.isabs(structure.filename):
@@ -570,14 +573,13 @@ class Radial1DModel(HDFWriterMixin):
                 temperature,
             ) = read_density_file(structure_fname, structure.filetype)
             density_0 = density_0.insert(0, 0)
-            homologous_density = HomologousDensity(density_0, time_0)
-            density = homologous_density.calculate_density_at_time_of_simulation(
-            time_explosion
-        )
+
+            density = calculate_density_after_time(
+                density_0, time_0, time_explosion
+            )
 
         else:
             raise NotImplementedError
-
 
         # Note: This is the number of shells *without* taking in mind the
         #       v boundaries.
@@ -766,9 +768,7 @@ class Radial1DModel(HDFWriterMixin):
             velocity = velocity.to("cm/s")
 
         if hasattr(csvy_model_config, "density"):
-            homologous_density = HomologousDensity.from_csvy(
-                config, csvy_model_config
-            )
+            density = parse_csvy_density(csvy_model_config, time_explosion)
         else:
             time_0 = csvy_model_config.model_density_time_0
             density_field_index = [
@@ -780,11 +780,10 @@ class Radial1DModel(HDFWriterMixin):
             density_0 = csvy_model_data["density"].values * density_unit
             density_0 = density_0.to("g/cm^3")[1:]
             density_0 = density_0.insert(0, 0)
-            homologous_density = HomologousDensity(density_0, time_0)
-        
-        density = homologous_density.calculate_density_at_time_of_simulation(
-            time_explosion
-        )
+            density = calculate_density_after_time(
+                density_0, time_0, time_explosion
+            )
+
         no_of_shells = len(velocity) - 1
 
         # TODO -- implement t_radiative
