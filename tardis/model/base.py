@@ -20,7 +20,7 @@ from tardis.io.config_validator import validate_dict
 from tardis.io.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
 from tardis.io.decay import IsotopeAbundances
-from tardis.model.density import HomologousDensity
+from tardis.model.density import HomologousDensity, parse_config_v1_density
 from tardis.montecarlo.packet_source import BlackBodySimpleSource
 
 from tardis.radiation_field.base import MonteCarloRadiationFieldState
@@ -551,7 +551,8 @@ class Radial1DModel(HDFWriterMixin):
                 structure.velocity.stop,
                 structure.velocity.num + 1,
             ).cgs
-            homologous_density = HomologousDensity.from_config(config)
+            density = parse_config_v1_density(config)
+            
 
         elif structure.type == "file":
             if os.path.isabs(structure.filename):
@@ -570,12 +571,13 @@ class Radial1DModel(HDFWriterMixin):
             ) = read_density_file(structure_fname, structure.filetype)
             density_0 = density_0.insert(0, 0)
             homologous_density = HomologousDensity(density_0, time_0)
+            density = homologous_density.calculate_density_at_time_of_simulation(
+            time_explosion
+        )
+
         else:
             raise NotImplementedError
 
-        density = homologous_density.calculate_density_at_time_of_simulation(
-            time_explosion
-        )
 
         # Note: This is the number of shells *without* taking in mind the
         #       v boundaries.

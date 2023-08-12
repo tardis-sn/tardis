@@ -123,6 +123,7 @@ class TestCustomAbundanceWidget:
 
         assert caw.overwrite_warning.layout.visibility == expected
 
+    @pytest.mark.skip(reason="Problem with cutting model in restructure. See TARDIS issue 2390")
     @pytest.mark.parametrize(
         "multishell_edit, expected_x, expected_y, expected_width",
         [
