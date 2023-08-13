@@ -10,9 +10,7 @@ from numpy.testing import assert_almost_equal
 
 @pytest.fixture(scope="module", autouse=True)
 def to_hdf_buffer(hdf_file_path, simulation_verysimple):
-    simulation_verysimple.model.to_hdf(
-        hdf_file_path, overwrite=True
-    )
+    simulation_verysimple.model.to_hdf(hdf_file_path, overwrite=True)
 
 
 def test_hdf_density_0(hdf_file_path, simulation_verysimple):

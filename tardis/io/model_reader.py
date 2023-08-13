@@ -868,7 +868,6 @@ def store_model_to_hdf(model, fname):
                 model_group.create_dataset(key, data=value)
 
 
-
 def model_from_hdf(fname):
     """
     Creates a Radial1DModel object using data stored in a hdf file.

@@ -209,6 +209,7 @@ def test_store_model_to_hdf(simulation_verysimple, tmp_path):
         assert np.array_equal(f["model/r_inner_cgs"], model.r_inner.value)
         assert np.array_equal(f["model/density_cgs"], model.density.value)
 
+
 def test_transport_to_dict(simulation_verysimple):
     transport = simulation_verysimple.transport
     transport_data = transport.__dict__
