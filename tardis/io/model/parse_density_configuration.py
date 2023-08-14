@@ -10,6 +10,19 @@ def parse_density_section(
     v_middle: u.Quantity,
     time_explosion: u.Quantity,
 ):
+    """
+    Parse the density section of the configuration file and produce a density at
+    time_explosion.
+
+    Parameters
+    ----------
+
+    density_configuration : tardis.io.config_reader.Configuration
+    v_middle : astropy.Quantity
+        middle of the velocity bins
+    time_explosion : astropy.Quantity
+        time of the explosion
+    """
     if density_configuration.type == "branch85_w7":
         density_0 = calculate_power_law_density(
             v_middle,
@@ -45,7 +58,8 @@ def parse_density_section(
 
 def parse_config_v1_density(config: Configuration) -> u.Quantity:
     """
-    Create a new HomologousDensity instance from a Configuration object.
+    Parse the configuration file and produce a density at 
+    time_explosion.
 
     Parameters
     ----------
@@ -53,7 +67,7 @@ def parse_config_v1_density(config: Configuration) -> u.Quantity:
 
     Returns
     -------
-    HomologousDensity
+    density: u.Quantity
 
     """
 
@@ -74,8 +88,8 @@ def parse_config_v1_density(config: Configuration) -> u.Quantity:
 
 def parse_csvy_density(csvy_model_config, time_explosion: u.Quantity):
     """
-    Create a new HomologousDensity instance from a base
-    Configuration object and a csvy model Configuration object.
+    Parse the density section of the csvy file and produce a density at 
+    time_explosion.
 
     Parameters
     ----------
@@ -84,7 +98,7 @@ def parse_csvy_density(csvy_model_config, time_explosion: u.Quantity):
 
     Returns
     -------
-    HomologousDensity
+    density: u.Quantity
 
     """
     if hasattr(csvy_model_config, "velocity"):

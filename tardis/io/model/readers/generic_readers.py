@@ -13,8 +13,12 @@ from tardis.io.model.readers.cmfgen import (
 
 from tardis.util.base import parse_quantity
 
+class ConfigurationError(Exception):
+    pass
 
-def read_simple_ascii_density(fname):
+
+
+def read_simple_ascii_density(fname: str):
     """
     Reading a density file of the following structure (example; lines starting with a hash will be ignored):
     The first density describes the mean density in the center of the model and is not used.
@@ -108,8 +112,6 @@ def read_artis_density(fname):
     return time_of_model, velocity, mean_density
 
 
-class ConfigurationError(Exception):
-    pass
 
 
 def read_density_file(filename, filetype):
