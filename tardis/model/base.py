@@ -6,14 +6,12 @@ from astropy import units as u
 from tardis import constants
 import radioactivedecay as rd
 from radioactivedecay.utils import Z_DICT
+from tardis.io.model.readers.generic_readers import read_abundances_file, read_density_file, read_uniform_abundances
 from tardis.model.geometry.radial1d import Radial1DGeometry
 
 from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
 from tardis.io.parsers.csvy import load_csvy
-from tardis.io.model_reader import (
-    read_density_file,
-    read_abundances_file,
-    read_uniform_abundances,
+from tardis.io.model.readers.csvy import (
     parse_csv_abundances,
 )
 from tardis.io.config_validator import validate_dict
@@ -21,7 +19,7 @@ from tardis.io.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
 from tardis.io.decay import IsotopeAbundances
 
-from tardis.io.model.density import (
+from tardis.io.model.parse_density_configuration import (
     parse_config_v1_density,
     parse_csvy_density,
     calculate_density_after_time,

@@ -7,18 +7,14 @@ import h5py
 
 import tardis
 from tardis.io.config_reader import Configuration
-from tardis.io.model_reader import (
-    read_artis_density,
-    read_simple_ascii_abundances,
-    read_csv_composition,
-    read_uniform_abundances,
-    read_cmfgen_density,
-    read_cmfgen_composition,
+from tardis.io.model.model_reader import (
     model_to_dict,
     transport_to_dict,
-    store_model_to_hdf,
     store_transport_to_hdf,
 )
+from tardis.io.model.readers.cmfgen import read_cmfgen_composition, read_cmfgen_density
+from tardis.io.model.readers.generic_readers import read_artis_density, read_csv_composition, read_simple_ascii_abundances, read_uniform_abundances
+from tardis.io.model.hdf import store_model_to_hdf
 
 data_path = os.path.join(tardis.__path__[0], "io", "tests", "data")
 

@@ -1,12 +1,17 @@
 import os
 from astropy import units as u
 from tardis import io
+from tardis.io.model.readers.generic_readers import ConfigurationError
 
 import numpy.testing as npt
 
 import pytest
 
 import numpy as np
+
+from tardis.io.model.readers.generic_readers import read_density_file
+import tardis.io.model.readers.generic_readers
+import tardis.io.model.readers.generic_readers
 
 test_data_directory = os.path.dirname(__file__)
 
@@ -17,7 +22,7 @@ def data_path(filename):
 
 
 def test_simple_ascii_density_reader_time():
-    time_model, velocity, density = io.read_simple_ascii_density(
+    time_model, velocity, density = tardis.io.model.readers.generic_readers.read_simple_ascii_density(
         data_path("tardis_simple_ascii_density_test.dat")
     )
 
@@ -27,7 +32,7 @@ def test_simple_ascii_density_reader_time():
 
 def test_simple_ascii_density_reader_data():
 
-    time_model, velocity, density = io.read_simple_ascii_density(
+    time_model, velocity, density = tardis.io.model.readers.generic_readers.read_simple_ascii_density(
         data_path("tardis_simple_ascii_density_test.dat")
     )
     assert velocity.unit == u.Unit("cm/s")
@@ -36,7 +41,7 @@ def test_simple_ascii_density_reader_data():
 
 
 def test_simple_ascii_abundance_reader():
-    index, abundances = io.read_simple_ascii_abundances(
+    index, abundances = tardis.io.model.readers.generic_readers.read_simple_ascii_abundances(
         data_path("artis_abundances.dat")
     )
     npt.assert_almost_equal(abundances.loc[1, 0], 1.542953e-08)
@@ -44,5 +49,5 @@ def test_simple_ascii_abundance_reader():
 
 
 def test_ascii_reader_invalid_volumes():
-    with pytest.raises(io.model_reader.ConfigurationError):
-        io.read_density_file(data_path("invalid_artis_model.dat"), "artis")
+    with pytest.raises(ConfigurationError):
+        read_density_file(data_path("invalid_artis_model.dat"), "artis")
