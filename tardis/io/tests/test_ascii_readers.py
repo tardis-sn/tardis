@@ -22,7 +22,11 @@ def data_path(filename):
 
 
 def test_simple_ascii_density_reader_time():
-    time_model, velocity, density = tardis.io.model.readers.generic_readers.read_simple_ascii_density(
+    (
+        time_model,
+        velocity,
+        density,
+    ) = tardis.io.model.readers.generic_readers.read_simple_ascii_density(
         data_path("tardis_simple_ascii_density_test.dat")
     )
 
@@ -32,7 +36,11 @@ def test_simple_ascii_density_reader_time():
 
 def test_simple_ascii_density_reader_data():
 
-    time_model, velocity, density = tardis.io.model.readers.generic_readers.read_simple_ascii_density(
+    (
+        time_model,
+        velocity,
+        density,
+    ) = tardis.io.model.readers.generic_readers.read_simple_ascii_density(
         data_path("tardis_simple_ascii_density_test.dat")
     )
     assert velocity.unit == u.Unit("cm/s")
@@ -41,7 +49,10 @@ def test_simple_ascii_density_reader_data():
 
 
 def test_simple_ascii_abundance_reader():
-    index, abundances = tardis.io.model.readers.generic_readers.read_simple_ascii_abundances(
+    (
+        index,
+        abundances,
+    ) = tardis.io.model.readers.generic_readers.read_simple_ascii_abundances(
         data_path("artis_abundances.dat")
     )
     npt.assert_almost_equal(abundances.loc[1, 0], 1.542953e-08)

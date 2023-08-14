@@ -6,7 +6,11 @@ from astropy import units as u
 from tardis import constants
 import radioactivedecay as rd
 from radioactivedecay.utils import Z_DICT
-from tardis.io.model.readers.generic_readers import read_abundances_file, read_density_file, read_uniform_abundances
+from tardis.io.model.readers.generic_readers import (
+    read_abundances_file,
+    read_density_file,
+    read_uniform_abundances,
+)
 from tardis.model.geometry.radial1d import Radial1DGeometry
 
 from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem

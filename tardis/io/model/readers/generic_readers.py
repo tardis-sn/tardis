@@ -6,7 +6,10 @@ from radioactivedecay.utils import Z_DICT, elem_to_Z
 
 
 import numpy as np
-from tardis.io.model.readers.cmfgen import read_cmfgen_composition, read_cmfgen_density
+from tardis.io.model.readers.cmfgen import (
+    read_cmfgen_composition,
+    read_cmfgen_density,
+)
 
 from tardis.util.base import parse_quantity
 
