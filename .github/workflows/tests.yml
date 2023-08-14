@@ -73,6 +73,13 @@ jobs:
           OUTPUT=1
           if [ "$FILESIZE" -lt 0 ]; then OUTPUT=0; fi
           echo "size_check=$OUTPUT" >> "$GITHUB_OUTPUT"
+        
+      - name: delete cache if cache is corrupt
+        uses: ./.github/workflows/delete-cache.yml
+        if: ${{ steps.size-check.output.size_check }} == '0'
+        with:
+          branch: ${{ github.ref }}
+          cache-key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-refdata/.lfs-assets-id') }}-v1
 
       - name: Git LFS Pull
         run: git lfs pull
