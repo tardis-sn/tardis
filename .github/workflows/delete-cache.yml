@@ -1,0 +1,43 @@
+name: cleanup caches by a branch
+on:
+  pull_request:
+    types:
+      - closed
+  workflow_dispatch:
+  workflow_call: 
+    inputs:
+      cache-key:
+        description: key of cache to be deleted
+        default: ''
+        required: true
+        type: string
+      branch:
+        description: branch from which the cache was created
+        default: ''
+        required: true
+        type: string
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      # `actions:write` permission is required to delete caches
+      #   See also: https://docs.github.com/en/rest/actions/cache?apiVersion=2022-11-28#delete-a-github-actions-cache-for-a-repository-using-a-cache-id
+      actions: write
+      contents: read
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Cleanup
+        run: |
+          gh extension install actions/gh-actions-cache
+          
+          REPO=${{ github.repository }}
+          # BRANCH=refs/pull/${{ github.event.pull_request.number }}/merge
+          BRANCH=${{ inputs.branch }}
+          cacheKey=${{ inputs.cache-key }}
+          set +e
+          gh actions-cache delete $cacheKey -R $REPO -B $BRANCH --confirm
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
