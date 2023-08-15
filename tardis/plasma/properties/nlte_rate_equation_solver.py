@@ -667,9 +667,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             jacobian_matrix,
         )
 
-    def solution_vector_block(
-        self, number_density, needed_number
-    ):
+    def solution_vector_block(self, number_density, needed_number):
         """Block of the solution vector for the current atomic number.
 
         Block for the solution vector has the form (0, 0, ..., 0, number_density).
