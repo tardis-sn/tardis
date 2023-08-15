@@ -16,31 +16,18 @@ import pathlib
 pytest_plugins = "regressions"
 
 
-def make_valid_name(testid):
-    """
-    Sanitize pytest IDs to make them valid HDF group names.
-
-    Parameters
-    ----------
-    testid : str
-        ID to sanitize.
-
-    Returns
-    -------
-    testid : str
-        Sanitized ID.
-    """
-    testid = testid.replace("-", "_")
-    testid = "_" + testid
-    return testid
+def make_cases(test_cases):
+    cases = map(
+        dict,
+        zip(*[[(key, v) for v in value] for key, value in test_cases.items()]),
+    )
+    return cases
 
 
 @pytest.fixture(scope="session")
 def sdec_ref_path(tardis_ref_path):
     refpath = pathlib.Path(tardis_ref_path)
-    refpath = pathlib.Path.joinpath(
-            refpath, "sdec"
-        )
+    refpath = pathlib.Path.joinpath(refpath, "sdec")
     return refpath
 
 
@@ -151,18 +138,6 @@ class TestSDECPlotter:
         "nelements": [1, None],
         "species_list": [["Si II", "Ca II", "C", "Fe I-V"], None],
     }
-
-    def make_cases(test_cases):
-        cases = map(
-            dict,
-            zip(
-                *[
-                    [(key, v) for v in value]
-                    for key, value in test_cases.items()
-                ]
-            ),
-        )
-        return cases
 
     @pytest.fixture(params=make_cases(test_cases))
     def plotter_generate_plot_mpl(self, plotter, request, observed_spectrum):
