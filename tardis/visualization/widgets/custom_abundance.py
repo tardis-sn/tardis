@@ -14,7 +14,7 @@ import tardis
 from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
 from tardis.io.config_reader import Configuration
 from tardis.model import Radial1DModel
-from tardis.model.density import (
+from tardis.io.model.density import (
     calculate_power_law_density,
     calculate_exponential_density,
 )
@@ -203,8 +203,8 @@ class CustomAbundanceWidgetData:
             model = Radial1DModel.from_config(config)
 
         velocity = model.velocity
-        density_t_0 = model.homologous_density.time_0
-        density = model.homologous_density.density_0
+        density_t_0 = model.time_explosion
+        density = model.density
         abundance = model.raw_abundance
         isotope_abundance = model.raw_isotope_abundance
 
@@ -279,8 +279,8 @@ class CustomAbundanceWidgetData:
         abundance.sort_index(inplace=True)
 
         velocity = sim.model.velocity
-        density_t_0 = sim.model.homologous_density.time_0
-        density = sim.model.homologous_density.density_0
+        density_t_0 = sim.model.time_explosion
+        density = sim.model.density
 
         return cls(
             density_t_0=density_t_0,

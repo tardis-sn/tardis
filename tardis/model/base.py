@@ -20,7 +20,12 @@ from tardis.io.config_validator import validate_dict
 from tardis.io.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
 from tardis.io.decay import IsotopeAbundances
-from tardis.model.density import HomologousDensity
+
+from tardis.io.model.density import (
+    parse_config_v1_density,
+    parse_csvy_density,
+    calculate_density_after_time,
+)
 from tardis.montecarlo.packet_source import BlackBodySimpleSource
 
 from tardis.radiation_field.base import MonteCarloRadiationFieldState
@@ -134,7 +139,6 @@ class Radial1DModel(HDFWriterMixin):
         boundaries
 
         .. note:: To access the entire, "uncut", velocity array, use `raw_velocity`
-    homologous_density : HomologousDensity
     abundance : pd.DataFrame
     time_explosion : astropy.units.Quantity
         Time since explosion
@@ -180,15 +184,16 @@ class Radial1DModel(HDFWriterMixin):
         "t_radiative",
         "v_inner",
         "v_outer",
-        "homologous_density",
+        "density",
         "r_inner",
+        "time_explosion",
     ]
     hdf_name = "model"
 
     def __init__(
         self,
         velocity,
-        homologous_density,
+        density,
         abundance,
         isotope_abundance,
         time_explosion,
@@ -207,17 +212,18 @@ class Radial1DModel(HDFWriterMixin):
         self.raw_velocity = velocity
         self.v_boundary_inner = v_boundary_inner
         self.v_boundary_outer = v_boundary_outer
-        self.homologous_density = homologous_density
         self._abundance = abundance
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
         v_outer = self.velocity[1:]
         v_inner = self.velocity[:-1]
-        density = (
-            self.homologous_density.calculate_density_at_time_of_simulation(
-                self.time_explosion
-            )[self.v_boundary_inner_index + 1 : self.v_boundary_outer_index + 1]
-        )
+        if len(density) != len(self.velocity) - 1:
+            density = density[
+                self.v_boundary_inner_index
+                + 1 : self.v_boundary_outer_index
+                + 1
+            ]
+
         self.raw_abundance = self._abundance
         self.raw_isotope_abundance = isotope_abundance
 
@@ -549,7 +555,8 @@ class Radial1DModel(HDFWriterMixin):
                 structure.velocity.stop,
                 structure.velocity.num + 1,
             ).cgs
-            homologous_density = HomologousDensity.from_config(config)
+            density = parse_config_v1_density(config)
+
         elif structure.type == "file":
             if os.path.isabs(structure.filename):
                 structure_fname = structure.filename
@@ -566,9 +573,14 @@ class Radial1DModel(HDFWriterMixin):
                 temperature,
             ) = read_density_file(structure_fname, structure.filetype)
             density_0 = density_0.insert(0, 0)
-            homologous_density = HomologousDensity(density_0, time_0)
+
+            density = calculate_density_after_time(
+                density_0, time_0, time_explosion
+            )
+
         else:
             raise NotImplementedError
+
         # Note: This is the number of shells *without* taking in mind the
         #       v boundaries.
         no_of_shells = len(velocity) - 1
@@ -631,7 +643,7 @@ class Radial1DModel(HDFWriterMixin):
 
         return cls(
             velocity=velocity,
-            homologous_density=homologous_density,
+            density=density,
             abundance=abundance,
             isotope_abundance=isotope_abundance,
             time_explosion=time_explosion,
@@ -715,16 +727,6 @@ class Radial1DModel(HDFWriterMixin):
         electron_densities = None
         temperature = None
 
-        # if hasattr(csvy_model_config, 'v_inner_boundary'):
-        #    v_boundary_inner = csvy_model_config.v_inner_boundary
-        # else:
-        #    v_boundary_inner = None
-
-        # if hasattr(csvy_model_config, 'v_outer_boundary'):
-        #    v_boundary_outer = csvy_model_config.v_outer_boundary
-        # else:
-        #    v_boundary_outer = None
-
         if hasattr(config, "model"):
             if hasattr(config.model, "v_inner_boundary"):
                 v_boundary_inner = config.model.v_inner_boundary
@@ -756,9 +758,7 @@ class Radial1DModel(HDFWriterMixin):
             velocity = velocity.to("cm/s")
 
         if hasattr(csvy_model_config, "density"):
-            homologous_density = HomologousDensity.from_csvy(
-                config, csvy_model_config
-            )
+            density = parse_csvy_density(csvy_model_config, time_explosion)
         else:
             time_0 = csvy_model_config.model_density_time_0
             density_field_index = [
@@ -770,7 +770,9 @@ class Radial1DModel(HDFWriterMixin):
             density_0 = csvy_model_data["density"].values * density_unit
             density_0 = density_0.to("g/cm^3")[1:]
             density_0 = density_0.insert(0, 0)
-            homologous_density = HomologousDensity(density_0, time_0)
+            density = calculate_density_after_time(
+                density_0, time_0, time_explosion
+            )
 
         no_of_shells = len(velocity) - 1
 
@@ -850,7 +852,7 @@ class Radial1DModel(HDFWriterMixin):
 
         return cls(
             velocity=velocity,
-            homologous_density=homologous_density,
+            density=density,
             abundance=abundance,
             isotope_abundance=isotope_abundance,
             time_explosion=time_explosion,
