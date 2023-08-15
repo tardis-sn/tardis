@@ -668,7 +668,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         )
 
     def solution_vector_block(
-        self, atomic_number, number_density, rate_matrix_index
+        self, atomic_number, number_density, needed_number
     ):
         """Block of the solution vector for the current atomic number.
 
@@ -687,7 +687,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         numpy.array
             Block of the solution vector corresponding to the current atomic number.
         """
-        solution_vector = pd.Series(0.0, index=rate_matrix_index).values
+        solution_vector = np.zeros(needed_number)
         solution_vector[-1] = number_density
         return solution_vector
 
@@ -708,15 +708,15 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         atomic_numbers = number_density.index
         solution_array = []
         for atomic_number in atomic_numbers:
-            atomic_number_rate_matrix_index = rate_matrix_index[
+            needed_number_of_elements = rate_matrix_index[
                 rate_matrix_index.get_level_values("atomic_number")
                 == atomic_number
-            ]
+            ].size
             solution_array.append(
                 self.solution_vector_block(
                     atomic_number,
                     number_density.loc[atomic_number],
-                    atomic_number_rate_matrix_index,
+                    needed_number_of_elements,
                 )
             )
         solution_vector = np.hstack(solution_array + [0])
