@@ -866,7 +866,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         Returns
         -------
         coeff_matrix : np.array (number of levels, number of levels)
-        Square matrix constructed by collisional exc./deexc. coefficients.
+            Square matrix constructed by collisional exc./deexc. coefficients.
         """
         size = (
             coll_exc_coefficient.index.get_level_values("level_number_lower")
