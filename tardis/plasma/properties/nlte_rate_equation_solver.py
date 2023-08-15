@@ -668,7 +668,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         )
 
     def solution_vector_block(
-        self, atomic_number, number_density, needed_number
+        self, number_density, needed_number
     ):
         """Block of the solution vector for the current atomic number.
 
@@ -677,10 +677,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
         Parameters
         ----------
-        atomic_number : int
-            Current atomic number.
         number_density : float
             Number density of the current atomic number.
+        needed_number : int
+            Number of needed elements for current atomic number.
 
         Returns
         -------
@@ -714,7 +714,6 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             ].size
             solution_array.append(
                 self.solution_vector_block(
-                    atomic_number,
                     number_density.loc[atomic_number],
                     needed_number_of_elements,
                 )
