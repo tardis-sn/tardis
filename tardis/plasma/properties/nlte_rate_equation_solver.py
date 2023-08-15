@@ -101,7 +101,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
         for shell in phi.columns:
             solution_vector = self.prepare_solution_vector(
-                number_density[shell], rate_matrix_index,
+                number_density[shell],
+                rate_matrix_index,
             )
             first_guess = self.prepare_first_guess(
                 rate_matrix_index,
@@ -666,7 +667,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             jacobian_matrix,
         )
 
-    def solution_vector_block(self, atomic_number, number_density, rate_matrix_index):
+    def solution_vector_block(
+        self, atomic_number, number_density, rate_matrix_index
+    ):
         """Block of the solution vector for the current atomic number.
 
         Block for the solution vector has the form (0, 0, ..., 0, number_density).
@@ -705,10 +708,15 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         atomic_numbers = number_density.index
         solution_array = []
         for atomic_number in atomic_numbers:
-            atomic_number_rate_matrix_index = rate_matrix_index[rate_matrix_index.get_level_values("atomic_number")==atomic_number]
+            atomic_number_rate_matrix_index = rate_matrix_index[
+                rate_matrix_index.get_level_values("atomic_number")
+                == atomic_number
+            ]
             solution_array.append(
                 self.solution_vector_block(
-                    atomic_number, number_density.loc[atomic_number], atomic_number_rate_matrix_index,
+                    atomic_number,
+                    number_density.loc[atomic_number],
+                    atomic_number_rate_matrix_index,
                 )
             )
         solution_vector = np.hstack(solution_array + [0])
