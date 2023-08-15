@@ -147,6 +147,7 @@ def test_coll_exc_deexc_matrix(
 ):
     """
     Checks the NLTERateEquationSolver.create_coll_exc_deexc_matrix for simple values of species with 3 levels.
+    NOTE: Values used for testing are not physical.
     """
     index = pd.MultiIndex.from_tuples(
         [(0, 1), (0, 2), (1, 2)],
