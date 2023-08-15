@@ -873,24 +873,23 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             .unique()
             .size
         )
-        diagonal_exc = np.zeros(size + 1)
-        deexc_coeff = (
-            coll_deexc_coefficient.swaplevel()
-        )  # brings level_number_upper to first index
-        diagonal_deexc = np.zeros(size + 1)
-        for i in range(size):
-            diagonal_exc[i] = coll_exc_coefficient.loc[i].sum()
-            diagonal_deexc[i + 1] = deexc_coeff.loc[i + 1].sum()
+        diagonal_exc = coll_exc_coefficient.groupby("level_number_lower").sum()
+        diagonal_deexc = coll_deexc_coefficient.groupby(
+            "level_number_upper"
+        ).sum()
         exc_matrix = np.zeros((size + 1, size + 1))
         deexc_matrix = np.zeros((size + 1, size + 1))
-        for i in range(size + 1):
-            for j in range(size + 1):
-                if i == j:
-                    exc_matrix[i, j] = -diagonal_exc[i]
-                    deexc_matrix[i, j] = -diagonal_deexc[i]
-                elif i > j:
-                    exc_matrix[i, j] = coll_exc_coefficient.loc[j, i]
-                elif i < j:
-                    deexc_matrix[i, j] = deexc_coeff.loc[j, i]
+        exc_matrix[
+            np.tril_indices(size + 1, k=-1)
+        ] = coll_exc_coefficient.values.reshape(
+            size + 1,
+        )
+        deexc_matrix[
+            np.triu_indices(size + 1, k=1)
+        ] = coll_deexc_coefficient.values.reshape(
+            size + 1,
+        )
+        np.fill_diagonal(exc_matrix, [*diagonal_exc.values * -1, 0])
+        np.fill_diagonal(deexc_matrix, [0, *diagonal_deexc.values * -1])
         coeff_matrix = exc_matrix + deexc_matrix
         return coeff_matrix
