@@ -1,4 +1,4 @@
-import tardis
+from pathlib import Path
 from tardis.io.parsers import arepo
 import pytest
 import numpy as np
@@ -6,11 +6,11 @@ import os
 import json
 
 
-DATA_PATH = os.path.join(tardis.__path__[0], "io", "tests", "data")
+# DATA_PATH = os.path.join(tardis.__path__[0], "io", "tests", "data")
 
 
 @pytest.fixture
-def get_cone_csvy_model(tardis_ref_path):
+def get_cone_csvy_model(tardis_ref_path, example_model_file_dir):
     datafile = os.path.join(
         tardis_ref_path, "arepo_data", "arepo_snapshot.json"
     )
@@ -43,7 +43,7 @@ def get_cone_csvy_model(tardis_ref_path):
     )
 
     testfile = profile.export(
-        20, os.path.join(DATA_PATH, "arepo_parser_test.csvy")
+        20, example_model_file_dir / "arepo_parser_test.csvy"
     )
 
     with open(testfile, "r") as file:
@@ -56,7 +56,7 @@ def get_cone_csvy_model(tardis_ref_path):
 
 
 @pytest.fixture
-def get_full_csvy_model(tardis_ref_path):
+def get_full_csvy_model(tardis_ref_path, example_model_file_dir: Path):
     datafile = os.path.join(
         tardis_ref_path, "arepo_data", "arepo_snapshot.json"
     )
@@ -87,7 +87,7 @@ def get_full_csvy_model(tardis_ref_path):
     profile.create_profile(inner_radius=1e11, outer_radius=2e11)
 
     testfile = profile.export(
-        20, os.path.join(DATA_PATH, "arepo_parser_test.csvy")
+        20, example_model_file_dir / "arepo_parser_test.csvy"
     )
 
     with open(testfile, "r") as file:
@@ -99,9 +99,9 @@ def get_full_csvy_model(tardis_ref_path):
 
 
 @pytest.fixture
-def get_cone_reference_data():
+def get_cone_reference_data(example_model_file_dir: Path):
     with open(
-        os.path.join(DATA_PATH, "arepo_cone_reference_model.csvy"), "r"
+        example_model_file_dir /  "arepo_cone_reference_model.csvy", "r"
     ) as file:
         data = file.readlines()
 
@@ -109,9 +109,9 @@ def get_cone_reference_data():
 
 
 @pytest.fixture
-def get_full_reference_data():
+def get_full_reference_data(example_model_file_dir: Path):
     with open(
-        os.path.join(DATA_PATH, "arepo_full_reference_model.csvy"), "r"
+        example_model_file_dir / "arepo_full_reference_model.csvy", "r"
     ) as file:
         data = file.readlines()
 

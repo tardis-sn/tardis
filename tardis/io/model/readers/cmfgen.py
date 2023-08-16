@@ -1,4 +1,4 @@
-from tardis.io.model.readers.generic_readers import read_csv_isotope_abundances
+from tardis.io.model.readers.util import read_csv_isotope_abundances
 from tardis.util.base import parse_quantity
 
 
@@ -9,7 +9,7 @@ from astropy import units as u
 import warnings
 
 
-def read_cmfgen_density(fname):
+def read_cmfgen_density(fname: str):
     """
     Reading a density file of the following structure (example; lines starting with a hash will be ignored):
     The first density describes the mean density in the center of the model and is not used.

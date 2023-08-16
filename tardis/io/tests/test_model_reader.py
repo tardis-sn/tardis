@@ -56,7 +56,7 @@ def isotope_uniform_abundance():
     return config.model.abundances
 
 
-def test_simple_read_artis_density(artis_density_fname):
+def test_simple_read_artis_density(artis_density_fname: str):
     time_of_model, velocity, mean_density = read_artis_density(
         artis_density_fname
     )
@@ -72,7 +72,7 @@ def test_simple_read_artis_density(artis_density_fname):
 
 
 # Artis files are currently read with read ascii files function
-def test_read_simple_ascii_abundances(artis_abundances_fname):
+def test_read_simple_ascii_abundances(artis_abundances_fname: str):
     index, abundances = read_simple_ascii_abundances(artis_abundances_fname)
     assert len(abundances.columns) == 69
     assert np.isclose(abundances[23].loc[2], 2.672351e-08, atol=1.0e-12)
