@@ -13,9 +13,6 @@ from tardis.plasma.exceptions import PlasmaConfigError
 from tardis.plasma.standard_plasmas import assemble_plasma
 
 
-def data_path(filename):
-    data_dir = os.path.dirname(__file__)
-    return os.path.abspath(os.path.join(data_dir, "data", filename))
 
 
 def test_convergence_section_parser():

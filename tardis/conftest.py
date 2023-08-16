@@ -166,7 +166,7 @@ def tardis_config_verysimple():
 @pytest.fixture(scope="function")
 def tardis_config_verysimple_nlte():
     return yaml_load_file(
-        "tardis/io/tests/data/tardis_configv1_nlte.yml", YAMLLoader
+        "tardis/io/configuration/tests/data/tardis_configv1_nlte.yml", YAMLLoader
     )
 
 
