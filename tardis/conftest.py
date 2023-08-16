@@ -151,7 +151,7 @@ def tardis_ref_data(tardis_ref_path, generate_reference):
     else:
         mode = "r"
     with pd.HDFStore(
-        os.path.join(tardis_ref_path, "unit_test_data.h5"), mode=mode
+        tardis_ref_path / "unit_test_data.h5", mode=mode
     ) as store:
         yield store
 

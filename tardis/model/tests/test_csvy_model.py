@@ -21,10 +21,10 @@ import pytest
         "radiative",
     ],
 )
-def model_config_fnames(request, example_model_file_dir):
+def model_config_fnames(request, example_csvy_file_dir):
     """Function to retrieve filenames of target data for tests"""
-    csvy_config_file = example_model_file_dir / f"{request.param}_csvy.yml"
-    old_config_file = example_model_file_dir / f"{request.param}_old_config.yml"
+    csvy_config_file = example_csvy_file_dir / f"{request.param}_csvy.yml"
+    old_config_file = example_csvy_file_dir / f"{request.param}_old_config.yml"
     return csvy_config_file, old_config_file
 
 
@@ -76,9 +76,9 @@ def test_compare_models(model_config_fnames):
 
 
 @pytest.fixture(scope="module")
-def csvy_model_test_abundances(example_model_file_dir: Path):
+def csvy_model_test_abundances(example_csvy_file_dir: Path):
     """Returns Radial1DModel to use to test abundances dataframes"""
-    csvypath = example_model_file_dir / "csvy_model_to_test_abundances.yml"
+    csvypath = example_csvy_file_dir / "csvy_model_to_test_abundances.yml"
     config = Configuration.from_yaml(csvypath)
     csvy_model_test_abundances = Radial1DModel.from_csvy(config)
     return csvy_model_test_abundances

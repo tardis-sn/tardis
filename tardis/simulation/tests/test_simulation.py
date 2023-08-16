@@ -1,5 +1,7 @@
 import os
 
+from pathlib import Path
+
 import pytest
 import logging
 
@@ -17,15 +19,15 @@ import tardis
 @pytest.fixture(scope="module")
 def refdata(tardis_ref_data):
     def get_ref_data(key):
-        return tardis_ref_data[os.path.join("test_simulation", key)]
+        return tardis_ref_data[f"test_simulation/{key}"]
 
     return get_ref_data
 
 
 @pytest.fixture(scope="module")
-def config():
+def config(example_configuration_dir: Path):
     return Configuration.from_yaml(
-        "tardis/io/tests/data/tardis_configv1_verysimple.yml"
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
     )
 
 

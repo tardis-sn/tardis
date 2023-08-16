@@ -11,15 +11,15 @@ DEFAULT_ATOM_DATA_UUID = "864f1753714343c41f99cb065710cace"
 
 @pytest.fixture(scope="session")
 def atomic_data_fname(tardis_ref_path):
-    atomic_data_fname = os.path.join(
-        tardis_ref_path, "atom_data", "kurucz_cd23_chianti_H_He.h5"
+    atomic_data_fname = (
+        tardis_ref_path / "atom_data" / "kurucz_cd23_chianti_H_He.h5"
     )
 
     atom_data_missing_str = (
         f"{atomic_data_fname} atomic datafiles " f"does not seem to exist"
     )
 
-    if not os.path.exists(atomic_data_fname):
+    if not atomic_data_fname.exists():
         pytest.exit(atom_data_missing_str)
 
     return atomic_data_fname
@@ -48,15 +48,13 @@ def nlte_atomic_data_fname(tardis_ref_path):
     """
     File name for the atomic data file used in NTLE ionization solver tests.
     """
-    atomic_data_fname = os.path.join(
-        tardis_ref_path, "nlte_atom_data", "TestNLTE_He_Ti.h5"
-    )
+    atomic_data_fname = tardis_ref_path / "nlte_atom_data" / "TestNLTE_He_Ti.h5"
 
     atom_data_missing_str = (
         f"{atomic_data_fname} atomic datafiles " f"does not seem to exist"
     )
 
-    if not os.path.exists(atomic_data_fname):
+    if not atomic_data_fname.exists():
         pytest.exit(atom_data_missing_str)
 
     return atomic_data_fname
@@ -73,18 +71,15 @@ def nlte_atomic_dataset(nlte_atomic_data_fname):
 
 @pytest.fixture  # (scope="session")
 def nlte_atom_data(nlte_atomic_dataset):
-
     atomic_data = deepcopy(nlte_atomic_dataset)
     return atomic_data
 
 
-data_path = os.path.join("tardis", "io", "tests", "data")
-
-
 @pytest.fixture  # (scope="session")
-def tardis_model_config_nlte():
-    filename = "tardis_configv1_nlte.yml"
-    return Configuration.from_yaml(os.path.join(data_path, filename))
+def tardis_model_config_nlte(example_configuration_dir):
+    return Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_nlte.yml"
+    )
 
 
 @pytest.fixture  # (scope="session")
