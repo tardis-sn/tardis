@@ -1,5 +1,12 @@
 ## Change Log
 
+### release-2023.08.13 (2023/08/13 21:04 +00:00)
+- [#2391](https://github.com/tardis-sn/tardis/pull/2391) Pre-release 2023.08.13 (#2391) (@tardis-bot)
+- [#2379](https://github.com/tardis-sn/tardis/pull/2379) Tests for doppler factor functions (#2379) (@sonachitchyan)
+- [#2348](https://github.com/tardis-sn/tardis/pull/2348) Fixes gamma-ray notebook to run more easily (#2348) (@andrewfullard)
+- [#2381](https://github.com/tardis-sn/tardis/pull/2381) Removed hardcoding of RPacket radius (#2381) (@xansh)
+- [#2384](https://github.com/tardis-sn/tardis/pull/2384) Post-release 2023.08.06 (#2384) (@tardis-bot)
+
 ### release-2023.08.06 (2023/08/06 00:43 +00:00)
 - [#2383](https://github.com/tardis-sn/tardis/pull/2383) Pre-release 2023.08.06 (#2383) (@tardis-bot)
 - [#2382](https://github.com/tardis-sn/tardis/pull/2382) Remove outdated docstring from test_montecarlo.py (#2382) (@chvogl)
@@ -331,8 +338,6 @@
 ### release-2022.2.6 (2022/02/02 17:16 +00:00)
 - [#1888](https://github.com/tardis-sn/tardis/pull/1888) Pin Black (#1888) (@atharva-2001)
 - [#1881](https://github.com/tardis-sn/tardis/pull/1881) Changed to append `seed` & `index` values only once for a particular `RPacketTracker` instance  (#1881) (@DhruvSondhi)
-
-### release-2022.1.3 (2022/01/29 13:59 +00:00)
 - [#1877](https://github.com/tardis-sn/tardis/pull/1877) printing packet information (#1877) (@wkerzendorf)
 - [#1867](https://github.com/tardis-sn/tardis/pull/1867) Arepo parser (#1867) (@AlexHls)
 - [#1843](https://github.com/tardis-sn/tardis/pull/1843) Changed default Log level to INFO (#1843) (@DhruvSondhi)

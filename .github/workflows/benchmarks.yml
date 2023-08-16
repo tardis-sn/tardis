@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-  pull_request:
+  pull_request_target:
     branches:
       - '*'
     types:
@@ -12,6 +12,7 @@ on:
       - reopened
       - synchronize
       - labeled # benchmarks label required
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -25,12 +26,21 @@ jobs:
   build:
     if: github.event_name == 'push' ||
         github.event_name == 'workflow_dispatch' || 
-        contains(github.event.pull_request.labels.*.name, 'benchmarks')
+        (github.event_name == 'pull_request_target' &&
+        contains(github.event.pull_request.labels.*.name, 'benchmarks'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        if: github.event_name != 'pull_request_target'
         with:
           fetch-depth: 0
+
+      - name: Checkout pull/${{ github.event.number }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+        if: github.event_name == 'pull_request_target'
       
       - name: Restore Atom Data
         uses: actions/cache/restore@v3
@@ -47,7 +57,7 @@ jobs:
 
       - name: Save Atom Data
         uses: actions/cache/save@v3
-        if: ${{ steps.atom-data-restore.cache-hit != 'true'  && always() || false }}
+        if: ${{ steps.atom-data-restore.outputs.cache-hit != 'true'  && always() || false }}
         id: atom-data-cache-save
         with:
           path: benchmarks/data/kurucz_cd23_chianti_H_He.h5
@@ -60,7 +70,7 @@ jobs:
         run: asv machine --yes
       
       - name: Run benchmarks for last 5 commits if not PR
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request_target'
         run: |
           git log -n 5  --pretty=format:"%H" >> tag_commits.txt
           asv run HASHFILE:tag_commits.txt | tee asv-output.log  
@@ -70,15 +80,15 @@ jobs:
           fi
           
       - name: Generate Graphs and HTML
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request_target'
         run: asv publish
       
       - name: Delete env files
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request_target'
         run: rm -r .asv/env
       
       - name: Push results to results repository
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request_target'
         continue-on-error: true
         uses: cpina/github-action-push-to-another-repository@main
         env:
@@ -92,7 +102,7 @@ jobs:
           target-directory: .asv
       
       - name: Compare HEAD with master if PR
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_target'
         continue-on-error: true # TODO: step failed sporadically while testing
         run: |
           asv continuous ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}  | tee asv-cont-output.log  
@@ -101,23 +111,26 @@ jobs:
             exit 1
           fi
       
-      - run: asv compare ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | tee asv-compare-output.log  
-      - run: asv compare ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} --only-changed | tee asv-compare-changed-output.log  
+      - name: Compare Master and PR head
+        run: asv compare ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | tee asv-compare-output.log  
       
-      - name: asv output 1
+      - name: Compare Master and PR head but only show changed results
+        run: asv compare ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} --only-changed | tee asv-compare-changed-output.log  
+      
+      - name: Benchmarks compare output
         id: asv_pr_vs_master
         uses: juliangruber/read-file-action@v1.0.0
         with:
           path: asv-compare-output.log
 
-      - name: asv output 2
+      - name: Benchmarks compare only changed output
         id: asv_pr_vs_master_changed
         uses: juliangruber/read-file-action@v1.0.0
         with:
           path: asv-compare-changed-output.log 
 
       - name: Find Comment
-        if: always() && github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request_target'
         uses: peter-evans/find-comment@v1
         id: fc
         with:
@@ -125,7 +138,7 @@ jobs:
           body-includes: I ran benchmarks as you asked
 
       - name: Post comment
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_target'
         uses: peter-evans/create-or-update-comment@v2
         with:
           token:  ${{ secrets.BOT_TOKEN }}
