@@ -6,7 +6,7 @@ from tardis.io.configuration.config_reader import (
     Configuration,
 )
 from tardis.util.base import quantity_linspace
-from astropy.units.quantity import Quantity
+
 from typing import Tuple
 
 
@@ -14,7 +14,7 @@ def parse_density_section(
     density_configuration: ConfigurationNameSpace,
     v_middle: u.Quantity,
     time_explosion: u.Quantity,
-) -> Tuple[Quantity, Quantity]:
+) -> Tuple[u.Quantity, u.Quantity]:
     """
     Parse the density section of the configuration file and produce a density at
     time_explosion.
@@ -27,6 +27,13 @@ def parse_density_section(
         middle of the velocity bins
     time_explosion : astropy.Quantity
         time of the explosion
+
+    Returns
+    -------
+    density_0 : astropy.Quantity
+        density at time_0
+    time_0 : astropy.Quantity
+        time of the density profile
     """
     if density_configuration.type == "branch85_w7":
         density_0 = calculate_power_law_density(
@@ -61,7 +68,7 @@ def parse_density_section(
     return density_0, time_0
 
 
-def parse_config_v1_density(config: Configuration) -> Quantity:
+def parse_config_v1_density(config: Configuration) -> u.Quantity:
     """
     Parse the configuration file and produce a density at
     time_explosion.
@@ -93,7 +100,7 @@ def parse_config_v1_density(config: Configuration) -> Quantity:
 
 def parse_csvy_density(
     csvy_model_config: Configuration, time_explosion: u.Quantity
-) -> Quantity:
+) -> u.Quantity:
     """
     Parse the density section of the csvy file and produce a density at
     time_explosion.
@@ -139,7 +146,7 @@ def calculate_power_law_density(
     velocity_0: u.Quantity,
     rho_0: u.Quantity,
     exponent: float,
-) -> Quantity:
+) -> u.Quantity:
     """
 
     This function computes a descret exponential density profile.
@@ -167,7 +174,7 @@ def calculate_power_law_density(
 
 def calculate_exponential_density(
     velocities: u.Quantity, velocity_0: u.Quantity, rho_0: u.Quantity
-) -> Quantity:
+) -> u.Quantity:
     """
     This function computes the exponential density profile.
     :math:`\\rho = \\rho_0 \\times \\exp \\left( -\\frac{v}{v_0} \\right)`
@@ -192,7 +199,7 @@ def calculate_exponential_density(
 
 def calculate_density_after_time(
     densities: u.Quantity, time_0: u.Quantity, time_explosion: u.Quantity
-) -> Quantity:
+) -> u.Quantity:
     """
     scale the density from an initial time of the model to the
     time of the explosion by ^-3

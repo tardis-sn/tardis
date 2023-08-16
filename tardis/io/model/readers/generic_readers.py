@@ -36,8 +36,10 @@ def read_simple_ascii_density(
     -------
     time_of_model : astropy.units.Quantity
         time at which the model is valid
-    data : pandas.DataFrame
-        data frame containing index, velocity (in km/s) and density
+    velocity : u.Quantity
+        velocity
+    mean_density: u.Quantity
+        mean density
     """
 
     with open(fname) as fh:
