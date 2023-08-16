@@ -1,7 +1,7 @@
 import numpy as np
 from astropy import units as u
 
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 from tardis.util.base import quantity_linspace
 
 

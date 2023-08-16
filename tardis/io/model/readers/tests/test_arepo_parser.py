@@ -1,5 +1,5 @@
 from pathlib import Path
-from tardis.io.parsers import arepo
+from tardis.io.model.readers import arepo
 import pytest
 import numpy as np
 import os

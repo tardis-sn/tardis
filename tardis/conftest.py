@@ -80,7 +80,7 @@ def pytest_configure(config):
 import pytest
 import pandas as pd
 from tardis.io.util import yaml_load_file, YAMLLoader
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
 
 

@@ -10,7 +10,7 @@ from numpy.testing import assert_allclose
 
 from tardis.io.atom_data.base import AtomData
 from tardis.simulation import Simulation
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 
 pytestmarker = [pytest.mark.no_cover, pytest.mark.integration]
 

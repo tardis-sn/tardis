@@ -1,6 +1,6 @@
 """Basic TARDIS Benchmark."""
 import os
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 from tardis import run_tardis
 
 class Benchmarkruntardis:

@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from copy import deepcopy
 from numpy.testing import assert_allclose, assert_almost_equal
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 from tardis.model.base import Radial1DModel
 from tardis.plasma.properties import NLTERateEquationSolver
 from tardis.io.atom_data.base import AtomData

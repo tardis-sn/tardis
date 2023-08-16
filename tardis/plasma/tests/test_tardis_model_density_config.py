@@ -1,6 +1,6 @@
 import pytest
 import os
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from numpy.testing import assert_almost_equal

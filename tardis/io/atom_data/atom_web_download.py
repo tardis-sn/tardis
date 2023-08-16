@@ -2,7 +2,7 @@ import os
 import logging
 
 from tardis.io.util import get_internal_data_path, download_from_url
-from tardis.io.config_internal import get_data_dir
+from tardis.io.configuration.config_internal import get_data_dir
 import yaml
 
 logger = logging.getLogger(__name__)

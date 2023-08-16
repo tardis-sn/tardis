@@ -4,7 +4,7 @@ from copy import deepcopy
 import pytest
 
 from tardis.io.atom_data.base import AtomData
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 from tardis.model.base import Radial1DModel
 
 DEFAULT_ATOM_DATA_UUID = "864f1753714343c41f99cb065710cace"

@@ -1,13 +1,13 @@
-import os
+from pathlib import Path
 import yaml
 from copy import deepcopy
 from jsonschema import Draft4Validator, RefResolver, validators
 from astropy.units.quantity import Quantity
 from tardis.io.util import YAMLLoader
 
-base_dir = os.path.abspath(os.path.dirname(__file__))
-schema_dir = os.path.join(base_dir, "schemas")
-config_schema_file = os.path.join(schema_dir, "base.yml")
+CONFIGURATION_DIR = Path(__file__).resolve().parent
+SCHEMA_DIR = CONFIGURATION_DIR / "schemas"
+config_schema_file = SCHEMA_DIR / "base.yml"
 
 
 def extend_with_default(validator_class):
@@ -87,7 +87,7 @@ def validate_dict(
 ):
     with open(schemapath) as f:
         schema = yaml.load(f, Loader=YAMLLoader)
-    schemaurl = "file://" + schemapath
+    schemaurl = f"file://{schemapath}"
     handlers = {"file": _yaml_handler}
     resolver = RefResolver(schemaurl, schema, handlers=handlers)
     validated_dict = deepcopy(config_dict)

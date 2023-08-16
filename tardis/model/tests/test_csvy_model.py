@@ -4,7 +4,7 @@ import numpy.testing as npt
 import tardis
 import os
 from astropy import units as u
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 from tardis.model import Radial1DModel
 import pytest
 

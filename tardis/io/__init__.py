@@ -2,7 +2,7 @@
 A collection of subpackages and submodules to handle input and output data. 
 """
 
-from tardis.io.config_internal import get_internal_configuration, get_data_dir
+from tardis.io.configuration.config_internal import get_internal_configuration, get_data_dir
 
 # readin model_data
 

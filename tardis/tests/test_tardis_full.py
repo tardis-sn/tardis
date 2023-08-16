@@ -6,7 +6,7 @@ from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
 
 from tardis.simulation.base import Simulation
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 
 from tardis import run_tardis
 

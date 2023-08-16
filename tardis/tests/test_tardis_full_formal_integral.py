@@ -5,7 +5,7 @@ from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
 
 from tardis.simulation.base import Simulation
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 
 config_line_modes = ["downbranch", "macroatom"]
 interpolate_shells = [-1, 30]

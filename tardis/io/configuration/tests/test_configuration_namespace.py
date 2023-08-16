@@ -1,4 +1,4 @@
-from tardis.io.config_reader import ConfigurationNameSpace
+from tardis.io.configuration.config_reader import ConfigurationNameSpace
 import pytest
 from astropy import units as u
 import os

@@ -1,6 +1,7 @@
+from pathlib import Path
 import tardis
-from tardis.io.parsers import csvy
-from tardis.io.config_validator import validate_dict
+from tardis.io.model.readers import csvy
+from tardis.io.configuration.config_validator import validate_dict
 from jsonschema import exceptions as json_schema_exc
 import pytest
 import os
@@ -8,22 +9,19 @@ from astropy import units as u
 import numpy.testing as npt
 
 
-DATA_PATH = os.path.join(tardis.__path__[0], "io", "tests", "data")
+@pytest.fixture
+def csvy_full_fname(example_model_file_dir: Path):
+    return example_model_file_dir / "csvy_full.csvy"
 
 
 @pytest.fixture
-def csvy_full_fname():
-    return os.path.join(DATA_PATH, "csvy_full.csvy")
+def csvy_nocsv_fname(example_model_file_dir: Path):
+    return example_model_file_dir / "csvy_nocsv.csvy"
 
 
 @pytest.fixture
-def csvy_nocsv_fname():
-    return os.path.join(DATA_PATH, "csvy_nocsv.csvy")
-
-
-@pytest.fixture
-def csvy_missing_fname():
-    return os.path.join(DATA_PATH, "csvy_missing.csvy")
+def csvy_missing_fname(example_model_file_dir: Path):
+    return example_model_file_dir / "csvy_missing.csvy"
 
 
 def test_csvy_finds_csv_first_line(csvy_full_fname):

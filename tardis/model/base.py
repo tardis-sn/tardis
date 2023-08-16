@@ -13,12 +13,12 @@ from tardis.io.model.readers.generic_readers import (
 from tardis.model.geometry.radial1d import Radial1DGeometry
 
 from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
-from tardis.io.parsers.csvy import load_csvy
+from tardis.io.model.readers.csvy import load_csvy
 from tardis.io.model.readers.csvy import (
     parse_csv_abundances,
 )
-from tardis.io.config_validator import validate_dict
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
 from tardis.io.decay import IsotopeAbundances
 
