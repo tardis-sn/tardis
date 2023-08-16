@@ -13,7 +13,9 @@ from tardis.io.decay import IsotopeAbundances
 class TestModelFromPaper1Config:
     @pytest.fixture(autouse=True)
     def setup(self, example_configuration_dir: Path):
-        self.config = Configuration.from_yaml(example_configuration_dir / "paper1_tardis_configv1.yml")
+        self.config = Configuration.from_yaml(
+            example_configuration_dir / "paper1_tardis_configv1.yml"
+        )
         self.model = Radial1DModel.from_config(self.config)
 
     def test_abundances(self):
@@ -49,7 +51,9 @@ class TestModelFromPaper1Config:
 class TestModelFromASCIIDensity:
     @pytest.fixture(autouse=True)
     def setup(self, example_model_file_dir: Path):
-        self.config = Configuration.from_yaml(example_model_file_dir / "tardis_configv1_ascii_density.yml")
+        self.config = Configuration.from_yaml(
+            example_model_file_dir / "tardis_configv1_ascii_density.yml"
+        )
         self.model = Radial1DModel.from_config(self.config)
 
     def test_velocities(self):
@@ -66,7 +70,9 @@ class TestModelFromASCIIDensity:
 class TestModelFromArtisDensity:
     @pytest.fixture(autouse=True)
     def setup(self, example_model_file_dir: Path):
-        self.config = Configuration.from_yaml(example_model_file_dir / "tardis_configv1_artis_density.yml")
+        self.config = Configuration.from_yaml(
+            example_model_file_dir / "tardis_configv1_artis_density.yml"
+        )
         self.model = Radial1DModel.from_config(self.config)
 
     def test_velocities(self):
@@ -83,7 +89,9 @@ class TestModelFromArtisDensity:
 class TestModelFromArtisDensityAbundances:
     @pytest.fixture(autouse=True)
     def setup(self, example_model_file_dir: Path):
-        self.config = Configuration.from_yaml(example_model_file_dir / "tardis_configv1_artis_density.yml")
+        self.config = Configuration.from_yaml(
+            example_model_file_dir / "tardis_configv1_artis_density.yml"
+        )
         self.config.model.abundances.type = "file"
         self.config.model.abundances.filename = "artis_abundances.dat"
         self.config.model.abundances.filetype = "artis"
@@ -102,8 +110,10 @@ class TestModelFromArtisDensityAbundances:
 class TestModelFromArtisDensityAbundancesVSlice:
     @pytest.fixture(autouse=True)
     def setup(self, example_model_file_dir: Path):
-        
-        self.config = Configuration.from_yaml(example_model_file_dir / "tardis_configv1_artis_density_v_slice.yml")
+
+        self.config = Configuration.from_yaml(
+            example_model_file_dir / "tardis_configv1_artis_density_v_slice.yml"
+        )
         self.config.model.abundances.type = "file"
         self.config.model.abundances.filename = "artis_abundances.dat"
         self.config.model.abundances.filetype = "artis"
@@ -120,7 +130,9 @@ class TestModelFromArtisDensityAbundancesVSlice:
 class TestModelFromUniformDensity:
     @pytest.fixture(autouse=True)
     def setup(self, example_configuration_dir: Path):
-        self.config = Configuration.from_yaml(example_configuration_dir / "tardis_configv1_uniform_density.yml")
+        self.config = Configuration.from_yaml(
+            example_configuration_dir / "tardis_configv1_uniform_density.yml"
+        )
         self.model = Radial1DModel.from_config(self.config)
 
     def test_density(self):

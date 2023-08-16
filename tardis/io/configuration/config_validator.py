@@ -83,7 +83,9 @@ def is_quantity(checker, instance):
 
 
 def validate_dict(
-    config_dict, schemapath=CONFIG_SCHEMA_FNAME, validator=DefaultDraft4Validator
+    config_dict,
+    schemapath=CONFIG_SCHEMA_FNAME,
+    validator=DefaultDraft4Validator,
 ):
     with open(schemapath) as f:
         schema = yaml.load(f, Loader=YAMLLoader)

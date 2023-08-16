@@ -71,7 +71,7 @@ class TestTransportSimple:
     def refdata(self, tardis_ref_data):
         def get_ref_data(key):
             return tardis_ref_data[f"{self.name}/{key}"]
-        
+
         return get_ref_data
 
     def test_j_blue_estimators(self, transport, refdata):

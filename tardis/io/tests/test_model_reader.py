@@ -32,7 +32,7 @@ def artis_density_fname(example_model_file_dir: Path):
 
 
 @pytest.fixture
-def artis_abundances_fname(example_model_file_dir : Path):
+def artis_abundances_fname(example_model_file_dir: Path):
     return example_model_file_dir / "artis_abundances.dat"
 
 
@@ -42,13 +42,15 @@ def cmfgen_fname(example_model_file_dir: Path):
 
 
 @pytest.fixture
-def csv_composition_fname(example_model_file_dir  : Path):
+def csv_composition_fname(example_model_file_dir: Path):
     return example_model_file_dir / "csv_composition.csv"
 
 
 @pytest.fixture
-def isotope_uniform_abundance(example_model_file_dir  : Path):
-    config_path = example_model_file_dir /  "tardis_configv1_isotope_uniabund.yml"
+def isotope_uniform_abundance(example_model_file_dir: Path):
+    config_path = (
+        example_model_file_dir / "tardis_configv1_isotope_uniabund.yml"
+    )
     config = Configuration.from_yaml(config_path)
     return config.model.abundances
 

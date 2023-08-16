@@ -5,9 +5,12 @@ from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from numpy.testing import assert_almost_equal
 
+
 @pytest.fixture
 def tardis_model_density_config(example_model_file_dir):
-    return Configuration.from_yaml(example_model_file_dir / "tardis_configv1_tardis_model_format.yml")
+    return Configuration.from_yaml(
+        example_model_file_dir / "tardis_configv1_tardis_model_format.yml"
+    )
 
 
 @pytest.fixture()

@@ -36,8 +36,10 @@ from tardis.radiation_field.base import MonteCarloRadiationFieldState
 logger = logging.getLogger(__name__)
 
 
-        
-SCHEMA_DIR = (Path(__file__).parent / ".." / "io" / "configuration" / "schemas").resolve()
+SCHEMA_DIR = (
+    Path(__file__).parent / ".." / "io" / "configuration" / "schemas"
+).resolve()
+
 
 class Composition:
     """

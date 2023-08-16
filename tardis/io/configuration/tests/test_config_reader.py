@@ -13,8 +13,6 @@ from tardis.plasma.exceptions import PlasmaConfigError
 from tardis.plasma.standard_plasmas import assemble_plasma
 
 
-
-
 def test_convergence_section_parser():
     test_convergence_section = {
         "type": "damped",

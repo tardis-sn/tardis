@@ -58,7 +58,7 @@ def parse_density_section(
 
 def parse_config_v1_density(config: Configuration) -> u.Quantity:
     """
-    Parse the configuration file and produce a density at 
+    Parse the configuration file and produce a density at
     time_explosion.
 
     Parameters
@@ -88,7 +88,7 @@ def parse_config_v1_density(config: Configuration) -> u.Quantity:
 
 def parse_csvy_density(csvy_model_config, time_explosion: u.Quantity):
     """
-    Parse the density section of the csvy file and produce a density at 
+    Parse the density section of the csvy file and produce a density at
     time_explosion.
 
     Parameters

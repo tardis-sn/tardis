@@ -101,7 +101,7 @@ def get_full_csvy_model(tardis_ref_path, example_model_file_dir: Path):
 @pytest.fixture
 def get_cone_reference_data(example_model_file_dir: Path):
     with open(
-        example_model_file_dir /  "arepo_cone_reference_model.csvy", "r"
+        example_model_file_dir / "arepo_cone_reference_model.csvy", "r"
     ) as file:
         data = file.readlines()
 

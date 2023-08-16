@@ -150,23 +150,23 @@ def tardis_ref_data(tardis_ref_path, generate_reference):
         mode = "w"
     else:
         mode = "r"
-    with pd.HDFStore(
-        tardis_ref_path / "unit_test_data.h5", mode=mode
-    ) as store:
+    with pd.HDFStore(tardis_ref_path / "unit_test_data.h5", mode=mode) as store:
         yield store
 
 
 @pytest.fixture(scope="function")
 def tardis_config_verysimple():
     return yaml_load_file(
-        "tardis/io/configuration/tests/data/tardis_configv1_verysimple.yml", YAMLLoader
+        "tardis/io/configuration/tests/data/tardis_configv1_verysimple.yml",
+        YAMLLoader,
     )
 
 
 @pytest.fixture(scope="function")
 def tardis_config_verysimple_nlte():
     return yaml_load_file(
-        "tardis/io/configuration/tests/data/tardis_configv1_nlte.yml", YAMLLoader
+        "tardis/io/configuration/tests/data/tardis_configv1_nlte.yml",
+        YAMLLoader,
     )
 
 
@@ -185,18 +185,25 @@ def hdf_file_path(tmpdir_factory):
 def example_model_file_dir():
     return Path("tardis/io/model/readers/tests/data")
 
+
 @pytest.fixture(scope="session")
 def example_configuration_dir():
     return Path("tardis/io/configuration/tests/data")
 
+
 @pytest.fixture(scope="session")
 def config_verysimple(example_configuration_dir):
-    return Configuration.from_yaml(example_configuration_dir / "tardis_configv1_verysimple.yml")
+    return Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
+    )
 
 
 @pytest.fixture(scope="function")
 def config_montecarlo_1e5_verysimple(example_configuration_dir):
-    return Configuration.from_yaml(example_configuration_dir / "tardis_configv1_verysimple.yml")
+    return Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
+    )
+
 
 @pytest.fixture(scope="session")
 def simulation_verysimple(config_verysimple, atomic_dataset):
