@@ -1,4 +1,5 @@
-import os
+from pathlib import Path
+
 import pytest
 import numpy as np
 import numpy.testing as npt
@@ -11,13 +12,15 @@ from tardis.io.configuration.config_reader import Configuration
 from tardis import run_tardis
 
 
-def test_run_tardis_from_config_obj(atomic_data_fname):
+def test_run_tardis_from_config_obj(
+    atomic_data_fname, example_configuration_dir: Path
+):
     """
     Tests whether the run_tardis function can take in the Configuration object
     as arguments
     """
     config = Configuration.from_yaml(
-        "tardis/io/tests/data/tardis_configv1_verysimple.yml"
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
     )
     config["atom_data"] = atomic_data_fname
 
@@ -35,9 +38,15 @@ class TestTransportSimple:
     name = "test_transport_simple"
 
     @pytest.fixture(scope="class")
-    def transport(self, atomic_data_fname, tardis_ref_data, generate_reference):
+    def transport(
+        self,
+        atomic_data_fname,
+        tardis_ref_data,
+        generate_reference,
+        example_configuration_dir: Path,
+    ):
         config = Configuration.from_yaml(
-            "tardis/io/tests/data/tardis_configv1_verysimple.yml"
+            example_configuration_dir / "tardis_configv1_verysimple.yml"
         )
         config["atom_data"] = atomic_data_fname
 
@@ -61,8 +70,8 @@ class TestTransportSimple:
     @pytest.fixture(scope="class")
     def refdata(self, tardis_ref_data):
         def get_ref_data(key):
-            return tardis_ref_data[os.path.join(self.name, key)]
-
+            return tardis_ref_data[f"{self.name}/{key}"]
+        
         return get_ref_data
 
     def test_j_blue_estimators(self, transport, refdata):

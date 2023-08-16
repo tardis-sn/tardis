@@ -1,5 +1,5 @@
 """Tests for custom abundance widget."""
-import os
+from pathlib import Path
 import pytest
 import tardis
 import numpy as np
@@ -13,7 +13,7 @@ from tardis.visualization.widgets.custom_abundance import (
 
 
 @pytest.fixture(scope="module")
-def yml_data():
+def yml_data(example_configuration_dir: Path):
     """Fixture to contain a CustomAbundanceWidgetData
     instance generated from a YAML file tardis_configv1_verysimple.yml.
 
@@ -22,13 +22,7 @@ def yml_data():
     CustomAbundanceWidgetData
         CustomAbundanceWidgetData generated from a YAML
     """
-    yml_path = os.path.join(
-        tardis.__path__[0],
-        "io",
-        "tests",
-        "data",
-        "tardis_configv1_verysimple.yml",
-    )
+    yml_path = example_configuration_dir / "tardis_configv1_verysimple.yml"
     return CustomAbundanceWidgetData.from_yml(yml_path)
 
 
