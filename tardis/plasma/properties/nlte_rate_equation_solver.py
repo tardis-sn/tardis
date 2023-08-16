@@ -873,10 +873,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             .unique()
             .size
         )
-        diagonal_exc = coll_exc_coefficient.groupby("level_number_lower").sum()
+        diagonal_exc = coll_exc_coefficient.groupby("level_number_lower").sum().values.reshape(size, )
         diagonal_deexc = coll_deexc_coefficient.groupby(
             "level_number_upper"
-        ).sum()
+        ).sum().values.reshape(size, )
         exc_matrix = np.zeros((size + 1, size + 1))
         deexc_matrix = np.zeros((size + 1, size + 1))
         exc_matrix[
@@ -889,7 +889,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         ] = coll_deexc_coefficient.values.reshape(
             size + 1,
         )
-        np.fill_diagonal(exc_matrix, [*diagonal_exc.values * -1, 0])
-        np.fill_diagonal(deexc_matrix, [0, *diagonal_deexc.values * -1])
+        np.fill_diagonal(exc_matrix, np.hstack((diagonal_exc * -1, 0)))
+        np.fill_diagonal(deexc_matrix, np.hstack((0, diagonal_deexc * -1)))
         coeff_matrix = exc_matrix + deexc_matrix
         return coeff_matrix
