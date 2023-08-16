@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import pytest
 import pandas as pd
 from astropy import units as u
@@ -9,14 +10,10 @@ from tardis.model import Radial1DModel
 from tardis.io.decay import IsotopeAbundances
 
 
-def data_path(filename):
-    return os.path.abspath(os.path.join("tardis/io/tests/data/", filename))
-
-
 class TestModelFromPaper1Config:
-    def setup(self):
-        filename = "paper1_tardis_configv1.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
+    @pytest.fixture(autouse=True)
+    def setup(self, example_configuration_dir: Path):
+        self.config = Configuration.from_yaml(example_configuration_dir / "paper1_tardis_configv1.yml")
         self.model = Radial1DModel.from_config(self.config)
 
     def test_abundances(self):
@@ -50,9 +47,9 @@ class TestModelFromPaper1Config:
 
 
 class TestModelFromASCIIDensity:
-    def setup(self):
-        filename = "tardis_configv1_ascii_density.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
+    @pytest.fixture(autouse=True)
+    def setup(self, example_model_file_dir: Path):
+        self.config = Configuration.from_yaml(example_model_file_dir / "tardis_configv1_ascii_density.yml")
         self.model = Radial1DModel.from_config(self.config)
 
     def test_velocities(self):
@@ -67,9 +64,9 @@ class TestModelFromASCIIDensity:
 
 
 class TestModelFromArtisDensity:
-    def setup(self):
-        filename = "tardis_configv1_artis_density.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
+    @pytest.fixture(autouse=True)
+    def setup(self, example_model_file_dir: Path):
+        self.config = Configuration.from_yaml(example_model_file_dir / "tardis_configv1_artis_density.yml")
         self.model = Radial1DModel.from_config(self.config)
 
     def test_velocities(self):
@@ -84,9 +81,9 @@ class TestModelFromArtisDensity:
 
 
 class TestModelFromArtisDensityAbundances:
-    def setup(self):
-        filename = "tardis_configv1_artis_density.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
+    @pytest.fixture(autouse=True)
+    def setup(self, example_model_file_dir: Path):
+        self.config = Configuration.from_yaml(example_model_file_dir / "tardis_configv1_artis_density.yml")
         self.config.model.abundances.type = "file"
         self.config.model.abundances.filename = "artis_abundances.dat"
         self.config.model.abundances.filetype = "artis"
@@ -103,9 +100,10 @@ class TestModelFromArtisDensityAbundances:
 
 
 class TestModelFromArtisDensityAbundancesVSlice:
-    def setup(self):
-        filename = "tardis_configv1_artis_density_v_slice.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
+    @pytest.fixture(autouse=True)
+    def setup(self, example_model_file_dir: Path):
+        
+        self.config = Configuration.from_yaml(example_model_file_dir / "tardis_configv1_artis_density_v_slice.yml")
         self.config.model.abundances.type = "file"
         self.config.model.abundances.filename = "artis_abundances.dat"
         self.config.model.abundances.filetype = "artis"
@@ -120,9 +118,9 @@ class TestModelFromArtisDensityAbundancesVSlice:
 
 
 class TestModelFromUniformDensity:
-    def setup(self):
-        filename = "tardis_configv1_uniform_density.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
+    @pytest.fixture(autouse=True)
+    def setup(self, example_configuration_dir: Path):
+        self.config = Configuration.from_yaml(example_configuration_dir / "tardis_configv1_uniform_density.yml")
         self.model = Radial1DModel.from_config(self.config)
 
     def test_density(self):
@@ -132,9 +130,11 @@ class TestModelFromUniformDensity:
 
 
 class TestModelFromInitialTinner:
-    def setup(self):
-        filename = "tardis_configv1_uniform_density.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
+    @pytest.fixture(autouse=True)
+    def setup(self, example_configuration_dir: Path):
+        self.config = Configuration.from_yaml(
+            example_configuration_dir / "tardis_configv1_uniform_density.yml"
+        )
         self.config.plasma.initial_t_inner = 2508 * u.K
         self.model = Radial1DModel.from_config(self.config)
 
@@ -143,9 +143,11 @@ class TestModelFromInitialTinner:
 
 
 class TestModelFromArtisDensityAbundancesAllAscii:
-    def setup(self):
-        filename = "tardis_configv1_ascii_density_abund.yml"
-        self.config = Configuration.from_yaml(data_path(filename))
+    @pytest.fixture(autouse=True)
+    def setup(self, example_model_file_dir: Path):
+        self.config = Configuration.from_yaml(
+            example_model_file_dir / "tardis_configv1_ascii_density_abund.yml"
+        )
         self.config.model.structure.filename = "density.dat"
         self.config.model.abundances.filename = "abund.dat"
         self.model = Radial1DModel.from_config(self.config)
@@ -201,9 +203,10 @@ class TestModelFromArtisDensityAbundancesAllAscii:
         )
 
 
-def test_ascii_reader_power_law():
-    filename = "tardis_configv1_density_power_law_test.yml"
-    config = Configuration.from_yaml(data_path(filename))
+def test_ascii_reader_power_law(example_configuration_dir: Path):
+    config = Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_density_power_law_test.yml"
+    )
     model = Radial1DModel.from_config(config)
 
     expected_densites = [
@@ -236,9 +239,11 @@ def test_ascii_reader_power_law():
         )
 
 
-def test_ascii_reader_exponential_law():
-    filename = "tardis_configv1_density_exponential_test.yml"
-    config = Configuration.from_yaml(data_path(filename))
+def test_ascii_reader_exponential_law(example_configuration_dir: Path):
+    config = Configuration.from_yaml(
+        example_configuration_dir
+        / "tardis_configv1_density_exponential_test.yml"
+    )
     model = Radial1DModel.from_config(config)
 
     expected_densites = [
@@ -280,9 +285,10 @@ def simple_isotope_abundance():
     return IsotopeAbundances(abundance, index=index)
 
 
-def test_model_decay(simple_isotope_abundance):
-    filename = "tardis_configv1_verysimple.yml"
-    config = Configuration.from_yaml(data_path(filename))
+def test_model_decay(simple_isotope_abundance, example_configuration_dir: Path):
+    config = Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
+    )
     model = Radial1DModel.from_config(config)
 
     model.raw_isotope_abundance = simple_isotope_abundance
@@ -389,9 +395,10 @@ def test_model_state_number(simulation_verysimple, index, expected):
 
 
 @pytest.fixture
-def non_uniform_model_state(atomic_dataset):
-    filename = "tardis_configv1_isotope_iabund.yml"
-    config = Configuration.from_yaml(data_path(filename))
+def non_uniform_model_state(atomic_dataset, example_model_file_dir):
+    config = Configuration.from_yaml(
+        example_model_file_dir / "tardis_configv1_isotope_iabund.yml"
+    )
     atom_data = atomic_dataset
     model = Radial1DModel.from_config(config, atom_data=atom_data)
     return model.model_state

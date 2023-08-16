@@ -8,6 +8,7 @@ packagename.test
 """
 
 import os
+from pathlib import Path
 
 from astropy.version import version as astropy_version
 
@@ -137,7 +138,7 @@ def tardis_ref_path(request):
     if tardis_ref_path is None:
         pytest.skip("--tardis-refdata was not specified")
     else:
-        return os.path.expandvars(os.path.expanduser(tardis_ref_path))
+        return Path(os.path.expandvars(os.path.expanduser(tardis_ref_path)))
 
 
 from tardis.tests.fixtures.atom_data import *
@@ -158,7 +159,7 @@ def tardis_ref_data(tardis_ref_path, generate_reference):
 @pytest.fixture(scope="function")
 def tardis_config_verysimple():
     return yaml_load_file(
-        "tardis/io/tests/data/tardis_configv1_verysimple.yml", YAMLLoader
+        "tardis/io/configuration/tests/data/tardis_configv1_verysimple.yml", YAMLLoader
     )
 
 
@@ -181,20 +182,21 @@ def hdf_file_path(tmpdir_factory):
 
 
 @pytest.fixture(scope="session")
-def config_verysimple():
-    filename = "tardis_configv1_verysimple.yml"
-    path = os.path.abspath(os.path.join("tardis/io/tests/data/", filename))
-    config = Configuration.from_yaml(path)
-    return config
+def example_model_file_dir():
+    return Path("tardis/io/model/readers/tests/data")
+
+@pytest.fixture(scope="session")
+def example_configuration_dir():
+    return Path("tardis/io/configuration/tests/data")
+
+@pytest.fixture(scope="session")
+def config_verysimple(example_configuration_dir):
+    return Configuration.from_yaml(example_configuration_dir / "tardis_configv1_verysimple.yml")
 
 
 @pytest.fixture(scope="function")
-def config_montecarlo_1e5_verysimple():
-    filename = "tardis_configv1_verysimple.yml"
-    path = os.path.abspath(os.path.join("tardis/io/tests/data/", filename))
-    config = Configuration.from_yaml(path)
-    return config
-
+def config_montecarlo_1e5_verysimple(example_configuration_dir):
+    return Configuration.from_yaml(example_configuration_dir / "tardis_configv1_verysimple.yml")
 
 @pytest.fixture(scope="session")
 def simulation_verysimple(config_verysimple, atomic_dataset):

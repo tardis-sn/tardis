@@ -1,3 +1,4 @@
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import numpy.testing as npt
@@ -7,8 +8,6 @@ from astropy import units as u
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import Radial1DModel
 import pytest
-
-DATA_PATH = os.path.join(tardis.__path__[0], "model", "tests", "data")
 
 
 @pytest.fixture(
@@ -22,11 +21,10 @@ DATA_PATH = os.path.join(tardis.__path__[0], "model", "tests", "data")
         "radiative",
     ],
 )
-def model_config_fnames(request):
+def model_config_fnames(request, example_model_file_dir):
     """Function to retrieve filenames of target data for tests"""
-    filename = request.param
-    csvy_config_file = os.path.join(DATA_PATH, filename + "_csvy.yml")
-    old_config_file = os.path.join(DATA_PATH, filename + "_old_config.yml")
+    csvy_config_file = example_model_file_dir / f"{request.param}_csvy.yml"
+    old_config_file = example_model_file_dir / f"{request.param}_old_config.yml"
     return csvy_config_file, old_config_file
 
 
@@ -78,9 +76,9 @@ def test_compare_models(model_config_fnames):
 
 
 @pytest.fixture(scope="module")
-def csvy_model_test_abundances():
+def csvy_model_test_abundances(example_model_file_dir: Path):
     """Returns Radial1DModel to use to test abundances dataframes"""
-    csvypath = os.path.join(DATA_PATH, "csvy_model_to_test_abundances.yml")
+    csvypath = example_model_file_dir / "csvy_model_to_test_abundances.yml"
     config = Configuration.from_yaml(csvypath)
     csvy_model_test_abundances = Radial1DModel.from_csvy(config)
     return csvy_model_test_abundances
