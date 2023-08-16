@@ -851,7 +851,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
     @staticmethod
     def create_coll_exc_deexc_matrix(
-        coll_exc_coefficient, coll_deexc_coefficient
+        coll_exc_coefficient,
+        coll_deexc_coefficient,
+        number_of_levels,
     ):
         """Generates a coefficient matrix from collisional excitation/deexcitation coefficients.
 
@@ -862,34 +864,59 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             DataFrame of collisional excitation coefficients for current (atomic number, ion_number)
         coll_deexc_coefficient : pandas.DataFrame
             DataFrame of collisional deexcitation coefficients for (atomic number, ion_number)
+        number_of_levels : int
+            Number of levels for the current atomic number, ion number.
 
         Returns
         -------
         coeff_matrix : np.array (number of levels, number of levels)
             Square matrix constructed by collisional exc./deexc. coefficients.
         """
-        size = (
-            coll_exc_coefficient.index.get_level_values("level_number_lower")
-            .unique()
-            .size
+        diagonal_exc = np.zeros(number_of_levels)
+        diagonal_deexc = np.zeros(number_of_levels)
+        diagonal_exc[
+            coll_exc_coefficient.index.get_level_values(
+                "level_number_lower"
+            ).unique()
+        ] = (
+            -1
+            * coll_exc_coefficient.groupby("level_number_lower")
+            .sum()
+            .values.flatten()
         )
-        diagonal_exc = coll_exc_coefficient.groupby("level_number_lower").sum().values.reshape(size, )
-        diagonal_deexc = coll_deexc_coefficient.groupby(
-            "level_number_upper"
-        ).sum().values.reshape(size, )
-        exc_matrix = np.zeros((size + 1, size + 1))
-        deexc_matrix = np.zeros((size + 1, size + 1))
+        diagonal_deexc[
+            coll_exc_coefficient.index.get_level_values(
+                "level_number_upper"
+            ).unique()
+        ] = (
+            -1
+            * coll_deexc_coefficient.groupby("level_number_upper")
+            .sum()
+            .values.flatten()
+        )
+        exc_matrix = np.zeros((number_of_levels, number_of_levels))
+        deexc_matrix = np.zeros((number_of_levels, number_of_levels))
         exc_matrix[
-            np.tril_indices(size + 1, k=-1)
-        ] = coll_exc_coefficient.values.reshape(
-            size + 1,
-        )
+            (
+                coll_exc_coefficient.index.get_level_values(
+                    "level_number_upper"
+                ),
+                coll_exc_coefficient.index.get_level_values(
+                    "level_number_lower"
+                ),
+            )
+        ] = coll_exc_coefficient.values.flatten()
         deexc_matrix[
-            np.triu_indices(size + 1, k=1)
-        ] = coll_deexc_coefficient.values.reshape(
-            size + 1,
-        )
-        np.fill_diagonal(exc_matrix, np.hstack((diagonal_exc * -1, 0)))
-        np.fill_diagonal(deexc_matrix, np.hstack((0, diagonal_deexc * -1)))
+            (
+                coll_exc_coefficient.index.get_level_values(
+                    "level_number_lower"
+                ),
+                coll_exc_coefficient.index.get_level_values(
+                    "level_number_upper"
+                ),
+            )
+        ] = coll_deexc_coefficient.values.flatten()
+        np.fill_diagonal(exc_matrix, diagonal_exc)
+        np.fill_diagonal(deexc_matrix, diagonal_deexc)
         coeff_matrix = exc_matrix + deexc_matrix
         return coeff_matrix

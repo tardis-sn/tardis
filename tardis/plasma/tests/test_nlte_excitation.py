@@ -123,17 +123,20 @@ def test_prepare_bound_bound_rate_matrix(
     [
         "coll_exc_coeff_values",
         "coll_deexc_coeff_values",
+        "number_of_levels",
         "desired_coeff_matrix",
     ],
     [
         (
             [1, -2, 3],
             [4, 9, 10],
+            3,
             [[1.0, 4.0, 9.0], [1.0, -7.0, 10.0], [-2.0, 3.0, -19.0]],
         ),
         (
             [0.21, 0.045, 0.1234],
             [0.7865, 0.987, 0.00123],
+            3,
             [
                 [-0.255, 0.7865, 0.987],
                 [0.21, -0.9099, 0.00123],
@@ -143,7 +146,10 @@ def test_prepare_bound_bound_rate_matrix(
     ],
 )
 def test_coll_exc_deexc_matrix(
-    coll_exc_coeff_values, coll_deexc_coeff_values, desired_coeff_matrix
+    coll_exc_coeff_values,
+    coll_deexc_coeff_values,
+    number_of_levels,
+    desired_coeff_matrix,
 ):
     """
     Checks the NLTERateEquationSolver.create_coll_exc_deexc_matrix for simple values of species with 3 levels.
@@ -156,6 +162,6 @@ def test_coll_exc_deexc_matrix(
     exc_coeff = pd.DataFrame(coll_exc_coeff_values, index=index)
     deexc_coeff = pd.DataFrame(coll_deexc_coeff_values, index=index)
     obtained_coeff_matrix = NLTERateEquationSolver.create_coll_exc_deexc_matrix(
-        exc_coeff, deexc_coeff
+        exc_coeff, deexc_coeff, number_of_levels
     )
     assert_allclose(obtained_coeff_matrix, desired_coeff_matrix)
