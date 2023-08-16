@@ -667,7 +667,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             jacobian_matrix,
         )
 
-    def solution_vector_block(self, number_density, needed_number):
+    def solution_vector_block(self, number_density, needed_number_of_elements):
         """Block of the solution vector for the current atomic number.
 
         Block for the solution vector has the form (0, 0, ..., 0, number_density).
@@ -677,7 +677,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         ----------
         number_density : float
             Number density of the current atomic number.
-        needed_number : int
+        needed_number_of_elements : int
             Number of needed elements for current atomic number.
 
         Returns
@@ -685,7 +685,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         numpy.array
             Block of the solution vector corresponding to the current atomic number.
         """
-        solution_vector = np.zeros(needed_number)
+        solution_vector = np.zeros(needed_number_of_elements)
         solution_vector[-1] = number_density
         return solution_vector
 
