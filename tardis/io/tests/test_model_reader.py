@@ -18,36 +18,36 @@ from tardis.io.model.readers.cmfgen import (
     read_cmfgen_density,
 )
 from tardis.io.model.readers.generic_readers import (
-    read_artis_density,
     read_csv_composition,
     read_simple_ascii_abundances,
     read_uniform_abundances,
 )
 from tardis.io.model.hdf import store_model_to_hdf
+from tardis.io.model.readers.artis import read_artis_density
 
 
 @pytest.fixture
-def artis_density_fname(example_model_file_dir: Path):
+def artis_density_fname(example_model_file_dir):
     return example_model_file_dir / "artis_model.dat"
 
 
 @pytest.fixture
-def artis_abundances_fname(example_model_file_dir: Path):
+def artis_abundances_fname(example_model_file_dir):
     return example_model_file_dir / "artis_abundances.dat"
 
 
 @pytest.fixture
-def cmfgen_fname(example_model_file_dir: Path):
+def cmfgen_fname(example_model_file_dir):
     return example_model_file_dir / "cmfgen_model.csv"
 
 
 @pytest.fixture
-def csv_composition_fname(example_model_file_dir: Path):
+def csv_composition_fname(example_model_file_dir):
     return example_model_file_dir / "csv_composition.csv"
 
 
 @pytest.fixture
-def isotope_uniform_abundance(example_model_file_dir: Path):
+def isotope_uniform_abundance(example_model_file_dir):
     config_path = (
         example_model_file_dir / "tardis_configv1_isotope_uniabund.yml"
     )
@@ -71,7 +71,7 @@ def test_simple_read_artis_density(artis_density_fname: str):
 
 
 # Artis files are currently read with read ascii files function
-def test_read_simple_ascii_abundances(artis_abundances_fname: str):
+def test_read_simple_ascii_abundances(artis_abundances_fname):
     index, abundances = read_simple_ascii_abundances(artis_abundances_fname)
     assert len(abundances.columns) == 69
     assert np.isclose(abundances[23].loc[2], 2.672351e-08, atol=1.0e-12)

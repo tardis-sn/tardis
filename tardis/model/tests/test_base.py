@@ -12,7 +12,7 @@ from tardis.io.decay import IsotopeAbundances
 
 class TestModelFromPaper1Config:
     @pytest.fixture(autouse=True)
-    def setup(self, example_configuration_dir: Path):
+    def setup(self, example_configuration_dir):
         self.config = Configuration.from_yaml(
             example_configuration_dir / "paper1_tardis_configv1.yml"
         )
@@ -50,7 +50,7 @@ class TestModelFromPaper1Config:
 
 class TestModelFromASCIIDensity:
     @pytest.fixture(autouse=True)
-    def setup(self, example_model_file_dir: Path):
+    def setup(self, example_model_file_dir):
         self.config = Configuration.from_yaml(
             example_model_file_dir / "tardis_configv1_ascii_density.yml"
         )
@@ -69,7 +69,7 @@ class TestModelFromASCIIDensity:
 
 class TestModelFromArtisDensity:
     @pytest.fixture(autouse=True)
-    def setup(self, example_model_file_dir: Path):
+    def setup(self, example_model_file_dir):
         self.config = Configuration.from_yaml(
             example_model_file_dir / "tardis_configv1_artis_density.yml"
         )
@@ -88,7 +88,7 @@ class TestModelFromArtisDensity:
 
 class TestModelFromArtisDensityAbundances:
     @pytest.fixture(autouse=True)
-    def setup(self, example_model_file_dir: Path):
+    def setup(self, example_model_file_dir):
         self.config = Configuration.from_yaml(
             example_model_file_dir / "tardis_configv1_artis_density.yml"
         )
@@ -109,7 +109,7 @@ class TestModelFromArtisDensityAbundances:
 
 class TestModelFromArtisDensityAbundancesVSlice:
     @pytest.fixture(autouse=True)
-    def setup(self, example_model_file_dir: Path):
+    def setup(self, example_model_file_dir):
 
         self.config = Configuration.from_yaml(
             example_model_file_dir / "tardis_configv1_artis_density_v_slice.yml"
@@ -129,7 +129,7 @@ class TestModelFromArtisDensityAbundancesVSlice:
 
 class TestModelFromUniformDensity:
     @pytest.fixture(autouse=True)
-    def setup(self, example_configuration_dir: Path):
+    def setup(self, example_configuration_dir):
         self.config = Configuration.from_yaml(
             example_configuration_dir / "tardis_configv1_uniform_density.yml"
         )
@@ -143,7 +143,7 @@ class TestModelFromUniformDensity:
 
 class TestModelFromInitialTinner:
     @pytest.fixture(autouse=True)
-    def setup(self, example_configuration_dir: Path):
+    def setup(self, example_configuration_dir):
         self.config = Configuration.from_yaml(
             example_configuration_dir / "tardis_configv1_uniform_density.yml"
         )
@@ -156,7 +156,7 @@ class TestModelFromInitialTinner:
 
 class TestModelFromArtisDensityAbundancesAllAscii:
     @pytest.fixture(autouse=True)
-    def setup(self, example_model_file_dir: Path):
+    def setup(self, example_model_file_dir):
         self.config = Configuration.from_yaml(
             example_model_file_dir / "tardis_configv1_ascii_density_abund.yml"
         )
@@ -215,7 +215,7 @@ class TestModelFromArtisDensityAbundancesAllAscii:
         )
 
 
-def test_ascii_reader_power_law(example_configuration_dir: Path):
+def test_ascii_reader_power_law(example_configuration_dir):
     config = Configuration.from_yaml(
         example_configuration_dir / "tardis_configv1_density_power_law_test.yml"
     )
@@ -251,7 +251,7 @@ def test_ascii_reader_power_law(example_configuration_dir: Path):
         )
 
 
-def test_ascii_reader_exponential_law(example_configuration_dir: Path):
+def test_ascii_reader_exponential_law(example_configuration_dir):
     config = Configuration.from_yaml(
         example_configuration_dir
         / "tardis_configv1_density_exponential_test.yml"
@@ -297,7 +297,7 @@ def simple_isotope_abundance():
     return IsotopeAbundances(abundance, index=index)
 
 
-def test_model_decay(simple_isotope_abundance, example_configuration_dir: Path):
+def test_model_decay(simple_isotope_abundance, example_configuration_dir):
     config = Configuration.from_yaml(
         example_configuration_dir / "tardis_configv1_verysimple.yml"
     )

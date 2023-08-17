@@ -20,7 +20,7 @@ from tardis.io.model.readers.generic_readers import (
 test_data_directory = os.path.dirname(__file__)
 
 
-def test_simple_ascii_density_reader_time(example_model_file_dir: Path):
+def test_simple_ascii_density_reader_time(example_model_file_dir):
     (time_model, velocity, density,) = read_simple_ascii_density(
         example_model_file_dir / "tardis_simple_ascii_density_test.dat"
     )
@@ -31,7 +31,7 @@ def test_simple_ascii_density_reader_time(example_model_file_dir: Path):
     assert velocity.unit == u.Unit("cm/s")
 
 
-def test_simple_ascii_abundance_reader(example_model_file_dir: Path):
+def test_simple_ascii_abundance_reader(example_model_file_dir):
     (index, abundances,) = read_simple_ascii_abundances(
         example_model_file_dir / "artis_abundances.dat"
     )

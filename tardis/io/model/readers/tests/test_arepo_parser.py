@@ -6,15 +6,14 @@ import os
 import json
 
 
-# DATA_PATH = os.path.join(tardis.__path__[0], "io", "tests", "data")
+@pytest.fixture()
+def arepo_snapshot_fname(tardis_ref_path):
+    return Path(tardis_ref_path) / "arepo_data" / "arepo_snapshot.json"
 
 
 @pytest.fixture
-def get_cone_csvy_model(tardis_ref_path, example_model_file_dir):
-    datafile = os.path.join(
-        tardis_ref_path, "arepo_data", "arepo_snapshot.json"
-    )
-    with open(datafile, "r") as json_file:
+def get_cone_csvy_model(arepo_snapshot_fname, example_model_file_dir):
+    with open(arepo_snapshot_fname, "r") as json_file:
         data = json.loads(json.load(json_file))
 
     pos, vel, rho, mass, nucs, time = (
@@ -56,11 +55,10 @@ def get_cone_csvy_model(tardis_ref_path, example_model_file_dir):
 
 
 @pytest.fixture
-def get_full_csvy_model(tardis_ref_path, example_model_file_dir: Path):
-    datafile = os.path.join(
-        tardis_ref_path, "arepo_data", "arepo_snapshot.json"
-    )
-    with open(datafile, "r") as json_file:
+def get_full_csvy_model(
+    arepo_snapshot_fname, example_model_file_dir
+):
+    with open(arepo_snapshot_fname, "r") as json_file:
         data = json.loads(json.load(json_file))
 
     pos, vel, rho, mass, nucs, time = (
@@ -99,7 +97,7 @@ def get_full_csvy_model(tardis_ref_path, example_model_file_dir: Path):
 
 
 @pytest.fixture
-def get_cone_reference_data(example_model_file_dir: Path):
+def get_cone_reference_data(example_model_file_dir):
     with open(
         example_model_file_dir / "arepo_cone_reference_model.csvy", "r"
     ) as file:
@@ -109,7 +107,7 @@ def get_cone_reference_data(example_model_file_dir: Path):
 
 
 @pytest.fixture
-def get_full_reference_data(example_model_file_dir: Path):
+def get_full_reference_data(example_model_file_dir):
     with open(
         example_model_file_dir / "arepo_full_reference_model.csvy", "r"
     ) as file:
