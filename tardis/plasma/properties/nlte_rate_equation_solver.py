@@ -101,7 +101,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
 
         for shell in phi.columns:
             solution_vector = self.prepare_solution_vector(
-                number_density[shell]
+                number_density[shell],
+                rate_matrix_index,
             )
             first_guess = self.prepare_first_guess(
                 rate_matrix_index,
@@ -666,29 +667,30 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             jacobian_matrix,
         )
 
-    def solution_vector_block(self, atomic_number, number_density):
+    def solution_vector_block(self, number_density, needed_number_of_elements):
         """Block of the solution vector for the current atomic number.
 
         Block for the solution vector has the form (0, 0, ..., 0, number_density).
-        Length is equal to atomic_number+1.
+        Length is equal to the number of present ions and number of
+        levels, if treated with NLTE excitation.
 
         Parameters
         ----------
-        atomic_number : int
-            Current atomic number.
         number_density : float
             Number density of the current atomic number.
+        needed_number_of_elements : int
+            Number of needed elements in the solution vector for current atomic number.
 
         Returns
         -------
         numpy.array
             Block of the solution vector corresponding to the current atomic number.
         """
-        solution_vector = np.zeros(atomic_number + 1)
+        solution_vector = np.zeros(needed_number_of_elements)
         solution_vector[-1] = number_density
         return solution_vector
 
-    def prepare_solution_vector(self, number_density):
+    def prepare_solution_vector(self, number_density, rate_matrix_index):
         """Constructs the solution vector for the NLTE ionization solver set of equations by combining
         all solution verctor blocks.
 
@@ -696,6 +698,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         ----------
         number_density : pandas.DataFrame
             Number densities of all present species.
+        rate_matrix_index : pandas.MultiIndex
+            (atomic_number, ion_number, treatment type)
 
         Returns
         -------
@@ -705,9 +709,14 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         atomic_numbers = number_density.index
         solution_array = []
         for atomic_number in atomic_numbers:
+            needed_number_of_elements = (
+                rate_matrix_index.get_level_values("atomic_number")
+                == atomic_number
+            ).sum()
             solution_array.append(
                 self.solution_vector_block(
-                    atomic_number, number_density.loc[atomic_number]
+                    number_density.loc[atomic_number],
+                    needed_number_of_elements,
                 )
             )
         solution_vector = np.hstack(solution_array + [0])

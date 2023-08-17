@@ -819,7 +819,6 @@ def model_to_dict(model):
     Returns
     -------
     model_dict : dict
-    homologous_density : dict
     isotope_abundance : dict
     """
     model_dict = {
@@ -841,10 +840,9 @@ def model_to_dict(model):
         if hasattr(value, "unit"):
             model_dict[key] = [value.cgs.value, value.unit.to_string()]
 
-    homologous_density = model.homologous_density.__dict__
     isotope_abundance = model.raw_isotope_abundance.__dict__
 
-    return model_dict, homologous_density, isotope_abundance
+    return model_dict, isotope_abundance
 
 
 def store_model_to_hdf(model, fname):
@@ -860,7 +858,7 @@ def store_model_to_hdf(model, fname):
         model_group = f.require_group("model")
         model_group.clear()
 
-        model_dict, homologous_density, isotope_abundance = model_to_dict(model)
+        model_dict, isotope_abundance = model_to_dict(model)
 
         for key, value in model_dict.items():
             if key.endswith("_cgs"):
@@ -868,12 +866,6 @@ def store_model_to_hdf(model, fname):
                 model_group.create_dataset(key + "_unit", data=value[1])
             else:
                 model_group.create_dataset(key, data=value)
-
-        homologous_density_group = model_group.create_group(
-            "homologous_density"
-        )
-        for key, value in homologous_density.items():
-            homologous_density_group.create_dataset(key, data=value)
 
 
 def model_from_hdf(fname):
@@ -889,7 +881,7 @@ def model_from_hdf(fname):
     new_model : tardis.model.Radial1DModel
     """
 
-    from tardis.model import Radial1DModel, HomologousDensity
+    from tardis.model import Radial1DModel
 
     d = {}
 
