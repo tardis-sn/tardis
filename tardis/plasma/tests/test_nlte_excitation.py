@@ -159,8 +159,8 @@ def test_coll_exc_deexc_matrix(
         [(0, 1), (0, 2), (1, 2)],
         names=["level_number_lower", "level_number_upper"],
     )
-    exc_coeff = pd.DataFrame(coll_exc_coeff_values, index=index)
-    deexc_coeff = pd.DataFrame(coll_deexc_coeff_values, index=index)
+    exc_coeff = pd.Series(coll_exc_coeff_values, index=index)
+    deexc_coeff = pd.Series(coll_deexc_coeff_values, index=index)
     obtained_coeff_matrix = NLTERateEquationSolver.create_coll_exc_deexc_matrix(
         exc_coeff, deexc_coeff, number_of_levels
     )
