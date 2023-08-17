@@ -18,12 +18,29 @@ import ipywidgets as ipw
 ANGSTROM_SYMBOL = "\u212B"
 
 
+def is_zero_defined(transform):
+    """
+    Utility function to decide if a certain transform is defined at zero
+
+    Parameters
+    ----------
+    transform : function
+
+    Returns
+    -------
+    bool
+        True if transform is defined at 0 else False
+    """
+    if transform in [np.log, np.log10]:
+        return True
+    return False
+
+
 def standardize(
     values,
     transform=lambda x: x,
     min_value=None,
     max_value=None,
-    zero_undefined=False,
     zero_undefined_offset=0,
 ):
     """
@@ -40,9 +57,6 @@ def standardize(
         The lower bound of the range
     max_value : float, optional
         The upper bound of the range
-    zero_undefined : bool, optional
-        When applying transformations (like log) where output of 0 is undefined, set this to True
-        Default value is False
     zero_undefined_offset : int, optional
         This is useful for log transformation because log(0) is -inf.
         Hence, value=0 gives y=0 while the
@@ -54,6 +68,8 @@ def standardize(
     pandas.Series
         Values after standardization
     """
+    zero_undefined = is_zero_defined(transform)  # Is function defined at 0?
+
     if zero_undefined and zero_undefined_offset == 0:
         raise ValueError(
             "If zero of the transformation is undefined, then provide an offset greater than 0"
@@ -234,7 +250,7 @@ class GrotrianPlot:
         self._level_width_transform = np.log  # Scale of the level widths
         self._population_spacer = np.geomspace  # To space width bar counts
         ### Scale of the y-axis
-        self._y_scale = "Linear"
+        self._y_scale = "Log"
         self._y_coord_transform = self.Y_SCALE_OPTION[self._y_scale]
 
         ### Define default parameters for visual elements related to transitions
@@ -495,7 +511,6 @@ class GrotrianPlot:
                     (excite_lines.num_electrons, deexcite_lines.num_electrons)
                 ),
                 transform=self._transition_width_transform,
-                zero_undefined=True,
                 zero_undefined_offset=1e-3,
             )
             excite_lines[
@@ -565,7 +580,6 @@ class GrotrianPlot:
         self.level_data["level_width_coefficient"] = standardize(
             self.level_data.population,
             transform=self._level_width_transform,
-            zero_undefined=True,
             zero_undefined_offset=1e-3,
         )
 
@@ -580,7 +594,6 @@ class GrotrianPlot:
         self.level_data["y_coord"] = standardize(
             self.level_data.energy,
             transform=self._y_coord_transform,
-            zero_undefined=True,
             zero_undefined_offset=0.1,
         )
 
@@ -692,7 +705,6 @@ class GrotrianPlot:
         lines["color_coefficient"] = standardize(
             lines.wavelength,
             transform=self._wavelength_color_transform,
-            zero_undefined=True,
             zero_undefined_offset=1e-5,
             min_value=self.min_wavelength,
             max_value=self.max_wavelength,
@@ -1052,8 +1064,8 @@ class GrotrianWidget:
         )
 
         self.y_scale_selector = ipw.ToggleButtons(
-            options=["Linear", "Log"],
-            index=0,
+            options=GrotrianPlot.Y_SCALE_OPTION.keys(),
+            index=1,
             description="Y-Scale",
             layout=ipw.Layout(width="auto"),
             style={"button_width": "100px"},
