@@ -55,9 +55,7 @@ def get_cone_csvy_model(arepo_snapshot_fname, example_model_file_dir):
 
 
 @pytest.fixture
-def get_full_csvy_model(
-    arepo_snapshot_fname, example_model_file_dir
-):
+def get_full_csvy_model(arepo_snapshot_fname, example_model_file_dir):
     with open(arepo_snapshot_fname, "r") as json_file:
         data = json.loads(json.load(json_file))
 
