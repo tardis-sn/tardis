@@ -671,14 +671,15 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         """Block of the solution vector for the current atomic number.
 
         Block for the solution vector has the form (0, 0, ..., 0, number_density).
-        Length is equal to atomic_number+1.
+        Length is equal to the number of present ions and number of
+        levels, if treated with NLTE excitation.
 
         Parameters
         ----------
         number_density : float
             Number density of the current atomic number.
         needed_number_of_elements : int
-            Number of needed elements for current atomic number.
+            Number of needed elements in the solution vector for current atomic number.
 
         Returns
         -------
@@ -697,6 +698,8 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         ----------
         number_density : pandas.DataFrame
             Number densities of all present species.
+        rate_matrix_index : pandas.MultiIndex
+            (atomic_number, ion_number, treatment type)
 
         Returns
         -------
@@ -706,10 +709,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         atomic_numbers = number_density.index
         solution_array = []
         for atomic_number in atomic_numbers:
-            needed_number_of_elements = rate_matrix_index[
+            needed_number_of_elements = (
                 rate_matrix_index.get_level_values("atomic_number")
                 == atomic_number
-            ].size
+            ).sum()
             solution_array.append(
                 self.solution_vector_block(
                     number_density.loc[atomic_number],
