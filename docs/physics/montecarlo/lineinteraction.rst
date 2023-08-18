@@ -8,7 +8,7 @@ TARDIS currently offers different ways to handle line interactions, which may be
 activated via the :term:`YAML` configuration file. Independently of the chosen
 treatment, a number of steps are always carried out when a Monte Carlo packet
 performs a line interaction. Since TARDIS adopts the indivisible energy packet
-formalism (see :ref:`Energy Packets <initialization>`), the packet will have the
+formalism (see :doc:`Energy Packets <initialization>`), the packet will have the
 same energy in the co-moving frame after (f for final) the line interaction as
 before (i for initial). Thus, after accounting for the frame transformations,
 
