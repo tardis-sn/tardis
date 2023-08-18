@@ -857,3 +857,70 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             r_lu_matrix,
         )
         # TODO: beta sobolev needs to be recalculated for each iteration, because it depends on number density
+
+    @staticmethod
+    def create_coll_exc_deexc_matrix(
+        coll_exc_coefficient,
+        coll_deexc_coefficient,
+        number_of_levels,
+    ):
+        """Generates a coefficient matrix from collisional excitation/deexcitation coefficients.
+
+        Needs to be multiplied by electron density when added to the overall rate_matrix.
+        Parameters
+        ----------
+        coll_exc_coefficient : pandas.Series
+            Series of collisional excitation coefficients for current (atomic number, ion_number)
+            in the current shell.
+        coll_deexc_coefficient : pandas.Series
+            Series of collisional deexcitation coefficients for (atomic number, ion_number)
+            in the current shell.
+        number_of_levels : int
+            Number of levels for the current atomic number, ion number.
+
+        Returns
+        -------
+        coeff_matrix : np.array (number of levels, number of levels)
+            Square matrix constructed by collisional exc./deexc. coefficients.
+        """
+        diagonal_exc = np.zeros(number_of_levels)
+        diagonal_deexc = np.zeros(number_of_levels)
+        col_exc_coefficient_sum_lower = coll_exc_coefficient.groupby(
+            "level_number_lower"
+        ).sum()
+        col_deexc_coefficient_sum_upper = coll_deexc_coefficient.groupby(
+            "level_number_upper"
+        ).sum()
+
+        diagonal_exc[col_exc_coefficient_sum_lower.index] = (
+            -1 * col_exc_coefficient_sum_lower.values
+        )
+        diagonal_deexc[col_deexc_coefficient_sum_upper.index] = (
+            -1 * col_deexc_coefficient_sum_upper.values
+        )
+        exc_matrix = np.zeros((number_of_levels, number_of_levels))
+        deexc_matrix = np.zeros((number_of_levels, number_of_levels))
+        exc_matrix[
+            (
+                coll_exc_coefficient.index.get_level_values(
+                    "level_number_upper"
+                ),
+                coll_exc_coefficient.index.get_level_values(
+                    "level_number_lower"
+                ),
+            )
+        ] = coll_exc_coefficient.values
+        deexc_matrix[
+            (
+                coll_exc_coefficient.index.get_level_values(
+                    "level_number_lower"
+                ),
+                coll_exc_coefficient.index.get_level_values(
+                    "level_number_upper"
+                ),
+            )
+        ] = coll_deexc_coefficient.values
+        np.fill_diagonal(exc_matrix, diagonal_exc)
+        np.fill_diagonal(deexc_matrix, diagonal_deexc)
+        coeff_matrix = exc_matrix + deexc_matrix
+        return coeff_matrix
