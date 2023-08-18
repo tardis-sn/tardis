@@ -6,7 +6,6 @@ import numpy as np
 import pytest
 import h5py
 
-import tardis
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.model.model_reader import (
     model_to_dict,
