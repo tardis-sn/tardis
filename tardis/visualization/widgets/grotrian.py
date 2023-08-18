@@ -162,7 +162,7 @@ class GrotrianPlot:
         Default value is packet_out_nu
     y_scale : {"Log", "Linear"}
         The scale to plot the energy levels on the y-axis
-        Default value is Linear
+        Default value is Log
     cmapname : str
         The name of the colormap used to denote wavelengths. Default value is "rainbow"
     level_width_scale : float
@@ -912,7 +912,7 @@ class GrotrianPlot:
         # Update fig layout
         self.fig.update_layout(
             title=(
-                f"Grotrian Diagram for {self.atomic_name} {int_to_roman(self.ion_number + 1)} "
+                f"Energy Level Diagram for {self.atomic_name} {int_to_roman(self.ion_number + 1)} "
                 f"(Shell: {self.shell if self.shell is not None else 'All'})"
             ),
             title_x=0.5,
@@ -1155,7 +1155,7 @@ class GrotrianWidget:
         min_wavelength, max_wavelength = change["new"]
         index = self.fig.children.index(self.plot.fig)
         setattr(self.plot, "min_wavelength", min_wavelength)
-        setattr(self.plot, "max_wavelength", max_wavelength)
+        setattr(self.plot, "max_wavelength", max_wavelength + 1)
 
         # Set the updated plot in the figure
         children_list = list(self.fig.children)
