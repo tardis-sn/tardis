@@ -6,7 +6,7 @@ from tardis.montecarlo.packet_source import (
     BlackBodySimpleSource,
     BlackBodySimpleSourceRelativistic,
 )
-
+from tardis.io.model.density import calculate_density_after_time
 from astropy import units as u
 import h5py
 
@@ -365,13 +365,15 @@ def model_from_hdf(fname):
         if key.endswith("_cgs"):
             d[key] = u.Quantity(value[0], unit=u.Unit(value[1].decode("utf-8")))
 
-    homologous_density = HomologousDensity(
-        d["homologous_density"]["density_0"], d["homologous_density"]["time_0"]
+    homologous_density = calculate_density_after_time(
+        d["homologous_density"]["density_0"],
+        d["homologous_density"]["time_0"],
+        d["time_explosion_cgs"],
     )
 
     new_model = Radial1DModel(
         velocity=d["velocity_cgs"],
-        homologous_density=homologous_density,
+        density=homologous_density,
         abundance=d["abundance"],
         isotope_abundance=None,
         time_explosion=d["time_explosion_cgs"],
