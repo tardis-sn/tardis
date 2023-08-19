@@ -377,6 +377,7 @@ def model_from_hdf(fname):
         abundance=d["abundance"],
         isotope_abundance=None,
         time_explosion=d["time_explosion_cgs"],
+        elemental_mass=None,
         t_inner=d["t_inner_cgs"],
         t_radiative=d["t_radiative_cgs"],
         dilution_factor=d["dilution_factor"],
