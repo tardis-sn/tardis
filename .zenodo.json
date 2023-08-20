@@ -135,10 +135,10 @@
       "orcid": "0000-0002-8094-6108"
     },
     {
-      "name": "Rathi, Shikha"
+      "name": "Chitchyan, Sona"
     },
     {
-      "name": "Chitchyan, Sona"
+      "name": "Rathi, Shikha"
     },
     {
       "name": "Savel, Arjun"
@@ -153,32 +153,32 @@
       "name": "Bylund, Tomas"
     },
     {
+      "name": "Shields, Joshua"
+    },
+    {
       "name": "Bentil, Laud"
     },
     {
       "name": "Black, William"
     },
     {
-      "name": "Shields, Joshua"
-    },
-    {
       "name": "Eguren, Jordi",
       "orcid": "0000-0002-2328-8030"
     },
     {
-      "name": "Alam, Arib"
-    },
-    {
-      "name": "Kumar, Ansh"
+      "name": "Singh, Shreyas"
     },
     {
       "name": "Bartnik, Matthew"
     },
     {
-      "name": "Magee, Mark"
+      "name": "Kumar, Ansh"
     },
     {
-      "name": "Singh, Shreyas"
+      "name": "Alam, Arib"
+    },
+    {
+      "name": "Magee, Mark"
     },
     {
       "name": "Varma Buddaraju, Rohith"
@@ -190,32 +190,35 @@
       "name": "Kambham, Satwik"
     },
     {
-      "name": "Rajagopalan, Srinath"
+      "name": "Daksh, Ayushi"
     },
     {
-      "name": "Daksh, Ayushi"
+      "name": "Rajagopalan, Srinath"
     },
     {
       "name": "Mishra, Sashank",
       "orcid": "0000-0001-8302-1584"
     },
     {
-      "name": "Jain, Rinkle"
-    },
-    {
-      "name": "Reichenbach, John"
-    },
-    {
-      "name": "Floers, Andreas"
+      "name": "Bhakar, Jayant"
     },
     {
       "name": "Actions, GitHub"
     },
     {
-      "name": "Holas, Alexander"
+      "name": "Reichenbach, John"
+    },
+    {
+      "name": "Jain, Rinkle"
+    },
+    {
+      "name": "Floers, Andreas"
     },
     {
       "name": "Singh, Sourav"
+    },
+    {
+      "name": "Holas, Alexander"
     },
     {
       "name": "Brar, Antreev"
@@ -224,7 +227,7 @@
       "name": "Chaumal, Aarya"
     },
     {
-      "name": "Bhakar, Jayant"
+      "name": "Sofiatti, Caroline"
     },
     {
       "name": "Selsing, Jonatan"
@@ -240,9 +243,6 @@
     },
     {
       "name": "Talegaonkar, Chinmay"
-    },
-    {
-      "name": "Sofiatti, Caroline"
     },
     {
       "name": "Venkat, Shashank"
