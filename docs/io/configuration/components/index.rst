@@ -10,6 +10,11 @@ settings for the different aspects of the TARDIS calculation. An example
 configuration file (with a small subset of the options that can be specified) can be downloaded `here
 <https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/tardis_example.yml>`_.
 
+.. DANGER:: 
+    TARDIS parallelization is not working correctly at the moment and might produce incorrect results.
+    Please avoid using it.
+    For more information, see issue [#2021](https://github.com/tardis-sn/tardis/issues/2021).
+
 .. warning::
     One should note that currently floats in YAML that are expressed in scientific notation
     need to be specified in a special format:
