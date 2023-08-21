@@ -1145,7 +1145,7 @@ if __name__ == "__main__":
         beta=args.beta,
         gamma=args.gamma,
     )
-    
+
     if args.profile == "3d":
         if args.inner_radius is None:
             raise ValueError("Inner boundary radius missing")
