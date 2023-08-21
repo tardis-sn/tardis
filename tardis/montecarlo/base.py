@@ -8,6 +8,7 @@ from numba import set_num_threads
 from numba import cuda
 
 from scipy.special import zeta
+import tardis
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
 from tardis.util.base import quantity_linspace
@@ -29,13 +30,8 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
-MAX_SEED_VAL = 2**32 - 1
-
-# MAX_SEED_VAL must be multiple orders of magnitude larger than no_of_packets;
-# otherwise, each packet would not have its own seed. Here, we set the max
-# seed val to the maximum allowed by numpy.
 # TODO: refactor this into more parts
-class MontecarloRunner(HDFWriterMixin):
+class MontecarloTransport(HDFWriterMixin):
     """
     This class is designed as an interface between the Python part and the
     montecarlo C-part
@@ -69,9 +65,10 @@ class MontecarloRunner(HDFWriterMixin):
         "virt_packet_last_interaction_type",
         "virt_packet_last_line_interaction_in_id",
         "virt_packet_last_line_interaction_out_id",
+        "virt_packet_last_line_interaction_shell_id",
     ]
 
-    hdf_name = "runner"
+    hdf_name = "transport"
     w_estimator_constant = (
         (const.c**2 / (2 * const.h))
         * (15 / np.pi**4)
@@ -85,7 +82,6 @@ class MontecarloRunner(HDFWriterMixin):
 
     def __init__(
         self,
-        seed,
         spectrum_frequency,
         virtual_spectrum_spawn_range,
         disable_electron_scattering,
@@ -96,19 +92,14 @@ class MontecarloRunner(HDFWriterMixin):
         integrator_settings,
         v_packet_settings,
         spectrum_method,
+        packet_source,
         virtual_packet_logging,
-        packet_source=None,
+        nthreads=1,
         debug_packets=False,
         logger_buffer=1,
         tracking_rpacket=False,
         use_gpu=False,
     ):
-
-        self.seed = seed
-        if packet_source is None:
-            self.packet_source = source.BlackBodySimpleSource(seed)
-        else:
-            self.packet_source = packet_source
         # inject different packets
         self.disable_electron_scattering = disable_electron_scattering
         self.spectrum_frequency = spectrum_frequency
@@ -121,7 +112,6 @@ class MontecarloRunner(HDFWriterMixin):
         self.integrator_settings = integrator_settings
         self.v_packet_settings = v_packet_settings
         self.spectrum_method = spectrum_method
-        self.seed = seed
         self._integrator = None
         self._spectrum_integrated = None
         self.use_gpu = use_gpu
@@ -131,13 +121,19 @@ class MontecarloRunner(HDFWriterMixin):
         self.virt_packet_last_interaction_in_nu = np.ones(2) * -1.0
         self.virt_packet_last_line_interaction_in_id = np.ones(2) * -1
         self.virt_packet_last_line_interaction_out_id = np.ones(2) * -1
+        self.virt_packet_last_line_interaction_shell_id = np.ones(2) * -1
         self.virt_packet_nus = np.ones(2) * -1.0
         self.virt_packet_energies = np.ones(2) * -1.0
         self.virt_packet_initial_rs = np.ones(2) * -1.0
         self.virt_packet_initial_mus = np.ones(2) * -1.0
 
+        self.packet_source = packet_source
+
         # Setting up the Tracking array for storing all the RPacketTracker instances
         self.rpacket_tracker = None
+
+        # Set number of threads
+        self.nthreads = nthreads
 
         # set up logger based on config
         mc_tracker.DEBUG_MODE = debug_packets
@@ -202,19 +198,22 @@ class MontecarloRunner(HDFWriterMixin):
         self.v_inner_cgs = model.v_inner.to("cm/s").value
         self.v_outer_cgs = model.v_outer.to("cm/s").value
 
-    def _initialize_packets(self, T, no_of_packets, iteration, radius):
-        # the iteration is added each time to preserve randomness
+    def _initialize_packets(self, model, no_of_packets, iteration):
+        # the iteration (passed as seed_offset) is added each time to preserve randomness
         # across different simulations with the same temperature,
-        # for example. We seed the random module instead of the numpy module
-        # because we call random.sample, which references a different internal
-        # state than in the numpy.random module.
-        seed = self.seed + iteration
-        rng = np.random.default_rng(seed=seed)
-        seeds = rng.choice(MAX_SEED_VAL, no_of_packets, replace=True)
-        radii, nus, mus, energies = self.packet_source.create_packets(
-            T, no_of_packets, rng, radius
+        # for example.
+        mc_config_module.packet_seeds = self.packet_source.create_packet_seeds(
+            no_of_packets, iteration
         )
-        mc_config_module.packet_seeds = seeds
+
+        # Set latest state of packet source
+        self.packet_source.set_state_from_model(model)
+
+        # Create packets
+        radii, nus, mus, energies = self.packet_source.create_packets(
+            no_of_packets
+        )
+
         self.input_r = radii
         self.input_nu = nus
         self.input_mu = mus
@@ -255,7 +254,7 @@ class MontecarloRunner(HDFWriterMixin):
     def spectrum_virtual(self):
         if np.all(self.montecarlo_virtual_luminosity == 0):
             warnings.warn(
-                "MontecarloRunner.spectrum_virtual"
+                "MontecarloTransport.spectrum_virtual"
                 "is zero. Please run the montecarlo simulation with"
                 "no_of_virtual_packets > 0",
                 UserWarning,
@@ -281,7 +280,7 @@ class MontecarloRunner(HDFWriterMixin):
     def integrator(self):
         if self._integrator is None:
             warnings.warn(
-                "MontecarloRunner.integrator: "
+                "MontecarloTransport.integrator: "
                 "The FormalIntegrator is not yet available."
                 "Please run the montecarlo simulation at least once.",
                 UserWarning,
@@ -301,8 +300,6 @@ class MontecarloRunner(HDFWriterMixin):
         plasma,
         no_of_packets,
         no_of_virtual_packets=0,
-        nthreads=1,
-        last_run=False,
         iteration=0,
         total_iterations=0,
         show_progress_bars=True,
@@ -316,8 +313,6 @@ class MontecarloRunner(HDFWriterMixin):
         plasma : tardis.plasma.BasePlasma
         no_of_packets : int
         no_of_virtual_packets : int
-        nthreads : int
-        last_run : bool
         total_iterations : int
             The total number of iterations in the simulation.
 
@@ -326,7 +321,7 @@ class MontecarloRunner(HDFWriterMixin):
         None
         """
 
-        set_num_threads(nthreads)
+        set_num_threads(self.nthreads)
 
         self.time_of_simulation = self.calculate_time_of_simulation(model)
         self.volume = model.volume
@@ -344,7 +339,9 @@ class MontecarloRunner(HDFWriterMixin):
         self._initialize_geometry_arrays(model)
 
         self._initialize_packets(
-            model.t_inner.value, no_of_packets, iteration, model.r_inner[0]
+            model,
+            no_of_packets,
+            iteration,
         )
 
         configuration_initialize(self, no_of_virtual_packets)
@@ -358,11 +355,6 @@ class MontecarloRunner(HDFWriterMixin):
             self,
         )
         self._integrator = FormalIntegrator(model, plasma, self)
-        # montecarlo.montecarlo_radial1d(
-        #    model, plasma, self,
-        #    virtual_packet_flag=no_of_virtual_packets,
-        #    nthreads=nthreads,
-        #    last_run=last_run)
 
     def legacy_return(self):
         return (
@@ -395,7 +387,7 @@ class MontecarloRunner(HDFWriterMixin):
             return u.Quantity(self.virt_packet_nus, u.Hz)
         except AttributeError:
             warnings.warn(
-                "MontecarloRunner.virtual_packet_nu:"
+                "MontecarloTransport.virtual_packet_nu:"
                 "Set 'virtual_packet_logging: True' in the configuration file"
                 "to access this property"
                 "It should be added under 'virtual' property of 'spectrum' property",
@@ -409,7 +401,7 @@ class MontecarloRunner(HDFWriterMixin):
             return u.Quantity(self.virt_packet_energies, u.erg)
         except AttributeError:
             warnings.warn(
-                "MontecarloRunner.virtual_packet_energy:"
+                "MontecarloTransport.virtual_packet_energy:"
                 "Set 'virtual_packet_logging: True' in the configuration file"
                 "to access this property"
                 "It should be added under 'virtual' property of 'spectrum' property",
@@ -423,7 +415,7 @@ class MontecarloRunner(HDFWriterMixin):
             return self.virtual_packet_energy / self.time_of_simulation
         except TypeError:
             warnings.warn(
-                "MontecarloRunner.virtual_packet_luminosity:"
+                "MontecarloTransport.virtual_packet_luminosity:"
                 "Set 'virtual_packet_logging: True' in the configuration file"
                 "to access this property"
                 "It should be added under 'virtual' property of 'spectrum' property",
@@ -612,7 +604,7 @@ class MontecarloRunner(HDFWriterMixin):
         cls, config, packet_source=None, virtual_packet_logging=False
     ):
         """
-        Create a new MontecarloRunner instance from a Configuration object.
+        Create a new MontecarloTransport instance from a Configuration object.
 
         Parameters
         ----------
@@ -621,7 +613,7 @@ class MontecarloRunner(HDFWriterMixin):
 
         Returns
         -------
-        MontecarloRunner
+        MontecarloTransport
         """
         if config.plasma.disable_electron_scattering:
             logger.warn(
@@ -672,8 +664,17 @@ class MontecarloRunner(HDFWriterMixin):
             config.montecarlo.tracking.initial_array_length
         )
 
+        if packet_source is None:
+            if not config.montecarlo.enable_full_relativity:
+                packet_source = source.BlackBodySimpleSource(
+                    base_seed=config.montecarlo.seed
+                )
+            else:
+                packet_source = source.BlackBodySimpleSourceRelativistic(
+                    base_seed=config.montecarlo.seed
+                )
+
         return cls(
-            seed=config.montecarlo.seed,
             spectrum_frequency=spectrum_frequency,
             virtual_spectrum_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
             enable_reflective_inner_boundary=config.montecarlo.enable_reflective_inner_boundary,
@@ -691,6 +692,7 @@ class MontecarloRunner(HDFWriterMixin):
                 config.spectrum.virtual.virtual_packet_logging
                 | virtual_packet_logging
             ),
+            nthreads=config.montecarlo.nthreads,
             tracking_rpacket=config.montecarlo.tracking.track_rpacket,
             use_gpu=use_gpu,
         )

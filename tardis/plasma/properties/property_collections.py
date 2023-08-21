@@ -16,6 +16,8 @@ basic_inputs = PlasmaPropertyCollection(
         LinkTRadTElectron,
         HeliumTreatment,
         ContinuumInteractionSpecies,
+        NLTEIonizationSpecies,
+        NLTEExcitationSpecies,
     ]
 )
 basic_properties = PlasmaPropertyCollection(
@@ -56,6 +58,9 @@ nlte_properties = PlasmaPropertyCollection(
         PreviousBetaSobolev,
         BetaSobolev,
     ]
+)
+nlte_solver_properties = PlasmaPropertyCollection(
+    [NLTEIndexHelper, NLTERateEquationSolver]
 )
 helium_nlte_properties = PlasmaPropertyCollection(
     [
@@ -133,12 +138,7 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         CollRecombRateCoeff,
         RawCollIonTransProbs,
         ContinuumInteractionHandler,
-        BoundFreeOpacityInterpolator,
-        FreeFreeOpacity,
-        ContinuumOpacityCalculator,
         BetaSobolev,
-        FreeFreeFrequencySampler,
-        FreeBoundFrequencySampler,
     ]
 )
 adiabatic_cooling_properties = PlasmaPropertyCollection([AdiabaticCoolingRate])

@@ -11,14 +11,6 @@ if "QT_API" in os.environ:
 
 
 @pytest.fixture(scope="module")
-def refdata(tardis_ref_data):
-    def get_ref_data(key):
-        return tardis_ref_data[os.path.join("test_simulation", key)]
-
-    return get_ref_data
-
-
-@pytest.fixture(scope="module")
 def config():
     return Configuration.from_yaml(
         "tardis/io/tests/data/tardis_configv1_verysimple.yml"
@@ -35,7 +27,8 @@ def simulation_one_loop(
     config.montecarlo.last_no_of_packets = int(4e4)
 
     simulation = Simulation.from_config(config)
-    simulation.run()
+    simulation.run_convergence()
+    simulation.run_final()
 
     return simulation
 

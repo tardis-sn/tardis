@@ -13,37 +13,26 @@ from tardis.montecarlo import (
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
+
 numba_model_spec = [
-    ("r_inner", float64[:]),
-    ("r_outer", float64[:]),
     ("time_explosion", float64),
-    ("v_inner", float64[:]),
-    ("v_outer", float64[:]),
 ]
 
 
 @jitclass(numba_model_spec)
 class NumbaModel(object):
-    def __init__(self, r_inner, r_outer, v_inner, v_outer, time_explosion):
+    def __init__(self, time_explosion):
         """
         Model for the Numba mode
 
         Parameters
         ----------
-        r_inner : numpy.ndarray
-        r_outer : numpy.ndarray
-        v_inner : numpy.ndarray
-        v_outer : numpy.ndarray
         time_explosion : float
         """
-        self.r_inner = r_inner
-        self.r_outer = r_outer
-        self.v_inner = v_inner
-        self.v_outer = v_outer
         self.time_explosion = time_explosion
 
 
-numba_plasma_spec = [
+opacity_state_spec = [
     ("electron_density", float64[:]),
     ("t_electrons", float64[:]),
     ("line_list_nu", float64[:]),
@@ -69,8 +58,8 @@ numba_plasma_spec = [
 ]
 
 
-@jitclass(numba_plasma_spec)
-class NumbaPlasma(object):
+@jitclass(opacity_state_spec)
+class OpacityState(object):
     def __init__(
         self,
         electron_density,
@@ -146,9 +135,9 @@ class NumbaPlasma(object):
         self.k_packet_idx = k_packet_idx
 
 
-def numba_plasma_initialize(plasma, line_interaction_type):
+def opacity_state_initialize(plasma, line_interaction_type):
     """
-    Initialize the NumbaPlasma object and copy over the data over from TARDIS Plasma
+    Initialize the OpacityState object and copy over the data over from TARDIS Plasma
 
     Parameters
     ----------
@@ -250,7 +239,7 @@ def numba_plasma_initialize(plasma, line_interaction_type):
         photo_ion_activation_idx = np.zeros(0, dtype=np.int64)
         k_packet_idx = np.int64(-1)
 
-    return NumbaPlasma(
+    return OpacityState(
         electron_densities,
         t_electrons,
         line_list_nu,
@@ -321,6 +310,7 @@ vpacket_collection_spec = [
     ("last_interaction_type", int64[:]),
     ("last_interaction_in_id", int64[:]),
     ("last_interaction_out_id", int64[:]),
+    ("last_interaction_shell_id", int64[:]),
 ]
 
 
@@ -355,6 +345,9 @@ class VPacketCollection(object):
         self.last_interaction_out_id = -1 * np.ones(
             temporary_v_packet_bins, dtype=np.int64
         )
+        self.last_interaction_shell_id = -1 * np.ones(
+            temporary_v_packet_bins, dtype=np.int64
+        )
         self.idx = 0
         self.rpacket_index = rpacket_index
         self.length = temporary_v_packet_bins
@@ -369,6 +362,7 @@ class VPacketCollection(object):
         last_interaction_type,
         last_interaction_in_id,
         last_interaction_out_id,
+        last_interaction_shell_id,
     ):
         if self.idx >= self.length:
             temp_length = self.length * 2 + self.number_of_vpackets
@@ -382,6 +376,9 @@ class VPacketCollection(object):
             temp_last_interaction_type = np.empty(temp_length, dtype=np.int64)
             temp_last_interaction_in_id = np.empty(temp_length, dtype=np.int64)
             temp_last_interaction_out_id = np.empty(temp_length, dtype=np.int64)
+            temp_last_interaction_shell_id = np.empty(
+                temp_length, dtype=np.int64
+            )
 
             temp_nus[: self.length] = self.nus
             temp_energies[: self.length] = self.energies
@@ -399,6 +396,9 @@ class VPacketCollection(object):
             temp_last_interaction_out_id[
                 : self.length
             ] = self.last_interaction_out_id
+            temp_last_interaction_shell_id[
+                : self.length
+            ] = self.last_interaction_shell_id
 
             self.nus = temp_nus
             self.energies = temp_energies
@@ -408,6 +408,7 @@ class VPacketCollection(object):
             self.last_interaction_type = temp_last_interaction_type
             self.last_interaction_in_id = temp_last_interaction_in_id
             self.last_interaction_out_id = temp_last_interaction_out_id
+            self.last_interaction_shell_id = temp_last_interaction_shell_id
             self.length = temp_length
 
         self.nus[self.idx] = nu
@@ -418,6 +419,7 @@ class VPacketCollection(object):
         self.last_interaction_type[self.idx] = last_interaction_type
         self.last_interaction_in_id[self.idx] = last_interaction_in_id
         self.last_interaction_out_id[self.idx] = last_interaction_out_id
+        self.last_interaction_shell_id[self.idx] = last_interaction_shell_id
         self.idx += 1
 
 
@@ -431,7 +433,8 @@ rpacket_tracker_spec = [
     ("mu", float64[:]),
     ("energy", float64[:]),
     ("shell_id", int64[:]),
-    ("interact_id", int64),
+    ("interaction_type", int64[:]),
+    ("num_interactions", int64),
 ]
 
 
@@ -460,7 +463,9 @@ class RPacketTracker(object):
             Energy possessed by the RPacket at a particular shell
         shell_id : int
             Current Shell No in which the RPacket is present
-        interact_id : int
+        interaction_type: int
+            Type of interaction the rpacket undergoes
+        num_interactions : int
             Internal counter for the interactions that a particular RPacket undergoes
     """
 
@@ -474,10 +479,11 @@ class RPacketTracker(object):
         self.mu = np.empty(self.length, dtype=np.float64)
         self.energy = np.empty(self.length, dtype=np.float64)
         self.shell_id = np.empty(self.length, dtype=np.int64)
-        self.interact_id = 0
+        self.interaction_type = np.empty(self.length, dtype=np.int64)
+        self.num_interactions = 0
 
     def track(self, r_packet):
-        if self.interact_id >= self.length:
+        if self.num_interactions >= self.length:
             temp_length = self.length * 2
             temp_status = np.empty(temp_length, dtype=np.int64)
             temp_r = np.empty(temp_length, dtype=np.float64)
@@ -485,6 +491,7 @@ class RPacketTracker(object):
             temp_mu = np.empty(temp_length, dtype=np.float64)
             temp_energy = np.empty(temp_length, dtype=np.float64)
             temp_shell_id = np.empty(temp_length, dtype=np.int64)
+            temp_interaction_type = np.empty(temp_length, dtype=np.int64)
 
             temp_status[: self.length] = self.status
             temp_r[: self.length] = self.r
@@ -492,6 +499,7 @@ class RPacketTracker(object):
             temp_mu[: self.length] = self.mu
             temp_energy[: self.length] = self.energy
             temp_shell_id[: self.length] = self.shell_id
+            temp_interaction_type[: self.length] = self.interaction_type
 
             self.status = temp_status
             self.r = temp_r
@@ -499,25 +507,30 @@ class RPacketTracker(object):
             self.mu = temp_mu
             self.energy = temp_energy
             self.shell_id = temp_shell_id
+            self.interaction_type = temp_interaction_type
             self.length = temp_length
 
         self.index = r_packet.index
         self.seed = r_packet.seed
-        self.status[self.interact_id] = r_packet.status
-        self.r[self.interact_id] = r_packet.r
-        self.nu[self.interact_id] = r_packet.nu
-        self.mu[self.interact_id] = r_packet.mu
-        self.energy[self.interact_id] = r_packet.energy
-        self.shell_id[self.interact_id] = r_packet.current_shell_id
-        self.interact_id += 1
+        self.status[self.num_interactions] = r_packet.status
+        self.r[self.num_interactions] = r_packet.r
+        self.nu[self.num_interactions] = r_packet.nu
+        self.mu[self.num_interactions] = r_packet.mu
+        self.energy[self.num_interactions] = r_packet.energy
+        self.shell_id[self.num_interactions] = r_packet.current_shell_id
+        self.interaction_type[
+            self.num_interactions
+        ] = r_packet.last_interaction_type
+        self.num_interactions += 1
 
     def finalize_array(self):
-        self.status = self.status[: self.interact_id]
-        self.r = self.r[: self.interact_id]
-        self.nu = self.nu[: self.interact_id]
-        self.mu = self.mu[: self.interact_id]
-        self.energy = self.energy[: self.interact_id]
-        self.shell_id = self.shell_id[: self.interact_id]
+        self.status = self.status[: self.num_interactions]
+        self.r = self.r[: self.num_interactions]
+        self.nu = self.nu[: self.num_interactions]
+        self.mu = self.mu[: self.num_interactions]
+        self.energy = self.energy[: self.num_interactions]
+        self.shell_id = self.shell_id[: self.num_interactions]
+        self.interaction_type = self.interaction_type[: self.num_interactions]
 
 
 base_estimators_spec = [
@@ -561,7 +574,6 @@ class Estimators(object):
         self.photo_ion_estimator_statistics = photo_ion_estimator_statistics
 
     def increment(self, other):
-
         self.j_estimator += other.j_estimator
         self.nu_bar_estimator += other.nu_bar_estimator
         self.j_blue_estimator += other.j_blue_estimator
@@ -577,16 +589,16 @@ class Estimators(object):
         )
 
 
-def configuration_initialize(runner, number_of_vpackets):
-    if runner.line_interaction_type == "macroatom":
+def configuration_initialize(transport, number_of_vpackets):
+    if transport.line_interaction_type == "macroatom":
         montecarlo_configuration.line_interaction_type = (
             LineInteractionType.MACROATOM
         )
-    elif runner.line_interaction_type == "downbranch":
+    elif transport.line_interaction_type == "downbranch":
         montecarlo_configuration.line_interaction_type = (
             LineInteractionType.DOWNBRANCH
         )
-    elif runner.line_interaction_type == "scatter":
+    elif transport.line_interaction_type == "scatter":
         montecarlo_configuration.line_interaction_type = (
             LineInteractionType.SCATTER
         )
@@ -594,23 +606,23 @@ def configuration_initialize(runner, number_of_vpackets):
         raise ValueError(
             f'Line interaction type must be one of "macroatom",'
             f'"downbranch", or "scatter" but is '
-            f"{runner.line_interaction_type}"
+            f"{transport.line_interaction_type}"
         )
     montecarlo_configuration.number_of_vpackets = number_of_vpackets
     montecarlo_configuration.temporary_v_packet_bins = number_of_vpackets
-    montecarlo_configuration.full_relativity = runner.enable_full_relativity
-    montecarlo_configuration.montecarlo_seed = runner.seed
+    montecarlo_configuration.full_relativity = transport.enable_full_relativity
+    montecarlo_configuration.montecarlo_seed = transport.packet_source.base_seed
     montecarlo_configuration.v_packet_spawn_start_frequency = (
-        runner.virtual_spectrum_spawn_range.end.to(
+        transport.virtual_spectrum_spawn_range.end.to(
             u.Hz, equivalencies=u.spectral()
         ).value
     )
     montecarlo_configuration.v_packet_spawn_end_frequency = (
-        runner.virtual_spectrum_spawn_range.start.to(
+        transport.virtual_spectrum_spawn_range.start.to(
             u.Hz, equivalencies=u.spectral()
         ).value
     )
-    montecarlo_configuration.VPACKET_LOGGING = runner.virt_logging
+    montecarlo_configuration.VPACKET_LOGGING = transport.virt_logging
 
 
 # class TrackRPacket(object):

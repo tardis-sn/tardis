@@ -25,6 +25,7 @@ on:
 env:
   CACHE_NUMBER: 0                       # increase to reset cache manually
   DEPLOY_BRANCH: gh-pages               # deployed docs branch
+  HDF5_USE_FILE_LOCKING: 'FALSE'        # disable file locking
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -75,22 +76,8 @@ jobs:
       - name: Install package
         run: pip install -e .
 
-      - name: Set profiling option
-        run: |
-          if [[ $EVENT == pull_request_target ]]; then
-            echo "DISABLE_PROFILING=1" >> $GITHUB_ENV
-
-          else
-            echo "DISABLE_PROFILING=0" >> $GITHUB_ENV
-
-          fi
-
-          cat $GITHUB_ENV
-        env:
-          EVENT: ${{ github.event_name }}
-
       - name: Build documentation
-        run: cd docs/ && make html CORES=auto
+        run: cd docs/ && make html NCORES=auto
 
       - name: Set destination directory
         run: |

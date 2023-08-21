@@ -4,10 +4,6 @@
 *.o
 *.so
 __pycache__
-docs/io/output/plasma_graph_default.tex
-docs/io/output/plasma_graph_scaled.tex
-docs/io/output/plasma_graph_no_eq.tex
-docs/io/output/plasma_graph_with_args.tex
 
 
 # Ignore .c files by default to avoid including generated code. If you want to
@@ -28,8 +24,10 @@ docs/_build
 docs/tutorials.rst
 docs/io/configuration/components/models/converters/density_parse.csv
 docs/io/configuration/components/models/converters/abund_parse.csv
-docs/io/configuration/components/models/converters/rebinned_snapshot_converted_to_tardis.csvy
-docs/io/configuration/components/models/converters/snapshot_converted_to_tardis.csvy
+docs/io/output/plasma_graph_default.tex
+docs/io/output/plasma_graph_scaled.tex
+docs/io/output/plasma_graph_no_eq.tex
+docs/io/output/plasma_graph_with_args.tex
 
 # Eclipse editor project files
 .project

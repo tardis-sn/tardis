@@ -31,24 +31,27 @@ def v_packet():
     )
 
 
-def v_packet_initialize_line_id(v_packet, numba_plasma, numba_model):
-    inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
+def v_packet_initialize_line_id(v_packet, opacity_state, numba_model):
+    inverse_line_list_nu = opacity_state.line_list_nu[::-1]
     doppler_factor = get_doppler_factor(
         v_packet.r, v_packet.mu, numba_model.time_explosion
     )
     comov_nu = v_packet.nu * doppler_factor
-    next_line_id = len(numba_plasma.line_list_nu) - np.searchsorted(
+    next_line_id = len(opacity_state.line_list_nu) - np.searchsorted(
         inverse_line_list_nu, comov_nu
     )
     v_packet.next_line_id = next_line_id
 
 
 def test_trace_vpacket_within_shell(
-    v_packet, verysimple_numba_model, verysimple_numba_plasma
+    v_packet,
+    verysimple_numba_radial_1d_geometry,
+    verysimple_numba_model,
+    verysimple_opacity_state,
 ):
     # Give the vpacket a reasonable line ID
     v_packet_initialize_line_id(
-        v_packet, verysimple_numba_plasma, verysimple_numba_model
+        v_packet, verysimple_opacity_state, verysimple_numba_model
     )
 
     (
@@ -56,7 +59,10 @@ def test_trace_vpacket_within_shell(
         distance_boundary,
         delta_shell,
     ) = vpacket.trace_vpacket_within_shell(
-        v_packet, verysimple_numba_model, verysimple_numba_plasma
+        v_packet,
+        verysimple_numba_radial_1d_geometry,
+        verysimple_numba_model,
+        verysimple_opacity_state,
     )
 
     npt.assert_almost_equal(tau_trace_combined, 8164850.891288479)
@@ -65,18 +71,24 @@ def test_trace_vpacket_within_shell(
 
 
 def test_trace_vpacket(
-    v_packet, verysimple_numba_model, verysimple_numba_plasma
+    v_packet,
+    verysimple_numba_radial_1d_geometry,
+    verysimple_numba_model,
+    verysimple_opacity_state,
 ):
     # Set seed because of RNG in trace_vpacket
     np.random.seed(1)
 
     # Give the vpacket a reasonable line ID
     v_packet_initialize_line_id(
-        v_packet, verysimple_numba_plasma, verysimple_numba_model
+        v_packet, verysimple_opacity_state, verysimple_numba_model
     )
 
     tau_trace_combined = vpacket.trace_vpacket(
-        v_packet, verysimple_numba_model, verysimple_numba_plasma
+        v_packet,
+        verysimple_numba_radial_1d_geometry,
+        verysimple_numba_model,
+        verysimple_opacity_state,
     )
 
     npt.assert_almost_equal(tau_trace_combined, 8164850.891288479)
@@ -94,19 +106,21 @@ def test_trace_vpacket_volley(
     packet,
     verysimple_packet_collection,
     verysimple_3vpacket_collection,
+    verysimple_numba_radial_1d_geometry,
     verysimple_numba_model,
-    verysimple_numba_plasma,
+    verysimple_opacity_state,
 ):
     # Set seed because of RNG in trace_vpacket
     np.random.seed(1)
 
-    packet.initialize_line_id(verysimple_numba_plasma, verysimple_numba_model)
+    packet.initialize_line_id(verysimple_opacity_state, verysimple_numba_model)
 
     vpacket.trace_vpacket_volley(
         packet,
         verysimple_3vpacket_collection,
+        verysimple_numba_radial_1d_geometry,
         verysimple_numba_model,
-        verysimple_numba_plasma,
+        verysimple_opacity_state,
     )
 
 
@@ -124,8 +138,14 @@ def broken_packet():
 
 
 def test_trace_bad_vpacket(
-    broken_packet, verysimple_numba_model, verysimple_numba_plasma
+    broken_packet,
+    verysimple_numba_radial_1d_geometry,
+    verysimple_numba_model,
+    verysimple_opacity_state,
 ):
     vpacket.trace_vpacket(
-        broken_packet, verysimple_numba_model, verysimple_numba_plasma
+        broken_packet,
+        verysimple_numba_radial_1d_geometry,
+        verysimple_numba_model,
+        verysimple_opacity_state,
     )

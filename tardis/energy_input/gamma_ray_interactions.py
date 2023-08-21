@@ -2,6 +2,7 @@ import numpy as np
 from numba import njit
 
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+from tardis.montecarlo.montecarlo_numba.opacities import compton_opacity_partial
 from tardis.energy_input.util import (
     get_random_unit_vector,
     kappa_calculation,
@@ -9,12 +10,11 @@ from tardis.energy_input.util import (
     compton_theta_distribution,
     get_perpendicular_vector,
     angle_aberration_gamma,
-    doppler_gamma,
+    doppler_factor_3d,
     ELECTRON_MASS_ENERGY_KEV,
     H_CGS_KEV,
 )
 from tardis.energy_input.GXPacket import GXPacketStatus
-from tardis.energy_input.calculate_opacity import compton_opacity_partial
 
 
 @njit(**njit_dict_no_parallel)
@@ -271,7 +271,7 @@ def pair_creation_packet(packet):
 
     packet.direction = final_direction
 
-    doppler_factor = doppler_gamma(
+    doppler_factor = doppler_factor_3d(
         packet.direction, packet.location, packet.time_current
     )
 

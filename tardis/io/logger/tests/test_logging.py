@@ -23,7 +23,8 @@ def test_logging_simulation(atomic_data_fname, caplog):
 
     simulation = Simulation.from_config(config)
 
-    simulation.run()
+    simulation.run_convergence()
+    simulation.run_final()
 
     for record in caplog.records:
         assert record.levelno >= logging.INFO

@@ -17,16 +17,18 @@ def get_cone_csvy_model(tardis_ref_path):
     with open(datafile, "r") as json_file:
         data = json.loads(json.load(json_file))
 
-    pos, vel, rho, nucs, time = (
+    pos, vel, rho, mass, nucs, time = (
         data["pos"],
         data["vel"],
         data["rho"],
+        data["mass"],
         data["xnuc"],
         data["time"],
     )
     pos = np.array(pos)
     vel = np.array(vel)
     rho = np.array(rho)
+    mass = np.array(mass)
 
     # The nuclear data should be in a dict where each element has its own entry (with the key being the element name)
     xnuc = {
@@ -34,7 +36,7 @@ def get_cone_csvy_model(tardis_ref_path):
         "si28": np.array(nucs[1]),
     }
 
-    profile = arepo.ConeProfile(pos, vel, rho, xnuc, time)
+    profile = arepo.ConeProfile(pos, vel, rho, mass, xnuc, time)
 
     profile.create_profile(
         opening_angle=40, inner_radius=1e11, outer_radius=2e11
@@ -61,16 +63,18 @@ def get_full_csvy_model(tardis_ref_path):
     with open(datafile, "r") as json_file:
         data = json.loads(json.load(json_file))
 
-    pos, vel, rho, nucs, time = (
+    pos, vel, rho, mass, nucs, time = (
         data["pos"],
         data["vel"],
         data["rho"],
+        data["mass"],
         data["xnuc"],
         data["time"],
     )
     pos = np.array(pos)
     vel = np.array(vel)
     rho = np.array(rho)
+    mass = np.array(mass)
 
     # The nuclear data should be in a dict where each element has its own entry (with the key being the element name)
     xnuc = {
@@ -78,7 +82,7 @@ def get_full_csvy_model(tardis_ref_path):
         "si28": np.array(nucs[1]),
     }
 
-    profile = arepo.FullProfile(pos, vel, rho, xnuc, time)
+    profile = arepo.FullProfile(pos, vel, rho, mass, xnuc, time)
 
     profile.create_profile(inner_radius=1e11, outer_radius=2e11)
 
@@ -114,9 +118,11 @@ def get_full_reference_data():
     return data
 
 
+@pytest.mark.ignore_generate
 def test_cone_profile(get_cone_csvy_model, get_cone_reference_data):
     assert get_cone_csvy_model == get_cone_reference_data
 
 
+@pytest.mark.ignore_generate
 def test_full_profile(get_full_csvy_model, get_full_reference_data):
     assert get_full_csvy_model == get_full_reference_data

@@ -17,6 +17,8 @@ from tardis.io.util import get_internal_data_path
 from IPython import get_ipython, display
 import tqdm
 import tqdm.notebook
+import functools
+import warnings
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
@@ -241,10 +243,10 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
         )
 
     yaml_reference["output"]["min_wl"] = float(
-        radial1d_mdl.runner.spectrum.wavelength.to("angstrom").value.min()
+        radial1d_mdl.transport.spectrum.wavelength.to("angstrom").value.min()
     )
     yaml_reference["output"]["max_wl"] = float(
-        radial1d_mdl.runner.spectrum.wavelength.to("angstrom").value.max()
+        radial1d_mdl.transport.spectrum.wavelength.to("angstrom").value.max()
     )
 
     # raise Exception("there's a problem here with units what units does synpp expect?")
@@ -285,19 +287,19 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
         yaml.dump(yaml_reference, stream=f, explicit_start=True)
 
 
-def intensity_black_body(nu, T):
+def intensity_black_body(nu, temperature):
     """
     Calculate the intensity of a black-body according to the following formula
 
     .. math::
-        I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\\frac{1}
+        I(\\nu, temperature) = \\frac{2h\\nu^3}{c^2}\\frac{1}
         {e^{h\\nu \\beta_\\textrm{rad}} - 1}
 
     Parameters
     ----------
     nu : float
         Frequency of light
-    T : float
+    temperature : float
         Temperature in kelvin
 
     Returns
@@ -305,7 +307,7 @@ def intensity_black_body(nu, T):
     Intensity : float
         Returns the intensity of the black body
     """
-    beta_rad = 1 / (k_B_cgs * T)
+    beta_rad = 1 / (k_B_cgs * temperature)
     coefficient = 2 * h_cgs / c_cgs**2
     intensity = ne.evaluate(
         "coefficient * nu**3 / " "(exp(h_cgs * nu * beta_rad) -1 )"
@@ -699,6 +701,14 @@ def update_packet_pbar(i, current_iteration, no_of_packets, total_iterations):
     packet_pbar.update(i)
 
 
+def refresh_packet_pbar():
+    """
+    Refresh packet progress bar after each iteration.
+
+    """
+    packet_pbar.refresh()
+
+
 def update_iterations_pbar(i):
     """
     Update progress bar for each iteration.
@@ -753,3 +763,21 @@ def fix_bar_layout(bar, no_of_packets=None, total_iterations=None):
             bar.reset(total=total_iterations)
         else:
             pass
+
+
+def deprecated(func):
+    """
+    A decorator to add a deprecation warning to a function that is no longer used
+
+    Parameters
+    ----------
+
+    func : function
+    """
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        warnings.warn("This function is deprecated.", DeprecationWarning)
+        return func(*args, **kwargs)
+
+    return wrapper

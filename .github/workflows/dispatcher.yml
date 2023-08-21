@@ -1,0 +1,32 @@
+name: slash-command
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Slash Command Dispatcher
+        uses: peter-evans/slash-command-dispatch@v3
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          commands: |
+            update-refdata
+          repository: tardis-sn/tardis
+          issue-type: pull-request
+          permission: triage
+          reaction-token: ${{ secrets.BOT_TOKEN }}
+          allow-edits: true
+
+      - name: Slash Command Dispatcher
+        uses: peter-evans/slash-command-dispatch@v3
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          commands: |
+            compare-refdata
+          repository: tardis-sn/tardis-refdata
+          issue-type: pull-request
+          permission: triage
+          reaction-token: ${{ secrets.BOT_TOKEN }}
+          allow-edits: true

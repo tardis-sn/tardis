@@ -53,7 +53,7 @@ def get_random_unit_vector():
 
 
 @njit(**njit_dict_no_parallel)
-def doppler_gamma(direction_vector, position_vector, time):
+def doppler_factor_3d(direction_vector, position_vector, time):
     """Doppler shift for photons in 3D
 
     Parameters

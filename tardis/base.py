@@ -1,4 +1,6 @@
-# Functions that are important for the general usage of TARDIS.
+"""
+Functions that are important for the general usage of TARDIS.
+"""
 
 import logging
 
@@ -110,6 +112,7 @@ def run_tardis(
     for cb in simulation_callbacks:
         simulation.add_callback(*cb)
 
-    simulation.run()
+    simulation.run_convergence()
+    simulation.run_final()
 
     return simulation

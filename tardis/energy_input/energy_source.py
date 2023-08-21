@@ -1,96 +1,14 @@
 import numpy as np
 import pandas as pd
-from numba import njit
 import radioactivedecay as rd
 
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.util.base import (
     atomic_number2element_symbol,
 )
 from tardis.energy_input.util import (
     convert_half_life_to_astropy_units,
+    ELECTRON_MASS_ENERGY_KEV,
 )
-
-
-@njit(**njit_dict_no_parallel)
-def sample_mass(masses, inner_radius, outer_radius):
-    """Samples location weighted by mass
-
-    Parameters
-    ----------
-    masses : array
-        Shell masses
-    inner_radius : array
-        Inner radii
-    outer_radius : array
-        Outer radii
-
-    Returns
-    -------
-    float
-        Sampled radius
-    int
-        Sampled shell index
-    """
-    norm_mass = masses / np.sum(masses)
-    cdf = np.cumsum(norm_mass)
-    shell = np.searchsorted(cdf, np.random.random())
-
-    z = np.random.random()
-    radius = (
-        z * inner_radius[shell] ** 3.0 + (1.0 - z) * outer_radius[shell] ** 3.0
-    ) ** (1.0 / 3.0)
-
-    return radius, shell
-
-
-@njit(**njit_dict_no_parallel)
-def create_energy_cdf(energy, intensity):
-    """Creates a CDF of given intensities
-
-    Parameters
-    ----------
-    energy :  One-dimensional Numpy Array, dtype float
-        Array of energies
-    intensity :  One-dimensional Numpy Array, dtype float
-        Array of intensities
-
-    Returns
-    -------
-    One-dimensional Numpy Array, dtype float
-        Sorted energy array
-    One-dimensional Numpy Array, dtype float
-        CDF where each index corresponds to the energy in
-        the sorted array
-    """
-    energy.sort()
-    sorted_indices = np.argsort(energy)
-    sorted_intensity = intensity[sorted_indices]
-    norm_intensity = sorted_intensity / np.sum(sorted_intensity)
-    cdf = np.cumsum(norm_intensity)
-
-    return energy, cdf
-
-
-@njit(**njit_dict_no_parallel)
-def sample_energy_distribution(energy_sorted, cdf):
-    """Randomly samples a CDF of energies
-
-    Parameters
-    ----------
-    energy_sorted : One-dimensional Numpy Array, dtype float
-        Sorted energy array
-    cdf : One-dimensional Numpy Array, dtype float
-        CDF
-
-    Returns
-    -------
-    float
-        Sampled energy
-    """
-    index = np.searchsorted(cdf, np.random.random())
-
-    return energy_sorted[index]
 
 
 def setup_input_energy(nuclear_data, source):
@@ -112,11 +30,12 @@ def setup_input_energy(nuclear_data, source):
         CDF where each index corresponds to the energy in
         the sorted array
     """
-    intensity = nuclear_data.query("type==" + source)["intensity"].values
-    energy = nuclear_data.query("type==" + source)["energy"].values
-    energy_sorted, cdf = create_energy_cdf(energy, intensity)
+    intensity = nuclear_data[nuclear_data.Radiation == source]["Rad Intensity"]
+    energy = nuclear_data[nuclear_data.Radiation == source]["Rad Energy"]
 
-    return energy_sorted, cdf
+    intensity /= 100  # = [i / 100 if i > 1 else i for i in intensity]
+
+    return energy, intensity
 
 
 def intensity_ratio(nuclear_data, source_1, source_2):
@@ -153,105 +72,6 @@ def intensity_ratio(nuclear_data, source_1, source_2):
     )
 
 
-def ni56_chain_energy(
-    taus, time_start, time_end, number_ni56, ni56_lines, co56_lines
-):
-    """Calculate the energy from the Ni56 chain
-
-    Parameters
-    ----------
-    taus : array float64
-        Mean half-life for each isotope
-    time_start : float
-        Start time in days
-    time_end : float
-        End time in days
-    number_ni56 : int
-        Number of Ni56 atoms at time_start
-    ni56_lines : DataFrame
-        Ni56 lines and intensities
-    co56_lines : DataFrame
-        Co56 lines and intensities
-
-    Returns
-    -------
-    float
-        Total energy from Ni56 decay
-    """
-    total_ni56 = -taus["Ni56"] * (
-        np.exp(-time_end / taus["Ni56"]) - np.exp(-time_start / taus["Ni56"])
-    )
-    total_co56 = -taus["Co56"] * (
-        np.exp(-time_end / taus["Co56"]) - np.exp(-time_start / taus["Co56"])
-    )
-
-    total_energy = pd.DataFrame()
-
-    total_energy["Ni56"] = number_ni56 * (
-        (ni56_lines.energy * 1000 * ni56_lines.intensity).sum()
-        / taus["Ni56"]
-        * total_ni56
-    )
-
-    total_energy["Co56"] = number_ni56 * (
-        (co56_lines.energy * 1000 * co56_lines.intensity).sum()
-        / (taus["Ni56"] - taus["Co56"])
-        * (total_ni56 - total_co56)
-    )
-
-    return total_energy
-
-
-def ni56_chain_energy_choice(
-    taus, time_start, time_end, number_ni56, ni56_lines, co56_lines, isotope
-):
-    """Calculate the energy from the Ni56 or Co56 chain
-
-    Parameters
-    ----------
-    taus : array float64
-        Mean half-life for each isotope
-    time_start : float
-        Start time in days
-    time_end : float
-        End time in days
-    number_ni56 : int
-        Number of Ni56 atoms at time_start
-    ni56_lines : DataFrame
-        Ni56 lines and intensities
-    co56_lines : DataFrame
-        Co56 lines and intensities
-    isotope : string
-        Isotope chain to calculate energy for
-
-    Returns
-    -------
-    float
-        Total energy from decay chain
-    """
-    total_ni56 = -taus["Ni56"] * (
-        np.exp(-time_end / taus["Ni56"]) - np.exp(-time_start / taus["Ni56"])
-    )
-    total_co56 = -taus["Co56"] * (
-        np.exp(-time_end / taus["Co56"]) - np.exp(-time_start / taus["Co56"])
-    )
-
-    if isotope == "Ni56":
-        total_energy = number_ni56 * (
-            (ni56_lines.energy * 1000 * ni56_lines.intensity).sum()
-            / taus["Ni56"]
-            * total_ni56
-        )
-    else:
-        total_energy = number_ni56 * (
-            (co56_lines.energy * 1000 * co56_lines.intensity).sum()
-            / (taus["Ni56"] - taus["Co56"])
-            * (total_ni56 - total_co56)
-        )
-
-    return total_energy
-
-
 def get_all_isotopes(abundances):
     """Get the possible isotopes present over time
     for a given starting abundance
@@ -278,7 +98,10 @@ def get_all_isotopes(abundances):
 
         for i in isotopes:
             for p in rd.Nuclide(i).progeny():
-                if p != "SF":
+                if (
+                    p != "SF"
+                    and rd.Nuclide(p).half_life("readable") != "stable"
+                ):
                     progeny.add(p)
 
         if progeny == isotopes:
@@ -286,7 +109,7 @@ def get_all_isotopes(abundances):
         else:
             isotopes |= progeny
 
-    isotopes = [i.replace("-", "") for i in isotopes]
+    isotopes = [i for i in isotopes]
     return isotopes
 
 
@@ -350,3 +173,52 @@ def read_artis_lines(isotope, path_to_data):
         sep="  ",
         index_col=False,
     )
+
+
+def get_nuclear_lines_database(
+    path,
+):
+    """Load the nuclear decay line data set
+
+    Parameters
+    ----------
+    path : str
+        Path to the data set HDF file
+
+    Returns
+    -------
+    pandas DataFrame
+        The decay radiation lines
+    """
+    decay_radiation_db = pd.read_hdf(path, "decay_data")
+    return decay_radiation_db
+
+
+def positronium_continuum():
+    """Produces a continuum of positronium decay energy
+    using the function defined by Ore and Powell 1949
+    and adapted by Leung 2022 to be in terms of electron
+    rest mass energy
+
+    Returns
+    -------
+    energy
+        An array of photon energies in keV
+    intensity
+        An array of intensities between 0 and 1
+    """
+
+    energy = np.linspace(1, ELECTRON_MASS_ENERGY_KEV, num=100, endpoint=False)
+
+    x = energy / ELECTRON_MASS_ENERGY_KEV
+
+    one_minus_x = 1 - x
+
+    term_1 = (x * one_minus_x) / (2 - x) ** 2
+    term_2 = (2 * one_minus_x**2) / (2 - x) ** 3 * np.log(one_minus_x)
+    term_3 = (2 - x) / x
+    term_4 = (2 * one_minus_x) / x**2 * np.log(one_minus_x)
+
+    intensity = 2 * (term_1 - term_2 + term_3 + term_4)
+
+    return energy, intensity / np.max(intensity)

@@ -29,7 +29,7 @@ defaults:
 
 jobs:
   build:
-
+    if: github.repository_owner == 'tardis-sn'
     strategy:
       matrix:
         include:
@@ -47,8 +47,43 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Download reference data
-        run: bash .ci-helpers/download_reference_data.sh
+      - name: Clone tardis-sn/tardis-refdata
+        uses: actions/checkout@v2
+        with:
+          repository: tardis-sn/tardis-refdata
+          path: tardis-refdata
+          lfs: false
+
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+        working-directory: tardis-refdata
+
+      - name: Restore LFS cache
+        uses: actions/cache/restore@v3
+        id: lfs-cache
+        with:
+          path: tardis-refdata/.git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-refdata/.lfs-assets-id') }}-v1
+
+      - name: Git LFS Pull
+        run: git lfs pull
+        working-directory: tardis-refdata
+        if: steps.lfs-cache.outputs.cache-hit != 'true'
+      
+      - name: Git LFS Checkout
+        run: git lfs checkout
+        working-directory: tardis-refdata
+        if: steps.lfs-cache.outputs.cache-hit == 'true'
+      
+      - name: Save LFS cache if not found
+        # uses fake ternary 
+        # for reference: https://github.com/orgs/community/discussions/26738#discussioncomment-3253176
+        if: ${{ steps.lfs-cache.outputs.cache-hit != 'true'  && always() || false }}
+        uses: actions/cache/save@v3
+        id: lfs-cache-save
+        with:
+          path: tardis-refdata/.git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-refdata/.lfs-assets-id') }}-v1
 
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2

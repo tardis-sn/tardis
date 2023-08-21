@@ -12,6 +12,7 @@ from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 
 import tardis.montecarlo.montecarlo_numba.formal_integral_cuda as formal_integral_cuda
 import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral_numba
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
 
 
@@ -20,7 +21,7 @@ from tardis.montecarlo.montecarlo_numba.formal_integral import (
     NumbaFormalIntegrator,
 )
 
-from tardis.montecarlo import MontecarloRunner
+from tardis.montecarlo.base import MontecarloTransport
 
 
 # Test cases must also take into account use of a GPU to run. If there is no GPU then the test cases will fail.
@@ -31,14 +32,14 @@ GPUs_available = cuda.is_available()
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(
-    ["nu", "T"],
+    ["nu", "temperature"],
     [
         (1e14, 1e4),
         (0, 1),
         (1, 1),
     ],
 )
-def test_intensity_black_body_cuda(nu, T):
+def test_intensity_black_body_cuda(nu, temperature):
     """
     Initializes the test of the cuda version
     against the numba implementation of the
@@ -46,21 +47,21 @@ def test_intensity_black_body_cuda(nu, T):
     is done as both results have 15 digits of precision.
     """
     actual = np.zeros(3)
-    black_body_caller[1, 3](nu, T, actual)
+    black_body_caller[1, 3](nu, temperature, actual)
 
-    expected = formal_integral_numba.intensity_black_body(nu, T)
+    expected = formal_integral_numba.intensity_black_body(nu, temperature)
 
     ntest.assert_allclose(actual, expected, rtol=1e-14)
 
 
 @cuda.jit
-def black_body_caller(nu, T, actual):
+def black_body_caller(nu, temperature, actual):
     """
     This calls the CUDA function and fills out
     the array
     """
     x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.intensity_black_body_cuda(nu, T)
+    actual[x] = formal_integral_cuda.intensity_black_body_cuda(nu, temperature)
 
 
 @pytest.mark.skipif(
@@ -112,16 +113,26 @@ TESTDATA_model = [
 
 
 @pytest.fixture(scope="function", params=TESTDATA_model)
-def formal_integral_model(request):
+def formal_integral_geometry(request):
     """
     This gets the Numba model to be used in later tests
     """
     r = request.param["r"]
-    model = NumbaModel(
+    geometry = NumbaRadial1DGeometry(
         r[:-1],
         r[1:],
         r[:-1] * c.c.cgs.value,
         r[1:] * c.c.cgs.value,
+    )
+    return geometry
+
+
+@pytest.fixture(scope="function")
+def formal_integral_model():
+    """
+    This gets the Numba model to be used in later tests
+    """
+    model = NumbaModel(
         1 / c.c.cgs.value,
     )
     return model
@@ -131,7 +142,9 @@ def formal_integral_model(request):
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize(["p", "p_loc"], [(0.0, 0), (0.5, 1), (1.0, 2)])
-def test_calculate_z_cuda(formal_integral_model, p, p_loc):
+def test_calculate_z_cuda(
+    formal_integral_geometry, formal_integral_model, p, p_loc
+):
     """
     Initializes the test of the cuda version
     against the numba implementation of the
@@ -140,8 +153,8 @@ def test_calculate_z_cuda(formal_integral_model, p, p_loc):
     """
     actual = np.zeros(3)
     inv_t = 1.0 / formal_integral_model.time_explosion
-    size = len(formal_integral_model.r_outer)
-    r_outer = formal_integral_model.r_outer
+    size = len(formal_integral_geometry.r_outer)
+    r_outer = formal_integral_geometry.r_outer
     for r in r_outer:
         calculate_z_caller[1, 3](r, p, inv_t, actual)
         expected = formal_integral_numba.calculate_z(r, p, inv_t)
@@ -166,26 +179,30 @@ def calculate_z_caller(r, p, inv_t, actual):
     ["p", "p_loc"],
     [(1e-5, 0), (1e-3, 1), (0.1, 2), (0.5, 3), (0.99, 4), (1, 5)],
 )
-def test_populate_z(formal_integral_model, p, p_loc):
+def test_populate_z(formal_integral_geometry, formal_integral_model, p, p_loc):
     """
     Initializes the test of the cuda version
     against the numba implementation of the
     populate_z
     """
-    size = len(formal_integral_model.r_inner)
+    size = len(formal_integral_geometry.r_inner)
     oz = np.zeros(size * 2)
     expected_oz = np.zeros(size * 2)
     oshell_id = np.zeros_like(oz, dtype=np.int64)
     expected_oshell_id = np.zeros_like(oz, dtype=np.int64)
 
     expected = formal_integral_numba.populate_z(
-        formal_integral_model, p, expected_oz, expected_oshell_id
+        formal_integral_geometry,
+        formal_integral_model,
+        p,
+        expected_oz,
+        expected_oshell_id,
     )
 
     actual = np.zeros(6)
     populate_z_caller[1, 6](
-        formal_integral_model.r_inner,
-        formal_integral_model.r_outer,
+        formal_integral_geometry.r_inner,
+        formal_integral_geometry.r_outer,
         formal_integral_model.time_explosion,
         p,
         oz,
@@ -241,7 +258,7 @@ def test_calculate_p_values(N):
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
 @pytest.mark.parametrize("nu_insert", np.linspace(3e12, 3e16, 10))
-def test_line_search_cuda(nu_insert, verysimple_numba_plasma):
+def test_line_search_cuda(nu_insert, verysimple_opacity_state):
     """
     Initializes the test of the cuda version
     against the numba implementation of the
@@ -249,7 +266,7 @@ def test_line_search_cuda(nu_insert, verysimple_numba_plasma):
     """
     actual = np.zeros(1)
     expected = np.zeros(1)
-    line_list_nu = verysimple_numba_plasma.line_list_nu
+    line_list_nu = verysimple_opacity_state.line_list_nu
 
     expected[0] = formal_integral_numba.line_search(
         line_list_nu, nu_insert, len(line_list_nu)
@@ -278,7 +295,7 @@ def line_search_cuda_caller(line_list_nu, nu_insert, actual):
 @pytest.mark.parametrize(
     "nu_insert", [*np.linspace(3e12, 3e16, 10), 288786721666522.1]
 )
-def test_reverse_binary_search(nu_insert, verysimple_numba_plasma):
+def test_reverse_binary_search(nu_insert, verysimple_opacity_state):
     """
     Initializes the test of the cuda version
     against the numba implementation of the
@@ -287,7 +304,7 @@ def test_reverse_binary_search(nu_insert, verysimple_numba_plasma):
     """
     actual = np.zeros(1)
     expected = np.zeros(1)
-    line_list_nu = verysimple_numba_plasma.line_list_nu
+    line_list_nu = verysimple_opacity_state.line_list_nu
 
     imin = 0
     imax = len(line_list_nu) - 1
@@ -332,10 +349,12 @@ def test_full_formal_integral(
     sim = simulation_verysimple
 
     formal_integrator_numba = FormalIntegrator(
-        sim.model, sim.plasma, sim.runner
+        sim.model, sim.plasma, sim.transport
     )
 
-    formal_integrator_cuda = FormalIntegrator(sim.model, sim.plasma, sim.runner)
+    formal_integrator_cuda = FormalIntegrator(
+        sim.model, sim.plasma, sim.transport
+    )
 
     # The function calculate_spectrum sets this property, but in order to test the CUDA.
     # version it is done manually, as well as to speed up the test.
@@ -361,8 +380,9 @@ def test_full_formal_integral(
     # This is to force the for formal_integrator_numba to use the numba version
     # as it is automatically set to the CUDA version when there is a GPU available
     formal_integrator_numba.integrator = NumbaFormalIntegrator(
+        formal_integrator_numba.numba_radial_1d_geometry,
         formal_integrator_numba.numba_model,
-        formal_integrator_numba.numba_plasma,
+        formal_integrator_numba.opacity_state,
         formal_integrator_numba.points,
     )
 
@@ -370,25 +390,25 @@ def test_full_formal_integral(
 
     L_cuda = formal_integrator_cuda.integrator.formal_integral(
         formal_integrator_cuda.model.t_inner,
-        sim.runner.spectrum.frequency,
-        sim.runner.spectrum.frequency.shape[0],
+        sim.transport.spectrum.frequency,
+        sim.transport.spectrum.frequency.shape[0],
         att_S_ul_cuda,
         Jred_lu_cuda,
         Jblue_lu_cuda,
-        formal_integrator_cuda.runner.tau_sobolevs_integ,
-        formal_integrator_cuda.runner.electron_densities_integ,
+        formal_integrator_cuda.transport.tau_sobolevs_integ,
+        formal_integrator_cuda.transport.electron_densities_integ,
         formal_integrator_cuda.points,
     )[0]
 
     L_numba = formal_integrator_numba.integrator.formal_integral(
         formal_integrator_numba.model.t_inner,
-        sim.runner.spectrum.frequency,
-        sim.runner.spectrum.frequency.shape[0],
+        sim.transport.spectrum.frequency,
+        sim.transport.spectrum.frequency.shape[0],
         att_S_ul_numba,
         Jred_lu_numba,
         Jblue_lu_numba,
-        formal_integrator_numba.runner.tau_sobolevs_integ,
-        formal_integrator_numba.runner.electron_densities_integ,
+        formal_integrator_numba.transport.tau_sobolevs_integ,
+        formal_integrator_numba.transport.electron_densities_integ,
         formal_integrator_numba.points,
     )[0]
 

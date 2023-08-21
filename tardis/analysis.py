@@ -1,4 +1,6 @@
-# codes to for analyse the model.
+"""
+Code to analyse the model.
+"""
 
 import re
 import os
@@ -8,16 +10,18 @@ from tardis import constants
 import numpy as np
 import pandas as pd
 
+INVALID_ION_ERROR_MSG = "Atomic number, ion_number pair not present in model"
+
 
 class LastLineInteraction(object):
     @classmethod
     def from_model(cls, model, packet_filter_mode="packet_out_nu"):
         return cls(
-            model.runner.last_line_interaction_in_id,
-            model.runner.last_line_interaction_out_id,
-            model.runner.last_line_interaction_shell_id,
-            model.runner.output_nu,
-            model.runner.last_interaction_in_nu,
+            model.transport.last_line_interaction_in_id,
+            model.transport.last_line_interaction_out_id,
+            model.transport.last_line_interaction_shell_id,
+            model.transport.output_nu,
+            model.transport.last_interaction_in_nu,
             model.plasma.atomic_data.lines,
             packet_filter_mode,
         )
@@ -52,6 +56,7 @@ class LastLineInteraction(object):
         self._wavelength_end = np.inf * u.angstrom
         self._atomic_number = None
         self._ion_number = None
+        self._shell = None
         self.packet_filter_mode = packet_filter_mode
         self.update_last_interaction_filter()
 
@@ -83,8 +88,13 @@ class LastLineInteraction(object):
 
     @atomic_number.setter
     def atomic_number(self, value):
-        self._atomic_number = value
-        self.update_last_interaction_filter()
+        old_atomic_number = self._atomic_number
+        try:
+            self._atomic_number = value
+            self.update_last_interaction_filter()
+        except:
+            self._atomic_number = old_atomic_number
+            raise ValueError(INVALID_ION_ERROR_MSG)
 
     @property
     def ion_number(self):
@@ -92,8 +102,39 @@ class LastLineInteraction(object):
 
     @ion_number.setter
     def ion_number(self, value):
-        self._ion_number = value
-        self.update_last_interaction_filter()
+        old_ion_number = self._ion_number
+        try:
+            self._ion_number = value
+            self.update_last_interaction_filter()
+        except:
+            self._ion_number = old_ion_number
+            raise ValueError(INVALID_ION_ERROR_MSG)
+
+    def set_ion(self, atomic_number, ion_number):
+        old_atomic_number = self._atomic_number
+        old_ion_number = self._ion_number
+        try:
+            self._atomic_number = atomic_number
+            self._ion_number = ion_number
+            self.update_last_interaction_filter()
+        except:
+            self._atomic_number = old_atomic_number
+            self._ion_number = old_ion_number
+            raise ValueError(INVALID_ION_ERROR_MSG)
+
+    @property
+    def shell(self):
+        return self._shell
+
+    @shell.setter
+    def shell(self, value):
+        old_shell = self._shell
+        try:
+            self._shell = value
+            self.update_last_interaction_filter()
+        except:
+            self._shell = old_shell
+            raise ValueError("Invalid shell number")
 
     def update_last_interaction_filter(self):
         if self.packet_filter_mode == "packet_out_nu":
@@ -120,28 +161,36 @@ class LastLineInteraction(object):
                 "allowed are: packet_out_nu, packet_in_nu, line_in_nu"
             )
 
-        self.last_line_in = self.lines.iloc[
+        if self.shell is not None:
+            packet_filter = packet_filter & (
+                self.last_line_interaction_shell_id == self.shell
+            )
+
+        last_line_in = self.lines.iloc[
             self.last_line_interaction_in_id[packet_filter]
         ]
-        self.last_line_out = self.lines.iloc[
+        last_line_out = self.lines.iloc[
             self.last_line_interaction_out_id[packet_filter]
         ]
 
         if self.atomic_number is not None:
-            self.last_line_in = self.last_line_in.xs(
+            last_line_in = last_line_in.xs(
                 self.atomic_number, level="atomic_number", drop_level=False
             )
-            self.last_line_out = self.last_line_out.xs(
+            last_line_out = last_line_out.xs(
                 self.atomic_number, level="atomic_number", drop_level=False
             )
 
         if self.ion_number is not None:
-            self.last_line_in = self.last_line_in.xs(
+            last_line_in = last_line_in.xs(
                 self.ion_number, level="ion_number", drop_level=False
             )
-            self.last_line_out = self.last_line_out.xs(
+            last_line_out = last_line_out.xs(
                 self.ion_number, level="ion_number", drop_level=False
             )
+
+        self.last_line_in = last_line_in
+        self.last_line_out = last_line_out
 
         last_line_in_count = self.last_line_in.line_id.value_counts()
         last_line_out_count = self.last_line_out.line_id.value_counts()

@@ -14,9 +14,9 @@ import pdb
 from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
 from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
-    numba_plasma_initialize,
+    opacity_state_initialize,
     NumbaModel,
-    NumbaPlasma,
+    OpacityState,
 )
 from tardis.montecarlo.montecarlo_numba.formal_integral_cuda import (
     CudaFormalIntegrator,
@@ -36,6 +36,7 @@ class IntegrationError(Exception):
 
 @njit(**njit_dict)
 def numba_formal_integral(
+    geometry,
     model,
     plasma,
     iT,
@@ -50,6 +51,7 @@ def numba_formal_integral(
 ):
     """
     model, plasma, and estimator are the numba variants
+
     Returns
     -------
     L : float64 array
@@ -65,8 +67,8 @@ def numba_formal_integral(
     # global read-only values
     size_line, size_shell = tau_sobolev.shape
     size_tau = size_line * size_shell
-    R_ph = model.r_inner[0]  # make sure these are cgs
-    R_max = model.r_outer[size_shell - 1]
+    R_ph = geometry.r_inner[0]  # make sure these are cgs
+    R_max = geometry.r_outer[size_shell - 1]
     pp = np.zeros(N, dtype=np.float64)  # check
     exp_tau = np.zeros(size_tau, dtype=np.float64)
     exp_tau = np.exp(-tau_sobolev.T.ravel())  # maybe make this 2D?
@@ -107,7 +109,9 @@ def numba_formal_integral(
             p = pp[p_idx]
 
             # initialize z intersections for p values
-            size_z = populate_z(model, p, z, shell_id)  # check returns
+            size_z = populate_z(
+                geometry, model, p, z, shell_id
+            )  # check returns
             # initialize I_nu
             if p <= R_ph:
                 I_nu[p_idx] = intensity_black_body(nu * z[0], iT)
@@ -207,7 +211,7 @@ def numba_formal_integral(
 
 # integrator_spec = [
 #    ("model", NumbaModel.class_type.instance_type),
-#    ("plasma", NumbaPlasma.class_type.instance_type),
+#    ("plasma", OpacityState.class_type.instance_type),
 #    ("points", int64),
 # ]
 
@@ -219,8 +223,8 @@ class NumbaFormalIntegrator(object):
     with numba.
     """
 
-    def __init__(self, model, plasma, points=1000):
-
+    def __init__(self, geometry, model, plasma, points=1000):
+        self.geometry = geometry
         self.model = model
         self.plasma = plasma
         self.points = points
@@ -241,6 +245,7 @@ class NumbaFormalIntegrator(object):
         Simple wrapper for the numba implementation of the formal integral
         """
         return numba_formal_integral(
+            self.geometry,
             self.model,
             self.plasma,
             iT,
@@ -270,18 +275,18 @@ class FormalIntegrator(object):
     ----------
     model : tardis.model.Radial1DModel
     plasma : tardis.plasma.BasePlasma
-    runner : tardis.montecarlo.MontecarloRunner
+    transport : tardis.montecarlo.MontecarloTransport
     points : int64
     """
 
-    def __init__(self, model, plasma, runner, points=1000):
+    def __init__(self, model, plasma, transport, points=1000):
 
         self.model = model
-        self.runner = runner
+        self.transport = transport
         self.points = points
         if plasma:
-            self.plasma = numba_plasma_initialize(
-                plasma, runner.line_interaction_type
+            self.plasma = opacity_state_initialize(
+                plasma, transport.line_interaction_type
             )
             self.atomic_data = plasma.atomic_data
             self.original_plasma = plasma
@@ -290,23 +295,33 @@ class FormalIntegrator(object):
     def generate_numba_objects(self):
         """instantiate the numba interface objects
         needed for computing the formal integral"""
+        from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+
+        self.numba_radial_1d_geometry = NumbaRadial1DGeometry(
+            self.transport.r_inner_i,
+            self.transport.r_outer_i,
+            self.transport.r_inner_i / self.model.time_explosion.to("s").value,
+            self.transport.r_outer_i / self.model.time_explosion.to("s").value,
+        )
         self.numba_model = NumbaModel(
-            self.runner.r_inner_i,
-            self.runner.r_outer_i,
-            self.runner.r_inner_i / self.model.time_explosion.to("s").value,
-            self.runner.r_outer_i / self.model.time_explosion.to("s").value,
-            self.model.time_explosion.to("s").value,
+            self.model.time_explosion.cgs.value,
         )
-        self.numba_plasma = numba_plasma_initialize(
-            self.original_plasma, self.runner.line_interaction_type
+        self.opacity_state = opacity_state_initialize(
+            self.original_plasma, self.transport.line_interaction_type
         )
-        if self.runner.use_gpu:
+        if self.transport.use_gpu:
             self.integrator = CudaFormalIntegrator(
-                self.numba_model, self.numba_plasma, self.points
+                self.numba_radial_1d_geometry,
+                self.numba_model,
+                self.opacity_state,
+                self.points,
             )
         else:
             self.integrator = NumbaFormalIntegrator(
-                self.numba_model, self.numba_plasma, self.points
+                self.numba_radial_1d_geometry,
+                self.numba_model,
+                self.opacity_state,
+                self.points,
             )
 
     def check(self, raises=True):
@@ -326,15 +341,18 @@ class FormalIntegrator(object):
                 warnings.warn(message)
                 return False
 
-        for obj in (self.model, self.plasma, self.runner):
+        for obj in (self.model, self.plasma, self.transport):
             if obj is None:
                 return raise_or_return(
                     "The integrator is missing either model, plasma or "
-                    "runner. Please make sure these are provided to the "
+                    "transport. Please make sure these are provided to the "
                     "FormalIntegrator."
                 )
 
-        if not self.runner.line_interaction_type in ["downbranch", "macroatom"]:
+        if not self.transport.line_interaction_type in [
+            "downbranch",
+            "macroatom",
+        ]:
             return raise_or_return(
                 "The FormalIntegrator currently only works for "
                 'line_interaction_type == "downbranch"'
@@ -394,7 +412,7 @@ class FormalIntegrator(object):
         """
 
         model = self.model
-        runner = self.runner
+        transport = self.transport
 
         # macro_ref = self.atomic_data.macro_atom_references
         macro_ref = self.atomic_data.macro_atom_references
@@ -404,7 +422,7 @@ class FormalIntegrator(object):
         no_lvls = len(self.levels_index)
         no_shells = len(model.w)
 
-        if runner.line_interaction_type == "macroatom":
+        if transport.line_interaction_type == "macroatom":
             internal_jump_mask = (macro_data.transition_type >= 0).values
             ma_int_data = macro_data[internal_jump_mask]
             internal = self.original_plasma.transition_probabilities[
@@ -414,9 +432,9 @@ class FormalIntegrator(object):
             source_level_idx = ma_int_data.source_level_idx.values
             destination_level_idx = ma_int_data.destination_level_idx.values
 
-        Edotlu_norm_factor = 1 / (runner.time_of_simulation * model.volume)
+        Edotlu_norm_factor = 1 / (transport.time_of_simulation * model.volume)
         exptau = 1 - np.exp(-self.original_plasma.tau_sobolevs)
-        Edotlu = Edotlu_norm_factor * exptau * runner.Edotlu_estimator
+        Edotlu = Edotlu_norm_factor * exptau * transport.Edotlu_estimator
 
         # The following may be achieved by calling the appropriate plasma
         # functions
@@ -424,14 +442,14 @@ class FormalIntegrator(object):
             (
                 const.c.cgs
                 * model.time_explosion
-                / (4 * np.pi * runner.time_of_simulation * model.volume)
+                / (4 * np.pi * transport.time_of_simulation * model.volume)
             )
             .to("1/(cm^2 s)")
             .value
         )
         # Jbluelu should already by in the correct order, i.e. by wavelength of
         # the transition l->u
-        Jbluelu = runner.j_blue_estimator * Jbluelu_norm_factor
+        Jbluelu = transport.j_blue_estimator * Jbluelu_norm_factor
 
         upper_level_index = self.atomic_data.lines.index.droplevel(
             "level_number_lower"
@@ -440,7 +458,7 @@ class FormalIntegrator(object):
         e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
         e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
 
-        if runner.line_interaction_type == "macroatom":
+        if transport.line_interaction_type == "macroatom":
             C_frame = pd.DataFrame(
                 columns=np.arange(no_shells), index=macro_ref.index
             )
@@ -475,7 +493,7 @@ class FormalIntegrator(object):
         wave = lines.wavelength_cm.loc[
             transitions.transition_line_id
         ].values.reshape(-1, 1)
-        if runner.line_interaction_type == "macroatom":
+        if transport.line_interaction_type == "macroatom":
             e_dot_u = C_frame.loc[e_dot_u.index]
         att_S_ul = wave * (q_ul * e_dot_u) * t / (4 * np.pi)
 
@@ -497,10 +515,12 @@ class FormalIntegrator(object):
                 att_S_ul, Jredlu, Jbluelu, e_dot_u
             )
         else:
-            runner.r_inner_i = runner.r_inner_cgs
-            runner.r_outer_i = runner.r_outer_cgs
-            runner.tau_sobolevs_integ = self.original_plasma.tau_sobolevs.values
-            runner.electron_densities_integ = (
+            transport.r_inner_i = transport.r_inner_cgs
+            transport.r_outer_i = transport.r_outer_cgs
+            transport.tau_sobolevs_integ = (
+                self.original_plasma.tau_sobolevs.values
+            )
+            transport.electron_densities_integ = (
                 self.original_plasma.electron_densities.values
             )
 
@@ -509,20 +529,20 @@ class FormalIntegrator(object):
     def interpolate_integrator_quantities(
         self, att_S_ul, Jredlu, Jbluelu, e_dot_u
     ):
-        runner = self.runner
+        transport = self.transport
         plasma = self.original_plasma
         nshells = self.interpolate_shells
-        r_middle = (runner.r_inner_cgs + runner.r_outer_cgs) / 2.0
+        r_middle = (transport.r_inner_cgs + transport.r_outer_cgs) / 2.0
 
         r_integ = np.linspace(
-            runner.r_inner_cgs[0], runner.r_outer_cgs[-1], nshells
+            transport.r_inner_cgs[0], transport.r_outer_cgs[-1], nshells
         )
-        runner.r_inner_i = r_integ[:-1]
-        runner.r_outer_i = r_integ[1:]
+        transport.r_inner_i = r_integ[:-1]
+        transport.r_outer_i = r_integ[1:]
 
         r_middle_integ = (r_integ[:-1] + r_integ[1:]) / 2.0
 
-        runner.electron_densities_integ = interp1d(
+        transport.electron_densities_integ = interp1d(
             r_middle,
             plasma.electron_densities,
             fill_value="extrapolate",
@@ -530,7 +550,7 @@ class FormalIntegrator(object):
         )(r_middle_integ)
         # Assume tau_sobolevs to be constant within a shell
         # (as in the MC simulation)
-        runner.tau_sobolevs_integ = interp1d(
+        transport.tau_sobolevs_integ = interp1d(
             r_middle,
             plasma.tau_sobolevs,
             fill_value="extrapolate",
@@ -575,17 +595,17 @@ class FormalIntegrator(object):
             att_S_ul,
             Jred_lu,
             Jblue_lu,
-            self.runner.tau_sobolevs_integ,
-            self.runner.electron_densities_integ,
+            self.transport.tau_sobolevs_integ,
+            self.transport.electron_densities_integ,
             N,
         )
-        R_max = self.runner.r_outer_i[-1]
+        R_max = self.transport.r_outer_i[-1]
         ps = calculate_p_values(R_max, N)[None, :]
         I_nu_p[:, 1:] /= ps[:, 1:]
-        self.runner.I_nu_p = I_nu_p
-        self.runner.p_rays = ps
+        self.transport.I_nu_p = I_nu_p
+        self.transport.p_rays = ps
 
-        I_nu = self.runner.I_nu_p * ps
+        I_nu = self.transport.I_nu_p * ps
         L_test = np.array(
             [
                 8 * M_PI * M_PI * trapezoid_integration((I_nu)[i, :], R_max / N)
@@ -601,7 +621,7 @@ class FormalIntegrator(object):
 
 
 @njit(**njit_dict_no_parallel)
-def populate_z(model, p, oz, oshell_id):
+def populate_z(geometry, model, p, oz, oshell_id):
     """Calculate p line intersections
 
     This function calculates the intersection points of the p-line with
@@ -614,13 +634,13 @@ def populate_z(model, p, oz, oshell_id):
         :oshell_id: (int64) will be set with the corresponding shell_ids
     """
     # abbreviations
-    r = model.r_outer
-    N = len(model.r_inner)  # check
+    r = geometry.r_outer
+    N = len(geometry.r_inner)  # check
     inv_t = 1 / model.time_explosion
     z = 0
     offset = N
 
-    if p <= model.r_inner[0]:
+    if p <= geometry.r_inner[0]:
         # intersect the photosphere
         for i in range(N):
             oz[i] = 1 - calculate_z(r[i], p, inv_t)
@@ -728,12 +748,24 @@ def trapezoid_integration(array, h):
 
 
 @njit(**njit_dict_no_parallel)
-def intensity_black_body(nu, T):
-    """Get the black body intensity at frequency nu
-    and temperature T"""
+def intensity_black_body(nu, temperature):
+    """
+    Calculate the blackbody intensity.
+
+    Parameters
+    ----------
+    nu : float64
+        frequency
+    temperature : float64
+        Temperature
+
+    Returns
+    -------
+    float64
+    """
     if nu == 0:
         return np.nan  # to avoid ZeroDivisionError
-    beta_rad = 1 / (KB_CGS * T)
+    beta_rad = 1 / (KB_CGS * temperature)
     coefficient = 2 * H_CGS * C_INV * C_INV
     return coefficient * nu * nu * nu / (np.exp(H_CGS * nu * beta_rad) - 1)
 

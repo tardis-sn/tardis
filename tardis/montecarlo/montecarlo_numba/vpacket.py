@@ -1,6 +1,9 @@
 import math
 
 import numpy as np
+from tardis.montecarlo.montecarlo_numba.opacities import (
+    chi_continuum_calculator,
+)
 from numba import float64, int64
 from numba import njit
 from numba.experimental import jitclass
@@ -28,7 +31,10 @@ from tardis.transport.frame_transformations import (
     angle_aberration_CMF_to_LF,
 )
 
-from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
+from tardis.montecarlo.montecarlo_numba.numba_config import (
+    SIGMA_THOMSON,
+    C_SPEED_OF_LIGHT,
+)
 
 vpacket_spec = [
     ("r", float64),
@@ -65,12 +71,14 @@ class VPacket(object):
 
 
 @njit(**njit_dict_no_parallel)
-def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
+def trace_vpacket_within_shell(
+    v_packet, numba_radial_1d_geometry, numba_model, opacity_state
+):
     """
     Trace VPacket within one shell (relatively simple operation)
     """
-    r_inner = numba_model.r_inner[v_packet.current_shell_id]
-    r_outer = numba_model.r_outer[v_packet.current_shell_id]
+    r_inner = numba_radial_1d_geometry.r_inner[v_packet.current_shell_id]
+    r_outer = numba_radial_1d_geometry.r_outer[v_packet.current_shell_id]
 
     distance_boundary, delta_shell = calculate_distance_boundary(
         v_packet.r, v_packet.mu, r_inner, r_outer
@@ -80,7 +88,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
 
     # e scattering initialization
 
-    cur_electron_density = numba_plasma.electron_density[
+    cur_electron_density = opacity_state.electron_density[
         v_packet.current_shell_id
     ]
     chi_e = cur_electron_density * SIGMA_THOMSON
@@ -89,27 +97,44 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
     doppler_factor = get_doppler_factor(
         v_packet.r, v_packet.mu, numba_model.time_explosion
     )
+
     comov_nu = v_packet.nu * doppler_factor
 
-    chi_continuum = chi_e
+    if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+        (
+            chi_bf_tot,
+            chi_bf_contributions,
+            current_continua,
+            x_sect_bfs,
+            chi_ff,
+        ) = chi_continuum_calculator(
+            opacity_state, comov_nu, v_packet.current_shell_id
+        )
+        chi_continuum = chi_e + chi_bf_tot + chi_ff
+
+    else:
+        chi_continuum = chi_e
+
+    if montecarlo_configuration.full_relativity:
+        chi_continuum *= doppler_factor
 
     tau_continuum = chi_continuum * distance_boundary
     tau_trace_combined = tau_continuum
 
     cur_line_id = start_line_id
 
-    for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
+    for cur_line_id in range(start_line_id, len(opacity_state.line_list_nu)):
         # if tau_trace_combined > 10: ### FIXME ?????
         #    break
 
-        nu_line = numba_plasma.line_list_nu[cur_line_id]
+        nu_line = opacity_state.line_list_nu[cur_line_id]
         # TODO: Check if this is what the C code does
 
-        tau_trace_line = numba_plasma.tau_sobolev[
+        tau_trace_line = opacity_state.tau_sobolev[
             cur_line_id, v_packet.current_shell_id
         ]
 
-        is_last_line = cur_line_id == len(numba_plasma.line_list_nu) - 1
+        is_last_line = cur_line_id == len(opacity_state.line_list_nu) - 1
 
         distance_trace_line = calculate_distance_line(
             v_packet,
@@ -125,7 +150,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
         tau_trace_combined += tau_trace_line
 
     else:
-        if cur_line_id == (len(numba_plasma.line_list_nu) - 1):
+        if cur_line_id == (len(opacity_state.line_list_nu) - 1):
             cur_line_id += 1
     v_packet.next_line_id = cur_line_id
 
@@ -133,14 +158,16 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
 
 
 @njit(**njit_dict_no_parallel)
-def trace_vpacket(v_packet, numba_model, numba_plasma):
+def trace_vpacket(
+    v_packet, numba_radial_1d_geometry, numba_model, opacity_state
+):
     """
     Trace single vpacket.
     Parameters
     ----------
     v_packet
     numba_model
-    numba_plasma
+    opacity_state
 
     Returns
     -------
@@ -153,11 +180,13 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
             tau_trace_combined_shell,
             distance_boundary,
             delta_shell,
-        ) = trace_vpacket_within_shell(v_packet, numba_model, numba_plasma)
+        ) = trace_vpacket_within_shell(
+            v_packet, numba_radial_1d_geometry, numba_model, opacity_state
+        )
         tau_trace_combined += tau_trace_combined_shell
 
         move_packet_across_shell_boundary(
-            v_packet, delta_shell, len(numba_model.r_inner)
+            v_packet, delta_shell, len(numba_radial_1d_geometry.r_inner)
         )
 
         if tau_trace_combined > montecarlo_configuration.tau_russian:
@@ -189,7 +218,11 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
 
 @njit(**njit_dict_no_parallel)
 def trace_vpacket_volley(
-    r_packet, vpacket_collection, numba_model, numba_plasma
+    r_packet,
+    vpacket_collection,
+    numba_radial_1d_geometry,
+    numba_model,
+    opacity_state,
 ):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many)
@@ -201,16 +234,17 @@ def trace_vpacket_volley(
         [description]
     vpacket_collection : [type]
         [description]
+    numba_radial_1d_geometry : [type]
+        [description]
     numba_model : [type]
         [description]
-    numba_plasma : [type]
+    opacity_state : [type]
         [description]
     """
 
     if (r_packet.nu < vpacket_collection.v_packet_spawn_start_frequency) or (
         r_packet.nu > vpacket_collection.v_packet_spawn_end_frequency
     ):
-
         return
 
     no_of_vpackets = vpacket_collection.number_of_vpackets
@@ -218,8 +252,10 @@ def trace_vpacket_volley(
         return
 
     ### TODO theoretical check for r_packet nu within vpackets bins - is done somewhere else I think
-    if r_packet.r > numba_model.r_inner[0]:  # not on inner_boundary
-        r_inner_over_r = numba_model.r_inner[0] / r_packet.r
+    if (
+        r_packet.r > numba_radial_1d_geometry.r_inner[0]
+    ):  # not on inner_boundary
+        r_inner_over_r = numba_radial_1d_geometry.r_inner[0] / r_packet.r
         mu_min = -math.sqrt(1 - r_inner_over_r * r_inner_over_r)
         v_packet_on_inner_boundary = False
         if montecarlo_configuration.full_relativity:
@@ -230,6 +266,11 @@ def trace_vpacket_volley(
         v_packet_on_inner_boundary = True
         mu_min = 0.0
 
+        if montecarlo_configuration.full_relativity:
+            inv_c = 1 / C_SPEED_OF_LIGHT
+            inv_t = 1 / numba_model.time_explosion
+            beta_inner = numba_radial_1d_geometry.r_inner[0] * inv_t * inv_c
+
     mu_bin = (1.0 - mu_min) / no_of_vpackets
     r_packet_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, numba_model.time_explosion
@@ -238,7 +279,16 @@ def trace_vpacket_volley(
         v_packet_mu = mu_min + i * mu_bin + np.random.random() * mu_bin
 
         if v_packet_on_inner_boundary:  # The weights are described in K&S 2014
-            weight = 2 * v_packet_mu / no_of_vpackets
+            if not montecarlo_configuration.full_relativity:
+                weight = 2 * v_packet_mu / no_of_vpackets
+            else:
+                weight = (
+                    2
+                    * (v_packet_mu + beta_inner)
+                    / (2 * beta_inner + 1)
+                    / no_of_vpackets
+                )
+
         else:
             weight = (1 - mu_min) / (2 * no_of_vpackets)
 
@@ -272,7 +322,9 @@ def trace_vpacket_volley(
             i,
         )
 
-        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma)
+        tau_vpacket = trace_vpacket(
+            v_packet, numba_radial_1d_geometry, numba_model, opacity_state
+        )
 
         v_packet.energy *= math.exp(-tau_vpacket)
 
@@ -285,4 +337,5 @@ def trace_vpacket_volley(
             r_packet.last_interaction_type,
             r_packet.last_line_interaction_in_id,
             r_packet.last_line_interaction_out_id,
+            r_packet.last_line_interaction_shell_id,
         )
