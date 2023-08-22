@@ -10,7 +10,11 @@ configuration file. The following sections respectively describes what can or mu
 configuration file, shows an example configuration file, describes how TARDIS checks to make sure a configuration
 file is valid, and demonstrates how a YAML configuration file is read in.
 
-
+.. caution:: 
+    TARDIS parallelization is not working correctly at the moment and might produce incorrect results.
+    Please avoid using it.
+    For more information, see issue [#2021](https://github.com/tardis-sn/tardis/issues/2021).
+  
 .. toctree::
   :maxdepth: 1
 
