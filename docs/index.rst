@@ -47,6 +47,10 @@ Mission Statement
     using an open-community model that emphasizes interdisciplinary 
     research and science reproducibility.*
 
+.. caution:: 
+    TARDIS parallelization is not working correctly at the moment and might produce incorrect results.
+    Please avoid using it.
+    For more information, see issue `#2021 <https://github.com/tardis-sn/tardis/issues/2021>`_.
 
 .. toctree::
     :maxdepth: 2
