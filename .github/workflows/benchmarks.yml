@@ -71,6 +71,7 @@ jobs:
       
       - name: Run benchmarks for last 5 commits if not PR
         if: github.event_name != 'pull_request_target'
+        continue-on-error: true
         run: |
           git log -n 5  --pretty=format:"%H" >> tag_commits.txt
           asv run HASHFILE:tag_commits.txt | tee asv-output.log  
