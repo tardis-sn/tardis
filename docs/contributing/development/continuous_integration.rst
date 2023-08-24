@@ -356,7 +356,7 @@ pipeline has failed).
 
 
 TARDIS Carsus Compatibility Check
-=============================================
+=================================
 The TARDIS Carsus Compatibility Check or the "Bridge" compares reference data 
 generated with different versions of Carsus. It consists of two jobs- a "carsus-build" job to 
 generate an atomic file with the latest version of Carsus and a "tardis-build" job 
@@ -367,7 +367,7 @@ triggered every week due to the "save-atomic-files" workflow.
 
 
 The Save Atomic Files Workflow
-=============================================
+==============================
 The Save Atomic Files workflow runs every week but can also be triggered manually.
 It runs the "Bridge" and sends an artifact containing the generated atomic data file
 and the comparison notebook to Moria. This workflow has a separate job to indicate if the 
