@@ -10,6 +10,7 @@ import tardis
 from tardis.io import config_validator
 from tardis.io.util import YAMLLoader, yaml_load_file, HDFWriterMixin
 from tardis.io.parsers.csvy import load_yaml_from_csvy
+from tardis.montecarlo import montecarlo_configuration
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -95,6 +96,18 @@ class ConfigurationNameSpace(dict):
                 model["v_inner_boundary"] = csvy_yml["v_inner_boundary"]
             if "v_outer_boundary" in csvy_yml:
                 model["v_outer_boundary"] = csvy_yml["v_outer_boundary"]
+
+            if NONHOMOLOGOUS_EXPANSION_ENABLED is True and (
+                "r_inner_boundary" not in csvy_yml
+                or "r_outer_boundary" not in csvy_yml
+            ):
+                raise ValueError(
+                    "r_inner_boundary and/or r_outer_boundary not in csvy_model file."
+                )
+            if "r_inner_boundary" in csvy_yml:
+                model["r_inner_boundary"] = csvy_yml["r_inner_boundary"]
+            if "r_outer_boundary" in csvy_yml:
+                model["r_outer_boundary"] = csvy_yml["r_outer_boundary"]
 
             self.__setitem__("model", model)
             for key in self.model:
@@ -257,6 +270,33 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         validated_config_dict["config_dirname"] = config_dirname
 
         montecarlo_section = validated_config_dict["montecarlo"]
+        if montecarlo_section["convergence_strategy"]["type"] == "damped":
+            montecarlo_section[
+                "convergence_strategy"
+            ] = parse_convergence_section(
+                montecarlo_section["convergence_strategy"]
+            )
+        elif montecarlo_section["convergence_strategy"]["type"] == "custom":
+            raise NotImplementedError(
+                'convergence_strategy is set to "custom"; '
+                "you need to implement your specific convergence treatment"
+            )
+        else:
+            raise ValueError(
+                'convergence_strategy is not "damped" ' 'or "custom"'
+            )
+
+        enable_full_relativity = montecarlo_section["enable_full_relativity"]
+        spectrum_integrated = (
+            validated_config_dict["spectrum"]["method"] == "integrated"
+        )
+        if enable_full_relativity and spectrum_integrated:
+            raise NotImplementedError(
+                "The spectrum method is set to 'integrated' and "
+                "enable_full_rela tivity to 'True'.\n"
+                "The FormalIntegrator is not yet implemented for the full "
+                "relativity mode. "
+            )
         Configuration.validate_montecarlo_section(montecarlo_section)
 
         if "csvy_model" in validated_config_dict.keys():

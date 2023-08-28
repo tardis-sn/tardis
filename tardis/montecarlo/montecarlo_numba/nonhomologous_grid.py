@@ -34,7 +34,7 @@ def velocity_dvdr(r_packet, numba_model):
 @njit(**njit_dict_no_parallel)
 def tau_sobolev_factor(r_packet, numba_model):
     """
-    The angle and velocity dependent Tau Sobolev factor component. Is called when ENABLE_NONHOMOLOGOUS_EXPANSION is set to True.
+    The angle and velocity dependent Tau Sobolev factor component. Is called when NONHOMOLOGOUS_EXPANSION_ENABLED is set to True.
 
     Note: to get Tau Sobolev, this needs to be multiplied by tau_sobolevs found from plasma
     Parameters
