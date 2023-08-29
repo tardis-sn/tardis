@@ -389,7 +389,7 @@ def species_string_to_tuple(species_string):
                 f"Given ion number ('{ion_number_string}') could not be parsed"
             )
 
-    if ion_number-1 > atomic_number:
+    if ion_number - 1 > atomic_number:
         raise ValueError(
             "Species given does not exist: ion number > atomic number"
         )
