@@ -47,7 +47,7 @@ dependencies:
   - lxml
 
   # Documentation
-  - sphinx
+  - sphinx <=7.1
   - sphinx-astropy
   - sphinx_bootstrap_theme
   - sphinx-jsonschema
