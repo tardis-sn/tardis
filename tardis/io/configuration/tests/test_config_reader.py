@@ -6,16 +6,11 @@ import pandas as pd
 from numpy.testing import assert_almost_equal
 from jsonschema.exceptions import ValidationError
 
-from tardis.io import config_reader
+from tardis.io.configuration import config_reader
 from astropy.units import Quantity
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 from tardis.plasma.exceptions import PlasmaConfigError
 from tardis.plasma.standard_plasmas import assemble_plasma
-
-
-def data_path(filename):
-    data_dir = os.path.dirname(__file__)
-    return os.path.abspath(os.path.join(data_dir, "data", filename))
 
 
 def test_convergence_section_parser():

@@ -12,7 +12,7 @@ from tardis.montecarlo.base import MontecarloTransport
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
-from tardis.io.config_reader import ConfigurationError
+from tardis.io.configuration.config_reader import ConfigurationError
 from tardis.util.base import is_notebook
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
 from tardis.visualization import ConvergencePlots

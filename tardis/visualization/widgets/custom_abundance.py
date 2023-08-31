@@ -11,17 +11,17 @@ from radioactivedecay.utils import Z_DICT, elem_to_Z
 from pathlib import Path
 
 import tardis
+from tardis.io.model.readers.generic_readers import read_uniform_abundances
 from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 from tardis.model import Radial1DModel
-from tardis.io.model.density import (
+from tardis.io.model.parse_density_configuration import (
     calculate_power_law_density,
     calculate_exponential_density,
 )
-from tardis.io.config_validator import validate_dict
-from tardis.io.parsers.csvy import load_csvy
-from tardis.io.model_reader import (
-    read_uniform_abundances,
+from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.model.readers.csvy import load_csvy
+from tardis.io.model.readers.csvy import (
     parse_csv_abundances,
 )
 from tardis.util.base import atomic_number2element_symbol, quantity_linspace

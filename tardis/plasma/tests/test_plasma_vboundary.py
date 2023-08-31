@@ -3,7 +3,7 @@ import pytest
 import os
 import astropy.units as u
 
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 from tardis.io.atom_data.base import AtomData
 from tardis.simulation import Simulation
 

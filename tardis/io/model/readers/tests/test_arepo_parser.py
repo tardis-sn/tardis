@@ -1,20 +1,19 @@
-import tardis
-from tardis.io.parsers import arepo
+from pathlib import Path
+from tardis.io.model.readers import arepo
 import pytest
 import numpy as np
 import os
 import json
 
 
-DATA_PATH = os.path.join(tardis.__path__[0], "io", "tests", "data")
+@pytest.fixture()
+def arepo_snapshot_fname(tardis_ref_path):
+    return Path(tardis_ref_path) / "arepo_data" / "arepo_snapshot.json"
 
 
 @pytest.fixture
-def get_cone_csvy_model(tardis_ref_path):
-    datafile = os.path.join(
-        tardis_ref_path, "arepo_data", "arepo_snapshot.json"
-    )
-    with open(datafile, "r") as json_file:
+def get_cone_csvy_model(arepo_snapshot_fname, example_model_file_dir):
+    with open(arepo_snapshot_fname, "r") as json_file:
         data = json.loads(json.load(json_file))
 
     pos, vel, rho, mass, nucs, time = (
@@ -43,7 +42,7 @@ def get_cone_csvy_model(tardis_ref_path):
     )
 
     testfile = profile.export(
-        20, os.path.join(DATA_PATH, "arepo_parser_test.csvy")
+        20, example_model_file_dir / "arepo_parser_test.csvy"
     )
 
     with open(testfile, "r") as file:
@@ -56,11 +55,8 @@ def get_cone_csvy_model(tardis_ref_path):
 
 
 @pytest.fixture
-def get_full_csvy_model(tardis_ref_path):
-    datafile = os.path.join(
-        tardis_ref_path, "arepo_data", "arepo_snapshot.json"
-    )
-    with open(datafile, "r") as json_file:
+def get_full_csvy_model(arepo_snapshot_fname, example_model_file_dir):
+    with open(arepo_snapshot_fname, "r") as json_file:
         data = json.loads(json.load(json_file))
 
     pos, vel, rho, mass, nucs, time = (
@@ -87,7 +83,7 @@ def get_full_csvy_model(tardis_ref_path):
     profile.create_profile(inner_radius=1e11, outer_radius=2e11)
 
     testfile = profile.export(
-        20, os.path.join(DATA_PATH, "arepo_parser_test.csvy")
+        20, example_model_file_dir / "arepo_parser_test.csvy"
     )
 
     with open(testfile, "r") as file:
@@ -99,9 +95,9 @@ def get_full_csvy_model(tardis_ref_path):
 
 
 @pytest.fixture
-def get_cone_reference_data():
+def get_cone_reference_data(example_model_file_dir):
     with open(
-        os.path.join(DATA_PATH, "arepo_cone_reference_model.csvy"), "r"
+        example_model_file_dir / "arepo_cone_reference_model.csvy", "r"
     ) as file:
         data = file.readlines()
 
@@ -109,9 +105,9 @@ def get_cone_reference_data():
 
 
 @pytest.fixture
-def get_full_reference_data():
+def get_full_reference_data(example_model_file_dir):
     with open(
-        os.path.join(DATA_PATH, "arepo_full_reference_model.csvy"), "r"
+        example_model_file_dir / "arepo_full_reference_model.csvy", "r"
     ) as file:
         data = file.readlines()
 

@@ -1,4 +1,6 @@
 import os
+
+from pathlib import Path
 import logging
 import numpy as np
 import pandas as pd
@@ -6,22 +8,23 @@ from astropy import units as u
 from tardis import constants
 import radioactivedecay as rd
 from radioactivedecay.utils import Z_DICT
+from tardis.io.model.readers.base import read_abundances_file, read_density_file
+from tardis.io.model.readers.generic_readers import (
+    read_uniform_abundances,
+)
 from tardis.model.geometry.radial1d import Radial1DGeometry
 
 from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
-from tardis.io.parsers.csvy import load_csvy
-from tardis.io.model_reader import (
-    read_density_file,
-    read_abundances_file,
-    read_uniform_abundances,
+from tardis.io.model.readers.csvy import load_csvy
+from tardis.io.model.readers.csvy import (
     parse_csv_abundances,
 )
-from tardis.io.config_validator import validate_dict
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
 from tardis.io.decay import IsotopeAbundances
 
-from tardis.io.model.density import (
+from tardis.io.model.parse_density_configuration import (
     parse_config_v1_density,
     parse_csvy_density,
     calculate_density_after_time,
@@ -31,6 +34,11 @@ from tardis.montecarlo.packet_source import BlackBodySimpleSource
 from tardis.radiation_field.base import MonteCarloRadiationFieldState
 
 logger = logging.getLogger(__name__)
+
+
+SCHEMA_DIR = (
+    Path(__file__).parent / ".." / "io" / "configuration" / "schemas"
+).resolve()
 
 
 class Composition:
@@ -685,11 +693,9 @@ class Radial1DModel(HDFWriterMixin):
                 config.config_dirname, config.csvy_model
             )
         csvy_model_config, csvy_model_data = load_csvy(csvy_model_fname)
-        base_dir = os.path.abspath(os.path.dirname(__file__))
-        schema_dir = os.path.join(base_dir, "..", "io", "schemas")
-        csvy_schema_file = os.path.join(schema_dir, "csvy_model.yml")
+        csvy_schema_fname = SCHEMA_DIR / "csvy_model.yml"
         csvy_model_config = Configuration(
-            validate_dict(csvy_model_config, schemapath=csvy_schema_file)
+            validate_dict(csvy_model_config, schemapath=csvy_schema_fname)
         )
 
         if hasattr(csvy_model_data, "columns"):

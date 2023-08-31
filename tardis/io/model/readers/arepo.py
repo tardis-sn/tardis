@@ -408,16 +408,16 @@ class Profile:
         """
 
         # Find a free filename
-        if filename.endswith(".csvy"):
-            filename = filename.replace(".csvy", "")
+        if str(filename).endswith(".csvy"):
+            filename = str(filename).replace(".csvy", "")
 
-        if os.path.exists("%s.csvy" % filename) and not overwrite:
+        if os.path.exists(f"{filename}.csvy") and not overwrite:
             i = 0
-            while os.path.exists("%s_%s.csvy" % (filename, i)):
+            while os.path.exists(f"{filename}_{i}.csvy"):
                 i += 1
-            filename = "%s_%s.csvy" % (filename, i)
+            filename = f"{filename}_{i}.csvy"
         else:
-            filename = "%s.csvy" % filename
+            filename = f"{filename}.csvy"
 
         with open(filename, "w") as f:
             # WRITE HEADER

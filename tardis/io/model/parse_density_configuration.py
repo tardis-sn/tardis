@@ -1,15 +1,40 @@
 import numpy as np
 from astropy import units as u
 
-from tardis.io.configuration.config_reader import Configuration
+from tardis.io.configuration.config_reader import (
+    ConfigurationNameSpace,
+    Configuration,
+)
 from tardis.util.base import quantity_linspace
+
+from typing import Tuple
 
 
 def parse_density_section(
-    density_configuration: Configuration,
+    density_configuration: ConfigurationNameSpace,
     v_middle: u.Quantity,
     time_explosion: u.Quantity,
-):
+) -> Tuple[u.Quantity, u.Quantity]:
+    """
+    Parse the density section of the configuration file and produce a density at
+    time_explosion.
+
+    Parameters
+    ----------
+
+    density_configuration : tardis.io.config_reader.Configuration
+    v_middle : astropy.Quantity
+        middle of the velocity bins
+    time_explosion : astropy.Quantity
+        time of the explosion
+
+    Returns
+    -------
+    density_0 : astropy.Quantity
+        density at time_0
+    time_0 : astropy.Quantity
+        time of the density profile
+    """
     if density_configuration.type == "branch85_w7":
         density_0 = calculate_power_law_density(
             v_middle,
@@ -45,7 +70,8 @@ def parse_density_section(
 
 def parse_config_v1_density(config: Configuration) -> u.Quantity:
     """
-    Create a new HomologousDensity instance from a Configuration object.
+    Parse the configuration file and produce a density at
+    time_explosion.
 
     Parameters
     ----------
@@ -53,7 +79,7 @@ def parse_config_v1_density(config: Configuration) -> u.Quantity:
 
     Returns
     -------
-    HomologousDensity
+    density: u.Quantity
 
     """
 
@@ -72,10 +98,12 @@ def parse_config_v1_density(config: Configuration) -> u.Quantity:
     return calculate_density_after_time(density_0, time_0, time_explosion)
 
 
-def parse_csvy_density(csvy_model_config, time_explosion: u.Quantity):
+def parse_csvy_density(
+    csvy_model_config: Configuration, time_explosion: u.Quantity
+) -> u.Quantity:
     """
-    Create a new HomologousDensity instance from a base
-    Configuration object and a csvy model Configuration object.
+    Parse the density section of the csvy file and produce a density at
+    time_explosion.
 
     Parameters
     ----------
@@ -84,7 +112,7 @@ def parse_csvy_density(csvy_model_config, time_explosion: u.Quantity):
 
     Returns
     -------
-    HomologousDensity
+    density: u.Quantity
 
     """
     if hasattr(csvy_model_config, "velocity"):
@@ -113,7 +141,12 @@ def parse_csvy_density(csvy_model_config, time_explosion: u.Quantity):
     return calculate_density_after_time(density_0, time_0, time_explosion)
 
 
-def calculate_power_law_density(velocities, velocity_0, rho_0, exponent):
+def calculate_power_law_density(
+    velocities: u.Quantity,
+    velocity_0: u.Quantity,
+    rho_0: u.Quantity,
+    exponent: float,
+) -> u.Quantity:
     """
 
     This function computes a descret exponential density profile.
@@ -139,7 +172,9 @@ def calculate_power_law_density(velocities, velocity_0, rho_0, exponent):
     return densities
 
 
-def calculate_exponential_density(velocities, velocity_0, rho_0):
+def calculate_exponential_density(
+    velocities: u.Quantity, velocity_0: u.Quantity, rho_0: u.Quantity
+) -> u.Quantity:
     """
     This function computes the exponential density profile.
     :math:`\\rho = \\rho_0 \\times \\exp \\left( -\\frac{v}{v_0} \\right)`

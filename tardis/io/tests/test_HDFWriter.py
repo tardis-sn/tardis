@@ -73,7 +73,7 @@ arr = np.array(
 mock_multiIndex = pd.MultiIndex.from_arrays(arr.transpose())
 
 
-def test_MultiIndex_write(tmpdir):
+def test_multi_index_write(tmpdir):
     fname = str(tmpdir.mkdir("data").join("test.hdf"))
     actual = MockHDF(mock_multiIndex)
     actual.to_hdf(fname, path="test", overwrite=True)

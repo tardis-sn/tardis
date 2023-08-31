@@ -1,6 +1,6 @@
 import os
 import pytest
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
 import astropy.units as u
 

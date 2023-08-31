@@ -1,11 +1,11 @@
 import re
-import dataclasses
+from dataclasses import dataclass
 
 import pandas as pd
 from astropy import units as u
 
 
-@dataclasses.dataclass
+@dataclass
 class STELLAModel:
     metadata: dict
     data: pd.DataFrame

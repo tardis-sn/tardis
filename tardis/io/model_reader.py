@@ -1,6 +1,6 @@
 # reading different model files
 
-from tardis.io.config_reader import ConfigurationNameSpace
+from tardis.io.configuration.config_reader import ConfigurationNameSpace
 from tardis.montecarlo.base import MontecarloTransport
 from tardis.montecarlo.packet_source import (
     BlackBodySimpleSource,

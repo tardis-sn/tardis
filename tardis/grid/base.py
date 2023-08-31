@@ -3,7 +3,7 @@ import numpy as np
 import copy
 import tardis
 
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 from tardis.model import Radial1DModel
 
 

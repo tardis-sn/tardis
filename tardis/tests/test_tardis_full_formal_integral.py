@@ -1,20 +1,20 @@
-import os
+from pathlib import Path
 import pytest
 import numpy.testing as npt
 from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
 
 from tardis.simulation.base import Simulation
-from tardis.io.config_reader import Configuration
+from tardis.io.configuration.config_reader import Configuration
 
 config_line_modes = ["downbranch", "macroatom"]
 interpolate_shells = [-1, 30]
 
 
 @pytest.fixture(scope="module", params=config_line_modes)
-def base_config(request):
+def base_config(request, example_configuration_dir: Path):
     config = Configuration.from_yaml(
-        "tardis/io/tests/data/tardis_configv1_verysimple.yml"
+        example_configuration_dir / "tardis_configv1_verysimple.yml"
     )
 
     config["plasma"]["line_interaction_type"] = request.param
@@ -71,7 +71,7 @@ class TestTransportSimpleFormalIntegral:
     @pytest.fixture(scope="class")
     def refdata(self, tardis_ref_data):
         def get_ref_data(key):
-            return tardis_ref_data[os.path.join(self.name, key)]
+            return tardis_ref_data[f"{self.name}/{key}"]
 
         return get_ref_data
 

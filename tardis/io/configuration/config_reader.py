@@ -6,16 +6,13 @@ import yaml
 import pandas as pd
 from astropy import units as u
 
-import tardis
-from tardis.io import config_validator
+from tardis.io.configuration import config_validator
 from tardis.io.util import YAMLLoader, yaml_load_file, HDFWriterMixin
-from tardis.io.parsers.csvy import load_yaml_from_csvy
+from tardis.io.model.readers.csvy import load_yaml_from_csvy
 
 pp = pprint.PrettyPrinter(indent=4)
 
 logger = logging.getLogger(__name__)
-
-data_dir = os.path.abspath(os.path.join(tardis.__path__[0], "data"))
 
 
 class ConfigurationError(ValueError):
