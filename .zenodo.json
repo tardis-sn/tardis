@@ -106,11 +106,11 @@
       "name": "Cawley, Kevin"
     },
     {
-      "name": "Singhal, Jaladh",
-      "orcid": "0000-0002-8310-0829"
+      "name": "Arya, Atharva"
     },
     {
-      "name": "Arya, Atharva"
+      "name": "Singhal, Jaladh",
+      "orcid": "0000-0002-8310-0829"
     },
     {
       "name": "O'Brien, Jack"
@@ -131,14 +131,14 @@
       "name": "Varanasi, Kaushik"
     },
     {
-      "name": "Gillanders, James",
-      "orcid": "0000-0002-8094-6108"
+      "name": "Rathi, Shikha"
     },
     {
       "name": "Chitchyan, Sona"
     },
     {
-      "name": "Rathi, Shikha"
+      "name": "Gillanders, James",
+      "orcid": "0000-0002-8094-6108"
     },
     {
       "name": "Savel, Arjun"
@@ -150,10 +150,13 @@
       "name": "Eweis, Youssef"
     },
     {
-      "name": "Bylund, Tomas"
+      "name": "Shields, Joshua"
     },
     {
-      "name": "Shields, Joshua"
+      "name": "Singh, Shreyas"
+    },
+    {
+      "name": "Bylund, Tomas"
     },
     {
       "name": "Bentil, Laud"
@@ -166,31 +169,25 @@
       "orcid": "0000-0002-2328-8030"
     },
     {
-      "name": "Singh, Shreyas"
-    },
-    {
       "name": "Bartnik, Matthew"
-    },
-    {
-      "name": "Kumar, Ansh"
     },
     {
       "name": "Alam, Arib"
     },
     {
-      "name": "Magee, Mark"
+      "name": "Kumar, Ansh"
     },
     {
       "name": "Varma Buddaraju, Rohith"
     },
     {
-      "name": "Livneh, Ran"
+      "name": "Magee, Mark"
     },
     {
       "name": "Kambham, Satwik"
     },
     {
-      "name": "Daksh, Ayushi"
+      "name": "Livneh, Ran"
     },
     {
       "name": "Rajagopalan, Srinath"
@@ -200,13 +197,10 @@
       "orcid": "0000-0001-8302-1584"
     },
     {
+      "name": "Daksh, Ayushi"
+    },
+    {
       "name": "Bhakar, Jayant"
-    },
-    {
-      "name": "Actions, GitHub"
-    },
-    {
-      "name": "Reichenbach, John"
     },
     {
       "name": "Jain, Rinkle"
@@ -215,19 +209,28 @@
       "name": "Floers, Andreas"
     },
     {
-      "name": "Singh, Sourav"
+      "name": "Reichenbach, John"
     },
     {
-      "name": "Holas, Alexander"
+      "name": "Actions, GitHub"
+    },
+    {
+      "name": "Singh, Sourav"
     },
     {
       "name": "Brar, Antreev"
     },
     {
+      "name": "Holas, Alexander"
+    },
+    {
       "name": "Chaumal, Aarya"
     },
     {
-      "name": "Sofiatti, Caroline"
+      "name": "Matsumura, Yuki"
+    },
+    {
+      "name": "Kumar, Aman"
     },
     {
       "name": "Selsing, Jonatan"
@@ -236,25 +239,19 @@
       "name": "Kowalski, Nathan"
     },
     {
-      "name": "Kumar, Aman"
+      "name": "Patidar, Abhishek"
     },
     {
-      "name": "Patidar, Abhishek"
+      "name": "Sofiatti, Caroline"
     },
     {
       "name": "Talegaonkar, Chinmay"
     },
     {
-      "name": "Venkat, Shashank"
-    },
-    {
-      "name": "Sharma, Sampark"
-    },
-    {
-      "name": "Sarafina, Nance"
-    },
-    {
       "name": "Patel, Pratik"
+    },
+    {
+      "name": "Sandler, Morgan"
     },
     {
       "name": "Singh Rathore, Parikshit"
@@ -263,16 +260,16 @@
       "name": "Patra, Nilesh"
     },
     {
-      "name": "Lu, Jing"
+      "name": "Sarafina, Nance"
     },
     {
       "name": "Zaheer, Musabbiha"
     },
     {
-      "name": "Sandler, Morgan"
+      "name": "Gupta, Harshul"
     },
     {
-      "name": "Truong, Le"
+      "name": "Martinez, Laureano"
     },
     {
       "name": "Yap, Kevin"
@@ -281,13 +278,22 @@
       "name": "Buchner, Johannes"
     },
     {
-      "name": "Gupta, Suyash"
+      "name": "Lu, Jing"
+    },
+    {
+      "name": "Venkat, Shashank"
+    },
+    {
+      "name": "Sharma, Sampark"
+    },
+    {
+      "name": "Kumar, Atul"
     },
     {
       "name": "Prasad, Shilpi"
     },
     {
-      "name": "Kolliboyina, Chaitanya"
+      "name": "Gupta, Suyash"
     },
     {
       "name": "Lemoine, Thom"
@@ -299,31 +305,25 @@
       "name": "Aggarwal, Yash"
     },
     {
-      "name": "Matsumura, Yuki"
-    },
-    {
-      "name": "Gupta, Harshul"
-    },
-    {
       "name": "Volodin, Dmitry"
-    },
-    {
-      "name": "PATIDAR, ABHISHEK"
-    },
-    {
-      "name": "Martinez, Laureano"
-    },
-    {
-      "name": "Kharkar, Atharwa"
-    },
-    {
-      "name": "Nayak U, Ashwin"
     },
     {
       "name": "Dasgupta, Debajyoti"
     },
     {
-      "name": "Kumar, Atul"
+      "name": "PATIDAR, ABHISHEK"
+    },
+    {
+      "name": "Truong, Le"
+    },
+    {
+      "name": "Nayak U, Ashwin"
+    },
+    {
+      "name": "Kharkar, Atharwa"
+    },
+    {
+      "name": "Kolliboyina, Chaitanya"
     }
   ]
 }
