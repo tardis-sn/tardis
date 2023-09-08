@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from tardis.montecarlo.packet_source import BlackBodySimpleSource, BasePacketSource
+from tardis.montecarlo.packet_source import BlackBodySimpleSource
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
