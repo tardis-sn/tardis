@@ -9,10 +9,13 @@ from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
 
-class TestPacketSource():
+
+class TestPacketSource:
     @pytest.fixture(scope="class")
     def packet_unit_test_fpath(self, tardis_ref_path):
-        return os.path.abspath(os.path.join(tardis_ref_path, "packet_unittest.h5"))
+        return os.path.abspath(
+            os.path.join(tardis_ref_path, "packet_unittest.h5")
+        )
 
     @pytest.fixture(scope="class")
     def blackbodysimplesource(self, request):
@@ -22,7 +25,13 @@ class TestPacketSource():
         yield cls.bb
         montecarlo_configuration.LEGACY_MODE_ENABLED = False
 
-    def test_bb_packet_sampling(self, request, tardis_ref_data, packet_unit_test_fpath, blackbodysimplesource):
+    def test_bb_packet_sampling(
+        self,
+        request,
+        tardis_ref_data,
+        packet_unit_test_fpath,
+        blackbodysimplesource,
+    ):
         if request.config.getoption("--generate-reference"):
             ref_bb = pd.read_hdf(packet_unit_test_fpath, key="/blackbody")
             ref_bb.to_hdf(
