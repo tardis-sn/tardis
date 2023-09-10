@@ -105,9 +105,9 @@ class BlackBodySimpleSource(BasePacketSource):
     Parameters
     ----------
     radius : float64
-        Initial packet radius
+        Initial packet radius with units (e.g., '3e10 m')
     temperature : float
-        Absolute Temperature.
+        Absolute Temperature with units (e.g., '5600 K')
     base_seed : int
         Base Seed for random number generator
     legacy_secondary_seed : int
@@ -119,8 +119,8 @@ class BlackBodySimpleSource(BasePacketSource):
         return cls(model.r_inner[0], model.t_inner.value, *args, **kwargs)
 
     def __init__(self, radius=None, temperature=None, **kwargs):
-        self.radius = radius
-        self.temperature = temperature
+        self.radius = radius.to(u.meter)    # Ensure radius has units in meter
+        self.temperature = temperature.to(u.Kelvin)   # Ensure temperature has units of Kelvin
         super().__init__(**kwargs)
 
     def set_state_from_model(self, model):
@@ -147,9 +147,9 @@ class BlackBodySimpleSource(BasePacketSource):
         Returns
         -------
         Radii for packets
-            numpy.ndarray
+            numpy.ndarray (in meter)
         """
-        return np.ones(no_of_packets) * self.radius
+        return np.ones(no_of_packets) * self.radius * u.meter
 
     def create_packet_nus(self, no_of_packets, l_samples=1000):
         """
@@ -231,7 +231,7 @@ class BlackBodySimpleSource(BasePacketSource):
         energies for packets
             numpy.ndarray
         """
-        return np.ones(no_of_packets) / no_of_packets
+        return (np.ones(no_of_packets) * u.dimensionless_unscaled) / no_of_packets
 
     def set_temperature_from_luminosity(self, luminosity: u.Quantity):
         """
