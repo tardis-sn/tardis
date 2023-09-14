@@ -13,12 +13,30 @@ from tardis.montecarlo import (
 class TestPacketSource:
     @pytest.fixture(scope="class")
     def packet_unit_test_fpath(self, tardis_ref_path):
+        """
+        Path to `packet_unittest.h5`.
+
+        Parameters
+        ----------
+        tardis_ref_path : pd.HDFStore
+
+        Returns
+        -------
+        os.path
+        """
         return os.path.abspath(
             os.path.join(tardis_ref_path, "packet_unittest.h5")
         )
 
     @pytest.fixture(scope="class")
     def blackbodysimplesource(self, request):
+        """
+        Create BlackBodySimpleSource instance.
+
+        Yields
+        -------
+        tardis.montecarlo.packet_source.BlackBodySimpleSource
+        """
         cls = type(self)
         montecarlo_configuration.LEGACY_MODE_ENABLED = True
         cls.bb = BlackBodySimpleSource(base_seed=1963, legacy_second_seed=2508)
@@ -32,6 +50,16 @@ class TestPacketSource:
         packet_unit_test_fpath,
         blackbodysimplesource,
     ):
+        """
+        Test generate_plot_mpl method.
+
+        Parameters
+        ----------
+        request : _pytest.fixtures.SubRequest
+        tardis_ref_data: pd.HDFStore
+        packet_unit_test_fpath: os.path
+        blackbodysimplesource: tardis.montecarlo.packet_source.BlackBodySimpleSource
+        """
         if request.config.getoption("--generate-reference"):
             ref_bb = pd.read_hdf(packet_unit_test_fpath, key="/blackbody")
             ref_bb.to_hdf(
