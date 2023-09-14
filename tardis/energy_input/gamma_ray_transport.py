@@ -437,16 +437,16 @@ def main_gamma_ray_loop(
 
         energy, intensity = setup_input_energy(
             gamma_ray_lines[
-                gamma_ray_lines.Isotope == isotope.replace("-", "")
-            ],
+                gamma_ray_lines.loc[isotope.replace("-", "")
+            ]],
             "g",
         )
         gamma_ray_line_array_list.append(np.stack([energy, intensity]))
         average_energies_list.append(np.sum(energy * intensity))
         positron_energy, positron_intensity = setup_input_energy(
             gamma_ray_lines[
-                gamma_ray_lines.Isotope == isotope.replace("-", "")
-            ],
+                gamma_ray_lines.loc[isotope.replace("-", "")
+            ]],
             "bp",
         )
         average_positron_energies_list.append(
