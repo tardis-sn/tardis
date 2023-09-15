@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import pytest
-import pandas.util.testing as pdt
+import pandas.testing as pdt
 from numpy.testing import assert_almost_equal
 from tardis.plasma.properties import property_collections
 

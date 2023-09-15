@@ -3,7 +3,7 @@ import warnings
 
 import pandas as pd
 import pytest
-from pandas.util import testing as pdt
+from pandas import testing as pdt
 from numpy.testing import assert_almost_equal
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation

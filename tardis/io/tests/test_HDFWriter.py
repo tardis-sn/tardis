@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 import pandas as pd
-import pandas.util.testing as pdt
+import pandas.testing as pdt
 import pytest
 from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose

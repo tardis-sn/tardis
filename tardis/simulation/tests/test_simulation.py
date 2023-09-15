@@ -11,7 +11,7 @@ from tardis import run_tardis
 
 import numpy as np
 import pandas as pd
-import pandas.util.testing as pdt
+import pandas.testing as pdt
 import astropy.units as u
 import tardis
 

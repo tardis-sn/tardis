@@ -287,19 +287,19 @@ class AtomData(object):
         if u.u.cgs == const.u.cgs:
             atom_data.loc[:, "mass"] = Quantity(
                 atom_data["mass"].values, "u"
-            ).cgs
+            ).cgs.value
         else:
-            atom_data.loc[:, "mass"] = atom_data["mass"].values * const.u.cgs
+            atom_data.loc[:, "mass"] = atom_data["mass"].values * const.u.cgs.value
 
         # Convert ionization energies to CGS
         ionization_data = ionization_data.squeeze()
-        ionization_data[:] = Quantity(ionization_data[:], "eV").cgs
+        ionization_data[:] = Quantity(ionization_data[:], "eV").cgs.value
 
         # Convert energy to CGS
-        levels.loc[:, "energy"] = Quantity(levels["energy"].values, "eV").cgs
+        levels.loc[:, "energy"] = Quantity(levels["energy"].values, "eV").cgs.value
 
         # Create a new columns with wavelengths in the CGS units
-        lines["wavelength_cm"] = Quantity(lines["wavelength"], "angstrom").cgs
+        lines["wavelength_cm"] = Quantity(lines["wavelength"], "angstrom").cgs.value
 
         # SET ATTRIBUTES
 

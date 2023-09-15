@@ -8,17 +8,17 @@ dependencies:
   # WARNING: any change to this section must be applied to the conda-forge
   # package recipe at https://github.com/conda-forge/tardis-sn-feedstock
 
-  - python =3.8
+  - python
   - setuptools
-  - setuptools_scm <7
+  - setuptools_scm
   - pip
-  - numpy =1.19
-  - scipy =1.5
-  - pandas =1.0
-  - astropy =5.0
-  - numba =0.53
+  - numpy
+  - scipy
+  - pandas
+  - astropy
+  - numba
   - numexpr
-  - radioactivedecay >=0.4.12
+  - radioactivedecay
 
   # Plasma
   - networkx
@@ -27,7 +27,7 @@ dependencies:
   # I/O
   - pyyaml
   - jsonschema
-  - hdf5 =1.12
+  - hdf5
   - h5py
   - pytables
   - requests
@@ -47,7 +47,7 @@ dependencies:
   - lxml
 
   # Documentation
-  - sphinx <=7.1
+  - sphinx
   - sphinx-astropy
   - sphinx_bootstrap_theme
   - sphinx-jsonschema
