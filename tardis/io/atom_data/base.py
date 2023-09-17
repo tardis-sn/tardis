@@ -522,7 +522,7 @@ class AtomData(object):
                 self.macro_atom_data.loc[:, "destination_level_idx"] = -1
 
             if self.yg_data is not None:
-                self.yg_data = self.yg_data.loc[self.selected_atomic_numbers]
+                self.yg_data = self.yg_data.get(self.selected_atomic_numbers, default=np.nan)
 
         self.nlte_data = NLTEData(self, nlte_species)
 
