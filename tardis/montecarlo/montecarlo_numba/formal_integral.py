@@ -454,7 +454,7 @@ class FormalIntegrator(object):
         upper_level_index = self.atomic_data.lines.index.droplevel(
             "level_number_lower"
         )
-        e_dot_lu = pd.DataFrame(Edotlu, index=upper_level_index)
+        e_dot_lu = pd.DataFrame(Edotlu.values, index=upper_level_index)
         e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
         e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
 

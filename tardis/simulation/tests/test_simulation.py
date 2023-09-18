@@ -90,9 +90,9 @@ def test_plasma_estimates(simulation_one_loop, refdata, name):
     except AttributeError:
         actual = getattr(simulation_one_loop.model, name)
 
-    actual = pd.Series(actual)
+    actual = pd.Series(actual.value)
 
-    pdt.assert_series_equal(actual, refdata(name))
+    pdt.assert_series_equal(actual, refdata(name), rtol=1e-5, atol=1e-8)
 
 
 @pytest.mark.parametrize(
@@ -113,7 +113,7 @@ def test_plasma_state_iterations(simulation_one_loop, refdata, name):
         actual = pd.DataFrame(actual)
     
     if type(actual) == pd.DataFrame:
-        pdt.assert_frame_equal(actual, refdata(name))
+        pdt.assert_frame_equal(actual, refdata(name), rtol=1e-5, atol=1e-8)
     elif type(actual) == pd.Series:
         pdt.assert_series_equal(actual, refdata(name))
     else:
