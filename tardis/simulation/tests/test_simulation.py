@@ -8,10 +8,11 @@ import logging
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
 from tardis import run_tardis
+import pandas.testing as pdt
 
 import numpy as np
 import pandas as pd
-import pandas.testing as pdt
+
 import astropy.units as u
 import tardis
 
@@ -91,7 +92,7 @@ def test_plasma_estimates(simulation_one_loop, refdata, name):
 
     actual = pd.Series(actual)
 
-    pdt.assert_almost_equal(actual, refdata(name))
+    pdt.assert_series_equal(actual, refdata(name))
 
 
 @pytest.mark.parametrize(
@@ -110,8 +111,13 @@ def test_plasma_state_iterations(simulation_one_loop, refdata, name):
         actual = pd.Series(actual)
     except Exception:
         actual = pd.DataFrame(actual)
-
-    pdt.assert_almost_equal(actual, refdata(name))
+    
+    if type(actual) == pd.DataFrame:
+        pdt.assert_frame_equal(actual, refdata(name))
+    elif type(actual) == pd.Series:
+        pdt.assert_series_equal(actual, refdata(name))
+    else:
+        raise ValueError(f"Unknown type of actual {type(actual)}")
 
 
 @pytest.fixture(scope="module")

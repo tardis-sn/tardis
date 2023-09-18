@@ -168,7 +168,7 @@ class AtomData(object):
 
             for name in cls.hdf_names:
                 try:
-                    dataframes[name] = store[name]
+                    dataframes[name] = store.select(name)
                 except KeyError:
                     logger.debug(f"Dataframe does not contain {name} column")
                     nonavailable.append(name)
@@ -306,6 +306,8 @@ class AtomData(object):
         self.atom_data = atom_data
         self.ionization_data = ionization_data
         self.levels = levels
+        # Not sure why this is need - WEK 17 Sep 2023
+        self.levels.energy = self.levels.energy.astype(np.float64)
         self.lines = lines
 
         # Rename these (drop "_all") when `prepare_atom_data` is removed!
@@ -522,7 +524,7 @@ class AtomData(object):
                 self.macro_atom_data.loc[:, "destination_level_idx"] = -1
 
             if self.yg_data is not None:
-                self.yg_data = self.yg_data.get(self.selected_atomic_numbers, default=np.nan)
+                self.yg_data = self.yg_data.reindex(self.selected_atomic_numbers, level=0)
 
         self.nlte_data = NLTEData(self, nlte_species)
 

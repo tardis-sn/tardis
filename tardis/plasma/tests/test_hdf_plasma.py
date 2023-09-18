@@ -1,8 +1,9 @@
 import os
 import pandas as pd
 import pytest
-import pandas.testing as pdt
+
 from numpy.testing import assert_almost_equal
+import pandas.testing as pdt
 from tardis.plasma.properties import property_collections
 
 ###
@@ -68,7 +69,7 @@ def test_hdf_levels(hdf_file_path, simulation_verysimple):
         actual = actual.cgs.value
     path = os.path.join("plasma", "levels")
     expected = pd.read_hdf(hdf_file_path, path)
-    pdt.assert_almost_equal(pd.DataFrame(actual), expected)
+    pdt.assert_frame_equal(pd.DataFrame(actual), expected)
 
 
 scalars_list = ["time_explosion", "link_t_rad_t_electron"]

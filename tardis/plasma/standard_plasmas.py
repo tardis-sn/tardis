@@ -278,7 +278,7 @@ def assemble_plasma(config, model, atom_data=None):
     else:
         plasma_modules += helium_lte_properties
 
-    if model._electron_densities:
+    if model._electron_densities is not None:
         electron_densities = pd.Series(model._electron_densities.cgs.value)
         if config.plasma.helium_treatment == "numerical-nlte":
             property_kwargs[IonNumberDensityHeNLTE] = dict(

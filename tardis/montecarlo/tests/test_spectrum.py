@@ -38,7 +38,7 @@ def spectrum(request):
         request.param["lum"],
     )
     distance = request.param["distance"]
-    if distance:
+    if distance is not None:
         data.distance = distance
     return data
 
@@ -67,7 +67,7 @@ def test_luminosity_density_lambda(spectrum):
 
 
 def test_flux_nu(spectrum):
-    if getattr(spectrum, "distance", None):
+    if getattr(spectrum, "distance", None) is not None:
 
         with pytest.warns(DeprecationWarning):
             test_helper.assert_quantity_allclose(
@@ -82,7 +82,7 @@ def test_flux_nu(spectrum):
 
 
 def test_flux_lambda(spectrum):
-    if getattr(spectrum, "distance", None):
+    if getattr(spectrum, "distance", None) is not None:
 
         with pytest.warns(DeprecationWarning):
             test_helper.assert_quantity_allclose(

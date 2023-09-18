@@ -2,8 +2,10 @@ import os
 import warnings
 
 import pandas as pd
+import pandas.testing as pdt
 import pytest
-from pandas import testing as pdt
+
+import numpy as np
 from numpy.testing import assert_almost_equal
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
@@ -175,7 +177,13 @@ class TestPlasma(object):
                 actual = pd.DataFrame(actual)
             key = os.path.join(config.plasma.save_path, "plasma", attr)
             expected = tardis_ref_data[key]
-            pdt.assert_almost_equal(actual, expected)
+            if type(actual) == pd.DataFrame:
+                pdt.assert_frame_equal(actual, expected)
+            elif type(actual) == pd.Series:
+                pdt.assert_series_equal(actual, expected)
+            else:
+                raise TypeError(f"Unexpected type {type(actual)}")
+            # we used this before - assert_almost_equal(actual.values, expected.values)
         else:
             warnings.warn(f'Property "{attr}" not found')
 
@@ -183,7 +191,7 @@ class TestPlasma(object):
         actual = pd.DataFrame(plasma.levels)
         key = os.path.join(config.plasma.save_path, "plasma", "levels")
         expected = tardis_ref_data[key]
-        pdt.assert_almost_equal(actual, expected)
+        pdt.assert_frame_equal(actual, expected)
 
     @pytest.mark.parametrize("attr", scalars_properties)
     def test_scalars_properties(self, plasma, tardis_ref_data, config, attr):
@@ -192,7 +200,7 @@ class TestPlasma(object):
             actual = actual.cgs.value
         key = os.path.join(config.plasma.save_path, "plasma", "scalars")
         expected = tardis_ref_data[key][attr]
-        pdt.assert_almost_equal(actual, expected)
+        assert_almost_equal(actual, expected)
 
     def test_helium_treatment(self, plasma, tardis_ref_data, config):
         actual = plasma.helium_treatment
