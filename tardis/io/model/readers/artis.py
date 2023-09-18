@@ -34,8 +34,6 @@ def read_artis_density(fname):
             elif i == 2:
                 break
 
-    
-
     artis_model_columns = [
         "index",
         "velocities",
@@ -54,7 +52,6 @@ def read_artis_density(fname):
         names=artis_model_columns,
         delim_whitespace=True,
     ).to_records(index=False)
-
 
     velocity = u.Quantity(artis_model["velocities"], "km/s").to("cm/s")
     mean_density = u.Quantity(10 ** artis_model["mean_densities_0"], "g/cm^3")[

@@ -47,7 +47,8 @@ class TestBaseShellInfo:
             simulation_verysimple.model.t_radiative.value,
         )
         assert np.allclose(
-            shells_data.iloc[:, 1].map(np.float64), simulation_verysimple.model.w
+            shells_data.iloc[:, 1].map(np.float64),
+            simulation_verysimple.model.w,
         )
 
     @pytest.mark.parametrize("shell_num", [1, 20])

@@ -289,17 +289,23 @@ class AtomData(object):
                 atom_data["mass"].values, "u"
             ).cgs.value
         else:
-            atom_data.loc[:, "mass"] = atom_data["mass"].values * const.u.cgs.value
+            atom_data.loc[:, "mass"] = (
+                atom_data["mass"].values * const.u.cgs.value
+            )
 
         # Convert ionization energies to CGS
         ionization_data = ionization_data.squeeze()
         ionization_data[:] = Quantity(ionization_data[:], "eV").cgs.value
 
         # Convert energy to CGS
-        levels.loc[:, "energy"] = Quantity(levels["energy"].values, "eV").cgs.value
+        levels.loc[:, "energy"] = Quantity(
+            levels["energy"].values, "eV"
+        ).cgs.value
 
         # Create a new columns with wavelengths in the CGS units
-        lines["wavelength_cm"] = Quantity(lines["wavelength"], "angstrom").cgs.value
+        lines["wavelength_cm"] = Quantity(
+            lines["wavelength"], "angstrom"
+        ).cgs.value
 
         # SET ATTRIBUTES
 
@@ -524,7 +530,9 @@ class AtomData(object):
                 self.macro_atom_data.loc[:, "destination_level_idx"] = -1
 
             if self.yg_data is not None:
-                self.yg_data = self.yg_data.reindex(self.selected_atomic_numbers, level=0)
+                self.yg_data = self.yg_data.reindex(
+                    self.selected_atomic_numbers, level=0
+                )
 
         self.nlte_data = NLTEData(self, nlte_species)
 

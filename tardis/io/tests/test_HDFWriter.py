@@ -58,7 +58,7 @@ def test_complex_obj_write(tmpdir, attr):
     actual = MockHDF(attr)
     actual.to_hdf(fname, path="test", overwrite=True)
     expected = pd.read_hdf(fname, key="/test/mock_hdf/property").values
-    
+
     assert_array_almost_equal(actual.property, expected)
 
 
@@ -78,8 +78,7 @@ def test_multi_index_write(tmpdir):
     expected = pd.read_hdf(fname, key="/test/mock_hdf/property")
     expected = pd.MultiIndex.from_tuples(expected.unstack().values)
     # These are multiindex objects, so we need to compare the values
-    np.all(expected.values ==  actual.property.values)
-
+    np.all(expected.values == actual.property.values)
 
 
 # Test Quantity Objects
