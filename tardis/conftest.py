@@ -89,6 +89,7 @@ from syrupy.data import SnapshotCollection
 from syrupy.extensions.single_file import SingleFileSnapshotExtension
 from syrupy.types import SerializableData
 from syrupy.location import PyTestLocation
+from typing import Any, List, Tuple
 
 pytest_plugins = "syrupy"
 
@@ -228,7 +229,7 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
 pytest_plugins = "syrupy"
 
 class NumpySnapshotExtenstion(SingleFileSnapshotExtension):
-    _file_extension = "dat"
+    _file_extension = "npy"
 
     def matches(self, *, serialized_data, snapshot_data):
         try:
@@ -246,7 +247,7 @@ class NumpySnapshotExtenstion(SingleFileSnapshotExtension):
     ):
         # see https://github.com/tophat/syrupy/blob/f4bc8453466af2cfa75cdda1d50d67bc8c4396c3/src/syrupy/extensions/base.py#L139
         try:
-            return np.loadtxt(snapshot_location).tolist()
+            return np.load(snapshot_location).tolist()
         except OSError:
             return None
 
@@ -260,7 +261,7 @@ class NumpySnapshotExtenstion(SingleFileSnapshotExtension):
             snapshot_collection.location,
             next(iter(snapshot_collection)).data,
         )
-        np.savetxt(filepath, data)
+        np.save(filepath, data)
 
     def serialize(self, data: SerializableData, **kwargs: Any) -> str:
         return data
