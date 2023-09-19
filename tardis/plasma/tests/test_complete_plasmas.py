@@ -3,6 +3,7 @@ import warnings
 
 import pandas as pd
 import pandas.testing as pdt
+import numpy as np
 import pytest
 
 import numpy as np
@@ -168,7 +169,7 @@ class TestPlasma(object):
         return sim.plasma
 
     @pytest.mark.parametrize("attr", combined_properties)
-    def test_plasma_properties(self, plasma, tardis_ref_data, config, attr):
+    def test_plasma_properties(self, plasma, tardis_ref_data, config, attr, snapshot_pd, snapshot_np):
         if hasattr(plasma, attr):
             actual = getattr(plasma, attr)
             if hasattr(actual, "unit"):
@@ -179,30 +180,36 @@ class TestPlasma(object):
                 actual = pd.DataFrame(actual)
             key = os.path.join(config.plasma.save_path, "plasma", attr)
             expected = tardis_ref_data[key]
-            if type(actual) == pd.DataFrame:
-                pdt.assert_frame_equal(actual, expected)
-            elif type(actual) == pd.Series:
-                pdt.assert_series_equal(actual, expected)
+            pdt.assert_frame_equal(actual, expected)
+            if isinstance(actual, (pd.DataFrame, pd.Series)):
+                assert snapshot_pd == actual
             else:
-                raise TypeError(f"Unexpected type {type(actual)}")
-            # we used this before - assert_almost_equal(actual.values, expected.values)
+                assert snapshot_np ==  actual
         else:
             warnings.warn(f'Property "{attr}" not found')
 
-    def test_levels(self, plasma, tardis_ref_data, config):
+    def test_levels(self, plasma, tardis_ref_data, config, snapshot_pd, snapshot_np):
         actual = pd.DataFrame(plasma.levels)
         key = os.path.join(config.plasma.save_path, "plasma", "levels")
         expected = tardis_ref_data[key]
         pdt.assert_frame_equal(actual, expected)
+        if isinstance(actual, (pd.DataFrame, pd.Series)):
+            assert snapshot_pd == actual
+        else:
+            assert snapshot_np ==  actual
 
     @pytest.mark.parametrize("attr", scalars_properties)
-    def test_scalars_properties(self, plasma, tardis_ref_data, config, attr):
+    def test_scalars_properties(self, plasma, tardis_ref_data, config, attr, snapshot_pd, snapshot_np):
         actual = getattr(plasma, attr)
         if hasattr(actual, "cgs"):
             actual = actual.cgs.value
         key = os.path.join(config.plasma.save_path, "plasma", "scalars")
         expected = tardis_ref_data[key][attr]
-        assert_almost_equal(actual, expected)
+        pdt.assert_frame_equal(actual, expected)
+        if isinstance(actual, (pd.DataFrame, pd.Series)):
+            assert snapshot_pd == actual
+        else:
+            assert snapshot_np ==  actual
 
     def test_helium_treatment(self, plasma, tardis_ref_data, config):
         actual = plasma.helium_treatment
@@ -210,9 +217,13 @@ class TestPlasma(object):
         expected = tardis_ref_data[key]["helium_treatment"]
         assert actual == expected
 
-    def test_zeta_data(self, plasma, tardis_ref_data, config):
+    def test_zeta_data(self, plasma, tardis_ref_data, config, snapshot_pd, snapshot_np):
         if hasattr(plasma, "zeta_data"):
             actual = plasma.zeta_data
             key = os.path.join(config.plasma.save_path, "plasma", "zeta_data")
             expected = tardis_ref_data[key]
             assert_almost_equal(actual, expected.values)
+            if isinstance(actual, (pd.DataFrame, pd.Series)):
+                assert snapshot_pd == actual
+            else:
+                assert snapshot_np ==  actual
