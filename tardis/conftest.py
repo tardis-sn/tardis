@@ -80,10 +80,17 @@ def pytest_configure(config):
 
 import pytest
 import pandas as pd
+import numpy as np
 from tardis.io.util import yaml_load_file, YAMLLoader
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
 
+from syrupy.data import SnapshotCollection
+from syrupy.extensions.single_file import SingleFileSnapshotExtension
+from syrupy.types import SerializableData
+from syrupy.location import PyTestLocation
+
+pytest_plugins = "syrupy"
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -211,3 +218,121 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
     sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
     sim.iterate(4000)
     return sim
+
+
+
+# -------------------------------------------------------------------------
+# fixtures and plugins for syrupy/regression data testing
+# -------------------------------------------------------------------------
+
+pytest_plugins = "syrupy"
+
+class NumpySnapshotExtenstion(SingleFileSnapshotExtension):
+    _file_extension = "dat"
+
+    def matches(self, *, serialized_data, snapshot_data):
+        try:
+            if np.testing.assert_allclose(
+                np.array(snapshot_data), np.array(serialized_data)
+            )  is not None:
+                return False
+            else: return True
+            
+        except:
+            return False
+
+    def _read_snapshot_data_from_location(
+        self, *, snapshot_location: str, snapshot_name: str, session_id: str
+    ):
+        # see https://github.com/tophat/syrupy/blob/f4bc8453466af2cfa75cdda1d50d67bc8c4396c3/src/syrupy/extensions/base.py#L139
+        try:
+            return np.loadtxt(snapshot_location).tolist()
+        except OSError:
+            return None
+
+    @classmethod
+    def _write_snapshot_collection(
+        cls, *, snapshot_collection: SnapshotCollection
+    ) -> None:
+        # see https://github.com/tophat/syrupy/blob/f4bc8453466af2cfa75cdda1d50d67bc8c4396c3/src/syrupy/extensions/base.py#L161
+        
+        filepath, data = (
+            snapshot_collection.location,
+            next(iter(snapshot_collection)).data,
+        )
+        np.savetxt(filepath, data)
+
+    def serialize(self, data: SerializableData, **kwargs: Any) -> str:
+        return data
+
+
+
+class PandasSnapshotExtenstion(SingleFileSnapshotExtension):
+    _file_extension = "hdf"
+
+    def matches(self, *, serialized_data, snapshot_data):
+        try:
+            if pd.testing.assert_frame_equal(
+                serialized_data, snapshot_data
+            )  is not None:
+                return False
+            else: return True
+            
+        except:
+            return False
+
+    def _read_snapshot_data_from_location(
+        self, *, snapshot_location: str, snapshot_name: str, session_id: str
+    ):
+        # see https://github.com/tophat/syrupy/blob/f4bc8453466af2cfa75cdda1d50d67bc8c4396c3/src/syrupy/extensions/base.py#L139
+        try:
+            return pd.read_hdf(snapshot_location)
+        except OSError:
+            return None
+
+    @classmethod
+    def _write_snapshot_collection(
+        cls, *, snapshot_collection: SnapshotCollection
+    ) -> None:
+        # see https://github.com/tophat/syrupy/blob/f4bc8453466af2cfa75cdda1d50d67bc8c4396c3/src/syrupy/extensions/base.py#L161
+        filepath, data = (
+            snapshot_collection.location,
+            next(iter(snapshot_collection)).data,
+        )
+        data.to_hdf(filepath, "/blah")
+
+    def serialize(self, data: SerializableData, **kwargs: Any) -> str:
+        return data
+
+def add_refdata_repo_pandas_syrupy(refpath):
+    class PandasSnapshotExtenstionRefdata(PandasSnapshotExtenstion):
+        @classmethod
+        def dirname(cls, *, test_location: "PyTestLocation") -> str:
+            return str(
+                Path(test_location.filepath).parent.joinpath(
+                    refpath
+                )
+            )
+    return PandasSnapshotExtenstionRefdata
+
+def add_refdata_repo_numpy_syrupy(refpath):
+    class NumpySnapshotExtenstionRefdata(NumpySnapshotExtenstion):
+        @classmethod
+        def dirname(cls, *, test_location: "PyTestLocation") -> str:
+            return str(
+                Path(test_location.filepath).parent.joinpath(
+                    refpath
+                )
+            )
+    return NumpySnapshotExtenstionRefdata
+
+@pytest.fixture
+def snapshot_pd(snapshot, request):
+    PandasSnapshotExtenstionRefdata = add_refdata_repo_pandas_syrupy(tardis_ref_path)
+    return snapshot.use_extension(PandasSnapshotExtenstionRefdata)
+
+@pytest.fixture
+def snapshot_np(snapshot):
+    NumpySnapshotExtenstionRefdata = add_refdata_repo_numpy_syrupy(tardis_ref_path)
+    return snapshot.use_extension(NumpySnapshotExtenstionRefdata)
+
