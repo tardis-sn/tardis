@@ -435,20 +435,26 @@ def main_gamma_ray_loop(
                 if rd.Nuclide(c).half_life("readable") != "stable":
                     parents[c] = isotope
 
-        energy, intensity = setup_input_energy(
-            gamma_ray_lines[
-                gamma_ray_lines.loc[isotope.replace("-", "")
-            ]],
-            "g",
-        )
+        #energy, intensity = setup_input_energy(
+        #    gamma_ray_lines[
+        #        gamma_ray_lines.loc[isotope.replace("-", "")
+        #    ]],
+        #    "g",
+        #)
+        print (isotope)
+        energy, intensity = setup_input_energy(gamma_ray_lines
+                        [gamma_ray_lines.index == isotope.replace("-", "")], "g")
+
         gamma_ray_line_array_list.append(np.stack([energy, intensity]))
         average_energies_list.append(np.sum(energy * intensity))
-        positron_energy, positron_intensity = setup_input_energy(
-            gamma_ray_lines[
-                gamma_ray_lines.loc[isotope.replace("-", "")
-            ]],
-            "bp",
-        )
+        #positron_energy, positron_intensity = setup_input_energy(
+        #    gamma_ray_lines[
+        #        gamma_ray_lines.loc[isotope.replace("-", "")
+        #    ]],
+        #    "bp",
+        #)
+        positron_energy, positron_intensity = setup_input_energy(gamma_ray_lines
+                         [gamma_ray_lines.index == isotope.replace("-", "")], "bp")
         average_positron_energies_list.append(
             np.sum(positron_energy * positron_intensity)
         )
@@ -494,6 +500,7 @@ def main_gamma_ray_loop(
         total_energy_list.append(decayed_energy)
 
     total_energy = pd.DataFrame(total_energy_list)
+    
 
     total_energy_columns = total_energy.columns.to_list()
 
@@ -502,11 +509,16 @@ def main_gamma_ray_loop(
             total_energy_columns, key=get_nuclide_atomic_number, reverse=True
         )
     ]
+    #print (total_energy)
+    #print (raw_isotope_abundance * shell_masses)
+    print (total_energy.shape)
+    print (raw_isotope_abundance.shape)
 
     energy_per_mass = total_energy.divide(
         (raw_isotope_abundance * shell_masses).T.to_numpy(),
         axis=0,
     )
+    print (energy_per_mass)
 
     # Time averaged energy per mass for constant packet count
     average_power_per_mass = energy_per_mass / (time_end - time_start)
