@@ -327,12 +327,14 @@ def add_refdata_repo_numpy_syrupy(refpath):
     return NumpySnapshotExtenstionRefdata
 
 @pytest.fixture
-def snapshot_pd(snapshot, request):
+def snapshot_pd(snapshot, tardis_ref_path, request):
+    tardis_ref_path = tardis_ref_path.joinpath("syrupy_data")
     PandasSnapshotExtenstionRefdata = add_refdata_repo_pandas_syrupy(tardis_ref_path)
     return snapshot.use_extension(PandasSnapshotExtenstionRefdata)
 
 @pytest.fixture
-def snapshot_np(snapshot):
+def snapshot_np(snapshot, tardis_ref_path, request):
+    tardis_ref_path = tardis_ref_path.joinpath("syrupy_data")
     NumpySnapshotExtenstionRefdata = add_refdata_repo_numpy_syrupy(tardis_ref_path)
     return snapshot.use_extension(NumpySnapshotExtenstionRefdata)
 
