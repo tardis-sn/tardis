@@ -169,7 +169,9 @@ class TestPlasma(object):
         return sim.plasma
 
     @pytest.mark.parametrize("attr", combined_properties)
-    def test_plasma_properties(self, plasma, tardis_ref_data, config, attr, snapshot_pd, snapshot_np):
+    def test_plasma_properties(
+        self, plasma, tardis_ref_data, config, attr, snapshot_pd, snapshot_np
+    ):
         if hasattr(plasma, attr):
             actual = getattr(plasma, attr)
             if hasattr(actual, "unit"):
@@ -184,11 +186,13 @@ class TestPlasma(object):
             if isinstance(actual, (pd.DataFrame, pd.Series)):
                 assert snapshot_pd == actual
             else:
-                assert snapshot_np ==  actual
+                assert snapshot_np == actual
         else:
             warnings.warn(f'Property "{attr}" not found')
 
-    def test_levels(self, plasma, tardis_ref_data, config, snapshot_pd, snapshot_np):
+    def test_levels(
+        self, plasma, tardis_ref_data, config, snapshot_pd, snapshot_np
+    ):
         actual = pd.DataFrame(plasma.levels)
         key = os.path.join(config.plasma.save_path, "plasma", "levels")
         expected = tardis_ref_data[key]
@@ -196,10 +200,12 @@ class TestPlasma(object):
         if isinstance(actual, (pd.DataFrame, pd.Series)):
             assert snapshot_pd == actual
         else:
-            assert snapshot_np ==  actual
+            assert snapshot_np == actual
 
     @pytest.mark.parametrize("attr", scalars_properties)
-    def test_scalars_properties(self, plasma, tardis_ref_data, config, attr, snapshot_pd, snapshot_np):
+    def test_scalars_properties(
+        self, plasma, tardis_ref_data, config, attr, snapshot_pd, snapshot_np
+    ):
         actual = getattr(plasma, attr)
         if hasattr(actual, "cgs"):
             actual = actual.cgs.value
@@ -209,7 +215,7 @@ class TestPlasma(object):
         if isinstance(actual, (pd.DataFrame, pd.Series)):
             assert snapshot_pd == actual
         else:
-            assert snapshot_np ==  actual
+            assert snapshot_np == actual
 
     def test_helium_treatment(self, plasma, tardis_ref_data, config):
         actual = plasma.helium_treatment
@@ -223,4 +229,4 @@ class TestPlasma(object):
             key = os.path.join(config.plasma.save_path, "plasma", "zeta_data")
             expected = tardis_ref_data[key]
             assert_almost_equal(actual, expected.values)
-            assert snapshot_np ==  actual.values
+            assert snapshot_np == actual.values
