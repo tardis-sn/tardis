@@ -356,15 +356,7 @@ def main_gamma_ray_loop(
     ), "Error, simulation start time greater than end time!"
 
     if time_space == "log":
-        times = np.zeros(time_steps + 1)
-
-        # log time steps
-        for i in range(time_steps + 1):
-            times[i] = (
-                np.log(time_start)
-                + (np.log(time_end) - np.log(time_start)) / time_steps * i
-            )
-            times[i] = np.exp(times[i])
+        times = np.geomspace(time_start, time_end, time_steps + 1)
     else:
         times = np.linspace(time_start, time_end, time_steps + 1)
 
