@@ -281,7 +281,7 @@ class PandasSnapshotExtenstion(SingleFileSnapshotExtension):
                 comp_func = comparer[type(serialized_data)]
             except KeyError:
                 raise ValueError("Can only compare Series and Dataframes with PandasSnapshotExtenstion.")
-            
+
             if comp_func(serialized_data, snapshot_data) is not None:
                 return False
             else:
@@ -295,7 +295,9 @@ class PandasSnapshotExtenstion(SingleFileSnapshotExtension):
     ):
         # see https://github.com/tophat/syrupy/blob/f4bc8453466af2cfa75cdda1d50d67bc8c4396c3/src/syrupy/extensions/base.py#L139
         try:
-            return pd.read_hdf(snapshot_location)
+            data = pd.read_hdf(snapshot_location)
+            return data
+        
         except OSError:
             return None
 
@@ -308,7 +310,7 @@ class PandasSnapshotExtenstion(SingleFileSnapshotExtension):
             snapshot_collection.location,
             next(iter(snapshot_collection)).data,
         )
-        data.to_hdf(filepath, "/blah")
+        data.to_hdf(filepath, "/data")
 
     def serialize(self, data: SerializableData, **kwargs: Any) -> str:
         return data

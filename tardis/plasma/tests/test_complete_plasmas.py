@@ -217,13 +217,10 @@ class TestPlasma(object):
         expected = tardis_ref_data[key]["helium_treatment"]
         assert actual == expected
 
-    def test_zeta_data(self, plasma, tardis_ref_data, config, snapshot_pd, snapshot_np):
+    def test_zeta_data(self, plasma, tardis_ref_data, config, snapshot_np):
         if hasattr(plasma, "zeta_data"):
             actual = plasma.zeta_data
             key = os.path.join(config.plasma.save_path, "plasma", "zeta_data")
             expected = tardis_ref_data[key]
             assert_almost_equal(actual, expected.values)
-            if isinstance(actual, (pd.DataFrame, pd.Series)):
-                assert snapshot_pd == actual
-            else:
-                assert snapshot_np ==  actual
+            assert snapshot_np ==  actual.values
