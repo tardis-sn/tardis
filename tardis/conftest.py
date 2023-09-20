@@ -226,7 +226,6 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
 # fixtures and plugins for syrupy/regression data testing
 # -------------------------------------------------------------------------
 
-pytest_plugins = "syrupy"
 
 
 class NumpySnapshotExtenstion(SingleFileSnapshotExtension):
