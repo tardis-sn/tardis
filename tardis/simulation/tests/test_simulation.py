@@ -89,8 +89,8 @@ def test_plasma_estimates(simulation_one_loop, refdata, name):
         actual = getattr(simulation_one_loop.transport, name)
     except AttributeError:
         actual = getattr(simulation_one_loop.model, name)
-    if name in ['t_radiative', 'output_nu', 'output_energy']:
-        #removing the quantitiness of the data
+    if name in ["t_radiative", "output_nu", "output_energy"]:
+        # removing the quantitiness of the data
         actual = actual.value
     actual = pd.Series(actual)
 
