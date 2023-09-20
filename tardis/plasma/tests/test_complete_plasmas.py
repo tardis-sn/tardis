@@ -171,6 +171,8 @@ class TestPlasma(object):
     def test_plasma_properties(self, plasma, tardis_ref_data, config, attr):
         if hasattr(plasma, attr):
             actual = getattr(plasma, attr)
+            if hasattr(actual, "unit"):
+                actual = actual.value
             if actual.ndim == 1:
                 actual = pd.Series(actual)
             else:
