@@ -93,6 +93,7 @@ from typing import Any, List, Tuple
 
 pytest_plugins = "syrupy"
 
+
 def pytest_addoption(parser):
     parser.addoption(
         "--tardis-refdata", default=None, help="Path to Tardis Reference Folder"
@@ -221,24 +222,28 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
     return sim
 
 
-
 # -------------------------------------------------------------------------
 # fixtures and plugins for syrupy/regression data testing
 # -------------------------------------------------------------------------
 
 pytest_plugins = "syrupy"
 
+
 class NumpySnapshotExtenstion(SingleFileSnapshotExtension):
     _file_extension = "npy"
 
     def matches(self, *, serialized_data, snapshot_data):
         try:
-            if np.testing.assert_allclose(
-                np.array(snapshot_data), np.array(serialized_data)
-            )  is not None:
+            if (
+                np.testing.assert_allclose(
+                    np.array(snapshot_data), np.array(serialized_data)
+                )
+                is not None
+            ):
                 return False
-            else: return True
-            
+            else:
+                return True
+
         except:
             return False
 
@@ -256,7 +261,7 @@ class NumpySnapshotExtenstion(SingleFileSnapshotExtension):
         cls, *, snapshot_collection: SnapshotCollection
     ) -> None:
         # see https://github.com/tophat/syrupy/blob/f4bc8453466af2cfa75cdda1d50d67bc8c4396c3/src/syrupy/extensions/base.py#L161
-        
+
         filepath, data = (
             snapshot_collection.location,
             next(iter(snapshot_collection)).data,
@@ -267,7 +272,6 @@ class NumpySnapshotExtenstion(SingleFileSnapshotExtension):
         return data
 
 
-
 class PandasSnapshotExtenstion(SingleFileSnapshotExtension):
     _file_extension = "hdf"
 
@@ -275,12 +279,14 @@ class PandasSnapshotExtenstion(SingleFileSnapshotExtension):
         try:
             comparer = {
                 pd.Series: pd.testing.assert_series_equal,
-                pd.DataFrame: pd.testing.assert_frame_equal
+                pd.DataFrame: pd.testing.assert_frame_equal,
             }
             try:
                 comp_func = comparer[type(serialized_data)]
             except KeyError:
-                raise ValueError("Can only compare Series and Dataframes with PandasSnapshotExtenstion.")
+                raise ValueError(
+                    "Can only compare Series and Dataframes with PandasSnapshotExtenstion."
+                )
 
             if comp_func(serialized_data, snapshot_data) is not None:
                 return False
@@ -297,7 +303,7 @@ class PandasSnapshotExtenstion(SingleFileSnapshotExtension):
         try:
             data = pd.read_hdf(snapshot_location)
             return data
-        
+
         except OSError:
             return None
 
@@ -315,37 +321,38 @@ class PandasSnapshotExtenstion(SingleFileSnapshotExtension):
     def serialize(self, data: SerializableData, **kwargs: Any) -> str:
         return data
 
+
 def add_refdata_repo_pandas_syrupy(refpath):
     class PandasSnapshotExtenstionRefdata(PandasSnapshotExtenstion):
         @classmethod
         def dirname(cls, *, test_location: "PyTestLocation") -> str:
-            return str(
-                Path(test_location.filepath).parent.joinpath(
-                    refpath
-                )
-            )
+            return str(Path(test_location.filepath).parent.joinpath(refpath))
+
     return PandasSnapshotExtenstionRefdata
+
 
 def add_refdata_repo_numpy_syrupy(refpath):
     class NumpySnapshotExtenstionRefdata(NumpySnapshotExtenstion):
         @classmethod
         def dirname(cls, *, test_location: "PyTestLocation") -> str:
-            return str(
-                Path(test_location.filepath).parent.joinpath(
-                    refpath
-                )
-            )
+            return str(Path(test_location.filepath).parent.joinpath(refpath))
+
     return NumpySnapshotExtenstionRefdata
+
 
 @pytest.fixture
 def snapshot_pd(snapshot, tardis_ref_path, request):
     tardis_ref_path = tardis_ref_path.joinpath("syrupy_data")
-    PandasSnapshotExtenstionRefdata = add_refdata_repo_pandas_syrupy(tardis_ref_path)
+    PandasSnapshotExtenstionRefdata = add_refdata_repo_pandas_syrupy(
+        tardis_ref_path
+    )
     return snapshot.use_extension(PandasSnapshotExtenstionRefdata)
+
 
 @pytest.fixture
 def snapshot_np(snapshot, tardis_ref_path, request):
     tardis_ref_path = tardis_ref_path.joinpath("syrupy_data")
-    NumpySnapshotExtenstionRefdata = add_refdata_repo_numpy_syrupy(tardis_ref_path)
+    NumpySnapshotExtenstionRefdata = add_refdata_repo_numpy_syrupy(
+        tardis_ref_path
+    )
     return snapshot.use_extension(NumpySnapshotExtenstionRefdata)
-
