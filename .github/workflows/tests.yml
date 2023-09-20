@@ -14,7 +14,7 @@ on:
     - '*'
 
 env:
-  CACHE_NUMBER: 0  # increase to reset cache manually
+  CACHE_NUMBER: 1  # increase to reset cache manually
   PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata
                 --cov=tardis --cov-report=xml --cov-report=html
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
