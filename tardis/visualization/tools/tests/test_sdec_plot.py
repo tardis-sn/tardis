@@ -408,12 +408,14 @@ class TestSDECPlotter:
         species_list : list of str
         """
         subgroup_name = make_valid_name("mpl" + request.node.callspec.id)
+        if distance is None:
+            observed_spectrum = None
         fig = plotter.generate_plot_mpl(
             packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
             distance=distance,
             show_modeled_spectrum=show_modeled_spectrum,
-            observed_spectrum=observed_spectrum if distance else None,
+            observed_spectrum=observed_spectrum,
             nelements=nelements,
             species_list=species_list,
         )
@@ -549,12 +551,16 @@ class TestSDECPlotter:
         species_list : list of str
         """
         subgroup_name = make_valid_name("ply" + request.node.callspec.id)
+        if distance is not None:
+            observed_spectrum = observed_spectrum
+        else:
+            observed_spectrum = None
         fig = plotter.generate_plot_ply(
             packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
             distance=distance,
             show_modeled_spectrum=show_modeled_spectrum,
-            observed_spectrum=observed_spectrum if distance else None,
+            observed_spectrum=observed_spectrum,
             nelements=nelements,
             species_list=species_list,
         )

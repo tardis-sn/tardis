@@ -43,11 +43,12 @@ class TestBaseShellInfo:
             2,
         )
         assert np.allclose(
-            shells_data.iloc[:, 0].map(np.float),
+            shells_data.iloc[:, 0].map(np.float64),
             simulation_verysimple.model.t_radiative.value,
         )
         assert np.allclose(
-            shells_data.iloc[:, 1].map(np.float), simulation_verysimple.model.w
+            shells_data.iloc[:, 1].map(np.float64),
+            simulation_verysimple.model.w,
         )
 
     @pytest.mark.parametrize("shell_num", [1, 20])
@@ -60,7 +61,7 @@ class TestBaseShellInfo:
             2,
         )
         assert np.allclose(
-            element_count_data.iloc[:, -1].map(np.float),
+            element_count_data.iloc[:, -1].map(np.float64),
             simulation_verysimple.plasma.abundance[shell_num - 1],
         )
 
@@ -81,7 +82,7 @@ class TestBaseShellInfo:
         )
         assert ion_count_data.shape == (len(sim_ion_number_density), 2)
         assert np.allclose(
-            ion_count_data.iloc[:, -1].map(np.float),
+            ion_count_data.iloc[:, -1].map(np.float64),
             sim_ion_number_density / sim_element_number_density,
         )
 
@@ -111,7 +112,7 @@ class TestBaseShellInfo:
         )
         assert level_count_data.shape == (len(sim_level_number_density), 1)
         assert np.allclose(
-            level_count_data.iloc[:, 0].map(np.float),
+            level_count_data.iloc[:, 0].map(np.float64),
             sim_level_number_density / sim_ion_number_density,
         )
 

@@ -90,11 +90,6 @@ class TestTransportSimpleFormalIntegral:
             refdata("spectrum_integrated/luminosity"), "erg /s"
         )
 
-        print(
-            "actual, desired: ",
-            luminosity,
-            transport.spectrum_integrated.luminosity,
-        )
         assert_quantity_allclose(
             transport.spectrum_integrated.luminosity, luminosity
         )

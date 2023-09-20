@@ -596,7 +596,7 @@ class SDECPlotter:
         self.plot_frequency = self.data[packets_mode].spectrum_frequency
 
         # Filter their plottable range based on packet_wvl_range specified
-        if packet_wvl_range:
+        if packet_wvl_range is not None:
             packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
 
             # Index of value just before the 1st value that is > packet_nu_range[1]
@@ -1224,7 +1224,7 @@ class SDECPlotter:
         # Set legends and labels
         self.ax.legend(fontsize=12)
         self.ax.set_xlabel(r"Wavelength $[\mathrm{\AA}]$", fontsize=12)
-        if distance:  # Set y-axis label for flux
+        if distance is not None:  # Set y-axis label for flux
             self.ax.set_ylabel(
                 r"$F_{\lambda}$ [erg $\mathrm{s^{-1}}$ $\mathrm{cm^{-2}}$ $\mathrm{\AA^{-1}}$]",
                 fontsize=12,
@@ -1632,7 +1632,7 @@ class SDECPlotter:
 
         # Set label and other layout options
         xlabel = pu.axis_label_in_latex("Wavelength", u.AA)
-        if distance:  # Set y-axis label for flux
+        if distance is not None:  # Set y-axis label for flux
             ylabel = pu.axis_label_in_latex(
                 "F_{\\lambda}", u.Unit("erg/(s cm**2 AA)"), only_text=False
             )

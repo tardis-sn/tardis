@@ -168,7 +168,7 @@ class AtomData(object):
 
             for name in cls.hdf_names:
                 try:
-                    dataframes[name] = store[name]
+                    dataframes[name] = store.select(name)
                 except KeyError:
                     logger.debug(f"Dataframe does not contain {name} column")
                     nonavailable.append(name)
@@ -287,25 +287,33 @@ class AtomData(object):
         if u.u.cgs == const.u.cgs:
             atom_data.loc[:, "mass"] = Quantity(
                 atom_data["mass"].values, "u"
-            ).cgs
+            ).cgs.value
         else:
-            atom_data.loc[:, "mass"] = atom_data["mass"].values * const.u.cgs
+            atom_data.loc[:, "mass"] = (
+                atom_data["mass"].values * const.u.cgs.value
+            )
 
         # Convert ionization energies to CGS
         ionization_data = ionization_data.squeeze()
-        ionization_data[:] = Quantity(ionization_data[:], "eV").cgs
+        ionization_data[:] = Quantity(ionization_data[:], "eV").cgs.value
 
         # Convert energy to CGS
-        levels.loc[:, "energy"] = Quantity(levels["energy"].values, "eV").cgs
+        levels.loc[:, "energy"] = Quantity(
+            levels["energy"].values, "eV"
+        ).cgs.value
 
         # Create a new columns with wavelengths in the CGS units
-        lines["wavelength_cm"] = Quantity(lines["wavelength"], "angstrom").cgs
+        lines["wavelength_cm"] = Quantity(
+            lines["wavelength"], "angstrom"
+        ).cgs.value
 
         # SET ATTRIBUTES
 
         self.atom_data = atom_data
         self.ionization_data = ionization_data
         self.levels = levels
+        # Not sure why this is need - WEK 17 Sep 2023
+        self.levels.energy = self.levels.energy.astype(np.float64)
         self.lines = lines
 
         # Rename these (drop "_all") when `prepare_atom_data` is removed!
@@ -522,7 +530,9 @@ class AtomData(object):
                 self.macro_atom_data.loc[:, "destination_level_idx"] = -1
 
             if self.yg_data is not None:
-                self.yg_data = self.yg_data.loc[self.selected_atomic_numbers]
+                self.yg_data = self.yg_data.reindex(
+                    self.selected_atomic_numbers, level=0
+                )
 
         self.nlte_data = NLTEData(self, nlte_species)
 

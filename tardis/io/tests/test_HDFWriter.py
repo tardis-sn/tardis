@@ -1,11 +1,8 @@
-import os
-
 import numpy as np
 import pandas as pd
-import pandas.util.testing as pdt
 import pytest
 from astropy import units as u
-from astropy.tests.helper import assert_quantity_allclose
+
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from tardis.io.util import HDFWriterMixin
@@ -61,6 +58,7 @@ def test_complex_obj_write(tmpdir, attr):
     actual = MockHDF(attr)
     actual.to_hdf(fname, path="test", overwrite=True)
     expected = pd.read_hdf(fname, key="/test/mock_hdf/property").values
+
     assert_array_almost_equal(actual.property, expected)
 
 
@@ -79,7 +77,8 @@ def test_multi_index_write(tmpdir):
     actual.to_hdf(fname, path="test", overwrite=True)
     expected = pd.read_hdf(fname, key="/test/mock_hdf/property")
     expected = pd.MultiIndex.from_tuples(expected.unstack().values)
-    pdt.assert_almost_equal(actual.property, expected)
+    # These are multiindex objects, so we need to compare the values
+    assert np.all(expected.values == actual.property.values)
 
 
 # Test Quantity Objects

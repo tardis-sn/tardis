@@ -593,7 +593,7 @@ class Radial1DModel(HDFWriterMixin):
         #       v boundaries.
         no_of_shells = len(velocity) - 1
 
-        if temperature:
+        if temperature is not None:
             t_radiative = temperature
         elif config.plasma.initial_t_rad > 0 * u.K:
             t_radiative = (

@@ -53,7 +53,6 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
 
     @staticmethod
     def calculate(g_electron, beta_rad, partition_function, ionization_data):
-
         phis = np.empty(
             (
                 partition_function.shape[0]
@@ -70,9 +69,9 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
             current_phis = current_block[1:] / current_block[:-1]
             phis[start_id - i : end_id - i - 1] = current_phis
 
-        broadcast_ionization_energy = ionization_data[
+        broadcast_ionization_energy = ionization_data.reindex(
             partition_function.index
-        ].dropna()
+        ).dropna()
         phi_index = broadcast_ionization_energy.index
         broadcast_ionization_energy = broadcast_ionization_energy.values
 

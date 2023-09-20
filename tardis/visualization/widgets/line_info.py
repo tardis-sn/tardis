@@ -328,7 +328,7 @@ class LineInfoWidget:
                 for (
                     line_id,
                     count,
-                ) in grouped_line_interactions.size().iteritems():
+                ) in grouped_line_interactions.size().items():
                     current_line_in = self.lines_data.loc[line_id[0]]
                     current_line_out = self.lines_data.loc[line_id[1]]
                     last_line_interaction_string.append(
@@ -350,7 +350,7 @@ class LineInfoWidget:
                 for (
                     line_id,
                     count,
-                ) in grouped_line_interactions.size().iteritems():
+                ) in grouped_line_interactions.size().items():
                     current_line_in = self.lines_data.loc[line_id]
                     last_line_interaction_string.append(
                         f"exc. {int(current_line_in.level_number_lower):02d}-"
@@ -368,7 +368,7 @@ class LineInfoWidget:
                 for (
                     line_id,
                     count,
-                ) in grouped_line_interactions.size().iteritems():
+                ) in grouped_line_interactions.size().items():
                     current_line_out = self.lines_data.loc[line_id]
                     last_line_interaction_string.append(
                         f"de-exc. {int(current_line_out.level_number_upper):02d}-"

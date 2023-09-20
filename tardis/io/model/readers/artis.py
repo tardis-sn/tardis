@@ -1,6 +1,6 @@
 import numpy as np
 from astropy import units as u
-from numpy import recfromtxt
+import pandas as pd
 
 
 def read_artis_density(fname):
@@ -43,13 +43,15 @@ def read_artis_density(fname):
         "fe52_fraction",
         "cr48_fraction",
     ]
-    artis_model = recfromtxt(
+
+    artis_model = pd.read_csv(
         fname,
-        skip_header=2,
+        skiprows=2,
         usecols=(0, 1, 2, 4, 5, 6, 7),
-        unpack=True,
-        dtype=[(item, np.float64) for item in artis_model_columns],
-    )
+        dtype={item: np.float64 for item in artis_model_columns},
+        names=artis_model_columns,
+        delim_whitespace=True,
+    ).to_records(index=False)
 
     velocity = u.Quantity(artis_model["velocities"], "km/s").to("cm/s")
     mean_density = u.Quantity(10 ** artis_model["mean_densities_0"], "g/cm^3")[
