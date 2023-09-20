@@ -273,12 +273,20 @@ class PandasSnapshotExtenstion(SingleFileSnapshotExtension):
 
     def matches(self, *, serialized_data, snapshot_data):
         try:
-            if pd.testing.assert_frame_equal(
-                serialized_data, snapshot_data
-            )  is not None:
-                return False
-            else: return True
+            comparer = {
+                pd.Series: pd.testing.assert_series_equal,
+                pd.DataFrame: pd.testing.assert_frame_equal
+            }
+            try:
+                comp_func = comparer[type(serialized_data)]
+            except KeyError:
+                raise ValueError("Can only compare Series and Dataframes with PandasSnapshotExtenstion.")
             
+            if comp_func(serialized_data, snapshot_data) is not None:
+                return False
+            else:
+                return True
+
         except:
             return False
 
