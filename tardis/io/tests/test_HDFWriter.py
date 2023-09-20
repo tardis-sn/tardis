@@ -78,7 +78,7 @@ def test_multi_index_write(tmpdir):
     expected = pd.read_hdf(fname, key="/test/mock_hdf/property")
     expected = pd.MultiIndex.from_tuples(expected.unstack().values)
     # These are multiindex objects, so we need to compare the values
-    np.all(expected.values == actual.property.values)
+    assert np.all(expected.values == actual.property.values)
 
 
 # Test Quantity Objects
