@@ -408,9 +408,7 @@ class TestSDECPlotter:
         species_list : list of str
         """
         subgroup_name = make_valid_name("mpl" + request.node.callspec.id)
-        if distance is not None:
-            observed_spectrum = observed_spectrum
-        else:
+        if distance is None:
             observed_spectrum = None
         fig = plotter.generate_plot_mpl(
             packets_mode=packets_mode,
