@@ -357,13 +357,13 @@ def main_gamma_ray_loop(
 
     if time_space == "log":
         times = np.geomspace(time_start, time_end, time_steps + 1)
+        effective_time_array = np.sqrt(times[:-1] * times[1:])
     else:
         times = np.linspace(time_start, time_end, time_steps + 1)
+        effective_time_array = 0.5 * (times[:-1] + times[1:])
+
 
     dt_array = np.diff(times)
-    effective_time_array = np.array(
-        [np.sqrt(times[i] * times[i + 1]) for i in range(time_steps)]
-    )
 
     # Use isotopic number density
     for atom_number in plasma.isotope_number_density.index.get_level_values(0):
