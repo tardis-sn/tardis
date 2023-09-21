@@ -161,11 +161,6 @@ class TestPlasma(object):
     def plasma(self, request, chianti_he_db_fpath, config, tardis_ref_data):
         config["atom_data"] = chianti_he_db_fpath
         sim = Simulation.from_config(config)
-        if request.config.getoption("--generate-reference"):
-            sim.plasma.to_hdf(
-                tardis_ref_data, path=config.plasma.save_path, overwrite=True
-            )
-            pytest.skip(f"Reference data saved at {tardis_ref_data}")
         return sim.plasma
 
     @pytest.mark.parametrize("attr", combined_properties)
@@ -180,9 +175,6 @@ class TestPlasma(object):
                 actual = pd.Series(actual)
             else:
                 actual = pd.DataFrame(actual)
-            key = os.path.join(config.plasma.save_path, "plasma", attr)
-            expected = tardis_ref_data[key]
-            pdt.assert_frame_equal(actual, expected)
             if isinstance(actual, (pd.DataFrame, pd.Series)):
                 assert snapshot_pd == actual
             else:
@@ -194,9 +186,6 @@ class TestPlasma(object):
         self, plasma, tardis_ref_data, config, snapshot_pd, snapshot_np
     ):
         actual = pd.DataFrame(plasma.levels)
-        key = os.path.join(config.plasma.save_path, "plasma", "levels")
-        expected = tardis_ref_data[key]
-        pdt.assert_frame_equal(actual, expected)
         if isinstance(actual, (pd.DataFrame, pd.Series)):
             assert snapshot_pd == actual
         else:
@@ -209,24 +198,17 @@ class TestPlasma(object):
         actual = getattr(plasma, attr)
         if hasattr(actual, "cgs"):
             actual = actual.cgs.value
-        key = os.path.join(config.plasma.save_path, "plasma", "scalars")
-        expected = tardis_ref_data[key][attr]
-        pdt.assert_frame_equal(actual, expected)
         if isinstance(actual, (pd.DataFrame, pd.Series)):
             assert snapshot_pd == actual
         else:
             assert snapshot_np == actual
 
-    def test_helium_treatment(self, plasma, tardis_ref_data, config):
+    def test_helium_treatment(self, plasma, tardis_ref_data, config, snapshot):
         actual = plasma.helium_treatment
-        key = os.path.join(config.plasma.save_path, "plasma", "scalars")
-        expected = tardis_ref_data[key]["helium_treatment"]
-        assert actual == expected
+        assert snapshot == actual
+        
 
     def test_zeta_data(self, plasma, tardis_ref_data, config, snapshot_np):
         if hasattr(plasma, "zeta_data"):
             actual = plasma.zeta_data
-            key = os.path.join(config.plasma.save_path, "plasma", "zeta_data")
-            expected = tardis_ref_data[key]
-            assert_almost_equal(actual, expected.values)
             assert snapshot_np == actual.values
