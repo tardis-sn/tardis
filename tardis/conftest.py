@@ -125,6 +125,9 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "ignore_generate" in item.keywords:
                 item.add_marker(skip_generate)
+        # automatically set update snapshots to true
+        config.option.update_snapshots=True
+    
 
 
 # -------------------------------------------------------------------------
