@@ -324,37 +324,10 @@ class PandasSnapshotExtenstion(SingleFileSnapshotExtension):
         return data
 
 
-def add_refdata_repo_pandas_syrupy(refpath):
-    class PandasSnapshotExtenstionRefdata(PandasSnapshotExtenstion):
-        @classmethod
-        def dirname(cls, *, test_location: "PyTestLocation") -> str:
-            return str(Path(test_location.filepath).parent.joinpath(refpath))
-
-    return PandasSnapshotExtenstionRefdata
-
-
-def add_refdata_repo_numpy_syrupy(refpath):
-    class NumpySnapshotExtenstionRefdata(NumpySnapshotExtenstion):
-        @classmethod
-        def dirname(cls, *, test_location: "PyTestLocation") -> str:
-            return str(Path(test_location.filepath).parent.joinpath(refpath))
-
-    return NumpySnapshotExtenstionRefdata
-
+@pytest.fixture
+def pandas_snapshot_extention():
+    return PandasSnapshotExtenstion
 
 @pytest.fixture
-def snapshot_pd(snapshot, tardis_ref_path, request):
-    tardis_ref_path = tardis_ref_path.joinpath("syrupy_data")
-    PandasSnapshotExtenstionRefdata = add_refdata_repo_pandas_syrupy(
-        tardis_ref_path
-    )
-    return snapshot.use_extension(PandasSnapshotExtenstionRefdata)
-
-
-@pytest.fixture
-def snapshot_np(snapshot, tardis_ref_path, request):
-    tardis_ref_path = tardis_ref_path.joinpath("syrupy_data")
-    NumpySnapshotExtenstionRefdata = add_refdata_repo_numpy_syrupy(
-        tardis_ref_path
-    )
-    return snapshot.use_extension(NumpySnapshotExtenstionRefdata)
+def numpy_snapshot_extension():
+    return NumpySnapshotExtenstion
