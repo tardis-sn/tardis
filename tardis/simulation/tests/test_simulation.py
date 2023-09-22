@@ -54,7 +54,7 @@ def simulation_one_loop(
             "iterations_electron_densities",
             "iterations_t_inner",
         ]
-        simulation.model.hdf_properties = ["t_radiative", "dilution_factor"]
+        simulation.simulation_state.hdf_properties = ["t_radiative", "dilution_factor"]
         simulation.transport.hdf_properties = [
             "j_estimator",
             "nu_bar_estimator",
@@ -64,7 +64,7 @@ def simulation_one_loop(
         simulation.to_hdf(
             tardis_ref_data, "", "test_simulation", overwrite=True
         )
-        simulation.model.to_hdf(
+        simulation.simulation_state.to_hdf(
             tardis_ref_data, "", "test_simulation", overwrite=True
         )
         simulation.transport.to_hdf(
@@ -88,7 +88,7 @@ def test_plasma_estimates(simulation_one_loop, refdata, name):
     try:
         actual = getattr(simulation_one_loop.transport, name)
     except AttributeError:
-        actual = getattr(simulation_one_loop.model, name)
+        actual = getattr(simulation_one_loop.simulation_state, name)
     if name in ["t_radiative", "output_nu", "output_energy"]:
         # removing the quantitiness of the data
         actual = actual.value

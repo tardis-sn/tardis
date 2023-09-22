@@ -13,8 +13,8 @@ from tardis.visualization.widgets.shell_info import (
 @pytest.fixture(scope="class")
 def base_shell_info(simulation_verysimple):
     return BaseShellInfo(
-        simulation_verysimple.model.t_radiative,
-        simulation_verysimple.model.w,
+        simulation_verysimple.simulation_state.t_radiative,
+        simulation_verysimple.simulation_state.w,
         simulation_verysimple.plasma.abundance,
         simulation_verysimple.plasma.number_density,
         simulation_verysimple.plasma.ion_number_density,
@@ -39,16 +39,16 @@ class TestBaseShellInfo:
     def test_shells_data(self, base_shell_info, simulation_verysimple):
         shells_data = base_shell_info.shells_data()
         assert shells_data.shape == (
-            len(simulation_verysimple.model.t_radiative),
+            len(simulation_verysimple.simulation_state.t_radiative),
             2,
         )
         assert np.allclose(
             shells_data.iloc[:, 0].map(np.float64),
-            simulation_verysimple.model.t_radiative.value,
+            simulation_verysimple.simulation_state.t_radiative.value,
         )
         assert np.allclose(
             shells_data.iloc[:, 1].map(np.float64),
-            simulation_verysimple.model.w,
+            simulation_verysimple.simulation_state.w,
         )
 
     @pytest.mark.parametrize("shell_num", [1, 20])

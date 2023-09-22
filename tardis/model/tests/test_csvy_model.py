@@ -6,7 +6,7 @@ import tardis
 import os
 from astropy import units as u
 from tardis.io.configuration.config_reader import Configuration
-from tardis.model import Radial1DModel
+from tardis.model import SimulationState
 import pytest
 
 
@@ -35,8 +35,8 @@ def test_compare_models(model_config_fnames):
     csvy_config_file, old_config_file = model_config_fnames
     tardis_config = Configuration.from_yaml(csvy_config_file)
     tardis_config_old = Configuration.from_yaml(old_config_file)
-    csvy_model = Radial1DModel.from_csvy(tardis_config)
-    config_model = Radial1DModel.from_config(tardis_config_old)
+    csvy_model = SimulationState.from_csvy(tardis_config)
+    config_model = SimulationState.from_config(tardis_config_old)
     csvy_model_props = csvy_model.get_properties().keys()
     config_model_props = config_model.get_properties().keys()
     npt.assert_array_equal(csvy_model_props, config_model_props)
@@ -80,7 +80,7 @@ def csvy_model_test_abundances(example_csvy_file_dir):
     """Returns Radial1DModel to use to test abundances dataframes"""
     csvypath = example_csvy_file_dir / "csvy_model_to_test_abundances.yml"
     config = Configuration.from_yaml(csvypath)
-    csvy_model_test_abundances = Radial1DModel.from_csvy(config)
+    csvy_model_test_abundances = SimulationState.from_csvy(config)
     return csvy_model_test_abundances
 
 

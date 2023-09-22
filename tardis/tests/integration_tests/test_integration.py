@@ -176,7 +176,7 @@ class TestIntegration(object):
         ax.set_ylabel("t_rad")
 
         result_line = ax.plot(
-            self.result.model.t_rad.cgs,
+            self.result.simulation_state.t_rad.cgs,
             color="blue",
             marker=".",
             label="Result",
@@ -192,7 +192,7 @@ class TestIntegration(object):
         error_line = error_ax.plot(
             (
                 1
-                - self.result.model.t_rad.cgs.value
+                - self.result.simulation_state.t_rad.cgs.value
                 / self.reference["/simulation/model/t_rad"]
             ),
             color="red",
