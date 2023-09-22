@@ -110,6 +110,11 @@ def pytest_addoption(parser):
         default=False,
         help="generate reference data instead of testing",
     )
+
+    parser.addoption(
+        "--tardis-snapshot-data", default=None, help="Path to Tardis Snapshot Folder"
+    )
+    
     parser.addoption(
         "--less-packets",
         action="store_true",
@@ -152,6 +157,13 @@ def tardis_ref_path(request):
     else:
         return Path(os.path.expandvars(os.path.expanduser(tardis_ref_path)))
 
+@pytest.fixture(scope="session")
+def tardis_snapshot_path(request):
+    tardis_snapshot_path = request.config.getoption("--tardis-snapshot-data")
+    if tardis_snapshot_path is None:
+        pytest.skip("--tardis-snapshot-data was not specified")
+    else:
+        return Path(os.path.expandvars(os.path.expanduser(tardis_snapshot_path)))
 
 from tardis.tests.fixtures.atom_data import *
 
