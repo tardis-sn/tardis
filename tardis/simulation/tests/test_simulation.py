@@ -54,7 +54,10 @@ def simulation_one_loop(
             "iterations_electron_densities",
             "iterations_t_inner",
         ]
-        simulation.simulation_state.hdf_properties = ["t_radiative", "dilution_factor"]
+        simulation.simulation_state.hdf_properties = [
+            "t_radiative",
+            "dilution_factor",
+        ]
         simulation.transport.hdf_properties = [
             "j_estimator",
             "nu_bar_estimator",

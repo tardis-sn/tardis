@@ -34,7 +34,9 @@ def verysimple_opacity_state(nb_simulation_verysimple):
 
 @pytest.fixture(scope="package")
 def verysimple_numba_radial_1d_geometry(nb_simulation_verysimple):
-    return nb_simulation_verysimple.simulation_state.model_state.geometry.to_numba()
+    return (
+        nb_simulation_verysimple.simulation_state.model_state.geometry.to_numba()
+    )
 
 
 @pytest.fixture(scope="package")

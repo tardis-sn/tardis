@@ -45,7 +45,9 @@ class TestModelFromPaper1Config:
         )
 
     def test_time_explosion(self):
-        assert_almost_equal(self.simulation_state.time_explosion.to(u.day).value, 13.0)
+        assert_almost_equal(
+            self.simulation_state.time_explosion.to(u.day).value, 13.0
+        )
 
 
 class TestModelFromASCIIDensity:
@@ -77,7 +79,9 @@ class TestModelFromArtisDensity:
 
     def test_velocities(self):
         assert self.simulation_state.v_inner.unit == u.Unit("cm/s")
-        assert_almost_equal(self.simulation_state.v_inner[0].value, 1.259375e03 * 1e5)
+        assert_almost_equal(
+            self.simulation_state.v_inner[0].value, 1.259375e03 * 1e5
+        )
 
     def test_abundances(self):
         oxygen_abundance = self.config.model.abundances.O
@@ -99,7 +103,9 @@ class TestModelFromArtisDensityAbundances:
 
     def test_velocities(self):
         assert self.simulation_state.v_inner.unit == u.Unit("cm/s")
-        assert_almost_equal(self.simulation_state.v_inner[0].value, 1.259375e03 * 1e5)
+        assert_almost_equal(
+            self.simulation_state.v_inner[0].value, 1.259375e03 * 1e5
+        )
 
     def test_abundances(self):
         assert_almost_equal(
@@ -121,10 +127,14 @@ class TestModelFromArtisDensityAbundancesVSlice:
 
     def test_velocities(self):
         assert self.simulation_state.v_inner.unit == u.Unit("cm/s")
-        assert_almost_equal(self.simulation_state.v_inner[0].to(u.km / u.s).value, 9000)
+        assert_almost_equal(
+            self.simulation_state.v_inner[0].to(u.km / u.s).value, 9000
+        )
 
     def test_abundances(self):
-        assert_almost_equal(self.simulation_state.abundance.loc[14, 31], 2.156751e-01)
+        assert_almost_equal(
+            self.simulation_state.abundance.loc[14, 31], 2.156751e-01
+        )
 
 
 class TestModelFromUniformDensity:
@@ -166,7 +176,9 @@ class TestModelFromArtisDensityAbundancesAllAscii:
 
     def test_velocities(self):
         assert self.simulation_state.v_inner.unit == u.Unit("cm/s")
-        assert_almost_equal(self.simulation_state.v_inner[0].to(u.km / u.s).value, 11000)
+        assert_almost_equal(
+            self.simulation_state.v_inner[0].to(u.km / u.s).value, 11000
+        )
 
     def test_abundances(self):
         assert_almost_equal(self.simulation_state.abundance.loc[14, 0], 0.1)
@@ -304,7 +316,9 @@ def test_model_decay(simple_isotope_abundance, example_configuration_dir):
     simulation_state = SimulationState.from_config(config)
 
     simulation_state.raw_isotope_abundance = simple_isotope_abundance
-    decayed = simple_isotope_abundance.decay(simulation_state.time_explosion).as_atoms()
+    decayed = simple_isotope_abundance.decay(
+        simulation_state.time_explosion
+    ).as_atoms()
     norm_factor = 1.4
 
     assert_almost_equal(
@@ -314,12 +328,14 @@ def test_model_decay(simple_isotope_abundance, example_configuration_dir):
     )
     assert_almost_equal(
         simulation_state.abundance.loc[14][0],
-        (simulation_state.raw_abundance.loc[14][0] + decayed.loc[14][0]) / norm_factor,
+        (simulation_state.raw_abundance.loc[14][0] + decayed.loc[14][0])
+        / norm_factor,
         decimal=4,
     )
     assert_almost_equal(
         simulation_state._abundance.loc[12][5],
-        (simulation_state.raw_abundance.loc[12][5] + decayed.loc[12][5]) / norm_factor,
+        (simulation_state.raw_abundance.loc[12][5] + decayed.loc[12][5])
+        / norm_factor,
         decimal=4,
     )
     assert_almost_equal(

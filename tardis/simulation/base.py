@@ -134,7 +134,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         convergence_plots_kwargs,
         show_progress_bars,
     ):
-        super(Simulation, self).__init__(iterations, simulation_state.no_of_shells)
+        super(Simulation, self).__init__(
+            iterations, simulation_state.no_of_shells
+        )
 
         self.converged = False
         self.iterations = iterations
@@ -323,13 +325,17 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 item_type="value",
             )
             self.convergence_plots.fetch_data(
-                name="t_rad", value=self.simulation_state.t_rad, item_type="iterable"
+                name="t_rad",
+                value=self.simulation_state.t_rad,
+                item_type="iterable",
             )
             self.convergence_plots.fetch_data(
                 name="w", value=self.simulation_state.w, item_type="iterable"
             )
             self.convergence_plots.fetch_data(
-                name="velocity", value=self.simulation_state.velocity, item_type="iterable"
+                name="velocity",
+                value=self.simulation_state.velocity,
+                item_type="iterable",
             )
 
         self.log_plasma_state(
@@ -350,7 +356,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if "nlte_data" in self.plasma.outputs_dict:
             self.plasma.store_previous_properties()
 
-        update_properties = dict(t_rad=self.simulation_state.t_rad, w=self.simulation_state.w)
+        update_properties = dict(
+            t_rad=self.simulation_state.t_rad, w=self.simulation_state.w
+        )
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
         if "j_blue_estimator" in self.plasma.outputs_dict:
@@ -646,7 +654,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             plasma = kwargs["plasma"]
         else:
             plasma = assemble_plasma(
-                config, simulation_state, atom_data=kwargs.get("atom_data", None)
+                config,
+                simulation_state,
+                atom_data=kwargs.get("atom_data", None),
             )
         if "transport" in kwargs:
             if packet_source is not None:
