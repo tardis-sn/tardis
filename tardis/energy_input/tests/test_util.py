@@ -105,7 +105,7 @@ def test_klein_nishina(energy, theta_C):
         * (
             1.0
             + np.cos(theta_C) ** 2.0
-            + (kappa**2.0 * (1.0 - np.cos(theta_C)) ** 2.0)
+            + (kappa ** 2.0 * (1.0 - np.cos(theta_C)) ** 2.0)
             / (1.0 + kappa * (1.0 - np.cos(theta_C)))
         )
     )

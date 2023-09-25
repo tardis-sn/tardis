@@ -215,9 +215,9 @@ def positronium_continuum():
     one_minus_x = 1 - x
 
     term_1 = (x * one_minus_x) / (2 - x) ** 2
-    term_2 = (2 * one_minus_x**2) / (2 - x) ** 3 * np.log(one_minus_x)
+    term_2 = (2 * one_minus_x ** 2) / (2 - x) ** 3 * np.log(one_minus_x)
     term_3 = (2 - x) / x
-    term_4 = (2 * one_minus_x) / x**2 * np.log(one_minus_x)
+    term_4 = (2 * one_minus_x) / x ** 2 * np.log(one_minus_x)
 
     intensity = 2 * (term_1 - term_2 + term_3 + term_4)
 

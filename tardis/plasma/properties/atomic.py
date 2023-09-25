@@ -806,7 +806,7 @@ class YgData(ProcessingPlasmaProperty):
         nu_lines = lines_filtered.nu.values
 
         yg = f_lu * (I_H / (H * nu_lines)) ** 2
-        coll_const = A0**2 * np.pi * np.sqrt(8 * K_B / (np.pi * M_E))
+        coll_const = A0 ** 2 * np.pi * np.sqrt(8 * K_B / (np.pi * M_E))
         yg = 14.5 * coll_const * t_electrons * yg[:, np.newaxis]
 
         u0 = nu_lines[np.newaxis].T / t_electrons * (H / K_B)
@@ -838,7 +838,7 @@ class YgData(ProcessingPlasmaProperty):
         f = exp1(x) * np.exp(x)
         # Use Laurent series for large values to avoid infinite exponential
         mask = x > 500
-        f[mask] = (x**-1 - x**-2 + 2 * x**-3 - 6 * x**-4)[mask]
+        f[mask] = (x ** -1 - x ** -2 + 2 * x ** -3 - 6 * x ** -4)[mask]
         return f
 
 

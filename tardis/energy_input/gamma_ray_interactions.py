@@ -160,15 +160,15 @@ def get_compton_fraction_urilight(energy):
 
         z = np.random.random(3)
         alpha1 = np.log(1.0 / x0)
-        alpha2 = (1.0 - x0**2.0) / 2.0
+        alpha2 = (1.0 - x0 ** 2.0) / 2.0
         if z[1] < alpha1 / (alpha1 + alpha2):
             x = x0 ** z[2]
         else:
-            x = np.sqrt(x0**2.0 + (1.0 - x0**2.0) * z[2])
+            x = np.sqrt(x0 ** 2.0 + (1.0 - x0 ** 2.0) * z[2])
 
         f = (1.0 - x) / x / E0
         sin2t = f * (2.0 - f)
-        ge = 1.0 - x / (1 + x**2.0) * sin2t
+        ge = 1.0 - x / (1 + x ** 2.0) * sin2t
         if ge > z[3]:
             accept = True
 

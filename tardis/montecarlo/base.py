@@ -70,14 +70,14 @@ class MontecarloTransport(HDFWriterMixin):
 
     hdf_name = "transport"
     w_estimator_constant = (
-        (const.c**2 / (2 * const.h))
-        * (15 / np.pi**4)
+        (const.c ** 2 / (2 * const.h))
+        * (15 / np.pi ** 4)
         * (const.h / const.k_B) ** 4
         / (4 * np.pi)
     ).cgs.value
 
     t_rad_estimator_constant = (
-        (np.pi**4 / (15 * 24 * zeta(5, 1))) * (const.h / const.k_B)
+        (np.pi ** 4 / (15 * 24 * zeta(5, 1))) * (const.h / const.k_B)
     ).cgs.value
 
     def __init__(
@@ -558,7 +558,7 @@ class MontecarloTransport(HDFWriterMixin):
         w = self.j_estimator / (
             4
             * const.sigma_sb.cgs.value
-            * t_rad**4
+            * t_rad ** 4
             * self.time_of_simulation.value
             * self.volume.value
         )
@@ -582,7 +582,7 @@ class MontecarloTransport(HDFWriterMixin):
             * np.pi
             * const.sigma_sb.cgs
             * model.r_inner[0] ** 2
-            * model.t_inner**4
+            * model.t_inner ** 4
         ).to("erg/s")
 
     def calculate_time_of_simulation(self, model):

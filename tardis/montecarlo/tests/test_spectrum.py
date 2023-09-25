@@ -113,7 +113,7 @@ def test_luminosity_to_flux():
 def test_f_nu_to_f_lambda(spectrum):
     expected = (
         spectrum.luminosity_density_nu
-        * spectrum.frequency**2
+        * spectrum.frequency ** 2
         / c.c.to("angstrom/s")
     ).to("erg / (s angstrom)")
     print(expected)
@@ -122,7 +122,7 @@ def test_f_nu_to_f_lambda(spectrum):
     )
     expected = (
         spectrum.luminosity_density_nu
-        * spectrum.frequency**2
+        * spectrum.frequency ** 2
         / c.c.to("angstrom/s")
     ).to("erg / (s angstrom)")
     np.testing.assert_allclose(

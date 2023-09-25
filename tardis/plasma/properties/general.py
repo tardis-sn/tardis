@@ -58,7 +58,7 @@ class GElectron(ProcessingPlasmaProperty):
     def calculate(self, beta_rad):
         return (
             (2 * np.pi * const.m_e.cgs.value / beta_rad)
-            / (const.h.cgs.value**2)
+            / (const.h.cgs.value ** 2)
         ) ** 1.5
 
 
@@ -191,7 +191,7 @@ class LuminosityInner(ProcessingPlasmaProperty):
     @staticmethod
     def calculate(r_inner, t_inner):
         return (
-            4 * np.pi * const.sigma_sb.cgs * r_inner[0] ** 2 * t_inner**4
+            4 * np.pi * const.sigma_sb.cgs * r_inner[0] ** 2 * t_inner ** 4
         ).to("erg/s")
 
 

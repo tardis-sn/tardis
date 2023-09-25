@@ -143,7 +143,7 @@ class TestSDECPlotter:
         observed_spectrum_wavelength, observed_spectrum_flux = test_data.T
         observed_spectrum_wavelength = observed_spectrum_wavelength * u.AA
         observed_spectrum_flux = (
-            observed_spectrum_flux * u.erg / (u.s * u.cm**2 * u.AA)
+            observed_spectrum_flux * u.erg / (u.s * u.cm ** 2 * u.AA)
         )
         return observed_spectrum_wavelength, observed_spectrum_flux
 

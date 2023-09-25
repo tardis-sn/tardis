@@ -52,15 +52,15 @@ H = const.h.cgs.value
 A0 = const.a0.cgs.value
 M_E = const.m_e.cgs.value
 E = const.e.esu.value
-BETA_COLL = (H**4 / (8 * K_B * M_E**3 * np.pi**3)) ** 0.5
+BETA_COLL = (H ** 4 / (8 * K_B * M_E ** 3 * np.pi ** 3)) ** 0.5
 F_K = (
     16
     / (3.0 * np.sqrt(3))
-    * np.sqrt((2 * np.pi) ** 3 * K_B / (H**2 * M_E**3))
-    * (E**2 / C) ** 3
+    * np.sqrt((2 * np.pi) ** 3 * K_B / (H ** 2 * M_E ** 3))
+    * (E ** 2 / C) ** 3
 )  # See Eq. 19 in Sutherland, R. S. 1998, MNRAS, 300, 321
 FF_OPAC_CONST = (
-    (2 * np.pi / (3 * M_E * K_B)) ** 0.5 * 4 * E**6 / (3 * M_E * H * C)
+    (2 * np.pi / (3 * M_E * K_B)) ** 0.5 * 4 * E ** 6 / (3 * M_E * H * C)
 )  # See Eq. 6.1.8 in http://personal.psu.edu/rbc3/A534/lec6.pdf
 
 logger = logging.getLogger(__name__)
@@ -311,7 +311,7 @@ class SpontRecombRateCoeff(ProcessingPlasmaProperty):
         x_sect = photo_ion_cross_sections["x_sect"].values
         nu = photo_ion_cross_sections["nu"].values
 
-        alpha_sp = 8 * np.pi * x_sect * nu**2 / C**2
+        alpha_sp = 8 * np.pi * x_sect * nu ** 2 / C ** 2
         alpha_sp = alpha_sp[:, np.newaxis]
         alpha_sp = alpha_sp * boltzmann_factor_photo_ion
         alpha_sp = integrate_array_by_blocks(
@@ -346,7 +346,7 @@ class SpontRecombCoolingRateCoeff(ProcessingPlasmaProperty):
         x_sect = photo_ion_cross_sections["x_sect"].values
         nu = photo_ion_cross_sections["nu"].values
         factor = (1 - nu_i / photo_ion_cross_sections["nu"]).values
-        alpha_sp = (8 * np.pi * x_sect * factor * nu**3 / C**2) * H
+        alpha_sp = (8 * np.pi * x_sect * factor * nu ** 3 / C ** 2) * H
         alpha_sp = alpha_sp[:, np.newaxis]
         alpha_sp = alpha_sp * boltzmann_factor_photo_ion
         alpha_sp = integrate_array_by_blocks(
@@ -384,7 +384,7 @@ class FreeBoundEmissionCDF(ProcessingPlasmaProperty):
         nu = photo_ion_cross_sections["nu"].values
         # alpha_sp_E will be missing a lot of prefactors since we are only
         # interested in relative values here
-        alpha_sp_E = nu**3 * x_sect
+        alpha_sp_E = nu ** 3 * x_sect
         alpha_sp_E = alpha_sp_E[:, np.newaxis]
         alpha_sp_E = alpha_sp_E * boltzmann_factor_photo_ion
         alpha_sp_E = cumulative_integrate_array_by_blocks(
@@ -937,7 +937,7 @@ class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
         ion_charge = ion_number_density.index.get_level_values(1).values
         factor = (
             electron_densities
-            * ion_number_density.multiply(ion_charge**2, axis=0).sum()
+            * ion_number_density.multiply(ion_charge ** 2, axis=0).sum()
         )
         return factor
 

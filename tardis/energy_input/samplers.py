@@ -160,7 +160,7 @@ def initial_packet_radius(packet_count, inner_velocity, outer_velocity):
     """
     z = np.random.random(packet_count)
     initial_radii = (
-        z * inner_velocity**3.0 + (1.0 - z) * outer_velocity**3.0
+        z * inner_velocity ** 3.0 + (1.0 - z) * outer_velocity ** 3.0
     ) ** (1.0 / 3.0)
 
     return initial_radii

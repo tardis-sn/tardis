@@ -176,7 +176,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             total_coll_ion_coefficients * electron_density
         )
         total_coll_recomb_coefficients = (
-            total_coll_recomb_coefficients * electron_density**2
+            total_coll_recomb_coefficients * electron_density ** 2
         )
         for atomic_number in atomic_numbers:
             ion_numbers = rate_matrix.loc[atomic_number].index.get_level_values(
@@ -765,10 +765,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         except AttributeError:
             beta_sobolev_filtered = beta_sobolev
         r_ul_matrix_reshaped = r_ul_matrix.reshape(
-            (number_of_levels**2, number_of_shells)
+            (number_of_levels ** 2, number_of_shells)
         )
         r_lu_matrix_reshaped = r_lu_matrix.reshape(
-            (number_of_levels**2, number_of_shells)
+            (number_of_levels ** 2, number_of_shells)
         )
         r_ul_matrix_reshaped[r_ul_index] *= beta_sobolev_filtered
         r_lu_matrix_reshaped[r_lu_index] *= beta_sobolev_filtered
@@ -837,14 +837,14 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
             dtype=np.float64,
         )
         r_ul_matrix_reshaped = r_ul_matrix.reshape(
-            (number_of_levels**2, number_of_shells)
+            (number_of_levels ** 2, number_of_shells)
         )
         r_ul_matrix_reshaped[r_ul_index] = (
             A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues_filtered
         )
         r_lu_matrix = np.zeros_like(r_ul_matrix)
         r_lu_matrix_reshaped = r_lu_matrix.reshape(
-            (number_of_levels**2, number_of_shells)
+            (number_of_levels ** 2, number_of_shells)
         )
         r_lu_matrix_reshaped[r_lu_index] = (
             B_lus[np.newaxis].T * j_blues_filtered

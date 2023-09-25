@@ -323,7 +323,7 @@ class Radial1DModel(HDFWriterMixin):
             dilution_factor = 0.5 * (
                 1
                 - np.sqrt(
-                    1 - (self.r_inner[0] ** 2 / self.r_middle**2).to(1).value
+                    1 - (self.r_inner[0] ** 2 / self.r_middle ** 2).to(1).value
                 )
             )
         elif len(dilution_factor) != self.no_of_shells:
@@ -445,7 +445,7 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def volume(self):
-        return ((4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)).cgs
+        return ((4.0 / 3) * np.pi * (self.r_outer ** 3 - self.r_inner ** 3)).cgs
 
     @property
     def no_of_shells(self):

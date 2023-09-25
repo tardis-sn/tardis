@@ -203,7 +203,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             (emitted_luminosity / luminosity_requested).to(1).value
         )
 
-        return input_t_inner * luminosity_ratios**t_inner_update_exponent
+        return input_t_inner * luminosity_ratios ** t_inner_update_exponent
 
     @staticmethod
     def damped_converge(value, estimated_value, damping_factor):

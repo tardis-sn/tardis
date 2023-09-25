@@ -183,7 +183,7 @@ def calculate_luminosity(
     )
 
     flux_density = np.trapz(flux, wavelength) * (flux_unit * wavelength_unit)
-    luminosity = (flux_density * 4 * np.pi * distance**2).to("erg/s")
+    luminosity = (flux_density * 4 * np.pi * distance ** 2).to("erg/s")
 
     return luminosity.value, wavelength.min(), wavelength.max()
 
@@ -308,7 +308,7 @@ def intensity_black_body(nu, temperature):
         Returns the intensity of the black body
     """
     beta_rad = 1 / (k_B_cgs * temperature)
-    coefficient = 2 * h_cgs / c_cgs**2
+    coefficient = 2 * h_cgs / c_cgs ** 2
     intensity = ne.evaluate(
         "coefficient * nu**3 / " "(exp(h_cgs * nu * beta_rad) -1 )"
     )

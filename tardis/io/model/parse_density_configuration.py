@@ -219,4 +219,4 @@ def calculate_density_after_time(
         in g / cm^3
     """
 
-    return (densities * (time_explosion / time_0) ** -3).to(u.g / (u.cm**3))
+    return (densities * (time_explosion / time_0) ** -3).to(u.g / (u.cm ** 3))

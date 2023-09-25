@@ -178,7 +178,6 @@ def initialize_packets(
 
     packet_index = 0
     for k, shell in enumerate(decays_per_shell):
-
         initial_radii = initial_packet_radius(
             shell, inner_velocities[k], outer_velocities[k]
         )
@@ -338,7 +337,7 @@ def main_gamma_ray_loop(
     ejecta_density = model.density.to("g/cm^3").value
     ejecta_volume = model.volume.to("cm^3").value
     ejecta_velocity_volume = (
-        4 * np.pi / 3 * (outer_velocities**3.0 - inner_velocities**3.0)
+        4 * np.pi / 3 * (outer_velocities ** 3.0 - inner_velocities ** 3.0)
     )
     time_explosion = model.time_explosion.to("s").value
     number_of_shells = model.no_of_shells
@@ -361,7 +360,6 @@ def main_gamma_ray_loop(
     else:
         times = np.linspace(time_start, time_end, time_steps + 1)
         effective_time_array = 0.5 * (times[:-1] + times[1:])
-
 
     dt_array = np.diff(times)
 
@@ -394,7 +392,7 @@ def main_gamma_ray_loop(
 
     # Pre-calculate quantities as they change with time
     for i, t in enumerate(effective_time_array):
-        inv_volume_time[:, i] = (1.0 / ejecta_velocity_volume) / (t**3.0)
+        inv_volume_time[:, i] = (1.0 / ejecta_velocity_volume) / (t ** 3.0)
         mass_density_time[:, i] = shell_masses * inv_volume_time[:, i]
         electron_number_density_time[:, i] = (
             electron_number * inv_volume_time[:, i]

@@ -62,8 +62,8 @@ def test_simple_read_artis_density(artis_density_fname: str):
     assert np.isclose(0.00114661 * u.day, time_of_model, atol=1e-7 * u.day)
     assert np.isclose(
         mean_density[23],
-        0.2250048 * u.g / u.cm**3,
-        atol=1.0e-6 * u.g / u.cm**3,
+        0.2250048 * u.g / u.cm ** 3,
+        atol=1.0e-6 * u.g / u.cm ** 3,
     )
     assert len(mean_density) == 69
     assert len(velocity) == len(mean_density) + 1
@@ -122,11 +122,11 @@ def test_simple_read_cmfgen_density(cmfgen_fname):
     assert np.isclose(0.976 * u.day, time_of_model, atol=1e-7 * u.day)
     assert np.isclose(
         mean_density[4],
-        4.2539537e-09 * u.g / u.cm**3,
-        atol=1.0e-6 * u.g / u.cm**3,
+        4.2539537e-09 * u.g / u.cm ** 3,
+        atol=1.0e-6 * u.g / u.cm ** 3,
     )
     assert np.isclose(
-        electron_densities[5], 2.6e14 * u.cm**-3, atol=1.0e-6 * u.cm**-3
+        electron_densities[5], 2.6e14 * u.cm ** -3, atol=1.0e-6 * u.cm ** -3
     )
     assert len(mean_density) == 9
     assert len(velocity) == len(mean_density) + 1

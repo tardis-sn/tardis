@@ -342,7 +342,7 @@ class opacity_calculator(object):
             sigma_T = const.sigma_T
         except AttributeError:
             logger.warning("using astropy < 1.1.1: setting sigma_T manually")
-            sigma_T = 6.65245873e-29 * units.m**2
+            sigma_T = 6.65245873e-29 * units.m ** 2
 
         edens = self.mdl.plasma.electron_densities.values
 
@@ -350,7 +350,7 @@ class opacity_calculator(object):
             edens.to("1/cm^3")
         except AttributeError:
             logger.info("setting electron density units by hand (cm^-3)")
-            edens = edens / units.cm**3
+            edens = edens / units.cm ** 3
 
         kappa_thom = edens * sigma_T
 

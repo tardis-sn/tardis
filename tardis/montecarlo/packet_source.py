@@ -25,7 +25,7 @@ class BasePacketSource(abc.ABC):
     # MAX_SEED_VAL must be multiple orders of magnitude larger than no_of_packets;
     # otherwise, each packet would not have its own seed. Here, we set the max
     # seed val to the maximum allowed by numpy.
-    MAX_SEED_VAL = 2**32 - 1
+    MAX_SEED_VAL = 2 ** 32 - 1
 
     def __init__(self, base_seed=None, legacy_second_seed=None):
         self.base_seed = base_seed
@@ -180,7 +180,7 @@ class BlackBodySimpleSource(BasePacketSource):
             numpy.ndarray
         """
         l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64) ** -4)
-        l_coef = np.pi**4 / 90.0
+        l_coef = np.pi ** 4 / 90.0
 
         # For testing purposes
         if montecarlo_configuration.LEGACY_MODE_ENABLED:
@@ -244,7 +244,7 @@ class BlackBodySimpleSource(BasePacketSource):
 
         """
         self.temperature = (
-            (luminosity / (4 * np.pi * self.radius**2 * const.sigma_sb))
+            (luminosity / (4 * np.pi * self.radius ** 2 * const.sigma_sb))
             ** 0.25
         ).to("K")
 
@@ -332,7 +332,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
         """
         z = self.rng.random(no_of_packets)
         beta = self.beta
-        return -beta + np.sqrt(beta**2 + 2 * beta * z + z)
+        return -beta + np.sqrt(beta ** 2 + 2 * beta * z + z)
 
     def create_packet_energies(self, no_of_packets):
         """
@@ -350,8 +350,8 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
             numpy.ndarray
         """
         beta = self.beta
-        gamma = 1.0 / np.sqrt(1 - beta**2)
-        static_inner_boundary2cmf_factor = (2 * beta + 1) / (1 - beta**2)
+        gamma = 1.0 / np.sqrt(1 - beta ** 2)
+        static_inner_boundary2cmf_factor = (2 * beta + 1) / (1 - beta ** 2)
         energies = np.ones(no_of_packets) / no_of_packets
         # In principle, the factor gamma should be applied to the time of
         # simulation to account for time dilation between the lab and comoving

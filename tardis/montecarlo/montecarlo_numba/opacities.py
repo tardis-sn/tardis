@@ -25,7 +25,7 @@ SIGMA_T = const.sigma_T.cgs.value
 FINE_STRUCTURE = const.alpha.value
 
 FF_OPAC_CONST = (
-    (2 * np.pi / (3 * M_E * K_B)) ** 0.5 * 4 * E**6 / (3 * M_E * H * C)
+    (2 * np.pi / (3 * M_E * K_B)) ** 0.5 * 4 * E ** 6 / (3 * M_E * H * C)
 )  # See Eq. 6.1.8 in http://personal.psu.edu/rbc3/A534/lec6.pdf
 
 
@@ -182,7 +182,7 @@ def chi_ff_calculator(opacity_state, nu, shell):
     chi_ff = (
         FF_OPAC_CONST
         * opacity_state.ff_opacity_factor[shell]
-        / nu**3
+        / nu ** 3
         * (1 - np.exp(-H * nu / (K_B * opacity_state.t_electrons[shell])))
     )
     return chi_ff
@@ -249,12 +249,12 @@ def compton_opacity_partial(energy, fraction):
         Compton scattering opacity
     """
     term_1 = (
-        ((energy**2.0) - (2.0 * energy) - 2.0)
+        ((energy ** 2.0) - (2.0 * energy) - 2.0)
         * np.log(fraction)
         / energy
         / energy
     )
-    term_2 = (((fraction**2.0) - 1.0) / (fraction**2.0)) / 2.0
+    term_2 = (((fraction ** 2.0) - 1.0) / (fraction ** 2.0)) / 2.0
     term_3 = ((fraction - 1.0) / energy) * (
         (1 / energy) + (2.0 / fraction) + (1.0 / (energy * fraction))
     )
@@ -294,10 +294,10 @@ def compton_opacity_calculation(energy, electron_density):
         * SIGMA_T
         * (
             (1.0 + kappa)
-            / kappa**3.0
+            / kappa ** 3.0
             * ((2.0 * kappa * (1.0 + kappa)) / a - np.log(a))
             + 1.0 / (2.0 * kappa) * np.log(a)
-            - (1.0 + 3 * kappa) / a**2.0
+            - (1.0 + 3 * kappa) / a ** 2.0
         )
     )
 
@@ -368,12 +368,12 @@ def photoabsorption_opacity_calculation_kasen(
     """
     kappa = kappa_calculation(energy)
 
-    opacity = (FINE_STRUCTURE**4.0) * 8.0 * np.sqrt(2) * (kappa**-3.5)
+    opacity = (FINE_STRUCTURE ** 4.0) * 8.0 * np.sqrt(2) * (kappa ** -3.5)
     # Note- this should actually be atom_number_density * (atom_proton_number ** 5)
     return (
         SIGMA_T
         * opacity
-        * np.sum((number_density / proton_count) * proton_count**5)
+        * np.sum((number_density / proton_count) * proton_count ** 5)
     )
 
 
@@ -401,8 +401,8 @@ def pair_creation_opacity_calculation(
     z_si = 14
     z_fe = 26
 
-    si_proton_ratio = z_si**2.0 / MASS_SI
-    fe_proton_ratio = z_fe**2.0 / MASS_FE
+    si_proton_ratio = z_si ** 2.0 / MASS_SI
+    fe_proton_ratio = z_fe ** 2.0 / MASS_FE
 
     multiplier = ejecta_density * (
         si_proton_ratio * (1.0 - iron_group_fraction)
