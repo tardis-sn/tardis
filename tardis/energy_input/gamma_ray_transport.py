@@ -362,7 +362,6 @@ def main_gamma_ray_loop(
         times = np.linspace(time_start, time_end, time_steps + 1)
         effective_time_array = 0.5 * (times[:-1] + times[1:])
 
-
     dt_array = np.diff(times)
 
     # Use isotopic number density
