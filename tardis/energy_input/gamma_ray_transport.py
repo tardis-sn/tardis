@@ -178,7 +178,6 @@ def initialize_packets(
 
     packet_index = 0
     for k, shell in enumerate(decays_per_shell):
-
         initial_radii = initial_packet_radius(
             shell, inner_velocities[k], outer_velocities[k]
         )
@@ -365,12 +364,12 @@ def main_gamma_ray_loop(
     dt_array = np.diff(times)
 
     # Use isotopic number density
-    for atom_number in plasma.isotope_number_density.index.get_level_values(0):
-        values = plasma.isotope_number_density.loc[atom_number].values
-        if values.shape[1] > 1:
-            plasma.number_density.loc[atom_number] = np.sum(values, axis=0)
-        else:
-            plasma.number_density.loc[atom_number] = values
+
+    values = plasma.isotope_number_density.groupby(level=0).sum()
+    cond = values.shape[1] > 1
+    plasma.number_density.update = np.where(
+        cond, values, plasma.isotope_number_density
+    )
 
     # Calculate electron number density
     electron_number_density = (
