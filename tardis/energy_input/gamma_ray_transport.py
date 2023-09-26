@@ -391,12 +391,13 @@ def main_gamma_ray_loop(
     )
 
     # Pre-calculate quantities as they change with time
-    for i, t in enumerate(effective_time_array):
-        inv_volume_time[:, i] = (1.0 / ejecta_velocity_volume) / (t**3.0)
-        mass_density_time[:, i] = shell_masses * inv_volume_time[:, i]
-        electron_number_density_time[:, i] = (
-            electron_number * inv_volume_time[:, i]
-        )
+    inv_volume_time = (
+        1.0 / ejecta_velocity_volume[:, np.newaxis]
+    ) / effective_time_array**3.0
+    mass_density_time_wl = shell_masses[:, np.newaxis] * inv_volume_time
+    electron_number_density_time_wl = (
+        electron_number[:, np.newaxis] * inv_volume_time
+    )
 
     energy_df_rows = np.zeros((number_of_shells, time_steps))
 
