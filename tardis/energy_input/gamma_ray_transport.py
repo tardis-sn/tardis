@@ -178,7 +178,6 @@ def initialize_packets(
 
     packet_index = 0
     for k, shell in enumerate(decays_per_shell):
-
         initial_radii = initial_packet_radius(
             shell, inner_velocities[k], outer_velocities[k]
         )
@@ -401,12 +400,13 @@ def main_gamma_ray_loop(
     )
 
     # Pre-calculate quantities as they change with time
-    for i, t in enumerate(effective_time_array):
-        inv_volume_time[:, i] = (1.0 / ejecta_velocity_volume) / (t**3.0)
-        mass_density_time[:, i] = shell_masses * inv_volume_time[:, i]
-        electron_number_density_time[:, i] = (
-            electron_number * inv_volume_time[:, i]
-        )
+    inv_volume_time = (
+        1.0 / ejecta_velocity_volume[:, np.newaxis]
+    ) / effective_time_array**3.0
+    mass_density_time_wl = shell_masses[:, np.newaxis] * inv_volume_time
+    electron_number_density_time_wl = (
+        electron_number[:, np.newaxis] * inv_volume_time
+    )
 
     energy_df_rows = np.zeros((number_of_shells, time_steps))
 
@@ -436,17 +436,13 @@ def main_gamma_ray_loop(
                     parents[c] = isotope
 
         energy, intensity = setup_input_energy(
-            gamma_ray_lines[
-                gamma_ray_lines.loc[isotope.replace("-", "")
-            ]],
+            gamma_ray_lines[gamma_ray_lines.loc[isotope.replace("-", "")]],
             "g",
         )
         gamma_ray_line_array_list.append(np.stack([energy, intensity]))
         average_energies_list.append(np.sum(energy * intensity))
         positron_energy, positron_intensity = setup_input_energy(
-            gamma_ray_lines[
-                gamma_ray_lines.loc[isotope.replace("-", "")
-            ]],
+            gamma_ray_lines[gamma_ray_lines.loc[isotope.replace("-", "")]],
             "bp",
         )
         average_positron_energies_list.append(
