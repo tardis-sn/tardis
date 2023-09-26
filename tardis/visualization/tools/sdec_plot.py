@@ -165,8 +165,8 @@ class SDECData:
         lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(
             "line_id"
         )
-        r_inner = sim.model.r_inner
-        t_inner = sim.model.t_inner
+        r_inner = sim.simulation_state.r_inner
+        t_inner = sim.simulation_state.t_inner
         time_of_simulation = sim.transport.time_of_simulation
 
         if packets_mode == "virtual":

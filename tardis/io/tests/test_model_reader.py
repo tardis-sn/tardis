@@ -133,7 +133,7 @@ def test_simple_read_cmfgen_density(cmfgen_fname):
 
 
 def test_model_to_dict(simulation_verysimple):
-    model = simulation_verysimple.model
+    model = simulation_verysimple.simulation_state
 
     model_dict, isotope_abundance = model_to_dict(model)
 
@@ -181,7 +181,7 @@ def test_model_to_dict(simulation_verysimple):
 
 
 def test_store_model_to_hdf(simulation_verysimple, tmp_path):
-    model = simulation_verysimple.model
+    model = simulation_verysimple.simulation_state
 
     fname = tmp_path / "model.h5"
 

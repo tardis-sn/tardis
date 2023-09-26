@@ -4,7 +4,7 @@ import copy
 import tardis
 
 from tardis.io.configuration.config_reader import Configuration
-from tardis.model import Radial1DModel
+from tardis.model import SimulationState
 
 
 def _set_tardis_config_property(tardis_config, key, value):
@@ -108,7 +108,7 @@ class tardisGrid:
         model : tardis.model.base.Radial1DModel
         """
         rowconfig = self.grid_row_to_config(row_index)
-        model = Radial1DModel.from_config(rowconfig)
+        model = SimulationState.from_config(rowconfig)
         return model
 
     def run_sim_from_grid(self, row_index, **tardiskwargs):

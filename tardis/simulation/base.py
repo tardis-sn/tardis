@@ -9,7 +9,7 @@ from collections import OrderedDict
 from tardis import model
 
 from tardis.montecarlo.base import MontecarloTransport
-from tardis.model import Radial1DModel
+from tardis.model import SimulationState
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
 from tardis.io.configuration.config_reader import ConfigurationError
@@ -107,7 +107,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     """
 
     hdf_properties = [
-        "model",
+        "simulation_state",
         "plasma",
         "transport",
         "iterations_w",
@@ -120,7 +120,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     def __init__(
         self,
         iterations,
-        model,
+        simulation_state,
         plasma,
         transport,
         no_of_packets,
@@ -134,12 +134,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         convergence_plots_kwargs,
         show_progress_bars,
     ):
-        super(Simulation, self).__init__(iterations, model.no_of_shells)
+        super(Simulation, self).__init__(
+            iterations, simulation_state.no_of_shells
+        )
 
         self.converged = False
         self.iterations = iterations
         self.iterations_executed = 0
-        self.model = model
+        self.simulation_state = simulation_state
         self.plasma = plasma
         self.transport = transport
         self.no_of_packets = no_of_packets
@@ -215,7 +217,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self, t_rad, w, t_inner, estimated_t_rad, estimated_w, estimated_t_inner
     ):
         # FIXME: Move the convergence checking in its own class.
-        no_of_shells = self.model.no_of_shells
+        no_of_shells = self.simulation_state.no_of_shells
 
         convergence_t_rad = (
             abs(t_rad - estimated_t_rad) / estimated_t_rad
@@ -279,15 +281,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             estimated_w,
         ) = self.transport.calculate_radiationfield_properties()
         estimated_t_inner = self.estimate_t_inner(
-            self.model.t_inner,
+            self.simulation_state.t_inner,
             self.luminosity_requested,
             t_inner_update_exponent=self.convergence_strategy.t_inner_update_exponent,
         )
 
         converged = self._get_convergence_status(
-            self.model.t_rad,
-            self.model.w,
-            self.model.t_inner,
+            self.simulation_state.t_rad,
+            self.simulation_state.w,
+            self.simulation_state.t_inner,
             estimated_t_rad,
             estimated_w,
             estimated_t_inner,
@@ -296,12 +298,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # calculate_next_plasma_state equivalent
         # FIXME: Should convergence strategy have its own class?
         next_t_rad = self.damped_converge(
-            self.model.t_rad,
+            self.simulation_state.t_rad,
             estimated_t_rad,
             self.convergence_strategy.t_rad.damping_constant,
         )
         next_w = self.damped_converge(
-            self.model.w,
+            self.simulation_state.w,
             estimated_w,
             self.convergence_strategy.w.damping_constant,
         )
@@ -309,40 +311,44 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.iterations_executed + 1
         ) % self.convergence_strategy.lock_t_inner_cycles == 0:
             next_t_inner = self.damped_converge(
-                self.model.t_inner,
+                self.simulation_state.t_inner,
                 estimated_t_inner,
                 self.convergence_strategy.t_inner.damping_constant,
             )
         else:
-            next_t_inner = self.model.t_inner
+            next_t_inner = self.simulation_state.t_inner
 
         if hasattr(self, "convergence_plots"):
             self.convergence_plots.fetch_data(
                 name="t_inner",
-                value=self.model.t_inner.value,
+                value=self.simulation_state.t_inner.value,
                 item_type="value",
             )
             self.convergence_plots.fetch_data(
-                name="t_rad", value=self.model.t_rad, item_type="iterable"
+                name="t_rad",
+                value=self.simulation_state.t_rad,
+                item_type="iterable",
             )
             self.convergence_plots.fetch_data(
-                name="w", value=self.model.w, item_type="iterable"
+                name="w", value=self.simulation_state.w, item_type="iterable"
             )
             self.convergence_plots.fetch_data(
-                name="velocity", value=self.model.velocity, item_type="iterable"
+                name="velocity",
+                value=self.simulation_state.velocity,
+                item_type="iterable",
             )
 
         self.log_plasma_state(
-            self.model.t_rad,
-            self.model.w,
-            self.model.t_inner,
+            self.simulation_state.t_rad,
+            self.simulation_state.w,
+            self.simulation_state.t_inner,
             next_t_rad,
             next_w,
             next_t_inner,
         )
-        self.model.t_rad = next_t_rad
-        self.model.w = next_w
-        self.model.blackbody_packet_source.temperature = next_t_inner
+        self.simulation_state.t_rad = next_t_rad
+        self.simulation_state.w = next_w
+        self.simulation_state.blackbody_packet_source.temperature = next_t_inner
 
         # model.calculate_j_blues() equivalent
         # model.update_plasmas() equivalent
@@ -350,7 +356,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if "nlte_data" in self.plasma.outputs_dict:
             self.plasma.store_previous_properties()
 
-        update_properties = dict(t_rad=self.model.t_rad, w=self.model.w)
+        update_properties = dict(
+            t_rad=self.simulation_state.t_rad, w=self.simulation_state.w
+        )
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
         if "j_blue_estimator" in self.plasma.outputs_dict:
@@ -375,7 +383,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
         self.transport.run(
-            self.model,
+            self.simulation_state,
             self.plasma,
             no_of_packets,
             no_of_virtual_packets=no_of_virtual_packets,
@@ -422,10 +430,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         while self.iterations_executed < self.iterations - 1:
             self.store_plasma_state(
                 self.iterations_executed,
-                self.model.w,
-                self.model.t_rad,
+                self.simulation_state.w,
+                self.simulation_state.t_rad,
                 self.plasma.electron_densities,
-                self.model.t_inner,
+                self.simulation_state.t_inner,
             )
             self.iterate(self.no_of_packets)
             self.converged = self.advance_state()
@@ -447,10 +455,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         self.store_plasma_state(
             self.iterations_executed,
-            self.model.w,
-            self.model.t_rad,
+            self.simulation_state.w,
+            self.simulation_state.t_rad,
             self.plasma.electron_densities,
-            self.model.t_inner,
+            self.simulation_state.t_inner,
         )
         self.iterate(self.last_no_of_packets, self.no_of_virtual_packets)
 
@@ -458,7 +466,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if hasattr(self, "convergence_plots"):
             self.convergence_plots.fetch_data(
                 name="t_inner",
-                value=self.model.t_inner.value,
+                value=self.simulation_state.t_inner.value,
                 item_type="value",
             )
             self.convergence_plots.update(
@@ -632,21 +640,23 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # Allow overriding some config structures. This is useful in some
         # unit tests, and could be extended in all the from_config classmethods.
         if "model" in kwargs:
-            model = kwargs["model"]
+            simulation_state = kwargs["model"]
         else:
             if hasattr(config, "csvy_model"):
-                model = Radial1DModel.from_csvy(
+                simulation_state = SimulationState.from_csvy(
                     config, atom_data=kwargs.get("atom_data", None)
                 )
             else:
-                model = Radial1DModel.from_config(
+                simulation_state = SimulationState.from_config(
                     config, atom_data=kwargs.get("atom_data", None)
                 )
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]
         else:
             plasma = assemble_plasma(
-                config, model, atom_data=kwargs.get("atom_data", None)
+                config,
+                simulation_state,
+                atom_data=kwargs.get("atom_data", None),
             )
         if "transport" in kwargs:
             if packet_source is not None:
@@ -694,7 +704,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         return cls(
             iterations=config.montecarlo.iterations,
-            model=model,
+            simulation_state=simulation_state,
             plasma=plasma,
             transport=transport,
             show_convergence_plots=show_convergence_plots,

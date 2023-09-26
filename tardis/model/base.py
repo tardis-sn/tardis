@@ -136,7 +136,7 @@ class ModelState:
         return (self.mass).divide(self.composition.atomic_mass, axis=0)
 
 
-class Radial1DModel(HDFWriterMixin):
+class SimulationState(HDFWriterMixin):
     """
     An object that hold information about the individual shells.
 

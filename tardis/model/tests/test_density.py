@@ -10,11 +10,11 @@ from numpy.testing import assert_almost_equal
 
 @pytest.fixture(scope="module", autouse=True)
 def to_hdf_buffer(hdf_file_path, simulation_verysimple):
-    simulation_verysimple.model.to_hdf(hdf_file_path, overwrite=True)
+    simulation_verysimple.simulation_state.to_hdf(hdf_file_path, overwrite=True)
 
 
 def test_hdf_density_0(hdf_file_path, simulation_verysimple):
-    actual = simulation_verysimple.model.density
+    actual = simulation_verysimple.simulation_state.density
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
     path = os.path.join("model", "density")
@@ -23,7 +23,7 @@ def test_hdf_density_0(hdf_file_path, simulation_verysimple):
 
 
 def test_hdf_time_0(hdf_file_path, simulation_verysimple):
-    actual = simulation_verysimple.model.time_explosion
+    actual = simulation_verysimple.simulation_state.time_explosion
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
     path = os.path.join("model", "scalars")

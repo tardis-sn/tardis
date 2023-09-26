@@ -332,7 +332,7 @@ def model_from_hdf(fname):
     new_model : tardis.model.Radial1DModel
     """
 
-    from tardis.model import Radial1DModel
+    from tardis.model import SimulationState
 
     d = {}
 
@@ -371,7 +371,7 @@ def model_from_hdf(fname):
         d["time_explosion_cgs"],
     )
 
-    new_model = Radial1DModel(
+    new_model = SimulationState(
         velocity=d["velocity_cgs"],
         density=homologous_density,
         abundance=d["abundance"],

@@ -14,7 +14,7 @@ import tardis
 from tardis.io.model.readers.generic_readers import read_uniform_abundances
 from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
 from tardis.io.configuration.config_reader import Configuration
-from tardis.model import Radial1DModel
+from tardis.model import SimulationState
 from tardis.io.model.parse_density_configuration import (
     calculate_power_law_density,
     calculate_exponential_density,
@@ -198,9 +198,9 @@ class CustomAbundanceWidgetData:
         config = Configuration.from_yaml(fpath)
 
         if hasattr(config, "csvy_model"):
-            model = Radial1DModel.from_csvy(config)
+            model = SimulationState.from_csvy(config)
         else:
-            model = Radial1DModel.from_config(config)
+            model = SimulationState.from_config(config)
 
         velocity = model.velocity
         density_t_0 = model.time_explosion

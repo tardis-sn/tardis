@@ -4,7 +4,7 @@ import pytest
 
 from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
-from tardis.model.base import Radial1DModel
+from tardis.model.base import SimulationState
 
 DEFAULT_ATOM_DATA_UUID = "864f1753714343c41f99cb065710cace"
 
@@ -84,4 +84,4 @@ def tardis_model_config_nlte(example_configuration_dir):
 
 @pytest.fixture  # (scope="session")
 def nlte_raw_model(tardis_model_config_nlte):
-    return Radial1DModel.from_config(tardis_model_config_nlte)
+    return SimulationState.from_config(tardis_model_config_nlte)

@@ -184,8 +184,8 @@ class SimulationShellInfo(BaseShellInfo):
             TARDIS Simulation object produced by running a simulation
         """
         super().__init__(
-            sim_model.model.t_radiative,
-            sim_model.model.w,
+            sim_model.simulation_state.t_radiative,
+            sim_model.simulation_state.w,
             sim_model.plasma.abundance,
             sim_model.plasma.number_density,
             sim_model.plasma.ion_number_density,
@@ -210,8 +210,8 @@ class HDFShellInfo(BaseShellInfo):
         """
         with pd.HDFStore(hdf_fpath, "r") as sim_data:
             super().__init__(
-                sim_data["/simulation/model/t_radiative"],
-                sim_data["/simulation/model/w"],
+                sim_data["/simulation/simulation_state/t_radiative"],
+                sim_data["/simulation/simulation_state/w"],
                 sim_data["/simulation/plasma/abundance"],
                 sim_data["/simulation/plasma/number_density"],
                 sim_data["/simulation/plasma/ion_number_density"],

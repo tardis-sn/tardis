@@ -1,7 +1,7 @@
 import pytest
 
 from tardis.io.configuration.config_reader import Configuration
-from tardis.model import Radial1DModel
+from tardis.model import SimulationState
 from tardis.plasma.standard_plasmas import assemble_plasma
 from numpy.testing import assert_almost_equal
 
@@ -15,7 +15,7 @@ def tardis_model_density_config(example_model_file_dir):
 
 @pytest.fixture()
 def raw_model(tardis_model_density_config):
-    return Radial1DModel.from_config(tardis_model_density_config)
+    return SimulationState.from_config(tardis_model_density_config)
 
 
 @pytest.fixture()
