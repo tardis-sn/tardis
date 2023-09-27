@@ -281,7 +281,7 @@ def main_gamma_ray_loop(
     ----------
     num_decays : int
         Number of decays requested
-    model : tardis.Radial1DModel
+    model : tardis.SimulationState
         The tardis model to calculate gamma ray propagation through
     plasma : tardis.plasma.BasePlasma
         The tardis plasma with calculated atomic number density
