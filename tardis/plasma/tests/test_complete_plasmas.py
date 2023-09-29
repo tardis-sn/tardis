@@ -73,7 +73,6 @@ def idfn(fixture_value):
 
 
 class TestPlasma(object):
-
     general_properties = [
         "beta_rad",
         "g_electron",
@@ -206,7 +205,6 @@ class TestPlasma(object):
     def test_helium_treatment(self, plasma, tardis_ref_data, config, snapshot):
         actual = plasma.helium_treatment
         assert snapshot == actual
-        
 
     def test_zeta_data(self, plasma, tardis_ref_data, config, snapshot_np):
         if hasattr(plasma, "zeta_data"):

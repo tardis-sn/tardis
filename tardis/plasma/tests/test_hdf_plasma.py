@@ -84,7 +84,6 @@ def test_hdf_helium_treatment(hdf_file_path, simulation_verysimple, snapshot):
     assert snapshot == actual
 
 
-
 def test_atomic_data_uuid(hdf_file_path, simulation_verysimple, snapshot):
     actual = getattr(simulation_verysimple.plasma.atomic_data, "uuid1")
     assert snapshot == actual
@@ -109,4 +108,3 @@ def test_collection(hdf_file_path, simulation_verysimple, attr, snapshot_np):
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
     assert snapshot_np == actual
-

@@ -10,4 +10,3 @@ def test_exp1_times_exp(snapshot_np):
     actual = YgData.exp1_times_exp(x)
     # assert_allclose(actual, desired)
     assert snapshot_np == actual
-

@@ -30,8 +30,6 @@ def test_electron_densities(raw_plasma, snapshot_np):
     # assert_almost_equal(raw_plasma.electron_densities[3], 2.6e14)
     assert snapshot_np == raw_plasma.electron_densities[8]
     assert snapshot_np == raw_plasma.electron_densities[3]
-    
-
 
 
 def test_isotope_number_densities(raw_plasma, snapshot_np):
@@ -43,7 +41,6 @@ def test_isotope_number_densities(raw_plasma, snapshot_np):
     # )
     assert snapshot_np == raw_plasma.isotope_number_density.loc[(28, 56), 0]
     assert snapshot_np == raw_plasma.isotope_number_density.loc[(28, 58), 1]
-    
 
 
 def test_t_rad(raw_plasma, snapshot_np):
@@ -51,4 +48,3 @@ def test_t_rad(raw_plasma, snapshot_np):
     # assert_almost_equal(raw_plasma.t_rad[3], 76399.042)
     assert snapshot_np == raw_plasma.t_rad[5]
     assert snapshot_np == raw_plasma.t_rad[3]
-    

@@ -144,7 +144,7 @@ def test_rate_matrix(
     simple_total_rad_recomb_coefficients,
     simple_total_col_ion_coefficients,
     simple_total_col_recomb_coefficients,
-    snapshot_np
+    snapshot_np,
 ):
     """
     Using a simple case of nlte_ion for HI and HeII, checks if the calculate_rate_matrix generates the correct data.
@@ -168,7 +168,7 @@ def test_rate_matrix(
         [0.000000, 0.000000, 1.000000, 1.000000, 1.000000, 0.0],
         [0.000000, 1.000000, 0.000000, 1.000000, 2.000000, -1.0],
     ]
-    
+
     # assert_almost_equal(
     #     desired_rate_matrix, np.array(actual_rate_matrix), decimal=6
     # )
@@ -185,7 +185,7 @@ def test_jacobian_matrix(
     simple_total_rad_recomb_coefficients,
     simple_total_col_ion_coefficients,
     simple_total_col_recomb_coefficients,
-    snapshot_np
+    snapshot_np,
 ):
     """
     Using a simple case of nlte_ion for HI and HeII,

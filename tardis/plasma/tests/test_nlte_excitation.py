@@ -10,9 +10,7 @@ from tardis.plasma.properties.nlte_rate_equation_solver import (
 from tardis.plasma.properties.nlte_excitation_data import NLTEExcitationData
 
 
-def test_prepare_bound_bound_rate_matrix(
-    nlte_atomic_dataset, snapshot_np
-):
+def test_prepare_bound_bound_rate_matrix(nlte_atomic_dataset, snapshot_np):
     """
     Using a simple case of nlte_exc for HI, checks if prepare_bound_bound_rate_matrix generates the correct data.
     """
@@ -153,7 +151,7 @@ def test_coll_exc_deexc_matrix(
     coll_deexc_coeff_values,
     number_of_levels,
     desired_coeff_matrix,
-    snapshot_np
+    snapshot_np,
 ):
     """
     Checks the NLTERateEquationSolver.create_coll_exc_deexc_matrix for simple values of species with 3 levels.
