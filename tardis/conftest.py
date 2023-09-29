@@ -39,7 +39,6 @@ def pytest_configure(config):
 
     """
     if ASTROPY_HEADER:
-
         config.option.astropy_header = True
 
         # Customize the following lines to add/remove entries from the list of
@@ -112,9 +111,11 @@ def pytest_addoption(parser):
     )
 
     parser.addoption(
-        "--tardis-snapshot-data", default=None, help="Path to Tardis Snapshot Folder"
+        "--tardis-snapshot-data",
+        default=None,
+        help="Path to Tardis Snapshot Folder",
     )
-    
+
     parser.addoption(
         "--less-packets",
         action="store_true",
@@ -131,8 +132,7 @@ def pytest_collection_modifyitems(config, items):
             if "ignore_generate" in item.keywords:
                 item.add_marker(skip_generate)
         # automatically set update snapshots to true
-        config.option.update_snapshots=True
-    
+        config.option.update_snapshots = True
 
 
 # -------------------------------------------------------------------------
@@ -157,13 +157,17 @@ def tardis_ref_path(request):
     else:
         return Path(os.path.expandvars(os.path.expanduser(tardis_ref_path)))
 
+
 @pytest.fixture(scope="session")
 def tardis_snapshot_path(request):
     tardis_snapshot_path = request.config.getoption("--tardis-snapshot-data")
     if tardis_snapshot_path is None:
         pytest.skip("--tardis-snapshot-data was not specified")
     else:
-        return Path(os.path.expandvars(os.path.expanduser(tardis_snapshot_path)))
+        return Path(
+            os.path.expandvars(os.path.expanduser(tardis_snapshot_path))
+        )
+
 
 from tardis.tests.fixtures.atom_data import *
 
@@ -242,7 +246,6 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
 # -------------------------------------------------------------------------
 
 
-
 class NumpySnapshotExtenstion(SingleFileSnapshotExtension):
     _file_extension = "npy"
 
@@ -267,6 +270,7 @@ class NumpySnapshotExtenstion(SingleFileSnapshotExtension):
         # see https://github.com/tophat/syrupy/blob/f4bc8453466af2cfa75cdda1d50d67bc8c4396c3/src/syrupy/extensions/base.py#L139
         try:
             return np.load(snapshot_location).tolist()
+
         except OSError:
             return None
 
@@ -280,6 +284,7 @@ class NumpySnapshotExtenstion(SingleFileSnapshotExtension):
             snapshot_collection.location,
             next(iter(snapshot_collection)).data,
         )
+
         np.save(filepath, data)
 
     def serialize(self, data: SerializableData, **kwargs: Any) -> str:
@@ -339,6 +344,7 @@ class PandasSnapshotExtenstion(SingleFileSnapshotExtension):
 @pytest.fixture
 def pandas_snapshot_extention():
     return PandasSnapshotExtenstion
+
 
 @pytest.fixture
 def numpy_snapshot_extension():
