@@ -144,6 +144,7 @@ def test_rate_matrix(
     simple_total_rad_recomb_coefficients,
     simple_total_col_ion_coefficients,
     simple_total_col_recomb_coefficients,
+    snapshot_np
 ):
     """
     Using a simple case of nlte_ion for HI and HeII, checks if the calculate_rate_matrix generates the correct data.
@@ -167,10 +168,13 @@ def test_rate_matrix(
         [0.000000, 0.000000, 1.000000, 1.000000, 1.000000, 0.0],
         [0.000000, 1.000000, 0.000000, 1.000000, 2.000000, -1.0],
     ]
-
-    assert_almost_equal(
-        desired_rate_matrix, np.array(actual_rate_matrix), decimal=6
-    )
+    
+    # assert_almost_equal(
+    #     desired_rate_matrix, np.array(actual_rate_matrix), decimal=6
+    # )
+    # TODO: decimal=6
+    # allow for assert_almost_equal
+    assert snapshot_np == np.array(actual_rate_matrix)
 
 
 def test_jacobian_matrix(
@@ -181,6 +185,7 @@ def test_jacobian_matrix(
     simple_total_rad_recomb_coefficients,
     simple_total_col_ion_coefficients,
     simple_total_col_recomb_coefficients,
+    snapshot_np
 ):
     """
     Using a simple case of nlte_ion for HI and HeII,
@@ -225,7 +230,9 @@ def test_jacobian_matrix(
         [0.0, 0.0, 1.0, 1.0, 1.0, 0.0],
         [0.0, 1.0, 0.0, 1.0, 2.0, -1.0],
     ]
-    assert_almost_equal(actual_jacobian_matrix, desired_jacobian_matrix)
+    # assert_almost_equal(actual_jacobian_matrix, desired_jacobian_matrix)
+    # TODO: allow for assert_almost_equal
+    assert snapshot_np == actual_jacobian_matrix
 
 
 @pytest.fixture
