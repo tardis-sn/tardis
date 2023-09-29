@@ -7,12 +7,13 @@ jobs:
   dispatch:
     runs-on: ubuntu-latest
     steps:
-      - name: Slash Command Dispatcher Update Refdata
+      - name: Slash Command Dispatcher Update Refdata/Regression Data
         uses: peter-evans/slash-command-dispatch@v3
         with:
           token: ${{ secrets.BOT_TOKEN }}
           commands: |
             update-refdata
+            update-regression-data
           repository: tardis-sn/tardis
           issue-type: pull-request
           permission: triage
@@ -26,18 +27,6 @@ jobs:
           commands: |
             compare-refdata
           repository: tardis-sn/tardis-refdata
-          issue-type: pull-request
-          permission: triage
-          reaction-token: ${{ secrets.BOT_TOKEN }}
-          allow-edits: true
-      
-      - name: Slash Command Dispatcher Update Refdata Regressions
-        uses: peter-evans/slash-command-dispatch@v3
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          commands: |
-            update-regression-data
-          repository: atharva-2001/tardis-regressions
           issue-type: pull-request
           permission: triage
           reaction-token: ${{ secrets.BOT_TOKEN }}
