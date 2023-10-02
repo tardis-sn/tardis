@@ -273,7 +273,7 @@ class FormalIntegrator(object):
 
     Parameters
     ----------
-    model : tardis.model.Radial1DModel
+    model : tardis.model.SimulationState
     plasma : tardis.plasma.BasePlasma
     transport : tardis.montecarlo.MontecarloTransport
     points : int64
@@ -404,7 +404,7 @@ class FormalIntegrator(object):
 
         Parameters
         ----------
-        model : tardis.model.Radial1DModel
+        model : tardis.model.SimulationState
 
         Returns
         -------

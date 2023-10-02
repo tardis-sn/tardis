@@ -197,7 +197,7 @@ class MontecarloTransport(HDFWriterMixin):
 
         Parameters
         ----------
-        model : model.Radial1DModel
+        model : model.SimulationState
         """
         self.r_inner_cgs = model.r_inner.to("cm").value
         self.r_outer_cgs = model.r_outer.to("cm").value
@@ -315,7 +315,7 @@ class MontecarloTransport(HDFWriterMixin):
 
         Parameters
         ----------
-        model : tardis.model.Radial1DModel
+        model : tardis.model.SimulationState
         plasma : tardis.plasma.BasePlasma
         no_of_packets : int
         no_of_virtual_packets : int
@@ -571,7 +571,7 @@ class MontecarloTransport(HDFWriterMixin):
 
         Parameters
         ----------
-        model : model.Radial1DModel
+        model : model.SimulationState
 
         Returns
         -------
@@ -591,7 +591,7 @@ class MontecarloTransport(HDFWriterMixin):
 
         Parameters
         ----------
-        model : model.Radial1DModel
+        model : model.SimulationState
 
         Returns
         -------

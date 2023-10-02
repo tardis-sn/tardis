@@ -541,7 +541,7 @@ class SimulationState(HDFWriterMixin):
     @classmethod
     def from_config(cls, config, atom_data=None):
         """
-        Create a new Radial1DModel instance from a Configuration object.
+        Create a new SimulationState instance from a Configuration object.
 
         Parameters
         ----------
@@ -550,7 +550,7 @@ class SimulationState(HDFWriterMixin):
 
         Returns
         -------
-        Radial1DModel
+        SimulationState
         """
         time_explosion = config.supernova.time_explosion.cgs
 
@@ -668,7 +668,7 @@ class SimulationState(HDFWriterMixin):
     @classmethod
     def from_csvy(cls, config, atom_data=None):
         """
-        Create a new Radial1DModel instance from a Configuration object.
+        Create a new SimulationState instance from a Configuration object.
 
         Parameters
         ----------
@@ -677,7 +677,7 @@ class SimulationState(HDFWriterMixin):
 
         Returns
         -------
-        Radial1DModel
+        SimulationState
         """
         CSVY_SUPPORTED_COLUMNS = {
             "velocity",

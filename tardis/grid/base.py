@@ -95,7 +95,7 @@ class tardisGrid:
 
     def grid_row_to_model(self, row_index):
         """
-        Generates a TARDIS Radial1DModel object using the base
+        Generates a TARDIS SimulationState object using the base
         self.config modified by the specified grid row.
 
         Parameters
@@ -105,7 +105,7 @@ class tardisGrid:
 
         Returns
         -------
-        model : tardis.model.base.Radial1DModel
+        model : tardis.model.base.SimulationState
         """
         rowconfig = self.grid_row_to_config(row_index)
         model = SimulationState.from_config(rowconfig)

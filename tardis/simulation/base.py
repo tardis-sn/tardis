@@ -94,7 +94,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     ----------
     converged : bool
     iterations : int
-    model : tardis.model.Radial1DModel
+    model : tardis.model.SimulationState
     plasma : tardis.plasma.BasePlasma
     transport : tardis.montecarlo.MontecarloTransport
     no_of_packets : int
