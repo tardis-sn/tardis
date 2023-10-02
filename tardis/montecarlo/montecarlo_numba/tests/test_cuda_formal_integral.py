@@ -349,11 +349,11 @@ def test_full_formal_integral(
     sim = simulation_verysimple
 
     formal_integrator_numba = FormalIntegrator(
-        sim.model, sim.plasma, sim.transport
+        sim.simulation_state, sim.plasma, sim.transport
     )
 
     formal_integrator_cuda = FormalIntegrator(
-        sim.model, sim.plasma, sim.transport
+        sim.simulation_state, sim.plasma, sim.transport
     )
 
     # The function calculate_spectrum sets this property, but in order to test the CUDA.

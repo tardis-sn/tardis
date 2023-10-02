@@ -269,8 +269,8 @@ class CustomAbundanceWidgetData:
         -------
         CustomAbundanceWidgetData
         """
-        abundance = sim.model.raw_abundance.copy()
-        isotope_abundance = sim.model.raw_isotope_abundance.copy()
+        abundance = sim.simulation_state.raw_abundance.copy()
+        isotope_abundance = sim.simulation_state.raw_isotope_abundance.copy()
 
         # integrate element and isotope to one DataFrame
         abundance["mass_number"] = ""
@@ -278,9 +278,9 @@ class CustomAbundanceWidgetData:
         abundance = pd.concat([abundance, isotope_abundance])
         abundance.sort_index(inplace=True)
 
-        velocity = sim.model.velocity
-        density_t_0 = sim.model.time_explosion
-        density = sim.model.density
+        velocity = sim.simulation_state.velocity
+        density_t_0 = sim.simulation_state.time_explosion
+        density = sim.simulation_state.density
 
         return cls(
             density_t_0=density_t_0,

@@ -6,11 +6,11 @@ import h5py
 
 def store_model_to_hdf(model, fname):
     """
-    Stores data from Radial1DModel object into a hdf file.
+    Stores data from SimulationState object into a hdf file.
 
     Parameters
     ----------
-    model : tardis.model.Radial1DModel
+    model : tardis.model.SimulationState
     filename : str
     """
     with h5py.File(fname, "a") as f:
