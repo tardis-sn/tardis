@@ -1,10 +1,5 @@
-import os
 import pandas as pd
 import pytest
-
-from numpy.testing import assert_almost_equal
-import pandas.testing as pdt
-from tardis.plasma.properties import property_collections
 
 ###
 # saving and loading of plasma properties in the HDF file
@@ -79,12 +74,12 @@ def test_hdf_scalars(simulation_verysimple, attr, snapshot_np):
     assert snapshot_np == actual
 
 
-def test_hdf_helium_treatment(hdf_file_path, simulation_verysimple, snapshot):
+def test_hdf_helium_treatment(simulation_verysimple, snapshot):
     actual = getattr(simulation_verysimple.plasma, "helium_treatment")
     assert snapshot == actual
 
 
-def test_atomic_data_uuid(hdf_file_path, simulation_verysimple, snapshot):
+def test_atomic_data_uuid(simulation_verysimple, snapshot):
     actual = getattr(simulation_verysimple.plasma.atomic_data, "uuid1")
     assert snapshot == actual
 
@@ -103,7 +98,7 @@ collection_properties = ["t_rad", "w", "density"]
 
 
 @pytest.mark.parametrize("attr", collection_properties)
-def test_collection(hdf_file_path, simulation_verysimple, attr, snapshot_np):
+def test_collection(simulation_verysimple, attr, snapshot_np):
     actual = getattr(simulation_verysimple.plasma, attr)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value

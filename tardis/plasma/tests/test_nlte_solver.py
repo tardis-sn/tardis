@@ -1,14 +1,9 @@
-import os
-
-import pytest
 import numpy as np
 import pandas as pd
-from copy import deepcopy
-from numpy.testing import assert_allclose, assert_almost_equal
-from tardis.io.configuration.config_reader import Configuration
-from tardis.model.base import SimulationState
+import pytest
+from numpy.testing import assert_allclose
+
 from tardis.plasma.properties import NLTERateEquationSolver
-from tardis.io.atom_data.base import AtomData
 from tardis.plasma.properties.ion_population import IonNumberDensity
 from tardis.plasma.standard_plasmas import assemble_plasma
 
@@ -160,18 +155,6 @@ def test_rate_matrix(
         simple_total_col_ion_coefficients,
         simple_total_col_recomb_coefficients,
     )
-    desired_rate_matrix = [
-        [-0.077601, 0.099272, 0.000000, 0.000000, 0.000000, 0.0],
-        [1.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.0],
-        [0.000000, 0.000000, -0.157263, 0.221960, 0.000000, 0.0],
-        [0.000000, 0.000000, 0.000000, -0.834623, 0.161479, 0.0],
-        [0.000000, 0.000000, 1.000000, 1.000000, 1.000000, 0.0],
-        [0.000000, 1.000000, 0.000000, 1.000000, 2.000000, -1.0],
-    ]
-
-    # assert_almost_equal(
-    #     desired_rate_matrix, np.array(actual_rate_matrix), decimal=6
-    # )
     # TODO: decimal=6
     # allow for assert_almost_equal
     assert snapshot_np == np.array(actual_rate_matrix)
@@ -222,15 +205,6 @@ def test_jacobian_matrix(
         simple_total_col_recomb_coefficients,
     )
 
-    desired_jacobian_matrix = [
-        [-0.07760098, 0.09927163, 0.0, 0.0, 0.0, 0.23467404],
-        [1.0, 1.0, 0.0, 0.0, 0.0, 0.0],
-        [0.0, 0.0, -0.15726292, 0.22196045, 0.0, 0.04022076],
-        [0.0, 0.0, 0.0, -0.8346228, 0.16147935, 0.20061248],
-        [0.0, 0.0, 1.0, 1.0, 1.0, 0.0],
-        [0.0, 1.0, 0.0, 1.0, 2.0, -1.0],
-    ]
-    # assert_almost_equal(actual_jacobian_matrix, desired_jacobian_matrix)
     # TODO: allow for assert_almost_equal
     assert snapshot_np == actual_jacobian_matrix
 

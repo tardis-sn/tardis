@@ -1,7 +1,8 @@
 from pathlib import Path
+
 import pytest
-from syrupy.location import PyTestLocation
 from syrupy.extensions.amber import AmberSnapshotExtension
+from syrupy.location import PyTestLocation
 
 SNAPSHOT_LOCATION = "plasma"
 
@@ -35,6 +36,7 @@ def snapshot(snapshot, tardis_snapshot_path):
     refpath = tardis_snapshot_path.joinpath(SNAPSHOT_LOCATION)
 
     # TODO: try this with SingleFileSnapshotExtension
+    # test files from single test function would be grouped together
     class AmberSnapshotExtensionRefdata(AmberSnapshotExtension):
         @classmethod
         def dirname(cls, *, test_location: "PyTestLocation") -> str:
