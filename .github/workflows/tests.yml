@@ -14,7 +14,7 @@ on:
     - '*'
 
 env:
-  CACHE_NUMBER: 1  # increase to reset cache manually
+  CACHE_NUMBER: 0  # increase to reset cache manually
   PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-snapshot-data=${{ github.workspace }}/tardis-regressions
                 --cov=tardis --cov-report=xml --cov-report=html 
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -88,10 +88,8 @@ jobs:
       - name: Clone tardis-sn/tardis-regressions
         uses: actions/checkout@v4
         with:
-          repository: atharva-2001/tardis-regressions
-          ref: plasma_data
+          repository: tardis-sn/tardis-regressions
           path: tardis-regressions
-          lfs: false
 
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
