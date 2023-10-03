@@ -6,11 +6,6 @@ import pytest
 ###
 
 
-# @pytest.fixture(scope="module", autouse=True)
-# def to_hdf_buffer(hdf_file_path, simulation_verysimple):
-#     simulation_verysimple.plasma.to_hdf(hdf_file_path, overwrite=True)
-
-
 plasma_properties_list = [
     "number_density",
     "beta_rad",
@@ -82,16 +77,6 @@ def test_hdf_helium_treatment(simulation_verysimple, snapshot):
 def test_atomic_data_uuid(simulation_verysimple, snapshot):
     actual = getattr(simulation_verysimple.plasma.atomic_data, "uuid1")
     assert snapshot == actual
-
-
-# @pytest.fixture(scope="module", autouse=True)
-# def to_hdf_collection_buffer(hdf_file_path, simulation_verysimple):
-#     simulation_verysimple.plasma.to_hdf(
-#         hdf_file_path,
-#         name="collection",
-#         collection=property_collections.basic_inputs,
-#         overwrite=True,
-#     )
 
 
 collection_properties = ["t_rad", "w", "density"]
