@@ -74,7 +74,7 @@ Or, to run tests for a particular file or directory
 Running Syrupy Tests
 ======================
 The tests module is currently being restructured to use `Syrupy <https://github.com/tophat/syrupy>`_. 
-These tests generate individual HDF(for Pandas) and ``.npy/.npz``(for NumPy) files(or snapshots) for each test case.
+These tests generate individual HDF(for Pandas) and ``.npy`` or ``.npz`` (for NumPy) files(or snapshots) for each test case.
 For other objects, the plugin serialises them and saves them as ``.ambr`` files. There is a custom extension in the 
 main local `conftest <https://github.com/tardis-sn/tardis/blob/master/tardis/conftest.py>`_ file to get this to work.
 The plugin currently only supports ``assert_allclose`` for NumPy and ``assert_series_equal`` and ``assert_frame_equal`` for 
