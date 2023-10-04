@@ -12,6 +12,7 @@ from numba.experimental import jitclass
 import pdb
 
 from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
+from tardis.montecarlo import montecarlo_configuration as mc_config_module
 from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     opacity_state_initialize,
@@ -357,6 +358,12 @@ class FormalIntegrator(object):
                 "The FormalIntegrator currently only works for "
                 'line_interaction_type == "downbranch"'
                 'and line_interaction_type == "macroatom"'
+            )
+
+        if mc_config_module.CONTINUUM_PROCESSES_ENABLED:
+            return raise_or_return(
+                "The FormalIntegrator currently does not work for "
+                "continuum interactions."
             )
 
         return True
