@@ -260,6 +260,64 @@ def initialize_packets(
     )
 
 
+def create_inventories(model, average_energies, time_end=80.0):
+
+    """
+    This function should give the total energy of each decay chain
+
+    Parameters
+    ----------
+
+    model : tardis.Radial1DModel
+        The tardis model to calculate gamma ray propagation through
+    average_energies: dict
+        gamma ray energy (energy * intensity) from the nndc data
+    time_end : float
+        End time of simulation in days
+    """
+
+    outer_velocities = model.v_outer.to("cm/s").value
+    inner_velocities = model.v_inner.to("cm/s").value
+    ejecta_density = model.density.to("g/cm^3").value
+    ejecta_volume = model.volume.to("cm^3").value
+    ejecta_velocity_volume = (
+        4 * np.pi / 3 * (outer_velocities**3.0 - inner_velocities**3.0)
+    )
+    time_explosion = model.time_explosion.to("s").value
+    number_of_shells = model.no_of_shells
+    raw_isotope_abundance = model.raw_isotope_abundance.sort_values(
+        by=["atomic_number", "mass_number"], ascending=False
+    )
+
+    shell_masses = ejecta_volume * ejecta_density
+
+    time_start = time_explosion
+    time_end *= u.d.to(u.s)
+
+    raw_isotope_abundance = model.raw_isotope_abundance.sort_values(
+        by=["atomic_number", "mass_number"], ascending=False
+    )
+
+    inventories = raw_isotope_abundance.to_inventories()
+    total_energy_list = []
+    for shell, inv in enumerate(inventories):
+
+        total_decays = inv.cumulative_decays(time_end)
+        energy = {}
+        for nuclide in total_decays:
+            energy[nuclide] = (
+                total_decays[nuclide]
+                * average_energies[nuclide]
+                * shell_masses[shell]
+            )
+
+        total_energy_list.append(energy)
+
+    total_energy = pd.DataFrame(total_energy_list)
+
+    return total_energy
+
+
 def main_gamma_ray_loop(
     num_decays,
     model,
