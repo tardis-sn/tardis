@@ -37,28 +37,43 @@ def test_v_indices(homologous_radial1d_geometry):
         == homologous_radial1d_geometry.v_inner
     )
 
-    #pivoting around the inner boundary of the simulation
+    # pivoting around the inner boundary of the simulation
 
-    homologous_radial1d_geometry.v_inner_boundary = homologous_radial1d_geometry.v_inner[0] + 0.0001 * u.km / u.s
+    homologous_radial1d_geometry.v_inner_boundary = (
+        homologous_radial1d_geometry.v_inner[0] + 0.0001 * u.km / u.s
+    )
     assert homologous_radial1d_geometry.v_inner_boundary_index == 0
-    homologous_radial1d_geometry.v_inner_boundary = homologous_radial1d_geometry.v_inner[0] - 0.0001 * u.km / u.s
+    homologous_radial1d_geometry.v_inner_boundary = (
+        homologous_radial1d_geometry.v_inner[0] - 0.0001 * u.km / u.s
+    )
     assert homologous_radial1d_geometry.v_inner_boundary_index == 0
 
-    #pivoting around the first shell boundary of the simulation
-    homologous_radial1d_geometry.v_inner_boundary = homologous_radial1d_geometry.v_inner[1] - 0.0001 * u.km / u.s
+    # pivoting around the first shell boundary of the simulation
+    homologous_radial1d_geometry.v_inner_boundary = (
+        homologous_radial1d_geometry.v_inner[1] - 0.0001 * u.km / u.s
+    )
     assert homologous_radial1d_geometry.v_inner_boundary_index == 0
-    homologous_radial1d_geometry.v_inner_boundary = homologous_radial1d_geometry.v_inner[1] + 0.0001 * u.km / u.s
+    homologous_radial1d_geometry.v_inner_boundary = (
+        homologous_radial1d_geometry.v_inner[1] + 0.0001 * u.km / u.s
+    )
     assert homologous_radial1d_geometry.v_inner_boundary_index == 1
 
-    #pivoting around the outer boundary of the simulation
-    homologous_radial1d_geometry.v_outer_boundary = homologous_radial1d_geometry.v_outer[-1] + 0.0001 * u.km / u.s
+    # pivoting around the outer boundary of the simulation
+    homologous_radial1d_geometry.v_outer_boundary = (
+        homologous_radial1d_geometry.v_outer[-1] + 0.0001 * u.km / u.s
+    )
     assert homologous_radial1d_geometry.v_outer_boundary_index == 12
-    homologous_radial1d_geometry.v_outer_boundary = homologous_radial1d_geometry.v_outer[-1] - 0.0001 * u.km / u.s
+    homologous_radial1d_geometry.v_outer_boundary = (
+        homologous_radial1d_geometry.v_outer[-1] - 0.0001 * u.km / u.s
+    )
     assert homologous_radial1d_geometry.v_outer_boundary_index == 12
 
-    #pivoting around the second to outer boundary of the simulation
-    homologous_radial1d_geometry.v_outer_boundary = homologous_radial1d_geometry.v_outer[-2] + 0.0001 * u.km / u.s
+    # pivoting around the second to outer boundary of the simulation
+    homologous_radial1d_geometry.v_outer_boundary = (
+        homologous_radial1d_geometry.v_outer[-2] + 0.0001 * u.km / u.s
+    )
     assert homologous_radial1d_geometry.v_outer_boundary_index == 12
-    homologous_radial1d_geometry.v_outer_boundary = homologous_radial1d_geometry.v_outer[-2] - 0.0001 * u.km / u.s
+    homologous_radial1d_geometry.v_outer_boundary = (
+        homologous_radial1d_geometry.v_outer[-2] - 0.0001 * u.km / u.s
+    )
     assert homologous_radial1d_geometry.v_outer_boundary_index == 11
-
