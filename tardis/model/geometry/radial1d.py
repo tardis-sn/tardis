@@ -92,11 +92,25 @@ class HomologousRadial1DGeometry:
         )
 
     @property
+    def r_inner_active(self):
+        return (self.v_inner_active * self.time_explosion).to(
+            self.DEFAULT_DISTANCE_UNIT
+        )
+
+    
+    @property
     def r_outer(self):
         return (self.v_inner * self.time_explosion).to(
             self.DEFAULT_DISTANCE_UNIT
         )
 
+    @property
+    def r_outer_active(self):
+        return (self.v_outer_active * self.time_explosion).to(
+            self.DEFAULT_DISTANCE_UNIT
+        )
+
+    
     @property
     def volume(self):
         """Volume in shell computed from r_outer and r_inner"""
