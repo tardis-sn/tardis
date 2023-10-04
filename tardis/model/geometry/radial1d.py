@@ -58,7 +58,7 @@ class HomologousRadial1DGeometry:
         # boundary vs slightly above
 
         return np.clip(
-            np.searchsorted(self.v_inner, self.v_inner_boundary, side="left")
+            np.searchsorted(self.v_inner, self.v_inner_boundary, side="right")
             - 1,
             0,
             None,
@@ -67,11 +67,23 @@ class HomologousRadial1DGeometry:
     @property
     def v_outer_boundary_index(self):
         return np.clip(
-            np.searchsorted(self.v_outer, self.v_outer_boundary, side="right")
+            np.searchsorted(self.v_outer, self.v_outer_boundary, side="left")
             + 1,
             None,
             len(self.v_outer),
         )
+
+    @property
+    def v_inner_active(self):
+        v_inner_active = self.v_inner[self.v_inner_boundary_index :].copy()
+        v_inner_active[0] = self.v_inner_boundary
+        return v_inner_active
+
+    @property
+    def v_outer_active(self):
+        v_outer_active = self.v_outer[: self.v_outer_boundary_index].copy()
+        v_outer_active[-1] = self.v_outer_boundary
+        return v_outer_active
 
     @property
     def r_inner(self):
