@@ -42,8 +42,10 @@ class HomologousRadial1DGeometry:
 
         # ensuring that the boundaries are within the simulation area
         assert v_inner_boundary < v_outer_boundary
-        assert v_inner_boundary >= self.v_inner[0] #TBD - we could just extrapolate
-        assert v_outer_boundary <= self.v_outer[-1] 
+        assert (
+            v_inner_boundary >= self.v_inner[0]
+        )  # TBD - we could just extrapolate
+        assert v_outer_boundary <= self.v_outer[-1]
 
         self.v_inner_boundary = v_inner_boundary
         self.v_outer_boundary = v_outer_boundary
@@ -55,19 +57,21 @@ class HomologousRadial1DGeometry:
         # fix to ensure that we get the same index if we are on the shell
         # boundary vs slightly above
 
-        return np.max(
-            [
-                np.searchsorted(
-                    self.v_inner, self.v_inner_boundary, side="left"
-                )
-                - 1,
-                0
-            ]
+        return np.clip(
+            np.searchsorted(self.v_inner, self.v_inner_boundary, side="left")
+            - 1,
+            0,
+            None,
         )
 
     @property
     def v_outer_boundary_index(self):
-        return np.searchsorted(self.v_outer, self.v_outer_boundary, side='right')
+        return np.clip(
+            np.searchsorted(self.v_outer, self.v_outer_boundary, side="right")
+            + 1,
+            None,
+            len(self.v_outer),
+        )
 
     @property
     def r_inner(self):
