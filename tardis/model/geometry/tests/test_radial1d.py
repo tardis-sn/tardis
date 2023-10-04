@@ -83,8 +83,7 @@ def test_vb_indices(homologous_radial1d_geometry):
 
 
 def test_velocity_boundary(homologous_radial1d_geometry):
-    # Testing if the indices returned are correct when inner and outer
-    # boundary are on the innermost and outermost shell
+    # testing the active cell boundaries when setting the boundaries
 
     homologous_radial1d_geometry.v_inner_boundary = 7999 * u.km / u.s
     npt.assert_almost_equal(
