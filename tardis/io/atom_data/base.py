@@ -138,6 +138,7 @@ class AtomData(object):
         "photoionization_data",
         "yg_data",
         "two_photon_data",
+        "linelist",
     ]
 
     # List of tuples of the related dataframes.
@@ -165,7 +166,6 @@ class AtomData(object):
         fname = resolve_atom_data_fname(fname)
 
         with pd.HDFStore(fname, "r") as store:
-
             for name in cls.hdf_names:
                 try:
                     dataframes[name] = store.select(name)
@@ -182,7 +182,6 @@ class AtomData(object):
                     # Checks for various collisional data from Carsus files
                     if "collisions_data" in store:
                         try:
-
                             dataframes["collision_data_temperatures"] = store[
                                 "collisions_metadata"
                             ].temperatures
@@ -211,6 +210,8 @@ class AtomData(object):
                     raise ValueError(
                         f"Current carsus version, {carsus_version}, is not supported."
                     )
+            if "linelist" in store:
+                dataframes["linelist"] = store["linelist"]
 
             atom_data = cls(**dataframes)
 
@@ -273,8 +274,8 @@ class AtomData(object):
         photoionization_data=None,
         yg_data=None,
         two_photon_data=None,
+        linelist=None,
     ):
-
         self.prepared = False
 
         # CONVERT VALUES TO CGS UNITS
@@ -332,6 +333,9 @@ class AtomData(object):
         self.yg_data = yg_data
 
         self.two_photon_data = two_photon_data
+
+        if linelist is not None:
+            self.linelist = linelist
 
         self._check_related()
 
@@ -426,7 +430,6 @@ class AtomData(object):
             self.macro_atom_data_all is not None
             and not line_interaction_type == "scatter"
         ):
-
             self.macro_atom_data = self.macro_atom_data_all.loc[
                 self.macro_atom_data_all["atomic_number"].isin(
                     self.selected_atomic_numbers
