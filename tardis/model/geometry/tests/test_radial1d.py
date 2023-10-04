@@ -39,7 +39,7 @@ def test_vb_indices(homologous_radial1d_geometry):
         homologous_radial1d_geometry.v_inner[vib_index:vob_index]
         == homologous_radial1d_geometry.v_inner
     )
-    EPSILON_VELOCITY_SHIFT = EPSILON_VELOCITY_SHIFT
+    EPSILON_VELOCITY_SHIFT = 1 * u.km / u.s
     # pivoting around the inner boundary of the simulation
 
     homologous_radial1d_geometry.v_inner_boundary = (
