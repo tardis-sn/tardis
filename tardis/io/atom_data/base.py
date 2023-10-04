@@ -138,6 +138,7 @@ class AtomData(object):
         "photoionization_data",
         "yg_data",
         "two_photon_data",
+        "linelist",
     ]
 
     # List of tuples of the related dataframes.
@@ -165,10 +166,9 @@ class AtomData(object):
         fname = resolve_atom_data_fname(fname)
 
         with pd.HDFStore(fname, "r") as store:
-
             for name in cls.hdf_names:
                 try:
-                    dataframes[name] = store.select(name)
+                    dataframes[name] = store[name]
                 except KeyError:
                     logger.debug(f"Dataframe does not contain {name} column")
                     nonavailable.append(name)
@@ -182,7 +182,6 @@ class AtomData(object):
                     # Checks for various collisional data from Carsus files
                     if "collisions_data" in store:
                         try:
-
                             dataframes["collision_data_temperatures"] = store[
                                 "collisions_metadata"
                             ].temperatures
@@ -211,6 +210,8 @@ class AtomData(object):
                     raise ValueError(
                         f"Current carsus version, {carsus_version}, is not supported."
                     )
+            if "linelist" in store:
+                dataframes["linelist"] = store["linelist"]
 
             atom_data = cls(**dataframes)
 
@@ -273,8 +274,8 @@ class AtomData(object):
         photoionization_data=None,
         yg_data=None,
         two_photon_data=None,
+        linelist=None,
     ):
-
         self.prepared = False
 
         # CONVERT VALUES TO CGS UNITS
@@ -287,33 +288,25 @@ class AtomData(object):
         if u.u.cgs == const.u.cgs:
             atom_data.loc[:, "mass"] = Quantity(
                 atom_data["mass"].values, "u"
-            ).cgs.value
+            ).cgs
         else:
-            atom_data.loc[:, "mass"] = (
-                atom_data["mass"].values * const.u.cgs.value
-            )
+            atom_data.loc[:, "mass"] = atom_data["mass"].values * const.u.cgs
 
         # Convert ionization energies to CGS
         ionization_data = ionization_data.squeeze()
-        ionization_data[:] = Quantity(ionization_data[:], "eV").cgs.value
+        ionization_data[:] = Quantity(ionization_data[:], "eV").cgs
 
         # Convert energy to CGS
-        levels.loc[:, "energy"] = Quantity(
-            levels["energy"].values, "eV"
-        ).cgs.value
+        levels.loc[:, "energy"] = Quantity(levels["energy"].values, "eV").cgs
 
         # Create a new columns with wavelengths in the CGS units
-        lines["wavelength_cm"] = Quantity(
-            lines["wavelength"], "angstrom"
-        ).cgs.value
+        lines["wavelength_cm"] = Quantity(lines["wavelength"], "angstrom").cgs
 
         # SET ATTRIBUTES
 
         self.atom_data = atom_data
         self.ionization_data = ionization_data
         self.levels = levels
-        # Not sure why this is need - WEK 17 Sep 2023
-        self.levels.energy = self.levels.energy.astype(np.float64)
         self.lines = lines
 
         # Rename these (drop "_all") when `prepare_atom_data` is removed!
@@ -332,6 +325,9 @@ class AtomData(object):
         self.yg_data = yg_data
 
         self.two_photon_data = two_photon_data
+
+        if linelist is not None:
+            self.linelist = linelist
 
         self._check_related()
 
@@ -426,7 +422,6 @@ class AtomData(object):
             self.macro_atom_data_all is not None
             and not line_interaction_type == "scatter"
         ):
-
             self.macro_atom_data = self.macro_atom_data_all.loc[
                 self.macro_atom_data_all["atomic_number"].isin(
                     self.selected_atomic_numbers
@@ -530,9 +525,7 @@ class AtomData(object):
                 self.macro_atom_data.loc[:, "destination_level_idx"] = -1
 
             if self.yg_data is not None:
-                self.yg_data = self.yg_data.reindex(
-                    self.selected_atomic_numbers, level=0
-                )
+                self.yg_data = self.yg_data.loc[self.selected_atomic_numbers]
 
         self.nlte_data = NLTEData(self, nlte_species)
 
