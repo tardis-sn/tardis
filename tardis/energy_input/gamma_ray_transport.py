@@ -318,6 +318,17 @@ def create_inventories(model, average_energies, time_end=80.0):
     return total_energy
 
 
+def calculate_shell_masses(model):
+
+    outer_velocities = model.v_outer.to("cm/s").value
+    inner_velocities = model.v_inner.to("cm/s").value
+    ejecta_density = model.density.to("g/cm^3").value
+    ejecta_volume = model.volume.to("cm^3").value
+    shell_masses = ejecta_volume * ejecta_density
+
+    return shell_masses
+
+
 def main_gamma_ray_loop(
     num_decays,
     model,
