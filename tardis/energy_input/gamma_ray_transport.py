@@ -320,6 +320,17 @@ def create_inventories(model, average_energies, time_end=80.0):
 
 def calculate_shell_masses(model):
 
+    """Function to calculate shell masses
+    Parameters
+    ----------
+    model : tardis.Radial1DModel
+        The tardis model to calculate gamma ray propagation through
+    Returns
+    -------
+    numpy.ndarray
+        shell masses in units of g
+
+    """
     outer_velocities = model.v_outer.to("cm/s").value
     inner_velocities = model.v_inner.to("cm/s").value
     ejecta_density = model.density.to("g/cm^3").value
