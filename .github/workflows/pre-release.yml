@@ -30,7 +30,7 @@ jobs:
             use-mamba: true
 
       - name: Install conda-lock
-        run: mamba install -c conda-forge conda-lock=1.0.5
+        run: mamba install -c conda-forge conda-lock
       
       - name: Update Mamba # see https://github.com/conda-incubator/setup-miniconda/issues/288
         run: mamba update mamba
