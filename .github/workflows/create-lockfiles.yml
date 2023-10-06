@@ -1,0 +1,43 @@
+name: create-lockfiles
+
+on:
+  workflow_dispatch:  # manual trigger
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup environment
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
+            auto-activate-base: true
+            activate-environment: ""
+            use-mamba: true
+
+      - name: Install conda-lock
+        run: mamba install -c conda-forge conda-lock
+      
+      - name: Update Mamba # see https://github.com/conda-incubator/setup-miniconda/issues/288
+        run: mamba update mamba
+
+      - name: Generate lockfiles
+        run: |
+          conda-lock -f tardis_env3.yml -p linux-64 -p osx-64
+          conda lock render conda-lock.yml
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: lockfiles
+          path: |
+              conda-linux-64.lock
+              conda-osx-64.lock
+              conda-lock.yml
