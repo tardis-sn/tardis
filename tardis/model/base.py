@@ -217,8 +217,8 @@ class SimulationState(HDFWriterMixin):
         self.geometry = geometry
         self._v_boundary_inner = None
         self._v_boundary_outer = None
-        #self._velocity = None
-        #self.raw_velocity = velocity
+        # self._velocity = None
+        # self.raw_velocity = velocity
         self.v_boundary_inner = v_boundary_inner
         self.v_boundary_outer = v_boundary_outer
 
@@ -227,11 +227,8 @@ class SimulationState(HDFWriterMixin):
         self._electron_densities = electron_densities
 
         if len(density) != len(self.geometry.v_inner):
-
             density = density[
-                self.v_boundary_inner_index
-                + 1 : self.v_boundary_outer_index
-                + 1
+                self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
             ]
 
         self.raw_abundance = self._abundance
@@ -304,7 +301,7 @@ class SimulationState(HDFWriterMixin):
             )
             t_radiative = constants.b_wien / (
                 lambda_wien_inner
-                * (1 + (self.v_middle - self.v_boundary_inner) / constants.c)
+                * (1 + (self.v_middle - self.geometry.v_inner_boundary) / constants.c)
             )
         elif len(t_radiative) != self.no_of_shells:
             t_radiative = t_radiative[
@@ -324,9 +321,7 @@ class SimulationState(HDFWriterMixin):
             )
         elif len(dilution_factor) != self.no_of_shells:
             dilution_factor = dilution_factor[
-                self.v_boundary_inner_index
-                + 1 : self.v_boundary_outer_index
-                + 1
+                self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
             ]
             assert len(dilution_factor) == self.no_of_shells
 
@@ -435,8 +430,9 @@ class SimulationState(HDFWriterMixin):
             self._abundance = self.raw_isotope_abundance.decay(
                 self.time_explosion
             ).merge(self.raw_abundance)
-        abundance = self._abundance.loc[
-            :, self.v_boundary_inner_index : self.v_boundary_outer_index - 1
+        abundance = self._abundance.iloc[
+            :,
+            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
         ]
         abundance.columns = range(len(abundance.columns))
         return abundance
@@ -452,6 +448,7 @@ class SimulationState(HDFWriterMixin):
     @property
     def no_of_raw_shells(self):
         return self.geometry.no_of_shells
+
     """
     @property
     def v_boundary_inner(self):
@@ -541,6 +538,7 @@ class SimulationState(HDFWriterMixin):
             )
         return v_outer_ind
     """
+
     @classmethod
     def from_config(cls, config, atom_data=None):
         """
@@ -561,7 +559,7 @@ class SimulationState(HDFWriterMixin):
             electron_densities,
             temperature,
             geometry,
-            density
+            density,
         ) = parse_structure_config(config, time_explosion)
 
         if temperature is not None:
@@ -631,8 +629,12 @@ class SimulationState(HDFWriterMixin):
             elemental_mass=elemental_mass,
             luminosity_requested=luminosity_requested,
             dilution_factor=None,
-            v_boundary_inner=config.model.structure.get("v_inner_boundary", None),
-            v_boundary_outer=config.model.structure.get("v_outer_boundary", None),
+            v_boundary_inner=config.model.structure.get(
+                "v_inner_boundary", None
+            ),
+            v_boundary_outer=config.model.structure.get(
+                "v_outer_boundary", None
+            ),
             electron_densities=electron_densities,
         )
 
@@ -884,9 +886,10 @@ def parse_structure_config(config, time_explosion, enable_homology=True):
     #       v boundaries.
 
     geometry = HomologousRadial1DGeometry(
-        velocity[:-1] * time_explosion, # r_inner
-        velocity[1:] * time_explosion, # r_outer
-        velocity[:-1], # v_inner
-        velocity[1:], # v_outer
+        velocity[:-1],  # r_inner
+        velocity[1:],  # r_outer
+        v_inner_boundary=structure_config.get("v_inner_boundary", None),
+        v_outer_boundary=structure_config.get("v_outer_boundary", None),
+        time_explosion=time_explosion,
     )
     return electron_densities, temperature, geometry, density

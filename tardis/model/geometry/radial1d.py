@@ -41,14 +41,22 @@ class HomologousRadial1DGeometry:
         self.v_outer = v_outer.to(self.DEFAULT_VELOCITY_UNIT)
 
         # ensuring that the boundaries are within the simulation area
-        assert v_inner_boundary < v_outer_boundary
-        assert (
-            v_inner_boundary >= self.v_inner[0]
-        )  # TBD - we could just extrapolate
-        assert v_outer_boundary <= self.v_outer[-1]
+        
+        if v_inner_boundary is None:
+            self.v_inner_boundary = self.v_inner[0]
+        else:
+            self.v_inner_boundary = v_inner_boundary
 
-        self.v_inner_boundary = v_inner_boundary
-        self.v_outer_boundary = v_outer_boundary
+        if v_outer_boundary is None:
+            self.v_outer_boundary = self.v_outer[-1]
+        else:
+            self.v_outer_boundary = v_outer_boundary
+        
+        assert self.v_inner_boundary < self.v_outer_boundary
+        assert (
+            self.v_inner_boundary >= self.v_inner[0]
+        )  # TBD - we could just extrapolate
+        assert self.v_outer_boundary <= self.v_outer[-1]
 
     @property
     def v_inner_boundary_index(self):
@@ -143,8 +151,6 @@ numba_geometry_spec = [
     ("v_inner", float64[:]),
     ("v_outer", float64[:]),
 ]
-
-
 @jitclass(numba_geometry_spec)
 class NumbaRadial1DGeometry(object):
     def __init__(self, r_inner, r_outer, v_inner, v_outer):
