@@ -227,6 +227,7 @@ class SimulationState(HDFWriterMixin):
         self._electron_densities = electron_densities
 
         if len(density) != len(self.geometry.v_inner):
+            #finite difference vs finite volume - take the density 1 further
             density = density[
                 self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
             ]
