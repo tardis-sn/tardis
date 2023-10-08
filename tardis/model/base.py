@@ -119,10 +119,10 @@ class ModelState:
     def mass(self):
         """Mass calculated using the formula:
         mass_fraction * density * volume"""
+
+        total_mass = (self.geometry.volume * self.composition.density).to(u.g)
         return (
-            self.composition.elemental_mass_fraction
-            * self.composition.density
-            * self.geometry.volume
+            self.composition.elemental_mass_fraction * total_mass.value
         )
 
     @property
@@ -227,7 +227,6 @@ class SimulationState(HDFWriterMixin):
         self._electron_densities = electron_densities
 
         if len(density) != len(self.geometry.v_inner):
-            #finite difference vs finite volume - take the density 1 further
             density = density[
                 self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
             ]
@@ -302,7 +301,11 @@ class SimulationState(HDFWriterMixin):
             )
             t_radiative = constants.b_wien / (
                 lambda_wien_inner
-                * (1 + (self.v_middle - self.geometry.v_inner_boundary) / constants.c)
+                * (
+                    1
+                    + (self.v_middle - self.geometry.v_inner_boundary)
+                    / constants.c
+                )
             )
         elif len(t_radiative) != self.no_of_shells:
             t_radiative = t_radiative[
@@ -388,11 +391,11 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def r_inner(self):
-        return self.model_state.geometry.r_inner
+        return self.model_state.geometry.r_inner_active
 
     @property
     def r_outer(self):
-        return self.model_state.geometry.r_outer
+        return self.model_state.geometry.r_outer_active
 
     @property
     def r_middle(self):
@@ -411,11 +414,11 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def v_inner(self):
-        return self.model_state.geometry.v_inner
+        return self.model_state.geometry.v_inner_active
 
     @property
     def v_outer(self):
-        return self.model_state.geometry.v_outer
+        return self.model_state.geometry.v_outer_active
 
     @property
     def v_middle(self):
@@ -449,96 +452,6 @@ class SimulationState(HDFWriterMixin):
     @property
     def no_of_raw_shells(self):
         return self.geometry.no_of_shells
-
-    """
-    @property
-    def v_boundary_inner(self):
-        return self.v_boundary_inner
-        if self._v_boundary_inner is None:
-            return self.raw_velocity[0]
-        if self._v_boundary_inner < 0 * u.km / u.s:
-            return self.raw_velocity[0]
-        return self._v_boundary_inner
-
-    
-    @v_boundary_inner.setter
-    def v_boundary_inner(self, value):
-        if value is not None:
-            if value > 0 * u.km / u.s:
-                value = u.Quantity(value, self.v_boundary_inner.unit)
-                if value > self.v_boundary_outer:
-                    raise ValueError(
-                        f"v_boundary_inner ({value}) must not be higher than "
-                        f"v_boundary_outer ({self.v_boundary_outer})."
-                    )
-                if value > self.raw_velocity[-1]:
-                    raise ValueError(
-                        f"v_boundary_inner ({value}) is outside of the model range ({self.raw_velocity[-1]})."
-                    )
-                if value < self.raw_velocity[0]:
-                    raise ValueError(
-                        f"v_boundary_inner ({value}) is lower than the lowest shell ({self.raw_velocity[0]}) in the model."
-                    )
-        self._v_boundary_inner = value
-        # Invalidate the cached cut-down velocity array
-        self._velocity = None
-    
-
-    @property
-    def v_boundary_outer(self):
-        return self.v_boundary_outer
-    
-        if self._v_boundary_outer is None:
-            return self.raw_velocity[-1]
-        if self._v_boundary_outer < 0 * u.km / u.s:
-            return self.raw_velocity[-1]
-        return self._v_boundary_outer
-    
-    @v_boundary_outer.setter
-    def v_boundary_outer(self, value):
-        if value is not None:
-            if value > 0 * u.km / u.s:
-                value = u.Quantity(value, self.v_boundary_outer.unit)
-                if value < self.v_boundary_inner:
-                    raise ValueError(
-                        f"v_boundary_outer ({value}) must not be smaller than v_boundary_inner ({self.v_boundary_inner})."
-                    )
-                if value < self.raw_velocity[0]:
-                    raise ValueError(
-                        f"v_boundary_outer ({value}) is outside of the model range ({self.raw_velocity[0]})."
-                    )
-                if value > self.raw_velocity[-1]:
-                    raise ValueError(
-                        f"v_boundary_outer ({value}) is larger than the largest shell in the model ({self.raw_velocity[-1]})."
-                    )
-        self._v_boundary_outer = value
-        # Invalidate the cached cut-down velocity array
-        self._velocity = None
-
-    @property
-    def v_boundary_inner_index(self):
-        if self.v_boundary_inner in self.raw_velocity:
-            v_inner_ind = np.argwhere(
-                self.raw_velocity == self.v_boundary_inner
-            )[0][0]
-        else:
-            v_inner_ind = (
-                np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
-            )
-        return v_inner_ind
-
-    @property
-    def v_boundary_outer_index(self):
-        if self.v_boundary_outer in self.raw_velocity:
-            v_outer_ind = np.argwhere(
-                self.raw_velocity == self.v_boundary_outer
-            )[0][0]
-        else:
-            v_outer_ind = np.searchsorted(
-                self.raw_velocity, self.v_boundary_outer
-            )
-        return v_outer_ind
-    """
 
     @classmethod
     def from_config(cls, config, atom_data=None):
@@ -885,7 +798,11 @@ def parse_structure_config(config, time_explosion, enable_homology=True):
 
     # Note: This is the number of shells *without* taking in mind the
     #       v boundaries.
-
+    if len(density) == len(velocity):
+        logger.warning(
+            "Number of density points larger than number of shells. Assuming inner point irrelevant"
+        )
+        density = density[1:]
     geometry = HomologousRadial1DGeometry(
         velocity[:-1],  # r_inner
         velocity[1:],  # r_outer

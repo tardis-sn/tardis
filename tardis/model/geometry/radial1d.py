@@ -2,6 +2,7 @@ from numba import float64
 from numba.experimental import jitclass
 import numpy as np
 from astropy import units as u
+import warnings
 
 
 class HomologousRadial1DGeometry:
@@ -44,10 +45,16 @@ class HomologousRadial1DGeometry:
         
         if v_inner_boundary is None:
             self.v_inner_boundary = self.v_inner[0]
+        elif v_inner_boundary < 0:
+            warnings.warn("v_inner_boundary < 0, assuming default value", DeprecationWarning)
+            self.v_inner_boundary = self.v_inner[0]
         else:
             self.v_inner_boundary = v_inner_boundary
 
         if v_outer_boundary is None:
+            self.v_outer_boundary = self.v_outer[-1]
+        elif v_outer_boundary < 0:
+            warnings.warn("v_outer_boundary < 0, assuming default value", DeprecationWarning)
             self.v_outer_boundary = self.v_outer[-1]
         else:
             self.v_outer_boundary = v_outer_boundary
@@ -83,13 +90,13 @@ class HomologousRadial1DGeometry:
 
     @property
     def v_inner_active(self):
-        v_inner_active = self.v_inner[self.v_inner_boundary_index :].copy()
+        v_inner_active = self.v_inner[self.v_inner_boundary_index:self.v_outer_boundary_index].copy()
         v_inner_active[0] = self.v_inner_boundary
         return v_inner_active
 
     @property
     def v_outer_active(self):
-        v_outer_active = self.v_outer[: self.v_outer_boundary_index].copy()
+        v_outer_active = self.v_outer[self.v_inner_boundary_index:self.v_outer_boundary_index].copy()
         v_outer_active[-1] = self.v_outer_boundary
         return v_outer_active
 
@@ -108,7 +115,7 @@ class HomologousRadial1DGeometry:
     
     @property
     def r_outer(self):
-        return (self.v_inner * self.time_explosion).to(
+        return (self.v_outer * self.time_explosion).to(
             self.DEFAULT_DISTANCE_UNIT
         )
 
