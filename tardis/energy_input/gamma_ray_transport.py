@@ -426,7 +426,6 @@ def main_gamma_ray_loop(
     number_of_isotopes = plasma.isotope_number_density * ejecta_volume
     total_number_isotopes = number_of_isotopes.sum(axis=1)
 
-    
     all_isotope_names = get_all_isotopes(raw_isotope_abundance)
     all_isotope_names.sort()
 

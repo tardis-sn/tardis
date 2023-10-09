@@ -66,12 +66,13 @@ class IsotopeAbundances(pd.DataFrame):
             list of radioactivedecay Inventories
         """
 
-
         comp_dicts = [dict() for i in range(len(self.columns))]
         for (atomic_number, mass_number), abundances in self.iterrows():
             nuclear_symbol = f"{Z_to_elem(atomic_number)}{mass_number}"
             for i in range(len(self.columns)):
-                comp_dicts[i][nuclear_symbol] = abundances[i] * shell_masses[i].to(u.g).value
+                comp_dicts[i][nuclear_symbol] = (
+                    abundances[i] * shell_masses[i].to(u.g).value
+                )
         return [Inventory(comp_dict, "g") for comp_dict in comp_dicts]
 
     def decay(self, t):
