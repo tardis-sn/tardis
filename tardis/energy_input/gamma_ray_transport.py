@@ -302,6 +302,43 @@ def calculate_isotope_mass(model):
     return raw_isotope_mass
 
 
+def create_inventories(model, time_end=80.0):
+
+    """Function to create inventories of isotope
+    Parameters
+    ----------
+    model : tardis.Radial1DModel
+        The tardis model to calculate gamma ray propagation through
+
+    time_end : float
+        End time of simulation in days
+    Returns
+    -------
+       None
+    """
+
+    time_end *= u.d.to(u.s)
+    raw_isotope_mass = calculate_isotope_mass(model)
+    inventories = (
+        raw_isotope_mass.to_inventories()
+    )  # inventories are in disintegrations for x g of isotope
+    shell_masses = calculate_shell_masses(model)
+
+    inventory_list = []
+    for shell, inv in enumerate(inventories):
+
+        decay_per_gram = (
+            inv / shell_masses[shell]
+        )  # decays are in disintegrations for 1 g of isotope
+        total_decays = decay_per_gram.cumulative_decays(
+            time_end
+        )  # total number of decays for 1 g of isotope for t days
+
+        inventory_list.append(total_decays)
+
+    return inventory_list
+
+
 def main_gamma_ray_loop(
     num_decays,
     model,
