@@ -78,11 +78,6 @@ class HomologousRadial1DGeometry:
 
     @property
     def v_inner_boundary_index(self):
-        # TODO potentially rename to v_inner_active_index??
-
-        # fix to ensure that we get the same index if we are on the shell
-        # boundary vs slightly above
-
         return np.clip(
             np.searchsorted(self.v_inner, self.v_inner_boundary, side="right")
             - 1,
@@ -171,10 +166,10 @@ class HomologousRadial1DGeometry:
             Numba version of Radial1DGeometry with properties in cgs units
         """
         return NumbaRadial1DGeometry(
-            self.r_inner.to(u.cm).value,
-            self.r_outer.to(u.cm).value,
-            self.v_inner.to(u.cm / u.s).value,
-            self.v_outer.to(u.cm / u.s).value,
+            self.r_inner_active.to(u.cm).value,
+            self.r_outer_active.to(u.cm).value,
+            self.v_inner_active.to(u.cm / u.s).value,
+            self.v_outer_active.to(u.cm / u.s).value,
         )
 
 
@@ -184,8 +179,6 @@ numba_geometry_spec = [
     ("v_inner", float64[:]),
     ("v_outer", float64[:]),
 ]
-
-
 @jitclass(numba_geometry_spec)
 class NumbaRadial1DGeometry(object):
     def __init__(self, r_inner, r_outer, v_inner, v_outer):

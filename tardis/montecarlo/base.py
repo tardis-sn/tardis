@@ -191,7 +191,7 @@ class MontecarloTransport(HDFWriterMixin):
             gamma_shape, dtype=np.int64
         )
 
-    def _initialize_geometry_arrays(self, model):
+    def _initialize_geometry_arrays(self, simulation_state):
         """
         Generate the cgs like geometry arrays for the montecarlo part
 
@@ -199,10 +199,10 @@ class MontecarloTransport(HDFWriterMixin):
         ----------
         model : model.Radial1DModel
         """
-        self.r_inner_cgs = model.r_inner.to("cm").value
-        self.r_outer_cgs = model.r_outer.to("cm").value
-        self.v_inner_cgs = model.v_inner.to("cm/s").value
-        self.v_outer_cgs = model.v_outer.to("cm/s").value
+        self.r_inner_cgs = simulation_state.r_inner.to("cm").value
+        self.r_outer_cgs = simulation_state.r_outer.to("cm").value
+        self.v_inner_cgs = simulation_state.v_inner.to("cm/s").value
+        self.v_outer_cgs = simulation_state.v_outer.to("cm/s").value
 
     def _initialize_packets(self, model, no_of_packets, iteration):
         # the iteration (passed as seed_offset) is added each time to preserve randomness
@@ -302,7 +302,7 @@ class MontecarloTransport(HDFWriterMixin):
 
     def run(
         self,
-        model,
+        simulation_state,
         plasma,
         no_of_packets,
         no_of_virtual_packets=0,
@@ -329,8 +329,8 @@ class MontecarloTransport(HDFWriterMixin):
 
         set_num_threads(self.nthreads)
 
-        self.time_of_simulation = self.calculate_time_of_simulation(model)
-        self.volume = model.volume
+        self.time_of_simulation = self.calculate_time_of_simulation(simulation_state)
+        self.volume = simulation_state.volume
 
         # Initializing estimator array
         self._initialize_estimator_arrays(plasma.tau_sobolevs.shape)
@@ -342,17 +342,17 @@ class MontecarloTransport(HDFWriterMixin):
 
         self._initialize_continuum_estimator_arrays(gamma_shape)
 
-        self._initialize_geometry_arrays(model)
+        self._initialize_geometry_arrays(simulation_state)
 
         self._initialize_packets(
-            model,
+            simulation_state,
             no_of_packets,
             iteration,
         )
 
         configuration_initialize(self, no_of_virtual_packets)
         montecarlo_radial1d(
-            model,
+            simulation_state,
             plasma,
             iteration,
             no_of_packets,
@@ -360,7 +360,7 @@ class MontecarloTransport(HDFWriterMixin):
             show_progress_bars,
             self,
         )
-        self._integrator = FormalIntegrator(model, plasma, self)
+        self._integrator = FormalIntegrator(simulation_state, plasma, self)
 
     def legacy_return(self):
         return (
