@@ -273,8 +273,7 @@ def calculate_shell_masses(model):
         shell masses in units of g
 
     """
-    outer_velocities = model.v_outer.to("cm/s").value
-    inner_velocities = model.v_inner.to("cm/s").value
+
     ejecta_density = model.density.to("g/cm^3").value
     ejecta_volume = model.volume.to("cm^3").value
     shell_masses = ejecta_volume * ejecta_density
