@@ -41,6 +41,12 @@ this method by following the steps described below.
 
 3. a. Non-developers can install the latest release from ``conda-forge`` with the ``--no-deps`` flag,
 
+      .. warning::
+
+        Currently the conda forge installation doesn't work. It's recommended to install from the specific releases using pip-
+        $ pip install git+https://github.com/tardis-sn/tardis.git@{tag}
+        For example- `pip install git+https://github.com/tardis-sn/tardis.git@release-2023.09.17`
+    
       ::
 
         $ conda install tardis-sn --channel conda-forge --no-deps
@@ -82,16 +88,16 @@ You have successfully installed TARDIS! 🎉 Please refer to `Quickstart for TAR
 to start running simulations.
 
 
-Install from package
-====================
+.. Install from package
+.. ====================
 
-It's also possible to install TARDIS by pulling the `conda-forge package <https://anaconda.org/conda-forge/tardis-sn>`_
-into a clean environment. However, we still encourage using lockfiles to ensure
-reproducibility of scientific results.
+.. It's also possible to install TARDIS by pulling the `conda-forge package <https://anaconda.org/conda-forge/tardis-sn>`_
+.. into a clean environment. However, we still encourage using lockfiles to ensure
+.. reproducibility of scientific results.
 
-::
+.. ::
 
-    $ conda create --name tardis-forge tardis-sn --channel conda-forge
+..     $ conda create --name tardis-forge tardis-sn --channel conda-forge
 
 
 Environment update
