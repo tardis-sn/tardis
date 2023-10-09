@@ -220,7 +220,7 @@ class MontecarloTransport(HDFWriterMixin):
             no_of_packets
         )
 
-        self.input_r = radii
+        self.input_r = radii.to(u.cm).value
         self.input_nu = nus
         self.input_mu = mus
         self.input_energy = energies
