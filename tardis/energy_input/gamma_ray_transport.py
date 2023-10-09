@@ -367,7 +367,7 @@ def main_gamma_ray_loop(
         by=["atomic_number", "mass_number"], ascending=False
     )
 
-    shell_masses = ejecta_volume * ejecta_density
+    shell_masses = calculate_shell_masses(model)
 
     time_start = time_explosion
     time_end *= u.d.to(u.s)
