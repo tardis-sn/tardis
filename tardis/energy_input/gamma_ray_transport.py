@@ -260,6 +260,27 @@ def initialize_packets(
     )
 
 
+def calculate_shell_masses(model):
+
+    """Function to calculate shell masses
+    Parameters
+    ----------
+    model : tardis.Radial1DModel
+        The tardis model to calculate gamma ray propagation through
+    Returns
+    -------
+    numpy.ndarray
+        shell masses in units of g
+
+    """
+
+    ejecta_density = model.density.to("g/cm^3").value
+    ejecta_volume = model.volume.to("cm^3").value
+    shell_masses = ejecta_volume * ejecta_density
+
+    return shell_masses
+
+
 def main_gamma_ray_loop(
     num_decays,
     model,
@@ -346,7 +367,7 @@ def main_gamma_ray_loop(
         by=["atomic_number", "mass_number"], ascending=False
     )
 
-    shell_masses = ejecta_volume * ejecta_density
+    shell_masses = calculate_shell_masses(model)
 
     time_start = time_explosion
     time_end *= u.d.to(u.s)
