@@ -279,6 +279,34 @@ def calculate_shell_masses(model):
     return (ejecta_volume * ejecta_density).to(u.g)
 
 
+def calculate_total_decays(inventories, time_delta):
+
+    """Function to create inventories of isotope
+    Parameters
+    ----------
+    model : tardis.Radial1DModel
+        The tardis model to calculate gamma ray propagation through
+
+    time_end : float
+        End time of simulation in days
+    Returns
+    -------
+       None
+    """
+
+    time_delta = u.Quantity(time_delta, u.s)
+
+    total_decays_list = []
+    for inv in inventories:
+
+        total_decays = inv.cumulative_decays(
+            time_delta.value
+        )
+        total_decays_list.append(total_decays)
+
+    return total_decays_list
+
+
 def main_gamma_ray_loop(
     num_decays,
     model,
