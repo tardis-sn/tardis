@@ -1,3 +1,4 @@
+from astropy import units as u
 import os
 import logging
 
@@ -49,7 +50,7 @@ from tardis.plasma.properties import (
 logger = logging.getLogger(__name__)
 
 
-def assemble_plasma(config, model, atom_data=None):
+def assemble_plasma(config, simulation_state, atom_data=None):
     """
     Create a BasePlasma instance from a Configuration object
     and a Radial1DModel.
@@ -106,7 +107,7 @@ def assemble_plasma(config, model, atom_data=None):
             raise
 
     atom_data.prepare_atom_data(
-        model.abundance.index,
+        simulation_state.abundance.index,
         line_interaction_type=config.plasma.line_interaction_type,
         nlte_species=nlte_species,
     )
@@ -135,12 +136,12 @@ def assemble_plasma(config, model, atom_data=None):
     ]
 
     kwargs = dict(
-        t_rad=model.t_radiative,
-        abundance=model.abundance,
-        density=model.density,
+        t_rad=simulation_state.t_radiative,
+        abundance=simulation_state.abundance,
+        density=simulation_state.density,
         atomic_data=atom_data,
-        time_explosion=model.time_explosion,
-        w=model.dilution_factor,
+        time_explosion=simulation_state.time_explosion,
+        w=simulation_state.dilution_factor,
         link_t_rad_t_electron=config.plasma.link_t_rad_t_electron,
         continuum_interaction_species=continuum_interaction_species,
         nlte_ionization_species=nlte_ionization_species,
@@ -213,9 +214,9 @@ def assemble_plasma(config, model, atom_data=None):
             bf_heating_coeff_estimator=None,
             stim_recomb_cooling_coeff_estimator=None,
             alpha_stim_estimator=None,
-            volume=model.volume,
-            r_inner=model.r_inner,
-            t_inner=model.t_inner,
+            volume=simulation_state.volume,
+            r_inner=simulation_state.r_inner.to(u.cm),
+            t_inner=simulation_state.t_inner,
         )
     if config.plasma.radiative_rates_type == "blackbody":
         plasma_modules.append(JBluesBlackBody)
@@ -224,9 +225,9 @@ def assemble_plasma(config, model, atom_data=None):
     elif config.plasma.radiative_rates_type == "detailed":
         plasma_modules += detailed_j_blues_properties + detailed_j_blues_inputs
         kwargs.update(
-            r_inner=model.r_inner,
-            t_inner=model.t_inner,
-            volume=model.volume,
+            r_inner=simulation_state.r_inner.to(u.cm),
+            t_inner=simulation_state.t_inner,
+            volume=simulation_state.volume,
             j_blue_estimator=None,
         )
         property_kwargs[JBluesDetailed] = {"w_epsilon": config.plasma.w_epsilon}
@@ -278,8 +279,10 @@ def assemble_plasma(config, model, atom_data=None):
     else:
         plasma_modules += helium_lte_properties
 
-    if model._electron_densities is not None:
-        electron_densities = pd.Series(model._electron_densities.cgs.value)
+    if simulation_state._electron_densities is not None:
+        electron_densities = pd.Series(
+            simulation_state._electron_densities.cgs.value
+        )
         if config.plasma.helium_treatment == "numerical-nlte":
             property_kwargs[IonNumberDensityHeNLTE] = dict(
                 electron_densities=electron_densities
@@ -289,10 +292,12 @@ def assemble_plasma(config, model, atom_data=None):
                 electron_densities=electron_densities
             )
 
-    if not model.raw_isotope_abundance.empty:
+    if not simulation_state.raw_isotope_abundance.empty:
         plasma_modules += isotope_properties
-        isotope_abundance = model.raw_isotope_abundance.loc[
-            :, model.v_boundary_inner_index : model.v_boundary_outer_index - 1
+        isotope_abundance = simulation_state.raw_isotope_abundance.loc[
+            :,
+            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
+            - 1,
         ]
         kwargs.update(isotope_abundance=isotope_abundance)
 

@@ -217,8 +217,6 @@ class SimulationState(HDFWriterMixin):
         self.geometry = geometry
         self._v_boundary_inner = None
         self._v_boundary_outer = None
-        # self._velocity = None
-        # self.raw_velocity = velocity
         self.v_boundary_inner = v_boundary_inner
         self.v_boundary_outer = v_boundary_outer
 
@@ -226,7 +224,7 @@ class SimulationState(HDFWriterMixin):
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
 
-        if len(density) != len(self.geometry.v_inner):
+        if len(density) != len(self.geometry.v_inner_active):
             density = density[
                 self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
             ]
@@ -307,10 +305,11 @@ class SimulationState(HDFWriterMixin):
                     / constants.c
                 )
             )
-        elif len(t_radiative) != self.no_of_shells:
+        
+        elif len(t_radiative) == self.no_of_shells + 1:
             t_radiative = t_radiative[
-                self.v_boundary_inner_index
-                + 1 : self.v_boundary_outer_index
+                self.geometry.v_inner_boundary_index
+                + 1 : self.geometry.v_outer_boundary_index
                 + 1
             ]
         else:
@@ -403,7 +402,8 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def velocity(self):
-        return None
+        velocity = self.geometry.v_outer_active.copy()
+        return velocity.insert(0, self.geometry.v_inner_active[0])
         if self._velocity is None:
             self._velocity = self.raw_velocity[
                 self.v_boundary_inner_index : self.v_boundary_outer_index + 1

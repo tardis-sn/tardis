@@ -42,11 +42,14 @@ class HomologousRadial1DGeometry:
         self.v_outer = v_outer.to(self.DEFAULT_VELOCITY_UNIT)
 
         # ensuring that the boundaries are within the simulation area
-        
+
         if v_inner_boundary is None:
             self.v_inner_boundary = self.v_inner[0]
         elif v_inner_boundary < 0:
-            warnings.warn("v_inner_boundary < 0, assuming default value", DeprecationWarning)
+            warnings.warn(
+                "v_inner_boundary < 0, assuming default value",
+                DeprecationWarning,
+            )
             self.v_inner_boundary = self.v_inner[0]
         else:
             self.v_inner_boundary = v_inner_boundary
@@ -54,16 +57,24 @@ class HomologousRadial1DGeometry:
         if v_outer_boundary is None:
             self.v_outer_boundary = self.v_outer[-1]
         elif v_outer_boundary < 0:
-            warnings.warn("v_outer_boundary < 0, assuming default value", DeprecationWarning)
+            warnings.warn(
+                "v_outer_boundary < 0, assuming default value",
+                DeprecationWarning,
+            )
             self.v_outer_boundary = self.v_outer[-1]
         else:
             self.v_outer_boundary = v_outer_boundary
-        
+
         assert self.v_inner_boundary < self.v_outer_boundary
-        assert (
-            self.v_inner_boundary >= self.v_inner[0]
-        )  # TBD - we could just extrapolate
-        assert self.v_outer_boundary <= self.v_outer[-1]
+        if self.v_inner_boundary < self.v_inner[0]:
+            warnings.warn(
+                "Requesting inner boundary below inner shell. Extrapolating the inner cell"
+            )
+
+        if self.v_outer_boundary > self.v_outer[-1]:
+            warnings.warn(
+                "Requesting inner boundary below inner shell. Extrapolating the inner cell"
+            )
 
     @property
     def v_inner_boundary_index(self):
@@ -90,13 +101,17 @@ class HomologousRadial1DGeometry:
 
     @property
     def v_inner_active(self):
-        v_inner_active = self.v_inner[self.v_inner_boundary_index:self.v_outer_boundary_index].copy()
+        v_inner_active = self.v_inner[
+            self.v_inner_boundary_index : self.v_outer_boundary_index
+        ].copy()
         v_inner_active[0] = self.v_inner_boundary
         return v_inner_active
 
     @property
     def v_outer_active(self):
-        v_outer_active = self.v_outer[self.v_inner_boundary_index:self.v_outer_boundary_index].copy()
+        v_outer_active = self.v_outer[
+            self.v_inner_boundary_index : self.v_outer_boundary_index
+        ].copy()
         v_outer_active[-1] = self.v_outer_boundary
         return v_outer_active
 
@@ -112,7 +127,6 @@ class HomologousRadial1DGeometry:
             self.DEFAULT_DISTANCE_UNIT
         )
 
-    
     @property
     def r_outer(self):
         return (self.v_outer * self.time_explosion).to(
@@ -125,15 +139,27 @@ class HomologousRadial1DGeometry:
             self.DEFAULT_DISTANCE_UNIT
         )
 
-    
     @property
     def volume(self):
         """Volume in shell computed from r_outer and r_inner"""
         return (4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
 
     @property
+    def volume_active(self):
+        """Volume in shell computed from r_outer and r_inner"""
+        return (
+            (4.0 / 3)
+            * np.pi
+            * (self.r_outer_active**3 - self.r_inner_active**3)
+        )
+
+    @property
     def no_of_shells(self):
         return len(self.r_inner)
+
+    @property
+    def no_of_shells_active(self):
+        return len(self.r_inner_active)
 
     def to_numba(self):
         """
@@ -158,6 +184,8 @@ numba_geometry_spec = [
     ("v_inner", float64[:]),
     ("v_outer", float64[:]),
 ]
+
+
 @jitclass(numba_geometry_spec)
 class NumbaRadial1DGeometry(object):
     def __init__(self, r_inner, r_outer, v_inner, v_outer):

@@ -138,7 +138,7 @@ def test_model_to_dict(simulation_verysimple):
     model_dict, isotope_abundance = model_to_dict(model)
 
     # Check model dictionary
-    assert np.array_equal(model_dict["velocity_cgs"][0], model.velocity.value)
+    assert np.array_equal(model_dict["velocity_cgs"][0], model.velocity.cgs.value)
     assert model_dict["velocity_cgs"][1] == model.velocity.unit.to_string()
     assert np.array_equal(model_dict["abundance"], model.abundance)
     assert np.array_equal(
