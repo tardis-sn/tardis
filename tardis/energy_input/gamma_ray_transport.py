@@ -274,11 +274,9 @@ def calculate_shell_masses(model):
 
     """
 
-    ejecta_density = model.density.to("g/cm^3").value
-    ejecta_volume = model.volume.to("cm^3").value
-    shell_masses = ejecta_volume * ejecta_density
-
-    return shell_masses
+    ejecta_density = model.density.to("g/cm^3")
+    ejecta_volume = model.volume.to("cm^3")
+    return (ejecta_volume * ejecta_density).to(u.g)
 
 
 def main_gamma_ray_loop(
@@ -368,6 +366,7 @@ def main_gamma_ray_loop(
     )
 
     shell_masses = calculate_shell_masses(model)
+    inventories = raw_isotope_abundance.to_inventories(shell_masses)
 
     time_start = time_explosion
     time_end *= u.d.to(u.s)
@@ -427,7 +426,7 @@ def main_gamma_ray_loop(
     number_of_isotopes = plasma.isotope_number_density * ejecta_volume
     total_number_isotopes = number_of_isotopes.sum(axis=1)
 
-    inventories = raw_isotope_abundance.to_inventories()
+    
     all_isotope_names = get_all_isotopes(raw_isotope_abundance)
     all_isotope_names.sort()
 
