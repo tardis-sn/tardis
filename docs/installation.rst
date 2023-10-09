@@ -44,8 +44,12 @@ this method by following the steps described below.
       .. warning::
 
         Currently the conda forge installation doesn't work. It's recommended to install from the specific releases using pip-
-        $ pip install git+https://github.com/tardis-sn/tardis.git@{tag}
-        For example- `pip install git+https://github.com/tardis-sn/tardis.git@release-2023.09.17`
+        
+        `$ pip install git+https://github.com/tardis-sn/tardis.git@{tag}`
+
+        For example- 
+        
+        `pip install git+https://github.com/tardis-sn/tardis.git@release-2023.09.17`
     
       ::
 
