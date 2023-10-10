@@ -119,7 +119,6 @@ def test_plasma_state_iterations(simulation_one_loop, refdata, name):
         actual = pd.Series(actual)
     except Exception:
         actual = pd.DataFrame(actual)
-    
 
     if type(actual) == pd.DataFrame:
         pdt.assert_frame_equal(actual, refdata(name), rtol=1e-5, atol=1e-8)

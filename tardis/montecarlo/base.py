@@ -329,7 +329,9 @@ class MontecarloTransport(HDFWriterMixin):
 
         set_num_threads(self.nthreads)
 
-        self.time_of_simulation = self.calculate_time_of_simulation(simulation_state)
+        self.time_of_simulation = self.calculate_time_of_simulation(
+            simulation_state
+        )
         self.volume = simulation_state.volume
 
         # Initializing estimator array

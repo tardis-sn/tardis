@@ -121,9 +121,7 @@ class ModelState:
         mass_fraction * density * volume"""
 
         total_mass = (self.geometry.volume * self.composition.density).to(u.g)
-        return (
-            self.composition.elemental_mass_fraction * total_mass.value
-        )
+        return self.composition.elemental_mass_fraction * total_mass.value
 
     @property
     def number(self):
@@ -213,7 +211,7 @@ class SimulationState(HDFWriterMixin):
         electron_densities=None,
     ):
         self.geometry = geometry
-        
+
         self._abundance = abundance
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
@@ -299,7 +297,7 @@ class SimulationState(HDFWriterMixin):
                     / constants.c
                 )
             )
-        
+
         elif len(t_radiative) == self.no_of_shells + 1:
             t_radiative = t_radiative[
                 self.geometry.v_inner_boundary_index
@@ -381,7 +379,6 @@ class SimulationState(HDFWriterMixin):
     def radius(self):
         return None
         return self.time_explosion * self.velocity
-
 
     @property
     def v_boundary_inner(self):
@@ -617,7 +614,9 @@ class SimulationState(HDFWriterMixin):
         electron_densities = None
         temperature = None
 
-        geometry = parse_csvy_geometry(config, csvy_model_config, csvy_model_data, time_explosion)
+        geometry = parse_csvy_geometry(
+            config, csvy_model_config, csvy_model_data, time_explosion
+        )
 
         if hasattr(csvy_model_config, "density"):
             density = parse_csvy_density(csvy_model_config, time_explosion)
@@ -664,7 +663,9 @@ class SimulationState(HDFWriterMixin):
                 )
 
         elif config.plasma.initial_t_rad > 0 * u.K:
-            t_radiative = np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
+            t_radiative = (
+                np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
+            )
         else:
             t_radiative = None
 
@@ -726,7 +727,10 @@ class SimulationState(HDFWriterMixin):
             electron_densities=electron_densities,
         )
 
-def parse_csvy_geometry(config, csvy_model_config, csvy_model_data, time_explosion):
+
+def parse_csvy_geometry(
+    config, csvy_model_config, csvy_model_data, time_explosion
+):
     if hasattr(config, "model"):
         if hasattr(config.model, "v_inner_boundary"):
             v_boundary_inner = config.model.v_inner_boundary
@@ -762,10 +766,9 @@ def parse_csvy_geometry(config, csvy_model_config, csvy_model_data, time_explosi
         velocity[1:],  # r_outer
         v_inner_boundary=v_boundary_inner,
         v_outer_boundary=v_boundary_outer,
-        time_explosion=time_explosion
+        time_explosion=time_explosion,
     )
     return geometry
-    
 
 
 def parse_structure_config(config, time_explosion, enable_homology=True):

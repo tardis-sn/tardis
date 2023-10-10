@@ -138,7 +138,9 @@ def test_model_to_dict(simulation_verysimple):
     model_dict, isotope_abundance = model_to_dict(model)
 
     # Check model dictionary
-    assert np.array_equal(model_dict["velocity_cgs"][0], model.velocity.cgs.value)
+    assert np.array_equal(
+        model_dict["velocity_cgs"][0], model.velocity.cgs.value
+    )
     assert model_dict["velocity_cgs"][1] == model.velocity.cgs.unit.to_string()
     assert np.array_equal(model_dict["abundance"], model.abundance)
     assert np.array_equal(
@@ -289,9 +291,7 @@ def test_store_transport_to_hdf(simulation_verysimple, tmp_path):
         assert np.array_equal(
             f["transport/input_nu"], transport_data["input_nu"]
         )
-        assert np.array_equal(
-            f["transport/input_r"], transport_data["input_r"]
-        )
+        assert np.array_equal(f["transport/input_r"], transport_data["input_r"])
         assert np.array_equal(
             f["transport/j_blue_estimator"], transport_data["j_blue_estimator"]
         )

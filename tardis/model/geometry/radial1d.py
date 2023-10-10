@@ -179,6 +179,8 @@ numba_geometry_spec = [
     ("v_inner", float64[:]),
     ("v_outer", float64[:]),
 ]
+
+
 @jitclass(numba_geometry_spec)
 class NumbaRadial1DGeometry(object):
     def __init__(self, r_inner, r_outer, v_inner, v_outer):

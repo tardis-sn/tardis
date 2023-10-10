@@ -33,7 +33,6 @@ def test_montecarlo_main_loop(
     config_montecarlo_1e5_verysimple.montecarlo.no_of_virtual_packets = 0
     config_montecarlo_1e5_verysimple.montecarlo.iterations = 1
     config_montecarlo_1e5_verysimple.plasma.line_interaction_type = "macroatom"
-    
 
     del config_montecarlo_1e5_verysimple["config_dirname"]
 
