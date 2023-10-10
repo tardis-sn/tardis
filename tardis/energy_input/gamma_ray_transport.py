@@ -178,7 +178,6 @@ def initialize_packets(
 
     packet_index = 0
     for k, shell in enumerate(decays_per_shell):
-
         initial_radii = initial_packet_radius(
             shell, inner_velocities[k], outer_velocities[k]
         )
@@ -261,7 +260,6 @@ def initialize_packets(
 
 
 def calculate_shell_masses(model):
-
     """Function to calculate shell masses
     Parameters
     ----------
@@ -280,7 +278,6 @@ def calculate_shell_masses(model):
 
 
 def calculate_total_decays(inventories, time_delta):
-
     """Function to create inventories of isotope
     Parameters
     ----------
@@ -291,20 +288,70 @@ def calculate_total_decays(inventories, time_delta):
         End time of simulation in days
     Returns
     -------
-       None
+        Total decay list : List
+            list of total decays for x g of isotope for time 't'
+
     """
 
     time_delta = u.Quantity(time_delta, u.s)
 
     total_decays_list = []
     for inv in inventories:
-
-        total_decays = inv.cumulative_decays(
-            time_delta.value
-        )
+        total_decays = inv.cumulative_decays(time_delta.value)
         total_decays_list.append(total_decays)
 
     return total_decays_list
+
+
+def calculate_average_energies(raw_isotope_abundance, gamma_ray_lines):
+    """
+    Function to calculate average energies of positrons and gamma rays
+    Parameters
+    ----------
+    raw_isotope_abundance : pd.DataFrame
+        isotope abundance in mass fractions
+    gamma_ray_lines : pd.DataFrame
+        decay data
+
+    Returns
+    -------
+    average_energies_list : List
+        list of gamma ray energies
+    average_positron_energies_list : List
+        list of positron energies
+    gamma_ray_line_array_list : List
+        list of gamma ray lines
+
+    """
+
+    all_isotope_names = get_all_isotopes(raw_isotope_abundance)
+    all_isotope_names.sort()
+
+    gamma_ray_line_array_list = []
+    average_energies_list = []
+    average_positron_energies_list = []
+
+    for i, isotope in enumerate(all_isotope_names):
+        energy, intensity = setup_input_energy(
+            gamma_ray_lines[gamma_ray_lines.index == isotope.replace("-", "")],
+            "g",
+        )
+        average_energies_list.append(np.sum(energy * intensity))  # keV
+        gamma_ray_line_array_list.append(np.stack([energy, intensity]))
+
+        positron_energy, positron_intensity = setup_input_energy(
+            gamma_ray_lines[gamma_ray_lines.index == isotope.replace("-", "")],
+            "bp",
+        )
+        average_positron_energies_list.append(
+            np.sum(positron_energy * positron_intensity)
+        )
+
+    return (
+        average_energies_list,
+        average_positron_energies_list,
+        gamma_ray_line_array_list,
+    )
 
 
 def main_gamma_ray_loop(
