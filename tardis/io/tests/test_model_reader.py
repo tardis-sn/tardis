@@ -139,7 +139,7 @@ def test_model_to_dict(simulation_verysimple):
 
     # Check model dictionary
     assert np.array_equal(model_dict["velocity_cgs"][0], model.velocity.cgs.value)
-    assert model_dict["velocity_cgs"][1] == model.velocity.unit.to_string()
+    assert model_dict["velocity_cgs"][1] == model.velocity.cgs.unit.to_string()
     assert np.array_equal(model_dict["abundance"], model.abundance)
     assert np.array_equal(
         model_dict["time_explosion_cgs"][0], model.time_explosion.value
@@ -148,36 +148,36 @@ def test_model_to_dict(simulation_verysimple):
         model_dict["time_explosion_cgs"][1]
         == model.time_explosion.unit.to_string()
     )
-    assert np.array_equal(model_dict["t_inner_cgs"][0], model.t_inner.value)
+    assert np.array_equal(model_dict["t_inner_cgs"][0], model.t_inner.cgs.value)
     assert model_dict["t_inner_cgs"][1] == model.t_inner.unit.to_string()
     assert np.array_equal(
-        model_dict["t_radiative_cgs"][0], model.t_radiative.value
+        model_dict["t_radiative_cgs"][0], model.t_radiative.cgs.value
     )
     assert (
         model_dict["t_radiative_cgs"][1] == model.t_radiative.unit.to_string()
     )
     assert np.array_equal(model_dict["dilution_factor"], model.dilution_factor)
     assert np.array_equal(
-        model_dict["v_boundary_inner_cgs"][0], model.v_boundary_inner.value
+        model_dict["v_boundary_inner_cgs"][0], model.v_boundary_inner.cgs.value
     )
     assert (
         model_dict["v_boundary_inner_cgs"][1]
-        == model.v_boundary_inner.unit.to_string()
+        == model.v_boundary_inner.cgs.unit.to_string()
     )
     assert np.array_equal(
-        model_dict["v_boundary_outer_cgs"][0], model.v_boundary_outer.value
+        model_dict["v_boundary_outer_cgs"][0], model.v_boundary_outer.cgs.value
     )
     assert (
         model_dict["v_boundary_outer_cgs"][1]
-        == model.v_boundary_outer.unit.to_string()
+        == model.v_boundary_outer.cgs.unit.to_string()
     )
     assert np.array_equal(model_dict["w"], model.w)
-    assert np.array_equal(model_dict["t_rad_cgs"][0], model.t_rad.value)
-    assert model_dict["t_rad_cgs"][1] == model.t_rad.unit.to_string()
-    assert np.array_equal(model_dict["r_inner_cgs"][0], model.r_inner.value)
-    assert model_dict["r_inner_cgs"][1] == model.r_inner.unit.to_string()
-    assert np.array_equal(model_dict["density_cgs"][0], model.density.value)
-    assert model_dict["density_cgs"][1] == model.density.unit.to_string()
+    assert np.array_equal(model_dict["t_rad_cgs"][0], model.t_rad.cgs.value)
+    assert model_dict["t_rad_cgs"][1] == model.t_rad.cgs.unit.to_string()
+    assert np.array_equal(model_dict["r_inner_cgs"][0], model.r_inner.cgs.value)
+    assert model_dict["r_inner_cgs"][1] == model.r_inner.cgs.unit.to_string()
+    assert np.array_equal(model_dict["density_cgs"][0], model.density.cgs.value)
+    assert model_dict["density_cgs"][1] == model.density.cgs.unit.to_string()
 
 
 def test_store_model_to_hdf(simulation_verysimple, tmp_path):
@@ -190,26 +190,26 @@ def test_store_model_to_hdf(simulation_verysimple, tmp_path):
 
     # Check file contents
     with h5py.File(fname) as f:
-        assert np.array_equal(f["model/velocity_cgs"], model.velocity.value)
+        assert np.array_equal(f["model/velocity_cgs"], model.velocity.cgs.value)
         assert np.array_equal(f["model/abundance"], model.abundance)
         assert np.array_equal(
-            f["model/time_explosion_cgs"], model.time_explosion.value
+            f["model/time_explosion_cgs"], model.time_explosion.cgs.value
         )
-        assert np.array_equal(f["model/t_inner_cgs"], model.t_inner.value)
+        assert np.array_equal(f["model/t_inner_cgs"], model.t_inner.cgs.value)
         assert np.array_equal(
-            f["model/t_radiative_cgs"], model.t_radiative.value
+            f["model/t_radiative_cgs"], model.t_radiative.cgs.value
         )
         assert np.array_equal(f["model/dilution_factor"], model.dilution_factor)
         assert np.array_equal(
-            f["model/v_boundary_inner_cgs"], model.v_boundary_inner.value
+            f["model/v_boundary_inner_cgs"], model.v_boundary_inner.cgs.value
         )
         assert np.array_equal(
-            f["model/v_boundary_outer_cgs"], model.v_boundary_outer.value
+            f["model/v_boundary_outer_cgs"], model.v_boundary_outer.cgs.value
         )
         assert np.array_equal(f["model/w"], model.w)
-        assert np.array_equal(f["model/t_rad_cgs"], model.t_rad.value)
-        assert np.array_equal(f["model/r_inner_cgs"], model.r_inner.value)
-        assert np.array_equal(f["model/density_cgs"], model.density.value)
+        assert np.array_equal(f["model/t_rad_cgs"], model.t_rad.cgs.value)
+        assert np.array_equal(f["model/r_inner_cgs"], model.r_inner.cgs.value)
+        assert np.array_equal(f["model/density_cgs"], model.density.cgs.value)
 
 
 def test_transport_to_dict(simulation_verysimple):
@@ -290,7 +290,7 @@ def test_store_transport_to_hdf(simulation_verysimple, tmp_path):
             f["transport/input_nu"], transport_data["input_nu"]
         )
         assert np.array_equal(
-            f["transport/input_r_cgs"], transport_data["input_r"].value
+            f["transport/input_r"], transport_data["input_r"]
         )
         assert np.array_equal(
             f["transport/j_blue_estimator"], transport_data["j_blue_estimator"]

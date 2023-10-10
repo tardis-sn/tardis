@@ -210,16 +210,10 @@ class SimulationState(HDFWriterMixin):
         luminosity_requested=None,
         t_radiative=None,
         dilution_factor=None,
-        v_boundary_inner=None,
-        v_boundary_outer=None,
         electron_densities=None,
     ):
         self.geometry = geometry
-        self._v_boundary_inner = None
-        self._v_boundary_outer = None
-        self.v_boundary_inner = v_boundary_inner
-        self.v_boundary_outer = v_boundary_outer
-
+        
         self._abundance = abundance
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
@@ -388,6 +382,15 @@ class SimulationState(HDFWriterMixin):
         return None
         return self.time_explosion * self.velocity
 
+
+    @property
+    def v_boundary_inner(self):
+        return self.geometry.v_inner_boundary
+
+    @property
+    def v_boundary_outer(self):
+        return self.geometry.v_outer_boundary
+
     @property
     def r_inner(self):
         return self.model_state.geometry.r_inner_active
@@ -543,12 +546,6 @@ class SimulationState(HDFWriterMixin):
             elemental_mass=elemental_mass,
             luminosity_requested=luminosity_requested,
             dilution_factor=None,
-            v_boundary_inner=config.model.structure.get(
-                "v_inner_boundary", None
-            ),
-            v_boundary_outer=config.model.structure.get(
-                "v_outer_boundary", None
-            ),
             electron_densities=electron_densities,
         )
 

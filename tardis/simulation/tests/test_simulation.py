@@ -112,10 +112,14 @@ def test_plasma_estimates(simulation_one_loop, refdata, name):
 def test_plasma_state_iterations(simulation_one_loop, refdata, name):
     actual = getattr(simulation_one_loop, name)
 
+    if hasattr(actual, "value"):
+        actual = actual.value
+
     try:
         actual = pd.Series(actual)
     except Exception:
         actual = pd.DataFrame(actual)
+    
 
     if type(actual) == pd.DataFrame:
         pdt.assert_frame_equal(actual, refdata(name), rtol=1e-5, atol=1e-8)
