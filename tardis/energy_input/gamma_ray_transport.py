@@ -306,6 +306,7 @@ def calculate_total_decays(inventories, time_delta):
 def calculate_average_energies(raw_isotope_abundance, gamma_ray_lines):
     """
     Function to calculate average energies of positrons and gamma rays
+    from a list of gamma ray lines from nndc.
     Parameters
     ----------
     raw_isotope_abundance : pd.DataFrame
