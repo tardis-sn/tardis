@@ -617,35 +617,7 @@ class SimulationState(HDFWriterMixin):
         electron_densities = None
         temperature = None
 
-        if hasattr(config, "model"):
-            if hasattr(config.model, "v_inner_boundary"):
-                v_boundary_inner = config.model.v_inner_boundary
-            else:
-                v_boundary_inner = None
-
-            if hasattr(config.model, "v_outer_boundary"):
-                v_boundary_outer = config.model.v_outer_boundary
-            else:
-                v_boundary_outer = None
-        else:
-            v_boundary_inner = None
-            v_boundary_outer = None
-
-        if hasattr(csvy_model_config, "velocity"):
-            velocity = quantity_linspace(
-                csvy_model_config.velocity.start,
-                csvy_model_config.velocity.stop,
-                csvy_model_config.velocity.num + 1,
-            ).cgs
-        else:
-            velocity_field_index = [
-                field["name"] for field in csvy_model_config.datatype.fields
-            ].index("velocity")
-            velocity_unit = u.Unit(
-                csvy_model_config.datatype.fields[velocity_field_index]["unit"]
-            )
-            velocity = csvy_model_data["velocity"].values * velocity_unit
-            velocity = velocity.to("cm/s")
+        geometry = parse_csvy_geometry(config, csvy_model_config, csvy_model_data, time_explosion)
 
         if hasattr(csvy_model_config, "density"):
             density = parse_csvy_density(csvy_model_config, time_explosion)
@@ -664,7 +636,7 @@ class SimulationState(HDFWriterMixin):
                 density_0, time_0, time_explosion
             )
 
-        no_of_shells = len(velocity) - 1
+        no_of_shells = geometry.no_of_shells
 
         # TODO -- implement t_radiative
         # t_radiative = None
@@ -692,7 +664,7 @@ class SimulationState(HDFWriterMixin):
                 )
 
         elif config.plasma.initial_t_rad > 0 * u.K:
-            t_radiative = np.ones(no_of_shells) * config.plasma.initial_t_rad
+            t_radiative = np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
         else:
             t_radiative = None
 
@@ -706,7 +678,7 @@ class SimulationState(HDFWriterMixin):
         if hasattr(csvy_model_config, "abundance"):
             abundances_section = csvy_model_config.abundance
             abundance, isotope_abundance = read_uniform_abundances(
-                abundances_section, no_of_shells
+                abundances_section, geometry.no_of_shells
             )
         else:
             index, abundance, isotope_abundance = parse_csv_abundances(
@@ -741,7 +713,7 @@ class SimulationState(HDFWriterMixin):
             elemental_mass = atom_data.atom_data.mass
 
         return cls(
-            velocity=velocity,
+            geometry=geometry,
             density=density,
             abundance=abundance,
             isotope_abundance=isotope_abundance,
@@ -751,10 +723,49 @@ class SimulationState(HDFWriterMixin):
             elemental_mass=elemental_mass,
             luminosity_requested=luminosity_requested,
             dilution_factor=dilution_factor,
-            v_boundary_inner=v_boundary_inner,
-            v_boundary_outer=v_boundary_outer,
             electron_densities=electron_densities,
         )
+
+def parse_csvy_geometry(config, csvy_model_config, csvy_model_data, time_explosion):
+    if hasattr(config, "model"):
+        if hasattr(config.model, "v_inner_boundary"):
+            v_boundary_inner = config.model.v_inner_boundary
+        else:
+            v_boundary_inner = None
+
+        if hasattr(config.model, "v_outer_boundary"):
+            v_boundary_outer = config.model.v_outer_boundary
+        else:
+            v_boundary_outer = None
+    else:
+        v_boundary_inner = None
+        v_boundary_outer = None
+
+    if hasattr(csvy_model_config, "velocity"):
+        velocity = quantity_linspace(
+            csvy_model_config.velocity.start,
+            csvy_model_config.velocity.stop,
+            csvy_model_config.velocity.num + 1,
+        ).cgs
+    else:
+        velocity_field_index = [
+            field["name"] for field in csvy_model_config.datatype.fields
+        ].index("velocity")
+        velocity_unit = u.Unit(
+            csvy_model_config.datatype.fields[velocity_field_index]["unit"]
+        )
+        velocity = csvy_model_data["velocity"].values * velocity_unit
+        velocity = velocity.to("cm/s")
+
+    geometry = HomologousRadial1DGeometry(
+        velocity[:-1],  # r_inner
+        velocity[1:],  # r_outer
+        v_inner_boundary=v_boundary_inner,
+        v_outer_boundary=v_boundary_outer,
+        time_explosion=time_explosion
+    )
+    return geometry
+    
 
 
 def parse_structure_config(config, time_explosion, enable_homology=True):
