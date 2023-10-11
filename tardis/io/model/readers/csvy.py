@@ -1,11 +1,13 @@
 import logging
+from astropy import units as u
 import numpy as np
 from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
 import yaml
 import pandas as pd
 from tardis.io.util import YAMLLoader
-from tardis.util.base import is_valid_nuclide_or_elem
+from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+from tardis.util.base import is_valid_nuclide_or_elem, quantity_linspace
 
 YAML_DELIMITER = "---"
 
@@ -144,3 +146,46 @@ def parse_csv_abundances(csvy_data):
             ].tolist()
 
     return abundance.index, abundance, isotope_abundance
+
+
+def parse_csvy_geometry(
+    config, csvy_model_config, csvy_model_data, time_explosion
+):
+    if hasattr(config, "model"):
+        if hasattr(config.model, "v_inner_boundary"):
+            v_boundary_inner = config.model.v_inner_boundary
+        else:
+            v_boundary_inner = None
+
+        if hasattr(config.model, "v_outer_boundary"):
+            v_boundary_outer = config.model.v_outer_boundary
+        else:
+            v_boundary_outer = None
+    else:
+        v_boundary_inner = None
+        v_boundary_outer = None
+
+    if hasattr(csvy_model_config, "velocity"):
+        velocity = quantity_linspace(
+            csvy_model_config.velocity.start,
+            csvy_model_config.velocity.stop,
+            csvy_model_config.velocity.num + 1,
+        ).cgs
+    else:
+        velocity_field_index = [
+            field["name"] for field in csvy_model_config.datatype.fields
+        ].index("velocity")
+        velocity_unit = u.Unit(
+            csvy_model_config.datatype.fields[velocity_field_index]["unit"]
+        )
+        velocity = csvy_model_data["velocity"].values * velocity_unit
+        velocity = velocity.to("cm/s")
+
+    geometry = HomologousRadial1DGeometry(
+        velocity[:-1],  # r_inner
+        velocity[1:],  # r_outer
+        v_inner_boundary=v_boundary_inner,
+        v_outer_boundary=v_boundary_outer,
+        time_explosion=time_explosion,
+    )
+    return geometry
