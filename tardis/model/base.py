@@ -8,18 +8,25 @@ from astropy import units as u
 from tardis import constants
 import radioactivedecay as rd
 from radioactivedecay.utils import Z_DICT
+from tardis.model.parse_input import parse_csvy_geometry, parse_structure_config
+from tardis.util.base import is_valid_nuclide_or_elem
+
+
+from tardis.montecarlo.packet_source import BlackBodySimpleSource
+
+from tardis.radiation_field.base import MonteCarloRadiationFieldState
+
 from tardis.io.model.readers.base import read_abundances_file
-from tardis.io.model.readers.base import parse_structure_config
-from tardis.io.model.readers.csvy import parse_csvy_geometry
 from tardis.io.model.readers.generic_readers import (
     read_uniform_abundances,
 )
 
-from tardis.util.base import is_valid_nuclide_or_elem
-from tardis.io.model.readers.csvy import load_csvy
 from tardis.io.model.readers.csvy import (
     parse_csv_abundances,
+    load_csvy,
 )
+
+
 from tardis.io.configuration.config_validator import validate_dict
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
@@ -29,9 +36,6 @@ from tardis.io.model.parse_density_configuration import (
     parse_csvy_density,
     calculate_density_after_time,
 )
-from tardis.montecarlo.packet_source import BlackBodySimpleSource
-
-from tardis.radiation_field.base import MonteCarloRadiationFieldState
 
 logger = logging.getLogger(__name__)
 

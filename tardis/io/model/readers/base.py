@@ -1,8 +1,3 @@
-from tardis.io.model.parse_density_configuration import (
-    calculate_density_after_time,
-    parse_config_v1_density,
-)
-import os
 from tardis.io.model.readers.cmfgen import (
     read_cmfgen_composition,
     read_cmfgen_density,
@@ -19,9 +14,6 @@ import numpy as np
 import pandas as pd
 
 from tardis.io.model.readers.artis import read_artis_density
-from tardis.model.base import logger
-from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
-from tardis.util.base import quantity_linspace
 
 
 def read_abundances_file(
@@ -139,56 +131,3 @@ def read_density_file(filename, filetype):
         electron_densities,
         temperature,
     )
-
-
-def parse_structure_config(config, time_explosion, enable_homology=True):
-    electron_densities = None
-    temperature = None
-    structure_config = config.model.structure
-    if structure_config.type == "specific":
-        velocity = quantity_linspace(
-            structure_config.velocity.start,
-            structure_config.velocity.stop,
-            structure_config.velocity.num + 1,
-        ).cgs
-        density = parse_config_v1_density(config)
-
-    elif structure_config.type == "file":
-        if os.path.isabs(structure_config.filename):
-            structure_config_fname = structure_config.filename
-        else:
-            structure_config_fname = os.path.join(
-                config.config_dirname, structure_config.filename
-            )
-
-        (
-            time_0,
-            velocity,
-            density_0,
-            electron_densities,
-            temperature,
-        ) = read_density_file(structure_config_fname, structure_config.filetype)
-        density_0 = density_0.insert(0, 0)
-
-        density = calculate_density_after_time(
-            density_0, time_0, time_explosion
-        )
-
-    else:
-        raise NotImplementedError
-
-    # Note: This is the number of shells *without* taking in mind the
-    #       v boundaries.
-    if len(density) == len(velocity):
-        logger.warning(
-            "Number of density points larger than number of shells. Assuming inner point irrelevant"
-        )
-        density = density[1:]
-    geometry = HomologousRadial1DGeometry(
-        velocity[:-1],  # r_inner
-        velocity[1:],  # r_outer
-        v_inner_boundary=structure_config.get("v_inner_boundary", None),
-        v_outer_boundary=structure_config.get("v_outer_boundary", None),
-        time_explosion=time_explosion,
-    )
-    return electron_densities, temperature, geometry, density
