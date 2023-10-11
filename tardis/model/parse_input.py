@@ -2,11 +2,15 @@ import logging
 import os
 
 from astropy import units as u
+from tardis.io.decay import IsotopeAbundances
+import numpy as np
+import pandas as pd
 from tardis.io.model.parse_density_configuration import (
     calculate_density_after_time,
     parse_config_v1_density,
 )
-from tardis.io.model.readers.base import read_density_file
+from tardis.io.model.readers.base import read_abundances_file, read_density_file
+from tardis.io.model.readers.generic_readers import read_uniform_abundances
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.util.base import quantity_linspace
 
@@ -107,3 +111,44 @@ def parse_csvy_geometry(
         time_explosion=time_explosion,
     )
     return geometry
+
+
+def parse_abundance_section(config, atom_data, geometry):
+    abundances_section = config.model.abundances
+    isotope_abundance = pd.DataFrame()
+
+    if abundances_section.type == "uniform":
+        abundance, isotope_abundance = read_uniform_abundances(
+            abundances_section, geometry.no_of_shells
+        )
+
+    elif abundances_section.type == "file":
+        if os.path.isabs(abundances_section.filename):
+            abundances_fname = abundances_section.filename
+        else:
+            abundances_fname = os.path.join(
+                config.config_dirname, abundances_section.filename
+            )
+
+        index, abundance, isotope_abundance = read_abundances_file(
+            abundances_fname, abundances_section.filetype
+        )
+
+    abundance = abundance.replace(np.nan, 0.0)
+    abundance = abundance[abundance.sum(axis=1) > 0]
+
+    norm_factor = abundance.sum(axis=0) + isotope_abundance.sum(axis=0)
+
+    if np.any(np.abs(norm_factor - 1) > 1e-12):
+        logger.warning(
+            "Abundances have not been normalized to 1." " - normalizing"
+        )
+        abundance /= norm_factor
+        isotope_abundance /= norm_factor
+
+    isotope_abundance = IsotopeAbundances(isotope_abundance)
+
+    elemental_mass = None
+    if atom_data is not None:
+        elemental_mass = atom_data.atom_data.mass
+    return isotope_abundance, abundance, elemental_mass

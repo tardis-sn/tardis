@@ -8,7 +8,11 @@ from astropy import units as u
 from tardis import constants
 import radioactivedecay as rd
 from radioactivedecay.utils import Z_DICT
-from tardis.model.parse_input import parse_csvy_geometry, parse_structure_config
+from tardis.model.parse_input import (
+    parse_abundance_section,
+    parse_csvy_geometry,
+    parse_structure_config,
+)
 from tardis.util.base import is_valid_nuclide_or_elem
 
 
@@ -16,7 +20,6 @@ from tardis.montecarlo.packet_source import BlackBodySimpleSource
 
 from tardis.radiation_field.base import MonteCarloRadiationFieldState
 
-from tardis.io.model.readers.base import read_abundances_file
 from tardis.io.model.readers.generic_readers import (
     read_uniform_abundances,
 )
@@ -490,43 +493,9 @@ class SimulationState(HDFWriterMixin):
             luminosity_requested = None
             t_inner = config.plasma.initial_t_inner
 
-        abundances_section = config.model.abundances
-        isotope_abundance = pd.DataFrame()
-
-        if abundances_section.type == "uniform":
-            abundance, isotope_abundance = read_uniform_abundances(
-                abundances_section, geometry.no_of_shells
-            )
-
-        elif abundances_section.type == "file":
-            if os.path.isabs(abundances_section.filename):
-                abundances_fname = abundances_section.filename
-            else:
-                abundances_fname = os.path.join(
-                    config.config_dirname, abundances_section.filename
-                )
-
-            index, abundance, isotope_abundance = read_abundances_file(
-                abundances_fname, abundances_section.filetype
-            )
-
-        abundance = abundance.replace(np.nan, 0.0)
-        abundance = abundance[abundance.sum(axis=1) > 0]
-
-        norm_factor = abundance.sum(axis=0) + isotope_abundance.sum(axis=0)
-
-        if np.any(np.abs(norm_factor - 1) > 1e-12):
-            logger.warning(
-                "Abundances have not been normalized to 1." " - normalizing"
-            )
-            abundance /= norm_factor
-            isotope_abundance /= norm_factor
-
-        isotope_abundance = IsotopeAbundances(isotope_abundance)
-
-        elemental_mass = None
-        if atom_data is not None:
-            elemental_mass = atom_data.atom_data.mass
+        isotope_abundance, abundance, elemental_mass = parse_abundance_section(
+            config, atom_data, geometry
+        )
 
         return cls(
             geometry=geometry,
