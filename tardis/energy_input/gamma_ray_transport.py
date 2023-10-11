@@ -355,6 +355,13 @@ def calculate_average_energies(raw_isotope_abundance, gamma_ray_lines):
     )
 
 
+def decay_chain_energies(raw_isotope_abundance, average_energies_list):
+    all_isotope_names = get_all_isotopes(raw_isotope_abundance)
+    all_isotope_names.sort()
+
+    print(all_isotope_names)
+
+
 def main_gamma_ray_loop(
     num_decays,
     model,
