@@ -22,9 +22,6 @@ class HomologousRadial1DGeometry:
         Volume in each shell
     """
 
-    DEFAULT_VELOCITY_UNIT = u.km / u.s
-    DEFAULT_DISTANCE_UNIT = u.km
-
     def __init__(
         self,
         v_inner,
@@ -38,8 +35,11 @@ class HomologousRadial1DGeometry:
         # ensuring that the cells are continuous
         assert np.allclose(v_inner[1:], v_outer[:-1])
 
-        self.v_inner = v_inner.to(self.DEFAULT_VELOCITY_UNIT)
-        self.v_outer = v_outer.to(self.DEFAULT_VELOCITY_UNIT)
+        assert "velocity" in v_inner.unit.physical_type
+        assert "velocity" in v_outer.unit.physical_type
+
+        self.v_inner = v_inner
+        self.v_outer = v_outer
 
         # ensuring that the boundaries are within the simulation area
 
