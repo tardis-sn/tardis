@@ -85,8 +85,8 @@ from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
 
 from syrupy.data import SnapshotCollection
-from syrupy.extensions.single_file import SingleFileSnapshotExtension
-from syrupy.types import SerializableData
+from syrupy.extensions.single_file import SingleFileSnapshotExtension, WriteMode
+from syrupy.types import SerializableData, SnapshotIndex
 from syrupy.location import PyTestLocation
 from typing import Any, List, Tuple
 
@@ -245,8 +245,21 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
 # fixtures and plugins for syrupy/regression data testing
 # -------------------------------------------------------------------------
 
+class SingleFileSanitizedNames(SingleFileSnapshotExtension):
+    _write_mode = WriteMode.TEXT
 
-class NumpySnapshotExtenstion(SingleFileSnapshotExtension):
+    @classmethod
+    def get_snapshot_name(
+        cls, *, test_location: "PyTestLocation", index: "SnapshotIndex"
+    ) -> str:
+        original_name = SingleFileSnapshotExtension.get_snapshot_name(
+            test_location=test_location, index=index
+        )
+        name = original_name.replace("[", "__").replace("]", "__")
+        return f"{name}"
+
+
+class NumpySnapshotExtenstion(SingleFileSanitizedNames):
     _file_extension = "npy"
 
     def matches(self, *, serialized_data, snapshot_data):
@@ -291,8 +304,8 @@ class NumpySnapshotExtenstion(SingleFileSnapshotExtension):
         return data
 
 
-class PandasSnapshotExtenstion(SingleFileSnapshotExtension):
-    _file_extension = "hdf"
+class PandasSnapshotExtenstion(SingleFileSanitizedNames):
+    _file_extension = "h5"
 
     def matches(self, *, serialized_data, snapshot_data):
         try:
