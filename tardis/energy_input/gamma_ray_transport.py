@@ -376,7 +376,7 @@ def main_gamma_ray_loop(
     ----------
     num_decays : int
         Number of decays requested
-    model : tardis.Radial1DModel
+    model : tardis.SimulationState
         The tardis model to calculate gamma ray propagation through
     plasma : tardis.plasma.BasePlasma
         The tardis plasma with calculated atomic number density
@@ -523,17 +523,13 @@ def main_gamma_ray_loop(
                     parents[c] = isotope
 
         energy, intensity = setup_input_energy(
-            gamma_ray_lines[
-                gamma_ray_lines.Isotope == isotope.replace("-", "")
-            ],
+            gamma_ray_lines[gamma_ray_lines.index == isotope.replace("-", "")],
             "g",
         )
         gamma_ray_line_array_list.append(np.stack([energy, intensity]))
         average_energies_list.append(np.sum(energy * intensity))
         positron_energy, positron_intensity = setup_input_energy(
-            gamma_ray_lines[
-                gamma_ray_lines.Isotope == isotope.replace("-", "")
-            ],
+            gamma_ray_lines[gamma_ray_lines.index == isotope.replace("-", "")],
             "bp",
         )
         average_positron_energies_list.append(

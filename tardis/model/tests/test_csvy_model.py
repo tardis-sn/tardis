@@ -77,7 +77,7 @@ def test_compare_models(model_config_fnames):
 
 @pytest.fixture(scope="module")
 def csvy_model_test_abundances(example_csvy_file_dir):
-    """Returns Radial1DModel to use to test abundances dataframes"""
+    """Returns SimulationState to use to test abundances dataframes"""
     csvypath = example_csvy_file_dir / "csvy_model_to_test_abundances.yml"
     config = Configuration.from_yaml(csvypath)
     csvy_model_test_abundances = SimulationState.from_csvy(config)
