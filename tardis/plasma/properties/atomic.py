@@ -467,6 +467,14 @@ class LevelIdxs2LineIdx(HiddenPlasmaProperty):
         level_idxs2line_idx = pd.Series(
             np.arange(len(index)), index=index, name="lines_idx"
         )
+
+        # Check for duplicate indices
+        if level_idxs2line_idx.index.duplicated().any():
+            raise ValueError(
+                "Duplicate indices in level_idxs2line_idx. "
+                "This should not happen."
+            )
+
         return level_idxs2line_idx
 
 
