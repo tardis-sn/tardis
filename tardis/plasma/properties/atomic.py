@@ -464,7 +464,6 @@ class LevelIdxs2LineIdx(HiddenPlasmaProperty):
             ],
             names=["source_level_idx", "destination_level_idx"],
         )
-
         level_idxs2line_idx = pd.Series(
             np.arange(len(index)), index=index, name="lines_idx"
         )
