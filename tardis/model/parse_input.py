@@ -151,4 +151,5 @@ def parse_abundance_section(config, atom_data, geometry):
     elemental_mass = None
     if atom_data is not None:
         elemental_mass = atom_data.atom_data.mass
+
     return isotope_abundance, abundance, elemental_mass
