@@ -112,27 +112,19 @@ class HomologousRadial1DGeometry:
 
     @property
     def r_inner(self):
-        return (self.v_inner * self.time_explosion).to(
-            self.DEFAULT_DISTANCE_UNIT
-        )
+        return (self.v_inner * self.time_explosion).cgs
 
     @property
     def r_inner_active(self):
-        return (self.v_inner_active * self.time_explosion).to(
-            self.DEFAULT_DISTANCE_UNIT
-        )
+        return (self.v_inner_active * self.time_explosion).cgs
 
     @property
     def r_outer(self):
-        return (self.v_outer * self.time_explosion).to(
-            self.DEFAULT_DISTANCE_UNIT
-        )
+        return (self.v_outer * self.time_explosion).cgs
 
     @property
     def r_outer_active(self):
-        return (self.v_outer_active * self.time_explosion).to(
-            self.DEFAULT_DISTANCE_UNIT
-        )
+        return (self.v_outer_active * self.time_explosion).cgs
 
     @property
     def volume(self):
