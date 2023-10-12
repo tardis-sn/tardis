@@ -330,11 +330,20 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
             names=p_deactivation.index.names,
         )
         fb_cooling_probs.insert(0, "lines_idx", continuum_idx)
-        fb_cooling_probs.insert(
-            0,
-            "transition_type",
-            level_idxs2transition_idx.at[("k", "bf"), "transition_type"],
-        )
+        # Since 'at' seems to be faster than 'loc' we try it first
+        # However, if the index is not unique, 'at' will raise a ValueError
+        try:
+            fb_cooling_probs.insert(
+                0,
+                "transition_type",
+                level_idxs2transition_idx.at[("k", "bf"), "transition_type"],
+            )
+        except ValueError:
+            fb_cooling_probs.insert(
+                0,
+                "transition_type",
+                level_idxs2transition_idx.loc[("k", "bf"), "transition_type"].values[0],
+            )
 
         # Check if there are two-photon decays
         if "two-photon" in p_deactivation.index.get_level_values(1):
