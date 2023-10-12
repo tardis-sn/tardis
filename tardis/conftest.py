@@ -77,6 +77,7 @@ def pytest_configure(config):
 # Here the TARDIS testing stuff begins
 # -------------------------------------------------------------------------
 
+import re
 import pytest
 import pandas as pd
 import numpy as np
@@ -247,6 +248,7 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
 
 class SingleFileSanitizedNames(SingleFileSnapshotExtension):
     _write_mode = WriteMode.TEXT
+    _file_extension = "txt"
 
     @classmethod
     def get_snapshot_name(
@@ -255,7 +257,12 @@ class SingleFileSanitizedNames(SingleFileSnapshotExtension):
         original_name = SingleFileSnapshotExtension.get_snapshot_name(
             test_location=test_location, index=index
         )
-        name = original_name.replace("[", "__").replace("]", "__")
+        double_under = r'[:\[\]{}]'
+        no_space = r'[,"\']' # quotes and commas
+
+        name = re.sub(double_under, "__", original_name)
+        name = re.sub(no_space, "", name)
+                
         return f"{name}"
 
 
@@ -362,3 +369,8 @@ def pandas_snapshot_extention():
 @pytest.fixture
 def numpy_snapshot_extension():
     return NumpySnapshotExtenstion
+
+@pytest.fixture
+def singlefilesanitized():
+    return SingleFileSanitizedNames
+

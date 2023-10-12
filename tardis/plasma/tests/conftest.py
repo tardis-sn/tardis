@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pytest
-from syrupy.extensions.amber import AmberSnapshotExtension
 from syrupy.location import PyTestLocation
 
 SNAPSHOT_LOCATION = "plasma"
@@ -32,14 +31,12 @@ def snapshot_np(snapshot, tardis_snapshot_path, numpy_snapshot_extension):
 
 
 @pytest.fixture
-def snapshot(snapshot, tardis_snapshot_path):
+def snapshot(snapshot, tardis_snapshot_path, singlefilesanitized):
     refpath = tardis_snapshot_path.joinpath(SNAPSHOT_LOCATION)
 
-    # TODO: try this with SingleFileSnapshotExtension
-    # test files from single test function would be grouped together
-    class AmberSnapshotExtensionRefdata(AmberSnapshotExtension):
+    class SingleFileSanitizedRefdata(singlefilesanitized):
         @classmethod
         def dirname(cls, *, test_location: "PyTestLocation") -> str:
             return str(Path(test_location.filepath).parent.joinpath(refpath))
 
-    return snapshot.use_extension(AmberSnapshotExtensionRefdata)
+    return snapshot.use_extension(SingleFileSanitizedRefdata)
