@@ -342,7 +342,9 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
             fb_cooling_probs.insert(
                 0,
                 "transition_type",
-                level_idxs2transition_idx.loc[("k", "bf"), "transition_type"].values[0],
+                level_idxs2transition_idx.loc[
+                    ("k", "bf"), "transition_type"
+                ].values[0],
             )
 
         # Check if there are two-photon decays
