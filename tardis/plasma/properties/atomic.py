@@ -464,6 +464,7 @@ class LevelIdxs2LineIdx(HiddenPlasmaProperty):
             ],
             names=["source_level_idx", "destination_level_idx"],
         )
+
         level_idxs2line_idx = pd.Series(
             np.arange(len(index)), index=index, name="lines_idx"
         )
@@ -478,7 +479,14 @@ class LevelIdxs2LineIdx(HiddenPlasmaProperty):
                 "This will raise an error in the future instead. "
                 "See https://github.com/tardis-sn/carsus/issues/384"
             )
-            level_idxs2line_idx = level_idxs2line_idx.drop_duplicates()
+            # This is necessary since pd.DataFrame.drop_duplicates()
+            # does not remove duplicates if the data is different
+            # and only the index is duplicated. See the example given
+            # in the pandas documentation:
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.drop_duplicates.html
+            level_idxs2line_idx = level_idxs2line_idx[
+                ~level_idxs2line_idx.index.duplicated()
+            ]
 
         return level_idxs2line_idx
 
