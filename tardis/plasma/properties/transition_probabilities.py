@@ -1,5 +1,4 @@
 import logging
-from operator import le
 
 import numpy as np
 import pandas as pd
