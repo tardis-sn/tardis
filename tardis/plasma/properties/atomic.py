@@ -470,10 +470,15 @@ class LevelIdxs2LineIdx(HiddenPlasmaProperty):
 
         # Check for duplicate indices
         if level_idxs2line_idx.index.duplicated().any():
-            raise ValueError(
+            logger.warn(
                 "Duplicate indices in level_idxs2line_idx. "
-                "This should not happen."
+                "Dropping duplicates. "
+                "This is an issue with the atomic data & carsus. "
+                "Once fixed upstream, this warning will be removed. "
+                "This will raise an error in the future instead. "
+                "See https://github.com/tardis-sn/carsus/issues/384"
             )
+            level_idxs2line_idx = level_idxs2line_idx.drop_duplicates()
 
         return level_idxs2line_idx
 
