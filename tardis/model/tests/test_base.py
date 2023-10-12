@@ -7,7 +7,7 @@ from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
-from tardis.io.decay import IsotopeAbundances
+from tardis.model.matter.decay import IsotopeAbundances
 
 
 class TestModelFromPaper1Config:

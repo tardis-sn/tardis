@@ -9,6 +9,7 @@ from tardis import constants
 import radioactivedecay as rd
 from radioactivedecay.utils import Z_DICT
 from tardis.model.matter import Composition
+from tardis.model.matter.base import ModelState
 from tardis.model.parse_input import (
     parse_abundance_section,
     parse_csvy_geometry,
@@ -34,7 +35,7 @@ from tardis.io.model.readers.csvy import (
 from tardis.io.configuration.config_validator import validate_dict
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
-from tardis.io.decay import IsotopeAbundances
+from tardis.model.matter.decay import IsotopeAbundances
 
 from tardis.io.model.parse_density_configuration import (
     parse_csvy_density,
@@ -47,46 +48,6 @@ logger = logging.getLogger(__name__)
 SCHEMA_DIR = (
     Path(__file__).parent / ".." / "io" / "configuration" / "schemas"
 ).resolve()
-
-
-class ModelState:
-    """
-    Holds information about model geometry for radial 1D models.
-
-    Parameters
-    ----------
-    composition : tardis.model.Composition
-    geometry : tardis.model.geometry.radial1d.Radial1DGeometry
-    time_explosion : astropy.units.quantity.Quantity
-
-    Attributes
-    ----------
-    mass : pd.DataFrame
-    number : pd.DataFrame
-    """
-
-    def __init__(self, composition, geometry, time_explosion):
-        self.time_explosion = time_explosion
-        self.composition = composition
-        self.geometry = geometry
-
-    @property
-    def mass(self):
-        """Mass calculated using the formula:
-        mass_fraction * density * volume"""
-
-        total_mass = (self.geometry.volume * self.composition.density).to(u.g)
-        return self.composition.elemental_mass_fraction * total_mass.value
-
-    @property
-    def number(self):
-        """Number calculated using the formula:
-        mass / atomic_mass"""
-        if self.composition.atomic_mass is None:
-            raise AttributeError(
-                "ModelState was not provided elemental masses."
-            )
-        return (self.mass).divide(self.composition.atomic_mass, axis=0)
 
 
 class SimulationState(HDFWriterMixin):

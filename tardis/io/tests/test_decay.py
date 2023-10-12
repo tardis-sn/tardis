@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 
-from tardis.io.decay import IsotopeAbundances
+from tardis.model.matter.decay import IsotopeAbundances
 from numpy.testing import assert_almost_equal
 
 

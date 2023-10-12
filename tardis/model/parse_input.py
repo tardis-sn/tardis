@@ -2,7 +2,7 @@ import logging
 import os
 
 from astropy import units as u
-from tardis.io.decay import IsotopeAbundances
+from tardis.model.matter.decay import IsotopeAbundances
 import numpy as np
 import pandas as pd
 from tardis.io.model.parse_density_configuration import (
