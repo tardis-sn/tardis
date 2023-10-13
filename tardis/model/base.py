@@ -9,9 +9,9 @@ from tardis import constants
 import radioactivedecay as rd
 from radioactivedecay.utils import Z_DICT
 from tardis.model.matter import Composition
-from tardis.model.matter.base import ModelState
+from tardis.model.matter.base import MatterState
 from tardis.model.parse_input import (
-    parse_abundance_section,
+    parse_abundance_config,
     parse_csvy_geometry,
     parse_structure_config,
 )
@@ -116,8 +116,7 @@ class SimulationState(HDFWriterMixin):
         self,
         geometry,
         density,
-        abundance,
-        isotope_abundance,
+        composition,
         time_explosion,
         t_inner,
         elemental_mass,
@@ -128,7 +127,6 @@ class SimulationState(HDFWriterMixin):
     ):
         self.geometry = geometry
 
-        self._abundance = abundance
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
 
@@ -137,50 +135,7 @@ class SimulationState(HDFWriterMixin):
                 self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
             ]
 
-        self.raw_abundance = self._abundance
-        self.raw_isotope_abundance = isotope_abundance
-
-        atomic_mass = None
-        if elemental_mass is not None:
-            mass = {}
-            stable_atomic_numbers = self.raw_abundance.index.to_list()
-            for z in stable_atomic_numbers:
-                mass[z] = [
-                    elemental_mass[z]
-                    for i in range(self.raw_abundance.columns.size)
-                ]
-            stable_isotope_mass = pd.DataFrame(mass).T
-
-            isotope_mass = {}
-            for atomic_number, i in self.raw_isotope_abundance.decay(
-                self.time_explosion
-            ).groupby(level=0):
-                i = i.loc[atomic_number]
-                for column in i:
-                    mass = {}
-                    shell_abundances = i[column]
-                    isotopic_masses = [
-                        rd.Nuclide(Z_DICT[atomic_number] + str(i)).atomic_mass
-                        for i in shell_abundances.index.to_numpy()
-                    ]
-                    mass[atomic_number] = (
-                        shell_abundances * isotopic_masses
-                    ).sum()
-                    mass[atomic_number] /= shell_abundances.sum()
-                    mass[atomic_number] = mass[atomic_number] * u.u.to(u.g)
-                    if isotope_mass.get(column) is None:
-                        isotope_mass[column] = {}
-                    isotope_mass[column][atomic_number] = mass[atomic_number]
-            isotope_mass = pd.DataFrame(isotope_mass)
-
-            atomic_mass = pd.concat([stable_isotope_mass, isotope_mass])
-
-        composition = Composition(
-            density=density,
-            elemental_mass_fraction=self.abundance,
-            atomic_mass=atomic_mass,
-        )
-        self.model_state = ModelState(
+        self.model_state = MatterState(
             composition=composition,
             geometry=geometry,
             time_explosion=self.time_explosion,
@@ -402,8 +357,10 @@ class SimulationState(HDFWriterMixin):
             luminosity_requested = None
             t_inner = config.plasma.initial_t_inner
 
-        isotope_abundance, abundance, elemental_mass = parse_abundance_section(
-            config, atom_data, geometry
+        nuclide_mass_fraction = parse_abundance_config(config, geometry)
+
+        composition = Composition(
+            density, nuclide_mass_fraction, atom_data.atom_data.mass
         )
 
         return cls(
@@ -508,8 +465,6 @@ class SimulationState(HDFWriterMixin):
             density = calculate_density_after_time(
                 density_0, time_0, time_explosion
             )
-
-        no_of_shells = geometry.no_of_shells
 
         # TODO -- implement t_radiative
         # t_radiative = None

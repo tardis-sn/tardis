@@ -5,7 +5,6 @@ from astropy import units as u
 
 
 class IsotopeAbundances(pd.DataFrame):
-
     _metadata = ["time_0"]
 
     def __init__(self, *args, **kwargs):
@@ -134,3 +133,7 @@ class IsotopeAbundances(pd.DataFrame):
             modified_df /= norm_factor
 
         return modified_df
+
+
+class NuclideMassFraction(pd.DataFrame):
+    pass

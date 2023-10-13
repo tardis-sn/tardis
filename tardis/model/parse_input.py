@@ -2,7 +2,7 @@ import logging
 import os
 
 from astropy import units as u
-from tardis.model.matter.decay import IsotopeAbundances
+from tardis.model.matter.decay import IsotopeAbundances, NuclideMassFraction
 import numpy as np
 import pandas as pd
 from tardis.io.model.parse_density_configuration import (
@@ -113,7 +113,7 @@ def parse_csvy_geometry(
     return geometry
 
 
-def parse_abundance_section(config, atom_data, geometry):
+def parse_abundance_config(config, geometry):
     abundances_section = config.model.abundances
     isotope_abundance = pd.DataFrame()
 
@@ -148,8 +148,24 @@ def parse_abundance_section(config, atom_data, geometry):
 
     isotope_abundance = IsotopeAbundances(isotope_abundance)
 
-    elemental_mass = None
-    if atom_data is not None:
-        elemental_mass = atom_data.atom_data.mass
+    nuclide_mass_fraction = convert_to_nuclide_mass_fraction(
+        isotope_abundance, abundance
+    )
+    return nuclide_mass_fraction
 
-    return isotope_abundance, abundance, elemental_mass
+
+def convert_to_nuclide_mass_fraction(isotope_abundance, abundance):
+    nuclide_mass_fraction = pd.DataFrame()
+    if abundance is not None:
+        new_nuclide_index = pd.MultiIndex.from_product([abundance.index, [-1]])
+        new_nuclide_index.names = ["atomic_number", "mass_number"]
+        abundance.index = new_nuclide_index
+        nuclide_mass_fraction = abundance
+    else:
+        nuclide_mass_fraction = pd.DataFrame()
+
+    if isotope_abundance is not None:
+        nuclide_mass_fraction = pd.concat(
+            [nuclide_mass_fraction, isotope_abundance]
+        )
+    return nuclide_mass_fraction

@@ -1,4 +1,5 @@
 from astropy import units as u
+from tardis.model.matter.decay import IsotopeAbundances
 
 
 class Composition:
@@ -24,14 +25,60 @@ class Composition:
     def __init__(
         self,
         density,
-        elemental_mass_fraction,
+        nuclide_mass_fraction,
         atomic_mass,
         atomic_mass_unit=u.g,
     ):
         self.density = density
-        self.elemental_mass_fraction = elemental_mass_fraction
+        self.nuclide_mass_fraction = nuclide_mass_fraction
+        # self.elemental_mass_fraction = elemental_mass_fraction
         self.atomic_mass_unit = atomic_mass_unit
         self._atomic_mass = atomic_mass
+        """
+        self.raw_abundance = self._abundance
+        self.raw_isotope_abundance = isotope_abundance
+        
+        if elemental_mass is not None:
+            mass = {}
+            stable_atomic_numbers = self.raw_abundance.index.to_list()
+            for z in stable_atomic_numbers:
+                mass[z] = [
+                    elemental_mass[z]
+                    for i in range(self.raw_abundance.columns.size)
+                ]
+            stable_isotope_mass = pd.DataFrame(mass).T
+
+            isotope_mass = {}
+            for atomic_number, i in self.raw_isotope_abundance.decay(
+                self.time_explosion
+            ).groupby(level=0):
+                i = i.loc[atomic_number]
+                for column in i:
+                    mass = {}
+                    shell_abundances = i[column]
+                    isotopic_masses = [
+                        rd.Nuclide(Z_DICT[atomic_number] + str(i)).atomic_mass
+                        for i in shell_abundances.index.to_numpy()
+                    ]
+                    mass[atomic_number] = (
+                        shell_abundances * isotopic_masses
+                    ).sum()
+                    mass[atomic_number] /= shell_abundances.sum()
+                    mass[atomic_number] = mass[atomic_number] * u.u.to(u.g)
+                    if isotope_mass.get(column) is None:
+                        isotope_mass[column] = {}
+                    isotope_mass[column][atomic_number] = mass[atomic_number]
+            isotope_mass = pd.DataFrame(isotope_mass)
+
+            atomic_mass = pd.concat([stable_isotope_mass, isotope_mass])
+        """
+
+    @property
+    def isotope_mass_fraction(self):
+        filtered_nuclide_mass_fraction = self.nuclide_mass_fraction[
+            self.nuclide_mass_fraction.index.get_level_values(1) != -1
+        ]
+        return IsotopeAbundances(filtered_nuclide_mass_fraction)
 
     @property
     def atomic_mass(self):
@@ -54,7 +101,7 @@ class Composition:
         )
 
 
-class ModelState:
+class MatterState:
     """
     Holds information about model geometry for radial 1D models.
 
