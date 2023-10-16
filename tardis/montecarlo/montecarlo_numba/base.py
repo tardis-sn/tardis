@@ -278,7 +278,7 @@ def montecarlo_main_loop(
             numba_radial_1d_geometry,
             numba_model,
             opacity_state,
-            estimators,
+            local_estimators,
             vpacket_collection,
             rpacket_tracker,
         )
