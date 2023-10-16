@@ -134,12 +134,6 @@ class MontecarloTransport(HDFWriterMixin):
 
         # Set number of threads
         self.nthreads = nthreads
-        if self.nthreads != 1:
-            raise ValueError(
-                """TARDIS parallelization is not working correctly at the moment and is hence disabled.
-            Please see issue https://github.com/tardis-sn/tardis/issues/2021.
-            """
-            )
 
         # set up logger based on config
         mc_tracker.DEBUG_MODE = debug_packets
