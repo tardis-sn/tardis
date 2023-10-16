@@ -1,1 +1,1 @@
-from tardis.model.matter.base import Composition
+from tardis.model.matter.composition import Composition

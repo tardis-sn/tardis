@@ -52,11 +52,13 @@ class TestModelFromPaper1Config:
 
 class TestModelFromASCIIDensity:
     @pytest.fixture(autouse=True)
-    def setup(self, example_model_file_dir):
+    def setup(self, example_model_file_dir, atomic_dataset):
         self.config = Configuration.from_yaml(
             example_model_file_dir / "tardis_configv1_ascii_density.yml"
         )
-        self.simulation_state = SimulationState.from_config(self.config)
+        self.simulation_state = SimulationState.from_config(
+            self.config, atomic_dataset
+        )
 
     def test_velocities(self):
         assert_almost_equal(
@@ -228,11 +230,11 @@ class TestModelFromArtisDensityAbundancesAllAscii:
         )
 
 
-def test_ascii_reader_power_law(example_configuration_dir):
+def test_ascii_reader_power_law(example_configuration_dir, atomic_dataset):
     config = Configuration.from_yaml(
         example_configuration_dir / "tardis_configv1_density_power_law_test.yml"
     )
-    simulation_state = SimulationState.from_config(config)
+    simulation_state = SimulationState.from_config(config, atomic_dataset)
 
     expected_densites = [
         3.29072513e-14,
@@ -264,12 +266,14 @@ def test_ascii_reader_power_law(example_configuration_dir):
         )
 
 
-def test_ascii_reader_exponential_law(example_configuration_dir):
+def test_ascii_reader_exponential_law(
+    example_configuration_dir, atomic_dataset
+):
     config = Configuration.from_yaml(
         example_configuration_dir
         / "tardis_configv1_density_exponential_test.yml"
     )
-    simulation_state = SimulationState.from_config(config)
+    simulation_state = SimulationState.from_config(config, atomic_dataset)
 
     expected_densites = [
         5.18114795e-14,
@@ -389,7 +393,7 @@ def test_radial_1D_geometry_volume(simulation_verysimple, index, expected):
 def test_composition_elemental_number_density(
     simulation_verysimple, index, expected
 ):
-    comp = simulation_verysimple.simulation_state.model_state.composition
+    comp = simulation_verysimple.simulation_state.composition
 
     assert_almost_equal(
         comp.elemental_number_density.loc[index], expected, decimal=-2
@@ -405,9 +409,13 @@ def test_composition_elemental_number_density(
     ],
 )
 def test_model_state_mass(simulation_verysimple, index, expected):
-    model_state = simulation_verysimple.simulation_state.model_state
+    simulation_state = simulation_verysimple.simulation_state
+    volume = simulation_state.geometry.volume
+    element_cell_masses = (
+        simulation_state.composition.calculate_element_cell_masses(volume)
+    )
 
-    assert_almost_equal((model_state.mass).loc[index], expected, decimal=-27)
+    assert_almost_equal(element_cell_masses.loc[index], expected, decimal=-27)
 
 
 @pytest.mark.parametrize(
@@ -419,19 +427,19 @@ def test_model_state_mass(simulation_verysimple, index, expected):
     ],
 )
 def test_model_state_number(simulation_verysimple, index, expected):
-    model_state = simulation_verysimple.simulation_state.model_state
+    simulation_state = simulation_verysimple.simulation_state
 
     assert_almost_equal((model_state.number).loc[index], expected, decimal=-47)
 
 
 @pytest.fixture
-def non_uniform_model_state(atomic_dataset, example_model_file_dir):
+def non_uniform_simulation_state(atomic_dataset, example_model_file_dir):
     config = Configuration.from_yaml(
         example_model_file_dir / "tardis_configv1_isotope_iabund.yml"
     )
     atom_data = atomic_dataset
-    model = SimulationState.from_config(config, atom_data=atom_data)
-    return model.model_state
+    simulation_state = SimulationState.from_config(config, atom_data=atom_data)
+    return simulation_state
 
 
 @pytest.mark.parametrize(
@@ -442,8 +450,10 @@ def non_uniform_model_state(atomic_dataset, example_model_file_dir):
         ((28, 1), 9.54725917e-23),
     ],
 )
-def test_radial_1d_model_atomic_mass(non_uniform_model_state, index, expected):
-    atomic_mass = non_uniform_model_state.composition.atomic_mass
+def test_radial_1d_model_atomic_mass(
+    non_uniform_simulation_state, index, expected
+):
+    atomic_mass = non_uniform_simulation_state.composition.nuclide_masses
 
     assert_almost_equal(
         atomic_mass.loc[index],
@@ -467,8 +477,8 @@ class TestModelStateFromNonUniformAbundances:
             atomic_mass.loc[(28, 1)], 9.54725917e-23, decimal=30
         )
 
-    def test_elemental_number_density(self, model_state):
-        number = model_state.composition.elemental_number_density
+    def test_elemental_number_density(self, simulation_state):
+        number = simulation_state.composition.elemental_number_density
         assert_almost_equal(number.loc[(1, 0)], 0)
         assert_almost_equal(number.loc[(28, 0)], 10825427.035, decimal=2)
         assert_almost_equal(number.loc[(28, 1)], 1640838.763, decimal=2)

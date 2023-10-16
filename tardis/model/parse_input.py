@@ -3,6 +3,7 @@ import os
 
 from astropy import units as u
 from tardis.model.matter.decay import IsotopeAbundances, NuclideMassFraction
+from tardis.model.matter.composition import Composition
 import numpy as np
 import pandas as pd
 from tardis.io.model.parse_density_configuration import (
@@ -157,9 +158,9 @@ def parse_abundance_config(config, geometry):
 def convert_to_nuclide_mass_fraction(isotope_abundance, abundance):
     nuclide_mass_fraction = pd.DataFrame()
     if abundance is not None:
-        new_nuclide_index = pd.MultiIndex.from_product([abundance.index, [-1]])
-        new_nuclide_index.names = ["atomic_number", "mass_number"]
-        abundance.index = new_nuclide_index
+        abundance.index = Composition.convert_element2nuclide_index(
+            abundance.index
+        )
         nuclide_mass_fraction = abundance
     else:
         nuclide_mass_fraction = pd.DataFrame()

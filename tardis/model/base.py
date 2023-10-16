@@ -8,7 +8,7 @@ from astropy import units as u
 from tardis import constants
 import radioactivedecay as rd
 from radioactivedecay.utils import Z_DICT
-from tardis.model.matter import Composition
+from tardis.model.matter.composition import Composition
 from tardis.model.matter.base import MatterState
 from tardis.model.parse_input import (
     parse_abundance_config,
@@ -115,31 +115,24 @@ class SimulationState(HDFWriterMixin):
     def __init__(
         self,
         geometry,
-        density,
         composition,
         time_explosion,
         t_inner,
-        elemental_mass,
         luminosity_requested=None,
         t_radiative=None,
         dilution_factor=None,
         electron_densities=None,
     ):
         self.geometry = geometry
+        self.composition = composition
 
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
 
-        if len(density) != len(self.geometry.v_inner_active):
-            density = density[
+        if len(composition.density) != len(self.geometry.v_inner_active):
+            density = composition.density[
                 self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
             ]
-
-        self.model_state = MatterState(
-            composition=composition,
-            geometry=geometry,
-            time_explosion=self.time_explosion,
-        )
 
         self.blackbody_packet_source = BlackBodySimpleSource(
             self.r_inner[0], t_inner
@@ -260,11 +253,11 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def r_inner(self):
-        return self.model_state.geometry.r_inner_active
+        return self.geometry.r_inner_active
 
     @property
     def r_outer(self):
-        return self.model_state.geometry.r_outer_active
+        return self.geometry.r_outer_active
 
     @property
     def r_middle(self):
@@ -277,11 +270,11 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def v_inner(self):
-        return self.model_state.geometry.v_inner_active
+        return self.geometry.v_inner_active
 
     @property
     def v_outer(self):
-        return self.model_state.geometry.v_outer_active
+        return self.geometry.v_outer_active
 
     @property
     def v_middle(self):
@@ -289,20 +282,23 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def density(self):
-        return self.model_state.composition.density
+        return self.composition.density
 
     @property
     def abundance(self):
-        if not self.raw_isotope_abundance.empty:
-            self._abundance = self.raw_isotope_abundance.decay(
+        element_mass_fraction = (
+            self.composition.calculate_mass_fraction_at_time(
                 self.time_explosion
-            ).merge(self.raw_abundance)
-        abundance = self._abundance.iloc[
+            )
+        )
+        element_mass_fraction.iloc[
             :,
             self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
         ]
-        abundance.columns = range(len(abundance.columns))
-        return abundance
+        element_mass_fraction.columns = range(
+            len(element_mass_fraction.columns)
+        )
+        return element_mass_fraction
 
     @property
     def volume(self):
@@ -317,7 +313,7 @@ class SimulationState(HDFWriterMixin):
         return self.geometry.no_of_shells
 
     @classmethod
-    def from_config(cls, config, atom_data=None):
+    def from_config(cls, config, atom_data):
         """
         Create a new Radial1DModel instance from a Configuration object.
 
@@ -365,13 +361,10 @@ class SimulationState(HDFWriterMixin):
 
         return cls(
             geometry=geometry,
-            density=density,
-            abundance=abundance,
-            isotope_abundance=isotope_abundance,
+            composition=composition,
             time_explosion=time_explosion,
             t_radiative=t_radiative,
             t_inner=t_inner,
-            elemental_mass=elemental_mass,
             luminosity_requested=luminosity_requested,
             dilution_factor=None,
             electron_densities=electron_densities,

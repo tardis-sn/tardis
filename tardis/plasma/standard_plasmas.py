@@ -292,7 +292,8 @@ def assemble_plasma(config, simulation_state, atom_data=None):
                 electron_densities=electron_densities
             )
 
-    if not simulation_state.raw_isotope_abundance.empty:
+    if not simulation_state.composition.isotope_mass_fraction.empty:
+        raise NotImplementedError("TBD")
         plasma_modules += isotope_properties
         isotope_abundance = simulation_state.raw_isotope_abundance.loc[
             :,
