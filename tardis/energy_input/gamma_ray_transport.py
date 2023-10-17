@@ -303,6 +303,46 @@ def calculate_total_decays(inventories, time_delta):
     return total_decays_list
 
 
+def create_isotope_dicts(raw_isotope_abundance, shell_masses):
+    isotope_dicts = {}
+    for i in range(len(raw_isotope_abundance.columns)):
+        isotope_dicts[i] = {}
+        for (
+            atomic_number,
+            mass_number,
+        ), abundances in raw_isotope_abundance.iterrows():
+            isotope_dicts[i][atomic_number, mass_number] = {}
+            nuclear_symbol = f"{rd.utils.Z_to_elem(atomic_number)}{mass_number}"
+            isotope_dicts[i][atomic_number, mass_number][nuclear_symbol] = (
+                abundances[i] * shell_masses[i].to(u.g).value
+            )
+
+    return isotope_dicts
+
+
+def create_inventories_dict(isotope_dict):
+    inv = {}
+    for shell, isotopes in isotope_dict.items():
+        inv[shell] = {}
+        for isotope, name in isotopes.items():
+            inv[shell][isotope] = rd.Inventory(name, "g")
+
+    return inv
+
+
+def calculate_total_decays(inventory_dict, time_delta):
+    time_delta = u.Quantity(time_delta, u.s)
+    total_decays = {}
+    for shell, isotopes in inventory_dict.items():
+        total_decays[shell] = {}
+        for isotope, name in isotopes.items():
+            total_decays[shell][isotope] = name.cumulative_decays(
+                time_delta.value
+            )
+
+    return total_decays
+
+
 def calculate_average_energies(raw_isotope_abundance, gamma_ray_lines):
     """
     Function to calculate average energies of positrons and gamma rays
@@ -355,11 +395,75 @@ def calculate_average_energies(raw_isotope_abundance, gamma_ray_lines):
     )
 
 
-def decay_chain_energies(raw_isotope_abundance, average_energies_list):
+def decay_chain_energies(
+    raw_isotope_abundance,
+    average_energies_list,
+    average_positron_energies_list,
+    gamma_ray_line_array_list,
+    total_decays,
+):
     all_isotope_names = get_all_isotopes(raw_isotope_abundance)
     all_isotope_names.sort()
 
-    print(all_isotope_names)
+    gamma_ray_line_arrays = {}
+    average_energies = {}
+    average_positron_energies = {}
+
+    for iso, lines in zip(all_isotope_names, gamma_ray_line_array_list):
+        gamma_ray_line_arrays[iso] = lines
+
+    for iso, energy, positron_energy in zip(
+        all_isotope_names, average_energies_list, average_positron_energies_list
+    ):
+        average_energies[iso] = energy
+        average_positron_energies[iso] = positron_energy
+
+    decay_energy = {}
+    for shell, isotopes in total_decays.items():
+        decay_energy[shell] = {}
+        for name, isotope in isotopes.items():
+            decay_energy[shell][name] = {}
+            for iso, dps in isotope.items():
+                # print(iso)
+                decay_energy[shell][name][iso] = dps * average_energies[iso]
+
+    return decay_energy
+
+
+def calculate_energy_per_mass(
+    decay_energy, raw_isotope_abundance, shell_masses
+):
+    energy_dict = {}
+    for shell, isotopes in decay_energy.items():
+        energy_dict[shell] = {}
+        for name, isotope in isotopes.items():
+            energy_dict[shell][name] = sum(isotope.value())
+
+    energy_list = []
+    for shell, isotopes in energy_dict.items():
+        for isotope, energy in isotopes.items():
+            energy_list.append(
+                {
+                    "shell": shell,
+                    "atomic_numnber": isotope[0],
+                    "mass_number": isotope[1],
+                    "value": energy,
+                }
+            )
+
+    df = pd.DataFrame(energy_list)
+    energy_df = pd.pivot_table(
+        df,
+        values="value",
+        index=["atomic_number", "mass_number"],
+        columns="shell",
+    )
+
+    energy_per_mass = energy_df.divide(
+        (raw_isotope_abundance * shell_masses).to_numpy(), axis=0
+    )
+
+    return energy_per_mass
 
 
 def main_gamma_ray_loop(
