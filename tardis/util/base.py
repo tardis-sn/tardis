@@ -194,7 +194,7 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
 
     Parameters
     ----------
-    radial1d_mdl : Radial1DModel
+    radial1d_mdl : SimulationState
         Inputted object that will be read into YAML file
     fname : str
         File name for the synpp yaml

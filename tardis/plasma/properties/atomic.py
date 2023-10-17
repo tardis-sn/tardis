@@ -467,6 +467,26 @@ class LevelIdxs2LineIdx(HiddenPlasmaProperty):
         level_idxs2line_idx = pd.Series(
             np.arange(len(index)), index=index, name="lines_idx"
         )
+
+        # Check for duplicate indices
+        if level_idxs2line_idx.index.duplicated().any():
+            logger.warn(
+                "Duplicate indices in level_idxs2line_idx. "
+                "Dropping duplicates. "
+                "This is an issue with the atomic data & carsus. "
+                "Once fixed upstream, this warning will be removed. "
+                "This will raise an error in the future instead. "
+                "See https://github.com/tardis-sn/carsus/issues/384"
+            )
+            # This is necessary since pd.DataFrame.drop_duplicates()
+            # does not remove duplicates if the data is different
+            # and only the index is duplicated. See the example given
+            # in the pandas documentation:
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.drop_duplicates.html
+            level_idxs2line_idx = level_idxs2line_idx[
+                ~level_idxs2line_idx.index.duplicated()
+            ]
+
         return level_idxs2line_idx
 
 

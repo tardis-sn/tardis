@@ -33,7 +33,7 @@ class opacity_calculator(object):
 
     Parameters
     ----------
-    mdl : tardis.model.Radial1DModel
+    mdl : tardis.model.SimulationState
         model object of the Tardis run
     nbins : int
         number of bins of the frequency grid (default 300)
