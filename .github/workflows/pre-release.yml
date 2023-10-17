@@ -28,6 +28,9 @@ jobs:
         env:
           KEY_SECRET_JSON: ${{ secrets.ZENODO_KEY_SECRET_JSON }}
 
+      - name: Download Lock File
+        run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-linux-64.lock
+        
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
         with:
