@@ -439,7 +439,7 @@ def calculate_energy_per_mass(
     for shell, isotopes in decay_energy.items():
         energy_dict[shell] = {}
         for name, isotope in isotopes.items():
-            energy_dict[shell][name] = sum(isotope.value())
+            energy_dict[shell][name] = sum(isotope.values())
 
     energy_list = []
     for shell, isotopes in energy_dict.items():
@@ -447,7 +447,7 @@ def calculate_energy_per_mass(
             energy_list.append(
                 {
                     "shell": shell,
-                    "atomic_numnber": isotope[0],
+                    "atomic_number": isotope[0],
                     "mass_number": isotope[1],
                     "value": energy,
                 }
@@ -465,7 +465,7 @@ def calculate_energy_per_mass(
         (raw_isotope_abundance * shell_masses).to_numpy(), axis=0
     )
 
-    return energy_per_mass
+    return energy_per_mass, energy_df
 
 
 def main_gamma_ray_loop(
