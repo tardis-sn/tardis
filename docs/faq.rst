@@ -9,27 +9,21 @@ Overview
 
 Welcome to the FAQ section! Here, you'll find answers to common questions about TARDIS.
 
-- :ref:`faq-usage` - Questions related to the usage of TARDIS
+- :ref:`faq-usage`
 
-     - :ref:`faq-usage-memory` - My simulation seems to consume excessive amounts of memory
+     - :ref:`faq-usage-memory`
 
-Overview
---------
 
-Welcome to our FAQ section! Here, you'll find answers to common questions about our software.
-
-- :ref:`faq-installation` - How do I install the software?
-- :ref:`faq-usage` - How do I perform a specific task?
+.. _faq-usage:
 
 Usage
 -----
 
-.. _faq-usage:
+.. _faq-usage-memory:
 
 My simulation seems to consume excessive amounts of memory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. _faq-usage-memory:
 
 High memory usage can have many reasons. Both your model
 and certain simulation settings can increase the memory
