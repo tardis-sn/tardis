@@ -94,7 +94,7 @@ jobs:
             miniforge-version: latest
             activate-environment: tardis
             use-mamba: true
-            
+
       - name: Download Lock File
         run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-${{ matrix.label }}.lock
         if: matrix.pip == true
@@ -131,11 +131,7 @@ jobs:
         run: |
           directory_path="."
           echo "TARDIS_PIP_PATH=$directory_path" >> $GITHUB_ENV
-      
-      - run: find . -name 'tardis_configv1_verysimple.yml'
-        continue-on-error: true
-        working-directory: ${{ env.TARDIS_PIP_PATH }}
-      
+
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }}
         working-directory: ${{ env.TARDIS_PIP_PATH }}
