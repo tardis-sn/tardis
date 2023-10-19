@@ -112,6 +112,10 @@ def test_plasma_estimates(simulation_one_loop, refdata, name):
 def test_plasma_state_iterations(simulation_one_loop, refdata, name):
     actual = getattr(simulation_one_loop, name)
 
+    # removing the quantitiness of the data as it will screw up the comparison via pandas
+    if hasattr(actual, "value"):
+        actual = actual.value
+
     try:
         actual = pd.Series(actual)
     except Exception:

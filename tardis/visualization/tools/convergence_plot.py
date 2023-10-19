@@ -310,10 +310,12 @@ class ConvergencePlots(object):
     def update_plasma_plots(self):
         """Update plasma convergence plots every iteration."""
         # convert velocity to km/s
-        x = self.iterable_data["velocity"].to(u.km / u.s).value.tolist()
+        velocity_km_s = (
+            self.iterable_data["velocity"].to(u.km / u.s).value.tolist()
+        )
 
         # add luminosity data in hover data in plasma plots
-        customdata = len(x) * [
+        customdata = len(velocity_km_s) * [
             "<br>"
             + "Emitted Luminosity: "
             + f'{self.value_data["Emitted"][-1]:.4g}'
@@ -327,7 +329,7 @@ class ConvergencePlots(object):
 
         # add a radiation temperature vs shell velocity trace to the plasma plot
         self.plasma_plot.add_scatter(
-            x=x,
+            x=velocity_km_s,
             y=self.iterable_data["t_rad"],
             line_color=self.plasma_colorscale[self.current_iteration - 1],
             row=1,
@@ -341,7 +343,7 @@ class ConvergencePlots(object):
 
         # add a dilution factor vs shell velocity trace to the plasma plot
         self.plasma_plot.add_scatter(
-            x=x,
+            x=velocity_km_s,
             y=self.iterable_data["w"],
             line_color=self.plasma_colorscale[self.current_iteration - 1],
             row=1,

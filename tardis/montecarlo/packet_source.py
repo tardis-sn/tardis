@@ -123,12 +123,12 @@ class BlackBodySimpleSource(BasePacketSource):
         self.temperature = temperature
         super().__init__(**kwargs)
 
-    def set_state_from_model(self, model):
+    def set_state_from_model(self, simulation_state):
         """
         Set state of packet source (correct state should be ensured before creating packets)
         """
-        self.radius = model.r_inner[0]
-        self.temperature = model.t_inner.value
+        self.radius = simulation_state.r_inner[0]
+        self.temperature = simulation_state.t_inner.value
 
     def create_packets(self, no_of_packets, *args, **kwargs):
         if self.radius is None or self.temperature is None:

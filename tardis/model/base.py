@@ -8,30 +8,37 @@ from astropy import units as u
 from tardis import constants
 import radioactivedecay as rd
 from radioactivedecay.utils import Z_DICT
-from tardis.io.model.readers.base import read_abundances_file, read_density_file
+from tardis.model.parse_input import (
+    parse_abundance_section,
+    parse_csvy_geometry,
+    parse_structure_config,
+)
+from tardis.util.base import is_valid_nuclide_or_elem
+
+
+from tardis.montecarlo.packet_source import BlackBodySimpleSource
+
+from tardis.radiation_field.base import MonteCarloRadiationFieldState
+
 from tardis.io.model.readers.generic_readers import (
     read_uniform_abundances,
 )
-from tardis.model.geometry.radial1d import Radial1DGeometry
 
-from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem
-from tardis.io.model.readers.csvy import load_csvy
 from tardis.io.model.readers.csvy import (
     parse_csv_abundances,
+    load_csvy,
 )
+
+
 from tardis.io.configuration.config_validator import validate_dict
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
 from tardis.io.decay import IsotopeAbundances
 
 from tardis.io.model.parse_density_configuration import (
-    parse_config_v1_density,
     parse_csvy_density,
     calculate_density_after_time,
 )
-from tardis.montecarlo.packet_source import BlackBodySimpleSource
-
-from tardis.radiation_field.base import MonteCarloRadiationFieldState
 
 logger = logging.getLogger(__name__)
 
@@ -119,11 +126,9 @@ class ModelState:
     def mass(self):
         """Mass calculated using the formula:
         mass_fraction * density * volume"""
-        return (
-            self.composition.elemental_mass_fraction
-            * self.composition.density
-            * self.geometry.volume
-        )
+
+        total_mass = (self.geometry.volume * self.composition.density).to(u.g)
+        return self.composition.elemental_mass_fraction * total_mass.value
 
     @property
     def number(self):
@@ -200,7 +205,7 @@ class SimulationState(HDFWriterMixin):
 
     def __init__(
         self,
-        velocity,
+        geometry,
         density,
         abundance,
         isotope_abundance,
@@ -210,26 +215,17 @@ class SimulationState(HDFWriterMixin):
         luminosity_requested=None,
         t_radiative=None,
         dilution_factor=None,
-        v_boundary_inner=None,
-        v_boundary_outer=None,
         electron_densities=None,
     ):
-        self._v_boundary_inner = None
-        self._v_boundary_outer = None
-        self._velocity = None
-        self.raw_velocity = velocity
-        self.v_boundary_inner = v_boundary_inner
-        self.v_boundary_outer = v_boundary_outer
+        self.geometry = geometry
+
         self._abundance = abundance
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
-        v_outer = self.velocity[1:]
-        v_inner = self.velocity[:-1]
-        if len(density) != len(self.velocity) - 1:
+
+        if len(density) != len(self.geometry.v_inner_active):
             density = density[
-                self.v_boundary_inner_index
-                + 1 : self.v_boundary_outer_index
-                + 1
+                self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
             ]
 
         self.raw_abundance = self._abundance
@@ -275,12 +271,6 @@ class SimulationState(HDFWriterMixin):
             elemental_mass_fraction=self.abundance,
             atomic_mass=atomic_mass,
         )
-        geometry = Radial1DGeometry(
-            r_inner=self.time_explosion * v_inner,
-            r_outer=self.time_explosion * v_outer,
-            v_inner=v_inner,
-            v_outer=v_outer,
-        )
         self.model_state = ModelState(
             composition=composition,
             geometry=geometry,
@@ -308,12 +298,17 @@ class SimulationState(HDFWriterMixin):
             )
             t_radiative = constants.b_wien / (
                 lambda_wien_inner
-                * (1 + (self.v_middle - self.v_boundary_inner) / constants.c)
+                * (
+                    1
+                    + (self.v_middle - self.geometry.v_inner_boundary)
+                    / constants.c
+                )
             )
-        elif len(t_radiative) != self.no_of_shells:
+
+        elif len(t_radiative) == self.no_of_shells + 1:
             t_radiative = t_radiative[
-                self.v_boundary_inner_index
-                + 1 : self.v_boundary_outer_index
+                self.geometry.v_inner_boundary_index
+                + 1 : self.geometry.v_outer_boundary_index
                 + 1
             ]
         else:
@@ -328,9 +323,7 @@ class SimulationState(HDFWriterMixin):
             )
         elif len(dilution_factor) != self.no_of_shells:
             dilution_factor = dilution_factor[
-                self.v_boundary_inner_index
-                + 1 : self.v_boundary_outer_index
-                + 1
+                self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
             ]
             assert len(dilution_factor) == self.no_of_shells
 
@@ -394,12 +387,20 @@ class SimulationState(HDFWriterMixin):
         return self.time_explosion * self.velocity
 
     @property
+    def v_boundary_inner(self):
+        return self.geometry.v_inner_boundary
+
+    @property
+    def v_boundary_outer(self):
+        return self.geometry.v_outer_boundary
+
+    @property
     def r_inner(self):
-        return self.model_state.geometry.r_inner
+        return self.model_state.geometry.r_inner_active
 
     @property
     def r_outer(self):
-        return self.model_state.geometry.r_outer
+        return self.model_state.geometry.r_outer_active
 
     @property
     def r_middle(self):
@@ -407,21 +408,16 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def velocity(self):
-        if self._velocity is None:
-            self._velocity = self.raw_velocity[
-                self.v_boundary_inner_index : self.v_boundary_outer_index + 1
-            ]
-            self._velocity[0] = self.v_boundary_inner
-            self._velocity[-1] = self.v_boundary_outer
-        return self._velocity
+        velocity = self.geometry.v_outer_active.copy()
+        return velocity.insert(0, self.geometry.v_inner_active[0])
 
     @property
     def v_inner(self):
-        return self.model_state.geometry.v_inner
+        return self.model_state.geometry.v_inner_active
 
     @property
     def v_outer(self):
-        return self.model_state.geometry.v_outer
+        return self.model_state.geometry.v_outer_active
 
     @property
     def v_middle(self):
@@ -437,8 +433,9 @@ class SimulationState(HDFWriterMixin):
             self._abundance = self.raw_isotope_abundance.decay(
                 self.time_explosion
             ).merge(self.raw_abundance)
-        abundance = self._abundance.loc[
-            :, self.v_boundary_inner_index : self.v_boundary_outer_index - 1
+        abundance = self._abundance.iloc[
+            :,
+            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
         ]
         abundance.columns = range(len(abundance.columns))
         return abundance
@@ -449,94 +446,11 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def no_of_shells(self):
-        return len(self.velocity) - 1
+        return self.geometry.no_of_shells
 
     @property
     def no_of_raw_shells(self):
-        return len(self.raw_velocity) - 1
-
-    @property
-    def v_boundary_inner(self):
-        if self._v_boundary_inner is None:
-            return self.raw_velocity[0]
-        if self._v_boundary_inner < 0 * u.km / u.s:
-            return self.raw_velocity[0]
-        return self._v_boundary_inner
-
-    @v_boundary_inner.setter
-    def v_boundary_inner(self, value):
-        if value is not None:
-            if value > 0 * u.km / u.s:
-                value = u.Quantity(value, self.v_boundary_inner.unit)
-                if value > self.v_boundary_outer:
-                    raise ValueError(
-                        f"v_boundary_inner ({value}) must not be higher than "
-                        f"v_boundary_outer ({self.v_boundary_outer})."
-                    )
-                if value > self.raw_velocity[-1]:
-                    raise ValueError(
-                        f"v_boundary_inner ({value}) is outside of the model range ({self.raw_velocity[-1]})."
-                    )
-                if value < self.raw_velocity[0]:
-                    raise ValueError(
-                        f"v_boundary_inner ({value}) is lower than the lowest shell ({self.raw_velocity[0]}) in the model."
-                    )
-        self._v_boundary_inner = value
-        # Invalidate the cached cut-down velocity array
-        self._velocity = None
-
-    @property
-    def v_boundary_outer(self):
-        if self._v_boundary_outer is None:
-            return self.raw_velocity[-1]
-        if self._v_boundary_outer < 0 * u.km / u.s:
-            return self.raw_velocity[-1]
-        return self._v_boundary_outer
-
-    @v_boundary_outer.setter
-    def v_boundary_outer(self, value):
-        if value is not None:
-            if value > 0 * u.km / u.s:
-                value = u.Quantity(value, self.v_boundary_outer.unit)
-                if value < self.v_boundary_inner:
-                    raise ValueError(
-                        f"v_boundary_outer ({value}) must not be smaller than v_boundary_inner ({self.v_boundary_inner})."
-                    )
-                if value < self.raw_velocity[0]:
-                    raise ValueError(
-                        f"v_boundary_outer ({value}) is outside of the model range ({self.raw_velocity[0]})."
-                    )
-                if value > self.raw_velocity[-1]:
-                    raise ValueError(
-                        f"v_boundary_outer ({value}) is larger than the largest shell in the model ({self.raw_velocity[-1]})."
-                    )
-        self._v_boundary_outer = value
-        # Invalidate the cached cut-down velocity array
-        self._velocity = None
-
-    @property
-    def v_boundary_inner_index(self):
-        if self.v_boundary_inner in self.raw_velocity:
-            v_inner_ind = np.argwhere(
-                self.raw_velocity == self.v_boundary_inner
-            )[0][0]
-        else:
-            v_inner_ind = (
-                np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
-            )
-        return v_inner_ind
-
-    @property
-    def v_boundary_outer_index(self):
-        if self.v_boundary_outer in self.raw_velocity:
-            v_outer_ind = np.argwhere(
-                self.raw_velocity == self.v_boundary_outer
-            )[0][0]
-        else:
-            v_outer_ind = np.searchsorted(
-                self.raw_velocity, self.v_boundary_outer
-            )
-        return v_outer_ind
+        return self.geometry.no_of_shells
 
     @classmethod
     def from_config(cls, config, atom_data=None):
@@ -554,50 +468,18 @@ class SimulationState(HDFWriterMixin):
         """
         time_explosion = config.supernova.time_explosion.cgs
 
-        structure = config.model.structure
-        electron_densities = None
-        temperature = None
-        if structure.type == "specific":
-            velocity = quantity_linspace(
-                structure.velocity.start,
-                structure.velocity.stop,
-                structure.velocity.num + 1,
-            ).cgs
-            density = parse_config_v1_density(config)
-
-        elif structure.type == "file":
-            if os.path.isabs(structure.filename):
-                structure_fname = structure.filename
-            else:
-                structure_fname = os.path.join(
-                    config.config_dirname, structure.filename
-                )
-
-            (
-                time_0,
-                velocity,
-                density_0,
-                electron_densities,
-                temperature,
-            ) = read_density_file(structure_fname, structure.filetype)
-            density_0 = density_0.insert(0, 0)
-
-            density = calculate_density_after_time(
-                density_0, time_0, time_explosion
-            )
-
-        else:
-            raise NotImplementedError
-
-        # Note: This is the number of shells *without* taking in mind the
-        #       v boundaries.
-        no_of_shells = len(velocity) - 1
+        (
+            electron_densities,
+            temperature,
+            geometry,
+            density,
+        ) = parse_structure_config(config, time_explosion)
 
         if temperature is not None:
             t_radiative = temperature
         elif config.plasma.initial_t_rad > 0 * u.K:
             t_radiative = (
-                np.ones(no_of_shells + 1) * config.plasma.initial_t_rad
+                np.ones(geometry.no_of_shells + 1) * config.plasma.initial_t_rad
             )
         else:
             t_radiative = None
@@ -611,46 +493,12 @@ class SimulationState(HDFWriterMixin):
             luminosity_requested = None
             t_inner = config.plasma.initial_t_inner
 
-        abundances_section = config.model.abundances
-        isotope_abundance = pd.DataFrame()
-
-        if abundances_section.type == "uniform":
-            abundance, isotope_abundance = read_uniform_abundances(
-                abundances_section, no_of_shells
-            )
-
-        elif abundances_section.type == "file":
-            if os.path.isabs(abundances_section.filename):
-                abundances_fname = abundances_section.filename
-            else:
-                abundances_fname = os.path.join(
-                    config.config_dirname, abundances_section.filename
-                )
-
-            index, abundance, isotope_abundance = read_abundances_file(
-                abundances_fname, abundances_section.filetype
-            )
-
-        abundance = abundance.replace(np.nan, 0.0)
-        abundance = abundance[abundance.sum(axis=1) > 0]
-
-        norm_factor = abundance.sum(axis=0) + isotope_abundance.sum(axis=0)
-
-        if np.any(np.abs(norm_factor - 1) > 1e-12):
-            logger.warning(
-                "Abundances have not been normalized to 1." " - normalizing"
-            )
-            abundance /= norm_factor
-            isotope_abundance /= norm_factor
-
-        isotope_abundance = IsotopeAbundances(isotope_abundance)
-
-        elemental_mass = None
-        if atom_data is not None:
-            elemental_mass = atom_data.atom_data.mass
+        isotope_abundance, abundance, elemental_mass = parse_abundance_section(
+            config, atom_data, geometry
+        )
 
         return cls(
-            velocity=velocity,
+            geometry=geometry,
             density=density,
             abundance=abundance,
             isotope_abundance=isotope_abundance,
@@ -660,8 +508,6 @@ class SimulationState(HDFWriterMixin):
             elemental_mass=elemental_mass,
             luminosity_requested=luminosity_requested,
             dilution_factor=None,
-            v_boundary_inner=structure.get("v_inner_boundary", None),
-            v_boundary_outer=structure.get("v_outer_boundary", None),
             electron_densities=electron_densities,
         )
 
@@ -733,35 +579,9 @@ class SimulationState(HDFWriterMixin):
         electron_densities = None
         temperature = None
 
-        if hasattr(config, "model"):
-            if hasattr(config.model, "v_inner_boundary"):
-                v_boundary_inner = config.model.v_inner_boundary
-            else:
-                v_boundary_inner = None
-
-            if hasattr(config.model, "v_outer_boundary"):
-                v_boundary_outer = config.model.v_outer_boundary
-            else:
-                v_boundary_outer = None
-        else:
-            v_boundary_inner = None
-            v_boundary_outer = None
-
-        if hasattr(csvy_model_config, "velocity"):
-            velocity = quantity_linspace(
-                csvy_model_config.velocity.start,
-                csvy_model_config.velocity.stop,
-                csvy_model_config.velocity.num + 1,
-            ).cgs
-        else:
-            velocity_field_index = [
-                field["name"] for field in csvy_model_config.datatype.fields
-            ].index("velocity")
-            velocity_unit = u.Unit(
-                csvy_model_config.datatype.fields[velocity_field_index]["unit"]
-            )
-            velocity = csvy_model_data["velocity"].values * velocity_unit
-            velocity = velocity.to("cm/s")
+        geometry = parse_csvy_geometry(
+            config, csvy_model_config, csvy_model_data, time_explosion
+        )
 
         if hasattr(csvy_model_config, "density"):
             density = parse_csvy_density(csvy_model_config, time_explosion)
@@ -780,7 +600,7 @@ class SimulationState(HDFWriterMixin):
                 density_0, time_0, time_explosion
             )
 
-        no_of_shells = len(velocity) - 1
+        no_of_shells = geometry.no_of_shells
 
         # TODO -- implement t_radiative
         # t_radiative = None
@@ -808,7 +628,9 @@ class SimulationState(HDFWriterMixin):
                 )
 
         elif config.plasma.initial_t_rad > 0 * u.K:
-            t_radiative = np.ones(no_of_shells) * config.plasma.initial_t_rad
+            t_radiative = (
+                np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
+            )
         else:
             t_radiative = None
 
@@ -822,7 +644,7 @@ class SimulationState(HDFWriterMixin):
         if hasattr(csvy_model_config, "abundance"):
             abundances_section = csvy_model_config.abundance
             abundance, isotope_abundance = read_uniform_abundances(
-                abundances_section, no_of_shells
+                abundances_section, geometry.no_of_shells
             )
         else:
             index, abundance, isotope_abundance = parse_csv_abundances(
@@ -857,7 +679,7 @@ class SimulationState(HDFWriterMixin):
             elemental_mass = atom_data.atom_data.mass
 
         return cls(
-            velocity=velocity,
+            geometry=geometry,
             density=density,
             abundance=abundance,
             isotope_abundance=isotope_abundance,
@@ -867,7 +689,5 @@ class SimulationState(HDFWriterMixin):
             elemental_mass=elemental_mass,
             luminosity_requested=luminosity_requested,
             dilution_factor=dilution_factor,
-            v_boundary_inner=v_boundary_inner,
-            v_boundary_outer=v_boundary_outer,
             electron_densities=electron_densities,
         )

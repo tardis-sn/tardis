@@ -2,9 +2,10 @@ from numba import float64
 from numba.experimental import jitclass
 import numpy as np
 from astropy import units as u
+import warnings
 
 
-class Radial1DGeometry:
+class HomologousRadial1DGeometry:
     """
     Holds information about model geometry for radial 1D models.
 
@@ -21,16 +22,131 @@ class Radial1DGeometry:
         Volume in each shell
     """
 
-    def __init__(self, r_inner, r_outer, v_inner, v_outer):
-        self.r_inner = r_inner
-        self.r_outer = r_outer
+    def __init__(
+        self,
+        v_inner,
+        v_outer,
+        v_inner_boundary,
+        v_outer_boundary,
+        time_explosion,
+    ):
+        self.time_explosion = time_explosion
+
+        # ensuring that the cells are continuous
+        assert np.allclose(v_inner[1:], v_outer[:-1])
+
+        assert "velocity" in v_inner.unit.physical_type
+        assert "velocity" in v_outer.unit.physical_type
+
         self.v_inner = v_inner
         self.v_outer = v_outer
+
+        # ensuring that the boundaries are within the simulation area
+
+        if v_inner_boundary is None:
+            self.v_inner_boundary = self.v_inner[0]
+        elif v_inner_boundary < 0:
+            warnings.warn(
+                "v_inner_boundary < 0, assuming default value",
+                DeprecationWarning,
+            )
+            self.v_inner_boundary = self.v_inner[0]
+        else:
+            self.v_inner_boundary = v_inner_boundary
+
+        if v_outer_boundary is None:
+            self.v_outer_boundary = self.v_outer[-1]
+        elif v_outer_boundary < 0:
+            warnings.warn(
+                "v_outer_boundary < 0, assuming default value",
+                DeprecationWarning,
+            )
+            self.v_outer_boundary = self.v_outer[-1]
+        else:
+            self.v_outer_boundary = v_outer_boundary
+
+        assert self.v_inner_boundary < self.v_outer_boundary
+        if self.v_inner_boundary < self.v_inner[0]:
+            warnings.warn(
+                "Requesting inner boundary below inner shell. Extrapolating the inner cell"
+            )
+
+        if self.v_outer_boundary > self.v_outer[-1]:
+            warnings.warn(
+                "Requesting inner boundary below inner shell. Extrapolating the inner cell"
+            )
+
+    @property
+    def v_inner_boundary_index(self):
+        return np.clip(
+            np.searchsorted(self.v_inner, self.v_inner_boundary, side="right")
+            - 1,
+            0,
+            None,
+        )
+
+    @property
+    def v_outer_boundary_index(self):
+        return np.clip(
+            np.searchsorted(self.v_outer, self.v_outer_boundary, side="left")
+            + 1,
+            None,
+            len(self.v_outer),
+        )
+
+    @property
+    def v_inner_active(self):
+        v_inner_active = self.v_inner[
+            self.v_inner_boundary_index : self.v_outer_boundary_index
+        ].copy()
+        v_inner_active[0] = self.v_inner_boundary
+        return v_inner_active
+
+    @property
+    def v_outer_active(self):
+        v_outer_active = self.v_outer[
+            self.v_inner_boundary_index : self.v_outer_boundary_index
+        ].copy()
+        v_outer_active[-1] = self.v_outer_boundary
+        return v_outer_active
+
+    @property
+    def r_inner(self):
+        return (self.v_inner * self.time_explosion).cgs
+
+    @property
+    def r_inner_active(self):
+        return (self.v_inner_active * self.time_explosion).cgs
+
+    @property
+    def r_outer(self):
+        return (self.v_outer * self.time_explosion).cgs
+
+    @property
+    def r_outer_active(self):
+        return (self.v_outer_active * self.time_explosion).cgs
 
     @property
     def volume(self):
         """Volume in shell computed from r_outer and r_inner"""
         return (4.0 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
+
+    @property
+    def volume_active(self):
+        """Volume in shell computed from r_outer and r_inner"""
+        return (
+            (4.0 / 3)
+            * np.pi
+            * (self.r_outer_active**3 - self.r_inner_active**3)
+        )
+
+    @property
+    def no_of_shells(self):
+        return len(self.r_inner)
+
+    @property
+    def no_of_shells_active(self):
+        return len(self.r_inner_active)
 
     def to_numba(self):
         """
@@ -42,10 +158,10 @@ class Radial1DGeometry:
             Numba version of Radial1DGeometry with properties in cgs units
         """
         return NumbaRadial1DGeometry(
-            self.r_inner.to(u.cm).value,
-            self.r_outer.to(u.cm).value,
-            self.v_inner.to(u.cm / u.s).value,
-            self.v_outer.to(u.cm / u.s).value,
+            self.r_inner_active.to(u.cm).value,
+            self.r_outer_active.to(u.cm).value,
+            self.v_inner_active.to(u.cm / u.s).value,
+            self.v_outer_active.to(u.cm / u.s).value,
         )
 
 
