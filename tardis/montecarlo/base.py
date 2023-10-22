@@ -134,12 +134,6 @@ class MontecarloTransport(HDFWriterMixin):
 
         # Set number of threads
         self.nthreads = nthreads
-        if self.nthreads != 1:
-            raise ValueError(
-                """TARDIS parallelization is not working correctly at the moment and is hence disabled.
-            Please see issue https://github.com/tardis-sn/tardis/issues/2021.
-            """
-            )
 
         # set up logger based on config
         mc_tracker.DEBUG_MODE = debug_packets
@@ -197,7 +191,7 @@ class MontecarloTransport(HDFWriterMixin):
 
         Parameters
         ----------
-        model : model.Radial1DModel
+        model : model.SimulationState
         """
         self.r_inner_cgs = simulation_state.r_inner.to("cm").value
         self.r_outer_cgs = simulation_state.r_outer.to("cm").value
@@ -315,7 +309,7 @@ class MontecarloTransport(HDFWriterMixin):
 
         Parameters
         ----------
-        model : tardis.model.Radial1DModel
+        model : tardis.model.SimulationState
         plasma : tardis.plasma.BasePlasma
         no_of_packets : int
         no_of_virtual_packets : int
@@ -573,7 +567,7 @@ class MontecarloTransport(HDFWriterMixin):
 
         Parameters
         ----------
-        model : model.Radial1DModel
+        model : model.SimulationState
 
         Returns
         -------
@@ -593,7 +587,7 @@ class MontecarloTransport(HDFWriterMixin):
 
         Parameters
         ----------
-        model : model.Radial1DModel
+        model : model.SimulationState
 
         Returns
         -------

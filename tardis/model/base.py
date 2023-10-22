@@ -8,10 +8,8 @@ from astropy import units as u
 from tardis import constants
 import radioactivedecay as rd
 from radioactivedecay.utils import Z_DICT
-from tardis.model.matter.composition import Composition
-from tardis.model.matter.base import MatterState
 from tardis.model.parse_input import (
-    parse_abundance_config,
+    parse_abundance_section,
     parse_csvy_geometry,
     parse_structure_config,
 )
@@ -252,6 +250,14 @@ class SimulationState(HDFWriterMixin):
         return self.geometry.v_outer_boundary
 
     @property
+    def v_boundary_inner(self):
+        return self.geometry.v_inner_boundary
+
+    @property
+    def v_boundary_outer(self):
+        return self.geometry.v_outer_boundary
+
+    @property
     def r_inner(self):
         return self.geometry.r_inner_active
 
@@ -265,6 +271,8 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def velocity(self):
+        velocity = self.geometry.v_outer_active.copy()
+        return velocity.insert(0, self.geometry.v_inner_active[0])
         velocity = self.geometry.v_outer_active.copy()
         return velocity.insert(0, self.geometry.v_inner_active[0])
 
@@ -315,7 +323,7 @@ class SimulationState(HDFWriterMixin):
     @classmethod
     def from_config(cls, config, atom_data):
         """
-        Create a new Radial1DModel instance from a Configuration object.
+        Create a new SimulationState instance from a Configuration object.
 
         Parameters
         ----------
@@ -324,7 +332,7 @@ class SimulationState(HDFWriterMixin):
 
         Returns
         -------
-        Radial1DModel
+        SimulationState
         """
         time_explosion = config.supernova.time_explosion.cgs
 
@@ -377,7 +385,7 @@ class SimulationState(HDFWriterMixin):
     @classmethod
     def from_csvy(cls, config, atom_data=None):
         """
-        Create a new Radial1DModel instance from a Configuration object.
+        Create a new SimulationState instance from a Configuration object.
 
         Parameters
         ----------
@@ -386,7 +394,7 @@ class SimulationState(HDFWriterMixin):
 
         Returns
         -------
-        Radial1DModel
+        SimulationState
         """
         CSVY_SUPPORTED_COLUMNS = {
             "velocity",
@@ -489,6 +497,9 @@ class SimulationState(HDFWriterMixin):
                 )
 
         elif config.plasma.initial_t_rad > 0 * u.K:
+            t_radiative = (
+                np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
+            )
             t_radiative = (
                 np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
             )

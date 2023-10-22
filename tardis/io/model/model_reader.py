@@ -284,11 +284,11 @@ def transport_from_hdf(fname):
 
 def model_to_dict(model):
     """
-    Retrieves all the data from a Radial1DModel object and returns a dictionary.
+    Retrieves all the data from a SimulationState object and returns a dictionary.
 
     Parameters
     ----------
-    transport : tardis.model.Radial1DModel
+    transport : tardis.model.SimulationState
 
     Returns
     -------
@@ -321,7 +321,7 @@ def model_to_dict(model):
 
 def model_from_hdf(fname):
     """
-    Creates a Radial1DModel object using data stored in a hdf file.
+    Creates a SimulationState object using data stored in a hdf file.
 
     Parameters
     ----------
@@ -329,7 +329,7 @@ def model_from_hdf(fname):
 
     Returns
     -------
-    new_model : tardis.model.Radial1DModel
+    new_model : tardis.model.SimulationState
     """
 
     from tardis.model import SimulationState

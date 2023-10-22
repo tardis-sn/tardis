@@ -32,20 +32,22 @@ jobs:
     if: github.repository_owner == 'tardis-sn'
     strategy:
       matrix:
+        pip: [true, false]
+        label: [osx-64, linux-64]
         include:
+          - label: osx-64
+            os: macos-latest
+            prefix: /Users/runner/miniconda3/envs/tardis
 
-        - os: ubuntu-latest
-          label: linux-64
-          prefix: /usr/share/miniconda3/envs/tardis
+          - label: linux-64
+            os: ubuntu-latest
+            prefix: /usr/share/miniconda3/envs/tardis
 
-        - os: macos-latest
-          label: osx-64
-          prefix: /Users/runner/miniconda3/envs/tardis
-
-    name: ${{ matrix.label }}
+    name: ${{ matrix.label }}-pip-${{ matrix.pip }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
+        if: matrix.pip == false
 
       - name: Clone tardis-sn/tardis-refdata
         uses: actions/checkout@v2
@@ -93,6 +95,10 @@ jobs:
             activate-environment: tardis
             use-mamba: true
 
+      - name: Download Lock File
+        run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-${{ matrix.label }}.lock
+        if: matrix.pip == true
+
       - uses: actions/cache@v2
         with:
           path: ${{ matrix.prefix }}
@@ -102,12 +108,33 @@ jobs:
       - name: Update environment
         run: mamba update -n tardis --file conda-${{ matrix.label }}.lock
         if: steps.cache-conda.outputs.cache-hit != 'true'
+      
+      - name: Install package editable
+        run: | 
+          pip install -e .
+          echo "TARDIS_PIP_PATH=tardis" >> $GITHUB_ENV
+        if: matrix.pip == false
 
-      - name: Install package
-        run: pip install -e .
+      - name: Install package git
+        run: pip install git+https://github.com/tardis-sn/tardis.git@${{ github.ref }}
+        if: matrix.pip == true
+
+      - name: Set pip path
+        if: matrix.pip == true
+        run: |
+          location_line=$(pip show tardis | grep -i -x "Location:.*")
+          directory_path=$(echo $location_line | awk -F " " '{print $2}')
+          echo "TARDIS_PIP_PATH=$directory_path" >> $GITHUB_ENV
+      
+      - name: Set install path
+        if: matrix.pip == false
+        run: |
+          directory_path="."
+          echo "TARDIS_PIP_PATH=$directory_path" >> $GITHUB_ENV
 
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }}
+        working-directory: ${{ env.TARDIS_PIP_PATH }}
 
       - name: Upload to Codecov
         run: bash <(curl -s https://codecov.io/bash)

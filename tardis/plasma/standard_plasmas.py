@@ -53,12 +53,12 @@ logger = logging.getLogger(__name__)
 def assemble_plasma(config, simulation_state, atom_data=None):
     """
     Create a BasePlasma instance from a Configuration object
-    and a Radial1DModel.
+    and a SimulationState.
 
     Parameters
     ----------
     config : io.config_reader.Configuration
-    model : model.Radial1DModel
+    model : model.SimulationState
     atom_data : atomic.AtomData
         If None, an attempt will be made to read the atomic data
         from config.
