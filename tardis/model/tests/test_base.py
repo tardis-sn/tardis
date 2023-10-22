@@ -412,7 +412,7 @@ def test_model_state_mass(simulation_verysimple, index, expected):
     simulation_state = simulation_verysimple.simulation_state
     volume = simulation_state.geometry.volume
     element_cell_masses = (
-        simulation_state.composition.calculate_element_cell_masses(volume)
+        simulation_state.composition.calculate_elemental_cell_masses(volume)
     )
 
     assert_almost_equal(element_cell_masses.loc[index], expected, decimal=-27)
@@ -453,7 +453,9 @@ def non_uniform_simulation_state(atomic_dataset, example_model_file_dir):
 def test_radial_1d_model_atomic_mass(
     non_uniform_simulation_state, index, expected
 ):
-    atomic_mass = non_uniform_simulation_state.composition.nuclide_masses
+    atomic_mass = (
+        non_uniform_simulation_state.composition.effective_element_masses
+    )
 
     assert_almost_equal(
         atomic_mass.loc[index],

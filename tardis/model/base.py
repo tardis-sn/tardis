@@ -353,10 +353,14 @@ class SimulationState(HDFWriterMixin):
             luminosity_requested = None
             t_inner = config.plasma.initial_t_inner
 
-        nuclide_mass_fraction = parse_abundance_config(config, geometry)
+        nuclide_mass_fraction = parse_abundance_config(
+            config, geometry, time_explosion
+        )
 
+        # using atom_data.mass.copy() to ensure that the original atom_data is not modified
+        # sep
         composition = Composition(
-            density, nuclide_mass_fraction, atom_data.atom_data.mass
+            density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
         )
 
         return cls(

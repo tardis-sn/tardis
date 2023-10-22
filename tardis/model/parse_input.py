@@ -114,7 +114,7 @@ def parse_csvy_geometry(
     return geometry
 
 
-def parse_abundance_config(config, geometry):
+def parse_abundance_config(config, geometry, time_explosion):
     abundances_section = config.model.abundances
     isotope_abundance = pd.DataFrame()
 
@@ -147,7 +147,9 @@ def parse_abundance_config(config, geometry):
         abundance /= norm_factor
         isotope_abundance /= norm_factor
 
-    isotope_abundance = IsotopeAbundances(isotope_abundance)
+    isotope_abundance = IsotopeAbundances(isotope_abundance).decay(
+        time_explosion
+    )
 
     nuclide_mass_fraction = convert_to_nuclide_mass_fraction(
         isotope_abundance, abundance
