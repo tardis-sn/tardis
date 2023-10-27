@@ -1,5 +1,5 @@
 from numba import prange, njit, objmode
-from numba.np.ufunc.parallel import get_thread_id, get_num_threads
+from numba.np.ufunc.parallel import _get_thread_id, get_num_threads
 
 import numpy as np
 
@@ -216,12 +216,12 @@ def montecarlo_main_loop(
         rpacket_trackers.append(RPacketTracker())
 
     # Get the ID of the main thread and the number of threads
-    main_thread_id = get_thread_id()
+    main_thread_id = _get_thread_id()
     n_threads = get_num_threads()
 
     estimator_list = List()
     for i in range(n_threads):  # betting get tid goes from 0 to num threads
-        # Note that get_thread_id() returns values from 0 to n_threads-1,
+        # Note that _get_thread_id() returns values from 0 to n_threads-1,
         # so we iterate from 0 to n_threads-1 to create the estimator_list
         estimator_list.append(
             Estimators(
@@ -247,7 +247,7 @@ def montecarlo_main_loop(
     virt_packet_last_line_interaction_out_id = []
     virt_packet_last_line_interaction_shell_id = []
     for i in prange(len(output_nus)):
-        tid = get_thread_id()
+        tid = _get_thread_id()
         if show_progress_bars:
             if tid == main_thread_id:
                 with objmode:
