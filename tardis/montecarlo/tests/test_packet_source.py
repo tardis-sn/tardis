@@ -71,8 +71,6 @@ class TestPacketSource:
         blackbodysimplesource,
     ):
         """
-        Test generate_plot_mpl method.
-
         Parameters
         ----------
         request : _pytest.fixtures.SubRequest
