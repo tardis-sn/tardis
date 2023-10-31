@@ -103,17 +103,17 @@ class TestPacketSource:
         Parameters
         ----------
         tardis_ref_data : pd.HDFStore
-        blackbodysimplesourcerelativistic : tardis.montecarlo.packet_source.BlackBodySimpleSourceRelativistic
+        blackbody_simplesource_relativistic : tardis.montecarlo.packet_source.BlackBodySimpleSourceRelativistic
         """
-        blackbodysimplesourcerelativistic.temperature = 10000
-        blackbodysimplesourcerelativistic.beta = 0.25
+        blackbody_simplesource_relativistic.temperature = 10000
+        blackbody_simplesource_relativistic.beta = 0.25
 
-        nus = blackbodysimplesourcerelativistic.create_packet_nus(100)
+        nus = blackbody_simplesource_relativistic.create_packet_nus(100)
         unif_energies = (
-            blackbodysimplesourcerelativistic.create_packet_energies(100)
+            blackbody_simplesource_relativistic.create_packet_energies(100)
         )
-        blackbodysimplesourcerelativistic._reseed(2508)
-        mus = blackbodysimplesourcerelativistic.create_packet_mus(10)
+        blackbody_simplesource_relativistic._reseed(2508)
+        mus = blackbody_simplesource_relativistic.create_packet_mus(10)
 
         gamma = np.sqrt(1 - 0.25**2) ** -1
         ref_df = tardis_ref_data["/packet_unittest/blackbody"]
