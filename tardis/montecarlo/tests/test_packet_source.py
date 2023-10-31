@@ -97,7 +97,7 @@ class TestPacketSource:
     def test_bb_packet_sampling_relativistic(
         self,
         tardis_ref_data,
-        blackbodysimplesourcerelativistic,
+        blackbody_simplesource_relativistic,
     ):
         """
         Parameters
