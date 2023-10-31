@@ -48,7 +48,7 @@ class TestPacketSource:
         montecarlo_configuration.LEGACY_MODE_ENABLED = False
 
     @pytest.fixture(scope="class")
-    def blackbodysimplesourcerelativistic(self, request):
+    def blackbody_simplesource_relativistic(self, request):
         """
         Create BlackBodySimpleSourceRelativistic instance.
 
