@@ -115,7 +115,7 @@ class TestPacketSource:
         blackbody_simplesource_relativistic._reseed(2508)
         mus = blackbody_simplesource_relativistic.create_packet_mus(10)
 
-        gamma = np.sqrt(1 - 0.25**2) ** -1
+        gamma = np.sqrt(1 - blackbody_simplesource_relativistic.beta**2) ** -1
         ref_df = tardis_ref_data["/packet_unittest/blackbody"]
         expected_nus = ref_df["nus"]
         expected_unif_energies = ref_df["energies"] * 1.6 / gamma
