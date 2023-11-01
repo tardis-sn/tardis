@@ -16,10 +16,10 @@ ionization equilibrium and level population calculations (see :ref:`plasma` for 
 The radiative rates describe how to calculate the :math:`J_\textrm{blue}` needed for the :ref:`nlte` calculations and
 :ref:`macroatom` calculations. There are three options for ``radiative_rates_type``: 
  
-1) ``lte``, in which
+1) ``blackbody``, in which
 :math:`J_\textrm{blue} = \textrm{Blackbody}(T_\textrm{rad})`
  
-2) ``nebular`` in which
+2) ``dilute-blackbody`` in which
 :math:`J_\textrm{blue} = W \times \textrm{Blackbody}(T_\textrm{rad})`
  
 3) ``detailed`` in which the :math:`J_\textrm{blue}`
@@ -31,6 +31,28 @@ version of ``macroatom`` in which only downward transitions are allowed (see :re
  
 Finally, ``w_epsilon`` describes the dilution factor to use to calculate :math:`J_\textrm{blue}` that are 0, which
 causes problems with the code (so :math:`J_\textrm{blue}` are set to a very small number).
+
+Continuum Interaction
+^^^^^^^^^^^^^^^^^^^^^
+
+NLTE
+^^^^
+
+.. code-block:: yaml
+
+    plasma:
+        link_t_rad_t_electron: 1.0
+        continuum_interaction:
+            species:
+                - H I
+                - H II
+                - He I
+                - He II 
+            enable_adiabatic_cooling: True
+
+This will add continuum interactions for all specified species. Setting :math:`T_\textrm{rad} = T_\textrm{electron}` through 
+``link_t_rad_t_electron: 1.0`` is recommended to enforce LTE (unless the simulation uses NLTE treatment). 
+``enable_adiabatic_cooling`` enables adiabatic cooling.
 
 NLTE
 ^^^^
