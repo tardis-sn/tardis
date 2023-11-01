@@ -48,7 +48,9 @@ def normalize_trans_probs(p):
     index = p.index.get_level_values("source_level_idx")
     p_norm = p / p_summed.loc[index].values
     p_norm = p_norm.fillna(0.0)
-    breakpoint()
+    # Convert back to original dtypes to avoid typing problems later on
+    # in the number code.
+    p_norm = p_norm.convert_dtypes()
     return p_norm
 
 
