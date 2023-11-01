@@ -49,7 +49,7 @@ def normalize_trans_probs(p):
     p_norm = p / p_summed.loc[index].values
     p_norm = p_norm.fillna(0.0)
     # Convert back to original dtypes to avoid typing problems later on
-    # in the number code.
+    # in the numba code.
     p_norm = p_norm.convert_dtypes()
     return p_norm
 
