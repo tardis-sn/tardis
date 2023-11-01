@@ -84,7 +84,9 @@ class SpMatrixSeriesConverterMixin(object):
             idx2reduced_idx.loc[q_indices[1]].values,
         )
         max_idx = idx2reduced_idx.max() + 1
-        matrix = sp.coo_matrix((series, q_indices), shape=(max_idx, max_idx))
+        matrix = sp.coo_matrix(
+            (series.astype(np.float64), q_indices), shape=(max_idx, max_idx)
+        )
         return matrix
 
     @staticmethod
