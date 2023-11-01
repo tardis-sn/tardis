@@ -217,7 +217,9 @@ def opacity_state_initialize(plasma, line_interaction_type):
         ].values
 
         phot_nus = phot_nus.values
-        ff_opacity_factor = plasma.ff_cooling_factor / np.sqrt(t_electrons)
+        ff_opacity_factor = (
+            plasma.ff_cooling_factor / np.sqrt(t_electrons)
+        ).astype(np.float64)
         emissivities = plasma.fb_emission_cdf.loc[
             plasma.level2continuum_idx.index
         ].values
