@@ -267,7 +267,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         )
 
     if (
-        config.plama.helium_treatment == "recomb-nlte"
+        config.plasma.helium_treatment == "recomb-nlte"
         or config.plasma.helium_treatment == "numerical-nlte"
     ) and (
         config.plasma.nlte_ionization_species
