@@ -39,29 +39,7 @@ this method by following the steps described below.
     $ conda create --name tardis --file conda-{platform}-64.lock
     $ conda activate tardis
 
-3. a. Non-developers can install the latest release from ``conda-forge`` with the ``--no-deps`` flag,
-
-      .. warning::
-
-        Currently the conda forge installation doesn't work. It's recommended to install from the specific releases using pip-
-        
-        `$ pip install git+https://github.com/tardis-sn/tardis.git@{tag}`
-
-        For example- 
-        
-        `pip install git+https://github.com/tardis-sn/tardis.git@release-2023.09.17`
-    
-      ::
-
-        $ conda install tardis-sn --channel conda-forge --no-deps
-
-      or trying the most recent, unreleased changes from upstream.
-
-      ::
-
-        $ pip install git+https://github.com/tardis-sn/tardis.git@master
-
-   b. Instead, developers should `fork the repository <https://github.com/tardis-sn/tardis/fork>`_, configure
+3. a. Developers should `fork the repository <https://github.com/tardis-sn/tardis/fork>`_, configure
       GitHub to `work with SSH keys <https://docs.github.com/en/authentication/connecting-to-github-with-ssh>`_,
       set up the `upstream remote <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/configuring-a-remote-for-a-fork>`_,
       and install the package in development mode.
@@ -78,7 +56,24 @@ this method by following the steps described below.
       .. note::
 
         The complete developer guidelines can be found :ref:`here <developer_guidelines>`.
+        
+    b. Non-developers can install from specific releases using pip-
 
+      ::
+
+        $ pip install git+https://github.com/tardis-sn/tardis.git@{tag}
+
+      For example- 
+
+      ::
+      
+        $ pip install git+https://github.com/tardis-sn/tardis.git@release-2023.09.17
+
+      or trying the most recent, unreleased changes from upstream.
+
+      ::
+
+        $ pip install git+https://github.com/tardis-sn/tardis.git@master
 
 4. Once finished working, you can deactivate your environment.
 
