@@ -313,7 +313,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
         self.beta = ((self.radius / self.time_explosion) / const.c).to("")
         return super().create_packets(no_of_packets)
 
-    def create_packet_nus(self, no_of_packets):
+    def create_packet_mus(self, no_of_packets):
         """
         Create zero-limb-darkening packet :math:`\mu^\prime` distributed
         according to :math:`\\mu^\\prime=2 \\frac{\\mu^\\prime + \\beta}{2 \\beta + 1}`.
@@ -327,7 +327,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
 
         Returns
         -------
-        array of frequencies
+        Directions for packets
             numpy.ndarray
         """
         z = self.rng.random(no_of_packets)
