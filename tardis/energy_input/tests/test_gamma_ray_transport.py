@@ -2,6 +2,7 @@ import os
 import pytest
 import numpy as np
 import numpy.testing as npt
+import radioactivedecay as rd
 
 import tardis
 from tardis.model import SimulationState
@@ -20,6 +21,8 @@ import astropy.constants as c
 DATA_PATH = os.path.join(
     tardis.__path__[0], "io", "configuration", "tests", "data"
 )
+NI_MASS = rd.Nuclide("Ni-56").atomic_mass * (u.u).to(u.g)
+CO_MASS = rd.Nuclide("Co-56").atomic_mass * (u.u).to(u.g)
 
 
 @pytest.fixture(scope="module")
@@ -46,8 +49,8 @@ def test_activity(simulation_setup):
     ni_mass : mass of 56Ni in grams.
     """
     model = simulation_setup
-    t_half = 6.075 * u.d.to(u.s)
-    decay_constant = 0.693 / t_half
+    t_half = NI_INV.half_lives("s")["Ni-56"]
+    decay_constant = np.log(2) / t_half
     time_delta = 80.0 * u.d.to(u.s)
     shell_masses = calculate_shell_masses(model)
     raw_isotope_abundance = model.raw_isotope_abundance
@@ -60,21 +63,21 @@ def test_activity(simulation_setup):
     total_decays = calculate_total_decays(inv_dict, time_delta)
     actual = total_decays[0][28, 56]["Ni-56"]
 
-    isotopic_mass = 55.942128 * (u.g)
+    isotopic_mass = NI_MASS._get_atomic_mass("Ni-56") * (u.g)
     number_of_moles = ni_mass * (u.g) / isotopic_mass
     number_of_atoms = number_of_moles * c.N_A
-    N = number_of_atoms.value * np.exp(-decay_constant * time_delta)
-    expected = number_of_atoms.value - N
+    N1 = number_of_atoms.value * np.exp(-decay_constant * time_delta)
+    expected = number_of_atoms.value - N1
 
-    np.isclose(actual, expected)
+    npt.assert_almost_equal(actual, expected)
 
 
 def test_activity_chain(simulation_setup):
     model = simulation_setup
-    t_half_Ni = 6.075 * u.d.to(u.s)
+    t_half_Ni = NI_INV.half_lives("s")["Ni-56"]
     t_half_Co = 77.236 * u.d.to(u.s)
-    decay_constant_Ni = 0.693 / t_half_Ni
-    decay_constant_Co = 0.693 / t_half_Co
+    decay_constant_Ni = np.log(2) / t_half_Ni
+    decay_constant_Co = np.log(2) / t_half_Co
     time_delta = 80.0 * u.d.to(u.s)
     shell_masses = calculate_shell_masses(model)
     raw_isotope_abundance = model.raw_isotope_abundance
@@ -88,8 +91,7 @@ def test_activity_chain(simulation_setup):
     actual_Ni = total_decays[0][28, 56]["Ni-56"]
     actual_Co = total_decays[0][28, 56]["Co-56"]
 
-    isotopic_mass_Ni = 55.942128 * (u.g)
-    isotopic_mass_Co = 55.939839278 * (u.g)
+    isotopic_mass_Ni = NI_INV._get_atomic_mass("Ni-56") * (u.g)
     number_of_moles = ni_mass * (u.g) / isotopic_mass_Ni
     number_of_atoms = number_of_moles * c.N_A
     N1 = number_of_atoms.value * np.exp(-decay_constant_Ni * time_delta)
@@ -107,8 +109,8 @@ def test_activity_chain(simulation_setup):
     )
     expected_Co = number_of_atoms.value - N1 - N2
 
-    np.isclose(actual_Ni, expected_Ni)
-    np.isclose(actual_Co, expected_Co)
+    npt.assert_almost_equal(actual_Ni, expected_Ni)
+    npt.assert_almost_equal(actual_Co, expected_Co)
 
 
 @pytest.mark.xfail(reason="To be implemented")
