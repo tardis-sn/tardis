@@ -104,7 +104,7 @@ class IsotopeAbundances(pd.DataFrame):
         df = IsotopeAbundances.from_inventories(decayed_inventories)
         df.sort_index(inplace=True)
         assert (
-            df.gt(0).all().all()
+            df.ge(0.0).all().all()
         ), "Negative abundances detected. Please make sure your input abundances are correct."
         return df
 
