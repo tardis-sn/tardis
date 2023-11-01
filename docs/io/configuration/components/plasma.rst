@@ -35,9 +35,6 @@ causes problems with the code (so :math:`J_\textrm{blue}` are set to a very smal
 Continuum Interaction
 ^^^^^^^^^^^^^^^^^^^^^
 
-NLTE
-^^^^
-
 .. code-block:: yaml
 
     plasma:
