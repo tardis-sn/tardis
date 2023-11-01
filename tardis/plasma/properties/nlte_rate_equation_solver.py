@@ -125,7 +125,9 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
                 ),
                 jac=True,
             )
-            assert solution.success
+            assert (
+                solution.success
+            ), "No solution for NLTE population equation found or solver takes too long to converge"
             ion_number_density_nlte[shell] = solution.x[:-1]
             electron_densities_nlte[shell] = solution.x[-1]
         # TODO: change the jacobian and rate matrix to use shell id and get coefficients from the attribute of the class.
