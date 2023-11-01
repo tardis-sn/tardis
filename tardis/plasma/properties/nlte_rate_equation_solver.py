@@ -110,6 +110,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
                 number_density[shell],
                 initial_electron_densities[shell],
             )
+            # All first guess values have to be positive
+            assert (
+                np.greater_equal(first_guess, 0.0).all()
+            ).all(), "First guess for NLTE solver has negative values, something went wrong."
             solution = root(
                 self.population_objective_function,
                 first_guess,
