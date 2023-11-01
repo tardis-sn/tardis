@@ -595,7 +595,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         """
         first_guess = pd.Series(0.0, index=rate_matrix_index)
         for atomic_number in atomic_numbers:
-            first_guess.loc[(atomic_number, 1)][0] = number_density.loc[
+            first_guess.loc[(atomic_number, 1)].iloc[0] = number_density.loc[
                 atomic_number
             ]
         # TODO: After the first iteration, the new guess can be the old solution.
