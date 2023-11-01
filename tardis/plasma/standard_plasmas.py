@@ -6,6 +6,10 @@ import numpy as np
 import pandas as pd
 
 from tardis.io.atom_data import AtomData
+from tardis.plasma.properties.level_population import LevelNumberDensity
+from tardis.plasma.properties.nlte_rate_equation_solver import (
+    NLTERateEquationSolver,
+)
 from tardis.plasma.properties.rate_matrix_index import NLTEIndexHelper
 from tardis.util.base import species_string_to_tuple
 from tardis.plasma import BasePlasma
@@ -265,6 +269,26 @@ def assemble_plasma(config, simulation_state, atom_data=None):
             delta_treatment=config.plasma.delta_treatment
         )
 
+    if (
+        config.plasma.helium_treatment == "recomb-nlte"
+        or config.plasma.helium_treatment == "numerical-nlte"
+    ) and (
+        config.plasma.nlte_ionization_species
+        or config.plasma.nlte_excitation_species
+    ):
+        # Prevent the user from using helium NLTE treatment with
+        # NLTE ionization and excitation treatment. This is because
+        # the helium_nlte_properties could overwrite the NLTE ionization
+        # and excitation ion number and electron densities.
+        # helium_numerical_nlte_properties is also included here because
+        # it is currently in the same if else block, and thus may block
+        # the addition of the components from the else block.
+        raise PlasmaConfigError(
+            "Helium NLTE treatment is incompatible with the NLTE eonization and excitation treatment."
+        )
+
+    # TODO: Disentangle these if else block such that compatible components
+    # can be added independently.
     if config.plasma.helium_treatment == "recomb-nlte":
         plasma_modules += helium_nlte_properties
     elif config.plasma.helium_treatment == "numerical-nlte":
@@ -277,7 +301,16 @@ def assemble_plasma(config, simulation_state, atom_data=None):
                 heating_rate_data_file=config.plasma.heating_rate_data_file
             )
     else:
-        plasma_modules += helium_lte_properties
+        # If nlte ionization species are present, we don't want to add the
+        # IonNumberDensity from helium_lte_properties, since we want
+        # to use the IonNumberDensity provided by the NLTE solver.
+        if (
+            config.plasma.nlte_ionization_species
+            or config.plasma.nlte_excitation_species
+        ):
+            plasma_modules += [LevelNumberDensity]
+        else:
+            plasma_modules += helium_lte_properties
 
     if simulation_state._electron_densities is not None:
         electron_densities = pd.Series(
@@ -285,6 +318,13 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         )
         if config.plasma.helium_treatment == "numerical-nlte":
             property_kwargs[IonNumberDensityHeNLTE] = dict(
+                electron_densities=electron_densities
+            )
+        elif (
+            config.plasma.nlte_ionization_species
+            or config.plasma.nlte_excitation_species
+        ):
+            property_kwargs[NLTERateEquationSolver] = dict(
                 electron_densities=electron_densities
             )
         else:

@@ -11,7 +11,7 @@ __all__ = [
 
 
 class NLTERateEquationSolver(ProcessingPlasmaProperty):
-    outputs = ("ion_number_density_nlte", "electron_densities_nlte")
+    outputs = ("ion_number_density", "electron_densities")
 
     def calculate(
         self,
