@@ -110,6 +110,10 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
                 number_density[shell],
                 initial_electron_densities[shell],
             )
+            # All first guess values have to be positive
+            assert (
+                np.greater_equal(first_guess, 0.0).all()
+            ).all(), "First guess for NLTE solver has negative values, something went wrong."
             solution = root(
                 self.population_objective_function,
                 first_guess,
@@ -591,7 +595,7 @@ class NLTERateEquationSolver(ProcessingPlasmaProperty):
         """
         first_guess = pd.Series(0.0, index=rate_matrix_index)
         for atomic_number in atomic_numbers:
-            first_guess.loc[(atomic_number, 1)][0] = number_density.loc[
+            first_guess.loc[(atomic_number, 1)].iloc[0] = number_density.loc[
                 atomic_number
             ]
         # TODO: After the first iteration, the new guess can be the old solution.
