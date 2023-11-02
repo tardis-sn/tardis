@@ -31,12 +31,12 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.x
 
       - name: Install interrogate
-        run: pip install interrogate==1.5.0 parse==1.19.0
+        run: pip install interrogate==1.5.0 parse==1.19.0 setuptools
 
       - name: Get SHAs
         run: |
