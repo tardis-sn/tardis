@@ -22,7 +22,7 @@ import astropy.constants as c
 # DATA_PATH = os.path.join(
 #    tardis.__path__[0], "io", "configuration", "tests", "data"
 # )
-nuclide = rd.Nuclide("Ni56")
+NI56_NUCLIDE = rd.Nuclide("Ni56")
 
 
 @pytest.fixture(scope="module")
@@ -45,8 +45,25 @@ def simulation_setup(gamma_ray_config):
     return model
 
 
-@pytest.mark.parametrize("nuclide", [nuclide])
-def test_activity(simulation_setup, nuclide):
+def test_calculate_shell_masses(simulation_setup):
+    """
+    Parameters
+    ----------
+    simulation_setup: A simulation setup which returns a model.
+    """
+    model = simulation_setup
+    volume = model.volume.to("cm^3")
+    density = model.density.to("g/cm^3")
+    desired = (volume * density).to(u.g).value
+
+    shell_masses = calculate_shell_masses(model).value
+    npt.assert_almost_equal(shell_masses, desired)
+
+
+@pytest.mark.xfail(reason="To be implemented")
+@pytest.mark.parametrize("nuclide_name", ["Ni-56", "Co-56"])
+def test_activity(simulation_setup, nuclide_name):
+    nuclide = rd.Nuclide(nuclide_name)
     model = simulation_setup
     t_half = nuclide.half_life()
     decay_constant = np.log(2) / t_half
@@ -110,15 +127,3 @@ def test_activity_chain(simulation_setup):
 
     npt.assert_almost_equal(actual_Ni, expected_Ni)
     npt.assert_almost_equal(actual_Co, expected_Co)
-
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_calculate_shell_masses(simulation_setup):
-    model = simulation_setup
-    volume = 4.2006589e21 * (u.cm**3)
-    density = 3.3848916e9 * u.g / (u.cm**3)
-
-    shell_masses = calculate_shell_masses()
-    actual = shell_masses[0].value
-    desired = (volume * density).value
-    npt.assert_almost_equal(actual, desired)
