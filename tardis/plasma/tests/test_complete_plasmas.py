@@ -72,7 +72,6 @@ def idfn(fixture_value):
 
 
 class TestPlasma(object):
-
     general_properties = [
         "beta_rad",
         "g_electron",

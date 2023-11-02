@@ -8,7 +8,7 @@ import h5py
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.model.model_reader import (
-    model_to_dict,
+    simulation_state_to_dict,
     transport_to_dict,
     store_transport_to_hdf,
 )
@@ -135,7 +135,7 @@ def test_simple_read_cmfgen_density(cmfgen_fname):
 def test_model_to_dict(simulation_verysimple):
     model = simulation_verysimple.simulation_state
 
-    model_dict, isotope_abundance = model_to_dict(model)
+    model_dict = simulation_state_to_dict(model)
 
     # Check model dictionary
     assert np.array_equal(

@@ -1,4 +1,5 @@
 import time
+import os
 import logging
 import numpy as np
 import pandas as pd
@@ -13,6 +14,7 @@ from tardis.model import SimulationState
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
 from tardis.io.configuration.config_reader import ConfigurationError
+from tardis.io.atom_data.base import AtomData
 from tardis.util.base import is_notebook
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
 from tardis.visualization import ConvergencePlots
@@ -639,16 +641,43 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         # Allow overriding some config structures. This is useful in some
         # unit tests, and could be extended in all the from_config classmethods.
+
+        atom_data = kwargs.get("atom_data", None)
+        if atom_data is None:
+            if "atom_data" in config:
+                if os.path.isabs(config.atom_data):
+                    atom_data_fname = config.atom_data
+                else:
+                    atom_data_fname = os.path.join(
+                        config.config_dirname, config.atom_data
+                    )
+            else:
+                raise ValueError(
+                    "No atom_data option found in the configuration."
+                )
+
+            logger.info(f"\n\tReading Atomic Data from {atom_data_fname}")
+
+            try:
+                atom_data = AtomData.from_hdf(atom_data_fname)
+            except TypeError as e:
+                print(
+                    e,
+                    "Error might be from the use of an old-format of the atomic database, \n"
+                    "please see https://github.com/tardis-sn/tardis-refdata/tree/master/atom_data"
+                    " for the most recent version.",
+                )
+                raise
         if "model" in kwargs:
             simulation_state = kwargs["model"]
         else:
             if hasattr(config, "csvy_model"):
                 simulation_state = SimulationState.from_csvy(
-                    config, atom_data=kwargs.get("atom_data", None)
+                    config, atom_data=atom_data
                 )
             else:
                 simulation_state = SimulationState.from_config(
-                    config, atom_data=kwargs.get("atom_data", None)
+                    config, atom_data=atom_data
                 )
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]
@@ -656,7 +685,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             plasma = assemble_plasma(
                 config,
                 simulation_state,
-                atom_data=kwargs.get("atom_data", None),
+                atom_data=atom_data,
             )
         if "transport" in kwargs:
             if packet_source is not None:

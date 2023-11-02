@@ -9,10 +9,12 @@ from tardis import constants
 import radioactivedecay as rd
 from radioactivedecay.utils import Z_DICT
 from tardis.model.parse_input import (
-    parse_abundance_section,
+    parse_abundance_config,
+    parse_composition_csvy,
     parse_csvy_geometry,
     parse_structure_config,
 )
+from tardis.model.matter.composition import Composition
 from tardis.util.base import is_valid_nuclide_or_elem
 
 
@@ -20,12 +22,8 @@ from tardis.montecarlo.packet_source import BlackBodySimpleSource
 
 from tardis.radiation_field.base import MonteCarloRadiationFieldState
 
-from tardis.io.model.readers.generic_readers import (
-    read_uniform_abundances,
-)
 
 from tardis.io.model.readers.csvy import (
-    parse_csv_abundances,
     load_csvy,
 )
 
@@ -33,12 +31,7 @@ from tardis.io.model.readers.csvy import (
 from tardis.io.configuration.config_validator import validate_dict
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import HDFWriterMixin
-from tardis.model.matter.decay import IsotopeAbundances
 
-from tardis.io.model.parse_density_configuration import (
-    parse_csvy_density,
-    calculate_density_after_time,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -290,23 +283,23 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def density(self):
-        return self.composition.density
+        return self.composition.density[
+            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+        ]
 
     @property
     def abundance(self):
-        element_mass_fraction = (
-            self.composition.calculate_mass_fraction_at_time(
-                self.time_explosion
-            )
+        elemental_mass_fraction = (
+            self.composition.elemental_mass_fraction.copy()
         )
-        element_mass_fraction.iloc[
+        elemental_mass_fraction = elemental_mass_fraction.iloc[
             :,
             self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
         ]
-        element_mass_fraction.columns = range(
-            len(element_mass_fraction.columns)
+        elemental_mass_fraction.columns = range(
+            len(elemental_mass_fraction.columns)
         )
-        return element_mass_fraction
+        return elemental_mass_fraction
 
     @property
     def volume(self):
@@ -454,22 +447,18 @@ class SimulationState(HDFWriterMixin):
             config, csvy_model_config, csvy_model_data, time_explosion
         )
 
-        if hasattr(csvy_model_config, "density"):
-            density = parse_csvy_density(csvy_model_config, time_explosion)
-        else:
-            time_0 = csvy_model_config.model_density_time_0
-            density_field_index = [
-                field["name"] for field in csvy_model_config.datatype.fields
-            ].index("density")
-            density_unit = u.Unit(
-                csvy_model_config.datatype.fields[density_field_index]["unit"]
-            )
-            density_0 = csvy_model_data["density"].values * density_unit
-            density_0 = density_0.to("g/cm^3")[1:]
-            density_0 = density_0.insert(0, 0)
-            density = calculate_density_after_time(
-                density_0, time_0, time_explosion
-            )
+        (
+            density,
+            abundance,
+            isotope_abundance,
+            elemental_mass,
+        ) = parse_composition_csvy(
+            atom_data,
+            csvy_model_config,
+            csvy_model_data,
+            time_explosion,
+            geometry,
+        )
 
         # TODO -- implement t_radiative
         # t_radiative = None
@@ -512,43 +501,6 @@ class SimulationState(HDFWriterMixin):
         else:
             luminosity_requested = None
             t_inner = config.plasma.initial_t_inner
-
-        if hasattr(csvy_model_config, "abundance"):
-            abundances_section = csvy_model_config.abundance
-            abundance, isotope_abundance = read_uniform_abundances(
-                abundances_section, geometry.no_of_shells
-            )
-        else:
-            index, abundance, isotope_abundance = parse_csv_abundances(
-                csvy_model_data
-            )
-            abundance = abundance.loc[:, 1:]
-            abundance.columns = np.arange(abundance.shape[1])
-            isotope_abundance = isotope_abundance.loc[:, 1:]
-            isotope_abundance.columns = np.arange(isotope_abundance.shape[1])
-
-        abundance = abundance.replace(np.nan, 0.0)
-        abundance = abundance[abundance.sum(axis=1) > 0]
-        isotope_abundance = isotope_abundance.replace(np.nan, 0.0)
-        isotope_abundance = isotope_abundance[isotope_abundance.sum(axis=1) > 0]
-        norm_factor = abundance.sum(axis=0) + isotope_abundance.sum(axis=0)
-
-        if np.any(np.abs(norm_factor - 1) > 1e-12):
-            logger.warning(
-                "Abundances have not been normalized to 1." " - normalizing"
-            )
-            abundance /= norm_factor
-            isotope_abundance /= norm_factor
-
-        # isotope_abundance = IsotopeAbundances(isotope_abundance)
-        isotope_abundance = IsotopeAbundances(
-            isotope_abundance, time_0=csvy_model_config.model_isotope_time_0
-        )
-        # isotope_abundance.time_0 = csvy_model_config.model_isotope_time_0
-
-        elemental_mass = None
-        if atom_data is not None:
-            elemental_mass = atom_data.atom_data.mass
 
         return cls(
             geometry=geometry,

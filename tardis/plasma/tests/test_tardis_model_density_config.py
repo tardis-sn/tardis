@@ -14,8 +14,10 @@ def tardis_model_density_config(example_model_file_dir):
 
 
 @pytest.fixture()
-def raw_model(tardis_model_density_config):
-    return SimulationState.from_config(tardis_model_density_config)
+def raw_model(tardis_model_density_config, kurucz_atomic_data):
+    return SimulationState.from_config(
+        tardis_model_density_config, atom_data=kurucz_atomic_data
+    )
 
 
 @pytest.fixture()
@@ -30,12 +32,14 @@ def test_electron_densities(raw_plasma):
     assert_almost_equal(raw_plasma.electron_densities[3], 2.6e14)
 
 
-def test_isotope_number_densities(raw_plasma):
+def test_isotope_number_densities(raw_model):
     assert_almost_equal(
-        raw_plasma.isotope_number_density.loc[(28, 56), 0], 9688803936.317898
+        raw_model.composition.isotopic_number_density.loc[(28, 56), 0],
+        9688803936.317898,
     )
     assert_almost_equal(
-        raw_plasma.isotope_number_density.loc[(28, 58), 1], 13097656958.746628
+        raw_model.composition.isotopic_number_density.loc[(28, 58), 1],
+        13097656958.746628,
     )
 
 

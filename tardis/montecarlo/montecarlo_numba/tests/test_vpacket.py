@@ -2,12 +2,8 @@ import os
 import pytest
 import numpy as np
 import pandas as pd
-import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
 import tardis.montecarlo.montecarlo_numba.vpacket as vpacket
-import tardis.montecarlo.montecarlo_configuration as mc
-import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
 from tardis import constants as const
-from tardis.montecarlo.montecarlo_numba import macro_atom
 
 from tardis.transport.frame_transformations import (
     get_doppler_factor,

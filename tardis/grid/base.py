@@ -4,6 +4,7 @@ import copy
 import tardis
 
 from tardis.io.configuration.config_reader import Configuration
+from tardis.io.atom_data import AtomData
 from tardis.model import SimulationState
 
 
@@ -108,7 +109,8 @@ class tardisGrid:
         model : tardis.model.base.SimulationState
         """
         rowconfig = self.grid_row_to_config(row_index)
-        model = SimulationState.from_config(rowconfig)
+        atom_data = AtomData.from_hdf(rowconfig.atom_data)
+        model = SimulationState.from_config(rowconfig, atom_data=atom_data)
         return model
 
     def run_sim_from_grid(self, row_index, **tardiskwargs):
