@@ -35,6 +35,7 @@ from tardis.plasma.properties.property_collections import (
     two_photon_properties,
     isotope_properties,
     nlte_solver_properties,
+    nlte_lu_solver_properties,
 )
 from tardis.plasma.exceptions import PlasmaConfigError
 
@@ -211,7 +212,16 @@ def assemble_plasma(config, simulation_state, atom_data=None):
                 "nlte_ionization_species": config.plasma.nlte_ionization_species,
                 "nlte_excitation_species": config.plasma.nlte_excitation_species,
             }
-            plasma_modules += nlte_solver_properties
+            if config.plasma.nlte_solver == "lu":
+                plasma_modules += nlte_lu_solver_properties
+            elif config.plasma.nlte_solver == "root":
+                plasma_modules += nlte_solver_properties
+            else:
+                raise PlasmaConfigError(
+                    "NLTE solver type unknown - {}".format(
+                        config.plasma.nlte_solver
+                    )
+                )
 
         kwargs.update(
             gamma_estimator=None,
