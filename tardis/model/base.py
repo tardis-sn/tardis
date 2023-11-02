@@ -336,6 +336,16 @@ class SimulationState(HDFWriterMixin):
             density,
         ) = parse_structure_config(config, time_explosion)
 
+        nuclide_mass_fraction = parse_abundance_config(
+            config, geometry, time_explosion
+        )
+
+        # using atom_data.mass.copy() to ensure that the original atom_data is not modified
+        # sep
+        composition = Composition(
+            density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
+        )
+
         if temperature is not None:
             t_radiative = temperature
         elif config.plasma.initial_t_rad > 0 * u.K:
@@ -353,16 +363,6 @@ class SimulationState(HDFWriterMixin):
         else:
             luminosity_requested = None
             t_inner = config.plasma.initial_t_inner
-
-        nuclide_mass_fraction = parse_abundance_config(
-            config, geometry, time_explosion
-        )
-
-        # using atom_data.mass.copy() to ensure that the original atom_data is not modified
-        # sep
-        composition = Composition(
-            density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
-        )
 
         return cls(
             geometry=geometry,
@@ -447,12 +447,7 @@ class SimulationState(HDFWriterMixin):
             config, csvy_model_config, csvy_model_data, time_explosion
         )
 
-        (
-            density,
-            abundance,
-            isotope_abundance,
-            elemental_mass,
-        ) = parse_composition_csvy(
+        composition = parse_composition_csvy(
             atom_data,
             csvy_model_config,
             csvy_model_data,
@@ -504,13 +499,10 @@ class SimulationState(HDFWriterMixin):
 
         return cls(
             geometry=geometry,
-            density=density,
-            abundance=abundance,
-            isotope_abundance=isotope_abundance,
+            composition=composition,
             time_explosion=time_explosion,
             t_radiative=t_radiative,
             t_inner=t_inner,
-            elemental_mass=elemental_mass,
             luminosity_requested=luminosity_requested,
             dilution_factor=dilution_factor,
             electron_densities=electron_densities,

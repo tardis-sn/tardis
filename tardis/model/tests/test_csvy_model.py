@@ -2,10 +2,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import numpy.testing as npt
-import tardis
-import os
+
 from astropy import units as u
 from tardis.io.configuration.config_reader import Configuration
+from tardis.io.atom_data.base import AtomData
 from tardis.model import SimulationState
 import pytest
 
@@ -34,15 +34,20 @@ def test_compare_models(model_config_fnames):
     (pre and post decay) are the same"""
     csvy_config_file, old_config_file = model_config_fnames
     tardis_config = Configuration.from_yaml(csvy_config_file)
+    atom_data = AtomData.from_hdf(tardis_config.atom_data)
     tardis_config_old = Configuration.from_yaml(old_config_file)
-    csvy_model = SimulationState.from_csvy(tardis_config)
-    config_model = SimulationState.from_config(tardis_config_old)
-    csvy_model_props = csvy_model.get_properties().keys()
-    config_model_props = config_model.get_properties().keys()
+    csvy_simulation_state = SimulationState.from_csvy(
+        tardis_config, atom_data=atom_data
+    )
+    config_simulation_state = SimulationState.from_config(
+        tardis_config_old, atom_data=atom_data
+    )
+    csvy_model_props = csvy_simulation_state.get_properties().keys()
+    config_model_props = config_simulation_state.get_properties().keys()
     npt.assert_array_equal(csvy_model_props, config_model_props)
     for prop in config_model_props:
-        csvy_model_val = csvy_model.get_properties()[prop]
-        config_model_val = config_model.get_properties()[prop]
+        csvy_model_val = csvy_simulation_state.get_properties()[prop]
+        config_model_val = config_simulation_state.get_properties()[prop]
         if prop == "homologous_density":
             npt.assert_array_almost_equal(
                 csvy_model_val.density_0.value, config_model_val.density_0.value
@@ -56,22 +61,29 @@ def test_compare_models(model_config_fnames):
                 csvy_model_val = csvy_model_val.value
             npt.assert_array_almost_equal(csvy_model_val, config_model_val)
 
-    assert csvy_model.raw_abundance.shape == config_model.raw_abundance.shape
     assert (
-        csvy_model.raw_isotope_abundance.shape
-        == config_model.raw_isotope_abundance.shape
+        csvy_simulation_state.abundance.shape
+        == config_simulation_state.abundance.shape
     )
-    assert csvy_model.abundance.shape == config_model.abundance.shape
-    npt.assert_array_almost_equal(
-        csvy_model.raw_abundance.to_numpy(),
-        config_model.raw_abundance.to_numpy(),
+    assert (
+        csvy_simulation_state.composition.nuclide_mass_fraction.shape
+        == config_simulation_state.composition.nuclide_mass_fraction.shape
+    )
+    assert (
+        csvy_simulation_state.abundance.shape
+        == config_simulation_state.abundance.shape
     )
     npt.assert_array_almost_equal(
-        csvy_model.raw_isotope_abundance.to_numpy(),
-        config_model.raw_isotope_abundance.to_numpy(),
+        csvy_simulation_state.abundance.to_numpy(),
+        config_simulation_state.abundance.to_numpy(),
     )
     npt.assert_array_almost_equal(
-        csvy_model.abundance.to_numpy(), config_model.abundance.to_numpy()
+        csvy_simulation_state.composition.nuclide_mass_fraction.to_numpy(),
+        config_simulation_state.composition.nuclide_mass_fraction.to_numpy(),
+    )
+    npt.assert_array_almost_equal(
+        csvy_simulation_state.abundance.to_numpy(),
+        config_simulation_state.abundance.to_numpy(),
     )
 
 
@@ -80,7 +92,10 @@ def csvy_model_test_abundances(example_csvy_file_dir):
     """Returns SimulationState to use to test abundances dataframes"""
     csvypath = example_csvy_file_dir / "csvy_model_to_test_abundances.yml"
     config = Configuration.from_yaml(csvypath)
-    csvy_model_test_abundances = SimulationState.from_csvy(config)
+    atom_data = AtomData.from_hdf(config.atom_data)
+    csvy_model_test_abundances = SimulationState.from_csvy(
+        config, atom_data=atom_data
+    )
     return csvy_model_test_abundances
 
 

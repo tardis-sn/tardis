@@ -3,8 +3,7 @@ import os
 
 from astropy import units as u
 from tardis.io.model.readers.csvy import parse_csv_abundances
-from tardis.model.base import logger
-from tardis.model.matter.decay import IsotopeAbundances, NuclideMassFraction
+from tardis.model.matter.decay import IsotopeAbundances
 from tardis.model.matter.composition import Composition
 import numpy as np
 import pandas as pd
@@ -259,7 +258,7 @@ def parse_abundance_config(config, geometry, time_explosion):
     return nuclide_mass_fraction
 
 
-def convert_to_nuclide_mass_fraction(isotope_abundance, abundance):
+def convert_to_nuclide_mass_fraction(isotope_mass_fraction, mass_fraction):
     """
     Convert the abundance and isotope abundance data to nuclide mass fraction.
 
@@ -289,17 +288,17 @@ def convert_to_nuclide_mass_fraction(isotope_abundance, abundance):
     """
 
     nuclide_mass_fraction = pd.DataFrame()
-    if abundance is not None:
-        abundance.index = Composition.convert_element2nuclide_index(
-            abundance.index
+    if mass_fraction is not None:
+        mass_fraction.index = Composition.convert_element2nuclide_index(
+            mass_fraction.index
         )
-        nuclide_mass_fraction = abundance
+        nuclide_mass_fraction = mass_fraction
     else:
         nuclide_mass_fraction = pd.DataFrame()
 
-    if isotope_abundance is not None:
+    if isotope_mass_fraction is not None:
         nuclide_mass_fraction = pd.concat(
-            [nuclide_mass_fraction, isotope_abundance]
+            [nuclide_mass_fraction, isotope_mass_fraction]
         )
     return nuclide_mass_fraction
 
@@ -350,17 +349,17 @@ def parse_composition_csvy(
         csvy_model_config, csvy_model_data, time_explosion
     )
 
-    abundance, isotope_abundance = parse_abundance_csvy(
-        csvy_model_config, csvy_model_data, geometry
+    nuclide_mass_fraction = parse_abundance_csvy(
+        csvy_model_config, csvy_model_data, geometry, time_explosion
+    )
+    return Composition(
+        density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
     )
 
-    elemental_mass = None
-    if atom_data is not None:
-        elemental_mass = atom_data.atom_data.mass
-    return density, abundance, isotope_abundance, elemental_mass
 
-
-def parse_abundance_csvy(csvy_model_config, csvy_model_data, geometry):
+def parse_abundance_csvy(
+    csvy_model_config, csvy_model_data, geometry, time_explosion
+):
     """
     Parse the abundance data from a CSVY model.
 
@@ -396,36 +395,41 @@ def parse_abundance_csvy(csvy_model_config, csvy_model_data, geometry):
 
     if hasattr(csvy_model_config, "abundance"):
         abundances_section = csvy_model_config.abundance
-        abundance, isotope_abundance = read_uniform_abundances(
+        mass_fraction, isotope_mass_fraction = read_uniform_abundances(
             abundances_section, geometry.no_of_shells
         )
     else:
-        index, abundance, isotope_abundance = parse_csv_abundances(
+        index, mass_fraction, isotope_mass_fraction = parse_csv_abundances(
             csvy_model_data
         )
-        abundance = abundance.loc[:, 1:]
-        abundance.columns = np.arange(abundance.shape[1])
-        isotope_abundance = isotope_abundance.loc[:, 1:]
-        isotope_abundance.columns = np.arange(isotope_abundance.shape[1])
+        mass_fraction = mass_fraction.loc[:, 1:]
+        mass_fraction.columns = np.arange(mass_fraction.shape[1])
+        isotope_mass_fraction = isotope_mass_fraction.loc[:, 1:]
+        isotope_mass_fraction.columns = np.arange(
+            isotope_mass_fraction.shape[1]
+        )
 
-    abundance = abundance.replace(np.nan, 0.0)
-    abundance = abundance[abundance.sum(axis=1) > 0]
-    isotope_abundance = isotope_abundance.replace(np.nan, 0.0)
-    isotope_abundance = isotope_abundance[isotope_abundance.sum(axis=1) > 0]
-    norm_factor = abundance.sum(axis=0) + isotope_abundance.sum(axis=0)
+    mass_fraction = mass_fraction.replace(np.nan, 0.0)
+    mass_fraction = mass_fraction[mass_fraction.sum(axis=1) > 0]
+    isotope_mass_fraction = isotope_mass_fraction.replace(np.nan, 0.0)
+    isotope_mass_fraction = isotope_mass_fraction[
+        isotope_mass_fraction.sum(axis=1) > 0
+    ]
+    norm_factor = mass_fraction.sum(axis=0) + isotope_mass_fraction.sum(axis=0)
 
     if np.any(np.abs(norm_factor - 1) > 1e-12):
         logger.warning(
             "Abundances have not been normalized to 1." " - normalizing"
         )
-        abundance /= norm_factor
-        isotope_abundance /= norm_factor
+        mass_fraction /= norm_factor
+        isotope_mass_fraction /= norm_factor
 
-    isotope_abundance = IsotopeAbundances(
-        isotope_abundance, time_0=csvy_model_config.model_isotope_time_0
+    isotope_mass_fraction = IsotopeAbundances(
+        isotope_mass_fraction, time_0=csvy_model_config.model_isotope_time_0
+    ).decay(time_explosion)
+    return convert_to_nuclide_mass_fraction(
+        isotope_mass_fraction, mass_fraction
     )
-
-    return abundance, isotope_abundance
 
 
 def parse_density_csvy(csvy_model_config, csvy_model_data, time_explosion):
