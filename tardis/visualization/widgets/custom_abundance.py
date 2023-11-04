@@ -19,6 +19,7 @@ from tardis.io.model.parse_density_configuration import (
     calculate_power_law_density,
     calculate_exponential_density,
 )
+from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_validator import validate_dict
 from tardis.io.model.readers.csvy import load_csvy
 from tardis.io.model.readers.csvy import (
@@ -196,22 +197,28 @@ class CustomAbundanceWidgetData:
         CustomAbundanceWidgetData
         """
         config = Configuration.from_yaml(fpath)
-
+        atom_data = AtomData.from_hdf(config.atom_data)
         if hasattr(config, "csvy_model"):
-            model = SimulationState.from_csvy(config)
+            simulation_state = SimulationState.from_csvy(
+                config, atom_data=atom_data
+            )
         else:
-            model = SimulationState.from_config(config)
+            simulation_state = SimulationState.from_config(
+                config, atom_data=atom_data
+            )
 
-        velocity = model.velocity
-        density_t_0 = model.time_explosion
-        density = model.density
-        abundance = model.raw_abundance
-        isotope_abundance = model.raw_isotope_abundance
+        velocity = simulation_state.velocity
+        density_t_0 = simulation_state.time_explosion
+        density = simulation_state.density
+        abundance = simulation_state.abundance
+        isotopic_mass_fraction = (
+            simulation_state.composition.isotope_mass_fraction
+        )
 
         # Combine elements and isotopes to one DataFrame
         abundance["mass_number"] = ""
         abundance.set_index("mass_number", append=True, inplace=True)
-        abundance = pd.concat([abundance, isotope_abundance])
+        abundance = pd.concat([abundance, isotopic_mass_fraction])
         abundance.sort_index(inplace=True)
 
         return cls(

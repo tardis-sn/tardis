@@ -23,6 +23,7 @@ def yml_data(example_configuration_dir: Path):
         CustomAbundanceWidgetData generated from a YAML
     """
     yml_path = example_configuration_dir / "tardis_configv1_verysimple.yml"
+
     return CustomAbundanceWidgetData.from_yml(yml_path)
 
 

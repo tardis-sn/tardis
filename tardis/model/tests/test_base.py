@@ -444,10 +444,12 @@ def test_model_state_mass(simulation_verysimple, index, expected):
         ((20, 19), 2.0231745e51),
     ],
 )
-def test_model_state_number(simulation_verysimple, index, expected):
+def test_simulation_state_number(simulation_verysimple, index, expected):
     simulation_state = simulation_verysimple.simulation_state
 
-    assert_almost_equal((model_state.number).loc[index], expected, decimal=-47)
+    assert_almost_equal(
+        (simulation_state.number).loc[index], expected, decimal=-47
+    )
 
 
 @pytest.fixture
