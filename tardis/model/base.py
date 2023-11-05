@@ -108,16 +108,15 @@ class SimulationState(HDFWriterMixin):
         self,
         geometry,
         composition,
+        radiation_field_state,
         time_explosion,
         t_inner,
         luminosity_requested=None,
-        t_radiative=None,
-        dilution_factor=None,
         electron_densities=None,
     ):
         self.geometry = geometry
         self.composition = composition
-
+        self.radiation_field_state = radiation_field_state
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
 
@@ -176,7 +175,9 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def t_radiative(self):
-        return self.radiation_field.t_radiative
+        return self.radiation_field.t_radiative[
+            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+        ]
 
     @t_radiative.setter
     def t_radiative(self, value):
@@ -213,8 +214,6 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def velocity(self):
-        velocity = self.geometry.v_outer_active.copy()
-        return velocity.insert(0, self.geometry.v_inner_active[0])
         velocity = self.geometry.v_outer_active.copy()
         return velocity.insert(0, self.geometry.v_inner_active[0])
 
