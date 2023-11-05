@@ -120,11 +120,6 @@ class SimulationState(HDFWriterMixin):
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
 
-        if len(composition.density) != len(self.geometry.v_inner_active):
-            density = composition.density[
-                self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
-            ]
-
         self.blackbody_packet_source = BlackBodySimpleSource(
             self.r_inner[0], t_inner
         )
@@ -233,14 +228,6 @@ class SimulationState(HDFWriterMixin):
     @property
     def radius(self):
         return self.time_explosion * self.velocity
-
-    @property
-    def v_boundary_inner(self):
-        return self.geometry.v_inner_boundary
-
-    @property
-    def v_boundary_outer(self):
-        return self.geometry.v_outer_boundary
 
     @property
     def v_boundary_inner(self):
