@@ -2,9 +2,11 @@ import logging
 import os
 
 from astropy import units as u
+from tardis import constants as const
 from tardis.io.model.readers.csvy import parse_csv_abundances
 from tardis.model.matter.decay import IsotopeAbundances
 from tardis.model.matter.composition import Composition
+from tardis.model.radiation_field_state import RadiationFieldState
 import numpy as np
 import pandas as pd
 from tardis.io.model.parse_density_configuration import (
@@ -480,3 +482,52 @@ def parse_density_csvy(csvy_model_config, csvy_model_data, time_explosion):
         )
 
     return density
+
+
+def parse_radiation_field_state(
+    config, temperature, geometry, t_inner_boundary=None, dilution_factor=None
+):
+    if temperature is not None:
+        t_radiative = temperature
+    elif config.plasma.initial_t_rad > 0 * u.K:
+        t_radiative = (
+            np.ones(geometry.no_of_shells + 1) * config.plasma.initial_t_rad
+        )
+    else:
+        t_radiative = None
+
+    if t_radiative is None:
+        lambda_wien_inner = (
+            const.b_wien / self.blackbody_packet_source.temperature
+        )
+        t_radiative = const.b_wien / (
+            lambda_wien_inner
+            * (1 + (geometry.v_middle - geometry.v_inner_boundary) / const.c)
+        )
+
+    elif len(t_radiative) == geometry.no_of_shells + 1:
+        t_radiative = t_radiative[
+            geometry.v_inner_boundary_index
+            + 1 : geometry.v_outer_boundary_index
+            + 1
+        ]
+    else:
+        assert len(t_radiative) == geometry.no_of_shells
+
+    if dilution_factor is None:
+        dilution_factor = 0.5 * (
+            1
+            - np.sqrt(
+                1
+                - (geometry.r_inner[0] ** 2 / geometry.r_middle**2)
+                .to(1)
+                .value
+            )
+        )
+    elif len(dilution_factor) != geometry.no_of_shells:
+        dilution_factor = dilution_factor[
+            geometry.v_inner_boundary_index : geometry.v_outer_boundary_index
+        ]
+        assert len(dilution_factor) == geometry.no_of_shells
+
+    return RadiationFieldState(t_radiative, dilution_factor)

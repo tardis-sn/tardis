@@ -12,6 +12,7 @@ from tardis.model.parse_input import (
     parse_abundance_config,
     parse_composition_csvy,
     parse_csvy_geometry,
+    parse_radiation_field_state,
     parse_structure_config,
 )
 from tardis.model.matter.composition import Composition
@@ -20,7 +21,7 @@ from tardis.util.base import is_valid_nuclide_or_elem
 
 from tardis.montecarlo.packet_source import BlackBodySimpleSource
 
-from tardis.radiation_field.base import MonteCarloRadiationFieldState
+from tardis.model.radiation_field_state import RadiationFieldState
 
 
 from tardis.io.model.readers.csvy import (
@@ -139,45 +140,6 @@ class SimulationState(HDFWriterMixin):
                 )
         else:
             self.blackbody_packet_source.temperature = t_inner
-
-        if t_radiative is None:
-            lambda_wien_inner = (
-                constants.b_wien / self.blackbody_packet_source.temperature
-            )
-            t_radiative = constants.b_wien / (
-                lambda_wien_inner
-                * (
-                    1
-                    + (self.v_middle - self.geometry.v_inner_boundary)
-                    / constants.c
-                )
-            )
-
-        elif len(t_radiative) == self.no_of_shells + 1:
-            t_radiative = t_radiative[
-                self.geometry.v_inner_boundary_index
-                + 1 : self.geometry.v_outer_boundary_index
-                + 1
-            ]
-        else:
-            assert len(t_radiative) == self.no_of_shells
-
-        if dilution_factor is None:
-            dilution_factor = 0.5 * (
-                1
-                - np.sqrt(
-                    1 - (self.r_inner[0] ** 2 / self.r_middle**2).to(1).value
-                )
-            )
-        elif len(dilution_factor) != self.no_of_shells:
-            dilution_factor = dilution_factor[
-                self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
-            ]
-            assert len(dilution_factor) == self.no_of_shells
-
-        self.radiation_field = MonteCarloRadiationFieldState(
-            t_radiative, dilution_factor, None, None
-        )
 
     @property
     def w(self):
@@ -346,14 +308,7 @@ class SimulationState(HDFWriterMixin):
             density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
         )
 
-        if temperature is not None:
-            t_radiative = temperature
-        elif config.plasma.initial_t_rad > 0 * u.K:
-            t_radiative = (
-                np.ones(geometry.no_of_shells + 1) * config.plasma.initial_t_rad
-            )
-        else:
-            t_radiative = None
+        t_radiative = parse_radiation_field_state(config, temperature, geometry)
 
         #### Here starts the packetsource section
 
