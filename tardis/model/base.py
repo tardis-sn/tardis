@@ -253,8 +253,6 @@ class SimulationState(HDFWriterMixin):
     def velocity(self):
         velocity = self.geometry.v_outer_active.copy()
         return velocity.insert(0, self.geometry.v_inner_active[0])
-        velocity = self.geometry.v_outer_active.copy()
-        return velocity.insert(0, self.geometry.v_inner_active[0])
 
     @property
     def v_inner(self):
