@@ -64,3 +64,14 @@ The NLTE configuration currently allows setting ``coronal_approximation``, which
 This is useful for debugging with :term:`chianti` for example. Furthermore, one can enable 'classical_nebular' to set all
 :math:`\beta_\textrm{Sobolev}` to 1. Both options are used for checking with other codes and should not be enabled in
 normal operations.
+
+NLTE Ionization
+^^^^^^^^^^^^^^^
+
+.. code-block:: yaml
+
+    plasma:
+        nlte_ionization_species: [H I, H II, He I, He II]
+    
+This option allows the user to specify which species should be included in the NLTE ionization treatment. Note that the
+species must be present in the continuum interaction species as well.

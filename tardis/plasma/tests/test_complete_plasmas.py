@@ -2,11 +2,8 @@ import os
 import warnings
 
 import pandas as pd
-import pandas.testing as pdt
 import pytest
 
-import numpy as np
-from numpy.testing import assert_almost_equal
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
 
@@ -72,7 +69,6 @@ def idfn(fixture_value):
 
 
 class TestPlasma(object):
-
     general_properties = [
         "beta_rad",
         "g_electron",
@@ -157,18 +153,13 @@ class TestPlasma(object):
         return config
 
     @pytest.fixture(scope="class")
-    def plasma(self, request, chianti_he_db_fpath, config, tardis_ref_data):
+    def plasma(self, chianti_he_db_fpath, config):
         config["atom_data"] = chianti_he_db_fpath
         sim = Simulation.from_config(config)
-        if request.config.getoption("--generate-reference"):
-            sim.plasma.to_hdf(
-                tardis_ref_data, path=config.plasma.save_path, overwrite=True
-            )
-            pytest.skip(f"Reference data saved at {tardis_ref_data}")
         return sim.plasma
 
     @pytest.mark.parametrize("attr", combined_properties)
-    def test_plasma_properties(self, plasma, tardis_ref_data, config, attr):
+    def test_plasma_properties(self, plasma, attr, snapshot_pd, snapshot_np):
         if hasattr(plasma, attr):
             actual = getattr(plasma, attr)
             if hasattr(actual, "unit"):
@@ -177,42 +168,35 @@ class TestPlasma(object):
                 actual = pd.Series(actual)
             else:
                 actual = pd.DataFrame(actual)
-            key = os.path.join(config.plasma.save_path, "plasma", attr)
-            expected = tardis_ref_data[key]
-            if type(actual) == pd.DataFrame:
-                pdt.assert_frame_equal(actual, expected)
-            elif type(actual) == pd.Series:
-                pdt.assert_series_equal(actual, expected)
+            if isinstance(actual, (pd.DataFrame, pd.Series)):
+                assert snapshot_pd == actual
             else:
-                raise TypeError(f"Unexpected type {type(actual)}")
-            # we used this before - assert_almost_equal(actual.values, expected.values)
+                assert snapshot_np == actual
         else:
             warnings.warn(f'Property "{attr}" not found')
 
-    def test_levels(self, plasma, tardis_ref_data, config):
+    def test_levels(self, plasma, snapshot_pd, snapshot_np):
         actual = pd.DataFrame(plasma.levels)
-        key = os.path.join(config.plasma.save_path, "plasma", "levels")
-        expected = tardis_ref_data[key]
-        pdt.assert_frame_equal(actual, expected)
+        if isinstance(actual, (pd.DataFrame, pd.Series)):
+            assert snapshot_pd == actual
+        else:
+            assert snapshot_np == actual
 
     @pytest.mark.parametrize("attr", scalars_properties)
-    def test_scalars_properties(self, plasma, tardis_ref_data, config, attr):
+    def test_scalars_properties(self, plasma, attr, snapshot_pd, snapshot_np):
         actual = getattr(plasma, attr)
         if hasattr(actual, "cgs"):
             actual = actual.cgs.value
-        key = os.path.join(config.plasma.save_path, "plasma", "scalars")
-        expected = tardis_ref_data[key][attr]
-        assert_almost_equal(actual, expected)
+        if isinstance(actual, (pd.DataFrame, pd.Series)):
+            assert snapshot_pd == actual
+        else:
+            assert snapshot_np == actual
 
-    def test_helium_treatment(self, plasma, tardis_ref_data, config):
+    def test_helium_treatment(self, plasma, snapshot):
         actual = plasma.helium_treatment
-        key = os.path.join(config.plasma.save_path, "plasma", "scalars")
-        expected = tardis_ref_data[key]["helium_treatment"]
-        assert actual == expected
+        assert snapshot == actual
 
-    def test_zeta_data(self, plasma, tardis_ref_data, config):
+    def test_zeta_data(self, plasma, snapshot_np):
         if hasattr(plasma, "zeta_data"):
             actual = plasma.zeta_data
-            key = os.path.join(config.plasma.save_path, "plasma", "zeta_data")
-            expected = tardis_ref_data[key]
-            assert_almost_equal(actual, expected.values)
+            assert snapshot_np == actual.values

@@ -1,19 +1,9 @@
-import os
 import pandas as pd
 import pytest
-
-from numpy.testing import assert_almost_equal
-import pandas.testing as pdt
-from tardis.plasma.properties import property_collections
 
 ###
 # saving and loading of plasma properties in the HDF file
 ###
-
-
-@pytest.fixture(scope="module", autouse=True)
-def to_hdf_buffer(hdf_file_path, simulation_verysimple):
-    simulation_verysimple.plasma.to_hdf(hdf_file_path, overwrite=True)
 
 
 plasma_properties_list = [
@@ -53,70 +43,48 @@ plasma_properties_list = [
 
 
 @pytest.mark.parametrize("attr", plasma_properties_list)
-def test_hdf_plasma(hdf_file_path, simulation_verysimple, attr):
+def test_hdf_plasma(simulation_verysimple, attr, snapshot_np):
     if hasattr(simulation_verysimple.plasma, attr):
         actual = getattr(simulation_verysimple.plasma, attr)
         if hasattr(actual, "cgs"):
             actual = actual.cgs.value
-        path = os.path.join("plasma", attr)
-        expected = pd.read_hdf(hdf_file_path, path)
-        assert_almost_equal(actual, expected.values)
+        assert snapshot_np == actual
 
 
-def test_hdf_levels(hdf_file_path, simulation_verysimple):
+def test_hdf_levels(simulation_verysimple, snapshot_pd):
     actual = getattr(simulation_verysimple.plasma, "levels")
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
-    path = os.path.join("plasma", "levels")
-    expected = pd.read_hdf(hdf_file_path, path)
-    pdt.assert_frame_equal(pd.DataFrame(actual), expected)
+    assert snapshot_pd == pd.DataFrame(actual)
 
 
 scalars_list = ["time_explosion", "link_t_rad_t_electron"]
 
 
 @pytest.mark.parametrize("attr", scalars_list)
-def test_hdf_scalars(hdf_file_path, simulation_verysimple, attr):
+def test_hdf_scalars(simulation_verysimple, attr, snapshot_np):
     actual = getattr(simulation_verysimple.plasma, attr)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
-    path = os.path.join("plasma", "scalars")
-    expected = pd.read_hdf(hdf_file_path, path)[attr]
-    assert_almost_equal(actual, expected)
+    assert snapshot_np == actual
 
 
-def test_hdf_helium_treatment(hdf_file_path, simulation_verysimple):
+def test_hdf_helium_treatment(simulation_verysimple, snapshot):
     actual = getattr(simulation_verysimple.plasma, "helium_treatment")
-    path = os.path.join("plasma", "scalars")
-    expected = pd.read_hdf(hdf_file_path, path)["helium_treatment"]
-    assert actual == expected
+    assert snapshot == actual
 
 
-def test_atomic_data_uuid(hdf_file_path, simulation_verysimple):
+def test_atomic_data_uuid(simulation_verysimple, snapshot):
     actual = getattr(simulation_verysimple.plasma.atomic_data, "uuid1")
-    path = os.path.join("plasma", "scalars")
-    expected = pd.read_hdf(hdf_file_path, path)["atom_data_uuid"]
-    assert actual == expected
-
-
-@pytest.fixture(scope="module", autouse=True)
-def to_hdf_collection_buffer(hdf_file_path, simulation_verysimple):
-    simulation_verysimple.plasma.to_hdf(
-        hdf_file_path,
-        name="collection",
-        collection=property_collections.basic_inputs,
-        overwrite=True,
-    )
+    assert snapshot == actual
 
 
 collection_properties = ["t_rad", "w", "density"]
 
 
 @pytest.mark.parametrize("attr", collection_properties)
-def test_collection(hdf_file_path, simulation_verysimple, attr):
+def test_collection(simulation_verysimple, attr, snapshot_np):
     actual = getattr(simulation_verysimple.plasma, attr)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
-    path = os.path.join("collection", attr)
-    expected = pd.read_hdf(hdf_file_path, path)
-    assert_almost_equal(actual, expected.values)
+    assert snapshot_np == actual
