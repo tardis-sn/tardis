@@ -145,3 +145,26 @@ def test_activity_chain(simulation_setup, nuclide_name):
 
     npt.assert_almost_equal(expected_parent, actual_parent)
     # npt.assert_allclose(actual_progeny, expected_progeny, rtol=1e-3)
+
+
+@pytest.mark.parametrize("nuclide_name", ["Ni-56"])
+def test_isotope_dicts(simulation_setup, nuclide_name):
+    """
+    Function to test the decay of a two atom decay chain in radioactivedecay with an analytical solution.
+    Parameters
+    ----------
+    simulation_setup: A simulation setup which returns a model.
+    nuclide_name: Name of the nuclide.
+    """
+    model = simulation_setup
+    nuclide = rd.Nuclide(nuclide_name)
+    raw_isotope_abundance = model.raw_isotope_abundance
+    shell_masses = calculate_shell_masses(model)
+    iso_dict = create_isotope_dicts(raw_isotope_abundance, shell_masses)
+
+    shells = raw_isotope_abundance.columns
+    Z, A = nuclide.Z, nuclide.A
+
+    for shells, isotope_dict in iso_dict.items():
+        isotope_dict_key = isotope_dict[Z, A]
+        assert nuclide_name.replace("-", "") in isotope_dict_key.keys()
