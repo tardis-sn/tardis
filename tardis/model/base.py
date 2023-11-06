@@ -305,14 +305,14 @@ class SimulationState(HDFWriterMixin):
                 )
             )
 
-        elif len(t_radiative) == self.no_of_shells + 1:
+        elif len(t_radiative) == self.no_of_raw_shells + 1:
             t_radiative = t_radiative[
                 self.geometry.v_inner_boundary_index
                 + 1 : self.geometry.v_outer_boundary_index
                 + 1
             ]
         else:
-            assert len(t_radiative) == self.no_of_shells
+            assert len(t_radiative) == self.no_of_raw_shells
 
         if dilution_factor is None:
             dilution_factor = 0.5 * (
@@ -446,7 +446,7 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def no_of_shells(self):
-        return self.geometry.no_of_shells
+        return self.geometry.no_of_shells_active
 
     @property
     def no_of_raw_shells(self):
@@ -479,7 +479,8 @@ class SimulationState(HDFWriterMixin):
             t_radiative = temperature
         elif config.plasma.initial_t_rad > 0 * u.K:
             t_radiative = (
-                np.ones(geometry.no_of_shells + 1) * config.plasma.initial_t_rad
+                np.ones(geometry.no_of_shells_active + 1)
+                * config.plasma.initial_t_rad
             )
         else:
             t_radiative = None
@@ -600,7 +601,7 @@ class SimulationState(HDFWriterMixin):
                 density_0, time_0, time_explosion
             )
 
-        no_of_shells = geometry.no_of_shells
+        no_of_shells = geometry.no_of_shells_active
 
         # TODO -- implement t_radiative
         # t_radiative = None
@@ -628,9 +629,7 @@ class SimulationState(HDFWriterMixin):
                 )
 
         elif config.plasma.initial_t_rad > 0 * u.K:
-            t_radiative = (
-                np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
-            )
+            t_radiative = np.ones(no_of_shells) * config.plasma.initial_t_rad
         else:
             t_radiative = None
 
@@ -644,7 +643,7 @@ class SimulationState(HDFWriterMixin):
         if hasattr(csvy_model_config, "abundance"):
             abundances_section = csvy_model_config.abundance
             abundance, isotope_abundance = read_uniform_abundances(
-                abundances_section, geometry.no_of_shells
+                abundances_section, no_of_shells
             )
         else:
             index, abundance, isotope_abundance = parse_csv_abundances(
