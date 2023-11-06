@@ -139,17 +139,9 @@ class SimulationState(HDFWriterMixin):
     def w(self):
         return self.dilution_factor
 
-    @w.setter
-    def w(self, value):
-        self.dilution_factor = value
-
     @property
     def t_rad(self):
         return self.t_radiative
-
-    @t_rad.setter
-    def t_rad(self, value):
-        self.t_radiative = value
 
     @property
     def t_inner(self):
@@ -165,30 +157,11 @@ class SimulationState(HDFWriterMixin):
             self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
         ]
 
-    @dilution_factor.setter
-    def dilution_factor(self, value):
-        if len(value) == self.no_of_shells:
-            self.radiation_field_state.dilution_factor = value
-        else:
-            raise ValueError(
-                "Trying to set dilution_factor for unmatching number"
-                "of shells."
-            )
-
     @property
     def t_radiative(self):
         return self.radiation_field_state.t_radiative[
             self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
         ]
-
-    @t_radiative.setter
-    def t_radiative(self, value):
-        if len(value) == self.no_of_shells:
-            self.radiation_field.t_radiative = value
-        else:
-            raise ValueError(
-                "Trying to set t_radiative for unmatching number of shells."
-            )
 
     @property
     def radius(self):
@@ -296,7 +269,9 @@ class SimulationState(HDFWriterMixin):
             density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
         )
 
-        t_radiative = parse_radiation_field_state(config, temperature, geometry)
+        radiation_field_state = parse_radiation_field_state(
+            config, temperature, geometry
+        )
 
         #### Here starts the packetsource section
 
@@ -310,11 +285,10 @@ class SimulationState(HDFWriterMixin):
         return cls(
             geometry=geometry,
             composition=composition,
+            radiation_field_state=radiation_field_state,
             time_explosion=time_explosion,
-            t_radiative=t_radiative,
             t_inner=t_inner,
             luminosity_requested=luminosity_requested,
-            dilution_factor=None,
             electron_densities=electron_densities,
         )
 
