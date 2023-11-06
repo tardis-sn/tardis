@@ -594,7 +594,7 @@ class SimulationState(HDFWriterMixin):
                 csvy_model_config.datatype.fields[density_field_index]["unit"]
             )
             density_0 = csvy_model_data["density"].values * density_unit
-            density_0 = density_0.to("g/cm^3")[1:]
+            density_0 = density_0.to("g/cm^3")
             density = calculate_density_after_time(
                 density_0, time_0, time_explosion
             )
