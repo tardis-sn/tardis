@@ -71,12 +71,10 @@ class IsotopeAbundances(pd.DataFrame):
             nuclear_symbol = f"{Z_to_elem(atomic_number)}{mass_number}"
             for i in range(len(self.columns)):
                 if shell_masses is None:
-                    comp_dicts[i][nuclear_symbol] = (
-                    abundances[i]
-                )
+                    comp_dicts[i][nuclear_symbol] = abundances[i]
                 else:
                     comp_dicts[i][nuclear_symbol] = (
-                    abundances[i] * shell_masses[i].to(u.g).value
+                        abundances[i] * shell_masses[i].to(u.g).value
                     )
         return [Inventory(comp_dict, "g") for comp_dict in comp_dicts]
 

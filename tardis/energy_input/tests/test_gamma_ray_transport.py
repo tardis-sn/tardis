@@ -162,9 +162,34 @@ def test_isotope_dicts(simulation_setup, nuclide_name):
     shell_masses = calculate_shell_masses(model)
     iso_dict = create_isotope_dicts(raw_isotope_abundance, shell_masses)
 
-    shells = raw_isotope_abundance.columns
     Z, A = nuclide.Z, nuclide.A
 
-    for shells, isotope_dict in iso_dict.items():
+    for shell_number, isotope_dict in iso_dict.items():
         isotope_dict_key = isotope_dict[Z, A]
         assert nuclide_name.replace("-", "") in isotope_dict_key.keys()
+
+
+@pytest.mark.parametrize("nuclide_name", ["Ni-56"])
+def test_inventories_dict(simulation_setup, nuclide_name):
+    """
+    Function to test the decay of a two atom decay chain in radioactivedecay with an analytical solution.
+    Parameters
+    ----------
+    simulation_setup: A simulation setup which returns a model.
+    nuclide_name: Name of the nuclide.
+    """
+    model = simulation_setup
+    nuclide = rd.Nuclide(nuclide_name)
+    raw_isotope_abundance = model.raw_isotope_abundance
+    shell_masses = calculate_shell_masses(model)
+    iso_dict = create_isotope_dicts(raw_isotope_abundance, shell_masses)
+    inventories_dict = create_inventories_dict(iso_dict)
+
+    Z, A = nuclide.Z, nuclide.A
+    raw_isotope_abundance_mass = raw_isotope_abundance.apply(
+        lambda x: x * shell_masses, axis=1
+    )
+
+    mass = raw_isotope_abundance_mass.loc[Z, A][0]
+    inventory = rd.Inventory({nuclide.nuclide: mass}, "g")
+    assert inventories_dict[0][Z, A] == inventory

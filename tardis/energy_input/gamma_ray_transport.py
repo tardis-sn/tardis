@@ -260,7 +260,6 @@ def initialize_packets(
 
 
 def calculate_shell_masses(model):
-
     """Function to calculate shell masses
     Parameters
     ----------
@@ -272,7 +271,6 @@ def calculate_shell_masses(model):
         shell masses in units of g
 
     """
-
 
     ejecta_density = model.density.to("g/cm^3")
     ejecta_volume = model.volume.to("cm^3")
@@ -306,6 +304,14 @@ def calculate_total_decays(inventories, time_delta):
 
 
 def create_isotope_dicts(raw_isotope_abundance, shell_masses):
+    """
+    Function to create a dictionary of isotopes for each shell with their masses.
+    Parameters
+    ----------
+    raw_isotope_abundance : pd.DataFrame
+        isotope abundance in mass fractions.
+
+    """
     isotope_dicts = {}
     for i in range(len(raw_isotope_abundance.columns)):
         isotope_dicts[i] = {}
