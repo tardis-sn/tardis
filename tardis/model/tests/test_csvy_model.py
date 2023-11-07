@@ -7,6 +7,7 @@ import os
 from astropy import units as u
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
+from tardis.io.atom_data.base import AtomData
 import pytest
 
 
@@ -82,10 +83,11 @@ def test_dimensionality_after_update_v_inner_boundary(
     in the context of csvy models specifically"""
     csvy_config_file, _ = model_config_fnames
     config = Configuration.from_yaml(csvy_config_file)
-    csvy_model = SimulationState.from_csvy(config)
+    atom_data = AtomData.from_hdf(config.atom_data)
+    csvy_model = SimulationState.from_csvy(config, atom_data=atom_data)
 
     config.model.v_inner_boundary = csvy_model.velocity[1]
-    new_csvy_model = SimulationState.from_csvy(config)
+    new_csvy_model = SimulationState.from_csvy(config, atom_data=atom_data)
 
     assert new_csvy_model.no_of_raw_shells == csvy_model.no_of_raw_shells
     assert new_csvy_model.no_of_shells == csvy_model.no_of_shells - 1
