@@ -39,7 +39,6 @@ def pytest_configure(config):
 
     """
     if ASTROPY_HEADER:
-
         config.option.astropy_header = True
 
         # Customize the following lines to add/remove entries from the list of
@@ -78,11 +77,19 @@ def pytest_configure(config):
 # Here the TARDIS testing stuff begins
 # -------------------------------------------------------------------------
 
+import re
 import pytest
 import pandas as pd
 from tardis.io.util import yaml_load_file, YAMLLoader
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
+from tardis.util.syrupy_extensions import (
+    SingleFileSanitizedNames,
+    NumpySnapshotExtenstion,
+    PandasSnapshotExtenstion,
+)
+
+pytest_plugins = "syrupy"
 
 
 def pytest_addoption(parser):
@@ -101,6 +108,13 @@ def pytest_addoption(parser):
         default=False,
         help="generate reference data instead of testing",
     )
+
+    parser.addoption(
+        "--tardis-snapshot-data",
+        default=None,
+        help="Path to Tardis Snapshot Folder",
+    )
+
     parser.addoption(
         "--less-packets",
         action="store_true",
@@ -116,6 +130,8 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "ignore_generate" in item.keywords:
                 item.add_marker(skip_generate)
+        # automatically set update snapshots to true
+        config.option.update_snapshots = True
 
 
 # -------------------------------------------------------------------------
@@ -139,6 +155,17 @@ def tardis_ref_path(request):
         pytest.skip("--tardis-refdata was not specified")
     else:
         return Path(os.path.expandvars(os.path.expanduser(tardis_ref_path)))
+
+
+@pytest.fixture(scope="session")
+def tardis_snapshot_path(request):
+    tardis_snapshot_path = request.config.getoption("--tardis-snapshot-data")
+    if tardis_snapshot_path is None:
+        pytest.skip("--tardis-snapshot-data was not specified")
+    else:
+        return Path(
+            os.path.expandvars(os.path.expanduser(tardis_snapshot_path))
+        )
 
 
 from tardis.tests.fixtures.atom_data import *
@@ -211,3 +238,23 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
     sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
     sim.iterate(4000)
     return sim
+
+
+# -------------------------------------------------------------------------
+# fixtures and plugins for syrupy/regression data testing
+# -------------------------------------------------------------------------
+
+
+@pytest.fixture
+def pandas_snapshot_extention():
+    return PandasSnapshotExtenstion
+
+
+@pytest.fixture
+def numpy_snapshot_extension():
+    return NumpySnapshotExtenstion
+
+
+@pytest.fixture
+def singlefilesanitized():
+    return SingleFileSanitizedNames

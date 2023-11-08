@@ -41,10 +41,16 @@ def normalize_trans_probs(p):
         all probabilites with the same source_level_idx sum to one.
         Indexed by source_level_idx, destination_level_idx.
     """
-    p_summed = p.groupby(level=0).sum()
+    # Dtype conversion is needed for pandas to return nan instead of
+    # a ZeroDivisionError in cases where the sum is zero.
+    p = p.astype(np.float64)
+    p_summed = p.groupby(level=0).sum().astype(np.float64)
     index = p.index.get_level_values("source_level_idx")
     p_norm = p / p_summed.loc[index].values
     p_norm = p_norm.fillna(0.0)
+    # Convert back to original dtypes to avoid typing problems later on
+    # in the numba code.
+    p_norm = p_norm.convert_dtypes()
     return p_norm
 
 
@@ -78,7 +84,9 @@ class SpMatrixSeriesConverterMixin(object):
             idx2reduced_idx.loc[q_indices[1]].values,
         )
         max_idx = idx2reduced_idx.max() + 1
-        matrix = sp.coo_matrix((series, q_indices), shape=(max_idx, max_idx))
+        matrix = sp.coo_matrix(
+            (series.astype(np.float64), q_indices), shape=(max_idx, max_idx)
+        )
         return matrix
 
     @staticmethod
