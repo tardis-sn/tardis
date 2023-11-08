@@ -507,12 +507,6 @@ class TestModelStateFromNonUniformAbundances:
         assert_almost_equal(number.loc[(28, 0)], 10825427.035)
         assert_almost_equal(number.loc[(28, 1)], 1640838.763, decimal=2)
 
-    def test_number(self, simulation_state):
-        number = simulation_state.number
-        assert_almost_equal(number.loc[(1, 0)], 0)
-        assert_almost_equal(number.loc[(28, 0)], 1.53753476e53, decimal=-47)
-        assert_almost_equal(number.loc[(28, 1)], 4.16462779e52, decimal=-47)
-
 
 ###
 # Save and Load
