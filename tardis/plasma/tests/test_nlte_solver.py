@@ -7,7 +7,11 @@ from copy import deepcopy
 from numpy.testing import assert_allclose, assert_almost_equal
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model.base import SimulationState
-from tardis.plasma.properties import NLTERateEquationSolver
+from tardis.plasma.properties import NLTEPopulationSolverRoot
+from tardis.plasma.properties.nlte_population_solver import (
+    calculate_rate_matrix,
+    calculate_jacobian_matrix,
+)
 from tardis.io.atom_data.base import AtomData
 from tardis.plasma.properties.ion_population import IonNumberDensity
 from tardis.plasma.standard_plasmas import assemble_plasma
@@ -149,7 +153,7 @@ def test_rate_matrix(
     Using a simple case of nlte_ion for HI and HeII, checks if the calculate_rate_matrix generates the correct data.
     """
     atomic_numbers = [1, 2]
-    actual_rate_matrix = NLTERateEquationSolver.calculate_rate_matrix(
+    actual_rate_matrix = calculate_rate_matrix(
         atomic_numbers,
         simple_phi,
         simple_electron_density,
@@ -196,7 +200,7 @@ def test_jacobian_matrix(
         0.2878574499274399,
         simple_electron_density,
     ]
-    simple_rate_matrix = NLTERateEquationSolver.calculate_rate_matrix(
+    simple_rate_matrix = calculate_rate_matrix(
         atomic_numbers,
         simple_phi,
         simple_electron_density,
@@ -207,7 +211,7 @@ def test_jacobian_matrix(
         simple_total_col_recomb_coefficients,
     )
 
-    actual_jacobian_matrix = NLTERateEquationSolver.jacobian_matrix(
+    actual_jacobian_matrix = calculate_jacobian_matrix(
         atomic_numbers,
         initial_guess,
         simple_rate_matrix,
@@ -283,7 +287,7 @@ def test_critical_case_w1(nlte_raw_plasma_w1):
 
 def test_critical_case_w0(nlte_raw_plasma_w0):
     """Check that the LTE and NLTE solution agree for w=0.0."""
-    nlte_solver = NLTERateEquationSolver(nlte_raw_plasma_w0)
+    nlte_solver = NLTEPopulationSolverRoot(nlte_raw_plasma_w0)
     ion_number_density_nlte = nlte_solver.calculate(
         nlte_raw_plasma_w0.gamma,
         0.0,  # to test collisions only, we set the radiative recombination rate to 0
