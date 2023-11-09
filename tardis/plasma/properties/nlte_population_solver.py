@@ -15,6 +15,9 @@ logger = logging.getLogger(__name__)
 
 NLTE_POPULATION_SOLVER_MAX_ITERATIONS = 100
 NLTE_POPULATION_SOLVER_TOLERANCE = 1e-3
+NLTE_POPULATION_NEGATIVE_POPULATION_TOLERANCE = (
+    -1e-10
+)  # Maximum negative population allowed before solver fails
 
 
 class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
@@ -140,7 +143,8 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
             ion_number_density[shell] = solution.x[:-1]
             electron_densities[shell] = solution.x[-1]
         # TODO: change the jacobian and rate matrix to use shell id and get coefficients from the attribute of the class.
-        return ion_number_density, electron_densities
+
+        return check_negative_population(ion_number_density, electron_densities)
 
 
 class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
@@ -297,7 +301,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
 
         logger.info("NLTE ionization solver finished")
 
-        return ion_number_density, electron_densities
+        return check_negative_population(ion_number_density, electron_densities)
 
     @staticmethod
     def calculate_delta(
@@ -328,6 +332,24 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
             electron_densities - electron_solution
         ) / electron_solution
         return delta_ion, delta_electron
+
+
+def check_negative_population(ion_number_density, electron_densities):
+    assert (
+        np.greater_equal(
+            ion_number_density, NLTE_POPULATION_NEGATIVE_POPULATION_TOLERANCE
+        )
+        .all()
+        .all()
+    ).all(), "Negative ion number density found, solver failed."
+    assert (
+        np.greater_equal(
+            electron_densities, NLTE_POPULATION_NEGATIVE_POPULATION_TOLERANCE
+        ).all()
+    ).all(), "Negative electron density found, solver failed."
+    ion_number_density[ion_number_density < 0.0] = 0.0
+    electron_densities[electron_densities < 0.0] = 0.0
+    return ion_number_density, electron_densities
 
 
 def prepare_ion_recomb_coefficients_nlte_ion(
