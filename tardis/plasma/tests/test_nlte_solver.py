@@ -1,16 +1,13 @@
 import numpy as np
 import pandas as pd
 
-from copy import deepcopy
-from numpy.testing import assert_allclose, assert_almost_equal
-from tardis.io.configuration.config_reader import Configuration
-from tardis.model.base import SimulationState
+import pytest
+from numpy.testing import assert_allclose
 from tardis.plasma.properties import NLTEPopulationSolverRoot
 from tardis.plasma.properties.nlte_population_solver import (
     calculate_rate_matrix,
     calculate_jacobian_matrix,
 )
-from tardis.io.atom_data.base import AtomData
 from tardis.plasma.properties.ion_population import IonNumberDensity
 from tardis.plasma.standard_plasmas import assemble_plasma
 
