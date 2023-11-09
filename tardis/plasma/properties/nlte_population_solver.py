@@ -335,6 +335,23 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
 
 
 def check_negative_population(ion_number_density, electron_densities):
+    """
+    Checks if negative populations are present in the solution and sets them to zero.
+
+    Parameters
+    ----------
+    ion_number_density : pandas.DataFrame
+        Number density with NLTE ionization treatment.
+    electron_densities : Series
+        Electron density with NLTE ionization treatment.
+
+    Returns
+    -------
+    ion_number_density : pandas.DataFrame
+        Number density with NLTE ionization treatment.
+    electron_densities : Series
+        Electron density with NLTE ionization treatment.
+    """
     assert (
         np.greater_equal(
             ion_number_density, NLTE_POPULATION_NEGATIVE_POPULATION_TOLERANCE
