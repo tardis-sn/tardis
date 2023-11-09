@@ -239,6 +239,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
             balance_vector = calculate_balance_vector(
                 number_density[shell],
                 rate_matrix_index,
+                include_electron_density=False,
             )
             while iteration < NLTE_POPULATION_SOLVER_MAX_ITERATIONS:
                 rate_matrix = calculate_rate_matrix(
@@ -414,6 +415,7 @@ def prepare_ion_recomb_coefficients_nlte_ion(
 def calculate_balance_vector(
     number_density,
     rate_matrix_index,
+    include_electron_density=True,
 ):
     """Constructs the balance vector for the NLTE ionization solver set of equations by combining
     all solution verctor blocks.
@@ -437,6 +439,8 @@ def calculate_balance_vector(
         balance_vector_block = np.zeros(needed_number_of_elements)
         balance_vector_block[-1] = number_density.loc[atomic_number]
         balance_array.append(balance_vector_block)
+    if include_electron_density:
+        balance_array.append(np.array([0.0]))
     return np.hstack(balance_array)
 
 

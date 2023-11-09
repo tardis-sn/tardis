@@ -7,8 +7,9 @@ import pandas as pd
 
 from tardis.io.atom_data import AtomData
 from tardis.plasma.properties.level_population import LevelNumberDensity
-from tardis.plasma.properties.nlte_rate_equation_solver import (
-    NLTERateEquationSolver,
+from tardis.plasma.properties.nlte_population_solver import (
+    NLTEPopulationSolverLU,
+    NLTEPopulationSolverRoot,
 )
 from tardis.plasma.properties.rate_matrix_index import NLTEIndexHelper
 from tardis.util.base import species_string_to_tuple
@@ -214,6 +215,9 @@ def assemble_plasma(config, simulation_state, atom_data=None):
             }
             if config.plasma.nlte_solver == "lu":
                 plasma_modules += nlte_lu_solver_properties
+                logger.warning(
+                    "LU solver will be inaccurate for NLTE excitation, proceed with caution."
+                )
             elif config.plasma.nlte_solver == "root":
                 plasma_modules += nlte_root_solver_properties
             else:
@@ -333,8 +337,15 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         elif (
             config.plasma.nlte_ionization_species
             or config.plasma.nlte_excitation_species
-        ):
-            property_kwargs[NLTERateEquationSolver] = dict(
+        ) and config.plasma.nlte_solver == "root":
+            property_kwargs[NLTEPopulationSolverRoot] = dict(
+                electron_densities=electron_densities
+            )
+        elif (
+            config.plasma.nlte_ionization_species
+            or config.plasma.nlte_excitation_species
+        ) and config.plasma.nlte_solver == "lu":
+            property_kwargs[NLTEPopulationSolverLU] = dict(
                 electron_densities=electron_densities
             )
         else:

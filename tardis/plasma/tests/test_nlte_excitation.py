@@ -3,11 +3,12 @@ import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 
-
-from tardis.plasma.properties.nlte_rate_equation_solver import (
-    NLTERateEquationSolver,
-)
 from tardis.plasma.properties.nlte_excitation_data import NLTEExcitationData
+from tardis.plasma.properties.nlte_population_solver import (
+    prepare_r_uls_r_lus,
+    prepare_bound_bound_rate_matrix,
+    create_coll_exc_deexc_matrix,
+)
 
 
 def test_prepare_bound_bound_rate_matrix(
@@ -49,7 +50,7 @@ def test_prepare_bound_bound_rate_matrix(
         r_ul_matrix,
         r_lu_index,
         r_lu_matrix,
-    ) = NLTERateEquationSolver.prepare_r_uls_r_lus(
+    ) = prepare_r_uls_r_lus(
         simple_number_of_levels,
         simple_number_of_shells,
         simple_j_blues,
@@ -64,7 +65,7 @@ def test_prepare_bound_bound_rate_matrix(
         index=copy_atomic_dataset.lines.index,
         columns=["0"],
     )
-    actual_rate_matrix = NLTERateEquationSolver.prepare_bound_bound_rate_matrix(
+    actual_rate_matrix = prepare_bound_bound_rate_matrix(
         simple_number_of_levels,
         lines_index,
         r_ul_index,
@@ -161,7 +162,7 @@ def test_coll_exc_deexc_matrix(
     )
     exc_coeff = pd.Series(coll_exc_coeff_values, index=index)
     deexc_coeff = pd.Series(coll_deexc_coeff_values, index=index)
-    obtained_coeff_matrix = NLTERateEquationSolver.create_coll_exc_deexc_matrix(
+    obtained_coeff_matrix = create_coll_exc_deexc_matrix(
         exc_coeff, deexc_coeff, number_of_levels
     )
     assert_allclose(obtained_coeff_matrix, desired_coeff_matrix)
