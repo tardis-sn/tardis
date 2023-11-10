@@ -459,8 +459,8 @@ class LevelIdxs2LineIdx(HiddenPlasmaProperty):
     def calculate(self, atomic_data):
         index = pd.MultiIndex.from_arrays(
             [
-                atomic_data.lines_upper2level_idx,
-                atomic_data.lines_lower2level_idx,
+                atomic_data.lines_upper2macro_reference_idx,
+                atomic_data.lines_lower2macro_reference_idx,
             ],
             names=["source_level_idx", "destination_level_idx"],
         )
