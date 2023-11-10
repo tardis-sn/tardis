@@ -41,6 +41,7 @@ def normalize_trans_probs(p):
         all probabilites with the same source_level_idx sum to one.
         Indexed by source_level_idx, destination_level_idx.
     """
+    p = p.astype(np.float64)
     p_summed = p.groupby(level=0).sum()
     p_summed[p_summed == 0] = 1
     index = p.index.get_level_values("source_level_idx")
