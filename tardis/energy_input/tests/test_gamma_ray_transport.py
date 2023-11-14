@@ -1,23 +1,37 @@
 import os
 import pytest
 import numpy as np
+import pandas as pd
 import numpy.testing as npt
 from pathlib import Path
 import radioactivedecay as rd
-
+from radioactivedecay import converters
 import tardis
 from tardis.model import SimulationState
 from tardis.io.configuration import config_reader
 from tardis.io.util import yaml_load_file, YAMLLoader
+from tardis.energy_input.energy_source import (
+    get_nuclear_lines_database,
+    get_all_isotopes,
+    setup_input_energy,
+)
 from tardis.energy_input.gamma_ray_transport import (
     calculate_shell_masses,
     create_isotope_dicts,
-    get_all_isotopes,
     create_inventories_dict,
     calculate_total_decays,
+    calculate_average_energies,
+    decay_chain_energies,
 )
 import astropy.units as u
 import astropy.constants as c
+
+
+@pytest.fixture(scope="module")
+def nuclear_data_home():
+    nuclear_data_file = "/Users/anirbandutta/Projects/gamma_ray_tardis/carsus_data/kurucz_cd23_chianti_H_He.h5"
+
+    return nuclear_data_file
 
 
 @pytest.fixture(scope="module")
@@ -37,6 +51,24 @@ def gamma_ray_config(example_configuration_dir: Path):
     )
 
     return config_reader.Configuration.from_yaml(yml_path)
+
+
+@pytest.fixture(scope="module")
+def nuclear_data(tardis_ref_path: Path):
+    """
+    Return the path to the reference data for the SDEC plots.
+
+    Parameters
+    ----------
+    tardis_ref_path : str
+        Path to the reference data directory.
+
+    Returns
+    -------
+    str
+        Path to nuclear reference data (nndc data).
+    """
+    return tardis_ref_path / "kurucz_cd23_chianti_H_He.h5"
 
 
 @pytest.fixture(scope="module")
@@ -137,7 +169,7 @@ def test_activity_chain(simulation_setup, nuclide_name):
     actual_progeny = total_decays[0][nuclide.Z, nuclide.A][nuclide.progeny()[0]]
     isotopic_mass = nuclide.atomic_mass
     number_of_moles = mass / isotopic_mass
-    number_of_atoms = number_of_moles * 6.02214076e23
+    number_of_atoms = number_of_moles * converters.AVOGADRO
     decayed_parent = number_of_atoms * np.exp(-decay_constant * time_delta)
     expected_parent = number_of_atoms * (
         1 - np.exp(-decay_constant * time_delta)
@@ -193,3 +225,32 @@ def test_inventories_dict(simulation_setup, nuclide_name):
     mass = raw_isotope_abundance_mass.loc[Z, A][0]
     inventory = rd.Inventory({nuclide.nuclide: mass}, "g")
     assert inventories_dict[0][Z, A] == inventory
+
+
+def test_average_energies(simulation_setup, nuclear_data_home):
+    """
+    Function to test the decay of a two atom decay chain in radioactivedecay with an analytical solution.
+    Parameters
+    ----------
+    simulation_setup: A simulation setup which returns a model.
+    nuclide_name: Name of the nuclide.
+    """
+
+    model = simulation_setup
+    raw_isotope_abundance = model.raw_isotope_abundance
+    gamma_ray_lines = pd.read_hdf(nuclear_data_home, "decay_data")
+
+    all_isotope_names = get_all_isotopes(raw_isotope_abundance)
+
+    average_energies_list = []
+
+    for isotope_name in all_isotope_names:
+        energy, intensity = setup_input_energy(
+            gamma_ray_lines[
+                gamma_ray_lines.index == isotope_name.replace("-", "")
+            ],
+            "g",
+        )
+        average_energies_list.append(np.sum(energy * intensity))  # keV
+
+    assert len(average_energies_list) == len(all_isotope_names)
