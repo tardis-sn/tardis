@@ -2,10 +2,12 @@ import pandas as pd
 from radioactivedecay import Nuclide, Inventory
 from radioactivedecay.utils import Z_to_elem
 from astropy import units as u
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class IsotopeAbundances(pd.DataFrame):
-
     _metadata = ["time_0"]
 
     def __init__(self, *args, **kwargs):
@@ -97,9 +99,18 @@ class IsotopeAbundances(pd.DataFrame):
         t_second = (
             u.Quantity(t, u.day).to(u.s).value - self.time_0.to(u.s).value
         )
+        logger.info(f"Decaying abundances for {t_second} seconds")
+        if t_second < 0:
+            logger.warning(
+                f"Decay time {t_second} is negative. This could indicate a miss-specified input model."
+                f" A negative decay time can potentially lead to negative abundances."
+            )
         decayed_inventories = [item.decay(t_second) for item in inventories]
         df = IsotopeAbundances.from_inventories(decayed_inventories)
         df.sort_index(inplace=True)
+        assert (
+            df.ge(0.0).all().all()
+        ), "Negative abundances detected. Please make sure your input abundances are correct."
         return df
 
     def as_atoms(self):

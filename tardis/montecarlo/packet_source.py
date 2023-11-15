@@ -123,12 +123,12 @@ class BlackBodySimpleSource(BasePacketSource):
         self.temperature = temperature
         super().__init__(**kwargs)
 
-    def set_state_from_model(self, model):
+    def set_state_from_model(self, simulation_state):
         """
         Set state of packet source (correct state should be ensured before creating packets)
         """
-        self.radius = model.r_inner[0]
-        self.temperature = model.t_inner.value
+        self.radius = simulation_state.r_inner[0]
+        self.temperature = simulation_state.t_inner.value
 
     def create_packets(self, no_of_packets, *args, **kwargs):
         if self.radius is None or self.temperature is None:
@@ -313,7 +313,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
         self.beta = ((self.radius / self.time_explosion) / const.c).to("")
         return super().create_packets(no_of_packets)
 
-    def create_packet_nus(self, no_of_packets):
+    def create_packet_mus(self, no_of_packets):
         """
         Create zero-limb-darkening packet :math:`\mu^\prime` distributed
         according to :math:`\\mu^\\prime=2 \\frac{\\mu^\\prime + \\beta}{2 \\beta + 1}`.
@@ -327,7 +327,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
 
         Returns
         -------
-        array of frequencies
+        Directions for packets
             numpy.ndarray
         """
         z = self.rng.random(no_of_packets)

@@ -139,6 +139,7 @@ class AtomData(object):
         "yg_data",
         "two_photon_data",
         "linelist",
+        "decay_radiation_data",
     ]
 
     # List of tuples of the related dataframes.
@@ -275,6 +276,7 @@ class AtomData(object):
         yg_data=None,
         two_photon_data=None,
         linelist=None,
+        decay_radiation_data=None,
     ):
         self.prepared = False
 
@@ -337,6 +339,8 @@ class AtomData(object):
         if linelist is not None:
             self.linelist = linelist
 
+        if decay_radiation_data is not None:
+            self.decay_radiation_data = decay_radiation_data
         self._check_related()
 
         self.symbol2atomic_number = OrderedDict(

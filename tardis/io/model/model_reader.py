@@ -42,7 +42,7 @@ def transport_to_dict(transport):
         "input_energy": transport.input_energy,
         "input_mu": transport.input_mu,
         "input_nu": transport.input_nu,
-        "input_r_cgs": transport.input_r,
+        "input_r": transport.input_r,
         "j_blue_estimator": transport.j_blue_estimator,
         "j_estimator": transport.j_estimator,
         "last_interaction_in_nu": transport.last_interaction_in_nu,
@@ -296,23 +296,23 @@ def model_to_dict(model):
     isotope_abundance : dict
     """
     model_dict = {
-        "velocity_cgs": model.velocity,
+        "velocity_cgs": model.velocity.cgs,
         "abundance": model.abundance,
-        "time_explosion_cgs": model.time_explosion,
-        "t_inner_cgs": model.t_inner,
-        "t_radiative_cgs": model.t_radiative,
+        "time_explosion_cgs": model.time_explosion.cgs,
+        "t_inner_cgs": model.t_inner.cgs,
+        "t_radiative_cgs": model.t_radiative.cgs,
         "dilution_factor": model.dilution_factor,
-        "v_boundary_inner_cgs": model.v_boundary_inner,
-        "v_boundary_outer_cgs": model.v_boundary_outer,
+        "v_boundary_inner_cgs": model.v_boundary_inner.cgs,
+        "v_boundary_outer_cgs": model.v_boundary_outer.cgs,
         "w": model.w,
-        "t_rad_cgs": model.t_rad,
-        "r_inner_cgs": model.r_inner,
-        "density_cgs": model.density,
+        "t_rad_cgs": model.t_rad.cgs,
+        "r_inner_cgs": model.r_inner.cgs,
+        "density_cgs": model.density.cgs,
     }
 
     for key, value in model_dict.items():
         if hasattr(value, "unit"):
-            model_dict[key] = [value.cgs.value, value.unit.to_string()]
+            model_dict[key] = [value.cgs.value, value.cgs.unit.to_string()]
 
     isotope_abundance = model.raw_isotope_abundance.__dict__
 

@@ -6,4 +6,4 @@ density, abundance, temperatures and dilution
 factor of the model used in the simulation.
 """
 
-from tardis.model.base import *
+from tardis.model.base import SimulationState

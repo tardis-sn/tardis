@@ -59,8 +59,9 @@ class TestModelFromASCIIDensity:
         self.simulation_state = SimulationState.from_config(self.config)
 
     def test_velocities(self):
-        assert self.simulation_state.v_inner.unit == u.Unit("cm/s")
-        assert_almost_equal(self.simulation_state.v_inner[0].value, 1e4 * 1e5)
+        assert_almost_equal(
+            self.simulation_state.v_inner.to(u.cm / u.s).value[0], 1e4 * 1e5
+        )
 
     def test_abundances(self):
         oxygen_abundance = self.config.model.abundances.O
@@ -78,9 +79,9 @@ class TestModelFromArtisDensity:
         self.simulation_state = SimulationState.from_config(self.config)
 
     def test_velocities(self):
-        assert self.simulation_state.v_inner.unit == u.Unit("cm/s")
         assert_almost_equal(
-            self.simulation_state.v_inner[0].value, 1.259375e03 * 1e5
+            self.simulation_state.v_inner[0].to(u.cm / u.s).value,
+            1.259375e03 * 1e5,
         )
 
     def test_abundances(self):
@@ -102,9 +103,9 @@ class TestModelFromArtisDensityAbundances:
         self.simulation_state = SimulationState.from_config(self.config)
 
     def test_velocities(self):
-        assert self.simulation_state.v_inner.unit == u.Unit("cm/s")
         assert_almost_equal(
-            self.simulation_state.v_inner[0].value, 1.259375e03 * 1e5
+            self.simulation_state.v_inner[0].to(u.cm / u.s).value,
+            1.259375e03 * 1e5,
         )
 
     def test_abundances(self):
@@ -116,7 +117,6 @@ class TestModelFromArtisDensityAbundances:
 class TestModelFromArtisDensityAbundancesVSlice:
     @pytest.fixture(autouse=True)
     def setup(self, example_model_file_dir):
-
         self.config = Configuration.from_yaml(
             example_model_file_dir / "tardis_configv1_artis_density_v_slice.yml"
         )
@@ -126,7 +126,6 @@ class TestModelFromArtisDensityAbundancesVSlice:
         self.simulation_state = SimulationState.from_config(self.config)
 
     def test_velocities(self):
-        assert self.simulation_state.v_inner.unit == u.Unit("cm/s")
         assert_almost_equal(
             self.simulation_state.v_inner[0].to(u.km / u.s).value, 9000
         )
@@ -175,7 +174,9 @@ class TestModelFromArtisDensityAbundancesAllAscii:
         self.simulation_state = SimulationState.from_config(self.config)
 
     def test_velocities(self):
-        assert self.simulation_state.v_inner.unit == u.Unit("cm/s")
+        # unclear why we are testing this
+        # assert self.simulation_state.v_inner.unit == u.Unit("cm/s")
+        assert hasattr(self.simulation_state.v_inner, "unit")
         assert_almost_equal(
             self.simulation_state.v_inner[0].to(u.km / u.s).value, 11000
         )
@@ -357,8 +358,9 @@ def test_radial_1D_geometry_volume(simulation_verysimple, index, expected):
     geometry = simulation_verysimple.simulation_state.model_state.geometry
     volume = geometry.volume
 
-    assert volume.unit == u.Unit("cm3")
-    assert_almost_equal(volume[index].value, expected, decimal=-40)
+    assert_almost_equal(
+        volume[index].to(u.cm**3).value, expected, decimal=-40
+    )
 
 
 @pytest.mark.parametrize(
