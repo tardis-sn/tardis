@@ -432,7 +432,6 @@ def decay_chain_energies(
         for name, isotope in isotopes.items():
             decay_energy[shell][name] = {}
             for iso, dps in isotope.items():
-                # print(iso)
                 decay_energy[shell][name][iso] = dps * average_energies[iso]
 
     return decay_energy

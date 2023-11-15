@@ -254,3 +254,41 @@ def test_average_energies(simulation_setup, nuclear_data_home):
         average_energies_list.append(np.sum(energy * intensity))  # keV
 
     assert len(average_energies_list) == len(all_isotope_names)
+
+
+@pytest.mark.parametrize("nuclide_name", ["Ni-56"])
+def test_decay_energy_chain(simulation_setup, nuclear_data_home, nuclide_name):
+    model = simulation_setup
+    nuclide = rd.Nuclide(nuclide_name)
+    raw_isotope_abundance = model.raw_isotope_abundance
+    total_decays = calculate_total_decays
+    shell_masses = calculate_shell_masses(model)
+    iso_dict = create_isotope_dicts(raw_isotope_abundance, shell_masses)
+    inventories_dict = create_inventories_dict(iso_dict)
+    gamma_ray_lines = pd.read_hdf(nuclear_data_home, "decay_data")
+    all_isotope_names = get_all_isotopes(raw_isotope_abundance)
+    Z, A = nuclide.Z, nuclide.A
+
+    total_decays = calculate_total_decays(inventories_dict, 1.0 * u.s)
+
+    average_energies = calculate_average_energies(
+        raw_isotope_abundance, gamma_ray_lines
+    )
+
+    decay_chain_energy = decay_chain_energies(
+        raw_isotope_abundance,
+        average_energies[0],
+        average_energies[1],
+        average_energies[2],
+        total_decays,
+    )
+    isotope_energies = {}
+    for iso, energy in zip(all_isotope_names, average_energies[0]):
+        isotope_energies[iso] = energy
+
+    expected = (
+        total_decays[0][Z, A][nuclide_name] * isotope_energies[nuclide_name]
+    )
+    actual = decay_chain_energy[0][Z, A][nuclide_name]
+
+    npt.assert_almost_equal(expected, actual)
