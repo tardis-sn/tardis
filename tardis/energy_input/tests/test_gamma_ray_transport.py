@@ -22,6 +22,7 @@ from tardis.energy_input.gamma_ray_transport import (
     calculate_total_decays,
     calculate_average_energies,
     decay_chain_energies,
+    calculate_energy_per_mass,
 )
 import astropy.units as u
 import astropy.constants as c
@@ -68,7 +69,7 @@ def nuclear_data(tardis_ref_path: Path):
     str
         Path to nuclear reference data (nndc data).
     """
-    return tardis_ref_path / "kurucz_cd23_chianti_H_He.h5"
+    return tardis_ref_path / "kurucz_cd23_chianti_H_He_nndc.h5"
 
 
 @pytest.fixture(scope="module")
@@ -227,7 +228,7 @@ def test_inventories_dict(simulation_setup, nuclide_name):
     assert inventories_dict[0][Z, A] == inventory
 
 
-def test_average_energies(simulation_setup, nuclear_data_home):
+def test_average_energies(simulation_setup, nuclear_data):
     """
     Function to test the decay of a two atom decay chain in radioactivedecay with an analytical solution.
     Parameters
@@ -238,7 +239,7 @@ def test_average_energies(simulation_setup, nuclear_data_home):
 
     model = simulation_setup
     raw_isotope_abundance = model.raw_isotope_abundance
-    gamma_ray_lines = pd.read_hdf(nuclear_data_home, "decay_data")
+    gamma_ray_lines = pd.read_hdf(nuclear_data, "decay_data")
 
     all_isotope_names = get_all_isotopes(raw_isotope_abundance)
 
@@ -257,15 +258,14 @@ def test_average_energies(simulation_setup, nuclear_data_home):
 
 
 @pytest.mark.parametrize("nuclide_name", ["Ni-56"])
-def test_decay_energy_chain(simulation_setup, nuclear_data_home, nuclide_name):
+def test_decay_energy_chain(simulation_setup, nuclear_data, nuclide_name):
     model = simulation_setup
     nuclide = rd.Nuclide(nuclide_name)
     raw_isotope_abundance = model.raw_isotope_abundance
-    total_decays = calculate_total_decays
     shell_masses = calculate_shell_masses(model)
     iso_dict = create_isotope_dicts(raw_isotope_abundance, shell_masses)
     inventories_dict = create_inventories_dict(iso_dict)
-    gamma_ray_lines = pd.read_hdf(nuclear_data_home, "decay_data")
+    gamma_ray_lines = pd.read_hdf(nuclear_data, "decay_data")
     all_isotope_names = get_all_isotopes(raw_isotope_abundance)
     Z, A = nuclide.Z, nuclide.A
 
@@ -292,3 +292,29 @@ def test_decay_energy_chain(simulation_setup, nuclear_data_home, nuclide_name):
     actual = decay_chain_energy[0][Z, A][nuclide_name]
 
     npt.assert_almost_equal(expected, actual)
+
+
+def test_energy_per_mass(simulation_setup, nuclear_data):
+    model = simulation_setup
+    raw_isotope_abundance = model.raw_isotope_abundance
+    shell_masses = calculate_shell_masses(model)
+    iso_dict = create_isotope_dicts(raw_isotope_abundance, shell_masses)
+    inventories_dict = create_inventories_dict(iso_dict)
+    total_decays = calculate_total_decays(inventories_dict, 1.0 * u.s)
+
+    gamma_ray_lines = pd.read_hdf(nuclear_data, "decay_data")
+    average_energies = calculate_average_energies(
+        raw_isotope_abundance, gamma_ray_lines
+    )
+    decay_energy = decay_chain_energies(
+        raw_isotope_abundance,
+        average_energies[0],
+        average_energies[1],
+        average_energies[2],
+        total_decays,
+    )
+    energy_per_mass, energy_df = calculate_energy_per_mass(
+        decay_energy, raw_isotope_abundance, shell_masses
+    )
+    # If the lengths are not same that means the code is not working with multiple isotopes
+    assert len(energy_per_mass) == len(energy_df)
