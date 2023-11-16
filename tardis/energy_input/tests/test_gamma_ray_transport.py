@@ -67,8 +67,7 @@ def simulation_setup(gamma_ray_config):
 
 
 def test_calculate_shell_masses(simulation_setup):
-    """
-    Function to test calculation of shell masses.
+    """Function to test calculation of shell masses.
     Parameters
     ----------
     simulation_setup: A simulation setup which returns a model.
