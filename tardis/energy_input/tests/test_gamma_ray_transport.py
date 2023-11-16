@@ -29,13 +29,6 @@ import astropy.constants as c
 
 
 @pytest.fixture(scope="module")
-def nuclear_data_home():
-    nuclear_data_file = "/Users/anirbandutta/Projects/gamma_ray_tardis/carsus_data/kurucz_cd23_chianti_H_He.h5"
-
-    return nuclear_data_file
-
-
-@pytest.fixture(scope="module")
 def gamma_ray_config(example_configuration_dir: Path):
     """
     Parameters
@@ -52,24 +45,6 @@ def gamma_ray_config(example_configuration_dir: Path):
     )
 
     return config_reader.Configuration.from_yaml(yml_path)
-
-
-@pytest.fixture(scope="module")
-def nuclear_data(tardis_ref_path: Path):
-    """
-    Return the path to the reference data for the SDEC plots.
-
-    Parameters
-    ----------
-    tardis_ref_path : str
-        Path to the reference data directory.
-
-    Returns
-    -------
-    str
-        Path to nuclear reference data (nndc data).
-    """
-    return tardis_ref_path / "kurucz_cd23_chianti_H_He_nndc.h5"
 
 
 @pytest.fixture(scope="module")
@@ -228,7 +203,7 @@ def test_inventories_dict(simulation_setup, nuclide_name):
     assert inventories_dict[0][Z, A] == inventory
 
 
-def test_average_energies(simulation_setup, nuclear_data):
+def test_average_energies(simulation_setup, atom_data):
     """
     Function to test the decay of a two atom decay chain in radioactivedecay with an analytical solution.
     Parameters
@@ -239,7 +214,7 @@ def test_average_energies(simulation_setup, nuclear_data):
 
     model = simulation_setup
     raw_isotope_abundance = model.raw_isotope_abundance
-    gamma_ray_lines = pd.read_hdf(nuclear_data, "decay_data")
+    gamma_ray_lines = atom_data.decay_radiation_data
 
     all_isotope_names = get_all_isotopes(raw_isotope_abundance)
 
