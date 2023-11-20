@@ -93,6 +93,12 @@ class AtomData(object):
         index: atomic_number, ion_number, level_number_lower, level_number_upper
         columns: A_ul[1/s], nu0[Hz], alpha, beta, gamma
 
+    decay_radiation_data : pandas.DataFrame
+    A dataframe containing the *decay radiation data* with:
+        index: Isotope names
+        columns: atomic_number, element, Rad energy, Rad intensity decay mode.
+        Curated from nndc
+
     Attributes
     ----------
     prepared : bool
@@ -108,6 +114,7 @@ class AtomData(object):
     atomic_number2symbol : OrderedDict
     photoionization_data : pandas.DataFrame
     two_photon_data : pandas.DataFrame
+    decay_radiation_data : pandas.DataFrame
 
     Methods
     -------
