@@ -212,7 +212,7 @@ class CustomAbundanceWidgetData:
         density = simulation_state.density
         abundance = simulation_state.abundance
         isotopic_mass_fraction = (
-            simulation_state.composition.isotope_mass_fraction
+            simulation_state.composition.isotopic_mass_fraction
         )
 
         # Combine elements and isotopes to one DataFrame

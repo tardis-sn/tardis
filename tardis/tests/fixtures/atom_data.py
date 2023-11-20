@@ -83,7 +83,7 @@ def tardis_model_config_nlte(example_configuration_dir):
 
 
 @pytest.fixture  # (scope="session")
-def nlte_raw_model(tardis_model_config_nlte, nlte_atomic_dataset):
+def nlte_raw_simulation_state(tardis_model_config_nlte, nlte_atomic_dataset):
     return SimulationState.from_config(
         tardis_model_config_nlte, atom_data=nlte_atomic_dataset
     )
