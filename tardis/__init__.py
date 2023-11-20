@@ -12,13 +12,20 @@ __all__ = []
 # ----------------------------------------------------------------------------
 
 import sys
+import warnings
 
 # ----------------------------------------------------------------------------
 
-from astropy import physical_constants, astronomical_constants
+if ("astropy.units" in sys.modules) or ("astropy.constants" in sys.modules):
+    warnings.warn(
+        "Astropy is already imported externally. Astropy should be imported"
+        " after TARDIS."
+    )
+else:
+    from astropy import physical_constants, astronomical_constants
 
-physical_constants.set("codata2014")
-astronomical_constants.set("iau2012")
+    physical_constants.set("codata2014")
+    astronomical_constants.set("iau2012")
 
 # ----------------------------------------------------------------------------
 
