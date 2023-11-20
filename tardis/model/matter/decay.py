@@ -145,7 +145,3 @@ class IsotopeAbundances(pd.DataFrame):
             modified_df /= norm_factor
 
         return modified_df
-
-
-class NuclideMassFraction(pd.DataFrame):
-    pass
