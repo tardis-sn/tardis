@@ -1,3 +1,17 @@
+import pytest
+import pandas as pd
+from tardis.io.util import yaml_load_file, YAMLLoader
+from tardis.io.configuration.config_reader import Configuration
+from tardis.simulation import Simulation
+from tardis.util.syrupy_extensions import (
+    SingleFileSanitizedNames,
+    NumpySnapshotExtenstion,
+    PandasSnapshotExtenstion,
+)
+from tardis.tests.fixtures.atom_data import *
+from tardis.tests.fixtures.regression_data import regression_data
+
+
 """Configure Test Suite.
 
 This file is used to configure the behavior of pytest when using the Astropy
@@ -77,17 +91,6 @@ def pytest_configure(config):
 # Here the TARDIS testing stuff begins
 # -------------------------------------------------------------------------
 
-import re
-import pytest
-import pandas as pd
-from tardis.io.util import yaml_load_file, YAMLLoader
-from tardis.io.configuration.config_reader import Configuration
-from tardis.simulation import Simulation
-from tardis.util.syrupy_extensions import (
-    SingleFileSanitizedNames,
-    NumpySnapshotExtenstion,
-    PandasSnapshotExtenstion,
-)
 
 pytest_plugins = "syrupy"
 
@@ -166,9 +169,6 @@ def tardis_snapshot_path(request):
         return Path(
             os.path.expandvars(os.path.expanduser(tardis_snapshot_path))
         )
-
-
-from tardis.tests.fixtures.atom_data import *
 
 
 @pytest.yield_fixture(scope="session")

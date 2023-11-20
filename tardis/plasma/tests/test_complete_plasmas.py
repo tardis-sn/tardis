@@ -159,7 +159,9 @@ class TestPlasma(object):
         return sim.plasma
 
     @pytest.mark.parametrize("attr", combined_properties)
-    def test_plasma_properties(self, plasma, attr, snapshot_pd, snapshot_np):
+    def test_plasma_properties(
+        self, plasma, attr, snapshot_pd, snapshot_np, regression_data
+    ):
         if hasattr(plasma, attr):
             actual = getattr(plasma, attr)
             if hasattr(actual, "unit"):
