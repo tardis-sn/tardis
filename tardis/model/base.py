@@ -14,6 +14,7 @@ from tardis.model.parse_input import (
     parse_csvy_geometry,
     parse_radiation_field_state,
     parse_structure_config,
+    parse_packet_source,
 )
 from tardis.model.matter.composition import Composition
 from tardis.util.base import is_valid_nuclide_or_elem
@@ -21,7 +22,7 @@ from tardis.util.base import is_valid_nuclide_or_elem
 
 from tardis.montecarlo.packet_source import BlackBodySimpleSource
 
-from tardis.model.radiation_field_state import RadiationFieldState
+from tardis.model.radiation_field_state import DiluteThermalRadiationFieldState
 
 
 from tardis.io.model.readers.csvy import (
@@ -110,8 +111,7 @@ class SimulationState(HDFWriterMixin):
         composition,
         radiation_field_state,
         time_explosion,
-        t_inner,
-        luminosity_requested=None,
+        packet_source,
         electron_densities=None,
     ):
         self.geometry = geometry
@@ -119,21 +119,7 @@ class SimulationState(HDFWriterMixin):
         self.radiation_field_state = radiation_field_state
         self.time_explosion = time_explosion
         self._electron_densities = electron_densities
-
-        self.blackbody_packet_source = BlackBodySimpleSource(
-            self.r_inner[0], t_inner
-        )
-        if t_inner is None:
-            if luminosity_requested is not None:
-                self.blackbody_packet_source.set_temperature_from_luminosity(
-                    luminosity_requested
-                )
-            else:
-                raise ValueError(
-                    "Both t_inner and luminosity_requested cannot " "be None."
-                )
-        else:
-            self.blackbody_packet_source.temperature = t_inner
+        self.packet_source = packet_source
 
     @property
     def w(self):
@@ -145,11 +131,11 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def t_inner(self):
-        return self.blackbody_packet_source.temperature
+        return self.packet_source.temperature
 
     @t_inner.setter
     def t_inner(self, value):
-        self.blackbody_packet_source.temperature = value
+        self.packet_source.temperature = value
 
     @property
     def dilution_factor(self):
@@ -254,7 +240,7 @@ class SimulationState(HDFWriterMixin):
 
         (
             electron_densities,
-            temperature,
+            t_radiative,
             geometry,
             density,
         ) = parse_structure_config(config, time_explosion)
@@ -269,26 +255,21 @@ class SimulationState(HDFWriterMixin):
             density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
         )
 
+        packet_source = parse_packet_source(config, geometry)
         radiation_field_state = parse_radiation_field_state(
-            config, temperature, geometry
+            config,
+            t_radiative,
+            geometry,
+            dilution_factor=None,
+            packet_source=packet_source,
         )
-
-        #### Here starts the packetsource section
-
-        if config.plasma.initial_t_inner < 0.0 * u.K:
-            luminosity_requested = config.supernova.luminosity_requested
-            t_inner = None
-        else:
-            luminosity_requested = None
-            t_inner = config.plasma.initial_t_inner
 
         return cls(
             geometry=geometry,
             composition=composition,
             radiation_field_state=radiation_field_state,
             time_explosion=time_explosion,
-            t_inner=t_inner,
-            luminosity_requested=luminosity_requested,
+            packet_source=packet_source,
             electron_densities=electron_densities,
         )
 

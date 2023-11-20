@@ -6,7 +6,8 @@ from tardis import constants as const
 from tardis.io.model.readers.csvy import parse_csv_abundances
 from tardis.model.matter.decay import IsotopeAbundances
 from tardis.model.matter.composition import Composition
-from tardis.model.radiation_field_state import RadiationFieldState
+from tardis.model.radiation_field_state import DiluteThermalRadiationFieldState
+from tardis.montecarlo.packet_source import BlackBodySimpleSource
 import numpy as np
 import pandas as pd
 from tardis.io.model.parse_density_configuration import (
@@ -485,27 +486,20 @@ def parse_density_csvy(csvy_model_config, csvy_model_data, time_explosion):
 
 
 def parse_radiation_field_state(
-    config, temperature, geometry, t_inner_boundary=None, dilution_factor=None
+    config, t_radiative, geometry, dilution_factor=None, packet_source=None
 ):
-    if temperature is not None:
-        t_radiative = temperature
-    elif config.plasma.initial_t_rad > 0 * u.K:
+    if (t_radiative is None) and config.plasma.initial_t_rad > 0 * u.K:
         t_radiative = (
             np.ones(geometry.no_of_shells + 1) * config.plasma.initial_t_rad
         )
     else:
-        t_radiative = None
-
-    if t_radiative is None:
-        lambda_wien_inner = (
-            const.b_wien / self.blackbody_packet_source.temperature
-        )
+        lambda_wien_inner = const.b_wien / packet_source.temperature
         t_radiative = const.b_wien / (
             lambda_wien_inner
             * (1 + (geometry.v_middle - geometry.v_inner_boundary) / const.c)
         )
 
-    elif len(t_radiative) == geometry.no_of_shells + 1:
+    if len(t_radiative) == geometry.no_of_shells + 1:
         t_radiative = t_radiative[
             geometry.v_inner_boundary_index
             + 1 : geometry.v_outer_boundary_index
@@ -530,4 +524,44 @@ def parse_radiation_field_state(
         ]
         assert len(dilution_factor) == geometry.no_of_shells
 
-    return RadiationFieldState(t_radiative, dilution_factor)
+    return DiluteThermalRadiationFieldState(t_radiative, dilution_factor)
+
+
+def parse_packet_source(config, geometry):
+    """
+    Parse the packet source based on the given configuration and geometry.
+
+    Parameters
+    ----------
+    config : Config
+        The configuration object containing the supernova and plasma settings.
+    geometry : Geometry
+        The geometry object containing the inner radius information.
+
+    Returns
+    -------
+    packet_source : BlackBodySimpleSource
+        The packet source object based on the configuration and geometry.
+
+    Raises
+    ------
+    ValueError
+        If both t_inner and luminosity_requested are None.
+
+    """
+    luminosity_requested = config.supernova.luminosity_requested
+    if config.plasma.initial_t_inner > 0.0 * u.K:
+        packet_source = BlackBodySimpleSource(
+            radius=geometry.r_inner[0],
+            temperature=config.plasma.initial_t_inner,
+        )
+    elif (config.plasma.initial_t_inner < 0.0 * u.K) and (
+        luminosity_requested is not None
+    ):
+        packet_source = BlackBodySimpleSource(radius=geometry.r_inner[0])
+        packet_source.set_temperature_from_luminosity(luminosity_requested)
+    else:
+        raise ValueError(
+            "Both t_inner and luminosity_requested cannot be None."
+        )
+    return packet_source

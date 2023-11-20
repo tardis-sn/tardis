@@ -77,6 +77,16 @@ class HomologousRadial1DGeometry:
             )
 
     @property
+    def v_middle(self):
+        return (self.v_inner + self.v_outer) / 2.0
+
+    @property
+    def v_middle_active(self):
+        return self.v_middle[
+            self.v_inner_boundary_index : self.v_outer_boundary_index
+        ]
+
+    @property
     def v_inner_boundary_index(self):
         return np.clip(
             np.searchsorted(self.v_inner, self.v_inner_boundary, side="right")
@@ -125,6 +135,14 @@ class HomologousRadial1DGeometry:
     @property
     def r_outer_active(self):
         return (self.v_outer_active * self.time_explosion).cgs
+
+    @property
+    def r_middle(self):
+        return (self.v_middle * self.time_explosion).cgs
+
+    @property
+    def r_middle_active(self):
+        return (self.v_middle_active * self.time_explosion).cgs
 
     @property
     def volume(self):
