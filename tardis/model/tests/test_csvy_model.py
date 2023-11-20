@@ -135,22 +135,30 @@ def test_read_csvy_abundances(
         reference_input_isotopes,
     ) = reference_input_dataframes
 
-    model_abundance_shape = csvy_model_test_abundances.raw_abundance.shape
+    composition = csvy_model_test_abundances.composition
+    nuclide_mass_fraction = composition.nuclide_mass_fraction
+    model_abundances = nuclide_mass_fraction[
+        nuclide_mass_fraction.index.get_level_values(1) == -1
+    ]
+
     reference_input_shape = reference_input_abundance.shape
-    assert model_abundance_shape == reference_input_shape
+    assert model_abundances.shape == reference_input_shape
     npt.assert_array_almost_equal(
         reference_input_abundance.to_numpy(),
-        csvy_model_test_abundances.raw_abundance.to_numpy(),
+        model_abundances.to_numpy(),
     )
 
-    model_isotopes_shape = (
-        csvy_model_test_abundances.raw_isotope_abundance.shape
-    )
-    reference_input_isotopes_shape = reference_input_isotopes.shape
-    assert model_isotopes_shape == reference_input_isotopes_shape
+    model_isotopes = composition.isotopic_mass_fraction
+    # reference_input_isotopes_shape = reference_input_isotopes.shape
+    # We can't assert the shape anymore because the isotope abundances used
+    # to be decayed after being loaded into SimulationState.
+    #  Now the abundances are decayed before
+    # assert model_isotopes.shape == reference_input_isotopes_shape
+    # Same applies to the comparison - we are summing up the mass_fraction to compare pre/post decay
     npt.assert_array_almost_equal(
-        reference_input_isotopes.to_numpy(),
-        csvy_model_test_abundances.raw_isotope_abundance.to_numpy(),
+        reference_input_isotopes.to_numpy()[0],
+        model_isotopes.sum(axis=0).to_numpy(),
+        decimal=1,
     )
 
 

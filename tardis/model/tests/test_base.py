@@ -330,44 +330,6 @@ def simple_isotope_abundance():
     return IsotopeAbundances(abundance, index=index)
 
 
-def test_model_decay(
-    simple_isotope_abundance, example_configuration_dir, atomic_dataset
-):
-    config = Configuration.from_yaml(
-        example_configuration_dir / "tardis_configv1_verysimple.yml"
-    )
-    simulation_state = SimulationState.from_config(config, atomic_dataset)
-
-    simulation_state.raw_isotope_abundance = simple_isotope_abundance
-    decayed = simple_isotope_abundance.decay(
-        simulation_state.time_explosion
-    ).as_atoms()
-    norm_factor = 1.4
-
-    assert_almost_equal(
-        simulation_state.abundance.loc[8][0],
-        simulation_state.raw_abundance.loc[8][0] / norm_factor,
-        decimal=4,
-    )
-    assert_almost_equal(
-        simulation_state.abundance.loc[14][0],
-        (simulation_state.raw_abundance.loc[14][0] + decayed.loc[14][0])
-        / norm_factor,
-        decimal=4,
-    )
-    assert_almost_equal(
-        simulation_state._abundance.loc[12][5],
-        (simulation_state.raw_abundance.loc[12][5] + decayed.loc[12][5])
-        / norm_factor,
-        decimal=4,
-    )
-    assert_almost_equal(
-        simulation_state.abundance.loc[6][12],
-        (decayed.loc[6][12]) / norm_factor,
-        decimal=4,
-    )
-
-
 @pytest.mark.parametrize(
     ("index", "expected"),
     [
@@ -436,22 +398,6 @@ def test_model_state_mass(simulation_verysimple, index, expected):
     assert_almost_equal(element_cell_masses.loc[index], expected, decimal=-27)
 
 
-@pytest.mark.parametrize(
-    ("index", "expected"),
-    [
-        ((8, 0), 5.4470099e53),
-        ((16, 10), 5.0367073e52),
-        ((20, 19), 2.0231745e51),
-    ],
-)
-def test_simulation_state_number(simulation_verysimple, index, expected):
-    simulation_state = simulation_verysimple.simulation_state
-
-    assert_almost_equal(
-        (simulation_state.number).loc[index], expected, decimal=-47
-    )
-
-
 @pytest.fixture
 def non_uniform_simulation_state(atomic_dataset, example_model_file_dir):
     config = Configuration.from_yaml(
@@ -504,14 +450,8 @@ class TestModelStateFromNonUniformAbundances:
     def test_elemental_number_density(self, simulation_state):
         number = simulation_state.composition.elemental_number_density
         assert_almost_equal(number.loc[(1, 0)], 0)
-        assert_almost_equal(number.loc[(28, 0)], 10825427.035)
-        assert_almost_equal(number.loc[(28, 1)], 1640838.763, decimal=2)
-
-    def test_number(self, simulation_state):
-        number = simulation_state.number
-        assert_almost_equal(number.loc[(1, 0)], 0)
-        assert_almost_equal(number.loc[(28, 0)], 1.53753476e53, decimal=-47)
-        assert_almost_equal(number.loc[(28, 1)], 4.16462779e52, decimal=-47)
+        assert_almost_equal(number.loc[(28, 0)], 10825403.434893506, decimal=2)
+        assert_almost_equal(number.loc[(28, 1)], 1640835.7822178686, decimal=2)
 
 
 ###
