@@ -7,7 +7,6 @@ import os
 from astropy import units as u
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
-from tardis.io.atom_data.base import AtomData
 import pytest
 
 
@@ -29,15 +28,33 @@ def model_config_fnames(request, example_csvy_file_dir):
     return csvy_config_file, old_config_file
 
 
+@pytest.fixture(scope="module")
+def model_configs(model_config_fnames):
+    """Function to retrieve tardis Configuration objects for tests"""
+    csvy_config_file, old_config_file = model_config_fnames
+    csvy_config = Configuration.from_yaml(csvy_config_file)
+    old_config = Configuration.from_yaml(old_config_file)
+    return csvy_config, old_config
+
+
+@pytest.fixture(scope="module")
+def model_simulation_states(model_configs, kurucz_atomic_data):
+    """Function to retrieve tardis SimulationState objects for tests"""
+    csvy_config, old_config = model_configs
+    csvy_model = SimulationState.from_csvy(
+        csvy_config, atom_data=kurucz_atomic_data
+    )
+    config_model = SimulationState.from_config(
+        old_config, atom_data=kurucz_atomic_data
+    )
+    return csvy_model, config_model
+
+
 def test_compare_models(model_config_fnames):
     """Compare identical models produced by .from_config and
     .from_csvy to check that velocities, densities and abundances
     (pre and post decay) are the same"""
-    csvy_config_file, old_config_file = model_config_fnames
-    tardis_config = Configuration.from_yaml(csvy_config_file)
-    tardis_config_old = Configuration.from_yaml(old_config_file)
-    csvy_model = SimulationState.from_csvy(tardis_config)
-    config_model = SimulationState.from_config(tardis_config_old)
+    csvy_model, config_model = model_simulation_states
     csvy_model_props = csvy_model.get_properties().keys()
     config_model_props = config_model.get_properties().keys()
     npt.assert_array_equal(csvy_model_props, config_model_props)
@@ -76,33 +93,13 @@ def test_compare_models(model_config_fnames):
     )
 
 
-def test_dimensionality_after_update_v_inner_boundary(
-    model_config_fnames,
-):
-    """Test that the dimensionality of SimulationState parameters after updating v_inner_boundary
-    in the context of csvy models specifically"""
-    csvy_config_file, _ = model_config_fnames
-    config = Configuration.from_yaml(csvy_config_file)
-    atom_data = AtomData.from_hdf(config.atom_data)
-    csvy_model = SimulationState.from_csvy(config, atom_data=atom_data)
-
-    config.model.v_inner_boundary = csvy_model.velocity[1]
-    new_csvy_model = SimulationState.from_csvy(config, atom_data=atom_data)
-
-    assert new_csvy_model.no_of_raw_shells == csvy_model.no_of_raw_shells
-    assert new_csvy_model.no_of_shells == csvy_model.no_of_shells - 1
-    assert new_csvy_model.velocity.shape[0] == csvy_model.velocity.shape[0] - 1
-    assert new_csvy_model.density.shape[0] == csvy_model.density.shape[0] - 1
-    assert new_csvy_model.volume.shape[0] == csvy_model.volume.shape[0] - 1
-
-
 @pytest.fixture(scope="module")
-def csvy_model_test_abundances(example_csvy_file_dir):
+def csvy_model_for_test(example_csvy_file_dir, kurucz_atomic_data):
     """Returns SimulationState to use to test abundances dataframes"""
     csvypath = example_csvy_file_dir / "csvy_model_to_test_abundances.yml"
     config = Configuration.from_yaml(csvypath)
-    csvy_model_test_abundances = SimulationState.from_csvy(config)
-    return csvy_model_test_abundances
+    csvy_model = SimulationState.from_csvy(config, atom_data=kurucz_atomic_data)
+    return config, csvy_model
 
 
 @pytest.fixture(scope="function")
@@ -131,9 +128,26 @@ def reference_input_dataframes():
     return reference_input_abundance, reference_input_isotopes
 
 
-def test_read_csvy_abundances(
-    csvy_model_test_abundances, reference_input_dataframes
+def test_dimensionality_after_update_v_inner_boundary(
+    csvy_model_for_test, kurucz_atomic_data
 ):
+    """Test that the dimensionality of SimulationState parameters after updating v_inner_boundary
+    in the context of csvy models specifically"""
+    config, csvy_model = csvy_model_for_test
+    new_config = copy.deepcopy(config)
+    new_config.model.v_inner_boundary = csvy_model.velocity[1]
+    new_csvy_model = SimulationState.from_csvy(
+        new_config, atom_data=kurucz_atomic_data
+    )
+
+    assert new_csvy_model.no_of_raw_shells == csvy_model.no_of_raw_shells
+    assert new_csvy_model.no_of_shells == csvy_model.no_of_shells - 1
+    assert new_csvy_model.velocity.shape[0] == csvy_model.velocity.shape[0] - 1
+    assert new_csvy_model.density.shape[0] == csvy_model.density.shape[0] - 1
+    assert new_csvy_model.volume.shape[0] == csvy_model.volume.shape[0] - 1
+
+
+def test_read_csvy_abundances(csvy_model_for_test, reference_input_dataframes):
     """Test if model reads abundances and isotope abundances
     and constructs dataframes correctly before applying decay"""
     (
@@ -141,6 +155,7 @@ def test_read_csvy_abundances(
         reference_input_isotopes,
     ) = reference_input_dataframes
 
+    _, csvy_model_test_abundances = csvy_model_for_test
     model_abundance_shape = csvy_model_test_abundances.raw_abundance.shape
     reference_input_shape = reference_input_abundance.shape
     assert model_abundance_shape == reference_input_shape
@@ -225,11 +240,10 @@ def reference_decayed_abundance():
     return reference_decayed_abundance
 
 
-def test_csvy_model_decay(
-    csvy_model_test_abundances, reference_decayed_abundance
-):
+def test_csvy_model_decay(csvy_model_for_test, reference_decayed_abundance):
     """Compare model abundance decay against decay calculations
     done by hand."""
+    _, csvy_model_test_abundances = csvy_model_for_test
     model_decayed_abundance_shape = csvy_model_test_abundances.abundance.shape
     reference_decayed_abundance_shape = reference_decayed_abundance.shape
     assert model_decayed_abundance_shape == reference_decayed_abundance_shape
