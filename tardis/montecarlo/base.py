@@ -1,4 +1,3 @@
-import os
 import logging
 import warnings
 
@@ -8,7 +7,7 @@ from numba import set_num_threads
 from numba import cuda
 
 from scipy.special import zeta
-import tardis
+
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
 from tardis.util.base import quantity_linspace
@@ -16,7 +15,6 @@ from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo import packet_source as source
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
-
 
 from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
@@ -30,8 +28,20 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
+DILUTION_FACTOR_ESTIMATOR_CONSTANT = (
+    (const.c**2 / (2 * const.h))
+    * (15 / np.pi**4)
+    * (const.h / const.k_B) ** 4
+    / (4 * np.pi)
+).cgs.value
+
+T_RADIATIVE_ESTIMATOR_CONSTANT = (
+    (np.pi**4 / (15 * 24 * zeta(5, 1))) * (const.h / const.k_B)
+).cgs.value
+
+
 # TODO: refactor this into more parts
-class MontecarloTransport(HDFWriterMixin):
+class MontecarloTransportSolver(HDFWriterMixin):
     """
     This class is designed as an interface between the Python part and the
     montecarlo C-part
@@ -69,16 +79,6 @@ class MontecarloTransport(HDFWriterMixin):
     ]
 
     hdf_name = "transport"
-    w_estimator_constant = (
-        (const.c**2 / (2 * const.h))
-        * (15 / np.pi**4)
-        * (const.h / const.k_B) ** 4
-        / (4 * np.pi)
-    ).cgs.value
-
-    t_rad_estimator_constant = (
-        (np.pi**4 / (15 * 24 * zeta(5, 1))) * (const.h / const.k_B)
-    ).cgs.value
 
     def __init__(
         self,
@@ -542,24 +542,24 @@ class MontecarloTransport(HDFWriterMixin):
 
         Returns
         -------
-        t_rad : astropy.units.Quantity (float)
-        w : numpy.ndarray (float)
+        t_radiative : astropy.units.Quantity (float)
+        dilution_factor : numpy.ndarray (float)
         """
 
-        t_rad = (
-            self.t_rad_estimator_constant
+        t_radiative = (
+            T_RADIATIVE_ESTIMATOR_CONSTANT
             * self.nu_bar_estimator
             / self.j_estimator
         )
-        w = self.j_estimator / (
+        dilution_factor = self.j_estimator / (
             4
             * const.sigma_sb.cgs.value
-            * t_rad**4
+            * t_radiative**4
             * self.time_of_simulation.value
             * self.volume.value
         )
 
-        return t_rad * u.K, w
+        return t_radiative * u.K, dilution_factor
 
     def calculate_luminosity_inner(self, model):
         """

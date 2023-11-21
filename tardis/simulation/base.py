@@ -9,7 +9,7 @@ from tardis import constants as const
 from collections import OrderedDict
 from tardis import model
 
-from tardis.montecarlo.base import MontecarloTransport
+from tardis.montecarlo.base import MontecarloTransportSolver
 from tardis.model import SimulationState
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
@@ -697,7 +697,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 )
             transport = kwargs["transport"]
         else:
-            transport = MontecarloTransport.from_config(
+            transport = MontecarloTransportSolver.from_config(
                 config,
                 packet_source=packet_source,
                 virtual_packet_logging=virtual_packet_logging,

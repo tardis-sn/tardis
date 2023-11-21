@@ -21,7 +21,7 @@ from tardis.montecarlo.montecarlo_numba.formal_integral import (
     NumbaFormalIntegrator,
 )
 
-from tardis.montecarlo.base import MontecarloTransport
+from tardis.montecarlo.base import MontecarloTransportSolver
 
 
 # Test cases must also take into account use of a GPU to run. If there is no GPU then the test cases will fail.

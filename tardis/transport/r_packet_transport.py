@@ -10,7 +10,7 @@ from tardis.transport.geometry.calculate_distances import (
 )
 from tardis.montecarlo.montecarlo_numba.estimators import (
     update_line_estimators,
-    set_estimators,
+    update_base_estimators,
 )
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
@@ -212,7 +212,7 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
         if nc.ENABLE_FULL_RELATIVITY:
             distance *= doppler_factor
 
-        set_estimators(
+        update_base_estimators(
             r_packet, distance, numba_estimator, comov_nu, comov_energy
         )
 

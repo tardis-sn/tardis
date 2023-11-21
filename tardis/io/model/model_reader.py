@@ -1,7 +1,7 @@
 # reading different model files
 
 from tardis.io.configuration.config_reader import ConfigurationNameSpace
-from tardis.montecarlo.base import MontecarloTransport
+from tardis.montecarlo.base import MontecarloTransportSolver
 from tardis.montecarlo.packet_source import (
     BlackBodySimpleSource,
     BlackBodySimpleSourceRelativistic,
@@ -210,7 +210,7 @@ def transport_from_hdf(fname):
     )
 
     # Creating a transport object and storing data
-    new_transport = MontecarloTransport(
+    new_transport = MontecarloTransportSolver(
         spectrum_frequency=d["spectrum_frequency_cgs"],
         virtual_spectrum_spawn_range=d["virtual_spectrum_spawn_range"],
         disable_electron_scattering=d["disable_electron_scattering"],

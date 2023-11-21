@@ -15,14 +15,16 @@ from tardis.transport.frame_transformations import (
 
 
 @njit(**njit_dict_no_parallel)
-def set_estimators(r_packet, distance, numba_estimator, comov_nu, comov_energy):
+def update_base_estimators(
+    r_packet, distance, estimator_state, comov_nu, comov_energy
+):
     """
     Updating the estimators
     """
-    numba_estimator.j_estimator[r_packet.current_shell_id] += (
+    estimator_state.j_estimator[r_packet.current_shell_id] += (
         comov_energy * distance
     )
-    numba_estimator.nu_bar_estimator[r_packet.current_shell_id] += (
+    estimator_state.nu_bar_estimator[r_packet.current_shell_id] += (
         comov_energy * distance * comov_nu
     )
 
@@ -33,7 +35,7 @@ def update_bound_free_estimators(
     comov_energy,
     shell_id,
     distance,
-    numba_estimator,
+    estimator_state,
     t_electron,
     x_sect_bfs,
     current_continua,
@@ -65,13 +67,13 @@ def update_bound_free_estimators(
         photo_ion_rate_estimator_increment = (
             comov_energy * distance * x_sect_bfs[i] / comov_nu
         )
-        numba_estimator.photo_ion_estimator[
+        estimator_state.photo_ion_estimator[
             current_continuum, shell_id
         ] += photo_ion_rate_estimator_increment
-        numba_estimator.stim_recomb_estimator[current_continuum, shell_id] += (
+        estimator_state.stim_recomb_estimator[current_continuum, shell_id] += (
             photo_ion_rate_estimator_increment * boltzmann_factor
         )
-        numba_estimator.photo_ion_estimator_statistics[
+        estimator_state.photo_ion_estimator_statistics[
             current_continuum, shell_id
         ] += 1
 
@@ -79,10 +81,10 @@ def update_bound_free_estimators(
         bf_heating_estimator_increment = (
             comov_energy * distance * x_sect_bfs[i] * (1 - nu_th / comov_nu)
         )
-        numba_estimator.bf_heating_estimator[
+        estimator_state.bf_heating_estimator[
             current_continuum, shell_id
         ] += bf_heating_estimator_increment
-        numba_estimator.stim_recomb_cooling_estimator[
+        estimator_state.stim_recomb_cooling_estimator[
             current_continuum, shell_id
         ] += (bf_heating_estimator_increment * boltzmann_factor)
 
