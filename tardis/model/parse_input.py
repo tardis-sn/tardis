@@ -152,4 +152,15 @@ def parse_abundance_section(config, atom_data, geometry):
     if atom_data is not None:
         elemental_mass = atom_data.atom_data.mass
 
+    assert (
+        abundance < 0.0
+    ).sum().sum() == 0, (
+        "Abundances must be positive. Negative abundances found in csvy."
+    )
+    assert (
+        isotope_abundance < 0.0
+    ).sum().sum() == 0, (
+        "Isotope abundances must be positive. Negative abundances found csvy."
+    )
+
     return isotope_abundance, abundance, elemental_mass

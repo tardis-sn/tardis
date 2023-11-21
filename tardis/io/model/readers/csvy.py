@@ -143,4 +143,15 @@ def parse_csv_abundances(csvy_data):
                 element_symbol_string
             ].tolist()
 
+    assert (
+        abundance < 0.0
+    ).sum().sum() == 0, (
+        "Abundances must be positive. Negative abundances found in csvy."
+    )
+    assert (
+        isotope_abundance < 0.0
+    ).sum().sum() == 0, (
+        "Isotope abundances must be positive. Negative abundances found csvy."
+    )
+
     return abundance.index, abundance, isotope_abundance
