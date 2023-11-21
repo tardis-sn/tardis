@@ -261,6 +261,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
                     total_rad_recomb_coefficients[shell],
                     total_coll_ion_coefficients[shell],
                     total_coll_recomb_coefficients[shell],
+                    set_charge_conservation=False,
                 )
                 # TODO: Solve for each element individually
                 # and handle errors in the solver
@@ -603,6 +604,7 @@ def calculate_rate_matrix(
     total_rad_recomb_coefficients,
     total_coll_ion_coefficients,
     total_coll_recomb_coefficients,
+    set_charge_conservation=True,
 ):
     """
 
@@ -622,6 +624,8 @@ def calculate_rate_matrix(
         Collisional ionization coefficients (should get multiplied by electron density)
     total_coll_recomb_coefficients : pandas.DataFrame
         Collisional recombination coefficients (should get multiplied by electron density^2)
+    set_charge_conservation : bool
+        If True, sets the last row of the rate matrix to the charge conservation equation.
 
     Returns
     -------
@@ -652,12 +656,13 @@ def calculate_rate_matrix(
             == "nlte_ion"
         ]
         # >>> lte_ion_numbers is for future use in NLTE excitation treatment
-        lte_ion_numbers = ion_numbers[
-            rate_matrix.loc[atomic_number].index.get_level_values(
-                "level_number"
-            )
-            == "lte_ion"
-        ]
+        if False:
+            lte_ion_numbers = ion_numbers[
+                rate_matrix.loc[atomic_number].index.get_level_values(
+                    "level_number"
+                )
+                == "lte_ion"
+            ]
         # <<<
         for ion_number in nlte_ion_numbers:
             rate_matrix_block = set_nlte_ion_rate(
@@ -674,7 +679,8 @@ def calculate_rate_matrix(
         ] = rate_matrix_block
 
     charge_conservation_row = calculate_charge_conservation_row(atomic_numbers)
-    rate_matrix.loc[("n_e", slice(None))] = charge_conservation_row
+    if set_charge_conservation:
+        rate_matrix.loc[("n_e", slice(None))] = charge_conservation_row
     return rate_matrix
 
 
