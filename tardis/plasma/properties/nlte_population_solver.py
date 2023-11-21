@@ -140,6 +140,12 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
             assert (
                 solution.success
             ), "No solution for NLTE population equation found or solver takes too long to converge"
+            assert np.all(
+                solution.x[:-1] >= 0.0
+            ), "Negative ion number density found, solver failed."
+            assert (
+                solution.x[-1] >= 0.0
+            ), "Negative electron density found, solver failed."
             ion_number_density[shell] = solution.x[:-1]
             electron_densities[shell] = solution.x[-1]
         # TODO: change the jacobian and rate matrix to use shell id and get coefficients from the attribute of the class.
