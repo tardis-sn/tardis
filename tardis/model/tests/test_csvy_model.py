@@ -1,6 +1,7 @@
 from pathlib import Path
 import numpy as np
 import pandas as pd
+import copy
 import numpy.testing as npt
 import tardis
 import os
@@ -50,7 +51,7 @@ def model_simulation_states(model_configs, kurucz_atomic_data):
     return csvy_model, config_model
 
 
-def test_compare_models(model_config_fnames):
+def test_compare_models(model_simulation_states):
     """Compare identical models produced by .from_config and
     .from_csvy to check that velocities, densities and abundances
     (pre and post decay) are the same"""
@@ -135,7 +136,7 @@ def test_dimensionality_after_update_v_inner_boundary(
     in the context of csvy models specifically"""
     config, csvy_model = csvy_model_for_test
     new_config = copy.deepcopy(config)
-    new_config.model.v_inner_boundary = csvy_model.velocity[1]
+    new_config.model.v_inner_boundary = copy.deepcopy(csvy_model.velocity[1])
     new_csvy_model = SimulationState.from_csvy(
         new_config, atom_data=kurucz_atomic_data
     )
