@@ -10,8 +10,9 @@ import radioactivedecay as rd
 from radioactivedecay.utils import Z_DICT
 from tardis.model.parse_input import (
     parse_abundance_config,
-    parse_composition_csvy,
+    parse_csvy_composition,
     parse_csvy_geometry,
+    parse_csvy_radiation_field_state,
     parse_radiation_field_state,
     parse_structure_config,
     parse_packet_source,
@@ -95,7 +96,7 @@ class SimulationState(HDFWriterMixin):
 
     hdf_properties = [
         "t_inner",
-        "w",
+        "dilution_factor",
         "t_radiative",
         "v_inner",
         "v_outer",
@@ -122,12 +123,8 @@ class SimulationState(HDFWriterMixin):
         self.packet_source = packet_source
 
     @property
-    def w(self):
-        return self.dilution_factor
-
-    @property
-    def t_rad(self):
-        return self.t_radiative
+    def blackbody_packet_source(self):
+        return self.packet_source
 
     @property
     def t_inner(self):
@@ -144,9 +141,9 @@ class SimulationState(HDFWriterMixin):
         ]
 
     @dilution_factor.setter
-    def dilution_factor(self, value):
-        if len(value) == self.no_of_shells:
-            self.radiation_field_state.dilution_factor = value
+    def dilution_factor(self, new_dilution_factor):
+        if len(new_dilution_factor) == self.no_of_shells:
+            self.radiation_field_state.dilution_factor = new_dilution_factor
         else:
             raise ValueError(
                 "Trying to set dilution_factor for unmatching number"
@@ -158,6 +155,15 @@ class SimulationState(HDFWriterMixin):
         return self.radiation_field_state.t_radiative[
             self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
         ]
+
+    @t_radiative.setter
+    def t_radiative(self, new_t_radiative):
+        if len(new_t_radiative) == self.no_of_shells:
+            self.radiation_field_state.t_radiative = new_t_radiative
+        else:
+            raise ValueError(
+                "Trying to set t_radiative for unmatching number" "of shells."
+            )
 
     @property
     def radius(self):
@@ -349,13 +355,12 @@ class SimulationState(HDFWriterMixin):
         time_explosion = config.supernova.time_explosion.cgs
 
         electron_densities = None
-        temperature = None
 
         geometry = parse_csvy_geometry(
             config, csvy_model_config, csvy_model_data, time_explosion
         )
 
-        composition = parse_composition_csvy(
+        composition = parse_csvy_composition(
             atom_data,
             csvy_model_config,
             csvy_model_data,
@@ -363,55 +368,17 @@ class SimulationState(HDFWriterMixin):
             geometry,
         )
 
-        # TODO -- implement t_radiative
-        # t_radiative = None
-        if temperature:
-            t_radiative = temperature
-        elif hasattr(csvy_model_data, "columns"):
-            if "t_rad" in csvy_model_data.columns:
-                t_rad_field_index = [
-                    field["name"] for field in csvy_model_config.datatype.fields
-                ].index("t_rad")
-                t_rad_unit = u.Unit(
-                    csvy_model_config.datatype.fields[t_rad_field_index]["unit"]
-                )
-                t_radiative = (
-                    csvy_model_data["t_rad"].iloc[0:].values * t_rad_unit
-                )
-            else:
-                t_radiative = None
+        packet_source = parse_packet_source(config, geometry)
 
-        dilution_factor = None
-        if hasattr(csvy_model_data, "columns"):
-            if "dilution_factor" in csvy_model_data.columns:
-                dilution_factor = (
-                    csvy_model_data["dilution_factor"].iloc[0:].to_numpy()
-                )
-
-        elif config.plasma.initial_t_rad > 0 * u.K:
-            t_radiative = (
-                np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
-            )
-            t_radiative = (
-                np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
-            )
-        else:
-            t_radiative = None
-
-        if config.plasma.initial_t_inner < 0.0 * u.K:
-            luminosity_requested = config.supernova.luminosity_requested
-            t_inner = None
-        else:
-            luminosity_requested = None
-            t_inner = config.plasma.initial_t_inner
+        radiation_field_state = parse_csvy_radiation_field_state(
+            config, csvy_model_config, csvy_model_data, geometry, packet_source
+        )
 
         return cls(
             geometry=geometry,
             composition=composition,
             time_explosion=time_explosion,
-            t_radiative=t_radiative,
-            t_inner=t_inner,
-            luminosity_requested=luminosity_requested,
-            dilution_factor=dilution_factor,
+            radiation_field_state=radiation_field_state,
+            packet_source=packet_source,
             electron_densities=electron_densities,
         )

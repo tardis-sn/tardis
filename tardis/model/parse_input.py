@@ -306,7 +306,7 @@ def convert_to_nuclide_mass_fraction(isotope_mass_fraction, mass_fraction):
     return nuclide_mass_fraction
 
 
-def parse_composition_csvy(
+def parse_csvy_composition(
     atom_data, csvy_model_config, csvy_model_data, time_explosion, geometry
 ):
     """
@@ -488,36 +488,45 @@ def parse_density_csvy(csvy_model_config, csvy_model_data, time_explosion):
 def parse_radiation_field_state(
     config, t_radiative, geometry, dilution_factor=None, packet_source=None
 ):
+    """
+    Parses the radiation field state based on the provided configuration, radiative temperature, geometry, dilution factor, and packet source.
+
+    Parameters
+    ----------
+    config : Config
+        The configuration object.
+    t_radiative : {None, Quantity}, optional
+        The radiative temperature. If None, it is calculated based on the initial_t_rad value in the plasma configuration.
+    geometry : Geometry
+        The geometry object.
+    dilution_factor : {None, ndarray}, optional
+        The dilution factor. If None, it is calculated based on the geometry.
+    packet_source : {None, PacketSource}, optional
+        The packet source object.
+
+    Returns
+    -------
+    DiluteThermalRadiationFieldState
+        The parsed radiation field state.
+
+    Raises
+    ------
+    AssertionError
+        If the length of t_radiative or dilution_factor is not compatible with the geometry.
+    """
     if (t_radiative is None) and config.plasma.initial_t_rad > 0 * u.K:
         t_radiative = (
-            np.ones(geometry.no_of_shells + 1) * config.plasma.initial_t_rad
+            np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
         )
     else:
-        lambda_wien_inner = const.b_wien / packet_source.temperature
-        t_radiative = const.b_wien / (
-            lambda_wien_inner
-            * (1 + (geometry.v_middle - geometry.v_inner_boundary) / const.c)
+        t_radiative = calculate_t_radiative_from_t_inner(
+            geometry, packet_source
         )
 
-    if len(t_radiative) == geometry.no_of_shells + 1:
-        t_radiative = t_radiative[
-            geometry.v_inner_boundary_index
-            + 1 : geometry.v_outer_boundary_index
-            + 1
-        ]
-    else:
-        assert len(t_radiative) == geometry.no_of_shells
+    assert len(t_radiative) == geometry.no_of_shells
 
     if dilution_factor is None:
-        dilution_factor = 0.5 * (
-            1
-            - np.sqrt(
-                1
-                - (geometry.r_inner[0] ** 2 / geometry.r_middle**2)
-                .to(1)
-                .value
-            )
-        )
+        dilution_factor = calculate_geometric_dilution_factor(geometry)
     elif len(dilution_factor) != geometry.no_of_shells:
         dilution_factor = dilution_factor[
             geometry.v_inner_boundary_index : geometry.v_outer_boundary_index
@@ -565,3 +574,75 @@ def parse_packet_source(config, geometry):
             "Both t_inner and luminosity_requested cannot be None."
         )
     return packet_source
+
+
+def parse_csvy_radiation_field_state(
+    config, csvy_model_config, csvy_model_data, geometry, packet_source
+):
+    t_radiative = None
+    dilution_factor = None
+
+    if hasattr(csvy_model_data, "columns") and (
+        "t_rad" in csvy_model_data.columns
+    ):
+        t_rad_field_index = [
+            field["name"] for field in csvy_model_config.datatype.fields
+        ].index("t_rad")
+        t_rad_unit = u.Unit(
+            csvy_model_config.datatype.fields[t_rad_field_index]["unit"]
+        )
+        t_radiative = csvy_model_data["t_rad"].iloc[0:].values * t_rad_unit
+
+    elif config.plasma.initial_t_rad > 0 * u.K:
+        t_radiative = (
+            np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
+        )
+        t_radiative = (
+            np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
+        )
+    else:
+        t_radiative = calculate_t_radiative_from_t_inner(
+            geometry, packet_source
+        )
+
+    if hasattr(csvy_model_data, "columns") and (
+        "dilution_factor" in csvy_model_data.columns
+    ):
+        dilution_factor = csvy_model_data["dilution_factor"].iloc[0:].to_numpy()
+    else:
+        dilution_factor = calculate_geometric_dilution_factor(geometry)
+
+    return DiluteThermalRadiationFieldState(t_radiative, dilution_factor)
+
+
+def calculate_t_radiative_from_t_inner(geometry, packet_source):
+    """
+    Calculates the radiative temperature based on the inner temperature and the geometry of the system.
+
+    Parameters
+    ----------
+    geometry : Geometry
+        The geometry object.
+    packet_source : PacketSource
+        The packet source object.
+
+    Returns
+    -------
+    Quantity
+        The calculated radiative temperature.
+    """
+    lambda_wien_inner = const.b_wien / packet_source.temperature
+    t_radiative = const.b_wien / (
+        lambda_wien_inner
+        * (1 + (geometry.v_middle - geometry.v_inner_boundary) / const.c)
+    )
+    return t_radiative
+
+
+def calculate_geometric_dilution_factor(geometry):
+    return 0.5 * (
+        1
+        - np.sqrt(
+            1 - (geometry.r_inner[0] ** 2 / geometry.r_middle**2).to(1).value
+        )
+    )
