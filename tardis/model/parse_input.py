@@ -514,14 +514,15 @@ def parse_radiation_field_state(
     AssertionError
         If the length of t_radiative or dilution_factor is not compatible with the geometry.
     """
-    if (t_radiative is None) and config.plasma.initial_t_rad > 0 * u.K:
-        t_radiative = (
-            np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
-        )
-    else:
-        t_radiative = calculate_t_radiative_from_t_inner(
-            geometry, packet_source
-        )
+    if t_radiative is None:
+        if config.plasma.initial_t_rad > 0 * u.K:
+            t_radiative = (
+                np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
+            )
+        else:
+            t_radiative = calculate_t_radiative_from_t_inner(
+                geometry, packet_source
+            )
 
     assert len(t_radiative) == geometry.no_of_shells
 
@@ -591,7 +592,7 @@ def parse_csvy_radiation_field_state(
         t_rad_unit = u.Unit(
             csvy_model_config.datatype.fields[t_rad_field_index]["unit"]
         )
-        t_radiative = csvy_model_data["t_rad"].iloc[0:].values * t_rad_unit
+        t_radiative = csvy_model_data["t_rad"].iloc[1:].values * t_rad_unit
 
     elif config.plasma.initial_t_rad > 0 * u.K:
         t_radiative = (
@@ -608,7 +609,7 @@ def parse_csvy_radiation_field_state(
     if hasattr(csvy_model_data, "columns") and (
         "dilution_factor" in csvy_model_data.columns
     ):
-        dilution_factor = csvy_model_data["dilution_factor"].iloc[0:].to_numpy()
+        dilution_factor = csvy_model_data["dilution_factor"].iloc[1:].values
     else:
         dilution_factor = calculate_geometric_dilution_factor(geometry)
 
