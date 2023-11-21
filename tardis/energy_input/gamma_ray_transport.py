@@ -416,6 +416,10 @@ def calculate_average_energies(raw_isotope_abundance, gamma_ray_lines):
     average_energies_list = []
     average_positron_energies_list = []
 
+    gamma_ray_line_arrays = {}
+    average_energies = {}
+    average_positron_energies = {}
+
     for i, isotope in enumerate(all_isotope_names):
         energy, intensity = setup_input_energy(
             gamma_ray_lines[gamma_ray_lines.index == isotope.replace("-", "")],
@@ -432,18 +436,24 @@ def calculate_average_energies(raw_isotope_abundance, gamma_ray_lines):
             np.sum(positron_energy * positron_intensity)
         )
 
+    for iso, lines in zip(all_isotope_names, gamma_ray_line_array_list):
+        gamma_ray_line_arrays[iso] = lines
+
+    for iso, energy, positron_energy in zip(
+        all_isotope_names, average_energies_list, average_positron_energies_list
+    ):
+        average_energies[iso] = energy
+        average_positron_energies[iso] = positron_energy
+
     return (
-        average_energies_list,
-        average_positron_energies_list,
-        gamma_ray_line_array_list,
+        average_energies,
+        average_positron_energies,
+        gamma_ray_line_arrays,
     )
 
 
 def decay_chain_energies(
-    raw_isotope_abundance,
-    average_energies_list,
-    average_positron_energies_list,
-    gamma_ray_line_array_list,
+    average_energies,
     total_decays,
 ):
     """
@@ -466,22 +476,6 @@ def decay_chain_energies(
         dictionary of decay chain energies for each isotope in each shell
 
     """
-    all_isotope_names = get_all_isotopes(raw_isotope_abundance)
-    all_isotope_names.sort()
-
-    gamma_ray_line_arrays = {}
-    average_energies = {}
-    average_positron_energies = {}
-
-    for iso, lines in zip(all_isotope_names, gamma_ray_line_array_list):
-        gamma_ray_line_arrays[iso] = lines
-
-    for iso, energy, positron_energy in zip(
-        all_isotope_names, average_energies_list, average_positron_energies_list
-    ):
-        average_energies[iso] = energy
-        average_positron_energies[iso] = positron_energy
-
     decay_energy = {}
     for shell, isotopes in total_decays.items():
         decay_energy[shell] = {}
