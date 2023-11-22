@@ -535,6 +535,7 @@ def population_objective_function(
     total_rad_recomb_coefficients,
     total_coll_ion_coefficients,
     total_coll_recomb_coefficients,
+    set_charge_conservation=True,
 ):
     """Main set of equations for the NLTE ionization solver.
 
@@ -564,6 +565,8 @@ def population_objective_function(
         Collisional ionization coefficients for current atomic number
     total_coll_recomb_coefficients : pandas.DataFrame
         Coll. recomb. coefficients for current atomic number
+    set_charge_conservation : bool
+        If True, sets the last row of the rate matrix to the charge conservation equation.
     Returns
     -------
     (numpy.array, numpy.array)
@@ -579,6 +582,7 @@ def population_objective_function(
         total_rad_recomb_coefficients,
         total_coll_ion_coefficients,
         total_coll_recomb_coefficients,
+        set_charge_conservation=set_charge_conservation,
     )
     jacobian_matrix = calculate_jacobian_matrix(
         atomic_numbers,
