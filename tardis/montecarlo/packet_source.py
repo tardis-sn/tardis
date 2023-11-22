@@ -6,6 +6,9 @@ from tardis import constants as const
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
+from tardis.montecarlo.montecarlo_numba.packet_collections import (
+    PacketCollection,
+)
 
 from astropy import units as u
 
@@ -51,10 +54,6 @@ class BasePacketSource(abc.ABC):
         return seeds
 
     @abc.abstractmethod
-    def set_state_from_model(self, model):
-        pass
-
-    @abc.abstractmethod
     def create_packet_radii(self, no_of_packets, *args, **kwargs):
         pass
 
@@ -93,8 +92,36 @@ class BasePacketSource(abc.ABC):
         nus = self.create_packet_nus(no_of_packets, *args, **kwargs)
         mus = self.create_packet_mus(no_of_packets, *args, **kwargs)
         energies = self.create_packet_energies(no_of_packets, *args, **kwargs)
+        # Check if all arrays have the same length
+        assert (
+            len(radii) == len(nus) == len(mus) == len(energies) == no_of_packets
+        )
+        radiation_field_luminosity = (
+            self.calculate_radfield_luminosity().to(u.erg / u.s).value
+        )
+        return PacketCollection(
+            radii, nus, mus, energies, radiation_field_luminosity
+        )
 
-        return radii, nus, mus, energies
+    def calculate_radfield_luminosity(self):
+        """
+        Calculate inner luminosity.
+
+        Parameters
+        ----------
+        model : model.SimulationState
+
+        Returns
+        -------
+        astropy.units.Quantity
+        """
+        return (
+            4
+            * np.pi
+            * const.sigma_sb.cgs
+            * self.radius**2
+            * self.temperature**4
+        ).to("erg/s")
 
 
 class BlackBodySimpleSource(BasePacketSource):
@@ -115,20 +142,18 @@ class BlackBodySimpleSource(BasePacketSource):
     """
 
     @classmethod
-    def from_model(cls, model, *args, **kwargs):
-        return cls(model.r_inner[0], model.t_inner.value, *args, **kwargs)
+    def from_simulation_state(cls, simulation_state, *args, **kwargs):
+        return cls(
+            simulation_state.r_inner[0],
+            simulation_state.t_inner.value,
+            *args,
+            **kwargs,
+        )
 
     def __init__(self, radius=None, temperature=None, **kwargs):
         self.radius = radius
         self.temperature = temperature
         super().__init__(**kwargs)
-
-    def set_state_from_model(self, simulation_state):
-        """
-        Set state of packet source (correct state should be ensured before creating packets)
-        """
-        self.radius = simulation_state.r_inner[0]
-        self.temperature = simulation_state.t_inner.value
 
     def create_packets(self, no_of_packets, *args, **kwargs):
         if self.radius is None or self.temperature is None:
@@ -269,11 +294,11 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
     """
 
     @classmethod
-    def from_model(cls, model, *args, **kwargs):
+    def from_simulation_state(cls, simulation_state, *args, **kwargs):
         return cls(
-            model.time_explosion,
-            model.r_inner[0],
-            model.t_inner.value,
+            simulation_state.time_explosion,
+            simulation_state.r_inner[0],
+            simulation_state.t_inner.value,
             *args,
             **kwargs,
         )
@@ -281,13 +306,6 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
     def __init__(self, time_explosion=None, **kwargs):
         self.time_explosion = time_explosion
         super().__init__(**kwargs)
-
-    def set_state_from_model(self, model):
-        """
-        Set state of packet source (correct state should be ensured before creating packets)
-        """
-        self.time_explosion = model.time_explosion
-        super().set_state_from_model(model)
 
     def create_packets(self, no_of_packets):
         """Generate relativistic black-body packet properties as arrays

@@ -2,6 +2,11 @@ from numba import prange, njit, objmode
 from numba.np.ufunc.parallel import get_thread_id, get_num_threads
 
 import numpy as np
+from tardis.montecarlo.montecarlo_numba.estimators import Estimators
+from tardis.montecarlo.montecarlo_numba.packet_collections import (
+    PacketCollection,
+    VPacketCollection,
+)
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     RPacket,
@@ -9,12 +14,9 @@ from tardis.montecarlo.montecarlo_numba.r_packet import (
 )
 
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
-    PacketCollection,
-    VPacketCollection,
     RPacketTracker,
     NumbaModel,
     opacity_state_initialize,
-    Estimators,
 )
 
 from tardis.montecarlo import (
@@ -37,19 +39,12 @@ def montecarlo_radial1d(
     simulation_state,
     plasma,
     iteration,
-    no_of_packets,
+    packet_collection,
+    estimators,
     total_iterations,
     show_progress_bars,
     transport,
 ):
-    packet_collection = PacketCollection(
-        transport.input_r,
-        transport.input_nu,
-        transport.input_mu,
-        transport.input_energy,
-        transport._output_nu,
-        transport._output_energy,
-    )
     numba_radial_1d_geometry = simulation_state.geometry.to_numba()
     numba_model = NumbaModel(
         simulation_state.time_explosion.to("s").value,
@@ -57,17 +52,7 @@ def montecarlo_radial1d(
     opacity_state = opacity_state_initialize(
         plasma, transport.line_interaction_type
     )
-    estimators = Estimators(
-        transport.j_estimator,
-        transport.nu_bar_estimator,
-        transport.j_blue_estimator,
-        transport.Edotlu_estimator,
-        transport.photo_ion_estimator,
-        transport.stim_recomb_estimator,
-        transport.bf_heating_estimator,
-        transport.stim_recomb_cooling_estimator,
-        transport.photo_ion_estimator_statistics,
-    )
+
     packet_seeds = montecarlo_configuration.packet_seeds
 
     number_of_vpackets = montecarlo_configuration.number_of_vpackets
@@ -100,7 +85,6 @@ def montecarlo_radial1d(
         montecarlo_configuration.VPACKET_LOGGING,
         iteration=iteration,
         show_progress_bars=show_progress_bars,
-        no_of_packets=no_of_packets,
         total_iterations=total_iterations,
     )
     transport._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
@@ -156,7 +140,6 @@ def montecarlo_main_loop(
     virtual_packet_logging,
     iteration,
     show_progress_bars,
-    no_of_packets,
     total_iterations,
 ):
     """
@@ -178,22 +161,15 @@ def montecarlo_main_loop(
     virtual_packet_logging : bool
         Option to enable virtual packet logging.
     """
-    output_nus = np.empty_like(packet_collection.packets_input_nu)
-    last_interaction_types = (
-        np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
-    )
-    output_energies = np.empty_like(packet_collection.packets_output_nu)
+    no_of_packets = len(packet_collection.initial_nus)
+    output_nus = np.empty(no_of_packets, dtype=np.float64)
+    output_energies = np.empty(no_of_packets, dtype=np.float64)
 
-    last_interaction_in_nus = np.empty_like(packet_collection.packets_output_nu)
-    last_line_interaction_in_ids = (
-        np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
-    )
-    last_line_interaction_out_ids = (
-        np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
-    )
-    last_line_interaction_shell_ids = (
-        np.ones_like(packet_collection.packets_output_nu, dtype=np.int64) * -1
-    )
+    last_interaction_in_nus = np.empty(no_of_packets, dtype=np.float64)
+    last_interaction_types = -np.ones(no_of_packets, dtype=np.int64)
+    last_line_interaction_in_ids = -np.ones(no_of_packets, dtype=np.int64)
+    last_line_interaction_out_ids = -np.ones(no_of_packets, dtype=np.int64)
+    last_line_interaction_shell_ids = -np.ones(no_of_packets, dtype=np.int64)
 
     v_packets_energy_hist = np.zeros_like(spectrum_frequency)
     delta_nu = spectrum_frequency[1] - spectrum_frequency[0]
@@ -262,10 +238,10 @@ def montecarlo_main_loop(
         seed = packet_seeds[i]
         np.random.seed(seed)
         r_packet = RPacket(
-            packet_collection.packets_input_radius[i],
-            packet_collection.packets_input_mu[i],
-            packet_collection.packets_input_nu[i],
-            packet_collection.packets_input_energy[i],
+            packet_collection.initial_radii[i],
+            packet_collection.initial_mus[i],
+            packet_collection.initial_nus[i],
+            packet_collection.initial_energies[i],
             seed,
             i,
         )
@@ -381,8 +357,8 @@ def montecarlo_main_loop(
         for rpacket_tracker in rpacket_trackers:
             rpacket_tracker.finalize_array()
 
-    packet_collection.packets_output_energy[:] = output_energies[:]
-    packet_collection.packets_output_nu[:] = output_nus[:]
+    packet_collection.output_energies[:] = output_energies[:]
+    packet_collection.output_nus[:] = output_nus[:]
     return (
         v_packets_energy_hist,
         last_interaction_types,

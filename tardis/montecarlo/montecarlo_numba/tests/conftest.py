@@ -3,17 +3,20 @@ from copy import deepcopy
 import pytest
 import numpy as np
 from numba import njit
+from tardis.montecarlo.montecarlo_numba.estimators import Estimators
+from tardis.montecarlo.montecarlo_numba.packet_collections import (
+    PacketCollection,
+    VPacketCollection,
+)
 
 from tardis.simulation import Simulation
-from tardis.montecarlo.montecarlo_numba import RPacket, PacketCollection
-from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
+from tardis.montecarlo.montecarlo_numba import RPacket
+from tardis.montecarlo.montecarlo_numba.estimators import Estimators
 
 
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     opacity_state_initialize,
     NumbaModel,
-    Estimators,
-    VPacketCollection,
 )
 
 

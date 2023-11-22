@@ -749,7 +749,7 @@ def transport_from_hdf(fname):
         spectrum_method=d["spectrum_method"],
         packet_source=d["packet_source"],
         nthreads=d["nthreads"],
-        virtual_packet_logging=d["virt_logging"],
+        enable_virtual_packet_logging=d["virt_logging"],
         use_gpu=d["use_gpu"],
     )
 

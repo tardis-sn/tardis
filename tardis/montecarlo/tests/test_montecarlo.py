@@ -8,7 +8,7 @@ import tardis.transport.r_packet_transport as r_packet_transport
 import tardis.montecarlo.montecarlo_numba.utils as utils
 import tardis.montecarlo.montecarlo_configuration as mc
 from tardis import constants as const
-from tardis.montecarlo.montecarlo_numba.numba_interface import Estimators
+from tardis.montecarlo.montecarlo_numba.estimators import Estimators
 from tardis.montecarlo.montecarlo_numba.numba_interface import RPacketTracker
 
 

@@ -6,15 +6,15 @@ from tardis import constants as const
 from numba import set_num_threads
 from numba import cuda
 
-from scipy.special import zeta
-
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
 from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo import packet_source as source
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
+from tardis.montecarlo.montecarlo_numba.estimators import initialize_estimators
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
+from tardis.montecarlo.montecarlo_state import MonteCarloTransportState
 
 from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
@@ -26,18 +26,6 @@ from tardis.io.logger import montecarlo_tracking as mc_tracker
 import numpy as np
 
 logger = logging.getLogger(__name__)
-
-
-DILUTION_FACTOR_ESTIMATOR_CONSTANT = (
-    (const.c**2 / (2 * const.h))
-    * (15 / np.pi**4)
-    * (const.h / const.k_B) ** 4
-    / (4 * np.pi)
-).cgs.value
-
-T_RADIATIVE_ESTIMATOR_CONSTANT = (
-    (np.pi**4 / (15 * 24 * zeta(5, 1))) * (const.h / const.k_B)
-).cgs.value
 
 
 # TODO: refactor this into more parts
@@ -93,7 +81,7 @@ class MontecarloTransportSolver(HDFWriterMixin):
         v_packet_settings,
         spectrum_method,
         packet_source,
-        virtual_packet_logging,
+        enable_virtual_packet_logging,
         nthreads=1,
         debug_packets=False,
         logger_buffer=1,
@@ -116,7 +104,7 @@ class MontecarloTransportSolver(HDFWriterMixin):
         self._spectrum_integrated = None
         self.use_gpu = use_gpu
 
-        self.virt_logging = virtual_packet_logging
+        self.virt_logging = enable_virtual_packet_logging
         self.virt_packet_last_interaction_type = np.ones(2) * -1
         self.virt_packet_last_interaction_in_nu = np.ones(2) * -1.0
         self.virt_packet_last_line_interaction_in_id = np.ones(2) * -1
@@ -144,61 +132,7 @@ class MontecarloTransportSolver(HDFWriterMixin):
         if self.spectrum_method == "integrated":
             self.optional_hdf_properties.append("spectrum_integrated")
 
-    def _initialize_estimator_arrays(self, tau_sobolev_shape):
-        """
-        Initialize the output arrays of the montecarlo simulation.
-
-        Parameters
-        ----------
-        tau_sobolev_shape : tuple
-            tuple for the tau_sobolev_shape
-        """
-
-        # Estimators
-        self.j_estimator = np.zeros(tau_sobolev_shape[1], dtype=np.float64)
-        self.nu_bar_estimator = np.zeros(tau_sobolev_shape[1], dtype=np.float64)
-        self.j_blue_estimator = np.zeros(tau_sobolev_shape)
-        self.Edotlu_estimator = np.zeros(tau_sobolev_shape)
-        # TODO: this is the wrong attribute naming style.
-
-    def _initialize_continuum_estimator_arrays(self, gamma_shape):
-        """
-        Initialize the arrays for the MC estimators for continuum processes.
-
-        Parameters
-        ----------
-        gamma_shape : tuple
-            Shape of the array with the photoionization rate coefficients.
-        """
-        self.photo_ion_estimator = np.zeros(gamma_shape, dtype=np.float64)
-        self.stim_recomb_estimator = np.zeros(gamma_shape, dtype=np.float64)
-        self.stim_recomb_cooling_estimator = np.zeros(
-            gamma_shape, dtype=np.float64
-        )
-        self.bf_heating_estimator = np.zeros(gamma_shape, dtype=np.float64)
-
-        self.stim_recomb_cooling_estimator = np.zeros(
-            gamma_shape, dtype=np.float64
-        )
-
-        self.photo_ion_estimator_statistics = np.zeros(
-            gamma_shape, dtype=np.int64
-        )
-
-    def _initialize_geometry_arrays(self, simulation_state):
-        """
-        Generate the cgs like geometry arrays for the montecarlo part
-
-        Parameters
-        ----------
-        model : model.SimulationState
-        """
-        self.r_inner_cgs = simulation_state.r_inner.to("cm").value
-        self.r_outer_cgs = simulation_state.r_outer.to("cm").value
-        self.v_inner_cgs = simulation_state.v_inner.to("cm/s").value
-        self.v_outer_cgs = simulation_state.v_outer.to("cm/s").value
-
-    def _initialize_packets(self, model, no_of_packets, iteration):
+    def _initialize_packets(self, simulation_state, no_of_packets, iteration):
         # the iteration (passed as seed_offset) is added each time to preserve randomness
         # across different simulations with the same temperature,
         # for example.
@@ -206,21 +140,13 @@ class MontecarloTransportSolver(HDFWriterMixin):
             no_of_packets, iteration
         )
 
-        # Set latest state of packet source
-        self.packet_source.set_state_from_model(model)
-
         # Create packets
-        radii, nus, mus, energies = self.packet_source.create_packets(
+        self.packet_collection = self.packet_source.create_packets(
             no_of_packets
         )
 
-        self.input_r = radii.to(u.cm).value
-        self.input_nu = nus
-        self.input_mu = mus
-        self.input_energy = energies
-
-        self._output_nu = np.ones(no_of_packets, dtype=np.float64) * -99.0
-        self._output_energy = np.ones(no_of_packets, dtype=np.float64) * -99.0
+        self._output_nu = self.packet_collection.output_nus
+        self._output_energy = self.packet_collection.output_energies
 
         self.last_line_interaction_in_id = -1 * np.ones(
             no_of_packets, dtype=np.int64
@@ -323,22 +249,15 @@ class MontecarloTransportSolver(HDFWriterMixin):
 
         set_num_threads(self.nthreads)
 
-        self.time_of_simulation = self.calculate_time_of_simulation(
-            simulation_state
-        )
-        self.volume = simulation_state.volume
-
-        # Initializing estimator array
-        self._initialize_estimator_arrays(plasma.tau_sobolevs.shape)
-
         if not plasma.continuum_interaction_species.empty:
             gamma_shape = plasma.gamma.shape
         else:
             gamma_shape = (0, 0)
 
-        self._initialize_continuum_estimator_arrays(gamma_shape)
-
-        self._initialize_geometry_arrays(simulation_state)
+        # Initializing estimator array
+        estimators = initialize_estimators(
+            plasma.tau_sobolevs.shape, gamma_shape
+        )
 
         self._initialize_packets(
             simulation_state,
@@ -346,12 +265,16 @@ class MontecarloTransportSolver(HDFWriterMixin):
             iteration,
         )
 
+        self.mc_state = MonteCarloTransportState(
+            self.packet_collection, estimators
+        )
         configuration_initialize(self, no_of_virtual_packets)
         montecarlo_radial1d(
             simulation_state,
             plasma,
             iteration,
-            no_of_packets,
+            self.packet_collection,
+            self.mc_state.estimators,
             total_iterations,
             show_progress_bars,
             self,
@@ -360,10 +283,10 @@ class MontecarloTransportSolver(HDFWriterMixin):
 
     def legacy_return(self):
         return (
-            self.output_nu,
-            self.output_energy,
-            self.j_estimator,
-            self.nu_bar_estimator,
+            self.mc_state.packet_collection.output_nus,
+            self.mc_state.packet_collection.output_energies,
+            self.mc_state.estimators.j_estimator,
+            self.mc_state.estimators.nu_bar_estimator,
             self.last_line_interaction_in_id,
             self.last_line_interaction_out_id,
             self.last_interaction_type,
@@ -426,30 +349,6 @@ class MontecarloTransportSolver(HDFWriterMixin):
             return None
 
     @property
-    def packet_luminosity(self):
-        return self.output_energy / self.time_of_simulation
-
-    @property
-    def emitted_packet_mask(self):
-        return self.output_energy >= 0
-
-    @property
-    def emitted_packet_nu(self):
-        return self.output_nu[self.emitted_packet_mask]
-
-    @property
-    def reabsorbed_packet_nu(self):
-        return self.output_nu[~self.emitted_packet_mask]
-
-    @property
-    def emitted_packet_luminosity(self):
-        return self.packet_luminosity[self.emitted_packet_mask]
-
-    @property
-    def reabsorbed_packet_luminosity(self):
-        return -self.packet_luminosity[~self.emitted_packet_mask]
-
-    @property
     def montecarlo_reabsorbed_luminosity(self):
         return u.Quantity(
             np.histogram(
@@ -478,31 +377,6 @@ class MontecarloTransportSolver(HDFWriterMixin):
             / self.time_of_simulation.value
         )
 
-    def calculate_emitted_luminosity(
-        self, luminosity_nu_start, luminosity_nu_end
-    ):
-        """
-        Calculate emitted luminosity.
-
-        Parameters
-        ----------
-        luminosity_nu_start : astropy.units.Quantity
-        luminosity_nu_end : astropy.units.Quantity
-
-        Returns
-        -------
-        astropy.units.Quantity
-        """
-        luminosity_wavelength_filter = (
-            self.emitted_packet_nu > luminosity_nu_start
-        ) & (self.emitted_packet_nu < luminosity_nu_end)
-
-        emitted_luminosity = self.emitted_packet_luminosity[
-            luminosity_wavelength_filter
-        ].sum()
-
-        return emitted_luminosity
-
     def calculate_reabsorbed_luminosity(
         self, luminosity_nu_start, luminosity_nu_end
     ):
@@ -528,82 +402,9 @@ class MontecarloTransportSolver(HDFWriterMixin):
 
         return reabsorbed_luminosity
 
-    def calculate_radiationfield_properties(self):
-        """
-        Calculate an updated radiation field from the :math:
-        `\\bar{nu}_\\textrm{estimator}` and :math:`\\J_\\textrm{estimator}`
-        calculated in the montecarlo simulation.
-        The details of the calculation can be found in the documentation.
-
-        Parameters
-        ----------
-        nubar_estimator : np.ndarray (float)
-        j_estimator : np.ndarray (float)
-
-        Returns
-        -------
-        t_radiative : astropy.units.Quantity (float)
-        dilution_factor : numpy.ndarray (float)
-        """
-
-        t_radiative = (
-            T_RADIATIVE_ESTIMATOR_CONSTANT
-            * self.nu_bar_estimator
-            / self.j_estimator
-        )
-        dilution_factor = self.j_estimator / (
-            4
-            * const.sigma_sb.cgs.value
-            * t_radiative**4
-            * self.time_of_simulation.value
-            * self.volume.value
-        )
-
-        return t_radiative * u.K, dilution_factor
-
-    def calculate_luminosity_inner(self, model):
-        """
-        Calculate inner luminosity.
-
-        Parameters
-        ----------
-        model : model.SimulationState
-
-        Returns
-        -------
-        astropy.units.Quantity
-        """
-        return (
-            4
-            * np.pi
-            * const.sigma_sb.cgs
-            * model.r_inner[0] ** 2
-            * model.t_inner**4
-        ).to("erg/s")
-
-    def calculate_time_of_simulation(self, model):
-        """
-        Calculate time of montecarlo simulation.
-
-        Parameters
-        ----------
-        model : model.SimulationState
-
-        Returns
-        -------
-        float
-        """
-        return 1.0 * u.erg / self.calculate_luminosity_inner(model)
-
-    def calculate_f_nu(self, frequency):
-        pass
-
-    def calculate_f_lambda(self, wavelength):
-        pass
-
     @classmethod
     def from_config(
-        cls, config, packet_source=None, virtual_packet_logging=False
+        cls, config, packet_source, enable_virtual_packet_logging=False
     ):
         """
         Create a new MontecarloTransport instance from a Configuration object.
@@ -666,16 +467,6 @@ class MontecarloTransportSolver(HDFWriterMixin):
             config.montecarlo.tracking.initial_array_length
         )
 
-        if packet_source is None:
-            if not config.montecarlo.enable_full_relativity:
-                packet_source = source.BlackBodySimpleSource(
-                    base_seed=config.montecarlo.seed
-                )
-            else:
-                packet_source = source.BlackBodySimpleSourceRelativistic(
-                    base_seed=config.montecarlo.seed
-                )
-
         return cls(
             spectrum_frequency=spectrum_frequency,
             virtual_spectrum_spawn_range=config.montecarlo.virtual_spectrum_spawn_range,
@@ -690,9 +481,9 @@ class MontecarloTransportSolver(HDFWriterMixin):
             packet_source=packet_source,
             debug_packets=config.montecarlo.debug_packets,
             logger_buffer=config.montecarlo.logger_buffer,
-            virtual_packet_logging=(
+            enable_virtual_packet_logging=(
                 config.spectrum.virtual.virtual_packet_logging
-                | virtual_packet_logging
+                | enable_virtual_packet_logging
             ),
             nthreads=config.montecarlo.nthreads,
             tracking_rpacket=config.montecarlo.tracking.track_rpacket,

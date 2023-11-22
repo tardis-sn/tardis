@@ -1,5 +1,6 @@
 import pytest
 import numpy as np
+import tardis.montecarlo.montecarlo_numba.estimators
 
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
 import tardis.transport.geometry.calculate_distances as calculate_distances
@@ -44,7 +45,7 @@ def model():
 
 @pytest.fixture(scope="function")
 def estimators():
-    return numba_interface.Estimators(
+    return tardis.montecarlo.montecarlo_numba.estimators.Estimators(
         j_estimator=np.array([0.0, 0.0], dtype=np.float64),
         nu_bar_estimator=np.array([0.0, 0.0], dtype=np.float64),
         j_blue_estimator=np.array(
@@ -226,7 +227,6 @@ def test_trace_packet(
     verysimple_estimators,
     set_seed_fixture,
 ):
-
     set_seed_fixture(1963)
     packet.initialize_line_id(verysimple_opacity_state, verysimple_numba_model)
     distance, interaction_type, delta_shell = r_packet_transport.trace_packet(
