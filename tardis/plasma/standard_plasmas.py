@@ -7,7 +7,7 @@ import pandas as pd
 
 from tardis.io.atom_data import AtomData
 from tardis.plasma.properties.level_population import LevelNumberDensity
-from tardis.plasma.properties.nlte_population_solver import (
+from tardis.plasma.properties.nlte_rate_equation_solver import (
     NLTEPopulationSolverLU,
     NLTEPopulationSolverRoot,
 )

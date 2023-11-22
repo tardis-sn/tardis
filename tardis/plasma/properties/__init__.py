@@ -18,4 +18,4 @@ from tardis.plasma.properties.continuum_processes import *
 from tardis.plasma.properties.transition_probabilities import *
 from tardis.plasma.properties.helium_nlte import *
 from tardis.plasma.properties.rate_matrix_index import *
-from tardis.plasma.properties.nlte_population_solver import *
+from tardis.plasma.properties.nlte_rate_equation_solver import *
