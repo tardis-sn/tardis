@@ -416,7 +416,7 @@ def calculate_average_energies(raw_isotope_abundance, gamma_ray_lines):
     average_energies_list = []
     average_positron_energies_list = []
 
-    gamma_ray_line_arrays = {}
+    gamma_ray_line_dict = {}
     average_energies = {}
     average_positron_energies = {}
 
@@ -437,7 +437,7 @@ def calculate_average_energies(raw_isotope_abundance, gamma_ray_lines):
         )
 
     for iso, lines in zip(all_isotope_names, gamma_ray_line_array_list):
-        gamma_ray_line_arrays[iso] = lines
+        gamma_ray_line_dict[iso] = lines
 
     for iso, energy, positron_energy in zip(
         all_isotope_names, average_energies_list, average_positron_energies_list
@@ -448,8 +448,40 @@ def calculate_average_energies(raw_isotope_abundance, gamma_ray_lines):
     return (
         average_energies,
         average_positron_energies,
-        gamma_ray_line_arrays,
+        gamma_ray_line_dict,
     )
+
+
+def get_taus(raw_isotope_abundance):
+    """
+    Function to calculate taus for each isotope
+    Parameters
+    ----------
+    raw_isotope_abundance : pd.DataFrame
+        isotope abundance in mass fractions
+
+    Returns
+    -------
+    taus : Dict
+        dictionary of taus for each isotope
+    parents : Dict
+        dictionary of parents for each isotope
+    """
+    all_isotope_names = get_all_isotopes(raw_isotope_abundance)
+    all_isotope_names.sort()
+
+    taus = {}
+    parents = {}
+    for isotope in all_isotope_names:
+        nuclide = rd.Nuclide(isotope)
+        taus[isotope] = nuclide.half_life() / np.log(2)
+        child = nuclide.progeny()
+        if child is not None:
+            for c in child:
+                if rd.Nuclide(c).half_life("readable") != "stable":
+                    parents[isotope] = c
+
+    return taus, parents
 
 
 def decay_chain_energies(
