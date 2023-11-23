@@ -1,10 +1,10 @@
-from tardis.model.matter.decay import IsotopeAbundances
-
-
 import pandas as pd
+import numpy as np
 import radioactivedecay as rd
 from radioactivedecay.decaydata import DEFAULTDATA as RD_DEFAULT_DATA
 from astropy import units as u
+
+from tardis.model.matter.decay import IsotopeMassFraction
 
 
 def compile_rd_isotope_masses():
@@ -60,8 +60,11 @@ class Composition:
         element_masses_unit=u.g,
     ):
         self.density = density
+        assert np.all(
+            nuclide_mass_fraction.values >= 0
+        ), "Negative mass fraction detected"
         self.nuclide_mass_fraction = nuclide_mass_fraction
-        # self.elemental_mass_fraction = elemental_mass_fraction
+
         self.nuclide_masses_unit = element_masses_unit
 
         self.nuclide_masses = element_masses
@@ -95,7 +98,7 @@ class Composition:
         filtered_nuclide_mass_fraction = self.nuclide_mass_fraction[
             self.nuclide_mass_fraction.index.get_level_values(1) != -1
         ]
-        return IsotopeAbundances(filtered_nuclide_mass_fraction)
+        return IsotopeMassFraction(filtered_nuclide_mass_fraction)
 
     @property
     def elemental_mass_fraction(self):

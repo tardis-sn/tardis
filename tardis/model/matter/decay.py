@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class IsotopeAbundances(pd.DataFrame):
+class IsotopeMassFraction(pd.DataFrame):
     _metadata = ["time_0"]
 
     def __init__(self, *args, **kwargs):
@@ -16,12 +16,12 @@ class IsotopeAbundances(pd.DataFrame):
             kwargs.pop("time_0")
         else:
             time_0 = 0 * u.d
-        super(IsotopeAbundances, self).__init__(*args, **kwargs)
+        super(IsotopeMassFraction, self).__init__(*args, **kwargs)
         self.time_0 = time_0
 
     @property
     def _constructor(self):
-        return IsotopeAbundances
+        return IsotopeMassFraction
 
     def _update_inventory(self):
         self.comp_dicts = [dict() for i in range(len(self.columns))]
@@ -101,7 +101,7 @@ class IsotopeAbundances(pd.DataFrame):
                 f" A negative decay time can potentially lead to negative abundances."
             )
         decayed_inventories = [item.decay(t_second) for item in inventories]
-        df = IsotopeAbundances.from_inventories(decayed_inventories)
+        df = IsotopeMassFraction.from_inventories(decayed_inventories)
         df.sort_index(inplace=True)
         assert (
             df.ge(0.0).all().all()

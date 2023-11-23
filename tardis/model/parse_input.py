@@ -3,7 +3,7 @@ import os
 
 from astropy import units as u
 from tardis.io.model.readers.csvy import parse_csv_abundances
-from tardis.model.matter.decay import IsotopeAbundances
+from tardis.model.matter.decay import IsotopeMassFraction
 from tardis.model.matter.composition import Composition
 import numpy as np
 import pandas as pd
@@ -248,7 +248,7 @@ def parse_abundance_config(config, geometry, time_explosion):
         abundance /= norm_factor
         isotope_abundance /= norm_factor
 
-    isotope_abundance = IsotopeAbundances(isotope_abundance).decay(
+    isotope_abundance = IsotopeMassFraction(isotope_abundance).decay(
         time_explosion
     )
 
@@ -424,7 +424,7 @@ def parse_abundance_csvy(
         mass_fraction /= norm_factor
         isotope_mass_fraction /= norm_factor
 
-    isotope_mass_fraction = IsotopeAbundances(
+    isotope_mass_fraction = IsotopeMassFraction(
         isotope_mass_fraction, time_0=csvy_model_config.model_isotope_time_0
     ).decay(time_explosion)
     return convert_to_nuclide_mass_fraction(
