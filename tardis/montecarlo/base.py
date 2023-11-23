@@ -6,7 +6,6 @@ from tardis import constants as const
 from numba import set_num_threads
 from numba import cuda
 
-from tardis.montecarlo.spectrum import TARDISSpectrum
 
 from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
@@ -164,62 +163,6 @@ class MontecarloTransportSolver(HDFWriterMixin):
             np.zeros_like(self.spectrum_frequency.value), "erg / s"
         )
 
-    @property
-    def spectrum(self):
-        return TARDISSpectrum(
-            self.spectrum_frequency, self.montecarlo_emitted_luminosity
-        )
-
-    @property
-    def spectrum_reabsorbed(self):
-        return TARDISSpectrum(
-            self.spectrum_frequency, self.montecarlo_reabsorbed_luminosity
-        )
-
-    @property
-    def spectrum_virtual(self):
-        if np.all(self.montecarlo_virtual_luminosity == 0):
-            warnings.warn(
-                "MontecarloTransport.spectrum_virtual"
-                "is zero. Please run the montecarlo simulation with"
-                "no_of_virtual_packets > 0",
-                UserWarning,
-            )
-
-        return TARDISSpectrum(
-            self.spectrum_frequency, self.montecarlo_virtual_luminosity
-        )
-
-    @property
-    def spectrum_integrated(self):
-        if self._spectrum_integrated is None:
-            # This was changed from unpacking to specific attributes as compute
-            # is not used in calculate_spectrum
-            self._spectrum_integrated = self.integrator.calculate_spectrum(
-                self.spectrum_frequency[:-1],
-                points=self.integrator_settings.points,
-                interpolate_shells=self.integrator_settings.interpolate_shells,
-            )
-        return self._spectrum_integrated
-
-    @property
-    def integrator(self):
-        if self._integrator is None:
-            warnings.warn(
-                "MontecarloTransport.integrator: "
-                "The FormalIntegrator is not yet available."
-                "Please run the montecarlo simulation at least once.",
-                UserWarning,
-            )
-        if self.enable_full_relativity:
-            raise NotImplementedError(
-                "The FormalIntegrator is not yet implemented for the full "
-                "relativity mode. "
-                "Please run with config option enable_full_relativity: "
-                "False."
-            )
-        return self._integrator
-
     def run(
         self,
         simulation_state,
@@ -269,6 +212,7 @@ class MontecarloTransportSolver(HDFWriterMixin):
             self.packet_collection,
             estimators,
             simulation_state.volume.cgs.copy(),
+            spectrum_frequency=self.spectrum_frequency,
         )
         configuration_initialize(self, no_of_virtual_packets)
         montecarlo_radial1d(
@@ -349,28 +293,6 @@ class MontecarloTransportSolver(HDFWriterMixin):
                 UserWarning,
             )
             return None
-
-    @property
-    def montecarlo_reabsorbed_luminosity(self):
-        return u.Quantity(
-            np.histogram(
-                self.reabsorbed_packet_nu,
-                weights=self.reabsorbed_packet_luminosity,
-                bins=self.spectrum_frequency,
-            )[0],
-            "erg / s",
-        )
-
-    @property
-    def montecarlo_emitted_luminosity(self):
-        return u.Quantity(
-            np.histogram(
-                self.emitted_packet_nu,
-                weights=self.emitted_packet_luminosity,
-                bins=self.spectrum_frequency,
-            )[0],
-            "erg / s",
-        )
 
     @property
     def montecarlo_virtual_luminosity(self):

@@ -1,7 +1,10 @@
 import numpy as np
+import warnings
 
 from astropy import constants as const, units as u
 from scipy.special import zeta
+
+from tardis.montecarlo.spectrum import TARDISSpectrum
 
 DILUTION_FACTOR_ESTIMATOR_CONSTANT = (
     (const.c**2 / (2 * const.h))
@@ -16,10 +19,13 @@ T_RADIATIVE_ESTIMATOR_CONSTANT = (
 
 
 class MonteCarloTransportState:
-    def __init__(self, packet_collection, estimators, volume):
+    def __init__(
+        self, packet_collection, estimators, volume, spectrum_frequency
+    ):
         self.packet_collection = packet_collection
         self.estimators = estimators
         self.volume = volume
+        self.spectrum_frequency = spectrum_frequency
 
     def calculate_radiationfield_properties(self):
         """
@@ -89,6 +95,84 @@ class MonteCarloTransportState:
     def reabsorbed_packet_luminosity(self):
         return -self.packet_luminosity[~self.emitted_packet_mask]
 
+    @property
+    def montecarlo_reabsorbed_luminosity(self):
+        return u.Quantity(
+            np.histogram(
+                self.reabsorbed_packet_nu,
+                weights=self.reabsorbed_packet_luminosity,
+                bins=self.spectrum_frequency,
+            )[0],
+            "erg / s",
+        )
+
+    @property
+    def montecarlo_emitted_luminosity(self):
+        return u.Quantity(
+            np.histogram(
+                self.emitted_packet_nu,
+                weights=self.emitted_packet_luminosity,
+                bins=self.spectrum_frequency,
+            )[0],
+            "erg / s",
+        )
+
+    @property
+    def spectrum(self):
+        return TARDISSpectrum(
+            self.spectrum_frequency, self.montecarlo_emitted_luminosity
+        )
+
+    @property
+    def spectrum_reabsorbed(self):
+        return TARDISSpectrum(
+            self.spectrum_frequency, self.montecarlo_reabsorbed_luminosity
+        )
+
+    @property
+    def spectrum_virtual(self):
+        if np.all(self.montecarlo_virtual_luminosity == 0):
+            warnings.warn(
+                "MontecarloTransport.spectrum_virtual"
+                "is zero. Please run the montecarlo simulation with"
+                "no_of_virtual_packets > 0",
+                UserWarning,
+            )
+
+        return TARDISSpectrum(
+            self.spectrum_frequency, self.montecarlo_virtual_luminosity
+        )
+
+    @property
+    def spectrum_integrated(self):
+        if self._spectrum_integrated is None:
+            # This was changed from unpacking to specific attributes as compute
+            # is not used in calculate_spectrum
+            self._spectrum_integrated = self.integrator.calculate_spectrum(
+                self.spectrum_frequency[:-1],
+                points=self.integrator_settings.points,
+                interpolate_shells=self.integrator_settings.interpolate_shells,
+            )
+        return self._spectrum_integrated
+
+    @property
+    def integrator(self):
+        if self._integrator is None:
+            warnings.warn(
+                "MontecarloTransport.integrator: "
+                "The FormalIntegrator is not yet available."
+                "Please run the montecarlo simulation at least once.",
+                UserWarning,
+            )
+        if self.enable_full_relativity:
+            raise NotImplementedError(
+                "The FormalIntegrator is not yet implemented for the full "
+                "relativity mode. "
+                "Please run with config option enable_full_relativity: "
+                "False."
+            )
+        return self._integrator
+
     def calculate_emitted_luminosity(
         self, luminosity_nu_start, luminosity_nu_end
     ):
@@ -134,3 +218,60 @@ class MonteCarloTransportState:
         return self.reabsorbed_packet_luminosity[
             luminosity_wavelength_filter
         ].sum()
+
+    @property
+    def output_nu(self):
+        return u.Quantity(self._output_nu, u.Hz)
+
+    @property
+    def output_energy(self):
+        return u.Quantity(self._output_energy, u.erg)
+
+    @property
+    def virtual_packet_nu(self):
+        try:
+            return u.Quantity(self.virt_packet_nus, u.Hz)
+        except AttributeError:
+            warnings.warn(
+                "MontecarloTransport.virtual_packet_nu:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
+
+    @property
+    def virtual_packet_energy(self):
+        try:
+            return u.Quantity(self.virt_packet_energies, u.erg)
+        except AttributeError:
+            warnings.warn(
+                "MontecarloTransport.virtual_packet_energy:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
+
+    @property
+    def virtual_packet_luminosity(self):
+        try:
+            return self.virtual_packet_energy / self.time_of_simulation
+        except TypeError:
+            warnings.warn(
+                "MontecarloTransport.virtual_packet_luminosity:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
+
+    @property
+    def montecarlo_virtual_luminosity(self):
+        return (
+            self._montecarlo_virtual_luminosity[:-1]
+            / self.time_of_simulation.value
+        )

@@ -82,7 +82,9 @@ class TestTransportSimple:
     def test_spectrum(self, transport, refdata):
         luminosity = u.Quantity(refdata("spectrum/luminosity"), "erg /s")
 
-        assert_quantity_allclose(transport.spectrum.luminosity, luminosity)
+        assert_quantity_allclose(
+            transport.mc_state.spectrum.luminosity, luminosity
+        )
 
     def test_virtual_spectrum(self, transport, refdata):
         luminosity = u.Quantity(
