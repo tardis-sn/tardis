@@ -266,7 +266,9 @@ class MontecarloTransportSolver(HDFWriterMixin):
         )
 
         self.mc_state = MonteCarloTransportState(
-            self.packet_collection, estimators
+            self.packet_collection,
+            estimators,
+            simulation_state.volume.cgs.copy(),
         )
         configuration_initialize(self, no_of_virtual_packets)
         montecarlo_radial1d(
@@ -376,31 +378,6 @@ class MontecarloTransportSolver(HDFWriterMixin):
             self._montecarlo_virtual_luminosity[:-1]
             / self.time_of_simulation.value
         )
-
-    def calculate_reabsorbed_luminosity(
-        self, luminosity_nu_start, luminosity_nu_end
-    ):
-        """
-        Calculate reabsorbed luminosity.
-
-        Parameters
-        ----------
-        luminosity_nu_start : astropy.units.Quantity
-        luminosity_nu_end : astropy.units.Quantity
-
-        Returns
-        -------
-        astropy.units.Quantity
-        """
-        luminosity_wavelength_filter = (
-            self.reabsorbed_packet_nu > luminosity_nu_start
-        ) & (self.reabsorbed_packet_nu < luminosity_nu_end)
-
-        reabsorbed_luminosity = self.reabsorbed_packet_luminosity[
-            luminosity_wavelength_filter
-        ].sum()
-
-        return reabsorbed_luminosity
 
     @classmethod
     def from_config(

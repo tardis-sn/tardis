@@ -199,8 +199,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     def estimate_t_inner(
         self, input_t_inner, luminosity_requested, t_inner_update_exponent=-0.5
     ):
-        emitted_luminosity = self.transport.calculate_emitted_luminosity(
-            self.luminosity_nu_start, self.luminosity_nu_end
+        emitted_luminosity = (
+            self.transport.mc_state.calculate_emitted_luminosity(
+                self.luminosity_nu_start, self.luminosity_nu_end
+            )
         )
 
         luminosity_ratios = (
@@ -281,7 +283,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         (
             estimated_t_rad,
             estimated_w,
-        ) = self.transport.calculate_radiationfield_properties()
+        ) = self.transport.mc_state.calculate_radiationfield_properties()
         estimated_t_inner = self.estimate_t_inner(
             self.simulation_state.t_inner,
             self.luminosity_requested,
@@ -400,11 +402,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-        emitted_luminosity = self.transport.calculate_emitted_luminosity(
-            self.luminosity_nu_start, self.luminosity_nu_end
+        emitted_luminosity = (
+            self.transport.mc_state.calculate_emitted_luminosity(
+                self.luminosity_nu_start, self.luminosity_nu_end
+            )
         )
-        reabsorbed_luminosity = self.transport.calculate_reabsorbed_luminosity(
-            self.luminosity_nu_start, self.luminosity_nu_end
+        reabsorbed_luminosity = (
+            self.transport.mc_state.calculate_reabsorbed_luminosity(
+                self.luminosity_nu_start, self.luminosity_nu_end
+            )
         )
         if hasattr(self, "convergence_plots"):
             self.convergence_plots.fetch_data(
