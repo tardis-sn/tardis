@@ -183,7 +183,7 @@ class CustomAbundanceWidgetData:
         )
 
     @classmethod
-    def from_yml(cls, fpath):
+    def from_yml(cls, fpath, atom_data=None):
         """Create a new CustomAbundanceWidgetData instance with data
         from YAML file.
 
@@ -197,7 +197,8 @@ class CustomAbundanceWidgetData:
         CustomAbundanceWidgetData
         """
         config = Configuration.from_yaml(fpath)
-        atom_data = AtomData.from_hdf(config.atom_data)
+        if atom_data is None:
+            atom_data = AtomData.from_hdf(config.atom_data)
         if hasattr(config, "csvy_model"):
             simulation_state = SimulationState.from_csvy(
                 config, atom_data=atom_data
