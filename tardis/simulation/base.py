@@ -368,17 +368,19 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
+
+        estimators = self.transport.mc_state.estimators
         if "j_blue_estimator" in self.plasma.outputs_dict:
             update_properties.update(
                 t_inner=next_t_inner,
-                j_blue_estimator=self.transport.j_blue_estimator,
+                j_blue_estimator=estimators.j_blue_estimator,
             )
         if "gamma_estimator" in self.plasma.outputs_dict:
             update_properties.update(
-                gamma_estimator=self.transport.photo_ion_estimator,
-                alpha_stim_estimator=self.transport.stim_recomb_estimator,
-                bf_heating_coeff_estimator=self.transport.bf_heating_estimator,
-                stim_recomb_cooling_coeff_estimator=self.transport.stim_recomb_cooling_estimator,
+                gamma_estimator=estimators.photo_ion_estimator,
+                alpha_stim_estimator=estimators.stim_recomb_estimator,
+                bf_heating_coeff_estimator=estimators.bf_heating_estimator,
+                stim_recomb_cooling_coeff_estimator=estimators.stim_recomb_cooling_estimator,
             )
 
         self.plasma.update(**update_properties)

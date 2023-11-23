@@ -49,7 +49,7 @@ class MonteCarloTransportState:
             * const.sigma_sb.cgs.value
             * estimated_t_radiative.value**4
             * (self.packet_collection.time_of_simulation)
-            * self.volume
+            * self.volume.cgs.value
         )
 
         return estimated_t_radiative, dilution_factor
