@@ -62,15 +62,15 @@ def test_montecarlo_main_loop(
         compare_fname, key="/simulation/transport/j_estimator"
     ).values
 
-    actual_energy = sim.transport.output_energy
-    actual_nu = sim.transport.output_nu
-    actual_nu_bar_estimator = sim.transport.nu_bar_estimator
-    actual_j_estimator = sim.transport.j_estimator
+    actual_energy = sim.transport.mc_state.packet_collection.output_energies
+    actual_nu = sim.transport.mc_state.packet_collection.output_nus
+    actual_nu_bar_estimator = sim.transport.mc_state.estimators.nu_bar_estimator
+    actual_j_estimator = sim.transport.mc_state.estimators.j_estimator
 
     # Compare
     npt.assert_allclose(
         actual_nu_bar_estimator, expected_nu_bar_estimator, rtol=1e-13
     )
     npt.assert_allclose(actual_j_estimator, expected_j_estimator, rtol=1e-13)
-    npt.assert_allclose(actual_energy.value, expected_energy, rtol=1e-13)
-    npt.assert_allclose(actual_nu.value, expected_nu, rtol=1e-13)
+    npt.assert_allclose(actual_energy, expected_energy, rtol=1e-13)
+    npt.assert_allclose(actual_nu, expected_nu, rtol=1e-13)
