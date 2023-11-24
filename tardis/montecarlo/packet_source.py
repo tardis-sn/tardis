@@ -43,16 +43,6 @@ class BasePacketSource(abc.ABC):
     def _reseed(self, seed):
         self.rng = np.random.default_rng(seed=seed)
 
-    def create_packet_seeds(self, no_of_packets, seed_offset):
-        # the iteration (passed as seed_offset) is added each time to preserve randomness
-        # across different simulations with the same temperature,
-        # for example. We seed the random module instead of the numpy module
-        # because we call random.sample, which references a different internal
-        # state than in the numpy.random module.
-        self._reseed(self.base_seed + seed_offset)
-        seeds = self.rng.choice(self.MAX_SEED_VAL, no_of_packets, replace=True)
-        return seeds
-
     @abc.abstractmethod
     def create_packet_radii(self, no_of_packets, *args, **kwargs):
         pass
@@ -69,7 +59,7 @@ class BasePacketSource(abc.ABC):
     def create_packet_energies(self, no_of_packets, *args, **kwargs):
         pass
 
-    def create_packets(self, no_of_packets, *args, **kwargs):
+    def create_packets(self, no_of_packets, seed_offset=0, *args, **kwargs):
         """Generate packet properties as arrays
 
         Parameters
@@ -88,6 +78,16 @@ class BasePacketSource(abc.ABC):
         array
             Packet energies
         """
+        # the iteration (passed as seed_offset) is added each time to preserve randomness
+        # across different simulations with the same temperature,
+        # for example. We seed the random module instead of the numpy module
+        # because we call random.sample, which references a different internal
+        # state than in the numpy.random module.
+        self._reseed(self.base_seed + seed_offset)
+        packet_seeds = self.rng.choice(
+            self.MAX_SEED_VAL, no_of_packets, replace=True
+        )
+
         radii = self.create_packet_radii(no_of_packets, *args, **kwargs)
         nus = self.create_packet_nus(no_of_packets, *args, **kwargs)
         mus = self.create_packet_mus(no_of_packets, *args, **kwargs)
@@ -100,7 +100,7 @@ class BasePacketSource(abc.ABC):
             self.calculate_radfield_luminosity().to(u.erg / u.s).value
         )
         return PacketCollection(
-            radii, nus, mus, energies, radiation_field_luminosity
+            radii, nus, mus, energies, packet_seeds, radiation_field_luminosity
         )
 
     def calculate_radfield_luminosity(self):

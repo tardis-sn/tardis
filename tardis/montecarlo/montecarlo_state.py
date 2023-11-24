@@ -1,7 +1,8 @@
 import numpy as np
 import warnings
 
-from astropy import constants as const, units as u
+from astropy import units as u
+from tardis import constants as const
 from scipy.special import zeta
 
 from tardis.montecarlo.spectrum import TARDISSpectrum

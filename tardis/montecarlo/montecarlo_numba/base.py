@@ -81,7 +81,6 @@ def montecarlo_radial1d(
         estimators,
         transport.spectrum_frequency.value,
         number_of_vpackets,
-        packet_seeds,
         montecarlo_configuration.VPACKET_LOGGING,
         iteration=iteration,
         show_progress_bars=show_progress_bars,
@@ -136,7 +135,6 @@ def montecarlo_main_loop(
     estimators,
     spectrum_frequency,
     number_of_vpackets,
-    packet_seeds,
     virtual_packet_logging,
     iteration,
     show_progress_bars,
@@ -235,16 +233,15 @@ def montecarlo_main_loop(
                         total_iterations=total_iterations,
                     )
 
-        seed = packet_seeds[i]
-        np.random.seed(seed)
         r_packet = RPacket(
             packet_collection.initial_radii[i],
             packet_collection.initial_mus[i],
             packet_collection.initial_nus[i],
             packet_collection.initial_energies[i],
-            seed,
+            packet_collection.packet_seeds[i],
             i,
         )
+        np.random.seed(r_packet.seed)
         local_estimators = estimator_list[tid]
         vpacket_collection = vpacket_collections[i]
         rpacket_tracker = rpacket_trackers[i]

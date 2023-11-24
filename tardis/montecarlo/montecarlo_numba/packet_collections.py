@@ -7,6 +7,7 @@ packet_collection_spec = [
     ("initial_nus", float64[:]),
     ("initial_mus", float64[:]),
     ("initial_energies", float64[:]),
+    ("packet_seeds", int64[:]),
     ("time_of_simulation", float64),
     ("radiation_field_luminosity", float64),  #
     ("output_nus", float64[:]),
@@ -22,13 +23,14 @@ class PacketCollection:
         initial_nus,
         initial_mus,
         initial_energies,
+        packet_seeds,
         radiation_field_luminosity,
     ):
         self.initial_radii = initial_radii
         self.initial_nus = initial_nus
         self.initial_mus = initial_mus
         self.initial_energies = initial_energies
-
+        self.packet_seeds = packet_seeds
         self.radiation_field_luminosity = radiation_field_luminosity
         self.time_of_simulation = (
             1 / radiation_field_luminosity

@@ -131,19 +131,16 @@ class MontecarloTransportSolver(HDFWriterMixin):
         if self.spectrum_method == "integrated":
             self.optional_hdf_properties.append("spectrum_integrated")
 
-    def _initialize_packets(self, simulation_state, no_of_packets, iteration):
+    def _initialize_packets(self, no_of_packets, iteration):
         # the iteration (passed as seed_offset) is added each time to preserve randomness
         # across different simulations with the same temperature,
         # for example.
-        mc_config_module.packet_seeds = self.packet_source.create_packet_seeds(
-            no_of_packets, iteration
-        )
 
         # Create packets
         self.packet_collection = self.packet_source.create_packets(
-            no_of_packets
+            no_of_packets, seed_offset=iteration
         )
-
+        mc_config_module.packet_seeds = self.packet_collection.packet_seeds
         self._output_nu = self.packet_collection.output_nus
         self._output_energy = self.packet_collection.output_energies
 
@@ -202,11 +199,7 @@ class MontecarloTransportSolver(HDFWriterMixin):
             plasma.tau_sobolevs.shape, gamma_shape
         )
 
-        self._initialize_packets(
-            simulation_state,
-            no_of_packets,
-            iteration,
-        )
+        self._initialize_packets(no_of_packets, iteration)
 
         self.mc_state = MonteCarloTransportState(
             self.packet_collection,
