@@ -477,7 +477,7 @@ def test_hdf_model_scalars(hdf_file_path, simulation_verysimple, attr):
     assert_almost_equal(actual, expected)
 
 
-model_nparray_attrs = ["w", "v_inner", "v_outer"]
+model_nparray_attrs = ["dilution_factor", "v_inner", "v_outer"]
 
 
 @pytest.mark.parametrize("attr", model_nparray_attrs)

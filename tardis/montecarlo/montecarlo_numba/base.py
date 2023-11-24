@@ -4,9 +4,9 @@ from numba.np.ufunc.parallel import get_thread_id, get_num_threads
 import numpy as np
 from tardis.montecarlo.montecarlo_numba.estimators import Estimators
 from tardis.montecarlo.montecarlo_numba.packet_collections import (
-    PacketCollection,
     VPacketCollection,
 )
+
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     RPacket,
@@ -53,8 +53,6 @@ def montecarlo_radial1d(
         plasma, transport.line_interaction_type
     )
 
-    packet_seeds = montecarlo_configuration.packet_seeds
-
     number_of_vpackets = montecarlo_configuration.number_of_vpackets
     (
         v_packets_energy_hist,
@@ -86,7 +84,10 @@ def montecarlo_radial1d(
         show_progress_bars=show_progress_bars,
         total_iterations=total_iterations,
     )
-    transport._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
+
+    transport.mc_state._montecarlo_virtual_luminosity.value[
+        :
+    ] = v_packets_energy_hist
     transport.last_interaction_type = last_interaction_type
     transport.last_interaction_in_nu = last_interaction_in_nu
     transport.last_line_interaction_in_id = last_line_interaction_in_id

@@ -400,7 +400,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             total_iterations=self.iterations,
             show_progress_bars=self.show_progress_bars,
         )
-        output_energy = self.transport.output_energy
+        output_energy = (
+            self.transport.mc_state.packet_collection.output_energies
+        )
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 

@@ -140,9 +140,6 @@ class MontecarloTransportSolver(HDFWriterMixin):
         self.packet_collection = self.packet_source.create_packets(
             no_of_packets, seed_offset=iteration
         )
-        mc_config_module.packet_seeds = self.packet_collection.packet_seeds
-        self._output_nu = self.packet_collection.output_nus
-        self._output_energy = self.packet_collection.output_energies
 
         self.last_line_interaction_in_id = -1 * np.ones(
             no_of_packets, dtype=np.int64
@@ -155,10 +152,6 @@ class MontecarloTransportSolver(HDFWriterMixin):
         )
         self.last_interaction_type = -1 * np.ones(no_of_packets, dtype=np.int64)
         self.last_interaction_in_nu = np.zeros(no_of_packets, dtype=np.float64)
-
-        self._montecarlo_virtual_luminosity = u.Quantity(
-            np.zeros_like(self.spectrum_frequency.value), "erg / s"
-        )
 
     def run(
         self,
@@ -207,6 +200,7 @@ class MontecarloTransportSolver(HDFWriterMixin):
             simulation_state.volume.cgs.copy(),
             spectrum_frequency=self.spectrum_frequency,
         )
+
         configuration_initialize(self, no_of_virtual_packets)
         montecarlo_radial1d(
             simulation_state,
@@ -235,63 +229,6 @@ class MontecarloTransportSolver(HDFWriterMixin):
     def get_line_interaction_id(self, line_interaction_type):
         return ["scatter", "downbranch", "macroatom"].index(
             line_interaction_type
-        )
-
-    @property
-    def output_nu(self):
-        return u.Quantity(self._output_nu, u.Hz)
-
-    @property
-    def output_energy(self):
-        return u.Quantity(self._output_energy, u.erg)
-
-    @property
-    def virtual_packet_nu(self):
-        try:
-            return u.Quantity(self.virt_packet_nus, u.Hz)
-        except AttributeError:
-            warnings.warn(
-                "MontecarloTransport.virtual_packet_nu:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None
-
-    @property
-    def virtual_packet_energy(self):
-        try:
-            return u.Quantity(self.virt_packet_energies, u.erg)
-        except AttributeError:
-            warnings.warn(
-                "MontecarloTransport.virtual_packet_energy:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None
-
-    @property
-    def virtual_packet_luminosity(self):
-        try:
-            return self.virtual_packet_energy / self.time_of_simulation
-        except TypeError:
-            warnings.warn(
-                "MontecarloTransport.virtual_packet_luminosity:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None
-
-    @property
-    def montecarlo_virtual_luminosity(self):
-        return (
-            self._montecarlo_virtual_luminosity[:-1]
-            / self.time_of_simulation.value
         )
 
     @classmethod

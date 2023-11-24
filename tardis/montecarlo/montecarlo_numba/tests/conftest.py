@@ -5,7 +5,6 @@ import numpy as np
 from numba import njit
 from tardis.montecarlo.montecarlo_numba.estimators import Estimators
 from tardis.montecarlo.montecarlo_numba.packet_collections import (
-    PacketCollection,
     VPacketCollection,
 )
 
@@ -97,24 +96,16 @@ def verysimple_3vpacket_collection(nb_simulation_verysimple):
 
 @pytest.fixture(scope="package")
 def verysimple_packet_collection(nb_simulation_verysimple):
-    transport = nb_simulation_verysimple.transport
-    return PacketCollection(
-        transport.input_r,
-        transport.input_nu,
-        transport.input_mu,
-        transport.input_energy,
-        transport._output_nu,
-        transport._output_energy,
-    )
+    return nb_simulation_verysimple.transport.packet_collection
 
 
 @pytest.fixture(scope="function")
 def packet(verysimple_packet_collection):
     return RPacket(
         r=7.5e14,
-        nu=verysimple_packet_collection.packets_input_nu[0],
-        mu=verysimple_packet_collection.packets_input_mu[0],
-        energy=verysimple_packet_collection.packets_input_energy[0],
+        nu=verysimple_packet_collection.initial_nus[0],
+        mu=verysimple_packet_collection.initial_mus[0],
+        energy=verysimple_packet_collection.initial_energies[0],
         seed=1963,
         index=0,
     )

@@ -27,6 +27,9 @@ class MonteCarloTransportState:
         self.estimators = estimators
         self.volume = volume
         self.spectrum_frequency = spectrum_frequency
+        self._montecarlo_virtual_luminosity = u.Quantity(
+            np.zeros_like(self.spectrum_frequency.value), "erg / s"
+        )
 
     def calculate_radiationfield_properties(self):
         """
@@ -64,12 +67,9 @@ class MonteCarloTransportState:
     @property
     def packet_luminosity(self):
         return (
-            (
-                self.packet_collection.output_energies
-                / self.packet_collection.time_of_simulation
-            )
+            self.packet_collection.output_energies
             * u.erg
-            / u.s
+            / (self.packet_collection.time_of_simulation * u.s)
         )
 
     @property
@@ -116,6 +116,13 @@ class MonteCarloTransportState:
                 bins=self.spectrum_frequency,
             )[0],
             "erg / s",
+        )
+
+    @property
+    def montecarlo_virtual_luminosity(self):
+        return (
+            self._montecarlo_virtual_luminosity[:-1]
+            / self.packet_collection.time_of_simulation
         )
 
     @property
@@ -221,12 +228,55 @@ class MonteCarloTransportState:
         ].sum()
 
     @property
-    def output_nu(self):
-        return u.Quantity(self._output_nu, u.Hz)
+    def virtual_packet_nu(self):
+        try:
+            return u.Quantity(self.virt_packet_nus, u.Hz)
+        except AttributeError:
+            warnings.warn(
+                "MontecarloTransport.virtual_packet_nu:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
 
     @property
-    def output_energy(self):
-        return u.Quantity(self._output_energy, u.erg)
+    def virtual_packet_energy(self):
+        try:
+            return u.Quantity(self.virt_packet_energies, u.erg)
+        except AttributeError:
+            warnings.warn(
+                "MontecarloTransport.virtual_packet_energy:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
+
+    @property
+    def virtual_packet_luminosity(self):
+        try:
+            return self.virtual_packet_energy / (
+                self.packet_collection.time_of_simulation * u.s
+            )
+        except TypeError:
+            warnings.warn(
+                "MontecarloTransport.virtual_packet_luminosity:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
+
+    @property
+    def montecarlo_virtual_luminosity(self):
+        return (
+            self._montecarlo_virtual_luminosity[:-1]
+            / self.packet_collection.time_of_simulation
+        )
 
     @property
     def virtual_packet_nu(self):
@@ -259,7 +309,10 @@ class MonteCarloTransportState:
     @property
     def virtual_packet_luminosity(self):
         try:
-            return self.virtual_packet_energy / self.time_of_simulation
+            return (
+                self.virtual_packet_energy
+                / self.packet_collection.time_of_simulation
+            )
         except TypeError:
             warnings.warn(
                 "MontecarloTransport.virtual_packet_luminosity:"
@@ -269,10 +322,3 @@ class MonteCarloTransportState:
                 UserWarning,
             )
             return None
-
-    @property
-    def montecarlo_virtual_luminosity(self):
-        return (
-            self._montecarlo_virtual_luminosity[:-1]
-            / self.time_of_simulation.value
-        )
