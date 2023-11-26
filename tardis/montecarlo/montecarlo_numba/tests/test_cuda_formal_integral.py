@@ -359,11 +359,11 @@ def test_full_formal_integral(
     # The function calculate_spectrum sets this property, but in order to test the CUDA.
     # version it is done manually, as well as to speed up the test.
     formal_integrator_numba.interpolate_shells = max(
-        2 * formal_integrator_numba.model.no_of_shells, 80
+        2 * formal_integrator_numba.simulation_state.no_of_shells, 80
     )
 
     formal_integrator_cuda.interpolate_shells = max(
-        2 * formal_integrator_cuda.model.no_of_shells, 80
+        2 * formal_integrator_cuda.simulation_state.no_of_shells, 80
     )
 
     res_numba = formal_integrator_numba.make_source_function()
@@ -389,7 +389,7 @@ def test_full_formal_integral(
     formal_integrator_cuda.generate_numba_objects()
 
     L_cuda = formal_integrator_cuda.integrator.formal_integral(
-        formal_integrator_cuda.model.t_inner,
+        formal_integrator_cuda.simulation_state.t_inner,
         sim.transport.spectrum.frequency,
         sim.transport.spectrum.frequency.shape[0],
         att_S_ul_cuda,
@@ -401,7 +401,7 @@ def test_full_formal_integral(
     )[0]
 
     L_numba = formal_integrator_numba.integrator.formal_integral(
-        formal_integrator_numba.model.t_inner,
+        formal_integrator_numba.simulation_state.t_inner,
         sim.transport.spectrum.frequency,
         sim.transport.spectrum.frequency.shape[0],
         att_S_ul_numba,

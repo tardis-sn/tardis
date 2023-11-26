@@ -188,6 +188,7 @@ numba_geometry_spec = [
     ("r_outer", float64[:]),
     ("v_inner", float64[:]),
     ("v_outer", float64[:]),
+    ("volume", float64[:]),
 ]
 
 
@@ -203,8 +204,10 @@ class NumbaRadial1DGeometry(object):
         r_outer : numpy.ndarray
         v_inner : numpy.ndarray
         v_outer : numpy.ndarray
+        volume : numpy.ndarray
         """
         self.r_inner = r_inner
         self.r_outer = r_outer
         self.v_inner = v_inner
         self.v_outer = v_outer
+        self.volume = (4 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)

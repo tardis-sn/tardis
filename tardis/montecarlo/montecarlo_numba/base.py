@@ -45,7 +45,7 @@ def montecarlo_radial1d(
     show_progress_bars,
     transport,
 ):
-    numba_radial_1d_geometry = simulation_state.geometry.to_numba()
+    numba_radial_1d_geometry = transport.mc_state.geometry_state
     numba_model = NumbaModel(
         simulation_state.time_explosion.to("s").value,
     )

@@ -100,7 +100,7 @@ class MontecarloTransportSolver(HDFWriterMixin):
         self.v_packet_settings = v_packet_settings
         self.spectrum_method = spectrum_method
         self._integrator = None
-        self._spectrum_integrated = None
+
         self.use_gpu = use_gpu
 
         self.virt_logging = enable_virtual_packet_logging
@@ -199,6 +199,12 @@ class MontecarloTransportSolver(HDFWriterMixin):
             estimators,
             simulation_state.volume.cgs.copy(),
             spectrum_frequency=self.spectrum_frequency,
+            geometry_state=simulation_state.geometry.to_numba(),
+        )
+        self.mc_state.enable_full_relativity = self.enable_full_relativity
+        self.mc_state.integrator_settings = self.integrator_settings
+        self.mc_state._integrator = FormalIntegrator(
+            simulation_state, plasma, self
         )
 
         configuration_initialize(self, no_of_virtual_packets)
@@ -212,7 +218,6 @@ class MontecarloTransportSolver(HDFWriterMixin):
             show_progress_bars,
             self,
         )
-        self._integrator = FormalIntegrator(simulation_state, plasma, self)
 
     def legacy_return(self):
         return (
@@ -276,10 +281,7 @@ class MontecarloTransportSolver(HDFWriterMixin):
                     but no CUDA GPU is available."""
                 )
         elif running_mode == "AUTOMATIC":
-            if cuda.is_available():
-                use_gpu = True
-            else:
-                use_gpu = False
+            use_gpu = bool(cuda.is_available())
         elif running_mode == "CPU":
             use_gpu = False
         else:

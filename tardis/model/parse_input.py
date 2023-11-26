@@ -574,7 +574,7 @@ def parse_packet_source(config, geometry):
     luminosity_requested = config.supernova.luminosity_requested
     if config.plasma.initial_t_inner > 0.0 * u.K:
         packet_source.radius = geometry.r_inner[0]
-        packet_source.temperature = (config.plasma.initial_t_inner,)
+        packet_source.temperature = config.plasma.initial_t_inner
 
     elif (config.plasma.initial_t_inner < 0.0 * u.K) and (
         luminosity_requested is not None

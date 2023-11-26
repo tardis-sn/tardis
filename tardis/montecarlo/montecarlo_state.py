@@ -5,6 +5,7 @@ from astropy import units as u
 from tardis import constants as const
 from scipy.special import zeta
 
+from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
 DILUTION_FACTOR_ESTIMATOR_CONSTANT = (
@@ -19,9 +20,14 @@ T_RADIATIVE_ESTIMATOR_CONSTANT = (
 ).cgs.value
 
 
-class MonteCarloTransportState:
+class MonteCarloTransportState(HDFWriterMixin):
     def __init__(
-        self, packet_collection, estimators, volume, spectrum_frequency
+        self,
+        packet_collection,
+        estimators,
+        volume,
+        spectrum_frequency,
+        geometry_state,
     ):
         self.packet_collection = packet_collection
         self.estimators = estimators
@@ -30,6 +36,11 @@ class MonteCarloTransportState:
         self._montecarlo_virtual_luminosity = u.Quantity(
             np.zeros_like(self.spectrum_frequency.value), "erg / s"
         )
+        self._integrator = None
+        self.integrator_settings = None
+        self._spectrum_integrated = None
+        self.enable_full_relativity = False
+        self.geometry_state = geometry_state
 
     def calculate_radiationfield_properties(self):
         """
@@ -59,10 +70,14 @@ class MonteCarloTransportState:
             * const.sigma_sb.cgs.value
             * estimated_t_radiative.value**4
             * (self.packet_collection.time_of_simulation)
-            * self.volume.cgs.value
+            * self.geometry_state.volume
         )
 
         return estimated_t_radiative, dilution_factor
+
+    @property
+    def time_of_simulation(self):
+        return self.packet_collection.time_of_simulation * u.s
 
     @property
     def packet_luminosity(self):
