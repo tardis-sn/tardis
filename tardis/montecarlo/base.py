@@ -35,22 +35,12 @@ class MontecarloTransportSolver(HDFWriterMixin):
     """
 
     hdf_properties = [
-        "output_nu",
-        "output_energy",
-        "nu_bar_estimator",
-        "j_estimator",
-        "montecarlo_virtual_luminosity",
+        "transport_state",
         "last_interaction_in_nu",
         "last_interaction_type",
         "last_line_interaction_in_id",
         "last_line_interaction_out_id",
         "last_line_interaction_shell_id",
-        "packet_luminosity",
-        "spectrum",
-        "spectrum_virtual",
-        "spectrum_reabsorbed",
-        "time_of_simulation",
-        "emitted_packet_mask",
     ]
 
     vpacket_hdf_properties = [
@@ -194,16 +184,18 @@ class MontecarloTransportSolver(HDFWriterMixin):
 
         self._initialize_packets(no_of_packets, iteration)
 
-        self.mc_state = MonteCarloTransportState(
+        self.transport_state = MonteCarloTransportState(
             self.packet_collection,
             estimators,
             simulation_state.volume.cgs.copy(),
             spectrum_frequency=self.spectrum_frequency,
             geometry_state=simulation_state.geometry.to_numba(),
         )
-        self.mc_state.enable_full_relativity = self.enable_full_relativity
-        self.mc_state.integrator_settings = self.integrator_settings
-        self.mc_state._integrator = FormalIntegrator(
+        self.transport_state.enable_full_relativity = (
+            self.enable_full_relativity
+        )
+        self.transport_state.integrator_settings = self.integrator_settings
+        self.transport_state._integrator = FormalIntegrator(
             simulation_state, plasma, self
         )
 
@@ -213,7 +205,7 @@ class MontecarloTransportSolver(HDFWriterMixin):
             plasma,
             iteration,
             self.packet_collection,
-            self.mc_state.estimators,
+            self.transport_state.estimators,
             total_iterations,
             show_progress_bars,
             self,
@@ -221,10 +213,10 @@ class MontecarloTransportSolver(HDFWriterMixin):
 
     def legacy_return(self):
         return (
-            self.mc_state.packet_collection.output_nus,
-            self.mc_state.packet_collection.output_energies,
-            self.mc_state.estimators.j_estimator,
-            self.mc_state.estimators.nu_bar_estimator,
+            self.transport_state.packet_collection.output_nus,
+            self.transport_state.packet_collection.output_energies,
+            self.transport_state.estimators.j_estimator,
+            self.transport_state.estimators.nu_bar_estimator,
             self.last_line_interaction_in_id,
             self.last_line_interaction_out_id,
             self.last_interaction_type,

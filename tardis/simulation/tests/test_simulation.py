@@ -90,7 +90,7 @@ def simulation_one_loop(
 def test_plasma_estimates(simulation_one_loop, refdata, name):
     if name in ["nu_bar_estimator", "j_estimator"]:
         actual = getattr(
-            simulation_one_loop.transport.mc_state.estimators, name
+            simulation_one_loop.transport.transport_state.estimators, name
         )
     elif name in ["t_radiative", "dilution_factor"]:
         actual = getattr(simulation_one_loop.simulation_state, name)
@@ -100,7 +100,7 @@ def test_plasma_estimates(simulation_one_loop, refdata, name):
             "output_energy": "output_energies",
         }
         actual = getattr(
-            simulation_one_loop.transport.mc_state.packet_collection,
+            simulation_one_loop.transport.transport_state.packet_collection,
             OLD_TO_NEW_DICT[name],
         )
     else:

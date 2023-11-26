@@ -20,7 +20,7 @@ class LastLineInteraction(object):
             simulation.transport.last_line_interaction_in_id,
             simulation.transport.last_line_interaction_out_id,
             simulation.transport.last_line_interaction_shell_id,
-            simulation.transport.mc_state.packet_collection.output_nus,
+            simulation.transport.transport_state.packet_collection.output_nus,
             simulation.transport.last_interaction_in_nu,
             simulation.plasma.atomic_data.lines,
             packet_filter_mode,

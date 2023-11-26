@@ -45,7 +45,7 @@ def montecarlo_radial1d(
     show_progress_bars,
     transport,
 ):
-    numba_radial_1d_geometry = transport.mc_state.geometry_state
+    numba_radial_1d_geometry = transport.transport_state.geometry_state
     numba_model = NumbaModel(
         simulation_state.time_explosion.to("s").value,
     )
@@ -85,7 +85,7 @@ def montecarlo_radial1d(
         total_iterations=total_iterations,
     )
 
-    transport.mc_state._montecarlo_virtual_luminosity.value[
+    transport.transport_state._montecarlo_virtual_luminosity.value[
         :
     ] = v_packets_energy_hist
     transport.last_interaction_type = last_interaction_type

@@ -200,7 +200,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self, input_t_inner, luminosity_requested, t_inner_update_exponent=-0.5
     ):
         emitted_luminosity = (
-            self.transport.mc_state.calculate_emitted_luminosity(
+            self.transport.transport_state.calculate_emitted_luminosity(
                 self.luminosity_nu_start, self.luminosity_nu_end
             )
         )
@@ -283,7 +283,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         (
             estimated_t_rad,
             estimated_w,
-        ) = self.transport.mc_state.calculate_radiationfield_properties()
+        ) = self.transport.transport_state.calculate_radiationfield_properties()
         estimated_t_inner = self.estimate_t_inner(
             self.simulation_state.t_inner,
             self.luminosity_requested,
@@ -369,7 +369,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
 
-        estimators = self.transport.mc_state.estimators
+        estimators = self.transport.transport_state.estimators
         if "j_blue_estimator" in self.plasma.outputs_dict:
             update_properties.update(
                 t_inner=next_t_inner,
@@ -401,18 +401,18 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             show_progress_bars=self.show_progress_bars,
         )
         output_energy = (
-            self.transport.mc_state.packet_collection.output_energies
+            self.transport.transport_state.packet_collection.output_energies
         )
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
         emitted_luminosity = (
-            self.transport.mc_state.calculate_emitted_luminosity(
+            self.transport.transport_state.calculate_emitted_luminosity(
                 self.luminosity_nu_start, self.luminosity_nu_end
             )
         )
         reabsorbed_luminosity = (
-            self.transport.mc_state.calculate_reabsorbed_luminosity(
+            self.transport.transport_state.calculate_reabsorbed_luminosity(
                 self.luminosity_nu_start, self.luminosity_nu_end
             )
         )

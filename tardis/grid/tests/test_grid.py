@@ -2,24 +2,24 @@ import pandas as pd
 import numpy as np
 import tardis
 import os
-import pytest
+from pathlib import Path
 import tardis.grid as grid
 
 
-DATA_PATH = os.path.join(tardis.__path__[0], "grid", "tests", "data")
+DATA_PATH = Path = tardis.__path__[0] / "grid" / "tests" / "data"
 
 
 def test_grid():
     """Tests the basic functionality of the TARDIS grid module."""
-    dfpath = os.path.join(DATA_PATH, "example_grid.txt")
-    ymlpath = os.path.join(DATA_PATH, "example.yml")
+    dfpath = DATA_PATH / "example_grid.txt"
+    ymlpath = DATA_PATH / "example.yml"
     axesdict = {
         "model.structure.velocity.start": np.arange(10000, 15000, 1000),
         "model.abundances.He": np.arange(0, 1, 0.1),
         "model.abundances.H": np.arange(0, 1, 0.25),
     }
 
-    df = pd.read_csv(os.path.join(dfpath))
+    df = pd.read_csv(dfpath)
     g = grid.tardisGrid(configFile=ymlpath, gridFrame=df)
     g2 = grid.tardisGrid.from_axes(configFile=ymlpath, axesdict=axesdict)
 

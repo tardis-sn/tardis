@@ -419,7 +419,7 @@ class FormalIntegrator(object):
 
         simulation_state = self.simulation_state
         transport = self.transport
-        mct_state = transport.mc_state
+        mct_state = transport.transport_state
 
         # macro_ref = self.atomic_data.macro_atom_references
         macro_ref = self.atomic_data.macro_atom_references
@@ -467,7 +467,8 @@ class FormalIntegrator(object):
         # Jbluelu should already by in the correct order, i.e. by wavelength of
         # the transition l->u
         Jbluelu = (
-            transport.mc_state.estimators.j_blue_estimator * Jbluelu_norm_factor
+            transport.transport_state.estimators.j_blue_estimator
+            * Jbluelu_norm_factor
         )
 
         upper_level_index = self.atomic_data.lines.index.droplevel(
@@ -549,7 +550,7 @@ class FormalIntegrator(object):
         self, att_S_ul, Jredlu, Jbluelu, e_dot_u
     ):
         transport = self.transport
-        mct_state = transport.mc_state
+        mct_state = transport.transport_state
         plasma = self.original_plasma
         nshells = self.interpolate_shells
         r_middle = (

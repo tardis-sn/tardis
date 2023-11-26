@@ -21,6 +21,22 @@ T_RADIATIVE_ESTIMATOR_CONSTANT = (
 
 
 class MonteCarloTransportState(HDFWriterMixin):
+    hdf_properties = [
+        "output_nu",
+        "output_energy",
+        "nu_bar_estimator",
+        "j_estimator",
+        "montecarlo_virtual_luminosity",
+        "packet_luminosity",
+        "spectrum",
+        "spectrum_virtual",
+        "spectrum_reabsorbed",
+        "time_of_simulation",
+        "emitted_packet_mask",
+    ]
+
+    hdf_name = "transport_state"
+
     def __init__(
         self,
         packet_collection,
@@ -74,6 +90,22 @@ class MonteCarloTransportState(HDFWriterMixin):
         )
 
         return estimated_t_radiative, dilution_factor
+
+    @property
+    def output_nu(self):
+        return self.packet_collection.output_nus * u.Hz
+
+    @property
+    def output_energy(self):
+        return self.packet_collection.output_energies * u.erg
+
+    @property
+    def nu_bar_estimator(self):
+        return self.estimators.nu_bar_estimator
+
+    @property
+    def j_estimator(self):
+        return self.estimators.j_estimator
 
     @property
     def time_of_simulation(self):
