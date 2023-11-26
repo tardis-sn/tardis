@@ -90,6 +90,7 @@ class SDECData:
             Time of simulation, having unit of s (second)
         """
         # Save packets properties in a dataframe for easier data manipulation
+        packet_nus = u.Quantity(packet_nus, u.Hz)
         self.packets_df = pd.DataFrame(
             {
                 "nus": packet_nus,
@@ -165,9 +166,10 @@ class SDECData:
         lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(
             "line_id"
         )
-        r_inner = sim.simulation_state.r_inner
-        t_inner = sim.simulation_state.t_inner
-        time_of_simulation = sim.transport.time_of_simulation
+        mc_state = sim.transport.mc_state
+        r_inner = sim.simulation_state.geometry.r_inner
+        t_inner = sim.simulation_state.packet_source.temperature
+        time_of_simulation = mc_state.packet_collection.time_of_simulation * u.s
 
         if packets_mode == "virtual":
             return cls(
@@ -181,10 +183,10 @@ class SDECData:
                     sim.transport.virt_packet_energies, "erg"
                 ),
                 r_inner=r_inner,
-                spectrum_delta_frequency=sim.transport.spectrum_virtual.delta_frequency,
-                spectrum_frequency_bins=sim.transport.spectrum_virtual._frequency,
-                spectrum_luminosity_density_lambda=sim.transport.spectrum_virtual.luminosity_density_lambda,
-                spectrum_wavelength=sim.transport.spectrum_virtual.wavelength,
+                spectrum_delta_frequency=mc_state.spectrum_virtual.delta_frequency,
+                spectrum_frequency_bins=mc_state.spectrum_virtual._frequency,
+                spectrum_luminosity_density_lambda=mc_state.spectrum_virtual.luminosity_density_lambda,
+                spectrum_wavelength=mc_state.spectrum_virtual.wavelength,
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
             )
@@ -194,29 +196,29 @@ class SDECData:
             # which got emitted
             return cls(
                 last_interaction_type=sim.transport.last_interaction_type[
-                    sim.transport.emitted_packet_mask
+                    mc_state.emitted_packet_mask
                 ],
                 last_line_interaction_in_id=sim.transport.last_line_interaction_in_id[
-                    sim.transport.emitted_packet_mask
+                    mc_state.emitted_packet_mask
                 ],
                 last_line_interaction_out_id=sim.transport.last_line_interaction_out_id[
-                    sim.transport.emitted_packet_mask
+                    mc_state.emitted_packet_mask
                 ],
                 last_line_interaction_in_nu=sim.transport.last_interaction_in_nu[
-                    sim.transport.emitted_packet_mask
+                    mc_state.emitted_packet_mask
                 ],
                 lines_df=lines_df,
-                packet_nus=sim.transport.output_nu[
-                    sim.transport.emitted_packet_mask
+                packet_nus=mc_state.packet_collection.output_nus[
+                    mc_state.emitted_packet_mask
                 ],
-                packet_energies=sim.transport.output_energy[
-                    sim.transport.emitted_packet_mask
+                packet_energies=mc_state.packet_collection.output_energies[
+                    mc_state.emitted_packet_mask
                 ],
                 r_inner=r_inner,
-                spectrum_delta_frequency=sim.transport.spectrum.delta_frequency,
-                spectrum_frequency_bins=sim.transport.spectrum._frequency,
-                spectrum_luminosity_density_lambda=sim.transport.spectrum.luminosity_density_lambda,
-                spectrum_wavelength=sim.transport.spectrum.wavelength,
+                spectrum_delta_frequency=mc_state.spectrum.delta_frequency,
+                spectrum_frequency_bins=mc_state.spectrum._frequency,
+                spectrum_luminosity_density_lambda=mc_state.spectrum.luminosity_density_lambda,
+                spectrum_wavelength=mc_state.spectrum.wavelength,
                 t_inner=t_inner,
                 time_of_simulation=time_of_simulation,
             )

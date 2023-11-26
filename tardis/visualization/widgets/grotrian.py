@@ -178,7 +178,7 @@ class GrotrianWidget:
         )
         level_population_data = sim.plasma.level_number_density
         line_interaction_analysis = {
-            filter_mode: LastLineInteraction.from_model(sim, filter_mode)
+            filter_mode: LastLineInteraction.from_simulation(sim, filter_mode)
             for filter_mode in cls.FILTER_MODES
         }
         return cls(
