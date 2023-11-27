@@ -1,5 +1,5 @@
 import logging
-import warnings
+
 
 from astropy import units as u
 from tardis import constants as const
@@ -9,9 +9,12 @@ from numba import cuda
 
 from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
-from tardis.montecarlo import packet_source as source
+
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
 from tardis.montecarlo.montecarlo_numba.estimators import initialize_estimators
+from tardis.montecarlo.montecarlo_numba.numba_interface import (
+    opacity_state_initialize,
+)
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
 from tardis.montecarlo.montecarlo_state import MonteCarloTransportState
 
@@ -121,34 +124,51 @@ class MontecarloTransportSolver(HDFWriterMixin):
         if self.spectrum_method == "integrated":
             self.optional_hdf_properties.append("spectrum_integrated")
 
-    def _initialize_packets(self, no_of_packets, iteration):
-        # the iteration (passed as seed_offset) is added each time to preserve randomness
-        # across different simulations with the same temperature,
-        # for example.
-
-        # Create packets
-        self.packet_collection = self.packet_source.create_packets(
-            no_of_packets, seed_offset=iteration
-        )
-
-        self.last_line_interaction_in_id = -1 * np.ones(
-            no_of_packets, dtype=np.int64
-        )
-        self.last_line_interaction_out_id = -1 * np.ones(
-            no_of_packets, dtype=np.int64
-        )
-        self.last_line_interaction_shell_id = -1 * np.ones(
-            no_of_packets, dtype=np.int64
-        )
-        self.last_interaction_type = -1 * np.ones(no_of_packets, dtype=np.int64)
-        self.last_interaction_in_nu = np.zeros(no_of_packets, dtype=np.float64)
-
-    def run(
+    def initialize_transport_state(
         self,
         simulation_state,
         plasma,
         no_of_packets,
         no_of_virtual_packets=0,
+        iteration=0,
+    ):
+        if not plasma.continuum_interaction_species.empty:
+            gamma_shape = plasma.gamma.shape
+        else:
+            gamma_shape = (0, 0)
+
+        packet_collection = self.packet_source.create_packets(
+            no_of_packets, seed_offset=iteration
+        )
+        estimators = initialize_estimators(
+            plasma.tau_sobolevs.shape, gamma_shape
+        )
+
+        geometry_state = simulation_state.geometry.to_numba()
+        opacity_state = opacity_state_initialize(
+            plasma, self.line_interaction_type
+        )
+        transport_state = MonteCarloTransportState(
+            packet_collection,
+            estimators,
+            spectrum_frequency=self.spectrum_frequency,
+            geometry_state=geometry_state,
+            opacity_state=opacity_state,
+        )
+
+        transport_state.enable_full_relativity = self.enable_full_relativity
+        transport_state.integrator_settings = self.integrator_settings
+        transport_state._integrator = FormalIntegrator(
+            simulation_state, plasma, self
+        )
+        configuration_initialize(self, no_of_virtual_packets)
+
+        return transport_state
+
+    def run(
+        self,
+        transport_state,
+        time_explosion,
         iteration=0,
         total_iterations=0,
         show_progress_bars=True,
@@ -171,44 +191,14 @@ class MontecarloTransportSolver(HDFWriterMixin):
         """
 
         set_num_threads(self.nthreads)
+        self.transport_state = transport_state
 
-        if not plasma.continuum_interaction_species.empty:
-            gamma_shape = plasma.gamma.shape
-        else:
-            gamma_shape = (0, 0)
-
-        # Initializing estimator array
-        estimators = initialize_estimators(
-            plasma.tau_sobolevs.shape, gamma_shape
-        )
-
-        self._initialize_packets(no_of_packets, iteration)
-
-        self.transport_state = MonteCarloTransportState(
-            self.packet_collection,
-            estimators,
-            simulation_state.volume.cgs.copy(),
-            spectrum_frequency=self.spectrum_frequency,
-            geometry_state=simulation_state.geometry.to_numba(),
-        )
-        self.transport_state.enable_full_relativity = (
-            self.enable_full_relativity
-        )
-        self.transport_state.integrator_settings = self.integrator_settings
-        self.transport_state._integrator = FormalIntegrator(
-            simulation_state, plasma, self
-        )
-
-        configuration_initialize(self, no_of_virtual_packets)
         montecarlo_radial1d(
-            simulation_state,
-            plasma,
+            transport_state,
+            time_explosion,
             iteration,
-            self.packet_collection,
-            self.transport_state.estimators,
             total_iterations,
-            show_progress_bars,
-            self,
+            show_progress_bars=show_progress_bars,
         )
 
     def legacy_return(self):

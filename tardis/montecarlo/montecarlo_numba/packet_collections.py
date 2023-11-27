@@ -1,6 +1,12 @@
 import numpy as np
 from numba.experimental import jitclass
-from numba import float64, int64
+from numba import njit, float64, int64
+
+
+from tardis.montecarlo.montecarlo_numba import (
+    njit_dict_no_parallel,
+)
+
 
 packet_collection_spec = [
     ("initial_radii", float64[:]),
@@ -39,6 +45,58 @@ class PacketCollection:
         self.output_energies = (
             np.ones_like(initial_radii, dtype=np.float64) * -99.0
         )
+
+
+@njit(**njit_dict_no_parallel)
+def initialize_last_interaction_tracker(no_of_packets):
+    last_line_interaction_in_ids = -1 * np.ones(no_of_packets, dtype=np.int64)
+    last_line_interaction_out_ids = -1 * np.ones(no_of_packets, dtype=np.int64)
+    last_line_interaction_shell_ids = -1 * np.ones(
+        no_of_packets, dtype=np.int64
+    )
+    last_interaction_types = -1 * np.ones(no_of_packets, dtype=np.int64)
+    last_interaction_in_nus = np.zeros(no_of_packets, dtype=np.float64)
+
+    return LastInteractionTracker(
+        last_interaction_types,
+        last_interaction_in_nus,
+        last_line_interaction_in_ids,
+        last_line_interaction_out_ids,
+        last_line_interaction_shell_ids,
+    )
+
+
+last_interaction_tracker_spec = [
+    ("types", int64[:]),
+    ("in_nus", float64[:]),
+    ("in_ids", int64[:]),
+    ("out_ids", int64[:]),
+    ("shell_ids", int64[:]),
+]
+
+
+@jitclass(last_interaction_tracker_spec)
+class LastInteractionTracker:
+    def __init__(
+        self,
+        types,
+        in_nus,
+        in_ids,
+        out_ids,
+        shell_ids,
+    ):
+        self.types = types
+        self.in_nus = in_nus
+        self.in_ids = in_ids
+        self.out_ids = out_ids
+        self.shell_ids = shell_ids
+
+    def update_last_interaction(self, r_packet, i):
+        self.types[i] = r_packet.last_interaction_type
+        self.in_nus[i] = r_packet.last_interaction_in_nu
+        self.in_ids[i] = r_packet.last_line_interaction_in_id
+        self.out_ids[i] = r_packet.last_line_interaction_out_id
+        self.shell_ids[i] = r_packet.last_line_interaction_shell_id
 
 
 vpacket_collection_spec = [

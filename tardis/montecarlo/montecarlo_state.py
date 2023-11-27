@@ -41,13 +41,12 @@ class MonteCarloTransportState(HDFWriterMixin):
         self,
         packet_collection,
         estimators,
-        volume,
         spectrum_frequency,
         geometry_state,
+        opacity_state,
     ):
         self.packet_collection = packet_collection
         self.estimators = estimators
-        self.volume = volume
         self.spectrum_frequency = spectrum_frequency
         self._montecarlo_virtual_luminosity = u.Quantity(
             np.zeros_like(self.spectrum_frequency.value), "erg / s"
@@ -57,6 +56,7 @@ class MonteCarloTransportState(HDFWriterMixin):
         self._spectrum_integrated = None
         self.enable_full_relativity = False
         self.geometry_state = geometry_state
+        self.opacity_state = opacity_state
 
     def calculate_radiationfield_properties(self):
         """

@@ -391,15 +391,23 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         logger.info(
             f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
-        self.transport.run(
+
+        transport_state = self.transport.initialize_transport_state(
             self.simulation_state,
             self.plasma,
             no_of_packets,
-            no_of_virtual_packets=no_of_virtual_packets,
+            no_of_virtual_packets=0,
+            iteration=self.iterations_executed,
+        )
+
+        self.transport.run(
+            transport_state,
+            time_explosion=self.simulation_state.time_explosion,
             iteration=self.iterations_executed,
             total_iterations=self.iterations,
             show_progress_bars=self.show_progress_bars,
         )
+
         output_energy = (
             self.transport.transport_state.packet_collection.output_energies
         )
