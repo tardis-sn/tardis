@@ -388,7 +388,7 @@ def test_composition_elemental_number_density(
         ((20, 19), 1.3464444e29),
     ],
 )
-def test_model_state_mass(simulation_verysimple, index, expected):
+def test_simulation_state_mass(simulation_verysimple, index, expected):
     simulation_state = simulation_verysimple.simulation_state
     volume = simulation_state.geometry.volume
     element_cell_masses = (
@@ -464,12 +464,14 @@ def to_hdf_buffer(hdf_file_path, simulation_verysimple):
     simulation_verysimple.simulation_state.to_hdf(hdf_file_path, overwrite=True)
 
 
-model_scalar_attrs = ["t_inner"]
+simulation_state_scalar_attrs = ["t_inner"]
 
 
-@pytest.mark.parametrize("attr", model_scalar_attrs)
-def test_hdf_model_scalars(hdf_file_path, simulation_verysimple, attr):
-    path = os.path.join("model", "scalars")
+@pytest.mark.parametrize("attr", simulation_state_scalar_attrs)
+def test_hdf_simulation_state_scalars(
+    hdf_file_path, simulation_verysimple, attr
+):
+    path = "model/scalars"
     expected = pd.read_hdf(hdf_file_path, path)[attr]
     actual = getattr(simulation_verysimple.simulation_state, attr)
     if hasattr(actual, "cgs"):
@@ -477,12 +479,14 @@ def test_hdf_model_scalars(hdf_file_path, simulation_verysimple, attr):
     assert_almost_equal(actual, expected)
 
 
-model_nparray_attrs = ["w", "v_inner", "v_outer"]
+simulation_state_nparray_attrs = ["w", "v_inner", "v_outer"]
 
 
-@pytest.mark.parametrize("attr", model_nparray_attrs)
-def test_hdf_model_nparray(hdf_file_path, simulation_verysimple, attr):
-    path = os.path.join("model", attr)
+@pytest.mark.parametrize("attr", simulation_state_nparray_attrs)
+def test_hdf_simulation_state_nparray(
+    hdf_file_path, simulation_verysimple, attr
+):
+    path = f"model/{attr}"
     expected = pd.read_hdf(hdf_file_path, path)
     actual = getattr(simulation_verysimple.simulation_state, attr)
     if hasattr(actual, "cgs"):
