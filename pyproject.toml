@@ -124,7 +124,7 @@ ignore-fully-untyped = true
 mypy-init-return = true
 
 [tool.ruff.lint.isort]
-known-first-party = ["astropy", "extension_helpers"]
+known-first-party = ["tardis", "carsus", "stardis"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
