@@ -4,7 +4,7 @@ import radioactivedecay as rd
 from radioactivedecay.decaydata import DEFAULTDATA as RD_DEFAULT_DATA
 from astropy import units as u
 
-from tardis.model.matter.decay import IsotopeMassFraction
+from tardis.model.matter.decay import IsotopicMassFraction
 
 
 def compile_rd_isotope_masses():
@@ -98,7 +98,7 @@ class Composition:
         filtered_nuclide_mass_fraction = self.nuclide_mass_fraction[
             self.nuclide_mass_fraction.index.get_level_values(1) != -1
         ]
-        return IsotopeMassFraction(filtered_nuclide_mass_fraction)
+        return IsotopicMassFraction(filtered_nuclide_mass_fraction)
 
     @property
     def elemental_mass_fraction(self):

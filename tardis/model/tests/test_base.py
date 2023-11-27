@@ -7,7 +7,7 @@ from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
-from tardis.model.matter.decay import IsotopeMassFraction
+from tardis.model.matter.decay import IsotopicMassFraction
 
 
 class TestModelFromPaper1Config:
@@ -327,7 +327,7 @@ def simple_isotope_abundance():
         [(6, 14), (12, 28)], names=["atomic_number", "mass_number"]
     )
     abundance = [[0.2] * 20] * 2
-    return IsotopeMassFraction(abundance, index=index)
+    return IsotopicMassFraction(abundance, index=index)
 
 
 @pytest.mark.parametrize(

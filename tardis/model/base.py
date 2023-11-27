@@ -469,9 +469,6 @@ class SimulationState(HDFWriterMixin):
             t_radiative = (
                 np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
             )
-            t_radiative = (
-                np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
-            )
         else:
             t_radiative = None
 
