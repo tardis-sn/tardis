@@ -72,7 +72,7 @@ NLTE Ionization
 
     plasma:
         nlte_ionization_species: [H I, H II, He I, He II]
-    nlte_solver: root
+        nlte_solver: root
     
 This option allows the user to specify which species should be included in the NLTE ionization treatment. Note that the
 species must be present in the continuum interaction species as well.
@@ -83,7 +83,8 @@ NLTE populations. ``lu`` uses an iterative LU decomposition scheme to calculate 
 
    ``lu`` iterates over the solutions up to a set tolerance. This tolerance is currently hard-coded to 1e-3. This
    can be changed in the code by changing the ``NLTE_POPULATION_SOLVER_TOLERANCE`` constant in ``tardis/plasma/properties/nlte_rate_equation_solver.py``.
-   Here, the maximum number of iterations is set to 1000. This can be changed in the code by changing the ``NLTE_POPULATION_SOLVER_MAX_ITERATIONS`` constant in ``tardis/plasma/properties/nlte_rate_equation_solver.py``.
+   Furthermore, the maximum number of iterations is set to 1000. This can be changed in the code by changing the ``NLTE_POPULATION_SOLVER_MAX_ITERATIONS``
+   constant in ``tardis/plasma/properties/nlte_rate_equation_solver.py``.
 
 .. warning ::
 
