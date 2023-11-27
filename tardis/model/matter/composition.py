@@ -115,6 +115,7 @@ class Composition:
 
     @property
     def effective_element_masses(self):
+        # This is functionality that we will likely want to remove
         effective_element_masses = self.nuclide_mass_fraction[
             self.nuclide_mass_fraction.index.get_level_values(1) == -1
         ].copy()
