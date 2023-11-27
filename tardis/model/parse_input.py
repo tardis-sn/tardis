@@ -258,7 +258,7 @@ def parse_abundance_config(config, geometry, time_explosion):
     return nuclide_mass_fraction
 
 
-def convert_to_nuclide_mass_fraction(isotope_mass_fraction, mass_fraction):
+def convert_to_nuclide_mass_fraction(isotopic_mass_fraction, mass_fraction):
     """
     Convert the abundance and isotope abundance data to nuclide mass fraction.
 
@@ -296,9 +296,9 @@ def convert_to_nuclide_mass_fraction(isotope_mass_fraction, mass_fraction):
     else:
         nuclide_mass_fraction = pd.DataFrame()
 
-    if isotope_mass_fraction is not None:
+    if isotopic_mass_fraction is not None:
         nuclide_mass_fraction = pd.concat(
-            [nuclide_mass_fraction, isotope_mass_fraction]
+            [nuclide_mass_fraction, isotopic_mass_fraction]
         )
     return nuclide_mass_fraction
 
