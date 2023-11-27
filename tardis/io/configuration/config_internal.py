@@ -31,7 +31,7 @@ def get_data_dir():
     config = get_internal_configuration()
     data_dir = config.get("data_dir", None)
     if data_dir is None:
-        config_fpath = get_config_dir() / "tardis_internal_config.yml"
+        config_fpath = Path(get_config_dir()) / "tardis_internal_config.yml"
         logging.critical(
             f"\n{'*' * 80}\n\nTARDIS will download different kinds of data (e.g. atomic) to its data directory {DEFAULT_DATA_DIR}\n\n"
             f"TARDIS DATA DIRECTORY not specified in {config_fpath}:\n\n"
