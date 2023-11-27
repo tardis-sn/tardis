@@ -76,12 +76,24 @@ def nlte_atom_data(nlte_atomic_dataset):
 
 
 @pytest.fixture  # (scope="session")
-def tardis_model_config_nlte(example_configuration_dir):
+def tardis_model_config_nlte_root(example_configuration_dir):
     return Configuration.from_yaml(
-        example_configuration_dir / "tardis_configv1_nlte.yml"
+        example_configuration_dir / "tardis_configv1_nlte_root.yml"
     )
 
 
 @pytest.fixture  # (scope="session")
-def nlte_raw_model(tardis_model_config_nlte):
-    return SimulationState.from_config(tardis_model_config_nlte)
+def tardis_model_config_nlte_lu(example_configuration_dir):
+    return Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_nlte_lu.yml"
+    )
+
+
+@pytest.fixture  # (scope="session")
+def nlte_raw_model_root(tardis_model_config_nlte_root):
+    return SimulationState.from_config(tardis_model_config_nlte_root)
+
+
+@pytest.fixture  # (scope="session")
+def nlte_raw_model_lu(tardis_model_config_nlte_lu):
+    return SimulationState.from_config(tardis_model_config_nlte_lu)
