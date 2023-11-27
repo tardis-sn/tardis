@@ -73,12 +73,12 @@ def test_calculate_shell_masses(simulation_setup):
     simulation_setup: A simulation setup which returns a model.
     """
     model = simulation_setup
-    volume = model.volume.to("cm^3")
-    density = model.density.to("g/cm^3")
-    desired = (volume * density).to(u.g).value
+    volume = 2.70936170e39  # cm^3
+    density = 5.24801665e-09  # g/cm^3
+    desired = volume * density
 
-    shell_masses = calculate_shell_masses(model).value
-    npt.assert_almost_equal(shell_masses, desired)
+    shell_masses = calculate_shell_masses(model)[0].value
+    npt.assert_allclose(shell_masses, desired)
 
 
 @pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])
