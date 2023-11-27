@@ -3,10 +3,10 @@ import pandas as pd
 
 import pytest
 from numpy.testing import assert_allclose
-from tardis.plasma.properties import NLTEPopulationSolverRoot
-from tardis.plasma.properties.nlte_population_solver import (
-    calculate_rate_matrix,
+from tardis.plasma.properties import NLTEPopulationSolverRoot, NLTEPopulationSolverLU
+from tardis.plasma.properties.nlte_rate_equation_solver import (
     calculate_jacobian_matrix,
+    calculate_rate_matrix,
 )
 from tardis.plasma.properties.ion_population import IonNumberDensity
 from tardis.plasma.standard_plasmas import assemble_plasma
@@ -243,7 +243,7 @@ def nlte_raw_plasma_w0(
     return plasma
 
 
-def test_critical_case_w1(nlte_raw_plasma_w1):
+def test_critical_case_w1_root(nlte_raw_plasma_w1):
     """Check that the LTE and NLTE solution agree for w=1.0."""
     ion_number_density_nlte = nlte_raw_plasma_w1.ion_number_density.values
     ion_number_density_nlte[ion_number_density_nlte < 1e-10] = 0.0
@@ -266,9 +266,52 @@ def test_critical_case_w1(nlte_raw_plasma_w1):
     )
 
 
-def test_critical_case_w0(nlte_raw_plasma_w0):
+def test_critical_case_w1_lu(nlte_raw_plasma_w1):
+    # TODO: implement test for LU solver
+    pass
+
+
+def test_critical_case_w0_root(nlte_raw_plasma_w0):
     """Check that the LTE and NLTE solution agree for w=0.0."""
     nlte_solver = NLTEPopulationSolverRoot(nlte_raw_plasma_w0)
+    ion_number_density_nlte = nlte_solver.calculate(
+        nlte_raw_plasma_w0.gamma,
+        0.0,  # to test collisions only, we set the radiative recombination rate to 0
+        nlte_raw_plasma_w0.alpha_stim,
+        nlte_raw_plasma_w0.coll_ion_coeff,
+        nlte_raw_plasma_w0.coll_recomb_coeff,
+        nlte_raw_plasma_w0.partition_function,
+        nlte_raw_plasma_w0.levels,
+        nlte_raw_plasma_w0.level_boltzmann_factor,
+        nlte_raw_plasma_w0.phi,
+        nlte_raw_plasma_w0.rate_matrix_index,
+        nlte_raw_plasma_w0.number_density,
+        nlte_raw_plasma_w0.nlte_excitation_species,
+    )[0]
+    ion_number_density_nlte = ion_number_density_nlte.values
+    ion_number_density_nlte[ion_number_density_nlte < 1e-10] = 0.0
+
+    ind = IonNumberDensity(nlte_raw_plasma_w0)
+    ion_number_density_lte = ind.calculate(
+        nlte_raw_plasma_w0.thermal_phi_lte,
+        nlte_raw_plasma_w0.partition_function,
+        nlte_raw_plasma_w0.number_density,
+    )[0]
+
+    ion_number_density_lte = ion_number_density_lte.values
+    ion_number_density_lte[
+        ion_number_density_lte < 1e-10
+    ] = 0.0  # getting rid of small numbers.
+    assert_allclose(
+        ion_number_density_lte,
+        ion_number_density_nlte,
+        rtol=1e-2,
+    )
+
+
+def test_critical_case_w0_lu(nlte_raw_plasma_w0):
+    """Check that the LTE and NLTE solution agree for w=0.0."""
+    nlte_solver = NLTEPopulationSolverLU(nlte_raw_plasma_w0)
     ion_number_density_nlte = nlte_solver.calculate(
         nlte_raw_plasma_w0.gamma,
         0.0,  # to test collisions only, we set the radiative recombination rate to 0

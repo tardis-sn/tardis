@@ -4,7 +4,7 @@ import pytest
 from numpy.testing import assert_allclose
 
 from tardis.plasma.properties.nlte_excitation_data import NLTEExcitationData
-from tardis.plasma.properties.nlte_population_solver import (
+from tardis.plasma.properties.nlte_rate_equation_solver import (
     prepare_r_uls_r_lus,
     prepare_bound_bound_rate_matrix,
     create_coll_exc_deexc_matrix,
