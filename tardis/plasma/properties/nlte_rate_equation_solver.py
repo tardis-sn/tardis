@@ -18,6 +18,7 @@ NLTE_POPULATION_SOLVER_TOLERANCE = 1e-3
 NLTE_POPULATION_NEGATIVE_POPULATION_TOLERANCE = (
     -1e-10
 )  # Maximum negative population allowed before solver fails
+NLTE_POPULATION_SOLVER_CHARGE_CONSERVATION_TOLERANCE = 1e-6 # Arbitrary tolerance for charge conservation, should be changed to a more reasonable value
 
 
 class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
@@ -149,7 +150,18 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
                 solution.x[-1],
                 number_density[shell],
                 ion_numbers,
-            )
+            ) 
+            # Check that the electron density is still in line with charge conservation
+            # after removing negative populations
+            assert (
+                np.abs(
+                    np.sum(ion_numbers * ion_number_density[shell])
+                    - electron_densities[shell]
+                ) / electron_densities[shell]
+                < NLTE_POPULATION_SOLVER_CHARGE_CONSERVATION_TOLERANCE
+            ), "Charge conservation not fulfilled after correcting for negative populations, solver failed."
+
+
         # TODO: change the jacobian and rate matrix to use shell id and get coefficients from the attribute of the class.
 
         return ion_number_density, electron_densities
