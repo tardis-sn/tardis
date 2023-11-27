@@ -3,7 +3,10 @@ import pandas as pd
 
 import pytest
 from numpy.testing import assert_allclose
-from tardis.plasma.properties import NLTEPopulationSolverRoot, NLTEPopulationSolverLU
+from tardis.plasma.properties import (
+    NLTEPopulationSolverRoot,
+    NLTEPopulationSolverLU,
+)
 from tardis.plasma.properties.nlte_rate_equation_solver import (
     calculate_jacobian_matrix,
     calculate_rate_matrix,
