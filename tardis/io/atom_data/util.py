@@ -4,7 +4,6 @@ import logging
 from tardis.io.configuration.config_internal import get_data_dir
 from tardis.io.atom_data.atom_web_download import (
     get_atomic_repo_config,
-    download_atom_data,
 )
 
 logger = logging.getLogger(__name__)
