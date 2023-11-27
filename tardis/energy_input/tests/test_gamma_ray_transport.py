@@ -42,7 +42,7 @@ def gamma_ray_config(example_configuration_dir: Path):
     """
     yml_path = (
         example_configuration_dir
-        / "tardis_configv1_density_exponential_nebular.yml"
+        / "tardis_configv1_density_exponential_nebular_multi_isotope.yml"
     )
 
     return config_reader.Configuration.from_yaml(yml_path)
@@ -81,7 +81,7 @@ def test_calculate_shell_masses(simulation_setup):
     npt.assert_almost_equal(shell_masses, desired)
 
 
-@pytest.mark.parametrize("nuclide_name", ["Ni-56"])
+@pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])
 def test_activity(simulation_setup, nuclide_name):
     """
     Function to test the decay of an atom in radioactivedecay with an analytical solution.
@@ -116,7 +116,7 @@ def test_activity(simulation_setup, nuclide_name):
     npt.assert_allclose(actual, expected)
 
 
-@pytest.mark.parametrize("nuclide_name", ["Ni-56"])
+@pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])
 def test_activity_chain(simulation_setup, nuclide_name):
     """
     Function to test two atom decay chain in radioactivedecay with an analytical solution.
@@ -155,7 +155,7 @@ def test_activity_chain(simulation_setup, nuclide_name):
     # npt.assert_allclose(actual_progeny, expected_progeny, rtol=1e-3)
 
 
-@pytest.mark.parametrize("nuclide_name", ["Ni-56"])
+@pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])
 def test_isotope_dicts(simulation_setup, nuclide_name):
     """
     Function to test if the right names for the isotopes are present as dictionary keys.
@@ -177,7 +177,7 @@ def test_isotope_dicts(simulation_setup, nuclide_name):
         assert nuclide_name.replace("-", "") in isotope_dict_key.keys()
 
 
-@pytest.mark.parametrize("nuclide_name", ["Ni-56"])
+@pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])
 def test_inventories_dict(simulation_setup, nuclide_name):
     """
     Function to test if the inventories dictionary is created correctly.
@@ -232,7 +232,7 @@ def test_average_energies(simulation_setup, atomic_dataset):
     assert len(average_energies_list) == len(all_isotope_names)
 
 
-@pytest.mark.parametrize("nuclide_name", ["Ni-56"])
+@pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])
 def test_decay_energy_chain(simulation_setup, atomic_dataset, nuclide_name):
     """
     This function tests if the decay energy is calculated correctly for a decay chain.
@@ -254,23 +254,19 @@ def test_decay_energy_chain(simulation_setup, atomic_dataset, nuclide_name):
 
     total_decays = calculate_total_decays(inventories_dict, 1.0 * u.s)
 
-    average_energies = calculate_average_energies(
-        raw_isotope_abundance, gamma_ray_lines
-    )
+    (
+        average_energies,
+        average_positron_energies,
+        gamma_ray_line_dict,
+    ) = calculate_average_energies(raw_isotope_abundance, gamma_ray_lines)
 
     decay_chain_energy = decay_chain_energies(
-        raw_isotope_abundance,
-        average_energies[0],
-        average_energies[1],
-        average_energies[2],
+        average_energies,
         total_decays,
     )
-    isotope_energies = {}
-    for iso, energy in zip(all_isotope_names, average_energies[0]):
-        isotope_energies[iso] = energy
 
     expected = (
-        total_decays[0][Z, A][nuclide_name] * isotope_energies[nuclide_name]
+        total_decays[0][Z, A][nuclide_name] * average_energies[nuclide_name]
     )
     actual = decay_chain_energy[0][Z, A][nuclide_name]
 
@@ -298,10 +294,7 @@ def test_energy_per_mass(simulation_setup, atomic_dataset):
         raw_isotope_abundance, gamma_ray_lines
     )
     decay_energy = decay_chain_energies(
-        raw_isotope_abundance,
         average_energies[0],
-        average_energies[1],
-        average_energies[2],
         total_decays,
     )
     energy_per_mass = calculate_energy_per_mass(
