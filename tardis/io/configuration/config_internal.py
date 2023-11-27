@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_internal_configuration():
-    config_fpath = get_config_dir() / "tardis_internal_config.yml"
+    config_fpath = Path(get_config_dir()) / "tardis_internal_config.yml"
     if not os.path.exists(config_fpath):
         logger.warning(
             f"Configuration File {config_fpath} does not exist - creating new one from default"
