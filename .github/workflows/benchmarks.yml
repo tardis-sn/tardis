@@ -4,7 +4,11 @@ on:
   push:
     branches:
       - master
+
   pull_request_target:
+    branches:
+      - '*'
+  pull_request:
     branches:
       - '*'
     types:
@@ -38,7 +42,7 @@ jobs:
       - name: Checkout pull/${{ github.event.number }}
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.sha }}
           fetch-depth: 0
         if: github.event_name == 'pull_request_target'
      
@@ -63,7 +67,8 @@ jobs:
           path: benchmarks/data/kurucz_cd23_chianti_H_He.h5
           key: atom-data
       
-      - uses: mamba-org/setup-micromamba@v1
+      - name: Setup Mamba
+        uses: mamba-org/setup-micromamba@v1
         with:
           environment-name: benchmark
           init-shell: >-
@@ -81,7 +86,6 @@ jobs:
       
       - name: Run benchmarks for last 5 commits if not PR
         # if: github.event_name != 'pull_request_target'
-        continue-on-error: true
         run: |
           git log -n 5  --pretty=format:"%H" >> tag_commits.txt
           asv run HASHFILE:tag_commits.txt | tee asv-output.log  
