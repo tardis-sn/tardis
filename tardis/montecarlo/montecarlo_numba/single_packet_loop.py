@@ -64,9 +64,9 @@ def single_packet_loop(
         This function does not return anything but changes the r_packet object
         and if virtual packets are requested - also updates the vpacket_collection
     """
-    line_interaction_type = montecarlo_configuration.line_interaction_type
+    line_interaction_type = montecarlo_configuration.LINE_INTERACTION_TYPE
 
-    if montecarlo_configuration.full_relativity:
+    if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
         set_packet_props_full_relativity(r_packet, numba_model)
     else:
         set_packet_props_partial_relativity(r_packet, numba_model)
@@ -80,7 +80,7 @@ def single_packet_loop(
         opacity_state,
     )
 
-    if montecarlo_configuration.RPACKET_TRACKING:
+    if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
         rpacket_tracker.track(r_packet)
 
     # this part of the code is temporary and will be better incorporated
@@ -107,7 +107,7 @@ def single_packet_loop(
             chi_continuum = chi_e + chi_bf_tot + chi_ff
 
             escat_prob = chi_e / chi_continuum  # probability of e-scatter
-            if montecarlo_configuration.full_relativity:
+            if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
                 chi_continuum *= doppler_factor
             distance, interaction_type, delta_shell = trace_packet(
                 r_packet,
@@ -132,7 +132,7 @@ def single_packet_loop(
         else:
             escat_prob = 1.0
             chi_continuum = chi_e
-            if montecarlo_configuration.full_relativity:
+            if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
                 chi_continuum *= doppler_factor
             distance, interaction_type, delta_shell = trace_packet(
                 r_packet,
@@ -215,7 +215,7 @@ def single_packet_loop(
             )
         else:
             pass
-        if montecarlo_configuration.RPACKET_TRACKING:
+        if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
             rpacket_tracker.track(r_packet)
 
 

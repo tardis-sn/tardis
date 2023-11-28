@@ -19,7 +19,7 @@ from tardis.montecarlo import montecarlo_configuration as mc_config_module
 from tardis.montecarlo.montecarlo_state import MonteCarloTransportState
 
 from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
-from tardis.montecarlo.montecarlo_numba.numba_interface import (
+from tardis.montecarlo.montecarlo_configuration import (
     configuration_initialize,
 )
 from tardis.montecarlo.montecarlo_numba import numba_config
@@ -73,11 +73,11 @@ class MontecarloTransportSolver(HDFWriterMixin):
         v_packet_settings,
         spectrum_method,
         packet_source,
-        enable_virtual_packet_logging,
+        enable_vpacket_tracking=False,
+        enable_rpacket_tracking=False,
         nthreads=1,
         debug_packets=False,
         logger_buffer=1,
-        tracking_rpacket=False,
         use_gpu=False,
     ):
         # inject different packets
@@ -87,7 +87,6 @@ class MontecarloTransportSolver(HDFWriterMixin):
         self.enable_reflective_inner_boundary = enable_reflective_inner_boundary
         self.inner_boundary_albedo = inner_boundary_albedo
         self.enable_full_relativity = enable_full_relativity
-        numba_config.ENABLE_FULL_RELATIVITY = enable_full_relativity
         self.line_interaction_type = line_interaction_type
         self.integrator_settings = integrator_settings
         self.v_packet_settings = v_packet_settings
@@ -96,7 +95,9 @@ class MontecarloTransportSolver(HDFWriterMixin):
 
         self.use_gpu = use_gpu
 
-        self.virt_logging = enable_virtual_packet_logging
+        self.enable_vpacket_tracking = enable_vpacket_tracking
+        self.enable_rpacket_tracking = enable_rpacket_tracking
+
         self.virt_packet_last_interaction_type = np.ones(2) * -1
         self.virt_packet_last_interaction_in_nu = np.ones(2) * -1.0
         self.virt_packet_last_line_interaction_in_id = np.ones(2) * -1
@@ -118,8 +119,6 @@ class MontecarloTransportSolver(HDFWriterMixin):
         # set up logger based on config
         mc_tracker.DEBUG_MODE = debug_packets
         mc_tracker.BUFFER = logger_buffer
-
-        mc_config_module.RPACKET_TRACKING = tracking_rpacket
 
         if self.spectrum_method == "integrated":
             self.optional_hdf_properties.append("spectrum_integrated")
@@ -207,10 +206,10 @@ class MontecarloTransportSolver(HDFWriterMixin):
             self.transport_state.packet_collection.output_energies,
             self.transport_state.estimators.j_estimator,
             self.transport_state.estimators.nu_bar_estimator,
-            self.last_line_interaction_in_id,
-            self.last_line_interaction_out_id,
-            self.last_interaction_type,
-            self.last_line_interaction_shell_id,
+            self.transport_state.last_line_interaction_in_id,
+            self.transport_state.last_line_interaction_out_id,
+            self.transport_state.last_interaction_type,
+            self.transport_state.last_line_interaction_shell_id,
         )
 
     def get_line_interaction_id(self, line_interaction_type):
@@ -219,9 +218,7 @@ class MontecarloTransportSolver(HDFWriterMixin):
         )
 
     @classmethod
-    def from_config(
-        cls, config, packet_source, enable_virtual_packet_logging=False
-    ):
+    def from_config(cls, config, packet_source, enable_vpacket_tracking=False):
         """
         Create a new MontecarloTransport instance from a Configuration object.
 
@@ -272,7 +269,7 @@ class MontecarloTransportSolver(HDFWriterMixin):
                 valid values are 'GPU', 'CPU', and 'Automatic'."""
             )
 
-        mc_config_module.disable_line_scattering = (
+        mc_config_module.DISABLE_LINE_SCATTERING = (
             config.plasma.disable_line_scattering
         )
 
@@ -294,11 +291,11 @@ class MontecarloTransportSolver(HDFWriterMixin):
             packet_source=packet_source,
             debug_packets=config.montecarlo.debug_packets,
             logger_buffer=config.montecarlo.logger_buffer,
-            enable_virtual_packet_logging=(
+            enable_vpacket_tracking=(
                 config.spectrum.virtual.virtual_packet_logging
-                | enable_virtual_packet_logging
+                | enable_vpacket_tracking
             ),
+            enable_rpacket_tracking=config.montecarlo.tracking.track_rpacket,
             nthreads=config.montecarlo.nthreads,
-            tracking_rpacket=config.montecarlo.tracking.track_rpacket,
             use_gpu=use_gpu,
         )

@@ -459,7 +459,7 @@ def test_move_packet(packet_params, expected_params, full_relativity):
     packet.energy = packet_params["energy"]
     packet.r = packet_params["r"]
     # model.full_relativity = full_relativity
-    mc.full_relativity = full_relativity
+    mc.ENABLE_FULL_RELATIVITY = full_relativity
 
     doppler_factor = get_doppler_factor(packet.r, packet.mu, time_explosion)
     numba_estimator = Estimators(
@@ -478,7 +478,7 @@ def test_move_packet(packet_params, expected_params, full_relativity):
         expected_j *= doppler_factor
         expected_nubar *= doppler_factor
 
-    mc.full_relativity = False
+    mc.ENABLE_FULL_RELATIVITY = False
 
     assert_allclose(
         numba_estimator.j_estimator[packet.current_shell_id],
@@ -564,8 +564,8 @@ methods related to continuum interactions.
 )
 def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
     packet = r_packet.RPacket(r=r, mu=mu, energy=0.9, nu=0.4)
-    mc.full_relativity = bool(full_relativity)
-    mc.full_relativity = full_relativity
+    mc.ENABLE_FULL_RELATIVITY = bool(full_relativity)
+    mc.ENABLE_FULL_RELATIVITY = full_relativity
 
     inverse_doppler_factor = r_packet.get_inverse_doppler_factor(
         r, mu, 1 / inv_t_exp
@@ -573,7 +573,7 @@ def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
     r_packet.angle_aberration_CMF_to_LF(packet, 1 / inv_t_exp, packet.mu)
 
     doppler_factor = get_doppler_factor(r, mu, 1 / inv_t_exp)
-    mc.full_relativity = False
+    mc.ENABLE_FULL_RELATIVITY = False
 
     assert_almost_equal(doppler_factor * inverse_doppler_factor, 1.0)
 
@@ -591,12 +591,12 @@ def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
 )
 def test_angle_transformation_invariance(mu, r, inv_t_exp):
     packet = r_packet.RPacket(r, mu, 0.4, 0.9)
-    mc.full_relativity = True
+    mc.ENABLE_FULL_RELATIVITY = True
 
     mu1 = angle_aberration_CMF_to_LF(packet, 1 / inv_t_exp, mu)
     mu_obtained = angle_aberration_LF_to_CMF(packet, 1 / inv_t_exp, mu1)
 
-    mc.full_relativity = False
+    mc.ENABLE_FULL_RELATIVITY = False
     assert_almost_equal(mu_obtained, mu)
 
 
@@ -624,7 +624,7 @@ def test_compute_distance2line_relativistic(
         transport.j_blue_estimator,
         transport.Edotlu_estimator,
     )
-    mc.full_relativity = bool(full_relativity)
+    mc.ENABLE_FULL_RELATIVITY = bool(full_relativity)
 
     doppler_factor = get_doppler_factor(r, mu, t_exp)
     comov_nu = packet.nu * doppler_factor
@@ -635,7 +635,7 @@ def test_compute_distance2line_relativistic(
 
     doppler_factor = get_doppler_factor(r, mu, t_exp)
     comov_nu = packet.nu * doppler_factor
-    mc.full_relativity = False
+    mc.ENABLE_FULL_RELATIVITY = False
 
     assert_allclose(comov_nu, nu_line, rtol=1e-14)
 

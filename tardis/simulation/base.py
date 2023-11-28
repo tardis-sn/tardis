@@ -720,7 +720,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             transport = MontecarloTransportSolver.from_config(
                 config,
                 packet_source=simulation_state.packet_source,
-                enable_virtual_packet_logging=virtual_packet_logging,
+                enable_vpacket_tracking=virtual_packet_logging,
             )
 
         convergence_plots_config_options = [

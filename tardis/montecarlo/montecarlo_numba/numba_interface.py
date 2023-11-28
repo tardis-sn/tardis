@@ -4,7 +4,6 @@ from numba import float64, int64
 from numba.experimental import jitclass
 import numpy as np
 
-from astropy import units as u
 from tardis import constants as const
 
 from tardis.montecarlo import (
@@ -151,7 +150,7 @@ def opacity_state_initialize(plasma, line_interaction_type):
     tau_sobolev = np.ascontiguousarray(
         plasma.tau_sobolevs.values.copy(), dtype=np.float64
     )
-    if montecarlo_configuration.disable_line_scattering:
+    if montecarlo_configuration.DISABLE_LINE_SCATTERING:
         tau_sobolev *= 0
 
     if line_interaction_type == "scatter":
@@ -377,43 +376,6 @@ class RPacketTracker(object):
         self.interaction_type = self.interaction_type[: self.num_interactions]
 
 
-def configuration_initialize(transport, number_of_vpackets):
-    if transport.line_interaction_type == "macroatom":
-        montecarlo_configuration.line_interaction_type = (
-            LineInteractionType.MACROATOM
-        )
-    elif transport.line_interaction_type == "downbranch":
-        montecarlo_configuration.line_interaction_type = (
-            LineInteractionType.DOWNBRANCH
-        )
-    elif transport.line_interaction_type == "scatter":
-        montecarlo_configuration.line_interaction_type = (
-            LineInteractionType.SCATTER
-        )
-    else:
-        raise ValueError(
-            f'Line interaction type must be one of "macroatom",'
-            f'"downbranch", or "scatter" but is '
-            f"{transport.line_interaction_type}"
-        )
-    montecarlo_configuration.number_of_vpackets = number_of_vpackets
-    montecarlo_configuration.temporary_v_packet_bins = number_of_vpackets
-    montecarlo_configuration.full_relativity = transport.enable_full_relativity
-    montecarlo_configuration.montecarlo_seed = transport.packet_source.base_seed
-    montecarlo_configuration.v_packet_spawn_start_frequency = (
-        transport.virtual_spectrum_spawn_range.end.to(
-            u.Hz, equivalencies=u.spectral()
-        ).value
-    )
-    montecarlo_configuration.v_packet_spawn_end_frequency = (
-        transport.virtual_spectrum_spawn_range.start.to(
-            u.Hz, equivalencies=u.spectral()
-        ).value
-    )
-    montecarlo_configuration.VPACKET_LOGGING = transport.virt_logging
-
-
-# class TrackRPacket(object):
 class LineInteractionType(IntEnum):
     SCATTER = 0
     DOWNBRANCH = 1

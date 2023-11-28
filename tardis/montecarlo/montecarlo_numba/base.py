@@ -50,7 +50,7 @@ def montecarlo_radial1d(
         time_explosion.to("s").value,
     )
 
-    number_of_vpackets = montecarlo_configuration.number_of_vpackets
+    number_of_vpackets = montecarlo_configuration.NUMBER_OF_VPACKETS
 
     (
         v_packets_energy_hist,
@@ -73,7 +73,6 @@ def montecarlo_radial1d(
         estimators,
         transport_state.spectrum_frequency.value,
         number_of_vpackets,
-        montecarlo_configuration.VPACKET_LOGGING,
         iteration=iteration,
         show_progress_bars=show_progress_bars,
         total_iterations=total_iterations,
@@ -94,7 +93,9 @@ def montecarlo_radial1d(
         last_interaction_tracker.shell_ids
     )
 
-    if montecarlo_configuration.VPACKET_LOGGING and number_of_vpackets > 0:
+    if montecarlo_configuration.ENABLE_VPACKET_TRACKING and (
+        number_of_vpackets > 0
+    ):
         transport_state.virt_packet_nus = np.concatenate(
             virt_packet_nus
         ).ravel()
@@ -125,20 +126,19 @@ def montecarlo_radial1d(
     update_iterations_pbar(1)
     refresh_packet_pbar()
     # Condition for Checking if RPacket Tracking is enabled
-    if montecarlo_configuration.RPACKET_TRACKING:
+    if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
         transport_state.rpacket_tracker = rpacket_trackers
 
 
 @njit(**njit_dict)
 def montecarlo_main_loop(
     packet_collection,
-    numba_radial_1d_geometry,
+    geometry_state,
     numba_model,
     opacity_state,
     estimators,
     spectrum_frequency,
     number_of_vpackets,
-    virtual_packet_logging,
     iteration,
     show_progress_bars,
     total_iterations,
@@ -183,7 +183,7 @@ def montecarlo_main_loop(
                 montecarlo_configuration.v_packet_spawn_start_frequency,
                 montecarlo_configuration.v_packet_spawn_end_frequency,
                 number_of_vpackets,
-                montecarlo_configuration.temporary_v_packet_bins,
+                montecarlo_configuration.TEMPORARY_V_PACKET_BINS,
             )
         )
         rpacket_trackers.append(RPacketTracker())
@@ -256,7 +256,7 @@ def montecarlo_main_loop(
 
         loop = single_packet_loop(
             r_packet,
-            numba_radial_1d_geometry,
+            geometry_state,
             numba_model,
             opacity_state,
             local_estimators,
@@ -264,7 +264,7 @@ def montecarlo_main_loop(
             rpacket_tracker,
         )
         packet_collection.output_nus[i] = r_packet.nu
-        # output_nus[i] = r_packet.nu
+
         last_interaction_tracker.update_last_interaction(r_packet, i)
 
         if r_packet.status == PacketStatus.REABSORBED:
@@ -297,7 +297,7 @@ def montecarlo_main_loop(
     for sub_estimator in estimator_list:
         estimators.increment(sub_estimator)
 
-    if virtual_packet_logging:
+    if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
         for vpacket_collection in vpacket_collections:
             vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
             vpackets_energy = vpacket_collection.energies[
@@ -353,7 +353,7 @@ def montecarlo_main_loop(
                 )
             )
 
-    if montecarlo_configuration.RPACKET_TRACKING:
+    if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
         for rpacket_tracker in rpacket_trackers:
             rpacket_tracker.finalize_array()
 

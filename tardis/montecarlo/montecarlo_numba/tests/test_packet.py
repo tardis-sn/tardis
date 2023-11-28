@@ -14,7 +14,7 @@ import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis import constants as const
 
-import tardis.montecarlo.montecarlo_numba.numba_config as numba_config
+import tardis.montecarlo.montecarlo_configuration as numba_config
 
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value

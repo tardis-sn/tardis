@@ -5,7 +5,7 @@ import numpy as np
 from numba import njit, float64, int64
 from numba.experimental import jitclass
 
-from tardis.montecarlo.montecarlo_numba import numba_config as nc
+from tardis.montecarlo import montecarlo_configuration as nc
 from tardis.montecarlo.montecarlo_numba.numba_config import H, KB
 
 from tardis.montecarlo.montecarlo_numba import (
