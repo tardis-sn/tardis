@@ -7,10 +7,8 @@ on:
 
   pull_request_target:
     branches:
-      - '*'
-  pull_request:
-    branches:
-      - '*'
+      - master
+
     types:
       - opened
       - reopened
@@ -85,7 +83,7 @@ jobs:
         run: asv machine --yes
       
       - name: Run benchmarks for last 5 commits if not PR
-        # if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request_target'
         run: |
           git log -n 5  --pretty=format:"%H" >> tag_commits.txt
           asv run HASHFILE:tag_commits.txt | tee asv-output.log  
