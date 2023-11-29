@@ -287,7 +287,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
                     number_density[shell],
                     ion_numbers,
                 )
-                delta_ion, delta_electron = self.calculate_delta(
+                delta_ion, delta_electron = self.calculate_lu_solver_delta(
                     ion_solution,
                     electron_solution,
                     ion_number_density[shell],
@@ -321,7 +321,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
         return ion_number_density, electron_densities
 
     @staticmethod
-    def calculate_delta(
+    def calculate_lu_solver_delta(
         ion_solution, electron_solution, ion_number_density, electron_densities
     ):
         """Calculates relative change between new solution and old value.
