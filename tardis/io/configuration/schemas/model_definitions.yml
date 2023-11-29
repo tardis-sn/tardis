@@ -161,6 +161,14 @@ definitions:
       - velocity
       - density
   abundances:
+    properties:
+      model_isotope_time_0:
+        type: quantity
+        default: 0 s
+        description: Initial time for isotope decay
+      required:
+      - model_isotope_time_0
+      
     file:
       $$target: 'model_definitions.yml#/definitions/abundances/file'
       $$description: One can use a file referenced in the model configuration
