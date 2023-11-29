@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import logging
-from scipy.linalg import lu_factor, lu_solve
 from scipy.optimize import root
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
@@ -279,7 +278,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
                 )
                 # TODO: Solve for each element individually
                 # and handle errors in the solver
-                ion_solution = lu_solve(lu_factor(rate_matrix), balance_vector)
+                ion_solution = np.linalg.solve(rate_matrix, balance_vector)
 
                 ion_solution, electron_solution = check_negative_population(
                     pd.Series(ion_solution, index=index),
