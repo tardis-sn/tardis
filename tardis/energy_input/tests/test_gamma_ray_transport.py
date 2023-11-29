@@ -49,7 +49,7 @@ def gamma_ray_config(example_configuration_dir: Path):
 
 
 @pytest.fixture(scope="module")
-def simulation_setup(gamma_ray_config):
+def gamma_ray_simulation_state(gamma_ray_config, atomic_dataset):
     """
     Parameters
     ----------
@@ -61,28 +61,29 @@ def simulation_setup(gamma_ray_config):
     """
     gamma_ray_config.model.structure.velocity.start = 1.0 * u.km / u.s
     gamma_ray_config.model.structure.density.rho_0 = 5.0e2 * u.g / (u.cm**3)
-    gamma_ray_config.supernova.time_explosion = 1.0 * (u.d)
-    model = SimulationState.from_config(gamma_ray_config)
-    return model
+    gamma_ray_config.supernova.time_explosion = 150 * (u.d)
+
+    return SimulationState.from_config(
+        gamma_ray_config, atom_data=atomic_dataset
+    )
 
 
-def test_calculate_shell_masses(simulation_setup):
+def test_calculate_shell_masses(gamma_ray_simulation_state):
     """Function to test calculation of shell masses.
     Parameters
     ----------
     simulation_setup: A simulation setup which returns a model.
     """
-    model = simulation_setup
     volume = 2.70936170e39  # cm^3
     density = 5.24801665e-09  # g/cm^3
     desired = volume * density
 
-    shell_masses = calculate_shell_masses(model)[0].value
+    shell_masses = calculate_shell_masses(gamma_ray_simulation_state)[0].value
     npt.assert_allclose(shell_masses, desired)
 
 
 @pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])
-def test_activity(simulation_setup, nuclide_name):
+def test_activity(gamma_ray_simulation_state, nuclide_name):
     """
     Function to test the decay of an atom in radioactivedecay with an analytical solution.
     Parameters
@@ -90,28 +91,28 @@ def test_activity(simulation_setup, nuclide_name):
     simulation_setup: A simulation setup which returns a model.
     nuclide_name: Name of the nuclide.
     """
+    # setup of decay test
     nuclide = rd.Nuclide(nuclide_name)
-    model = simulation_setup
     t_half = nuclide.half_life() * u.s
     decay_constant = np.log(2) / t_half
     time_delta = 1.0 * u.s
-    shell_masses = calculate_shell_masses(model)
-    raw_isotope_abundance = model.raw_isotope_abundance
-    raw_isotope_abundance_mass = raw_isotope_abundance.apply(
-        lambda x: x * shell_masses, axis=1
+
+    # calculating necessary values
+    shell_masses = calculate_shell_masses(gamma_ray_simulation_state)
+    isotopic_mass_fractions = (
+        gamma_ray_simulation_state.composition.isotopic_mass_fraction
     )
-    mass = raw_isotope_abundance_mass.loc[nuclide.Z, nuclide.A][0]
-    iso_dict = create_isotope_dicts(raw_isotope_abundance, shell_masses)
+    raw_isotope_abundance_mass = isotopic_mass_fractions * shell_masses
+    test_mass = raw_isotope_abundance_mass.loc[(nuclide.Z, nuclide.A), 0] * u.g
+    iso_dict = create_isotope_dicts(isotopic_mass_fractions, shell_masses)
     inv_dict = create_inventories_dict(iso_dict)
 
     total_decays = calculate_total_decays(inv_dict, time_delta)
     actual = total_decays[0][nuclide.Z, nuclide.A][nuclide_name]
 
-    isotopic_mass = nuclide.atomic_mass * (u.g)
-    number_of_moles = mass * (u.g) / isotopic_mass
-    number_of_atoms = (number_of_moles * c.N_A).value
-    N1 = number_of_atoms * np.exp(-decay_constant * time_delta)
-    expected = number_of_atoms - N1.value
+    isotope_mass = nuclide.atomic_mass * u.u
+    number_of_atoms = test_mass / isotope_mass
+    expected = number_of_atoms * (1 - np.exp(-decay_constant * time_delta))
 
     npt.assert_allclose(actual, expected)
 
