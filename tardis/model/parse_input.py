@@ -468,8 +468,14 @@ def parse_density_csvy(csvy_model_config, csvy_model_data, time_explosion):
             csvy_model_config.datatype.fields[density_field_index]["unit"]
         )
         density_0 = csvy_model_data["density"].values * density_unit
+
+        # Removing the 0-th shell from the density array in the CSVY case
+        if density_0[0] >= 0 * u.g / u.cm**3:
+            logger.warning(
+                "TARDIS ignores the 0-th shell for the CSVY format. Make density of 0-th shell negative to remove this warning."
+            )
         density_0 = density_0.to("g/cm^3")[1:]
-        density_0 = density_0.insert(0, 0)
+        # density_0 = density_0.insert(0, 0)
         density = calculate_density_after_time(
             density_0, time_0, time_explosion
         )
