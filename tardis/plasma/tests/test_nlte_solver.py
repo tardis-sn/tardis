@@ -217,14 +217,14 @@ def test_jacobian_matrix(
 
 
 @pytest.fixture
-def nlte_raw_plasma_w1_root(
+def nlte_raw_plasma_dilution_factor_1_root(
     tardis_model_config_nlte_root, nlte_raw_model, nlte_atom_data
 ):
     """
     Plasma assembled with dilution factors set to 1.0.
     """
-    new_w = np.ones_like(nlte_raw_model.dilution_factor)
-    nlte_raw_model.dilution_factor = new_w
+    new_dilution_factor = np.ones_like(nlte_raw_model.dilution_factor)
+    nlte_raw_model.dilution_factor = new_dilution_factor
     plasma = assemble_plasma(
         tardis_model_config_nlte_root, nlte_raw_model, nlte_atom_data
     )
@@ -232,14 +232,14 @@ def nlte_raw_plasma_w1_root(
 
 
 @pytest.fixture
-def nlte_raw_plasma_w1_lu(
+def nlte_raw_plasma_dilution_factor_1_lu(
     tardis_model_config_nlte_lu, nlte_raw_model, nlte_atom_data
 ):
     """
     Plasma assembled with dilution factors set to 1.0.
     """
-    new_w = np.ones_like(nlte_raw_model.dilution_factor)
-    nlte_raw_model.dilution_factor = new_w
+    new_dilution_factor = np.ones_like(nlte_raw_model.dilution_factor)
+    nlte_raw_model.dilution_factor = new_dilution_factor
     plasma = assemble_plasma(
         tardis_model_config_nlte_lu, nlte_raw_model, nlte_atom_data
     )
@@ -247,14 +247,14 @@ def nlte_raw_plasma_w1_lu(
 
 
 @pytest.fixture
-def nlte_raw_plasma_w0_root(
+def nlte_raw_plasma_dilution_factor_0_root(
     tardis_model_config_nlte_root, nlte_raw_model, nlte_atom_data
 ):
     """
     Plasma assembled with dilution factors set to 0.0.
     """
-    new_w = np.zeros_like(nlte_raw_model.dilution_factor)
-    nlte_raw_model.dilution_factor = new_w
+    new_dilution_factor = np.zeros_like(nlte_raw_model.dilution_factor)
+    nlte_raw_model.dilution_factor = new_dilution_factor
     plasma = assemble_plasma(
         tardis_model_config_nlte_root, nlte_raw_model, nlte_atom_data
     )
@@ -262,14 +262,14 @@ def nlte_raw_plasma_w0_root(
 
 
 @pytest.fixture
-def nlte_raw_plasma_w0_lu(
+def nlte_raw_plasma_dilution_factor_0_lu(
     tardis_model_config_nlte_lu, nlte_raw_model, nlte_atom_data
 ):
     """
     Plasma assembled with dilution factors set to 0.0.
     """
-    new_w = np.zeros_like(nlte_raw_model.dilution_factor)
-    nlte_raw_model.dilution_factor = new_w
+    new_dilution_factor = np.zeros_like(nlte_raw_model.dilution_factor)
+    nlte_raw_model.dilution_factor = new_dilution_factor
     plasma = assemble_plasma(
         tardis_model_config_nlte_lu, nlte_raw_model, nlte_atom_data
     )
@@ -283,16 +283,16 @@ def nlte_raw_plasma_w0_lu(
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv #
 ###############################################################################
 @pytest.mark.xfail
-def test_critical_case_w1_root(nlte_raw_plasma_w1):
-    """Check that the LTE and NLTE solution agree for w=1.0."""
-    ion_number_density_nlte = nlte_raw_plasma_w1_root.ion_number_density.values
+def test_critical_case_dilution_factor_1_root(nlte_raw_plasma_dilution_factor_1):
+    """Check that the LTE and NLTE solution agree for dilution_factor=1.0."""
+    ion_number_density_nlte = nlte_raw_plasma_dilution_factor_1_root.ion_number_density.values
     ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
 
-    ind = IonNumberDensity(nlte_raw_plasma_w1_root)
+    ind = IonNumberDensity(nlte_raw_plasma_dilution_factor_1_root)
     ion_number_density_lte = ind.calculate(
-        nlte_raw_plasma_w1.thermal_phi_lte,
-        nlte_raw_plasma_w1.partition_function,
-        nlte_raw_plasma_w1.number_density,
+        nlte_raw_plasma_dilution_factor_1.thermal_phi_lte,
+        nlte_raw_plasma_dilution_factor_1.partition_function,
+        nlte_raw_plasma_dilution_factor_1.number_density,
     )[0]
 
     ion_number_density_lte = ion_number_density_lte.values
@@ -307,16 +307,16 @@ def test_critical_case_w1_root(nlte_raw_plasma_w1):
 
 
 @pytest.mark.xfail
-def test_critical_case_w1_lu(nlte_raw_plasma_w1):
-    """Check that the LTE and NLTE solution agree for w=1.0."""
-    ion_number_density_nlte = nlte_raw_plasma_w1_lu.ion_number_density.values
+def test_critical_case_dilution_factor_1_lu(nlte_raw_plasma_dilution_factor_1):
+    """Check that the LTE and NLTE solution agree for dilution_factor=1.0."""
+    ion_number_density_nlte = nlte_raw_plasma_dilution_factor_1_lu.ion_number_density.values
     ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
 
-    ind = IonNumberDensity(nlte_raw_plasma_w1_lu)
+    ind = IonNumberDensity(nlte_raw_plasma_dilution_factor_1_lu)
     ion_number_density_lte = ind.calculate(
-        nlte_raw_plasma_w1.thermal_phi_lte,
-        nlte_raw_plasma_w1.partition_function,
-        nlte_raw_plasma_w1.number_density,
+        nlte_raw_plasma_dilution_factor_1.thermal_phi_lte,
+        nlte_raw_plasma_dilution_factor_1.partition_function,
+        nlte_raw_plasma_dilution_factor_1.number_density,
     )[0]
 
     ion_number_density_lte = ion_number_density_lte.values
@@ -331,31 +331,31 @@ def test_critical_case_w1_lu(nlte_raw_plasma_w1):
 
 
 @pytest.mark.xfail
-def test_critical_case_w0_root(nlte_raw_plasma_w0_root):
-    """Check that the LTE and NLTE solution agree for w=0.0."""
-    nlte_solver = NLTEPopulationSolverRoot(nlte_raw_plasma_w0_root)
+def test_critical_case_dilution_factor_0_root(nlte_raw_plasma_dilution_factor_0_root):
+    """Check that the LTE and NLTE solution agree for dilution_factor=0.0."""
+    nlte_solver = NLTEPopulationSolverRoot(nlte_raw_plasma_dilution_factor_0_root)
     ion_number_density_nlte = nlte_solver.calculate(
-        nlte_raw_plasma_w0_root.gamma,
+        nlte_raw_plasma_dilution_factor_0_root.gamma,
         0.0,  # to test collisions only, we set the radiative recombination rate to 0
-        nlte_raw_plasma_w0_root.alpha_stim,
-        nlte_raw_plasma_w0_root.coll_ion_coeff,
-        nlte_raw_plasma_w0_root.coll_recomb_coeff,
-        nlte_raw_plasma_w0_root.partition_function,
-        nlte_raw_plasma_w0_root.levels,
-        nlte_raw_plasma_w0_root.level_boltzmann_factor,
-        nlte_raw_plasma_w0_root.phi,
-        nlte_raw_plasma_w0_root.rate_matrix_index,
-        nlte_raw_plasma_w0_root.number_density,
-        nlte_raw_plasma_w0_root.nlte_excitation_species,
+        nlte_raw_plasma_dilution_factor_0_root.alpha_stim,
+        nlte_raw_plasma_dilution_factor_0_root.coll_ion_coeff,
+        nlte_raw_plasma_dilution_factor_0_root.coll_recomb_coeff,
+        nlte_raw_plasma_dilution_factor_0_root.partition_function,
+        nlte_raw_plasma_dilution_factor_0_root.levels,
+        nlte_raw_plasma_dilution_factor_0_root.level_boltzmann_factor,
+        nlte_raw_plasma_dilution_factor_0_root.phi,
+        nlte_raw_plasma_dilution_factor_0_root.rate_matrix_index,
+        nlte_raw_plasma_dilution_factor_0_root.number_density,
+        nlte_raw_plasma_dilution_factor_0_root.nlte_excitation_species,
     )[0]
     ion_number_density_nlte = ion_number_density_nlte.values
     ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
 
-    ind = IonNumberDensity(nlte_raw_plasma_w0_root)
+    ind = IonNumberDensity(nlte_raw_plasma_dilution_factor_0_root)
     ion_number_density_lte = ind.calculate(
-        nlte_raw_plasma_w0_root.thermal_phi_lte,
-        nlte_raw_plasma_w0_root.partition_function,
-        nlte_raw_plasma_w0_root.number_density,
+        nlte_raw_plasma_dilution_factor_0_root.thermal_phi_lte,
+        nlte_raw_plasma_dilution_factor_0_root.partition_function,
+        nlte_raw_plasma_dilution_factor_0_root.number_density,
     )[0]
 
     ion_number_density_lte = ion_number_density_lte.values
@@ -370,31 +370,31 @@ def test_critical_case_w0_root(nlte_raw_plasma_w0_root):
 
 
 @pytest.mark.xfail
-def test_critical_case_w0_lu(nlte_raw_plasma_w0_lu):
-    """Check that the LTE and NLTE solution agree for w=0.0."""
-    nlte_solver = NLTEPopulationSolverLU(nlte_raw_plasma_w0_lu)
+def test_critical_case_dilution_factor_0_lu(nlte_raw_plasma_dilution_factor_0_lu):
+    """Check that the LTE and NLTE solution agree for dilution_factor=0.0."""
+    nlte_solver = NLTEPopulationSolverLU(nlte_raw_plasma_dilution_factor_0_lu)
     ion_number_density_nlte = nlte_solver.calculate(
-        nlte_raw_plasma_w0_lu.gamma,
+        nlte_raw_plasma_dilution_factor_0_lu.gamma,
         0.0,  # to test collisions only, we set the radiative recombination rate to 0
-        nlte_raw_plasma_w0_lu.alpha_stim,
-        nlte_raw_plasma_w0_lu.coll_ion_coeff,
-        nlte_raw_plasma_w0_lu.coll_recomb_coeff,
-        nlte_raw_plasma_w0_lu.partition_function,
-        nlte_raw_plasma_w0_lu.levels,
-        nlte_raw_plasma_w0_lu.level_boltzmann_factor,
-        nlte_raw_plasma_w0_lu.phi,
-        nlte_raw_plasma_w0_lu.rate_matrix_index,
-        nlte_raw_plasma_w0_lu.number_density,
-        nlte_raw_plasma_w0_lu.nlte_excitation_species,
+        nlte_raw_plasma_dilution_factor_0_lu.alpha_stim,
+        nlte_raw_plasma_dilution_factor_0_lu.coll_ion_coeff,
+        nlte_raw_plasma_dilution_factor_0_lu.coll_recomb_coeff,
+        nlte_raw_plasma_dilution_factor_0_lu.partition_function,
+        nlte_raw_plasma_dilution_factor_0_lu.levels,
+        nlte_raw_plasma_dilution_factor_0_lu.level_boltzmann_factor,
+        nlte_raw_plasma_dilution_factor_0_lu.phi,
+        nlte_raw_plasma_dilution_factor_0_lu.rate_matrix_index,
+        nlte_raw_plasma_dilution_factor_0_lu.number_density,
+        nlte_raw_plasma_dilution_factor_0_lu.nlte_excitation_species,
     )[0]
     ion_number_density_nlte = ion_number_density_nlte.values
     ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
 
-    ind = IonNumberDensity(nlte_raw_plasma_w0_lu)
+    ind = IonNumberDensity(nlte_raw_plasma_dilution_factor_0_lu)
     ion_number_density_lte = ind.calculate(
-        nlte_raw_plasma_w0_lu.thermal_phi_lte,
-        nlte_raw_plasma_w0_lu.partition_function,
-        nlte_raw_plasma_w0_lu.number_density,
+        nlte_raw_plasma_dilution_factor_0_lu.thermal_phi_lte,
+        nlte_raw_plasma_dilution_factor_0_lu.partition_function,
+        nlte_raw_plasma_dilution_factor_0_lu.number_density,
     )[0]
 
     ion_number_density_lte = ion_number_density_lte.values
