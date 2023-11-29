@@ -231,4 +231,4 @@ class Composition:
         --------
         >>> calculate_cell_masses(10)
         """
-        return (self.density * volume).to(u.g).value
+        return (self.density * volume).to(u.g)

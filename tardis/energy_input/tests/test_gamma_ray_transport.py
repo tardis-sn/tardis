@@ -54,8 +54,8 @@ def gamma_ray_simulation_state(gamma_ray_config, atomic_dataset):
     Tardis model
     """
     gamma_ray_config.model.structure.velocity.start = 1.0 * u.km / u.s
-    gamma_ray_config.model.structure.density.rho_0 = 5.0e2 * u.g / (u.cm**3)
-    gamma_ray_config.supernova.time_explosion = 150 * (u.d)
+    gamma_ray_config.model.structure.density.rho_0 = 5.0e2 * u.g / u.cm**3
+    gamma_ray_config.supernova.time_explosion = 150 * u.d
 
     return SimulationState.from_config(
         gamma_ray_config, atom_data=atomic_dataset
@@ -68,14 +68,15 @@ def test_calculate_cell_masses(gamma_ray_simulation_state):
     ----------
     simulation_setup: A simulation setup which returns a model.
     """
-    volume = 2.70936170e39  # cm^3
-    density = 5.24801665e-09  # g/cm^3
+    volume = 2.70936170e39 * u.cm**3
+    density = 5.24801665e-09 * u.g / u.cm**3
     desired = volume * density
 
     shell_masses = gamma_ray_simulation_state.composition.calculate_cell_masses(
-        gamma_ray_simulation_state
-    )[0].value
-    npt.assert_allclose(shell_masses, desired)
+        gamma_ray_simulation_state.geometry.volume
+    )
+
+    npt.assert_allclose(shell_masses[0], desired)
 
 
 @pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])
