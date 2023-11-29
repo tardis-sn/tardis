@@ -1,37 +1,27 @@
-import os
-
-from pathlib import Path
 import logging
+import os
+from pathlib import Path
+
 import numpy as np
-import pandas as pd
 from astropy import units as u
+
 from tardis import constants
-import radioactivedecay as rd
-from radioactivedecay.utils import Z_DICT
+from tardis.io.configuration.config_reader import Configuration
+from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.model.readers.csvy import (
+    load_csvy,
+)
+from tardis.io.util import HDFWriterMixin
+from tardis.model.matter.composition import Composition
 from tardis.model.parse_input import (
     parse_abundance_config,
     parse_composition_csvy,
     parse_csvy_geometry,
     parse_structure_config,
 )
-from tardis.model.matter.composition import Composition
-from tardis.util.base import is_valid_nuclide_or_elem
-
-
 from tardis.montecarlo.packet_source import BlackBodySimpleSource
-
 from tardis.radiation_field.base import MonteCarloRadiationFieldState
-
-
-from tardis.io.model.readers.csvy import (
-    load_csvy,
-)
-
-
-from tardis.io.configuration.config_validator import validate_dict
-from tardis.io.configuration.config_reader import Configuration
-from tardis.io.util import HDFWriterMixin
-
+from tardis.util.base import is_valid_nuclide_or_elem
 
 logger = logging.getLogger(__name__)
 
@@ -130,7 +120,7 @@ class SimulationState(HDFWriterMixin):
                 )
             else:
                 raise ValueError(
-                    "Both t_inner and luminosity_requested cannot " "be None."
+                    "Both t_inner and luminosity_requested cannot be None."
                 )
         else:
             self.blackbody_packet_source.temperature = t_inner
@@ -326,7 +316,6 @@ class SimulationState(HDFWriterMixin):
         )
 
         # using atom_data.mass.copy() to ensure that the original atom_data is not modified
-        # sep
         composition = Composition(
             density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
         )
