@@ -1,32 +1,27 @@
-import os
-import pytest
-import numpy as np
-import pandas as pd
-import numpy.testing as npt
 from pathlib import Path
+
+import astropy.units as u
+import numpy as np
+import numpy.testing as npt
+import pytest
 import radioactivedecay as rd
 from radioactivedecay import converters
 
-import tardis
-from tardis.model import SimulationState
-from tardis.io.configuration import config_reader
-from tardis.io.util import yaml_load_file, YAMLLoader
 from tardis.energy_input.energy_source import (
-    get_nuclear_lines_database,
     get_all_isotopes,
     setup_input_energy,
 )
 from tardis.energy_input.gamma_ray_transport import (
-    calculate_shell_masses,
-    create_isotope_dicts,
-    create_inventories_dict,
-    calculate_total_decays,
     calculate_average_energies,
-    decay_chain_energies,
     calculate_energy_per_mass,
+    calculate_shell_masses,
+    calculate_total_decays,
+    create_inventories_dict,
+    create_isotope_dicts,
+    decay_chain_energies,
 )
-import astropy.units as u
-import astropy.constants as c
+from tardis.io.configuration import config_reader
+from tardis.model import SimulationState
 
 
 @pytest.fixture(scope="module")
@@ -102,8 +97,8 @@ def test_activity(gamma_ray_simulation_state, nuclide_name):
     isotopic_mass_fractions = (
         gamma_ray_simulation_state.composition.isotopic_mass_fraction
     )
-    raw_isotope_abundance_mass = isotopic_mass_fractions * shell_masses
-    test_mass = raw_isotope_abundance_mass.loc[(nuclide.Z, nuclide.A), 0] * u.g
+    isotopic_masses = isotopic_mass_fractions * shell_masses
+    test_mass = isotopic_masses.loc[(nuclide.Z, nuclide.A), 0] * u.g
     iso_dict = create_isotope_dicts(isotopic_mass_fractions, shell_masses)
     inv_dict = create_inventories_dict(iso_dict)
 
@@ -111,14 +106,14 @@ def test_activity(gamma_ray_simulation_state, nuclide_name):
     actual = total_decays[0][nuclide.Z, nuclide.A][nuclide_name]
 
     isotope_mass = nuclide.atomic_mass * u.u
-    number_of_atoms = test_mass / isotope_mass
+    number_of_atoms = (test_mass / isotope_mass).to(u.dimensionless_unscaled)
     expected = number_of_atoms * (1 - np.exp(-decay_constant * time_delta))
 
     npt.assert_allclose(actual, expected)
 
 
 @pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])
-def test_activity_chain(simulation_setup, nuclide_name):
+def test_activity_chain(gamma_ray_simulation_state, nuclide_name):
     """
     Function to test two atom decay chain in radioactivedecay with an analytical solution.
     Parameters
@@ -127,37 +122,34 @@ def test_activity_chain(simulation_setup, nuclide_name):
     nuclide_name: Name of the nuclide.
     """
     nuclide = rd.Nuclide(nuclide_name)
-    model = simulation_setup
     t_half = nuclide.half_life()
     decay_constant = np.log(2) / t_half
     time_delta = 1.0 * (u.d).to(u.s)
-    progeny = rd.Nuclide(nuclide.progeny()[0])
-    decay_constant_progeny = np.log(2) / progeny.half_life()
-    shell_masses = calculate_shell_masses(model)
-    raw_isotope_abundance = model.raw_isotope_abundance
-    raw_isotope_abundance_mass = raw_isotope_abundance.apply(
-        lambda x: x * shell_masses, axis=1
+
+    shell_masses = calculate_shell_masses(gamma_ray_simulation_state)
+    isotopic_mass_fractions = (
+        gamma_ray_simulation_state.composition.isotopic_mass_fraction
     )
-    mass = raw_isotope_abundance_mass.loc[nuclide.Z, nuclide.A][0]
-    iso_dict = create_isotope_dicts(raw_isotope_abundance, shell_masses)
+    isotopic_masses = isotopic_mass_fractions * shell_masses
+    test_mass = isotopic_masses.loc[(nuclide.Z, nuclide.A), 0] * u.g
+    iso_dict = create_isotope_dicts(isotopic_mass_fractions, shell_masses)
     inv_dict = create_inventories_dict(iso_dict)
+
     total_decays = calculate_total_decays(inv_dict, time_delta)
     actual_parent = total_decays[0][nuclide.Z, nuclide.A][nuclide_name]
-    actual_progeny = total_decays[0][nuclide.Z, nuclide.A][nuclide.progeny()[0]]
-    isotopic_mass = nuclide.atomic_mass
-    number_of_moles = mass / isotopic_mass
+
+    isotopic_mass = nuclide.atomic_mass * u.g
+    number_of_moles = test_mass / isotopic_mass
     number_of_atoms = number_of_moles * converters.AVOGADRO
-    decayed_parent = number_of_atoms * np.exp(-decay_constant * time_delta)
-    expected_parent = number_of_atoms * (
+    expected_parent = number_of_atoms.to(1).value * (
         1 - np.exp(-decay_constant * time_delta)
     )
 
     npt.assert_almost_equal(expected_parent, actual_parent)
-    # npt.assert_allclose(actual_progeny, expected_progeny, rtol=1e-3)
 
 
 @pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])
-def test_isotope_dicts(simulation_setup, nuclide_name):
+def test_isotope_dicts(gamma_ray_simulation_state, nuclide_name):
     """
     Function to test if the right names for the isotopes are present as dictionary keys.
     Parameters
@@ -165,21 +157,22 @@ def test_isotope_dicts(simulation_setup, nuclide_name):
     simulation_setup: A simulation setup which returns a model.
     nuclide_name: Name of the nuclide.
     """
-    model = simulation_setup
     nuclide = rd.Nuclide(nuclide_name)
-    raw_isotope_abundance = model.raw_isotope_abundance
-    shell_masses = calculate_shell_masses(model)
-    iso_dict = create_isotope_dicts(raw_isotope_abundance, shell_masses)
+    isotopic_mass_fractions = (
+        gamma_ray_simulation_state.composition.isotopic_mass_fraction
+    )
+    shell_masses = calculate_shell_masses(gamma_ray_simulation_state)
+    iso_dict = create_isotope_dicts(isotopic_mass_fractions, shell_masses)
 
     Z, A = nuclide.Z, nuclide.A
 
-    for shell_number, isotope_dict in iso_dict.items():
+    for isotope_dict in iso_dict.values():
         isotope_dict_key = isotope_dict[Z, A]
         assert nuclide_name.replace("-", "") in isotope_dict_key.keys()
 
 
 @pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])
-def test_inventories_dict(simulation_setup, nuclide_name):
+def test_inventories_dict(gamma_ray_simulation_state, nuclide_name):
     """
     Function to test if the inventories dictionary is created correctly.
     Parameters
@@ -187,15 +180,17 @@ def test_inventories_dict(simulation_setup, nuclide_name):
     simulation_setup: A simulation setup which returns a model.
     nuclide_name: Name of the nuclide.
     """
-    model = simulation_setup
+
     nuclide = rd.Nuclide(nuclide_name)
-    raw_isotope_abundance = model.raw_isotope_abundance
-    shell_masses = calculate_shell_masses(model)
-    iso_dict = create_isotope_dicts(raw_isotope_abundance, shell_masses)
+    isotopic_mass_fractions = (
+        gamma_ray_simulation_state.composition.isotopic_mass_fraction
+    )
+    shell_masses = calculate_shell_masses(gamma_ray_simulation_state)
+    iso_dict = create_isotope_dicts(isotopic_mass_fractions, shell_masses)
     inventories_dict = create_inventories_dict(iso_dict)
 
     Z, A = nuclide.Z, nuclide.A
-    raw_isotope_abundance_mass = raw_isotope_abundance.apply(
+    raw_isotope_abundance_mass = isotopic_mass_fractions.apply(
         lambda x: x * shell_masses, axis=1
     )
 
@@ -204,7 +199,7 @@ def test_inventories_dict(simulation_setup, nuclide_name):
     assert inventories_dict[0][Z, A] == inventory
 
 
-def test_average_energies(simulation_setup, atomic_dataset):
+def test_average_energies(gamma_ray_simulation_state, atomic_dataset):
     """
     Function to test if the energy from each isotope is there in the list.
     Parameters
@@ -213,11 +208,12 @@ def test_average_energies(simulation_setup, atomic_dataset):
     atomic_dataset: Tardis atomic and nuclear dataset.
     """
 
-    model = simulation_setup
-    raw_isotope_abundance = model.raw_isotope_abundance
+    isotopic_mass_fraction = (
+        gamma_ray_simulation_state.composition.isotopic_mass_fraction
+    )
     gamma_ray_lines = atomic_dataset.decay_radiation_data
 
-    all_isotope_names = get_all_isotopes(raw_isotope_abundance)
+    all_isotope_names = get_all_isotopes(isotopic_mass_fraction)
 
     average_energies_list = []
 
@@ -234,7 +230,9 @@ def test_average_energies(simulation_setup, atomic_dataset):
 
 
 @pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])
-def test_decay_energy_chain(simulation_setup, atomic_dataset, nuclide_name):
+def test_decay_energy_chain(
+    gamma_ray_simulation_state, atomic_dataset, nuclide_name
+):
     """
     This function tests if the decay energy is calculated correctly for a decay chain.
     Parameters
@@ -243,23 +241,26 @@ def test_decay_energy_chain(simulation_setup, atomic_dataset, nuclide_name):
     atomic_dataset: Tardis atomic and nuclear dataset.
     nuclide_name: Name of the nuclide.
     """
-    model = simulation_setup
+
     nuclide = rd.Nuclide(nuclide_name)
-    raw_isotope_abundance = model.raw_isotope_abundance
-    shell_masses = calculate_shell_masses(model)
-    iso_dict = create_isotope_dicts(raw_isotope_abundance, shell_masses)
+    isotopic_mass_fractions = (
+        gamma_ray_simulation_state.composition.isotopic_mass_fraction
+    )
+
+    shell_masses = calculate_shell_masses(gamma_ray_simulation_state)
+    iso_dict = create_isotope_dicts(isotopic_mass_fractions, shell_masses)
     inventories_dict = create_inventories_dict(iso_dict)
     gamma_ray_lines = atomic_dataset.decay_radiation_data
-    all_isotope_names = get_all_isotopes(raw_isotope_abundance)
+
     Z, A = nuclide.Z, nuclide.A
 
     total_decays = calculate_total_decays(inventories_dict, 1.0 * u.s)
 
     (
         average_energies,
-        average_positron_energies,
-        gamma_ray_line_dict,
-    ) = calculate_average_energies(raw_isotope_abundance, gamma_ray_lines)
+        _,
+        _,
+    ) = calculate_average_energies(isotopic_mass_fractions, gamma_ray_lines)
 
     decay_chain_energy = decay_chain_energies(
         average_energies,
@@ -274,7 +275,7 @@ def test_decay_energy_chain(simulation_setup, atomic_dataset, nuclide_name):
     npt.assert_almost_equal(expected, actual)
 
 
-def test_energy_per_mass(simulation_setup, atomic_dataset):
+def test_energy_per_mass(gamma_ray_simulation_state, atomic_dataset):
     """
     This function tests if the energy per mass has the same dimensions as the raw_isotope_abundance.
     This means for each decay chain we are calculating the energy per mass, by summing the energy from each isotope.
@@ -283,25 +284,28 @@ def test_energy_per_mass(simulation_setup, atomic_dataset):
     simulation_setup: A simulation setup which returns a model.
     atomic_dataset: Tardis atomic and nuclear dataset.
     """
-    model = simulation_setup
-    raw_isotope_abundance = model.raw_isotope_abundance
-    shell_masses = calculate_shell_masses(model)
-    iso_dict = create_isotope_dicts(raw_isotope_abundance, shell_masses)
+
+    isotopic_mass_fractions = (
+        gamma_ray_simulation_state.composition.isotopic_mass_fraction
+    )
+    shell_masses = calculate_shell_masses(gamma_ray_simulation_state)
+    iso_dict = create_isotope_dicts(isotopic_mass_fractions, shell_masses)
     inventories_dict = create_inventories_dict(iso_dict)
     total_decays = calculate_total_decays(inventories_dict, 1.0 * u.s)
 
     gamma_ray_lines = atomic_dataset.decay_radiation_data
     average_energies = calculate_average_energies(
-        raw_isotope_abundance, gamma_ray_lines
+        isotopic_mass_fractions, gamma_ray_lines
     )
     decay_energy = decay_chain_energies(
         average_energies[0],
         total_decays,
     )
     energy_per_mass = calculate_energy_per_mass(
-        decay_energy, raw_isotope_abundance, shell_masses
+        decay_energy, isotopic_mass_fractions, shell_masses
     )
     # If the shape is not same that means the code is not working with multiple isotopes
     assert (
-        energy_per_mass[0].shape == (raw_isotope_abundance * shell_masses).shape
+        energy_per_mass[0].shape
+        == (isotopic_mass_fractions * shell_masses).shape
     )
