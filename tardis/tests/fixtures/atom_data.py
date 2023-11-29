@@ -1,5 +1,5 @@
 from copy import deepcopy
-from pathlib import Path
+from pathlib import Path 
 import pytest
 
 from tardis.io.atom_data.base import AtomData
@@ -77,22 +77,25 @@ def nlte_atom_data(nlte_atomic_dataset):
 
 @pytest.fixture  # (scope="session")
 def tardis_model_config_nlte_root(example_configuration_dir):
-    return Configuration.from_yaml(
-        example_configuration_dir / "tardis_configv1_nlte_root.yml"
+    config = Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_nlte.yml"
     )
+    config.plasma.nlte_solver = "root"
+    return config
 
 
 @pytest.fixture  # (scope="session")
 def tardis_model_config_nlte_lu(example_configuration_dir):
-    return Configuration.from_yaml(
-        example_configuration_dir / "tardis_configv1_nlte_lu.yml"
+    config = Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_nlte.yml"
     )
+    config.plasma.nlte_solver = "lu"
+    return config
 
 
 @pytest.fixture  # (scope="session")
 def nlte_raw_model_root(tardis_model_config_nlte_root):
     return SimulationState.from_config(tardis_model_config_nlte_root)
-
 
 @pytest.fixture  # (scope="session")
 def nlte_raw_model_lu(tardis_model_config_nlte_lu):

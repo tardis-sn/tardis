@@ -218,60 +218,60 @@ def test_jacobian_matrix(
 
 @pytest.fixture
 def nlte_raw_plasma_dilution_factor_1_root(
-    tardis_model_config_nlte_root, nlte_raw_model, nlte_atom_data
+    tardis_model_config_nlte_root, nlte_raw_model_root, nlte_atom_data
 ):
     """
     Plasma assembled with dilution factors set to 1.0.
     """
-    new_dilution_factor = np.ones_like(nlte_raw_model.dilution_factor)
-    nlte_raw_model.dilution_factor = new_dilution_factor
+    new_dilution_factor = np.ones_like(nlte_raw_model_root.dilution_factor)
+    nlte_raw_model_root.dilution_factor = new_dilution_factor
     plasma = assemble_plasma(
-        tardis_model_config_nlte_root, nlte_raw_model, nlte_atom_data
+        tardis_model_config_nlte_root, nlte_raw_model_root, nlte_atom_data
     )
     return plasma
 
 
 @pytest.fixture
 def nlte_raw_plasma_dilution_factor_1_lu(
-    tardis_model_config_nlte_lu, nlte_raw_model, nlte_atom_data
+    tardis_model_config_nlte_lu, nlte_raw_model_lu, nlte_atom_data
 ):
     """
     Plasma assembled with dilution factors set to 1.0.
     """
-    new_dilution_factor = np.ones_like(nlte_raw_model.dilution_factor)
-    nlte_raw_model.dilution_factor = new_dilution_factor
+    new_dilution_factor = np.ones_like(nlte_raw_model_lu.dilution_factor)
+    nlte_raw_model_lu.dilution_factor = new_dilution_factor
     plasma = assemble_plasma(
-        tardis_model_config_nlte_lu, nlte_raw_model, nlte_atom_data
+        tardis_model_config_nlte_lu, nlte_raw_model_lu, nlte_atom_data
     )
     return plasma
 
 
 @pytest.fixture
 def nlte_raw_plasma_dilution_factor_0_root(
-    tardis_model_config_nlte_root, nlte_raw_model, nlte_atom_data
+    tardis_model_config_nlte_root, nlte_raw_model_root, nlte_atom_data
 ):
     """
     Plasma assembled with dilution factors set to 0.0.
     """
-    new_dilution_factor = np.zeros_like(nlte_raw_model.dilution_factor)
-    nlte_raw_model.dilution_factor = new_dilution_factor
+    new_dilution_factor = np.zeros_like(nlte_raw_model_root.dilution_factor)
+    nlte_raw_model_root.dilution_factor = new_dilution_factor
     plasma = assemble_plasma(
-        tardis_model_config_nlte_root, nlte_raw_model, nlte_atom_data
+        tardis_model_config_nlte_root, nlte_raw_model_root, nlte_atom_data
     )
     return plasma
 
 
 @pytest.fixture
 def nlte_raw_plasma_dilution_factor_0_lu(
-    tardis_model_config_nlte_lu, nlte_raw_model, nlte_atom_data
+    tardis_model_config_nlte_lu, nlte_raw_model_lu, nlte_atom_data
 ):
     """
     Plasma assembled with dilution factors set to 0.0.
     """
-    new_dilution_factor = np.zeros_like(nlte_raw_model.dilution_factor)
-    nlte_raw_model.dilution_factor = new_dilution_factor
+    new_dilution_factor = np.zeros_like(nlte_raw_model_lu.dilution_factor)
+    nlte_raw_model_lu.dilution_factor = new_dilution_factor
     plasma = assemble_plasma(
-        tardis_model_config_nlte_lu, nlte_raw_model, nlte_atom_data
+        tardis_model_config_nlte_lu, nlte_raw_model_lu, nlte_atom_data
     )
     return plasma
 

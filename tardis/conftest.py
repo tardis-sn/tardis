@@ -190,17 +190,9 @@ def tardis_config_verysimple():
 
 
 @pytest.fixture(scope="function")
-def tardis_config_verysimple_nlte_root():
+def tardis_config_verysimple_nlte():
     return yaml_load_file(
-        "tardis/io/configuration/tests/data/tardis_configv1_nlte_root.yml",
-        YAMLLoader,
-    )
-
-
-@pytest.fixture(scope="function")
-def tardis_config_verysimple_nlte_lu():
-    return yaml_load_file(
-        "tardis/io/configuration/tests/data/tardis_configv1_nlte_lu.yml",
+        "tardis/io/configuration/tests/data/tardis_configv1_nlte.yml",
         YAMLLoader,
     )
 

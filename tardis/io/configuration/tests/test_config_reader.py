@@ -169,8 +169,8 @@ def test_plasma_section_config(key, tardis_config_verysimple):
         )
 
 
-def test_plasma_nlte_root_section_config(
-    tardis_config_verysimple_nlte_root,
+def test_plasma_nlte_section_root_config(
+    tardis_config_verysimple_nlte,
     nlte_raw_model_root,
     nlte_atom_data,
 ):
@@ -190,22 +190,21 @@ def test_plasma_nlte_root_section_config(
     ------
         Assertion based on validation for specified values
     """
-    tardis_config_verysimple_nlte_root["plasma"]["continuum_interaction"][
+    tardis_config_verysimple_nlte["plasma"]["continuum_interaction"][
         "species"
     ] = [
         "He I",
     ]
-    tardis_config_verysimple_nlte_root["plasma"]["nlte_ionization_species"] = [
+    tardis_config_verysimple_nlte["plasma"]["nlte_ionization_species"] = [
         "H I"
     ]
-    tardis_config_verysimple_nlte_root["plasma"]["nlte_solver"] = "root"
-    config = Configuration.from_config_dict(tardis_config_verysimple_nlte_root)
+    config = Configuration.from_config_dict(tardis_config_verysimple_nlte)
     with pytest.raises(PlasmaConfigError) as ve:
         assemble_plasma(config, nlte_raw_model_root, nlte_atom_data)
 
 
-def test_plasma_nlte_lu_section_config(
-    tardis_config_verysimple_nlte_lu,
+def test_plasma_nlte_section_lu_config(
+    tardis_config_verysimple_nlte,
     nlte_raw_model_lu,
     nlte_atom_data,
 ):
@@ -217,7 +216,7 @@ def test_plasma_nlte_lu_section_config(
 
     Parameter
     ---------
-        `tardis_config_verysimple_nlte_lu` : YAML File
+        `tardis_config_verysimple_nlte_root` : YAML File
         `nlte_raw_model` : A simple model
         `nlte_atom_data` : An example atomic dataset
 
@@ -225,22 +224,22 @@ def test_plasma_nlte_lu_section_config(
     ------
         Assertion based on validation for specified values
     """
-    tardis_config_verysimple_nlte_lu["plasma"]["continuum_interaction"][
+    tardis_config_verysimple_nlte["plasma"]["continuum_interaction"][
         "species"
     ] = [
         "He I",
     ]
-    tardis_config_verysimple_nlte_lu["plasma"]["nlte_ionization_species"] = [
+    tardis_config_verysimple_nlte["plasma"]["nlte_ionization_species"] = [
         "H I"
     ]
-    tardis_config_verysimple_nlte_lu["plasma"]["nlte_solver"] = "lu"
-    config = Configuration.from_config_dict(tardis_config_verysimple_nlte_lu)
+    tardis_config_verysimple_nlte["plasma"]["nlte_solver"] = "lu"
+    config = Configuration.from_config_dict(tardis_config_verysimple_nlte)
     with pytest.raises(PlasmaConfigError) as ve:
         assemble_plasma(config, nlte_raw_model_lu, nlte_atom_data)
 
 
 def test_plasma_nlte_root_exc_section_config(
-    tardis_config_verysimple_nlte_root, nlte_raw_model_root, nlte_atom_data
+    tardis_config_verysimple_nlte, nlte_raw_model_root, nlte_atom_data
 ):
     """
     Configuration Validation Test for Plasma Section of the Tardis Config YAML File.
@@ -258,51 +257,18 @@ def test_plasma_nlte_root_exc_section_config(
     ------
         Assertion based on validation for specified values
     """
-    tardis_config_verysimple_nlte_root["plasma"]["continuum_interaction"][
+    tardis_config_verysimple_nlte["plasma"]["continuum_interaction"][
         "species"
     ] = [
         "He I",
     ]
-    tardis_config_verysimple_nlte_root["plasma"]["nlte_excitation_species"] = [
+    tardis_config_verysimple_nlte["plasma"]["nlte_excitation_species"] = [
         "H I"
     ]
-    tardis_config_verysimple_nlte_root["plasma"]["nlte_solver"] = "root"
-    config = Configuration.from_config_dict(tardis_config_verysimple_nlte_root)
+    tardis_config_verysimple_nlte["plasma"]["nlte_solver"] = "root"
+    config = Configuration.from_config_dict(tardis_config_verysimple_nlte)
     with pytest.raises(PlasmaConfigError):
         plasma = assemble_plasma(config, nlte_raw_model_root, nlte_atom_data)
-
-
-def test_plasma_nlte_lu_exc_section_config(
-    tardis_config_verysimple_nlte_lu, nlte_raw_model_lu, nlte_atom_data
-):
-    """
-    Configuration Validation Test for Plasma Section of the Tardis Config YAML File.
-
-    Validates:
-        nlte_excitation_species: should be included in continuum_interaction
-
-    Parameter
-    ---------
-        `tardis_config_verysimple_nlte_lu` : YAML File
-        `nlte_raw_model` : A simple model
-        `nlte_atom_data` : An example atomic dataset
-
-    Result
-    ------
-        Assertion based on validation for specified values
-    """
-    tardis_config_verysimple_nlte_lu["plasma"]["continuum_interaction"][
-        "species"
-    ] = [
-        "He I",
-    ]
-    tardis_config_verysimple_nlte_lu["plasma"]["nlte_excitation_species"] = [
-        "H I"
-    ]
-    tardis_config_verysimple_nlte_lu["plasma"]["nlte_solver"] = "lu"
-    config = Configuration.from_config_dict(tardis_config_verysimple_nlte_lu)
-    with pytest.raises(PlasmaConfigError):
-        plasma = assemble_plasma(config, nlte_raw_model_lu, nlte_atom_data)
 
 
 def test_spectrum_section_config(tardis_config_verysimple):
