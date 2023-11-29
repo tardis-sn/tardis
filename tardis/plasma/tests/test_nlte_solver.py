@@ -283,9 +283,13 @@ def nlte_raw_plasma_dilution_factor_0_lu(
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv #
 ###############################################################################
 @pytest.mark.xfail
-def test_critical_case_dilution_factor_1_root(nlte_raw_plasma_dilution_factor_1):
+def test_critical_case_dilution_factor_1_root(
+    nlte_raw_plasma_dilution_factor_1,
+):
     """Check that the LTE and NLTE solution agree for dilution_factor=1.0."""
-    ion_number_density_nlte = nlte_raw_plasma_dilution_factor_1_root.ion_number_density.values
+    ion_number_density_nlte = (
+        nlte_raw_plasma_dilution_factor_1_root.ion_number_density.values
+    )
     ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
 
     ind = IonNumberDensity(nlte_raw_plasma_dilution_factor_1_root)
@@ -309,7 +313,9 @@ def test_critical_case_dilution_factor_1_root(nlte_raw_plasma_dilution_factor_1)
 @pytest.mark.xfail
 def test_critical_case_dilution_factor_1_lu(nlte_raw_plasma_dilution_factor_1):
     """Check that the LTE and NLTE solution agree for dilution_factor=1.0."""
-    ion_number_density_nlte = nlte_raw_plasma_dilution_factor_1_lu.ion_number_density.values
+    ion_number_density_nlte = (
+        nlte_raw_plasma_dilution_factor_1_lu.ion_number_density.values
+    )
     ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
 
     ind = IonNumberDensity(nlte_raw_plasma_dilution_factor_1_lu)
@@ -331,9 +337,13 @@ def test_critical_case_dilution_factor_1_lu(nlte_raw_plasma_dilution_factor_1):
 
 
 @pytest.mark.xfail
-def test_critical_case_dilution_factor_0_root(nlte_raw_plasma_dilution_factor_0_root):
+def test_critical_case_dilution_factor_0_root(
+    nlte_raw_plasma_dilution_factor_0_root,
+):
     """Check that the LTE and NLTE solution agree for dilution_factor=0.0."""
-    nlte_solver = NLTEPopulationSolverRoot(nlte_raw_plasma_dilution_factor_0_root)
+    nlte_solver = NLTEPopulationSolverRoot(
+        nlte_raw_plasma_dilution_factor_0_root
+    )
     ion_number_density_nlte = nlte_solver.calculate(
         nlte_raw_plasma_dilution_factor_0_root.gamma,
         0.0,  # to test collisions only, we set the radiative recombination rate to 0
@@ -370,7 +380,9 @@ def test_critical_case_dilution_factor_0_root(nlte_raw_plasma_dilution_factor_0_
 
 
 @pytest.mark.xfail
-def test_critical_case_dilution_factor_0_lu(nlte_raw_plasma_dilution_factor_0_lu):
+def test_critical_case_dilution_factor_0_lu(
+    nlte_raw_plasma_dilution_factor_0_lu,
+):
     """Check that the LTE and NLTE solution agree for dilution_factor=0.0."""
     nlte_solver = NLTEPopulationSolverLU(nlte_raw_plasma_dilution_factor_0_lu)
     ion_number_density_nlte = nlte_solver.calculate(

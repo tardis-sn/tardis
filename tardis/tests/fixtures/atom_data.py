@@ -1,5 +1,5 @@
 from copy import deepcopy
-from pathlib import Path 
+from pathlib import Path
 import pytest
 
 from tardis.io.atom_data.base import AtomData
@@ -96,6 +96,7 @@ def tardis_model_config_nlte_lu(example_configuration_dir):
 @pytest.fixture  # (scope="session")
 def nlte_raw_model_root(tardis_model_config_nlte_root):
     return SimulationState.from_config(tardis_model_config_nlte_root)
+
 
 @pytest.fixture  # (scope="session")
 def nlte_raw_model_lu(tardis_model_config_nlte_lu):
