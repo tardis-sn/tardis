@@ -95,7 +95,8 @@ def test_activity(gamma_ray_simulation_state, nuclide_name):
     time_delta = 1.0 * u.s
 
     # calculating necessary values
-    cell_masses = gamma_ray_simulation_state.composition.calculate_cell_masses(
+    composition = gamma_ray_simulation_state.composition
+    cell_masses = composition.calculate_cell_masses(
         gamma_ray_simulation_state.geometry.volume
     )
     isotopic_mass_fractions = (
@@ -130,7 +131,8 @@ def test_activity_chain(gamma_ray_simulation_state, nuclide_name):
     decay_constant = np.log(2) / t_half
     time_delta = 1.0 * (u.d).to(u.s)
 
-    cell_masses = gamma_ray_simulation_state.calculate_cell_masses(
+    composition = gamma_ray_simulation_state.composition
+    cell_masses = composition.calculate_cell_masses(
         gamma_ray_simulation_state.geometry.volume
     )
     isotopic_mass_fractions = (
@@ -167,7 +169,8 @@ def test_isotope_dicts(gamma_ray_simulation_state, nuclide_name):
     isotopic_mass_fractions = (
         gamma_ray_simulation_state.composition.isotopic_mass_fraction
     )
-    cell_masses = gamma_ray_simulation_state.calculate_cell_masses(
+    composition = gamma_ray_simulation_state.composition
+    cell_masses = composition.calculate_cell_masses(
         gamma_ray_simulation_state.geometry.volume
     )
     iso_dict = create_isotope_dicts(isotopic_mass_fractions, cell_masses)
@@ -193,7 +196,8 @@ def test_inventories_dict(gamma_ray_simulation_state, nuclide_name):
     isotopic_mass_fractions = (
         gamma_ray_simulation_state.composition.isotopic_mass_fraction
     )
-    cell_masses = gamma_ray_simulation_state.calculate_cell_masses(
+    composition = gamma_ray_simulation_state.composition
+    cell_masses = composition.calculate_cell_masses(
         gamma_ray_simulation_state.geometry.volume
     )
 
@@ -258,7 +262,8 @@ def test_decay_energy_chain(
         gamma_ray_simulation_state.composition.isotopic_mass_fraction
     )
 
-    cell_masses = gamma_ray_simulation_state.calculate_cell_masses(
+    composition = gamma_ray_simulation_state.composition
+    cell_masses = composition.calculate_cell_masses(
         gamma_ray_simulation_state.geometry.volume
     )
     iso_dict = create_isotope_dicts(isotopic_mass_fractions, cell_masses)
@@ -301,7 +306,8 @@ def test_energy_per_mass(gamma_ray_simulation_state, atomic_dataset):
     isotopic_mass_fractions = (
         gamma_ray_simulation_state.composition.isotopic_mass_fraction
     )
-    cell_masses = gamma_ray_simulation_state.calculate_cell_masses(
+    composition = gamma_ray_simulation_state.composition
+    cell_masses = composition.calculate_cell_masses(
         gamma_ray_simulation_state.geometry.volume
     )
     iso_dict = create_isotope_dicts(isotopic_mass_fractions, cell_masses)
