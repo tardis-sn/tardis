@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 NLTE_POPULATION_SOLVER_MAX_ITERATIONS = 100
 NLTE_POPULATION_SOLVER_TOLERANCE = 1e-3
-NLTE_POPULATION_NEGATIVE_POPULATION_TOLERANCE = (
+NLTE_POPULATION_NEGATIVE_RELATIVE_POPULATION_TOLERANCE = (
     -1e-10
 )  # Maximum negative population allowed before solver fails
 NLTE_POPULATION_SOLVER_CHARGE_CONSERVATION_TOLERANCE = 1e-6  # Arbitrary tolerance for charge conservation, should be changed to a more reasonable value
@@ -395,7 +395,7 @@ def check_negative_population(
                 if (ion_number_density.loc[atom_number, ion_number] < 0.0) and (
                     ion_number_density.loc[atom_number, ion_number]
                     / number_density.loc[atom_number]
-                    < NLTE_POPULATION_NEGATIVE_POPULATION_TOLERANCE
+                    < NLTE_POPULATION_NEGATIVE_RELATIVE_POPULATION_TOLERANCE
                 ):
                     ion_number_density.loc[atom_number, ion_number] = 0.0
 
