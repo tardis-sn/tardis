@@ -1,8 +1,8 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 import radioactivedecay as rd
-from radioactivedecay.decaydata import DEFAULTDATA as RD_DEFAULT_DATA
 from astropy import units as u
+from radioactivedecay.decaydata import DEFAULTDATA as RD_DEFAULT_DATA
 
 from tardis.model.matter.decay import IsotopicMassFraction
 
@@ -169,12 +169,66 @@ class Composition:
         )
 
     def calculate_mass_fraction_at_time(self, time_explosion):
+        """
+        Calculate the mass fraction at a given time using the radioactive decay from
+        the IsotopicMassFraction.
+
+        Parameters
+        ----------
+        time_explosion : astropy.units.quantity.Quantity
+            The time of the explosion.
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        >>> calculate_mass_fraction_at_time(10)
+        """
         if self.isotopic_mass_fraction.empty:
             return self.elemental_mass_fraction
         else:
             self.isotopic_mass_fraction.decay(time_explosion)
 
     def calculate_elemental_cell_masses(self, volume):
+        """
+        Calculate the elemental cell masses.
+
+        Parameters
+        ----------
+        volume : astropy.units.quantity.Quantity
+        The volume of the cell.
+
+        Returns
+        -------
+        numpy.ndarray
+        An array of elemental cell masses.
+
+        Examples
+        --------
+        >>> calculate_elemental_cell_masses(10)
+        """
         return (
             self.elemental_mass_fraction * (self.density * volume).to(u.g).value
         )
+
+    def calculate_cell_masses(self, volume):
+        """
+        Calculate the cell masses.
+
+        Parameters
+        ----------
+        volume : astropy.units.quantity.Quantity
+        The volume of the cell.
+
+        Returns
+        -------
+        astropy.units.quantity.Quantity
+        An array of cell masses.
+
+        Examples
+        --------
+        >>> calculate_cell_masses(10)
+        """
+        return (self.density * volume).to(u.g).value

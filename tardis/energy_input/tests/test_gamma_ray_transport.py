@@ -14,7 +14,6 @@ from tardis.energy_input.energy_source import (
 from tardis.energy_input.gamma_ray_transport import (
     calculate_average_energies,
     calculate_energy_per_mass,
-    calculate_shell_masses,
     calculate_total_decays,
     create_inventories_dict,
     create_isotope_dicts,
@@ -63,7 +62,7 @@ def gamma_ray_simulation_state(gamma_ray_config, atomic_dataset):
     )
 
 
-def test_calculate_shell_masses(gamma_ray_simulation_state):
+def test_calculate_cell_masses(gamma_ray_simulation_state):
     """Function to test calculation of shell masses.
     Parameters
     ----------
@@ -73,7 +72,9 @@ def test_calculate_shell_masses(gamma_ray_simulation_state):
     density = 5.24801665e-09  # g/cm^3
     desired = volume * density
 
-    shell_masses = calculate_shell_masses(gamma_ray_simulation_state)[0].value
+    shell_masses = gamma_ray_simulation_state.composition.calculate_cell_masses(
+        gamma_ray_simulation_state
+    )[0].value
     npt.assert_allclose(shell_masses, desired)
 
 
@@ -93,13 +94,15 @@ def test_activity(gamma_ray_simulation_state, nuclide_name):
     time_delta = 1.0 * u.s
 
     # calculating necessary values
-    shell_masses = calculate_shell_masses(gamma_ray_simulation_state)
+    cell_masses = gamma_ray_simulation_state.composition.calculate_cell_masses(
+        gamma_ray_simulation_state.geometry.volume
+    )
     isotopic_mass_fractions = (
         gamma_ray_simulation_state.composition.isotopic_mass_fraction
     )
-    isotopic_masses = isotopic_mass_fractions * shell_masses
+    isotopic_masses = isotopic_mass_fractions * cell_masses
     test_mass = isotopic_masses.loc[(nuclide.Z, nuclide.A), 0] * u.g
-    iso_dict = create_isotope_dicts(isotopic_mass_fractions, shell_masses)
+    iso_dict = create_isotope_dicts(isotopic_mass_fractions, cell_masses)
     inv_dict = create_inventories_dict(iso_dict)
 
     total_decays = calculate_total_decays(inv_dict, time_delta)
@@ -126,13 +129,15 @@ def test_activity_chain(gamma_ray_simulation_state, nuclide_name):
     decay_constant = np.log(2) / t_half
     time_delta = 1.0 * (u.d).to(u.s)
 
-    shell_masses = calculate_shell_masses(gamma_ray_simulation_state)
+    cell_masses = gamma_ray_simulation_state.calculate_cell_masses(
+        gamma_ray_simulation_state.geometry.volume
+    )
     isotopic_mass_fractions = (
         gamma_ray_simulation_state.composition.isotopic_mass_fraction
     )
-    isotopic_masses = isotopic_mass_fractions * shell_masses
+    isotopic_masses = isotopic_mass_fractions * cell_masses
     test_mass = isotopic_masses.loc[(nuclide.Z, nuclide.A), 0] * u.g
-    iso_dict = create_isotope_dicts(isotopic_mass_fractions, shell_masses)
+    iso_dict = create_isotope_dicts(isotopic_mass_fractions, cell_masses)
     inv_dict = create_inventories_dict(iso_dict)
 
     total_decays = calculate_total_decays(inv_dict, time_delta)
@@ -161,8 +166,10 @@ def test_isotope_dicts(gamma_ray_simulation_state, nuclide_name):
     isotopic_mass_fractions = (
         gamma_ray_simulation_state.composition.isotopic_mass_fraction
     )
-    shell_masses = calculate_shell_masses(gamma_ray_simulation_state)
-    iso_dict = create_isotope_dicts(isotopic_mass_fractions, shell_masses)
+    cell_masses = gamma_ray_simulation_state.calculate_cell_masses(
+        gamma_ray_simulation_state.geometry.volume
+    )
+    iso_dict = create_isotope_dicts(isotopic_mass_fractions, cell_masses)
 
     Z, A = nuclide.Z, nuclide.A
 
@@ -185,13 +192,16 @@ def test_inventories_dict(gamma_ray_simulation_state, nuclide_name):
     isotopic_mass_fractions = (
         gamma_ray_simulation_state.composition.isotopic_mass_fraction
     )
-    shell_masses = calculate_shell_masses(gamma_ray_simulation_state)
-    iso_dict = create_isotope_dicts(isotopic_mass_fractions, shell_masses)
+    cell_masses = gamma_ray_simulation_state.calculate_cell_masses(
+        gamma_ray_simulation_state.geometry.volume
+    )
+
+    iso_dict = create_isotope_dicts(isotopic_mass_fractions, cell_masses)
     inventories_dict = create_inventories_dict(iso_dict)
 
     Z, A = nuclide.Z, nuclide.A
     raw_isotope_abundance_mass = isotopic_mass_fractions.apply(
-        lambda x: x * shell_masses, axis=1
+        lambda x: x * cell_masses, axis=1
     )
 
     mass = raw_isotope_abundance_mass.loc[Z, A][0]
@@ -247,8 +257,10 @@ def test_decay_energy_chain(
         gamma_ray_simulation_state.composition.isotopic_mass_fraction
     )
 
-    shell_masses = calculate_shell_masses(gamma_ray_simulation_state)
-    iso_dict = create_isotope_dicts(isotopic_mass_fractions, shell_masses)
+    cell_masses = gamma_ray_simulation_state.calculate_cell_masses(
+        gamma_ray_simulation_state.geometry.volume
+    )
+    iso_dict = create_isotope_dicts(isotopic_mass_fractions, cell_masses)
     inventories_dict = create_inventories_dict(iso_dict)
     gamma_ray_lines = atomic_dataset.decay_radiation_data
 
@@ -288,8 +300,10 @@ def test_energy_per_mass(gamma_ray_simulation_state, atomic_dataset):
     isotopic_mass_fractions = (
         gamma_ray_simulation_state.composition.isotopic_mass_fraction
     )
-    shell_masses = calculate_shell_masses(gamma_ray_simulation_state)
-    iso_dict = create_isotope_dicts(isotopic_mass_fractions, shell_masses)
+    cell_masses = gamma_ray_simulation_state.calculate_cell_masses(
+        gamma_ray_simulation_state.geometry.volume
+    )
+    iso_dict = create_isotope_dicts(isotopic_mass_fractions, cell_masses)
     inventories_dict = create_inventories_dict(iso_dict)
     total_decays = calculate_total_decays(inventories_dict, 1.0 * u.s)
 
@@ -302,10 +316,10 @@ def test_energy_per_mass(gamma_ray_simulation_state, atomic_dataset):
         total_decays,
     )
     energy_per_mass = calculate_energy_per_mass(
-        decay_energy, isotopic_mass_fractions, shell_masses
+        decay_energy, isotopic_mass_fractions, cell_masses
     )
     # If the shape is not same that means the code is not working with multiple isotopes
     assert (
         energy_per_mass[0].shape
-        == (isotopic_mass_fractions * shell_masses).shape
+        == (isotopic_mass_fractions * cell_masses).shape
     )

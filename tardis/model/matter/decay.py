@@ -1,8 +1,9 @@
-import pandas as pd
-from radioactivedecay import Nuclide, Inventory
-from radioactivedecay.utils import Z_to_elem
-from astropy import units as u
 import logging
+
+import pandas as pd
+from astropy import units as u
+from radioactivedecay import Inventory, Nuclide
+from radioactivedecay.utils import Z_to_elem
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +68,6 @@ class IsotopicMassFraction(pd.DataFrame):
         list
             list of radioactivedecay Inventories
         """
-
         comp_dicts = [dict() for i in range(len(self.columns))]
         for (atomic_number, mass_number), abundances in self.iterrows():
             nuclear_symbol = f"{Z_to_elem(atomic_number)}{mass_number}"
@@ -94,7 +94,6 @@ class IsotopicMassFraction(pd.DataFrame):
         pandas.DataFrame
             Decayed abundances
         """
-
         inventories = self.to_inventories()
         t_second = (
             u.Quantity(t, u.day).to(u.s).value - self.time_0.to(u.s).value
@@ -122,7 +121,6 @@ class IsotopicMassFraction(pd.DataFrame):
         pandas.DataFrame
             Merged isotope abundances
         """
-
         return self.groupby("atomic_number").sum()
 
     def merge(self, other, normalize=True):

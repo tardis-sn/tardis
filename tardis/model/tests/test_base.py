@@ -391,11 +391,11 @@ def test_composition_elemental_number_density(
 def test_simulation_state_mass(simulation_verysimple, index, expected):
     simulation_state = simulation_verysimple.simulation_state
     volume = simulation_state.geometry.volume
-    element_cell_masses = (
+    elemental_cell_masses = (
         simulation_state.composition.calculate_elemental_cell_masses(volume)
     )
 
-    assert_almost_equal(element_cell_masses.loc[index], expected, decimal=-27)
+    assert_almost_equal(elemental_cell_masses.loc[index], expected, decimal=-27)
 
 
 @pytest.fixture
