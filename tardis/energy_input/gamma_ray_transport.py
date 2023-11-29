@@ -254,8 +254,6 @@ def initialize_packets(
     )
 
 
-
-
 def calculate_total_decays(inventories, time_delta):
     """Function to create inventories of isotope
 
@@ -507,9 +505,7 @@ def decay_chain_energies(
     return decay_energy
 
 
-def calculate_energy_per_mass(
-    decay_energy, raw_isotope_abundance, cell_masses
-):
+def calculate_energy_per_mass(decay_energy, raw_isotope_abundance, cell_masses):
     """
     Function to calculate decay energy per mass for each isotope chain.
 
