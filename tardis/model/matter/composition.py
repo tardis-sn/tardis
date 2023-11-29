@@ -184,7 +184,7 @@ class Composition:
 
         Examples
         --------
-        >>> calculate_mass_fraction_at_time(10)
+        >>> composition.calculate_mass_fraction_at_time(10 * u.s)
         """
         if self.isotopic_mass_fraction.empty:
             return self.elemental_mass_fraction
@@ -207,7 +207,7 @@ class Composition:
 
         Examples
         --------
-        >>> calculate_elemental_cell_masses(10)
+        >>> composition.calculate_cell_masses(10 * u.cm**3)
         """
         return (
             self.elemental_mass_fraction * (self.density * volume).to(u.g).value
@@ -229,6 +229,6 @@ class Composition:
 
         Examples
         --------
-        >>> calculate_cell_masses(10)
+        >>> composition.calculate_cell_masses(10 * u.cm**3)
         """
         return (self.density * volume).to(u.g)
