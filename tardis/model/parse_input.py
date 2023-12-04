@@ -252,7 +252,7 @@ def parse_abundance_config(config, geometry, time_explosion):
         "model_isotope_time_0", 0.0 * u.day
     )
     isotope_abundance = IsotopicMassFraction(
-        isotope_abundance, time_0=config.model.abundances.model_isotope_time_0
+        isotope_abundance, time_0=model_isotope_time_0
     ).decay(time_explosion)
 
     nuclide_mass_fraction = convert_to_nuclide_mass_fraction(
