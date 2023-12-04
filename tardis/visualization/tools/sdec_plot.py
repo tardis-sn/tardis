@@ -4,27 +4,25 @@ Spectral element DEComposition (SDEC) Plot for TARDIS simulation models.
 This plot is a spectral diagnostics plot similar to those originally
 proposed by M. Kromer (see, for example, Kromer et al. 2013, figure 4).
 """
-import numpy as np
-import pandas as pd
-import astropy.units as u
-from astropy.modeling.models import BlackBody
+import logging
 
-import matplotlib.pyplot as plt
+import astropy.units as u
 import matplotlib.cm as cm
 import matplotlib.colors as clr
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
+from astropy.modeling.models import BlackBody
 
 from tardis.util.base import (
     atomic_number2element_symbol,
     element_symbol2atomic_number,
-    species_string_to_tuple,
-    species_tuple_to_string,
-    roman_to_int,
     int_to_roman,
+    roman_to_int,
+    species_string_to_tuple,
 )
 from tardis.visualization import plot_util as pu
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -421,17 +419,17 @@ class SDECPlotter:
         """
         if sim.transport.virt_logging:
             return cls(
-                dict(
-                    virtual=SDECData.from_simulation(sim, "virtual"),
-                    real=SDECData.from_simulation(sim, "real"),
-                )
+                {
+                    "virtual": SDECData.from_simulation(sim, "virtual"),
+                    "real": SDECData.from_simulation(sim, "real"),
+                }
             )
         else:
             return cls(
-                dict(
-                    virtual=None,
-                    real=SDECData.from_simulation(sim, "real"),
-                )
+                {
+                    "virtual": None,
+                    "real": SDECData.from_simulation(sim, "real"),
+                }
             )
 
     @classmethod
@@ -457,24 +455,24 @@ class SDECPlotter:
         )
         if packets_mode == "virtual":
             return cls(
-                dict(
-                    virtual=SDECData.from_hdf(hdf_fpath, "virtual"),
-                    real=None,
-                )
+                {
+                    "virtual": SDECData.from_hdf(hdf_fpath, "virtual"),
+                    "real": None,
+                }
             )
         elif packets_mode == "real":
             return cls(
-                dict(
-                    virtual=None,
-                    real=SDECData.from_hdf(hdf_fpath, "real"),
-                )
+                {
+                    "virtual": None,
+                    "real": SDECData.from_hdf(hdf_fpath, "real"),
+                }
             )
         else:
             return cls(
-                dict(
-                    virtual=SDECData.from_hdf(hdf_fpath, "virtual"),
-                    real=SDECData.from_hdf(hdf_fpath, "real"),
-                )
+                {
+                    "virtual": SDECData.from_hdf(hdf_fpath, "virtual"),
+                    "real": SDECData.from_hdf(hdf_fpath, "real"),
+                }
             )
 
     def _parse_species_list(self, species_list):
@@ -489,12 +487,11 @@ class SDECPlotter:
             (e.g. Si I - V), or any combination of these (e.g. species_list = [Si II, Fe I-V, Ca])
 
         """
-
         if species_list is not None:
             # check if there are any digits in the species list. If there are, then exit.
             # species_list should only contain species in the Roman numeral
             # format, e.g. Si II, and each ion must contain a space
-            if any(char.isdigit() for char in " ".join(species_list)) == True:
+            if any(char.isdigit() for char in " ".join(species_list)) is True:
                 raise ValueError(
                     "All species must be in Roman numeral form, e.g. Si II"
                 )
@@ -720,7 +717,7 @@ class SDECPlotter:
             # Repeat this for the emission and absorption dfs
             # This will require creating a temporary list that includes 'noint' and 'escatter'
             # packets, because you don't want them dropped or included in 'other'
-            temp = [species for species in self._species_list]
+            temp = list(self._species_list)
             temp.append("noint")
             temp.append("escatter")
             mask = np.in1d(
@@ -744,7 +741,7 @@ class SDECPlotter:
                 axis=1,
             )
 
-            temp = [species for species in self._species_list]
+            temp = list(self._species_list)
             mask = np.in1d(
                 np.array(list(self.absorption_luminosities_df.keys())), temp
             )
@@ -1219,7 +1216,7 @@ class SDECPlotter:
             if distance is None:
                 raise ValueError(
                     """
-                    Distance must be specified if an observed_spectrum is given 
+                    Distance must be specified if an observed_spectrum is given
                     so that the model spectrum can be converted into flux space correctly.
                     """
                 )
@@ -1326,23 +1323,25 @@ class SDECPlotter:
                     cmap=self.cmap,
                     linewidth=0,
                 )
-            except:
+            except KeyError:
                 # Add notifications that this species was not in the emission df
                 if self._species_list is None:
-                    logger.info(
+                    info_msg = (
                         f"{atomic_number2element_symbol(identifier)}"
                         f" is not in the emitted packets; skipping"
                     )
+                    logger.info(info_msg)
                 else:
                     # Get the ion number and atomic number for each species
                     ion_number = identifier % 100
                     atomic_number = (identifier - ion_number) / 100
 
-                    logger.info(
+                    info_msg = (
                         f"{atomic_number2element_symbol(atomic_number)}"
                         f"{int_to_roman(ion_number + 1)}"
                         f" is not in the emitted packets; skipping"
                     )
+                    logger.info(info_msg)
 
     def _plot_absorption_mpl(self):
         """Plot absorption part of the SDEC Plot using matplotlib."""
@@ -1382,27 +1381,28 @@ class SDECPlotter:
                     linewidth=0,
                 )
 
-            except:
+            except KeyError:
                 # Add notifications that this species was not in the emission df
                 if self._species_list is None:
-                    logger.info(
+                    info_msg = (
                         f"{atomic_number2element_symbol(identifier)}"
                         f" is not in the absorbed packets; skipping"
                     )
+                    logger.info(info_msg)
                 else:
                     # Get the ion number and atomic number for each species
                     ion_number = identifier % 100
                     atomic_number = (identifier - ion_number) / 100
 
-                    logger.info(
+                    info_msg = (
                         f"{atomic_number2element_symbol(atomic_number)}"
                         f"{int_to_roman(ion_number + 1)}"
                         f" is not in the absorbed packets; skipping"
                     )
+                    logger.info(info_msg)
 
     def _show_colorbar_mpl(self):
         """Show matplotlib colorbar with labels of elements mapped to colors."""
-
         color_values = [
             self.cmap(species_counter / len(self._species_name))
             for species_counter in range(len(self._species_name))
@@ -1476,13 +1476,11 @@ class SDECPlotter:
                 if previous_atomic_number == 0:
                     # If this is the first species being plotted, then take note of the atomic number
                     # don't update the colour index
-                    color_counter = color_counter
                     previous_atomic_number = atomic_number
                 elif previous_atomic_number in self._keep_colour:
                     # If the atomic number is in the list of elements that should all be plotted in the same colour
                     # then don't update the colour index if this element has been plotted already
                     if previous_atomic_number == atomic_number:
-                        color_counter = color_counter
                         previous_atomic_number = atomic_number
                     else:
                         # Otherwise, increase the colour counter by one, because this is a new element
@@ -1609,13 +1607,13 @@ class SDECPlotter:
                     x=self.plot_wavelength.value,
                     y=self.modeled_spectrum_luminosity.value,
                     mode="lines",
-                    line=dict(
-                        color="blue",
-                        width=1,
-                    ),
+                    line={
+                        "color": "blue",
+                        "width": 1,
+                    },
                     name=f"{packets_mode.capitalize()} Spectrum",
                     hovertemplate="(%{x:.2f}, %{y:.3g})",
-                    hoverlabel=dict(namelength=-1),
+                    hoverlabel={"namelength": -1},
                 )
             )
 
@@ -1624,7 +1622,7 @@ class SDECPlotter:
             if distance is None:
                 raise ValueError(
                     """
-                    Distance must be specified if an observed_spectrum is given 
+                    Distance must be specified if an observed_spectrum is given
                     so that the model spectrum can be converted into flux space correctly.
                     """
                 )
@@ -1641,7 +1639,7 @@ class SDECPlotter:
                 y=observed_spectrum_flux.value,
                 name="Observed Spectrum",
                 line={"color": "black", "width": 1.2},
-                hoverlabel=dict(namelength=-1),
+                hoverlabel={"namelength": -1},
                 hovertemplate="(%{x:.2f}, %{y:.3g})",
             )
 
@@ -1652,9 +1650,9 @@ class SDECPlotter:
                     x=self.plot_wavelength.value,
                     y=self.photosphere_luminosity.value,
                     mode="lines",
-                    line=dict(width=1.5, color="red", dash="dash"),
+                    line={"width": 1.5, "color": "red", "dash": "dash"},
                     name="Blackbody Photosphere",
-                    hoverlabel=dict(namelength=-1),
+                    hoverlabel={"namelength": -1},
                     hovertemplate="(%{x:.2f}, %{y:.3g})",
                 )
             )
@@ -1672,11 +1670,11 @@ class SDECPlotter:
                 "L_{\\lambda}", u.Unit("erg/(s AA)"), only_text=False
             )
         self.fig.update_layout(
-            xaxis=dict(
-                title=xlabel,
-                exponentformat="none",
-            ),
-            yaxis=dict(title=ylabel, exponentformat="e"),
+            xaxis={
+                "title": xlabel,
+                "exponentformat": "none",
+            },
+            yaxis={"title": ylabel, "exponentformat": "e"},
             height=graph_height,
         )
 
@@ -1725,7 +1723,7 @@ class SDECPlotter:
                 name="Electron Scatter Only",
                 fillcolor="#8F8F8F",
                 stackgroup="emission",
-                hoverlabel=dict(namelength=-1),
+                hoverlabel={"namelength": -1},
                 hovertemplate="(%{x:.2f}, %{y:.3g})",
             )
         )
@@ -1755,37 +1753,38 @@ class SDECPlotter:
                         y=self.emission_luminosities_df[identifier],
                         mode="none",
                         name=species_name + " Emission",
-                        hovertemplate=f"<b>{species_name} Emission </b>"
+                        hovertemplate=f"<b>{species_name:s} Emission<br>"  # noqa: ISC003
                         + "(%{x:.2f}, %{y:.3g})<extra></extra>",
                         fillcolor=self.to_rgb255_string(
                             self._color_list[species_counter]
                         ),
                         stackgroup="emission",
                         showlegend=False,
-                        hoverlabel=dict(namelength=-1),
+                        hoverlabel={"namelength": -1},
                     )
                 )
-            except:
+            except KeyError:
                 # Add notifications that this species was not in the emission df
                 if self._species_list is None:
-                    logger.info(
+                    info_msg = (
                         f"{atomic_number2element_symbol(identifier)}"
                         f" is not in the emitted packets; skipping"
                     )
+                    logger.info(info_msg)
                 else:
                     # Get the ion number and atomic number for each species
                     ion_number = identifier % 100
                     atomic_number = (identifier - ion_number) / 100
 
-                    logger.info(
+                    info_msg = (
                         f"{atomic_number2element_symbol(atomic_number)}"
                         f"{int_to_roman(ion_number + 1)}"
                         f" is not in the emitted packets; skipping"
                     )
+                    logger.info(info_msg)
 
     def _plot_absorption_ply(self):
         """Plot absorption part of the SDEC Plot using plotly."""
-
         # If 'other' column exists then plot as silver
         if "other" in self.absorption_luminosities_df.keys():
             self.fig.add_trace(
@@ -1813,34 +1812,36 @@ class SDECPlotter:
                         y=self.absorption_luminosities_df[identifier] * -1,
                         mode="none",
                         name=species_name + " Absorption",
-                        hovertemplate=f"<b>{species_name} Absorption </b>"
+                        hovertemplate=f"<b>{species_name:s} Absorption<br>"  # noqa: ISC003
                         + "(%{x:.2f}, %{y:.3g})<extra></extra>",
                         fillcolor=self.to_rgb255_string(
                             self._color_list[species_counter]
                         ),
                         stackgroup="absorption",
                         showlegend=False,
-                        hoverlabel=dict(namelength=-1),
+                        hoverlabel={"namelength": -1},
                     )
                 )
 
-            except:
+            except KeyError:
                 # Add notifications that this species was not in the emission df
                 if self._species_list is None:
-                    logger.info(
+                    info_msg = (
                         f"{atomic_number2element_symbol(identifier)}"
                         f" is not in the absorbed packets; skipping"
                     )
+                    logger.info(info_msg)
                 else:
                     # Get the ion number and atomic number for each species
                     ion_number = identifier % 100
                     atomic_number = (identifier - ion_number) / 100
 
-                    logger.info(
+                    info_msg = (
                         f"{atomic_number2element_symbol(atomic_number)}"
                         f"{int_to_roman(ion_number + 1)}"
                         f" is not in the absorbed packets; skipping"
                     )
+                    logger.info(info_msg)
 
     def _show_colorbar_ply(self):
         """Show plotly colorbar with labels of elements mapped to colors."""
@@ -1862,21 +1863,21 @@ class SDECPlotter:
                 (colorscale_bins[species_counter + 1], color)
             )
 
-        coloraxis_options = dict(
-            colorscale=categorical_colorscale,
-            showscale=True,
-            cmin=0,
-            cmax=len(self._species_name),
-            colorbar=dict(
-                title="Elements",
-                tickvals=np.arange(0, len(self._species_name)) + 0.5,
-                ticktext=self._species_name,
+        coloraxis_options = {
+            "colorscale": categorical_colorscale,
+            "showscale": True,
+            "cmin": 0,
+            "cmax": len(self._species_name),
+            "colorbar": {
+                "title": "Elements",
+                "tickvals": np.arange(0, len(self._species_name)) + 0.5,
+                "ticktext": self._species_name,
                 # to change length and position of colorbar
-                len=0.75,
-                yanchor="top",
-                y=0.75,
-            ),
-        )
+                "len": 0.75,
+                "yanchor": "top",
+                "y": 0.75,
+            },
+        }
 
         # Plot an invisible one point scatter trace, to make colorbar show up
         scatter_point_idx = pu.get_mid_point_idx(self.plot_wavelength)
