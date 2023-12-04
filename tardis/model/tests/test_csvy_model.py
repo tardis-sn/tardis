@@ -28,19 +28,18 @@ def model_config_fnames(request, example_csvy_file_dir):
     return csvy_config_file, old_config_file
 
 
-def test_compare_models(model_config_fnames):
+def test_compare_models(model_config_fnames, atomic_dataset):
     """Compare identical models produced by .from_config and
     .from_csvy to check that velocities, densities and abundances
     (pre and post decay) are the same"""
     csvy_config_file, old_config_file = model_config_fnames
     tardis_config = Configuration.from_yaml(csvy_config_file)
-    atom_data = AtomData.from_hdf(tardis_config.atom_data)
     tardis_config_old = Configuration.from_yaml(old_config_file)
     csvy_simulation_state = SimulationState.from_csvy(
-        tardis_config, atom_data=atom_data
+        tardis_config, atom_data=atomic_dataset
     )
     config_simulation_state = SimulationState.from_config(
-        tardis_config_old, atom_data=atom_data
+        tardis_config_old, atom_data=atomic_dataset
     )
     csvy_model_props = csvy_simulation_state.get_properties().keys()
     config_model_props = config_simulation_state.get_properties().keys()
@@ -88,13 +87,12 @@ def test_compare_models(model_config_fnames):
 
 
 @pytest.fixture(scope="module")
-def csvy_model_test_abundances(example_csvy_file_dir):
+def csvy_model_test_abundances(example_csvy_file_dir, atomic_dataset):
     """Returns SimulationState to use to test abundances dataframes"""
     csvypath = example_csvy_file_dir / "csvy_model_to_test_abundances.yml"
     config = Configuration.from_yaml(csvypath)
-    atom_data = AtomData.from_hdf(config.atom_data)
     csvy_model_test_abundances = SimulationState.from_csvy(
-        config, atom_data=atom_data
+        config, atom_data=atomic_dataset
     )
     return csvy_model_test_abundances
 

@@ -1,10 +1,10 @@
-from tardis.model.matter.decay import IsotopeAbundances
-
-
+import numpy as np
 import pandas as pd
 import radioactivedecay as rd
-from radioactivedecay.decaydata import DEFAULTDATA as RD_DEFAULT_DATA
 from astropy import units as u
+from radioactivedecay.decaydata import DEFAULTDATA as RD_DEFAULT_DATA
+
+from tardis.model.matter.decay import IsotopicMassFraction
 
 
 def compile_rd_isotope_masses():
@@ -60,8 +60,11 @@ class Composition:
         element_masses_unit=u.g,
     ):
         self.density = density
+        assert np.all(
+            nuclide_mass_fraction.values >= 0
+        ), "Negative mass fraction detected"
         self.nuclide_mass_fraction = nuclide_mass_fraction
-        # self.elemental_mass_fraction = elemental_mass_fraction
+
         self.nuclide_masses_unit = element_masses_unit
 
         self.nuclide_masses = element_masses
@@ -95,7 +98,7 @@ class Composition:
         filtered_nuclide_mass_fraction = self.nuclide_mass_fraction[
             self.nuclide_mass_fraction.index.get_level_values(1) != -1
         ]
-        return IsotopeAbundances(filtered_nuclide_mass_fraction)
+        return IsotopicMassFraction(filtered_nuclide_mass_fraction)
 
     @property
     def elemental_mass_fraction(self):
@@ -112,6 +115,7 @@ class Composition:
 
     @property
     def effective_element_masses(self):
+        # This is functionality that we will likely want to remove
         effective_element_masses = self.nuclide_mass_fraction[
             self.nuclide_mass_fraction.index.get_level_values(1) == -1
         ].copy()
@@ -165,12 +169,66 @@ class Composition:
         )
 
     def calculate_mass_fraction_at_time(self, time_explosion):
+        """
+        Calculate the mass fraction at a given time using the radioactive decay from
+        the IsotopicMassFraction.
+
+        Parameters
+        ----------
+        time_explosion : astropy.units.quantity.Quantity
+            The time of the explosion.
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        >>> composition.calculate_mass_fraction_at_time(10 * u.s)
+        """
         if self.isotopic_mass_fraction.empty:
             return self.elemental_mass_fraction
         else:
             self.isotopic_mass_fraction.decay(time_explosion)
 
     def calculate_elemental_cell_masses(self, volume):
+        """
+        Calculate the elemental cell masses.
+
+        Parameters
+        ----------
+        volume : astropy.units.quantity.Quantity
+        The volume of the cell.
+
+        Returns
+        -------
+        numpy.ndarray
+        An array of elemental cell masses.
+
+        Examples
+        --------
+        >>> composition.calculate_cell_masses(10 * u.cm**3)
+        """
         return (
             self.elemental_mass_fraction * (self.density * volume).to(u.g).value
         )
+
+    def calculate_cell_masses(self, volume):
+        """
+        Calculate the cell masses.
+
+        Parameters
+        ----------
+        volume : astropy.units.quantity.Quantity
+        The volume of the cell.
+
+        Returns
+        -------
+        astropy.units.quantity.Quantity
+        An array of cell masses.
+
+        Examples
+        --------
+        >>> composition.calculate_cell_masses(10 * u.cm**3)
+        """
+        return (self.density * volume).to(u.g)

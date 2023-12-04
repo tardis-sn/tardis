@@ -10,14 +10,19 @@ from tardis.model.radiation_field_state import DiluteThermalRadiationFieldState
 from tardis.montecarlo.packet_source import BlackBodySimpleSource
 import numpy as np
 import pandas as pd
+from astropy import units as u
+
 from tardis.io.model.parse_density_configuration import (
     calculate_density_after_time,
     parse_config_v1_density,
     parse_csvy_density,
 )
 from tardis.io.model.readers.base import read_abundances_file, read_density_file
+from tardis.io.model.readers.csvy import parse_csv_abundances
 from tardis.io.model.readers.generic_readers import read_uniform_abundances
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+from tardis.model.matter.composition import Composition
+from tardis.model.matter.decay import IsotopicMassFraction
 from tardis.util.base import quantity_linspace
 
 logger = logging.getLogger(__name__)
@@ -60,7 +65,6 @@ def parse_structure_config(config, time_explosion, enable_homology=True):
     parsed from the configuration. If it is of type 'file', the velocity and density are
     read from a file. The parsed data is used to create a homologous radial 1D geometry object.
     """
-
     electron_densities = None
     temperature = None
     structure_config = config.model.structure
@@ -218,7 +222,6 @@ def parse_abundance_config(config, geometry, time_explosion):
     zero sum, and normalize the data if necessary. The resulting nuclide mass fraction
     is returned.
     """
-
     abundances_section = config.model.abundances
     isotope_abundance = pd.DataFrame()
 
@@ -246,14 +249,18 @@ def parse_abundance_config(config, geometry, time_explosion):
 
     if np.any(np.abs(norm_factor - 1) > 1e-12):
         logger.warning(
-            "Abundances have not been normalized to 1." " - normalizing"
+            "Abundances have not been normalized to 1. - normalizing"
         )
         abundance /= norm_factor
         isotope_abundance /= norm_factor
-
-    isotope_abundance = IsotopeAbundances(isotope_abundance).decay(
-        time_explosion
+    # The next line is if the abundances are given via dict
+    # and not gone through the schema validator
+    model_isotope_time_0 = config.model.abundances.get(
+        "model_isotope_time_0", 0.0 * u.day
     )
+    isotope_abundance = IsotopicMassFraction(
+        isotope_abundance, time_0=model_isotope_time_0
+    ).decay(time_explosion)
 
     nuclide_mass_fraction = convert_to_nuclide_mass_fraction(
         isotope_abundance, abundance
@@ -261,7 +268,7 @@ def parse_abundance_config(config, geometry, time_explosion):
     return nuclide_mass_fraction
 
 
-def convert_to_nuclide_mass_fraction(isotope_mass_fraction, mass_fraction):
+def convert_to_nuclide_mass_fraction(isotopic_mass_fraction, mass_fraction):
     """
     Convert the abundance and isotope abundance data to nuclide mass fraction.
 
@@ -289,7 +296,6 @@ def convert_to_nuclide_mass_fraction(isotope_mass_fraction, mass_fraction):
     The resulting abundance data is then concatenated with the isotope abundance data to
     obtain the final nuclide mass fraction.
     """
-
     nuclide_mass_fraction = pd.DataFrame()
     if mass_fraction is not None:
         mass_fraction.index = Composition.convert_element2nuclide_index(
@@ -299,9 +305,9 @@ def convert_to_nuclide_mass_fraction(isotope_mass_fraction, mass_fraction):
     else:
         nuclide_mass_fraction = pd.DataFrame()
 
-    if isotope_mass_fraction is not None:
+    if isotopic_mass_fraction is not None:
         nuclide_mass_fraction = pd.concat(
-            [nuclide_mass_fraction, isotope_mass_fraction]
+            [nuclide_mass_fraction, isotopic_mass_fraction]
         )
     return nuclide_mass_fraction
 
@@ -347,7 +353,6 @@ def parse_csvy_composition(
     and isotope abundance data. The parsed data is returned as density, abundance, isotope_abundance,
     and elemental_mass.
     """
-
     density = parse_density_csvy(
         csvy_model_config, csvy_model_data, time_explosion
     )
@@ -395,14 +400,13 @@ def parse_abundance_csvy(
     to replace NaN values with 0.0, remove rows with zero sum, and normalize the data
     if necessary. The resulting abundance and isotope abundance arrays are returned.
     """
-
     if hasattr(csvy_model_config, "abundance"):
         abundances_section = csvy_model_config.abundance
         mass_fraction, isotope_mass_fraction = read_uniform_abundances(
             abundances_section, geometry.no_of_shells
         )
     else:
-        index, mass_fraction, isotope_mass_fraction = parse_csv_abundances(
+        _, mass_fraction, isotope_mass_fraction = parse_csv_abundances(
             csvy_model_data
         )
         mass_fraction = mass_fraction.loc[:, 1:]
@@ -422,12 +426,11 @@ def parse_abundance_csvy(
 
     if np.any(np.abs(norm_factor - 1) > 1e-12):
         logger.warning(
-            "Abundances have not been normalized to 1." " - normalizing"
+            "Abundances have not been normalized to 1. - normalizing"
         )
         mass_fraction /= norm_factor
         isotope_mass_fraction /= norm_factor
-
-    isotope_mass_fraction = IsotopeAbundances(
+    isotope_mass_fraction = IsotopicMassFraction(
         isotope_mass_fraction, time_0=csvy_model_config.model_isotope_time_0
     ).decay(time_explosion)
     return convert_to_nuclide_mass_fraction(
@@ -464,7 +467,6 @@ def parse_density_csvy(csvy_model_config, csvy_model_data, time_explosion):
     density data. Otherwise, it calculates the density data using the 'calculate_density_after_time'
     function. The parsed density data is returned.
     """
-
     if hasattr(csvy_model_config, "density"):
         density = parse_csvy_density(csvy_model_config, time_explosion)
     else:
@@ -476,8 +478,9 @@ def parse_density_csvy(csvy_model_config, csvy_model_data, time_explosion):
             csvy_model_config.datatype.fields[density_field_index]["unit"]
         )
         density_0 = csvy_model_data["density"].values * density_unit
-        density_0 = density_0.to("g/cm^3")[1:]
-        density_0 = density_0.insert(0, 0)
+        # Removing as thee new architecture removes the 0th shell already
+        # density_0 = density_0.to("g/cm^3")[1:]
+        # density_0 = density_0.insert(0, 0)
         density = calculate_density_after_time(
             density_0, time_0, time_explosion
         )
