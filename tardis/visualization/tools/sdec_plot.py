@@ -249,9 +249,11 @@ class SDECData:
                 .set_index("line_id")
             )
             r_inner = u.Quantity(
-                hdf["/simulation/model/r_inner"].to_numpy(), "cm"
+                hdf["/simulation/simulation_state/r_inner"].to_numpy(), "cm"
             )  # Convert pd.Series to np.array to construct quantity from it
-            t_inner = u.Quantity(hdf["/simulation/model/scalars"].t_inner, "K")
+            t_inner = u.Quantity(
+                hdf["/simulation/simulation_state/scalars"].t_inner, "K"
+            )
             time_of_simulation = u.Quantity(
                 hdf["/simulation/transport/scalars"].time_of_simulation, "s"
             )
@@ -433,7 +435,7 @@ class SDECPlotter:
             )
 
     @classmethod
-    def from_hdf(cls, hdf_fpath):
+    def from_hdf(cls, hdf_fpath, packets_mode=None):
         """
         Create an instance of SDECPlotter from a simulation HDF file.
 
@@ -441,17 +443,39 @@ class SDECPlotter:
         ----------
         hdf_fpath : str
             Valid path to the HDF file where simulation is saved
+        packets_mode : {'virtual', 'real'}, optional
+            Mode of packets to be considered, either real or virtual. If not
+            specified, both modes are returned
 
         Returns
         -------
         SDECPlotter
         """
-        return cls(
-            dict(
-                virtual=SDECData.from_hdf(hdf_fpath, "virtual"),
-                real=SDECData.from_hdf(hdf_fpath, "real"),
-            )
+        assert packets_mode in [None, "virtual", "real"], (
+            "Invalid value passed to packets_mode. Only "
+            "allowed values are 'virtual', 'real' or None"
         )
+        if packets_mode == "virtual":
+            return cls(
+                dict(
+                    virtual=SDECData.from_hdf(hdf_fpath, "virtual"),
+                    real=None,
+                )
+            )
+        elif packets_mode == "real":
+            return cls(
+                dict(
+                    virtual=None,
+                    real=SDECData.from_hdf(hdf_fpath, "real"),
+                )
+            )
+        else:
+            return cls(
+                dict(
+                    virtual=SDECData.from_hdf(hdf_fpath, "virtual"),
+                    real=SDECData.from_hdf(hdf_fpath, "real"),
+                )
+            )
 
     def _parse_species_list(self, species_list):
         """
