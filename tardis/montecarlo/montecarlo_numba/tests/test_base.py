@@ -102,7 +102,7 @@ def test_montecarlo_main_loop_vpacket_log(
     montecarlo_main_loop_simulation.run_final()
 
     compare_fname = os.path.join(
-        tardis_ref_path, "montecarlo_1e5_compare_data_vpacket_log.h5"
+        tardis_ref_path, "montecarlo_1e5_compare_data.h5"
     )
     if request.config.getoption("--generate-reference"):
         montecarlo_main_loop_simulation.to_hdf(compare_fname, overwrite=True)
