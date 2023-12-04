@@ -1117,6 +1117,7 @@ class SDECPlotter:
         cmapname="jet",
         nelements=None,
         species_list=None,
+        blackbody_photosphere=True,
     ):
         """
         Generate Spectral element DEComposition (SDEC) Plot using matplotlib.
@@ -1160,13 +1161,14 @@ class SDECPlotter:
             Must be given in Roman numeral format. Can include specific ions, a range of ions,
             individual elements, or any combination of these:
             e.g. ['Si II', 'Ca II', 'C', 'Fe I-V']
+        blackbody_photosphere: bool
+            Whether to include the blackbody photosphere in the plot. Default value is True
 
         Returns
         -------
         matplotlib.axes._subplots.AxesSubplot
             Axis on which SDEC Plot is created
         """
-
         # If species_list and nelements requested, tell user that nelements is ignored
         if species_list is not None and nelements is not None:
             logger.info(
@@ -1238,12 +1240,13 @@ class SDECPlotter:
             )
 
         # Plot photosphere
-        self.ax.plot(
-            self.plot_wavelength.value,
-            self.photosphere_luminosity.value,
-            "--r",
-            label="Blackbody Photosphere",
-        )
+        if blackbody_photosphere:
+            self.ax.plot(
+                self.plot_wavelength.value,
+                self.photosphere_luminosity.value,
+                "--r",
+                label="Blackbody Photosphere",
+            )
 
         # Set legends and labels
         self.ax.legend(fontsize=12)
@@ -1513,6 +1516,7 @@ class SDECPlotter:
         cmapname="jet",
         nelements=None,
         species_list=None,
+        blackbody_photosphere=True,
     ):
         """
         Generate interactive Spectral element DEComposition (SDEC) Plot using plotly.
@@ -1556,12 +1560,14 @@ class SDECPlotter:
             Must be given in Roman numeral format. Can include specific ions, a range of ions,
             individual elements, or any combination of these:
             e.g. ['Si II', 'Ca II', 'C', 'Fe I-V']
+        blackbody_photosphere: bool
+            Whether to include the blackbody photosphere in the plot. Default value is True
+
         Returns
         -------
         plotly.graph_objs._figure.Figure
             Figure object on which SDEC Plot is created
         """
-
         # If species_list and nelements requested, tell user that nelements is ignored
         if species_list is not None and nelements is not None:
             logger.info(
@@ -1640,17 +1646,18 @@ class SDECPlotter:
             )
 
         # Plot photosphere
-        self.fig.add_trace(
-            go.Scatter(
-                x=self.plot_wavelength.value,
-                y=self.photosphere_luminosity.value,
-                mode="lines",
-                line=dict(width=1.5, color="red", dash="dash"),
-                name="Blackbody Photosphere",
-                hoverlabel=dict(namelength=-1),
-                hovertemplate="(%{x:.2f}, %{y:.3g})",
+        if blackbody_photosphere:
+            self.fig.add_trace(
+                go.Scatter(
+                    x=self.plot_wavelength.value,
+                    y=self.photosphere_luminosity.value,
+                    mode="lines",
+                    line=dict(width=1.5, color="red", dash="dash"),
+                    name="Blackbody Photosphere",
+                    hoverlabel=dict(namelength=-1),
+                    hovertemplate="(%{x:.2f}, %{y:.3g})",
+                )
             )
-        )
 
         self._show_colorbar_ply()
 
