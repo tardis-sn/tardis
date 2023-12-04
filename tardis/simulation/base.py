@@ -396,7 +396,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.simulation_state,
             self.plasma,
             no_of_packets,
-            no_of_virtual_packets=0,
+            no_of_virtual_packets=no_of_virtual_packets,
             iteration=self.iterations_executed,
         )
 
