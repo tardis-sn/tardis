@@ -100,7 +100,7 @@ class LastInteractionTracker:
 
 
 vpacket_collection_spec = [
-    ("rpacket_index", int64),
+    ("source_rpacket_index", int64),
     ("spectrum_frequency", float64[:]),
     ("v_packet_spawn_start_frequency", float64),
     ("v_packet_spawn_end_frequency", float64),
@@ -120,10 +120,10 @@ vpacket_collection_spec = [
 
 
 @jitclass(vpacket_collection_spec)
-class VPacketCollection(object):
+class VPacketCollection:
     def __init__(
         self,
-        rpacket_index,
+        source_rpacket_index,
         spectrum_frequency,
         v_packet_spawn_start_frequency,
         v_packet_spawn_end_frequency,
@@ -154,7 +154,7 @@ class VPacketCollection(object):
             temporary_v_packet_bins, dtype=np.int64
         )
         self.idx = 0
-        self.rpacket_index = rpacket_index
+        self.source_rpacket_index = source_rpacket_index
         self.length = temporary_v_packet_bins
 
     def set_properties(

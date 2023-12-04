@@ -25,6 +25,9 @@ LEGACY_MODE_ENABLED = False
 ENABLE_RPACKET_TRACKING = False
 CONTINUUM_PROCESSES_ENABLED = False
 
+
+VPACKET_SPAWN_START_FREQUENCY = 0
+VPACKET_SPAWN_END_FREQUENCY = 1e200
 ENABLE_VPACKET_TRACKING = False
 
 
@@ -53,12 +56,12 @@ def configuration_initialize(transport, number_of_vpackets):
         transport.enable_full_relativity
     )
     montecarlo_configuration.MONTECARLO_SEED = transport.packet_source.base_seed
-    montecarlo_configuration.v_packet_spawn_start_frequency = (
+    montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY = (
         transport.virtual_spectrum_spawn_range.end.to(
             u.Hz, equivalencies=u.spectral()
         ).value
     )
-    montecarlo_configuration.v_packet_spawn_end_frequency = (
+    montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY = (
         transport.virtual_spectrum_spawn_range.start.to(
             u.Hz, equivalencies=u.spectral()
         ).value

@@ -70,7 +70,7 @@ def verysimple_vpacket_collection(nb_simulation_verysimple):
         nb_simulation_verysimple.transport.spectrum_frequency.value
     )
     return VPacketCollection(
-        rpacket_index=0,
+        source_rpacket_index=0,
         spectrum_frequency=spectrum_frequency,
         number_of_vpackets=0,
         v_packet_spawn_start_frequency=0,
@@ -85,7 +85,7 @@ def verysimple_3vpacket_collection(nb_simulation_verysimple):
         nb_simulation_verysimple.transport.spectrum_frequency.value
     )
     return VPacketCollection(
-        rpacket_index=0,
+        source_rpacket_index=0,
         spectrum_frequency=spectrum_frequency,
         number_of_vpackets=3,
         v_packet_spawn_start_frequency=0,

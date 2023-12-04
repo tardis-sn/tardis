@@ -180,8 +180,8 @@ def montecarlo_main_loop(
             VPacketCollection(
                 i,
                 spectrum_frequency,
-                montecarlo_configuration.v_packet_spawn_start_frequency,
-                montecarlo_configuration.v_packet_spawn_end_frequency,
+                montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
+                montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
                 number_of_vpackets,
                 montecarlo_configuration.TEMPORARY_V_PACKET_BINS,
             )
@@ -211,16 +211,7 @@ def montecarlo_main_loop(
                 np.copy(estimators.photo_ion_estimator_statistics),
             )
         )
-    # Arrays for vpacket logging
-    virt_packet_nus = []
-    virt_packet_energies = []
-    virt_packet_initial_mus = []
-    virt_packet_initial_rs = []
-    virt_packet_last_interaction_in_nu = []
-    virt_packet_last_interaction_type = []
-    virt_packet_last_line_interaction_in_id = []
-    virt_packet_last_line_interaction_out_id = []
-    virt_packet_last_line_interaction_shell_id = []
+
     for i in prange(no_of_packets):
         thread_id = get_thread_id()
         if show_progress_bars:
@@ -274,84 +265,97 @@ def montecarlo_main_loop(
             packet_collection.output_energies[i] = r_packet.energy
             last_interaction_tracker.types[i] = r_packet.last_interaction_type
 
-        vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
-        vpackets_energy = vpacket_collection.energies[: vpacket_collection.idx]
-        vpackets_initial_mu = vpacket_collection.initial_mus[
-            : vpacket_collection.idx
-        ]
-        vpackets_initial_r = vpacket_collection.initial_rs[
+        vpackets_nus = vpacket_collection.nus[: vpacket_collection.idx]
+        vpackets_energies = vpacket_collection.energies[
             : vpacket_collection.idx
         ]
 
         v_packets_idx = np.floor(
-            (vpackets_nu - spectrum_frequency[0]) / delta_nu
+            (vpackets_nus - spectrum_frequency[0]) / delta_nu
         ).astype(np.int64)
 
         for j, idx in enumerate(v_packets_idx):
-            if (vpackets_nu[j] < spectrum_frequency[0]) or (
-                vpackets_nu[j] > spectrum_frequency[-1]
+            if (vpackets_nus[j] < spectrum_frequency[0]) or (
+                vpackets_nus[j] > spectrum_frequency[-1]
             ):
                 continue
-            v_packets_energy_hist[idx] += vpackets_energy[j]
+            v_packets_energy_hist[idx] += vpackets_energies[j]
 
     for sub_estimator in estimator_list:
         estimators.increment(sub_estimator)
 
     if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
+        vpacket_tracker_length = 0
         for vpacket_collection in vpacket_collections:
-            vpackets_nu = vpacket_collection.nus[: vpacket_collection.idx]
-            vpackets_energy = vpacket_collection.energies[
+            vpacket_tracker_length += vpacket_collection.idx
+
+        vpacket_tracker = VPacketCollection(
+            -1,
+            spectrum_frequency,
+            montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
+            montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
+            -1,
+            vpacket_tracker_length,
+        )
+        current_start_vpacket_tracker_idx = 0
+        for vpacket_collection in vpacket_collections:
+            current_end_vpacket_tracker_idx = (
+                current_start_vpacket_tracker_idx + vpacket_collection.idx
+            )
+            vpacket_tracker.nus[
+                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+            ] = vpacket_collection.nus[: vpacket_collection.idx]
+
+            vpacket_tracker.energies[
+                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+            ] = vpacket_collection.energies[: vpacket_collection.idx]
+
+            vpacket_tracker.initial_mus[
+                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+            ] = vpacket_collection.initial_mus[: vpacket_collection.idx]
+
+            vpacket_tracker.initial_rs[
+                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+            ] = vpacket_collection.initial_rs[: vpacket_collection.idx]
+
+            vpacket_tracker.last_interaction_in_nu[
+                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+            ] = vpacket_collection.last_interaction_in_nu[
                 : vpacket_collection.idx
             ]
-            vpackets_initial_mu = vpacket_collection.initial_mus[
+
+            vpacket_tracker.last_interaction_type[
+                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+            ] = vpacket_collection.last_interaction_type[
                 : vpacket_collection.idx
             ]
-            vpackets_initial_r = vpacket_collection.initial_rs[
+
+            vpacket_tracker.last_interaction_in_id[
+                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+            ] = vpacket_collection.last_interaction_in_id[
                 : vpacket_collection.idx
             ]
-            virt_packet_nus.append(np.ascontiguousarray(vpackets_nu))
-            virt_packet_energies.append(np.ascontiguousarray(vpackets_energy))
-            virt_packet_initial_mus.append(
-                np.ascontiguousarray(vpackets_initial_mu)
-            )
-            virt_packet_initial_rs.append(
-                np.ascontiguousarray(vpackets_initial_r)
-            )
-            virt_packet_last_interaction_in_nu.append(
-                np.ascontiguousarray(
-                    vpacket_collection.last_interaction_in_nu[
-                        : vpacket_collection.idx
-                    ]
-                )
-            )
-            virt_packet_last_interaction_type.append(
-                np.ascontiguousarray(
-                    vpacket_collection.last_interaction_type[
-                        : vpacket_collection.idx
-                    ]
-                )
-            )
-            virt_packet_last_line_interaction_in_id.append(
-                np.ascontiguousarray(
-                    vpacket_collection.last_interaction_in_id[
-                        : vpacket_collection.idx
-                    ]
-                )
-            )
-            virt_packet_last_line_interaction_out_id.append(
-                np.ascontiguousarray(
-                    vpacket_collection.last_interaction_out_id[
-                        : vpacket_collection.idx
-                    ]
-                )
-            )
-            virt_packet_last_line_interaction_shell_id.append(
-                np.ascontiguousarray(
-                    vpacket_collection.last_interaction_shell_id[
-                        : vpacket_collection.idx
-                    ]
-                )
-            )
+
+            vpacket_tracker.last_interaction_out_id[
+                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+            ] = vpacket_collection.last_interaction_out_id[
+                : vpacket_collection.idx
+            ]
+
+            vpacket_tracker.last_interaction_shell_id[
+                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+            ] = vpacket_collection.last_interaction_shell_id[
+                : vpacket_collection.idx
+            ]
+    else:
+        vpacket_tracker = VPacketCollection(
+            -1,
+            spectrum_frequency,
+            montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
+            montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
+            -1,
+            1,
+        )
 
     if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
         for rpacket_tracker in rpacket_trackers:
@@ -360,14 +364,6 @@ def montecarlo_main_loop(
     return (
         v_packets_energy_hist,
         last_interaction_tracker,
-        virt_packet_nus,
-        virt_packet_energies,
-        virt_packet_initial_mus,
-        virt_packet_initial_rs,
-        virt_packet_last_interaction_in_nu,
-        virt_packet_last_interaction_type,
-        virt_packet_last_line_interaction_in_id,
-        virt_packet_last_line_interaction_out_id,
-        virt_packet_last_line_interaction_shell_id,
+        vpacket_tracker,
         rpacket_trackers,
     )
