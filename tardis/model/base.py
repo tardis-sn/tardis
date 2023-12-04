@@ -152,7 +152,7 @@ class SimulationState(HDFWriterMixin):
             self.radiation_field_state.t_radiative = new_t_radiative
         else:
             raise ValueError(
-                "Trying to set t_radiative for unmatching number" "of shells."
+                "Trying to set t_radiative for different number of shells."
             )
 
     @property

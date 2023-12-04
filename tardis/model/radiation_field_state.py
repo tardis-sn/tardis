@@ -6,7 +6,9 @@ from astropy import units as u
 
 
 class DiluteThermalRadiationFieldState:
-    """_summary_
+    """
+    Represents the state of a dilute thermal radiation field.
+
 
     Parameters
     ----------
