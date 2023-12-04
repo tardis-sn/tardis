@@ -20,11 +20,10 @@ def test_montecarlo_radial1d():
 @pytest.fixture(scope="function")
 def montecarlo_main_loop_config(
     config_montecarlo_1e5_verysimple,
-    atomic_dataset,
 ):
     montecarlo_configuration.LEGACY_MODE_ENABLED = True
     # Setup model config from verysimple
-    atomic_data = deepcopy(atomic_dataset)
+
     config_montecarlo_1e5_verysimple.montecarlo.last_no_of_packets = 1e5
     config_montecarlo_1e5_verysimple.montecarlo.no_of_virtual_packets = 0
     config_montecarlo_1e5_verysimple.montecarlo.iterations = 1
@@ -40,10 +39,11 @@ def test_montecarlo_main_loop(
     request,
     atomic_dataset,
 ):
+    atomic_dataset = deepcopy(atomic_dataset)
     montecarlo_main_loop_simulation = Simulation.from_config(
         montecarlo_main_loop_config,
         atom_data=atomic_dataset,
-        virtual_packet_logging=True,
+        virtual_packet_logging=False,
     )
     montecarlo_main_loop_simulation.run_convergence()
     montecarlo_main_loop_simulation.run_final()
@@ -84,22 +84,25 @@ def test_montecarlo_main_loop(
     npt.assert_allclose(actual_nu.value, expected_nu, rtol=1e-13)
 
 
-def donot_test_montecarlo_main_loop_vpacket_log(
-    montecarlo_main_loop_simulation,
+def test_montecarlo_main_loop_vpacket_log(
+    montecarlo_main_loop_config,
     tardis_ref_path,
     request,
+    atomic_dataset,
 ):
+    atomic_dataset = deepcopy(atomic_dataset)
+    montecarlo_main_loop_config.montecarlo.no_of_virtual_packets = 5
+
     montecarlo_main_loop_simulation = Simulation.from_config(
         montecarlo_main_loop_config,
-        atom_data=atomic_data,
-        virtual_packet_logging=False,
+        atom_data=atomic_dataset,
+        virtual_packet_logging=True,
     )
-
     montecarlo_main_loop_simulation.run_convergence()
     montecarlo_main_loop_simulation.run_final()
 
     compare_fname = os.path.join(
-        tardis_ref_path, "montecarlo_1e5_compare_data.h5"
+        tardis_ref_path, "montecarlo_1e5_compare_data_vpacket_log.h5"
     )
     if request.config.getoption("--generate-reference"):
         montecarlo_main_loop_simulation.to_hdf(compare_fname, overwrite=True)
@@ -118,12 +121,13 @@ def donot_test_montecarlo_main_loop_vpacket_log(
         compare_fname, key="/simulation/transport/j_estimator"
     ).values
 
-    actual_energy = montecarlo_main_loop_simulation.transport.output_energy
-    actual_nu = montecarlo_main_loop_simulation.transport.output_nu
-    actual_nu_bar_estimator = (
-        montecarlo_main_loop_simulation.transport.nu_bar_estimator
-    )
+    transport = montecarlo_main_loop_simulation.transport
+    actual_energy = transport.output_energy
+    actual_nu = transport.output_nu
+    actual_nu_bar_estimator = transport.nu_bar_estimator
     actual_j_estimator = montecarlo_main_loop_simulation.transport.j_estimator
+    actual_vpacket_log_nus = transport.virt_packet_nus
+    actual_vpacket_log_energies = transport.virt_packet_energies
 
     # Compare
     npt.assert_allclose(
