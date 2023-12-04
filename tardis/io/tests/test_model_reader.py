@@ -9,6 +9,7 @@ import h5py
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.model.model_reader import (
     simulation_state_to_dict,
+    simulation_state_to_dict,
     transport_to_dict,
     store_transport_to_hdf,
 )

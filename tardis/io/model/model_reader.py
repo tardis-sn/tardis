@@ -310,6 +310,7 @@ def simulation_state_to_dict(simulation_state):
     }
 
     for key, value in simulation_state_dict.items():
+    for key, value in simulation_state_dict.items():
         if hasattr(value, "unit"):
             simulation_state_dict[key] = [
                 value.cgs.value,

@@ -61,6 +61,42 @@ def parse_structure_config(config, time_explosion, enable_homology=True):
     parsed from the configuration. If it is of type 'file', the velocity and density are
     read from a file. The parsed data is used to create a homologous radial 1D geometry object.
     """
+    """
+    Parse the structure configuration data.
+
+    Parameters
+    ----------
+    config : object
+        The configuration data.
+    time_explosion : float
+        The time of the explosion.
+    enable_homology : bool, optional
+        Whether to enable homology (default is True).
+
+    Returns
+    -------
+    electron_densities : object
+        The parsed electron densities.
+    temperature : object
+        The parsed temperature.
+    geometry : object
+        The parsed geometry.
+    density : object
+        The parsed density.
+
+    Raises
+    ------
+    NotImplementedError
+        If the structure configuration type is not supported.
+
+    Notes
+    -----
+    This function parses the structure configuration data and returns the parsed electron
+    densities, temperature, geometry, and density. The structure configuration can be of
+    type 'specific' or 'file'. If it is of type 'specific', the velocity and density are
+    parsed from the configuration. If it is of type 'file', the velocity and density are
+    read from a file. The parsed data is used to create a homologous radial 1D geometry object.
+    """
     electron_densities = None
     temperature = None
     structure_config = config.model.structure
