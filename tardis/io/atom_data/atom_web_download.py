@@ -1,8 +1,9 @@
 import logging
 
-from tardis.io.util import get_internal_data_path, download_from_url
-from tardis.io.configuration.config_internal import get_data_dir
 import yaml
+
+from tardis.io.configuration.config_internal import get_data_dir
+from tardis.io.util import download_from_url, get_internal_data_path
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +16,6 @@ def get_atomic_repo_config():
     -------
         : dict
     """
-
     atomic_repo_fname = get_internal_data_path("atomic_data_repo.yml")
     return yaml.load(open(atomic_repo_fname), Loader=yaml.CLoader)
 

@@ -13,7 +13,7 @@ from tardis.visualization.widgets.custom_abundance import (
 
 
 @pytest.fixture(scope="module")
-def yml_data(example_configuration_dir: Path):
+def yml_data(example_configuration_dir: Path, atomic_dataset):
     """Fixture to contain a CustomAbundanceWidgetData
     instance generated from a YAML file tardis_configv1_verysimple.yml.
 
@@ -23,7 +23,10 @@ def yml_data(example_configuration_dir: Path):
         CustomAbundanceWidgetData generated from a YAML
     """
     yml_path = example_configuration_dir / "tardis_configv1_verysimple.yml"
-    return CustomAbundanceWidgetData.from_yml(yml_path)
+
+    return CustomAbundanceWidgetData.from_yml(
+        yml_path, atom_data=atomic_dataset
+    )
 
 
 @pytest.fixture(scope="module")

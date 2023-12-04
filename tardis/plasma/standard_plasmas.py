@@ -86,30 +86,6 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         continuum_interaction_species, names=["atomic_number", "ion_number"]
     )
 
-    if atom_data is None:
-        if "atom_data" in config:
-            if os.path.isabs(config.atom_data):
-                atom_data_fname = config.atom_data
-            else:
-                atom_data_fname = os.path.join(
-                    config.config_dirname, config.atom_data
-                )
-        else:
-            raise ValueError("No atom_data option found in the configuration.")
-
-        logger.info(f"\n\tReading Atomic Data from {atom_data_fname}")
-
-        try:
-            atom_data = AtomData.from_hdf(atom_data_fname)
-        except TypeError as e:
-            print(
-                e,
-                "Error might be from the use of an old-format of the atomic database, \n"
-                "please see https://github.com/tardis-sn/tardis-refdata/tree/master/atom_data"
-                " for the most recent version.",
-            )
-            raise
-
     atom_data.prepare_atom_data(
         simulation_state.abundance.index,
         line_interaction_type=config.plasma.line_interaction_type,
@@ -331,15 +307,6 @@ def assemble_plasma(config, simulation_state, atom_data=None):
             property_kwargs[IonNumberDensity] = dict(
                 electron_densities=electron_densities
             )
-
-    if not simulation_state.raw_isotope_abundance.empty:
-        plasma_modules += isotope_properties
-        isotope_abundance = simulation_state.raw_isotope_abundance.loc[
-            :,
-            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
-            - 1,
-        ]
-        kwargs.update(isotope_abundance=isotope_abundance)
 
     kwargs["helium_treatment"] = config.plasma.helium_treatment
 
