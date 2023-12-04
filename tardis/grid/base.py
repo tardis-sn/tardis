@@ -109,8 +109,10 @@ class tardisGrid:
         model : tardis.model.base.SimulationState
         """
         rowconfig = self.grid_row_to_config(row_index)
-        model = SimulationState.from_config(rowconfig, atom_data=atomic_data)
-        return model
+        simulation_state = SimulationState.from_config(
+            rowconfig, atom_data=atomic_data
+        )
+        return simulation_state
 
     def run_sim_from_grid(self, row_index, **tardiskwargs):
         """
