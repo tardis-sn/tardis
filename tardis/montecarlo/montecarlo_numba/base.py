@@ -55,15 +55,7 @@ def montecarlo_radial1d(
     (
         v_packets_energy_hist,
         last_interaction_tracker,
-        virt_packet_nus,
-        virt_packet_energies,
-        virt_packet_initial_mus,
-        virt_packet_initial_rs,
-        virt_packet_last_interaction_in_nu,
-        virt_packet_last_interaction_type,
-        virt_packet_last_line_interaction_in_id,
-        virt_packet_last_line_interaction_out_id,
-        virt_packet_last_line_interaction_shell_id,
+        vpacket_tracker,
         rpacket_trackers,
     ) = montecarlo_main_loop(
         packet_collection,
@@ -96,33 +88,8 @@ def montecarlo_radial1d(
     if montecarlo_configuration.ENABLE_VPACKET_TRACKING and (
         number_of_vpackets > 0
     ):
-        transport_state.virt_packet_nus = np.concatenate(
-            virt_packet_nus
-        ).ravel()
-        transport_state.virt_packet_energies = np.concatenate(
-            virt_packet_energies
-        ).ravel()
-        transport_state.virt_packet_initial_mus = np.concatenate(
-            virt_packet_initial_mus
-        ).ravel()
-        transport_state.virt_packet_initial_rs = np.concatenate(
-            virt_packet_initial_rs
-        ).ravel()
-        transport_state.virt_packet_last_interaction_in_nu = np.concatenate(
-            virt_packet_last_interaction_in_nu
-        ).ravel()
-        transport_state.virt_packet_last_interaction_type = np.concatenate(
-            virt_packet_last_interaction_type
-        ).ravel()
-        transport_state.virt_packet_last_line_interaction_in_id = (
-            np.concatenate(virt_packet_last_line_interaction_in_id).ravel()
-        )
-        transport_state.virt_packet_last_line_interaction_out_id = (
-            np.concatenate(virt_packet_last_line_interaction_out_id).ravel()
-        )
-        transport_state.virt_packet_last_line_interaction_shell_id = (
-            np.concatenate(virt_packet_last_line_interaction_shell_id).ravel()
-        )
+        transport_state.vpacket_tracker = vpacket_tracker
+
     update_iterations_pbar(1)
     refresh_packet_pbar()
     # Condition for Checking if RPacket Tracking is enabled
