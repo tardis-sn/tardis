@@ -314,6 +314,8 @@ def montecarlo_main_loop(
             ] = vpacket_collection.last_interaction_shell_id[
                 : vpacket_collection.idx
             ]
+
+            current_start_vpacket_tracker_idx = vpacket_collection.idx
     else:
         vpacket_tracker = VPacketCollection(
             -1,
