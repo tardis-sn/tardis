@@ -94,7 +94,7 @@ class SimulationState(HDFWriterMixin):
         "r_inner",
         "time_explosion",
     ]
-    hdf_name = "model"
+    hdf_name = "simulation_state"
 
     def __init__(
         self,

@@ -488,10 +488,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     def log_plasma_state(
         self,
         t_rad,
-        w,
+        dilution_factor,
         t_inner,
         next_t_rad,
-        next_w,
+        next_dilution_factor,
         next_t_inner,
         log_sampling=5,
     ):
@@ -520,8 +520,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
         plasma_state_log["t_rad"] = t_rad
         plasma_state_log["next_t_rad"] = next_t_rad
-        plasma_state_log["w"] = w
-        plasma_state_log["next_w"] = next_w
+        plasma_state_log["w"] = dilution_factor
+        plasma_state_log["next_w"] = next_dilution_factor
         plasma_state_log.columns.name = "Shell No."
 
         if is_notebook():

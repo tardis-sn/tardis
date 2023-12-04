@@ -14,7 +14,7 @@ from tardis.visualization.widgets.shell_info import (
 def base_shell_info(simulation_verysimple):
     return BaseShellInfo(
         simulation_verysimple.simulation_state.t_radiative,
-        simulation_verysimple.simulation_state.w,
+        simulation_verysimple.simulation_state.dilution_factor,
         simulation_verysimple.plasma.abundance,
         simulation_verysimple.plasma.number_density,
         simulation_verysimple.plasma.ion_number_density,
@@ -48,7 +48,7 @@ class TestBaseShellInfo:
         )
         assert np.allclose(
             shells_data.iloc[:, 1].map(np.float64),
-            simulation_verysimple.simulation_state.w,
+            simulation_verysimple.simulation_state.dilution_factor,
         )
 
     @pytest.mark.parametrize("shell_num", [1, 20])
