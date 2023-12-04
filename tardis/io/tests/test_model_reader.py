@@ -133,85 +133,126 @@ def test_simple_read_cmfgen_density(cmfgen_fname):
 
 
 def test_model_to_dict(simulation_verysimple):
-    model = simulation_verysimple.simulation_state
+    simulation_state = simulation_verysimple.simulation_state
 
-    model_dict = simulation_state_to_dict(model)
+    simulation_state_dict = simulation_state_to_dict(simulation_state)
 
     # Check model dictionary
     assert np.array_equal(
-        model_dict["velocity_cgs"][0], model.velocity.cgs.value
-    )
-    assert model_dict["velocity_cgs"][1] == model.velocity.cgs.unit.to_string()
-    assert np.array_equal(model_dict["abundance"], model.abundance)
-    assert np.array_equal(
-        model_dict["time_explosion_cgs"][0], model.time_explosion.value
+        simulation_state_dict["velocity_cgs"][0],
+        simulation_state.velocity.cgs.value,
     )
     assert (
-        model_dict["time_explosion_cgs"][1]
-        == model.time_explosion.unit.to_string()
-    )
-    assert np.array_equal(model_dict["t_inner_cgs"][0], model.t_inner.cgs.value)
-    assert model_dict["t_inner_cgs"][1] == model.t_inner.unit.to_string()
-    assert np.array_equal(
-        model_dict["t_radiative_cgs"][0], model.t_radiative.cgs.value
-    )
-    assert (
-        model_dict["t_radiative_cgs"][1] == model.t_radiative.unit.to_string()
-    )
-    assert np.array_equal(model_dict["dilution_factor"], model.dilution_factor)
-    assert np.array_equal(
-        model_dict["v_boundary_inner_cgs"][0], model.v_boundary_inner.cgs.value
-    )
-    assert (
-        model_dict["v_boundary_inner_cgs"][1]
-        == model.v_boundary_inner.cgs.unit.to_string()
+        simulation_state_dict["velocity_cgs"][1]
+        == simulation_state.velocity.cgs.unit.to_string()
     )
     assert np.array_equal(
-        model_dict["v_boundary_outer_cgs"][0], model.v_boundary_outer.cgs.value
+        simulation_state_dict["abundance"], simulation_state.abundance
+    )
+    assert np.array_equal(
+        simulation_state_dict["time_explosion_cgs"][0],
+        simulation_state.time_explosion.value,
     )
     assert (
-        model_dict["v_boundary_outer_cgs"][1]
-        == model.v_boundary_outer.cgs.unit.to_string()
+        simulation_state_dict["time_explosion_cgs"][1]
+        == simulation_state.time_explosion.unit.to_string()
     )
-    assert np.array_equal(model_dict["w"], model.w)
-    assert np.array_equal(model_dict["t_rad_cgs"][0], model.t_rad.cgs.value)
-    assert model_dict["t_rad_cgs"][1] == model.t_rad.cgs.unit.to_string()
-    assert np.array_equal(model_dict["r_inner_cgs"][0], model.r_inner.cgs.value)
-    assert model_dict["r_inner_cgs"][1] == model.r_inner.cgs.unit.to_string()
-    assert np.array_equal(model_dict["density_cgs"][0], model.density.cgs.value)
-    assert model_dict["density_cgs"][1] == model.density.cgs.unit.to_string()
+    assert np.array_equal(
+        simulation_state_dict["t_inner_cgs"][0],
+        simulation_state.t_inner.cgs.value,
+    )
+    assert (
+        simulation_state_dict["t_inner_cgs"][1]
+        == simulation_state.t_inner.unit.to_string()
+    )
+    assert np.array_equal(
+        simulation_state_dict["t_radiative_cgs"][0],
+        simulation_state.t_radiative.cgs.value,
+    )
+    assert (
+        simulation_state_dict["t_radiative_cgs"][1]
+        == simulation_state.t_radiative.unit.to_string()
+    )
+    assert np.array_equal(
+        simulation_state_dict["dilution_factor"],
+        simulation_state.dilution_factor,
+    )
+    assert np.array_equal(
+        simulation_state_dict["v_boundary_inner_cgs"][0],
+        simulation_state.v_boundary_inner.cgs.value,
+    )
+    assert (
+        simulation_state_dict["v_boundary_inner_cgs"][1]
+        == simulation_state.v_boundary_inner.cgs.unit.to_string()
+    )
+    assert np.array_equal(
+        simulation_state_dict["v_boundary_outer_cgs"][0],
+        simulation_state.v_boundary_outer.cgs.value,
+    )
+    assert (
+        simulation_state_dict["v_boundary_outer_cgs"][1]
+        == simulation_state.v_boundary_outer.cgs.unit.to_string()
+    )
+
+    assert np.array_equal(
+        simulation_state_dict["r_inner_cgs"][0],
+        simulation_state.r_inner.cgs.value,
+    )
+    assert (
+        simulation_state_dict["r_inner_cgs"][1]
+        == simulation_state.r_inner.cgs.unit.to_string()
+    )
+    assert np.array_equal(
+        simulation_state_dict["density_cgs"][0],
+        simulation_state.density.cgs.value,
+    )
+    assert (
+        simulation_state_dict["density_cgs"][1]
+        == simulation_state.density.cgs.unit.to_string()
+    )
 
 
 def test_store_model_to_hdf(simulation_verysimple, tmp_path):
-    model = simulation_verysimple.simulation_state
+    simulation_state = simulation_verysimple.simulation_state
 
     fname = tmp_path / "model.h5"
 
     # Store model object
-    store_model_to_hdf(model, fname)
+    store_model_to_hdf(simulation_state, fname)
 
     # Check file contents
     with h5py.File(fname) as f:
-        assert np.array_equal(f["model/velocity_cgs"], model.velocity.cgs.value)
-        assert np.array_equal(f["model/abundance"], model.abundance)
         assert np.array_equal(
-            f["model/time_explosion_cgs"], model.time_explosion.cgs.value
+            f["model/velocity_cgs"], simulation_state.velocity.cgs.value
         )
-        assert np.array_equal(f["model/t_inner_cgs"], model.t_inner.cgs.value)
+        assert np.array_equal(f["model/abundance"], simulation_state.abundance)
         assert np.array_equal(
-            f["model/t_radiative_cgs"], model.t_radiative.cgs.value
-        )
-        assert np.array_equal(f["model/dilution_factor"], model.dilution_factor)
-        assert np.array_equal(
-            f["model/v_boundary_inner_cgs"], model.v_boundary_inner.cgs.value
+            f["model/time_explosion_cgs"],
+            simulation_state.time_explosion.cgs.value,
         )
         assert np.array_equal(
-            f["model/v_boundary_outer_cgs"], model.v_boundary_outer.cgs.value
+            f["model/t_inner_cgs"], simulation_state.t_inner.cgs.value
         )
-        assert np.array_equal(f["model/w"], model.w)
-        assert np.array_equal(f["model/t_rad_cgs"], model.t_rad.cgs.value)
-        assert np.array_equal(f["model/r_inner_cgs"], model.r_inner.cgs.value)
-        assert np.array_equal(f["model/density_cgs"], model.density.cgs.value)
+        assert np.array_equal(
+            f["model/t_radiative_cgs"], simulation_state.t_radiative.cgs.value
+        )
+        assert np.array_equal(
+            f["model/dilution_factor"], simulation_state.dilution_factor
+        )
+        assert np.array_equal(
+            f["model/v_boundary_inner_cgs"],
+            simulation_state.v_boundary_inner.cgs.value,
+        )
+        assert np.array_equal(
+            f["model/v_boundary_outer_cgs"],
+            simulation_state.v_boundary_outer.cgs.value,
+        )
+        assert np.array_equal(
+            f["model/r_inner_cgs"], simulation_state.r_inner.cgs.value
+        )
+        assert np.array_equal(
+            f["model/density_cgs"], simulation_state.density.cgs.value
+        )
 
 
 def test_transport_to_dict(simulation_verysimple):

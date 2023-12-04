@@ -479,7 +479,7 @@ def test_hdf_simulation_state_scalars(
     assert_almost_equal(actual, expected)
 
 
-simulation_state_nparray_attrs = ["w", "v_inner", "v_outer"]
+simulation_state_nparray_attrs = ["dilution_factor", "v_inner", "v_outer"]
 
 
 @pytest.mark.parametrize("attr", simulation_state_nparray_attrs)

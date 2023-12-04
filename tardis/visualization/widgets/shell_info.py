@@ -30,7 +30,7 @@ class BaseShellInfo:
         ----------
         t_radiative : array_like
             Radiative Temperature of each shell of simulation
-        w : array_like
+        dilution_factor : array_like
             Dilution Factor (W) of each shell of simulation model
         abundance : pandas.DataFrame
             Fractional abundance of elements where row labels are atomic number

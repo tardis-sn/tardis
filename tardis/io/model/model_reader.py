@@ -282,7 +282,7 @@ def transport_from_hdf(fname):
     return new_transport
 
 
-def simulation_state_to_dict(model):
+def simulation_state_to_dict(simulation_state):
     """
     Retrieves all the data from a SimulationState object and returns a dictionary.
 
@@ -296,18 +296,17 @@ def simulation_state_to_dict(model):
     isotope_abundance : dict
     """
     simulation_state_dict = {
-        "velocity_cgs": model.velocity.cgs,
-        "abundance": model.abundance,
-        "time_explosion_cgs": model.time_explosion.cgs,
-        "t_inner_cgs": model.t_inner.cgs,
-        "t_radiative_cgs": model.t_radiative.cgs,
-        "dilution_factor": model.dilution_factor,
-        "v_boundary_inner_cgs": model.v_boundary_inner.cgs,
-        "v_boundary_outer_cgs": model.v_boundary_outer.cgs,
-        "w": model.w,
-        "t_rad_cgs": model.t_rad.cgs,
-        "r_inner_cgs": model.r_inner.cgs,
-        "density_cgs": model.density.cgs,
+        "velocity_cgs": simulation_state.velocity.cgs,
+        "abundance": simulation_state.abundance,
+        "time_explosion_cgs": simulation_state.time_explosion.cgs,
+        "t_inner_cgs": simulation_state.t_inner.cgs,
+        "t_radiative_cgs": simulation_state.t_radiative.cgs,
+        "dilution_factor": simulation_state.dilution_factor,
+        "v_boundary_inner_cgs": simulation_state.v_boundary_inner.cgs,
+        "v_boundary_outer_cgs": simulation_state.v_boundary_outer.cgs,
+        "dilution_factor": simulation_state.dilution_factor,
+        "r_inner_cgs": simulation_state.r_inner.cgs,
+        "density_cgs": simulation_state.density.cgs,
     }
 
     for key, value in simulation_state_dict.items():
