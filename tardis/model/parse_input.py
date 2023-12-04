@@ -246,7 +246,11 @@ def parse_abundance_config(config, geometry, time_explosion):
         )
         abundance /= norm_factor
         isotope_abundance /= norm_factor
-
+    # The next line is if the abundances are given via dict
+    # and not gone through the schema validator
+    model_isotope_time_0 = config.model.abundances.get(
+        "model_isotope_time_0", 0.0 * u.day
+    )
     isotope_abundance = IsotopicMassFraction(
         isotope_abundance, time_0=config.model.abundances.model_isotope_time_0
     ).decay(time_explosion)
@@ -419,7 +423,6 @@ def parse_abundance_csvy(
         )
         mass_fraction /= norm_factor
         isotope_mass_fraction /= norm_factor
-
     isotope_mass_fraction = IsotopicMassFraction(
         isotope_mass_fraction, time_0=csvy_model_config.model_isotope_time_0
     ).decay(time_explosion)
@@ -468,8 +471,9 @@ def parse_density_csvy(csvy_model_config, csvy_model_data, time_explosion):
             csvy_model_config.datatype.fields[density_field_index]["unit"]
         )
         density_0 = csvy_model_data["density"].values * density_unit
-        density_0 = density_0.to("g/cm^3")[1:]
-        density_0 = density_0.insert(0, 0)
+        # Removing as thee new architecture removes the 0th shell already
+        # density_0 = density_0.to("g/cm^3")[1:]
+        # density_0 = density_0.insert(0, 0)
         density = calculate_density_after_time(
             density_0, time_0, time_explosion
         )
