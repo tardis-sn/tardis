@@ -35,7 +35,7 @@ def test_grid(atomic_dataset):
     assert g.config != newconf
 
     # Verify that a model can be returned.
-    simulation_state = g.grid_row_to_model(
+    simulation_state = g.grid_row_to_simulation_state(
         row_index=0, atomic_data=atomic_dataset
     )
     assert (

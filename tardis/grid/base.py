@@ -94,7 +94,7 @@ class tardisGrid:
             _set_tardis_config_property(tmp_config, colname, value)
         return tmp_config
 
-    def grid_row_to_model(self, row_index, atomic_data):
+    def grid_row_to_simulation_state(self, row_index, atomic_data):
         """
         Generates a TARDIS SimulationState object using the base
         self.config modified by the specified grid row.
