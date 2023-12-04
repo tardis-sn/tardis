@@ -1,18 +1,16 @@
-import os
-from pathlib import Path
-
-from astropy import units as u
+import h5py
 import numpy as np
 import pytest
-import h5py
+from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
+from tardis.io.model.hdf import store_model_to_hdf
 from tardis.io.model.model_reader import (
     simulation_state_to_dict,
-    simulation_state_to_dict,
-    transport_to_dict,
     store_transport_to_hdf,
+    transport_to_dict,
 )
+from tardis.io.model.readers.artis import read_artis_density
 from tardis.io.model.readers.cmfgen import (
     read_cmfgen_composition,
     read_cmfgen_density,
@@ -22,8 +20,6 @@ from tardis.io.model.readers.generic_readers import (
     read_simple_ascii_abundances,
     read_uniform_abundances,
 )
-from tardis.io.model.hdf import store_model_to_hdf
-from tardis.io.model.readers.artis import read_artis_density
 
 
 @pytest.fixture
