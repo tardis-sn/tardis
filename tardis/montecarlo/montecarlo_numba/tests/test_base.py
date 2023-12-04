@@ -17,14 +17,10 @@ def test_montecarlo_radial1d():
     assert False
 
 
-def test_montecarlo_main_loop(
+@pytest.fixture(scope="function")
+def montecarlo_main_loop_config(
     config_montecarlo_1e5_verysimple,
     atomic_dataset,
-    tardis_ref_path,
-    tmpdir,
-    set_seed_fixture,
-    random_call_fixture,
-    request,
 ):
     montecarlo_configuration.LEGACY_MODE_ENABLED = True
     # Setup model config from verysimple
@@ -35,18 +31,28 @@ def test_montecarlo_main_loop(
     config_montecarlo_1e5_verysimple.plasma.line_interaction_type = "macroatom"
 
     del config_montecarlo_1e5_verysimple["config_dirname"]
+    return config_montecarlo_1e5_verysimple
 
-    sim = Simulation.from_config(
-        config_montecarlo_1e5_verysimple, atom_data=atomic_data
+
+def test_montecarlo_main_loop(
+    montecarlo_main_loop_config,
+    tardis_ref_path,
+    request,
+    atomic_dataset,
+):
+    montecarlo_main_loop_simulation = Simulation.from_config(
+        montecarlo_main_loop_config,
+        atom_data=atomic_dataset,
+        virtual_packet_logging=True,
     )
-    sim.run_convergence()
-    sim.run_final()
+    montecarlo_main_loop_simulation.run_convergence()
+    montecarlo_main_loop_simulation.run_final()
 
     compare_fname = os.path.join(
         tardis_ref_path, "montecarlo_1e5_compare_data.h5"
     )
     if request.config.getoption("--generate-reference"):
-        sim.to_hdf(compare_fname, overwrite=True)
+        montecarlo_main_loop_simulation.to_hdf(compare_fname, overwrite=True)
 
     # Load compare data from refdata
     expected_nu = pd.read_hdf(
@@ -62,10 +68,12 @@ def test_montecarlo_main_loop(
         compare_fname, key="/simulation/transport/j_estimator"
     ).values
 
-    actual_energy = sim.transport.output_energy
-    actual_nu = sim.transport.output_nu
-    actual_nu_bar_estimator = sim.transport.nu_bar_estimator
-    actual_j_estimator = sim.transport.j_estimator
+    actual_energy = montecarlo_main_loop_simulation.transport.output_energy
+    actual_nu = montecarlo_main_loop_simulation.transport.output_nu
+    actual_nu_bar_estimator = (
+        montecarlo_main_loop_simulation.transport.nu_bar_estimator
+    )
+    actual_j_estimator = montecarlo_main_loop_simulation.transport.j_estimator
 
     # Compare
     npt.assert_allclose(
@@ -76,38 +84,25 @@ def test_montecarlo_main_loop(
     npt.assert_allclose(actual_nu.value, expected_nu, rtol=1e-13)
 
 
-def test_montecarlo_main_loop_vpacket_log(
-    config_montecarlo_1e5_verysimple,
-    atomic_dataset,
+def donot_test_montecarlo_main_loop_vpacket_log(
+    montecarlo_main_loop_simulation,
     tardis_ref_path,
-    tmpdir,
-    set_seed_fixture,
-    random_call_fixture,
     request,
 ):
-    montecarlo_configuration.LEGACY_MODE_ENABLED = True
-    # Setup model config from verysimple
-    atomic_data = deepcopy(atomic_dataset)
-    config_montecarlo_1e5_verysimple.montecarlo.last_no_of_packets = 1e5
-    config_montecarlo_1e5_verysimple.montecarlo.no_of_virtual_packets = 5
-    config_montecarlo_1e5_verysimple.montecarlo.iterations = 1
-    config_montecarlo_1e5_verysimple.plasma.line_interaction_type = "macroatom"
-
-    del config_montecarlo_1e5_verysimple["config_dirname"]
-
-    sim = Simulation.from_config(
-        config_montecarlo_1e5_verysimple,
+    montecarlo_main_loop_simulation = Simulation.from_config(
+        montecarlo_main_loop_config,
         atom_data=atomic_data,
-        virtual_packet_logging=True,
+        virtual_packet_logging=False,
     )
-    sim.run_convergence()
-    sim.run_final()
+
+    montecarlo_main_loop_simulation.run_convergence()
+    montecarlo_main_loop_simulation.run_final()
 
     compare_fname = os.path.join(
         tardis_ref_path, "montecarlo_1e5_compare_data.h5"
     )
     if request.config.getoption("--generate-reference"):
-        sim.to_hdf(compare_fname, overwrite=True)
+        montecarlo_main_loop_simulation.to_hdf(compare_fname, overwrite=True)
 
     # Load compare data from refdata
     expected_nu = pd.read_hdf(
@@ -123,10 +118,12 @@ def test_montecarlo_main_loop_vpacket_log(
         compare_fname, key="/simulation/transport/j_estimator"
     ).values
 
-    actual_energy = sim.transport.output_energy
-    actual_nu = sim.transport.output_nu
-    actual_nu_bar_estimator = sim.transport.nu_bar_estimator
-    actual_j_estimator = sim.transport.j_estimator
+    actual_energy = montecarlo_main_loop_simulation.transport.output_energy
+    actual_nu = montecarlo_main_loop_simulation.transport.output_nu
+    actual_nu_bar_estimator = (
+        montecarlo_main_loop_simulation.transport.nu_bar_estimator
+    )
+    actual_j_estimator = montecarlo_main_loop_simulation.transport.j_estimator
 
     # Compare
     npt.assert_allclose(

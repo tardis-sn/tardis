@@ -1,17 +1,11 @@
 import logging
 import os
 
-from astropy import units as u
-from tardis import constants as const
-from tardis.io.model.readers.csvy import parse_csv_abundances
-from tardis.model.matter.decay import IsotopeAbundances
-from tardis.model.matter.composition import Composition
-from tardis.model.radiation_field_state import DiluteThermalRadiationFieldState
-from tardis.montecarlo.packet_source import BlackBodySimpleSource
 import numpy as np
 import pandas as pd
 from astropy import units as u
 
+from tardis import constants as const
 from tardis.io.model.parse_density_configuration import (
     calculate_density_after_time,
     parse_config_v1_density,
@@ -23,6 +17,8 @@ from tardis.io.model.readers.generic_readers import read_uniform_abundances
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.model.matter.composition import Composition
 from tardis.model.matter.decay import IsotopicMassFraction
+from tardis.model.radiation_field_state import DiluteThermalRadiationFieldState
+from tardis.montecarlo.packet_source import BlackBodySimpleSource
 from tardis.util.base import quantity_linspace
 
 logger = logging.getLogger(__name__)
