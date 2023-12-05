@@ -1,13 +1,14 @@
-import pandas as pd
-from radioactivedecay import Nuclide, Inventory
-from radioactivedecay.utils import Z_to_elem
-from astropy import units as u
 import logging
+
+import pandas as pd
+from astropy import units as u
+from radioactivedecay import Inventory, Nuclide
+from radioactivedecay.utils import Z_to_elem
 
 logger = logging.getLogger(__name__)
 
 
-class IsotopeAbundances(pd.DataFrame):
+class IsotopicMassFraction(pd.DataFrame):
     _metadata = ["time_0"]
 
     def __init__(self, *args, **kwargs):
@@ -16,19 +17,19 @@ class IsotopeAbundances(pd.DataFrame):
             kwargs.pop("time_0")
         else:
             time_0 = 0 * u.d
-        super(IsotopeAbundances, self).__init__(*args, **kwargs)
+        super(IsotopicMassFraction, self).__init__(*args, **kwargs)
         self.time_0 = time_0
 
     @property
     def _constructor(self):
-        return IsotopeAbundances
+        return IsotopicMassFraction
 
     def _update_inventory(self):
         self.comp_dicts = [dict() for i in range(len(self.columns))]
-        for (atomic_number, mass_number), abundances in self.iterrows():
+        for (atomic_number, mass_number), mass_fractions in self.iterrows():
             nuclear_symbol = f"{Z_to_elem(atomic_number)}{mass_number}"
             for i in range(len(self.columns)):
-                self.comp_dicts[i][nuclear_symbol] = abundances[i]
+                self.comp_dicts[i][nuclear_symbol] = mass_fractions[i]
 
     @classmethod
     def from_inventories(cls, inventories):
@@ -67,7 +68,6 @@ class IsotopeAbundances(pd.DataFrame):
         list
             list of radioactivedecay Inventories
         """
-
         comp_dicts = [dict() for i in range(len(self.columns))]
         for (atomic_number, mass_number), abundances in self.iterrows():
             nuclear_symbol = f"{Z_to_elem(atomic_number)}{mass_number}"
@@ -94,7 +94,6 @@ class IsotopeAbundances(pd.DataFrame):
         pandas.DataFrame
             Decayed abundances
         """
-
         inventories = self.to_inventories()
         t_second = (
             u.Quantity(t, u.day).to(u.s).value - self.time_0.to(u.s).value
@@ -106,7 +105,7 @@ class IsotopeAbundances(pd.DataFrame):
                 f" A negative decay time can potentially lead to negative abundances."
             )
         decayed_inventories = [item.decay(t_second) for item in inventories]
-        df = IsotopeAbundances.from_inventories(decayed_inventories)
+        df = IsotopicMassFraction.from_inventories(decayed_inventories)
         df.sort_index(inplace=True)
         assert (
             df.ge(0.0).all().all()
@@ -122,7 +121,6 @@ class IsotopeAbundances(pd.DataFrame):
         pandas.DataFrame
             Merged isotope abundances
         """
-
         return self.groupby("atomic_number").sum()
 
     def merge(self, other, normalize=True):

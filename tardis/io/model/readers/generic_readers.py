@@ -134,7 +134,7 @@ def read_uniform_abundances(abundances_section, no_of_shells):
     )
 
     for element_symbol_string in abundances_section:
-        if element_symbol_string == "type":
+        if element_symbol_string in ["type", "model_isotope_time_0"]:
             continue
         try:
             if element_symbol_string in Z_DICT.values():

@@ -211,30 +211,31 @@ def test_jacobian_matrix(
 
 @pytest.fixture
 def nlte_raw_plasma_w1(
-    tardis_model_config_nlte, nlte_raw_model, nlte_atom_data
+    tardis_model_config_nlte, nlte_raw_simulation_state, nlte_atom_data
 ):
     """
     Plasma assembled with dilution factors set to 1.0.
     """
-    new_w = np.ones_like(nlte_raw_model.dilution_factor)
-    nlte_raw_model.dilution_factor = new_w
+    new_w = np.ones_like(nlte_raw_simulation_state.dilution_factor)
+    nlte_raw_simulation_state.dilution_factor = new_w
     plasma = assemble_plasma(
-        tardis_model_config_nlte, nlte_raw_model, nlte_atom_data
+        tardis_model_config_nlte, nlte_raw_simulation_state, nlte_atom_data
     )
     return plasma
 
 
 @pytest.fixture
 def nlte_raw_plasma_w0(
-    tardis_model_config_nlte, nlte_raw_model, nlte_atom_data
+    tardis_model_config_nlte, nlte_raw_simulation_state, nlte_atom_data
 ):
     """
     Plasma assembled with dilution factors set to 0.0.
     """
-    new_w = np.zeros_like(nlte_raw_model.dilution_factor)
-    nlte_raw_model.dilution_factor = new_w
+    nlte_raw_simulation_state.dilution_factor = np.zeros_like(
+        nlte_raw_simulation_state.dilution_factor
+    )
     plasma = assemble_plasma(
-        tardis_model_config_nlte, nlte_raw_model, nlte_atom_data
+        tardis_model_config_nlte, nlte_raw_simulation_state, nlte_atom_data
     )
     return plasma
 

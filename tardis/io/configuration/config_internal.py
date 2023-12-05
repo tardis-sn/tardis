@@ -48,4 +48,4 @@ def get_data_dir():
     if not os.path.exists(data_dir):
         raise IOError(f"Data directory specified in {data_dir} does not exist")
 
-    return data_dir
+    return Path(data_dir)

@@ -1,23 +1,19 @@
+import astropy.units as u
 import numpy as np
 import pandas as pd
-import astropy.units as u
+import radioactivedecay as rd
 from numba import njit
 from numba.typed import List
-import radioactivedecay as rd
-
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
-from tardis.montecarlo.montecarlo_numba.opacities import M_P
 
 from tardis.energy_input.energy_source import (
     get_all_isotopes,
-    get_nuclear_lines_database,
     positronium_continuum,
-    read_artis_lines,
     setup_input_energy,
 )
-from tardis.energy_input.samplers import initial_packet_radius
 from tardis.energy_input.GXPacket import initialize_packet_properties
-from tardis.energy_input.gamma_packet_loop import gamma_packet_loop
+from tardis.energy_input.samplers import initial_packet_radius
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+from tardis.montecarlo.montecarlo_numba.opacities import M_P
 
 # Energy: keV, exported as eV for SF solver
 # distance: cm
@@ -165,7 +161,6 @@ def initialize_packets(
     array
         Array of positron output dataframe rows
     """
-
     packets = List()
 
     number_of_packets = decays_per_isotope.sum().sum()
@@ -259,26 +254,9 @@ def initialize_packets(
     )
 
 
-def calculate_shell_masses(model):
-    """Function to calculate shell masses
-    Parameters
-    ----------
-    model : tardis.Radial1DModel
-        The tardis model to calculate gamma ray propagation through
-    Returns
-    -------
-    numpy.ndarray
-        shell masses in units of g
-
-    """
-
-    ejecta_density = model.density.to("g/cm^3")
-    ejecta_volume = model.volume.to("cm^3")
-    return (ejecta_volume * ejecta_density).to(u.g)
-
-
 def calculate_total_decays(inventories, time_delta):
     """Function to create inventories of isotope
+
     Parameters
     ----------
     model : tardis.Radial1DModel
@@ -286,13 +264,12 @@ def calculate_total_decays(inventories, time_delta):
 
     time_end : float
         End time of simulation in days
+
     Returns
     -------
         Total decay list : List
             list of total decays for x g of isotope for time 't'
-
     """
-
     time_delta = u.Quantity(time_delta, u.s)
 
     total_decays_list = []
@@ -303,15 +280,17 @@ def calculate_total_decays(inventories, time_delta):
     return total_decays_list
 
 
-def create_isotope_dicts(raw_isotope_abundance, shell_masses):
+def create_isotope_dicts(raw_isotope_abundance, cell_masses):
     """
     Function to create a dictionary of isotopes for each shell with their masses.
+
     Parameters
     ----------
     raw_isotope_abundance : pd.DataFrame
         isotope abundance in mass fractions.
-    shell_masses : numpy.ndarray
+    cell_masses : numpy.ndarray
         shell masses in units of g
+
     Returns
     -------
         isotope_dicts : Dict
@@ -330,7 +309,7 @@ def create_isotope_dicts(raw_isotope_abundance, shell_masses):
             isotope_dicts[i][atomic_number, mass_number] = {}
             nuclear_symbol = f"{rd.utils.Z_to_elem(atomic_number)}{mass_number}"
             isotope_dicts[i][atomic_number, mass_number][nuclear_symbol] = (
-                abundances[i] * shell_masses[i].to(u.g).value
+                abundances[i] * cell_masses[i].to(u.g).value
             )
 
     return isotope_dicts
@@ -338,10 +317,12 @@ def create_isotope_dicts(raw_isotope_abundance, shell_masses):
 
 def create_inventories_dict(isotope_dict):
     """Function to create dictionary of inventories for each shell
+
     Parameters
     ----------
     isotope_dict : Dict
         dictionary of isotopes for each shell with their ``masses``.
+
     Returns
     -------
         inv : Dict
@@ -363,12 +344,14 @@ def create_inventories_dict(isotope_dict):
 def calculate_total_decays(inventory_dict, time_delta):
     """
     Function to calculate total decays for each isotope in each shell
+
     Parameters
     ----------
     inventory_dict : Dict
         dictionary of inventories for each shell
     time_delta : float
         time interval in units of time (days/mins/secs etc)
+
     Returns
     -------
         total_decays : Dict
@@ -391,6 +374,7 @@ def calculate_average_energies(raw_isotope_abundance, gamma_ray_lines):
     """
     Function to calculate average energies of positrons and gamma rays
     from a list of gamma ray lines from nndc.
+
     Parameters
     ----------
     raw_isotope_abundance : pd.DataFrame
@@ -408,7 +392,6 @@ def calculate_average_energies(raw_isotope_abundance, gamma_ray_lines):
         list of gamma ray lines
 
     """
-
     all_isotope_names = get_all_isotopes(raw_isotope_abundance)
     all_isotope_names.sort()
 
@@ -455,6 +438,7 @@ def calculate_average_energies(raw_isotope_abundance, gamma_ray_lines):
 def get_taus(raw_isotope_abundance):
     """
     Function to calculate taus for each isotope
+
     Parameters
     ----------
     raw_isotope_abundance : pd.DataFrame
@@ -490,6 +474,7 @@ def decay_chain_energies(
 ):
     """
     Function to calculate decay chain energies.
+
     Parameters
     ----------
     raw_isotope_abundance : pd.DataFrame
@@ -502,6 +487,7 @@ def decay_chain_energies(
         list of gamma ray lines
     total_decays : Dict
         dictionary of total decays for each isotope in each shell
+
     Returns
     -------
     decay_energy : Dict
@@ -519,19 +505,19 @@ def decay_chain_energies(
     return decay_energy
 
 
-def calculate_energy_per_mass(
-    decay_energy, raw_isotope_abundance, shell_masses
-):
+def calculate_energy_per_mass(decay_energy, raw_isotope_abundance, cell_masses):
     """
     Function to calculate decay energy per mass for each isotope chain.
+
     Parameters
     ----------
     decay_energy : Dict
         dictionary of decay chain energies for each isotope in each shell
     raw_isotope_abundance : pd.DataFrame
         isotope abundance in mass fractions.
-    shell_masses : numpy.ndarray
+    cell_masses : numpy.ndarray
         shell masses in units of g
+
     Returns
     -------
     energy_per_mass : pd.DataFrame
@@ -567,7 +553,7 @@ def calculate_energy_per_mass(
     )
 
     energy_per_mass = energy_df.divide(
-        (raw_isotope_abundance * shell_masses).to_numpy(), axis=0
+        (raw_isotope_abundance * cell_masses).to_numpy(), axis=0
     )
 
     return energy_per_mass, energy_df

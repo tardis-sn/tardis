@@ -282,7 +282,7 @@ def transport_from_hdf(fname):
     return new_transport
 
 
-def model_to_dict(model):
+def simulation_state_to_dict(model):
     """
     Retrieves all the data from a SimulationState object and returns a dictionary.
 
@@ -295,7 +295,7 @@ def model_to_dict(model):
     model_dict : dict
     isotope_abundance : dict
     """
-    model_dict = {
+    simulation_state_dict = {
         "velocity_cgs": model.velocity.cgs,
         "abundance": model.abundance,
         "time_explosion_cgs": model.time_explosion.cgs,
@@ -310,13 +310,14 @@ def model_to_dict(model):
         "density_cgs": model.density.cgs,
     }
 
-    for key, value in model_dict.items():
+    for key, value in simulation_state_dict.items():
         if hasattr(value, "unit"):
-            model_dict[key] = [value.cgs.value, value.cgs.unit.to_string()]
+            simulation_state_dict[key] = [
+                value.cgs.value,
+                value.cgs.unit.to_string(),
+            ]
 
-    isotope_abundance = model.raw_isotope_abundance.__dict__
-
-    return model_dict, isotope_abundance
+    return simulation_state_dict
 
 
 def model_from_hdf(fname):

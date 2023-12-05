@@ -2,10 +2,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import numpy.testing as npt
-import tardis
-import os
+
 from astropy import units as u
 from tardis.io.configuration.config_reader import Configuration
+from tardis.io.atom_data.base import AtomData
 from tardis.model import SimulationState
 import pytest
 
@@ -28,21 +28,25 @@ def model_config_fnames(request, example_csvy_file_dir):
     return csvy_config_file, old_config_file
 
 
-def test_compare_models(model_config_fnames):
+def test_compare_models(model_config_fnames, atomic_dataset):
     """Compare identical models produced by .from_config and
     .from_csvy to check that velocities, densities and abundances
     (pre and post decay) are the same"""
     csvy_config_file, old_config_file = model_config_fnames
     tardis_config = Configuration.from_yaml(csvy_config_file)
     tardis_config_old = Configuration.from_yaml(old_config_file)
-    csvy_model = SimulationState.from_csvy(tardis_config)
-    config_model = SimulationState.from_config(tardis_config_old)
-    csvy_model_props = csvy_model.get_properties().keys()
-    config_model_props = config_model.get_properties().keys()
+    csvy_simulation_state = SimulationState.from_csvy(
+        tardis_config, atom_data=atomic_dataset
+    )
+    config_simulation_state = SimulationState.from_config(
+        tardis_config_old, atom_data=atomic_dataset
+    )
+    csvy_model_props = csvy_simulation_state.get_properties().keys()
+    config_model_props = config_simulation_state.get_properties().keys()
     npt.assert_array_equal(csvy_model_props, config_model_props)
     for prop in config_model_props:
-        csvy_model_val = csvy_model.get_properties()[prop]
-        config_model_val = config_model.get_properties()[prop]
+        csvy_model_val = csvy_simulation_state.get_properties()[prop]
+        config_model_val = config_simulation_state.get_properties()[prop]
         if prop == "homologous_density":
             npt.assert_array_almost_equal(
                 csvy_model_val.density_0.value, config_model_val.density_0.value
@@ -56,31 +60,40 @@ def test_compare_models(model_config_fnames):
                 csvy_model_val = csvy_model_val.value
             npt.assert_array_almost_equal(csvy_model_val, config_model_val)
 
-    assert csvy_model.raw_abundance.shape == config_model.raw_abundance.shape
     assert (
-        csvy_model.raw_isotope_abundance.shape
-        == config_model.raw_isotope_abundance.shape
+        csvy_simulation_state.abundance.shape
+        == config_simulation_state.abundance.shape
     )
-    assert csvy_model.abundance.shape == config_model.abundance.shape
-    npt.assert_array_almost_equal(
-        csvy_model.raw_abundance.to_numpy(),
-        config_model.raw_abundance.to_numpy(),
+    assert (
+        csvy_simulation_state.composition.nuclide_mass_fraction.shape
+        == config_simulation_state.composition.nuclide_mass_fraction.shape
+    )
+    assert (
+        csvy_simulation_state.abundance.shape
+        == config_simulation_state.abundance.shape
     )
     npt.assert_array_almost_equal(
-        csvy_model.raw_isotope_abundance.to_numpy(),
-        config_model.raw_isotope_abundance.to_numpy(),
+        csvy_simulation_state.abundance.to_numpy(),
+        config_simulation_state.abundance.to_numpy(),
     )
     npt.assert_array_almost_equal(
-        csvy_model.abundance.to_numpy(), config_model.abundance.to_numpy()
+        csvy_simulation_state.composition.nuclide_mass_fraction.to_numpy(),
+        config_simulation_state.composition.nuclide_mass_fraction.to_numpy(),
+    )
+    npt.assert_array_almost_equal(
+        csvy_simulation_state.abundance.to_numpy(),
+        config_simulation_state.abundance.to_numpy(),
     )
 
 
 @pytest.fixture(scope="module")
-def csvy_model_test_abundances(example_csvy_file_dir):
+def csvy_model_test_abundances(example_csvy_file_dir, atomic_dataset):
     """Returns SimulationState to use to test abundances dataframes"""
     csvypath = example_csvy_file_dir / "csvy_model_to_test_abundances.yml"
     config = Configuration.from_yaml(csvypath)
-    csvy_model_test_abundances = SimulationState.from_csvy(config)
+    csvy_model_test_abundances = SimulationState.from_csvy(
+        config, atom_data=atomic_dataset
+    )
     return csvy_model_test_abundances
 
 
@@ -120,22 +133,30 @@ def test_read_csvy_abundances(
         reference_input_isotopes,
     ) = reference_input_dataframes
 
-    model_abundance_shape = csvy_model_test_abundances.raw_abundance.shape
+    composition = csvy_model_test_abundances.composition
+    nuclide_mass_fraction = composition.nuclide_mass_fraction
+    model_abundances = nuclide_mass_fraction[
+        nuclide_mass_fraction.index.get_level_values(1) == -1
+    ]
+
     reference_input_shape = reference_input_abundance.shape
-    assert model_abundance_shape == reference_input_shape
+    assert model_abundances.shape == reference_input_shape
     npt.assert_array_almost_equal(
         reference_input_abundance.to_numpy(),
-        csvy_model_test_abundances.raw_abundance.to_numpy(),
+        model_abundances.to_numpy(),
     )
 
-    model_isotopes_shape = (
-        csvy_model_test_abundances.raw_isotope_abundance.shape
-    )
-    reference_input_isotopes_shape = reference_input_isotopes.shape
-    assert model_isotopes_shape == reference_input_isotopes_shape
+    model_isotopes = composition.isotopic_mass_fraction
+    # reference_input_isotopes_shape = reference_input_isotopes.shape
+    # We can't assert the shape anymore because the isotope abundances used
+    # to be decayed after being loaded into SimulationState.
+    #  Now the abundances are decayed before
+    # assert model_isotopes.shape == reference_input_isotopes_shape
+    # Same applies to the comparison - we are summing up the mass_fraction to compare pre/post decay
     npt.assert_array_almost_equal(
-        reference_input_isotopes.to_numpy(),
-        csvy_model_test_abundances.raw_isotope_abundance.to_numpy(),
+        reference_input_isotopes.to_numpy()[0],
+        model_isotopes.sum(axis=0).to_numpy(),
+        decimal=1,
     )
 
 
