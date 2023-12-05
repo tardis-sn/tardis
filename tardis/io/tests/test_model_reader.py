@@ -134,7 +134,6 @@ def test_simple_read_cmfgen_density(cmfgen_fname):
 
 def test_model_to_dict(simulation_verysimple):
     simulation_state = simulation_verysimple.simulation_state
-    simulation_state = simulation_verysimple.simulation_state
 
     simulation_state_dict = simulation_state_to_dict(simulation_state)
 
@@ -270,8 +269,8 @@ def test_transport_to_dict(simulation_verysimple):
     # Check transport dictionary
     for key, value in transport_dict.items():
         if isinstance(value, np.ndarray):
-            if key + "_cgs" in transport_data.keys():
-                assert np.array_equal(value, transport_data[key + "_cgs"])
+            if f"{key}_cgs" in transport_data.keys():
+                assert np.array_equal(value, transport_data[f"{key}_cgs"])
             else:
                 assert np.array_equal(value, transport_data[key])
         elif isinstance(value, list):
