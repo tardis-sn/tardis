@@ -1,8 +1,10 @@
-from pathlib import Path
-import yaml
 from copy import deepcopy
-from jsonschema import Draft4Validator, RefResolver, validators
+from pathlib import Path
+
+import yaml
 from astropy.units.quantity import Quantity
+from jsonschema import Draft4Validator, RefResolver, validators
+
 from tardis.io.util import YAMLLoader
 
 CONFIGURATION_DIR = Path(__file__).resolve().parent
@@ -68,7 +70,6 @@ def is_quantity(checker, instance):
 
     Parameters
     ----------
-
     checker:
         Object of `TypeChecker`. Passed by jsonschema internally.
 

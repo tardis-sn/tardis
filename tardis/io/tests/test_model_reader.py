@@ -134,6 +134,7 @@ def test_simple_read_cmfgen_density(cmfgen_fname):
 
 def test_model_to_dict(simulation_verysimple):
     simulation_state = simulation_verysimple.simulation_state
+    simulation_state = simulation_verysimple.simulation_state
 
     simulation_state_dict = simulation_state_to_dict(simulation_state)
 
@@ -193,14 +194,7 @@ def test_model_to_dict(simulation_verysimple):
         simulation_state_dict["v_boundary_outer_cgs"][1]
         == simulation_state.v_boundary_outer.cgs.unit.to_string()
     )
-    assert np.array_equal(
-        simulation_state_dict["t_rad_cgs"][0],
-        simulation_state.t_radiative.cgs.value,
-    )
-    assert (
-        simulation_state_dict["t_rad_cgs"][1]
-        == simulation_state.t_radiative.cgs.unit.to_string()
-    )
+
     assert np.array_equal(
         simulation_state_dict["r_inner_cgs"][0],
         simulation_state.r_inner.cgs.value,

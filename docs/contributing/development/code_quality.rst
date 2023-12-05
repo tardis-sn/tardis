@@ -26,6 +26,23 @@ A better method is to run Black automatically - first `integrate it within the c
 
 .. warning :: If your code doesn't follow the Black code style, then the Black-check action on your PR will fail.
 
+Ruff
+----
+`Ruff <https://docs.astral.sh/ruff/>`_ is a code linter and formatter that checks for common mistakes and automatically fixes them. It is currently not installed in the TARDIS conda environment, so you will have to install it manually: ::
+
+    conda install -c conda-forge ruff
+
+To run Ruff, use the following command: ::
+
+    ruff check <source_file_or_directory> # Lints the code
+    ruff check <source_file_or_directory> --fix # Lints and fixes any fixable errors
+
+Currently, Ruff is not integrated with the TARDIS CI and is not a requirement for merging a PR. However, it is recommended to run Ruff on your code before commiting it to ensure that new code already follows these rules.
+
+.. note :: We adopt the linting rules utilized by astropy. Permanent rules are defined in the ``pyproject.toml``, non-permanent rules are defined in the ``.ruff.toml`` file. If you want to add a new rule, please add it to the ``.ruff.toml`` file. If you want to add a permanent rule, please open a PR to the ``pyproject.toml``.
+
+.. note :: Ruff can also be used for formatting code, but for now we recommend using Black for this purpose as the CI is configured to run Black on all PRs.
+
 Naming Conventions
 ------------------
 

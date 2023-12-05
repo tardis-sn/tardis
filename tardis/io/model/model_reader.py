@@ -282,7 +282,7 @@ def transport_from_hdf(fname):
     return new_transport
 
 
-def simulation_state_to_dict(model):
+def simulation_state_to_dict(simulation_state):
     """
     Retrieves all the data from a SimulationState object and returns a dictionary.
 
@@ -296,17 +296,17 @@ def simulation_state_to_dict(model):
     isotope_abundance : dict
     """
     simulation_state_dict = {
-        "velocity_cgs": model.velocity.cgs,
-        "abundance": model.abundance,
-        "time_explosion_cgs": model.time_explosion.cgs,
-        "t_inner_cgs": model.t_inner.cgs,
-        "t_radiative_cgs": model.t_radiative.cgs,
-        "dilution_factor": model.dilution_factor,
-        "v_boundary_inner_cgs": model.v_boundary_inner.cgs,
-        "v_boundary_outer_cgs": model.v_boundary_outer.cgs,
-        "t_rad_cgs": model.t_radiative.cgs,
-        "r_inner_cgs": model.r_inner.cgs,
-        "density_cgs": model.density.cgs,
+        "velocity_cgs": simulation_state.velocity.cgs,
+        "abundance": simulation_state.abundance,
+        "time_explosion_cgs": simulation_state.time_explosion.cgs,
+        "t_inner_cgs": simulation_state.t_inner.cgs,
+        "t_radiative_cgs": simulation_state.t_radiative.cgs,
+        "dilution_factor": simulation_state.dilution_factor,
+        "v_boundary_inner_cgs": simulation_state.v_boundary_inner.cgs,
+        "v_boundary_outer_cgs": simulation_state.v_boundary_outer.cgs,
+        "dilution_factor": simulation_state.dilution_factor,
+        "r_inner_cgs": simulation_state.r_inner.cgs,
+        "density_cgs": simulation_state.density.cgs,
     }
 
     for key, value in simulation_state_dict.items():
@@ -317,75 +317,3 @@ def simulation_state_to_dict(model):
             ]
 
     return simulation_state_dict
-
-
-def model_from_hdf(fname):
-    """
-    Creates a SimulationState object using data stored in a hdf file.
-
-    Parameters
-    ----------
-    fname : str
-
-    Returns
-    -------
-    new_model : tardis.model.SimulationState
-    """
-
-    from tardis.model import SimulationState
-
-    d = {}
-
-    # Loading data from hdf file
-    with h5py.File(fname, "r") as f:
-        model_group = f["model"]
-        for key, value in model_group.items():
-            if not key.endswith("_unit"):
-                if type(value) == h5py._hl.dataset.Dataset:
-                    if isinstance(value[()], bytes):
-                        d[key] = value[()].decode("utf-8")
-                    else:
-                        d[key] = value[()]
-                else:
-                    data_inner = {}
-                    for key_inner, value_inner in value.items():
-                        if isinstance(value_inner[()], bytes):
-                            data_inner[key] = value_inner[()].decode("utf-8")
-                        else:
-                            data_inner[key] = value_inner[()]
-                        data_inner[key_inner] = value_inner[()]
-                    d[key] = data_inner
-
-        for key, value in model_group.items():
-            if key.endswith("_unit"):
-                d[key[:-5]] = [d[key[:-5]], value[()]]
-
-    # Converting cgs data to astropy quantities
-    for key, value in d.items():
-        if key.endswith("_cgs"):
-            d[key] = u.Quantity(value[0], unit=u.Unit(value[1].decode("utf-8")))
-
-    homologous_density = calculate_density_after_time(
-        d["homologous_density"]["density_0"],
-        d["homologous_density"]["time_0"],
-        d["time_explosion_cgs"],
-    )
-
-    new_model = SimulationState(
-        velocity=d["velocity_cgs"],
-        density=homologous_density,
-        abundance=d["abundance"],
-        isotope_abundance=None,
-        time_explosion=d["time_explosion_cgs"],
-        elemental_mass=None,
-        t_inner=d["t_inner_cgs"],
-        t_radiative=d["t_radiative_cgs"],
-        dilution_factor=d["dilution_factor"],
-        v_boundary_inner=d["v_boundary_inner_cgs"],
-        v_boundary_outer=d["v_boundary_outer_cgs"],
-    )
-
-    new_model.t_rad = d["t_rad_cgs"]
-    new_model.w = d["w"]
-
-    return new_model

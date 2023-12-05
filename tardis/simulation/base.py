@@ -1,33 +1,33 @@
-import time
-import os
 import logging
+import time
+from collections import OrderedDict
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-import tardis
 from astropy import units as u
-from tardis import constants as const
-from collections import OrderedDict
-from tardis import model
-
-from tardis.montecarlo.base import MontecarloTransportSolver
-from tardis.model import SimulationState
-from tardis.plasma.standard_plasmas import assemble_plasma
-from tardis.io.util import HDFWriterMixin
-from tardis.io.configuration.config_reader import ConfigurationError
-from tardis.io.atom_data.base import AtomData
-from tardis.util.base import is_notebook
-from tardis.montecarlo import montecarlo_configuration as mc_config_module
-from tardis.visualization import ConvergencePlots
 from IPython.display import display
+
+import tardis
+from tardis import constants as const
+from tardis.io.atom_data.base import AtomData
+from tardis.io.configuration.config_reader import ConfigurationError
+from tardis.io.util import HDFWriterMixin
+from tardis.model import SimulationState
+from tardis.montecarlo import montecarlo_configuration as mc_config_module
+from tardis.montecarlo.base import MontecarloTransportSolver
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     rpacket_trackers_to_dataframe,
 )
+from tardis.plasma.standard_plasmas import assemble_plasma
+from tardis.util.base import is_notebook
+from tardis.visualization import ConvergencePlots
 
 # Adding logging support
 logger = logging.getLogger(__name__)
 
 
-class PlasmaStateStorerMixin(object):
+class PlasmaStateStorerMixin:
     """Mixin class to provide the capability to the simulation object of
     storing plasma information and the inner boundary temperature during each
     MC iteration.
@@ -440,7 +440,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         run the simulation
         """
-
         start_time = time.time()
         while self.iterations_executed < self.iterations - 1:
             self.store_plasma_state(
@@ -499,10 +498,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     def log_plasma_state(
         self,
         t_rad,
-        w,
+        dilution_factor,
         t_inner,
         next_t_rad,
-        next_w,
+        next_dilution_factor,
         next_t_inner,
         log_sampling=5,
     ):
@@ -525,15 +524,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         Returns
         -------
         """
-
         plasma_state_log = pd.DataFrame(
             index=np.arange(len(t_rad)),
             columns=["t_rad", "next_t_rad", "w", "next_w"],
         )
         plasma_state_log["t_rad"] = t_rad
         plasma_state_log["next_t_rad"] = next_t_rad
-        plasma_state_log["w"] = w
-        plasma_state_log["next_w"] = next_w
+        plasma_state_log["w"] = dilution_factor
+        plasma_state_log["next_w"] = next_dilution_factor
         plasma_state_log.columns.name = "Shell No."
 
         if is_notebook():
@@ -556,11 +554,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         else:
             output_df = ""
             plasma_output = plasma_state_log.iloc[::log_sampling].to_string(
-                float_format=lambda x: "{:.3g}".format(x),
+                float_format=lambda x: f"{x:.3g}",
                 justify="center",
             )
             for value in plasma_output.split("\n"):
-                output_df = output_df + "\t{}\n".format(value)
+                output_df = output_df + f"\t{value}\n"
             logger.info("\n\tPlasma stratification:")
             logger.info(f"\n{output_df}")
 
@@ -658,12 +656,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         atom_data = kwargs.get("atom_data", None)
         if atom_data is None:
             if "atom_data" in config:
-                if os.path.isabs(config.atom_data):
+                if Path(config.atom_data).is_absolute():
                     atom_data_fname = config.atom_data
                 else:
-                    atom_data_fname = os.path.join(
-                        config.config_dirname, config.atom_data
+                    atom_data_fname = (
+                        Path(config.config_dirname) / config.atom_data
                     )
+
             else:
                 raise ValueError(
                     "No atom_data option found in the configuration."
