@@ -1,31 +1,33 @@
-import time
 import logging
+import time
+from collections import OrderedDict
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-import tardis
 from astropy import units as u
-from tardis import constants as const
-from collections import OrderedDict
-from tardis import model
-
-from tardis.montecarlo.base import MontecarloTransport
-from tardis.model import SimulationState
-from tardis.plasma.standard_plasmas import assemble_plasma
-from tardis.io.util import HDFWriterMixin
-from tardis.io.configuration.config_reader import ConfigurationError
-from tardis.util.base import is_notebook
-from tardis.montecarlo import montecarlo_configuration as mc_config_module
-from tardis.visualization import ConvergencePlots
 from IPython.display import display
+
+import tardis
+from tardis import constants as const
+from tardis.io.atom_data.base import AtomData
+from tardis.io.configuration.config_reader import ConfigurationError
+from tardis.io.util import HDFWriterMixin
+from tardis.model import SimulationState
+from tardis.montecarlo import montecarlo_configuration as mc_config_module
+from tardis.montecarlo.base import MontecarloTransport
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     rpacket_trackers_to_dataframe,
 )
+from tardis.plasma.standard_plasmas import assemble_plasma
+from tardis.util.base import is_notebook
+from tardis.visualization import ConvergencePlots
 
 # Adding logging support
 logger = logging.getLogger(__name__)
 
 
-class PlasmaStateStorerMixin(object):
+class PlasmaStateStorerMixin:
     """Mixin class to provide the capability to the simulation object of
     storing plasma information and the inner boundary temperature during each
     MC iteration.
@@ -287,8 +289,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         converged = self._get_convergence_status(
-            self.simulation_state.t_rad,
-            self.simulation_state.w,
+            self.simulation_state.t_radiative,
+            self.simulation_state.dilution_factor,
             self.simulation_state.t_inner,
             estimated_t_rad,
             estimated_w,
@@ -298,12 +300,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # calculate_next_plasma_state equivalent
         # FIXME: Should convergence strategy have its own class?
         next_t_rad = self.damped_converge(
-            self.simulation_state.t_rad,
+            self.simulation_state.t_radiative,
             estimated_t_rad,
             self.convergence_strategy.t_rad.damping_constant,
         )
         next_w = self.damped_converge(
-            self.simulation_state.w,
+            self.simulation_state.dilution_factor,
             estimated_w,
             self.convergence_strategy.w.damping_constant,
         )
@@ -326,11 +328,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
             self.convergence_plots.fetch_data(
                 name="t_rad",
-                value=self.simulation_state.t_rad,
+                value=self.simulation_state.t_radiative,
                 item_type="iterable",
             )
             self.convergence_plots.fetch_data(
-                name="w", value=self.simulation_state.w, item_type="iterable"
+                name="w",
+                value=self.simulation_state.dilution_factor,
+                item_type="iterable",
             )
             self.convergence_plots.fetch_data(
                 name="velocity",
@@ -339,15 +343,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
 
         self.log_plasma_state(
-            self.simulation_state.t_rad,
-            self.simulation_state.w,
+            self.simulation_state.t_radiative,
+            self.simulation_state.dilution_factor,
             self.simulation_state.t_inner,
             next_t_rad,
             next_w,
             next_t_inner,
         )
-        self.simulation_state.t_rad = next_t_rad
-        self.simulation_state.w = next_w
+        self.simulation_state.t_radiative = next_t_rad
+        self.simulation_state.dilution_factor = next_w
         self.simulation_state.blackbody_packet_source.temperature = next_t_inner
 
         # model.calculate_j_blues() equivalent
@@ -357,7 +361,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.store_previous_properties()
 
         update_properties = dict(
-            t_rad=self.simulation_state.t_rad, w=self.simulation_state.w
+            t_rad=self.simulation_state.t_radiative,
+            w=self.simulation_state.dilution_factor,
         )
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
@@ -425,13 +430,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         run the simulation
         """
-
         start_time = time.time()
         while self.iterations_executed < self.iterations - 1:
             self.store_plasma_state(
                 self.iterations_executed,
-                self.simulation_state.w,
-                self.simulation_state.t_rad,
+                self.simulation_state.dilution_factor,
+                self.simulation_state.t_radiative,
                 self.plasma.electron_densities,
                 self.simulation_state.t_inner,
             )
@@ -455,8 +459,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         self.store_plasma_state(
             self.iterations_executed,
-            self.simulation_state.w,
-            self.simulation_state.t_rad,
+            self.simulation_state.dilution_factor,
+            self.simulation_state.t_radiative,
             self.plasma.electron_densities,
             self.simulation_state.t_inner,
         )
@@ -484,10 +488,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     def log_plasma_state(
         self,
         t_rad,
-        w,
+        dilution_factor,
         t_inner,
         next_t_rad,
-        next_w,
+        next_dilution_factor,
         next_t_inner,
         log_sampling=5,
     ):
@@ -510,15 +514,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         Returns
         -------
         """
-
         plasma_state_log = pd.DataFrame(
             index=np.arange(len(t_rad)),
             columns=["t_rad", "next_t_rad", "w", "next_w"],
         )
         plasma_state_log["t_rad"] = t_rad
         plasma_state_log["next_t_rad"] = next_t_rad
-        plasma_state_log["w"] = w
-        plasma_state_log["next_w"] = next_w
+        plasma_state_log["w"] = dilution_factor
+        plasma_state_log["next_w"] = next_dilution_factor
         plasma_state_log.columns.name = "Shell No."
 
         if is_notebook():
@@ -541,11 +544,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         else:
             output_df = ""
             plasma_output = plasma_state_log.iloc[::log_sampling].to_string(
-                float_format=lambda x: "{:.3g}".format(x),
+                float_format=lambda x: f"{x:.3g}",
                 justify="center",
             )
             for value in plasma_output.split("\n"):
-                output_df = output_df + "\t{}\n".format(value)
+                output_df = output_df + f"\t{value}\n"
             logger.info("\n\tPlasma stratification:")
             logger.info(f"\n{output_df}")
 
@@ -639,16 +642,44 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         # Allow overriding some config structures. This is useful in some
         # unit tests, and could be extended in all the from_config classmethods.
+
+        atom_data = kwargs.get("atom_data", None)
+        if atom_data is None:
+            if "atom_data" in config:
+                if Path(config.atom_data).is_absolute():
+                    atom_data_fname = config.atom_data
+                else:
+                    atom_data_fname = (
+                        Path(config.config_dirname) / config.atom_data
+                    )
+
+            else:
+                raise ValueError(
+                    "No atom_data option found in the configuration."
+                )
+
+            logger.info(f"\n\tReading Atomic Data from {atom_data_fname}")
+
+            try:
+                atom_data = AtomData.from_hdf(atom_data_fname)
+            except TypeError as e:
+                print(
+                    e,
+                    "Error might be from the use of an old-format of the atomic database, \n"
+                    "please see https://github.com/tardis-sn/tardis-refdata/tree/master/atom_data"
+                    " for the most recent version.",
+                )
+                raise
         if "model" in kwargs:
             simulation_state = kwargs["model"]
         else:
             if hasattr(config, "csvy_model"):
                 simulation_state = SimulationState.from_csvy(
-                    config, atom_data=kwargs.get("atom_data", None)
+                    config, atom_data=atom_data
                 )
             else:
                 simulation_state = SimulationState.from_config(
-                    config, atom_data=kwargs.get("atom_data", None)
+                    config, atom_data=atom_data
                 )
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]
@@ -656,7 +687,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             plasma = assemble_plasma(
                 config,
                 simulation_state,
-                atom_data=kwargs.get("atom_data", None),
+                atom_data=atom_data,
             )
         if "transport" in kwargs:
             if packet_source is not None:

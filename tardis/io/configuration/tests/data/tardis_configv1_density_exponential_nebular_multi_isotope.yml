@@ -1,0 +1,52 @@
+tardis_config_version: v1.0
+
+supernova:
+    luminosity_requested: 9.44 log_lsun
+    time_explosion: 150 day
+
+atom_data: kurucz_atom_pure.h5
+
+model:
+    structure:
+        type: specific
+
+        velocity:
+            start: 1.1e4 km/s
+            stop: 20000 km/s
+            num: 20
+
+        density:
+            type: exponential
+            time_0: 20. second
+            rho_0: 3.e2 g/cm^3
+            v_0: 3000.  km/s
+
+    abundances:
+        type: uniform
+        O: 0.19
+        Mg: 0.03
+        Si: 0.12
+        S: 0.09
+        Ar: 0.02
+        Ca: 0.03
+        Ni56: 0.5
+        Fe52: 0.01
+        Cr48: 0.01
+
+plasma:
+    ionization: nebular
+    excitation: dilute-lte
+    radiative_rates_type: dilute-blackbody
+    line_interaction_type: scatter
+
+montecarlo:
+    seed: 23111963
+    no_of_packets: 2.0e+5
+    iterations: 30
+    last_no_of_packets: 5.0e+5
+    no_of_virtual_packets: 5
+
+spectrum:
+    start: 500 angstrom
+    stop: 20000 angstrom
+    num: 10000

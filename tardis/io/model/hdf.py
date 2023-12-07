@@ -1,4 +1,4 @@
-from tardis.io.model.model_reader import model_to_dict
+from tardis.io.model.model_reader import simulation_state_to_dict
 
 
 import h5py
@@ -17,7 +17,7 @@ def store_model_to_hdf(model, fname):
         model_group = f.require_group("model")
         model_group.clear()
 
-        model_dict, isotope_abundance = model_to_dict(model)
+        model_dict = simulation_state_to_dict(model)
 
         for key, value in model_dict.items():
             if key.endswith("_cgs"):

@@ -7,16 +7,19 @@ from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
-from tardis.io.decay import IsotopeAbundances
+from tardis.model.matter.decay import IsotopicMassFraction
 
 
 class TestModelFromPaper1Config:
     @pytest.fixture(autouse=True)
-    def setup(self, example_configuration_dir):
+    def setup(self, example_configuration_dir, atomic_dataset):
         self.config = Configuration.from_yaml(
             example_configuration_dir / "paper1_tardis_configv1.yml"
         )
-        self.simulation_state = SimulationState.from_config(self.config)
+
+        self.simulation_state = SimulationState.from_config(
+            self.config, atom_data=atomic_dataset
+        )
 
     def test_abundances(self):
         oxygen_abundance = self.config.model.abundances.O
@@ -52,11 +55,13 @@ class TestModelFromPaper1Config:
 
 class TestModelFromASCIIDensity:
     @pytest.fixture(autouse=True)
-    def setup(self, example_model_file_dir):
+    def setup(self, example_model_file_dir, atomic_dataset):
         self.config = Configuration.from_yaml(
             example_model_file_dir / "tardis_configv1_ascii_density.yml"
         )
-        self.simulation_state = SimulationState.from_config(self.config)
+        self.simulation_state = SimulationState.from_config(
+            self.config, atomic_dataset
+        )
 
     def test_velocities(self):
         assert_almost_equal(
@@ -72,11 +77,14 @@ class TestModelFromASCIIDensity:
 
 class TestModelFromArtisDensity:
     @pytest.fixture(autouse=True)
-    def setup(self, example_model_file_dir):
+    def setup(self, example_model_file_dir, atomic_dataset):
         self.config = Configuration.from_yaml(
             example_model_file_dir / "tardis_configv1_artis_density.yml"
         )
-        self.simulation_state = SimulationState.from_config(self.config)
+
+        self.simulation_state = SimulationState.from_config(
+            self.config, atom_data=atomic_dataset
+        )
 
     def test_velocities(self):
         assert_almost_equal(
@@ -93,14 +101,16 @@ class TestModelFromArtisDensity:
 
 class TestModelFromArtisDensityAbundances:
     @pytest.fixture(autouse=True)
-    def setup(self, example_model_file_dir):
+    def setup(self, example_model_file_dir, atomic_dataset):
         self.config = Configuration.from_yaml(
             example_model_file_dir / "tardis_configv1_artis_density.yml"
         )
         self.config.model.abundances.type = "file"
         self.config.model.abundances.filename = "artis_abundances.dat"
         self.config.model.abundances.filetype = "artis"
-        self.simulation_state = SimulationState.from_config(self.config)
+        self.simulation_state = SimulationState.from_config(
+            self.config, atom_data=atomic_dataset
+        )
 
     def test_velocities(self):
         assert_almost_equal(
@@ -116,14 +126,16 @@ class TestModelFromArtisDensityAbundances:
 
 class TestModelFromArtisDensityAbundancesVSlice:
     @pytest.fixture(autouse=True)
-    def setup(self, example_model_file_dir):
+    def setup(self, example_model_file_dir, atomic_dataset):
         self.config = Configuration.from_yaml(
             example_model_file_dir / "tardis_configv1_artis_density_v_slice.yml"
         )
         self.config.model.abundances.type = "file"
         self.config.model.abundances.filename = "artis_abundances.dat"
         self.config.model.abundances.filetype = "artis"
-        self.simulation_state = SimulationState.from_config(self.config)
+        self.simulation_state = SimulationState.from_config(
+            self.config, atom_data=atomic_dataset
+        )
 
     def test_velocities(self):
         assert_almost_equal(
@@ -138,11 +150,13 @@ class TestModelFromArtisDensityAbundancesVSlice:
 
 class TestModelFromUniformDensity:
     @pytest.fixture(autouse=True)
-    def setup(self, example_configuration_dir):
+    def setup(self, example_configuration_dir, atomic_dataset):
         self.config = Configuration.from_yaml(
             example_configuration_dir / "tardis_configv1_uniform_density.yml"
         )
-        self.simulation_state = SimulationState.from_config(self.config)
+        self.simulation_state = SimulationState.from_config(
+            self.config, atom_data=atomic_dataset
+        )
 
     def test_density(self):
         assert_array_almost_equal(
@@ -152,12 +166,14 @@ class TestModelFromUniformDensity:
 
 class TestModelFromInitialTinner:
     @pytest.fixture(autouse=True)
-    def setup(self, example_configuration_dir):
+    def setup(self, example_configuration_dir, atomic_dataset):
         self.config = Configuration.from_yaml(
             example_configuration_dir / "tardis_configv1_uniform_density.yml"
         )
         self.config.plasma.initial_t_inner = 2508 * u.K
-        self.simulation_state = SimulationState.from_config(self.config)
+        self.simulation_state = SimulationState.from_config(
+            self.config, atom_data=atomic_dataset
+        )
 
     def test_initial_temperature(self):
         assert_almost_equal(self.simulation_state.t_inner.value, 2508)
@@ -165,13 +181,15 @@ class TestModelFromInitialTinner:
 
 class TestModelFromArtisDensityAbundancesAllAscii:
     @pytest.fixture(autouse=True)
-    def setup(self, example_model_file_dir):
+    def setup(self, example_model_file_dir, atomic_dataset):
         self.config = Configuration.from_yaml(
             example_model_file_dir / "tardis_configv1_ascii_density_abund.yml"
         )
         self.config.model.structure.filename = "density.dat"
         self.config.model.abundances.filename = "abund.dat"
-        self.simulation_state = SimulationState.from_config(self.config)
+        self.simulation_state = SimulationState.from_config(
+            self.config, atom_data=atomic_dataset
+        )
 
     def test_velocities(self):
         # unclear why we are testing this
@@ -228,11 +246,11 @@ class TestModelFromArtisDensityAbundancesAllAscii:
         )
 
 
-def test_ascii_reader_power_law(example_configuration_dir):
+def test_ascii_reader_power_law(example_configuration_dir, atomic_dataset):
     config = Configuration.from_yaml(
         example_configuration_dir / "tardis_configv1_density_power_law_test.yml"
     )
-    simulation_state = SimulationState.from_config(config)
+    simulation_state = SimulationState.from_config(config, atomic_dataset)
 
     expected_densites = [
         3.29072513e-14,
@@ -264,12 +282,14 @@ def test_ascii_reader_power_law(example_configuration_dir):
         )
 
 
-def test_ascii_reader_exponential_law(example_configuration_dir):
+def test_ascii_reader_exponential_law(
+    example_configuration_dir, atomic_dataset
+):
     config = Configuration.from_yaml(
         example_configuration_dir
         / "tardis_configv1_density_exponential_test.yml"
     )
-    simulation_state = SimulationState.from_config(config)
+    simulation_state = SimulationState.from_config(config, atomic_dataset)
 
     expected_densites = [
         5.18114795e-14,
@@ -307,43 +327,7 @@ def simple_isotope_abundance():
         [(6, 14), (12, 28)], names=["atomic_number", "mass_number"]
     )
     abundance = [[0.2] * 20] * 2
-    return IsotopeAbundances(abundance, index=index)
-
-
-def test_model_decay(simple_isotope_abundance, example_configuration_dir):
-    config = Configuration.from_yaml(
-        example_configuration_dir / "tardis_configv1_verysimple.yml"
-    )
-    simulation_state = SimulationState.from_config(config)
-
-    simulation_state.raw_isotope_abundance = simple_isotope_abundance
-    decayed = simple_isotope_abundance.decay(
-        simulation_state.time_explosion
-    ).as_atoms()
-    norm_factor = 1.4
-
-    assert_almost_equal(
-        simulation_state.abundance.loc[8][0],
-        simulation_state.raw_abundance.loc[8][0] / norm_factor,
-        decimal=4,
-    )
-    assert_almost_equal(
-        simulation_state.abundance.loc[14][0],
-        (simulation_state.raw_abundance.loc[14][0] + decayed.loc[14][0])
-        / norm_factor,
-        decimal=4,
-    )
-    assert_almost_equal(
-        simulation_state._abundance.loc[12][5],
-        (simulation_state.raw_abundance.loc[12][5] + decayed.loc[12][5])
-        / norm_factor,
-        decimal=4,
-    )
-    assert_almost_equal(
-        simulation_state.abundance.loc[6][12],
-        (decayed.loc[6][12]) / norm_factor,
-        decimal=4,
-    )
+    return IsotopicMassFraction(abundance, index=index)
 
 
 @pytest.mark.parametrize(
@@ -355,7 +339,7 @@ def test_model_decay(simple_isotope_abundance, example_configuration_dir):
     ],
 )
 def test_radial_1D_geometry_volume(simulation_verysimple, index, expected):
-    geometry = simulation_verysimple.simulation_state.model_state.geometry
+    geometry = simulation_verysimple.simulation_state.geometry
     volume = geometry.volume
 
     assert_almost_equal(
@@ -389,7 +373,7 @@ def test_radial_1D_geometry_volume(simulation_verysimple, index, expected):
 def test_composition_elemental_number_density(
     simulation_verysimple, index, expected
 ):
-    comp = simulation_verysimple.simulation_state.model_state.composition
+    comp = simulation_verysimple.simulation_state.composition
 
     assert_almost_equal(
         comp.elemental_number_density.loc[index], expected, decimal=-2
@@ -404,34 +388,23 @@ def test_composition_elemental_number_density(
         ((20, 19), 1.3464444e29),
     ],
 )
-def test_model_state_mass(simulation_verysimple, index, expected):
-    model_state = simulation_verysimple.simulation_state.model_state
+def test_simulation_state_mass(simulation_verysimple, index, expected):
+    simulation_state = simulation_verysimple.simulation_state
+    volume = simulation_state.geometry.volume
+    elemental_cell_masses = (
+        simulation_state.composition.calculate_elemental_cell_masses(volume)
+    )
 
-    assert_almost_equal((model_state.mass).loc[index], expected, decimal=-27)
-
-
-@pytest.mark.parametrize(
-    ("index", "expected"),
-    [
-        ((8, 0), 5.4470099e53),
-        ((16, 10), 5.0367073e52),
-        ((20, 19), 2.0231745e51),
-    ],
-)
-def test_model_state_number(simulation_verysimple, index, expected):
-    model_state = simulation_verysimple.simulation_state.model_state
-
-    assert_almost_equal((model_state.number).loc[index], expected, decimal=-47)
+    assert_almost_equal(elemental_cell_masses.loc[index], expected, decimal=-27)
 
 
 @pytest.fixture
-def non_uniform_model_state(atomic_dataset, example_model_file_dir):
+def non_uniform_simulation_state(atomic_dataset, example_model_file_dir):
     config = Configuration.from_yaml(
         example_model_file_dir / "tardis_configv1_isotope_iabund.yml"
     )
-    atom_data = atomic_dataset
-    model = SimulationState.from_config(config, atom_data=atom_data)
-    return model.model_state
+
+    return SimulationState.from_config(config, atom_data=atomic_dataset)
 
 
 @pytest.mark.parametrize(
@@ -442,8 +415,12 @@ def non_uniform_model_state(atomic_dataset, example_model_file_dir):
         ((28, 1), 9.54725917e-23),
     ],
 )
-def test_radial_1d_model_atomic_mass(non_uniform_model_state, index, expected):
-    atomic_mass = non_uniform_model_state.composition.atomic_mass
+def test_radial_1d_model_atomic_mass(
+    non_uniform_simulation_state, index, expected
+):
+    atomic_mass = (
+        non_uniform_simulation_state.composition.effective_element_masses
+    )
 
     assert_almost_equal(
         atomic_mass.loc[index],
@@ -454,11 +431,14 @@ def test_radial_1d_model_atomic_mass(non_uniform_model_state, index, expected):
 
 class TestModelStateFromNonUniformAbundances:
     @pytest.fixture
-    def model_state(self, non_uniform_model_state):
-        return non_uniform_model_state
+    def simulation_state(self, example_model_file_dir, atomic_dataset):
+        config = Configuration.from_yaml(
+            example_model_file_dir / "tardis_configv1_isotope_iabund.yml"
+        )
+        return SimulationState.from_config(config, atom_data=atomic_dataset)
 
-    def test_atomic_mass(self, model_state):
-        atomic_mass = model_state.composition.atomic_mass
+    def test_atomic_mass(self, simulation_state):
+        atomic_mass = simulation_state.composition.effective_element_masses
         assert_almost_equal(atomic_mass.loc[(1, 0)], 1.67378172e-24, decimal=30)
         assert_almost_equal(
             atomic_mass.loc[(28, 0)], 9.51707707e-23, decimal=30
@@ -467,17 +447,11 @@ class TestModelStateFromNonUniformAbundances:
             atomic_mass.loc[(28, 1)], 9.54725917e-23, decimal=30
         )
 
-    def test_elemental_number_density(self, model_state):
-        number = model_state.composition.elemental_number_density
+    def test_elemental_number_density(self, simulation_state):
+        number = simulation_state.composition.elemental_number_density
         assert_almost_equal(number.loc[(1, 0)], 0)
-        assert_almost_equal(number.loc[(28, 0)], 10825427.035, decimal=2)
-        assert_almost_equal(number.loc[(28, 1)], 1640838.763, decimal=2)
-
-    def test_number(self, model_state):
-        number = model_state.number
-        assert_almost_equal(number.loc[(1, 0)], 0)
-        assert_almost_equal(number.loc[(28, 0)], 1.53753476e53, decimal=-47)
-        assert_almost_equal(number.loc[(28, 1)], 4.16462779e52, decimal=-47)
+        assert_almost_equal(number.loc[(28, 0)], 10825403.434893506, decimal=2)
+        assert_almost_equal(number.loc[(28, 1)], 1640835.7822178686, decimal=2)
 
 
 ###
@@ -490,12 +464,14 @@ def to_hdf_buffer(hdf_file_path, simulation_verysimple):
     simulation_verysimple.simulation_state.to_hdf(hdf_file_path, overwrite=True)
 
 
-model_scalar_attrs = ["t_inner"]
+simulation_state_scalar_attrs = ["t_inner"]
 
 
-@pytest.mark.parametrize("attr", model_scalar_attrs)
-def test_hdf_model_scalars(hdf_file_path, simulation_verysimple, attr):
-    path = os.path.join("model", "scalars")
+@pytest.mark.parametrize("attr", simulation_state_scalar_attrs)
+def test_hdf_simulation_state_scalars(
+    hdf_file_path, simulation_verysimple, attr
+):
+    path = "model/scalars"
     expected = pd.read_hdf(hdf_file_path, path)[attr]
     actual = getattr(simulation_verysimple.simulation_state, attr)
     if hasattr(actual, "cgs"):
@@ -503,12 +479,14 @@ def test_hdf_model_scalars(hdf_file_path, simulation_verysimple, attr):
     assert_almost_equal(actual, expected)
 
 
-model_nparray_attrs = ["w", "v_inner", "v_outer"]
+simulation_state_nparray_attrs = ["dilution_factor", "v_inner", "v_outer"]
 
 
-@pytest.mark.parametrize("attr", model_nparray_attrs)
-def test_hdf_model_nparray(hdf_file_path, simulation_verysimple, attr):
-    path = os.path.join("model", attr)
+@pytest.mark.parametrize("attr", simulation_state_nparray_attrs)
+def test_hdf_simulation_state_nparray(
+    hdf_file_path, simulation_verysimple, attr
+):
+    path = f"model/{attr}"
     expected = pd.read_hdf(hdf_file_path, path)
     actual = getattr(simulation_verysimple.simulation_state, attr)
     if hasattr(actual, "cgs"):

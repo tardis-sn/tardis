@@ -4,7 +4,7 @@ supernova:
     luminosity_requested: 2.8e9 solLum
     time_explosion: 13 day
 
-atom_data: kurucz_atom_pure_simple.h5
+atom_data: kurucz_cd23_chianti_H_He.h5
 
 model:
     structure:

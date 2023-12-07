@@ -145,7 +145,6 @@ def numba_formal_integral(
                 nu_end = nu_ends[i]
                 nu_end_idx = nu_ends_idxs[i]
                 for _ in range(max(nu_end_idx - pline, 0)):
-
                     # calculate e-scattering optical depth to next resonance point
                     zend = (
                         model.time_explosion
@@ -281,7 +280,6 @@ class FormalIntegrator(object):
     """
 
     def __init__(self, model, plasma, transport, points=1000):
-
         self.model = model
         self.transport = transport
         self.points = points
@@ -418,7 +416,7 @@ class FormalIntegrator(object):
         Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -> l
         """
 
-        model = self.model
+        simulation_state = self.model
         transport = self.transport
 
         # macro_ref = self.atomic_data.macro_atom_references
@@ -427,7 +425,7 @@ class FormalIntegrator(object):
         macro_data = self.original_plasma.macro_atom_data
 
         no_lvls = len(self.levels_index)
-        no_shells = len(model.w)
+        no_shells = len(simulation_state.dilution_factor)
 
         if transport.line_interaction_type == "macroatom":
             internal_jump_mask = (macro_data.transition_type >= 0).values
@@ -439,7 +437,9 @@ class FormalIntegrator(object):
             source_level_idx = ma_int_data.source_level_idx.values
             destination_level_idx = ma_int_data.destination_level_idx.values
 
-        Edotlu_norm_factor = 1 / (transport.time_of_simulation * model.volume)
+        Edotlu_norm_factor = 1 / (
+            transport.time_of_simulation * simulation_state.volume
+        )
         exptau = 1 - np.exp(-self.original_plasma.tau_sobolevs)
         Edotlu = Edotlu_norm_factor * exptau * transport.Edotlu_estimator
 
@@ -448,8 +448,13 @@ class FormalIntegrator(object):
         Jbluelu_norm_factor = (
             (
                 const.c.cgs
-                * model.time_explosion
-                / (4 * np.pi * transport.time_of_simulation * model.volume)
+                * simulation_state.time_explosion
+                / (
+                    4
+                    * np.pi
+                    * transport.time_of_simulation
+                    * simulation_state.volume
+                )
             )
             .to("1/(cm^2 s)")
             .value
@@ -495,7 +500,7 @@ class FormalIntegrator(object):
             (self.atomic_data.macro_atom_data.transition_type == -1).values
         ]
         q_ul = tmp.set_index(transitions_index)
-        t = model.time_explosion.value
+        t = simulation_state.time_explosion.value
         lines = self.atomic_data.lines.set_index("line_id")
         wave = lines.wavelength_cm.loc[
             transitions.transition_line_id
