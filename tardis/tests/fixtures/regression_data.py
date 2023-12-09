@@ -79,6 +79,17 @@ class RegressionData:
         else:
             return np.load(fpath)
 
+    def sync_regression_str(self, data):
+        fpath = self.absolute_regression_data_dir / f"{self.fname_prefix}.txt"
+        if self.enable_generate_reference:
+            fpath.parent.mkdir(parents=True, exist_ok=True)
+            with fpath.open("w") as fh:
+                fh.write(data)
+            pytest.skip("Skipping test to generate reference data")
+        else:
+            with fpath.open("r") as fh:
+                return fh.read()
+
 
 @pytest.fixture(scope="function")
 def regression_data(request):

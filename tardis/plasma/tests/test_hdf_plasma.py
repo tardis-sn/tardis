@@ -1,4 +1,5 @@
-import pandas as pd
+import numpy.testing as npt
+import pandas.testing as pdt
 import pytest
 
 ###
@@ -43,48 +44,54 @@ plasma_properties_list = [
 
 
 @pytest.mark.parametrize("attr", plasma_properties_list)
-def test_hdf_plasma(simulation_verysimple, attr, snapshot_np):
+def test_hdf_plasma(simulation_verysimple, attr, regression_data):
     if hasattr(simulation_verysimple.plasma, attr):
         actual = getattr(simulation_verysimple.plasma, attr)
+        expected = regression_data.sync_regression_npy(actual)
         if hasattr(actual, "cgs"):
             actual = actual.cgs.value
-        assert snapshot_np == actual
+        npt.assert_allclose(actual, expected)
 
 
-def test_hdf_levels(simulation_verysimple, snapshot_pd):
-    actual = getattr(simulation_verysimple.plasma, "levels")
+def test_hdf_levels(simulation_verysimple, regression_data):
+    actual = simulation_verysimple.plasma.levels
+    expected = regression_data.sync_regression_dataframe(actual)
     if hasattr(actual, "cgs"):
-        actual = actual.cgs.value
-    assert snapshot_pd == pd.DataFrame(actual)
+        raise ValueError("should not ever happen")
+    pdt.assert_frame_equal(actual, expected)
 
 
 scalars_list = ["time_explosion", "link_t_rad_t_electron"]
 
 
 @pytest.mark.parametrize("attr", scalars_list)
-def test_hdf_scalars(simulation_verysimple, attr, snapshot_np):
+def test_hdf_scalars(simulation_verysimple, attr, regression_data):
     actual = getattr(simulation_verysimple.plasma, attr)
+    expected = regression_data.sync_regression_dataframe(actual)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
-    assert snapshot_np == actual
+    npt.assert_allclose(actual, expected)
 
 
-def test_hdf_helium_treatment(simulation_verysimple, snapshot):
-    actual = getattr(simulation_verysimple.plasma, "helium_treatment")
-    assert snapshot == actual
+def test_hdf_helium_treatment(simulation_verysimple, regression_data):
+    actual = simulation_verysimple.plasma.helium_treatment
+    expected = regression_data.sync_regression_str(actual)
+    assert actual == expected
 
 
-def test_atomic_data_uuid(simulation_verysimple, snapshot):
-    actual = getattr(simulation_verysimple.plasma.atomic_data, "uuid1")
-    assert snapshot == actual
+def test_atomic_data_uuid(simulation_verysimple, regression_data):
+    actual = simulation_verysimple.plasma.atomic_data.uuid1
+    expected = regression_data.sync_regression_str(actual)
+    assert actual == expected
 
 
-collection_properties = ["t_rad", "w", "density"]
+COLLECTION_PROPERTIES = ["t_rad", "dilution_factor", "density"]
 
 
-@pytest.mark.parametrize("attr", collection_properties)
-def test_collection(simulation_verysimple, attr, snapshot_np):
+@pytest.mark.parametrize("attr", COLLECTION_PROPERTIES)
+def test_collection(simulation_verysimple, attr, regression_data):
     actual = getattr(simulation_verysimple.plasma, attr)
+    expected = regression_data.sync_regression_npy(actual)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
-    assert snapshot_np == actual
+    npt.assert_allclose(actual, expected)
