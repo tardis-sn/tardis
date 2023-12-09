@@ -1,19 +1,27 @@
-from pathlib import Path
-import pytest
-import re
 import os
+import re
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pytest
+
+from tardis.io.util import HDFWriterMixin
 
 
 class RegressionData:
     def __init__(self, request) -> None:
         self.request = request
-        tardis_ref_path = request.config.getoption("--tardis-refdata")
-        self.tardis_ref_path = Path(
-            os.path.expandvars(os.path.expanduser(tardis_ref_path))
+        regression_data_path = request.config.getoption(
+            "--tardis-regression-data"
+        )
+        self.regression_data_path = Path(
+            os.path.expandvars(os.path.expanduser(regression_data_path))
         )
         self.enable_generate_reference = request.config.getoption(
             "--generate-reference"
         )
+        self.fname = f"{self.fname_prefix}.UNKNOWN_FORMAT"
 
     @property
     def module_name(self):
@@ -24,7 +32,7 @@ class RegressionData:
         return self.request.node.name
 
     @property
-    def regression_data_fname_prefix(self):
+    def fname_prefix(self):
         double_under = re.compile(r"[:\[\]{}]")
         no_space = re.compile(r'[,"\']')  # quotes and commas
 
@@ -34,26 +42,42 @@ class RegressionData:
 
     @property
     def relative_regression_data_dir(self):
-        return Path(self.module_name.replace(".", "/"))
+        relative_data_dir = Path(self.module_name.replace(".", "/"))
+        if self.request.cls is not None:
+            relative_data_dir /= HDFWriterMixin.convert_to_snake_case(
+                self.request.cls.__name__
+            )
+        return relative_data_dir
 
-    def check_data(self, data):
-        full_fname_prefix = (
-            self.relative_regression_data_dir
-            / self.regression_data_fname_prefix
-        )
+    @property
+    def absolute_regression_data_dir(self):
+        return self.regression_data_path / self.relative_regression_data_dir
+
+    @property
+    def fpath(self):
+        return self.absolute_regression_data_dir / self.fname
+
+    def sync_regression_dataframe(self, data, key="data"):
+        self.fname = f"{self.fname_prefix}.h5"
+        fpath = self.absolute_regression_data_dir / self.fname
         if self.enable_generate_reference:
-            if hasattr(data, "to_hdf"):
-                data.to_hdf(
-                    full_fname_prefix.with_suffix(".h5"),
-                )
+            fpath.parent.mkdir(parents=True, exist_ok=True)
+            data.to_hdf(
+                fpath,
+                key=key,
+            )
             pytest.skip("Skipping test to generate reference data")
-
         else:
-            if hasattr(data, "to_hdf"):
-                ref_data = pd.read_hdf(
-                    self.tardis_ref_path / f"{full_fname_prefix}.h5"
-                )
-            return ref_data
+            return pd.read_hdf(fpath, key=key)
+
+    def sync_regression_npy(self, data):
+        fpath = self.absolute_regression_data_dir / f"{self.fname_prefix}.npy"
+        if self.enable_generate_reference:
+            fpath.parent.mkdir(parents=True, exist_ok=True)
+            np.save(fpath, data)
+            pytest.skip("Skipping test to generate reference data")
+        else:
+            return np.load(fpath)
 
 
 @pytest.fixture(scope="function")

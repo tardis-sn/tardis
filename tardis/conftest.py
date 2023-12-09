@@ -100,6 +100,12 @@ def pytest_addoption(parser):
         "--tardis-refdata", default=None, help="Path to Tardis Reference Folder"
     )
     parser.addoption(
+        "--tardis-regression-data",
+        default=None,
+        help="Path to the TARDIS regression data directory",
+    )
+
+    parser.addoption(
         "--integration-tests",
         dest="integration-tests",
         default=None,

@@ -1,11 +1,19 @@
-import os
 import warnings
+from pathlib import Path
 
 import pandas as pd
 import pytest
+from numpy import testing as npt
+from pandas import testing as pdt
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
+from tardis.tests.fixtures.regression_data import RegressionData
+
+PLASMA_CONFIG_FPATH = (
+    Path("tardis") / "plasma" / "tests" / "data" / "plasma_base_test_config.yml"
+)
+
 
 ionization = [
     {"ionization": "nebular"},
@@ -47,7 +55,7 @@ helium_treatment = [
     {"helium_treatment": "recomb-nlte", "delta_treatment": 0.5},
 ]
 
-config_list = (
+CONFIG_LIST = (
     ionization
     + excitation
     + radiative_rates_type
@@ -65,10 +73,12 @@ def idfn(fixture_value):
     This function creates a string from a dictionary.
     We use it to obtain a readable name for the config fixture.
     """
-    return str("-".join([f"{k}:{v}" for k, v in fixture_value.items()]))
+    return "-".join([f"{k}:{v}" for k, v in fixture_value.items()])
 
 
-class TestPlasma(object):
+class TestPlasma:
+    regression_data = None
+
     general_properties = [
         "beta_rad",
         "g_electron",
@@ -127,16 +137,11 @@ class TestPlasma(object):
 
     @pytest.fixture(scope="class")
     def chianti_he_db_fpath(self, tardis_ref_path):
-        return os.path.abspath(
-            os.path.join(tardis_ref_path, "atom_data", "chianti_He.h5")
-        )
+        return (tardis_ref_path / "atom_data" / "chianti_He.h5").absolute()
 
-    @pytest.fixture(scope="class", params=config_list, ids=idfn)
+    @pytest.fixture(scope="class", params=CONFIG_LIST, ids=idfn)
     def config(self, request):
-        config_path = os.path.join(
-            "tardis", "plasma", "tests", "data", "plasma_base_test_config.yml"
-        )
-        config = Configuration.from_yaml(config_path)
+        config = Configuration.from_yaml(PLASMA_CONFIG_FPATH)
         hash_string = ""
         for prop, value in request.param.items():
             hash_string = "_".join((hash_string, prop))
@@ -148,57 +153,75 @@ class TestPlasma(object):
             else:
                 config.plasma[prop] = value
                 hash_string = "_".join((hash_string, str(value)))
-        hash_string = os.path.join("plasma_unittest", hash_string)
-        setattr(config.plasma, "save_path", hash_string)
+        hash_string = f"plasma_unittest{hash_string}"
+        config.plasma.save_path = hash_string
+        request.cls.regression_data = RegressionData(request)
+        request.cls.regression_data.fname = f"{hash_string}.h5"
         return config
 
     @pytest.fixture(scope="class")
-    def plasma(self, chianti_he_db_fpath, config):
-        config["atom_data"] = chianti_he_db_fpath
+    def plasma(
+        self,
+        chianti_he_db_fpath,
+        config,
+        tardis_ref_data,
+    ):
+        config["atom_data"] = str(chianti_he_db_fpath)
         sim = Simulation.from_config(config)
+        if self.regression_data.enable_generate_reference:
+            self.regression_data.fpath.parent.mkdir(parents=True, exist_ok=True)
+            with pd.HDFStore(self.regression_data.fpath, mode="w") as store:
+                sim.plasma.to_hdf(store, overwrite=True)
+            pytest.skip(f"Reference data saved at {tardis_ref_data}")
         return sim.plasma
 
     @pytest.mark.parametrize("attr", combined_properties)
-    def test_plasma_properties(
-        self, plasma, attr, snapshot_pd, snapshot_np, regression_data
-    ):
+    def test_plasma_properties(self, plasma, attr):
+        key = f"plasma/{attr}"
+        try:
+            expected = pd.read_hdf(self.regression_data.fpath, key)
+        except KeyError:
+            pytest.skip(f"Key {key} not found in regression data")
+
         if hasattr(plasma, attr):
             actual = getattr(plasma, attr)
-            if hasattr(actual, "unit"):
-                actual = actual.value
-            if actual.ndim == 1:
+            if attr == "selected_atoms":
+                npt.assert_allclose(actual.values, expected.values)
+            elif actual.ndim == 1:
                 actual = pd.Series(actual)
+                pdt.assert_series_equal(actual, expected)
             else:
                 actual = pd.DataFrame(actual)
-            if isinstance(actual, (pd.DataFrame, pd.Series)):
-                assert snapshot_pd == actual
-            else:
-                assert snapshot_np == actual
+                pdt.assert_frame_equal(actual, expected)
         else:
             warnings.warn(f'Property "{attr}" not found')
 
-    def test_levels(self, plasma, snapshot_pd, snapshot_np):
+    def test_levels(self, plasma):
         actual = pd.DataFrame(plasma.levels)
-        if isinstance(actual, (pd.DataFrame, pd.Series)):
-            assert snapshot_pd == actual
-        else:
-            assert snapshot_np == actual
+        key = f"plasma/levels"
+        expected = pd.read_hdf(self.regression_data.fpath, key)
+        pdt.assert_frame_equal(actual, expected)
 
     @pytest.mark.parametrize("attr", scalars_properties)
-    def test_scalars_properties(self, plasma, attr, snapshot_pd, snapshot_np):
+    def test_scalars_properties(self, plasma, attr):
         actual = getattr(plasma, attr)
         if hasattr(actual, "cgs"):
             actual = actual.cgs.value
-        if isinstance(actual, (pd.DataFrame, pd.Series)):
-            assert snapshot_pd == actual
-        else:
-            assert snapshot_np == actual
+        key = f"plasma/scalars"
+        expected = pd.read_hdf(self.regression_data.fpath, key)[attr]
+        npt.assert_equal(actual, expected)
 
-    def test_helium_treatment(self, plasma, snapshot):
+    def test_helium_treatment(self, plasma):
         actual = plasma.helium_treatment
-        assert snapshot == actual
+        key = f"plasma/scalars"
+        expected = pd.read_hdf(self.regression_data.fpath, key)[
+            "helium_treatment"
+        ]
+        assert actual == expected
 
-    def test_zeta_data(self, plasma, snapshot_np):
+    def test_zeta_data(self, plasma):
         if hasattr(plasma, "zeta_data"):
             actual = plasma.zeta_data
-            assert snapshot_np == actual.values
+            key = f"plasma/zeta_data"
+            expected = pd.read_hdf(self.regression_data.fpath, key)
+            npt.assert_allclose(actual, expected.values)
