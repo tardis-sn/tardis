@@ -4,7 +4,7 @@ import pytest
 from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
-from tardis.io.model.hdf import store_model_to_hdf
+from tardis.io.model.hdf import store_simulation_state_to_hdf
 from tardis.io.model.model_reader import (
     simulation_state_to_dict,
     store_transport_to_hdf,
@@ -212,29 +212,35 @@ def test_model_to_dict(simulation_verysimple):
 def test_store_model_to_hdf(simulation_verysimple, tmp_path):
     simulation_state = simulation_verysimple.simulation_state
 
-    fname = tmp_path / "model.h5"
+    fname = tmp_path / "simulation_state.h5"
 
     # Store model object
-    store_model_to_hdf(simulation_state, fname)
+    store_simulation_state_to_hdf(simulation_state, fname)
 
     # Check file contents
     with h5py.File(fname) as f:
         assert np.array_equal(
-            f["simulation_state/velocity_cgs"], simulation_state.velocity.cgs.value
+            f["simulation_state/velocity_cgs"],
+            simulation_state.velocity.cgs.value,
         )
-        assert np.array_equal(f["simulation_state/abundance"], simulation_state.abundance)
+        assert np.array_equal(
+            f["simulation_state/abundance"], simulation_state.abundance
+        )
         assert np.array_equal(
             f["simulation_state/time_explosion_cgs"],
             simulation_state.time_explosion.cgs.value,
         )
         assert np.array_equal(
-            f["simulation_state/t_inner_cgs"], simulation_state.t_inner.cgs.value
+            f["simulation_state/t_inner_cgs"],
+            simulation_state.t_inner.cgs.value,
         )
         assert np.array_equal(
-            f["simulation_state/t_radiative_cgs"], simulation_state.t_radiative.cgs.value
+            f["simulation_state/t_radiative_cgs"],
+            simulation_state.t_radiative.cgs.value,
         )
         assert np.array_equal(
-            f["simulation_state/dilution_factor"], simulation_state.dilution_factor
+            f["simulation_state/dilution_factor"],
+            simulation_state.dilution_factor,
         )
         assert np.array_equal(
             f["simulation_state/v_boundary_inner_cgs"],
@@ -245,10 +251,12 @@ def test_store_model_to_hdf(simulation_verysimple, tmp_path):
             simulation_state.v_boundary_outer.cgs.value,
         )
         assert np.array_equal(
-            f["simulation_state/r_inner_cgs"], simulation_state.r_inner.cgs.value
+            f["simulation_state/r_inner_cgs"],
+            simulation_state.r_inner.cgs.value,
         )
         assert np.array_equal(
-            f["simulation_state/density_cgs"], simulation_state.density.cgs.value
+            f["simulation_state/density_cgs"],
+            simulation_state.density.cgs.value,
         )
 
 
