@@ -15,6 +15,8 @@ class RegressionData:
         regression_data_path = request.config.getoption(
             "--tardis-regression-data"
         )
+        if regression_data_path is None:
+            pytest.skip("--tardis-regression-data was not specified")
         self.regression_data_path = Path(
             os.path.expandvars(os.path.expanduser(regression_data_path))
         )

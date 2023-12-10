@@ -9,9 +9,13 @@ from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import *
+from tardis.tests.fixtures.regression_data import regression_data
 from tardis.util.syrupy_extensions import (
     SingleFileSanitizedNames,
 )
+
+# ensuring that regression_data is not removed by ruff
+assert regression_data is not None
 
 """Configure Test Suite.
 
@@ -89,9 +93,6 @@ def pytest_configure(config):
 # -------------------------------------------------------------------------
 
 
-pytest_plugins = "syrupy"
-
-
 def pytest_addoption(parser):
     parser.addoption(
         "--tardis-refdata", default=None, help="Path to Tardis Reference Folder"
@@ -114,13 +115,6 @@ def pytest_addoption(parser):
         default=False,
         help="generate reference data instead of testing",
     )
-
-    parser.addoption(
-        "--tardis-snapshot-data",
-        default=None,
-        help="Path to Tardis Snapshot Folder",
-    )
-
     parser.addoption(
         "--less-packets",
         action="store_true",
