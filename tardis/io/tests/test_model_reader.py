@@ -220,35 +220,35 @@ def test_store_model_to_hdf(simulation_verysimple, tmp_path):
     # Check file contents
     with h5py.File(fname) as f:
         assert np.array_equal(
-            f["model/velocity_cgs"], simulation_state.velocity.cgs.value
+            f["simulation_state/velocity_cgs"], simulation_state.velocity.cgs.value
         )
-        assert np.array_equal(f["model/abundance"], simulation_state.abundance)
+        assert np.array_equal(f["simulation_state/abundance"], simulation_state.abundance)
         assert np.array_equal(
-            f["model/time_explosion_cgs"],
+            f["simulation_state/time_explosion_cgs"],
             simulation_state.time_explosion.cgs.value,
         )
         assert np.array_equal(
-            f["model/t_inner_cgs"], simulation_state.t_inner.cgs.value
+            f["simulation_state/t_inner_cgs"], simulation_state.t_inner.cgs.value
         )
         assert np.array_equal(
-            f["model/t_radiative_cgs"], simulation_state.t_radiative.cgs.value
+            f["simulation_state/t_radiative_cgs"], simulation_state.t_radiative.cgs.value
         )
         assert np.array_equal(
-            f["model/dilution_factor"], simulation_state.dilution_factor
+            f["simulation_state/dilution_factor"], simulation_state.dilution_factor
         )
         assert np.array_equal(
-            f["model/v_boundary_inner_cgs"],
+            f["simulation_state/v_boundary_inner_cgs"],
             simulation_state.v_boundary_inner.cgs.value,
         )
         assert np.array_equal(
-            f["model/v_boundary_outer_cgs"],
+            f["simulation_state/v_boundary_outer_cgs"],
             simulation_state.v_boundary_outer.cgs.value,
         )
         assert np.array_equal(
-            f["model/r_inner_cgs"], simulation_state.r_inner.cgs.value
+            f["simulation_state/r_inner_cgs"], simulation_state.r_inner.cgs.value
         )
         assert np.array_equal(
-            f["model/density_cgs"], simulation_state.density.cgs.value
+            f["simulation_state/density_cgs"], simulation_state.density.cgs.value
         )
 
 

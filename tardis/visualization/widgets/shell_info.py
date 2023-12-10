@@ -62,7 +62,10 @@ class BaseShellInfo:
             simulation model
         """
         shells_temp_w = pd.DataFrame(
-            {"Rad. Temp.": self.t_radiative, "W": self.dilution_factor}
+            {
+                "Rad. Temp.": self.t_radiative,
+                "Dilution Factor": self.dilution_factor,
+            }
         )
         shells_temp_w.index = range(
             1, len(self.t_radiative) + 1
