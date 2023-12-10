@@ -172,6 +172,7 @@ def test_jacobian_matrix(
     simple_total_rad_recomb_coefficients,
     simple_total_col_ion_coefficients,
     simple_total_col_recomb_coefficients,
+    regression_data,
 ):
     """
     Using a simple case of nlte_ion for HI and HeII,
