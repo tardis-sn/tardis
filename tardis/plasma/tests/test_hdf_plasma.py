@@ -1,3 +1,4 @@
+import numpy as np
 import numpy.testing as npt
 import pandas.testing as pdt
 import pytest
@@ -54,22 +55,22 @@ def test_hdf_plasma(simulation_verysimple, attr, regression_data):
 
 
 def test_hdf_levels(simulation_verysimple, regression_data):
-    actual = simulation_verysimple.plasma.levels
+    actual = simulation_verysimple.plasma.levels.to_frame()
     expected = regression_data.sync_regression_dataframe(actual)
     if hasattr(actual, "cgs"):
         raise ValueError("should not ever happen")
     pdt.assert_frame_equal(actual, expected)
 
 
-scalars_list = ["time_explosion", "link_t_rad_t_electron"]
+SCALARS_LIST = ["time_explosion", "link_t_rad_t_electron"]
 
 
-@pytest.mark.parametrize("attr", scalars_list)
+@pytest.mark.parametrize("attr", SCALARS_LIST)
 def test_hdf_scalars(simulation_verysimple, attr, regression_data):
     actual = getattr(simulation_verysimple.plasma, attr)
-    expected = regression_data.sync_regression_dataframe(actual)
     if hasattr(actual, "cgs"):
-        actual = actual.cgs.value
+        actual = np.array(actual.cgs.value)
+    expected = regression_data.sync_regression_npy(actual)
     npt.assert_allclose(actual, expected)
 
 
@@ -85,7 +86,7 @@ def test_atomic_data_uuid(simulation_verysimple, regression_data):
     assert actual == expected
 
 
-COLLECTION_PROPERTIES = ["t_rad", "dilution_factor", "density"]
+COLLECTION_PROPERTIES = ["t_rad", "w", "density"]
 
 
 @pytest.mark.parametrize("attr", COLLECTION_PROPERTIES)

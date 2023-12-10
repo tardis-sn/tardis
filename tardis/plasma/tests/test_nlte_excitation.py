@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.testing as npt
 import pandas as pd
 import pytest
 
@@ -8,7 +9,7 @@ from tardis.plasma.properties.nlte_rate_equation_solver import (
 )
 
 
-def test_prepare_bound_bound_rate_matrix(nlte_atomic_dataset, snapshot_np):
+def test_prepare_bound_bound_rate_matrix(nlte_atomic_dataset, regression_data):
     """
     Using a simple case of nlte_exc for HI, checks if prepare_bound_bound_rate_matrix generates the correct data.
     """
@@ -72,7 +73,10 @@ def test_prepare_bound_bound_rate_matrix(nlte_atomic_dataset, snapshot_np):
     # if this test fails the first thing to check is if the reshape in the
     # methods made a view or a copy. If it's a copy rewrite the function.
     # TODO: allow rtol=1e-6
-    assert snapshot_np == np.array(actual_rate_matrix)
+    expected_rate_matrix = regression_data.sync_regression_npy(
+        actual_rate_matrix
+    )
+    npt.assert_allclose(actual_rate_matrix, expected_rate_matrix, rtol=1e-6)
 
 
 @pytest.mark.parametrize(
@@ -98,7 +102,7 @@ def test_coll_exc_deexc_matrix(
     coll_exc_coeff_values,
     coll_deexc_coeff_values,
     number_of_levels,
-    snapshot_np,
+    regression_data,
 ):
     """
     Checks the NLTERateEquationSolver.create_coll_exc_deexc_matrix for simple values of species with 3 levels.
@@ -113,4 +117,7 @@ def test_coll_exc_deexc_matrix(
     obtained_coeff_matrix = NLTERateEquationSolver.create_coll_exc_deexc_matrix(
         exc_coeff, deexc_coeff, number_of_levels
     )
-    assert snapshot_np == obtained_coeff_matrix
+    expected_obtained_coeff_matrix = regression_data.sync_regression_npy(
+        obtained_coeff_matrix
+    )
+    npt.assert_allclose(expected_obtained_coeff_matrix, obtained_coeff_matrix)
