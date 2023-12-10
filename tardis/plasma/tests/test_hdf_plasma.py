@@ -48,7 +48,7 @@ plasma_properties_list = [
 def test_hdf_plasma(simulation_verysimple, attr, regression_data):
     if hasattr(simulation_verysimple.plasma, attr):
         actual = getattr(simulation_verysimple.plasma, attr)
-        expected = regression_data.sync_regression_npy(actual)
+        expected = regression_data.sync_ndarray(actual)
         if hasattr(actual, "cgs"):
             actual = actual.cgs.value
         npt.assert_allclose(actual, expected)
@@ -56,7 +56,7 @@ def test_hdf_plasma(simulation_verysimple, attr, regression_data):
 
 def test_hdf_levels(simulation_verysimple, regression_data):
     actual = simulation_verysimple.plasma.levels.to_frame()
-    expected = regression_data.sync_regression_dataframe(actual)
+    expected = regression_data.sync_dataframe(actual)
     if hasattr(actual, "cgs"):
         raise ValueError("should not ever happen")
     pdt.assert_frame_equal(actual, expected)
@@ -70,19 +70,19 @@ def test_hdf_scalars(simulation_verysimple, attr, regression_data):
     actual = getattr(simulation_verysimple.plasma, attr)
     if hasattr(actual, "cgs"):
         actual = np.array(actual.cgs.value)
-    expected = regression_data.sync_regression_npy(actual)
+    expected = regression_data.sync_ndarray(actual)
     npt.assert_allclose(actual, expected)
 
 
 def test_hdf_helium_treatment(simulation_verysimple, regression_data):
     actual = simulation_verysimple.plasma.helium_treatment
-    expected = regression_data.sync_regression_str(actual)
+    expected = regression_data.sync_str(actual)
     assert actual == expected
 
 
 def test_atomic_data_uuid(simulation_verysimple, regression_data):
     actual = simulation_verysimple.plasma.atomic_data.uuid1
-    expected = regression_data.sync_regression_str(actual)
+    expected = regression_data.sync_str(actual)
     assert actual == expected
 
 
@@ -92,7 +92,7 @@ COLLECTION_PROPERTIES = ["t_rad", "w", "density"]
 @pytest.mark.parametrize("attr", COLLECTION_PROPERTIES)
 def test_collection(simulation_verysimple, attr, regression_data):
     actual = getattr(simulation_verysimple.plasma, attr)
-    expected = regression_data.sync_regression_npy(actual)
+    expected = regression_data.sync_ndarray(actual)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
     npt.assert_allclose(actual, expected)

@@ -59,7 +59,7 @@ class RegressionData:
     def fpath(self):
         return self.absolute_regression_data_dir / self.fname
 
-    def sync_regression_dataframe(self, data, key="data"):
+    def sync_dataframe(self, data, key="data"):
         self.fname = f"{self.fname_prefix}.h5"
         fpath = self.absolute_regression_data_dir / self.fname
         if self.enable_generate_reference:
@@ -72,7 +72,7 @@ class RegressionData:
         else:
             return pd.read_hdf(fpath, key=key)
 
-    def sync_regression_npy(self, data):
+    def sync_ndarray(self, data):
         fpath = self.absolute_regression_data_dir / f"{self.fname_prefix}.npy"
         if self.enable_generate_reference:
             fpath.parent.mkdir(parents=True, exist_ok=True)
@@ -81,16 +81,30 @@ class RegressionData:
         else:
             return np.load(fpath)
 
-    def sync_regression_str(self, data):
+    def sync_str(self, data):
         fpath = self.absolute_regression_data_dir / f"{self.fname_prefix}.txt"
         if self.enable_generate_reference:
             fpath.parent.mkdir(parents=True, exist_ok=True)
             with fpath.open("w") as fh:
                 fh.write(data)
-            pytest.skip("Skipping test to generate reference data")
+            pytest.skip(
+                f"Skipping test to generate regression_data {fpath} data"
+            )
         else:
             with fpath.open("r") as fh:
                 return fh.read()
+
+    def sync_hdf_store(self, tardis_module):
+        self.fname = f"{self.fname_prefix}.h5"
+        if self.enable_generate_reference:
+            self.fpath.parent.mkdir(parents=True, exist_ok=True)
+            with pd.HDFStore(self.fpath, mode="w") as store:
+                tardis_module.to_hdf(store, overwrite=True)
+            pytest.skip(
+                f"Skipping test to generate regression_data {self.fpath} data"
+            )
+        else:
+            return pd.HDFStore(self.fpath, mode="r")
 
 
 @pytest.fixture(scope="function")

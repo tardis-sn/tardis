@@ -32,7 +32,7 @@ def raw_plasma(
 
 def test_electron_densities(raw_plasma, regression_data):
     actual = raw_plasma.electron_densities
-    expected = regression_data.sync_regression_npy(actual)
+    expected = regression_data.sync_ndarray(actual)
     npt.assert_allclose(actual, expected)
 
 
@@ -40,11 +40,11 @@ def test_isotope_number_densities(
     request, raw_simulation_state, regression_data
 ):
     actual = raw_simulation_state.composition.isotopic_number_density
-    expected = regression_data.sync_regression_dataframe(actual)
+    expected = regression_data.sync_dataframe(actual)
     pdt.assert_frame_equal(actual, expected)
 
 
 def test_t_rad(raw_plasma, regression_data):
     actual = raw_plasma.t_rad
-    expected = regression_data.sync_regression_npy(actual)
+    expected = regression_data.sync_ndarray(actual)
     npt.assert_array_equal(actual, expected)

@@ -168,11 +168,7 @@ class TestPlasma:
     ):
         config["atom_data"] = str(chianti_he_db_fpath)
         sim = Simulation.from_config(config)
-        if self.regression_data.enable_generate_reference:
-            self.regression_data.fpath.parent.mkdir(parents=True, exist_ok=True)
-            with pd.HDFStore(self.regression_data.fpath, mode="w") as store:
-                sim.plasma.to_hdf(store, overwrite=True)
-            pytest.skip(f"Reference data saved at {tardis_ref_data}")
+        self.regression_data.sync_hdf_store(sim.plasma)
         return sim.plasma
 
     @pytest.mark.parametrize("attr", combined_properties)

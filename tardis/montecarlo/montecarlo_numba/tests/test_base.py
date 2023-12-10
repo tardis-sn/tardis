@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-import os
+
 import numpy.testing as npt
 from copy import deepcopy
 from tardis.base import run_tardis
@@ -35,8 +35,7 @@ def montecarlo_main_loop_config(
 
 def test_montecarlo_main_loop(
     montecarlo_main_loop_config,
-    tardis_ref_path,
-    request,
+    regression_data,
     atomic_dataset,
 ):
     atomic_dataset = deepcopy(atomic_dataset)
@@ -48,26 +47,21 @@ def test_montecarlo_main_loop(
     montecarlo_main_loop_simulation.run_convergence()
     montecarlo_main_loop_simulation.run_final()
 
-    compare_fname = os.path.join(
-        tardis_ref_path, "montecarlo_1e5_compare_data.h5"
+    expected_hdf_store = regression_data.sync_hdf_store(
+        montecarlo_main_loop_simulation
     )
-    if request.config.getoption("--generate-reference"):
-        montecarlo_main_loop_simulation.to_hdf(compare_fname, overwrite=True)
 
     # Load compare data from refdata
-    expected_nu = pd.read_hdf(
-        compare_fname, key="/simulation/transport/output_nu"
-    ).values
-    expected_energy = pd.read_hdf(
-        compare_fname, key="/simulation/transport/output_energy"
-    ).values
-    expected_nu_bar_estimator = pd.read_hdf(
-        compare_fname, key="/simulation/transport/nu_bar_estimator"
-    ).values
-    expected_j_estimator = pd.read_hdf(
-        compare_fname, key="/simulation/transport/j_estimator"
-    ).values
 
+    expected_nu = expected_hdf_store["/simulation/transport/output_nu"]
+    expected_energy = expected_hdf_store["/simulation/transport/output_energy"]
+    expected_nu_bar_estimator = expected_hdf_store[
+        "/simulation/transport/nu_bar_estimator"
+    ]
+    expected_j_estimator = expected_hdf_store[
+        "/simulation/transport/j_estimator"
+    ]
+    expected_hdf_store.close()
     actual_energy = montecarlo_main_loop_simulation.transport.output_energy
     actual_nu = montecarlo_main_loop_simulation.transport.output_nu
     actual_nu_bar_estimator = (
@@ -84,11 +78,9 @@ def test_montecarlo_main_loop(
     npt.assert_allclose(actual_nu.value, expected_nu, rtol=1e-13)
 
 
-@pytest.mark.xfail(reason="need to store virtual packet data in hdf5")
 def test_montecarlo_main_loop_vpacket_log(
     montecarlo_main_loop_config,
-    tardis_ref_path,
-    request,
+    regression_data,
     atomic_dataset,
 ):
     atomic_dataset = deepcopy(atomic_dataset)
@@ -102,25 +94,24 @@ def test_montecarlo_main_loop_vpacket_log(
     montecarlo_main_loop_simulation.run_convergence()
     montecarlo_main_loop_simulation.run_final()
 
-    compare_fname = os.path.join(
-        tardis_ref_path, "montecarlo_1e5_compare_data.h5"
+    expected_hdf_store = regression_data.sync_hdf_store(
+        montecarlo_main_loop_simulation
     )
-    if request.config.getoption("--generate-reference"):
-        montecarlo_main_loop_simulation.to_hdf(compare_fname, overwrite=True)
 
-    # Load compare data from refdata
-    expected_nu = pd.read_hdf(
-        compare_fname, key="/simulation/transport/output_nu"
-    ).values
-    expected_energy = pd.read_hdf(
-        compare_fname, key="/simulation/transport/output_energy"
-    ).values
-    expected_nu_bar_estimator = pd.read_hdf(
-        compare_fname, key="/simulation/transport/nu_bar_estimator"
-    ).values
-    expected_j_estimator = pd.read_hdf(
-        compare_fname, key="/simulation/transport/j_estimator"
-    ).values
+    expected_nu = expected_hdf_store["/simulation/transport/output_nu"]
+    expected_energy = expected_hdf_store["/simulation/transport/output_energy"]
+    expected_nu_bar_estimator = expected_hdf_store[
+        "/simulation/transport/nu_bar_estimator"
+    ]
+    expected_j_estimator = expected_hdf_store[
+        "/simulation/transport/j_estimator"
+    ]
+    expected_vpacket_log_nus = expected_hdf_store[
+        "/simulation/transport/virt_packet_nus"
+    ]
+    expected_vpacket_log_energies = expected_hdf_store[
+        "/simulation/transport/virt_packet_energies"
+    ]
 
     transport = montecarlo_main_loop_simulation.transport
     actual_energy = transport.output_energy
@@ -129,7 +120,7 @@ def test_montecarlo_main_loop_vpacket_log(
     actual_j_estimator = montecarlo_main_loop_simulation.transport.j_estimator
     actual_vpacket_log_nus = transport.virt_packet_nus
     actual_vpacket_log_energies = transport.virt_packet_energies
-
+    expected_hdf_store.close()
     # Compare
     npt.assert_allclose(
         actual_nu_bar_estimator, expected_nu_bar_estimator, rtol=1e-13
@@ -137,3 +128,9 @@ def test_montecarlo_main_loop_vpacket_log(
     npt.assert_allclose(actual_j_estimator, expected_j_estimator, rtol=1e-13)
     npt.assert_allclose(actual_energy.value, expected_energy, rtol=1e-13)
     npt.assert_allclose(actual_nu.value, expected_nu, rtol=1e-13)
+    npt.assert_allclose(
+        actual_vpacket_log_nus, expected_vpacket_log_nus, rtol=1e-13
+    )
+    npt.assert_allclose(
+        actual_vpacket_log_energies, expected_vpacket_log_energies, rtol=1e-13
+    )

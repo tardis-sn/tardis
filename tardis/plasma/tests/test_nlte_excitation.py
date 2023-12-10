@@ -73,9 +73,7 @@ def test_prepare_bound_bound_rate_matrix(nlte_atomic_dataset, regression_data):
     # if this test fails the first thing to check is if the reshape in the
     # methods made a view or a copy. If it's a copy rewrite the function.
     # TODO: allow rtol=1e-6
-    expected_rate_matrix = regression_data.sync_regression_npy(
-        actual_rate_matrix
-    )
+    expected_rate_matrix = regression_data.sync_ndarray(actual_rate_matrix)
     npt.assert_allclose(actual_rate_matrix, expected_rate_matrix, rtol=1e-6)
 
 
@@ -117,7 +115,7 @@ def test_coll_exc_deexc_matrix(
     obtained_coeff_matrix = NLTERateEquationSolver.create_coll_exc_deexc_matrix(
         exc_coeff, deexc_coeff, number_of_levels
     )
-    expected_obtained_coeff_matrix = regression_data.sync_regression_npy(
+    expected_obtained_coeff_matrix = regression_data.sync_ndarray(
         obtained_coeff_matrix
     )
     npt.assert_allclose(expected_obtained_coeff_matrix, obtained_coeff_matrix)

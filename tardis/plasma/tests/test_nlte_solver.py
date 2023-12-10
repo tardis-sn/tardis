@@ -158,9 +158,7 @@ def test_rate_matrix(
     )
     # TODO: decimal=6
     # allow for assert_almost_equal
-    expected_rate_matrix = regression_data.sync_regression_npy(
-        actual_rate_matrix
-    )
+    expected_rate_matrix = regression_data.sync_ndarray(actual_rate_matrix)
     npt.assert_allclose(actual_rate_matrix, expected_rate_matrix, rtol=1e-6)
 
 
@@ -210,7 +208,7 @@ def test_jacobian_matrix(
     )
 
     # TODO: allow for assert_almost_equal
-    expected_jacobian_matrix = regression_data.sync_regression_npy(
+    expected_jacobian_matrix = regression_data.sync_ndarray(
         actual_jacobian_matrix
     )
     npt.assert_allclose(actual_jacobian_matrix, expected_jacobian_matrix)
