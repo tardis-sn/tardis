@@ -289,8 +289,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         converged = self._get_convergence_status(
-            self.simulation_state.t_rad,
-            self.simulation_state.w,
+            self.simulation_state.t_radiative,
+            self.simulation_state.dilution_factor,
             self.simulation_state.t_inner,
             estimated_t_rad,
             estimated_w,
@@ -299,13 +299,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         # calculate_next_plasma_state equivalent
         # FIXME: Should convergence strategy have its own class?
-        next_t_rad = self.damped_converge(
-            self.simulation_state.t_rad,
+        next_t_radiative = self.damped_converge(
+            self.simulation_state.t_radiative,
             estimated_t_rad,
             self.convergence_strategy.t_rad.damping_constant,
         )
-        next_w = self.damped_converge(
-            self.simulation_state.w,
+        next_dilution_factor = self.damped_converge(
+            self.simulation_state.dilution_factor,
             estimated_w,
             self.convergence_strategy.w.damping_constant,
         )
@@ -328,11 +328,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
             self.convergence_plots.fetch_data(
                 name="t_rad",
-                value=self.simulation_state.t_rad,
+                value=self.simulation_state.t_radiative,
                 item_type="iterable",
             )
             self.convergence_plots.fetch_data(
-                name="w", value=self.simulation_state.w, item_type="iterable"
+                name="w",
+                value=self.simulation_state.dilution_factor,
+                item_type="iterable",
             )
             self.convergence_plots.fetch_data(
                 name="velocity",
@@ -341,15 +343,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
 
         self.log_plasma_state(
-            self.simulation_state.t_rad,
-            self.simulation_state.w,
+            self.simulation_state.t_radiative,
+            self.simulation_state.dilution_factor,
             self.simulation_state.t_inner,
-            next_t_rad,
-            next_w,
+            next_t_radiative,
+            next_dilution_factor,
             next_t_inner,
         )
-        self.simulation_state.t_rad = next_t_rad
-        self.simulation_state.w = next_w
+        self.simulation_state.t_radiative = next_t_radiative
+        self.simulation_state.dilution_factor = next_dilution_factor
         self.simulation_state.blackbody_packet_source.temperature = next_t_inner
 
         # model.calculate_j_blues() equivalent
@@ -359,7 +361,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.store_previous_properties()
 
         update_properties = dict(
-            t_rad=self.simulation_state.t_rad, w=self.simulation_state.w
+            t_rad=self.simulation_state.t_radiative,
+            w=self.simulation_state.dilution_factor,
         )
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
@@ -431,8 +434,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         while self.iterations_executed < self.iterations - 1:
             self.store_plasma_state(
                 self.iterations_executed,
-                self.simulation_state.w,
-                self.simulation_state.t_rad,
+                self.simulation_state.dilution_factor,
+                self.simulation_state.t_radiative,
                 self.plasma.electron_densities,
                 self.simulation_state.t_inner,
             )
@@ -456,8 +459,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         self.store_plasma_state(
             self.iterations_executed,
-            self.simulation_state.w,
-            self.simulation_state.t_rad,
+            self.simulation_state.dilution_factor,
+            self.simulation_state.t_radiative,
             self.plasma.electron_densities,
             self.simulation_state.t_inner,
         )
@@ -485,10 +488,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     def log_plasma_state(
         self,
         t_rad,
-        w,
+        dilution_factor,
         t_inner,
         next_t_rad,
-        next_w,
+        next_dilution_factor,
         next_t_inner,
         log_sampling=5,
     ):
@@ -517,8 +520,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
         plasma_state_log["t_rad"] = t_rad
         plasma_state_log["next_t_rad"] = next_t_rad
-        plasma_state_log["w"] = w
-        plasma_state_log["next_w"] = next_w
+        plasma_state_log["w"] = dilution_factor
+        plasma_state_log["next_w"] = next_dilution_factor
         plasma_state_log.columns.name = "Shell No."
 
         if is_notebook():

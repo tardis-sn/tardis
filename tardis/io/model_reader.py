@@ -1,23 +1,23 @@
 # reading different model files
 
+import logging
+import warnings
+
+import h5py
+import numpy as np
+import pandas as pd
+from astropy import units as u
+from numpy import recfromtxt
+from radioactivedecay import Nuclide
+from radioactivedecay.utils import Z_DICT, elem_to_Z
+
 from tardis.io.configuration.config_reader import ConfigurationNameSpace
 from tardis.montecarlo.base import MontecarloTransport
 from tardis.montecarlo.packet_source import (
     BlackBodySimpleSource,
     BlackBodySimpleSourceRelativistic,
 )
-from tardis.util.base import parse_quantity, is_valid_nuclide_or_elem
-
-import warnings
-import numpy as np
-from numpy import recfromtxt, genfromtxt
-import pandas as pd
-from astropy import units as u
-from radioactivedecay import Nuclide
-from radioactivedecay.utils import Z_DICT, elem_to_Z
-import h5py
-
-import logging
+from tardis.util.base import is_valid_nuclide_or_elem, parse_quantity
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -75,7 +75,7 @@ def read_density_file(filename, filetype):
     if invalid_volume_mask.sum() > 0:
         message = "\n".join(
             [
-                f"cell {i:d}: v_inner {v_inner_i:s}, v_outer " f"{v_outer_i:s}"
+                f"cell {i:d}: v_inner {v_inner_i:s}, v_outer {v_outer_i:s}"
                 for i, v_inner_i, v_outer_i in zip(
                     np.arange(len(v_outer))[invalid_volume_mask],
                     v_inner[invalid_volume_mask],
@@ -116,7 +116,6 @@ def read_abundances_file(
     outer_boundary_index : int
         index of the outer shell, default None
     """
-
     file_parsers = {
         "simple_ascii": read_simple_ascii_abundances,
         "artis": read_simple_ascii_abundances,
@@ -215,7 +214,6 @@ def read_simple_ascii_density(fname):
     data : pandas.DataFrame
         data frame containing index, velocity (in km/s) and density
     """
-
     with open(fname) as fh:
         time_of_model_string = fh.readline().strip()
         time_of_model = parse_quantity(time_of_model_string)
@@ -253,7 +251,6 @@ def read_artis_density(fname):
     data : pandas.DataFrame
         data frame containing index, velocity (in km/s) and density
     """
-
     with open(fname) as fh:
         for i, line in enumerate(open(fname)):
             if i == 0:
@@ -389,7 +386,6 @@ def read_cmfgen_composition(fname, delimiter=r"\s+"):
     fname : str
         filename of the csv file
     """
-
     warnings.warn(
         "The current CMFGEN model parser is deprecated", DeprecationWarning
     )
@@ -414,7 +410,6 @@ def read_csv_composition(fname, delimiter=r"\s+"):
     fname : str
         filename of the csv file
     """
-
     return read_csv_isotope_abundances(
         fname, delimiter=delimiter, skip_columns=0, skip_rows=[1]
     )
@@ -458,7 +453,6 @@ def read_csv_isotope_abundances(
     abundances : pandas.DataFrame
     isotope_abundance : pandas.MultiIndex
     """
-
     df = pd.read_csv(
         fname, comment="#", sep=delimiter, skiprows=skip_rows, index_col=0
     )
@@ -506,7 +500,6 @@ def parse_csv_abundances(csvy_data):
     abundances : pandas.DataFrame
     isotope_abundance : pandas.MultiIndex
     """
-
     abundance_col_names = [
         name for name in csvy_data.columns if is_valid_nuclide_or_elem(name)
     ]
@@ -557,7 +550,6 @@ def transport_to_dict(transport):
     v_packet_settings : dict
     virtual_spectrum_spawn_range : dict
     """
-
     transport_dict = {
         "Edotlu_estimator": transport.Edotlu_estimator,
         "bf_heating_estimator": transport.bf_heating_estimator,
@@ -630,7 +622,6 @@ def store_transport_to_hdf(transport, fname):
     transport : tardis.montecarlo.MontecarloTransport
     filename : str
     """
-
     with h5py.File(fname, "a") as f:
         transport_group = f.require_group("transport")
         transport_group.clear()
@@ -681,7 +672,6 @@ def transport_from_hdf(fname):
     -------
     new_transport : tardis.montecarlo.MontecarloTransport
     """
-
     d = {}
 
     # Loading data from hdf file
@@ -866,72 +856,3 @@ def store_model_to_hdf(model, fname):
                 model_group.create_dataset(key + "_unit", data=value[1])
             else:
                 model_group.create_dataset(key, data=value)
-
-
-def model_from_hdf(fname):
-    """
-    Creates a SimulationState object using data stored in a hdf file.
-
-    Parameters
-    ----------
-    fname : str
-
-    Returns
-    -------
-    new_model : tardis.model.SimulationState
-    """
-
-    from tardis.model import SimulationState
-
-    d = {}
-
-    # Loading data from hdf file
-    with h5py.File(fname, "r") as f:
-        model_group = f["model"]
-        for key, value in model_group.items():
-            if not key.endswith("_unit"):
-                if type(value) == h5py._hl.dataset.Dataset:
-                    if isinstance(value[()], bytes):
-                        d[key] = value[()].decode("utf-8")
-                    else:
-                        d[key] = value[()]
-                else:
-                    data_inner = {}
-                    for key_inner, value_inner in value.items():
-                        if isinstance(value_inner[()], bytes):
-                            data_inner[key] = value_inner[()].decode("utf-8")
-                        else:
-                            data_inner[key] = value_inner[()]
-                        data_inner[key_inner] = value_inner[()]
-                    d[key] = data_inner
-
-        for key, value in model_group.items():
-            if key.endswith("_unit"):
-                d[key[:-5]] = [d[key[:-5]], value[()]]
-
-    # Converting cgs data to astropy quantities
-    for key, value in d.items():
-        if key.endswith("_cgs"):
-            d[key] = u.Quantity(value[0], unit=u.Unit(value[1].decode("utf-8")))
-
-    homologous_density = HomologousDensity(
-        d["homologous_density"]["density_0"], d["homologous_density"]["time_0"]
-    )
-
-    new_model = SimulationState(
-        velocity=d["velocity_cgs"],
-        homologous_density=homologous_density,
-        abundance=d["abundance"],
-        isotope_abundance=None,
-        time_explosion=d["time_explosion_cgs"],
-        t_inner=d["t_inner_cgs"],
-        t_radiative=d["t_radiative_cgs"],
-        dilution_factor=d["dilution_factor"],
-        v_boundary_inner=d["v_boundary_inner_cgs"],
-        v_boundary_outer=d["v_boundary_outer_cgs"],
-    )
-
-    new_model.t_rad = d["t_rad_cgs"]
-    new_model.w = d["w"]
-
-    return new_model
