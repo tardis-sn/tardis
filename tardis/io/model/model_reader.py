@@ -1,4 +1,7 @@
-# reading different model files
+import logging
+
+import h5py
+from astropy import units as u
 
 from tardis.io.configuration.config_reader import ConfigurationNameSpace
 from tardis.montecarlo.base import MontecarloTransport
@@ -6,11 +9,6 @@ from tardis.montecarlo.packet_source import (
     BlackBodySimpleSource,
     BlackBodySimpleSourceRelativistic,
 )
-from tardis.io.model.density import calculate_density_after_time
-from astropy import units as u
-import h5py
-
-import logging
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -31,7 +29,6 @@ def transport_to_dict(transport):
     v_packet_settings : dict
     virtual_spectrum_spawn_range : dict
     """
-
     transport_dict = {
         "Edotlu_estimator": transport.Edotlu_estimator,
         "bf_heating_estimator": transport.bf_heating_estimator,
@@ -104,7 +101,6 @@ def store_transport_to_hdf(transport, fname):
     transport : tardis.montecarlo.MontecarloTransport
     filename : str
     """
-
     with h5py.File(fname, "a") as f:
         transport_group = f.require_group("transport")
         transport_group.clear()
@@ -155,7 +151,6 @@ def transport_from_hdf(fname):
     -------
     new_transport : tardis.montecarlo.MontecarloTransport
     """
-
     d = {}
 
     # Loading data from hdf file

@@ -8,6 +8,18 @@ from tardis.model.matter.decay import IsotopicMassFraction
 
 
 def compile_rd_isotope_masses():
+    """
+    Compiles the masses of isotopes from the default data in RD_DEFAULT_DATA.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    pandas.Series
+        A series containing the masses of isotopes, indexed by atomic number and mass number.
+    """
     atomic_numbers = []
     mass_numbers = []
     nuclide_masses = []
