@@ -1,7 +1,6 @@
-from tardis.io.model.model_reader import simulation_state_to_dict
-
-
 import h5py
+
+from tardis.io.model.model_reader import simulation_state_to_dict
 
 
 def store_simulation_state_to_hdf(simulation_state, fname):
@@ -10,8 +9,8 @@ def store_simulation_state_to_hdf(simulation_state, fname):
 
     Parameters
     ----------
-    model : tardis.model.SimulationState
-    filename : str
+    simulation_state : tardis.model.SimulationState
+    fname : str
     """
     with h5py.File(fname, "a") as f:
         simulation_state_group = f.require_group("simulation_state")
