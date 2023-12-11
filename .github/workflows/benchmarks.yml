@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - master
+
   pull_request_target:
     branches:
-      - '*'
+      - master
+
     types:
       - opened
       - reopened
@@ -38,10 +40,10 @@ jobs:
       - name: Checkout pull/${{ github.event.number }}
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.sha }}
           fetch-depth: 0
         if: github.event_name == 'pull_request_target'
-      
+     
       - name: Restore Atom Data
         uses: actions/cache/restore@v3
         id: atom-data-restore
@@ -62,16 +64,26 @@ jobs:
         with:
           path: benchmarks/data/kurucz_cd23_chianti_H_He.h5
           key: atom-data
+      
+      - name: Setup Mamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-name: benchmark
+          init-shell: >-
+            bash
+          create-args: >-
+            python
+            asv
+            mamba
 
       - name: Install asv
-        run: pip install asv==0.5.*
+        run: pip install asv
 
       - name: Accept all asv questions
         run: asv machine --yes
       
       - name: Run benchmarks for last 5 commits if not PR
         if: github.event_name != 'pull_request_target'
-        continue-on-error: true
         run: |
           git log -n 5  --pretty=format:"%H" >> tag_commits.txt
           asv run HASHFILE:tag_commits.txt | tee asv-output.log  
@@ -79,7 +91,7 @@ jobs:
             echo "Some benchmarks have failed!"
             exit 1
           fi
-          
+
       - name: Generate Graphs and HTML
         if: github.event_name != 'pull_request_target'
         run: asv publish
