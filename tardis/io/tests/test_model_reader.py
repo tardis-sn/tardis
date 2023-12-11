@@ -1,17 +1,16 @@
-import os
-from pathlib import Path
-
-from astropy import units as u
+import h5py
 import numpy as np
 import pytest
-import h5py
+from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
+from tardis.io.model.hdf import store_simulation_state_to_hdf
 from tardis.io.model.model_reader import (
     simulation_state_to_dict,
-    transport_to_dict,
     store_transport_to_hdf,
+    transport_to_dict,
 )
+from tardis.io.model.readers.artis import read_artis_density
 from tardis.io.model.readers.cmfgen import (
     read_cmfgen_composition,
     read_cmfgen_density,
@@ -21,8 +20,6 @@ from tardis.io.model.readers.generic_readers import (
     read_simple_ascii_abundances,
     read_uniform_abundances,
 )
-from tardis.io.model.hdf import store_model_to_hdf
-from tardis.io.model.readers.artis import read_artis_density
 
 
 @pytest.fixture
@@ -215,43 +212,51 @@ def test_model_to_dict(simulation_verysimple):
 def test_store_model_to_hdf(simulation_verysimple, tmp_path):
     simulation_state = simulation_verysimple.simulation_state
 
-    fname = tmp_path / "model.h5"
+    fname = tmp_path / "simulation_state.h5"
 
     # Store model object
-    store_model_to_hdf(simulation_state, fname)
+    store_simulation_state_to_hdf(simulation_state, fname)
 
     # Check file contents
     with h5py.File(fname) as f:
         assert np.array_equal(
-            f["model/velocity_cgs"], simulation_state.velocity.cgs.value
+            f["simulation_state/velocity_cgs"],
+            simulation_state.velocity.cgs.value,
         )
-        assert np.array_equal(f["model/abundance"], simulation_state.abundance)
         assert np.array_equal(
-            f["model/time_explosion_cgs"],
+            f["simulation_state/abundance"], simulation_state.abundance
+        )
+        assert np.array_equal(
+            f["simulation_state/time_explosion_cgs"],
             simulation_state.time_explosion.cgs.value,
         )
         assert np.array_equal(
-            f["model/t_inner_cgs"], simulation_state.t_inner.cgs.value
+            f["simulation_state/t_inner_cgs"],
+            simulation_state.t_inner.cgs.value,
         )
         assert np.array_equal(
-            f["model/t_radiative_cgs"], simulation_state.t_radiative.cgs.value
+            f["simulation_state/t_radiative_cgs"],
+            simulation_state.t_radiative.cgs.value,
         )
         assert np.array_equal(
-            f["model/dilution_factor"], simulation_state.dilution_factor
+            f["simulation_state/dilution_factor"],
+            simulation_state.dilution_factor,
         )
         assert np.array_equal(
-            f["model/v_boundary_inner_cgs"],
+            f["simulation_state/v_boundary_inner_cgs"],
             simulation_state.v_boundary_inner.cgs.value,
         )
         assert np.array_equal(
-            f["model/v_boundary_outer_cgs"],
+            f["simulation_state/v_boundary_outer_cgs"],
             simulation_state.v_boundary_outer.cgs.value,
         )
         assert np.array_equal(
-            f["model/r_inner_cgs"], simulation_state.r_inner.cgs.value
+            f["simulation_state/r_inner_cgs"],
+            simulation_state.r_inner.cgs.value,
         )
         assert np.array_equal(
-            f["model/density_cgs"], simulation_state.density.cgs.value
+            f["simulation_state/density_cgs"],
+            simulation_state.density.cgs.value,
         )
 
 

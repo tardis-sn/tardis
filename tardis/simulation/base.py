@@ -301,12 +301,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         # calculate_next_plasma_state equivalent
         # FIXME: Should convergence strategy have its own class?
-        next_t_rad = self.damped_converge(
+        next_t_radiative = self.damped_converge(
             self.simulation_state.t_radiative,
             estimated_t_rad,
             self.convergence_strategy.t_rad.damping_constant,
         )
-        next_w = self.damped_converge(
+        next_dilution_factor = self.damped_converge(
             self.simulation_state.dilution_factor,
             estimated_w,
             self.convergence_strategy.w.damping_constant,
@@ -348,12 +348,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.simulation_state.t_radiative,
             self.simulation_state.dilution_factor,
             self.simulation_state.t_inner,
-            next_t_rad,
-            next_w,
+            next_t_radiative,
+            next_dilution_factor,
             next_t_inner,
         )
-        self.simulation_state.t_radiative = next_t_rad
-        self.simulation_state.dilution_factor = next_w
+        self.simulation_state.t_radiative = next_t_radiative
+        self.simulation_state.dilution_factor = next_dilution_factor
         self.simulation_state.blackbody_packet_source.temperature = next_t_inner
 
         # model.calculate_j_blues() equivalent

@@ -152,7 +152,7 @@ class SimulationState(HDFWriterMixin):
             self.radiation_field_state.t_radiative = new_t_radiative
         else:
             raise ValueError(
-                "Trying to set t_radiative for unmatching number" "of shells."
+                "Trying to set t_radiative for different number of shells."
             )
 
     @property
@@ -250,6 +250,15 @@ class SimulationState(HDFWriterMixin):
             geometry,
             density,
         ) = parse_structure_config(config, time_explosion)
+
+        nuclide_mass_fraction = parse_abundance_config(
+            config, geometry, time_explosion
+        )
+
+        # using atom_data.mass.copy() to ensure that the original atom_data is not modified
+        composition = Composition(
+            density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
+        )
 
         nuclide_mass_fraction = parse_abundance_config(
             config, geometry, time_explosion

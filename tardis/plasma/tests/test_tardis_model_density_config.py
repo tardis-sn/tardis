@@ -1,3 +1,5 @@
+import numpy.testing as npt
+import pandas.testing as pdt
 import pytest
 
 from tardis.io.configuration.config_reader import Configuration
@@ -28,17 +30,21 @@ def raw_plasma(
     )
 
 
-def test_electron_densities(raw_plasma, snapshot_np):
-    assert snapshot_np == raw_plasma.electron_densities[8]
-    assert snapshot_np == raw_plasma.electron_densities[3]
+def test_electron_densities(raw_plasma, regression_data):
+    actual = raw_plasma.electron_densities
+    expected = regression_data.sync_ndarray(actual)
+    npt.assert_allclose(actual, expected)
 
 
-def test_isotope_number_densities(request, raw_simulation_state, snapshot_np):
-    composition = raw_simulation_state.composition
-    assert snapshot_np == composition.isotopic_number_density.loc[(28, 56), 0]
-    assert snapshot_np == composition.isotopic_number_density.loc[(28, 58), 1]
+def test_isotope_number_densities(
+    request, raw_simulation_state, regression_data
+):
+    actual = raw_simulation_state.composition.isotopic_number_density
+    expected = regression_data.sync_dataframe(actual)
+    pdt.assert_frame_equal(actual, expected)
 
 
-def test_t_rad(raw_plasma, snapshot_np):
-    assert snapshot_np == raw_plasma.t_rad[5]
-    assert snapshot_np == raw_plasma.t_rad[3]
+def test_t_rad(raw_plasma, regression_data):
+    actual = raw_plasma.t_rad
+    expected = regression_data.sync_ndarray(actual)
+    npt.assert_array_equal(actual, expected)
