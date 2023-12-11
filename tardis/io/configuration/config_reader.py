@@ -1,14 +1,15 @@
-import os
-import logging
 import copy
+import logging
+import os
 import pprint
-import yaml
+
 import pandas as pd
+import yaml
 from astropy import units as u
 
 from tardis.io.configuration import config_validator
-from tardis.io.util import YAMLLoader, yaml_load_file, HDFWriterMixin
 from tardis.io.model.readers.csvy import load_yaml_from_csvy
+from tardis.io.util import HDFWriterMixin, YAMLLoader, yaml_load_file
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -48,7 +49,7 @@ class ConfigurationNameSpace(dict):
         """
         try:
             yaml_dict = yaml_load_file(fname)
-        except IOError as e:
+        except OSError as e:
             logger.critical(f"No config file named: {fname}")
             raise e
 
@@ -68,7 +69,6 @@ class ConfigurationNameSpace(dict):
         -------
         `tardis.config_reader.Configuration`
         """
-
         return cls(config_validator.validate_dict(config_dict))
 
     def __init__(self, value=None):
@@ -163,7 +163,6 @@ class ConfigurationNameSpace(dict):
         value :
             value to set the parameter with it
         """
-
         config_item_path = config_item_string.split(".")
         if len(config_item_path) == 1:
             self[config_item_path[0]] = value
@@ -215,7 +214,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
             yaml_dict = yaml_load_file(
                 fname, loader=kwargs.pop("loader", YAMLLoader)
             )
-        except IOError as e:
+        except OSError as e:
             logger.critical(f"No config file named: {fname}")
             raise e
 
@@ -245,7 +244,6 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         -------
         `tardis.config_reader.Configuration`
         """
-
         if validate:
             validated_config_dict = config_validator.validate_dict(config_dict)
         else:
@@ -344,10 +342,8 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
 
         Parameters
         ----------
-
         model_section : dict
         """
-
         if model_section["structure"]["type"] == "specific":
             start_velocity = model_section["structure"]["velocity"]["start"]
             stop_velocity = model_section["structure"]["velocity"]["stop"]
@@ -407,10 +403,8 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
 
         Parameters
         ----------
-
         montecarlo_section : dict
         """
-
         if montecarlo_section["convergence_strategy"]["type"] == "damped":
             montecarlo_section[
                 "convergence_strategy"
@@ -423,9 +417,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 "you need to implement your specific convergence treatment"
             )
         else:
-            raise ValueError(
-                'convergence_strategy is not "damped" ' 'or "custom"'
-            )
+            raise ValueError('convergence_strategy is not "damped" or "custom"')
 
     @staticmethod
     def parse_convergence_section(convergence_section_dict):
@@ -437,7 +429,6 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         convergence_section_dict : dict
             dictionary
         """
-
         convergence_parameters = ["damping_constant", "threshold"]
 
         for convergence_variable in ["t_inner", "t_rad", "w"]:

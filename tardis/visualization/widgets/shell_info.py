@@ -1,5 +1,5 @@
 from tardis.base import run_tardis
-from tardis.io.atom_data.util import download_atom_data
+from tardis.io.atom_data.atom_web_download import download_atom_data
 from tardis.util.base import (
     atomic_number2element_symbol,
     species_tuple_to_string,
@@ -18,7 +18,7 @@ class BaseShellInfo:
     def __init__(
         self,
         t_radiative,
-        w,
+        dilution_factor,
         abundance,
         number_density,
         ion_number_density,
@@ -30,7 +30,7 @@ class BaseShellInfo:
         ----------
         t_radiative : array_like
             Radiative Temperature of each shell of simulation
-        w : array_like
+        dilution_factor : array_like
             Dilution Factor (W) of each shell of simulation model
         abundance : pandas.DataFrame
             Fractional abundance of elements where row labels are atomic number
@@ -46,7 +46,7 @@ class BaseShellInfo:
             number, ion number, level number) and column labels are shell number
         """
         self.t_radiative = t_radiative
-        self.w = w
+        self.dilution_factor = dilution_factor
         self.abundance = abundance
         self.number_density = number_density
         self.ion_number_density = ion_number_density
@@ -62,7 +62,10 @@ class BaseShellInfo:
             simulation model
         """
         shells_temp_w = pd.DataFrame(
-            {"Rad. Temp.": self.t_radiative, "W": self.w}
+            {
+                "Rad. Temp.": self.t_radiative,
+                "Dilution Factor": self.dilution_factor,
+            }
         )
         shells_temp_w.index = range(
             1, len(self.t_radiative) + 1

@@ -190,7 +190,7 @@ def get_nuclear_lines_database(
     pandas DataFrame
         The decay radiation lines
     """
-    decay_radiation_db = pd.read_hdf(path, "decay_data")
+    decay_radiation_db = pd.read_hdf(path, "decay_radiation_data")
     return decay_radiation_db
 
 

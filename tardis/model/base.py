@@ -1,13 +1,18 @@
-import os
-
-from pathlib import Path
 import logging
+import os
+from pathlib import Path
+
 import numpy as np
-import pandas as pd
 from astropy import units as u
+
 from tardis import constants
-import radioactivedecay as rd
-from radioactivedecay.utils import Z_DICT
+from tardis.io.configuration.config_reader import Configuration
+from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.model.readers.csvy import (
+    load_csvy,
+)
+from tardis.io.util import HDFWriterMixin
+from tardis.model.matter.composition import Composition
 from tardis.model.parse_input import (
     parse_abundance_config,
     parse_csvy_composition,
@@ -17,24 +22,9 @@ from tardis.model.parse_input import (
     parse_structure_config,
     parse_packet_source,
 )
-from tardis.model.matter.composition import Composition
-from tardis.util.base import is_valid_nuclide_or_elem
-
-
 from tardis.montecarlo.packet_source import BlackBodySimpleSource
-
 from tardis.model.radiation_field_state import DiluteThermalRadiationFieldState
-
-
-from tardis.io.model.readers.csvy import (
-    load_csvy,
-)
-
-
-from tardis.io.configuration.config_validator import validate_dict
-from tardis.io.configuration.config_reader import Configuration
-from tardis.io.util import HDFWriterMixin
-
+from tardis.util.base import is_valid_nuclide_or_elem
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +94,7 @@ class SimulationState(HDFWriterMixin):
         "r_inner",
         "time_explosion",
     ]
-    hdf_name = "model"
+    hdf_name = "simulation_state"
 
     def __init__(
         self,
@@ -162,7 +152,7 @@ class SimulationState(HDFWriterMixin):
             self.radiation_field_state.t_radiative = new_t_radiative
         else:
             raise ValueError(
-                "Trying to set t_radiative for unmatching number" "of shells."
+                "Trying to set t_radiative for different number of shells."
             )
 
     @property
@@ -266,7 +256,15 @@ class SimulationState(HDFWriterMixin):
         )
 
         # using atom_data.mass.copy() to ensure that the original atom_data is not modified
-        # sep
+        composition = Composition(
+            density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
+        )
+
+        nuclide_mass_fraction = parse_abundance_config(
+            config, geometry, time_explosion
+        )
+
+        # using atom_data.mass.copy() to ensure that the original atom_data is not modified
         composition = Composition(
             density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
         )

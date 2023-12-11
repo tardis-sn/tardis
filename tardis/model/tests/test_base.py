@@ -7,7 +7,7 @@ from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
-from tardis.model.matter.decay import IsotopeAbundances
+from tardis.model.matter.decay import IsotopicMassFraction
 
 
 class TestModelFromPaper1Config:
@@ -329,7 +329,7 @@ def simple_isotope_abundance():
         [(6, 14), (12, 28)], names=["atomic_number", "mass_number"]
     )
     abundance = [[0.2] * 20] * 2
-    return IsotopeAbundances(abundance, index=index)
+    return IsotopicMassFraction(abundance, index=index)
 
 
 @pytest.mark.parametrize(
@@ -390,14 +390,14 @@ def test_composition_elemental_number_density(
         ((20, 19), 1.3464444e29),
     ],
 )
-def test_model_state_mass(simulation_verysimple, index, expected):
+def test_simulation_state_mass(simulation_verysimple, index, expected):
     simulation_state = simulation_verysimple.simulation_state
     volume = simulation_state.geometry.volume
-    element_cell_masses = (
+    elemental_cell_masses = (
         simulation_state.composition.calculate_elemental_cell_masses(volume)
     )
 
-    assert_almost_equal(element_cell_masses.loc[index], expected, decimal=-27)
+    assert_almost_equal(elemental_cell_masses.loc[index], expected, decimal=-27)
 
 
 @pytest.fixture
@@ -466,12 +466,14 @@ def to_hdf_buffer(hdf_file_path, simulation_verysimple):
     simulation_verysimple.simulation_state.to_hdf(hdf_file_path, overwrite=True)
 
 
-model_scalar_attrs = ["t_inner"]
+simulation_state_scalar_attrs = ["t_inner"]
 
 
-@pytest.mark.parametrize("attr", model_scalar_attrs)
-def test_hdf_model_scalars(hdf_file_path, simulation_verysimple, attr):
-    path = os.path.join("model", "scalars")
+@pytest.mark.parametrize("attr", simulation_state_scalar_attrs)
+def test_hdf_simulation_state_scalars(
+    hdf_file_path, simulation_verysimple, attr
+):
+    path = "simulation_state/scalars"
     expected = pd.read_hdf(hdf_file_path, path)[attr]
     actual = getattr(simulation_verysimple.simulation_state, attr)
     if hasattr(actual, "cgs"):
@@ -479,12 +481,14 @@ def test_hdf_model_scalars(hdf_file_path, simulation_verysimple, attr):
     assert_almost_equal(actual, expected)
 
 
-model_nparray_attrs = ["dilution_factor", "v_inner", "v_outer"]
+simulation_state_nparray_attrs = ["dilution_factor", "v_inner", "v_outer"]
 
 
-@pytest.mark.parametrize("attr", model_nparray_attrs)
-def test_hdf_model_nparray(hdf_file_path, simulation_verysimple, attr):
-    path = os.path.join("model", attr)
+@pytest.mark.parametrize("attr", simulation_state_nparray_attrs)
+def test_hdf_simulation_state_nparray(
+    hdf_file_path, simulation_verysimple, attr
+):
+    path = f"simulation_state/{attr}"
     expected = pd.read_hdf(hdf_file_path, path)
     actual = getattr(simulation_verysimple.simulation_state, attr)
     if hasattr(actual, "cgs"):
