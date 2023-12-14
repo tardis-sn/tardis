@@ -1,10 +1,10 @@
-import numpy as np
 import warnings
 
+import numpy as np
 from astropy import units as u
-from tardis import constants as const
 from scipy.special import zeta
 
+from tardis import constants as const
 from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
@@ -75,7 +75,6 @@ class MonteCarloTransportState(HDFWriterMixin):
         t_radiative : astropy.units.Quantity (float)
         dilution_factor : numpy.ndarray (float)
         """
-
         estimated_t_radiative = (
             T_RADIATIVE_ESTIMATOR_CONSTANT
             * self.estimators.nu_bar_estimator
