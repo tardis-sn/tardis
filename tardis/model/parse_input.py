@@ -6,6 +6,7 @@ import pandas as pd
 from astropy import units as u
 
 from tardis import constants as const
+from tardis import constants as const
 from tardis.io.model.parse_density_configuration import (
     calculate_density_after_time,
     parse_config_v1_density,

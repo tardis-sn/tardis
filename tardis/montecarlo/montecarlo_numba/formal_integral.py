@@ -509,6 +509,7 @@ class FormalIntegrator(object):
         ]
         q_ul = tmp.set_index(transitions_index)
         t = simulation_state.time_explosion.value
+        t = simulation_state.time_explosion.value
         lines = self.atomic_data.lines.set_index("line_id")
         wave = lines.wavelength_cm.loc[
             transitions.transition_line_id
