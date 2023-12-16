@@ -94,8 +94,9 @@ class RegressionData:
             with fpath.open("r") as fh:
                 return fh.read()
 
-    def sync_hdf_store(self, tardis_module):
-        self.fname = f"{self.fname_prefix}.h5"
+    def sync_hdf_store(self, tardis_module, update_fname=True):
+        if update_fname:
+            self.fname = f"{self.fname_prefix}.h5"
         if self.enable_generate_reference:
             self.fpath.parent.mkdir(parents=True, exist_ok=True)
             with pd.HDFStore(self.fpath, mode="w") as store:
