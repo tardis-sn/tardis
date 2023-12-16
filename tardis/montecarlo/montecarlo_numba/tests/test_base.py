@@ -19,8 +19,6 @@ def test_montecarlo_radial1d():
 
 @pytest.fixture(scope="function")
 def montecarlo_main_loop_config(
-@pytest.fixture(scope="function")
-def montecarlo_main_loop_config(
     config_montecarlo_1e5_verysimple,
 ):
     montecarlo_configuration.LEGACY_MODE_ENABLED = True
