@@ -181,7 +181,7 @@ def tardis_ref_data(tardis_ref_path, generate_reference):
         yield store
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def tardis_config_verysimple():
     return yaml_load_file(
         "tardis/io/configuration/tests/data/tardis_configv1_verysimple.yml",
@@ -189,7 +189,7 @@ def tardis_config_verysimple():
     )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def tardis_config_verysimple_nlte():
     return yaml_load_file(
         "tardis/io/configuration/tests/data/tardis_configv1_nlte.yml",
