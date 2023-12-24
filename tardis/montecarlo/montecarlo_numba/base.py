@@ -165,7 +165,7 @@ def montecarlo_main_loop(
     output_energies = np.empty(no_of_packets, dtype=np.float64)
 
     last_interaction_in_nus = np.empty(no_of_packets, dtype=np.float64)
-    last_interaction_types = -np.ones(no_of_packets, dtype=np.int64)
+    last_interaction_types = -1 * np.ones(no_of_packets, dtype=np.int64)
     last_line_interaction_in_ids = -np.ones(no_of_packets, dtype=np.int64)
     last_line_interaction_out_ids = -np.ones(no_of_packets, dtype=np.int64)
     last_line_interaction_shell_ids = -np.ones(no_of_packets, dtype=np.int64)
