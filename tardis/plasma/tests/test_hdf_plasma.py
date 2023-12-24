@@ -69,7 +69,7 @@ SCALARS_LIST = ["time_explosion", "link_t_rad_t_electron"]
 def test_hdf_scalars(simulation_verysimple, attr, regression_data):
     actual = getattr(simulation_verysimple.plasma, attr)
     if hasattr(actual, "cgs"):
-        actual = np.array(actual.cgs.value)
+        actual = actual.cgs.value
     expected = regression_data.sync_ndarray(actual)
     npt.assert_allclose(actual, expected)
 
