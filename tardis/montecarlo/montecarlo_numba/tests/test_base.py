@@ -109,11 +109,15 @@ def test_montecarlo_main_loop_vpacket_log(
         "/simulation/transport/virt_packet_energies"
     ]
 
-    transport_state = montecarlo_main_loop_simulation.transport.transport_state
+    transport = montecarlo_main_loop_simulation.transport
+    transport_state = transport.transport_state
+
     actual_energy = transport_state.packet_collection.output_energies
     actual_nu = transport_state.packet_collection.output_nus
     actual_nu_bar_estimator = transport_state.estimators.nu_bar_estimator
     actual_j_estimator = transport_state.estimators.j_estimator
+    actual_vpacket_log_nus = transport.virt_packet_nus
+    actual_vpacket_log_energies = transport.virt_packet_energies
 
     expected_hdf_store.close()
     # Compare
@@ -126,10 +130,8 @@ def test_montecarlo_main_loop_vpacket_log(
     npt.assert_allclose(
         actual_j_estimator, expected_j_estimator, rtol=1e-12, atol=1e-15
     )
-    npt.assert_allclose(
-        actual_energy.value, expected_energy, rtol=1e-12, atol=1e-15
-    )
-    npt.assert_allclose(actual_nu.value, expected_nu, rtol=1e-12, atol=1e-15)
+    npt.assert_allclose(actual_energy, expected_energy, rtol=1e-12, atol=1e-15)
+    npt.assert_allclose(actual_nu, expected_nu, rtol=1e-12, atol=1e-15)
     npt.assert_allclose(
         actual_vpacket_log_nus, expected_vpacket_log_nus, rtol=1e-12, atol=1e-15
     )
