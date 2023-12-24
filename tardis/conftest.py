@@ -10,9 +10,6 @@ from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import *
 from tardis.tests.fixtures.regression_data import regression_data
-from tardis.util.syrupy_extensions import (
-    SingleFileSanitizedNames,
-)
 
 # ensuring that regression_data is not removed by ruff
 assert regression_data is not None
@@ -235,13 +232,3 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
     sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
     sim.iterate(4000)
     return sim
-
-
-# -------------------------------------------------------------------------
-# fixtures and plugins for syrupy/regression data testing
-# -------------------------------------------------------------------------
-
-
-@pytest.fixture
-def singlefilesanitized():
-    return SingleFileSanitizedNames

@@ -164,11 +164,10 @@ class TestPlasma:
         self,
         chianti_he_db_fpath,
         config,
-        tardis_ref_data,
     ):
         config["atom_data"] = str(chianti_he_db_fpath)
         sim = Simulation.from_config(config)
-        self.regression_data.sync_hdf_store(sim.plasma)
+        self.regression_data.sync_hdf_store(sim.plasma, update_fname=False)
         return sim.plasma
 
     @pytest.mark.parametrize("attr", combined_properties)

@@ -1,10 +1,7 @@
-import pytest
-import pandas as pd
+from copy import deepcopy
 
 import numpy.testing as npt
-from copy import deepcopy
-from tardis.base import run_tardis
-from pandas.testing import assert_frame_equal
+import pytest
 
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
@@ -107,12 +104,11 @@ def test_montecarlo_main_loop(
         "/simulation/transport/j_estimator"
     ]
     expected_hdf_store.close()
-    actual_energy = montecarlo_main_loop_simulation.transport.output_energy
-    actual_nu = montecarlo_main_loop_simulation.transport.output_nu
-    actual_nu_bar_estimator = (
-        montecarlo_main_loop_simulation.transport.nu_bar_estimator
-    )
-    actual_j_estimator = montecarlo_main_loop_simulation.transport.j_estimator
+    transport_state = montecarlo_main_loop_simulation.transport.transport_state
+    actual_energy = transport_state.packet_collection.output_energies
+    actual_nu = transport_state.packet_collection.output_nus
+    actual_nu_bar_estimator = transport_state.estimators.nu_bar_estimator
+    actual_j_estimator = transport_state.estimators.j_estimator
 
     # Compare
     npt.assert_allclose(
@@ -123,7 +119,6 @@ def test_montecarlo_main_loop(
     npt.assert_allclose(actual_nu, expected_nu, rtol=1e-13)
 
 
-@pytest.mark.xfail
 def test_montecarlo_main_loop_vpacket_log(
     montecarlo_main_loop_config,
     regression_data,
@@ -159,27 +154,37 @@ def test_montecarlo_main_loop_vpacket_log(
         "/simulation/transport/virt_packet_energies"
     ]
 
-    actual_energy = (
-        sim.transport.transport_state.packet_collection.output_energies
-    )
-    actual_nu = sim.transport.transport_state.packet_collection.output_nus
-    actual_nu_bar_estimator = (
-        sim.transport.transport_state.estimators.nu_bar_estimator
-    )
-    actual_j_estimator = sim.transport.transport_state.estimators.j_estimator
+    transport = montecarlo_main_loop_simulation.transport
+    transport_state = transport.transport_state
+
+    actual_energy = transport_state.packet_collection.output_energies
+    actual_nu = transport_state.packet_collection.output_nus
+    actual_nu_bar_estimator = transport_state.estimators.nu_bar_estimator
+    actual_j_estimator = transport_state.estimators.j_estimator
+    actual_vpacket_log_nus = transport.virt_packet_nus
+    actual_vpacket_log_energies = transport.virt_packet_energies
+
     expected_hdf_store.close()
     # Compare
     npt.assert_allclose(
-        actual_nu_bar_estimator, expected_nu_bar_estimator, rtol=1e-13
-    )
-    npt.assert_allclose(actual_j_estimator, expected_j_estimator, rtol=1e-13)
-    npt.assert_allclose(actual_energy.value, expected_energy, rtol=1e-13)
-    npt.assert_allclose(actual_nu.value, expected_nu, rtol=1e-13)
-    npt.assert_allclose(
-        actual_vpacket_log_nus, expected_vpacket_log_nus, rtol=1e-13
+        actual_nu_bar_estimator,
+        expected_nu_bar_estimator,
+        rtol=1e-12,
+        atol=1e-15,
     )
     npt.assert_allclose(
-        actual_vpacket_log_energies, expected_vpacket_log_energies, rtol=1e-13
+        actual_j_estimator, expected_j_estimator, rtol=1e-12, atol=1e-15
+    )
+    npt.assert_allclose(actual_energy, expected_energy, rtol=1e-12, atol=1e-15)
+    npt.assert_allclose(actual_nu, expected_nu, rtol=1e-12, atol=1e-15)
+    npt.assert_allclose(
+        actual_vpacket_log_nus, expected_vpacket_log_nus, rtol=1e-12, atol=1e-15
+    )
+    npt.assert_allclose(
+        actual_vpacket_log_energies,
+        expected_vpacket_log_energies,
+        rtol=1e-12,
+        atol=1e-15,
     )
 
 
