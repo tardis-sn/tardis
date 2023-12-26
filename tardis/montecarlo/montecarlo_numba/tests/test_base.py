@@ -6,7 +6,6 @@ import pytest
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
-from tardis.montecarlo.montecarlo_numba.base import montecarlo_radial1d
 from tardis.simulation import Simulation
 
 
@@ -29,50 +28,6 @@ def montecarlo_main_loop_config(
 
     del config_montecarlo_1e5_verysimple["config_dirname"]
     return config_montecarlo_1e5_verysimple
-
-
-@pytest.mark.xfail(reason="To be implemented")
-def test_montecarlo_radial1d(
-    montecarlo_main_loop_config,
-    atomic_dataset,
-):
-    atomic_data = deepcopy(atomic_dataset)
-
-    montecarlo_configuration.ENABLE_VPACKET_TRACKING = True
-
-    sim = Simulation.from_config(
-        montecarlo_main_loop_config, atom_data=atomic_data
-    )
-    transport_state = sim.transport.initialize_transport_state(
-        sim.simulation_state,
-        sim.plasma,
-        no_of_packets=int(1e5),
-        no_of_virtual_packets=3,
-        iteration=0,
-    )
-    montecarlo_radial1d(
-        transport_state,
-        sim.simulation_state.time_explosion,
-        iteration=0,
-        total_iterations=5,
-        show_progress_bars=False,
-    )
-
-    assert True
-    # assert transport_state.no_of_packets == 1e5
-
-
-def test_montecarlo_main_loop(
-    montecarlo_main_loop_config,
-    atomic_dataset,
-    tardis_ref_path,
-    request,
-):
-    montecarlo_configuration.LEGACY_MODE_ENABLED = True
-    # Setup model config from verysimple
-
-    atomic_data = deepcopy(atomic_dataset)
-    return montecarlo_main_loop_config
 
 
 def test_montecarlo_main_loop(
@@ -135,6 +90,8 @@ def test_montecarlo_main_loop_vpacket_log(
     montecarlo_main_loop_simulation.run_convergence()
     montecarlo_main_loop_simulation.run_final()
 
+    assert montecarlo_configuration.ENABLE_VPACKET_TRACKING == True
+
     expected_hdf_store = regression_data.sync_hdf_store(
         montecarlo_main_loop_simulation
     )
@@ -161,8 +118,8 @@ def test_montecarlo_main_loop_vpacket_log(
     actual_nu = transport_state.packet_collection.output_nus
     actual_nu_bar_estimator = transport_state.estimators.nu_bar_estimator
     actual_j_estimator = transport_state.estimators.j_estimator
-    actual_vpacket_log_nus = transport.virt_packet_nus
-    actual_vpacket_log_energies = transport.virt_packet_energies
+    actual_vpacket_log_nus = transport_state.vpacket_tracker.nus
+    actual_vpacket_log_energies = transport_state.vpacket_tracker.energies
 
     expected_hdf_store.close()
     # Compare
@@ -186,57 +143,3 @@ def test_montecarlo_main_loop_vpacket_log(
         rtol=1e-12,
         atol=1e-15,
     )
-
-
-def test_montecarlo_main_loop_vpacket_tracker(
-    montecarlo_main_loop_config,
-    tardis_ref_path,
-    request,
-    atomic_dataset,
-):
-    atomic_dataset = deepcopy(atomic_dataset)
-    montecarlo_main_loop_config.montecarlo.no_of_virtual_packets = 5
-
-    montecarlo_main_loop_simulation = Simulation.from_config(
-        montecarlo_main_loop_config,
-        atom_data=atomic_dataset,
-        virtual_packet_logging=True,
-    )
-
-    montecarlo_main_loop_simulation.run_convergence()
-    montecarlo_main_loop_simulation.run_final()
-
-    compare_fname = os.path.join(
-        tardis_ref_path, "montecarlo_1e5_compare_data.h5"
-    )
-    if request.config.getoption("--generate-reference"):
-        montecarlo_main_loop_simulation.to_hdf(compare_fname, overwrite=True)
-
-    # Load compare data from refdata
-    expected_nu = pd.read_hdf(
-        compare_fname, key="/simulation/transport/output_nu"
-    ).values
-    expected_energy = pd.read_hdf(
-        compare_fname, key="/simulation/transport/output_energy"
-    ).values
-    expected_nu_bar_estimator = pd.read_hdf(
-        compare_fname, key="/simulation/transport/nu_bar_estimator"
-    ).values
-    expected_j_estimator = pd.read_hdf(
-        compare_fname, key="/simulation/transport/j_estimator"
-    ).values
-
-    transport_state = montecarlo_main_loop_simulation.transport.transport_state
-
-    actual_energy = transport_state.packet_collection.output_energies
-    actual_nu = transport_state.packet_collection.output_nus
-    actual_nu_bar_estimator = transport_state.estimators.nu_bar_estimator
-    actual_j_estimator = transport_state.estimators.j_estimator
-
-    # Compare
-    npt.assert_allclose(
-        actual_nu_bar_estimator, expected_nu_bar_estimator, rtol=1e-13
-    )
-    npt.assert_allclose(actual_j_estimator, expected_j_estimator, rtol=1e-13)
-    npt.assert_allclose(actual_energy, expected_energy, rtol=1e-13)
-    npt.assert_allclose(actual_nu, expected_nu, rtol=1e-13)

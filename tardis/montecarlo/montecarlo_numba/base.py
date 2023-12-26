@@ -206,7 +206,7 @@ def montecarlo_main_loop(
         # Get the local estimators for this thread
         local_estimators = estimator_list[thread_id]
 
-        # Get the local estimators for this thread
+        # Get the local v_packet_collection for this thread
         vpacket_collection = vpacket_collections[i]
 
         # RPacket Tracker for this thread
@@ -315,7 +315,7 @@ def montecarlo_main_loop(
                 : vpacket_collection.idx
             ]
 
-            current_start_vpacket_tracker_idx = vpacket_collection.idx
+            current_start_vpacket_tracker_idx = current_end_vpacket_tracker_idx
     else:
         vpacket_tracker = VPacketCollection(
             -1,
@@ -333,6 +333,6 @@ def montecarlo_main_loop(
     return (
         v_packets_energy_hist,
         last_interaction_tracker,
-        vpacket_tracker,
+        vpacket_collections,
         rpacket_trackers,
     )
