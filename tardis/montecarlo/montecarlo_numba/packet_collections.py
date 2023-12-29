@@ -1,12 +1,11 @@
 import numpy as np
+from numba import float64, int64, njit
 from numba.experimental import jitclass
-from numba import njit, float64, int64
 
-
+from tardis.montecarlo import montecarlo_configuration
 from tardis.montecarlo.montecarlo_numba import (
     njit_dict_no_parallel,
 )
-
 
 packet_collection_spec = [
     ("initial_radii", float64[:]),
@@ -226,3 +225,71 @@ class VPacketCollection:
         self.last_interaction_out_id[self.idx] = last_interaction_out_id
         self.last_interaction_shell_id[self.idx] = last_interaction_shell_id
         self.idx += 1
+
+    def finalize_arrays(self):
+        self.nus = self.nus[: self.idx]
+        self.energies = self.energies[: self.idx]
+        self.initial_mus = self.initial_mus[: self.idx]
+        self.initial_rs = self.initial_rs[: self.idx]
+        self.last_interaction_in_nu = self.last_interaction_in_nu[: self.idx]
+        self.last_interaction_type = self.last_interaction_type[: self.idx]
+        self.last_interaction_in_id = self.last_interaction_in_id[: self.idx]
+        self.last_interaction_out_id = self.last_interaction_out_id[: self.idx]
+        self.last_interaction_shell_id = self.last_interaction_shell_id[
+            : self.idx
+        ]
+
+
+@njit(**njit_dict_no_parallel)
+def consolidate_vpacket_tracker(vpacket_collections, spectrum_frequency):
+    vpacket_tracker_length = 0
+    for vpacket_collection in vpacket_collections:
+        vpacket_tracker_length += vpacket_collection.idx
+
+    vpacket_tracker = VPacketCollection(
+        -1,
+        spectrum_frequency,
+        montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
+        montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
+        -1,
+        vpacket_tracker_length,
+    )
+    current_start_vpacket_tracker_idx = 0
+    for vpacket_collection in vpacket_collections:
+        current_end_vpacket_tracker_idx = (
+            current_start_vpacket_tracker_idx + vpacket_collection.idx
+        )
+        vpacket_tracker.nus[
+            current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+        ] = vpacket_collection.nus
+        vpacket_tracker.energies[
+            current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+        ] = vpacket_collection.energies
+        vpacket_tracker.initial_mus[
+            current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+        ] = vpacket_collection.initial_mus
+        vpacket_tracker.initial_rs[
+            current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+        ] = vpacket_collection.initial_rs
+        vpacket_tracker.last_interaction_in_nu[
+            current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+        ] = vpacket_collection.last_interaction_in_nu
+
+        vpacket_tracker.last_interaction_type[
+            current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+        ] = vpacket_collection.last_interaction_type
+
+        vpacket_tracker.last_interaction_in_id[
+            current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+        ] = vpacket_collection.last_interaction_in_id
+
+        vpacket_tracker.last_interaction_out_id[
+            current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+        ] = vpacket_collection.last_interaction_out_id
+
+        vpacket_tracker.last_interaction_shell_id[
+            current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
+        ] = vpacket_collection.last_interaction_shell_id
+
+        current_start_vpacket_tracker_idx = current_end_vpacket_tracker_idx
+    return vpacket_tracker

@@ -6,6 +6,7 @@ from tardis.montecarlo.montecarlo_numba.estimators import Estimators
 from tardis.montecarlo.montecarlo_numba.packet_collections import (
     VPacketCollection,
     initialize_last_interaction_tracker,
+    consolidate_vpacket_tracker,
 )
 
 
@@ -19,9 +20,7 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     NumbaModel,
 )
 
-from tardis.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
-)
+from tardis.montecarlo import montecarlo_configuration
 
 from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
     single_packet_loop,
@@ -232,90 +231,26 @@ def montecarlo_main_loop(
             packet_collection.output_energies[i] = r_packet.energy
             last_interaction_tracker.types[i] = r_packet.last_interaction_type
 
-        vpackets_nus = vpacket_collection.nus[: vpacket_collection.idx]
-        vpackets_energies = vpacket_collection.energies[
-            : vpacket_collection.idx
-        ]
+        vpacket_collection.finalize_arrays()
 
         v_packets_idx = np.floor(
-            (vpackets_nus - spectrum_frequency[0]) / delta_nu
+            (vpacket_collection.nus - spectrum_frequency[0]) / delta_nu
         ).astype(np.int64)
 
         for j, idx in enumerate(v_packets_idx):
-            if (vpackets_nus[j] < spectrum_frequency[0]) or (
-                vpackets_nus[j] > spectrum_frequency[-1]
+            if (vpacket_collection.nus[j] < spectrum_frequency[0]) or (
+                vpacket_collection.nus[j] > spectrum_frequency[-1]
             ):
                 continue
-            v_packets_energy_hist[idx] += vpackets_energies[j]
+            v_packets_energy_hist[idx] += vpacket_collection.energies[j]
 
     for sub_estimator in estimator_list:
         estimators.increment(sub_estimator)
 
     if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
-        vpacket_tracker_length = 0
-        for vpacket_collection in vpacket_collections:
-            vpacket_tracker_length += vpacket_collection.idx
-
-        vpacket_tracker = VPacketCollection(
-            -1,
-            spectrum_frequency,
-            montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
-            montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
-            -1,
-            vpacket_tracker_length,
+        vpacket_tracker = consolidate_vpacket_tracker(
+            vpacket_collections, spectrum_frequency
         )
-        current_start_vpacket_tracker_idx = 0
-        for vpacket_collection in vpacket_collections:
-            current_end_vpacket_tracker_idx = (
-                current_start_vpacket_tracker_idx + vpacket_collection.idx
-            )
-            vpacket_tracker.nus[
-                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
-            ] = vpacket_collection.nus[: vpacket_collection.idx]
-
-            vpacket_tracker.energies[
-                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
-            ] = vpacket_collection.energies[: vpacket_collection.idx]
-
-            vpacket_tracker.initial_mus[
-                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
-            ] = vpacket_collection.initial_mus[: vpacket_collection.idx]
-
-            vpacket_tracker.initial_rs[
-                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
-            ] = vpacket_collection.initial_rs[: vpacket_collection.idx]
-
-            vpacket_tracker.last_interaction_in_nu[
-                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
-            ] = vpacket_collection.last_interaction_in_nu[
-                : vpacket_collection.idx
-            ]
-
-            vpacket_tracker.last_interaction_type[
-                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
-            ] = vpacket_collection.last_interaction_type[
-                : vpacket_collection.idx
-            ]
-
-            vpacket_tracker.last_interaction_in_id[
-                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
-            ] = vpacket_collection.last_interaction_in_id[
-                : vpacket_collection.idx
-            ]
-
-            vpacket_tracker.last_interaction_out_id[
-                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
-            ] = vpacket_collection.last_interaction_out_id[
-                : vpacket_collection.idx
-            ]
-
-            vpacket_tracker.last_interaction_shell_id[
-                current_start_vpacket_tracker_idx:current_end_vpacket_tracker_idx
-            ] = vpacket_collection.last_interaction_shell_id[
-                : vpacket_collection.idx
-            ]
-
-            current_start_vpacket_tracker_idx = current_end_vpacket_tracker_idx
     else:
         vpacket_tracker = VPacketCollection(
             -1,
@@ -333,6 +268,6 @@ def montecarlo_main_loop(
     return (
         v_packets_energy_hist,
         last_interaction_tracker,
-        vpacket_collections,
+        vpacket_tracker,
         rpacket_trackers,
     )

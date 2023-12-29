@@ -1,28 +1,25 @@
-import pytest
 import numpy as np
-import tardis.montecarlo.montecarlo_numba.estimators
-
-import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
-import tardis.transport.geometry.calculate_distances as calculate_distances
-import tardis.transport.frame_transformations as frame_transformations
-import tardis.montecarlo.montecarlo_numba.opacities as opacities
-import tardis.transport.r_packet_transport as r_packet_transport
-from tardis.montecarlo.montecarlo_numba.estimators import update_line_estimators
-import tardis.montecarlo.montecarlo_numba.utils as utils
-
-import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis import constants as const
+import pytest
 
 import tardis.montecarlo.montecarlo_configuration as numba_config
-
+import tardis.montecarlo.montecarlo_numba.estimators
+import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
+import tardis.montecarlo.montecarlo_numba.opacities as opacities
+import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
+import tardis.montecarlo.montecarlo_numba.utils as utils
+import tardis.transport.frame_transformations as frame_transformations
+import tardis.transport.geometry.calculate_distances as calculate_distances
+import tardis.transport.r_packet_transport as r_packet_transport
+from tardis import constants as const
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.montecarlo.montecarlo_numba.estimators import update_line_estimators
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 SIGMA_THOMSON = const.sigma_T.to("cm^2").value
 
 from numpy.testing import (
-    assert_almost_equal,
     assert_allclose,
+    assert_almost_equal,
 )
 
 

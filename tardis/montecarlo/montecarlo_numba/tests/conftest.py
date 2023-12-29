@@ -96,7 +96,7 @@ def verysimple_3vpacket_collection(nb_simulation_verysimple):
 
 @pytest.fixture(scope="package")
 def verysimple_packet_collection(nb_simulation_verysimple):
-    return nb_simulation_verysimple.transport.packet_collection
+    return nb_simulation_verysimple.transport.transport_state.packet_collection
 
 
 @pytest.fixture(scope="function")
