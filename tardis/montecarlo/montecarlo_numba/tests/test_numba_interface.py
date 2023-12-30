@@ -59,7 +59,7 @@ def test_configuration_initialize():
     assert False
 
 
-def test_VPacketCollection_set_properties(verysimple_3vpacket_collection):
+def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):
     assert verysimple_3vpacket_collection.length == 0
 
     nus = [3.0e15, 0.0, 1e15, 1e5]
@@ -95,7 +95,7 @@ def test_VPacketCollection_set_properties(verysimple_3vpacket_collection):
         last_interaction_out_ids,
         last_interaction_shell_ids,
     ):
-        verysimple_3vpacket_collection.set_properties(
+        verysimple_3vpacket_collection.add_packet(
             nu,
             energy,
             initial_mu,

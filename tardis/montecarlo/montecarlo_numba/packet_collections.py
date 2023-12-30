@@ -156,7 +156,7 @@ class VPacketCollection:
         self.source_rpacket_index = source_rpacket_index
         self.length = temporary_v_packet_bins
 
-    def set_properties(
+    def add_packet(
         self,
         nu,
         energy,
@@ -168,6 +168,35 @@ class VPacketCollection:
         last_interaction_out_id,
         last_interaction_shell_id,
     ):
+        """
+        Add a packet to the vpacket collection and potentially resizing the arrays.
+
+        Parameters
+        ----------
+        nu : float
+            Frequency of the packet.
+        energy : float
+            Energy of the packet.
+        initial_mu : float
+            Initial mu of the packet.
+        initial_r : float
+            Initial r of the packet.
+        last_interaction_in_nu : float
+            Frequency of the last interaction of the packet.
+        last_interaction_type : int
+            Type of the last interaction of the packet.
+        last_interaction_in_id : int
+            ID of the last interaction in the packet.
+        last_interaction_out_id : int
+            ID of the last interaction out of the packet.
+        last_interaction_shell_id : int
+            ID of the last interaction shell of the packet.
+
+        Returns
+        -------
+        None
+
+        """
         if self.idx >= self.length:
             temp_length = self.length * 2 + self.number_of_vpackets
             temp_nus = np.empty(temp_length, dtype=np.float64)
@@ -227,6 +256,14 @@ class VPacketCollection:
         self.idx += 1
 
     def finalize_arrays(self):
+        """
+        Finalize the arrays by truncating them based on the current index.
+
+        Returns
+        -------
+        None
+
+        """
         self.nus = self.nus[: self.idx]
         self.energies = self.energies[: self.idx]
         self.initial_mus = self.initial_mus[: self.idx]
@@ -242,6 +279,22 @@ class VPacketCollection:
 
 @njit(**njit_dict_no_parallel)
 def consolidate_vpacket_tracker(vpacket_collections, spectrum_frequency):
+    """
+    Consolidate the vpacket trackers from multiple collections into a single vpacket tracker.
+
+    Parameters
+    ----------
+    vpacket_collections : List[VPacketCollection]
+        List of vpacket collections to consolidate.
+    spectrum_frequency : ndarray
+        Array of spectrum frequencies.
+
+    Returns
+    -------
+    VPacketCollection
+        Consolidated vpacket tracker.
+
+    """
     vpacket_tracker_length = 0
     for vpacket_collection in vpacket_collections:
         vpacket_tracker_length += vpacket_collection.idx

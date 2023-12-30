@@ -328,7 +328,7 @@ def trace_vpacket_volley(
 
         v_packet.energy *= math.exp(-tau_vpacket)
 
-        vpacket_collection.set_properties(
+        vpacket_collection.add_packet(
             v_packet.nu,
             v_packet.energy,
             v_packet_mu,
