@@ -1,16 +1,17 @@
 """Tests for SDEC Plots."""
-from tardis.base import run_tardis
-import pytest
-import pandas as pd
-import numpy as np
 import os
 from copy import deepcopy
-from tardis.visualization.tools.sdec_plot import SDECData, SDECPlotter
+
 import astropy.units as u
+import numpy as np
+import pandas as pd
+import pytest
+import tables
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
-import tables
-import re
+
+from tardis.base import run_tardis
+from tardis.visualization.tools.sdec_plot import SDECPlotter
 
 
 def make_valid_name(testid):
