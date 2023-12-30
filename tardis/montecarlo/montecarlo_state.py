@@ -33,9 +33,22 @@ class MonteCarloTransportState(HDFWriterMixin):
         "spectrum_reabsorbed",
         "time_of_simulation",
         "emitted_packet_mask",
+        "last_interaction_type",
+        "last_interaction_in_nu",
+        "last_line_interaction_out_id",
+        "last_line_interaction_in_id",
+        "last_line_interaction_shell_id",
     ]
 
     hdf_name = "transport_state"
+
+    last_interaction_type = None
+    last_interaction_in_nu = None
+    last_line_interaction_out_id = None
+    last_line_interaction_in_id = None
+    last_line_interaction_shell_id = None
+
+    virt_logging = False
 
     def __init__(
         self,
@@ -44,6 +57,7 @@ class MonteCarloTransportState(HDFWriterMixin):
         spectrum_frequency,
         geometry_state,
         opacity_state,
+        rpacket_tracker=None,
     ):
         self.packet_collection = packet_collection
         self.estimators = estimators
@@ -57,6 +71,7 @@ class MonteCarloTransportState(HDFWriterMixin):
         self.enable_full_relativity = False
         self.geometry_state = geometry_state
         self.opacity_state = opacity_state
+        self.rpacket_tracker = rpacket_tracker
 
     def calculate_radiationfield_properties(self):
         """
@@ -272,57 +287,6 @@ class MonteCarloTransportState(HDFWriterMixin):
         return self.reabsorbed_packet_luminosity[
             luminosity_wavelength_filter
         ].sum()
-
-    @property
-    def virtual_packet_nu(self):
-        try:
-            return u.Quantity(self.virt_packet_nus, u.Hz)
-        except AttributeError:
-            warnings.warn(
-                "MontecarloTransport.virtual_packet_nu:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None
-
-    @property
-    def virtual_packet_energy(self):
-        try:
-            return u.Quantity(self.virt_packet_energies, u.erg)
-        except AttributeError:
-            warnings.warn(
-                "MontecarloTransport.virtual_packet_energy:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None
-
-    @property
-    def virtual_packet_luminosity(self):
-        try:
-            return self.virtual_packet_energy / (
-                self.packet_collection.time_of_simulation * u.s
-            )
-        except TypeError:
-            warnings.warn(
-                "MontecarloTransport.virtual_packet_luminosity:"
-                "Set 'virtual_packet_logging: True' in the configuration file"
-                "to access this property"
-                "It should be added under 'virtual' property of 'spectrum' property",
-                UserWarning,
-            )
-            return None
-
-    @property
-    def montecarlo_virtual_luminosity(self):
-        return (
-            self._montecarlo_virtual_luminosity[:-1]
-            / self.packet_collection.time_of_simulation
-        )
 
     @property
     def virtual_packet_nu(self):

@@ -3,25 +3,26 @@ Code to analyse the model.
 """
 
 import re
-import os
 
-from astropy import units as u
-from tardis import constants
 import numpy as np
 import pandas as pd
+from astropy import units as u
+
+from tardis import constants
 
 INVALID_ION_ERROR_MSG = "Atomic number, ion_number pair not present in model"
 
 
-class LastLineInteraction(object):
+class LastLineInteraction:
     @classmethod
     def from_simulation(cls, simulation, packet_filter_mode="packet_out_nu"):
+        transport_state = simulation.transport.transport_state
         return cls(
-            simulation.transport.last_line_interaction_in_id,
-            simulation.transport.last_line_interaction_out_id,
-            simulation.transport.last_line_interaction_shell_id,
-            simulation.transport.transport_state.packet_collection.output_nus,
-            simulation.transport.last_interaction_in_nu,
+            transport_state.last_line_interaction_in_id,
+            transport_state.last_line_interaction_out_id,
+            transport_state.last_line_interaction_shell_id,
+            transport_state.packet_collection.output_nus,
+            transport_state.last_interaction_in_nu,
             simulation.plasma.atomic_data.lines,
             packet_filter_mode,
         )
@@ -260,7 +261,7 @@ class LastLineInteraction(object):
         fig.canvas.mpl_connect("on_press", onpress)
 
 
-class TARDISHistory(object):
+class TARDISHistory:
     """
     Records the history of the model
     """

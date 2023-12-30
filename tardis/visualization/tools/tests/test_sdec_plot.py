@@ -158,6 +158,7 @@ class TestSDECPlotter:
         plotter : tardis.visualization.tools.sdec_plot.SDECPlotter
         species : list
         """
+        # THIS NEEDS TO BE RUN FIRST. NOT INDEPENDENT TESTS
         plotter._parse_species_list(species)
         subgroup_name = make_valid_name(request.node.callspec.id)
         if request.config.getoption("--generate-reference"):

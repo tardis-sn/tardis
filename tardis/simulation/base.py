@@ -14,11 +14,10 @@ from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import ConfigurationError
 from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
-from tardis.montecarlo import montecarlo_configuration as mc_config_module
-from tardis.montecarlo.base import MontecarloTransportSolver
-from tardis.montecarlo.montecarlo_numba.r_packet import (
-    rpacket_trackers_to_dataframe,
+from tardis.montecarlo import (
+    montecarlo_configuration as montecarlo_configuration,
 )
+from tardis.montecarlo.base import MontecarloTransportSolver
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
@@ -192,7 +191,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
 
-        mc_config_module.CONTINUUM_PROCESSES_ENABLED = (
+        montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED = (
             not self.plasma.continuum_interaction_species.empty
         )
 
@@ -494,11 +493,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.convergence_plots.update(
                 export_convergence_plots=self.export_convergence_plots,
                 last=True,
-            )
-
-        if self.transport.rpacket_tracker:
-            self.transport.rpacket_tracker_df = rpacket_trackers_to_dataframe(
-                self.transport.rpacket_tracker
             )
 
         self._call_back()

@@ -173,14 +173,16 @@ class SDECData:
 
         if packets_mode == "virtual":
             return cls(
-                last_interaction_type=sim.transport.virt_packet_last_interaction_type,
-                last_line_interaction_in_id=sim.transport.virt_packet_last_line_interaction_in_id,
-                last_line_interaction_out_id=sim.transport.virt_packet_last_line_interaction_out_id,
-                last_line_interaction_in_nu=sim.transport.virt_packet_last_interaction_in_nu,
+                last_interaction_type=transport_state.vpacket_tracker.last_interaction_type,
+                last_line_interaction_in_id=transport_state.vpacket_tracker.last_interaction_in_id,
+                last_line_interaction_out_id=transport_state.vpacket_tracker.last_interaction_out_id,
+                last_line_interaction_in_nu=transport_state.vpacket_tracker.last_interaction_in_nu,
                 lines_df=lines_df,
-                packet_nus=u.Quantity(sim.transport.virt_packet_nus, "Hz"),
+                packet_nus=u.Quantity(
+                    transport_state.vpacket_tracker.nus, "Hz"
+                ),
                 packet_energies=u.Quantity(
-                    sim.transport.virt_packet_energies, "erg"
+                    transport_state.vpacket_tracker.energies, "erg"
                 ),
                 r_inner=r_inner,
                 spectrum_delta_frequency=transport_state.spectrum_virtual.delta_frequency,
@@ -194,17 +196,18 @@ class SDECData:
         elif packets_mode == "real":
             # Packets-specific properties need to be only for those packets
             # which got emitted
+            transport_state = sim.transport.transport_state
             return cls(
-                last_interaction_type=sim.transport.last_interaction_type[
+                last_interaction_type=transport_state.last_interaction_type[
                     transport_state.emitted_packet_mask
                 ],
-                last_line_interaction_in_id=sim.transport.last_line_interaction_in_id[
+                last_line_interaction_in_id=transport_state.last_line_interaction_in_id[
                     transport_state.emitted_packet_mask
                 ],
-                last_line_interaction_out_id=sim.transport.last_line_interaction_out_id[
+                last_line_interaction_out_id=transport_state.last_line_interaction_out_id[
                     transport_state.emitted_packet_mask
                 ],
-                last_line_interaction_in_nu=sim.transport.last_interaction_in_nu[
+                last_line_interaction_in_nu=transport_state.last_interaction_in_nu[
                     transport_state.emitted_packet_mask
                 ],
                 lines_df=lines_df,
@@ -421,7 +424,7 @@ class SDECPlotter:
         -------
         SDECPlotter
         """
-        if sim.transport.virt_logging:
+        if sim.transport.transport_state.virt_logging:
             return cls(
                 {
                     "virtual": SDECData.from_simulation(sim, "virtual"),

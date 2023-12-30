@@ -32,10 +32,10 @@ transport_properties = [
 
 @pytest.mark.parametrize("attr", transport_properties)
 def test_hdf_transport(hdf_file_path, simulation_verysimple, attr):
-    actual = getattr(simulation_verysimple.transport, attr)
+    actual = getattr(simulation_verysimple.transport.transport_state, attr)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
-    path = f"transport/{attr}"
+    path = f"transport_state/{attr}"
     expected = pd.read_hdf(hdf_file_path, path)
     assert_almost_equal(actual, expected.values)
 

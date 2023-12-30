@@ -1,99 +1,28 @@
-from numba import prange, njit, objmode
-from numba.np.ufunc.parallel import get_thread_id, get_num_threads
-
 import numpy as np
-from tardis.montecarlo.montecarlo_numba.estimators import Estimators
-from tardis.montecarlo.montecarlo_numba.packet_collections import (
-    VPacketCollection,
-    initialize_last_interaction_tracker,
-    consolidate_vpacket_tracker,
-)
-
-
-from tardis.montecarlo.montecarlo_numba.r_packet import (
-    RPacket,
-    PacketStatus,
-)
-
-from tardis.montecarlo.montecarlo_numba.numba_interface import (
-    RPacketTracker,
-    NumbaModel,
-)
+from numba import njit, objmode, prange
+from numba.np.ufunc.parallel import get_num_threads, get_thread_id
+from numba.typed import List
 
 from tardis.montecarlo import montecarlo_configuration
-
+from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.montecarlo.montecarlo_numba.estimators import Estimators
+from tardis.montecarlo.montecarlo_numba.numba_interface import (
+    NumbaModel,
+    RPacketTracker,
+)
+from tardis.montecarlo.montecarlo_numba.packet_collections import (
+    VPacketCollection,
+    consolidate_vpacket_tracker,
+    initialize_last_interaction_tracker,
+)
+from tardis.montecarlo.montecarlo_numba.r_packet import (
+    PacketStatus,
+    RPacket,
+)
 from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
     single_packet_loop,
 )
-from tardis.montecarlo.montecarlo_numba import njit_dict
-from numba.typed import List
-from tardis.util.base import (
-    update_iterations_pbar,
-    update_packet_pbar,
-    refresh_packet_pbar,
-)
-
-
-def montecarlo_radial1d(
-    transport_state,
-    time_explosion,
-    iteration,
-    total_iterations,
-    show_progress_bars=False,
-):
-    packet_collection = transport_state.packet_collection
-    estimators = transport_state.estimators
-    geometry_state = transport_state.geometry_state
-    opacity_state = transport_state.opacity_state
-    numba_model = NumbaModel(
-        time_explosion.to("s").value,
-    )
-
-    number_of_vpackets = montecarlo_configuration.NUMBER_OF_VPACKETS
-
-    (
-        v_packets_energy_hist,
-        last_interaction_tracker,
-        vpacket_tracker,
-        rpacket_trackers,
-    ) = montecarlo_main_loop(
-        packet_collection,
-        geometry_state,
-        numba_model,
-        opacity_state,
-        estimators,
-        transport_state.spectrum_frequency.value,
-        number_of_vpackets,
-        iteration=iteration,
-        show_progress_bars=show_progress_bars,
-        total_iterations=total_iterations,
-    )
-
-    transport_state._montecarlo_virtual_luminosity.value[
-        :
-    ] = v_packets_energy_hist
-    transport_state.last_interaction_type = last_interaction_tracker.types
-    transport_state.last_interaction_in_nu = last_interaction_tracker.in_nus
-    transport_state.last_line_interaction_in_id = (
-        last_interaction_tracker.in_ids
-    )
-    transport_state.last_line_interaction_out_id = (
-        last_interaction_tracker.out_ids
-    )
-    transport_state.last_line_interaction_shell_id = (
-        last_interaction_tracker.shell_ids
-    )
-
-    if montecarlo_configuration.ENABLE_VPACKET_TRACKING and (
-        number_of_vpackets > 0
-    ):
-        transport_state.vpacket_tracker = vpacket_tracker
-
-    update_iterations_pbar(1)
-    refresh_packet_pbar()
-    # Condition for Checking if RPacket Tracking is enabled
-    if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
-        transport_state.rpacket_tracker = rpacket_trackers
+from tardis.util.base import update_packet_pbar
 
 
 @njit(**njit_dict)

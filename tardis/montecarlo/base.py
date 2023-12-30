@@ -1,31 +1,35 @@
 import logging
 
-
+import numpy as np
 from astropy import units as u
+from numba import cuda, set_num_threads
+
 from tardis import constants as const
-from numba import set_num_threads
-from numba import cuda
-
-
-from tardis.util.base import quantity_linspace
+from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.io.util import HDFWriterMixin
-
-from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
-from tardis.montecarlo.montecarlo_numba.estimators import initialize_estimators
-from tardis.montecarlo.montecarlo_numba.numba_interface import (
-    opacity_state_initialize,
-)
-from tardis.montecarlo import montecarlo_configuration as mc_config_module
-from tardis.montecarlo.montecarlo_state import MonteCarloTransportState
-
-from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
+from tardis.montecarlo import montecarlo_configuration
 from tardis.montecarlo.montecarlo_configuration import (
     configuration_initialize,
 )
-from tardis.montecarlo.montecarlo_numba import numba_config
-from tardis.io.logger import montecarlo_tracking as mc_tracker
-
-import numpy as np
+from tardis.montecarlo.montecarlo_numba import (
+    montecarlo_main_loop,
+    numba_config,
+)
+from tardis.montecarlo.montecarlo_numba.estimators import initialize_estimators
+from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
+from tardis.montecarlo.montecarlo_numba.numba_interface import (
+    NumbaModel,
+    opacity_state_initialize,
+)
+from tardis.montecarlo.montecarlo_numba.r_packet import (
+    rpacket_trackers_to_dataframe,
+)
+from tardis.montecarlo.montecarlo_state import MonteCarloTransportState
+from tardis.util.base import (
+    quantity_linspace,
+    refresh_packet_pbar,
+    update_iterations_pbar,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -37,14 +41,7 @@ class MontecarloTransportSolver(HDFWriterMixin):
     montecarlo C-part
     """
 
-    hdf_properties = [
-        "transport_state",
-        "last_interaction_in_nu",
-        "last_interaction_type",
-        "last_line_interaction_in_id",
-        "last_line_interaction_out_id",
-        "last_line_interaction_shell_id",
-    ]
+    hdf_properties = ["transport_state"]
 
     vpacket_hdf_properties = [
         "virt_packet_nus",
@@ -188,16 +185,65 @@ class MontecarloTransportSolver(HDFWriterMixin):
         -------
         None
         """
-
         set_num_threads(self.nthreads)
         self.transport_state = transport_state
 
-        montecarlo_radial1d(
-            transport_state,
-            time_explosion,
-            iteration,
-            total_iterations,
+        numba_model = NumbaModel(time_explosion.to("s").value)
+
+        number_of_vpackets = montecarlo_configuration.NUMBER_OF_VPACKETS
+
+        (
+            v_packets_energy_hist,
+            last_interaction_tracker,
+            vpacket_tracker,
+            rpacket_trackers,
+        ) = montecarlo_main_loop(
+            transport_state.packet_collection,
+            transport_state.geometry_state,
+            numba_model,
+            transport_state.opacity_state,
+            transport_state.estimators,
+            transport_state.spectrum_frequency.value,
+            number_of_vpackets,
+            iteration=iteration,
             show_progress_bars=show_progress_bars,
+            total_iterations=total_iterations,
+        )
+
+        transport_state._montecarlo_virtual_luminosity.value[
+            :
+        ] = v_packets_energy_hist
+        transport_state.last_interaction_type = last_interaction_tracker.types
+        transport_state.last_interaction_in_nu = last_interaction_tracker.in_nus
+        transport_state.last_line_interaction_in_id = (
+            last_interaction_tracker.in_ids
+        )
+        transport_state.last_line_interaction_out_id = (
+            last_interaction_tracker.out_ids
+        )
+        transport_state.last_line_interaction_shell_id = (
+            last_interaction_tracker.shell_ids
+        )
+
+        if montecarlo_configuration.ENABLE_VPACKET_TRACKING and (
+            number_of_vpackets > 0
+        ):
+            transport_state.vpacket_tracker = vpacket_tracker
+
+        update_iterations_pbar(1)
+        refresh_packet_pbar()
+        # Condition for Checking if RPacket Tracking is enabled
+        if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+            transport_state.rpacket_tracker = rpacket_trackers
+
+        if self.transport_state.rpacket_tracker is not None:
+            self.transport_state.rpacket_tracker_df = (
+                rpacket_trackers_to_dataframe(
+                    self.transport_state.rpacket_tracker
+                )
+            )
+        transport_state.virt_logging = (
+            montecarlo_configuration.ENABLE_VPACKET_TRACKING
         )
 
     def legacy_return(self):
@@ -232,7 +278,7 @@ class MontecarloTransportSolver(HDFWriterMixin):
         MontecarloTransport
         """
         if config.plasma.disable_electron_scattering:
-            logger.warn(
+            logger.warning(
                 "Disabling electron scattering - this is not physical."
                 "Likely bug in formal integral - "
                 "will not give same results."
@@ -269,11 +315,11 @@ class MontecarloTransportSolver(HDFWriterMixin):
                 valid values are 'GPU', 'CPU', and 'Automatic'."""
             )
 
-        mc_config_module.DISABLE_LINE_SCATTERING = (
+        montecarlo_configuration.DISABLE_LINE_SCATTERING = (
             config.plasma.disable_line_scattering
         )
 
-        mc_config_module.INITIAL_TRACKING_ARRAY_LENGTH = (
+        montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH = (
             config.montecarlo.tracking.initial_array_length
         )
 
