@@ -15,7 +15,9 @@ from tardis.montecarlo.montecarlo_numba import (
     montecarlo_main_loop,
     numba_config,
 )
-from tardis.montecarlo.montecarlo_numba.estimators import initialize_estimators
+from tardis.montecarlo.estimators.estimator_statistics import (
+    initialize_estimator_statistics,
+)
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     NumbaModel,
@@ -136,7 +138,7 @@ class MontecarloTransportSolver(HDFWriterMixin):
         packet_collection = self.packet_source.create_packets(
             no_of_packets, seed_offset=iteration
         )
-        estimators = initialize_estimators(
+        estimators = initialize_estimator_statistics(
             plasma.tau_sobolevs.shape, gamma_shape
         )
 

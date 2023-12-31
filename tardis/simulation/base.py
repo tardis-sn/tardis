@@ -281,7 +281,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         (
             estimated_t_rad,
-            estimated_w,
+            estimated_dilution_factor,
         ) = self.transport.transport_state.calculate_radiationfield_properties()
         estimated_t_inner = self.estimate_t_inner(
             self.simulation_state.t_inner,
@@ -294,7 +294,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.simulation_state.dilution_factor,
             self.simulation_state.t_inner,
             estimated_t_rad,
-            estimated_w,
+            estimated_dilution_factor,
             estimated_t_inner,
         )
 
@@ -307,7 +307,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
         next_dilution_factor = self.damped_converge(
             self.simulation_state.dilution_factor,
-            estimated_w,
+            estimated_dilution_factor,
             self.convergence_strategy.w.damping_constant,
         )
         if (
@@ -369,6 +369,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # case it needs some extra kwargs.
 
         estimators = self.transport.transport_state.estimators
+
         if "j_blue_estimator" in self.plasma.outputs_dict:
             update_properties.update(
                 t_inner=next_t_inner,

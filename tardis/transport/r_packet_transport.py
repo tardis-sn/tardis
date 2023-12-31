@@ -8,7 +8,7 @@ from tardis.transport.geometry.calculate_distances import (
     calculate_distance_electron,
     calculate_distance_line,
 )
-from tardis.montecarlo.montecarlo_numba.estimators import (
+from tardis.montecarlo.estimators.estimator_statistics import (
     update_line_estimators,
     update_base_estimators,
 )

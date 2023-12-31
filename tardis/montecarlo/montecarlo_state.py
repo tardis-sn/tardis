@@ -49,18 +49,19 @@ class MonteCarloTransportState(HDFWriterMixin):
     last_line_interaction_shell_id = None
 
     virt_logging = False
+    rpacket_tracker = None
+    vpacket_tracker = None
 
     def __init__(
         self,
         packet_collection,
-        estimators,
+        estimator_statistics,
         spectrum_frequency,
         geometry_state,
         opacity_state,
-        rpacket_tracker=None,
     ):
         self.packet_collection = packet_collection
-        self.estimators = estimators
+        self.estimator_statistics = estimator_statistics
         self.spectrum_frequency = spectrum_frequency
         self._montecarlo_virtual_luminosity = u.Quantity(
             np.zeros_like(self.spectrum_frequency.value), "erg / s"
@@ -71,7 +72,6 @@ class MonteCarloTransportState(HDFWriterMixin):
         self.enable_full_relativity = False
         self.geometry_state = geometry_state
         self.opacity_state = opacity_state
-        self.rpacket_tracker = rpacket_tracker
 
     def calculate_radiationfield_properties(self):
         """
@@ -92,10 +92,10 @@ class MonteCarloTransportState(HDFWriterMixin):
         """
         estimated_t_radiative = (
             T_RADIATIVE_ESTIMATOR_CONSTANT
-            * self.estimators.nu_bar_estimator
-            / self.estimators.j_estimator
+            * self.estimator_statistics.nu_bar_estimator
+            / self.estimator_statistics.j_estimator
         ) * u.K
-        dilution_factor = self.estimators.j_estimator / (
+        dilution_factor = self.estimator_statistics.j_estimator / (
             4
             * const.sigma_sb.cgs.value
             * estimated_t_radiative.value**4
@@ -115,11 +115,11 @@ class MonteCarloTransportState(HDFWriterMixin):
 
     @property
     def nu_bar_estimator(self):
-        return self.estimators.nu_bar_estimator
+        return self.estimator_statistics.nu_bar_estimator
 
     @property
     def j_estimator(self):
-        return self.estimators.j_estimator
+        return self.estimator_statistics.j_estimator
 
     @property
     def time_of_simulation(self):
@@ -290,9 +290,9 @@ class MonteCarloTransportState(HDFWriterMixin):
 
     @property
     def virtual_packet_nu(self):
-        try:
-            return u.Quantity(self.virt_packet_nus, u.Hz)
-        except AttributeError:
+        if self.vpacket_tracker is not None:
+            return u.Quantity(self.vpacket_tracker.nus, u.Hz)
+        else:
             warnings.warn(
                 "MontecarloTransport.virtual_packet_nu:"
                 "Set 'virtual_packet_logging: True' in the configuration file"

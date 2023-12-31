@@ -3,14 +3,18 @@ from copy import deepcopy
 import pytest
 import numpy as np
 from numba import njit
-from tardis.montecarlo.montecarlo_numba.estimators import Estimators
+from tardis.montecarlo.estimators.estimator_statistics import (
+    EstimatorStatistics,
+)
 from tardis.montecarlo.montecarlo_numba.packet_collections import (
     VPacketCollection,
 )
 
 from tardis.simulation import Simulation
 from tardis.montecarlo.montecarlo_numba import RPacket
-from tardis.montecarlo.montecarlo_numba.estimators import Estimators
+from tardis.montecarlo.estimators.estimator_statistics import (
+    EstimatorStatistics,
+)
 
 
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
@@ -51,7 +55,7 @@ def verysimple_numba_model(nb_simulation_verysimple):
 def verysimple_estimators(nb_simulation_verysimple):
     transport = nb_simulation_verysimple.transport
 
-    return Estimators(
+    return EstimatorStatistics(
         transport.j_estimator,
         transport.nu_bar_estimator,
         transport.j_blue_estimator,

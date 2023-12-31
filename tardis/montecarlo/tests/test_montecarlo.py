@@ -8,7 +8,9 @@ import tardis.transport.r_packet_transport as r_packet_transport
 import tardis.montecarlo.montecarlo_numba.utils as utils
 import tardis.montecarlo.montecarlo_configuration as mc
 from tardis import constants as const
-from tardis.montecarlo.montecarlo_numba.estimators import Estimators
+from tardis.montecarlo.estimators.estimator_statistics import (
+    EstimatorStatistics,
+)
 from tardis.montecarlo.montecarlo_numba.numba_interface import RPacketTracker
 
 
@@ -462,7 +464,7 @@ def test_move_packet(packet_params, expected_params, full_relativity):
     mc.ENABLE_FULL_RELATIVITY = full_relativity
 
     doppler_factor = get_doppler_factor(packet.r, packet.mu, time_explosion)
-    numba_estimator = Estimators(
+    numba_estimator = EstimatorStatistics(
         packet_params["j"], packet_params["nu_bar"], 0, 0
     )
     r_packet_transport.move_r_packet(
@@ -618,7 +620,7 @@ def test_compute_distance2line_relativistic(
 ):
     packet = r_packet.RPacket(r=r, nu=nu, mu=mu, energy=0.9)
     # packet.nu_line = nu_line
-    numba_estimator = Estimators(
+    numba_estimator = EstimatorStatistics(
         transport.j_estimator,
         transport.nu_bar_estimator,
         transport.j_blue_estimator,

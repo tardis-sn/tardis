@@ -30,7 +30,7 @@ from tardis.montecarlo.montecarlo_numba.opacities import (
     chi_continuum_calculator,
     chi_electron_calculator,
 )
-from tardis.montecarlo.montecarlo_numba.estimators import (
+from tardis.montecarlo.estimators.estimator_statistics import (
     update_bound_free_estimators,
 )
 

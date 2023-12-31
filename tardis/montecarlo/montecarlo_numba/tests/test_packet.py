@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 import tardis.montecarlo.montecarlo_configuration as numba_config
-import tardis.montecarlo.montecarlo_numba.estimators
+import tardis.montecarlo.estimators.estimator_statistics
 import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
 import tardis.montecarlo.montecarlo_numba.opacities as opacities
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
@@ -12,7 +12,9 @@ import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.r_packet_transport as r_packet_transport
 from tardis import constants as const
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.montecarlo.montecarlo_numba.estimators import update_line_estimators
+from tardis.montecarlo.estimators.estimator_statistics import (
+    update_line_estimators,
+)
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 SIGMA_THOMSON = const.sigma_T.to("cm^2").value
@@ -42,20 +44,22 @@ def model():
 
 @pytest.fixture(scope="function")
 def estimators():
-    return tardis.montecarlo.montecarlo_numba.estimators.Estimators(
-        j_estimator=np.array([0.0, 0.0], dtype=np.float64),
-        nu_bar_estimator=np.array([0.0, 0.0], dtype=np.float64),
-        j_blue_estimator=np.array(
-            [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype=np.float64
-        ),
-        Edotlu_estimator=np.array(
-            [[0.0, 0.0, 1.0], [0.0, 0.0, 1.0]], dtype=np.float64
-        ),
-        photo_ion_estimator=np.empty((0, 0), dtype=np.float64),
-        stim_recomb_estimator=np.empty((0, 0), dtype=np.float64),
-        bf_heating_estimator=np.empty((0, 0), dtype=np.float64),
-        stim_recomb_cooling_estimator=np.empty((0, 0), dtype=np.float64),
-        photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64),
+    return (
+        tardis.montecarlo.estimators.estimator_statistics.EstimatorStatistics(
+            j_estimator=np.array([0.0, 0.0], dtype=np.float64),
+            nu_bar_estimator=np.array([0.0, 0.0], dtype=np.float64),
+            j_blue_estimator=np.array(
+                [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype=np.float64
+            ),
+            Edotlu_estimator=np.array(
+                [[0.0, 0.0, 1.0], [0.0, 0.0, 1.0]], dtype=np.float64
+            ),
+            photo_ion_estimator=np.empty((0, 0), dtype=np.float64),
+            stim_recomb_estimator=np.empty((0, 0), dtype=np.float64),
+            bf_heating_estimator=np.empty((0, 0), dtype=np.float64),
+            stim_recomb_cooling_estimator=np.empty((0, 0), dtype=np.float64),
+            photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64),
+        )
     )
 
 
