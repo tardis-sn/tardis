@@ -204,7 +204,7 @@ class MontecarloTransportSolver(HDFWriterMixin):
             transport_state.geometry_state,
             numba_model,
             transport_state.opacity_state,
-            transport_state.estimators,
+            transport_state.radfield_mc_estimators,
             transport_state.spectrum_frequency.value,
             number_of_vpackets,
             iteration=iteration,

@@ -7,7 +7,10 @@ import tardis.constants as const
 from tardis.model.radiation_field_state import (
     DiluteBlackBodyRadiationFieldState,
 )
-from tardis.montecarlo.estimators.util import bound_free_estimator_array2frame
+from tardis.montecarlo.estimators.util import (
+    bound_free_estimator_array2frame,
+    integrate_array_by_blocks,
+)
 
 H = const.h.cgs.value
 
@@ -80,26 +83,77 @@ class EstimatedDiluteBlackBodyContinuumProperties(
 
     def calculate_photo_ionization_rate_coefficient(
         self,
-        photo_ion_cross_sections,
+        photo_ion_cross_sections_df,
         photo_ion_block_references,
         photo_ion_index,
     ):
+        mean_intensity_df = self.calculate_mean_intensity_for_photo_ion_table(photo_ion_cross_sections_df)
+
+        gamma = mean_intensity_df.multiply(
+            4.0
+            * np.pi
+            * photo_ion_cross_sections_df.x_sect
+            / (photo_ion_cross_sections_df.nu * H),
+            axis=0,
+        )
+        gamma = integrate_array_by_blocks(
+            gamma.values,
+            photo_ion_cross_sections_df.nu.values,
+            photo_ion_block_references,
+        )
+        gamma = pd.DataFrame(gamma, index=photo_ion_index)
+        return gamma
+
+    def calculate_stimulated_recomb_rate_coefficient(
+        self,
+        photo_ion_cross_sections_df,
+        photo_ion_block_references,
+        photo_ion_index,
+        boltzmann_factor_photo_ion,
+    ):
         nu = photo_ion_cross_sections["nu"]
-        cross_section = photo_ion_cross_sections["x_sect"]
+        x_sect = photo_ion_cross_sections["x_sect"]
+        # TODO: duplicated; also used in calculate_photo_ionization_rate_coefficient
+        mean_intensity_df = self.calculate_mean_intensity_for_photo_ion_table(photo_ion_cross_sections_df)
+
+        mean_intensity_df *= boltzmann_factor_photo_ion
+        alpha_stim = mean_intensity_df.multiply(
+            4.0 * np.pi * x_sect / nu / H, axis=0
+        )
+        alpha_stim = integrate_array_by_blocks(
+            alpha_stim.values, nu.values, photo_ion_block_references
+        )
+        alpha_stim = pd.DataFrame(alpha_stim, index=photo_ion_index)
+        return alpha_stim
+
+    def calculate_mean_intensity_for_photo_ion_table(self, photo_ion_cross_sections_df):
         mean_intensity = (
             self.dilute_blackbody_radiationfield_state.calculate_mean_intensity(
-                photo_ion_cross_sections.nu
+                photo_ion_cross_sections_df.nu
             )
         )
         mean_intensity_df = pd.DataFrame(
             mean_intensity,
-            index=photo_ion_cross_sections.index,
-            columns=np.arange(len(self.dilute_blackbody_radiationfield_state)),
+            index=photo_ion_cross_sections_df.index,
+            columns=np.arange(
+                len(self.dilute_blackbody_radiationfield_state.t_radiative)
+            ),
         )
+        return mean_intensity_df
 
-        gamma = j_nus.multiply(4.0 * np.pi * cross_section / nu / H, axis=0)
-        gamma = integrate_array_by_blocks(
-            gamma.values, nu.values, photo_ion_block_references
-        )
-        gamma = pd.DataFrame(gamma, index=photo_ion_index)
-        return gamma
+"""
+class PhotoIonBoltzmannFactor(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    boltzmann_factor_photo_ion : pandas.DataFrame, dtype float
+    """
+
+    outputs = ("boltzmann_factor_photo_ion",)
+
+    def calculate(self, photo_ion_cross_sections, t_electrons):
+        nu = photo_ion_cross_sections["nu"].values
+
+        boltzmann_factor = np.exp(-nu[np.newaxis].T / t_electrons * (H / K_B))
+        return boltzmann_factor
+"""

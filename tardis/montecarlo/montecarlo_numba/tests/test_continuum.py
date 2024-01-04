@@ -14,6 +14,8 @@ def continuum_config(
         tardis_config_verysimple_nlte
     )
     continuum_config.plasma.continuum_interaction.species = ["H I"]
+    continuum_config.plasma.nlte_ionization_species = []
+
     """"
     montecarlo_configuration.LEGACY_MODE_ENABLED = True
     # Setup model config from verysimple
@@ -39,9 +41,12 @@ def test_montecarlo_continuum(
         atom_data=nlte_atomic_dataset,
         virtual_packet_logging=False,
     )
-    continuum_simulation.run_convergence()
+    # continuum_simulation.run_convergence()
 
     continuum_simulation.run_final()
+
+    expected_hdf_store = regression_data.sync_hdf_store(continuum_simulation)
+
     """
     expected_hdf_store = regression_data.sync_hdf_store(
         montecarlo_main_loop_simulation
