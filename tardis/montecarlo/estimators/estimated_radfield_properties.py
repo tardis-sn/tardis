@@ -27,9 +27,13 @@ class EstimatedContinuumPropertiesABC(ABC):
 
 class EstimatedMCContinuumProperties(EstimatedContinuumPropertiesABC):
     def __init__(
-        self, estimator_statistics, level2continuum_idx, time_simulation, volume
+        self,
+        radfield_mc_estimators,
+        level2continuum_idx,
+        time_simulation,
+        volume,
     ):
-        self.estimator_statistics = estimator_statistics
+        self.radfield_mc_estimators = radfield_mc_estimators
         self.level2continuum_idx = level2continuum_idx
 
         # initializing the lazy properties
@@ -40,21 +44,28 @@ class EstimatedMCContinuumProperties(EstimatedContinuumPropertiesABC):
     def calculate_photo_ionization_rate_coefficient(self):
         return self.gamma_estimator_df * self.photo_ion_norm_factor.value
 
-    def calculate_stimulated_recomb_rate_coefficient(self):
-        alpha_stim = (
+    def calculate_stimulated_recomb_rate_factor(self):
+        """
+        Calculates the stimulated recombination rate coefficient.
+
+        Returns
+        -------
+        alpha_stim : ndarray
+            The calculated stimulated recombination rate coefficient.
+
+        See Equation 15 in Lucy 2003
+        """
+        alpha_factor = (
             self.alpha_stimulated_estimator_df * self.photo_ion_norm_factor
         )
-
-        # does that need the new Phis or the old ones?
-        alpha_stim *= phi_ik.loc[alpha_stim.index]
-        return alpha_stim
+        return alpha_factor
 
     @property
     def alpha_stimulated_estimator_df(self):
         if self._alpha_stimulated_estimator_df is None:
             self._alpha_stimulated_estimator_df = (
                 bound_free_estimator_array2frame(
-                    self.estimator_statistics.stim_recomb_estimator,
+                    self.radfield_mc_estimators.stim_recomb_estimator,
                     self.level2continuum_idx,
                 )
             )
@@ -64,7 +75,7 @@ class EstimatedMCContinuumProperties(EstimatedContinuumPropertiesABC):
     def gamma_estimator_df(self):
         if self._gamma_estimator_df is None:
             self._gamma_estimator_df = bound_free_estimator_array2frame(
-                self.estimator_statistics.photo_ion_estimator,
+                self.radfield_mc_estimators.photo_ion_estimator,
                 self.level2continuum_idx,
             )
         return self._gamma_estimator_df
@@ -87,7 +98,9 @@ class EstimatedDiluteBlackBodyContinuumProperties(
         photo_ion_block_references,
         photo_ion_index,
     ):
-        mean_intensity_df = self.calculate_mean_intensity_for_photo_ion_table(photo_ion_cross_sections_df)
+        mean_intensity_df = self.calculate_mean_intensity_for_photo_ion_table(
+            photo_ion_cross_sections_df
+        )
 
         gamma = mean_intensity_df.multiply(
             4.0
@@ -114,7 +127,9 @@ class EstimatedDiluteBlackBodyContinuumProperties(
         nu = photo_ion_cross_sections["nu"]
         x_sect = photo_ion_cross_sections["x_sect"]
         # TODO: duplicated; also used in calculate_photo_ionization_rate_coefficient
-        mean_intensity_df = self.calculate_mean_intensity_for_photo_ion_table(photo_ion_cross_sections_df)
+        mean_intensity_df = self.calculate_mean_intensity_for_photo_ion_table(
+            photo_ion_cross_sections_df
+        )
 
         mean_intensity_df *= boltzmann_factor_photo_ion
         alpha_stim = mean_intensity_df.multiply(
@@ -126,7 +141,9 @@ class EstimatedDiluteBlackBodyContinuumProperties(
         alpha_stim = pd.DataFrame(alpha_stim, index=photo_ion_index)
         return alpha_stim
 
-    def calculate_mean_intensity_for_photo_ion_table(self, photo_ion_cross_sections_df):
+    def calculate_mean_intensity_for_photo_ion_table(
+        self, photo_ion_cross_sections_df
+    ):
         mean_intensity = (
             self.dilute_blackbody_radiationfield_state.calculate_mean_intensity(
                 photo_ion_cross_sections_df.nu
@@ -141,13 +158,14 @@ class EstimatedDiluteBlackBodyContinuumProperties(
         )
         return mean_intensity_df
 
+
 """
 class PhotoIonBoltzmannFactor(ProcessingPlasmaProperty):
-    """
+    
     Attributes
     ----------
     boltzmann_factor_photo_ion : pandas.DataFrame, dtype float
-    """
+
 
     outputs = ("boltzmann_factor_photo_ion",)
 
