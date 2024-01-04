@@ -65,7 +65,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     def __init__(
         self,
         packet_collection,
-        estimators,
+        radfield_mc_estimators,
         spectrum_frequency,
         geometry_state,
         opacity_state,
@@ -73,7 +73,7 @@ class MonteCarloTransportState(HDFWriterMixin):
         vpacket_tracker=None,
     ):
         self.packet_collection = packet_collection
-        self.estimators = estimators
+        self.radfield_mc_estimators = radfield_mc_estimators
         self.spectrum_frequency = spectrum_frequency
         self._montecarlo_virtual_luminosity = u.Quantity(
             np.zeros_like(self.spectrum_frequency.value), "erg / s"
@@ -106,10 +106,10 @@ class MonteCarloTransportState(HDFWriterMixin):
         """
         estimated_t_radiative = (
             T_RADIATIVE_ESTIMATOR_CONSTANT
-            * self.estimators.nu_bar_estimator
-            / self.estimators.j_estimator
+            * self.radfield_mc_estimators.nu_bar_estimator
+            / self.radfield_mc_estimators.j_estimator
         ) * u.K
-        dilution_factor = self.estimators.j_estimator / (
+        dilution_factor = self.radfield_mc_estimators.j_estimator / (
             4
             * const.sigma_sb.cgs.value
             * estimated_t_radiative.value**4
@@ -129,11 +129,11 @@ class MonteCarloTransportState(HDFWriterMixin):
 
     @property
     def nu_bar_estimator(self):
-        return self.estimators.nu_bar_estimator
+        return self.radfield_mc_estimators.nu_bar_estimator
 
     @property
     def j_estimator(self):
-        return self.estimators.j_estimator
+        return self.radfield_mc_estimators.j_estimator
 
     @property
     def time_of_simulation(self):

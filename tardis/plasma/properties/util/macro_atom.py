@@ -1,7 +1,8 @@
-from numba import njit
-from tardis.montecarlo.montecarlo_numba import njit_dict
 import numpy as np
+from numba import njit
+
 from tardis import constants as const
+from tardis.montecarlo.montecarlo_numba import njit_dict
 
 h_cgs = const.h.cgs.value
 c = const.c.to("cm/s").value
@@ -28,7 +29,6 @@ def calculate_transition_probabilities(
     transition_type, lines_idx, and block_references must be int-type arrays
     beta_sobolev, j_blues,stimulated_emission_factor, and transition_probabilities must be 2D array
     """
-
     norm_factor = np.zeros(transition_probabilities.shape[1])
 
     for i in range(transition_probabilities.shape[0]):
@@ -57,5 +57,5 @@ def calculate_transition_probabilities(
                 else:
                     norm_factor[k] = 1.0
             for j in range(block_references[i], block_references[i + 1]):
-                for k in range(0, transition_probabilities.shape[1]):
+                for k in range(transition_probabilities.shape[1]):
                     transition_probabilities[j, k] *= norm_factor[k]

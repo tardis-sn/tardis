@@ -1,28 +1,27 @@
 import logging
+from collections import Counter as counter
 
 import numpy as np
 import pandas as pd
-from numba import njit
-from scipy.special import exp1
-from scipy.interpolate import PchipInterpolator
-from collections import Counter as counter
 import radioactivedecay as rd
-from tardis import constants as const
+from numba import njit
+from scipy.interpolate import PchipInterpolator
+from scipy.special import exp1
 
-from tardis.plasma.properties.base import (
-    ProcessingPlasmaProperty,
-    HiddenPlasmaProperty,
-    BaseAtomicDataProperty,
-)
+from tardis import constants as const
 from tardis.plasma.exceptions import IncompleteAtomicData
+from tardis.plasma.properties.base import (
+    BaseAtomicDataProperty,
+    HiddenPlasmaProperty,
+    ProcessingPlasmaProperty,
+)
 from tardis.plasma.properties.continuum_processes import (
-    get_ground_state_multi_index,
-    K_B,
-    BETA_COLL,
-    H,
     A0,
+    BETA_COLL,
+    K_B,
     M_E,
-    C,
+    H,
+    get_ground_state_multi_index,
 )
 
 logger = logging.getLogger(__name__)
@@ -470,7 +469,7 @@ class LevelIdxs2LineIdx(HiddenPlasmaProperty):
 
         # Check for duplicate indices
         if level_idxs2line_idx.index.duplicated().any():
-            logger.warn(
+            logger.warning(
                 "Duplicate indices in level_idxs2line_idx. "
                 "Dropping duplicates. "
                 "This is an issue with the atomic data & carsus. "
@@ -621,7 +620,7 @@ class IonizationData(BaseAtomicDataProperty):
         ionization_data = ionization_data[mask]
         counts = ionization_data.groupby(level="atomic_number").count()
 
-        if np.alltrue(counts.index == counts):
+        if np.all(counts.index == counts):
             return ionization_data
         else:
             raise IncompleteAtomicData(
@@ -652,7 +651,7 @@ class ZetaData(BaseAtomicDataProperty):
         zeta_data_check = counter(zeta_data.atomic_number.values)
         keys = np.array(list(zeta_data_check.keys()))
         values = np.array(zeta_data_check.values())
-        if np.alltrue(keys + 1 == values) and keys:
+        if np.all(keys + 1 == values) and keys:
             return zeta_data
         else:
             #            raise IncompleteAtomicData('zeta data')
@@ -666,7 +665,7 @@ class ZetaData(BaseAtomicDataProperty):
                     if (atom, ion) not in zeta_data.index:
                         missing_ions.append((atom, ion))
                     updated_index.append([atom, ion])
-            logger.warn(
+            logger.warning(
                 f"Zeta_data missing - replaced with 1s. Missing ions: {missing_ions}"
             )
             updated_index = np.array(updated_index)
