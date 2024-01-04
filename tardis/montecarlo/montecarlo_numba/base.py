@@ -5,8 +5,8 @@ from numba.typed import List
 
 from tardis.montecarlo import montecarlo_configuration
 from tardis.montecarlo.montecarlo_numba import njit_dict
-from tardis.montecarlo.estimators.estimator_statistics import (
-    EstimatorStatistics,
+from tardis.montecarlo.estimators.radfield_mc_estimators import (
+    RadiationFieldMCEstimators,
 )
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     NumbaModel,
@@ -96,7 +96,7 @@ def montecarlo_main_loop(
         # Note that get_thread_id() returns values from 0 to n_threads-1,
         # so we iterate from 0 to n_threads-1 to create the estimator_list
         estimator_list.append(
-            EstimatorStatistics(
+            RadiationFieldMCEstimators(
                 np.copy(estimators.j_estimator),
                 np.copy(estimators.nu_bar_estimator),
                 np.copy(estimators.j_blue_estimator),

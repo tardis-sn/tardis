@@ -1,0 +1,49 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../projects/tardis-vscode"
+		}
+	],
+	"settings": {
+		"workbench.colorCustomizations": {
+			"activityBar.activeBackground": "#3333ff",
+			"activityBar.activeBorder": "#600000",
+			"activityBar.background": "#3333ff",
+			"activityBar.foreground": "#e7e7e7",
+			"activityBar.inactiveForeground": "#e7e7e799",
+			"activityBarBadge.background": "#600000",
+			"activityBarBadge.foreground": "#e7e7e7",
+			"sash.hoverBorder": "#3333ff",
+			"statusBar.background": "#0000ff",
+			"statusBar.foreground": "#e7e7e7",
+			"statusBarItem.hoverBackground": "#3333ff",
+			"statusBarItem.remoteBackground": "#0000ff",
+			"statusBarItem.remoteForeground": "#e7e7e7",
+			"titleBar.activeBackground": "#0000ff",
+			"titleBar.activeForeground": "#e7e7e7",
+			"titleBar.inactiveBackground": "#0000ff99",
+			"titleBar.inactiveForeground": "#e7e7e799",
+			"commandCenter.border": "#e7e7e799"
+		},
+		"peacock.color": "blue",
+		"workbench.colorTheme": "Default Dark+",
+		"python.testing.pytestArgs": [
+			"tardis",
+			"--tardis-refdata=/Users/wkerzend/python/tardis-refdata",
+			"--no-cov",
+			"--tardis-regression-data=/Users/wkerzend/python/tardis-regression-data"
+		],
+		"python.testing.pytestEnabled": true,
+		"python.testing.cwd": "/Users/wkerzend/python/tardis",
+		"python.formatting.provider": "black",
+		"python.analysis.inlayHints.pytestParameters": true,
+		"pytest-fixtures.extraArguments": [],
+		"pytest.command": "pytest",
+		"editor.defaultFormatter": "charliermarsh.ruff",
+		"editor.formatOnSave": true,
+		"editor.formatOnSaveMode": "modificationsIfAvailable"
+	}
+}

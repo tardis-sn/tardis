@@ -3,8 +3,8 @@ from copy import deepcopy
 import pytest
 import numpy as np
 from numba import njit
-from tardis.montecarlo.estimators.estimator_statistics import (
-    EstimatorStatistics,
+from tardis.montecarlo.estimators.radfield_mc_estimators import (
+    RadiationFieldMCEstimators,
 )
 from tardis.montecarlo.montecarlo_numba.packet_collections import (
     VPacketCollection,
@@ -12,8 +12,8 @@ from tardis.montecarlo.montecarlo_numba.packet_collections import (
 
 from tardis.simulation import Simulation
 from tardis.montecarlo.montecarlo_numba import RPacket
-from tardis.montecarlo.estimators.estimator_statistics import (
-    EstimatorStatistics,
+from tardis.montecarlo.estimators.radfield_mc_estimators import (
+    RadiationFieldMCEstimators,
 )
 
 
@@ -55,7 +55,7 @@ def verysimple_numba_model(nb_simulation_verysimple):
 def verysimple_estimators(nb_simulation_verysimple):
     transport = nb_simulation_verysimple.transport
 
-    return EstimatorStatistics(
+    return RadiationFieldMCEstimators(
         transport.j_estimator,
         transport.nu_bar_estimator,
         transport.j_blue_estimator,

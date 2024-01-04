@@ -1,37 +1,34 @@
 from numba import njit
 
-from tardis.montecarlo.montecarlo_numba.r_packet import (
-    PacketStatus,
-)
-from tardis.transport.r_packet_transport import (
-    move_r_packet,
-    move_packet_across_shell_boundary,
-    trace_packet,
-)
-
-from tardis.transport.frame_transformations import (
-    get_inverse_doppler_factor,
-    get_doppler_factor,
-)
-from tardis.montecarlo.montecarlo_numba.interaction import (
-    InteractionType,
-    thomson_scatter,
-    line_scatter,
-    continuum_event,
-)
+from tardis import constants as const
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
-
-from tardis.montecarlo.montecarlo_numba.vpacket import trace_vpacket_volley
-
-from tardis import constants as const
+from tardis.montecarlo.estimators.radfield_mc_estimators import (
+    update_bound_free_estimators,
+)
+from tardis.montecarlo.montecarlo_numba.interaction import (
+    continuum_event,
+    line_scatter,
+    thomson_scatter,
+)
 from tardis.montecarlo.montecarlo_numba.opacities import (
     chi_continuum_calculator,
     chi_electron_calculator,
 )
-from tardis.montecarlo.estimators.estimator_statistics import (
-    update_bound_free_estimators,
+from tardis.montecarlo.montecarlo_numba.r_packet import (
+    InteractionType,
+    PacketStatus,
+)
+from tardis.montecarlo.montecarlo_numba.vpacket import trace_vpacket_volley
+from tardis.transport.frame_transformations import (
+    get_doppler_factor,
+    get_inverse_doppler_factor,
+)
+from tardis.transport.r_packet_transport import (
+    move_packet_across_shell_boundary,
+    move_r_packet,
+    trace_packet,
 )
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value

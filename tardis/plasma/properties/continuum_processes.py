@@ -5,13 +5,13 @@ import pandas as pd
 from numba import njit, prange
 
 from tardis import constants as const
+from tardis.montecarlo.estimators.util import bound_free_estimator_array2frame
 from tardis.plasma.exceptions import PlasmaException
 from tardis.plasma.properties.base import (
     Input,
     ProcessingPlasmaProperty,
     TransitionProbabilitiesProperty,
 )
-from tardis.montecarlo.estimators.util import bound_free_estimator_array2frame
 from tardis.plasma.properties.j_blues import JBluesDiluteBlackBody
 
 __all__ = [
