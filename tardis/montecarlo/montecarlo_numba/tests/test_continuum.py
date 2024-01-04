@@ -5,6 +5,8 @@ import pytest
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
 
+import numpy.testing as npt
+
 
 @pytest.fixture(scope="function")
 def continuum_config(
@@ -47,33 +49,17 @@ def test_montecarlo_continuum(
 
     expected_hdf_store = regression_data.sync_hdf_store(continuum_simulation)
 
-    """
-    expected_hdf_store = regression_data.sync_hdf_store(
-        montecarlo_main_loop_simulation
-    )
-
-    # Load compare data from refdata
-
-    expected_nu = expected_hdf_store["/simulation/transport/output_nu"]
-    expected_energy = expected_hdf_store["/simulation/transport/output_energy"]
-    expected_nu_bar_estimator = expected_hdf_store[
-        "/simulation/transport/nu_bar_estimator"
+    expected_nu = expected_hdf_store[
+        "/simulation/transport/transport_state/output_nu"
     ]
-    expected_j_estimator = expected_hdf_store[
-        "/simulation/transport/j_estimator"
+    expected_energy = expected_hdf_store[
+        "/simulation/transport/transport_state/output_energy"
     ]
     expected_hdf_store.close()
-    transport_state = montecarlo_main_loop_simulation.transport.transport_state
+
+    transport_state = continuum_simulation.transport.transport_state
     actual_energy = transport_state.packet_collection.output_energies
     actual_nu = transport_state.packet_collection.output_nus
-    actual_nu_bar_estimator = transport_state.estimators.nu_bar_estimator
-    actual_j_estimator = transport_state.estimators.j_estimator
 
-    # Compare
-    npt.assert_allclose(
-        actual_nu_bar_estimator, expected_nu_bar_estimator, rtol=1e-13
-    )
-    npt.assert_allclose(actual_j_estimator, expected_j_estimator, rtol=1e-13)
     npt.assert_allclose(actual_energy, expected_energy, rtol=1e-13)
     npt.assert_allclose(actual_nu, expected_nu, rtol=1e-13)
-"""

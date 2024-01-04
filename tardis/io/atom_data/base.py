@@ -439,7 +439,9 @@ class AtomData:
         )
 
         self.prepare_macro_atom_data(
-            line_interaction_type, tmp_lines_upper2level_idx
+            line_interaction_type,
+            tmp_lines_lower2level_idx,
+            tmp_lines_upper2level_idx,
         )
         if len(continuum_interaction_species) > 0:
             self.prepare_continuum_interaction_data(
@@ -509,7 +511,10 @@ class AtomData:
         )
 
     def prepare_macro_atom_data(
-        self, line_interaction_type, tmp_lines_upper2level_idx
+        self,
+        line_interaction_type,
+        tmp_lines_lower2level_idx,
+        tmp_lines_upper2level_idx,
     ):
         if (
             self.macro_atom_data_all is not None

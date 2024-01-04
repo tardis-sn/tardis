@@ -119,8 +119,8 @@ class MontecarloTransportSolver(HDFWriterMixin):
         mc_tracker.DEBUG_MODE = debug_packets
         mc_tracker.BUFFER = logger_buffer
 
-        if self.spectrum_method == "integrated":
-            self.optional_hdf_properties.append("spectrum_integrated")
+        # if self.spectrum_method == "integrated":
+        #    self.optional_hdf_properties.append("spectrum_integrated")
 
     def initialize_transport_state(
         self,
