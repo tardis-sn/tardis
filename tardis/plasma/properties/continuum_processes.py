@@ -5,7 +5,7 @@ import pandas as pd
 
 from numba import prange, njit
 from tardis import constants as const
-
+from tardis.montecarlo.estimators.util import bound_free_estimator_array2frame
 from tardis.plasma.exceptions import PlasmaException
 from tardis.plasma.properties.base import (
     ProcessingPlasmaProperty,

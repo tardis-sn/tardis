@@ -1,23 +1,24 @@
 import os
-import pytest
+
 import numpy as np
 import pandas as pd
+import pytest
+
+import tardis.montecarlo.montecarlo_configuration as mc
 import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
-import tardis.transport.r_packet_transport as r_packet_transport
 import tardis.montecarlo.montecarlo_numba.utils as utils
-import tardis.montecarlo.montecarlo_configuration as mc
+import tardis.transport.r_packet_transport as r_packet_transport
 from tardis import constants as const
-from tardis.montecarlo.montecarlo_numba.estimators import Estimators
-from tardis.montecarlo.montecarlo_numba.numba_interface import RPacketTracker
-
-
-from tardis.transport.frame_transformations import (
-    get_doppler_factor,
-    angle_aberration_LF_to_CMF,
-    angle_aberration_CMF_to_LF,
+from tardis.montecarlo.estimators.radfield_mc_estimators import (
+    RadiationFieldMCEstimators,
 )
-
+from tardis.montecarlo.montecarlo_numba.numba_interface import RPacketTracker
+from tardis.transport.frame_transformations import (
+    angle_aberration_CMF_to_LF,
+    angle_aberration_LF_to_CMF,
+    get_doppler_factor,
+)
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -25,8 +26,8 @@ pytestmark = pytest.mark.skip(reason="Port from C to numba")
 
 
 from numpy.testing import (
-    assert_almost_equal,
     assert_allclose,
+    assert_almost_equal,
 )
 
 from tardis import __path__ as path
@@ -462,7 +463,7 @@ def test_move_packet(packet_params, expected_params, full_relativity):
     mc.ENABLE_FULL_RELATIVITY = full_relativity
 
     doppler_factor = get_doppler_factor(packet.r, packet.mu, time_explosion)
-    numba_estimator = Estimators(
+    numba_estimator = RadiationFieldMCEstimators(
         packet_params["j"], packet_params["nu_bar"], 0, 0
     )
     r_packet_transport.move_r_packet(
@@ -618,7 +619,7 @@ def test_compute_distance2line_relativistic(
 ):
     packet = r_packet.RPacket(r=r, nu=nu, mu=mu, energy=0.9)
     # packet.nu_line = nu_line
-    numba_estimator = Estimators(
+    numba_estimator = RadiationFieldMCEstimators(
         transport.j_estimator,
         transport.nu_bar_estimator,
         transport.j_blue_estimator,

@@ -15,7 +15,9 @@ from tardis.montecarlo.montecarlo_numba import (
     montecarlo_main_loop,
     numba_config,
 )
-from tardis.montecarlo.montecarlo_numba.estimators import initialize_estimators
+from tardis.montecarlo.estimators.radfield_mc_estimators import (
+    initialize_estimator_statistics,
+)
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     NumbaModel,

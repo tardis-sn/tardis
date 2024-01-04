@@ -17,7 +17,9 @@ from tardis.io.model.readers.generic_readers import read_uniform_abundances
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.model.matter.composition import Composition
 from tardis.model.matter.decay import IsotopicMassFraction
-from tardis.model.radiation_field_state import DiluteThermalRadiationFieldState
+from tardis.model.radiation_field_state import (
+    DiluteBlackBodyRadiationFieldState,
+)
 from tardis.montecarlo.packet_source import (
     BlackBodySimpleSource,
     BlackBodySimpleSourceRelativistic,
@@ -572,7 +574,7 @@ def parse_radiation_field_state(
         ]
         assert len(dilution_factor) == geometry.no_of_shells
 
-    return DiluteThermalRadiationFieldState(t_radiative, dilution_factor)
+    return DiluteBlackBodyRadiationFieldState(t_radiative, dilution_factor)
 
 
 def initialize_packet_source(config, geometry, packet_source):
@@ -687,7 +689,7 @@ def parse_csvy_radiation_field_state(
     else:
         dilution_factor = calculate_geometric_dilution_factor(geometry)
 
-    return DiluteThermalRadiationFieldState(t_radiative, dilution_factor)
+    return DiluteBlackBodyRadiationFieldState(t_radiative, dilution_factor)
 
 
 def calculate_t_radiative_from_t_inner(geometry, packet_source):
