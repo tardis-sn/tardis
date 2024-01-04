@@ -577,6 +577,13 @@ class AtomData:
                 .astype(np.int64)
                 .values
             )
+            self.lines_lower2macro_reference_idx = (
+                self.macro_atom_references.loc[
+                    tmp_lines_lower2level_idx, "references_idx"
+                ]
+                .astype(np.int64)
+                .values
+            )
 
             if line_interaction_type == "macroatom":
                 # Sets all
