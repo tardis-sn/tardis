@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 import numpy as np
@@ -10,29 +9,19 @@ from tardis.io.atom_data import AtomData
 from tardis.model.radiation_field_state import (
     DiluteBlackBodyRadiationFieldState,
 )
+from tardis.montecarlo.estimators.radfield_mc_estimators import (
+    RadiationFieldMCEstimators,
+)
 from tardis.montecarlo.estimators.util import (
     bound_free_estimator_array2frame,
     integrate_array_by_blocks,
-)
-from tardis.montecarlo.estimators.radfield_mc_estimators import (
-    RadiationFieldMCEstimators,
 )
 from tardis.plasma.properties.continuum_processes import PhotoIonBoltzmannFactor
 
 H = const.h.cgs.value
 
 
-class EstimatedContinuumPropertiesABC(ABC):
-    @abstractmethod
-    def calculate_photo_ionization_rate_coefficient(self):
-        pass
-
-    @abstractmethod
-    def calculate_stimulated_recomb_rate_coefficient(self):
-        pass
-
-
-class MCContinuumPropertiesSolver(EstimatedContinuumPropertiesABC):
+class MCContinuumPropertiesSolver:
     def __init__(
         self,
         atom_data: AtomData,
@@ -45,6 +34,23 @@ class MCContinuumPropertiesSolver(EstimatedContinuumPropertiesABC):
         time_simulation,
         volume,
     ):
+        """
+        Solve for the continuum properties.
+
+        Parameters
+        ----------
+        radfield_mc_estimators : RadiationFieldMCEstimators
+            The Monte Carlo estimators for the radiation field.
+        time_simulation : float
+            The simulation time.
+        volume : float
+            The volume of the cells.
+
+        Returns
+        -------
+        ContinuumProperties
+            The calculated continuum properties.
+        """
         photo_ion_norm_factor = (time_simulation * volume * H) ** -1
 
         photo_ionization_rate_coefficient = bound_free_estimator_array2frame(
@@ -54,15 +60,17 @@ class MCContinuumPropertiesSolver(EstimatedContinuumPropertiesABC):
         photo_ionization_rate_coefficient *= photo_ion_norm_factor
 
         stimulated_recomb_rate_factor = bound_free_estimator_array2frame(
-            radfield_mc_estimators.stim_recomb_estimator,,
+            radfield_mc_estimators.stim_recomb_estimator,
             self.atom_data.level2continuum_edge_idx,
         )
         stimulated_recomb_rate_factor *= photo_ion_norm_factor
 
-        return ContinuumProperties(stimulated_recomb_rate_factor, photo_ionization_rate_coefficient)
+        return ContinuumProperties(
+            stimulated_recomb_rate_factor, photo_ionization_rate_coefficient
+        )
 
 
-class DiluteBlackBodyContinuumPropertiesSolver(EstimatedContinuumPropertiesABC):
+class DiluteBlackBodyContinuumPropertiesSolver:
     def __init__(self, atom_data: AtomData) -> None:
         self.atom_data = atom_data
 
@@ -71,6 +79,22 @@ class DiluteBlackBodyContinuumPropertiesSolver(EstimatedContinuumPropertiesABC):
         dilute_blackbody_radiationfield_state: DiluteBlackBodyRadiationFieldState,
         t_electrons: u.Quantity,
     ):
+        """
+        Solve for the continuum properties.
+
+        Parameters
+        ----------
+        dilute_blackbody_radiationfield_state : DiluteBlackBodyRadiationFieldState
+            The state of the dilute blackbody radiation field.
+        t_electrons : u.Quantity
+            The temperature of the electrons.
+
+        Returns
+        -------
+        ContinuumProperties
+            The calculated continuum properties.
+
+        """
         photo_ion_boltzmann_factor = PhotoIonBoltzmannFactor.calculate(
             self.atom_data.photoionization_data, t_electrons
         )
@@ -84,7 +108,7 @@ class DiluteBlackBodyContinuumPropertiesSolver(EstimatedContinuumPropertiesABC):
             mean_intensity_photo_ion_df
         )
         stimulated_recomb_rate_coeff = (
-            self.calculate_stimulated_recomb_rate_coefficient(
+            self.calculate_stimulated_recomb_rate_factor(
                 mean_intensity_photo_ion_df,
                 photo_ion_boltzmann_factor,
             )
@@ -98,6 +122,23 @@ class DiluteBlackBodyContinuumPropertiesSolver(EstimatedContinuumPropertiesABC):
         self,
         mean_intensity_photo_ion_df: pd.DataFrame,
     ):
+        """
+        Calculate the photoionization rate coefficient.
+
+        Parameters
+        ----------
+        mean_intensity_photo_ion_df : pd.DataFrame
+            The mean intensity of the radiation field at the frequencies of the photoionization table.
+
+        Returns
+        -------
+        pd.DataFrame
+            The calculated photoionization rate coefficient.
+
+        Notes
+        -----
+        Equation 16 in Lucy 2003.
+        """
         gamma = mean_intensity_photo_ion_df.multiply(
             4.0
             * np.pi
@@ -113,11 +154,30 @@ class DiluteBlackBodyContinuumPropertiesSolver(EstimatedContinuumPropertiesABC):
         gamma = pd.DataFrame(gamma, index=self.atom_data.photo_ion_unique_index)
         return gamma
 
-    def calculate_stimulated_recomb_rate_coefficient(
+    def calculate_stimulated_recomb_rate_factor(
         self,
         mean_intensity_photo_ion_df: pd.DataFrame,
         photo_ion_boltzmann_factor: np.ndarray,
     ):
+        """
+        Calculate the stimulated recombination rate factor (the phi_ik are multiplied in the plasma).
+
+        Parameters
+        ----------
+        mean_intensity_photo_ion_df : pd.DataFrame
+            The mean intensity of the radiation field at the frequencies of the photoionization table.
+        photo_ion_boltzmann_factor: np.ndarray
+            The Boltzmann factor for the photoionization table.
+
+        Returns
+        -------
+        pd.DataFrame
+            The calculated stimulated recombination rate factor.
+
+        Notes
+        -----
+        Equation 15 in Lucy 2003.
+        """
         alpha_stim_factor = (
             mean_intensity_photo_ion_df * photo_ion_boltzmann_factor
         )
@@ -157,24 +217,6 @@ class DiluteBlackBodyContinuumPropertiesSolver(EstimatedContinuumPropertiesABC):
             ),
         )
         return mean_intensity_df
-
-
-"""
-class PhotoIonBoltzmannFactor(ProcessingPlasmaProperty):
-
-    Attributes
-    ----------
-    boltzmann_factor_photo_ion : pandas.DataFrame, dtype float
-
-
-    outputs = ("boltzmann_factor_photo_ion",)
-
-    def calculate(self, photo_ion_cross_sections, t_electrons):
-        nu = photo_ion_cross_sections["nu"].values
-
-        boltzmann_factor = np.exp(-nu[np.newaxis].T / t_electrons * (H / K_B))
-        return boltzmann_factor
-"""
 
 
 @dataclass
