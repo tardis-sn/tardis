@@ -1047,7 +1047,8 @@ class PhotoIonBoltzmannFactor(ProcessingPlasmaProperty):
 
     outputs = ("boltzmann_factor_photo_ion",)
 
-    def calculate(self, photo_ion_cross_sections, t_electrons):
+    @staticmethod
+    def calculate(photo_ion_cross_sections, t_electrons):
         nu = photo_ion_cross_sections["nu"].values
 
         boltzmann_factor = np.exp(-nu[np.newaxis].T / t_electrons * (H / K_B))

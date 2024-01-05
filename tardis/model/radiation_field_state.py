@@ -3,6 +3,8 @@ from astropy import units as u
 
 from tardis.util.base import intensity_black_body
 
+from typing import Union
+
 
 class DiluteBlackBodyRadiationFieldState:
     """
@@ -30,7 +32,7 @@ class DiluteBlackBodyRadiationFieldState:
         self.t_radiative = t_radiative
         self.dilution_factor = dilution_factor
 
-    def calculate_mean_intensity(self, nu):
+    def calculate_mean_intensity(self, nu: Union[u.Quantity, np.ndarray]):
         """
         Calculate the intensity of the radiation field at a given frequency.
 
@@ -44,4 +46,6 @@ class DiluteBlackBodyRadiationFieldState:
         intensity : u.Quantity
             Intensity of the radiation field at the given frequency
         """
-        return self.dilution_factor * intensity_black_body(nu, self.t_radiative)
+        return self.dilution_factor * intensity_black_body(
+            nu[np.newaxis].T, self.t_radiative
+        )

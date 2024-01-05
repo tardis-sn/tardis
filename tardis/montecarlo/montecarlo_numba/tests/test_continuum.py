@@ -1,35 +1,8 @@
 from copy import deepcopy
 
-import pytest
-
-from tardis.io.configuration.config_reader import Configuration
-from tardis.simulation import Simulation
-
 import numpy.testing as npt
 
-
-@pytest.fixture(scope="function")
-def continuum_config(
-    tardis_config_verysimple_nlte,
-):
-    continuum_config = Configuration.from_config_dict(
-        tardis_config_verysimple_nlte
-    )
-    continuum_config.plasma.continuum_interaction.species = ["H I"]
-    continuum_config.plasma.nlte_ionization_species = []
-
-    """"
-    montecarlo_configuration.LEGACY_MODE_ENABLED = True
-    # Setup model config from verysimple
-
-    config_montecarlo_1e5_verysimple.montecarlo.last_no_of_packets = 1e5
-    config_montecarlo_1e5_verysimple.montecarlo.no_of_virtual_packets = 0
-    config_montecarlo_1e5_verysimple.montecarlo.iterations = 1
-    config_montecarlo_1e5_verysimple.plasma.line_interaction_type = "macroatom"
-
-    del config_montecarlo_1e5_verysimple["config_dirname"]
-    """
-    return continuum_config
+from tardis.simulation import Simulation
 
 
 def test_montecarlo_continuum(
