@@ -94,10 +94,14 @@ def tardis_model_config_nlte_lu(example_configuration_dir):
 
 
 @pytest.fixture  # (scope="session")
-def nlte_raw_model_root(tardis_model_config_nlte_root):
-    return SimulationState.from_config(tardis_model_config_nlte_root)
+def nlte_raw_model_root(tardis_model_config_nlte_root, nlte_atom_data):
+    return SimulationState.from_config(
+        tardis_model_config_nlte_root, nlte_atom_data
+    )
 
 
 @pytest.fixture  # (scope="session")
-def nlte_raw_model_lu(tardis_model_config_nlte_lu):
-    return SimulationState.from_config(tardis_model_config_nlte_lu)
+def nlte_raw_model_lu(tardis_model_config_nlte_lu, nlte_atom_data):
+    return SimulationState.from_config(
+        tardis_model_config_nlte_lu, nlte_atom_data
+    )

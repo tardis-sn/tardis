@@ -1,17 +1,17 @@
 import numpy as np
+import numpy.testing as npt
 import pandas as pd
-
 import pytest
-from numpy.testing import assert_allclose
+
 from tardis.plasma.properties import (
-    NLTEPopulationSolverRoot,
     NLTEPopulationSolverLU,
+    NLTEPopulationSolverRoot,
 )
+from tardis.plasma.properties.ion_population import IonNumberDensity
 from tardis.plasma.properties.nlte_rate_equation_solver import (
     calculate_jacobian_matrix,
     calculate_rate_matrix,
 )
-from tardis.plasma.properties.ion_population import IonNumberDensity
 from tardis.plasma.standard_plasmas import assemble_plasma
 
 
@@ -280,67 +280,53 @@ def nlte_raw_plasma_dilution_factor_0_lu(
     return plasma
 
 
-###############################################################################
-# These tests should not fail! Currently there seems to be a problem with the #
-# NLTE solver that yields negative populations. The xfail should be removed   #
-# once the problem is fixed.                                                  #
-# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv #
-###############################################################################
-@pytest.mark.xfail
 def test_critical_case_dilution_factor_1_root(
-    nlte_raw_plasma_dilution_factor_1,
+    nlte_raw_plasma_dilution_factor_1_root,
 ):
     """Check that the LTE and NLTE solution agree for dilution_factor=1.0."""
     ion_number_density_nlte = (
         nlte_raw_plasma_dilution_factor_1_root.ion_number_density.values
     )
-    ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
+    # ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
 
     ind = IonNumberDensity(nlte_raw_plasma_dilution_factor_1_root)
     ion_number_density_lte = ind.calculate(
-        nlte_raw_plasma_dilution_factor_1.thermal_phi_lte,
-        nlte_raw_plasma_dilution_factor_1.partition_function,
-        nlte_raw_plasma_dilution_factor_1.number_density,
+        nlte_raw_plasma_dilution_factor_1_root.thermal_phi_lte,
+        nlte_raw_plasma_dilution_factor_1_root.partition_function,
+        nlte_raw_plasma_dilution_factor_1_root.number_density,
     )[0]
 
-    ion_number_density_lte = ion_number_density_lte.values
-    ion_number_density_lte[
-        ion_number_density_lte < 1e-10
-    ] = 0.0  # getting rid of small numbers.
     npt.assert_allclose(
         ion_number_density_lte,
         ion_number_density_nlte,
+        atol=1e-10,  # seems fair for the test
         rtol=1e-2,
     )
 
 
-@pytest.mark.xfail
-def test_critical_case_dilution_factor_1_lu(nlte_raw_plasma_dilution_factor_1):
+def test_critical_case_dilution_factor_1_lu(nlte_raw_plasma_dilution_factor_1_lu):
     """Check that the LTE and NLTE solution agree for dilution_factor=1.0."""
     ion_number_density_nlte = (
         nlte_raw_plasma_dilution_factor_1_lu.ion_number_density.values
     )
-    ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
+    # ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
 
     ind = IonNumberDensity(nlte_raw_plasma_dilution_factor_1_lu)
     ion_number_density_lte = ind.calculate(
-        nlte_raw_plasma_dilution_factor_1.thermal_phi_lte,
-        nlte_raw_plasma_dilution_factor_1.partition_function,
-        nlte_raw_plasma_dilution_factor_1.number_density,
+        nlte_raw_plasma_dilution_factor_1_lu.thermal_phi_lte,
+        nlte_raw_plasma_dilution_factor_1_lu.partition_function,
+        nlte_raw_plasma_dilution_factor_1_lu.number_density,
     )[0]
 
     ion_number_density_lte = ion_number_density_lte.values
-    ion_number_density_lte[
-        ion_number_density_lte < 1e-10
-    ] = 0.0  # getting rid of small numbers.
     npt.assert_allclose(
         ion_number_density_lte,
         ion_number_density_nlte,
+        atol=1e-10,  # seems fair for the test
         rtol=1e-2,
     )
 
 
-@pytest.mark.xfail
 def test_critical_case_dilution_factor_0_root(
     nlte_raw_plasma_dilution_factor_0_root,
 ):
@@ -363,7 +349,7 @@ def test_critical_case_dilution_factor_0_root(
         nlte_raw_plasma_dilution_factor_0_root.nlte_excitation_species,
     )[0]
     ion_number_density_nlte = ion_number_density_nlte.values
-    ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
+    # ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
 
     ind = IonNumberDensity(nlte_raw_plasma_dilution_factor_0_root)
     ion_number_density_lte = ind.calculate(
@@ -373,13 +359,8 @@ def test_critical_case_dilution_factor_0_root(
     )[0]
 
     ion_number_density_lte = ion_number_density_lte.values
-    ion_number_density_lte[
-        np.abs(ion_number_density_lte) < 1e-10
-    ] = 0.0  # getting rid of small numbers.
-    assert_allclose(
-        ion_number_density_lte,
-        ion_number_density_nlte,
-        rtol=1e-2,
+    npt.assert_allclose(
+        ion_number_density_lte, ion_number_density_nlte, rtol=1e-2, atol=1e-10
     )
 
 
@@ -404,7 +385,7 @@ def test_critical_case_dilution_factor_0_lu(
         nlte_raw_plasma_dilution_factor_0_lu.nlte_excitation_species,
     )[0]
     ion_number_density_nlte = ion_number_density_nlte.values
-    ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
+    # ion_number_density_nlte[np.abs(ion_number_density_nlte) < 1e-10] = 0.0
 
     ind = IonNumberDensity(nlte_raw_plasma_dilution_factor_0_lu)
     ion_number_density_lte = ind.calculate(
@@ -414,11 +395,9 @@ def test_critical_case_dilution_factor_0_lu(
     )[0]
 
     ion_number_density_lte = ion_number_density_lte.values
-    ion_number_density_lte[
-        np.abs(ion_number_density_lte) < 1e-10
-    ] = 0.0  # getting rid of small numbers.
-    assert_allclose(
+    npt.assert_allclose(
         ion_number_density_lte,
         ion_number_density_nlte,
         rtol=1e-2,
+        atol=1e-10,
     )

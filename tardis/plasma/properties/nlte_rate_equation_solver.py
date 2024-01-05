@@ -1,6 +1,7 @@
-import pandas as pd
-import numpy as np
 import logging
+
+import numpy as np
+import pandas as pd
 from scipy.optimize import root
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
@@ -16,7 +17,7 @@ NLTE_POPULATION_SOLVER_MAX_ITERATIONS = 100
 NLTE_POPULATION_SOLVER_TOLERANCE = 1e-3
 NLTE_POPULATION_NEGATIVE_RELATIVE_POPULATION_TOLERANCE = (
     -1e-10
-)  # Maximum negative population allowed before solver fails
+)  # Minimum relative negative population allowed before solver fails
 NLTE_POPULATION_SOLVER_CHARGE_CONSERVATION_TOLERANCE = 1e-6  # Arbitrary tolerance for charge conservation, should be changed to a more reasonable value
 
 
@@ -78,7 +79,6 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
         electron_densities : Series
             Electron density with NLTE ionization treatment.
         """
-
         # nlte_data = NLTEExcitationData(atomic_data.lines, nlte_excitation_species) - will be used in a future PR
         (
             total_photo_ion_coefficients,
@@ -224,7 +224,6 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
         electron_densities : Series
             Electron density with NLTE ionization treatment.
         """
-
         (
             total_photo_ion_coefficients,
             total_rad_recomb_coefficients,
@@ -309,9 +308,7 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
                 iteration += 1
                 if iteration == NLTE_POPULATION_SOLVER_MAX_ITERATIONS:
                     logger.warning(
-                        "NLTE ionization solver did not converge for shell {} ".format(
-                            shell
-                        )
+                        f"NLTE ionization solver did not converge for shell {shell} "
                     )
                     break
 
@@ -324,12 +321,14 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
         ion_solution, electron_solution, ion_number_density, electron_densities
     ):
         """Calculates relative change between new solution and old value.
+
         Parameters
         ----------
         ion_solution : numpy.array
             Solution vector for the NLTE ionization solver.
         electron_solution : float
             Solution for the electron density.
+
         Returns
         -------
         numpy.array
@@ -395,7 +394,7 @@ def check_negative_population(
                 if (ion_number_density.loc[atom_number, ion_number] < 0.0) and (
                     ion_number_density.loc[atom_number, ion_number]
                     / number_density.loc[atom_number]
-                    < NLTE_POPULATION_NEGATIVE_RELATIVE_POPULATION_TOLERANCE
+                    > NLTE_POPULATION_NEGATIVE_RELATIVE_POPULATION_TOLERANCE
                 ):
                     ion_number_density.loc[atom_number, ion_number] = 0.0
 
@@ -446,6 +445,7 @@ def prepare_ion_recomb_coefficients_nlte_ion(
         Index of filtered atomic data.
     level_boltzmann_factor : pandas.DataFrame
         General Boltzmann factor.
+
     Returns
     -------
     total_photo_ion_coefficients
@@ -501,12 +501,14 @@ def calculate_balance_vector(
 ):
     """Constructs the balance vector for the NLTE ionization solver set of equations by combining
     all solution verctor blocks.
+
     Parameters
     ----------
     number_density : pandas.DataFrame
         Number densities of all present species.
     rate_matrix_index : pandas.MultiIndex
         (atomic_number, ion_number, treatment type)
+
     Returns
     -------
     numpy.array
@@ -603,6 +605,7 @@ def population_objective_function(
         Coll. recomb. coefficients for current atomic number
     set_charge_conservation : bool
         If True, sets the last row of the rate matrix to the charge conservation equation.
+
     Returns
     -------
     (numpy.array, numpy.array)
@@ -855,7 +858,8 @@ def set_nlte_ion_rate(
 
 def calculate_charge_conservation_row(atomic_numbers):
     """calculate the last row of the rate_matrix. This row corresponds to the charge
-    density equation."""
+    density equation.
+    """
     charge_conservation_row = []
     for atomic_number in atomic_numbers:
         charge_conservation_row.append(np.arange(0, atomic_number + 1))
@@ -1004,6 +1008,7 @@ def prepare_bound_bound_rate_matrix(
         (number_of_levels, number_of_levels, number_of_shells)
     beta_sobolev : pandas.DataFrame
         Beta Sobolev factors.
+
     Returns
     -------
     numpy.array (number of levels, number of levels)
@@ -1116,6 +1121,7 @@ def create_coll_exc_deexc_matrix(
     """Generates a coefficient matrix from collisional excitation/deexcitation coefficients.
 
     Needs to be multiplied by electron density when added to the overall rate_matrix.
+
     Parameters
     ----------
     coll_exc_coefficient : pandas.Series
