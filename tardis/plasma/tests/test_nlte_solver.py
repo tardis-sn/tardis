@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 import pytest
-from numpy.testing import assert_allclose
+import numpy.testing as npt
+
 
 from tardis.plasma.properties import NLTERateEquationSolver
 from tardis.plasma.properties.ion_population import IonNumberDensity
@@ -139,7 +140,7 @@ def test_rate_matrix(
     simple_total_rad_recomb_coefficients,
     simple_total_col_ion_coefficients,
     simple_total_col_recomb_coefficients,
-    snapshot_np,
+    regression_data,
 ):
     """
     Using a simple case of nlte_ion for HI and HeII, checks if the calculate_rate_matrix generates the correct data.
@@ -157,7 +158,8 @@ def test_rate_matrix(
     )
     # TODO: decimal=6
     # allow for assert_almost_equal
-    assert snapshot_np == np.array(actual_rate_matrix)
+    expected_rate_matrix = regression_data.sync_ndarray(actual_rate_matrix)
+    npt.assert_allclose(actual_rate_matrix, expected_rate_matrix, rtol=1e-6)
 
 
 def test_jacobian_matrix(
@@ -168,7 +170,7 @@ def test_jacobian_matrix(
     simple_total_rad_recomb_coefficients,
     simple_total_col_ion_coefficients,
     simple_total_col_recomb_coefficients,
-    snapshot_np,
+    regression_data,
 ):
     """
     Using a simple case of nlte_ion for HI and HeII,
@@ -206,7 +208,10 @@ def test_jacobian_matrix(
     )
 
     # TODO: allow for assert_almost_equal
-    assert snapshot_np == actual_jacobian_matrix
+    expected_jacobian_matrix = regression_data.sync_ndarray(
+        actual_jacobian_matrix
+    )
+    npt.assert_allclose(actual_jacobian_matrix, expected_jacobian_matrix)
 
 
 @pytest.fixture
@@ -256,7 +261,7 @@ def test_critical_case_w1(nlte_raw_plasma_w1):
     ion_number_density_lte[
         ion_number_density_lte < 1e-10
     ] = 0.0  # getting rid of small numbers.
-    assert_allclose(
+    npt.assert_allclose(
         ion_number_density_lte,
         ion_number_density_nlte,
         rtol=1e-2,
@@ -294,7 +299,7 @@ def test_critical_case_w0(nlte_raw_plasma_w0):
     ion_number_density_lte[
         ion_number_density_lte < 1e-10
     ] = 0.0  # getting rid of small numbers.
-    assert_allclose(
+    npt.assert_allclose(
         ion_number_density_lte,
         ion_number_density_nlte,
         rtol=1e-2,
