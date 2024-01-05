@@ -71,3 +71,6 @@ pip-wheel-metadata/
 
 # Mac OSX
 .DS_Store
+
+# Visual Studio Code
+*.code-workspace
