@@ -94,6 +94,8 @@ class MontecarloTransportSolver(HDFWriterMixin):
         self.use_gpu = use_gpu
 
         self.virt_logging = enable_virtual_packet_logging
+
+        # Length 2 for initialization - will be removed in next PR
         self.virt_packet_last_interaction_type = np.ones(2) * -1
         self.virt_packet_last_interaction_in_nu = np.ones(2) * -1.0
         self.virt_packet_last_line_interaction_in_id = np.ones(2) * -1
