@@ -8,15 +8,15 @@ from tardis import constants as const
 from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo import montecarlo_configuration
+from tardis.montecarlo.estimators.radfield_mc_estimators import (
+    initialize_estimator_statistics,
+)
 from tardis.montecarlo.montecarlo_configuration import (
     configuration_initialize,
 )
 from tardis.montecarlo.montecarlo_numba import (
     montecarlo_main_loop,
     numba_config,
-)
-from tardis.montecarlo.estimators.radfield_mc_estimators import (
-    initialize_estimator_statistics,
 )
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
