@@ -90,11 +90,10 @@ def montecarlo_main_loop(
     n_threads = get_num_threads()
 
     estimator_list = List()
-    for i in range(
-        n_threads
-    ):  # betting get thread_id goes from 0 to num threads
-        # Note that get_thread_id() returns values from 0 to n_threads-1,
-        # so we iterate from 0 to n_threads-1 to create the estimator_list
+    # betting get thread_id goes from 0 to num threads
+    # Note that get_thread_id() returns values from 0 to n_threads-1,
+    # so we iterate from 0 to n_threads-1 to create the estimator_list
+    for i in range(n_threads):
         estimator_list.append(
             RadiationFieldMCEstimators(
                 np.copy(estimators.j_estimator),

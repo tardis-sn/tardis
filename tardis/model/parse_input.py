@@ -6,7 +6,6 @@ import pandas as pd
 from astropy import units as u
 
 from tardis import constants as const
-from tardis import constants as const
 from tardis.io.model.parse_density_configuration import (
     calculate_density_after_time,
     parse_config_v1_density,
@@ -597,7 +596,6 @@ def parse_packet_source(config, geometry):
         If both t_inner and luminosity_requested are None.
 
     """
-
     if config.montecarlo.enable_full_relativity:
         packet_source = BlackBodySimpleSourceRelativistic(
             base_seed=config.montecarlo.seed,

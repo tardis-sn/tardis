@@ -189,7 +189,7 @@ def trace_vpacket(
             v_packet, delta_shell, len(numba_radial_1d_geometry.r_inner)
         )
 
-        if tau_trace_combined > montecarlo_configuration.TAU_RUSSIAN:
+        if tau_trace_combined > montecarlo_configuration.VPACKET_TAU_RUSSIAN:
             event_random = np.random.random()
             if event_random > montecarlo_configuration.SURVIVAL_PROBABILITY:
                 v_packet.energy = 0.0
