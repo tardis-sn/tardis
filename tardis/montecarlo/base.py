@@ -24,7 +24,9 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     rpacket_trackers_to_dataframe,
 )
-from tardis.montecarlo.montecarlo_state import MonteCarloTransportState
+from tardis.montecarlo.montecarlo_transport_state import (
+    MonteCarloTransportState,
+)
 from tardis.util.base import (
     quantity_linspace,
     refresh_packet_pbar,
