@@ -418,10 +418,9 @@ class FormalIntegrator(object):
         -------
         Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -> l
         """
-
         simulation_state = self.simulation_state
         transport = self.transport
-        mct_state = transport.transport_state
+        montecarlo_transport_state = transport.transport_state
 
         # macro_ref = self.atomic_data.macro_atom_references
         macro_ref = self.atomic_data.macro_atom_references
@@ -442,12 +441,14 @@ class FormalIntegrator(object):
             destination_level_idx = ma_int_data.destination_level_idx.values
 
         Edotlu_norm_factor = 1 / (
-            mct_state.packet_collection.time_of_simulation
+            montecarlo_transport_state.packet_collection.time_of_simulation
             * simulation_state.volume
         )
         exptau = 1 - np.exp(-self.original_plasma.tau_sobolevs)
         Edotlu = (
-            Edotlu_norm_factor * exptau * mct_state.estimators.Edotlu_estimator
+            Edotlu_norm_factor
+            * exptau
+            * montecarlo_transport_state.estimators.Edotlu_estimator
         )
 
         # The following may be achieved by calling the appropriate plasma
@@ -459,7 +460,7 @@ class FormalIntegrator(object):
                 / (
                     4
                     * np.pi
-                    * mct_state.time_of_simulation
+                    * montecarlo_transport_state.time_of_simulation
                     * simulation_state.volume
                 )
             )
@@ -538,8 +539,12 @@ class FormalIntegrator(object):
                 att_S_ul, Jredlu, Jbluelu, e_dot_u
             )
         else:
-            transport.r_inner_i = mct_state.geometry_state.r_inner
-            transport.r_outer_i = mct_state.geometry_state.r_outer
+            transport.r_inner_i = (
+                montecarlo_transport_state.geometry_state.r_inner
+            )
+            transport.r_outer_i = (
+                montecarlo_transport_state.geometry_state.r_outer
+            )
             transport.tau_sobolevs_integ = (
                 self.original_plasma.tau_sobolevs.values
             )
