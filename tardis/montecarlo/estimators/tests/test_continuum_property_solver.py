@@ -3,7 +3,7 @@ from copy import deepcopy
 import numpy.testing as npt
 import pandas.testing as pdt
 
-from tardis.montecarlo.estimators.estimated_radfield_properties import (
+from tardis.montecarlo.estimators.continuum_radfield_properties import (
     DiluteBlackBodyContinuumPropertiesSolver,
     MCContinuumPropertiesSolver,
 )
