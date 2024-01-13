@@ -15,7 +15,7 @@ from tardis.io.configuration.config_reader import ConfigurationError
 from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
-from tardis.montecarlo.base import MontecarloTransportSolver
+from tardis.montecarlo.base import MonteCarloTransportSolver
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     rpacket_trackers_to_dataframe,
 )
@@ -708,7 +708,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 )
             transport = kwargs["transport"]
         else:
-            transport = MontecarloTransportSolver.from_config(
+            transport = MonteCarloTransportSolver.from_config(
                 config,
                 packet_source=simulation_state.packet_source,
                 enable_virtual_packet_logging=virtual_packet_logging,
