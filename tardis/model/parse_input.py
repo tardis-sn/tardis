@@ -128,7 +128,9 @@ def parse_structure_config(config, time_explosion, enable_homology=True):
         ) = read_density_file(structure_config_fname, structure_config.filetype)
         density_0 = density_0.insert(0, 0)
 
-        density = calculate_density_after_time(density_0, time_0, time_explosion)
+        density = calculate_density_after_time(
+            density_0, time_0, time_explosion
+        )
 
     else:
         raise NotImplementedError
@@ -150,7 +152,9 @@ def parse_structure_config(config, time_explosion, enable_homology=True):
     return electron_densities, temperature, geometry, density
 
 
-def parse_csvy_geometry(config, csvy_model_config, csvy_model_data, time_explosion):
+def parse_csvy_geometry(
+    config, csvy_model_config, csvy_model_data, time_explosion
+):
     """
     Parse the geometry data from a CSVY model.
 
@@ -279,7 +283,9 @@ def parse_abundance_config(config, geometry, time_explosion):
     norm_factor = abundance.sum(axis=0) + isotope_abundance.sum(axis=0)
 
     if np.any(np.abs(norm_factor - 1) > 1e-12):
-        logger.warning("Abundances have not been normalized to 1. - normalizing")
+        logger.warning(
+            "Abundances have not been normalized to 1. - normalizing"
+        )
         abundance /= norm_factor
         isotope_abundance /= norm_factor
     # The next line is if the abundances are given via dict
@@ -382,15 +388,21 @@ def parse_csvy_composition(
     and isotope abundance data. The parsed data is returned as density, abundance, isotope_abundance,
     and elemental_mass.
     """
-    density = parse_density_csvy(csvy_model_config, csvy_model_data, time_explosion)
+    density = parse_density_csvy(
+        csvy_model_config, csvy_model_data, time_explosion
+    )
 
     nuclide_mass_fraction = parse_abundance_csvy(
         csvy_model_config, csvy_model_data, geometry, time_explosion
     )
-    return Composition(density, nuclide_mass_fraction, atom_data.atom_data.mass.copy())
+    return Composition(
+        density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
+    )
 
 
-def parse_abundance_csvy(csvy_model_config, csvy_model_data, geometry, time_explosion):
+def parse_abundance_csvy(
+    csvy_model_config, csvy_model_data, geometry, time_explosion
+):
     """
     Parse the abundance data from a CSVY model.
 
@@ -429,26 +441,36 @@ def parse_abundance_csvy(csvy_model_config, csvy_model_data, geometry, time_expl
             abundances_section, geometry.no_of_shells
         )
     else:
-        _, mass_fraction, isotope_mass_fraction = parse_csv_abundances(csvy_model_data)
+        _, mass_fraction, isotope_mass_fraction = parse_csv_abundances(
+            csvy_model_data
+        )
         mass_fraction = mass_fraction.loc[:, 1:]
         mass_fraction.columns = np.arange(mass_fraction.shape[1])
         isotope_mass_fraction = isotope_mass_fraction.loc[:, 1:]
-        isotope_mass_fraction.columns = np.arange(isotope_mass_fraction.shape[1])
+        isotope_mass_fraction.columns = np.arange(
+            isotope_mass_fraction.shape[1]
+        )
 
     mass_fraction = mass_fraction.replace(np.nan, 0.0)
     mass_fraction = mass_fraction[mass_fraction.sum(axis=1) > 0]
     isotope_mass_fraction = isotope_mass_fraction.replace(np.nan, 0.0)
-    isotope_mass_fraction = isotope_mass_fraction[isotope_mass_fraction.sum(axis=1) > 0]
+    isotope_mass_fraction = isotope_mass_fraction[
+        isotope_mass_fraction.sum(axis=1) > 0
+    ]
     norm_factor = mass_fraction.sum(axis=0) + isotope_mass_fraction.sum(axis=0)
 
     if np.any(np.abs(norm_factor - 1) > 1e-12):
-        logger.warning("Abundances have not been normalized to 1. - normalizing")
+        logger.warning(
+            "Abundances have not been normalized to 1. - normalizing"
+        )
         mass_fraction /= norm_factor
         isotope_mass_fraction /= norm_factor
     isotope_mass_fraction = IsotopicMassFraction(
         isotope_mass_fraction, time_0=csvy_model_config.model_isotope_time_0
     ).decay(time_explosion)
-    return convert_to_nuclide_mass_fraction(isotope_mass_fraction, mass_fraction)
+    return convert_to_nuclide_mass_fraction(
+        isotope_mass_fraction, mass_fraction
+    )
 
 
 def parse_density_csvy(csvy_model_config, csvy_model_data, time_explosion):
@@ -494,7 +516,9 @@ def parse_density_csvy(csvy_model_config, csvy_model_data, time_explosion):
         # Removing as thee new architecture removes the 0th shell already
         # density_0 = density_0.to("g/cm^3")[1:]
         # density_0 = density_0.insert(0, 0)
-        density = calculate_density_after_time(density_0, time_0, time_explosion)
+        density = calculate_density_after_time(
+            density_0, time_0, time_explosion
+        )
 
     return density
 
@@ -530,9 +554,13 @@ def parse_radiation_field_state(
     """
     if t_radiative is None:
         if config.plasma.initial_t_rad > 0 * u.K:
-            t_radiative = np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
+            t_radiative = (
+                np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
+            )
         else:
-            t_radiative = calculate_t_radiative_from_t_inner(geometry, packet_source)
+            t_radiative = calculate_t_radiative_from_t_inner(
+                geometry, packet_source
+            )
 
     assert len(t_radiative) == geometry.no_of_shells
 
@@ -581,7 +609,9 @@ def initialize_packet_source(config, geometry, packet_source):
         packet_source.radius = geometry.r_inner[0]
         packet_source.set_temperature_from_luminosity(luminosity_requested)
     else:
-        raise ValueError("Both t_inner and luminosity_requested cannot be None.")
+        raise ValueError(
+            "Both t_inner and luminosity_requested cannot be None."
+        )
 
     return packet_source
 
@@ -619,7 +649,9 @@ def parse_csvy_radiation_field_state(
     t_radiative = None
     dilution_factor = None
 
-    if hasattr(csvy_model_data, "columns") and ("t_rad" in csvy_model_data.columns):
+    if hasattr(csvy_model_data, "columns") and (
+        "t_rad" in csvy_model_data.columns
+    ):
         t_rad_field_index = [
             field["name"] for field in csvy_model_config.datatype.fields
         ].index("t_rad")
@@ -629,10 +661,16 @@ def parse_csvy_radiation_field_state(
         t_radiative = csvy_model_data["t_rad"].iloc[1:].values * t_rad_unit
 
     elif config.plasma.initial_t_rad > 0 * u.K:
-        t_radiative = np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
-        t_radiative = np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
+        t_radiative = (
+            np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
+        )
+        t_radiative = (
+            np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
+        )
     else:
-        t_radiative = calculate_t_radiative_from_t_inner(geometry, packet_source)
+        t_radiative = calculate_t_radiative_from_t_inner(
+            geometry, packet_source
+        )
 
     if hasattr(csvy_model_data, "columns") and (
         "dilution_factor" in csvy_model_data.columns
@@ -670,5 +708,8 @@ def calculate_t_radiative_from_t_inner(geometry, packet_source):
 
 def calculate_geometric_dilution_factor(geometry):
     return 0.5 * (
-        1 - np.sqrt(1 - (geometry.r_inner[0] ** 2 / geometry.r_middle**2).to(1).value)
+        1
+        - np.sqrt(
+            1 - (geometry.r_inner[0] ** 2 / geometry.r_middle**2).to(1).value
+        )
     )
