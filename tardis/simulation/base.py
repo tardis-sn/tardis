@@ -14,6 +14,7 @@ from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import ConfigurationError
 from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
+from tardis.model.parse_input import initialize_packet_source
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
 from tardis.montecarlo.base import MonteCarloTransportSolver
 from tardis.montecarlo.montecarlo_numba.r_packet import (
@@ -692,7 +693,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     config, atom_data=atom_data
                 )
             if packet_source is not None:
-                simulation_state.packet_source = packet_source
+                simulation_state.packet_source = initialize_packet_source(
+                    config, simulation_state.geometry, packet_source
+                )
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]
         else:

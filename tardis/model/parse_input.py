@@ -547,6 +547,45 @@ def parse_radiation_field_state(
     return DiluteThermalRadiationFieldState(t_radiative, dilution_factor)
 
 
+def initialize_packet_source(config, geometry, packet_source):
+    """
+    Initialize the packet source based on config and geometry
+
+    Parameters
+    ----------
+    config : Config
+        The configuration object containing the supernova and plasma settings.
+    geometry : Geometry
+        The geometry object containing the inner radius information.
+    packet_source : BasePacketSource
+        The packet source object based on the configuration and geometry.
+
+    Returns
+    -------
+    packet_source : BasePacketSource
+        The packet source object based on the configuration and geometry.
+
+    Raises
+    ------
+    ValueError
+        If both t_inner and luminosity_requested are None.
+    """
+    luminosity_requested = config.supernova.luminosity_requested
+    if config.plasma.initial_t_inner > 0.0 * u.K:
+        packet_source.radius = geometry.r_inner[0]
+        packet_source.temperature = config.plasma.initial_t_inner
+
+    elif (config.plasma.initial_t_inner < 0.0 * u.K) and (
+        luminosity_requested is not None
+    ):
+        packet_source.radius = geometry.r_inner[0]
+        packet_source.set_temperature_from_luminosity(luminosity_requested)
+    else:
+        raise ValueError("Both t_inner and luminosity_requested cannot be None.")
+
+    return packet_source
+
+
 def parse_packet_source(config, geometry):
     """
     Parse the packet source based on the given configuration and geometry.
@@ -562,12 +601,6 @@ def parse_packet_source(config, geometry):
     -------
     packet_source : BlackBodySimpleSource
         The packet source object based on the configuration and geometry.
-
-    Raises
-    ------
-    ValueError
-        If both t_inner and luminosity_requested are None.
-
     """
     if config.montecarlo.enable_full_relativity:
         packet_source = BlackBodySimpleSourceRelativistic(
@@ -577,19 +610,7 @@ def parse_packet_source(config, geometry):
     else:
         packet_source = BlackBodySimpleSource(base_seed=config.montecarlo.seed)
 
-    luminosity_requested = config.supernova.luminosity_requested
-    if config.plasma.initial_t_inner > 0.0 * u.K:
-        packet_source.radius = geometry.r_inner[0]
-        packet_source.temperature = config.plasma.initial_t_inner
-
-    elif (config.plasma.initial_t_inner < 0.0 * u.K) and (
-        luminosity_requested is not None
-    ):
-        packet_source.radius = geometry.r_inner[0]
-        packet_source.set_temperature_from_luminosity(luminosity_requested)
-    else:
-        raise ValueError("Both t_inner and luminosity_requested cannot be None.")
-    return packet_source
+    return initialize_packet_source(config, geometry, packet_source)
 
 
 def parse_csvy_radiation_field_state(
