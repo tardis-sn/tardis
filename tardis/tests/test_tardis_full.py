@@ -77,12 +77,17 @@ class TestTransportSimple:
     def test_j_blue_estimators(self, transport, refdata):
         j_blue_estimator = refdata("j_blue_estimator").values
 
-        npt.assert_allclose(transport.j_blue_estimator, j_blue_estimator)
+        npt.assert_allclose(
+            transport.transport_state.estimators.j_blue_estimator,
+            j_blue_estimator,
+        )
 
     def test_spectrum(self, transport, refdata):
         luminosity = u.Quantity(refdata("spectrum/luminosity"), "erg /s")
 
-        assert_quantity_allclose(transport.spectrum.luminosity, luminosity)
+        assert_quantity_allclose(
+            transport.transport_state.spectrum.luminosity, luminosity
+        )
 
     def test_virtual_spectrum(self, transport, refdata):
         luminosity = u.Quantity(
@@ -90,7 +95,7 @@ class TestTransportSimple:
         )
 
         assert_quantity_allclose(
-            transport.spectrum_virtual.luminosity, luminosity
+            transport.transport_state.spectrum_virtual.luminosity, luminosity
         )
 
     def test_transport_properties(self, transport):

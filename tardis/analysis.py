@@ -15,14 +15,14 @@ INVALID_ION_ERROR_MSG = "Atomic number, ion_number pair not present in model"
 
 class LastLineInteraction(object):
     @classmethod
-    def from_model(cls, model, packet_filter_mode="packet_out_nu"):
+    def from_simulation(cls, simulation, packet_filter_mode="packet_out_nu"):
         return cls(
-            model.transport.last_line_interaction_in_id,
-            model.transport.last_line_interaction_out_id,
-            model.transport.last_line_interaction_shell_id,
-            model.transport.output_nu,
-            model.transport.last_interaction_in_nu,
-            model.plasma.atomic_data.lines,
+            simulation.transport.last_line_interaction_in_id,
+            simulation.transport.last_line_interaction_out_id,
+            simulation.transport.last_line_interaction_shell_id,
+            simulation.transport.transport_state.packet_collection.output_nus,
+            simulation.transport.last_interaction_in_nu,
+            simulation.plasma.atomic_data.lines,
             packet_filter_mode,
         )
 

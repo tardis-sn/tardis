@@ -12,7 +12,7 @@ from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
 
 from tardis.io.configuration.config_reader import ConfigurationNameSpace
-from tardis.montecarlo.base import MontecarloTransport
+from tardis.montecarlo.base import MonteCarloTransportSolver
 from tardis.montecarlo.packet_source import (
     BlackBodySimpleSource,
     BlackBodySimpleSourceRelativistic,
@@ -726,7 +726,7 @@ def transport_from_hdf(fname):
     )
 
     # Creating a transport object and storing data
-    new_transport = MontecarloTransport(
+    new_transport = MonteCarloTransportSolver(
         spectrum_frequency=d["spectrum_frequency_cgs"],
         virtual_spectrum_spawn_range=d["virtual_spectrum_spawn_range"],
         disable_electron_scattering=d["disable_electron_scattering"],
@@ -739,7 +739,7 @@ def transport_from_hdf(fname):
         spectrum_method=d["spectrum_method"],
         packet_source=d["packet_source"],
         nthreads=d["nthreads"],
-        virtual_packet_logging=d["virt_logging"],
+        enable_virtual_packet_logging=d["virt_logging"],
         use_gpu=d["use_gpu"],
     )
 

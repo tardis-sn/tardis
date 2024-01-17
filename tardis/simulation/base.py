@@ -14,8 +14,9 @@ from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import ConfigurationError
 from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
+from tardis.model.parse_input import initialize_packet_source
 from tardis.montecarlo import montecarlo_configuration as mc_config_module
-from tardis.montecarlo.base import MontecarloTransport
+from tardis.montecarlo.base import MonteCarloTransportSolver
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     rpacket_trackers_to_dataframe,
 )
@@ -199,8 +200,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     def estimate_t_inner(
         self, input_t_inner, luminosity_requested, t_inner_update_exponent=-0.5
     ):
-        emitted_luminosity = self.transport.calculate_emitted_luminosity(
-            self.luminosity_nu_start, self.luminosity_nu_end
+        emitted_luminosity = (
+            self.transport.transport_state.calculate_emitted_luminosity(
+                self.luminosity_nu_start, self.luminosity_nu_end
+            )
         )
 
         luminosity_ratios = (
@@ -281,7 +284,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         (
             estimated_t_rad,
             estimated_w,
-        ) = self.transport.calculate_radiationfield_properties()
+        ) = self.transport.transport_state.calculate_radiationfield_properties()
         estimated_t_inner = self.estimate_t_inner(
             self.simulation_state.t_inner,
             self.luminosity_requested,
@@ -366,17 +369,19 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
+
+        estimators = self.transport.transport_state.estimators
         if "j_blue_estimator" in self.plasma.outputs_dict:
             update_properties.update(
                 t_inner=next_t_inner,
-                j_blue_estimator=self.transport.j_blue_estimator,
+                j_blue_estimator=estimators.j_blue_estimator,
             )
         if "gamma_estimator" in self.plasma.outputs_dict:
             update_properties.update(
-                gamma_estimator=self.transport.photo_ion_estimator,
-                alpha_stim_estimator=self.transport.stim_recomb_estimator,
-                bf_heating_coeff_estimator=self.transport.bf_heating_estimator,
-                stim_recomb_cooling_coeff_estimator=self.transport.stim_recomb_cooling_estimator,
+                gamma_estimator=estimators.photo_ion_estimator,
+                alpha_stim_estimator=estimators.stim_recomb_estimator,
+                bf_heating_coeff_estimator=estimators.bf_heating_estimator,
+                stim_recomb_cooling_coeff_estimator=estimators.stim_recomb_cooling_estimator,
             )
 
         self.plasma.update(**update_properties)
@@ -396,15 +401,21 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             total_iterations=self.iterations,
             show_progress_bars=self.show_progress_bars,
         )
-        output_energy = self.transport.output_energy
+        output_energy = (
+            self.transport.transport_state.packet_collection.output_energies
+        )
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-        emitted_luminosity = self.transport.calculate_emitted_luminosity(
-            self.luminosity_nu_start, self.luminosity_nu_end
+        emitted_luminosity = (
+            self.transport.transport_state.calculate_emitted_luminosity(
+                self.luminosity_nu_start, self.luminosity_nu_end
+            )
         )
-        reabsorbed_luminosity = self.transport.calculate_reabsorbed_luminosity(
-            self.luminosity_nu_start, self.luminosity_nu_end
+        reabsorbed_luminosity = (
+            self.transport.transport_state.calculate_reabsorbed_luminosity(
+                self.luminosity_nu_start, self.luminosity_nu_end
+            )
         )
         if hasattr(self, "convergence_plots"):
             self.convergence_plots.fetch_data(
@@ -681,6 +692,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 simulation_state = SimulationState.from_config(
                     config, atom_data=atom_data
                 )
+            if packet_source is not None:
+                simulation_state.packet_source = initialize_packet_source(
+                    config, simulation_state.geometry, packet_source
+                )
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]
         else:
@@ -696,10 +711,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 )
             transport = kwargs["transport"]
         else:
-            transport = MontecarloTransport.from_config(
+            transport = MonteCarloTransportSolver.from_config(
                 config,
-                packet_source=packet_source,
-                virtual_packet_logging=virtual_packet_logging,
+                packet_source=simulation_state.packet_source,
+                enable_virtual_packet_logging=virtual_packet_logging,
             )
 
         convergence_plots_config_options = [

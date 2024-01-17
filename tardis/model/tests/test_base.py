@@ -176,7 +176,9 @@ class TestModelFromInitialTinner:
         )
 
     def test_initial_temperature(self):
-        assert_almost_equal(self.simulation_state.t_inner.value, 2508)
+        assert_almost_equal(
+            self.simulation_state.packet_source.temperature.value, 2508
+        )
 
 
 class TestModelFromArtisDensityAbundancesAllAscii:

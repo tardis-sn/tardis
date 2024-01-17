@@ -88,11 +88,27 @@ def simulation_one_loop(
     ],
 )
 def test_plasma_estimates(simulation_one_loop, refdata, name):
-    try:
-        actual = getattr(simulation_one_loop.transport, name)
-    except AttributeError:
+    if name in ["nu_bar_estimator", "j_estimator"]:
+        actual = getattr(
+            simulation_one_loop.transport.transport_state.estimators, name
+        )
+    elif name in ["t_radiative", "dilution_factor"]:
         actual = getattr(simulation_one_loop.simulation_state, name)
-    if name in ["t_radiative", "output_nu", "output_energy"]:
+    elif name in ["output_nu", "output_energy"]:
+        OLD_TO_NEW_DICT = {
+            "output_nu": "output_nus",
+            "output_energy": "output_energies",
+        }
+        actual = getattr(
+            simulation_one_loop.transport.transport_state.packet_collection,
+            OLD_TO_NEW_DICT[name],
+        )
+    else:
+        try:
+            actual = getattr(simulation_one_loop.transport, name)
+        except AttributeError:
+            actual = getattr(simulation_one_loop.simulation_state, name)
+    if name in ["t_radiative"]:
         # removing the quantitiness of the data
         actual = actual.value
     actual = pd.Series(actual)

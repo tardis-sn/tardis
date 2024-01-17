@@ -124,18 +124,21 @@ class LineInfoWidget:
         -------
         LineInfoWidget object
         """
+        transport_state = sim.transport.transport_state
         return cls(
             lines_data=sim.plasma.lines.reset_index().set_index("line_id"),
             line_interaction_analysis={
-                filter_mode: LastLineInteraction.from_model(sim, filter_mode)
+                filter_mode: LastLineInteraction.from_simulation(
+                    sim, filter_mode
+                )
                 for filter_mode in cls.FILTER_MODES
             },
-            spectrum_wavelength=sim.transport.spectrum.wavelength,
-            spectrum_luminosity_density_lambda=sim.transport.spectrum.luminosity_density_lambda.to(
+            spectrum_wavelength=transport_state.spectrum.wavelength,
+            spectrum_luminosity_density_lambda=transport_state.spectrum.luminosity_density_lambda.to(
                 "erg/(s AA)"
             ),
-            virt_spectrum_wavelength=sim.transport.spectrum_virtual.wavelength,
-            virt_spectrum_luminosity_density_lambda=sim.transport.spectrum_virtual.luminosity_density_lambda.to(
+            virt_spectrum_wavelength=transport_state.spectrum_virtual.wavelength,
+            virt_spectrum_luminosity_density_lambda=transport_state.spectrum_virtual.luminosity_density_lambda.to(
                 "erg/(s AA)"
             ),
         )

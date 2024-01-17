@@ -406,7 +406,6 @@ class ConfigEditor(QtWidgets.QWidget):
 
                 elif isinstance(dict2[key], list):
                     if isinstance(dict2[key][1], list):
-
                         # options = dict2[key][1] #This is passed by reference.
                         # So copy the list manually.
                         options = [
@@ -937,8 +936,8 @@ class LineInfo(QtWidgets.QDialog):
             f"Line Interaction: {wavelength_start:.2f} - {wavelength_end:.2f} (A) "
         )
         self.layout = QtWidgets.QVBoxLayout()
-        packet_nu_line_interaction = analysis.LastLineInteraction.from_model(
-            self.parent.model
+        packet_nu_line_interaction = (
+            analysis.LastLineInteraction.from_simulation(self.parent.model)
         )
         packet_nu_line_interaction.packet_filter_mode = "packet_nu"
         packet_nu_line_interaction.wavelength_start = (
@@ -946,8 +945,8 @@ class LineInfo(QtWidgets.QDialog):
         )
         packet_nu_line_interaction.wavelength_end = wavelength_end * u.angstrom
 
-        line_in_nu_line_interaction = analysis.LastLineInteraction.from_model(
-            self.parent.model
+        line_in_nu_line_interaction = (
+            analysis.LastLineInteraction.from_simulation(self.parent.model)
         )
         line_in_nu_line_interaction.packet_filter_mode = "line_in_nu"
         line_in_nu_line_interaction.wavelength_start = (
