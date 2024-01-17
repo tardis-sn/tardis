@@ -100,12 +100,7 @@ class BasePacketSource(abc.ABC):
             self.calculate_radfield_luminosity().to(u.erg / u.s).value
         )
         return PacketCollection(
-            radii.cgs.value,
-            nus.cgs.value,
-            mus,
-            energies,
-            packet_seeds,
-            radiation_field_luminosity,
+            radii, nus, mus, energies, packet_seeds, radiation_field_luminosity
         )
 
     def calculate_radfield_luminosity(self):
@@ -222,7 +217,12 @@ class BlackBodySimpleSource(BasePacketSource):
         xis_prod = np.prod(xis[1:], 0)
         x = ne.evaluate("-log(xis_prod)/l")
 
-        return x * (const.k_B.cgs.value * self.temperature) / const.h.cgs.value
+        if isinstance(self.temperature, u.Quantity):
+            temperature = self.temperature.value
+        else:
+            temperature = self.temperature
+
+        return x * (const.k_B.cgs.value * temperature) / const.h.cgs.value
 
     def create_packet_mus(self, no_of_packets):
         """

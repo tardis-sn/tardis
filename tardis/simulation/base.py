@@ -694,7 +694,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     config, atom_data=atom_data
                 )
             if packet_source is not None:
-                simulation_state.packet_source = packet_source
+                simulation_state.packet_source = initialize_packet_source(
+                    config, simulation_state.geometry, packet_source
+                )
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]
         else:
@@ -710,10 +712,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 )
             transport = kwargs["transport"]
         else:
-            transport = MontecarloTransportSolver.from_config(
+            transport = MonteCarloTransportSolver.from_config(
                 config,
                 packet_source=simulation_state.packet_source,
-                enable_vpacket_tracking=virtual_packet_logging,
+                enable_virtual_packet_logging=virtual_packet_logging,
             )
 
         convergence_plots_config_options = [

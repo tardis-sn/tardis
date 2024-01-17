@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 # TODO: refactor this into more parts
-class MontecarloTransportSolver(HDFWriterMixin):
+class MonteCarloTransportSolver(HDFWriterMixin):
     """
     This class is designed as an interface between the Python part and the
     montecarlo C-part
@@ -70,7 +70,7 @@ class MontecarloTransportSolver(HDFWriterMixin):
         v_packet_settings,
         spectrum_method,
         packet_source,
-        enable_vpacket_tracking=False,
+        enable_virtual_packet_logging=False,
         enable_rpacket_tracking=False,
         nthreads=1,
         debug_packets=False,
@@ -92,9 +92,10 @@ class MontecarloTransportSolver(HDFWriterMixin):
 
         self.use_gpu = use_gpu
 
-        self.enable_vpacket_tracking = enable_vpacket_tracking
+        self.enable_vpacket_tracking = enable_virtual_packet_logging
         self.enable_rpacket_tracking = enable_rpacket_tracking
 
+        # Length 2 for initialization - will be removed in next PR
         self.virt_packet_last_interaction_type = np.ones(2) * -1
         self.virt_packet_last_interaction_in_nu = np.ones(2) * -1.0
         self.virt_packet_last_line_interaction_in_id = np.ones(2) * -1
@@ -264,7 +265,9 @@ class MontecarloTransportSolver(HDFWriterMixin):
         )
 
     @classmethod
-    def from_config(cls, config, packet_source, enable_vpacket_tracking=False):
+    def from_config(
+        cls, config, packet_source, enable_virtual_packet_logging=False
+    ):
         """
         Create a new MontecarloTransport instance from a Configuration object.
 
@@ -337,9 +340,9 @@ class MontecarloTransportSolver(HDFWriterMixin):
             packet_source=packet_source,
             debug_packets=config.montecarlo.debug_packets,
             logger_buffer=config.montecarlo.logger_buffer,
-            enable_vpacket_tracking=(
+            enable_virtual_packet_logging=(
                 config.spectrum.virtual.virtual_packet_logging
-                | enable_vpacket_tracking
+                | enable_virtual_packet_logging
             ),
             enable_rpacket_tracking=config.montecarlo.tracking.track_rpacket,
             nthreads=config.montecarlo.nthreads,

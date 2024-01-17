@@ -1,23 +1,14 @@
-import pytest
 import numpy as np
-from tardis import constants as c
-from astropy import units as u
-
-from copy import deepcopy
 import numpy.testing as ntest
+import pytest
 from numba import cuda
-from numba import njit
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 
-
-import tardis.montecarlo.montecarlo_numba.formal_integral_cuda as formal_integral_cuda
 import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral_numba
+import tardis.montecarlo.montecarlo_numba.formal_integral_cuda as formal_integral_cuda
+from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
-
-
-from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
 from tardis.montecarlo.montecarlo_numba.formal_integral import (
+    FormalIntegrator,
     NumbaFormalIntegrator,
 )
 
