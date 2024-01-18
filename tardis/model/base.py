@@ -224,7 +224,7 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def no_of_shells(self):
-        return self.geometry.no_of_shells
+        return self.geometry.no_of_shells_active
 
     @property
     def no_of_raw_shells(self):
