@@ -17,7 +17,7 @@ from tardis.model import SimulationState
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
-from tardis.montecarlo.base import MontecarloTransportSolver
+from tardis.montecarlo.base import MonteCarloTransportSolver
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
