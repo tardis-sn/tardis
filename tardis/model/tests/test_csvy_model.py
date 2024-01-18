@@ -86,6 +86,32 @@ def test_compare_models(model_config_fnames, atomic_dataset):
     )
 
 
+def test_dimensionality_after_update_v_inner_boundary(
+    example_csvy_file_dir, atomic_dataset
+):
+    """Test that the dimensionality of SimulationState parameters after updating v_inner_boundary
+    in the context of csvy models specifically"""
+    csvy_config_file = example_csvy_file_dir / "radiative_csvy.yml"
+    config = Configuration.from_yaml(csvy_config_file)
+    csvy_model = SimulationState.from_csvy(config, atom_data=atomic_dataset)
+
+    new_config = config.deepcopy()
+    new_config.model.v_inner_boundary = csvy_model.velocity[1]
+    new_csvy_model = SimulationState.from_csvy(
+        new_config, atom_data=atomic_dataset
+    )
+
+    assert new_csvy_model.no_of_raw_shells == csvy_model.no_of_raw_shells
+    assert new_csvy_model.no_of_shells == csvy_model.no_of_shells - 1
+    assert new_csvy_model.velocity.shape[0] == csvy_model.velocity.shape[0] - 1
+    assert new_csvy_model.density.shape[0] == csvy_model.density.shape[0] - 1
+    assert new_csvy_model.volume.shape[0] == csvy_model.volume.shape[0] - 1
+    assert (
+        new_csvy_model.t_radiative.shape[0]
+        == csvy_model.t_radiative.shape[0] - 1
+    )
+
+
 @pytest.fixture(scope="module")
 def csvy_model_test_abundances(example_csvy_file_dir, atomic_dataset):
     """Returns SimulationState to use to test abundances dataframes"""
