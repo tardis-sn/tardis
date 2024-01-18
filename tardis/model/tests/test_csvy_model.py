@@ -95,7 +95,7 @@ def test_dimensionality_after_update_v_inner_boundary(
     config = Configuration.from_yaml(csvy_config_file)
     csvy_model = SimulationState.from_csvy(config, atom_data=atomic_dataset)
 
-    new_config = config.deepcopy()
+    new_config = config
     new_config.model.v_inner_boundary = csvy_model.velocity[1]
     new_csvy_model = SimulationState.from_csvy(
         new_config, atom_data=atomic_dataset
