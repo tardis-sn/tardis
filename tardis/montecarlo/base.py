@@ -209,6 +209,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             iteration=iteration,
             show_progress_bars=show_progress_bars,
             total_iterations=total_iterations,
+            enable_virtual_packet_logging=montecarlo_configuration.ENABLE_VPACKET_TRACKING
         )
 
         transport_state._montecarlo_virtual_luminosity.value[
