@@ -282,7 +282,9 @@ class SDECData:
                     ),
                     lines_df=lines_df,
                     packet_nus=u.Quantity(
-                        hdf["/simulation/transport/transport_state/virt_packet_nus"].to_numpy(),
+                        hdf[
+                            "/simulation/transport/transport_state/virt_packet_nus"
+                        ].to_numpy(),
                         "Hz",
                     ),
                     packet_energies=u.Quantity(
@@ -344,15 +346,15 @@ class SDECData:
                     ),
                     lines_df=lines_df,
                     packet_nus=u.Quantity(
-                        hdf["/simulation/transport/transport_state/output_nu"].to_numpy()[
-                            emitted_packet_mask
-                        ],
+                        hdf[
+                            "/simulation/transport/transport_state/output_nu"
+                        ].to_numpy()[emitted_packet_mask],
                         "Hz",
                     ),
                     packet_energies=u.Quantity(
-                        hdf["/simulation/transport/transport_state/output_energy"].to_numpy()[
-                            emitted_packet_mask
-                        ],
+                        hdf[
+                            "/simulation/transport/transport_state/output_energy"
+                        ].to_numpy()[emitted_packet_mask],
                         "erg",
                     ),
                     r_inner=r_inner,

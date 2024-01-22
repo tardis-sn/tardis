@@ -21,13 +21,14 @@ def to_hdf_buffer(hdf_file_path, simulation_verysimple_vpacket_tracking):
     )
 
 
-transport_properties = [
-    None
-]
+transport_properties = [None]
+
 
 @pytest.mark.xfail(reason="No HDF properties being written currently")
 @pytest.mark.parametrize("attr", transport_properties)
-def test_hdf_transport(hdf_file_path, simulation_verysimple_vpacket_tracking, attr):
+def test_hdf_transport(
+    hdf_file_path, simulation_verysimple_vpacket_tracking, attr
+):
     actual = getattr(simulation_verysimple_vpacket_tracking.transport, attr)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
@@ -44,11 +45,11 @@ transport_state_properties = [
     "montecarlo_virtual_luminosity",
     "packet_luminosity",
     # These are nested properties that should be tested differently
-    #"spectrum",
-    #"spectrum_virtual",
-    #"spectrum_reabsorbed",
+    # "spectrum",
+    # "spectrum_virtual",
+    # "spectrum_reabsorbed",
     # This is a scalar and should be tested differently
-    #"time_of_simulation",
+    # "time_of_simulation",
     "emitted_packet_mask",
     "last_interaction_type",
     "last_interaction_in_nu",
@@ -68,8 +69,12 @@ transport_state_properties = [
 
 
 @pytest.mark.parametrize("attr", transport_state_properties)
-def test_hdf_transport_state(hdf_file_path, simulation_verysimple_vpacket_tracking, attr):
-    actual = getattr(simulation_verysimple_vpacket_tracking.transport.transport_state, attr)
+def test_hdf_transport_state(
+    hdf_file_path, simulation_verysimple_vpacket_tracking, attr
+):
+    actual = getattr(
+        simulation_verysimple_vpacket_tracking.transport.transport_state, attr
+    )
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
     path = f"transport_state/{attr}"

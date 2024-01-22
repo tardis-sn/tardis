@@ -24,7 +24,9 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     rpacket_trackers_to_dataframe,
 )
-from tardis.montecarlo.montecarlo_transport_state import MonteCarloTransportState
+from tardis.montecarlo.montecarlo_transport_state import (
+    MonteCarloTransportState,
+)
 from tardis.util.base import (
     quantity_linspace,
     refresh_packet_pbar,
@@ -37,7 +39,7 @@ logger = logging.getLogger(__name__)
 # TODO: refactor this into more parts
 class MonteCarloTransportSolver(HDFWriterMixin):
     """
-    This class modifies the MonteCarloTransportState to solve the radiative 
+    This class modifies the MonteCarloTransportState to solve the radiative
     transfer problem.
     """
 
@@ -186,7 +188,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             iteration=iteration,
             show_progress_bars=show_progress_bars,
             total_iterations=total_iterations,
-            enable_virtual_packet_logging=self.enable_vpacket_tracking
+            enable_virtual_packet_logging=self.enable_vpacket_tracking,
         )
 
         transport_state._montecarlo_virtual_luminosity.value[

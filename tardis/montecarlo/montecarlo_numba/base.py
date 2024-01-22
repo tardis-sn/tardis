@@ -37,7 +37,7 @@ def montecarlo_main_loop(
     iteration,
     show_progress_bars,
     total_iterations,
-    enable_virtual_packet_logging
+    enable_virtual_packet_logging,
 ):
     """This is the main loop of the MonteCarlo routine that generates packets
     and sends them through the ejecta.
