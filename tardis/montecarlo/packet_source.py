@@ -100,8 +100,8 @@ class BasePacketSource(abc.ABC):
             self.calculate_radfield_luminosity().to(u.erg / u.s).value
         )
         return PacketCollection(
-            radii.cgs.value,
-            nus.cgs.value,
+            radii,
+            nus,
             mus,
             energies,
             packet_seeds,

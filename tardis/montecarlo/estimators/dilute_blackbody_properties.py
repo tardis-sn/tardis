@@ -48,7 +48,7 @@ class MCDiluteBlackBodyRadFieldSolver:
             4
             * const.sigma_sb.cgs.value
             * temperature_radiative.value**4
-            * (time_of_simulation)
+            * time_of_simulation.value
             * volume
         )
 
