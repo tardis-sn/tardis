@@ -1,28 +1,37 @@
 import logging
-import warnings
-
-from astropy import units as u
-from tardis import constants as const
-from numba import set_num_threads
-from numba import cuda
-
-
-from tardis.util.base import quantity_linspace
-from tardis.io.util import HDFWriterMixin
-from tardis.montecarlo import packet_source as source
-from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
-from tardis.montecarlo.montecarlo_numba.estimators import initialize_estimators
-from tardis.montecarlo import montecarlo_configuration as mc_config_module
-from tardis.montecarlo.montecarlo_state import MonteCarloTransportState
-
-from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
-from tardis.montecarlo.montecarlo_numba.numba_interface import (
-    configuration_initialize,
-)
-from tardis.montecarlo.montecarlo_numba import numba_config
-from tardis.io.logger import montecarlo_tracking as mc_tracker
 
 import numpy as np
+from astropy import units as u
+from numba import cuda, set_num_threads
+
+from tardis import constants as const
+from tardis.io.logger import montecarlo_tracking as mc_tracker
+from tardis.io.util import HDFWriterMixin
+from tardis.montecarlo import montecarlo_configuration
+from tardis.montecarlo.montecarlo_configuration import (
+    configuration_initialize,
+)
+from tardis.montecarlo.montecarlo_numba import (
+    montecarlo_main_loop,
+    numba_config,
+)
+from tardis.montecarlo.montecarlo_numba.estimators import initialize_estimators
+from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
+from tardis.montecarlo.montecarlo_numba.numba_interface import (
+    NumbaModel,
+    opacity_state_initialize,
+)
+from tardis.montecarlo.montecarlo_numba.r_packet import (
+    rpacket_trackers_to_dataframe,
+)
+from tardis.montecarlo.montecarlo_transport_state import (
+    MonteCarloTransportState,
+)
+from tardis.util.base import (
+    quantity_linspace,
+    refresh_packet_pbar,
+    update_iterations_pbar,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -30,30 +39,11 @@ logger = logging.getLogger(__name__)
 # TODO: refactor this into more parts
 class MonteCarloTransportSolver(HDFWriterMixin):
     """
-    This class is designed as an interface between the Python part and the
-    montecarlo C-part
+    This class modifies the MonteCarloTransportState to solve the radiative
+    transfer problem.
     """
 
-    hdf_properties = [
-        "transport_state",
-        "last_interaction_in_nu",
-        "last_interaction_type",
-        "last_line_interaction_in_id",
-        "last_line_interaction_out_id",
-        "last_line_interaction_shell_id",
-    ]
-
-    vpacket_hdf_properties = [
-        "virt_packet_nus",
-        "virt_packet_energies",
-        "virt_packet_initial_rs",
-        "virt_packet_initial_mus",
-        "virt_packet_last_interaction_in_nu",
-        "virt_packet_last_interaction_type",
-        "virt_packet_last_line_interaction_in_id",
-        "virt_packet_last_line_interaction_out_id",
-        "virt_packet_last_line_interaction_shell_id",
-    ]
+    hdf_properties = ["transport_state"]
 
     hdf_name = "transport"
 
@@ -70,11 +60,11 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         v_packet_settings,
         spectrum_method,
         packet_source,
-        enable_virtual_packet_logging,
+        enable_virtual_packet_logging=False,
+        enable_rpacket_tracking=False,
         nthreads=1,
         debug_packets=False,
         logger_buffer=1,
-        tracking_rpacket=False,
         use_gpu=False,
     ):
         # inject different packets
@@ -84,7 +74,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         self.enable_reflective_inner_boundary = enable_reflective_inner_boundary
         self.inner_boundary_albedo = inner_boundary_albedo
         self.enable_full_relativity = enable_full_relativity
-        numba_config.ENABLE_FULL_RELATIVITY = enable_full_relativity
         self.line_interaction_type = line_interaction_type
         self.integrator_settings = integrator_settings
         self.v_packet_settings = v_packet_settings
@@ -93,18 +82,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         self.use_gpu = use_gpu
 
-        self.virt_logging = enable_virtual_packet_logging
-
-        # Length 2 for initialization - will be removed in next PR
-        self.virt_packet_last_interaction_type = np.ones(2) * -1
-        self.virt_packet_last_interaction_in_nu = np.ones(2) * -1.0
-        self.virt_packet_last_line_interaction_in_id = np.ones(2) * -1
-        self.virt_packet_last_line_interaction_out_id = np.ones(2) * -1
-        self.virt_packet_last_line_interaction_shell_id = np.ones(2) * -1
-        self.virt_packet_nus = np.ones(2) * -1.0
-        self.virt_packet_energies = np.ones(2) * -1.0
-        self.virt_packet_initial_rs = np.ones(2) * -1.0
-        self.virt_packet_initial_mus = np.ones(2) * -1.0
+        self.enable_vpacket_tracking = enable_virtual_packet_logging
+        self.enable_rpacket_tracking = enable_rpacket_tracking
 
         self.packet_source = packet_source
 
@@ -118,39 +97,54 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         mc_tracker.DEBUG_MODE = debug_packets
         mc_tracker.BUFFER = logger_buffer
 
-        mc_config_module.RPACKET_TRACKING = tracking_rpacket
-
         if self.spectrum_method == "integrated":
             self.optional_hdf_properties.append("spectrum_integrated")
 
-    def _initialize_packets(self, no_of_packets, iteration):
-        # the iteration (passed as seed_offset) is added each time to preserve randomness
-        # across different simulations with the same temperature,
-        # for example.
-
-        # Create packets
-        self.packet_collection = self.packet_source.create_packets(
-            no_of_packets, seed_offset=iteration
-        )
-
-        self.last_line_interaction_in_id = -1 * np.ones(
-            no_of_packets, dtype=np.int64
-        )
-        self.last_line_interaction_out_id = -1 * np.ones(
-            no_of_packets, dtype=np.int64
-        )
-        self.last_line_interaction_shell_id = -1 * np.ones(
-            no_of_packets, dtype=np.int64
-        )
-        self.last_interaction_type = -1 * np.ones(no_of_packets, dtype=np.int64)
-        self.last_interaction_in_nu = np.zeros(no_of_packets, dtype=np.float64)
-
-    def run(
+    def initialize_transport_state(
         self,
         simulation_state,
         plasma,
         no_of_packets,
         no_of_virtual_packets=0,
+        iteration=0,
+    ):
+        if not plasma.continuum_interaction_species.empty:
+            gamma_shape = plasma.gamma.shape
+        else:
+            gamma_shape = (0, 0)
+
+        packet_collection = self.packet_source.create_packets(
+            no_of_packets, seed_offset=iteration
+        )
+        estimators = initialize_estimators(
+            plasma.tau_sobolevs.shape, gamma_shape
+        )
+
+        geometry_state = simulation_state.geometry.to_numba()
+        opacity_state = opacity_state_initialize(
+            plasma, self.line_interaction_type
+        )
+        transport_state = MonteCarloTransportState(
+            packet_collection,
+            estimators,
+            spectrum_frequency=self.spectrum_frequency,
+            geometry_state=geometry_state,
+            opacity_state=opacity_state,
+        )
+
+        transport_state.enable_full_relativity = self.enable_full_relativity
+        transport_state.integrator_settings = self.integrator_settings
+        transport_state._integrator = FormalIntegrator(
+            simulation_state, plasma, self
+        )
+        configuration_initialize(self, no_of_virtual_packets)
+
+        return transport_state
+
+    def run(
+        self,
+        transport_state,
+        time_explosion,
         iteration=0,
         total_iterations=0,
         show_progress_bars=True,
@@ -171,46 +165,66 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         -------
         None
         """
-
         set_num_threads(self.nthreads)
+        self.transport_state = transport_state
 
-        if not plasma.continuum_interaction_species.empty:
-            gamma_shape = plasma.gamma.shape
-        else:
-            gamma_shape = (0, 0)
+        numba_model = NumbaModel(time_explosion.to("s").value)
 
-        # Initializing estimator array
-        estimators = initialize_estimators(
-            plasma.tau_sobolevs.shape, gamma_shape
+        number_of_vpackets = montecarlo_configuration.NUMBER_OF_VPACKETS
+
+        (
+            v_packets_energy_hist,
+            last_interaction_tracker,
+            vpacket_tracker,
+            rpacket_trackers,
+        ) = montecarlo_main_loop(
+            transport_state.packet_collection,
+            transport_state.geometry_state,
+            numba_model,
+            transport_state.opacity_state,
+            transport_state.estimators,
+            transport_state.spectrum_frequency.value,
+            number_of_vpackets,
+            iteration=iteration,
+            show_progress_bars=show_progress_bars,
+            total_iterations=total_iterations,
+            enable_virtual_packet_logging=self.enable_vpacket_tracking,
         )
 
-        self._initialize_packets(no_of_packets, iteration)
-
-        self.transport_state = MonteCarloTransportState(
-            self.packet_collection,
-            estimators,
-            simulation_state.volume.cgs.copy(),
-            spectrum_frequency=self.spectrum_frequency,
-            geometry_state=simulation_state.geometry.to_numba(),
+        transport_state._montecarlo_virtual_luminosity.value[
+            :
+        ] = v_packets_energy_hist
+        transport_state.last_interaction_type = last_interaction_tracker.types
+        transport_state.last_interaction_in_nu = last_interaction_tracker.in_nus
+        transport_state.last_line_interaction_in_id = (
+            last_interaction_tracker.in_ids
         )
-        self.transport_state.enable_full_relativity = (
-            self.enable_full_relativity
+        transport_state.last_line_interaction_out_id = (
+            last_interaction_tracker.out_ids
         )
-        self.transport_state.integrator_settings = self.integrator_settings
-        self.transport_state._integrator = FormalIntegrator(
-            simulation_state, plasma, self
+        transport_state.last_line_interaction_shell_id = (
+            last_interaction_tracker.shell_ids
         )
 
-        configuration_initialize(self, no_of_virtual_packets)
-        montecarlo_radial1d(
-            simulation_state,
-            plasma,
-            iteration,
-            self.packet_collection,
-            self.transport_state.estimators,
-            total_iterations,
-            show_progress_bars,
-            self,
+        if montecarlo_configuration.ENABLE_VPACKET_TRACKING and (
+            number_of_vpackets > 0
+        ):
+            transport_state.vpacket_tracker = vpacket_tracker
+
+        update_iterations_pbar(1)
+        refresh_packet_pbar()
+        # Condition for Checking if RPacket Tracking is enabled
+        if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
+            transport_state.rpacket_tracker = rpacket_trackers
+
+        if self.transport_state.rpacket_tracker is not None:
+            self.transport_state.rpacket_tracker_df = (
+                rpacket_trackers_to_dataframe(
+                    self.transport_state.rpacket_tracker
+                )
+            )
+        transport_state.virt_logging = (
+            montecarlo_configuration.ENABLE_VPACKET_TRACKING
         )
 
     def legacy_return(self):
@@ -219,10 +233,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             self.transport_state.packet_collection.output_energies,
             self.transport_state.estimators.j_estimator,
             self.transport_state.estimators.nu_bar_estimator,
-            self.last_line_interaction_in_id,
-            self.last_line_interaction_out_id,
-            self.last_interaction_type,
-            self.last_line_interaction_shell_id,
+            self.transport_state.last_line_interaction_in_id,
+            self.transport_state.last_line_interaction_out_id,
+            self.transport_state.last_interaction_type,
+            self.transport_state.last_line_interaction_shell_id,
         )
 
     def get_line_interaction_id(self, line_interaction_type):
@@ -247,7 +261,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         MontecarloTransport
         """
         if config.plasma.disable_electron_scattering:
-            logger.warn(
+            logger.warning(
                 "Disabling electron scattering - this is not physical."
                 "Likely bug in formal integral - "
                 "will not give same results."
@@ -284,11 +298,11 @@ class MonteCarloTransportSolver(HDFWriterMixin):
                 valid values are 'GPU', 'CPU', and 'Automatic'."""
             )
 
-        mc_config_module.disable_line_scattering = (
+        montecarlo_configuration.DISABLE_LINE_SCATTERING = (
             config.plasma.disable_line_scattering
         )
 
-        mc_config_module.INITIAL_TRACKING_ARRAY_LENGTH = (
+        montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH = (
             config.montecarlo.tracking.initial_array_length
         )
 
@@ -310,7 +324,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
                 config.spectrum.virtual.virtual_packet_logging
                 | enable_virtual_packet_logging
             ),
+            enable_rpacket_tracking=config.montecarlo.tracking.track_rpacket,
             nthreads=config.montecarlo.nthreads,
-            tracking_rpacket=config.montecarlo.tracking.track_rpacket,
             use_gpu=use_gpu,
         )

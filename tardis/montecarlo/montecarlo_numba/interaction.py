@@ -320,7 +320,7 @@ def free_free_emission(r_packet, time_explosion, opacity_state):
     current_line_id = get_current_line_id(comov_nu, opacity_state.line_list_nu)
     r_packet.next_line_id = current_line_id
 
-    if montecarlo_configuration.full_relativity:
+    if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
@@ -350,7 +350,7 @@ def bound_free_emission(r_packet, time_explosion, opacity_state, continuum_id):
     current_line_id = get_current_line_id(comov_nu, opacity_state.line_list_nu)
     r_packet.next_line_id = current_line_id
 
-    if montecarlo_configuration.full_relativity:
+    if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
@@ -384,7 +384,7 @@ def thomson_scatter(r_packet, time_explosion):
 
     r_packet.nu = comov_nu * inverse_new_doppler_factor
     r_packet.energy = comov_energy * inverse_new_doppler_factor
-    if montecarlo_configuration.full_relativity:
+    if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
@@ -462,7 +462,7 @@ def line_emission(r_packet, emission_line_id, time_explosion, opacity_state):
     r_packet.next_line_id = emission_line_id + 1
     nu_line = opacity_state.line_list_nu[emission_line_id]
 
-    if montecarlo_configuration.full_relativity:
+    if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )

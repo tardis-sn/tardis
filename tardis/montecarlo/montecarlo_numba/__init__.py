@@ -13,7 +13,7 @@ njit_dict_no_parallel = {
 }
 
 from tardis.montecarlo.montecarlo_numba.r_packet import RPacket
-from tardis.montecarlo.montecarlo_numba.base import montecarlo_radial1d
+from tardis.montecarlo.montecarlo_numba.base import montecarlo_main_loop
 from tardis.montecarlo.montecarlo_numba.packet_collections import (
     PacketCollection,
 )

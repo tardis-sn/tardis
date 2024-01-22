@@ -173,14 +173,16 @@ class SDECData:
 
         if packets_mode == "virtual":
             return cls(
-                last_interaction_type=sim.transport.virt_packet_last_interaction_type,
-                last_line_interaction_in_id=sim.transport.virt_packet_last_line_interaction_in_id,
-                last_line_interaction_out_id=sim.transport.virt_packet_last_line_interaction_out_id,
-                last_line_interaction_in_nu=sim.transport.virt_packet_last_interaction_in_nu,
+                last_interaction_type=transport_state.vpacket_tracker.last_interaction_type,
+                last_line_interaction_in_id=transport_state.vpacket_tracker.last_interaction_in_id,
+                last_line_interaction_out_id=transport_state.vpacket_tracker.last_interaction_out_id,
+                last_line_interaction_in_nu=transport_state.vpacket_tracker.last_interaction_in_nu,
                 lines_df=lines_df,
-                packet_nus=u.Quantity(sim.transport.virt_packet_nus, "Hz"),
+                packet_nus=u.Quantity(
+                    transport_state.vpacket_tracker.nus, "Hz"
+                ),
                 packet_energies=u.Quantity(
-                    sim.transport.virt_packet_energies, "erg"
+                    transport_state.vpacket_tracker.energies, "erg"
                 ),
                 r_inner=r_inner,
                 spectrum_delta_frequency=transport_state.spectrum_virtual.delta_frequency,
@@ -194,17 +196,18 @@ class SDECData:
         elif packets_mode == "real":
             # Packets-specific properties need to be only for those packets
             # which got emitted
+            transport_state = sim.transport.transport_state
             return cls(
-                last_interaction_type=sim.transport.last_interaction_type[
+                last_interaction_type=transport_state.last_interaction_type[
                     transport_state.emitted_packet_mask
                 ],
-                last_line_interaction_in_id=sim.transport.last_line_interaction_in_id[
+                last_line_interaction_in_id=transport_state.last_line_interaction_in_id[
                     transport_state.emitted_packet_mask
                 ],
-                last_line_interaction_out_id=sim.transport.last_line_interaction_out_id[
+                last_line_interaction_out_id=transport_state.last_line_interaction_out_id[
                     transport_state.emitted_packet_mask
                 ],
-                last_line_interaction_in_nu=sim.transport.last_interaction_in_nu[
+                last_line_interaction_in_nu=transport_state.last_interaction_in_nu[
                     transport_state.emitted_packet_mask
                 ],
                 lines_df=lines_df,
@@ -263,53 +266,55 @@ class SDECData:
             if packets_mode == "virtual":
                 return cls(
                     last_interaction_type=hdf[
-                        "/simulation/transport/virt_packet_last_interaction_type"
+                        "/simulation/transport/transport_state/virt_packet_last_interaction_type"
                     ],
                     last_line_interaction_in_id=hdf[
-                        "/simulation/transport/virt_packet_last_line_interaction_in_id"
+                        "/simulation/transport/transport_state/virt_packet_last_line_interaction_in_id"
                     ],
                     last_line_interaction_out_id=hdf[
-                        "/simulation/transport/virt_packet_last_line_interaction_out_id"
+                        "/simulation/transport/transport_state/virt_packet_last_line_interaction_out_id"
                     ],
                     last_line_interaction_in_nu=u.Quantity(
                         hdf[
-                            "/simulation/transport/virt_packet_last_interaction_in_nu"
+                            "/simulation/transport/transport_state/virt_packet_last_interaction_in_nu"
                         ].to_numpy(),
                         "Hz",
                     ),
                     lines_df=lines_df,
                     packet_nus=u.Quantity(
-                        hdf["/simulation/transport/virt_packet_nus"].to_numpy(),
+                        hdf[
+                            "/simulation/transport/transport_state/virt_packet_nus"
+                        ].to_numpy(),
                         "Hz",
                     ),
                     packet_energies=u.Quantity(
                         hdf[
-                            "/simulation/transport/virt_packet_energies"
+                            "/simulation/transport/transport_state/virt_packet_energies"
                         ].to_numpy(),
                         "erg",
                     ),
                     r_inner=r_inner,
                     spectrum_delta_frequency=u.Quantity(
                         hdf[
-                            "/simulation/transport/spectrum_virtual/scalars"
+                            "/simulation/transport/transport_state/spectrum_virtual/scalars"
                         ].delta_frequency,
                         "Hz",
                     ),
                     spectrum_frequency_bins=u.Quantity(
                         hdf[
-                            "/simulation/transport/spectrum_virtual/_frequency"
+                            "/simulation/transport/transport_state/spectrum_virtual/_frequency"
                         ].to_numpy(),
                         "Hz",
                     ),
                     spectrum_luminosity_density_lambda=u.Quantity(
                         hdf[
-                            "/simulation/transport/spectrum_virtual/luminosity_density_lambda"
+                            "/simulation/transport/transport_state/spectrum_virtual/luminosity_density_lambda"
                         ].to_numpy(),
                         "erg / s cm",  # luminosity_density_lambda is saved in hdf in CGS
                     ).to("erg / s AA"),
                     spectrum_wavelength=u.Quantity(
                         hdf[
-                            "/simulation/transport/spectrum_virtual/wavelength"
+                            "/simulation/transport/transport_state/spectrum_virtual/wavelength"
                         ].to_numpy(),
                         "cm",  # wavelength is saved in hdf in CGS
                     ).to("AA"),
@@ -319,61 +324,61 @@ class SDECData:
 
             elif packets_mode == "real":
                 emitted_packet_mask = hdf[
-                    "/simulation/transport/emitted_packet_mask"
+                    "/simulation/transport/transport_state/emitted_packet_mask"
                 ].to_numpy()
                 return cls(
                     # First convert series read from hdf to array before masking
                     # to eliminate index info which creates problems otherwise
                     last_interaction_type=hdf[
-                        "/simulation/transport/last_interaction_type"
+                        "/simulation/transport/transport_state/last_interaction_type"
                     ].to_numpy()[emitted_packet_mask],
                     last_line_interaction_in_id=hdf[
-                        "/simulation/transport/last_line_interaction_in_id"
+                        "/simulation/transport/transport_state/last_line_interaction_in_id"
                     ].to_numpy()[emitted_packet_mask],
                     last_line_interaction_out_id=hdf[
-                        "/simulation/transport/last_line_interaction_out_id"
+                        "/simulation/transport/transport_state/last_line_interaction_out_id"
                     ].to_numpy()[emitted_packet_mask],
                     last_line_interaction_in_nu=u.Quantity(
                         hdf[
-                            "/simulation/transport/last_interaction_in_nu"
+                            "/simulation/transport/transport_state/last_interaction_in_nu"
                         ].to_numpy()[emitted_packet_mask],
                         "Hz",
                     ),
                     lines_df=lines_df,
                     packet_nus=u.Quantity(
-                        hdf["/simulation/transport/output_nu"].to_numpy()[
-                            emitted_packet_mask
-                        ],
+                        hdf[
+                            "/simulation/transport/transport_state/output_nu"
+                        ].to_numpy()[emitted_packet_mask],
                         "Hz",
                     ),
                     packet_energies=u.Quantity(
-                        hdf["/simulation/transport/output_energy"].to_numpy()[
-                            emitted_packet_mask
-                        ],
+                        hdf[
+                            "/simulation/transport/transport_state/output_energy"
+                        ].to_numpy()[emitted_packet_mask],
                         "erg",
                     ),
                     r_inner=r_inner,
                     spectrum_delta_frequency=u.Quantity(
                         hdf[
-                            "/simulation/transport/spectrum/scalars"
+                            "/simulation/transport/transport_state/spectrum/scalars"
                         ].delta_frequency,
                         "Hz",
                     ),
                     spectrum_frequency_bins=u.Quantity(
                         hdf[
-                            "/simulation/transport/spectrum/_frequency"
+                            "/simulation/transport/transport_state/spectrum/_frequency"
                         ].to_numpy(),
                         "Hz",
                     ),
                     spectrum_luminosity_density_lambda=u.Quantity(
                         hdf[
-                            "/simulation/transport/spectrum/luminosity_density_lambda"
+                            "/simulation/transport/transport_state/spectrum/luminosity_density_lambda"
                         ].to_numpy(),
                         "erg / s cm",
                     ).to("erg / s AA"),
                     spectrum_wavelength=u.Quantity(
                         hdf[
-                            "/simulation/transport/spectrum/wavelength"
+                            "/simulation/transport/transport_state/spectrum/wavelength"
                         ].to_numpy(),
                         "cm",
                     ).to("AA"),
@@ -421,7 +426,7 @@ class SDECPlotter:
         -------
         SDECPlotter
         """
-        if sim.transport.virt_logging:
+        if sim.transport.transport_state.virt_logging:
             return cls(
                 {
                     "virtual": SDECData.from_simulation(sim, "virtual"),

@@ -15,11 +15,10 @@ from tardis.io.configuration.config_reader import ConfigurationError
 from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
 from tardis.model.parse_input import initialize_packet_source
-from tardis.montecarlo import montecarlo_configuration as mc_config_module
-from tardis.montecarlo.base import MonteCarloTransportSolver
-from tardis.montecarlo.montecarlo_numba.r_packet import (
-    rpacket_trackers_to_dataframe,
+from tardis.montecarlo import (
+    montecarlo_configuration as montecarlo_configuration,
 )
+from tardis.montecarlo.base import MonteCarloTransportSolver
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.util.base import is_notebook
 from tardis.visualization import ConvergencePlots
@@ -193,7 +192,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
 
-        mc_config_module.CONTINUUM_PROCESSES_ENABLED = (
+        montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED = (
             not self.plasma.continuum_interaction_species.empty
         )
 
@@ -392,15 +391,23 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         logger.info(
             f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
-        self.transport.run(
+
+        transport_state = self.transport.initialize_transport_state(
             self.simulation_state,
             self.plasma,
             no_of_packets,
             no_of_virtual_packets=no_of_virtual_packets,
             iteration=self.iterations_executed,
+        )
+
+        self.transport.run(
+            transport_state,
+            time_explosion=self.simulation_state.time_explosion,
+            iteration=self.iterations_executed,
             total_iterations=self.iterations,
             show_progress_bars=self.show_progress_bars,
         )
+
         output_energy = (
             self.transport.transport_state.packet_collection.output_energies
         )
@@ -487,11 +494,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.convergence_plots.update(
                 export_convergence_plots=self.export_convergence_plots,
                 last=True,
-            )
-
-        if self.transport.rpacket_tracker:
-            self.transport.rpacket_tracker_df = rpacket_trackers_to_dataframe(
-                self.transport.rpacket_tracker
             )
 
         self._call_back()

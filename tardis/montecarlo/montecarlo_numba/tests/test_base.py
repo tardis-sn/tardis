@@ -90,6 +90,8 @@ def test_montecarlo_main_loop_vpacket_log(
     montecarlo_main_loop_simulation.run_convergence()
     montecarlo_main_loop_simulation.run_final()
 
+    assert montecarlo_configuration.ENABLE_VPACKET_TRACKING == True
+
     expected_hdf_store = regression_data.sync_hdf_store(
         montecarlo_main_loop_simulation
     )
@@ -116,8 +118,8 @@ def test_montecarlo_main_loop_vpacket_log(
     actual_nu = transport_state.packet_collection.output_nus
     actual_nu_bar_estimator = transport_state.estimators.nu_bar_estimator
     actual_j_estimator = transport_state.estimators.j_estimator
-    actual_vpacket_log_nus = transport.virt_packet_nus
-    actual_vpacket_log_energies = transport.virt_packet_energies
+    actual_vpacket_log_nus = transport_state.vpacket_tracker.nus
+    actual_vpacket_log_energies = transport_state.vpacket_tracker.energies
 
     expected_hdf_store.close()
     # Compare

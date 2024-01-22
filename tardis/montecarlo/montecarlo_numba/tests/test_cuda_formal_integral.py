@@ -11,7 +11,12 @@ from tardis.montecarlo.montecarlo_numba.formal_integral import (
     FormalIntegrator,
     NumbaFormalIntegrator,
 )
-from tardis.montecarlo.montecarlo_numba.numba_interface import NumbaModel
+from tardis.montecarlo.montecarlo_numba.numba_interface import (
+    NumbaModel,
+)
+
+from tardis.montecarlo.base import MonteCarloTransportSolver
+
 
 # Test cases must also take into account use of a GPU to run. If there is no GPU then the test cases will fail.
 GPUs_available = cuda.is_available()
@@ -379,8 +384,8 @@ def test_full_formal_integral(
 
     L_cuda = formal_integrator_cuda.integrator.formal_integral(
         formal_integrator_cuda.simulation_state.t_inner,
-        sim.transport.spectrum.frequency,
-        sim.transport.spectrum.frequency.shape[0],
+        sim.transport.transport_state.spectrum.frequency,
+        sim.transport.transport_state.spectrum.frequency.shape[0],
         att_S_ul_cuda,
         Jred_lu_cuda,
         Jblue_lu_cuda,
@@ -391,8 +396,8 @@ def test_full_formal_integral(
 
     L_numba = formal_integrator_numba.integrator.formal_integral(
         formal_integrator_numba.simulation_state.t_inner,
-        sim.transport.spectrum.frequency,
-        sim.transport.spectrum.frequency.shape[0],
+        sim.transport.transport_state.spectrum.frequency,
+        sim.transport.transport_state.spectrum.frequency.shape[0],
         att_S_ul_numba,
         Jred_lu_numba,
         Jblue_lu_numba,

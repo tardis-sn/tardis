@@ -115,7 +115,7 @@ def trace_vpacket_within_shell(
     else:
         chi_continuum = chi_e
 
-    if montecarlo_configuration.full_relativity:
+    if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
         chi_continuum *= doppler_factor
 
     tau_continuum = chi_continuum * distance_boundary
@@ -189,15 +189,15 @@ def trace_vpacket(
             v_packet, delta_shell, len(numba_radial_1d_geometry.r_inner)
         )
 
-        if tau_trace_combined > montecarlo_configuration.tau_russian:
+        if tau_trace_combined > montecarlo_configuration.VPACKET_TAU_RUSSIAN:
             event_random = np.random.random()
-            if event_random > montecarlo_configuration.survival_probability:
+            if event_random > montecarlo_configuration.SURVIVAL_PROBABILITY:
                 v_packet.energy = 0.0
                 v_packet.status = PacketStatus.EMITTED
             else:
                 v_packet.energy = (
                     v_packet.energy
-                    / montecarlo_configuration.survival_probability
+                    / montecarlo_configuration.SURVIVAL_PROBABILITY
                     * math.exp(-tau_trace_combined)
                 )
                 tau_trace_combined = 0.0
@@ -258,7 +258,7 @@ def trace_vpacket_volley(
         r_inner_over_r = numba_radial_1d_geometry.r_inner[0] / r_packet.r
         mu_min = -math.sqrt(1 - r_inner_over_r * r_inner_over_r)
         v_packet_on_inner_boundary = False
-        if montecarlo_configuration.full_relativity:
+        if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
             mu_min = angle_aberration_LF_to_CMF(
                 r_packet, numba_model.time_explosion, mu_min
             )
@@ -266,7 +266,7 @@ def trace_vpacket_volley(
         v_packet_on_inner_boundary = True
         mu_min = 0.0
 
-        if montecarlo_configuration.full_relativity:
+        if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
             inv_c = 1 / C_SPEED_OF_LIGHT
             inv_t = 1 / numba_model.time_explosion
             beta_inner = numba_radial_1d_geometry.r_inner[0] * inv_t * inv_c
@@ -279,7 +279,7 @@ def trace_vpacket_volley(
         v_packet_mu = mu_min + i * mu_bin + np.random.random() * mu_bin
 
         if v_packet_on_inner_boundary:  # The weights are described in K&S 2014
-            if not montecarlo_configuration.full_relativity:
+            if not montecarlo_configuration.ENABLE_FULL_RELATIVITY:
                 weight = 2 * v_packet_mu / no_of_vpackets
             else:
                 weight = (
@@ -293,7 +293,7 @@ def trace_vpacket_volley(
             weight = (1 - mu_min) / (2 * no_of_vpackets)
 
         # C code: next line, angle_aberration_CMF_to_LF( & virt_packet, storage);
-        if montecarlo_configuration.full_relativity:
+        if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
             v_packet_mu = angle_aberration_CMF_to_LF(
                 r_packet, numba_model.time_explosion, v_packet_mu
             )
@@ -328,7 +328,7 @@ def trace_vpacket_volley(
 
         v_packet.energy *= math.exp(-tau_vpacket)
 
-        vpacket_collection.set_properties(
+        vpacket_collection.add_packet(
             v_packet.nu,
             v_packet.energy,
             v_packet_mu,

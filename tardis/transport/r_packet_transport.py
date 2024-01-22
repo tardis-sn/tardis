@@ -15,7 +15,6 @@ from tardis.montecarlo.montecarlo_numba.estimators import (
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
 )
-import tardis.montecarlo.montecarlo_numba.numba_config as nc
 from tardis.montecarlo.montecarlo_numba.opacities import calculate_tau_electron
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     InteractionType,
@@ -136,7 +135,7 @@ def trace_packet(
 
         if (
             tau_trace_combined > tau_event
-            and not montecarlo_configuration.disable_line_scattering
+            and not montecarlo_configuration.DISABLE_LINE_SCATTERING
         ):
             interaction_type = InteractionType.LINE  # Line
             r_packet.last_interaction_in_nu = r_packet.nu
@@ -209,7 +208,7 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
         comov_energy = r_packet.energy * doppler_factor
 
         # Account for length contraction
-        if nc.ENABLE_FULL_RELATIVITY:
+        if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
             distance *= doppler_factor
 
         update_base_estimators(

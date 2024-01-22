@@ -6,7 +6,7 @@ from tardis.montecarlo.montecarlo_numba import (
     njit_dict_no_parallel,
 )
 
-from tardis.montecarlo.montecarlo_numba import numba_config as nc
+from tardis.montecarlo import montecarlo_configuration as nc
 from tardis.montecarlo.montecarlo_numba.numba_config import C_SPEED_OF_LIGHT
 
 

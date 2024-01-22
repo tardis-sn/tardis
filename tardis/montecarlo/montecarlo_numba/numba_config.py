@@ -6,5 +6,3 @@ C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 MISS_DISTANCE = 1e99
 KB = const.k_B.cgs.value
 H = const.h.cgs.value
-
-ENABLE_FULL_RELATIVITY = False
