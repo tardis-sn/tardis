@@ -232,3 +232,14 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
     sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
     sim.iterate(4000)
     return sim
+
+
+@pytest.fixture(scope="session")
+def simulation_verysimple_vpacket_tracking(config_verysimple, atomic_dataset):
+    atomic_data = deepcopy(atomic_dataset)
+    sim = Simulation.from_config(
+        config_verysimple, atom_data=atomic_data, virtual_packet_logging=True
+    )
+    sim.last_no_of_packets = 4000
+    sim.run_final()
+    return sim

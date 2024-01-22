@@ -97,35 +97,3 @@ class TestTransportSimple:
         assert_quantity_allclose(
             transport.transport_state.spectrum_virtual.luminosity, luminosity
         )
-
-    def test_transport_properties(self, transport):
-        """
-        Tests whether a number of transport attributes exist and also verifies
-        their types
-
-        Currently, transport attributes needed to call the model routine to_hdf5
-        are checked.
-        """
-
-        virt_type = np.ndarray
-
-        props_required_by_modeltohdf5 = dict(
-            [
-                ("virt_packet_last_interaction_type", virt_type),
-                ("virt_packet_last_line_interaction_in_id", virt_type),
-                ("virt_packet_last_line_interaction_out_id", virt_type),
-                ("virt_packet_last_line_interaction_shell_id", virt_type),
-                ("virt_packet_last_interaction_in_nu", virt_type),
-                ("virt_packet_nus", virt_type),
-                ("virt_packet_energies", virt_type),
-            ]
-        )
-
-        required_props = props_required_by_modeltohdf5.copy()
-
-        for prop, prop_type in required_props.items():
-            actual = getattr(transport, prop)
-            assert type(actual) == prop_type, (
-                f"wrong type of attribute '{prop}':"
-                f"expected {prop_type}, found {type(actual)}"
-            )

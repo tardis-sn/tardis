@@ -39,25 +39,33 @@ def montecarlo_main_loop(
     iteration,
     show_progress_bars,
     total_iterations,
+    enable_virtual_packet_logging,
 ):
-    """
-    This is the main loop of the MonteCarlo routine that generates packets
+    """This is the main loop of the MonteCarlo routine that generates packets
     and sends them through the ejecta.
+
 
     Parameters
     ----------
     packet_collection : PacketCollection
-    numba_radial_1d_geometry : NumbaRadial1DGeometry
+        Real packet collection
+    geometry_state : GeometryState
+        Simulation geometry
     numba_model : NumbaModel
     opacity_state : OpacityState
-    estimators : NumbaEstimators
-    spectrum_frequency : astropy.units.Quantity
-        frequency binspas
+    estimators : Estimators
+    spectrum_frequency :  astropy.units.Quantity
+        Frequency bins
     number_of_vpackets : int
         VPackets released per interaction
-    packet_seeds : numpy.array
-    virtual_packet_logging : bool
-        Option to enable virtual packet logging.
+    iteration : int
+        Current iteration number
+    show_progress_bars : bool
+        Display progress bars
+    total_iterations : int
+        Maximum number of iterations
+    enable_virtual_packet_logging : bool
+        Enable virtual packet tracking
     """
     no_of_packets = len(packet_collection.initial_nus)
 
@@ -177,7 +185,7 @@ def montecarlo_main_loop(
     for sub_estimator in estimator_list:
         estimators.increment(sub_estimator)
 
-    if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
+    if enable_virtual_packet_logging:
         vpacket_tracker = consolidate_vpacket_tracker(
             vpacket_collections, spectrum_frequency
         )
