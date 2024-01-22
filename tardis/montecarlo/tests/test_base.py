@@ -12,30 +12,26 @@ from pathlib import Path
 
 
 @pytest.fixture(scope="module", autouse=True)
-def to_hdf_buffer(hdf_file_path, simulation_verysimple):
+def to_hdf_buffer(hdf_file_path, simulation_verysimple, simulation_verysimple_vpacket_tracking):
     simulation_verysimple.transport.to_hdf(
         hdf_file_path, name="transport", overwrite=True
     )
-    simulation_verysimple.transport.transport_state.to_hdf(
+    simulation_verysimple_vpacket_tracking.transport.transport_state.to_hdf(
         hdf_file_path, name="transport_state", overwrite=True
     )
 
 
 transport_properties = [
-    "last_interaction_in_nu",
-    "last_interaction_type",
-    "last_line_interaction_in_id",
-    "last_line_interaction_out_id",
-    "last_line_interaction_shell_id",
+    "transport_state"
 ]
 
 
 @pytest.mark.parametrize("attr", transport_properties)
 def test_hdf_transport(hdf_file_path, simulation_verysimple, attr):
-    actual = getattr(simulation_verysimple.transport.transport_state, attr)
+    actual = getattr(simulation_verysimple.transport, attr)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
-    path = f"transport_state/{attr}"
+    path = f"transport/{attr}"
     expected = pd.read_hdf(hdf_file_path, path)
     assert_almost_equal(actual, expected.values)
 
@@ -47,12 +43,31 @@ transport_state_properties = [
     "j_estimator",
     "montecarlo_virtual_luminosity",
     "packet_luminosity",
+    "spectrum",
+    "spectrum_virtual",
+    "spectrum_reabsorbed",
+    "time_of_simulation",
+    "emitted_packet_mask",
+    "last_interaction_type",
+    "last_interaction_in_nu",
+    "last_line_interaction_out_id",
+    "last_line_interaction_in_id",
+    "last_line_interaction_shell_id",
+    "virt_packet_nus",
+    "virt_packet_energies",
+    "virt_packet_initial_rs",
+    "virt_packet_initial_mus",
+    "virt_packet_last_interaction_in_nu",
+    "virt_packet_last_interaction_type",
+    "virt_packet_last_line_interaction_in_id",
+    "virt_packet_last_line_interaction_out_id",
+    "virt_packet_last_line_interaction_shell_id",
 ]
 
 
 @pytest.mark.parametrize("attr", transport_state_properties)
-def test_hdf_transport_state(hdf_file_path, simulation_verysimple, attr):
-    actual = getattr(simulation_verysimple.transport.transport_state, attr)
+def test_hdf_transport_state(hdf_file_path, simulation_verysimple_vpacket_tracking, attr):
+    actual = getattr(simulation_verysimple_vpacket_tracking.transport.transport_state, attr)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
     path = f"transport_state/{attr}"

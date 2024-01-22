@@ -37,23 +37,11 @@ logger = logging.getLogger(__name__)
 # TODO: refactor this into more parts
 class MonteCarloTransportSolver(HDFWriterMixin):
     """
-    This class is designed as an interface between the Python part and the
-    montecarlo C-part
+    This class modifies the MonteCarloTransportState to solve the radiative 
+    transfer problem.
     """
 
     hdf_properties = ["transport_state"]
-
-    vpacket_hdf_properties = [
-        "virt_packet_nus",
-        "virt_packet_energies",
-        "virt_packet_initial_rs",
-        "virt_packet_initial_mus",
-        "virt_packet_last_interaction_in_nu",
-        "virt_packet_last_interaction_type",
-        "virt_packet_last_line_interaction_in_id",
-        "virt_packet_last_line_interaction_out_id",
-        "virt_packet_last_line_interaction_shell_id",
-    ]
 
     hdf_name = "transport"
 
@@ -94,17 +82,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         self.enable_vpacket_tracking = enable_virtual_packet_logging
         self.enable_rpacket_tracking = enable_rpacket_tracking
-
-        # Length 2 for initialization - will be removed in next PR
-        self.virt_packet_last_interaction_type = np.ones(2) * -1
-        self.virt_packet_last_interaction_in_nu = np.ones(2) * -1.0
-        self.virt_packet_last_line_interaction_in_id = np.ones(2) * -1
-        self.virt_packet_last_line_interaction_out_id = np.ones(2) * -1
-        self.virt_packet_last_line_interaction_shell_id = np.ones(2) * -1
-        self.virt_packet_nus = np.ones(2) * -1.0
-        self.virt_packet_energies = np.ones(2) * -1.0
-        self.virt_packet_initial_rs = np.ones(2) * -1.0
-        self.virt_packet_initial_mus = np.ones(2) * -1.0
 
         self.packet_source = packet_source
 
@@ -209,7 +186,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             iteration=iteration,
             show_progress_bars=show_progress_bars,
             total_iterations=total_iterations,
-            enable_virtual_packet_logging=montecarlo_configuration.ENABLE_VPACKET_TRACKING
+            enable_virtual_packet_logging=self.enable_vpacket_tracking
         )
 
         transport_state._montecarlo_virtual_luminosity.value[
