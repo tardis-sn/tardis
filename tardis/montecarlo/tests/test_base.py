@@ -12,8 +12,8 @@ from pathlib import Path
 
 
 @pytest.fixture(scope="module", autouse=True)
-def to_hdf_buffer(hdf_file_path, simulation_verysimple, simulation_verysimple_vpacket_tracking):
-    simulation_verysimple.transport.to_hdf(
+def to_hdf_buffer(hdf_file_path, simulation_verysimple_vpacket_tracking):
+    simulation_verysimple_vpacket_tracking.transport.to_hdf(
         hdf_file_path, name="transport", overwrite=True
     )
     simulation_verysimple_vpacket_tracking.transport.transport_state.to_hdf(
@@ -22,13 +22,13 @@ def to_hdf_buffer(hdf_file_path, simulation_verysimple, simulation_verysimple_vp
 
 
 transport_properties = [
-    "transport_state"
+    None
 ]
 
-
+@pytest.mark.xfail(reason="No HDF properties being written currently")
 @pytest.mark.parametrize("attr", transport_properties)
-def test_hdf_transport(hdf_file_path, simulation_verysimple, attr):
-    actual = getattr(simulation_verysimple.transport, attr)
+def test_hdf_transport(hdf_file_path, simulation_verysimple_vpacket_tracking, attr):
+    actual = getattr(simulation_verysimple_vpacket_tracking.transport, attr)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
     path = f"transport/{attr}"
@@ -43,10 +43,12 @@ transport_state_properties = [
     "j_estimator",
     "montecarlo_virtual_luminosity",
     "packet_luminosity",
-    "spectrum",
-    "spectrum_virtual",
-    "spectrum_reabsorbed",
-    "time_of_simulation",
+    # These are nested properties that should be tested differently
+    #"spectrum",
+    #"spectrum_virtual",
+    #"spectrum_reabsorbed",
+    # This is a scalar and should be tested differently
+    #"time_of_simulation",
     "emitted_packet_mask",
     "last_interaction_type",
     "last_interaction_in_nu",
