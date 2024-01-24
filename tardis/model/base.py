@@ -262,15 +262,6 @@ class SimulationState(HDFWriterMixin):
             density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
         )
 
-        nuclide_mass_fraction = parse_abundance_config(
-            config, geometry, time_explosion
-        )
-
-        # using atom_data.mass.copy() to ensure that the original atom_data is not modified
-        composition = Composition(
-            density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
-        )
-
         packet_source = parse_packet_source(config, geometry)
         radiation_field_state = parse_radiation_field_state(
             config,
