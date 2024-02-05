@@ -118,7 +118,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         packet_collection = self.packet_source.create_packets(
             no_of_packets, seed_offset=iteration
         )
-        estimators = initialize_estimators(
+        estimators = initialize_estimator_statistics(
             plasma.tau_sobolevs.shape, gamma_shape
         )
 
