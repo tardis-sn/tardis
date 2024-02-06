@@ -41,9 +41,9 @@ def cuda_formal_integral(
     Parameters
     ----------
     r_inner : array(float64, 1d, C)
-        self.geometry.r_inner_active
+        self.geometry.r_inner
     r_outer : array(float64, 1d, C)
-        self.geometry.r_outer_active
+        self.geometry.r_outer
     time_explosion: float64
         self.geometry.time_explosion
     line_list_nu : array(float64, 1d, A)
@@ -246,7 +246,7 @@ class CudaFormalIntegrator(object):
         exp_tau = np.zeros(size_tau, dtype=np.float64)  # array(float64, 1d, C)
         exp_tau = np.exp(-tau_sobolev.T.ravel())  # array(float64, 1d, C)
         pp[::] = calculate_p_values(
-            self.geometry.r_outer_active[size_shell - 1], N
+            self.geometry.r_outer[size_shell - 1], N
         )  # array(float64, 1d, C)
 
         I_nu = np.zeros(
@@ -262,8 +262,8 @@ class CudaFormalIntegrator(object):
         blocks_per_grid = (inu_size // THREADS_PER_BLOCK) + 1
 
         cuda_formal_integral[blocks_per_grid, THREADS_PER_BLOCK](
-            self.geometry.r_inner_active,
-            self.geometry.r_outer_active,
+            self.geometry.r_inner,
+            self.geometry.r_outer,
             self.model.time_explosion,
             self.plasma.line_list_nu,
             iT.value,
