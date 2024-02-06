@@ -132,7 +132,7 @@ class SimulationState(HDFWriterMixin):
 
     @dilution_factor.setter
     def dilution_factor(self, new_dilution_factor):
-        if len(new_dilution_factor) == self.no_of_shells_active:
+        if len(new_dilution_factor) == self.no_of_shells:
             self.radiation_field_state.dilution_factor = new_dilution_factor
         else:
             raise ValueError(
@@ -146,7 +146,7 @@ class SimulationState(HDFWriterMixin):
 
     @t_radiative.setter
     def t_radiative(self, new_t_radiative):
-        if len(new_t_radiative) == self.no_of_shells_active:
+        if len(new_t_radiative) == self.no_of_shells:
             self.radiation_field_state.t_radiative = new_t_radiative
         else:
             raise ValueError(
