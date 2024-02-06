@@ -89,6 +89,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
     atom_data.prepare_atom_data(
         simulation_state.abundance.index,
         line_interaction_type=config.plasma.line_interaction_type,
+        continuum_interaction_species=continuum_interaction_species,
         nlte_species=nlte_species,
     )
 
@@ -130,7 +131,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
 
     plasma_modules = basic_inputs + basic_properties
     property_kwargs = {}
-    if config.plasma.continuum_interaction.species:
+    if len(config.plasma.continuum_interaction.species) > 0:
         line_interaction_type = config.plasma.line_interaction_type
         if line_interaction_type != "macroatom":
             raise PlasmaConfigError(

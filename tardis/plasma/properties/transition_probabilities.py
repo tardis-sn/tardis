@@ -41,16 +41,12 @@ def normalize_trans_probs(p):
         all probabilites with the same source_level_idx sum to one.
         Indexed by source_level_idx, destination_level_idx.
     """
-    # Dtype conversion is needed for pandas to return nan instead of
-    # a ZeroDivisionError in cases where the sum is zero.
     p = p.astype(np.float64)
-    p_summed = p.groupby(level=0).sum().astype(np.float64)
+    p_summed = p.groupby(level=0).sum()
+    p_summed[p_summed == 0] = 1
     index = p.index.get_level_values("source_level_idx")
     p_norm = p / p_summed.loc[index].values
-    p_norm = p_norm.fillna(0.0)
-    # Convert back to original dtypes to avoid typing problems later on
-    # in the numba code.
-    p_norm = p_norm.convert_dtypes()
+    assert np.all(np.isfinite(p_norm))
     return p_norm
 
 

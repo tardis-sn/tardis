@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 import tardis.montecarlo.montecarlo_configuration as numba_config
-import tardis.montecarlo.montecarlo_numba.estimators
+import tardis.montecarlo.estimators.radfield_mc_estimators
 import tardis.montecarlo.montecarlo_numba.numba_interface as numba_interface
 import tardis.montecarlo.montecarlo_numba.opacities as opacities
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
@@ -12,7 +12,9 @@ import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.r_packet_transport as r_packet_transport
 from tardis import constants as const
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.montecarlo.montecarlo_numba.estimators import update_line_estimators
+from tardis.montecarlo.estimators.radfield_mc_estimators import (
+    update_line_estimators,
+)
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 SIGMA_THOMSON = const.sigma_T.to("cm^2").value
@@ -42,7 +44,7 @@ def model():
 
 @pytest.fixture(scope="function")
 def estimators():
-    return tardis.montecarlo.montecarlo_numba.estimators.Estimators(
+    return tardis.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators(
         j_estimator=np.array([0.0, 0.0], dtype=np.float64),
         nu_bar_estimator=np.array([0.0, 0.0], dtype=np.float64),
         j_blue_estimator=np.array(

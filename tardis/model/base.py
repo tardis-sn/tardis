@@ -23,7 +23,9 @@ from tardis.model.parse_input import (
     parse_packet_source,
 )
 from tardis.montecarlo.packet_source import BlackBodySimpleSource
-from tardis.model.radiation_field_state import DiluteThermalRadiationFieldState
+from tardis.model.radiation_field_state import (
+    DiluteBlackBodyRadiationFieldState,
+)
 from tardis.util.base import is_valid_nuclide_or_elem
 
 logger = logging.getLogger(__name__)
