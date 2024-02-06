@@ -128,16 +128,12 @@ class SimulationState(HDFWriterMixin):
 
     @property
     def dilution_factor(self):
-        return self.radiation_field_state.dilution_factor[
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
-        ]
+        return self.radiation_field_state.dilution_factor
 
     @dilution_factor.setter
     def dilution_factor(self, new_dilution_factor):
-        if len(new_dilution_factor) == self.no_of_shells:
-            self.radiation_field_state.dilution_factor[
-                self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
-            ] = new_dilution_factor
+        if len(new_dilution_factor) == self.no_of_shells_active:
+            self.radiation_field_state.dilution_factor = new_dilution_factor
         else:
             raise ValueError(
                 "Trying to set dilution_factor for unmatching number"
@@ -150,7 +146,7 @@ class SimulationState(HDFWriterMixin):
 
     @t_radiative.setter
     def t_radiative(self, new_t_radiative):
-        if len(new_t_radiative) == self.no_of_shells:
+        if len(new_t_radiative) == self.no_of_shells_active:
             self.radiation_field_state.t_radiative = new_t_radiative
         else:
             raise ValueError(
