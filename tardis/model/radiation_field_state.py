@@ -20,15 +20,23 @@ class DiluteBlackBodyRadiationFieldState:
     """
 
     def __init__(
-        self,
-        t_radiative: u.Quantity,
-        dilution_factor: np.ndarray,
+        self, t_radiative: u.Quantity, dilution_factor: np.ndarray, geometry
     ):
         # ensuring that the radiation_field has both
         # dilution_factor and t_radiative equal length
         assert len(t_radiative) == len(dilution_factor)
-        assert np.all(t_radiative > 0 * u.K)
-        assert np.all(dilution_factor > 0)
+        assert np.all(
+            t_radiative[
+                geometry.v_inner_boundary_index : geometry.v_outer_boundary_index
+            ]
+            > 0 * u.K
+        )
+        assert np.all(
+            dilution_factor[
+                geometry.v_inner_boundary_index : geometry.v_outer_boundary_index
+            ]
+            > 0
+        )
         self.t_radiative = t_radiative
         self.dilution_factor = dilution_factor
 

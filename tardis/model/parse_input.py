@@ -610,13 +610,13 @@ def initialize_packet_source(config, geometry, packet_source):
 
     luminosity_requested = config.supernova.luminosity_requested
     if config.plasma.initial_t_inner > 0.0 * u.K:
-        packet_source.radius = geometry.r_inner[0]
+        packet_source.radius = geometry.r_inner_active[0]
         packet_source.temperature = config.plasma.initial_t_inner
 
     elif (config.plasma.initial_t_inner < 0.0 * u.K) and (
         luminosity_requested is not None
     ):
-        packet_source.radius = geometry.r_inner[0]
+        packet_source.radius = geometry.r_inner_active[0]
         packet_source.set_temperature_from_luminosity(luminosity_requested)
     else:
         raise ValueError(
@@ -720,6 +720,9 @@ def calculate_geometric_dilution_factor(geometry):
     return 0.5 * (
         1
         - np.sqrt(
-            1 - (geometry.r_inner[0] ** 2 / geometry.r_middle**2).to(1).value
+            1
+            - (geometry.r_inner_active[0] ** 2 / geometry.r_middle**2)
+            .to(1)
+            .value
         )
     )
