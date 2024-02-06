@@ -69,8 +69,8 @@ def numba_formal_integral(
     # global read-only values
     size_line, size_shell = tau_sobolev.shape
     size_tau = size_line * size_shell
-    R_ph = geometry.r_inner[0]  # make sure these are cgs
-    R_max = geometry.r_outer[size_shell - 1]
+    R_ph = geometry.r_inner_active[0]  # make sure these are cgs
+    R_max = geometry.r_outer_active[size_shell - 1]
     pp = np.zeros(N, dtype=np.float64)  # check
     exp_tau = np.zeros(size_tau, dtype=np.float64)
     exp_tau = np.exp(-tau_sobolev.T.ravel())  # maybe make this 2D?
@@ -667,13 +667,13 @@ def populate_z(geometry, model, p, oz, oshell_id):
         :oshell_id: (int64) will be set with the corresponding shell_ids
     """
     # abbreviations
-    r = geometry.r_outer
-    N = len(geometry.r_inner)  # check
+    r = geometry.r_outer_active
+    N = len(geometry.r_inner_active)  # check
     inv_t = 1 / model.time_explosion
     z = 0
     offset = N
 
-    if p <= geometry.r_inner[0]:
+    if p <= geometry.r_inner_active[0]:
         # intersect the photosphere
         for i in range(N):
             oz[i] = 1 - calculate_z(r[i], p, inv_t)

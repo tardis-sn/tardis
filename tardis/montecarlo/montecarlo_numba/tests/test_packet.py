@@ -74,7 +74,7 @@ def test_calculate_distance_boundary(packet_params, expected_params, geometry):
     r = packet_params["r"]
 
     d_boundary = calculate_distances.calculate_distance_boundary(
-        r, mu, geometry.r_inner[0], geometry.r_outer[0]
+        r, mu, geometry.r_inner_active[0], geometry.r_outer_active[0]
     )
 
     # Accuracy to within 0.1cm
