@@ -35,6 +35,7 @@ plasma:
   initial_t_inner: 12000 K
   link_t_rad_t_electron: 1.0
   nlte_ionization_species: [H I, He II, Ti II]
+  nlte_solver: root
   
   continuum_interaction:
     species:
