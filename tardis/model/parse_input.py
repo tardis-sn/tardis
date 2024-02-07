@@ -20,7 +20,10 @@ from tardis.model.matter.decay import IsotopicMassFraction
 from tardis.model.radiation_field_state import (
     DiluteBlackBodyRadiationFieldState,
 )
-from tardis.montecarlo.packet_source import BlackBodySimpleSource
+from tardis.montecarlo.packet_source import (
+    BlackBodySimpleSource,
+    BlackBodySimpleSourceRelativistic,
+)
 from tardis.util.base import quantity_linspace
 
 logger = logging.getLogger(__name__)
@@ -574,9 +577,9 @@ def parse_radiation_field_state(
     return DiluteBlackBodyRadiationFieldState(t_radiative, dilution_factor)
 
 
-def parse_packet_source(config, geometry):
+def initialize_packet_source(config, geometry, packet_source):
     """
-    Parse the packet source based on the given configuration and geometry.
+    Initialize the packet source based on config and geometry
 
     Parameters
     ----------
@@ -584,17 +587,18 @@ def parse_packet_source(config, geometry):
         The configuration object containing the supernova and plasma settings.
     geometry : Geometry
         The geometry object containing the inner radius information.
+    packet_source : BasePacketSource
+        The packet source object based on the configuration and geometry.
 
     Returns
     -------
-    packet_source : BlackBodySimpleSource
+    packet_source : BasePacketSource
         The packet source object based on the configuration and geometry.
 
     Raises
     ------
     ValueError
         If both t_inner and luminosity_requested are None.
-
     """
     if config.montecarlo.enable_full_relativity:
         packet_source = BlackBodySimpleSourceRelativistic(
@@ -618,7 +622,35 @@ def parse_packet_source(config, geometry):
         raise ValueError(
             "Both t_inner and luminosity_requested cannot be None."
         )
+
     return packet_source
+
+
+def parse_packet_source(config, geometry):
+    """
+    Parse the packet source based on the given configuration and geometry.
+
+    Parameters
+    ----------
+    config : Config
+        The configuration object containing the supernova and plasma settings.
+    geometry : Geometry
+        The geometry object containing the inner radius information.
+
+    Returns
+    -------
+    packet_source : BlackBodySimpleSource
+        The packet source object based on the configuration and geometry.
+    """
+    if config.montecarlo.enable_full_relativity:
+        packet_source = BlackBodySimpleSourceRelativistic(
+            base_seed=config.montecarlo.seed,
+            time_explosion=config.supernova.time_explosion,
+        )
+    else:
+        packet_source = BlackBodySimpleSource(base_seed=config.montecarlo.seed)
+
+    return initialize_packet_source(config, geometry, packet_source)
 
 
 def parse_csvy_radiation_field_state(

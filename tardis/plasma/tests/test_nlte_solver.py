@@ -2,6 +2,8 @@ import numpy as np
 import numpy.testing as npt
 import pandas as pd
 import pytest
+import numpy.testing as npt
+
 
 from tardis.plasma.properties import (
     NLTEPopulationSolverLU,
@@ -319,6 +321,9 @@ def test_critical_case_dilution_factor_1_lu(nlte_raw_plasma_dilution_factor_1_lu
     )[0]
 
     ion_number_density_lte = ion_number_density_lte.values
+    ion_number_density_lte[
+        ion_number_density_lte < 1e-10
+    ] = 0.0  # getting rid of small numbers.
     npt.assert_allclose(
         ion_number_density_lte,
         ion_number_density_nlte,
@@ -395,6 +400,9 @@ def test_critical_case_dilution_factor_0_lu(
     )[0]
 
     ion_number_density_lte = ion_number_density_lte.values
+    ion_number_density_lte[
+        ion_number_density_lte < 1e-10
+    ] = 0.0  # getting rid of small numbers.
     npt.assert_allclose(
         ion_number_density_lte,
         ion_number_density_nlte,

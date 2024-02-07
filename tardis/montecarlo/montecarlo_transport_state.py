@@ -2,22 +2,12 @@ import warnings
 
 import numpy as np
 from astropy import units as u
-from scipy.special import zeta
 
-from tardis import constants as const
 from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo.spectrum import TARDISSpectrum
-
-DILUTION_FACTOR_ESTIMATOR_CONSTANT = (
-    (const.c**2 / (2 * const.h))
-    * (15 / np.pi**4)
-    * (const.h / const.k_B) ** 4
-    / (4 * np.pi)
-).cgs.value
-
-T_RADIATIVE_ESTIMATOR_CONSTANT = (
-    (np.pi**4 / (15 * 24 * zeta(5, 1))) * (const.h / const.k_B)
-).cgs.value
+from tardis.montecarlo.estimators.dilute_blackbody_properties import (
+    MCDiluteBlackBodyRadFieldSolver,
+)
 
 
 class MonteCarloTransportState(HDFWriterMixin):
@@ -40,6 +30,18 @@ class MonteCarloTransportState(HDFWriterMixin):
         "last_line_interaction_shell_id",
     ]
 
+    vpacket_hdf_properties = [
+        "virt_packet_nus",
+        "virt_packet_energies",
+        "virt_packet_initial_rs",
+        "virt_packet_initial_mus",
+        "virt_packet_last_interaction_in_nu",
+        "virt_packet_last_interaction_type",
+        "virt_packet_last_line_interaction_in_id",
+        "virt_packet_last_line_interaction_out_id",
+        "virt_packet_last_line_interaction_shell_id",
+    ]
+
     hdf_name = "transport_state"
 
     last_interaction_type = None
@@ -49,8 +51,6 @@ class MonteCarloTransportState(HDFWriterMixin):
     last_line_interaction_shell_id = None
 
     virt_logging = False
-    rpacket_tracker = None
-    vpacket_tracker = None
 
     def __init__(
         self,
@@ -59,6 +59,8 @@ class MonteCarloTransportState(HDFWriterMixin):
         spectrum_frequency,
         geometry_state,
         opacity_state,
+        rpacket_tracker=None,
+        vpacket_tracker=None,
     ):
         self.packet_collection = packet_collection
         self.radfield_mc_estimators = radfield_mc_estimators
@@ -72,6 +74,8 @@ class MonteCarloTransportState(HDFWriterMixin):
         self.enable_full_relativity = False
         self.geometry_state = geometry_state
         self.opacity_state = opacity_state
+        self.rpacket_tracker = rpacket_tracker
+        self.vpacket_tracker = vpacket_tracker
 
     def calculate_radiationfield_properties(self):
         """
@@ -90,20 +94,17 @@ class MonteCarloTransportState(HDFWriterMixin):
         t_radiative : astropy.units.Quantity (float)
         dilution_factor : numpy.ndarray (float)
         """
-        estimated_t_radiative = (
-            T_RADIATIVE_ESTIMATOR_CONSTANT
-            * self.radfield_mc_estimators.nu_bar_estimator
-            / self.radfield_mc_estimators.j_estimator
-        ) * u.K
-        dilution_factor = self.radfield_mc_estimators.j_estimator / (
-            4
-            * const.sigma_sb.cgs.value
-            * estimated_t_radiative.value**4
-            * (self.packet_collection.time_of_simulation)
-            * self.geometry_state.volume
+        dilute_bb_solver = MCDiluteBlackBodyRadFieldSolver()
+        dilute_bb_radfield = dilute_bb_solver.solve(
+            self.radfield_mc_estimators,
+            self.time_of_simulation,
+            self.geometry_state.volume,
         )
 
-        return estimated_t_radiative, dilution_factor
+        return (
+            dilute_bb_radfield.t_radiative,
+            dilute_bb_radfield.dilution_factor,
+        )
 
     @property
     def output_nu(self):
@@ -289,12 +290,12 @@ class MonteCarloTransportState(HDFWriterMixin):
         ].sum()
 
     @property
-    def virtual_packet_nu(self):
-        if self.vpacket_tracker is not None:
+    def virt_packet_nus(self):
+        try:
             return u.Quantity(self.vpacket_tracker.nus, u.Hz)
-        else:
+        except AttributeError:
             warnings.warn(
-                "MontecarloTransport.virtual_packet_nu:"
+                "MontecarloTransport.virt_packet_nus:"
                 "Set 'virtual_packet_logging: True' in the configuration file"
                 "to access this property"
                 "It should be added under 'virtual' property of 'spectrum' property",
@@ -303,12 +304,12 @@ class MonteCarloTransportState(HDFWriterMixin):
             return None
 
     @property
-    def virtual_packet_energy(self):
+    def virt_packet_energies(self):
         try:
-            return u.Quantity(self.virt_packet_energies, u.erg)
+            return u.Quantity(self.vpacket_tracker.energies, u.erg)
         except AttributeError:
             warnings.warn(
-                "MontecarloTransport.virtual_packet_energy:"
+                "MontecarloTransport.virt_packet_energies:"
                 "Set 'virtual_packet_logging: True' in the configuration file"
                 "to access this property"
                 "It should be added under 'virtual' property of 'spectrum' property",
@@ -320,12 +321,118 @@ class MonteCarloTransportState(HDFWriterMixin):
     def virtual_packet_luminosity(self):
         try:
             return (
-                self.virtual_packet_energy
+                self.virt_packet_energies
                 / self.packet_collection.time_of_simulation
             )
         except TypeError:
             warnings.warn(
                 "MontecarloTransport.virtual_packet_luminosity:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
+
+    @property
+    def virt_packet_initial_rs(self):
+        try:
+            return u.Quantity(self.vpacket_tracker.initial_rs, u.erg)
+        except AttributeError:
+            warnings.warn(
+                "MontecarloTransport.virt_packet_initial_rs:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
+
+    @property
+    def virt_packet_initial_mus(self):
+        try:
+            return u.Quantity(self.vpacket_tracker.initial_mus, u.erg)
+        except AttributeError:
+            warnings.warn(
+                "MontecarloTransport.virt_packet_initial_mus:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
+
+    @property
+    def virt_packet_last_interaction_in_nu(self):
+        try:
+            return u.Quantity(
+                self.vpacket_tracker.last_interaction_in_nu, u.erg
+            )
+        except AttributeError:
+            warnings.warn(
+                "MontecarloTransport.virt_packet_last_interaction_in_nu:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
+
+    @property
+    def virt_packet_last_interaction_type(self):
+        try:
+            return u.Quantity(self.vpacket_tracker.last_interaction_type, u.erg)
+        except AttributeError:
+            warnings.warn(
+                "MontecarloTransport.virt_packet_last_interaction_type:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
+
+    @property
+    def virt_packet_last_line_interaction_in_id(self):
+        try:
+            return u.Quantity(
+                self.vpacket_tracker.last_interaction_in_id, u.erg
+            )
+        except AttributeError:
+            warnings.warn(
+                "MontecarloTransport.virt_packet_last_line_interaction_in_id:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
+
+    @property
+    def virt_packet_last_line_interaction_out_id(self):
+        try:
+            return u.Quantity(
+                self.vpacket_tracker.last_interaction_out_id, u.erg
+            )
+        except AttributeError:
+            warnings.warn(
+                "MontecarloTransport.virt_packet_last_line_interaction_out_id:"
+                "Set 'virtual_packet_logging: True' in the configuration file"
+                "to access this property"
+                "It should be added under 'virtual' property of 'spectrum' property",
+                UserWarning,
+            )
+            return None
+
+    @property
+    def virt_packet_last_line_interaction_shell_id(self):
+        try:
+            return u.Quantity(
+                self.vpacket_tracker.last_interaction_shell_id, u.erg
+            )
+        except AttributeError:
+            warnings.warn(
+                "MontecarloTransport.virt_packet_last_line_interaction_shell_id:"
                 "Set 'virtual_packet_logging: True' in the configuration file"
                 "to access this property"
                 "It should be added under 'virtual' property of 'spectrum' property",
