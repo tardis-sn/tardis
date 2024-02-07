@@ -306,7 +306,9 @@ def test_critical_case_dilution_factor_1_root(
     )
 
 
-def test_critical_case_dilution_factor_1_lu(nlte_raw_plasma_dilution_factor_1_lu):
+def test_critical_case_dilution_factor_1_lu(
+    nlte_raw_plasma_dilution_factor_1_lu,
+):
     """Check that the LTE and NLTE solution agree for dilution_factor=1.0."""
     ion_number_density_nlte = (
         nlte_raw_plasma_dilution_factor_1_lu.ion_number_density.values
