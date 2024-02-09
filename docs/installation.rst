@@ -67,7 +67,7 @@ this method by following the steps described below.
 
       ::
       
-        $ pip install git+https://github.com/tardis-sn/tardis.git@release-2023.09.17
+        $ pip install git+https://github.com/tardis-sn/tardis.git@release-latest
 
       or trying the most recent, unreleased changes from upstream.
 
