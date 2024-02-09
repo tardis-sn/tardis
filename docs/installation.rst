@@ -106,8 +106,8 @@ To update the environment after a new release, download the latest lockfile and 
 
 ::
 
-    $ conda update --name tardis --file conda-{platform}-64.lock
     $ wget -q https://github.com/tardis-sn/tardis/releases/latest/download/conda-{platform}-64.lock
+    $ conda update --name tardis --file conda-{platform}-64.lock
 
 .. note::
 
