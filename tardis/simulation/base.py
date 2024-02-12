@@ -41,7 +41,9 @@ class PlasmaStateStorerMixin:
     def __init__(self, iterations, no_of_shells):
         self.iterations_w = np.zeros((iterations, no_of_shells))
         self.iterations_t_rad = np.zeros((iterations, no_of_shells)) * u.K
-        self.iterations_electron_densities = np.zeros((iterations, no_of_shells))
+        self.iterations_electron_densities = np.zeros(
+            (iterations, no_of_shells)
+        )
         self.iterations_t_inner = np.zeros(iterations) * u.K
 
     def store_plasma_state(self, i, w, t_rad, electron_densities, t_inner):
@@ -76,11 +78,15 @@ class PlasmaStateStorerMixin:
             iteration index, i.e. number of iterations executed minus one!
         """
         self.iterations_w = self.iterations_w[: executed_iterations + 1, :]
-        self.iterations_t_rad = self.iterations_t_rad[: executed_iterations + 1, :]
+        self.iterations_t_rad = self.iterations_t_rad[
+            : executed_iterations + 1, :
+        ]
         self.iterations_electron_densities = self.iterations_electron_densities[
             : executed_iterations + 1, :
         ]
-        self.iterations_t_inner = self.iterations_t_inner[: executed_iterations + 1]
+        self.iterations_t_inner = self.iterations_t_inner[
+            : executed_iterations + 1
+        ]
 
 
 class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
@@ -131,7 +137,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         convergence_plots_kwargs,
         show_progress_bars,
     ):
-        super(Simulation, self).__init__(iterations, simulation_state.no_of_shells)
+        super(Simulation, self).__init__(
+            iterations, simulation_state.no_of_shells
+        )
 
         self.converged = False
         self.iterations = iterations
@@ -148,28 +156,21 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.show_progress_bars = show_progress_bars
         self.version = tardis.__version__
 
-        if convergence_strategy.type in ("damped"):
-            self.convergence_strategy = convergence_strategy
-            self.converged = False
-            self.consecutive_converges_count = 0
-            self.t_rad_convergence_solver = ConvergenceSolver(
-                self.convergence_strategy.t_rad
-            )
-            self.w_convergence_solver = ConvergenceSolver(self.convergence_strategy.w)
-            self.t_inner_convergence_solver = ConvergenceSolver(
-                self.convergence_strategy.t_inner
-            )
-        elif convergence_strategy.type in ("custom"):
-            raise NotImplementedError(
-                "Convergence strategy type is custom; "
-                "you need to implement your specific treatment!"
-            )
-        else:
-            raise ValueError(
-                f"Convergence strategy type is "
-                f"not damped or custom "
-                f"- input is {convergence_strategy.type}"
-            )
+        # Convergence
+        self.convergence_strategy = convergence_strategy
+        self.converged = False
+        self.consecutive_converges_count = 0
+
+        # Convergence solvers
+        self.t_rad_convergence_solver = ConvergenceSolver(
+            self.convergence_strategy.t_rad
+        )
+        self.w_convergence_solver = ConvergenceSolver(
+            self.convergence_strategy.w
+        )
+        self.t_inner_convergence_solver = ConvergenceSolver(
+            self.convergence_strategy.t_inner
+        )
 
         if show_convergence_plots:
             self.convergence_plots = ConvergencePlots(
@@ -205,7 +206,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
         )
 
-        luminosity_ratios = (emitted_luminosity / luminosity_requested).to(1).value
+        luminosity_ratios = (
+            (emitted_luminosity / luminosity_requested).to(1).value
+        )
 
         return input_t_inner * luminosity_ratios**t_inner_update_exponent
 
@@ -213,15 +216,21 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self, t_rad, w, t_inner, estimated_t_rad, estimated_w, estimated_t_inner
     ):
         t_rad_converged = self.t_rad_convergence_solver.get_convergence_status(
-            t_rad.value, estimated_t_rad.value, self.simulation_state.no_of_shells
+            t_rad.value,
+            estimated_t_rad.value,
+            self.simulation_state.no_of_shells,
         )
 
         w_converged = self.w_convergence_solver.get_convergence_status(
             w, estimated_w, self.simulation_state.no_of_shells
         )
 
-        t_inner_converged = self.t_inner_convergence_solver.get_convergence_status(
-            t_inner.value, estimated_t_inner.value, self.simulation_state.no_of_shells
+        t_inner_converged = (
+            self.t_inner_convergence_solver.get_convergence_status(
+                t_inner.value,
+                estimated_t_inner.value,
+                self.simulation_state.no_of_shells,
+            )
         )
 
         if np.all([t_rad_converged, w_converged, t_inner_converged]):
@@ -269,19 +278,18 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         # calculate_next_plasma_state equivalent
-        # FIXME: Should convergence strategy have its own class?
-        next_t_radiative = self.t_rad_convergence_solver.damped_converge(
+        next_t_radiative = self.t_rad_convergence_solver.converge(
             self.simulation_state.t_radiative,
             estimated_t_rad,
         )
-        next_dilution_factor = self.w_convergence_solver.damped_converge(
+        next_dilution_factor = self.w_convergence_solver.converge(
             self.simulation_state.dilution_factor,
             estimated_dilution_factor,
         )
         if (
             self.iterations_executed + 1
         ) % self.convergence_strategy.lock_t_inner_cycles == 0:
-            next_t_inner = self.t_inner_convergence_solver.damped_converge(
+            next_t_inner = self.t_inner_convergence_solver.converge(
                 self.simulation_state.t_inner,
                 estimated_t_inner,
             )
@@ -374,7 +382,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             show_progress_bars=self.show_progress_bars,
         )
 
-        output_energy = self.transport.transport_state.packet_collection.output_energies
+        output_energy = (
+            self.transport.transport_state.packet_collection.output_energies
+        )
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
@@ -508,11 +518,15 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             if logger.level <= logging.INFO:
                 if not logger.filters:
                     display(
-                        plasma_state_log.iloc[::log_sampling].style.format("{:.3g}")
+                        plasma_state_log.iloc[::log_sampling].style.format(
+                            "{:.3g}"
+                        )
                     )
                 elif logger.filters[0].log_level == 20:
                     display(
-                        plasma_state_log.iloc[::log_sampling].style.format("{:.3g}")
+                        plasma_state_log.iloc[::log_sampling].style.format(
+                            "{:.3g}"
+                        )
                     )
         else:
             output_df = ""
@@ -622,10 +636,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 if Path(config.atom_data).is_absolute():
                     atom_data_fname = config.atom_data
                 else:
-                    atom_data_fname = Path(config.config_dirname) / config.atom_data
+                    atom_data_fname = (
+                        Path(config.config_dirname) / config.atom_data
+                    )
 
             else:
-                raise ValueError("No atom_data option found in the configuration.")
+                raise ValueError(
+                    "No atom_data option found in the configuration."
+                )
 
             logger.info(f"\n\tReading Atomic Data from {atom_data_fname}")
 
@@ -683,14 +701,18 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             "export_convergence_plots",
         ]
         convergence_plots_kwargs = {}
-        for item in set(convergence_plots_config_options).intersection(kwargs.keys()):
+        for item in set(convergence_plots_config_options).intersection(
+            kwargs.keys()
+        ):
             convergence_plots_kwargs[item] = kwargs[item]
 
         luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(
             u.Hz, u.spectral()
         )
 
-        if u.isclose(config.supernova.luminosity_wavelength_start, 0 * u.angstrom):
+        if u.isclose(
+            config.supernova.luminosity_wavelength_start, 0 * u.angstrom
+        ):
             luminosity_nu_end = np.inf * u.Hz
         else:
             luminosity_nu_end = (
