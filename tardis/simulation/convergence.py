@@ -1,7 +1,4 @@
 import numpy as np
-from numba import njit
-
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 
 
 class ConvergenceSolver:
@@ -38,7 +35,6 @@ class ConvergenceSolver:
                 f"- input is {self.convergence_strategy.type}"
             )
 
-    @njit(**njit_dict_no_parallel)
     def damped_converge(self, value, estimated_value):
         """Damped convergence solver
 
