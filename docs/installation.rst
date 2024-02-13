@@ -30,7 +30,7 @@ this method by following the steps described below.
 
   ::
 
-    $ wget -q https://github.com/tardis-sn/tardis/blob/master/conda-{platform}-64.lock
+    $ wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-linux-64.lock
 
 2. Create and activate the ``tardis`` environment.
 
