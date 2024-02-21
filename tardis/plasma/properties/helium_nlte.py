@@ -83,7 +83,6 @@ class HeliumNLTE(ProcessingPlasmaProperty):
             * (1 / g_electron)
             * (1 / (w**2.0))
             * np.exp(ionization_data.loc[2, 1] * beta_rad)
-            ) 
         )
 
     @staticmethod
