@@ -82,10 +82,8 @@ class HeliumNLTE(ProcessingPlasmaProperty):
             * (1.0 / (2 * float(g.loc[2, 1, 0])))
             * (1 / g_electron)
             * (1 / (w**2.0))
-            * np.minimum(
-                np.exp(ionization_data.loc[2, 1] * beta_rad),
-                np.finfo(np.float64).max,
-            )  # Prevents overflow
+            * np.exp(ionization_data.loc[2, 1] * beta_rad)
+            ) 
         )
 
     @staticmethod

@@ -678,6 +678,11 @@ def parse_csvy_radiation_field_state(
             geometry, packet_source
         )
 
+    if np.any(t_radiative < 1000 * u.K):
+        raise ValueError(
+            f"Radiative temperature is too low in shell {np.argmin(t_radiative)} (T_rad = {t_radiative[np.argmin(t_radiative)]})"
+        )
+
     if hasattr(csvy_model_data, "columns") and (
         "dilution_factor" in csvy_model_data.columns
     ):
