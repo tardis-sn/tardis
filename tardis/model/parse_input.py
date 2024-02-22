@@ -680,7 +680,9 @@ def parse_csvy_radiation_field_state(
 
     if np.any(t_radiative < 1000 * u.K):
         raise ValueError(
-            f"Radiative temperature is too low in shell {np.argmin(t_radiative)} (T_rad = {t_radiative[np.argmin(t_radiative)]})"
+            "Radiative temperature is too low in some of the shells, temperatures below 1000K "
+            f"(e.g., T_rad = {t_radiative[np.argmin(t_radiative)]} in shell {np.argmin(t_radiative)} in your model) "
+            "are not accurately handled by Tardis.",
         )
 
     if hasattr(csvy_model_data, "columns") and (
