@@ -448,7 +448,7 @@ class FormalIntegrator(object):
         Edotlu = (
             Edotlu_norm_factor
             * exptau
-            * montecarlo_transport_state.estimators.Edotlu_estimator
+            * montecarlo_transport_state.radfield_mc_estimators.Edotlu_estimator
         )
 
         # The following may be achieved by calling the appropriate plasma
@@ -470,7 +470,7 @@ class FormalIntegrator(object):
         # Jbluelu should already by in the correct order, i.e. by wavelength of
         # the transition l->u
         Jbluelu = (
-            transport.transport_state.estimators.j_blue_estimator
+            transport.transport_state.radfield_mc_estimators.j_blue_estimator
             * Jbluelu_norm_factor
         )
 

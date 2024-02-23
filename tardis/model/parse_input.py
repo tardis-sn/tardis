@@ -17,7 +17,9 @@ from tardis.io.model.readers.generic_readers import read_uniform_abundances
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.model.matter.composition import Composition
 from tardis.model.matter.decay import IsotopicMassFraction
-from tardis.model.radiation_field_state import DiluteThermalRadiationFieldState
+from tardis.model.radiation_field_state import (
+    DiluteBlackBodyRadiationFieldState,
+)
 from tardis.montecarlo.packet_source import (
     BlackBodySimpleSource,
     BlackBodySimpleSourceRelativistic,
@@ -566,13 +568,12 @@ def parse_radiation_field_state(
 
     if dilution_factor is None:
         dilution_factor = calculate_geometric_dilution_factor(geometry)
-    elif len(dilution_factor) != geometry.no_of_shells:
-        dilution_factor = dilution_factor[
-            geometry.v_inner_boundary_index : geometry.v_outer_boundary_index
-        ]
-        assert len(dilution_factor) == geometry.no_of_shells
 
-    return DiluteThermalRadiationFieldState(t_radiative, dilution_factor)
+    assert len(dilution_factor) == geometry.no_of_shells
+
+    return DiluteBlackBodyRadiationFieldState(
+        t_radiative, dilution_factor, geometry
+    )
 
 
 def initialize_packet_source(config, geometry, packet_source):
@@ -608,13 +609,13 @@ def initialize_packet_source(config, geometry, packet_source):
 
     luminosity_requested = config.supernova.luminosity_requested
     if config.plasma.initial_t_inner > 0.0 * u.K:
-        packet_source.radius = geometry.r_inner[0]
+        packet_source.radius = geometry.r_inner_active[0]
         packet_source.temperature = config.plasma.initial_t_inner
 
     elif (config.plasma.initial_t_inner < 0.0 * u.K) and (
         luminosity_requested is not None
     ):
-        packet_source.radius = geometry.r_inner[0]
+        packet_source.radius = geometry.r_inner_active[0]
         packet_source.set_temperature_from_luminosity(luminosity_requested)
     else:
         raise ValueError(
@@ -672,9 +673,6 @@ def parse_csvy_radiation_field_state(
         t_radiative = (
             np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
         )
-        t_radiative = (
-            np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
-        )
     else:
         t_radiative = calculate_t_radiative_from_t_inner(
             geometry, packet_source
@@ -687,7 +685,9 @@ def parse_csvy_radiation_field_state(
     else:
         dilution_factor = calculate_geometric_dilution_factor(geometry)
 
-    return DiluteThermalRadiationFieldState(t_radiative, dilution_factor)
+    return DiluteBlackBodyRadiationFieldState(
+        t_radiative, dilution_factor, geometry
+    )
 
 
 def calculate_t_radiative_from_t_inner(geometry, packet_source):
@@ -718,6 +718,12 @@ def calculate_geometric_dilution_factor(geometry):
     return 0.5 * (
         1
         - np.sqrt(
-            1 - (geometry.r_inner[0] ** 2 / geometry.r_middle**2).to(1).value
+            1
+            - (
+                geometry.r_inner[geometry.v_inner_boundary_index] ** 2
+                / geometry.r_middle**2
+            )
+            .to(1)
+            .value
         )
     )

@@ -71,3 +71,9 @@ pip-wheel-metadata/
 
 # Mac OSX
 .DS_Store
+
+# Visual Studio Code
+*.code-workspace
+
+# Random files
+.hypothesis/unicode_data/11.0.0/charmap.json.gz

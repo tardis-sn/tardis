@@ -2,14 +2,18 @@ import logging
 
 import numpy as np
 import pandas as pd
+from numba import njit, prange
 
-from numba import prange, njit
 from tardis import constants as const
-
+from tardis.montecarlo.estimators.util import (
+    bound_free_estimator_array2frame,
+    integrate_array_by_blocks,
+)
+from tardis.montecarlo.montecarlo_numba import njit_dict
 from tardis.plasma.exceptions import PlasmaException
 from tardis.plasma.properties.base import (
-    ProcessingPlasmaProperty,
     Input,
+    ProcessingPlasmaProperty,
     TransitionProbabilitiesProperty,
 )
 from tardis.plasma.properties.j_blues import JBluesDiluteBlackBody
@@ -64,39 +68,6 @@ FF_OPAC_CONST = (
 )  # See Eq. 6.1.8 in http://personal.psu.edu/rbc3/A534/lec6.pdf
 
 logger = logging.getLogger(__name__)
-
-njit_dict = {"fastmath": False, "parallel": False}
-
-
-@njit(**njit_dict)
-def integrate_array_by_blocks(f, x, block_references):
-    """
-    Integrate a function over blocks.
-
-    This function integrates a function `f` defined at locations `x`
-    over blocks given in `block_references`.
-
-    Parameters
-    ----------
-    f : numpy.ndarray, dtype float
-        2D input array to integrate.
-    x : numpy.ndarray, dtype float
-        1D array with the sample points corresponding to the `f` values.
-    block_references : numpy.ndarray, dtype int
-        1D array with the start indices of the blocks to be integrated.
-
-    Returns
-    -------
-    numpy.ndarray, dtype float
-        2D array with integrated values.
-    """
-    integrated = np.zeros((len(block_references) - 1, f.shape[1]))
-    for i in prange(f.shape[1]):  # columns
-        for j in prange(len(integrated)):  # rows
-            start = block_references[j]
-            stop = block_references[j + 1]
-            integrated[j, i] = np.trapz(f[start:stop, i], x[start:stop])
-    return integrated
 
 
 # It is currently not possible to use scipy.integrate.cumulative_trapezoid in
@@ -240,36 +211,7 @@ def cooling_rate_series2dataframe(cooling_rate_series, destination_level_idx):
     return cooling_rate_frame
 
 
-def bf_estimator_array2frame(bf_estimator_array, level2continuum_idx):
-    """
-    Transform a bound-free estimator array to a DataFrame.
-
-    This function transforms a bound-free estimator array with entries
-    sorted by frequency to a multi-indexed DataFrame sorted by level.
-
-    Parameters
-    ----------
-    bf_estimator_array : numpy.ndarray, dtype float
-        Array of bound-free estimators (e.g., for the stimulated recombination rate)
-        with entries sorted by the threshold frequency of the bound-free continuum.
-    level2continuum_idx : pandas.Series, dtype int
-        Maps a level MultiIndex (atomic_number, ion_number, level_number) to
-        the continuum_idx of the corresponding bound-free continuum (which are
-        sorted by decreasing frequency).
-
-    Returns
-    -------
-    pandas.DataFrame, dtype float
-        Bound-free estimators indexed by (atomic_number, ion_number, level_number).
-    """
-    bf_estimator_frame = pd.DataFrame(
-        bf_estimator_array, index=level2continuum_idx.index
-    ).sort_index()
-    bf_estimator_frame.columns.name = "Shell No."
-    return bf_estimator_frame
-
-
-class IndexSetterMixin(object):
+class IndexSetterMixin:
     @staticmethod
     def set_index(p, photo_ion_idx, transition_type=0, reverse=True):
         idx = photo_ion_idx.loc[p.index]
@@ -428,7 +370,7 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
                 w,
             )
         else:
-            gamma_estimator = bf_estimator_array2frame(
+            gamma_estimator = bound_free_estimator_array2frame(
                 gamma_estimator, level2continuum_idx
             )
             gamma = gamma_estimator * photo_ion_norm_factor.value
@@ -493,7 +435,7 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
                 boltzmann_factor_photo_ion,
             )
         else:
-            alpha_stim_estimator = bf_estimator_array2frame(
+            alpha_stim_estimator = bound_free_estimator_array2frame(
                 alpha_stim_estimator, level2continuum_idx
             )
             alpha_stim = alpha_stim_estimator * photo_ion_norm_factor
@@ -953,7 +895,6 @@ class TwoPhotonFrequencySampler(ProcessingPlasmaProperty):
     outputs = ("nu_two_photon_sampler",)
 
     def calculate(self, two_photon_emission_cdf):
-
         nus = two_photon_emission_cdf["nu"].values
         em = two_photon_emission_cdf["cdf"].values
 
@@ -1076,7 +1017,8 @@ class PhotoIonBoltzmannFactor(ProcessingPlasmaProperty):
 
     outputs = ("boltzmann_factor_photo_ion",)
 
-    def calculate(self, photo_ion_cross_sections, t_electrons):
+    @staticmethod
+    def calculate(photo_ion_cross_sections, t_electrons):
         nu = photo_ion_cross_sections["nu"].values
 
         boltzmann_factor = np.exp(-nu[np.newaxis].T / t_electrons * (H / K_B))

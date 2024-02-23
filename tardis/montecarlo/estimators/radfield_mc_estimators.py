@@ -1,24 +1,21 @@
 from math import exp
 
 import numpy as np
-
-from numba import njit, float64, int64
+from numba import float64, int64, njit
 from numba.experimental import jitclass
 
 from tardis.montecarlo import montecarlo_configuration as nc
-from tardis.montecarlo.montecarlo_numba.numba_config import H, KB
-
 from tardis.montecarlo.montecarlo_numba import (
     njit_dict_no_parallel,
 )
-
+from tardis.montecarlo.montecarlo_numba.numba_config import KB, H
 from tardis.transport.frame_transformations import (
     calc_packet_energy,
     calc_packet_energy_full_relativity,
 )
 
 
-def initialize_estimators(tau_sobolev_shape, gamma_shape):
+def initialize_estimator_statistics(tau_sobolev_shape, gamma_shape):
     """
     Initializes the estimators used in the Monte Carlo simulation.
 
@@ -41,7 +38,6 @@ def initialize_estimators(tau_sobolev_shape, gamma_shape):
     >>> initialize_estimators(tau_sobolev_shape, gamma_shape)
     <Estimators object at 0x...>
     """
-
     j_estimator = np.zeros(tau_sobolev_shape[1], dtype=np.float64)
     nu_bar_estimator = np.zeros(tau_sobolev_shape[1], dtype=np.float64)
     j_blue_estimator = np.zeros(tau_sobolev_shape)
@@ -55,7 +51,7 @@ def initialize_estimators(tau_sobolev_shape, gamma_shape):
     stim_recomb_cooling_estimator = np.zeros(gamma_shape, dtype=np.float64)
 
     photo_ion_estimator_statistics = np.zeros(gamma_shape, dtype=np.int64)
-    return Estimators(
+    return RadiationFieldMCEstimators(
         j_estimator,
         nu_bar_estimator,
         j_blue_estimator,
@@ -85,7 +81,7 @@ continuum_estimators_spec = [
 
 
 @jitclass(base_estimators_spec + continuum_estimators_spec)
-class Estimators(object):
+class RadiationFieldMCEstimators:
     def __init__(
         self,
         j_estimator,
@@ -109,6 +105,18 @@ class Estimators(object):
         self.photo_ion_estimator_statistics = photo_ion_estimator_statistics
 
     def increment(self, other):
+        """
+        Increments each estimator with the corresponding estimator from another instance of the class.
+
+        Parameters
+        ----------
+        other : RadiationFieldMCEstimators
+            Another instance of the RadiationFieldMCEstimators class.
+
+        Returns
+        -------
+        None
+        """
         self.j_estimator += other.j_estimator
         self.nu_bar_estimator += other.nu_bar_estimator
         self.j_blue_estimator += other.j_blue_estimator
@@ -201,7 +209,11 @@ def update_bound_free_estimators(
 
 @njit(**njit_dict_no_parallel)
 def update_line_estimators(
-    estimators, r_packet, cur_line_id, distance_trace, time_explosion
+    radfield_mc_estimators,
+    r_packet,
+    cur_line_id,
+    distance_trace,
+    time_explosion,
 ):
     """
     Function to update the line estimators
@@ -214,23 +226,14 @@ def update_line_estimators(
     distance_trace : float
     time_explosion : float
     """
-
-    """ Actual calculation - simplified below
-    r_interaction = math.sqrt(r_packet.r**2 + distance_trace**2 +
-                            2 * r_packet.r * distance_trace * r_packet.mu)
-    mu_interaction = (r_packet.mu * r_packet.r + distance_trace) / r_interaction
-    doppler_factor = 1.0 - mu_interaction * r_interaction /
-    ( time_explosion * C)
-    """
-
     if not nc.ENABLE_FULL_RELATIVITY:
         energy = calc_packet_energy(r_packet, distance_trace, time_explosion)
     else:
         energy = calc_packet_energy_full_relativity(r_packet)
 
-    estimators.j_blue_estimator[cur_line_id, r_packet.current_shell_id] += (
-        energy / r_packet.nu
-    )
-    estimators.Edotlu_estimator[
+    radfield_mc_estimators.j_blue_estimator[
+        cur_line_id, r_packet.current_shell_id
+    ] += (energy / r_packet.nu)
+    radfield_mc_estimators.Edotlu_estimator[
         cur_line_id, r_packet.current_shell_id
     ] += energy

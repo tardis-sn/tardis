@@ -8,6 +8,9 @@ from tardis import constants as const
 from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo import montecarlo_configuration
+from tardis.montecarlo.estimators.radfield_mc_estimators import (
+    initialize_estimator_statistics,
+)
 from tardis.montecarlo.montecarlo_configuration import (
     configuration_initialize,
 )
@@ -15,7 +18,6 @@ from tardis.montecarlo.montecarlo_numba import (
     montecarlo_main_loop,
     numba_config,
 )
-from tardis.montecarlo.montecarlo_numba.estimators import initialize_estimators
 from tardis.montecarlo.montecarlo_numba.formal_integral import FormalIntegrator
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     NumbaModel,
@@ -97,8 +99,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         mc_tracker.DEBUG_MODE = debug_packets
         mc_tracker.BUFFER = logger_buffer
 
-        if self.spectrum_method == "integrated":
-            self.optional_hdf_properties.append("spectrum_integrated")
+        # if self.spectrum_method == "integrated":
+        #    self.optional_hdf_properties.append("spectrum_integrated")
 
     def initialize_transport_state(
         self,
@@ -116,7 +118,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         packet_collection = self.packet_source.create_packets(
             no_of_packets, seed_offset=iteration
         )
-        estimators = initialize_estimators(
+        estimators = initialize_estimator_statistics(
             plasma.tau_sobolevs.shape, gamma_shape
         )
 
@@ -182,7 +184,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             transport_state.geometry_state,
             numba_model,
             transport_state.opacity_state,
-            transport_state.estimators,
+            transport_state.radfield_mc_estimators,
             transport_state.spectrum_frequency.value,
             number_of_vpackets,
             iteration=iteration,
@@ -231,8 +233,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         return (
             self.transport_state.packet_collection.output_nus,
             self.transport_state.packet_collection.output_energies,
-            self.transport_state.estimators.j_estimator,
-            self.transport_state.estimators.nu_bar_estimator,
+            self.transport_state.j_estimator,
+            self.transport_state.nu_bar_estimator,
             self.transport_state.last_line_interaction_in_id,
             self.transport_state.last_line_interaction_out_id,
             self.transport_state.last_interaction_type,

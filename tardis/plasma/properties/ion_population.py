@@ -1,18 +1,18 @@
 import logging
+import sys
 import warnings
 
-import sys
 import numpy as np
 import pandas as pd
-
 from scipy import interpolate
 
+from tardis.plasma.exceptions import PlasmaIonizationError
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.properties.continuum_processes import get_ion_multi_index
-from tardis.plasma.exceptions import PlasmaIonizationError
-
 
 logger = logging.getLogger(__name__)
+
+ION_ZERO_THRESHOLD = 1e-20
 
 __all__ = [
     "PhiSahaNebular",
@@ -279,7 +279,10 @@ class IonNumberDensity(ProcessingPlasmaProperty):
     )
 
     def __init__(
-        self, plasma_parent, ion_zero_threshold=1e-20, electron_densities=None
+        self,
+        plasma_parent,
+        ion_zero_threshold=ION_ZERO_THRESHOLD,
+        electron_densities=None,
     ):
         super(IonNumberDensity, self).__init__(plasma_parent)
         self.ion_zero_threshold = ion_zero_threshold
@@ -359,7 +362,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                     )
                 n_electron_iterations += 1
                 if n_electron_iterations > 100:
-                    logger.warn(
+                    logger.warning(
                         f"n_electron iterations above 100 ({n_electron_iterations}) -"
                         f" something is probably wrong"
                     )
@@ -480,7 +483,7 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                     )
                 n_electron_iterations += 1
                 if n_electron_iterations > 100:
-                    logger.warn(
+                    logger.warning(
                         f"n_electron iterations above 100 ({n_electron_iterations}) -"
                         f" something is probably wrong"
                     )
