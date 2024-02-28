@@ -31,7 +31,7 @@ def trace_packet(
     chi_continuum,
     escat_prob,
     continuum_processes_enabled,
-    full_relativity,
+    enable_full_relativity,
     disable_line_scattering,
 ):
     """
@@ -66,7 +66,10 @@ def trace_packet(
 
     # Calculating doppler factor
     doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, numba_model.time_explosion
+        r_packet.r,
+        r_packet.mu,
+        numba_model.time_explosion,
+        enable_full_relativity,
     )
     comov_nu = r_packet.nu * doppler_factor
 
@@ -96,6 +99,7 @@ def trace_packet(
             is_last_line,
             nu_line,
             numba_model.time_explosion,
+            enable_full_relativity,
         )
 
         # calculating the tau continuum of how far the trace has progressed
@@ -133,7 +137,7 @@ def trace_packet(
             cur_line_id,
             distance_trace,
             numba_model.time_explosion,
-            full_relativity,
+            enable_full_relativity,
         )
 
         if tau_trace_combined > tau_event and not disable_line_scattering:
@@ -162,7 +166,7 @@ def trace_packet(
             cur_line_id += 1
         if distance_continuum < distance_boundary:
             distance = distance_continuum
-            if not montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+            if not continuum_processes_enabled:
                 interaction_type = InteractionType.ESCATTERING
             else:
                 zrand = np.random.random()
@@ -178,7 +182,9 @@ def trace_packet(
 
 
 @njit(**njit_dict_no_parallel)
-def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
+def move_r_packet(
+    r_packet, distance, time_explosion, numba_estimator, enable_full_relativity
+):
     """
     Move packet a distance and recalculate the new angle mu
 
@@ -194,7 +200,9 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
         distance in cm
     """
 
-    doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu, time_explosion)
+    doppler_factor = get_doppler_factor(
+        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+    )
 
     r = r_packet.r
     if distance > 0.0:
@@ -208,7 +216,7 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
         comov_energy = r_packet.energy * doppler_factor
 
         # Account for length contraction
-        if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
+        if enable_full_relativity:
             distance *= doppler_factor
 
         update_base_estimators(

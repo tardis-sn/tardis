@@ -122,7 +122,12 @@ def test_calculate_distance_line(
     obtained_tardis_error = None
     try:
         d_line = calculate_distances.calculate_distance_line(
-            static_packet, comov_nu, is_last_line, nu_line, time_explosion
+            static_packet,
+            comov_nu,
+            is_last_line,
+            nu_line,
+            time_explosion,
+            False,
         )
     except utils.MonteCarloException:
         obtained_tardis_error = utils.MonteCarloException
@@ -209,7 +214,12 @@ def test_update_line_estimators(
     expected_Edotlu,
 ):
     update_line_estimators(
-        estimators, static_packet, cur_line_id, distance_trace, time_explosion
+        estimators,
+        static_packet,
+        cur_line_id,
+        distance_trace,
+        time_explosion,
+        enable_full_relativity=False,
     )
 
     assert_allclose(estimators.j_blue_estimator, expected_j_blue)
@@ -286,7 +296,11 @@ def test_move_r_packet(
     )
 
     r_packet_transport.move_r_packet(
-        packet, distance, model.time_explosion, estimators
+        packet,
+        distance,
+        model.time_explosion,
+        estimators,
+        ENABLE_FULL_RELATIVITY,
     )
 
     assert_almost_equal(packet.mu, expected_params["mu"])

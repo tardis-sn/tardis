@@ -146,6 +146,7 @@ def trace_vpacket_within_shell(
             is_last_line,
             nu_line,
             numba_model.time_explosion,
+            enable_full_relativity,
         )
 
         if distance_boundary <= distance_trace_line:

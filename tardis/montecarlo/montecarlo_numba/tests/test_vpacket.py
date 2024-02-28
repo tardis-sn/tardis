@@ -119,6 +119,7 @@ def test_trace_vpacket_volley(
         verysimple_numba_radial_1d_geometry,
         verysimple_numba_model,
         verysimple_opacity_state,
+        enable_full_relativity=False,
     )
 
 

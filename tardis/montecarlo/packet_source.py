@@ -176,7 +176,7 @@ class BlackBodySimpleSource(BasePacketSource):
         Radii for packets
             numpy.ndarray
         """
-        return np.ones(no_of_packets) * self.radius
+        return np.ones(no_of_packets) * self.radius.value
 
     def create_packet_nus(self, no_of_packets, l_samples=1000):
         """
