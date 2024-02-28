@@ -65,7 +65,11 @@ def single_packet_loop(
         set_packet_props_full_relativity(r_packet, numba_model)
     else:
         set_packet_props_partial_relativity(r_packet, numba_model)
-    r_packet.initialize_line_id(opacity_state, numba_model)
+    r_packet.initialize_line_id(
+        opacity_state,
+        numba_model,
+        montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+    )
 
     trace_vpacket_volley(
         r_packet,
@@ -73,6 +77,7 @@ def single_packet_loop(
         numba_radial_1d_geometry,
         numba_model,
         opacity_state,
+        montecarlo_configuration.ENABLE_FULL_RELATIVITY,
     )
 
     if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
@@ -150,7 +155,11 @@ def single_packet_loop(
 
         if interaction_type == InteractionType.BOUNDARY:
             move_r_packet(
-                r_packet, distance, numba_model.time_explosion, estimators
+                r_packet,
+                distance,
+                numba_model.time_explosion,
+                estimators,
+                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             move_packet_across_shell_boundary(
                 r_packet, delta_shell, len(numba_radial_1d_geometry.r_inner)
@@ -159,13 +168,19 @@ def single_packet_loop(
         elif interaction_type == InteractionType.LINE:
             r_packet.last_interaction_type = 2
             move_r_packet(
-                r_packet, distance, numba_model.time_explosion, estimators
+                r_packet,
+                distance,
+                numba_model.time_explosion,
+                estimators,
+                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             line_scatter(
                 r_packet,
                 numba_model.time_explosion,
                 line_interaction_type,
                 opacity_state,
+                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             trace_vpacket_volley(
                 r_packet,
@@ -173,14 +188,13 @@ def single_packet_loop(
                 numba_radial_1d_geometry,
                 numba_model,
                 opacity_state,
+                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
 
         elif interaction_type == InteractionType.ESCATTERING:
             r_packet.last_interaction_type = 1
 
-            move_r_packet(
-                r_packet, distance, numba_model.time_explosion, estimators
-            )
+            move_r_packet(r_packet, distance, numba_model.time_explosion, estimators)
             thomson_scatter(r_packet, numba_model.time_explosion)
 
             trace_vpacket_volley(
@@ -189,6 +203,7 @@ def single_packet_loop(
                 numba_radial_1d_geometry,
                 numba_model,
                 opacity_state,
+                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
         elif (
             montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
@@ -196,7 +211,11 @@ def single_packet_loop(
         ):
             r_packet.last_interaction_type = InteractionType.CONTINUUM_PROCESS
             move_r_packet(
-                r_packet, distance, numba_model.time_explosion, estimators
+                r_packet,
+                distance,
+                numba_model.time_explosion,
+                estimators,
+                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             continuum_event(
                 r_packet,
@@ -214,6 +233,7 @@ def single_packet_loop(
                 numba_radial_1d_geometry,
                 numba_model,
                 opacity_state,
+                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
         else:
             pass

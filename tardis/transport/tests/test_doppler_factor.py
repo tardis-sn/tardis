@@ -38,7 +38,9 @@ def test_get_doppler_factor(mu, r, inv_t_exp, expected):
     # Perform any other setups just before this, they can be additional calls
     # to other methods or introduction of some temporary variables
 
-    obtained = frame_transformations.get_doppler_factor(r, mu, time_explosion)
+    obtained = frame_transformations.get_doppler_factor(
+        r, mu, time_explosion, False
+    )
 
     # Perform required assertions
     assert_almost_equal(obtained, expected)

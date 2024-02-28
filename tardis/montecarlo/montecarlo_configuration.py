@@ -42,7 +42,7 @@ class MonteCarloConfiguration(object):
         self.SURVIVAL_PROBABILITY = 0.0
         self.VPACKET_TAU_RUSSIAN = 10.0
 
-        self.INITIAL_TRACKING_ARRAY_LENGTH = None
+        self.INITIAL_TRACKING_ARRAY_LENGTH = 0
         self.LEGACY_MODE_ENABLED = False
 
         self.ENABLE_RPACKET_TRACKING = False
@@ -52,32 +52,33 @@ class MonteCarloConfiguration(object):
         self.VPACKET_SPAWN_END_FREQUENCY = 1e200
         self.ENABLE_VPACKET_TRACKING = False
 
-    def configuration_initialize(self, transport, number_of_vpackets):
-        if transport.line_interaction_type == "macroatom":
-            self.LINE_INTERACTION_TYPE = LineInteractionType.MACROATOM
-        elif transport.line_interaction_type == "downbranch":
-            self.LINE_INTERACTION_TYPE = LineInteractionType.DOWNBRANCH
-        elif transport.line_interaction_type == "scatter":
-            self.LINE_INTERACTION_TYPE = LineInteractionType.SCATTER
-        else:
-            raise ValueError(
-                f'Line interaction type must be one of "macroatom",'
-                f'"downbranch", or "scatter" but is '
-                f"{transport.line_interaction_type}"
-            )
-        self.NUMBER_OF_VPACKETS = number_of_vpackets
-        self.TEMPORARY_V_PACKET_BINS = number_of_vpackets
-        self.ENABLE_FULL_RELATIVITY = transport.enable_full_relativity
-        self.MONTECARLO_SEED = transport.packet_source.base_seed
-        self.VPACKET_SPAWN_START_FREQUENCY = (
-            transport.virtual_spectrum_spawn_range.end.to(
-                u.Hz, equivalencies=u.spectral()
-            ).value
+
+def configuration_initialize(config, transport, number_of_vpackets):
+    if transport.line_interaction_type == "macroatom":
+        config.LINE_INTERACTION_TYPE = LineInteractionType.MACROATOM
+    elif transport.line_interaction_type == "downbranch":
+        config.LINE_INTERACTION_TYPE = LineInteractionType.DOWNBRANCH
+    elif transport.line_interaction_type == "scatter":
+        config.LINE_INTERACTION_TYPE = LineInteractionType.SCATTER
+    else:
+        raise ValueError(
+            f'Line interaction type must be one of "macroatom",'
+            f'"downbranch", or "scatter" but is '
+            f"{transport.line_interaction_type}"
         )
-        self.VPACKET_SPAWN_END_FREQUENCY = (
-            transport.virtual_spectrum_spawn_range.start.to(
-                u.Hz, equivalencies=u.spectral()
-            ).value
-        )
-        self.ENABLE_VPACKET_TRACKING = transport.enable_vpacket_tracking
-        self.ENABLE_RPACKET_TRACKING = transport.enable_rpacket_tracking
+    config.NUMBER_OF_VPACKETS = number_of_vpackets
+    config.TEMPORARY_V_PACKET_BINS = number_of_vpackets
+    config.ENABLE_FULL_RELATIVITY = transport.enable_full_relativity
+    config.MONTECARLO_SEED = transport.packet_source.base_seed
+    config.VPACKET_SPAWN_START_FREQUENCY = (
+        transport.virtual_spectrum_spawn_range.end.to(
+            u.Hz, equivalencies=u.spectral()
+        ).value
+    )
+    config.VPACKET_SPAWN_END_FREQUENCY = (
+        transport.virtual_spectrum_spawn_range.start.to(
+            u.Hz, equivalencies=u.spectral()
+        ).value
+    )
+    config.ENABLE_VPACKET_TRACKING = transport.enable_vpacket_tracking
+    config.ENABLE_RPACKET_TRACKING = transport.enable_rpacket_tracking

@@ -12,6 +12,7 @@ from tardis.montecarlo.estimators.radfield_mc_estimators import (
 )
 from tardis.montecarlo.montecarlo_configuration import (
     MonteCarloConfiguration,
+    configuration_initialize,
 )
 from tardis.montecarlo.montecarlo_numba import (
     montecarlo_main_loop,
@@ -143,8 +144,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         transport_state._integrator = FormalIntegrator(
             simulation_state, plasma, self
         )
-        self.montecarlo_configuration.configuration_initialize(
-            transport=self, number_of_vpackets=no_of_virtual_packets
+        configuration_initialize(
+            self.montecarlo_configuration, self, no_of_virtual_packets
         )
 
         return transport_state
