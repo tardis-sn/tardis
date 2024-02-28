@@ -11,7 +11,6 @@ from tardis.montecarlo.estimators.radfield_mc_estimators import (
     initialize_estimator_statistics,
 )
 from tardis.montecarlo.montecarlo_configuration import (
-    configuration_initialize,
     MonteCarloConfiguration,
 )
 from tardis.montecarlo.montecarlo_numba import (
@@ -126,7 +125,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         geometry_state = simulation_state.geometry.to_numba()
         opacity_state = opacity_state_initialize(
-            plasma, self.line_interaction_type
+            plasma,
+            self.line_interaction_type,
+            self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
+            self.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
         )
         transport_state = MonteCarloTransportState(
             packet_collection,
@@ -141,8 +143,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         transport_state._integrator = FormalIntegrator(
             simulation_state, plasma, self
         )
-        configuration_initialize(
-            self.montecarlo_configuration, self, no_of_virtual_packets
+        self.montecarlo_configuration.configuration_initialize(
+            transport=self, number_of_vpackets=no_of_virtual_packets
         )
 
         return transport_state
@@ -305,7 +307,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
                 valid values are 'GPU', 'CPU', and 'Automatic'."""
             )
 
-        montecarlo_configuration = MonteCarloConfiguration
+        montecarlo_configuration = MonteCarloConfiguration()
 
         montecarlo_configuration.DISABLE_LINE_SCATTERING = (
             config.plasma.disable_line_scattering

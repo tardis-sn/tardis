@@ -2,7 +2,6 @@ import numpy as np
 from numba import float64, int64, njit
 from numba.experimental import jitclass
 
-from tardis.montecarlo import montecarlo_configuration
 from tardis.montecarlo.montecarlo_numba import (
     njit_dict_no_parallel,
 )

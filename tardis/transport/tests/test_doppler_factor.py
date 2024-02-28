@@ -128,7 +128,7 @@ def test_get_inverse_doppler_factor(mu, r, inv_t_exp, expected):
     # to other methods or introduction of some temporary variables
 
     obtained = frame_transformations.get_inverse_doppler_factor(
-        r, mu, time_explosion
+        r, mu, time_explosion, False
     )
 
     # Perform required assertions

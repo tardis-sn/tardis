@@ -12,7 +12,7 @@ import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.r_packet_transport as r_packet_transport
 from tardis import constants as const
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.montecarlo.estimators.radfield_mc_estimators import (
+from tardis.montecarlo.estimators.radfield_estimator_calcs import (
     update_line_estimators,
 )
 
@@ -114,7 +114,7 @@ def test_calculate_distance_line(
     time_explosion = model.time_explosion
 
     doppler_factor = frame_transformations.get_doppler_factor(
-        static_packet.r, static_packet.mu, time_explosion
+        static_packet.r, static_packet.mu, time_explosion, False
     )
     comov_nu = static_packet.nu * doppler_factor
 
@@ -282,7 +282,7 @@ def test_move_r_packet(
     numba_config.ENABLE_FULL_RELATIVITY = ENABLE_FULL_RELATIVITY
     r_packet_transport.move_r_packet.recompile()  # This must be done as move_r_packet was jitted with ENABLE_FULL_RELATIVITY
     doppler_factor = frame_transformations.get_doppler_factor(
-        packet.r, packet.mu, model.time_explosion
+        packet.r, packet.mu, model.time_explosion, ENABLE_FULL_RELATIVITY
     )
 
     r_packet_transport.move_r_packet(

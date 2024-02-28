@@ -88,7 +88,11 @@ def montecarlo_main_loop(
                 montecarlo_configuration.TEMPORARY_V_PACKET_BINS,
             )
         )
-        rpacket_trackers.append(RPacketTracker())
+        rpacket_trackers.append(
+            RPacketTracker(
+                montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
+            )
+        )
 
     # Get the ID of the main thread and the number of threads
     main_thread_id = get_thread_id()
