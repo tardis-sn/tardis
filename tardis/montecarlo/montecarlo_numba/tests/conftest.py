@@ -3,9 +3,6 @@ from copy import deepcopy
 import pytest
 import numpy as np
 from numba import njit
-from tardis.montecarlo.estimators.radfield_mc_estimators import (
-    RadiationFieldMCEstimators,
-)
 from tardis.montecarlo.montecarlo_numba.packet_collections import (
     VPacketCollection,
 )

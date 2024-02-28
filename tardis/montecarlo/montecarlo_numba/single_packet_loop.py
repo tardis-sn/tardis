@@ -1,10 +1,7 @@
 from numba import njit
 
 from tardis import constants as const
-from tardis.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
-)
-from tardis.montecarlo.estimators.radfield_mc_estimators import (
+from tardis.montecarlo.estimators.radfield_estimator_calcs import (
     update_bound_free_estimators,
 )
 from tardis.montecarlo.montecarlo_numba.interaction import (
@@ -43,6 +40,7 @@ def single_packet_loop(
     estimators,
     vpacket_collection,
     rpacket_tracker,
+    montecarlo_configuration,
 ):
     """
     Parameters
@@ -85,8 +83,12 @@ def single_packet_loop(
         # Compute continuum quantities
         # trace packet (takes opacities)
         doppler_factor = get_doppler_factor(
-            r_packet.r, r_packet.mu, numba_model.time_explosion
+            r_packet.r,
+            r_packet.mu,
+            numba_model.time_explosion,
+            montecarlo_configuration.ENABLE_FULL_RELATIVITY,
         )
+
         comov_nu = r_packet.nu * doppler_factor
         chi_e = chi_electron_calculator(
             opacity_state, comov_nu, r_packet.current_shell_id
@@ -139,6 +141,9 @@ def single_packet_loop(
                 estimators,
                 chi_continuum,
                 escat_prob,
+                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                montecarlo_configuration.DISABLE_LINE_SCATTERING,
             )
 
         # If continuum processes: update continuum estimators
@@ -229,6 +234,7 @@ def set_packet_props_partial_relativity(r_packet, numba_model):
         r_packet.r,
         r_packet.mu,
         numba_model.time_explosion,
+        enable_full_relativity=False,
     )
     r_packet.nu *= inverse_doppler_factor
     r_packet.energy *= inverse_doppler_factor
@@ -249,6 +255,7 @@ def set_packet_props_full_relativity(r_packet, numba_model):
         r_packet.r,
         r_packet.mu,
         numba_model.time_explosion,
+        enable_full_relativity=True,
     )
 
     r_packet.nu *= inverse_doppler_factor

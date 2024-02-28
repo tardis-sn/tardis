@@ -9,10 +9,6 @@ from numba import njit
 from numba.experimental import jitclass
 
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
-from tardis.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
-)
-
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     PacketStatus,
 )
@@ -72,7 +68,12 @@ class VPacket(object):
 
 @njit(**njit_dict_no_parallel)
 def trace_vpacket_within_shell(
-    v_packet, numba_radial_1d_geometry, numba_model, opacity_state
+    v_packet,
+    numba_radial_1d_geometry,
+    numba_model,
+    opacity_state,
+    enable_full_relativity,
+    continuum_processes_enabled,
 ):
     """
     Trace VPacket within one shell (relatively simple operation)
@@ -95,12 +96,15 @@ def trace_vpacket_within_shell(
 
     # Calculating doppler factor
     doppler_factor = get_doppler_factor(
-        v_packet.r, v_packet.mu, numba_model.time_explosion
+        v_packet.r,
+        v_packet.mu,
+        numba_model.time_explosion,
+        enable_full_relativity,
     )
 
     comov_nu = v_packet.nu * doppler_factor
 
-    if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+    if continuum_processes_enabled:
         (
             chi_bf_tot,
             chi_bf_contributions,
@@ -115,7 +119,7 @@ def trace_vpacket_within_shell(
     else:
         chi_continuum = chi_e
 
-    if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
+    if enable_full_relativity:
         chi_continuum *= doppler_factor
 
     tau_continuum = chi_continuum * distance_boundary
@@ -223,6 +227,7 @@ def trace_vpacket_volley(
     numba_radial_1d_geometry,
     numba_model,
     opacity_state,
+    enable_full_relativity,
 ):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many)
@@ -258,7 +263,7 @@ def trace_vpacket_volley(
         r_inner_over_r = numba_radial_1d_geometry.r_inner[0] / r_packet.r
         mu_min = -math.sqrt(1 - r_inner_over_r * r_inner_over_r)
         v_packet_on_inner_boundary = False
-        if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
+        if enable_full_relativity:
             mu_min = angle_aberration_LF_to_CMF(
                 r_packet, numba_model.time_explosion, mu_min
             )
@@ -266,20 +271,23 @@ def trace_vpacket_volley(
         v_packet_on_inner_boundary = True
         mu_min = 0.0
 
-        if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
+        if enable_full_relativity:
             inv_c = 1 / C_SPEED_OF_LIGHT
             inv_t = 1 / numba_model.time_explosion
             beta_inner = numba_radial_1d_geometry.r_inner[0] * inv_t * inv_c
 
     mu_bin = (1.0 - mu_min) / no_of_vpackets
     r_packet_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, numba_model.time_explosion
+        r_packet.r,
+        r_packet.mu,
+        numba_model.time_explosion,
+        enable_full_relativity,
     )
     for i in range(no_of_vpackets):
         v_packet_mu = mu_min + i * mu_bin + np.random.random() * mu_bin
 
         if v_packet_on_inner_boundary:  # The weights are described in K&S 2014
-            if not montecarlo_configuration.ENABLE_FULL_RELATIVITY:
+            if not enable_full_relativity:
                 weight = 2 * v_packet_mu / no_of_vpackets
             else:
                 weight = (
@@ -293,12 +301,15 @@ def trace_vpacket_volley(
             weight = (1 - mu_min) / (2 * no_of_vpackets)
 
         # C code: next line, angle_aberration_CMF_to_LF( & virt_packet, storage);
-        if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
+        if enable_full_relativity:
             v_packet_mu = angle_aberration_CMF_to_LF(
                 r_packet, numba_model.time_explosion, v_packet_mu
             )
         v_packet_doppler_factor = get_doppler_factor(
-            r_packet.r, v_packet_mu, numba_model.time_explosion
+            r_packet.r,
+            v_packet_mu,
+            numba_model.time_explosion,
+            enable_full_relativity,
         )
 
         # transform between r_packet mu and v_packet_mu

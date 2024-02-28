@@ -3,9 +3,6 @@ from copy import deepcopy
 import numpy.testing as npt
 import pytest
 
-from tardis.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
-)
 from tardis.simulation import Simulation
 
 

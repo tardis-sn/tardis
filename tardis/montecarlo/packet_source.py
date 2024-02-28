@@ -3,9 +3,6 @@ import abc
 import numpy as np
 import numexpr as ne
 from tardis import constants as const
-from tardis.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
-)
 from tardis.montecarlo.montecarlo_numba.packet_collections import (
     PacketCollection,
 )
@@ -30,12 +27,12 @@ class BasePacketSource(abc.ABC):
     # seed val to the maximum allowed by numpy.
     MAX_SEED_VAL = 2**32 - 1
 
-    def __init__(self, base_seed=None, legacy_second_seed=None):
+    def __init__(
+        self, base_seed=None, legacy_mode_enabled=False, legacy_second_seed=None
+    ):
         self.base_seed = base_seed
-        if (
-            montecarlo_configuration.LEGACY_MODE_ENABLED
-            and legacy_second_seed is not None
-        ):
+        self.legacy_mode_enabled = legacy_mode_enabled
+        if self.legacy_mode_enabled and legacy_second_seed is not None:
             np.random.seed(legacy_second_seed)
         else:
             np.random.seed(self.base_seed)
@@ -213,7 +210,7 @@ class BlackBodySimpleSource(BasePacketSource):
         l_coef = np.pi**4 / 90.0
 
         # For testing purposes
-        if montecarlo_configuration.LEGACY_MODE_ENABLED:
+        if self.legacy_mode_enabled:
             xis = np.random.random((5, no_of_packets))
         else:
             xis = self.rng.random((5, no_of_packets))
@@ -246,7 +243,7 @@ class BlackBodySimpleSource(BasePacketSource):
         """
 
         # For testing purposes
-        if montecarlo_configuration.LEGACY_MODE_ENABLED:
+        if self.legacy_mode_enabled:
             return np.sqrt(np.random.random(no_of_packets))
         else:
             return np.sqrt(self.rng.random(no_of_packets))
