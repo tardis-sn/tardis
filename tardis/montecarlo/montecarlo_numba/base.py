@@ -175,7 +175,10 @@ def montecarlo_main_loop(
 
     if enable_virtual_packet_logging:
         vpacket_tracker = consolidate_vpacket_tracker(
-            vpacket_collections, spectrum_frequency
+            vpacket_collections,
+            spectrum_frequency,
+            montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
+            montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
         )
     else:
         vpacket_tracker = VPacketCollection(
