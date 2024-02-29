@@ -108,7 +108,9 @@ def numba_formal_integral(
             p = pp[p_idx]
 
             # initialize z intersections for p values
-            size_z = populate_z(geometry, model, p, z, shell_id)  # check returns
+            size_z = populate_z(
+                geometry, model, p, z, shell_id
+            )  # check returns
             # initialize I_nu
             if p <= R_ph:
                 I_nu[p_idx] = intensity_black_body(nu * z[0], iT)
@@ -143,7 +145,9 @@ def numba_formal_integral(
                 for _ in range(max(nu_end_idx - pline, 0)):
                     # calculate e-scattering optical depth to next resonance point
                     zend = (
-                        model.time_explosion / C_INV * (1.0 - line_list_nu[pline] / nu)
+                        model.time_explosion
+                        / C_INV
+                        * (1.0 - line_list_nu[pline] / nu)
                     )  # check
 
                     if first == 1:
@@ -183,8 +187,12 @@ def numba_formal_integral(
                 # calculate e-scattering optical depth to grid cell boundary
 
                 Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
-                zend = model.time_explosion / C_INV * (1.0 - nu_end / nu)  # check
-                escat_contrib += (zend - zstart) * escat_op * (Jkkp - I_nu[p_idx])
+                zend = (
+                    model.time_explosion / C_INV * (1.0 - nu_end / nu)
+                )  # check
+                escat_contrib += (
+                    (zend - zstart) * escat_op * (Jkkp - I_nu[p_idx])
+                )
                 zstart = zend
 
                 # advance pointers
@@ -274,7 +282,9 @@ class FormalIntegrator(object):
         self.transport = transport
         self.points = points
         if transport:
-            self.montecarlo_configuration = self.transport.montecarlo_configuration
+            self.montecarlo_configuration = (
+                self.transport.montecarlo_configuration
+            )
         if plasma:
             self.plasma = opacity_state_initialize(
                 plasma,
@@ -430,7 +440,9 @@ class FormalIntegrator(object):
         if transport.line_interaction_type == "macroatom":
             internal_jump_mask = (macro_data.transition_type >= 0).values
             ma_int_data = macro_data[internal_jump_mask]
-            internal = self.original_plasma.transition_probabilities[internal_jump_mask]
+            internal = self.original_plasma.transition_probabilities[
+                internal_jump_mask
+            ]
 
             source_level_idx = ma_int_data.source_level_idx.values
             destination_level_idx = ma_int_data.destination_level_idx.values
@@ -469,13 +481,17 @@ class FormalIntegrator(object):
             * Jbluelu_norm_factor
         )
 
-        upper_level_index = self.atomic_data.lines.index.droplevel("level_number_lower")
+        upper_level_index = self.atomic_data.lines.index.droplevel(
+            "level_number_lower"
+        )
         e_dot_lu = pd.DataFrame(Edotlu.values, index=upper_level_index)
         e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
         e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
 
         if transport.line_interaction_type == "macroatom":
-            C_frame = pd.DataFrame(columns=np.arange(no_shells), index=macro_ref.index)
+            C_frame = pd.DataFrame(
+                columns=np.arange(no_shells), index=macro_ref.index
+            )
             q_indices = (source_level_idx, destination_level_idx)
             for shell in range(no_shells):
                 Q = sp.coo_matrix(
@@ -492,7 +508,8 @@ class FormalIntegrator(object):
             "source_level_number",
         ]  # To make the q_ul e_dot_u product work, could be cleaner
         transitions = self.original_plasma.atomic_data.macro_atom_data[
-            self.original_plasma.atomic_data.macro_atom_data.transition_type == -1
+            self.original_plasma.atomic_data.macro_atom_data.transition_type
+            == -1
         ].copy()
         transitions_index = transitions.set_index(
             ["atomic_number", "ion_number", "source_level_number"]
@@ -504,9 +521,9 @@ class FormalIntegrator(object):
         t = simulation_state.time_explosion.value
         t = simulation_state.time_explosion.value
         lines = self.atomic_data.lines.set_index("line_id")
-        wave = lines.wavelength_cm.loc[transitions.transition_line_id].values.reshape(
-            -1, 1
-        )
+        wave = lines.wavelength_cm.loc[
+            transitions.transition_line_id
+        ].values.reshape(-1, 1)
         if transport.line_interaction_type == "macroatom":
             e_dot_u = C_frame.loc[e_dot_u.index]
         att_S_ul = wave * (q_ul * e_dot_u) * t / (4 * np.pi)
@@ -529,16 +546,24 @@ class FormalIntegrator(object):
                 att_S_ul, Jredlu, Jbluelu, e_dot_u
             )
         else:
-            transport.r_inner_i = montecarlo_transport_state.geometry_state.r_inner
-            transport.r_outer_i = montecarlo_transport_state.geometry_state.r_outer
-            transport.tau_sobolevs_integ = self.original_plasma.tau_sobolevs.values
+            transport.r_inner_i = (
+                montecarlo_transport_state.geometry_state.r_inner
+            )
+            transport.r_outer_i = (
+                montecarlo_transport_state.geometry_state.r_outer
+            )
+            transport.tau_sobolevs_integ = (
+                self.original_plasma.tau_sobolevs.values
+            )
             transport.electron_densities_integ = (
                 self.original_plasma.electron_densities.values
             )
 
         return att_S_ul, Jredlu, Jbluelu, e_dot_u
 
-    def interpolate_integrator_quantities(self, att_S_ul, Jredlu, Jbluelu, e_dot_u):
+    def interpolate_integrator_quantities(
+        self, att_S_ul, Jredlu, Jbluelu, e_dot_u
+    ):
         transport = self.transport
         mct_state = transport.transport_state
         plasma = self.original_plasma
@@ -577,8 +602,12 @@ class FormalIntegrator(object):
         Jredlu = pd.DataFrame(
             interp1d(r_middle, Jredlu, fill_value="extrapolate")(r_middle_integ)
         )
-        Jbluelu = interp1d(r_middle, Jbluelu, fill_value="extrapolate")(r_middle_integ)
-        e_dot_u = interp1d(r_middle, e_dot_u, fill_value="extrapolate")(r_middle_integ)
+        Jbluelu = interp1d(r_middle, Jbluelu, fill_value="extrapolate")(
+            r_middle_integ
+        )
+        e_dot_u = interp1d(r_middle, e_dot_u, fill_value="extrapolate")(
+            r_middle_integ
+        )
 
         # Set negative values from the extrapolation to zero
         att_S_ul = att_S_ul.clip(0.0)
@@ -624,7 +653,9 @@ class FormalIntegrator(object):
             ]
         )
         error = np.max(np.abs((L_test - L) / L))
-        assert error < 1e-7, f"Incorrect I_nu_p values, max relative difference:{error}"
+        assert (
+            error < 1e-7
+        ), f"Incorrect I_nu_p values, max relative difference:{error}"
 
         return np.array(L, np.float64)
 

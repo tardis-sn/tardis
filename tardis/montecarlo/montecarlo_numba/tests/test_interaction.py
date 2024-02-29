@@ -37,7 +37,9 @@ def test_line_scatter(
     init_mu = packet.mu
     init_nu = packet.nu
     init_energy = packet.energy
-    packet.initialize_line_id(verysimple_opacity_state, verysimple_numba_model, False)
+    packet.initialize_line_id(
+        verysimple_opacity_state, verysimple_numba_model, False
+    )
     time_explosion = verysimple_numba_model.time_explosion
 
     interaction.line_scatter(
@@ -94,7 +96,9 @@ def test_line_emission(
     emission_line_id = test_packet["emission_line_id"]
     packet.mu = test_packet["mu"]
     packet.energy = test_packet["energy"]
-    packet.initialize_line_id(verysimple_opacity_state, verysimple_numba_model, False)
+    packet.initialize_line_id(
+        verysimple_opacity_state, verysimple_numba_model, False
+    )
 
     time_explosion = verysimple_numba_model.time_explosion
 
