@@ -13,7 +13,7 @@ def test_thomson_scatter(packet, verysimple_numba_model):
     init_energy = packet.energy
     time_explosion = verysimple_numba_model.time_explosion
 
-    interaction.thomson_scatter(packet, time_explosion)
+    interaction.thomson_scatter(packet, time_explosion, False)
 
     assert np.abs(packet.mu - init_mu) > 1e-7
     assert np.abs(packet.nu - init_nu) > 1e-7
@@ -99,7 +99,11 @@ def test_line_emission(
     time_explosion = verysimple_numba_model.time_explosion
 
     interaction.line_emission(
-        packet, emission_line_id, time_explosion, verysimple_opacity_state, False
+        packet,
+        emission_line_id,
+        time_explosion,
+        verysimple_opacity_state,
+        False,
     )
 
     assert packet.next_line_id == emission_line_id + 1

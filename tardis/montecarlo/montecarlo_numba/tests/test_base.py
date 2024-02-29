@@ -15,7 +15,6 @@ def test_montecarlo_radial1d():
 def montecarlo_main_loop_config(
     config_montecarlo_1e5_verysimple,
 ):
-    montecarlo_configuration.LEGACY_MODE_ENABLED = True
     # Setup model config from verysimple
 
     config_montecarlo_1e5_verysimple.montecarlo.last_no_of_packets = 1e5
@@ -89,7 +88,10 @@ def test_montecarlo_main_loop_vpacket_log(
     montecarlo_main_loop_simulation.run_convergence()
     montecarlo_main_loop_simulation.run_final()
 
-    assert montecarlo_configuration.ENABLE_VPACKET_TRACKING == True
+    assert (
+        montecarlo_main_loop_simulation.transport.montecarlo_configuration.ENABLE_VPACKET_TRACKING
+        == True
+    )
 
     expected_hdf_store = regression_data.sync_hdf_store(
         montecarlo_main_loop_simulation

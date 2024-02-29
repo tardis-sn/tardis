@@ -78,6 +78,9 @@ def single_packet_loop(
         numba_model,
         opacity_state,
         montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+        montecarlo_configuration.VPACKET_TAU_RUSSIAN,
+        montecarlo_configuration.SURVIVAL_PROBABILITY,
+        montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
     )
 
     if montecarlo_configuration.ENABLE_RPACKET_TRACKING:
@@ -121,6 +124,9 @@ def single_packet_loop(
                 estimators,
                 chi_continuum,
                 escat_prob,
+                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                montecarlo_configuration.DISABLE_LINE_SCATTERING,
             )
             update_bound_free_estimators(
                 comov_nu,
@@ -189,13 +195,26 @@ def single_packet_loop(
                 numba_model,
                 opacity_state,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                montecarlo_configuration.VPACKET_TAU_RUSSIAN,
+                montecarlo_configuration.SURVIVAL_PROBABILITY,
+                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
             )
 
         elif interaction_type == InteractionType.ESCATTERING:
             r_packet.last_interaction_type = 1
 
-            move_r_packet(r_packet, distance, numba_model.time_explosion, estimators)
-            thomson_scatter(r_packet, numba_model.time_explosion)
+            move_r_packet(
+                r_packet,
+                distance,
+                numba_model.time_explosion,
+                estimators,
+                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+            )
+            thomson_scatter(
+                r_packet,
+                numba_model.time_explosion,
+                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+            )
 
             trace_vpacket_volley(
                 r_packet,
@@ -204,6 +223,9 @@ def single_packet_loop(
                 numba_model,
                 opacity_state,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                montecarlo_configuration.VPACKET_TAU_RUSSIAN,
+                montecarlo_configuration.SURVIVAL_PROBABILITY,
+                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
             )
         elif (
             montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
@@ -225,6 +247,8 @@ def single_packet_loop(
                 chi_ff,
                 chi_bf_contributions,
                 current_continua,
+                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
+                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
 
             trace_vpacket_volley(
@@ -234,6 +258,9 @@ def single_packet_loop(
                 numba_model,
                 opacity_state,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                montecarlo_configuration.VPACKET_TAU_RUSSIAN,
+                montecarlo_configuration.SURVIVAL_PROBABILITY,
+                montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
             )
         else:
             pass

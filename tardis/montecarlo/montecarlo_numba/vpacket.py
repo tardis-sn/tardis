@@ -164,7 +164,14 @@ def trace_vpacket_within_shell(
 
 @njit(**njit_dict_no_parallel)
 def trace_vpacket(
-    v_packet, numba_radial_1d_geometry, numba_model, opacity_state
+    v_packet,
+    numba_radial_1d_geometry,
+    numba_model,
+    opacity_state,
+    tau_russian,
+    survival_probability,
+    enable_full_relativity,
+    continuum_processes_enabled,
 ):
     """
     Trace single vpacket.
@@ -186,7 +193,12 @@ def trace_vpacket(
             distance_boundary,
             delta_shell,
         ) = trace_vpacket_within_shell(
-            v_packet, numba_radial_1d_geometry, numba_model, opacity_state
+            v_packet,
+            numba_radial_1d_geometry,
+            numba_model,
+            opacity_state,
+            enable_full_relativity,
+            continuum_processes_enabled,
         )
         tau_trace_combined += tau_trace_combined_shell
 
@@ -194,15 +206,15 @@ def trace_vpacket(
             v_packet, delta_shell, len(numba_radial_1d_geometry.r_inner)
         )
 
-        if tau_trace_combined > montecarlo_configuration.VPACKET_TAU_RUSSIAN:
+        if tau_trace_combined > tau_russian:
             event_random = np.random.random()
-            if event_random > montecarlo_configuration.SURVIVAL_PROBABILITY:
+            if event_random > survival_probability:
                 v_packet.energy = 0.0
                 v_packet.status = PacketStatus.EMITTED
             else:
                 v_packet.energy = (
                     v_packet.energy
-                    / montecarlo_configuration.SURVIVAL_PROBABILITY
+                    / survival_probability
                     * math.exp(-tau_trace_combined)
                 )
                 tau_trace_combined = 0.0
@@ -229,6 +241,9 @@ def trace_vpacket_volley(
     numba_model,
     opacity_state,
     enable_full_relativity,
+    tau_russian,
+    survival_probability,
+    continuum_processes_enabled,
 ):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many)
@@ -335,7 +350,14 @@ def trace_vpacket_volley(
         )
 
         tau_vpacket = trace_vpacket(
-            v_packet, numba_radial_1d_geometry, numba_model, opacity_state
+            v_packet,
+            numba_radial_1d_geometry,
+            numba_model,
+            opacity_state,
+            tau_russian,
+            survival_probability,
+            enable_full_relativity,
+            continuum_processes_enabled,
         )
 
         v_packet.energy *= math.exp(-tau_vpacket)
