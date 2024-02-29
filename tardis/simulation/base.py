@@ -632,6 +632,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         virtual_packet_logging=False,
         show_convergence_plots=True,
         show_progress_bars=True,
+        legacy_mode_enabled=False,
         **kwargs,
     ):
         """
@@ -693,7 +694,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 )
             if packet_source is not None:
                 simulation_state.packet_source = initialize_packet_source(
-                    config, simulation_state.geometry, packet_source
+                    config,
+                    simulation_state.geometry,
+                    packet_source,
+                    legacy_mode_enabled,
                 )
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]
