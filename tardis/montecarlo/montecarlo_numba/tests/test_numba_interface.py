@@ -9,12 +9,13 @@ def test_opacity_state_initialize(nb_simulation_verysimple, input_params):
     line_interaction_type = input_params
     plasma = nb_simulation_verysimple.plasma
     actual = numba_interface.opacity_state_initialize(
-        plasma, line_interaction_type
+        plasma,
+        line_interaction_type,
+        disable_line_scattering=False,
+        continuum_processes_enabled=False,
     )
 
-    npt.assert_allclose(
-        actual.electron_density, plasma.electron_densities.values
-    )
+    npt.assert_allclose(actual.electron_density, plasma.electron_densities.values)
     npt.assert_allclose(actual.line_list_nu, plasma.atomic_data.lines.nu.values)
     npt.assert_allclose(actual.tau_sobolev, plasma.tau_sobolevs.values)
     if line_interaction_type == "scatter":
@@ -66,9 +67,7 @@ def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):
     energies = [0.4, 0.1, 0.6, 1e10]
     initial_mus = [0.1, 0, 1, 0.9]
     initial_rs = [3e42, 4.5e45, 0, 9.0e40]
-    last_interaction_in_nus = np.array(
-        [3.0e15, 0.0, 1e15, 1e5], dtype=np.float64
-    )
+    last_interaction_in_nus = np.array([3.0e15, 0.0, 1e15, 1e5], dtype=np.float64)
     last_interaction_types = np.array([1, 1, 3, 2], dtype=np.int64)
     last_interaction_in_ids = np.array([100, 0, 1, 1000], dtype=np.int64)
     last_interaction_out_ids = np.array([1201, 123, 545, 1232], dtype=np.int64)
@@ -108,15 +107,11 @@ def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):
         )
 
     npt.assert_array_equal(
-        verysimple_3vpacket_collection.nus[
-            : verysimple_3vpacket_collection.idx
-        ],
+        verysimple_3vpacket_collection.nus[: verysimple_3vpacket_collection.idx],
         nus,
     )
     npt.assert_array_equal(
-        verysimple_3vpacket_collection.energies[
-            : verysimple_3vpacket_collection.idx
-        ],
+        verysimple_3vpacket_collection.energies[: verysimple_3vpacket_collection.idx],
         energies,
     )
     npt.assert_array_equal(
@@ -126,9 +121,7 @@ def test_VPacketCollection_add_packet(verysimple_3vpacket_collection):
         initial_mus,
     )
     npt.assert_array_equal(
-        verysimple_3vpacket_collection.initial_rs[
-            : verysimple_3vpacket_collection.idx
-        ],
+        verysimple_3vpacket_collection.initial_rs[: verysimple_3vpacket_collection.idx],
         initial_rs,
     )
     npt.assert_array_equal(

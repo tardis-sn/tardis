@@ -90,6 +90,8 @@ def test_trace_vpacket(
         verysimple_opacity_state,
         10.0,
         0.0,
+        False,
+        False,
     )
 
     npt.assert_almost_equal(tau_trace_combined, 8164850.891288479)
@@ -156,4 +158,6 @@ def test_trace_bad_vpacket(
         verysimple_opacity_state,
         10.0,
         0.0,
+        False,
+        False,
     )
