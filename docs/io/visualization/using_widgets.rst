@@ -197,7 +197,8 @@ population.
 Arrows represent the line interactions experienced by packets. Upwards arrows
 show excitation from lower energy levels to higher levels and downward arrows
 show de-excitation from higher energy levels to lower levels. The thickness of
-each arrow represents the number of packets that underwent that interaction.
+each arrow represents the number of packets that underwent that interaction,
+with thicker lines representing more number of packets than the thin lines.
 The wavelength of the transition is given by the color.
 
 Setting Other Options
