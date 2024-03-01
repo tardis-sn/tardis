@@ -192,7 +192,7 @@ in the simulation.
 
 The y-axis of the plot represents energy while the horizontal lines show
 discrete energy levels. The thickness of each line represents the level
-population.
+population, with thicker lines representing a greater population than the thin lines.
 
 Arrows represent the line interactions experienced by packets. Upwards arrows
 show excitation from lower energy levels to higher levels and downward arrows
