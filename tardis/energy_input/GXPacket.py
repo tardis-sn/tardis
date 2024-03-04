@@ -19,6 +19,7 @@ class GXPacketStatus(IntEnum):
     PAIR_CREATION = 2
     IN_PROCESS = 3
     END = 4
+    ESCAPED = 5
 
 
 gxpacket_spec = [
@@ -32,6 +33,8 @@ gxpacket_spec = [
     ("shell", int64),
     ("time_current", float64),
     ("tau", float64),
+    ("Z", int64),
+    ("A", int64),
 ]
 
 
@@ -52,6 +55,8 @@ class GXPacket(object):
         status,
         shell,
         time_current,
+        Z,
+        A,
     ):
         self.location = location
         self.direction = direction
@@ -64,6 +69,8 @@ class GXPacket(object):
         self.time_current = time_current
         # TODO: rename to tau_event
         self.tau = -np.log(np.random.random())
+        self.Z = Z
+        self.A = A
 
     def get_location_r(self):
         """Calculate radius of the packet
@@ -94,6 +101,8 @@ def initialize_packet_properties(
     effective_times,
     inventory,
     average_power_per_mass,
+    Z,
+    A,
     uniform_packet_energies=True,
 ):
     """Initialize the properties of an individual packet
@@ -193,6 +202,8 @@ def initialize_packet_properties(
         GXPacketStatus.IN_PROCESS,
         k,
         decay_time,
+        Z,
+        A,
     )
 
     packet.energy_rf = packet.energy_cmf / doppler_factor_3d(
