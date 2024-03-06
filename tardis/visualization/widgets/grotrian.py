@@ -988,7 +988,7 @@ class GrotrianWidget:
     plot : tardis.visualization.widgets.grotrian.GrotrianPlot
         GrotrianPlot object
     num_shells : int
-        Number of shells in the sim.model.v_inner
+        Number of shells in the sim.simulation_state.v_inner
     """
 
     @classmethod
@@ -1007,7 +1007,7 @@ class GrotrianWidget:
             GrotrianWidget object
         """
         plot = GrotrianPlot.from_simulation(sim, **kwargs)
-        num_shells = len(sim.model.v_inner)
+        num_shells = len(sim.simulation_state.v_inner)
         return cls(plot, num_shells, **kwargs)
 
     def __init__(self, plot, num_shells, **kwargs):
