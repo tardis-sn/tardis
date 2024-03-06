@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 import pandas as pd
 import astropy.units as u
@@ -10,7 +11,6 @@ from tardis.energy_input.energy_source import (
 from tardis.energy_input.gamma_packet_loop import gamma_packet_loop
 from tardis.energy_input.gamma_ray_transport import (
     initialize_packets,
-    calculate_shell_masses,
     calculate_ejecta_velocity_volume,
     create_isotope_dicts,
     create_inventories_dict,
@@ -24,6 +24,9 @@ from tardis.energy_input.gamma_ray_transport import (
     fractional_decay_energy,
     packets_per_isotope,
 )
+
+logger = logging.getLogger()
+logging.basicConfig(level=logging.INFO)
 
 
 def run_gamma_ray_loop(
@@ -49,8 +52,9 @@ def run_gamma_ray_loop(
     time_explosion = model.time_explosion.to(u.s).value
     inner_velocities = model.v_inner.to("cm/s").value
     outer_velocities = model.v_outer.to("cm/s").value
-    number_of_shells = model.no_of_shells
     ejecta_volume = model.volume.to("cm^3").value
+    number_of_shells = model.no_of_shells
+    shell_masses = model.volume * model.density
     raw_isotope_abundance = (
         model.composition.isotopic_mass_fraction.sort_values(
             by=["atomic_number", "mass_number"], ascending=False
@@ -98,7 +102,7 @@ def run_gamma_ray_loop(
     )
 
     # Calculate decay chain energies
-    shell_masses = calculate_shell_masses(model)
+
     mass_density_time = shell_masses[:, np.newaxis] * inv_volume_time
     gamma_ray_lines = get_nuclear_lines_database(path_to_decay_data)
     isotope_dict = create_isotope_dicts(raw_isotope_abundance, shell_masses)
@@ -139,18 +143,18 @@ def run_gamma_ray_loop(
         .fillna(0)
         .astype(int)
     )
-    print(packets_per_isotope_df)
     total_energy = energy_df.sum().sum()
-    print("Total gamma-ray energy:")
-    print(total_energy * u.keV.to("erg"))
+    total_energy = total_energy * u.eV.to("erg")
+
+    logger.info(f"Total gamma-ray energy is {total_energy}")
 
     iron_group_fraction = iron_group_fraction_per_shell(model)
     number_of_packets = packets_per_isotope_df.sum().sum()
-    print("Total number of packets:", number_of_packets)
+    logger.info(f"Total number of packets is {number_of_packets}")
     individual_packet_energy = total_energy / number_of_packets
-    print("Energy per packet:", individual_packet_energy)
+    logger.info(f"Energy per packet is {individual_packet_energy}")
 
-    print("Initializing packets")
+    logger.info("Initializing packets")
 
     (
         packets,
@@ -175,9 +179,6 @@ def run_gamma_ray_loop(
         average_power_per_mass,
     )
 
-    print("Total positron energy from packets")
-    print(energy_df_rows.sum().sum() * u.eV.to("erg"))
-
     total_cmf_energy = 0.0
     total_rf_energy = 0.0
 
@@ -185,10 +186,8 @@ def run_gamma_ray_loop(
         total_cmf_energy += p.energy_cmf
         total_rf_energy += p.energy_rf
 
-    print("Total cmf energy")
-    print(total_cmf_energy)
-    print("Total rf energy")
-    print(total_rf_energy)
+    logger.info(f"Total cmf energy is {total_cmf_energy}")
+    logger.info(f"Total rf energy is {total_rf_energy}")
 
     energy_bins = np.logspace(2, 3.8, spectrum_bins)
     energy_out = np.zeros((len(energy_bins - 1), time_steps))
