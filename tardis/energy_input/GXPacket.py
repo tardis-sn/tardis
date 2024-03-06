@@ -99,7 +99,6 @@ def initialize_packet_properties(
     initial_radius,
     times,
     effective_times,
-    inventory,
     average_power_per_mass,
     Z,
     A,

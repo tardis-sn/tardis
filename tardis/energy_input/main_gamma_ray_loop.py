@@ -25,7 +25,7 @@ from tardis.energy_input.gamma_ray_transport import (
     packets_per_isotope,
 )
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
@@ -55,10 +55,8 @@ def run_gamma_ray_loop(
     ejecta_volume = model.volume.to("cm^3").value
     number_of_shells = model.no_of_shells
     shell_masses = model.volume * model.density
-    raw_isotope_abundance = (
-        model.composition.isotopic_mass_fraction.sort_values(
-            by=["atomic_number", "mass_number"], ascending=False
-        )
+    raw_isotope_abundance = model.composition.raw_isotope_abundance.sort_values(
+        by=["atomic_number", "mass_number"], ascending=False
     )
     time_start *= u.d.to(u.s)
     time_end *= u.d.to(u.s)
@@ -95,7 +93,7 @@ def run_gamma_ray_loop(
         plasma.number_density.index, axis=0
     ).sum()
     taus, parents = get_taus(raw_isotope_abundance)
-    inventories = raw_isotope_abundance.to_inventories()
+    # inventories = raw_isotope_abundance.to_inventories()
     electron_number = np.array(electron_number_density * ejecta_volume)
     electron_number_density_time = (
         electron_number[:, np.newaxis] * inv_volume_time
@@ -175,7 +173,6 @@ def run_gamma_ray_loop(
         effective_time_array,
         taus,
         parents,
-        inventories,
         average_power_per_mass,
     )
 

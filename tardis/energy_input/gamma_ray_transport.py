@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 import pandas as pd
 import astropy.units as u
@@ -19,6 +20,8 @@ from tardis.montecarlo.montecarlo_numba.opacities import M_P
 # distance: cm
 # mass: g
 # time: s
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 def get_nuclide_atomic_number(nuclide):
@@ -119,7 +122,6 @@ def initialize_packets(
     effective_times,
     taus,
     parents,
-    inventories,
     average_power_per_mass,
 ):
     """Initialize a list of GXPacket objects for the simulation
@@ -173,14 +175,14 @@ def initialize_packets(
     isotopes = list(gamma_ray_lines.keys())
 
     packet_index = 0
+    logger.info("Isotope packet count dataframe")
     for shell_number, pkts in enumerate(decays_per_shell):
         initial_radii = initial_packet_radius(
             pkts, inner_velocities[shell_number], outer_velocities[shell_number]
         )
 
         isotope_packet_count_df = decays_per_isotope.T.iloc[shell_number]
-        print(isotope_packet_count_df)
-
+        logger.info(isotope_packet_count_df)
         i = 0
         for isotope_name, isotope_packet_count in zip(
             isotopes, isotope_packet_count_df.values
@@ -217,7 +219,6 @@ def initialize_packets(
                     initial_radii[c],
                     times,
                     effective_times,
-                    inventories[shell_number],
                     average_power_per_mass,
                     atomic_number,
                     mass_number,
@@ -271,24 +272,6 @@ def calculate_ejecta_velocity_volume(model):
     return ejecta_velocity_volume
 
 
-def calculate_shell_masses(model):
-    """Function to calculate shell masses
-    Parameters
-    ----------
-    model : tardis.Radial1DModel
-        The tardis model to calculate gamma ray propagation through
-    Returns
-    -------
-    numpy.ndarray
-        shell masses in units of g
-
-    """
-
-    ejecta_density = model.density.to("g/cm^3")
-    ejecta_volume = model.volume.to("cm^3")
-    return (ejecta_volume * ejecta_density).to(u.g)
-
-
 def calculate_total_decays(inventories, time_delta):
     """Function to create inventories of isotope
 
@@ -310,8 +293,8 @@ def calculate_total_decays(inventories, time_delta):
     for shell, isotopes in inventories.items():
         total_decays[shell] = {}
         for isotope, name in isotopes.items():
-            # decays = name.decay(time_delta.value, "s")
-            total_decays[shell][isotope] = name.cumulative_decays(
+            decays = name.decay(time_delta.value, "s")
+            total_decays[shell][isotope] = decays.cumulative_decays(
                 time_delta.value
             )
     return total_decays
