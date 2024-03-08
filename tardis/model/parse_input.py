@@ -1,6 +1,5 @@
 import logging
 import os
-import warnings
 
 import numpy as np
 import pandas as pd
@@ -680,7 +679,7 @@ def parse_csvy_radiation_field_state(
         )
 
     if np.any(t_radiative < 1000 * u.K):
-        warnings.warn(
+        logging.warn(
             "Radiative temperature is too low in some of the shells, temperatures below 1000K "
             f"(e.g., T_rad = {t_radiative[np.argmin(t_radiative)]} in shell {np.argmin(t_radiative)} in your model) "
             "are not accurately handled by Tardis.",
