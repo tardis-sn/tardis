@@ -35,7 +35,7 @@ def resolve_atom_data_fname(fname):
         )
         return fpath
 
-    atom_data_name = fname.replace(".h5", "")
+    atom_data_name = str(fname).replace(".h5", "")
     atom_repo_config = get_atomic_repo_config()
     if atom_data_name in atom_repo_config:
         raise IOError(
