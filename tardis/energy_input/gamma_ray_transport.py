@@ -580,6 +580,41 @@ def calculate_energy_per_mass(decay_energy, raw_isotope_abundance, cell_masses):
     return energy_per_mass, energy_df
 
 
+def distribute_packets(decay_energy, energy_per_packet):
+
+    packets_per_isotope = {}
+    for shell, isotopes in decay_energy.items():
+        packets_per_isotope[shell] = {}
+        for name, isotope in isotopes.items():
+            packets_per_isotope[shell][name] = {}
+            for line, energy in isotope.items():
+                packets_per_isotope[shell][name][line] = int(
+                    energy / energy_per_packet
+                )
+
+    packets_per_isotope_list = []
+    for shell, parent_isotope in packets_per_isotope.items():
+        for isotopes, isotope_dict in parent_isotope.items():
+            for name, value in isotope_dict.items():
+                packets_per_isotope_list.append(
+                    {
+                        "shell": shell,
+                        "element": name,
+                        "value": value,
+                    }
+                )
+
+    df = pd.DataFrame(packets_per_isotope_list)
+    packets_per_isotope_df = pd.pivot_table(
+        df,
+        values="value",
+        index="element",
+        columns="shell",
+    )
+
+    return packets_per_isotope_df
+
+
 def packets_per_isotope(fractional_decay_energy, decayed_packet_count_dict):
     packets_per_isotope = {
         shell: {

@@ -23,6 +23,7 @@ from tardis.energy_input.gamma_ray_transport import (
     get_taus,
     fractional_decay_energy,
     packets_per_isotope,
+    distribute_packets,
 )
 
 logger = logging.getLogger(__name__)
@@ -131,17 +132,26 @@ def run_gamma_ray_loop(
         total_isotope_number, axis=0
     )
 
-    decayed_packet_count_dict = decayed_packet_count.to_dict()
-    fractional_decay_energy_dict = fractional_decay_energy(decayed_energy)
+    # decayed_packet_count_dict = decayed_packet_count.to_dict()
+    # fractional_decay_energy_dict = fractional_decay_energy(decayed_energy)
+    # packets_per_isotope_df = (
+    #    packets_per_isotope(
+    #        fractional_decay_energy_dict, decayed_packet_count_dict
+    #    )
+    #    .round()
+    #    .fillna(0)
+    #    .astype(int)
+    # )
+
+    total_energy = energy_df.sum().sum()
+    energy_per_packet = total_energy / num_decays
     packets_per_isotope_df = (
-        packets_per_isotope(
-            fractional_decay_energy_dict, decayed_packet_count_dict
-        )
+        distribute_packets(decayed_energy, energy_per_packet)
         .round()
         .fillna(0)
         .astype(int)
     )
-    total_energy = energy_df.sum().sum()
+
     total_energy = total_energy * u.eV.to("erg")
 
     logger.info(f"Total gamma-ray energy is {total_energy}")
