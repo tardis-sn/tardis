@@ -366,7 +366,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     def virt_packet_last_interaction_in_nu(self):
         try:
             return u.Quantity(
-                self.vpacket_tracker.last_interaction_in_nu, u.erg
+                self.vpacket_tracker.last_interaction_in_nu, u.Hz
             )
         except AttributeError:
             warnings.warn(
@@ -381,7 +381,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def virt_packet_last_interaction_type(self):
         try:
-            return u.Quantity(self.vpacket_tracker.last_interaction_type, u.erg)
+            return self.vpacket_tracker.last_interaction_type
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_last_interaction_type:"
@@ -395,9 +395,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def virt_packet_last_line_interaction_in_id(self):
         try:
-            return u.Quantity(
-                self.vpacket_tracker.last_interaction_in_id, u.erg
-            )
+            return self.vpacket_tracker.last_interaction_in_id
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_last_line_interaction_in_id:"
@@ -411,9 +409,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def virt_packet_last_line_interaction_out_id(self):
         try:
-            return u.Quantity(
-                self.vpacket_tracker.last_interaction_out_id, u.erg
-            )
+            return self.vpacket_tracker.last_interaction_out_id
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_last_line_interaction_out_id:"
@@ -427,9 +423,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def virt_packet_last_line_interaction_shell_id(self):
         try:
-            return u.Quantity(
-                self.vpacket_tracker.last_interaction_shell_id, u.erg
-            )
+            return self.vpacket_tracker.last_interaction_shell_id
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_last_line_interaction_shell_id:"
