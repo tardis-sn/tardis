@@ -398,11 +398,14 @@ def parse_csvy_composition(
         csvy_model_config, csvy_model_data, time_explosion
     )
 
-    nuclide_mass_fraction = parse_abundance_csvy(
+    nuclide_mass_fraction, raw_isotope_mass_fraction = parse_abundance_csvy(
         csvy_model_config, csvy_model_data, geometry, time_explosion
     )
     return Composition(
-        density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
+        density,
+        nuclide_mass_fraction,
+        raw_isotope_mass_fraction,
+        atom_data.atom_data.mass.copy(),
     )
 
 
@@ -471,11 +474,14 @@ def parse_abundance_csvy(
         )
         mass_fraction /= norm_factor
         isotope_mass_fraction /= norm_factor
+
+    raw_isotope_mass_fraction = isotope_mass_fraction
     isotope_mass_fraction = IsotopicMassFraction(
         isotope_mass_fraction, time_0=csvy_model_config.model_isotope_time_0
     ).decay(time_explosion)
-    return convert_to_nuclide_mass_fraction(
-        isotope_mass_fraction, mass_fraction
+    return (
+        convert_to_nuclide_mass_fraction(isotope_mass_fraction, mass_fraction),
+        raw_isotope_mass_fraction,
     )
 
 

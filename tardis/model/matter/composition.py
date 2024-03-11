@@ -115,12 +115,6 @@ class Composition:
         ]
         return IsotopicMassFraction(filtered_nuclide_mass_fraction)
 
-    def raw_isotope_abundance(self):
-        """
-        The isotopic mass fractions before decay.
-        """
-        return self.raw_isotope_abundance
-
     @property
     def elemental_mass_fraction(self):
         return self.nuclide_mass_fraction.groupby(level=0).sum()
@@ -170,7 +164,8 @@ class Composition:
     def elemental_number_density(self):
         """Elemental Number Density computed using the formula: (elemental_mass_fraction * density) / atomic mass"""
         return (
-            self.elemental_mass_fraction * self.density.to(u.g / u.cm**3).value
+            self.elemental_mass_fraction
+            * self.density.to(u.g / u.cm**3).value
         ).divide(
             self.effective_element_masses.reindex(
                 self.elemental_mass_fraction.index
