@@ -29,7 +29,9 @@ class TestPacketSource:
         -------
         os.path
         """
-        return os.path.abspath(os.path.join(tardis_ref_path, "packet_unittest.h5"))
+        return os.path.abspath(
+            os.path.join(tardis_ref_path, "packet_unittest.h5")
+        )
 
     @pytest.fixture(scope="class")
     def blackbodysimplesource(self, request):
@@ -63,7 +65,11 @@ class TestPacketSource:
         montecarlo_configuration.LEGACY_MODE_ENABLED = False
 
     def test_bb_packet_sampling(
-        self, request, tardis_ref_data, packet_unit_test_fpath, blackbodysimplesource
+        self,
+        request,
+        tardis_ref_data,
+        packet_unit_test_fpath,
+        blackbodysimplesource,
     ):
         """
         Parameters
@@ -74,7 +80,9 @@ class TestPacketSource:
         """
         if request.config.getoption("--generate-reference"):
             ref_bb = pd.read_hdf(packet_unit_test_fpath, key="/blackbody")
-            ref_bb.to_hdf(tardis_ref_data, key="/packet_unittest/blackbody", mode="a")
+            ref_bb.to_hdf(
+                tardis_ref_data, key="/packet_unittest/blackbody", mode="a"
+            )
             pytest.skip("Reference data was generated during this run.")
 
         ref_df = tardis_ref_data["/packet_unittest/blackbody"]
@@ -101,9 +109,11 @@ class TestPacketSource:
         blackbody_simplesource_relativistic.beta = 0.25
 
         nus = blackbody_simplesource_relativistic.create_packet_nus(100).value
-        unif_energies = blackbody_simplesource_relativistic.create_packet_energies(
-            100
-        ).value
+        unif_energies = (
+            blackbody_simplesource_relativistic.create_packet_energies(
+                100
+            ).value
+        )
         blackbody_simplesource_relativistic._reseed(2508)
         mus = blackbody_simplesource_relativistic.create_packet_mus(10)
 
