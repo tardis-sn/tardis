@@ -1,5 +1,6 @@
 import os
 
+from astropy import units as u
 import numpy as np
 import pandas as pd
 import pytest
@@ -28,9 +29,7 @@ class TestPacketSource:
         -------
         os.path
         """
-        return os.path.abspath(
-            os.path.join(tardis_ref_path, "packet_unittest.h5")
-        )
+        return os.path.abspath(os.path.join(tardis_ref_path, "packet_unittest.h5"))
 
     @pytest.fixture(scope="class")
     def blackbodysimplesource(self, request):
@@ -64,11 +63,7 @@ class TestPacketSource:
         montecarlo_configuration.LEGACY_MODE_ENABLED = False
 
     def test_bb_packet_sampling(
-        self,
-        request,
-        tardis_ref_data,
-        packet_unit_test_fpath,
-        blackbodysimplesource,
+        self, request, tardis_ref_data, packet_unit_test_fpath, blackbodysimplesource
     ):
         """
         Parameters
@@ -76,20 +71,17 @@ class TestPacketSource:
         request : _pytest.fixtures.SubRequest
         tardis_ref_data: pd.HDFStore
         packet_unit_test_fpath: os.path
-        blackbodysimplesource: tardis.montecarlo.packet_source.BlackBodySimpleSource
         """
         if request.config.getoption("--generate-reference"):
             ref_bb = pd.read_hdf(packet_unit_test_fpath, key="/blackbody")
-            ref_bb.to_hdf(
-                tardis_ref_data, key="/packet_unittest/blackbody", mode="a"
-            )
+            ref_bb.to_hdf(tardis_ref_data, key="/packet_unittest/blackbody", mode="a")
             pytest.skip("Reference data was generated during this run.")
 
         ref_df = tardis_ref_data["/packet_unittest/blackbody"]
-        self.bb.temperature = 10000
-        nus = self.bb.create_packet_nus(100)
+        self.bb.temperature = 10000 * u.K
+        nus = self.bb.create_packet_nus(100).value
         mus = self.bb.create_packet_mus(100)
-        unif_energies = self.bb.create_packet_energies(100)
+        unif_energies = self.bb.create_packet_energies(100).value
         assert np.all(np.isclose(nus, ref_df["nus"]))
         assert np.all(np.isclose(mus, ref_df["mus"]))
         assert np.all(np.isclose(unif_energies, ref_df["energies"]))
@@ -105,13 +97,13 @@ class TestPacketSource:
         tardis_ref_data : pd.HDFStore
         blackbody_simplesource_relativistic : tardis.montecarlo.packet_source.BlackBodySimpleSourceRelativistic
         """
-        blackbody_simplesource_relativistic.temperature = 10000
+        blackbody_simplesource_relativistic.temperature = 10000 * u.K
         blackbody_simplesource_relativistic.beta = 0.25
 
-        nus = blackbody_simplesource_relativistic.create_packet_nus(100)
-        unif_energies = (
-            blackbody_simplesource_relativistic.create_packet_energies(100)
-        )
+        nus = blackbody_simplesource_relativistic.create_packet_nus(100).value
+        unif_energies = blackbody_simplesource_relativistic.create_packet_energies(
+            100
+        ).value
         blackbody_simplesource_relativistic._reseed(2508)
         mus = blackbody_simplesource_relativistic.create_packet_mus(10)
 
