@@ -84,30 +84,6 @@ def get_chain_decay_power_per_ejectamass(
     return decaypower
 
 
-@njit(**njit_dict_no_parallel)
-def calculate_positron_fraction(
-    positron_energy, isotope_energy, isotope_intensity
-):
-    """Calculate the fraction of energy that an isotope
-    releases as positron kinetic energy
-
-    Parameters
-    ----------
-    positron_energy : float
-        Average kinetic energy of positrons from decay
-    isotope_energy : numpy array
-        Photon energies released by the isotope
-    isotope_intensity : numpy array
-        Intensity of photon energy release
-
-    Returns
-    -------
-    float
-        Fraction of energy released as positron kinetic energy
-    """
-    return positron_energy / np.sum(isotope_energy * isotope_intensity)
-
-
 def initialize_packets(
     decays_per_isotope,
     packet_energy,
