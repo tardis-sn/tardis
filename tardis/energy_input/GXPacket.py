@@ -94,8 +94,6 @@ def initialize_packet_properties(
     times,
     effective_times,
     average_power_per_mass,
-    Z,
-    A,
     uniform_packet_energies=True,
 ):
     """Initialize the properties of an individual packet
@@ -195,8 +193,6 @@ def initialize_packet_properties(
         GXPacketStatus.IN_PROCESS,
         k,
         decay_time,
-        Z,
-        A,
     )
 
     packet.energy_rf = packet.energy_cmf / doppler_factor_3d(

@@ -240,7 +240,6 @@ def gamma_packet_loop(
                     )
 
             elif distance == distance_interaction:
-
                 packet.status = scatter_type(
                     compton_opacity,
                     photoabsorption_opacity,
@@ -306,8 +305,6 @@ def gamma_packet_loop(
                 [
                     i,
                     packet.status,
-                    packet.Z,
-                    packet.A,
                     packet.nu_cmf,
                     packet.nu_rf,
                     packet.energy_cmf,
