@@ -187,7 +187,6 @@ def initialize_packets(
         for isotope_name, isotope_packet_count in zip(
             isotopes, isotope_packet_count_df.values
         ):
-
             isotope_energy = gamma_ray_lines[isotope_name][0, :]
             isotope_intensity = gamma_ray_lines[isotope_name][1, :]
             isotope = rd.Nuclide(isotope_name)
@@ -292,9 +291,8 @@ def calculate_total_decays(inventories, time_delta):
     total_decays = {}
     for shell, isotopes in inventories.items():
         total_decays[shell] = {}
-        for isotope, name in isotopes.items():
-            decays = name.decay(time_delta.value, "s")
-            total_decays[shell][isotope] = decays.cumulative_decays(
+        for isotope, inventory in isotopes.items():
+            total_decays[shell][isotope] = inventory.cumulative_decays(
                 time_delta.value
             )
     return total_decays
@@ -581,7 +579,6 @@ def calculate_energy_per_mass(decay_energy, raw_isotope_abundance, cell_masses):
 
 
 def distribute_packets(decay_energy, energy_per_packet):
-
     packets_per_isotope = {}
     for shell, isotopes in decay_energy.items():
         packets_per_isotope[shell] = {}
