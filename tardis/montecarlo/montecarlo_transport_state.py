@@ -365,9 +365,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def virt_packet_last_interaction_in_nu(self):
         try:
-            return u.Quantity(
-                self.vpacket_tracker.last_interaction_in_nu, u.Hz
-            )
+            return u.Quantity(self.vpacket_tracker.last_interaction_in_nu, u.Hz)
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_last_interaction_in_nu:"
