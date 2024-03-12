@@ -21,8 +21,7 @@ HEADER_RE_STR = [
     ("\s+total mass\s+(\d+\.\d+E[+-]\d+)\s+\d+\.\d+E[+-]\d+", "total_mass"),
 ]
 
-DATA_START_ROW = 6
-
+DATA_START_ROW = 5
 COLUMN_WITH_UNIT_RE = re.compile("(.+)\s+\((.+)\)")
 
 
@@ -46,9 +45,8 @@ def read_stella_model(fname):
         for i, line in enumerate(fh):
             if i < len(HEADER_RE_STR):
                 header_re_match = header_re[i].match(line)
-
                 metadata[HEADER_RE_STR[i][1]] = header_re_match.group(1)
-            elif i + 1 == DATA_START_ROW:
+            elif i == DATA_START_ROW:
                 if "mass of cell" in line:
                     column_names_raw = re.split(r"\s{3,}", line.strip())
                     break
