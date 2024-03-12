@@ -34,6 +34,8 @@ plasma:
   line_interaction_type: macroatom
 
 montecarlo:
+  tracking:
+    track_rpacket: true
   seed: 23111963
   no_of_packets: 4.0e+4
   iterations: 20
