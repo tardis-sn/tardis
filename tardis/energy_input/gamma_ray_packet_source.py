@@ -55,7 +55,9 @@ class RadioactivePacketSource(BasePacketSource):
         super().__init__(**kwargs)
 
     @njit(**njit_dict_no_parallel)
-    def create_packet_radii(self, no_of_packets, inner_velocity, outer_velocity):
+    def create_packet_radii(
+        self, no_of_packets, inner_velocity, outer_velocity
+    ):
         """Initialize the random radii of packets in a shell
 
         Parameters
@@ -73,9 +75,9 @@ class RadioactivePacketSource(BasePacketSource):
             Array of length packet_count of random locations in the shell
         """
         z = np.random.random(no_of_packets)
-        initial_radii = (z * inner_velocity**3.0 + (1.0 - z) * outer_velocity**3.0) ** (
-            1.0 / 3.0
-        )
+        initial_radii = (
+            z * inner_velocity**3.0 + (1.0 - z) * outer_velocity**3.0
+        ) ** (1.0 / 3.0)
 
         return initial_radii
 
@@ -296,7 +298,9 @@ class RadioactivePacketSource(BasePacketSource):
                 )
 
                 # sample directions (valid at all times)
-                initial_directions = self.create_packet_directions(isotope_packet_count)
+                initial_directions = self.create_packet_directions(
+                    isotope_packet_count
+                )
 
                 # packet decay time
                 initial_times = self.create_packet_times_uniform_energy(
@@ -309,7 +313,10 @@ class RadioactivePacketSource(BasePacketSource):
 
                 # get the time step index of the packets
                 initial_time_indexes = np.array(
-                    [get_index(decay_time, self.times) for decay_time in initial_times]
+                    [
+                        get_index(decay_time, self.times)
+                        for decay_time in initial_times
+                    ]
                 )
 
                 # get the time of the middle of the step for each packet
@@ -340,12 +347,6 @@ class RadioactivePacketSource(BasePacketSource):
                     positronium_intensity,
                 )
 
-                z = np.random.random()
-                if z < positronium_fraction:
-                    z = np.random.random()
-                    if cmf_energy == 511 and z > 0.25:
-                        cmf_energy = sample_energy()
-
                 # equivalent frequencies
                 initial_nus_cmf = initial_nu_energies_cmf / H_CGS_KEV
 
@@ -371,7 +372,9 @@ class RadioactivePacketSource(BasePacketSource):
                 initial_nus_rf = np.zeros(isotope_packet_count)
                 for i in range(isotope_packet_count):
                     doppler_factor = doppler_factor_3d(
-                        initial_directions[i], initial_locations[i], initial_times[i]
+                        initial_directions[i],
+                        initial_locations[i],
+                        initial_times[i],
                     )
                     initial_packet_energies_rf[i] = (
                         initial_packet_energies_cmf[i] / doppler_factor
