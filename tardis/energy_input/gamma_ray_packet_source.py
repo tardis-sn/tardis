@@ -8,7 +8,13 @@ from tardis.energy_input.GXPacket import (
     GXPacketCollection,
     initialize_packet_properties,
 )
-from tardis.energy_input.samplers import initial_packet_radius
+from tardis.energy_input.util import (
+    get_index,
+    get_random_unit_vector,
+    doppler_factor_3d,
+    H_CGS_KEV,
+)
+from tardis.energy_input.samplers import sample_energy
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.montecarlo.packet_source import BasePacketSource
 
@@ -48,6 +54,88 @@ class RadioactivePacketSource(BasePacketSource):
         self.average_power_per_mass = average_power_per_mass
         super().__init__(**kwargs)
 
+    @njit(**njit_dict_no_parallel)
+    def create_packet_radii(
+        self, no_of_packets, inner_velocity, outer_velocity
+    ):
+        """Initialize the random radii of packets in a shell
+
+        Parameters
+        ----------
+        packet_count : int
+            Number of packets in the shell
+        inner_velocity : float
+            Inner velocity of the shell
+        outer_velocity : float
+            Outer velocity of the shell
+
+        Returns
+        -------
+        array
+            Array of length packet_count of random locations in the shell
+        """
+        z = np.random.random(no_of_packets)
+        initial_radii = (
+            z * inner_velocity**3.0 + (1.0 - z) * outer_velocity**3.0
+        ) ** (1.0 / 3.0)
+
+        return initial_radii
+
+    def create_packet_nus(self, no_of_packets, energy, intensity):
+        nu_energies = np.zeros(no_of_packets)
+        for i in range(no_of_packets):
+            nu_energies[i] = sample_energy(energy, intensity)
+        return nu_energies
+
+    def create_packet_directions(self, no_of_packets):
+        directions = np.zeros((no_of_packets, 3))
+        for i in range(no_of_packets):
+            directions[i, :] = get_random_unit_vector()
+
+        return directions
+
+    def create_packet_energies(self, no_of_packets, energy):
+        return np.ones(no_of_packets) * energy
+
+    def create_packet_times_uniform_time(self, no_of_packets, start, end):
+        z = np.random.random(no_of_packets)
+        decay_times = z * start + (1 - z) * end
+        return decay_times
+
+    @njit(**njit_dict_no_parallel)
+    def create_packet_times_uniform_energy(
+        self,
+        no_of_packets,
+        start_tau,
+        end_tau=0.0,
+        decay_time_min=0.0,
+        decay_time_max=0.0,
+    ):
+        """Samples the decay time from the mean lifetime
+        of the isotopes (needs restructuring for more isotopes)
+
+        Parameters
+        ----------
+        start_tau : float64
+            Initial isotope mean lifetime
+        end_tau : float64, optional
+            Ending mean lifetime, by default 0 for single decays
+
+        Returns
+        -------
+        float64
+            Sampled decay time
+        """
+        decay_times = np.ones(no_of_packets) * decay_time_min
+        for i in range(no_of_packets):
+            while (decay_times[i] <= decay_time_min) or (
+                decay_times[i] >= decay_time_max
+            ):
+                decay_times[i] = -start_tau * np.log(
+                    np.random.random()
+                ) - end_tau * np.log(np.random.random())
+        return decay_times
+
     def create_packets(self, decays_per_isotope, *args, **kwargs):
         """Initialize a collection of GXPacket objects for the simulation
         to operate on.
@@ -78,10 +166,6 @@ class RadioactivePacketSource(BasePacketSource):
 
         packet_index = 0
         for k, shell in enumerate(decays_per_shell):
-            initial_radii = initial_packet_radius(
-                shell, self.inner_velocities[k], self.outer_velocities[k]
-            )
-
             isotope_packet_count_df = decays_per_isotope.iloc[k]
 
             i = 0
@@ -102,6 +186,31 @@ class RadioactivePacketSource(BasePacketSource):
                     tau_end = self.taus[self.parents[isotope_name]]
                 else:
                     tau_end = 0
+
+                initial_radii = self.create_packet_radii(
+                    isotope_packet_count,
+                    self.inner_velocities[k],
+                    self.outer_velocities[k],
+                )
+                initial_directions = self.create_packet_directions(
+                    isotope_packet_count
+                )
+
+                initial_times = self.create_packet_times_uniform_energy(
+                    isotope_packet_count,
+                    tau_start,
+                    tau_end,
+                    decay_time_min=0,
+                    decay_time_max=self.times[-1],
+                )
+
+                initial_nu_energies = self.create_packet_nus(
+                    isotope_packet_count, isotope_energy, isotope_intensity
+                )
+
+                initial_energies = self.create_packet_energies(
+                    isotope_packet_count, self.packet_energy
+                )
 
                 for c in range(isotope_packet_count):
                     packet, decay_time_index = initialize_packet_properties(
@@ -150,7 +259,16 @@ class RadioactivePacketSource(BasePacketSource):
                     packet_index += 1
 
         return (
-            GXPacketCollection(),
+            GXPacketCollection(
+                locations,
+                initial_directions,
+                energy_rfs,
+                energy_cmfs,
+                nu_rfs,
+                nu_cmfs,
+                shells,
+                time_currents,
+            ),
             self.energy_df_rows,
             energy_plot_df_rows,
             energy_plot_positron_rows,
