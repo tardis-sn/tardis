@@ -12,7 +12,11 @@ from pathlib import Path
 
 import tardis
 from tardis.io.model.readers.generic_readers import read_uniform_abundances
-from tardis.util.base import quantity_linspace, is_valid_nuclide_or_elem, is_notebook
+from tardis.util.base import (
+    quantity_linspace,
+    is_valid_nuclide_or_elem,
+    is_notebook,
+)
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
 from tardis.io.model.parse_density_configuration import (
