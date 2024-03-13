@@ -55,9 +55,7 @@ class RadioactivePacketSource(BasePacketSource):
         super().__init__(**kwargs)
 
     @njit(**njit_dict_no_parallel)
-    def create_packet_radii(
-        self, no_of_packets, inner_velocity, outer_velocity
-    ):
+    def create_packet_radii(self, no_of_packets, inner_velocity, outer_velocity):
         """Initialize the random radii of packets in a shell
 
         Parameters
@@ -75,19 +73,74 @@ class RadioactivePacketSource(BasePacketSource):
             Array of length packet_count of random locations in the shell
         """
         z = np.random.random(no_of_packets)
-        initial_radii = (
-            z * inner_velocity**3.0 + (1.0 - z) * outer_velocity**3.0
-        ) ** (1.0 / 3.0)
+        initial_radii = (z * inner_velocity**3.0 + (1.0 - z) * outer_velocity**3.0) ** (
+            1.0 / 3.0
+        )
 
         return initial_radii
 
-    def create_packet_nus(self, no_of_packets, energy, intensity):
+    def create_packet_nus(
+        self,
+        no_of_packets,
+        energy,
+        intensity,
+        positronium_fraction,
+        positronium_energy,
+        positronium_intensity,
+    ):
+        """Create an array of packet frequency-energies (i.e. E = h * nu)
+
+        Parameters
+        ----------
+        no_of_packets : int
+            Number of packets to produce frequency-energies for
+        energy : One-dimensional Numpy Array, dtype float
+            Array of frequency-energies to sample
+        intensity : One-dimensional Numpy Array, dtype float
+            Array of intensities to sample
+        positronium_fraction : float
+            The fraction of positrons that form positronium
+        positronium_energy : array
+            Array of positronium frequency-energies to sample
+        positronium_intensity : array
+            Array of positronium intensities to sample
+
+        Returns
+        -------
+        array
+            Array of sampled frequency-energies
+        array
+            Positron creation mask
+        """
         nu_energies = np.zeros(no_of_packets)
+        positrons = np.zeroes(no_of_packets)
+        zs = np.random.random(no_of_packets)
         for i in range(no_of_packets):
             nu_energies[i] = sample_energy(energy, intensity)
-        return nu_energies
+            # positron
+            if nu_energies[i] == 511:
+                # positronium formation 25% of the time if fraction is 1
+                if zs[i] < positronium_fraction and np.random.random() < 0.25:
+                    nu_energies[i] = sample_energy(
+                        positronium_energy, positronium_intensity
+                    )
+                positrons[i] = 1
+
+        return nu_energies, positrons
 
     def create_packet_directions(self, no_of_packets):
+        """Create an array of random directions
+
+        Parameters
+        ----------
+        no_of_packets : int
+            Number of packets to produce directions for
+
+        Returns
+        -------
+        array
+            Array of direction vectors
+        """
         directions = np.zeros((no_of_packets, 3))
         for i in range(no_of_packets):
             directions[i, :] = get_random_unit_vector()
@@ -95,9 +148,39 @@ class RadioactivePacketSource(BasePacketSource):
         return directions
 
     def create_packet_energies(self, no_of_packets, energy):
+        """Create the uniform packet energy for a number of packets
+
+        Parameters
+        ----------
+        no_of_packets : int
+            Number of packets
+        energy : float
+            The packet energy
+
+        Returns
+        -------
+        array
+            Array of packet energies
+        """
         return np.ones(no_of_packets) * energy
 
     def create_packet_times_uniform_time(self, no_of_packets, start, end):
+        """Samples decay time uniformly (needs non-uniform packet energies)
+
+        Parameters
+        ----------
+        no_of_packets : int
+            Number of packets
+        start : float
+            Start time
+        end : float
+            End time
+
+        Returns
+        -------
+        array
+            Array of packet decay times
+        """
         z = np.random.random(no_of_packets)
         decay_times = z * start + (1 - z) * end
         return decay_times
@@ -111,23 +194,29 @@ class RadioactivePacketSource(BasePacketSource):
         decay_time_min=0.0,
         decay_time_max=0.0,
     ):
-        """Samples the decay time from the mean lifetime
-        of the isotopes (needs restructuring for more isotopes)
+        """Samples the decay time from the mean lifetime of the isotopes
 
         Parameters
         ----------
-        start_tau : float64
+        no_of_packets : int
+            Number of packets
+        start_tau : float
             Initial isotope mean lifetime
-        end_tau : float64, optional
-            Ending mean lifetime, by default 0 for single decays
+        end_tau : float, optional
+            Ending mean lifetime, by default 0.0 for single decays
+        decay_time_min : float, optional
+            Minimum time to decay, by default 0.0
+        decay_time_max : float, optional
+            Maximum time to decay, by default 0.0
 
         Returns
         -------
-        float64
-            Sampled decay time
+        array
+            Array of decay times
         """
         decay_times = np.ones(no_of_packets) * decay_time_min
         for i in range(no_of_packets):
+            # rejection sampling
             while (decay_times[i] <= decay_time_min) or (
                 decay_times[i] >= decay_time_max
             ):
@@ -135,6 +224,15 @@ class RadioactivePacketSource(BasePacketSource):
                     np.random.random()
                 ) - end_tau * np.log(np.random.random())
         return decay_times
+
+    @njit(**njit_dict_no_parallel)
+    def calculate_energy_factors(self, no_of_packets, start_time, decay_times):
+        energy_factors = np.ones(no_of_packets)
+        for i in range(no_of_packets):
+            if decay_times[i] < start_time:
+                energy_factors[i] = decay_times[i] / start_time
+                decay_times[i] = start_time
+        return energy_factors, decay_times
 
     def create_packets(self, decays_per_isotope, *args, **kwargs):
         """Initialize a collection of GXPacket objects for the simulation
@@ -165,14 +263,17 @@ class RadioactivePacketSource(BasePacketSource):
         positronium_energy, positronium_intensity = positronium_continuum()
 
         packet_index = 0
+        # go through each shell
         for k, shell in enumerate(decays_per_shell):
             isotope_packet_count_df = decays_per_isotope.iloc[k]
 
+            # packet index
             i = 0
             for (
                 isotope_name,
                 isotope_packet_count,
             ) in isotope_packet_count_df.items():
+                # get isotope information
                 isotope_energy = self.gamma_ray_lines[isotope_name][0, :]
                 isotope_intensity = self.gamma_ray_lines[isotope_name][1, :]
                 isotope_positron_fraction = self.calculate_positron_fraction(
@@ -187,15 +288,17 @@ class RadioactivePacketSource(BasePacketSource):
                 else:
                     tau_end = 0
 
+                # sample radii at time = 0
                 initial_radii = self.create_packet_radii(
                     isotope_packet_count,
                     self.inner_velocities[k],
                     self.outer_velocities[k],
                 )
-                initial_directions = self.create_packet_directions(
-                    isotope_packet_count
-                )
 
+                # sample directions (valid at all times)
+                initial_directions = self.create_packet_directions(isotope_packet_count)
+
+                # packet decay time
                 initial_times = self.create_packet_times_uniform_energy(
                     isotope_packet_count,
                     tau_start,
@@ -204,74 +307,88 @@ class RadioactivePacketSource(BasePacketSource):
                     decay_time_max=self.times[-1],
                 )
 
-                initial_nu_energies = self.create_packet_nus(
-                    isotope_packet_count, isotope_energy, isotope_intensity
+                # get the time step index of the packets
+                initial_time_indexes = np.array(
+                    [get_index(decay_time, self.times) for decay_time in initial_times]
                 )
 
-                initial_energies = self.create_packet_energies(
-                    isotope_packet_count, self.packet_energy
+                # get the time of the middle of the step for each packet
+                packet_effective_times = np.array(
+                    [self.effective_times[i] for i in initial_time_indexes]
                 )
 
-                for c in range(isotope_packet_count):
-                    packet, decay_time_index = initialize_packet_properties(
-                        isotope_energy,
-                        isotope_intensity,
-                        positronium_energy,
-                        positronium_intensity,
-                        self.positronium_fraction,
-                        self.packet_energy,
-                        k,
-                        tau_start,
-                        tau_end,
-                        initial_radii[i],
-                        self.times,
-                        self.effective_times,
-                        self.inventories[k],
-                        self.average_power_per_mass,
+                # scale radius by packet decay time. This could be replaced with
+                # Geometry object calculations. Note that this also adds a random
+                # unit vector multiplication for 3D. May not be needed.
+                initial_locations = (
+                    initial_radii
+                    * packet_effective_times
+                    * self.create_packet_directions(isotope_packet_count)
+                )
+
+                # get the packet shell index
+                initial_shells = np.ones(isotope_packet_count) * k
+
+                # the individual gamma-ray energies that make up a packet
+                # co-moving frame, including positronium formation
+                initial_nu_energies_cmf, positron_mask = self.create_packet_nus(
+                    isotope_packet_count,
+                    isotope_energy,
+                    isotope_intensity,
+                    self.positronium_fraction,
+                    positronium_energy,
+                    positronium_intensity,
+                )
+
+                z = np.random.random()
+                if z < positronium_fraction:
+                    z = np.random.random()
+                    if cmf_energy == 511 and z > 0.25:
+                        cmf_energy = sample_energy()
+
+                # equivalent frequencies
+                initial_nus_cmf = initial_nu_energies_cmf / H_CGS_KEV
+
+                # compute scaling factor for packets emitted before start time
+                # and move packets to start at that time
+                # probably not necessary- we have rejection sampling in the
+                # create_packet_times_uniform_energy method
+                energy_factors, initial_times = self.calculate_energy_factors(
+                    isotope_packet_count, self.times[0], initial_times
+                )
+
+                # the CMF energy of a packet scaled by the "early energy factor"
+                initial_packet_energies_cmf = (
+                    self.create_packet_energies(
+                        isotope_packet_count, self.packet_energy
                     )
+                    * energy_factors
+                )
 
-                    self.energy_df_rows[k, decay_time_index] += (
-                        isotope_positron_fraction * self.packet_energy * 1000
+                # rest frame gamma-ray energy and frequency
+                # this probably works fine without the loop
+                initial_packet_energies_rf = np.zeros(isotope_packet_count)
+                initial_nus_rf = np.zeros(isotope_packet_count)
+                for i in range(isotope_packet_count):
+                    doppler_factor = doppler_factor_3d(
+                        initial_directions[i], initial_locations[i], initial_times[i]
                     )
-
-                    energy_plot_df_rows[packet_index] = np.array(
-                        [
-                            i,
-                            packet.energy_rf,
-                            packet.get_location_r(),
-                            packet.time_current,
-                            int(packet.status),
-                            0,
-                            0,
-                            0,
-                        ]
+                    initial_packet_energies_rf[i] = (
+                        initial_packet_energies_cmf[i] / doppler_factor
                     )
+                    initial_nus_rf[i] = initial_nus_cmf[i] / doppler_factor
 
-                    energy_plot_positron_rows[packet_index] = [
-                        packet_index,
-                        isotope_positron_fraction * self.packet_energy * 1000,
-                        # * inv_volume_time[packet.shell, decay_time_index],
-                        packet.get_location_r(),
-                        packet.time_current,
-                    ]
+        locations = np.stack()
 
-                    i += 1
-                    packet_index += 1
-
-        return (
-            GXPacketCollection(
-                locations,
-                initial_directions,
-                energy_rfs,
-                energy_cmfs,
-                nu_rfs,
-                nu_cmfs,
-                shells,
-                time_currents,
-            ),
-            self.energy_df_rows,
-            energy_plot_df_rows,
-            energy_plot_positron_rows,
+        return GXPacketCollection(
+            locations,
+            directions,
+            packet_energies_rf,
+            packet_energies_cmf,
+            nus_rf,
+            nus_cmf,
+            shells,
+            times,
         )
 
     @njit(**njit_dict_no_parallel)
