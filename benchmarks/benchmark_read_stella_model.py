@@ -2,14 +2,13 @@
 import os
 from tardis.io.model import read_stella_model
 
-
 class Benchmark_read_stella_model:
     """Class to benchmark the read_stella_model function.
     """
     timeout = 200
 
     def setup(self):
-        filename = "messa.stella.dat"
+        filename = "mesa.stella.dat"
         dir_path = os.path.dirname(os.path.realpath(__file__))
         path = os.path.join(dir_path, "data", filename)
         self.path = path
