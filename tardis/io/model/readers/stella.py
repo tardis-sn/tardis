@@ -70,6 +70,8 @@ def read_stella_model(fname):
         else:
             column_name = column_name.lower().replace(" ", "_")
         column_names.append(column_name)
+    # +1 because there is a missing line between columns
+    # and the actual data
     data = pd.read_csv(
         fname,
         delim_whitespace=True,
