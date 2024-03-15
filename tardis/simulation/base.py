@@ -660,7 +660,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if atom_data is None:
             if "atom_data" in config:
                 if Path(config.atom_data).is_absolute():
-                    atom_data_fname = config.atom_data
+                    atom_data_fname = Path(config.atom_data)
                 else:
                     atom_data_fname = (
                         Path(config.config_dirname) / config.atom_data
