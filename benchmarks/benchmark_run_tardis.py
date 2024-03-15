@@ -3,7 +3,7 @@ import os
 from tardis.io.configuration.config_reader import Configuration
 from tardis import run_tardis
 
-class Benchmarkruntardis:
+class TestBenchmarkruntardis:
     """Class to benchmark the run_tardis function.
     """
     timeout = 200
@@ -13,8 +13,8 @@ class Benchmarkruntardis:
         dir_path = os.path.dirname(os.path.realpath(__file__))
         path = os.path.join(dir_path, "data", filename)
         config = Configuration.from_yaml(path)
-        config.atom_data = "kurucz_cd23_chianti_H_He.h5"
+        config.atom_data = "/home/rudraksh-nalbalwar/Downloads/tardis-data/kurucz_cd23_chianti_H_He.h5"
         self.config = config
     
-    def time_run_tardis(self):
+    def test_run_tardis(self):
         sim = run_tardis(self.config, log_level="ERROR", show_progress_bars=False)

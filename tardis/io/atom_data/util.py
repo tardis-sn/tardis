@@ -1,6 +1,8 @@
 import os
 import logging
 
+from pathlib import Path
+
 from tardis.io.configuration.config_internal import get_data_dir
 from tardis.io.atom_data.atom_web_download import (
     get_atomic_repo_config,
@@ -24,18 +26,22 @@ def resolve_atom_data_fname(fname):
         : str
         resolved fpath
     """
+    file_path = Path(fname)
 
-    if os.path.exists(fname):
-        return fname
+    if file_path.exists():
+        return file_path
 
-    fpath = os.path.join(os.path.join(get_data_dir(), fname))
-    if os.path.exists(fpath):
+   # fpath = os.path.join(os.path.join(get_data_dir(), fname))
+    data_dir = Path(get_data_dir())
+    combined_path = data_dir / file_path
+    
+    if combined_path.exists():
         logger.info(
-            f"\n\tAtom Data {fname} not found in local path.\n\tExists in TARDIS Data repo {fpath}"
+            f"\n\tAtom Data {file_path.exist()} not found in local path.\n\tExists in TARDIS Data repo {combined_path}"
         )
-        return fpath
+        return combined_path
 
-    atom_data_name = fname.replace(".h5", "")
+    atom_data_name = file_path.with_suffix("").name
     atom_repo_config = get_atomic_repo_config()
     if atom_data_name in atom_repo_config:
         raise IOError(
