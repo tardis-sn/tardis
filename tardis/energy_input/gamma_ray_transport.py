@@ -219,8 +219,6 @@ def initialize_packets(
                     times,
                     effective_times,
                     average_power_per_mass,
-                    atomic_number,
-                    mass_number,
                 )
 
                 energy_df_rows[shell_number, decay_time_index] += (
@@ -578,7 +576,7 @@ def calculate_energy_per_mass(decay_energy, raw_isotope_abundance, cell_masses):
     return energy_per_mass, energy_df
 
 
-def distribute_packets(decay_energy, energy_per_packet):
+def distribute_packets(decay_energy, total_energy, num_packets):
     packets_per_isotope = {}
     for shell, isotopes in decay_energy.items():
         packets_per_isotope[shell] = {}
@@ -586,7 +584,7 @@ def distribute_packets(decay_energy, energy_per_packet):
             packets_per_isotope[shell][name] = {}
             for line, energy in isotope.items():
                 packets_per_isotope[shell][name][line] = int(
-                    energy / energy_per_packet
+                    energy / total_energy * num_packets
                 )
 
     packets_per_isotope_list = []
