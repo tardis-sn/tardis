@@ -59,10 +59,10 @@ def create_inventories_dict(isotope_dict):
     -------
         inv : Dict
             dictionary of inventories for each shell
-            For eg: {0: {'Ni56': <radioactivedecay.Inventory at 0x7f7d2c0d0e50>,
-                         'Co56': <radioactivedecay.Inventory at 0x7f7d2c0d0e50>},
-                    {1: {'Ni56': <radioactivedecay.Inventory at 0x7f7d2c0d0e50>,
-                         'Co56': <radioactivedecay.Inventory at 0x7f7d2c0d0e50>}} etc
+            For eg: {0: {'Ni56': <radioactivedecay.Inventory>,
+                         'Co56': <radioactivedecay.Inventory>},
+                    {1: {'Ni56': <radioactivedecay.Inventory>,
+                         'Co56': <radioactivedecay.Inventory>}} etc
     """
     inv = {}
     for shell, isotopes in isotope_dict.items():
@@ -144,6 +144,7 @@ def create_isotope_decay_df(cumulative_decay_df, atom_data_file):
         gamma_ray_lines_df.reset_index(),
         on=["Isotope"],
     )
+    isotope_decay_df
     isotope_decay_df.set_index(["Shell_number", "Isotope"], inplace=True)
 
     return isotope_decay_df
