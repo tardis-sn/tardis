@@ -1,5 +1,4 @@
 import numpy as np
-from numba import njit
 
 from tardis.energy_input.energy_source import (
     positronium_continuum,
@@ -14,7 +13,6 @@ from tardis.energy_input.util import (
     get_index,
     get_random_unit_vector,
 )
-from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.montecarlo.packet_source import BasePacketSource
 
 
@@ -49,6 +47,7 @@ class RadioactivePacketSource(BasePacketSource):
         self.parents = parents
         self.average_positron_energies = average_positron_energies
         self.average_power_per_mass = average_power_per_mass
+        self.energy_plot_positron_rows = np.empty(0)
         super().__init__(**kwargs)
 
     def create_packet_mus(self, no_of_packets, *args, **kwargs):
@@ -256,9 +255,6 @@ class RadioactivePacketSource(BasePacketSource):
         number_of_packets = decays_per_isotope.sum().sum()
         decays_per_shell = decays_per_isotope.T.sum().values
 
-        energy_plot_df_rows = np.zeros((number_of_packets, 8))
-        energy_plot_positron_rows = np.zeros((number_of_packets, 4))
-
         locations = np.zeros((3, number_of_packets))
         directions = np.zeros((3, number_of_packets))
         packet_energies_rf = np.zeros(number_of_packets)
@@ -270,6 +266,8 @@ class RadioactivePacketSource(BasePacketSource):
         statuses = np.ones(number_of_packets, dtype=np.int64) * 3
 
         positronium_energy, positronium_intensity = positronium_continuum()
+
+        self.energy_plot_positron_rows = np.zeros((number_of_packets, 4))
 
         packet_index = 0
         # go through each shell
@@ -383,8 +381,28 @@ class RadioactivePacketSource(BasePacketSource):
                         initial_packet_energies_cmf[i] / doppler_factor
                     )
                     initial_nus_rf[i] = initial_nus_cmf[i] / doppler_factor
+
+                    self.energy_plot_positron_rows[i] = np.array(
+                        [
+                            packet_index,
+                            isotope_positron_fraction
+                            * self.packet_energy
+                            * 1000,
+                            # * inv_volume_time[packet.shell, decay_time_index],
+                            initial_radii[i],
+                            initial_times[i],
+                        ]
+                    )
+
                     packet_index += 1
 
+                # deposit positron energy
+                for time in initial_time_indexes:
+                    self.energy_df_rows[shell_number, time] += (
+                        isotope_positron_fraction * self.packet_energy * 1000
+                    )
+
+                # collect packet properties
                 locations[
                     :, packet_index - isotope_packet_count : packet_index
                 ] = initial_locations
