@@ -28,16 +28,17 @@ def resolve_atom_data_fname(fname):
     if os.path.exists(fname):
         return fname
 
-    fpath = os.path.join(os.path.join(get_data_dir(), fname))
+    fname = Path(fname.stem).with_suffix(".h5")
+    fpath = Path(os.path.join(get_data_dir(), fname))
     if os.path.exists(fpath):
         logger.info(
             f"\n\tAtom Data {fname} not found in local path.\n\tExists in TARDIS Data repo {fpath}"
         )
         return fpath
 
-    atom_data_name = fname.with_suffix("")
+    atom_data_name = fname.stem
     atom_repo_config = get_atomic_repo_config()
-    if str(atom_data_name) in atom_repo_config:
+    if atom_data_name in atom_repo_config:
         raise IOError(
             f"Atom Data {fname} not found in path or in TARDIS data repo - it is available as download:\n"
             f"from tardis.io.atom_data.util import download_atom_data\n"
