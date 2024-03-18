@@ -15,7 +15,9 @@ HEADER_RE_STR = [
     ("t0:\s+(\d+\.\d+)+\s+day", "t0"),
 ]
 
-DATA_START_ROW = 2
+COLUMN_ROW = 1
+UNIT_ROW = 2
+DATA_START_ROW = 3
 
 
 def read_cmfgen_model(fname):
@@ -38,9 +40,8 @@ def read_cmfgen_model(fname):
         for i, line in enumerate(fh):
             if i < len(HEADER_RE_STR):
                 header_re_match = header_re[i].match(line)
-
                 metadata[HEADER_RE_STR[i][1]] = header_re_match.group(1)
-            elif i + 1 == DATA_START_ROW:
+            elif i == COLUMN_ROW:
                 if "Index" in line:
                     column_names = re.split(r"\s", line.strip())
                     column_names = [
@@ -53,7 +54,7 @@ def read_cmfgen_model(fname):
                     raise ValueError(
                         '"Index" is required in the Cmfgen input file to infer columns'
                     )
-            elif i == DATA_START_ROW:
+            elif i == UNIT_ROW:
                 units = re.split(r"\s", line.strip())
                 units = units[1:]  # Remove index column
                 for col, unit in zip(column_names, units):
@@ -66,7 +67,7 @@ def read_cmfgen_model(fname):
     data = pd.read_csv(
         fname,
         delim_whitespace=True,
-        skiprows=DATA_START_ROW + 1,
+        skiprows=DATA_START_ROW,
         header=None,
         index_col=0,
     )
