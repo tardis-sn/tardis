@@ -28,7 +28,7 @@ def resolve_atom_data_fname(fname):
     if os.path.exists(fname):
         return fname
 
-    fname = Path(fname.stem).with_suffix(".h5")
+    fname = Path(fname.name)
     fpath = Path(os.path.join(get_data_dir(), fname))
     if os.path.exists(fpath):
         logger.info(
