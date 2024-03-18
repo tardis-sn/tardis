@@ -105,25 +105,6 @@ def angle_aberration_gamma(direction_vector, position_vector, time):
 
 
 @njit(**njit_dict_no_parallel)
-def kappa_calculation(energy):
-    """
-    Calculates kappa for various other calculations
-    i.e. energy normalized to electron rest energy
-    511.0 KeV
-
-    Parameters
-    ----------
-    energy : float
-
-    Returns
-    -------
-    kappa : float
-
-    """
-    return energy / ELECTRON_MASS_ENERGY_KEV
-
-
-@njit(**njit_dict_no_parallel)
 def euler_rodrigues(theta, direction):
     """
     Calculates the Euler-Rodrigues rotation matrix

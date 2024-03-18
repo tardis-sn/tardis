@@ -7,6 +7,7 @@ from tardis.montecarlo.montecarlo_numba.opacities import (
     photoabsorption_opacity_calculation,
     pair_creation_opacity_calculation,
     photoabsorption_opacity_calculation_kasen,
+    kappa_calculation,
     pair_creation_opacity_artis,
     SIGMA_T,
 )
@@ -18,7 +19,6 @@ from tardis.energy_input.util import (
     doppler_factor_3d,
     C_CGS,
     H_CGS_KEV,
-    kappa_calculation,
     get_index,
 )
 from tardis.energy_input.GXPacket import GXPacketStatus

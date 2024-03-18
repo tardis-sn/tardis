@@ -3,7 +3,6 @@ import radioactivedecay as rd
 from numba import njit
 
 from tardis import constants as const
-from tardis.energy_input.util import kappa_calculation
 from tardis.montecarlo.montecarlo_numba import (
     njit_dict_no_parallel,
 )
@@ -21,10 +20,30 @@ MASS_SI = rd.Nuclide("Si-28").atomic_mass * M_P
 MASS_FE = rd.Nuclide("Fe-56").atomic_mass * M_P
 SIGMA_T = const.sigma_T.cgs.value
 FINE_STRUCTURE = const.alpha.value
+ELECTRON_MASS_ENERGY_KEV = (const.m_e * const.c**2.0).to("keV").value
 
 FF_OPAC_CONST = (
     (2 * np.pi / (3 * M_E * K_B)) ** 0.5 * 4 * E**6 / (3 * M_E * H * C)
 )  # See Eq. 6.1.8 in http://personal.psu.edu/rbc3/A534/lec6.pdf
+
+
+@njit(**njit_dict_no_parallel)
+def kappa_calculation(energy):
+    """
+    Calculates kappa for various other calculations
+    i.e. energy normalized to electron rest energy
+    511.0 KeV
+
+    Parameters
+    ----------
+    energy : float
+
+    Returns
+    -------
+    kappa : float
+
+    """
+    return energy / ELECTRON_MASS_ENERGY_KEV
 
 
 @njit(**njit_dict_no_parallel)

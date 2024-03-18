@@ -2,10 +2,12 @@ import numpy as np
 from numba import njit
 
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
-from tardis.montecarlo.montecarlo_numba.opacities import compton_opacity_partial
+from tardis.montecarlo.montecarlo_numba.opacities import (
+    compton_opacity_partial,
+    kappa_calculation,
+)
 from tardis.energy_input.util import (
     get_random_unit_vector,
-    kappa_calculation,
     euler_rodrigues,
     compton_theta_distribution,
     get_perpendicular_vector,
@@ -157,7 +159,6 @@ def get_compton_fraction_urilight(energy):
 
     accept = False
     while not accept:
-
         z = np.random.random(3)
         alpha1 = np.log(1.0 / x0)
         alpha2 = (1.0 - x0**2.0) / 2.0
