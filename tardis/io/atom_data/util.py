@@ -35,7 +35,7 @@ def resolve_atom_data_fname(fname):
         )
         return fpath
 
-    atom_data_name = fname.with_suffix('')
+    atom_data_name = fname.with_suffix("")
     atom_repo_config = get_atomic_repo_config()
     if str(atom_data_name) in atom_repo_config:
         raise IOError(
