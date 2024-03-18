@@ -6,15 +6,14 @@ from tardis.energy_input.energy_source import (
 )
 from tardis.energy_input.GXPacket import (
     GXPacketCollection,
-    initialize_packet_properties,
-)
-from tardis.energy_input.util import (
-    get_index,
-    get_random_unit_vector,
-    doppler_factor_3d,
-    H_CGS_KEV,
 )
 from tardis.energy_input.samplers import sample_energy
+from tardis.energy_input.util import (
+    H_CGS_KEV,
+    doppler_factor_3d,
+    get_index,
+    get_random_unit_vector,
+)
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.montecarlo.packet_source import BasePacketSource
 
@@ -34,7 +33,6 @@ class RadioactivePacketSource(BasePacketSource):
         taus,
         parents,
         average_positron_energies,
-        inventories,
         average_power_per_mass,
         **kwargs,
     ):
@@ -50,11 +48,12 @@ class RadioactivePacketSource(BasePacketSource):
         self.taus = taus
         self.parents = parents
         self.average_positron_energies = average_positron_energies
-        self.inventories = inventories
         self.average_power_per_mass = average_power_per_mass
         super().__init__(**kwargs)
 
-    @njit(**njit_dict_no_parallel)
+    def create_packet_mus(self, no_of_packets, *args, **kwargs):
+        return super().create_packet_mus(no_of_packets, *args, **kwargs)
+
     def create_packet_radii(
         self, no_of_packets, inner_velocity, outer_velocity
     ):
@@ -115,7 +114,7 @@ class RadioactivePacketSource(BasePacketSource):
             Positron creation mask
         """
         nu_energies = np.zeros(no_of_packets)
-        positrons = np.zeroes(no_of_packets)
+        positrons = np.zeros(no_of_packets)
         zs = np.random.random(no_of_packets)
         for i in range(no_of_packets):
             nu_energies[i] = sample_energy(energy, intensity)
@@ -143,9 +142,9 @@ class RadioactivePacketSource(BasePacketSource):
         array
             Array of direction vectors
         """
-        directions = np.zeros((no_of_packets, 3))
+        directions = np.zeros((3, no_of_packets))
         for i in range(no_of_packets):
-            directions[i, :] = get_random_unit_vector()
+            directions[:, i] = get_random_unit_vector()
 
         return directions
 
@@ -187,7 +186,6 @@ class RadioactivePacketSource(BasePacketSource):
         decay_times = z * start + (1 - z) * end
         return decay_times
 
-    @njit(**njit_dict_no_parallel)
     def create_packet_times_uniform_energy(
         self,
         no_of_packets,
@@ -227,7 +225,6 @@ class RadioactivePacketSource(BasePacketSource):
                 ) - end_tau * np.log(np.random.random())
         return decay_times
 
-    @njit(**njit_dict_no_parallel)
     def calculate_energy_factors(self, no_of_packets, start_time, decay_times):
         energy_factors = np.ones(no_of_packets)
         for i in range(no_of_packets):
@@ -262,20 +259,26 @@ class RadioactivePacketSource(BasePacketSource):
         energy_plot_df_rows = np.zeros((number_of_packets, 8))
         energy_plot_positron_rows = np.zeros((number_of_packets, 4))
 
+        locations = np.zeros((3, number_of_packets))
+        directions = np.zeros((3, number_of_packets))
+        packet_energies_rf = np.zeros(number_of_packets)
+        packet_energies_cmf = np.zeros(number_of_packets)
+        nus_rf = np.zeros(number_of_packets)
+        nus_cmf = np.zeros(number_of_packets)
+        shells = np.zeros(number_of_packets)
+        times = np.zeros(number_of_packets)
+        statuses = np.ones(number_of_packets, dtype=np.int64) * 3
+
         positronium_energy, positronium_intensity = positronium_continuum()
 
         packet_index = 0
         # go through each shell
-        for k, shell in enumerate(decays_per_shell):
-            isotope_packet_count_df = decays_per_isotope.iloc[k]
+        for shell_number, pkts in enumerate(decays_per_shell):
+            isotope_packet_count_df = decays_per_isotope.T.iloc[shell_number]
 
-            # packet index
-            i = 0
-            for (
-                isotope_name,
-                isotope_packet_count,
-            ) in isotope_packet_count_df.items():
-                # get isotope information
+            for isotope_name, isotope_packet_count in zip(
+                self.gamma_ray_lines.keys(), isotope_packet_count_df.values
+            ):
                 isotope_energy = self.gamma_ray_lines[isotope_name][0, :]
                 isotope_intensity = self.gamma_ray_lines[isotope_name][1, :]
                 isotope_positron_fraction = self.calculate_positron_fraction(
@@ -293,8 +296,8 @@ class RadioactivePacketSource(BasePacketSource):
                 # sample radii at time = 0
                 initial_radii = self.create_packet_radii(
                     isotope_packet_count,
-                    self.inner_velocities[k],
-                    self.outer_velocities[k],
+                    self.inner_velocities[shell_number],
+                    self.outer_velocities[shell_number],
                 )
 
                 # sample directions (valid at all times)
@@ -334,7 +337,7 @@ class RadioactivePacketSource(BasePacketSource):
                 )
 
                 # get the packet shell index
-                initial_shells = np.ones(isotope_packet_count) * k
+                initial_shells = np.ones(isotope_packet_count) * shell_number
 
                 # the individual gamma-ray energies that make up a packet
                 # co-moving frame, including positronium formation
@@ -372,16 +375,40 @@ class RadioactivePacketSource(BasePacketSource):
                 initial_nus_rf = np.zeros(isotope_packet_count)
                 for i in range(isotope_packet_count):
                     doppler_factor = doppler_factor_3d(
-                        initial_directions[i],
-                        initial_locations[i],
+                        initial_directions[:, i],
+                        initial_locations[:, i],
                         initial_times[i],
                     )
                     initial_packet_energies_rf[i] = (
                         initial_packet_energies_cmf[i] / doppler_factor
                     )
                     initial_nus_rf[i] = initial_nus_cmf[i] / doppler_factor
+                    packet_index += 1
 
-        locations = np.stack()
+                locations[
+                    :, packet_index - isotope_packet_count : packet_index
+                ] = initial_locations
+                directions[
+                    :, packet_index - isotope_packet_count : packet_index
+                ] = initial_directions
+                packet_energies_rf[
+                    packet_index - isotope_packet_count : packet_index
+                ] = initial_packet_energies_rf
+                packet_energies_cmf[
+                    packet_index - isotope_packet_count : packet_index
+                ] = initial_packet_energies_cmf
+                nus_rf[
+                    packet_index - isotope_packet_count : packet_index
+                ] = initial_nus_rf
+                nus_cmf[
+                    packet_index - isotope_packet_count : packet_index
+                ] = initial_nus_cmf
+                shells[
+                    packet_index - isotope_packet_count : packet_index
+                ] = initial_shells
+                times[
+                    packet_index - isotope_packet_count : packet_index
+                ] = initial_times
 
         return GXPacketCollection(
             locations,
@@ -390,11 +417,11 @@ class RadioactivePacketSource(BasePacketSource):
             packet_energies_cmf,
             nus_rf,
             nus_cmf,
+            statuses,
             shells,
             times,
         )
 
-    @njit(**njit_dict_no_parallel)
     def calculate_positron_fraction(
         self, positron_energy, isotope_energy, isotope_intensity
     ):
