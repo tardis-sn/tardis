@@ -58,7 +58,10 @@ def get_chain_decay_power_per_ejectamass(
 
         # this is the total decay energy from gamma-rays and positrons for the end of chain isotope
         # endecay = get_decaypath_lastnucdecayenergy(decaypathindex)
-        endecay = average_energies[end_isotope] + average_positron_energies[end_isotope]
+        endecay = (
+            average_energies[end_isotope]
+            + average_positron_energies[end_isotope]
+        )
 
         print("Decay energy, abundance, tau")
         print(endecay)
@@ -106,7 +109,9 @@ def calculate_total_decays(inventories, time_delta):
     for shell, isotopes in inventories.items():
         total_decays[shell] = {}
         for isotope, inventory in isotopes.items():
-            total_decays[shell][isotope] = inventory.cumulative_decays(time_delta.value)
+            total_decays[shell][isotope] = inventory.cumulative_decays(
+                time_delta.value
+            )
     return total_decays
 
 
@@ -397,7 +402,9 @@ def distribute_packets(decay_energy, energy_per_packet):
         for name, isotope in isotopes.items():
             packets_per_isotope[shell][name] = {}
             for line, energy in isotope.items():
-                packets_per_isotope[shell][name][line] = int(energy / energy_per_packet)
+                packets_per_isotope[shell][name][line] = int(
+                    energy / energy_per_packet
+                )
 
     packets_per_isotope_list = []
     for shell, parent_isotope in packets_per_isotope.items():
@@ -426,7 +433,9 @@ def packets_per_isotope(fractional_decay_energy, decayed_packet_count_dict):
     packets_per_isotope = {
         shell: {
             parent_isotope: {
-                isotopes: fractional_decay_energy[shell][parent_isotope][isotopes]
+                isotopes: fractional_decay_energy[shell][parent_isotope][
+                    isotopes
+                ]
                 * decayed_packet_count_dict[shell][parent_isotope]
                 for isotopes in fractional_decay_energy[shell][parent_isotope]
             }

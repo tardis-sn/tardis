@@ -50,7 +50,6 @@ def gamma_packet_loop(
     energy_df_rows,
     energy_plot_df_rows,
     energy_out,
-    packets_out,
     packets_info_array,
 ):
     """Propagates packets through the simulation
@@ -289,9 +288,6 @@ def gamma_packet_loop(
                     energy_out[bin_index, time_index] += rest_energy / (
                         bin_width * dt
                     )
-                    packets_out[bin_index] = np.array(
-                        [bin_index, i, rest_energy, packet.Z, packet.A]
-                    )
                     packet.status = GXPacketStatus.ESCAPED
                     escaped_packets += 1
                     if scattered:
@@ -322,7 +318,6 @@ def gamma_packet_loop(
         energy_plot_df_rows,
         energy_out,
         deposition_estimator,
-        packets_out,
         bin_width,
         packets_info_array,
     )
