@@ -10,7 +10,11 @@ from plotly.callbacks import BoxSelector
 import ipywidgets as ipw
 
 from tardis.analysis import LastLineInteraction
-from tardis.util.base import species_tuple_to_string, species_string_to_tuple
+from tardis.util.base import (
+    species_tuple_to_string,
+    species_string_to_tuple,
+    is_notebook,
+)
 from tardis.visualization.widgets.util import (
     create_table_widget,
     TableSummaryLabel,
@@ -668,68 +672,71 @@ class LineInfoWidget:
         ipywidgets.Box
             Line info widget containing all component widgets
         """
-        # Set widths of widgets
-        self.species_interactions_table.layout.width = "350px"
-        self.last_line_counts_table.layout.width = "450px"
-        self.total_packets_label.update_and_resize(0)
-        self.group_mode_dropdown.layout.width = "auto"
+        if not is_notebook():
+            print("Please use a notebook to display the widget")
+        else:
+            # Set widths of widgets
+            self.species_interactions_table.layout.width = "350px"
+            self.last_line_counts_table.layout.width = "450px"
+            self.total_packets_label.update_and_resize(0)
+            self.group_mode_dropdown.layout.width = "auto"
 
-        # Attach event listeners to widgets
-        spectrum_trace = self.figure_widget.data[0]
-        spectrum_trace.on_selection(self._spectrum_selection_handler)
-        self.filter_mode_buttons.observe(
-            self._filter_mode_toggle_handler, names="index"
-        )
-        self.species_interactions_table.on(
-            "selection_changed", self._species_intrctn_selection_handler
-        )
-        self.group_mode_dropdown.observe(
-            self._group_mode_dropdown_handler, names="index"
-        )
+            # Attach event listeners to widgets
+            spectrum_trace = self.figure_widget.data[0]
+            spectrum_trace.on_selection(self._spectrum_selection_handler)
+            self.filter_mode_buttons.observe(
+                self._filter_mode_toggle_handler, names="index"
+            )
+            self.species_interactions_table.on(
+                "selection_changed", self._species_intrctn_selection_handler
+            )
+            self.group_mode_dropdown.observe(
+                self._group_mode_dropdown_handler, names="index"
+            )
 
-        selection_box_symbol = (
-            "<span style='display: inline-block; "
-            f"background-color: {self.COLORS['selection_area']}; "
-            f"border: 1px solid {self.COLORS['selection_border']}; "
-            "width: 0.8em; height: 1.2em; vertical-align: middle;'></span>"
-        )
+            selection_box_symbol = (
+                "<span style='display: inline-block; "
+                f"background-color: {self.COLORS['selection_area']}; "
+                f"border: 1px solid {self.COLORS['selection_border']}; "
+                "width: 0.8em; height: 1.2em; vertical-align: middle;'></span>"
+            )
 
-        table_container_left = ipw.VBox(
-            [
-                self.ui_control_description(
-                    "Filter selected wavelength range "
-                    f"( {selection_box_symbol} ) by"
-                ),
-                self.filter_mode_buttons,
-                self.species_interactions_table,
-            ],
-            layout=dict(margin="0px 15px"),
-        )
-
-        table_container_right = ipw.VBox(
-            [
-                self.ui_control_description("Group packet counts by"),
-                self.group_mode_dropdown,
-                self.last_line_counts_table,
-                self.total_packets_label.widget,
-            ],
-            layout=dict(margin="0px 15px"),
-        )
-
-        return ipw.VBox(
-            [
-                self.figure_widget,
-                ipw.Box(
-                    [
-                        table_container_left,
-                        table_container_right,
-                    ],
-                    layout=dict(
-                        display="flex",
-                        align_items="flex-start",
-                        justify_content="center",
-                        height="420px",
+            table_container_left = ipw.VBox(
+                [
+                    self.ui_control_description(
+                        "Filter selected wavelength range "
+                        f"( {selection_box_symbol} ) by"
                     ),
-                ),
-            ]
-        )
+                    self.filter_mode_buttons,
+                    self.species_interactions_table,
+                ],
+                layout=dict(margin="0px 15px"),
+            )
+
+            table_container_right = ipw.VBox(
+                [
+                    self.ui_control_description("Group packet counts by"),
+                    self.group_mode_dropdown,
+                    self.last_line_counts_table,
+                    self.total_packets_label.widget,
+                ],
+                layout=dict(margin="0px 15px"),
+            )
+
+            return ipw.VBox(
+                [
+                    self.figure_widget,
+                    ipw.Box(
+                        [
+                            table_container_left,
+                            table_container_right,
+                        ],
+                        layout=dict(
+                            display="flex",
+                            align_items="flex-start",
+                            justify_content="center",
+                            height="420px",
+                        ),
+                    ),
+                ]
+            )

@@ -1,6 +1,7 @@
-import astropy.units as u
+import logging
 import numpy as np
 import pandas as pd
+import astropy.units as u
 import radioactivedecay as rd
 from numba import njit
 from numba.typed import List
@@ -19,6 +20,8 @@ from tardis.montecarlo.montecarlo_numba.opacities import M_P
 # distance: cm
 # mass: g
 # time: s
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
 def get_nuclide_atomic_number(nuclide):
@@ -108,18 +111,17 @@ def calculate_positron_fraction(
 def initialize_packets(
     decays_per_isotope,
     packet_energy,
-    gamma_ray_lines,
     positronium_fraction,
     inner_velocities,
     outer_velocities,
+    gamma_ray_lines,
+    average_positron_energies,
     inv_volume_time,
     times,
     energy_df_rows,
     effective_times,
     taus,
     parents,
-    average_positron_energies,
-    inventories,
     average_power_per_mass,
 ):
     """Initialize a list of GXPacket objects for the simulation
@@ -164,28 +166,32 @@ def initialize_packets(
     packets = List()
 
     number_of_packets = decays_per_isotope.sum().sum()
-    decays_per_shell = decays_per_isotope.T.sum().values
+    decays_per_shell = decays_per_isotope.sum().values
 
     energy_plot_df_rows = np.zeros((number_of_packets, 8))
     energy_plot_positron_rows = np.zeros((number_of_packets, 4))
 
     positronium_energy, positronium_intensity = positronium_continuum()
+    isotopes = list(gamma_ray_lines.keys())
 
     packet_index = 0
-    for k, shell in enumerate(decays_per_shell):
+    logger.info("Isotope packet count dataframe")
+    for shell_number, pkts in enumerate(decays_per_shell):
         initial_radii = initial_packet_radius(
-            shell, inner_velocities[k], outer_velocities[k]
+            pkts, inner_velocities[shell_number], outer_velocities[shell_number]
         )
 
-        isotope_packet_count_df = decays_per_isotope.iloc[k]
-
+        isotope_packet_count_df = decays_per_isotope.T.iloc[shell_number]
+        logger.info(isotope_packet_count_df)
         i = 0
-        for (
-            isotope_name,
-            isotope_packet_count,
-        ) in isotope_packet_count_df.items():
+        for isotope_name, isotope_packet_count in zip(
+            isotopes, isotope_packet_count_df.values
+        ):
             isotope_energy = gamma_ray_lines[isotope_name][0, :]
             isotope_intensity = gamma_ray_lines[isotope_name][1, :]
+            isotope = rd.Nuclide(isotope_name)
+            atomic_number = isotope.Z
+            mass_number = isotope.A
             isotope_positron_fraction = calculate_positron_fraction(
                 average_positron_energies[isotope_name],
                 isotope_energy,
@@ -206,17 +212,18 @@ def initialize_packets(
                     positronium_intensity,
                     positronium_fraction,
                     packet_energy,
-                    k,
+                    shell_number,
                     tau_start,
                     tau_end,
-                    initial_radii[i],
+                    initial_radii[c],
                     times,
                     effective_times,
-                    inventories[k],
                     average_power_per_mass,
+                    atomic_number,
+                    mass_number,
                 )
 
-                energy_df_rows[k, decay_time_index] += (
+                energy_df_rows[shell_number, decay_time_index] += (
                     isotope_positron_fraction * packet_energy * 1000
                 )
 
@@ -254,6 +261,16 @@ def initialize_packets(
     )
 
 
+def calculate_ejecta_velocity_volume(model):
+    outer_velocities = model.v_outer.to("cm/s").value
+    inner_velocities = model.v_inner.to("cm/s").value
+    ejecta_velocity_volume = (
+        4 * np.pi / 3 * (outer_velocities**3.0 - inner_velocities**3.0)
+    )
+
+    return ejecta_velocity_volume
+
+
 def calculate_total_decays(inventories, time_delta):
     """Function to create inventories of isotope
 
@@ -271,13 +288,14 @@ def calculate_total_decays(inventories, time_delta):
             list of total decays for x g of isotope for time 't'
     """
     time_delta = u.Quantity(time_delta, u.s)
-
-    total_decays_list = []
-    for inv in inventories:
-        total_decays = inv.cumulative_decays(time_delta.value)
-        total_decays_list.append(total_decays)
-
-    return total_decays_list
+    total_decays = {}
+    for shell, isotopes in inventories.items():
+        total_decays[shell] = {}
+        for isotope, inventory in isotopes.items():
+            total_decays[shell][isotope] = inventory.cumulative_decays(
+                time_delta.value
+            )
+    return total_decays
 
 
 def create_isotope_dicts(raw_isotope_abundance, cell_masses):
@@ -339,35 +357,6 @@ def create_inventories_dict(isotope_dict):
             inv[shell][isotope] = rd.Inventory(name, "g")
 
     return inv
-
-
-def calculate_total_decays(inventory_dict, time_delta):
-    """
-    Function to calculate total decays for each isotope in each shell
-
-    Parameters
-    ----------
-    inventory_dict : Dict
-        dictionary of inventories for each shell
-    time_delta : float
-        time interval in units of time (days/mins/secs etc)
-
-    Returns
-    -------
-        total_decays : Dict
-            dictionary of total decays for each isotope in each shell
-
-    """
-    time_delta = u.Quantity(time_delta, u.s)
-    total_decays = {}
-    for shell, isotopes in inventory_dict.items():
-        total_decays[shell] = {}
-        for isotope, name in isotopes.items():
-            total_decays[shell][isotope] = name.cumulative_decays(
-                time_delta.value
-            )
-
-    return total_decays
 
 
 def calculate_average_energies(raw_isotope_abundance, gamma_ray_lines):
@@ -505,6 +494,36 @@ def decay_chain_energies(
     return decay_energy
 
 
+def fractional_decay_energy(decay_energy):
+    """Function to calculate fractional decay energy
+    Parameters
+    ----------
+    decay_energy : Dict
+        dictionary of decay chain energies for each isotope in each shell
+    Returns
+    -------
+    fractional_decay_energy : Dict
+        dictionary of fractional decay chain energies for each isotope in each shell
+    """
+    fractional_decay_energy = {
+        shell: {
+            parent_isotope: {
+                isotopes: (
+                    decay_energy[shell][parent_isotope][isotopes]
+                    / sum(decay_energy[shell][parent_isotope].values())
+                    if decay_energy[shell][parent_isotope][isotopes] != 0.0
+                    else 0.0
+                )
+                for isotopes in decay_energy[shell][parent_isotope]
+            }
+            for parent_isotope in decay_energy[shell]
+        }
+        for shell in decay_energy
+    }
+
+    return fractional_decay_energy
+
+
 def calculate_energy_per_mass(decay_energy, raw_isotope_abundance, cell_masses):
     """
     Function to calculate decay energy per mass for each isotope chain.
@@ -557,3 +576,89 @@ def calculate_energy_per_mass(decay_energy, raw_isotope_abundance, cell_masses):
     )
 
     return energy_per_mass, energy_df
+
+
+def distribute_packets(decay_energy, energy_per_packet):
+    packets_per_isotope = {}
+    for shell, isotopes in decay_energy.items():
+        packets_per_isotope[shell] = {}
+        for name, isotope in isotopes.items():
+            packets_per_isotope[shell][name] = {}
+            for line, energy in isotope.items():
+                packets_per_isotope[shell][name][line] = int(
+                    energy / energy_per_packet
+                )
+
+    packets_per_isotope_list = []
+    for shell, parent_isotope in packets_per_isotope.items():
+        for isotopes, isotope_dict in parent_isotope.items():
+            for name, value in isotope_dict.items():
+                packets_per_isotope_list.append(
+                    {
+                        "shell": shell,
+                        "element": name,
+                        "value": value,
+                    }
+                )
+
+    df = pd.DataFrame(packets_per_isotope_list)
+    packets_per_isotope_df = pd.pivot_table(
+        df,
+        values="value",
+        index="element",
+        columns="shell",
+    )
+
+    return packets_per_isotope_df
+
+
+def packets_per_isotope(fractional_decay_energy, decayed_packet_count_dict):
+    packets_per_isotope = {
+        shell: {
+            parent_isotope: {
+                isotopes: fractional_decay_energy[shell][parent_isotope][
+                    isotopes
+                ]
+                * decayed_packet_count_dict[shell][parent_isotope]
+                for isotopes in fractional_decay_energy[shell][parent_isotope]
+            }
+            for parent_isotope in fractional_decay_energy[shell]
+        }
+        for shell in fractional_decay_energy
+    }
+
+    packets_per_isotope_list = []
+    for shell, parent_isotope in packets_per_isotope.items():
+        for isotopes, isotope_dict in parent_isotope.items():
+            for name, value in isotope_dict.items():
+                packets_per_isotope_list.append(
+                    {
+                        "shell": shell,
+                        "element": name,
+                        "value": value,
+                    }
+                )
+
+    df = pd.DataFrame(packets_per_isotope_list)
+    packets_per_isotope_df = pd.pivot_table(
+        df,
+        values="value",
+        index="element",
+        columns="shell",
+    )
+
+    return packets_per_isotope_df
+
+
+def calculate_average_power_per_mass(energy_per_mass, time_delta):
+    # Time averaged energy per mass for constant packet count
+    average_power_per_mass = energy_per_mass / (time_delta)
+
+    return average_power_per_mass
+
+
+def iron_group_fraction_per_shell(model):
+    # Taking iron group to be elements 21-30
+    # Used as part of the approximations for photoabsorption and pair creation
+    # Dependent on atomic data
+    return model.abundance.loc[(21):(30)].sum(axis=0)
