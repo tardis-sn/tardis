@@ -19,6 +19,7 @@ class GXPacketStatus(IntEnum):
     PAIR_CREATION = 2
     IN_PROCESS = 3
     END = 4
+    ESCAPED = 5
 
 
 gxpacket_spec = [
@@ -92,7 +93,6 @@ def initialize_packet_properties(
     initial_radius,
     times,
     effective_times,
-    inventory,
     average_power_per_mass,
     uniform_packet_energies=True,
 ):

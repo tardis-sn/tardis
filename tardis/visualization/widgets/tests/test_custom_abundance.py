@@ -5,6 +5,7 @@ import tardis
 import numpy as np
 import numpy.testing as npt
 
+from tardis.tests.test_util import monkeysession
 from tardis.visualization.widgets.custom_abundance import (
     CustomAbundanceWidgetData,
     CustomYAML,
@@ -30,7 +31,7 @@ def yml_data(example_configuration_dir: Path, atomic_dataset):
 
 
 @pytest.fixture(scope="module")
-def caw(yml_data):
+def caw(yml_data, monkeysession):
     """Fixture to contain a CustomAbundanceWidget
     instance generated from a YAML file tardis_configv1_verysimple.yml.
 
@@ -40,6 +41,10 @@ def caw(yml_data):
         CustomAbundanceWidget generated from a YAML
     """
     caw = CustomAbundanceWidget(yml_data)
+    monkeysession.setattr(
+        "tardis.visualization.widgets.custom_abundance.is_notebook",
+        lambda: True,
+    )
     caw.display()
     return caw
 
