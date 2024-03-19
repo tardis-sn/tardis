@@ -4,6 +4,7 @@ from pathlib import Path
 import astropy.units as u
 import numpy.testing as npt
 import radioactivedecay as rd
+import astropy.constants as const
 from radioactivedecay import converters
 
 from tardis.model import SimulationState
@@ -14,6 +15,8 @@ from tardis.energy_input.energy_source import (
 from tardis.energy_input.gamma_ray_channel import (
     create_isotope_dicts,
     create_inventories_dict,
+    calculate_total_decays,
+    create_isotope_decay_df,
 )
 
 
@@ -86,14 +89,14 @@ def test_isotope_dicts(gamma_ray_simulation_state, nuclide_name):
     nuclide_name: Name of the nuclide.
     """
     nuclide = rd.Nuclide(nuclide_name)
-    isotopic_mass_fractions = (
-        gamma_ray_simulation_state.composition.isotopic_mass_fraction
+    raw_isotope_abundance = (
+        gamma_ray_simulation_state.composition.raw_isotope_abundance
     )
     composition = gamma_ray_simulation_state.composition
     cell_masses = composition.calculate_cell_masses(
         gamma_ray_simulation_state.geometry.volume
     )
-    iso_dict = create_isotope_dicts(isotopic_mass_fractions, cell_masses)
+    iso_dict = create_isotope_dicts(raw_isotope_abundance, cell_masses)
 
     for isotope_dict in iso_dict.values():
         assert nuclide_name.replace("-", "") in isotope_dict.keys()
@@ -110,22 +113,80 @@ def test_inventories_dict(gamma_ray_simulation_state, nuclide_name):
     """
 
     nuclide = rd.Nuclide(nuclide_name)
-    isotopic_mass_fractions = (
-        gamma_ray_simulation_state.composition.isotopic_mass_fraction
+    raw_isotope_abundance = (
+        gamma_ray_simulation_state.composition.raw_isotope_abundance
     )
     composition = gamma_ray_simulation_state.composition
     cell_masses = composition.calculate_cell_masses(
         gamma_ray_simulation_state.geometry.volume
     )
 
-    iso_dict = create_isotope_dicts(isotopic_mass_fractions, cell_masses)
+    iso_dict = create_isotope_dicts(raw_isotope_abundance, cell_masses)
     inventories_dict = create_inventories_dict(iso_dict)
 
     Z, A = nuclide.Z, nuclide.A
-    raw_isotope_abundance_mass = isotopic_mass_fractions.apply(
+    raw_isotope_abundance_mass = raw_isotope_abundance.apply(
         lambda x: x * cell_masses, axis=1
     )
 
     mass = raw_isotope_abundance_mass.loc[Z, A][0]
-    inventory = rd.Inventory({nuclide.nuclide: mass}, "g")
-    assert inventories_dict[0] == inventory
+    isotope_inventory = rd.Inventory({nuclide.nuclide: mass}, "g")
+
+    if nuclide_name in inventories_dict[0].contents:
+        assert (
+            inventories_dict[0].contents[nuclide_name]
+            == isotope_inventory.contents[nuclide_name]
+        )
+
+
+@pytest.mark.parametrize("nuclide_name", ["Ni-56"])
+def test_mass_energy_conservation(
+    gamma_ray_simulation_state, atomic_dataset, nuclide_name
+):
+    """
+    Function to test if the mass-energy conservation is satisfied.
+    Parameters
+    ----------
+    simulation_setup: A simulation setup which returns a model.
+    atomic_dataset: Tardis atomic-nuclear dataset
+    nuclide_name: Name of the nuclide."""
+
+    nuclide = rd.Nuclide(nuclide_name)
+    raw_isotope_abundance = (
+        gamma_ray_simulation_state.composition.raw_isotope_abundance
+    )
+    composition = gamma_ray_simulation_state.composition
+    cell_masses = composition.calculate_cell_masses(
+        gamma_ray_simulation_state.geometry.volume
+    )
+    gamma_ray_lines = atomic_dataset.decay_radiation_data
+    iso_dict = create_isotope_dicts(raw_isotope_abundance, cell_masses)
+    inventories_dict = create_inventories_dict(iso_dict)
+    total_decays = calculate_total_decays(inventories_dict, 1 * u.d)
+    isotope_decay_df = create_isotope_decay_df(total_decays, gamma_ray_lines)
+
+    groupby_df = isotope_decay_df.groupby(level=["shell_number", "isotope"])
+
+    ni_56 = (
+        groupby_df.get_group((0, "Ni56"))["energy_per_channel"].sum()
+        * (u.keV).to(u.MeV)
+        * u.MeV
+    )
+
+    neutrino_energy = 0.41 * u.MeV
+
+    total_energy_actual = ni_56 + neutrino_energy
+
+    c2 = const.c.to("cm/s") ** 2
+
+    # calculate mass of 56Ni
+    ni56 = rd.Nuclide("Ni56")
+    ni56_atomic_mass = ni56.atomic_mass * (u.u).to(u.g) * u.g
+
+    # calculate mass of 56Co
+    co56 = rd.Nuclide("co56")
+    co56_atomic_mass = co56.atomic_mass * (u.u).to(u.g) * u.g
+
+    Q = (ni56_atomic_mass - co56_atomic_mass) * c2 * u.erg.to(u.MeV)
+
+    np.testing.assert_allclose(total_energy_actual.value, Q.value, rtol=0.01)

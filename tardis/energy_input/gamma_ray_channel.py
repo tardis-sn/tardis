@@ -101,18 +101,18 @@ def calculate_total_decays(inventories, time_delta):
             flattened_dict[(shell, new_key)] = decay_value
 
     indices = pd.MultiIndex.from_tuples(
-        flattened_dict.keys(), names=["Shell_number", "Isotope"]
+        flattened_dict.keys(), names=["shell_number", "isotope"]
     )
     cumulative_decay_df = pd.DataFrame(
         list(flattened_dict.values()),
         index=indices,
-        columns=["Number_of_decays"],
+        columns=["number_of_decays"],
     )
 
     return cumulative_decay_df
 
 
-def create_isotope_decay_df(cumulative_decay_df, atom_data_file):
+def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
     """
     Function to create a dataframe of isotopes for each shell with their decay mode, number of decays, radiation type,
     radiation energy and radiation intensity.
@@ -121,7 +121,7 @@ def create_isotope_decay_df(cumulative_decay_df, atom_data_file):
     ----------
     cumulative_decay_df : pd.DataFrame
         dataframe of isotopes for each shell with their number of decays.
-    atom_data_file : str
+    gamma_ray_lines : str
         path to the atomic data file.
 
     Returns
@@ -131,20 +131,41 @@ def create_isotope_decay_df(cumulative_decay_df, atom_data_file):
         radiation energy and radiation intensity.
     """
 
-    gamma_ray_lines = get_nuclear_lines_database(atom_data_file)
-    gamma_ray_lines.reset_index(inplace=True)
-    gamma_ray_lines.set_index(["Isotope", "A", "Z"], inplace=True)
-
+    gamma_ray_lines.rename_axis("isotope", inplace=True)
+    gamma_ray_lines.drop(columns=["A", "Z"], inplace=True)
     gamma_ray_lines_df = gamma_ray_lines[
         ["Decay Mode", "Radiation", "Rad Energy", "Rad Intensity"]
     ]
 
+    columns = [
+        "decay_mode",
+        "rad_type",
+        "rad_energy",
+        "rad_intensity",
+    ]
+    gamma_ray_lines_df.columns = columns
     isotope_decay_df = pd.merge(
         cumulative_decay_df.reset_index(),
         gamma_ray_lines_df.reset_index(),
-        on=["Isotope"],
+        on=["isotope"],
     )
-    isotope_decay_df
-    isotope_decay_df.set_index(["Shell_number", "Isotope"], inplace=True)
+    isotope_decay_df.set_index(["shell_number", "isotope"], inplace=True)
+    isotope_decay_df["decay_mode"] = isotope_decay_df["decay_mode"].astype(
+        "category"
+    )
+    isotope_decay_df["rad_type"] = isotope_decay_df["rad_type"].astype(
+        "category"
+    )
+    isotope_decay_df["norm_rad_intensity"] = (
+        isotope_decay_df["rad_intensity"] / 100
+    )
+    isotope_decay_df["energy_per_channel"] = (
+        isotope_decay_df["norm_rad_intensity"] * isotope_decay_df["rad_energy"]
+    )
+    isotope_decay_df["decay_energy"] = (
+        isotope_decay_df["norm_rad_intensity"]
+        * isotope_decay_df["rad_energy"]
+        * isotope_decay_df["number_of_decays"]
+    )
 
     return isotope_decay_df
