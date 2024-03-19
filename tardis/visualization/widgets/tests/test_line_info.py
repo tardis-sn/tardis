@@ -4,6 +4,7 @@ import numpy as np
 from plotly.callbacks import Points, BoxSelector
 from tardis.visualization.widgets.line_info import LineInfoWidget
 from tardis.util.base import species_string_to_tuple
+from tardis.tests.test_util import monkeysession
 
 
 @pytest.fixture(scope="class")
@@ -141,12 +142,15 @@ class TestLineInfoWidgetEvents:
             None,  # No selection of wavelength range
         ],
     )
-    def liw_with_selection(self, simulation_verysimple, request):
+    def liw_with_selection(self, simulation_verysimple, request, monkeysession):
         """
         Makes different wavelength range selection on figure (specified by
         params) after creating a LineInfoWidget object.
         """
         liw = LineInfoWidget.from_simulation(simulation_verysimple)
+        monkeysession.setattr(
+            "tardis.visualization.widgets.line_info.is_notebook", lambda: True
+        )
         # To attach event listeners to component widgets of line_info_widget
         _ = liw.display()
 
