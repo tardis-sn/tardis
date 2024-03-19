@@ -8,7 +8,6 @@ from tardis.io.atom_data.atom_web_download import (
     download_atom_data,
 )
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -27,6 +26,7 @@ def resolve_atom_data_fname(fname):
         resolved fpath
     """
 
+    fname = Path(fname)
     if os.path.exists(fname):
         return fname
 
