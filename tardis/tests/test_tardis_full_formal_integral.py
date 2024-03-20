@@ -79,7 +79,7 @@ class TestTransportSimpleFormalIntegral:
         j_blue_estimator = refdata("j_blue_estimator").values
 
         npt.assert_allclose(
-            transport.transport_state.estimators.j_blue_estimator,
+            transport.transport_state.radfield_mc_estimators.j_blue_estimator,
             j_blue_estimator,
         )
 

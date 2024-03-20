@@ -62,8 +62,10 @@ def test_montecarlo_main_loop(
     transport_state = montecarlo_main_loop_simulation.transport.transport_state
     actual_energy = transport_state.packet_collection.output_energies
     actual_nu = transport_state.packet_collection.output_nus
-    actual_nu_bar_estimator = transport_state.estimators.nu_bar_estimator
-    actual_j_estimator = transport_state.estimators.j_estimator
+    actual_nu_bar_estimator = (
+        transport_state.radfield_mc_estimators.nu_bar_estimator
+    )
+    actual_j_estimator = transport_state.radfield_mc_estimators.j_estimator
 
     # Compare
     npt.assert_allclose(
@@ -116,8 +118,8 @@ def test_montecarlo_main_loop_vpacket_log(
 
     actual_energy = transport_state.packet_collection.output_energies
     actual_nu = transport_state.packet_collection.output_nus
-    actual_nu_bar_estimator = transport_state.estimators.nu_bar_estimator
-    actual_j_estimator = transport_state.estimators.j_estimator
+    actual_nu_bar_estimator = transport_state.nu_bar_estimator
+    actual_j_estimator = transport_state.j_estimator
     actual_vpacket_log_nus = transport_state.vpacket_tracker.nus
     actual_vpacket_log_energies = transport_state.vpacket_tracker.energies
 

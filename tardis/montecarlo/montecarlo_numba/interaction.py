@@ -1,28 +1,27 @@
-from numba import njit
 import numpy as np
-from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
-from tardis.montecarlo.montecarlo_numba.numba_interface import (
-    LineInteractionType,
-)
+from numba import njit
 
+from tardis import constants as const
 from tardis.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
-from tardis.transport.frame_transformations import (
-    get_doppler_factor,
-    get_inverse_doppler_factor,
-    angle_aberration_CMF_to_LF,
+from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+from tardis.montecarlo.montecarlo_numba.macro_atom import (
+    MacroAtomTransitionType,
+    macro_atom,
+)
+from tardis.montecarlo.montecarlo_numba.numba_interface import (
+    LineInteractionType,
 )
 from tardis.montecarlo.montecarlo_numba.r_packet import (
-    InteractionType,
     PacketStatus,
 )
 from tardis.montecarlo.montecarlo_numba.utils import get_random_mu
-from tardis.montecarlo.montecarlo_numba.macro_atom import (
-    macro_atom,
-    MacroAtomTransitionType,
+from tardis.transport.frame_transformations import (
+    angle_aberration_CMF_to_LF,
+    get_doppler_factor,
+    get_inverse_doppler_factor,
 )
-from tardis import constants as const
 
 K_B = const.k_B.cgs.value
 H = const.h.cgs.value
@@ -129,7 +128,6 @@ def sample_nu_free_bound(opacity_state, shell, continuum_id):
     nu_fb_sampler : float
         Frequency of the free-bounds emission process
     """
-
     start = opacity_state.photo_ion_block_references[continuum_id]
     end = opacity_state.photo_ion_block_references[continuum_id + 1]
     phot_nus_block = opacity_state.phot_nus[start:end]
@@ -206,7 +204,6 @@ def macro_atom_event(
     time_explosion : float
     opacity_state : tardis.montecarlo.montecarlo_numba.numba_interface.OpacityState
     """
-
     transition_id, transition_type = macro_atom(
         destination_level_idx, r_packet.current_shell_id, opacity_state
     )
@@ -253,7 +250,6 @@ def bf_cooling(r_packet, time_explosion, opacity_state):
     time_explosion : float
     opacity_state : tardis.montecarlo.montecarlo_numba.numba_interface.OpacityState
     """
-
     fb_cooling_prob = opacity_state.p_fb_deactivation[
         :, r_packet.current_shell_id
     ]
@@ -276,7 +272,6 @@ def adiabatic_cooling(r_packet):
     ----------
     r_packet: tardis.montecarlo.montecarlo_numba.r_packet.RPacket
     """
-
     r_packet.status = PacketStatus.ADIABATIC_COOLING
 
 
@@ -290,7 +285,6 @@ def get_current_line_id(nu, line_list):
     nu : float
     line_list : np.ndarray
     """
-
     # Note: Since this reverses the array,
     # it may be faster to just write our own reverse-binary-search
 
@@ -311,7 +305,6 @@ def free_free_emission(r_packet, time_explosion, opacity_state):
     time_explosion : float
     opacity_state : tardis.montecarlo.montecarlo_numba.numba_interface.OpacityState
     """
-
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
@@ -338,7 +331,6 @@ def bound_free_emission(r_packet, time_explosion, opacity_state, continuum_id):
     opacity_state : tardis.montecarlo.montecarlo_numba.numba_interface.OpacityState
     continuum_id : int
     """
-
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
@@ -371,7 +363,6 @@ def thomson_scatter(r_packet, time_explosion):
     time_explosion : float
         time since explosion in seconds
     """
-
     old_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
@@ -407,7 +398,6 @@ def line_scatter(
     line_interaction_type : enum
     opacity_state : tardis.montecarlo.montecarlo_numba.numba_interface.OpacityState
     """
-
     old_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion
     )
@@ -447,7 +437,6 @@ def line_emission(r_packet, emission_line_id, time_explosion, opacity_state):
     time_explosion : float
     opacity_state : tardis.montecarlo.montecarlo_numba.numba_interface.OpacityState
     """
-
     r_packet.last_line_interaction_out_id = emission_line_id
     r_packet.last_line_interaction_shell_id = r_packet.current_shell_id
 

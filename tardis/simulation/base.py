@@ -172,22 +172,29 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
 
         if show_convergence_plots:
-            self.convergence_plots = ConvergencePlots(
-                iterations=self.iterations, **convergence_plots_kwargs
-            )
-
-            if "export_convergence_plots" in convergence_plots_kwargs:
-                if not isinstance(
-                    convergence_plots_kwargs["export_convergence_plots"], bool
-                ):
-                    raise TypeError(
-                        "Expected bool in export_convergence_plots argument"
-                    )
-                self.export_convergence_plots = convergence_plots_kwargs[
-                    "export_convergence_plots"
-                ]
+            if not is_notebook():
+                raise RuntimeError(
+                    "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
+                    "to False."
+                )
             else:
-                self.export_convergence_plots = False
+                self.convergence_plots = ConvergencePlots(
+                    iterations=self.iterations, **convergence_plots_kwargs
+                )
+
+        if "export_convergence_plots" in convergence_plots_kwargs:
+            if not isinstance(
+                convergence_plots_kwargs["export_convergence_plots"],
+                bool,
+            ):
+                raise TypeError(
+                    "Expected bool in export_convergence_plots argument"
+                )
+            self.export_convergence_plots = convergence_plots_kwargs[
+                "export_convergence_plots"
+            ]
+        else:
+            self.export_convergence_plots = False
 
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
@@ -282,7 +289,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         (
             estimated_t_rad,
-            estimated_w,
+            estimated_dilution_factor,
         ) = self.transport.transport_state.calculate_radiationfield_properties()
         estimated_t_inner = self.estimate_t_inner(
             self.simulation_state.t_inner,
@@ -295,7 +302,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.simulation_state.dilution_factor,
             self.simulation_state.t_inner,
             estimated_t_rad,
-            estimated_w,
+            estimated_dilution_factor,
             estimated_t_inner,
         )
 
@@ -308,7 +315,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
         next_dilution_factor = self.damped_converge(
             self.simulation_state.dilution_factor,
-            estimated_w,
+            estimated_dilution_factor,
             self.convergence_strategy.w.damping_constant,
         )
         if (
@@ -369,7 +376,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
 
-        estimators = self.transport.transport_state.estimators
+        estimators = self.transport.transport_state.radfield_mc_estimators
         if "j_blue_estimator" in self.plasma.outputs_dict:
             update_properties.update(
                 t_inner=next_t_inner,
@@ -633,7 +640,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         config,
         packet_source=None,
         virtual_packet_logging=False,
-        show_convergence_plots=True,
+        show_convergence_plots=False,
         show_progress_bars=True,
         **kwargs,
     ):
@@ -660,7 +667,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if atom_data is None:
             if "atom_data" in config:
                 if Path(config.atom_data).is_absolute():
-                    atom_data_fname = config.atom_data
+                    atom_data_fname = Path(config.atom_data)
                 else:
                     atom_data_fname = (
                         Path(config.config_dirname) / config.atom_data

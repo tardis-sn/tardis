@@ -59,8 +59,11 @@ nlte_properties = PlasmaPropertyCollection(
         BetaSobolev,
     ]
 )
-nlte_solver_properties = PlasmaPropertyCollection(
-    [NLTEIndexHelper, NLTERateEquationSolver]
+nlte_root_solver_properties = PlasmaPropertyCollection(
+    [NLTEIndexHelper, NLTEPopulationSolverRoot]
+)
+nlte_lu_solver_properties = PlasmaPropertyCollection(
+    [NLTEIndexHelper, NLTEPopulationSolverLU]
 )
 helium_nlte_properties = PlasmaPropertyCollection(
     [

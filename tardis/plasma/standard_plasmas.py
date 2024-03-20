@@ -8,7 +8,8 @@ import pandas as pd
 from tardis.io.atom_data import AtomData
 from tardis.plasma.properties.level_population import LevelNumberDensity
 from tardis.plasma.properties.nlte_rate_equation_solver import (
-    NLTERateEquationSolver,
+    NLTEPopulationSolverLU,
+    NLTEPopulationSolverRoot,
 )
 from tardis.plasma.properties.rate_matrix_index import NLTEIndexHelper
 from tardis.util.base import species_string_to_tuple
@@ -34,7 +35,8 @@ from tardis.plasma.properties.property_collections import (
     adiabatic_cooling_properties,
     two_photon_properties,
     isotope_properties,
-    nlte_solver_properties,
+    nlte_lu_solver_properties,
+    nlte_root_solver_properties,
 )
 from tardis.plasma.exceptions import PlasmaConfigError
 
@@ -89,6 +91,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
     atom_data.prepare_atom_data(
         simulation_state.abundance.index,
         line_interaction_type=config.plasma.line_interaction_type,
+        continuum_interaction_species=continuum_interaction_species,
         nlte_species=nlte_species,
     )
 
@@ -130,7 +133,7 @@ def assemble_plasma(config, simulation_state, atom_data=None):
 
     plasma_modules = basic_inputs + basic_properties
     property_kwargs = {}
-    if config.plasma.continuum_interaction.species:
+    if len(config.plasma.continuum_interaction.species) > 0:
         line_interaction_type = config.plasma.line_interaction_type
         if line_interaction_type != "macroatom":
             raise PlasmaConfigError(
@@ -187,7 +190,19 @@ def assemble_plasma(config, simulation_state, atom_data=None):
                 "nlte_ionization_species": config.plasma.nlte_ionization_species,
                 "nlte_excitation_species": config.plasma.nlte_excitation_species,
             }
-            plasma_modules += nlte_solver_properties
+            if config.plasma.nlte_solver == "lu":
+                plasma_modules += nlte_lu_solver_properties
+                logger.warning(
+                    "LU solver will be inaccurate for NLTE excitation, proceed with caution."
+                )
+            elif config.plasma.nlte_solver == "root":
+                plasma_modules += nlte_root_solver_properties
+            else:
+                raise PlasmaConfigError(
+                    "NLTE solver type unknown - {}".format(
+                        config.plasma.nlte_solver
+                    )
+                )
 
         kwargs.update(
             gamma_estimator=None,
@@ -299,8 +314,15 @@ def assemble_plasma(config, simulation_state, atom_data=None):
         elif (
             config.plasma.nlte_ionization_species
             or config.plasma.nlte_excitation_species
-        ):
-            property_kwargs[NLTERateEquationSolver] = dict(
+        ) and config.plasma.nlte_solver == "root":
+            property_kwargs[NLTEPopulationSolverRoot] = dict(
+                electron_densities=electron_densities
+            )
+        elif (
+            config.plasma.nlte_ionization_species
+            or config.plasma.nlte_excitation_species
+        ) and config.plasma.nlte_solver == "lu":
+            property_kwargs[NLTEPopulationSolverLU] = dict(
                 electron_densities=electron_densities
             )
         else:

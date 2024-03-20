@@ -119,6 +119,13 @@ properties:
     type: array
     default: []
     description: List of species treated with nlte excitation. In the format ["H I", "He II"] etc.
+  nlte_solver:
+    type: string
+    default: root
+    enum:
+      - root
+      - lu
+    description: Selects NLTE population equation solver approach.
 required:
 - ionization
 - excitation

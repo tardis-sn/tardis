@@ -2,22 +2,12 @@ import warnings
 
 import numpy as np
 from astropy import units as u
-from scipy.special import zeta
 
-from tardis import constants as const
 from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo.spectrum import TARDISSpectrum
-
-DILUTION_FACTOR_ESTIMATOR_CONSTANT = (
-    (const.c**2 / (2 * const.h))
-    * (15 / np.pi**4)
-    * (const.h / const.k_B) ** 4
-    / (4 * np.pi)
-).cgs.value
-
-T_RADIATIVE_ESTIMATOR_CONSTANT = (
-    (np.pi**4 / (15 * 24 * zeta(5, 1))) * (const.h / const.k_B)
-).cgs.value
+from tardis.montecarlo.estimators.dilute_blackbody_properties import (
+    MCDiluteBlackBodyRadFieldSolver,
+)
 
 
 class MonteCarloTransportState(HDFWriterMixin):
@@ -65,7 +55,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     def __init__(
         self,
         packet_collection,
-        estimators,
+        radfield_mc_estimators,
         spectrum_frequency,
         geometry_state,
         opacity_state,
@@ -73,7 +63,7 @@ class MonteCarloTransportState(HDFWriterMixin):
         vpacket_tracker=None,
     ):
         self.packet_collection = packet_collection
-        self.estimators = estimators
+        self.radfield_mc_estimators = radfield_mc_estimators
         self.spectrum_frequency = spectrum_frequency
         self._montecarlo_virtual_luminosity = u.Quantity(
             np.zeros_like(self.spectrum_frequency.value), "erg / s"
@@ -104,20 +94,17 @@ class MonteCarloTransportState(HDFWriterMixin):
         t_radiative : astropy.units.Quantity (float)
         dilution_factor : numpy.ndarray (float)
         """
-        estimated_t_radiative = (
-            T_RADIATIVE_ESTIMATOR_CONSTANT
-            * self.estimators.nu_bar_estimator
-            / self.estimators.j_estimator
-        ) * u.K
-        dilution_factor = self.estimators.j_estimator / (
-            4
-            * const.sigma_sb.cgs.value
-            * estimated_t_radiative.value**4
-            * (self.packet_collection.time_of_simulation)
-            * self.geometry_state.volume
+        dilute_bb_solver = MCDiluteBlackBodyRadFieldSolver()
+        dilute_bb_radfield = dilute_bb_solver.solve(
+            self.radfield_mc_estimators,
+            self.time_of_simulation,
+            self.geometry_state.volume,
         )
 
-        return estimated_t_radiative, dilution_factor
+        return (
+            dilute_bb_radfield.t_radiative,
+            dilute_bb_radfield.dilution_factor,
+        )
 
     @property
     def output_nu(self):
@@ -129,11 +116,11 @@ class MonteCarloTransportState(HDFWriterMixin):
 
     @property
     def nu_bar_estimator(self):
-        return self.estimators.nu_bar_estimator
+        return self.radfield_mc_estimators.nu_bar_estimator
 
     @property
     def j_estimator(self):
-        return self.estimators.j_estimator
+        return self.radfield_mc_estimators.j_estimator
 
     @property
     def time_of_simulation(self):
@@ -378,9 +365,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def virt_packet_last_interaction_in_nu(self):
         try:
-            return u.Quantity(
-                self.vpacket_tracker.last_interaction_in_nu, u.erg
-            )
+            return u.Quantity(self.vpacket_tracker.last_interaction_in_nu, u.Hz)
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_last_interaction_in_nu:"
@@ -394,7 +379,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def virt_packet_last_interaction_type(self):
         try:
-            return u.Quantity(self.vpacket_tracker.last_interaction_type, u.erg)
+            return self.vpacket_tracker.last_interaction_type
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_last_interaction_type:"
@@ -408,9 +393,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def virt_packet_last_line_interaction_in_id(self):
         try:
-            return u.Quantity(
-                self.vpacket_tracker.last_interaction_in_id, u.erg
-            )
+            return self.vpacket_tracker.last_interaction_in_id
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_last_line_interaction_in_id:"
@@ -424,9 +407,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def virt_packet_last_line_interaction_out_id(self):
         try:
-            return u.Quantity(
-                self.vpacket_tracker.last_interaction_out_id, u.erg
-            )
+            return self.vpacket_tracker.last_interaction_out_id
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_last_line_interaction_out_id:"
@@ -440,9 +421,7 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def virt_packet_last_line_interaction_shell_id(self):
         try:
-            return u.Quantity(
-                self.vpacket_tracker.last_interaction_shell_id, u.erg
-            )
+            return self.vpacket_tracker.last_interaction_shell_id
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_last_line_interaction_shell_id:"

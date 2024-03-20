@@ -1,17 +1,15 @@
-from numba import njit
 import numpy as np
 import radioactivedecay as rd
+from numba import njit
 
+from tardis import constants as const
+from tardis.energy_input.util import kappa_calculation
 from tardis.montecarlo.montecarlo_numba import (
     njit_dict_no_parallel,
 )
-
 from tardis.montecarlo.montecarlo_numba.numba_config import (
     SIGMA_THOMSON,
 )
-from tardis.energy_input.util import kappa_calculation
-
-from tardis import constants as const
 
 H = const.h.cgs.value
 M_E = const.m_e.cgs.value
@@ -119,7 +117,6 @@ def chi_bf_interpolator(opacity_state, nu, shell):
         Photoionization cross-sections of all bound-free continua for
         which absorption is possible for frequency `nu`.
     """
-
     current_continua = get_current_bound_free_continua(opacity_state, nu)
     chi_bfs = np.zeros(len(current_continua))
     x_sect_bfs = np.zeros(len(current_continua))
@@ -201,7 +198,6 @@ def chi_continuum_calculator(opacity_state, nu, shell):
 
     Returns
     -------
-
     chi_bf_tot : float
         Total bound-free opacity at frequency `nu`.
     chi_bf_contributions : numpy.ndarray, dtype float
@@ -267,9 +263,9 @@ def compton_opacity_calculation(energy, electron_density):
     (Rybicki & Lightman, 1979)
 
     $
-    \\rho / 2 p_m \\times 3/4 \\sigma_T ((1 + \kappa) / \kappa^3
-    ((2\kappa(1 + \kappa)) / (1 + 2\kappa) - \ln(1 + 2\kappa) + 1/(2\kappa) \ln(1 + 2\kappa)
-    - (1 + 3\kappa) / (1 + 2\kappa)^2)
+    \\rho / 2 p_m \\times 3/4 \\sigma_T ((1 + \\kappa) / \\kappa^3
+    ((2\\kappa(1 + \\kappa)) / (1 + 2\\kappa) - \\ln(1 + 2\\kappa) + 1/(2\\kappa) \\ln(1 + 2\\kappa)
+    - (1 + 3\\kappa) / (1 + 2\\kappa)^2)
     $
 
     Parameters

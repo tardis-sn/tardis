@@ -17,7 +17,9 @@ from tardis.io.model.readers.generic_readers import read_uniform_abundances
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.model.matter.composition import Composition
 from tardis.model.matter.decay import IsotopicMassFraction
-from tardis.model.radiation_field_state import DiluteThermalRadiationFieldState
+from tardis.model.radiation_field_state import (
+    DiluteBlackBodyRadiationFieldState,
+)
 from tardis.montecarlo.packet_source import (
     BlackBodySimpleSource,
     BlackBodySimpleSourceRelativistic,
@@ -242,6 +244,9 @@ def parse_abundance_config(config, geometry, time_explosion):
     nuclide_mass_fraction : object
         The parsed nuclide mass fraction.
 
+    raw_isotope_abundance : object
+        The parsed raw isotope abundance. This is the isotope abundance data before decay.
+
     Raises
     ------
     None.
@@ -290,6 +295,7 @@ def parse_abundance_config(config, geometry, time_explosion):
         isotope_abundance /= norm_factor
     # The next line is if the abundances are given via dict
     # and not gone through the schema validator
+    raw_isotope_abundance = isotope_abundance
     model_isotope_time_0 = config.model.abundances.get(
         "model_isotope_time_0", 0.0 * u.day
     )
@@ -300,7 +306,7 @@ def parse_abundance_config(config, geometry, time_explosion):
     nuclide_mass_fraction = convert_to_nuclide_mass_fraction(
         isotope_abundance, abundance
     )
-    return nuclide_mass_fraction
+    return nuclide_mass_fraction, raw_isotope_abundance
 
 
 def convert_to_nuclide_mass_fraction(isotopic_mass_fraction, mass_fraction):
@@ -392,11 +398,14 @@ def parse_csvy_composition(
         csvy_model_config, csvy_model_data, time_explosion
     )
 
-    nuclide_mass_fraction = parse_abundance_csvy(
+    nuclide_mass_fraction, raw_isotope_mass_fraction = parse_abundance_csvy(
         csvy_model_config, csvy_model_data, geometry, time_explosion
     )
     return Composition(
-        density, nuclide_mass_fraction, atom_data.atom_data.mass.copy()
+        density,
+        nuclide_mass_fraction,
+        raw_isotope_mass_fraction,
+        atom_data.atom_data.mass.copy(),
     )
 
 
@@ -465,11 +474,14 @@ def parse_abundance_csvy(
         )
         mass_fraction /= norm_factor
         isotope_mass_fraction /= norm_factor
+
+    raw_isotope_mass_fraction = isotope_mass_fraction
     isotope_mass_fraction = IsotopicMassFraction(
         isotope_mass_fraction, time_0=csvy_model_config.model_isotope_time_0
     ).decay(time_explosion)
-    return convert_to_nuclide_mass_fraction(
-        isotope_mass_fraction, mass_fraction
+    return (
+        convert_to_nuclide_mass_fraction(isotope_mass_fraction, mass_fraction),
+        raw_isotope_mass_fraction,
     )
 
 
@@ -566,13 +578,12 @@ def parse_radiation_field_state(
 
     if dilution_factor is None:
         dilution_factor = calculate_geometric_dilution_factor(geometry)
-    elif len(dilution_factor) != geometry.no_of_shells:
-        dilution_factor = dilution_factor[
-            geometry.v_inner_boundary_index : geometry.v_outer_boundary_index
-        ]
-        assert len(dilution_factor) == geometry.no_of_shells
 
-    return DiluteThermalRadiationFieldState(t_radiative, dilution_factor)
+    assert len(dilution_factor) == geometry.no_of_shells
+
+    return DiluteBlackBodyRadiationFieldState(
+        t_radiative, dilution_factor, geometry
+    )
 
 
 def initialize_packet_source(config, geometry, packet_source):
@@ -608,13 +619,13 @@ def initialize_packet_source(config, geometry, packet_source):
 
     luminosity_requested = config.supernova.luminosity_requested
     if config.plasma.initial_t_inner > 0.0 * u.K:
-        packet_source.radius = geometry.r_inner[0]
+        packet_source.radius = geometry.r_inner_active[0]
         packet_source.temperature = config.plasma.initial_t_inner
 
     elif (config.plasma.initial_t_inner < 0.0 * u.K) and (
         luminosity_requested is not None
     ):
-        packet_source.radius = geometry.r_inner[0]
+        packet_source.radius = geometry.r_inner_active[0]
         packet_source.set_temperature_from_luminosity(luminosity_requested)
     else:
         raise ValueError(
@@ -672,12 +683,16 @@ def parse_csvy_radiation_field_state(
         t_radiative = (
             np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
         )
-        t_radiative = (
-            np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
-        )
     else:
         t_radiative = calculate_t_radiative_from_t_inner(
             geometry, packet_source
+        )
+
+    if np.any(t_radiative < 1000 * u.K):
+        logging.critical(
+            "Radiative temperature is too low in some of the shells, temperatures below 1000K "
+            f"(e.g., T_rad = {t_radiative[np.argmin(t_radiative)]} in shell {np.argmin(t_radiative)} in your model) "
+            "are not accurately handled by TARDIS.",
         )
 
     if hasattr(csvy_model_data, "columns") and (
@@ -687,7 +702,9 @@ def parse_csvy_radiation_field_state(
     else:
         dilution_factor = calculate_geometric_dilution_factor(geometry)
 
-    return DiluteThermalRadiationFieldState(t_radiative, dilution_factor)
+    return DiluteBlackBodyRadiationFieldState(
+        t_radiative, dilution_factor, geometry
+    )
 
 
 def calculate_t_radiative_from_t_inner(geometry, packet_source):
@@ -718,6 +735,12 @@ def calculate_geometric_dilution_factor(geometry):
     return 0.5 * (
         1
         - np.sqrt(
-            1 - (geometry.r_inner[0] ** 2 / geometry.r_middle**2).to(1).value
+            1
+            - (
+                geometry.r_inner[geometry.v_inner_boundary_index] ** 2
+                / geometry.r_middle**2
+            )
+            .to(1)
+            .value
         )
     )

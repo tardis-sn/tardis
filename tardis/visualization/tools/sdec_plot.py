@@ -165,7 +165,7 @@ class SDECData:
             "line_id"
         )
         transport_state = sim.transport.transport_state
-        r_inner = sim.simulation_state.geometry.r_inner
+        r_inner = sim.simulation_state.geometry.r_inner_active
         t_inner = sim.simulation_state.packet_source.temperature
         time_of_simulation = (
             transport_state.packet_collection.time_of_simulation * u.s
