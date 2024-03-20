@@ -267,7 +267,7 @@ of accumulating optical depth starts over. Finally, if the packet reaches the sh
 value necessary for a physical interaction is achieved (as in case III), the packet will be moved to the next cell,
 the plasma properties will be updated, and the accumulation of optical depth will **restart** in the next cell.
 
-.. note:: While it would make physical sense for the accumulation of optical depth to continue between cells until the packet eventually interacts, due do the exponential nature of optical depth and interaction probabilities, both continuing and restarting the accumulation of optical depth between cells can be mathematically shown to yield the same overall statistical results. Restarting the optical depth accumulation is computationally easier, and hence it is the method employed by TARDIS.
+.. note:: While it would make physical sense for the accumulation of optical depth to continue between cells until the packet eventually interacts, due to the exponential nature of optical depth and interaction probabilities, both continuing and restarting the accumulation of optical depth between cells can be mathematically shown to yield the same overall statistical results. Restarting the optical depth accumulation is computationally easier, and hence it is the method employed by TARDIS.
 
 Performing an Interaction
 -------------------------
