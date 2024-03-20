@@ -178,7 +178,7 @@ def get_taus(raw_isotope_abundance):
         if child is not None:
             for c in child:
                 if rd.Nuclide(c).half_life("readable") != "stable":
-                    parents[isotope] = c
+                    parents[c] = isotope
 
     return taus, parents
 
