@@ -198,11 +198,13 @@ def initialize_packets(
                 isotope_intensity,
             )
             tau_start = taus[isotope_name]
-
-            if isotope_name in parents:
-                tau_end = taus[parents[isotope_name]]
+            logger.info(f"Tau start {tau_start} for {isotope_name}")
+            if isotope_name not in parents:
+                tau_end = taus[list(parents.keys())[0]]
+                logger.info(f"Tau end {tau_end} for {isotope_name}")
             else:
                 tau_end = 0
+                logger.info(f"Tau end {tau_end} for {isotope_name}")
 
             for c in range(isotope_packet_count):
                 packet, decay_time_index = initialize_packet_properties(
