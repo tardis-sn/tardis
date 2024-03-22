@@ -7,7 +7,6 @@ name: pre-release
 on:
   schedule:
     - cron: '0 0 * * 0'
-
   workflow_dispatch:  # manual trigger
 
 defaults:
@@ -130,3 +129,6 @@ jobs:
           pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
           merge-method: squash
         if: steps.create-pr.outputs.pull-request-operation == 'created'
+
+  compare_refdata:
+      uses: tardis-sn/tardis-refdata/.github/workflows/compare-refdata.yml@master
