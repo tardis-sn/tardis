@@ -11,10 +11,10 @@ class HomologousRadial1DGeometry:
 
     Parameters
     ----------
-    r_inner : astropy.units.quantity.Quantity
-    r_outer : astropy.units.quantity.Quantity
     v_inner : astropy.units.quantity.Quantity
     v_outer : astropy.units.quantity.Quantity
+    v_inner_boundary : astropy.units.quantity.Quantity
+    v_outer_boundary : astropy.units.quantity.Quantity
 
     Attributes
     ----------

@@ -109,8 +109,8 @@ def parse_structure_config(config, time_explosion, enable_homology=True):
         )
         density = density[1:]
     geometry = HomologousRadial1DGeometry(
-        velocity[:-1],  # r_inner
-        velocity[1:],  # r_outer
+        velocity[:-1],  # v_inner
+        velocity[1:],  # v_outer
         v_inner_boundary=structure_config.get("v_inner_boundary", None),
         v_outer_boundary=structure_config.get("v_outer_boundary", None),
         time_explosion=time_explosion,
