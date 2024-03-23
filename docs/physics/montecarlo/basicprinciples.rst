@@ -102,7 +102,7 @@ This leads to the sampling rule
 
 .. math::
 
-    \mu = 2 z - 1.
+    \mu = 2 z + 1.
 
 Next Interaction Location
 -------------------------
