@@ -96,7 +96,7 @@ Here, all scattering angles are equally likely. Thus, the corresponding
 .. math::
 
     \rho_{\mu}(\mu) &= \frac{1}{2}\\
-    f_{\mu}(\mu) &= \frac{1}{2} (\mu - 1).
+    f_{\mu}(\mu) &= \frac{1}{2} (\mu + 1).
 
 This leads to the sampling rule
 

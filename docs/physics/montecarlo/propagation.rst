@@ -186,9 +186,9 @@ Thomson scattering is calculated by the formula
     \Delta \tau = \sigma_{\mathrm{T}} n_e l.
 
 The Thomson cross section :math:`\sigma_{\mathrm{T}}`, which is a constant,
-appears here. This corresponds to the fact that a packet has a probability of :math:`1-e^{\sigma_{\mathrm{T}} n_e l}`
+appears here. This corresponds to the fact that a packet has a probability of :math:`1-e^{-\sigma_{\mathrm{T}} n_e l}`
 of going through a Thomson scattering prior to traveling a distance :math:`l` (in other words, the probability of the
-packet making it across a distance :math:`l` without scattering is :math:`e^{\sigma_{\mathrm{T}} n_e l}`).
+packet making it across a distance :math:`l` without scattering is :math:`e^{-\sigma_{\mathrm{T}} n_e l}`).
 
 The situation is complicated by the inclusion of frequency-dependent
 bound-bound interactions, i.e. interactions with atomic line transitions.
