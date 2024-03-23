@@ -181,8 +181,8 @@ def parse_csvy_geometry(
         velocity = velocity.to("cm/s")
 
     geometry = HomologousRadial1DGeometry(
-        velocity[:-1],  # r_inner
-        velocity[1:],  # r_outer
+        velocity[:-1],  # v_inner
+        velocity[1:],  # v_outer
         v_inner_boundary=v_boundary_inner,
         v_outer_boundary=v_boundary_outer,
         time_explosion=time_explosion,
