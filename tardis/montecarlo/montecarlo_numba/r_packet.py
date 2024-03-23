@@ -22,6 +22,11 @@ class InteractionType(IntEnum):
     CONTINUUM_PROCESS = 8
 
 
+INTERACTION_TYPE_DTYPE = pd.CategoricalDtype(
+    categories=[-1] + [interaction.value for interaction in InteractionType]
+)
+
+
 class PacketStatus(IntEnum):
     IN_PROCESS = 0
     EMITTED = 1
@@ -134,13 +139,17 @@ def rpacket_trackers_to_dataframe(rpacket_trackers):
         prev_index = cur_index
         cur_index = prev_index + len(rpacket_tracker.r)
         for j, column_name in enumerate(df_dtypes.fields.keys()):
-            rpacket_tracker_ndarray[column_name][
-                prev_index:cur_index
-            ] = getattr(rpacket_tracker, column_name)
+            rpacket_tracker_ndarray[column_name][prev_index:cur_index] = (
+                getattr(rpacket_tracker, column_name)
+            )
         index_array[0][prev_index:cur_index] = getattr(rpacket_tracker, "index")
         index_array[1][prev_index:cur_index] = range(cur_index - prev_index)
-    return pd.DataFrame(
+    rpacket_dataframe = pd.DataFrame(
         rpacket_tracker_ndarray,
         index=pd.MultiIndex.from_arrays(index_array, names=["index", "step"]),
         columns=df_dtypes.names,
     )
+    rpacket_dataframe.interaction_type = (
+        rpacket_dataframe.interaction_type.astype(INTERACTION_TYPE_DTYPE)
+    )
+    return rpacket_dataframe
