@@ -53,7 +53,9 @@ class RadioactivePacketSource(BasePacketSource):
     def create_packet_mus(self, no_of_packets, *args, **kwargs):
         return super().create_packet_mus(no_of_packets, *args, **kwargs)
 
-    def create_packet_radii(self, no_of_packets, inner_velocity, outer_velocity):
+    def create_packet_radii(
+        self, no_of_packets, inner_velocity, outer_velocity
+    ):
         """Initialize the random radii of packets in a shell
 
         Parameters
@@ -71,9 +73,9 @@ class RadioactivePacketSource(BasePacketSource):
             Array of length packet_count of random locations in the shell
         """
         z = np.random.random(no_of_packets)
-        initial_radii = (z * inner_velocity**3.0 + (1.0 - z) * outer_velocity**3.0) ** (
-            1.0 / 3.0
-        )
+        initial_radii = (
+            z * inner_velocity**3.0 + (1.0 - z) * outer_velocity**3.0
+        ) ** (1.0 / 3.0)
 
         return initial_radii
 
@@ -317,7 +319,9 @@ class RadioactivePacketSource(BasePacketSource):
                 )
 
                 # sample directions (valid at all times)
-                initial_directions = self.create_packet_directions(isotope_packet_count)
+                initial_directions = self.create_packet_directions(
+                    isotope_packet_count
+                )
 
                 # packet decay time
                 initial_times = self.create_packet_times_uniform_energy(
@@ -330,7 +334,10 @@ class RadioactivePacketSource(BasePacketSource):
 
                 # get the time step index of the packets
                 initial_time_indexes = np.array(
-                    [get_index(decay_time, self.times) for decay_time in initial_times]
+                    [
+                        get_index(decay_time, self.times)
+                        for decay_time in initial_times
+                    ]
                 )
 
                 # get the time of the middle of the step for each packet
@@ -398,7 +405,9 @@ class RadioactivePacketSource(BasePacketSource):
                     self.energy_plot_positron_rows[i] = np.array(
                         [
                             packet_index,
-                            isotope_positron_fraction * self.packet_energy * 1000,
+                            isotope_positron_fraction
+                            * self.packet_energy
+                            * 1000,
                             # * inv_volume_time[packet.shell, decay_time_index],
                             initial_radii[i],
                             initial_times[i],
@@ -414,30 +423,30 @@ class RadioactivePacketSource(BasePacketSource):
                     )
 
                 # collect packet properties
-                locations[:, packet_index - isotope_packet_count : packet_index] = (
-                    initial_locations
-                )
-                directions[:, packet_index - isotope_packet_count : packet_index] = (
-                    initial_directions
-                )
+                locations[
+                    :, packet_index - isotope_packet_count : packet_index
+                ] = initial_locations
+                directions[
+                    :, packet_index - isotope_packet_count : packet_index
+                ] = initial_directions
                 packet_energies_rf[
                     packet_index - isotope_packet_count : packet_index
                 ] = initial_packet_energies_rf
                 packet_energies_cmf[
                     packet_index - isotope_packet_count : packet_index
                 ] = initial_packet_energies_cmf
-                nus_rf[packet_index - isotope_packet_count : packet_index] = (
-                    initial_nus_rf
-                )
-                nus_cmf[packet_index - isotope_packet_count : packet_index] = (
-                    initial_nus_cmf
-                )
-                shells[packet_index - isotope_packet_count : packet_index] = (
-                    initial_shells
-                )
-                times[packet_index - isotope_packet_count : packet_index] = (
-                    initial_times
-                )
+                nus_rf[
+                    packet_index - isotope_packet_count : packet_index
+                ] = initial_nus_rf
+                nus_cmf[
+                    packet_index - isotope_packet_count : packet_index
+                ] = initial_nus_cmf
+                shells[
+                    packet_index - isotope_packet_count : packet_index
+                ] = initial_shells
+                times[
+                    packet_index - isotope_packet_count : packet_index
+                ] = initial_times
 
         return GXPacketCollection(
             locations,
