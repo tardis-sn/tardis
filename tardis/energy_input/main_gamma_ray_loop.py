@@ -146,7 +146,7 @@ def run_gamma_ray_loop(
     total_energy = energy_df.sum().sum()
     energy_per_packet = total_energy / num_decays
     packets_per_isotope_df = (
-        distribute_packets(decayed_energy, energy_per_packet)
+        distribute_packets(decayed_energy, total_energy, num_decays)
         .round()
         .fillna(0)
         .astype(int)
