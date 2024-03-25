@@ -4,6 +4,7 @@ import numpy as np
 from numba import njit
 
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+from tardis.montecarlo.montecarlo_numba.opacities import kappa_calculation
 
 R_ELECTRON_SQUARED = (const.a0.cgs.value * const.alpha.cgs.value**2.0) ** 2.0
 ELECTRON_MASS_ENERGY_KEV = (const.m_e * const.c**2.0).to("keV").value
