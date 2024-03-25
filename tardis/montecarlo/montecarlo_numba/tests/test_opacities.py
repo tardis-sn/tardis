@@ -76,3 +76,24 @@ def test_pair_creation_opacity_calculation(
     )
 
     npt.assert_almost_equal(opacity, expected)
+
+
+@pytest.mark.parametrize(
+    ["energy", "expected"],
+    [
+        (511.0, 1.0000021334560507),
+        (255.5, 0.5000010667280254),
+        (0.0, 0.0),
+        (511.0e7, 10000021.334560508),
+    ],
+)
+def test_kappa_calculation(energy, expected):
+    """
+
+    Parameters
+    ----------
+    energy : float
+    expected : float
+    """
+    kappa = util.kappa_calculation(energy)
+    npt.assert_almost_equal(kappa, expected)
