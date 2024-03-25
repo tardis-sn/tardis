@@ -253,7 +253,7 @@ class RadioactivePacketSource(BasePacketSource):
             Array of positron output dataframe rows
         """
         number_of_packets = decays_per_isotope.sum().sum()
-        decays_per_shell = decays_per_isotope.T.sum().values
+        decays_per_shell = decays_per_isotope.sum().values
 
         locations = np.zeros((3, number_of_packets))
         directions = np.zeros((3, number_of_packets))

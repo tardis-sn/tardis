@@ -152,7 +152,7 @@ def run_gamma_ray_loop(
     logger.info("Initializing packets")
 
     packet_source = RadioactivePacketSource(
-        energy_per_packet,
+        individual_packet_energy,
         gamma_ray_line_dict,
         positronium_fraction,
         inner_velocities,
@@ -174,8 +174,8 @@ def run_gamma_ray_loop(
 
     logger.info("Creating packet list")
     packets = []
-    total_cmf_energy = 0.0
-    total_rf_energy = 0.0
+    total_cmf_energy = packet_collection.energy_cmf.sum()
+    total_rf_energy = packet_collection.energy_rf.sum()
     for i in range(number_of_packets):
         packet = GXPacket(
             packet_collection.location[:, i],
@@ -201,8 +201,6 @@ def run_gamma_ray_loop(
                 0,
             ]
         )
-        total_cmf_energy += packet.energy_cmf
-        total_rf_energy += packet.energy_rf
 
     logger.info(f"Total cmf energy is {total_cmf_energy}")
     logger.info(f"Total rf energy is {total_rf_energy}")
