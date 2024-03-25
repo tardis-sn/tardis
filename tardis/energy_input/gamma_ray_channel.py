@@ -131,17 +131,17 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
         radiation energy and radiation intensity.
     """
 
-    gamma_ray_lines.rename_axis("isotope", inplace=True)
-    gamma_ray_lines.drop(columns=["A", "Z"], inplace=True)
+    gamma_ray_lines = gamma_ray_lines.rename_axis("isotope")
+    gamma_ray_lines.drop(columns=["A", "Z"])
     gamma_ray_lines_df = gamma_ray_lines[
         ["Decay Mode", "Radiation", "Rad Energy", "Rad Intensity"]
-    ]
+    ]  # selecting from existing dataframe
 
     columns = [
         "decay_mode",
-        "rad_type",
-        "rad_energy",
-        "rad_intensity",
+        "radiation",
+        "radiation_energy",
+        "radiation_intensity",
     ]
     gamma_ray_lines_df.columns = columns
     isotope_decay_df = pd.merge(
@@ -149,22 +149,20 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
         gamma_ray_lines_df.reset_index(),
         on=["isotope"],
     )
-    isotope_decay_df.set_index(["shell_number", "isotope"], inplace=True)
+    isotope_decay_df = isotope_decay_df.set_index(["shell_number", "isotope"])
     isotope_decay_df["decay_mode"] = isotope_decay_df["decay_mode"].astype(
         "category"
     )
-    isotope_decay_df["rad_type"] = isotope_decay_df["rad_type"].astype(
+    isotope_decay_df["radiation"] = isotope_decay_df["radiation"].astype(
         "category"
     )
-    isotope_decay_df["norm_rad_intensity"] = (
-        isotope_decay_df["rad_intensity"] / 100
+    isotope_decay_df["energy_per_channel_keV"] = (
+        isotope_decay_df["radiation_intensity"]
+        / 100.0
+        * isotope_decay_df["radiation_energy"]
     )
-    isotope_decay_df["energy_per_channel"] = (
-        isotope_decay_df["norm_rad_intensity"] * isotope_decay_df["rad_energy"]
-    )
-    isotope_decay_df["decay_energy"] = (
-        isotope_decay_df["norm_rad_intensity"]
-        * isotope_decay_df["rad_energy"]
+    isotope_decay_df["decay_energy_keV"] = (
+        isotope_decay_df["energy_per_channel_keV"]
         * isotope_decay_df["number_of_decays"]
     )
 
