@@ -110,8 +110,13 @@ def test_plasma_estimates(simulation_one_loop, refdata, name):
         # removing the quantitiness of the data
         actual = actual.value
     actual = pd.Series(actual)
+    try:
+        refdata_keyname = refdata(name)
+    except KeyError:
+        refdata_keyname = refdata(f"transport_state/{name}")
+    pdt.assert_series_equal(actual, refdata_keyname, rtol=1e-5, atol=1e-8)
 
-    pdt.assert_series_equal(actual, refdata(name), rtol=1e-5, atol=1e-8)
+
 
 
 @pytest.mark.parametrize(
