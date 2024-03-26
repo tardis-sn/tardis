@@ -59,10 +59,7 @@ def simulation_one_loop(
             "dilution_factor",
         ]
         simulation.transport.hdf_properties = [
-            "j_estimator",
-            "nu_bar_estimator",
-            "output_nu",
-            "output_energy",
+            "transport_state"
         ]
         simulation.to_hdf(
             tardis_ref_data, "", "test_simulation", overwrite=True
