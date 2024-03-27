@@ -88,17 +88,17 @@ class BasePacketSource(abc.ABC):
             self.MAX_SEED_VAL, no_of_packets, replace=True
         )
 
-        radii = self.create_packet_radii(no_of_packets, *args, **kwargs)
-        nus = self.create_packet_nus(no_of_packets, *args, **kwargs)
+        radii = self.create_packet_radii(no_of_packets, *args, **kwargs).value
+        nus = self.create_packet_nus(no_of_packets, *args, **kwargs).value
         mus = self.create_packet_mus(no_of_packets, *args, **kwargs)
-        energies = self.create_packet_energies(no_of_packets, *args, **kwargs)
+        energies = self.create_packet_energies(
+            no_of_packets, *args, **kwargs
+        ).value
         # Check if all arrays have the same length
         assert (
             len(radii) == len(nus) == len(mus) == len(energies) == no_of_packets
         )
-        radiation_field_luminosity = (
-            self.calculate_radfield_luminosity().to(u.erg / u.s).value
-        )
+        radiation_field_luminosity = self.calculate_radfield_luminosity().value
         return PacketCollection(
             radii,
             nus,
@@ -123,7 +123,7 @@ class BasePacketSource(abc.ABC):
         return (
             4
             * np.pi
-            * const.sigma_sb.cgs
+            * const.sigma_sb
             * self.radius**2
             * self.temperature**4
         ).to("erg/s")
@@ -136,9 +136,9 @@ class BlackBodySimpleSource(BasePacketSource):
 
     Parameters
     ----------
-    radius : float64
+    radius : astropy.units.Quantity
         Initial packet radius
-    temperature : float
+    temperature : astropy.units.Quantity
         Absolute Temperature.
     base_seed : int
         Base Seed for random number generator
@@ -150,7 +150,7 @@ class BlackBodySimpleSource(BasePacketSource):
     def from_simulation_state(cls, simulation_state, *args, **kwargs):
         return cls(
             simulation_state.r_inner[0],
-            simulation_state.t_inner.value,
+            simulation_state.t_inner,
             *args,
             **kwargs,
         )
@@ -179,7 +179,7 @@ class BlackBodySimpleSource(BasePacketSource):
         Radii for packets
             numpy.ndarray
         """
-        return np.ones(no_of_packets) * self.radius
+        return np.ones(no_of_packets) * self.radius.cgs
 
     def create_packet_nus(self, no_of_packets, l_samples=1000):
         """
@@ -222,12 +222,7 @@ class BlackBodySimpleSource(BasePacketSource):
         xis_prod = np.prod(xis[1:], 0)
         x = ne.evaluate("-log(xis_prod)/l")
 
-        if isinstance(self.temperature, u.Quantity):
-            temperature = self.temperature.value
-        else:
-            temperature = self.temperature
-
-        return x * (const.k_B.cgs.value * temperature) / const.h.cgs.value
+        return (x * (const.k_B * self.temperature) / const.h).cgs
 
     def create_packet_mus(self, no_of_packets):
         """
@@ -266,7 +261,7 @@ class BlackBodySimpleSource(BasePacketSource):
         energies for packets
             numpy.ndarray
         """
-        return np.ones(no_of_packets) / no_of_packets
+        return np.ones(no_of_packets) / no_of_packets * u.erg
 
     def set_temperature_from_luminosity(self, luminosity: u.Quantity):
         """
@@ -291,11 +286,11 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
 
     Parameters
     ----------
-    time_explosion : float 64
+    time_explosion : astropy.units.Quantity
         Time elapsed since explosion
-    radius : float64
+    radius : astropy.units.Quantity
         Initial packet radius
-    temperature : float
+    temperature : astropy.units.Quantity
         Absolute Temperature.
     base_seed : int
         Base Seed for random number generator
@@ -308,7 +303,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
         return cls(
             simulation_state.time_explosion,
             simulation_state.r_inner[0],
-            simulation_state.t_inner.value,
+            simulation_state.t_inner,
             *args,
             **kwargs,
         )
@@ -338,7 +333,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
         """
         if self.radius is None or self.time_explosion is None:
             raise ValueError("Black body Radius or Time of Explosion isn't set")
-        self.beta = ((self.radius / self.time_explosion) / const.c).to("")
+        self.beta = (self.radius / self.time_explosion) / const.c
         return super().create_packets(no_of_packets)
 
     def create_packet_mus(self, no_of_packets):
@@ -387,4 +382,4 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
         # are calculated as ratios of packet energies and the time of simulation.
         # Thus, we can absorb the factor gamma in the packet energies, which is
         # more convenient.
-        return energies * static_inner_boundary2cmf_factor / gamma
+        return energies * static_inner_boundary2cmf_factor / gamma * u.erg
