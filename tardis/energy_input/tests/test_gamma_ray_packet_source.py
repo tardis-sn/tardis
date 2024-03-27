@@ -19,7 +19,9 @@ class TestGammaRayPacketSource:
         cls.packet_source = RadioactivePacketSource(base_seed=1963)
         yield cls.packet_source
 
-    def test_create_packet_radii(self, regression_data, radioactivepacketsource):
+    def test_create_packet_radii(
+        self, regression_data, radioactivepacketsource
+    ):
         actual = self.packet_source.create_packet_radii()
         expected = regression_data.sync_ndarray(actual)
         assert np.all(np.isclose(actual, expected))
@@ -29,12 +31,16 @@ class TestGammaRayPacketSource:
         expected = regression_data.sync_ndarray(actual)
         assert np.all(np.isclose(actual, expected))
 
-    def test_create_packet_directions(self, regression_data, radioactivepacketsource):
+    def test_create_packet_directions(
+        self, regression_data, radioactivepacketsource
+    ):
         actual = self.packet_source.create_packet_directions()
         expected = regression_data.sync_ndarray(actual)
         assert np.all(np.isclose(actual, expected))
 
-    def test_create_packet_energies(self, regression_data, radioactivepacketsource):
+    def test_create_packet_energies(
+        self, regression_data, radioactivepacketsource
+    ):
         actual = self.packet_source.create_packet_energies()
         expected = regression_data.sync_ndarray(actual)
         assert np.all(np.isclose(actual, expected))
@@ -53,7 +59,9 @@ class TestGammaRayPacketSource:
         expected = regression_data.sync_ndarray(actual)
         assert np.all(np.isclose(actual, expected))
 
-    def test_calculate_energy_factors(self, regression_data, radioactivepacketsource):
+    def test_calculate_energy_factors(
+        self, regression_data, radioactivepacketsource
+    ):
         actual = self.packet_source.calculate_energy_factors()
         expected = regression_data.sync_ndarray(actual)
         assert np.all(np.isclose(actual, expected))
