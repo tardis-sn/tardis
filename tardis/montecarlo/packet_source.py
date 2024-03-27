@@ -123,7 +123,7 @@ class BasePacketSource(abc.ABC):
         return (
             4
             * np.pi
-            * const.sigma_sb.cgs
+            * const.sigma_sb
             * self.radius**2
             * self.temperature**4
         ).to("erg/s")
@@ -179,7 +179,7 @@ class BlackBodySimpleSource(BasePacketSource):
         Radii for packets
             numpy.ndarray
         """
-        return np.ones(no_of_packets) * self.radius
+        return np.ones(no_of_packets) * self.radius.cgs
 
     def create_packet_nus(self, no_of_packets, l_samples=1000):
         """
@@ -222,7 +222,7 @@ class BlackBodySimpleSource(BasePacketSource):
         xis_prod = np.prod(xis[1:], 0)
         x = ne.evaluate("-log(xis_prod)/l")
 
-        return x * (const.k_B.cgs * self.temperature) / const.h.cgs
+        return (x * (const.k_B * self.temperature) / const.h).cgs
 
     def create_packet_mus(self, no_of_packets):
         """
@@ -286,11 +286,11 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
 
     Parameters
     ----------
-    time_explosion : float 64
+    time_explosion : astropy.units.Quantity
         Time elapsed since explosion
-    radius : float64
+    radius : astropy.units.Quantity
         Initial packet radius
-    temperature : float
+    temperature : astropy.units.Quantity
         Absolute Temperature.
     base_seed : int
         Base Seed for random number generator
