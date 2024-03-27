@@ -741,6 +741,7 @@ def transport_from_hdf(fname):
         nthreads=d["nthreads"],
         enable_virtual_packet_logging=d["virt_logging"],
         use_gpu=d["use_gpu"],
+        montecarlo_configuration=d["montecarlo_configuration"],
     )
 
     new_transport.Edotlu_estimator = d["Edotlu_estimator"]

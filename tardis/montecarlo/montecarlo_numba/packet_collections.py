@@ -2,7 +2,6 @@ import numpy as np
 from numba import float64, int64, njit
 from numba.experimental import jitclass
 
-from tardis.montecarlo import montecarlo_configuration
 from tardis.montecarlo.montecarlo_numba import (
     njit_dict_no_parallel,
 )
@@ -278,7 +277,9 @@ class VPacketCollection:
 
 
 @njit(**njit_dict_no_parallel)
-def consolidate_vpacket_tracker(vpacket_collections, spectrum_frequency):
+def consolidate_vpacket_tracker(
+    vpacket_collections, spectrum_frequency, start_frequency, end_frequency
+):
     """
     Consolidate the vpacket trackers from multiple collections into a single vpacket tracker.
 
@@ -302,8 +303,8 @@ def consolidate_vpacket_tracker(vpacket_collections, spectrum_frequency):
     vpacket_tracker = VPacketCollection(
         -1,
         spectrum_frequency,
-        montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
-        montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
+        start_frequency,
+        end_frequency,
         -1,
         vpacket_tracker_length,
     )

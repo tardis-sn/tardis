@@ -586,7 +586,9 @@ def parse_radiation_field_state(
     )
 
 
-def initialize_packet_source(config, geometry, packet_source):
+def initialize_packet_source(
+    config, geometry, packet_source, legacy_mode_enabled
+):
     """
     Initialize the packet source based on config and geometry
 
@@ -613,9 +615,13 @@ def initialize_packet_source(config, geometry, packet_source):
         packet_source = BlackBodySimpleSourceRelativistic(
             base_seed=config.montecarlo.seed,
             time_explosion=config.supernova.time_explosion,
+            legacy_mode_enabled=legacy_mode_enabled,
         )
     else:
-        packet_source = BlackBodySimpleSource(base_seed=config.montecarlo.seed)
+        packet_source = BlackBodySimpleSource(
+            base_seed=config.montecarlo.seed,
+            legacy_mode_enabled=legacy_mode_enabled,
+        )
 
     luminosity_requested = config.supernova.luminosity_requested
     if config.plasma.initial_t_inner > 0.0 * u.K:
@@ -635,7 +641,7 @@ def initialize_packet_source(config, geometry, packet_source):
     return packet_source
 
 
-def parse_packet_source(config, geometry):
+def parse_packet_source(config, geometry, legacy_mode_enabled):
     """
     Parse the packet source based on the given configuration and geometry.
 
@@ -655,11 +661,17 @@ def parse_packet_source(config, geometry):
         packet_source = BlackBodySimpleSourceRelativistic(
             base_seed=config.montecarlo.seed,
             time_explosion=config.supernova.time_explosion,
+            legacy_mode_enabled=legacy_mode_enabled,
         )
     else:
-        packet_source = BlackBodySimpleSource(base_seed=config.montecarlo.seed)
+        packet_source = BlackBodySimpleSource(
+            base_seed=config.montecarlo.seed,
+            legacy_mode_enabled=legacy_mode_enabled,
+        )
 
-    return initialize_packet_source(config, geometry, packet_source)
+    return initialize_packet_source(
+        config, geometry, packet_source, legacy_mode_enabled
+    )
 
 
 def parse_csvy_radiation_field_state(

@@ -15,9 +15,6 @@ from tardis.io.configuration.config_reader import ConfigurationError
 from tardis.io.util import HDFWriterMixin
 from tardis.model import SimulationState
 from tardis.model.parse_input import initialize_packet_source
-from tardis.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
-)
 from tardis.montecarlo.base import MonteCarloTransportSolver
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.util.base import is_notebook
@@ -199,7 +196,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
 
-        montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED = (
+        self.transport.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED = (
             not self.plasma.continuum_interaction_species.empty
         )
 
@@ -642,6 +639,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         virtual_packet_logging=False,
         show_convergence_plots=False,
         show_progress_bars=True,
+        legacy_mode_enabled=False,
         **kwargs,
     ):
         """
@@ -695,15 +693,22 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         else:
             if hasattr(config, "csvy_model"):
                 simulation_state = SimulationState.from_csvy(
-                    config, atom_data=atom_data
+                    config,
+                    atom_data=atom_data,
+                    legacy_mode_enabled=legacy_mode_enabled,
                 )
             else:
                 simulation_state = SimulationState.from_config(
-                    config, atom_data=atom_data
+                    config,
+                    atom_data=atom_data,
+                    legacy_mode_enabled=legacy_mode_enabled,
                 )
             if packet_source is not None:
                 simulation_state.packet_source = initialize_packet_source(
-                    config, simulation_state.geometry, packet_source
+                    config,
+                    simulation_state.geometry,
+                    packet_source,
+                    legacy_mode_enabled,
                 )
         if "plasma" in kwargs:
             plasma = kwargs["plasma"]

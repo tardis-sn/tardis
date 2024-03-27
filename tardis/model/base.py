@@ -235,7 +235,7 @@ class SimulationState(HDFWriterMixin):
         return self.geometry.no_of_shells
 
     @classmethod
-    def from_config(cls, config, atom_data):
+    def from_config(cls, config, atom_data, legacy_mode_enabled=False):
         """
         Create a new SimulationState instance from a Configuration object.
 
@@ -269,7 +269,9 @@ class SimulationState(HDFWriterMixin):
             atom_data.atom_data.mass.copy(),
         )
 
-        packet_source = parse_packet_source(config, geometry)
+        packet_source = parse_packet_source(
+            config, geometry, legacy_mode_enabled
+        )
         radiation_field_state = parse_radiation_field_state(
             config,
             t_radiative,
@@ -288,7 +290,7 @@ class SimulationState(HDFWriterMixin):
         )
 
     @classmethod
-    def from_csvy(cls, config, atom_data=None):
+    def from_csvy(cls, config, atom_data=None, legacy_mode_enabled=False):
         """
         Create a new SimulationState instance from a Configuration object.
 
@@ -366,7 +368,9 @@ class SimulationState(HDFWriterMixin):
             geometry,
         )
 
-        packet_source = parse_packet_source(config, geometry)
+        packet_source = parse_packet_source(
+            config, geometry, legacy_mode_enabled
+        )
 
         radiation_field_state = parse_csvy_radiation_field_state(
             config, csvy_model_config, csvy_model_data, geometry, packet_source

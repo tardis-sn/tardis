@@ -1,14 +1,13 @@
 import numpy as np
 from numba import njit
 
-from tardis.montecarlo import montecarlo_configuration
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.transport.geometry.calculate_distances import (
     calculate_distance_boundary,
     calculate_distance_electron,
     calculate_distance_line,
 )
-from tardis.montecarlo.estimators.radfield_mc_estimators import (
+from tardis.montecarlo.estimators.radfield_estimator_calcs import (
     update_line_estimators,
     update_base_estimators,
 )
@@ -31,6 +30,9 @@ def trace_packet(
     estimators,
     chi_continuum,
     escat_prob,
+    continuum_processes_enabled,
+    enable_full_relativity,
+    disable_line_scattering,
 ):
     """
     Traces the RPacket through the ejecta and stops when an interaction happens (heart of the calculation)
@@ -64,7 +66,10 @@ def trace_packet(
 
     # Calculating doppler factor
     doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, numba_model.time_explosion
+        r_packet.r,
+        r_packet.mu,
+        numba_model.time_explosion,
+        enable_full_relativity,
     )
     comov_nu = r_packet.nu * doppler_factor
 
@@ -94,6 +99,7 @@ def trace_packet(
             is_last_line,
             nu_line,
             numba_model.time_explosion,
+            enable_full_relativity,
         )
 
         # calculating the tau continuum of how far the trace has progressed
@@ -110,7 +116,7 @@ def trace_packet(
                 r_packet.next_line_id = cur_line_id
                 break
             elif distance == distance_continuum:
-                if not montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+                if not continuum_processes_enabled:
                     interaction_type = InteractionType.ESCATTERING
                 else:
                     zrand = np.random.random()
@@ -131,12 +137,10 @@ def trace_packet(
             cur_line_id,
             distance_trace,
             numba_model.time_explosion,
+            enable_full_relativity,
         )
 
-        if (
-            tau_trace_combined > tau_event
-            and not montecarlo_configuration.DISABLE_LINE_SCATTERING
-        ):
+        if tau_trace_combined > tau_event and not disable_line_scattering:
             interaction_type = InteractionType.LINE  # Line
             r_packet.last_interaction_in_nu = r_packet.nu
             r_packet.last_line_interaction_in_id = cur_line_id
@@ -162,7 +166,7 @@ def trace_packet(
             cur_line_id += 1
         if distance_continuum < distance_boundary:
             distance = distance_continuum
-            if not montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+            if not continuum_processes_enabled:
                 interaction_type = InteractionType.ESCATTERING
             else:
                 zrand = np.random.random()
@@ -178,7 +182,9 @@ def trace_packet(
 
 
 @njit(**njit_dict_no_parallel)
-def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
+def move_r_packet(
+    r_packet, distance, time_explosion, numba_estimator, enable_full_relativity
+):
     """
     Move packet a distance and recalculate the new angle mu
 
@@ -194,7 +200,9 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
         distance in cm
     """
 
-    doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu, time_explosion)
+    doppler_factor = get_doppler_factor(
+        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+    )
 
     r = r_packet.r
     if distance > 0.0:
@@ -208,7 +216,7 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
         comov_energy = r_packet.energy * doppler_factor
 
         # Account for length contraction
-        if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
+        if enable_full_relativity:
             distance *= doppler_factor
 
         update_base_estimators(

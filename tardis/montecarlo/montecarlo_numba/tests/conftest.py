@@ -3,9 +3,6 @@ from copy import deepcopy
 import pytest
 import numpy as np
 from numba import njit
-from tardis.montecarlo.estimators.radfield_mc_estimators import (
-    RadiationFieldMCEstimators,
-)
 from tardis.montecarlo.montecarlo_numba.packet_collections import (
     VPacketCollection,
 )
@@ -34,7 +31,10 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
 @pytest.fixture(scope="package")
 def verysimple_opacity_state(nb_simulation_verysimple):
     return opacity_state_initialize(
-        nb_simulation_verysimple.plasma, line_interaction_type="macroatom"
+        nb_simulation_verysimple.plasma,
+        line_interaction_type="macroatom",
+        disable_line_scattering=False,
+        continuum_processes_enabled=False,
     )
 
 

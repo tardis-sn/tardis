@@ -6,9 +6,6 @@ import numpy as np
 
 from tardis import constants as const
 
-from tardis.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
-)
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -134,7 +131,12 @@ class OpacityState(object):
         self.k_packet_idx = k_packet_idx
 
 
-def opacity_state_initialize(plasma, line_interaction_type):
+def opacity_state_initialize(
+    plasma,
+    line_interaction_type,
+    disable_line_scattering,
+    continuum_processes_enabled,
+):
     """
     Initialize the OpacityState object and copy over the data over from TARDIS Plasma
 
@@ -150,7 +152,7 @@ def opacity_state_initialize(plasma, line_interaction_type):
     tau_sobolev = np.ascontiguousarray(
         plasma.tau_sobolevs.values.copy(), dtype=np.float64
     )
-    if montecarlo_configuration.DISABLE_LINE_SCATTERING:
+    if disable_line_scattering:
         tau_sobolev *= 0
 
     if line_interaction_type == "scatter":
@@ -173,7 +175,7 @@ def opacity_state_initialize(plasma, line_interaction_type):
         )
         # TODO: Fix setting of block references for non-continuum mode
 
-        if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+        if continuum_processes_enabled:
             macro_block_references = plasma.macro_block_references
         else:
             macro_block_references = plasma.atomic_data.macro_atom_references[
@@ -186,7 +188,7 @@ def opacity_state_initialize(plasma, line_interaction_type):
             "destination_level_idx"
         ].values
         transition_line_id = plasma.macro_atom_data["lines_idx"].values
-    if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+    if continuum_processes_enabled:
         bf_threshold_list_nu = plasma.nu_i.loc[
             plasma.level2continuum_idx.index
         ].values
@@ -312,8 +314,8 @@ class RPacketTracker(object):
             Internal counter for the interactions that a particular RPacket undergoes
     """
 
-    def __init__(self):
-        self.length = montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
+    def __init__(self, length):
+        self.length = length
         self.seed = np.int64(0)
         self.index = np.int64(0)
         self.status = np.empty(self.length, dtype=np.int64)
