@@ -129,7 +129,7 @@ class RegressionData:
             with self.fpath.open("w") as fh:
                 fh.write(data)
             pytest.skip(
-                f"Skipping test to generate regression_data {fpath} data"
+                f"Skipping test to generate regression_data {self.fpath} data"
             )
         else:
             with self.fpath.open("r") as fh:
