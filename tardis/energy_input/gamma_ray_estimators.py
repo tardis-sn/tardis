@@ -6,13 +6,13 @@ from tardis.montecarlo.montecarlo_numba.opacities import (
     compton_opacity_calculation,
     SIGMA_T,
     photoabsorption_opacity_calculation,
+    kappa_calculation,
 )
 from tardis.energy_input.util import (
     angle_aberration_gamma,
     doppler_factor_3d,
     H_CGS_KEV,
     ELECTRON_MASS_ENERGY_KEV,
-    kappa_calculation,
 )
 
 

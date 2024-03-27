@@ -79,6 +79,36 @@ class GXPacket(object):
         )
 
 
+class GXPacketCollection:
+    def __init__(
+        self,
+        location,
+        direction,
+        energy_rf,
+        energy_cmf,
+        nu_rf,
+        nu_cmf,
+        status,
+        shell,
+        time_current,
+    ):
+        self.location = location
+        self.direction = direction
+        self.energy_rf = energy_rf
+        self.energy_cmf = energy_cmf
+        self.nu_rf = nu_rf
+        self.nu_cmf = nu_cmf
+        self.status = status
+        self.shell = shell
+        self.time_current = time_current
+        self.number_of_packets = len(self.energy_rf)
+        self.tau = -np.log(np.random.random(self.number_of_packets))
+
+    def get_positron_energy_df(self):
+        energy_plot_positron_rows = np.zeros((self.number_of_packets, 4))
+        pass
+
+
 # @njit(**njit_dict_no_parallel)
 def initialize_packet_properties(
     isotope_energy,

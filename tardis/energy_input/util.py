@@ -4,6 +4,7 @@ import numpy as np
 from numba import njit
 
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
+from tardis.montecarlo.montecarlo_numba.opacities import kappa_calculation
 
 R_ELECTRON_SQUARED = (const.a0.cgs.value * const.alpha.cgs.value**2.0) ** 2.0
 ELECTRON_MASS_ENERGY_KEV = (const.m_e * const.c**2.0).to("keV").value
@@ -102,25 +103,6 @@ def angle_aberration_gamma(direction_vector, position_vector, time):
     output_vector = (direction_vector - (velocity_vector * factor_b)) / factor_a
 
     return output_vector
-
-
-@njit(**njit_dict_no_parallel)
-def kappa_calculation(energy):
-    """
-    Calculates kappa for various other calculations
-    i.e. energy normalized to electron rest energy
-    511.0 KeV
-
-    Parameters
-    ----------
-    energy : float
-
-    Returns
-    -------
-    kappa : float
-
-    """
-    return energy / ELECTRON_MASS_ENERGY_KEV
 
 
 @njit(**njit_dict_no_parallel)
