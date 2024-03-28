@@ -74,7 +74,7 @@ def read_stella_model(fname):
     # and the actual data
     data = pd.read_csv(
         fname,
-        delim_whitespace=True,
+        sep=r"\s+",
         skiprows=DATA_START_ROW + 1,
         header=None,
         index_col=0,

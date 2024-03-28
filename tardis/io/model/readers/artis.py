@@ -50,7 +50,7 @@ def read_artis_density(fname):
         usecols=(0, 1, 2, 4, 5, 6, 7),
         dtype={item: np.float64 for item in artis_model_columns},
         names=artis_model_columns,
-        delim_whitespace=True,
+        sep=r"\s+",
     ).to_records(index=False)
 
     velocity = u.Quantity(artis_model["velocities"], "km/s").to("cm/s")

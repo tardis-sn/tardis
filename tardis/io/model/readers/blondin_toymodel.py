@@ -44,7 +44,7 @@ def read_blondin_toymodel(fname):
     ]
 
     raw_blondin_csv = pd.read_csv(
-        fname, delim_whitespace=True, comment="#", header=None, names=columns
+        fname, sep=r"\s+", comment="#", header=None, names=columns
     )
     raw_blondin_csv.set_index("idx", inplace=True)
 

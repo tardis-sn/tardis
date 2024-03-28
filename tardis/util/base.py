@@ -32,7 +32,7 @@ tardis_dir = os.path.realpath(tardis.__path__[0])
 ATOMIC_SYMBOLS_DATA = (
     pd.read_csv(
         get_internal_data_path("atomic_symbols.dat"),
-        delim_whitespace=True,
+        sep=r"\s+",
         names=["atomic_number", "symbol"],
     )
     .set_index("atomic_number")
