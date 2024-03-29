@@ -85,3 +85,4 @@ benchmarks/data/*.h5
 # ASV
 .asv/
 pkgs/
+release_hashes.txt
