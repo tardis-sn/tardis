@@ -58,9 +58,7 @@ class TestTransportSimpleFormalIntegral:
         if not generate_reference:
             return simulation.transport
         else:
-            simulation.transport.hdf_properties = [
-                "transport_state"
-            ]
+            simulation.transport.hdf_properties = ["transport_state"]
             simulation.transport.to_hdf(
                 tardis_ref_data, "", self.name, overwrite=True
             )

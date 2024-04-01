@@ -80,7 +80,9 @@ class TestTransportSimple:
         )
 
     def test_spectrum(self, transport, refdata):
-        luminosity = u.Quantity(refdata("transport_state/spectrum/luminosity"), "erg /s")
+        luminosity = u.Quantity(
+            refdata("transport_state/spectrum/luminosity"), "erg /s"
+        )
 
         assert_quantity_allclose(
             transport.transport_state.spectrum.luminosity, luminosity

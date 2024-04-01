@@ -58,9 +58,7 @@ def simulation_one_loop(
             "t_radiative",
             "dilution_factor",
         ]
-        simulation.transport.hdf_properties = [
-            "transport_state"
-        ]
+        simulation.transport.hdf_properties = ["transport_state"]
         simulation.to_hdf(
             tardis_ref_data, "", "test_simulation", overwrite=True
         )
@@ -115,8 +113,6 @@ def test_plasma_estimates(simulation_one_loop, refdata, name):
     except KeyError:
         refdata_keyname = refdata(f"transport_state/{name}")
     pdt.assert_series_equal(actual, refdata_keyname, rtol=1e-5, atol=1e-8)
-
-
 
 
 @pytest.mark.parametrize(
