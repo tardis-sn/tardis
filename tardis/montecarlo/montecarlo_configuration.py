@@ -1,5 +1,6 @@
 from astropy import units as u
-from numba import float64, int64, boolean
+import functools
+from numba import float64, int64, boolean, jit
 from numba.experimental import jitclass
 import numpy as np
 
@@ -7,29 +8,8 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import (
     LineInteractionType,
 )
 
-numba_config_spec = [
-    ("ENABLE_FULL_RELATIVITY", boolean),
-    ("TEMPORARY_V_PACKET_BINS", int64),
-    ("NUMBER_OF_VPACKETS", int64),
-    ("MONTECARLO_SEED", int64),
-    ("LINE_INTERACTION_TYPE", int64),
-    ("PACKET_SEEDS", int64[:]),
-    ("DISABLE_ELECTRON_SCATTERING", boolean),
-    ("DISABLE_LINE_SCATTERING", boolean),
-    ("SURVIVAL_PROBABILITY", float64),
-    ("VPACKET_TAU_RUSSIAN", float64),
-    ("INITIAL_TRACKING_ARRAY_LENGTH", int64),
-    ("LEGACY_MODE_ENABLED", boolean),
-    ("ENABLE_RPACKET_TRACKING", boolean),
-    ("CONTINUUM_PROCESSES_ENABLED", boolean),
-    ("VPACKET_SPAWN_START_FREQUENCY", float64),
-    ("VPACKET_SPAWN_END_FREQUENCY", float64),
-    ("ENABLE_VPACKET_TRACKING", boolean),
-]
 
-
-@jitclass(numba_config_spec)
-class MonteCarloConfiguration(object):
+class MonteCarloConfiguration:
     def __init__(self):
         self.ENABLE_FULL_RELATIVITY = False
         self.TEMPORARY_V_PACKET_BINS = 0
@@ -82,3 +62,56 @@ def configuration_initialize(config, transport, number_of_vpackets):
     )
     config.ENABLE_VPACKET_TRACKING = transport.enable_vpacket_tracking
     config.ENABLE_RPACKET_TRACKING = transport.enable_rpacket_tracking
+
+
+@functools.cache
+def obj2strkeydict(obj, config_name):
+    # unpack object to freevars and close over them
+    tmp_ENABLE_FULL_RELATIVITY = obj.ENABLE_FULL_RELATIVITY
+    tmp_TEMPORARY_V_PACKET_BINS = obj.TEMPORARY_V_PACKET_BINS
+    tmp_NUMBER_OF_VPACKETS = obj.NUMBER_OF_VPACKETS
+    tmp_MONTECARLO_SEED = obj.MONTECARLO_SEED
+    tmp_LINE_INTERACTION_TYPE = obj.LINE_INTERACTION_TYPE
+    tmp_PACKET_SEEDS = obj.PACKET_SEEDS
+    tmp_DISABLE_ELECTRON_SCATTERING = obj.DISABLE_ELECTRON_SCATTERING
+    tmp_DISABLE_LINE_SCATTERING = obj.DISABLE_LINE_SCATTERING
+    tmp_SURVIVAL_PROBABILITY = obj.SURVIVAL_PROBABILITY
+    tmp_VPACKET_TAU_RUSSIAN = obj.VPACKET_TAU_RUSSIAN
+    tmp_INITIAL_TRACKING_ARRAY_LENGTH = obj.INITIAL_TRACKING_ARRAY_LENGTH
+    tmp_LEGACY_MODE_ENABLED = obj.LEGACY_MODE_ENABLED
+    tmp_ENABLE_RPACKET_TRACKING = obj.ENABLE_RPACKET_TRACKING
+    tmp_CONTINUUM_PROCESSES_ENABLED = obj.CONTINUUM_PROCESSES_ENABLED
+    tmp_VPACKET_SPAWN_START_FREQUENCY = obj.VPACKET_SPAWN_START_FREQUENCY
+    tmp_VPACKET_SPAWN_END_FREQUENCY = obj.VPACKET_SPAWN_END_FREQUENCY
+    tmp_ENABLE_VPACKET_TRACKING = obj.ENABLE_VPACKET_TRACKING
+
+    assert isinstance(config_name, str)
+    tmp_force_heterogeneous = config_name
+
+    @jit
+    def configurator():
+        dict = {
+            "ENABLE_FULL_RELATIVITY": tmp_ENABLE_FULL_RELATIVITY,
+            "TEMPORARY_V_PACKET_BINS": tmp_TEMPORARY_V_PACKET_BINS,
+            "NUMBER_OF_VPACKETS": tmp_NUMBER_OF_VPACKETS,
+            "MONTECARLO_SEED": tmp_MONTECARLO_SEED,
+            "LINE_INTERACTION_TYPE": tmp_LINE_INTERACTION_TYPE,
+            "PACKET_SEEDS": tmp_PACKET_SEEDS,
+            "DISABLE_ELECTRON_SCATTERING": tmp_DISABLE_ELECTRON_SCATTERING,
+            "DISABLE_LINE_SCATTERING": tmp_DISABLE_LINE_SCATTERING,
+            "SURVIVAL_PROBABILITY": tmp_SURVIVAL_PROBABILITY,
+            "VPACKET_TAU_RUSSIAN": tmp_VPACKET_TAU_RUSSIAN,
+            "INITIAL_TRACKING_ARRAY_LENGTH": tmp_INITIAL_TRACKING_ARRAY_LENGTH,
+            "LEGACY_MODE_ENABLED": tmp_LEGACY_MODE_ENABLED,
+            "ENABLE_RPACKET_TRACKING": tmp_ENABLE_RPACKET_TRACKING,
+            "CONTINUUM_PROCESSES_ENABLED": tmp_CONTINUUM_PROCESSES_ENABLED,
+            "VPACKET_SPAWN_START_FREQUENCY": tmp_VPACKET_SPAWN_START_FREQUENCY,
+            "VPACKET_SPAWN_END_FREQUENCY": tmp_VPACKET_SPAWN_END_FREQUENCY,
+            "ENABLE_VPACKET_TRACKING": tmp_ENABLE_VPACKET_TRACKING,
+            "config_name": tmp_force_heterogeneous,
+        }
+        return dict
+
+    # return a configuration function that returns a string-key-dict
+    # representation of the configuration object.
+    return configurator
