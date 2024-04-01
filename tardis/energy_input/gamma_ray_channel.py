@@ -28,9 +28,9 @@ def create_isotope_dicts(raw_isotope_abundance, cell_masses):
     -------
         isotope_dicts : Dict
             dictionary of isotopes for each shell with their ``masses``.
-            For eg: {0: {(28, 56): {'Ni56': 0.0001}, (27, 57): {'Co56': 0.0001}}
-                    {1: {(28, 56): {'Ni56': 0.0001}, (27, 57): {'Co56': 0.0001}}} etc
-
+            Each value is abundance * cell masses.
+            For eg: {0: {'Ni56': 0.1, 'Fe52': 0.2, 'Cr48': 0.3},
+                    {1: {'Ni56': 0.1, 'Fe52': 0.2, 'Cr48': 0.3}} etc
     """
     isotope_dicts = {}
     for i in range(len(raw_isotope_abundance.columns)):
@@ -54,21 +54,19 @@ def create_inventories_dict(isotope_dict):
     ----------
     isotope_dict : Dict
         dictionary of isotopes for each shell with their ``masses``.
-
     Returns
     -------
         inv : Dict
             dictionary of inventories for each shell
-            For eg: {0: {'Ni56': <radioactivedecay.Inventory>,
-                         'Co56': <radioactivedecay.Inventory>},
-                    {1: {'Ni56': <radioactivedecay.Inventory>,
-                         'Co56': <radioactivedecay.Inventory>}} etc
-    """
-    inv = {}
-    for shell, isotopes in isotope_dict.items():
-        inv[shell] = rd.Inventory(isotopes, "g")
+            {0: <radioactivedecay.inventory.Inventory object at 0x7f8b1c1b3d90>,
+            1: <radioactivedecay.inventory.Inventory object at 0x7f8b1c1b3d90>}
 
-    return inv
+    """
+    inventories = {}
+    for shell, isotopes in isotope_dict.items():
+        inventories[shell] = rd.Inventory(isotopes, "g")
+
+    return inventories
 
 
 def calculate_total_decays(inventories, time_delta):
@@ -90,15 +88,15 @@ def calculate_total_decays(inventories, time_delta):
     """
     time_delta = u.Quantity(time_delta, u.s)
     total_decays = {}
-    for shell, isotopes in inventories.items():
-        total_decays[shell] = isotopes.cumulative_decays(time_delta.value)
+    for shell, inventory in inventories.items():
+        total_decays[shell] = inventory.cumulative_decays(time_delta.value)
 
     flattened_dict = {}
 
     for shell, isotope_dict in total_decays.items():
-        for isotope, decay_value in isotope_dict.items():
+        for isotope, num_of_decays in isotope_dict.items():
             new_key = isotope.replace("-", "")
-            flattened_dict[(shell, new_key)] = decay_value
+            flattened_dict[(shell, new_key)] = num_of_decays
 
     indices = pd.MultiIndex.from_tuples(
         flattened_dict.keys(), names=["shell_number", "isotope"]
@@ -120,7 +118,7 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
     Parameters
     ----------
     cumulative_decay_df : pd.DataFrame
-        dataframe of isotopes for each shell with their number of decays.
+        total decays for x g of isotope for time 't'
     gamma_ray_lines : str
         path to the atomic data file.
 
@@ -131,7 +129,9 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
         radiation energy and radiation intensity.
     """
 
-    gamma_ray_lines = gamma_ray_lines.rename_axis("isotope")
+    gamma_ray_lines = gamma_ray_lines.rename_axis(
+        "isotope"
+    )  # renaming "Isotope" in nndc to "isotope"
     gamma_ray_lines.drop(columns=["A", "Z"])
     gamma_ray_lines_df = gamma_ray_lines[
         ["Decay Mode", "Radiation", "Rad Energy", "Rad Intensity"]
@@ -140,7 +140,7 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
     columns = [
         "decay_mode",
         "radiation",
-        "radiation_energy",
+        "radiation_energy_keV",
         "radiation_intensity",
     ]
     gamma_ray_lines_df.columns = columns
@@ -159,7 +159,7 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
     isotope_decay_df["energy_per_channel_keV"] = (
         isotope_decay_df["radiation_intensity"]
         / 100.0
-        * isotope_decay_df["radiation_energy"]
+        * isotope_decay_df["radiation_energy_keV"]
     )
     isotope_decay_df["decay_energy_keV"] = (
         isotope_decay_df["energy_per_channel_keV"]

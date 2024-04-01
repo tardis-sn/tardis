@@ -63,7 +63,7 @@ def gamma_ray_simulation_state(gamma_ray_config, atomic_dataset):
 
 
 @pytest.fixture(scope="module")
-def gamma_ray_model_state(gamma_ray_simulation_state):
+def gamma_ray_test_composition(gamma_ray_simulation_state):
     """
     Parameters
     ----------
@@ -74,7 +74,7 @@ def gamma_ray_model_state(gamma_ray_simulation_state):
     Tardis model state
     """
 
-    raw_isotope_abundance = (
+    raw_isotopic_mass_fraction = (
         gamma_ray_simulation_state.composition.raw_isotope_abundance
     )
     composition = gamma_ray_simulation_state.composition
@@ -82,7 +82,7 @@ def gamma_ray_model_state(gamma_ray_simulation_state):
         gamma_ray_simulation_state.geometry.volume
     )
 
-    return raw_isotope_abundance, cell_masses
+    return raw_isotopic_mass_fraction, cell_masses
 
 
 def test_calculate_cell_masses(gamma_ray_simulation_state):
@@ -102,8 +102,8 @@ def test_calculate_cell_masses(gamma_ray_simulation_state):
     npt.assert_allclose(shell_masses[0], desired)
 
 
-@pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])
-def test_isotope_dicts(gamma_ray_model_state, nuclide_name):
+@pytest.mark.parametrize("nuclide_name", ["Ni56", "Fe52", "Cr48"])
+def test_isotope_dicts(gamma_ray_test_composition, nuclide_name):
     """
     Function to test if the right names for the isotopes are present as dictionary keys.
     Parameters
@@ -111,15 +111,15 @@ def test_isotope_dicts(gamma_ray_model_state, nuclide_name):
     simulation_setup: A simulation setup which returns a model.
     nuclide_name: Name of the nuclide.
     """
-    raw_isotope_abundance, cell_masses = gamma_ray_model_state
-    isotope_dict = create_isotope_dicts(raw_isotope_abundance, cell_masses)
+    raw_isotopic_mass_fraction, cell_masses = gamma_ray_test_composition
+    isotope_dict = create_isotope_dicts(raw_isotopic_mass_fraction, cell_masses)
 
     for isotope_dict in isotope_dict.values():
-        assert nuclide_name.replace("-", "") in isotope_dict.keys()
+        assert nuclide_name in isotope_dict.keys()
 
 
 @pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])
-def test_inventories_dict(gamma_ray_model_state, nuclide_name):
+def test_inventories_dict(gamma_ray_test_composition, nuclide_name):
     """
     Function to test if the inventories dictionary is created correctly.
     Parameters
@@ -129,16 +129,16 @@ def test_inventories_dict(gamma_ray_model_state, nuclide_name):
     """
 
     nuclide = rd.Nuclide(nuclide_name)
-    raw_isotope_abundance, cell_masses = gamma_ray_model_state
-    isotope_dict = create_isotope_dicts(raw_isotope_abundance, cell_masses)
+    raw_isotopic_mass_fraction, cell_masses = gamma_ray_test_composition
+    isotope_dict = create_isotope_dicts(raw_isotopic_mass_fraction, cell_masses)
     inventories_dict = create_inventories_dict(isotope_dict)
 
     Z, A = nuclide.Z, nuclide.A
-    raw_isotope_abundance_mass = raw_isotope_abundance.apply(
+    raw_isotope_mass = raw_isotopic_mass_fraction.apply(
         lambda x: x * cell_masses, axis=1
     )
 
-    mass = raw_isotope_abundance_mass.loc[Z, A][0]
+    mass = raw_isotope_mass.loc[Z, A][0]
     isotope_inventory = rd.Inventory({nuclide.nuclide: mass}, "g")
 
     if nuclide_name in inventories_dict[0].contents:
@@ -150,7 +150,7 @@ def test_inventories_dict(gamma_ray_model_state, nuclide_name):
 
 @pytest.mark.parametrize("nuclide_name", ["Ni-56"])
 def test_mass_energy_conservation(
-    gamma_ray_model_state, atomic_dataset, nuclide_name
+    gamma_ray_test_composition, atomic_dataset, nuclide_name
 ):
     """
     Function to test if the mass-energy conservation is satisfied.
@@ -160,9 +160,9 @@ def test_mass_energy_conservation(
     atomic_dataset: Tardis atomic-nuclear dataset
     nuclide_name: Name of the nuclide."""
 
-    raw_isotope_abundance, cell_masses = gamma_ray_model_state
+    raw_isotopic_mass_fraction, cell_masses = gamma_ray_test_composition
     gamma_ray_lines = atomic_dataset.decay_radiation_data
-    isotope_dict = create_isotope_dicts(raw_isotope_abundance, cell_masses)
+    isotope_dict = create_isotope_dicts(raw_isotopic_mass_fraction, cell_masses)
     inventories_dict = create_inventories_dict(isotope_dict)
     total_decays = calculate_total_decays(inventories_dict, 1 * u.d)
     isotope_decay_df = create_isotope_decay_df(total_decays, gamma_ray_lines)
@@ -171,7 +171,7 @@ def test_mass_energy_conservation(
         level=["shell_number", "isotope"]
     )
 
-    parent_isotope = (
+    parent_isotope_energy = (
         grouped_isotope_df.get_group((0, nuclide_name.replace("-", "")))[
             "energy_per_channel_keV"
         ].sum()
@@ -181,7 +181,7 @@ def test_mass_energy_conservation(
 
     neutrino_energy = 0.41 * u.MeV
 
-    total_energy_actual = parent_isotope + neutrino_energy
+    total_energy_actual = parent_isotope_energy + neutrino_energy
 
     c2 = const.c.to("cm/s") ** 2
 
@@ -202,7 +202,7 @@ def test_mass_energy_conservation(
 
 
 @pytest.mark.parametrize("nuclide_name", ["Ni-56", "Fe-52", "Cr-48"])
-def test_activity(gamma_ray_model_state, nuclide_name):
+def test_activity(gamma_ray_test_composition, nuclide_name):
     """
     Function to test the decay of an atom in radioactivedecay with an analytical solution.
     Parameters
@@ -217,10 +217,10 @@ def test_activity(gamma_ray_model_state, nuclide_name):
     time_delta = 1.0 * u.s
 
     # calculating necessary values
-    raw_isotope_abundance, cell_masses = gamma_ray_model_state
-    isotopic_masses = raw_isotope_abundance * cell_masses
+    raw_isotopic_mass_fraction, cell_masses = gamma_ray_test_composition
+    isotopic_masses = raw_isotopic_mass_fraction * cell_masses
     test_mass = isotopic_masses.loc[(nuclide.Z, nuclide.A), 0] * u.g
-    isotope_dict = create_isotope_dicts(raw_isotope_abundance, cell_masses)
+    isotope_dict = create_isotope_dicts(raw_isotopic_mass_fraction, cell_masses)
     inventories_dict = create_inventories_dict(isotope_dict)
 
     total_decays = calculate_total_decays(inventories_dict, time_delta)
