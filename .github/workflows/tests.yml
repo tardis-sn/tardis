@@ -15,7 +15,7 @@ on:
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
-  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data
+  PYTEST_FLAGS: --tardis-refdata=${{ github.workspace }}/tardis-refdata --tardis-regression-data=${{ github.workspace }}/tardis-regression-data -vvv
                 --cov=tardis --cov-report=xml --cov-report=html 
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -172,6 +172,12 @@ jobs:
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }}
         working-directory: ${{ env.TARDIS_PIP_PATH }}
+        if: always()
 
       - name: Upload to Codecov
         run: bash <(curl -s https://codecov.io/bash)
+      
+      - name: Refdata Generation tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference
+        working-directory: ${{ env.TARDIS_PIP_PATH }}
+        if: always()
