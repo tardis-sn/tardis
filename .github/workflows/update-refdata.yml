@@ -78,7 +78,7 @@ jobs:
 
       - name: Restore LFS cache
         uses: actions/cache@v3
-        id: lfs-cache
+        id: lfs-cache-refdata
         with:
           path: tardis-refdata/.git/lfs
           key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-refdata/.lfs-assets-id') }}-v${{ env.CACHE_NUMBER }}
@@ -86,12 +86,22 @@ jobs:
       - name: Pull LFS objects
         run: git lfs pull
         working-directory: tardis-refdata
-        if: steps.lfs-cache.outputs.cache-hit != 'true'
+        if: steps.lfs-cache-refdata.outputs.cache-hit != 'true'
       
       - name: Checkout LFS repository
         run: git lfs checkout
         working-directory: tardis-refdata
-        if: steps.lfs-cache.outputs.cache-hit == 'true'
+        if: steps.lfs-cache-refdata.outputs.cache-hit == 'true'
+      
+      - name: Save LFS cache if not found
+        # uses fake ternary 
+        # for reference: https://github.com/orgs/community/discussions/26738#discussioncomment-3253176
+        if: ${{ steps.lfs-cache-refdata.outputs.cache-hit != 'true'  && always() || false }}
+        uses: actions/cache/save@v3
+        id: lfs-cache-refdata-save
+        with:
+          path: tardis-refdata/.git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('tardis-refdata/.lfs-assets-id') }}-v1
 
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
