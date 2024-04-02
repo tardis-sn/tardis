@@ -9,7 +9,7 @@ import pandas as pd
 from astropy import units as u
 from numpy import recfromtxt
 from radioactivedecay import Nuclide
-from radioactivedecay.utils import Z_DICT, elem_to_Z
+from radioactivedecay.utils import Z_DICT, elem_to_Z, NuclideStrError
 
 from tardis.io.configuration.config_reader import ConfigurationNameSpace
 from tardis.montecarlo.base import MonteCarloTransportSolver
@@ -178,12 +178,22 @@ def read_uniform_abundances(abundances_section, no_of_shells):
                     abundances_section[element_symbol_string]
                 )
             else:
-                nuc = Nuclide(element_symbol_string)
-                mass_no = nuc.A
-                z = nuc.Z
-                isotope_abundance.loc[(z, mass_no), :] = float(
-                    abundances_section[element_symbol_string]
-                )
+                '''
+                BUG-LOCATION:
+                initially there was no try-except block.
+                consider, config.model.abundances = {'type': 'uniform', 'O': 0.19, 'Mg': 0.03, 'Si': 0.52, 'S': 0.19, 'Ar': 0.04, 'Ca': 0.03, 'model_isotope_time_0': <Quantity 0. s>}
+                Then 'model_isotope_time_0' isn't "type" so it passes along to Nuclide(element_symbol_string) which generates an error: radioactivedecay.utils.NuclideStrError: model_isotope_time_0 is not a valid nuclide string. Nuclide strings must contain only letters, numbers, and (optionally) up to one hyphen.
+
+                '''
+                try:
+                    nuc = Nuclide(element_symbol_string)
+                    mass_no = nuc.A
+                    z = nuc.Z
+                    isotope_abundance.loc[(z, mass_no), :] = float(
+                        abundances_section[element_symbol_string]
+                    )
+                except NuclideStrError:
+                    continue
 
         except RuntimeError as err:
             raise RuntimeError(
