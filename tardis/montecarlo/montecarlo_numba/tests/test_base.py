@@ -50,13 +50,13 @@ def test_montecarlo_main_loop(
 
     # Load compare data from refdata
 
-    expected_nu = expected_hdf_store["/simulation/transport/output_nu"]
-    expected_energy = expected_hdf_store["/simulation/transport/output_energy"]
+    expected_nu = expected_hdf_store["/simulation/transport/transport_state/output_nu"]
+    expected_energy = expected_hdf_store["/simulation/transport/transport_state/output_energy"]
     expected_nu_bar_estimator = expected_hdf_store[
-        "/simulation/transport/nu_bar_estimator"
+        "/simulation/transport/transport_state/nu_bar_estimator"
     ]
     expected_j_estimator = expected_hdf_store[
-        "/simulation/transport/j_estimator"
+        "/simulation/transport/transport_state/j_estimator"
     ]
     expected_hdf_store.close()
     transport_state = montecarlo_main_loop_simulation.transport.transport_state
@@ -98,19 +98,19 @@ def test_montecarlo_main_loop_vpacket_log(
         montecarlo_main_loop_simulation
     )
 
-    expected_nu = expected_hdf_store["/simulation/transport/output_nu"]
-    expected_energy = expected_hdf_store["/simulation/transport/output_energy"]
+    expected_nu = expected_hdf_store["/simulation/transport/transport_state/output_nu"]
+    expected_energy = expected_hdf_store["/simulation/transport/transport_state/output_energy"]
     expected_nu_bar_estimator = expected_hdf_store[
-        "/simulation/transport/nu_bar_estimator"
+        "/simulation/transport/transport_state/nu_bar_estimator"
     ]
     expected_j_estimator = expected_hdf_store[
-        "/simulation/transport/j_estimator"
+        "/simulation/transport/transport_state/j_estimator"
     ]
     expected_vpacket_log_nus = expected_hdf_store[
-        "/simulation/transport/virt_packet_nus"
+        "/simulation/transport/transport_state/virt_packet_nus"
     ]
     expected_vpacket_log_energies = expected_hdf_store[
-        "/simulation/transport/virt_packet_energies"
+        "/simulation/transport/transport_state/virt_packet_energies"
     ]
 
     transport = montecarlo_main_loop_simulation.transport

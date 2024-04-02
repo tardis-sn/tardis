@@ -72,7 +72,7 @@ class TestTransportSimpleFormalIntegral:
         return get_ref_data
 
     def test_j_blue_estimators(self, transport, refdata):
-        j_blue_estimator = refdata("j_blue_estimator").values
+        j_blue_estimator = refdata("transport_state/j_blue_estimator").values
 
         npt.assert_allclose(
             transport.transport_state.radfield_mc_estimators.j_blue_estimator,
@@ -80,7 +80,7 @@ class TestTransportSimpleFormalIntegral:
         )
 
     def test_spectrum(self, transport, refdata):
-        luminosity = u.Quantity(refdata("spectrum/luminosity"), "erg /s")
+        luminosity = u.Quantity(refdata("transport_state/spectrum/luminosity"), "erg /s")
 
         assert_quantity_allclose(
             transport.transport_state.spectrum.luminosity, luminosity
@@ -88,7 +88,7 @@ class TestTransportSimpleFormalIntegral:
 
     def test_spectrum_integrated(self, transport, refdata):
         luminosity = u.Quantity(
-            refdata("spectrum_integrated/luminosity"), "erg /s"
+            refdata("transport_state/spectrum_integrated/luminosity"), "erg /s"
         )
 
         assert_quantity_allclose(

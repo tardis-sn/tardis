@@ -72,7 +72,7 @@ class TestTransportSimple:
         return get_ref_data
 
     def test_j_blue_estimators(self, transport, refdata):
-        j_blue_estimator = refdata("j_blue_estimator").values
+        j_blue_estimator = refdata("transport_state/j_blue_estimator").values
 
         npt.assert_allclose(
             transport.transport_state.radfield_mc_estimators.j_blue_estimator,
