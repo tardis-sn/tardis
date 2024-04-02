@@ -4,10 +4,7 @@ import pandas as pd
 import astropy.units as u
 import radioactivedecay as rd
 
-
-from tardis.energy_input.energy_source import (
-    get_nuclear_lines_database,
-)
+from tardis.energy_input.util import KEV_ERG
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -119,8 +116,8 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
     ----------
     cumulative_decay_df : pd.DataFrame
         total decays for x g of isotope for time 't'
-    gamma_ray_lines : str
-        path to the atomic data file.
+    gamma_ray_lines : pd.DataFrame
+        gamma ray lines from nndc stored as a pandas dataframe.
 
     Returns
     -------
@@ -164,6 +161,9 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
     isotope_decay_df["decay_energy_keV"] = (
         isotope_decay_df["energy_per_channel_keV"]
         * isotope_decay_df["number_of_decays"]
+    )
+    isotope_decay_df["decay_energy_erg"] = (
+        isotope_decay_df["decay_energy_keV"] * KEV_ERG
     )
 
     return isotope_decay_df

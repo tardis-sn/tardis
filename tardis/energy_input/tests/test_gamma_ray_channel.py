@@ -71,7 +71,8 @@ def gamma_ray_test_composition(gamma_ray_simulation_state):
 
     Returns
     -------
-    Tardis model state
+    raw_isotopic_mass_fraction: Raw isotopic mass fraction
+    cell_masses: Mass of the cell
     """
 
     raw_isotopic_mass_fraction = (
@@ -89,7 +90,7 @@ def test_calculate_cell_masses(gamma_ray_simulation_state):
     """Function to test calculation of shell masses.
     Parameters
     ----------
-    simulation_setup: A simulation setup which returns a model.
+    gamma_ray_simulation_state: Tardis simulation state.
     """
     volume = 2.70936170e39 * u.cm**3
     density = 5.24801665e-09 * u.g / u.cm**3
@@ -108,7 +109,7 @@ def test_isotope_dicts(gamma_ray_test_composition, nuclide_name):
     Function to test if the right names for the isotopes are present as dictionary keys.
     Parameters
     ----------
-    simulation_setup: A simulation setup which returns a model.
+    gamma_ray_test_composition: Function holding the composition.
     nuclide_name: Name of the nuclide.
     """
     raw_isotopic_mass_fraction, cell_masses = gamma_ray_test_composition
@@ -124,7 +125,7 @@ def test_inventories_dict(gamma_ray_test_composition, nuclide_name):
     Function to test if the inventories dictionary is created correctly.
     Parameters
     ----------
-    simulation_setup: A simulation setup which returns a model.
+    gamma_ray_test_composition: Function holding the composition.
     nuclide_name: Name of the nuclide.
     """
 
@@ -156,7 +157,7 @@ def test_mass_energy_conservation(
     Function to test if the mass-energy conservation is satisfied.
     Parameters
     ----------
-    simulation_setup: A simulation setup which returns a model.
+    gamma_ray_test_composition: Function holding the composition.
     atomic_dataset: Tardis atomic-nuclear dataset
     nuclide_name: Name of the nuclide."""
 
@@ -207,7 +208,7 @@ def test_activity(gamma_ray_test_composition, nuclide_name):
     Function to test the decay of an atom in radioactivedecay with an analytical solution.
     Parameters
     ----------
-    simulation_setup: A simulation setup which returns a model.
+    gamma_ray_test_composition: Function holding the composition.
     nuclide_name: Name of the nuclide.
     """
     # setup of decay test
