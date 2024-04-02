@@ -1,0 +1,20 @@
+version: "3.8"
+services:
+  tardis-benchmarks-live:
+    image: tardis-benchmarks-live-image
+    container_name: tardis-benchmarks-live-container
+    hostname: dev-abc123
+    build:
+      context: .
+      dockerfile: Dockerfile-benchmarks-live
+      args:
+        USER_NAME: "host-user"
+        UID: "1000"
+        GROUP_NAME: "host-group"
+        GID: "984"
+    volumes:
+      - type: bind
+        source: ./
+        target: /app/code
+    ports:
+      - "8087:80"
