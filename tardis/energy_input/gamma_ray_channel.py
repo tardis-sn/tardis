@@ -4,7 +4,7 @@ import pandas as pd
 import astropy.units as u
 import radioactivedecay as rd
 
-from tardis.energy_input.util import KEV_ERG
+from tardis.energy_input.util import KEV2ERG
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -163,7 +163,7 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
         * isotope_decay_df["number_of_decays"]
     )
     isotope_decay_df["decay_energy_erg"] = (
-        isotope_decay_df["decay_energy_keV"] * KEV_ERG
+        isotope_decay_df["decay_energy_keV"] * KEV2ERG
     )
 
     return isotope_decay_df
