@@ -104,10 +104,6 @@ class GXPacketCollection:
         self.number_of_packets = len(self.energy_rf)
         self.tau = -np.log(np.random.random(self.number_of_packets))
 
-    def get_positron_energy_df(self):
-        energy_plot_positron_rows = np.zeros((self.number_of_packets, 4))
-        pass
-
 
 # @njit(**njit_dict_no_parallel)
 def initialize_packet_properties(

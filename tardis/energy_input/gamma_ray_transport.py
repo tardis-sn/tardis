@@ -58,7 +58,10 @@ def get_chain_decay_power_per_ejectamass(
 
         # this is the total decay energy from gamma-rays and positrons for the end of chain isotope
         # endecay = get_decaypath_lastnucdecayenergy(decaypathindex)
-        endecay = average_energies[end_isotope] + average_positron_energies[end_isotope]
+        endecay = (
+            average_energies[end_isotope]
+            + average_positron_energies[end_isotope]
+        )
 
         print("Decay energy, abundance, tau")
         print(endecay)
@@ -178,6 +181,9 @@ def get_taus(raw_isotope_abundance):
         if child is not None:
             for c in child:
                 if rd.Nuclide(c).half_life("readable") != "stable":
+                    # this is a dict of child: parent intended to find
+                    # the parents of a given isotope.
+                    # if there is no parent, there is no item.
                     parents[c] = isotope
 
     return taus, parents
@@ -342,7 +348,9 @@ def packets_per_isotope(fractional_decay_energy, decayed_packet_count_dict):
     packets_per_isotope = {
         shell: {
             parent_isotope: {
-                isotopes: fractional_decay_energy[shell][parent_isotope][isotopes]
+                isotopes: fractional_decay_energy[shell][parent_isotope][
+                    isotopes
+                ]
                 * decayed_packet_count_dict[shell][parent_isotope]
                 for isotopes in fractional_decay_energy[shell][parent_isotope]
             }
