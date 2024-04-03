@@ -11,30 +11,30 @@ class Benchmarkruntardis:
     params = ['branch85_w7', 'uniform','power_law','exponential']
     param_names = ['Density']
 
-    def setup(self, d):
+    def setup(self, density):
         filename = "tardis_configv1_benchmark.yml"
         dir_path = os.path.dirname(os.path.realpath(__file__))
         path = os.path.join(dir_path, "data", filename)
         config = Configuration.from_yaml(path)
         config.atom_data = "kurucz_cd23_chianti_H_He.h5"
-        config.model.structure.density.type = d
+        config.model.structure.density.type = density
         config.model.structure.velocity.start = 1000 * u.km/u.s
         config.model.structure.velocity.stop = 2000 * u.km/u.s
         config.model.structure.velocity.num = 20
-        if d == 'uniform':
+        if density == 'uniform':
             config.model.structure.density.time_0 = 1 * u.day
             config.model.structure.density.value = 5e-10 * u.kg/u.cm**3
-        elif d == 'power_law':
+        elif density == 'power_law':
             config.model.structure.density.time_0 = 1 * u.day
             config.model.structure.density.rho_0 = 5e-10 * u.kg/u.cm**3
             config.model.structure.density.v_0 = 500 * u.km/u.s
             config.model.structure.density.exponent = -2
-        elif d == 'exponential':
+        elif density == 'exponential':
             config.model.structure.density.time_0 = 1 * u.day
             config.model.structure.density.rho_0 = 5e-10 * u.kg/u.cm**3
             config.model.structure.density.v_0 = 500 * u.km/u.s
         self.config = config
 
-    def time_run_tardis(self,d):
+    def time_run_tardis(self,density):
         sim = run_tardis(self.config, log_level="ERROR",
                          show_progress_bars=False)
