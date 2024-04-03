@@ -50,8 +50,12 @@ def test_montecarlo_main_loop(
 
     # Load compare data from refdata
 
-    expected_nu = expected_hdf_store["/simulation/transport/transport_state/output_nu"]
-    expected_energy = expected_hdf_store["/simulation/transport/transport_state/output_energy"]
+    expected_nu = expected_hdf_store[
+        "/simulation/transport/transport_state/output_nu"
+    ]
+    expected_energy = expected_hdf_store[
+        "/simulation/transport/transport_state/output_energy"
+    ]
     expected_nu_bar_estimator = expected_hdf_store[
         "/simulation/transport/transport_state/nu_bar_estimator"
     ]
@@ -98,8 +102,12 @@ def test_montecarlo_main_loop_vpacket_log(
         montecarlo_main_loop_simulation
     )
 
-    expected_nu = expected_hdf_store["/simulation/transport/transport_state/output_nu"]
-    expected_energy = expected_hdf_store["/simulation/transport/transport_state/output_energy"]
+    expected_nu = expected_hdf_store[
+        "/simulation/transport/transport_state/output_nu"
+    ]
+    expected_energy = expected_hdf_store[
+        "/simulation/transport/transport_state/output_energy"
+    ]
     expected_nu_bar_estimator = expected_hdf_store[
         "/simulation/transport/transport_state/nu_bar_estimator"
     ]
