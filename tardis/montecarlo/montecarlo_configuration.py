@@ -1,12 +1,13 @@
 from astropy import units as u
 import functools
-from numba import float64, int64, boolean, jit
+from numba import float64, int64, boolean, njit
 from numba.experimental import jitclass
 import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     LineInteractionType,
 )
+from tardis.montecarlo.montecarlo_numba import njit_dict
 
 
 class MonteCarloConfiguration:
@@ -88,7 +89,7 @@ def obj2strkeydict(obj, config_name):
     assert isinstance(config_name, str)
     tmp_force_heterogeneous = config_name
 
-    @jit
+    @njit(**njit_dict)
     def configurator():
         dict = {
             "ENABLE_FULL_RELATIVITY": tmp_ENABLE_FULL_RELATIVITY,
