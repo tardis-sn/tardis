@@ -412,5 +412,6 @@ def create_redirect_files(app, docname):
 
 def setup(app):
     app.connect("builder-inited", generate_tutorials_page)
+    app.connect("builder-inited", generate_how_to_guides_page)
     app.connect("autodoc-skip-member", autodoc_skip_member)
     app.connect("build-finished", create_redirect_files)
