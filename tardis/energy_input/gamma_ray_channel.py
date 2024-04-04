@@ -206,7 +206,7 @@ def sample_single_packet(isotope_decay_df):
 
     Returns
     -------
-    sampled_packet : pd.Series
+    sampled_packet : pd.Dataframe
         A Series of sampled packets using the normalized energy in each channel.
 
     """
