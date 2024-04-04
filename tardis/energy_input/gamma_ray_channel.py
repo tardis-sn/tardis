@@ -169,7 +169,7 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
     return isotope_decay_df
 
 
-def distribute_packets(isotope_decay_df, number_of_packets):
+def distribute_packets(isotope_decay_df):
     """
     Function to distribute packets based on the energy of the decay.
 
@@ -178,8 +178,6 @@ def distribute_packets(isotope_decay_df, number_of_packets):
     isotope_decay_df : pd.DataFrame
         dataframe of isotopes for each shell with their decay mode, number of decays, radiation type,
         radiation energy and radiation intensity.
-    number_of_packets : int
-        number of packets to distribute.
 
     Returns
     -------
@@ -192,16 +190,37 @@ def distribute_packets(isotope_decay_df, number_of_packets):
         isotope_decay_df["decay_energy_erg"]
         / isotope_decay_df["decay_energy_erg"].sum()
     )
-    isotope_decay_df["packets"] = (
-        isotope_decay_df["normalized_energy"] * number_of_packets
-    )  # need to deal with rounding errors
 
     return isotope_decay_df
 
 
-def sample_packet_energy(isotope_decay_df, number_of_packets):
+def sample_single_packet(isotope_decay_df):
     """
     Function to sample packet energy from the energy distribution of the decay.
+
+    Parameters
+    ----------
+    isotope_decay_df : pd.DataFrame
+        dataframe of isotopes for each shell with their decay mode, number of decays, radiation type,
+        radiation energy and radiation intensity, normalized energy and packets.
+
+    Returns
+    -------
+    sampled_packet : pd.Series
+        A Series of sampled packets using the normalized energy in each channel.
+
+    """
+
+    sampled_packet = isotope_decay_df.sample(
+        weights="normalized_energy", random_state=np.random.RandomState(seed=29)
+    )  # random state for reproducibility
+
+    return sampled_packet
+
+
+def sample_packets(isotope_decay_df, number_of_packets):
+    """
+    Function to sample packets based on the energy of the decay.
 
     Parameters
     ----------
@@ -213,14 +232,15 @@ def sample_packet_energy(isotope_decay_df, number_of_packets):
 
     Returns
     -------
-    sampled_energy : numpy.ndarray
-        Creates an array .
+    sampled_packets : numpy.ndarray
+        Creates an array of packets.
     """
 
-    sampled_energy = np.random.choice(
-        isotope_decay_df["radiation_energy_keV"],
-        size=number_of_packets,
-        p=isotope_decay_df["normalized_energy"],
+    sampled_packets = np.array(
+        [
+            sample_single_packet(isotope_decay_df)
+            for i in range(number_of_packets)
+        ]
     )
 
-    return sampled_energy
+    return sampled_packets
