@@ -219,8 +219,6 @@ def initialize_packets(
                     times,
                     effective_times,
                     average_power_per_mass,
-                    atomic_number,
-                    mass_number,
                 )
 
                 energy_df_rows[shell_number, decay_time_index] += (
@@ -269,94 +267,6 @@ def calculate_ejecta_velocity_volume(model):
     )
 
     return ejecta_velocity_volume
-
-
-def calculate_total_decays(inventories, time_delta):
-    """Function to create inventories of isotope
-
-    Parameters
-    ----------
-    model : tardis.Radial1DModel
-        The tardis model to calculate gamma ray propagation through
-
-    time_end : float
-        End time of simulation in days
-
-    Returns
-    -------
-        Total decay list : List
-            list of total decays for x g of isotope for time 't'
-    """
-    time_delta = u.Quantity(time_delta, u.s)
-    total_decays = {}
-    for shell, isotopes in inventories.items():
-        total_decays[shell] = {}
-        for isotope, inventory in isotopes.items():
-            total_decays[shell][isotope] = inventory.cumulative_decays(
-                time_delta.value
-            )
-    return total_decays
-
-
-def create_isotope_dicts(raw_isotope_abundance, cell_masses):
-    """
-    Function to create a dictionary of isotopes for each shell with their masses.
-
-    Parameters
-    ----------
-    raw_isotope_abundance : pd.DataFrame
-        isotope abundance in mass fractions.
-    cell_masses : numpy.ndarray
-        shell masses in units of g
-
-    Returns
-    -------
-        isotope_dicts : Dict
-            dictionary of isotopes for each shell with their ``masses``.
-            For eg: {0: {(28, 56): {'Ni56': 0.0001}, (27, 57): {'Co56': 0.0001}}
-                    {1: {(28, 56): {'Ni56': 0.0001}, (27, 57): {'Co56': 0.0001}}} etc
-
-    """
-    isotope_dicts = {}
-    for i in range(len(raw_isotope_abundance.columns)):
-        isotope_dicts[i] = {}
-        for (
-            atomic_number,
-            mass_number,
-        ), abundances in raw_isotope_abundance.iterrows():
-            isotope_dicts[i][atomic_number, mass_number] = {}
-            nuclear_symbol = f"{rd.utils.Z_to_elem(atomic_number)}{mass_number}"
-            isotope_dicts[i][atomic_number, mass_number][nuclear_symbol] = (
-                abundances[i] * cell_masses[i].to(u.g).value
-            )
-
-    return isotope_dicts
-
-
-def create_inventories_dict(isotope_dict):
-    """Function to create dictionary of inventories for each shell
-
-    Parameters
-    ----------
-    isotope_dict : Dict
-        dictionary of isotopes for each shell with their ``masses``.
-
-    Returns
-    -------
-        inv : Dict
-            dictionary of inventories for each shell
-            For eg: {0: {'Ni56': <radioactivedecay.Inventory at 0x7f7d2c0d0e50>,
-                         'Co56': <radioactivedecay.Inventory at 0x7f7d2c0d0e50>},
-                    {1: {'Ni56': <radioactivedecay.Inventory at 0x7f7d2c0d0e50>,
-                         'Co56': <radioactivedecay.Inventory at 0x7f7d2c0d0e50>}} etc
-    """
-    inv = {}
-    for shell, isotopes in isotope_dict.items():
-        inv[shell] = {}
-        for isotope, name in isotopes.items():
-            inv[shell][isotope] = rd.Inventory(name, "g")
-
-    return inv
 
 
 def calculate_average_energies(raw_isotope_abundance, gamma_ray_lines):
@@ -578,7 +488,7 @@ def calculate_energy_per_mass(decay_energy, raw_isotope_abundance, cell_masses):
     return energy_per_mass, energy_df
 
 
-def distribute_packets(decay_energy, energy_per_packet):
+def distribute_packets(decay_energy, total_energy, num_packets):
     packets_per_isotope = {}
     for shell, isotopes in decay_energy.items():
         packets_per_isotope[shell] = {}
@@ -586,7 +496,7 @@ def distribute_packets(decay_energy, energy_per_packet):
             packets_per_isotope[shell][name] = {}
             for line, energy in isotope.items():
                 packets_per_isotope[shell][name][line] = int(
-                    energy / energy_per_packet
+                    energy / total_energy * num_packets
                 )
 
     packets_per_isotope_list = []
