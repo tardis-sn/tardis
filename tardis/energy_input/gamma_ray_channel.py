@@ -3,11 +3,62 @@ import numpy as np
 import pandas as pd
 import astropy.units as u
 import radioactivedecay as rd
+from tardis.model.matter.decay import IsotopicMassFraction
 
 from tardis.energy_input.util import KEV2ERG
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+
+def evolve_mass_fraction(
+    raw_isotope_mass_fraction,
+    time_start,
+    time_end,
+    time_step,
+    model_isotope_time,
+):
+    """
+    Function to evolve the isotope abundance over time.
+
+    Parameters
+    ----------
+    raw_isotope_mass_fraction : pd.DataFrame
+        mass fractions of isotopes.
+    time_start : float
+        Start time of simulation in days.
+    time_end : float
+        End time of simulation in days.
+    time_step : float
+        Time step of simulation in days.
+    model_isotope_time : float
+        isotope time coming from HESMA model (typically 100 s) in days.
+
+    Returns
+    -------
+    isotope_mass_fraction : pd.DataFrame
+        isotope mass fractions at different times including the initial time.
+    """
+
+    # linear time spacing
+    time_delta = np.linspace(time_start, time_end, time_step)
+    time_list = np.insert(time_delta, 0, model_isotope_time)
+
+    initial_isotope_mass_fraction = raw_isotope_mass_fraction
+    isotope_mass_fraction_list = []
+    isotope_mass_fraction_list.append(initial_isotope_mass_fraction)
+
+    for time in time_delta:
+        decayed_isotope_mass_fraction = IsotopicMassFraction(
+            initial_isotope_mass_fraction
+        ).decay(time)
+        isotope_mass_fraction_list.append(decayed_isotope_mass_fraction)
+
+    isotope_mass_fraction_df = pd.concat(
+        isotope_mass_fraction_list, keys=time_list, names=["time"]
+    )
+
+    return isotope_mass_fraction_df
 
 
 def create_isotope_dicts(raw_isotope_abundance, cell_masses):
