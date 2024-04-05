@@ -194,7 +194,7 @@ def distribute_packets(isotope_decay_df):
     return isotope_decay_df
 
 
-def sample_single_packet(isotope_decay_df):
+def sample_single_packet(isotope_decay_df, seed):
     """
     Function to sample packet energy from the energy distribution of the decay.
 
@@ -212,7 +212,8 @@ def sample_single_packet(isotope_decay_df):
     """
 
     sampled_packet = isotope_decay_df.sample(
-        weights="normalized_energy", random_state=np.random.RandomState(seed=29)
+        weights="decay_energy_erg",
+        random_state=np.random.RandomState(seed=seed),
     )  # random state for reproducibility
 
     return sampled_packet
