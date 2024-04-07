@@ -371,9 +371,9 @@ class ConvergencePlots(object):
             self.t_inner_luminosities_plot.data[0].y = self.value_data[
                 "t_inner"
             ]
-            self.t_inner_luminosities_plot.data[0].hovertemplate = (
-                "<b>%{y:.3f}</b> at X = %{x:,.0f}<extra>Inner Boundary Temperature</extra>"  # trace name in extra tag to avoid new lines in hoverdata
-            )
+            self.t_inner_luminosities_plot.data[
+                0
+            ].hovertemplate = "<b>%{y:.3f}</b> at X = %{x:,.0f}<extra>Inner Boundary Temperature</extra>"  # trace name in extra tag to avoid new lines in hoverdata
 
             # the next three for emitted, absorbed and requested luminosities
             for index, luminosity in zip(range(1, 4), self.luminosities):
@@ -395,9 +395,9 @@ class ConvergencePlots(object):
 
             self.t_inner_luminosities_plot.data[4].x = x
             self.t_inner_luminosities_plot.data[4].y = y
-            self.t_inner_luminosities_plot.data[4].hovertemplate = (
-                "<b>%{y:.2f}%</b> at X = %{x:,.0f}"
-            )
+            self.t_inner_luminosities_plot.data[
+                4
+            ].hovertemplate = "<b>%{y:.2f}%</b> at X = %{x:,.0f}"
 
     def update(self, export_convergence_plots=False, last=False):
         """
