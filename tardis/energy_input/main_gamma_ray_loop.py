@@ -1,28 +1,30 @@
 import logging
+
+import astropy.units as u
 import numpy as np
 import pandas as pd
-import astropy.units as u
 
-from tardis.energy_input.GXPacket import GXPacket
 from tardis.energy_input.energy_source import (
     get_nuclear_lines_database,
 )
-
 from tardis.energy_input.gamma_packet_loop import gamma_packet_loop
+from tardis.energy_input.gamma_ray_channel import (
+    calculate_total_decays,
+    create_inventories_dict,
+    create_isotope_dicts,
+)
 from tardis.energy_input.gamma_ray_packet_source import RadioactivePacketSource
 from tardis.energy_input.gamma_ray_transport import (
-    calculate_ejecta_velocity_volume,
-    create_isotope_dicts,
-    create_inventories_dict,
-    calculate_total_decays,
     calculate_average_energies,
-    decay_chain_energies,
-    calculate_energy_per_mass,
     calculate_average_power_per_mass,
-    iron_group_fraction_per_shell,
-    get_taus,
+    calculate_ejecta_velocity_volume,
+    calculate_energy_per_mass,
+    decay_chain_energies,
     distribute_packets,
+    get_taus,
+    iron_group_fraction_per_shell,
 )
+from tardis.energy_input.GXPacket import GXPacket
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)

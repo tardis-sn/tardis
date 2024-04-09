@@ -405,9 +405,7 @@ class RadioactivePacketSource(BasePacketSource):
                     self.energy_plot_positron_rows[i] = np.array(
                         [
                             packet_index,
-                            isotope_positron_fraction
-                            * self.packet_energy
-                            * 1000,
+                            isotope_positron_fraction * self.packet_energy,
                             # * inv_volume_time[packet.shell, decay_time_index],
                             initial_radii[i],
                             initial_times[i],
@@ -419,7 +417,7 @@ class RadioactivePacketSource(BasePacketSource):
                 # deposit positron energy
                 for time in initial_time_indexes:
                     self.energy_df_rows[shell_number, time] += (
-                        isotope_positron_fraction * self.packet_energy * 1000
+                        isotope_positron_fraction * self.packet_energy
                     )
 
                 # collect packet properties
@@ -805,7 +803,7 @@ class GammaRayPacketSource(BasePacketSource):
             self.energy_plot_positron_rows[i] = np.array(
                 [
                     i,
-                    isotope_positron_fraction * self.packet_energy * 1000,
+                    isotope_positron_fraction * self.packet_energy,
                     # * inv_volume_time[packet.shell, decay_time_index],
                     locations[i],  # this needs to be sqrt(sum of squares)
                     times[i],
@@ -815,7 +813,7 @@ class GammaRayPacketSource(BasePacketSource):
         # deposit positron energy
         for time in initial_time_indexes:
             self.energy_df_rows[shells, time] += (
-                isotope_positron_fraction * self.packet_energy * 1000
+                isotope_positron_fraction * self.packet_energy
             )
 
         return GXPacketCollection(
