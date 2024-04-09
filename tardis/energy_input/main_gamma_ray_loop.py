@@ -13,6 +13,12 @@ from tardis.energy_input.gamma_ray_channel import (
     create_inventories_dict,
     create_isotope_dicts,
 )
+
+from tardis.energy_input.gamma_ray_transport import (
+    calculate_total_decays_old,
+    create_isotope_dicts_old,
+    create_inventories_dict_old,
+)
 from tardis.energy_input.gamma_ray_packet_source import RadioactivePacketSource
 from tardis.energy_input.gamma_ray_transport import (
     calculate_average_energies,
@@ -104,9 +110,9 @@ def run_gamma_ray_loop(
 
     mass_density_time = shell_masses[:, np.newaxis] * inv_volume_time
     gamma_ray_lines = get_nuclear_lines_database(path_to_decay_data)
-    isotope_dict = create_isotope_dicts(raw_isotope_abundance, shell_masses)
-    inventories_dict = create_inventories_dict(isotope_dict)
-    total_decays = calculate_total_decays(
+    isotope_dict = create_isotope_dicts_old(raw_isotope_abundance, shell_masses)
+    inventories_dict = create_inventories_dict_old(isotope_dict)
+    total_decays = calculate_total_decays_old(
         inventories_dict, time_end - time_start
     )
 
