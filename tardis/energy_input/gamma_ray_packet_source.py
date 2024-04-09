@@ -645,11 +645,7 @@ class GammaRayPacketSource(BasePacketSource):
         return decay_times
 
     def create_packet_times_uniform_energy(
-        self,
-        no_of_packets,
-        isotopes,
-        decay_time_min=0.0,
-        decay_time_max=0.0,
+        self, no_of_packets, isotopes, decay_time
     ):
         """Samples the decay time from the mean lifetime of the isotopes
 
@@ -657,20 +653,23 @@ class GammaRayPacketSource(BasePacketSource):
         ----------
         no_of_packets : int
             Number of packets
-        isotopes : array
-            Array of packet parent isotopes
-        decay_time_min : float, optional
-            Minimum time to decay, by default 0.0
-        decay_time_max : float, optional
-            Maximum time to decay, by default 0.0
+        isotopes : pd.Series
+            Series of packet parent isotopes
+        decay_time : array
+            Series of packet decay time index
 
         Returns
         -------
         array
             Array of decay times
         """
-        decay_times = np.ones(len(no_of_packets)) * decay_time_min
+        decay_times = np.zeros(len(no_of_packets))
         for i, isotope in enumerate(isotopes.to_numpy()):
+            decay_time_min = self.times[decay_time[i]]
+            if decay_time_min == self.times[-1]:
+                decay_time_max = self.effective_times[-1]
+            else:
+                decay_time_max = self.times[decay_time[i] + 1]
             # rejection sampling
             while (decay_times[i] <= decay_time_min) or (
                 decay_times[i] >= decay_time_max
@@ -738,8 +737,7 @@ class GammaRayPacketSource(BasePacketSource):
         times = self.create_packet_times_uniform_energy(
             number_of_packets,
             sampled_packets_df["isotopes"],
-            decay_time_min=0,
-            decay_time_max=self.times[-1],
+            sampled_packets_df["time"],
         )
 
         # get the time step index of the packets
