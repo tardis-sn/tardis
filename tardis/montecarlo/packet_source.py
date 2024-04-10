@@ -81,14 +81,20 @@ class BasePacketSource(abc.ABC):
         # because we call random.sample, which references a different internal
         # state than in the numpy.random module.
         self._reseed(self.base_seed + seed_offset)
-        packet_seeds = self.rng.choice(self.MAX_SEED_VAL, no_of_packets, replace=True)
+        packet_seeds = self.rng.choice(
+            self.MAX_SEED_VAL, no_of_packets, replace=True
+        )
 
         radii = self.create_packet_radii(no_of_packets, *args, **kwargs).value
         nus = self.create_packet_nus(no_of_packets, *args, **kwargs).value
         mus = self.create_packet_mus(no_of_packets, *args, **kwargs)
-        energies = self.create_packet_energies(no_of_packets, *args, **kwargs).value
+        energies = self.create_packet_energies(
+            no_of_packets, *args, **kwargs
+        ).value
         # Check if all arrays have the same length
-        assert len(radii) == len(nus) == len(mus) == len(energies) == no_of_packets
+        assert (
+            len(radii) == len(nus) == len(mus) == len(energies) == no_of_packets
+        )
         radiation_field_luminosity = self.calculate_radfield_luminosity().value
         return PacketCollection(
             radii,
@@ -111,9 +117,13 @@ class BasePacketSource(abc.ABC):
         -------
         astropy.units.Quantity
         """
-        return (4 * np.pi * const.sigma_sb * self.radius**2 * self.temperature**4).to(
-            "erg/s"
-        )
+        return (
+            4
+            * np.pi
+            * const.sigma_sb
+            * self.radius**2
+            * self.temperature**4
+        ).to("erg/s")
 
 
 class BlackBodySimpleSource(BasePacketSource):
@@ -261,7 +271,8 @@ class BlackBodySimpleSource(BasePacketSource):
 
         """
         self.temperature = (
-            (luminosity / (4 * np.pi * self.radius**2 * const.sigma_sb)) ** 0.25
+            (luminosity / (4 * np.pi * self.radius**2 * const.sigma_sb))
+            ** 0.25
         ).to("K")
 
 
