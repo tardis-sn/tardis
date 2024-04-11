@@ -83,7 +83,7 @@ def calculate_total_decays(inventories, time_delta):
     cumulative_decay_df : pd.DataFrame
         total decays for x g of isotope for time 't'
     """
-    time_delta = u.Quantity(time_delta, u.d)
+    time_delta = u.Quantity(time_delta, u.s)
     total_decays = {}
     for shell, inventory in inventories.items():
         total_decays[shell] = inventory.cumulative_decays(time_delta.value)
