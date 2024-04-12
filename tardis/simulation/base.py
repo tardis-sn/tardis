@@ -172,22 +172,29 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             )
 
         if show_convergence_plots:
-            self.convergence_plots = ConvergencePlots(
-                iterations=self.iterations, **convergence_plots_kwargs
-            )
-
-            if "export_convergence_plots" in convergence_plots_kwargs:
-                if not isinstance(
-                    convergence_plots_kwargs["export_convergence_plots"], bool
-                ):
-                    raise TypeError(
-                        "Expected bool in export_convergence_plots argument"
-                    )
-                self.export_convergence_plots = convergence_plots_kwargs[
-                    "export_convergence_plots"
-                ]
+            if not is_notebook():
+                raise RuntimeError(
+                    "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
+                    "to False."
+                )
             else:
-                self.export_convergence_plots = False
+                self.convergence_plots = ConvergencePlots(
+                    iterations=self.iterations, **convergence_plots_kwargs
+                )
+
+        if "export_convergence_plots" in convergence_plots_kwargs:
+            if not isinstance(
+                convergence_plots_kwargs["export_convergence_plots"],
+                bool,
+            ):
+                raise TypeError(
+                    "Expected bool in export_convergence_plots argument"
+                )
+            self.export_convergence_plots = convergence_plots_kwargs[
+                "export_convergence_plots"
+            ]
+        else:
+            self.export_convergence_plots = False
 
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
@@ -633,7 +640,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         config,
         packet_source=None,
         virtual_packet_logging=False,
-        show_convergence_plots=True,
+        show_convergence_plots=False,
         show_progress_bars=True,
         **kwargs,
     ):
@@ -660,7 +667,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if atom_data is None:
             if "atom_data" in config:
                 if Path(config.atom_data).is_absolute():
-                    atom_data_fname = config.atom_data
+                    atom_data_fname = Path(config.atom_data)
                 else:
                     atom_data_fname = (
                         Path(config.config_dirname) / config.atom_data

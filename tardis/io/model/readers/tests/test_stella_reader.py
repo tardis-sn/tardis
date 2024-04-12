@@ -18,7 +18,6 @@ def test_read_stella_model_meta(stella_model_example_file1):
     """
     Test reading a STELLA model file
     """
-    stella_model_example_file1
     assert stella_model_example_file1.metadata["zones"] == 400
     np.testing.assert_almost_equal(
         stella_model_example_file1.metadata["t_max"].to(u.day).value, 50.0

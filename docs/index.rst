@@ -54,6 +54,7 @@ Mission Statement
     installation
     quickstart
     tutorials
+    how_to_guides
     faq
     API <api/modules>
 
