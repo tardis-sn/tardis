@@ -178,4 +178,40 @@ There are also several other options in the modebar which we have not explained
 you remember to click back on the **Box Select** option for making selections on
 spectrum.
 
+Energy Level Diagram
+################
+
+This widget lets you visualize the last line interactions
+
+.. image:: ../images/energy_level_widget_demo.gif
+    :alt: Demo of Energy Level Diagram
+
+By selecting an ion on the widget, you can see its energy level diagram, which
+also shows information about the last line interactions experienced by packets
+in the simulation.
+
+The y-axis of the plot represents energy while the horizontal lines show
+discrete energy levels. The thickness of each line represents the level
+population, with thicker lines representing a greater population than the thin lines.
+
+Arrows represent the line interactions experienced by packets. Upwards arrows
+show excitation from lower energy levels to higher levels and downward arrows
+show de-excitation from higher energy levels to lower levels. The thickness of
+each arrow represents the number of packets that underwent that interaction,
+with thicker lines representing more packets than the thin lines.
+The wavelength of the transition is given by the color.
+
+Setting Other Options
+-----------------
+You can select the range on which to filter the wavelength using the slider.
+You can also select the model shell by which to filter the last line interactions
+and the level populations. If no shell is selected, then all the last line
+interactions are plotted and the level populations are averaged across all shells
+in the simulation. You can also set the maximum number of levels to show on the plot.
+
+Lastly, you can also set the scale of the y-axis: Linear or Log.
+
+.. image:: ../images/energy_level_widget_options.gif
+    :alt: Demo of using options
+
 .. Toggle legend
