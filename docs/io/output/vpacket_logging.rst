@@ -38,7 +38,7 @@ After running the simulation, the following information can be retrieved:
     * - ``transport.virt_packet_last_interaction_type``
       - Numpy array
       - | Type of interaction that caused the virtual packets to be spawned
-        | (enum, see :doc:`physical_quantities`)
+        | (enum, see :doc:`how_to_physical_quantities`)
     * - ``transport.virt_packet_last_interaction_in_nu``
       - Numpy array
       - Frequencies of the r-packets which spawned the virtual packet
@@ -46,14 +46,14 @@ After running the simulation, the following information can be retrieved:
       - Numpy array
       - | If the last interaction was a line interaction, the
         | line_interaction_in_id for that interaction 
-        | (see :doc:`physical_quantities`)
+        | (see :doc:`how_to_physical_quantities`)
     * - ``transport.virt_packet_last_line_interaction_out_id``
       - Numpy array
       - | If the last interaction was a line interaction, the
         | line_interaction_out_id for that interaction 
-        | (see :doc:`physical_quantities`)
+        | (see :doc:`how_to_physical_quantities`)
     * - ``transport.virt_packet_last_line_interaction_shell_id``
       - Numpy array
       - | If the last interaction was a line interaction, the
         | line_interaction_shell_id for that interaction 
-        | (see :doc:`physical_quantities`)
+        | (see :doc:`how_to_physical_quantities`)
