@@ -79,7 +79,8 @@ jobs:
         continue-on-error: true
 
       - name: Print Exit code
-        run: echo"${{steps.docs_check.outcome}}"
+        run: |
+          echo "Exit code of 'docs_check': ${{ steps.docs_check.exit_code }}"
 
       - name: Build documentation
         run: cd docs/ && make html NCORES=auto
