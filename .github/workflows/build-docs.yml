@@ -74,7 +74,7 @@ jobs:
         run: pip install -e .
 
       - name: Check for changes in documentation
-        run: if git diff origin/main..."$(git rev-parse --abbrev-ref HEAD)" --name-only | cat | grep 'docs' | grep -q .; then exit 1; fi
+        run: if git diff origin/master..."$(git rev-parse --abbrev-ref HEAD)" --name-only | cat | grep 'docs' | grep -q .; then exit 1; fi
         id: docs_check
         continue-on-error: true
 
