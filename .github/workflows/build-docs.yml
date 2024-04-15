@@ -86,7 +86,7 @@ jobs:
 
       - name: Update environment
         run: mamba update -n tardis --file conda-linux-64.lock
-        if: steps.cache-conda.outputs.cache-hit != 'true'
+        if: steps.cache-conda.outputs.cache-hit != 'true' && steps.docs_check.outcome == 'failure'
 
       - name: Install package
         run: pip install -e .
