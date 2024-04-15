@@ -13,9 +13,18 @@ from tardis.transport.montecarlo.packet_source import (
 from tardis.transport.montecarlo import (
     montecarlo_configuration as montecarlo_configuration,
 )
+from tardis.tests.fixtures.regression_data import RegressionData
 
 
 class TestPacketSource:
+    regression_data = None
+
+    @pytest.fixture(scope="class")
+    def config(self, request):
+        request.cls.regression_data = RegressionData(request)
+        request.cls.regression_data.fname = "packet_source.h5"
+        return
+
     @pytest.fixture(scope="class")
     def packet_unit_test_fpath(self, tardis_ref_path):
         """
@@ -34,7 +43,7 @@ class TestPacketSource:
         )
 
     @pytest.fixture(scope="class")
-    def blackbodysimplesource(self, request):
+    def blackbodysimplesource(self, request, config):
         """
         Create BlackBodySimpleSource instance.
 
@@ -49,7 +58,7 @@ class TestPacketSource:
         yield cls.bb
 
     @pytest.fixture(scope="class")
-    def blackbody_simplesource_relativistic(self, request):
+    def blackbody_simplesource_relativistic(self, request, config):
         """
         Create BlackBodySimpleSourceRelativistic instance.
 
@@ -60,7 +69,13 @@ class TestPacketSource:
         bb_rel = BlackBodySimpleSourceRelativistic(
             base_seed=1963, legacy_mode_enabled=True, legacy_second_seed=2508
         )
+        self.regression_data.sync_hdf_store(bb_rel, update_fname=False)
         yield bb_rel
+
+    # def test_blackbody_regressions(
+    #     self, blackbodysimplesource, blackbody_simplesource_relativistic
+    # ):
+    #     expected_radius = blackbodysimplesource.radius.values
 
     def test_bb_packet_sampling(
         self,
