@@ -94,6 +94,7 @@ jobs:
 
       - name: Build documentation
         run: cd docs/ && make html NCORES=auto
+        if: steps.docs_check.outcome == 'failure'
 
       - name: Set destination directory
         run: |
