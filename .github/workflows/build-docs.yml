@@ -5,7 +5,6 @@
 name: docs
 
 on:
-
   push:
     branches:
       - master
@@ -18,14 +17,14 @@ on:
       - opened
       - reopened
       - synchronize
-      - labeled                         # requires the `build-docs` label
+      - labeled # requires the `build-docs` label
 
-  workflow_dispatch:                    # manual trigger
+  workflow_dispatch: # manual trigger
 
 env:
-  CACHE_NUMBER: 0                       # increase to reset cache manually
-  DEPLOY_BRANCH: gh-pages               # deployed docs branch
-  HDF5_USE_FILE_LOCKING: 'FALSE'        # disable file locking
+  CACHE_NUMBER: 0 # increase to reset cache manually
+  DEPLOY_BRANCH: gh-pages # deployed docs branch
+  HDF5_USE_FILE_LOCKING: "FALSE" # disable file locking
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -37,15 +36,13 @@ defaults:
 
 jobs:
   build-docs:
-
     if: github.event_name == 'push' ||
-        github.event_name == 'workflow_dispatch' ||
-        (github.event_name == 'pull_request_target' &&
-        contains(github.event.pull_request.labels.*.name, 'build-docs'))
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request_target' &&
+      contains(github.event.pull_request.labels.*.name, 'build-docs'))
 
     runs-on: ubuntu-latest
     steps:
-  
       - uses: actions/checkout@v2
         if: github.event_name != 'pull_request_target'
 
@@ -58,10 +55,10 @@ jobs:
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
         with:
-            miniforge-variant: Mambaforge
-            miniforge-version: latest
-            activate-environment: tardis
-            use-mamba: true
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          activate-environment: tardis
+          use-mamba: true
 
       - uses: actions/cache@v2
         with:
@@ -76,8 +73,14 @@ jobs:
       - name: Install package
         run: pip install -e .
 
+      - name: Check for changes in documentation
+        run: if git diff origin/main..."$(git rev-parse --abbrev-ref HEAD)" --name-only | cat | grep 'docs' | grep -q .; then exit 1; fi
+        id: docs_check
+        continue-on-error: true
+
       - name: Build documentation
         run: cd docs/ && make html NCORES=auto
+        if: success()
 
       - name: Set destination directory
         run: |
@@ -128,8 +131,8 @@ jobs:
           destination_dir: ${{ env.DEST_DIR }}
           keep_files: true
           force_orphan: ${{ env.CLEAN_BRANCH }}
-          user_name: 'TARDIS Bot'
-          user_email: 'tardis.sn.bot@gmail.com'
+          user_name: "TARDIS Bot"
+          user_email: "tardis.sn.bot@gmail.com"
 
       - name: Find comment
         uses: peter-evans/find-comment@v1
@@ -142,7 +145,7 @@ jobs:
       - name: Post comment (success)
         uses: peter-evans/create-or-update-comment@v1
         with:
-          token:  ${{ secrets.BOT_TOKEN }}
+          token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
@@ -152,7 +155,7 @@ jobs:
             Hi, human.
 
             The **`${{ github.workflow }}`** workflow has **succeeded** :heavy_check_mark:
-            
+
             [**Click here**](${{ env.URL }}) to see your results.
         env:
           URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pull/${{ github.event.number }}/index.html
@@ -161,7 +164,7 @@ jobs:
       - name: Post comment (failure)
         uses: peter-evans/create-or-update-comment@v1
         with:
-          token:  ${{ secrets.BOT_TOKEN }}
+          token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
@@ -171,7 +174,7 @@ jobs:
             Hi, human.
 
             The **`${{ github.workflow }}`** workflow has **failed** :x:
-            
+
             [**Click here**](${{ env.URL }}) to see the build log.
         env:
           URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
