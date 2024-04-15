@@ -78,9 +78,13 @@ jobs:
         id: docs_check
         continue-on-error: true
 
+      - name: Print Exit code
+        run: |
+          echo "Exit code of 'docs_check': ${{ steps.docs_check.outcome}}"
+
       - name: Build documentation
         run: cd docs/ && make html NCORES=auto
-        if: steps.docs_check.outcome == 'success'
+        if: steps.docs_check.outcome == 'failure'
 
       - name: Set destination directory
         run: |
