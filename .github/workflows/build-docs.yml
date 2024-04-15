@@ -75,6 +75,7 @@ jobs:
           miniforge-version: latest
           activate-environment: tardis
           use-mamba: true
+        if: steps.docs_check.outcome == 'failure'
 
       - uses: actions/cache@v2
         with:
@@ -91,7 +92,6 @@ jobs:
 
       - name: Build documentation
         run: cd docs/ && make html NCORES=auto
-        if: steps.docs_check.outcome == 'success'
 
       - name: Set destination directory
         run: |
