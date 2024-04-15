@@ -142,6 +142,7 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
     legacy_secondary_seed : int
         Secondary seed for global numpy rng (Deprecated: Legacy reasons only)
     """
+
     hdf_properties = ["radius", "temperature", "base_seed"]
     hdf_name = "black_body_simple_source"
 
@@ -296,8 +297,9 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource, HDFWriterMixin):
     legacy_secondary_seed : int
         Secondary seed for global numpy rng (Deprecated: Legacy reasons only)
     """
+
     hdf_properties = ["time_explosion", "radius", "temperature", "base_seed"]
-    
+
     @classmethod
     def from_simulation_state(cls, simulation_state, *args, **kwargs):
         return cls(
