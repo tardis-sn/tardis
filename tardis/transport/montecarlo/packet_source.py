@@ -6,7 +6,7 @@ from tardis import constants as const
 from tardis.transport.montecarlo.packet_collections import (
     PacketCollection,
 )
-
+from tardis.io.util import HDFWriterMixin
 from astropy import units as u
 
 
@@ -126,7 +126,7 @@ class BasePacketSource(abc.ABC):
         ).to("erg/s")
 
 
-class BlackBodySimpleSource(BasePacketSource):
+class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
     """
     Simple packet source that generates Blackbody packets for the Montecarlo
     part.
@@ -142,6 +142,8 @@ class BlackBodySimpleSource(BasePacketSource):
     legacy_secondary_seed : int
         Secondary seed for global numpy rng (Deprecated: Legacy reasons only)
     """
+    hdf_properties = ["radius", "temperature", "base_seed"]
+    hdf_name = "black_body_simple_source"
 
     @classmethod
     def from_simulation_state(cls, simulation_state, *args, **kwargs):
@@ -276,7 +278,7 @@ class BlackBodySimpleSource(BasePacketSource):
         ).to("K")
 
 
-class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
+class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource, HDFWriterMixin):
     """
     Simple packet source that generates Blackbody packets for the Montecarlo
     part.
@@ -294,7 +296,8 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource):
     legacy_secondary_seed : int
         Secondary seed for global numpy rng (Deprecated: Legacy reasons only)
     """
-
+    hdf_properties = ["time_explosion", "radius", "temperature", "base_seed"]
+    
     @classmethod
     def from_simulation_state(cls, simulation_state, *args, **kwargs):
         return cls(
