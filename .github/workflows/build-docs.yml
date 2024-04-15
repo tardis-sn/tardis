@@ -80,7 +80,7 @@ jobs:
 
       - name: Print Exit code
         run: |
-          echo "Exit code of 'docs_check': ${{ steps.docs_check.exit_code }}"
+          echo "Exit code of 'docs_check': ${{ steps.docs_check.outcome}}"
 
       - name: Build documentation
         run: cd docs/ && make html NCORES=auto
