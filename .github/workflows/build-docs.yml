@@ -80,7 +80,7 @@ jobs:
 
       - name: Build documentation
         run: cd docs/ && make html NCORES=auto
-        if: success()
+        if: steps.docs_check.outcome == 'success'
 
       - name: Set destination directory
         run: |
