@@ -52,6 +52,22 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
         if: github.event_name == 'pull_request_target'
 
+      - name: Check for changes in documentation
+        run: |
+          if ! git diff origin/master..."$(git rev-parse --abbrev-ref HEAD)" --name-only | grep 'docs' | grep -q .; then
+            echo "Changes found in documentation files."
+            exit 1  
+          else
+           echo "No changes found in documentation files."
+            exit 0
+          fi
+        id: docs_check
+        continue-on-error: true
+
+      - name: Print Exit code
+        run: |
+          echo "Exit code of 'docs_check': ${{ steps.docs_check.outcome}}"
+
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -72,22 +88,6 @@ jobs:
 
       - name: Install package
         run: pip install -e .
-
-      - name: Check for changes in documentation
-        run: |
-          if ! git diff origin/master..."$(git rev-parse --abbrev-ref HEAD)" --name-only | grep 'docs' | grep -q .; then
-            echo "Changes found in documentation files."
-            exit 1  
-          else
-           echo "No changes found in documentation files."
-            exit 0
-          fi
-        id: docs_check
-        continue-on-error: true
-
-      - name: Print Exit code
-        run: |
-          echo "Exit code of 'docs_check': ${{ steps.docs_check.outcome}}"
 
       - name: Build documentation
         run: cd docs/ && make html NCORES=auto
