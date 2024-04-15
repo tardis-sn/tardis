@@ -73,9 +73,14 @@ class TestPacketSource:
         yield bb_rel
 
     # def test_blackbody_regressions(
-    #     self, blackbodysimplesource, blackbody_simplesource_relativistic
+    #     self, blackbodysimplesource
     # ):
-    #     expected_radius = blackbodysimplesource.radius.values
+    #     expected = pd.read_hdf(
+    #         self.regression_data.fpath, key="/black_body_simple_source/scalars"
+    #     )
+    #     np.testing.assert_allclose(
+    #         expected.base_seed, blackbodysimplesource.base_seed
+    #     )
 
     def test_bb_packet_sampling(
         self,
