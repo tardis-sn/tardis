@@ -54,14 +54,14 @@ jobs:
 
       - name: Check for changes in documentation
         run: |
-          if ! git diff --name-only origin/master...HEAD | grep '^docs/' | grep -q .; then
-            num_files=$(git diff --name-only origin/master...HEAD | grep '^docs/' | wc -l)
-            echo "No changes found in documentation files: $num_files"
-            exit 0
+          if git diff origin/main..."$(git rev-parse --abbrev-ref HEAD)" --name-only | grep -q 'docs'; then
+              num_files=$(git diff --name-only origin/master...HEAD | grep '^docs/' | wc -l)
+              echo "Changes found in documentation files: $num_files"
+              exit 1
           else
-            num_files=$(git diff --name-only origin/master...HEAD | grep '^docs/' | wc -l)
-            echo "Changes found in documentation files: $num_files"
-            exit 1
+              num_files=$(git diff --name-only origin/master...HEAD | grep '^docs/' | wc -l)
+              echo "No changes found in documentation files: $num_files"
+              exit 0
           fi
         id: docs_check
         continue-on-error: true
@@ -77,26 +77,26 @@ jobs:
           miniforge-version: latest
           activate-environment: tardis
           use-mamba: true
-        if: steps.docs_check.outcome == 'failure'
+        if: steps.docs_check.outcome == 'success'
 
       - uses: actions/cache@v2
         with:
           path: /usr/share/miniconda3/envs/tardis
           key: conda-linux-64-${{ hashFiles('conda-linux-64.lock') }}-${{ env.CACHE_NUMBER }}
         id: cache-conda
-        if: steps.docs_check.outcome == 'failure'
+        if: steps.docs_check.outcome == 'success'
 
       - name: Update environment
         run: mamba update -n tardis --file conda-linux-64.lock
-        if: steps.cache-conda.outputs.cache-hit != 'true' && steps.docs_check.outcome == 'failure'
+        if: steps.cache-conda.outputs.cache-hit != 'true' && steps.docs_check.outcome == 'success'
 
       - name: Install package
         run: pip install -e .
-        if: steps.docs_check.outcome == 'failure'
+        if: steps.docs_check.outcome == 'success'
 
       - name: Build documentation
         run: cd docs/ && make html NCORES=auto
-        if: steps.docs_check.outcome == 'failure'
+        if: steps.docs_check.outcome == 'success'
 
       - name: Set destination directory
         run: |
