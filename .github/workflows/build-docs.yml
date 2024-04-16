@@ -66,10 +66,6 @@ jobs:
         id: docs_check
         continue-on-error: true
 
-      - name: Print Exit code
-        run: |
-          echo "Exit code of 'docs_check': ${{ steps.docs_check.outcome}}"
-
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
         with:
