@@ -54,7 +54,7 @@ jobs:
 
       - name: Check for changes in documentation
         run: |
-          if git diff origin/main..."$(git rev-parse --abbrev-ref HEAD)" --name-only | grep -q 'docs'; then
+          if git diff origin/master..."$(git rev-parse --abbrev-ref HEAD)" --name-only | grep -q 'docs'; then
               num_files=$(git diff --name-only origin/master...HEAD | grep '^docs/' | wc -l)
               echo "Changes found in documentation files: $num_files"
               exit 1

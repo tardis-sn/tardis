@@ -96,7 +96,7 @@ Mission Statement
 
 
 .. toctree::
-    :caption: Other Resources
+    :caption: Other Resources 
     :hidden:
     
     resources/credits
