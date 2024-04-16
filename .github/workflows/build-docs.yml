@@ -54,11 +54,12 @@ jobs:
 
       - name: Check for changes in documentation
         run: |
+          num_files=$(git diff origin/master...'$(git rev-parse --abbrev-ref HEAD)' --name-only | grep 'docs' | wc -l)
           if ! git diff origin/master...'$(git rev-parse --abbrev-ref HEAD)' --name-only | grep 'docs' | grep -q .; then
-            echo "No changes found in documentation files."
+            echo "No changes found in documentation files.: $num_files"
             exit 0  
           else
-            echo "Changes found in documentation files"
+            echo "Changes found in documentation files: $num_files"
             exit 1  
           fi
         id: docs_check
