@@ -57,7 +57,7 @@ jobs:
         run: |
           if git diff origin/master..."$(git rev-parse --abbrev-ref HEAD)" --name-only | cat | grep 'docs' | grep -q .; then
               num_files=$(git diff --name-only origin/master...HEAD | grep '^docs/' | wc -l)
-              echo "No changes found in documentation files: $num_files"
+              echo "Changes found in documentation files: $num_files"
               exit 0
           else
               echo "No changes found in documentation files"
@@ -73,26 +73,26 @@ jobs:
           miniforge-version: latest
           activate-environment: tardis
           use-mamba: true
-        if: steps.docs_check.outcome == 'failure'
+        if: steps.docs_check.outcome == 'success'
 
       - uses: actions/cache@v2
         with:
           path: /usr/share/miniconda3/envs/tardis
           key: conda-linux-64-${{ hashFiles('conda-linux-64.lock') }}-${{ env.CACHE_NUMBER }}
         id: cache-conda
-        if: steps.docs_check.outcome == 'failure'
+        if: steps.docs_check.outcome == 'success'
 
       - name: Update environment
         run: mamba update -n tardis --file conda-linux-64.lock
-        if: steps.cache-conda.outputs.cache-hit != 'true' && steps.docs_check.outcome == 'failure'
+        if: steps.cache-conda.outputs.cache-hit != 'true' && steps.docs_check.outcome == 'success'
 
       - name: Install package
         run: pip install -e .
-        if: steps.docs_check.outcome == 'failure'
+        if: steps.docs_check.outcome == 'success'
 
       - name: Build documentation
         run: cd docs/ && make html NCORES=auto
-        if: steps.docs_check.outcome == 'failure'
+        if: steps.docs_check.outcome == 'success'
 
       - name: Set destination directory
         run: |
