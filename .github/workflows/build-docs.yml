@@ -55,12 +55,11 @@ jobs:
       - name: Check for changes in documentation
         run: |
           if git diff origin/master..."$(git rev-parse --abbrev-ref HEAD)" --name-only | grep -q 'docs'; then
-              num_files=$(git diff --name-only origin/master...HEAD | grep '^docs/' | wc -l)
-              echo "Changes found in documentation files: $num_files"
+              echo "No changes found in documentation files"
               exit 1
           else
               num_files=$(git diff --name-only origin/master...HEAD | grep '^docs/' | wc -l)
-              echo "No changes found in documentation files: $num_files"
+              echo "Changes found in documentation files: $num_files"
               exit 0
           fi
         id: docs_check
@@ -68,7 +67,7 @@ jobs:
 
       - name: Print Exit code
         run: |
-          echo "Exit code of 'docs_check': ${{ steps.docs_check.outcome}}"
+          echo "Exit code of 'docs_check': ${{ steps.docs_check.outcome }}"
 
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
