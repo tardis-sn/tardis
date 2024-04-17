@@ -4,8 +4,8 @@ Using TARDIS Widgets
 
 This page describes what each TARDIS Widget has to offer and how you can make
 the best use of it. If you're looking for the code to generate widgets, head
-over to `Generating Custom Abundance Widget <abundance_widget>`_ section or 
-`Generating Data Exploration Widgets <generating_widgets>`_ section to see the
+over to `Generating Custom Abundance Widget <how_to_abundance_widget>`_ section or 
+`Generating Data Exploration Widgets <how_to_generating_widgets>`_ section to see the
 notebook in action.
 
 Currently, TARDIS supports the following widgets:
