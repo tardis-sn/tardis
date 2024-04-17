@@ -47,8 +47,7 @@ def test_line_scatter(
         time_explosion,
         line_interaction_type,
         verysimple_opacity_state,
-        False,
-        False,
+        enable_full_relativity=False,
     )
 
     assert np.abs(packet.mu - init_mu) > 1e-7
@@ -97,7 +96,9 @@ def test_line_emission(
     packet.mu = test_packet["mu"]
     packet.energy = test_packet["energy"]
     packet.initialize_line_id(
-        verysimple_opacity_state, verysimple_numba_model, False
+        verysimple_opacity_state,
+        verysimple_numba_model,
+        enable_full_relativity=False,
     )
 
     time_explosion = verysimple_numba_model.time_explosion
@@ -107,7 +108,7 @@ def test_line_emission(
         emission_line_id,
         time_explosion,
         verysimple_opacity_state,
-        False,
+        enable_full_relativity=False,
     )
 
     assert packet.next_line_id == emission_line_id + 1

@@ -127,7 +127,7 @@ def test_calculate_distance_line(
             is_last_line,
             nu_line,
             time_explosion,
-            False,
+            enable_full_relativity=False,
         )
     except utils.MonteCarloException:
         obtained_tardis_error = utils.MonteCarloException
