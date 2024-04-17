@@ -37,7 +37,7 @@ def test_line_scatter(
     init_mu = packet.mu
     init_nu = packet.nu
     init_energy = packet.energy
-    full_relativity=False
+    full_relativity = False
     packet.initialize_line_id(
         verysimple_opacity_state, verysimple_numba_model, full_relativity
     )
@@ -111,7 +111,7 @@ def test_line_emission(
         emission_line_id,
         time_explosion,
         verysimple_opacity_state,
-        full_relativity
+        full_relativity,
     )
 
     assert packet.next_line_id == emission_line_id + 1
