@@ -546,7 +546,7 @@ class GammaRayPacketSource(BasePacketSource):
     def create_packet_nus(
         self,
         no_of_packets,
-        energy_array,
+        packets,
         positronium_fraction,
         positronium_energy,
         positronium_intensity,
@@ -557,8 +557,8 @@ class GammaRayPacketSource(BasePacketSource):
         ----------
         no_of_packets : int
             Number of packets to produce frequency-energies for
-        energy_arry : numpy.array
-            Array of energies to process
+        packets : pd.DataFrame
+            DataFrame of packets
         positronium_fraction : float
             The fraction of positrons that form positronium
         positronium_energy : array
@@ -570,22 +570,23 @@ class GammaRayPacketSource(BasePacketSource):
         -------
         array
             Array of sampled frequency-energies
-        array
-            Positron creation mask
         """
-        positrons = np.zeros(no_of_packets)
+        energy_array = np.zeros(no_of_packets)
         zs = np.random.random(no_of_packets)
         for i in range(no_of_packets):
-            # positron (could be handled with other masking options)
-            if energy_array[i] == 511:
+            # positron
+            if packets.iloc[i]["decay_type"] == "bp":
                 # positronium formation 25% of the time if fraction is 1
                 if zs[i] < positronium_fraction and np.random.random() < 0.25:
                     energy_array[i] = sample_energy(
                         positronium_energy, positronium_intensity
                     )
-                positrons[i] = 1
+                else:
+                    energy_array[i] = 511
+            else:
+                energy_array[i] = packets.iloc[i]["radiation_energy_kev"]
 
-        return energy_array, positrons
+        return energy_array
 
     def create_packet_directions(self, no_of_packets):
         """Create an array of random directions
@@ -765,9 +766,9 @@ class GammaRayPacketSource(BasePacketSource):
 
         # the individual gamma-ray energy that makes up a packet
         # co-moving frame, including positronium formation
-        nu_energies_cmf, positron_mask = self.create_packet_nus(
+        nu_energies_cmf = self.create_packet_nus(
             number_of_packets,
-            sampled_packets_df["radiation_energy_keV"].values,
+            sampled_packets_df,
             self.positronium_fraction,
             positronium_energy,
             positronium_intensity,
