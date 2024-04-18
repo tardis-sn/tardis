@@ -24,7 +24,9 @@ from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_UUID
 
 
 class BenchmarkBase:
-    timeout = 369
+    # It allows 10 minutes of runtime for each benchmark and includes
+    # the total time for all the repetitions for each benchmark.
+    timeout = 600
 
     @staticmethod
     def split_path(path):
