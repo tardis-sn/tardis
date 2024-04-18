@@ -70,11 +70,11 @@ class TestBlackBodySimpleSourceRel:
     @pytest.fixture(scope="class")
     def blackbody_simplesource_relativistic(self):
         """
-        Create BlackBodySimpleSource instance.
+        Create BlackBodySimpleSourceRelativistic instance.
 
         Yields
         -------
-        tardis.montecarlo.packet_source.BlackBodySimpleSource
+        tardis.montecarlo.packet_source.BlackBodySimpleSourceRelativistic
         """
         montecarlo_configuration.LEGACY_MODE_ENABLED = True
         bb_rel = BlackBodySimpleSourceRelativistic(
