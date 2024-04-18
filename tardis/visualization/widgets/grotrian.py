@@ -4,6 +4,7 @@ Grotrian Diagram Widget for TARDIS simulation models.
 This widget displays a Grotrian Diagram of the last line interactions of the simulation packets
 """
 from tardis.analysis import LastLineInteraction
+from tardis.util.base import species_tuple_to_string, species_string_to_tuple
 from tardis.util.base import int_to_roman
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -17,12 +18,29 @@ import ipywidgets as ipw
 ANGSTROM_SYMBOL = "\u212B"
 
 
+def is_zero_defined(transform):
+    """
+    Utility function to decide if a certain transform is defined at zero
+
+    Parameters
+    ----------
+    transform : function
+
+    Returns
+    -------
+    bool
+        True if transform is defined at 0 else False
+    """
+    if transform in [np.log, np.log10]:
+        return True
+    return False
+
+
 def standardize(
     values,
     transform=lambda x: x,
     min_value=None,
     max_value=None,
-    zero_undefined=False,
     zero_undefined_offset=0,
 ):
     """
@@ -39,9 +57,6 @@ def standardize(
         The lower bound of the range
     max_value : float, optional
         The upper bound of the range
-    zero_undefined : bool, optional
-        When applying transformations (like log) where output of 0 is undefined, set this to True
-        Default value is False
     zero_undefined_offset : int, optional
         This is useful for log transformation because log(0) is -inf.
         Hence, value=0 gives y=0 while the
@@ -53,6 +68,8 @@ def standardize(
     pandas.Series
         Values after standardization
     """
+    zero_undefined = is_zero_defined(transform)  # Is function defined at 0?
+
     if zero_undefined and zero_undefined_offset == 0:
         raise ValueError(
             "If zero of the transformation is undefined, then provide an offset greater than 0"
@@ -61,18 +78,26 @@ def standardize(
     # Compute lower and upper bounds of values
     if min_value is None:
         if zero_undefined:
-            min_value = values[values > 0].min()
+            min_value = (
+                values[values > 0].min() if len(values[values > 0]) > 0 else 0
+            )
         else:
-            min_value = values.min()
+            min_value = values.min() if len(values) > 0 else 0
     if max_value is None:
         if zero_undefined:
-            max_value = values[values > 0].max()
+            max_value = (
+                values[values > 0].max() if len(values[values > 0]) > 0 else 0
+            )
         else:
-            max_value = values.max()
+            max_value = values.max() if len(values) > 0 else 0
 
     # Apply transformation if given
-    transformed_min_value = transform(min_value)
-    transformed_max_value = transform(max_value)
+    transformed_min_value = (
+        transform(min_value) if (min_value > 0 or not zero_undefined) else 0
+    )
+    transformed_max_value = (
+        transform(max_value) if (max_value > 0 or not zero_undefined) else 0
+    )
     transformed_values = transform(values)
 
     # Compute range
@@ -85,7 +110,7 @@ def standardize(
         ) / value_range
         if zero_undefined:
             transformed_values = transformed_values + zero_undefined_offset
-            transformed_values.mask(values == 0, 0, inplace=True)
+            transformed_values = np.where(values == 0, 0, transformed_values)
     else:
         # If only single value present in table, then place it at 0
         transformed_values = 0 * values
@@ -93,8 +118,9 @@ def standardize(
     return transformed_values
 
 
-class GrotrianWidget:
-    """Class for the Grotrian Diagram
+class GrotrianPlot:
+    """
+    Class for the Grotrian Diagram
 
     Parameters
     ----------
@@ -136,7 +162,7 @@ class GrotrianWidget:
         Default value is packet_out_nu
     y_scale : {"Log", "Linear"}
         The scale to plot the energy levels on the y-axis
-        Default value is Linear
+        Default value is Log
     cmapname : str
         The name of the colormap used to denote wavelengths. Default value is "rainbow"
     level_width_scale : float
@@ -159,7 +185,8 @@ class GrotrianWidget:
 
     @classmethod
     def from_simulation(cls, sim, **kwargs):
-        """Creates a GrotrianWidget object from a Simulation object
+        """
+        Creates a GrotrianPlot object from a Simulation object
 
         Parameters
         ----------
@@ -168,8 +195,8 @@ class GrotrianWidget:
 
         Returns
         -------
-        tardis.visualization.widgets.grotrian.GrotrianWidget
-            GrotrianWidget object
+        tardis.visualization.widgets.grotrian.GrotrianPlot
+            GrotrianPlot object
         """
         atom_data = sim.plasma.atomic_data.atom_data
         level_energy_data = pd.Series(
@@ -223,7 +250,7 @@ class GrotrianWidget:
         self._level_width_transform = np.log  # Scale of the level widths
         self._population_spacer = np.geomspace  # To space width bar counts
         ### Scale of the y-axis
-        self._y_scale = "Linear"
+        self._y_scale = "Log"
         self._y_coord_transform = self.Y_SCALE_OPTION[self._y_scale]
 
         ### Define default parameters for visual elements related to transitions
@@ -276,7 +303,7 @@ class GrotrianWidget:
         assert type(value) is int
         self._max_levels = value
         self._compute_level_data()
-        self._compute_transitions()
+        self.reset_selected_plot_wavelength_range()  # calls _compute_transitions() as well
 
     @property
     def level_diff_threshold(self):
@@ -332,9 +359,6 @@ class GrotrianWidget:
         self._atomic_number = atomic_number
         self._ion_number = ion_number
         self._compute_level_data()
-        print(
-            "Changing the ion will reset custom wavelength ranges, if any were set"
-        )
 
         # Reset any custom wavelengths if user changes ion
         self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don't need to call it "_compute_transitions()" explicitly
@@ -457,42 +481,44 @@ class GrotrianWidget:
         ]
 
         ### Compute default wavelengths if not set by user
-        if self.min_wavelength is None:  # Compute default wavelength
-            self._min_wavelength = np.min(
-                np.concatenate(
-                    (excite_lines.wavelength, deexcite_lines.wavelength)
+        if len(excite_lines) + len(deexcite_lines) > 0:
+            if self.min_wavelength is None:  # Compute default wavelength
+                self._min_wavelength = np.min(
+                    np.concatenate(
+                        (excite_lines.wavelength, deexcite_lines.wavelength)
+                    )
                 )
-            )
-        if self.max_wavelength is None:  # Compute default wavelength
-            self._max_wavelength = np.max(
-                np.concatenate(
-                    (excite_lines.wavelength, deexcite_lines.wavelength)
+            if self.max_wavelength is None:  # Compute default wavelength
+                self._max_wavelength = np.max(
+                    np.concatenate(
+                        (excite_lines.wavelength, deexcite_lines.wavelength)
+                    )
                 )
+
+            ### Remove the rows outside the wavelength range for the plot
+            excite_lines = excite_lines.loc[
+                (excite_lines.wavelength >= self.min_wavelength)
+                & (excite_lines.wavelength <= self.max_wavelength)
+            ]
+            deexcite_lines = deexcite_lines.loc[
+                (deexcite_lines.wavelength >= self.min_wavelength)
+                & (deexcite_lines.wavelength <= self.max_wavelength)
+            ]
+
+            ### Compute the standardized log number of electrons for arrow line width
+            transition_width_coefficient = standardize(
+                np.concatenate(
+                    (excite_lines.num_electrons, deexcite_lines.num_electrons)
+                ),
+                transform=self._transition_width_transform,
+                zero_undefined_offset=1e-3,
             )
-
-        ### Remove the rows outside the wavelength range for the plot
-        excite_lines = excite_lines.loc[
-            (excite_lines.wavelength >= self.min_wavelength)
-            & (excite_lines.wavelength <= self.max_wavelength)
-        ]
-        deexcite_lines = deexcite_lines.loc[
-            (deexcite_lines.wavelength >= self.min_wavelength)
-            & (deexcite_lines.wavelength <= self.max_wavelength)
-        ]
-
-        ### Compute the standardized log number of electrons for arrow line width
-        transition_width_coefficient = standardize(
-            np.concatenate(
-                (excite_lines.num_electrons, deexcite_lines.num_electrons)
-            ),
-            transform=self._transition_width_transform,
-        )
-        excite_lines[
-            "transition_width_coefficient"
-        ] = transition_width_coefficient[: len(excite_lines)]
-        deexcite_lines[
-            "transition_width_coefficient"
-        ] = transition_width_coefficient[len(excite_lines) :]
+            excite_lines[
+                "transition_width_coefficient"
+            ] = transition_width_coefficient[: len(excite_lines)]
+            deexcite_lines[
+                "transition_width_coefficient"
+            ] = transition_width_coefficient[len(excite_lines) :]
 
         self.excite_lines = excite_lines
         self.deexcite_lines = deexcite_lines
@@ -554,7 +580,6 @@ class GrotrianWidget:
         self.level_data["level_width_coefficient"] = standardize(
             self.level_data.population,
             transform=self._level_width_transform,
-            zero_undefined=True,
             zero_undefined_offset=1e-3,
         )
 
@@ -569,7 +594,6 @@ class GrotrianWidget:
         self.level_data["y_coord"] = standardize(
             self.level_data.energy,
             transform=self._y_coord_transform,
-            zero_undefined=True,
             zero_undefined_offset=0.1,
         )
 
@@ -602,7 +626,7 @@ class GrotrianWidget:
             self.fig.add_annotation(
                 x=self.x_max + 0.1,
                 y=level_info.y_coord,
-                text=f"n={level_number}",
+                text=f"{level_number}",
                 showarrow=False,
                 xref="x2",
                 yref="y2",
@@ -681,6 +705,7 @@ class GrotrianWidget:
         lines["color_coefficient"] = standardize(
             lines.wavelength,
             transform=self._wavelength_color_transform,
+            zero_undefined_offset=1e-5,
             min_value=self.min_wavelength,
             max_value=self.max_wavelength,
         )
@@ -871,21 +896,23 @@ class GrotrianWidget:
 
     def display(self):
         """
-        Parent function to draw the widget (calls other draw methods independently)
+        Function to draw the plot and the reference scales (calls other draw methods independently)
         """
         ### Create figure and set metadata
-        self.fig = make_subplots(
-            rows=1,
-            cols=2,
-            column_width=[0.3, 0.7],
-            specs=[[{}, {}]],
-            horizontal_spacing=0.14,
+        self.fig = go.FigureWidget(
+            make_subplots(
+                rows=1,
+                cols=2,
+                column_width=[0.3, 0.7],
+                specs=[[{}, {}]],
+                horizontal_spacing=0.14,
+            )
         )
 
         # Update fig layout
         self.fig.update_layout(
             title=(
-                f"Grotrian Diagram for {self.atomic_name} {int_to_roman(self.ion_number + 1)} "
+                f"Energy Level Diagram for {self.atomic_name} {int_to_roman(self.ion_number + 1)} "
                 f"(Shell: {self.shell if self.shell is not None else 'All'})"
             ),
             title_x=0.5,
@@ -939,9 +966,246 @@ class GrotrianWidget:
         )
 
         ### Create transition lines and corresponding width and color scales
-        self._draw_transitions(is_excitation=True)
-        self._draw_transitions(is_excitation=False)
-        self._draw_transition_width_scale()
-        self._draw_transition_color_scale()
+        if len(self.excite_lines) > 0:
+            self._draw_transitions(is_excitation=True)
 
+        if len(self.deexcite_lines) > 0:
+            self._draw_transitions(is_excitation=False)
+
+        if len(self.excite_lines) + len(self.deexcite_lines) > 0:
+            self._draw_transition_width_scale()
+            self._draw_transition_color_scale()
+
+        return self.fig
+
+
+class GrotrianWidget:
+    """
+    A wrapper class for the Grotrian Diagram, containing the Grotrian Plot and the IpyWidgets
+
+    Parameters
+    ----------
+    plot : tardis.visualization.widgets.grotrian.GrotrianPlot
+        GrotrianPlot object
+    num_shells : int
+        Number of shells in the sim.simulation_state.v_inner
+    """
+
+    @classmethod
+    def from_simulation(cls, sim, **kwargs):
+        """
+        Creates a GrotrianWidget object from a Simulation object
+
+        Parameters
+        ----------
+        sim : tardis.simulation.Simulation
+            TARDIS simulation object
+
+        Returns
+        -------
+        tardis.visualization.widgets.grotrian.GrotrianWidget
+            GrotrianWidget object
+        """
+        plot = GrotrianPlot.from_simulation(sim, **kwargs)
+        num_shells = len(sim.simulation_state.v_inner)
+        return cls(plot, num_shells, **kwargs)
+
+    def __init__(self, plot, num_shells, **kwargs):
+        self.plot = plot
+        self.num_shells = num_shells
+
+        species_list = self._get_species()
+        self.ion_selector = ipw.Dropdown(
+            options=species_list,
+            index=0,
+            description="Ion",
+        )
+        self.plot.set_ion(*species_string_to_tuple(self.ion_selector.value))
+        self.ion_selector.observe(
+            self._ion_change_handler,
+            names="value",
+        )
+        self.ion_selector.observe(
+            self._wavelength_resetter,
+            names="value",
+        )
+
+        shell_list = ["All"] + [str(i) for i in range(1, num_shells + 1)]
+        self.shell_selector = ipw.Dropdown(
+            options=shell_list,
+            index=0,
+            description="Shell",
+        )
+        self.shell_selector.observe(
+            lambda change: self._change_handler(
+                "shell", None if change["new"] == "All" else int(change["new"])
+            ),
+            names="value",
+        )
+        self.shell_selector.observe(
+            self._wavelength_resetter,
+            names="value",
+        )
+
+        self.max_level_selector = ipw.BoundedIntText(
+            value=plot.max_levels,
+            min=1,
+            max=40,
+            step=1,
+            description="Max Levels",
+        )
+        self.max_level_selector.observe(
+            lambda change: self._change_handler("max_levels", change["new"]),
+            names="value",
+        )
+        self.max_level_selector.observe(
+            self._wavelength_resetter,
+            names="value",
+        )
+
+        self.y_scale_selector = ipw.ToggleButtons(
+            options=GrotrianPlot.Y_SCALE_OPTION.keys(),
+            index=1,
+            description="Y-Scale",
+            layout=ipw.Layout(width="auto"),
+            style={"button_width": "100px"},
+        )
+        self.y_scale_selector.observe(
+            lambda change: self._change_handler("y_scale", change["new"]),
+            names="value",
+        )
+
+        self.wavelength_range_selector = ipw.FloatRangeSlider(
+            value=[self.plot.min_wavelength, self.plot.max_wavelength],
+            min=self.plot.min_wavelength,
+            max=self.plot.max_wavelength,
+            step=0.1,
+            description="Wavelength",
+            layout=ipw.Layout(width="605px"),
+            readout_format=".1e",
+        )
+        self.wavelength_range_selector.observe(
+            self._wavelength_change_handler,
+            names="value",
+        )
+
+    def _get_species(self):
+        """
+        Computes the ions list for the ion dropdown of the plot
+        """
+        line_interaction_analysis = self.plot._line_interaction_analysis
+        selected_species_group = line_interaction_analysis[
+            self.plot.filter_mode
+        ].last_line_in.groupby(["atomic_number", "ion_number"])
+
+        if selected_species_group.groups:
+            selected_species_symbols = [
+                species_tuple_to_string(item)
+                for item in selected_species_group.groups.keys()
+            ]
+        return selected_species_symbols
+
+    def _change_handler(self, attribute, value):
+        """
+        Generic function to update the configurable attributes of GrotrianPlot object
+
+        Parameters
+        ----------
+        attribute : str
+            The name of the attribute of the GrotrianPlot object
+        value :
+            The new value of the attribute
+        """
+        index = self.fig.children.index(self.plot.fig)
+        setattr(self.plot, attribute, value)  # Set the value of the attribute
+
+        # Set the updated plot in the figure
+        children_list = list(self.fig.children)
+        children_list[index] = self.plot.display()
+        self.fig.children = tuple(children_list)
+
+    def _ion_change_handler(self, change):
+        """
+        Function to update ion of GrotrianPlot object
+
+        Parameters
+        ----------
+        change : dict
+            Change information of the event
+        """
+        atomic_number, ion_number = species_string_to_tuple(change["new"])
+        index = self.fig.children.index(self.plot.fig)
+        self.plot.set_ion(atomic_number, ion_number)
+
+        # Set the updated plot in the figure
+        children_list = list(self.fig.children)
+        children_list[index] = self.plot.display()
+        self.fig.children = tuple(children_list)
+        # self._wavelength_resetter()
+
+    def _wavelength_change_handler(self, change):
+        """
+        Function to update the wavelength range of GrotrianPlot object
+
+        Parameters
+        ----------
+        change : dict
+            Change information of the event
+        """
+        min_wavelength, max_wavelength = change["new"]
+        index = self.fig.children.index(self.plot.fig)
+        setattr(self.plot, "min_wavelength", min_wavelength)
+        setattr(self.plot, "max_wavelength", max_wavelength + 1)
+
+        # Set the updated plot in the figure
+        children_list = list(self.fig.children)
+        children_list[index] = self.plot.display()
+        self.fig.children = tuple(children_list)
+
+    def _wavelength_resetter(self, change):
+        """
+        Resets the range of the wavelength slider whenever the ion, level or shell changes
+        """
+        min_wavelength = self.plot.min_wavelength
+        max_wavelength = self.plot.max_wavelength
+
+        if min_wavelength is None or max_wavelength is None:
+            self.wavelength_range_selector.layout.visibility = "hidden"
+            return
+
+        elif min_wavelength == max_wavelength:
+            self.wavelength_range_selector.layout.visibility = "visible"
+            self.wavelength_range_selector.disabled = True
+        else:
+            self.wavelength_range_selector.layout.visibility = "visible"
+            self.wavelength_range_selector.disabled = False
+
+        self.wavelength_range_selector.min = 0.0
+        self.wavelength_range_selector.max = max_wavelength
+        self.wavelength_range_selector.min = min_wavelength
+        self.wavelength_range_selector.value = [
+            self.wavelength_range_selector.min,
+            self.wavelength_range_selector.max,
+        ]
+
+    def display(self):
+        """
+        Function to render the Grotrian Widget containing the plot and IpyWidgets together
+        """
+        fig = self.plot.display()
+        self.fig = ipw.VBox(
+            [
+                ipw.HBox(
+                    [
+                        self.ion_selector,
+                        self.shell_selector,
+                        self.max_level_selector,
+                    ]
+                ),
+                ipw.HBox(
+                    [self.y_scale_selector, self.wavelength_range_selector]
+                ),
+                fig,
+            ]
+        )
         return self.fig
