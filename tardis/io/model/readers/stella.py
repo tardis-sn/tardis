@@ -74,6 +74,10 @@ def read_stella_model(fname):
     # and the actual data
     data = pd.read_csv(
         fname,
+        # The argument `delim_whitespace` was changed to `sep`
+        #   because the first one is deprecated since version 2.2.0.
+        #   The regular expression means: the separation is one or
+        #   more spaces together (simple space, tabs, new lines).
         sep=r"\s+",
         skiprows=DATA_START_ROW + 1,
         header=None,

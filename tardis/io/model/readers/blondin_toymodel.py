@@ -44,6 +44,10 @@ def read_blondin_toymodel(fname):
     ]
 
     raw_blondin_csv = pd.read_csv(
+        # The argument `delim_whitespace` was changed to `sep`
+        #   because the first one is deprecated since version 2.2.0.
+        #   The regular expression means: the separation is one or
+        #   more spaces together (simple space, tabs, new lines).
         fname, sep=r"\s+", comment="#", header=None, names=columns
     )
     raw_blondin_csv.set_index("idx", inplace=True)
