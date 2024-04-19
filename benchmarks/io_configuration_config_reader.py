@@ -91,32 +91,32 @@ class BenchmarkIoConfigurationConfigReader(BenchmarkBase):
         )
 
     def time_plasma_nlte_section_root_config(self):
-        self.tardis_config_verysimple_nlte["plasma"]["continuum_interaction"]["species"] = ["He I", ]
-        self.tardis_config_verysimple_nlte["plasma"]["nlte_ionization_species"] = ["H I"]
-        config = Configuration.from_config_dict(self.tardis_config_verysimple_nlte)
-        assemble_plasma(config, self.nlte_raw_model_root, self.nlte_atom_data)
+        self.nlte.tardis_config_verysimple_nlte["plasma"]["continuum_interaction"]["species"] = ["He I", ]
+        self.nlte.tardis_config_verysimple_nlte["plasma"]["nlte_ionization_species"] = ["H I"]
+        config = Configuration.from_config_dict(self.nlte.tardis_config_verysimple_nlte)
+        assemble_plasma(config, self.nlte.nlte_raw_model_root, self.nlte.nlte_atom_data)
 
     def time_plasma_nlte_section_lu_config(self):
-        self.tardis_config_verysimple_nlte["plasma"]["continuum_interaction"][
+        self.nlte.tardis_config_verysimple_nlte["plasma"]["continuum_interaction"][
             "species"
         ] = [
             "He I",
         ]
-        self.tardis_config_verysimple_nlte["plasma"]["nlte_ionization_species"] = ["H I"]
-        self.tardis_config_verysimple_nlte["plasma"]["nlte_solver"] = "lu"
-        config = Configuration.from_config_dict(self.tardis_config_verysimple_nlte)
-        assemble_plasma(config, self.nlte_raw_model_lu, self.nlte_atom_data)
+        self.nlte.tardis_config_verysimple_nlte["plasma"]["nlte_ionization_species"] = ["H I"]
+        self.nlte.tardis_config_verysimple_nlte["plasma"]["nlte_solver"] = "lu"
+        config = Configuration.from_config_dict(self.nlte.tardis_config_verysimple_nlte)
+        assemble_plasma(config, self.nlte.nlte_raw_model_lu, self.nlte.nlte_atom_data)
 
     def time_plasma_nlte_root_exc_section_config(self):
-        self.tardis_config_verysimple_nlte["plasma"]["continuum_interaction"][
+        self.nlte.tardis_config_verysimple_nlte["plasma"]["continuum_interaction"][
             "species"
         ] = [
             "He I",
         ]
-        self.tardis_config_verysimple_nlte["plasma"]["nlte_excitation_species"] = ["H I"]
-        self.tardis_config_verysimple_nlte["plasma"]["nlte_solver"] = "root"
-        config = Configuration.from_config_dict(self.tardis_config_verysimple_nlte)
-        assemble_plasma(config, self.nlte_raw_model_root, self.nlte_atom_data)
+        self.nlte.tardis_config_verysimple_nlte["plasma"]["nlte_excitation_species"] = ["H I"]
+        self.nlte.tardis_config_verysimple_nlte["plasma"]["nlte_solver"] = "root"
+        config = Configuration.from_config_dict(self.nlte.tardis_config_verysimple_nlte)
+        assemble_plasma(config, self.nlte.nlte_raw_model_root, self.nlte.nlte_atom_data)
 
     def time_spectrum_section_config(self):
         self.tardis_config_verysimple["spectrum"]["start"] = Quantity("2500 angstrom")

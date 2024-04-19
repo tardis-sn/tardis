@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from numba import njit
 
+from benchmarks.util.nlte import Nlte
 from tardis.io.atom_data import AtomData
 from tardis.io.configuration import config_reader
 from tardis.io.configuration.config_reader import Configuration
@@ -28,6 +29,9 @@ class BenchmarkBase:
     # It allows 10 minutes of runtime for each benchmark and includes
     # the total time for all the repetitions for each benchmark.
     timeout = 600
+
+    def __init__(self):
+        self.nlte = Nlte()
 
     @staticmethod
     def get_relative_path(partial_path: str):
@@ -51,46 +55,6 @@ class BenchmarkBase:
             filename,
             YAMLLoader,
         )
-
-    @property
-    def tardis_config_verysimple_nlte(self):
-        filename = self.get_absolute_path("tardis/io/configuration/tests/data/tardis_configv1_nlte.yml")
-        return yaml_load_file(
-            filename,
-            YAMLLoader,
-        )
-
-    @property
-    def nlte_raw_model_root(self):
-        return SimulationState.from_config(
-            self.tardis_model_config_nlte_root, self.nlte_atom_data
-        )
-
-    @property
-    def nlte_raw_model_lu(self):
-        return SimulationState.from_config(
-            self.tardis_model_config_nlte_lu, self.nlte_atom_data
-        )
-
-    @property
-    def nlte_atom_data(self):
-        atomic_data = deepcopy(self.nlte_atomic_dataset)
-        return atomic_data
-
-    @property
-    def nlte_atomic_dataset(self):
-        nlte_atomic_data = AtomData.from_hdf(self.nlte_atomic_data_fname)
-        return nlte_atomic_data
-
-    @property
-    def nlte_atomic_data_fname(self):
-        atomic_data_fname = f"{self.tardis_ref_path}/nlte_atom_data/TestNLTE_He_Ti.h5"
-        atom_data_missing_str = f"{atomic_data_fname} atomic datafiles " f"does not seem to exist"
-
-        if not Path(atomic_data_fname).exists():
-            raise Exception(atom_data_missing_str)
-
-        return atomic_data_fname
 
     @property
     def tardis_ref_path(self):
@@ -117,22 +81,6 @@ class BenchmarkBase:
             raise Exception(atom_data_missing_str)
 
         return atomic_data_fname
-
-    @property
-    def tardis_model_config_nlte_root(self):
-        config = Configuration.from_yaml(
-            f"{self.example_configuration_dir}/tardis_configv1_nlte.yml"
-        )
-        config.plasma.nlte_solver = "root"
-        return config
-
-    @property
-    def tardis_model_config_nlte_lu(self):
-        config = Configuration.from_yaml(
-            f"{self.example_configuration_dir}/tardis_configv1_nlte.yml"
-        )
-        config.plasma.nlte_solver = "lu"
-        return config
 
     @property
     def example_configuration_dir(self):

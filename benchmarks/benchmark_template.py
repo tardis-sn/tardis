@@ -12,7 +12,7 @@ class BenchmarkXx(BenchmarkBase):
     """
 
     def __init__(self):
-        pass
+        super().__init__()
 
     def time_template(self):
         pass

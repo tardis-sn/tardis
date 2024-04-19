@@ -22,7 +22,7 @@ class BenchmarkPlasmaNlteExcitation(BenchmarkBase):
     """
 
     def time_prepare_bound_bound_rate_matrix(self):
-        nlte_atomic_dataset = self.nlte_atomic_dataset
+        nlte_atomic_dataset = self.nlte.nlte_atomic_dataset
         # TODO: Needs to work in the class RegressionData in BenchmarkBase
         custom_request = self.CustomPyTestRequest(
             tardis_regression_data_path="/app/tardis-regression-data",
