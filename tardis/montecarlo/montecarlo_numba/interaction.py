@@ -2,9 +2,6 @@ import numpy as np
 from numba import njit
 
 from tardis import constants as const
-from tardis.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
-)
 from tardis.montecarlo.montecarlo_numba import njit_dict_no_parallel
 from tardis.montecarlo.montecarlo_numba.macro_atom import (
     MacroAtomTransitionType,
@@ -150,6 +147,8 @@ def continuum_event(
     chi_ff,
     chi_bf_contributions,
     current_continua,
+    continuum_processes_enabled,
+    enable_full_relativity,
 ):
     """
     continuum event handler - activate the macroatom and run the handler
@@ -162,12 +161,12 @@ def continuum_event(
     continuum : tardis.montecarlo.montecarlo_numba.numba_interface.Continuum
     """
     old_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
     )
 
     r_packet.mu = get_random_mu()
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
     )
     comov_energy = r_packet.energy * old_doppler_factor
     comov_nu = (
@@ -186,13 +185,23 @@ def continuum_event(
     )
 
     macro_atom_event(
-        destination_level_idx, r_packet, time_explosion, opacity_state
+        destination_level_idx,
+        r_packet,
+        time_explosion,
+        opacity_state,
+        continuum_processes_enabled,
+        enable_full_relativity,
     )
 
 
 @njit(**njit_dict_no_parallel)
 def macro_atom_event(
-    destination_level_idx, r_packet, time_explosion, opacity_state
+    destination_level_idx,
+    r_packet,
+    time_explosion,
+    opacity_state,
+    continuum_processes_enabled,
+    enable_full_relativity,
 ):
     """
     Macroatom event handler - run the macroatom and handle the result
@@ -209,38 +218,52 @@ def macro_atom_event(
     )
 
     if (
-        montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
+        continuum_processes_enabled
         and transition_type == MacroAtomTransitionType.FF_EMISSION
     ):
-        free_free_emission(r_packet, time_explosion, opacity_state)
+        free_free_emission(
+            r_packet, time_explosion, opacity_state, enable_full_relativity
+        )
 
     elif (
-        montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
+        continuum_processes_enabled
         and transition_type == MacroAtomTransitionType.BF_EMISSION
     ):
         bound_free_emission(
-            r_packet, time_explosion, opacity_state, transition_id
+            r_packet,
+            time_explosion,
+            opacity_state,
+            transition_id,
+            enable_full_relativity,
         )
     elif (
-        montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
+        continuum_processes_enabled
         and transition_type == MacroAtomTransitionType.BF_COOLING
     ):
-        bf_cooling(r_packet, time_explosion, opacity_state)
+        bf_cooling(
+            r_packet, time_explosion, opacity_state, enable_full_relativity
+        )
 
     elif (
-        montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED
+        continuum_processes_enabled
         and transition_type == MacroAtomTransitionType.ADIABATIC_COOLING
     ):
         adiabatic_cooling(r_packet)
 
     elif transition_type == MacroAtomTransitionType.BB_EMISSION:
-        line_emission(r_packet, transition_id, time_explosion, opacity_state)
+        line_emission(
+            r_packet,
+            transition_id,
+            time_explosion,
+            opacity_state,
+            enable_full_relativity,
+        )
     else:
         raise Exception("No Interaction Found!")
 
 
 @njit(**njit_dict_no_parallel)
-def bf_cooling(r_packet, time_explosion, opacity_state):
+def bf_cooling(r_packet, time_explosion, opacity_state, enable_full_relativity):
     """
     Bound-Free Cooling - Determine and run bf emission from cooling
 
@@ -260,7 +283,13 @@ def bf_cooling(r_packet, time_explosion, opacity_state):
         i += 1
         p += fb_cooling_prob[i]
     continuum_idx = i
-    bound_free_emission(r_packet, time_explosion, opacity_state, continuum_idx)
+    bound_free_emission(
+        r_packet,
+        time_explosion,
+        opacity_state,
+        continuum_idx,
+        enable_full_relativity,
+    )
 
 
 @njit(**njit_dict_no_parallel)
@@ -295,7 +324,9 @@ def get_current_line_id(nu, line_list):
 
 
 @njit(**njit_dict_no_parallel)
-def free_free_emission(r_packet, time_explosion, opacity_state):
+def free_free_emission(
+    r_packet, time_explosion, opacity_state, enable_full_relativity
+):
     """
     Free-Free emission - set the frequency from electron-ion interaction
 
@@ -306,21 +337,27 @@ def free_free_emission(r_packet, time_explosion, opacity_state):
     opacity_state : tardis.montecarlo.montecarlo_numba.numba_interface.OpacityState
     """
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
     )
     comov_nu = sample_nu_free_free(opacity_state, r_packet.current_shell_id)
     r_packet.nu = comov_nu * inverse_doppler_factor
     current_line_id = get_current_line_id(comov_nu, opacity_state.line_list_nu)
     r_packet.next_line_id = current_line_id
 
-    if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
+    if enable_full_relativity:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
 
 
 @njit(**njit_dict_no_parallel)
-def bound_free_emission(r_packet, time_explosion, opacity_state, continuum_id):
+def bound_free_emission(
+    r_packet,
+    time_explosion,
+    opacity_state,
+    continuum_id,
+    enable_full_relativity,
+):
     """
     Bound-Free emission - set the frequency from photo-ionization
 
@@ -332,7 +369,7 @@ def bound_free_emission(r_packet, time_explosion, opacity_state, continuum_id):
     continuum_id : int
     """
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
     )
 
     comov_nu = sample_nu_free_bound(
@@ -342,14 +379,14 @@ def bound_free_emission(r_packet, time_explosion, opacity_state, continuum_id):
     current_line_id = get_current_line_id(comov_nu, opacity_state.line_list_nu)
     r_packet.next_line_id = current_line_id
 
-    if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
+    if enable_full_relativity:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
 
 
 @njit(**njit_dict_no_parallel)
-def thomson_scatter(r_packet, time_explosion):
+def thomson_scatter(r_packet, time_explosion, enable_full_relativity):
     """
     Thomson scattering — no longer line scattering
     \n1) get the doppler factor at that position with the old angle
@@ -364,29 +401,34 @@ def thomson_scatter(r_packet, time_explosion):
         time since explosion in seconds
     """
     old_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
     )
     comov_nu = r_packet.nu * old_doppler_factor
     comov_energy = r_packet.energy * old_doppler_factor
     r_packet.mu = get_random_mu()
     inverse_new_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
     )
 
     r_packet.nu = comov_nu * inverse_new_doppler_factor
     r_packet.energy = comov_energy * inverse_new_doppler_factor
-    if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
+    if enable_full_relativity:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
     temp_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
     )
 
 
 @njit(**njit_dict_no_parallel)
 def line_scatter(
-    r_packet, time_explosion, line_interaction_type, opacity_state
+    r_packet,
+    time_explosion,
+    line_interaction_type,
+    opacity_state,
+    continuum_processes_enabled,
+    enable_full_relativity,
 ):
     """
     Line scatter function that handles the scattering itself, including new angle drawn, and calculating nu out using macro atom
@@ -399,12 +441,12 @@ def line_scatter(
     opacity_state : tardis.montecarlo.montecarlo_numba.numba_interface.OpacityState
     """
     old_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
     )
     r_packet.mu = get_random_mu()
 
     inverse_new_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
     )
 
     comov_energy = r_packet.energy * old_doppler_factor
@@ -412,7 +454,11 @@ def line_scatter(
 
     if line_interaction_type == LineInteractionType.SCATTER:
         line_emission(
-            r_packet, r_packet.next_line_id, time_explosion, opacity_state
+            r_packet,
+            r_packet.next_line_id,
+            time_explosion,
+            opacity_state,
+            enable_full_relativity,
         )
     else:  # includes both macro atom and downbranch - encoded in the transition probabilities
         comov_nu = r_packet.nu * old_doppler_factor  # Is this necessary?
@@ -421,12 +467,23 @@ def line_scatter(
             r_packet.next_line_id
         ]
         macro_atom_event(
-            activation_level_id, r_packet, time_explosion, opacity_state
+            activation_level_id,
+            r_packet,
+            time_explosion,
+            opacity_state,
+            continuum_processes_enabled,
+            enable_full_relativity,
         )
 
 
 @njit(**njit_dict_no_parallel)
-def line_emission(r_packet, emission_line_id, time_explosion, opacity_state):
+def line_emission(
+    r_packet,
+    emission_line_id,
+    time_explosion,
+    opacity_state,
+    enable_full_relativity,
+):
     """
     Sets the frequency of the RPacket properly given the emission channel
 
@@ -443,7 +500,7 @@ def line_emission(r_packet, emission_line_id, time_explosion, opacity_state):
     if emission_line_id != r_packet.next_line_id:
         pass
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion
+        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
     )
     r_packet.nu = (
         opacity_state.line_list_nu[emission_line_id] * inverse_doppler_factor
@@ -451,7 +508,7 @@ def line_emission(r_packet, emission_line_id, time_explosion, opacity_state):
     r_packet.next_line_id = emission_line_id + 1
     nu_line = opacity_state.line_list_nu[emission_line_id]
 
-    if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
+    if enable_full_relativity:
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )

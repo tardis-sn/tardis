@@ -5,9 +5,6 @@ import numpy.testing as npt
 import pytest
 
 from tardis.base import run_tardis
-from tardis.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
-)
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     rpacket_trackers_to_dataframe,
 )
