@@ -29,12 +29,9 @@ class BenchmarkBase:
     timeout = 600
 
     @staticmethod
-    def split_path(path):
-        return path.split('/')
-
-    def get_relative_path(self, partial_path: str):
+    def get_relative_path(partial_path: str):
         path = dirname(realpath(__file__))
-        targets = self.split_path(partial_path)
+        targets = Path(partial_path).parts
 
         for target in targets:
             path = join(path, target)
