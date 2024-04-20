@@ -13,7 +13,7 @@ def test_thomson_scatter(packet, verysimple_numba_model):
     init_energy = packet.energy
     time_explosion = verysimple_numba_model.time_explosion
 
-    interaction.thomson_scatter(packet, time_explosion)
+    interaction.thomson_scatter(packet, time_explosion, False)
 
     assert np.abs(packet.mu - init_mu) > 1e-7
     assert np.abs(packet.nu - init_nu) > 1e-7
@@ -37,11 +37,19 @@ def test_line_scatter(
     init_mu = packet.mu
     init_nu = packet.nu
     init_energy = packet.energy
-    packet.initialize_line_id(verysimple_opacity_state, verysimple_numba_model)
+    full_relativity = False
+    packet.initialize_line_id(
+        verysimple_opacity_state, verysimple_numba_model, full_relativity
+    )
     time_explosion = verysimple_numba_model.time_explosion
 
     interaction.line_scatter(
-        packet, time_explosion, line_interaction_type, verysimple_opacity_state
+        packet,
+        time_explosion,
+        line_interaction_type,
+        verysimple_opacity_state,
+        continuum_processes_enabled=False,
+        enable_full_relativity=False,
     )
 
     assert np.abs(packet.mu - init_mu) > 1e-7
@@ -89,12 +97,21 @@ def test_line_emission(
     emission_line_id = test_packet["emission_line_id"]
     packet.mu = test_packet["mu"]
     packet.energy = test_packet["energy"]
-    packet.initialize_line_id(verysimple_opacity_state, verysimple_numba_model)
+    full_relativity = False
+    packet.initialize_line_id(
+        verysimple_opacity_state,
+        verysimple_numba_model,
+        full_relativity,
+    )
 
     time_explosion = verysimple_numba_model.time_explosion
 
     interaction.line_emission(
-        packet, emission_line_id, time_explosion, verysimple_opacity_state
+        packet,
+        emission_line_id,
+        time_explosion,
+        verysimple_opacity_state,
+        full_relativity,
     )
 
     assert packet.next_line_id == emission_line_id + 1

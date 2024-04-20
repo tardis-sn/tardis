@@ -6,7 +6,6 @@ from tardis.montecarlo.montecarlo_numba import (
     njit_dict_no_parallel,
 )
 
-import tardis.montecarlo.montecarlo_configuration as nc
 from tardis.montecarlo.montecarlo_numba.numba_config import (
     C_SPEED_OF_LIGHT,
     MISS_DISTANCE,
@@ -64,7 +63,12 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
 
 @njit(**njit_dict_no_parallel)
 def calculate_distance_line(
-    r_packet, comov_nu, is_last_line, nu_line, time_explosion
+    r_packet,
+    comov_nu,
+    is_last_line,
+    nu_line,
+    time_explosion,
+    enable_full_relativity,
 ):
     """
     Calculate distance until RPacket is in resonance with the next line
@@ -101,7 +105,7 @@ def calculate_distance_line(
     else:
         raise MonteCarloException("nu difference is less than 0.0")
 
-    if nc.ENABLE_FULL_RELATIVITY:
+    if enable_full_relativity:
         return calculate_distance_line_full_relativity(
             nu_line, nu, time_explosion, r_packet
         )

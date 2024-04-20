@@ -43,10 +43,10 @@ class TestPacketSource:
         tardis.montecarlo.packet_source.BlackBodySimpleSource
         """
         cls = type(self)
-        montecarlo_configuration.LEGACY_MODE_ENABLED = True
-        cls.bb = BlackBodySimpleSource(base_seed=1963, legacy_second_seed=2508)
+        cls.bb = BlackBodySimpleSource(
+            base_seed=1963, legacy_mode_enabled=True, legacy_second_seed=2508
+        )
         yield cls.bb
-        montecarlo_configuration.LEGACY_MODE_ENABLED = False
 
     @pytest.fixture(scope="class")
     def blackbody_simplesource_relativistic(self, request):
@@ -57,12 +57,10 @@ class TestPacketSource:
         -------
         tardis.montecarlo.packet_source.BlackBodySimpleSourceRelativistic
         """
-        montecarlo_configuration.LEGACY_MODE_ENABLED = True
         bb_rel = BlackBodySimpleSourceRelativistic(
-            base_seed=1963, legacy_second_seed=2508
+            base_seed=1963, legacy_mode_enabled=True, legacy_second_seed=2508
         )
         yield bb_rel
-        montecarlo_configuration.LEGACY_MODE_ENABLED = False
 
     def test_bb_packet_sampling(
         self,

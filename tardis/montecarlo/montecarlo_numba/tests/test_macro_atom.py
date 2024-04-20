@@ -16,8 +16,11 @@ def test_macro_atom(
     expected,
 ):
     set_seed_fixture(seed)
+    full_relativity = False
     static_packet.initialize_line_id(
-        verysimple_opacity_state, verysimple_numba_model
+        verysimple_opacity_state,
+        verysimple_numba_model,
+        full_relativity,
     )
     activation_level_id = verysimple_opacity_state.line2macro_level_upper[
         static_packet.next_line_id
