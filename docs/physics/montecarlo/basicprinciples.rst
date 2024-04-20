@@ -95,8 +95,8 @@ Here, all scattering angles are equally likely. Thus, the corresponding
 
 .. math::
 
-    \rho_{\mu}(\mu) &= \frac{1}{2}\\
-    f_{\mu}(\mu) &= \frac{1}{2} (\mu + 1).
+    \rho(\mu) &= \frac{1}{2}\\
+    f(\mu) &= \frac{1}{2} (\mu + 1).
 
 This leads to the sampling rule
 
@@ -112,8 +112,8 @@ The probability of a photon interacting after covering an optical depth
 
 .. math::
 
-    \rho_{\tau}(\tau) &= \exp(-\tau)\\
-    f_{\tau}(\tau) &= 1 - \exp(-\tau).
+    \rho(\tau) &= \exp(-\tau)\\
+    f(\tau) &= 1 - \exp(-\tau).
 
 
 With the inverse transformation method, the optical depth to the next interaction location may then be sampled by 
