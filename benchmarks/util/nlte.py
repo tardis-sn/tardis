@@ -9,7 +9,7 @@ from tardis.io.util import yaml_load_file, YAMLLoader
 from tardis.model import SimulationState
 
 
-class Nlte:
+class NLTE:
     def __init__(self):
         self.__base = Base()
 

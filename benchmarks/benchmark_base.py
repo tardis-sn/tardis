@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from numba import njit
 
-from benchmarks.util.nlte import Nlte
+from benchmarks.util.nlte import NLTE
 from tardis.io.atom_data import AtomData
 from tardis.io.configuration import config_reader
 from tardis.io.configuration.config_reader import Configuration
@@ -31,7 +31,7 @@ class BenchmarkBase:
     timeout = 600
 
     def __init__(self):
-        self.nlte = Nlte()
+        self.nlte = NLTE()
 
     @staticmethod
     def get_relative_path(partial_path: str):
