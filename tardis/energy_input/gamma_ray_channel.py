@@ -27,7 +27,7 @@ def create_isotope_dicts(raw_isotope_abundance, cell_masses):
             dictionary of isotopes for each shell with their ``masses``.
             Each value is abundance * cell masses.
             For eg:
-            {0: {'Ni56': 0.1, 'Fe52': 0.2, 'Cr48': 0.3},
+            {0: {'Ni56': 0.1, 'Fe52': 0.2, 'Cr48': 0.3}},
             {1: {'Ni56': 0.1, 'Fe52': 0.2, 'Cr48': 0.3}} etc
     """
     isotope_dicts = {}
