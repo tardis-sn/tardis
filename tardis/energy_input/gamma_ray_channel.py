@@ -23,12 +23,12 @@ def create_isotope_dicts(raw_isotope_abundance, cell_masses):
 
     Returns
     -------
-        isotope_dicts : Dict
-            dictionary of isotopes for each shell with their ``masses``.
-            Each value is abundance * cell masses.
-            For eg:
-            {0: {'Ni56': 0.1, 'Fe52': 0.2, 'Cr48': 0.3}},
-            {1: {'Ni56': 0.1, 'Fe52': 0.2, 'Cr48': 0.3}} etc
+    isotope_dicts : Dict
+        dictionary of isotopes for each shell with their ``masses``.
+        Each value is abundance * cell masses.
+        For eg:
+        {0: {'Ni56': 0.1, 'Fe52': 0.2, 'Cr48': 0.3}},
+        {1: {'Ni56': 0.1, 'Fe52': 0.2, 'Cr48': 0.3}} etc
     """
     isotope_dicts = {}
     for i in range(len(raw_isotope_abundance.columns)):
@@ -46,7 +46,8 @@ def create_isotope_dicts(raw_isotope_abundance, cell_masses):
 
 
 def create_inventories_dict(isotope_dict):
-    """Function to create dictionary of inventories for each shell
+    """
+    Function to create dictionary of inventories for each shell.
 
     Parameters
     ----------
@@ -55,11 +56,10 @@ def create_inventories_dict(isotope_dict):
 
     Returns
     -------
-        inv : Dict
-            dictionary of inventories for each shell
-            {0: <radioactivedecay.inventory.Inventory object at 0x7f8b1c1b3d90>,
-            1: <radioactivedecay.inventory.Inventory object at 0x7f8b1c1b3d90>}
-
+    inv : Dict
+        dictionary of inventories for each shell
+        {0: <radioactivedecay.inventory.Inventory object at 0x7f8b1c1b3d90>,
+        1: <radioactivedecay.inventory.Inventory object at 0x7f8b1c1b3d90>}
     """
     inventories = {}
     for shell, isotopes in isotope_dict.items():
@@ -69,16 +69,15 @@ def create_inventories_dict(isotope_dict):
 
 
 def calculate_total_decays(inventories, time_delta):
-    """Function to create inventories of isotope for the entire simulation time.
+    """
+    Function to create inventories of isotope for the entire simulation time.
 
     Parameters
     ----------
     inventories : Dict
         dictionary of inventories for each shell
-
     time_end : float
         End time of simulation in days.
-
 
     Returns
     -------
@@ -111,8 +110,8 @@ def calculate_total_decays(inventories, time_delta):
 
 def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
     """
-    Function to create a dataframe of isotopes for each shell with their decay mode, number of decays, radiation type,
-    radiation energy and radiation intensity.
+    Function to create a dataframe of isotopes for each shell with their decay mode,
+    number of decays, radiation type, radiation energy and radiation intensity.
 
     Parameters
     ----------
@@ -124,8 +123,8 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
     Returns
     -------
     isotope_decay_df : pd.DataFrame
-        dataframe of isotopes for each shell with their decay mode, number of decays, radiation type,
-        radiation energy and radiation intensity.
+        dataframe of isotopes for each shell with their decay mode, number of decays,
+        radiation type, radiation energy and radiation intensity.
     """
 
     gamma_ray_lines = gamma_ray_lines.rename_axis(
