@@ -16,4 +16,4 @@ file is valid, and demonstrates how a YAML configuration file is read in.
   components/index
   example
   config_validator
-  read_configuration
+  tutorial_read_configuration

@@ -9,7 +9,10 @@ def test_opacity_state_initialize(nb_simulation_verysimple, input_params):
     line_interaction_type = input_params
     plasma = nb_simulation_verysimple.plasma
     actual = numba_interface.opacity_state_initialize(
-        plasma, line_interaction_type
+        plasma,
+        line_interaction_type,
+        disable_line_scattering=False,
+        continuum_processes_enabled=False,
     )
 
     npt.assert_allclose(

@@ -3,11 +3,7 @@ from numba import njit, objmode, prange
 from numba.np.ufunc.parallel import get_num_threads, get_thread_id
 from numba.typed import List
 
-from tardis.montecarlo import montecarlo_configuration
 from tardis.montecarlo.montecarlo_numba import njit_dict
-from tardis.montecarlo.estimators.radfield_mc_estimators import (
-    RadiationFieldMCEstimators,
-)
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     NumbaModel,
     RPacketTracker,
@@ -33,6 +29,7 @@ def montecarlo_main_loop(
     geometry_state,
     numba_model,
     opacity_state,
+    montecarlo_configuration,
     estimators,
     spectrum_frequency,
     number_of_vpackets,
@@ -91,30 +88,20 @@ def montecarlo_main_loop(
                 montecarlo_configuration.TEMPORARY_V_PACKET_BINS,
             )
         )
-        rpacket_trackers.append(RPacketTracker())
+        rpacket_trackers.append(
+            RPacketTracker(
+                montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH
+            )
+        )
 
     # Get the ID of the main thread and the number of threads
     main_thread_id = get_thread_id()
     n_threads = get_num_threads()
 
-    estimator_list = List()
     # betting get thread_id goes from 0 to num threads
     # Note that get_thread_id() returns values from 0 to n_threads-1,
     # so we iterate from 0 to n_threads-1 to create the estimator_list
-    for i in range(n_threads):
-        estimator_list.append(
-            RadiationFieldMCEstimators(
-                np.copy(estimators.j_estimator),
-                np.copy(estimators.nu_bar_estimator),
-                np.copy(estimators.j_blue_estimator),
-                np.copy(estimators.Edotlu_estimator),
-                np.copy(estimators.photo_ion_estimator),
-                np.copy(estimators.stim_recomb_estimator),
-                np.copy(estimators.bf_heating_estimator),
-                np.copy(estimators.stim_recomb_cooling_estimator),
-                np.copy(estimators.photo_ion_estimator_statistics),
-            )
-        )
+    estimator_list = estimators.create_estimator_list(n_threads)
 
     for i in prange(no_of_packets):
         thread_id = get_thread_id()
@@ -157,6 +144,7 @@ def montecarlo_main_loop(
             local_estimators,
             vpacket_collection,
             rpacket_tracker,
+            montecarlo_configuration,
         )
         packet_collection.output_nus[i] = r_packet.nu
 
@@ -187,7 +175,10 @@ def montecarlo_main_loop(
 
     if enable_virtual_packet_logging:
         vpacket_tracker = consolidate_vpacket_tracker(
-            vpacket_collections, spectrum_frequency
+            vpacket_collections,
+            spectrum_frequency,
+            montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
+            montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
         )
     else:
         vpacket_tracker = VPacketCollection(

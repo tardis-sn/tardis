@@ -6,7 +6,6 @@ import pytest
 from tardis.simulation import Simulation
 
 
-@pytest.mark.skip()
 def test_montecarlo_continuum(
     continuum_config,
     regression_data,

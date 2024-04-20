@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import tardis.montecarlo.montecarlo_configuration as mc
 import tardis.montecarlo.montecarlo_numba.formal_integral as formal_integral
 import tardis.montecarlo.montecarlo_numba.r_packet as r_packet
 import tardis.montecarlo.montecarlo_numba.utils as utils
@@ -393,7 +392,9 @@ def test_compute_distance2line(packet_params, expected_params):
 
     time_explosion = 5.2e7
 
-    doppler_factor = get_doppler_factor(packet.r, packet.mu, time_explosion)
+    doppler_factor = get_doppler_factor(
+        packet.r, packet.mu, time_explosion, False
+    )
     comov_nu = packet.nu * doppler_factor
 
     d_line = 0
@@ -460,14 +461,15 @@ def test_move_packet(packet_params, expected_params, full_relativity):
     packet.energy = packet_params["energy"]
     packet.r = packet_params["r"]
     # model.full_relativity = full_relativity
-    mc.ENABLE_FULL_RELATIVITY = full_relativity
 
-    doppler_factor = get_doppler_factor(packet.r, packet.mu, time_explosion)
+    doppler_factor = get_doppler_factor(
+        packet.r, packet.mu, time_explosion, full_relativity
+    )
     numba_estimator = RadiationFieldMCEstimators(
         packet_params["j"], packet_params["nu_bar"], 0, 0
     )
     r_packet_transport.move_r_packet(
-        packet, distance, time_explosion, numba_estimator
+        packet, distance, time_explosion, numba_estimator, full_relativity
     )
 
     assert_almost_equal(packet.mu, expected_params["mu"])
@@ -632,7 +634,9 @@ def test_compute_distance2line_relativistic(
     distance = r_packet.calculate_distance_line(
         packet, comov_nu, nu_line, t_exp
     )
-    r_packet_transport.move_r_packet(packet, distance, t_exp, numba_estimator)
+    r_packet_transport.move_r_packet(
+        packet, distance, t_exp, numba_estimator, bool(full_relativity)
+    )
 
     doppler_factor = get_doppler_factor(r, mu, t_exp)
     comov_nu = packet.nu * doppler_factor

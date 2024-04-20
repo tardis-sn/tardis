@@ -9,9 +9,9 @@ TARDIS also allows other inputs that are passed as keyword arguments into the ``
 .. toctree::
     :maxdepth: 1
 
-    custom_source
-    callback_example
-    logging_configuration
+    how_to_custom_source
+    tutorial_callback_example
+    tutorial_logging_configuration
 
 
 Additionally, ``run_tardis`` can take in a filepath for the atomic data and a boolean for virtual packet logging. For example:

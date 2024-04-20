@@ -11,9 +11,6 @@ from numba.experimental import jitclass
 
 
 from tardis.montecarlo.montecarlo_numba.numba_config import SIGMA_THOMSON
-from tardis.montecarlo import (
-    montecarlo_configuration as montecarlo_configuration,
-)
 from tardis.montecarlo.montecarlo_numba import njit_dict, njit_dict_no_parallel
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     opacity_state_initialize,
@@ -284,9 +281,16 @@ class FormalIntegrator(object):
         self.simulation_state = simulation_state
         self.transport = transport
         self.points = points
+        if transport:
+            self.montecarlo_configuration = (
+                self.transport.montecarlo_configuration
+            )
         if plasma:
             self.plasma = opacity_state_initialize(
-                plasma, transport.line_interaction_type
+                plasma,
+                transport.line_interaction_type,
+                self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
+                self.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
             )
             self.atomic_data = plasma.atomic_data
             self.original_plasma = plasma
@@ -309,7 +313,10 @@ class FormalIntegrator(object):
             self.simulation_state.time_explosion.cgs.value,
         )
         self.opacity_state = opacity_state_initialize(
-            self.original_plasma, self.transport.line_interaction_type
+            self.original_plasma,
+            self.transport.line_interaction_type,
+            self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
+            self.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED,
         )
         if self.transport.use_gpu:
             self.integrator = CudaFormalIntegrator(
@@ -361,7 +368,7 @@ class FormalIntegrator(object):
                 'and line_interaction_type == "macroatom"'
             )
 
-        if montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
+        if self.montecarlo_configuration.CONTINUUM_PROCESSES_ENABLED:
             return raise_or_return(
                 "The FormalIntegrator currently does not work for "
                 "continuum interactions."
