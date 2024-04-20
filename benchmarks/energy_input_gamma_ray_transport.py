@@ -6,8 +6,9 @@ from asv_runner.benchmarks.mark import skip_benchmark
 
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.energy_input.energy_source import get_all_isotopes, setup_input_energy
-from tardis.energy_input.gamma_ray_transport import create_isotope_dicts, create_inventories_dict, \
-    calculate_total_decays, decay_chain_energies, calculate_average_energies, calculate_energy_per_mass
+from tardis.energy_input.gamma_ray_channel import create_isotope_dicts, create_inventories_dict, calculate_total_decays
+from tardis.energy_input.gamma_ray_transport import decay_chain_energies, calculate_average_energies, \
+    calculate_energy_per_mass
 
 
 # @skip_benchmark
