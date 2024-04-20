@@ -406,10 +406,12 @@ def decay_chain_energies(
 
 def fractional_decay_energy(decay_energy):
     """Function to calculate fractional decay energy
+
     Parameters
     ----------
     decay_energy : Dict
         dictionary of decay chain energies for each isotope in each shell
+
     Returns
     -------
     fractional_decay_energy : Dict

@@ -26,8 +26,9 @@ def create_isotope_dicts(raw_isotope_abundance, cell_masses):
         isotope_dicts : Dict
             dictionary of isotopes for each shell with their ``masses``.
             Each value is abundance * cell masses.
-            For eg: {0: {'Ni56': 0.1, 'Fe52': 0.2, 'Cr48': 0.3},
-                    {1: {'Ni56': 0.1, 'Fe52': 0.2, 'Cr48': 0.3}} etc
+            For eg:
+            {0: {'Ni56': 0.1, 'Fe52': 0.2, 'Cr48': 0.3},
+            {1: {'Ni56': 0.1, 'Fe52': 0.2, 'Cr48': 0.3}} etc
     """
     isotope_dicts = {}
     for i in range(len(raw_isotope_abundance.columns)):
@@ -51,6 +52,7 @@ def create_inventories_dict(isotope_dict):
     ----------
     isotope_dict : Dict
         dictionary of isotopes for each shell with their ``masses``.
+
     Returns
     -------
         inv : Dict
