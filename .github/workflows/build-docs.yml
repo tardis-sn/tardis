@@ -90,12 +90,15 @@ jobs:
         id: is_build_docs_label
         with:
           script: |
-            if (github.event.name === 'pull_request_target' && github.event.pull_request.labels.some(label => label.name === 'build-docs')) {
-              console.log("Workflow triggered by pull request with 'build-docs' label.");
-              core.exit(0);
-            } else {
-              console.log("Skipping pull request with 'build-docs' label check.");
-              core.exit(1);
+            if (github.event.name === 'pull_request_target' && github.event.pull_request && github.event.pull_request.labels) {
+              // Check if labels exist before iterating
+              if (github.event.pull_request.labels.some(label => label.name === 'build-docs')) {
+                console.log("Workflow triggered by pull request with 'build-docs' label.");
+                core.exit(0);
+              } else {
+                console.log("Skipping pull request with 'build-docs' label check.");
+                core.exit(1);
+              }
             }
         continue-on-error: true
 
