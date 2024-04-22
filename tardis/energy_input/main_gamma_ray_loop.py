@@ -12,7 +12,7 @@ from tardis.energy_input.gamma_packet_loop import gamma_packet_loop
 from tardis.energy_input.gamma_ray_channel import (
     create_isotope_dicts,
     create_inventories_dict,
-    calculate_total_decays
+    calculate_total_decays,
 )
 from tardis.energy_input.gamma_ray_transport import (
     initialize_packets,
