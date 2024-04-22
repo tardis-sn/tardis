@@ -99,26 +99,24 @@ jobs:
           miniforge-version: latest
           activate-environment: tardis
           use-mamba: true
-        if: steps.docs_check.outcome == 'success'
+        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success'
 
       - uses: actions/cache@v2
         with:
           path: /usr/share/miniconda3/envs/tardis
           key: conda-linux-64-${{ hashFiles('conda-linux-64.lock') }}-${{ env.CACHE_NUMBER }}
         id: cache-conda
-        if: steps.docs_check.outcome == 'success'
+        if: success()
 
       - name: Update environment
         run: mamba update -n tardis --file conda-linux-64.lock
-        if: steps.cache-conda.outputs.cache-hit != 'true' && steps.docs_check.outcome == 'success'
+        if: steps.cache-conda.outputs.cache-hit != 'true'
 
       - name: Install package
         run: pip install -e .
-        if: steps.docs_check.outcome == 'success'
 
       - name: Build documentation
         run: cd docs/ && make html NCORES=auto
-        if: steps.docs_check.outcome == 'success'
 
       - name: Set destination directory
         run: |
