@@ -172,6 +172,12 @@ jobs:
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }}
         working-directory: ${{ env.TARDIS_PIP_PATH }}
+        if: always()
 
       - name: Upload to Codecov
         run: bash <(curl -s https://codecov.io/bash)
+      
+      - name: Refdata Generation tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference
+        working-directory: ${{ env.TARDIS_PIP_PATH }}
+        if: always()

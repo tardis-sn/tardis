@@ -16,11 +16,13 @@ class MonteCarloTransportState(HDFWriterMixin):
         "output_energy",
         "nu_bar_estimator",
         "j_estimator",
+        "j_blue_estimator",
         "montecarlo_virtual_luminosity",
         "packet_luminosity",
         "spectrum",
         "spectrum_virtual",
         "spectrum_reabsorbed",
+        "spectrum_integrated",
         "time_of_simulation",
         "emitted_packet_mask",
         "last_interaction_type",
@@ -121,6 +123,10 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def j_estimator(self):
         return self.radfield_mc_estimators.j_estimator
+
+    @property
+    def j_blue_estimator(self):
+        return self.radfield_mc_estimators.j_blue_estimator
 
     @property
     def time_of_simulation(self):
