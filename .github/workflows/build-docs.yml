@@ -36,10 +36,6 @@ defaults:
 
 jobs:
   build-docs:
-    if: github.event_name == 'push' ||
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'pull_request_target' ||
-      contains(github.event.pull_request.labels.*.name, 'build-docs')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -63,6 +59,42 @@ jobs:
               exit 1
           fi
         id: docs_check
+        continue-on-error: true
+
+      - name: Check if triggered by push event
+        id: is_push_event
+        run: |
+          if [[ $GITHUB_EVENT_NAME == 'push' ]]; then
+            echo "Workflow triggered by push event."
+            exit 0
+          else
+            echo "Workflow triggered by a different event: $GITHUB_EVENT_NAME"
+            exit 1
+          fi
+        continue-on-error: true
+
+      - name: Check for workflow dispatch
+        id: is_workflow_dispatch
+        run: |
+          if [[ $GITHUB_EVENT_NAME == 'workflow_dispatch' ]]; then
+            echo "Workflow triggered by manual dispatch."
+            exit 0
+          else
+            echo "Skipping workflow dispatch check."
+            exit 1
+          fi
+        continue-on-error: true
+
+      - name: Check for pull request with 'build-docs' label
+        id: is_build_docs_label
+        run: |
+          if [[ $GITHUB_EVENT_NAME == 'pull_request_target' && contains(github.event.pull_request.labels.*.name, 'build-docs') ]]; then
+            echo "Workflow triggered by pull request with 'build-docs' label."
+            exit 0
+          else
+            echo "Skipping pull request with 'build-docs' label check."
+            exit 1
+          fi
         continue-on-error: true
 
       - name: Setup environment
