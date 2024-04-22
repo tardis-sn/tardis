@@ -4,10 +4,11 @@ import numpy as np
 from astropy import units as u
 
 from tardis.io.util import HDFWriterMixin
-from tardis.montecarlo.spectrum import TARDISSpectrum
 from tardis.montecarlo.estimators.dilute_blackbody_properties import (
     MCDiluteBlackBodyRadFieldSolver,
 )
+from tardis.montecarlo.montecarlo_numba.formal_integral import IntegrationError
+from tardis.montecarlo.spectrum import TARDISSpectrum
 
 
 class MonteCarloTransportState(HDFWriterMixin):
@@ -74,6 +75,7 @@ class MonteCarloTransportState(HDFWriterMixin):
         self.integrator_settings = None
         self._spectrum_integrated = None
         self.enable_full_relativity = False
+        self.enable_continuum_processes = False
         self.geometry_state = geometry_state
         self.opacity_state = opacity_state
         self.rpacket_tracker = rpacket_tracker
@@ -224,11 +226,26 @@ class MonteCarloTransportState(HDFWriterMixin):
         if self._spectrum_integrated is None:
             # This was changed from unpacking to specific attributes as compute
             # is not used in calculate_spectrum
-            self._spectrum_integrated = self.integrator.calculate_spectrum(
-                self.spectrum_frequency[:-1],
-                points=self.integrator_settings.points,
-                interpolate_shells=self.integrator_settings.interpolate_shells,
-            )
+            try:
+                self._spectrum_integrated = self.integrator.calculate_spectrum(
+                    self.spectrum_frequency[:-1],
+                    points=self.integrator_settings.points,
+                    interpolate_shells=self.integrator_settings.interpolate_shells,
+                )
+            except IntegrationError:
+                # if integration is impossible or fails, return an empty spectrum
+                warnings.warn(
+                    "The FormalIntegrator is not yet implemented for the full "
+                    "relativity mode or continuum processes. "
+                    "Please run with config option enable_full_relativity: "
+                    "False and continuum_processes_enabled: False "
+                    "This RETURNS AN EMPTY SPECTRUM!",
+                    UserWarning,
+                )
+                return TARDISSpectrum(
+                    np.array([np.nan, np.nan]) * u.Hz,
+                    np.array([np.nan]) * u.erg / u.s,
+                )
         return self._spectrum_integrated
 
     @property
