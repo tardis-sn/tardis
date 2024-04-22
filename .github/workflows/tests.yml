@@ -51,31 +51,19 @@ jobs:
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
-      
-      - name: Setup environment
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-            miniforge-variant: Mambaforge
-            miniforge-version: latest
-            activate-environment: tardis
-            use-mamba: true
 
       - name: Download Lock File
         run:  wget -q https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-${{ matrix.label }}.lock
         if: matrix.pip == true
-
-      - uses: actions/cache@v2
+        
+      - uses: mamba-org/setup-micromamba@v1
         with:
-          path: ${{ matrix.prefix }}
-          key: conda-${{ matrix.label }}-${{ hashFiles('conda-${{ matrix.label }}.lock') }}-${{ env.CACHE_NUMBER }}
-        id: cache-conda
-
-      - name: Update environment
-        run: mamba update -n tardis --file conda-${{ matrix.label }}.lock
-        if: steps.cache-conda.outputs.cache-hit != 'true'
+          environment-file: conda-${{ matrix.label }}.lock
+          cache-environment: true
+          cache-downloads: true
       
       - name: Install package editable
-        run: | 
+        run: |
           pip install -e .
           echo "TARDIS_PIP_PATH=tardis" >> $GITHUB_ENV
         if: matrix.pip == false
