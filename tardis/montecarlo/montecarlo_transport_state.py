@@ -238,7 +238,7 @@ class MonteCarloTransportState(HDFWriterMixin):
                     "The FormalIntegrator is not yet implemented for the full "
                     "relativity mode oir continuum processes. "
                     "Please run with config option enable_full_relativity: "
-                    "False and continuum_processes_enabled: False"
+                    "False and continuum_processes_enabled: False",
                     UserWarning,
                 )
                 return TARDISSpectrum(
