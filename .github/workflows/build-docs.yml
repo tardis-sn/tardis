@@ -86,23 +86,10 @@ jobs:
         continue-on-error: true
 
       - name: Check for pull request with 'build-docs' label
-        uses: actions/github-script@v6
         id: is_build_docs_label
-        with:
-          script: |
-            if (github.event.name === 'pull_request_target' && github.event.pull_request) {
-              // Check if labels exist (could be undefined or empty array)
-              if (github.event.pull_request.labels) {
-                if (github.event.pull_request.labels.some(label => label.name === 'build-docs')) {
-                  console.log("Workflow triggered by pull request with 'build-docs' label.");
-                  core.exit(0);
-                } else {
-                  console.log("Skipping pull request with 'build-docs' label check.");
-                }
-              } else {
-                // No specific exit code or message - allows workflow to continue
-              }
-            }
+        if: github.event_name == 'pull_request_target' && contains(github.event.pull_request.labels.*.name, 'build-docs')
+        run: |
+          exit 0
         continue-on-error: true
 
       - name: Setup environment
