@@ -2,16 +2,19 @@ name: 'Setup LFS'
 description: 'Pull LFS repositories and caches them'
 
 inputs:
-  refdata-repo:  # id of input
+  refdata-repo:
+    description: "tardis refdata repository"
     required: false
     default: 'tardis-sn/tardis-refdata'
-  regression-data-repo:  # id of input
+  regression-data-repo: 
+    description: "tardis regression data repository"
     required: false
     default: 'tardis-sn/tardis-regression-data'
 
 runs:
     using: "composite"
     steps:
+      - uses: actions/checkout@v4
       - name: Clone Refdata Repo
         uses: actions/checkout@v4
         with:
@@ -22,6 +25,7 @@ runs:
       - name: Create LFS file list
         run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
         working-directory: tardis-refdata
+        shell: bash
 
       - name: Restore LFS cache
         uses: actions/cache/restore@v3
@@ -34,11 +38,13 @@ runs:
         run: git lfs pull
         working-directory: tardis-refdata
         if: steps.lfs-cache-refdata.outputs.cache-hit != 'true'
+        shell: bash
       
       - name: Git LFS Checkout
         run: git lfs checkout
         working-directory: tardis-refdata
         if: steps.lfs-cache-refdata.outputs.cache-hit == 'true'
+        shell: bash
       
       - name: Save LFS cache if not found
         # uses fake ternary 
@@ -53,12 +59,13 @@ runs:
       - name: Clone tardis-sn/tardis-regression-data
         uses: actions/checkout@v4
         with:
-          repository: regression-data-repo
+          repository:  ${{ inputs.regression-data-repo }}
           path: tardis-regression-data
       
       - name: Create LFS file list
         run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
         working-directory: tardis-regression-data
+        shell: bash
 
       - name: Restore LFS cache
         uses: actions/cache/restore@v3
@@ -71,11 +78,13 @@ runs:
         run: git lfs pull
         working-directory: tardis-regression-data
         if: steps.lfs-cache-regression-data.outputs.cache-hit != 'true'
+        shell: bash
       
       - name: Git LFS Checkout
         run: git lfs checkout
         working-directory: tardis-regression-data
         if: steps.lfs-cache-regression-data.outputs.cache-hit == 'true'
+        shell: bash
       
       - name: Save LFS cache if not found
         # uses fake ternary 

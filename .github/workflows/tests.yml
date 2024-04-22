@@ -46,12 +46,12 @@ jobs:
     name: ${{ matrix.label }}-pip-${{ matrix.pip }}
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-        if: matrix.pip == false
-        
+      - uses: actions/checkout@v4
+        # if: matrix.pip == false
+
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
-
+      
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
         with:
