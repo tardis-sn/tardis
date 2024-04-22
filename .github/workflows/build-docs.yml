@@ -75,14 +75,8 @@ jobs:
 
       - name: Check for workflow dispatch
         id: is_workflow_dispatch
-        run: |
-          if [[ $GITHUB_EVENT_NAME == 'workflow_dispatch' ]]; then
-            echo "Workflow triggered by manual dispatch."
-            exit 0
-          else
-            echo "Skipping workflow dispatch check."
-            exit 1
-          fi
+        if: github.event_name == 'workflow_dispatch'
+        run: exit 0
         continue-on-error: true
 
       - name: Check for pull request with 'build-docs' label
@@ -99,14 +93,14 @@ jobs:
           miniforge-version: latest
           activate-environment: tardis
           use-mamba: true
-        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success'
+        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success' || steps.is_workflow_dispatch.outcome == 'success'
 
       - uses: actions/cache@v2
         with:
           path: /usr/share/miniconda3/envs/tardis
           key: conda-linux-64-${{ hashFiles('conda-linux-64.lock') }}-${{ env.CACHE_NUMBER }}
         id: cache-conda
-        if: success()
+        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success' || steps.is_workflow_dispatch.outcome == 'success'
 
       - name: Update environment
         run: mamba update -n tardis --file conda-linux-64.lock
@@ -114,11 +108,11 @@ jobs:
 
       - name: Install package
         run: pip install -e .
-        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success'
+        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success' || steps.is_workflow_dispatch.outcome == 'success'
 
       - name: Build documentation
         run: cd docs/ && make html NCORES=auto
-        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success'
+        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success' || steps.is_workflow_dispatch.outcome == 'success'
 
       - name: Set destination directory
         run: |
@@ -145,7 +139,7 @@ jobs:
           DEFAULT: ${{ github.event.repository.default_branch }}
           EVENT: ${{ github.event_name }}
           PR: ${{ github.event.number }}
-        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success'
+        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success' || steps.is_workflow_dispatch.outcome == 'success'
 
       - name: Set clean branch option
         run: |
@@ -160,7 +154,7 @@ jobs:
           cat $GITHUB_ENV
         env:
           EVENT: ${{ github.event_name }}
-        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success'
+        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success' || steps.is_workflow_dispatch.outcome == 'success'
 
       - name: Deploy ${{ env.DEST_DIR }}
         uses: peaceiris/actions-gh-pages@v3
@@ -173,7 +167,7 @@ jobs:
           force_orphan: ${{ env.CLEAN_BRANCH }}
           user_name: "TARDIS Bot"
           user_email: "tardis.sn.bot@gmail.com"
-        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success'
+        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success' || steps.is_workflow_dispatch.outcome == 'success'
 
       - name: Find comment
         uses: peter-evans/find-comment@v1
