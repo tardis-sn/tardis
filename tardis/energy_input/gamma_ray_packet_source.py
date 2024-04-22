@@ -4,7 +4,6 @@ import pandas as pd
 from tardis.energy_input.energy_source import (
     positronium_continuum,
 )
-from tardis.energy_input.gamma_ray_channel import sample_packets
 from tardis.energy_input.GXPacket import (
     GXPacketCollection,
 )
@@ -714,9 +713,7 @@ class GammaRayPacketSource(BasePacketSource):
 
         # sample packets from dataframe, returning a dataframe where each row is
         # a sampled packet
-        sampled_packets_df = sample_packets(
-            decays_per_isotope, number_of_packets
-        )
+        sampled_packets_df = decays_per_isotope.sample(number_of_packets)
         # get unique isotopes that have produced packets
         isotopes = pd.unique(sampled_packets_df["isotopes"])
         # compute the positron fraction for unique isotopes
