@@ -60,7 +60,7 @@ jobs:
               echo "Changes found in documentation files: $num_files"
               exit 0
           else
-              echo "No changes found in documentation files"
+              echo "No changes found in documentation files - will stop running the pipeline."
               exit 1
           fi
         id: docs_check
