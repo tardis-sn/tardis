@@ -114,9 +114,11 @@ jobs:
 
       - name: Install package
         run: pip install -e .
+        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success'
 
       - name: Build documentation
         run: cd docs/ && make html NCORES=auto
+        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success'
 
       - name: Set destination directory
         run: |
@@ -143,6 +145,7 @@ jobs:
           DEFAULT: ${{ github.event.repository.default_branch }}
           EVENT: ${{ github.event_name }}
           PR: ${{ github.event.number }}
+        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success'
 
       - name: Set clean branch option
         run: |
@@ -157,6 +160,7 @@ jobs:
           cat $GITHUB_ENV
         env:
           EVENT: ${{ github.event_name }}
+        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success'
 
       - name: Deploy ${{ env.DEST_DIR }}
         uses: peaceiris/actions-gh-pages@v3
@@ -169,6 +173,7 @@ jobs:
           force_orphan: ${{ env.CLEAN_BRANCH }}
           user_name: "TARDIS Bot"
           user_email: "tardis.sn.bot@gmail.com"
+        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success'
 
       - name: Find comment
         uses: peter-evans/find-comment@v1
