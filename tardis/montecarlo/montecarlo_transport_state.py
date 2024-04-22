@@ -236,13 +236,15 @@ class MonteCarloTransportState(HDFWriterMixin):
                 # if integration is impossible or fails, return an empty spectrum
                 warnings.warn(
                     "The FormalIntegrator is not yet implemented for the full "
-                    "relativity mode oir continuum processes. "
+                    "relativity mode or continuum processes. "
                     "Please run with config option enable_full_relativity: "
-                    "False and continuum_processes_enabled: False",
+                    "False and continuum_processes_enabled: False "
+                    "This RETURNS AN EMPTY SPECTRUM!",
                     UserWarning,
                 )
                 return TARDISSpectrum(
-                    np.array([0, 1]) * u.Hz, np.array([0]) * u.erg / u.s
+                    np.array([np.nan, np.nan]) * u.Hz,
+                    np.array([np.nan]) * u.erg / u.s,
                 )
         return self._spectrum_integrated
 
