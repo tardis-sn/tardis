@@ -57,8 +57,8 @@ jobs:
       
       - name: Generate Cache Key
         run: | 
-          file_hash=$(cat conda-${{ matrix.label }}.lock | shasum -a 256 | cut -d' ' -f1) && echo $file_hash
-          echo $file_hash >> "${GITHUB_OUTPUT}"
+          file_hash=$(cat conda-${{ matrix.label }}.lock | shasum -a 256 | cut -d' ' -f1)
+          echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
         id: cache-environment-key
         
       - uses: mamba-org/setup-micromamba@v1
