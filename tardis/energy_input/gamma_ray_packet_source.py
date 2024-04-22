@@ -713,7 +713,12 @@ class GammaRayPacketSource(BasePacketSource):
 
         # sample packets from dataframe, returning a dataframe where each row is
         # a sampled packet
-        sampled_packets_df = decays_per_isotope.sample(number_of_packets)
+        sampled_packets_df = decays_per_isotope.sample(
+            n=number_of_packets,
+            weights="decay_energy_erg",
+            replace=True,
+            random_state=np.random.RandomState(self.base_seed),
+        )
         # get unique isotopes that have produced packets
         isotopes = pd.unique(sampled_packets_df["isotopes"])
         # compute the positron fraction for unique isotopes
