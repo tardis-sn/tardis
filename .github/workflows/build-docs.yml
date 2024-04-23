@@ -79,7 +79,7 @@ jobs:
     steps:
       - name: Check needs dependency
         run: |
-          echo 'Docs: ${{ steps.docs_check.outcome }} Trigger: ${{ steps.trigger_check.outcome }}'
+          echo 'Docs: ${{ needs.Check-for-changes.outputs.docs-check-outcome }} Trigger: ${{ needs.Check-for-changes.outputs.trigger-check-outcome }}'
 
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
