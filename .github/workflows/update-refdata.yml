@@ -131,7 +131,7 @@ jobs:
         run: rm .lfs-assets-id
         working-directory: tardis-refdata
 
-      - name: Create pull request
+      - name: Create pull request refdata
         uses: peter-evans/create-pull-request@v4
         with:
           path: tardis-refdata
@@ -150,6 +150,26 @@ jobs:
 
             These are the changes made by https://github.com/tardis-sn/tardis/pull/${{ github.event.client_payload.pull_request.number }}, please be careful before merging this pull request.
         id: create-pr
+      
+      - name: Create pull request regression data
+        uses: peter-evans/create-pull-request@v4
+        with:
+          path: tardis-regression-data
+          token: ${{ secrets.BOT_TOKEN }}
+          committer: TARDIS Bot <tardis.sn.bot@gmail.com>
+          author: TARDIS Bot <tardis.sn.bot@gmail.com>
+          branch: pr-${{ github.event.client_payload.pull_request.number }}
+          base: master
+          push-to-fork: tardis-bot/tardis-regression-data
+          commit-message: Automated update (tardis pr-${{ github.event.client_payload.pull_request.number }})
+          title: Automated update (tardis pr-${{ github.event.client_payload.pull_request.number }})
+          body: |
+            *\*beep\* \*bop\**
+
+            Hi, human.
+
+            These are the changes made by https://github.com/tardis-sn/tardis/pull/${{ github.event.client_payload.pull_request.number }}, please be careful before merging this pull request.
+        id: create-pr-regression
 
       - name: Find comment
         uses: peter-evans/find-comment@v2
@@ -173,9 +193,12 @@ jobs:
 
             The **`${{ github.workflow }}`** workflow has **succeeded** :heavy_check_mark:
 
-            [**Click here**](${{ env.URL }}) to see your results.
+            [**Click here**](${{ env.REFDATA_URL }}) to see pull request for refdata update.
+            [**Click here**](${{ env.REGDATA_URL }}) to see pull request for regression data update.
         env:
-          URL: https://github.com/tardis-sn/tardis-refdata/pull/${{ github.event.client_payload.pull_request.number }}
+          REFDATA_URL: https://github.com/tardis-sn/tardis-refdata/pulls
+          REGDATA_URL: https://github.com/tardis-sn/tardis-regression-data/pulls
+          
         if: success()
 
       - name: Post comment (failure)
