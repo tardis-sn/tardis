@@ -35,7 +35,7 @@ defaults:
     shell: bash -l {0}
 
 jobs:
-  build-docs:
+  Check-for-changes:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -48,6 +48,14 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
         if: github.event_name == 'pull_request_target'
 
+      - name: Check for trigger by push event, manual dispatch, build-docs label on a PR
+        id: trigger_check
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request_target' && contains(github.event.pull_request.labels.*.name, 'build-docs')
+        run: |
+          echo "Building docs as a test."
+          exit 0
+        continue-on-error: true
+
       - name: Check for changes in documentation
         run: |
           if git diff origin/master..."$(git rev-parse --abbrev-ref HEAD)" --name-only | cat | grep 'docs' | grep -q .; then
@@ -59,33 +67,13 @@ jobs:
               exit 1
           fi
         id: docs_check
+        if: steps.trigger_check.outcome != 'success'
         continue-on-error: true
 
-      - name: Check if triggered by push event
-        id: is_push_event
-        run: |
-          if [[ $GITHUB_EVENT_NAME == 'push' ]]; then
-            echo "Workflow triggered by push event."
-            exit 0
-          else
-            echo "Workflow triggered by a different event: $GITHUB_EVENT_NAME"
-            exit 1
-          fi
-        continue-on-error: true
-
-      - name: Check for workflow dispatch
-        id: is_workflow_dispatch
-        if: github.event_name == 'workflow_dispatch'
-        run: exit 0
-        continue-on-error: true
-
-      - name: Check for pull request with 'build-docs' label
-        id: is_build_docs_label
-        if: github.event_name == 'pull_request_target' && contains(github.event.pull_request.labels.*.name, 'build-docs')
-        run: |
-          exit 0
-        continue-on-error: true
-
+  build-docs:
+    runs-on: ubuntu-latest
+    needs: Check-for-changes
+    steps:
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -93,26 +81,22 @@ jobs:
           miniforge-version: latest
           activate-environment: tardis
           use-mamba: true
-        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success' || steps.is_workflow_dispatch.outcome == 'success'
 
       - uses: actions/cache@v2
         with:
           path: /usr/share/miniconda3/envs/tardis
           key: conda-linux-64-${{ hashFiles('conda-linux-64.lock') }}-${{ env.CACHE_NUMBER }}
         id: cache-conda
-        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success' || steps.is_workflow_dispatch.outcome == 'success'
 
       - name: Update environment
         run: mamba update -n tardis --file conda-linux-64.lock
-        if: steps.cache-conda.outputs.cache-hit != 'true' && (steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success' || steps.is_workflow_dispatch.outcome == 'success')
+        if: steps.cache-conda.outputs.cache-hit != 'true'
 
       - name: Install package
         run: pip install -e .
-        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success' || steps.is_workflow_dispatch.outcome == 'success'
 
       - name: Build documentation
         run: cd docs/ && make html NCORES=auto
-        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success' || steps.is_workflow_dispatch.outcome == 'success'
 
       - name: Set destination directory
         run: |
@@ -139,7 +123,6 @@ jobs:
           DEFAULT: ${{ github.event.repository.default_branch }}
           EVENT: ${{ github.event_name }}
           PR: ${{ github.event.number }}
-        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success' || steps.is_workflow_dispatch.outcome == 'success'
 
       - name: Set clean branch option
         run: |
@@ -154,7 +137,6 @@ jobs:
           cat $GITHUB_ENV
         env:
           EVENT: ${{ github.event_name }}
-        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success' || steps.is_workflow_dispatch.outcome == 'success'
 
       - name: Deploy ${{ env.DEST_DIR }}
         uses: peaceiris/actions-gh-pages@v3
