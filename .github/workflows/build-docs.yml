@@ -76,6 +76,7 @@ jobs:
   build-docs:
     runs-on: ubuntu-latest
     needs: Check-for-changes
+    if: needs.Check-for-changes.outputs.trigger-check-outcome == 'success' || needs.Check-for-changes.outputs.docs-check-outcome == 'success'
     steps:
       - name: Check needs dependency
         run: |
