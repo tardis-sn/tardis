@@ -78,9 +78,15 @@ jobs:
     needs: Check-for-changes
     if: needs.Check-for-changes.outputs.trigger-check-outcome == 'success' || needs.Check-for-changes.outputs.docs-check-outcome == 'success'
     steps:
-      - name: Check needs dependency
-        run: |
-          echo 'Docs: ${{ needs.Check-for-changes.outputs.docs-check-outcome }} Trigger: ${{ needs.Check-for-changes.outputs.trigger-check-outcome }}'
+      - uses: actions/checkout@v4
+        if: github.event_name != 'pull_request_target'
+
+      - name: Checkout pull/${{ github.event.number }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+        if: github.event_name == 'pull_request_target'
 
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v2
