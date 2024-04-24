@@ -1,7 +1,12 @@
-import pytest
 import numpy.testing as npt
+import pytest
 
-import tardis.montecarlo.montecarlo_numba.opacities as calculate_opacity
+from tardis.montecarlo.montecarlo_numba.opacities import (
+    compton_opacity_calculation,
+    kappa_calculation,
+    pair_creation_opacity_calculation,
+    photoabsorption_opacity_calculation,
+)
 
 
 @pytest.mark.parametrize(
@@ -19,9 +24,7 @@ def test_compton_opacity_calculation(energy, electron_number_density, expected):
     energy : float
     electron_number_density : float
     """
-    opacity = calculate_opacity.compton_opacity_calculation(
-        energy, electron_number_density
-    )
+    opacity = compton_opacity_calculation(energy, electron_number_density)
 
     npt.assert_almost_equal(opacity, expected)
 
@@ -45,7 +48,7 @@ def test_photoabsorption_opacity_calculation(
     ejecta_density : float
     iron_group_fraction : float
     """
-    opacity = calculate_opacity.photoabsorption_opacity_calculation(
+    opacity = photoabsorption_opacity_calculation(
         energy, ejecta_density, iron_group_fraction
     )
 
@@ -71,8 +74,29 @@ def test_pair_creation_opacity_calculation(
     ejecta_density : float
     iron_group_fraction : float
     """
-    opacity = calculate_opacity.pair_creation_opacity_calculation(
+    opacity = pair_creation_opacity_calculation(
         energy, ejecta_density, iron_group_fraction
     )
 
     npt.assert_almost_equal(opacity, expected)
+
+
+@pytest.mark.parametrize(
+    ["energy", "expected"],
+    [
+        (511.0, 1.0000021334560507),
+        (255.5, 0.5000010667280254),
+        (0.0, 0.0),
+        (511.0e7, 10000021.334560508),
+    ],
+)
+def test_kappa_calculation(energy, expected):
+    """
+
+    Parameters
+    ----------
+    energy : float
+    expected : float
+    """
+    kappa = kappa_calculation(energy)
+    npt.assert_almost_equal(kappa, expected)
