@@ -575,8 +575,8 @@ class GammaRayPacketSource(BasePacketSource):
         for i in range(no_of_packets):
             # positron
             if packets.iloc[i]["decay_type"] == "bp":
-                # positronium formation 25% of the time if fraction is 1
-                if zs[i] < positronium_fraction and np.random.random() < 0.25:
+                # positronium formation 75% of the time if fraction is 1
+                if zs[i] < positronium_fraction and np.random.random() < 0.75:
                     energy_array[i] = sample_energy(
                         positronium_energy, positronium_intensity
                     )
@@ -704,6 +704,7 @@ class GammaRayPacketSource(BasePacketSource):
         nus_rf = np.zeros(number_of_packets)
         nus_cmf = np.zeros(number_of_packets)
         times = np.zeros(number_of_packets)
+        # set packets to IN_PROCESS status
         statuses = np.ones(number_of_packets, dtype=np.int64) * 3
 
         self.energy_plot_positron_rows = np.zeros((number_of_packets, 4))
@@ -720,7 +721,7 @@ class GammaRayPacketSource(BasePacketSource):
             random_state=np.random.RandomState(self.base_seed),
         )
         # get unique isotopes that have produced packets
-        isotopes = pd.unique(sampled_packets_df["isotopes"])
+        isotopes = pd.unique(sampled_packets_df.index.get_level_values(1))
         # compute the positron fraction for unique isotopes
         isotope_positron_fraction = self.calculate_positron_fraction(isotopes)
 
@@ -744,7 +745,7 @@ class GammaRayPacketSource(BasePacketSource):
         )
 
         # get the time step index of the packets
-        initial_time_indexes = sampled_packets_df["time"]
+        initial_time_indexes = sampled_packets_df.index.get_level_values(0)
 
         # get the time of the middle of the step for each packet
         packet_effective_times = np.array(

@@ -80,6 +80,10 @@ class GXPacket(object):
 
 
 class GXPacketCollection:
+    """
+    Gamma-ray packet collection
+    """
+
     def __init__(
         self,
         location,
