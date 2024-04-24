@@ -284,6 +284,7 @@ class RadioactivePacketSource(BasePacketSource):
         nus_cmf = np.zeros(number_of_packets)
         shells = np.zeros(number_of_packets)
         times = np.zeros(number_of_packets)
+        # set packets to IN_PROCESS status
         statuses = np.ones(number_of_packets, dtype=np.int64) * 3
 
         positronium_energy, positronium_intensity = positronium_continuum()
@@ -721,28 +722,21 @@ class GammaRayPacketSource(BasePacketSource):
             random_state=np.random.RandomState(self.base_seed),
         )
         # get unique isotopes that have produced packets
-        isotopes = pd.unique(sampled_packets_df.index.get_level_values(1))
+        isotopes = pd.unique(sampled_packets_df.index.get_level_values(2))
+
         # compute the positron fraction for unique isotopes
         isotope_positron_fraction = self.calculate_positron_fraction(isotopes)
 
+        # get the packet shell index
+        shells = sampled_packets_df.index.get_level_values(1)
+
         # get the inner and outer velocity boundaries for each packet to compute
         # the initial radii
-        sampled_packets_df["inner_velocity"] = self.inner_velocities[
-            sampled_packets_df["shell"].values
-        ]
-        sampled_packets_df["outer_velocity"] = self.outer_velocities[
-            sampled_packets_df["shell"].values
-        ]
+        sampled_packets_df["inner_velocity"] = self.inner_velocities[shells]
+        sampled_packets_df["outer_velocity"] = self.outer_velocities[shells]
 
         # sample radii at time = 0
         initial_radii = self.create_packet_radii(sampled_packets_df)
-
-        # packet decay time
-        times = self.create_packet_times_uniform_energy(
-            number_of_packets,
-            sampled_packets_df["isotopes"],
-            sampled_packets_df["time"],
-        )
 
         # get the time step index of the packets
         initial_time_indexes = sampled_packets_df.index.get_level_values(0)
@@ -750,6 +744,13 @@ class GammaRayPacketSource(BasePacketSource):
         # get the time of the middle of the step for each packet
         packet_effective_times = np.array(
             [self.effective_times[i] for i in initial_time_indexes]
+        )
+
+        # packet decay time
+        times = self.create_packet_times_uniform_energy(
+            number_of_packets,
+            sampled_packets_df.index.get_level_values(2),
+            packet_effective_times,
         )
 
         # scale radius by packet decay time. This could be replaced with
@@ -763,9 +764,6 @@ class GammaRayPacketSource(BasePacketSource):
 
         # sample directions (valid at all times), non-relativistic
         directions = self.create_packet_directions(number_of_packets)
-
-        # get the packet shell index
-        shells = sampled_packets_df["shell"]
 
         # the individual gamma-ray energy that makes up a packet
         # co-moving frame, including positronium formation
