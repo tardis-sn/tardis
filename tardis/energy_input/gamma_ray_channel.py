@@ -5,6 +5,7 @@ import astropy.units as u
 import radioactivedecay as rd
 
 from tardis.energy_input.util import KEV2ERG
+from tardis.model.matter.decay import IsotopicMassFraction
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -167,3 +168,38 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
     )
 
     return isotope_decay_df
+
+
+def evolve_mass_fraction(raw_isotope_mass_fraction, time_array):
+    """
+    Function to evolve the mass fraction of isotopes with time.
+
+    Parameters
+    ----------
+    raw_isotope_mass_fraction : pd.DataFrame
+        isotope mass fraction in mass fractions.
+    time_array : np.array
+        array of time in days.
+
+    Returns
+    -------
+    time_evolved_isotope_mass_fraction : pd.DataFrame
+        time evolved mass fraction of isotopes.
+    """
+
+    initial_isotope_mass_fraction = raw_isotope_mass_fraction
+    isotope_mass_fraction_list = []
+
+    for time in time_array:
+
+        decayed_isotope_mass_fraction = IsotopicMassFraction(
+            initial_isotope_mass_fraction
+        ).decay(time)
+        isotope_mass_fraction_list.append(decayed_isotope_mass_fraction)
+        initial_isotope_mass_fraction = decayed_isotope_mass_fraction
+
+    time_evolved_isotope_mass_fraction = pd.concat(
+        isotope_mass_fraction_list, keys=time_array, names=["time"]
+    )
+
+    return time_evolved_isotope_mass_fraction
