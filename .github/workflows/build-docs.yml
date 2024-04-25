@@ -88,23 +88,20 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
         if: github.event_name == 'pull_request_target'
 
-      - name: Setup environment
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          miniforge-variant: Mambaforge
-          miniforge-version: latest
-          activate-environment: tardis
-          use-mamba: true
+      - name: Generate Cache Key
+        run: |
+          file_hash=$(cat conda-linux-64.lock | shasum -a 256 | cut -d' ' -f1)
+          echo "file_hash=$file_hash" >> "${GITHUB_OUTPUT}"
+        id: cache-environment-key
 
-      - uses: actions/cache@v2
+      - uses: mamba-org/setup-micromamba@v1
         with:
-          path: /usr/share/miniconda3/envs/tardis
-          key: conda-linux-64-${{ hashFiles('conda-linux-64.lock') }}-${{ env.CACHE_NUMBER }}
-        id: cache-conda
-
-      - name: Update environment
-        run: mamba update -n tardis --file conda-linux-64.lock
-        if: steps.cache-conda.outputs.cache-hit != 'true'
+          environment-file: conda-linux-64.lock
+          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          environment-name: tardis
+          cache-environment: true
+          cache-downloads: true
 
       - name: Install package
         run: pip install -e .
