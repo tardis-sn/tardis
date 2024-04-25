@@ -160,7 +160,6 @@ jobs:
           force_orphan: ${{ env.CLEAN_BRANCH }}
           user_name: "TARDIS Bot"
           user_email: "tardis.sn.bot@gmail.com"
-        if: steps.docs_check.outcome == 'success' || steps.is_build_docs_label.outcome == 'success' || steps.is_workflow_dispatch.outcome == 'success'
 
       - name: Find comment
         uses: peter-evans/find-comment@v1
