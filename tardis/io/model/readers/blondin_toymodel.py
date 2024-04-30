@@ -50,7 +50,7 @@ def read_blondin_toymodel(fname):
         sep=r"\s+",
         comment="#",
         header=None,
-        names=columns
+        names=columns,
     )
     raw_blondin_csv.set_index("idx", inplace=True)
 
