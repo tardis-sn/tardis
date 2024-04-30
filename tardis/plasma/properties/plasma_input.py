@@ -1,10 +1,14 @@
-from tardis.plasma.properties.base import Input, ArrayInput, DataFrameInput
+from tardis.plasma.properties.base import (
+    ArrayInput,
+    Input,
+)
 
 __all__ = [
     "TRadiative",
     "DilutionFactor",
     "AtomicData",
     "Abundance",
+    "NumberDensity",
     "IsotopeAbundance",
     "Density",
     "TimeExplosion",
@@ -160,3 +164,15 @@ class NLTEIonizationSpecies(Input):
 class NLTEExcitationSpecies(Input):
 
     outputs = ("nlte_excitation_species",)
+
+
+class NumberDensity(Input):
+    """
+    Attributes
+    ----------
+    number_density : Pandas DataFrame, dtype float
+                     Indexed by atomic number, columns corresponding to zones
+    """
+
+    outputs = ("number_density",)
+    latex_name = ("N_{i}",)

@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 __all__ = [
     "BetaRadiation",
     "GElectron",
-    "NumberDensity",
     "IsotopeNumberDensity",
     "SelectedAtoms",
     "ElectronTemperature",
@@ -77,23 +76,6 @@ class ThermalGElectron(GElectron):
 
     def calculate(self, beta_electron):
         return super(ThermalGElectron, self).calculate(beta_electron)
-
-
-class NumberDensity(ProcessingPlasmaProperty):
-    """
-    Attributes
-    ----------
-    number_density : Pandas DataFrame, dtype float
-                     Indexed by atomic number, columns corresponding to zones
-    """
-
-    outputs = ("number_density",)
-    latex_name = ("N_{i}",)
-
-    @staticmethod
-    def calculate(atomic_mass, abundance, density):
-        number_densities = abundance * density
-        return number_densities.div(atomic_mass.loc[abundance.index], axis=0)
 
 
 class IsotopeNumberDensity(ProcessingPlasmaProperty):
