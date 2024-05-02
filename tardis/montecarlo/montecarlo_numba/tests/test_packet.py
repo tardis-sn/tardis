@@ -12,7 +12,7 @@ import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.r_packet_transport as r_packet_transport
 from tardis import constants as const
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.montecarlo.estimators.radfield_mc_estimators import (
+from tardis.montecarlo.estimators.radfield_estimator_calcs import (
     update_line_estimators,
 )
 
@@ -114,7 +114,7 @@ def test_calculate_distance_line(
     time_explosion = model.time_explosion
 
     doppler_factor = frame_transformations.get_doppler_factor(
-        static_packet.r, static_packet.mu, time_explosion
+        static_packet.r, static_packet.mu, time_explosion, False
     )
     comov_nu = static_packet.nu * doppler_factor
 
@@ -122,7 +122,12 @@ def test_calculate_distance_line(
     obtained_tardis_error = None
     try:
         d_line = calculate_distances.calculate_distance_line(
-            static_packet, comov_nu, is_last_line, nu_line, time_explosion
+            static_packet,
+            comov_nu,
+            is_last_line,
+            nu_line,
+            time_explosion,
+            enable_full_relativity=False,
         )
     except utils.MonteCarloException:
         obtained_tardis_error = utils.MonteCarloException
@@ -209,7 +214,12 @@ def test_update_line_estimators(
     expected_Edotlu,
 ):
     update_line_estimators(
-        estimators, static_packet, cur_line_id, distance_trace, time_explosion
+        estimators,
+        static_packet,
+        cur_line_id,
+        distance_trace,
+        time_explosion,
+        enable_full_relativity=False,
     )
 
     assert_allclose(estimators.j_blue_estimator, expected_j_blue)
@@ -233,6 +243,9 @@ def test_trace_packet(
         verysimple_numba_model,
         verysimple_opacity_state,
         verysimple_estimators,
+        continuum_processes_enabled=False,
+        enable_full_relativity=False,
+        disable_line_scattering=False,
     )
 
     assert delta_shell == 1
@@ -282,11 +295,15 @@ def test_move_r_packet(
     numba_config.ENABLE_FULL_RELATIVITY = ENABLE_FULL_RELATIVITY
     r_packet_transport.move_r_packet.recompile()  # This must be done as move_r_packet was jitted with ENABLE_FULL_RELATIVITY
     doppler_factor = frame_transformations.get_doppler_factor(
-        packet.r, packet.mu, model.time_explosion
+        packet.r, packet.mu, model.time_explosion, ENABLE_FULL_RELATIVITY
     )
 
     r_packet_transport.move_r_packet(
-        packet, distance, model.time_explosion, estimators
+        packet,
+        distance,
+        model.time_explosion,
+        estimators,
+        ENABLE_FULL_RELATIVITY,
     )
 
     assert_almost_equal(packet.mu, expected_params["mu"])

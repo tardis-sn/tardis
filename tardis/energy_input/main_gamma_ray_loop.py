@@ -1,30 +1,36 @@
 import logging
+
+import astropy.units as u
 import numpy as np
 import pandas as pd
-import astropy.units as u
 
 from tardis.energy_input.energy_source import (
-    get_all_isotopes,
     get_nuclear_lines_database,
 )
-
 from tardis.energy_input.gamma_packet_loop import gamma_packet_loop
-from tardis.energy_input.gamma_ray_transport import (
-    initialize_packets,
-    calculate_ejecta_velocity_volume,
-    create_isotope_dicts,
-    create_inventories_dict,
+from tardis.energy_input.gamma_ray_channel import (
     calculate_total_decays,
-    calculate_average_energies,
-    decay_chain_energies,
-    calculate_energy_per_mass,
-    calculate_average_power_per_mass,
-    iron_group_fraction_per_shell,
-    get_taus,
-    fractional_decay_energy,
-    packets_per_isotope,
-    distribute_packets,
+    create_inventories_dict,
+    create_isotope_dicts,
 )
+
+from tardis.energy_input.gamma_ray_transport import (
+    calculate_total_decays_old,
+    create_isotope_dicts_old,
+    create_inventories_dict_old,
+)
+from tardis.energy_input.gamma_ray_packet_source import RadioactivePacketSource
+from tardis.energy_input.gamma_ray_transport import (
+    calculate_average_energies,
+    calculate_average_power_per_mass,
+    calculate_ejecta_velocity_volume,
+    calculate_energy_per_mass,
+    decay_chain_energies,
+    distribute_packets,
+    get_taus,
+    iron_group_fraction_per_shell,
+)
+from tardis.energy_input.GXPacket import GXPacket
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -104,9 +110,9 @@ def run_gamma_ray_loop(
 
     mass_density_time = shell_masses[:, np.newaxis] * inv_volume_time
     gamma_ray_lines = get_nuclear_lines_database(path_to_decay_data)
-    isotope_dict = create_isotope_dicts(raw_isotope_abundance, shell_masses)
-    inventories_dict = create_inventories_dict(isotope_dict)
-    total_decays = calculate_total_decays(
+    isotope_dict = create_isotope_dicts_old(raw_isotope_abundance, shell_masses)
+    inventories_dict = create_inventories_dict_old(isotope_dict)
+    total_decays = calculate_total_decays_old(
         inventories_dict, time_end - time_start
     )
 
@@ -132,21 +138,10 @@ def run_gamma_ray_loop(
         total_isotope_number, axis=0
     )
 
-    # decayed_packet_count_dict = decayed_packet_count.to_dict()
-    # fractional_decay_energy_dict = fractional_decay_energy(decayed_energy)
-    # packets_per_isotope_df = (
-    #    packets_per_isotope(
-    #        fractional_decay_energy_dict, decayed_packet_count_dict
-    #    )
-    #    .round()
-    #    .fillna(0)
-    #    .astype(int)
-    # )
-
     total_energy = energy_df.sum().sum()
     energy_per_packet = total_energy / num_decays
     packets_per_isotope_df = (
-        distribute_packets(decayed_energy, energy_per_packet)
+        distribute_packets(decayed_energy, total_energy, num_decays)
         .round()
         .fillna(0)
         .astype(int)
@@ -164,49 +159,69 @@ def run_gamma_ray_loop(
 
     logger.info("Initializing packets")
 
-    (
-        packets,
-        energy_df_rows,
-        energy_plot_df_rows,
-        energy_plot_positron_rows,
-    ) = initialize_packets(
-        packets_per_isotope_df,
+    packet_source = RadioactivePacketSource(
         individual_packet_energy,
+        gamma_ray_line_dict,
         positronium_fraction,
         inner_velocities,
         outer_velocities,
-        gamma_ray_line_dict,
-        average_positron_energies,
         inv_volume_time,
         times,
         energy_df_rows,
         effective_time_array,
         taus,
         parents,
+        average_positron_energies,
         average_power_per_mass,
     )
 
-    total_cmf_energy = 0.0
-    total_rf_energy = 0.0
+    packet_collection = packet_source.create_packets(packets_per_isotope_df)
 
-    for p in packets:
-        total_cmf_energy += p.energy_cmf
-        total_rf_energy += p.energy_rf
+    energy_df_rows = packet_source.energy_df_rows
+    energy_plot_df_rows = np.zeros((number_of_packets, 8))
+
+    logger.info("Creating packet list")
+    packets = []
+    total_cmf_energy = packet_collection.energy_cmf.sum()
+    total_rf_energy = packet_collection.energy_rf.sum()
+    for i in range(number_of_packets):
+        packet = GXPacket(
+            packet_collection.location[:, i],
+            packet_collection.direction[:, i],
+            packet_collection.energy_rf[i],
+            packet_collection.energy_cmf[i],
+            packet_collection.nu_rf[i],
+            packet_collection.nu_cmf[i],
+            packet_collection.status[i],
+            packet_collection.shell[i],
+            packet_collection.time_current[i],
+        )
+        packets.append(packet)
+        energy_plot_df_rows[i] = np.array(
+            [
+                i,
+                packet.energy_rf,
+                packet.get_location_r(),
+                packet.time_current,
+                int(packet.status),
+                0,
+                0,
+                0,
+            ]
+        )
 
     logger.info(f"Total cmf energy is {total_cmf_energy}")
     logger.info(f"Total rf energy is {total_rf_energy}")
 
     energy_bins = np.logspace(2, 3.8, spectrum_bins)
     energy_out = np.zeros((len(energy_bins - 1), time_steps))
-    packets_out = np.zeros((len(energy_bins - 1), 5))
-    packets_info_array = np.zeros((num_decays, 10))
+    packets_info_array = np.zeros((int(num_decays), 8))
 
     (
         energy_df_rows,
         energy_plot_df_rows,
         energy_out,
         deposition_estimator,
-        packets_out,
         bin_width,
         packets_array,
     ) = gamma_packet_loop(
@@ -227,7 +242,6 @@ def run_gamma_ray_loop(
         energy_df_rows,
         energy_plot_df_rows,
         energy_out,
-        packets_out,
         packets_info_array,
     )
 
@@ -246,28 +260,12 @@ def run_gamma_ray_loop(
     )
 
     energy_plot_positrons = pd.DataFrame(
-        data=energy_plot_positron_rows,
+        data=packet_source.energy_plot_positron_rows,
         columns=[
             "packet_index",
             "energy_input",
             "energy_input_r",
             "energy_input_time",
-        ],
-    )
-
-    packets_out_df = pd.DataFrame(
-        data=packets_array,
-        columns=[
-            "number",
-            "status",
-            "Z",
-            "A",
-            "nu_cmf",
-            "nu_rf",
-            "energy_cmf",
-            "lum_rf",
-            "energy_rf",
-            "shell",
         ],
     )
 
@@ -287,5 +285,4 @@ def run_gamma_ray_loop(
         decayed_packet_count,
         energy_plot_positrons,
         energy_estimated_deposition,
-        packets_out_df,
     )

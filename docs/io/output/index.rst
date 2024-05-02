@@ -7,11 +7,11 @@ In addition to the widgets, TARDIS can output information in several other forms
 .. toctree::
     :maxdepth: 1
 
-    physical_quantities
+    how_to_physical_quantities
     access_iterations
-    to_hdf
+    how_to_to_hdf
     callback
     vpacket_logging
     progress_bars
-    rpacket_tracking
-    plasma_graph
+    how_to_rpacket_tracking
+    how_to_plasma_graph
