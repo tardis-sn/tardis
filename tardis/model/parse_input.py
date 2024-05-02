@@ -714,7 +714,7 @@ def calculate_geometric_dilution_factor(geometry):
             1
             - (
                 geometry.r_inner[geometry.v_inner_boundary_index] ** 2
-                / geometry.r_middle ** 2
+                / geometry.r_middle**2
             )
             .to(1)
             .value
