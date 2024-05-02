@@ -699,10 +699,15 @@ def calculate_t_radiative_from_t_inner(geometry, packet_source):
     Quantity
         The calculated radiative temperature.
     """
+<<<<<<< HEAD
     lambda_wien_inner = const.b_wein / packet_source.temperature
     t_radiative = const.b_wien / (
         lambda_wien_inner
         * (1 + (geometry.v_middle - geometry.v_inner_boundary) / const.c)
+=======
+    t_radiative = packet_source.temperature / (
+        (1 - (geometry.v_middle - geometry.v_inner_boundary) / const.c)
+>>>>>>> 66c4283ce82a31b08ca9ac3e002cf69b7c576e25
     )
     return t_radiative
 
