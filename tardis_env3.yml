@@ -38,7 +38,8 @@ dependencies:
   - matplotlib-base
   - ipywidgets
   - plotly
-  - qgrid =1.3.1=pyhd8ed1ab_4 # qgrid-feedstock/issues/18
+  - qgrid
+  
 
   # --- Packages not required for conda-forge recipe ---
 

@@ -24,6 +24,7 @@ References
 2. "Hookspec Source" ( https://pytest.org/latest/_modules/_pytest/hookspec.html )
 3. "pytest-html" ( https://www.github.com/davehunt/pytest-html )
 """
+
 import datetime
 import json
 import os
@@ -37,7 +38,7 @@ from socket import gaierror
 
 try:
     from pytest_html import __name__ as pytest_html_path
-    from pytest_html.plugin import HTMLReport
+    from pytest_html.plugin import Report
     import requests
 except ImportError:
     pytest_html = None
@@ -45,7 +46,7 @@ except ImportError:
     requests = None
 
 
-class DokuReport(HTMLReport):
+class DokuReport(Report):
     def __init__(self, report_config):
         """
         Initialization of a DokuReport object and registration as a plugin
