@@ -34,7 +34,7 @@ def run_tardis(
         the atomic data. Atomic data to use for this TARDIS simulation. If set to None (i.e. default),
         the atomic data will be loaded according to keywords set in the configuration
     packet_source : class, optional
-        A custom packet source class or a child class of `tardis.montecarlo.packet_source`
+        A custom packet source class or a child class of `tardis.transport.montecarlo.packet_source`
         used to override the TARDIS `BasePacketSource` class.
     simulation_callbacks : list of lists, default: `[]`, optional
         Set of callbacks to call at the end of every iteration of the Simulation.

@@ -14,7 +14,7 @@ from tardis.energy_input.util import (
     get_index,
     get_random_unit_vector,
 )
-from tardis.montecarlo.packet_source import BasePacketSource
+from tardis.transport.montecarlo.packet_source import BasePacketSource
 
 
 class RadioactivePacketSource(BasePacketSource):

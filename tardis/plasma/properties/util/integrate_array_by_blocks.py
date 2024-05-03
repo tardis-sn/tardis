@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit, prange
 
-from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.transport.montecarlo import njit_dict
 
 
 @njit(**njit_dict)
